@@ -1,10 +1,10 @@
 const request = require('request')
 const cheerio = require('cheerio')
-const { compact, map, last } = require('lodash')
+const { compact, map, last, random } = require('lodash')
 const beautify = require('js-beautify').js_beautify
 const fs = require('fs')
 const { exec } = require('child_process')
-const Emoji = require('node-emoji').random
+const emojis = require('emojis-keywords')
 const config = require('./config')
 
 const beautifyOptions = {
@@ -62,7 +62,7 @@ function getChanges() {
 function pushToGit() {
   getChanges().then(changes => {
     console.log(changes)
-    let emoji = Emoji().key
+    let emoji = random(0, emojis.length - 1)
     let msg = `:${emoji}: ${changes.join(', ')}`
     console.log(msg)
     exec(`git commit -a -m "${msg}"`, (err, stdout) => {
