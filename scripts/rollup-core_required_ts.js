@@ -73,9 +73,10 @@
     maybeError: function(pri) {
       _console("error", pri, arguments)
     },
-    logError: function(e, desc) {
+    logError: function(e, desc, subtype) {
       var error = e instanceof Error ? e : new Error;
       var error_json = {
+        subtype: subtype ? subtype : "none",
         message: e instanceof Error ? e.message || e.description : JSON.stringify(e),
         fileName: error.fileName || error.sourceURL,
         lineNumber: error.lineNumber || error.line,
@@ -304,13 +305,14 @@
       }
       _console("error", null, arguments)
     },
-    logError: function(e, desc) {
+    logError: function(e, desc, subtype) {
       if (TS.boot_data.feature_console_me) {
         TS.console.logError.apply(this, [].slice.call(arguments, 0));
         return
       }
       var error = e instanceof Error ? e : new Error;
       var error_json = {
+        subtype: subtype ? subtype : "none",
         message: e instanceof Error ? e.message || e.description : JSON.stringify(e),
         fileName: error.fileName || error.sourceURL,
         lineNumber: error.lineNumber || error.line,
@@ -735,6 +737,10 @@
   var _rtmStartErrorHandler = function(resp) {
     TS.model.calling_rtm_start = false;
     var error = resp.data && resp.data.error;
+    if (error == "user_removed_from_team" && TS.boot_data.feature_user_removed_from_team) {
+      TS.warn("You have been removed from the " + TS.model.team.name + " team.");
+      if (TS.client) TS.client.userRemovedFromTeam(TS.model.team.id)
+    }
     if (error == "account_inactive" || error == "team_disabled" || error == "invalid_auth") {
       TSSSB.call("invalidateAuth");
       TS.info("calling TS.reload() because resp.data.error: " + error);
@@ -2133,7 +2139,7 @@
   };
   var _storeLastActiveModelOb = function() {
     var model_ob = TS.shared.getActiveModelOb();
-    TS.storage.storeLastActiveModelObId(model_ob ? model_ob.id : undefined);
+    TS.storage.storeLastActiveModelObId(model_ob ? model_ob.id : undefined)
   }
 })();
 (function() {
@@ -2797,7 +2803,7 @@
       TS.model.supports_spaces_in_windows = false;
       if (window.macgap && macgap.window && macgap.window.list) {
         if (window.WebKitMutationObserver || window.MutationObserver) {
-          TS.model.supports_spaces_in_windows = true;
+          TS.model.supports_spaces_in_windows = true
         }
       } else if (window.winssb && winssb.window && winssb.window.list) {
         TS.model.supports_spaces_in_windows = true
