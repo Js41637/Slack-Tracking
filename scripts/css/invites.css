@@ -1,0 +1,251 @@
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+.tiny {
+  font-size: .7rem
+}
+
+.small {
+  font-size: .9rem
+}
+
+.no_pointer_events {
+  pointer-events: none
+}
+
+#admin_invites_header {
+  font-size: 2rem;
+  line-height: 2.5rem;
+  letter-spacing: -.5px
+}
+
+#admin_invites_header_divider {
+  margin: 3rem auto 0
+}
+
+.admin_invites_account_type_option {
+  padding: 2.2rem 6rem 2.2rem 1.5rem;
+  border-bottom: 1px solid #e8e8e8;
+  margin: 0;
+  position: relative
+}
+
+.admin_invites_account_type_option p {
+  color: #9e9ea6;
+  margin-bottom: 0
+}
+
+.admin_invites_account_type_option h3 {
+  -webkit-transition: color .1s;
+  -moz-transition: color .1s;
+  transition: color .1s
+}
+
+.admin_invites_account_type_option .option_arrow {
+  position: absolute;
+  right: 1.5rem;
+  top: 0;
+  opacity: 0;
+  -webkit-transition: all .1s;
+  -moz-transition: all .1s;
+  transition: all .1s;
+  font-size: 5rem;
+  color: #3aa3e3;
+  line-height: 9.1875rem
+}
+
+.admin_invites_account_type_option:hover:not(.disabled) {
+  cursor: pointer
+}
+
+.admin_invites_account_type_option:hover:not(.disabled) h3 {
+  color: #3aa3e3
+}
+
+.admin_invites_account_type_option:hover:not(.disabled) .option_arrow {
+  right: .5rem;
+  opacity: 1
+}
+
+.admin_invites_account_type_option.disabled {
+  opacity: .5;
+  -moz-opacity: .5;
+  -khtml-opacity: .5
+}
+
+.admin_invites_account_type_option.disabled .account_type_disabled_hover {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0);
+  padding: 2rem 2rem .5rem;
+  -webkit-transition: background 70ms;
+  -moz-transition: background 70ms;
+  transition: background 70ms;
+  text-align: center
+}
+
+.admin_invites_account_type_option.disabled:hover {
+  opacity: 1;
+  -moz-opacity: 1;
+  -khtml-opacity: 1
+}
+
+.admin_invites_account_type_option.disabled:hover .account_type_disabled_hover {
+  display: block;
+  background: rgba(255, 255, 255, .95)
+}
+
+.admin_invites_account_type_option.disabled.no_hover:hover {
+  opacity: .5;
+  -moz-opacity: .5;
+  -khtml-opacity: .5
+}
+
+@media only screen and (max-height:768px) {
+  .admin_invites_account_type_option {
+    padding: 1rem 6rem 1rem 1.5rem
+  }
+  .admin_invites_account_type_option .option_arrow {
+    line-height: 6.875rem
+  }
+}
+
+#admin_invites_channel_picker_container {
+  border-bottom: 1px solid #e8e8e8;
+  margin: 1rem auto;
+  padding-bottom: 2rem
+}
+
+#admin_invites_channel_picker_container #restricted_channel_picker_container {
+  max-width: 536px;
+  margin: 0 auto
+}
+
+#admin_invites_channel_picker_container #ultra_restricted_channel_picker_container {
+  max-width: 512px;
+  margin: 0 auto
+}
+
+#admin_invites_add_row {
+  border: 1px solid #EEE;
+  background: #f9f9f9;
+  padding: .6rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin: .5rem auto 2.5rem
+}
+
+.admin_invite_row,
+.admin_invites_custom_message_container {
+  position: relative;
+  padding: .25rem 2.75rem .25rem .5rem;
+  margin: 0 -2.75rem 0 -.5rem;
+  border-radius: .25rem;
+  -webkit-transition: background .1s ease-out 0s;
+  -moz-transition: background .1s ease-out 0s;
+  transition: background .1s ease-out 0s
+}
+
+.admin_invite_row label,
+.admin_invites_custom_message_container label {
+  margin: 0
+}
+
+.admin_invite_row .col,
+.admin_invites_custom_message_container .col {
+  padding-right: 0;
+  margin-bottom: 0
+}
+
+.admin_invite_row .delete_row,
+.admin_invite_row .hide_custom_message,
+.admin_invites_custom_message_container .delete_row,
+.admin_invites_custom_message_container .hide_custom_message {
+  position: absolute;
+  top: 1.6rem;
+  right: 0;
+  color: #9e9ea6;
+  display: block;
+  width: 2.75rem;
+  height: 2.75rem;
+  line-height: 2.75rem;
+  text-align: center
+}
+
+.admin_invite_row .delete_row:hover,
+.admin_invite_row .hide_custom_message:hover,
+.admin_invites_custom_message_container .delete_row:hover,
+.admin_invites_custom_message_container .hide_custom_message:hover {
+  color: #cb5234
+}
+
+.admin_invite_row.delete_highlight,
+.admin_invites_custom_message_container.delete_highlight {
+  background: #FFDCDC
+}
+
+#admin_invites_success .alert_success {
+  padding-left: 1rem
+}
+
+#admin_invites_success .alert_success .value_proposition {
+  margin-left: 1.75rem
+}
+
+#admin_invites_success .alert_success i {
+  margin-left: 0
+}
+
+@media only screen and (max-width:767px) {
+  .admin_invite_row {
+    padding-right: 2rem;
+    margin-right: -2rem;
+    margin-bottom: 1rem
+  }
+  .admin_invite_row .delete_row {
+    right: -.25rem
+  }
+}
+
+#bulk_invites {
+  padding-top: .25rem
+}
+
+#admin_invites_submit_btn {
+  font-size: 1rem;
+  font-weight: 700;
+  width: 100%;
+  margin-bottom: .5rem
+}
+
+@media only screen and (max-width:640px) {
+  #admin_invites_header {
+    font-size: 1.4rem;
+    line-height: 2rem;
+    margin-bottom: 1rem
+  }
+  #admin_invites_channel_picker_container {
+    border-bottom: none;
+    padding-bottom: 1rem
+  }
+  .admin_invites_account_type_option {
+    padding: 1rem .5rem
+  }
+  .admin_invites_account_type_option h3 {
+    color: #3aa3e3;
+    font-weight: 700!important
+  }
+  .admin_invites_account_type_option .option_arrow {
+    display: none!important
+  }
+  .admin_invites_account_type_option:last-child {
+    border-bottom: none
+  }
+}

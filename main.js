@@ -94,7 +94,6 @@ function pushToGit() {
       })
     }).catch(reject)
   })
-
 }
 
 function startTheMagic() {
@@ -119,7 +118,7 @@ function checkDirectories() {
 
 setInterval(() => {
   console.log("Checking for updates")
-  //startTheMagic()
+  startTheMagic()
 }, 1000 * 60 * 60)
 
 console.log("Starting up")
