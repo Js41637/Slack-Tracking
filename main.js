@@ -62,10 +62,8 @@ function getChanges() {
 function pushToGit() {
   return new Promise((resolve, reject) => {
     getChanges().then(changes => {
-      console.log(changes)
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${changes.join(', ')}`
-      console.log(msg)
       exec(`git commit -a -m "${msg}" && git push`, (err) => {
         if (err) return reject(err)
         resolve()
@@ -80,7 +78,6 @@ function startTheMagic() {
     console.log("Successfully fetched changes and pushed to git (if any)")
   }, err => console.err("Error while doing stuff", err))
 }
-
 
 setInterval(() => {
   console.log("Checking for updates")
