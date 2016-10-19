@@ -3,8 +3,9 @@ const cheerio = require('cheerio')
 const { compact, map, last } = require('lodash')
 const beautify = require('js-beautify').js_beautify
 const fs = require('fs')
-const config = require('./config')
 const { exec } = require('child_process')
+const Emoji = require('node-emoji').random
+const config = require('./config')
 
 const beautifyOptions = {
   indent_size: 2,
@@ -47,10 +48,27 @@ function writeToDisk(scripts) {
   }))
 }
 
-function pushToGit() {
-
+function getChanges() {
+  return new Promise((resolve, reject) => {
+    exec('git add ./ && git status --short', (err, stdout) => {
+      if (!err && stdout) {
+        let changes = compact(map(stdout.split('\n'), c => c.trim().replace(/^(.+)?scripts\//, '')))
+        return resolve(changes)
+      } else return reject(err)
+    })
+  })
 }
 
-getPageScripts().then(getScripts).then(writeToDisk).then(() => {
-  console.log("FINISHED")
-})
+function pushToGit() {
+  getChanges().then(changes => {
+    console.log(changes)
+    let emoji = Emoji().key
+    let msg = `:${emoji}: ${changes.join(', ')}`
+    console.log(msg)
+    exec(`git commit -a -m "${msg}"`, (err, stdout) => {
+      console.log(err, stdout)
+    })
+  })
+}
+
+getPageScripts().then(getScripts).then(writeToDisk).then(pushToGit)
