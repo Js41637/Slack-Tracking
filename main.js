@@ -90,7 +90,7 @@ function startTheMagic() {
 setInterval(() => {
   console.log("Checking for updates")
   startTheMagic()
-}, 1000 * 60 * 60 * 24)
+}, 1000 * 60 * 60)
 
 console.log("Starting up")
 startTheMagic()
