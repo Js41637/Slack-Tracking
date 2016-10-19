@@ -84,7 +84,7 @@ function pushToGit() {
 function startTheMagic() {
   getPageScripts().then(getScripts).then(writeToDisk).then(pushToGit).then(() => {
     console.log("Successfully fetched changes and pushed to git (if any)")
-  }, err => console.err("Error while doing stuff", err))
+  }).catch(err => console.err("Error while doing stuff", err))
 }
 
 setInterval(() => {
