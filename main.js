@@ -13,6 +13,7 @@ const beautifyOptions = {
 }
 
 function getPageScripts() {
+  console.log("Getting page scripts")
   return new Promise((resolve, reject) => {
     let url = `https://${config.teamName}.slack.com/admin`
     let headers = {
@@ -20,8 +21,10 @@ function getPageScripts() {
     }
     request({ url, headers }, (err, resp, body) => {
       if (!err && body) {
+        console.log("Got ")
         let $ = cheerio.load(body)
         let urls = compact(map($('script'), ({ attribs: { src } }) => src && !src.match(/(analytics|beacon|required_libs).js/) ? src : null))
+        console.log("Got", urls.length, "urls")
         return resolve(urls)
       } else return reject("Error contacting slack")
     })
@@ -29,6 +32,7 @@ function getPageScripts() {
 }
 
 function getScripts(urls) {
+  console.log("Getting scripts")
   return Promise.all(urls.map(url => {
     return new Promise((resolve, reject) => {
       request({ url }, (err, resp, body) => {
@@ -41,6 +45,7 @@ function getScripts(urls) {
 }
 
 function writeToDisk(scripts) {
+  console.log("Writing to disk")
   return Promise.all(scripts.map(({ name, body }) => {
     return new Promise(resolve => {
       fs.writeFile(`./scripts/${name}`, beautify(body, beautifyOptions), resolve)
@@ -49,6 +54,7 @@ function writeToDisk(scripts) {
 }
 
 function getChanges() {
+  console.log("Getting changes")
   return new Promise((resolve, reject) => {
     exec('git add ./ && git status --short', (err, stdout) => {
       if (!err && stdout) {
@@ -60,11 +66,13 @@ function getChanges() {
 }
 
 function pushToGit() {
+  console.log("Pushing to git")
   return new Promise((resolve, reject) => {
     getChanges().then(changes => {
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${changes.join(', ')}`
       exec(`git commit -a -m "${msg}" && git push`, (err) => {
+        console.log("Executed command")
         if (err) return reject(err)
         resolve()
       })
@@ -82,7 +90,7 @@ function startTheMagic() {
 setInterval(() => {
   console.log("Checking for updates")
   startTheMagic()
-}, 60 * 60 * 24)
+}, 1000 * 60 * 60 * 24)
 
 console.log("Starting up")
 startTheMagic()
