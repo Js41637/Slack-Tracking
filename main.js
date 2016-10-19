@@ -56,7 +56,7 @@ function getChanges() {
   console.log("Getting changes")
   return new Promise((resolve, reject) => {
     exec('git add ./ && git status --short', (err, stdout) => {
-      if (!err && stdout) {
+      if (!err) {
         let changes = compact(map(stdout.split('\n'), c => c.trim().replace(/ scripts\//, '')))
         return resolve(changes)
       } else return reject(err)
@@ -68,9 +68,11 @@ function pushToGit() {
   console.log("Pushing to git")
   return new Promise((resolve, reject) => {
     getChanges().then(changes => {
+      if (!changes.length) return resolve('No new changes')
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${changes.join(', ')}`
-      exec(`git commit -a -m "${msg}" && git push`, (err) => {
+      exec(`git commit -a -m "${msg}" && git push`, (err, stdout) => {
+        console.log(err, stdout)
         if (err) return reject(err)
         resolve()
       })
@@ -80,8 +82,8 @@ function pushToGit() {
 }
 
 function startTheMagic() {
-  getPageScripts().then(getScripts).then(writeToDisk).then(pushToGit).then(() => {
-    console.log("Successfully fetched changes and pushed to git (if any)")
+  getPageScripts().then(getScripts).then(writeToDisk).then(pushToGit).then(msg => {
+    console.log(msg ? msg : "Successfully fetched changes and pushed to git (if any)")
   }).catch(err => console.err("Error while doing stuff", err))
 }
 
