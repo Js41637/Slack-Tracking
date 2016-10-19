@@ -66,7 +66,7 @@ function pushToGit() {
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${changes.join(', ')}`
       console.log(msg)
-      exec(`git commit -a -m "${msg}"`, (err) => {
+      exec(`git commit -a -m "${msg}" && git push`, (err) => {
         if (err) reject(err)
       })
     }).catch(reject)
