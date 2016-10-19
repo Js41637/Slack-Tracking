@@ -7,7 +7,6 @@
   "license": "Beerware",
   "dependencies": {
     "cheerio": "^0.22.0",
-    "git-js": "^1.1.1",
     "js-beautify": "^1.6.4",
     "lodash": "^4.16.4",
     "request": "^2.75.0"
