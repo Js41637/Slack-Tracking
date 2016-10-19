@@ -119,7 +119,7 @@ function checkDirectories() {
 setInterval(() => {
   console.log("Checking for updates")
   startTheMagic()
-}, 1000 * 60 * 60)
+}, 1000 * 60 * 90) // every 90 minutes
 
 console.log("Starting up")
 startTheMagic()
