@@ -4,7 +4,7 @@ const { compact, map, last, random } = require('lodash')
 const beautify = require('js-beautify').js_beautify
 const fs = require('fs')
 const { exec } = require('child_process')
-const emojis = require('emojis-keywords')
+const emojis = require('./emojis')
 const config = require('./config')
 
 const beautifyOptions = {

@@ -7,10 +7,8 @@
   "license": "Beerware",
   "dependencies": {
     "cheerio": "^0.22.0",
-    "emojis-keywords": "^2.0.0",
     "js-beautify": "^1.6.4",
     "lodash": "^4.16.4",
-    "node-emoji": "^1.4.1",
     "request": "^2.75.0"
   }
 }
