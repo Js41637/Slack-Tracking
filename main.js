@@ -52,7 +52,7 @@ function getChanges() {
   return new Promise((resolve, reject) => {
     exec('git add ./ && git status --short', (err, stdout) => {
       if (!err && stdout) {
-        let changes = compact(map(stdout.split('\n'), c => c.trim().replace(/^(.+)?scripts\//, '')))
+        let changes = compact(map(stdout.split('\n'), c => c.trim().replace(/^scripts\//, '')))
         return resolve(changes)
       } else return reject(err)
     })
