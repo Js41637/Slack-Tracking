@@ -62,8 +62,8 @@ function getChanges() {
 function pushToGit() {
   getChanges().then(changes => {
     console.log(changes)
-    let emoji = random(0, emojis.length - 1)
-    let msg = `:${emoji}: ${changes.join(', ')}`
+    let emoji = emojis[random(0, emojis.length - 1)]
+    let msg = `${emoji} ${changes.join(', ')}`
     console.log(msg)
     exec(`git commit -a -m "${msg}"`, (err, stdout) => {
       console.log(err, stdout)
