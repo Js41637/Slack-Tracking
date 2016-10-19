@@ -2,7 +2,7 @@
   "name": "slack-tracking",
   "version": "0.0.1",
   "description": "Tracking Slack Code Changes",
-  "main": "index.js",
+  "main": "slacktracker.js",
   "author": "Js41637",
   "license": "Beerware",
   "dependencies": {
