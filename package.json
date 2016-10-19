@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Tracking Slack Code Changes",
   "main": "slacktracker.js",
+  "scripts": {
+    "forever": "forever start -a -o out.log -e err.log -m 1 slacktracker.js"
+  },
   "author": "Js41637",
   "license": "Beerware",
   "dependencies": {

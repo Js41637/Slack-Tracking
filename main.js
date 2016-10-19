@@ -21,7 +21,6 @@ function getPageScripts() {
     }
     request({ url, headers }, (err, resp, body) => {
       if (!err && body) {
-        console.log("Got ")
         let $ = cheerio.load(body)
         let urls = compact(map($('script'), ({ attribs: { src } }) => src && !src.match(/(analytics|beacon|required_libs).js/) ? src : null))
         console.log("Got", urls.length, "urls")
@@ -72,7 +71,6 @@ function pushToGit() {
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${changes.join(', ')}`
       exec(`git commit -a -m "${msg}" && git push`, (err) => {
-        console.log("Executed command")
         if (err) return reject(err)
         resolve()
       })
