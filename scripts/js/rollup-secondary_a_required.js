@@ -12718,6 +12718,9 @@ TS.registerModule("constants", {
     },
     onPrefChanged: function(imsg) {
       switch (imsg.name) {
+        case "flannel_server_pool":
+          TS.model.prefs.flannel_server_pool = imsg.value;
+          break;
         case "color_names_in_list":
           TS.model.prefs.color_names_in_list = !!imsg.value;
           TS.prefs.color_names_in_list_changed_sig.dispatch();
@@ -13094,7 +13097,12 @@ TS.registerModule("constants", {
         case "a11y_animations":
           if (TS.model.prefs.a11y_animations !== imsg.value) {
             TS.model.prefs.a11y_animations = imsg.value;
-            TS.prefs.a11y_animations_changed_sig.dispatch()
+            TS.prefs.a11y_animations_changed_sig.dispatch();
+            if (TS.client) {
+              TS.clog.track("PREF_USER_CLIENT_UPDATE", {
+                a11y_animations: TS.model.prefs.a11y_animations
+              })
+            }
           }
           break;
         case "attachments_with_borders":
@@ -13366,10 +13374,10 @@ TS.registerModule("constants", {
       TS.search.search_dispatched_sig.dispatch()
     },
     getNextPageOfSearchResults: function(query, page) {
-      TS.search.dispatchSearch(query, TS.search.per_page, TS.search.onSearchAll, page)
+      TS.search.dispatchSearch(query, TS.search.per_page, TS.search.onSearchAll, page);
     },
     getNextPageOfMessageResults: function(query, page) {
-      _callSearchPerSe("search.messages", query, TS.search.per_page, page, _onSearchMessages);
+      _callSearchPerSe("search.messages", query, TS.search.per_page, page, _onSearchMessages)
     },
     getNextPageOfFileResults: function(query, page) {
       _callSearchPerSe("search.files", query, TS.search.per_page, page, _onSearchFiles)
@@ -14807,6 +14815,9 @@ TS.registerModule("constants", {
       if (TS.boot_data.version_ts === "dev" && TS.boot_data.should_use_flannel) {
         url = TS.utility.url.setUrlQueryStringValue(url, "api_url", TS.boot_data.flannel_api_url)
       }
+      if (_shouldUseFlannelCanary()) {
+        url = TS.utility.url.setUrlQueryStringValue(url, "canary", 1)
+      }
       TS.log(1989, "Connecting to Flannel..." + url)
     }
     TS.ms.logConnectionFlow("connect");
@@ -14922,6 +14933,17 @@ TS.registerModule("constants", {
     imsg.SENT_MSG = sent.msg;
     delete TS.ms.sent_map[imsg.reply_to];
     return sent
+  };
+  var _shouldUseFlannelCanary = function() {
+    var canary_pref = _.get(TS, "model.prefs.flannel_server_pool", TS.boot_data.flannel_server_pool);
+    switch (canary_pref) {
+      case "canary":
+        return true;
+      case "random":
+        return _.random(0, 1) == 0;
+      default:
+        return false
+    }
   }
 })();
 (function() {
@@ -17651,7 +17673,7 @@ TS.registerModule("constants", {
           if (prev_msg) {
             var last_rendered_msg_date = TS.utility.date.toDateObject(prev_msg.ts);
             if (msg.subtype && msg.subtype == "file_comment" && msg.comment) {
-              current_speaker = msg.comment.user
+              current_speaker = msg.comment.user;
             }
             if (TS.utility.msgs.automated_subtypes.indexOf(msg.subtype) != -1) {
               show_user = true
@@ -19521,7 +19543,7 @@ TS.registerModule("constants", {
             $team_tab_actions.removeClass("hidden");
             $team_block.addClass("hidden")
           } else {
-            $team_block.removeClass("hidden");
+            $team_block.removeClass("hidden")
           }
           $team_tabs.find("#" + action).removeClass("hidden")
         })
@@ -21527,7 +21549,7 @@ TS.registerModule("constants", {
           if (original_w && original_h) {
             proxied_url = TS.utility.getImgProxyURL(original_src, original_w, original_h)
           } else {
-            proxied_url = TS.utility.getImgProxyURL(original_src);
+            proxied_url = TS.utility.getImgProxyURL(original_src)
           }
           $(this).attr("src", proxied_url)
         });
@@ -22397,7 +22419,7 @@ TS.registerModule("constants", {
         return cdn_url + "/0180/img/slackbot_72.png"
       });
       Handlebars.registerHelper("versioned_theme_thumb_brinjal", function() {
-        return cdn_url + "/d7a0/img/themes/brinjal@2x.png"
+        return cdn_url + "/d7a0/img/themes/brinjal@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_chocolate", function() {
         return cdn_url + "/d7a0/img/themes/chocolate@2x.png"
@@ -22406,7 +22428,7 @@ TS.registerModule("constants", {
         return cdn_url + "/d7a0/img/themes/aubergine@2x.png"
       });
       Handlebars.registerHelper("versioned_theme_thumb_hoth", function() {
-        return cdn_url + "/d7a0/img/themes/hoth@2x.png";
+        return cdn_url + "/d7a0/img/themes/hoth@2x.png"
       });
       Handlebars.registerHelper("versioned_theme_thumb_monument", function() {
         return cdn_url + "/d7a0/img/themes/monument@2x.png"
@@ -25360,7 +25382,7 @@ TS.registerModule("constants", {
     onStart: function() {
       TS.utility.makeRefererSafeLink = _.memoize(TS.utility.makeRefererSafeLink);
       if (TS.ms) TS.ms.connected_sig.add(TS.utility.resetRefererSafeLinkCache);
-      if (TS.prefs && TS.prefs.team_hide_referers_changed_sig) TS.prefs.team_hide_referers_changed_sig.add(TS.utility.resetRefererSafeLinkCache)
+      if (TS.prefs && TS.prefs.team_hide_referers_changed_sig) TS.prefs.team_hide_referers_changed_sig.add(TS.utility.resetRefererSafeLinkCache);
     },
     keymap: {
       alt: 18,
@@ -26574,7 +26596,7 @@ TS.registerModule("constants", {
     platformSupportsHtmlNotifications: function() {
       if (TS.model.win_ssb_version && window.winssb) {
         if (window.winssb.app.canShowHtmlNotifications) {
-          return window.winssb.app.canShowHtmlNotifications();
+          return window.winssb.app.canShowHtmlNotifications()
         } else {
           return window.winssb.app.willUseHwAcceleration !== false
         }
@@ -28813,7 +28835,7 @@ TS.registerModule("constants", {
     TS.ui.utility.updateClosestMonkeyScroller(_$scroller);
     _calcHeaderRanges();
     if (TS.boot_data.feature_emoji_menu_tuning) {
-      TS.metrics.measureAndClear("emoji_menu_end_search_mode_tuned", "emoji_menu_end_search_mode_mark")
+      TS.metrics.measureAndClear("emoji_menu_end_search_mode_tuned", "emoji_menu_end_search_mode_mark");
     } else {
       TS.metrics.measureAndClear("emoji_menu_end_search_mode", "emoji_menu_end_search_mode_mark")
     }
@@ -36913,6 +36935,14 @@ var _on_esc;
   var _new_email_domains = "";
   var _custom_message = "";
   var _initial_channel_id;
+  var _google_contacts_experiment_new_team;
+  var _google_contacts_experiment_existing_team;
+  var _google_contacts_data;
+  var _btn_connect_contacts;
+  var _google_auth_instance_id;
+  var _cancel_google_auth_polling;
+  var _event_family_name = "INVITEMODAL";
+  var _clog_name = _event_family_name + "_ACTION";
   var _error_map = {
     url_in_message: "Sorry, but URLs are not allowed in the custom message. Please remove it and try again!",
     invalid_email: "That doesn't look like a valid email address!",
@@ -36960,39 +36990,44 @@ var _on_esc;
   };
   var _blocking_errors = ["user_limit_reached", "invite_limit_reached"];
   var _start = function(options) {
-    var account_type;
-    if (_shouldSeeAccountTypeOptions()) {
-      if (options && options.account_type) {
-        account_type = options.account_type
+    _loadGoogleContactsExperimentGroup().then(function() {
+      var account_type;
+      if (_shouldSeeAccountTypeOptions()) {
+        if (options && options.account_type) {
+          account_type = options.account_type
+        }
+      } else {
+        account_type = "full"
       }
-    } else {
-      account_type = "full"
-    }
-    if (options && options.initial_channel_id) {
-      _initial_channel_id = options.initial_channel_id
-    }
-    var body_template_html = TS.templates.admin_invite_modal({
-      can_add_ura: TS.model.can_add_ura,
-      team_name: TS.model.team.name,
-      team_in_org: TS.model.team.enterprise_id,
-      hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
-      team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
-      invites_limit: TS.model.team.plan === "" && TS.model.team.prefs.invites_limit,
-      show_custom_message: TS.model.team.plan
-    });
-    var settings = {
-      body_template_html: body_template_html,
-      onShow: _onShow,
-      onCancel: _onCancel,
-      clog_name: "INVITEMODAL"
-    };
-    if (TS.client) TS.ui.a11y.saveCurrentFocus();
-    TS.ui.fs_modal.start(settings);
-    if (account_type) {
-      setTimeout(function() {
-        _switchAccountType(account_type)
-      }, 0)
-    }
+      if (options && options.initial_channel_id) {
+        _initial_channel_id = options.initial_channel_id
+      }
+      var show_google_contacts = _google_contacts_experiment_new_team === "google_contacts" || _google_contacts_experiment_existing_team === "google_contacts";
+      var body_template_html = TS.templates.admin_invite_modal({
+        can_add_ura: TS.model.can_add_ura,
+        team_name: TS.model.team.name,
+        team_in_org: TS.model.team.enterprise_id,
+        hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
+        team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
+        invites_limit: TS.model.team.plan === "" && TS.model.team.prefs.invites_limit,
+        show_custom_message: TS.model.team.plan,
+        is_paid_team: TS.model.team.plan,
+        show_google_contacts: show_google_contacts
+      });
+      var settings = {
+        body_template_html: body_template_html,
+        onShow: _onShow,
+        onCancel: _onCancel,
+        clog_name: "INVITEMODAL"
+      };
+      if (TS.client) TS.ui.a11y.saveCurrentFocus();
+      TS.ui.fs_modal.start(settings);
+      if (account_type) {
+        setTimeout(function() {
+          _switchAccountType(account_type)
+        }, 0)
+      }
+    })
   };
   var _onShow = function() {
     var $custom_message_container;
@@ -37017,6 +37052,7 @@ var _on_esc;
       $(this).find(".ladda-label").text("Processing email addresses ...")
     });
     $custom_message_container = _$div.find(".admin_invites_custom_message_container");
+    _setupGoogleContactsButton();
     _$div.find('a[data-action="admin_invites_show_custom_message"]').on("click", function() {
       _showCustomMessage()
     });
@@ -37043,11 +37079,127 @@ var _on_esc;
     _success_invites = [];
     _error_invites = [];
     _clearInitialChannelId();
+    if (_cancel_google_auth_polling) _cancel_google_auth_polling();
     TS.storage.storeInvitesState(_unprocessed_invites);
     if (TS.client) TS.ui.a11y.restorePreviousFocus()
   };
   var _setPlaceholderEmailAddress = function() {
     _placeholder_email_address = _placeholder_email_address_default
+  };
+  var _setupGoogleContactsButton = function() {
+    _btn_connect_contacts = document.getElementById("btn_connect_contacts");
+    if (!_btn_connect_contacts) return;
+    _btn_connect_contacts.addEventListener("click", _onConnectContactsClicked);
+    _google_auth_instance_id = TS.model.user.id + Date.now();
+    TS.google_auth.getAuthLink(_google_auth_instance_id).then(function() {
+      TS.utility.disableElement(_btn_connect_contacts, false)
+    })
+  };
+  var _onConnectContactsClicked = function() {
+    if (!TS.boot_data.feature_invite_modal_contacts) return;
+    TS.google_auth.getAuthLink(_google_auth_instance_id).then(function(url) {
+      var window_features = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,width=600,height=500";
+      var window_ref = window.open(url, "auth_window", window_features);
+      _startPollingGoogleAuth(window_ref)
+    })
+  };
+  var _startPollingGoogleAuth = function(window_ref) {
+    _cancel_google_auth_polling = TS.google_auth.pollForAuthStatus(_google_auth_instance_id, _googleAuthedCallback, window_ref).cancel
+  };
+  var _googleAuthedCallback = function(did_auth) {
+    _cancel_google_auth_polling = null;
+    if (did_auth) {
+      _$div.find(".btn_connect_contacts_text").text("Google contacts connected");
+      _btn_connect_contacts.removeEventListener("click", _onConnectContactsClicked);
+      TS.clog.track(_clog_name, {
+        action: "google_auth_success",
+        trigger: "user_allowed_access"
+      });
+      _setupFilterSelectForConnectedContacts()
+    }
+  };
+  var _setupFilterSelectForConnectedContacts = function() {
+    var opts = {
+      page: 1,
+      count: 5e3
+    };
+    TS.google_auth.getContactList(_google_auth_instance_id, opts).then(function(data) {
+      var empty_rows = $("input.email_field").filter(function() {
+        return !this.value
+      });
+      if (empty_rows.length === 0) _addRow();
+      _startFilterSelectForEmailAddresses(data)
+    })
+  };
+  var _loadGoogleContactsExperimentGroup = function() {
+    if (_google_contacts_experiment_new_team || _google_contacts_experiment_existing_team) return Promise.resolve();
+    return TS.experiment.loadUserAssignments().then(function() {
+      _google_contacts_experiment_new_team = TS.experiment.getGroup("google_contacts_invite_new");
+      _google_contacts_experiment_existing_team = TS.experiment.getGroup("google_contacts_invite_existing")
+    })
+  };
+  var _startFilterSelectForEmailAddresses = function(contact_data) {
+    if (!contact_data) return;
+    _google_contacts_data = _google_contacts_data || contact_data.items;
+    $("input.email_field").lazyFilterSelect({
+      approx_item_height: 50,
+      data: _google_contacts_data,
+      single: true,
+      placeholder_text: "name@domain.com",
+      onReady: function() {
+        _upsertEmailContactsData(this)
+      },
+      filter: function(item, query) {
+        query = query.toLowerCase();
+        if (item.full_name) var item_full_name = item.full_name.toLowerCase();
+        if (item.email) var item_email = item.email.toLowerCase();
+        return item_full_name && item_full_name.indexOf(query) !== -1 || item_email && item_email.indexOf(query) !== -1
+      },
+      noResultsTemplate: function(query) {
+        return "None of your Google contacts match <strong>" + TS.utility.htmlEntities(query) + "</strong>"
+      },
+      onItemAdded: function(item) {
+        _upsertEmailContactsData(this, item);
+        TS.clog.track(_clog_name, {
+          action: "add_google_email",
+          trigger: "select_google_contact_from_dropdown"
+        })
+      },
+      onInputFocus: function() {
+        $(".ts_tip_tip").remove();
+        $(".lazy_filter_select").removeClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000")
+      },
+      onInputBlur: function() {
+        _upsertEmailContactsData(this)
+      },
+      template: function(item) {
+        var html = TS.templates.invite_modal_refresh_filter_select_contact({
+          contact: item
+        });
+        return new Handlebars.SafeString(html)
+      }
+    }).addClass("hidden");
+    if (contact_data.items !== undefined) {
+      var tooltip = '<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">Type here to search your Google contacts</span></span>';
+      $("input.email_field:last").lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip)
+    }
+  };
+  var _upsertEmailContactsData = function(elem, item) {
+    var current_invite_email = elem.$container[0];
+    var current_invite_row = $(current_invite_email).parents(".admin_invite_row");
+    if (item) {
+      $(current_invite_row).find("input[name*=first_name]").val(item.given_name);
+      $(current_invite_row).find("input[name*=last_name]").val(item.family_name);
+      $(current_invite_row).find("input[name*=email_address]").val(item.email)
+    } else {
+      var custom_input_email = $(current_invite_row).find("input.lfs_input").val();
+      var existing_email = $(current_invite_row).find("input[name*=email_address]").val();
+      if (custom_input_email) {
+        $(current_invite_row).find("input[name*=email_address]").val(custom_input_email)
+      } else if (existing_email) {
+        $(current_invite_row).find("input.lfs_input").val(existing_email)
+      }
+    }
   };
   var _addRow = function(email) {
     var show_delete_btn = true;
@@ -37071,6 +37223,7 @@ var _on_esc;
     });
     if (email) {
       $row.find('[name="email_address"]').val(email.email);
+      $row.find(".lfs_input_container input.lfs_input").val(email.email);
       if (TS.boot_data.feature_name_tagging_client) {
         $row.find('[name="full_name"]').val(email.full_name)
       } else {
@@ -37079,6 +37232,9 @@ var _on_esc;
       }
     }
     _updateSendButtonLabel();
+    if (TS.google_auth.isAuthed(_google_auth_instance_id) && _$div.find(".admin_invite_row").length > 1) {
+      _startFilterSelectForEmailAddresses(_google_contacts_data)
+    }
     _row_index++
   };
   var _showInfoMessage = function(message_class, html) {
@@ -37232,10 +37388,12 @@ var _on_esc;
       _$div.find("#bulk_invites, #bulk_notice").addClass("hidden");
       _$div.find("#bulk_emails").val("");
       _$div.find(".email_field").first().focus();
+      _$div.find(".invite_modal_options_container").removeClass("hidden");
       _resetBulkForm()
     } else if (view == "bulk") {
       _$div.find("#bulk_invites").removeClass("hidden");
       _$div.find("#individual_invites").addClass("hidden");
+      _$div.find(".invite_modal_options_container").addClass("hidden");
       var $bulk_submit_btn = _$div.find('button[data-action="api_parse_emails"]');
       if (!$bulk_submit_btn.hasClass("ladda")) {
         Ladda.bind('button[data-action="api_parse_emails"]');
@@ -43430,7 +43588,7 @@ $.fn.togglify = function(settings) {
         if (data.error == "name_taken") {
           _showNameTakenAlert()
         } else if (data.error == "restricted_action") {
-          _showError("Sorry! An admin on your team has restricted who can create private channels.");
+          _showError("Sorry! An admin on your team has restricted who can create private channels.")
         } else {
           TS.error("Failed to create private channel: " + data.error);
           _showError("Sorry! Something went wrong.")
@@ -43583,6 +43741,7 @@ $.fn.togglify = function(settings) {
     },
     onInputBlur: _.noop,
     onInputFocus: _.noop,
+    onReady: function() {},
     onItemAdded: function(item) {},
     onItemRemoved: function(item) {},
     onKeyDown: function(e, handled) {},
@@ -43935,7 +44094,8 @@ $.fn.togglify = function(settings) {
       if (instance.disabled) return;
       e.preventDefault();
       _showList(instance)
-    })
+    });
+    instance.onReady()
   };
   var _buildItem = function(instance, item, token) {
     var selected = _isAlreadySelected(instance, item);
@@ -47865,7 +48025,7 @@ $.fn.togglify = function(settings) {
   var _sortChannelsBy = function(channels, sort) {
     if (sort === "name") {
       channels.sort(function(a, b) {
-        return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0;
+        return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0
       })
     } else if (sort === "creator") {
       channels.sort(function(a, b) {
@@ -49827,11 +49987,30 @@ $.fn.togglify = function(settings) {
         })
       })
     },
-    getContactList: function(instance_id) {
+    getContactList: function(instance_id, opts) {
       if (!TS.google_auth.isAuthed(instance_id)) return new Promise.resolve([]);
       return new Promise(function(resolve, reject) {
         TS.api.call("services.googlecontacts.list", {
-          instance_id: instance_id
+          instance_id: instance_id,
+          page: opts.page,
+          count: opts.count
+        }).then(function(obj) {
+          var data = {
+            items: obj.data.contacts,
+            all_items_fetched: obj.data.all_items_fetched
+          };
+          resolve(data || [])
+        })
+      })
+    },
+    getContactListFromQuery: function(instance_id, opts) {
+      if (!TS.google_auth.isAuthed(instance_id)) return new Promise.resolve([]);
+      return new Promise(function(resolve, reject) {
+        TS.api.call("services.googlecontacts.search", {
+          instance_id: instance_id,
+          query: opts.query,
+          page: opts.page,
+          count: opts.count
         }).then(function(obj) {
           var data = {
             items: obj.data.contacts,
@@ -50198,7 +50377,7 @@ $.fn.togglify = function(settings) {
             var deleted_bots = _.remove(members, {
               is_bot: true
             });
-            if (deleted_bots.length) TS.log(1989, "Flannel: removed these bots from results:", deleted_bots);
+            if (deleted_bots.length) TS.log(1989, "Flannel: removed these bots from results:", deleted_bots)
           }
           if (TS.boot_data.page_needs_enterprise && !args.all_of_org) {
             var deleted_org_members = _.remove(members, function(member) {
@@ -51109,7 +51288,7 @@ $.fn.togglify = function(settings) {
       case _utility_call_state.mini_panel_token:
         if (window.winssb && winssb.window && winssb.window.browserWindows && winssb.window.browserWindows[token] && winssb.window.browserWindows[token].setMinimumSize) {
           winssb.window.browserWindows[token].setMinimumSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
-          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height)
+          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
         }
         break
     }
@@ -53802,7 +53981,7 @@ $.fn.togglify = function(settings) {
   var _updatePinnedMessageUI = function(model_ob, msg, is_pinned) {
     if (!model_ob || !msg || !msg.ts) return;
     var msg_dom_id = TS.templates.makeMsgDomId(msg.ts);
-    var $msg = $("#" + msg_dom_id + ', .message_unfurl[data-attachment-ts="' + msg.ts + '"]');
+    var $msg = $("#messages_container #" + msg_dom_id + ', #messages_container .message_unfurl[data-attachment-ts="' + msg.ts + '"]');
     var $is_pinned_holder = $msg.find(".is_pinned_holder:first");
     if ($msg.length === 0 || $is_pinned_holder.length === 0) return;
     if (is_pinned) {

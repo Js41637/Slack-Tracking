@@ -29269,6 +29269,23 @@
         TS.reload()
       })
     });
+    $("#flannel_server_pool").val(TS.model.prefs.flannel_server_pool);
+    $("#flannel_server_pool").attr("disabled", !TS.model.prefs.flannel_lazy_members);
+    $("#flannel_server_pool").on("change", function() {
+      var val = $(this).val();
+      var prev_val = TS.model.prefs.flannel_server_pool;
+      if (!_.includes(["production", "canary", "random"], val)) {
+        TS.error("Tried to set an invalid value ('" + val + "') for `flannel_server_pool` pref");
+        return
+      }
+      TS.prefs.setPrefByAPI({
+        name: "flannel_server_pool",
+        value: val
+      }, function() {
+        TS.log(1989, "Flannel: canary pref changed from " + prev_val + " to " + val);
+        TS.ms.disconnect()
+      })
+    });
     $("#enable_unread_view").prop("checked", TS.model.prefs.enable_unread_view === true);
     $("#enable_unread_view").on("change", function() {
       var val = !!$(this).prop("checked");
@@ -29938,7 +29955,7 @@
       } else if (permission_level == "denied") {
         $("#growls_disallowed_div").removeClass("hidden")
       } else {
-        alert("huh allowed:" + allowed + " permission_level:" + permission_level);
+        alert("huh allowed:" + allowed + " permission_level:" + permission_level)
       }
     })
   };
@@ -31056,6 +31073,7 @@ var _timezones_alternative = {
       }
     },
     updateGallery: function() {
+      if (TS.model.unread_view_is_showing) return;
       setTimeout(function() {
         var new_gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
         if (new_gallery !== _gallery) {
@@ -31351,6 +31369,10 @@ var _timezones_alternative = {
     scroll_element[scroll_position] += scroll_by
   };
   var _initGallery = function() {
+    if (TS.model.unread_view_is_showing) {
+      _gallery = $();
+      return
+    }
     _gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
     if (TS.boot_data.feature_pdf_viewer) {
       _filterPDFs()

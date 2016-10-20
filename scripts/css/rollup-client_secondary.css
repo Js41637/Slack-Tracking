@@ -562,6 +562,16 @@ input.search_input {
   font-style: italic
 }
 
+#flex_contents .inline_attachment.is_pinned,
+#flex_contents ts-message.is_pinned {
+  background: 0 0
+}
+
+#flex_contents .inline_attachment.is_pinned .is_pinned_holder,
+#flex_contents ts-message.is_pinned .is_pinned_holder {
+  display: none
+}
+
 #file_list_toggle_users {
   padding: 0 .5rem .5rem .25rem;
   float: right;
@@ -14467,7 +14477,7 @@ a.sidebar_menu_list_item:hover {
 
 #admin_invites_channel_picker_container {
   border-bottom: 1px solid #e8e8e8;
-  margin: 1rem auto;
+  margin: 1rem auto 1.5rem;
   padding-bottom: 2rem
 }
 
@@ -14487,7 +14497,7 @@ a.sidebar_menu_list_item:hover {
   padding: .6rem 1rem;
   border-radius: 6px;
   font-size: 1rem;
-  margin: .5rem auto 2.5rem
+  margin: 1.3rem auto 2.5rem
 }
 
 .admin_invite_row,
@@ -14510,6 +14520,11 @@ a.sidebar_menu_list_item:hover {
 .admin_invites_custom_message_container .col {
   padding-right: 0;
   margin-bottom: 0
+}
+
+.admin_invite_row input,
+.admin_invites_custom_message_container input {
+  margin: .2rem 0 0
 }
 
 .admin_invite_row .delete_row,
@@ -14569,11 +14584,98 @@ a.sidebar_menu_list_item:hover {
 #admin_invites_submit_btn {
   font-size: 1rem;
   font-weight: 700;
-  width: 100%;
-  margin-bottom: .5rem
+  margin-bottom: .5rem;
+  float: right
+}
+
+#admin_invites_workflow .lazy_filter_select .default_style {
+  background-color: #f9f9f9
+}
+
+#admin_invites_workflow .lazy_filter_select .ts_tip_tip {
+  display: block;
+  opacity: 1
+}
+
+#admin_invites_workflow .lazy_filter_select .lfs_input_container .lfs_item.selected .bold {
+  display: none
+}
+
+#btn_connect_contacts .ts_icon_google {
+  vertical-align: sub
+}
+
+#btn_connect_contacts .ts_icon_google:before {
+  font-size: 1.5rem
+}
+
+.invite_modal_options {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
+  -ms-flex-direction: row;
+  -moz-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-pack: justify;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -moz-justify-content: space-between;
+  justify-content: space-between;
+  overflow: hidden
+}
+
+.invite_modal_options .invite_modal_options_left {
+  -webkit-flex-shrink: 3;
+  -moz-flex-shrink: 3;
+  -ms-flex-negative: 3;
+  flex-shrink: 3
+}
+
+.invite_modal_options .invite_modal_options_left .invite_modal_options_message {
+  display: inline;
+  float: left;
+  font-size: 1rem
+}
+
+.invite_modal_options .invite_modal_options_right {
+  -webkit-flex-shrink: 1;
+  -moz-flex-shrink: 1;
+  -ms-flex-negative: 1;
+  flex-shrink: 1
+}
+
+.invite_modal_footer {
+  border-top: 1px solid #e8e8e8;
+  font-size: 1rem
+}
+
+.invite_modal_footer .pending_updates {
+  display: block
 }
 
 @media only screen and (max-width:640px) {
+  .invite_modal_options {
+    -ms-flex-pack: center;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -moz-justify-content: center;
+    justify-content: center;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    -moz-flex-wrap: wrap;
+    flex-wrap: wrap
+  }
+  #admin_invites_submit_btn {
+    margin: 2rem 0 0
+  }
   #admin_invites_header {
     font-size: 1.4rem;
     line-height: 2rem;
