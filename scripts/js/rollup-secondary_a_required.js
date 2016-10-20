@@ -35862,19 +35862,35 @@ var _on_esc;
         TS.msg_edit.edit_ended_sig.dispatch();
         TS.msg_edit.resetEditUI()
       });
-      input.TS_tabComplete({
-        complete_cmds: false,
-        complete_channels: true,
-        complete_user_groups: true,
-        complete_emoji: true,
-        complete_member_specials: true,
-        no_tab_out: true,
-        onComplete: function(txt, new_cp) {
-          TS.utility.populateInput(input, txt, new_cp)
-        },
-        sort_by_membership: true,
-        include_self: !!TS.boot_data.feature_name_tagging_client
-      });
+      if (TS.boot_data.feature_you_autocomplete_me) {
+        input.TS_tabCompleteNew({
+          complete_cmds: false,
+          complete_channels: true,
+          complete_user_groups: true,
+          complete_emoji: true,
+          complete_member_specials: true,
+          no_tab_out: true,
+          onComplete: function(txt, new_cp) {
+            TS.utility.populateInput(input, txt, new_cp)
+          },
+          sort_by_membership: true,
+          include_self: !!TS.boot_data.feature_name_tagging_client
+        })
+      } else {
+        input.TS_tabComplete({
+          complete_cmds: false,
+          complete_channels: true,
+          complete_user_groups: true,
+          complete_emoji: true,
+          complete_member_specials: true,
+          no_tab_out: true,
+          onComplete: function(txt, new_cp) {
+            TS.utility.populateInput(input, txt, new_cp)
+          },
+          sort_by_membership: true,
+          include_self: !!TS.boot_data.feature_name_tagging_client
+        })
+      }
       var tab_complete_ui_props = {
         id: "msg_edit_tab_ui",
         scroll_with_element: !!TS.client
@@ -36274,7 +36290,7 @@ var _on_esc;
         } else if (model_ob.is_mpim) {
           TS.mpims.removeMsg(model_ob.id, msg)
         } else if (model_ob.is_group) {
-          TS.groups.removeMsg(model_ob.id, msg);
+          TS.groups.removeMsg(model_ob.id, msg)
         } else {
           return
         }
@@ -41151,7 +41167,7 @@ var _on_esc;
     $(label).attr("data-countdown", [value_length, validation_length].join("/")).addClass("countdown");
     var styles = window.getComputedStyle(label, ":after");
     if (!$el.data("countdown-padding-right")) $el.data("countdown-padding-right", parseFloat($el.css("padding-right")));
-    $el.css("padding-right", parseFloat(styles.width) + parseFloat(styles.right) + $el.data("countdown-padding-right"))
+    $el.css("padding-right", parseFloat(styles.width) + parseFloat(styles.right) + $el.data("countdown-padding-right"));
   };
   var _clearCountdown = function($el, options) {
     var label = document.querySelector('label[for="' + (options.custom_for || $el.attr("name")) + '"]');
@@ -43437,7 +43453,7 @@ $.fn.togglify = function(settings) {
         if (data.error == "name_taken") {
           _showNameTakenAlert()
         } else if (data.error == "restricted_action") {
-          _showError("Sorry! An admin on your team has restricted who can create private channels.");
+          _showError("Sorry! An admin on your team has restricted who can create private channels.")
         } else {
           TS.error("Failed to create private channel: " + data.error);
           _showError("Sorry! Something went wrong.")
@@ -50197,7 +50213,7 @@ $.fn.togglify = function(settings) {
       if (args.all_of_org && !TS.boot_data.page_needs_enterprise) return Promise.reject(new Error("cannot search an org when not an enterprise team"));
       if (TS.lazyLoadMembers()) {
         if (!args.hasOwnProperty("raw_query")) {
-          return Promise.reject(new Error("Flannel searches require a `raw_query` to be provided"));
+          return Promise.reject(new Error("Flannel searches require a `raw_query` to be provided"))
         }
         var query = args.raw_query;
         var max_count = args.count || Infinity;
@@ -51301,7 +51317,7 @@ $.fn.togglify = function(settings) {
     }
     if (_utility_call_state.window_handle) {
       _utility_call_state.window_handle.close();
-      delete _utility_call_state.window_handle;
+      delete _utility_call_state.window_handle
     }
   };
   var _callWindowGoingAway = function() {
@@ -52625,19 +52641,35 @@ $.fn.togglify = function(settings) {
     }
   };
   var _initTabComplete = function($input) {
-    $input.TS_tabComplete({
-      complete_cmds: false,
-      complete_channels: true,
-      complete_emoji: true,
-      complete_member_specials: true,
-      complete_user_groups: true,
-      no_tab_out: true,
-      onComplete: function(txt, new_cp) {
-        TS.utility.populateInput($input, txt, new_cp)
-      },
-      sort_by_membership: true,
-      include_self: !!TS.boot_data.feature_name_tagging_client
-    });
+    if (TS.boot_data.feature_you_autocomplete_me) {
+      $input.TS_tabCompleteNew({
+        complete_cmds: false,
+        complete_channels: true,
+        complete_emoji: true,
+        complete_member_specials: true,
+        complete_user_groups: true,
+        no_tab_out: true,
+        onComplete: function(txt, new_cp) {
+          TS.utility.populateInput($input, txt, new_cp)
+        },
+        sort_by_membership: true,
+        include_self: !!TS.boot_data.feature_name_tagging_client
+      })
+    } else {
+      $input.TS_tabComplete({
+        complete_cmds: false,
+        complete_channels: true,
+        complete_emoji: true,
+        complete_member_specials: true,
+        complete_user_groups: true,
+        no_tab_out: true,
+        onComplete: function(txt, new_cp) {
+          TS.utility.populateInput($input, txt, new_cp)
+        },
+        sort_by_membership: true,
+        include_self: !!TS.boot_data.feature_name_tagging_client
+      })
+    }
     var props = {
       id: "inline_msg_input_tab_ui_" + _uniq_id++,
       scroll_with_element: !!TS.client
@@ -53563,7 +53595,7 @@ $.fn.togglify = function(settings) {
     document.addEventListener("keydown", this._onEnterPress)
   };
   var _onBlur = function(evt) {
-    document.removeEventListener("keydown", this._onEnterPress);
+    document.removeEventListener("keydown", this._onEnterPress)
   };
   var _onEnterPress = function(evt) {
     if (evt.key === "Enter") {
