@@ -117,7 +117,7 @@ setInterval(() => {
 }, 1000 * 60 * config.updateInerval) // Interval in minutes
 
 console.log("Starting up")
-if (!config || config.teamName || config.updateInerval || config.cookies) {
+if (!config || !config.teamName || !config.updateInerval || !config.cookies) {
   console.error("Invalid config")
   process.exit()
 }
