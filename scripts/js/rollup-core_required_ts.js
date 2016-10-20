@@ -3347,6 +3347,93 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("i18n", {
+    onStart: function() {
+      if (!TS.boot_data.feature_i18n) {
+        TS.i18n.locale = _DEFAULT_LOCALE;
+        return
+      }
+      var lang = location.search.match(new RegExp("lang=(.*?)($|&)", "i"));
+      if (lang && _MESSAGES[lang[1]]) {
+        TS.i18n.locale = lang[1]
+      } else {
+        TS.i18n.locale = _DEFAULT_LOCALE
+      }
+      _messages = _MESSAGES[TS.i18n.locale];
+      _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/)
+    },
+    t: function(key, options) {
+      options = options || {};
+      if (!TS.boot_data.feature_i18n) return new MessageFormat(TS.i18n.locale, key).format(options.data || {});
+      var msg;
+      if (options.ns) {
+        msg = _namespaced(options.ns)[key]
+      } else {
+        msg = _messages[key]
+      }
+      if (msg === undefined) {
+        msg = new MessageFormat(TS.i18n.locale, key).format(options.data || {});
+        if (!_is_dev || TS.i18n.locale === _DEFAULT_LOCALE) return msg;
+        TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
+        return msg.replace(/[A-Z]/g, "X").replace(/[a-z]/g, "x")
+      }
+      return new MessageFormat(TS.i18n.locale, msg).format(options.data || {})
+    }
+  });
+  var _messages;
+  var _is_dev;
+  var _namespaced = function(namespace) {
+    var parts = namespace.split(".");
+    if (parts.length > 1) {
+      var i = 0;
+      var l = parts.length;
+      var msgs = _messages;
+      for (i; i < l; i++) {
+        msgs = msgs[parts[i]];
+        if (!msgs) return {}
+      }
+      return msgs
+    }
+    return _messages[namespace] || {}
+  };
+  var _DEFAULT_LOCALE = "en-US";
+  var _MESSAGES = {
+    "en-US": {
+      menu: {
+        "Profile &amp; account": "Profile &amp; account",
+        Preferences: "Preferences",
+        "Version info (TS only)": "Version info (TS only)",
+        "Sign out of": "Sign out of",
+        "Set yourself to <strong>away</strong>": "Set yourself to <strong>away</strong>",
+        "[Away] Set yourself to <strong>active</strong>": "[Away] Set yourself to <strong>active</strong>"
+      },
+      channel: {
+        "{member_count,plural,=1{# member}other{# members}}": "{member_count,plural,=1{# member}other{# members}}"
+      }
+    },
+    "es-ES": {
+      menu: {
+        "Profile &amp; account": "Perfil y cuenta",
+        Preferences: "Preferencias"
+      },
+      channel: {
+        "{member_count,plural,=1{# member}other{# members}}": "{member_count,plural,=1{# miembro}other{# miembros}}"
+      }
+    },
+    "fr-FR": {
+      menu: {
+        "Profile &amp; account": "Profil et gestion du compte",
+        Preferences: "Préférences",
+        "Version info (TS only)": "Version info (TS uniquement)"
+      },
+      channel: {
+        "{member_count,plural,=1{# member}other{# members}}": "{member_count,plural,=1{# membre}other{# membres}}"
+      }
+    }
+  }
+})();
+(function() {
+  "use strict";
   TS.registerModule("emoji", {
     onStart: function() {
       if (TS.web) TS.web.login_sig.add(TS.emoji.onLogin);
@@ -4451,7 +4538,7 @@
         file.channels.forEach(function(c_id) {
           var channel = TS.channels.getChannelById(c_id);
           if (channel && channel.is_general) is_general = true
-        })
+        });
       }
       if (is_general && !TS.members.canUserAtEveryone()) {
         if (has_at_everyone || has_at_here || has_at_group || has_at_channel) return "@everyone"

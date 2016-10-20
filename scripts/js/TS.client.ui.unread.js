@@ -1025,18 +1025,22 @@
     if (group) TS.client.ui.unread.updateHeader(group)
   };
   var _onKeyDown = function(e) {
-    var current_group;
     var target_group;
     if (TS.menu.emoji.is_showing) return;
     if ([TS.utility.keymap.left, TS.utility.keymap.right, 82].indexOf(e.which) === -1) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     if (_currently_loading_more_promise && _currently_loading_more_promise.isPending()) return;
     if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !TS.client.ui.unread.$scroller.hasClass("loading") && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
+      var current_group = TS.client.unread.getActiveGroup();
       if (e.which === TS.utility.keymap.right || e.which === TS.utility.keymap.left) {
         e.preventDefault();
         var backwards = e.which === TS.utility.keymap.left ? true : false;
-        current_group = TS.client.unread.getActiveGroup();
         target_group = TS.client.unread.moveActiveMarker(backwards);
+        if (!current_group && !_getGroupElement(target_group).length) {
+          var $target_group = TS.client.ui.unread.$unread_msgs_div.find(".unread_group").first();
+          var target_group_id = $target_group.data("model-id");
+          target_group = TS.client.unread.setActiveGroup(TS.client.unread.getGroup(target_group_id))
+        }
         if (target_group) {
           _changeActiveElement(target_group, current_group, {
             collapse_current_group: !backwards
@@ -1051,10 +1055,10 @@
           }
         }
       } else if (e.which === 82) {
-        current_group = TS.client.unread.getActiveGroup();
         if (!current_group) {
-          TS.client.unread.moveActiveMarker();
-          current_group = TS.client.unread.getActiveGroup()
+          current_group = _.first(TS.client.unread.getAllGroups());
+          if (!_getGroupElement(current_group).length) return;
+          TS.client.unread.setActiveGroup(current_group)
         }
         if (current_group) {
           if (current_group.marked_as_read) {
@@ -1154,6 +1158,9 @@
       sticky_top += 15
     } else if (TS.model.prefs.a11y_font_size === "150") {
       sticky_top += 30
+    }
+    if (TS.environment.isSSBAndAtLeastVersion("2.2.8") && TS.boot_data.feature_channels_list_refresh) {
+      sticky_top -= 2
     }
     if (!$_currently_sticky) {
       $_currently_sticky = group_in_view.$node;

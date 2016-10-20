@@ -17287,6 +17287,22 @@ TS.registerModule("constants", {
         var is_ephemeral = msg.is_ephemeral;
         if (!current_speaker && dont_show_dupe_bot_users) current_speaker = TS.templates.builders.getBotIdentifier(msg);
         var is_bot = TS.utility.msgs.shouldHaveBotLabel(msg, member);
+        var app_id;
+        if (TS.boot_data.feature_app_cards_and_profs_frontend) {
+          if (is_bot) {
+            if (msg.bot_id) {
+              var bot_info = TS.bots.getBotById(msg.bot_id);
+              app_id = bot_info.app_id
+            } else {
+              var bot_info = TS.members.getMemberById(msg.user);
+              if (bot_info.profile.api_app_id) {
+                app_id = bot_info.profile.api_app_id
+              } else if (bot_info.profile.bot_id) {
+                app_id = bot_info.profile.bot_id
+              }
+            }
+          }
+        }
         var prev_speaker;
         if (prev_msg) {
           prev_speaker = prev_msg.subtype == "file_comment" && prev_msg.comment ? prev_msg.comment.user : prev_msg.user;
@@ -17436,6 +17452,7 @@ TS.registerModule("constants", {
           is_ephemeral: is_ephemeral,
           enable_slack_action_links: enable_slack_action_links,
           is_bot: is_bot,
+          app_id: app_id,
           highlight_as_new: highlight_as_new,
           show_star: !starred_items_list && !is_ephemeral,
           has_rxns: has_rxns,
@@ -17667,7 +17684,7 @@ TS.registerModule("constants", {
               show_user = true
             } else if (prev_speaker == current_speaker && TS.utility.msgs.automated_subtypes.indexOf(prev_msg.subtype) === -1) {
               if (!msg.subtype && prev_msg.subtype && prev_msg.subtype == "file_comment") {
-                show_user = true;
+                show_user = true
               } else {
                 if (!prev_msg.subtype || TS.templates.builders.getBotIdentifier(prev_msg)) {
                   if (replies_enabled) {
@@ -18075,6 +18092,21 @@ TS.registerModule("constants", {
       }
       var small_thumb = attachment.thumb_url && !attachment.image_url && !attachment.video_html && !attachment.audio_html;
       var small_thumb_url = small_thumb ? attachment.proxied_thumb_url || attachment.thumb_url : null;
+      if (TS.boot_data.feature_pin_update) {
+        if (attachment.is_msg_unfurl) {
+          var attached_msg = TS.utility.msgs.getMsg(attachment.ts, model_ob.msgs);
+          if (attached_msg && attached_msg.pinned_to && attached_msg.pinned_to.length > 0) {
+            attachment.is_pinned = _.some(attached_msg.pinned_to, function(id) {
+              return id === model_ob.id
+            });
+            if (attachment.is_pinned) {
+              attachment.pin_html = TS.templates.builders.buildPinInfoHtml(attached_msg)
+            } else {
+              attachment.pin_html = ""
+            }
+          }
+        }
+      }
       var attachment_args = {
         is_text_collapsed: should_expand,
         has_more: has_more,
@@ -18636,7 +18668,7 @@ TS.registerModule("constants", {
             html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + group.name + '?force-browser=1">archives</a>.'
           } else {
             var method = "TS.shared.closeArchivedChannel";
-            html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + group.name + '?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="' + method + "('" + group.id + "')\">click here</a>.";
+            html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + group.name + '?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="' + method + "('" + group.id + "')\">click here</a>."
           }
         }
       } else if (msg.subtype == "group_unarchive") {
@@ -19096,14 +19128,16 @@ TS.registerModule("constants", {
       return html
     },
     buildPinInfoHtml: function(msg) {
+      var template_args = {};
       var pin_data = TS.pins.getPinData(msg);
-      if (!pin_data || !pin_data.created_by || !pin_data.created) return "";
-      var user = TS.members.getMemberById(pin_data.created_by);
-      if (!user) return "";
-      var template_args = {
-        user: user,
-        ts: pin_data.created
-      };
+      if (pin_data && pin_data.created_by && pin_data.created) {
+        var user = TS.members.getMemberById(pin_data.created_by);
+        template_args.user = user;
+        template_args.ts = pin_data.created;
+        template_args.complete_data = template_args.user && template_args.ts
+      } else {
+        template_args.complete_data = false
+      }
       var html = TS.templates.pinned_message_info(template_args);
       return new Handlebars.SafeString(html)
     },
@@ -20843,6 +20877,10 @@ TS.registerModule("constants", {
           ns = this._i18n_ns
         } else {
           ns = options.data.root._i18n_ns || ""
+        }
+        if (ns === "debug") {
+          TS.info("debug handlerbars t helper");
+          TS.info(this)
         }
         var data = this;
         if (!_.isObject(data)) {
@@ -26557,7 +26595,7 @@ TS.registerModule("constants", {
       if (!member_name) return null;
       var member;
       if (TS.boot_data.feature_name_tagging_client) {
-        member = TS.members.getMemberById(member_name) || TS.members.getMemberByName(member_name)
+        member = TS.members.getMemberById(member_name) || TS.members.getMemberByName(member_name);
       } else {
         member = TS.members.getMemberByName(member_name)
       }
@@ -27706,7 +27744,7 @@ TS.registerModule("constants", {
   };
   var _encodeSpecialFormattingCharsAndColon = function(txt) {
     if (!txt) return "";
-    return _encodeSpecialFormattingChars(txt).replace(/\:/g, "&#58;")
+    return _encodeSpecialFormattingChars(txt).replace(/\:/g, "&#58;");
   };
   var _calculateOptions = function(msg, opts) {
     opts = opts || {};
@@ -30484,9 +30522,6 @@ TS.registerModule("constants", {
       TS.menu.$menu.addClass("all_unreads_sort_order_menu");
       TS.menu.$menu_items.html(TS.templates.unread_sort_order_menu(template_args));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onAllUnreadsSortOrderMenuItemClick);
-      TS.menu.$menu.on("closed", function() {
-        TS.menu.$menu.removeClass("all_unreads_sort_order_menu")
-      });
       TS.menu.start(e);
       TS.menu.positionAt($(".channel_header_info_count"), 105, 20)
     },
@@ -30609,7 +30644,7 @@ TS.registerModule("constants", {
     clean: function() {
       TS.menu.$menu_footer.empty();
       TS.menu.$menu_header.removeClass("hidden");
-      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu").css("max-height", "");
+      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu").css("max-height", "");
       TS.menu.$menu.removeAttr("data-qa");
       TS.menu.$menu.find("#menu_items_scroller").css("max-height", "");
       TS.menu.$menu.find(".arrow, .arrow_shadow").remove();
@@ -30945,7 +30980,7 @@ var _on_esc;
           TS.client.ui.flex.openFlexTab("details")
         }
       } else if (id == "channel_handy_rxns_item") {
-        TS.ui.handy_rxns.startChannelDialog(TS.menu.channel.channel.id);
+        TS.ui.handy_rxns.startChannelDialog(TS.menu.channel.channel.id)
       } else if (id == "channel_display_item") {
         e.preventDefault();
         TS.channels.displayChannel(TS.menu.channel.channel.id)
@@ -31269,7 +31304,7 @@ var _on_esc;
       var should_show_box = TS.utility.box.isBrowserSupported() && TS.model.prefs.box_enabled;
       var should_show_multnomah = TS.boot_data.feature_multnomah;
       var should_show_dropbox = window.Dropbox && Dropbox.isBrowserSupported() && TS.model.prefs.dropbox_enabled;
-      var should_show_gdrive = TS.boot_data.feature_gdrive_1_dot_5;
+      var should_show_gdrive = TS.boot_data.feature_gdrive_1_dot_5 && TS.model.prefs.gdrive_enabled;
       var cloud_service_count = 0;
       if (should_show_box) cloud_service_count++;
       if (should_show_dropbox) cloud_service_count++;
@@ -36239,7 +36274,7 @@ var _on_esc;
         } else if (model_ob.is_mpim) {
           TS.mpims.removeMsg(model_ob.id, msg)
         } else if (model_ob.is_group) {
-          TS.groups.removeMsg(model_ob.id, msg)
+          TS.groups.removeMsg(model_ob.id, msg);
         } else {
           return
         }
@@ -39107,7 +39142,7 @@ var _on_esc;
       $("body").on("click", '[data-action="edit_team_profile_modal"]', TS.ui.admin_edit_team_profile.start)
     },
     start: function() {
-      if (_userCanEditTeamProfile()) _start();
+      if (_userCanEditTeamProfile()) _start()
     }
   });
   var _$div;
@@ -43402,7 +43437,7 @@ $.fn.togglify = function(settings) {
         if (data.error == "name_taken") {
           _showNameTakenAlert()
         } else if (data.error == "restricted_action") {
-          _showError("Sorry! An admin on your team has restricted who can create private channels.")
+          _showError("Sorry! An admin on your team has restricted who can create private channels.");
         } else {
           TS.error("Failed to create private channel: " + data.error);
           _showError("Sorry! Something went wrong.")
@@ -48998,7 +49033,7 @@ $.fn.togglify = function(settings) {
           if (query.charAt(0) === "@") query = query.substr(1);
           var start_regex = new RegExp("^" + TS.utility.regexpEscape(query), "i");
           var suffix_regex = new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(query), "i");
-          return TS.utility.members.checkMemberMatch(member, start_regex) || TS.utility.members.checkMemberMatch(member, suffix_regex);
+          return TS.utility.members.checkMemberMatch(member, start_regex) || TS.utility.members.checkMemberMatch(member, suffix_regex)
         },
         disabled: !!user_group.is_external || !!user_group.auto_type
       };
@@ -50162,16 +50197,33 @@ $.fn.togglify = function(settings) {
       if (args.all_of_org && !TS.boot_data.page_needs_enterprise) return Promise.reject(new Error("cannot search an org when not an enterprise team"));
       if (TS.lazyLoadMembers()) {
         if (!args.hasOwnProperty("raw_query")) {
-          return Promise.reject(new Error("Flannel searches require a `raw_query` to be provided"))
+          return Promise.reject(new Error("Flannel searches require a `raw_query` to be provided"));
         }
         var query = args.raw_query;
         var max_count = args.count || Infinity;
-        return TS.flannel.fetchAndUpsertMembersWithQuery(args.raw_query).then(function(members) {
+        var results_p;
+        if (_.isEmpty(args.raw_query)) {
+          results_p = Promise.resolve([])
+        } else {
+          results_p = TS.flannel.fetchAndUpsertMembersWithQuery({
+            query: args.raw_query,
+            count: max_count
+          })
+        }
+        return results_p.then(function(members) {
           if (!args.include_bots) {
             var deleted_bots = _.remove(members, {
               is_bot: true
             });
             if (deleted_bots.length) TS.log(1989, "Flannel: removed these bots from results:", deleted_bots)
+          }
+          if (TS.boot_data.page_needs_enterprise && !args.all_of_org) {
+            var deleted_org_members = _.remove(members, function(member) {
+              var teams_for_member = _.get(member, "enterprise_user.teams", []);
+              var member_is_on_this_team = teams_for_member.includes(TS.model.team.id);
+              return !member_is_on_this_team
+            });
+            if (deleted_org_members.length) TS.log(1989, "Flannel: removed these org members from results:", deleted_org_members)
           }
           if (!args.include_deleted) {
             var deleted_members = _.remove(members, {
@@ -51249,7 +51301,7 @@ $.fn.togglify = function(settings) {
     }
     if (_utility_call_state.window_handle) {
       _utility_call_state.window_handle.close();
-      delete _utility_call_state.window_handle
+      delete _utility_call_state.window_handle;
     }
   };
   var _callWindowGoingAway = function() {
@@ -53511,7 +53563,7 @@ $.fn.togglify = function(settings) {
     document.addEventListener("keydown", this._onEnterPress)
   };
   var _onBlur = function(evt) {
-    document.removeEventListener("keydown", this._onEnterPress)
+    document.removeEventListener("keydown", this._onEnterPress);
   };
   var _onEnterPress = function(evt) {
     if (evt.key === "Enter") {
@@ -53751,8 +53803,8 @@ $.fn.togglify = function(settings) {
   var _updatePinnedMessageUI = function(model_ob, msg, is_pinned) {
     if (!model_ob || !msg || !msg.ts) return;
     var msg_dom_id = TS.templates.makeMsgDomId(msg.ts);
-    var $msg = $("#" + msg_dom_id);
-    var $is_pinned_holder = $msg.children(".is_pinned_holder");
+    var $msg = $("#" + msg_dom_id + ', .message_unfurl[data-attachment-ts="' + msg.ts + '"]');
+    var $is_pinned_holder = $msg.find(".is_pinned_holder:first");
     if ($msg.length === 0 || $is_pinned_holder.length === 0) return;
     if (is_pinned) {
       $msg.addClass("is_pinned");

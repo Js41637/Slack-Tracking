@@ -28209,7 +28209,11 @@
     }
     _show_ra_tip = members_you_can_invite.length != members_an_admin_could_invite.length;
     _maybeShowRaTip();
-    if (!searcher.query) _has_invitable_members = !!searcher.num_found;
+    if (!searcher.query) {
+      if (TS.lazyLoadMembers()) {} else {
+        _has_invitable_members = !!searcher.num_found
+      }
+    }
     if (members_you_can_invite.length != searcher.items.length) {
       searcher.num_new -= searcher.items.length - members_you_can_invite.length;
       searcher.items = members_you_can_invite
