@@ -53816,9 +53816,9 @@ $.fn.togglify = function(settings) {
   };
   var _updatePinnedFileUI = function(model_ob, file, is_pinned) {
     if (!model_ob || !file) return;
-    var $file = $('.message_body*[data-file-id="' + file.id + '"]');
-    var $msg = $file.closest("ts-message");
-    _updatePinnedMsgDomElementUI(model_ob, $msg, is_pinned)
+    var $files = $('.message_body[data-file-id="' + file.id + '"]');
+    var $msgs = $files.closest("ts-message");
+    _updatePinnedMsgDomElementUI(model_ob, $msgs, is_pinned)
   };
   var _updatePinnedFileCommentUI = function(model_ob, comment, is_pinned) {
     if (!model_ob || !comment) return;
@@ -53826,12 +53826,14 @@ $.fn.togglify = function(settings) {
     var $msg = $comment.closest("ts-message");
     _updatePinnedMsgDomElementUI(model_ob, $msg, is_pinned)
   };
-  var _updatePinnedMsgDomElementUI = function(model_ob, $msg, is_pinned) {
-    if (!model_ob || $msg.length === 0) return;
-    var msg_ts = $msg.data("ts");
-    if (!msg_ts) return;
-    var msg = TS.utility.msgs.getMsg(msg_ts, model_ob.msgs);
-    if (!msg) return;
-    _updatePinnedMessageUI(model_ob, msg, is_pinned)
+  var _updatePinnedMsgDomElementUI = function(model_ob, $msgs, is_pinned) {
+    if (!model_ob || $msgs.length === 0) return;
+    _.forEach($msgs, function(msg) {
+      var msg_ts = $(msg).data("ts");
+      if (!msg_ts) return;
+      var msg = TS.utility.msgs.getMsg(msg_ts, model_ob.msgs);
+      if (!msg) return;
+      _updatePinnedMessageUI(model_ob, msg, is_pinned)
+    })
   }
 })();

@@ -31087,6 +31087,9 @@ var _timezones_alternative = {
         var new_gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
         if (new_gallery !== _gallery) {
           _gallery = new_gallery;
+          if (TS.boot_data.feature_pdf_viewer) {
+            _filterPDFs()
+          }
           _updateCurrentIndex();
           _maybeUpdateArrows()
         }
@@ -31375,7 +31378,17 @@ var _timezones_alternative = {
     scroll_element[scroll_position] += scroll_by
   };
   var _initGallery = function() {
-    _gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link")
+    _gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
+    if (TS.boot_data.feature_pdf_viewer) {
+      _filterPDFs()
+    }
+  };
+  var _filterPDFs = function() {
+    _gallery = _gallery.filter(function(index) {
+      var $file = $(this);
+      var file_id = $file.attr("data-file-id");
+      return !TS.files.fileIsPDF(file_id)
+    })
   };
   var _removeSignals = function() {
     TS.files.team_file_comment_added_sig.remove(_maybeUpdateCommentCount);
@@ -31486,6 +31499,7 @@ var _timezones_alternative = {
     };
     if (TS.boot_data.feature_pdf_viewer && _current_file.is_pdf) {
       template_args.file_is_pdf = true;
+      template_args.control_btns = false;
       template_args.pdf_viewer_url = TS.boot_data.abs_root_url + "pdf-viewer?feature_pdf_viewer=1"
     } else {
       var image_src = _getImageSrc(_current_file);
@@ -31737,11 +31751,13 @@ var _timezones_alternative = {
     for (var i = 0; i < _gallery.length; i++) {
       if (_gallery[i].getAttribute("data-file-id")) {
         if (_gallery[i].getAttribute("data-file-id") === _settings.current_file_id) {
-          _current_file.index = i
+          _current_file.index = i;
+          break
         }
       } else {
         if (_gallery[i].getAttribute("data-src") === _current_file.external_file_src) {
-          _current_file.index = i
+          _current_file.index = i;
+          break
         }
       }
     }
