@@ -28967,7 +28967,7 @@ TS.registerModule("constants", {
       return
     }
     _$menu.on("click.emoji_menu", "#emoji_menu_header a.emoji_grouping_tab", _onHeaderClick);
-    _$menu.on("input.emoji_menu", "#emoji_input", _.throttle(_onInputTextchange, 500, true));
+    _$menu.on("input.emoji_menu", "#emoji_input", _.throttle(_onInputTextchange, 250, true));
     _$menu.on("click.emoji_menu", ".emoji_li", _onEmoClick);
     _$menu.on("mouseenter.emoji_menu", ".emoji_li", _onMouseEnterA);
     _$menu.on("mouseleave.emoji_menu", ".emoji_li", _onMouseLeaveA);
@@ -29129,8 +29129,10 @@ TS.registerModule("constants", {
     }
     _$emoji_zero_results.toggleClass("hidden", one_shown);
     TS.log(96, " after emoji_zero_results.toggleClass " + (Date.now() - start));
-    if (_$scroller[0]["scrollTop"]) _$scroller[0]["scrollTop"] = 0;
-    TS.log(96, "after scroller[0].scrollTop = 0 " + (Date.now() - start));
+    if (!TS.boot_data.feature_emoji_menu_tuning || TS.model.is_FF || TS.model.is_IE) {
+      if (_$scroller[0]["scrollTop"]) _$scroller[0]["scrollTop"] = 0;
+      TS.log(96, "after scroller[0].scrollTop = 0 " + (Date.now() - start))
+    }
     if (!TS.environment.supports_custom_scrollbar) {
       TS.utility.setImmediate(function() {
         TS.ui.utility.updateClosestMonkeyScroller(_$scroller)
@@ -29950,7 +29952,7 @@ TS.registerModule("constants", {
         if (TS.clipboard.canWriteText()) {
           TS.clipboard.writeText(file.permalink)
         } else {
-          TS.warn("User clicked copy link, but we can't write to the clipboard right now")
+          TS.warn("User clicked copy link, but we can't write to the clipboard right now");
         }
       } else if (id == "create_public_space_link") {
         e.preventDefault();
@@ -34167,7 +34169,7 @@ var _on_esc;
         _updateMsgStar(item.message.ts, item.channel, starred, false)
       } else if (item.type == "file") {
         if (item.file.is_starred != starred) {
-          _updateFileStar(item.file.id, starred)
+          _updateFileStar(item.file.id, starred);
         }
       } else if (item.type == "file_comment") {
         if (item.comment.is_starred != starred) {
