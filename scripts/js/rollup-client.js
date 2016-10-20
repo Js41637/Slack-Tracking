@@ -31090,6 +31090,9 @@ var _timezones_alternative = {
       return {
         _generateTemplateArguments: _generateTemplateArguments
       }
+    },
+    canClose: function() {
+      return _canClose()
     }
   });
   var _$body = $("body");

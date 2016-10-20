@@ -27291,6 +27291,7 @@ TS.registerModule("constants", {
       txt = txt.replace(_diacritics_rx, "");
       txt = txt.replace(/\u00A0/g, " ");
       txt = txt.replace(/\u000D/g, "\n");
+      txt = txt.replace(/\u000A/g, "\n");
       return txt
     },
     replaceHighlightMarkers: function(txt, start_replacement, end_replacement) {
@@ -36974,16 +36975,13 @@ var _on_esc;
           break;
         case "org_user_not_restricted":
         case "org_user_not_ultra_restricted":
-          account_type = "Full";
+          account_type = "full Team Member";
           break
       }
       if (_.isUndefined(account_type)) {
         message = "This person already has an account for your organization"
       } else {
-        message = "This person already has a " + account_type + " account for your organization, so you can only invite them to your team as a " + account_type;
-        if (account_type === "Full") {
-          message += " member"
-        }
+        message = "This person already has a " + account_type + " account for your organization, so you can only invite them in that role."
       }
       return message
     }
@@ -38192,7 +38190,7 @@ var _on_esc;
     opts = opts || {};
     var data;
     if (!opts.contact_data) {
-      data = _state.pending_invites || [];
+      data = _state.pending_invites || []
     } else {
       data = (_state.pending_invites || []).concat(opts.contact_data.items)
     }
@@ -42322,10 +42320,10 @@ var _on_esc;
         settings.off_text = $checkbox.data("off-text") ? $checkbox.data("off-text") : _default_settings.off_text;
         settings.off_class = $checkbox.data("off-class") ? $checkbox.data("off-class") : _default_settings.off_class;
         settings.off_label = $checkbox.data("off-label") ? $checkbox.data("off-label") : _default_settings.off_label;
-        settings.disabled = $checkbox.data("disabled") ? $checkbox.data("disabled") : _default_settings.disabled;
+        settings.disabled = $checkbox.data("disabled") ? $checkbox.data("disabled") : _default_settings.disabled
       }
       if (settings.initial_state === null) {
-        settings.initial_state = $checkbox.is(":checked") ? true : false
+        settings.initial_state = $checkbox.is(":checked") ? true : false;
       }
       if (settings.disabled === null) {
         settings.disabled = $checkbox.is(":disabled") ? true : false
@@ -47846,7 +47844,7 @@ $.fn.togglify = function(settings) {
     return TS.api.call(is_private ? "groups.listSharedInvites" : "channels.listSharedInvites")
   };
   var _promiseToCallRevokeSharedInvite = function(args, is_private) {
-    return TS.api.call(is_private ? "groups.revokeSharedInvite" : "channels.revokeSharedInvite", args);
+    return TS.api.call(is_private ? "groups.revokeSharedInvite" : "channels.revokeSharedInvite", args)
   };
   var _promiseToCallSendSharedInvite = function(args, is_private) {
     return TS.api.call(is_private ? "groups.sendSharedInvite" : "channels.sendSharedInvite", args)
@@ -52396,10 +52394,10 @@ $.fn.togglify = function(settings) {
       if (is_moving_left) {
         next_end = next_start
       } else {
-        next_start = next_end;
+        next_start = next_end
       }
     }
-    TS.utility.contenteditable.cursorPosition(input, next_start, next_end - next_start)
+    TS.utility.contenteditable.cursorPosition(input, next_start, next_end - next_start);
   }
 })();
 (function() {
