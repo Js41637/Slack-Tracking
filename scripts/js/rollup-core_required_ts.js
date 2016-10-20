@@ -1549,6 +1549,12 @@
           TS.refreshTeams()
         }
       }
+      if (_should_record_boot_size_metrics && (first_time || is_first_full_boot)) {
+        TS.utility.rAF(function() {
+          var log_name = first_time ? "incremental_boot_size" : "rtm_start_size";
+          TS.metrics.count(log_name, JSON.stringify(data).length)
+        })
+      }
       TS.prefs.setPrefs(data.self.prefs);
       delete data.self.prefs;
       var i;
@@ -1576,6 +1582,11 @@
       if (TS._did_incremental_boot && !TS._incremental_boot && !TS._did_full_boot) {} else {
         for (i = 0; i < data_user_list.length; i++) {
           data_user_list_by_id[data_user_list[i].id] = true
+        }
+        if (_should_record_boot_size_metrics) {
+          TS.utility.rAF(function() {
+            TS.metrics.count("members_local_storage_size", JSON.stringify(users_cache).length)
+          })
         }
       }
       var should_check_if_local = TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members;
@@ -1907,7 +1918,8 @@
   };
   var _lazyLoadMembers = function() {
     return !!TS.boot_data.should_use_flannel
-  }
+  };
+  var _should_record_boot_size_metrics = _.random(0, 100) < 10 || /should_record_boot_size_metrics/.test(document.location.search)
 })();
 (function() {
   "use strict";
@@ -2113,7 +2125,7 @@
   var _removeRecentIncrementalBootState = function() {
     if (TS.client && TS.client.ui && TS.client.ui.$messages_input_container) {
       TS.client.ui.$messages_input_container.off(_message_input_change_events);
-      TS.client.ui.$messages_input_container.removeClass("recent-incremental-boot")
+      TS.client.ui.$messages_input_container.removeClass("recent-incremental-boot");
     }
     TS.ms.connected_sig.remove(_removeRecentIncrementalBootState);
     if (_recent_incremental_boot_timer) {
@@ -4538,7 +4550,7 @@
         file.channels.forEach(function(c_id) {
           var channel = TS.channels.getChannelById(c_id);
           if (channel && channel.is_general) is_general = true
-        });
+        })
       }
       if (is_general && !TS.members.canUserAtEveryone()) {
         if (has_at_everyone || has_at_here || has_at_group || has_at_channel) return "@everyone"

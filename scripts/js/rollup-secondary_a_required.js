@@ -36949,7 +36949,9 @@ var _on_esc;
     url_in_message: "Sorry, but URLs are not allowed in the custom message. Please remove it and try again!",
     invalid_email: "That doesn't look like a valid email address!",
     already_in_team: "This person is already on your team.",
-    user_disabled: "This person is already on your team, but their account is disabled. You can <a href='%TEAM_URL%#disabled'>manage</a> their account.",
+    user_disabled: function() {
+      return 'This person is already on your team, but their account is disabled. You can <a href="' + TS.model.team_url + '#disabled">manage</a> their account.'
+    },
     already_invited: "This person has already been invited to your team.",
     sent_recently: "This person was recently invited. No need to invite them again just yet.",
     invite_failed: "Something went wrong with this invite :(",
@@ -36962,7 +36964,31 @@ var _on_esc;
     too_long: "This person's name exceeds the 35-character limit.",
     org_user_is_disabled: "This person has a disabled account for your organization.",
     org_user_is_disabled_but_present: "This person is already on your team, but they have been disabled by your organization. Contact an organization administrator to re-enable their account",
-    user_type_mismatch: "This person already has a%ACCOUNT_TYPE% account for your organization"
+    user_type_mismatch: function(error, issue) {
+      var account_type;
+      var message;
+      switch (issue) {
+        case "org_user_is_restricted":
+          account_type = "Multi-Channel Guest";
+          break;
+        case "org_user_is_ultra_restricted":
+          account_type = "Single-Channel Guest";
+          break;
+        case "org_user_not_restricted":
+        case "org_user_not_ultra_restricted":
+          account_type = "Full";
+          break
+      }
+      if (_.isUndefined(account_type)) {
+        message = "This person already has an account for your organization"
+      } else {
+        message = "This person already has a " + account_type + " account for your organization, so you can only invite them to your team as a " + account_type;
+        if (account_type === "Full") {
+          message += " member"
+        }
+      }
+      return message
+    }
   };
   var _blocking_errors = ["user_limit_reached", "invite_limit_reached"];
   var _start = function(options) {
@@ -37727,24 +37753,7 @@ var _on_esc;
   var _getError = function(error, issue) {
     if (!_error_map[error]) return "";
     var error_msg = _error_map[error];
-    if (error_msg.indexOf("%TEAM_URL%") !== -1) error_msg = error_msg.replace("%TEAM_URL%", TS.model.team_url);
-    if (error_msg.indexOf("%ACCOUNT_TYPE%") !== -1) {
-      var replacement = "n";
-      var more_info = ", so you can only invite them to your team as a%ACCOUNT_TYPE%.";
-      issue = issue || "";
-      if (issue === "org_user_is_restricted") {
-        replacement = " Multi-Channel Guest"
-      } else if (issue === "org_user_is_ultra_restricted") {
-        replacement = " Single-Channel Guest"
-      }
-      if (replacement !== "n") {
-        error_msg += more_info
-      } else {
-        error_msg += "."
-      }
-      error_msg = error_msg.replace(/%ACCOUNT_TYPE%/g, replacement)
-    }
-    return error_msg
+    return _.isFunction(error_msg) ? error_msg(error, issue) : error_msg
   }
 })();
 (function() {
