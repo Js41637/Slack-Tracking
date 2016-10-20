@@ -6754,10 +6754,6 @@ only screen and (min-resolution:2dppx) {
   z-index: 99
 }
 
-.has_reply_banners .messages_banner {
-  top: 1rem
-}
-
 #file_progress.messages_banner,
 #messages_unread_status.messages_banner {
   height: 1.5625rem;
@@ -7589,8 +7585,7 @@ only screen and (min-resolution:2dppx) {
   visibility: hidden
 }
 
-#client-ui.unread_view_is_showing #archive_msgs_scroller_div,
-#client-ui.unread_view_is_showing #reply_banners {
+#client-ui.unread_view_is_showing #archive_msgs_scroller_div {
   display: none
 }
 

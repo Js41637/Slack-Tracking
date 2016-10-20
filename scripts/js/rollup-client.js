@@ -1509,28 +1509,18 @@
         if (!TS.boot_data.feature_msg_input_contenteditable) {
           $("#message-form").css("height", TS.view.last_input_height)
         }
-        var msgs_scroller_margin_top = 0;
-        if (TS.boot_data.feature_message_replies && TS.replies.areRepliesGoodNow()) {
-          var $reply_banners = $("#reply_banners");
-          if ($reply_banners.children().length) {
-            var client_header_overhang = 8;
-            msgs_scroller_margin_top = $("#reply_banners").outerHeight() + client_header_overhang
-          }
-          TS.client.ui.$msgs_scroller_div.css("margin-top", msgs_scroller_margin_top);
-          $(".messages_banner").css("margin-top", msgs_scroller_margin_top)
-        }
         if (TS.boot_data.feature_msg_input_contenteditable) {
-          var msgs_scroller_height = wh - TS.view.msgs_scroller_y - msgs_scroller_margin_top - TS.view.footer_outer_h;
+          var msgs_scroller_height = wh - TS.view.msgs_scroller_y - TS.view.footer_outer_h;
           TS.client.ui.$msgs_scroller_div.css("height", msgs_scroller_height)
         } else {
-          var msgs_scroller_height = wh - TS.view.msgs_scroller_y - msgs_scroller_margin_top - TS.view.last_input_container_height - 22 * TS.utility.getA11yFontSizeMultiplier();
+          var msgs_scroller_height = wh - TS.view.msgs_scroller_y - TS.view.last_input_container_height - 22 * TS.utility.getA11yFontSizeMultiplier();
           TS.client.ui.$msgs_scroller_div.css("height", msgs_scroller_height)
         }
         if (TS.model.archive_view_is_showing) {
           if (TS.client.archives.not_member) {
             msgs_scroller_height = wh - (TS.view.msgs_scroller_y + $("#footer_archives").outerHeight())
           }
-          TS.client.archives.$scroller.css("height", msgs_scroller_height + msgs_scroller_margin_top)
+          TS.client.archives.$scroller.css("height", msgs_scroller_height)
         }
         var flex_contents_height = wh - TS.view.msgs_scroller_y;
         $("#flex_contents > .panel").css("height", flex_contents_height);
@@ -3792,7 +3782,7 @@
       TS.view.switchedHelper();
       TS.view.unAdjustForWelcomeSlideShow();
       TS.view.updateTitleWithContext();
-      TS.view.updateTypingText()
+      TS.view.updateTypingText();
     },
     groupDeleted: function(group) {
       TS.client.channel_pane.rebuild("channels", "starred")
@@ -4685,7 +4675,7 @@
         var prefix = "sidebar_theme_";
         var el = $client_ui[0];
         var classes = el.className.split(" ").filter(function(c) {
-          return c.lastIndexOf(prefix, 0) !== 0
+          return c.lastIndexOf(prefix, 0) !== 0;
         });
         el.className = classes.join(" ");
         $client_ui.addClass(prefix + TS.model.prefs.sidebar_theme)
@@ -11090,9 +11080,6 @@
         }
       }
       TS.client.ui.$msgs_div.html(html);
-      if (TS.boot_data.feature_message_replies && TS.replies.areRepliesGoodNow()) {
-        TS.ui.reply_banners.renderActiveBanners()
-      }
       TS.utility.makeSureAllLinksHaveTargets(TS.client.ui.$msgs_div);
       TS.client.msg_pane.assignLastReadMsgDiv(model_ob);
       TS.client.msg_pane.insertUnreadDivider();
@@ -11721,21 +11708,7 @@
         }
       } else {
         if (model_ob.oldest_unread_ts) {
-          if (TS.boot_data.feature_message_replies && TS.replies.areRepliesGoodNow()) {
-            var oldest_unread_msg = TS.utility.msgs.getMsg(model_ob.oldest_unread_ts, model_ob.msgs);
-            if (oldest_unread_msg && TS.utility.msgs.isMsgReply(oldest_unread_msg)) {
-              oldest_unread_msg = _.findLast(model_ob.msgs, function(msg) {
-                return msg.ts > model_ob.last_read && !TS.utility.msgs.isMsgReply(msg)
-              })
-            }
-            if (oldest_unread_msg) {
-              all_unreads_are_seen = TS.client.ui.isMsgInView(oldest_unread_msg.ts)
-            } else {
-              all_unreads_are_seen = TS.ui.reply_banners.areBannersInView()
-            }
-          } else {
-            all_unreads_are_seen = TS.client.ui.isMsgInView(model_ob.oldest_unread_ts)
-          }
+          all_unreads_are_seen = TS.client.ui.isMsgInView(model_ob.oldest_unread_ts);
           if (TS.pri) TS.log(58, "checkUnreads (#" + model_ob.name + "): oldest_unread_ts = " + model_ob.oldest_unread_ts + ", isMsgInView (all_unreads_are_seen) = " + all_unreads_are_seen)
         } else {
           if (TS.pri) TS.log(58, "checkUnreads (#" + model_ob.name + "): no oldest_unread_ts?")
@@ -15249,7 +15222,7 @@
         mouseleave: this._onMouseLeave
       });
       if (_has_scroll_left_bug === null) {
-        _testHasScrollLeftBug(this.element.parent());
+        _testHasScrollLeftBug(this.element.parent())
       }
       this._$ghost_text = $("<span>").addClass(this.options.placeholder_class);
       this._ghost_text_changed_sig = new signals.Signal;
@@ -16360,7 +16333,7 @@
           }
           return false
         }, this);
-        var results = full_name_matches.concat(preferred_name_matches);
+        var results = full_name_matches.concat(preferred_name_matches)
       } else {
         var username_matches = [];
         var realname_matches = [];
@@ -17497,7 +17470,7 @@
         existing_groups: existing_groups_with_same_membersA
       });
       div.find(".modal_input_note").addClass("hidden");
-      div.find(".existing_groups_warning").html(existing_groups_html).removeClass("hidden").data("has-been-shown", true)
+      div.find(".existing_groups_warning").html(existing_groups_html).removeClass("hidden").data("has-been-shown", true);
     },
     showNoInvitesAlert: function() {
       var div = TS.ui.group_create_dialog.div;
@@ -18108,7 +18081,7 @@
         display = true
       }
       if (setting == "everything") display = true;
-      if (TS.boot_data.feature_message_replies && TS.replies.areRepliesGoodNow() && TS.utility.msgs.isMsgReply(msg)) {
+      if (TS.boot_data.feature_message_replies && TS.replies.isAllThreadsViewEnabled() && TS.utility.msgs.isMsgReply(msg)) {
         var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
         if (subscription && subscription.subscribed) display = true
       }
@@ -20808,7 +20781,7 @@
         $("#notifications_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
           if ($(e.target).closest(".dismiss").length === 0) {
-            TS.ui.banner.growlsPermissionPrompt();
+            TS.ui.banner.growlsPermissionPrompt()
           } else {
             $("#notifications_banner").addClass("hidden");
             TS.ui.banner.show("notifications_dismiss");
@@ -22728,7 +22701,7 @@
         if (data.error === "restricted_action") {
           err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>"
         } else if (data.error === "last_ra_channel") {
-          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>";
+          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>"
         } else if (data.error === "name_taken") {
           err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>'
         }
@@ -25707,7 +25680,7 @@
     if (_$details.find("#channel_topic_input").hasClass("hidden")) {
       _$details.find("#channel_topic_input, .topic_done, .topic_cancel").blur()
     } else {
-      _$details.find("#channel_topic_input").select()
+      _$details.find("#channel_topic_input").select();
     }
   };
   var _setTopic = function() {
@@ -27837,7 +27810,7 @@
     $("#fs_modal").removeClass("fs_modal_internal_scroll");
     $new_channel_container.removeClass("hidden");
     TS.ui.fs_modal.bindBackButton(_switchBackToImBrowser);
-    TS.ui.fs_modal.showBackButton()
+    TS.ui.fs_modal.showBackButton();
   };
   var _switchBackToImBrowser = function() {
     TS.ui.fs_modal.unbindBackButton();
@@ -29965,7 +29938,7 @@
       } else if (permission_level == "denied") {
         $("#growls_disallowed_div").removeClass("hidden")
       } else {
-        alert("huh allowed:" + allowed + " permission_level:" + permission_level)
+        alert("huh allowed:" + allowed + " permission_level:" + permission_level);
       }
     })
   };

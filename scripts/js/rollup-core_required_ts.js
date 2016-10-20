@@ -1834,10 +1834,7 @@
     TS.error("_onBadUserCache problem: " + problem);
     TS.storage.cleanOutCacheTsStorage();
     TS.model.had_bad_user_cache = true;
-    TS.ms.onFailure("_onBadUserCache problem: " + problem);
-    TS.logError({
-      message: details
-    }, "_onBadUserCache()")
+    TS.ms.onFailure("_onBadUserCache problem: " + problem)
   };
   var _extractAndDeleteTestProps = function(ob) {
     var may_export_test = typeof window.jasmine !== "undefined" || TS.boot_data.version_ts == "dev" && TS.qs_args["export_test"];
@@ -2125,7 +2122,7 @@
   var _removeRecentIncrementalBootState = function() {
     if (TS.client && TS.client.ui && TS.client.ui.$messages_input_container) {
       TS.client.ui.$messages_input_container.off(_message_input_change_events);
-      TS.client.ui.$messages_input_container.removeClass("recent-incremental-boot");
+      TS.client.ui.$messages_input_container.removeClass("recent-incremental-boot")
     }
     TS.ms.connected_sig.remove(_removeRecentIncrementalBootState);
     if (_recent_incremental_boot_timer) {
@@ -4537,7 +4534,7 @@
         only_general = !!channel.is_general
       }
       if (only_general && has_at_everyone && (!has_at_here && !has_at_channel && !has_at_group)) {
-        if (TS.members.canUserAtEveryone()) return false
+        if (TS.members.canUserAtEveryone()) return false;
       }
       if (!TS.members.canUserAtChannelOrAtGroup()) {
         if (has_at_here) return "@here";

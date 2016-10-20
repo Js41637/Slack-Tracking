@@ -18667,8 +18667,7 @@ ts-message .emoji-sizer .mention {
   position: relative
 }
 
-#messages_container.has_reply_banners.has_top_messages_banner #reply_banners:after,
-#messages_container:not(.has_reply_banners).has_top_messages_banner:before {
+#messages_container.has_top_messages_banner:before {
   content: '';
   position: absolute;
   z-index: 98;
@@ -18677,10 +18676,6 @@ ts-message .emoji-sizer .mention {
   right: .8125rem;
   height: 1.625rem;
   background: #fff
-}
-
-#messages_container.has_reply_banners.has_top_messages_banner #reply_banners:after {
-  top: 102%
 }
 
 #messages_container>.monkey_scroll_wrapper:not(#monkey_scroll_wrapper_for_unread_msgs_scroller_div)>.monkey_scroll_bar {
@@ -19049,10 +19044,6 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
-.light_theme .reply_banner {
-  padding-left: 1.625rem
-}
-
 .dense_theme .dense_only {
   display: inline
 }
@@ -19211,100 +19202,6 @@ ts-message .emoji-sizer .mention {
 
 .dense_theme #convo_container ts-conversation>ts-message .message_content .message_body {
   display: block
-}
-
-.dense_theme .reply_banner {
-  padding-left: 5rem
-}
-
-#reply_banners {
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  position: absolute;
-  top: 8px;
-  left: 0;
-  right: 0;
-  background: #f9f9f9;
-  border-bottom: 1px solid #e0e0e0;
-  z-index: 1;
-  font-size: .875rem
-}
-
-#archive_msgs_scroller_div:not(.hidden)~#reply_banners,
-#reply_banners:empty {
-  display: none
-}
-
-.reply_banner {
-  position: relative;
-  height: 1.75rem;
-  line-height: 1.75rem;
-  cursor: pointer;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  padding-right: 4.0625rem
-}
-
-.reply_banner .member.member_preview_link {
-  font-weight: 700;
-  color: #2c2d30
-}
-
-.reply_banner .message_preview {
-  margin-left: .1875rem;
-  color: #babbbf
-}
-
-.reply_banner .dismiss_reply_banner {
-  color: #555459;
-  position: absolute;
-  right: 1.125rem;
-  top: 0;
-  height: 100%;
-  line-height: 1.875rem;
-  visibility: hidden;
-  outline: 0
-}
-
-.reply_banner .dismiss_reply_banner:focus,
-.reply_banner .dismiss_reply_banner:hover {
-  color: #439fe0
-}
-
-.reply_banner .reply_banner_text {
-  font-weight: 700
-}
-
-.reply_banner .reply_count_badge {
-  display: inline-block;
-  border-radius: 9px;
-  padding: 2px 0;
-  line-height: .875rem;
-  font-weight: 700;
-  vertical-align: baseline;
-  text-align: center;
-  width: 1.5625rem;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, .2);
-  margin-right: .3125rem;
-  color: #fff;
-  font-size: .8125rem
-}
-
-.reply_banner.subscribed .reply_count_badge {
-  background: #eb4d5c
-}
-
-.reply_banner:not(.subscribed) .reply_count_badge {
-  background: #9e9ea6
-}
-
-.reply_banner:hover .reply_banner_text {
-  text-decoration: underline
-}
-
-.reply_banner:hover .dismiss_reply_banner {
-  visibility: visible
 }
 
 .last_replier_wrapper {

@@ -792,9 +792,8 @@
             storage_size = TS.storage.storageSize()
           } catch (err) {}
           debug_time = new Date - debug_time;
-          TS.logError({
-            message: "Took " + elapsed + "ms for " + i + " item (!all case) (threshold is " + _slow_write_threshold + " ms). Key: " + k + ". Buffer length: " + (_buffer[k] && _buffer[k].val && _buffer[k].val.toString() ? _buffer[k].val.toString().length : "unknown (not a string)") + ". localStorage size: " + (storage_size || "unknown") + ". Time to read LS size: " + debug_time
-          }, "_flushBuffer exceeded slow write threshold")
+          var message = "Took " + elapsed + "ms for " + i + " item (!all case) (threshold is " + _slow_write_threshold + " ms). Key: " + k + ". Buffer length: " + (_buffer[k] && _buffer[k].val && _buffer[k].val.toString() ? _buffer[k].val.toString().length : "unknown (not a string)") + ". localStorage size: " + (storage_size || "unknown") + ". Time to read LS size: " + debug_time;
+          TS.info("_flushBuffer exceeded slow write threshold: " + message)
         }
       }
       if (_buffer[k]) {
@@ -814,9 +813,7 @@
           storage_size = TS.storage.storageSize()
         } catch (err) {}
         var message = "Took " + elapsed + "ms for " + i + " items (threshold is " + _slow_write_threshold + " ms). localStorage size: " + storage_size + ". App open for " + ((new Date - TSConnLogger.start_time) / 1e3 / 60).toFixed(2) + " min. why: " + why;
-        TS.logError({
-          message: message
-        }, "_flushBuffer exceeded slow write threshold (all case): " + message)
+        TS.info("_flushBuffer exceeded slow write threshold (all case): " + message)
       }
     }
     if (i === 0) {
@@ -856,9 +853,8 @@
       try {
         storage_size = TS.storage.storageSize()
       } catch (err) {}
-      TS.logError({
-        message: "Took " + elapsed + "ms to read " + k + " (theshold is " + _slow_get_threshold + "ms), length = " + (result && !isNaN(result.length) ? result.length : "unknown") + ". Storage size: " + storage_size
-      }, "_get took longer than threshold")
+      var message = "_get took longer than threshold: Took " + elapsed + "ms to read " + k + " (theshold is " + _slow_get_threshold + "ms), length = " + (result && !isNaN(result.length) ? result.length : "unknown") + ". Storage size: " + storage_size;
+      TS.info(message)
     }
     return result
   };
@@ -899,9 +895,8 @@
             try {
               storage_size = TS.storage.storageSize()
             } catch (err) {}
-            TS.logError({
-              message: "Took " + elapsed + "ms to write " + k + " (theshold is " + _slow_set_threshold + "ms), length = " + (value && !isNaN(value.length) ? value.length : "unknown") + ". Storage length: " + storage_size
-            }, "_set exceeded slow set threshold (immediate)")
+            var message = "_set exceeded slow set threshold (immediate): Took " + elapsed + "ms to write " + k + " (theshold is " + _slow_set_threshold + "ms), length = " + (value && !isNaN(value.length) ? value.length : "unknown") + ". Storage length: " + storage_size;
+            TS.info(message)
           }
         } else {
           TS.log(488, "_set GOOD immediately: " + immediate + " " + name + ": " + elapsed + "ms", value)
@@ -8195,16 +8190,15 @@ TS.registerModule("constants", {
         if (status.code === 3) {
           var debug_old_msg_timestamps = _.map(model_ob.msgs, "ts");
           TS.shared.checkForMoreMsgs(model_ob).then(function() {
-            TS.logError({
-              message: "more messages than expected in " + model_ob.id
-            }, "maybeLoadScrollBackHistory: oldest_msg_ts or is_limited is wrong");
+            var message;
+            message = "more messages than expected in " + model_ob.id;
+            TS.logError(message, "oldest_msg_ts or is_limited is wrong", "Scrollback history error");
             var debug_new_msg_timestamps = _.map(model_ob.msgs, "ts");
             var debug_timestamp_differences_old = _.difference(debug_old_msg_timestamps, debug_new_msg_timestamps);
             var debug_timestamp_differences_new = _.difference(debug_new_msg_timestamps, debug_old_msg_timestamps);
             if (debug_timestamp_differences_old.length || debug_timestamp_differences_new.length) {
-              TS.logError({
-                message: "timestamps not present in new data:" + debug_timestamp_differences_old.toString() + "; timestamps not present in old data: " + debug_timestamp_differences_new.toString()
-              }, "Found a difference in timestamps before and after history call")
+              message = "timestamps not present in new data:" + debug_timestamp_differences_old.toString() + "; timestamps not present in old data: " + debug_timestamp_differences_new.toString();
+              TS.logError(message, "Found a difference in timestamps before and after history call", "Scrollback history error")
             } else {
               TS.log(null, "Did not find a difference between old and new timestamp data after history API call.")
             }
@@ -13197,9 +13191,7 @@ TS.registerModule("constants", {
           } else if (args.prefs) {
             desc = "(multiple prefs)"
           }
-          TS.logError({
-            message: desc
-          }, "TS.prefs.setPrefByAPI call got a not ok rsp");
+          TS.logError(desc, "TS.prefs.setPrefByAPI call got a not ok rsp", "API response error");
           setTimeout(function() {
             if (args.prefs) {
               TS.error("multi preferences setting failed.")
@@ -13377,7 +13369,7 @@ TS.registerModule("constants", {
       TS.search.dispatchSearch(query, TS.search.per_page, TS.search.onSearchAll, page)
     },
     getNextPageOfMessageResults: function(query, page) {
-      _callSearchPerSe("search.messages", query, TS.search.per_page, page, _onSearchMessages)
+      _callSearchPerSe("search.messages", query, TS.search.per_page, page, _onSearchMessages);
     },
     getNextPageOfFileResults: function(query, page) {
       _callSearchPerSe("search.files", query, TS.search.per_page, page, _onSearchFiles)
@@ -14614,7 +14606,7 @@ TS.registerModule("constants", {
     try {
       _websocket.close()
     } catch (err) {
-      TS.logError(err, "Problem while deprecating current socket")
+      TS.info("Problem while deprecating current socket: " + err)
     }
     _websocket = undefined;
     _did_make_provisional_connection = false
@@ -14683,15 +14675,11 @@ TS.registerModule("constants", {
           });
           TS.ms.connected_sig.addOnce(TS.client.deactivateMsgRateLimit)
         }
-        TS.logError({
-          message: JSON.stringify(imsg)
-        }, "_onErrorMsg");
+        TS.info("_onErrorMsg imsg.msg: " + imsg.msg + ", imsg.code: " + imsg.code);
         TS.ms.onFailure("_onErrorMsg imsg.error:" + imsg.error)
       }
     } else {
-      TS.logError({
-        message: imsg ? JSON.stringify(imsg) : "no imsg?"
-      }, "_onErrorMsg")
+      TS.info("_onErrorMsg imsg: " + (imsg ? JSON.stringify(imsg) : "no imsg?"))
     }
   };
   var _onHello = function(imsg) {
@@ -14917,7 +14905,7 @@ TS.registerModule("constants", {
       _websocket.onmessage = _onMsgProvisional;
       _websocket.onopen = _onConnectProvisional
     }).catch(function(err) {
-      TS.logError(err, "Flannel TS.ms.connect wake error: " + JSON.stringify(err));
+      TS.logError(err, "TS.ms.connect wake error", "Flannel error");
       throw err
     });
     return rtm_start_p
@@ -15643,7 +15631,7 @@ TS.registerModule("constants", {
       if (TS.model.active_group_id == imsg.channel) {
         if (TS.client) TS.client.activeChannelDisplayGoneAway()
       }
-      TS.groups.closed_sig.dispatch(group);
+      TS.groups.closed_sig.dispatch(group)
     },
     subtype__group_topic: function(imsg) {
       var mpim = TS.mpims.getMpimById(imsg.channel);
@@ -16289,22 +16277,7 @@ TS.registerModule("constants", {
   };
   var _nextFromQ = function() {
     if (!_Q.length) return;
-    if (TS.boot_data.feature_message_replies && TS.replies.areRepliesGoodNow()) {
-      _ensureSubscriptionsForThreads(_Q[0])
-    } else {
-      _ensureFileObjectsOnMsgAndProceed(_Q[0])
-    }
-  };
-  var _ensureSubscriptionsForThreads = function(imsg) {
-    var model_ob_id = imsg.channel;
-    var thread_ts = imsg.thread_ts;
-    if (model_ob_id && thread_ts) {
-      return TS.replies.promiseToGetSubscriptionState(model_ob_id, thread_ts).finally(function() {
-        return _ensureFileObjectsOnMsgAndProceed(imsg)
-      })
-    } else {
-      return _ensureFileObjectsOnMsgAndProceed(imsg)
-    }
+    _ensureFileObjectsOnMsgAndProceed(_Q[0])
   };
   var _ensureFileObjectsOnMsgAndProceed = function(imsg) {
     if (!TS.boot_data.feature_simple_file_events) return _ensureModelObsAndMembersAndProceed(imsg);
@@ -17362,7 +17335,7 @@ TS.registerModule("constants", {
                   } catch (err) {
                     if (!err.message) err.message = "";
                     err.message += " $last_divider.data('ts'):" + $last_divider.data("ts");
-                    TS.logError(err, "Problem with TS.templates.messages_day_divider 2.1")
+                    TS.info("Problem with TS.templates.messages_day_divider 2.1: " + JSON.stringify(err))
                   }
                   $last_divider.replaceWith(new_messages_day_divider_html)
                 }
@@ -17377,7 +17350,7 @@ TS.registerModule("constants", {
                     } catch (err) {
                       if (!err.message) err.message = "";
                       err.message += " $second_last_divider.data('ts'):" + $second_last_divider.data("ts");
-                      TS.logError(err, "Problem with TS.templates.messages_day_divider 3.1")
+                      TS.info("Problem with TS.templates.messages_day_divider 3.1: " + JSON.stringify(err))
                     }
                     $second_last_divider.replaceWith(new_messages_day_divider_html)
                   }
@@ -17629,7 +17602,7 @@ TS.registerModule("constants", {
         }
         if (!err.message) err.message = "";
         err.message += " " + extra;
-        TS.logError(err, "Problem in buildMsgHTML with_args");
+        TS.info("Problem in buildMsgHTML with args: " + JSON.stringify(err.message));
         return ""
       }
     },
@@ -17712,7 +17685,7 @@ TS.registerModule("constants", {
                 } catch (err) {
                   if (!err.message) err.message = "";
                   err.message += " msg.ts:" + (msg ? msg.ts : "no msg?");
-                  TS.logError(err, "Problem with TS.templates.messages_day_divider 1.1")
+                  TS.info("Problem with TS.templates.messages_day_divider 1.1: " + JSON.stringify(err))
                 }
               }
               new_day = true;
@@ -17729,7 +17702,7 @@ TS.registerModule("constants", {
                   } catch (err) {
                     if (!err.message) err.message = "";
                     err.message += " $last_divider.data('ts'):" + $last_divider.data("ts");
-                    TS.logError(err, "Problem with TS.templates.messages_day_divider 2.1")
+                    TS.info("Problem with TS.templates.messages_day_divider 2.1: " + JSON.stringify(err))
                   }
                   $last_divider.replaceWith(new_messages_day_divider_html)
                 }
@@ -17744,7 +17717,7 @@ TS.registerModule("constants", {
                     } catch (err) {
                       if (!err.message) err.message = "";
                       err.message += " $second_last_divider.data('ts'):" + $second_last_divider.data("ts");
-                      TS.logError(err, "Problem with TS.templates.messages_day_divider 3.1")
+                      TS.info("Problem with TS.templates.messages_day_divider 3.1: " + JSON.stringify(err))
                     }
                     $second_last_divider.replaceWith(new_messages_day_divider_html)
                   }
@@ -17764,7 +17737,7 @@ TS.registerModule("constants", {
               } catch (err) {
                 if (!err.message) err.message = "";
                 err.message += " msg.ts:" + (msg ? msg.ts : "no msg?");
-                TS.logError(err, "Problem with TS.templates.messages_day_divider 4.1")
+                TS.info("Problem with TS.templates.messages_day_divider 4.1: " + JSON.stringify(err))
               }
             }
             last_time_divider = true;
@@ -17981,7 +17954,7 @@ TS.registerModule("constants", {
         }
         if (!err.message) err.message = "";
         err.message += " " + extra;
-        TS.logError(err, "Problem in buildMsgHTML with_args");
+        TS.info("Problem in buildMsgHTML with args: " + JSON.stringify(err.message));
         return ""
       }
     },
@@ -19548,7 +19521,7 @@ TS.registerModule("constants", {
             $team_tab_actions.removeClass("hidden");
             $team_block.addClass("hidden")
           } else {
-            $team_block.removeClass("hidden")
+            $team_block.removeClass("hidden");
           }
           $team_tabs.find("#" + action).removeClass("hidden")
         })
@@ -19663,9 +19636,6 @@ TS.registerModule("constants", {
     },
     makeTeamsThatHaveComplianceExportsBlurb: function(teams) {
       if (!teams || !teams.length) {
-        TS.logError({
-          message: "Missing teams"
-        });
         return ""
       }
       var blurb = "";
@@ -21557,7 +21527,7 @@ TS.registerModule("constants", {
           if (original_w && original_h) {
             proxied_url = TS.utility.getImgProxyURL(original_src, original_w, original_h)
           } else {
-            proxied_url = TS.utility.getImgProxyURL(original_src)
+            proxied_url = TS.utility.getImgProxyURL(original_src);
           }
           $(this).attr("src", proxied_url)
         });
@@ -22436,7 +22406,7 @@ TS.registerModule("constants", {
         return cdn_url + "/d7a0/img/themes/aubergine@2x.png"
       });
       Handlebars.registerHelper("versioned_theme_thumb_hoth", function() {
-        return cdn_url + "/d7a0/img/themes/hoth@2x.png"
+        return cdn_url + "/d7a0/img/themes/hoth@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_monument", function() {
         return cdn_url + "/d7a0/img/themes/monument@2x.png"
@@ -23976,11 +23946,7 @@ TS.registerModule("constants", {
       return ret
     },
     msgCanCountAsUnread: function(msg) {
-      if (TS.boot_data.feature_message_replies && TS.replies.areRepliesGoodNow()) {
-        if (TS.utility.msgs.isMsgHidden(msg) && !msg._hidden_reply) return false
-      } else {
-        if (TS.utility.msgs.isMsgHidden(msg)) return false
-      }
+      if (TS.utility.msgs.isMsgHidden(msg)) return false;
       if (msg.subtype == "channel_join" && msg.inviter && msg.user == TS.model.user.id) return true;
       if (msg.subtype == "group_join" && msg.inviter && msg.user == TS.model.user.id) return true;
       if (msg.user == TS.model.user.id) return false;
@@ -26595,7 +26561,7 @@ TS.registerModule("constants", {
       if (!member_name) return null;
       var member;
       if (TS.boot_data.feature_name_tagging_client) {
-        member = TS.members.getMemberById(member_name) || TS.members.getMemberByName(member_name);
+        member = TS.members.getMemberById(member_name) || TS.members.getMemberByName(member_name)
       } else {
         member = TS.members.getMemberByName(member_name)
       }
@@ -26608,7 +26574,7 @@ TS.registerModule("constants", {
     platformSupportsHtmlNotifications: function() {
       if (TS.model.win_ssb_version && window.winssb) {
         if (window.winssb.app.canShowHtmlNotifications) {
-          return window.winssb.app.canShowHtmlNotifications()
+          return window.winssb.app.canShowHtmlNotifications();
         } else {
           return window.winssb.app.willUseHwAcceleration !== false
         }
@@ -27744,7 +27710,7 @@ TS.registerModule("constants", {
   };
   var _encodeSpecialFormattingCharsAndColon = function(txt) {
     if (!txt) return "";
-    return _encodeSpecialFormattingChars(txt).replace(/\:/g, "&#58;");
+    return _encodeSpecialFormattingChars(txt).replace(/\:/g, "&#58;")
   };
   var _calculateOptions = function(msg, opts) {
     opts = opts || {};
@@ -29952,7 +29918,7 @@ TS.registerModule("constants", {
         if (TS.clipboard.canWriteText()) {
           TS.clipboard.writeText(file.permalink)
         } else {
-          TS.warn("User clicked copy link, but we can't write to the clipboard right now");
+          TS.warn("User clicked copy link, but we can't write to the clipboard right now")
         }
       } else if (id == "create_public_space_link") {
         e.preventDefault();
@@ -34169,7 +34135,7 @@ var _on_esc;
         _updateMsgStar(item.message.ts, item.channel, starred, false)
       } else if (item.type == "file") {
         if (item.file.is_starred != starred) {
-          _updateFileStar(item.file.id, starred);
+          _updateFileStar(item.file.id, starred)
         }
       } else if (item.type == "file_comment") {
         if (item.comment.is_starred != starred) {
@@ -41178,7 +41144,7 @@ var _on_esc;
     $(label).attr("data-countdown", [value_length, validation_length].join("/")).addClass("countdown");
     var styles = window.getComputedStyle(label, ":after");
     if (!$el.data("countdown-padding-right")) $el.data("countdown-padding-right", parseFloat($el.css("padding-right")));
-    $el.css("padding-right", parseFloat(styles.width) + parseFloat(styles.right) + $el.data("countdown-padding-right"));
+    $el.css("padding-right", parseFloat(styles.width) + parseFloat(styles.right) + $el.data("countdown-padding-right"))
   };
   var _clearCountdown = function($el, options) {
     var label = document.querySelector('label[for="' + (options.custom_for || $el.attr("name")) + '"]');
@@ -42106,7 +42072,7 @@ var _on_esc;
             show_cancel_button: false
           })
         } else {
-          TS.logError(data.error, "pins.add got a not ok rsp")
+          TS.info("pins.add got a not ok rsp: " + data.error)
         }
         if (data.error !== "already_pinned") return
       }
@@ -43464,7 +43430,7 @@ $.fn.togglify = function(settings) {
         if (data.error == "name_taken") {
           _showNameTakenAlert()
         } else if (data.error == "restricted_action") {
-          _showError("Sorry! An admin on your team has restricted who can create private channels.")
+          _showError("Sorry! An admin on your team has restricted who can create private channels.");
         } else {
           TS.error("Failed to create private channel: " + data.error);
           _showError("Sorry! Something went wrong.")
@@ -46062,16 +46028,6 @@ $.fn.togglify = function(settings) {
         window.open(url)
       }
     });
-    TS.click.addClientHandler('[data-action="dismiss_reply_banner"]', function(e, $el) {
-      e.preventDefault();
-      var $banner = $el.closest(".reply_banner");
-      if (!$banner.length) return;
-      var model_ob_id = $banner.attr("data-model-ob-id");
-      var thread_ts = $banner.attr("data-thread-ts");
-      var last_ts = $banner.attr("data-last-ts");
-      if (!model_ob_id || !thread_ts || !last_ts) return;
-      TS.replies.markThread(model_ob_id, thread_ts, last_ts)
-    });
     TS.click.addClientHandler('[data-action="open_conversation"]', function(e, $el, origin) {
       e.preventDefault();
       var model_ob_id = $el.attr("data-model-ob-id");
@@ -47909,7 +47865,7 @@ $.fn.togglify = function(settings) {
   var _sortChannelsBy = function(channels, sort) {
     if (sort === "name") {
       channels.sort(function(a, b) {
-        return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0
+        return a._name_lc > b._name_lc ? 1 : b._name_lc > a._name_lc ? -1 : 0;
       })
     } else if (sort === "creator") {
       channels.sort(function(a, b) {
@@ -50242,7 +50198,7 @@ $.fn.togglify = function(settings) {
             var deleted_bots = _.remove(members, {
               is_bot: true
             });
-            if (deleted_bots.length) TS.log(1989, "Flannel: removed these bots from results:", deleted_bots)
+            if (deleted_bots.length) TS.log(1989, "Flannel: removed these bots from results:", deleted_bots);
           }
           if (TS.boot_data.page_needs_enterprise && !args.all_of_org) {
             var deleted_org_members = _.remove(members, function(member) {
