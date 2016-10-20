@@ -134,6 +134,10 @@
     return TS.api.call("files.uploadExternal", {
       channels: model_ob.id,
       link: file.url
+    }).then(function(response) {
+      if (model_ob.user && TS.ims.getImByMemberId(model_ob.user) && TS.model.team.enterprise_id) {
+        _postMessage(model_ob.id, response.data.file.url_private, true, true)
+      }
     })
   };
   var _authThenCreate = function(type, share_settings) {

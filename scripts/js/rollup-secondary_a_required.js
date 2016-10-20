@@ -37096,7 +37096,6 @@ var _on_esc;
     })
   };
   var _onConnectContactsClicked = function() {
-    if (!TS.boot_data.feature_invite_modal_contacts) return;
     TS.google_auth.getAuthLink(_google_auth_instance_id).then(function(url) {
       var window_features = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,width=600,height=500";
       var window_ref = window.open(url, "auth_window", window_features);
@@ -37966,7 +37965,6 @@ var _on_esc;
     }
     var modal_html = TS.templates.invite_modal_refresh_send_email_invitations({
       clog_name: _clog_name,
-      feature_invite_modal_contacts: TS.boot_data.feature_invite_modal_contacts,
       whitelisted_email_domains: _whitelisted_domains_array,
       is_admin: TS.model.user.is_admin,
       idp_label: idp_label
@@ -38004,10 +38002,8 @@ var _on_esc;
     _showSendEmailInvitationsView()
   };
   var _onCancel = function() {
-    if (TS.boot_data.feature_invite_modal_contacts) {
-      if (_cancelGoogleAuthPolling && typeof _cancelGoogleAuthPolling === "function") _cancelGoogleAuthPolling();
-      if (_btn_connect_contacts) _btn_connect_contacts.removeEventListener("click", _onConnectContactsClicked)
-    }
+    if (_cancelGoogleAuthPolling && typeof _cancelGoogleAuthPolling === "function") _cancelGoogleAuthPolling();
+    if (_btn_connect_contacts) _btn_connect_contacts.removeEventListener("click", _onConnectContactsClicked);
     if (_state.member_type_dropdown_instance) {
       _state.member_type_dropdown_instance.destroy();
       _state.member_type_dropdown_instance = null
@@ -38168,7 +38164,7 @@ var _on_esc;
     TS.ui.token_input.make($whitelisted_domains, token_options)
   };
   var _showSendEmailInvitationsView = function() {
-    if (TS.boot_data.feature_invite_modal_contacts) _setupGoogleContactsButton();
+    _setupGoogleContactsButton();
     _setEmojiHTMLForDisclaimers();
     _state.email_filter_select_instance = null;
     _state.channels_filter_select_instance = null;
@@ -38196,7 +38192,7 @@ var _on_esc;
     opts = opts || {};
     var data;
     if (!opts.contact_data) {
-      data = _state.pending_invites || []
+      data = _state.pending_invites || [];
     } else {
       data = (_state.pending_invites || []).concat(opts.contact_data.items)
     }
@@ -38639,7 +38635,6 @@ var _on_esc;
   };
   var _onConnectContactsClicked = function() {
     TS.ui.startButtonSpinner(_btn_connect_contacts);
-    if (!TS.boot_data.feature_invite_modal_contacts) return;
     TS.google_auth.getAuthLink(_google_auth_instance_id).then(function(url) {
       var window_features = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,width=600,height=500";
       var window_ref = window.open(url, "auth_window", window_features);
@@ -38760,7 +38755,6 @@ var _on_esc;
     _storeCustomMessageInState();
     var view_html = TS.templates.invite_modal_refresh_send_email_invitations({
       clog_name: _clog_name,
-      feature_invite_modal_contacts: TS.boot_data.feature_invite_modal_contacts,
       whitelisted_email_domains: _whitelisted_domains_array,
       is_admin: TS.model.user.is_admin
     });
@@ -42328,7 +42322,7 @@ var _on_esc;
         settings.off_text = $checkbox.data("off-text") ? $checkbox.data("off-text") : _default_settings.off_text;
         settings.off_class = $checkbox.data("off-class") ? $checkbox.data("off-class") : _default_settings.off_class;
         settings.off_label = $checkbox.data("off-label") ? $checkbox.data("off-label") : _default_settings.off_label;
-        settings.disabled = $checkbox.data("disabled") ? $checkbox.data("disabled") : _default_settings.disabled
+        settings.disabled = $checkbox.data("disabled") ? $checkbox.data("disabled") : _default_settings.disabled;
       }
       if (settings.initial_state === null) {
         settings.initial_state = $checkbox.is(":checked") ? true : false
@@ -47852,7 +47846,7 @@ $.fn.togglify = function(settings) {
     return TS.api.call(is_private ? "groups.listSharedInvites" : "channels.listSharedInvites")
   };
   var _promiseToCallRevokeSharedInvite = function(args, is_private) {
-    return TS.api.call(is_private ? "groups.revokeSharedInvite" : "channels.revokeSharedInvite", args)
+    return TS.api.call(is_private ? "groups.revokeSharedInvite" : "channels.revokeSharedInvite", args);
   };
   var _promiseToCallSendSharedInvite = function(args, is_private) {
     return TS.api.call(is_private ? "groups.sendSharedInvite" : "channels.sendSharedInvite", args)
@@ -51288,7 +51282,7 @@ $.fn.togglify = function(settings) {
       case _utility_call_state.mini_panel_token:
         if (window.winssb && winssb.window && winssb.window.browserWindows && winssb.window.browserWindows[token] && winssb.window.browserWindows[token].setMinimumSize) {
           winssb.window.browserWindows[token].setMinimumSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
-          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
+          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height)
         }
         break
     }
@@ -52402,7 +52396,7 @@ $.fn.togglify = function(settings) {
       if (is_moving_left) {
         next_end = next_start
       } else {
-        next_start = next_end
+        next_start = next_end;
       }
     }
     TS.utility.contenteditable.cursorPosition(input, next_start, next_end - next_start)
