@@ -1,6 +1,10 @@
 (function() {
   "use strict";
   TS.registerModule("files.gdrive", {
+    onStart: function() {
+      if (!TS.client) return;
+      TS.client.login_sig.add(_runGdriveCoachmark, TS.files.gdrive, -2)
+    },
     openPickerWindow: function() {
       var message_listener = null;
       return new Promise(function(resolve, reject) {
@@ -228,6 +232,22 @@
       unfurl_media: unfurl_media || false
     }).catch(function(err) {
       TS.error(err)
+    })
+  };
+  var _runGdriveCoachmark = function() {
+    if (TS.newxp.inOnboarding()) return;
+    if (!TS.model.prefs.gdrive_enabled) return;
+    if (TS.model.prefs.seen_gdrive_coachmark) return;
+    TS.experiment.loadUserAssignments().then(function() {
+      var group = TS.experiment.getGroup("gdrive_1_5_coachmark_experiment");
+      if (group === "yes_coach_mark") {
+        TS.coachmark.start(TS.coachmarks.coachmarks.gdrive);
+        TS.model.prefs.seen_gdrive_coachmark = true;
+        TS.prefs.setPrefByAPI({
+          name: "seen_gdrive_coachmark",
+          value: true
+        })
+      }
     })
   }
 })();

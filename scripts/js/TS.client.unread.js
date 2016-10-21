@@ -67,6 +67,11 @@
       TS.client.ui.unread.destroyUnreadView();
       _resetData()
     },
+    reloadIfPendingMessages: function() {
+      if (TS.client.unread.getTotalNewUnreadCount() > 0 && TS.client.unread.new_messages_in_channels.length) {
+        TS.client.unread.reload()
+      }
+    },
     reload: function() {
       _direct_from_boot = undefined;
       TS.client.ui.unread.removeEmptyState();

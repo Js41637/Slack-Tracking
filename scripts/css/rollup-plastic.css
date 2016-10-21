@@ -1537,14 +1537,6 @@ svg.ts_icon_spinner svg {
   content: '\E167'
 }
 
-.ts_icon_restricted_user:before {
-  content: '\E168'
-}
-
-.ts_icon_single_channel_guest:before {
-  content: '\E169'
-}
-
 .ts_icon_small_reaction:before {
   content: '\E170'
 }
@@ -1797,7 +1789,8 @@ svg.ts_icon_spinner svg {
   content: '\E508'
 }
 
-.ts_icon_presence_ra_online:before {
+.ts_icon_presence_ra_online:before,
+.ts_icon_restricted_user:before {
   content: '\E509'
 }
 
@@ -1809,7 +1802,8 @@ svg.ts_icon_spinner svg {
   content: '\E511'
 }
 
-.ts_icon_presence_ura_online:before {
+.ts_icon_presence_ura_online:before,
+.ts_icon_single_channel_guest:before {
   content: '\E512'
 }
 

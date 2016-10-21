@@ -13277,11 +13277,15 @@
     },
     65: {
       isDisabled: function(e) {
-        if (!TS.boot_data.feature_unread_view || !TS.client.unread.isEnabled() || TS.model.unread_view_is_showing) return true;
+        if (!TS.boot_data.feature_unread_view || !TS.client.unread.isEnabled()) return true;
         return false
       },
       func: function() {
-        TS.client.unread.showUnreadView()
+        if (TS.model.unread_view_is_showing) {
+          TS.client.unread.reloadIfPendingMessages()
+        } else {
+          TS.client.unread.showUnreadView()
+        }
       }
     },
     73: {
@@ -16396,7 +16400,7 @@
           if (!just_deleted && user.deleted) return false;
           if (user_name_regexp.test(user.name)) {
             username_matches.push(user);
-            if (limit && username_matches.length >= limit) return true
+            if (limit && username_matches.length >= limit) return true;
           } else if ((!limit || realname_matches.length < limit) && real_name_regexp.test(user._real_name_normalized_lc)) {
             realname_matches.push(user)
           }
@@ -17519,7 +17523,7 @@
         existing_groups: existing_groups_with_same_membersA
       });
       div.find(".modal_input_note").addClass("hidden");
-      div.find(".existing_groups_warning").html(existing_groups_html).removeClass("hidden").data("has-been-shown", true);
+      div.find(".existing_groups_warning").html(existing_groups_html).removeClass("hidden").data("has-been-shown", true)
     },
     showNoInvitesAlert: function() {
       var div = TS.ui.group_create_dialog.div;
@@ -19788,7 +19792,7 @@
         } else if (!added_cnt) {
           alert_txt = "All of those file are too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
         } else {
-          alert_txt = "We'll upload what we can, but one or more of those files is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
+          alert_txt = "We'll upload what we can, but one or more of those files is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + ".";
         }
         alert(alert_txt)
       }
@@ -21454,6 +21458,16 @@
         content: function() {
           return TS.templates.calls_video_beta_coachmark()
         }
+      },
+      gdrive: {
+        id: "gdrive_coachmark",
+        coachmark_el_id: "gdrive_coachmark_div",
+        place: function() {
+          TS.coachmark.placeAboveOf($("#primary_file_button"), 13, -6, 0)
+        },
+        content: function() {
+          return TS.templates.gdrive_coachmark()
+        }
       }
     },
     onStart: function() {}
@@ -22754,7 +22768,7 @@
         } else if (data.error === "name_taken") {
           err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>'
         }
-        setTimeout(TS.generic_dialog.alert, 500, err_str)
+        setTimeout(TS.generic_dialog.alert, 500, err_str);
       })
     };
     _showOptionSection(true)
@@ -23675,7 +23689,8 @@
       moveSelector = function(ev) {
         var payeX, pageY;
         if (ev.type == "touchmove") {
-          pageX = ev.originalEvent.changedTouches[0].pageX, pageY = ev.originalEvent.changedTouches[0].pageY
+          pageX = ev.originalEvent.changedTouches[0].pageX,
+            pageY = ev.originalEvent.changedTouches[0].pageY
         } else {
           pageX = ev.pageX;
           pageY = ev.pageY
@@ -25718,7 +25733,7 @@
       return
     }
     if (model_ob.is_group) {
-      TS.groups.setPurpose(model_ob.id, new_val)
+      TS.groups.setPurpose(model_ob.id, new_val);
     } else if (model_ob.is_channel) {
       TS.channels.setPurpose(model_ob.id, new_val)
     }
@@ -25729,7 +25744,7 @@
     if (_$details.find("#channel_topic_input").hasClass("hidden")) {
       _$details.find("#channel_topic_input, .topic_done, .topic_cancel").blur()
     } else {
-      _$details.find("#channel_topic_input").select();
+      _$details.find("#channel_topic_input").select()
     }
   };
   var _setTopic = function() {
@@ -27848,7 +27863,7 @@
   };
   var _pickSlackbotMsgPlaceholder = function() {
     var options = ["Yay! You’re here. What can I do for you?", "Hello, What’s up?", "How can I help today?", "Hi hi! How can I help?", "You’re here! What can I do to help?", "You rang?"];
-    _last_slackbot_msg_placeholder = options[Math.round(Math.random() * (options.length - 1))]
+    _last_slackbot_msg_placeholder = options[Math.round(Math.random() * (options.length - 1))];
   };
   var _switchToNewChannel = function() {
     if (!TS.members.canUserCreateGroups()) return;
@@ -27859,7 +27874,7 @@
     $("#fs_modal").removeClass("fs_modal_internal_scroll");
     $new_channel_container.removeClass("hidden");
     TS.ui.fs_modal.bindBackButton(_switchBackToImBrowser);
-    TS.ui.fs_modal.showBackButton();
+    TS.ui.fs_modal.showBackButton()
   };
   var _switchBackToImBrowser = function() {
     TS.ui.fs_modal.unbindBackButton();
