@@ -667,7 +667,7 @@
           TS.log(1989, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"))
         }
-        _ms_rtm_start_p = _getRtmStartFromFlannel(TS.ms.CONNECT_TYPE_RTM_START);
+        _ms_rtm_start_p = _getRtmStartFromFlannel();
         if (!_ms_rtm_start_p) {
           TS.log(1989, "Bad news: we tried to connect to Flannel so we could get an rtm.start response, but it didn't set a promise for us; we are now totally wedged.");
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"))
@@ -899,7 +899,12 @@
       if (TS.web) TS.web.onEveryLoginMS(data);
       if (_shouldConnectToMS()) {
         if (!completing_incremental_boot) {
-          TS.ms.connect()
+          if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
+            TS.log(1996, "Successfully finalized a provisional MS connection")
+          } else {
+            TS.log(1996, "No valid provisional MS connection; making a new connection");
+            TS.ms.connectImmediately()
+          }
         }
       } else {
         if (!TS.web.space) {
@@ -1855,13 +1860,15 @@
     if (!_shouldConnectToMS()) return;
     if (!TS.boot_data.ms_connect_url) return;
     if (_lazyLoadMembers()) {
-      _ms_rtm_start_p = _getRtmStartFromFlannel(TS.ms.CONNECT_TYPE_TOKENLESS);
+      _ms_rtm_start_p = _getRtmStartFromFlannel();
       return
     }
-    return TS.ms.connect(TS.boot_data.ms_connect_url, TS.ms.CONNECT_TYPE_TOKENLESS)
+    TS.log(1996, "Opening a tokenless MS connection");
+    TS.ms.connectProvisionally(TS.boot_data.ms_connect_url)
   };
-  var _getRtmStartFromFlannel = function(connection_type) {
-    var rtm_start_p = TS.ms.connect(_getFlannelConnectionUrl(), TS.ms.CONNECT_TYPE_TOKENLESS);
+  var _getRtmStartFromFlannel = function() {
+    TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
+    var rtm_start_p = TS.ms.connectProvisionallyAndFetchRtmStart(_getFlannelConnectionUrl());
     if (!rtm_start_p) {
       throw new Error("TS.ms.connect did not return an rtm.start promise")
     }
@@ -4528,13 +4535,13 @@
       var has_at_group = TS.model.group_regex.test(comment_text);
       var only_general = false;
       if (share_channel) {
-        only_general = !!share_channel.is_general
+        only_general = !!share_channel.is_general;
       } else if (file && file.groups.length === 0 && file.channels.length === 1) {
         var channel = TS.channels.getChannelById(file.channels[0]);
         only_general = !!channel.is_general
       }
       if (only_general && has_at_everyone && (!has_at_here && !has_at_channel && !has_at_group)) {
-        if (TS.members.canUserAtEveryone()) return false;
+        if (TS.members.canUserAtEveryone()) return false
       }
       if (!TS.members.canUserAtChannelOrAtGroup()) {
         if (has_at_here) return "@here";

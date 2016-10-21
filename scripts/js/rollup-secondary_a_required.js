@@ -14183,8 +14183,7 @@ TS.registerModule("constants", {
       if (TS.model.ms_connected) {
         TS.info("Disconnected from MS, TS.model.rtm_start_throttler:" + TS.model.rtm_start_throttler);
         TS.ms.logConnectionFlow("on_connected_failure");
-        TS.model.ms_reconnect_ms = 100;
-        TS.ms.disconnect()
+        TS.model.ms_reconnect_ms = 100
       } else {
         TS.ms.logConnectionFlow("on_notconnected_failure");
         var ms = TS.model.ms_reconnect_ms = (TS.model.ms_reconnect_ms + 1e3) * 2;
@@ -14204,7 +14203,6 @@ TS.registerModule("constants", {
         TS.model.ms_connected = false;
         TS.ms.disconnected_sig.dispatch()
       }
-      TS.model.ms_connected = false;
       delete TS.ms.is_flannel;
       clearInterval(_check_ping_interv);
       clearInterval(_send_ping_interv);
@@ -14279,35 +14277,23 @@ TS.registerModule("constants", {
       var log = "_x_connection_log=" + args.join(",");
       return log
     },
-    CONNECT_TYPE_TOKENLESS: "tokenless",
-    CONNECT_TYPE_RTM_START: "rtm.start",
-    connect: function(url, connection_type) {
-      TSConnLogger.log("ms_connecting", "TS.ms.connect " + url);
-      if (_did_make_provisional_connection && !_websocket) {
-        _did_make_provisional_connection = false;
-        TS.warn("TS.ms.connect called while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error.")
-      } else if (_did_make_provisional_connection) {
-        _did_make_provisional_connection = false;
-        if (connection_type !== undefined) return;
-        _handleConnectAfterProvisionalConnection();
-        return
-      }
-      var is_tokenless_connection = connection_type == TS.ms.CONNECT_TYPE_TOKENLESS || connection_type == TS.ms.CONNECT_TYPE_RTM_START;
-      var fetch_rtm_start_over_connection = is_tokenless_connection && TS.lazyLoadMembers();
-      var did_create = _createNewSocket(url, is_tokenless_connection);
-      if (!did_create) {
-        throw new Error("Error creating WebSocket for URL " + url + " (connection type: " + connection_type + ")")
-      }
-      TS.model.ms_connecting = true;
-      if (fetch_rtm_start_over_connection) {
-        var rtm_start_p = _initSocketHandlersProvisionalRtmStart();
-        return rtm_start_p
-      }
-      if (is_tokenless_connection) {
-        _initSocketHandlersProvisional()
-      } else {
-        _initSocketHandlersImmediate()
-      }
+    connectImmediately: function(url) {
+      _connect(url);
+      _initSocketHandlersImmediate()
+    },
+    connectProvisionally: function(url) {
+      _connect(url);
+      _initSocketHandlersProvisional()
+    },
+    connectProvisionallyAndFetchRtmStart: function(url) {
+      _connect(url);
+      return _initSocketHandlersProvisionalRtmStart()
+    },
+    hasProvisionalConnection: function() {
+      return !!_did_make_provisional_connection
+    },
+    finalizeProvisionalConnection: function() {
+      return _finalizeProvisionalConnection()
     },
     fastReconnect: function() {
       TS.info("Trying fast reconnect");
@@ -14315,7 +14301,7 @@ TS.registerModule("constants", {
       TS.api.callImmediately("rtm.checkFastReconnect").then(function(response) {
         var data = response.data;
         if (TS.reloadIfVersionsChanged(data)) return;
-        TS.ms.connect(_reconnect_url)
+        TS.ms.connectImmediately(_reconnect_url)
       }, function(response) {
         var data = response.data;
         var error = data && data.error;
@@ -14803,11 +14789,7 @@ TS.registerModule("constants", {
     _onErrorProvisional = undefined;
     _onMsgProvisional = undefined
   };
-  var _createNewSocket = function(url, is_tokenless_connection) {
-    if (_websocket && _websocket.readyState == WebSocket.OPEN) {
-      TS.error("TS.ms.connect called but we are already connected. This is a programming error.");
-      return false
-    }
+  var _createNewSocket = function(url) {
     if (!url) url = TS.model.team.url;
     if (TS.lazyLoadMembers()) {
       url = TS.utility.url.setUrlQueryStringValue(url, "flannel", 1);
@@ -14822,12 +14804,8 @@ TS.registerModule("constants", {
     }
     TS.ms.logConnectionFlow("connect");
     TS.info("Connecting to: " + url);
-    if (is_tokenless_connection) {
-      clearTimeout(_connect_timeout_tim)
-    } else {
-      _startConnectTimeout();
-      url = _addQueryParamsToLoginUrl(url)
-    }
+    clearTimeout(_connect_timeout_tim);
+    url = _addQueryParamsToLoginUrl(url);
     TS.ms.last_url = url;
     TS.ms.last_start_ms = Date.now();
     TS.metrics.mark("ms_websocket_create");
@@ -14924,7 +14902,8 @@ TS.registerModule("constants", {
   var _initSocketHandlersImmediate = function() {
     _websocket.onopen = _onConnect;
     _websocket.onclose = _onDisconnect;
-    _websocket.onerror = _onError
+    _websocket.onerror = _onError;
+    _startConnectTimeout()
   };
   var _processReplyMessage = function(imsg) {
     if (!imsg.reply_to) return;
@@ -14941,9 +14920,35 @@ TS.registerModule("constants", {
         return true;
       case "random":
         return _.random(0, 1) == 0;
+      case "production":
       default:
         return false
     }
+  };
+  var _finalizeProvisionalConnection = function(connection_type) {
+    if (_did_make_provisional_connection && !_websocket) {
+      _did_make_provisional_connection = false;
+      TS.warn("TS.ms.connect called while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error.")
+    }
+    if (_did_make_provisional_connection) {
+      _did_make_provisional_connection = false;
+      if (connection_type !== undefined) return;
+      _handleConnectAfterProvisionalConnection();
+      return true
+    }
+    return false
+  };
+  var _connect = function(url) {
+    TSConnLogger.log("ms_connecting", "TS.ms.connect " + url);
+    if (_websocket && _websocket.readyState == WebSocket.OPEN) {
+      TS.warn("TS.ms has an open WebSocket but we are trying to connect; TS.model.ms_connected = " + TS.model.ms_connected + "; TS.model.ms_connecting = " + TS.model.ms_connecting);
+      throw new Error("TS.ms.connect called but we are already connected. This is a programming error.")
+    }
+    var did_create = _createNewSocket(url);
+    if (!did_create) {
+      throw new Error("Error creating WebSocket for URL " + url)
+    }
+    TS.model.ms_connecting = true
   }
 })();
 (function() {
@@ -15899,6 +15904,10 @@ TS.registerModule("constants", {
       TS.files.upsertFile(imsg.file)
     },
     hello: function(imsg) {},
+    goodbye: function(imsg) {
+      if (!TS.boot_data.feature_flannel_fe) return;
+      TS.ms.disconnect()
+    },
     team_join: function(imsg) {
       var member = imsg.user;
       TS.info(member.name + " joined the team");
@@ -16269,6 +16278,11 @@ TS.registerModule("constants", {
       if (!subscription || subscription.type !== "thread") return;
       if (!subscription.channel || !subscription.thread_ts) return;
       TS.replies.threadMarked(subscription.channel, subscription.thread_ts, subscription.last_read, subscription.unread_count)
+    },
+    user_added_to_team: function(imsg) {
+      if (!TS.boot_data.feature_user_added_to_team) return;
+      TS.info("TS.ms.msg_handlers.user_added_to_team, team_id = " + imsg.team_id);
+      if (TS.client) TS.client.user_added_to_team_sig.dispatch(imsg.team_id)
     },
     user_removed_from_team: function(imsg) {
       if (!TS.boot_data.feature_user_removed_from_team) return;
@@ -17673,7 +17687,7 @@ TS.registerModule("constants", {
           if (prev_msg) {
             var last_rendered_msg_date = TS.utility.date.toDateObject(prev_msg.ts);
             if (msg.subtype && msg.subtype == "file_comment" && msg.comment) {
-              current_speaker = msg.comment.user;
+              current_speaker = msg.comment.user
             }
             if (TS.utility.msgs.automated_subtypes.indexOf(msg.subtype) != -1) {
               show_user = true
@@ -18634,7 +18648,7 @@ TS.registerModule("constants", {
         }
       } else if (msg.subtype == "group_leave") {
         group = model_ob;
-        html = "left" + (group ? " " + TS.model.group_prefix + group.name : " the private channel")
+        html = "left" + (group ? " " + TS.model.group_prefix + group.name : " the private channel");
       } else if (msg.subtype == "group_name") {
         html = 'renamed the private channel from "' + msg.old_name + '" to "' + msg.name + '"'
       } else if (msg.subtype == "group_topic") {
@@ -22410,7 +22424,7 @@ TS.registerModule("constants", {
         return cdn_url + "/66f9/img/services/gdrive_16.png"
       });
       Handlebars.registerHelper("versioned_services_onedrive_32", function() {
-        return cdn_url + "/2fac/plugins/onedrive/assets/service_32.png"
+        return cdn_url + "/2fac/plugins/onedrive/assets/service_32.png";
       });
       Handlebars.registerHelper("versioned_slackbot_48", function() {
         return cdn_url + "/2fac/plugins/slackbot/assets/service_48.png"
@@ -22419,7 +22433,7 @@ TS.registerModule("constants", {
         return cdn_url + "/0180/img/slackbot_72.png"
       });
       Handlebars.registerHelper("versioned_theme_thumb_brinjal", function() {
-        return cdn_url + "/d7a0/img/themes/brinjal@2x.png";
+        return cdn_url + "/d7a0/img/themes/brinjal@2x.png"
       });
       Handlebars.registerHelper("versioned_theme_thumb_chocolate", function() {
         return cdn_url + "/d7a0/img/themes/chocolate@2x.png"
@@ -23474,7 +23488,7 @@ TS.registerModule("constants", {
       for (var i = 0; i < msgs.length; i++) {
         msg = msgs[i];
         if (msg.subtype && msg.subtype != "me_message") continue;
-        if (msg[name] == value) return msg
+        if (msg[name] == value) return msg;
       }
       return null
     },
@@ -25382,7 +25396,7 @@ TS.registerModule("constants", {
     onStart: function() {
       TS.utility.makeRefererSafeLink = _.memoize(TS.utility.makeRefererSafeLink);
       if (TS.ms) TS.ms.connected_sig.add(TS.utility.resetRefererSafeLinkCache);
-      if (TS.prefs && TS.prefs.team_hide_referers_changed_sig) TS.prefs.team_hide_referers_changed_sig.add(TS.utility.resetRefererSafeLinkCache);
+      if (TS.prefs && TS.prefs.team_hide_referers_changed_sig) TS.prefs.team_hide_referers_changed_sig.add(TS.utility.resetRefererSafeLinkCache)
     },
     keymap: {
       alt: 18,
@@ -26574,7 +26588,7 @@ TS.registerModule("constants", {
         url = url.replace(team_url, "team")
       }
       while (url.indexOf("/") === 0) {
-        url = url.substr(1)
+        url = url.substr(1);
       }
       if (url.indexOf("team/") !== 0) return null;
       var A = url.split("/");
@@ -27722,7 +27736,7 @@ TS.registerModule("constants", {
       })
     }
     if (has_ats) {
-      return TS.format.swapInAts(new_txt)
+      return TS.format.swapInAts(new_txt);
     } else {
       return new_txt
     }
@@ -28836,7 +28850,7 @@ TS.registerModule("constants", {
     TS.ui.utility.updateClosestMonkeyScroller(_$scroller);
     _calcHeaderRanges();
     if (TS.boot_data.feature_emoji_menu_tuning) {
-      TS.metrics.measureAndClear("emoji_menu_end_search_mode_tuned", "emoji_menu_end_search_mode_mark");
+      TS.metrics.measureAndClear("emoji_menu_end_search_mode_tuned", "emoji_menu_end_search_mode_mark")
     } else {
       TS.metrics.measureAndClear("emoji_menu_end_search_mode", "emoji_menu_end_search_mode_mark")
     }
@@ -38179,7 +38193,7 @@ var _on_esc;
         $("#invite_modal_refresh_email_addresses_select").lazyFilterSelect("disable");
         $("#invite_modal_refresh_default_channels_select").lazyFilterSelect("disable");
         $(".invite_modal_refresh_review_invitations_btn").addClass("disabled");
-        _showInfoMessage("alert_error", _getError("invite_limit_reached"))
+        _showInfoMessage("alert_error", _getError("invite_limit_reached"));
       } else {
         Ladda.bind(".invite_modal_refresh_review_invitations_btn");
         $("#invite_modal_refresh_email_addresses_select").lazyFilterSelect("focus")
@@ -42323,7 +42337,7 @@ var _on_esc;
         settings.disabled = $checkbox.data("disabled") ? $checkbox.data("disabled") : _default_settings.disabled
       }
       if (settings.initial_state === null) {
-        settings.initial_state = $checkbox.is(":checked") ? true : false;
+        settings.initial_state = $checkbox.is(":checked") ? true : false
       }
       if (settings.disabled === null) {
         settings.disabled = $checkbox.is(":disabled") ? true : false
@@ -51280,7 +51294,7 @@ $.fn.togglify = function(settings) {
       case _utility_call_state.mini_panel_token:
         if (window.winssb && winssb.window && winssb.window.browserWindows && winssb.window.browserWindows[token] && winssb.window.browserWindows[token].setMinimumSize) {
           winssb.window.browserWindows[token].setMinimumSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
-          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height)
+          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
         }
         break
     }
@@ -52397,7 +52411,7 @@ $.fn.togglify = function(settings) {
         next_start = next_end
       }
     }
-    TS.utility.contenteditable.cursorPosition(input, next_start, next_end - next_start);
+    TS.utility.contenteditable.cursorPosition(input, next_start, next_end - next_start)
   }
 })();
 (function() {

@@ -3,6 +3,7 @@
   TS.registerModule("client", {
     before_login_sig: new signals.Signal,
     login_sig: new signals.Signal,
+    user_added_to_team_sig: new signals.Signal,
     user_removed_from_team_sig: new signals.Signal,
     flexpane_display_switched_sig: new signals.Signal,
     core_url: null,
@@ -31,6 +32,7 @@
         var timeout_s = 5;
         TSSSB.call("setTeamIdleTimeout", timeout_s)
       }
+      TS.client.user_added_to_team_sig.add(TS.client.userAddedToTeam);
       TS.client.user_removed_from_team_sig.add(TS.client.userRemovedFromTeam)
     },
     gogogo: function() {
@@ -554,10 +556,57 @@
       if (!TS.model.is_msg_rate_limited) return;
       TS.model.is_msg_rate_limited = false
     },
+    userAddedToTeam: function(team_id) {
+      if (!TS.boot_data.feature_user_added_to_team) return;
+      TS.info("You have been added to a team with the ID of " + team_id + ".");
+      if (!TS.model.is_our_app || !TS.model.is_electron) return;
+      var signin_params = {
+        user_id: TS.model.user.id,
+        enterprise_id: TS.model.enterprise.id,
+        team_ids: team_id
+      };
+      TS.info("Attempting to sign in to team with ID of " + team_id, signin_params);
+      var signedInTeamIDs = TSSSB.call("getSignedInTeamIds");
+      if (!signedInTeamIDs || !signedInTeamIDs.length) {
+        TS.warn("WTF no signed-in team IDs from app?", signedInTeamIDs);
+        return
+      }
+      if (signedInTeamIDs.indexOf(team_id) !== -1) {
+        TS.info("User is already signed into team " + team_id + ". Exiting.");
+        return
+      }
+      TS.info("calling enterprise.teams.signin for team_id = " + team_id, signin_params);
+      TS.api.call("enterprise.teams.signin", signin_params).then(function(resp) {
+        var authed_teams = resp.data.teams;
+        if (!authed_teams || !authed_teams.length) {
+          TS.warn("WTF no authed_teams from enterprise.teams.signin?");
+          return
+        }
+        var app_params;
+        _.each(authed_teams, function(item) {
+          if (item && item.team_id == team_id) {
+            var url_root = document.domain.split(".").splice(1).join(".") + "/messages";
+            app_params = {
+              name: TS.model.user.name,
+              id: TS.model.user.id,
+              team_id: team_id,
+              team_name: item.team_name,
+              team_url: "https://" + item.team_domain + "." + url_root
+            }
+          }
+        });
+        if (app_params) {
+          TS.info("calling TSSSB didSignIn with app_params", app_params);
+          TSSSB.call("didSignIn", app_params)
+        } else {
+          TS.warn("WTF did not find matching authed team?", authed_teams)
+        }
+      })
+    },
     userRemovedFromTeam: function(team_id) {
       if (!TS.boot_data.feature_user_removed_from_team) return;
       if (team_id !== TS.model.team.id) {
-        TS.info("You have been removed from the " + TS.model.team.name + " team.");
+        TS.info("You have been removed from the team with ID = " + team_id + ".");
         return
       }
       TS.generic_dialog.start({
@@ -2799,7 +2848,7 @@
         if (model_ob.is_channel) {
           TS.channels.markReadMsg(model_ob.id, msg.ts)
         } else if (model_ob.is_im) {
-          TS.ims.markReadMsg(model_ob.id, msg.ts)
+          TS.ims.markReadMsg(model_ob.id, msg.ts);
         } else if (model_ob.is_group) {
           TS.groups.markReadMsg(model_ob.id, msg.ts)
         } else {
@@ -3782,7 +3831,7 @@
       TS.view.switchedHelper();
       TS.view.unAdjustForWelcomeSlideShow();
       TS.view.updateTitleWithContext();
-      TS.view.updateTypingText();
+      TS.view.updateTypingText()
     },
     groupDeleted: function(group) {
       TS.client.channel_pane.rebuild("channels", "starred")
@@ -4675,7 +4724,7 @@
         var prefix = "sidebar_theme_";
         var el = $client_ui[0];
         var classes = el.className.split(" ").filter(function(c) {
-          return c.lastIndexOf(prefix, 0) !== 0;
+          return c.lastIndexOf(prefix, 0) !== 0
         });
         el.className = classes.join(" ");
         $client_ui.addClass(prefix + TS.model.prefs.sidebar_theme)
