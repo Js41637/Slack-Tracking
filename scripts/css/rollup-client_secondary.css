@@ -22494,7 +22494,7 @@ ts-jumper ts-jumper-results:empty {
 
 .channel_title .ts_icon_shared_channel {
   font-size: 1.4375rem;
-  line-height: 0
+  line-height: .75
 }
 
 .channel_title .ts_icon_shared_channel.away {
@@ -22742,12 +22742,10 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .divider_bar {
-  display: inline-block;
-  vertical-align: middle;
   width: 1px;
-  height: 1.6rem;
+  height: 1.5rem;
   background: rgba(113, 114, 116, .5);
-  margin-left: 5px
+  margin: .25rem 0 .25rem 5px
 }
 
 .flex_header {

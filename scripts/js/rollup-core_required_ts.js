@@ -2291,12 +2291,16 @@
       }
       if (combined_stats_all_p) {
         combined_stats_all_p.then(function(result) {
-          var memory_usage_all = result.memory.privateBytes + result.memory.sharedBytes;
-          var memory_usage_all_per_team = memory_usage_all / result.numTeams;
-          TS.metrics.store("memory_usage_all_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all)));
-          TS.metrics.store("memory_usage_all_per_team_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all_per_team)))
+          if (result.memory) {
+            var memory_usage_all = result.memory.privateBytes + result.memory.sharedBytes;
+            var memory_usage_all_per_team = memory_usage_all / result.numTeams;
+            TS.metrics.store("memory_usage_all_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all)));
+            TS.metrics.store("memory_usage_all_per_team_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all_per_team)))
+          } else {
+            TS.log(1983, "Unexpected results from call to _getCombinedMemoryUsage()", result)
+          }
         }).catch(function(err) {
-          TS.error(err)
+          TS.log(1983, "Error logging combined memory stats", err)
         })
       }
     }
@@ -3997,7 +4001,7 @@
         if (a < b) return -1;
         if (a > b) return 1
       }
-      return -(a_val - b_val)
+      return -(a_val - b_val);
     });
     A.length = Math.min(A.length, TS.model.emoji_menu_columns * 4);
     var extras = ["slightly_smiling_face", "heart", "+1", "100", "bug"];

@@ -6531,15 +6531,6 @@ header {
   border: none
 }
 
-#header_logo.api {
-  padding: 1rem 1.2rem
-}
-
-#header_logo.api img {
-  width: 200px;
-  height: 46px
-}
-
 #page {
   top: 0;
   left: 0;
@@ -6824,95 +6815,6 @@ nav#site_nav #footer_signature {
 .nav_open #overlay {
   display: block;
   background-color: rgba(0, 0, 0, .1)
-}
-
-nav#api_nav {
-  padding: 0 1rem
-}
-
-nav#api_nav h5 {
-  color: #232323;
-  letter-spacing: 0;
-  font-size: .75rem;
-  padding-left: .25rem
-}
-
-nav#api_nav #api_sections ul {
-  list-style: none;
-  margin: 0 0 1.5rem
-}
-
-nav#api_nav #api_sections ul li {
-  font-size: 1rem
-}
-
-nav#api_nav #api_sections ul li a {
-  border-bottom: 1px solid #EEE;
-  padding: .25rem;
-  color: #555459;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-nav#api_nav #api_sections ul li a:hover {
-  color: #3aa3e3;
-  text-decoration: none
-}
-
-nav#api_nav #api_sections ul li a.active,
-nav#api_nav #api_sections ul li a.active:hover {
-  font-weight: 700;
-  background: #3aa3e3;
-  color: #fff;
-  text-shadow: 0 1px 1px rgba(20, 91, 134, .5);
-  text-decoration: none;
-  border-color: transparent;
-  border-radius: .25rem;
-  padding: .25rem .5rem
-}
-
-nav#api_nav .apps_nav_select.menu_launcher {
-  font-size: .9375rem
-}
-
-nav#api_nav #footer {
-  padding-left: .25rem
-}
-
-nav#api_nav #footer #footer_nav a {
-  font-size: .9rem;
-  color: #B1B7BD
-}
-
-nav#api_nav #footer #footer_signature {
-  color: #eb4d5c;
-  font-size: .9rem;
-  margin-bottom: 0
-}
-
-nav#api_nav #footer ul {
-  list-style: none;
-  margin: 0 0 1rem
-}
-
-nav#api_nav #footer ul a {
-  -webkit-transition: color 90ms ease-out 0s;
-  -moz-transition: color 90ms ease-out 0s;
-  transition: color 90ms ease-out 0s
-}
-
-nav#api_nav #footer ul a:hover {
-  color: #3aa3e3
-}
-
-nav#api_nav #footer.developer_apps_footer {
-  padding-left: 9px
-}
-
-.api #page_contents {
-  padding: 8rem 0
 }
 
 #overlay {
@@ -7593,9 +7495,6 @@ screen and (max-width:640px) {
     padding: .9rem;
     height: 4rem
   }
-  header #header_logo.api {
-    padding: .5rem .6rem .5rem 1.25rem
-  }
   header .header_links a {
     padding: 1.3rem .7rem
   }
@@ -7655,9 +7554,6 @@ screen and (max-width:640px) {
   .tab_set a {
     padding: 12px 16px 11px;
     font-size: 1rem
-  }
-  .api #page_contents {
-    padding: 6.5rem 0
   }
 }
 
@@ -7736,33 +7632,6 @@ screen and (max-width:640px) {
   header #header_team_name a {
     max-width: 320px
   }
-  .api .header_nav {
-    display: none
-  }
-  .api .header_menu {
-    display: block
-  }
-  .api header .menu_icon {
-    margin-right: 0
-  }
-  nav#api_nav {
-    width: 260px!important;
-    -webkit-transform: translate3d(-260px, 0, 0);
-    -moz-transform: translate3d(-260px, 0, 0);
-    -ms-transform: translate3d(-260px, 0, 0);
-    transform: translate3d(-260px, 0, 0);
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    border-right: 1px solid #e8e8e8;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    padding: 1rem
-  }
-  .api #page_contents {
-    padding: 6.5rem 1rem
-  }
   .full_width_fixed_section {
     padding: 0 1rem
   }
@@ -7774,9 +7643,6 @@ screen and (max-width:640px) {
   }
   nav#site_nav #user_menu_name {
     margin-top: -8px
-  }
-  .api #page_contents {
-    padding: 5.5rem 1rem
   }
   .full_width_fixed_section {
     padding: 0 1rem
@@ -7867,18 +7733,6 @@ screen and (max-width:640px) {
   .accordion_expand {
     top: .75rem
   }
-  .api #page_contents {
-    padding: 1.5rem 1rem
-  }
-  .api #menu_toggle {
-    padding-right: 1.4rem
-  }
-  nav#api_nav {
-    -webkit-transform: translate3d(-260px, -4rem, 0);
-    -moz-transform: translate3d(-260px, -4rem, 0);
-    -ms-transform: translate3d(-260px, -4rem, 0);
-    transform: translate3d(-260px, -4rem, 0)
-  }
 }
 
 @media only screen and (max-width:480px) {
@@ -7890,9 +7744,6 @@ screen and (max-width:640px) {
   }
   header #header_team_nav {
     right: .5rem
-  }
-  .api #page_contents {
-    padding: 1.5rem 1rem
   }
 }
 
