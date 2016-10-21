@@ -409,6 +409,7 @@
       $($disabled_members).find(".long_list").remove();
       $($restricted_members).find(".long_list").remove();
       $($restricted_members).find(".restricted_info").remove();
+      $($restricted_members).find(".restricted_info_sso").remove();
       if (TS.web.admin.view == "list") {
         $($restricted_members).find(".ra_invite_prompt").parent().remove();
         var $active_members_content = $("<div>").appendTo($active_members);
