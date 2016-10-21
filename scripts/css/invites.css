@@ -230,17 +230,22 @@
   float: right
 }
 
-#admin_invites_workflow .lazy_filter_select .default_style {
-  background-color: #f9f9f9
-}
-
 #admin_invites_workflow .lazy_filter_select .ts_tip_tip {
   display: block;
   opacity: 1
 }
 
+#admin_invites_workflow .lazy_filter_select .lfs_input_container {
+  background-color: #f9f9f9
+}
+
 #admin_invites_workflow .lazy_filter_select .lfs_input_container .lfs_item.selected .bold {
   display: none
+}
+
+#admin_invites_workflow .error .lazy_filter_select .lfs_input_container {
+  border: 1px solid #cb5234;
+  background: #FFF6F6
 }
 
 #btn_connect_contacts .ts_icon_google {

@@ -14588,17 +14588,22 @@ a.sidebar_menu_list_item:hover {
   float: right
 }
 
-#admin_invites_workflow .lazy_filter_select .default_style {
-  background-color: #f9f9f9
-}
-
 #admin_invites_workflow .lazy_filter_select .ts_tip_tip {
   display: block;
   opacity: 1
 }
 
+#admin_invites_workflow .lazy_filter_select .lfs_input_container {
+  background-color: #f9f9f9
+}
+
 #admin_invites_workflow .lazy_filter_select .lfs_input_container .lfs_item.selected .bold {
   display: none
+}
+
+#admin_invites_workflow .error .lazy_filter_select .lfs_input_container {
+  border: 1px solid #cb5234;
+  background: #FFF6F6
 }
 
 #btn_connect_contacts .ts_icon_google {
@@ -22386,16 +22391,16 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex: 1 1 auto;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
   min-width: 1px
 }
 
 .channel_title {
-  -ms-flex: 1 1 auto;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
   min-width: 1px;
   margin-top: -2px
 }
@@ -22406,11 +22411,6 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: baseline;
-  -webkit-align-items: baseline;
-  -webkit-box-align: baseline;
-  -moz-align-items: baseline;
-  align-items: baseline;
   margin: 0 0 -2px;
   line-height: 1.3;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -22432,11 +22432,6 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: baseline;
-  -webkit-align-items: baseline;
-  -webkit-box-align: baseline;
-  -moz-align-items: baseline;
-  align-items: baseline;
   min-width: 1px;
   -webkit-user-select: text;
   -moz-user-select: text;
@@ -22460,9 +22455,14 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .channel_title .channel_actions_container {
-  -ms-flex: 1 1 auto;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 .channel_title .channel_name.muted {
@@ -22545,18 +22545,12 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: baseline;
-  -webkit-align-items: baseline;
-  -webkit-box-align: baseline;
-  -moz-align-items: baseline;
-  align-items: baseline;
   margin-top: 4px;
   padding-left: 1.3rem;
   color: #717274;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .8125rem;
   font-weight: 400;
-  height: 1rem;
   line-height: 1.16
 }
 
@@ -22585,55 +22579,29 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .topic_divider {
-  -ms-flex: 0 0 auto;
-  -webkit-flex: 0 0 auto;
-  flex: 0 0 auto;
+  white-space: nowrap;
   padding: 0 .4rem;
   color: rgba(113, 114, 116, .5)
 }
 
-.channel_topic.inline_edit,
-.channel_topic.inline_edit .inline_edit_inner {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex: 1 1 0px;
-  -webkit-flex: 1 1 0px;
-  flex: 1 1 0px;
+.channel_topic {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
   min-width: 1px
 }
 
 .channel_topic.inline_edit .inline_edit_input {
-  display: block;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap
-}
-
-.channel_topic.inline_edit:hover,
-.channel_topic.inline_edit_editing,
-.channel_topic.inline_edit_updating {
-  height: auto;
-  max-width: 31.25rem;
-  -ms-flex: 1 0 auto;
-  -webkit-flex: 1 0 auto;
-  flex: 1 0 auto
+  white-space: nowrap;
+  display: inline
 }
 
 .channel_topic.inline_edit:hover .inline_edit_input,
 .channel_topic.inline_edit_editing .inline_edit_input,
 .channel_topic.inline_edit_updating .inline_edit_input {
-  overflow: visible;
-  white-space: normal
-}
-
-.channel_topic.inline_edit .inline_edit_inner:hover,
-.channel_topic.inline_edit_done .inline_edit_inner,
-.channel_topic.inline_edit_editing .inline_edit_inner,
-.channel_topic.inline_edit_updating .inline_edit_inner {
-  position: static
+  white-space: pre-wrap
 }
 
 .channel_topic code {
@@ -22668,18 +22636,9 @@ ts-jumper ts-jumper-results:empty {
   display: none
 }
 
-#channel_members_toggle_count {
-  -webkit-align-self: center;
-  -moz-align-self: center;
-  -ms-flex-item-align: center;
-  align-self: center
-}
-
 #channel_members_toggle_count,
 #pinned_item_count {
-  -ms-flex: 0 0 auto;
-  -webkit-flex: 0 0 auto;
-  flex: 0 0 auto;
+  white-space: nowrap;
   -webkit-transition: color .1s ease-out 0s;
   -moz-transition: color .1s ease-out 0s;
   transition: color .1s ease-out 0s
@@ -22728,9 +22687,11 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .channel_title_info {
-  -ms-flex: 0 0 auto;
-  -webkit-flex: 0 0 auto;
-  flex: 0 0 auto;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
   color: #9e9ea6;
   margin: 3px 8px 0 0
 }
@@ -22779,9 +22740,6 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex: none;
-  -webkit-flex: none;
-  flex: none;
   -ms-flex-align: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
@@ -22827,9 +22785,9 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex: 1 1 auto;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 #search_container #search_autocomplete_popover {
@@ -22847,9 +22805,9 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex: 1 1 auto;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
   -ms-flex-align: center;
   -webkit-align-items: center;
   -webkit-box-align: center;
@@ -22868,9 +22826,9 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex: 1 1 auto;
-  -webkit-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
   -ms-flex-align: baseline;
   -webkit-align-items: baseline;
   -webkit-box-align: baseline;

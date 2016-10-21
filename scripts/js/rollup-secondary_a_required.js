@@ -37206,6 +37206,7 @@ var _on_esc;
       var custom_input_email = $(current_invite_row).find("input.lfs_input").val();
       var existing_email = $(current_invite_row).find("input[name*=email_address]").val();
       if (custom_input_email) {
+        $(current_invite_row).find("input.email_field").lazyFilterSelect("clearValue");
         $(current_invite_row).find("input[name*=email_address]").val(custom_input_email)
       } else if (existing_email) {
         $(current_invite_row).find("input.lfs_input").val(existing_email)
@@ -37306,7 +37307,7 @@ var _on_esc;
     _$div.find('button[data-action="api_send_invites"]').find(".ladda-label").text(label)
   };
   var _clearInitialChannelId = function() {
-    _initial_channel_id = undefined
+    _initial_channel_id = undefined;
   };
   var _applySSORestrictions = function() {
     var invite_type = _$div.find("#account_type").val();
@@ -38193,7 +38194,7 @@ var _on_esc;
         $("#invite_modal_refresh_email_addresses_select").lazyFilterSelect("disable");
         $("#invite_modal_refresh_default_channels_select").lazyFilterSelect("disable");
         $(".invite_modal_refresh_review_invitations_btn").addClass("disabled");
-        _showInfoMessage("alert_error", _getError("invite_limit_reached"));
+        _showInfoMessage("alert_error", _getError("invite_limit_reached"))
       } else {
         Ladda.bind(".invite_modal_refresh_review_invitations_btn");
         $("#invite_modal_refresh_email_addresses_select").lazyFilterSelect("focus")
@@ -44513,7 +44514,7 @@ $.fn.togglify = function(settings) {
     }
     var $to_select;
     if (!instance._$active) {
-      $to_select = instance.$list.find(".lfs_item:not(.disabled, .hidden)").first()
+      $to_select = instance.$list.find(".lfs_item:not(.disabled, .hidden)").first();
     } else {
       $to_select = instance._$active[direction](".lfs_item:not(.disabled, .hidden)").first()
     }
@@ -51294,7 +51295,7 @@ $.fn.togglify = function(settings) {
       case _utility_call_state.mini_panel_token:
         if (window.winssb && winssb.window && winssb.window.browserWindows && winssb.window.browserWindows[token] && winssb.window.browserWindows[token].setMinimumSize) {
           winssb.window.browserWindows[token].setMinimumSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
-          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height);
+          winssb.window.browserWindows[token].setSize(_utility_calls_config.mini_panel_dims.width, _utility_calls_config.mini_panel_dims.height)
         }
         break
     }
