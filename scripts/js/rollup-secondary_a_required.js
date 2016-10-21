@@ -14278,6 +14278,8 @@ TS.registerModule("constants", {
       return log
     },
     connectImmediately: function(url) {
+      if (!url) url = TS.model.team.url;
+      url = _addQueryParamsToLoginUrl(url);
       _connect(url);
       _initSocketHandlersImmediate()
     },
@@ -14286,6 +14288,8 @@ TS.registerModule("constants", {
       _initSocketHandlersProvisional()
     },
     connectProvisionallyAndFetchRtmStart: function(url) {
+      if (!url) url = TS.model.team.url;
+      url = _addQueryParamsToLoginUrl(url);
       _connect(url);
       return _initSocketHandlersProvisionalRtmStart()
     },
@@ -14790,7 +14794,6 @@ TS.registerModule("constants", {
     _onMsgProvisional = undefined
   };
   var _createNewSocket = function(url) {
-    if (!url) url = TS.model.team.url;
     if (TS.lazyLoadMembers()) {
       url = TS.utility.url.setUrlQueryStringValue(url, "flannel", 1);
       url = TS.utility.url.setUrlQueryStringValue(url, "token", TS.boot_data.api_token);
@@ -14805,7 +14808,6 @@ TS.registerModule("constants", {
     TS.ms.logConnectionFlow("connect");
     TS.info("Connecting to: " + url);
     clearTimeout(_connect_timeout_tim);
-    url = _addQueryParamsToLoginUrl(url);
     TS.ms.last_url = url;
     TS.ms.last_start_ms = Date.now();
     TS.metrics.mark("ms_websocket_create");

@@ -31788,7 +31788,7 @@ var _timezones_alternative = {
     var $control_btns = _$file_viewer.find(".control_btns");
     var $previous_btn = _$file_viewer.find(".previous_btn");
     var $next_btn = _$file_viewer.find(".next_btn");
-    if (_gallery.length === 1) {
+    if (_gallery.length === 1 || _gallery.length === 0) {
       $control_btns.addClass("hidden")
     } else {
       $control_btns.removeClass("hidden")
