@@ -623,6 +623,9 @@
           }
         }
       })
+    },
+    activeChannelIsHidden: function() {
+      return TS.model.unread_view_is_showing || TS.model.threads_view_is_showing
     }
   });
   var _users_counts_resp_from_incremental_boot;
@@ -4516,18 +4519,13 @@
     },
     socketReconnecting: function(secs) {
       if (TS.model.window_unloading) {
+        _cancelDelayedReconnectingBanner();
         $("#connection_div").html("").addClass("hidden");
         TS.client.msg_pane.topMessagesBannerHidden()
+      } else if ($("#connection_div").hasClass("hidden")) {
+        _showReconnectingBannerAfterDelay(secs)
       } else {
-        var txt = "Reconnecting";
-        if (secs) {
-          txt += " in " + secs + " second" + (secs == 1 ? "" : "s...");
-          if (secs > 2) txt += ' <a onclick="TS.ms.manualReconnectNow()">Retry now?</a>'
-        } else {
-          txt += "..."
-        }
-        $("#connection_div").html(txt).removeClass("hidden");
-        TS.client.msg_pane.topMessagesBannerShown()
+        _showReconnectingBannerImmediately(secs)
       }
     },
     current_connection_status: null,
@@ -4607,6 +4605,33 @@
         is_count: true
       })
     }
+  };
+  var RECONNECT_BANNER_DELAY_MS = 5e3;
+  var _reconnect_banner_delay_tim;
+  var _reconnect_banner_timeout_secs;
+  var _showReconnectingBannerAfterDelay = function(secs) {
+    _reconnect_banner_timeout_secs = secs;
+    if (_reconnect_banner_delay_tim) return;
+    _reconnect_banner_delay_tim = setTimeout(function() {
+      _reconnect_banner_delay_tim = undefined;
+      _showReconnectingBannerImmediately(_reconnect_banner_timeout_secs)
+    }, RECONNECT_BANNER_DELAY_MS)
+  };
+  var _showReconnectingBannerImmediately = function(secs) {
+    var txt = "Reconnecting";
+    if (secs) {
+      txt += " in " + secs + " second" + (secs == 1 ? "" : "s...");
+      if (secs > 2) txt += ' <a onclick="TS.ms.manualReconnectNow()">Retry now?</a>'
+    } else {
+      txt += "..."
+    }
+    $("#connection_div").html(txt).removeClass("hidden");
+    TS.client.msg_pane.topMessagesBannerShown()
+  };
+  var _cancelDelayedReconnectingBanner = function() {
+    if (!_reconnect_banner_delay_tim) return;
+    clearTimeout(_reconnect_banner_delay_tim);
+    _reconnect_banner_delay_tim = undefined
   }
 })();
 (function() {
@@ -4667,7 +4692,7 @@
         if (TS.members.shouldDisplayRealNames()) {
           $("#col_channels").addClass("real_names")
         } else {
-          $("#col_channels").removeClass("real_names")
+          $("#col_channels").removeClass("real_names");
         }
       }
       if (TS.model.previewed_file_id) TS.client.ui.files.rebuildFilePreview(TS.files.getFileById(TS.model.previewed_file_id))

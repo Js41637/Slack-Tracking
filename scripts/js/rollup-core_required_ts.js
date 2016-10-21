@@ -620,6 +620,9 @@
     if (TS.boot_data.feature_canonical_avatars_web_client) {
       login_args.canonical_avatars = true
     }
+    if (TS.boot_data.require_emails) {
+      login_args.require_emails = true
+    }
     login_args.eac_cache_ts = true;
     if (_lazyLoadMembers()) TS.log(1989, "Flannel: MS login args:", login_args);
     return login_args
@@ -667,7 +670,7 @@
           TS.log(1989, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"))
         }
-        _ms_rtm_start_p = _getRtmStartFromFlannel();
+        _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
         if (!_ms_rtm_start_p) {
           TS.log(1989, "Bad news: we tried to connect to Flannel so we could get an rtm.start response, but it didn't set a promise for us; we are now totally wedged.");
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"))
@@ -1860,40 +1863,11 @@
     if (!_shouldConnectToMS()) return;
     if (!TS.boot_data.ms_connect_url) return;
     if (_lazyLoadMembers()) {
-      _ms_rtm_start_p = _getRtmStartFromFlannel();
+      _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
       return
     }
     TS.log(1996, "Opening a tokenless MS connection");
     TS.ms.connectProvisionally(TS.boot_data.ms_connect_url)
-  };
-  var _getRtmStartFromFlannel = function() {
-    TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
-    var rtm_start_p = TS.ms.connectProvisionallyAndFetchRtmStart(_getFlannelConnectionUrl());
-    if (!rtm_start_p) {
-      throw new Error("TS.ms.connect did not return an rtm.start promise")
-    }
-    return rtm_start_p.then(function(data) {
-      delete data.users;
-      delete data.updated_users;
-      var required_member_ids = _([data.mpims, data.ims]).flatten().map(function(ob) {
-        return ob.members || [ob.user]
-      }).flatten().uniq().compact().value();
-      if (!required_member_ids.length) {
-        TS.log(1989, "Got rtm.start data and don't need to fetch any members");
-        data.users = [];
-        return data
-      }
-      TS.log(1989, "Got rtm.start data but need to fetch members: " + required_member_ids.join(", "));
-      return TS.flannel.fetchRawMembersByIds(required_member_ids).then(function(users) {
-        TS.log(1989, "Got members for rtm.start :tada:");
-        data.users = users;
-        return data
-      })
-    })
-  };
-  var _getFlannelConnectionUrl = function() {
-    var start_args = _getMSLoginArgs();
-    return TS.utility.url.setUrlQueryStringValue(TS.boot_data.ms_connect_url, "start_args", TS.utility.url.queryStringEncode(start_args))
   };
   var _initSleepWake = function() {
     var is_asleep = false;
@@ -2155,7 +2129,7 @@
   };
   var _storeLastActiveModelOb = function() {
     var model_ob = TS.shared.getActiveModelOb();
-    TS.storage.storeLastActiveModelObId(model_ob ? model_ob.id : undefined)
+    TS.storage.storeLastActiveModelObId(model_ob ? model_ob.id : undefined);
   }
 })();
 (function() {
@@ -2632,6 +2606,7 @@
     overlay_is_showing: false,
     unread_view_is_showing: false,
     sorting_mode_is_showing: false,
+    threads_view_is_showing: false,
     seen_onboarding_this_session: false,
     seen_welcome_2: true,
     showing_welcome_2: false,
@@ -4535,7 +4510,7 @@
       var has_at_group = TS.model.group_regex.test(comment_text);
       var only_general = false;
       if (share_channel) {
-        only_general = !!share_channel.is_general;
+        only_general = !!share_channel.is_general
       } else if (file && file.groups.length === 0 && file.channels.length === 1) {
         var channel = TS.channels.getChannelById(file.channels[0]);
         only_general = !!channel.is_general
