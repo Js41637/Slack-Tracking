@@ -1,0 +1,67 @@
+.LoadingScreen {
+  & {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .anim-appear {
+    opacity: 0;
+  }
+
+  .anim-appear.anim-appear-active {
+    opacity: 1;
+    transition: opacity 0.2s ease-out;
+  }
+
+  &-text {
+    margin-top: 10px;
+    height: 28px;
+    display: block;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    color: #555549;
+  }
+
+  &-button {
+    background: #2A80B9;
+    color: white!important;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.2);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.2rem;
+    font-weight: 900;
+    -webkit-user-select: none;
+    text-decoration: none;
+    border: 0;
+    border-radius: .25rem;
+    -webkit-box-shadow: none;
+    vertical-align: bottom;
+    padding: 5px 12px 6px;
+    font-size: 15px;
+  }
+
+  &-button:hover,&-button:focus {
+    background: #439fe0;
+    color: white;
+    outline: none;
+  }
+
+  &-button.active {
+    background: #439fe0;
+    color: white;
+    box-shadow: inset 0 2px 1px rgba(0,0,0,.25);
+  }
+}

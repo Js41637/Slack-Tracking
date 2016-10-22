@@ -1,0 +1,24 @@
+.TeamView {
+  width: 100%;
+  height: 100%;
+
+  &-preload {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+
+  .anim-leave {
+    opacity: 1;
+  }
+
+  .anim-leave.anim-leave-active {
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+  }
+  
+  .WebViewContext {
+    width: 100%;
+    height: 100%;
+  }
+}

@@ -1,0 +1,107 @@
+.NotificationItem {
+  width: 100%;
+  height: 72px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+
+  list-style-type: none;
+  cursor: default;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+
+  &-content {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+
+    border-width: 2px;
+    border-style: solid;
+  }
+
+  &-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+    min-height: 72px;
+    max-width: 72px;
+    max-height: 72px;
+
+    .TeamIcon {
+      width: 72px;
+      height: 72px;
+      min-width: 72px;
+      min-height: 72px;
+      max-width: 72px;
+      max-height: 72px;
+    }
+  }
+
+  &-text{
+    font-size: 0.8em;
+    padding-left: 1em;
+  }
+
+  .limit-text-lines {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+
+  &-title {
+    font-weight: bold;
+    margin-top: 0.5em;
+    margin-bottom: 0;
+    padding-right: 2em;
+    -webkit-line-clamp: 1;
+    .limit-text-lines;
+  }
+
+  &-message {
+    margin-top: 0.33em;
+    padding-right: 4em;
+    -webkit-line-clamp: 2;
+    .limit-text-lines;
+
+    .emoji {
+      max-height: 16px;
+      vertical-align: middle;
+    }
+  }
+
+  &-close {
+    position: absolute;
+    right: 5px;
+
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+
+    opacity: 0.2;
+     -webkit-transition: all 0.4s ease-out;
+  }
+
+  &-content:hover > &-close {
+    opacity: 1;
+     -webkit-transition: all 0.25s ease-in;
+  }
+
+  &-hash {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
+
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+  }
+
+}

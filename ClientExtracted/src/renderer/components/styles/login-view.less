@@ -1,0 +1,64 @@
+.LoginView {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  &-overlay {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+
+    &Spinner{
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  .overlay-leave {
+    opacity: 1;
+  }
+
+  .overlay-leave.overlay-leave-active {
+    opacity: 0.01;
+    transition: opacity 0.3s ease-in;
+  }
+  
+  &-buttons {
+    height: 26px;
+    background: white;
+  }
+
+  &-dialog {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .login-button-mixin {
+    position: absolute;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 4px;
+  }
+
+  &-back {
+    .login-button-mixin;
+    left: 2px;
+  }
+
+  &-cancel {
+    .login-button-mixin;
+    right: 2px;
+  }
+  
+  .WebViewContext {
+    width: 100%;
+    height: 100%;
+  }
+}

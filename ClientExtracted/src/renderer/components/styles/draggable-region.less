@@ -1,0 +1,12 @@
+.DraggableRegion {
+  -webkit-app-region: drag;
+  position: absolute;
+  width: 100%;
+  z-index: 200;
+  pointer-events: none;
+
+  // Ensure that sibling elements aren't draggable
+  & + * {
+    -webkit-app-region: no-drag;
+  }
+}

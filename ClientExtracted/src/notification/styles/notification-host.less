@@ -1,0 +1,40 @@
+.NotificationHost {
+  width: 98%;
+  height: 100%;
+  float: right;
+
+  display: flex;
+  align-items: flex-end;
+
+  font-family: Slack-Lato, Meiryo, Lucida Grande, sans-serif;
+  color: cyan;
+
+  &-list {
+    width: 100%;
+  }
+
+
+  .spin-enter {
+    -webkit-animation-duration: 0.4s;
+    -webkit-animation-fill-mode: both;
+    -webkit-animation-name: pageInRight;
+  }
+
+  .spin-leave {
+    -webkit-animation-duration: 0.4s;
+    -webkit-animation-fill-mode: both;
+    -webkit-animation-name: collapseHeight;
+    align-self: flex-end;
+  }
+
+}
+
+@-webkit-keyframes pageInRight {
+  0% { -webkit-transform: perspective(300px) rotateY(90deg); }
+  100% { -webkit-transform: none; }
+}
+
+@-webkit-keyframes collapseHeight {
+  0% { opacity: 1; }
+  100% { opacity: 0; height: 0; margin-top: 0; margin-bottom: 0; }
+}

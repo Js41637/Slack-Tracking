@@ -1,0 +1,247 @@
+@about-width: 320px;
+@about-padding: 42px;
+@about-text-color: #2c2d30;
+@about-border-color: rgba(151, 151, 151, .25);
+@about-font-family: Slack-Lato, Lucida Grande, sans-serif;
+@shadow-color: rgba(0, 0, 0, .25);
+
+.AboutBox {
+  background: white;
+  font-family: @about-font-family;
+  padding: @about-padding;
+  -webkit-app-region: drag;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  &-logo {
+    width: 82px;
+    height: 82px;
+    -webkit-user-select: none;
+  }
+
+  &-version {
+    width: @about-width;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 18px;
+    letter-spacing: 0;
+    color: @about-text-color;
+    margin-top: 16px;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+    -webkit-app-region: no-drag;
+  }
+
+  &-versionName {
+    width: @about-width;
+    font-size: 16px;
+    line-height: 16px;
+    letter-spacing: 0;
+    color: @about-text-color;
+    margin-top: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+    -webkit-app-region: no-drag;
+  }
+
+  .singleLineOfText {
+    display: -webkit-box;
+    text-overflow: visible;
+    overflow: hidden;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
+  .fadeIn {
+    opacity: 0;
+    transform: scaleY(0);
+    animation-name: fadeInKeyframes;
+    animation-duration: 250ms;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+  }
+
+  .fadeOut {
+    opacity: 0;
+    transition: all 250ms ease-in;
+  }
+
+  @keyframes fadeInKeyframes {
+    to {
+      opacity: 1;
+      transform: scaleY(1);
+      transform-origin: top;
+    }
+  }
+
+  &-dependencies {
+    opacity: 0;
+    transform: scaleY(0);
+
+    position: absolute;
+    left: 0px;
+    bottom: 42px;
+    margin-top: -20px;
+    height: 192px;
+    box-sizing: border-box;
+    border: 1px solid @about-border-color;
+    border-style: solid none;
+    -webkit-app-region: no-drag;
+
+    &:hover,
+    &:focus,
+    &:active {
+      outline: none;
+    }
+  }
+
+  &-acknowledgements {
+    background: #2ab27b;
+    color: white !important;
+    padding: 8px 14px 9px;
+    text-shadow: 0 1px @shadow-color;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.2rem;
+    font-weight: 900;
+    font-size: 15px;
+    font-family: inherit;
+    text-decoration: none;
+    -webkit-user-select: none;
+    border: 0;
+    border-radius: .25rem;
+    -webkit-box-shadow: none;
+    margin-top: 42px;
+    display: inline-block;
+    cursor: default;
+    -webkit-app-region: no-drag;
+
+    &:hover,
+    &:focus,
+    &:active {
+      outline: none;
+    }
+
+    &::after {
+      position: absolute;
+      content: '';
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      border-radius: .25rem;
+    }
+
+    &:hover::after {
+      box-shadow: inset 0 -2px @shadow-color;
+    }
+
+    &:active {
+      box-shadow: inset 0 2px 1px @shadow-color;
+
+      &::after {
+        box-shadow: none;
+      }
+    }
+  }
+
+  .Dependency {
+    font-family: @about-font-family;
+    color: @about-text-color;
+    font-size: 13px;
+    line-height: 18px;
+    letter-spacing: 0;
+
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 24px;
+    padding-right: 24px;
+
+    &-name {
+      font-weight: 700;
+      .singleLineOfText;
+    }
+
+    &-licenseName {
+      display: inline;
+    }
+
+    &-licenseText {
+      display: inline-block;
+      margin-top: 12px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+      border: 1px solid @about-border-color;
+      border-style: solid none;
+
+      &-enter {
+        opacity: 0;
+
+        &-active {
+          opacity: 1;
+          transition: opacity 0.4s ease-out;
+        }
+      }
+    }
+
+    &-viewLicense {
+      background: white;
+      color: @about-text-color;
+      padding: 3px 3px 0px 3px;
+      margin-left: 6px;
+      text-shadow: 0 1px @shadow-color;
+      -webkit-font-smoothing: antialiased;
+      -webkit-user-select: none;
+      border: 0;
+      border-radius: .25rem;
+      -webkit-box-shadow: none;
+      display: inline-block;
+      cursor: default;
+
+      &:focus,
+      &:active {
+        outline: none;
+      }
+
+      &:hover {
+        outline: none;
+        box-shadow: inset 0 1px @shadow-color;
+      }
+
+      &::after {
+        position: absolute;
+        content: '';
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border-radius: .25rem;
+      }
+
+      &:hover::after {
+        box-shadow: inset 0 -2px @shadow-color;
+      }
+
+      &:active {
+        box-shadow: inset 0 2px 1px @shadow-color;
+
+        &::after {
+          box-shadow: none;
+        }
+      }
+
+      &-leave {
+        opacity: 1;
+
+        &-active {
+          opacity: 0;
+          transition: opacity 0.2s ease-out;
+        }
+      }
+    }
+  }
+}

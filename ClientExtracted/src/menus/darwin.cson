@@ -1,0 +1,95 @@
+'menu': [
+  {
+    label: 'Slack'
+    submenu: [
+      { label: 'About Slack', command: 'application:about' }
+      { label: 'Check for Updates…', command: 'application:check-for-update' }
+      { type: 'separator' }
+      { label: 'Preferences…', command: 'application:show-settings', accelerator: "Command+," }
+      { type: 'separator' }
+      { label: 'Services', role: 'services', submenu: [] }
+      { type: 'separator' }
+      { label: 'Hide Slack', accelerator: 'Command+H', role: 'hide' }
+      { label: 'Hide Others', accelerator: 'Command+Shift+H', role: 'hideothers' }
+      { label: 'Show All', role: 'unhide' }
+      { type: 'separator' }
+      { label: 'Quit', command: 'application:quit', accelerator: "Command+Q" }
+    ]
+  }
+
+  {
+    label: 'File'
+    submenu: [
+      { label: 'Close', role: 'close', accelerator: "Command+W" }
+    ]
+  }
+
+  {
+    label: 'Edit'
+    submenu: [
+      { label: 'Undo', selector: 'undo:', accelerator: "Command+Z" }
+      { label: 'Redo', selector: 'redo:', accelerator: "Shift+Command+Z" }
+      { type: 'separator' }
+      { label: 'Cut', selector: 'cut:', accelerator: "Command+X" }
+      { label: 'Copy', selector: 'copy:', accelerator: "Command+C" }
+      { label: 'Paste', selector: 'paste:', accelerator: "Command+V" }
+      { label: 'Delete', command: 'core:delete' }
+      { label: 'Select All', selector: 'selectAll:', accelerator: "Command+A" }
+    ]
+  }
+
+  {
+    label: 'View'
+    submenu: [
+      { label: 'Reload', command: 'window:reload', accelerator: "Command+R" }
+      { label: 'Toggle Full Screen', command: 'window:toggle-full-screen', accelerator: "Command+Control+F" }
+      { type: 'separator' }
+      { label: 'Actual Size', command: 'window:actual-size', accelerator: "Command+0" }
+      { label: 'Zoom In', command: 'window:zoom-in', accelerator: "Command+Plus" }
+      { label: 'Zoom Out', command: 'window:zoom-out', accelerator: "Command+-" }
+      { type: 'separator' }
+      {
+        label: 'Developer'
+        submenu: [
+          { label: 'Run Tests…', command: 'application:run-specs', accelerator: "Alt+Command+T" }
+          { label: 'Toggle Developer Tools', command: 'window:toggle-dev-tools', accelerator: "Alt+Command+I" }
+        ]
+      }
+    ]
+  }
+
+  {
+    label: 'History'
+    submenu: [
+      { label: 'Back', command: 'history:back', accelerator: 'Command+[' }
+      { label: 'Forward', command: 'history:forward', accelerator: 'Command+]' }
+    ]
+  }
+
+  {
+    label: 'Window'
+    role: 'window'
+    submenu: [
+      { label: 'Minimize', role: 'minimize', accelerator: "Command+M" }
+      { label: 'Zoom', selector: 'performZoom:' }
+      { type: 'separator' }
+      { label: 'Bring All to Front', role: 'front' }
+      { type: 'separator', id: 'team-list' }
+      { label: 'Select Next Team', command: 'window:select-next-team', accelerator: "Command+}"}
+      { label: 'Select Previous Team', command: 'window:select-previous-team', accelerator: "Command+{"}
+      { type: 'separator' }
+      { label: 'Sign in to Another Team…', command: 'window:signin' }
+    ]
+  }
+
+  {
+    label: 'Help'
+    role: 'help'
+    submenu: [
+      { label: 'Report Issue…', command: 'application:report-issue' }
+      { label: 'Reset App Data…', command: 'application:reset-app-data' }
+      { type: 'separator' }
+      { label: 'What\'s New…', command: 'application:release-notes' }
+    ]
+  }
+]
