@@ -18,5 +18,5 @@ if (cluster.isMaster) {
     }
   })
 } else {
-  module.exports = require('./main.js')
+  module.exports = require('./updater.js')
 }
