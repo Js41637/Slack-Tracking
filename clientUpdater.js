@@ -9,9 +9,8 @@ const rf = require('rimraf')
 const releaseURL = 'https://downloads.slack-edge.com/releases'
 
 function downloadClient(release) {
-  console.log("Downloading the client")
   return new Promise((resolve, reject) => {
-    console.log("Fetching", `${releaseURL}/${release}`)
+    console.log("Downloading", `${releaseURL}/${release}`)
     request(`${releaseURL}/${release}`)
       .on('error', reject)
       .on('end', resolve)
@@ -20,8 +19,8 @@ function downloadClient(release) {
 }
 
 function extractClient(release) {
-  console.log("Extracting the Client")
   return new Promise((resolve, reject) => {
+    console.log("Extracting the Client")
     try {
       const unzipExtractor = unzip.Extract({ path: './ClientExtracted/temp' })
       unzipExtractor.on('error', reject)
@@ -34,8 +33,8 @@ function extractClient(release) {
 }
 
 function findFiles() {
-  console.log("Finding directory containing ASAR")
   return new Promise((resolve, reject) => {
+    console.log("Finding directory containing ASAR")
     let files = []
     const walker = walk.walk('./ClientExtracted/temp')
     walker.on('file', (dir, stat, next) => {
@@ -74,12 +73,15 @@ function cleanUp(name, version) {
 }
 
 function update({ release, version }) {
-  return downloadClient(release)
-    .then(() => extractClient(release))
-    .then(findFiles)
-    .then(extractASAR)
-    .then(() => cleanUp(release, version))
-    .then(Promise.resolve, Promise.reject)
+  return new Promise((resolve, reject) => {
+    downloadClient(release)
+      .then(() => extractClient(release))
+      .then(findFiles)
+      .then(extractASAR)
+      .then(() => cleanUp(release, version))
+      .then(resolve)
+      .catch(reject)
+  })
 }
 
 module.exports = { update }

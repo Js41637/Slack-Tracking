@@ -79,22 +79,24 @@ function getChanges(client) {
 }
 
 function pushToGit(client) {
-  console.log("Pushing to git")
-  pushing = true
-  return getChanges(client).then(changes => {
-    if (!changes.length) return Promise.resolve('No new changes')
-    let emoji = emojis[random(0, emojis.length - 1)]
-    let msg = `${emoji} ${changes.join(', ')}`
-    let cmd = config.noPush ? `git commit -m "${msg}"` : `git commit -m "${msg}" && git push`
-    exec(cmd, (err, stdout) => {
-      console.log(err, stdout)
+  return new Promise((resolve, reject) => {
+    console.log("Pushing to git")
+    pushing = true
+    getChanges(client).then(changes => {
+      if (!changes.length) return Promise.resolve('No new changes')
+      let emoji = emojis[random(0, emojis.length - 1)]
+      let msg = `${emoji} ${changes.join(', ')}`
+      let cmd = config.noPush ? `git commit -m "${msg}"` : `git commit -m "${msg}" && git push`
+      exec(cmd, (err, stdout) => {
+        console.log(err, stdout)
+        pushing = false
+        if (err) return reject(err)
+        resolve(`Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`)
+      })
+    }).catch(err => {
       pushing = false
-      if (err) return Promise.reject(err)
-      return `Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`
+      return reject(err)
     })
-  }).catch(err => {
-    pushing = false
-    Promise.reject(err)
   })
 }
 
@@ -105,9 +107,11 @@ function startTheMagic() {
 }
 
 function waitToPush() {
-  setTimeout(function () {
-    pushing ? waitToPush() : pushToGit(true)
-  }, 2000);
+  setTimeout(() => {
+    console.log("Waiting to push")
+    if (pushing) return waitToPush()
+    pushToGit(true)
+  }, 2000)
 }
 
 function checkClientVersion() {
@@ -124,7 +128,8 @@ function checkClientVersion() {
         if (currentVersion != latestRelease.version) {
           clientUpdater.update(latestRelease).then(() => {
             console.log("Finished updating client")
-            pushing ? waitToPush() : pushToGit(true)
+            if (pushing) return waitToPush()
+            pushToGit(true)
           })
         }
         else console.log("Versions are the same")
