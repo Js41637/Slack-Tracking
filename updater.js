@@ -1,6 +1,6 @@
 const request = require('request')
 const cheerio = require('cheerio')
-const { chain, compact, map, last, random, uniq } = require('lodash') // eslint-disable-line
+const { chain, compact, map, last, random, uniq, truncate } = require('lodash') // eslint-disable-line
 const beautify = require('js-beautify')
 const fs = require('fs')
 const { exec } = require('child_process')
@@ -19,7 +19,6 @@ const headers = { Cookie: config.cookies.join(';') }
 const types = { js: 'Scripts', css: 'Styles' }
 const beautifyOptions = { indent_size: 2, end_with_newline: true }
 const jsRegex = /(templates|analytics|beacon|required_libs)(.js|.php)/
-var pushing = false
 
 function makeRequests(urls) {
   return Promise.all(urls.map(url => {
@@ -80,23 +79,18 @@ function getChanges(client) {
 
 function pushToGit(client) {
   return new Promise((resolve, reject) => {
-    console.log("Pushing to git")
-    pushing = true
+    console.log("Preparing to push to Github")
     getChanges(client).then(changes => {
       if (!changes.length) return Promise.resolve('No new changes')
       let emoji = emojis[random(0, emojis.length - 1)]
-      let msg = `${emoji} ${changes.join(', ')}`
+      let msg = `${emoji} ${truncate(changes.join(', ').replace(/ClientExtracted/g, 'Client'), { length: 1000 })}`
       let cmd = config.noPush ? `git commit -m "${msg}"` : `git commit -m "${msg}" && git push`
       exec(cmd, (err, stdout) => {
         console.log(err, stdout)
-        pushing = false
         if (err) return reject(err)
         resolve(`Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`)
       })
-    }).catch(err => {
-      pushing = false
-      return reject(err)
-    })
+    }).catch(reject)
   })
 }
 
@@ -104,14 +98,6 @@ function startTheMagic() {
   getPageScripts().then(getScripts).then(writeToDisk).then(() => pushToGit()).then(msg => {
     console.log(msg)
   }).catch(err => console.error("Error while doing stuff", err))
-}
-
-function waitToPush() {
-  setTimeout(() => {
-    console.log("Waiting to push")
-    if (pushing) return waitToPush()
-    pushToGit(true)
-  }, 2000)
 }
 
 function checkClientVersion() {
@@ -126,13 +112,9 @@ function checkClientVersion() {
       fs.readFile('./ClientExtracted/VERSION', 'utf8', (err, data) => {
         let currentVersion = err ? null : data
         if (currentVersion != latestRelease.version) {
-          clientUpdater.update(latestRelease).then(() => {
-            console.log("Finished updating client")
-            if (pushing) return waitToPush()
-            pushToGit(true)
-          })
+          clientUpdater.update(latestRelease).then(pushToGit)
         }
-        else console.log("Versions are the same")
+        else console.log("Slack Client hasn't updated")
       })
     } else console.error("Error fetching client releases", err)
   })
