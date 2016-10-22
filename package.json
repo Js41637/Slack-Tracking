@@ -9,10 +9,14 @@
   "author": "Js41637",
   "license": "Beerware",
   "dependencies": {
+    "asar": "^0.12.3",
     "cheerio": "^0.22.0",
     "js-beautify": "^1.6.4",
     "lodash": "^4.16.4",
     "moment": "^2.15.1",
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "rimraf": "^2.5.4",
+    "unzip": "^0.1.11",
+    "walk": "^2.3.9"
   }
 }

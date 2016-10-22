@@ -6,21 +6,20 @@ const fs = require('fs')
 const { exec } = require('child_process')
 const emojis = require('./emojis')
 const config = require('./config')
+const clientUpdater = require('./clientUpdater')
 
-const beautifyOptions = {
-  indent_size: 2,
-  end_with_newline: true
+if (!config || !config.teamName || !config.updateInterval || !config.cookies) {
+  console.error("Invalid config")
+  process.exit()
 }
 
-const headers = {
-  Cookie: config.cookies.join(';')
-}
-
+const ClientReleasesURL = 'http://slack-ssb-updates.global.ssl.fastly.net/releases_x64/RELEASES'
+const URL = `https://${config.teamName}.slack.com`
+const headers = { Cookie: config.cookies.join(';') }
+const types = { js: 'Scripts', css: 'Styles' }
+const beautifyOptions = { indent_size: 2, end_with_newline: true }
 const jsRegex = /(templates|analytics|beacon|required_libs)(.js|.php)/
-const types = {
-  js: 'Scripts',
-  css: 'Styles'
-}
+var pushing = false
 
 function makeRequests(urls) {
   return Promise.all(urls.map(url => {
@@ -35,7 +34,6 @@ function makeRequests(urls) {
 
 function getPageScripts() {
   console.log("Getting page scripts")
-  let URL = `https://${config.teamName}.slack.com`
   return makeRequests([`${URL}/admin`, `${URL}/messages`]).then(([ page1, page2 ]) => {
     let $ = cheerio.load(page1 + page2) // lmao
     let js = chain($('script')).map(({ attribs: { src: url } }) => url && !url.match(jsRegex) ? { url, type: 'js' } : null).compact().uniq().value()
@@ -66,12 +64,13 @@ function writeToDisk(scripts) {
   }))
 }
 
-function getChanges() {
+function getChanges(client) {
   console.log("Getting changes")
   return new Promise((resolve, reject) => {
-    exec('git add ./ && git status --short', (err, stdout) => {
+    let what = client ? './ClientExtracted' : './ && git reset ./ClientExtracted'
+    exec(`git add ${what} && git status --short`, (err, stdout) => {
       if (!err) {
-        let changes = compact(map(stdout.split('\n'), c => c.trim()))
+        let changes = compact(map(stdout.split('\n'), c => !c.startsWith('??') ? c.trim().replace('  ', ' ') : null))
         console.log(`Got ${changes.length} changed files`)
         return resolve(changes)
       } else return reject(err)
@@ -79,43 +78,76 @@ function getChanges() {
   })
 }
 
-function pushToGit() {
+function pushToGit(client) {
   console.log("Pushing to git")
-  return getChanges().then(changes => {
+  pushing = true
+  return getChanges(client).then(changes => {
     if (!changes.length) return Promise.resolve('No new changes')
-    if (config.noPush) return Promise.resolve("Not pushing changes to Github")
     let emoji = emojis[random(0, emojis.length - 1)]
     let msg = `${emoji} ${changes.join(', ')}`
-    exec(`git commit -a -m "${msg}" && git push`, (err, stdout) => {
+    let cmd = config.noPush ? `git commit -a -m "${msg}"` : `git commit -a -m "${msg}" && git push`
+    exec(cmd, (err, stdout) => {
       console.log(err, stdout)
+      pushing = false
       if (err) return Promise.reject(err)
-      Promise.resolve()
+      Promise.resolve(`Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`)
     })
-  }).catch(Promise.reject)
+  }).catch(err => {
+    pushing = false
+    Promise.reject(err)
+  })
 }
 
 function startTheMagic() {
   getPageScripts().then(getScripts).then(writeToDisk).then(pushToGit).then(msg => {
-    console.log(msg ? msg : "Successfully fetched changes and pushed to Github")
+    console.log(msg)
   }).catch(err => console.error("Error while doing stuff", err))
+}
+
+function waitToPush() {
+  setTimeout(function () {
+    pushing ? waitToPush() : pushToGit(true)
+  }, 2000);
+}
+
+function checkClientVersion() {
+  request(ClientReleasesURL, (err, resp, body) => {
+    if (!err && body) {
+      let releases = compact(body.split('\n').map(rel => {
+        if (rel.includes('delta')) return null
+        let [ hash, release, size ] = rel.split(' ')
+        return { hash, release, size, version: release.split('-')[1] }
+      }))
+      let latestRelease = last(releases)
+      fs.readFile('./ClientExtracted/VERSION', 'utf8', (err, data) => {
+        let currentVersion = err ? null : data
+        if (currentVersion != latestRelease.version) {
+          clientUpdater.update(latestRelease).then(() => {
+            console.log("Finished updating client")
+            pushing ? waitToPush() : pushToGit(true)
+          })
+        }
+        else console.log("Versions are the same")
+      })
+    } else console.error("Error fetching client releases", err)
+  })
 }
 
 // Create directories if they don't exist
 function checkDirectories() {
   fs.stat('./Scripts', err => err ? fs.mkdir('./Scripts') : void 0)
   fs.stat('./Styles', err => err ? fs.mkdir('./Styles') : void 0)
+  fs.stat('./ClientExtracted', err => err ? fs.mkdir('./ClientExtracted') : void 0)
 }
 
 setInterval(() => {
   console.log("Checking for updates")
   startTheMagic()
+  checkClientVersion()
 }, 1000 * 60 * config.updateInterval) // Interval in minutes
 
 console.log("Starting up")
-if (!config || !config.teamName || !config.updateInterval || !config.cookies) {
-  console.error("Invalid config")
-  process.exit()
-}
 
 checkDirectories()
 startTheMagic()
+checkClientVersion()
