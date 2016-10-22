@@ -35,11 +35,11 @@ function makeRequests(urls) {
 
 function getPageScripts() {
   console.log("Getting page scripts")
-  let url = `https://${config.teamName}.slack.com`
-  return makeRequests([`${url}/admin`, `${url}/messages`]).then(([ page1, page2 ]) => {
+  let URL = `https://${config.teamName}.slack.com`
+  return makeRequests([`${URL}/admin`, `${URL}/messages`]).then(([ page1, page2 ]) => {
     let $ = cheerio.load(page1 + page2) // lmao
-    let js = chain($('script')).map(({ attribs: { url: src } }) => src && !src.match(jsRegex) ? { url, type: 'js' } : null).compact().uniq().value()
-    let css = chain($('link[type="text/css"]')).map(({ attribs: { url: href } }) => href && !href.match(/lato/) ? { url, type: 'css' } : null).compact().uniq().value()
+    let js = chain($('script')).map(({ attribs: { src: url } }) => url && !url.match(jsRegex) ? { url, type: 'js' } : null).compact().uniq().value()
+    let css = chain($('link[type="text/css"]')).map(({ attribs: { href: url } }) => url && !url.match(/lato/) ? { url, type: 'css' } : null).compact().uniq().value()
     console.log(`Got ${js.length} scripts and ${css.length} styles`)
     return Promise.resolve([...js, ...css])
   }).catch(err => Promise.reject(`Error fetching URLS: ${err}`))
@@ -71,7 +71,7 @@ function getChanges() {
   return new Promise((resolve, reject) => {
     exec('git add ./ && git status --short', (err, stdout) => {
       if (!err) {
-        let changes = compact(map(stdout.split('\n'), c => c.trim().replace(/ scripts\//, '')))
+        let changes = compact(map(stdout.split('\n'), c => c.trim()))
         console.log(`Got ${changes.length} changed files`)
         return resolve(changes)
       } else return reject(err)
