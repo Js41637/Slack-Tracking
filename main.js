@@ -17,6 +17,10 @@ const headers = {
 }
 
 const jsRegex = /(templates|analytics|beacon|required_libs)(.js|.php)/
+const types = {
+  js: 'Scripts',
+  css: 'Styles'
+}
 
 function makeRequests(urls) {
   return Promise.all(urls.map(url => {
@@ -34,21 +38,21 @@ function getPageScripts() {
   let url = `https://${config.teamName}.slack.com`
   return makeRequests([`${url}/admin`, `${url}/messages`]).then(([ page1, page2 ]) => {
     let $ = cheerio.load(page1 + page2) // lmao
-    let js = chain($('script')).map(({ attribs: { src } }) => src && !src.match(jsRegex) ? src : null).compact().uniq().value()
-    let css = chain($('link[type="text/css"]')).map(({ attribs: { href } }) => href && !href.match(/lato/) ? href : null).compact().uniq().value()
+    let js = chain($('script')).map(({ attribs: { url: src } }) => src && !src.match(jsRegex) ? { url, type: 'js' } : null).compact().uniq().value()
+    let css = chain($('link[type="text/css"]')).map(({ attribs: { url: href } }) => href && !href.match(/lato/) ? { url, type: 'css' } : null).compact().uniq().value()
     console.log(`Got ${js.length} scripts and ${css.length} styles`)
-    return Promise.resolve({ js, css })
+    return Promise.resolve([...js, ...css])
   }).catch(err => Promise.reject(`Error fetching URLS: ${err}`))
 }
 
-function getScripts({ js, css }) {
+function getScripts(urls) {
   console.log("Getting scripts")
-  return Promise.all([...js, ...css].map(url => {
+  return Promise.all(urls.map(({ url, type }) => {
     return new Promise((resolve, reject) => {
       request({ url }, (err, resp, body) => {
         if (!err && body) {
           let name = last(url.split('/'))
-          return resolve({ name, body, type: name.endsWith('.js') ? 'js' : 'css' })
+          return resolve({ name, body, type })
         } else return reject(`Error fetching script ${name}`)
       })
     })
@@ -58,7 +62,7 @@ function getScripts({ js, css }) {
 function writeToDisk(scripts) {
   console.log("Writing to disk")
   return Promise.all(scripts.map(({ name, body, type }) => {
-    return new Promise(resolve => fs.writeFile(`./scripts/${type}/${name}`, beautify[type](body, beautifyOptions), resolve))
+    return new Promise(resolve => fs.writeFile(`./${types[type]}/${name}`, beautify[type](body, beautifyOptions), resolve))
   }))
 }
 
@@ -98,17 +102,8 @@ function startTheMagic() {
 
 // Create directories if they don't exist
 function checkDirectories() {
-  fs.stat('./scripts', err => {
-    if (err) {
-      fs.mkdir('./scripts', () => {
-        fs.mkdir('./scripts/js')
-        fs.mkdir('./scripts/css')
-      })
-    } else {
-      fs.stat('./scripts/js', err => err ? fs.mkdir('./scripts/js') : void 0)
-      fs.stat('./scripts/css', err => err ? fs.mkdir('./scripts/css') : void 0)
-    }
-  })
+  fs.stat('./Scripts', err => err ? fs.mkdir('./Scripts') : void 0)
+  fs.stat('./Styles', err => err ? fs.mkdir('./Styles') : void 0)
 }
 
 setInterval(() => {
@@ -122,5 +117,5 @@ if (!config || !config.teamName || !config.updateInterval || !config.cookies) {
   process.exit()
 }
 
-startTheMagic()
 checkDirectories()
+startTheMagic()
