@@ -2,18 +2,29 @@ import {dialog, shell} from 'electron';
 import logger from '../logger';
 import {Observable, Disposable, SerialDisposable} from 'rx';
 
+import AppActions from '../actions/app-actions';
+import AppStore from '../stores/app-store';
 import EventActions from '../actions/event-actions';
-import EventStore from '../stores/event-store';
 import ReduxComponent from '../lib/redux-component';
 import SettingStore from '../stores/setting-store';
 
-export const RELEASE_NOTES_URL = 'https://www.slack.com/apps/windows/release-notes';
-export const RELEASE_NOTES_URL_BETA = 'https://www.slack.com/apps/windows/release-notes-beta';
+import {UPDATE_STATUS} from '../utils/shared-constants';
 
 /**
  * Check for updates every six hours
- */ 
+ */
 export const UPDATE_CHECK_INTERVAL = 6 * 60 * 60 * 1000;
+
+export function getReleaseNotesUrl(isBetaChannel) {
+  let url = 'https://www.slack.com/apps/';
+  switch (process.platform) {
+  case 'win32': url += 'windows'; break;
+  case 'darwin': url += 'mac'; break;
+  case 'linux': url += 'linux'; break;
+  }
+  url += isBetaChannel ? '/release-notes-beta' : '/release-notes';
+  return url;
+}
 
 export default class SquirrelAutoUpdater extends ReduxComponent {
 
@@ -31,21 +42,21 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       disableUpdatesCheck: SettingStore.getSetting('isWindowsStore') ||
         SettingStore.getSetting('isMacAppStore'),
       releaseChannel: SettingStore.getSetting('releaseChannel'),
-      checkForUpdateEvent: EventStore.getEvent('checkForUpdate')
+      updateStatus: AppStore.getUpdateStatus()
     };
   }
 
-  /**  
+  /**
    * Starts a timer that will check for updates every 6 hours.
-   *    
-   * @return {Disposable}  A `Disposable` that cancels the timer   
-   */   
+   *
+   * @return {Disposable}  A `Disposable` that cancels the timer
+   */
   setupAutomaticUpdates() {
     // NB: Store builds will update themselves
     if (this.state.disableUpdatesCheck) {
       return Disposable.empty;
     }
-    
+
     return Observable.timer(0, UPDATE_CHECK_INTERVAL).subscribe(() => {
       if (this.state.isDevMode) return;
       if (process.env.SLACK_NO_AUTO_UPDATES) return;
@@ -67,38 +78,44 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       case 'win32':
         updater.doBackgroundUpdate().subscribe(
           (x) => logger.debug(`Background update returned ${x}`),
-          (ex) => logger.error(`Failed to check for updates: ${JSON.stringify(ex)}`)
+          (e) => {
+            logger.error(`Failed to check for updates: ${e.message}`);
+            AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
+          }
         );
         break;
 
       case 'darwin':
+        AppActions.setUpdateStatus(UPDATE_STATUS.CHECKING_FOR_UPDATE);
         updater.checkForUpdates().subscribe(
           (x) => logger.info(`Squirrel update returned ${x}`),
-          (ex) => logger.error(`Failed to check for updates: ${JSON.stringify(ex)}`)
+          (e) => {
+            logger.error(`Failed to check for updates: ${e.message}`);
+            AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
+          }
         );
         break;
       }
     });
   }
 
-  /**  
+  /**
    * Checks for available updates using Squirrel and displays a message box
    * based on the result. If an update is available the user is given the
    * option to upgrade immediately.
-   */   
-  checkForUpdateEvent() {
+   */
+  manualCheckForUpdate() {
     if (this.state.disableUpdatesCheck) {
       logger.warn('Checking for updates should not happen on Store builds');
       return;
     }
-    
+
     let updater = this.getSquirrelUpdater();
-    let updateInformation = this.state.releaseChannel === 'beta' ?
-      RELEASE_NOTES_URL_BETA :
-      RELEASE_NOTES_URL;
+    let updateInformation = getReleaseNotesUrl(this.state.releaseChannel === 'beta');
     if (!updater) return;
 
     let hasAnUpdate = () => {
+      AppActions.setUpdateStatus(UPDATE_STATUS.UPDATE_AVAILABLE);
       let options = {
         title: 'An update is available',
         buttons: ['Close', "What's New", "Update Now"],
@@ -106,31 +123,41 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       };
 
       dialog.showMessageBox(options, (response) => {
+        if (response === 0) {
+          AppActions.setUpdateStatus(UPDATE_STATUS.NONE);
+        }
+
         if (response === 1) {
-          shell.openItem(updateInformation);
+          AppActions.setUpdateStatus(UPDATE_STATUS.NONE);
+          shell.openExternal(updateInformation);
         }
 
         if (response === 2) {
-          updater.forceUpdateAndRestart(() => EventActions.quitApp());
+          this.restartToApplyUpdate();
         }
       });
     };
 
     let alreadyUpToDate = () => {
+      AppActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
+
       let options = {
         title: "You're all good",
-        buttons: ['Ok'],
-        message: "You've got the latest version of Slack, thanks for staying on the ball."
+        buttons: ['OK'],
+        message: "You've got the latest version of Slack; thanks for staying on the ball."
       };
 
       dialog.showMessageBox(options);
     };
 
-    let somethingBadHappened = () => {
+    let somethingBadHappened = (error) => {
+      AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
+
       let options = {
         title: "We couldn't check for updates",
-        buttons: ['Ok'],
-        message: "Check your Internet connection, and contact support if this issue persists."
+        buttons: ['OK'],
+        message: "Check your Internet connection, and contact support if this issue persists.",
+        detail: error
       };
 
       dialog.showMessageBox(options);
@@ -138,26 +165,28 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
 
     updater.checkForUpdates().subscribe(
       (update) => {
-        if (update) hasAnUpdate();
-        else alreadyUpToDate();
+        if (update) {
+          hasAnUpdate();
+        } else {
+          alreadyUpToDate();
+        }
       },
       (e) => {
         logger.error(`Failed to check for updates: ${e.message}\n${e.stack}`);
-        somethingBadHappened();
+        somethingBadHappened(e.message);
       });
   }
 
-  /**  
+  /**
    * Returns a platform-specific implementation of `SquirrelUpdater`, or null
    * if updates are unsupported.
-   * 
+   *
    * @return {WindowsSquirrelUpdater|MacSquirrelUpdater}
-   */   
+   */
   getSquirrelUpdater() {
     let SquirrelUpdater = null;
     switch (process.platform) {
     case 'linux':
-      logger.warn('No updater exists for this platform');
       return null;
     case 'win32':
       SquirrelUpdater = require('./windows-updater').default;
@@ -173,9 +202,25 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
     });
   }
 
-  update(prevState) {
+  restartToApplyUpdate() {
+    let updater = this.getSquirrelUpdater();
+    updater.forceUpdateAndRestart(() => EventActions.quitApp());
+  }
+
+  update(prevState={}) {
     if (this.state.releaseChannel !== prevState.releaseChannel) {
       this.autoUpdateDisp.setDisposable(this.setupAutomaticUpdates());
+    }
+
+    if (prevState.updateStatus !== this.state.updateStatus) {
+      switch (this.state.updateStatus) {
+      case UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL:
+        this.manualCheckForUpdate();
+        break;
+      case UPDATE_STATUS.RESTART_TO_APPLY:
+        this.restartToApplyUpdate();
+        break;
+      }
     }
   }
 }

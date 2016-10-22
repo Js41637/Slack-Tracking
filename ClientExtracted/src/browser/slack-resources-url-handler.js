@@ -21,7 +21,10 @@ export default class SlackResourcesUrlHandler extends ReduxComponent {
     let resourceCache = new LRU({max: 32});
 
     protocol.registerBufferProtocol('slack-resources', async function(rq, completion) {
-      let relativeFilePath = decodeURIComponent(rq.url).replace(/^slack-resources:(\/\/)?/i, '');
+      let relativeFilePath = decodeURIComponent(rq.url)
+        .replace(/^slack-resources:(\/\/)?/i, '')
+        // Handle trailing slashes
+        .replace(/\/$/, '');
       logger.debug(`Want to load: ${relativeFilePath}`);
 
       // NB: We convert Emoji images to WebP because it saves us a decent chunk

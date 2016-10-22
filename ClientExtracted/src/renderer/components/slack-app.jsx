@@ -5,7 +5,7 @@ import {Observable} from 'rx';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {reduce} from 'lodash';
-import {webFrame} from 'electron';
+import {remote, webFrame} from 'electron';
 
 import AppActions from '../../actions/app-actions';
 import AppStore from '../../stores/app-store';
@@ -24,6 +24,7 @@ import TeamStore from '../../stores/team-store';
 
 const ESCAPE_KEYCODE = 27;
 const EQUALS_KEYCODE = 187;
+const V_KEYCODE = 86;
 
 export default class SlackApp extends Component {
 
@@ -36,7 +37,8 @@ export default class SlackApp extends Component {
       numTeams: TeamStore.getNumTeams(),
       selectedTeamId: AppStore.getSelectedTeamId(),
       isDevMode: SettingStore.getSetting('isDevMode'),
-      isShowingDevTools: AppStore.isShowingDevTools()
+      isShowingDevTools: AppStore.isShowingDevTools(),
+      isMac: SettingStore.isMac()
     };
   }
 
@@ -91,6 +93,11 @@ export default class SlackApp extends Component {
       if (e.keyCode === EQUALS_KEYCODE && !e.shiftKey && !e.altKey && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         SettingActions.zoomIn();
+      }
+
+      if (e.keyCode === V_KEYCODE && e.shiftKey && e.metaKey && this.state.isMac) {
+        e.preventDefault();
+        remote.getCurrentWebContents().paste();
       }
     });
   }

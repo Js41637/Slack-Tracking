@@ -2,20 +2,25 @@ import Store from '../lib/store';
 import {EVENTS} from './';
 
 class EventActions {
-  checkForUpdate() {
-    Store.dispatch({type: EVENTS.CHECK_FOR_UPDATE});
-  }
-
   editingCommand(command, windowId) {
-    Store.dispatch({type: EVENTS.EDITING_COMMAND, data: {windowId, command}});
+    Store.dispatch({
+      type: EVENTS.EDITING_COMMAND,
+      data: {windowId, command}
+    });
   }
 
   appCommand(command) {
-    Store.dispatch({type: EVENTS.APP_COMMAND, data: {command}});
+    Store.dispatch({
+      type: EVENTS.APP_COMMAND,
+      data: {command}
+    });
   }
 
   focusPrimaryTeam() {
-    Store.dispatch({type: EVENTS.FOCUS_PRIMARY_TEAM});
+    Store.dispatch({
+      type: EVENTS.FOCUS_PRIMARY_TEAM,
+      omitFromLog: true
+    });
   }
 
   foregroundApp() {
@@ -23,15 +28,21 @@ class EventActions {
   }
 
   handleDeepLink(url) {
-    Store.dispatch({type: EVENTS.HANDLE_DEEP_LINK, data: {url}});
+    Store.dispatch({
+      type: EVENTS.HANDLE_DEEP_LINK,
+      data: {url}
+    });
   }
 
   quitApp() {
     Store.dispatch({type: EVENTS.QUIT_APP});
   }
 
-  reloadMainWindow() {
-    Store.dispatch({type: EVENTS.RELOAD_MAIN_WINDOW});
+  reload(everything = false) {
+    Store.dispatch({
+      type: EVENTS.RELOAD,
+      data: {everything}
+    });
   }
 
   toggleFullScreen() {
@@ -45,25 +56,38 @@ class EventActions {
   showAbout() {
     Store.dispatch({type: EVENTS.SHOW_ABOUT});
   }
-  
+
   showReleaseNotes() {
     Store.dispatch({type: EVENTS.SHOW_RELEASE_NOTES});
   }
 
-  showPreferences() {
-    Store.dispatch({type: EVENTS.SHOW_PREFERENCES});
+  showWebappDialog(dialogType) {
+    Store.dispatch({
+      type: EVENTS.SHOW_WEBAPP_DIALOG,
+      data: {dialogType}
+    });
   }
 
   signOutTeam(teamId) {
-    Store.dispatch({type: EVENTS.SIGN_OUT_TEAM, data: {teamId}});
+    Store.dispatch({
+      type: EVENTS.SIGN_OUT_TEAM,
+      data: {teamId}
+    });
   }
 
   refreshTeam(teamId) {
-    Store.dispatch({type: EVENTS.REFRESH_TEAM, data: {teamId}});
+    Store.dispatch({
+      type: EVENTS.REFRESH_TEAM,
+      data: {teamId}
+    });
   }
 
   confirmAndResetApp() {
     Store.dispatch({type: EVENTS.CONFIRM_AND_RESET_APP});
+  }
+
+  reportIssue() {
+    Store.dispatch({type: EVENTS.REPORT_ISSUE});
   }
 }
 

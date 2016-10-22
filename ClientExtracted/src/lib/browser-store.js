@@ -101,7 +101,7 @@ export default class BrowserStore extends BaseStore {
     this.dispatch({
       type: BASE.LOAD_PERSISTENT,
       data: updatePayload,
-      omitFromLog: ['password']
+      omitKeysFromLog: ['password']
     });
   }
 

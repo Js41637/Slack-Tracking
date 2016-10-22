@@ -26,7 +26,7 @@ import WindowHelpers from '../components/helpers/window-helpers';
 import WindowStore from '../stores/window-store';
 
 import {SLACK_PROTOCOL} from '../reducers/app-reducer';
-import {SIDEBAR_WIDTH_NO_TITLE_BAR} from '../utils/shared-constants';
+import {WINDOW_TYPES, SIDEBAR_WIDTH_NO_TITLE_BAR} from '../utils/shared-constants';
 
 const {reportRendererCrashes, reportWindowMetrics, loadWindowFileUrl} = WindowHelpers;
 
@@ -48,6 +48,23 @@ class WindowCreator extends ReduxComponent {
     ipcMain.on('create-webapp-window', (e, options) => {
       let webappWindow = this.createWebappWindow(options, e.sender);
       e.returnValue = webappWindow.id;
+    });
+
+    ipcMain.on('inter-window-message', (event, window_token, window_type, ...args) => {
+      let browserWindow = null;
+      if (window_token) {
+        browserWindow = BrowserWindow.fromId(parseInt(window_token));
+      } else if (window_type) {
+        let metadata = WindowStore.getWindowOfSubType(window_type);
+        if (metadata) browserWindow = BrowserWindow.fromId(parseInt(metadata.id));
+      }
+      if (browserWindow) {
+        if (browserWindow.webContents.isDestroyed() || browserWindow.webContents.isCrashed()) return;
+
+        browserWindow.webContents.send('inter-window-message', ...args);
+      } else {
+        logger.error("inter-window-message: couldn't find browserWindow");
+      }
     });
   }
 
@@ -75,7 +92,7 @@ class WindowCreator extends ReduxComponent {
    */
   createMainWindow(params) {
     let options = _.assign({}, this.getSlackWindowOpts(), params);
-    options.windowType = WindowStore.MAIN;
+    options.windowType = WINDOW_TYPES.MAIN;
     options.bootstrapScript = require.resolve('../renderer/main');
 
     if (this.state.isMac) {
@@ -95,7 +112,7 @@ class WindowCreator extends ReduxComponent {
     let browserWindow = new BrowserWindow(options);
     let disposable = new CompositeDisposable();
 
-    WindowActions.addWindow(browserWindow.id, WindowStore.MAIN);
+    WindowActions.addWindow(browserWindow.id, WINDOW_TYPES.MAIN);
 
     let windowCloseBehavior = new MainWindowCloseBehavior();
     let behaviors = [
@@ -113,14 +130,15 @@ class WindowCreator extends ReduxComponent {
     });
 
     browserWindow.on('focus', EventActions.focusPrimaryTeam);
-    browserWindow.on('app-command', (e, cmd) => EventActions.appCommand(cmd));
-
-    browserWindow.webContents.once('dom-ready', () => {
-      this.mainWindowFinishedLoad(browserWindow, options, setEmptyWindowIcon);
+    browserWindow.on('app-command', (e, cmd) => {
+      if (cmd !== 'unknown') EventActions.appCommand(cmd);
     });
+    browserWindow.on('ready-to-show', () => this.mainWindowFinishedLoad(browserWindow, options, setEmptyWindowIcon));
 
     browserWindow.on('close', (e) => {
       if (windowCloseBehavior.canWindowBeClosed(browserWindow)) {
+        this.isQuitting = true;
+
         // Hide immediately to appear more responsive.
         browserWindow.hide();
 
@@ -237,7 +255,7 @@ class WindowCreator extends ReduxComponent {
     loadWindowFileUrl(browserWindow, options);
     this.preventWindowNavigation(browserWindow);
 
-    WindowActions.addWindow(windowId, WindowStore.NOTIFICATIONS);
+    WindowActions.addWindow(windowId, WINDOW_TYPES.NOTIFICATIONS);
     disposable.add(new Disposable(() => WindowActions.removeWindow(windowId)));
 
     browserWindow.once('close', () => {
@@ -260,13 +278,13 @@ class WindowCreator extends ReduxComponent {
     // NB: Normally we'd be calling this method from a renderer, where we can get
     // our existing User Agent, but since we'll be calling it from the Browser
     // where we can't get the user agent, we'll have to fake it up.
-    let agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Slack/2.0.2 Chrome/47.0.2526.110 AtomShell/0.36.9 Safari/537.36 Slack_SSB/2.0.2";
+    let userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Slack/2.0.2 Chrome/47.0.2526.110 AtomShell/0.36.9 Safari/537.36 Slack_SSB/2.0.2";
 
     return this.createWebappWindow({
       url: 'about:blank',
       width: 1024,
       height: 768,
-      userAgent: agent
+      userAgent
     });
   }
 
@@ -328,7 +346,7 @@ class WindowCreator extends ReduxComponent {
       disposable.dispose();
     });
 
-    WindowActions.addWindow(windowId, WindowStore.WEBAPP);
+    WindowActions.addWindow(windowId, WINDOW_TYPES.WEBAPP, params.windowType);
     return browserWindow;
   }
 
@@ -347,6 +365,7 @@ class WindowCreator extends ReduxComponent {
       minimizable: false,
       maximizable: false,
       skipTaskbar: true,
+      parent: BrowserWindow.fromId(WindowStore.getMainWindow().id),
       bootstrapScript: require.resolve('../renderer/components/about-box-main'),
     });
 
@@ -355,7 +374,7 @@ class WindowCreator extends ReduxComponent {
     }
 
     let browserWindow = new BrowserWindow(options);
-    browserWindow.webContents.on('did-finish-load', () => browserWindow.show());
+    browserWindow.on('ready-to-show', () => browserWindow.show());
     browserWindow.setMenu(null);
 
     this.preventWindowNavigation(browserWindow);
@@ -406,7 +425,7 @@ class WindowCreator extends ReduxComponent {
 
   getNotificationWindowOpts() {
     return _.extend(this.getSlackWindowOpts(), {
-      windowType: WindowStore.NOTIFICATIONS,
+      windowType: WINDOW_TYPES.NOTIFICATIONS,
       bootstrapScript: require.resolve('../notification/main'),
       show: false,
       frame: false,
@@ -421,7 +440,7 @@ class WindowCreator extends ReduxComponent {
 
   getWebappWindowOpts() {
     return {
-      windowType: WindowStore.WEBAPP,
+      windowType: WINDOW_TYPES.WEBAPP,
       show: true,
       center: true,
       title: "",
@@ -541,7 +560,11 @@ class WindowCreator extends ReduxComponent {
       .catch((e) => executeJavaScriptFailed('blur', e))
       .subscribe());
 
+    // NB: This will remove the window from the webapp's internal list, but on
+    // quit we should make sure that list keeps its content. That way, the next
+    // time around the webapp will ask to restore those windows.
     disp.add(Observable.fromEvent(browserWindow, 'close')
+      .where(() => !this.isQuitting)
       .flatMap(() => executeJavaScriptMethod(sender, 'TSSSB.windowWithTokenWillClose', windowId)
         .catch((e) => executeJavaScriptFailed('close', e)))
       .catch((e) => executeJavaScriptFailed('close', e))

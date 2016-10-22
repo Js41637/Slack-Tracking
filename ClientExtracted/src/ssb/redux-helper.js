@@ -3,6 +3,7 @@ import {webFrame} from 'electron';
 import ReduxComponent from '../lib/redux-component';
 import AppStore from '../stores/app-store';
 import SettingStore from '../stores/setting-store';
+import WindowStore from '../stores/window-store';
 
 // NB: This is a Do Everything Component solely because having too many Redux
 // Components in the webapp layer is expensive on IPC dispatch, so we want to
@@ -19,14 +20,15 @@ export default class ReduxHelper extends ReduxComponent {
     return {
       isMachineAwake: AppStore.getSuspendStatus(),
       currentTeamId: AppStore.getSelectedTeamId(),
-      zoomLevel: SettingStore.getSetting('zoomLevel')
+      zoomLevel: SettingStore.getSetting('zoomLevel'),
+      isCallsWindow: WindowStore.isCallsWindow()
     };
   }
 
   update(prevState = {}) {
     this.updateLastActiveTeam(prevState);
     this.updateSuspendResume(prevState);
-    this.updateZoomLevel(prevState);
+    if (!this.state.isCallsWindow) this.updateZoomLevel(prevState);
   }
 
   updateLastActiveTeam(prevState) {

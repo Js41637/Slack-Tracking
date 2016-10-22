@@ -85,6 +85,26 @@ export default class WebViewContext extends Component {
       .where(({errorCode}) => !ERROR_CODES_TO_IGNORE.includes(errorCode))
       .subscribe((e) => this.props.onPageError(e)));
 
+    this.disposables.add(Observable.fromEvent(webView, 'did-stop-loading')
+      .delay(1000)
+      .flatMap(() => this.executeJavaScript('document.body.childElementCount'))
+      .catch((err) => {
+        logger.warn(`Could not check webview's body child count: ${err.message}`);
+        Observable.return(null);
+      })
+      .where((count) => (count === 0))
+      .subscribe(() => {
+        // We stopped loading - ensure that we actually received anything.
+        // This protects against a loss of internet right when we think 
+        // that the WebView loaded successfully. ERR_NETWORK_CHANGED does
+        // not always bubble up appropriately.
+        this.props.onPageError({
+          errorCode: -1021,
+          errorDescription: 'The response was empty or the network changed',
+          validatedURL: webView.getURL()
+        });
+      }));
+
     this.disposables.add(Observable.fromEvent(webView, 'close').subscribe(() => {
       this.props.onRequestClose();
     }));
@@ -113,7 +133,7 @@ export default class WebViewContext extends Component {
   }
 
   /**
-   * Listens for any crash events from the webView and reloads in response.
+   * Listen for any crash events from the webView and reload in response.
    *
    * @param  {WebView} webView  The webview tag
    * @return {Disposable}       A Disposable that will clean up this subscription
@@ -123,13 +143,13 @@ export default class WebViewContext extends Component {
       Observable.fromEvent(webView, 'crashed').map(() => 'Renderer'),
       Observable.fromEvent(webView, 'gpu-crashed').map(() => 'GPU'),
       Observable.fromEvent(webView, 'plugin-crashed').map((n, v) => `Plugin ${n} ${v}`))
+      .where((type) => !type.startsWith('Plugin'))
       .subscribe((type) => {
         logger.error(`${type} crash occurred in webView: ${JSON.stringify(this.props.options)}`);
 
-        // NB: Going to let plugins die rather than trigger a reload
-        if (!type.startsWith('Plugin')) {
-          EventActions.reloadMainWindow();
-        }
+        // NB: Reload the entire window. We can't reload the webView in this
+        // case because we can't even access it.
+        EventActions.reload(true);
       });
   }
 

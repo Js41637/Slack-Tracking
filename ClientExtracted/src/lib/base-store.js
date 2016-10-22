@@ -58,7 +58,7 @@ export default class BaseStore {
       },
       settings: true,
       events: {
-        reloadMainWindow: true,
+        reload: true,
         editingCommand: true
       },
       windows: true
@@ -72,13 +72,13 @@ export default class BaseStore {
    */
   logDispatches() {
     return (next) => (action) => {
-      let type = action.type;
+      if (action.omitFromLog) return next(action);
 
       let payload;
 
-      if (action.omitFromLog) {
+      if (action.omitKeysFromLog) {
         payload = traverse(action.data).map(function() {
-          if (action.omitFromLog.includes(this.key)) {
+          if (action.omitKeysFromLog.includes(this.key)) {
             this.delete();
           }
         });
@@ -86,7 +86,7 @@ export default class BaseStore {
         payload = action.data;
       }
 
-      logger.info(`${type} ${payload ? `: ${JSON.stringify(payload, null, 2)}` : ''}`);
+      logger.info(`${action.type} ${payload ? `: ${JSON.stringify(payload, null, 2)}` : ''}`);
       return next(action);
     };
   }

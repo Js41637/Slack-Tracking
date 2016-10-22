@@ -7,7 +7,7 @@ import DownloadStore from '../../stores/download-store';
 import ObservableStorage from '../observable-storage';
 import ReduxComponent from '../../lib/redux-component';
 
-const d = require('debug/browser')('downloads:manager');
+const d = require('debug-electron')('downloads:manager');
 
 /** @class DownloadManager
   * Initiates downloads based on events from the webapp. Receives progress and

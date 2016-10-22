@@ -7,6 +7,7 @@ import BaseStore from './base-store';
 import MigrationManager from '../browser/migration-manager';
 
 import {BASE} from '../actions';
+import {WINDOW_TYPES} from '../utils/shared-constants';
 
 /**
  * This store is used by any renderer process. It receives data from the
@@ -63,9 +64,8 @@ export default class RendererStore extends BaseStore {
    * @return {Object}         A filter object with keys matching store entries
    */
   getShapeForWindow(type) {
-    switch(type) {
-    case this.MAIN:
-    case this.SPECS:
+    switch (type) {
+    case WINDOW_TYPES.MAIN:
       return {
         app: true,
         notifications: true,
@@ -76,7 +76,7 @@ export default class RendererStore extends BaseStore {
         tray: true,
         windows: true
       };
-    case this.NOTIFICATIONS:
+    case WINDOW_TYPES.NOTIFICATIONS:
       return {
         notifications: true,
         windows: true,
@@ -96,7 +96,7 @@ export default class RendererStore extends BaseStore {
           isDevMode: true
         }
       };
-    case this.WEBAPP:
+    case WINDOW_TYPES.WEBAPP:
       return this.getWebViewShape();
     }
   }

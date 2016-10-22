@@ -36,16 +36,11 @@ webFrame.registerURLSchemeAsPrivileged('slack-webapp-dev');
 
 const isDarwin = process.platform === 'darwin';
 
-// Determine whether we're in a WebView or a BrowserWindow, and either way,
-// capture our identifying information. If we're actually in a WebView, this
-// will identify the hosting window
 let currentWindow = remote.getCurrentWindow();
-
 const browserWindowId = currentWindow.id;
 
-// NB: Wait until we're in page context before we try to set up our input
-// listener
-var postDOMSetup = () => {
+// NB: Wait until we're in page context before we try to set up any listeners
+let postDOMSetup = () => {
   // Keep polling for these window properties until they exist
   if (!window || !window.location || !window.winssb || !window.document || !window.document.body) {
     setTimeout(postDOMSetup, 250);
@@ -55,8 +50,11 @@ var postDOMSetup = () => {
   setupLocalStorageAlias();
   window.winssb.spellCheckingHelper.setupInputEventListener();
 
-  if (!isDarwin) setupTouchscreenEvents();
-  if (isDarwin) setupDoubleClickHandler(currentWindow);
+  if (isDarwin) {
+    setupDoubleClickHandler(currentWindow);
+  } else {
+    setupTouchscreenEvents();
+  }
 
   // Disable calls to WinSSB as the window itself is collapsing
   window.addEventListener('beforeunload', disableDesktopIntegration, true /*useCapture*/);
@@ -67,11 +65,13 @@ var postDOMSetup = () => {
 
 setTimeout(postDOMSetup, 250);
 
-let _calls = null;
+let windowManager = new WebappWindowManager();
+let callsModule = null;
+
 try {
-  _calls = new Calls();
+  callsModule = new Calls(windowManager);
 } catch (e) {
-  console.log ("Calls failed to load, bailing");
+  console.error('Calls failed to load, bailing', e);
 }
 
 // TODO: Rename this to window.desktop outright when webapp is ready, before shipping for Mac
@@ -88,14 +88,14 @@ window.winssb = {
 
   downloads: new DownloadIntegration(),
 
-  window: new WebappWindowManager(),
+  window: windowManager,
 
   stats: new StatsIntegration(),
 
-  calls: _calls,
+  calls: callsModule,
 
-  // this is for backwards compatibility with webapp, which currently refers to everything as 'screehero' and not 'calls'
-  screenhero: _calls,
+  // NB: For backwards compatibility with the webapp
+  screenhero: callsModule,
 
   browserWindowId: browserWindowId,
 
@@ -111,7 +111,7 @@ window.winssb = {
 // NB: We will be moving to this more generic name for our desktop integration global.
 window.desktop = window.winssb;
 
-if (!_calls) delete window.winssb.calls;
+if (!callsModule) delete window.winssb.calls;
 
 // NB: If this is set, we know we're running in the context of a WebView
 if (process.guestInstanceId) {

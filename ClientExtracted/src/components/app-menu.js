@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import logger from '../logger';
 import season from 'season';
 import {app, BrowserWindow, Menu, MenuItem} from 'electron';
 
@@ -11,22 +10,32 @@ import SettingActions from '../actions/setting-actions';
 import SettingStore from '../stores/setting-store';
 import TeamStore from '../stores/team-store';
 
+import {UPDATE_STATUS} from '../utils/shared-constants';
+
 export default class AppMenu extends ReduxComponent {
 
   commandMap = {
+    // App & Help menu commands
     'application:quit': EventActions.quitApp,
     'application:about': EventActions.showAbout,
     'application:release-notes': EventActions.showReleaseNotes,
     'application:reset-app-data': EventActions.confirmAndResetApp,
-    'window:reload': EventActions.reloadMainWindow,
+    'application:report-issue': EventActions.reportIssue,
+    'application:check-for-update': AppActions.checkForUpdate,
+    'application:show-settings': () => {
+      EventActions.showWebappDialog('prefs');
+    },
+    'application:keyboard-shortcuts': () => {
+      EventActions.showWebappDialog('shortcuts');
+    },
+
+    // Window menu commands
+    'window:reload': () => EventActions.reload(),
     'window:toggle-dev-tools': AppActions.toggleDevTools,
-    'application:run-specs': EventActions.runSpecs,
-    'application:check-for-update': EventActions.checkForUpdate,
     'window:toggle-full-screen': EventActions.toggleFullScreen,
     'window:actual-size': SettingActions.resetZoom,
     'window:zoom-in': SettingActions.zoomIn,
     'window:zoom-out': SettingActions.zoomOut,
-    'application:show-settings': EventActions.showPreferences,
     'window:select-next-team': AppActions.selectNextTeam,
     'window:select-previous-team': AppActions.selectPreviousTeam,
     'window:signin': AppActions.showLoginDialog,
@@ -34,7 +43,7 @@ export default class AppMenu extends ReduxComponent {
       autoHideMenuBar: !this.state.autoHideMenuBar
     }),
 
-    // Editor commands used on Windows/Linux
+    // Commands handled by the WebContents
     'core:undo': (id) => EventActions.editingCommand('undo', id),
     'core:redo': (id) => EventActions.editingCommand('redo', id),
     'core:cut': (id) => EventActions.editingCommand('cut', id),
@@ -42,6 +51,8 @@ export default class AppMenu extends ReduxComponent {
     'core:paste': (id) => EventActions.editingCommand('paste', id),
     'core:delete': (id) => EventActions.editingCommand('delete', id),
     'core:select-all': (id) => EventActions.editingCommand('select-all', id),
+    'core:find': () => EventActions.editingCommand('find'),
+    'core:use-selection-for-find': () => EventActions.editingCommand('use-selection-for-find'),
 
     // History commands
     'history:back': () => EventActions.appCommand('browser-backward'),
@@ -88,6 +99,7 @@ export default class AppMenu extends ReduxComponent {
       isMac: SettingStore.isMac(),
       platform: SettingStore.getSetting('platform'),
       autoHideMenuBar: SettingStore.getSetting('autoHideMenuBar'),
+      updateStatus: AppStore.getUpdateStatus(),
       isDevMode: SettingStore.getSetting('isDevMode') ||
         SettingStore.getSetting('openDevToolsOnStart'),
       disableUpdatesCheck: SettingStore.getSetting('isWindowsStore') ||
@@ -95,11 +107,167 @@ export default class AppMenu extends ReduxComponent {
     };
   }
 
+  /**
+   * We have to rebuild the menu from scratch in order to update any item.
+   * Make changes to the template, then rebuild the menu one time at the end
+   * for performance reasons.
+   */
+  update(prevState = {}) {
+    let menuChanged = false;
+
+    if (!this.state.isMac && this.state.autoHideMenuBar !== prevState.autoHideMenuBar) {
+      let {menuIndex, itemIndex} = this.findIndexByLabels(/&?Window/, /Always Show &Menu Bar/);
+      this.template[menuIndex].submenu[itemIndex].checked = !this.state.autoHideMenuBar;
+      menuChanged = true;
+    }
+
+    let teamNames = _.mapValues(this.state.teams, (t) => t.team_name);
+    let previousTeamNames = _.mapValues(prevState.teams, (t) => t.team_name);
+
+    if (this.state.teamsByIndex !== prevState.teamsByIndex ||
+      !_.isEqual(teamNames, previousTeamNames)) {
+      this.updateTeamItems();
+      menuChanged = true;
+    }
+
+    if (this.state.updateStatus !== prevState.updateStatus) {
+      this.updateUpdateStatus();
+      menuChanged = true;
+    }
+
+    if (menuChanged) {
+      let menu = Menu.buildFromTemplate(_.cloneDeep(this.template));
+      this.updateMenu(menu);
+    }
+  }
+
+  /**
+   * Modifies our menu template to add the ordered teams from the store. We
+   * look for a separator with a certain ID and use that as the insertion index.
+   */
+  updateTeamItems() {
+    let teamMenuItems = this.state.teamsByIndex.reduce((acc, teamId, index) => {
+      let teamName = this.state.teams[teamId].team_name;
+      if (!teamName) return acc;
+
+      acc.push({
+        label: teamName.replace('&','&&&'), // & is special for accelerators, &&& escapes it
+        accelerator: `CommandOrControl+${index + 1}`,
+        click: () => {
+          AppActions.selectTeam(teamId);
+          EventActions.foregroundApp();
+        }
+      });
+
+      return acc;
+    }, []);
+
+    let {menuIndex, itemIndex} = this.findIndexById(/&?Window/, 'team-list');
+    let submenu = this.template[menuIndex].submenu;
+    let startIndex = itemIndex + 1;
+
+    // NB: If we haven't added teams before, this separator won't exist.
+    let endIndex = this.findIndexById(/&?Window/, 'team-list-end').itemIndex;
+    if (endIndex === -1) {
+      if (teamMenuItems.length > 0) teamMenuItems.push({type: 'separator', id: 'team-list-end'});
+      endIndex = startIndex;
+    }
+
+    this.template[menuIndex].submenu = [
+      ...submenu.slice(0, startIndex),
+      ...teamMenuItems,
+      ...submenu.slice(endIndex)
+    ];
+
+    // If Mac, populate the dock menu with these items as well.
+    if (!this.windowId) {
+      this.updateDockMenu(teamMenuItems);
+    }
+  }
+
+  /**
+   * Populates the dock menu with team-specific items.
+   *
+   * @param  {Array} teamItems  An array of Objects used to populate `MenuItem`s
+   */
+  updateDockMenu(teamItems) {
+    let dockMenu = new Menu();
+
+    teamItems.forEach((item, index) => {
+      dockMenu.insert(index, new MenuItem(item));
+    });
+
+    dockMenu.insert(teamItems.length, new MenuItem({
+      label: "Sign in to Another Team...",
+      click: () => AppActions.showLoginDialog()
+    }));
+
+    app.dock.setMenu(dockMenu);
+  }
+
+  /**
+   * Replaces the "Check for Updates" menu item based on the current update
+   * status. This provides some feedback to the user.
+   */
+  updateUpdateStatus() {
+    let newUpdateStatusItem;
+    switch (this.state.updateStatus) {
+    case UPDATE_STATUS.CHECKING_FOR_UPDATE:
+    case UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL:
+      newUpdateStatusItem = {
+        label: 'Checking for Update',
+        enabled: false
+      };
+      break;
+    case UPDATE_STATUS.DOWNLOADING_UPDATE:
+      newUpdateStatusItem = {
+        label: 'Downloading Update',
+        enabled: false
+      };
+      break;
+    case UPDATE_STATUS.UPDATE_AVAILABLE:
+      newUpdateStatusItem = {
+        label: 'An Update Is Available',
+        enabled: false
+      };
+      break;
+    case UPDATE_STATUS.UPDATE_DOWNLOADED:
+      newUpdateStatusItem = {
+        label: 'Restart to Apply Update',
+        enabled: true,
+        click: () => AppActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY)
+      };
+      break;
+    case UPDATE_STATUS.NONE:
+    case UPDATE_STATUS.UP_TO_DATE:
+    case UPDATE_STATUS.ERROR:
+    default:
+      newUpdateStatusItem = {
+        label: 'Check for Updates…',
+        enabled: true
+      };
+      break;
+    }
+
+    if (this.state.platform === 'darwin') {
+      this.replaceMenuItem(/Slack/, /update-status/, newUpdateStatusItem);
+    } else if (this.state.platform === 'win32') {
+      this.replaceMenuItem(/Help/, /update-status/, newUpdateStatusItem);
+    }
+  }
+
+  /**
+   * Recursively iterates the menu template, hooking up the `click` event to
+   * the `command` specified.
+   *
+   * @param  {Object} template An object that can be passed to `Menu.buildFromTemplate`
+   */
   wireUpTemplate(template) {
     for (let item of template) {
       if (item.command && this.commandMap[item.command]) {
-        item.click = (menu) => this.commandMap[item.command](this.windowId, menu);
+        item.click = (menuItem) => this.commandMap[item.command](this.windowId, menuItem);
       }
+
       if (item.submenu) {
         this.wireUpTemplate(item.submenu);
       }
@@ -119,54 +287,17 @@ export default class AppMenu extends ReduxComponent {
     }
   }
 
-  updateDockMenu(menuItems) {
-    let dockMenu = new Menu();
+  /**
+   * Overwrites an existing menu item with a new one.
+   */
+  replaceMenuItem(menuLabel, itemId, newMenuItem) {
+    let {menuIndex, itemIndex} = this.findIndexById(menuLabel, itemId);
+    let submenu = this.template[menuIndex].submenu;
 
-    menuItems.forEach((item, index) => {
-      dockMenu.insert(index, new MenuItem(item));
-    });
-
-    dockMenu.insert(menuItems.length, new MenuItem({
-      label: "Sign in to Another Team...",
-      click: () => AppActions.showLoginDialog()
-    }));
-
-    app.dock.setMenu(dockMenu);
-  }
-
-  updateTeamItems(menu) {
-    let teamMenuItems = this.state.teamsByIndex.map((teamId, index) => {
-      let teamName = this.state.teams[teamId].team_name;
-      if (!teamName) return null;
-
-      return {
-        label: teamName.replace('&','&&&'), // & is special for accelerators, &&& escapes it
-        accelerator: `CommandOrControl+${index + 1}`,
-        click: () => {
-          AppActions.selectTeam(teamId);
-          EventActions.foregroundApp();
-        }
-      };
-    });
-
-    if (_.some(teamMenuItems, (item) => item === null)) {
-      logger.fatal(`Corrupt team state: ${JSON.stringify(this.state.teams)}`);
-      return;
-    }
-
-    teamMenuItems.push({type: 'separator'});
-
-    let windowMenu = _.find(menu.items, (item) => item.label.match(/&?Window/));
-    let separatorIndex = _.findIndex(windowMenu.submenu.items, (item) => item.id === 'team-list');
-    let startIndexForTeams = separatorIndex + 1;
-
-    teamMenuItems.forEach((item, index) => {
-      windowMenu.submenu.insert(startIndexForTeams + index, new MenuItem(item));
-    });
-
-    if (!this.windowId) { // If global, assign to app dock as well
-      this.updateDockMenu(teamMenuItems);
-    }
+    submenu[itemIndex] = {
+      ...submenu[itemIndex],
+      ...newMenuItem
+    };
   }
 
   /**
@@ -192,6 +323,25 @@ export default class AppMenu extends ReduxComponent {
 
   /**
    * Returns the menu and submenu indices for the first item that matches the
+   * given menu label and item id.
+   *
+   * @param  {Regex} menuLabel      Describes the top-level menu to match
+   * @param  {Regex} itemId         Describes the submenu item id to match
+   */
+  findIndexById(menuLabel, itemId) {
+    let menuIndex = _.findIndex(this.template, (item) => {
+      return item.label.match(menuLabel);
+    });
+
+    let itemIndex = _.findIndex(this.template[menuIndex].submenu, (item) => {
+      return item.id && item.id.match(itemId);
+    });
+
+    return {menuIndex, itemIndex};
+  }
+
+  /**
+   * Returns the menu and submenu indices for the first item that matches the
    * given labels.
    *
    * @param  {Regex} menuLabel      Describes the top-level menu to match
@@ -207,23 +357,5 @@ export default class AppMenu extends ReduxComponent {
     });
 
     return {menuIndex, itemIndex};
-  }
-
-  /**
-   * We have to rebuild the menu from scratch in order to update any item.
-   */
-  update(prevState = {}) {
-    if (!this.state.isMac && this.state.autoHideMenuBar !== prevState.autoHideMenuBar) {
-      let {menuIndex, itemIndex} = this.findIndexByLabels(/&?Window/, /Always Show &Menu Bar/);
-      this.template[menuIndex].submenu[itemIndex].checked = !this.state.autoHideMenuBar;
-      let menu = Menu.buildFromTemplate(_.cloneDeep(this.template));
-      this.updateMenu(menu);
-    }
-
-    if (this.state.teamsByIndex !== prevState.teamsByIndex) {
-      let menu = Menu.buildFromTemplate(_.cloneDeep(this.template));
-      this.updateTeamItems(menu);
-      this.updateMenu(menu);
-    }
   }
 }

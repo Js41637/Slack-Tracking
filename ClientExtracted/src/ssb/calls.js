@@ -25,6 +25,8 @@ export default class Calls {
       (j) => this.invokeJSMethod(j),
       () => this.onJanusDisconnected(),
       (i,j) => this.onLog(i,j),
+      this.onRemoteFrame.bind(this),
+      this.onLocalFrame.bind(this),
       version);
   }
 
@@ -80,9 +82,35 @@ export default class Calls {
     }
   }
 
+  shutdown() {
+    if (this.session) {
+      this.session.destroy();
+      this.session = null;
+    }
+  }
+
   onJanusDisconnected(session) {
     logger.info(`Session ${session} disconnected`);
-    this.session.destroy();
-    this.session = null;
+    this.shutdown();
+    this.callbacks.onJanusDisconnected();
+  }
+
+  onRemoteFrame(...args) {
+    this.callbacks.onRemoteFrame(...args);
+    this.session.signalDoneRenderingFrame();
+  }
+
+  onLocalFrame(...args) {
+    this.callbacks.onLocalFrame(...args);
+    this.session.signalDoneRenderingLocalFrame();
+  }
+
+  requestCapabilities() {
+    return {
+      supports_voice: true,
+      supports_video: true,
+      supports_screen_sharing: true,
+      supports_disconnection_cb: true
+    }; 
   }
 }

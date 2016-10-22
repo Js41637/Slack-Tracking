@@ -46,18 +46,18 @@ export default class AutoLaunch {
   async enable() {
     if (!this.canModifyShortcuts()) return;
 
-    if (globalProcess.platform === 'win32') {
-      logger.info(`Creating shortcut to ${this.target} in Startup folder`);
-      let args = ['--createShortcut', this.target, '-l', 'Startup', '-a', '--startup'];
+    try {
+      if (globalProcess.platform === 'win32') {
+        logger.info(`Creating shortcut to ${this.target} in Startup folder`);
+        let args = ['--createShortcut', this.target, '-l', 'Startup', '-a', '--startup'];
 
-      try {
         await spawn(this.updateDotExe, args).toPromise();
-      } catch (e) {
-        logger.error(`Creating shortcut failed: ${e}`);
+      } else if (globalProcess.platform === 'linux') {
+        mkdirp.sync(this.autostartDir);
+        fs.symlinkSync(this.slackDesktopFile, this.targetSlackDesktopFile);
       }
-    } else if (globalProcess.platform === 'linux') {
-      mkdirp.sync(this.autostartDir);
-      fs.symlinkSync(this.slackDesktopFile, this.targetSlackDesktopFile);
+    } catch (e) {
+      logger.error(`Creating shortcut failed: ${e}`);
     }
   }
 
@@ -67,18 +67,19 @@ export default class AutoLaunch {
   async disable() {
     if (!this.canModifyShortcuts()) return;
 
-    if (globalProcess.platform === 'win32') {
-      logger.info(`Removing shortcut to ${this.target} from Startup folder`);
-      let args = ['--removeShortcut', this.target, '-l', 'Startup'];
+    try {
+      if (globalProcess.platform === 'win32') {
+        logger.info(`Removing shortcut to ${this.target} from Startup folder`);
+        let args = ['--removeShortcut', this.target, '-l', 'Startup'];
 
-      try {
         await spawn(this.updateDotExe, args).toPromise();
-      } catch (e) {
-        logger.error(`Removing shortcut failed: ${e}`);
+
+      } else if (globalProcess.platform === 'linux') {
+        if (!fs.statSyncNoException(this.targetSlackDesktopFile)) return;
+        fs.unlinkSync(this.targetSlackDesktopFile);
       }
-    } else if (globalProcess.platform === 'linux') {
-      if (!fs.statSyncNoException(this.targetSlackDesktopFile)) return;
-      fs.unlinkSync(this.targetSlackDesktopFile);
+    } catch (e) {
+      logger.error(`Removing shortcut failed: ${e}`);
     }
   }
 

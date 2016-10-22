@@ -8,48 +8,88 @@ import ReduxComponent from '../lib/redux-component';
 import WindowHelpers from '../components/helpers/window-helpers';
 import WindowStore from '../stores/window-store';
 
+import {WINDOW_TYPES} from '../utils/shared-constants';
+
+import {Signal} from 'signals';
+
 const {BrowserWindow} = remote;
+
+const LOCAL_STORAGE_PREFIX = 'webappWindowManager';
+const LOCAL_STORAGE_REGEX = new RegExp(`^${LOCAL_STORAGE_PREFIX}_(\\d*)`);
+
+function browserWindowFromToken(token) {
+  return BrowserWindow.fromId(parseInt(token));
+}
 
 /**
  * Implements the Window API that allows the web app to open popup windows and
  * push them around.
  */
 export default class WebappWindowManager extends ReduxComponent {
+
   constructor() {
     super();
+    if (window.location.protocol !== 'data:' &&
+      window.location.protocol !== 'about:') {
+      this.doConsistencyCheck();
+    }
 
-    this.browserWindows = {};
-    this.windowMetadata = {};
+    this.receiveMessageSignal = new Signal();
+    ipcRenderer.on('inter-window-message', (event, ...args) => {
+      this.receiveMessageSignal.dispatch(...args);
+    });
   }
 
   syncState() {
     return {
-      windows: WindowStore.getWindows([WindowStore.WEBAPP])
+      windows: WindowStore.getWindows([WINDOW_TYPES.WEBAPP]),
+      subType: WindowStore.subTypeOfWindow()
     };
   }
 
+  /**
+   * Stop tracking windows that the user just closed.
+   */
   update(prevState = {}) {
     if (this.state.windows !== prevState.windows) {
       let removedWindows = _.difference(_.keys(prevState.windows), _.keys(this.state.windows));
-
-      _.forEach(removedWindows, (windowId) => {
-        delete this.browserWindows[windowId];
-        delete this.windowMetadata[windowId];
-      });
+      _.forEach(removedWindows, this.removeKeyForWindowId);
     }
+  }
+
+  /**
+   * Check our current localStorage keys and make sure we're not referencing
+   * any closed windows. This can happen if the app is force quit or crashes
+   * while child windows are open.
+   */
+  doConsistencyCheck() {
+    let openWindowTokens = BrowserWindow.getAllWindows()
+      .map((wnd) => wnd.id.toString());
+
+    Object.keys(localStorage)
+      .map((key) => key.match(LOCAL_STORAGE_REGEX))
+      .filter((match) => match !== null)
+      .map((match) => match[1])
+      .filter((token) => !openWindowTokens.includes(token))
+      .forEach(this.removeKeyForWindowId);
+  }
+
+  removeKeyForWindowId(id) {
+    localStorage.removeItem(`${LOCAL_STORAGE_PREFIX}_${id}`);
   }
 
   /**
    * Opens a new popup window.
    *
    * @param {Object}  params
-   * @param {String}  params.title  The window title
-   * @param {String}  params.url    The URL to navigate to
-   * @param {Boolean} params.show   True to show the window immediately, false to keep it hidden
-   * @param {Number}  params.x      The x coordinate of the window
-   * @param {Number}  params.y      The y coordinate of the window
-   * @param {Number}  params.width  The width of the window
-   * @param {Number}  params.height The height of the window
+   * @param {String}  params.title                      The window title
+   * @param {String}  params.url                        The URL to navigate to
+   * @param {Boolean} params.show                       True to show the window immediately, false to keep it hidden
+   * @param {Number}  params.x                          The x coordinate of the window
+   * @param {Number}  params.y                          The y coordinate of the window
+   * @param {Number}  params.width                      The width of the window
+   * @param {Number}  params.height                     The height of the window
+   * @param {Boolean} params.allowThirdPartyNavigation  True if trying to open an non-Slack URL
    *
    * @return {Number} A token identifying the window for future calls
    */
@@ -57,20 +97,44 @@ export default class WebappWindowManager extends ReduxComponent {
     _.extend(params, {
       userAgent: getUserAgent(),
       parentInfo: getSenderIdentifier(),
-      isPopupWindow: window.TSSSB.canUrlBeOpenedInSSBWindow(params.url)
+      isPopupWindow: params.allowThirdPartyNavigation || window.TSSSB.canUrlBeOpenedInSSBWindow(params.url)
     });
 
     try {
+      // Create the window in the main process, and use a synchronous IPC call
+      // to get the ID back to us. We create it there to avoid attaching remote
+      // event handlers.
       let windowId = ipcRenderer.sendSync('create-webapp-window', params);
 
-      this.browserWindows[windowId] = BrowserWindow.fromId(windowId);
-      this.windowMetadata[windowId] = params;
+      // Stash the parameters used to create this window in localStorage, so
+      // that we can tell the webapp about them later.
+      localStorage.setItem(`${LOCAL_STORAGE_PREFIX}_${windowId}`, JSON.stringify(params));
 
+      // Return the token to the webapp, so we're all on the same page.
       return windowId;
     } catch (error) {
       logger.error(`Creating webapp window failed: ${error}`);
       return -1;
     }
+  }
+
+  /**
+   * Returns a list of all currently active windows created with `open`.
+   *
+   * @return {String}  A stringified JSON dictionary whose keys are window
+   * tokens, and whose values are the original metadata values passed to `open`
+   */
+  list() {
+    let windowMetadata = _.reduce(Object.keys(localStorage), (acc, key) => {
+      let match = key.match(LOCAL_STORAGE_REGEX);
+      if (match) {
+        let [,windowToken] = match;
+        acc[windowToken] = JSON.parse(localStorage.getItem(key));
+      }
+      return acc;
+    }, {});
+
+    return JSON.stringify(windowMetadata);
   }
 
   /**
@@ -95,6 +159,42 @@ export default class WebappWindowManager extends ReduxComponent {
   }
 
   /**
+   * Sends an IPC message to the window with the given token or subtype.
+   *
+   * @param  {Object} options
+   * @param  {String} options.window_token  The value you got from `open`
+   * @param  {String} options.window_type   A string describing the type of window
+   * @param  {Object} ...args               The message to send
+   */
+  sendMessage(options, ...args) {
+    let {window_token, window_type} = options;
+
+    if (!window_token && !window_type) {
+      throw new Error("Missing parameters, needs window_token or window_type");
+    }
+
+    ipcRenderer.send('inter-window-message', window_token, window_type, ...args);
+  }
+
+  /**
+   * Sets a callback for when messages are received through the `sendMessage()` API
+   *
+   * @param  {Function} receiveMessageCallback  The function to call on message receipt
+   */
+  setReceiveMessageCallback(receiveMessageCallback) {
+    this.receiveMessageSignal.add(receiveMessageCallback);
+  }
+
+  /**
+   * Removes the callback set in `setReceiveMessageCallback`
+   *
+   * @param  {Function} receiveMessageCallback  The function to remove
+   */
+  removeReceiveMessageCallback(receiveMessageCallback) {
+    this.receiveMessageSignal.remove(receiveMessageCallback);
+  }
+
+  /**
    * Executes JavaScript code in the context of the opened popup window.
    *
    * @param {Object} options
@@ -107,7 +207,7 @@ export default class WebappWindowManager extends ReduxComponent {
    * @return {Promise}         A Promise with the result of the code
    */
   executeJavaScriptInWindow(options) {
-    let browserWindow = this.browserWindows[options.window_token];
+    let browserWindow = browserWindowFromToken(options.window_token);
     let ret = remoteEval(browserWindow, options.code);
 
     if (options.callback) {
@@ -126,10 +226,10 @@ export default class WebappWindowManager extends ReduxComponent {
    * @param  {Function} func  The method to invoke
    */
   safeInvokeOnWindow(token, func) {
-    let browserWindow = this.browserWindows[token];
+    let browserWindow = browserWindowFromToken(token);
     if (browserWindow) {
       try {
-        func(browserWindow);
+        return func(browserWindow);
       } catch (e) {
         logger.error(e.message);
       }
@@ -217,16 +317,6 @@ export default class WebappWindowManager extends ReduxComponent {
   }
 
   /**
-   * Returns a list of all currently active windows created with `open`.
-   *
-   * @return {String}  A stringified JSON dictionary whose keys are window
-   * tokens, and whose values are the original metadata values passed to `open`
-   */
-  list() {
-    return JSON.stringify(this.windowMetadata);
-  }
-
-  /**
    * Moves a popup window to the center of the screen.
    *
    * @param  {Object} options
@@ -286,10 +376,9 @@ export default class WebappWindowManager extends ReduxComponent {
    * @return {Object}         A display object
    */
   getDisplayForWindow(options) {
-    let browserWindow = this.browserWindows[options.window_token];
-    if (!browserWindow) throw new Error("Invalid window token");
-
-    return this.getDisplayForCoordinates(browserWindow.getPosition(), browserWindow.getSize());
+    return this.safeInvokeOnWindow(options.window_token, (wnd) => {
+      return this.getDisplayForCoordinates(wnd.getPosition(), wnd.getSize());
+    });
   }
 
   /**
@@ -301,26 +390,11 @@ export default class WebappWindowManager extends ReduxComponent {
    * `x`, `y`, `width`, and `height`
    */
   getGeometryForWindow(options) {
-    if (!options) {
-      throw new Error("Missing options");
-    }
-
-    if (!options.window_token) {
-      throw new Error("Missing parameters, needs window_token");
-    }
-
-    let browserWindow = this.browserWindows[options.window_token];
-    if (!browserWindow) {
-      throw new Error("Invalid window token");
-    }
-
-    let pos = browserWindow.getPosition();
-    let size = browserWindow.getSize();
-
-    return {
-      x: pos[0], y: pos[1],
-      width: size[0], height: size[1]
-    };
+    return this.safeInvokeOnWindow(options.window_token, (wnd) => {
+      let [x, y] = wnd.getPosition();
+      let [width, height] = wnd.getSize();
+      return { x, y, width, height };
+    });
   }
 
   /**

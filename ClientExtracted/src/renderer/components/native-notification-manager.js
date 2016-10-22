@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import path from 'path';
 import {Observable} from 'rx';
-import clearNotificationsForTeam from '../../csx/clear-notifications';
+import clearNotificationsForChannel from '../../csx/clear-notifications';
 import logger from '../../logger';
 
 import AppStore from '../../stores/app-store';
@@ -26,7 +26,7 @@ export default class NativeNotificationManager extends ReduxComponent {
   syncState() {
     let state = {
       newNotificationEvent: NotificationStore.getNewNotificationEvent(),
-      selectedTeamId: AppStore.getSelectedTeamId(),
+      selectedChannelId: AppStore.getSelectedChannelId(),
       isWindows: SettingStore.isWindows(),
       isMac: SettingStore.isMac()
     };
@@ -42,11 +42,12 @@ export default class NativeNotificationManager extends ReduxComponent {
   }
 
   update(prevState = {}) {
-    if (this.state.isWindows &&
-      this.state.selectedTeamId &&
-      this.state.selectedTeamId !== prevState.selectedTeamId) {
-      logger.info(`Clearing notifications for team: ${this.state.selectedTeamId}`);
-      clearNotificationsForTeam(this.state.selectedTeamId);
+    if (!this.state.isWindows) return;
+
+    if (this.state.selectedChannelId &&
+      this.state.selectedChannelId !== prevState.selectedChannelId) {
+      logger.info(`Clearing Action Center for channel: ${this.state.selectedChannelId}`);
+      clearNotificationsForChannel(this.state.selectedChannelId);
     }
   }
 
@@ -78,14 +79,27 @@ export default class NativeNotificationManager extends ReduxComponent {
     this.disposables.add(Observable.fromEvent(element, 'click').take(1)
       .subscribe(() => {
         let {id, channel} = notification;
+
+        if (this.state.isMac) element.close();
         NotificationActions.clickNotification(id, channel, teamId);
       }));
 
     this.disposables.add(Observable.fromEvent(element, 'reply').take(1)
       .subscribe(({response}) => {
         let {channel, msg} = notification;
+
+        if (this.state.isMac) element.close();
         NotificationActions.replyToNotification(response, channel, userId, teamId, msg);
       }));
+
+    // When we close the window, we unload all notifications. This should be improved
+    // soon, but for now, it ensures that the user doesn't see a 'Electron Helper is
+    // no longer running' error when clicking an older notification.
+    if (this.state.isMac) {
+      this.disposables.add(Observable.fromEvent(window, 'beforeunload')
+        .where(() => (element && element.close))
+        .subscribe(() => element.close()));
+    }
   }
 
   /**
@@ -102,9 +116,7 @@ export default class NativeNotificationManager extends ReduxComponent {
     let options = {
       body: args.content,
       teamId: team.team_id,
-      icon: icons.image_512 || icons.image_132 || icons.image_102 || icons.image_68,
-      imageUri: args.imageUri,
-      avatarImage: args.avatarImage,
+      icon: icons.image_512 || icons.image_132 || icons.image_102 || icons.image_68
     };
 
     if (this.state.isWindows) {
@@ -112,13 +124,17 @@ export default class NativeNotificationManager extends ReduxComponent {
         theme: team ? team.theme : args.theme,
         initials: team ? team.initials : args.initials,
         screenPosition: this.state.notifyPosition,
-        launchUri: args.launchUri
+        channel: args.channel,
+        imageUri: args.imageUri,
+        launchUri: args.launchUri,
+        avatarImage: args.avatarImage
       });
     } else if (this.state.isMac) {
       _.extend(options, {
+        icon: undefined,
         subtitle: args.subtitle,
         canReply: !!args.channel,
-        soundName: path.basename(args.ssbFilename, '.mp3'),
+        soundName: args.ssbFilename ? path.basename(args.ssbFilename, '.mp3') : undefined,
         bundleId: 'com.tinyspeck.slackmacgap'
       });
     }

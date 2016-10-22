@@ -31,12 +31,20 @@ class AppStore {
     return this.getApp().networkStatus;
   }
 
+  getUpdateStatus() {
+    return this.getApp().updateStatus;
+  }
+
   getSuspendStatus() {
     return this.getApp().isMachineAwake;
   }
 
   getSelectedTeamId() {
     return this.getApp().selectedTeamId;
+  }
+
+  getSelectedChannelId() {
+    return this.getApp().selectedChannelId;
   }
 
   isShowingDevTools() {

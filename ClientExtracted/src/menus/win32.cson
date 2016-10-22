@@ -19,6 +19,14 @@
       { label: '&Paste', command: 'core:paste', accelerator: "Control+V" }
       { label: 'Select &All', command: 'core:select-all', accelerator: "Control+A" }
       { label: 'Delete', command: 'core:delete', accelerator: 'Delete' }
+      { type: 'separator' }
+      {
+        label: 'Find'
+        submenu: [
+          { label: 'Find…', command: 'core:find', accelerator: "Control+F" }
+          { label: 'Use Selection for Find', command: 'core:use-selection-for-find', accelerator: "Control+E" }
+        ]
+      }
     ]
   }
 
@@ -35,8 +43,7 @@
       {
         label: '&Developer'
         submenu: [
-          { label: 'Run Tests…', command: 'application:run-specs', accelerator: "Control+Shift+T" }
-          { label: 'Toggle Developer &Tools', command: 'window:toggle-dev-tools', accelerator: "Control+Shift+I" }
+          { label: 'Toggle Developer &Tools', command: 'window:toggle-dev-tools', accelerator: "Alt+Control+I" }
         ]
       }
     ]
@@ -65,7 +72,10 @@
   {
     label: '&Help'
     submenu: [
-      { label: 'Check for Updates…', command: 'application:check-for-update' }
+      { label: 'Keyboard Shortcuts', command: 'application:keyboard-shortcuts', accelerator: 'Control+/' }
+      { type: 'separator' }
+      { label: 'Check for Updates…', command: 'application:check-for-update', id: 'update-status' }
+      { label: 'Report Issue…', command: 'application:report-issue' }
       { label: 'Reset App Data…', command: 'application:reset-app-data' }
       { type: 'separator' }
       { label: 'What\'s New…', command: 'application:release-notes' }

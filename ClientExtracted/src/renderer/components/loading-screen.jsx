@@ -16,15 +16,15 @@ export default class LoadingScreen extends Component {
     className: React.PropTypes.string,
     networkOverride: React.PropTypes.string
   };
-  
+
   syncState() {
     return { networkStatus: AppStore.getNetworkStatus() };
   }
-  
+
   retryConnection() {
-    EventActions.reloadMainWindow();
+    EventActions.reload();
   }
-  
+
   openStatusPage() {
     shell.openExternal('http://status.slack.com');
   }
@@ -64,12 +64,12 @@ export default class LoadingScreen extends Component {
         <span className="LoadingScreen-text">Connecting ...</span>
       </div>
     );
-    
+
     let {networkStatus} = this.state;
     if (this.props.networkOverride) {
       networkStatus = this.props.networkOverride;
     }
-    
+
     let content = trying;
     if (networkStatus === 'offline') {
       content = offline;

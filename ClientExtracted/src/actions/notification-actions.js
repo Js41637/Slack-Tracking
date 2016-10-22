@@ -13,7 +13,7 @@ class NotificationActions {
     Store.dispatch({
       type: NOTIFICATIONS.NEW_NOTIFICATION,
       data: notification,
-      omitFromLog: keysToOmit
+      omitKeysFromLog: keysToOmit
     });
   }
 
@@ -35,7 +35,7 @@ class NotificationActions {
     Store.dispatch({
       type: NOTIFICATIONS.REPLY_TO_NOTIFICATION,
       data: {response, channel, userId, teamId, inReplyToId},
-      omitFromLog: ['response']
+      omitKeysFromLog: ['response']
     });
   }
 }

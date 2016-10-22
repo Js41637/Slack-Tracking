@@ -20,7 +20,7 @@ export default class BasicAuthHandler extends ReduxComponent {
     super();
 
     this.authInfoObservable = options.authInfoObservable || new Subject();
-    let reloadMainWindow = options.reloadMainWindow || EventActions.reloadMainWindow;
+    let reload = options.reload || EventActions.reload;
 
     // NB: Take the parameters we need from the event
     let loginEvent = options.loginObservable || Observable.fromEvent(app, 'login',
@@ -42,7 +42,7 @@ export default class BasicAuthHandler extends ReduxComponent {
       .do(({callback, username, password}) => callback(username, password))
       .flatMap(() => this.checkForNetworkOrError(options.networkCheckOverride))
       .retry()
-      .subscribe(reloadMainWindow));
+      .subscribe(reload));
   }
 
   syncState() {

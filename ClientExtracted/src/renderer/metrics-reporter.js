@@ -1,8 +1,5 @@
   /*eslint callback-return:0 */
 
-import crypto from 'crypto';
-import ipc from '../ipc-rx';
-
 import rx from 'rx';
 
 global.ga = () => {};
@@ -36,7 +33,7 @@ export default class Reporter {
   // value - An optional value that must be a non-negative {Number} (specifically, an int)
   //
   // Returns an {Observable} that signals completion
-  sendEvent(category, action, label, value) {
+  sendEvent() {
     //return global.ga('send', 'event', category, action, label, value);
   }
 
@@ -94,7 +91,7 @@ export default class Reporter {
   //         timings in the reports. (e.g. Google CDN)
   //
   // Returns an {Observable} that signals completion
-  sendTiming(category, name, value, label) {
+  sendTiming() {
     //return global.ga('send', 'timing', category, name, value, label);
   }
 

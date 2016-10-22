@@ -37,18 +37,16 @@ export default class WindowOpener {
    * `executeJavaScript` method.
    *    
    * @param  {Object} data          The data that will be attached to the `Event`   
-   * @param  {String} targetOrigin  The origin of the message   
    * @return {Promise}              A Promise indicating completion   
    */   
-  postMessage(data, targetOrigin) {
+  postMessage(data) {
     let code =
       `var evt = new Event('message');` +
       `evt.origin = '${document.location.origin}';` +
       `evt.data = ${JSON.stringify(data)};` +
       `window.dispatchEvent(evt);`;
     
-    let callback = (result) => console.log(`postMessage result: ${result}`);
-    console.log(`Signaling parent from postMessage: ${code}, ${targetOrigin}`);
+    let callback = () => { };
     return this.executeJavaScript({code, callback});
   }
 }

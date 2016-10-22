@@ -1,18 +1,19 @@
-import fs from 'fs';
+import fs from 'graceful-fs';
 import path from 'path';
-import {p} from './get-path';
 import winston from 'winston';
+import {p} from './get-path';
+import promisify from './promisify';
 
+const pfs = promisify(fs);
 const isBrowser = process.type === 'browser';
 const identifier = process.guestInstanceId ? 'webapp' : process.type;
 
-// 30 days
 const LOG_EXPIRY = 30 * 24 * 3600000;
 
 let d;
 
 class Logger {
-  constructor() {
+  constructor({autoPrune=true} = {}) {
     this.logApi = new winston.Logger();
 
     let {devMode, logFile, logLevel} = this.getLoggerConfiguration();
@@ -31,6 +32,7 @@ class Logger {
     // %AppData%/Slack/logs on Windows
     // ~/Library/Application Support/Slack/logs on OS X
     // ~/.config/Slack/logs on Linux
+
     this.logLocation = logFile ?
       path.resolve(path.dirname(logFile)) :
       p`${'userData'}/logs`;
@@ -62,7 +64,7 @@ class Logger {
 
     // NB: If the user specified a log file don't try to clean up anything from
     // that directory.
-    if (!logFile) this.pruneLogs();
+    if (isBrowser && autoPrune && !logFile) this.pruneLogs();
   }
 
   /**
@@ -81,36 +83,6 @@ class Logger {
       return parseCommandLine();
     }
     return global.loadSettings;
-  }
-
-  /**
-   * Delete logs older than `LOG_EXPIRY`, so we don't leak logs forever and eat users' disk space.
-   */
-  pruneLogs() {
-    let logFiles = [];
-
-    try {
-      logFiles = fs.readdirSync(this.logLocation)
-        .filter((file) => path.extname(file) === '.log');
-    } catch(e) {
-      this.error(`Couldn't read from logs directory at ${this.logLocation}: ${e}`);
-      return;
-    }
-
-    for (let logFile of logFiles) {
-      let logFilePath = path.join(this.logLocation, logFile);
-
-      try {
-        let {mtime} = fs.statSync(logFilePath);
-
-        if (Date.now() - mtime.getTime() >= LOG_EXPIRY) {
-          this.info(`Removed log file at ${logFilePath} because it was old`);
-          fs.unlink(logFilePath);
-        }
-      } catch(e) {
-        this.error(`Couldn't remove log file at ${logFilePath}: ${e}`);
-      }
-    }
   }
 
   debug(message) {
@@ -141,8 +113,53 @@ class Logger {
       this.logApi.error(e.stack || e.message);
     }
   }
+
+  /**
+   * Returns all log files from the current log location.
+   *
+   * @return {Array<String>}  An array of absolute paths to log files
+   */
+  getLogFiles() {
+    try {
+      return fs.readdirSync(this.logLocation)
+        .filter((file) => path.extname(file) === '.log')
+        .map((file) => path.join(this.logLocation, file));
+    } catch (error) {
+      this.logApi.warn(`Unable to retrieve logs: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Delete logs older than `LOG_EXPIRY`, so we don't leak logs forever and
+   * eat users' disk space.
+   *
+   * @param  {type} clearEverything Optional parameter to clear log file regardless of age
+   */
+  async pruneLogs(clearEverything = false) {
+    let logFiles = this.getLogFiles();
+
+    for (let logFile of logFiles) {
+      try {
+        let {mtime} = await pfs.stat(logFile);
+
+        let hasLogFileExpired = Date.now() - mtime.getTime() >= LOG_EXPIRY;
+        if (hasLogFileExpired || clearEverything) {
+          try {
+            await pfs.unlink(logFile);
+            this.info(`Removed log file at ${logFile}`);
+          } catch (err) {
+            this.error(`Couldn't remove log file at ${logFile}: ${err}`);
+          }
+        }
+      } catch (err) {
+        this.error(`Couldn't stat ${logFile}: ${err}`);
+        return;
+      }
+    }
+  }
 }
 
 // NB: The logger is a singleton per process
 let logger = new Logger();
-export default logger;
+export {logger as default, Logger};

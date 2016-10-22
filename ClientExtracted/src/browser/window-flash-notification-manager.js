@@ -1,5 +1,4 @@
 import {getIdleTimeInMs} from '../native-interop';
-import logger from '../logger';
 
 import NotificationStore from '../stores/notification-store';
 import ReduxComponent from '../lib/redux-component';
@@ -11,7 +10,7 @@ const idleThresholdMs = 10 * 1000;
 
 // This component flashes the window when a notification comes in, on Windows
 export default class WindowFlashNotificationManager extends ReduxComponent {
-  
+
   constructor(mainWindow) {
     super();
     this.mainWindow = mainWindow;
@@ -38,7 +37,6 @@ export default class WindowFlashNotificationManager extends ReduxComponent {
       return;
     }
 
-    logger.info('About to flash window!');
     this.mainWindow.flashFrame(true);
   }
 }

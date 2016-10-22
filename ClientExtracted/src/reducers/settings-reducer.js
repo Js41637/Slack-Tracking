@@ -2,7 +2,7 @@ import {cloneDeep} from 'lodash';
 import nativeInterop from '../native-interop';
 import handlePersistenceForKey from './helpers';
 
-import {SETTINGS, APP} from '../actions';
+import {SETTINGS, APP, EVENTS} from '../actions';
 
 // The default settings differ between OS's so we specify it here and return
 // the actual default settings in a getDefaultSettings() method
@@ -39,11 +39,13 @@ const defaultSettings = {
     isTitleBarHidden: false,
     hasRunApp: false,
     hasRunFromTray: false,
+    reportIssueOnStartup: false,
     hasMigratedData:  {
       browser: false,
       renderer: false,
       macgap: false
     },
+    hasCleanedLogFilesForSpellcheckBug: false,
 
     // User configurable settings
     runFromTray: true,
@@ -90,6 +92,8 @@ export default function reduce(settings = initialSettings, action) {
     return changeWindowZoom(settings, -1);
   case SETTINGS.RESET_ZOOM:
     return changeWindowZoom(settings, -settings.zoomLevel);
+  case EVENTS.REPORT_ISSUE:
+    return Object.assign({}, settings, {reportIssueOnStartup: false});
   case APP.RESET_STORE:
     return Object.assign({}, initialSettings, {releaseChannel: 'prod'});
   default:
@@ -122,12 +126,17 @@ function initializeSettings(settings, update) {
 }
 
 function updateSettings(settings, update) {
-  let newSettings = Object.assign({}, settings, update);
-  return newSettings;
+  return {
+    ...settings,
+    ...update
+  };
 }
 
 function changeWindowZoom(settings, change) {
   // clamp the zoom to be between [-2, 2]
   let zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -2), 2);
-  return Object.assign({}, settings, {zoomLevel});
+  return {
+    ...settings,
+    zoomLevel
+  };
 }

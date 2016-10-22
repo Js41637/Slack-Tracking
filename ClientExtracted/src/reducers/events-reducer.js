@@ -5,17 +5,15 @@ import {EVENTS, NOTIFICATIONS} from '../actions';
 const eventSignatures = {};
 
 // Simple events, no additional data
-eventSignatures[EVENTS.CHECK_FOR_UPDATE] = {name: 'checkForUpdate'};
 eventSignatures[EVENTS.FOCUS_PRIMARY_TEAM] = {name: 'focusPrimaryTeam'};
 eventSignatures[EVENTS.FOREGROUND_APP] = {name: 'foregroundApp'};
-eventSignatures[EVENTS.RELOAD_MAIN_WINDOW] = {name: 'reloadMainWindow'};
 eventSignatures[EVENTS.TOGGLE_FULL_SCREEN] = {name: 'toggleFullScreen'};
 eventSignatures[EVENTS.RUN_SPECS] = {name: 'runSpecs'};
 eventSignatures[EVENTS.SHOW_ABOUT] = {name: 'showAbout'};
 eventSignatures[EVENTS.SHOW_RELEASE_NOTES] = {name: 'showReleaseNotes'};
-eventSignatures[EVENTS.SHOW_PREFERENCES] = {name: 'showPreferences'};
 eventSignatures[EVENTS.QUIT_APP] = {name: 'quitApp'};
 eventSignatures[EVENTS.CONFIRM_AND_RESET_APP] = {name: 'confirmAndResetApp'};
+eventSignatures[EVENTS.REPORT_ISSUE] = {name: 'reportIssue'};
 
 // Events which require additional arguments
 eventSignatures[NOTIFICATIONS.CLICK_NOTIFICATION] = {
@@ -52,6 +50,14 @@ eventSignatures[EVENTS.SIGN_OUT_TEAM] = {
 eventSignatures[EVENTS.REFRESH_TEAM] = {
   name: 'refreshTeam',
   teamId: null
+};
+eventSignatures[EVENTS.SHOW_WEBAPP_DIALOG] = {
+  name: 'showWebappDialog',
+  dialogType: null
+};
+eventSignatures[EVENTS.RELOAD] = {
+  name: 'reload',
+  everything: null
 };
 
 const initialState = _.reduce(Object.keys(eventSignatures), (result, key) => {

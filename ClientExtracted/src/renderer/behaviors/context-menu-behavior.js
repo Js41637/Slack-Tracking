@@ -20,9 +20,15 @@ class ContextMenuBehavior {
       .map((message) => message.args[0]);
 
     let remoteSpellcheckHandler = createProxyForRemote(webView).winssb.spellCheckingHelper.spellCheckHandler;
+
+    let showDevMenu = SettingStore.getSetting('isDevMode') || // Running from source
+      process.env.SLACK_DEVELOPER_MENU;                       // Production build that has previously signed into Slack Corp
+
     let contextMenuBuilder = new ContextMenuBuilder(
-      remoteSpellcheckHandler, webView,
-      SettingStore.getSetting('isDevMode'));
+      remoteSpellcheckHandler,
+      webView,
+      showDevMenu
+    );
 
     return signal.subscribe((menuInfo) => {
       contextMenuBuilder.showPopupMenu(menuInfo);

@@ -6,7 +6,9 @@ import logger from '../logger';
 import os from 'os';
 import packageJson from '../../package.json';
 import restartApp from './restart-app';
+import semver from 'semver';
 import temp from 'temp';
+import {getReleaseNotesUrl} from './squirrel-auto-updater';
 import {processMagicLoginLink} from '../magic-login/process-link';
 import {parseProtocolUrl} from '../parse-protocol-url';
 import {Subject, Disposable, SerialDisposable, CompositeDisposable, Observable} from 'rx';
@@ -26,8 +28,6 @@ import SquirrelAutoUpdater from './squirrel-auto-updater';
 import TeamStore from '../stores/team-store';
 import TrayHandler from './tray-handler';
 import WindowCreator from './window-creator';
-
-import {RELEASE_NOTES_URL, RELEASE_NOTES_URL_BETA} from './squirrel-auto-updater';
 
 const {repairTrayRegistryKey} = requireTaskPool(require.resolve('../csx/tray-repair'));
 
@@ -64,10 +64,11 @@ export default class Application extends ReduxComponent {
 
     if (this.state.isMac) {
       this.appMenu = new AppMenu();
+      require('electron-text-substitutions').listenForPreferenceChanges();
     }
 
     repairTrayRegistryKey()
-      .then(() => {}, (e) => {
+      .catch((e) => {
         logger.warn(`Failed to repair tray registry key: ${e.message}`);
       });
 
@@ -78,6 +79,16 @@ export default class Application extends ReduxComponent {
 
     if (!this.state.hasRunApp) {
       this.handleFirstExecution();
+    }
+
+    /**
+     * So, in 2.1.1 we accidentally logged message text when spell-checking. We
+     * don't want that to stick around in a user's logs, so we're going to do a
+     * one time clean up. We can remove this code sometime after 2.1.2.
+     */
+    if (semver.gte(this.state.appVersion, '2.1.2') && !this.state.hasCleanedLogFilesForSpellcheckBug) {
+      logger.pruneLogs(true);
+      SettingActions.updateSettings({hasCleanedLogFilesForSpellcheckBug: true});
     }
 
     this.mainWindow = WindowCreator.createMainWindow(options);
@@ -108,6 +119,7 @@ export default class Application extends ReduxComponent {
       isBeforeWin10: SettingStore.getSetting('isBeforeWin10'),
       launchOnStartup: SettingStore.getSetting('launchOnStartup'),
       pretendNotReallyWindows10: SettingStore.getSetting('pretendNotReallyWindows10'),
+      hasCleanedLogFilesForSpellcheckBug: SettingStore.getSetting('hasCleanedLogFilesForSpellcheckBug'),
 
       handleDeepLinkEvent: EventStore.getEvent('handleDeepLink'),
       runSpecsEvent: EventStore.getEvent('runSpecs'),
@@ -230,8 +242,8 @@ export default class Application extends ReduxComponent {
   }
 
   showReleaseNotesEvent() {
-    let releaseNotesURL = this.state.releaseChannel === 'beta' ? RELEASE_NOTES_URL_BETA : RELEASE_NOTES_URL;
-    shell.openExternal(releaseNotesURL);
+    let releaseNotesUrl = getReleaseNotesUrl(this.state.releaseChannel === 'beta');
+    shell.openExternal(releaseNotesUrl);
   }
 
   /**
@@ -244,9 +256,9 @@ export default class Application extends ReduxComponent {
   async confirmAndResetAppEvent() {
     let options = {
       title: 'Reset Slack?',
-      buttons: ['Uhh, never mind', 'Yep, do it'],
+      buttons: ['Cancel', 'Yes'],
       message: 'Are you sure?',
-      detail: 'This will sign out from all of your teams and reset the app to its default state. The app will have to restart.',
+      detail: 'This will sign you out from all of your teams, reset the app to its original state, and restart it.',
       noLink: true
     };
 
@@ -264,7 +276,7 @@ export default class Application extends ReduxComponent {
       await new Promise((resolve) => mainSession.clearStorageData(resolve));
 
       AppActions.resetStore();
-      await restartApp();
+      restartApp();
     }
   }
 

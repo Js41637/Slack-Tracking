@@ -83,7 +83,7 @@ export default class TrayHandler extends ReduxComponent {
       } else if (this.state.isDevMode) {
         dialog.showMessageBox({
           title: 'Slack for Windows Beta',
-          buttons: ['Ok'],
+          buttons: ['OK'],
           message: message
         });
       }
@@ -236,13 +236,13 @@ export default class TrayHandler extends ReduxComponent {
     if (!this.state.isMac) {
       menu.append(new MenuItem({
         label: '&Preferences',
-        click: () => EventActions.showPreferences(),
+        click: () => EventActions.showWebappDialog('prefs'),
         accelerator: 'CommandOrControl+,'
       }));
 
       menu.append(new MenuItem({
         label: '&Check for Updates...',
-        click: () => EventActions.checkForUpdate()
+        click: () => AppActions.checkForUpdate()
       }));
 
       menu.append(new MenuItem({type: 'separator'}));

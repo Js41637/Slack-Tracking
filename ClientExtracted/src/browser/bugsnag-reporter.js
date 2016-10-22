@@ -1,10 +1,10 @@
-import bugsnag from './bugsnag/bugsnag';
+import {app, BrowserWindow, dialog} from 'electron';
 import fs from 'fs';
-import logger from '../logger';
 import path from 'path';
-import restartApp from './restart-app';
 
-import {app, BrowserWindow, dialog, shell} from 'electron';
+import bugsnag from './bugsnag/bugsnag';
+import logger from '../logger';
+import restartApp from './restart-app';
 
 export default class BugsnagReporter {
   constructor(resourcePath, devMode) {
@@ -42,39 +42,16 @@ export default class BugsnagReporter {
     bugsnag.autoNotify(callback);
   }
 
-  // Returns a random integer between min (included) and max (excluded)
-  // Using Math.round() will give you a non-uniform distribution!
-  getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
-  }
-
   showDialogOfShame() {
-    /*
-    const buttonText = [
-      "Alas",
-      "D'oh",
-      "We all have our bad days",
-      "Ugh, the worst",
-      "Sorry, srsly",
-      "Zomg, the worst",
-      "Slack is not so fetch",
-      "We'll do better",
-      "Restart rn",
-      "Ugh",
-    ];
-
-
-    let thisButton = buttonText[this.getRandomInt(0, buttonText.length-1)];
-    */
-
     return new Promise((resolve) => {
       dialog.showMessageBox(BrowserWindow.getFocusedWindow() || null, {
         type: 'error',
-        title: 'Slack has crashed',
-        message: "We're quite sorry, but Slack needs to restart.\n\nIf you run into this often, please drop us a line so that we can help figure out what's going on, at feedback@slack.com.",
-        buttons: ["Send an email", "Ok"],
-        defaultId: 1,
-        cancelId: 1,
+        title: 'Slack crashed!',
+        message: "We're terribly sorry, but we've run into trouble and need to restart.",
+        detail: "If the problem persists, you can report an issue or contact us at feedback@slack.com.",
+        buttons: ['Close', 'Restart', `Restart ${process.platform === 'darwin' ? '&' : '&&'} Report Issue`],
+        defaultId: 2,
+        cancelId: 0,
       }, resolve);
     });
   }
@@ -86,7 +63,6 @@ export default class BugsnagReporter {
         app.quit();
         process.exit(0);
       }, 750);
-
       return;
     }
 
@@ -95,11 +71,17 @@ export default class BugsnagReporter {
     this.handlingFatalError = true;
     try {
       let button = await this.showDialogOfShame();
-      if (button === 0) {
-        shell.openExternal('mailto:feedback@slack.com');
+      if (button === 2) {
+        let SettingActions = require('../actions/setting-actions').default;
+        SettingActions.updateSettings({reportIssueOnStartup: true});
       }
 
-      await restartApp();
+      if (button === 0) {
+        app.exit(0);
+        process.exit(0);
+      } else {
+        restartApp();
+      }
     } catch (e) {
       logger.error(e.message);
       logger.error(e.stack);

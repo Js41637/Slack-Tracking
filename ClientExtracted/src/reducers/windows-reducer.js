@@ -5,7 +5,7 @@ import {WINDOWS} from '../actions';
 export default function reduce(windows = {}, action) {
   switch(action.type) {
   case WINDOWS.ADD_WINDOW:
-    return addWindow(windows, action.data.windowId, action.data.windowType);
+    return addWindow(windows, action.data);
   case WINDOWS.REMOVE_WINDOW:
     return _.omit(windows, action.data);
   default:
@@ -13,11 +13,13 @@ export default function reduce(windows = {}, action) {
   }
 }
 
-function addWindow(windowList, windowId, type) {
-  let update = {};
-  update[windowId] = {
-    id: windowId,
-    type: type
+function addWindow(windowList, {windowId, windowType, subType}) {
+  return {
+    ...windowList,
+    [windowId]: {
+      id: windowId,
+      type: windowType,
+      subType
+    }
   };
-  return _.assign({}, windowList, update);
 }

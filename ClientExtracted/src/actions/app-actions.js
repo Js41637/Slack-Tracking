@@ -1,10 +1,19 @@
 import Store from '../lib/store';
 import {APP} from './';
+import {UPDATE_STATUS} from '../utils/shared-constants';
 
 class AppActions {
 
   setNetworkStatus(status) {
     Store.dispatch({type: APP.SET_NETWORK_STATUS, data: status});
+  }
+
+  checkForUpdate() {
+    Store.dispatch({type: APP.SET_UPDATE_STATUS, data: UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL});
+  }
+
+  setUpdateStatus(status) {
+    Store.dispatch({type: APP.SET_UPDATE_STATUS, data: status});
   }
 
   setSuspendStatus(isAwake) {
@@ -28,7 +37,7 @@ class AppActions {
       type: APP.SUBMIT_CREDENTIALS,
       shouldSaveToKeychain: true,
       data: credentials,
-      omitFromLog: ['password']
+      omitKeysFromLog: ['password']
     });
   }
 
@@ -66,6 +75,10 @@ class AppActions {
 
   loadTeams(teams) {
     Store.dispatch({type: APP.LOAD_TEAMS, data: teams});
+  }
+
+  selectChannel(channel) {
+    Store.dispatch({type: APP.SELECT_CHANNEL, data: channel});
   }
 
   saveWindowSettings(settings) {

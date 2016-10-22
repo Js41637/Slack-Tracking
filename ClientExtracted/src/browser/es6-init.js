@@ -19,12 +19,12 @@ _.extend(args, parseProtocolUrl(args.protoUrl));
 
 if (args.devEnv) {
   appData = app.getPath('appData');
-  app.setPath('userData', path.join(appData, 'SlackDev-' + args.devEnv));
+  app.setPath('userData', path.join(appData, 'SlackDevEnv'));
 }
 
 if (!args.devEnv && args.devMode) {
   app.commandLine.appendSwitch('remote-debugging-port', '8315');
-  
+
   appData = app.getPath('appData');
   app.setPath('userData', path.join(appData, 'SlackDevMode'));
 }
@@ -36,6 +36,6 @@ if (args.chromeDriver) {
 
 if (readOnlyMode) {
   require('electron-compile').init(path.resolve(__dirname, '..', '..'), './main', true);
-} else { 
+} else {
   require('./main');
 }

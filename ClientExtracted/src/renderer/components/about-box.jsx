@@ -23,7 +23,8 @@ export default class AboutBox extends Component {
       copyright: packageJson.copyright,
       releaseChannel: SettingStore.getSetting('releaseChannel'),
       isWindowsStore: SettingStore.getSetting('isWindowsStore'),
-      isMac: SettingStore.isMac()
+      isMac: SettingStore.isMac(),
+      isWindows: SettingStore.isWindows()
     };
   }
 
@@ -44,7 +45,7 @@ export default class AboutBox extends Component {
   }
 
   render() {
-    let {appVersion, versionName, releaseChannel, isMac, isWindowsStore, buttonState, dependenciesState} = this.state;
+    let {appVersion, versionName, releaseChannel, isMac, isWindows, isWindowsStore, buttonState, dependenciesState} = this.state;
 
     let arch = process.arch === 'x64' ? ' 64-bit' : ' 32-bit';
     if (isMac) arch = '';
@@ -66,7 +67,7 @@ export default class AboutBox extends Component {
     let dependenciesWidth = isMac ? ABOUT_BOX_WIDTH : ABOUT_BOX_WIDTH - SCROLLBAR_WIDTH;
 
     return (
-      <div className="AboutBox">
+      <div className={isWindows ? "AboutBox titlebarAdjusted" : "AboutBox"}>
         <img className="AboutBox-logo" draggable="false"
           srcSet="Hash.png 1x, Hash@2x.png 2x, Hash@3x.png 3x" />
         <span className="AboutBox-version" draggable="false">

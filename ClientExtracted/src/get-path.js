@@ -84,6 +84,10 @@ export function p(strings, ...values) {
   let newPath = String.raw(strings, ...newVals);
   let parts = _.map(newPath.split(/[\\\/]/), (x) => x || '/');
 
+  // Handle Windows edge case: If the execution host is cmd.exe, path.resolve() will not understand
+  // what `C:` is (it needs to be `C:\`)
+  if (process.platform === 'win32' && /:$/.test(parts[0])) parts[0] += '\\';
+
   try {
     return path.resolve(...parts);
   } catch (e) {

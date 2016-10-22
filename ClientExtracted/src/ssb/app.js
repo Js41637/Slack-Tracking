@@ -5,18 +5,20 @@ import path from 'path';
 
 import {ipcRenderer, remote} from 'electron';
 import {channel} from '../../package.json';
+import {domFileFromPath} from '../utils/file-helpers';
 import {requestGC} from '../run-gc';
 import {Observable} from 'rx';
 
 import AutoLaunch from '../auto-launch';
 import AppActions from '../actions/app-actions';
-import EventActions from '../actions/event-actions';
 import SettingActions from '../actions/setting-actions';
 import SettingStore from '../stores/setting-store';
 
 const globalProcess = window.process;
 const isDarwin = globalProcess.platform === 'darwin';
 const isWin32 = globalProcess.platform === 'win32';
+
+import {TEAM_IDLE_TIMEOUT} from '../utils/shared-constants';
 
 let systemPreferences, dialog;
 
@@ -159,17 +161,28 @@ export default class AppIntegration {
   }
 
   /**
-   * Reloads the main app window.
+   * Occurs when a new input field is added to the DOM; wire it up to text
+   * substitutions.
+   *
+   * @param  {HTMLElement} input  The field that was added
+   */
+  inputFieldCreated(input) {
+    if (input && isDarwin) require('electron-text-substitutions').default(input);
+  }
+
+  /**
+   * Reloads the current team.
    */
   reload() {
-    EventActions.reloadMainWindow();
+    window.location.reload();
   }
 
   /**
    * Even touching localStorage in a data URI will throw errors.
    */
   canAccessLocalStorage() {
-    return window.location.protocol !== 'data:';
+    return window.location.protocol !== 'data:' &&
+      window.location.protocol !== 'about:';
   }
 
   /**
@@ -204,6 +217,16 @@ export default class AppIntegration {
   }
 
   /**
+   * Changes the duration that a team must remain unselected before it will be
+   * unloaded.
+   *
+   * @param  {Number} timeout The timeout duration, in seconds
+   */
+  setTeamIdleTimeout(timeout) {
+    ipcRenderer.sendToHost(TEAM_IDLE_TIMEOUT, timeout);
+  }
+
+  /**
    * Use this method to determine if you should create a transparent window or
    * not (transparent windows won't work correctly when DWM composition is
    * disabled).
@@ -220,13 +243,37 @@ export default class AppIntegration {
   }
 
   /**
+   * Returns our app log files as DOM File elements. The logs will be sorted by
+   * modification time, so we'll only grab the most recent `n` files.
+   *
+   * @param  {Number} maxFiles      The maximum number of log files to retrieve
+   * @return {Promise<Array<File>>} A Promise that resolves with an array of Files
+   */
+  getAppLogFiles(maxFiles = 5) {
+    let sortedLogs = logger.getLogFiles().sort((a, b) =>
+      fs.statSyncNoException(b).mtime - fs.statSyncNoException(a).mtime);
+
+    return Observable.fromArray(sortedLogs)
+      .where((files) => files.length > 0)
+      .take(maxFiles)
+      .flatMap((logFile) => domFileFromPath(logFile)
+        .catch((err) => logger.warn(`Unable to get file: ${err.message}`)))
+      .catch(Observable.return(null))
+      .reduce((acc, file) => {
+        if (file) acc.push(file);
+        return acc;
+      }, [])
+      .toPromise();
+  }
+
+  /**
    * Modifier keys aren't being propagated to the webapp for some events, so we
    * give them a workaround here.
    *
    * @return {Object}
    * @return {Object}.ctrl  True if the `Ctrl` key is pressed
-   * @return {Object}.shift  True if the `Shift` key is pressed
-   * @return {Object}.alt  True if the `Alt` key is pressed
+   * @return {Object}.shift True if the `Shift` key is pressed
+   * @return {Object}.alt   True if the `Alt` key is pressed
    * @return {Object}.meta  True if the meta key is pressed
    */
   getModifierKeys() {

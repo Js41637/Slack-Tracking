@@ -5,26 +5,28 @@ import url from 'url';
 
 /**
  * The protocols that we will try to open via `shell`
- */ 
+ */
 const VALID_SHELL_PROTOCOLS = ['http:', 'https:', 'mailto:', 'skype:', 'spotify:',
   'live:', 'callto:', 'tel:', 'im:', 'sip:', 'sips:'];
 
 class ExternalLinkBehavior {
 
-  /**  
+  /**
    * Opens external links in the default browser, or performs the OS default
    * action (e.g., open mail or Skype).
-   *    
+   *
    * @param  {WebContents} webView  The web contents to apply this behavior to
-   * @return {Disposable}           A Disposable that will undo what the method did   
-   */   
+   * @return {Disposable}           A Disposable that will undo what the method did
+   */
   setup(webView) {
-    return Observable.fromEvent(webView, 'new-window', (e, urlString) => {
-      // NB: On `webview` tags, the event includes the URL. But on
-      // `WebContents`, it's the second parameter.
-      return e.url ? {e, urlString: e.url} : {e, urlString};
-      
-    }).subscribe(({e, urlString}) => {
+    return Observable.fromEvent(webView, 'new-window', (e, urlString, frameName, disposition) => {
+      // NB: On `webview` tags, the other parameters are attached to the event.
+      // But for `WebContents`, they're passed as arguments.
+      return e.url ?
+        {e, urlString: e.url, disposition: e.disposition} :
+        {e, urlString, disposition};
+
+    }).subscribe(({e, urlString, disposition}) => {
       try {
         e.preventDefault();
         let theUrl = url.parse(urlString);
@@ -36,7 +38,7 @@ class ExternalLinkBehavior {
         let realUrl = url.format(this.escapeUrlWhenNeeded(theUrl));
 
         logger.info(`Opening external window to ${realUrl}`);
-        shell.openExternal(realUrl);
+        shell.openExternal(realUrl, {activate: disposition !== 'background-tab'});
       } catch (error) {
         logger.warn(`Ignoring ${urlString} due to ${error.message}`);
       }

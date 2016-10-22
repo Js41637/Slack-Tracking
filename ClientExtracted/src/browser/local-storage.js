@@ -1,8 +1,9 @@
 import _ from 'lodash';
-import fs from 'fs';
 import logger from '../logger';
 import {p} from '../get-path';
 import rx from 'rx';
+import fs from 'graceful-fs';
+import {sync as writeFileAtomicSync} from 'write-file-atomic';
 
 // Public: This class is a copy of the DOM LocalStorage API, backed by our local
 // settings file. Make sure to not use this directly, but use the instance in
@@ -58,7 +59,7 @@ class LocalStorage {
 
   save() {
     try {
-      fs.writeFileSync(this.storagePath, JSON.stringify(this.data));
+      writeFileAtomicSync(this.storagePath, JSON.stringify(this.data));
     } catch (e) {
       logger.error(`Couldn't save to ${this.storagePath}: ${e.message}`);
     }

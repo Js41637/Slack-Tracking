@@ -1,7 +1,7 @@
-import WindowStore from '../stores/window-store';
+import {WINDOW_TYPES} from '../utils/shared-constants';
 
 const isBrowser = process.type === 'browser';
-const isWebapp = process.guestInstanceId || global.loadSettings.windowType === WindowStore.WEBAPP;
+const isWebapp = process.guestInstanceId || global.loadSettings.windowType === WINDOW_TYPES.WEBAPP;
 
 let StoreForProcess;
 

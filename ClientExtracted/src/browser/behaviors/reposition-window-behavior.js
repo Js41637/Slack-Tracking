@@ -2,8 +2,7 @@ import _ from 'lodash';
 import {Observable, Disposable} from 'rx';
 import WindowBehavior from './window-behavior';
 
-const isBrowser = process.type === 'browser';
-const d = require(isBrowser ? 'debug' : 'debug/browser')('reposition-window-behavior');
+const d = require('debug-electron')('reposition-window-behavior');
 
 export default class RepositionWindowBehavior extends WindowBehavior {
 

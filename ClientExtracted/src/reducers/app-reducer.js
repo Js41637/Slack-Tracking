@@ -6,14 +6,17 @@ import {isTeamsByIndexValid} from '../stores/app-store';
 import logger from '../logger';
 
 import {APP, TEAMS, NOTIFICATIONS, EVENTS} from '../actions';
+import {UPDATE_STATUS} from '../utils/shared-constants';
 
 export const SLACK_PROTOCOL = 'slack:';
 
 const initialState = {
   isShowingLoginDialog: false,
   networkStatus: 'online', // One of [trying, online, slackDown, offline]
+  updateStatus: UPDATE_STATUS.NONE,
   isMachineAwake: true,
   selectedTeamId: null,
+  selectedChannelId: null,
   lastBalloon: null,
   isShowingDevTools: false,
   teamsByIndex: [],
@@ -50,6 +53,8 @@ export default function reduce(state = initialState, action) {
     return setTeamsByIndex(state, action.data);
   case APP.LOAD_TEAMS:
     return _.assign({}, state, {teamsToLoad: _.union(state.teamsToLoad, action.data)});
+  case APP.SELECT_CHANNEL:
+    return _.assign({}, state, {selectedChannelId: action.data});
 
   case APP.SET_LOGIN_DIALOG:
     return _.assign({}, state, {isShowingLoginDialog: action.data});
@@ -67,6 +72,8 @@ export default function reduce(state = initialState, action) {
     return _.assign({}, state, {isMachineAwake: action.data});
   case APP.SET_NETWORK_STATUS:
     return _.assign({}, state, {networkStatus: action.data});
+  case APP.SET_UPDATE_STATUS:
+    return _.assign({}, state, {updateStatus: action.data});
   case APP.TOGGLE_DEV_TOOLS:
     return _.assign({}, state, {isShowingDevTools: !state.isShowingDevTools});
   case APP.SAVE_WINDOW_SETTINGS:

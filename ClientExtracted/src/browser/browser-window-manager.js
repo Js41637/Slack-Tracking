@@ -11,7 +11,8 @@ import TeamStore from '../stores/team-store';
 import WindowHelpers from '../components/helpers/window-helpers';
 import WindowStore from '../stores/window-store';
 
-const CHILD_WINDOWS = [WindowStore.WEBAPP];
+import {WINDOW_TYPES, UPDATE_STATUS} from '../utils/shared-constants';
+const CHILD_WINDOWS = [WINDOW_TYPES.WEBAPP];
 
 /**
  * Handles window interactions that need to occur within the browser process.
@@ -44,7 +45,7 @@ export default class BrowserWindowManager extends ReduxComponent {
       isShowingLoginDialog: AppStore.isShowingLoginDialog(),
 
       quitAppEvent: EventStore.getEvent('quitApp'),
-      reloadMainWindowEvent: EventStore.getEvent('reloadMainWindow'),
+      reloadEvent: EventStore.getEvent('reload'),
       editingCommandEvent: EventStore.getEvent('editingCommand'),
       toggleFullScreenEvent: EventStore.getEvent('toggleFullScreen'),
 
@@ -52,8 +53,8 @@ export default class BrowserWindowManager extends ReduxComponent {
       foregroundAppEvent: EventStore.getEvent('foregroundApp'),
       clickNotificationEvent: EventStore.getEvent('clickNotification'),
       handleDeepLinkEvent: EventStore.getEvent('handleDeepLink'),
-      checkForUpdateEvent: EventStore.getEvent('checkForUpdate'),
-      showPreferencesEvent: EventStore.getEvent('showPreferences')
+      updateStatus: AppStore.getUpdateStatus(),
+      showWebappDialogEvent: EventStore.getEvent('showWebappDialog')
     };
   }
 
@@ -94,9 +95,29 @@ export default class BrowserWindowManager extends ReduxComponent {
     mainWindow.close();
   }
 
-  reloadMainWindowEvent() {
-    let mainWindow = this.getMainWindow();
-    mainWindow.reload();
+  /**
+   * Reload the main window, or the focused child window. Individual team views
+   * handle this event separately.
+   *
+   * @param  {Bool} {everything}  True to reload the main window, false to reload
+   *                              just the focused window or a single team
+   */
+  reloadEvent({everything}) {
+    if (everything) {
+      let mainWindow = this.getMainWindow();
+      mainWindow.reload();
+      return;
+    }
+
+    let focusedWindow = BrowserWindow.getFocusedWindow();
+    if (!focusedWindow) return;
+
+    let windowParams = this.state.childWindows[focusedWindow.id];
+
+    // NB: Calls windows do not support being reloaded
+    if (windowParams && !WindowStore.isCallsWindow(windowParams.subType)) {
+      focusedWindow.reload();
+    }
   }
 
   /**
@@ -135,6 +156,9 @@ export default class BrowserWindowManager extends ReduxComponent {
       'select-all': (w) => w.selectAll()
     };
 
+    // Otherwise let the renderer handle it
+    if (!webContentFunctions[command]) return;
+
     if (windowId) {
       let browserWindow = BrowserWindow.fromId(windowId);
       webContentFunctions[command](browserWindow.webContents);
@@ -162,11 +186,7 @@ export default class BrowserWindowManager extends ReduxComponent {
     this.focusMainWindow();
   }
 
-  checkForUpdateEvent() {
-    this.focusMainWindow();
-  }
-
-  showPreferencesEvent() {
+  showWebappDialogEvent() {
     this.focusMainWindow();
   }
 
@@ -227,6 +247,10 @@ export default class BrowserWindowManager extends ReduxComponent {
 
     // Focus main window when the login dialog is shown
     if (!prevState.isShowingLoginDialog && this.state.isShowingLoginDialog) {
+      this.focusMainWindow();
+    }
+
+    if (prevState.updateStatus !== this.state.updateStatus && this.state.updateStatus === UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL) {
       this.focusMainWindow();
     }
   }

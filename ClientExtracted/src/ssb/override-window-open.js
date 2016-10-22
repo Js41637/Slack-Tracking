@@ -3,14 +3,14 @@ import {remote} from 'electron';
 
 const {BrowserWindow} = remote;
 
-/**  
+/**
  * Overrides `window.open` to use our `WindowApi` for certain URLs. This
  * gives us finer-grained control over those window interactions and is
  * necessary for some integrations.
- *    
+ *
  * @param  {Function} overrideMethod  A method that will create a popup window
  * @return {BrowserWindow}            The new BrowserWindow
- */   
+ */
 export default function overrideWindowOpen(overrideMethod) {
   // NB: Save off the original `window.open` for the default behavior
   let windowDotOpen = window.open;
@@ -32,8 +32,8 @@ export default function overrideWindowOpen(overrideMethod) {
 
       let token = overrideMethod(options);
       let browserWindow = BrowserWindow.fromId(token);
-      
-      // NB: Box holds a reference to the created window and looks for a 
+
+      // NB: Box holds a reference to the created window and looks for a
       // `closed` flag. Without it, it will try to reuse the same instance.
       browserWindow.once('close', () => {
         try {
@@ -41,7 +41,13 @@ export default function overrideWindowOpen(overrideMethod) {
         } catch (e) { // eslint-disable-line
         }
       });
-      
+
+      // NB: When the web-view goes away, the connection to this window will be
+      // severed, so just close it out.
+      window.addEventListener('beforeunload', () => {
+        browserWindow.close();
+      });
+
       return browserWindow;
     } else {
       return windowDotOpen(url, frameName, features);
@@ -51,16 +57,16 @@ export default function overrideWindowOpen(overrideMethod) {
 
 /**
  * Extracts window size and position from a string.
- *  
+ *
  * @param  {String} features  Additional information passed to `window.open`,
  * e.g., "width=660,height=440,left=-1212.5,top=197.5"
- * 
+ *
  * @return {Object}
  * @return {Object}.left    The x position of the window
  * @return {Object}.top     The y position of the window
  * @return {Object}.width   The width of the window
  * @return {Object}.height  The height of the window
- */ 
+ */
 function getCoordinatesFromFeatures(features) {
   if (!features || features === '') return {};
 

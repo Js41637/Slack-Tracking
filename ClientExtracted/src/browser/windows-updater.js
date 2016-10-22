@@ -6,6 +6,8 @@ import _ from 'lodash';
 import semver from 'semver';
 import {is64BitOperatingSystem} from '../native-interop';
 import {requireTaskPool} from 'electron-remote';
+import AppActions from '../actions/app-actions';
+import {UPDATE_STATUS} from '../utils/shared-constants';
 
 const {fetchFileOrUrl} = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
 import logger from '../logger';

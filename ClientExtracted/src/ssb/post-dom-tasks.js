@@ -1,8 +1,9 @@
 import {remote} from 'electron';
-import logger from '../logger';
 import {RecursiveProxyHandler} from 'electron-remote';
-import AppActions from '../actions/app-actions';
 import Hammer from 'hammerjs';
+
+import logger from '../logger';
+import AppActions from '../actions/app-actions';
 
 const {systemPreferences} = remote;
 
@@ -73,7 +74,7 @@ function setupLocalStorageAlias() {
  * for a few situations, like when the window is in the process of unloading.
  */
 function disableDesktopIntegration() {
-  logger.info("Window is unloading, winssb is no longer accessible");
+  logger.info('Window is unloading, winssb is no longer accessible');
 
   for (let key of Object.keys(window.winssb)) {
     // NB: Because Calls is always calling into a native library in-process

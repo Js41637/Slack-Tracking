@@ -146,7 +146,7 @@ export default class TeamSelector extends Component {
         let menu = new Menu();
 
         menu.append(new MenuItem({
-          label: `&Sign out of ${nextState.teams[teamId].team_name}`,
+          label: `&Remove ${nextState.teams[teamId].team_name}`,
           click: () => EventActions.signOutTeam(teamId)
         }));
 

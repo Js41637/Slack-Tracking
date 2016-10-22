@@ -25,9 +25,10 @@ import WindowStore from '../../stores/window-store';
 
 import getMostUsedTeams from '../most-used-teams';
 import {SLACK_PROTOCOL} from '../../reducers/app-reducer';
+import {WINDOW_TYPES} from '../../utils/shared-constants';
 
-// NB: Must match height of .channel_header in webapp
-const CHANNEL_HEADER_HEIGHT = 53;
+// NB: Must match height of .client_header in webapp
+const CHANNEL_HEADER_HEIGHT = 65;
 const SEARCH_BOX_DEFAULT_WIDTH = 374;
 const SEARCH_BOX_POSITION_FROM_RIGHT = 109;
 
@@ -44,7 +45,7 @@ export default class TeamsDisplay extends Component {
       teamsToLoad: AppStore.getTeamsToLoad(),
       selectedTeamId: AppStore.getSelectedTeamId(),
       numTeams: TeamStore.getNumTeams(),
-      childWindows: WindowStore.getWindows([WindowStore.WEBAPP]),
+      childWindows: WindowStore.getWindows([WINDOW_TYPES.WEBAPP]),
       isTitleBarHidden: SettingStore.getSetting('isTitleBarHidden'),
       releaseChannel: SettingStore.getSetting('releaseChannel'),
       searchBoxWidth: AppStore.getSearchBoxSize(),

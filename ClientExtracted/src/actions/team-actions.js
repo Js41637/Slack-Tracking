@@ -10,7 +10,7 @@ class TeamActions {
       shouldSave: true
     });
   }
-  
+
   addTeams(teams) {
     Store.dispatch({
       type: TEAMS.ADD_NEW_TEAMS,
@@ -26,7 +26,7 @@ class TeamActions {
       shouldSave: true
     });
   }
-  
+
   removeTeams(teamIds) {
     Store.dispatch({
       type: TEAMS.REMOVE_TEAMS,
@@ -60,6 +60,20 @@ class TeamActions {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_USAGE,
       data: usagePerTeam
+    });
+  }
+  
+  updateTeamName(name, teamId) {
+    Store.dispatch({
+      type: TEAMS.UPDATE_TEAM_NAME,
+      data: {name, teamId}
+    });
+  }
+
+  updateTeamUrl(url, teamId) {
+    Store.dispatch({
+      type: TEAMS.UPDATE_TEAM_URL,
+      data: {url, teamId}
     });
   }
 }

@@ -12,7 +12,7 @@ public class Startup
       var theArgs = (IDictionary<string, object>)args;
       if ((bool)theArgs["isWin10"]) {
         var notifier = new Win10Notifier();
-        notifier.ClearNotificationsForTeam((string)theArgs["teamId"]);
+        notifier.ClearNotificationsForChannel((string)theArgs["channelId"]);
       }
       return Task.FromResult(default(object));
     } catch (Exception ex) {

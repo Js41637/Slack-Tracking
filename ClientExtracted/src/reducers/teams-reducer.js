@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import fs from 'fs';
+import url from 'url';
 import {p} from '../get-path';
 import handlePersistenceForKey from './helpers';
 import EventActions from '../actions/event-actions';
 
-import {TEAMS, APP} from '../actions';
+import {TEAMS, SETTINGS, APP} from '../actions';
 
 const SLACK_CORP_TEAM_ID = 'T024BE7LD';
 
@@ -24,11 +25,17 @@ export default function reduce(teams = {}, action) {
     return updateTheme(teams, action.data.theme, action.data.teamId);
   case TEAMS.UPDATE_TEAM_ICONS:
     return updateTeamIcons(teams, action.data.icons, action.data.teamId);
-  case TEAMS.UPDATE_UNREADS_INFO: 
+  case TEAMS.UPDATE_UNREADS_INFO:
     return updateUnreadsInfo(teams, action.data);
   case TEAMS.UPDATE_TEAM_USAGE:
     return updateTeamUsage(teams, action.data);
-    
+  case TEAMS.UPDATE_TEAM_NAME:
+    return updateTeamName(teams, action.data.name, action.data.teamId);
+  case TEAMS.UPDATE_TEAM_URL:
+    return updateTeamUrl(teams, action.data.url, action.data.teamId);
+
+  case SETTINGS.INITIALIZE_SETTINGS:
+    return updateTeamsForDevEnvironment(teams, action.data);
   case APP.RESET_STORE:
     return {};
   default:
@@ -38,11 +45,11 @@ export default function reduce(teams = {}, action) {
 
 /**
  * Returns the initial characters of the first `maxLength` words of `name`.
- *  
- * @param  {String} name        The name to abbreviate 
+ *
+ * @param  {String} name        The name to abbreviate
  * @param  {Number} maxLength   The maximum length of the result
- * @return {String}             The team initials 
- */ 
+ * @return {String}             The team initials
+ */
 export function getInitialsOfName(name, maxLength=2) {
   if (!name) return '';
 
@@ -105,7 +112,7 @@ function addTeams(teamList, newTeams) {
     acc[x.team_id] = parseTeamFromSsb(x);
     return acc;
   }, {});
-  
+
   return _.assign({}, teamList, update);
 }
 
@@ -118,30 +125,90 @@ function removeTeamsWithIds(teamList, teamIds) {
 }
 
 function updateTheme(teams, theme, teamId) {
-  let update = {};
-  update[teamId] = _.assign({}, teams[teamId], {theme: theme});
-  return _.assign({}, teams, update);
+  let team = teams[teamId];
+  if (!team) return teams;
+  return {
+    ...teams,
+    [teamId]: {
+      ...team,
+      theme
+    }
+  };
 }
 
 function updateTeamIcons(teams, icons, teamId) {
-  let update = {};
-  update[teamId] = _.assign({}, teams[teamId], {icons: icons});
-  return _.assign({}, teams, update);
+  let team = teams[teamId];
+  if (!team) return teams;
+  return {
+    ...teams,
+    [teamId]: {
+      ...team,
+      icons
+    }
+  };
+}
+
+function updateTeamName(teams, team_name, teamId) {
+  let team = teams[teamId];
+  if (!team) return teams;
+  return {
+    ...teams,
+    [teamId]: {
+      ...team,
+      team_name,
+      initials: getInitialsOfName(team_name)
+    }
+  };
+}
+
+function updateTeamUrl(teams, team_url, teamId) {
+  let team = teams[teamId];
+  if (!team) return teams;
+  return {
+    ...teams,
+    [teamId]: {
+      ...team,
+      team_url
+    }
+  };
 }
 
 function updateUnreadsInfo(teams, {unreads, unreadHighlights, showBullet, teamId}) {
-  let update = {};
-  update[teamId] = _.assign({}, teams[teamId], {unreads, unreadHighlights, showBullet});
-  return _.assign({}, teams, update);
+  let team = teams[teamId];
+  if (!team) return teams;
+  return {
+    ...teams,
+    [teamId]: {
+      ...team,
+      unreads,
+      unreadHighlights,
+      showBullet
+    }
+  };
 }
 
 function updateTeamUsage(teams, usagePerTeam) {
   let update = {};
   for (let teamId of Object.keys(usagePerTeam)) {
     if (!teams[teamId]) continue;
-    
+
     let usage = (teams[teamId].usage || 0) + usagePerTeam[teamId];
     update[teamId] = _.assign({}, teams[teamId], {usage});
   }
   return _.assign({}, teams, update);
+}
+
+function updateTeamsForDevEnvironment(teams, {devEnv}) {
+  if (!devEnv) return teams;
+  return _.reduce(teams, (acc, team) => {
+    let domain = url.parse(team.team_url).host.split('.')[0];
+    let team_url = `https://${domain}.${devEnv}.slack.com`;
+
+    acc[team.team_id] = {
+      ...team,
+      team_url
+    };
+
+    return acc;
+  }, {});
 }

@@ -3,7 +3,6 @@ import {Disposable, Observable} from 'rx';
 import logger from '../logger';
 
 import AppActions from '../actions/app-actions';
-import EventActions from '../actions/event-actions';
 import TeamActions from '../actions/team-actions';
 
 function fetchRecentMessages(userIdToFind="__current__") {
@@ -115,12 +114,21 @@ export default class TeamIntegration {
       (e) => logger.info(`Failed to get messages from webapp: ${e.message}`));
   }
 
-  displayChannel() {
+  displayChannel(channelId) {
     this.fetchContentForChannel(2);
+    AppActions.selectChannel(channelId);
   }
 
   invalidateAuth() {
-    EventActions.reloadMainWindow();
+    window.location.reload();
+  }
+
+  teamNameChanged(name) {
+    TeamActions.updateTeamName(name, window.teamId);
+  }
+
+  teamDomainChanged(url) {
+    TeamActions.updateTeamUrl(url, window.teamId);
   }
 
   // We now handle team updates through `didSignIn` / `didSignOut`, so this
