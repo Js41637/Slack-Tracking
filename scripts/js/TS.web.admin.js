@@ -121,6 +121,7 @@
             match.has_sso_token = member.has_sso_token
           }
           match.created = member.created;
+          if (TS.boot_data.all_emails && TS.boot_data.all_emails[k]) match.profile.email = TS.boot_data.all_emails[k];
           TS.members.upsertMember(match)
         });
         member_map = undefined;

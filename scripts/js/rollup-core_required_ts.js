@@ -620,9 +620,6 @@
     if (TS.boot_data.feature_canonical_avatars_web_client) {
       login_args.canonical_avatars = true
     }
-    if (TS.boot_data.require_emails) {
-      login_args.require_emails = true
-    }
     login_args.eac_cache_ts = true;
     if (_lazyLoadMembers()) TS.log(1989, "Flannel: MS login args:", login_args);
     return login_args
