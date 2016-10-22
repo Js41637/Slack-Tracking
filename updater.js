@@ -67,10 +67,10 @@ function writeToDisk(scripts) {
 function getChanges(client) {
   console.log("Getting changes")
   return new Promise((resolve, reject) => {
-    let what = client ? './ClientExtracted' : './ && git reset ./ClientExtracted'
-    exec(`git add ${what} && git status --short`, (err, stdout) => {
+    let what = client ? 'ClientExtracted/' : './ && git reset ClientExtracted/'
+    exec(`git add ${what} && git diff --cached --name-status`, (err, stdout) => {
       if (!err) {
-        let changes = compact(map(stdout.split('\n'), c => !c.startsWith('??') ? c.trim().replace('  ', ' ') : null))
+        let changes = compact(map(stdout.split('\n'), c => c.trim().replace('\t', ' ')))
         console.log(`Got ${changes.length} changed files`)
         return resolve(changes)
       } else return reject(err)
@@ -85,12 +85,12 @@ function pushToGit(client) {
     if (!changes.length) return Promise.resolve('No new changes')
     let emoji = emojis[random(0, emojis.length - 1)]
     let msg = `${emoji} ${changes.join(', ')}`
-    let cmd = config.noPush ? `git commit -a -m "${msg}"` : `git commit -a -m "${msg}" && git push`
+    let cmd = config.noPush ? `git commit -m "${msg}"` : `git commit -m "${msg}" && git push`
     exec(cmd, (err, stdout) => {
       console.log(err, stdout)
       pushing = false
       if (err) return Promise.reject(err)
-      Promise.resolve(`Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`)
+      return `Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`
     })
   }).catch(err => {
     pushing = false
@@ -99,7 +99,7 @@ function pushToGit(client) {
 }
 
 function startTheMagic() {
-  getPageScripts().then(getScripts).then(writeToDisk).then(pushToGit).then(msg => {
+  getPageScripts().then(getScripts).then(writeToDisk).then(() => pushToGit()).then(msg => {
     console.log(msg)
   }).catch(err => console.error("Error while doing stuff", err))
 }
