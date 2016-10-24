@@ -20777,8 +20777,8 @@
       }
       var deprecated_osx_versions = [10.6, 10.7, 10.8];
       var show_macssb_osx_deprecated_banner = TS.model.is_our_app && TS.model.is_mac && deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0;
-      var show_macelectron1_banner = TS.boot_data.feature_macelectron_banner && TS.model.is_mac && !deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0 && !TS.model.is_electron && !("macgap" in window) && !TS.model.prefs.no_macelectron_banner;
-      var show_macelectron2_banner = TS.boot_data.feature_macelectron_banner && TS.model.is_mac && "macgap" in window && !TS.model.prefs.no_macelectron_banner;
+      var show_macelectron1_banner = TS.boot_data.feature_macelectron1_banner && TS.model.is_mac && !deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0 && !TS.model.is_electron && !("macgap" in window) && !TS.model.prefs.no_macelectron_banner;
+      var show_macelectron2_banner = TS.boot_data.feature_macelectron2_banner && TS.model.is_mac && "macgap" in window && !TS.model.prefs.no_macelectron_banner;
       var show_macssb1_banner = TS.boot_data.feature_macssb1_banner && TS.model.is_mac && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
       var show_macssb2_banner = TS.boot_data.feature_macssb2_banner && TS.model.is_mac && TS.model.mac_ssb_version && TS.model.mac_ssb_version < 2 && !TS.model.prefs.no_macssb2_banner;
       var show_winssb1_banner = TS.model.is_win_7_plus && !TS.model.win_ssb_version && !TS.model.prefs.no_winssb1_banner;
@@ -21004,7 +21004,7 @@
       TS.view.resizeForBanner("TS.ui.banner.show")
     },
     onClickedMacElectronLink: function(elem, close) {
-      if (!TS.boot_data.feature_macelectron_banner) return;
+      if (!TS.boot_data.feature_macelectron1_banner && !TS.boot_data.feature_macelectron2_banner) return;
       if (close) TS.ui.banner.close();
       var $elem = $(elem);
       if (!$elem.parent().hasClass("hidden")) {
@@ -21016,7 +21016,7 @@
       }
     },
     onDismissedMacElectronLink: function(elem) {
-      if (!TS.boot_data.feature_macelectron_banner) return;
+      if (!TS.boot_data.feature_macelectron1_banner && !TS.boot_data.feature_macelectron2_banner) return;
       var $elem = $(elem);
       if (!$elem.parent().hasClass("hidden")) {
         TS.clog.track("WEBSITE_CLICK", {
@@ -22797,9 +22797,9 @@
         } else if (data.error === "last_ra_channel") {
           err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>"
         } else if (data.error === "name_taken") {
-          err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>'
+          err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>';
         }
-        setTimeout(TS.generic_dialog.alert, 500, err_str);
+        setTimeout(TS.generic_dialog.alert, 500, err_str)
       })
     };
     _showOptionSection(true)

@@ -462,6 +462,9 @@
       return {
         _onTemplatesLoaded: _onTemplatesLoaded,
         _allParallelCallsComplete: _allParallelCallsComplete,
+        _maybeOpenTokenlessConnection: _maybeOpenTokenlessConnection,
+        _shouldConnectToMS: _shouldConnectToMS,
+        _getMSLoginArgs: _getMSLoginArgs,
         _deleteModule: function(name) {
           delete TS[name];
           delete _modules[name]
@@ -1859,7 +1862,11 @@
     if (!_shouldConnectToMS()) return;
     if (!TS.boot_data.ms_connect_url) return;
     if (_lazyLoadMembers()) {
-      _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
+      _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs()).catch(function() {
+        return TS.api.connection.waitForAPIConnection().then(function() {
+          return TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs())
+        })
+      });
       return
     }
     TS.log(1996, "Opening a tokenless MS connection");
@@ -2118,7 +2125,7 @@
       id: model_ob.id
     });
     if (existing_model_ob) {
-      _.extend(existing_model_ob, model_ob)
+      _.extend(existing_model_ob, model_ob);
     } else {
       all_model_obs.push(model_ob)
     }
@@ -2781,7 +2788,7 @@
             if (capabilities) {
               if (capabilities.supports_video) TS.model.supports_video_calls = true;
               if (capabilities.supports_screen_sharing) TS.model.supports_screen_sharing = true;
-              if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true
+              if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true;
             }
           }
         } else if (TS.model.is_chrome_desktop) {
@@ -3987,7 +3994,7 @@
       if (!condensed.hasOwnProperty(root_name)) {
         condensed[root_name] = 0
       }
-      condensed[root_name] += TS.model.emoji_use[k]
+      condensed[root_name] += TS.model.emoji_use[k];
     }
     TS.dir(777, condensed, "condensed emoji names:");
     var A = Object.keys(condensed).sort(function(a, b) {
@@ -3997,7 +4004,7 @@
         if (a < b) return -1;
         if (a > b) return 1
       }
-      return -(a_val - b_val);
+      return -(a_val - b_val)
     });
     A.length = Math.min(A.length, TS.model.emoji_menu_columns * 4);
     var extras = ["slightly_smiling_face", "heart", "+1", "100", "bug"];
