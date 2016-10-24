@@ -8704,7 +8704,7 @@ TS.registerModule("constants", {
         return TS.user_groups.getUserGroupsById(id)
       } else if (ob_type === "E") {
         return TS.emoji.getEmojiById(id)
-      } else if (ob_type === "U") {
+      } else if (ob_type === "U" || ob_type == "W") {
         return TS.members.getMemberById(id)
       } else {
         return TS.ims.getImById(id)
@@ -10502,7 +10502,7 @@ TS.registerModule("constants", {
   var _getMembersByIdFromFlannel = function(m_ids) {
     if (!Array.isArray(m_ids)) return Promise.reject(new Error("m_ids is not an array"));
     TS.log(1989, "Flannel: fetching members", m_ids);
-    return TS.flannel.fetchAndUpsertMembersByIds(m_ids).then(function(members) {
+    return TS.flannel.fetchAndUpsertObjectsByIds(m_ids).then(function(members) {
       if (members.length !== _.uniq(m_ids).length) {
         var e = new Error("Did not receive all of the members we asked for");
         e.requested_ids = m_ids;
@@ -21862,10 +21862,8 @@ TS.registerModule("constants", {
         var bot = msg.bot_id ? TS.bots.getBotById(msg.bot_id) : null;
         if (msg.icons) {
           bot_icons = msg.icons
-        } else {
-          if (bot && bot.icons) {
-            bot_icons = bot.icons
-          } else {}
+        } else if (bot && bot.icons) {
+          bot_icons = bot.icons
         }
         if (bot_icons) {
           if (bot_icons.image_36 && !TS.environment.is_retina) {
@@ -41240,7 +41238,7 @@ var _on_esc;
       TS.ui.validation.showWarning($el, msgs.specials, options);
       return true
     }
-    if (!_validatePattern($el, quiet_options, /^[^\.]+$/)) {
+    if (!_validatePattern($el, quiet_options, /^[a-zA-Z0-9-_]+$/)) {
       TS.ui.validation.showWarning($el, msgs.specials, options);
       return true
     }
@@ -41279,9 +41277,9 @@ var _on_esc;
       if (other_channel && other_channel.id === current_model_ob.id) need_to_check_api = true;
       if (other_channel && other_channel.id !== current_model_ob.id) return void TS.ui.validation.showWarning($el, TS.utility.htmlEntities(value) + " has already been taken. Try something else!", options);
       if (need_to_check_api) {
-        return false
+        return true
       } else {
-        return void TS.error("WTF: cannot validate")
+        return false
       }
     } else {
       return void TS.error("WTF: cannot validate")
@@ -47494,6 +47492,30 @@ $.fn.togglify = function(settings) {
     if (!invite) return;
     _$div.find('.sci_send_email_container [data-action="replace_sent_emails"]').replaceWith(TS.templates.shared_channels_invites_sent_emails(invite))
   };
+  var _name_check_wait_time = 325;
+  var _name_check_timer;
+  var _name_available_timer;
+  var _name_available_show_time = 1e3;
+  var _toggleChannelNameChecking = function(disable, trigger_available) {
+    if (!disable) disable = false;
+    if (!trigger_available) trigger_available = false;
+    _$div.find("#sci_channels_create .input_wrapper .spinner").toggleClass("hidden", disable);
+    if (trigger_available) _toggleChannelNameAvailable(!disable)
+  };
+  var _toggleChannelNameAvailable = function(disable) {
+    if (_name_available_timer) {
+      clearTimeout(_name_available_timer);
+      _name_available_timer = null
+    }
+    if (!disable) disable = false;
+    var $available = _$div.find("#sci_channels_create .input_wrapper .available");
+    $available.toggleClass("hidden", disable);
+    if (!disable) {
+      _name_available_timer = setTimeout(function() {
+        $available.addClass("hidden")
+      }, _name_available_show_time)
+    }
+  };
   var _bindUI = function() {
     TS.kb_nav.start(_$list.find(".list_items"), ".channel_browser_row", _$list, {
       use_data_ordering: true,
@@ -47517,9 +47539,62 @@ $.fn.togglify = function(settings) {
     _$div.on("click", '[data-action="sci_cancel"]', _switchToManage);
     _$div.on("change", '[type="radio"][name="share_with"]', _toggleShareWith);
     _$div.on("click", '[data-action="sci_show_action"]', _showAction);
-    _$div.on("input", "#sci_channels_create [data-validation]", function(e) {
+    _$div.on("input", '#sci_channels_create input[name="channel_name"]', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      $(".validation_message").remove();
+      $('label[for="channel_name"]').removeClass("validation_warning");
+      $(this).removeClass("validation_warning");
+      var $create_button = _$div.find('#sci_channels_create [data-action="sci_channels_create"]');
+      if (_name_check_timer) {
+        clearTimeout(_name_check_timer);
+        _name_check_timer = null
+      }
+      _name_check_timer = setTimeout(function() {
+        var do_validation = false;
+        var is_disabled = true;
+        var disable_checking_spinner = true;
+        var trigger_available_name_message = false;
+        _toggleChannelNameChecking();
+        _toggleButton(null, $create_button, do_validation, is_disabled);
+        var validation = TS.ui.validation.validate($(this));
+        if (validation) {
+          var $el = $(this);
+          var new_name = $el.val().trim();
+          TS.api.callImmediately("enterprise.nameTaken", {
+            name: new_name,
+            ignore_local_team: true
+          }, function(ok, data, args) {
+            if (!ok) {
+              disable_checking_spinner = true;
+              trigger_available_name_message = false;
+              _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
+              TS.generic_dialog.alert("Something failed! " + data.error)
+            } else {
+              if (data.name_taken) {
+                disable_checking_spinner = true;
+                trigger_available_name_message = false;
+                _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
+                is_disabled = true;
+                _toggleButton(null, $create_button, do_validation, is_disabled);
+                return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '"' + " is already taken by a channel, username, or user group.", {})
+              }
+              disable_checking_spinner = true;
+              trigger_available_name_message = true;
+              _toggleChannelNameChecking(disable_checking_spinner, trigger_available_name_message);
+              is_disabled = false;
+              _toggleButton(null, $create_button, do_validation, is_disabled)
+            }
+          })
+        } else {
+          disable_checking_spinner = true;
+          _toggleChannelNameChecking(disable_checking_spinner)
+        }
+      }.bind(this), _name_check_wait_time)
+    });
+    _$div.on("input", '#sci_channels_create [data-validation]:not([name="channel_name"])', function(e) {
       var $container = _$div.find("#sci_channels_create");
-      _toggleButton($container.find(_getCreateViewValidationSelector()), $container.find('[data-action="sci_channels_create"]'))
+      _toggleButton($container.find(_getCreateViewValidationSelector()), $container.find('[data-action="sci_channels_create"]'), true)
     });
     _$filter.on("textchange", function() {
       if (!_list_built) return;
@@ -47549,7 +47624,8 @@ $.fn.togglify = function(settings) {
     _$div.on("click", '[data-action="sci_revoke"]', _revokeSharedInvite);
     _$div.on("input", "input[data-invite-id]", function(e) {
       var $container = $(e.target).parent();
-      _toggleButton($container, $container.find('[data-action="sci_send"]'))
+      var do_validation = true;
+      _toggleButton($container, $container.find('[data-action="sci_send"]'), do_validation)
     })
   };
   var _collapseAction = function() {
@@ -47850,7 +47926,8 @@ $.fn.togglify = function(settings) {
           return item.team.domain
         }).join(",");
         $el.val(value);
-        _toggleButton($container.find(_getCreateViewValidationSelector()), $container.find('[data-action="sci_channels_create"]'))
+        var do_validation = true;
+        _toggleButton($container.find(_getCreateViewValidationSelector()), $container.find('[data-action="sci_channels_create"]'), do_validation)
       })
     })
   };
@@ -47869,7 +47946,7 @@ $.fn.togglify = function(settings) {
     if (input) input.setSelectionRange(0, link.length)
   };
   var _maybeRebuildManageView = function() {
-    if (!_getSharedInvitesFromModel().length && !_getSharedChannelsFromModel().length && !_getSharedInvitesFromModel(true).length && !_getSharedChannelsFromModel(true).length) _switchToManage();
+    if (!_getSharedInvitesFromModel().length && !_getSharedChannelsFromModel().length && !_getSharedInvitesFromModel(true).length && !_getSharedChannelsFromModel(true).length) _switchToManage()
   };
   var _mergePublicChannelsWithPrivateChannels = function(public_channels, private_channels) {
     return public_channels.concat(private_channels)
@@ -48311,11 +48388,12 @@ $.fn.togglify = function(settings) {
     _hideList();
     _updateBackButton()
   };
-  var _toggleButton = function($container, $btn) {
-    $btn.toggleClass("disabled", !TS.ui.validation.validate($container, {
+  var _toggleButton = function($container, $btn, do_validation, is_disabled) {
+    if (do_validation) is_disabled = !TS.ui.validation.validate($container, {
       quiet: true,
       fast: true
-    }))
+    });
+    $btn.toggleClass("disabled", is_disabled)
   };
   var _toggleContents = function(e) {
     if ($(e.target).is("a, input, .btn")) return;
@@ -48346,7 +48424,8 @@ $.fn.togglify = function(settings) {
     $container.find('[for="share_with_external"]').toggleClass("hidden", !show_external);
     if (checked === "specific") $container.find('[name="team_list"]').focus();
     if (checked === "external") $container.find('[name="domain"]').focus();
-    _toggleButton($container.find(_getCreateViewValidationSelector()), $container.find('[data-action="sci_channels_create"]'));
+    var do_validation = true;
+    _toggleButton($container.find(_getCreateViewValidationSelector()), $container.find('[data-action="sci_channels_create"]'), do_validation);
     _updateToggleInputLabels()
   };
   var _updateBackButton = function(unbind) {
@@ -50446,7 +50525,7 @@ $.fn.togglify = function(settings) {
         if (_.isEmpty(args.raw_query)) {
           results_p = Promise.resolve([])
         } else {
-          results_p = TS.flannel.fetchAndUpsertMembersWithQuery({
+          results_p = TS.flannel.fetchAndUpsertObjectsWithQuery({
             query: args.raw_query,
             count: max_count
           })
@@ -52305,7 +52384,7 @@ $.fn.togglify = function(settings) {
   var _onClick = function(e) {
     var target = e.target;
     var is_element = target.classList.contains("plastic_contenteditable_element");
-    if (is_element) TS.selection.selectNode(target)
+    if (is_element) TS.selection.selectNode(target);
   };
   var _onTextChange = function(e) {
     e = e.originalEvent || e;

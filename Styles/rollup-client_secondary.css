@@ -17551,7 +17551,8 @@ img.jcrop-preview {
   left: 0;
   bottom: 0;
   right: 0;
-  width: 100%
+  width: 100%;
+  z-index: 1
 }
 
 #fs_modal.prefs_modal #surprise img {
@@ -20190,6 +20191,30 @@ only screen and (max-width:767px) {
   margin-bottom: 0;
   font-size: 1.0625rem;
   line-height: 1.5rem
+}
+
+#sci_container #sci_channels_create .input_wrapper {
+  position: relative
+}
+
+#sci_container #sci_channels_create .input_wrapper .available,
+#sci_container #sci_channels_create .input_wrapper .spinner {
+  position: absolute;
+  right: .75rem;
+  top: .75rem;
+  font-size: 1rem
+}
+
+#sci_container #sci_channels_create .input_wrapper .available .ts_icon_check_circle_o_large,
+#sci_container #sci_channels_create .input_wrapper .available .ts_icon_spinner,
+#sci_container #sci_channels_create .input_wrapper .spinner .ts_icon_check_circle_o_large,
+#sci_container #sci_channels_create .input_wrapper .spinner .ts_icon_spinner {
+  top: .1875rem;
+  position: relative
+}
+
+#sci_container #sci_channels_create .input_wrapper .available {
+  top: .5625rem
 }
 
 #sci_container #sci_channels_create textarea {

@@ -88,7 +88,7 @@ function pushToGit(client) {
       if (!changes.length) return Promise.resolve('No new changes')
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${truncate(changes.join(', ').replace(/ClientExtracted(\/src)?/g, 'Client'), { length: 1000 })}`
-      let cmd = `git commit -m ${msg} ${config.noPush ? '' : '&& git push'}`
+      let cmd = `git commit -m "${msg}" ${config.noPush ? '' : '&& git push'}`
       exec(cmd, (err, stdout) => {
         console.log(err, stdout)
         if (err) return reject(err)
@@ -122,7 +122,8 @@ function pullLatestChanges() {
     exec('git rev-parse HEAD', (err, lastCommit) => {
       if (err || !lastCommit) return reject(`Error fetching last commit, ${err}`)
       exec('git pull', (err, stdout) => {
-        if (!err && stdout && (stdout.startsWith('Updating') || stdout.includes('Already up-to-date'))) return resolve()
+        if (!err && stdout && stdout.startsWith('Updating')) return process.exit(1)
+        if (!err && stdout && stdout.includes('Already up-to-date')) return resolve()
         else {
           console.error("Error while updating, reverting")
           exec(`git reset ${lastCommit} --hard`, () => process.exit())

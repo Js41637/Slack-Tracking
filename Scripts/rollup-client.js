@@ -491,6 +491,11 @@
         var member = TS.members.getMemberById(id);
         if (!member) return TS.error(id + " is not a recognized member");
         TS.client.ui.previewMember(id);
+        var im = TS.ims.getImByMemberId(id);
+        if (!im) return TS.error("Could not get im channel for user " + id);
+        var model_ob = TS.shared.getModelObById(im.id);
+        if (!model_ob) return TS.error(im + " is not a recognized dm");
+        TS.client.ui.tryToJump(model_ob.id, qs_args.message);
         return
       }
       if (cmd == "file") {
@@ -2838,7 +2843,7 @@
       if (a.length && document.hasFocus()) {
         return true
       }
-      return false
+      return false;
     },
     markAllUnread: function() {
       TS.model.last_reads_set_by_client = {};
@@ -2851,7 +2856,7 @@
         if (model_ob.is_channel) {
           TS.channels.markReadMsg(model_ob.id, msg.ts)
         } else if (model_ob.is_im) {
-          TS.ims.markReadMsg(model_ob.id, msg.ts);
+          TS.ims.markReadMsg(model_ob.id, msg.ts)
         } else if (model_ob.is_group) {
           TS.groups.markReadMsg(model_ob.id, msg.ts)
         } else {
@@ -3796,7 +3801,7 @@
       })
     }
   });
-  var _file_list_initialized = false
+  var _file_list_initialized = false;
 })();
 (function() {
   "use strict";
@@ -4494,6 +4499,7 @@
       }
       TS.view.ms.ever_connected = true;
       TS.client.msg_input.setOnline();
+      _cancelDelayedReconnectingBanner();
       $("#connection_div").html("").addClass("hidden");
       TS.client.msg_pane.topMessagesBannerHidden();
       TS.view.ms.changeConnectionStatus("online");
@@ -4692,7 +4698,7 @@
         if (TS.members.shouldDisplayRealNames()) {
           $("#col_channels").addClass("real_names")
         } else {
-          $("#col_channels").removeClass("real_names");
+          $("#col_channels").removeClass("real_names")
         }
       }
       if (TS.model.previewed_file_id) TS.client.ui.files.rebuildFilePreview(TS.files.getFileById(TS.model.previewed_file_id))
@@ -22812,7 +22818,7 @@
       var $convert_to_shared = _$current_option.find(".convert_to_shared");
       var $checked;
       var validation = TS.ui.validation.validate($convert_to_shared.find('[name="channel_name"]'));
-      if (validation) {
+      if (!validation) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         _toggleOptionGoButton(true);
         return
@@ -22859,6 +22865,9 @@
     _showOptionSection(true);
     _bindConvertSharedUI()
   };
+  var _name_check_wait_time = 325;
+  var _name_check_timer;
+  var _bad_channel_name = false;
   var _bindConvertSharedUI = function() {
     var $convert_to_shared = _$current_option.find(".convert_to_shared");
     $convert_to_shared.on("change", '[type="radio"][name="share_with"]', function(e) {
@@ -22889,7 +22898,7 @@
     $convert_to_shared.on("change", '[name="domains"]', function(e) {
       var $el = $(this);
       var trimmed_val = $el.val().trim();
-      _toggleOptionGoButton(!(trimmed_val.length > 0))
+      if (!_bad_channel_name) _toggleOptionGoButton(!(trimmed_val.length > 0))
     });
     $convert_to_shared.on("click", ".current_channel_name a", function(e) {
       e.preventDefault();
@@ -22911,11 +22920,11 @@
       $(".validation_message").remove();
       $('label[for="channel_name"]').removeClass("validation_warning");
       $(this).removeClass("validation_warning");
-      if (_nameCheckTimer) {
-        clearTimeout(_nameCheckTimer);
-        _nameCheckTimer = null
+      if (_name_check_timer) {
+        clearTimeout(_name_check_timer);
+        _name_check_timer = null
       }
-      _nameCheckTimer = setTimeout(function() {
+      _name_check_timer = setTimeout(function() {
         _toggleChannelNameChecking();
         _toggleOptionGoButton(true);
         var validation = TS.ui.validation.validate($(this));
@@ -22928,44 +22937,46 @@
           }, function(ok, data, args) {
             if (!ok) {
               _toggleChannelNameChecking(true, false);
+              _bad_channel_name = true;
               TS.generic_dialog.alert("Something failed! " + data.error)
             } else {
               if (data.name_taken) {
                 _toggleChannelNameChecking(true, false);
+                _bad_channel_name = true;
                 _toggleOptionGoButton(true);
                 return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '"' + " is already taken by a channel, username, or user group.", {})
               }
               _toggleChannelNameChecking(true, true);
-              _toggleOptionGoButton()
+              _toggleOptionGoButton();
+              _bad_channel_name = false
             }
           })
         } else {
-          _toggleChannelNameChecking(true)
+          _toggleChannelNameChecking(true);
+          _bad_channel_name = true
         }
-      }.bind(this), _nameCheckWaitTime)
+      }.bind(this), _name_check_wait_time)
     })
   };
-  var _nameCheckWaitTime = 750;
-  var _nameCheckTimer;
   var _toggleChannelNameChecking = function(disable, trigger_available) {
     if (!disable) disable = false;
     if (!trigger_available) trigger_available = false;
     _$current_option.find(".input_wrapper .spinner").toggleClass("hidden", disable);
     if (trigger_available) _toggleChannelNameAvailable(!disable)
   };
-  var _nameAvailableTimer;
-  var _nameAvailableShowTime = 1e3;
+  var _name_available_timer;
+  var _name_available_show_time = 1e3;
   var _toggleChannelNameAvailable = function(disable) {
-    if (_nameAvailableTimer) {
-      clearTimeout(_nameAvailableTimer);
-      _nameAvailableTimer = null
+    if (_name_available_timer) {
+      clearTimeout(_name_available_timer);
+      _name_available_timer = null
     }
     if (!disable) disable = false;
     _$current_option.find(".input_wrapper .available").toggleClass("hidden", disable);
     if (!disable) {
-      _nameAvailableTimer = setTimeout(function() {
+      _name_available_timer = setTimeout(function() {
         _$current_option.find(".input_wrapper .available").addClass("hidden")
-      }, _nameAvailableShowTime)
+      }, _name_available_show_time)
     }
   };
   var _showRenameChannel = function(model_ob) {
@@ -23714,8 +23725,7 @@
       moveSelector = function(ev) {
         var payeX, pageY;
         if (ev.type == "touchmove") {
-          pageX = ev.originalEvent.changedTouches[0].pageX,
-            pageY = ev.originalEvent.changedTouches[0].pageY
+          pageX = ev.originalEvent.changedTouches[0].pageX, pageY = ev.originalEvent.changedTouches[0].pageY
         } else {
           pageX = ev.pageX;
           pageY = ev.pageY
@@ -25758,7 +25768,7 @@
       return
     }
     if (model_ob.is_group) {
-      TS.groups.setPurpose(model_ob.id, new_val);
+      TS.groups.setPurpose(model_ob.id, new_val)
     } else if (model_ob.is_channel) {
       TS.channels.setPurpose(model_ob.id, new_val)
     }
@@ -27888,7 +27898,7 @@
   };
   var _pickSlackbotMsgPlaceholder = function() {
     var options = ["Yay! You’re here. What can I do for you?", "Hello, What’s up?", "How can I help today?", "Hi hi! How can I help?", "You’re here! What can I do to help?", "You rang?"];
-    _last_slackbot_msg_placeholder = options[Math.round(Math.random() * (options.length - 1))];
+    _last_slackbot_msg_placeholder = options[Math.round(Math.random() * (options.length - 1))]
   };
   var _switchToNewChannel = function() {
     if (!TS.members.canUserCreateGroups()) return;
@@ -30004,7 +30014,7 @@
       dnd_end_hour: end,
       timezone: TS.model.user.tz_label
     });
-    _$div.find("#prefs_dnd").find(".section_rollup_summary").html(dnd_summary_html)
+    _$div.find("#prefs_dnd").find(".section_rollup_summary").html(dnd_summary_html);
   };
   var _to12h = function(time_string) {
     var match = /(\d?\d):(\d\d)/.exec(time_string);

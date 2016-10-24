@@ -1525,7 +1525,6 @@
     return new Promise(function(resolve, reject) {
       var first_time = !TS.model.ms_logged_in_once;
       TS.team.upsertTeam(data.team);
-      TS.model.bots_legacy = data.team.bots;
       TS.model.team.url = data.url;
       if (TS.boot_data.page_needs_enterprise && data.can_manage_shared_channels !== undefined) {
         TS.model.team.prefs.can_user_manage_shared_channels = data.can_manage_shared_channels
@@ -2126,7 +2125,7 @@
   };
   var _storeLastActiveModelOb = function() {
     var model_ob = TS.shared.getActiveModelOb();
-    TS.storage.storeLastActiveModelObId(model_ob ? model_ob.id : undefined);
+    TS.storage.storeLastActiveModelObId(model_ob ? model_ob.id : undefined)
   }
 })();
 (function() {

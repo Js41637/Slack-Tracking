@@ -10,7 +10,8 @@
       return new Promise(function(resolve, reject) {
         var token = TS.utility.window.open({
           url: _GDRIVE_IMPORT_URL,
-          try_window_open_in_ssb: true
+          try_window_open_in_ssb: true,
+          height: _GDRIVE_WINDOW_HEIGHT
         });
         if (!token) {
           reject(new Error("could not open window"))
@@ -103,6 +104,7 @@
   var _GDRIVE_IMPORT_URL = TS.boot_data.team_url + "files/import/gdrive";
   var _GDRIVE_CREATE_AUTH_URL = TS.boot_data.team_url + "files/create/gdrive/auth";
   var _GDRIVE_MIMETYPE_PREFIX = "application/vnd.google-apps";
+  var _GDRIVE_WINDOW_HEIGHT = 675;
   var _promise_picker_has_been_promised = false;
   var _getMessageListenerForPicker = function(resolve, reject) {
     return _getMessageListener({
@@ -149,7 +151,8 @@
     return new Promise(function(resolve, reject) {
       var token = TS.utility.window.open({
         url: _GDRIVE_CREATE_AUTH_URL,
-        try_window_open_in_ssb: true
+        try_window_open_in_ssb: true,
+        height: _GDRIVE_WINDOW_HEIGHT
       });
       if (!token) {
         reject(new Error("could not open window"))
