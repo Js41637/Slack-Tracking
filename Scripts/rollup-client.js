@@ -22656,6 +22656,18 @@
     TS.ui.channel_options_dialog.div.find(".option_cancel").on("click", _showAllOptions);
     TS.ui.channel_options_dialog.div.find(".option_go").on("click", _optionGo)
   };
+  var _createChannelNameMarkup = function(model_ob) {
+    var channel_name;
+    if (model_ob.is_channel) {
+      channel_name = "#" + TS.utility.htmlEntities(model_ob.name)
+    } else if (model_ob.is_group) {
+      channel_name = '<ts-icon class="ts_icon_inherit ts_icon_lock"></ts-icon>' + TS.utility.htmlEntities(model_ob.name)
+    } else {
+      channel_name = "this conversation"
+    }
+    var shared = TS.boot_data.page_needs_enterprise && model_ob.is_shared ? ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>' : "";
+    return "<strong>" + channel_name + shared + "</strong>"
+  };
   var _maybeCreateLadda = function() {
     if (TS.ui.channel_options_dialog.ladda) return;
     TS.ui.channel_options_dialog.ladda = Ladda.create(TS.ui.channel_options_dialog.div.find(".option_go")[0])
@@ -22709,9 +22721,7 @@
     _$current_option.find(".channel_option_buttons").show()
   };
   var _showArchiveChannel = function(model_ob) {
-    var hash = model_ob.is_group ? "" : "#";
-    var shared = TS.boot_data.page_needs_enterprise && model_ob.is_shared ? '<ts-icon class="ts_icon_org_shared_channel"></ts-icon>' : "";
-    _setHeaderHtml("Archive <strong>" + hash + model_ob.name + shared + "</strong>");
+    _setHeaderHtml("Archive " + _createChannelNameMarkup(model_ob));
     var template_args = {
       name: model_ob.name,
       is_shared: TS.boot_data.page_needs_enterprise && model_ob.is_shared
@@ -22753,8 +22763,7 @@
     _showOptionSection(true)
   };
   var _showArchiveGroup = function(model_ob) {
-    var shared = TS.boot_data.page_needs_enterprise && model_ob.is_shared ? '<ts-icon class="ts_icon_org_shared_channel"></ts-icon>' : "";
-    _setHeaderHtml("Archive <strong>" + TS.model.group_prefix + model_ob.name + shared + "</strong>");
+    _setHeaderHtml("Archive " + _createChannelNameMarkup(model_ob));
     _setOptionContentHtml(TS.templates.channel_option_archive_group({
       name: model_ob.name,
       group_prefix: TS.model.group_prefix,
@@ -22788,7 +22797,7 @@
     _showOptionSection(true)
   };
   var _showConvertChannel = function(model_ob) {
-    _setHeaderHtml("Convert <strong>#" + model_ob.name + "</strong> to a private channel?");
+    _setHeaderHtml("Convert " + _createChannelNameMarkup(model_ob) + " to a private channel?");
     _setOptionContentHtml(TS.templates.channel_conversion_dialog({
       name: TS.utility.htmlEntities(model_ob.name)
     }));
@@ -22805,9 +22814,9 @@
         }
         var err_str = 'converting to private channel failed with error "' + data.error + '"';
         if (data.error === "restricted_action") {
-          err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>"
+          err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>";
         } else if (data.error === "last_ra_channel") {
-          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>";
+          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>"
         } else if (data.error === "name_taken") {
           err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>'
         }
@@ -22817,7 +22826,7 @@
     _showOptionSection(true)
   };
   var _showConvertShared = function(model_ob) {
-    _setHeaderHtml("Convert <strong>#" + model_ob.name + "</strong> to a shared channel");
+    _setHeaderHtml("Convert " + _createChannelNameMarkup(model_ob) + " to a shared channel");
     var channel_conversion_dialog_args = {
       name: TS.utility.htmlEntities(model_ob.name),
       purpose: TS.utility.htmlEntities(model_ob.purpose.value)
@@ -23257,7 +23266,7 @@
       user: []
     };
     _is_posting_privilege_lfs_started = false;
-    _setHeaderHtml("Manage posting privileges for #" + model_ob.name + ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>');
+    _setHeaderHtml("Manage posting privileges for " + _createChannelNameMarkup(model_ob));
     _setOptionContentHtml(TS.templates.channel_options_posting_privileges());
     _hideOptionButtons();
     _setOptionGoText("Save Changes");
@@ -23320,15 +23329,7 @@
     })
   };
   var _showDataRetention = function(model_ob) {
-    var channel_name;
-    if (model_ob.is_channel) {
-      channel_name = "#" + TS.utility.htmlEntities(model_ob.name)
-    } else if (model_ob.is_group) {
-      channel_name = TS.utility.htmlEntities(model_ob.name)
-    } else {
-      channel_name = "this conversation"
-    }
-    _setHeaderHtml("Edit retention policy for " + channel_name);
+    _setHeaderHtml("Edit retention policy for " + _createChannelNameMarkup(model_ob));
     var html = _retentionLoadingHtml();
     _setOptionContentHtml(html);
     _setOptionGoText("Save settings");
