@@ -570,6 +570,10 @@
         enterprise_id: TS.model.enterprise.id,
         team_ids: team_id
       };
+      if (!TS.shared.isRelevantTeam()) {
+        TS.info("This team is not relevant, ignoring user_added_to_team for " + team_id + ".");
+        return
+      }
       TS.info("Attempting to sign in to team with ID of " + team_id, signin_params);
       var signedInTeamIDs = TSSSB.call("getSignedInTeamIds");
       if (!signedInTeamIDs || !signedInTeamIDs.length) {
@@ -614,6 +618,8 @@
         TS.info("You have been removed from the team with ID = " + team_id + ".");
         return
       }
+      if (TS.model._user_removed_from_team) return;
+      TS.model._user_removed_from_team = true;
       TS.generic_dialog.start({
         body: "<p>You have been removed from the <b>" + TS.utility.htmlEntities(TS.model.team.name) + " team.</p>",
         show_cancel_button: false,
@@ -1909,7 +1915,7 @@
       if (active_model_ob && active_model_ob.is_general && !TS.members.canUserPostInGeneral()) {
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
         if (!TS.boot_data.feature_msg_input_contenteditable) {
-          TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize")
+          TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $("#footer").addClass("disabled");
@@ -3758,7 +3764,7 @@
             preserve_dom_order: true,
             scrollable: $("#file_list_scroller"),
             makeElement: function() {
-              return $("<div>")
+              return $("<div>");
             },
             renderItem: function($el, item, data) {
               var html = TS.templates.builders.fileHTML(item);
@@ -4698,7 +4704,7 @@
       return !script_node.src && script_node.type !== "text/x-handlebars-template"
     });
     var external_script_nodes = script_nodes.filter(function(script_node) {
-      return !!script_node.src;
+      return !!script_node.src
     });
     var template_nodes = script_nodes.filter(function(script_node) {
       return !script_node.src && script_node.type === "text/x-handlebars-template"
@@ -28735,7 +28741,7 @@
         show_win_ssb_prefs: _show_win_ssb_prefs,
         show_lin_ssb_prefs: _show_lin_ssb_prefs,
         show_labs_prefs: TS.boot_data.feature_tinyspeck,
-        show_a11y_prefs: TS.boot_data.feature_a11y_pref_text_size || TS.boot_data.feature_a11y_pref_no_animation
+        show_a11y_prefs: TS.boot_data.feature_a11y_pref_text_size
       })
     }
     _is_open = true;

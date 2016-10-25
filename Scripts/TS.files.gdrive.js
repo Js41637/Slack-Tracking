@@ -3,7 +3,7 @@
   TS.registerModule("files.gdrive", {
     onStart: function() {
       if (!TS.client) return;
-      TS.client.login_sig.add(_runGdriveCoachmark, TS.files.gdrive, -2)
+      TS.files.team_file_shared_sig.add(_runGdriveCoachmark)
     },
     openPickerWindow: function() {
       var message_listener = null;
@@ -237,8 +237,8 @@
       TS.error(err)
     })
   };
-  var _runGdriveCoachmark = function() {
-    if (TS.newxp.inOnboarding()) return;
+  var _runGdriveCoachmark = function(file) {
+    if (_.get(file, "external_type") !== "gdrive") return;
     if (!TS.model.prefs.gdrive_enabled) return;
     if (TS.model.prefs.seen_gdrive_coachmark) return;
     TS.experiment.loadUserAssignments().then(function() {

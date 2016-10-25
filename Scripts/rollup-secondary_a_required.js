@@ -5040,6 +5040,7 @@ TS.registerModule("constants", {
     team_file_added_sig: new signals.Signal,
     team_file_deleted_sig: new signals.Signal,
     team_file_changed_sig: new signals.Signal,
+    team_file_shared_sig: new signals.Signal,
     team_file_comment_added_sig: new signals.Signal,
     team_file_comment_edited_sig: new signals.Signal,
     team_file_comment_deleted_sig: new signals.Signal,
@@ -5531,7 +5532,7 @@ TS.registerModule("constants", {
       return TS.files.supported_audio_type_re.test(_ensureFileObject(file).filetype)
     },
     fileIsSupportedVideo: function(file) {
-      return TS.files.supported_video_type_re.test(_ensureFileObject(file).filetype)
+      return TS.files.supported_video_type_re.test(_ensureFileObject(file).filetype);
     },
     fileIsHostedSupportedMedia: function(file) {
       try {
@@ -6642,7 +6643,7 @@ TS.registerModule("constants", {
       data.file.content_html = data.content_html;
       data.file.content_highlight_html = data.content_highlight_html;
       if (!no_upsert) {
-        TS.files.upsertAndSignal(data.file);
+        TS.files.upsertAndSignal(data.file)
       }
     }
   };
@@ -8641,11 +8642,11 @@ TS.registerModule("constants", {
         } else if (TS.model.active_mpim_id) {
           model_ob = TS.mpims.getMpimById(TS.model.active_mpim_id)
         } else if (TS.model.active_group_id) {
-          model_ob = TS.groups.getGroupById(TS.model.active_group_id)
+          model_ob = TS.groups.getGroupById(TS.model.active_group_id);
         }
       } else {
         if (TS.boot_data.channel_id) {
-          model_ob = TS.channels.getChannelById(TS.boot_data.channel_id);
+          model_ob = TS.channels.getChannelById(TS.boot_data.channel_id)
         } else if (TS.boot_data.im_id) {
           model_ob = TS.ims.getImById(TS.boot_data.im_id)
         } else if (TS.boot_data.mpim_id) {
@@ -10590,7 +10591,7 @@ TS.registerModule("constants", {
       if (member.is_bot && member.name) {
         return member.name
       } else {
-        return "NO MEMBER??"
+        return "NO MEMBER??";
       }
     }
     if (member.profile[type]) return member.profile[type];
@@ -11612,7 +11613,7 @@ TS.registerModule("constants", {
     if (0 === deleted_count) {
       $disabled_members_tab.addClass("hidden")
     } else {
-      $disabled_members_tab.removeClass("hidden")
+      $disabled_members_tab.removeClass("hidden");
     }
     $("#disabled_members_count_value").text(deleted_count);
     $("#restricted_members_count_value").text(restricted_count);
@@ -14570,8 +14571,8 @@ TS.registerModule("constants", {
       clearTimeout(_disconnect_timeout_tim);
       _disconnect_timeout_tim = setTimeout(function() {
         TS.info("called disconnect, no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now");
-        _onDisconnect(null, "since_last_pong_ms too long! then called disconnect, but no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now")
-      }, _disconnect_timeout_tim_ms);
+        _onDisconnect(null, "since_last_pong_ms too long! then called disconnect, but no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now");
+      }, _disconnect_timeout_tim_ms)
     } catch (err) {
       TS.info("since_last_pong_ms too long! then an error calling disconnect, going to assume it is because it is already closed, calling _onDisconnect() manually now");
       TS.warn(err);
@@ -15901,7 +15902,8 @@ TS.registerModule("constants", {
       TS.files.fileWasMaybeRefreshed(imsg.file)
     },
     file_shared: function(imsg) {
-      TS.files.upsertAndSignal(imsg.file)
+      TS.files.upsertAndSignal(imsg.file);
+      TS.files.team_file_shared_sig.dispatch(imsg.file)
     },
     file_unshared: function(imsg) {
       TS.files.upsertAndSignal(imsg.file)
@@ -16740,7 +16742,7 @@ TS.registerModule("constants", {
           if (TS.qs_args["simulate_first_connect_failure"] == 1 && !window.already_simulated_first_connect_failure) {
             url = url.replace("e", "w");
             TS.info("simulate_first_connect_failure url:" + url);
-            window.already_simulated_first_connect_failure = true
+            window.already_simulated_first_connect_failure = true;
           }
           _connect_timeout_tim_ms = window.WEB_SOCKET_USING_FLASH ? _connect_flash_timeout_tim_ms : _connect_ws_timeout_tim_ms;
           clearTimeout(_connect_timeout_tim);
@@ -18656,7 +18658,7 @@ TS.registerModule("constants", {
           var formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
             no_highlights: true
           });
-          html = 'set the channel topic: <span class="topic no_jumbomoji">' + formatted_topic + "</span>";
+          html = 'set the channel topic: <span class="topic no_jumbomoji">' + formatted_topic + "</span>"
         }
       } else if (msg.subtype == "channel_purpose") {
         if (!msg.purpose) {
@@ -20547,10 +20549,10 @@ TS.registerModule("constants", {
           return
         }
         if (!$div.children().length) {
-          $div = $(TS.templates.builders.rxnPanel(rxn_key)).replaceAll($div)
+          $div = $(TS.templates.builders.rxnPanel(rxn_key)).replaceAll($div);
         }
         if (handy_rxns_dd.is_poll) {
-          updatePoll($div);
+          updatePoll($div)
         } else {
           updateNormal($div)
         }
@@ -24646,9 +24648,9 @@ TS.registerModule("constants", {
         if (attachment.slack_file_id && !attachment._slack_file_is_deleted) {
           var file = TS.files.getFileById(attachment.slack_file_id);
           if (file) {
-            attachment._slack_file = file
+            attachment._slack_file = file;
           } else if (attachment._slack_file) {
-            attachment._slack_file = TS.files.upsertFile(attachment._slack_file).file;
+            attachment._slack_file = TS.files.upsertFile(attachment._slack_file).file
           }
         }
         if (attachment.mrkdwn_in && _.isArray(attachment.mrkdwn_in) && attachment.mrkdwn_in.length) {
@@ -25382,7 +25384,7 @@ TS.registerModule("constants", {
       if (!query) return members;
       var query_regexp = new RegExp(TS.utility.regexpEscape(query), "i");
       return members.filter(function(member) {
-        return TS.utility.members.checkMemberMatch(member, query_regexp);
+        return TS.utility.members.checkMemberMatch(member, query_regexp)
       })
     },
     getBroadcastKeywordsForUser: function() {
@@ -26575,7 +26577,7 @@ TS.registerModule("constants", {
         } else {
           if (!TS.members.getMemberByName(member_name)) return null
         }
-        file_id = pathname_parts[2]
+        file_id = pathname_parts[2];
       } else if (pathname.indexOf("files-pri/") === 0) {
         pathname_parts = pathname.split("/");
         if (pathname_parts.length < 3) return null;
@@ -27720,7 +27722,7 @@ TS.registerModule("constants", {
     return .5 - Math.random()
   }).join("");
   var _dash_symbol_token = "thisreplacementtokenallowsustotreatdashesasiftheywerewordcharactersinregex".split("").sort(function() {
-    return .5 - Math.random();
+    return .5 - Math.random()
   }).join("");
   var _underscore_symbol_token = "thisreplacementtokenallowsustotreatdashesasiftheywerewordcharactersinregex".split("").sort(function() {
     return .5 - Math.random()
@@ -30954,7 +30956,7 @@ var _on_esc;
         show_handy_rxns: TS.model.user.is_admin && TS.boot_data.feature_thanks
       };
       if (!channel.is_general || TS.members.canUserPostInGeneral()) {
-        if (channel.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted && channel.is_member) template_args.show_purpose_item = true
+        if (channel.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted && channel.is_member) template_args.show_purpose_item = true;
       }
       var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(TS.channels.getActiveMembersNotInThisChannelForInviting(channel_id));
       if (invite_members.length === 0) {
