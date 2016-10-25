@@ -37055,10 +37055,25 @@ var _on_esc;
     too_long: "This person's name exceeds the 35-character limit.",
     org_user_is_disabled: "This person has a disabled account for your organization.",
     org_user_is_disabled_but_present: "This person is already on your team, but they have been disabled by your organization. Contact an organization administrator to re-enable their account",
-    user_type_mismatch: function(error, issue) {
+    mismatch_with_pending_team_invite: function(data) {
+      var account_type;
+      switch (data.user_type) {
+        case "ultra_restricted":
+          account_type = "Single-Channel Guest";
+          break;
+        case "restricted":
+          account_type = "Multi-Channel Guest";
+          break;
+        default:
+          account_type = "full Team Member";
+          break
+      }
+      return "This person can't be invited, because they have already been invited as a " + account_type + " to your organization"
+    },
+    user_type_mismatch: function(data) {
       var account_type;
       var message;
-      switch (issue) {
+      switch (data.issue) {
         case "org_user_is_restricted":
           account_type = "Multi-Channel Guest";
           break;
@@ -37318,7 +37333,7 @@ var _on_esc;
         $row.find('[name="full_name"]').val(email.full_name)
       } else {
         $row.find('[name="first_name"]').val(email.first_name);
-        $row.find('[name="last_name"]').val(email.last_name)
+        $row.find('[name="last_name"]').val(email.last_name);
       }
     }
     _updateSendButtonLabel();
@@ -37328,7 +37343,7 @@ var _on_esc;
     _row_index++
   };
   var _showInfoMessage = function(message_class, html) {
-    _$div.find("#invite_notice").toggleClass("alert_warning", message_class === "alert_warning").toggleClass("alert_info", message_class === "alert_info").toggleClass("alert_error", message_class === "alert_error").html(html).slideDown(100);
+    _$div.find("#invite_notice").toggleClass("alert_warning", message_class === "alert_warning").toggleClass("alert_info", message_class === "alert_info").toggleClass("alert_error", message_class === "alert_error").html(html).slideDown(100)
   };
   var _showCustomMessage = function() {
     _$div.find(".admin_invites_hide_custom_message").addClass("hidden");
@@ -37716,7 +37731,9 @@ var _on_esc;
         _error_invites.push({
           email: args.email,
           error: invitation_error,
-          error_msg: _getError(invitation_error, data.issue)
+          error_msg: _getError(_.extend({}, data, {
+            error: invitation_error
+          }))
         })
       }
     }
@@ -37739,7 +37756,7 @@ var _on_esc;
           _processInviteResponseObj(invite)
         })
       } else {
-        var error_msg = _getError(data.error) || "We're sorry, but something went wrong with these invites. Please try again later!";
+        var error_msg = _getError(data) || "We're sorry, but something went wrong with these invites. Please try again later!";
         var message_html = '<i class="ts_icon ts_icon_warning"></i> ' + error_msg;
         _showInfoMessage("alert_error", message_html);
         setTimeout(Ladda.stopAll, 0);
@@ -37772,7 +37789,7 @@ var _on_esc;
       _error_invites.push({
         email: invite.email,
         error: invite.error,
-        error_msg: _getError(invite.error) || _error_map["invite_failed"]
+        error_msg: _getError(invite) || _error_map["invite_failed"]
       });
       _decrementInviteQueue()
     }
@@ -37966,10 +37983,10 @@ var _on_esc;
   var _shouldSeeAccountTypeOptions = function() {
     return TS.model.user.is_admin && TS.model.team.plan !== ""
   };
-  var _getError = function(error, issue) {
-    if (!_error_map[error]) return "";
-    var error_msg = _error_map[error];
-    return _.isFunction(error_msg) ? error_msg(error, issue) : error_msg
+  var _getError = function(data) {
+    if (!data || !data.error || !_error_map[data.error]) return "";
+    var error_msg = _error_map[data.error];
+    return _.isFunction(error_msg) ? error_msg(data) : error_msg
   }
 })();
 (function() {
@@ -38207,7 +38224,7 @@ var _on_esc;
     });
     _$div.on("click", '[data-action="invite_modal_refresh_hide_copy_footer"]', function() {
       _$div.find('[data-action="copy_signup_link"]').removeClass("checked").html("Copy link");
-      _toggleCopyFooter(false);
+      _toggleCopyFooter(false)
     });
     _$div.on("click", '[data-action="edit_whitelisted_domains"]', function() {
       _toggleDomainEditing(true)
@@ -41181,7 +41198,7 @@ var _on_esc;
       }
       if (match && valid) return true;
       if (!match) return void TS.ui.validation.showWarning($el, "This needs to be in the format " + ui_pattern + ". Sorry!", options);
-      if (!valid) return void TS.ui.validation.showWarning($el, TS.utility.htmlEntities(value) + " doesn't appear to be a valid date. Sorry!", options)
+      if (!valid) return void TS.ui.validation.showWarning($el, TS.utility.htmlEntities(value) + " doesn't appear to be a valid date. Sorry!", options);
     } else {
       return void TS.error("WTF: cannot validate")
     }
@@ -41198,7 +41215,7 @@ var _on_esc;
     var value = $el.val();
     var has_spaces = /\s/.test(value);
     if (!has_spaces) return true;
-    return void TS.ui.validation.showWarning($el, "This field can't contain spaces", options);
+    return void TS.ui.validation.showWarning($el, "This field can't contain spaces", options)
   }
 
   function _validateFirstAlphanumeric($el, options) {
@@ -47836,7 +47853,7 @@ $.fn.togglify = function(settings) {
     });
     if (exact_match) {
       if (exact_match.is_member) {
-        joined.unshift(exact_match)
+        joined.unshift(exact_match);
       } else {
         to_join.unshift(exact_match)
       }
@@ -48907,7 +48924,7 @@ $.fn.togglify = function(settings) {
     enable: function(user_group) {
       _start();
       _close_when_done = true;
-      _switchToggleView(user_group, "enable_user_group")
+      _switchToggleView(user_group, "enable_user_group");
     },
     remove: function(user_group) {
       _start();
@@ -51266,7 +51283,7 @@ $.fn.togglify = function(settings) {
       return true
     },
     getUrlForRoom: function(room) {
-      return TS.utility.calls.getUrlForRoomId(room.id)
+      return TS.utility.calls.getUrlForRoomId(room.id);
     },
     getUrlForRoomId: function(room_id) {
       return TS.utility.calls.share_url_prefix + room_id
