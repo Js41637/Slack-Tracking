@@ -2294,7 +2294,7 @@
       }
       if (combined_stats_all_p) {
         combined_stats_all_p.then(function(result) {
-          if (result.memory) {
+          if (result && result.memory) {
             var memory_usage_all = result.memory.privateBytes + result.memory.sharedBytes;
             var memory_usage_all_per_team = memory_usage_all / result.numTeams;
             TS.metrics.store("memory_usage_all_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all)));
@@ -3184,7 +3184,7 @@
     }
   };
   var _recordLog = function(event, args) {
-    if (!_.isString(event)) return;
+    if (typeof event !== "string") return;
     if (!args) args = null;
     var payload = {
       tstamp: Date.now(),

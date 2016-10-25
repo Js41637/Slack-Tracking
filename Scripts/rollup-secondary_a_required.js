@@ -20912,7 +20912,7 @@ TS.registerModule("constants", {
     register: function() {
       Handlebars.registerHelper("i18n_ns", function(namespace, options) {
         this._i18n_ns = namespace
-      });
+      }.bind(this));
       Handlebars.registerHelper("t", function(options) {
         var key = options.fn();
         var ns;
@@ -20937,7 +20937,7 @@ TS.registerModule("constants", {
           data: data,
           ns: ns
         })
-      });
+      }.bind(this));
       Handlebars.registerHelper("isClient", function(options) {
         if (TS.boot_data.app == "client") {
           return options.fn(this)
