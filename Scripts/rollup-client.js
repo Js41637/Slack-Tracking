@@ -20777,8 +20777,9 @@
       }
       var deprecated_osx_versions = [10.6, 10.7, 10.8];
       var show_macssb_osx_deprecated_banner = TS.model.is_our_app && TS.model.is_mac && deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0;
+      var is_app_store = _isLegacyAppStoreBuild();
       var show_macelectron1_banner = TS.boot_data.feature_macelectron1_banner && TS.model.is_mac && !deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0 && !TS.model.is_electron && !("macgap" in window) && !TS.model.prefs.no_macelectron_banner;
-      var show_macelectron2_banner = TS.boot_data.feature_macelectron2_banner && TS.model.is_mac && "macgap" in window && !TS.model.prefs.no_macelectron_banner;
+      var show_macelectron2_banner = TS.boot_data.feature_macelectron2_banner && TS.model.is_mac && "macgap" in window && !is_app_store && !TS.model.prefs.no_macelectron_banner;
       var show_macssb1_banner = TS.boot_data.feature_macssb1_banner && TS.model.is_mac && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
       var show_macssb2_banner = TS.boot_data.feature_macssb2_banner && TS.model.is_mac && TS.model.mac_ssb_version && TS.model.mac_ssb_version < 2 && !TS.model.prefs.no_macssb2_banner;
       var show_winssb1_banner = TS.model.is_win_7_plus && !TS.model.win_ssb_version && !TS.model.prefs.no_winssb1_banner;
@@ -21086,7 +21087,18 @@
     }
   });
   var _last_which = "notifications";
-  var _prev_ssb_update_version_shown
+  var _prev_ssb_update_version_shown;
+
+  function _isLegacyAppStoreBuild() {
+    if (!("macgap" in window)) return false;
+    if (!("isAppStoreBuild" in macgap.app)) return false;
+    try {
+      return macgap.app.isAppStoreBuild() === "1"
+    } catch (err) {
+      TS.logError(err, "macgap.app.isAppStoreBuild() failed", "macgap error");
+      return false
+    }
+  }
 })();
 (function() {
   "use strict";
@@ -22795,9 +22807,9 @@
         if (data.error === "restricted_action") {
           err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>"
         } else if (data.error === "last_ra_channel") {
-          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>"
+          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>";
         } else if (data.error === "name_taken") {
-          err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>';
+          err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>'
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str)
       })
@@ -23714,7 +23726,7 @@
         $(document).on("mousemove touchmove", current, moveSelector);
         var payeX, pageY;
         if (ev.type == "touchstart") {
-          pageX = ev.originalEvent.changedTouches[0].pageX, pageY = ev.originalEvent.changedTouches[0].pageY
+          pageX = ev.originalEvent.changedTouches[0].pageX, pageY = ev.originalEvent.changedTouches[0].pageY;
         } else {
           pageX = ev.pageX;
           pageY = ev.pageY
@@ -24763,7 +24775,7 @@
           } else if (model_ob.is_group) {
             TS.groups.displayGroup(model_ob.id)
           } else {
-            TS.ims.startImById(model_ob.id)
+            TS.ims.startImById(model_ob.id);
           }
           return model_ob.id == TS.model.active_cid
         }
@@ -30014,7 +30026,7 @@
       dnd_end_hour: end,
       timezone: TS.model.user.tz_label
     });
-    _$div.find("#prefs_dnd").find(".section_rollup_summary").html(dnd_summary_html);
+    _$div.find("#prefs_dnd").find(".section_rollup_summary").html(dnd_summary_html)
   };
   var _to12h = function(time_string) {
     var match = /(\d?\d):(\d\d)/.exec(time_string);
