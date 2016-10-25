@@ -239,6 +239,7 @@
   };
   var _runGdriveCoachmark = function(file) {
     if (_.get(file, "external_type") !== "gdrive") return;
+    if (_.get(file, "user") !== TS.model.user.id) return;
     if (!TS.model.prefs.gdrive_enabled) return;
     if (TS.model.prefs.seen_gdrive_coachmark) return;
     TS.experiment.loadUserAssignments().then(function() {
