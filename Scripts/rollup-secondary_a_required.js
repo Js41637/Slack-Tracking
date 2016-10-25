@@ -11474,13 +11474,19 @@ TS.registerModule("constants", {
       var args = _getFilterArgumentsByScrollerId(scroller_id);
       if (full_profile_filter || args && args.full_profile_filter) {
         return TS.team.ensureTeamProfileFields().then(function() {
-          if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
+          if (TS.boot_data.feature_roster_changes) {
             if (scroller_id == "#team_list_scroller") {
               return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted)
             }
           } else {
-            _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
-            return Promise.resolve()
+            if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
+              if (scroller_id == "#team_list_scroller") {
+                return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted)
+              }
+            } else {
+              _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
+              return Promise.resolve()
+            }
           }
         })
       } else {
@@ -11522,25 +11528,31 @@ TS.registerModule("constants", {
       }
       $input.val("");
       $icon_close.addClass("hidden");
-      if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
+      if (TS.boot_data.feature_roster_changes) {
         if (scroller_id == "#team_list_scroller") {
           TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter)
         }
       } else {
-        $(".restricted_header, .bot_header, .ra_invite_prompt, .restricted_info").removeClass("hidden");
-        $list_items_container.find(".no_results").addClass("hidden");
-        $list_items.addClass("active");
-        if (_lazy_clones[scroller_id]) {
-          _lazy_clones[scroller_id].detachEvents();
-          delete _lazy_clones[scroller_id]
-        }
-        $list_items_container.find(".member_item.clone").remove();
-        $list_items_container.find(".filter_header").remove();
-        TS.members.view.team_filter_changed_sig.dispatch("", TS.members.getMembersForUser().length);
-        if (TS.client && scroller_id) {
-          var $scroller = $(scroller_id);
-          $scroller.trigger("resize-immediate");
-          TS.ui.utility.updateClosestMonkeyScroller($scroller)
+        if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
+          if (scroller_id == "#team_list_scroller") {
+            TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter)
+          }
+        } else {
+          $(".restricted_header, .bot_header, .ra_invite_prompt, .restricted_info").removeClass("hidden");
+          $list_items_container.find(".no_results").addClass("hidden");
+          $list_items.addClass("active");
+          if (_lazy_clones[scroller_id]) {
+            _lazy_clones[scroller_id].detachEvents();
+            delete _lazy_clones[scroller_id]
+          }
+          $list_items_container.find(".member_item.clone").remove();
+          $list_items_container.find(".filter_header").remove();
+          TS.members.view.team_filter_changed_sig.dispatch("", TS.members.getMembersForUser().length);
+          if (TS.client && scroller_id) {
+            var $scroller = $(scroller_id);
+            $scroller.trigger("resize-immediate");
+            TS.ui.utility.updateClosestMonkeyScroller($scroller)
+          }
         }
       }
     },
@@ -14559,7 +14571,7 @@ TS.registerModule("constants", {
       _disconnect_timeout_tim = setTimeout(function() {
         TS.info("called disconnect, no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now");
         _onDisconnect(null, "since_last_pong_ms too long! then called disconnect, but no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now")
-      }, _disconnect_timeout_tim_ms)
+      }, _disconnect_timeout_tim_ms);
     } catch (err) {
       TS.info("since_last_pong_ms too long! then an error calling disconnect, going to assume it is because it is already closed, calling _onDisconnect() manually now");
       TS.warn(err);
@@ -16741,7 +16753,7 @@ TS.registerModule("constants", {
           TS.warn("failed to create new WebSocket");
           TS.error(error);
           TS.ds.onFailure("failed to create new WebSocket");
-          return;
+          return
         }
         TS.model.ds_connecting = true;
         if (TS.qs_args["simulate_first_connect_timeout"] == 1 && _connect_timeout_count < 1) {
@@ -18644,7 +18656,7 @@ TS.registerModule("constants", {
           var formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
             no_highlights: true
           });
-          html = 'set the channel topic: <span class="topic no_jumbomoji">' + formatted_topic + "</span>"
+          html = 'set the channel topic: <span class="topic no_jumbomoji">' + formatted_topic + "</span>";
         }
       } else if (msg.subtype == "channel_purpose") {
         if (!msg.purpose) {
@@ -19510,8 +19522,10 @@ TS.registerModule("constants", {
       })
     },
     buildTeamListHTML: function(all_members, is_long_list_view, is_lazy) {
-      is_long_list_view = is_long_list_view === true && TS.boot_data.page_needs_enterprise;
-      is_lazy = is_lazy === true && TS.boot_data.page_needs_enterprise;
+      if (!TS.boot_data.feature_roster_changes) {
+        is_long_list_view = is_long_list_view === true && TS.boot_data.page_needs_enterprise;
+        is_lazy = is_lazy === true && TS.boot_data.page_needs_enterprise
+      }
       var team_list_members = TS.members.allocateTeamListMembers(all_members);
       var members = team_list_members.members;
       var disabled_members = team_list_members.disabled_members;
@@ -20536,7 +20550,7 @@ TS.registerModule("constants", {
           $div = $(TS.templates.builders.rxnPanel(rxn_key)).replaceAll($div)
         }
         if (handy_rxns_dd.is_poll) {
-          updatePoll($div)
+          updatePoll($div);
         } else {
           updateNormal($div)
         }
@@ -22424,7 +22438,7 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(TS.templates.builders.loadingHTML())
       });
       Handlebars.registerHelper("versioned_loading_animation", function() {
-        return cdn_url + "/272a/img/loading.gif";
+        return cdn_url + "/272a/img/loading.gif"
       });
       Handlebars.registerHelper("versioned_loading_hash_animation", function() {
         return cdn_url + "/f85a/img/loading_hash_animation_@2x.gif"
@@ -24634,7 +24648,7 @@ TS.registerModule("constants", {
           if (file) {
             attachment._slack_file = file
           } else if (attachment._slack_file) {
-            attachment._slack_file = TS.files.upsertFile(attachment._slack_file).file
+            attachment._slack_file = TS.files.upsertFile(attachment._slack_file).file;
           }
         }
         if (attachment.mrkdwn_in && _.isArray(attachment.mrkdwn_in) && attachment.mrkdwn_in.length) {
@@ -25368,7 +25382,7 @@ TS.registerModule("constants", {
       if (!query) return members;
       var query_regexp = new RegExp(TS.utility.regexpEscape(query), "i");
       return members.filter(function(member) {
-        return TS.utility.members.checkMemberMatch(member, query_regexp)
+        return TS.utility.members.checkMemberMatch(member, query_regexp);
       })
     },
     getBroadcastKeywordsForUser: function() {
@@ -27706,7 +27720,7 @@ TS.registerModule("constants", {
     return .5 - Math.random()
   }).join("");
   var _dash_symbol_token = "thisreplacementtokenallowsustotreatdashesasiftheywerewordcharactersinregex".split("").sort(function() {
-    return .5 - Math.random()
+    return .5 - Math.random();
   }).join("");
   var _underscore_symbol_token = "thisreplacementtokenallowsustotreatdashesasiftheywerewordcharactersinregex".split("").sort(function() {
     return .5 - Math.random()
@@ -34174,7 +34188,7 @@ var _on_esc;
         if ($elem.hasClass("channel")) {
           return $elem.find("[data-channel-id]").attr("data-channel-id")
         } else if ($elem.hasClass("group")) {
-          return $elem.find("[data-group-id]").attr("data-group-id");
+          return $elem.find("[data-group-id]").attr("data-group-id")
         } else if ($elem.hasClass("member")) {
           return $elem.find("[data-member-id]").attr("data-member-id")
         } else if ($elem.hasClass("mpim")) {
@@ -37312,7 +37326,7 @@ var _on_esc;
     _row_index++
   };
   var _showInfoMessage = function(message_class, html) {
-    _$div.find("#invite_notice").toggleClass("alert_warning", message_class === "alert_warning").toggleClass("alert_info", message_class === "alert_info").toggleClass("alert_error", message_class === "alert_error").html(html).slideDown(100)
+    _$div.find("#invite_notice").toggleClass("alert_warning", message_class === "alert_warning").toggleClass("alert_info", message_class === "alert_info").toggleClass("alert_error", message_class === "alert_error").html(html).slideDown(100);
   };
   var _showCustomMessage = function() {
     _$div.find(".admin_invites_hide_custom_message").addClass("hidden");
@@ -38191,7 +38205,7 @@ var _on_esc;
     });
     _$div.on("click", '[data-action="invite_modal_refresh_hide_copy_footer"]', function() {
       _$div.find('[data-action="copy_signup_link"]').removeClass("checked").html("Copy link");
-      _toggleCopyFooter(false)
+      _toggleCopyFooter(false);
     });
     _$div.on("click", '[data-action="edit_whitelisted_domains"]', function() {
       _toggleDomainEditing(true)
@@ -41182,7 +41196,7 @@ var _on_esc;
     var value = $el.val();
     var has_spaces = /\s/.test(value);
     if (!has_spaces) return true;
-    return void TS.ui.validation.showWarning($el, "This field can't contain spaces", options)
+    return void TS.ui.validation.showWarning($el, "This field can't contain spaces", options);
   }
 
   function _validateFirstAlphanumeric($el, options) {
@@ -45631,7 +45645,7 @@ $.fn.togglify = function(settings) {
       switch (action) {
         case "actions_menu":
           if (in_archives) {
-            TS.menu.startWithMessageActions(e, $msg_el.data("ts"), model_ob._archive_msgs, model_ob);
+            TS.menu.startWithMessageActions(e, $msg_el.data("ts"), model_ob._archive_msgs, model_ob)
           } else {
             TS.menu.startWithMessageActions(e, $msg_el.data("ts"), model_ob.msgs, model_ob)
           }
@@ -52378,7 +52392,7 @@ $.fn.togglify = function(settings) {
       if (document.queryCommandSupported("insertText")) {
         document.execCommand("insertText", false, text)
       } else {
-        TS.selection.insertAtCaret(text);
+        TS.selection.insertAtCaret(text)
       }
       var input = e.currentTarget;
       _slugifyContent(input)
@@ -53524,7 +53538,7 @@ $.fn.togglify = function(settings) {
       } else if (e.which === TS.utility.keymap.enter) {
         if (!e.shiftKey && !e.altKey && !$input.tab_complete_ui("isShowing")) {
           e.preventDefault();
-          TS.generic_dialog.go();
+          TS.generic_dialog.go()
         }
       } else if (e.which === TS.utility.keymap.tab && !e.shiftKey && !$input.tab_complete_ui("isShowing") && !$input.tab_complete_ui("hasMatches")) {
         e.preventDefault();
