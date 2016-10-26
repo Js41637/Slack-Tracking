@@ -10453,8 +10453,8 @@ TS.registerModule("constants", {
   var _flannel_max_users = 100;
   var _maybeSetDeletedStatus = function(member) {
     if (!TS.boot_data.page_needs_enterprise) return;
-    if (TS.lazyLoadMembers()) {
-      member.deleted = TS.flannel.isMemberDeleted(member);
+    if (TS.lazyLoadMembers() && TS.flannel.isMemberDeleted(member)) {
+      member.deleted = true;
       return
     }
     if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length > 0) {
@@ -21684,7 +21684,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("makeChannelDomClass", function(channel) {
         var dom_class = "";
-        if (TS.model.active_channel_id == channel.id && !TS.model.unread_view_is_showing) dom_class += "active ";
+        if (TS.model.active_channel_id == channel.id && !TS.client.activeChannelIsHidden()) dom_class += "active ";
         if (channel.unread_cnt > 0) dom_class += "unread ";
         if (channel.unread_highlight_cnt > 0) dom_class += "mention ";
         if (channel.is_starred) dom_class += "is_starred ";
@@ -21782,7 +21782,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeGroupLinkAriaLabelSafe", TS.templates.builders.makeGroupLinkAriaLabelSafe);
       Handlebars.registerHelper("makeGroupDomClass", function(group) {
         var dom_class = "";
-        if (TS.model.active_group_id == group.id && !TS.model.unread_view_is_showing) dom_class += "active ";
+        if (TS.model.active_group_id == group.id && !TS.client.activeChannelIsHidden()) dom_class += "active ";
         if (group.unread_cnt > 0) dom_class += "unread ";
         if (group.unread_highlight_cnt > 0) dom_class += "mention ";
         if (group.is_starred) dom_class += "is_starred ";
@@ -21805,7 +21805,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeMpimDomClass", function(mpim) {
         var dom_class = "";
         if (!mpim) return dom_class;
-        if (mpim.id === TS.model.active_mpim_id && !TS.model.unread_view_is_showing) dom_class += "active ";
+        if (mpim.id === TS.model.active_mpim_id && !TS.client.activeChannelIsHidden()) dom_class += "active ";
         if (mpim.unread_cnt > 0 || mpim.unread_highlight_cnt > 0) dom_class += "unread mention ";
         if (TS.notifs.isCorGMuted(mpim.id)) dom_class += "muted_channel ";
         if (mpim.is_starred) dom_class += "is_starred ";
@@ -21860,7 +21860,7 @@ TS.registerModule("constants", {
         if (!member.is_self && member.presence == "away") dom_class += "away ";
         if (TS.model.active_im_id) {
           var active_im = TS.ims.getImById(TS.model.active_im_id);
-          if (active_im.user == member.id && !TS.model.unread_view_is_showing) dom_class += "active "
+          if (active_im.user == member.id && !TS.client.activeChannelIsHidden()) dom_class += "active "
         }
         var im = TS.ims.getImByMemberId(member.id);
         if (im) {
@@ -25609,6 +25609,9 @@ TS.registerModule("constants", {
     isUnreadViewPath: function(path) {
       return path.indexOf("/unreads") === 0
     },
+    isThreadsViewPath: function(path) {
+      return path.indexOf("/threads") === 0
+    },
     _getPathAFromUrl: function(url) {
       var splitter;
       if (url.indexOf("/messages/") != -1) {
@@ -25660,8 +25663,16 @@ TS.registerModule("constants", {
         flex_extra: flex_extra
       })
     },
+    refashionUrlForThreadsView: function(url, flex_name, flex_extra) {
+      return TS.utility._refashionUrlWorker({
+        threads_view: true,
+        url: url,
+        flex_name: flex_name,
+        flex_extra: flex_extra
+      })
+    },
     _refashionUrlWorker: function(args) {
-      var urlA = args.url.split(/\.com\/+(messages|unreads)/);
+      var urlA = args.url.split(/\.com\/+(messages|unreads|threads)/);
       var base = urlA[0] + ".com";
       var restA = urlA[2].split("?");
       var pathA = restA[0].split("/");
@@ -25676,12 +25687,13 @@ TS.registerModule("constants", {
       if (!pathA[1]) {
         pathA.length = 1
       }
-      if (args.unread_view) {
+      if (args.unread_view || args.threads_view) {
+        var view_url = args.unread_view ? "/unreads/" : "/threads/";
         pathA.shift();
         if (pathA.length) {
-          return base + "/unreads/" + pathA.join("/") + "/" + qs
+          return base + view_url + pathA.join("/") + "/" + qs
         } else {
-          return base + "/unreads/" + qs
+          return base + view_url + qs
         }
       }
       return base + "/messages/" + pathA.join("/") + "/" + qs
@@ -27623,6 +27635,16 @@ TS.registerModule("constants", {
       if (is_single_formatted_block) return text.slice(1, -1);
       return text
     },
+    formatSelectionAsHTML: function(selection) {
+      if (!selection || !selection.rangeCount) return "";
+      if (selection.rangeCount !== 1) {
+        TS.info("TS.format.formatSelection: found " + selection.rangeCount + " ranges")
+      }
+      var range = selection.getRangeAt(0);
+      var placeholder = document.createElement("div");
+      placeholder.appendChild(range.cloneContents());
+      return placeholder.innerHTML
+    },
     stringifyNode: function(node) {
       if (!node) return "";
       if (!_hasStringifyTransformations(node)) return node.textContent;
@@ -28826,7 +28848,7 @@ TS.registerModule("constants", {
           if (row_count == row_index + 1) {
             new_index = 0
           } else {
-            new_index = _$key_nav_els.length - 1
+            new_index = _$key_nav_els.length - 1;
           }
         }
       } else {
@@ -30938,7 +30960,7 @@ TS.registerModule("constants", {
       TS.menu.$submenu = this.$submenu;
       TS.menu.$submenu_origin = this.element;
       if (x + this.$submenu.width() > window.innerWidth) {
-        x = TS.menu.$menu.offset().left - this.$submenu.width() - X_OFFSET
+        x = TS.menu.$menu.offset().left - this.$submenu.width() - X_OFFSET;
       }
       if (y + this.$submenu.height() > window.innerHeight) {
         y = window.innerHeight - this.$submenu.height() - Y_OFFSET
@@ -32963,7 +32985,7 @@ var _on_esc;
       }],
       func: function(cmd, rest, words, e, in_reply_to_msg) {
         if (words.length == 1) {
-          TS.ui.channel_browser.start();
+          TS.ui.channel_browser.start()
         } else {
           var channel_name = TS.utility.cleanChannelName(rest);
           var channel = TS.channels.getChannelByName(channel_name);
@@ -34172,7 +34194,7 @@ var _on_esc;
           attach_text: report_text,
           tags: "slack_diagnostic_report"
         }).catch(function(err) {
-          TS.generic_dialog.alert('Oops! That didn\'t work &mdash; please give it another try. If problems persist, please <a href="/help/requests/new">contact support</a>.', "Something went wrong", "Close");
+          TS.generic_dialog.alert('Oops! That didn\'t work &mdash; please give it another try. If problems persist, please <a href="/help/requests/new">contact support</a>.', "Something went wrong", "Close")
         }).finally(function() {
           TS.generic_dialog.cancel()
         });
@@ -35232,7 +35254,7 @@ var _on_esc;
     expand_sig: new signals.Signal,
     collapse_sig: new signals.Signal,
     onStart: function() {
-      TS.client && TS.prefs.attachments_with_borders_changed_sig.add(TS.client.msg_pane.rebuildMsgs)
+      TS.client && TS.prefs.attachments_with_borders_changed_sig.add(TS.client.msg_pane.rebuildMsgs);
     },
     shouldExpand: function(container_id, inline_attachment) {
       if (TS.model.expandable_state["attach_" + container_id + inline_attachment.from_url]) return true;
@@ -36242,7 +36264,7 @@ var _on_esc;
     getAllDivsForMsg: function(ts) {
       var $msg_pane_div = TS.msg_edit.getDivForMsgInMsgPane(ts);
       if (TS.replies && TS.replies.isEnabled()) {
-        return $msg_pane_div.add(TS.msg_edit.getDivForMsgInConvoPane(ts))
+        return $msg_pane_div.add(TS.msg_edit.getDivForMsgInConvoPane(ts));
       } else {
         return $msg_pane_div
       }
@@ -37332,7 +37354,7 @@ var _on_esc;
         return item_full_name && item_full_name.indexOf(query) !== -1 || item_email && item_email.indexOf(query) !== -1
       },
       noResultsTemplate: function(query) {
-        return "None of your Google contacts match <strong>" + TS.utility.htmlEntities(query) + "</strong>"
+        return "None of your Google contacts match <strong>" + TS.utility.htmlEntities(query) + "</strong>";
       },
       onItemAdded: function(item) {
         _upsertEmailContactsData(this, item);
@@ -39100,7 +39122,7 @@ var _on_esc;
   var _updateReviewInvitationsSubtitle = function() {
     var subtitle;
     if (_state.pending_invites.length > 1) {
-      subtitle = "Review " + _state.pending_invites.length + " Invitations for " + _getMemberTypeLabel(_state.selected_member_type) + "s"
+      subtitle = "Review " + _state.pending_invites.length + " Invitations for " + _getMemberTypeLabel(_state.selected_member_type) + "s";
     } else {
       subtitle = "Review 1 Invitation for a " + _getMemberTypeLabel(_state.selected_member_type)
     }
@@ -39121,7 +39143,7 @@ var _on_esc;
       if (_state.selected_member_type == "full" || _state.selected_member_type == "restricted") {
         channels_to_join = _state.selected_channels.map(function(item) {
           return item.id
-        }).join(",");
+        }).join(",")
       } else if (_state.selected_member_type == "ultra_restricted") {
         channels_to_join = _state.selected_channels[0].id
       }
@@ -43423,7 +43445,7 @@ $.fn.togglify = function(settings) {
     }
     record.last_update = when;
     if (and_alert) {
-      TS.rxns.need_alerts[rxn_key] = TS.rxns.need_alerts[rxn_key] || when;
+      TS.rxns.need_alerts[rxn_key] = TS.rxns.need_alerts[rxn_key] || when
     }
     record.emoji = record.emoji || {};
     record.source = source_channel || "";
@@ -46951,9 +46973,14 @@ $.fn.togglify = function(settings) {
       fuzzy_limit: fuzzy_limit,
       search_forward_only: true
     };
+    var fuzzy_emoji_options = {
+      fuzzy_limit: fuzzy_limit,
+      substrings_only: true
+    };
     var fuzzy = TS.fuzzy.makeFuzzyMatcher(query, fuzzy_options);
     var fuzzy_members = TS.fuzzy.makeFuzzyMatcher(query, fuzzy_member_options);
     var sub_query_matchers = _getSubQueryMatchers(query, fuzzy_member_options);
+    var fuzzy_emoji = TS.boot_data.feature_no_fuzzy_emoji ? TS.fuzzy.makeFuzzyMatcher(query, fuzzy_emoji_options) : fuzzy;
     return {
       query: query,
       only_channels: only_channels,
@@ -47028,7 +47055,7 @@ $.fn.togglify = function(settings) {
           emoji._jumper_score = 0;
           return true
         }
-        var score = fuzzy.score(emoji.name);
+        var score = fuzzy_emoji.score(emoji.name);
         emoji._jumper_score = score;
         return score <= fuzzy_limit
       },
@@ -47215,7 +47242,7 @@ $.fn.togglify = function(settings) {
         }
         return searcher.matchesEmoji(e)
       });
-      if (query && query.toLowerCase() === "wife") {
+      if (!TS.boot_data.feature_no_fuzzy_emoji && query && query.toLowerCase() === "wife") {
         emoji_matches = emoji_matches.filter(function(item) {
           return item.name !== "reversed_hand_with_middle_finger_extended" && item.name !== "face_with_rolling_eyes"
         })
@@ -48899,7 +48926,7 @@ $.fn.togglify = function(settings) {
         if (!TS.user_groups.getUserGroupsById(id)) unknown_ids.push(id)
       });
       if (!unknown_ids.length) return Promise.resolve();
-      return _promiseToGetUserGroups(unknown_ids);
+      return _promiseToGetUserGroups(unknown_ids)
     },
     test: function() {
       return {
@@ -53532,7 +53559,7 @@ $.fn.togglify = function(settings) {
           TS.ui.resetButtonSpinner($("#handy_rxns_subsection").find(".submit_setting"))
         }, 2e3)
       } else {
-        $("#handy_rxns_subsection").find(".submit_setting").toggleClass("disabled", !_is_dirty);
+        $("#handy_rxns_subsection").find(".submit_setting").toggleClass("disabled", !_is_dirty)
       }
     } else if (TS.client) {
       if (_in_poll_mode) {

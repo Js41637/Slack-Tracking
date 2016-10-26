@@ -317,7 +317,7 @@
     threadsViewActivated: function(replace_history_state, no_history_add) {
       if (!no_history_add) {
         var flex_extra = _cleanFlexExtra(TS.model.flex_extra_in_url);
-        var new_url = TS.utility.refashionUrlForUnreadView(window.location.href, TS.model.flex_name_in_url, flex_extra);
+        var new_url = TS.utility.refashionUrlForThreadsView(window.location.href, TS.model.flex_name_in_url, flex_extra);
         if (!replace_history_state) {
           if (!TS.model.threads_view_is_showing && !TS.model.c_name_in_url) replace_history_state = true
         }
@@ -832,10 +832,11 @@
     var loc = history.location || document.location;
     TS.qs_args = TS.utility.url.queryStringParse(loc.search.substring(1));
     var is_unread_view = TS.boot_data.feature_unread_view && TS.utility.isUnreadViewPath(loc.pathname);
+    var is_threads_view = TS.boot_data.feature_message_replies_threads_view && TS.utility.isThreadsViewPath(loc.pathname);
     var flex_name = TS.utility.getFlexNameFromUrl(loc.href);
     var flex_extra = TS.utility.getFlexExtraFromUrl(loc.href);
     if (TS.model.prefs.no_flex_in_history) {
-      if (TS.boot_data.feature_unread_view && !is_unread_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
+      if ((TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies_threads_view) && !is_unread_view && !is_threads_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
         flex_name = "details";
         flex_extra = ""
       } else {
@@ -843,7 +844,7 @@
         flex_extra = TS.model.ui_state.flex_extra
       }
     }
-    if (is_unread_view && flex_name === "details") {
+    if ((is_unread_view || is_threads_view) && flex_name === "details") {
       flex_name = "";
       flex_extra = ""
     }
@@ -900,7 +901,7 @@
     if (c_id) {
       is_good = true;
       TS.info("c_name from new url is good:" + c_name + " " + c_id)
-    } else if (!is_unread_view) {
+    } else if (!is_unread_view && !is_threads_view) {
       if (TS.model.channels.length) {
         channel = TS.channels.getFirstChannelYouAreIn();
         if (channel) {
@@ -926,6 +927,8 @@
       TS.mpims.displayMpim(mpim.id, null, true, !is_good)
     } else if (is_unread_view) {
       TS.client.unread.showUnreadView(true, true)
+    } else if (is_threads_view) {
+      TS.client.threads.showThreadsView(true, true)
     } else {
       TS.error("WTF DONT KNOW WHAT TO DO")
     }
@@ -934,6 +937,8 @@
       var new_url;
       if (is_unread_view) {
         new_url = TS.utility.refashionUrlForUnreadView(window.location.href, flex_name, flex_extra)
+      } else if (is_threads_view) {
+        new_url = TS.utility.refashionUrlForThreadsView(window.location.href, flex_name, flex_extra)
       } else {
         new_url = TS.utility.refashionUrl(window.location.href, c_name, flex_name, flex_extra)
       }
@@ -1007,7 +1012,7 @@
       if (TS.model.welcome_model_ob && TS.model.welcome_model_ob.id) return;
       var slackbot = TS.ims.getImByMemberId("USLACKBOT");
       if (slackbot) {
-        TS.model.welcome_model_ob = slackbot;
+        TS.model.welcome_model_ob = slackbot
       } else {
         TS.error("Tried to lookup Slackbot but failed");
         TS.generic_dialog.alert("Slack has encountered a problem and needs to reload.", "Reload required", "Reload").then(TS.reload)
@@ -1905,7 +1910,7 @@
             TS.view.rebuildMsg(msg_after)
           }
         }
-        TS.view.resizeManually("TS.view.removeMessageDiv");
+        TS.view.resizeManually("TS.view.removeMessageDiv")
       };
       if (instant || TS.utility.msgs.isTempMsg(msg)) {
         doRemove()
@@ -5551,6 +5556,7 @@
           }
           try {
             var selection = window.getSelection();
+            var selection_html;
             var selection_text = TS.format.formatSelection(selection, {
               customFn: function(node) {
                 if (node.hasAttribute("data-member-name")) {
@@ -5558,6 +5564,9 @@
                 }
               }
             });
+            if (TS.boot_data.feature_texty) {
+              selection_html = TS.format.formatSelectionAsHTML(selection)
+            }
             if (selection_text) {
               var mime_types = {
                 "text/plain": selection_text,
@@ -5565,6 +5574,9 @@
                 "public.utf8-plain-text": selection_text,
                 Text: selection_text
               };
+              if (TS.boot_data.feature_texty && selection_html) {
+                mime_types["text/html"] = selection_html
+              }
               TS.clipboard.writeTextFromEvent(e, mime_types)
             }
           } catch (err) {
@@ -5619,6 +5631,9 @@
       TS.client.channel_pane.makeSureActiveChannelIsInView();
       if (TS.boot_data.feature_unread_view && TS.client.unread.isEnabled()) {
         TS.client.ui.unread.updateSidebarLink()
+      }
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        TS.client.ui.threads.updateChannelPaneActiveState()
       }
     },
     rebuildAll: function() {
@@ -6371,7 +6386,7 @@
         scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div)
       } else if (which == "search") {
         $container = $("#search_results");
-        scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_search_scroller_rect", $container);
+        scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_search_scroller_rect", $container)
       } else if (which == "archives") {
         $container = TS.client.archives.$scroller;
         scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_archives_scroller_rect", $container)
@@ -9267,7 +9282,7 @@
               }
             }
           } else if (TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) {
-            TS.client.ui.maybeEditLast(e)
+            TS.client.ui.maybeEditLast(e);
           } else if (val == "" && !e.altKey && !TS.utility.cmdKey(e) && e.which == TS.utility.keymap.left) {
             e.preventDefault();
             TS.menu.file.startWithNewFileOptions(e, $("#primary_file_button"));
@@ -9728,7 +9743,7 @@
       return _getSortedNormalList()
     },
     makeSureActiveChannelIsInView: function() {
-      if (TS.model.unread_view_is_showing) return;
+      if (TS.client.activeChannelIsHidden()) return;
       _makeSureActiveChannelIsInView()
     },
     startSortingMode: function() {
@@ -11301,7 +11316,7 @@
             html += TS.templates.messages_day_divider({
               ts: msg.ts
             });
-            html += '<div class="day_msgs" data-date="' + TS.utility.date.toCalendarDate(msg.ts) + '" data-ts="' + msg.ts + '">';
+            html += '<div class="day_msgs" data-date="' + TS.utility.date.toCalendarDate(msg.ts) + '" data-ts="' + msg.ts + '">'
           }
           html += TS.templates.builders.buildMsgHTML({
             msg: msg,
@@ -13186,7 +13201,7 @@
     _updateIcon()
   };
   var _updateCB = function() {
-    _$what_new_read_cb.prop("checked", TS.model.prefs.whats_new_read !== -1);
+    _$what_new_read_cb.prop("checked", TS.model.prefs.whats_new_read !== -1)
   };
   var _updateBurst = function() {
     if (!_$burst) {
@@ -19980,7 +19995,7 @@
         $("#upload_image_preview").removeClass("hidden").find("img").attr("src", str)
       };
       if (typeof file == "string") {
-        displayImg("data:image/png;base64," + file);
+        displayImg("data:image/png;base64," + file)
       } else {
         if (window.FileReader) {
           try {
@@ -23869,7 +23884,7 @@
         var col = cal.data("colpick").color;
         cal.data("colpick").origColor = col;
         setCurrentColor(col, cal.get(0));
-        cal.data("colpick").onSubmit(col, hsbToHex(col), hsbToRgb(col), cal.data("colpick").el);
+        cal.data("colpick").onSubmit(col, hsbToHex(col), hsbToRgb(col), cal.data("colpick").el)
       },
       show = function(ev) {
         if (ev) {
@@ -25925,7 +25940,7 @@
     var model_ob = TS.shared.getActiveModelOb();
     var array_to_search = file.channels;
     if (model_ob.is_group) {
-      array_to_search = file.groups;
+      array_to_search = file.groups
     } else if (model_ob.is_im) {
       array_to_search = file.ims
     }
@@ -26960,7 +26975,7 @@
         var creator = TS.members.getMemberById(item.creator);
         if (creator) {
           data.$creator.removeClass("hidden");
-          data.$creator.find(".channel_browser_creator_name").text(TS.members.getMemberDisplayName(creator))
+          data.$creator.find(".channel_browser_creator_name").text(TS.members.getMemberDisplayName(creator));
         } else {
           data.$creator.addClass("hidden")
         }
@@ -26970,7 +26985,7 @@
         if (item.purpose && item.purpose.value) {
           var purpose_html = TS.utility.formatTopicOrPurpose(item.purpose.value);
           purpose_html = purpose_html.replace(/<a .*?>(.*?)<\/a>/g, "$1");
-          data.$purpose.removeClass("hidden").html(purpose_html);
+          data.$purpose.removeClass("hidden").html(purpose_html)
         } else {
           data.$purpose.text("").addClass("hidden")
         }
@@ -28049,7 +28064,7 @@
   var _showAlert = function(html) {
     _hideAlert();
     _$im_browser.prepend(html);
-    _$im_browser.addClass("showing_alert");
+    _$im_browser.addClass("showing_alert")
   };
   var _hideAlert = function() {
     $("#im_browser_alert").remove();
@@ -29103,7 +29118,7 @@
         $("#dnd_start_hour, #dnd_end_hour").prop("disabled", true).closest("label").addClass("disabled")
       }
       dnd_props.dnd_enabled = checked;
-      TS.prefs.setMultiPrefsByAPI(dnd_props);
+      TS.prefs.setMultiPrefsByAPI(dnd_props)
     });
     var $start_el = _getDndOptionElement($("#dnd_start_hour"), dnd_props.dnd_start_hour);
     $start_el.prop("selected", true);
@@ -30176,7 +30191,7 @@
       } else if (permission_level == "default") {
         $("#growls_permission_div").removeClass("hidden")
       } else if (permission_level == "denied") {
-        $("#growls_disallowed_div").removeClass("hidden");
+        $("#growls_disallowed_div").removeClass("hidden")
       } else {
         alert("huh allowed:" + allowed + " permission_level:" + permission_level)
       }
@@ -31908,7 +31923,7 @@ var _timezones_alternative = {
     } else {
       var $image = $(TS.templates.fs_modal_file_viewer_content_image(template_obj));
       _$image_wrapper.replaceWith($image);
-      _$image_wrapper = $image;
+      _$image_wrapper = $image
     }
     _cacheImageNodes();
     _detachCommentForm();
