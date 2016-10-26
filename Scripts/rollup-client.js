@@ -12360,46 +12360,33 @@
     }
     if (TS.client.msg_pane.areCallsEnabled()) {
       var $calls_container = $("#channel_calls_container");
-      var voice_tip_text, video_tip_text;
+      var voice_tip_text;
       if (is_channel_preview) {
-        voice_tip_text = "Join this channel to start a call";
-        video_tip_text = "Join this channel to start a video call"
+        voice_tip_text = "Join this channel to start a call"
       } else if (is_call_allowed) {
         if (call_info.is_dm || call_info.is_mpdm) {
           if (additional_template_args.is_dm_user_offline) {
-            video_tip_text = voice_tip_text = additional_template_args.name + " is currently offline and unreachable"
+            voice_tip_text = additional_template_args.name + " is currently offline and unreachable"
           } else {
             voice_tip_text = "Call " + (call_info.is_mpdm ? additional_template_args.names : additional_template_args.name);
             if (is_third_party) {
               voice_tip_text += " with " + TS.model.team.prefs.calling_app_name
-            } else {
-              video_tip_text = voice_tip_text + " with video"
             }
           }
         } else {
           voice_tip_text = "Start a call";
           if (is_third_party) {
             voice_tip_text += " with " + TS.model.team.prefs.calling_app_name
-          } else {
-            video_tip_text = "Start a video call"
           }
         }
       } else {
         if (call_info.is_mpdm) {
-          video_tip_text = voice_tip_text = "Only paid teams can call from group conversations."
+          voice_tip_text = "Only paid teams can call from group conversations."
         } else {
-          video_tip_text = voice_tip_text = "Only paid teams can start calls from channels."
+          voice_tip_text = "Only paid teams can start calls from channels."
         }
       }
       var html = "";
-      if (!_is_platform_call_loading) {
-        html += TS.templates.menu_call_button({
-          is_platform_call_loading: false,
-          button_classes: "video_call hidden",
-          tip_text: video_tip_text,
-          icon_classes: icon_classes.concat("ts_icon_video_camera").join(" ")
-        })
-      }
       html += TS.templates.menu_call_button({
         is_platform_call_loading: _is_platform_call_loading,
         button_classes: "voice_call",
@@ -12414,8 +12401,7 @@
           var is_platform_call = TS.boot_data.feature_platform_calls && TS.model.team.prefs.calling_app_name != "Slack";
           TS.clog.track("CALLS_START_VOICE_BUTTON_CLICKED", {
             is_platform_call: is_platform_call,
-            calling_app_id: TS.model.team.prefs.calling_app_id,
-            was_video_button_showing: !$(".channel_calls_button.video_call").hasClass("hidden")
+            calling_app_id: TS.model.team.prefs.calling_app_id
           });
           if (is_platform_call) {
             TS.utility.calls.launchPlatformCalls(call_info)
@@ -12424,22 +12410,6 @@
           }
         })
       }
-      TS.experiment.loadUserAssignments().then(function() {
-        var group = TS.experiment.getGroup("video_calls");
-        var video_expt_enabled = group === "video_enabled_ss_enabled" || group === "video_enabled_ss_disabled";
-        var should_show_video_call_button = TS.model.supports_video_calls && video_expt_enabled && !is_third_party;
-        if (should_show_video_call_button) {
-          var $video_call_button = $(".channel_calls_button.video_call");
-          $video_call_button.removeClass("hidden");
-          if (call_info.id && is_call_allowed) {
-            $video_call_button.on("click.video_call", function(e) {
-              if (is_channel_preview) return;
-              TS.clog.track("CALLS_START_VIDEO_BUTTON_CLICKED", {});
-              TS.utility.calls.startCallInModelOb(call_info, false, true)
-            })
-          }
-        }
-      })
     }
   };
   var _ifNotSameDayAsLastMsg = function(this_msg, last_msg) {
@@ -13211,7 +13181,7 @@
     _updateIcon()
   };
   var _updateCB = function() {
-    _$what_new_read_cb.prop("checked", TS.model.prefs.whats_new_read !== -1)
+    _$what_new_read_cb.prop("checked", TS.model.prefs.whats_new_read !== -1);
   };
   var _updateBurst = function() {
     if (!_$burst) {
@@ -14186,7 +14156,7 @@
       if (TS.search.filter == "messages") {
         TS.search.view.renderResults();
         TS.search.view.messageSearchResultsFetched(results, args);
-        TS.search.view.searchMembers();
+        TS.search.view.searchMembers()
       } else {
         TS.search.view.updateOptions()
       }
@@ -15480,7 +15450,7 @@
       }
     },
     _destroy: function() {
-      _cancelRAF(this._scroll_raf);
+      _cancelRAF(this._scroll_raf)
     },
     _renderUI: function() {
       var widget_prefix = this.widgetName + "_";
@@ -18817,7 +18787,7 @@
           for (i = 0; i < items.length; i++) {
             if (items[i].type.indexOf("image") !== -1) {
               if (TS.model.is_mac && found_types["text/plain"] && found_types["text/html"] && found_types["text/rtf"]) {
-                TS.info("Ignoring pasted image data, likely from Office/Word for Mac.")
+                TS.info("Ignoring pasted image data, likely from Office/Word for Mac.");
               } else if (TS.model.is_win && found_types["text/plain"] && found_types["text/html"] && found_types["image/png"]) {
                 TS.info("Ignoring pasted image data from Windows, which should render as text")
               } else {
@@ -19985,7 +19955,7 @@
         if (files.length == 1) {
           alert_txt = "That file is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
         } else if (!added_cnt) {
-          alert_txt = "All of those file are too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + ".";
+          alert_txt = "All of those file are too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
         } else {
           alert_txt = "We'll upload what we can, but one or more of those files is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
         }
@@ -25956,7 +25926,7 @@
     if (_$details.find("#channel_topic_input").hasClass("hidden")) {
       _$details.find("#channel_topic_input, .topic_done, .topic_cancel").blur()
     } else {
-      _$details.find("#channel_topic_input").select()
+      _$details.find("#channel_topic_input").select();
     }
   };
   var _setTopic = function() {
@@ -28050,7 +28020,7 @@
       a_members = a.members || []
     }
     if (b.member) {
-      b_members = [b.member];
+      b_members = [b.member]
     } else {
       b_members = b.members || []
     }
@@ -28086,7 +28056,7 @@
     $("#fs_modal").removeClass("fs_modal_internal_scroll");
     $new_channel_container.removeClass("hidden");
     TS.ui.fs_modal.bindBackButton(_switchBackToImBrowser);
-    TS.ui.fs_modal.showBackButton()
+    TS.ui.fs_modal.showBackButton();
   };
   var _switchBackToImBrowser = function() {
     TS.ui.fs_modal.unbindBackButton();
@@ -30171,7 +30141,7 @@
       if (window.TSSSB && TSSSB.call("hasPreference", "notifyPosition")) {
         template_args.show_notify_position = true;
         template_args.winssb_notify_corner = TSSSB.call("getPreference", "notifyPosition").corner;
-        template_args.winssb_notify_display = TSSSB.call("getPreference", "notifyPosition").display;
+        template_args.winssb_notify_display = TSSSB.call("getPreference", "notifyPosition").display
       }
     }
     var notifications_summary_html = TS.templates.prefs_notifications_summary(template_args);
