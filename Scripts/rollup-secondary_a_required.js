@@ -47506,8 +47506,11 @@ $.fn.togglify = function(settings) {
       next = _.reduce(node.jumps, function(result, jump_node) {
         if (result) return result;
         if (jump_node.visited || jump_node === node) return result;
-        if (options.search_forward_only) {
+        if (options.search_forward_only || options.substrings_only) {
           if (jump_node.index < node.index) return result
+        }
+        if (options.substrings_only) {
+          if (jump_node.index > node.index + 2) return result
         }
         return _searchWordBoundariesOnlyWorker(jump_node, next_query_node, 1, options)
       }, null)
@@ -48896,7 +48899,7 @@ $.fn.togglify = function(settings) {
         if (!TS.user_groups.getUserGroupsById(id)) unknown_ids.push(id)
       });
       if (!unknown_ids.length) return Promise.resolve();
-      return _promiseToGetUserGroups(unknown_ids)
+      return _promiseToGetUserGroups(unknown_ids);
     },
     test: function() {
       return {
@@ -53529,7 +53532,7 @@ $.fn.togglify = function(settings) {
           TS.ui.resetButtonSpinner($("#handy_rxns_subsection").find(".submit_setting"))
         }, 2e3)
       } else {
-        $("#handy_rxns_subsection").find(".submit_setting").toggleClass("disabled", !_is_dirty)
+        $("#handy_rxns_subsection").find(".submit_setting").toggleClass("disabled", !_is_dirty);
       }
     } else if (TS.client) {
       if (_in_poll_mode) {
