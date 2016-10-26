@@ -2592,6 +2592,8 @@
     all_unread_highlights_cnt: 0,
     all_unread_cnt_to_exclude: 0,
     all_unread_highlights_cnt_to_exclude: 0,
+    threads_has_unreads: false,
+    threads_mention_count: 0,
     c_name_in_url: "",
     flex_name_in_url: "",
     flex_extra_in_url: "",
@@ -4532,7 +4534,7 @@
         only_general = !!channel.is_general
       }
       if (only_general && has_at_everyone && (!has_at_here && !has_at_channel && !has_at_group)) {
-        if (TS.members.canUserAtEveryone()) return false;
+        if (TS.members.canUserAtEveryone()) return false
       }
       if (!TS.members.canUserAtChannelOrAtGroup()) {
         if (has_at_here) return "@here";

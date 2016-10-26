@@ -2244,6 +2244,10 @@ body.incremental_boot #col_channels .header_count {
   font-size: 1.125rem
 }
 
+.channels_list_holder ul li.all_threads.unread ts-icon:before {
+  content: '\E518'
+}
+
 #all-unreads-list+#all_threads_nav .all_threads {
   margin-top: -.3125rem
 }

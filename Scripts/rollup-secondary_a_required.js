@@ -10453,6 +10453,10 @@ TS.registerModule("constants", {
   var _flannel_max_users = 100;
   var _maybeSetDeletedStatus = function(member) {
     if (!TS.boot_data.page_needs_enterprise) return;
+    if (TS.lazyLoadMembers()) {
+      member.deleted = TS.flannel.isMemberDeleted(member);
+      return
+    }
     if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length > 0) {
       if (TS.boot_data.app === "web") {
         if (member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) member.deleted = false
@@ -10591,7 +10595,7 @@ TS.registerModule("constants", {
       if (member.is_bot && member.name) {
         return member.name
       } else {
-        return "NO MEMBER??";
+        return "NO MEMBER??"
       }
     }
     if (member.profile[type]) return member.profile[type];
@@ -11614,7 +11618,7 @@ TS.registerModule("constants", {
     if (0 === restricted_count) {
       $restricted_members_tab.addClass("hidden")
     } else {
-      $restricted_members_tab.removeClass("hidden");
+      $restricted_members_tab.removeClass("hidden")
     }
     var $disabled_members_tab = $("#disabled_members_tab");
     if (0 === deleted_count) {
@@ -15960,9 +15964,26 @@ TS.registerModule("constants", {
     },
     user_change: function(imsg) {
       var member = TS.members.getMemberById(imsg.user.id);
-      if (!member && TS.lazyLoadMembers()) {
-        TS.log(1989, "Flannel: user_change for member not in model; ignoring");
-        return
+      if (TS.lazyLoadMembers()) {
+        if (_.has(imsg, "user.id") && _.has(imsg, "user.deleted")) {
+          var did_change_deleted_status = TS.flannel.setMemberDeletedStatus(imsg.user.id, !!imsg.user.deleted);
+          if (did_change_deleted_status && TS.client) {
+            var model_ob = TS.shared.getActiveModelOb();
+            if (!member && model_ob && _.includes(model_ob.members, imsg.user.id)) {
+              if (!_did_queue_rebuild_member_list_toggle) {
+                _did_queue_rebuild_member_list_toggle = true;
+                TS.utility.rAF(function() {
+                  _did_queue_rebuild_member_list_toggle = false;
+                  TS.client.ui.rebuildMemberListToggle()
+                })
+              }
+            }
+          }
+        }
+        if (!member) {
+          TS.log(1989, "Flannel: user_change for member not in model; ignoring");
+          return
+        }
       }
       if (!member) {
         TS.error("user_change: wtf no member " + imsg.user.id + "?");
@@ -16328,6 +16349,7 @@ TS.registerModule("constants", {
       if (TS.client) TS.client.user_removed_from_team_sig.dispatch(imsg.team_id)
     }
   });
+  var _did_queue_rebuild_member_list_toggle = false;
   var REMINDER_REGEXP = /^Reminder:+\s/;
   var _isFileMsgRelevant = function(imsg, file_id) {
     if (!file_id) return false;
@@ -19552,7 +19574,7 @@ TS.registerModule("constants", {
       }
       var show_disabled_members = false;
       if (disabled_members.length || is_lazy) {
-        show_disabled_members = true;
+        show_disabled_members = true
       }
       var show_user_groups = false;
       var show_user_groups_help = false;
@@ -22399,7 +22421,7 @@ TS.registerModule("constants", {
         return TS.templates.makeUnreadMessagesDomId(item)
       });
       Handlebars.registerHelper("makeUnreadGroupMessagesDomId", function(item) {
-        return TS.templates.makeUnreadGroupMessagesDomId(item)
+        return TS.templates.makeUnreadGroupMessagesDomId(item);
       });
       Handlebars.registerHelper("makeUnreadDmsDomId", function(item) {
         return TS.templates.makeUnreadDmsDomId(item)
@@ -22425,7 +22447,7 @@ TS.registerModule("constants", {
         var starts_with_vowel = vowels.some(function(vowel) {
           return first_letter === vowel
         });
-        return starts_with_vowel ? "an " + word_str : "a " + word_str;
+        return starts_with_vowel ? "an " + word_str : "a " + word_str
       });
       Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
         if (arguments.length < 4) {
@@ -24626,7 +24648,7 @@ TS.registerModule("constants", {
           } else {
             new_msg.no_display = true
           }
-          if (TS.boot_data.feature_pin_update) new_msg.no_display = true
+          if (TS.boot_data.feature_pin_update) new_msg.no_display = true;
         }
       }
       return new_msg
@@ -25381,7 +25403,7 @@ TS.registerModule("constants", {
   TS.registerModule("utility.members", {
     checkMemberMatch: function(member, regex, names_only) {
       if (TS.boot_data.feature_name_tagging_client) {
-        return !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.full_name_normalized && member.profile.full_name_normalized.match(regex) || member.profile && member.profile.full_name && member.profile.full_name.match(regex) || member.profile && member.profile.preferred_name_normalized && member.profile.preferred_name_normalized.match(regex) || member.profile && member.profile.preferred_name && member.profile.preferred_name.match(regex)
+        return !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.full_name_normalized && member.profile.full_name_normalized.match(regex) || member.profile && member.profile.full_name && member.profile.full_name.match(regex) || member.profile && member.profile.preferred_name_normalized && member.profile.preferred_name_normalized.match(regex) || member.profile && member.profile.preferred_name && member.profile.preferred_name.match(regex);
       } else {
         return member.name && member.name.match(regex) || !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.real_name_normalized && member.profile.real_name_normalized.match(regex) || member.profile && member.profile.real_name && member.profile.real_name.match(regex)
       }
@@ -26584,7 +26606,7 @@ TS.registerModule("constants", {
         } else {
           if (!TS.members.getMemberByName(member_name)) return null
         }
-        file_id = pathname_parts[2];
+        file_id = pathname_parts[2]
       } else if (pathname.indexOf("files-pri/") === 0) {
         pathname_parts = pathname.split("/");
         if (pathname_parts.length < 3) return null;
@@ -32941,7 +32963,7 @@ var _on_esc;
       }],
       func: function(cmd, rest, words, e, in_reply_to_msg) {
         if (words.length == 1) {
-          TS.ui.channel_browser.start()
+          TS.ui.channel_browser.start();
         } else {
           var channel_name = TS.utility.cleanChannelName(rest);
           var channel = TS.channels.getChannelByName(channel_name);
@@ -32958,7 +32980,7 @@ var _on_esc;
             }
           } else {
             if (TS.members.canUserCreateChannels()) {
-              TS.ui.new_channel_modal.start(channel_name);
+              TS.ui.new_channel_modal.start(channel_name)
             } else {
               TS.cmd_handlers.addEphemeralFeedback("I couldn't find a channel named \"" + channel_name + '", sorry', "", "sad_surprise")
             }
@@ -34150,7 +34172,7 @@ var _on_esc;
           attach_text: report_text,
           tags: "slack_diagnostic_report"
         }).catch(function(err) {
-          TS.generic_dialog.alert('Oops! That didn\'t work &mdash; please give it another try. If problems persist, please <a href="/help/requests/new">contact support</a>.', "Something went wrong", "Close")
+          TS.generic_dialog.alert('Oops! That didn\'t work &mdash; please give it another try. If problems persist, please <a href="/help/requests/new">contact support</a>.', "Something went wrong", "Close");
         }).finally(function() {
           TS.generic_dialog.cancel()
         });
@@ -34164,7 +34186,7 @@ var _on_esc;
       TS.generic_dialog.div.find("h3").text("Diagnostic report ready");
       TS.generic_dialog.div.find(".modal-body").html("Click the button below to send the report to Slack.");
       TS.generic_dialog.div.find(".btn.dialog_go").removeClass("hidden");
-      TS.generic_dialog.div.find(".btn.dialog_cancel").text("Close");
+      TS.generic_dialog.div.find(".btn.dialog_cancel").text("Close")
     })
   };
   var _generateDiagnosticReport = function() {
@@ -36270,7 +36292,7 @@ var _on_esc;
             if (model_ob.is_channel) {
               TS.channels.removeMsg(model_ob.id, msg)
             } else if (model_ob.is_im) {
-              TS.ims.removeMsg(model_ob.id, msg);
+              TS.ims.removeMsg(model_ob.id, msg)
             } else if (model_ob.is_mpim) {
               TS.mpims.removeMsg(model_ob.id, msg)
             } else if (model_ob.is_group) {
@@ -39099,7 +39121,7 @@ var _on_esc;
       if (_state.selected_member_type == "full" || _state.selected_member_type == "restricted") {
         channels_to_join = _state.selected_channels.map(function(item) {
           return item.id
-        }).join(",")
+        }).join(",");
       } else if (_state.selected_member_type == "ultra_restricted") {
         channels_to_join = _state.selected_channels[0].id
       }
@@ -40117,7 +40139,7 @@ var _on_esc;
     if (old_user_media) {
       return function(constraints) {
         return new Promise(function(resolve, reject) {
-          old_user_media.call(navigator, constraints, resolve, reject);
+          old_user_media.call(navigator, constraints, resolve, reject)
         })
       }
     }
@@ -42334,7 +42356,7 @@ var _on_esc;
       } else if (type === "file" && pinned_item.type === "file") {
         if (pinned_item.file.id === item.file.id) matches = true
       } else if (type === "file_comment" && pinned_item.type === "file_comment") {
-        if (pinned_item.comment.id === item.comment.id) matches = true;
+        if (pinned_item.comment.id === item.comment.id) matches = true
       }
       if (matches) {
         pinned_items_index = index;
@@ -43401,7 +43423,7 @@ $.fn.togglify = function(settings) {
     }
     record.last_update = when;
     if (and_alert) {
-      TS.rxns.need_alerts[rxn_key] = TS.rxns.need_alerts[rxn_key] || when
+      TS.rxns.need_alerts[rxn_key] = TS.rxns.need_alerts[rxn_key] || when;
     }
     record.emoji = record.emoji || {};
     record.source = source_channel || "";
@@ -47849,7 +47871,7 @@ $.fn.togglify = function(settings) {
     return _.find(_getSharedInvitesFromModel(), function(invite) {
       return invite.team.domain === team_domain && invite.channel_name === channel_name
     }) || _.find(_getSharedInvitesFromModel(true), function(invite) {
-      return invite.team.domain === team_domain && invite.channel_name === channel_name;
+      return invite.team.domain === team_domain && invite.channel_name === channel_name
     })
   };
   var _getCreateViewValidationSelector = function() {
@@ -51290,7 +51312,7 @@ $.fn.togglify = function(settings) {
       var calls_supported_message_types = ["user_change", "pref_change", "team_join", "channel_created", "channel_deleted", "channel_archive", "channel_unarchive", "channel_rename", "channel_joined", "channel_left", "group_deleted", "group_archive", "group_unarchive", "group_rename", "group_joined", "group_left", "im_open", "mpim_joined", "mpim_open", "mpim_close"];
       if (!TS.boot_data.feature_calls_no_rtm_start) {
         calls_supported_message_types.push("presence_change");
-        calls_supported_message_types.push("manual_presence_change");
+        calls_supported_message_types.push("manual_presence_change")
       }
       return calls_supported_message_types.indexOf(type) !== -1
     },

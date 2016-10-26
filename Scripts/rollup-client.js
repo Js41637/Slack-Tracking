@@ -1194,6 +1194,7 @@
       only_relevant_ims: true,
       simple_unreads: true
     };
+    if (TS.boot_data.feature_message_replies_threads_view) args.include_threads = true;
     TS.api.callImmediately("users.counts", args).then(_updateUnreadsWithUsersCountsResponse)
   };
   var _updateUnreadsWithUsersCountsResponse = function(resp) {
@@ -1216,6 +1217,9 @@
         return TS.mpims.getMpimById(count_info.id)
       }
     });
+    if (TS.boot_data.feature_message_replies_threads_view) {
+      TS.replies.slurlpInitialThreadsData(resp.data.threads)
+    }
     if (TS.client.history_prefetch) TS.client.history_prefetch.processHistoryFetchQueue();
     return null
   };
@@ -1901,7 +1905,7 @@
             TS.view.rebuildMsg(msg_after)
           }
         }
-        TS.view.resizeManually("TS.view.removeMessageDiv")
+        TS.view.resizeManually("TS.view.removeMessageDiv");
       };
       if (instant || TS.utility.msgs.isTempMsg(msg)) {
         doRemove()
@@ -6878,6 +6882,8 @@
         var online_count = 0;
         if (TS.isPartiallyBooted()) {
           display_member_count = _.get(model_ob, "_incremental_boot_counts.member_count_display", 0)
+        } else if (TS.lazyLoadMembers()) {
+          display_member_count = TS.flannel.getMemberCountForModelOb(model_ob)
         } else {
           var member;
           for (var i = 0; i < model_ob.members.length; i++) {
@@ -6890,13 +6896,6 @@
         }
         var $member_count = $("#channel_members_toggle_count");
         TS.utility.queueRAF(function rebuildMemberListToggleRAF() {
-          if (TS.lazyLoadMembers()) {
-            var should_show_member_count = TS.shared.haveAllMembersForModelOb(model_ob);
-            if (!should_show_member_count) {
-              $member_count.text("See members").append('<span class="ts_tip_tip">View member list</span>').removeClass("hidden");
-              return
-            }
-          }
           if (TS.boot_data.feature_pin_update) {
             $member_count.html('<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon> ' + display_member_count)
           } else {
@@ -6915,7 +6914,13 @@
               }
             }
           }
-          $member_count.append('<span class="ts_tip_tip">View member list (' + online_count + "/" + display_member_count + " online)</span>");
+          var tooltip_text;
+          if (TS.lazyLoadMembers()) {
+            tooltip_text = "View member list"
+          } else {
+            tooltip_text = "View member list (" + online_count + "/" + display_member_count + " online)"
+          }
+          $member_count.append('<span class="ts_tip_tip">' + tooltip_text + "</span>");
           $member_count.removeClass("hidden")
         })
       } else {
@@ -11118,7 +11123,7 @@
       var content = TS.emoji.graphicReplace(":" + emoji_name + ":") + rxn_tip;
       var top_pos = -(50 + _$rxn_toast_div.height());
       _$rxn_toast_div.html(content).removeClass("hidden");
-      var class_name = _$rxn_toast_div.find(".ts_tip_tip").outerWidth() > 150 ? "ts_tip_right" : "";
+      var class_name = _$rxn_toast_div.find(".ts_tip_tip").outerWidth() > 150 ? "ts_tip_rightish" : "";
       _$rxn_toast_div.addClass(class_name).css({
         opacity: 0,
         top: top_pos
