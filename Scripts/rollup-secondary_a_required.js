@@ -10876,6 +10876,13 @@ TS.registerModule("constants", {
     }
   };
   var _setPresenceForNewMember = function(member) {
+    if (!member.presence && !_.isEmpty(TS.model.online_users)) {
+      var index = TS.model.online_users.indexOf(member.id);
+      if (index > -1) {
+        member.presence = "active";
+        TS.model.online_users.splice(index, 1)
+      }
+    }
     member.presence = member.presence == "active" ? "active" : "away";
     if (!TS.boot_data.feature_always_active_bots) return;
     if (_.get(member, "profile.always_active")) {
@@ -11607,13 +11614,13 @@ TS.registerModule("constants", {
     if (0 === restricted_count) {
       $restricted_members_tab.addClass("hidden")
     } else {
-      $restricted_members_tab.removeClass("hidden")
+      $restricted_members_tab.removeClass("hidden");
     }
     var $disabled_members_tab = $("#disabled_members_tab");
     if (0 === deleted_count) {
       $disabled_members_tab.addClass("hidden")
     } else {
-      $disabled_members_tab.removeClass("hidden");
+      $disabled_members_tab.removeClass("hidden")
     }
     $("#disabled_members_count_value").text(deleted_count);
     $("#restricted_members_count_value").text(restricted_count);
@@ -14571,7 +14578,7 @@ TS.registerModule("constants", {
       clearTimeout(_disconnect_timeout_tim);
       _disconnect_timeout_tim = setTimeout(function() {
         TS.info("called disconnect, no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now");
-        _onDisconnect(null, "since_last_pong_ms too long! then called disconnect, but no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now");
+        _onDisconnect(null, "since_last_pong_ms too long! then called disconnect, but no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now")
       }, _disconnect_timeout_tim_ms)
     } catch (err) {
       TS.info("since_last_pong_ms too long! then an error calling disconnect, going to assume it is because it is already closed, calling _onDisconnect() manually now");
@@ -16742,7 +16749,7 @@ TS.registerModule("constants", {
           if (TS.qs_args["simulate_first_connect_failure"] == 1 && !window.already_simulated_first_connect_failure) {
             url = url.replace("e", "w");
             TS.info("simulate_first_connect_failure url:" + url);
-            window.already_simulated_first_connect_failure = true;
+            window.already_simulated_first_connect_failure = true
           }
           _connect_timeout_tim_ms = window.WEB_SOCKET_USING_FLASH ? _connect_flash_timeout_tim_ms : _connect_ws_timeout_tim_ms;
           clearTimeout(_connect_timeout_tim);
@@ -19545,7 +19552,7 @@ TS.registerModule("constants", {
       }
       var show_disabled_members = false;
       if (disabled_members.length || is_lazy) {
-        show_disabled_members = true
+        show_disabled_members = true;
       }
       var show_user_groups = false;
       var show_user_groups_help = false;
@@ -20549,7 +20556,7 @@ TS.registerModule("constants", {
           return
         }
         if (!$div.children().length) {
-          $div = $(TS.templates.builders.rxnPanel(rxn_key)).replaceAll($div);
+          $div = $(TS.templates.builders.rxnPanel(rxn_key)).replaceAll($div)
         }
         if (handy_rxns_dd.is_poll) {
           updatePoll($div)
@@ -22418,7 +22425,7 @@ TS.registerModule("constants", {
         var starts_with_vowel = vowels.some(function(vowel) {
           return first_letter === vowel
         });
-        return starts_with_vowel ? "an " + word_str : "a " + word_str
+        return starts_with_vowel ? "an " + word_str : "a " + word_str;
       });
       Handlebars.registerHelper("math", function(lvalue, operator, rvalue, options) {
         if (arguments.length < 4) {
@@ -24648,7 +24655,7 @@ TS.registerModule("constants", {
         if (attachment.slack_file_id && !attachment._slack_file_is_deleted) {
           var file = TS.files.getFileById(attachment.slack_file_id);
           if (file) {
-            attachment._slack_file = file;
+            attachment._slack_file = file
           } else if (attachment._slack_file) {
             attachment._slack_file = TS.files.upsertFile(attachment._slack_file).file
           }

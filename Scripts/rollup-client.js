@@ -22163,7 +22163,7 @@
       if (TS.model.seen_welcome_2) return;
       if (_shouldDirectToSlackbotForOnboarding()) TS.ims.startImByMemberName("slackbot");
       TS.experiment.loadUserAssignments().then(function() {
-        var group = TS.experiment.getGroup("portal_onboarding");
+        var group = TS.experiment.getGroup("portal_onboarding_v1");
         if (group === "treatment") {
           TS.model.seen_onboarding_this_session = true;
           TS.newxp.cancelOnboarding();

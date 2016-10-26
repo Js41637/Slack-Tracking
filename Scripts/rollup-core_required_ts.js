@@ -1554,7 +1554,8 @@
         TS.model.groups = [];
         TS.model.mpims = [];
         TS.model.user_groups = [];
-        TS.model.read_only_channels = []
+        TS.model.read_only_channels = [];
+        TS.model.online_users = []
       } else {
         var is_first_full_boot = TS._did_incremental_boot && !TS._did_full_boot;
         if (!is_first_full_boot) {
@@ -1567,6 +1568,9 @@
           TS.metrics.count(log_name, JSON.stringify(data).length)
         })
       }
+      if (data.online_users && _.isArray(data.online_users)) TS.model.online_users = data.online_users.filter(function(user_id) {
+        return user_id !== "USLACKBOT"
+      });
       TS.prefs.setPrefs(data.self.prefs);
       delete data.self.prefs;
       var i;
@@ -2123,7 +2127,7 @@
     if (!is_incremental_boot_in_progress) {
       $("#col_channels, #team_menu").removeClass("placeholder")
     }
-    $(document.body).toggleClass("incremental_boot", is_incremental_boot_in_progress);
+    $(document.body).toggleClass("incremental_boot", is_incremental_boot_in_progress)
   };
   var _upsertModelOb = function(model_ob, all_model_obs) {
     var existing_model_ob = _.find(all_model_obs, {
@@ -4528,7 +4532,7 @@
         only_general = !!channel.is_general
       }
       if (only_general && has_at_everyone && (!has_at_here && !has_at_channel && !has_at_group)) {
-        if (TS.members.canUserAtEveryone()) return false
+        if (TS.members.canUserAtEveryone()) return false;
       }
       if (!TS.members.canUserAtChannelOrAtGroup()) {
         if (has_at_here) return "@here";
