@@ -691,6 +691,11 @@
         return _promiseToCallRTMStart()
       })
     }
+    if (TS.boot_data.rtm_start_response) {
+      var rtm_start_response = TS.boot_data.rtm_start_response;
+      delete TS.boot_data.rtm_start_response;
+      return Promise.resolve(rtm_start_response)
+    }
     if (TS.model.calling_rtm_start) {
       var error_msg = "_callRTMStart was called but TS.model.calling_rtm_start=true";
       TS.error(error_msg);
@@ -1615,7 +1620,7 @@
         } else {
           if (data.online_users) member.presence = _.includes(data.online_users, member.id) ? "active" : "away"
         }
-        if (TS.boot_data.feature_always_active_bots && member.profile.always_active) member.presence = "active";
+        if (TS.boot_data.feature_always_active_bots && member.profile && member.profile.always_active) member.presence = "active";
         upsert = TS.members.upsertAndSignal(member);
         if (TS.pri) TS.log(481, "upsert from DATA: " + member.id + " " + upsert.status);
         if (upsert.member.id == data.self.id) setModelUser(upsert.member)
@@ -2118,14 +2123,14 @@
     if (!is_incremental_boot_in_progress) {
       $("#col_channels, #team_menu").removeClass("placeholder")
     }
-    $(document.body).toggleClass("incremental_boot", is_incremental_boot_in_progress)
+    $(document.body).toggleClass("incremental_boot", is_incremental_boot_in_progress);
   };
   var _upsertModelOb = function(model_ob, all_model_obs) {
     var existing_model_ob = _.find(all_model_obs, {
       id: model_ob.id
     });
     if (existing_model_ob) {
-      _.extend(existing_model_ob, model_ob);
+      _.extend(existing_model_ob, model_ob)
     } else {
       all_model_obs.push(model_ob)
     }
@@ -2788,7 +2793,7 @@
             if (capabilities) {
               if (capabilities.supports_video) TS.model.supports_video_calls = true;
               if (capabilities.supports_screen_sharing) TS.model.supports_screen_sharing = true;
-              if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true;
+              if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true
             }
           }
         } else if (TS.model.is_chrome_desktop) {
@@ -3994,7 +3999,7 @@
       if (!condensed.hasOwnProperty(root_name)) {
         condensed[root_name] = 0
       }
-      condensed[root_name] += TS.model.emoji_use[k];
+      condensed[root_name] += TS.model.emoji_use[k]
     }
     TS.dir(777, condensed, "condensed emoji names:");
     var A = Object.keys(condensed).sort(function(a, b) {

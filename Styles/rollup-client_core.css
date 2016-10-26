@@ -7576,6 +7576,12 @@ only screen and (min-resolution:2dppx) {
   font-weight: 600
 }
 
+#client-ui.threads_view_is_showing #footer_archives,
+#client-ui.threads_view_is_showing #footer_msgs,
+#client-ui.threads_view_is_showing #footer_overlay,
+#client-ui.threads_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
+#client-ui.threads_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
+#client-ui.threads_view_is_showing #msgs_scroller_div,
 #client-ui.unread_view_is_showing #footer_archives,
 #client-ui.unread_view_is_showing #footer_msgs,
 #client-ui.unread_view_is_showing #footer_overlay,
@@ -7585,12 +7591,18 @@ only screen and (min-resolution:2dppx) {
   visibility: hidden
 }
 
+#client-ui.threads_view_is_showing #archive_msgs_scroller_div,
 #client-ui.unread_view_is_showing #archive_msgs_scroller_div {
   display: none
 }
 
 #client-ui:not(.unread_view_is_showing) #monkey_scroll_wrapper_for_unread_msgs_scroller_div,
 #client-ui:not(.unread_view_is_showing) #unread_msgs_scroller_div {
+  display: none
+}
+
+#client-ui:not(.threads_view_is_showing) #monkey_scroll_wrapper_for_threads_msgs_scroller_div,
+#client-ui:not(.threads_view_is_showing) #threads_msgs_scroller_div {
   display: none
 }
 

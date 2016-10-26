@@ -264,6 +264,7 @@
       TS.model.active_group_id = null;
       TS.model.active_mpim_id = null;
       TS.model.unread_view_is_showing = false;
+      if (TS.boot_data.feature_message_replies_threads_view) TS.model.threads_view_is_showing = false;
       if (model_ob.is_channel) {
         TS.model.active_channel_id = model_ob_id
       } else if (model_ob.is_im) {
@@ -305,7 +306,32 @@
         TS.warn("not switching, unread view is already active");
         return false
       }
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        TS.client.threads.destroyThreadsView();
+        TS.model.threads_view_is_showing = false
+      }
       TS.model.unread_view_is_showing = true;
+      TS.view.updateTitleWithContext();
+      return true
+    },
+    threadsViewActivated: function(replace_history_state, no_history_add) {
+      if (!no_history_add) {
+        var flex_extra = _cleanFlexExtra(TS.model.flex_extra_in_url);
+        var new_url = TS.utility.refashionUrlForUnreadView(window.location.href, TS.model.flex_name_in_url, flex_extra);
+        if (!replace_history_state) {
+          if (!TS.model.threads_view_is_showing && !TS.model.c_name_in_url) replace_history_state = true
+        }
+        _putURLInHistory(new_url, replace_history_state)
+      }
+      if (TS.model.threads_view_is_showing) {
+        TS.warn("not switching, threads view is already active");
+        return false
+      }
+      if (TS.boot_data.feature_unread_view && TS.client.unread.isEnabled()) {
+        TS.client.unread.destroyUnreadView();
+        TS.model.unread_view_is_showing = false
+      }
+      TS.model.threads_view_is_showing = true;
       TS.view.updateTitleWithContext();
       return true
     },
@@ -981,7 +1007,7 @@
       if (TS.model.welcome_model_ob && TS.model.welcome_model_ob.id) return;
       var slackbot = TS.ims.getImByMemberId("USLACKBOT");
       if (slackbot) {
-        TS.model.welcome_model_ob = slackbot
+        TS.model.welcome_model_ob = slackbot;
       } else {
         TS.error("Tried to lookup Slackbot but failed");
         TS.generic_dialog.alert("Slack has encountered a problem and needs to reload.", "Reload required", "Reload").then(TS.reload)
@@ -1793,6 +1819,9 @@
       if (TS.boot_data.feature_unread_view && TS.client.unread.isEnabled()) {
         TS.client.unread.destroyUnreadView()
       }
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        TS.client.threads.destroyThreadsView()
+      }
       if (model_ob.is_channel && (!model_ob.is_member || model_ob.is_archived)) {
         TS.client.archives.start()
       } else if (model_ob.is_group && model_ob.is_archived) {
@@ -1885,6 +1914,8 @@
       model_ob = TS.shared.getActiveModelOb();
       if (TS.model.unread_view_is_showing) {
         context_name = "Unread Messages"
+      } else if (TS.model.threads_view_is_showing) {
+        context_name = "Threads"
       } else if (model_ob) {
         context_name = model_ob.name || ""
       }
@@ -1915,7 +1946,7 @@
       if (active_model_ob && active_model_ob.is_general && !TS.members.canUserPostInGeneral()) {
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
         if (!TS.boot_data.feature_msg_input_contenteditable) {
-          TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
+          TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize")
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $("#footer").addClass("disabled");
@@ -3764,7 +3795,7 @@
             preserve_dom_order: true,
             scrollable: $("#file_list_scroller"),
             makeElement: function() {
-              return $("<div>");
+              return $("<div>")
             },
             renderItem: function($el, item, data) {
               var html = TS.templates.builders.fileHTML(item);
@@ -9629,6 +9660,7 @@
     $scroller: $("#channels_scroller"),
     $nav: $("#channels_nav"),
     $unread_nav: $(".channels_nav_unread"),
+    $threads_nav: $("#col_channels .all_threads"),
     onStart: function() {
       _dm_members = TS.presence_manager.createList();
       _starred_members = TS.presence_manager.createList();
@@ -9770,6 +9802,13 @@
       if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
       TS.client.unread.showUnreadView()
     });
+    if (TS.boot_data.feature_message_replies_threads_view) {
+      TS.client.channel_pane.$threads_nav.on("click", function(e) {
+        e.preventDefault();
+        if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
+        TS.client.threads.showThreadsView()
+      })
+    }
     TS.client.channel_pane.$scroller.find(".section_holder ul").on("click", function(e) {
       if (TS.view.maybeFollowLink(e)) return;
       e.preventDefault();
@@ -11257,7 +11296,7 @@
             html += TS.templates.messages_day_divider({
               ts: msg.ts
             });
-            html += '<div class="day_msgs" data-date="' + TS.utility.date.toCalendarDate(msg.ts) + '" data-ts="' + msg.ts + '">'
+            html += '<div class="day_msgs" data-date="' + TS.utility.date.toCalendarDate(msg.ts) + '" data-ts="' + msg.ts + '">';
           }
           html += TS.templates.builders.buildMsgHTML({
             msg: msg,
@@ -11271,7 +11310,7 @@
           }
           if (!msg.rsp_id) {
             TS.client.msg_pane.last_in_stream_msg = msg;
-            if (!TS.utility.msgs.isMsgHidden(msg)) TS.client.msg_pane.last_rendered_msg = msg;
+            if (!TS.utility.msgs.isMsgHidden(msg)) TS.client.msg_pane.last_rendered_msg = msg
           }
         }
         var min_count = 20;
@@ -14147,7 +14186,7 @@
       if (TS.search.filter == "messages") {
         TS.search.view.renderResults();
         TS.search.view.messageSearchResultsFetched(results, args);
-        TS.search.view.searchMembers()
+        TS.search.view.searchMembers();
       } else {
         TS.search.view.updateOptions()
       }
@@ -15441,7 +15480,7 @@
       }
     },
     _destroy: function() {
-      _cancelRAF(this._scroll_raf)
+      _cancelRAF(this._scroll_raf);
     },
     _renderUI: function() {
       var widget_prefix = this.widgetName + "_";
@@ -16556,7 +16595,7 @@
           if (!just_deleted && user.deleted) return false;
           if (user_name_regexp.test(user.name)) {
             username_matches.push(user);
-            if (limit && username_matches.length >= limit) return true;
+            if (limit && username_matches.length >= limit) return true
           } else if ((!limit || realname_matches.length < limit) && real_name_regexp.test(user._real_name_normalized_lc)) {
             realname_matches.push(user)
           }
@@ -19946,9 +19985,9 @@
         if (files.length == 1) {
           alert_txt = "That file is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
         } else if (!added_cnt) {
-          alert_txt = "All of those file are too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
+          alert_txt = "All of those file are too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + ".";
         } else {
-          alert_txt = "We'll upload what we can, but one or more of those files is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + ".";
+          alert_txt = "We'll upload what we can, but one or more of those files is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + "."
         }
         alert(alert_txt)
       }
@@ -22939,7 +22978,7 @@
         }
         var err_str = 'converting to private channel failed with error "' + data.error + '"';
         if (data.error === "restricted_action") {
-          err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>";
+          err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>"
         } else if (data.error === "last_ra_channel") {
           err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>"
         } else if (data.error === "name_taken") {
@@ -23852,7 +23891,7 @@
         $(document).on("mousemove touchmove", current, moveSelector);
         var payeX, pageY;
         if (ev.type == "touchstart") {
-          pageX = ev.originalEvent.changedTouches[0].pageX, pageY = ev.originalEvent.changedTouches[0].pageY;
+          pageX = ev.originalEvent.changedTouches[0].pageX, pageY = ev.originalEvent.changedTouches[0].pageY
         } else {
           pageX = ev.pageX;
           pageY = ev.pageY
@@ -24901,7 +24940,7 @@
           } else if (model_ob.is_group) {
             TS.groups.displayGroup(model_ob.id)
           } else {
-            TS.ims.startImById(model_ob.id);
+            TS.ims.startImById(model_ob.id)
           }
           return model_ob.id == TS.model.active_cid
         }
@@ -28011,7 +28050,7 @@
       a_members = a.members || []
     }
     if (b.member) {
-      b_members = [b.member]
+      b_members = [b.member];
     } else {
       b_members = b.members || []
     }
@@ -30132,7 +30171,7 @@
       if (window.TSSSB && TSSSB.call("hasPreference", "notifyPosition")) {
         template_args.show_notify_position = true;
         template_args.winssb_notify_corner = TSSSB.call("getPreference", "notifyPosition").corner;
-        template_args.winssb_notify_display = TSSSB.call("getPreference", "notifyPosition").display
+        template_args.winssb_notify_display = TSSSB.call("getPreference", "notifyPosition").display;
       }
     }
     var notifications_summary_html = TS.templates.prefs_notifications_summary(template_args);
