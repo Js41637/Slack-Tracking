@@ -47149,7 +47149,12 @@ $.fn.togglify = function(settings) {
           return false
         }
         return searcher.matchesEmoji(e)
-      })
+      });
+      if (query && query.toLowerCase() === "wife") {
+        emoji_matches = emoji_matches.filter(function(item) {
+          return item.name !== "reversed_hand_with_middle_finger_extended" && item.name !== "face_with_rolling_eyes"
+        })
+      }
     }
     if (TS.boot_data.feature_unread_view && TS.client && TS.client.unread.isEnabled()) {
       if (!searcher.only_channels && !searcher.only_members) {
@@ -47860,7 +47865,7 @@ $.fn.togglify = function(settings) {
     });
     if (exact_match) {
       if (exact_match.is_member) {
-        joined.unshift(exact_match);
+        joined.unshift(exact_match)
       } else {
         to_join.unshift(exact_match)
       }
@@ -48931,7 +48936,7 @@ $.fn.togglify = function(settings) {
     enable: function(user_group) {
       _start();
       _close_when_done = true;
-      _switchToggleView(user_group, "enable_user_group");
+      _switchToggleView(user_group, "enable_user_group")
     },
     remove: function(user_group) {
       _start();
@@ -51290,7 +51295,7 @@ $.fn.togglify = function(settings) {
       return true
     },
     getUrlForRoom: function(room) {
-      return TS.utility.calls.getUrlForRoomId(room.id);
+      return TS.utility.calls.getUrlForRoomId(room.id)
     },
     getUrlForRoomId: function(room_id) {
       return TS.utility.calls.share_url_prefix + room_id
