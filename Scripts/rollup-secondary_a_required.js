@@ -30941,6 +30941,47 @@ TS.registerModule("constants", {
 var _on_esc;
 (function() {
   "use strict";
+  TS.registerModule("menu.app", {
+    onStart: function() {
+      _app_presence_list = TS.presence_manager.createList()
+    },
+    app: null,
+    app_item_click_sig: new signals.Signal,
+    startWithApp: function(e, app_id, position_by_click) {
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.client.ui.checkForEditing(e)) return;
+      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
+        return
+      }
+      TS.menu.buildIfNeeded();
+      var app = TS.menu.app.app = TS.apps.getAppById(app_id);
+      if (!app) return;
+      TS.menu.clean();
+      _app_presence_list.add(app_id);
+      TS.menu.menu_closed_sig.addOnce(function() {
+        _app_presence_list.clear()
+      });
+      var template_args = {
+        app: app
+      };
+      TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
+      TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
+      TS.menu.start(e, position_by_click);
+      TS.menu.keepInBounds()
+    },
+    onAppItemClick: function(e) {
+      clearTimeout(TS.menu.end_time);
+      TS.menu.app.end()
+    },
+    end: function() {
+      TS.menu.app.app = null;
+      TS.menu.end()
+    }
+  });
+  var _app_presence_list
+})();
+(function() {
+  "use strict";
   TS.registerModule("menu.channel", {
     onStart: function() {},
     channel: null,
@@ -30963,7 +31004,7 @@ var _on_esc;
         show_handy_rxns: TS.model.user.is_admin && TS.boot_data.feature_thanks
       };
       if (!channel.is_general || TS.members.canUserPostInGeneral()) {
-        if (channel.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted && channel.is_member) template_args.show_purpose_item = true;
+        if (channel.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted && channel.is_member) template_args.show_purpose_item = true
       }
       var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(TS.channels.getActiveMembersNotInThisChannelForInviting(channel_id));
       if (invite_members.length === 0) {
@@ -31322,6 +31363,49 @@ var _on_esc;
     }, 250));
     $filter.focus()
   }
+})();
+(function() {
+  "use strict";
+  TS.registerModule("menu.enterprise_team_signin", {
+    onStart: function() {},
+    start: function(e, el, options) {
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.model.menu_is_showing) return;
+      options = _.merge({}, options);
+      TS.menu.buildIfNeeded();
+      TS.menu.enterprise_team_signin.clean();
+      TS.menu.$menu.addClass("enterprise_team_signin_menu");
+      TS.menu.$menu_header.addClass("hidden").empty();
+      var items_html = TS.templates.enterprise_team_signin_menu_items({
+        should_show_leave_team: false,
+        team_site_url: options.team_site_url || ""
+      });
+      TS.menu.$menu_items.html(items_html);
+      TS.menu.$menu_items.on("click.menu", "li", TS.menu.enterprise_team_signin.onMenuItemClick);
+      TS.kb_nav.setSubmitItemHandler(TS.menu.enterprise_team_signin.onMenuItemClick);
+      TS.menu.start(e, false);
+      TS.menu.$menu.attr("data-qa", "enterprise_team_signin_menu");
+      TS.menu.positionAt(el, el.width() - TS.menu.$menu.width(), el.outerHeight() + 10)
+    },
+    onMenuItemClick: function(e) {
+      var $clicked = $(this).closest("[data-which]");
+      if (!$clicked.length) $clicked = $(e.target).closest("[data-which]");
+      var which = $clicked.data("which");
+      if (which == "visit_team_site") {} else if (which == "leave_team") {
+        e.preventDefault()
+      } else {
+        e.preventDefault();
+        TS.warn("not sure what to do with clicked element:" + which)
+      }
+      TS.menu.enterprise_team_signin.end()
+    },
+    clean: function() {
+      TS.menu.clean()
+    },
+    end: function() {
+      TS.menu.end()
+    }
+  })
 })();
 (function() {
   "use strict";
@@ -32598,47 +32682,6 @@ var _on_esc;
 })();
 (function() {
   "use strict";
-  TS.registerModule("menu.app", {
-    onStart: function() {
-      _app_presence_list = TS.presence_manager.createList()
-    },
-    app: null,
-    app_item_click_sig: new signals.Signal,
-    startWithApp: function(e, app_id, position_by_click) {
-      if (TS.menu.isRedundantClick(e)) return;
-      if (TS.client.ui.checkForEditing(e)) return;
-      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
-        return
-      }
-      TS.menu.buildIfNeeded();
-      var app = TS.menu.app.app = TS.apps.getAppById(app_id);
-      if (!app) return;
-      TS.menu.clean();
-      _app_presence_list.add(app_id);
-      TS.menu.menu_closed_sig.addOnce(function() {
-        _app_presence_list.clear()
-      });
-      var template_args = {
-        app: app
-      };
-      TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
-      TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
-      TS.menu.start(e, position_by_click);
-      TS.menu.keepInBounds()
-    },
-    onAppItemClick: function(e) {
-      clearTimeout(TS.menu.end_time);
-      TS.menu.app.end()
-    },
-    end: function() {
-      TS.menu.app.app = null;
-      TS.menu.end()
-    }
-  });
-  var _app_presence_list
-})();
-(function() {
-  "use strict";
   TS.registerModule("cmd_handlers", {
     server_cmds: null,
     onStart: function() {
@@ -32915,7 +32958,7 @@ var _on_esc;
             }
           } else {
             if (TS.members.canUserCreateChannels()) {
-              TS.ui.new_channel_modal.start(channel_name)
+              TS.ui.new_channel_modal.start(channel_name);
             } else {
               TS.cmd_handlers.addEphemeralFeedback("I couldn't find a channel named \"" + channel_name + '", sorry', "", "sad_surprise")
             }
@@ -34121,7 +34164,7 @@ var _on_esc;
       TS.generic_dialog.div.find("h3").text("Diagnostic report ready");
       TS.generic_dialog.div.find(".modal-body").html("Click the button below to send the report to Slack.");
       TS.generic_dialog.div.find(".btn.dialog_go").removeClass("hidden");
-      TS.generic_dialog.div.find(".btn.dialog_cancel").text("Close")
+      TS.generic_dialog.div.find(".btn.dialog_cancel").text("Close");
     })
   };
   var _generateDiagnosticReport = function() {
@@ -36227,7 +36270,7 @@ var _on_esc;
             if (model_ob.is_channel) {
               TS.channels.removeMsg(model_ob.id, msg)
             } else if (model_ob.is_im) {
-              TS.ims.removeMsg(model_ob.id, msg)
+              TS.ims.removeMsg(model_ob.id, msg);
             } else if (model_ob.is_mpim) {
               TS.mpims.removeMsg(model_ob.id, msg)
             } else if (model_ob.is_group) {
@@ -37340,7 +37383,7 @@ var _on_esc;
         $row.find('[name="full_name"]').val(email.full_name)
       } else {
         $row.find('[name="first_name"]').val(email.first_name);
-        $row.find('[name="last_name"]').val(email.last_name);
+        $row.find('[name="last_name"]').val(email.last_name)
       }
     }
     _updateSendButtonLabel();
@@ -40074,7 +40117,7 @@ var _on_esc;
     if (old_user_media) {
       return function(constraints) {
         return new Promise(function(resolve, reject) {
-          old_user_media.call(navigator, constraints, resolve, reject)
+          old_user_media.call(navigator, constraints, resolve, reject);
         })
       }
     }
@@ -41205,7 +41248,7 @@ var _on_esc;
       }
       if (match && valid) return true;
       if (!match) return void TS.ui.validation.showWarning($el, "This needs to be in the format " + ui_pattern + ". Sorry!", options);
-      if (!valid) return void TS.ui.validation.showWarning($el, TS.utility.htmlEntities(value) + " doesn't appear to be a valid date. Sorry!", options);
+      if (!valid) return void TS.ui.validation.showWarning($el, TS.utility.htmlEntities(value) + " doesn't appear to be a valid date. Sorry!", options)
     } else {
       return void TS.error("WTF: cannot validate")
     }
@@ -42291,7 +42334,7 @@ var _on_esc;
       } else if (type === "file" && pinned_item.type === "file") {
         if (pinned_item.file.id === item.file.id) matches = true
       } else if (type === "file_comment" && pinned_item.type === "file_comment") {
-        if (pinned_item.comment.id === item.comment.id) matches = true
+        if (pinned_item.comment.id === item.comment.id) matches = true;
       }
       if (matches) {
         pinned_items_index = index;
@@ -47806,7 +47849,7 @@ $.fn.togglify = function(settings) {
     return _.find(_getSharedInvitesFromModel(), function(invite) {
       return invite.team.domain === team_domain && invite.channel_name === channel_name
     }) || _.find(_getSharedInvitesFromModel(true), function(invite) {
-      return invite.team.domain === team_domain && invite.channel_name === channel_name
+      return invite.team.domain === team_domain && invite.channel_name === channel_name;
     })
   };
   var _getCreateViewValidationSelector = function() {
@@ -51247,7 +51290,7 @@ $.fn.togglify = function(settings) {
       var calls_supported_message_types = ["user_change", "pref_change", "team_join", "channel_created", "channel_deleted", "channel_archive", "channel_unarchive", "channel_rename", "channel_joined", "channel_left", "group_deleted", "group_archive", "group_unarchive", "group_rename", "group_joined", "group_left", "im_open", "mpim_joined", "mpim_open", "mpim_close"];
       if (!TS.boot_data.feature_calls_no_rtm_start) {
         calls_supported_message_types.push("presence_change");
-        calls_supported_message_types.push("manual_presence_change")
+        calls_supported_message_types.push("manual_presence_change");
       }
       return calls_supported_message_types.indexOf(type) !== -1
     },

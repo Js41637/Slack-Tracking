@@ -15694,7 +15694,6 @@
     group: "group",
     channel: "channel",
     conversation: "conversation",
-    bot: "bot",
     time_range: "time-range",
     date: "date",
     has: "has"
@@ -15703,7 +15702,6 @@
   var USER_RESULT_LIMIT = SECTION_RESULT_LIMIT;
   var CHANNEL_RESULT_LIMIT = SECTION_RESULT_LIMIT;
   var GROUP_RESULT_LIMIT = SECTION_RESULT_LIMIT;
-  var BOT_RESULT_LIMIT = SECTION_RESULT_LIMIT;
   var HISTORY_RESULT_LIMIT = SECTION_RESULT_LIMIT;
   var PROFILE_RESULT_LIMIT = SECTION_RESULT_LIMIT;
   var LIMIT_DEFAULT = 100;
@@ -15719,7 +15717,6 @@
   var CALENDAR_VISIBLE_CLASS = "calendar_visible";
   var CALENDAR_FORMAT = "Y-m-d";
   var DEFAULT_CONVERSATION_MODIFIER = "in:";
-  var DEFAULT_BOT_MODIFIER = "bot:";
   var DEFAULT_MENU_HEIGHT = 534;
   var has_token_regex = /\{(.+)\}/i;
   var might_be_modifier_regex = /^[^:]+:([^:]+)?$/i;
@@ -16369,14 +16366,6 @@
       }
       this._syncUI()
     },
-    _showBotAutocompleteMenu: function(query) {
-      this._render_data = {
-        menu_type: MENU_TYPES.bot,
-        bot_modifier: DEFAULT_BOT_MODIFIER,
-        bots: this._getBotsForQuery(query, BOT_RESULT_LIMIT)
-      };
-      this._syncUI()
-    },
     _showHasAutocompleteMenu: function(query) {
       this._render_data = {
         menu_type: MENU_TYPES.has,
@@ -16576,20 +16565,6 @@
       if (limit && results.length >= limit) results = results.slice(0, limit);
       return results
     },
-    _getBotsForQuery: function(query, limit) {
-      var results = [];
-      if (!limit) limit = LIMIT_DEFAULT;
-      this.options.data.bots().some(function(bot) {
-        if (this._startsWith(bot.name, query)) {
-          results.push(bot);
-          if (limit && results.length >= limit) {
-            return true
-          }
-          return false
-        }
-      }, this);
-      return results
-    },
     _getModifiersForQuery: function(query, exclude_keywords) {
       var results = [];
       this.options.data.modifiers.forEach(function(modifier) {
@@ -16677,8 +16652,7 @@
     },
     _getResultsForQueryObj: function(query_obj) {
       var results = {
-        conversation_modifier: DEFAULT_CONVERSATION_MODIFIER,
-        bot_modifier: DEFAULT_BOT_MODIFIER
+        conversation_modifier: DEFAULT_CONVERSATION_MODIFIER
       };
       var is_at = false;
       var is_hash = false;
@@ -17394,9 +17368,6 @@
           all_starred.sort(TS.client.channel_pane.modelObSortByStarredOrder);
           return all_starred
         },
-        bots: function() {
-          return _uniqueBots().bots
-        },
         history: function(query, callback) {
           query = query || "";
           _history_fetched_callback = callback;
@@ -17500,6 +17471,7 @@
   var _bot_cache;
   var _bot_cache_ts = 0;
   var _uniqueBots = function() {
+    if (TS.lazyLoadBots && TS.lazyLoadBots()) {}
     if (Date.now() - _bot_cache_ts > 3e4) {
       var names = {};
       var bots = [];
@@ -18787,7 +18759,7 @@
           for (i = 0; i < items.length; i++) {
             if (items[i].type.indexOf("image") !== -1) {
               if (TS.model.is_mac && found_types["text/plain"] && found_types["text/html"] && found_types["text/rtf"]) {
-                TS.info("Ignoring pasted image data, likely from Office/Word for Mac.");
+                TS.info("Ignoring pasted image data, likely from Office/Word for Mac.")
               } else if (TS.model.is_win && found_types["text/plain"] && found_types["text/html"] && found_types["image/png"]) {
                 TS.info("Ignoring pasted image data from Windows, which should render as text")
               } else {
@@ -20003,7 +19975,7 @@
         $("#upload_image_preview").removeClass("hidden").find("img").attr("src", str)
       };
       if (typeof file == "string") {
-        displayImg("data:image/png;base64," + file)
+        displayImg("data:image/png;base64," + file);
       } else {
         if (window.FileReader) {
           try {
@@ -23892,7 +23864,7 @@
         var col = cal.data("colpick").color;
         cal.data("colpick").origColor = col;
         setCurrentColor(col, cal.get(0));
-        cal.data("colpick").onSubmit(col, hsbToHex(col), hsbToRgb(col), cal.data("colpick").el)
+        cal.data("colpick").onSubmit(col, hsbToHex(col), hsbToRgb(col), cal.data("colpick").el);
       },
       show = function(ev) {
         if (ev) {
@@ -25926,7 +25898,7 @@
     if (_$details.find("#channel_topic_input").hasClass("hidden")) {
       _$details.find("#channel_topic_input, .topic_done, .topic_cancel").blur()
     } else {
-      _$details.find("#channel_topic_input").select();
+      _$details.find("#channel_topic_input").select()
     }
   };
   var _setTopic = function() {
@@ -25948,7 +25920,7 @@
     var model_ob = TS.shared.getActiveModelOb();
     var array_to_search = file.channels;
     if (model_ob.is_group) {
-      array_to_search = file.groups
+      array_to_search = file.groups;
     } else if (model_ob.is_im) {
       array_to_search = file.ims
     }
@@ -26993,7 +26965,7 @@
         if (item.purpose && item.purpose.value) {
           var purpose_html = TS.utility.formatTopicOrPurpose(item.purpose.value);
           purpose_html = purpose_html.replace(/<a .*?>(.*?)<\/a>/g, "$1");
-          data.$purpose.removeClass("hidden").html(purpose_html)
+          data.$purpose.removeClass("hidden").html(purpose_html);
         } else {
           data.$purpose.text("").addClass("hidden")
         }
@@ -28056,7 +28028,7 @@
     $("#fs_modal").removeClass("fs_modal_internal_scroll");
     $new_channel_container.removeClass("hidden");
     TS.ui.fs_modal.bindBackButton(_switchBackToImBrowser);
-    TS.ui.fs_modal.showBackButton();
+    TS.ui.fs_modal.showBackButton()
   };
   var _switchBackToImBrowser = function() {
     TS.ui.fs_modal.unbindBackButton();
@@ -28072,7 +28044,7 @@
   var _showAlert = function(html) {
     _hideAlert();
     _$im_browser.prepend(html);
-    _$im_browser.addClass("showing_alert")
+    _$im_browser.addClass("showing_alert");
   };
   var _hideAlert = function() {
     $("#im_browser_alert").remove();
@@ -29126,7 +29098,7 @@
         $("#dnd_start_hour, #dnd_end_hour").prop("disabled", true).closest("label").addClass("disabled")
       }
       dnd_props.dnd_enabled = checked;
-      TS.prefs.setMultiPrefsByAPI(dnd_props)
+      TS.prefs.setMultiPrefsByAPI(dnd_props);
     });
     var $start_el = _getDndOptionElement($("#dnd_start_hour"), dnd_props.dnd_start_hour);
     $start_el.prop("selected", true);
@@ -30199,7 +30171,7 @@
       } else if (permission_level == "default") {
         $("#growls_permission_div").removeClass("hidden")
       } else if (permission_level == "denied") {
-        $("#growls_disallowed_div").removeClass("hidden")
+        $("#growls_disallowed_div").removeClass("hidden");
       } else {
         alert("huh allowed:" + allowed + " permission_level:" + permission_level)
       }
@@ -31931,7 +31903,7 @@ var _timezones_alternative = {
     } else {
       var $image = $(TS.templates.fs_modal_file_viewer_content_image(template_obj));
       _$image_wrapper.replaceWith($image);
-      _$image_wrapper = $image
+      _$image_wrapper = $image;
     }
     _cacheImageNodes();
     _detachCommentForm();
