@@ -24455,18 +24455,6 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   unicode-range: U+F8FF
 }
 
-.tiny {
-  font-size: .7rem
-}
-
-.small {
-  font-size: .9rem
-}
-
-.no_pointer_events {
-  pointer-events: none
-}
-
 .incoming_call_window_body {
   background-color: transparent;
   width: 240px;
@@ -24639,4 +24627,60 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
     opacity: .6;
     margin-top: 0
   }
+}
+
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+.tiny {
+  font-size: .7rem
+}
+
+.small {
+  font-size: .9rem
+}
+
+.no_pointer_events {
+  pointer-events: none
+}
+
+.app_card_header {
+  padding: 25px
+}
+
+.app_card_header_icon {
+  width: 4rem;
+  height: 4rem
+}
+
+.app_card_header_text {
+  width: 12.0625rem;
+  margin-left: .875rem
+}
+
+.app_card_header_text .app_card_name_row {
+  line-height: 1.375rem;
+  margin-top: .125rem
+}
+
+.app_card_header_text .app_card_name_row .app_name {
+  font-size: 1rem
+}
+
+.app_card_header_text .app_card_name_row .app_label {
+  font-size: .625rem;
+  border-radius: 2px;
+  margin-left: .5625rem;
+  padding: 1px 3px;
+  background-color: rgba(255, 255, 255, .3)
+}
+
+.app_card_header_text .app_card_desc {
+  font-size: .9375rem;
+  line-height: 1.125rem;
+  height: 2.25rem;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .2)
 }

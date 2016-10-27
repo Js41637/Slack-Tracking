@@ -22533,7 +22533,7 @@ TS.registerModule("constants", {
         }
       });
       Handlebars.registerHelper("versioned_default_application_icon", function() {
-        return cdn_url + "/66f9/img/default_application_icon.png"
+        return cdn_url + "/ca27/img/apps/default_new_app_icon.png"
       });
       Handlebars.registerHelper("versioned_join_shared_channel", function(res) {
         if (res === "1x") {
@@ -23142,7 +23142,7 @@ TS.registerModule("constants", {
             minute: "numeric",
             hour12: !TS.utility.date.do24hrTime()
           };
-          local_time = new Intl.DateTimeFormat(_page_lang, date_options).format(date)
+          local_time = Intl.DateTimeFormat.call(null, _page_lang, date_options).format(date)
         } catch (e) {
           tz_offset = _memberTzOffset(member);
           local_time = _calculateLocalTime(date, tz_offset)
@@ -31005,10 +31005,18 @@ var _on_esc;
       TS.menu.menu_closed_sig.addOnce(function() {
         _app_presence_list.clear()
       });
+      var colors = ["#1378B8", "#242424", "#4D394B", "#CB5234", "#4C9689"];
+      var app_color = _.sample(colors);
+      var header_color = TS.utility.hex2rgb(app_color);
+      header_color.hex = app_color;
+      var template_header_args = {
+        app: app,
+        color: header_color
+      };
       var template_args = {
         app: app
       };
-      TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
+      TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
       TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
       TS.menu.start(e, position_by_click);
       TS.menu.keepInBounds()
@@ -31935,7 +31943,7 @@ var _on_esc;
         e.preventDefault()
       } else if (id == "open_original_file") {} else if (id == "comment_file") {
         e.preventDefault();
-        $("#file_comment").focus()
+        $("#file_comment").focus();
       } else if (id == "save_to_dropbox") {
         return TS.api.callImmediately("files.getTempURL", {
           file: file.id
@@ -35244,7 +35252,7 @@ var _on_esc;
     }
     gfycat_attrs.src = "https://" + document.location.host + "/gfycat_iframe.php?key=" + gfycat_key + "&w=" + gfycat_w + "&h=" + gfycat_h + "&" + Date.now();
     var $gfycat_ifr = $("<iframe>").attr(gfycat_attrs);
-    return $gfycat_ifr[0].outerHTML
+    return $gfycat_ifr[0].outerHTML;
   }
 })();
 (function() {
@@ -35254,7 +35262,7 @@ var _on_esc;
     expand_sig: new signals.Signal,
     collapse_sig: new signals.Signal,
     onStart: function() {
-      TS.client && TS.prefs.attachments_with_borders_changed_sig.add(TS.client.msg_pane.rebuildMsgs);
+      TS.client && TS.prefs.attachments_with_borders_changed_sig.add(TS.client.msg_pane.rebuildMsgs)
     },
     shouldExpand: function(container_id, inline_attachment) {
       if (TS.model.expandable_state["attach_" + container_id + inline_attachment.from_url]) return true;
@@ -36256,7 +36264,7 @@ var _on_esc;
     },
     getDivForMsgInMsgPane: function(ts) {
       var is_unread_view = TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing;
-      return $("#" + (is_unread_view ? TS.templates.makeMsgDomIdInUnreadView(ts) : TS.templates.makeMsgDomId(ts)))
+      return $("#" + (is_unread_view ? TS.templates.makeMsgDomIdInUnreadView(ts) : TS.templates.makeMsgDomId(ts)));
     },
     getDivForMsgInConvoPane: function(ts) {
       return $("#" + TS.templates.makeMsgDomIdInConversation(ts))
@@ -36264,7 +36272,7 @@ var _on_esc;
     getAllDivsForMsg: function(ts) {
       var $msg_pane_div = TS.msg_edit.getDivForMsgInMsgPane(ts);
       if (TS.replies && TS.replies.isEnabled()) {
-        return $msg_pane_div.add(TS.msg_edit.getDivForMsgInConvoPane(ts));
+        return $msg_pane_div.add(TS.msg_edit.getDivForMsgInConvoPane(ts))
       } else {
         return $msg_pane_div
       }
@@ -37354,7 +37362,7 @@ var _on_esc;
         return item_full_name && item_full_name.indexOf(query) !== -1 || item_email && item_email.indexOf(query) !== -1
       },
       noResultsTemplate: function(query) {
-        return "None of your Google contacts match <strong>" + TS.utility.htmlEntities(query) + "</strong>";
+        return "None of your Google contacts match <strong>" + TS.utility.htmlEntities(query) + "</strong>"
       },
       onItemAdded: function(item) {
         _upsertEmailContactsData(this, item);
@@ -39122,7 +39130,7 @@ var _on_esc;
   var _updateReviewInvitationsSubtitle = function() {
     var subtitle;
     if (_state.pending_invites.length > 1) {
-      subtitle = "Review " + _state.pending_invites.length + " Invitations for " + _getMemberTypeLabel(_state.selected_member_type) + "s";
+      subtitle = "Review " + _state.pending_invites.length + " Invitations for " + _getMemberTypeLabel(_state.selected_member_type) + "s"
     } else {
       subtitle = "Review 1 Invitation for a " + _getMemberTypeLabel(_state.selected_member_type)
     }
@@ -40107,7 +40115,7 @@ var _on_esc;
     _$div.on("input", '[data-plastic-type="date"]', _displayHumanReadableDate);
     _$div.on("dragenter", ".member_image_upload", _handleUploadDragOver);
     _$div.on("dragleave", ".member_image_upload", _handleUploadDragExit);
-    _ensureProfile().then(_switchToList).catch(TS.error)
+    _ensureProfile().then(_switchToList).catch(TS.error);
   };
   var _onCancel = function() {
     _maybeCancelPhotoEdit();
@@ -41214,7 +41222,7 @@ var _on_esc;
   }
 
   function _validateMinLength($el, options, length, hide_countdown) {
-    return _validateLength($el, "minlength", options, length, hide_countdown)
+    return _validateLength($el, "minlength", options, length, hide_countdown);
   }
 
   function _validateMaxLength($el, options, length, hide_countdown) {
@@ -43407,7 +43415,7 @@ $.fn.togglify = function(settings) {
         var source_channel = imsg.item.channel
       }
       var and_alert = !imsg._from_evt_log && imsg.item.type == "message";
-      _addToRxnsRecord(imsg.reaction, rxn_key, imsg.user, imsg.event_ts, and_alert, source_channel)
+      _addToRxnsRecord(imsg.reaction, rxn_key, imsg.user, imsg.event_ts, and_alert, source_channel);
     } else {
       _removeFromRxnsRecord(imsg.reaction, rxn_key, imsg.user)
     }
@@ -45651,7 +45659,7 @@ $.fn.togglify = function(settings) {
         _msgActionHandler(e)
       });
       $body.delegate("ts-message.dirty_hover_container", "mouseenter", function(e) {
-        TS.ui.messages.updateMessageHoverContainer($(e.currentTarget))
+        TS.ui.messages.updateMessageHoverContainer($(e.currentTarget));
       })
     },
     maybeUpdateMessageHoverContainer: function($msg) {
@@ -47839,7 +47847,7 @@ $.fn.togglify = function(settings) {
           _setSharedInvitesIntoModel(response.data.invites, is_private);
           _rebuildSharedInvite(invite_id)
         })
-      }).catch(_handleError).finally(Ladda.stopAll)
+      }).catch(_handleError).finally(Ladda.stopAll);
     } else {
       _promiseToCallCreateShared(args, is_private).then(function(created_channel) {
         var new_channel_id;

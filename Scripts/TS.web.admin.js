@@ -1973,7 +1973,12 @@
       member.is_restricted = true;
       member.is_ultra_restricted = true;
       TS.members.upsertMember(member);
-      TS.web.admin.ultra_restricted_member_enabled_sig.dispatch(member)
+      TS.web.admin.ultra_restricted_member_enabled_sig.dispatch(member);
+      if (TS.web.admin.isAdminListHidden()) {
+        $("#restrict_account").addClass("hidden");
+        $("#admin_list").removeClass("hidden");
+        TS.web.admin.showRestrictedMembersTab()
+      }
     },
     onMemberDisable2FA: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);

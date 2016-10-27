@@ -4845,6 +4845,10 @@ html.no_touch .alert_page a:hover {
   background-color: transparent!important
 }
 
+.flexpane_grey {
+  color: #f7f7f7!important
+}
+
 .flexpane_grey_bg {
   background-color: #f7f7f7!important
 }
