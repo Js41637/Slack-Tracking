@@ -11252,8 +11252,35 @@ TS.registerModule("constants", {
       });
       if (app) {
         return app;
+      } else {
+        TS.warn("Trying to look up app by id (" + app_id + ") but it is not present.");
       }
       return null;
+    },
+    promiseToGetFullAppProfile: function(app_id, bot_id) {
+      if (!_.isString(app_id)) return null;
+      if (!_.isString(bot_id)) return null;
+      var app = TS.apps.getAppById(app_id);
+      if (app && app._has_complete_profile) {
+        return Promise.resolve(app);
+      } else {
+        return new Promise(function(resolve, reject) {
+          TS.api.call("apps.profile.get", {
+            bot: bot_id
+          }, function(ok, data, args) {
+            if (ok && data.app) {
+              var app = data.app;
+              app._has_complete_profile = true;
+              TS.apps.ingestApp(app);
+              resolve(app);
+            }
+            if (!ok) {
+              reject(data.error);
+              TS.warn("Trying to look up app by bot id (" + bot_id + ") but it failed.");
+            }
+          });
+        });
+      }
     },
     sortNames: function(names) {
       return names.slice().sort(TS.apps.compareNames);
@@ -17377,17 +17404,20 @@ TS.registerModule("constants", {
         if (!current_speaker && dont_show_dupe_bot_users) current_speaker = TS.templates.builders.getBotIdentifier(msg);
         var is_bot = TS.utility.msgs.shouldHaveBotLabel(msg, member);
         var app_id;
+        var bot_id;
         if (TS.boot_data.feature_app_cards_and_profs_frontend) {
           if (is_bot) {
             if (msg.bot_id) {
               var bot_info = TS.bots.getBotById(msg.bot_id);
+              bot_id = msg.bot_id;
               app_id = bot_info.app_id;
             } else {
               var bot_info = TS.members.getMemberById(msg.user);
+              bot_id = bot_info.profile.bot_id;
               if (bot_info.profile.api_app_id) {
                 app_id = bot_info.profile.api_app_id;
-              } else if (bot_info.profile.bot_id) {
-                bot_info = TS.bots.getBotById(bot_info.profile.bot_id);
+              } else if (bot_id) {
+                bot_info = TS.bots.getBotById(bot_id);
                 app_id = bot_info.app_id;
               }
             }
@@ -17542,6 +17572,7 @@ TS.registerModule("constants", {
           is_ephemeral: is_ephemeral,
           enable_slack_action_links: enable_slack_action_links,
           is_bot: is_bot,
+          bot_id: bot_id,
           app_id: app_id,
           highlight_as_new: highlight_as_new,
           show_star: !starred_items_list && !is_ephemeral,
@@ -31033,35 +31064,34 @@ var _on_esc;
     },
     app: null,
     app_item_click_sig: new signals.Signal,
-    startWithApp: function(e, app_id, position_by_click) {
+    startWithApp: function(e, app_id, bot_id, position_by_click) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
       if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
         return;
       }
       TS.menu.buildIfNeeded();
-      var app = TS.menu.app.app = TS.apps.getAppById(app_id);
-      if (!app) return;
       TS.menu.clean();
-      _app_presence_list.add(app_id);
-      TS.menu.menu_closed_sig.addOnce(function() {
-        _app_presence_list.clear();
-      });
-      var colors = ["#1378B8", "#242424", "#4D394B", "#CB5234", "#4C9689"];
-      var app_color = _.sample(colors);
-      var header_color = TS.utility.hex2rgb(app_color);
-      header_color.hex = app_color;
-      var template_header_args = {
-        app: app,
-        color: header_color
-      };
-      var template_args = {
-        app: app
-      };
-      TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
-      TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
-      TS.menu.start(e, position_by_click);
-      TS.menu.keepInBounds();
+      TS.apps.promiseToGetFullAppProfile(app_id, bot_id).then(showAllAppInformation);
+
+      function showAllAppInformation(app) {
+        _app_presence_list.add(app_id);
+        var colors = ["#1378B8", "#242424", "#4D394B", "#CB5234", "#4C9689"];
+        var app_color = _.sample(colors);
+        var header_color = TS.utility.hex2rgb(app_color);
+        header_color.hex = app_color;
+        var template_header_args = {
+          app: app,
+          color: header_color
+        };
+        var template_args = {
+          app: app
+        };
+        TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
+        TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
+        TS.menu.start(e, position_by_click);
+        TS.menu.keepInBounds();
+      }
     },
     onAppItemClick: function(e) {
       clearTimeout(TS.menu.end_time);
@@ -37783,6 +37813,7 @@ var _on_esc;
       var $show_custom_message = _$div.find(".admin_invites_show_custom_message");
       var $custom_message = _$div.find("#admin_invite_custom_message");
       var channels;
+      var invite_mode = TS.google_auth.isAuthed(_google_auth_instance_id) ? "contact" : "manual";
       if (account_type == "full" || account_type == "restricted") {
         var default_channels = _$div.find("#defaultchannelsmulti").val();
         if (default_channels) channels = default_channels.join(",");
@@ -37814,7 +37845,9 @@ var _on_esc;
           invites_array.push(args);
         });
         var api_args = {
-          invites: JSON.stringify(invites_array)
+          invites: JSON.stringify(invites_array),
+          source: "invite_modal",
+          mode: invite_mode
         };
         if (channels) api_args.channels = channels;
         if (_custom_message) api_args.extra_message = _custom_message;
@@ -37822,7 +37855,9 @@ var _on_esc;
       } else {
         $.each(invites, function(index, invite) {
           var args = {
-            email: invite.email
+            email: invite.email,
+            source: "invite_modal",
+            mode: invite_mode
           };
           if (channels) args.channels = channels;
           if (_custom_message) args.extra_message = _custom_message;
@@ -39202,7 +39237,9 @@ var _on_esc;
         return _createInviteAPIObject(invite);
       });
       var api_args = {
-        invites: JSON.stringify(invites_array)
+        invites: JSON.stringify(invites_array),
+        source: "invite_modal",
+        mode: "manual"
       };
       if (channels_to_join) api_args.channels = channels_to_join;
       if (_state.custom_message) api_args.extra_message = _state.custom_message;
@@ -46552,9 +46589,11 @@ $.fn.togglify = function(settings) {
     if (TS.boot_data.feature_app_cards_and_profs_frontend) {
       TS.click.addClientHandler(".app_preview_link", function(e, $el) {
         e.preventDefault();
-        var app_id = $el.closest("[data-app-id]").data("app-id");
+        var $closest_ts_message = $el.closest("[data-app-id]");
+        var app_id = $closest_ts_message.data("app-id");
+        var bot_id = $closest_ts_message.data("bot-id");
         if (app_id) {
-          TS.menu.app.startWithApp(e, app_id);
+          TS.menu.app.startWithApp(e, app_id, bot_id);
         } else {
           TS.warn("hmm, no data-app-id?");
         }
@@ -47021,7 +47060,7 @@ $.fn.togglify = function(settings) {
     test: function() {
       return {
         sortFuzzy: _sortFuzzy,
-        frecencyBonusPoints: _frecencyBonusPoints,
+        frecencyBonusPoints: TS.boot_data.feature_frecency_normalization ? _frecencyBonusPointsNormalized : _frecencyBonusPoints,
         getFilteredMatchesForFrecency: _getFilteredMatchesForFrecency,
         scoreMember: _scoreMember,
         _scoreUserGroup: _scoreUserGroup,
@@ -47348,7 +47387,12 @@ $.fn.togglify = function(settings) {
       }
     }
     if (options.frecency) {
-      filtered_matches = TS.ui.frecency.query(filtered_matches, query, _frecencyBonusPoints, options);
+      if (TS.boot_data.feature_frecency_normalization) {
+        options.normalize = true;
+        filtered_matches = TS.ui.frecency.query(filtered_matches, query, _frecencyBonusPointsNormalized, options);
+      } else {
+        filtered_matches = TS.ui.frecency.query(filtered_matches, query, _frecencyBonusPoints, options);
+      }
       if (emoji_matches.length > 0 && options.prefer_exact_match && exact_matches.length > 0 && query.length > 2) {
         var exact_match = [];
         for (var i = 0; i < exact_matches.length; i++) {
@@ -47523,6 +47567,37 @@ $.fn.togglify = function(settings) {
     }
     if (item.is_usergroup || item.is_broadcast_keyword) {
       score -= 100;
+    }
+    return score;
+  };
+  var _frecencyBonusPointsNormalized = function(item, options) {
+    if (item.is_mpim) return 0;
+    var score = _calculateFuzzyBonusPoints(item);
+    if (options.prefer_channel_members && item.presence) {
+      if (options.model_ob && TS.utility.members.isMemberOfChannel(item.id, options.model_ob)) {
+        score += 10;
+      }
+    }
+    if (item.is_starred) {
+      score += 10;
+    }
+    if (item.is_emoji) {
+      if (item.name === "thumbsup" || item.name === "point_up") {
+        score += 1;
+      }
+    }
+    if (item.is_channel || item.is_group) {
+      if (item.is_archived) {
+        score -= 25;
+      }
+      if (options.prefer_channels_user_belongs_to) {
+        if (!item.is_archived && !TS.utility.members.isMemberOfChannel(TS.model.user.id, TS.shared.getModelObById(item.id))) {
+          score -= 25;
+        }
+      }
+    }
+    if (item.is_usergroup || item.is_broadcast_keyword) {
+      score -= 25;
     }
     return score;
   };
