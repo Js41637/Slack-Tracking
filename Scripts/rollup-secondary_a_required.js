@@ -20995,7 +20995,7 @@ TS.registerModule("constants", {
     register: function() {
       Handlebars.registerHelper("i18n_ns", function(namespace, options) {
         this._i18n_ns = namespace;
-      }.bind(this));
+      });
       Handlebars.registerHelper("t", function(options) {
         var key = options.fn();
         var ns;
@@ -21004,7 +21004,7 @@ TS.registerModule("constants", {
         } else if (this._i18n_ns !== undefined) {
           ns = this._i18n_ns;
         } else {
-          ns = options.data.root._i18n_ns || "";
+          ns = options.data.root && options.data.root._i18n_ns ? options.data.root._i18n_ns : "";
         }
         if (ns === "debug") {
           TS.info("debug handlerbars t helper");
@@ -21020,7 +21020,7 @@ TS.registerModule("constants", {
           data: data,
           ns: ns
         });
-      }.bind(this));
+      });
       Handlebars.registerHelper("isClient", function(options) {
         if (TS.boot_data.app == "client") {
           return options.fn(this);
@@ -46326,6 +46326,13 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".file_ssb_download_link", function(e, $el) {
       var open_flexpane = !(TS.ui.fs_modal_file_viewer && TS.ui.fs_modal_file_viewer.is_showing);
       var file = TS.files.getFileById($el.data("file-id"));
+      if (TS.boot_data.feature_pdf_viewer && file && TS.files.fileIsPDF(file)) {
+        if (TS.ui.fs_modal_file_viewer.is_showing) {
+          TS.metrics.count("pdf_viewer_download_in_file_viewer");
+        } else {
+          TS.metrics.count("pdf_viewer_download_outside_file_viewer");
+        }
+      }
       if (file && TS.client.downloads.startDownload(file, open_flexpane)) {
         e.preventDefault();
         return;
@@ -46744,8 +46751,8 @@ $.fn.togglify = function(settings) {
       });
       if (sortOptions && sortOptions.normalize) {
         new_list = _normalize(new_list);
-        new_list = _.map(new_list, function(item) {
-          item.score += bonusPoints(item, sortOptions);
+        new_list = _.map(new_list, function(item, i) {
+          item.score += bonusPoints(list[i], sortOptions);
           return item;
         });
       }
@@ -46993,6 +47000,14 @@ $.fn.togglify = function(settings) {
     },
     isEnterprise: function() {
       return TS.boot_data.feature_enterprise_frecency && TS.boot_data.page_needs_enterprise;
+    },
+    bonus_points: {
+      starred_channel: 10,
+      member_of_this_channel: 10,
+      archived_channel_or_group: -25,
+      not_in_channel: -25,
+      usergroup_or_keyword: -25,
+      exact_match: 50
     }
   });
   var _frecency;
@@ -47572,14 +47587,14 @@ $.fn.togglify = function(settings) {
   };
   var _frecencyBonusPointsNormalized = function(item, options) {
     if (item.is_mpim) return 0;
-    var score = _calculateFuzzyBonusPoints(item);
+    var score = _calculateNormalizedFuzzyBonusPoints(item);
     if (options.prefer_channel_members && item.presence) {
       if (options.model_ob && TS.utility.members.isMemberOfChannel(item.id, options.model_ob)) {
-        score += 10;
+        score += TS.ui.frecency.bonus_points.member_of_this_channel;
       }
     }
     if (item.is_starred) {
-      score += 10;
+      score += TS.ui.frecency.bonus_points.starred_channel;
     }
     if (item.is_emoji) {
       if (item.name === "thumbsup" || item.name === "point_up") {
@@ -47588,16 +47603,16 @@ $.fn.togglify = function(settings) {
     }
     if (item.is_channel || item.is_group) {
       if (item.is_archived) {
-        score -= 25;
+        score += TS.ui.frecency.bonus_points.archived_channel_or_group;
       }
       if (options.prefer_channels_user_belongs_to) {
         if (!item.is_archived && !TS.utility.members.isMemberOfChannel(TS.model.user.id, TS.shared.getModelObById(item.id))) {
-          score -= 25;
+          score += TS.ui.frecency.bonus_points.not_in_channel;
         }
       }
     }
     if (item.is_usergroup || item.is_broadcast_keyword) {
-      score -= 25;
+      score += TS.ui.frecency.bonus_points.usergroup_or_keyword;
     }
     return score;
   };
@@ -47607,6 +47622,12 @@ $.fn.togglify = function(settings) {
     var scaler = Math.pow(.5, fuzziness);
     var exact_match_bonus = 500;
     return Math.round(exact_match_bonus * scaler);
+  };
+  var _calculateNormalizedFuzzyBonusPoints = function(item) {
+    var fuzziness = item._jumper_score;
+    if (!_.isFinite(fuzziness)) return 0;
+    var scaler = Math.pow(.5, fuzziness);
+    return Math.round(TS.ui.frecency.bonus_points.exact_match * scaler);
   };
 })();
 (function() {
