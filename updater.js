@@ -4,6 +4,7 @@ const { chain, compact, map, last, random, uniq, truncate } = require('lodash') 
 const beautify = require('js-beautify')
 const fs = require('fs')
 const { exec } = require('child_process')
+const { CLIEngine } = require('eslint')
 const emojis = require('./emojis')
 const config = require('./config')
 const clientUpdater = require('./clientUpdater')
@@ -19,6 +20,15 @@ const headers = { Cookie: config.cookies.join(';') }
 const types = { js: 'Scripts', css: 'Styles' }
 const beautifyOptions = { indent_size: 2, end_with_newline: true }
 const jsRegex = /(templates|analytics|beacon|required_libs)(.js|.php)/
+
+const eslint = new CLIEngine({
+  envs: ["browser"],
+  useEslintrc: false,
+  fix: true,
+  rules: {
+    semi: ['error', 'always']
+  }
+})
 
 // Downloads the pages and returns their HTML, requires valid session cookies
 function getPageBodys(urls) {
@@ -50,7 +60,7 @@ function getIndividualScripts(urls) {
   return Promise.all(urls.map(({ url, type }) => {
     return new Promise((resolve, reject) => {
       request({ url }, (err, resp, body) => {
-        if (err || !body) return console.log(`Error fetching script ${url}, ${err}`)
+        if (err || !body) return reject(`Error fetching script ${url}, ${err}`)
         let name = last(url.split('/'))
         return resolve({ name, body, type })
       })
@@ -64,6 +74,15 @@ function writeToDisk(scripts) {
   return Promise.all(scripts.map(({ name, body, type }) => {
     return new Promise(resolve => fs.writeFile(`./${types[type]}/${name}`, beautify[type](body, beautifyOptions), resolve))
   }))
+}
+
+function lintCode() {
+  return new Promise((resolve) => { // synchronous
+    console.log("Linting code")
+    let report = eslint.executeOnFiles(['./Scripts'])
+    CLIEngine.outputFixes(report)
+    return resolve()
+  })
 }
 
 // Get list of currently changed files and seperate script commits from client commits
@@ -138,6 +157,7 @@ function startTheMagic() {
     .then(getPageScripts)
     .then(getIndividualScripts)
     .then(writeToDisk)
+    .then(lintCode)
     .then(() => pushToGit())
     .then(console.log)
     .catch(err => console.error("Error while doing stuff", err))
