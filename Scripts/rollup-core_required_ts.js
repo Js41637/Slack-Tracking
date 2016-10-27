@@ -176,8 +176,11 @@
       }
       $(document).ready(_onDOMReady);
     },
+    lazyLoadBots: function() {
+      return TS.boot_data.should_use_flannel && !!TS.qs_args.lazy_load_bots;
+    },
     lazyLoadMembers: function() {
-      return _lazyLoadMembers();
+      return !!TS.boot_data.should_use_flannel;
     },
     registerModule: function(name, ob, delayed) {
       _extractAndDeleteTestProps(ob);
@@ -597,8 +600,11 @@
       if (TS.pri && (!login_args.cache_ts || parseInt(login_args.cache_ts, 10) == 0 || isNaN(login_args.cache_ts))) {
         TS.log(488, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
       }
-      if (_lazyLoadMembers()) {
+      if (TS.lazyLoadMembers()) {
         login_args.no_users = true;
+        if (TS.lazyLoadBots()) {
+          login_args.no_bots = true;
+        }
         login_args.cache_ts = 0;
       }
     }
@@ -624,7 +630,7 @@
       login_args.canonical_avatars = true;
     }
     login_args.eac_cache_ts = true;
-    if (_lazyLoadMembers()) TS.log(1989, "Flannel: MS login args:", login_args);
+    if (TS.lazyLoadMembers()) TS.log(1989, "Flannel: MS login args:", login_args);
     return login_args;
   };
   var _callRTMStart = function(handler) {
@@ -714,7 +720,7 @@
       TS.info("rtm.start included latest event timestamp: " + resp.data.latest_event_ts);
       _last_rtm_start_event_ts = parseInt(resp.data.latest_event_ts, 10);
     }
-    if (_lazyLoadMembers()) {
+    if (TS.lazyLoadMembers()) {
       var relevant_user_ids = _([TS.shared.getActiveModelOb(), resp.data.mpims, resp.data.ims]).flatten().compact().map(function(ob) {
         return ob.members || [ob.user];
       }).flatten().uniq().compact().value();
@@ -1619,7 +1625,7 @@
       for (i = 0; i < data_user_list.length; i++) {
         member = data_user_list[i];
         if (should_check_if_local && !TS.members.isLocalTeamMember(member)) continue;
-        if (_lazyLoadMembers()) {
+        if (TS.lazyLoadMembers()) {
           member.presence = _.has(member, "presence") && member.presence === "active" ? "active" : "away";
         } else {
           if (data.online_users) member.presence = _.includes(data.online_users, member.id) ? "active" : "away";
@@ -1660,7 +1666,7 @@
       if (TS.pri) TS.dir(481, bots_cache, "bots_cache");
       var doAllMembersFromChannelsInRawDataExist = function(with_shared) {
         if (TS._incremental_boot) return true;
-        if (_lazyLoadMembers()) return true;
+        if (TS.lazyLoadMembers()) return true;
         if (TS.calls && TS.calls.isRtmStartDisabled()) return true;
         if (TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members) return true;
         var ids = {};
@@ -1870,7 +1876,7 @@
   var _maybeOpenTokenlessConnection = function() {
     if (!_shouldConnectToMS()) return;
     if (!TS.boot_data.ms_connect_url) return;
-    if (_lazyLoadMembers()) {
+    if (TS.lazyLoadMembers()) {
       _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs()).catch(function() {
         return TS.api.connection.waitForAPIConnection().then(function() {
           return TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
@@ -1905,9 +1911,6 @@
     };
     window.addEventListener("sleep", _onSleep, false);
     window.addEventListener("wake", _onWake, false);
-  };
-  var _lazyLoadMembers = function() {
-    return !!TS.boot_data.should_use_flannel;
   };
   var _should_record_boot_size_metrics = _.random(0, 100) < 10 || /should_record_boot_size_metrics/.test(document.location.search);
 })();

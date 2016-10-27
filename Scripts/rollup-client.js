@@ -24533,7 +24533,8 @@
       var html = TS.templates.at_channel_warning_dialog({
         keyword: keyword,
         member_count: members.length,
-        timezone_count: timezone_count
+        timezone_count: timezone_count,
+        no_member_list: TS.lazyLoadMembers()
       });
       $div.html(html);
       fullsize ? $div.addClass("fullsize") : $div.removeClass("fullsize");
@@ -24562,26 +24563,25 @@
         value: Date.now()
       });
     },
-    startInMessagePane: function(c_id, text, controller, did_fetch_all_members) {
+    startInMessagePane: function(c_id, text, controller) {
       var model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob || model_ob.is_im) return;
-      var members = _(model_ob.members).map(TS.members.getMemberById).compact().sortBy(TS.members.memberSorterByName).value();
-      var eligible_members = members.filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf);
-      if (TS.lazyLoadMembers() && !did_fetch_all_members && !TS.shared.haveAllMembersForModelOb(model_ob)) {
-        if (model_ob.members.length < AT_CHANNEL_WARNING_MINIMUM_MEMBER_COUNT) {} else {
-          model_ob._checking_at_channel_status = true;
-          TS.view.checkIfInputShouldBeDisabledAndPopulate();
-          TS.flannel.fetchAndUpsertAllMembersForModelOb(model_ob).then(function() {
-            delete model_ob._checking_at_channel_status;
-            TS.view.checkIfInputShouldBeDisabledAndPopulate();
-            var fetched_all_members = true;
-            TS.ui.at_channel_warning_dialog.startInMessagePane(c_id, text, controller, fetched_all_members);
-            return null;
+      var eligible_members = _(model_ob.members).map(TS.members.getMemberById).compact().sortBy(TS.members.memberSorterByName).value().filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf);
+      var timezone_p = new Promise(function(resolve, reject) {
+        if (TS.lazyLoadMembers()) {
+          TS.api.call("channels.info", {
+            channel: c_id,
+            timezone_count: true
+          }).then(function(response) {
+            resolve(response.data.channel.timezone_count);
           });
-          return;
+        } else {
+          resolve(_(eligible_members).map("tz_offset").uniq().value().length);
         }
+      });
+      if (TS.lazyLoadMembers()) {
+        eligible_members = Array(TS.flannel.getMemberCountForModelOb(model_ob) - 1);
       }
-      var timezones = _(eligible_members).map("tz_offset").uniq().value();
       var callback = function() {
         TS.view.clearMessageInput();
         TS.shared.sendMsg(c_id, text, controller);
@@ -24589,7 +24589,10 @@
       var $el = TS.client.ui.$msg_input;
       var fullsize = true;
       TS.client.msg_input.populate(text);
-      TS.ui.at_channel_warning_dialog.start($el, text, eligible_members, timezones.length, callback, fullsize);
+      timezone_p.then(function(timezone_count) {
+        TS.ui.at_channel_warning_dialog.start($el, text, eligible_members, timezone_count, callback, fullsize);
+        return null;
+      });
     },
     startInFlexPane: function(channel_ids, text, did_fetch_all_members) {
       var callback = function() {

@@ -1993,6 +1993,13 @@
     }
     if (!data.ok) return proceed();
     if (_ensure_model_methodsA.indexOf(method) == -1) return proceed();
+    var ensureBots = function() {
+      if (!TS.lazyLoadBots()) return Promise.resolve();
+      TS.log(528, 'running api data from "' + method + '" through TS.members.ensureMembersInDataArePresent()');
+      return TS.bots.ensureBotsInDataArePresent(data, method, args.channel || undefined).catch(function(err) {
+        TS.error(err);
+      });
+    };
     var ensureMembers = function() {
       TS.log(528, 'running api data from "' + method + '" through TS.members.ensureMembersInDataArePresent()');
       return TS.members.ensureMembersInDataArePresent(data, method, args.channel || undefined).catch(function(err) {
@@ -2005,7 +2012,9 @@
         TS.error(err);
       });
     };
-    ensureModelObs().then(ensureMembers).then(proceed);
+    ensureModelObs().then(function() {
+      return Promise.join(ensureBots(), ensureMembers());
+    }).then(proceed);
   };
   var _reQueue = function(method, args, p, dont_set_active, progressHandler) {
     TS.warn('re Qing api call "' + method + '"');
@@ -8705,6 +8714,8 @@ TS.registerModule("constants", {
         return TS.user_groups.getUserGroupsById(id);
       } else if (ob_type === "E") {
         return TS.emoji.getEmojiById(id);
+      } else if (ob_type === "B") {
+        return TS.bots.getBotById(id);
       } else if (ob_type === "U" || ob_type == "W") {
         return TS.members.getMemberById(id);
       } else {
@@ -11401,6 +11412,15 @@ TS.registerModule("constants", {
         TS.bots.changed_during_bulk_upsert_sig.dispatch();
       }
       return true;
+    },
+    ensureBotsInDataArePresent: function(data) {
+      var bot_ids = TS.utility.extractAllBotIds(data);
+      return TS.bots.ensureBotsArePresent(bot_ids);
+    },
+    ensureBotsArePresent: function(bot_ids) {
+      var missing_bot_ids = _.reject(bot_ids, TS.bots.getBotById);
+      if (!missing_bot_ids.length) return Promise.resolve();
+      return TS.flannel.fetchAndUpsertObjectsByIds(missing_bot_ids);
     }
   });
   var _bots_changed_during_bulk_upsert;
@@ -18931,6 +18951,9 @@ TS.registerModule("constants", {
       } else if (type === "im" || type === "mpim") {
         star_tip_text = star_cta + "direct message";
         star_toggle_tip = unstar_cta + "direct message";
+      } else if (type === "group") {
+        star_tip_text = star_cta + "channel";
+        star_toggle_tip = unstar_cta + "channel";
       }
       if (ob.is_starred) {
         var tmp = star_tip_text;
@@ -26920,6 +26943,16 @@ TS.registerModule("constants", {
         t_ids: t_ids,
         m_ids: m_ids
       };
+    },
+    extractAllBotIds: function(ob) {
+      var bot_ids = ob.bot_id ? [ob.bot_id] : [];
+      _.values(ob).forEach(function(val) {
+        if (_.isObject(val)) {
+          var new_bot_ids = TS.utility.extractAllBotIds(val);
+          bot_ids = _(bot_ids).union(new_bot_ids).uniq().value();
+        }
+      });
+      return bot_ids;
     },
     strLooksLikeAChannelId: function(str) {
       if (typeof str !== "string" || str.length < 9) return false;
@@ -36134,10 +36167,10 @@ var _on_esc;
         }
       }).bind("keydown", function(e) {
         if (e.which == TS.utility.keymap.enter && (e.ctrlKey || e.altKey)) {
-          if (!TS.model.is_mac || TS.model.is_FF) {
+          if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
             var p = input.getCursorPosition();
             var val = input.val();
-            input.val(val.substr(0, p) + "\n" + val.substr(p)).trigger("autosize.resize").setCursorPosition(p + 1);
+            input.val(val.substr(0, p) + "\n" + val.substr(p)).trigger("autosize").trigger("autosize-resize").setCursorPosition(p + 1);
           }
         } else if (e.which == TS.utility.keymap.enter) {
           if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey) {
@@ -46623,7 +46656,7 @@ $.fn.togglify = function(settings) {
     if (options && options.onStart) _cache = options.onStart(namespace);
 
     function _query(list, text, bonusPoints, sortOptions) {
-      var keys = Object.keys(_cache);
+      var keys = _.keys(_cache);
       if (!bonusPoints) bonusPoints = function() {
         return 0;
       };
@@ -46661,13 +46694,22 @@ $.fn.togglify = function(settings) {
         if (_cache[item.id]) {
           extra_score = _calculateScore(_cache[item.id]);
         }
-        extra_score += bonusPoints(item, sortOptions);
+        if (!sortOptions || !sortOptions.normalize) {
+          extra_score += bonusPoints(item, sortOptions);
+        }
         new_list.push({
           id: item.id,
           score: _calculateScore(hits[item.id]) + extra_score,
           original_index: index
         });
       });
+      if (sortOptions && sortOptions.normalize) {
+        new_list = _normalize(new_list);
+        new_list = _.map(new_list, function(item) {
+          item.score += bonusPoints(item, sortOptions);
+          return item;
+        });
+      }
       new_list.sort(function(a, b) {
         if (a.score === b.score) return a.original_index - b.original_index;
         return b.score - a.score;
@@ -46715,6 +46757,14 @@ $.fn.togglify = function(settings) {
       }
     }
 
+    function _normalize(list) {
+      var high_score = _.get(_.maxBy(list, "score"), "score") || 0;
+      return _.map(list, function(item) {
+        if (item.score > 0) item.score = item.score / high_score * 100;
+        return item;
+      });
+    }
+
     function _countVisit(item) {
       item.count++;
       if (item.visits.length === 10) item.visits.shift();
@@ -46729,7 +46779,7 @@ $.fn.togglify = function(settings) {
       };
     }
 
-    function _getMostCommon(max) {
+    function _getMostCommon(max, normalize) {
       var new_cache = {};
       var new_list = [];
       _traverseCache(false, function(item) {
@@ -46747,13 +46797,15 @@ $.fn.togglify = function(settings) {
         return b.score - a.score;
       });
       if (max) {
-        return new_list.slice(0, max);
-      } else {
-        return new_list;
+        new_list = new_list.slice(0, max);
       }
+      if (normalize) {
+        new_list = _normalize(new_list);
+      }
+      return new_list;
     }
 
-    function _getMostCommonWithPrefix(prefix, max) {
+    function _getMostCommonWithPrefix(prefix, max, normalize) {
       var new_cache = {};
       var new_list = [];
       _traverseCache(false, function(item) {
@@ -46772,10 +46824,12 @@ $.fn.togglify = function(settings) {
         return b.score - a.score;
       });
       if (max) {
-        return new_list.slice(0, max);
-      } else {
-        return new_list;
+        new_list = new_list.slice(0, max);
       }
+      if (normalize) {
+        new_list = _normalize(new_list);
+      }
+      return new_list;
     }
 
     function _calculateScore(item) {
@@ -53172,10 +53226,10 @@ $.fn.togglify = function(settings) {
       }
     }).bind("keydown", function(e) {
       if (e.which == TS.utility.keymap.enter && (e.ctrlKey || e.altKey)) {
-        if (!TS.model.is_mac || TS.model.is_FF) {
+        if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
           var p = $input.getCursorPosition();
           var val = $input.val();
-          $input.val(val.substr(0, p) + "\n" + val.substr(p)).trigger("autosize.resize").setCursorPosition(p + 1);
+          $input.val(val.substr(0, p) + "\n" + val.substr(p)).trigger("autosize").trigger("autosize-resize").setCursorPosition(p + 1);
         }
       } else if (e.which == TS.utility.keymap.enter) {
         if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey) {
