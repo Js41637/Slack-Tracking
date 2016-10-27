@@ -23443,7 +23443,7 @@ TS.registerModule("constants", {
     return $("html").attr("lang") || "en-US";
   };
   var _page_lang = _page_lang ? _page_lang : _getPageLanguage();
-  var _has_Intl = window.Intl && typeof window.Intl === "object" && Intl.DateTimeFormat().resolvedOptions().timeZone !== undefined && Intl.DateTimeFormat().resolvedOptions().timeZone.length > 0;
+  var _has_Intl = false;
   var _dst_offsets = TS.boot_data.dst_offsets || null;
   var _cache_date;
   var _cache_local_time;

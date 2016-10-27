@@ -634,10 +634,10 @@
         unreads_page: _tracking_data.unreads_page
       };
       if (msg_ts) {
-        payload.unreads_page_message_index = _.findIndex(_.flatten(TS.client.unread.getAllGroups().map(function(group) {
+        payload.unreads_page_message_index = _(TS.client.unread.getAllGroups()).map(function(group) {
           return group.msgs;
-        })), {
-          ts: msg_ts
+        }).flatten().reverse().findIndex({
+          ts: msg_ts.toString()
         });
       }
       return payload;

@@ -6122,13 +6122,13 @@ only screen and (min-resolution:2dppx) {
 
 #client_body:not(.onboarding):before {
   position: absolute;
-  z-index: 98;
   left: 220px;
   right: 0;
   height: .4375rem;
   border-bottom: .0625rem solid #e8e8e8;
   background: #fff;
-  content: ''
+  content: '';
+  z-index: 199
 }
 
 .client_container #client_body:not(.onboarding):before {
