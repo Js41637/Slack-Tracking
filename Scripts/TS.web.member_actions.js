@@ -5,14 +5,14 @@
       _.map(TS.web.member_actions.actions, function(action, name) {
         TS.web.member_actions.actions[name] = _.assign(action, {
           name: name
-        })
-      })
+        });
+      });
     },
     actions: {
       activate: {
         primary: true,
         label: function(data) {
-          return data.team.is_enterprise ? "Add to Team" : "Enable Account"
+          return data.team.is_enterprise ? "Add to Team" : "Enable Account";
         },
         cls: "api_enable_account"
       },
@@ -21,20 +21,20 @@
         label: function(data) {
           var label = "Enable ";
           if (data.member.is_single_channel_guest) {
-            label += "Single-Channel Guest"
+            label += "Single-Channel Guest";
           } else if (data.member.is_guest) {
-            label += TS.templates.builders.raLabel("Restricted Account")
+            label += TS.templates.builders.raLabel("Restricted Account");
           } else {
-            label += "Guest"
+            label += "Guest";
           }
-          return label
+          return label;
         },
         cls: "api_enable_ra"
       },
       deactivate: {
         primary: false,
         label: function(data) {
-          return data.team.is_enterprise ? "Remove from Team" : "Disable Account"
+          return data.team.is_enterprise ? "Remove from Team" : "Disable Account";
         },
         cls: "api_disable_account"
       },
@@ -67,13 +67,13 @@
         primary: false,
         label: "Convert to Guest",
         cls: function(data) {
-          return data.team.is_paid ? "admin_member_restrict_link" : "admin_member_restrict_link_unpaid"
+          return data.team.is_paid ? "admin_member_restrict_link" : "admin_member_restrict_link_unpaid";
         }
       },
       promote_to_mc_guest: {
         primary: false,
         label: function(data) {
-          return "Convert to " + TS.templates.builders.raLabel("Restricted Account")
+          return "Convert to " + TS.templates.builders.raLabel("Restricted Account");
         },
         cls: "api_set_restricted"
       },
@@ -90,7 +90,7 @@
       activate_bot: {
         primary: true,
         label: function(data) {
-          return data.team.is_enterprise ? "Add to Team" : "Enable Account"
+          return data.team.is_enterprise ? "Add to Team" : "Enable Account";
         },
         cls: "api_enable_bot"
       },
@@ -99,7 +99,7 @@
         label: "Configure",
         cls: "api_configure_bot",
         href: function(data) {
-          return "/services/" + data.member.object.profile.bot_id
+          return "/services/" + data.member.object.profile.bot_id;
         }
       },
       send_sso: {
@@ -118,13 +118,13 @@
       var data = _getData(member);
       var actions = [];
       _.each(TS.web.member_actions.actions, function(action) {
-        if (_canPerform(action, data)) actions.push(_getAction(action, data))
+        if (_canPerform(action, data)) actions.push(_getAction(action, data));
       });
-      return _.sortBy(actions, ["primary"])
+      return _.sortBy(actions, ["primary"]);
     },
     canPerformAction: function(action, member) {
       var data = _getData(member);
-      return _canPerform(action, data)
+      return _canPerform(action, data);
     },
     test: function() {
       var test_ob = {
@@ -134,37 +134,37 @@
       };
       Object.defineProperty(test_ob, "_canPerform", {
         get: function() {
-          return _canPerform
+          return _canPerform;
         },
         set: function(v) {
-          _canPerform = v
+          _canPerform = v;
         }
       });
       Object.defineProperty(test_ob, "_getAction", {
         get: function() {
-          return _getAction
+          return _getAction;
         },
         set: function(v) {
-          _getAction = v
+          _getAction = v;
         }
       });
       Object.defineProperty(test_ob, "_getData", {
         get: function() {
-          return _getData
+          return _getData;
         },
         set: function(v) {
-          _getData = v
+          _getData = v;
         }
       });
-      return test_ob
+      return test_ob;
     }
   });
   var _getAction = function(action, data) {
     var result = {};
     _.each(action, function(value, key) {
-      result[key] = _.isFunction(value) ? value(data) : value
+      result[key] = _.isFunction(value) ? value(data) : value;
     });
-    return result
+    return result;
   };
   var _getData = function(member) {
     if (!member) {
@@ -172,7 +172,7 @@
         team: {},
         actor: {},
         member: {}
-      }
+      };
     }
     var actor = TS.model.user;
     return {
@@ -203,7 +203,7 @@
         is_configurable: member.is_bot && member.bot_can_be_configured || member.is_slackbot,
         only_belongs_to_this_team: member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length <= 1
       }
-    }
+    };
   };
   var _canPerform = function(action, data) {
     var team = data.team;
@@ -244,7 +244,7 @@
         return team.is_sso_enabled && !team.is_enterprise && member.is_human && !member.is_deleted && !member.is_primary_owner && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
       default:
         TS.warn("Unrecognized member action type: " + action);
-        return false
+        return false;
     }
-  }
+  };
 })();

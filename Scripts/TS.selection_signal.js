@@ -4,7 +4,7 @@
     onStart: function() {
       if (!TS.client) return;
       if (!window.getSelection) return;
-      TS.client.login_sig.add(_handleSelection)
+      TS.client.login_sig.add(_handleSelection);
     }
   });
   var _handleSelection = function() {
@@ -19,7 +19,7 @@
           var message_length = msg_text.length;
           var channe_id = $(ts_message).data("model-ob-id");
           if ($(range.endContainer).hasClass("constrain-triple-clicks")) {
-            sel_text = msg_text
+            sel_text = msg_text;
           }
           var start_offset = range.startOffset < range.endOffset ? range.startOffset : range.endOffset;
           var tokens = sel_text.match(/\S+/g);
@@ -31,9 +31,9 @@
           clog_args["channel_type"] = channe_id[0] || "";
           clog_args["message_timestamp"] = $(ts_message).data("ts") + "";
           clog_args["num_tokens"] = tokens ? tokens.length : 0;
-          TS.clog.track("MSG_CURSOR_SELECT", clog_args)
+          TS.clog.track("MSG_CURSOR_SELECT", clog_args);
         }
       }
-    })
-  }
+    });
+  };
 })();

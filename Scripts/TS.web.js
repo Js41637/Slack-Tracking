@@ -18,31 +18,31 @@
         if (!$ms.length) return;
         var dy = oe.wheelDeltaY;
         if (dy === null && oe.detail && oe.axis == oe.VERTICAL_AXIS) {
-          dy = oe.detail
+          dy = oe.detail;
         } else if (dy === null) {
-          dy = oe.wheelDelta
+          dy = oe.wheelDelta;
         }
         if (!dy) return;
         if ($ms[0].scrollTop === $ms[0].scrollHeight - $ms.height() && dy < 0 || $ms[0].scrollTop === 0 && dy > 0) {
-          e.preventDefault()
+          e.preventDefault();
         }
       });
       if (TS.metrics && TS.boot_data && TS.boot_data.page_timing_label) {
-        TS.metrics.measure(TS.boot_data.page_timing_label + "_load", "start_nav")
+        TS.metrics.measure(TS.boot_data.page_timing_label + "_load", "start_nav");
       }
-      if (TS.boot_data && !TS.boot_data.api_active_migration_error_response_type) TS.boot_data.api_active_migration_error_response_type = "show_dialog"
+      if (TS.boot_data && !TS.boot_data.api_active_migration_error_response_type) TS.boot_data.api_active_migration_error_response_type = "show_dialog";
     },
     gogogo: function() {
       TSConnLogger.log("gogogo", "TS.web.gogogo");
       $("html").bind("mousedown", function() {
-        TS.model.ui.is_mouse_down = true
+        TS.model.ui.is_mouse_down = true;
       });
       $("html").bind("dragend", function() {
-        TS.model.ui.is_mouse_down = false
+        TS.model.ui.is_mouse_down = false;
       });
       $("html").bind("mouseup", function() {
-        TS.model.ui.is_mouse_down = false
-      })
+        TS.model.ui.is_mouse_down = false;
+      });
     },
     toggleSection: function(section, no_add_hash) {
       var $section = $("#" + section);
@@ -51,7 +51,7 @@
       $section.find(".accordion_subsection").slideToggle(100, function() {
         $section.css("border-bottom", border);
         if ($section.hasClass("plastic_row") && !$section.hasClass("open")) {
-          $section.removeAttr("style")
+          $section.removeAttr("style");
         }
       });
       $section.toggleClass("open");
@@ -60,33 +60,33 @@
       if (expand_btn.text() == "expand") {
         expand_btn.text("close");
         $section.find(".ladda-button").each(function() {
-          Ladda.bind($(this)[0])
-        })
+          Ladda.bind($(this)[0]);
+        });
       } else {
-        expand_btn.text("expand")
+        expand_btn.text("expand");
       }
       if (!no_add_hash) {
-        history.pushState(null, null, "#" + section.replace("change_", ""))
+        history.pushState(null, null, "#" + section.replace("change_", ""));
       }
     },
     openSection: function(section) {
       var $section = $("#" + section);
-      if (!$section.hasClass("open")) TS.web.toggleSection(section)
+      if (!$section.hasClass("open")) TS.web.toggleSection(section);
     },
     closeSection: function(section) {
       var $section = $("#" + section);
-      if ($section.hasClass("open")) TS.web.toggleSection(section)
+      if ($section.hasClass("open")) TS.web.toggleSection(section);
     },
     autoToggleSection: function() {
       var hash = TS.utility.htmlEntities(window.location.hash);
       if (hash) {
         if (hash.charAt(0) === "#") {
-          hash = hash.substring(1)
+          hash = hash.substring(1);
         }
         var anchor = $('a[name="' + hash + '"][data-accordion]');
         var section = anchor.data("accordion");
         if (section) {
-          TS.web.toggleSection(section)
+          TS.web.toggleSection(section);
         }
       }
     },
@@ -94,14 +94,14 @@
       var $el = $(selector);
       $el.scrollintoview({
         px_offset: $("header").height() + 16
-      })
+      });
     },
     onFirstLoginMS: function(data) {
       _emojiReplaceOnLoad();
       TSConnLogger.log("first_rtm_start", "TS.web logged in first time");
       TS.warn(new Date - TSConnLogger.start_time + "ms from first html to login_sig.dispatch()");
       TS.web.before_login_sig.dispatch();
-      TS.web.login_sig.dispatch()
+      TS.web.login_sig.dispatch();
     },
     onEveryLoginMS: function(data) {},
     apiPaused: function(info) {},
@@ -111,7 +111,7 @@
     $(".emoji_replace_on_load").each(function() {
       var html = $(this).html();
       html = TS.emoji.graphicReplace(html);
-      $(this).html(html)
-    })
-  }
+      $(this).html(html);
+    });
+  };
 })();
