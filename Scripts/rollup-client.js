@@ -4664,6 +4664,7 @@
       }
       TS.view.ms.ever_connected = true;
       TS.client.msg_input.setOnline();
+      TS.info("Hiding the reconnection banner because we are connected");
       _cancelDelayedReconnectingBanner();
       $("#connection_div").html("").addClass("hidden");
       TS.client.msg_pane.topMessagesBannerHidden();
@@ -4675,10 +4676,14 @@
     socketTroubled: function() {
       TS.view.ms.changeConnectionStatus("trouble");
       TS.client.msg_input.setOffline();
+      TS.info("Hiding the reconnection banner because we are troubled");
+      _cancelDelayedReconnectingBanner();
     },
     socketDisconnected: function() {
       TS.view.ms.changeConnectionStatus("offline");
       TS.client.msg_input.setOffline();
+      TS.info("Hiding the reconnection banner because we are disconnected");
+      _cancelDelayedReconnectingBanner();
     },
     ponged: function() {
       var $icon = $("#presence");
@@ -4690,6 +4695,7 @@
     },
     socketReconnecting: function(secs) {
       if (TS.model.window_unloading) {
+        TS.info("Hiding the reconnection banner because we are unloading");
         _cancelDelayedReconnectingBanner();
         $("#connection_div").html("").addClass("hidden");
         TS.client.msg_pane.topMessagesBannerHidden();
@@ -4781,6 +4787,7 @@
   var _reconnect_banner_delay_tim;
   var _reconnect_banner_timeout_secs;
   var _showReconnectingBannerAfterDelay = function(secs) {
+    TS.info("Will show reconnection banner after delay");
     _reconnect_banner_timeout_secs = secs;
     if (_reconnect_banner_delay_tim) return;
     _reconnect_banner_delay_tim = setTimeout(function() {
@@ -4789,6 +4796,8 @@
     }, RECONNECT_BANNER_DELAY_MS);
   };
   var _showReconnectingBannerImmediately = function(secs) {
+    TS.info("Showing reconnection banner immediately");
+    _cancelDelayedReconnectingBanner();
     var txt = "Reconnecting";
     if (secs) {
       txt += " in " + secs + " second" + (secs == 1 ? "" : "s...");
@@ -4800,7 +4809,10 @@
     TS.client.msg_pane.topMessagesBannerShown();
   };
   var _cancelDelayedReconnectingBanner = function() {
-    if (!_reconnect_banner_delay_tim) return;
+    if (!_reconnect_banner_delay_tim) {
+      TS.info("Would cancel pending reconnection banner, but there is none");
+      return;
+    }
     clearTimeout(_reconnect_banner_delay_tim);
     _reconnect_banner_delay_tim = undefined;
   };

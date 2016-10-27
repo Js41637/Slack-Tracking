@@ -23134,15 +23134,22 @@ TS.registerModule("constants", {
       var tz_offset;
       var local_time_str;
       if (_has_Intl) {
+        var now = Date.now();
         try {
-          var tz = member && member.tz ? member.tz : "America/Los_Angeles";
-          var date_options = {
-            timeZone: tz,
-            hour: "numeric",
-            minute: "numeric",
-            hour12: !TS.utility.date.do24hrTime()
-          };
-          local_time = Intl.DateTimeFormat.call(null, _page_lang, date_options).format(date);
+          if (_cache_date && _cache_date >= now - 3e4) {
+            local_time = _cache_local_time;
+          } else {
+            var tz = member && member.tz ? member.tz : "America/Los_Angeles";
+            var date_options = {
+              timeZone: tz,
+              hour: "numeric",
+              minute: "numeric",
+              hour12: !TS.utility.date.do24hrTime()
+            };
+            local_time = Intl.DateTimeFormat.call(null, _page_lang, date_options).format(date);
+            _cache_local_time = local_time;
+            _cache_date = now;
+          }
         } catch (e) {
           tz_offset = _memberTzOffset(member);
           local_time = _calculateLocalTime(date, tz_offset);
@@ -23438,6 +23445,8 @@ TS.registerModule("constants", {
   var _page_lang = _page_lang ? _page_lang : _getPageLanguage();
   var _has_Intl = window.Intl && typeof window.Intl === "object" && Intl.DateTimeFormat().resolvedOptions().timeZone !== undefined && Intl.DateTimeFormat().resolvedOptions().timeZone.length > 0;
   var _dst_offsets = TS.boot_data.dst_offsets || null;
+  var _cache_date;
+  var _cache_local_time;
   var _memberTzOffset = function(member) {
     var tz_offset = -28800;
     if (member && member.tz_offset && typeof member.tz_offset !== "undefined" || member.tz_offset === 0) {
