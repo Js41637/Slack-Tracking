@@ -10880,13 +10880,6 @@ TS.registerModule("constants", {
     }
   };
   var _setPresenceForNewMember = function(member) {
-    if (!member.presence && !_.isEmpty(TS.model.online_users)) {
-      var index = TS.model.online_users.indexOf(member.id);
-      if (index > -1) {
-        member.presence = "active";
-        TS.model.online_users.splice(index, 1);
-      }
-    }
     member.presence = member.presence == "active" ? "active" : "away";
     if (!TS.boot_data.feature_always_active_bots) return;
     if (_.get(member, "profile.always_active")) {

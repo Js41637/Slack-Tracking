@@ -1555,7 +1555,6 @@
         TS.model.mpims = [];
         TS.model.user_groups = [];
         TS.model.read_only_channels = [];
-        TS.model.online_users = [];
       } else {
         var is_first_full_boot = TS._did_incremental_boot && !TS._did_full_boot;
         if (!is_first_full_boot) {
@@ -1568,9 +1567,6 @@
           TS.metrics.count(log_name, JSON.stringify(data).length);
         });
       }
-      if (data.online_users && _.isArray(data.online_users)) TS.model.online_users = data.online_users.filter(function(user_id) {
-        return user_id !== "USLACKBOT";
-      });
       TS.prefs.setPrefs(data.self.prefs);
       delete data.self.prefs;
       var i;
