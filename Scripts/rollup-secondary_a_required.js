@@ -22395,7 +22395,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("nonImageCanUseFSFV", function(file, options) {
         if (!file) return options.inverse(this);
-        if (TS.boot_data.feature_pdf_viewer && file.mode === "hosted" && TS.files.fileIsPDF(file)) return options.fn(this);
+        if (TS.boot_data.feature_pdf_viewer && file.mode === "hosted" && TS.files.fileIsPDF(file) && file.size <= 5e7) return options.fn(this);
         return options.inverse(this);
       });
       Handlebars.registerHelper("makeFilePrivacyLabel", function(file) {
@@ -47007,7 +47007,8 @@ $.fn.togglify = function(settings) {
       archived_channel_or_group: -25,
       not_in_channel: -25,
       usergroup_or_keyword: -25,
-      exact_match: 50
+      fuzzy_match: 50,
+      exact_match: 100
     }
   });
   var _frecency;
@@ -47289,11 +47290,13 @@ $.fn.togglify = function(settings) {
       member_matches = data.members.filter(function(m) {
         if (TS.boot_data.feature_name_tagging_client) {
           if (options.prefer_exact_match && (TS.members.getMemberPreferredName(m).toLocaleLowerCase() === searcher.query || TS.members.getMemberFullName(m).toLocaleLowerCase() === searcher.query)) {
+            m._jumper_exact_match = true;
             exact_matches.push(m);
             return false;
           }
         }
         if (options.prefer_exact_match && m.name === searcher.query) {
+          m._jumper_exact_match = true;
           exact_matches.push(m);
           return false;
         }
@@ -47317,6 +47320,7 @@ $.fn.togglify = function(settings) {
     if (!searcher.only_members && !searcher.only_emoji) {
       data.channels.forEach(function(c) {
         if (options.prefer_exact_match && c.name === searcher.query) {
+          c._jumper_exact_match = true;
           exact_matches.push(c);
           return false;
         }
@@ -47336,6 +47340,7 @@ $.fn.togglify = function(settings) {
     if (!searcher.only_channels && !searcher.only_members && !searcher.only_emoji) {
       data.groups.forEach(function(g) {
         if (options.prefer_exact_match && g.name === searcher.query) {
+          g._jumper_exact_match = true;
           exact_matches.push(g);
           return false;
         }
@@ -47352,6 +47357,7 @@ $.fn.togglify = function(settings) {
       });
       team_matches = data.teams.filter(function(team) {
         if (options.prefer_exact_match && team.team_name.toLocaleLowerCase() === searcher.query) {
+          team._jumper_exact_match = true;
           exact_matches.push(team);
           return false;
         }
@@ -47362,6 +47368,7 @@ $.fn.togglify = function(settings) {
     if (!searcher.only_channels && !searcher.only_members) {
       emoji_matches = data.emoji.filter(function(e) {
         if (options.prefer_exact_match && e.name === searcher.query) {
+          e._jumper_exact_match = true;
           exact_matches.push(e);
           return false;
         }
@@ -47408,13 +47415,15 @@ $.fn.togglify = function(settings) {
       } else {
         filtered_matches = TS.ui.frecency.query(filtered_matches, query, _frecencyBonusPoints, options);
       }
-      if (emoji_matches.length > 0 && options.prefer_exact_match && exact_matches.length > 0 && query.length > 2) {
-        var exact_match = [];
-        for (var i = 0; i < exact_matches.length; i++) {
-          exact_match = _.remove(filtered_matches, {
-            id: exact_matches[i].id
-          });
-          filtered_matches.unshift(exact_match[0]);
+      if (!TS.boot_data.feature_frecency_normalization) {
+        if (emoji_matches.length > 0 && options.prefer_exact_match && exact_matches.length > 0 && query.length > 2) {
+          var exact_match = [];
+          for (var i = 0; i < exact_matches.length; i++) {
+            exact_match = _.remove(filtered_matches, {
+              id: exact_matches[i].id
+            });
+            filtered_matches.unshift(exact_match[0]);
+          }
         }
       }
     }
@@ -47588,6 +47597,9 @@ $.fn.togglify = function(settings) {
   var _frecencyBonusPointsNormalized = function(item, options) {
     if (item.is_mpim) return 0;
     var score = _calculateNormalizedFuzzyBonusPoints(item);
+    if (item._jumper_exact_match) {
+      score += TS.ui.frecency.bonus_points.exact_match;
+    }
     if (options.prefer_channel_members && item.presence) {
       if (options.model_ob && TS.utility.members.isMemberOfChannel(item.id, options.model_ob)) {
         score += TS.ui.frecency.bonus_points.member_of_this_channel;
@@ -47627,7 +47639,7 @@ $.fn.togglify = function(settings) {
     var fuzziness = item._jumper_score;
     if (!_.isFinite(fuzziness)) return 0;
     var scaler = Math.pow(.5, fuzziness);
-    return Math.round(TS.ui.frecency.bonus_points.exact_match * scaler);
+    return Math.round(TS.ui.frecency.bonus_points.fuzzy_match * scaler);
   };
 })();
 (function() {
