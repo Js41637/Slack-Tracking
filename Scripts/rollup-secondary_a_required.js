@@ -16394,6 +16394,10 @@ TS.registerModule("constants", {
       if (!TS.boot_data.feature_user_removed_from_team) return;
       TS.info("TS.ms.msg_handlers.user_removed_from_team, team_id = " + imsg.team_id);
       if (TS.client) TS.client.user_removed_from_team_sig.dispatch(imsg.team_id);
+    },
+    update_thread_state: function(imsg) {
+      if (!TS.boot_data.feature_message_replies || !TS.boot_data.feature_message_replies_threads_view) return;
+      TS.replies.setThreadsUnreadData(imsg.has_unreads, imsg.mention_count);
     }
   });
   var _did_queue_rebuild_member_list_toggle = false;

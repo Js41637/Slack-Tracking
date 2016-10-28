@@ -11353,13 +11353,28 @@
         }
         var min_count = 20;
         if (!TS.isPartiallyBooted() && msgs.length && count < min_count) {
-          if (TS.pri) TS.log(888, "rebuildMsgs(): loading more history because count is < " + min_count);
-          if (TS.model.prefs.start_scroll_at_oldest && !model_ob.is_im) {
-            if (TS.pri) TS.log(888, "rebuildMsgs(): loading scrollback, AND, resetting _has_auto_scrolled so we scroll to oldest again when more history loads.");
-            reset_scroll_for_pending_history = true;
+          if (_did_fetch_extra_history && _last_rebuild_model_ob_id == model_ob.id) {} else {
+            _did_fetch_extra_history = true;
+            var _clearDidFetchExtraHistoryFlag = function() {
+              _did_fetch_extra_history = false;
+              TS.channels.switched_sig.remove(_clearDidFetchExtraHistoryFlag);
+              TS.groups.switched_sig.remove(_clearDidFetchExtraHistoryFlag);
+              TS.ims.switched_sig.remove(_clearDidFetchExtraHistoryFlag);
+              TS.mpims.switched_sig.remove(_clearDidFetchExtraHistoryFlag);
+            };
+            TS.channels.switched_sig.addOnce(_clearDidFetchExtraHistoryFlag);
+            TS.groups.switched_sig.addOnce(_clearDidFetchExtraHistoryFlag);
+            TS.ims.switched_sig.addOnce(_clearDidFetchExtraHistoryFlag);
+            TS.mpims.switched_sig.addOnce(_clearDidFetchExtraHistoryFlag);
+            if (TS.pri) TS.log(888, "rebuildMsgs(): loading more history because count is < " + min_count);
+            if (TS.model.prefs.start_scroll_at_oldest && !model_ob.is_im) {
+              if (TS.pri) TS.log(888, "rebuildMsgs(): loading scrollback, AND, resetting _has_auto_scrolled so we scroll to oldest again when more history loads.");
+              reset_scroll_for_pending_history = true;
+            }
+            TS.client.ui.doLoadScrollBackHistory(true);
           }
-          TS.client.ui.doLoadScrollBackHistory(true);
         }
+        _last_rebuild_model_ob_id = model_ob.id;
       }
       TS.client.ui.$msgs_div.html(html);
       TS.utility.makeSureAllLinksHaveTargets(TS.client.ui.$msgs_div);
@@ -12206,6 +12221,8 @@
       $(".call_icon").toggleClass("call_window_offline", !(go_online && is_call_allowed));
     }
   });
+  var _did_fetch_extra_history;
+  var _last_rebuild_model_ob_id;
   var _$last_read_msg_div;
   var _new_msgs_tim;
   var _hide_blue_bar_tim;
