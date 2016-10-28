@@ -22643,6 +22643,10 @@ ts-jumper ts-jumper-results:empty {
   display: inline
 }
 
+.channel_topic.inline_edit .inline_edit_input:focus {
+  display: block
+}
+
 .channel_topic.inline_edit:hover .inline_edit_input,
 .channel_topic.inline_edit_editing .inline_edit_input,
 .channel_topic.inline_edit_updating .inline_edit_input {
