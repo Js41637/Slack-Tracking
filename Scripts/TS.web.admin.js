@@ -945,7 +945,7 @@
         TS.web.admin.rowProcessing(row);
       });
       $row.find(".api_remove_owner").unbind("click").bind("click", function() {
-        TS.api.call("users.admin.setAdmin", {
+        TS.api.call("users.admin.removeOwner", {
           user: row.id
         }, TS.web.admin.onMemberRemoveOwner);
         TS.web.admin.rowProcessing(row);
@@ -1450,7 +1450,7 @@
         TS.web.admin.rowError(member);
         return;
       }
-      member.is_admin = true;
+      member.is_admin = data.is_admin;
       member.is_owner = false;
       TS.members.upsertMember(member);
       TS.web.admin.member_owner_removed_sig.dispatch(member);

@@ -3488,6 +3488,9 @@
       var existing_channel = TS.channels.getChannelById(channel.id);
       delete _name_map[existing_channel._name_lc];
       delete _name_map["#" + existing_channel._name_lc];
+      if (TS.boot_data.feature_reveal_channel_renames) {
+        channel.previous_names = [existing_channel._name_lc].concat(existing_channel.previous_names || []);
+      }
       var new_channel = TS.channels.upsertChannel(channel);
       new_channel._name_lc = _.toLower(new_channel.name);
       _name_map[new_channel._name_lc] = new_channel;
@@ -47127,7 +47130,7 @@ $.fn.togglify = function(settings) {
         }
         var score = fuzzy.score(c.name);
         c._jumper_score = score;
-        if (TS.boot_data.feature_reveal_channel_renames && options.search_previous_channel_names && c.previous_names.length) {
+        if (TS.boot_data.feature_reveal_channel_renames && options.search_previous_channel_names && c.previous_names && c.previous_names.length) {
           c._jumper_previous_name_scores = _.map(c.previous_names, function(name) {
             return {
               score: fuzzy.score(name),
