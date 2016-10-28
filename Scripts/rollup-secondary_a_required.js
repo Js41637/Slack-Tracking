@@ -47596,9 +47596,11 @@ $.fn.togglify = function(settings) {
   };
   var _frecencyBonusPointsNormalized = function(item, options) {
     if (item.is_mpim) return 0;
-    var score = _calculateNormalizedFuzzyBonusPoints(item);
+    var score = 0;
     if (item._jumper_exact_match) {
       score += TS.ui.frecency.bonus_points.exact_match;
+    } else {
+      score += _calculateNormalizedFuzzyBonusPoints(item);
     }
     if (options.prefer_channel_members && item.presence) {
       if (options.model_ob && TS.utility.members.isMemberOfChannel(item.id, options.model_ob)) {
