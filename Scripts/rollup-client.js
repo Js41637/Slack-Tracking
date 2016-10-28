@@ -973,6 +973,9 @@
       var direct_from_boot = true;
       TS.client.unread.showUnreadView(false, replace_history_state, direct_from_boot);
     }
+    if (TS.model.initial_threads_view) {
+      TS.client.threads.showThreadsView(false, replace_history_state);
+    }
   };
   var _cleanFlexExtra = function(flex_extra) {
     if (!flex_extra) return flex_extra;
@@ -1018,7 +1021,7 @@
         TS.generic_dialog.alert("Slack has encountered a problem and needs to reload.", "Reload required", "Reload").then(TS.reload);
       }
     };
-    if (!window.location.pathname.match(/^\/(message|unreads)/) && window.history) {
+    if (!window.location.pathname.match(/^\/(message|unreads|threads)/) && window.history) {
       window.history.replaceState(null, null, window.location.origin + "/messages");
     }
     maybeSetWelcomeChannelToSlackbot();
@@ -1039,7 +1042,9 @@
     }
     var c_name = TS.model.c_name_in_url = TS.utility.getChannelNameFromUrl(location.href);
     var unread_view = TS.boot_data.feature_unread_view && TS.utility.isUnreadViewPath(location.pathname);
+    var threads_view = TS.boot_data.feature_message_replies_threads_view && TS.utility.isThreadsViewPath(location.pathname);
     if (unread_view) TS.model.initial_unread_view = true;
+    if (threads_view) TS.model.initial_threads_view = true;
     var getInitialChannelId = function() {
       if (c_name) {
         channel = TS.channels.getChannelByName(c_name);

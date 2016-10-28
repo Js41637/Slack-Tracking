@@ -2019,6 +2019,10 @@
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
+      if (TS.boot_data.feature_message_replies_threads_view && TS.utility.isThreadsViewPath(loc.pathname)) {
+        delete TS.boot_data.incremental_boot_data;
+        return false;
+      }
       return true;
     },
     userDidInteractWithUI: function() {
@@ -2456,6 +2460,7 @@
     initial_cid: "",
     enterprise: null,
     initial_unread_view: false,
+    initial_threads_view: false,
     RESERVED_USERNAMES: ["all", "archive", "archived", "archives", "channel", "channels", "create", "delete", "deleted-channel", "edit", "everyone", "general", "group", "groups", "here", "me", "ms", "slack", "slackbot", "today", "you"],
     RESERVED_KEYWORDS: ["channel", "everyone", "here", "slackbot"],
     BROADCAST_KEYWORDS: [{
