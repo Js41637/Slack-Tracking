@@ -887,7 +887,29 @@
           if (TS.isPartiallyBooted()) {
             TS.info("Finalizing incremental boot");
             TS.incremental_boot.beforeFullBoot();
+            var users_from_incr_boot = TS.lazyLoadMembers() ? _.map(TS.model.members, "id") : null;
             _performNonIncrementalBoot(_pending_rtm_start_p, _onLoginMS).then(function() {
+              if (TS.lazyLoadMembers()) {
+                _pending_rtm_start_p.then(function(rtm_start) {
+                  var ready_to_query_p = new Promise(function(resolve) {
+                    if (TS.model.ms_connected) {
+                      resolve();
+                    } else {
+                      TS.ms.connected_sig.addOnce(resolve);
+                    }
+                  });
+                  var users_from_rtm_start = _.map(rtm_start.data.users, "id");
+                  var users_to_refetch = _.difference(users_from_incr_boot, users_from_rtm_start);
+                  if (!users_to_refetch.length) {
+                    TS.log(1989, "No need to re-fetch any members for presence status");
+                    return;
+                  }
+                  ready_to_query_p.then(function() {
+                    TS.log(1989, "Re-fetching " + users_to_refetch.length + " members so we have presence status");
+                    TS.flannel.fetchAndUpsertObjectsByIds(users_to_refetch);
+                  });
+                });
+              }
               _pending_rtm_start_p = undefined;
               TS.incremental_boot.afterFullBoot();
               TS.info("Completed incremental boot");
@@ -4877,7 +4899,7 @@
         }
         var model_ob = TS.shared.getModelObById(c_id);
         if (!model_ob || model_ob.is_im) show = false;
-        if (show && !TS.shared.haveAllMembersForModelOb(model_ob) && !did_fetch_all_members) {
+        if (show && !TS.members.haveAllMembersForModelOb(model_ob) && !did_fetch_all_members) {
           TS.log(1989, "Flannel: need to fetch all members in " + model_ob.name + " (" + model_ob.id + ") to see if we have to show at-channel dialog");
           TS.flannel.fetchAndUpsertAllMembersForModelOb(model_ob).then(function() {
             if (!TS.generic_dialog.is_showing) return;

@@ -9233,11 +9233,6 @@ TS.registerModule("constants", {
       if (!model_ob || !TS.model || !TS.model.team) return false;
       return !!(TS.boot_data.page_needs_enterprise && TS.model && TS.model.team && TS.model.team.enterprise_id && (model_ob.is_shared || model_ob.is_org_shared));
     },
-    haveAllMembersForModelOb: function(model_ob) {
-      if (!TS.lazyLoadMembers()) return true;
-      var model_ob_members = _(model_ob.members).map(TS.members.getMemberById).compact().value();
-      return model_ob_members.length == model_ob.members.length;
-    },
     isRelevantTeam: function() {
       var is_relevant = true;
       if (!TS.boot_data.page_needs_enterprise || !TS.model.team || !TS.model.team.enterprise_id || !TS.boot_data.other_accounts) return is_relevant;
@@ -10388,6 +10383,12 @@ TS.registerModule("constants", {
     },
     buildPromiseToSearchMembersArguments: function(searcher) {
       return _buildPromiseToSearchMembersArguments(searcher);
+    },
+    haveAllMembersForModelOb: function(model_ob) {
+      if (!TS.lazyLoadMembers()) return true;
+      var model_ob_members = model_ob.members || [model_ob.user];
+      var available_members = _.map(TS.model.members, "id");
+      return !_.difference(model_ob_members, available_members).length;
     },
     test: function() {
       var test = {};
@@ -37403,7 +37404,7 @@ var _on_esc;
   var _setupFilterSelectForConnectedContacts = function() {
     var opts = {
       page: 1,
-      count: 5e3
+      count: 1e3
     };
     TS.google_auth.getContactList(_google_auth_instance_id, opts).then(function(data) {
       var empty_rows = $("input.email_field").filter(function() {
@@ -37504,6 +37505,7 @@ var _on_esc;
     }, function() {
       $row.removeClass("delete_highlight");
     });
+    $row.find('[name="email_address"]').focus();
     if (email) {
       $row.find('[name="email_address"]').val(email.email);
       $row.find(".lfs_input_container input.lfs_input").val(email.email);
@@ -37515,7 +37517,7 @@ var _on_esc;
       }
     }
     _updateSendButtonLabel();
-    if (TS.google_auth.isAuthed(_google_auth_instance_id) && _$div.find(".admin_invite_row").length > 1) {
+    if (TS.google_auth.isAuthed(_google_auth_instance_id) && _google_contacts_data) {
       _startFilterSelectForEmailAddresses(_google_contacts_data);
     }
     _row_index++;
@@ -47012,7 +47014,8 @@ $.fn.togglify = function(settings) {
       not_in_channel: -25,
       usergroup_or_keyword: -25,
       fuzzy_match: 50,
-      exact_match: 100
+      exact_match: 100,
+      matches_previous_name: -10
     }
   });
   var _frecency;
@@ -47124,6 +47127,25 @@ $.fn.togglify = function(settings) {
         }
         var score = fuzzy.score(c.name);
         c._jumper_score = score;
+        if (TS.boot_data.feature_reveal_channel_renames && options.search_previous_channel_names && c.previous_names.length) {
+          c._jumper_previous_name_scores = _.map(c.previous_names, function(name) {
+            return {
+              score: fuzzy.score(name),
+              name: name
+            };
+          });
+          var did_match_previous_names = _.some(c._jumper_previous_name_scores, function(o) {
+            return o.score <= fuzzy_limit;
+          });
+          c._jumper_only_matched_previous_names = did_match_previous_names && score > fuzzy_limit;
+          if (c._jumper_only_matched_previous_names) {
+            var lowest = _.minBy(c._jumper_previous_name_scores, "score");
+            c._jumper_previous_name_match = lowest && lowest.name;
+          } else {
+            c._jumper_previous_name_match = null;
+          }
+          return score <= fuzzy_limit || did_match_previous_names;
+        }
         return score <= fuzzy_limit;
       },
       matchesGroup: function(g) {
@@ -47605,6 +47627,11 @@ $.fn.togglify = function(settings) {
       score += TS.ui.frecency.bonus_points.exact_match;
     } else {
       score += _calculateNormalizedFuzzyBonusPoints(item);
+    }
+    if (TS.boot_data.feature_reveal_channel_renames) {
+      if (item._jumper_previous_name_scores) {
+        score += TS.ui.frecency.bonus_points.matches_previous_name;
+      }
     }
     if (options.prefer_channel_members && item.presence) {
       if (options.model_ob && TS.utility.members.isMemberOfChannel(item.id, options.model_ob)) {
@@ -50476,17 +50503,29 @@ $.fn.togglify = function(settings) {
     getContactList: function(instance_id, opts) {
       if (!TS.google_auth.isAuthed(instance_id)) return new Promise.resolve([]);
       return new Promise(function(resolve, reject) {
-        TS.api.call("services.googlecontacts.list", {
-          instance_id: instance_id,
-          page: opts.page,
-          count: opts.count
-        }).then(function(obj) {
-          var data = {
-            items: obj.data.contacts,
-            all_items_fetched: obj.data.all_items_fetched
-          };
+        var aggregate_data = [];
+        TS.google_auth.getContactsFromAPI(instance_id, opts, aggregate_data, function(data) {
           resolve(data || []);
         });
+      });
+    },
+    getContactsFromAPI: function(instance_id, opts, aggregate_data, callback) {
+      TS.api.call("services.googlecontacts.list", {
+        instance_id: instance_id,
+        page: opts.page,
+        count: opts.count
+      }).then(function(obj) {
+        aggregate_data.push.apply(aggregate_data, obj.data.contacts);
+        if (obj.data.all_items_fetched === false) {
+          opts.page = opts.page + 1;
+          TS.google_auth.getContactsFromAPI(instance_id, opts, aggregate_data, callback);
+        } else {
+          var callback_data = {
+            items: aggregate_data,
+            all_items_fetched: obj.data.all_items_fetched
+          };
+          callback(callback_data);
+        }
       });
     },
     getContactListFromQuery: function(instance_id, opts) {

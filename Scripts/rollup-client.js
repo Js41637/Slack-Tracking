@@ -26418,7 +26418,7 @@
     template_args.online_count = online_count;
     template_args.restricted_count = restricted_count;
     template_args.show_restricted_members = restricted_count > 0;
-    if (TS.lazyLoadMembers() && !TS.shared.haveAllMembersForModelOb(model_ob)) {
+    if (TS.lazyLoadMembers() && !TS.members.haveAllMembersForModelOb(model_ob)) {
       template_args.loading_members = true;
     }
     _$member_tabs.html(TS.templates.channel_page_member_tabs(template_args));
@@ -26429,7 +26429,7 @@
   var _rebuildMemberLists = function(model_ob) {
     if (model_ob.is_im) return;
     _cleanMemberLists();
-    if (TS.lazyLoadMembers() && !TS.shared.haveAllMembersForModelOb(model_ob)) {
+    if (TS.lazyLoadMembers() && !TS.members.haveAllMembersForModelOb(model_ob)) {
       TS.log(1989, "Flannel: fetching missing members for channel " + model_ob.name);
       _$member_lists.addClass("loading").html(TS.templates.infinite_spinner({
         color: "white",
@@ -32442,7 +32442,8 @@ var _timezones_alternative = {
       prefer_exact_match: true,
       frecency: true,
       limit: _RESULT_LIMIT,
-      prefer_channels_user_belongs_to: true
+      prefer_channels_user_belongs_to: true,
+      search_previous_channel_names: !!TS.boot_data.feature_reveal_channel_renames
     };
     return TS.sorter.search(query, _data, search_options);
   };

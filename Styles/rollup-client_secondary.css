@@ -14608,16 +14608,23 @@ a.sidebar_menu_list_item:hover {
   float: right
 }
 
+#admin_invites_workflow .lazy_filter_select {
+  margin: .2rem 0 0
+}
+
 #admin_invites_workflow .lazy_filter_select .ts_tip_tip {
   display: block;
-  opacity: 1
+  opacity: 1;
+  width: 160px
 }
 
 #admin_invites_workflow .lazy_filter_select .lfs_input_container {
-  background-color: #f9f9f9
+  background-color: #fff;
+  padding: 0
 }
 
-#admin_invites_workflow .lazy_filter_select .lfs_input_container .lfs_item.selected .bold {
+#admin_invites_workflow .lazy_filter_select .lfs_input_container .lfs_item.selected .bold,
+#admin_invites_workflow .lazy_filter_select .lfs_input_container:after {
   display: none
 }
 
@@ -14626,12 +14633,9 @@ a.sidebar_menu_list_item:hover {
   background: #FFF6F6
 }
 
-#btn_connect_contacts .ts_icon_google {
-  vertical-align: sub
-}
-
 #btn_connect_contacts .ts_icon_google:before {
-  font-size: 1.5rem
+  font-size: 1.6rem;
+  width: 1.3rem
 }
 
 .invite_modal_options {
