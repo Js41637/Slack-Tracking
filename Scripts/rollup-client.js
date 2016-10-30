@@ -31354,7 +31354,7 @@ var _timezones_alternative = {
         var new_gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
         if (new_gallery !== _gallery) {
           _gallery = new_gallery;
-          if (TS.boot_data.feature_pdf_viewer) {
+          if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled) {
             _filterPDFs();
           }
           _updateCurrentIndex();
@@ -31653,7 +31653,7 @@ var _timezones_alternative = {
       return;
     }
     _gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
-    if (TS.boot_data.feature_pdf_viewer) {
+    if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled) {
       _filterPDFs();
     }
   };
@@ -31699,7 +31699,7 @@ var _timezones_alternative = {
       _current_file.member = TS.members.getMemberById(_current_file.file.user);
       _current_file.original_w = _current_file.file.original_w;
       _current_file.original_h = _current_file.file.original_h;
-      _current_file.is_pdf = TS.boot_data.feature_pdf_viewer && TS.files.fileIsPDF(_current_file.file);
+      _current_file.is_pdf = TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && TS.files.fileIsPDF(_current_file.file);
       TS.files.fetchFileInfo(_current_file.file.id, function() {
         if (_current_file.file && _current_file.file.comments && _current_file.file.comments.length) {
           if (!TS.boot_data.feature_share_mention_comment_cleanup) {
@@ -31771,7 +31771,7 @@ var _timezones_alternative = {
       actions: actions,
       link_url: _current_file.link_url
     };
-    if (TS.boot_data.feature_pdf_viewer && _current_file.is_pdf) {
+    if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && _current_file.is_pdf) {
       template_args.file_is_pdf = true;
       template_args.control_btns = false;
       template_args.pdf_viewer_url = TS.boot_data.abs_root_url + "pdf-viewer?feature_pdf_viewer=1";
@@ -31990,7 +31990,7 @@ var _timezones_alternative = {
       file: TS.files.getFileById($preload_image.data("file-id")) || {},
       external_file_src: is_preload_image_external ? $preload_image.data("src") : undefined
     };
-    if (TS.boot_data.feature_pdf_viewer && TS.files.fileIsPDF(preload_current_file.file)) return;
+    if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && TS.files.fileIsPDF(preload_current_file.file)) return;
     var preload_src = _getImageSrc(preload_current_file);
     var image_for_preload = new Image;
     image_for_preload.src = preload_src.scaled;

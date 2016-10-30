@@ -22403,7 +22403,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("nonImageCanUseFSFV", function(file, options) {
         if (!file) return options.inverse(this);
-        if (TS.boot_data.feature_pdf_viewer && file.mode === "hosted" && TS.files.fileIsPDF(file) && file.size <= 5e7) return options.fn(this);
+        if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && file.mode === "hosted" && TS.files.fileIsPDF(file) && file.size <= 5e7) return options.fn(this);
         return options.inverse(this);
       });
       Handlebars.registerHelper("makeFilePrivacyLabel", function(file) {
@@ -46335,7 +46335,7 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".file_ssb_download_link", function(e, $el) {
       var open_flexpane = !(TS.ui.fs_modal_file_viewer && TS.ui.fs_modal_file_viewer.is_showing);
       var file = TS.files.getFileById($el.data("file-id"));
-      if (TS.boot_data.feature_pdf_viewer && file && TS.files.fileIsPDF(file)) {
+      if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && file && TS.files.fileIsPDF(file)) {
         if (TS.ui.fs_modal_file_viewer.is_showing) {
           TS.metrics.count("pdf_viewer_download_in_file_viewer");
         } else {

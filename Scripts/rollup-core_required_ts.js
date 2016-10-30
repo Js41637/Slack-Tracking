@@ -2770,6 +2770,7 @@
     frecency_jumper: {},
     typing_msg: "several people are typing",
     mentions_badge_count: 0,
+    pdf_viewer_enabled: true,
     onStart: function(ua) {
       ua = ua || navigator.userAgent;
       TS.model.files_url = TS.utility.normalizeDevHost("https://" + document.location.hostname + "/files");
