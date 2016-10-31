@@ -670,6 +670,16 @@
         };
       });
     }
+    if (_rtm_start_retry_delay_ms) {
+      TS.info("Want to call rtm.start, but will wait " + _rtm_start_retry_delay_ms + " ms first");
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          TS.info("OK, now calling rtm.start, having waited for delay");
+          _rtm_start_retry_delay_ms = undefined;
+          resolve(_promiseToCallRTMStart());
+        }, _rtm_start_retry_delay_ms);
+      });
+    }
     if (TS.lazyLoadMembers()) {
       if (!_ms_rtm_start_p) {
         if (TS.model.ms_connected) {
@@ -770,6 +780,11 @@
     }
     TS.ms.logConnectionFlow("on_login_failure");
     TS.ms.onFailure("rtm.start call failed with error: " + (error || "no error on resp.data"));
+    var RTM_START_ERROR_MIN_DELAY = 5;
+    var RTM_START_ERROR_MAX_DELAY = 60;
+    var retry_after_secs = parseInt(_.get(resp, "data.retry_after"), 10);
+    TS.info("rtm.start failed; retry_after = " + retry_after_secs);
+    _rtm_start_retry_delay_ms = 1e3 * _.clamp(retry_after_secs, RTM_START_ERROR_MIN_DELAY, RTM_START_ERROR_MAX_DELAY);
     return null;
   };
   var _callRTMStartInParallel = function() {
@@ -908,6 +923,7 @@
                     TS.log(1989, "Re-fetching " + users_to_refetch.length + " members so we have presence status");
                     TS.flannel.fetchAndUpsertObjectsByIds(users_to_refetch);
                   });
+                  return null;
                 });
               }
               _pending_rtm_start_p = undefined;
@@ -989,6 +1005,7 @@
     if (!TS.web.space) return;
     TS.ds.disconnect();
   };
+  var _rtm_start_retry_delay_ms;
   var _last_rtm_start_event_ts;
   var _ms_rtm_start_p;
   var _pending_rtm_start_p;

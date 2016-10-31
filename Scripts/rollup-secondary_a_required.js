@@ -14947,8 +14947,10 @@ TS.registerModule("constants", {
           abortRtmStartAttempt(new Error("WebSocket got disconnected"));
         }
       });
-      _onErrorProvisional = _makeBufferHandler(function(err) {
+      _onErrorProvisional = _makeBufferHandler(function(e) {
         if (rtm_start_p && rtm_start_p.isPending()) {
+          var err = new Error("WebSocket got error");
+          err.event = e;
           abortRtmStartAttempt(err);
         }
       });
@@ -27059,10 +27061,13 @@ TS.registerModule("constants", {
       _.values(ob).forEach(function(val) {
         if (_.isObject(val)) {
           var new_bot_ids = TS.utility.extractAllBotIds(val);
-          bot_ids = _(bot_ids).union(new_bot_ids).uniq().value();
+          bot_ids.push(new_bot_ids);
+        } else if (_.isString(val)) {
+          var new_bot_ids = _(TS.utility.findUrls(val)).map(TS.utility.getBotIDFromURL).compact().value();
+          bot_ids.push(new_bot_ids);
         }
       });
-      return bot_ids;
+      return _(bot_ids).flatten().uniq().value();
     },
     strLooksLikeAChannelId: function(str) {
       if (typeof str !== "string" || str.length < 9) return false;

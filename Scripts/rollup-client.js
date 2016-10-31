@@ -24592,11 +24592,11 @@
       var eligible_members = _(model_ob.members).map(TS.members.getMemberById).compact().sortBy(TS.members.memberSorterByName).value().filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf);
       var timezone_p = new Promise(function(resolve, reject) {
         if (TS.lazyLoadMembers()) {
-          TS.api.call("channels.info", {
+          TS.api.call(model_ob.is_group ? "groups.info" : "channels.info", {
             channel: c_id,
             timezone_count: true
           }).then(function(response) {
-            resolve(response.data.channel.timezone_count);
+            resolve(model_ob.is_group ? response.data.group.timezone_count : response.data.channel.timezone_count);
           });
         } else {
           resolve(_(eligible_members).map("tz_offset").uniq().value().length);

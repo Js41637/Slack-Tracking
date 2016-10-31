@@ -185,8 +185,8 @@
         type: "new_gdrive",
         onGo: function() {
           var gdrive_sharing_settings = {
-            title: $("#document_title").val(),
-            comment: $("#file_comment_textarea").val(),
+            title: _.trim($("#document_title").val()) || "Untitled",
+            comment: _.trim($("#file_comment_textarea").val()),
             channel: $("#share_cb").is(":checked") ? $("#share_model_ob_id").val() : false
           };
           resolve(gdrive_sharing_settings);
