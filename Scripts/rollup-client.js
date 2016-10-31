@@ -2619,7 +2619,7 @@
         });
       }
     },
-    rebuildTeamListSyncCleanedUp: function(ignore_cache) {
+    rebuildTeamListSyncAlwaysLongList: function(ignore_cache) {
       if (TS.lazyLoadMembers() && !_entire_team_loaded) {
         throw new Error("Flannel: team list can only be built after the entire team has been loaded");
       }
@@ -2629,10 +2629,10 @@
       var list_dom_id = "team_list_members";
       var list_dom_wrapper_id = "team_list_members_wrapper";
       var $members_wrapper = $("#" + list_dom_wrapper_id);
-      var members_for_user = TS.members.getMembersForUser();
+      var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
       if (!TS.view.last_team_list_html || !$("#" + list_dom_id).length) {
         TS.view.cleanTeamList();
-        if (!TS.view.last_team_list_html) TS.view.last_team_list_html = '<div id="' + list_dom_id + '">' + TS.templates.builders.buildTeamListHTML(members_for_user, true, false) + "</div>";
+        if (!TS.view.last_team_list_html) TS.view.last_team_list_html = '<div id="' + list_dom_id + '">' + TS.templates.builders.buildTeamListHTML(members_for_user.members, true, false) + "</div>";
         $members_wrapper.html(TS.view.last_team_list_html);
         if (TS.lazyLoadMembers()) TS.metrics.measureAndClear("team_directory_time_to_first_member", "team_directory_time_to_first_member");
         var $scrollable = $("#team_list_scroller");
@@ -2678,9 +2678,9 @@
           });
         };
         _$active_members_list = _$restricted_members_list = _$deleted_members_list = null;
-        _$active_members_list = make($("#active_members_list"), [], approx_item_height, approx_divider_height, $scrollable);
-        _$restricted_members_list = make($("#restricted_members_list"), [], approx_item_height, approx_divider_height, $scrollable);
-        _$deleted_members_list = make($("#deleted_members_list"), [], approx_item_height, approx_divider_height, $scrollable);
+        _$active_members_list = make($("#active_members_list"), members_for_user.members, approx_item_height, approx_divider_height, $scrollable);
+        _$restricted_members_list = make($("#restricted_members_list"), members_for_user.restricted_members, approx_item_height, approx_divider_height, $scrollable);
+        _$deleted_members_list = make($("#deleted_members_list"), members_for_user.disabled_members, approx_item_height, approx_divider_height, $scrollable);
         if (_$restricted_members_list) _$restricted_members_list.longListView("setHidden", true);
         if (_$deleted_members_list) _$deleted_members_list.longListView("setHidden", true);
         _tab_scroll_tops = {};
@@ -2736,7 +2736,7 @@
     },
     rebuildTeamListSync: function(ignore_cache) {
       if (TS.boot_data.feature_roster_changes) {
-        TS.view.rebuildTeamListSyncCleanedUp.apply(this, [].slice.call(arguments, 0));
+        TS.view.rebuildTeamListSyncAlwaysLongList.apply(this, [].slice.call(arguments, 0));
         return;
       }
       if (TS.lazyLoadMembers() && !_entire_team_loaded) {

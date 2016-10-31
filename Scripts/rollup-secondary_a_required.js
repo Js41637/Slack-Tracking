@@ -19011,6 +19011,9 @@ TS.registerModule("constants", {
     buildStar: function(type, ob, parent_ob) {
       var star_components = _buildStarComponents(type, ob, parent_ob);
       if (star_components === "") return "";
+      if (TS.boot_data.feature_refactored_message_template) {
+        return TS.templates.star(star_components);
+      }
       var attributes = star_components.attributes;
       var class_names = star_components.class_names;
       return "<span " + attributes.join(" ") + ' class="' + class_names.join(" ") + '"></span>';
@@ -19018,6 +19021,9 @@ TS.registerModule("constants", {
     buildStarWithTip: function(type, ob, parent_ob) {
       var star_components = _buildStarComponents(type, ob, parent_ob);
       if (star_components === "") return "";
+      if (TS.boot_data.feature_refactored_message_template) {
+        return TS.templates.star_with_tip(star_components);
+      }
       var attributes = star_components.attributes;
       var class_names = star_components.class_names;
       var tip_class_names = ["ts_tip", "ts_tip_top", "ts_tip_float", "ts_tip_hidden"];
@@ -19661,10 +19667,6 @@ TS.registerModule("constants", {
       });
     },
     buildTeamListHTML: function(all_members, is_long_list_view, is_lazy) {
-      if (!TS.boot_data.feature_roster_changes) {
-        is_long_list_view = is_long_list_view === true && TS.boot_data.page_needs_enterprise;
-        is_lazy = is_lazy === true && TS.boot_data.page_needs_enterprise;
-      }
       var team_list_members = TS.members.allocateTeamListMembers(all_members);
       var members = team_list_members.members;
       var disabled_members = team_list_members.disabled_members;
@@ -21190,18 +21192,10 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("comment_standalone", TS.templates.builders.buildCommentStandalone);
       Handlebars.registerHelper("star", function(type, ob, parent_ob) {
-        var star = TS.templates.builders.buildStar(type, ob, parent_ob);
-        if (TS.boot_data.feature_refactored_message_template) {
-          return star;
-        }
-        return new Handlebars.SafeString(star);
+        return new Handlebars.SafeString(TS.templates.builders.buildStar(type, ob, parent_ob));
       });
       Handlebars.registerHelper("starWithTip", function(type, ob, parent_ob) {
-        var starWithTip = TS.templates.builders.buildStar(type, ob, parent_ob);
-        if (TS.boot_data.feature_refactored_message_template) {
-          return starWithTip;
-        }
-        return new Handlebars.SafeString(starWithTip);
+        return new Handlebars.SafeString(TS.templates.builders.buildStarWithTip(type, ob, parent_ob));
       });
       Handlebars.registerHelper("inlineRoomPreviewToggler", TS.templates.builders.buildInlineRoomPreviewToggler);
       Handlebars.registerHelper("isInlineFilePreviewExpanded", function(options) {
