@@ -177,7 +177,7 @@
       $(document).ready(_onDOMReady);
     },
     lazyLoadBots: function() {
-      return TS.boot_data.should_use_flannel && !!TS.qs_args.lazy_load_bots;
+      return TS.boot_data.should_use_flannel && TS.qs_args.lazy_load_bots !== "0";
     },
     lazyLoadMembers: function() {
       return !!TS.boot_data.should_use_flannel;

@@ -1117,6 +1117,11 @@
           };
         });
       }
+      if (TS.boot_data.feature_message_replies) {
+        _ensure_model_methodsA.push("channels.replies");
+        _ensure_model_methodsA.push("groups.replies");
+        _ensure_model_methodsA.push("im.replies");
+      }
     },
     test: function() {
       var test_ob = {
@@ -16185,6 +16190,10 @@ TS.registerModule("constants", {
     },
     bot_changed: function(imsg) {
       var bot = TS.bots.getBotById(imsg.bot.id);
+      if (!bot && TS.lazyLoadBots()) {
+        TS.log(1989, "Flannel: user_change for member not in model; ignoring");
+        return;
+      }
       if (!bot) {
         TS.error("wtf no bot " + imsg.bot.id + "?");
         return;
@@ -16193,6 +16202,10 @@ TS.registerModule("constants", {
     },
     bot_removed: function(imsg) {
       var bot = TS.bots.getBotById(imsg.bot.id);
+      if (!bot && TS.lazyLoadBots()) {
+        TS.log(1989, "Flannel: user_change for member not in model; ignoring");
+        return;
+      }
       if (!bot) {
         TS.error("wtf no bot " + imsg.bot.id + "?");
         return;
@@ -17415,22 +17428,11 @@ TS.registerModule("constants", {
         var is_bot = TS.utility.msgs.shouldHaveBotLabel(msg, member);
         var app_id;
         var bot_id;
-        if (TS.boot_data.feature_app_cards_and_profs_frontend) {
-          if (is_bot) {
-            if (msg.bot_id) {
-              var bot_info = TS.bots.getBotById(msg.bot_id);
-              bot_id = msg.bot_id;
-              app_id = bot_info.app_id;
-            } else {
-              var bot_info = TS.members.getMemberById(msg.user);
-              bot_id = bot_info.profile.bot_id;
-              if (bot_info.profile.api_app_id) {
-                app_id = bot_info.profile.api_app_id;
-              } else if (bot_id) {
-                bot_info = TS.bots.getBotById(bot_id);
-                app_id = bot_info.app_id;
-              }
-            }
+        if (TS.boot_data.feature_app_cards_and_profs_frontend && is_bot) {
+          var bot_info = _getBotInfoForMsg(msg);
+          if (bot_info) {
+            app_id = bot_info.app_id;
+            bot_id = bot_info.bot_id;
           }
         }
         var prev_speaker;
@@ -21064,6 +21066,23 @@ TS.registerModule("constants", {
     };
   }
   var _session_ms = Date.now();
+  var _getBotInfoForMsg = function(msg) {
+    var member = TS.members.getMemberById(msg.user);
+    var bot_id = msg.bot_id || _.get(member, "profile.bot_id");
+    var bot = TS.bots.getBotById(bot_id);
+    if (bot_id && !bot && TS.lazyLoadBots()) {
+      TS.info(1989, "Flannel: failed to find a bot (" + bot_id + ") whilst lazy loading bots");
+    }
+    var app_id = _.get(member, "profile.api_app_id") || _.get(bot, "app_id");
+    if (!app_id && !bot_id) {
+      TS.warn("Unable to get bot info for message", msg);
+      return null;
+    }
+    return {
+      bot_id: bot_id,
+      app_id: app_id
+    };
+  };
 })();
 (function() {
   "use strict";
