@@ -3401,12 +3401,44 @@ body.sorting_mode .channels_list_holder ul {
   clear: both
 }
 
+.feature_refactored_message_template .message_content_header {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: baseline;
+  -webkit-align-items: baseline;
+  -webkit-box-align: baseline;
+  -moz-align-items: baseline;
+  align-items: baseline
+}
+
+.feature_refactored_message_template .message_content_header_left {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
+}
+
 .msg_right_link {
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #babbbf;
   font-size: .75rem;
   line-height: 1.2rem;
   float: right
+}
+
+.feature_refactored_message_template .msg_right_link {
+  font-style: normal;
+  float: none;
+  -ms-flex: 0;
+  -webkit-flex: 0;
+  flex: 0;
+  text-align: right
+}
+
+.feature_refactored_message_template .message_content .message_content_header>.msg_right_link {
+  margin-right: -1rem
 }
 
 #msgs_scroller_div #end_display_div {
@@ -11951,6 +11983,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .mention_rxn .mention_rxn_msg_holder .message>.member_image,
+.mention_rxn .mention_rxn_msg_holder .message>.message_content_header,
 .mention_rxn .mention_rxn_msg_holder .message>.message_gutter,
 .mention_rxn .mention_rxn_msg_holder .message>.message_sender,
 .mention_rxn .mention_rxn_msg_holder .message>.message_star_holder,
@@ -11959,6 +11992,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .mention_rxn .mention_rxn_msg_holder .message>a.timestamp,
 .mention_rxn .mention_rxn_msg_holder .message>i,
 .mention_rxn .mention_rxn_msg_holder .message_content>.member_image,
+.mention_rxn .mention_rxn_msg_holder .message_content>.message_content_header,
 .mention_rxn .mention_rxn_msg_holder .message_content>.message_gutter,
 .mention_rxn .mention_rxn_msg_holder .message_content>.message_sender,
 .mention_rxn .mention_rxn_msg_holder .message_content>.message_star_holder,
@@ -11967,6 +12001,25 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .mention_rxn .mention_rxn_msg_holder .message_content>a.timestamp,
 .mention_rxn .mention_rxn_msg_holder .message_content>i {
   display: none!important
+}
+
+.mention_rxn.feature_refactored_message_template .mention_rxn_summary {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: baseline;
+  -webkit-align-items: baseline;
+  -webkit-box-align: baseline;
+  -moz-align-items: baseline;
+  align-items: baseline
+}
+
+.mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 #poll_dialog_input_container .message_input {
@@ -18982,10 +19035,12 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
+.light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender,
 .light_theme ts-message .message_content>.message_sender {
   margin-right: .25rem
 }
 
+.light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender>.member_type_icon,
 .light_theme ts-message .message_content>.message_sender>.member_type_icon {
   display: none
 }

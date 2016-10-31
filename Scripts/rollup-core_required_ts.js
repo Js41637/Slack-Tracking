@@ -630,6 +630,14 @@
       login_args.canonical_avatars = true;
     }
     login_args.eac_cache_ts = true;
+    if (TS.lazyLoadMembers()) {
+      for (var k in TS.qs_args) {
+        if (k.indexOf("feature_" === 0)) {
+          TS.log(1989, "Flannel: Appending " + k + " (" + TS.qs_args[k] + ") to login_args");
+          login_args[k] = TS.qs_args[k];
+        }
+      }
+    }
     if (TS.lazyLoadMembers()) TS.log(1989, "Flannel: MS login args:", login_args);
     return login_args;
   };

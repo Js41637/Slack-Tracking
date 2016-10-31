@@ -17389,7 +17389,7 @@ TS.registerModule("constants", {
         var hide_actions = !!args.hide_actions;
         var full_date = !!args.full_date;
         if (TS.model.prefs.fuller_timestamps && !full_date) full_date = !TS.utility.date.sameDay(TS.utility.date.toDateObject(msg.ts), new Date);
-        var jump_link = args.jump_link;
+        var jump_link = args.jump_link ? new Handlebars.SafeString(args.jump_link) : "";
         var starred_items_list = !!args.starred_items_list;
         var starred_items_actions = args.starred_items_actions;
         var container_id_with_hash = args.container_id ? "#" + args.container_id : "";
@@ -17795,7 +17795,7 @@ TS.registerModule("constants", {
         var hide_actions = !!args.hide_actions;
         var full_date = !!args.full_date;
         if (TS.model.prefs.fuller_timestamps && !full_date) full_date = !TS.utility.date.sameDay(TS.utility.date.toDateObject(msg.ts), new Date);
-        var jump_link = args.jump_link;
+        var jump_link = args.jump_link ? new Handlebars.SafeString(args.jump_link) : "";
         var starred_items_list = !!args.starred_items_list;
         var starred_items_actions = args.starred_items_actions;
         var container_id_with_hash = args.container_id ? "#" + args.container_id : "";
@@ -19259,9 +19259,13 @@ TS.registerModule("constants", {
         var jump_link = "";
         if (!im_with_disabled_user) {
           if (TS.boot_data.feature_files_list) {
-            jump_link = '<a class="star_jump msg_right_link btn btn_outline" data-cid="' + model_ob.id + '">Jump</a>';
+            jump_link = TS.templates.builders.strBuilder('<a class="star_jump msg_right_link btn btn_outline" data-cid="${cid}">Jump</a>', {
+              cid: model_ob.id
+            });
           } else {
-            jump_link = '<a class="star_jump msg_right_link" data-cid="' + model_ob.id + '">Jump</a>';
+            jump_link = TS.templates.builders.strBuilder('<a class="star_jump msg_right_link" data-cid="' + model_ob.id + '">Jump</a>', {
+              cid: model_ob.id
+            });
           }
         }
         if (!TS.boot_data.feature_files_list) {
@@ -21079,7 +21083,7 @@ TS.registerModule("constants", {
         } else {
           ns = options.data.root && options.data.root._i18n_ns ? options.data.root._i18n_ns : "";
         }
-        if (ns === "debug") {
+        if (options.hash.debug) {
           TS.info("debug handlerbars t helper");
           TS.info(this);
         }
@@ -21089,10 +21093,20 @@ TS.registerModule("constants", {
             "this": data
           };
         }
-        return TS.i18n.t(key, {
+        var modified_items = {};
+        var item;
+        for (item in options.hash) {
+          modified_items[item] = data[item];
+          data[item] = options.hash[item];
+        }
+        var str = TS.i18n.t(key, {
           data: data,
           ns: ns
         });
+        for (item in modified_items) {
+          data[item] = modified_items[item];
+        }
+        return str;
       });
       Handlebars.registerHelper("isClient", function(options) {
         if (TS.boot_data.app == "client") {

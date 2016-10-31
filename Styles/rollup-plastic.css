@@ -15268,6 +15268,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .mention_rxn .mention_rxn_msg_holder .message>.member_image,
+.mention_rxn .mention_rxn_msg_holder .message>.message_content_header,
 .mention_rxn .mention_rxn_msg_holder .message>.message_gutter,
 .mention_rxn .mention_rxn_msg_holder .message>.message_sender,
 .mention_rxn .mention_rxn_msg_holder .message>.message_star_holder,
@@ -15276,6 +15277,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .mention_rxn .mention_rxn_msg_holder .message>a.timestamp,
 .mention_rxn .mention_rxn_msg_holder .message>i,
 .mention_rxn .mention_rxn_msg_holder .message_content>.member_image,
+.mention_rxn .mention_rxn_msg_holder .message_content>.message_content_header,
 .mention_rxn .mention_rxn_msg_holder .message_content>.message_gutter,
 .mention_rxn .mention_rxn_msg_holder .message_content>.message_sender,
 .mention_rxn .mention_rxn_msg_holder .message_content>.message_star_holder,
@@ -15284,6 +15286,25 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .mention_rxn .mention_rxn_msg_holder .message_content>a.timestamp,
 .mention_rxn .mention_rxn_msg_holder .message_content>i {
   display: none!important
+}
+
+.mention_rxn.feature_refactored_message_template .mention_rxn_summary {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: baseline;
+  -webkit-align-items: baseline;
+  -webkit-box-align: baseline;
+  -moz-align-items: baseline;
+  align-items: baseline
+}
+
+.mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 #poll_dialog_input_container .message_input {
