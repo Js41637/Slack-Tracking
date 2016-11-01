@@ -3027,7 +3027,7 @@
       msg.text = txt;
       TS.channels.message_changed_sig.dispatch(channel, msg);
     },
-    sendMsg: function(channel_id, text, in_reply_to_msg) {
+    sendMsg: function(channel_id, text, in_reply_to_msg, should_broadcast_reply) {
       var err_txt;
       var channel = TS.channels.getChannelById(channel_id);
       if (!channel) return false;
@@ -3115,7 +3115,7 @@
         TS.ui.at_channel_warning_dialog.startInMessagePane(channel_id, text, TS.channels);
         return false;
       }
-      return TS.shared.sendMsg(channel_id, text, TS.channels, in_reply_to_msg);
+      return TS.shared.sendMsg(channel_id, text, TS.channels, in_reply_to_msg, should_broadcast_reply);
     },
     onSendMsg: function(success, imsg) {
       var channel = TS.channels.getChannelById(imsg.SENT_MSG.channel);
@@ -4275,8 +4275,8 @@ TS.registerModule("constants", {
       msg.text = txt;
       TS.groups.message_changed_sig.dispatch(group, msg);
     },
-    sendMsg: function(group_id, text, in_reply_to_msg) {
-      return TS.shared.sendMsgGroup(group_id, text, TS.groups, in_reply_to_msg);
+    sendMsg: function(group_id, text, in_reply_to_msg, should_broadcast_reply) {
+      return TS.shared.sendMsgGroup(group_id, text, TS.groups, in_reply_to_msg, should_broadcast_reply);
     },
     onSendMsg: function(success, imsg) {
       var group = TS.groups.getGroupById(imsg.SENT_MSG.channel);
@@ -6824,8 +6824,8 @@ TS.registerModule("constants", {
       msg.text = txt;
       TS.ims.message_changed_sig.dispatch(im, msg);
     },
-    sendMsg: function(im_id, text, in_reply_to_msg) {
-      return TS.shared.sendMsg(im_id, text, TS.ims, in_reply_to_msg);
+    sendMsg: function(im_id, text, in_reply_to_msg, should_broadcast_reply) {
+      return TS.shared.sendMsg(im_id, text, TS.ims, in_reply_to_msg, should_broadcast_reply);
     },
     onSendMsg: function(success, imsg) {
       var im = TS.ims.getImById(imsg.SENT_MSG.channel);
@@ -7380,8 +7380,8 @@ TS.registerModule("constants", {
       TS.mpims.calcUnreadCnts(mpim, true);
     },
     changeMsgText: function(id, msg, txt) {},
-    sendMsg: function(mpim_id, text, in_reply_to_msg) {
-      return TS.shared.sendMsgGroup(mpim_id, text, TS.mpims, in_reply_to_msg);
+    sendMsg: function(mpim_id, text, in_reply_to_msg, should_broadcast_reply) {
+      return TS.shared.sendMsgGroup(mpim_id, text, TS.mpims, in_reply_to_msg, should_broadcast_reply);
     },
     onSendMsg: function(success, imsg) {
       var mpim = TS.mpims.getMpimById(imsg.SENT_MSG.channel);
@@ -8392,7 +8392,7 @@ TS.registerModule("constants", {
         text: "You mentioned " + names_text + ", but they're not in this " + what + ". Would you like to " + "<javascript:" + prompt + "|invite them to join>" + (model_ob.is_group ? "?" : " or have slackbot <javascript:" + message + "|send them a link to your message>?") + " Or, <javascript:" + nothing + "|do nothing>."
       });
     },
-    sendMsg: function(c_id, text, controller, in_reply_to_msg) {
+    sendMsg: function(c_id, text, controller, in_reply_to_msg, should_broadcast_reply) {
       if (!text) return false;
       var model_ob = TS.shared.getModelObById(c_id);
       var d = model_ob && model_ob.msgs && model_ob.msgs[0] && TS.utility.date.toDateObject(model_ob.msgs[0].ts + 1) || Date.now();
@@ -8406,6 +8406,7 @@ TS.registerModule("constants", {
       };
       if (TS.boot_data.feature_message_replies && in_reply_to_msg) {
         params.thread_ts = in_reply_to_msg.thread_ts || in_reply_to_msg.ts;
+        params.reply_broadcast = should_broadcast_reply;
       }
       var rsp_id = TS.ms.send(params, controller.onSendMsg, temp_ts);
       TS.typing.userEnded(model_ob);
@@ -31264,7 +31265,6 @@ var _on_esc;
         TS.menu.$menu.addClass("narrow_menu");
         TS.ui.date_picker.getOldestMsgTs();
       }
-      $("#menu_channel_topic_input").bind("keydown", TS.menu.handleTopicKeydown);
       var use_channel_name_toggle = TS.boot_data.feature_channel_name_menu && $(e.target).closest("#channel_name").length;
       var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();

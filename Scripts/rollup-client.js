@@ -6243,16 +6243,16 @@
       }
       _afterSendMsg(model_ob);
     },
-    sendMessage: function(model_ob, txt, in_reply_to_msg) {
+    sendMessage: function(model_ob, txt, in_reply_to_msg, should_broadcast_reply) {
       TS.chat_history.add(txt);
       if (model_ob.is_channel) {
-        TS.channels.sendMsg(model_ob.id, txt, in_reply_to_msg);
+        TS.channels.sendMsg(model_ob.id, txt, in_reply_to_msg, should_broadcast_reply);
       } else if (model_ob.is_mpim) {
-        TS.mpims.sendMsg(model_ob.id, txt, in_reply_to_msg);
+        TS.mpims.sendMsg(model_ob.id, txt, in_reply_to_msg, should_broadcast_reply);
       } else if (model_ob.is_group) {
-        TS.groups.sendMsg(model_ob.id, txt, in_reply_to_msg);
+        TS.groups.sendMsg(model_ob.id, txt, in_reply_to_msg, should_broadcast_reply);
       } else if (model_ob.is_im) {
-        TS.ims.sendMsg(model_ob.id, txt, in_reply_to_msg);
+        TS.ims.sendMsg(model_ob.id, txt, in_reply_to_msg, should_broadcast_reply);
       } else {
         return;
       }
@@ -25770,36 +25770,6 @@
     _$container.on("focus", "#channel_purpose_input", function() {
       _$details.find("#channel_purpose_input").autosize();
     });
-    _$container.on("click keydown", ".edit_topic, .topic_cancel", function(e) {
-      if (e.type == "click") {
-        _toggleTopicInput();
-      } else {
-        if (e.which == TS.utility.keymap.enter) _toggleTopicInput();
-      }
-    });
-    _$container.on("click keydown", ".topic_done", function(e) {
-      if (e.type == "click") {
-        _setTopic();
-      } else {
-        if (e.which == TS.utility.keymap.enter) _setTopic();
-        if (e.which == TS.utility.keymap.tab) {
-          e.preventDefault();
-          e.stopImmediatePropagation();
-          _$details.find(".topic_cancel").focus();
-        }
-      }
-    });
-    _$container.on("keydown", "#channel_topic_input", function(e) {
-      if (e.which == TS.utility.keymap.enter && !e.shiftKey && !e.altKey) {
-        _setTopic();
-      }
-      if (e.which == TS.utility.keymap.esc) {
-        _toggleTopicInput();
-      }
-    });
-    _$container.on("focus", "#channel_topic_input", function() {
-      _$details.find("#channel_topic_input").autosize();
-    });
     _$container.on("click", ".pinned_item .remove_pin", function(e) {
       var model_ob = TS.shared.getActiveModelOb();
       var $item = $(this).closest(".pinned_item");
@@ -25950,29 +25920,6 @@
       TS.channels.setPurpose(model_ob.id, new_val);
     }
     _togglePurposeInput();
-  };
-  var _toggleTopicInput = function() {
-    _$details.find(".edit_topic_label, #channel_topic_input, .topic_done, .topic_cancel, .topic_label, .channel_topic_section .channel_topic").toggleClass("hidden");
-    if (_$details.find("#channel_topic_input").hasClass("hidden")) {
-      _$details.find("#channel_topic_input, .topic_done, .topic_cancel").blur();
-    } else {
-      _$details.find("#channel_topic_input").select();
-    }
-  };
-  var _setTopic = function() {
-    var model_ob = TS.shared.getActiveModelOb();
-    var input = _$details.find("#channel_topic_input");
-    var new_val = $.trim(input.val());
-    if (model_ob.topic.value === new_val) {
-      _toggleTopicInput();
-      return;
-    }
-    if (model_ob.is_group) {
-      TS.groups.setTopic(model_ob.id, new_val);
-    } else if (model_ob.is_channel) {
-      TS.channels.setTopic(model_ob.id, new_val);
-    }
-    _toggleTopicInput();
   };
   var _isFileInChannel = function(file) {
     var model_ob = TS.shared.getActiveModelOb();

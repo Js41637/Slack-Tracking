@@ -1383,20 +1383,17 @@ html:not(.font_size_adjusted) #details_tab .heading #details_tab_header {
   margin-bottom: 1.2rem
 }
 
-#details_tab #channel_purpose_input,
-#details_tab #channel_topic_input {
+#details_tab #channel_purpose_input {
   height: 6.3rem;
   width: 100%
 }
 
-#details_tab .edit_purpose,
-#details_tab .edit_topic {
+#details_tab .edit_purpose {
   display: none;
   vertical-align: bottom
 }
 
-#details_tab .channel_purpose_section:hover .edit_purpose,
-#details_tab .channel_topic_section:hover .edit_topic {
+#details_tab .channel_purpose_section:hover .edit_purpose {
   display: inline
 }
 
@@ -18445,17 +18442,22 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
+.light_theme #reply_container #reply_broadcast_toggle_label,
+.light_theme #reply_container .inline_message_input_container {
+  margin-left: 2.625rem
+}
+
+.dense_theme #reply_container #reply_broadcast_toggle_label,
+.dense_theme #reply_container .inline_message_input_container {
+  margin-left: -.25rem
+}
+
 #reply_container .inline_message_input_container {
   position: relative
 }
 
 .light_theme #reply_container .inline_message_input_container {
-  margin-left: 2.625rem;
   margin-top: -2.625rem
-}
-
-.dense_theme #reply_container .inline_message_input_container {
-  margin-left: -.25rem
 }
 
 #reply_container .inline_message_input_container .message_input {
@@ -18471,6 +18473,10 @@ ts-message .emoji-sizer .mention {
   border-color: #BBBDBF
 }
 
+#reply_container .inline_message_input_container textarea {
+  margin-bottom: 0
+}
+
 #reply_container .reply_limited_in_general {
   min-height: 2.625rem;
   background: #f7f7f7;
@@ -18480,6 +18486,12 @@ ts-message .emoji-sizer .mention {
   font-size: .9375rem;
   border-radius: .25rem;
   padding: .8125rem .625rem
+}
+
+#reply_container #reply_broadcast_toggle_label {
+  font-size: .8125rem;
+  font-weight: 400;
+  color: #555459
 }
 
 #convo_loading_indicator {
