@@ -17540,6 +17540,7 @@
   var _intl_date = /^(\d\d\d\d)[-\/](\d\d?)[-\/](\d\d?)$/;
   var _ambiguous_date = /^(\d\d)[-\/](\d\d?)[-\/](\d\d?)$/;
   var _just_year = /^\d\d\d\d$/;
+  var _year_month = /^(\d\d\d\d)[-\/](\d\d?)$/;
   var _min_year = 1900;
   var _max_year = 2999;
   var _matchDate = function(str, allow_future) {
@@ -17570,6 +17571,12 @@
       year = matches[1];
       month = matches[2];
       day = matches[3];
+    }
+    matches = !year && _year_month.exec(str);
+    if (matches) {
+      year = matches[1];
+      month = matches[2];
+      day = "1";
     }
     if (!year) return false;
     year = parseInt(year, 10);

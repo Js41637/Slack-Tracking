@@ -29377,14 +29377,12 @@ TS.registerModule("constants", {
       }
     }
     TS.log(96, "after regex " + (Date.now() - start));
-    if (TS.boot_data.feature_emoji_keywords) {
-      for (i = 0; i < terms.length; i++) {
-        term = terms[i];
-        if (term.substr(0, 1) != ":") {
-          TS.emoji.findByKeyword(terms[i]).forEach(function(name) {
-            TS.utility.ensureInArray(matches, name);
-          });
-        }
+    for (i = 0; i < terms.length; i++) {
+      term = terms[i];
+      if (term.substr(0, 1) != ":") {
+        TS.emoji.findByKeyword(terms[i]).forEach(function(name) {
+          TS.utility.ensureInArray(matches, name);
+        });
       }
     }
     var item;
