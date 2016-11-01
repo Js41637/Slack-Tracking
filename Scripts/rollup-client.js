@@ -2577,6 +2577,10 @@
       if (!$node.length) {
         TS.view.rebuildTeamList(true);
       } else {
+        if (TS.view.members_list_lazyload) {
+          TS.view.members_list_lazyload.detachEvents();
+          TS.view.members_list_lazyload = null;
+        }
         $node.replaceWith(TS.templates.team_list_item({
           member: member
         }));
@@ -2584,7 +2588,14 @@
         if (!$node.length) {
           TS.error("Unable to find node at selector " + member_selector);
         }
-        $node.find(".lazy").lazyload();
+        var $list_scroller = $("#team_list_scroller");
+        var $list_wrapper = $("#team_list_members");
+        var $lazy_nodes = $list_wrapper.find(".lazy");
+        TS.view.members_list_lazyload = $lazy_nodes.lazyload({
+          container: $list_scroller,
+          ignore_when_hidden_element: $list_wrapper,
+          all_images_same_size: true
+        });
         TS.utility.makeSureAllLinksHaveTargets($node);
         TS.view.updateTeamListCache();
       }
@@ -2882,6 +2893,10 @@
           $members = $("#" + list_dom_id);
           $members.on("click.toggle_list_item", ".team_list_item", TS.members.view.onTeamDirectoryItemClick);
           $lazy_nodes = $members.find(".lazy");
+          if (TS.view.members_list_lazyload) {
+            TS.view.members_list_lazyload.detachEvents();
+            TS.view.members_list_lazyload = null;
+          }
           TS.view.members_list_lazyload = $lazy_nodes.lazyload({
             container: $("#" + list_scroller_id),
             ignore_when_hidden_element: $("#" + list_dom_id),
@@ -2896,7 +2911,6 @@
               tabs_instance.unbind();
               tabs_instance = null;
             }
-            $lazy_nodes = null;
             if ($members) {
               $members.empty();
               $members = null;
@@ -2905,6 +2919,7 @@
           TS.client.flex_pane.startLocalTimeInterval();
           TS.utility.makeSureAllLinksHaveTargets($members);
           TS.view.triggerInitialTeamListLazyLoad();
+          $lazy_nodes = null;
         }
       }
       TS.view.refilterTeamList();
@@ -35005,7 +35020,7 @@ var _timezones_alternative = {
     } else if (TS.model.prefs.a11y_font_size === "150") {
       sticky_top += 30;
     }
-    if (TS.environment.isSSBAndAtLeastVersion("2.2.8") && TS.boot_data.feature_channels_list_refresh) {
+    if (TS.environment.isSSBAndAtLeastVersion("2.2.8") && TS.boot_data.feature_flexbox_client) {
       sticky_top -= 2;
     }
     if (!$_currently_sticky) {

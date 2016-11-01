@@ -1503,15 +1503,7 @@
       TS.web.admin.showSuccessMessageOnRow($row, html, true);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
-      var disabled_member_index = TS.web.admin.disabled_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (disabled_member_index != -1) {
-        TS.web.admin.disabled_members.splice(disabled_member_index, 1);
-        TS.web.admin.subset_data.disabled_members_count--;
-      }
-      TS.web.admin.active_members.push(member);
-      TS.web.admin.subset_data.active_members_count++;
+      _moveMemberTo(member, TS.web.admin.active_members);
       TS.web.admin.updateTabCounts();
     },
     onMemberDisable: function(ok, data, args) {
@@ -1553,29 +1545,7 @@
       }
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
-      var active_member_index = TS.web.admin.active_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (active_member_index != -1) {
-        TS.web.admin.active_members.splice(active_member_index, 1);
-        TS.web.admin.subset_data.active_members_count--;
-      }
-      var restricted_member_index = TS.web.admin.restricted_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (restricted_member_index != -1) {
-        TS.web.admin.restricted_members.splice(restricted_member_index, 1);
-        TS.web.admin.subset_data.restricted_members_count--;
-      }
-      var ultra_restricted_member_index = TS.web.admin.ultra_restricted_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (ultra_restricted_member_index != -1) {
-        TS.web.admin.ultra_restricted_members.splice(ultra_restricted_member_index, 1);
-        TS.web.admin.subset_data.ultra_restricted_members_count--;
-      }
-      TS.web.admin.disabled_members.push(member);
-      TS.web.admin.subset_data.disabled_members_count++;
+      _moveMemberTo(member, TS.web.admin.disabled_members);
       TS.web.admin.updateTabCounts();
     },
     onBotEnable: function(ok, data, args) {
@@ -1641,34 +1611,12 @@
       TS.web.admin.member_restricted_sig.dispatch(member);
     },
     memberRestricted: function(member) {
-      var active_member_index = TS.web.admin.active_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (active_member_index != -1) {
-        TS.web.admin.active_members.splice(active_member_index, 1);
-        TS.web.admin.subset_data.active_members_count--;
-      }
-      var ultra_restricted_member_index = TS.web.admin.ultra_restricted_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (ultra_restricted_member_index != -1) {
-        TS.web.admin.ultra_restricted_members.splice(ultra_restricted_member_index, 1);
-        TS.web.admin.subset_data.ultra_restricted_members_count--;
-      }
-      var disabled_member_index = TS.web.admin.disabled_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (disabled_member_index != -1) {
-        TS.web.admin.disabled_members.splice(disabled_member_index, 1);
-        TS.web.admin.subset_data.disabled_members_count--;
-      }
-      TS.web.admin.restricted_members.push(member);
-      TS.web.admin.subset_data.restricted_members_count++;
+      var previous_collection = _moveMemberTo(member, TS.web.admin.restricted_members);
       TS.web.admin.rebuildMember(member);
       TS.web.admin.updateTabCounts();
       TS.web.admin.rebuildList();
       var success_msg_html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now a Multi-Channel Guest.";
-      if (active_member_index != -1) {
+      if (previous_collection === TS.web.admin.active_members) {
         success_msg_html += '<a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">Undo</a>';
       }
       TS.web.admin.showSuccessMessageForMember(member, success_msg_html, true);
@@ -1709,29 +1657,7 @@
       TS.web.admin.member_ultra_restricted_sig.dispatch(member);
     },
     memberUltraRestricted: function(member) {
-      var active_member_index = TS.web.admin.active_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (active_member_index != -1) {
-        TS.web.admin.active_members.splice(active_member_index, 1);
-        TS.web.admin.subset_data.active_members_count--;
-      }
-      var restricted_member_index = TS.web.admin.restricted_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (restricted_member_index != -1) {
-        TS.web.admin.restricted_members.splice(restricted_member_index, 1);
-        TS.web.admin.subset_data.restricted_members_count--;
-      }
-      var disabled_member_index = TS.web.admin.disabled_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (disabled_member_index != -1) {
-        TS.web.admin.disabled_members.splice(disabled_member_index, 1);
-        TS.web.admin.subset_data.disabled_members_count--;
-      }
-      TS.web.admin.ultra_restricted_members.push(member);
-      TS.web.admin.subset_data.ultra_restricted_members_count++;
+      _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
       TS.web.admin.rebuildMember(member);
       TS.web.admin.updateTabCounts();
       TS.web.admin.rebuildList();
@@ -1765,22 +1691,7 @@
       TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now a full team member.", true);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
-      var restricted_member_index = TS.web.admin.restricted_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (restricted_member_index != -1) {
-        TS.web.admin.restricted_members.splice(restricted_member_index, 1);
-        TS.web.admin.subset_data.restricted_members_count--;
-      }
-      var ultra_restricted_member_index = TS.web.admin.ultra_restricted_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (ultra_restricted_member_index != -1) {
-        TS.web.admin.ultra_restricted_members.splice(ultra_restricted_member_index, 1);
-        TS.web.admin.subset_data.ultra_restricted_members_count--;
-      }
-      TS.web.admin.active_members.push(member);
-      TS.web.admin.subset_data.active_members_count++;
+      _moveMemberTo(member, TS.web.admin.active_members);
       TS.web.admin.updateTabCounts();
     },
     onMemberInviteChannel: function(ok, data, args) {
@@ -1916,7 +1827,7 @@
     },
     restrictedMemberEnabled: function(member) {
       TS.web.admin.rebuildMember(member);
-      var $row, disabled_member_index;
+      var $row;
       var is_enterprise = TS.boot_data.page_needs_enterprise;
       var message;
       if (is_enterprise) {
@@ -1928,15 +1839,7 @@
       TS.web.admin.showSuccessMessageOnRow($row, message + " as a " + TS.templates.builders.raLabel("Restricted Account") + '. <a class="api_disable_account undo_link" data-member-id="' + member.id + '">Undo</a>');
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
-      disabled_member_index = TS.web.admin.disabled_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (disabled_member_index != -1) {
-        TS.web.admin.disabled_members.splice(disabled_member_index, 1);
-        TS.web.admin.subset_data.disabled_members_count--;
-      }
-      TS.web.admin.restricted_members.push(member);
-      TS.web.admin.subset_data.restricted_members_count++;
+      _moveMemberTo(member, TS.web.admin.restricted_members);
       TS.web.admin.updateTabCounts();
       if (TS.web.admin.isAdminListHidden()) {
         $("#restrict_account").addClass("hidden");
@@ -1996,19 +1899,10 @@
     ultraRestrictedMemberEnabled: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      var disabled_member_index;
       TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-channel Guest. <a class="api_disable_account undo_link" data-member-id="' + member.id + '">Undo</a>');
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
-      disabled_member_index = TS.web.admin.disabled_members.map(function(member) {
-        return member.id;
-      }).indexOf(member.id);
-      if (disabled_member_index != -1) {
-        TS.web.admin.disabled_members.splice(disabled_member_index, 1);
-        TS.web.admin.subset_data.disabled_members_count--;
-      }
-      TS.web.admin.ultra_restricted_members.push(member);
-      TS.web.admin.subset_data.ultra_restricted_members_count++;
+      _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
       TS.web.admin.updateTabCounts();
     },
     showRestrictedMembersTab: function() {
@@ -2086,6 +1980,14 @@
         },
         set: function(v) {
           _row_states = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_moveMemberTo", {
+        get: function() {
+          return _moveMemberTo;
+        },
+        set: function(v) {
+          _moveMemberTo = v;
         }
       });
       return test_ob;
@@ -2383,5 +2285,31 @@
     _row_states[member.id] = _.merge(_row_states[member.id], state);
     var $long_list = $row.closest(".long_list");
     $long_list.longListView("itemUpdated", member);
+  };
+  var _moveMemberTo = function(member, destination) {
+    var collections = [TS.web.admin.active_members, TS.web.admin.restricted_members, TS.web.admin.ultra_restricted_members, TS.web.admin.disabled_members];
+    var counts = ["active_members_count", "restricted_members_count", "ultra_restricted_members_count", "disabled_members_count"];
+    var found_in;
+    var length;
+    _.each(collections, function(collection, index) {
+      length = collection.length;
+      if (destination !== collection) {
+        _.remove(collection, {
+          id: member.id
+        });
+        if (collection.length !== length) {
+          found_in = index;
+          TS.web.admin.subset_data[counts[index]]--;
+        }
+      } else {
+        if (_.findIndex(collection, {
+            id: member.id
+          }) === -1) {
+          collection.push(member);
+        }
+        TS.web.admin.subset_data[counts[index]]++;
+      }
+    });
+    return collections[found_in];
   };
 })();

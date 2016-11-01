@@ -5529,7 +5529,7 @@ body:not(.loading) #client-ui {
   overflow: hidden
 }
 
-body:not(.loading) #client-ui.channels_list_refresh {
+body:not(.loading) #client-ui.flexbox_client {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -6108,6 +6108,7 @@ only screen and (min-resolution:2dppx) {
   overflow: hidden
 }
 
+.threads_view_is_showing .client_container #client_body:not(.footer_msg_input),
 .unread_view_is_showing .client_container #client_body:not(.footer_msg_input) {
   margin-bottom: -4rem
 }
@@ -6222,7 +6223,7 @@ only screen and (min-resolution:2dppx) {
   right: 392px
 }
 
-.flex_pane_showing.channels_list_refresh #footer {
+.flex_pane_showing.flexbox_client #footer {
   right: auto;
   margin-right: 392px
 }
@@ -6231,7 +6232,7 @@ only screen and (min-resolution:2dppx) {
   .flex_pane_showing #footer {
     right: 442px
   }
-  .flex_pane_showing.channels_list_refresh #footer {
+  .flex_pane_showing.flexbox_client #footer {
     right: auto;
     margin-right: 442px
   }
@@ -6241,7 +6242,7 @@ only screen and (min-resolution:2dppx) {
   .flex_pane_showing #footer {
     right: 492px
   }
-  .flex_pane_showing.channels_list_refresh #footer {
+  .flex_pane_showing.flexbox_client #footer {
     right: auto;
     margin-right: 492px
   }
@@ -6251,7 +6252,7 @@ only screen and (min-resolution:2dppx) {
   right: 315px
 }
 
-.flex_pane_showing.details_showing.channels_list_refresh #footer {
+.flex_pane_showing.details_showing.flexbox_client #footer {
   right: auto;
   margin-right: 315px
 }
@@ -6260,7 +6261,7 @@ only screen and (min-resolution:2dppx) {
   .flex_pane_showing.details_showing #footer {
     right: 365px
   }
-  .flex_pane_showing.details_showing.channels_list_refresh #footer {
+  .flex_pane_showing.details_showing.flexbox_client #footer {
     right: auto;
     margin-right: 365px
   }
@@ -6270,7 +6271,7 @@ only screen and (min-resolution:2dppx) {
   .flex_pane_showing.details_showing #footer {
     right: 415px
   }
-  .flex_pane_showing.details_showing.channels_list_refresh #footer {
+  .flex_pane_showing.details_showing.flexbox_client #footer {
     right: auto;
     margin-right: 415px
   }
