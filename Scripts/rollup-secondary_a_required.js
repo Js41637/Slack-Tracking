@@ -9532,8 +9532,17 @@ TS.registerModule("constants", {
           resolve(TS.ims.upsertIm(resp.data.im));
           TS.model.reportResultOfUnknownIdHandled(c_id, true);
         }, function(ret) {
-          reject(Error((ret.data && ret.data.error || "unknown error") + " try #" + tries + " calling im.info with channel:" + c_id));
-          TS.model.reportResultOfUnknownIdHandled(c_id, false);
+          TS.warn((ret.data && ret.data.error || "unknown error") + " try #" + tries + " calling im.info with channel:" + c_id);
+          return TS.api.callImmediately("im.meta", {
+            channel: c_id
+          }).then(function(resp) {
+            TS.info("im.info failed, but im.meta OK for " + c_id);
+            resolve(TS.ims.upsertIm(resp.data.im));
+            TS.model.reportResultOfUnknownIdHandled(c_id, true);
+          }, function(ret) {
+            reject(Error((ret.data && ret.data.error || "unknown error") + " try #" + tries + " calling im.meta with channel:" + c_id));
+            TS.model.reportResultOfUnknownIdHandled(c_id, false);
+          });
         });
       }
     });
@@ -19893,7 +19902,7 @@ TS.registerModule("constants", {
       if (member.is_service) {
         target = TS.utility.shouldLinksHaveTargets() ? 'target="/services/' + member.id + '"' : "";
         if (TS.boot_data.feature_app_cards_and_profs_frontend) class_extras += " app_preview_link";
-        html = '<a href="/services/' + member.id + '" ' + target + ' class="message_sender service_link ' + class_extras + '" data-service-id="' + member.id + '">';
+        html = '<a href="/services/' + member.id + '" ' + target + ' class="message_sender service_link ' + class_extras + '">';
       } else {
         target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + safe_name + '"' : "";
         class_extras += TS.boot_data.feature_app_cards_and_profs_frontend && member.is_bot ? " app_preview_link" : " member member_preview_link";
@@ -29945,33 +29954,6 @@ TS.registerModule("constants", {
         return;
       }
     },
-    startWithService: function(e, config) {
-      if (TS.menu.isRedundantClick(e) || TS.client.ui.checkForEditing(e) || TS.model.menu_is_showing || typeof config === "undefined") {
-        return false;
-      }
-      TS.menu.buildIfNeeded();
-      var bot = TS.bots.getBotById(config.service_id);
-      TS.menu.clean();
-      TS.menu.$menu.addClass("profile_preview");
-      var header_data = {
-        avatar: bot.icons.image_48,
-        name: bot.name,
-        integration_type: "Twitter",
-        details: "Posts tweets sent to @slackhq to #slackhq",
-        added_by: "James Sherrett",
-        label: "SlackHQ Tweets"
-      };
-      var body_data = {
-        id: bot.id,
-        files: false
-      };
-      var header_html = TS.templates.service_preview_header(header_data);
-      var body_html = TS.templates.service_preview_body(body_data);
-      TS.menu.$menu_header.html(header_html);
-      TS.menu.$menu_items.html(body_html);
-      TS.menu.start(e, config.position_by_click);
-    },
-    onServiceClick: function(e, dataset) {},
     startWithMessageActions: function(e, msg_ts, msgs, model_ob) {
       if (TS.client && !TS.model.ms_connected) {
         TS.sounds.play("beep");
@@ -31602,7 +31584,6 @@ var _on_esc;
 (function() {
   "use strict";
   TS.registerModule("menu.enterprise_team_signin", {
-    onStart: function() {},
     start: function(e, el, options) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.model.menu_is_showing) return;
@@ -46283,18 +46264,6 @@ $.fn.togglify = function(settings) {
         TS.menu.member.startWithMember(e, member_id);
       } else {
         TS.warn("hmmm, no data-member-id?");
-      }
-    });
-    TS.click.addClientHandler(".service", function(e, $el) {
-      e.preventDefault();
-      var config = {};
-      config.service_id = $el.data("service-id");
-      if (config.service_id) {
-        TS.menu.startWithService(e, config);
-        return true;
-      } else {
-        TS.warn("no data-service-id provided");
-        return false;
       }
     });
     TS.click.addClientHandler(".theme_installer_btn", function(e, $el) {

@@ -3096,14 +3096,6 @@
       if (!ug) return;
       TS.client.ui.previewUserGroup(ug.id);
     },
-    onBotReferenceClick: function(e, bot_id) {
-      var b = TS.bots.getBotById(bot_id);
-      if (!b) return;
-      var config = {
-        service_id: bot_id
-      };
-      TS.menu.startWithService(e, config);
-    },
     cacheMsgsHtml: function() {
       return;
     },

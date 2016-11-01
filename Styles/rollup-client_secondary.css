@@ -14665,7 +14665,7 @@ a.sidebar_menu_list_item:hover {
 #admin_invites_workflow .lazy_filter_select .ts_tip_tip {
   display: block;
   opacity: 1;
-  width: 160px
+  width: 10rem
 }
 
 #admin_invites_workflow .lazy_filter_select .lfs_input_container {

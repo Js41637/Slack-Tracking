@@ -2471,6 +2471,137 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("statsd", {
+    onStart: function() {
+      var interval_duration_ms = 30 * 1e3;
+      var interval_duration_noise_ms = 5 * 1e3;
+      var noise_ms = Math.floor(Math.random() * interval_duration_noise_ms);
+      setInterval(_sendDataAndEmptyQueue, interval_duration_ms + noise_ms);
+      $(window).on("beforeunload", _sendDataAndEmptyQueue);
+    },
+    count: function(stat, count) {
+      if (_.isUndefined(count)) count = 1;
+      _record(stat, "count", count);
+    },
+    timing: function(stat, timing) {
+      _record(stat, "timing", timing);
+    },
+    flush: function() {
+      _sendDataAndEmptyQueue();
+    },
+    mark: function(mark_label) {
+      TS.metrics.mark(mark_label);
+    },
+    clearMarks: function(mark_label) {
+      TS.metrics.clearMarks(mark_label);
+    },
+    measure: function(stat, start_mark_label, end_mark_label) {
+      var duration = TS.metrics.measure(stat, start_mark_label, end_mark_label, {
+        ephemeral: true
+      });
+      if (_.isNaN(duration) || _.isUndefined(duration)) return;
+      TS.statsd.timing(stat, duration);
+      return duration;
+    },
+    measureAndClear: function(stat, start_mark_label) {
+      var duration = TS.statsd.measure(stat, start_mark_label);
+      TS.statsd.clearMarks(start_mark_label);
+      return duration;
+    },
+    test: function() {
+      var test_ob = {
+        getStats: function() {
+          return _stats;
+        },
+        reset: function() {
+          _stats = [];
+        }
+      };
+      Object.defineProperty(test_ob, "_record", {
+        get: function() {
+          return _record;
+        },
+        set: function(v) {
+          _record = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_sendDataAndEmptyQueue", {
+        get: function() {
+          return _sendDataAndEmptyQueue;
+        },
+        set: function(v) {
+          _sendDataAndEmptyQueue = v;
+        }
+      });
+      return test_ob;
+    }
+  });
+  var _MAX_URL_LENGTH = 2e3;
+  var _ENDPOINT_URL;
+  var _stats = [];
+  var _record = function(stat, type, value) {
+    var unit;
+    if (type === "count") {
+      unit = " (count)";
+      value = _.round(value, 0);
+    } else if (type === "timing") {
+      unit = "ms";
+      value = _.round(value, 3);
+    } else {
+      TS.error("TS.statsd._record called with invalid type: " + type);
+      return;
+    }
+    if (_shouldLog(stat)) TS.info("[STATSD " + type.toUpperCase() + "] " + stat + ": " + value + unit);
+    _stats.push({
+      stat: stat,
+      type: type,
+      value: value
+    });
+  };
+  var _sendDataAndEmptyQueue = function() {
+    if (!_stats.length) return;
+    var urls = [];
+    var data = [];
+    var url = "";
+    var makeUrl = function(data) {
+      return _detectEndpoint() + "?stats=" + encodeURIComponent(JSON.stringify(data));
+    };
+    _stats.forEach(function(stat) {
+      data.push(stat);
+      url = makeUrl(data);
+      if (url.length > _MAX_URL_LENGTH) {
+        data.pop();
+        urls.push(makeUrl(data));
+        data = [stat];
+      }
+    });
+    urls.push(makeUrl(data));
+    urls.forEach(function(beacon_url) {
+      var beacon = new Image;
+      beacon.src = beacon_url;
+    });
+    if (_shouldLog()) TS.info("[STATSD] Sending data: " + JSON.stringify(_stats));
+    _stats = [];
+  };
+  var _detectEndpoint = function() {
+    if (_ENDPOINT_URL) return _ENDPOINT_URL;
+    var is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
+    if (is_dev) {
+      _ENDPOINT_URL = "https://" + is_dev[0] + "/beacon/statsd";
+    } else if (location.host.match(/staging.slack.com/)) {
+      _ENDPOINT_URL = "https://staging.slack.com/beacon/statsd";
+    } else {
+      _ENDPOINT_URL = "https://slack.com/beacon/statsd";
+    }
+    return _ENDPOINT_URL;
+  };
+  var _shouldLog = function(stat) {
+    if (!stat) return TS.qs_args.log_timings || TS.statsd.log === true;
+    return TS.qs_args.log_timings || TS.qs_args.log_timing === stat || TS.statsd.log === true || TS.statsd.log === stat || TS.statsd.log instanceof Array && TS.statsd.log.indexOf(stat) !== -1;
+  };
+})();
+(function() {
+  "use strict";
   TS.registerModule("model", {
     did_we_load_with_user_cache: false,
     did_we_load_with_emoji_cache: false,
