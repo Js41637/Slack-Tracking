@@ -12489,8 +12489,6 @@ TS.registerModule("constants", {
     team_disable_file_deleting_changed_sig: new signals.Signal,
     team_display_email_addresses_changed_sig: new signals.Signal,
     all_unreads_sort_order_changed_sig: new signals.Signal,
-    gdrive_authed_changed_sig: new signals.Signal,
-    gdrive_enabled_changed_sig: new signals.Signal,
     a11y_font_size_changed_sig: new signals.Signal,
     a11y_animations_changed_sig: new signals.Signal,
     onStart: function() {
@@ -13244,18 +13242,6 @@ TS.registerModule("constants", {
         case "client_logs_pri":
           TS.model.prefs[imsg.name] = imsg.value;
           if (TS.boot_data.feature_console_me) TS.console.setAppropriatePri();
-          break;
-        case "gdrive_authed":
-          if (TS.model.prefs.gdrive_authed !== imsg.value) {
-            TS.model.prefs.gdrive_authed = imsg.value;
-            TS.prefs.gdrive_authed_changed_sig.dispatch();
-          }
-          break;
-        case "gdrive_enabled":
-          if (TS.model.prefs.gdrive_enabled !== imsg.value) {
-            TS.model.prefs.gdrive_enabled = imsg.value;
-            TS.prefs.gdrive_enabled_changed_sig.dispatch();
-          }
           break;
         default:
           TS.model.prefs[imsg.name] = imsg.value;
