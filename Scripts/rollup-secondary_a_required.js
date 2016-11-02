@@ -17312,6 +17312,9 @@ TS.registerModule("constants", {
     makeMsgDomIdInUnreadView: function(ts) {
       return TS.templates.makeMsgDomId(ts) + "_unread_view";
     },
+    makeMsgDomIdInThreadsView: function(ts) {
+      return TS.templates.makeMsgDomId(ts) + "_threads_view";
+    },
     promiseToRenderAsync: function(template, maybe_args_p) {
       if (!template) return Promise.reject(new Error("No template to render"));
       return Promise.resolve(maybe_args_p).then(function(args) {
@@ -17594,7 +17597,8 @@ TS.registerModule("constants", {
           ts_tip_delay_class: "ts_tip_delay_600",
           is_root_msg: args.is_root_msg,
           is_in_conversation: is_in_conversation,
-          file_title_only: msg.subtype === "file_reaction"
+          file_title_only: msg.subtype === "file_reaction",
+          is_threads_view: !!args.is_threads_view
         };
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
@@ -17628,7 +17632,7 @@ TS.registerModule("constants", {
               template_args.model_ob_name = "in " + TS.shared.getDisplayNameForModelOb(model_ob);
             }
           }
-          if (is_root_msg && msg.reply_count && !is_in_conversation && !standalone && !args.for_search_display) {
+          if (is_root_msg && msg.reply_count && !is_in_conversation && !standalone && !args.for_search_display && !args.is_threads_view) {
             template_args.show_reply_bar = true;
           }
           template_args.is_tombstone = msg.subtype === "tombstone";
@@ -22881,6 +22885,15 @@ TS.registerModule("constants", {
         } else {
           return numbers[number];
         }
+      });
+      Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob) {
+        var html = TS.templates.builders.buildMsgHTML({
+          msg_dom_id: TS.templates.makeMsgDomIdInThreadsView(msg.ts),
+          model_ob: model_ob,
+          msg: msg,
+          is_threads_view: true
+        });
+        return new Handlebars.SafeString(html);
       });
     },
     test: function() {
@@ -31639,7 +31652,7 @@ var _on_esc;
       var should_show_box = TS.utility.box.isBrowserSupported() && TS.model.prefs.box_enabled;
       var should_show_multnomah = TS.boot_data.feature_multnomah;
       var should_show_dropbox = window.Dropbox && Dropbox.isBrowserSupported() && TS.model.prefs.dropbox_enabled;
-      var should_show_gdrive = TS.boot_data.feature_gdrive_1_dot_5 && TS.model.prefs.gdrive_enabled;
+      var should_show_gdrive = TS.boot_data.feature_gdrive_1_dot_5 && TS.model.team.prefs.gdrive_enabled_team;
       var cloud_service_count = 0;
       if (should_show_box) cloud_service_count++;
       if (should_show_dropbox) cloud_service_count++;
@@ -37280,8 +37293,6 @@ var _on_esc;
   var _new_email_domains = "";
   var _custom_message = "";
   var _initial_channel_id;
-  var _google_contacts_experiment_new_team;
-  var _google_contacts_experiment_existing_team;
   var _google_contacts_data;
   var _btn_connect_contacts;
   var _google_auth_instance_id;
@@ -37347,44 +37358,40 @@ var _on_esc;
   };
   var _blocking_errors = ["user_limit_reached", "invite_limit_reached"];
   var _start = function(options) {
-    _loadGoogleContactsExperimentGroup().then(function() {
-      var account_type;
-      if (_shouldSeeAccountTypeOptions()) {
-        if (options && options.account_type) {
-          account_type = options.account_type;
-        }
-      } else {
-        account_type = "full";
+    var account_type;
+    if (_shouldSeeAccountTypeOptions()) {
+      if (options && options.account_type) {
+        account_type = options.account_type;
       }
-      if (options && options.initial_channel_id) {
-        _initial_channel_id = options.initial_channel_id;
-      }
-      var show_google_contacts = _google_contacts_experiment_new_team === "google_contacts" || _google_contacts_experiment_existing_team === "google_contacts";
-      var body_template_html = TS.templates.admin_invite_modal({
-        can_add_ura: TS.model.can_add_ura,
-        team_name: TS.model.team.name,
-        team_in_org: TS.model.team.enterprise_id,
-        hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
-        team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
-        invites_limit: TS.model.team.plan === "" && TS.model.team.prefs.invites_limit,
-        show_custom_message: TS.model.team.plan,
-        is_paid_team: TS.model.team.plan,
-        show_google_contacts: show_google_contacts
-      });
-      var settings = {
-        body_template_html: body_template_html,
-        onShow: _onShow,
-        onCancel: _onCancel,
-        clog_name: "INVITEMODAL"
-      };
-      if (TS.client) TS.ui.a11y.saveCurrentFocus();
-      TS.ui.fs_modal.start(settings);
-      if (account_type) {
-        setTimeout(function() {
-          _switchAccountType(account_type);
-        }, 0);
-      }
+    } else {
+      account_type = "full";
+    }
+    if (options && options.initial_channel_id) {
+      _initial_channel_id = options.initial_channel_id;
+    }
+    var body_template_html = TS.templates.admin_invite_modal({
+      can_add_ura: TS.model.can_add_ura,
+      team_name: TS.model.team.name,
+      team_in_org: TS.model.team.enterprise_id,
+      hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
+      team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
+      invites_limit: TS.model.team.plan === "" && TS.model.team.prefs.invites_limit,
+      show_custom_message: TS.model.team.plan,
+      is_paid_team: TS.model.team.plan
     });
+    var settings = {
+      body_template_html: body_template_html,
+      onShow: _onShow,
+      onCancel: _onCancel,
+      clog_name: "INVITEMODAL"
+    };
+    if (TS.client) TS.ui.a11y.saveCurrentFocus();
+    TS.ui.fs_modal.start(settings);
+    if (account_type) {
+      setTimeout(function() {
+        _switchAccountType(account_type);
+      }, 0);
+    }
   };
   var _onShow = function() {
     var $custom_message_container;
@@ -37485,13 +37492,6 @@ var _on_esc;
       });
       if (empty_rows.length === 0) _addRow();
       _startFilterSelectForEmailAddresses(data);
-    });
-  };
-  var _loadGoogleContactsExperimentGroup = function() {
-    if (_google_contacts_experiment_new_team || _google_contacts_experiment_existing_team) return Promise.resolve();
-    return TS.experiment.loadUserAssignments().then(function() {
-      _google_contacts_experiment_new_team = TS.experiment.getGroup("google_contacts_invite_new");
-      _google_contacts_experiment_existing_team = TS.experiment.getGroup("google_contacts_invite_existing");
     });
   };
   var _startFilterSelectForEmailAddresses = function(contact_data) {

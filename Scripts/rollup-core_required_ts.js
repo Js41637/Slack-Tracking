@@ -688,6 +688,11 @@
         }, _rtm_start_retry_delay_ms);
       });
     }
+    if (TS.boot_data.rtm_start_response) {
+      var rtm_start_response = TS.boot_data.rtm_start_response;
+      delete TS.boot_data.rtm_start_response;
+      return Promise.resolve(rtm_start_response);
+    }
     if (TS.lazyLoadMembers()) {
       if (!_ms_rtm_start_p) {
         if (TS.model.ms_connected) {
@@ -715,11 +720,6 @@
         return _promiseToCallRTMStart();
       });
     }
-    if (TS.boot_data.rtm_start_response) {
-      var rtm_start_response = TS.boot_data.rtm_start_response;
-      delete TS.boot_data.rtm_start_response;
-      return Promise.resolve(rtm_start_response);
-    }
     if (TS.model.calling_rtm_start) {
       var error_msg = "_callRTMStart was called but TS.model.calling_rtm_start=true";
       TS.error(error_msg);
@@ -737,25 +737,6 @@
     if (resp.data.latest_event_ts) {
       TS.info("rtm.start included latest event timestamp: " + resp.data.latest_event_ts);
       _last_rtm_start_event_ts = parseInt(resp.data.latest_event_ts, 10);
-    }
-    if (TS.lazyLoadMembers()) {
-      var relevant_user_ids = _([TS.shared.getActiveModelOb(), resp.data.mpims, resp.data.ims]).flatten().compact().map(function(ob) {
-        return ob.members || [ob.user];
-      }).flatten().uniq().compact().value();
-      if (resp.data.users) {
-        var users_before = resp.data.users.length;
-        resp.data.users = resp.data.users.filter(function(user) {
-          return _.includes(relevant_user_ids, user.id);
-        });
-        TS.log(1989, "Flannel: Culled rtm.start users from", users_before, "to", resp.data.users.length);
-      }
-      if (resp.data.updated_users) {
-        var updated_users_before = resp.data.updated_users.length;
-        resp.data.updated_users = resp.data.updated_users.filter(function(user) {
-          return _.includes(relevant_user_ids, user.id);
-        });
-        TS.log(1989, "Flannel: Culled updated users from", updated_users_before, "to", resp.data.updated_users.length);
-      }
     }
     TS.model.deferred_archived_channels = _.filter(resp.data.channels, function(c) {
       c.is_archived && !TS.channels.lookupById(c.id);

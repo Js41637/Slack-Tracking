@@ -19253,6 +19253,18 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
+.light_theme .thread_replies_container {
+  margin-left: 4.5rem
+}
+
+.light_theme .thread_replies_container ts-message .message_gutter {
+  width: 2.875rem
+}
+
+.light_theme .thread_replies_container ts-message .message_content {
+  margin-left: 2.875rem
+}
+
 .dense_theme .dense_only {
   display: inline
 }
@@ -19416,6 +19428,18 @@ ts-message .emoji-sizer .mention {
   display: block
 }
 
+.dense_theme .thread_replies_container {
+  margin-left: 4.875rem
+}
+
+.dense_theme .thread_replies_container ts-message .message_gutter {
+  width: 4.5rem
+}
+
+.dense_theme .thread_replies_container ts-message .message_content {
+  margin-left: 4.5rem
+}
+
 .last_replier_wrapper {
   position: relative;
   vertical-align: top;
@@ -19446,6 +19470,20 @@ ts-message .emoji-sizer .mention {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
+}
+
+ts-thread {
+  display: block;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .9375rem
+}
+
+ts-thread .view_all_replies {
+  display: block;
+  padding-top: .3125rem;
+  padding-bottom: .375rem
 }
 
 @font-face {
