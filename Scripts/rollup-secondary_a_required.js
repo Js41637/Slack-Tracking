@@ -9536,7 +9536,7 @@ TS.registerModule("constants", {
           return TS.api.callImmediately("im.meta", {
             channel: c_id
           }).then(function(resp) {
-            TS.info("im.info failed, but im.meta OK for " + c_id);
+            TS.warn("im.info failed, but im.meta OK for " + c_id);
             resolve(TS.ims.upsertIm(resp.data.im));
             TS.model.reportResultOfUnknownIdHandled(c_id, true);
           }, function(ret) {
@@ -27552,7 +27552,7 @@ TS.registerModule("constants", {
       var team_in_enterprise_org = TS.boot_data.page_needs_enterprise;
       var is_saml_team = TS.model.team.prefs.auth_mode === "saml";
       var saml_settings_prevent_full_member_invites = TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1;
-      if (TS.boot_data.feature_enterprise_full_member_invites && team_in_enterprise_org) return false;
+      if (team_in_enterprise_org) return false;
       return team_in_enterprise_org || is_saml_team && saml_settings_prevent_full_member_invites;
     }
   });
@@ -28688,7 +28688,6 @@ TS.registerModule("constants", {
     onStart: function() {
       if (TS.boot_data.page_needs_emoji_menu) {
         if (TS.web) TS.web.login_sig.add(_waitAndBuild);
-        if (TS.client && !TS.boot_data.feature_tinyspeck) TS.client.login_sig.add(_waitAndBuild);
       }
       TS.prefs.emoji_mode_changed_sig.add(_updateSkinButton);
       TS.prefs.emoji_mode_changed_sig.add(_buildDefaultRxns);
@@ -37663,14 +37662,9 @@ var _on_esc;
     var show_sso_signup_notice = false;
     var team_in_enterprise_org = TS.boot_data.page_needs_enterprise;
     var sso_signup_notice_msg = "";
-    if (TS.boot_data.feature_enterprise_full_member_invites) {
-      if (team_in_enterprise_org && invite_type === "full" || has_sso_auth_mode && TS.model.team.prefs.sso_auth_restrictions === 0) {
-        show_sso_signup_notice = true;
-        sso_signup_notice_msg = "Only people with " + TS.utility.enterprise.getProviderLabel(TS.model.enterprise, _.get(TS.model, "enterprise.sso_provider.label", "single sign-on")) + " accounts will be able to accept invitations.";
-      }
-    } else if (has_sso_auth_mode && TS.model.team.prefs.sso_auth_restrictions === 0) {
+    if (team_in_enterprise_org && invite_type === "full" || has_sso_auth_mode && TS.model.team.prefs.sso_auth_restrictions === 0) {
       show_sso_signup_notice = true;
-      sso_signup_notice_msg = "Invited users must create their account using their SSO login.";
+      sso_signup_notice_msg = "Only people with " + TS.utility.enterprise.getProviderLabel(TS.model.enterprise, _.get(TS.model, "enterprise.sso_provider.label", "single sign-on")) + " accounts will be able to accept invitations.";
     }
     if (TS.model.team.prefs.auth_mode == "google") {
       if (invite_type == "full" && (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1)) {
@@ -37681,7 +37675,7 @@ var _on_esc;
     } else if (TS.model.team.prefs.auth_mode == "saml") {
       if (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1) {
         if (invite_type == "full") {
-          if (!TS.boot_data.feature_enterprise_full_member_invites || TS.boot_data.feature_enterprise_full_member_invites && !team_in_enterprise_org) {
+          if (!team_in_enterprise_org) {
             var admin_invites_switcher_html = TS.templates.admin_invite_switcher({
               can_add_ura: TS.model.can_add_ura,
               hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
@@ -37979,12 +37973,10 @@ var _on_esc;
         return;
       } else {
         var invitation_error = data.error;
-        if (TS.boot_data.feature_enterprise_full_member_invites) {
-          if (TS.boot_data.page_needs_enterprise) {
-            var member_belongs_to_team = TS.members.getMemberByEmail(args.email) !== null;
-            if (member_belongs_to_team && invitation_error === "org_user_is_disabled") {
-              invitation_error = "org_user_is_disabled_but_present";
-            }
+        if (TS.boot_data.page_needs_enterprise) {
+          var member_belongs_to_team = TS.members.getMemberByEmail(args.email) !== null;
+          if (member_belongs_to_team && invitation_error === "org_user_is_disabled") {
+            invitation_error = "org_user_is_disabled_but_present";
           }
         }
         _error_invites.push({
@@ -38886,7 +38878,7 @@ var _on_esc;
     } else if (TS.model.team.prefs.auth_mode == "saml") {
       if (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1) {
         if (_state.selected_member_type == "full") {
-          if (!(TS.boot_data.feature_enterprise_full_member_invites && team_in_enterprise_org)) {
+          if (!team_in_enterprise_org) {
             _showInfoMessage("alert_error", _error_map.not_allowed);
           }
         }

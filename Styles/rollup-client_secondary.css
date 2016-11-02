@@ -24736,22 +24736,44 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .app_card_header {
-  padding: 25px
+  min-width: 20rem;
+  padding: 25px;
+  background: linear-gradient(136.53deg, rgba(255, 255, 255, .05) 0, rgba(255, 255, 255, .2) 100%), linear-gradient(312.01deg, #2c2d30 0, rgba(44, 45, 48, .75) 100%);
+  background-color: #2c2d30
+}
+
+.app_card_color_bg {
+  background-color: #2c2d30
+}
+
+.app_header_large {
+  padding: 33px 25px
 }
 
 .app_card_header_icon {
-  width: 4rem;
+  min-width: 4rem;
+  max-width: 4rem;
   height: 4rem
 }
 
+.app_header_large .app_card_header_icon {
+  min-width: 5.625rem;
+  max-width: 5.625rem;
+  height: 5.625rem
+}
+
 .app_card_header_text {
-  width: 12.0625rem;
-  margin-left: .875rem
+  margin-left: .875rem;
+  margin-bottom: .3125rem;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center
 }
 
 .app_card_header_text .app_card_name_row {
-  line-height: 1.375rem;
-  margin-top: .125rem
+  line-height: 1.375rem
 }
 
 .app_card_header_text .app_card_name_row .app_name {
@@ -24769,8 +24791,26 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 .app_card_header_text .app_card_desc {
   font-size: .9375rem;
   line-height: 1.125rem;
-  height: 2.25rem;
+  max-height: 2.25rem;
   text-shadow: 0 1px 4px rgba(0, 0, 0, .2)
+}
+
+.app_header_large .app_card_header_text {
+  margin-left: 1.3125rem
+}
+
+.app_header_large .app_card_header_text .app_card_name_row {
+  line-height: 1.6875rem
+}
+
+.app_header_large .app_card_header_text .app_card_name_row .app_name {
+  font-size: 1.375rem
+}
+
+.app_header_large .app_card_header_text .app_card_desc {
+  font-size: 1rem;
+  line-height: 1.1875rem;
+  max-height: 2.375rem
 }
 
 .app_video_thumbnail {
