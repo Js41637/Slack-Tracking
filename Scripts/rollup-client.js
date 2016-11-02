@@ -6939,20 +6939,13 @@
           if (TS.boot_data.feature_pin_update) {
             $member_count.html('<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon> ' + display_member_count);
           } else {
-            if (TS.boot_data.feature_i18n) {
-              $member_count.text(TS.i18n.t("{member_count,plural,=1{# member}other{# members}}", {
-                data: {
-                  member_count: display_member_count
-                },
-                ns: "channel",
-                note: "The number of users in a channel"
-              }));
-            } else {
-              $member_count.text(display_member_count + " members");
-              if (display_member_count == 1) {
-                $member_count.text(display_member_count + " member");
-              }
-            }
+            $member_count.text(TS.i18n.t("{member_count,plural,=1{{member_count} member}other{{member_count} members}}", {
+              data: {
+                member_count: display_member_count
+              },
+              ns: "channel",
+              note: "The number of users in a channel"
+            }));
           }
           var tooltip_text;
           if (TS.lazyLoadMembers()) {
@@ -24808,7 +24801,10 @@
           _end();
         }
       }
-      TS.client.archives.$archives_msgs_div.html('<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading...</div>');
+      var loading_text = TS.i18n.t("Loading...", {
+        note: "Let the user know that the page is loading"
+      });
+      TS.client.archives.$archives_msgs_div.html('<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>");
       _showing_id = model_ob.id + (msg_id || "");
       _msg_id = msg_id || null;
       TS.client.archives.current_model_ob = model_ob;
@@ -25250,23 +25246,61 @@
     if (model_ob.is_shared) shared = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
     $("#footer_archives_action_button").addClass("btn_outline");
     if (TS.client.archives.not_member) {
+      var archive_html;
+      var action_tip_html;
       $("#active_channel_name").addClass("no_star");
       $("#footer_msgs").addClass("hidden");
       $("#footer").css("height", "auto");
       $("#footer_archives").removeClass("hidden");
       if (model_ob.is_archived) {
-        $("#footer_archives_text").html("You are viewing <b>" + hash + TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)) + shared + "</b>, an archived channel");
-        $("#footer_archives_action_button").text("Close Channel");
-        $("#footer_archives_action_tip").html('<span class="tiny dialog_cancel_hint"><strong aria-label="return">Esc </strong> to close</span>');
+        archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, an archived channel", {
+          data: {
+            hash: hash,
+            channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
+            shared: shared
+          },
+          ns: "archives",
+          note: "The channel preview information for users who have not joined an archived channel"
+        });
+        action_tip_html = TS.i18n.t('<strong aria-label="return">Esc</strong> to close', {
+          ns: "archives",
+          note: 'A hint for a keyboard event that does the same thing as the "Close Channel" button'
+        });
+        $("#footer_archives_text").html('<span class="tiny dialog_cancel_hint">' + archive_html + "</span>");
+        $("#footer_archives_action_button").text(TS.i18n.t("Close Channel", {
+          ns: "archives"
+        }));
+        $("#footer_archives_action_tip").html(action_tip_html);
       } else {
-        $("#footer_archives_text").html("You are viewing a preview of <b>" + hash + TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)) + shared + "</b>");
-        $("#footer_archives_action_button").text("Join Channel");
-        $("#footer_archives_action_button").removeClass("btn_outline");
-        $("#footer_archives_action_tip").html('<span class="tiny dialog_cancel_hint"><strong aria-label="return">Return <span class="return_char">&crarr;</span></strong> to join</span>');
+        archive_html = TS.i18n.t("You are viewing a preview of <strong>{hash}{channel_name}{shared}</strong>", {
+          data: {
+            hash: hash,
+            channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
+            shared: shared
+          },
+          ns: "archives",
+          note: "The channel preview information for users who have not joined an active channel"
+        });
+        action_tip_html = TS.i18n.t('<strong aria-label="return">Return <span class="return_char">&crarr;</span></strong> to join', {
+          ns: "archives",
+          note: 'A hint for a keyboard event that does the same thing as the "Join Channel" button'
+        });
+        $("#footer_archives_text").html('<span class="tiny dialog_cancel_hint">' + archive_html + "</span>");
+        $("#footer_archives_action_button").text(TS.i18n.t("Join Channel", {
+          ns: "archives"
+        })).removeClass("btn_outline");
+        $("#footer_archives_action_tip").html(action_tip_html);
       }
       TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
     } else {
-      TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "You are viewing the archives of " + placeholder_hash + model_ob.name);
+      TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, TS.i18n.t("You are viewing the archives of {hash}{channel_name}", {
+        data: {
+          hash: placeholder_hash,
+          channel_name: model_ob.name
+        },
+        ns: "archives",
+        note: "An input placeholder when the user is viewing an archived messages (usually a jump link from search)"
+      }));
     }
   };
   var _unAdjustForArchivesDisplay = function() {
@@ -25290,7 +25324,9 @@
   var _updateBottom = function() {
     var txt;
     if (_loading_bottom) {
-      txt = "retrieving history...";
+      txt = TS.i18n.t("retrieving history...", {
+        ns: "archives"
+      });
     } else if (_all_loaded_bottom) {
       if (_msg_id) {
         txt = "&nbsp;";
@@ -25298,18 +25334,26 @@
         txt = "";
       }
     } else {
-      txt = '<a onclick="TS.client.archives.loadMoreBottom()">and more...</a>';
+      txt = '<a onclick="TS.client.archives.loadMoreBottom()">' + TS.i18n.t("and more...", {
+        ns: "archives"
+      }) + "</a>";
     }
     $("#archives_bottom_div").html(txt);
   };
   var _updateTop = function() {
     var txt;
     if (_loading_top) {
-      txt = "retrieving history...";
+      txt = TS.i18n.t("retrieving history...", {
+        ns: "archives"
+      });
     } else if (_all_loaded_top) {
-      txt = "~FIN~";
+      txt = TS.i18n.t("~FIN~", {
+        ns: "archives"
+      });
     } else {
-      txt = '<a onclick="TS.client.archives.loadMoreTop()">and more...</a>';
+      txt = '<a onclick="TS.client.archives.loadMoreTop()">' + TS.i18n.t("and more...", {
+        ns: "archives"
+      }) + "</a>";
     }
     $("#archives_top_div").html(txt);
   };
@@ -25371,27 +25415,6 @@
         }
       } else {
         TS.shared.closeArchivedChannel(model_ob.id);
-      }
-    });
-    $("#footer_archives_unarchive_link").bind("click", function() {
-      var model_ob = TS.client.archives.current_model_ob;
-      if (model_ob.is_channel) {
-        if (model_ob.is_archived) {
-          TS.api.call("channels.unarchive", {
-            channel: model_ob.id
-          }, function(ok, data, args) {
-            if (ok) return;
-            var err_str = 'Un-archiving failed with error "' + data.error + '"';
-            if (data.error == "restricted_action") {
-              err_str = "<p>You don't have permission to un-archive channels.</p><p>Talk to your Team Owner.</p>";
-            }
-            setTimeout(TS.generic_dialog.alert, 100, err_str);
-          });
-        }
-      } else {
-        TS.api.call("groups.unarchive", {
-          channel: model_ob.id
-        });
       }
     });
     TS.client.archives.$scroller.scroll(function() {

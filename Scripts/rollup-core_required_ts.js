@@ -3545,22 +3545,21 @@
   "use strict";
   TS.registerModule("i18n", {
     onStart: function() {
-      if (!TS.boot_data.feature_i18n) {
-        TS.i18n.locale = _DEFAULT_LOCALE;
-        return;
-      }
-      var lang = location.search.match(new RegExp("lang=(.*?)($|&)", "i"));
-      if (lang && _MESSAGES[lang[1]]) {
-        TS.i18n.locale = lang[1];
-      } else {
-        TS.i18n.locale = _DEFAULT_LOCALE;
-      }
-      _messages = _MESSAGES[TS.i18n.locale];
       _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
+      if (_is_dev) {
+        var lang = location.search.match(new RegExp("lang=(.*?)($|&)", "i"));
+        if (lang && _MESSAGES[lang[1]]) {
+          TS.i18n.locale = lang[1];
+        }
+      }
+      if (!TS.i18n.locale) {
+        TS.i18n.locale = TS.boot_data.locale || _DEFAULT_LOCALE;
+      }
+      _messages = _MESSAGES[TS.i18n.locale] || {};
+      if (_is_dev) _textarea = document.createElement("textarea");
     },
     t: function(key, options) {
       options = options || {};
-      if (!TS.boot_data.feature_i18n) return new MessageFormat(TS.i18n.locale, key).format(options.data || {});
       var msg;
       if (options.ns) {
         msg = _namespaced(options.ns)[key];
@@ -3570,14 +3569,17 @@
       if (msg === undefined) {
         msg = new MessageFormat(TS.i18n.locale, key).format(options.data || {});
         if (!_is_dev || TS.i18n.locale === _DEFAULT_LOCALE) return msg;
-        TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
-        return msg.replace(/[A-Z]/g, "X").replace(/[a-z]/g, "x");
+        if (TS.i18n.locale !== _PSEUDO_LOCALE) {
+          TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
+        }
+        return _getPseudoTranslation(msg);
       }
       return new MessageFormat(TS.i18n.locale, msg).format(options.data || {});
     }
   });
   var _messages;
   var _is_dev;
+  var _textarea;
   var _namespaced = function(namespace) {
     var parts = namespace.split(".");
     if (parts.length > 1) {
@@ -3592,9 +3594,57 @@
     }
     return _messages[namespace] || {};
   };
-  var _DEFAULT_LOCALE = "en-US";
+  var _getPseudoTranslation = function(str) {
+    _textarea.innerHTML = str;
+    str = _textarea.value;
+    var key;
+    for (key in _PSEUDO_MAP) {
+      str = str.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
+    }
+    return str;
+  };
+  var _DEFAULT_LOCALE = "en_US";
+  var _PSEUDO_LOCALE = "pseudo";
+  var _PSEUDO_MAP = {
+    a: [/a/g, "á"],
+    b: [/b/g, "β"],
+    c: [/c/g, "ç"],
+    d: [/d/g, "δ"],
+    e: [/e/g, "è"],
+    f: [/f/g, "ƒ"],
+    g: [/g/g, "ϱ"],
+    h: [/h/g, "λ"],
+    i: [/i/g, "ï"],
+    j: [/j/g, "J"],
+    k: [/k/g, "ƙ"],
+    l: [/l/g, "ℓ"],
+    m: [/m/g, "₥"],
+    n: [/n/g, "ñ"],
+    o: [/o/g, "ô"],
+    p: [/p/g, "ƥ"],
+    q: [/q/g, "9"],
+    r: [/r/g, "ř"],
+    u: [/u/g, "ú"],
+    v: [/v/g, "Ʋ"],
+    w: [/w/g, "ω"],
+    x: [/x/g, "ж"],
+    y: [/y/g, "¥"],
+    z: [/z/g, "ƺ"],
+    A: [/A/g, "Â"],
+    B: [/B/g, "ß"],
+    C: [/C/g, "Ç"],
+    D: [/D/g, "Ð"],
+    E: [/E/g, "É"],
+    I: [/I/g, "Ì"],
+    L: [/L/g, "£"],
+    O: [/O/g, "Ó"],
+    P: [/P/g, "Þ"],
+    S: [/S/g, "§"],
+    U: [/U/g, "Û"],
+    Y: [/Y/g, "Ý"]
+  };
   var _MESSAGES = {
-    "en-US": {
+    en_US: {
       menu: {
         "Profile &amp; account": "Profile &amp; account",
         Preferences: "Preferences",
@@ -3604,26 +3654,26 @@
         "[Away] Set yourself to <strong>active</strong>": "[Away] Set yourself to <strong>active</strong>"
       },
       channel: {
-        "{member_count,plural,=1{# member}other{# members}}": "{member_count,plural,=1{# member}other{# members}}"
+        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} member}other{{member_count} members}}"
       }
     },
-    "es-ES": {
+    es_ES: {
       menu: {
         "Profile &amp; account": "Perfil y cuenta",
         Preferences: "Preferencias"
       },
       channel: {
-        "{member_count,plural,=1{# member}other{# members}}": "{member_count,plural,=1{# miembro}other{# miembros}}"
+        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} miembro}other{{member_count} miembros}}"
       }
     },
-    "fr-FR": {
+    fr_FR: {
       menu: {
         "Profile &amp; account": "Profil et gestion du compte",
         Preferences: "Préférences",
         "Version info (TS only)": "Version info (TS uniquement)"
       },
       channel: {
-        "{member_count,plural,=1{# member}other{# members}}": "{member_count,plural,=1{# membre}other{# membres}}"
+        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} membre}other{{member_count} membres}}"
       }
     }
   };
