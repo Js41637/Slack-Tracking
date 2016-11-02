@@ -3553,7 +3553,13 @@
         }
       }
       if (!TS.i18n.locale) {
-        TS.i18n.locale = TS.boot_data.locale || _DEFAULT_LOCALE;
+        TS.i18n.locale = TS.boot_data && TS.boot_data.locale ? TS.boot_data.locale : _DEFAULT_LOCALE;
+      }
+      if (TS.i18n.locale === _PSEUDO_LOCALE) {
+        _is_pseudo = true;
+        TS.i18n.locale = _DEFAULT_LOCALE;
+      } else {
+        TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
       }
       _translations = _TRANSLATIONS[TS.i18n.locale] || {};
       if (_is_dev) _textarea = document.createElement("textarea");
@@ -3564,8 +3570,8 @@
       var translation = translations[key];
       if (translation === undefined) {
         translation = new MessageFormat(TS.i18n.locale, key).format(options.data || {});
-        if (!_is_dev || TS.i18n.locale === _DEFAULT_LOCALE) return translation;
-        if (TS.i18n.locale !== _PSEUDO_LOCALE) {
+        if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) return translation;
+        if (!_is_pseudo) {
           TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
         }
         return _getPseudoTranslation(translation);
@@ -3578,6 +3584,7 @@
   });
   var _translations;
   var _is_dev;
+  var _is_pseudo;
   var _textarea;
   var _namespaced = function(namespace) {
     var parts = namespace.split(".");
@@ -3602,7 +3609,7 @@
     }
     return str;
   };
-  var _DEFAULT_LOCALE = "en_US";
+  var _DEFAULT_LOCALE = "en-US";
   var _PSEUDO_LOCALE = "pseudo";
   var _PSEUDO_MAP = {
     a: [/a/g, "á"],

@@ -1059,6 +1059,7 @@ if (typeof define !== "undefined" && define.amd) {
     header_pin_sig: new signals.Signal,
     header_unpin_sig: new signals.Signal,
     widescreen_threshold: 1441,
+    stored_scrolltop: 0,
     init: function() {
       var is_touch = "ontouchstart" in document.documentElement;
       if (is_touch) {
@@ -1117,10 +1118,15 @@ if (typeof define !== "undefined" && define.amd) {
       var toggleMenu = function() {
         $body.toggleClass("nav_open");
         $("html").toggleClass("no_scroll");
+        if (!$body.hasClass("nav_open")) {
+          $(window).scrollTop(plastic.stored_scrolltop);
+        } else {
+          plastic.stored_scrolltop = $(window).scrollTop();
+          $(window).scrollTop(0);
+        }
       };
       $("#menu_toggle").on("click.toggle_nav", function() {
         if (!$body.hasClass("nav_open") && $body.hasClass("widescreen")) return;
-        $(window).scrollTop(0);
         toggleMenu();
       });
       $("#overlay").on("click touchstart", toggleMenu);
