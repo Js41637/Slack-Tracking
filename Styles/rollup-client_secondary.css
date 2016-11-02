@@ -1759,17 +1759,40 @@ html.is_electron_mac #rxn_toast_div {
   border-right: 1px solid #e0e0e0
 }
 
-#convo_subscription_header {
-  background-color: #f7f7f7;
+#convo_subscription_container {
   border-top: 1px solid #e0e0e0;
-  padding-left: .75rem;
-  padding-top: .3125rem;
-  padding-bottom: .3125rem
+  padding: 1rem 5rem;
+  text-align: center;
+  font-size: .8125rem
 }
 
-#convo_subscription_header label {
-  font-size: .875rem;
-  font-weight: 400;
+#convo_subscription_container button {
+  font-size: inherit;
+  min-width: 150px
+}
+
+#convo_subscription_container button ts-icon:before {
+  font-size: 1rem;
+  vertical-align: middle
+}
+
+#convo_subscription_container button[data-subscribed=true] #follow_thread_btn_unfollow,
+#convo_subscription_container button[data-subscribed=true]:hover #follow_thread_btn_following {
+  display: none
+}
+
+#convo_subscription_container button[data-subscribed=true]:hover {
+  background-color: #eb4d5c!important
+}
+
+#convo_subscription_container button[data-subscribed=true]:hover #follow_thread_btn_unfollow {
+  display: inline-block
+}
+
+#convo_subscription_container p {
+  color: #9e9ea6;
+  font-size: inherit;
+  line-height: 1.125rem;
   margin-bottom: 0
 }
 
