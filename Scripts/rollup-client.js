@@ -10673,6 +10673,9 @@
           messages_loaded: TS.client.unread.messages_loaded,
           total_unread_count: TS.client.unread.getTotalMessagesCount(),
           sort_order: TS.client.unread.getSortOrder()
+        },
+        threads: {
+          is_showing: TS.model.threads_view_is_showing
         }
       };
       _$header.html(TS.templates.channel_header(template_args));
@@ -34167,7 +34170,7 @@ var _timezones_alternative = {
         _.delay(function() {
           _delay_refresh_button = false;
           TS.client.ui.unread.showOrHideRefreshButton();
-        }, 5e3);
+        }, 2e3);
       } else {
         _delay_refresh_button = false;
       }

@@ -3398,7 +3398,12 @@ body.sorting_mode .channels_list_holder ul {
   clear: both
 }
 
-.feature_refactored_message_template .message_content_header {
+.dense_theme .message_content_header,
+.dense_theme .message_content_header_left {
+  display: inline
+}
+
+.light_theme .feature_refactored_message_template .message_content_header {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -3411,13 +3416,14 @@ body.sorting_mode .channels_list_holder ul {
   align-items: baseline
 }
 
-.feature_refactored_message_template .message_content_header_left {
+.light_theme .feature_refactored_message_template .message_content_header_left {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1
 }
 
 .msg_right_link {
+  font-style: normal;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #babbbf;
   font-size: .75rem;
@@ -3425,8 +3431,7 @@ body.sorting_mode .channels_list_holder ul {
   float: right
 }
 
-.feature_refactored_message_template .msg_right_link {
-  font-style: normal;
+.light_theme .feature_refactored_message_template .msg_right_link {
   float: none;
   -ms-flex: 0;
   -webkit-flex: 0;
@@ -12000,7 +12005,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   display: none!important
 }
 
-.mention_rxn.feature_refactored_message_template .mention_rxn_summary {
+.dense_theme .mention_rxn_summary,
+.dense_theme .mention_rxn_summary_left {
+  display: inline
+}
+
+.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -12013,7 +12023,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   align-items: baseline
 }
 
-.mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
+.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1
@@ -19279,15 +19289,18 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
+.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender,
 .dense_theme ts-message .message_content>.message_sender {
   margin-right: .25rem;
   margin-left: -.5rem
 }
 
+.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender.has_member_type_badge,
 .dense_theme ts-message .message_content>.message_sender.has_member_type_badge {
   margin-right: 0
 }
 
+.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender>.member_type_icon,
 .dense_theme ts-message .message_content>.message_sender>.member_type_icon {
   line-height: 1.0625rem
 }
@@ -19346,7 +19359,7 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message.for_mention_display {
-  padding: 0 2rem 0 0!important
+  padding: 0!important
 }
 
 .dense_theme ts-message.for_mention_display .message_gutter {

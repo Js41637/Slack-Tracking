@@ -9617,6 +9617,7 @@ TS.registerModule("constants", {
     changed_account_type_sig: new signals.Signal,
     changed_admin_perms_sig: new signals.Signal,
     changed_self_sig: new signals.Signal,
+    lazily_added_sig: new signals.Signal,
     is_in_bulk_upsert_mode: false,
     members_for_user_changed_sig: new signals.Signal,
     onStart: function() {
@@ -9684,7 +9685,9 @@ TS.registerModule("constants", {
         TS.viewmodel.teamdirectory.upsertModelOb(_.cloneDeep(member));
       }
       var upsert = TS.members.upsertMember(member);
-      if (upsert.status == "CHANGED") {
+      if (upsert.status == "ADDED" && TS.lazyLoadMembers()) {
+        TS.members.lazily_added_sig.dispatch(upsert.member);
+      } else if (upsert.status == "CHANGED") {
         if (upsert.what_changed.indexOf("profile") != -1) {
           TS.members.changed_profile_sig.dispatch(upsert.member);
         }
@@ -45336,6 +45339,9 @@ $.fn.togglify = function(settings) {
       TS.members.joined_team_sig.add(_memberJoinedTeam);
       TS.members.changed_deleted_sig.add(_memberDeletedChanged);
       TS.dnd.debouncedCheckForChanges = TS.utility.throttleFunc(TS.dnd.checkForChanges, 500, true);
+      if (TS.lazyLoadMembers()) {
+        TS.members.lazily_added_sig.add(_maybeSetDndStatusForNewMemberAndSignal);
+      }
     },
     memberDndStatus: function() {
       var in_dnd = TS.dnd.isMemberInDnd(TS.model.user);
@@ -45749,6 +45755,24 @@ $.fn.togglify = function(settings) {
     var d = new Date(ts * 1e3);
     if (include_date) return d.toTimeString() + " (" + d.toDateString() + ")";
     return d.toTimeString();
+  };
+  var _maybeSetDndStatusForNewMemberAndSignal = function(member) {
+    if (_.isEmpty(TS.model.dnd.team) || _team_fetch_in_progress) {
+      return;
+    }
+    var times = TS.model.dnd.team[member.id];
+    if (!times) return;
+    var should_have_dnd_enabled = !!times.next_dnd_start_ts;
+    if (!should_have_dnd_enabled) {
+      return;
+    }
+    var props = {
+      dnd_enabled: true,
+      next_dnd_start_ts: times.next_dnd_start_ts,
+      next_dnd_end_ts: times.next_dnd_end_ts
+    };
+    _updateUserDndProps(member.id, props);
+    TS.dnd.debouncedCheckForChanges();
   };
 })();
 (function() {

@@ -47,8 +47,8 @@ function getPageScripts() {
   console.log("Getting page scripts")
   return getPageBodys([`${URL}/admin`, `${URL}/messages`]).then(([ page1, page2 ]) => {
     let $ = cheerio.load(page1 + page2) // lmao
-    let js = chain($('script')).map(({ attribs: { src: url } }) => url && !url.match(jsRegex) ? { url, type: 'js' } : null).compact().uniq().value()
-    let css = chain($('link[type="text/css"]')).map(({ attribs: { href: url } }) => url && !url.match(/lato/) ? { url, type: 'css' } : null).compact().uniq().value()
+    let js = chain($('script')).map(({ attribs: { src: url } }) => (url && !url.match(jsRegex) && url.match(/^https?/)) ? { url, type: 'js' } : null).compact().uniq().value()
+    let css = chain($('link[type="text/css"]')).map(({ attribs: { href: url } }) => (url && !url.match(/lato/) && url.match(/^https?/)) ? { url, type: 'css' } : null).compact().uniq().value()
     console.log(`Got ${js.length} scripts and ${css.length} styles`)
     return Promise.resolve([...js, ...css])
   }).catch(err => Promise.reject(`Error fetching URLS: ${err}`))

@@ -15288,7 +15288,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   display: none!important
 }
 
-.mention_rxn.feature_refactored_message_template .mention_rxn_summary {
+.dense_theme .mention_rxn_summary,
+.dense_theme .mention_rxn_summary_left {
+  display: inline
+}
+
+.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -15301,7 +15306,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   align-items: baseline
 }
 
-.mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
+.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1
