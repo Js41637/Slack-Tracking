@@ -3863,6 +3863,7 @@
         if (TS.model.user.owner) return false;
       }
       var model_ob = TS.shared.getModelObById(channel_id);
+      if (!model_ob) return false;
       if (model_ob.is_im || model_ob.is_mpim) return false;
       if (!_.isUndefined(model_ob.is_read_only)) return model_ob.is_read_only;
       return TS.model.read_only_channels.indexOf(channel_id) > -1;
@@ -18256,7 +18257,7 @@ TS.registerModule("constants", {
           }
         }
       }
-      var should_expand = attachment._short_text && !TS.inline_attachments.shouldExpandText(TS.templates.makeMsgAttachmentTextExpanderDomId(args.msg.ts, attachment._index));
+      var should_expand = !attachment._always_expand && attachment._short_text && !TS.inline_attachments.shouldExpandText(TS.templates.makeMsgAttachmentTextExpanderDomId(args.msg.ts, attachment._index));
       var has_more = !!attachment.more;
       var ts_link = attachment.from_url || attachment.ts_link || attachment.title_link || attachment.author_link;
       var thumb_link = attachment.thumb_link || ts_link;
@@ -45852,6 +45853,7 @@ $.fn.togglify = function(settings) {
       if (!msg && model_ob._archive_msgs) msg = TS.utility.msgs.getMsg(msg_ts, model_ob._archive_msgs);
       if (!msg && TS.model.unread_view_is_showing) msg = TS.client.unread.getMessage(model_ob, msg_ts);
       if (!msg && TS.boot_data.feature_message_replies) msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
+      if (!msg && TS.boot_data.feature_message_replies_threads_view) msg = TS.client.threads.getMessage(model_ob, msg_ts, $msg.attr("data-thread-ts"));
       if (!msg) {
         TS.error(msg_ts + " not found in " + model_ob_id);
         return;
@@ -53160,6 +53162,7 @@ $.fn.togglify = function(settings) {
     attachment._source.name = attachment.author_name;
     attachment._source.author_name = attachment.author_subname;
     attachment._unfurl_type_message = true;
+    attachment._always_expand = true;
     return attachment;
   };
   var _removeDuplicativeLinks = function(attachment) {

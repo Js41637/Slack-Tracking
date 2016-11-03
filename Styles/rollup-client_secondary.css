@@ -19288,6 +19288,10 @@ ts-message .emoji-sizer .mention {
   margin-left: 2.875rem
 }
 
+.light_theme .thread_channel_name {
+  margin-left: 1.625rem
+}
+
 .dense_theme .dense_only {
   display: inline
 }
@@ -19463,6 +19467,10 @@ ts-message .emoji-sizer .mention {
   margin-left: 4.5rem
 }
 
+.dense_theme .thread_channel_name {
+  margin-left: .375rem
+}
+
 .last_replier_wrapper {
   position: relative;
   vertical-align: top;
@@ -19498,9 +19506,7 @@ ts-message .emoji-sizer .mention {
 ts-thread {
   display: block;
   padding-top: 1rem;
-  padding-bottom: 1rem;
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .9375rem
+  padding-bottom: 1rem
 }
 
 ts-thread .view_all_replies {
