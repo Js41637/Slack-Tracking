@@ -770,9 +770,9 @@
       }
       if (member.deleted && !TS.boot_data.page_needs_enterprise) {
         if (member_type == "Member") {
-          member_type = "Disabled Account";
+          member_type = "Deactivated Account";
         } else {
-          member_type = "Disabled " + member_type;
+          member_type = "Deactivated " + member_type;
         }
       }
       return member_type;
@@ -2112,7 +2112,7 @@
         list_items: results.restricted
       }, {
         name: "disabled",
-        label: "disabled accounts",
+        label: "deactivated accounts",
         list_items: results.disabled
       }];
       tabs.forEach(function(tab) {

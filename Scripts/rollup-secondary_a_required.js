@@ -11855,7 +11855,7 @@ TS.registerModule("constants", {
       matches: restricted_matches
     }, {
       name: "disabled",
-      label: "disabled accounts",
+      label: "deactivated accounts",
       matches: disabled_matches
     }];
     tabs.forEach(function(tab) {
@@ -12153,7 +12153,7 @@ TS.registerModule("constants", {
           matches: restricted_matches
         }, {
           name: "disabled",
-          label: "disabled accounts",
+          label: "deactivated accounts",
           matches: disabled_matches
         }];
         tabs.forEach(function(tab) {
@@ -37289,7 +37289,7 @@ var _on_esc;
     invalid_email: "That doesn't look like a valid email address!",
     already_in_team: "This person is already on your team.",
     user_disabled: function() {
-      return 'This person is already on your team, but their account is disabled. You can <a href="' + TS.model.team_url + '#disabled">manage</a> their account.';
+      return 'This person is already on your team, but their account is deactivated. You can <a href="' + TS.model.team_url + '#disabled">manage</a> their account.';
     },
     already_invited: "This person has already been invited to your team.",
     sent_recently: "This person was recently invited. No need to invite them again just yet.",
@@ -37301,8 +37301,8 @@ var _on_esc;
     domain_mismatch: "Your SSO settings prevent you from inviting people from this email domain.",
     invite_limit_reached: "You've exceeded the limit on invitations. Once more people have accepted the ones you’ve sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/en-us/articles/201330256#invitation_limits'>more details on invitation limits</a>.",
     too_long: "This person's name exceeds the 35-character limit.",
-    org_user_is_disabled: "This person has a disabled account for your organization.",
-    org_user_is_disabled_but_present: "This person is already on your team, but they have been disabled by your organization. Contact an organization administrator to re-enable their account",
+    org_user_is_disabled: "This person has a deactivated account for your organization.",
+    org_user_is_disabled_but_present: "This person is already on your team, but they have been deactivated by your organization. Contact an organization administrator to re-enable their account",
     mismatch_with_pending_team_invite: function(data) {
       var account_type;
       switch (data.user_type) {

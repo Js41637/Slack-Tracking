@@ -6594,7 +6594,7 @@
       TS.client.ui.getCachedDimensionsRect("cached_channels_scroller_rect", TS.client.channel_pane.$scroller);
       var unseen_above, unseen_below, unseen_above_has_mention, unseen_below_has_mention = false;
       var $unreads;
-      $unreads = TS.client.channel_pane.$scroller.find("li.unread:not(.muted_channel):not(.all_unreads)");
+      $unreads = TS.client.channel_pane.$scroller.find("li.unread:not(.muted_channel):not(.all_unreads):not(.all_threads)");
       $unreads.each(function() {
         var $li = $(this);
         if (!TS.client.ui.isElInView($li, 10, TS.model.ui.cached_channels_scroller_rect)) {

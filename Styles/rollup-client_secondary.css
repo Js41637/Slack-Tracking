@@ -18611,8 +18611,7 @@ ts-thread {
   padding-bottom: 1rem
 }
 
-ts-thread .view_all_replies {
-  display: block;
+ts-thread .view_all_replies_container {
   padding-top: .3125rem;
   padding-bottom: .375rem
 }
