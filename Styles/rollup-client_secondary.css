@@ -2268,7 +2268,11 @@ body.incremental_boot #col_channels .header_count {
   content: '\E518'
 }
 
-#all-unreads-list+#all_threads_nav .all_threads {
+#all_threads_nav {
+  margin-top: .3125rem
+}
+
+#all_threads_nav .all_threads {
   margin-top: -.3125rem
 }
 

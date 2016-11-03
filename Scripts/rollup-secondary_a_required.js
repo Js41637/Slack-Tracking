@@ -43714,22 +43714,16 @@ $.fn.togglify = function(settings) {
       });
       _bindUI(invite_members);
       if (TS.model.user.is_admin) {
-        TS.experiment.loadUserAssignments().then(function() {
-          var existing_group = TS.experiment.getGroup("invite_pending_user_existing");
-          var new_group = TS.experiment.getGroup("invite_pending_user_new");
-          if (existing_group === "treatment" || new_group === "treatment") {
-            return TS.api.call("users.admin.invited").then(function(resp) {
-              var pending_invites = TS.pending_users.filterOutURAs(resp.data.pending);
-              if (_$modal_container && pending_invites.length) {
-                pending_invites.forEach(function(invitee) {
-                  TS.pending_users.sanitizeNameFields(invitee);
-                });
-                invite_members = invite_members.concat(pending_invites).sort(function(a, b) {
-                  return TS.pending_users.usersSorterByName(a, b);
-                });
-                _updateFilterSelect(invite_members);
-              }
+        TS.api.call("users.admin.invited").then(function(resp) {
+          var pending_invites = TS.pending_users.filterOutURAs(resp.data.pending);
+          if (_$modal_container && pending_invites.length) {
+            pending_invites.forEach(function(invitee) {
+              TS.pending_users.sanitizeNameFields(invitee);
             });
+            invite_members = invite_members.concat(pending_invites).sort(function(a, b) {
+              return TS.pending_users.usersSorterByName(a, b);
+            });
+            _updateFilterSelect(invite_members);
           }
         });
       }
