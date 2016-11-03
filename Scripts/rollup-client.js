@@ -6940,11 +6940,10 @@
             $member_count.html('<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon> ' + display_member_count);
           } else {
             $member_count.text(TS.i18n.t("{member_count,plural,=1{{member_count} member}other{{member_count} members}}", {
-              data: {
-                member_count: display_member_count
-              },
               ns: "channel",
               note: "The number of users in a channel"
+            })({
+              member_count: display_member_count
             }));
           }
           var tooltip_text;
@@ -24803,7 +24802,7 @@
       }
       var loading_text = TS.i18n.t("Loading...", {
         note: "Let the user know that the page is loading"
-      });
+      })();
       TS.client.archives.$archives_msgs_div.html('<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>");
       _showing_id = model_ob.id + (msg_id || "");
       _msg_id = msg_id || null;
@@ -25254,52 +25253,49 @@
       $("#footer_archives").removeClass("hidden");
       if (model_ob.is_archived) {
         archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, an archived channel", {
-          data: {
-            hash: hash,
-            channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
-            shared: shared
-          },
           ns: "archives",
           note: "The channel preview information for users who have not joined an archived channel"
+        })({
+          hash: hash,
+          channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
+          shared: shared
         });
         action_tip_html = TS.i18n.t('<strong aria-label="return">Esc</strong> to close', {
           ns: "archives",
           note: 'A hint for a keyboard event that does the same thing as the "Close Channel" button'
-        });
+        })();
         $("#footer_archives_text").html('<span class="tiny dialog_cancel_hint">' + archive_html + "</span>");
         $("#footer_archives_action_button").text(TS.i18n.t("Close Channel", {
           ns: "archives"
-        }));
+        })());
         $("#footer_archives_action_tip").html(action_tip_html);
       } else {
         archive_html = TS.i18n.t("You are viewing a preview of <strong>{hash}{channel_name}{shared}</strong>", {
-          data: {
-            hash: hash,
-            channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
-            shared: shared
-          },
           ns: "archives",
           note: "The channel preview information for users who have not joined an active channel"
+        })({
+          hash: hash,
+          channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
+          shared: shared
         });
         action_tip_html = TS.i18n.t('<strong aria-label="return">Return <span class="return_char">&crarr;</span></strong> to join', {
           ns: "archives",
           note: 'A hint for a keyboard event that does the same thing as the "Join Channel" button'
-        });
+        })();
         $("#footer_archives_text").html('<span class="tiny dialog_cancel_hint">' + archive_html + "</span>");
         $("#footer_archives_action_button").text(TS.i18n.t("Join Channel", {
           ns: "archives"
-        })).removeClass("btn_outline");
+        })()).removeClass("btn_outline");
         $("#footer_archives_action_tip").html(action_tip_html);
       }
       TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
     } else {
       TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, TS.i18n.t("You are viewing the archives of {hash}{channel_name}", {
-        data: {
-          hash: placeholder_hash,
-          channel_name: model_ob.name
-        },
         ns: "archives",
         note: "An input placeholder when the user is viewing an archived messages (usually a jump link from search)"
+      })({
+        hash: placeholder_hash,
+        channel_name: model_ob.name
       }));
     }
   };
@@ -25326,7 +25322,7 @@
     if (_loading_bottom) {
       txt = TS.i18n.t("retrieving history...", {
         ns: "archives"
-      });
+      })();
     } else if (_all_loaded_bottom) {
       if (_msg_id) {
         txt = "&nbsp;";
@@ -25336,7 +25332,7 @@
     } else {
       txt = '<a onclick="TS.client.archives.loadMoreBottom()">' + TS.i18n.t("and more...", {
         ns: "archives"
-      }) + "</a>";
+      })() + "</a>";
     }
     $("#archives_bottom_div").html(txt);
   };
@@ -25345,15 +25341,15 @@
     if (_loading_top) {
       txt = TS.i18n.t("retrieving history...", {
         ns: "archives"
-      });
+      })();
     } else if (_all_loaded_top) {
       txt = TS.i18n.t("~FIN~", {
         ns: "archives"
-      });
+      })();
     } else {
       txt = '<a onclick="TS.client.archives.loadMoreTop()">' + TS.i18n.t("and more...", {
         ns: "archives"
-      }) + "</a>";
+      })() + "</a>";
     }
     $("#archives_top_div").html(txt);
   };

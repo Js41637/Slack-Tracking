@@ -3526,47 +3526,55 @@
   "use strict";
   TS.registerModule("i18n", {
     onStart: function() {
-      _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
-      if (_is_dev) {
-        var lang = location.search.match(new RegExp("lang=(.*?)($|&)", "i"));
-        if (lang && _TRANSLATIONS[lang[1]]) {
-          TS.i18n.locale = lang[1];
-        }
-      }
-      if (!TS.i18n.locale) {
-        TS.i18n.locale = TS.boot_data && TS.boot_data.locale ? TS.boot_data.locale : _DEFAULT_LOCALE;
-      }
-      if (TS.i18n.locale === _PSEUDO_LOCALE) {
-        _is_pseudo = true;
-        TS.i18n.locale = _DEFAULT_LOCALE;
-      } else {
-        TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
-      }
-      _translations = _TRANSLATIONS[TS.i18n.locale] || {};
-      if (_is_dev) _textarea = document.createElement("textarea");
+      if (!_is_setup) _setup();
     },
     t: function(key, options) {
+      if (!_is_setup) _setup();
       options = options || {};
       var translations = options.ns ? _namespaced(options.ns) : _translations;
       var translation = translations[key];
       if (translation === undefined) {
-        translation = new MessageFormat(TS.i18n.locale, key).format(options.data || {});
-        if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) return translation;
-        if (!_is_pseudo) {
-          TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
+        if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) {
+          translations[key] = new MessageFormat(TS.i18n.locale, key).format;
+        } else {
+          translations[key] = function(data) {
+            if (!_is_pseudo) {
+              TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
+            }
+            var str = new MessageFormat(TS.i18n.locale, key).format(data);
+            return _getPseudoTranslation(str);
+          };
         }
-        return _getPseudoTranslation(translation);
-      }
-      if (typeof translation !== "function") {
+      } else if (typeof translation !== "function") {
         translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
       }
-      return translations[key](options.data || {});
+      return translations[key];
     }
   });
+  var _is_setup;
   var _translations;
   var _is_dev;
   var _is_pseudo;
   var _textarea;
+  var _setup = function() {
+    _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
+    if (_is_dev) {
+      var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
+      if (locale) TS.i18n.locale = locale[1];
+    }
+    if (!TS.i18n.locale) {
+      TS.i18n.locale = TS.boot_data && TS.boot_data.locale ? TS.boot_data.locale : _DEFAULT_LOCALE;
+    }
+    if (TS.i18n.locale === _PSEUDO_LOCALE) {
+      _is_pseudo = true;
+      TS.i18n.locale = _DEFAULT_LOCALE;
+    } else {
+      TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
+    }
+    _translations = _TRANSLATIONS[TS.i18n.locale] || {};
+    if (_is_dev) _textarea = document.createElement("textarea");
+    _is_setup = true;
+  };
   var _namespaced = function(namespace) {
     var parts = namespace.split(".");
     if (parts.length > 1) {

@@ -3802,24 +3802,20 @@
     channel.has_fetched_history_after_scrollback = false;
     if (TS.client) {
       if (TS._incremental_boot && channel.msgs && channel.msgs.length > 0) {
-        channel.oldest_msg_ts = null;
-        channel.last_msg_input = null;
         channel.msgs = channel.msgs.map(function(msg) {
           return TS.utility.msgs.processImsg(msg, channel.id);
         });
         TS.utility.msgs.setMsgs(channel, channel.msgs);
       } else {
-        channel.oldest_msg_ts = null;
-        channel.last_msg_input = null;
         TS.utility.msgs.setMsgs(channel, []);
       }
     } else {
-      channel.oldest_msg_ts = TS.storage.fetchOldestTs(channel.id);
-      channel.last_msg_input = TS.storage.fetchLastMsgInput(channel.id);
       if (TS.boot_data.msgs) {
         TS.utility.msgs.ingestMessagesFromBootData(channel);
       }
     }
+    channel.oldest_msg_ts = TS.storage.fetchOldestTs(channel.id) || null;
+    channel.last_msg_input = TS.storage.fetchLastMsgInput(channel.id) || null;
     if (TS.model.created_channels[channel.name]) {
       channel.needs_created_message = true;
       delete TS.model.created_channels[channel.name];
@@ -5029,24 +5025,20 @@ TS.registerModule("constants", {
     group.has_fetched_history_after_scrollback = false;
     if (TS.client) {
       if (TS._incremental_boot && group.msgs && group.msgs.length > 0) {
-        group.oldest_msg_ts = null;
-        group.last_msg_input = null;
         group.msgs = group.msgs.map(function(msg) {
           return TS.utility.msgs.processImsg(msg, group.id);
         });
         TS.utility.msgs.setMsgs(group, group.msgs);
       } else {
-        group.oldest_msg_ts = null;
-        group.last_msg_input = null;
         TS.utility.msgs.setMsgs(group, []);
       }
     } else {
-      group.oldest_msg_ts = TS.storage.fetchOldestTs(group.id);
-      group.last_msg_input = TS.storage.fetchLastMsgInput(group.id);
       if (TS.boot_data.msgs) {
         TS.utility.msgs.ingestMessagesFromBootData(group);
       }
     }
+    group.oldest_msg_ts = TS.storage.fetchOldestTs(group.id) || null;
+    group.last_msg_input = TS.storage.fetchLastMsgInput(group.id) || null;
     if (TS.model.created_groups[group.name]) {
       delete TS.model.created_groups[group.name];
     }
@@ -7279,24 +7271,20 @@ TS.registerModule("constants", {
     im.has_fetched_history_after_scrollback = false;
     if (TS.client) {
       if (TS._incremental_boot && im.msgs && im.msgs.length > 0) {
-        im.oldest_msg_ts = null;
-        im.last_msg_input = null;
         im.msgs = im.msgs.map(function(msg) {
           return TS.utility.msgs.processImsg(msg, im.id);
         });
         TS.utility.msgs.setMsgs(im, im.msgs);
       } else {
-        im.oldest_msg_ts = null;
-        im.last_msg_input = null;
         TS.utility.msgs.setMsgs(im, []);
       }
     } else {
-      im.oldest_msg_ts = TS.storage.fetchOldestTs(im.id);
-      im.last_msg_input = TS.storage.fetchLastMsgInput(im.id);
       if (TS.boot_data.msgs) {
         TS.utility.msgs.ingestMessagesFromBootData(im);
       }
     }
+    im.oldest_msg_ts = TS.storage.fetchOldestTs(im.id) || null;
+    im.last_msg_input = TS.storage.fetchLastMsgInput(im.id) || null;
   };
 })();
 (function() {
@@ -7913,24 +7901,20 @@ TS.registerModule("constants", {
     if (TS.client) {
       TS.shared.maybeResetHistoryFetched(mpim_group);
       if (TS._incremental_boot && mpim_group.msgs && mpim_group.msgs.length > 0) {
-        mpim_group.oldest_msg_ts = null;
-        mpim_group.last_msg_input = null;
         mpim_group.msgs = mpim_group.msgs.map(function(msg) {
           return TS.utility.msgs.processImsg(msg, mpim_group.id);
         });
         TS.utility.msgs.setMsgs(mpim_group, mpim_group.msgs);
       } else {
-        mpim_group.oldest_msg_ts = null;
-        mpim_group.last_msg_input = null;
         TS.utility.msgs.setMsgs(mpim_group, []);
       }
     } else {
-      mpim_group.oldest_msg_ts = TS.storage.fetchOldestTs(mpim_group.id);
-      mpim_group.last_msg_input = TS.storage.fetchLastMsgInput(mpim_group.id);
       if (TS.boot_data.msgs) {
         TS.utility.msgs.ingestMessagesFromBootData(mpim_group);
       }
     }
+    mpim_group.oldest_msg_ts = TS.storage.fetchOldestTs(mpim_group.id);
+    mpim_group.last_msg_input = TS.storage.fetchLastMsgInput(mpim_group.id);
   };
 })();
 (function() {
@@ -9533,17 +9517,8 @@ TS.registerModule("constants", {
           resolve(TS.ims.upsertIm(resp.data.im));
           TS.model.reportResultOfUnknownIdHandled(c_id, true);
         }, function(ret) {
-          TS.warn((ret.data && ret.data.error || "unknown error") + " try #" + tries + " calling im.info with channel:" + c_id);
-          return TS.api.callImmediately("im.meta", {
-            channel: c_id
-          }).then(function(resp) {
-            TS.warn("im.info failed, but im.meta OK for " + c_id);
-            resolve(TS.ims.upsertIm(resp.data.im));
-            TS.model.reportResultOfUnknownIdHandled(c_id, true);
-          }, function(ret) {
-            reject(Error((ret.data && ret.data.error || "unknown error") + " try #" + tries + " calling im.meta with channel:" + c_id));
-            TS.model.reportResultOfUnknownIdHandled(c_id, false);
-          });
+          reject(Error((ret.data && ret.data.error || "unknown error") + " try #" + tries + " calling im.info with channel:" + c_id));
+          TS.model.reportResultOfUnknownIdHandled(c_id, false);
         });
       }
     });
@@ -18317,6 +18292,15 @@ TS.registerModule("constants", {
           break_border: args.break_border,
           caret_location: TS.utility.attachments.getMediaCaretLocation(attachment)
         });
+        attachment_args.applied_classes = TS.utility.getAppliedClasses({
+          inline_attachment: true,
+          standalone: attachment_args.is_standalone,
+          has_thumb: attachment_args.has_thumb,
+          can_delete: attachment_args.can_delete,
+          clickable: attachment.from_url && attachment_args.has_container,
+          message_unfurl: attachment._unfurl_type_message,
+          is_pinned: TS.boot_data.feature_pin_update && attachment.is_pinned
+        });
         return TS.templates.message_attachment(attachment_args);
       } else {
         var expand_it = true;
@@ -21109,9 +21093,8 @@ TS.registerModule("constants", {
           data[item] = options.hash[item];
         }
         var str = TS.i18n.t(key, {
-          data: data,
           ns: ns
-        });
+        })(data);
         for (item in modified_items) {
           data[item] = modified_items[item];
         }
@@ -25913,6 +25896,12 @@ TS.registerModule("constants", {
         }
       }
       return icon_class;
+    },
+    getAppliedClasses: function(class_map) {
+      return _.reduce(class_map, function(result, value, key) {
+        if (!!value) result.push(key);
+        return result;
+      }, []).join(" ");
     },
     convertFilesize: function(size) {
       size = parseInt(size);
@@ -37341,7 +37330,6 @@ var _on_esc;
       return message;
     }
   };
-  var _blocking_errors = ["user_limit_reached", "invite_limit_reached"];
   var _start = function(options) {
     var account_type;
     if (_shouldSeeAccountTypeOptions()) {
@@ -37885,52 +37873,24 @@ var _on_esc;
         _custom_message = "";
       }
       _queue_size = invites.length;
-      if (TS.boot_data.feature_invitebulk_method_in_modal) {
-        var invites_array = [];
-        _.each(invites, function(invite) {
-          var args = {
-            email: invite.email
-          };
-          if (invite.full_name) args.full_name = invite.full_name;
-          if (invite.first_name) args.first_name = invite.first_name;
-          if (invite.last_name) args.last_name = invite.last_name;
-          if (account_type == "restricted") {
-            args.type = "restricted";
-          } else if (account_type == "ultra_restricted") {
-            args.type = "ultra_restricted";
-          } else {
-            args.type = "regular";
-          }
-          invites_array.push(args);
-        });
-        var api_args = {
-          invites: JSON.stringify(invites_array),
+      $.each(invites, function(index, invite) {
+        var args = {
+          email: invite.email,
           source: "invite_modal",
           mode: invite_mode
         };
-        if (channels) api_args.channels = channels;
-        if (_custom_message) api_args.extra_message = _custom_message;
-        TS.api.call("users.admin.inviteBulk", api_args, _onInvitesSent);
-      } else {
-        $.each(invites, function(index, invite) {
-          var args = {
-            email: invite.email,
-            source: "invite_modal",
-            mode: invite_mode
-          };
-          if (channels) args.channels = channels;
-          if (_custom_message) args.extra_message = _custom_message;
-          if (invite.full_name) args.full_name = invite.full_name;
-          if (invite.first_name) args.first_name = invite.first_name;
-          if (invite.last_name) args.last_name = invite.last_name;
-          if (account_type == "restricted") {
-            args.restricted = 1;
-          } else if (account_type == "ultra_restricted") {
-            args.ultra_restricted = 1;
-          }
-          TS.api.call("users.admin.invite", args, _onInviteSent);
-        });
-      }
+        if (channels) args.channels = channels;
+        if (_custom_message) args.extra_message = _custom_message;
+        if (invite.full_name) args.full_name = invite.full_name;
+        if (invite.first_name) args.first_name = invite.first_name;
+        if (invite.last_name) args.last_name = invite.last_name;
+        if (account_type == "restricted") {
+          args.restricted = 1;
+        } else if (account_type == "ultra_restricted") {
+          args.ultra_restricted = 1;
+        }
+        TS.api.call("users.admin.invite", args, _onInviteSent);
+      });
     }
   };
   var _onInviteSent = function(ok, data, args) {
@@ -37974,61 +37934,6 @@ var _on_esc;
       }
     }
     _decrementInviteQueue();
-  };
-  var _onInvitesSent = function(ok, data, args) {
-    if (ok) {
-      _.each(data.invites, function(invite) {
-        _processInviteResponseObj(invite);
-      });
-    } else {
-      if (_.isArray(data.error)) {
-        _.each(data.error, function(error) {
-          var $row = _selectRow(error.email);
-          _rowError($row, error.reason);
-        });
-        setTimeout(Ladda.stopAll, 0);
-      } else if (_.isArray(data.invites)) {
-        _.each(data.invites, function(invite) {
-          _processInviteResponseObj(invite);
-        });
-      } else {
-        var error_msg = _getError(data) || "We're sorry, but something went wrong with these invites. Please try again later!";
-        var message_html = '<i class="ts_icon ts_icon_warning"></i> ' + error_msg;
-        _showInfoMessage("alert_error", message_html);
-        setTimeout(Ladda.stopAll, 0);
-        if (_.includes(_blocking_errors, data.error)) _shouldDisableSubmitButton(true);
-      }
-    }
-  };
-  var _processInviteResponseObj = function(invite) {
-    if (!invite.error) {
-      _success_invites.push({
-        email: invite.email,
-        full_name: invite.full_name,
-        first_name: invite.first_name,
-        last_name: invite.last_name
-      });
-      var $row = _selectRow(invite.email);
-      _removeRow($row);
-      _decrementInviteQueue();
-    } else if (invite.error == "requires_channel") {
-      setTimeout(Ladda.stopAll, 0);
-      _$div.find("#ra_channel_picker_header").highlightText();
-      var message_html = '<i class="ts_icon ts_icon_info_circle"></i> Pick at least one channel before inviting ' + TS.templates.builders.raLabel("Restricted Accounts") + ".";
-      _showInfoMessage("alert_warning", message_html);
-    } else if (invite.error == "requires_one_channel") {
-      setTimeout(Ladda.stopAll, 0);
-      _$div.find("#ura_channel_picker_header").highlightText();
-      var message_html = '<i class="ts_icon ts_icon_info_circle"></i> Pick a channel before inviting Single-Channel Guests.';
-      _showInfoMessage("alert_warning", message_html);
-    } else {
-      _error_invites.push({
-        email: invite.email,
-        error: invite.error,
-        error_msg: _getError(invite) || _error_map["invite_failed"]
-      });
-      _decrementInviteQueue();
-    }
   };
   var _decrementInviteQueue = function() {
     _queue_size--;
