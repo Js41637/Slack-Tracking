@@ -41546,9 +41546,7 @@ var _on_esc;
     if ($el.is("input") || $el.is("textarea")) {
       var value = $el.val();
       var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
-      var current_model_ob = TS.shared.getActiveModelOb();
       if (!other_channel) return true;
-      if (_.get(other_channel, "id") === _.get(current_model_ob, "id")) return true;
       return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(value) + '"' + " is already taken by a channel, username, or user group.", options);
     } else {
       return void TS.error("WTF: cannot validate");
@@ -43915,7 +43913,7 @@ $.fn.togglify = function(settings) {
         } else if (data.error == "restricted_action") {
           _showError("Sorry! An admin on your team has restricted who can create public channels.");
         } else {
-          TS.error("Failed to create private channel: " + data.error);
+          TS.error("Failed to create public channel: " + data.error);
           _showError("Sorry! Something went wrong.");
         }
         return;
