@@ -11119,8 +11119,52 @@ TS.registerModule("constants", {
       }).filter(function(field) {
         return !!field;
       });
+    },
+    ensureEntireTeamLoaded: function() {
+      if (_entire_team_loaded) return Promise.resolve();
+      if (_fetch_all_members_p) return _fetch_all_members_p;
+      if (!TS.model.ms_connected) {
+        TS.log(1989, "Flannel: team directory can't fetch the team until we're connected, so waiting for that to happen.");
+        _fetch_all_members_p = new Promise(function(resolve) {
+          TS.ms.connected_sig.addOnce(function() {
+            TS.log(1989, "Flannel: connected! Starting to fetch the entire team.");
+            _fetch_all_members_p = undefined;
+            TS.team.ensureEntireTeamLoaded().then(function() {
+              TS.log(1989, "Flannel: team has been fetched.");
+              resolve();
+            });
+          });
+        });
+        return _fetch_all_members_p;
+      }
+      _fetch_all_members_p = TS.flannel.fetchAndUpsertAllMembersOnTeam().then(function() {
+        TS.log(1989, "Flannel: setting _entire_team_loaded to true");
+        _entire_team_loaded = true;
+      }).finally(function() {
+        TS.log(1989, "Flannel: unsetting _fetch_all_members_p");
+        _fetch_all_members_p = undefined;
+      });
+      return _fetch_all_members_p;
+    },
+    isEntireTeamLoaded: function() {
+      return _entire_team_loaded;
+    },
+    getBestEffortTotalTeamSize: function() {
+      if (TS.lazyLoadMembers()) {
+        var general = TS.channels.getGeneralChannel();
+        if (general) {
+          return general.members.length;
+        } else {
+          return _(TS.channels.getChannelsForUser()).map(function(channel) {
+            return channel.members.length;
+          }).max();
+        }
+      }
+      return TS.model.members.length;
     }
   });
+  var _entire_team_loaded = false;
+  var _fetch_all_members_p;
   var _promise_to_get_team_profile;
   var _getTeamProfileOnNextRequest = function() {
     _promise_to_get_team_profile = null;
@@ -11656,6 +11700,7 @@ TS.registerModule("constants", {
     TS.error("Missing arguments for a bound filter");
   };
   var _updateTabCounts = function() {
+    if (TS.lazyLoadMembers() && TS.boot_data.feature_fresh_team_directory) return;
     var members_count = _filters.members.filter_num_found - _filters.filtered_items.bots.length;
     var restricted_count = _filters.restricted.filter_num_found || 0;
     var deleted_count = _filters.deleted.filter_num_found || 0;
@@ -11725,8 +11770,18 @@ TS.registerModule("constants", {
     var promiseToFilter = function() {
       return Promise.resolve().then(function() {
         if (scroller_id !== "#team_list_scroller") return Promise.reject();
+        if (TS.lazyLoadMembers() && TS.boot_data.feature_fresh_team_directory) {
+          return TS.members.promiseToSearchMembers({
+            query: _query_for_match,
+            include_org: true,
+            full_profile_filter: full_profile_filter,
+            include_bots: include_bots,
+            include_deleted: include_deleted
+          });
+        }
         return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
-      }).then(function(items) {
+      }).then(function(response) {
+        var items = TS.lazyLoadMembers() && TS.boot_data.feature_fresh_team_directory ? response.items : response;
         _displayPromiseToSearchResults(items, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
         _stopSpinner(filter_container_id);
       }).finally(function() {
@@ -11784,11 +11839,18 @@ TS.registerModule("constants", {
   var _displayPromiseToSearchResults = function(items, filters, new_query, query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
     if (!items) return;
     _updateTabCounts();
-    var team_list_items;
-    if (TS.client) {
-      team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
-    } else {
-      team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
+    if (!TS.lazyLoadMembers()) {
+      var team_list_items;
+      if (TS.client) {
+        team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
+      } else {
+        team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
+      }
+    }
+    if (TS.boot_data.feature_fresh_team_directory) {
+      var items = TS.lazyLoadMembers() ? items : team_list_items.active_members_list_items;
+      TS.client.ui.team_list.getLongListView().longListView("setItems", items, true);
+      return;
     }
     var need_to_reset_current_subtab = false;
     if ("disabled_members" === TS.model.ui_state.tab_name && 0 === (_filters.deleted.filter_num_found || 0)) need_to_reset_current_subtab = true;

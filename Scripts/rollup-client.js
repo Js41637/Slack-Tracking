@@ -2610,12 +2610,13 @@
     },
     rebuildTeamList: _.noop(),
     rebuildTeamListThrottled: function(ignore_cache) {
+      if (TS.boot_data.feature_fresh_team_directory) return;
       if (TS.lazyLoadMembers()) {
         if (!TS.model.ui_state.flex_visible || TS.model.ui_state.flex_name !== "team") {
           TS.view.last_team_list_html = null;
           return;
         }
-        _ensureEntireTeamLoaded().then(function() {
+        TS.team.ensureEntireTeamLoaded().then(function() {
           TS.log(1989, "Flannel: team directory fully loaded. Rendering ...");
           TS.view.rebuildTeamListSync(ignore_cache);
           TS.metrics.mark("team_directory_time_to_first_member");
@@ -2631,7 +2632,7 @@
       }
     },
     rebuildTeamListSyncAlwaysLongList: function(ignore_cache) {
-      if (TS.lazyLoadMembers() && !_entire_team_loaded) {
+      if (TS.lazyLoadMembers() && !TS.team.isEntireTeamLoaded()) {
         throw new Error("Flannel: team list can only be built after the entire team has been loaded");
       }
       if (ignore_cache) TS.view.last_team_list_html = null;
@@ -2750,7 +2751,7 @@
         TS.view.rebuildTeamListSyncAlwaysLongList.apply(this, [].slice.call(arguments, 0));
         return;
       }
-      if (TS.lazyLoadMembers() && !_entire_team_loaded) {
+      if (TS.lazyLoadMembers() && !TS.team.isEntireTeamLoaded()) {
         throw new Error("Flannel: team list can only be built after the entire team has been loaded");
       }
       if (ignore_cache) {
@@ -3301,34 +3302,6 @@
     if (cursor_pos) {
       TS.model.input_cursor_positions[c_id] = cursor_pos;
     }
-  };
-  var _entire_team_loaded = false;
-  var _fetch_all_members_p;
-  var _ensureEntireTeamLoaded = function() {
-    if (_entire_team_loaded) return Promise.resolve();
-    if (_fetch_all_members_p) return _fetch_all_members_p;
-    if (!TS.model.ms_connected) {
-      TS.log(1989, "Flannel: team directory can't fetch the team until we're connected, so waiting for that to happen.");
-      _fetch_all_members_p = new Promise(function(resolve) {
-        TS.ms.connected_sig.addOnce(function() {
-          TS.log(1989, "Flannel: connected! Starting to fetch the entire team.");
-          _fetch_all_members_p = undefined;
-          _ensureEntireTeamLoaded().then(function() {
-            TS.log(1989, "Flannel: team has been fetched.");
-            resolve();
-          });
-        });
-      });
-      return _fetch_all_members_p;
-    }
-    _fetch_all_members_p = TS.flannel.fetchAndUpsertAllMembersOnTeam().then(function() {
-      TS.log(1989, "Flannel: setting _entire_team_loaded to true");
-      _entire_team_loaded = true;
-    }).finally(function() {
-      TS.log(1989, "Flannel: unsetting _fetch_all_members_p");
-      _fetch_all_members_p = undefined;
-    });
-    return _fetch_all_members_p;
   };
 })();
 (function() {
@@ -7124,7 +7097,13 @@
       $("#member_preview_container").hideWithRememberedScrollTop();
       $("#team_list_container").unhideWithRememberedScrollTop();
       TS.view.resizeManually("TS.client.ui._displayTeamList");
-      TS.view.triggerInitialTeamListLazyLoad();
+      if (TS.boot_data.feature_fresh_team_directory) {
+        TS.client.ui.team_list.showInitial({
+          $container: $("#team_list_container")
+        });
+      } else {
+        TS.view.triggerInitialTeamListLazyLoad();
+      }
       return true;
     },
     previewUserGroup: function(id, origin) {
@@ -9186,6 +9165,101 @@
       $("#recent_mentions_toggle .ts_tip_tip").text("Show Mentions & Reactions");
     }
     $("#stars_toggle .ts_tip_tip").text("Show Starred Items");
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("client.ui.team_list", {
+    showInitial: function(options) {
+      $_container = options.$container;
+      if (TS.lazyLoadMembers() && TS.team.getBestEffortTotalTeamSize() <= _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
+        return TS.team.ensureEntireTeamLoaded.then(function() {
+          _loadSearchBar();
+          _loadLocalMembersIntoLongListView();
+          return null;
+        });
+      }
+      if (TS.lazyLoadMembers()) {
+        return Promise.resolve().then(function() {
+          _loadSearchBar();
+          _loadLongListView({
+            items: []
+          });
+          return null;
+        });
+      }
+      return Promise.resolve().then(function() {
+        _loadSearchBar();
+        _loadLocalMembersIntoLongListView();
+        return null;
+      });
+    },
+    getLongListView: function() {
+      return $_long_list_view;
+    }
+  });
+  var _MINIMUM_MEMBERS_FOR_SEARCH = 10;
+  var _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL = 100;
+  var _approx_item_height = 92;
+  var _approx_divider_height = 40;
+  var $_container;
+  var $_long_list_view;
+  var _loadLocalMembersIntoLongListView = function(options) {
+    var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
+    _loadLongListView({
+      items: members_for_user.members
+    });
+  };
+  var _loadSearchBar = function() {
+    if (TS.team.getBestEffortTotalTeamSize() >= _MINIMUM_MEMBERS_FOR_SEARCH) {
+      $_container.find("#team_list_scroller").before(TS.templates.team_search_bar({
+        show_search: true,
+        show_filters: false
+      }));
+      var search_full_profiles = true;
+      var is_long_list_view = true;
+      var include_bots = true;
+      var include_deleted = true;
+      TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", search_full_profiles, is_long_list_view, include_bots, include_deleted);
+    }
+  };
+  var _loadLongListView = function(options) {
+    $_long_list_view = $_container.find("#team_list_scroller");
+    $_long_list_view.longListView({
+      items: options.items,
+      approx_item_height: _approx_item_height,
+      approx_divider_height: _approx_divider_height,
+      preserve_dom_order: true,
+      makeElement: function(data) {
+        return $(TS.templates.team_list_item({
+          is_long_list_view: true
+        }));
+      },
+      makeDivider: function(data) {
+        return $("<div></div>");
+      },
+      renderItem: function($el, item, data) {
+        $el.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item", item);
+        $el.html(TS.templates.team_list_item_member_details({
+          member: item,
+          is_long_list_view: true
+        }));
+        TS.utility.makeSureAllLinksHaveTargets($el);
+      },
+      renderDivider: function($el, item, data) {
+        $el.data("item", item).html(TS.templates.team_list_item_divider(item));
+      },
+      calcItemHeight: function($el) {
+        var outer_height = $el.outerHeight();
+        if (!outer_height) return _approx_item_height;
+        return Math.max(outer_height, _approx_item_height);
+      },
+      calcDividerHeight: function($el) {
+        var outer_height = $el.outerHeight();
+        if (!outer_height) return _approx_divider_height;
+        return outer_height;
+      }
+    });
   };
 })();
 (function() {
