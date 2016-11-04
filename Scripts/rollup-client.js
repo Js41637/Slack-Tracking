@@ -10593,6 +10593,9 @@
         TS.mpims.marked_sig.add(_markUnreadPinIcon);
         TS.ims.marked_sig.add(_markUnreadPinIcon);
       }
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        TS.client.threads.reply_count_changed.add(_replyCountChanged);
+      }
       TS.prefs.a11y_font_size_changed_sig.add(_updateChannelHeader);
       _$header = $("#client_header .channel_header .messages_header");
       _$header.bind("mouseover mouseenter", function(e) {
@@ -10667,7 +10670,8 @@
           sort_order: TS.client.unread.getSortOrder()
         },
         threads: {
-          is_showing: TS.model.threads_view_is_showing
+          is_showing: TS.model.threads_view_is_showing,
+          reply_count: TS.boot_data.feature_message_replies_threads_view && TS.client.threads.getCurrentReplyCount()
         }
       };
       _$header.html(TS.templates.channel_header(template_args));
@@ -10988,6 +10992,11 @@
     var $recent_mentions_toggle = $("#recent_mentions_toggle");
     var is_font_default = font_size == "normal";
     $recent_mentions_toggle.toggleClass("ts_tip_rightish", !is_font_default);
+  };
+  var _replyCountChanged = function(reply_count) {
+    var $info = $("#channel_header_info");
+    $info.find(".channel_header_info_count").text(reply_count);
+    $info.removeClass("hidden");
   };
 })();
 (function() {
@@ -25264,11 +25273,11 @@
           ns: "archives",
           note: 'A hint for a keyboard event that does the same thing as the "Close Channel" button'
         })();
-        $("#footer_archives_text").html('<span class="tiny dialog_cancel_hint">' + archive_html + "</span>");
+        $("#footer_archives_text").html(archive_html);
         $("#footer_archives_action_button").text(TS.i18n.t("Close Channel", {
           ns: "archives"
         })());
-        $("#footer_archives_action_tip").html(action_tip_html);
+        $("#footer_archives_action_tip").html('<span class="tiny dialog_cancel_hint">' + action_tip_html + "</span>");
       } else {
         archive_html = TS.i18n.t("You are viewing a preview of <strong>{hash}{channel_name}{shared}</strong>", {
           ns: "archives",
@@ -25282,11 +25291,11 @@
           ns: "archives",
           note: 'A hint for a keyboard event that does the same thing as the "Join Channel" button'
         })();
-        $("#footer_archives_text").html('<span class="tiny dialog_cancel_hint">' + archive_html + "</span>");
+        $("#footer_archives_text").html(archive_html);
         $("#footer_archives_action_button").text(TS.i18n.t("Join Channel", {
           ns: "archives"
         })()).removeClass("btn_outline");
-        $("#footer_archives_action_tip").html(action_tip_html);
+        $("#footer_archives_action_tip").html('<span class="tiny dialog_cancel_hint">' + action_tip_html + "</span>");
       }
       TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
     } else {

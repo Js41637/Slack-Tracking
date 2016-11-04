@@ -31157,11 +31157,30 @@ var _on_esc;
         TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
         TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
         TS.menu.start(e, position_by_click);
+        TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
         TS.menu.keepInBounds();
       }
     },
     onAppItemClick: function(e) {
+      var $item = $(this);
+      var action = $item.data("action");
       clearTimeout(TS.menu.end_time);
+      if (action === "slash_command") {
+        var command = $item.data("name");
+        var current_input = TS.utility.contenteditable.value(TS.client.msg_input.$input);
+        if (current_input) {
+          TS.client.msg_input.populate(command + " " + current_input);
+        } else {
+          TS.client.msg_input.populate(command);
+        }
+        TS.client.msg_input.$input.focus();
+        TS.client.msg_input.$input.trigger("textchange");
+        if (TS.boot_data.feature_you_autocomplete_me) {
+          TS.client.msg_input.$input.TS_tabCompleteNew("promiseToChoose", 0, true);
+        } else {
+          TS.client.msg_input.$input.TS_tabComplete("promiseToChoose", 0, true);
+        }
+      }
       TS.menu.app.end();
     },
     end: function() {
