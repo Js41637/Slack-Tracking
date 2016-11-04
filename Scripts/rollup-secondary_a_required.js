@@ -17636,7 +17636,8 @@ TS.registerModule("constants", {
           is_root_msg: args.is_root_msg,
           is_in_conversation: is_in_conversation,
           file_title_only: msg.subtype === "file_reaction",
-          is_threads_view: !!args.is_threads_view
+          is_threads_view: !!args.is_threads_view,
+          is_slackbot_response: msg.subtype === "slackbot_response"
         };
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
@@ -18010,7 +18011,8 @@ TS.registerModule("constants", {
           for_search_display: args.for_search_display,
           ts_tip_delay_class: "ts_tip_delay_600",
           is_root_msg: args.is_root_msg,
-          is_in_conversation: is_in_conversation
+          is_in_conversation: is_in_conversation,
+          is_slackbot_response: msg.subtype === "slackbot_response"
         };
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
