@@ -21896,16 +21896,16 @@ ts-jumper ts-jumper-results:empty {
   color: #eb4d5c
 }
 
-.channel_title .star_container {
+.channel_title .channel_actions_container .star_container {
   display: inline-block;
   margin-left: 4px
 }
 
-.channel_title .star:not(.starred) {
+.channel_title .channel_actions_container .star:not(.starred) {
   display: none
 }
 
-.channel_title:hover .star:not(.starred) {
+.channel_title:hover .channel_actions_container .star:not(.starred) {
   display: inline-block
 }
 
@@ -21924,6 +21924,11 @@ ts-jumper ts-jumper-results:empty {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
   margin-top: 4px;
   padding-left: 1.3rem;
   color: #717274;
@@ -21936,6 +21941,20 @@ ts-jumper ts-jumper-results:empty {
 #channel_header_info ts-icon {
   line-height: 0;
   display: inline-block
+}
+
+#channel_header_info .channel_members_icon,
+#channel_header_info .pinned_count_icon {
+  line-height: 1
+}
+
+#channel_header_info .star {
+  color: #717274
+}
+
+#channel_header_info .star.starred,
+#channel_header_info .star:hover {
+  color: #fc0
 }
 
 .header_user_status .presence {

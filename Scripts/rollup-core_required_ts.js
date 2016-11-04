@@ -1602,9 +1602,33 @@
           TS.metrics.count(log_name, JSON.stringify(data).length);
         });
       }
-      if (data.online_users && _.isArray(data.online_users)) TS.model.online_users = data.online_users.filter(function(user_id) {
-        return user_id !== "USLACKBOT";
-      });
+      if (data.online_users && _.isArray(data.online_users)) {
+        TS.model.online_users = _.filter(data.online_users, function(user_id) {
+          return user_id !== "USLACKBOT";
+        });
+        if (TS.boot_data.page_needs_enterprise) {
+          var dispatched = 0;
+          var start = Date.now();
+          TS.model.online_users = _.filter(TS.model.online_users, function(id) {
+            var member = TS.members.getMemberById(id);
+            if (member) {
+              if (member.presence !== "active") {
+                member.presence = "active";
+                if (!first_time) {
+                  dispatched++;
+                  TS.members.presence_changed_sig.dispatch(member);
+                }
+              }
+              return false;
+            }
+            return true;
+          });
+          if (dispatched) {
+            var ms = Date.now() - start;
+            if (ms > 500) TS.warn("_setUpModel: took " + ms + " msec to dispatch " + dispatched + " presence_changed signals.");
+          }
+        }
+      }
       TS.prefs.setPrefs(data.self.prefs);
       delete data.self.prefs;
       var i;

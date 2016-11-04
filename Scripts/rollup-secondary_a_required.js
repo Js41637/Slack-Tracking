@@ -19078,7 +19078,9 @@ TS.registerModule("constants", {
       }
       var attributes = star_components.attributes;
       var class_names = star_components.class_names;
-      var tip_class_names = ["ts_tip", "ts_tip_top", "ts_tip_float", "ts_tip_hidden"];
+      var tip_class_names = ["ts_tip", "ts_tip_float", "ts_tip_hidden"];
+      var position_class = TS.boot_data.feature_move_star_in_channel_header ? "ts_tip_bottom" : "ts_tip_top";
+      tip_class_names.push(position_class);
       var star_cta = "Star this ";
       var unstar_cta = "Unstar this ";
       class_names = class_names.concat(tip_class_names);
@@ -21048,6 +21050,8 @@ TS.registerModule("constants", {
     var attributes = [];
     var class_names = [];
     class_names = ["star", "ts_icon", "ts_icon_star_o", "ts_icon_inherit"];
+    var position_class = TS.boot_data.feature_move_star_in_channel_header ? "ts_tip_bottom" : "ts_tip_top";
+    class_names.push(position_class);
     var id = ob.id || ob.ts;
     var parent_id = parent_ob ? parent_ob.id : null;
     if (type === "message") {
@@ -31205,14 +31209,13 @@ var _on_esc;
 
       function showAllAppInformation(app) {
         _app_presence_list.add(app_id);
-        var colors = ["#1378B8", "#242424", "#4D394B", "#CB5234", "#4C9689"];
-        var app_color = _.sample(colors);
-        var header_color = TS.utility.hex2rgb(app_color);
-        header_color.hex = app_color;
         var template_header_args = {
-          app: app,
-          color: header_color
+          app: app
         };
+        if (app.app_card_color) {
+          template_header_args.color = TS.utility.hex2rgb(app.app_card_color);
+          template_header_args.color.hex = app.app_card_color;
+        }
         var template_args = {
           app: app
         };
