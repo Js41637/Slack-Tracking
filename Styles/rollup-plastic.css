@@ -8570,6 +8570,7 @@ textarea {
   max-width: 100%;
   font-family: Slack-Lato, appleLogo, sans-serif;
   margin: 0 0 .5rem;
+  font-variant-ligatures: none;
   -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;
   -moz-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;
   transition: box-shadow 70ms ease-out, border-color 70ms ease-out;

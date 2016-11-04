@@ -10547,7 +10547,7 @@
       if (im.is_starred) return;
       ims.push(im);
     });
-    _dm_members.add(_.map(ims, "id"));
+    _dm_members.add(_.map(ims, "user"));
     mpims = mpims.filter(function(mpim) {
       if (!mpim.is_open && !mpim.unread_cnt) {
         _openable_im_mpims++;
@@ -15591,6 +15591,9 @@
     },
     _destroy: function() {
       _cancelRAF(this._scroll_raf);
+      $(window).unbind("resize.highlighter_resize");
+      TS.client.flexpane_display_switched_sig.remove(this._updateSizing);
+      this.element.off(".highlighter_transition");
     },
     _renderUI: function() {
       var widget_prefix = this.widgetName + "_";
@@ -15602,6 +15605,13 @@
       this._$wrapper = this.element.closest(wrapper_selector);
       this._$wrapper.append(this._$underlay);
       this.element.addClass("search_input_highlighted");
+      this._updateSizing();
+      $(window).bind("resize.highlighter_resize", TS.utility.debounce($.proxy(this._updateSizing, this), 500));
+      TS.client.flexpane_display_switched_sig.add(this._updateSizing, this);
+      var self = this;
+      this._$underlay.closest(".flex_header").on("transitionend.highlighter_transition webkitTransitionEnd.highlighter_transition MozTransitionEnd.highlighter_transition", function(e) {
+        self._updateSizing();
+      });
     },
     _onInputKey: function() {
       this.element.trigger("change");
@@ -15616,12 +15626,14 @@
     },
     _onFocus: function() {
       this._has_focus = true;
+      this._updateSizing();
       if (is_webkit) {
         this._syncScrollLeft();
       }
     },
     _onBlur: function() {
       this._has_focus = false;
+      this._updateSizing();
     },
     _onMouseEnter: function() {
       this._mouse_over = true;
@@ -15715,7 +15727,7 @@
       }
       this._$ghost_text.appendTo(this._$underlay);
       this._prevVal = val;
-      if (_has_scroll_left_bug) {
+      if (_has_scroll_left_bug || TS.model.is_safari_desktop) {
         this._$underlay.scrollLeft(1e4);
         var underlay_scroll_left = this._$underlay.scrollLeft();
         if (underlay_scroll_left !== 0) {
@@ -15731,7 +15743,10 @@
     },
     _syncScrollLeft: function() {
       var sync = $.proxy(function() {
-        var left = this.element.scrollLeft();
+        var dprWithZoom = window.devicePixelRatio;
+        var dprWithoutZoom = Math.floor(dprWithZoom) > 1 ? 2 : 1;
+        var zoomLevel = dprWithZoom / dprWithoutZoom;
+        var left = this.element.scrollLeft() * zoomLevel;
         if (left !== this._prev_left) {
           this._$underlay.scrollLeft(left);
           this._prev_left = this._$underlay.scrollLeft();
@@ -15743,6 +15758,11 @@
       _cancelRAF(this._scroll_raf);
       this._prev_left = null;
       this._scroll_raf = _rAF(sync);
+    },
+    _updateSizing: function(e) {
+      var width = this.element.parent().outerWidth();
+      this._$underlay.width(width);
+      this._$underlay.css("margin-left", "-" + width + "px");
     },
     _onNewGhostText: function() {
       if (this._ghost_text) {
@@ -26540,8 +26560,6 @@
         members.push(member);
       }
     }
-    _member_presence_list.clear();
-    _member_presence_list.add(_.map(members, "id"));
     members.sort(TS.members.memberSorterByActiveWithBotsLast);
     _members = members;
     var MAX_SIDEBAR_MEMBERS_COUNT = 10;
@@ -26552,6 +26570,8 @@
     } else {
       template_args.members = members;
     }
+    _member_presence_list.clear();
+    _member_presence_list.add(_.map(template_args.members, "id"));
     _$member_lists.html(TS.templates.channel_page_member_lists(template_args));
     _$member_lists.find("#see_all_members").on("click", function(e) {
       e.preventDefault();
