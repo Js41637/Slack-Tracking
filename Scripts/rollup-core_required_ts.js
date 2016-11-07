@@ -3349,11 +3349,16 @@
       return {
         createLogURLs: _createLogURLs,
         sendDataAndEmptyQueue: _sendDataAndEmptyQueue,
+        detectClogEndpoint: _detectClogEndpoint,
         getLogs: function() {
           return _logs;
         },
+        getClogEndpoint: function() {
+          return _CLOG_ENDPOINT_URL;
+        },
         reset: function() {
           _logs = [];
+          _CLOG_ENDPOINT_URL = undefined;
         }
       };
     },
@@ -3377,11 +3382,14 @@
   var _logs = [];
   var _team_id;
   var _user_id;
-  var _detectClogEndpoint = function() {
-    var is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
+  var _detectClogEndpoint = function(host) {
+    var is_dev = host.match(/^([^.]+\.)?(dev[0-9]*)\.slack.com/);
+    var is_qa = host.match(/^([^.]+\.)?(qa[0-9]*)\.slack.com/);
     if (is_dev) {
-      _CLOG_ENDPOINT_URL = "https://" + is_dev[0] + "/clog/track/";
-    } else if (location.host.match(/staging.slack.com/)) {
+      _CLOG_ENDPOINT_URL = "https://" + is_dev[2] + ".slack.com/clog/track/";
+    } else if (is_qa) {
+      _CLOG_ENDPOINT_URL = "https://" + is_qa[2] + ".slack.com/clog/track/";
+    } else if (host.match(/^([^.]+\.)?staging.slack.com/)) {
       _CLOG_ENDPOINT_URL = "https://staging.slack.com/clog/track/";
     } else {
       _CLOG_ENDPOINT_URL = "https://slack.com/clog/track/";
@@ -3419,7 +3427,7 @@
     _logs = [];
   };
   var _createLogURLs = function(logs) {
-    if (!_CLOG_ENDPOINT_URL) _detectClogEndpoint();
+    if (!_CLOG_ENDPOINT_URL) _detectClogEndpoint(location.host);
     var urls = [];
     var data = [];
     var url = "";

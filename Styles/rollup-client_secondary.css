@@ -13541,6 +13541,11 @@ only screen and (min-resolution:2dppx) {
   background: #fff
 }
 
+.feature_reposition_search_dropdown #search_autocomplete_popover .arrow,
+.feature_reposition_search_dropdown #search_autocomplete_popover .arrow_shadow {
+  display: none
+}
+
 #autocomplete_menu {
   font-family: Slack-Lato, appleLogo, sans-serif;
   position: relative;
@@ -22311,6 +22316,12 @@ ts-jumper ts-jumper-results:empty {
   left: 0;
   top: 2.75rem;
   margin-top: 0
+}
+
+#search_container.feature_reposition_search_dropdown #search_autocomplete_popover {
+  left: auto;
+  right: 0;
+  top: 2.4375rem
 }
 
 #details_toggle.active,
