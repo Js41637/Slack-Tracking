@@ -16283,7 +16283,7 @@ TS.registerModule("constants", {
     bot_changed: function(imsg) {
       var bot = TS.bots.getBotById(imsg.bot.id);
       if (!bot && TS.lazyLoadBots()) {
-        TS.log(1989, "Flannel: user_change for member not in model; ignoring");
+        TS.log(1989, "Flannel: bot_changed for member not in model; ignoring");
         return;
       }
       if (!bot) {
@@ -16295,7 +16295,7 @@ TS.registerModule("constants", {
     bot_removed: function(imsg) {
       var bot = TS.bots.getBotById(imsg.bot.id);
       if (!bot && TS.lazyLoadBots()) {
-        TS.log(1989, "Flannel: user_change for member not in model; ignoring");
+        TS.log(1989, "Flannel: bot_removed for bot not in model; ignoring");
         return;
       }
       if (!bot) {
@@ -22963,12 +22963,7 @@ TS.registerModule("constants", {
         }
       });
       Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob) {
-        var html = TS.templates.builders.buildMsgHTML({
-          msg_dom_id: TS.templates.makeMsgDomIdInThreadsView(msg.ts),
-          model_ob: model_ob,
-          msg: msg,
-          is_threads_view: true
-        });
+        var html = TS.client.ui.threads.buildThreadMsgHTML(msg, model_ob);
         return new Handlebars.SafeString(html);
       });
     },
@@ -36533,7 +36528,14 @@ var _on_esc;
     },
     getDivForMsgInMsgPane: function(ts) {
       var is_unread_view = TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing;
-      return $("#" + (is_unread_view ? TS.templates.makeMsgDomIdInUnreadView(ts) : TS.templates.makeMsgDomId(ts)));
+      var is_threads_view = TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing;
+      if (is_unread_view) {
+        return $("#" + TS.templates.makeMsgDomIdInUnreadView(ts));
+      } else if (is_threads_view) {
+        return $("#" + TS.templates.makeMsgDomIdInThreadsView(ts));
+      } else {
+        return $("#" + TS.templates.makeMsgDomId(ts));
+      }
     },
     getDivForMsgInConvoPane: function(ts) {
       return $("#" + TS.templates.makeMsgDomIdInConversation(ts));

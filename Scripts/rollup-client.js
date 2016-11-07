@@ -6350,6 +6350,7 @@
         TS.client.ui.checkInlineImgsAndIframes("file_preview", log);
         TS.client.ui.checkInlineImgsAndIframes("file_list", log);
         if (TS.boot_data.feature_message_replies) TS.client.ui.checkInlineImgsAndIframes("replies", log);
+        if (TS.boot_data.feature_message_replies_threads_view) TS.client.ui.checkInlineImgsAndIframes("threads", log);
         if (TS.boot_data.feature_unread_view) TS.client.ui.checkInlineImgsAndIframes("unread", log);
       });
     },
