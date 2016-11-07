@@ -15308,9 +15308,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto
 }
 
 #poll_dialog_input_container .message_input {

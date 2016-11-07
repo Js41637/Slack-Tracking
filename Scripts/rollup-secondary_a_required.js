@@ -11333,20 +11333,22 @@ TS.registerModule("constants", {
       if (app && app._has_complete_profile) {
         return Promise.resolve(app);
       } else {
-        return new Promise(function(resolve, reject) {
-          TS.api.call("apps.profile.get", {
+        return new Promise(function(resolve, reject, onCancel) {
+          var apps_profile_promise = TS.api.call("apps.profile.get", {
             bot: bot_id
-          }, function(ok, data, args) {
-            if (ok && data.app) {
-              var app = data.app;
+          }).then(function(res) {
+            if (res.data.ok && res.data.app_profile) {
+              var app = res.data.app_profile;
               app._has_complete_profile = true;
               TS.apps.ingestApp(app);
               resolve(app);
-            }
-            if (!ok) {
-              reject(data.error);
+            } else {
+              reject(res.data.error);
               TS.warn("Trying to look up app by bot id (" + bot_id + ") but it failed.");
             }
+          });
+          onCancel(function() {
+            apps_profile_promise.cancel();
           });
         });
       }
@@ -11402,6 +11404,23 @@ TS.registerModule("constants", {
         if (bot.name.toLowerCase() == name.toLowerCase()) return bot;
       }
       return null;
+    },
+    getBotInfoByMsg: function(msg) {
+      var member = TS.members.getMemberById(msg.user);
+      var bot_id = msg.bot_id || _.get(member, "profile.bot_id");
+      var bot = TS.bots.getBotById(bot_id);
+      if (bot_id && !bot && TS.lazyLoadBots()) {
+        TS.info(1989, "Flannel: failed to find a bot (" + bot_id + ") whilst lazy loading bots");
+      }
+      var app_id = _.get(member, "profile.api_app_id") || _.get(bot, "app_id");
+      if (!app_id && !bot_id) {
+        TS.warn("Unable to get bot info for message", msg);
+        return null;
+      }
+      return {
+        bot_id: bot_id,
+        app_id: app_id
+      };
     },
     upsertAndSignal: function(bot) {
       var upsert = TS.bots.upsertBot(bot);
@@ -17496,7 +17515,7 @@ TS.registerModule("constants", {
         var app_id;
         var bot_id;
         if (TS.boot_data.feature_app_cards_and_profs_frontend && is_bot) {
-          var bot_info = _getBotInfoForMsg(msg);
+          var bot_info = TS.bots.getBotInfoByMsg(msg);
           if (bot_info) {
             app_id = bot_info.app_id;
             bot_id = bot_info.bot_id;
@@ -21133,23 +21152,6 @@ TS.registerModule("constants", {
     };
   }
   var _session_ms = Date.now();
-  var _getBotInfoForMsg = function(msg) {
-    var member = TS.members.getMemberById(msg.user);
-    var bot_id = msg.bot_id || _.get(member, "profile.bot_id");
-    var bot = TS.bots.getBotById(bot_id);
-    if (bot_id && !bot && TS.lazyLoadBots()) {
-      TS.info(1989, "Flannel: failed to find a bot (" + bot_id + ") whilst lazy loading bots");
-    }
-    var app_id = _.get(member, "profile.api_app_id") || _.get(bot, "app_id");
-    if (!app_id && !bot_id) {
-      TS.warn("Unable to get bot info for message", msg);
-      return null;
-    }
-    return {
-      bot_id: bot_id,
-      app_id: app_id
-    };
-  };
 })();
 (function() {
   "use strict";
@@ -28256,6 +28258,7 @@ TS.registerModule("constants", {
               return temp.substr(0, temp.length - 1);
             }(item);
             var bot_id;
+            var app_id = "";
             var bot;
             if ((bot_id = TS.utility.getBotIDFromURL(url)) && (bot = TS.bots.getBotById(bot_id))) {
               last_item_was_bot_url = true;
@@ -28263,7 +28266,12 @@ TS.registerModule("constants", {
               display_name = no_highlights ? bot.name : _doHighlighting(bot.name);
               if (A[i + 1] && A[i + 1] == url) display_name = url;
               display_name = display_name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-              str += '<a href="' + url + '" ' + target + 'data-bot-id="' + bot_id + '" class="internal_bot_link">' + display_name;
+              if (TS.boot_data.feature_app_cards_and_profs_frontend) {
+                if (bot.app_id) {
+                  app_id = bot.app_id;
+                }
+              }
+              str += '<a href="' + url + '" ' + target + 'data-bot-id="' + bot_id + '" data-app-id="' + app_id + '" class="internal_bot_link app_preview_link">' + display_name;
             } else if (url.indexOf(TS.utility.msgs.api_url_prefix + "chat.help") === 0) {
               if (enable_slack_action_links) {
                 js_url = TS.utility.htmlEntities(JSON.stringify("" + url));

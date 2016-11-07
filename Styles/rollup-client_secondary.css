@@ -3444,9 +3444,9 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .light_theme .feature_refactored_message_template .message_content_header_left {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto
 }
 
 .msg_right_link {
@@ -3460,9 +3460,9 @@ body.sorting_mode .channels_list_holder ul {
 
 .light_theme .feature_refactored_message_template .msg_right_link {
   float: none;
-  -ms-flex: 0;
-  -webkit-flex: 0;
-  flex: 0;
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
   text-align: right
 }
 
@@ -12051,9 +12051,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto
 }
 
 #poll_dialog_input_container .message_input {
