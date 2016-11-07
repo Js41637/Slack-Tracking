@@ -11152,20 +11152,6 @@ TS.registerModule("constants", {
     ensureEntireTeamLoaded: function() {
       if (_entire_team_loaded) return Promise.resolve();
       if (_fetch_all_members_p) return _fetch_all_members_p;
-      if (!TS.model.ms_connected) {
-        TS.log(1989, "Flannel: team directory can't fetch the team until we're connected, so waiting for that to happen.");
-        _fetch_all_members_p = new Promise(function(resolve) {
-          TS.ms.connected_sig.addOnce(function() {
-            TS.log(1989, "Flannel: connected! Starting to fetch the entire team.");
-            _fetch_all_members_p = undefined;
-            TS.team.ensureEntireTeamLoaded().then(function() {
-              TS.log(1989, "Flannel: team has been fetched.");
-              resolve();
-            });
-          });
-        });
-        return _fetch_all_members_p;
-      }
       _fetch_all_members_p = TS.flannel.fetchAndUpsertAllMembersOnTeam().then(function() {
         TS.log(1989, "Flannel: setting _entire_team_loaded to true");
         _entire_team_loaded = true;
@@ -14476,6 +14462,18 @@ TS.registerModule("constants", {
     hasProvisionalConnection: function() {
       return !!_did_make_provisional_connection;
     },
+    hasOpenWebSocket: function() {
+      return _.get(_websocket, "readyState") == WebSocket.OPEN;
+    },
+    promiseToHaveOpenWebSocket: function() {
+      if (TS.ms.hasOpenWebSocket()) return Promise.resolve();
+      if (!_open_websocket_p) {
+        _open_websocket_p = new Promise(function(resolve) {
+          _open_websocket_p_resolve = resolve;
+        });
+      }
+      return _open_websocket_p;
+    },
     finalizeProvisionalConnection: function() {
       return _finalizeProvisionalConnection();
     },
@@ -14523,6 +14521,8 @@ TS.registerModule("constants", {
       });
     }
   });
+  var _open_websocket_p;
+  var _open_websocket_p_resolve;
   var _log_next_pong;
   var _have_sent_ping = false;
   var _measure_ping_pong_latency;
@@ -14596,6 +14596,7 @@ TS.registerModule("constants", {
         url: _addQueryParamsToLoginUrl(TS.model.team.url)
       });
     }
+    _maybeResolveOpenWebSocketPromise();
     _websocket.onmessage = _onMsg;
     TS.model.ms_conn_log.length = 0;
     TSConnLogger.log("ms_connected", "_onConnect (took " + (Date.now() - TS.ms.last_start_ms) + "ms)");
@@ -15031,7 +15032,7 @@ TS.registerModule("constants", {
       var rtm_start_timeout = setTimeout(function() {
         abortRtmStartAttempt(new Error("Waited " + _rtm_start_timeout_tim_ms + " ms for rtm.start response but didn't get one"));
       }, _rtm_start_timeout_tim_ms);
-      _onConnectProvisional = _makeBufferHandler();
+      _onConnectProvisional = _makeBufferHandler(_maybeResolveOpenWebSocketPromise);
       _onDisconnectProvisional = _makeBufferHandler(function() {
         if (rtm_start_p && rtm_start_p.isPending()) {
           abortRtmStartAttempt(new Error("WebSocket got disconnected"));
@@ -15133,6 +15134,12 @@ TS.registerModule("constants", {
       throw new Error("Error creating WebSocket for URL " + url);
     }
     TS.model.ms_connecting = true;
+  };
+  var _maybeResolveOpenWebSocketPromise = function() {
+    if (!_open_websocket_p_resolve) return;
+    _open_websocket_p_resolve();
+    _open_websocket_p = undefined;
+    _open_websocket_p_resolve = undefined;
   };
 })();
 (function() {
@@ -45797,7 +45804,7 @@ $.fn.togglify = function(settings) {
     var fuzzy = TS.fuzzy.makeFuzzyMatcher(query, fuzzy_options);
     var fuzzy_members = TS.fuzzy.makeFuzzyMatcher(query, fuzzy_member_options);
     var sub_query_matchers = _getSubQueryMatchers(query, fuzzy_member_options);
-    var fuzzy_emoji = TS.boot_data.feature_no_fuzzy_emoji ? TS.fuzzy.makeFuzzyMatcher(query, fuzzy_emoji_options) : fuzzy;
+    var fuzzy_emoji = TS.fuzzy.makeFuzzyMatcher(query, fuzzy_emoji_options);
     return {
       query: query,
       only_channels: only_channels,
@@ -46084,11 +46091,6 @@ $.fn.togglify = function(settings) {
         }
         return searcher.matchesEmoji(e);
       });
-      if (!TS.boot_data.feature_no_fuzzy_emoji && query && query.toLowerCase() === "wife") {
-        emoji_matches = emoji_matches.filter(function(item) {
-          return item.name !== "reversed_hand_with_middle_finger_extended" && item.name !== "face_with_rolling_eyes";
-        });
-      }
     }
     if (TS.boot_data.feature_unread_view && TS.client && TS.client.unread.isEnabled()) {
       if (!searcher.only_channels && !searcher.only_members) {
