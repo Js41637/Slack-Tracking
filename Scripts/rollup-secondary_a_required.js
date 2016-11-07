@@ -9621,6 +9621,7 @@ TS.registerModule("constants", {
     changed_admin_perms_sig: new signals.Signal,
     changed_self_sig: new signals.Signal,
     lazily_added_sig: new signals.Signal,
+    batch_upserted_sig: new signals.Signal,
     is_in_bulk_upsert_mode: false,
     members_for_user_changed_sig: new signals.Signal,
     onStart: function() {
@@ -10329,6 +10330,7 @@ TS.registerModule("constants", {
       TS.members.invalidateMembersUserCanSeeArrayCaches();
       TS.members.invalidateActiveMembersArrayCaches();
       TS.members.maybeStoreMembers();
+      TS.members.batch_upserted_sig.dispatch();
       return true;
     },
     allocateTeamListMembers: function(members_for_user) {
@@ -22325,7 +22327,9 @@ TS.registerModule("constants", {
         }
         return TS.templates.search_im_link(template_args);
       }
-      Handlebars.registerHelper("makeIMLink", makeIMLink);
+      Handlebars.registerHelper("makeIMLink", function(im) {
+        return new Handlebars.SafeString(makeIMLink(im));
+      });
       Handlebars.registerHelper("makeIMLinkById", function(id) {
         var im = TS.ims.getImById(id);
         if (im) return new Handlebars.SafeString(makeIMLink(im));

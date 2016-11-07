@@ -18698,6 +18698,14 @@ ts-thread .reply_input_container.has_focus .member_preview_link {
   opacity: 1
 }
 
+.day_divider+ts-thread {
+  padding-top: 0
+}
+
+ts-thread .thread_channel_name {
+  margin-bottom: 1rem
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -22250,7 +22258,7 @@ ts-jumper ts-jumper-results:empty {
 
 #search_container .icon_search {
   position: static;
-  color: #babbbf
+  color: #717274
 }
 
 #search_spinner {

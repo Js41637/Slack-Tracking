@@ -1506,6 +1506,7 @@
       TS.model.ui.cached_archive_scroll_result = null;
       TS.model.ui.cached_convo_scroller_rect = null;
       TS.model.ui.cached_unread_scroller_rect = null;
+      TS.model.ui.cached_threads_scroller_rect = null;
       if (TS.view.resize_tim) {
         clearTimeout(TS.view.resize_tim);
         TS.view.resize_tim = 0;
@@ -6400,6 +6401,9 @@
       } else if (which == "unread" && TS.boot_data.feature_unread_view) {
         $container = TS.client.ui.unread.$scroller;
         scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_unread_scroller_rect", $container);
+      } else if (which == "threads" && TS.boot_data.feature_message_replies_threads_view) {
+        $container = TS.client.ui.threads.$scroller;
+        scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_threads_scroller_rect", $container);
       } else {
         TS.info("unknown which in checkInlineImgsAndIframes(which)");
         return;
@@ -11337,6 +11341,16 @@
       }
     },
     rebuildChannelMembersList: function() {
+      if (TS.members.is_in_bulk_upsert_mode) {
+        if (!_will_rebuild_channel_members_list) {
+          _will_rebuild_channel_members_list = true;
+          TS.members.batch_upserted_sig.addOnce(function() {
+            _will_rebuild_channel_members_list = false;
+            TS.client.msg_pane.rebuildChannelMembersList();
+          });
+        }
+        return;
+      }
       TS.client.ui.rebuildMemberListToggle();
     },
     rebuildMsgsWithReason: function(reason) {
@@ -12306,6 +12320,7 @@
       $(".call_icon").toggleClass("call_window_offline", !(go_online && is_call_allowed));
     }
   });
+  var _will_rebuild_channel_members_list = false;
   var _did_fetch_extra_history;
   var _last_rebuild_model_ob_id;
   var _$last_read_msg_div;
@@ -35280,6 +35295,7 @@ var _timezones_alternative = {
         return;
       }
       if (!config.updateCallback) config.updateCallback = _.noop;
+      if (!config.msg_order) config.msg_order = "asc";
       _setVisibleRange(config);
       var visible_sections = _getVisibleRange(config);
       var $container = $(config.container);
@@ -35358,7 +35374,7 @@ var _timezones_alternative = {
           }
           if (loader) {
             config._pending_op = loader().then(function() {
-              TS.ui.message_container.updateWithFocus(config, $container.find("ts-message").first());
+              TS.ui.message_container.updateWithFocus(config, $container.find(".message_container_item").first());
             }).finally(function() {
               config._pending_op = null;
             });
@@ -35383,9 +35399,9 @@ var _timezones_alternative = {
       }, function() {
         var $container = $(config.container);
         if ($.contains($container[0], $focus[0])) return $focus;
+        var id = $element.attr("id");
+        $element = $container.find("#" + id);
         if ($element.is("ts-message")) {
-          var id = $element.attr("id");
-          $element = $container.find("#" + id);
           $message_body = $element.find(".message_body");
           if ($message_body.length) return $message_body;
         }
@@ -35449,7 +35465,7 @@ var _timezones_alternative = {
   var _handleScrolledToTop = function(config, $container) {
     var all = _flattenAllMsgs(config);
     if (!all.length) return;
-    var $first = $container.find("ts-message").first();
+    var $first = $container.find(".message_container_item").first();
     var first_msg = _.first(all);
     if (_.isEqual(first_msg, config._range.start)) {
       if (config.has_more_beginning && config.promiseToLoadMoreAtBeginning) {
@@ -35476,7 +35492,7 @@ var _timezones_alternative = {
     }
   };
   var _appendMoreMessages = function(config, $container) {
-    var $last = $container.find("ts-message").last();
+    var $last = $container.find(".message_container_item").last();
     if (_loaded_but_not_shown) {
       _debug("Start appending loaded but not shown messages", config);
       _loaded_but_not_shown = false;
@@ -35542,9 +35558,9 @@ var _timezones_alternative = {
         }
       }
     }
-    var days = _groupMsgsIntoDays(section.msgs);
-    var days_state = _groupMsgsIntoDays(section_state.msgs);
-    var days_resolution = _resolveDays(days_state, days);
+    var days = _groupMsgsIntoDays(config, section.msgs);
+    var days_state = _groupMsgsIntoDays(config, section_state.msgs);
+    var days_resolution = _resolveDays(days_state, days, config.msg_order);
     _updateDays(config, section, $section, days, days_state, days_resolution);
   };
   var _updateDays = function(config, section, $section, days, days_state, resolution) {
@@ -35571,7 +35587,7 @@ var _timezones_alternative = {
       var msgs = findDay(days, first_msg);
       if (step.action === "continue") {
         $current = $findDay(first_msg.ts);
-        var msgs_resolution = _resolveMsgs(findDay(days_state, first_msg), msgs);
+        var msgs_resolution = _resolveMsgs(findDay(days_state, first_msg), msgs, config.msg_order);
         _updateMsgs(config, section, $current, msgs, msgs_resolution);
       } else if (step.action === "delete") {
         $findDay(first_msg.ts).remove();
@@ -35594,7 +35610,7 @@ var _timezones_alternative = {
   };
   var _updateMsgs = function(config, section, $day, msgs, resolution) {
     var $current;
-    var $msgs = $day.find("ts-message");
+    var $msgs = $day.find(".message_container_item");
     var msg_dom_map = {};
     $msgs.each(function() {
       var ts = $(this).attr("data-ts");
@@ -35619,7 +35635,7 @@ var _timezones_alternative = {
         $current = $(msg_dom_map[id]);
       } else if (action === "replace") {
         var $replacing = $(msg_dom_map[id]);
-        var $edited = $(config.buildMsgHTML(msg_map[id], prev_msg_map[id], section));
+        var $edited = _buildMsg(config, msg_map[id], prev_msg_map[id], section);
         $replacing.replaceWith($edited);
         _logReplace($edited);
         $current = $edited;
@@ -35628,7 +35644,7 @@ var _timezones_alternative = {
         _logRemove($deleting);
         $deleting.remove();
       } else if (action === "insert") {
-        var $inserting = $(config.buildMsgHTML(msg_map[id], prev_msg_map[id], section));
+        var $inserting = _buildMsg(config, msg_map[id], prev_msg_map[id], section);
         if ($current && $current.length) {
           $current.after($inserting);
         } else if ($msgs.length) {
@@ -35639,7 +35655,7 @@ var _timezones_alternative = {
         _logAdd($inserting);
         $current = $inserting;
       } else if (action === "append") {
-        var $appending = $(config.buildMsgHTML(msg_map[id], prev_msg_map[id], section));
+        var $appending = _buildMsg(config, msg_map[id], prev_msg_map[id], section);
         $day.append($appending);
         _logAdd($appending);
         $current = $appending;
@@ -35672,7 +35688,7 @@ var _timezones_alternative = {
     }
     var $msgs_holder = $section.find(".msgs_holder");
     if (!$msgs_holder.length) $msgs_holder = $section;
-    var days = _groupMsgsIntoDays(section.msgs);
+    var days = _groupMsgsIntoDays(config, section.msgs);
     _.forEach(days, function(msgs) {
       var $day = _buildDay(config, section, msgs);
       $msgs_holder.append($day);
@@ -35687,7 +35703,7 @@ var _timezones_alternative = {
     _logAdd($divider);
     var prev_msg;
     var $msgs = _.map(msgs, function(msg) {
-      var $msg = config.buildMsgHTML(msg, prev_msg, section);
+      var $msg = _buildMsg(config, msg, prev_msg, section);
       prev_msg = msg;
       return $msg;
     });
@@ -35696,6 +35712,12 @@ var _timezones_alternative = {
       _logAdd($msg);
     });
     return $day;
+  };
+  var _buildMsg = function(config, msg, prev_msg, section) {
+    var msg_html = config.buildMsgHTML(msg, prev_msg, section);
+    var $msg = $(msg_html);
+    $msg.addClass("message_container_item");
+    return $msg;
   };
   var _buildLoadingIndicators = function(config) {
     var $container = $(config.container);
@@ -35732,7 +35754,7 @@ var _timezones_alternative = {
       return a_inx - b_inx;
     });
   };
-  var _resolveDays = function(days_current, days_new) {
+  var _resolveDays = function(days_current, days_new, order) {
     var current_msgs = _.map(days_current, function(msgs) {
       return msgs[0];
     });
@@ -35741,15 +35763,13 @@ var _timezones_alternative = {
     });
     return _resolveOrderedLists(current_msgs, new_msgs, function(a, b) {
       if (TS.utility.msgs.areMsgsSameDay(a, b)) return 0;
-      if (a.ts < b.ts) return -1;
-      if (a.ts > b.ts) return 1;
+      return _compareTs(order, a.ts, b.ts);
     });
   };
-  var _resolveMsgs = function(msgs_current, msgs_new) {
+  var _resolveMsgs = function(msgs_current, msgs_new, order) {
     return _resolveOrderedLists(msgs_current, msgs_new, function(a, b) {
       if (a.ts === b.ts) return 0;
-      if (a.ts < b.ts) return -1;
-      if (a.ts > b.ts) return 1;
+      return _compareTs(order, a.ts, b.ts);
     }, function(old_msg, new_msg) {
       var old_edited = old_msg.edited;
       var new_edited = new_msg.edited;
@@ -35830,13 +35850,14 @@ var _timezones_alternative = {
     var max = 2 * config.page_size;
     var range = {};
     var start_index = 0;
+    var order = config.msg_order;
     if (start_at) {
       var found_section = false;
       start_index = _.findIndex(all, function(m) {
         if (m.section_id === start_at.section_id) {
           if (m.msg_ts == -1) return true;
           if (!found_section) found_section = true;
-          return m.msg_ts >= start_at.msg_ts;
+          return _isOnOrAfter(order, m.msg_ts, start_at.msg_ts);
         }
         if (found_section && m.section_id !== start_at.section_id) {
           return true;
@@ -35873,23 +35894,31 @@ var _timezones_alternative = {
     _.forEach(config.sections, function(section) {
       if (!_isSectionInVisibleRange(section, config)) return;
       var s = _.create(section);
-      var msgs = _processMessages(section.msgs);
+      var msgs = _processMessages(config, section.msgs);
       s.msgs = _.filter(msgs, function(msg) {
+        var order = config.msg_order;
         if (start.section_id === end.section_id) {
-          return msg.ts >= start.msg_ts && msg.ts <= end.msg_ts;
+          return _isOnOrAfter(order, msg.ts, start.msg_ts) && _isOnOrBefore(order, msg.ts, end.msg_ts);
         }
         if (section.id === start.section_id) {
-          return msg.ts >= start.msg_ts;
+          return _isOnOrAfter(order, msg.ts, start.msg_ts);
         } else if (section.id === end.section_id) {
-          return msg.ts <= end.msg_ts;
+          return _isOnOrBefore(order, msg.ts, end.msg_ts);
         } else {
           return true;
         }
       });
-      s.completeness = {
-        start: _.last(s.msgs) === _.last(msgs),
-        end: _.first(s.msgs) === _.first(msgs)
-      };
+      if (config.msg_order === "desc") {
+        s.completeness = {
+          start: _.first(s.msgs) === _.first(msgs),
+          end: _.last(s.msgs) === _.last(msgs)
+        };
+      } else {
+        s.completeness = {
+          start: _.last(s.msgs) === _.last(msgs),
+          end: _.first(s.msgs) === _.first(msgs)
+        };
+      }
       if (section === _.first(config.sections) && config.has_more_beginning) {
         s.completeness.start = false;
       }
@@ -35904,15 +35933,16 @@ var _timezones_alternative = {
   var _moveVisibleRangeBack = function(config) {
     var all = _flattenAllMsgs(config);
     var range = config._range;
+    var order = config.msg_order;
     var before = _.takeWhile(all, function(msg) {
-      return !(msg.section_id === range.start.section_id && msg.msg_ts >= range.start.msg_ts);
+      return !(msg.section_id === range.start.section_id && _isOnOrAfter(order, msg.msg_ts, range.start.msg_ts));
     });
     if (!before.length) return;
     var visible = _.drop(all, before.length);
     var found_end = false;
     visible = _.takeWhile(visible, function(msg) {
       if (found_end) return false;
-      var at_end = msg.section_id === range.end.section_id && msg.msg_ts >= range.end.msg_ts;
+      var at_end = msg.section_id === range.end.section_id && _isOnOrAfter(order, msg.msg_ts, range.end.msg_ts);
       if (at_end) found_end = true;
       return true;
     });
@@ -35924,13 +35954,14 @@ var _timezones_alternative = {
   var _moveVisibleRangeForward = function(config) {
     var all = _flattenAllMsgs(config);
     var range = config._range;
+    var order = config.msg_order;
     all = _.dropWhile(all, function(msg) {
-      return !(msg.section_id === range.start.section_id && msg.msg_ts >= range.start.msg_ts);
+      return !(msg.section_id === range.start.section_id && _isOnOrAfter(order, msg.msg_ts, range.start.msg_ts));
     });
     var found_end = false;
     var visible = _.takeWhile(all, function(msg) {
       if (found_end) return false;
-      var at_end = msg.section_id === range.end.section_id && msg.msg_ts >= range.end.msg_ts;
+      var at_end = msg.section_id === range.end.section_id && _isOnOrAfter(order, msg.msg_ts, range.end.msg_ts);
       if (at_end) found_end = true;
       return true;
     });
@@ -35959,6 +35990,8 @@ var _timezones_alternative = {
   };
   var _flattenAllMsgs = function(config) {
     var all = [];
+    var order = config.msg_order;
+    var iterator = order === "asc" ? _.forEachRight : _.forEach;
     _.forEach(config.sections, function(section) {
       if (!section.msgs.length) {
         all.push({
@@ -35966,8 +35999,8 @@ var _timezones_alternative = {
           msg_ts: "-1"
         });
       } else {
-        var msgs = _processMessages(section.msgs);
-        _.forEachRight(msgs, function(msg) {
+        var msgs = _processMessages(config, section.msgs);
+        iterator(msgs, function(msg) {
           all.push({
             section_id: section.id,
             msg_ts: msg.ts
@@ -35977,12 +36010,14 @@ var _timezones_alternative = {
     });
     return all;
   };
-  var _groupMsgsIntoDays = function(msgs) {
+  var _groupMsgsIntoDays = function(config, msgs) {
     if (!msgs) return [];
+    var order = config.msg_order;
+    var iterator = order === "asc" ? _.forEachRight : _.forEach;
     var prev_msg;
     var all_days = [];
     var day = [];
-    _.forEachRight(msgs, function(msg) {
+    iterator(msgs, function(msg) {
       if (!prev_msg || !TS.utility.msgs.areMsgsSameDay(msg, prev_msg)) {
         if (day.length) all_days.push(day);
         day = [msg];
@@ -35994,7 +36029,8 @@ var _timezones_alternative = {
     if (day.length) all_days.push(day);
     return all_days;
   };
-  var _processMessages = function(msgs) {
+  var _processMessages = function(config, msgs) {
+    if (config.msg_order === "desc") return msgs;
     var processed = [];
     var jl_rolled_up_msgs = [];
     var i, rollup, msg;
@@ -36012,7 +36048,33 @@ var _timezones_alternative = {
     }
     return processed;
   };
+  var _compareTs = function(order, a_ts, b_ts) {
+    if (order === "asc") {
+      if (a_ts < b_ts) return -1;
+      if (a_ts > b_ts) return 1;
+    } else {
+      if (a_ts > b_ts) return -1;
+      if (a_ts < b_ts) return 1;
+    }
+    return 0;
+  };
+  var _isOnOrAfter = function(order, a_ts, b_ts) {
+    if (order === "asc") {
+      return a_ts >= b_ts;
+    } else {
+      return a_ts <= b_ts;
+    }
+  };
+  var _isOnOrBefore = function(order, a_ts, b_ts) {
+    if (order === "asc") {
+      return a_ts <= b_ts;
+    } else {
+      return a_ts >= b_ts;
+    }
+  };
   var _debug = function(msg, config) {
+    var pri = 102;
+    if (!TS.shouldLog(pri)) return;
     var all = _flattenAllMsgs(config);
     var messages_count = all.length;
     var sections_count = config.sections.length;
@@ -36023,7 +36085,7 @@ var _timezones_alternative = {
       msg_ts: config._range.end.msg_ts
     }) : null;
     var has_more_end = config.has_more_end;
-    TS.log(102, "[msg_container] " + msg, {
+    TS.log(pri, "[msg_container] " + msg, {
       sections: sections_count,
       messages: messages_count,
       range_start: range_start_index,
