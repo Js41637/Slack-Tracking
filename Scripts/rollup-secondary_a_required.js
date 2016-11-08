@@ -51280,7 +51280,9 @@ $.fn.togglify = function(settings) {
       if (!input) return;
       if (_isFormElement(input)) return;
       if (_getTextyInstance(input)) return;
-      var texty = window.texty.start(input);
+      var texty = new Texty(input, {
+        placeholder: input.dataset.placeholder || "Message #fpo"
+      });
       _setTextyInstance(input, texty);
     },
     isActiveElement: function(input) {
