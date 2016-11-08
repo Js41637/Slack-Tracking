@@ -51272,9 +51272,6 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("utility.contenteditable", {
-    onStart: function() {
-      $(document.body).on("mousedown.utility_contenteditable", _onGlobalMousedown);
-    },
     create: function(input) {
       input = _normalizeInput(input);
       if (!input) return;
@@ -51287,8 +51284,34 @@ $.fn.togglify = function(settings) {
     },
     isActiveElement: function(input) {
       input = _normalizeInput(input);
+      if (!input) return false;
+      if (_isFormElement(input)) {
+        return document.activeElement === input;
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.hasFocus();
+      }
+      return false;
+    },
+    focus: function(input) {
+      input = _normalizeInput(input);
       if (!input) return;
-      return document.activeElement && document.activeElement === input;
+      if (_isFormElement(input)) {
+        input.focus();
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        texty.focus();
+      }
+    },
+    blur: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return;
+      if (_isFormElement(input)) {
+        input.blur();
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        texty.blur();
+      }
     },
     isContenteditable: function(input) {
       input = _normalizeInput(input);
@@ -51299,11 +51322,9 @@ $.fn.togglify = function(settings) {
       if (!input) return;
       if (_isFormElement(input)) {
         input.disabled = true;
-      } else {
-        input.setAttribute("contenteditable", false);
-        input.classList.add("disabled");
-        input.classList.remove("plastic_contenteditable");
-        $(input).off(".utility_contenteditable");
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        texty.disable();
       }
     },
     isDisabled: function(input) {
@@ -51311,8 +51332,9 @@ $.fn.togglify = function(settings) {
       if (!input) return;
       if (_isFormElement(input)) {
         return input.disabled === true;
-      } else {
-        return input.getAttribute("contenteditable") === "false";
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.isDisabled();
       }
     },
     enable: function(input) {
@@ -51320,17 +51342,20 @@ $.fn.togglify = function(settings) {
       if (!input) return;
       if (_isFormElement(input)) {
         input.disabled = false;
-      } else {
-        input.setAttribute("contenteditable", true);
-        input.classList.remove("disabled");
-        input.classList.add("plastic_contenteditable");
-        _bindEvents(input);
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        texty.enable();
       }
     },
     isEnabled: function(input) {
       input = _normalizeInput(input);
       if (!input) return false;
-      return !TS.utility.contenteditable.isDisabled(input);
+      if (_isFormElement(input)) {
+        return input.disabled !== true;
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.isEnabled();
+      }
     },
     value: function(input, value) {
       input = _normalizeInput(input);
@@ -51415,10 +51440,7 @@ $.fn.togglify = function(settings) {
       var test = {
         _normalizeInput: _normalizeInput,
         _isFormElement: _isFormElement,
-        _onPaste: _onPaste,
         _normalizeContent: _normalizeContent,
-        _onFocus: _onFocus,
-        _isUnwantedKeyCommand: _isUnwantedKeyCommand,
         _slugifyContent: _slugifyContent
       };
       return test;
@@ -51441,110 +51463,12 @@ $.fn.togglify = function(settings) {
     if (input.tagName.toLowerCase() === "input") return true;
     return false;
   };
-  var _currently_pressed_keys = {};
-  var _bindEvents = function(input) {
-    var $input = $(input);
-    $input.off(".utility_contenteditable");
-    $input.on("paste.utility_contenteditable", _onPaste);
-    $input.on("click.utility_contenteditable", _onClick);
-    $input.on("focus.utility_contenteditable", _onFocus);
-    $input.on("textchange.utility_contenteditable", {
-      sync: true
-    }, _onTextChange);
-    $input.on("keydown.utility_contenteditable", _onKeyDown);
-    $input.on("keyup.utility_contenteditable", _onKeyUp);
-  };
-  var _onPaste = function(e) {
-    e = e.originalEvent || e;
-    var clipboard_data = window.clipboardData || e.clipboardData;
-    var text = clipboard_data.getData("text/slack");
-    if (!text) text = clipboard_data.getData("text");
-    if (!text) text = clipboard_data.getData("text/plain");
-    if (!text) return;
-    e.preventDefault();
-    if (document.queryCommandSupported("insertHTML")) {
-      var formatted = TS.format.formatSlugs(text);
-      document.execCommand("insertHTML", false, formatted.html);
-    } else {
-      if (document.queryCommandSupported("insertText")) {
-        document.execCommand("insertText", false, text);
-      } else {
-        TS.selection.insertAtCaret(text);
-      }
-      var input = e.currentTarget;
-      _slugifyContent(input);
-    }
-  };
-  var _onClick = function(e) {
-    var target = e.target;
-    var is_element = target.classList.contains("plastic_contenteditable_element");
-    if (is_element) TS.selection.selectNode(target);
-  };
-  var _onTextChange = function(e) {
-    e = e.originalEvent || e;
-    var input = e.currentTarget;
-    _normalizeContent(input);
-  };
-  var _onKeyDown = function(e) {
-    var input = e.currentTarget;
-    var is_key_repeating = !!_currently_pressed_keys[e.keyCode];
-    _currently_pressed_keys[e.keyCode] = true;
-    if (_isUnwantedKeyCommand(e)) {
-      e.preventDefault();
-      return;
-    }
-    var is_home_key = e.keyCode === TS.utility.keymap.home;
-    var is_end_key = e.keyCode === TS.utility.keymap.end;
-    if (is_home_key || is_end_key) {
-      _moveCursorByLine(input, is_home_key, e.ctrlKey, !e.shiftKey);
-      e.preventDefault();
-      return;
-    }
-    if (e.keyCode === TS.utility.keymap.enter && (e.shiftKey || e.altKey || e.ctrlKey)) {
-      e.preventDefault();
-      _insertNewlineAtCaret(input);
-      return;
-    }
-    if (TS.utility.isForwardDeleteKey(e)) {
-      if (_maybeRemoveNewlineAtCaret(input)) e.preventDefault();
-      return;
-    }
-    if (!is_key_repeating && _isObstructedKeyCommand(e)) {
-      var revert = _makeChildrenEditable(input);
-      $(input).one("keyup", revert);
-      return;
-    }
-  };
-  var _isUnwantedKeyCommand = function(e) {
-    if (TS.utility.isBoldKey(e)) return true;
-    if (TS.utility.isItalicKey(e)) return true;
+  var _isTextyElement = function(input) {
+    if (!input) return false;
+    if (!TS.boot_data.feature_texty) return false;
+    var texty = _getTextyInstance(input);
+    if (texty) return true;
     return false;
-  };
-  var _isObstructedKeyCommand = function(e) {
-    if (e.ctrlKey && (e.keyCode === TS.utility.keymap.a || e.keyCode === TS.utility.keymap.e)) return true;
-    if (e.ctrlKey && e.keyCode === TS.utility.keymap.k) return true;
-    return false;
-  };
-  var _onKeyUp = function(e) {
-    delete _currently_pressed_keys[e.keyCode];
-  };
-  var _onFocus = function(e) {
-    if (!e) return;
-    var input = _normalizeInput(e.currentTarget);
-    if (!TS.utility.contenteditable.isContenteditable(input)) return;
-    $(input).data("utility-contenteditable-cursor-position", null);
-  };
-  var _onGlobalMousedown = function(e) {
-    e = e.originalEvent || e;
-    var prev_active_element = document.activeElement;
-    var next_active_element = e.target;
-    if (next_active_element === prev_active_element) return;
-    var is_prev_contenteditable = TS.utility.contenteditable.isContenteditable(prev_active_element);
-    var is_next_contenteditable = TS.utility.contenteditable.isContenteditable(next_active_element);
-    if (!is_prev_contenteditable || is_next_contenteditable) return;
-    var input = _normalizeInput(prev_active_element);
-    var cursor_pos = TS.utility.contenteditable.cursorPosition(input);
-    $(input).data("utility-contenteditable-cursor-position", cursor_pos);
   };
   var _normalizeContent = function(input) {
     if (!input || !input.innerHTML) return;
@@ -51594,72 +51518,11 @@ $.fn.togglify = function(settings) {
     value = value.replace(/(\n){1}$/, "");
     return value;
   };
-  var _insertNewlineAtCaret = function(input) {
-    if (!TS.utility.contenteditable.isActiveElement(input)) return;
-    var insertion = "\n";
-    var pos;
-    if (!input.textContent) {
-      insertion = "\n\n";
-      pos = 1;
-    }
-    TS.selection.insertAtCaret(insertion);
-    TS.utility.contenteditable.cursorPosition(input, pos);
-  };
-  var _maybeRemoveNewlineAtCaret = function(input) {
-    var pos = TS.selection.toCharacterRange(input);
-    if (pos.start !== pos.end) return false;
-    var next_chars = input.textContent.substr(pos.start, 3);
-    if (!/^\n@[a-z]$/i.test(next_chars)) return false;
-    TS.selection.removeNextChars(1);
-    TS.selection.selectCharacters(input, pos.start, pos.start);
-    return true;
-  };
   var _slugifyContent = function(input) {
     var value = TS.utility.contenteditable.value(input);
     if (!TS.format.hasMentions(value)) return;
     var cursor_pos = TS.utility.contenteditable.cursorPosition(input);
     TS.utility.populateInput(input, value, cursor_pos.start);
-  };
-  var _makeChildrenEditable = function(input) {
-    var uneditable_children = input.querySelectorAll("[contenteditable=false]");
-    _.each(uneditable_children, function(child) {
-      child.setAttribute("contenteditable", true);
-    });
-    return function() {
-      _.each(uneditable_children, function(child) {
-        child.setAttribute("contenteditable", false);
-      });
-    };
-  };
-  var _moveCursorByLine = function(input, is_moving_left, move_to_boundary, collapse_range) {
-    var display_value = TS.utility.contenteditable.displayValue(input);
-    var cursor_pos = TS.utility.contenteditable.cursorPosition(input);
-    var next_start = cursor_pos.start;
-    var next_end = cursor_pos.end;
-    if (move_to_boundary) {
-      if (is_moving_left) {
-        next_start = 0;
-      } else {
-        next_end = display_value.length;
-      }
-    } else {
-      if (is_moving_left) {
-        var prev_newline_index = display_value.lastIndexOf("\n", cursor_pos.start - 1);
-        next_start = prev_newline_index + 1;
-      } else {
-        var next_newline_index = display_value.indexOf("\n", cursor_pos.end);
-        if (next_newline_index === -1) next_newline_index = display_value.length;
-        next_end = next_newline_index;
-      }
-    }
-    if (collapse_range) {
-      if (is_moving_left) {
-        next_end = next_start;
-      } else {
-        next_start = next_end;
-      }
-    }
-    TS.utility.contenteditable.cursorPosition(input, next_start, next_end - next_start);
   };
   var _getTextyInstance = function(input) {
     return $(input).data("__ts_quill");
