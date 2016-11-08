@@ -9286,6 +9286,7 @@
     },
     bind: function($input) {
       TS.client.msg_input.$input = $input;
+      if (TS.boot_data.feature_texty) TS.utility.contenteditable.create($input);
       TS.utility.contenteditable.enable($input);
       if (TS.boot_data.feature_you_autocomplete_me) {
         $input.TS_tabCompleteNew({

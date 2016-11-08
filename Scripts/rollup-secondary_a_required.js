@@ -22884,6 +22884,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeModelObPriorityIconSafe", function(model_ob) {
         if (!TS.boot_data.feature_sli_channel_priority) return "";
         if (!TS.model.prefs || !TS.model.channel_sort.priority_display) return "";
+        if (!TS.client) return "";
         var priority = TS.client.channel_pane.getPriorityForModelOb(model_ob);
         if (!priority) return "";
         var priority_display = 11 - Math.ceil(priority * 10);
@@ -51274,6 +51275,14 @@ $.fn.togglify = function(settings) {
     onStart: function() {
       $(document.body).on("mousedown.utility_contenteditable", _onGlobalMousedown);
     },
+    create: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return;
+      if (_isFormElement(input)) return;
+      if (_getTextyInstance(input)) return;
+      var texty = window.texty.start(input);
+      _setTextyInstance(input, texty);
+    },
     isActiveElement: function(input) {
       input = _normalizeInput(input);
       if (!input) return;
@@ -51649,6 +51658,12 @@ $.fn.togglify = function(settings) {
       }
     }
     TS.utility.contenteditable.cursorPosition(input, next_start, next_end - next_start);
+  };
+  var _getTextyInstance = function(input) {
+    return $(input).data("__ts_quill");
+  };
+  var _setTextyInstance = function(input, instance) {
+    $(input).data("__ts_quill", instance);
   };
 })();
 (function() {

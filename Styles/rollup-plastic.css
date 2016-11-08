@@ -14642,6 +14642,15 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   background: #f9f9f9
 }
 
+.lazy_filter_select.default_style.disabled .lfs_input_container {
+  color: #c5c5c5
+}
+
+.lazy_filter_select.default_style.disabled .lfs_input_container:active,
+.lazy_filter_select.default_style.disabled .lfs_input_container:hover {
+  border-color: #c5c5c5
+}
+
 .lazy_filter_select.default_style input.lfs_input {
   border: none;
   font: 400 1rem Slack-Lato, appleLogo, sans-serif;
@@ -14655,7 +14664,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 .lazy_filter_select.default_style .lfs_input_container {
-  border: 1px solid #C5C5C5;
+  border: 1px solid #c5c5c5;
   font: 400 1rem Slack-Lato, appleLogo, sans-serif;
   position: relative;
   border-radius: 3px;
@@ -14893,6 +14902,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .lazy_filter_select.default_style.single .lfs_input_container.active:after,
 .lazy_filter_select.default_style.single .lfs_input_container:hover:after {
   color: #2780f8
+}
+
+.lazy_filter_select.default_style.single.disabled .lfs_input_container.active:after,
+.lazy_filter_select.default_style.single.disabled .lfs_input_container:hover:after {
+  color: currentColor
 }
 
 .lazy_filter_select.default_style.single .lfs_item {
