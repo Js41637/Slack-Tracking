@@ -1229,7 +1229,7 @@
     });
     if (TS.boot_data.feature_message_replies_threads_view) {
       var threads = resp.data.threads;
-      if (threads) TS.replies.setThreadsUnreadData(threads.has_unreads, threads.mention_count);
+      if (threads) TS.client.threads.setThreadsUnreadData(threads.has_unreads, threads.mention_count);
     }
     if (TS.client.history_prefetch) TS.client.history_prefetch.processHistoryFetchQueue();
     return null;

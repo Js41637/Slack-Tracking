@@ -8569,8 +8569,10 @@ body.winssb .file_list_item {
   max-height: 92px
 }
 
-#share_dialog .modal-body .contents:after,
-#share_dialog .modal-body .file_list_item:after {
+.share_dialog .snippet .contents:after,
+.share_dialog .snippet .file_list_item:after,
+.share_dialog .space .contents:after,
+.share_dialog .space .file_list_item:after {
   content: '';
   position: absolute;
   right: 0;
