@@ -21196,7 +21196,35 @@ TS.registerModule("constants", {
         var item;
         for (item in options.hash) {
           modified_items[item] = data[item];
-          data[item] = options.hash[item];
+          data[item] = Handlebars.Utils.escapeExpression(options.hash[item]);
+        }
+        var tokens = key.match(/{[\S]+}/g);
+        if (tokens && tokens.length) {
+          var getValue = function(namespace) {
+            var parts = namespace.split(".");
+            if (parts.length > 1) {
+              var i = 0;
+              var l = parts.length;
+              var obj = data;
+              for (i; i < l; i++) {
+                obj = obj[parts[i]];
+                if (obj === undefined) return;
+              }
+              return obj;
+            }
+            return data[namespace];
+          };
+          var value;
+          var i = 0;
+          var l = tokens.length;
+          for (i; i < l; i++) {
+            item = tokens[i].substr(1, tokens[i].length - 2);
+            value = getValue(item);
+            if (value !== undefined && modified_items[item] === undefined) {
+              modified_items[item] = data[item];
+              data[item] = Handlebars.Utils.escapeExpression(value);
+            }
+          }
         }
         var str = TS.i18n.t(key, {
           ns: ns

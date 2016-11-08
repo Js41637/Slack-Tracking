@@ -17984,14 +17984,10 @@ ts-message .emoji-sizer .mention {
 }
 
 .supports_sticky_position .day_divider {
-  z-index: 98;
+  z-index: 200;
   position: -webkit-sticky;
   position: sticky;
   top: 0
-}
-
-.supports_sticky_position .day_container .day_divider {
-  z-index: 99
 }
 
 .supports_sticky_position #messages_container.has_top_messages_banner .day_divider {
