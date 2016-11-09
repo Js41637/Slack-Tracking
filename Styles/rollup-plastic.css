@@ -739,8 +739,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/62aa/fonts/slack-icons-Regular.eot);
-  src: url(/62aa/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/62aa/fonts/slack-icons-Regular.woff) format('woff'), url(/62aa/fonts/slack-icons-Regular.ttf) format('truetype'), url(/62aa/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/297d4/fonts/slack-icons-Regular.eot);
+  src: url(/297d4/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/297d4/fonts/slack-icons-Regular.woff) format('woff'), url(/297d4/fonts/slack-icons-Regular.ttf) format('truetype'), url(/297d4/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -1577,8 +1577,16 @@ svg.ts_icon_spinner svg {
   content: '\E179'
 }
 
+.ts_icon_bot:before {
+  content: '\E180'
+}
+
 .ts_icon_globe_plus:before {
   content: '\E181'
+}
+
+.ts_icon_user_groups:before {
+  content: '\E182'
 }
 
 .ts_icon_expand:before {
@@ -1945,6 +1953,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_close_filled:before {
   content: '\E548'
+}
+
+.ts_icon_share_filled:before {
+  content: '\E549'
 }
 
 .ts_icon_arrow_right:before {
@@ -2349,6 +2361,22 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_box_square:before {
   content: '\E829'
+}
+
+.ts_icon_google_play:before {
+  content: '\E830'
+}
+
+.ts_icon_spotify:before {
+  content: '\E831'
+}
+
+.ts_icon_siriusxm:before {
+  content: '\E832'
+}
+
+.ts_icon_stitcher:before {
+  content: '\E833'
 }
 
 .ts_icon_file_generic:before {

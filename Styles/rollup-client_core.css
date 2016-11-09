@@ -7137,6 +7137,30 @@ only screen and (min-resolution:2dppx) {
   bottom: auto
 }
 
+#history_nav_btn {
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  color: grey;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .9375rem;
+  line-height: 1.2rem;
+  text-align: center;
+  font-weight: 700;
+  float: left;
+  height: 4rem;
+  width: 100%;
+  padding: 1rem 1.2rem 0
+}
+
+#history_nav_btn ts-icon:active,
+#history_nav_btn ts-icon:focus,
+#history_nav_btn ts-icon:hover {
+  color: #fff;
+  opacity: 1;
+  -moz-opacity: 1;
+  -khtml-opacity: 1
+}
+
 #quick_switcher_btn {
   border-top: 2px solid #4d394b;
   cursor: pointer;

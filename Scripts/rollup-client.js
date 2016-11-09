@@ -1210,7 +1210,7 @@
   var _updateUnreadsWithUsersCountsResponse = function(resp) {
     if (TS.client.history_prefetch) TS.client.history_prefetch.resetHistoryFetchQueue();
     _updateUnreadCounts(resp.data.channels, function(count_info) {
-      return TS.channels.getChannelById(count_info.id);
+      return TS.channels.getChannelById(count_info.id) || TS.groups.getGroupById(count_info.id);
     });
     _updateUnreadCounts(resp.data.groups, function(count_info) {
       if (count_info.is_mpim) {
@@ -9788,7 +9788,14 @@
     },
     rebuild: function() {
       $("#col_channels").toggleClass("no_unread_msgs_badges", !TS.model.channel_sort.is_custom_sorted || !_sortingByUnreadMessagesCount());
-      _rebuildQuickSwitcherBtn();
+      if (TS.boot_data.feature_prev_next_button) {
+        if (!$("#history_nav_btn").length) {
+          $("#col_channels_footer").append('<div id="history_nav_btn" class="clearfix"></div>');
+          $("#history_nav_btn").html(TS.templates.builders.buildHistoryNavBtnHtml());
+        }
+      } else {
+        _rebuildQuickSwitcherBtn();
+      }
       if (TS.model.channel_sort.is_custom_sorted) {
         _rebuildCustomListThrottled();
         return;
@@ -28914,6 +28921,10 @@
     $("#col_channels").removeClass("prefs_open");
     _expanded_rollups = [];
     _is_open = false;
+    _$div = null;
+    _$div_contents = null;
+    _$sidebar.find("a").off("click");
+    _$sidebar = null;
     if (TS.boot_data.feature_sli_channel_priority) {
       clearTimeout(_sorting_tim);
       TS.client.channel_pane.stopSortingMode();
@@ -34381,6 +34392,8 @@ var _timezones_alternative = {
       TS.view.resize_sig.remove(_onResize);
       TS.channels.renamed_sig.remove(_onRename);
       TS.groups.renamed_sig.remove(_onRename);
+      TS.client.ui.unread.unread_groups = null;
+      $_currently_sticky = null;
       if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
         TS.client.ui.flex.openFlexTab("details", true);
       }
@@ -35374,6 +35387,20 @@ var _timezones_alternative = {
         return $element;
       });
       return changes;
+    },
+    jumpToTop: function(config) {
+      delete config._range;
+      var $first = $(config.container).find(".message_container_item").first();
+      var ret = TS.ui.message_container.updateWithFocus(config, $first);
+      $first = $(config.container).find(".message_container_item").first();
+      $first.scrollintoview({
+        offset: "top",
+        px_offset: 50
+      });
+      return ret;
+    },
+    getRange: function(config) {
+      return config._range;
     },
     pageUp: function(config, $element) {
       if (!config._range || !config.page_size) return;

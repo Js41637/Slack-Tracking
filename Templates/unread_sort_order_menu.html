@@ -1,19 +1,23 @@
-<div class="section_header"><hr><span class="header_label menu_mini">Sort&hellip;<span></div>
+{{i18n_ns "all_unreads"}}
+
+<div class="section_header"><hr><span class="header_label menu_mini">
+  {{#t note="This this the heading for a sort group of options and will be followed by things like alphabettically and scientifically"}}Sort&hellip;{{/t}}
+<span></div>
 
 <li role="menuitem" class="{{#if_equal sort_order compare='alphabetical'}}selected{{/if_equal}}"><a data-sort-order="alphabetical">
-  <ts-icon class="ts_icon_check_small"></ts-icon> Alphabetically
+  <ts-icon class="ts_icon_check_small"></ts-icon> {{#t note="A sorting option for unread channels"}}Alphabetically{{/t}}
 </a></li>
 {{#if is_paid_team}}
   <li role="menuitem" class="{{#if_equal sort_order compare='priority'}}selected{{/if_equal}}"><a data-sort-order="priority">
-    <ts-icon class="ts_icon_check_small"></ts-icon> Scientifically 
+    <ts-icon class="ts_icon_check_small"></ts-icon> {{#t note="A sorting option for unread channels"}}Scientifically{{/t}}
     <ts-icon class="ts_icon_question_circle ts_tip ts_tip_top">
-      <span class="ts_tip_tip">This sorts your unreads<br> based on how you use Slack.</span>
+      <span class="ts_tip_tip">{{#t}}This sorts your unreads<br> based on how you use Slack.{{/t}}</span>
     </ts-icon>
   </a></li>
 {{/if}}
 <li role="menuitem" class="{{#if_equal sort_order compare='newest'}}selected{{/if_equal}}"><a data-sort-order="newest">
-  <ts-icon class="ts_icon_check_small"></ts-icon> Newest
+  <ts-icon class="ts_icon_check_small"></ts-icon> {{#t note="A sorting option for unread channels"}}Newest{{/t}}
 </a></li>
 <li role="menuitem" class="{{#if_equal sort_order compare='oldest'}}selected{{/if_equal}}"><a data-sort-order="oldest">
-  <ts-icon class="ts_icon_check_small"></ts-icon> Oldest
+  <ts-icon class="ts_icon_check_small"></ts-icon> {{#t note="A sorting option for unread channels"}}Oldest{{/t}}
 </a></li>

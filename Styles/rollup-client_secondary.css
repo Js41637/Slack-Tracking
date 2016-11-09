@@ -1761,7 +1761,7 @@ html.is_electron_mac #rxn_toast_div {
 
 #convo_subscription_container {
   border-top: 1px solid #e0e0e0;
-  padding: 1rem 5rem;
+  padding: 2.5rem 5rem 2rem;
   text-align: center;
   font-size: .8125rem
 }
@@ -17569,7 +17569,7 @@ ts-message .emoji-sizer .mention {
 #reply_container {
   margin-left: .625rem;
   margin-top: .625rem;
-  margin-bottom: .875rem
+  margin-bottom: 1.625rem
 }
 
 #reply_container.has_focus .member_image {
@@ -17631,9 +17631,20 @@ ts-message .emoji-sizer .mention {
 }
 
 #reply_container #reply_broadcast_toggle_label {
+  width: 250px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
   font-size: .8125rem;
   font-weight: 400;
   color: #555459
+}
+
+#reply_container #reply_send {
+  float: right;
+  margin-right: .5rem;
+  top: 6px
 }
 
 #convo_loading_indicator {

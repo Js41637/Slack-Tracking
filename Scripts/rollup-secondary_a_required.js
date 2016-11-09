@@ -3384,7 +3384,7 @@
       if (channel) {
         return channel;
       }
-      if (!channels) return null;
+      if (!channels) return TS.groups.getGroupById(id);
       for (var i = 0; i < channels.length; i++) {
         channel = channels[i];
         if (channel.id == id) {
@@ -3402,10 +3402,11 @@
         if (channel) {
           var skip_existing_check_because_object_definitely_does_not_exist = true;
           _upsertChannel(channel, skip_existing_check_because_object_definitely_does_not_exist);
+          return channel;
         }
-        return channel;
+        return TS.groups.getGroupById(id);
       }
-      return null;
+      return TS.groups.getGroupById(id);
     },
     getFirstChannelYouAreIn: function() {
       var channels = TS.model.channels;
@@ -3469,7 +3470,11 @@
       return null;
     },
     upsertChannel: function(channel) {
-      return _upsertChannel(channel);
+      if (channel.is_private) {
+        return TS.groups.upsertGroup(channel);
+      } else {
+        return _upsertChannel(channel);
+      }
     },
     processNewChannelForUpserting: function(channel) {
       _processNewChannelForUpserting(channel);
@@ -3787,7 +3792,11 @@
   var _processNewChannelForUpserting = function(channel) {
     channel._hotness = 0;
     TS.shared.setPriorityForDev(channel);
-    channel.is_channel = true;
+    if (channel.is_private) {
+      channel.is_group = true;
+    } else {
+      channel.is_channel = true;
+    }
     channel.is_general = !!channel.is_general;
     channel._name_lc = _.toLower(channel.name);
     channel._show_in_list_even_though_no_unreads = false;
@@ -8670,7 +8679,7 @@ TS.registerModule("constants", {
       var model_ob;
       if (TS.client) {
         if (TS.model.active_channel_id) {
-          model_ob = TS.channels.getChannelById(TS.model.active_channel_id);
+          model_ob = TS.channels.getChannelById(TS.model.active_channel_id) || TS.groups.getGroupById(TS.model.active_channel_id);
         } else if (TS.model.active_im_id) {
           model_ob = TS.ims.getImById(TS.model.active_im_id);
         } else if (TS.model.active_mpim_id) {
@@ -8680,7 +8689,7 @@ TS.registerModule("constants", {
         }
       } else {
         if (TS.boot_data.channel_id) {
-          model_ob = TS.channels.getChannelById(TS.boot_data.channel_id);
+          model_ob = TS.channels.getChannelById(TS.boot_data.channel_id) || TS.groups.getGroupById(TS.boot_data.channel_id);
         } else if (TS.boot_data.im_id) {
           model_ob = TS.ims.getImById(TS.boot_data.im_id);
         } else if (TS.boot_data.mpim_id) {
@@ -8732,7 +8741,7 @@ TS.registerModule("constants", {
       if (!id) return null;
       var ob_type = id[0];
       if (ob_type === "C") {
-        return TS.channels.getChannelById(id);
+        return TS.channels.getChannelById(id) || TS.groups.getGroupById(id);
       } else if (ob_type === "G") {
         return TS.mpims.getMpimById(id) || TS.groups.getGroupById(id);
       } else if (ob_type === "S") {
@@ -14459,6 +14468,9 @@ TS.registerModule("constants", {
     },
     connectImmediately: function(url) {
       if (!url) url = TS.model.team.url;
+      if (!url) {
+        throw new Error("No WebSocket URL for us to connect to! 😱");
+      }
       url = _addQueryParamsToLoginUrl(url);
       _connect(url);
       _initSocketHandlersImmediate();
@@ -15300,6 +15312,12 @@ TS.registerModule("constants", {
       }
       if (TS.boot_data.feature_unread_view && !original_msg) {
         original_msg = TS.client.unread.getMessage(model_ob, imsg.deleted_ts);
+      }
+      if (TS.boot_data.feature_message_replies && !original_msg) {
+        original_msg = TS.ui.replies.getActiveMessage(model_ob, imsg.deleted_ts);
+      }
+      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !original_msg) {
+        original_msg = TS.client.threads.getMessage(model_ob, imsg.deleted_ts);
       }
       if (!original_msg) {
         return;
@@ -20909,6 +20927,43 @@ TS.registerModule("constants", {
         $rxn_hover_container.html(handy_rxns_html).prepend($menu_rxn);
       });
     },
+    buildHistoryNavBtnHtml: function() {
+      var hide_quick_switcher_btn = TS.model.prefs.no_omnibox_in_channels;
+      var hide_prev_next_btn = false;
+      var num_col = 0;
+      if (!hide_prev_next_btn) {
+        num_col += 2;
+      }
+      if (!hide_quick_switcher_btn) {
+        num_col += 1;
+      }
+      var left_btn_html = TS.templates.footer_nav_btn({
+        col: num_col,
+        ts_icon_type: "ts_icon_arrow_large_left",
+        ts_tip_name: "Previous",
+        ts_tip_shortcut: TS.model.is_mac ? "⌘ ←" : "Alt + ←"
+      });
+      var right_btn_html = TS.templates.footer_nav_btn({
+        col: num_col,
+        ts_icon_type: "ts_icon_arrow_large_right",
+        ts_tip_name: "Next",
+        ts_tip_shortcut: TS.model.is_mac ? "⌘ →" : "Alt + →"
+      });
+      var quick_switcher_btn_html = TS.templates.footer_nav_btn({
+        col: num_col,
+        ts_icon_type: "ts_icon_filter",
+        ts_tip_name: "Quick Switcher",
+        ts_tip_shortcut: TS.model.is_mac ? "⌘ K" : "Alt + K"
+      });
+      var html = "";
+      if (!hide_prev_next_btn) {
+        html += left_btn_html + right_btn_html;
+      }
+      if (!hide_quick_switcher_btn) {
+        html += quick_switcher_btn_html;
+      }
+      return html;
+    },
     filePreviewBackIcon: function() {
       return '<i class="ts_icon ts_icon_chevron_medium_left back_icon"></i>';
     },
@@ -24102,6 +24157,9 @@ TS.registerModule("constants", {
       }
       if (TS.boot_data.feature_message_replies && !original_msg && TS.ui.replies) {
         original_msg = TS.ui.replies.getActiveMessage(model_ob, new_msg.ts);
+      }
+      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !original_msg) {
+        original_msg = TS.client.threads.getMessage(model_ob, new_msg.ts);
       }
       if (TS.boot_data.feature_unread_view && !original_msg) {
         original_msg = TS.client.unread.getMessage(model_ob, new_msg.ts);
@@ -35716,8 +35774,9 @@ var _on_esc;
             $rest_text_expander.find("a .ts_icon").removeClass("ts_icon_caret_down").addClass("ts_icon_caret_right");
           }
         } else {
-          if ($short_text.data("all-text")) {
-            $short_text.html($short_text.data("all-text"));
+          var all_text = $short_text.attr("data-all-text");
+          if (all_text) {
+            $short_text.html(all_text);
             $short_text.data("all-text", "");
           }
           if ($more_text.length) $more_text.removeClass("hidden");
@@ -36294,6 +36353,9 @@ var _on_esc;
       if (TS.boot_data.feature_message_replies && !msg) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
       }
+      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !msg) {
+        msg = TS.client.threads.getMessage(model_ob, msg_ts);
+      }
       if (!msg) {
         TS.error("no msg in msgs?");
         return null;
@@ -36356,6 +36418,8 @@ var _on_esc;
         TS.msg_edit.editing_in_msg_pane = false;
         TS.msg_edit.editing_in_convo_pane = false;
         TS.msg_edit.edit_ended_sig.dispatch();
+        form = null;
+        input = null;
         TS.msg_edit.resetEditUI();
       });
       if (TS.boot_data.feature_you_autocomplete_me) {
@@ -36701,6 +36765,9 @@ var _on_esc;
       var msg = TS.utility.msgs.getMsg(msg_ts, _getMsgs(model_ob));
       if (TS.boot_data.feature_message_replies && !msg) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
+      }
+      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !msg) {
+        msg = TS.client.threads.getMessage(model_ob, msg_ts);
       }
       if (!msg) {
         TS.error("no msg in msgs?");
@@ -43951,6 +44018,7 @@ $.fn.togglify = function(settings) {
       callback();
       if (_.isFunction(find_new_el)) {
         $el = find_new_el();
+        if (!$el.length) return;
       }
       var now_top = $el.offset().top;
       var dist_moved = now_top - initial_offset.top;
@@ -44516,7 +44584,7 @@ $.fn.togglify = function(settings) {
       if (!msg && model_ob._archive_msgs) msg = TS.utility.msgs.getMsg(msg_ts, model_ob._archive_msgs);
       if (!msg && TS.model.unread_view_is_showing) msg = TS.client.unread.getMessage(model_ob, msg_ts);
       if (!msg && TS.boot_data.feature_message_replies) msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
-      if (!msg && TS.boot_data.feature_message_replies_threads_view) msg = TS.client.threads.getMessage(model_ob, msg_ts, $msg.attr("data-thread-ts"));
+      if (!msg && TS.boot_data.feature_message_replies_threads_view) msg = TS.client.threads.getMessage(model_ob, msg_ts);
       if (!msg) {
         TS.error(msg_ts + " not found in " + model_ob_id);
         return;
@@ -45243,6 +45311,11 @@ $.fn.togglify = function(settings) {
       var tab_name = $el.attr("data-tab-name");
       TS.mentions.setActiveTab(tab_name);
     });
+    TS.click.addClientHandler("#reply_send", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies) return;
+      e.preventDefault();
+      TS.ui.replies.submitReply(e, $el);
+    });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {
         e.preventDefault();
@@ -45338,6 +45411,14 @@ $.fn.togglify = function(settings) {
         $el.append('<span class="offscreen constrain-triple-clicks"></span>');
         $el.data("triple-clicks-constrained", true);
       }
+    });
+    TS.click.addClientHandler("#threads_view_banner .clear_unread_messages", function(e, $el) {
+      e.preventDefault();
+      TS.client.threads.markAllNewThreads();
+    });
+    TS.click.addClientHandler("#threads_view_banner", function(e, $el) {
+      e.preventDefault();
+      TS.client.ui.threads.jumpToTop();
     });
     if (TS.boot_data.feature_app_cards_and_profs_frontend) {
       TS.click.addClientHandler(".app_preview_link", function(e, $el) {
@@ -45728,8 +45809,8 @@ $.fn.togglify = function(settings) {
   "use strict";
   TS.registerModule("ui.frecency", {
     onStart: function() {
-      if (TS.client) TS.client.before_login_sig.add(_onBeforeLogin);
-      if (TS.web) TS.web.before_login_sig.add(_onBeforeLogin);
+      if (TS.client) TS.client.before_login_sig.addOnce(_onBeforeLogin);
+      if (TS.web) TS.web.before_login_sig.addOnce(_onBeforeLogin);
       TS.prefs.frecency_jumper_changed_sig.add(_setFrecencyCache);
     },
     record: function() {
@@ -51282,7 +51363,7 @@ $.fn.togglify = function(settings) {
       if (_isFormElement(input)) return;
       if (_getTextyInstance(input)) return;
       var texty = new Texty(input, {
-        placeholder: input.dataset.placeholder || "Message #fpo"
+        placeholder: input.dataset.placeholder
       });
       _setTextyInstance(input, texty);
     },
@@ -51319,7 +51400,7 @@ $.fn.togglify = function(settings) {
     },
     isContenteditable: function(input) {
       input = _normalizeInput(input);
-      return input && !_isFormElement(input);
+      return _isTextyElement(input);
     },
     disable: function(input) {
       input = _normalizeInput(input);
@@ -51399,16 +51480,23 @@ $.fn.togglify = function(settings) {
     },
     placeholder: function(input, value) {
       input = _normalizeInput(input);
-      if (!input) return;
-      var attr = _isFormElement(input) ? "placeholder" : "data-placeholder";
-      if (typeof value === "string") {
-        if (value === "") {
-          input.removeAttribute(attr);
-        } else {
-          input.setAttribute(attr, value);
+      if (!input) return "";
+      var next_value;
+      if (_isFormElement(input)) {
+        if (_.isString(value)) {
+          if (value === "") {
+            input.removeAttribute("placeholder");
+          } else {
+            input.setAttribute("placeholder", value);
+          }
         }
+        next_value = input.getAttribute("placeholder");
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        if (_.isString(value)) texty.setPlaceholder(value);
+        next_value = texty.getPlaceholder();
       }
-      return input.getAttribute(attr);
+      return next_value || "";
     },
     cursorPosition: function(input, start, length) {
       var pos = {
@@ -51423,7 +51511,15 @@ $.fn.togglify = function(settings) {
         pos.start = start;
         pos.end = start + length;
         pos.length = length;
-        TS.selection.selectCharacters(input, pos.start, pos.end);
+        if (_isFormElement(input)) {
+          TS.selection.selectCharacters(input, pos.start, pos.end);
+        } else if (_isTextyElement(input)) {
+          var texty = _getTextyInstance(input);
+          texty.setSelection({
+            index: pos.start,
+            length: pos.length
+          });
+        }
       } else {
         if (!TS.utility.contenteditable.isActiveElement(input)) {
           var prev_pos = $(input).data("utility-contenteditable-cursor-position");
@@ -51434,16 +51530,16 @@ $.fn.togglify = function(settings) {
           pos.start = input.selectionStart;
           pos.end = input.selectionEnd;
           pos.length = Math.abs(input.selectionEnd - input.selectionStart);
-        } else {
-          var chars = TS.selection.toCharacterRange(input);
-          pos.start = Math.min(chars.start, chars.end);
-          pos.end = Math.max(chars.start, chars.end);
-          pos.length = pos.end - pos.start;
+        } else if (_isTextyElement(input)) {
+          var texty = _getTextyInstance(input);
+          var range = texty.getSelection();
+          if (range) {
+            pos.start = range.index;
+            pos.length = range.length;
+            pos.end = pos.start + pos.length;
+          }
         }
       }
-      var offset = _cursorDifferenceBetweenValueModes(input, pos.end);
-      pos.start += offset;
-      pos.end += offset;
       return pos;
     },
     test: function() {
@@ -51478,27 +51574,6 @@ $.fn.togglify = function(settings) {
     var texty = _getTextyInstance(input);
     if (texty) return true;
     return false;
-  };
-  var _cursorDifferenceBetweenValueModes = function(input, end_index) {
-    if (_isFormElement(input)) return 0;
-    var overall_diff = 0;
-    var index = 0;
-    _.each(input.childNodes, function(node) {
-      if (index >= end_index) return false;
-      var actual_txt = TS.format.stringifyNode(node);
-      var visual_txt = node.textContent;
-      var diff = actual_txt.length - visual_txt.length;
-      if (diff) {
-        var node_end_index = index + actual_txt.length;
-        if (node_end_index > end_index + diff) {
-          diff -= node_end_index - end_index;
-        }
-        overall_diff += diff;
-        end_index += diff;
-      }
-      index += actual_txt.length;
-    });
-    return overall_diff;
   };
   var _getTextyInstance = function(input) {
     return $(input).data("__ts_quill");

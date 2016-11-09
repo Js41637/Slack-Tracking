@@ -952,7 +952,7 @@
             TS.log(1996, "Successfully finalized a provisional MS connection");
           } else {
             TS.log(1996, "No valid provisional MS connection; making a new connection");
-            TS.ms.connectImmediately();
+            TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url);
           }
         }
       } else {
@@ -1840,7 +1840,11 @@
         data.channels.forEach(function(channel) {
           if (just_general && !channel.is_general) return;
           channel.all_read_this_session_once = false;
-          TS.channels.upsertChannel(channel);
+          if (channel.is_private) {
+            TS.groups.upsertGroup(channel);
+          } else {
+            TS.channels.upsertChannel(channel);
+          }
         });
         TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
         var skip_ims_mpims = TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members;
@@ -2120,7 +2124,11 @@
       })) {
       data.users.push(data.self);
     }(users_counts_data.channels || []).forEach(function(ob) {
-      ob.is_channel = true;
+      if (ob.is_private) {
+        ob.is_group = true;
+      } else {
+        ob.is_channel = true;
+      }
       ob.is_member = true;
       ob.members = ob.members || [];
       _upsertModelOb(ob, data.channels);
