@@ -9257,7 +9257,7 @@ TS.registerModule("constants", {
       if (!TS.boot_data.page_needs_enterprise || !TS.model.team || !TS.model.team.enterprise_id || !TS.boot_data.other_accounts) return is_relevant;
       if (!window.winssb) return is_relevant;
       if (TS.pri) TS.log(ncc, "isRelevantTeam()");
-      var enterprise_teams = TS.model.enterprise._teams;
+      var enterprise_teams = TS.model.enterprise_teams;
       if (enterprise_teams.length === 1) return is_relevant;
       var team_ids = _.map(enterprise_teams, function(item) {
         return item.id;
@@ -9304,7 +9304,7 @@ TS.registerModule("constants", {
         }
       } else {
         if (TS.pri) TS.log(ncc, "no model_ob.shares on # " + model_ob.name + ", model ob is " + (!model_ob.is_org_shared ? "NOT " : "") + "org_shared");
-        enterprise_team_ids = _.map(TS.model.enterprise._teams, function(item) {
+        enterprise_team_ids = _.map(TS.model.enterprise_teams, function(item) {
           return item.id;
         });
       }
@@ -13314,7 +13314,7 @@ TS.registerModule("constants", {
           break;
         case "client_logs_pri":
           TS.model.prefs[imsg.name] = imsg.value;
-          if (TS.boot_data.feature_console_me) TS.console.setAppropriatePri();
+          TS.console.setAppropriatePri();
           break;
         default:
           TS.model.prefs[imsg.name] = imsg.value;
@@ -21008,7 +21008,7 @@ TS.registerModule("constants", {
       if (!team_id) return "ERROR: MISSING TEAM ID";
       var html = "";
       var matching_team_data;
-      var teams_info = TS.model.enterprise._teams;
+      var teams_info = TS.model.enterprise_teams;
       if (teams_info) {
         matching_team_data = _.find(teams_info, function(team_info) {
           return team_info.id === team_id;
@@ -21993,7 +21993,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("isTeamInOrg", function(team, options) {
         if (!TS.boot_data.external_shared_channels_ui || !TS.boot_data.page_needs_enterprise) return options.inverse(this);
-        var is_in_org = TS.model.enterprise._teams.some(function(enterprise_team) {
+        var is_in_org = TS.model.enterprise_teams.some(function(enterprise_team) {
           return enterprise_team.id === team.id;
         });
         return is_in_org ? options.fn(this) : options.inverse(this);
@@ -30389,7 +30389,7 @@ TS.registerModule("constants", {
               ob.enterprise_id = item[0].enterprise_id;
               ob.enterprise_name = item[0].enterprise_name;
               if (TS.model.user.enterprise_user && ob.enterprise_id === TS.model.user.enterprise_user.enterprise_id) {
-                var all_teams_in_enterprise = TS.model.enterprise._teams;
+                var all_teams_in_enterprise = TS.model.enterprise_teams;
                 var user_teams = [];
                 TS.model.user.enterprise_user.teams.forEach(function(team_id, index) {
                   if (team_id === TS.model.team.id) return;
@@ -31357,7 +31357,7 @@ var _on_esc;
       if (TS.notifs.isCorGMuted(channel.id)) template_args.channel_is_muted = true;
       if (channel.is_member && (!channel.is_general || TS.members.canUserPostInGeneral())) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise && channel.is_shared) {
-        if (TS.boot_data.feature_manage_shared_channel_teams && TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
+        if (TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
         if (template_args.show_advanced_item) {
           if (TS.boot_data.feature_shared_channels_settings && !TS.members.canUserManageSharedChannels()) template_args.show_advanced_item = false;
         }
@@ -32456,7 +32456,7 @@ var _on_esc;
       if (TS.notifs.isCorGMuted(group.id)) template_args.group_is_muted = true;
       template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise && group.is_shared) {
-        if (TS.boot_data.feature_manage_shared_channel_teams && TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
+        if (TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
         if (group.creator !== TS.model.user.id) template_args.show_advanced_item = false;
         if (TS.boot_data.feature_shared_channels_settings && TS.members.canUserManageSharedChannels()) template_args.show_advanced_item = true;
         template_args.is_not_allowed_integrations = true;
@@ -46847,7 +46847,7 @@ $.fn.togglify = function(settings) {
     return selectors.join(", ");
   };
   var _getEnterpriseTeamsFromModelLessOwn = function() {
-    return _isEnterprise() ? _.filter(TS.model.enterprise._teams, function(team) {
+    return _isEnterprise() ? _.filter(TS.model.enterprise_teams, function(team) {
       return team.id !== TS.model.team.id;
     }) : [];
   };
@@ -48560,8 +48560,8 @@ $.fn.togglify = function(settings) {
       var user = TS.model.user;
       if (!member.enterprise_user) return null;
       if (with_shared && !user.enterprise_user) return null;
-      if (!TS.model.enterprise || !TS.model.enterprise._teams) return null;
-      var all_teams = TS.model.enterprise._teams;
+      if (!TS.model.enterprise || !TS.model.enterprise_teams) return null;
+      var all_teams = TS.model.enterprise_teams;
       var member_teams = member.enterprise_user.teams;
       var user_teams = [];
       var teams = {
@@ -48610,17 +48610,7 @@ $.fn.togglify = function(settings) {
       if (enterprise) {
         for (var k in enterprise) {
           if (existing_enterprise[k] != enterprise[k]) {
-            if (k == "_teams") {
-              if (enterprise._teams && enterprise._teams.length) {
-                if (typeof enterprise._teams[0] === "object") {
-                  _mergeTeams(enterprise._teams);
-                } else if (typeof enterprise._teams[0] === "string") {
-                  _deleteTeams(enterprise._teams);
-                }
-                what_changed.push(k);
-                status = "CHANGED";
-              }
-            } else if (k == "icon") {
+            if (k == "icon") {
               existing_enterprise[k] = enterprise[k];
               what_changed.push(k);
               status = "CHANGED";
@@ -48643,6 +48633,37 @@ $.fn.togglify = function(settings) {
         what_changed: what_changed
       };
     },
+    upsertEnterpriseTeam: function(team) {
+      if (!TS.boot_data.page_needs_enterprise) TS.warn("Unexpected call to TS.enterprise.upsertEnterpriseTeam");
+      if (!team || typeof team === "string") return;
+      var teams = TS.model.enterprise_teams;
+      var existing_enterprise_team = TS.enterprise.getTeamById(team.id);
+      if (existing_enterprise_team) {
+        for (var k in team) {
+          existing_enterprise_team[k] = team[k];
+        }
+        team = existing_enterprise_team;
+      } else {
+        teams.push(team);
+        _id_map[team.id] = team;
+      }
+      return team;
+    },
+    getTeamById: function(id) {
+      var teams = TS.model.enterprise_teams;
+      var team = _id_map[id];
+      if (team) return team;
+      if (!teams) return null;
+      for (var i = 0; i < teams.length; i++) {
+        team = teams[i];
+        if (team.id === id) {
+          TS.warn(id + " not in _id_map?");
+          _id_map[id] = team;
+          return team;
+        }
+      }
+      return null;
+    },
     promiseToEnsureEnterprise: function() {
       if (!TS.boot_data.page_needs_enterprise) TS.warn("Unexpected call to TS.enterprise.promiseToEnsureEnterprise");
       return Promise.all([TS.api.call("enterprise.info").reflect(), TS.api.call("enterprise.teams.list", {
@@ -48658,8 +48679,11 @@ $.fn.togglify = function(settings) {
           return Promise.reject(new Error("Some enterprise APIs failed:\n" + rejection_reasons.join("\n")));
         } else {
           var enterprise = responses[0].value().data.enterprise;
-          enterprise._teams = responses[1].value().data.teams;
           TS.enterprise.upsertEnterprise(enterprise);
+          var teams = responses[1].value().data.teams;
+          teams.forEach(function(team) {
+            TS.enterprise.upsertEnterpriseTeam(team);
+          });
         }
       });
     },
@@ -48680,13 +48704,10 @@ $.fn.togglify = function(settings) {
     addTeamsToSharedForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (!channel.is_shared) return;
-      var map = {};
-      TS.model.enterprise._teams.forEach(function(team) {
-        map[team.id] = team;
-      });
       var shares = channel.shares;
       teams_ids.forEach(function(team_id) {
-        var team = map[team_id];
+        var team = TS.enterprise.getTeamById(team_id);
+        if (!team) return;
         shares.push({
           id: team_id,
           team: team
@@ -48697,13 +48718,10 @@ $.fn.togglify = function(settings) {
     updateSharesForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (!channel.is_shared) return;
-      var map = {};
-      TS.model.enterprise._teams.forEach(function(team) {
-        map[team.id] = team;
-      });
       var shares = [];
       teams_ids.forEach(function(team_id) {
-        var team = map[team_id];
+        var team = TS.enterprise.getTeamById(team_id);
+        if (!team) return;
         shares.push({
           id: team_id,
           team: team
@@ -48712,43 +48730,11 @@ $.fn.togglify = function(settings) {
       channel.shares = shares;
     }
   });
+  var _id_map = {};
   var _maybeSetupEnterpriseModel = function() {
-    if (TS.model.enterprise) return;
-    TS.model.enterprise = {};
-    TS.model.enterprise._teams = [];
-  };
-  var _isEmpty = function(teams) {
-    if (teams && teams.length) _.remove(teams, function(team) {
-      return !team;
-    });
-    return !(teams && teams.length);
-  };
-  var _getIndexForNewTeam = function(team) {
-    for (var i = TS.model.enterprise._teams.length; i > 0; i--) {
-      if (TS.model.enterprise._teams[i - 1].id < team.id) return i;
-    }
-    return 0;
-  };
-  var _mergeTeams = function(teams) {
-    if (_isEmpty(teams)) return;
-    var map = TS.model.enterprise._teams.reduce(function(accumulator, team) {
-      accumulator[team.id] = team;
-      return accumulator;
-    }, {});
-    teams.forEach(function(team) {
-      var existing_team = map[team.id];
-      if (existing_team) {
-        $.extend(true, existing_team, team);
-      } else {
-        TS.model.enterprise._teams.splice(_getIndexForNewTeam(team), 0, team);
-      }
-    });
-  };
-  var _deleteTeams = function(teams) {
-    if (_isEmpty(teams)) return;
-    _.remove(TS.model.enterprise._teams, function(team) {
-      return teams.indexOf(team.id) != -1;
-    });
+    if (TS.model.enterprise && TS.model.enterprise_teams) return;
+    TS.model.enterprise = _.merge({}, TS.model.enterprise);
+    TS.model.enterprise_teams = _.merge([], TS.model.enterprise_teams);
   };
 })();
 (function() {

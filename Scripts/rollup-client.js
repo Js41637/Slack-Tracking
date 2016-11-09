@@ -11825,7 +11825,7 @@
                 var shared_meta_template_args = {
                   model_ob: model_ob
                 };
-                if (!model_ob.shares || TS.model.enterprise._teams.length === model_ob.shares.length) {
+                if (!model_ob.shares || TS.model.enterprise_teams.length === model_ob.shares.length) {
                   shared_meta_template_args.all_teams = true;
                 } else {
                   var number_of_teams_to_show_in_shared_with_meta = 3;
@@ -11878,7 +11878,7 @@
                 var shared_meta_template_args = {
                   model_ob: model_ob
                 };
-                if (TS.model.enterprise._teams.length === model_ob.shares.length) {
+                if (TS.model.enterprise_teams.length === model_ob.shares.length) {
                   shared_meta_template_args.all_teams = true;
                 } else {
                   var number_of_teams_to_show_in_shared_with_meta = 3;
@@ -23189,7 +23189,7 @@
     });
     $convert_to_shared.find('[name="domains"]').each(function(index, el) {
       var $el = $(el);
-      var teams = TS.boot_data.page_needs_enterprise ? _.filter(TS.model.enterprise._teams, function(team) {
+      var teams = TS.boot_data.page_needs_enterprise ? _.filter(TS.model.enterprise_teams, function(team) {
         return team.id !== TS.model.team.id;
       }) : [];
       TS.ui.team_picker.make($el, {
@@ -23801,7 +23801,7 @@
     });
     TS.ui.channel_manage_teams_dialog.div.find('[name="domains"]').each(function(index, el) {
       var $el = $(el);
-      var all_teams = _.filter(TS.model.enterprise._teams, function(team) {
+      var all_teams = _.filter(TS.model.enterprise_teams, function(team) {
         return team.id !== TS.model.team.id;
       });
       var preselected_ids = _.map(model_ob.shares, function(team) {
@@ -26331,7 +26331,7 @@
         TS.warn("WTF, channel " + model_ob.id + " is org shared but no shares?");
         return;
       }
-      if (model_ob.shares.length === TS.model.enterprise._teams.length) {
+      if (model_ob.shares.length === TS.model.enterprise_teams.length) {
         template_args.is_globally_shared = true;
         template_args.enterprise_org_name = TS.model.enterprise.name;
         template_args.enterprise_org_icon = TS.model.enterprise.icon;
@@ -28504,14 +28504,14 @@
     _promiseToFilter("").then(_updateForInviteableMembers).then(_displayFilterResults);
   };
   var _promiseToVerifyOtherOrgMembersExist = function() {
-    if (!_channel.is_shared || !_member_searcher || !_member_searcher.include_org || !TS.model.enterprise || TS.model.enterprise._teams.length === _member_searcher.org_team_ids.length) return Promise.resolve(false);
+    if (!_channel.is_shared || !_member_searcher || !_member_searcher.include_org || !TS.model.enterprise || TS.model.enterprise_teams.length === _member_searcher.org_team_ids.length) return Promise.resolve(false);
     var searcher = {
       query: _member_searcher.query,
       include_org: _member_searcher.include_org,
       include_slackbot: _member_searcher.include_slackbot,
       include_self: _member_searcher.include_self,
       max_api_results: 1,
-      org_team_ids: _(TS.model.enterprise._teams).map("id").xor(_member_searcher.org_team_ids).value()
+      org_team_ids: _(TS.model.enterprise_teams).map("id").xor(_member_searcher.org_team_ids).value()
     };
     return TS.members.promiseToSearchMembers(searcher).then(function(searcher) {
       return Promise.resolve(!!searcher.num_found);
@@ -29018,31 +29018,29 @@
         template_args.show_app_download_path = show_app_download_path;
         template_args.app_download_path = app_download_path;
         if (TS.boot_data.feature_flannel_fe) template_args.show_flannel_pref = true;
-        if (TS.boot_data.feature_console_me) {
-          template_args.show_console_whitelist = true;
-          var preselected = _.get(TS.model.prefs, "client_logs_pri", "");
-          template_args.whitelisted_pris = _(Object.keys(TS.boot_data.client_logs)).filter(function(key) {
-            var obj = TS.boot_data.client_logs[key];
-            var feature_allowed = true;
-            if (!_.isUndefined(obj.features)) {
-              var features = obj.features;
-              if (!_.isArray(obj.features)) features = features.split(",");
-              var count = 0;
-              features.forEach(function(feature) {
-                if (feature.indexOf("feature_") !== 0) feature = "feature_" + feature;
-                if (TS.boot_data[feature]) count++;
-              });
-              feature_allowed = count === features.length;
-            }
-            return !_.isUndefined(obj.whitelisted) && obj.whitelisted && feature_allowed;
-          }).map(function(key) {
-            var obj = _.merge({}, TS.boot_data.client_logs[key]);
-            obj.selected = preselected.indexOf(key) > -1;
-            if (obj.name) obj.name = obj.name[0].toUpperCase() + obj.name.substring(1);
-            return obj;
-          }).value();
-          template_args.client_logs_pri_all_selected = preselected.indexOf("all") > -1;
-        }
+        template_args.show_console_whitelist = true;
+        var preselected = _.get(TS.model.prefs, "client_logs_pri", "");
+        template_args.whitelisted_pris = _(Object.keys(TS.boot_data.client_logs)).filter(function(key) {
+          var obj = TS.boot_data.client_logs[key];
+          var feature_allowed = true;
+          if (!_.isUndefined(obj.features)) {
+            var features = obj.features;
+            if (!_.isArray(obj.features)) features = features.split(",");
+            var count = 0;
+            features.forEach(function(feature) {
+              if (feature.indexOf("feature_") !== 0) feature = "feature_" + feature;
+              if (TS.boot_data[feature]) count++;
+            });
+            feature_allowed = count === features.length;
+          }
+          return !_.isUndefined(obj.whitelisted) && obj.whitelisted && feature_allowed;
+        }).map(function(key) {
+          var obj = _.merge({}, TS.boot_data.client_logs[key]);
+          obj.selected = preselected.indexOf(key) > -1;
+          if (obj.name) obj.name = obj.name[0].toUpperCase() + obj.name.substring(1);
+          return obj;
+        }).value();
+        template_args.client_logs_pri_all_selected = preselected.indexOf("all") > -1;
         html = TS.templates.prefs_advanced(template_args);
         break;
       case "labs":
@@ -29667,17 +29665,15 @@
         value: val
       });
     });
-    if (TS.boot_data.feature_console_me) {
-      $("#client_logs_pri").hide().lazyFilterSelect({
-        placeholder_text: "Select logs to enable..."
-      }).on("change", function() {
-        var priorities = $(this).val();
-        TS.prefs.setPrefByAPI({
-          name: "client_logs_pri",
-          value: priorities ? priorities.join(",") : ""
-        });
+    $("#client_logs_pri").hide().lazyFilterSelect({
+      placeholder_text: "Select logs to enable..."
+    }).on("change", function() {
+      var priorities = $(this).val();
+      TS.prefs.setPrefByAPI({
+        name: "client_logs_pri",
+        value: priorities ? priorities.join(",") : ""
       });
-    }
+    });
     var surprise_suffix = Math.random();
     if (TS.model.user.id == "U024BE7LV") {
       $("#emo_bear").attr("src", "/img/emo_bear2.gif?" + surprise_suffix);
@@ -32670,7 +32666,7 @@ var _timezones_alternative = {
     if (query.charAt(0) === "@") query = query.substring(1);
     var org_team_ids;
     if (TS.model.enterprise) {
-      org_team_ids = _(TS.model.enterprise._teams).map("id").filter(function(id) {
+      org_team_ids = _(TS.model.enterprise_teams).map("id").filter(function(id) {
         return id !== TS.model.team.id;
       }).value();
     } else {
