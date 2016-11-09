@@ -3561,10 +3561,9 @@
     onStart: function() {
       if (!_is_setup) _setup();
     },
-    t: function(key, options) {
+    t: function(key, ns) {
       if (!_is_setup) _setup();
-      options = options || {};
-      var translations = options.ns ? _namespaced(options.ns) : _translations;
+      var translations = _namespaced(ns);
       var translation = translations[key];
       if (translation === undefined) {
         if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) {

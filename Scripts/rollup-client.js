@@ -6917,10 +6917,7 @@
           if (TS.boot_data.feature_pin_update) {
             $member_count.html('<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon> ' + display_member_count);
           } else {
-            $member_count.text(TS.i18n.t("{member_count,plural,=1{{member_count} member}other{{member_count} members}}", {
-              ns: "channel",
-              note: "The number of users in a channel"
-            })({
+            $member_count.text(TS.i18n.t("{member_count,plural,=1{{member_count} member}other{{member_count} members}}", "client")({
               member_count: display_member_count
             }));
           }
@@ -24920,9 +24917,7 @@
           _end();
         }
       }
-      var loading_text = TS.i18n.t("Loading...", {
-        note: "Let the user know that the page is loading"
-      })();
+      var loading_text = TS.i18n.t("Loading...", "archives")();
       TS.client.archives.$archives_msgs_div.html('<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>");
       _showing_id = model_ob.id + (msg_id || "");
       _msg_id = msg_id || null;
@@ -25372,48 +25367,29 @@
       $("#footer").css("height", "auto");
       $("#footer_archives").removeClass("hidden");
       if (model_ob.is_archived) {
-        archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, an archived channel", {
-          ns: "archives",
-          note: "The channel preview information for users who have not joined an archived channel"
-        })({
+        archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, an archived channel", "archives")({
           hash: hash,
           channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
           shared: shared
         });
-        action_tip_html = TS.i18n.t('<strong aria-label="return">Esc</strong> to close', {
-          ns: "archives",
-          note: 'A hint for a keyboard event that does the same thing as the "Close Channel" button'
-        })();
+        action_tip_html = TS.i18n.t('<strong aria-label="return">Esc</strong> to close', "archives")();
         $("#footer_archives_text").html(archive_html);
-        $("#footer_archives_action_button").text(TS.i18n.t("Close Channel", {
-          ns: "archives"
-        })());
+        $("#footer_archives_action_button").text(TS.i18n.t("Close Channel", "archives")());
         $("#footer_archives_action_tip").html('<span class="tiny dialog_cancel_hint">' + action_tip_html + "</span>");
       } else {
-        archive_html = TS.i18n.t("You are viewing a preview of <strong>{hash}{channel_name}{shared}</strong>", {
-          ns: "archives",
-          note: "The channel preview information for users who have not joined an active channel"
-        })({
+        archive_html = TS.i18n.t("You are viewing a preview of <strong>{hash}{channel_name}{shared}</strong>", "archives")({
           hash: hash,
           channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
           shared: shared
         });
-        action_tip_html = TS.i18n.t('<strong aria-label="return">Return <span class="return_char">&crarr;</span></strong> to join', {
-          ns: "archives",
-          note: 'A hint for a keyboard event that does the same thing as the "Join Channel" button'
-        })();
+        action_tip_html = TS.i18n.t('<strong aria-label="return">Return <span class="return_char">&crarr;</span></strong> to join', "archives")();
         $("#footer_archives_text").html(archive_html);
-        $("#footer_archives_action_button").text(TS.i18n.t("Join Channel", {
-          ns: "archives"
-        })()).removeClass("btn_outline");
+        $("#footer_archives_action_button").text(TS.i18n.t("Join Channel", "archives")()).removeClass("btn_outline");
         $("#footer_archives_action_tip").html('<span class="tiny dialog_cancel_hint">' + action_tip_html + "</span>");
       }
       TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
     } else {
-      TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, TS.i18n.t("You are viewing the archives of {hash}{channel_name}", {
-        ns: "archives",
-        note: "An input placeholder when the user is viewing an archived messages (usually a jump link from search)"
-      })({
+      TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, TS.i18n.t("You are viewing the archives of {hash}{channel_name}", "archives")({
         hash: placeholder_hash,
         channel_name: model_ob.name
       }));
@@ -25440,9 +25416,7 @@
   var _updateBottom = function() {
     var txt;
     if (_loading_bottom) {
-      txt = TS.i18n.t("retrieving history...", {
-        ns: "archives"
-      })();
+      txt = TS.i18n.t("retrieving history...", "archives")();
     } else if (_all_loaded_bottom) {
       if (_msg_id) {
         txt = "&nbsp;";
@@ -25450,26 +25424,18 @@
         txt = "";
       }
     } else {
-      txt = '<a onclick="TS.client.archives.loadMoreBottom()">' + TS.i18n.t("and more...", {
-        ns: "archives"
-      })() + "</a>";
+      txt = '<a onclick="TS.client.archives.loadMoreBottom()">' + TS.i18n.t("and more...", "archives")() + "</a>";
     }
     $("#archives_bottom_div").html(txt);
   };
   var _updateTop = function() {
     var txt;
     if (_loading_top) {
-      txt = TS.i18n.t("retrieving history...", {
-        ns: "archives"
-      })();
+      txt = TS.i18n.t("retrieving history...", "archives")();
     } else if (_all_loaded_top) {
-      txt = TS.i18n.t("~FIN~", {
-        ns: "archives"
-      })();
+      txt = TS.i18n.t("~FIN~", "archives")();
     } else {
-      txt = '<a onclick="TS.client.archives.loadMoreTop()">' + TS.i18n.t("and more...", {
-        ns: "archives"
-      })() + "</a>";
+      txt = '<a onclick="TS.client.archives.loadMoreTop()">' + TS.i18n.t("and more...", "archives")() + "</a>";
     }
     $("#archives_top_div").html(txt);
   };
@@ -33768,6 +33734,9 @@ var _timezones_alternative = {
       _all_messages_fetched = true;
       processed_data.has_more = false;
     }
+    if (TS.boot_data.feature_unread_view_keyboard_commands && first_fetch && _groups.length && !TS.client.unread.getActiveGroup()) {
+      _groups[0].active = true;
+    }
     return processed_data;
   };
   var _sortAndDedupe = function(group, collection_key) {
@@ -34040,6 +34009,7 @@ var _timezones_alternative = {
       TS.prefs.a11y_font_size_changed_sig.add(_updateStickyHeader);
       TS.prefs.a11y_font_size_changed_sig.add(_updateUnreadGroupPositions);
       _initialized_time = Date.now();
+      _keyboard_in_use = false;
       $("#client-ui").addClass("unread_view_is_showing");
       $("#msgs_scroller_div").addClass("hidden");
       $("#archives_return").addClass("hidden");
@@ -34261,6 +34231,7 @@ var _timezones_alternative = {
       TS.ui.message_container.register(_msgs_config);
       TS.client.ui.unread.$scroller.addClass("loading");
       _preloadEmptyState();
+      _keyboard_in_use = false;
       TS.client.ui.unread.promiseToShowNextPage().then(function() {
         if (!TS.model.unread_view_is_showing) return;
         if (TS.client.unread.getAllGroups().length) {
@@ -34679,6 +34650,7 @@ var _timezones_alternative = {
     unreads_page_message_index: 0
   };
   var _delay_refresh_button;
+  var _keyboard_in_use = false;
   var CLIENT_HEADER_OVERHANG = 8;
   var _preloadEmptyState = function() {
     var done_message_combo_options = [{
@@ -35048,14 +35020,10 @@ var _timezones_alternative = {
     if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !TS.client.ui.unread.$scroller.hasClass("loading") && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
       var current_group = TS.client.unread.getActiveGroup();
       if (e.which === TS.utility.keymap.right || e.which === TS.utility.keymap.left) {
+        _keyboard_in_use = true;
         e.preventDefault();
         var backwards = e.which === TS.utility.keymap.left ? true : false;
         target_group = TS.client.unread.moveActiveMarker(backwards);
-        if (!current_group && !_getGroupElement(target_group).length) {
-          var $target_group = TS.client.ui.unread.$unread_msgs_div.find(".unread_group").first();
-          var target_group_id = $target_group.data("model-id");
-          target_group = TS.client.unread.setActiveGroup(TS.client.unread.getGroup(target_group_id));
-        }
         if (target_group) {
           _changeActiveElement(target_group, current_group, {
             collapse_current_group: !backwards
@@ -35070,11 +35038,7 @@ var _timezones_alternative = {
           }
         }
       } else if (e.which === 82) {
-        if (!current_group) {
-          current_group = _.first(TS.client.unread.getAllGroups());
-          if (!_getGroupElement(current_group).length) return;
-          TS.client.unread.setActiveGroup(current_group);
-        }
+        _keyboard_in_use = true;
         if (current_group) {
           if (current_group.marked_as_read) {
             TS.client.ui.unread.markGroupAsUnread(current_group.id);
@@ -35100,7 +35064,7 @@ var _timezones_alternative = {
     });
     var updateTargetGroup = function() {
       var $target_group = _getGroupElement(target_group);
-      $target_group.toggleClass("active", target_group.active);
+      $target_group.toggleClass("active", target_group.active && _keyboard_in_use);
       TS.client.ui.unread.updateHeader(target_group);
       if (!target_group.marked_as_read) {
         if (opts.scroll_and_expand) TS.client.ui.unread.expandGroup(target_group);
@@ -35127,12 +35091,12 @@ var _timezones_alternative = {
           TS.client.ui.unread.collapseGroup(current_group, $msgs_holder, {
             scroll_group: false
           }).then(function() {
-            $current_group.toggleClass("active", current_group.active);
+            $current_group.toggleClass("active", current_group.active && _keyboard_in_use);
             TS.client.ui.unread.updateHeader(current_group);
             updateTargetGroup();
           });
         } else {
-          $current_group.toggleClass("active", current_group.active);
+          $current_group.toggleClass("active", current_group.active && _keyboard_in_use);
           TS.client.ui.unread.updateHeader(current_group);
           updateTargetGroup();
         }
@@ -35230,7 +35194,7 @@ var _timezones_alternative = {
       name_with_sign: TS.shared.getDisplayNameForModelOb(group.model_ob),
       marked_as_read: group.marked_as_read,
       collapsed: group.collapsed,
-      active: TS.boot_data.feature_unread_view_keyboard_commands && group.active,
+      active: TS.boot_data.feature_unread_view_keyboard_commands && _keyboard_in_use && group.active,
       is_channel: group.model_ob.is_channel,
       is_group: group.model_ob.is_group,
       is_mpim: group.model_ob.is_mpim,

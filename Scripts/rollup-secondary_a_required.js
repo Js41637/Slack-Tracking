@@ -3920,11 +3920,11 @@
         });
       }
       TS.generic_dialog.start({
-        title: TS.i18n.t("Edit retention policy for {channel_name}")({
+        title: TS.i18n.t("Edit retention policy for {channel_name}", "channels")({
           channel_name: channel_name
         }),
         body: modal_body,
-        go_button_text: TS.i18n.t("Save settings")(),
+        go_button_text: TS.i18n.t("Save settings", "channels")(),
         enter_always_gos: true,
         onGo: function() {
           var type = $("select[name=retention_type]").val();
@@ -3957,13 +3957,13 @@
     },
     showArchiveChannelDialog: function(model_ob) {
       TS.generic_dialog.start({
-        title: TS.i18n.t("Archive #{channel_name}")({
+        title: TS.i18n.t("Archive #{channel_name}", "channels")({
           channel_name: model_ob.name
         }),
         body: TS.templates.channel_option_archive_channel({
           name: model_ob.name
         }),
-        go_button_text: TS.i18n.t("Yes, archive the channel")(),
+        go_button_text: TS.i18n.t("Yes, archive the channel", "channels")(),
         onGo: function() {
           TS.api.call("channels.archive", {
             channel: model_ob.id
@@ -3977,21 +3977,21 @@
               }
               return;
             }
-            var err_str = TS.i18n.t("Archiving failed with error: {error}")({
+            var err_str = TS.i18n.t("Archiving failed with error: {error}", "channels")({
               error: data.error
             });
             if (data.error === "last_ra_channel") {
               if (TS.model.user.is_admin) {
-                err_str = TS.i18n.t("Sorry, you can‘t archive this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to archive the channel.")();
+                err_str = TS.i18n.t("Sorry, you can‘t archive this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to archive the channel.", "channels")();
               } else {
-                err_str = TS.i18n.t("Sorry, you can‘t archive this channel because it is the only channel one of the guest account members belongs to.")();
+                err_str = TS.i18n.t("Sorry, you can‘t archive this channel because it is the only channel one of the guest account members belongs to.", "channels")();
               }
             } else if (data.error === "restricted_action") {
-              err_str = TS.i18n.t("<p>You don‘t have permission to archive channels.</p><p>Talk to your Team Owner.</p>")();
+              err_str = TS.i18n.t("<p>You don‘t have permission to archive channels.</p><p>Talk to your Team Owner.</p>", "channels")();
             } else if (data.error === "already_archived") {
-              err_str = TS.i18n.t("This channel was already archived.")();
+              err_str = TS.i18n.t("This channel was already archived.", "channels")();
             } else if (data.error === "cant_archive_general") {
-              err_str = TS.i18n.t("This channel cannot be archived.")();
+              err_str = TS.i18n.t("This channel cannot be archived.", "channels")();
             }
             setTimeout(TS.generic_dialog.alert, 500, err_str);
           });
@@ -3999,14 +3999,12 @@
       });
     },
     showArchiveGroupDialog: function(model_ob, and_leave) {
-      var title = TS.i18n.t("{leave, select, true{Leave and archive}other{Archive}} {prefix}{name}", {
-        note: 'This is shown when a user leaves a group. Depending on whether the user is leaving or not, the text will say "Archive {channel_name}" or "Leave and archive {channel_name}", with {channel_name} being a variable.'
-      })({
+      var title = TS.i18n.t("{leave, select, true{Leave and archive}other{Archive}} {prefix}{name}", "channels")({
         leave: and_leave,
         prefix: TS.model.group_prefix,
         name: model_ob.name
       });
-      var go_button_text = TS.i18n.t("{leave, select, true{Yes, leave & archive the channel}other{Yes, archive the channel}}")({
+      var go_button_text = TS.i18n.t("{leave, select, true{Yes, leave & archive the channel}other{Yes, archive the channel}}", "channel")({
         leave: and_leave
       });
       TS.generic_dialog.start({
@@ -4032,19 +4030,19 @@
               }
               return;
             }
-            var err_str = TS.i18n.t("Archiving failed with error: {error}")({
+            var err_str = TS.i18n.t("Archiving failed with error: {error}", "channels")({
               error: data.error
             });
             if (data.error === "last_ra_channel") {
               if (TS.model.user.is_admin) {
-                err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to archive the channel.")();
+                err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to archive the channel.", "channels")();
               } else {
-                err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to.")();
+                err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to.", "channels")();
               }
             } else if (data.error === "already_archived") {
-              err_str = TS.i18n.t("This channel was already archived.")();
+              err_str = TS.i18n.t("This channel was already archived.", "channels")();
             } else if (data.error === "restricted_action") {
-              err_str = TS.i18n.t("<p>You don‘t have permission to archive private channels.</p><p>Talk to your Team Owner.</p>")();
+              err_str = TS.i18n.t("<p>You don‘t have permission to archive private channels.</p><p>Talk to your Team Owner.</p>", "channels")();
             }
             setTimeout(TS.generic_dialog.alert, 500, err_str);
           });
@@ -4067,7 +4065,7 @@
       $("#channel_create_title").select();
     },
     channelCreateDialogShowOtherErrorAlert: function($div, text) {
-      if (!text) text = TS.i18n.t("Sorry! Something went wrong.")();
+      if (!text) text = TS.i18n.t("Sorry! Something went wrong.", "channels")();
       $div.find(".modal_input_note").addClass("hidden");
       $div.find(".other_error").removeClass("hidden").find(".error_message").text(text);
     },
@@ -4159,11 +4157,11 @@
       if (model_type === "group") {
         model_type = "channel";
       }
-      anim.replaceWith('<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can‘t change the retention duration for this {model_type}.")({
+      anim.replaceWith('<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can‘t change the retention duration for this {model_type}.", "channels")({
         model_type: model_type
       }) + "</p>");
     } else {
-      anim.replaceWith('<p class="no_bottom_margin">' + TS.i18n.t("Oops! Something went wrong. Please try again.")() + "</p>");
+      anim.replaceWith('<p class="no_bottom_margin">' + TS.i18n.t("Oops! Something went wrong. Please try again.", "channels")() + "</p>");
     }
   };
   var _onShowDataRetentionDialog = function() {
@@ -4183,7 +4181,7 @@
   };
   var _retentionDialogLoadingHtml = function() {
     var url = cdn_url + "/f85a/img/loading_hash_animation_@2x.gif";
-    var loading_text = TS.i18n.t("Loading...")();
+    var loading_text = TS.i18n.t("Loading...", "channels")();
     return '<div class="loading_hash_animation" style="margin: 2rem;"><img src="' + url + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
   };
 })();
@@ -15375,7 +15373,7 @@ TS.registerModule("constants", {
       if (channel.is_member) imsg.channel.is_member = true;
       TS.channels.upsertChannel(imsg.channel);
       if (channel._name_lc !== _.toLower(imsg.channel.name)) TS.channels.channelRenamed(imsg.channel);
-      TS.client.channel_pane.rebuild("channels");
+      if (TS.client) TS.client.channel_pane.rebuild("channels");
       var current_ob = TS.shared.getActiveModelOb();
       if (current_ob.id === channel.id) {
         TS.channels.converted_to_shared_sig.dispatch(channel);
@@ -15393,7 +15391,7 @@ TS.registerModule("constants", {
       }
       if (group.is_member) imsg.group.is_member = true;
       TS.groups.upsertGroup(imsg.group);
-      TS.client.channel_pane.rebuild("channels");
+      if (TS.client) TS.client.channel_pane.rebuild("channels");
       var current_ob = TS.shared.getActiveModelOb();
       if (current_ob.id === group.id) {
         TS.groups.converted_to_shared_sig.dispatch(group);
@@ -16508,6 +16506,7 @@ TS.registerModule("constants", {
     },
     update_thread_state: function(imsg) {
       if (!TS.boot_data.feature_message_replies || !TS.boot_data.feature_message_replies_threads_view) return;
+      if (!TS.client) return;
       TS.client.threads.setThreadsUnreadData(imsg.has_unreads, imsg.mention_count);
     }
   });
@@ -21226,9 +21225,7 @@ TS.registerModule("constants", {
             }
           }
         }
-        var str = TS.i18n.t(key, {
-          ns: ns
-        })(data);
+        var str = TS.i18n.t(key, ns)(data);
         for (item in modified_items) {
           data[item] = modified_items[item];
         }
