@@ -1022,11 +1022,11 @@
       var retry_interval_ms = retry_interval_value;
       var _retryLater = function(jq_xhr, text_status, error_msg) {
         if (typeof max_retries == "number" && retry_attempts > max_retries) {
-          TS.warn("Unable to reconnect to the API after " + retry_attempts + " retry attemps");
+          TS.warn("Unable to reconnect to the API after " + retry_attempts + " retry attempts");
           failure_sig.dispatch();
           return;
         }
-        var info = retry_attempts ? "Internet connection still offline after " + retry_attempts + " retry attemps" : "Internet connection still offline";
+        var info = retry_attempts ? "Internet connection still offline after " + retry_attempts + " retry attempts" : "Internet connection still offline";
         TS.warn([info, text_status, error_msg].join(" "));
         retry_attempts++;
         setTimeout(_testConnection, retry_interval_ms);
@@ -1034,7 +1034,7 @@
       var _onSuccess = function() {
         if (_should_send_timing_data) var offline_duration_ms = TS.metrics.measureAndClear("api_offline_duration", "api_connectivity_lost");
         var offline_duration_s = _.round(offline_duration_ms / 1e3, 2);
-        var message = retry_attempts ? "Internet connection has been re-established after " + retry_attempts + " retry attemps;" : "Internet connection has been re-established";
+        var message = retry_attempts ? "Internet connection has been re-established after " + retry_attempts + " retry attempts;" : "Internet connection has been re-established";
         var info = [message, "offline for " + offline_duration_s + " seconds"];
         TS.info(info.join(" "));
         success_sig.dispatch();
@@ -14803,6 +14803,7 @@ TS.registerModule("constants", {
     }
     _websocket = undefined;
     _did_make_provisional_connection = false;
+    TS.model.ms_connecting = false;
   };
   var _onReconnectInterval = function() {
     var ms = TS.model.ms_reconnect_time - Date.now();
@@ -15093,7 +15094,7 @@ TS.registerModule("constants", {
       _websocket.onmessage = _onMsgProvisional;
       _websocket.onopen = _onConnectProvisional;
     }).catch(function(err) {
-      TS.logError(err, "TS.ms.connect wake error", "Flannel error");
+      TS.logError(err, "rtm-start-over-MS error", "Flannel error");
       throw err;
     });
     return rtm_start_p;
@@ -26329,7 +26330,6 @@ TS.registerModule("constants", {
           cursor_pos = formatted.cursor.start;
         }
         $input.html(new_html);
-        TS.utility.contenteditable._normalizeContent($input[0]);
         $input.data("textchange_lastvalue", $input.html());
         TS.utility.queueRAF(function populateInputRAF() {
           $input.trigger("textchange");
@@ -51340,6 +51340,7 @@ $.fn.togglify = function(settings) {
         var texty = _getTextyInstance(input);
         return texty.isDisabled();
       }
+      return false;
     },
     enable: function(input) {
       input = _normalizeInput(input);
@@ -51360,32 +51361,40 @@ $.fn.togglify = function(settings) {
         var texty = _getTextyInstance(input);
         return texty.isEnabled();
       }
+      return false;
     },
     value: function(input, value) {
       input = _normalizeInput(input);
       if (!input) return "";
-      if (_.isString(value)) {
-        if (_isFormElement(input)) {
-          input.value = value;
-        } else {
-          input.innerHTML = TS.utility.htmlEntities(value);
-          _normalizeContent(input);
-        }
+      if (_isFormElement(input)) {
+        if (_.isString(value)) input.value = value;
+        return input.value;
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        if (_.isString(value)) texty.setText(value);
+        return texty.getFormattedContents();
       }
-      return _value(input, true);
+      return "";
     },
     displayValue: function(input) {
       input = _normalizeInput(input);
       if (!input) return "";
-      return _value(input, false);
+      if (_isFormElement(input)) {
+        return input.value;
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.getText();
+      }
+      return "";
     },
     clear: function(input) {
       input = _normalizeInput(input);
       if (!input) return;
       if (_isFormElement(input)) {
         input.value = "";
-      } else {
-        input.innerHTML = "";
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        texty.clear();
       }
     },
     placeholder: function(input, value) {
@@ -51437,15 +51446,10 @@ $.fn.togglify = function(settings) {
       pos.end += offset;
       return pos;
     },
-    _normalizeContent: function(input) {
-      _normalizeContent(input);
-    },
     test: function() {
       var test = {
         _normalizeInput: _normalizeInput,
-        _isFormElement: _isFormElement,
-        _normalizeContent: _normalizeContent,
-        _slugifyContent: _slugifyContent
+        _isFormElement: _isFormElement
       };
       return test;
     }
@@ -51458,6 +51462,7 @@ $.fn.togglify = function(settings) {
     if (input.tagName.toLowerCase() === "textarea") return input;
     if (input.tagName.toLowerCase() === "input") return input;
     if (input.hasAttribute("contenteditable")) return input;
+    if (TS.boot_data.feature_texty && input.tagName === "DIV") return input;
     return false;
   };
   var _isFormElement = function(input) {
@@ -51473,21 +51478,6 @@ $.fn.togglify = function(settings) {
     var texty = _getTextyInstance(input);
     if (texty) return true;
     return false;
-  };
-  var _normalizeContent = function(input) {
-    if (!input || !input.innerHTML) return;
-    if (/^(\n|<br>|<div><br><\/div>)$/i.test(input.innerHTML)) {
-      TS.utility.contenteditable.clear(input);
-      return;
-    }
-    if (/<br>/.test(input.innerHTML)) {
-      _.each(input.querySelectorAll("br"), function(br) {
-        input.replaceChild(document.createTextNode("\n"), br);
-      });
-    }
-    if (!/(\n|<br>|<\/div>)$/i.test(input.innerHTML)) {
-      input.appendChild(document.createTextNode("\n"));
-    }
   };
   var _cursorDifferenceBetweenValueModes = function(input, end_index) {
     if (_isFormElement(input)) return 0;
@@ -51509,24 +51499,6 @@ $.fn.togglify = function(settings) {
       index += actual_txt.length;
     });
     return overall_diff;
-  };
-  var _value = function(input, do_transform_members) {
-    if (_isFormElement(input)) return input.value;
-    if (!input.innerHTML || input.innerHTML === "\n") return "";
-    var input_clone = input.cloneNode(true);
-    _normalizeContent(input_clone);
-    var options = {};
-    if (!do_transform_members) options.excludeFn = TS.utility.members.isMemberElement;
-    TS.format.applyStringifyTransformsToChildren(input_clone, options);
-    var value = input_clone.textContent;
-    value = value.replace(/(\n){1}$/, "");
-    return value;
-  };
-  var _slugifyContent = function(input) {
-    var value = TS.utility.contenteditable.value(input);
-    if (!TS.format.hasMentions(value)) return;
-    var cursor_pos = TS.utility.contenteditable.cursorPosition(input);
-    TS.utility.populateInput(input, value, cursor_pos.start);
   };
   var _getTextyInstance = function(input) {
     return $(input).data("__ts_quill");

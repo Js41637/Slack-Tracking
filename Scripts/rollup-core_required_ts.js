@@ -700,15 +700,12 @@
           return Promise.reject(new Error("rtm.start-over-WebSocket failed"));
         }
         _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
-        if (!_ms_rtm_start_p) {
-          TS.log(1989, "Bad news: we tried to connect to Flannel so we could get an rtm.start response, but it didn't set a promise for us; we are now totally wedged.");
-          return Promise.reject(new Error("rtm.start-over-WebSocket failed"));
-        }
       }
       var rtm_start_p = _ms_rtm_start_p;
       _ms_rtm_start_p = undefined;
       return rtm_start_p.then(function(rtm_start_data) {
         TS.log(1989, "Flannel: got rtm.start response 💕");
+        _failed_rtm_start_attempts = 0;
         return {
           ok: true,
           args: {},
@@ -717,7 +714,18 @@
       }).catch(function(err) {
         TS.log(1989, "Flannel: rtm.start fetch failed or timed out 💔");
         console.log(err, err.stack);
-        return _promiseToCallRTMStart();
+        _failed_rtm_start_attempts++;
+        TS.log(1989, "Checking for internet connectivity before trying rtm.start fetch again...");
+        var wait_start_time = performance.now();
+        return TS.api.connection.waitForAPIConnection().then(function() {
+          var MAX_RTM_START_DELAY_MS = 15e3;
+          var DELAY_PER_FAILED_RTM_START_ATTEMPT_MS = 3e3;
+          _rtm_start_retry_delay_ms = Math.min(MAX_RTM_START_DELAY_MS, _failed_rtm_start_attempts * DELAY_PER_FAILED_RTM_START_ATTEMPT_MS);
+          var time_spent_waiting_for_connection = Math.floor(performance.now() - wait_start_time);
+          _rtm_start_retry_delay_ms = Math.max(0, _rtm_start_retry_delay_ms - time_spent_waiting_for_connection);
+          TS.log(1989, "OK, spent " + time_spent_waiting_for_connection + " ms waiting for internet connectivity");
+          return _promiseToCallRTMStart();
+        });
       });
     }
     if (TS.model.calling_rtm_start) {
@@ -994,6 +1002,7 @@
     if (!TS.web.space) return;
     TS.ds.disconnect();
   };
+  var _failed_rtm_start_attempts = 0;
   var _rtm_start_retry_delay_ms;
   var _last_rtm_start_event_ts;
   var _ms_rtm_start_p;

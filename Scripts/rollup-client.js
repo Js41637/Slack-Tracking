@@ -8873,7 +8873,6 @@
       } else {
         done();
       }
-      $("#flex_toggle").attr("title", "Show Flexpane");
     },
     last_window_width_diff: 392,
     last_window_width_diff_default: 392,
@@ -8937,7 +8936,6 @@
           TS.view.maybeRebuildUserGroupList();
         }, 1);
       }
-      $("#flex_toggle").attr("title", "Hide Flexpane");
       TS.client.ui.flex.adjustIFramesInSpecialFlexPanes();
       if (!TS.boot_data.feature_msg_input_contenteditable) {
         TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
@@ -9094,7 +9092,8 @@
       return TS.client.ui.flex.setFlexStateFromHistory.apply(window, args);
     });
   });
-  var loader_html = '<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading...</div>';
+  var loading_text = TS.i18n.t("Loading...", "flexpane")();
+  var loader_html = '<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
   var _toggleFlexTab = function(flex_name) {
     if (TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === flex_name) {
       TS.client.ui.flex.hideFlex();
@@ -9132,21 +9131,21 @@
     if (model_ob && name === "details") {
       $details_toggle.addClass("active");
       if (model_ob.is_im || model_ob.is_mpim) {
-        $details_toggle_ts_tip_tip.text("Hide Conversation Details");
+        $details_toggle_ts_tip_tip.text(TS.i18n.t("Hide Conversation Details", "flexpane")());
       } else if (model_ob.is_group || model_ob.is_channel) {
-        $details_toggle_ts_tip_tip.text("Hide Channel Details");
+        $details_toggle_ts_tip_tip.text(TS.i18n.t("Hide Channel Details", "flexpane")());
       }
       $("#client-ui").addClass("details_showing");
     } else if (name === "mentions") {
       $recent_mentions_toggle.addClass("active");
       if (TS.boot_data.feature_message_replies) {
-        $recent_mentions_toggle.find(".ts_tip_tip").text("Hide Activity");
+        $recent_mentions_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Activity", "flexpane")());
       } else {
-        $recent_mentions_toggle.find(".ts_tip_tip").text("Hide Mentions & Reactions");
+        $recent_mentions_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Mentions & Reactions", "flexpane")());
       }
     } else if (name === "stars") {
       $stars_toggle.addClass("active");
-      $stars_toggle.find(".ts_tip_tip").text("Hide Starred Items");
+      $stars_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Starred Items", "flexpane")());
     }
   };
   var _resetFlexpaneToggles = function(model_ob) {
@@ -9155,18 +9154,18 @@
     $(".channel_header_icon.active").removeClass("active");
     if (model_ob) {
       if (model_ob.is_im || model_ob.is_mpim) {
-        $details_toggle_ts_tip_tip.text("Show Conversation Details");
+        $details_toggle_ts_tip_tip.text(TS.i18n.t("Show Conversation Details", "flexpane")());
       } else {
-        $details_toggle_ts_tip_tip.text("Show Channel Details");
+        $details_toggle_ts_tip_tip.text(TS.i18n.t("Show Channel Details", "flexpane")());
       }
     }
     if (TS.boot_data.feature_message_replies) {
-      $("#recent_mentions_toggle .ts_tip_tip").text("Show Activity");
+      $("#recent_mentions_toggle .ts_tip_tip").text(TS.i18n.t("Show Activity", "flexpane")());
     } else {
       $("#recent_mentions_toggle").addClass("ts_tip_rightish");
-      $("#recent_mentions_toggle .ts_tip_tip").text("Show Mentions & Reactions");
+      $("#recent_mentions_toggle .ts_tip_tip").text(TS.i18n.t("Show Mentions & Reactions", "flexpane")());
     }
-    $("#stars_toggle .ts_tip_tip").text("Show Starred Items");
+    $("#stars_toggle .ts_tip_tip").text(TS.i18n.t("Show Starred Items", "flexpane")());
   };
 })();
 (function() {
