@@ -1,0 +1,50 @@
+{{!-- billing items --}}
+{{!-- item is a refund --}}
+{{#if_equal charge_type compare="is_refund"}}
+  <span class="inline_positive">Credited <strong>{{formatted_charges.refund}}</strong></span><br />
+{{/if_equal}}
+{{!-- Item is some kind of card charge --}}
+{{#if_equal charge_type compare="is_failed_charge"}}
+  <span class="inline_negative">Failed to charge <strong>{{formatted_charges.card_charge}}</strong></span>
+{{/if_equal}}
+{{#if_equal charge_type compare="is_voided_or_refunded"}}
+  <span class="inline_negative">Charged <strong>{{formatted_charges.card_charge}}</strong></span>
+{{/if_equal}}
+{{#if_equal charge_type compare="is_charge"}}
+  Charged <strong>{{formatted_charges.card_charge}}</strong>
+{{/if_equal}}
+{{!-- Item is an invoice or invoice adjustment--}}
+{{#if_equal charge_type compare="is_paid_invoice"}}
+  {{#if_gt invoice.amount compare=0}}
+    Paid:
+    {{#if invoice.amount_adjusted}}
+      {{formatted_invoice.amount_adjusted}}
+    {{else}}
+      {{formatted_invoice.amount}}
+    {{/if}}
+  {{/if_gt}}
+{{/if_equal}}
+{{#if_equal charge_type compare="is_unpaid_invoice"}}
+  {{#if_gt invoice.amount compare=0}}
+    Unpaid:
+    {{#if invoice.amount_adjusted}}
+      {{formatted_invoice.amount_adjusted}}
+    {{else}}
+      {{formatted_invoice.amount}}
+    {{/if}}
+  {{/if_gt}}
+{{/if_equal}}
+{{!-- item is free credits from a trial start --}}
+{{#if_equal charge_type compare="is_free_credits_from_trial_start"}}
+  <span class="inline_positive">Credited <strong>{{formatted_charges.free_credits}}</strong></span>
+{{/if_equal}}
+{{#if_equal charge_type compare="is_user_change_debit"}}
+  Debited balance by <strong>{{formatted_charges.total_charge}}</strong>
+{{/if_equal}}
+{{!-- not billing items --}}
+{{#if_equal charge_type compare="is_credited"}}
+  <span class="inline_positive">Credited <strong>{{formatted_charges.delta}}</strong></span><br />
+{{/if_equal}}
+{{#if_equal charge_type compare="is_removed_credits"}}
+  Removed <strong>{{formatted_charges.delta}}</strong> credits<br />
+{{/if_equal}}

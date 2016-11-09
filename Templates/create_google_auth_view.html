@@ -1,0 +1,43 @@
+<div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
+  {{#unless minimal_ui_theme}}{{> create_inc_find_team_mobile}}{{/unless}}
+
+  {{#if minimal_ui_theme}}
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+  {{/if}}
+
+  <form class="fs_split_flex_wrapper">
+    {{#unless minimal_ui_theme}}
+    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+    {{/unless}}
+
+    <div class="fs_split_body">
+      <h1>Use your Google account to create a Slack team</h1>
+      <p class="desc">Your email, <span class="bold flat_grey">{{email}}</span>, looks like it\u2019s hosted by Google Apps. You can skip a handful of steps by signing up using Google.</p>
+      <p class="desc">Anyone with an @{{email_domain}} email address will be able to join this team without an invitation.</p>
+      
+      <div class="align_center very_large_top_margin">
+        {{> create_inc_email_misc this}}
+      </div>
+
+      <div class="button_container medium_bottom_margin">
+        <a href="{{auth_url}}" class="btn btn_large google_signin_button full_width">
+          <span class="ladda-label">{{> ts_icon class="ts_icon_google"}} Sign in to Google</span>
+        </a>
+      </div>
+
+      <div class="align_center">
+        <p id="google_signin_create_team" class="subtle_silver">or <a class="subtle_silver underline" href="#teamname">create team manually</a></p>
+      </div>
+    </div>
+
+
+    <div id="submit" class="fs_split_footer"></div>
+
+    {{> create_inc_legalese_mobile}}
+  </form>
+
+</div>
+
+{{#unless minimal_ui_theme}}
+{{> create_inc_graphics_pane inc_find_team=1 inc_legalese=1}}
+{{/unless}}

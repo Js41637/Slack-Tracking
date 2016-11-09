@@ -1,0 +1,60 @@
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width">
+
+  {{#if minimal_ui_theme}}
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+  {{/if}}
+
+  <form class="fs_split_flex_wrapper" onsubmit="return false;">
+    {{#unless minimal_ui_theme}}
+    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+    {{/unless}}
+
+    <div id="confirm_email_form_body" class="fs_split_body">
+      <h1>Check your email!</h1>
+      <p class="desc">We\u2019ve sent a six-digit confirmation code to <strong>{{email}}</strong>. Enter it below to confirm your email address.</p>
+
+      <label><span class="normal">Your </span>confirmation code</label>
+      <div class="confirmation_code split_input large_bottom_margin" data-multi-input-code="true">
+        <div class="confirmation_code_group">
+        {{#repeat 3}}
+          <div class="split_input_item input_wrapper"><input type="text" class="inline_input" maxlength="1"/>{{n}}</div>
+        {{/repeat}}
+        </div>
+
+        <div class="confirmation_code_span_cell">&mdash;</div>
+
+        <div class="confirmation_code_group">
+        {{#repeat 3}}
+          <div class="split_input_item input_wrapper"><input type="text" class="inline_input" maxlength="1"/>{{n}}</div>
+        {{/repeat}}
+        </div>
+      </div>
+
+      <div class="confirmation_code_checker" data-state="unchecked">
+        <div class="confirmation_code_state_message unchecked subtle_silver">
+          <p> Be sure to keep this window open while you check for your code.</p>
+        </div>
+
+        <div class="confirmation_code_state_message processing">
+          <svg class="confirmation_code_spinner ts_icon ts_icon_spin ts_icon_spinner">
+            <use xlink:href="/img/starburst.svg#starburst_svg"/>
+          </svg>
+          <p>Checking your code...</p>
+        </div>
+
+        <div class="confirmation_code_state_message error">
+          <ts-icon class="ts_icon_exclamation_circle"></ts-icon>
+          <p class="mustard_yellow">That code wasn't valid. Give it another go!</p>
+        </div>
+
+        <div class="confirmation_code_state_message ratelimited"><ts-icon class="ts_icon_exclamation_circle"></ts-icon>
+          <p class="mustard_yellow bold">Whoa, you\u2019re going too fast!</p>
+          <p class="mustard_yellow">Slow down a bit. You might have better luck if you try again in a minute.</p>
+        </div>
+
+      </div>
+    </div>
+    <div class="fs_split_footer"></div>
+  </form>
+</div>
+

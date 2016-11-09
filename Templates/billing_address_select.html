@@ -1,0 +1,12 @@
+{{#if_equal select_context compare="territories"}}
+  <option value="" {{#unless @key compare=selected_option}}selected{{/unless}} disabled>Please select a state/province/region</option>
+{{/if_equal}}
+{{#each select_content}}
+  {{#if_equal ../select_context compare="countries"}}
+  <option value="{{this}}" {{#if_equal this compare=../selected_option}}selected{{/if_equal}}>{{this}}</option>
+  {{/if_equal}}
+
+  {{#if_equal ../select_context compare="territories"}}
+  <option value="{{@key}}" {{#if_equal @key compare=../selected_option}}selected{{/if_equal}}>{{@key}}</option>
+  {{/if_equal}}
+{{/each}}

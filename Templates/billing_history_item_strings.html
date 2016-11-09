@@ -1,0 +1,109 @@
+{{!--
+Billing item type to string partial
+Used in billing_history_list_item_col.hbs
+--}}
+
+{{!-- types that have a billing statement associated --}}
+{{#if_equal type compare="monthly_statement"}}
+  <a href="/admin/billing/{{this.id}}" class="link_billing_statement">Monthly Statement
+  <span class="show_on_mobile inline"> \u2013 {{this.formatted_date}}</span></a>
+{{/if_equal}}
+{{#if_equal type compare="invoice_switch"}}
+  Switched to invoice
+{{/if_equal}}
+{{#if_equal type compare="invoice"}}
+  Invoice
+{{/if_equal}}
+{{#if_equal type compare="invoice_adjust"}}
+  Invoice adjusted
+{{/if_equal}}
+{{#if_equal type compare="purchase"}}
+  Purchased the <strong>{{product.type}} plan</strong>{{#if product.discount}}<span class="inline_discount"> (Discounted{{#if product.discount.is_simple_discount}} {{product.discount.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal product.term compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+{{/if_equal}}
+{{#if_equal type compare="renewal"}}
+  Renewed the <strong>{{product.type}} plan</strong>{{#if product.discount}}<span class="inline_discount"> (Discounted{{#if product.discount.is_simple_discount}} {{product.discount.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal product.term compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+{{/if_equal}}
+{{#if_equal type compare="cancel"}}
+  Switched to the <strong>Free plan</strong>
+{{/if_equal}}
+{{#if_equal type compare="switch"}}
+  Switched to the <strong>{{product.type}} plan</strong>, paying {{#if_equal product.term compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+{{/if_equal}}
+{{#if_equal type compare="future_cancel"}}
+  Switch to the <strong>Free plan</strong> at renewal time
+{{/if_equal}}
+{{#if_equal type compare="future_switch"}}
+  Switch to the <strong>{{product.type}} plan</strong> at renewal time, paying {{#if_equal product.term compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+{{/if_equal}}
+{{#if_equal type compare="users_change"}}
+  Switched from <strong>{{num_users_from}} to {{num_users_to}}</strong> {{pluralize num_users_to 'user' 'users'}}
+{{/if_equal}}
+{{#if_equal type compare="late"}}
+  Paid money owed
+{{/if_equal}}
+{{#if_equal type compare="expire"}}
+  Paid plan expired
+{{/if_equal}}
+{{#if_equal type compare="comp_gift"}}
+  Given the <strong>{{product.typ}} plan</strong>
+{{/if_equal}}
+{{#if_equal type compare="trial_start"}}
+  Started a free trial
+{{/if_equal}}
+{{#if_equal type compare="charge_high_balance"}}
+  Charged for high balance
+{{/if_equal}}
+{{#if_equal type compare="annual_team_balance_paid"}}
+  Monthly accrued balance for annual teams
+{{/if_equal}}
+{{!-- Types with no billing statment associated, will not link --}}
+{{#if_equal type compare="staff_gift"}}
+  {{#if_gt charges.delta compare=0}}
+    Gift from Slack
+  {{else}}
+    Credit adjustment
+  {{/if_gt}}
+{{/if_equal}}
+{{#if_equal type compare="referral_purchase_credit"}}
+  Credit for referring a new team
+{{/if_equal}}
+{{#if_equal type compare="referral_credit"}}
+  Referral signup credit
+{{/if_equal}}
+{{#if_equal type compare="beta_credit"}}
+  Beta testing credit
+{{/if_equal}}
+{{#if_equal type compare="launch_credit"}}
+  New team credit
+{{/if_equal}}
+{{#if_equal type compare="credit_test_group"}}
+  New team credit
+{{/if_equal}}
+{{#if_equal type compare="survey_credit"}}
+  Survey completed
+{{/if_equal}}
+{{#if_equal type compare="txn_void"}}
+  Voided Payment
+{{/if_equal}}
+{{#if_equal type compare="txn_refund"}}
+  Refunded Payment
+{{/if_equal}}
+{{#if_equal type compare="enterprise_transfer"}}
+  {{#if enterprise_transfer.enterprise_id}}
+    Transferred to <a href="{{enterprise_transfer.enterprise_url}}">{{enterprise_transfer.enterprise_name}}</a>
+  {{else if enterprise_transfer.team_id}}
+    Transferred to <a href="{{enterprise_transfer.team_url}}">{{enterprise_transfer.team_name}}</a>
+  {{else}}
+    Enterprise plan transfer
+  {{/if}}
+{{/if_equal}}
+{{#if_equal type compare="transfer"}}
+    Transferred ${{charges.delta}}{$row.delta|abs|cash} {{#if_gt charges.delta compare=0}}from{{else}}to{{/if_gt}} {{transfer.other_team_type}}
+  {{#if_equal transfer.reason compare='payments_group'}}
+    (payment group transfer)
+  {{/if_equal}}
+  {{#if_equal transfer.reason compare='enterprise'}}
+    (enterprise plan transfer)
+  {{/if_equal}}
+{{/if_equal}}
+

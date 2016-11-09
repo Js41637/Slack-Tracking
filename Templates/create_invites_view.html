@@ -1,0 +1,54 @@
+<div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
+  {{#if minimal_ui_theme}}
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+  {{/if}}
+
+  <form class="fs_split_flex_wrapper">
+    {{#unless minimal_ui_theme}}
+    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+    {{/unless}}
+
+    {{> create_inc_rate_limit}}
+    <div id="invite_failed_alert" class="header_error_message hidden no_bottom_margin">
+      <h3>Sorry, but something went wrong!</h3>
+      Some of your invites didn\u2019t go through. You\u2019ll be able to try again later.
+    </div>
+
+    <div id="invite_form_body" class="fs_split_body">
+      {{#if step_number_copy}}<div class="create_step_number_label">{{step_number_copy}}</div>{{/if}}
+
+      <div>
+        <h1 class="small_bottom_margin">Send Invitations</h1>
+        <p class="desc">Your Slack team is ready to go. Know a few friends or coworkers who\u2019d like to explore Slack with you?</p>
+        <label class="inline_block">Email address</label>
+        <a data-action= "signup_add_invite"class="inline_block float_right bold">+ Add another invitation</a>
+      </div>
+      <div id="invite_rows"></div>
+    </div>
+
+    <div id="submit" class="fs_split_footer">
+      {{#if signup_domain}}
+      <div class="fs_split_well align_left bottom_margin">
+        <label class="signup_whitelist_domain_notice" for="whitelist_domain">
+          <input type="checkbox" id="whitelist_domain" data-qa="whitelist_domain" class="position_absolute" checked>
+          <span class="normal inline_block">Let people on your team sign up with their verified <span class="bold">@{{signup_domain}}</span> email address</span>
+        </label>
+      </div>
+      {{/if}}
+      
+      <div class="button_container send_invitations_button_container">
+        <a id="secondary_btn" class="btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_invites,trigger=create_team,step=invites" >
+          <span class="ladda-label">Skip For Now</span>
+        </a>
+
+        <button id="submit_btn" type="submit" class="btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=send_invites,trigger=create_team,step=invites" >
+            <span class="ladda-label">Send Invitations</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{{#unless minimal_ui_theme}}
+{{> create_inc_graphics_pane}}
+{{/unless}}

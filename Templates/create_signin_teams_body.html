@@ -1,0 +1,24 @@
+<div class="fs_split_body medium_bottom_padding">
+
+  <h1>Looking to sign in?</h1>
+  <p class="desc">Your email address will allow you to access the Slack teams listed below.</p>
+  <p class="bold">{{teams_title}}</p>
+
+  <div class="signup_teams">
+  {{#each teams}}
+    {{> create_signin_teams_row}}
+  {{/each}}
+  </div>
+
+  {{#if more_teams.length}}
+  <div id="signup_more_teams" class="signup_teams signup_more_teams hidden">
+  {{#each more_teams}}
+    {{> create_signin_teams_row}}
+  {{/each}}
+  </div>
+  <button id="signup_team_more_btn" class="btn_unstyle signup_team_more_btn cursor_pointer small_top_margin normal clear_blue" type="button">
+    View {{more_teams.length}} more {{pluralize more_teams.length 'team'}}
+  </button>
+  {{/if}}
+
+</div>

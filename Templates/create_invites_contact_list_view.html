@@ -1,0 +1,35 @@
+<div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
+  <div class="fs_split_flex_wrapper">
+    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+
+    {{> create_inc_rate_limit}}
+    <div id="invite_failed_alert" class="header_error_message hidden no_bottom_margin">
+      <h3>Sorry, but something went wrong!</h3>
+      Some of your invites didn\u2019t go through. You\u2019ll be able to try again later.
+    </div>
+
+    <div id="invite_contacts_body" class="fs_split_body">
+      <div>
+        <h1 class="small_bottom_margin">Invite your team</h1>
+        <p class="desc">Slack is better with teammates!</p>
+      </div>
+      <div class="invite_contact_list_wrapper"></div>
+    </div>
+
+    <div id="submit" class="fs_split_footer">
+      <div class="button_container">
+        <a id="secondary_btn" class="col span_1_of_2 btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button">
+          <span class="ladda-label">Skip for now</span>
+        </a>
+
+        <button id="submit_btn" type="submit" class="col span_1_of_2 btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button" disabled="true" aria-disabled="true">
+            <span class="ladda-label">Send Invitations</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{#unless minimal_ui_theme}}
+{{> create_inc_graphics_pane}}
+{{/unless}}

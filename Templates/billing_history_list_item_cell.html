@@ -1,0 +1,34 @@
+{{#if is_event}}
+  {{event_desc}}
+{{else if is_billing}}
+  {{#unless is_monthly_statement}}
+  <div class="show_on_mobile bold">
+    {{#if has_billing_statement}}
+      <a href="/admin/billing/{{id}}">
+        {{formatted_date}}
+      </a>
+    {{else}}
+      {{formatted_date}}
+    {{/if}}
+  </div>
+  {{/unless}}
+  {{#if has_billing_statement}}
+    <a href="/admin/billing/{{id}}" class="link_billing_statement">
+      <span>{{> billing_history_item_strings this}}</span>
+    </a>
+  {{else}}
+    <span>{{> billing_history_item_strings this}}</span>
+  {{/if}}
+  {{#if has_billing_statement}}
+    <span>(<a href="/admin/billing/{{id}}/pdf">PDF</a>)</span>
+  {{/if}}
+{{else}}
+  <span>{{> billing_history_item_strings this}}</span>
+{{/if}}
+<br />
+{{#if_equal type compare="invoice"}}
+  <span class="link_invoice_id">Invoice #{{id}}</span>
+{{/if_equal}}
+{{#if has_billing_statement}}
+  <span><a href="/admin/billing/{{id}}" class="link_statement_id">Billing Statement #{{id}}</a></span>
+{{/if}}
