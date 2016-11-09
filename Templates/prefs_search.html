@@ -1,0 +1,17 @@
+<h2 id="prefs_search_exclusion" class="inline_block">Search</h2>
+<p>By default, Slack searches every channel. You can change this if you\u2019d like.</p>
+<p>
+  <label for="search_channel_exclusion">Don\u2019t search these channels:</label>    
+  <select multiple="multiple" id="search_channel_exclusion" size="30" data-inline-saver="#prefs_search_exclusion">
+    <optgroup label="Active Channels">
+      {{#each active_channels}}
+        <option value="{{this.channel.id}}"{{#if this.search_channel_exclusion}} selected{{/if}}>#{{this.channel.name}}</option>
+      {{/each}}
+    </optgroup>
+    <optgroup label="Archived Channels">
+      {{#each archived_channels}}
+        <option value="{{this.channel.id}}"{{#if this.search_channel_exclusion}} selected{{/if}}>#{{this.channel.name}}</option>
+      {{/each}}
+    </optgroup>
+  </select>
+</p>

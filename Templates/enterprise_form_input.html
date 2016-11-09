@@ -1,0 +1,12 @@
+{{#unless locked}}
+  {{#if_equal type compare="text"}}
+    <label for="{{name}}">
+      {{label}}
+      <input type="text" placeholder="{{placeholder}}" value="{{value}}" name="{{name}}" {{#if disabled}}disabled{{/if}}>
+    </label>
+    <div class="enterprise_profile__error_message" data-input-error="{{name}}">{{error}}</div>
+  {{/if_equal}}
+{{else}}
+  <label for="{{name}}">{{label}}</label>
+  <p>{{value}}</p>
+{{/unless}}

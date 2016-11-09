@@ -1,0 +1,58 @@
+  <p>This message retention policy will only affect this {{model_type}}. Retention policies can also be set on a team-wide basis in your <a target="new" href="/admin/settings#data_retention">team settings</a>.</p>
+
+  <p id="retention_duration_warning" class="alert alert_warning hidden {{#isWeb}}small{{/isWeb}}">
+    <i class="ts_icon ts_icon_warning"></i>
+    <strong>An important note about message retention policies</strong><br />
+    Setting a custom duration for message retention means that messages in this {{model_type}} will be  deleted after the number of days you set. This deletion is permanent and the messages will be irretrievable. Proceed with caution!
+  </p>
+
+  <div class="clearfix">
+    {{#isWeb}}    
+      <p class="col span_4_of_6">
+        <label for="retention_type" class="select small">
+          Retention Type
+          <select name="retention_type" class="small">
+            <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>Use team preference</option>
+            <option value="1"{{#if_equal retention_type compare=1}} selected="selected"{{/if_equal}}>Retain all messages for a specific number of days</option>
+          </select>
+        </label>
+      </p>
+      <p class="col span_2_of_6 {{#if_equal retention_type compare=0}}hidden{{/if_equal}}" id="retention_duration_container">
+        <label for="retention_duration">Duration</label>
+        <input type="text" name="retention_duration" id="retention_duration" class="mini align_right" value="{{retention_duration}}" /> days
+      </p>
+    {{else}}
+      <p class="col span_4_of_6">
+        <label for="retention_type" class="select small full_width align_left">
+          Retention Type
+          <select name="retention_type" class="small" style="margin-bottom: 4px;">
+            <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>Use team preference</option>
+            <option value="1"{{#if_equal retention_type compare=1}} selected="selected"{{/if_equal}}>Retain all messages for a specific number of days</option>
+          </select>
+        </label>
+      </p>
+
+      <div class="col span_2_of_6 {{#if_equal retention_type compare=0}}hidden{{/if_equal}}" id="retention_duration_container">
+        <label for="retention_duration" class="align_left">Duration</label>
+        <div class="input-append no_bottom_margin">
+          <input type="text" name="retention_duration" id="retention_duration" class="input-mini align_right" value="{{retention_duration}}" style="border-radius: 4px 0 0 4px !important; width: 60px; height: 37px;" />
+          <span class="add-on" style="line-height: 27px;">days</span>
+        </div>
+      </div>
+    {{/isWeb}}
+  </div>
+
+  <div id="team_retention_pref" class="hidden">
+    <p>
+      The team preference is to
+      {{#if_equal team_type compare=0}}<strong>retain all messages.</strong>{{/if_equal}}
+      {{#if_equal team_type compare=1}}<strong>retain all messages AND also retain edit and deletion logs for all messages.</strong>{{/if_equal}}
+      {{#if_equal team_type compare=2}}<strong>retain all messages for {{team_duration}} {{#if_equal team_duration compare=1}}day{{else}}days{{/if_equal}}.</strong>{{/if_equal}}
+      {{#if_equal team_type compare=3}}<strong>retain all messages for {{team_duration}} {{#if_equal team_duration compare=1}}day{{else}}days{{/if_equal}} but keep logs for compliance exports.</strong>{{/if_equal}}
+    </p>
+  </div>
+
+  <div class="alert alert_warning hidden invalid_duration_error">
+    <i class="ts_icon ts_icon_warning"></i>
+    You must set a number of days greater than zero for message retention.
+  </div>

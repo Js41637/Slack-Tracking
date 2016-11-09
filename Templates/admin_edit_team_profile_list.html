@@ -1,0 +1,64 @@
+<div id="edit_team_profile_list_drag_and_drop_area">
+  <div class="row clearfix hide_on_mobile header_row">
+    <div class="col no_bottom_margin span_2_of_6">Field label</div>
+    <div class="col no_bottom_margin span_4_of_6">Hint</div>
+  </div>
+  <div class="row clearfix default_row">
+    <div class="col no_bottom_margin span_5_of_6"><span class="no_margin">First &amp; Last Name</span></div>
+    <div class="col no_bottom_margin span_1_of_6"><em class="subtle_silver cloud_silver">default field</em></div>
+  </div>
+  <div class="row clearfix default_row">
+    <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">What I Do</span></div>
+    <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">Let others on your team know what you do.</p></div>
+    <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">default field</em></div>
+  </div>
+  <div class="row clearfix default_row">
+    <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">Phone Number</span></div>
+    <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">This will be displayed on your profile.</p></div>
+    <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">default field</em></div>
+  </div>
+  {{#if team_profile_fields}}
+    {{#each team_profile_fields}}
+      <div class="row clearfix visible_row" data-action="edit_team_profile_to_edit" data-id="{{this.id}}">
+        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">{{this.label}}</span></div>
+        <div class="col no_bottom_margin span_3_of_6">
+          <p class="subtle_silver no_bottom_margin">{{this.hint}}</p>
+          {{#if_equal this.type compare="options_list"}}
+            {{#if this.possible_values}}
+              <p class="subtle_silver italic no_bottom_margin">{{this.possible_values.length}} {{pluralize this.possible_values.length 'option'}}</p>
+            {{/if}}
+          {{/if_equal}}
+        </div>
+        <div class="edit_team_profile_list_controls">
+          <i class="ts_icon ts_icon_cog_o" data-action="edit_team_profile_list_menu"></i>
+          {{#if_gt ../team_profile_fields.length compare=1}}
+            <i class="ts_icon ts_icon_grabby_patty"></i>
+          {{/if_gt}}
+        </div>
+      </div>
+    {{/each}}
+  {{/if}}
+  {{#if hidden_team_profile_fields}}
+    {{#each hidden_team_profile_fields}}
+      <div class="row clearfix hidden_row" data-action="edit_team_profile_to_edit" data-id="{{this.id}}">
+        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin subtle_silver">{{this.label}}</span> <em class="subtle_silver normal">(Disabled)</em></div>
+        <div class="col no_bottom_margin span_3_of_6">
+          <p class="subtle_silver no_bottom_margin">{{this.hint}}</p>
+          {{#if_equal this.type compare="options_list"}}
+            {{#if this.possible_values}}
+              <p class="subtle_silver italic no_bottom_margin">{{this.possible_values.length}} {{pluralize this.possible_values.length 'option'}}</p>
+            {{/if}}
+          {{/if_equal}}
+        </div>
+        <div class="edit_team_profile_list_controls">
+          <i class="ts_icon ts_icon_cog_o" data-action="edit_team_profile_list_menu"></i>
+        </div>
+      </div>
+    {{/each}}
+  {{/if}}
+  <div class="row clearfix"></div>
+  <p class="align_left large_top_margin display_flex flex_wrap">
+    <button id="edit_team_profile_add_new_btn" class="col span_1_of_2 btn btn_large btn_outline" data-action="edit_team_profile_to_custom">Create a custom field</button>
+    <button id="edit_team_profile_add_existing_btn" class="col span_1_of_2 btn btn_large{{#unless default_team_profile_fields}} disabled{{/unless}}" data-action="edit_team_profile_to_add">{{#unless default_team_profile_fields}}You've selected all existing fields{{else}}Select existing field{{/unless}}</button>
+  </p>
+</div>

@@ -1,0 +1,41 @@
+  <div id="group_invite_member_chooser" class="hidden">
+    {{#if show_ra_tip}}
+      <p class="no_bottom_margin">
+        Type or select the names of team members that you would like to invite:
+      </p>
+      <p class="small_bottom_margin mini subtle_silver">
+        {{raLabel 'Restricted accounts'}} may not appear below. Ask a Team Administrator to invite them.
+      </p>
+    {{else}}
+      <p class="small_bottom_margin">
+        Type or select the names of team members that you would like to invite:
+      </p>
+    {{/if}}
+  
+    <div id="select_invite_group_members_holder">
+    
+      <p class="no_bottom_margin">
+        <select multiple="multiple" id="select_invite_group_members" size="30">
+          {{#each invite_members}}
+            <option value="{{this.member.id}}" data-additional-search-field="@{{this.member.name}}"{{#if this.preselected}} selected="selected"{{/if}}>{{#if this.member.profile.real_name}}{{this.member.profile.real_name}} \u2022 {{this.member.name}}{{else}}{{this.member.name}}{{/if}}{{#if this.member.is_restricted}} ({{raLabel 'Restricted Account'}}){{/if}}</option>
+          {{/each}}
+        </select>    
+      </p>
+      
+    </div>
+    
+    <p class="top_margin">
+      <label class="checkbox no_margin">
+        <input id="archive_access_cb" checked="checked" type="checkbox" class="small_right_margin" /> Invited members will have access to the private channel archives
+      </label>
+    </p>
+  </div>
+  
+  
+  <div id="group_invite_archives_prompt" class="">
+    <p class="bold">Should new members be allowed to see the private channel's message history?</p>
+    
+    <p>If <strong>Yes</strong>, new members will be invited and will have access to this private channel's entire message history.</p> 
+    <p>If <strong>No</strong>, this private channel will be renamed and archived. A new private channel will be created with all current members plus the new ones you invite. You and other current members will see a link back to the original private channel's archives.</p>
+  </div>
+  

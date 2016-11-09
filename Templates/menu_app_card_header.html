@@ -1,0 +1,28 @@
+<div
+  class="app_card_header display_flex flex_direction_row align_items_flex_start {{#if large}}app_header_large rounded{{else}}rounded_top{{/if}}"
+  {{!-- Styling for dynamic background color --}}
+  {{#if color}}
+    style="background: linear-gradient(136.53deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.2) 100%), linear-gradient(312.01deg, {{color.hex}} 0%, rgba({{color.r}},{{color.g}},{{color.b}},0.75) 100%); background-color: #2C2D30;"
+  {{/if}}
+>
+  <img class="app_card_header_icon rounded neutral_white_bg"
+    {{#if app.icons}}
+      {{#if large}}
+        src="{{app.icons.image_96}}" srcset="{{app.icons.image_96}} 1x, {{app.icons.image_192}} 2x"
+      {{else}}
+        src="{{app.icons.image_64}}" srcset="{{app.icons.image_64}} 1x, {{app.icons.image_128}} 2x"
+      {{/if}}
+    {{else}}
+      src="{{versioned_default_application_icon}}"
+    {{/if}}
+  >
+  <div class="app_card_header_text">
+    <div class="app_card_name_row lato_black flexpane_grey display_flex align_items_center">
+      <span class="app_name overflow_ellipsis">{{app.name}}</span>
+      <div><span class="app_label lato neutral_white">APP</span></div>
+    </div>
+    {{#if app.desc}}
+      <div class="app_card_desc lato flexpane_grey overflow_hidden">{{app.desc}}</div>
+    {{/if}}
+  </div>
+</div>

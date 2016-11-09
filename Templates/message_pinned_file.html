@@ -1,0 +1,17 @@
+  <span class="pinned_item_message_header">
+    {{#if_equal theme compare='light'}}
+      <i class="ts_icon ts_icon_thumb_tack"></i> Pinned
+    {{else}}
+      pinned
+    {{/if_equal}}
+    {{#if own_file}}
+      their {{pinnedFileType file}}{{#unless file}}.{{/unless}}
+    {{else}}
+      {{#if uploader}}{{{makeMemberPreviewLinkById uploader.id false}}}{{possessive display_name}}{{else}}a{{/if}} {{pinnedFileType file}}{{#unless file}}.{{/unless}}
+    {{/if}}
+    {{#if file}}
+      <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link no_jumbomoji file_name">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</a>.
+    {{/if}}
+    {{#isClient}}{{seeAllPinsLink model_ob}}{{/isClient}}
+  </span>
+

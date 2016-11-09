@@ -1,0 +1,203 @@
+<form data-enterprise-security-form>
+  <div class="ent_content_header">
+    <div class="display_flex align_items_baseline">
+      <h1 class="ent_header ent_header_primary">Authentication</h1>
+    </div>
+  </div>
+  <div
+    class="alert alert_success medium_bottom_margin hidden"
+    aria-hidden="true"
+    data-enterprise-security-auth-success-message>
+    <ts-icon class="ts_icon_check_circle_o"></ts-icon>
+    SSO is enabled and working as expected
+  </div>
+
+  <div
+    class="alert alert_error medium_bottom_margin hidden"
+    aria-hidden="true"
+    data-enterprise-security-auth-error-message>
+    <ts-icon class="ts_icon_check_circle_o"></ts-icon>
+    Drat! There was a problem saving your settings{{#if idp_long_label}} in {{idp_long_label}}{{/if}}.
+    <button
+      data-save-sso-auth-button
+      type="button"
+      class="btn_unstyle enterprise_button___link">Try again?</button>
+  </div>
+
+  <h2 class="enterprise_security_auth_small_heading">Single Sign-On configuration</h2>
+  <div class="enterprise_security_auth_section">
+    <h2 class="enterprise_security_auth_heading">SAML 2.0 Endpoint (HTTP)
+      <span class="enterprise_security_auth_subheading">Please provide your SAML 2.0 Endpoint.
+      {{!-- hide this link until we have helpdesk for ent <a href="#">Custom SAML Instructions</a>. --}}
+      </span>
+    </h2>
+    <input type="text" class="enterprise_security_auth_input_small" name="sso_url" placeholder="http://company-app.sso-provider.com/apps/company/123" value="{{sso_url}}">
+  </div>
+
+  <div class="enterprise_security_auth_section">
+    <h2 class="enterprise_security_auth_heading">Identity Provider Issuer <span class="enterprise_security_auth_subtle">(Optional)</span>
+      <span class="enterprise_security_auth_subheading">Your Identity Provider's entity ID.</span>
+    </h2>
+    <input type="text" class="enterprise_security_auth_input_small" name="idp_entity_id" placeholder="http://company-app.sso-provider.com/apps/company" value="{{idp_entity_id}}">
+  </div>
+
+  <div class="enterprise_security_auth_section" data-input-error-highlight="pub_cert">
+    <h2 class="enterprise_security_auth_heading">Public Certificate
+      <span class="enterprise_security_auth_subheading">Copy and paste your entire x.509 Certificate here.</span>
+    </h2>
+    <textarea name="pub_cert">{{pub_cert}}</textarea>
+    <label for="pub_cert">
+      <div class="moscow_red" data-input-error="pub_cert"></div>
+    </label>
+  </div>
+
+  <div class="enterprise_security_auth_section">
+    <label for="sync_with_provider" class="checkbox enterprise_security_auth_label">
+      <input type="checkbox" id="sync_with_provider" name="sync_with_provider" value="1" {{#if sync_with_provider}}checked{{/if}}>
+      Update profile each time a user logs in
+    </label>
+    <p class="enterprise_security_auth_description">Available user profile fields will be synced from your identity provider every time a user logs in.</p>
+  </div>
+
+  <div class="enterprise_security_auth_section">
+    <label for="change_email" class="checkbox enterprise_security_auth_label">
+      <input type="checkbox" id="change_email" name="change_email" value="1" {{#if change_email}}checked{{/if}}>
+      Allow users to change their email address
+    </label>
+    <p class="enterprise_security_auth_description">
+      Users will be able to change their email address to something other than the one from their {{idp_label}} account. They'll still log in with <span data-idp-long-label>{{idp_long_label}}</span>.
+    </p>
+  </div>
+
+  <div class="enterprise_security_auth_section">
+    <label for="choose_username" class="checkbox enterprise_security_auth_label">
+      <input type="checkbox" id="choose_username" name="choose_username" value="1" {{#if choose_username}}checked{{/if}}>
+      Allow users to change their username
+    </label>
+    <p class="enterprise_security_auth_description">
+      Users will be able to change their username to something other than the one from their {{idp_label}} account.
+    </p>
+  </div>
+
+  <div class="enterprise_security_auth_section">
+    <label for="auth_restrictions"
+      class="select enterprise_security_auth_select_small">
+      Authentication must be used by:
+      <select id="auth_restrictions" name="auth_restrictions">
+        <option value="0"
+          {{#if_equal auth_restrictions compare="0"}}selected{{/if_equal}}>
+          All org members
+        </option>
+        <option value="1"
+          {{#if_equal auth_restrictions compare="1"}}selected{{/if_equal}}>
+          All org members except guest accounts
+        </option>
+      </select>
+    </label>
+  </div>
+
+  {{#feature flag="feature_enterprise_mandatory_2fa"}}
+  <hr class="enterprise_security_auth_section_divider">
+  <div data-enterprise-mandatory-2fa-form></div>
+  {{/feature}}
+
+  <hr class="enterprise_security_auth_section_divider">
+
+  <h2 class="enterprise_security_auth_small_heading">Session Duration</h2>
+  <p class="enterprise_security_auth_description bottom_margin">Limiting session durations requires team members to re-authenticate periodically. This can help increase security and prevent unauthorized access to your team.</p>
+
+  <label for="session_duration" class="validation_error">
+    <div class="moscow_red" data-input-error="session_duration"></div>
+  </label>
+  <div class="enterprise_security_auth_session_duration" data-ent-security-auth-session-duration>
+    <div class="enterprise_security_auth_session_duration_type_container small_right_padding">
+      <label for="session_duration_type" class="select enterprise_security_auth_select_small">
+        <select id="session_duration_type" name="session_duration_type">
+          <option {{#if_equal session_duration_type compare="-1"}}selected{{/if_equal}} value="-1">Allow infinite sessions</option>
+          <option {{#if_equal session_duration_type compare="0"}}selected{{/if_equal}} value="0">Log users out when they close the application</option>
+          <option {{#if_equal session_duration_type compare="1"}}selected{{/if_equal}} value="1">Log users out after a specific amount of hours (minimum 12)</option>
+        </select>
+      </label>
+    </div>
+    <div
+      class="enterprise_security_auth_session_duration_container
+             {{#if_lt session_duration_type compare=1}}hidden{{/if_lt}}">
+      <span class="input-append no_bottom_margin" data-input-error-highlight="session_duration">
+        <input
+          type="text"
+          name="session_duration"
+          class="align_right retention_duration_input"
+          value="{{session_duration}}">
+        <span class="small_left_padding small_bottom_padding">hours</span>
+      </span>
+    </div>
+  </div>
+</form>
+
+<form data-enterprise-reset-password-form></form>
+
+<form data-enterprise-advanced-sso-options-form>
+  <hr class="enterprise_security_auth_section_divider">
+
+  <h2 class="enterprise_security_auth_small_heading">Advanced Options</h2>
+
+  <div class="enterprise_security_auth_section">
+    
+    <div class="large_bottom_margin">
+      <label class="checkbox bottom_margin enterprise_security_auth_heading">
+        <input type="checkbox" name="authn_requests_signed" value="1"{{#if authn_requests_signed}} checked{{/if}} />
+        Sign <strong>AuthnRequest</strong><br />
+      </label>
+      <div id="sp_cert" class="{{#unless authn_requests_signed}}hidden{{/unless}}">
+        <textarea readonly="true" data-sp-public-key>{{sp_public_key}}</textarea>
+      </div>
+    </div>
+
+    <div class="top_margin">
+      <label for="authn_context_class_ref" class="select large_bottom_margin">
+        <h2 class="enterprise_security_auth_heading">AuthnContextClassRef</h2>
+        <span class="enterprise_security_auth_subheading normal">The <strong>RequestedAuthnContext</strong> we will send in requests to <span data-idp-long-label>{{idp_long_label}}</span>.</span>
+      
+        <select name="authn_context_class_ref">
+          <option value="1" {{#or (if_equal authn_context_class_ref compare="1") (if_equal authn_context_class_ref compare=true)}} selected{{/or}}>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport (default)</option>
+          <option value="2" {{#if_equal authn_context_class_ref compare="2"}} selected{{/if_equal}}>urn:oasis:names:tc:SAML:2.0:ac:classes:Kerberos</option>
+          <option value="3" {{#if_equal authn_context_class_ref compare="3"}} selected{{/if_equal}}>urn:federation:authentication:windows (use with ADFS for internal-only authentication)</option>
+          <option value="4" {{#if_equal authn_context_class_ref compare="4"}} selected{{/if_equal}}>PasswordProtectedTransport and windows (use with ADFS for internal/external authentication)</option>
+          <option value="5" {{#if_equal authn_context_class_ref compare="5"}} selected{{/if_equal}}>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</option>
+          <option value="6" {{#if_equal authn_context_class_ref compare="6"}} selected{{/if_equal}}>urn:oasis:names:tc:SAML:2.0:ac:classes:TLSClient</option>
+          <option value="false" {{#unless authn_context_class_ref}} selected{{/unless}}>Don't send this value</option>
+        </select>
+      </label>
+    </div>
+
+    <h2 class="enterprise_security_auth_heading top_margin">Service Provider Issuer
+      <span class="enterprise_security_auth_subheading">The sP Entity ID you would like us to send. By default, this is <strong>https://slack.com</strong></span>
+    </h2>
+    <input type="text" class="enterprise_security_auth_input_small full_width" name="sp_entity_id" placeholder="https://slack.com" value="{{sp_entity_id}}">
+  </div>
+
+  <h2 class="enterprise_security_auth_small_heading">Customize</h2>
+
+  <div class="clearfix clear_both large_bottom_margin">
+    <div class="bottom_margin">
+      <label for="saml_provider_label">Sign In Button Label</label>
+      <input id="custom_saml_button_input" name="saml_provider_label" type="text" placeholder="Custom Label" data-validation="maxlength=20" value="{{saml_provider_label}}" />
+      <span class="input_note normal">
+        Have a nickname for your SSO system? Add it here to help your members sign in.
+      </span>
+    </div>
+    <div class="enterprise_security_auth_saml_label">
+      <label>Button Preview</label>
+      <a href="#" id="btn_live_preview" class="btn btn_info btn_large btn_with_icon full_width small_bottom_margin">
+        <i class="ts_icon ts_icon_key"></i>
+        <span id="custom_saml_button_label" class="overflow_ellipsis extra_line_height">
+          Sign in with {{#if saml_provider_label}}
+          {{saml_provider_label}}
+          {{else}}
+            {{#if idp_button_label}}{{idp_button_label}}{{else}}SAML{{/if}}
+          {{/if}}
+        </span>
+      </a>
+    </div>
+  </div>
+</form>

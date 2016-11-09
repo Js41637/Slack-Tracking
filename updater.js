@@ -1,6 +1,6 @@
 const request = require('request')
 const cheerio = require('cheerio')
-const { chain, compact, map, last, random, uniq, truncate } = require('lodash') // eslint-disable-line
+const { chain, compact, map, last, random, uniq, truncate, find } = require('lodash') // eslint-disable-line
 const beautify = require('js-beautify')
 const fs = require('fs')
 const { exec } = require('child_process')
@@ -19,7 +19,7 @@ const URL = `https://${config.teamName}.slack.com`
 const headers = { Cookie: config.cookies.join(';') }
 const types = { js: 'Scripts', css: 'Styles' }
 const beautifyOptions = { indent_size: 2, end_with_newline: true }
-const jsRegex = /(templates|analytics|beacon|required_libs)(.js|.php)/
+const jsRegex = /(analytics|beacon|required_libs)(.js|.php)/
 
 const eslint = new CLIEngine({
   envs: ["browser"],
@@ -47,7 +47,7 @@ function getPageScripts() {
   console.log("Getting page scripts")
   return getPageBodys([`${URL}/admin`, `${URL}/messages`]).then(([ page1, page2 ]) => {
     let $ = cheerio.load(page1 + page2) // lmao
-    let js = chain($('script')).map(({ attribs: { src: url } }) => (url && !url.match(jsRegex) && url.match(/^https?/)) ? { url, type: 'js' } : null).compact().uniq().value()
+    let js = chain($('script')).map(({ attribs: { src: url } }) => url ? url.match(/^\/templates.php/) ? { url: `https://slack.com${url}`, type: 'js' } : (!url.match(jsRegex) && url.match(/^https?/)) ? { url, type: 'js' } : null : null).compact().uniq().value()
     let css = chain($('link[type="text/css"]')).map(({ attribs: { href: url } }) => (url && !url.match(/lato/) && url.match(/^https?/)) ? { url, type: 'css' } : null).compact().uniq().value()
     console.log(`Got ${js.length} scripts and ${css.length} styles`)
     return Promise.resolve([...js, ...css])
@@ -61,11 +61,36 @@ function getIndividualScripts(urls) {
     return new Promise((resolve, reject) => {
       request({ url }, (err, resp, body) => {
         if (err || !body) return reject(`Error fetching script ${url}, ${err}`)
-        let name = last(url.split('/'))
+        let name = last(url.split('/')).split('?')[0]
         return resolve({ name, body, type })
       })
     })
   }))
+}
+
+function processTemplates(scripts) {
+  return new Promise((resolve, reject) => {
+    let temps = find(scripts, { name: 'templates.php'})
+    if (!temps) return resolve(scripts)
+    console.log("Got templates")
+    let regex = /TS.raw_templates\['(\w+)'\] ?= ?"(.+)";/g
+    let templates = []
+    let match
+    try {
+      while ((match = regex.exec(temps.body)) !== null) {
+        templates.push({ name: match[1], body: match[2] })
+      }
+    } catch(e) {
+      return reject("Error processing templates")
+    }
+
+    Promise.all(templates.map(template => {
+      return new Promise(resolve => {
+        let body = template.body.replace(/\\n/g, '\n').replace(/\\t/g, '  ').replace(/\\"/g, '"').replace(/\\\//g, '/')
+        fs.writeFile(`./Templates/${template.name}.html`, body, resolve)
+      })
+    })).then(() => resolve(scripts))
+  })
 }
 
 // Write all scripts to disk, overwriting existing
@@ -156,6 +181,7 @@ function startTheMagic() {
   pullLatestChanges()
     .then(getPageScripts)
     .then(getIndividualScripts)
+    .then(processTemplates)
     .then(writeToDisk)
     .then(lintCode)
     .then(() => pushToGit())
@@ -167,6 +193,7 @@ function startTheMagic() {
 function checkDirectories() {
   fs.stat('./Scripts', err => err ? fs.mkdir('./Scripts') : void 0)
   fs.stat('./Styles', err => err ? fs.mkdir('./Styles') : void 0)
+  fs.stat('./Templates', err => err ? fs.mkdir('./Templates') : void 0)
   fs.stat('./ClientExtracted', err => err ? fs.mkdir('./ClientExtracted') : void 0)
 }
 

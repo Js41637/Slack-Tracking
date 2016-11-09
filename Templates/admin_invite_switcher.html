@@ -1,0 +1,38 @@
+<hr id="admin_invites_header_divider" class="hide_on_mobile" />
+<div class="admin_invites_account_type_option {{#if hide_full_member_option}}disabled{{/if}} {{#if team_in_org}}no_hover{{/if}}" data-action="switch_type" data-account-type="full">
+  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">Full Members</{{#isClient}}h2{{else}}h3{{/isClient}}>
+  <p>
+    Full Members can access messages and files in any public channel and access the full team directory.
+  </p>
+  {{#unless hide_full_member_option}}
+    <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
+  {{else}}
+    {{#unless team_in_org}}
+    <div class="account_type_disabled_hover">
+      <p class="bottom_margin">Full members can sign up at <strong>{{team_signup_url}}</strong></p>
+      <a href="/admin/auth/saml" {{#isClient}}target="auth"{{/isClient}} class="btn btn_outline">Change SSO Settings</a>
+    </div>
+    {{/unless}}
+  {{/unless}}
+</div>
+<div class="admin_invites_account_type_option" data-action="switch_type" data-account-type="restricted">
+  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">{{raLabel 'Restricted Accounts'}}</{{#isClient}}h2{{else}}h3{{/isClient}}>
+  <p>{{raLabel 'Restricted Accounts'}} see a partial team directory and can only access messages and files from selected channels.</p>
+  <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
+</div>
+<div class="admin_invites_account_type_option {{#unless can_add_ura}}disabled{{/unless}}" data-action="switch_type" data-account-type="ultra_restricted">
+  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">Single-Channel Guests</{{#isClient}}h2{{else}}h3{{/isClient}}>
+  <p>Single-Channel Guests can only access messages and files in a single channel. This account type is free. <a href="https://slack.zendesk.com/hc/en-us/articles/202518103-Restricted-account-and-single-channel-guest-FAQ" target="zendesk" class="subtle_silver underline">Learn more</a></p>
+  {{#unless can_add_ura}}
+    <div class="account_type_disabled_hover">
+      <p class="bottom_margin">You've reached your team limit for <strong>Single-Channel Guests</strong>.</p>
+      <a href="https://slack.zendesk.com/hc/en-us/articles/202518103-Restricted-account-and-single-channel-guest-FAQ" target="zendesk" class="btn btn_outline">Learn More</a>
+    </div>
+  {{/unless}}
+  <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
+</div>
+{{#currentUserIsAdmin}}
+  <p class="align_center large_top_margin">
+    <a href="/admin/invites" target="{{newWindowName}}">See pending and accepted invites for your team</a>
+  </p>
+{{/currentUserIsAdmin}}

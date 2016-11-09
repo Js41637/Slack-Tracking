@@ -1,0 +1,5 @@
+{{#isClient}}
+  {{#if msg.reply_count}}
+    <a class="show_replies {{link_class}}" title="Show conversation" href="{{permalink}}" target="{{newWindowName}}">{{msg.reply_count}} {{pluralize msg.reply_count 'reply' 'replies'}}</a>
+  {{/if}}
+{{/isClient}}

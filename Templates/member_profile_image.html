@@ -1,0 +1,16 @@
+<a  {{#if is_targettable}}
+    {{#if entity.is_service}}
+      href="/services/{{entity.id}}" target="/services/{{entity.id}}" class="service_link member_image thumb_36 {{#feature flag="feature_app_cards_and_profs_frontend"}}app_preview_link{{/feature}}"
+    {{else}}
+      href="/team/{{entity.name}}" target="/team/{{entity.name}}"
+    {{/if}}
+  {{/if}}
+  {{#if entity}}
+    {{#unless entity.is_service}}
+      data-member-id="{{entity.id}}"
+    {{/unless}}
+  {{/if}}
+  {{#if size}} data-thumb-size="{{size}}" {{/if}}
+  {{#if image}} style="background-image: {{image}}" {{/if}}
+  class="member_image {{css_classes}} {{#if entity.is_restricted}}ra{{/if}} {{#if entity.is_ultra_restricted}}ura{{/if}}"
+></a>

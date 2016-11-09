@@ -1,0 +1,31 @@
+<li class="tab_complete_ui_item" data-index="{{index}}">
+
+  {{#if member.presence}}
+    {{makeProfileImage member size="20"}}
+  {{/if}}
+
+  <span class="{{primary_name_classes}}">
+    {{#feature flag="feature_name_tagging_client"}}
+      {{getMemberDisplayName member}}{{!
+    }}{{else}}
+      {{member.name}}{{!
+    }}{{/feature}}{{!
+  }}</span>{{!
+
+  }}{{makeMemberPresenceIcon member}}
+
+  <span class="{{secondary_name_classes}}">
+    {{#feature flag="feature_name_tagging_client"}}
+      {{secondary_name}}
+    {{else}}
+      {{getMemberRealName member}}
+    {{/feature}}
+  </span>
+
+  {{#if show_channel_membership}}
+    {{#if member_does_not_belong_to_channel}}
+      <span class="not_in_channel">(not in channel)</span>
+    {{/if}}
+  {{/if}}
+
+</li>

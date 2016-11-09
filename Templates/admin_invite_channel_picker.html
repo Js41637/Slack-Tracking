@@ -1,0 +1,74 @@
+{{#if_equal invite_type compare='full'}}
+  <p id="default_channels_note" class="small align_center no_bottom_margin {{#if initial_channel_id}}hidden{{/if}}">
+    New <strong>full members</strong> will automatically join
+    {{#each default_channels}}
+      {{#if @last}}{{#unless @first}}and {{/unless}}{{/if}}#<strong>{{this.name}}</strong>{{#unless @last}}{{#if_gt ../default_channels.length compare=2}},{{/if_gt}}{{/unless}}{{#if @last}}.{{/if}}
+    {{/each}}
+    {{#if is_admin}}
+      <a onclick="$('#default_channels_note').hide(); $('#default_channels').show();" class="small_left_margin subtle_silver underline" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=edit_channels,trigger=click_cta_edit_channels">Edit / add</a>
+    {{/if}}
+  </p>
+  <p id="default_channels" {{#if initial_channel_id}}{{else}}style="display: none; overflow: visible !important;"{{/if}}>
+    <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" class="hidden">
+      {{#each channels}}
+        {{#unless this.is_general}}
+          <option value="{{this.id}}" {{#if this.is_default}}selected{{/if}} {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+        {{/unless}}
+      {{/each}}
+      {{#each groups}}
+        <option value="{{this.id}}">{{this.name}}</option>
+      {{/each}}
+    </select>
+    <span class="small align_center">
+      New <strong>full members</strong> will automatically join these channels and <strong>#{{general_name}}</strong> <a href="/admin/settings#default_channels" target="admin_settings" class="small_left_margin subtle_silver underline">change defaults</a>
+    </span>
+  </p>
+{{/if_equal}}
+
+{{#if_equal invite_type compare='restricted'}}
+  <p class="small align_center small_bottom_margin">New <strong>{{raLabel 'restricted accounts'}}</strong> will only have access to these channels:</p>
+  <p id="restricted_channel_picker_container">
+    <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" data-placeholder="Choose one or more channels ...">
+      {{#each channels}}
+        <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+      {{/each}}
+      {{#each groups}}
+        <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
+      {{/each}}
+    </select>
+  </p>
+{{/if_equal}}
+
+{{#if_equal invite_type compare='ultra_restricted'}}
+  <p class="small align_center small_bottom_margin">New <strong>single-channel guests</strong> will only have access to this channel:</p>
+  <p id="ultra_restricted_channel_picker_container">
+    <select id="ultra_restricted_channel_picker" name="ultra_restricted_channel_picker" class="full_width">
+      <option value="" selected="selected">Choose a channel ...</option>
+      {{#if channels}}
+        <optgroup label="Channels">
+          {{#each channels}}
+            <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+          {{/each}}
+        </optgroup>
+      {{/if}}
+      {{#if groups}}
+        <optgroup label="Private Channels">
+          {{#each groups}}
+            <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
+          {{/each}}
+        </optgroup>
+      {{/if}}
+    </select>
+  </p>
+{{/if_equal}}
+
+<p class="small align_center no_bottom_margin">
+  <span id="sso_signup_notice" class="block small_top_margin hidden"></span>
+  <span id="google_auth_email_domain_notice" class="hidden">
+    You can invite people with email addresses ending in 
+    {{#each email_domains}}
+      {{#if @last}}{{#unless @first}}and {{/unless}}{{/if}}<strong>@{{this}}</strong>{{#unless @last}},{{/unless}}
+    {{/each}}
+    <a href="/admin/auth/google" target="{{newWindowName}}" class="subtle_silver small_left_margin underline">change SSO settings</a>
+  </span>
+</p>

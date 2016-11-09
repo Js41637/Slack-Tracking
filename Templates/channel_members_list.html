@@ -1,0 +1,12 @@
+  {{#if members}}
+    <ul id="{{makeChannelListDomId channel}}" class='member_list overflow_ellipsis'>      
+      {{#each members}}
+        <li class="{{makeMemberDomId this}} overflow_ellipsis member" data-member-id="{{this.id}}">
+          <a href="/team/{{this.name}}" class="{{makeMemberPresenceDomClass this}} {{makeMemberListDomClass this}} {{getMemberColorClassById this.id}} {{#if ../color_names}}user_colored{{else}}nuc{{/if}} overflow_ellipsis">
+            {{{makeMemberPresenceIcon this}}}
+            {{getMemberDisplayName this}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}

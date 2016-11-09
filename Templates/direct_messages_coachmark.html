@@ -1,0 +1,43 @@
+<div id="direct_messages_coachmark_div" class="coachmark_div">
+  <div class="coachmark_contents">
+    <h2 class="black">Send direct messages</h2>
+    {{~#currentUserIsAdmin~}}
+      {{#feature flag="feature_update_coachmarks_copy"}}
+        <p>Need to send a quick note to just one person or a small group of people on your team? Direct messages are great for that!</p>
+      {{else}}
+        <p>Direct messages are {{#feature flag="feature_tos_oct2016"}}{{else}}private, {{/feature}}<strong>1-to-1 messages</strong>. Once you invite people, you'll be able to chat with them here.</p>
+      {{/feature}}
+    {{~else~}}
+      {{#feature flag="feature_update_coachmarks_copy"}}
+        <p>Need to send a quick note to just one person or a small group of people on your team?
+        {{~#currentUserIsRA~}}
+          {{~#if_equal channels_count compare=0}} 
+            You can send direct messages to anyone in the same channel as you.
+          {{~else~}}
+            {{~#if_gt groups_count compare=0}}
+              You can directly message anyone in the same channels or groups as you.
+            {{~else}}
+              You can directly message anyone in the same {{pluralize channels_count 'channel'}} as you.
+            {{~/if_gt~}}
+          {{~/if_equal~}}
+        {{~else}} 
+          Direct messages are great for that.
+        {{~/currentUserIsRA~}}
+        </p>
+      {{else}}
+        <p>Direct messages are {{#feature flag="feature_tos_oct2016"}}{{else}}private, {{/feature}}<strong>1-to-1 messages</strong>.
+        {{~#currentUserIsRA~}}
+          {{~#if_equal channels_count compare=0}} You can directly message anyone in the same group as you.
+          {{~else~}}
+            {{~#if_gt groups_count compare=0}} You can directly message anyone in the same channels or groups as you.
+            {{~else}} You can directly message anyone in the same {{pluralize channels_count 'channel'}} as you.
+            {{~/if_gt~}}
+          {{~/if_equal~}}
+        {{~else}} You can chat with any member of <strong>{{currentTeamName}}</strong>.
+        {{~/currentUserIsRA~}}
+        </p>
+      {{/feature}}
+      
+    {{~/currentUserIsAdmin~}}
+  </div>
+</div>

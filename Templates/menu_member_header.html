@@ -1,0 +1,70 @@
+<div class="menu_member_header">
+  <div class="member_details display_flex flex_direction_column align_items_flex_start cropped_preview">
+    {{{makeMemberPreviewCardLinkImage member.id}}}
+
+    <p class="member_timezone_value">
+      {{#or member._is_external (or member.is_restricted member.is_bot)}}
+        <span class="float_right left_margin">
+      {{/or}}
+      <span class="timezone_label" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</span>{{#if member.is_self}} (<a href='/account/settings' target={{newWindowName}}>change</a>){{/if}}
+      {{#or member._is_external (or member.is_restricted member.is_bot)}}
+        </span>
+      {{/or}}
+      {{#if member._is_external}}
+        <span class="lato">
+          <span class="overflow_ellipsis"><span class="very_small_right_margin">{{{makeMemberTypeBadge member 16 true false}}}</span> External Guest</span>
+        </span>
+      {{else if member.is_restricted}}
+        <span class="lato">
+          <span class="overflow_ellipsis">
+            {{#if member.is_ultra_restricted}}
+              Single-Channel Guest{{!--#if ura_channel}} in #{{ura_channel}}{{/if--}}
+            {{else}}
+              {{raLabel 'Restricted Account'}}
+            {{/if}}
+          </span>
+        </span>
+      {{else if member.is_bot}}
+        <span class="lato">
+          <span class="overflow_ellipsis">Non-sentient Bot</span>
+        </span>
+      {{/if}}
+    </p>
+
+    <div class="member_details_over_image">
+      <div class="member_name_and_presence lato">
+        {{#feature flag="feature_name_tagging_client"}}
+          {{#if member.deleted}}
+            <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{getMemberFullName member}}</a>
+          {{else}}
+            {{#if member.is_self}}
+              <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{getMemberFullName member}}</a>
+            {{else}}
+              <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link" data-qa="member_name">{{getMemberFullName member}}</a>
+            {{/if}}
+            {{{makeMemberPresenceIcon member}}}
+          {{/if}}
+        {{else}}
+          {{#if member.deleted}}
+            <a href="/team/{{member.name}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+          {{else}}
+            {{#if member.is_self}}
+              <a href="/team/{{member.name}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+            {{else}}
+              <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="member_name internal_im_link" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+            {{/if}}
+            {{{makeMemberPresenceIcon member}}}
+          {{/if}}
+        {{/feature}}
+      </div>
+
+      {{#if member.profile}}
+        {{#if member.profile.title}}
+          <div class="member_title lato">{{member.profile.title}}</div>
+        {{/if}}
+      {{/if}}
+    </div>
+  </div>
+
+  <hr class="member_details_divider">
+</div>

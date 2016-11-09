@@ -1,0 +1,27 @@
+<div class="apps_typeahead">
+  {{#if data.suggestions}}
+    {{#each data.suggestions}}
+      <a href="/apps/{{encoded_id}}" class="plastic_typeahead_item" data-app-id="{{encoded_id}} data-app-name="{{name}}" data-app-is-slack-owned="{{is_slack_owned}}">
+        {{#if payload.icons.image_48}}
+          <img src="{{payload.icons.image_48}}" class="apps_typeahead_item_media" />
+        {{else}}
+          <img src="{{versioned_default_application_icon}}" class="apps_typeahead_item_media" />
+        {{/if}}
+        <div class="apps_typeahead_item_text">
+          <span class="apps_typeahead_item_title">{{name}}</span>
+          <span class="apps_typeahead_item_desc">{{desc}}</span>
+        </div>
+      </a>
+    {{/each}}
+    {{#if data.has_more_suggestions}}
+      <a href="/apps/search?q={{term}}" class="plastic_typeahead_item">
+        <ts-icon class="ts_icon_search apps_typeahead_item_media"></ts-icon>
+        <div>
+          <span class="apps_typeahead_item_title">See all results for "{{term}}"</span>
+        </div>
+      </a>
+    {{/if}}
+  {{else}}
+    <div class="plastic_typeahead_item plastic_typeahead_item_no_results">No results for "{{term}}"</div>
+  {{/if}}
+</div>

@@ -1,0 +1,235 @@
+<div id="prefs_themes">
+
+  {{#feature flag="feature_sli_channel_priority"}}
+  <h2 id="prefs_sidebar_sort" class="inline_block">Sidebar Settings [TS ONLY]</h2>
+  <div class="no_custom_sort hidden">
+    <h3>You are using our Default Sort.</h3>
+    Try a <a id="custom_sort_btn" class="btn btn_small btn_outline" style="line-height:.8rem">Custom Sort</a> ?</p>
+
+    <p><label class="select">What calculated ranking would you like to use?</label>
+      <select id="custom_sort_simple_select" data-inline-saver="#prefs_sidebar_sort" class="small" style="width:300px">
+        {{#each channel_sort_simple_options}}
+        <option value="{{this.value}}">{{this.name}}</option>
+        {{/each}}
+      </select><br>
+    </p>
+
+  </div>
+  <div class="has_custom_sort hidden">
+    <h3>You are using a Custom Sort.</h3>
+    <p>Go back to the <a id="default_sort_btn" class="btn btn_small btn_outline" style="line-height:.8rem">Default Sort</a> ?</p>
+
+    <p><label class="select">Choose what to sort on:</label>
+      {{#repeat channel_sort_options_cnt}}
+      <select data-inline-saver="#prefs_sidebar_sort" class="small custom_sort_select" style="width:300px">
+        {{#each ../channel_sort_options}}
+        <option value="{{this.value}}">{{this.name}}</option>
+        {{/each}}
+      </select> <a class="channel_sort_remover channel_sort_remover"><ts-icon class="ts_icon_times_circle subtle_silver candy_red_on_hover"></<ts-icon></a><br>
+      {{/repeat}}
+    </p>
+
+  </div>
+
+  <p>
+    <label class="checkbox">
+      <input id="priority_display_cb" checked="" type="checkbox" data-inline-saver="#prefs_sidebar_sort">
+      Show a priority score next to channels in the channel list <span class="normal"><br>
+      This might be SLI's priority score, or might be frecency, depending on your sort preferences.</span>
+    </label>
+  </p>
+
+  <p class="bold very_small_bottom_margin">In the sidebar, show:</p>
+  <p>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="" checked="checked" data-inline-saver="#prefs_sidebar_sort">
+      <span class='normal'>All my channels and DMs</span>
+    </label>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="hide_read_channels" data-inline-saver="#prefs_sidebar_sort">
+      <span class='normal'>Just my unread channels and DMs</span>
+    </label>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="hide_read_channels_unless_starred" data-inline-saver="#prefs_sidebar_sort">
+      <span class='normal'>My unreads, along with everything I've starred</span>
+    </label>
+    {{#tinyspeck}}
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="shrink_left_column" data-inline-saver="#prefs_sidebar_sort">
+      <span class='normal'>All my channels and DMs, but super tiny (TS only)</span>
+    </label>
+    {{/tinyspeck}}
+  </p>
+  <p>
+    <label for="separate_private_channels_cb" class="checkbox no_margin">
+      <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+      <span class="normal">List private channels separately</span>
+    </label>
+  </p>
+
+  <hr>
+
+  {{/feature}}
+
+  <h2 id="prefs_sidebar_theme" class="inline_block">Sidebar Theme</h2>
+
+  <p>Customize the look of the <strong>{{currentTeamName}}</strong> team. Only you will see this.</p>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/aubergine@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="default_theme" data-inline-saver="#prefs_sidebar_theme">
+      </div>
+      <div class="theme_name">Aubergine</div>
+    </div>
+  </label>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/hoth@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="hoth_theme" data-inline-saver="#prefs_sidebar_theme">
+      </div>
+      <div class="theme_name">Hoth</div>
+    </div>
+  </label>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/monument@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="monument_theme" data-inline-saver="#prefs_sidebar_theme">
+      </div>
+      <div class="theme_name">Monument</div>
+    </div>
+  </label>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/chocolate@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="chocolate_theme" data-inline-saver="#prefs_sidebar_theme">
+      </div>
+      <div class="theme_name">Choco Mint</div>
+    </div>
+  </label>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/ochin@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="ocean_theme" data-inline-saver="#prefs_sidebar_theme">
+      </div>
+      <div class="theme_name">Ochin</div>
+    </div>
+  </label>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/workhard@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="workhard_theme" data-inline-saver="#prefs_sidebar_theme">
+      </div>
+      <div class="theme_name">Work Hard</div>
+    </div>
+
+  </label>
+
+  <hr class="clear_both large_top_margin large_bottom_margin">
+
+  <h4 id="prefs_sidebar_theme_accessible" class="inline_block bottom_margin">Accessible Themes</h4><br>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/solanum@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="solanum_theme" data-inline-saver="#prefs_sidebar_theme_accessible">
+      </div>
+      <div class="theme_name">Protanopia &amp;<br />Deuteranopia</div>
+    </div>
+  </label>
+
+  <label class="radio theme_label">
+    <div class="theme_thumb" style="background-image: url(/img/themes/brinjal@2x.png);"></div>
+    <div class="theme_chooser">
+      <div class="theme_radio_wrap">
+        <input class="theme_radio" name="sidebar_theme_rd" type="radio" value="brinjal_theme" data-inline-saver="#prefs_sidebar_theme_accessible">
+      </div>
+      <div class="theme_name">Tritanopia</div>
+    </div>
+  </label>
+
+  <hr class="clear_both large_top_margin large_bottom_margin">
+
+  <p id="customize_theme_info" class="{{#if show_customization_ui}}hidden{{/if}}">
+    Feeling adventurous?<br>
+    <a id="customize_theme_toggle" class="bold">Customize your theme and share it with others</a>
+  </p>
+
+  <div id="prefs_themes_customize" class="{{#unless show_customization_ui}}hidden{{/unless}}">
+    <h4 class="bottom_margin">Custom Theme</h4>
+    <label>
+      Column BG<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='column_bg' data-hex='{{theme.column_bg}}' style="background-color: {{theme.column_bg}};"></span>
+        <input type="text" name="color_column_bg_hex" class="small color_hex monospace borderless" value="{{theme.column_bg}}" maxlength="7">
+      </span>
+    </label>
+    <label>
+      Menu BG Hover<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='menu_bg' data-hex='{{theme.menu_bg}}' style="background-color: {{theme.menu_bg}};"></span>
+        <input type="text" name="color_menu_bg_hex" class="small color_hex monospace borderless" value="{{theme.menu_bg}}" maxlength="7">
+      </span>
+    </label>
+    <label>
+      Active Item<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='active_item' data-hex='{{theme.active_item}}' style="background-color: {{theme.active_item}};"></span>
+        <input type="text" name="color_active_item_hex" class="small color_hex monospace borderless" value="{{theme.active_item}}" maxlength="7">
+      </span>
+    </label>
+    <label>
+      Active Item Text<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='active_item_text' data-hex='{{theme.active_item_text}}' style="background-color: {{theme.active_item_text}};"></span>
+        <input type="text" name="color_active_item_text_hex" class="small color_hex monospace borderless" value="{{theme.active_item_text}}" maxlength="7">
+      </span>
+    </label>
+    <label>
+      Hover Item<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='hover_item' data-hex='{{theme.hover_item}}' style="background-color: {{theme.hover_item}};"></span>
+        <input type="text" name="color_hover_item_hex" class="small color_hex monospace borderless" value="{{theme.hover_item}}" maxlength="7">
+      </span>
+    </label>
+    <label>
+      Text Color<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='text_color' data-hex='{{theme.text_color}}' style="background-color: {{theme.text_color}};"></span>
+        <input type="text" name="color_text_color_hex" class="small color_hex monospace borderless" value="{{theme.text_color}}" maxlength="7">
+      </span>
+    </label>
+    <label>
+      Active Presence<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='active_presence' data-hex='{{theme.active_presence}}' style="background-color: {{theme.active_presence}};"></span>
+        <input type="text" name="color_active_presence_hex" class="small color_hex monospace borderless" value="{{theme.active_presence}}" maxlength="7">
+      </span>
+    </label>
+    <label class="large_bottom_margin">
+      Mention Badge<br>
+      <span class="custom_theme_label">
+        <span class="color_swatch" data-theme-element='badge' data-hex='{{theme.badge}}' style="background-color: {{theme.badge}};"></span>
+        <input type="text" name="color_badge_hex" class="small color_hex monospace borderless" value="{{theme.badge}}" maxlength="7">
+      </span>
+    </label>
+
+    <label class="clear_both full_width">
+      Copy and paste these values to share your custom theme with others:<br>
+      <input type="text" name="sidebar_theme_custom" id="sidebar_theme_custom" class="small monospace very_small_top_margin">
+    </label
+
+  </div>
+</div>

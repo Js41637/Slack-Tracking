@@ -1,0 +1,50 @@
+<div id="group_joined" class="channel_overlay channel_overlay_redesign">
+  {{#if group.is_shared}}
+    <img class="channel_overlay_shared_icon float_left" src="{{versioned_join_shared_channel '2x'}}" srcset="{{versioned_join_shared_channel '1x'}} 1x, {{versioned_join_shared_channel '2x'}} 2x" />
+    <div class="channel_overlay_title_wrap bottom_margin">
+      <p class="channel_overlay_title_shared small_bottom_margin">
+        You just joined a shared private channel
+      </p>
+  {{else}}
+    <img class="channel_overlay_team_icon float_left" src="{{versioned_join_team_channel '2x'}}" srcset="{{versioned_join_team_channel '1x'}} 1x, {{versioned_join_team_channel '2x'}} 2x" />
+    <div class="channel_overlay_title_wrap bottom_margin">
+  {{/if}}
+    <p class="channel_overlay_title">
+      {{#unless group.is_shared}}
+        <span class="channel_overlay_title_opener">You just joined</span><br />
+      {{/unless}}
+      <span class="channel_overlay_title_prefix">{{groupPrefix}}</span><strong>{{group.name}}</strong>
+    </p>
+  </div>
+  <ul>
+    <li>Created on {{toCalendarDate group.created}} {{#if group.creator}}by {{makeMemberPreviewLinkById group.creator}}{{/if}}.</li>
+    <li>This is a private channel.</li>
+    {{#if invited}}
+      {{#if group.inviter}}<li>You were invited to this channel by {{makeMemberPreviewLinkById group.inviter}}.</li>{{/if}}
+    {{/if}}
+    {{#if_equal group.active_members.length compare=1}}
+      <li>You are currently the only member of this channel.</li>
+    {{else}}
+      <li>The members are
+      {{#foreach group.active_members}}
+        {{#if this.last}}and {{/if}}{{getMemberDisplayNameById this.value}}{{#if this.last}}.{{else}}{{#if_gt this.length compare=2}},{{/if_gt}}{{/if}}
+      {{/foreach}}</li>
+    {{/if_equal}}
+    <li>Only members can open the channel and they are the only ones to have access to the archives.</li>
+    <li>You can invite more members from the channel menu.</li>
+  </ul>
+  {{#if group.purpose.value}}
+    <p class="channel_overlay_purpose">The purpose of this channel is:<br /><em>{{formatTopicOrPurpose group.purpose.value}}</em></p>
+  {{/if}}
+
+  <label class="checkbox overlay_pref block">
+    <input id="no_joined_overlays_cb" type="checkbox" /> Don't show me this message when I join a channel
+  </label>
+
+  <a class="btn padded">Got it!</a>
+
+  <p class="hidden" aria-hidden="false">
+    Press enter to close this message and view the channel.
+  </p>
+
+</div>

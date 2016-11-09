@@ -1,0 +1,9 @@
+<li data-action="edit_member_profile_upload_image">
+  <a class="position_relative">
+    {{#if is_iOS}}<input type="file" accept="image/*;capture=camera" aria-hidden="true" data-action="edit_member_profile_upload_photo" />{{/if}}
+    Upload an image
+  </a>
+</li>
+{{#if show_delete}}
+  <li data-action="edit_member_profile_to_delete" class="danger" data-id="{{id}}"><a>Remove photo</a></li>
+{{/if}}

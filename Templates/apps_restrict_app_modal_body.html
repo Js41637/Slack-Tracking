@@ -1,0 +1,25 @@
+{{#if is_api_tester}}
+  <p class="no_margin">
+    We'll send {{#if user_name}}<b>{{user_name}}</b>{{else}}this user{{/if}}
+    a message that you've denied their request.
+  </p>
+{{else if is_custom_integration}}
+  <p class="no_margin">
+    {{#if user_name}}<b>{{user_name}}</b>{{else}}This user{{/if}}
+    will not be able to add a configuration for
+    {{#if app_name}}{{app_name}}{{else}}this app{{/if}}.
+  </p>
+{{else}}
+  <p>
+    Team members will
+    {{#if request_id}}not{{else}}no longer{{/if}}
+    be able to add or edit {{app_name}} configurations.
+  </p>
+  <p class="no_margin">
+    {{#if config_count}}
+      <b>{{config_count}} existing {{pluralize config_count 'configuration'}}</b> will remain in use until removed from Team Apps.
+    {{else}}
+      There are no existing configurations.
+    {{/if}}
+  </p>
+{{/if}}

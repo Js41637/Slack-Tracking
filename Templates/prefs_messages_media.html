@@ -1,0 +1,127 @@
+<h2>Message Display</h2>
+
+<h4 id="prefs_message_theme" class="inline_block">Message Theme</h4>
+<div class="bottom_margin clearfix">
+  <div class="col span_1_of_2">
+    <label class="radio">
+      <input name="messages_theme_select" type="radio" value="light_with_avatars" data-inline-saver="#prefs_message_theme">
+      Clean: <span class='normal'>Clear, friendly, and focused.</span>
+    </label>
+    <label class="radio">
+      <input name="messages_theme_select" type="radio" value="dense" data-inline-saver="#prefs_message_theme">
+      Compact: <span class='normal'>The most messages you can fit on screen at once.</span>
+    </label>
+  </div>
+  <div class="col span_1_of_2">
+    <img src="{{versioned_prefs_messages_clean}}" class="prefs_messages_theme_preview {{#unless clean_theme}}hidden{{/unless}}">
+    <img src="{{versioned_prefs_messages_compact}}" class="prefs_messages_theme_preview {{#unless compact_theme}}hidden{{/unless}}">
+  </div>
+</div>
+
+<h4 id="prefs_display_options" class="inline_block">Display Options</h4>
+<p class="large_bottom_margin">
+  <label class="checkbox">
+    <input id="show_typing_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+    Display information about who is currently typing a message
+  </label>
+  {{#feature flag="feature_name_tagging_client"}}
+    {{#feature flag="feature_name_tagging_preferred_names_pref"}}
+      <label class="checkbox">
+        <input id="display_preferred_names_cb" type="checkbox" data-inline-saver="#prefs_display_options">
+        Display full names instead of preferred names
+      </label>
+    {{/feature}}
+  {{else}}
+    <label class="checkbox">
+      <input id="display_real_names_override_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+      Display real names <span id="display_real_names_default">(team default)</span> instead of usernames <span id="display_usernames_default">(team default)</span>
+    </label>
+  {{/feature}}
+  <label class="checkbox">
+    <input id="time24_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+    Show times with 24-hour clock <span class="normal">(16:00 rather than 4:00 PM)</span>
+  </label>
+  {{#if should_use_local_lato_2}}
+    {{#isOurApp}}
+      {{! We don't show the Lato 2 pref in the SSB, since we load it locally for all users }}
+    {{else}}
+      <label class="checkbox">
+        <input id="load_lato_2_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+        Use font with <a href="http://www.latofonts.com/2014/02/27/lato-2-0-released/" target="{{newWindowName}}">extended latin character set</a></span><br>
+        <span class="normal">If you use a language with accented characters, this will improve font appearance. Requires reload to take effect.</span>
+      </label>
+    {{/isOurApp}}
+  {{else}}
+    <label class="checkbox">
+      <input id="load_lato_2_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+      Use font with <a href="http://www.latofonts.com/2014/02/27/lato-2-0-released/" target="{{newWindowName}}">extended latin character set</a></span><br>
+      <span class="normal">If you use a language with accented characters, this will improve font appearance. Requires reload to take effect.</span>
+    </label>
+  {{/if}}
+</p>
+
+<h4 id="prefs_emoji_style" class="inline_block">Emoji Style</h4>
+<br>
+<p id="prefs_emoji" class="inline_block">
+  <label class="radio">
+    <input name="emoji_mode_select" type="radio" value="default" data-inline-saver="#prefs_emoji_style">
+    <span class="emoji_label">Apple/International Style</span>
+    {{> prefs_emoji_preview force_style='apple' use_skin_tone_modifier=true}}
+  </label>
+  <label class="radio">
+    <input name="emoji_mode_select" type="radio" value="google" data-inline-saver="#prefs_emoji_style">
+    <span class="emoji_label">Google Hangouts Style</span>
+    {{> prefs_emoji_preview force_style='google'}}
+  </label>
+  <label class="radio">
+    <input name="emoji_mode_select" type="radio" value="twitter" data-inline-saver="#prefs_emoji_style">
+    <span class="emoji_label">Twitter Style</span>
+    {{> prefs_emoji_preview force_style='twitter' use_skin_tone_modifier=true}}
+  </label>
+  <label class="radio small_bottom_margin">
+    <input name="emoji_mode_select" type="radio" value="emojione" data-inline-saver="#prefs_emoji_style">
+    <span class="emoji_label">Emoji One Style</span>
+    {{> prefs_emoji_preview force_style='emojione'}}
+  </label>
+  <label class="radio">
+    <input name="emoji_mode_select" type="radio" value="as_text" data-inline-saver="#prefs_emoji_style">
+    None: <span class="normal">plain text only</span>
+  </label>
+</p>
+<p class="large_bottom_margin">
+  <label class="checkbox">
+    <input id="jumbomoji_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_emoji_style">
+    Show JUMBOMOJI<br>
+    <span class="normal">Display the jumbo versions of emoji (up to 23 at a time!) in messages containing no text</span>
+  </label>
+</p>
+
+<h4 id="prefs_convert_emoticons" class="inline_block">Convert Emoticons</h4>
+<p class="large_bottom_margin">
+  <label class="checkbox">
+    <input id="convert_emoticons_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_convert_emoticons">
+    Convert my typed emoticons to emoji, so &nbsp;:D&nbsp; becomes {{emojiGraphicReplace ":smile:"}}
+  </label>
+</p>
+
+<hr>
+
+<h2 id="prefs_inline_media" class="large_top_margin inline_block">Inline Media & Links</h2>
+<p>
+  <label class="checkbox">
+    <input id="expand_internal_inline_imgs_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_inline_media">
+    Show images and files uploaded to Slack
+  </label>
+  <label class="checkbox">
+    <input id="expand_inline_imgs_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_inline_media">
+    Show images and files from linked websites
+  </label>
+  <label class="checkbox medium_left_margin">
+    <input id="dont_obey_inline_img_limit_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_inline_media">
+    Even if they\u2019re larger than {{convertFilesize inline_img_byte_limit}}
+  </label>
+  <label class="checkbox">
+    <input id="expand_non_media_attachments_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_inline_media">
+    Show text previews of linked websites
+  </label>
+</p>

@@ -1,0 +1,10 @@
+<div class="enterprise_profile__view">
+  {{!-- top bar --}}
+  <div class="enterprise_profile__top_bar display_flex justify_content_between">
+    <h2 class="black">Teams</h2>
+    <div data-member-profile-teams-controls>
+      {{#if can_edit_this_user}}<button class="btn tiny_top_margin align_top ladda-button" data-member-profile-manage-teams>Manage Teams</button>{{/if}}
+    </div>
+  </div>
+  <div data-enterprise-member-profile-teams-list></div>
+</div>

@@ -1,0 +1,27 @@
+  <div class="align_center">
+    {{#if range_match}}
+      <p class="small_bottom_margin">No {{tab.label}} found matching <span class="query bold">{{query}}</span> in this range.</p>
+      <p class="small_bottom_margin bold">
+        <a href="{{range_search_url}}">Search within the {{range_label}} range?</a>
+      </p>
+    {{/if}}
+    {{#unless range_match}}
+      <p class="small_bottom_margin">No {{tab.label}} found matching <span class="query bold">{{query}}</span>.</p>
+      {{#if show_pending_matches}}
+        <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('pending');">{{pending_matches.length}} pending {{pluralize pending_matches.length "invite" "invites"}} found</a></p>
+      {{/if}}
+      {{#if show_accepted_matches}}
+        <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('accepted');">{{accepted_matches.length}} accepted {{pluralize accepted_matches.length "invite" "invites"}} found</a></p>
+      {{/if}}
+      {{#if show_active_matches}}
+        <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('active');">{{active_matches.length}} full team {{pluralize active_matches.length "member" "members"}} found</a></p>
+      {{/if}}
+      {{#if show_restricted_matches}}
+        <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('restricted');">{{restricted_matches.length}} restricted {{pluralize restricted_matches.length "account" "accounts"}} found</a></p>
+      {{/if}}
+      {{#if show_disabled_matches}}
+        <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('disabled');">{{disabled_matches.length}} deactivated {{pluralize disabled_matches.length "account" "accounts"}} found</a></p>
+      {{/if}}
+    {{/unless}}
+    <p class="top_margin"><a class="clear_members_filter btn btn_outline btn_small btn_outline btn_small">Clear search</a></p>
+  </div>

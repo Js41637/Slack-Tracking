@@ -1,0 +1,52 @@
+<div id="channel_created" class="channel_overlay channel_overlay_redesign">
+  {{#if channel.is_shared}}
+    <img class="channel_overlay_shared_icon float_left" src="{{versioned_join_shared_channel '2x'}}" srcset="{{versioned_join_shared_channel '1x'}} 1x, {{versioned_join_shared_channel '2x'}} 2x" />
+    <div class="channel_overlay_title_wrap bottom_margin">
+      <p class="channel_overlay_title_shared small_bottom_margin">
+        You just created a channel shared with {{#each channel.shares}}{{#if @last}}{{#if_gt ../channel.shares.length compare=1}}, and {{/if_gt}}{{else}}{{#if @first}}{{else}}, {{/if}}{{/if}}<strong>{{name}}</strong>{{/each}}
+      </p>
+  {{else}}
+    <img class="channel_overlay_team_icon float_left" src="{{versioned_join_team_channel '2x'}}" srcset="{{versioned_join_team_channel '1x'}} 1x, {{versioned_join_team_channel '2x'}} 2x" />
+    <div class="channel_overlay_title_wrap bottom_margin">
+  {{/if}}
+    <p class="channel_overlay_title">
+      {{#unless channel.is_shared}}
+        <span class="channel_overlay_title_opener">You just created</span><br />
+      {{/unless}}
+      <span class="channel_overlay_title_prefix">#</span><strong>{{channel.name}}</strong>
+    </p>
+  </div>
+  <ul>
+    {{#pageNeedsEnterprise}}
+      {{#if channel.is_shared}}
+        <li>Messages, files, and members in this channel will be visible to both teams.</li>
+        <li>Slack integrations are disabled in this channel.</li>
+        {{#isThereComplianceExportsTeam channel}}
+          <li>{{makeTeamsThatHaveComplianceExportsBlurb channel.shares}}</li>
+        {{/isThereComplianceExportsTeam}}
+      {{/if}}
+    {{/pageNeedsEnterprise}}
+    {{#if_gt channel.active_members.length compare=1}}
+      <li>{{channel.active_members.length}} people have this channel open.</li>
+    {{else}}
+      <li>You are currently the only person in this channel.</li>
+    {{/if_gt}}
+    <li>You can review messages from this channel in the <a href="/archives/{{channel.name}}" class="bold" target={{newWindowName}}>Channel Archive</a>.</li>
+    <li>Others on your team can join from the <strong>Channel List</strong>.</li>
+    <li>Or, you can <a class="bold invite_link">invite some teammates now</a>!</li>
+  </ul>
+  {{#if channel.purpose.value}}
+    <p class="channel_overlay_purpose">The purpose of this channel is:<br /><em>{{formatTopicOrPurpose channel.purpose.value}}</em></p>
+  {{/if}}
+
+  <label class="checkbox overlay_pref block">
+    <input id="no_created_overlays_cb" type="checkbox" /> Don't show me this message when I create a channel
+  </label>
+
+  <a class="btn padded">Got it!</a>
+
+  <p class="hidden" aria-hidden="false">
+    Press enter to close this message and view the channel.
+  </p>
+
+</div>

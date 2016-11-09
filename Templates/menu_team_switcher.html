@@ -1,0 +1,20 @@
+<span class="team_switcher menu_launcher" data-selected-team-id="{{first_team.id}}">
+  <img class="icon_24" src="{{first_team.icon.image_44}}">
+  {{first_team.name}}
+</span>
+<ul id="teams_list" class="hidden">
+  {{#each teams}}
+      <li class="team_switcher_item" role="menuitem">
+        <a href="{{url}}" data-team-id="{{id}}">
+          <img src="{{icon.image_44}}">
+          {{name}}
+        </a>
+      </li>
+  {{/each}}
+  <li role="menuitem" class="avatar_menu_signin_item">
+    <a href="{{sign_in_url}}">
+      <ts-icon class="ts_icon_plus"></ts-icon>
+      Sign in to another team
+    </a>
+  </li>
+</ul>

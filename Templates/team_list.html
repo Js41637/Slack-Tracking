@@ -1,0 +1,89 @@
+  <div id="team_list"{{#pageNeedsEnterprise}}{{#isWeb}} class="display_flex flex_one no_bottom_margin"{{/isWeb}}{{/pageNeedsEnterprise}}>
+    <div class="tab_panels {{#isClient}}no_bottom_margin{{else}}{{#pageNeedsEnterprise}}display_flex flex_one no_bottom_margin{{else}}large_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}}">
+      <div class="{{#isClient}}panel{{else}}tab_pane{{#pageNeedsEnterprise}} display_flex flex_one flex_direction_column no_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}} selected active" id="active_members" data-tab="active">
+        <div id="active_members_list"{{#if is_long_list_view}} class="members_long_list{{#pageNeedsEnterprise}}{{#isWeb}} display_flex flex_one{{/isWeb}}{{/pageNeedsEnterprise}}"{{/if}}>
+          {{#unless is_long_list_view}}
+            {{#each members}}
+              {{> team_list_item member=this}}
+            {{/each}}
+            {{#if show_bots}}
+              {{#if bots}}
+                {{> team_list_item_divider bot=true}}
+                {{#each bots}}
+                  {{> team_list_item member=this}}
+                {{/each}}
+              {{/if}}
+            {{/if}}
+          {{/unless}}
+        </div>
+        <div id="active_no_results" class="no_results hidden"></div>
+      </div>
+      {{#if show_user_groups}}
+        {{#isClient}}
+          <div id="user_groups_list" data-tab="user_groups" class="{{#isClient}}panel{{else}}tab_pane{{/isClient}}">
+            {{!--
+              {{> user_group_list is_flexpane="true"}}
+            --}}
+          </div>
+        {{/isClient}}
+      {{/if}}
+      {{#if show_restricted_members}}
+        <div class="{{#isClient}}panel{{else}}tab_pane{{#pageNeedsEnterprise}} display_flex flex_one flex_direction_column no_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}}" id="restricted_members" data-tab="restricted">
+          <div id="restricted_members_list"{{#if is_long_list_view}} class="members_long_list{{#pageNeedsEnterprise}}{{#isWeb}} display_flex flex_one{{/isWeb}}{{/pageNeedsEnterprise}}"{{/if}}>
+            {{#unless is_long_list_view}}
+              {{#if restricted_members}}
+                {{> team_list_item_divider multi_channel_guest=true}}
+                {{#each restricted_members}}
+                  {{> team_list_item member=this}}
+                {{/each}}
+              {{/if}}
+              {{#if ultra_restricted_members}}
+                {{> team_list_item_divider single_channel_guest=true}}
+                {{#each ultra_restricted_members}}
+                  {{> team_list_item member=this}}
+                {{/each}}
+              {{/if}}
+            {{/unless}}
+          </div>
+          <div id="restricted_no_results" class="no_results hidden"></div>
+          {{#isWeb}}
+            <p class="help">
+              These team members are restricted to the channels that they are invited to join.
+              {{#currentUserIsAdmin}}
+                <br />{{#isClient}}<br />{{/isClient}}
+                <a href="/admin?tab=restricted" {{#isClient}}target="new"{{/isClient}} class="bold">Manage {{raLabel 'restricted accounts'}}</a>
+              {{/currentUserIsAdmin}}
+            </p>
+          {{/isWeb}}
+        </div>
+      {{/if}}
+
+      {{#if show_disabled_members}}
+        <div class="{{#isClient}}panel{{else}}tab_pane{{#pageNeedsEnterprise}} display_flex flex_one flex_direction_column no_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}}" id="disabled_members" data-tab="disabled">
+          <div id="deleted_members_list"{{#if is_long_list_view}} class="members_long_list{{#pageNeedsEnterprise}}{{#isWeb}} display_flex flex_one{{/isWeb}}{{/pageNeedsEnterprise}}"{{/if}}>
+            {{#unless is_long_list_view}}
+              {{#each disabled_members}}
+                {{> team_list_item member=this}}
+              {{/each}}
+              {{#if show_bots}}
+                {{#if deleted_bots}}
+                  {{> team_list_item_divider deleted_bot=true}}
+                  {{#each deleted_bots}}
+                    {{> team_list_item member=this}}
+                  {{/each}}
+                {{/if}}
+              {{/if}}
+            {{/unless}}
+          </div>
+          <div id="disabled_no_results" class="no_results hidden"></div>
+          <p class="help">
+            These team members have been deactivated and can no longer access your team.
+            {{#currentUserIsAdmin}}
+              <br />
+              <a href="/admin" class="bold" target="_blank">Manage deactivated accounts</a>
+            {{/currentUserIsAdmin}}
+          </p>
+        </div>
+      {{/if}}
+    </div>
+  </div>

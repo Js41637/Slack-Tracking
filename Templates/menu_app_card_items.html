@@ -1,0 +1,15 @@
+<li role="menuitem"><a>View app</a></li>
+{{#if app.commands}}
+  <li class="divider"></li>
+  {{#each app.commands}}
+    <li role="menuitem" data-action="slash_command" data-name="{{name}}">
+      <a class="app_slash_command">
+        <div class="app_slash_command_title overflow_ellipsis">
+          <span class="app_slash_command_title_name">{{name}}</span>
+          <span>{{usage}}</span>
+        </div>
+        <div class="app_slash_command_desc overflow_ellipsis">{{desc}}</div>
+      </a>
+    </li>
+  {{/each}}
+{{/if}}

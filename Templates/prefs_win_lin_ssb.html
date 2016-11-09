@@ -1,0 +1,16 @@
+<h2 id="prefs_app_settings" class="inline_block">App Settings</h2>
+<p>
+  <label class="checkbox">
+    <input id="winssb_launch_on_start_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_app_settings">
+    Launch app on login
+  </label>
+  <label class="checkbox">
+    <input id="winssb_run_from_tray_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_app_settings">
+    Leave app running in notification area when the window is closed
+  </label>
+  <label class="checkbox" id="winssb_disable_hw_acceleration_pref">
+    <input id="winssb_disable_hw_acceleration_cb" checked="unchecked" type="checkbox" data-inline-saver="#prefs_app_settings">
+    Disable hardware acceleration<br>
+    <span id="winssb_disable_hw_acceleration_note" class="normal">{{#unless show_lin_ssb_prefs}}If you use a Windows Classic theme, this can resolve rendering issues. {{/unless}}Restart Slack for this preference to take effect.</span>
+  </label>
+</p>

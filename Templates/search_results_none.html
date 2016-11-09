@@ -1,0 +1,26 @@
+  <p class="no_results">
+    No 
+    {{#if_equal filter compare='files'}}
+      {{#if_equal filetype compare="all"}}
+        files
+      {{else}}
+        {{filetype_label}}
+      {{/if_equal}}
+    {{else}}
+      {{filter}} 
+    {{/if_equal}}
+    found matching:<br><strong>{{query_string}}</strong>.
+  </p>
+
+  {{#if error}}
+    <p class="alert alert_info">
+      <i class="ts_icon ts_icon_warning"></i> <strong>Our sincere apologies!</strong><br />
+      {{#if_equal error compare="temporarily_disabled"}}
+        Search has been temporarily disabled while we deal with some issues. You can check <a href="http://status.slack.com" class="bold underline" target="{{newWindowName}}">our status site</a> for updates if it does not become available shortly.
+      {{else}}
+        Search failed with an error. This incident has been logged and is being investigated. You can check <a href="http://status.slack.com" class="bold underline" target="{{newWindowName}}">our status site</a> for updates if this problem persists.
+        <span class="subtle_silver">(error: "{{error}}")</span>
+      {{/if_equal}}
+    </p>  
+  {{/if}}
+

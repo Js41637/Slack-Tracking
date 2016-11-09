@@ -1,0 +1,30 @@
+<div class="drop_zone_overlay{{#if fullscreen}} drop_zone_fullscreen{{/if}}">
+  <div class="drop_zone_overlay_inner">
+    {{#if state.prompt}}
+      {{#if inline}}
+        <div class="display_flex align_items_center justify_content_center">
+          <img class="drop_zone_upload_icon drop_zone_block drop_zone_upload_icon_small"
+            src="{{versioned_upload_file_icon 1x}}" srcset="{{versioned_upload_file_icon 1x}} 1x, {{versioned_upload_file_icon 2x}} 2x" >
+          <span class="drop_zone_block drop_zone_overlay_text_inline">Upload your file</span>
+        </div>
+      {{else}}
+        <img class="drop_zone_upload_icon drop_zone_block"
+          src="/img/upload_file_icon.png" srcset="/img/upload_file_icon.png 1x, /img/upload_file_icon@2x.png 2x" >
+        <span class="drop_zone_block">Upload your file</span>
+      {{/if}}
+    {{/if}}
+    {{#if state.progress}}
+      {{#if inline}}
+        {{! Want the spinner next to the text}}
+        <div class="display_flex align_items_center justify_content_center">
+          <div class="drop_zone_progress"></div>
+          <span class="drop_zone_overlay_text_inline">Uploading</span>
+        </div>
+      {{else}}
+        {{! Want the spinner above the text}}
+        <div class="drop_zone_progress drop_zone_block"></div>
+        <span class="drop_zone_block">Uploading</span>
+      {{/if}}
+    {{/if}}
+  </div>
+</div>

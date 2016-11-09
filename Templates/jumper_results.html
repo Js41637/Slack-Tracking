@@ -1,0 +1,95 @@
+{{#if matches}}
+  <ol class="no_pointer_events">{{!-- no_pointer_events to workaround webkit bug: see TS.ui.jumper._captureFakeMousemoveEvent() --}}
+    {{#each matches}}
+
+      {{#feature flag="feature_name_tagging_client"}}
+        <li data-item-id="{{this.model_ob.id}}">
+      {{else}}
+        <li aria-label="{{#if this.model_ob.team_url}}{{this.model_ob.team_name}}{{else}}{{this.model_ob.name}}{{/if}}" data-item-id="{{this.model_ob.id}}" {{#if this.model_ob.team_url}}data-item-team-id="{{this.model_ob.team_id}}"{{/if}}>
+      {{/feature}}
+        <span class="item_details float_left overflow_ellipsis">
+          {{#if this.model_ob.is_group}}
+            {{#if this.model_ob.is_mpim}}
+              <ts-icon class="ts_icon_multiparty_dm_{{mpimMemberCount this.model_ob}}"></ts-icon>
+            {{else}}
+              <ts-icon class="ts_icon_lock"></ts-icon>
+            {{/if}}
+          {{/if}}
+          {{#if this.model_ob.is_channel}}<ts-icon aria-hidden="true" class="ts_icon_channel_pane_hash"></ts-icon>{{/if}}
+          {{#if this.model_ob.presence}}{{makeMemberPresenceIcon this.model_ob}}{{/if}}
+          {{#if this.model_ob.team_url}}{{#if this.model_ob.team_icon}}<img class="jumper_team_icon" aria-hidden="true" src="{{this.model_ob.team_icon.image_44}}">{{else}}<ts-icon class="ts_icon_random"></ts-icon>{{/if}}{{/if}}
+
+          {{#if this.model_ob.presence}}
+            {{#feature flag="feature_name_tagging_client"}}
+              {{getMemberFullNameAndPreferredNameInOrder this.model_ob}}
+            {{else}}
+              {{getMemberUsernameAndRealNameInCorrectOrder this.model_ob}}
+            {{/feature}}
+          {{else if this.model_ob.is_view}}
+            {{#if_equal this.model_ob.id compare="Vall_unreads"}}
+              <ts-icon class="ts_icon_check_small"></ts-icon>
+            {{/if_equal}}
+            <span class="view_name">{{this.model_ob.name}}</span>
+          {{else}}
+            {{#if this.model_ob.is_mpim}}
+              {{! remove disambiguate_mpims after feature_name_tagging_client }}
+              <span class="channel_name">{{#if ../disambiguate_mpims}}{{mpimDisplayName this.model_ob false true}}{{else}}{{mpimDisplayName this.model_ob}}{{/if}}</span>
+            {{else}}
+              {{#if this.model_ob.team_url}}
+                <span class="channel_name">{{this.model_ob.team_name}}</span> <span class="team_username">Signed in as {{this.model_ob.name}}</span>
+              {{else}}
+                <span class="channel_name">{{this.model_ob.name}}</span>
+              {{/if}}
+            {{/if}}
+            {{#if this.model_ob.is_archived}}
+              <span class="channel_archived">(archived)</span>
+            {{else}}
+              {{#if this.model_ob.is_channel}}{{#unless this.model_ob.is_member}}<span class="channel_not_member">(not a member)</span>{{/unless}}{{/if}}
+            {{/if}}
+            {{#feature flag="feature_reveal_channel_renames"}}
+              {{#if this.model_ob._jumper_previous_name_match}}
+                <span class="channel_not_member">(formerly #{{this.model_ob._jumper_previous_name_match}})</span>
+              {{/if}}
+            {{/feature}}
+          {{/if}}
+          {{#if this.model_ob.is_mpim}}
+            {{#if this.model_ob.unread_cnt}}
+              <span class="unread_count">{{this.model_ob.unread_cnt}}</span>
+            {{/if}}
+          {{else if this.model_ob.presence}}
+            {{#memberHasImUnreadCount member=this.model_ob}}
+              <span class="unread_count">{{getUnreadCountForIMByMemberId this.model_ob.id}}</span>
+            {{/memberHasImUnreadCount}}
+          {{else}}
+            {{#if this.model_ob.unread_highlight_cnt}}
+              <span class="unread_count">{{this.model_ob.unread_highlight_cnt}}</span>
+            {{/if}}
+          {{/if}}
+        </span>
+        {{#if this.model_ob.is_shared}}
+          {{#unless this.model_ob.is_mpim}}
+            <span class="channel_shared float_left">
+              <ts-icon class="ts_icon_shared_channel"></ts-icon>
+            </span>
+          {{/unless}}
+        {{/if}}
+      </li>
+    {{/each}}
+    {{#if show_extended_search}}
+      {{> jumper_org_search_row}}
+    {{/if}}
+  </ol>
+{{else if show_extended_search}}
+  <ol class="no_pointer_events">
+    {{> jumper_org_search_row}}
+  </ol>
+{{else}}
+  {{#if query}}
+    <p>
+      No matches found. Did you spell it correctly?
+      {{#if show_new_channel_link}}
+        <a data-action="new_channel" class="btn btn_outline" data-qa="jumper_new_channel_button">Create a channel named #{{clean_name}}</a>
+      {{/if}}
+    </p>
+  {{/if}}
+{{/if}}

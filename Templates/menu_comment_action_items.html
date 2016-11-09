@@ -1,0 +1,16 @@
+{{#if actions.can_pin}}
+  <li id="pin_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Pin to {{#if model_ob.is_channel}}#{{/if}}{{model_ob.name}} &hellip;</a></li>
+{{/if}}
+{{#if actions.can_unpin}}
+  <li id="unpin_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Un-pin from {{#if model_ob.is_channel}}#{{/if}}{{model_ob.name}}</a></li>
+{{/if}}
+{{#if actions.rxn_file_comment}}
+  <li id="rxn_file_comment" data-file-id="{{file.id}}" data-rxn-key="{{comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+{{/if}}
+{{#if actions.can_edit}}
+  <li id="edit_file_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Edit comment</a></li>
+{{/if}}
+{{#if actions.can_delete}}
+  <li class="divider"></li>
+  <li id="delete_file_comment" class="danger" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Delete comment</a></li>
+{{/if}}

@@ -1,0 +1,8 @@
+{{#unless user.is_restricted}}
+  <div class="menu_footer menu_group_footer">
+    <label class="mini">
+      Set channel topic
+      <input type="text" id="menu_group_topic_input" class="small no_bottom_margin" value="{{unFormatMessage group.topic.value}}" maxlength="{{ChannelTopicMaxLength}}"/>
+    </label>
+  </div>
+{{/unless}}

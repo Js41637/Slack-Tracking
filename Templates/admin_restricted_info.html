@@ -1,0 +1,33 @@
+  <div class="restricted_info">
+    
+    <p class="large_bottom_margin emphasized align_center">Give limited access to your Slack instance to contractors, clients, or friends.</p>
+    
+    <div class="account_type">
+      <div class="restricted_account_icon"></div>
+      <h3 class="no_bottom_margin">{{raLabel 'Restricted Accounts'}}</h3>
+      <p class="no_bottom_margin">Can only access channels that they are invited to join.</p>
+      {{#if paid_team}}
+        <p>
+          <a data-action="admin_invites_modal" data-account-type="restricted"><i class="ts_icon ts_icon_share_email"></i> &nbsp;Invite new {{raLabel 'restricted accounts'}}</a>
+        </p>
+      {{/if}}
+    </div>
+    <div class="account_type">
+      <div class="guest_account_icon"></div>
+      <h3 class="no_bottom_margin">Single-channel Guests</h3>
+      <p class="no_bottom_margin">A free account with access to a single channel.</p>
+      {{#if paid_team}}
+        <p>
+          <a data-action="admin_invites_modal" data-account-type="ultra_restricted"><i class="ts_icon ts_icon_share_email"></i> &nbsp;Invite new single-channel guests</a>
+        </p>
+      {{/if}}
+    </div>
+    
+    {{#unless paid_team}}
+      <div class="admin_banner">
+        <h3>Both available on our Standard plan.</h3>
+        <p class="no_bottom_margin">Learn more about your <a href="/admin/billing">upgrade options</a>.</p>
+      </div>
+    {{/unless}}
+    
+  </div>  

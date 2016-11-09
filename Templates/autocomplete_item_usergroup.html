@@ -1,0 +1,17 @@
+<li class="tab_complete_ui_item" data-index="{{index}}">
+
+  <span class="broadcast">@{{usergroup.handle}}</span>
+  
+  <span class="realname">
+    {{pluralCount usergroup.user_count 'Member' 'Members'}}
+    {{#if members_not_in_channel}}
+      ({{members_not_in_channel}} not in channel)
+    {{/if}}
+    {{#if usergroup.description}}
+      <span class="bullet">&bull;</span> {{usergroup.description}}
+    {{else}}
+      <span class="bullet">&bull;</span> {{usergroup.name}}
+    {{/if}}
+  </span>
+
+</li>

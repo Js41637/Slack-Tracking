@@ -1,0 +1,19 @@
+{{i18n_ns "ims"}}
+
+<div id="im_browser_alert" class="alert alert_warning">
+  <i class="ts_icon ts_icon_warning"></i>
+  {{#if member}}
+    {{#t
+      member_display_name=(getMemberDisplayName member)
+      ra_label=(raLabel 'restricted account')
+    }}
+      <strong>{member_display_name}</strong> is a {is_ura, select,
+        true {single-channel guest.}
+        other { {ra_label} }
+      }
+    {{/t}}
+  {{else}}
+    {{#t}}Some participants have guest accounts.{{/t}}
+  {{/if}}
+  {{#t note="This refers to there being guest accounts in the channel."}}Bear this in mind when sharing information in this discussion.{{/t}}
+</div>

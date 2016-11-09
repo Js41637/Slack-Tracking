@@ -1,0 +1,25 @@
+{{!
+
+Note: this template used to be inlined in TS.templates.source.js, and as a side effect of the way
+we represented templates, all of the newlines were actually elided. So, that's what the crazy
+things are around all of the line endings below. If you're refactoring this, future engineer,
+feel free to take them out -- I just didn't want to change the meaning of the templates during
+my refactoring. Love, Mark.
+
+}}<div class="modal-header c-modal_header--{{type}}">{{!
+}}  {{#if img}}<span class="modal-header-image modal-header-image--{{img}}"></span>{{/if}}{{!
+}}  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>{{!
+}}  <h3>{{title}} <img src="{{versioned_loading_animation}}" width="16" height="16" class="throbber hidden"></h3>{{!
+}}</div>{{!
+}}<div class="modal-body c-modal_body--{{type}}">{{!
+}}  {{body}}{{!
+}}</div>{{!
+}}<div class="modal-footer c-modal_footer--{{type}}">{{!
+}}  <a style="cursor: pointer" class="btn btn_outline dialog_cancel" data-qa="generic_dialog_cancel"></a>{{!
+}}  <a style="cursor: pointer" class="btn btn dialog_secondary_go hidden" data-qa="generic_dialog_secondary_go"></a>{{!
+}}{{#if ladda}}{{!
+}}  <a style="cursor: pointer" class="btn dialog_go ladda-button" data-style="expand-right" data-qa="generic_dialog_go"><span class="ladda-label"></span></a>{{!
+}}{{else}}{{!
+}}  <a style="cursor: pointer" class="btn dialog_go" data-qa="generic_dialog_go"></a>{{!
+}}{{/if}}{{!
+}}</div>

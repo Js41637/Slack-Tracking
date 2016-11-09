@@ -1,0 +1,40 @@
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Upload a file? <span class="file_count"></span></h3>
+  </div>
+  <div class="modal-body">
+    
+    {{#if over_storage_limit}}
+      <p class="alert alert_warning">
+        <i class="ts_icon ts_icon_info_circle"></i>
+        Your team is over its storage limit.<br /> Please <a href="/pricing" target="{{newWindowName}}" class="bold underline">upgrade to a paid tier</a> or <a href="/files" target="{{newWindowName}}" class="bold underline">delete some larger files</a>.</p>
+    {{/if}}
+    
+    <div id="upload_image_preview" class="hidden bottom_margin">
+      <img src="" />
+    </div>
+    
+    <p>
+      <label for="upload_file_title" class="inline_block">Title</label>
+      <input id="upload_file_title" name="upload_file_title" type="text" class="small title_input" value="{{title}}" tabindex="1"/>
+      <span class="modal_input_note">
+        Titles are the easiest ways to search for files: it pays to be descriptive.
+      </span>
+      <input id="upload_file_name" name="upload_file_name" type="hidden" {{#if has_name}}disabled="disabled"{{else}}{{/if}} class="filename_input" value="{{filename}}" />
+    </p>
+    
+    {{{sharing_html}}}
+    
+  </div>
+  <div class="modal-footer">
+    <div class="span_1_of_1">
+      {{#if file_retention_type}}
+        <div class="modal_input_note_full_width float_left inline_block align_left">
+          Due to your team\u2019s custom file retention <br />policy, this file will be deleted after <span class="bold">{{file_retention_duration}}</span>.
+        </div>
+      {{/if}}
+      {{#if more_in_queue}}<a class="btn btn_outline dialog_cancel_all" tabindex="5">Cancel All</a>{{/if}}
+      <a class="btn btn_outline dialog_cancel" tabindex="5">Cancel</a>
+      <a class="btn dialog_go" tabindex="6">Upload</a>
+    </div>
+  </div>

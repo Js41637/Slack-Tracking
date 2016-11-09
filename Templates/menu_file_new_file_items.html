@@ -1,0 +1,58 @@
+{{#feature flag="feature_gdrive_1_dot_5"}}
+
+  <div class="section_header"><hr><span class="header_label menu_mini">New...</span></div>
+
+  <li data-which="snippet" class="file_menu_item"><a target="_blank" href="/files/create/snippet"><i class="file_menu_icon ts_icon ts_icon_create_snippet"></i> Code or text snippet</a></li>
+
+  {{#if should_show_gdrive}}
+    <li id="gdrive_create_submenu" data-which="gdrive_create_submenu" class="file_menu_item has_submenu"><a><i class="file_menu_icon ts_icon ts_icon_google_drive"></i> Google Docs file <ts-icon class="ts_icon_caret_right submenu_caret"></a></li>
+  {{/if}}
+
+  {{#if should_show_multnomah}}
+    <li data-which="multnomah" class="file_menu_item"><a target="_blank" href="/files/create/multnomah"><i class="file_menu_icon ts_icon ts_icon_create_post"></i> Multnomah Post</a></li>
+  {{/if}}
+
+  {{#if should_show_thanks}}
+    <li data-which="reaction_poll" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_add_reaction"></i> Poll</a></li>
+  {{/if}}
+
+  <li data-which="space" class="file_menu_item"><a target="_blank" href="/files/create/space"><i class="file_menu_icon ts_icon ts_icon_create_post"></i> Post</a></li>
+
+  <div class="section_header"><hr><span class="header_label menu_mini">Import {{file_type}} from...</span></div>
+
+  {{#if use_cloud_submenu}}
+    <li id="cloud_submenu" data-which="cloud_submenu" class="file_menu_item has_submenu"><a><i class="file_menu_icon ts_icon ts_icon_cloud_download"></i> A cloud service <ts-icon class="ts_icon_caret_right submenu_caret"></a></li>
+  {{else}}
+    {{> menu_file_cloud_service_items}}
+  {{/if}}
+
+  {{#if should_show_upload_file}}
+    <li data-which="choose" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_laptop"></i> Your computer</a></li>
+  {{/if}}
+
+{{else}}
+
+  {{#if should_show_upload_file}}
+    <li data-which="choose" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_upload"></i>{{upload_file_text}}</a></li>
+  {{/if}}
+
+  {{#if should_show_email}}
+    <li data-which="email" class="file_menu_item"><a target="_blank" href="/account/settings"><i class="file_menu_icon ts_icon ts_icon_share_email"></i> Import an email</a></li>
+  {{/if}}
+
+  <li data-which="snippet" class="file_menu_item"><a target="_blank" href="/files/create/snippet"><i class="file_menu_icon ts_icon ts_icon_create_snippet"></i> Create a snippet</a></li>
+  <li data-which="space" class="file_menu_item"><a target="_blank" href="/files/create/space"><i class="file_menu_icon ts_icon ts_icon_create_post"></i> Create a post</a></li>
+
+  {{#if should_show_thanks}}
+    <li data-which="reaction_poll" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_add_reaction"></i> Create a Poll</a></li>
+  {{/if}}
+
+  {{#if should_show_box}}
+    <li data-which="box" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_box"></i> Import from Box</a></li>
+  {{/if}}
+
+  {{#if should_show_dropbox}}
+    <li data-which="dropbox" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_dropbox"></i> Import from Dropbox</a></li>
+  {{/if}}
+
+{{/feature}}

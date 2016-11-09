@@ -1,0 +1,34 @@
+{{#if in_dnd}}
+  <li><a data-dnd-menu-action="turn_off">Turn OFF</a></li>
+{{else}}
+  <div class="section_header"><hr><span class="header_label menu_mini">Snooze notifications:</span></div>
+
+  <li role="menuitem"><a data-snooze-length="20"   data-dnd-menu-action="snooze">20 minutes</a></li>
+  <li role="menuitem"><a data-snooze-length="60"   data-dnd-menu-action="snooze">1 hour</a></li>
+  <li role="menuitem"><a data-snooze-length="120"  data-dnd-menu-action="snooze">2 hours</a></li>
+  <li role="menuitem"><a data-snooze-length="240"  data-dnd-menu-action="snooze">4 hours</a></li>
+  <li role="menuitem"><a data-snooze-length="480"  data-dnd-menu-action="snooze">8 hours</a></li>
+  <li role="menuitem"><a data-snooze-length="1440" data-dnd-menu-action="snooze">24 hours</a></li>
+
+  <li class="divider"></li>
+{{/if}}
+
+{{#if is_snoozing}}
+  <li id="adjust_snooze_time" class="has_submenu" role="menuitem"><a>Adjust time <ts-icon class="ts_icon_caret_right submenu_caret"></a></li>
+{{else}}
+  {{#if in_dnd}}
+    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule" aria-haspopup="true">Adjust schedule &hellip;</a></li>
+  {{else}}
+    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule">Do Not Disturb schedule &hellip;</a></li>
+  {{/if}}
+{{/if}}
+
+<li class="divider"></li>
+
+{{#unless model_ob.is_im}}
+  <li id="channel_notification_settings" class="overflow_ellipsis" role="menuitem">
+    <a data-dnd-menu-action="channel_settings">Settings for <strong>{{#if model_ob.is_channel}}#{{/if}}{{#if model_ob.is_mpim}}{{mpimDisplayName model_ob}}{{else}}{{model_ob.name}}{{/if}}</strong> &hellip;</a>
+  </li>
+{{/unless}}
+
+<li id="notification_settings" class="overflow_ellipsis" role="menuitem"><a data-dnd-menu-action="notif_prefs">Your notification preferences &hellip;</a></li>

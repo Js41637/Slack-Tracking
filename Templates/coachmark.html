@@ -1,0 +1,17 @@
+<div id="coachmark" class="lato_regular normal hidden">
+  <div id="coachmark_callout"></div>
+  <div id="coachmark_interior" class="lato">
+    {{! content divs are dynamically added depending on what type of coachmark is being shown }}
+    <div id="coachmark_footer">
+      <div class="coachmark_footer_text">
+        <span>Done? </span><a class="coachmark_skip_link">Click here to skip</a>
+      </div>
+      <a class="btn coachmark_got_it float_right">Got it!</a>
+      {{#feature flag="feature_update_coachmarks_cta"}}
+        {{#if can_include_invite_cta}}
+        <a class="btn coachmark_invite_people float_right hidden">Invite People</a>
+        {{/if}}
+      {{/feature}}
+    </div>
+  </div>
+</div>

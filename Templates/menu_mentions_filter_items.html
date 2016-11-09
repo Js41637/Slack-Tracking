@@ -1,0 +1,8 @@
+<li class="{{#if show_user_group_filter}}no_bottom_padding{{/if}} no_wrap" role="menuitem">
+  <label for="exclude_at_channels_cb"><input id="exclude_at_channels_cb" type="checkbox" class="small_right_margin" {{#unless exclude_at_channels}}checked="checked"{{/unless}}/>Include @channel mentions</label>
+</li>
+{{#if show_user_group_filter}}
+  <li class=" no_top_padding no_wrap" role="menuitem">
+    <label for="exclude_at_user_groups_cb"><input id="exclude_at_user_groups_cb" type="checkbox" class="small_right_margin" {{#unless exclude_at_user_groups}}checked="checked"{{/unless}}/>Include User Group mentions</label>
+  </li>
+{{/if}}

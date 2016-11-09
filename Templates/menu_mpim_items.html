@@ -1,0 +1,24 @@
+{{#feature flag="feature_browse_date"}}
+  <li id="mpim_jump_item" role="menuitem">    
+    <a target="{{newWindowName}}">Jump to date &hellip;</a>
+  </li>
+{{/feature}}
+{{#if show_mpim_create}}<li id="mpim_create_mpim_item" role="menuitem"><a>Invite another team member &hellip;</a></li>{{/if}}
+<li id="mpim_details_item">
+  <a>View conversation details</a>
+</li>
+{{#if show_mpim_convert}}
+  <li id="convert_to_private_channel" role="menuitem"><a>Convert to private channel &hellip;</a></li>
+{{/if}}
+<li class="divider"></li>
+
+<li id="mpim_prefs" role="menuitem"><a>Notification preferences &hellip;</a></li>
+<li id="mpim_mute_item" role="menuitem">
+  <a>{{#if mpim_is_muted}}Unmute{{else}}Mute{{/if}} this conversation</a>
+</li>
+<li class="divider"></li>
+{{#if show_email_item}}
+  <li id="mpim_email_item" role="menuitem">
+    <a target="{{newWindowName}}" href="/services/new/email">Send email to this conversation &hellip;</a>
+  </li>
+{{/if}}

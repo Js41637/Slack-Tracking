@@ -1,0 +1,20 @@
+<div class="shared_to_conversations">
+  <ul class="no_bullets">
+    {{#each _comments_grouped}}
+      <li class="share_to_item" data-model-ob-id="{{@key}}">
+        <strong class="channel">{{name}}</strong>
+        {{#if first_share}}{{#with first_share}}
+          <div class="first_share">
+            {{#if name}}
+              <span class="first_share_user">{{name}}</span>
+            {{/if}}
+            <span class="first_share_timestamp">
+              {{toCalendarDateOrNamedDayShort timestamp}} at {{toTime timestamp}}
+            </span>
+          </div>
+        {{/with}}{{/if}}
+        <button class="file_comment_btn btn_outline btn ts_icon ts_icon_comment_o" data-file-id="{{../id}}">{{comments.length}}</button>
+      </li>
+    {{/each}}
+  </ul>
+</div>

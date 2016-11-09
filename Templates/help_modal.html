@@ -1,0 +1,21 @@
+{{i18n_ns "help"}}
+
+<div id="help_modal_container" class="display_flex flex_direction_column">
+  <div class="large_bottom_margin display_flex align_items_baseline justify_content_between">
+<h1 class="no_bottom_margin">{{#t}}How can we help?{{/t}}</h1>
+    <a id="browse_all" data-clog-click="true" data-clog-event="HELP_MODAL_ACTION" data-clog-params="action=browse_all,trigger=click_browse_all" class="see_all" href="https://get.slack.help/hc" target="{{newWindowName}}">{{#t}}Browse all answers{{/t}}<ts-icon class="small_left_margin ts_icon_arrow_large_right"></ts-icon></a>
+  </div>
+
+  <div class="small_bottom_margin help_modal_filter_container">
+    <ts-icon class="ts_icon_search cloud_silver search_icon"></ts-icon>
+    <ts-icon class="ts_icon_times_circle cloud_silver clear_filter_icon"></ts-icon>
+    <input type="text" id="help_modal_filter" class="small" placeholder="{{#t}}Search the Help Center{{/t}}">
+  </div>
+    
+  <div id="help_modal_empty" class="hidden align_center margin_auto display_flex align_items_center justify_content_center">
+    <span class="help_modal_empty_message"></span>
+  </div>
+  <div id="help_modal_list_container" class="help_modal_list">
+    {{{loadingHTML}}}
+  </div>
+</div>

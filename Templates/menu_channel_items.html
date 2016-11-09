@@ -1,0 +1,105 @@
+{{#if user.is_ultra_restricted}}
+  {{#feature flag="feature_browse_date"}}
+    <li id="channel_jump_item" role="menuitem">    
+      <a class="date_picker" target="{{newWindowName}}">Jump to date &hellip;</a>
+    </li>
+  {{/feature}}
+  <li id="channel_details_item">
+    <a>View channel details</a>
+  </li>
+  <li class="divider"></li> 
+  <li id="channel_prefs" role="menuitem">
+    <a>Notification preferences &hellip;</a>
+  </li>
+  <li id="channel_mute_item" role="menuitem">
+    <a>{{#if channel_is_muted}}Unmute{{else}}Mute{{/if}} #{{channel.name}}</a>
+  </li>
+
+{{else}}
+  {{#if user.is_restricted}}
+    {{#if channel.is_member}}
+      {{#feature flag="feature_browse_date"}}
+        <li id="channel_jump_item" role="menuitem">    
+          <a class="date_picker" target="{{newWindowName}}">Jump to date &hellip;</a>
+        </li>
+      {{/feature}}
+      {{#unless hide_invite}}<li id="channel_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>Invite team members to join &hellip;</a></li>{{/unless}}
+      <li id="channel_details_item">
+        <a>View channel details</a>
+      </li>
+      <li class="divider"></li> 
+      <li id="channel_prefs" role="menuitem">
+        <a>Notification preferences &hellip;</a>
+      </li>
+      <li id="channel_mute_item" role="menuitem">
+        <a>{{#if channel_is_muted}}Unmute{{else}}Mute{{/if}} #{{channel.name}}</a>
+      </li>
+    {{/if}}
+    <li class="divider"></li>
+  {{else}}
+    {{#feature flag="feature_browse_date"}}
+      <li id="channel_jump_item" role="menuitem">    
+        <a class="date_picker" target="{{newWindowName}}">Jump to date &hellip;</a>
+      </li>
+    {{/feature}}
+    {{#if channel.is_archived}}
+      <li id="channel_details_item">
+        <a>View channel details</a>
+      </li>
+      <li class="divider"></li>
+      {{#if channel.was_archived_this_session}}
+        {{#unless channel.is_general}}<li id="channel_close_archived_item" role="menuitem"><a>Leave #{{channel.name}}</a></li>{{/unless}}
+      {{/if}}
+      <li id="channel_unarchive_item" role="menuitem"><a>Un-archive #{{channel.name}}</a></li>
+    {{else}}
+      {{#unless hide_invite}}<li id="channel_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>Invite team members to join &hellip;</a></li>{{/unless}}
+      <li id="channel_details_item">
+        <a>View channel details</a>
+      </li>
+      {{#if show_handy_rxns}}
+        <li id="channel_handy_rxns_item" role="menuitem"><a>Edit Handy Reactions &hellip;</a></li>  
+      {{/if}}
+      {{#if show_manage_teams}}
+        <li id="channel_manage_teams_item" role="menuitem"><a>Manage teams in this channel &hellip;</a></li>  
+      {{/if}}
+      {{#if show_advanced_item}}
+        <li id="channel_advanced_item" role="menuitem"><a>Additional options &hellip;</a></li>  
+      {{/if}}
+      <li class="divider"></li>
+      {{#if channel.is_member}}
+        <li id="channel_prefs" role="menuitem">
+          <a>Notification preferences &hellip;</a>
+        </li>
+        <li id="channel_mute_item" role="menuitem">
+          <a>{{#if channel_is_muted}}Unmute{{else}}Mute{{/if}} #{{channel.name}}</a>
+        </li>
+        <li class="divider"></li>
+        {{#unless is_not_allowed_integrations}}
+          <li id="channel_add_service_item">
+            <a href="/apps/new?channel={{channel.id}}" target="{{newWindowName}}" role="menuitem">
+              Add an app or integration
+            </a>
+          </li>
+        {{/unless}}
+        {{#if show_email_item}}
+          <li id="channel_email_item" role="menuitem">
+            <a target="{{newWindowName}}" href="/services/new/email">Send email to #{{channel.name}} &hellip;</a>
+          </li>
+        {{/if}}
+        {{#unless channel.is_general}}
+          {{#unless is_not_allowed_integrations}}
+            <li class="divider"></li>
+          {{else}}
+            {{#if show_email_item}}
+              <li class="divider"></li>
+            {{/if}}
+          {{/unless}}
+          <li id="channel_leave_item" role="menuitem"><a>Leave #{{channel.name}}</a></li>
+        {{/unless}}
+      {{else}}
+        <li id="channel_join_item" role="menuitem"><a>Join #{{channel.name}}</a></li>
+      {{/if}}
+      
+    {{/if}}
+  {{/if}}
+{{/if}}

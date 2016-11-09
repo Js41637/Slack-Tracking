@@ -1,0 +1,29 @@
+<div id="user_group_alerts"></div>
+
+{{#if_equal action compare="delete_user_group"}}
+  <div class="align_center clearfix very_large_top_margin very_large_left_margin very_large_right_margin">
+    <h1>Delete {{user_group.name}}?</h1>
+    <p>All the information about this User Group will be permanently deleted. This action cannot be undone.</p>
+    <a data-action="cancel" class="btn btn_outline">Cancel</a>
+    <a data-action="deleteUserGroup" class="user_group_toggle_btn btn btn_danger">Delete this group</a>
+  </div>
+{{/if_equal}}
+{{#if_equal action compare="disable_user_group"}}
+  <div class="align_center clearfix very_large_top_margin very_large_left_margin very_large_right_margin">
+    <h1>Disable {{user_group.name}}?</h1>
+    <p>If you disable this User Group, you will not be able to {{#if user_group.handle}}use @{{user_group.handle}} or {{/if}} view the list of its members (you can re-enable it later).</p>
+    <a data-action="cancel" class="btn btn_outline bottom_margin">Cancel</a>
+    <a data-action="disableUserGroup" class="user_group_toggle_btn btn bottom_margin">Disable this group</a>
+    {{#if show_delete}}
+      <p>You can also <a data-action="switch_delete_user_group" class="lato_bold">permanently delete this group.</a></p>
+    {{/if}}
+  </div>
+{{/if_equal}}
+{{#if_equal action compare="enable_user_group"}}
+  <div class="align_center clearfix very_large_top_margin very_large_left_margin very_large_right_margin">
+    <h1>Enable {{user_group.name}}?</h1>
+    {{#if user_group.handle}}<p>If you enable, @{{user_group.handle}} will notify members of the group.</p>{{/if}} 
+    <a data-action="cancel" class="btn btn_outline">Cancel</a>
+    <a data-action="enableUserGroup" class="user_group_toggle_btn btn">Enable this group</a>
+  </div>
+{{/if_equal}}

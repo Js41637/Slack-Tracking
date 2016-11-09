@@ -1,0 +1,30 @@
+{{#if user}}
+  <div class="col span_4_of_6 break_all">{{user.name}} ({{#if user.import_email}}{{user.import_email}}{{else}}no email{{/if}})</div>
+  <div id="user_{{user.id}}" class="col span_2_of_6">
+    <p>
+    {{#if_equal user.mapping compare="invite"}}Create & invite user
+    {{else if_equal user.mapping compare="create"}}Create a disabled user, without inviting them
+    {{else if_equal user.mapping compare="bot"}}Do not create a user, just import messages
+    {{else if_equal user.mapping compare="0"}}Skip user completely, importing no messages
+    {{else}}
+      {{#foreach existing_users}}
+        {{#if_equal this.value.id compare=../user.mapping}}{{getMemberDisplayNameById this.value.id}}{{/if_equal}}
+      {{/foreach}}
+    {{/if_equal}}
+    </p>
+  </div>
+{{else}}
+  <div class="col span_4_of_6 break_all">{{channel.name}}</div>
+  <div id="channel_{{channel.id}}" class="col span_2_of_6">
+    <p>
+    {{#if_equal channel.mapping compare="create"}}Create new public channel
+    {{else if_equal channel.mapping compare="create_group"}}Create new private channel
+    {{else if_equal channel.mapping compare="0"}}Skip channel (don\u2019t import)
+    {{else}}
+      {{#foreach existing_channels}}
+        {{#if_equal this.value.id compare=../channel.mapping}}#{{this.value.name}}{{/if_equal}}
+      {{/foreach}}
+    {{/if_equal}}
+    </p>
+  </div>
+{{/if}}

@@ -1,0 +1,75 @@
+  <button class="close" data-dismiss="modal" aria-hidden="true"><i class="ts_icon ts_icon_times"></i></button>
+
+  <div class="modal-body">
+    <div class="col">
+      <h2>Formatting shortcuts</h2>
+      <ul class="no_bullets">
+        <li>Heading 1: <span class="keyboard">{{meta_key}}</span><span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">1</span></li>
+        <li>Heading 2: <span class="keyboard">{{meta_key}}</span><span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">2</span></li>
+        <li>Heading 3: <span class="keyboard">{{meta_key}}</span><span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">3</span></li>
+      </ul>
+      <ul class="no_bullets">
+        <li>Bulleted list: <span class="keyboard">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">8</span></li>
+        <li>Numbered list: <span class="keyboard">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">7</span></li>
+        <li>Checklist: <span class="keyboard">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">9</span></li>
+        <li>Code block: <span class="keyboard">{{cmd_key}}</span><span class="keyboard">{{meta_key}}</span><span class="keyboard">k</span></li>
+      </ul>
+      <ul class="no_bullets">
+        <li>Bold: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">b</span></li>
+        <li>Italic: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">i</span></li>
+        <li>Underline: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">u</span></li>
+        <li>Code: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">k</span></li>
+        <li>Strikethrough: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">x</span></li>
+        <li>Linkify: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">k</span></li>
+      </ul>
+    </div>
+    
+    <div class="col">
+      <h2>Markdown-style</h2>
+      <ul class="no_bullets">
+        <li>Heading 1: <span class="keyboard">#</span>+<span class="keyboard">Space</span></li>
+        <li>Heading 2: <span class="keyboard">##</span>+<span class="keyboard">Space</span></li>
+        <li>Heading 3: <span class="keyboard">###</span>+<span class="keyboard">Space</span></li>
+      </ul>      
+      <ul class="no_bullets">
+        <li>Bulleted list: <span class="keyboard">*</span>+<span class="keyboard">Space</span></li>
+        <li>Numbered list: <span class="keyboard">1.</span>+<span class="keyboard">Space</span></li>
+        <li>Checklist: <span class="keyboard">[]</span>+<span class="keyboard">Space</span></li>
+        <li>Code block: <span class="keyboard">```</span>+<span class="keyboard">Space</span></li>
+      </ul>      
+      <ul class="no_bullets">
+        <li>Bold: <span class="keyboard">*</span>+<span class="keyboard">text</span>+<span class="keyboard">*</span></li>
+        <li>Italic: <span class="keyboard">_</span>+<span class="keyboard">text</span>+<span class="keyboard">_</span></li>
+        <li>Code: <span class="keyboard">`</span>+<span class="keyboard">text</span>+<span class="keyboard">`</span></li>
+        <li>Strikethrough: <span class="keyboard">~</span>+<span class="keyboard">text</span>+<span class="keyboard">~</span></li>
+      </ul>
+      <ul class="no_bullets">
+        <li>Divider: <span class="keyboard">----</span></li>
+      </ul>
+    </div>
+    
+    <div class="col last">
+      <h2>Miscellaneous</h2>
+      <ul class="no_bullets">
+        {{#if clear_formatting}}<li>Clear formatting: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">0</span></li>{{/if}}
+        <li>Indent: <span class="keyboard">Tab</span></li>
+        <li>Unindent: <span class="keyboard" aria-label="{{cmd_key_label}}">Shift</span><span class="keyboard">Tab</span></li>
+      </ul>
+      <ul class="no_bullets">
+        <li>Cut: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">x</span></li>
+        <li>Copy: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">c</span></li>
+        <li>Paste: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">v</span></li>
+      </ul>
+      <ul class="no_bullets">
+        <li>Undo: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">z</span></li>
+        <li>Redo: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">z</span></li>
+      </ul>
+      <ul class="no_bullets">      
+        <li>Show shortcuts: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">/</span></li>
+        <li>Dismiss menus: <span class="keyboard">Esc</span></li>
+        <li>
+      </ul>
+    </div>
+          
+    <div class="clear_both"></div>
+  </div>

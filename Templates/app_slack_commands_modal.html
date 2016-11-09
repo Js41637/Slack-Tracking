@@ -1,0 +1,95 @@
+<form class="app_slack_commands_form margin_auto" action="/api/app.commands.{{api_function}}">
+  <input type="hidden" name="app" value="{{app_id}}">
+  <input type="hidden" name="token" value="{{token}}">
+  {{#if command}}
+    <input type="hidden" name="command" value="{{command}}">
+  {{/if}}
+
+  <div id="app_slack_commands_error_alert" class="alert alert_error hidden"><i class="ts_icon ts_icon_warning"></i> <span id="app_slack_commands_error_message">Command already exists.</span></div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding position_relative">
+    <label for="name" class="no_bottom_margin no_wrap right_margin">Command</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="text" name="name" placeholder="/command" class="small no_bottom_margin overflow_ellipsis" value="{{name}}" autocomplete="off" data-validation="required reservedwords={{reserved_commands}}" data-validation-for="name_validation_label" data-validation-success="Looks good.">
+      <label for="name_validation_label" class="app_slack_commands_form_validation_label plastic_grey no_bottom_margin"></label>
+    </div>
+
+    <i class="ts_icon ts_icon_info_circle subtle_silver help_icon"></i>
+    <div class="app_slack_commands_info_tooltip small position_absolute neutral_white_bg normal_padding">
+      <p class="no_bottom_margin">Slack Commands must start with a slash, be all lowercase, and contain no spaces. Examples: /deploy, /ack, /weather</p>
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding position_relative">
+    <label for="url" class="no_bottom_margin no_wrap right_margin">Request URL</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="url" name="url" placeholder="https://example.com/slack/command" class="small no_bottom_margin overflow_ellipsis" value="{{url}}" data-validation="required isurl=https" data-validation-for="url_validation_label" data-validation-success="Looks good.">
+      <label for="url_validation_label" class="app_slack_commands_form_validation_label plastic_grey no_bottom_margin"></label>
+    </div>
+
+    <i class="ts_icon ts_icon_info_circle subtle_silver help_icon"></i>
+    <div class="app_slack_commands_info_tooltip small position_absolute neutral_white_bg normal_padding">
+      <p class="no_bottom_margin">We'll send an HTTP POST request with information you might need to this URL when the command is run.</p>
+
+      <br>
+
+      <p class="no_bottom_margin">This URL must use the "https" protocol.</p>
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding">
+    <label for="desc" class="no_bottom_margin no_wrap right_margin">Short Description</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="text" name="desc" placeholder="Launches the Rocket!" class="small no_bottom_margin overflow_ellipsis" value="{{desc}}" data-validation="required" data-validation-for="desc_validation_label" data-validation-success="Looks good.">
+      <label for="desc_validation_label" class="app_slack_commands_form_validation_label plastic_grey no_bottom_margin"></label>
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding">
+    <label for="usage" class="no_bottom_margin no_wrap right_margin">Usage Hint</label>
+
+    <div class="app_slack_commands_form_input_label_container">
+      <input type="text" name="usage" placeholder="[which rocket to launch]" class="small no_bottom_margin overflow_ellipsis" value="{{usage}}">
+
+      <p class="no_bottom_margin small_top_margin plastic_grey">Optionally list any parameters that can be passed.</p>
+    </div>
+  </div>
+
+  <div class="app_slack_commands_form_section top_border top_padding bottom_padding">
+    <p class="small bold">Preview of Autocomplete Entry</p>
+    <div class="preview_container small_padding bordered">
+      <div class="preview_popup rounded neutral_white_bg bordered position_relative">
+        <div class="preview_popup_title off_white_bg subtle_silver small_padding left_padding small">
+          Commands matching "<span class="preview_popup_command_text bold"></span>"
+        </div>
+        <div class="app_label normal_margin small_bottom_margin display_flex subtle_silver">
+          <span class="neutral_white_bg small_right_padding bold tiny">{{app_name}}</span>
+          <hr class="no_margin flex_one top_margin">
+        </div>
+        <div class="normal_margin small display_flex small_top_margin">
+          <div class="preview_popup_command_container overflow_ellipsis subtle_silver flex_one">
+            <span class="bold indifferent_grey">
+              /<span class="preview_popup_command_text"></span>
+            </span>
+            <span class="preview_popup_usage_text"></span>
+          </div>
+          <div class="preview_popup_desc_container left_padding float_right align_right">
+            <span class="preview_popup_desc_text overflow_ellipsis subtle_silver"></span>
+          </div>
+        </div>
+        <i class="arrow_box neutral_white_bg position_absolute"></i>
+      </div>
+      <div class="messages_input_container bordered neutral_white_bg top_margin rounded clearfix">
+        <div class="file_upload_button float_left right_border align_center">
+          <i class="ts_icon ts_icon_plus_thick cloud_silver bold"></i>
+        </div>
+        <div class="text_input float_left small left_padding">
+          /<span class="preview_popup_command_text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

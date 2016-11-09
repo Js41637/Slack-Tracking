@@ -1,0 +1,104 @@
+<div class="channel_options_section" data-section="options">
+
+  <div class="channel_options_header charcoal_grey larger_bottom_padding">Additional Options for <strong>{{#if_equal c_or_g compare="channel"}}#{{else}}<ts-icon class="ts_icon_inherit ts_icon_lock"></ts-icon>{{/if_equal}}{{model_ob.name}}</strong>{{#if model_ob.is_shared}}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>{{/if}}</div>
+
+  {{#if show_archive_btn}}
+    <div class="channel_option_item top_padding bottom_padding" data-action="{{#if_equal c_or_g compare='channel'}}channel_archive_btn{{else}}group_archive_btn{{/if_equal}}">
+      <div class="title bold charcoal_grey small_bottom_margin">Archive this channel</div>
+
+      <p class="subtle_silver no_bottom_margin">If you don't think it will be used any more and you want to clean up, archive it. The channel can be unarchived later (but everyone will have been removed).</p>
+
+      <div class="channel_option_open">
+        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if show_convert_btn}}
+    <div class="channel_option_item top_padding bottom_padding" data-action="channel_convert_btn">
+      <div class="title bold charcoal_grey small_bottom_margin">Convert this channel to a private channel</div>
+
+      <p class="subtle_silver no_bottom_margin">Private channels are similar to channels, but they're hidden to non-members and the conversation is private. This conversion cannot be undone.</p>
+
+      <div class="channel_option_open">
+        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if show_convert_to_shared_btn}}
+    <div class="channel_option_item top_padding bottom_padding" data-action="shared_channel_convert_btn">
+      <div class="title bold charcoal_grey small_bottom_margin">Convert this channel to a shared channel</div>
+
+      <p class="subtle_silver no_bottom_margin">Shared channels are similar to channels, but they're shared across teams.</p>
+      
+      <div class="channel_option_open">
+        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if show_rename_btn}}
+    <div class="channel_option_item top_padding bottom_padding" data-action="channel_rename_btn">
+      <div class="title bold charcoal_grey small_bottom_margin">Rename this channel</div>
+
+      <p class="subtle_silver no_bottom_margin">You can rename a channel at any time. But, use it sparingly: it might confuse or disorient your colleagues!</p>
+
+      <div class="channel_option_open">
+        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if show_purpose_btn}}
+    <div class="channel_option_item top_padding bottom_padding" data-action="channel_purpose_btn">
+      <div class="title bold charcoal_grey small_bottom_margin">{{#if model_ob.purpose.value}}Edit{{else}}Set{{/if}} the channel purpose</div>
+
+      <p class="subtle_silver no_bottom_margin">
+        Channel purposes are especially useful to new team members choosing which conversations to join.
+        {{#if model_ob.purpose.value}}
+          This channel's current purpose is <em>"{{formatTopicOrPurpose model_ob.purpose.value}}"</em>
+        {{/if}}
+      </p>
+
+      <div class="channel_option_open">
+        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if show_manage_posting_privilege_btn}}
+    <div class="channel_option_item top_padding bottom_padding" data-action="posting_privilege_btn">
+      <div class="title bold charcoal_grey small_bottom_margin">Manage posting privileges</div>
+
+      <p class="subtle_silver no_bottom_margin"> Change who is allowed to post messages in this channel, and whether @here and @channel are allowed. </p>
+
+      <div class="channel_option_open">
+        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if show_data_retention_link}}
+    <div class="channel_option_item top_padding bottom_padding" data-action="data_retention_btn">
+      <div class="title bold charcoal_grey small_bottom_margin">Set the channel message retention policy</div>
+
+      <p class="subtle_silver no_bottom_margin">By default, Slack will save your message data for the lifetime of the team. You can configure a custom message retention policy duration.</p>
+
+      <div class="channel_option_open">
+        <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
+      </div>
+    </div>
+  {{/if}}
+
+</div>
+
+<div class="channel_options_section" data-section="option">
+  <div class="channel_options_header charcoal_grey larger_bottom_padding larger_bottom_margin"></div>
+  <div class="channel_option_content"></div>
+
+  <div class="channel_option_buttons large_top_margin">
+    <button class="btn btn_outline option_cancel" data-qa="channel_option_cancel">Cancel</button>
+    <button class="btn ladda-button option_go very_small_left_margin" data-style="expand-right" data-qa="channel_option_go"><span class="ladda-label">Ok</span></button>
+  </div>
+</div>

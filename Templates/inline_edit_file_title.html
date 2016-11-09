@@ -1,0 +1,17 @@
+  {{#if actions.edit_title}}
+
+    <span class="inline_edit inline_edit_editable" data-file-id="{{file.id}}" aria-label="Rename this file\u2019s title">
+      <span class="inline_edit_inner">
+        <span class="inline_edit_input" data-inline-edit-unformatted="{{file.title}}">{{{formatFileTitle file}}}</span>
+      </span>
+    </span>
+
+  {{else}}
+
+    <span class="inline_edit">
+      <span class="inline_edit_inner">
+        <span class="inline_edit_input">{{{formatFileTitle file}}}</span>
+      </span>
+    </span>
+
+  {{/if}}

@@ -1,0 +1,52 @@
+{{#pageNeedsEnterprise}}
+  {{#if model_ob.shares}}
+    <div class="channel_shared_teams_section">
+    <div class="bold subtle_silver shared_teams_label mini small_bottom_margin">Teams</div>
+    {{#if is_globally_shared}}
+      <p>
+        <img class="member_image float_left small_right_margin" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
+        Shared with all teams in the {{enterprise_org_name}} organization
+      </p>
+    {{else}}
+      <div class="channel_shared_teams">
+        {{#each model_ob.shares}}
+        <div class="shared_team bottom_margin">
+          <img class="member_image float_left" src="{{team.icon.image_68}}" srcset="{{team.icon.image_34}} 1x, {{team.icon.image_68}} 2x"/>
+          <div class="shared_team_name_and_owner">
+            <div class="shared_team_name overflow_ellipsis" title="{{team.name}}">{{team.name}}</div>
+            <div class="shared_team_user old_petunia_grey mini">{{getMemberDisplayNameById user}}</div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+  {{/if}}
+{{/pageNeedsEnterprise}}
+
+<div class="channel_purpose_section">
+  <div class="bold subtle_silver purpose_label mini{{#pageNeedsEnterprise}}{{#if model_ob.shares}} top_margin{{/if}}{{/pageNeedsEnterprise}}">Purpose</div>
+  <div class="bold subtle_silver edit_purpose_label hidden mini tiny_bottom_margin">Set a new purpose</div>
+
+  <div class="channel_purpose_text no_jumbomoji">
+    {{#if model_ob.purpose.value}}
+      {{{formatTopicOrPurpose model_ob.purpose.value}}}
+      {{#if show_edit_purpose_or_topic}}<a class="edit_purpose mini">edit</a>{{/if}}
+    {{else}}
+      {{#if show_edit_purpose_or_topic}}
+        <a class="edit_purpose mini block">Set a channel purpose</a>
+      {{else}}
+        <span class="italic">A purpose has not been set for {{#unless model_ob.is_channel}}<i class="ts_icon ts_icon_lock"></i> {{/unless}}{{#if model_ob.is_channel}}#{{/if}}{{model_ob.name}}.</span>
+      {{/if}}
+    {{/if}}
+  </div>
+
+  <textarea type="text" id="channel_purpose_input" class="hidden small" maxLength="{{ChannelPurposeMaxLength}}" tabindex="1">{{#if model_ob.purpose.value}}{{unFormatMessage model_ob.purpose.value}}{{else}}{{/if}}</textarea>
+
+  <button class="hidden btn btn_outline btn_small purpose_cancel tiny_right_margin" tabindex="3">Cancel</button>
+  <button class="hidden btn btn_small purpose_done" tabindex="2">Done</button>
+</div>
+
+<div class="creator italic subtle_silver top_margin">
+  <a class="creator_link subtle_silver"> Created by {{creator_name}} {{creation_date}} </a>
+</div>

@@ -1,0 +1,14 @@
+<li><a class="sidebar_menu_list_item" data-section="notifications">Notifications</a></li>
+{{#if show_win_ssb_prefs}}<li><a class="sidebar_menu_list_item" data-section="win_ssb">Windows App</a></li>{{/if}}
+{{#if show_lin_ssb_prefs}}<li><a class="sidebar_menu_list_item" data-section="lin_ssb">Linux App</a></li>{{/if}}
+<li><a class="sidebar_menu_list_item" data-section="messages_media">Messages & Media</a></li>
+<li><a class="sidebar_menu_list_item" data-section="themes">Sidebar Theme</a></li>
+<li><a class="sidebar_menu_list_item" data-section="search">Search</a></li>
+<li><a class="sidebar_menu_list_item" data-section="read_state_tracking">Mark as Read</a></li>
+{{#if show_a11y_prefs}}<li><a class="sidebar_menu_list_item" data-section="a11y">Accessibility</a></li>{{/if}}
+{{#feature flag="feature_unread_view"}}
+  <li><a class="sidebar_menu_list_item" data-section="advanced">Advanced</a></li>
+{{else}}
+  <li><a class="sidebar_menu_list_item" data-section="advanced">Advanced Options</a></li>
+{{/feature}}
+{{#if show_labs_prefs}}<li><a class="sidebar_menu_list_item" data-section="labs">Labs (TS Only)</a></li>{{/if}}

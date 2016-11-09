@@ -1,0 +1,13 @@
+<li id="files_user" class="flexpane_menu_item" data-filetype="user" role="menuitem"><a><i class="ts_icon ts_icon_all_files"></i>Your Files</a></li>
+<li id="files_all" class="flexpane_menu_item" data-filetype="all" role="menuitem"><a><i class="ts_icon ts_icon_all_files_alt"></i>All Files</a></li>
+<li id="list_team" class="flexpane_menu_item" data-tab-id="team" role="menuitem"><a><i class="ts_icon ts_icon_team_directory"></i>Team Directory</a></li>
+<li id="help" class="flexpane_menu_item" role="menuitem"><a><i class="ts_icon ts_icon_question_circle"></i>Help<span class="badge candy_red_bg hidden help_icon_circle_count">0</span></a></li>
+<li id="whats_new" class="flexpane_menu_item" data-tab-id="whats_new" role="menuitem"><a><i class="ts_icon ts_icon_emoji_celebration"></i>What's New<span id="whats_new_count" class="badge candy_red_bg"></span></a></li>
+{{#if show_downloads}}
+<li id="downloads" class="flexpane_menu_item" data-tab-id="downloads" role="menuitem"><a><i class="ts_icon ts_icon_cloud_download"></i>Downloads</a><div id="downloads_menu_progress" class="hidden">
+  <div class="download_progress_row"><div class="download_progress_bar" style="width:100%"></div></div>
+</div></li>
+{{/if}}
+{{#each special_flex_panes}}
+  <li class="flexpane_menu_item" data-tab-id="{{this.flex_name}}" role="menuitem"><a><i class="ts_icon ts_icon_exclamation_circle"></i>{{this.label}}</a></li>
+{{/each}}

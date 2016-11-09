@@ -1,0 +1,22 @@
+{{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=find_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+
+<div id="sent_invite_body" class="fs_split_body">
+  {{#if multi}}
+  <h1>Reminders sent!</h1>
+  <p class="desc">If we found Slack accounts associated with {{{email}}}, you will receive emails from us shortly.</p>
+  {{else}}
+  <h1>Reminder sent!</h1>
+  <p class="desc">If we found a Slack account associated with {{{email}}}, you will receive an email from us shortly.</p>
+  {{/if}}
+    <p class="desc small_bottom_margin">Having trouble finding your team?</p>
+    <p class="desc">You can <strong><a href="/signin/find" data-clog-event="WEBSITE_CLICK" data-clog-params="action=try_another_email,trigger=find_team">try another email address</a></strong> or contact <a href="mailto:feedback@slack.com">feedback@slack.com</a>.</p>
+</div>
+
+<div class="fs_split_footer"></div>
+<div class="fs_split_footer subtle_silver">
+{{#isOurApp}}
+  (Once you've received it, <a href="/signin" data-clog-event="WEBSITE_CLICK" data-clog-params="action=try_sign_in,trigger=find_team" class="bold">click here to sign in</a>.)
+{{else}}
+  (You can probably close this page now.)
+{{/isOurApp}}
+</div>

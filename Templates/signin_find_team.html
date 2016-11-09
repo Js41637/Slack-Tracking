@@ -1,0 +1,30 @@
+{{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=find_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="37" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+
+<div class="header_error_message hidden"></div>
+
+<div id="form_body" class="fs_split_body">
+  <h1>Find {{your_another}} team</h1>
+  <label id="email_label"><span class="normal">Enter your </span>email address</label>
+  
+  <div class="input_wrapper email">
+    <textarea type="text" placeholder="you@yourdomain.com" id="email_input" autocomplete="off" spellcheck="false" aria-labelledby="email_label email_rule_label" data-email-healing="true"></textarea>
+  </div>
+
+  <p id="email_rule_label" class="subtle_silver">Try up to 10 email addresses, separated with commas</p>
+  <p class="error_message"></p>
+  <div class="desc">We\u2019ll send you an email with sign-in links for any Slack teams associated with the address(es) you enter here.</div>
+</div>
+
+<div id="submit_footer" class="fs_split_footer centered">
+  <button id="submit_btn" type="submit" class="btn btn_large ladda-button submit_setting" data-clog-event="WEBSITE_CLICK" data-clog-params="click_target=find_team_send_signin_email" data-style="expand-right" aria-disabled="true" disabled="true">
+    <span id="submit_btn_label_single" class="ladda-label">Send me a sign-in email</span>
+    <span id="submit_btn_label_plural" class="ladda-label hidden">Send me sign-in emails</span>
+  </button>
+  {{#if reenter_signup_flow}}
+    <p class="normal_margin reenter_signup_flow subtle_silver"><ts-icon class="ts_icon_arrow_left"></ts-icon>Or, <a href="/create" class="clear_blue" data-clog-event="WEBSITE_CLICK" data-clog-params="action=go_back_create_team,trigger=find_team"> go back to making a new team</a></p>
+  {{/if}}
+  {{#if go_back_team_select}}
+    <p class="normal_margin go_back_team_select subtle_silver"><ts-icon class="ts_icon_arrow_left"></ts-icon>Or, <a href="/signin/find" class="clear_blue" data-clog-event="WEBSITE_CLICK" data-clog-params="action=go_back_select_team,trigger=find_team"> go back and select a team</a></p>
+  {{/if}}
+</div>
+<div class="fs_split_footer"></div>

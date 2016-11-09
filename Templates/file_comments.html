@@ -1,0 +1,11 @@
+{{#if comment_group}}
+  <p class="file_comments_header">Started on {{toCalendarDateOrNamedDayShort comment_group.first_share.timestamp}} at {{toTime comment_group.first_share.timestamp}} in {{makeChannelOrGroupLinkById c_id}}
+{{/if}}
+
+{{#if file_partial}}
+  {{> (concatStr 'file_' file_partial)}} {{!-- dynamically create the string "file_snippet" from "file_" and the template arg file_partial (snippet) --}}
+{{/if}}
+
+<div class="file_comments_{{file.id}} comments">
+  {{comments file}}
+</div>

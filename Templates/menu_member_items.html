@@ -1,0 +1,130 @@
+{{#if member.is_self}}
+  {{#if is_im_menu}}
+
+    {{#feature flag="feature_browse_date"}}
+      <li id="member_jump_item" role="menuitem">    
+        <a class="date_picker" target="{{newWindowName}}">Jump to date &hellip;</a>
+      </li>
+    {{/feature}}
+    {{#unless hide_view_profile}}
+      <li id="member_profile_item" role="menuitem"><a href="/account/profile" target="{{newWindowName}}">Edit your profile</a></li>
+    {{/unless}}
+    <li id="member_details_item">
+      <a>View conversation details</a>
+    </li>
+    <li class="divider"></li>
+    {{#if show_email_item}}
+      <li id="member_email_item" role="menuitem">
+        <a target="{{newWindowName}}" href="/services/new/email">
+          Send email to this conversation &hellip;
+        </a>
+      </li>
+    {{/if}}
+  {{else}}
+
+
+    <li id="member_prefs_item" role="menuitem"><a>View preferences</a></li>
+    <li id="member_account_item" role="menuitem"><a href="/account/settings" target="{{newWindowName}}">Open account settings</a></li>
+    {{#unless hide_view_profile}}
+      <li id="member_profile_item" role="menuitem"><a href="/account/profile" target="{{newWindowName}}">Edit your profile</a></li>
+    {{/unless}}
+    <li class="divider"></li>
+    
+    
+    {{#if member._has_files_or_we_dont_know}}<li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}">View your files</a></li>{{/if}}
+    <li id="member_presence" role="menuitem">
+      <a>
+        <span class="menu_item_label">
+          {{#if_equal member.presence compare="active"}}
+            Set yourself away&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          {{else}}
+            [Away] Set yourself active
+          {{/if_equal}}
+        </span>
+      </a>
+    </li>
+
+    {{#if hide_view_profile}}
+      <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{member.name}}">Open profile in new window&nbsp;</a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+    {{/if}}
+
+    <li class="divider"></li>
+    
+    {{#if other_accounts}}
+      {{#each other_accounts}}
+        <li class="switch_team" data-team-id="{{this.team_id}}" role="menuitem">
+          <a href="{{this.team_url}}messages">Switch to {{this.name}} ({{this.team_name}})</a>
+        </li>
+      {{/each}}
+    {{/if}}
+
+    {{#if logout_url}}
+      <li id="logout" role="menuitem">
+        <a href="{{logout_url}}">Sign Out</a>
+      </li>
+    {{/if}}
+  {{/if}}
+    
+{{else}}
+
+  {{#if is_im_menu}}
+
+      {{#feature flag="feature_browse_date"}}
+        <li id="member_jump_item" role="menuitem">    
+          <a class="date_picker" target="{{newWindowName}}">Jump to date &hellip;</a>
+        </li>
+      {{/feature}}
+      {{#feature flag="feature_name_tagging_client"}}
+        <li id="member_profile_item" role="menuitem"><a href="/team/{{member.id}}" target="{{newWindowName}}">View {{#if member.profile.preferred_name}}{{getMemberPreferredName member}}{{possessive (getMemberPreferredName member)}}{{else}}{{getMemberFullName member}}{{possessive (getMemberFullName member)}}{{/if}} profile</a></li>
+        {{#if show_channel_invite}}
+          <li id="member_invite_channel_item" role="menuitem"><a>Invite {{#if member.profile.preferred_name}}{{getMemberPreferredName member}}{{else}}{{getMemberFullName member}}{{/if}} to a channel &hellip;</a></li>
+        {{/if}}
+      {{else}}
+        <li id="member_profile_item" role="menuitem"><a href="/team/{{member.name}}" target="{{newWindowName}}">View {{getMemberDisplayName member}}{{possessiveForMember member}} profile</a></li>
+        {{#if show_channel_invite}}
+          <li id="member_invite_channel_item" role="menuitem"><a>Invite {{getMemberDisplayName member}} to a channel &hellip;</a></li>
+        {{/if}}
+      {{/feature}}
+      <li id="member_details_item">
+        <a>View conversation details</a>
+      </li>
+      <li class="divider"></li>
+      {{#if show_email_item}}
+        <li id="member_email_item" role="menuitem">
+          <a target="{{newWindowName}}" href="/services/new/email">
+            Send email to this conversation &hellip;
+          </a>
+        </li>
+      {{/if}}
+
+  {{else}}
+
+    {{#unless hide_view_profile}}
+      <li id="member_profile_item" role="menuitem"><a href="/team/{{member.name}}" target="{{newWindowName}}">View profile</a></li>
+    {{/unless}}
+
+    {{#if show_dm_item}}
+      {{#unless member.deleted}}
+        <li id="member_dm_item" role="menuitem"><a href="/messages/@{{member.name}}">Direct Messages</a></li>
+      {{/unless}}
+    {{/if}}
+
+    {{#if member._has_files_or_we_dont_know}}<li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}"> View files</a></li>{{/if}}
+    {{#if show_call_action}}
+      {{#unless member.deleted}}
+        <li id="member_call_item" role="menuitem"><a>Call</a></li>
+      {{/unless}}
+    {{/if}}
+    {{#if channel_kick_name}}<li id="member_kick_channel_item" role="menuitem"><a>Remove from <b>{{channel_kick_name}}</b></a></li>{{/if}}
+    {{#if show_channel_invite}}<li id="member_invite_channel_item" role="menuitem"><a>Invite to a channel &hellip;</a></li>{{/if}}
+
+    {{#if show_slackbot_responses_item}}
+      <li id="member_slackbot_responses" role="menuitem"><a href="/customize/slackbot" target="{{newWindowName}}">Create/edit Slackbot responses</a></li>
+    {{/if}}
+
+    {{#if hide_view_profile}}
+      <li id="member_open_profile_item" role="menuitem"><a target="{{newWindowName}}" href="/team/{{member.name}}">Open profile in new window&nbsp;</a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
+    {{/if}}
+    
+  {{/if}}
+{{/if}}

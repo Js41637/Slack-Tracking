@@ -1,0 +1,26 @@
+<div class="mention_rxn {{#feature flag="feature_refactored_message_template"}}feature_refactored_message_template{{/feature}}" data-ts="{{ts}}">
+  {{#feature flag="feature_refactored_message_template"}}
+  {{else}}
+    {{#unless is_file_reaction}}{{jump_link_html}}{{/unless}}
+  {{/feature}}
+  <div class="rxn_emoji_icon rxn_{{rxns_to_display.length}}">
+    {{#each rxns_to_display}}
+      <div class="rxn_emoji">{{this}}</div>
+    {{/each}}
+  </div>
+  <div class="mention_rxn_summary">
+    {{#feature flag="feature_refactored_message_template"}}
+      <div class="mention_rxn_summary_left">
+        <span class="mention_rxn_summary_members">{{rxn_members}}</span>
+        reacted to your {{#if is_file_reaction}}file{{else}}message{{/if}}
+      </div>
+      {{#unless is_file_reaction}}{{jump_link_html}}{{/unless}}
+    {{else}}
+      <span class="mention_rxn_summary_members">{{rxn_members}}</span>
+      reacted to your {{#if is_file_reaction}}file{{else}}message{{/if}}
+    {{/feature}}
+  </div>
+  <div class="mention_rxn_msg_holder">
+    {{msg_html}}
+  </div>
+</div>

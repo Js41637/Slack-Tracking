@@ -1,0 +1,34 @@
+<div data-file-id="{{file.id}}" class="file_container post_container
+  {{#if is_message}}
+    {{#shouldTruncateInlineFilePreview file}}
+      {{#isInlineFilePreviewTruncated msg_dom_id file}}
+        inline_collapsed
+      {{else}}
+        inline_expanded
+      {{/isInlineFilePreviewTruncated}}
+    {{/shouldTruncateInlineFilePreview}}
+  {{/if}}
+">
+
+  <div class="file_header post_header">
+    <i class="file_header_icon post_header_icon ts_icon {{#if is_message}}ts_icon_file_text_post{{else}}ts_icon_file_text_post_small{{/if}}"></i>
+    <h4 class="file_header_title post_header_title overflow_ellipsis">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</h4>
+    <p class="file_header_meta post_header_meta">
+      {{#if file.updated}}
+        Last edited <span class="file_time_ago" data-file-id="{{file.id}}">{{toTimeAgo file.updated}}</span>
+      {{else}}
+        {{#if file.timestamp}}
+          Added {{toCalendarDateOrNamedDayShort file.timestamp}} at {{toTime file.timestamp}}
+        {{/if}}
+      {{/if}}
+    </p>
+  </div>
+
+  <div class="file_body post_body">{{#if file.content_html}}{{{formatSpaceHtml file.content_html}}}{{else}}{{{formatSpaceHtml file.preview}}}{{/if}}</div>
+
+  {{#if is_message}}
+    {{> message_file_preview_actions collapse=true}}
+    {{> message_file_preview_footer collapse=true}}
+  {{/if}}
+
+</div>{{!--/file_container--}}

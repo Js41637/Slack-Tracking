@@ -1,0 +1,104 @@
+{{!-- Avatar, Real Name, username, presence dot --}}
+<div class="member_details member_item_inset {{#isWeb}}col span_5_of_12 no_bottom_margin{{/isWeb}}">
+  {{#if is_long_list_view}}
+    {{{makeMemberPreviewLinkImage member.id 72}}}
+  {{else}}
+    {{{makeMemberPreviewLinkImage member.id 72 true}}}
+  {{/if}}
+
+  <div class="member_name_and_title">
+    {{#feature flag="feature_name_tagging_client"}}
+      <div class="{{getMemberColorClassById member.id}} inline_block">
+        <a href="/team/{{member.id}}" {{#isClient}}target="/team/{{member.id}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{getMemberFullName member}}</a>
+      </div>
+      <div class="inline_block">
+        {{#unless member.deleted}}{{{makeMemberPresenceIcon member}}}{{/unless}}
+        {{getMemberPreferredName member}}
+      </div>
+      {{#if member.profile}}
+        {{#if member.profile.title}}<div class="member_title">{{member.profile.title}}</div>{{/if}}
+      {{/if}}
+      {{#isClient}}
+        {{#unless member.is_bot}}
+          {{#isInDifferentTimeZone member}}
+            <div class="mini timezone_label" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</div>
+          {{/isInDifferentTimeZone}}
+        {{/unless}}
+      {{else}}
+        {{#unless member.is_bot}}
+          {{#isInDifferentTimeZone member}}
+            <div class="mini">{{memberUTCOffset member}}</div>
+          {{/isInDifferentTimeZone}}
+        {{/unless}}
+      {{/isClient}}
+    {{else}}
+      {{#if member.profile.real_name}}
+        <div class="{{getMemberColorClassById member.id}}">
+          <a href="/team/{{member.name}}" {{#isClient}}target="/team/{{member.name}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{member.profile.real_name}}</a>
+        </div>
+      {{/if}}
+      <div {{#unless member.profile.real_name}}class="{{getMemberColorClassById member.id}}"{{/unless}}>
+        {{#if member.profile.real_name}}
+          @{{member.name}}
+        {{else}}
+          <a href="/team/{{member.name}}" {{#isClient}}target="/team/{{member.name}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{member.name}}</a>
+        {{/if}}
+        {{#unless member.deleted}}{{{makeMemberPresenceIcon member}}}{{/unless}}
+
+        {{#isClient}}
+          {{#unless member.is_bot}}
+            {{#isInDifferentTimeZone member}}
+              <span class="mini timezone_label" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</span>
+            {{/isInDifferentTimeZone}}
+          {{/unless}}
+        {{else}}
+          {{#unless member.is_bot}}
+            {{#isInDifferentTimeZone member}}
+              <span class="mini">{{memberUTCOffset member}}</span>
+            {{/isInDifferentTimeZone}}
+          {{/unless}}
+        {{/isClient}}
+
+      </div>
+      {{#if member.profile}}
+        {{#if member.profile.title}}<div class="member_title">{{member.profile.title}}</div>{{/if}}
+      {{/if}}
+    {{/feature}}
+  </div>
+
+</div>
+
+{{!-- Team site: Phone, Email, Skype --}}
+{{#isWeb}}
+  <div class="expanded_member_details small_top_padding col span_6_of_12 no_bottom_margin">
+
+    {{#if member.profile}}
+      <table class="member_data_table">
+        {{#if member.profile.phone}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="Phone Number">Phone Number</span></td>
+            <td><a class="overflow_ellipsis" href="tel:{{member.profile.phone}}">{{member.profile.phone}}</a></td>
+          </tr>
+        {{/if}}
+        {{#if member.profile.email}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="Email">Email</span></td>
+            <td><a class="overflow_ellipsis" href="mailto:{{member.profile.email}}" title="Email {{member.name}}">{{member.profile.email}}</a></td>
+          </tr>
+        {{/if}}
+        {{{getVisibleTeamProfileFieldsForMember member}}}
+      </table>
+    {{/if}}
+
+  </div>
+
+  {{!-- Buttons. Rendered on demand in the client. --}}
+  <div class="col span_1_of_12 no_bottom_margin no_right_padding">
+    <a class="member_preview_menu_target member_action_button btn btn_outline float_right top_margin hide_on_mobile">
+      <div class="team_directory_icon more_icon inline_block no_right_margin"></div>
+    </a>
+    <a class="member_preview_menu_target member_action_button btn btn_outline bottom_margin top_margin show_on_mobile subtle_silver">
+      <div class="team_directory_icon more_icon inline_block small_right_margin"></div>More
+    </a>
+  </div>
+{{/isWeb}}

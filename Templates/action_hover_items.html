@@ -1,0 +1,27 @@
+{{! ~s necessary to prevent whitespace layout issues }}
+{{~#each handy_rxns.items~}}
+  <a data-action="add_handy_rxn" data-name="{{this.name}}" class="add_handy_rxn ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}} msg_action_btn_small" title="{{#if this.use_title}}Say \u201c{{this.title}}\u201d{{else}}Add reaction {{this.name}}{{/if}}">{{this.html}}</a>
+{{~/each~}}
+{{~#if show_rxn_action~}}<a data-action="reaction" class="ts_icon ts_icon_small_reaction ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}{{#if handy_rxns.items}} msg_action_btn_small{{/if}}" title="Add reaction &hellip;"></a>{{~/if~}}
+{{~#if show_reply_action~}}
+  <a data-action="reply" class="ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#if msg.reply_count}}Reply in thread &hellip;{{else}}Start a thread &hellip;{{/if}}"></a>
+{{~/if~}}
+{{~#if show_comment_action~}}
+  <a data-action="comment" {{#isWeb}}href="{{msg.file.permalink}}" target="{{newWindowName}}"{{/isWeb}} class="ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="Add comment &hellip;"></a>
+{{~/if~}}
+{{~#if show_jump_action~}}
+  <a data-action="jump_to_original" class="ts_icon ts_icon_jump ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="Jump to original"></a>
+{{~else~}}
+  {{~#if actions.share_message~}}
+    <a data-action="share_message" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_share_action ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="Share message &hellip;"></a>
+  {{~else~}}
+    {{~#if actions.share_file~}}
+      <a data-action="share_file" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_share_action ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="Share file &hellip;"></a>
+    {{~else~}}
+      {{~#if actions.copy_link~}}
+        <a data-action="copy_link" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_link ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="Copy link"></a>
+      {{~/if~}}
+    {{~/if~}}
+  {{~/if~}}
+{{~/if~}}
+<a data-action="actions_menu" class="ts_icon ts_icon_small_ellipsis ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="Show message actions"></a>

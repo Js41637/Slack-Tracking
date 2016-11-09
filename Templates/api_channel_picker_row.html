@@ -1,0 +1,13 @@
+{{#if item.is_group}}
+  {{#if item.is_mpim}}
+    <i class="ts_icon multipary_dm_icon ts_icon_multiparty_dm_{{item.members.length}}"></i>{{item.name}}
+  {{else}}
+    <i class="ts_icon ts_icon_lock"></i>{{item.name}}
+  {{/if}}
+{{else}}
+  {{#if item.is_channel}}
+    <i class="ts_icon ts_icon_channel"></i>{{item.name}}
+  {{else}}
+    {{item.icon}}{{item.name}}{{#if item.member.is_self}} (you){{/if}}
+  {{/if}}
+{{/if}}

@@ -1,0 +1,108 @@
+  <div class="search_message_result null_transform {{#ifExtracts this}}{{else}}extracts_expanded no_extracts{{/ifExtracts}}" id="{{makeMSRDomId this}}" data-channel="{{this.channel.id}}" data-ts="{{this.ts}}">
+    <div class="search_message_result_meta display_flex black indifferent_grey align_items_end">
+      <div class="small_right_margin">
+        <strong class="overflow_ellipsis">
+          {{#if_equal this.type compare='im'}}
+            {{makeIMLinkById this.channel.id}}
+          {{else}}
+            {{#if_equal this.type compare='group'}}
+              {{#if this.channel.is_mpim}}
+                {{makeMpimLink this.channel true}}
+              {{else}}
+                {{makeGroupLink this.channel}}
+              {{/if}}
+            {{else}}
+              {{makeChannelLink this.channel}}
+            {{/if_equal}}
+          {{/if_equal}}
+        </strong>
+        {{#feature flag="feature_enterprise_search_ui"}}
+          {{#or (if_equal this.type compare='message') (if_equal this.type compare='group')}}
+            {{#if is_enterprise}}
+              {{#unless this.channel.is_shared}}
+                {{#if search_global}}
+                  <div class="org_team_label">
+                    {{makeTeamlabel team}}
+                  </div>
+                {{else}}
+                  <div class="org_team_label">
+                    {{currentTeamName}}
+                  </div>
+                {{/if}}
+              {{/unless}}
+            {{/if}}
+          {{/or}}
+        {{/feature}}
+      </div>
+      <div class="date_links flex_none auto_left_margin normal">
+        {{#if_equal search_feedback_exp compare='model'}}
+          <span id="sli_feedback">
+            <ts-icon class="ts_icon_plus_circle ts_tip ts_tip_top ts_tip_float sli_feedback sli_feedback_plus ts_tip_multiline {{#if_equal this.feedback_val compare='5'}}selected{{/if_equal}}">
+              <span class="ts_tip_tip">
+                <span class="ts_tip_multiline_inner">
+                  Search result is super relevant!
+                  <br>
+                  <span class="subtle_silver">(query string will be logged!)</span>
+                </span>
+              </span>
+            </ts-icon>
+            <ts-icon class="ts_icon_circle_large ts_tip ts_tip_top ts_tip_float sli_feedback sli_feedback_circle ts_tip_multiline {{#if_equal this.feedback_val compare='1'}}selected{{/if_equal}}">
+              <span class="ts_tip_tip">
+                <span class="ts_tip_multiline_inner">
+                  Search result is somewhat relevant
+                  <br>
+                  <span class="subtle_silver">(query string will be logged!)</span>
+                </span>
+              </span>
+            </ts-icon>
+            <ts-icon class="ts_icon_minus_circle ts_tip ts_tip_top ts_tip_float sli_feedback sli_feedback_minus ts_tip_multiline {{#if_equal this.feedback_val compare='-5'}}selected{{/if_equal}}">
+              <span class="ts_tip_tip">
+                <span class="ts_tip_multiline_inner">
+                Search result is not at all relevant
+                <br>
+                <span class="subtle_silver">(query string will be logged!)</span>
+                </span>
+              </span>
+            </ts-icon>
+          </span> \u2022
+        {{/if_equal}}
+        {{#if_equal this.type compare='im'}}
+          {{#if this.im_exists}}
+            <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
+          {{/if}}
+        {{else}}
+          {{#feature flag="feature_enterprise_search_ui"}}
+            {{#if is_enterprise}}
+              {{#or (isLocalTeam this.team) (if_equal this.channel.is_shared compare=true)}}
+                <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
+              {{else}}
+                <a href="{{this.permalink}}" target="{{newWindowName}}">View in Archive</a> \u2022
+              {{/or}}
+            {{else}}
+              <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
+            {{/if}}
+          {{else}}
+            <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
+          {{/feature}}
+
+        {{/if_equal}}
+
+        <a href="{{this.permalink}}" target="{{newWindowName}}" class="archive ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline">
+          {{toCalendarDateOrNamedDayShort this.ts}}
+          <span class="ts_tip_tip">
+            <span class="ts_tip_multiline_inner">
+              {{msgTsTitle this}}
+            </span>
+          </span>
+        </a>
+      </div>
+
+    </div>
+    <div class="search_message_result_text {{#willForceExtracts this}}extracts_forced{{/willForceExtracts}}">
+      {{buildMsgHTMLForSearch this}}
+    </div>
+
+    {{#isMsgReply msg=this}}
+      <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump thread_jump subtle_silver">Jump to conversation <ts-icon class="ts_icon_chevron_right"></ts-icon></a>
+    {{/isMsgReply}}
+  </div>

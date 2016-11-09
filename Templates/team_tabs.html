@@ -1,0 +1,37 @@
+{{!-- DEPRECATED_FILE_NOTICE: This is replaced by the user_group/tabs.hbs template with feature_sub_teams --}}
+  {{#isWeb}}
+    <div class="tab_set on_neutral_grey">
+      {{#if show_members}}
+        <a id="active_members_tab" data-tab="active" class="selected">Full Members <span id="active_members_count" class="normal">(<span id="active_members_count_value">{{members.length}}</span>)</span></a>
+      {{/if}}
+      {{#if show_restricted_members}}
+        <a id="restricted_members_tab" data-tab="restricted">{{raLabel 'Restricted & Guest Accounts'}} <span id="restricted_members_count" class="normal">(<span id="restricted_members_count_value">{{restricted_members.length}}</span>)</span></a>
+      {{/if}}
+      {{#if disabled_members}}
+        <a id="disabled_members_tab" data-tab="disabled" class="secondary">Deactivated Accounts <span id="disabled_members_count" class="normal">(<span id="disabled_members_count_value">{{disabled_members.length}}</span>)</span></a>
+      {{/if}}
+      {{#if show_restricted_members}}
+        <i class="tab_caret ts_icon ts_icon_caret_down"></i>
+        <i class="tab_caret ts_icon ts_icon_caret_up"></i>
+      {{else}}
+        {{#if disabled_members}}
+          <i class="tab_caret ts_icon ts_icon_caret_down"></i>
+          <i class="tab_caret ts_icon ts_icon_caret_up"></i>
+        {{/if}}
+      {{/if}}
+    </div>
+  {{else}}
+    <ul class="flexpane_tab_bar small_top_margin lato no_bottom_margin">
+      {{#if show_members}}
+        <li id="active_members_tab" class="bold active"><a href="#active_members" data-toggle="tab" data-name="active_members">{{#isWeb}}Full {{/isWeb}}Members <span id="active_members_count" class="normal">(<span id="active_members_count_value">{{members.length}}</span>)</span></a></li>
+      {{/if}}
+      {{#if show_restricted_members}}
+        <li id="restricted_members_tab" class="bold"><a href="#restricted_members" data-toggle="tab" data-name="restricted_members">{{raLabel 'Restricted & Guest Accounts'}} <span id="restricted_members_count" class="normal">(<span id="restricted_members_count_value">{{restricted_members.length}}</span>)</span></a></li>
+      {{/if}}
+      {{#isWeb}}
+        {{#if disabled_members}}
+          <li id="disabled_members_tab" class="bold float_right"><a href="#disabled_members" data-toggle="tab" data-name="disabled_members">Deactivated Accounts <span id="disabled_members_count" class="normal">(<span id="disabled_members_count_value">{{disabled_members.length}}</span>)</span></a></li>
+        {{/if}}
+      {{/isWeb}}
+    </ul>
+  {{/isWeb}}

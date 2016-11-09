@@ -1,0 +1,27 @@
+<h1>Hi, Slackbot here!</h1>
+<div class="cursor_pointer flex_none float_left small_left_margin very_small_top_margin" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
+  {{makeMemberPreviewLinkImage member.id 48 false true}}
+</div>
+
+{{#slackbotHelpEnabled}}
+  <p class="icon_offset">You can ask me simple questions about how Slack works, or just type a few keywords. For example: <strong>Can I edit a message I've posted?</strong> Or simply: <strong>edit message</strong>.</p>
+  <div class="clear_both"></div>
+  <p class="icon_offset">I'm only a bot, but I'll do my best to answer! If I don't understand, I'll search the <a href="https://get.slack.help/hc/en-us">Help Center</a>.</p>
+  {{#feature flag="feature_tos_oct2016"}}
+  {{else}}
+    {{#if compliance_exports_enabled_for_team}}
+      <p class="icon_offset"><strong>Please note:</strong>  Ask anything you want, bearing in mind that every message in this team sent on or after <span class="js_compliance_export_start">{{toDate compliance_export_start}}</span> is accessible to your team owners via Compliance Exports.</p>
+    {{/if}}
+  {{/feature}}
+{{else}}
+  <p class="icon_offset">This is <span class="not_limited_copy">the very beginning of</span> your message history with Slackbot. Slackbot tries to be helpful (but is only a bot, after all).</p>
+  <div class="clear_both"></div>
+  <i class="ts_icon ts_icon_lightbulb_o callout"></i>
+  <p class="icon_offset"><strong>Tip:</strong> Use this message area as your personal scratchpad: anything you type here is private just to you, but shows up in your personal search results. Great for notes, addresses, links or anything you want to keep track of.</p>
+  <i class="callout">
+  <a href="https://twitter.com/slackhq" target="new"><img src="{{versioned_twitter_64}}" class="align_top" /></a>
+  </i>
+  <p class="icon_offset">
+    For more tips, along with news and announcements, follow our Twitter account <a href="https://twitter.com/slackhq" target="new" class="bold">@slackhq</a> and check out the <a href="https://twitter.com/search?f=realtime&q=%23changelog%20from%3Aslackhq&src=typd" target="new" class="bold">#changelog</a>.
+  </p>
+{{/slackbotHelpEnabled}}

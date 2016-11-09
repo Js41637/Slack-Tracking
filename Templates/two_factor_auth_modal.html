@@ -1,0 +1,30 @@
+<h1 class="medium large_top_margin medium_bottom_margin">Mandatory two-factor authentication</h1>
+<p>All team members (<strong>including you</strong>) who do not have two-factor authentication currently enabled will be notified via Slackbot and email to do so. New team members will be asked to configure 2FA as well.</p>
+<p class="large_bottom_margin">After 24 hours, members who have not configured 2FA will be required to do so before continuing to use Slack,</p>
+<p class="bottom_margin"><strong><a id="customize_toggle" class="indifferent_grey" href="#">Customize Slackbot message <i class="ts_icon ts_icon_caret_right"></i></a></strong></p>
+<div id="customize" class="customize_wrapper">
+  <div class="accordion_subsection" style="display: none;">
+    <div class="message_wrapper normal_padding bottom_margin">
+      <div class="message show_user avatar first divider">
+        <span class="member_preview_link member_image thumb_36" style="background-image: url('https://slack-assets2.s3-us-west-2.amazonaws.com/10068/img/slackbot_48.png')"></span>
+        <span class="message_sender member color_USLACKBOT">Slackbot</span>
+        <span class="message_content bottom_margin">Hi, {{name}}. Your Team Admin, {{admin_name}}, has enabled mandatory <a href="https://slack.zendesk.com/hc/en-us/articles/204509068" target="_blank">two-factor authentication</a> for your Slack team. This means that moving forward, you'll need an authentication code from your phone whenever you sign in.</span>
+        <span class="message_content bottom_margin">In {{hours}} ({{time}}) you'll be asked to configure two-factor authentication, but we recommend you do this now.</span>
+        <span class="message_content bottom_margin"><a href="/account/settings#two_factor">Configure two-factor authentication now.</a></span>
+        <span class="message_content bottom_margin custom_message left_padding">[ Your custom message goes here. ]</span>
+      </div>
+    </div>
+    <textarea name="custom_message_input" id="custom_message_input" class="custom_message_input" placeholder="Add a message&hellip;"></textarea>
+  </div>
+</div>
+<div class="clearfix large_top_margin modal_password_form">
+  <div class="span_4_of_6">
+    <form action="/admin/auth/" method="post" accept-encoding="UTF-8">
+      <label for="password">Your password</label>
+      <input type="hidden" name="crumb" value="{{crumb}}">
+      <input id="password" class="bottom_margin" type="password" placeholder="Password" name="password">
+      <button id="confirm_btn" class="btn btn_large disabled">Confirm and enable</button>
+    </form>
+  </div>
+</div>
+<p class="subtle_silver align_center">Learn more about <a class="underline subtle_silver" href="">two-factor authentication</a></p>

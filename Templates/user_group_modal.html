@@ -1,0 +1,40 @@
+<div id="user_groups_container">
+
+  <div id="all_user_groups">
+    <div id="user_groups_header" class="clearfix bottom_border">
+      {{#if show_user_groups_add}}
+        <a data-action="open_form" class="btn float_right">Create a new group</a>
+      {{/if}}
+      <h1>User Groups</h1>
+      <div class="user_groups_search">
+        <i class="icon_search ts_icon ts_icon_search"></i>
+        <a class="ts_icon ts_icon_times_circle icon_close hidden"></a>
+        <input id="user_group_modal_search" type="text" class="member_filter no_margin small" name="team_filter" placeholder="Find by name" />
+      </div>
+    </div>
+    {{#ifClient}}
+      {{#if show_info_pane}}
+        <div class="info_panel clearfix">
+          <p>
+            While commands like <span class="mention">@everyone</span>, <span class="mention">@channel</span>, and <span class="mention">@here</span> call the attention of team members in a conversation, User Groups let you choose exactly who should get your message.
+          </p>
+          <p class="col span_3_of_4 no_bottom_margin">
+            Choose a group name, like <span class="mention">@design</span> or <span class="mention">@marketing</span>, then select the group members. Now, when someone on your team mentions the User Group, only its members will be notified. You can even add those team members to channels of your choice automatically!<br>
+            <a data-action="hide_info_pane" class="lato_bold">Ok, you can hide this now</a>
+          </p>
+          <div class="col span_1_of_4 top_margin no_padding">
+            <span class="user_groups_img"></span>
+          </div>
+        </div>
+      {{/if}}
+    {{/ifClient}}
+    <div id="user_groups_list_scroller">
+      <div id="user_groups_list_div">{{{loadingHTML}}}</div>
+    </div>
+  </div>
+
+  <div id="user_groups_form_div" class="hidden"></div>
+  
+  <div id="user_groups_toggle_div" class="hidden"></div>
+
+</div>

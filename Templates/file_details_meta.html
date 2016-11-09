@@ -1,0 +1,61 @@
+{{#if_equal file_partial compare="image"}}
+  {{> file_image}}
+{{else}}
+  <ts-icon class="file_meta_icon filetype_icon {{file.filetype}} s48"></ts-icon>
+{{/if_equal}}
+
+<strong class="file_title">
+  {{#if is_post_or_space}}
+    {{#if preview}}
+      {{makeFilePrivacyLabel file}} post
+    {{else}}
+      {{highlightSearchMatchesInFileTitle file.title}}
+    {{/if}}
+  {{else}}
+    {{highlightSearchMatchesInFileTitle file.title}}
+  {{/if}}
+</strong>
+
+<div class="meta">{{file.pretty_type}} | {{convertFilesize file.size}}</div>
+
+<ul class="no_bullets">
+
+  {{#if download}}
+    <li class="file_action_item inline_block">
+      <a class="file_ssb_download_link btn_outline btn" href="{{file.url_private_download}}" target="{{newWindowName}}" data-file-id="{{file.id}}">Download</a>
+    </li>
+  {{/if}}
+
+  {{#if is_post_or_space}}
+    <li class="file_action_item inline_block">
+      <a class="file_new_window_link btn_outline btn" href="{{file.permalink}}" target="{{file.id}}" data-file-id="{{file.id}}">Open</a>
+    </li>
+  {{/if}}
+
+  <li id="share_file" class="inline_block" data-file-id="{{file.id}}" role="menuitem"><button class="btn_outline btn">Share</button></li>
+
+  <li class="file_action_item inline_block">
+    <button class="ts_tip ts_tip_bottom ts_tip_right file_actions btn_outline btn" data-file-id="{{file.id}}"
+      data-exclude-pin="true"
+      data-exclude-comment="true"
+      data-include-view-public-link="true"
+      {{#if download}}data-exclude-download="true"{{/if}}
+      {{#if_not_equal file.mode compare="email"}}{{#if_not_equal file.mode compare="snippet"}}data-exclude-original="true"{{/if_not_equal}}{{/if_not_equal}}
+      {{#if edit}}data-exclude-edit="true"{{/if}}
+    >
+      <span class="ts_tip_btn ts_icon ts_icon_ellipsis_o"></span>
+      <span class="ts_tip_tip">More actions</span>
+    </button>
+  </li>
+</ul>
+
+<div id="file_edit_title_container" class="hidden">
+  <form action="" id="file_edit_title_form" class="small_bottom_margin" method="post" onSubmit="TS.files.saveEditFileTitle('{{file.id}}'); return false;">
+    {{! no need for crumb_input }}
+    <p class="no_bottom_margin"><input type="text" id="file_edit_title_input" class="small" name="file_edit_title_input"></input></p>
+    <p class="no_bottom_margin align_right">
+      <button type="button" class="btn btn_small btn_outline" onClick="TS.files.endEditFileTitle(); return false;">Cancel</button>
+      <button type="submit" class="btn btn_small">Save Changes</button>
+    </p>
+  </form>
+</div>

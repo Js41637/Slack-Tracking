@@ -1,0 +1,25 @@
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>
+      Share
+      {{#if_equal type compare='file'}}file{{/if_equal}}
+      {{#if_equal type compare='file_snippet'}}snippet{{/if_equal}}
+      {{#if_equal type compare='file_post'}}post{{/if_equal}}
+      {{#if_equal type compare='file_space'}}post{{/if_equal}}
+      {{#if_equal type compare='file_multnomah'}}multnomah{{/if_equal}}
+    </h3>
+  </div>
+  <div class="modal-body share_dialog">
+
+    <input type="hidden" id="share_type" value="{{type}}" />
+    <input type="hidden" id="share_item_id" value="{{item.id}}" />
+
+    {{{file_html}}}
+
+    {{{sharing_html}}}
+
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn_outline dialog_cancel" tabindex="3">Cancel</a>
+    <a class="btn dialog_go" tabindex="2">Share</a>
+  </div>

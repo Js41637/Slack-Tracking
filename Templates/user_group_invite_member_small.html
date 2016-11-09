@@ -1,0 +1,17 @@
+<div class="user_group_invite_member_small clearfix">
+  <i class="enter_icon ts_icon ts_icon_enter sky_blue not_in_token float_right small_top_margin"></i>
+  <img src="{{member.profile.image_48}}" srcset="{{member.profile.image_48}} 1x, {{member.profile.image_72}} 2x" class="invite_member_avatar">
+  <div class="name_container overflow_ellipsis">
+    {{#feature flag="feature_name_tagging_client"}}
+      <div class="bold">{{getMemberFullName member}}</div>
+      <div class="subtle_silver not_in_token">{{getMemberPreferredName member}}</div>
+    {{else}}
+      {{#if member.profile.real_name}}
+        <div class="bold">{{member.profile.real_name}}</div>
+        <div class="subtle_silver not_in_token">{{member.name}}</div>
+      {{else}}
+        <div class="bold">{{member.name}}</div>
+      {{/if}}
+    {{/feature}}
+  </div>
+</div>

@@ -1,0 +1,34 @@
+{{#unless is_muted}}
+  <div class="channel_desktop_notifs small_bottom_margin">
+    <div class="bold subtle_silver mini">Desktop notifications</div>
+    {{#if desktop_notifs_enabled}}
+      {{#if desktop_everything}}Activity of any kind{{/if}}
+      {{#if desktop_mentions}}Highlight words &amp; @mentions{{/if}}
+      {{#if desktop_nothing}}Nothing please{{/if}}
+    {{else}}
+      <p class="highlight_yellow_bg">
+        {{#if notifications_not_yet_allowed}}
+          <span>You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.prefs_dialog.start('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.</span>
+        {{/if}}
+        {{#if notifications_not_allowed}}
+          <span>You've disallowed notifications in your browser. You'll need to open your browser preferences to change that.</span>
+        {{/if}}
+        {{#if notifications_impossible}}
+          <span>Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a></span>
+        {{/if}}
+      </p>
+    {{/if}}
+  </div>
+  <div class="channel_push_notifs bottom_margin">
+    <div class="bold subtle_silver mini">Mobile push notifications</div>
+      {{#if push_everything}}Activity of any kind{{/if}}
+      {{#if push_mentions}}Highlight words &amp; @mentions{{/if}}
+      {{#if push_nothing}}Nothing please{{/if}}
+  </div>
+{{/unless}}
+{{#if is_muted}}
+  <div class="bold bottom_margin">
+    This {{> channel_page_channel_conversation_or_group}} is muted
+  </div>
+{{/if}}
+<button class="edit_notif_prefs_btn btn btn_small btn_outline">Edit notification preferences</button>

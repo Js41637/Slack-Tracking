@@ -1,0 +1,29 @@
+<div class="col span_3_of_6 break_all">{{user.name}} ({{#if user.import_email}}{{user.import_email}}{{else}}no email{{/if}})</div>
+<div id="user_{{user.id}}_options" class="user_map_selector col span_3_of_6">
+  <label class="select small">
+    <select name="user_{{user.id}}" class="small user_change">
+      <option value="-" {{#if_equal user.mapping compare="-"}}SELECTED{{/if_equal}}>Choose one:</option>
+      <option value="invite" {{#if_equal user.mapping compare="invite"}}SELECTED{{/if_equal}}>Create & invite user</option>
+      <option value="create" {{#if_equal user.mapping compare="create"}}SELECTED{{/if_equal}}>Create a disabled user, without inviting them</option>
+      <option value="bot" {{#if_equal user.mapping compare="bot"}}SELECTED{{/if_equal}}>Do not create a user, just import messages</option>
+      <option value="0" {{#if_equal user.mapping compare="0"}}SELECTED{{/if_equal}}>Skip user completely, importing no messages</option>
+      <optgroup label="Existing Users">
+        {{#foreach existing_users}}
+          <option value="{{this.value.id}}" {{#if_equal this.value.id compare=../user.mapping}}SELECTED{{/if_equal}}>{{getMemberDisplayNameById this.value.id}}</option>
+        {{/foreach}}
+      </optgroup>
+    </select>
+  </label>
+  <div class="control-group{{#if_equal user.email_state compare="ok"}}{{else}} error{{/if_equal}} small_top_margin">
+    <span class="small_left_margin help-inline dup-email {{#if_equal user.email_state compare="duped"}}{{else}}hidden{{/if_equal}}">
+      <i class="ts_icon ts_icon_warning moscow_red"></i> Another user has this email.
+    </span>
+    <span class="small_left_margin help-inline req-email {{#if_equal user.email_state compare="empty"}}{{else}}hidden{{/if_equal}}">
+      <i class="ts_icon ts_icon_warning moscow_red"></i> An email address is required.
+    </span>
+    <span class="small_left_margin help-inline invalid-email {{#if_equal user.email_state compare="invalid"}}{{else}}hidden{{/if_equal}}">
+      <i class="ts_icon ts_icon_warning moscow_red"></i> This address is invalid.
+    </span>
+    <input type="email" name="email_{{user.id}}" value="{{#if_equal user.email_state compare="empty"}}{{else}}{{user.email}}{{/if_equal}}" placeholder="email@domain.com" class="small {{#unless user.show_input}}hidden{{/unless}}">
+  </div>
+</div>

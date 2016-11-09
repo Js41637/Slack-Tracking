@@ -1,0 +1,34 @@
+<ts-inline-saver class="saving">
+  <span class="saving">
+    <svg class="ts_icon ts_icon_spin ts_icon_spinner">
+      <use xlink:href="/img/starburst.svg#starburst_svg"/>
+    </svg>
+    {{#unless hide_text}}
+      {{#if custom_text}}
+        {{custom_text.saving}}
+      {{else}}
+        Saving &hellip;
+      {{/if}}
+    {{/unless}}
+  </span>
+  <span class="saved">
+    <ts-icon class="ts_icon_check_circle_o"></ts-icon>
+    {{#unless hide_text}}
+      {{#if custom_text}}
+        {{custom_text.saved}}
+      {{else}}
+        Saved!
+      {{/if}}
+    {{/unless}}
+  </span>
+  <span class="failed">
+    <ts-icon class="ts_icon_exclamation_circle"></ts-icon>
+    {{#unless hide_text}}
+      {{#if custom_text}}
+        {{custom_text.failed}}
+      {{else}}
+        Not saved
+      {{/if}}
+    {{/unless}}
+  </span>
+</ts-inline-saver>

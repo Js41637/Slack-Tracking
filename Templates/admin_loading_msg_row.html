@@ -1,0 +1,18 @@
+<tr class="align_top" id="msg_{{id}}">
+  <td class="message_cell">
+    {{message}}
+    <a href="/team/{{user.name}}" class="break_word bold show_on_mobile small_top_margin">
+      <span class="float_left small_right_margin">{{{makeMemberImage user.id 24}}}</span>
+      {{#feature flag="feature_name_tagging_client"}}{{getMemberFullName user}}{{else}}{{getMemberDisplayName user}}{{/feature}}
+    </a>
+  </td>
+  <td class="author_cell hide_on_mobile">
+    <a href="/team/{{user.name}}" class="break_word bold">
+      <span class="float_left small_right_margin">{{{makeMemberImage user.id 24}}}</span>
+      {{#feature flag="feature_name_tagging_client"}}{{getMemberFullName user}}{{else}}{{getMemberDisplayName user}}{{/feature}}
+    </a>
+  </td>
+  <td class="align_right">
+    <ts-icon class="ts_icon_times_circle subtle_silver delete_link ts_tip ts_tip_top" data-id="{{id}}" data-action="delete_msg"><span class="ts_tip_tip">Delete this message</span></ts-icon>
+  </td>
+</tr>

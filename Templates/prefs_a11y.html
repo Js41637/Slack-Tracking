@@ -1,0 +1,27 @@
+<h2>Accessibility</h2>
+
+{{#feature flag="feature_a11y_pref_text_size"}}
+<fieldset class="large_bottom_margin">
+  <legend id="prefs_a11y_font_size">Font Size</legend>
+
+  <label class="radio">
+    <input name="a11y_font_size_select" type="radio" value="normal" data-inline-saver="#prefs_a11y_font_size">
+    Default <span class="normal">size at 100%</span>
+  </label>
+
+  <label class="radio">
+    <input name="a11y_font_size_select" type="radio" value="110" data-inline-saver="#prefs_a11y_font_size">
+    Medium <span class="normal">size at 110%</span>
+  </label>
+
+  <label class="radio">
+    <input name="a11y_font_size_select" type="radio" value="125" data-inline-saver="#prefs_a11y_font_size">
+    Larger <span class="normal">size at 125%</span>
+  </label>
+
+  <label class="radio">
+    <input name="a11y_font_size_select" type="radio" value="150" data-inline-saver="#prefs_a11y_font_size">
+    Largest <span class="normal">size at 150%</span>
+  </label>
+</fieldset>
+{{/feature}}

@@ -1,0 +1,8 @@
+<div class="row clearfix option_row">
+  <div class="col span_6_of_6">
+    <p class="no_bottom_margin position_relative">
+      <label class="validation_count" for="option_{{index}}"></label>
+      <input type="text" class="no_bottom_margin" {{#if value}}value="{{value}}" {{/if}}placeholder="Option (required)" name="option_{{index}}" data-validation="required maxlength=49" data-action="edit_team_profile_update_preview_option" data-target="preview_option"><i class="ts_icon ts_icon_times" data-action="edit_team_profile_remove_option"></i>
+    </p>
+  </div>
+</div>

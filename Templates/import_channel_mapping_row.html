@@ -1,0 +1,15 @@
+<div class="col span_3_of_6 break_all">{{channel.name}}</div>
+<div class="channel_map_selector col span_3_of_6">
+  <label class="select small">
+    <select name="channel_{{channel.id}}" class="small">
+      <option value="create" {{#if_equal channel.mapping compare="create"}}SELECTED{{/if_equal}}>Create new public channel</option>
+      <option value="create_group" {{#if_equal channel.mapping compare="create_group"}}SELECTED{{/if_equal}}>Create new private channel</option>
+      <option value="0" {{#if_equal channel.mapping compare="0"}}SELECTED{{/if_equal}}>Skip channel (don\u2019t import)</option>
+      <optgroup label="Add to existing channel">
+        {{#foreach existing_channels}}
+          <option value="{{this.value.id}}" {{#if_equal this.value.id compare=../channel.mapping}}SELECTED{{/if_equal}}>#{{this.value.name}}</option>
+        {{/foreach}}
+      </optgroup>
+    </select>
+  </label>
+</div>

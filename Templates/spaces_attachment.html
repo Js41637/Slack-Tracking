@@ -1,0 +1,168 @@
+{{! This Template is only used for Posts}}
+
+{{initial_caret_html}}
+<div {{#if real_src}}data-real-src="{{real_src}}"{{/if}} class="inline_attachment{{#unless expand_it}} hidden{{/unless}} {{max_width_class}}" data-attachment-id="{{attachment.id}}">
+  {{#if attachment.pretext}}
+    <div class="attachment_pretext">{{formatMessageAttachmentPart attachment.pretext msg true attachment.mrkdwn_in_hash.pretext}}</div>
+  {{/if}}
+  {{#if has_content}}
+    <div class="inline_attachment_wrapper{{#if is_standalone}} standalone{{/if}}">
+      <div class="attachment_bar" style="background:#{{bg_color}};"><div class="shim"></div></div>
+      <div class="content dynamic_content_max_width">
+
+        {{#if thumb_at_top}}
+          {{#if small_thumb}}
+            <div class="msg_inline_attachment_thumb_holder at_top">
+              {{#if thumb_link}}<a {{makeRefererSafeLink url=thumb_link}} target="{{thumb_link}}">{{/if}}
+              {{!using style for width height is important! we must override default img styles}}
+              <img class="msg_inline_attachment_thumb" src="{{small_thumb_url}}" style="width:{{attachment._floated_thumb_display_width}}px; height:{{attachment._floated_thumb_display_height}}px;">
+              {{#if thumb_link}}</a>{{/if}}
+            </div>
+          {{/if}}
+        {{/if}}
+
+        {{#if can_delete}}
+          <div class="delete_attachment_link" data-attachment-id="{{attachment.id}}"><i class="ts_icon ts_icon_times_small"></i></div>
+        {{/if}}
+
+        <div>
+          {{#if attachment.service_icon}}<img class="attachment_service_icon" src="{{attachment.service_icon}}" width="16" height="16">{{/if}}
+          {{#if attachment.author_icon}}
+            {{#if attachment.author_link}}
+              <a {{makeRefererSafeLink url=attachment.author_link}} target="{{attachment.author_link}}"><img class="attachment_author_icon{{#if attachment._slack_author_id}} member_preview_image{{/if}}" src="{{attachment.author_icon}}" width="16" height="16"{{#if attachment._slack_author_id}} data-member-id="{{attachment._slack_author_id}}"{{/if}}></a>
+              <a {{makeRefererSafeLink url=attachment.author_link}} target="{{attachment.author_link}}"{{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}><span class="attachment_author_name">{{attachment.author_name}}</span></a>
+              <a {{makeRefererSafeLink url=attachment.author_link}} target="{{attachment.author_link}}"{{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}><span class="attachment_author_subname">{{attachment.author_subname}}</span></a>
+            {{else}}
+              <img class="attachment_author_icon" src="{{attachment.author_icon}}" width="16" height="16">
+              <span class="attachment_author_name">{{attachment.author_name}}</span>
+              <span class="attachment_author_subname">{{attachment.author_subname}}</span>
+            {{/if}}
+          {{else}}
+            {{#if attachment.service_url}}
+              <a {{makeRefererSafeLink url=attachment.service_url}} target="{{attachment.service_url}}"><span class="attachment_service_name">{{attachment.service_name}}</span></a>
+            {{else}}
+              <span class="attachment_service_name">{{attachment.service_name}}</span>
+            {{/if}}
+          {{/if}}
+          {{#unless attachment.title}}{{#unless attachment.text}}{{#unless attachment.fields}}{{media_caret_html}}{{/unless}}{{/unless}}{{/unless}}
+        </div>
+
+        {{#unless thumb_at_top}}
+        {{#if small_thumb}}
+          <div class="msg_inline_attachment_thumb_holder">
+            {{#if thumb_link}}<a {{makeRefererSafeLink url=thumb_link}} target="{{thumb_link}}">{{/if}}
+            {{!using style for width height is important! we must override default img styles}}
+            <img class="msg_inline_attachment_thumb" src="{{small_thumb_url}}" style="width:{{attachment._floated_thumb_display_width}}px; height:{{attachment._floated_thumb_display_height}}px;">
+            {{#if thumb_link}}</a>{{/if}}
+          </div>
+        {{/if}}
+        {{/unless}}
+
+        {{#unless attachment.author_icon}}
+          {{#if attachment.author_link}}
+            <a {{makeRefererSafeLink url=attachment.author_link}} target="{{attachment.author_link}}"{{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}><span class="attachment_author_name">{{attachment.author_name}}</span></a>
+            <a {{makeRefererSafeLink url=attachment.author_link}} target="{{attachment.author_link}}"{{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}><span class="attachment_author_subname">{{attachment.author_subname}}</span></a>
+          {{else}}
+            {{#if attachment.author_name}}
+              <span class="attachment_author_name">{{attachment.author_name}}</span>
+              <span class="attachment_author_subname">{{attachment.author_subname}}</span>
+            {{/if}}
+          {{/if}}
+        {{/unless}}
+
+        {{#if attachment.title}}
+          <div>
+            {{#if attachment.title_link}}
+              <span class="attachment_title"><a {{makeRefererSafeLink url=attachment.title_link}} target="{{attachment.title_link}}">{{formatMessageAttachmentPart attachment.title msg true false enable_slack_action_links}}</a></span>
+            {{else}}
+              <span class="attachment_title">{{formatMessageAttachmentPart attachment.title msg true false enable_slack_action_links}}</span>
+            {{/if}}
+            {{#unless attachment.text}}{{#unless attachment.fields}}{{media_caret_html}}{{/unless}}{{/unless}}
+          </div>
+        {{/if}}
+
+        {{#if attachment.text}}
+          {{#feature flag="feature_more_field_in_message_attachments"}}
+            <div class="attachment_contents">
+              {{#if has_more}}
+                {{#if is_text_collapsed}}
+                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
+                {{else}}
+                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
+                {{/if}}
+                <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"{{#if attachment.more_hidetext}} data-hide-text="{{attachment.more_hidetext}}"{{/if}}> <a><br /><span>{{#if attachment.more_showtext}}{{attachment.more_showtext}}{{else}}Show more{{/if}}</span>{{#if attachment.more_hidetext}} <i class="attachment_caret ts_icon ts_icon_caret_right"></i>{{else}}...{{/if}}</a></span>
+                <span class="more_text hidden"><br />{{formatMessageAttachmentPart attachment.more msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
+              {{else}}
+                {{#if is_text_collapsed}}
+                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
+                  <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>Show more...</a></span>
+                {{else}}
+                  {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
+                {{/if}}
+              {{/if}}
+              {{#unless attachment.fields}}{{media_caret_html}}{{/unless}}
+            </div>
+            {{#if attachment.footer}}<div class="attachment_footer">
+              {{formatMessageAttachmentPart attachment.footer msg true attachment.mrkdwn_in_hash.footer enable_slack_action_links}}
+            </div>{{/if}}
+            {{#if attachment.ts}}<div class="attachment_ts">
+              {{#if ts_link}}<a {{makeRefererSafeLink url=ts_link}} target="{{ts_link}}">{{/if}}
+              {{toCalendarDateOrNamedDayShort attachment.ts}} at {{toTime attachment.ts}}
+              {{#if ts_link}}</a>{{/if}}
+            </div>{{/if}}
+          {{else}}
+            <div class="attachment_contents">
+              {{#if is_text_collapsed}}
+                <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
+                <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>Show more...</a></span>
+              {{else}}
+                {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
+              {{/if}}
+              {{#unless attachment.fields}}{{media_caret_html}}{{/unless}}
+            </div>
+            {{#if attachment.footer}}<div class="attachment_footer">
+              {{formatMessageAttachmentPart attachment.footer msg true attachment.mrkdwn_in_hash.footer enable_slack_action_links}}
+            </div>{{/if}}
+            {{#if attachment.ts}}<div class="attachment_ts">
+              {{#if ts_link}}<a {{makeRefererSafeLink url=ts_link}} target="{{ts_link}}">{{/if}}
+              {{toCalendarDateOrNamedDayShort attachment.ts}} at {{toTime attachment.ts}}
+              {{#if ts_link}}</a>{{/if}}
+            </div>{{/if}}
+          {{/feature}}
+        {{/if}}
+
+        {{#if attachment.fields}}
+          <div class="attachment_fields">
+          {{#if show_fields_table}}
+            <table class="" cellpadding="0" cellspacing="0" border="0" align="left"><tbody>
+            {{#foreach attachment.fields}}
+              {{#if this.value._new_row}}<tr>{{/if}}
+              <td valign="top" colspan="{{#if this.value.short}}1{{else}}2{{/if}}" {{#if this.value.short}}{{#if this.value._new_row}}width="250"{{/if}}{{/if}}>
+                <div class="attachment_field_title no_jumbomoji">{{formatMessageAttachmentPart this.value.title msg false false}}</div>
+                <i class="copy_only">----------------<br></i>
+                <div class="attachment_field_value no_jumbomoji {{#if this.value.short}}short{{/if}}">{{formatMessageAttachmentPart this.value.value msg true ../attachment.mrkdwn_in_hash.fields ../enable_slack_action_links}}<i class="copy_only"><br><br></i></div>
+              </td>
+            {{/foreach}}
+            </tbody></table>
+          {{else}}
+            {{#foreach long_fields}}
+              <span class="attachment_field_title no_jumbomoji">{{formatMessageAttachmentPart this.value.title msg false false}}</span>&nbsp;&nbsp;&nbsp;{{formatMessageAttachmentPart this.value.value msg true ../attachment.mrkdwn_in_hash.fields}}<br>
+            {{/foreach}}
+            {{#foreach short_fields}}
+              {{#unless this.first}}&nbsp;&nbsp;\u2022&nbsp;&nbsp;{{/unless}}<span class="attachment_field_title no_jumbomoji">{{formatMessageAttachmentPart this.value.title msg false false}}</span>&nbsp;&nbsp;&nbsp;{{formatMessageAttachmentPart this.value.value msg true ../attachment.mrkdwn_in_hash.fields ../enable_slack_action_links}}
+            {{/foreach}}
+          {{/if}}
+          </div>
+          {{media_caret_html}}
+        {{/if}}
+
+        {{renderAttachmentMedia attachment msg_dom_id}}
+
+        {{#if show_action_links}}
+          <div class="attachment_actions">{{> attachment_actions attachment=attachment enable_slack_action_links=enable_slack_action_links}}</div>
+        {{/if}}
+      </div>
+    </div>
+  {{/if}}
+</div>
+{{#if show_fallback}}<div class="attachment_fallback">{{#if attachment.fallback}}{{formatMessageAttachmentPart attachment.fallback msg true attachment.mrkdwn_in_hash.fallback enable_slack_action_links}}{{else}}NO FALLBACK PROVIDED{{/if}}</div>{{/if}}

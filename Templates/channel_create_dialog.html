@@ -1,0 +1,57 @@
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    {{#if is_edit}}
+      <h3>Rename this channel</h3>
+    {{else}}
+      <h3 class="create_header">Create a channel</h3>
+    {{/if}}
+  </div>
+  <div class="modal-body">
+    {{#unless is_edit}}
+      <p class="no_bottom_margin"><strong>This will create a new public channel that anyone on your team can join.</strong></p>
+      {{#unless hide_private_group_option}}
+        <p class="mini">If you need this conversation to be private, you should <a onclick="TS.ui.channel_create_dialog.switchToGroup();" class="bold">create a new private channel instead</a>.</p>
+      {{/unless}}
+    {{/unless}}
+    <p class="top_margin">
+      <label for="channel_create_title" class="inline_block">Name</label>
+      <input id="channel_create_title" name="title_input" type="text" class="small title_input {{#isWeb}}no_bottom_margin{{/isWeb}}" value="{{title}}" maxlength="{{ChannelNameMaxLength}}" />
+      <span class="{{#isWeb}}input_note{{else}}modal_input_note{{/isWeb}}">
+        Names should be lowercase, with no spaces.
+      </span>
+      <span class="{{#isWeb}}input_note{{else}}modal_input_note alert{{/isWeb}} hidden name_taken_warning">
+        <i class="ts_icon ts_icon_warning"></i>
+        That name has been taken. Try something different.
+      </span>
+      <span class="{{#isWeb}}input_note{{else}}modal_input_note alert{{/isWeb}} hidden invalid_chars_warning">
+        <i class="ts_icon ts_icon_warning"></i>
+        You entered some disallowed characters in the name, which we've fixed. Make sure it looks good to you, and try again!
+      </span>
+      <span class="{{#isWeb}}input_note{{else}}modal_input_note alert{{/isWeb}} hidden single_punctuation_warning">
+        <i class="ts_icon ts_icon_warning"></i>
+        Sorry! Names cannot be a single hyphen or underscore.
+      </span>
+    </p>
+    {{#unless is_edit}}
+      <p>
+        <label for="channel_purpose_input" class="inline_block">
+          Purpose{{#isClient}}<br />{{/isClient}}
+          <span class="normal">(optional)</span>
+        </label>
+        <textarea id="channel_purpose_input" name="channel_purpose_input" {{#isWeb}}class="no_bottom_margin"{{/isWeb}} type="text" style="height: 4.5rem;" maxlength="{{ChannelPurposeMaxLength}}">{{purpose}}</textarea>
+        <span class="{{#isWeb}}input_note{{else}}modal_input_note{{/isWeb}}">What\u2019s this channel about?</span>
+      </p>
+    {{/unless}}
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn_outline dialog_cancel">Cancel</a>
+    {{#if is_edit}}
+      {{#if is_group}}
+        <button class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Rename Private Channel</span></button>
+      {{else}}
+        <button class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Rename Channel</span></button>
+      {{/if}}
+    {{else}}
+      <button class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Create Channel</span></button>
+    {{/if}}
+  </div>

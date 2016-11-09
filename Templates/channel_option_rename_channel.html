@@ -1,0 +1,19 @@
+<p class="top_margin">
+  <label for="channel_create_title" class="">Name</label>
+  <input id="channel_create_title" name="title_input" type="text" class="small title_input {{#isWeb}}no_bottom_margin{{/isWeb}}" value="{{title}}" maxlength="{{ChannelNameMaxLength}}" />
+  <span class="{{#isWeb}}input_note{{else}}modal_input_note{{/isWeb}}">
+    Names should be lowercase, with no spaces.
+  </span>
+  <span class="{{#isWeb}}input_note{{else}}modal_input_note alert{{/isWeb}} hidden name_taken_warning">
+    <i class="ts_icon ts_icon_warning"></i>
+    That name has been taken. Try something different.
+  </span>
+  <span class="{{#isWeb}}input_note{{else}}modal_input_note alert{{/isWeb}} hidden invalid_chars_warning">
+    <i class="ts_icon ts_icon_warning"></i>
+    You entered some disallowed characters in the name, which we've fixed. Make sure it looks good to you, and try again!
+  </span>
+  <span class="{{#isWeb}}input_note{{else}}modal_input_note alert{{/isWeb}} hidden single_punctuation_warning">
+    <i class="ts_icon ts_icon_warning"></i>
+    Sorry! Names cannot be a single hyphen or underscore.
+  </span>
+</p>

@@ -1,0 +1,75 @@
+  <div class="admin_list_item active member_item invite_item {{#if invite.is_pending}}pending{{/if}} {{#if invite.bouncing}}bouncing{{/if}}" id="row_{{invite.id}}" data-invite-id="{{invite.id}}">
+
+
+    {{#if member}}
+      {{{makeMemberPreviewLinkImage member.id 36}}}
+    {{/if}}
+
+    {{#feature flag="feature_name_tagging_client"}}
+      {{#if member}}
+        <a href="/team/{{member.id}}" class="admin_member_full_name">{{getMemberFullName member}}</a><br />
+      {{/if}}
+      {{#if display_invite_name}}
+        <span class="admin_member_full_name">{{invite.full_name}}</span><br />
+      {{/if}}
+
+      <span class="admin_member_preferred_name_and_email">
+        {{#if member}}
+          {{#if member.profile.preferred_name}}
+            <span class="indifferent_grey">{{getMemberPreferredName member}}</span> <span class="bullet">\u2022</span>
+          {{/if}}
+        {{/if}}
+        {{#if invite}}
+          {{#if invite.type}}
+            {{invite_type_label}} <span class="bullet">\u2022</span>
+          {{/if}}
+        {{/if}}
+        <span class="email">{{invite.email}}</span>
+        {{#if invite.bouncing}}<span class="bullet">\u2022</span> email address bounced{{/if}}
+      </span>
+    {{else}}
+      {{#if member}}
+        {{#if member.profile.real_name}}
+          <span class="admin_member_real_name">{{member.profile.real_name}}</span><br />
+        {{/if}}
+      {{/if}}
+      
+      {{#if display_invite_name}}
+        <span class="admin_member_real_name">{{invite.first_name}} {{invite.last_name}}</span><br />
+      {{/if}}
+
+      <span class="admin_member_username_and_email">
+        {{#if member}}
+          <a href="/team/{{member.name}}" class="indifferent_grey">@{{member.name}}</a> <span class="bullet">\u2022</span> 
+        {{/if}}
+        {{#if invite}}
+          {{#if invite.type}}
+            {{invite_type_label}} <span class="bullet">\u2022</span>
+          {{/if}}
+        {{/if}}
+        <span class="email">{{invite.email}}</span>
+        {{#if invite.bouncing}}<span class="bullet">\u2022</span> email address bounced{{/if}}
+      </span>
+    {{/feature}}
+    <span class="admin_invite_sent_date">
+      {{#if invite.is_pending}}
+        {{#if_equal invite.date_resent compare="0"}}
+          Invited {{toCalendarDateOrNamedDayShort invite.date_create}}{{#if invite.inviter}}<br>by {{inviter_link}}{{/if}}
+        {{else}}
+          Resent {{toCalendarDateOrNamedDayShort invite.date_resent}}{{#if invite.inviter}}<br>Invited by {{inviter_link}}{{/if}}
+        {{/if_equal}}
+      {{else}}
+        Joined {{toCalendarDateOrNamedDayShort invite.date_create}}{{#if invite.inviter}}<br>Invited by {{inviter_link}}{{/if}}
+      {{/if}}
+    </span>
+    
+    {{#if invite.is_pending}}
+      <i class="admin_member_caret ts_icon ts_icon_caret_right"></i>
+      <i class="admin_member_caret ts_icon ts_icon_caret_down"></i>
+
+      <div class="member_actions">
+        <a href="/admin/invites?revoke={{invite.id}}&{{crumb_key}}" class="btn btn_outline btn_small">Revoke Invitation</a>
+        <a href="/admin/invites?resend={{invite.id}}&{{crumb_key}}" class="btn btn_outline btn_small">Resend Invitation</a>
+      </div>
+    {{/if}}
+  </div>

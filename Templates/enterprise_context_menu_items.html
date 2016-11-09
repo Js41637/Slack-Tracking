@@ -1,0 +1,9 @@
+<ul id="menu_items">
+{{#each menu_items}}
+  <li role="menuitem" data-context-menu-item="{{@index}}" {{#if class_list}}class="{{class_list}}"{{/if}}>
+    <a>
+    {{dangerouslyRenderHTML label}}
+    </a>
+  </li>
+{{/each}}
+</ul>

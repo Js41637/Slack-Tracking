@@ -1,0 +1,35 @@
+{{i18n_ns "help"}}
+
+{{#if settings.is_old_tickets}}
+<p id="no_open_issues">
+  {{#t}}No pending requests.{{/t}} <a data-clog-click="true" data-clog-event="HELP_MODAL_ACTION" data-clog-params="action=view_request_history,trigger=click_view_request_history" href="/help" target="{{newWindowName}}" class="bold">{{#t}}View your help request history{{/t}}</a>.
+</p>
+{{/if}}
+
+{{#if settings.is_unread}}
+<p id="unread_issues">
+  {{#if settings.is_unread_many}}
+  <span id="unread_issues_many">
+    <a data-clog-click="true" data-clog-event="HELP_MODAL_ACTION" data-clog-params="action=view_new_replies,trigger=click_view_new_replies" href="/help" target="{{newWindowName}}" class="bold"><span class="badge candy_red_bg" id="unread_issues_count_txt">{{settings.unread_count}}</span>{{#t}}You have new replies to your help requests.{{/t}}</a>
+  </span>
+  {{else}}
+  <span id="unread_issues_singular">
+        <a data-clog-click="true" data-clog-event="HELP_MODAL_ACTION" data-clog-params="action=view_new_replies,trigger=click_view_new_replies" href="/help" target="{{newWindowName}}" class="bold"><span class="badge candy_red_bg">1</span>{{#t}}You have a new reply to your help request.{{/t}}</a>
+  </span>
+  {{/if}}
+</p>
+{{/if}}
+
+{{#if settings.is_open}}
+<p id="open_issues" class="bottom_margin">
+  {{#if settings.is_open_many}}
+  <span id="open_issues_many">
+    <a data-clog-click="true" data-clog-event="HELP_MODAL_ACTION" data-clog-params="action=view_open_requests,trigger=click_view_open_requests" href="/help" target="{{newWindowName}}" class="bold"><span class="badge seafoam_green_bg" id="open_issues_count_txt">{{settings.open_count}}</span>{{#t}}You have open help requests.{{/t}}</a>
+  </span>
+  {{else}}
+  <span id="open_issues_singular">
+    <a data-clog-click="true" data-clog-event="HELP_MODAL_ACTION" data-clog-params="action=view_open_requests,trigger=click_view_open_requests" href="/help" target="{{newWindowName}}" class="bold"><span class="badge seafoam_green_bg">1</span>{{#t}}You have an open help request.{{/t}}</a>
+  </span>
+  {{/if}}
+</p>
+{{/if}}

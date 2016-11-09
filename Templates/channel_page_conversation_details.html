@@ -1,0 +1,45 @@
+<div class="member_info display_flex">
+  <div class="cursor_pointer flex_none" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">{{{makeMemberPreviewLinkImage member.id 72 false true}}}</div>
+  <div class="display_flex flex_direction_column justify_content_center no_min_width">
+    {{#feature flag="feature_name_tagging_client"}}
+      <div class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
+        {{#if member.is_slackbot}}Slackbot{{else}}{{getMemberFullName member}}{{/if}}
+      </div>
+      <div class="block overflow_ellipsis">
+        <span class="member_preferred_name mini">{{getMemberPreferredName member}}</span>
+        {{{makeMemberPresenceIcon member}}}
+        <span class="timezone_label mini cloud_silver" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</span>
+      </div>
+    {{else}}
+      {{#if member.profile.real_name}}
+        <div class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
+          {{#if member.is_slackbot}}Slackbot{{else}}{{member.profile.real_name}}{{/if}}
+        </div>
+        <div class="block overflow_ellipsis">
+          <span class="member_username mini">@{{member.name}}</span>
+          {{{makeMemberPresenceIcon member}}}
+          <span class="timezone_label mini cloud_silver" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</span>
+        </div>
+      {{else}}
+        <div>
+          <span class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
+            {{member.name}}
+          </span>
+          {{{makeMemberPresenceIcon member}}}
+        </div>
+        <div class="timezone_label mini cloud_silver" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</div>
+      {{/if}}
+    {{/feature}}
+    <div class="member_title mini">
+      {{#if member.is_slackbot}}
+        {{#slackbotHelpEnabled}}
+          Friendly bot, part-time programmer, and <a href="https://get.slack.help/hc/en-us" target="{{newWindowName}}">Help Center</a> assistant-in-training.
+        {{else}}
+          Friendly bot, private note-keeper, part-time programmer, full-time assistant.
+        {{/slackbotHelpEnabled}}
+      {{else}}{{member.profile.title}}
+      {{/if}}
+    </div>
+  </div>
+  <div class="clearfix"></div>
+</div>

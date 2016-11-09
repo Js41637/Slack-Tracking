@@ -1,0 +1,16 @@
+{{#unless show_user_groups_enable}}
+  {{#if show_user_groups_edit}}
+    <li data-action="edit_info" role="menuitem"><a>Edit group info</a></li>
+    <li data-action="edit_members" role="menuitem"><a>Edit members</a></li>
+  {{/if}}
+  {{#if show_user_groups_disable}}
+    <li data-action="disable" role="menuitem"><a>Disable</a></li>
+    {{#if show_user_group_delete}}
+      <li class="divider"></li>
+      <li data-action="delete" class="danger" role="menuitem"><a>Delete</a></li>
+    {{/if}}
+  {{/if}}
+{{/unless}}
+{{#if show_user_groups_enable}}
+  <li data-action="enable" role="menuitem"><a>Enable</a></li>
+{{/if}}

@@ -1,0 +1,30 @@
+<li data-filetype="all" {{#if_equal active_type compare='all'}}class="active"{{/if_equal}} role="menuitem">
+  <a><i class="ts_icon ts_icon_all_files_alt"></i> All File Types</a>
+</li>
+<li data-filetype="spaces" {{#if_equal active_type compare='spaces'}}class="active"{{/if_equal}} role="menuitem">
+  <a><i class="ts_icon ts_icon_create_post"></i> Posts</a>
+</li>
+
+{{#feature flag="feature_multnomah"}}
+  <li data-filetype="multnomah" {{#if_equal active_type compare='multnomah'}}class="active"{{/if_equal}} role="menuitem">
+    <a><i class="ts_icon ts_icon_create_post"></i> Multnomah</a>
+  </li>
+{{/feature}}
+
+<li data-filetype="snippets" {{#if_equal active_type compare='snippets'}}class="active"{{/if_equal}} role="menuitem">
+  <a><i class="ts_icon ts_icon_create_snippet"></i> Snippets</a>
+</li>
+{{#if show_email_item}}
+  <li data-filetype="emails" {{#if_equal active_type compare='emails'}}class="active"{{/if_equal}} role="menuitem">
+    <a><i class="ts_icon ts_icon_share_email"></i> Emails</a>
+  </li>
+{{/if}}
+<li data-filetype="images" {{#if_equal active_type compare='images'}}class="active"{{/if_equal}} role="menuitem">
+  <a><i class="ts_icon ts_icon_image"></i> Images</a>
+</li>
+<li data-filetype="pdfs" {{#if_equal active_type compare='pdfs'}}class="active"{{/if_equal}} role="menuitem">
+  <a><i class="ts_icon ts_icon_book"></i> PDF Files</a>
+</li>
+<li data-filetype="gdocs" {{#if_equal active_type compare='gdocs'}}class="active"{{/if_equal}} role="menuitem">
+  <a><i class="ts_icon ts_icon_google_drive"></i> Google Docs</a>
+</li>

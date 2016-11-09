@@ -1,0 +1,27 @@
+<div id="user_groups_header" class="clearfix">
+  <h1>{{#if is_new}}Invite team members to {{user_group.name}}{{else}}Edit members of {{user_group.name}}{{/if}}</h1>
+</div>
+
+<form class="user_group_members_form">
+
+  {{#if user_group.is_external}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i> The members of this User Group are managed by an external service. Use that service if you wish to edit this list.</p>
+  {{/if}}
+
+  {{#if user_group.auto_type}}
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i> This User Group is automatically generated for team {{user_group.auto_type}}s.</p>
+  {{/if}}
+
+  <p id="user_group_member_invite_div">
+    <label for="members">Send invites to: <span class="subtle_silver normal">(optional)</span></label>
+    <select class="hidden" multiple="true" id="user_group_members_select" name="members[]"></select>
+    {{#unless is_locked}}<span class="input_note">You can also <a href="https://slack.zendesk.com/hc/en-us/articles/212572638" target="_blank">import members from Active Directory using provisioning</a>.</span>{{/unless}}
+  </p>
+
+  {{#if is_locked}}
+    <button type="reset" class="btn btn_large btn_outline float_right small_right_margin ladda-button"><span class="ladda-label">Ok</span></button>
+  {{else}}
+    <button type="submit" id="{{#if is_new}}create_group{{else}}save_group{{/if}}" class="btn btn_large float_right ladda-button"><span class="ladda-label">{{#if is_new}}Invite{{else}}Save{{/if}}</span></button>
+    <button type="reset" class="btn btn_large btn_outline float_right small_right_margin ladda-button"><span class="ladda-label">Cancel</span></button>
+  {{/if}}
+</form>

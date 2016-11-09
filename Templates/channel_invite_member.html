@@ -1,0 +1,43 @@
+<div class="channel_invite_member">
+  <i class="add_icon ts_icon ts_icon_plus_circle ts_icon_inherit float_right not_in_token"></i>
+  {{makeMemberPreviewLinkImage member.id 36 false true}}
+  <div class="name_container overflow_ellipsis">
+    {{#feature flag="feature_name_tagging_client"}}
+      <div class="bold {{#unless member.profile.preferred_name}}{{#unless member.profile.title}}vertically_center_full_name{{/unless}}{{/unless}}">
+        {{getMemberFullName member}}
+        <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
+      </div>
+      {{#if member.profile.preferred_name}}
+        <div class="subtle_silver not_in_token">
+          {{getMemberPreferredName member}}
+          {{~#if member.profile.title}}{{#if member.profile.preferred_name}},{{/if}} {{member.profile.title}}{{/if}}
+        </div>
+      {{else}}
+        <div class="subtle_silver not_in_token">
+          {{#if member.profile.title}}
+            {{#if member.profile.preferred_name}},{{/if}} {{member.profile.title}}
+          {{/if}}
+        </div>
+      {{/if}}
+    {{else}}
+      {{#if member.profile.real_name}}
+        <div class="bold">
+          {{member.profile.real_name}}
+          <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
+        </div>
+        <div class="subtle_silver not_in_token">
+          @{{member.name~}}
+          {{~#if member.profile.title}}, {{member.profile.title}}{{/if}}
+        </div>
+      {{else}}
+        <div class="bold">
+          {{member.name}}
+          <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
+        </div>
+        {{#if member.profile.title}}
+          <div class="subtle_silver not_in_token">{{member.profile.title}}</div>
+        {{/if}}
+      {{/if}}
+    {{/feature}}
+  </div>
+</div>

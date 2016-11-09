@@ -1,0 +1,87 @@
+<div class="row clearfix">
+  <div class="col span_6_of_6 no_bottom_margin">
+    <div class="profile_field_preview_protector small_bottom_margin">
+      <div class="profile_field_preview">
+        <p class="no_bottom_margin">
+          <label data-id="preview_label"{{#if_equal type compare="options_list"}} class="no_bottom_margin"{{/if_equal}}>{{#if label}}{{label}}{{else}}Label{{/if}}</label>
+          {{#if_equal type compare="text"}}
+            <input type="text" class="no_bottom_margin" disabled>
+          {{/if_equal}}
+          {{#if_equal type compare="options_list"}}
+            <label class="select no_bottom_margin with_hint">
+              <select class="no_bottom_margin" disabled>
+                <option selected data-id="preview_option">Select &hellip;</option>
+              </select>
+            </label>
+          {{/if_equal}}
+          {{#if_equal type compare="date"}}
+            <input type="text" class="no_bottom_margin ts_icon_placeholder" placeholder="&#xe023;" disabled>
+          {{/if_equal}}
+          {{#if_equal type compare="link"}}
+            <input type="text" class="no_bottom_margin" disabled>
+          {{/if_equal}}
+          {{#if_equal type compare="user"}}
+            <span class="edit_team_profile_lazy_filter_select align_left"></span>
+          {{/if_equal}}
+          <span class="input_note" data-id="preview_hint">{{#if hint}}{{hint}}{{else}}Hint text{{/if}}</span>
+        </p>
+        <span class="profile_field_preview_ribbon cloud_silver_bg neutral_white"><strong class="uppercase">Preview</strong></span>
+      </div>
+    </div>
+    <p class="yolk_orange align_center no_bottom_margin small">This is only a preview of the field. Use the form below to edit it.</p>
+  </div>
+</div>
+<div class="row clearfix">
+  <div class="col span_6_of_6">
+    <p class="no_bottom_margin">
+      <label for="label">Label</label>
+      <input type="text" class="no_bottom_margin" placeholder="Label (required)" value="{{#if label}}{{label}}{{/if}}" name="label" data-validation="required maxlength=19" data-action="edit_team_profile_update_preview_label" data-target="preview_label" data-default="Label">
+      <span class="input_note">Enter a label for this field.</span>
+    </p>
+  </div>
+</div>
+<div class="row clearfix">
+  <div class="col span_6_of_6">
+    <p class="no_bottom_margin">
+      <label for="hint">Hint</label>
+      <input type="text" class="no_bottom_margin" placeholder="Hint text" value="{{#if hint}}{{hint}}{{/if}}" name="hint" data-validation="maxlength=78" data-action="edit_team_profile_update_preview_hint" data-target="preview_hint" data-default="Hint text">
+      <span class="input_note">Enter a hint for this field.</span>
+    </p>
+  </div>
+</div>
+{{#if_equal type compare="options_list"}}
+  <div class="row clearfix option_header_row">
+    <div class="col span_6_of_6 no_bottom_margin">
+      <p class="no_bottom_margin">
+        <label class="no_bottom_margin">Options</label>
+        <span class="input_note">Enter the options that will be available to choose from.</span>
+      </p>
+    </div>
+  </div>
+
+  <div id="option_rows">
+    {{#if possible_values}}
+      {{#each possible_values}}
+        {{> admin_edit_team_profile_option_row value=this index=@index}}
+      {{/each}}
+    {{else}}
+      {{> admin_edit_team_profile_option_row index=0}}
+      {{> admin_edit_team_profile_option_row index=1}}
+    {{/if}}
+  </div>
+  <div class="row clearfix">
+    <div class="col span_6_of_6">
+      <p class="no_bottom_margin small">
+        <a class="input_note sky_blue" data-action="edit_team_profile_add_option">Add another option.</a>
+        <span class="input_note hidden">You have reached the maximum number of options.</span>
+      </p>
+    </div>
+  </div>
+{{/if_equal}}
+<p class="clearfix bottom_margin large_top_margin display_flex justify_content_end flex_wrap">
+  <button id="edit_team_profile_cancel_edit_btn" class="col btn btn_large btn_outline" data-action="edit_team_profile_cancel">Cancel</button>
+  <button id="edit_team_profile_confirm_edit_btn" type="submit" class="col btn btn_large ladda-button disabled" data-style="expand-right" data-action="edit_team_profile_confirm_edit"{{#if id}} data-id="{{id}}"{{/if}} data-type="{{type}}">{{#if id}}Save{{else}}Create{{/if}}</button>
+</p>
+{{#unless is_hidden}}{{#if id}}
+  <p class="align_right small">You can also just <a data-action="edit_team_profile_to_hide" data-id="{{id}}">disable this field.</a></p>
+{{/if}}{{/unless}}

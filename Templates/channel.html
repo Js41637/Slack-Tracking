@@ -1,0 +1,26 @@
+  <li class="{{makeChannelDomId model_ob}} channel {{makeChannelDomClass model_ob}}">
+    {{makeModelObHotnessIconSafe model_ob}}
+    {{makeModelObPriorityIconSafe model_ob}}
+    {{#if show_starred}}{{makeModelObStarredIconSafe model_ob}}{{/if}}
+    {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
+    <a href="/archives/{{model_ob.name}}" target="{{newWindowName}}" class="channel_name" data-channel-id="{{model_ob.id}}" aria-label="{{{makeChannelLinkAriaLabelSafe model_ob}}}">
+      {{#if model_ob.is_archived}}
+        {{> ts_icon class="ts_icon_archived_channel prefix"}}
+      {{else}}
+        {{> ts_icon class="ts_icon_channel_pane_hash prefix"}}
+      {{/if}}
+      <span class="{{makeUnreadMsgsDomId model_ob}} unread_msgs {{#if_equal model_ob.unread_cnt compare=0}}hidden{{/if_equal}}">
+        {{numberWithMax model_ob.unread_cnt 10}}
+      </span>
+      <span class="{{makeUnreadHighlightDomId model_ob}} unread_highlights {{#if_equal model_ob.unread_highlight_cnt compare=0}}hidden{{/if_equal}}">
+        {{numberWithMax model_ob.unread_highlight_cnt 10}}
+      </span>
+      <span class="display_flex">
+        <span class="overflow_ellipsis">
+          {{model_ob.name}}
+        </span>
+
+        {{#pageNeedsEnterprise}}{{#if model_ob.is_shared}}<ts-icon class="ts_icon_shared_channel"></ts-icon>{{/if}}{{/pageNeedsEnterprise}}
+      </span>
+    </a>
+  </li>

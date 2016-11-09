@@ -1,0 +1,276 @@
+<div id="prefs_notifications" class="section_rollup">
+
+  <h2 class="section_rollup_header"><ts-icon class="ts_icon_bell_o candy_red small_right_margin"></ts-icon>Notification Settings</h2>
+  <p class="section_rollup_summary"></p>
+  <div class="section_rollup_details">
+
+    <div class="growls_stuff" id="growls_permission_div">
+      <h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
+      <p>We strongly recommend enabling notifications so that you'll know when important activity happens on your Slack team.</p>
+      <p><a class="btn btn_success" id="growls_permission_link"><ts-icon class="ts_icon_bell ts_icon_inherit small_right_margin"></ts-icon>Enable desktop notifications</a></p>
+    </div>
+    <div class="growls_stuff" id="growls_instructions_div">
+      <h4 class="desktop_notifications_title">Desktop Notifications</h4>
+      <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>Click <strong>Allow</strong> in your browser's pop-up to enable notifications.</p>
+    </div>
+    <div class="growls_stuff" id="growls_disallowed_div">
+      <h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
+      <p class="alert alert_warning"><i class="ts_icon ts_icon_warning"></i>You've disallowed notifications in your browser. You'll need to open your browser preferences to change that.</p>
+    </div>
+    <div class="growls_stuff" id="growls_impossible_div">
+      <h4 class="desktop_notifications_title">Desktop Notifications are currently disabled</h4>
+      <p><ts-icon class="ts_icon_exclamation_triangle"></ts-icon>Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps</a></p>
+    </div>
+
+    <div class="growls_stuff" id="growls_allowed_div">
+      <h4 class="desktop_notifications_title inline_block" id="prefs_send_notifications_for">Send notifications for:</h4>
+      <p>
+        <label class="radio">
+          <input name="notifications_rd" type="radio" value="all" data-inline-saver="#prefs_send_notifications_for">
+          All activity
+        </label>
+        <label class="radio">
+          <input name="notifications_rd" type="radio" value="mentions" data-inline-saver="#prefs_send_notifications_for">
+          Only direct messages and highlight words <span class="normal subtle_silver left_margin">Recommended</span>
+        </label>
+        <label class="radio">
+          <input name="notifications_rd" type="radio" value="never" data-inline-saver="#prefs_send_notifications_for">
+          Nothing <span class="normal subtle_silver left_margin">Desktop notifications off</span>
+        </label>
+      </p>
+      <p id="no_non_default" class="subtle_silver">You can override your desktop notification preference on a channel-by-channel basis by selecting <em>Channel notification preferences</em> in the channel menu. Or, <a href="/account/notifications" target="{{newWindowName}}">set preferences for email and mobile notifications</a>.</p>
+      <p class="non_default subtle_silver">Some of your channels have <strong id="non_default_tip_link" class="cursor_pointer">different notification settings</strong>. You can also <a href="/account/notifications" target="{{newWindowName}}">set preferences for email and mobile notifications</a>.</p>
+    </div>
+
+    <h4 class="large_top_margin inline_block" id="prefs_sounds">Sounds</h4>
+    <p class="clearfix">
+      {{#foreach notification_sounds}}
+        <label class="radio sound_option">
+          <input name="sound_option_rd" type="radio" value="{{value.value}}" data-inline-saver="#prefs_sounds">
+          {{value.label}}
+          {{#if_not_equal value.value compare="none"}}<ts-icon class="ts_icon_volume_up ts_icon_inherit"></ts-icon>{{/if_not_equal}}
+        </label>
+      {{/foreach}}
+    </p>
+    <p>
+      <label class="checkbox">
+        <input id="mute_sounds_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_mute_all_sounds_label">
+        <span id="prefs_mute_all_sounds_label">Mute all sounds</span><br>
+        <span class="normal subtle_silver">Includes system alerts and notifications for messages</span>
+      </label>
+    </p>
+
+    <h4 class="large_top_margin">Notification Display</h4>
+    <p>
+      <label class="checkbox">
+        <input id="no_text_in_notifications_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_show_message_text_label">
+        <span id="prefs_show_message_text_label">Show message text in notifications</span><br>
+        <span class="normal subtle_silver">Uncheck for additional privacy</span>
+      </label>
+    </p>
+
+    {{#if show_mac_ssb_prefs}}
+      <h4 id="prefs_dock_icon" class="large_top_margin inline_block">Dock App Icon</h4>
+      <p>
+        <label class="checkbox">
+          <input id="mac_ssb_bullet_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_dock_icon">
+          Show <img src="{{versioned_mac_dock_badge}}" class="prefs_mac_dock_badge"> symbol on icon to indicate unread activity
+        </label>
+        <label class="checkbox">
+          <input id="mac_ssb_bounce_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_dock_icon">
+          Bounce dock icon when showing a notification
+        </label>
+        <label class="checkbox large_left_margin">
+          <input id="mac_ssb_bounce_short_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_dock_icon">
+          Bounce it just once
+        </label>
+      </p>
+    {{/if}}
+
+    {{#if show_win_ssb_prefs}}
+      <h4 id="winssb_notify_prefs_heading" class="large_top_margin small_bottom_margin inline_block">App Notification Settings</h4>
+      <p id="winssb_flash_window_heading" class="small_bottom_margin">Flash window when a notification is received</p>
+      <p id="winssb_flash_window_choices">
+        <label class="radio">
+          <input name="winssb_flash_window_rd" type="radio" value="never" data-inline-saver="#winssb_notify_prefs_heading">
+          Never
+        </label>
+        <label class="radio">
+          <input name="winssb_flash_window_rd" type="radio" value="idle" data-inline-saver="#winssb_notify_prefs_heading">
+          When left idle <span class='normal'>(inactive for at least 10 seconds)</span>
+        </label>
+        <label class="radio">
+          <input name="winssb_flash_window_rd" type="radio" value="always" data-inline-saver="#winssb_notify_prefs_heading">
+          Always
+        </label>
+      </p>
+
+      <p id="winssb_notify_position">
+        <label class="select small col span_1_of_2 no_right_padding">
+          Display notifications on the 
+          <select id="winssb_notify_corner" class="small" data-inline-saver="#winssb_notify_prefs_heading">
+            <option value="bottom_right">bottom-right</option>
+            <option value="top_right">top-right</option>
+            <option value="top_left">top-left</option>
+            <option value="bottom_left">bottom-left</option>
+          </select>
+        </label>
+        <label class="select small col span_1_of_2 no_right_padding" data-inline-saver="#winssb_notify_prefs_heading">
+          corner of the
+          <select id="winssb_notify_display" class="small">
+            <option value="same_as_app">same display as app</option>
+            <option value="primary">primary display</option>
+          </select>
+        </label>
+      </p>
+    {{/if}}
+
+    <p><button id="growls_test" class="btn btn_outline"><i class="ts_icon ts_icon_bell_o"></i> Send test notification</button></p>
+
+    <h4 id="prefs_highlight_words" class="large_top_margin inline_block">Highlight Words</h4>
+    <label class="normal">
+      To be notified when someone mentions a word or phrase, add it here. You can separate words or phrases with commas. Highlight words are not case sensitive.
+      <input id="highlight_words_input" type="text" data-inline-saver="#prefs_highlight_words" class="small full_width small_top_margin" {{#feature flag="feature_name_tagging_client"}}{{else}}placeholder='{{#if team_prefs.require_at_for_mention}}Include "{{member.name}}" to be notified when you are mentioned without the @{{else}}Your screen name "{{member.name}}" is automatically a Highlight Word{{/if}}'{{/feature}} value="{{highlight_words}}">
+    </label>
+
+  </div>    
+</div>
+
+<div id="prefs_dnd" class="section_rollup {{#unless has_tz}}tz_not_set{{/unless}}">
+
+  <h2 class="do_not_disturb_header section_rollup_header"><ts-icon class="ts_icon_snooze_outline clear_blue small_right_margin"></ts-icon>Do Not Disturb</h2>
+  <p class="section_rollup_summary"></p>
+
+  <div class="section_rollup_details">
+    
+    <p>When Do Not Disturb is activated, Slack won't send desktop, mobile, or email notifications. You can manually snooze notifications by clicking the <i class="ts_icon ts_icon_bell_o ts_icon_inherit"></i> icon by your name.</p>
+
+    {{#unless has_tz}}
+      <p class="alert alert_warning missing_tz_alert">
+        <i class="ts_icon ts_icon_warning"></i>It looks like we've never confirmed your time zone before. We need to do that before turning on Do Not Disturb.
+        {{#if tz_guess}}
+          Is this correct?
+          <br><strong>{{tz_guess}}</strong>
+          <br>
+          <button id="confirm_dnd_tz_guess" class="btn btn_small small_right_margin">Yes</button>
+          <a href='/account/settings#timezone' target={{newWindowName}}>Choose a different time zone</a>
+        {{else}}
+          <a href='/account/settings#timezone' target={{newWindowName}}>Set your timezone</a>
+        {{/if}}
+      </p>
+    {{/unless}}
+
+    <label class="checkbox hide_if_no_tz"> 
+      <input type="checkbox" name="dnd_enabled" value="1" id="dnd_enabled" data-inline-saver="#prefs_dnd_checkbox_label">
+      <span id="prefs_dnd_checkbox_label">Automatically disable notifications from:</span>
+    </label>
+
+    <label class="select small inline_block no_bottom_margin hide_if_no_tz">
+      <select name="dnd_start_hour" id="dnd_start_hour" class="small auto_width" data-inline-saver="#prefs_dnd_checkbox_label">
+        <option value="00:00">{{#if time24}}00:00{{else}}12:00 AM{{/if}}</option>
+        <option value="00:30">{{#if time24}}00:30{{else}}12:30 AM{{/if}}</option>
+        <option value="01:00">{{#if time24}}01:00{{else}}1:00 AM{{/if}}</option>
+        <option value="01:30">{{#if time24}}01:30{{else}}1:30 AM{{/if}}</option>
+        <option value="02:00">{{#if time24}}02:00{{else}}2:00 AM{{/if}}</option>
+        <option value="02:30">{{#if time24}}02:30{{else}}2:30 AM{{/if}}</option>
+        <option value="03:00">{{#if time24}}03:00{{else}}3:00 AM{{/if}}</option>
+        <option value="03:30">{{#if time24}}03:30{{else}}3:30 AM{{/if}}</option>
+        <option value="04:00">{{#if time24}}04:00{{else}}4:00 AM{{/if}}</option>
+        <option value="04:30">{{#if time24}}04:30{{else}}4:30 AM{{/if}}</option>
+        <option value="05:00">{{#if time24}}05:00{{else}}5:00 AM{{/if}}</option>
+        <option value="05:30">{{#if time24}}05:30{{else}}5:30 AM{{/if}}</option>
+        <option value="06:00">{{#if time24}}06:00{{else}}6:00 AM{{/if}}</option>
+        <option value="06:30">{{#if time24}}06:30{{else}}6:30 AM{{/if}}</option>
+        <option value="07:00">{{#if time24}}07:00{{else}}7:00 AM{{/if}}</option>
+        <option value="07:30">{{#if time24}}07:30{{else}}7:30 AM{{/if}}</option>
+        <option value="08:00">{{#if time24}}08:00{{else}}8:00 AM{{/if}}</option>
+        <option value="08:30">{{#if time24}}08:30{{else}}8:30 AM{{/if}}</option>
+        <option value="09:00">{{#if time24}}09:00{{else}}9:00 AM{{/if}}</option>
+        <option value="09:30">{{#if time24}}09:30{{else}}9:30 AM{{/if}}</option>
+        <option value="10:00">{{#if time24}}10:00{{else}}10:00 AM{{/if}}</option>
+        <option value="10:30">{{#if time24}}10:30{{else}}10:30 AM{{/if}}</option>
+        <option value="11:00">{{#if time24}}11:00{{else}}11:00 AM{{/if}}</option>
+        <option value="11:30">{{#if time24}}11:30{{else}}11:30 AM{{/if}}</option>
+        <option value="12:00">{{#if time24}}12:00{{else}}12:00 PM{{/if}}</option>
+        <option value="12:30">{{#if time24}}12:30{{else}}12:30 PM{{/if}}</option>
+        <option value="13:00">{{#if time24}}13:00{{else}}1:00 PM{{/if}}</option>
+        <option value="13:30">{{#if time24}}13:30{{else}}1:30 PM{{/if}}</option>
+        <option value="14:00">{{#if time24}}14:00{{else}}2:00 PM{{/if}}</option>
+        <option value="14:30">{{#if time24}}14:30{{else}}2:30 PM{{/if}}</option>
+        <option value="15:00">{{#if time24}}15:00{{else}}3:00 PM{{/if}}</option>
+        <option value="15:30">{{#if time24}}15:30{{else}}3:30 PM{{/if}}</option>
+        <option value="16:00">{{#if time24}}16:00{{else}}4:00 PM{{/if}}</option>
+        <option value="16:30">{{#if time24}}16:30{{else}}4:30 PM{{/if}}</option>
+        <option value="17:00">{{#if time24}}17:00{{else}}5:00 PM{{/if}}</option>
+        <option value="17:30">{{#if time24}}17:30{{else}}5:30 PM{{/if}}</option>
+        <option value="18:00">{{#if time24}}18:00{{else}}6:00 PM{{/if}}</option>
+        <option value="18:30">{{#if time24}}18:30{{else}}6:30 PM{{/if}}</option>
+        <option value="19:00">{{#if time24}}19:00{{else}}7:00 PM{{/if}}</option>
+        <option value="19:30">{{#if time24}}19:30{{else}}7:30 PM{{/if}}</option>
+        <option value="20:00">{{#if time24}}20:00{{else}}8:00 PM{{/if}}</option>
+        <option value="20:30">{{#if time24}}20:30{{else}}8:30 PM{{/if}}</option>
+        <option value="21:00">{{#if time24}}21:00{{else}}9:00 PM{{/if}}</option>
+        <option value="21:30">{{#if time24}}21:30{{else}}9:30 PM{{/if}}</option>
+        <option value="22:00">{{#if time24}}22:00{{else}}10:00 PM{{/if}}</option>
+        <option value="22:30">{{#if time24}}22:30{{else}}10:30 PM{{/if}}</option>
+        <option value="23:00">{{#if time24}}23:00{{else}}11:00 PM{{/if}}</option>
+        <option value="23:30">{{#if time24}}23:30{{else}}11:30 PM{{/if}}</option>
+      </select>
+    </label>
+    <span class="small_left_margin small_right_margin hide_if_no_tz">to</span>
+    <label class="select small inline_block no_bottom_margin hide_if_no_tz">
+      <select name="dnd_end_hour" id="dnd_end_hour" class="small auto_width" data-inline-saver="#prefs_dnd_checkbox_label">
+        <option value="00:00">{{#if time24}}00:00{{else}}12:00 AM{{/if}}</option>
+        <option value="00:30">{{#if time24}}00:30{{else}}12:30 AM{{/if}}</option>
+        <option value="01:00">{{#if time24}}01:00{{else}}1:00 AM{{/if}}</option>
+        <option value="01:30">{{#if time24}}01:30{{else}}1:30 AM{{/if}}</option>
+        <option value="02:00">{{#if time24}}02:00{{else}}2:00 AM{{/if}}</option>
+        <option value="02:30">{{#if time24}}02:30{{else}}2:30 AM{{/if}}</option>
+        <option value="03:00">{{#if time24}}03:00{{else}}3:00 AM{{/if}}</option>
+        <option value="03:30">{{#if time24}}03:30{{else}}3:30 AM{{/if}}</option>
+        <option value="04:00">{{#if time24}}04:00{{else}}4:00 AM{{/if}}</option>
+        <option value="04:30">{{#if time24}}04:30{{else}}4:30 AM{{/if}}</option>
+        <option value="05:00">{{#if time24}}05:00{{else}}5:00 AM{{/if}}</option>
+        <option value="05:30">{{#if time24}}05:30{{else}}5:30 AM{{/if}}</option>
+        <option value="06:00">{{#if time24}}06:00{{else}}6:00 AM{{/if}}</option>
+        <option value="06:30">{{#if time24}}06:30{{else}}6:30 AM{{/if}}</option>
+        <option value="07:00">{{#if time24}}07:00{{else}}7:00 AM{{/if}}</option>
+        <option value="07:30">{{#if time24}}07:30{{else}}7:30 AM{{/if}}</option>
+        <option value="08:00">{{#if time24}}08:00{{else}}8:00 AM{{/if}}</option>
+        <option value="08:30">{{#if time24}}08:30{{else}}8:30 AM{{/if}}</option>
+        <option value="09:00">{{#if time24}}09:00{{else}}9:00 AM{{/if}}</option>
+        <option value="09:30">{{#if time24}}09:30{{else}}9:30 AM{{/if}}</option>
+        <option value="10:00">{{#if time24}}10:00{{else}}10:00 AM{{/if}}</option>
+        <option value="10:30">{{#if time24}}10:30{{else}}10:30 AM{{/if}}</option>
+        <option value="11:00">{{#if time24}}11:00{{else}}11:00 AM{{/if}}</option>
+        <option value="11:30">{{#if time24}}11:30{{else}}11:30 AM{{/if}}</option>
+        <option value="12:00">{{#if time24}}12:00{{else}}12:00 PM{{/if}}</option>
+        <option value="12:30">{{#if time24}}12:30{{else}}12:30 PM{{/if}}</option>
+        <option value="13:00">{{#if time24}}13:00{{else}}1:00 PM{{/if}}</option>
+        <option value="13:30">{{#if time24}}13:30{{else}}1:30 PM{{/if}}</option>
+        <option value="14:00">{{#if time24}}14:00{{else}}2:00 PM{{/if}}</option>
+        <option value="14:30">{{#if time24}}14:30{{else}}2:30 PM{{/if}}</option>
+        <option value="15:00">{{#if time24}}15:00{{else}}3:00 PM{{/if}}</option>
+        <option value="15:30">{{#if time24}}15:30{{else}}3:30 PM{{/if}}</option>
+        <option value="16:00">{{#if time24}}16:00{{else}}4:00 PM{{/if}}</option>
+        <option value="16:30">{{#if time24}}16:30{{else}}4:30 PM{{/if}}</option>
+        <option value="17:00">{{#if time24}}17:00{{else}}5:00 PM{{/if}}</option>
+        <option value="17:30">{{#if time24}}17:30{{else}}5:30 PM{{/if}}</option>
+        <option value="18:00">{{#if time24}}18:00{{else}}6:00 PM{{/if}}</option>
+        <option value="18:30">{{#if time24}}18:30{{else}}6:30 PM{{/if}}</option>
+        <option value="19:00">{{#if time24}}19:00{{else}}7:00 PM{{/if}}</option>
+        <option value="19:30">{{#if time24}}19:30{{else}}7:30 PM{{/if}}</option>
+        <option value="20:00">{{#if time24}}20:00{{else}}8:00 PM{{/if}}</option>
+        <option value="20:30">{{#if time24}}20:30{{else}}8:30 PM{{/if}}</option>
+        <option value="21:00">{{#if time24}}21:00{{else}}9:00 PM{{/if}}</option>
+        <option value="21:30">{{#if time24}}21:30{{else}}9:30 PM{{/if}}</option>
+        <option value="22:00">{{#if time24}}22:00{{else}}10:00 PM{{/if}}</option>
+        <option value="22:30">{{#if time24}}22:30{{else}}10:30 PM{{/if}}</option>
+        <option value="23:00">{{#if time24}}23:00{{else}}11:00 PM{{/if}}</option>
+        <option value="23:30">{{#if time24}}23:30{{else}}11:30 PM{{/if}}</option>
+      </select>
+    </label>
+    <span class="small_left_margin small_right_margin hide_if_no_tz"><span class="dnd_tz_label">{{member.tz_label}}</span> (<a href='/account/settings#timezone' target={{newWindowName}}>change</a>)</span>
+
+  </div>
+</div>

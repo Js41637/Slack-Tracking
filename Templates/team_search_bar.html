@@ -1,0 +1,23 @@
+<div class="team_tabs_container clearfix no_bottom_border">
+  <div id="team_tabs">
+    {{#if show_search}}
+      <div class="flexpane_tab_toolbar">
+        <div id="search" class="tab_action bottom_border">
+          <div id="team_filter" class="position_relative small_margin" data-list-items-id="#team_list_scroller">
+            <i class="icon_search ts_icon ts_icon_search"></i>
+            <a class="ts_icon ts_icon_times_circle icon_close hidden"></a>
+            <input type="text" class="member_filter no_margin small" name="team_filter" placeholder="Search team directory"/>
+          </div>
+        </div>
+      </div>
+    {{/if}}
+    {{#if show_filters}}
+      <ul class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border three_tabs">
+        <li id="active_members_tab" class="tab bold active" href="#active_members"><a href="#active_members" data-name="active_members" data-action="search">Members <span id="active_members_count" class="normal">(<span id="active_members_count_value">703</span>)</span></a></li>
+        <li id="restricted_members_tab" class="tab bold" href="#restricted_members"><a href="#restricted_members" data-name="restricted_members" data-action="search">Guests <span id="restricted_members_count" class="normal">(<span id="restricted_members_count_value">505</span>)</span></a></li>
+        <li id="user_groups_list_tab" class="tab bold usergroup_action" href="#user_groups_list"><a href="#user_groups_list" data-name="user_groups" data-action="user_group_edit">Groups <span class="normal">(<span class="usergroup_count">188</span>)</span></a></li>
+        <li id="disabled_members_tab" class="tab bold" href="#disabled_members"><a href="#disabled_members" data-name="disabled_members" data-action="search">Disabled <span id="disabled_members_count" class="normal">(<span id="disabled_members_count_value">486</span>)</span></a></li>
+      </ul>
+    {{/if}}
+  </div>
+</div>

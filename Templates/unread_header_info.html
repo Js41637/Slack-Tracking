@@ -1,0 +1,34 @@
+{{#if messages_loaded}}
+  <span class="channel_header_info_count">
+    {{#if total_unread_count}}
+      {{#if_gt total_unread_count compare=50}}
+        50+ messages
+      {{else}}
+        {{total_unread_count}} new {{pluralize total_unread_count 'message' 'messages'}}
+      {{/if_gt}}
+    {{else}}
+      No unread messages
+    {{/if}}
+  </span>
+
+  {{#feature flag="feature_all_unreads_sort_options"}}
+    <span class="topic_divider">|</span>
+    <span class="channel_header_info_sort_order">
+      {{#if_equal sort_order compare="alphabetical"}}
+        Sorted alphabetically
+      {{/if_equal}}
+      {{#if_equal sort_order compare="priority"}}
+        Sorted scientifically
+      {{/if_equal}}
+      {{#if_equal sort_order compare="oldest"}}
+        Sorted by oldest channel
+      {{/if_equal}}
+      {{#if_equal sort_order compare="newest"}}
+        Sorted by newest channel
+      {{/if_equal}}
+      <ts-icon class="ts_icon_chevron_down"></ts-icon>
+    </span>
+  {{/feature}}
+{{else}}
+  Loading messages
+{{/if}}

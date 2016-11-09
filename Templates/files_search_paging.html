@@ -1,0 +1,5 @@
+<div class="search_paging">{{!
+  }}{{#if_not_equal pages compare=1}}{{#if_equal current_page compare=1}}<i class="left ts_icon ts_icon_chevron_circle_left disabled"></i>{{else}}<a onclick="TS.search.view.pageFilesBack()"><i class="left ts_icon ts_icon_chevron_circle_left"></i></a>{{/if_equal}}{{/if_not_equal}}{{!
+  }}<span class="page_text">page {{current_page}} of {{pages}}</span>{{!
+  }}{{#if_not_equal pages compare=1}}{{#if_equal current_page compare=pages}}<i class="right ts_icon ts_icon_chevron_medium_right disabled"></i>{{else}}<a onclick="TS.search.view.pageFilesForward()"><i class="right ts_icon ts_icon_chevron_circle_right"></i></a>{{/if_equal}}{{/if_not_equal}}{{!
+}}</div>

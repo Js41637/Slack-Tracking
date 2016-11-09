@@ -1,0 +1,52 @@
+  {{#feature flag="feature_tos_oct2016"}}
+  {{else}}
+    {{#if compliance_exports_enabled_for_team}}
+      <p>Messages shared in groups are generally private to the people invited to the group. Note, however, that messages in this group and elsewhere in your team may be accessible to your Team Owners via <a href="https://slack.zendesk.com/hc/en-us/articles/203950296-FAQs-about-Slack-s-policy-update#complianceexport">Compliance Exports</a>. See <a href="/account/team">Your Team Settings</a> to learn more.</p>
+    {{else}}
+      <p>A private group is only visible to its members, and only members of a private group can read or search its contents.</p>
+    {{/if}}
+  {{/feature}}
+  <p class="top_margin">
+    <label for="title_input" class="inline_block">Name</label>
+    <input id="group_create_title" name="title_input" type="text" class="small title_input" value="{{title}}" maxlength="{{ChannelNameMaxLength}}" />
+    <span class="modal_input_note" id="title_prompt">
+      Names must be lower case and cannot contain spaces or periods.
+    </span>
+    <span class="modal_input_note hidden alert name_taken_warning">
+      That name has been taken. Try something different.
+    </span>
+    <span class="modal_input_note hidden alert name_missing_warning">
+      Enter a title for the group please!
+    </span>
+    <span class="modal_input_note hidden alert no_invites_warning">
+      There's no point in a group with only one member. Invite people!
+    </span>
+    <span class="modal_input_note hidden alert existing_groups_warning">
+      To be filled in by dialog
+    </span>
+  </p>
+
+  <p>
+    <label for="group_purpose_input" class="inline_block">
+      Purpose<br />
+      <span class="normal">(optional)</span>
+    </label>
+    <textarea id="group_purpose_input" name="group_purpose_input" type="text" style="height: 3.5rem;" maxlength="{{ChannelPurposeMaxLength}}">{{purpose}}</textarea>
+    <span class="modal_input_note">Give your group a purpose that describes what it will be used for.</span>
+  </p>
+  
+  <div id="create_invite_group_members_holder">
+    {{#if show_ra_tip}}
+      <span class="tiny_bottom_margin modal_input_note">
+        {{raLabel 'Restricted accounts'}} may not appear below. Ask a Team Admin to invite them after you create the group.
+      </span>
+    {{/if}}
+    <p class="no_bottom_margin" id="select_create_invite_group_members_holder">
+      <label for="group_members" class="inline_block">Invite Members</label>
+      <select multiple="multiple" id="select_create_invite_group_members" name="group_members" size="30">
+        {{#each invite_members}}
+          <option value="{{this.member.id}}" {{#if this.preselected}}selected="selected"{{/if}}>{{#if this.member.profile.real_name}}{{this.member.profile.real_name}} \u2022 {{this.member.name}}{{else}}{{this.member.name}}{{/if}}</option>
+        {{/each}}
+      </select>    
+    </p>
+  </div>

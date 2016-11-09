@@ -1,0 +1,185 @@
+<h2 id="prefs_input_options" class="inline_block">Input Options</h2>
+<p>
+  <label class="checkbox">
+    <input id="webapp_spellcheck_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
+    Enable spellcheck on your messages
+  </label>
+  {{#feature flag="feature_name_tagging_client"}}{{else}}
+  <label class="checkbox">
+    <input id="require_at_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
+    Only show autocomplete for people when the '@' character is used
+  </label>
+  {{/feature}}
+  <label class="checkbox">
+    <input id="enter_is_special_in_tbt_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
+    When typing code with ```, <em>Enter</em> should not send the message<br />
+    <span class="normal subtle_silver">With this checked use <em>Shift+Enter</em> to send</span>
+  </label>
+  <label class="checkbox">
+    <input id="arrow_history_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
+    Use <i class="ts_icon ts_icon_square_arrow_up ts_icon_inherit"></i> and <i class="ts_icon ts_icon_square_arrow_down ts_icon_inherit"></i> to cycle through your typed history<br>
+    <span class="normal subtle_silver">With this checked, use {{#isMac}}Cmd{{else}}Ctrl{{/isMac}} + <i class="ts_icon ts_icon_square_arrow_up ts_icon_inherit"></i>&nbsp;&nbsp;to edit your last message</span>
+  </label>
+</p>
+
+{{#if show_app_download_path}}
+
+  <hr>
+
+  <div class="clearfix">
+    <h2 id="prefs_download_location" class="inline_block small_bottom_margin">Download Location</h2>
+    <p class="small_bottom_margin">Note: this setting is for this computer only and affects all teams you are signed in to.</p>
+    <div class="col span_3_of_4"><input id="app_download_path_input" type="text" disabled="disabled" value="{{app_download_path}}" class="small"></div>
+    <div class="col span_1_of_4"><button data-action="select_ssb_download_path" class="btn btn_outline full_width">Change &hellip;</button></div>
+  </div>
+{{/if}}
+
+<hr>
+
+<h2 id="prefs_channel_list" class="inline_block small_bottom_margin">Channel List</h2>
+<p class="bold">In the sidebar, show:</p>
+<p>
+  <label class="radio">
+    <input name="pr_sidebar" type="radio" value="" checked="checked" data-inline-saver="#prefs_channel_list">
+    <span class='normal'>All my channels and DMs</span>
+  </label>
+  <label class="radio">
+    <input name="pr_sidebar" type="radio" value="hide_read_channels" data-inline-saver="#prefs_channel_list">
+    <span class='normal'>Just my unread channels and DMs</span>
+  </label>
+  <label class="radio">
+    <input name="pr_sidebar" type="radio" value="hide_read_channels_unless_starred" data-inline-saver="#prefs_channel_list">
+    <span class='normal'>My unreads, along with everything I've starred</span>
+  </label>
+  {{#tinyspeck}}
+  <label class="radio">
+    <input name="pr_sidebar" type="radio" value="shrink_left_column" data-inline-saver="#prefs_channel_list">
+    <span class='normal'>All my channels and DMs, but super tiny (TS only)</span>
+  </label>
+  {{/tinyspeck}}
+</p>
+<p>
+  <label for="separate_private_channels_cb" class="checkbox no_margin">
+    <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+    {{#feature flag="feature_unread_view"}}
+      <span>List private channels separately</span>
+    {{else}}
+      <span class="normal">List private channels separately</span>
+    {{/feature}}
+  </label>
+</p>
+
+{{#feature flag="feature_unread_view"}}
+<p>
+  <label class="checkbox nor_margin">
+    <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">
+    Turn on All Unreads<br />
+    <span class="normal subtle_silver">This collects all the messages you\u2019ve missed in one handy place.</span>
+  </label>
+</p>
+{{/feature}}
+
+
+<hr>
+
+<h2 id="prefs_other_options" class="inline_block">Other Options</h2>
+<p>
+
+  <label class="checkbox">
+    <input id="pagekeys_handled_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+    <em>Page up</em>, <em>Page down</em>, <em>Home</em>, and <em>End</em> keys always scroll messages
+  </label>
+
+  {{#isOurApp}}{{else}}
+    <label class="checkbox">
+      <input id="f_key_search_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+      {{#isMac}}Cmd{{else}}Ctrl{{/isMac}} + F starts a Slack search<br>
+      <span class="normal subtle_silver">Overrides normal browser search behavior</span>
+    </label>
+    <label class="checkbox">
+      <input id="k_key_omnibox_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+      {{#isMac}}Cmd{{else}}Ctrl{{/isMac}} + K starts the quick switcher<br>
+      <span class="normal subtle_silver">Overrides normal behavior in some browsers</span>
+    </label>
+  {{/isOurApp}}
+
+  <label class="checkbox">
+    <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+    Hide the quick switcher in the channel list
+  </label>
+  <label class="checkbox">
+    <input id="ask_after_away_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+    Ask if I want to toggle my away status when I log in after having set myself away
+  </label>
+  <label class="checkbox">
+    <input id="enable_chan_suggestions" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+    Send me occasional channel suggestions via Slackbot
+  </label>
+
+  {{#feature flag="feature_a11y_pref_no_animation"}}
+    <label class="checkbox">
+      <input id="a11y_animations" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+      Allow animated images and emoji
+    </label>
+  {{/feature}}
+
+  <label class="checkbox">
+    <input id="surprise_me" type="checkbox">
+    Surprise me!
+  </label>
+</p>
+
+<div id="surprise" style="display: none;">
+  <img id="emo_bear" src="" style="width: 279px; height: 243;"><br>
+  <h1 class="candy_red">Surprise!</h1>
+</div>
+
+<hr>
+
+<h2 id="prefs_debug" class="inline_block">Debugging Options</h2>
+{{#if show_console_whitelist}}
+  <p class="medium_bottom_margin">
+    <label for="client_logs_pri">Console logs</label>
+    <select multiple="multiple" id="client_logs_pri" size="30" data-inline-saver="#prefs_debug" class="bottom_margin">
+      <option value="all"{{#if client_logs_pri_all_selected}} selected{{/if}}>All</option>
+      {{#each whitelisted_pris}}
+        <option value="{{this.numbers}}"{{#if this.selected}} selected{{/if}}>{{#if this.name}}{{this.name}}{{else}}{{this.numbers}}{{/if}}</option>
+      {{/each}}
+    </select>
+    <span class="normal tiny_top_margin block subtle_silver">Enabling console logs can help Slack engineers and customer experience agents track down issues you are experiencing.</span>
+  </p>
+{{/if}}
+<p class="bold">Changing the following preferences will reload Slack.</p>
+<p>
+  <label class="checkbox bottom_margin">
+    <input id="ls_disabled_cb" type="checkbox" data-inline-saver="#prefs_debug">
+    Disable Local Storage<br>
+    <span class="normal">This will disable Slack from storing data on your computer, and can be used to debug lagginess in the Slack UI.</span>
+  </label>
+  <label class="checkbox bottom_margin">
+    <input id="ss_emojis_cb" type="checkbox" data-inline-saver="#prefs_debug">
+    Disable Emoji Spritesheets<br>
+    <span class="normal">This will make loading emoji slower, but it might help if you are experiencing slowness in the Slack UI.</span>
+  </label>
+  <label class="checkbox bottom_margin">
+    <input id="enhanced_debugging_cb" type="checkbox" data-inline-saver="#prefs_debug">
+    Enable Performance Logging<br>
+    <span class="normal">This will help our engineers track down performance issues with Slack.</span>
+  </label>
+  {{#if show_flannel_pref}}
+    <label class="checkbox bottom_margin">
+      <input id="flannel_lazy_members" checked="" type="checkbox" data-inline-saver="#prefs_debug">
+      Lazily load members via Flannel<br>
+      <span class="normal">Turn this off to use Slack without Flannel.</span>
+
+      <label class="select small bottom_margin">
+        Server pool<br>
+        <select id="flannel_server_pool" class="small half_width" data-inline-saver="#prefs_debug">
+          <option value="production">Production</option>
+          <option value="canary">Canary</option>
+          <option value="random">Production / canary at random</option>
+        </select>
+      </label>
+    </label>
+  {{/if}}
+</p>

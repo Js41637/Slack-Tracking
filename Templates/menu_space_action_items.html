@@ -1,0 +1,45 @@
+{{#if actions.share}}
+  <li id="keyboard_shortcuts" data-file-id="{{file.id}}" role="menuitem"><a>Keyboard shortcuts</a></li>
+{{/if}}
+
+{{#if actions.learn_more}}
+  <li id="learn_more" data-file-id="{{file.id}}" role="menuitem"><a href="https://get.slack.help/hc/en-us/articles/203950418-Composing-a-post" target="{{newWindowName}}">Learn more</a></li>
+{{/if}}
+
+<li id="feedback" data-file-id="{{file.id}}" role="menuitem"><a>Feedback</a></li>
+
+<li class="divider"></li>
+
+{{#if can_write_to_clipboard}}
+  <li id="copy_space_link" data-file-id="{{file.id}}" role="menuitem"><a>Copy link</a></li>
+{{/if}}
+
+{{#if actions.create_public_link}}
+  {{#feature flag="feature_external_files"}}
+    <li id="create_public_space_link" data-file-id="{{file.id}}" role="menuitem"><a>Create external link</a></li>
+  {{else}}
+    <li id="create_public_space_link" data-file-id="{{file.id}}" role="menuitem"><a>Create public link</a></li>
+  {{/feature}}
+{{/if}}
+{{#if actions.revoke_public_link}}
+  {{#feature flag="feature_external_files"}}
+    <li id="view_public_space_link" data-file-id="{{file.id}}" role="menuitem"><a>View external link</a></li>
+  {{else}}
+    <li id="view_public_space_link" data-file-id="{{file.id}}" role="menuitem"><a>View public link</a></li>
+  {{/feature}}
+{{/if}}
+
+{{#if actions.print}}
+  <li id="print_space" data-file-id="{{file.id}}" role="menuitem"><a>Print &hellip;</a></li>
+{{/if}}
+
+{{#if can_enable_collab_editing}}
+  <li class="divider"></li>
+  <li id="toggle_collab_editing" data-file-id="{{file.id}}" role="menuitem"><a><label for="toggle_input">
+    <input id="toggle_input" type="checkbox" {{#if collab_enabled}} checked="checked"{{/if}} data-file-id="{{file.id}}">Let others edit this post</label></a></li>
+{{/if}}
+
+{{#if actions.delete_file}}
+  <li class="divider"></li>
+  <li id="delete_space" data-file-id="{{file.id}}" class="danger" role="menuitem"><a>Delete post{{#if file.is_external}} from Slack{{/if}}</a></li>
+{{/if}}

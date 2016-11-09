@@ -1,0 +1,4 @@
+<a class="view_all_files_link sky_blue overflow_ellipsis">
+  <i class="ts_icon ts_icon_search_files"></i>
+  View all files {{#if model_ob.is_im}}shared with {{#if member.profile.first_name}}{{member.profile.first_name}}{{else}}{{member.name}}{{/if}}{{/if}}{{#if model_ob.is_group}}in <i class="ts_icon ts_icon_lock"></i> {{model_ob.name}}{{/if}}{{#if model_ob.is_channel}}in #{{model_ob.name}}{{/if}}
+</a>

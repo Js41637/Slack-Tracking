@@ -1,0 +1,27 @@
+<div class="file_header_detailed{{#unless member}} no_member{{/unless}}">
+  {{#if member}}
+    <img class="member_image" src="{{member.profile.image_48}}" alt="{{member.name}}">
+  {{/if}}
+
+  <h2 class="title no_jumbomoji">
+    {{{title}}}
+  </h2>
+
+  <p class="file_meta">
+    {{#if member}}
+      {{{makeMemberPreviewLink member}}}
+      <span class="bullet" aria-hidden="true">\u2022</span>
+    {{/if}}
+
+    {{toCalendarDateOrNamedDayShort timestamp}} at {{toTime timestamp}}
+
+    {{{share_label}}}
+
+    {{#if file.public_url_shared}}
+      <span class="bullet" aria-hidden="true">\u2022</span>
+      <span class="file_share_public_link_label">
+        {{> file_public_link}}
+      </span>
+    {{/if}}
+  </p>
+</div>

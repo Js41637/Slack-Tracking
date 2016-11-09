@@ -1,0 +1,78 @@
+{{#if dms}}
+  <div class="section_header"><span class="header_label search_mini">Team members</span></div>
+  <ol class="results dms">
+    {{#each dms}}
+      {{#feature flag="feature_name_tagging_client"}}
+        <li data-replacement="{{../conversation_modifier}}{{getMemberFullName this}}">
+          <button class="result_item_btn btn_unstyle" type="button">
+            {{#if ../show_modifier}}
+              <span>{{../conversation_modifier}}</span>
+            {{/if}}
+            <strong>{{getMemberFullName this}} </strong>
+            <span class="muted_text">{{getMemberPreferredName this}}</span>
+
+            {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
+          </button>
+        </li>
+      {{else}}
+        <li data-replacement="{{../conversation_modifier}}@{{name}}">
+          <button class="result_item_btn btn_unstyle" type="button">
+            {{#if ../show_modifier}}
+              <span>{{../conversation_modifier}}</span>
+            {{/if}}
+            {{#if real_name}}
+              <strong>{{real_name}} </strong>
+              <span class="muted_text">@{{name}}</span>
+            {{else}}
+              <strong>@{{name}}</strong>
+            {{/if}}
+
+            {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
+          </button>
+        </li>
+      {{/feature}}
+    {{/each}}
+
+    {{#if dms_deleted}}
+      {{!-- TODO: reveal_hidden_items should not be a list item because it does not create an accurate representation of this list's count, but the way search-autocomplete-menu.js is built does not allow for an easy change :( --}}
+      <li class="reveal_hidden_items">
+        <button class="reveal_items_btn action_btn btn_unstyle" type="button">
+          Show {{dms_deleted.length}} disabled {{pluralize users_deleted.length "account"}}
+        </button>
+      </li>
+
+      {{#each dms_deleted}}
+        {{#feature flag="feature_name_tagging_client"}}
+          <li data-replacement="{{../conversation_modifier}}{{getMemberFullName this}}" class="hidden">
+            <button class="result_item_btn btn_unstyle" type="button">
+              {{#if ../show_modifier}}
+                <span>{{../conversation_modifier}}</span>
+              {{/if}}
+              <strong>{{getMemberFullName this}} </strong>
+              <span class="muted_text">{{getMemberPreferredName this}}</span>
+
+              {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
+            </button>
+          </li>
+        {{else}}
+          <li data-replacement="{{../conversation_modifier}}@{{name}}" class="hidden">
+            <button class="result_item_btn btn_unstyle" type="button">
+              {{#if ../show_modifier}}
+                <span>{{../conversation_modifier}}</span>
+              {{/if}}
+              {{#if real_name}}
+                <strong>{{real_name}} </strong>
+                <span class="muted_text">@{{name}}</span>
+              {{else}}
+                <strong>@{{name}}</strong>
+              {{/if}}
+
+              {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
+            </button>
+          </li>
+        {{/feature}}
+      {{/each}}
+    {{/if}}
+  </ol>
+{{/if}}
+

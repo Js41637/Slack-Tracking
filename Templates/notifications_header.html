@@ -1,0 +1,11 @@
+{{#if in_dnd}}
+  <div class="dnd_banner">
+    <div class="{{#if is_snoozing}}snooze_illustration{{else}}dnd_illustration{{/if}}"></div>
+    <div class="dnd_on_label"><strong>Do Not Disturb ON</strong></div>
+    {{#if is_snoozing}}
+      <div class="snooze_time_label">Notifications snoozed for {{readable_end_time}}</div>
+    {{else}}
+      <div class="dnd_schedule_label">Scheduled until {{readable_end_time}}</div>
+    {{/if}}
+  </div>
+{{/if}}

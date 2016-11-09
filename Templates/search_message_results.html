@@ -1,0 +1,10 @@
+<div id="search_message_results">
+  {{#if page}}
+    {{#each page}}
+      {{> search_message_results_item is_enterprise=../is_enterprise teams_info=../results.teams search_global=../search_global search_feedback_exp=../search_feedback_exp}}
+    {{/each}}
+    {{paging_html}}
+  {{else}}
+    <div class="loading_hash_animation"><img src="{{versioned_loading_hash_animation}}" alt="Loading" /><br />loading page {{current_page}}...</div>
+  {{/if}}
+</div>

@@ -1,0 +1,77 @@
+{{#if is_user_group_deleted}}
+  <p class="alert alert_error small_right_margin small_left_margin"><i class="ts_icon ts_icon_warning"></i> This User Group is deleted.</p>
+{{else}}
+  {{#if user_group.date_delete}}
+    <p class="alert alert_error small_right_margin small_left_margin"><i class="ts_icon ts_icon_warning"></i> This User Group is disabled.</p>
+  {{/if}}
+{{/if}}
+<div id="user_group_title" class="clearfix selectable_flex_pane_padder no_bottom_margin">
+
+  <h3 class="tiny_bottom_margin right_margin">
+    {{user_group.name}}
+    {{#unless is_user_group_deleted}}
+      {{#if show_user_groups_edit}} 
+        <button id="user_group_menu_toggle" class="float_right btn_icon btn_outline btn ts_icon ts_icon_chevron_large_down" aria-label="Print"></button>
+      {{/if}}
+    {{/unless}}
+  </h3>
+  {{#if user_group.handle}}
+  <p class="lato subtle_silver {{#if user_group.created_by}}tiny_bottom_margin{{/if}}">
+    Use <b>@{{user_group.handle}}</b> to notify this group
+  </p>
+  {{/if}}
+  {{#if user_group.created_by}}
+    {{#if user_group.date_create}}
+      <p class="lato subtle_silver">
+        Created by <b>
+        {{~#feature flag="feature_name_tagging_client"~}}
+          {{getMemberFullName user_group.created_by}}
+        {{~else~}}
+          {{getMemberDisplayNameById user_group.created_by}}
+        {{~/feature~}}
+        </b> on {{toCalendarDate user_group.date_create}}
+      </p>
+    {{/if}}
+  {{/if}}
+  
+  {{#if user_group.description}}
+    <p class="lato">{{user_group.description}}</p>
+  {{/if}}
+</div>
+
+<ul id="user_group_tabs" class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border">
+  <li id="user_group_members_tab" class="tab bold active" href="#user_group_members"><a href="#user_group_members" data-name="user_group_members">Members <span class="normal">({{members.length}})</span></a></li>
+  <li id="user_group_channels_tab" class="tab bold" href="#user_group_channels"><a href="#user_group_channels" data-name="user_group_channels">Channels <span class="normal">({{channels.length}})</span></a></li>
+</ul>
+
+<div class="user_group_member_list flex_content_scroller small_top_margin">
+  <div class="tab_panels large_bottom_margin">
+    <div id="user_group_members" class="panel active">
+      <div id="team_list">
+        {{#each members}}
+          {{> team_list_item member=this}}
+        {{/each}}
+      </div>
+    </div>
+    <div id="user_group_channels" class="panel">
+      {{#if channels}}
+        <div id="channel_list">
+          {{#each channels}}
+            {{> user_group_channel_list_item}}
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="no_results align_left">
+          This group does not have any default channel.<br><br>
+          Default channels are a great way to include all the members of a group to the right channels. When adding a new default channel to a group, all the members will be automatically invited to it.<br><br>
+          This is a great way to make sure new members of your team are part of the right discussions from the get go.<br><br>
+          {{#if show_user_groups_edit}}
+            <button id="edit_default_channels" class="btn small_right_margin">Add default channels to this group</button>
+          {{else}}
+            (Only admins or owners can add channels to a User Group.)
+          {{/if}}
+        </p>
+      {{/if}}
+    </div>
+  </div>
+</div>

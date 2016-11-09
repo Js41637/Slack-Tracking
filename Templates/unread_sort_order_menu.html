@@ -1,0 +1,19 @@
+<div class="section_header"><hr><span class="header_label menu_mini">Sort&hellip;<span></div>
+
+<li role="menuitem" class="{{#if_equal sort_order compare='alphabetical'}}selected{{/if_equal}}"><a data-sort-order="alphabetical">
+  <ts-icon class="ts_icon_check_small"></ts-icon> Alphabetically
+</a></li>
+{{#if is_paid_team}}
+  <li role="menuitem" class="{{#if_equal sort_order compare='priority'}}selected{{/if_equal}}"><a data-sort-order="priority">
+    <ts-icon class="ts_icon_check_small"></ts-icon> Scientifically 
+    <ts-icon class="ts_icon_question_circle ts_tip ts_tip_top">
+      <span class="ts_tip_tip">This sorts your unreads<br> based on how you use Slack.</span>
+    </ts-icon>
+  </a></li>
+{{/if}}
+<li role="menuitem" class="{{#if_equal sort_order compare='newest'}}selected{{/if_equal}}"><a data-sort-order="newest">
+  <ts-icon class="ts_icon_check_small"></ts-icon> Newest
+</a></li>
+<li role="menuitem" class="{{#if_equal sort_order compare='oldest'}}selected{{/if_equal}}"><a data-sort-order="oldest">
+  <ts-icon class="ts_icon_check_small"></ts-icon> Oldest
+</a></li>

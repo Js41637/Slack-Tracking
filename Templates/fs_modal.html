@@ -1,0 +1,35 @@
+<div id="fs_modal_bg"></div>
+<div id="fs_modal">
+
+  {{#unless disable_default_controls}}
+    {{!-- Back and Close buttons --}}
+    <a id="fs_modal_back_btn" class="fs_modal_btn hidden">
+      <i class="ts_icon ts_icon_arrow_large_left"></i>
+      <span class="key_label">back</span>
+    </a>
+    <a id="fs_modal_close_btn" class="fs_modal_btn"{{#if settings.clog_name}} data-clog-click="true" data-clog-event="{{settings.clog_name}}_ACTION" data-clog-params="action=close_modal,trigger=click_fs_modal_close_btn"{{/if}}>
+      <i class="ts_icon ts_icon_times"></i>
+      <span class="key_label">esc</span>
+    </a>
+  {{/unless}}
+
+  {{!-- Elements that appear before the body of the modal (eg. header) --}}
+  {{#if fs_modal_header}}
+    <div id="fs_modal_header"><h3>{{settings.title}}</h3></div>
+  {{/if}}
+
+
+  {{!-- Modal Content --}}
+  <div class="contents_container">
+    {{#if fs_modal_sidebar}}{{> fs_modal_sidebar}}{{/if}}
+    <div class="contents"></div>
+  </div>
+
+  {{!-- Elements that appear after the body of the modal (eg. footer) --}}
+  {{#if fs_modal_footer}}
+    <div id="fs_modal_footer">
+      <button class="btn btn_outline dialog_cancel {{#unless settings.show_cancel_button}}hidden{{/unless}}">{{settings.cancel_button_text}}</button>
+      <button class="btn left_margin dialog_go {{#if settings.go_button_class}}{{settings.go_button_class}}{{/if}} {{#unless settings.show_go_button}}hidden{{/unless}}">{{settings.go_button_text}}</button>
+    </div>
+  {{/if}}
+</div>

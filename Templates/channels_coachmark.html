@@ -1,0 +1,61 @@
+<div id="channels_coachmark_div" class="coachmark_div">
+  <div class="coachmark_contents">
+    <h2 class="black">{{#if_gt total_count compare=1~}}
+      {{#feature flag="feature_update_coachmarks_copy"}}
+        Messaging happens in channels
+      {{else}}
+        These are your channels
+      {{/feature}}
+    {{~else~}}
+      {{~#if in_single_private_channel~}}
+        This is your private channel
+      {{~else~}}
+        {{#feature flag="feature_update_coachmarks_copy"}}
+          Messaging happens in channels
+        {{else}}
+          This is your channel
+        {{/feature}}
+      {{~/if~}}
+    {{~/if_gt}}</h2>
+    {{~#currentUserIsAdmin~}}
+      {{#feature flag="feature_update_coachmarks_copy"}}
+        <p>Channels bring order and searchability to your team\u2019s conversations. Organize by topic (#research), working group (#sales), or specific project (#sales-tv-ad).</p>
+      {{else}}
+        <p>Channels are chat rooms based around a project, a topic (such as <em>music</em>), or a team (such as <em>sales</em>). Channels can be public or private.</p>
+      {{/feature}}
+    {{~else~}}
+      {{~#currentUserIsRA~}}
+        <p>{{#if in_single_private_channel~}}
+          Private channels are invite-only rooms. You only have access to this channel right now.
+        {{~else~}}
+          {{#feature flag="feature_update_coachmarks_copy"}}
+            {{~#if_equal total_count compare=1~}}
+              Channels organize your team\u2019s conversations by topic or working group. As a guest, you\u2019ve been invited to send messages in one channel, <strong>{{firstListedChannel}}</strong>.
+            {{~else~}}
+              Channels organize your team\u2019s conversations by topic or working group. As a guest, you\u2019ve been invited to send messages and browse archives in the channels in this list.
+            {{~/if_equal~}}
+          {{else}}
+            Channels are chat rooms based around a project, a topic (such as <em>music</em>), or a team (such as <em>sales</em>).
+          {{/feature}}
+        {{~/if~}}
+        {{~#unless in_single_private_channel~}}
+          {{~#currentUserIsURA}}{{else~}}
+            {{#feature flag="feature_update_coachmarks_copy"}}
+              {{!-- Don't show anything --}}
+            {{else~}}
+              {{~#if_equal total_count compare=1}} You have access to just one channel right now.
+              {{~else}} You have access to these channels in <strong>{{currentTeamName}}</strong>.
+              {{~/if_equal~}}
+            {{/feature}}
+          {{~/currentUserIsURA~}}
+        {{~/unless}}</p>
+      {{~else~}}
+        {{#feature flag="feature_update_coachmarks_copy"}}
+          <p>Channels bring order and searchability to your team\u2019s conversations. They\u2019re organized by topic (#research), working group (#sales), or specific project (#sales-tv-ad).</p>
+        {{else}}
+          <p>Channels are chat rooms created by people in your Slack team. You've been added to some channels already. Channels can be public or private, and you can <strong>join any public channel</strong> in <strong>{{currentTeamName}}</strong>.</p>
+        {{/feature}}
+      {{~/currentUserIsRA~}}
+    {{~/currentUserIsAdmin~}}
+  </div>
+</div>    

@@ -1,0 +1,34 @@
+<div id="channel_browser" class="channel_modal_with_list channel_modal">
+  <div class="large_bottom_margin display_flex align_items_center">
+    <h1 class="no_bottom_margin channel_modal_header">{{title}}</h1>
+    {{#if can_create}}
+      <button class="new_channel btn btn_primary auto_left_margin">New channel</button>
+    {{/if}}
+  </div>
+  <div class="small_bottom_margin display_flex align_items_center">
+    <div class="channel_browser_filter_container channel_modal_filter_container right_margin flex_one">
+      <i class="ts_icon ts_icon_search cloud_silver search_icon"></i>
+      <i class="ts_icon ts_icon_times_circle cloud_silver clear_filter_icon"></i>
+      <input type="text" id="channel_browser_filter" class="small" placeholder="Search channels" title="Search channels">
+    </div>
+    <div class="channel_browser_sort_container">
+      <label class="select small">
+        <select id="channel_browser_sort" class="small">
+          <option value="name">Channel Name &amp; Membership</option>
+          <option value="creator">Name of Creator</option>
+          <option value="created">Creation Date (newest first)</option>
+          <option value="members_high">Members (most to fewest)</option>
+          <option value="members_low">Members (fewest to most)</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div id="channel_browser_empty" class="hidden align_center margin_auto display_flex align_items_center justify_content_center">
+    <span class="channel_browser_empty_message"></span>
+  </div>
+  <div id="channel_list_container" class="channel_modal_list">
+    {{{loadingHTML}}}
+  </div>
+</div>
+
+<div id="new_channel_container" class="no_opacity"></div>

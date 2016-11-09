@@ -1,0 +1,46 @@
+<span class="small_right_margin no_wrap">
+  <strong class="black">Send notifications for:</strong>
+  {{#if_equal send_notifications_for compare="all"}}All activity{{/if_equal}}
+  {{#if_equal send_notifications_for compare="mentions"}}Direct messages and highlight words{{/if_equal}}
+  {{#if_equal send_notifications_for compare="never"}}Nothing{{/if_equal}}
+</span>
+
+<span class="small_right_margin no_wrap">
+  <strong class="black">Sound:</strong>
+  {{#if mute_sounds}}Off (muted){{else}}{{new_msg_snd}}{{/if}}
+</span>
+
+<span class="small_right_margin no_wrap">
+  <strong class="black">Display:</strong>
+  {{#if no_text_in_notifications}}Hide{{else}}Show{{/if}} text
+</span>
+
+{{#if show_mac_ssb_prefs}}
+  <span class="small_right_margin no_wrap">
+    <strong class="black">Dock app icon:</strong>
+    {{#if show_mac_ssb_bullet}}Show icon{{else}}Hide icon{{/if}}
+    {{#if mac_ssb_bounce}}& bounce {{#if mac_ssb_bounce_short}}once{{/if}}{{/if}}
+  </span>
+{{/if}}
+
+{{#if show_win_ssb_prefs}}
+  <span class="small_right_margin">
+    <strong class="black">Flash window:</strong>
+    {{#if_equal window_flash_behavior compare="never"}}Never{{/if_equal}}
+    {{#if_equal window_flash_behavior compare="idle"}}When left idle{{/if_equal}}
+    {{#if_equal window_flash_behavior compare="always"}}Always{{/if_equal}}
+
+    {{#if show_notify_position}}
+      {{#if_not_equal window_flash_behavior compare="never"}}
+        (show notifications in the
+        {{#if_equal winssb_notify_corner compare="top_left"}}top left{{/if_equal}}
+        {{#if_equal winssb_notify_corner compare="top_right"}}top right{{/if_equal}}
+        {{#if_equal winssb_notify_corner compare="bottom_left"}}bottom left{{/if_equal}}
+        {{#if_equal winssb_notify_corner compare="bottom_right"}}bottom right{{/if_equal}}
+        corner of the
+        {{#if_equal winssb_notify_display compare="same_as_app"}}same display as app){{/if_equal}}
+        {{#if_equal winssb_notify_display compare="primary"}}primary display){{/if_equal}}
+      {{/if_not_equal}}
+    {{/if}}
+  </span>
+{{/if}}

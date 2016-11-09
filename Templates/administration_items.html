@@ -1,0 +1,13 @@
+<li id="manage_team" role="menuitem">
+  <a href="/admin" target="{{newWindowName}}">Manage team members</a>
+</li>
+
+<li id="team_settings" role="menuitem">
+  <a href="/admin/settings" target="{{newWindowName}}">Team settings</a>
+</li>
+
+{{#if show_org_settings}}
+  <li id="org_settings" role="menuitem">
+    <a href="//{{enterprise_domain}}" target="{{newWindowName}}">Organization settings</a>
+  </li>
+{{/if}}

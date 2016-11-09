@@ -1,0 +1,13 @@
+<li class="no_bottom_padding no_wrap" role="menuitem">
+  <label for="search_exclude_bots_cb"><input id="search_exclude_bots_cb" type="checkbox" class="small_right_margin" {{#unless search_exclude_bots}}checked="checked"{{/unless}}/>Include {{result_type}} from integrations &amp; bots</label>
+</li>
+<li class="no_top_padding no_wrap {{#feature flag="feature_enterprise_search_ui"}}{{#if is_enterprise}}no_bottom_padding{{/if}}{{/feature}}" role="menuitem">
+  <label for="search_only_my_channels_cb"><input id="search_only_my_channels_cb" type="checkbox" class="small_right_margin" {{#unless search_only_my_channels}}checked="checked"{{/unless}}/>Include {{result_type}} from channels I don't have open</label>
+</li>
+{{#feature flag="feature_enterprise_search_ui"}}
+  {{#if is_enterprise}}
+    <li class="no_top_padding no_wrap" role="menuitem">
+      <label for="search_only_current_team_cb"><input id="search_only_current_team_cb" type="checkbox" class="small_right_margin" {{#unless search_only_current_team}}checked="checked"{{/unless}}/>Include {{result_type}} from my other {{currentEnterpriseName}} teams</label>
+    </li>
+  {{/if}}
+{{/feature}}

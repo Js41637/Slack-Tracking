@@ -1,0 +1,95 @@
+{{#feature flag="feature_browse_date"}}
+  <li id="group_jump_item" role="menuitem">
+    <a target="{{newWindowName}}">Jump to date &hellip;</a>
+  </li>
+{{/feature}}
+{{#if user.is_ultra_restricted}}
+  <li id="group_details_item">
+    <a>View channel details</a>
+  </li>
+  <li class="divider"></li>
+  <li id="group_prefs" role="menuitem"><a>Notification preferences &hellip;</a></li>
+  <li id="group_mute_item" role="menuitem"><a>{{#if group_is_muted}}Unmute{{else}}Mute{{/if}} {{group.name}}</a></li>
+
+
+{{else}}
+  {{#if user.is_restricted}}
+    <li id="group_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>Invite others to {{group.name}} &hellip;</a></li>
+    <li id="group_details_item">
+      <a>View channel details</a>
+    </li>
+    <li class="divider"></li>
+    <li id="group_prefs" role="menuitem"><a>Notification preferences &hellip;</a></li>
+    <li id="group_mute_item" role="menuitem"><a>{{#if group_is_muted}}Unmute{{else}}Mute{{/if}} {{group.name}}</a></li>
+    <li class="divider"></li>
+
+    {{#if_equal leave_action compare='close'}}
+      <li id="group_leave_item" role="menuitem"><a>Leave {{group.name}} &hellip;</a></li>
+    {{/if_equal}}
+
+    {{#if_equal leave_action compare='leave_and_archive'}}
+      <li id="group_leave_item" role="menuitem"><a>Leave and Archive {{group.name}} &hellip;</a></li>
+    {{/if_equal}}
+
+    {{#if_equal leave_action compare='leave'}}<li id="group_leave_item" role="menuitem"><a>Leave {{group.name}}</a></li>{{/if_equal}}
+  {{else}}
+    {{#if group.is_archived}}
+      <li id="group_details_item">
+        <a>View channel details</a>
+      </li>
+      <li class="divider"></li>
+      <li id="group_unarchive_item" role="menuitem"><a>Un-archive channel</a></li>
+      <li id="group_leave_item" role="menuitem"><a>Leave {{group.name}}</a></li>
+    {{else}}
+      {{#unless user.is_restricted}}
+        <li id="group_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>Invite team members to join &hellip;</a></li>
+      {{/unless}}
+      <li id="group_details_item">
+        <a>View channel details</a>
+      </li>
+      {{#if show_handy_rxns}}
+        <li id="group_handy_rxns_item" role="menuitem"><a>Edit Handy Reactions &hellip;</a></li>
+      {{/if}}
+      {{#if show_manage_teams}}
+        <li id="channel_manage_teams_item" role="menuitem"><a>Manage teams in this channel &hellip;</a></li>
+      {{/if}}
+      {{#if show_advanced_item}}
+        <li id="group_advanced_item" role="menuitem"><a>Additional options &hellip;</a></li>
+      {{/if}}
+      <li class="divider"></li>
+      <li id="group_prefs" role="menuitem"><a>Notification preferences &hellip;</a></li>
+      <li id="group_mute_item" role="menuitem"><a>{{#if group_is_muted}}Unmute{{else}}Mute{{/if}} {{group.name}}</a></li>
+      <li class="divider"></li>
+
+      {{#unless is_not_allowed_integrations}}
+        <li id="group_add_service_item" role="menuitem"><a href="/services/new?channel_id={{group.id}}" target="{{newWindowName}}">
+            Add an app or integration
+          </a>
+        </li>
+      {{/unless}}
+
+      {{#if show_email_item}}
+        <li id="group_email_item" role="menuitem">
+          <a target="{{newWindowName}}" href="/services/new/email">
+            Send email to {{group.name}} &hellip;
+          </a>
+        </li>
+      {{/if}}
+
+      {{#unless is_not_allowed_integrations}}
+        <li class="divider"></li>
+      {{else}}
+        {{#if show_email_item}}
+          <li class="divider"></li>
+        {{/if}}
+      {{/unless}}
+
+      {{#if_equal leave_action compare='leave_and_archive'}}
+        <li id="group_leave_item" role="menuitem"><a>Leave and Archive {{group.name}}</a></li>
+      {{else}}
+        <li id="group_leave_item" role="menuitem"><a>Leave {{group.name}}</a></li>
+      {{/if_equal}}
+
+    {{/if}}
+  {{/if}}
+{{/if}}

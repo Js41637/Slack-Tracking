@@ -1,0 +1,23 @@
+<ts-icon class="ts_icon_thumb_tack_filled ts_icon_inherit ts_icon_align_bottom {{#if complete_data}}ts_tip ts_tip_top ts_tip_float ts_tip_multiline{{/if}}">
+  {{#if complete_data}}
+    <span class="ts_tip_tip">
+      <span class="ts_tip_multiline_inner">Pinned by
+      {{#if user.is_self}}
+        you
+      {{else}}
+        {{getMemberDisplayNameById user.id}}
+      {{/if}}
+      <br>
+        <span class="subtle_silver">{{toCalendarDateOrNamedDayShort ts}} at {{toTime ts true}}</span>
+      </span>
+    </span>
+  {{/if}}
+</ts-icon>
+Pinned
+{{#if complete_data}} by
+  {{#if user.is_self}}
+    you
+  {{else}}
+    {{getMemberDisplayNameById user.id}}
+  {{/if}}
+{{/if}}

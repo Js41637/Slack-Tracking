@@ -1,0 +1,84 @@
+{{#each channels}}
+  <div class="{{#unless @first}}top_padding{{/unless}} {{#unless @last}}bottom_border{{/unless}}">
+    <h4 class="no_bottom_margin">
+      <a href="/archives/{{this.name}}" class="slate_blue">
+        <ts-icon class="{{#if this.is_group}}ts_icon_lock_o{{else}}ts_icon_channel{{/if}}"></ts-icon>
+        {{~this.name~}}
+        {{#pageNeedsEnterprise}}
+          {{#if is_shared}}
+            <ts-icon class="ts_icon_shared_channel"></ts-icon>
+          {{/if}}
+        {{/pageNeedsEnterprise}}
+      </a>
+    </h4>
+    {{#pageNeedsEnterprise}}
+      {{#if ../show_shared}}
+        {{#if is_shared}}
+          <div class="col span_5_of_12">
+        {{else}}
+          <div class="col span_4_of_6">
+        {{/if}}
+      {{else}}
+        <div class="col span_4_of_6">
+      {{/if}}
+    {{else}}
+      <div class="col span_4_of_6">
+    {{/pageNeedsEnterprise}}
+      <p class="subtle_silver no_bottom_margin emoji_replace_on_load">
+        {{#if this.purpose}}
+          <em>{{this.purpose}}</em>
+        {{else}}
+          {{#if this.topic}}
+            <em>{{this.topic}}</em>
+          {{else}}
+            Created on {{this.date}}.
+          {{/if}}
+        {{/if}}
+      </p>
+    </div>
+    {{#pageNeedsEnterprise}}
+      {{#if ../show_shared}}
+        {{#if is_shared}}
+          <div class="col span_3_of_12 subtle_silver">
+            <div class="show_on_mobile bottom_margin">Teams</div>
+            {{#each shares}}
+              <div class="shared_team bottom_margin clearfix">
+                <img class="member_image float_left" src="{{team.icon.image_68}}" srcset="{{team.icon.image_34}} 1x, {{team.icon.image_68}} 2x"/>
+                <div class="shared_team_name_and_owner">
+                  <div class="shared_team_name overflow_ellipsis" title="{{team.name}}">{{team.name}}</div>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        {{/if}}
+      {{/if}}
+    {{/pageNeedsEnterprise}}
+    {{#pageNeedsEnterprise}}
+      {{#if ../show_shared}}
+        <div class="col span_2_of_12 subtle_silver">
+      {{else}}
+        <div class="col span_1_of_6 subtle_silver">
+      {{/if}}
+    {{else}}
+      <div class="col span_1_of_6 subtle_silver">
+    {{/pageNeedsEnterprise}}
+      {{#if this.creator_id}}
+        <span class="show_on_mobile inline">Created by </span><a href="/team/{{this.creator_username}}" class="member_name member subtle_silver" data-member-id="{{this.creator_id}}">
+          {{~this.creator_display~}}
+        </a>
+      {{/if}}
+    </div>
+    {{#pageNeedsEnterprise}}
+      {{#if ../show_shared}}
+        <div class="col span_2_of_12 align_center subtle_silver hide_on_mobile">
+      {{else}}
+        <div class="col span_1_of_6 align_center subtle_silver hide_on_mobile">
+      {{/if}}
+    {{else}}
+      <div class="col span_1_of_6 align_center subtle_silver hide_on_mobile">
+    {{/pageNeedsEnterprise}}
+      <i class="ts_icon ts_icon_user"></i> {{this.member_count}}
+    </div>
+    <div class="clear_both"></div>
+  </div>
+{{/each}}

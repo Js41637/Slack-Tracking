@@ -1,0 +1,39 @@
+  <tr id="channel_override_row_{{channel.id}}" class="channel_override_row {{#if channel.is_muted}}muted{{/if}}">
+    <td class="channel_details">
+      <span class="no_wrap">
+        <i class="ts_icon ts_icon_bell_slash mute_icon"></i>
+        {{~#if channel.is_group~}}
+          {{~#if channel.is_mpim~}}
+            <i class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount channel.channel}}"></i>
+          {{~else~}}
+            <i class="ts_icon ts_icon_lock_o group_lock_prefix"></i>
+          {{~/if~}}
+        {{~/if~}}
+        {{~#if channel.is_channel~}}
+          <span class="channel_hash_prefix">#</span>
+        {{~/if~}}
+        <strong>{{channel.name}}</strong>
+        <span class="pref_saved inline_block small_left_margin"><i class="ts_icon ts_icon_check_circle_o"></i> Saved</span>
+      </span>
+
+      <label class="checkbox no_margin normal">
+        <input id="muting_cb_{{channel.id}}" {{#if channel.is_muted}}checked="checked"{{/if}} type="checkbox" data-id="{{channel.id}}" data-pref="muting" class="small_right_margin">
+        Mute this {{#if channel.is_mpim}}conversation{{else}}{{#if channel.is_group}}private channel{{else}}channel{{/if}}{{/if}}
+      </label>
+
+      <label id="at_channel_suppressed_{{channel.id}}" class="hidden checkbox no_margin normal {{#if channel.is_muted}}disabled{{/if}}">
+        <input id="at_channel_suppressed_cb_{{channel.id}}" checked="checked" {{#if channel.is_muted}}disabled{{/if}} type="checkbox" data-id="{{channel.id}}" data-pref="at_channel_suppression" class="small_right_margin"> Suppress <strong>{{#if channel.is_group}}@channel{{else}}{{#if channel.is_general}}@everyone{{else}}@channel{{/if}}{{/if}}</strong> mentions <span id="at_channel_suppressed_mobile_qualifier_{{channel.id}}">(on mobile)</span><span id="at_channel_suppressed_desktop_qualifier_{{channel.id}}">(on desktop)</span><span id="at_channel_suppressed_disabled_explain_{{channel.id}}" class="hidden"> (disabled due to <strong id="at_channel_suppressed_disabled_explain_tip_link_{{channel.id}}" class="{{#if channel.is_muted}}ts_tip_hide {{/if}}ts_tip ts_tip_top ts_tip_multiline ts_tip_float">team settings<span class="ts_tip_tip"><span class="ts_tip_multiline_inner"></span></span></strong>)</span>
+      </label>
+
+    </td>
+
+    <td class="radio_cell"><input type="radio" id="desktop_everything_{{channel.id}}" name="desktop_{{channel.id}}" data-id="{{channel.id}}" data-device="desktop" value="everything" {{#if channel.is_muted}}disabled{{/if}}></td>
+    <td class="radio_cell"><input type="radio" id="desktop_mentions_{{channel.id}}" name="desktop_{{channel.id}}" data-id="{{channel.id}}" data-device="desktop" value="mentions" {{#if channel.is_muted}}disabled{{/if}}></td>
+    <td class="radio_cell"><input type="radio" id="desktop_nothing_{{channel.id}}" name="desktop_{{channel.id}}" data-device="desktop" data-id="{{channel.id}}" value="nothing" {{#if channel.is_muted}}disabled{{/if}}></td>
+
+    <td class="radio_cell"><input type="radio" id="mobile_everything_{{channel.id}}" name="mobile_{{channel.id}}" data-id="{{channel.id}}" data-device="mobile" value="everything" {{#if channel.is_muted}}disabled{{/if}}></td>
+    <td class="radio_cell"><input type="radio" id="mobile_mentions_{{channel.id}}" name="mobile_{{channel.id}}" data-id="{{channel.id}}" data-device="mobile" value="mentions" {{#if channel.is_muted}}disabled{{/if}}></td>
+    <td class="radio_cell"><input type="radio" id="mobile_nothing_{{channel.id}}" name="mobile_{{channel.id}}" data-id="{{channel.id}}" data-device="mobile" value="nothing" {{#if channel.is_muted}}disabled{{/if}}></td>
+
+    <td class="align_center"><i class="ts_icon ts_icon_times_circle revert_to_default" data-id="{{channel.id}}" data-toggle="tooltip" title="Clear custom notification settings from {{#if channel.is_channel}}#{{/if}}{{channel.name}}"></i></td>
+  </tr>

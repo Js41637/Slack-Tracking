@@ -1,0 +1,69 @@
+<div class="align_self_center pre_name_icon">
+  {{#if is_channel}}
+    <ts-icon class="ts_icon_channel_pane_hash"></ts-icon>
+  {{else if is_mpim}}
+    <ts-icon class="mpim_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}}"></ts-icon>
+  {{else if is_group}}
+    <ts-icon class="ts_icon_lock"></ts-icon>
+  {{else if is_im}}
+    {{makeMemberPresenceIcon im_user}}
+  {{/if}}
+</div>
+<div class="unread_group_header_name flex_shrink_none">
+  {{#if is_im}}
+    <a href="/team/{{name}}" class="internal_im_link" data-member-name="{{name}}">{{display_name}}</a>
+  {{else}}
+    {{makeChannelOrGroupLinkById model_ob.id true}}
+  {{/if}}
+</div>
+<div class="unread_group_collapse_toggle cursor_pointer">
+  <div class="unread_group_collapse_caret">
+    <ts-icon class="ts_icon_caret_down"></ts-icon>
+    <ts-icon class="ts_icon_caret_right"></ts-icon>
+  </div>
+  <div class="unread_group_nav_help">
+    {{#if supports_keyboard_commands}}
+      {{#unless marked_as_read}}
+        {{#unless collapsed}}
+        {{/unless}}
+      {{/unless}}
+    {{/if}}
+  </div>
+</div>
+
+{{#if marked_as_read}}
+  {{#if unread_cnt}}
+    <span class="unread_group_message_count">{{unread_cnt}} new {{pluralize unread_cnt 'message' 'messages'}}</span>
+    <button class="btn btn_small btn_outline unread_group_mark {{#if active}}hover{{/if}}" type="button">Mark as Read</button>
+  {{else}}
+    {{#if new_unread_cnt}}
+      <a class="unread_group_new">
+        {{new_unread_cnt}} new {{pluralize new_unread_cnt 'message' 'messages'}} <i class="ts_icon ts_icon_circle_fill small_left_margin"></i>
+      </a>
+    {{else}}
+      <span class="unread_group_marked_as_read_count large_right_margin">
+        {{marked_as_read_cnt}} {{pluralize marked_as_read_cnt 'message' 'messages'}} marked read
+      </span>
+      <span class="unread_group_undo">
+        {{#if supports_keyboard_commands}}
+          <span class="unread_group_undo_help {{#if active}}{{else}}hidden{{/if}}">Press <span class="unread_keyboard">r</span> to </span>
+        {{/if}}
+        <a>Undo</a>
+      </span>
+      
+    {{/if}}
+  {{/if}}
+{{else}}
+  {{#if collapsed}}
+    <a class="unread_group_new">
+      {{unread_cnt}} {{pluralize unread_cnt 'message' 'messages'}} <i class="ts_icon ts_icon_circle_fill small_left_margin"></i>
+    </a>
+  {{else}}
+    <span class="unread_group_message_count">{{unread_cnt}} {{pluralize unread_cnt 'message' 'messages'}}</span>
+    {{#if active}}
+      <span class="unread_group_keyboard_help">Press <span class="unread_keyboard">r</span> to</span>
+    {{/if}}
+    <button class="btn btn_small btn_outline unread_group_mark" type="button">Mark as Read</button>
+  {{/if}}
+{{/if}}
+<div class="unread_group_header_arrow"><ts-icon class="ts_icon_chevron_medium_left"></ts-icon></div>

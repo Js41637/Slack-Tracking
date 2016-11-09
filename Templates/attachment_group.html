@@ -1,0 +1,10 @@
+{{#if first_attachment.pretext}}
+  <div class="attachment_pretext for_attachment_group">{{formatMessageAttachmentPart first_attachment.pretext msg true first_attachment.mrkdwn_in_hash.pretext}}</div>
+{{/if}}
+{{#if attachments_html}}
+  {{#if use_shrink_wrap}}<div class="attachment_group_shrink_wrapper">{{/if}}
+  <div class="attachment_group{{#if has_border}} has_border{{/if}}{{#if has_link}} has_link{{/if}}{{#if has_container}} has_container{{/if}}">
+    {{attachments_html}}
+  </div>
+  {{#if use_shrink_wrap}}</div>{{/if}}
+{{/if}}

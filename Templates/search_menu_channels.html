@@ -1,0 +1,40 @@
+{{#if channels}}
+  <div class="section_header"><span class="header_label search_mini">Channels</span></div>
+  <ol class="results channels">
+    {{#each channels}}
+      <li data-replacement="{{../conversation_modifier}}{{#if is_channel}}#{{/if}}{{name}}">
+        <button class="result_item_btn btn_unstyle" type="button">
+          {{#if ../show_modifier}}
+            <span>{{../conversation_modifier}}</span>
+          {{/if}}
+          <strong>{{#if is_channel}}#{{/if}}{{name}}</strong>
+
+          {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
+        </button>
+      </li>
+    {{/each}}
+
+    {{#if channels_archived}}
+      {{!-- TODO: reveal_hidden_items should not be a list item because it does not create an accurate representation of this list's count, but the way search-autocomplete-menu.js is built does not allow for an easy change :( --}}
+      <li class="reveal_hidden_items">
+        <button class="reveal_items_btn action_btn btn_unstyle" type="button">
+          Show {{channels_archived.length}} archived {{pluralize channels_archived.length "channel"}}
+        </button>
+      </li>
+
+      {{#each channels_archived}}
+        <li data-replacement="{{../conversation_modifier}}{{#if is_channel}}#{{/if}}{{name}}" class="hidden">
+          <button class="result_item_btn btn_unstyle" type="button">
+            {{#if ../show_modifier}}
+              <span>{{../conversation_modifier}}</span>
+            {{/if}}
+            <strong>{{#if is_channel}}#{{/if}}{{name}}</strong>
+
+            {{> ts_icon class="ts_icon_plus_square_o ts_icon_inherit modifier_icon"}}
+          </button>
+        </li>
+      {{/each}}
+    {{/if}}
+  </ol>
+{{/if}}
+

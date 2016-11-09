@@ -1,0 +1,40 @@
+<div id="private_groups_coachmark_div" class="coachmark_div">
+  <div class="small_coachmark_contents">
+    <span><strong class="black">Click</strong> to learn more about private groups.</span>
+  </div>
+  <div class="coachmark_contents">
+    <h2 class="black">
+      {{~#currentUserIsRA~}}
+        {{~#if_gt channels_count compare=0~}}
+          {{~#if_gt groups_count compare=1~}}
+            These are your private groups
+          {{~else~}}
+            {{~#if_equal groups_count compare=1~}}
+              This is your private group
+            {{~else~}}
+              Private groups are invite-only
+            {{~/if_equal~}}
+          {{~/if_gt~}}
+        {{~else~}}
+          This is your group
+        {{~/if_gt~}}
+      {{~else~}}
+        Private groups are invite-only
+      {{~/currentUserIsRA~}}
+    </h2>
+    {{~#currentUserIsRA~}}
+      <p>Groups are private, <strong>invite-only rooms</strong>. {{#if_gt groups_count compare=1~}}
+        You have access to the groups listed here
+      {{~else~}}
+        {{~#if_equal groups_count compare=1~}}
+          You only have access to this group
+        {{~else~}}
+          People in <strong>{{currentTeamName}}</strong> will not know about a private group unless you invite them.
+        {{~/if_equal~}}
+      {{~/if_gt~}}
+      .<p>
+    {{~else~}}
+      <p>Use private groups for <strong>invite-only conversations</strong>. People in <strong>{{currentTeamName}}</strong> will not know about a private group unless you invite them.</p>
+    {{~/currentUserIsRA~}}
+  </div>
+</div>

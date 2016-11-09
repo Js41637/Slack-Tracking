@@ -1,0 +1,36 @@
+{{#each ims}}
+  <div class="{{#unless @first}}top_padding{{/unless}} {{#unless @last}}bottom_border{{/unless}}">
+    <div class="position_relative">
+      {{#if this.is_mpim}}
+        <span class="avatar avatar_one">{{{makeMemberPreviewLinkImage this.member_one_id 36 false true}}}</span>
+        <span class="avatar avatar_two">{{{makeMemberPreviewLinkImage this.member_two_id 36 false true}}}</span>
+      {{else}}
+        <span class="avatar">{{{makeMemberPreviewLinkImage this.member.id 48 false true}}}</span>
+      {{/if}}
+    </div>
+    <h4 class="no_bottom_margin" style="padding-left: 4rem;">
+      {{#if this.is_mpim}}
+        <a href="{{mpimArchivesPath this.model_ob}}" class="slate_blue">
+          <i class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount this.model_ob}}"></i>{{mpimDisplayName this.model_ob}}
+        </a>
+      {{else}}
+        <a href="/archives/{{this.id}}" class="slate_blue">
+          {{#feature flag="feature_name_tagging_client"}}
+            {{getMemberFullName this.member}}
+          {{else}}
+            {{getMemberDisplayName this.member}}
+          {{/feature}}
+        </a>
+      {{/if}}
+    </h4>
+    <div class="col span_4_of_6 subtle_silver" style="padding-left: 4rem">
+      <p class="small no_bottom_margin">
+        {{{this.last_msg_html}}}
+      </p>
+    </div>
+    <div class="col span_2_of_6 subtle_silver hide_on_mobile">
+      {{this.latest_date}}
+    </div>
+    <div class="clear_both"></div>
+  </div>
+{{/each}}

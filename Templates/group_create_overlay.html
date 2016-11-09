@@ -1,0 +1,42 @@
+<div id="group_created" class="channel_overlay channel_overlay_redesign">
+  {{#if group.is_shared}}
+    <img class="channel_overlay_shared_icon float_left" src="{{versioned_join_shared_channel '2x'}}" srcset="{{versioned_join_shared_channel 1x}} '1x', {{versioned_join_shared_channel '2x'}} 2x" />
+    <div class="channel_overlay_title_wrap bottom_margin">
+      <p class="channel_overlay_title_shared small_bottom_margin">
+        You just created a shared private channel
+      </p>
+  {{else}}
+    <img class="channel_overlay_team_icon float_left" src="{{versioned_join_team_channel '2x'}}" srcset="{{versioned_join_team_channel '1x'}} 1x, {{versioned_join_team_channel '2x'}} 2x" />
+    <div class="channel_overlay_title_wrap bottom_margin">
+  {{/if}}
+    <p class="channel_overlay_title">
+      {{#unless group.is_shared}}
+        <span class="channel_overlay_title_opener">You just created</span><br />
+      {{/unless}}
+      <span class="channel_overlay_title_prefix">{{groupPrefix}}</span><strong>{{group.name}}</strong>
+    </p>
+  </div>
+  <ul>
+    {{#if_gt group.active_members.length compare=1}}
+      <li>{{group.active_members.length}} people have this private channel open.</li>
+    {{else}}
+      <li>You are currently the only person in this private channel.</li>
+    {{/if_gt}}
+    <li>You can invite other people from the channel menu, which you'll find at the top of this column.</li>
+    <li>You can review messages from this channel in the <a href="/archives/{{group.name}}" class="bold" target={{newWindowName}}>Channel Archive</a>.</li>
+  </ul>
+  {{#if group.purpose.value}}
+    <p class="channel_overlay_purpose">The purpose of this channel is:<br /><em>{{formatTopicOrPurpose group.purpose.value}}</em></p>
+  {{/if}}
+
+  <label class="checkbox overlay_pref block">
+    <input id="no_created_overlays_cb" type="checkbox" /> Don't show me this message when I create a channel
+  </label>
+
+  <a class="btn padded">Got it!</a>
+
+  <p class="hidden" aria-hidden="false">
+    Press enter to close this message and view the channel.
+  </p>
+
+</div>

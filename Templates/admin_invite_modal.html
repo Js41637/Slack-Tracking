@@ -1,0 +1,98 @@
+<div id="admin_invites_container">
+
+  <h1 id="admin_invites_header" class="light align_center">
+    <i class="ts_icon ts_icon_paper_plane clear_blue float_none small_right_margin hide_on_mobile"></i>
+    Invite <span class="admin_invites_header_type">people</span><span class="admin_invites_header_team_name"> to <span class="normal">{{team_name}}</span></span>
+  </h1>
+
+  <div id="admin_invites_switcher">
+    {{> admin_invite_switcher}}
+  </div>
+
+  <div id="admin_invites_workflow" class="hidden top_margin">
+
+    <div id="admin_invites_channel_picker_container"></div>
+
+    <form id="individual_invites">
+
+      <input type="hidden" name="account_type" id="account_type" value="full" />
+
+      <p class="alert alert_info" id="invite_notice" style="display: none;"></p>
+
+      <div id="invite_rows"></div>
+
+      <p id="admin_invites_add_row" class="clear_both clearfix">
+      
+        <a data-action="admin_invites_add_row" class="float_left bold" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=add_row,trigger=click_cta_add_row" tabindex="0"><ts-icon class="ts_icon_plus_circle small_right_margin align_bottom"></ts-icon>Add another invitation</a>
+
+        <span id="btn_connect_contacts" class="float_right subtle_silver"><ts-icon class="ts_icon_google small_right_margin align_bottom"></ts-icon><span class="btn_connect_contacts_text">Connect your <a data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=connect_google_contacts,trigger=click_connect_address_book_btn" tabindex="0">Google Contacts</a></span>
+        </span>
+
+      </p>
+
+      <div class="invite_modal_options_container">
+
+        <div class="admin_invites_custom_message_container">
+          <div class="admin_invites_show_custom_message hidden medium_bottom_margin">
+            <label for="admin_invite_custom_message">Custom Message</label>
+            <textarea id="admin_invite_custom_message" name="admin_invite_custom_message" maxlength="560" placeholder="Enter a custom message to attach to the invites" data-validation="hasnourl"></textarea>
+            <a class="hide_custom_message" data-action="admin_invites_hide_custom_message"><i class="ts_icon ts_icon_times"></i></a>
+          </div>
+        </div>
+
+        <div class="invite_modal_options large_bottom_margin">
+          <div class="invite_modal_options_left">
+            {{#if show_custom_message}}
+              <div class="admin_invites_hide_custom_message invite_modal_options_message small subtle_silver no_bottom_margin">
+                <a class="underline subtle_silver" data-action="admin_invites_show_custom_message" tabindex="0">Add a custom message</a> to make your invites more personal.
+              </div>
+            {{/if}}
+            <div class="small no_bottom_margin invite_modal_options_message medium_right_margin"><span class="subtle_silver">Big team?<a data-action="admin_invites_switch_view" data-view="bulk" class='small_left_margin subtle_silver underline' data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=switch_view_to_bulk,trigger=click_cta_switch_view_to_bulk" tabindex="0">Invite many people at once</a></div>
+            {{#unless is_paid_team}}
+              <div class="small no_bottom_margin invite_modal_options_message">{{#currentUserIsAdmin}}<a href="/admin/invites" class="subtle_silver underline" target="{{newWindowName}}" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=view_pending_and_accepted,trigger=click_cta_pending_and_accepted">See pending and accepted invites</a>{{/currentUserIsAdmin}}</div>
+            {{/unless}}
+          </div>
+          <div class="invite_modal_options_right">
+            <button type="submit" id="admin_invites_submit_btn" class="btn btn_large ladda-button" data-action="api_send_invites" data-style="expand-right">
+              <span class="ladda-label" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=invite,trigger=click_cta_submit_btn">Invite People</span>
+            </button>
+          </div>
+        </div>
+
+        {{#if is_paid_team}}
+          <div class="invite_modal_footer subtle_silver align_center large_top_padding large_top_margin">
+            <span id="admin_invites_billing_notice">You'll be charged a prorated amount for each new member. See our <a href="https://slack.zendesk.com/hc/en-us/articles/201723133-Billing-FAQ"  class="subtle_silver underline" target="new">Guide to billing at Slack</a>.</span>
+            <span id="ura_warning">Note that {{raLabel 'Restricted Accounts & Single-Channel Guests'}} can access your Team Directory via the <a href="https://api.slack.com/methods/users.list" target="new" class="subtle_silver underline">Slack API</a>.</span>
+            {{#currentUserIsAdmin}}<a href="/admin/invites" class="subtle_silver underline pending_updates" target="{{newWindowName}}" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=view_pending_and_accepted,trigger=click_cta_pending_and_accepted">See pending and accepted invites</a>{{/currentUserIsAdmin}}
+          </div>
+        {{/if}}
+
+      </div>
+
+    </form>
+
+    <form id="bulk_invites" class="hidden stacked top_margin">
+
+      <p class="alert alert_warning hidden" id="bulk_notice"></p>
+
+      <label class="full_width">
+        Enter multiple email addresses
+        <textarea wrap="virtual" name="emails" id="bulk_emails" class="no_bottom_margin full_width"></textarea>
+      </label>
+      {{#if invites_limit}}
+      <p class="input_note">Please separate multiple addresses with commas. <strong>Keep in mind that Slack may limit the number of invitations you can send if your team currently has a low acceptance rate.</strong> Our Help Center has <a href='https://get.slack.help/hc/en-us/articles/201330256#invitation_limits'>more details on invitation limits</a>.</p>
+      {{else}}
+      <p class="input_note"><strong>Tip:</strong> Copy and paste a list of contacts from your email. Please separate multiple addresses with\u00a0commas!</p>
+      {{/if}}
+
+      <button type="submit" class="btn small_right_margin ladda-button" data-action="api_parse_emails" data-style="expand-right" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=invite_bulk,trigger=click_cta_submit_bulk_btn">Add Invitees</button>
+      <a class="btn btn_outline" data-action="admin_invites_switch_view" data-view="individual" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=switch_view_to_individual,trigger=click_cta_switch_view_to_individual">Cancel</a>
+    </form>
+
+  </div>
+
+  <div id="admin_invites_success" class="hidden">
+    {{> admin_invite_summary}}
+  </div>
+
+</div>

@@ -1,0 +1,25 @@
+{{#if actions.comment}}
+
+  <header class="comment_header">
+    {{#feature flag="feature_share_mention_comment_cleanup"}}
+      <button class="aside_back_btn">See all</button>
+    {{/feature}}
+    <button class="aside_close_btn">Close</button>
+    <h4 class="comment_label">
+      {{#feature flag="feature_share_mention_comment_cleanup"}}
+        {{#if name}}
+          {{name}}
+        {{else}}
+          Comments
+        {{/if}}
+      {{else}}
+        Comments
+      {{/feature}}
+    </h4>
+  </header>
+
+  <div class="file_comments_{{file.id}} comments">{{comments file}}</div>
+
+  <div class="no_comment">Be the first to leave a comment</div>
+
+{{/if}}

@@ -1,0 +1,34 @@
+  <span class="subtle_silver">
+    {{#if_equal comment.user compare=current_user_id}}
+      Your
+    {{else}}
+      <span class="{{getMemberColorClassById comment.user}}">{{{makeMemberPreviewLinkById comment.user}}}</span>'s
+    {{/if_equal}}
+    comment on
+    {{#if_equal file.user compare=current_user_id}}
+      your
+    {{else}}
+      <span class="{{getMemberColorClassById file.user}}">{{{makeMemberPreviewLink entity false}}}</span>'s
+    {{/if_equal}}
+    {{#if_equal file.mode compare="snippet"}}
+      snippet:
+    {{/if_equal}}
+    {{#if_equal file.mode compare="post"}}
+      post:
+    {{/if_equal}}
+    {{#if_equal file.mode compare="space"}}
+      space:
+    {{/if_equal}}
+    {{#if_equal file.mode compare="hosted"}}
+      file:
+    {{/if_equal}}
+    {{#if_equal file.mode compare="external"}}
+      file:
+    {{/if_equal}}
+  </span>
+  <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link bold">{{{formatFileTitle file}}}</a><br />
+  
+  <i class="icon_quote float_left ts_icon ts_icon_quote"></i>
+  
+  <p class="comment small_bottom_margin">{{{formatMessage comment.comment}}}</p>
+

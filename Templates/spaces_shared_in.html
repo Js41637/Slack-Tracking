@@ -1,0 +1,22 @@
+{{! Note: whitespace before the closing </li> tags will add spacing before the comma separating
+          the items, so be careful. }}
+{{#if public_link}}
+  <li>
+    shared <a href="{{public_link}}" class="space_toggle_public_url" target="public_{{public_link}}">{{#feature flag="feature_external_files"}}externally{{else}}publicly{{/feature}}</a>
+    {{#if can_unshare}}<a class="unshare_link ts_tip ts_tip_top ts_tip_float" onclick="TS.web.file.revokePublicURL(TS.files.getFileById('{{file_id}}'))"><span class="ts_tip_tip">{{#feature flag="feature_external_files"}}Revoke the external link{{else}}Revoke the public URL{{/feature}}</span><i class="ts_icon ts_icon_minus_circle_small"></i></a>{{/if}}{{#if shared_in}} and in{{/if}}
+  </li>
+{{else}}
+  <li>shared in</li>
+{{/if}}
+{{#if in_our_app}}
+  {{#each shared_in}}
+  <li class="list">{{{makeChannelOrGroupSSBLinkById this}}} {{#if ../can_unshare}}{{{makeUnshareLinkById this}}}{{/if}}</li>
+  {{/each}}
+{{else}}
+  {{#each shared_in}}
+  <li class="list">{{{makeChannelOrGroupLinkById this}}} {{#if ../can_unshare}}{{{makeUnshareLinkById this}}}{{/if}}</li>
+  {{/each}}
+{{/if}}
+{{#has_overflow}}
+  <li><a href="javascript:void(0)" class="show_overflow">{{overflow_count}} more</a></li>
+{{/has_overflow}}

@@ -1,0 +1,7 @@
+<div class="menu_member_footer">
+  {{#if member.deleted}}
+    <p class="no_bottom_margin">This account was deactivated.</p>
+  {{else}}
+    <input type="text" id="menu_member_dm_input" class="small" placeholder="Message {{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member false true}}{{/feature}}" />
+  {{/if}}
+</div>

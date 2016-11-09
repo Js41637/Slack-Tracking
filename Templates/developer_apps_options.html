@@ -1,0 +1,7 @@
+{{#if optgroup}}
+  <optgroup label="{{scope}}">
+    <option value="{{event_name}}" data-additional-search-field="{{description}}">{{event_name}}</option>
+  </optgroup>
+{{else}}
+  <option value="{{event_name}}" data-additional-search-field="{{description}}">{{event_name}}</option>
+{{/if}}

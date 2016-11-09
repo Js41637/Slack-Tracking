@@ -1,0 +1,258 @@
+<div class="member_details clearfix display_flex flex_direction_column align_items_center{{#isClient}} cropped_preview{{/isClient}}">
+
+  {{{makeMemberPreviewLinkImage member.id 512 false true true}}}
+
+  <div class="member_name_and_presence lato">
+    {{#feature flag="feature_name_tagging_client"}}
+      {{#if member.deleted}}
+        <a href="/team/{{member.id}}" target="{{newWindowName}}" class="member_name">{{getMemberFullName member}}</a>
+      {{else}}
+        {{#if member.is_self}}
+          {{#isClient}}
+            <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name">{{getMemberFullName member}}</a>
+          {{else}}
+            <span class="member_name">{{getMemberFullName member}}</span>
+          {{/isClient}}
+        {{else}}
+          <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link">{{getMemberFullName member}}</a>
+        {{/if}}
+        {{{makeMemberPresenceIcon member}}}
+      {{/if}}
+    {{else}}
+      {{#if member.deleted}}
+        <a href="/team/{{member.name}}" target="{{newWindowName}}" class="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+      {{else}}
+        {{#if member.is_self}}
+          {{#isClient}}
+            <a href="/team/{{member.name}}" target={{newWindowName}} class="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+          {{else}}
+            <span class="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</span>
+          {{/isClient}}
+        {{else}}
+          <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="member_name internal_im_link">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
+        {{/if}}
+        {{{makeMemberPresenceIcon member}}}
+      {{/if}}
+    {{/feature}}
+  </div>
+
+  {{#if member.profile}}
+    {{#if member.profile.title}}
+      <div class="member_title lato">{{member.profile.title}}</div>
+    {{/if}}
+  {{/if}}
+
+  {{#pageNeedsEnterprise}}
+    {{#if member._is_external}}
+      <div class="member_type_and_description old_petunia_grey lato">
+        <span class="overflow_ellipsis">External Guest</span>
+      </div>
+    {{else if member.is_restricted}}
+      <div class="member_type_and_description old_petunia_grey lato">
+        <span class="overflow_ellipsis">
+          {{#if member.deleted}}
+            Deactivated
+          {{/if}}
+          {{#if member.is_ultra_restricted}}
+            Single-Channel Guest{{!--#if ura_channel}} in #{{ura_channel}}{{/if--}}
+          {{else}}
+            {{raLabel 'Restricted Account'}}
+          {{/if}}
+        </span>
+      </div>
+    {{else if member.is_bot}}
+      <div class="member_type_and_description old_petunia_grey lato">
+        <span class="overflow_ellipsis">Non-sentient Bot</span>
+      </div>
+    {{else}}
+      {{#if member.deleted}}
+        <div class="member_type_and_description old_petunia_grey lato">
+          Deactivated account
+        </div>
+      {{/if}}
+    {{/if}}
+  {{else}}
+    {{#if member.is_restricted}}
+      <div class="member_restriction lato overflow_ellipsis">
+        {{#if member.deleted}}
+          Deactivated
+        {{/if}}
+        {{#if member.is_ultra_restricted}}
+          Single-Channel Guest{{!--#if ura_channel}} in #{{ura_channel}}{{/if--}}
+        {{else}}
+          {{raLabel 'Restricted Account'}}
+        {{/if}}
+        <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_top ts_tip_multiline ts_tip_float">
+          <span class="ts_tip_tip">
+            <span class="ts_tip_multiline_inner">{{#if member.is_ultra_restricted}}Single-Channel Guests{{else}}{{raLabel 'Restricted Accounts'}}{{/if}} see a partial team directory and can only access messages and files from selected channels.</span>
+          </span>
+        </i>
+      </div>
+    {{else}}
+      {{#if member.deleted}}
+        <div class="member_restriction lato overflow_ellipsis">
+          Deactivated account
+        </div>
+      {{/if}}
+    {{/if}}
+
+    {{#if member.is_bot}}
+      <div class="member_restriction lato overflow_ellipsis">
+        Non-sentient Bot
+        <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_top ts_tip_multiline ts_tip_float">
+          <span class="ts_tip_tip">
+            <span class="ts_tip_multiline_inner">Bots are built with code and are free to add to your team. Unlike humans, they are non-sentient, but they can listen and post to Slack just like everyone else on your team.</span>
+          </span>
+        </i>
+      </div>
+    {{/if}}
+  {{/pageNeedsEnterprise}}
+
+  <div class="member_action_bar">
+    {{#if member.deleted}}
+      <a id="member_deleted_view_archives_btn" href="/archives/{{member.name}}" target="{{newWindowName}}" class="btn btn_outline {{#memberHasIm member=member}}{{else}}hidden{{/memberHasIm}}">View Archives</a>
+    {{else}}
+      {{#if member.is_self}}
+        <a data-action="edit_member_profile_modal" class="btn btn_outline">Edit Profile</a>
+        <a href="/account/settings" target="{{newWindowName}}" class="btn btn_outline">Account Settings</a>
+      {{else}}
+        {{!-- Show "configure" link to the creator of the bot (Web ONLY) and team admins (everywhere) --}}
+        {{#if show_bot_configuration}}
+          {{#if bot_configure_url}}
+            <a href="{{bot_configure_url}}" target="{{newWindowName}}" class="btn btn_outline">Configure</a>
+          {{/if}}
+        {{/if}}
+        {{#isClient}}
+          {{#if show_call_action}}<a class="btn btn_outline internal_im_call_link" data-member-name="{{member.name}}">Call</a>{{/if}}
+          <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="btn btn_outline internal_im_link">Message</a>
+        {{else}}
+          <a href="/messages/@{{member.name}}" target="new" class="btn btn_outline">Message</a>
+          {{#memberHasIm member=member}}
+            <a href="/archives/{{member.name}}" class="btn btn_outline">View Archives</a>
+          {{/memberHasIm}}
+          {{#and member.files member.files.length}}
+            <a href="/files/{{member.name}}" class="btn btn_outline">Files</a>
+          {{/and}}
+        {{/isClient}}
+      {{/if}}
+    {{/if}}
+
+    {{#unless hide_more_menu}}
+      <a class="member_preview_menu_target btn btn_outline"><i class="ts_icon ts_icon_chevron_large_down"></i></a>
+    {{/unless}}
+
+  </div>
+
+  {{#if member.profile}}
+    <hr class="member_details_divider">
+
+    <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
+      {{#feature flag="feature_name_tagging_client"}}
+        {{#if member.profile.preferred_name}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="Preferred name">Preferred name</span></td>
+            {{#if member.deleted}}
+              {{#memberHasIm member=member}}
+                <td><a href="/archives/{{member.id}}" target="{{newWindowName}}">{{getMemberPreferredName member}}</a></td>
+              {{else}}
+                <td><a href="/team/{{member.id}}" target="{{newWindowName}}">{{getMemberPreferredName member}}</a></td>
+              {{/memberHasIm}}
+            {{else}}
+              {{#if member.is_self}}
+                <td><span title="{{getMemberPreferredName member}}">{{getMemberPreferredName member}}</span></td>
+              {{else}}
+                {{#isClient}}
+                  <td><a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" title="{{getMemberPreferredName member}}" class="internal_im_link">{{getMemberPreferredName member}}</a></td>
+                {{else}}
+                  <td><a href="/messages/{{member.id}}" target="new" title="{{getMemberPreferredName member}}">{{getMemberPreferredName member}}</a></td>
+                {{/isClient}}
+              {{/if}}
+            {{/if}}
+          </tr>
+        {{/if}}
+      {{else}}
+        {{#if member.profile.real_name}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="Username">Username</span></td>
+            {{#if member.deleted}}
+              {{#memberHasIm member=member}}
+                <td><a href="/archives/{{member.name}}" target="{{newWindowName}}">@{{member.name}}</a></td>
+              {{else}}
+                <td><a href="/team/{{member.name}}" target="{{newWindowName}}">@{{member.name}}</a></td>
+              {{/memberHasIm}}
+            {{else}}
+              {{#if member.is_self}}
+                <td><span title="@{{member.name}}">@{{member.name}}</span></td>
+              {{else}}
+                {{#isClient}}
+                  <td><a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" title="@{{member.name}}" class="internal_im_link">@{{member.name}}</a></td>
+                {{else}}
+                  <td><a href="/messages/@{{member.name}}" target="new" title="@{{member.name}}">@{{member.name}}</a></td>
+                {{/isClient}}
+              {{/if}}
+            {{/if}}
+          </tr>
+        {{/if}}
+      {{/feature}}
+      {{#unless member.is_slackbot}}
+        {{#unless member.is_bot}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="Timezone">Timezone</span></td>
+            <td class="member_preview_timezone"><span class="timezone_label" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</span>{{#if member.is_self}} (<a href='/account/settings' target="{{newWindowName}}">change</a>){{/if}}</td>
+          </tr>
+        {{/unless}}
+      {{/unless}}
+      {{#if member.profile.phone}}
+        <tr>
+          <td><span class="small_right_padding old_petunia_grey" title="Phone Number">Phone Number</span></td>
+          <td><a href="tel:{{member.profile.phone}}">{{member.profile.phone}}</a></td>
+        </tr>
+      {{/if}}
+      {{#if member.profile.email}}
+        <tr>
+          <td><span class="small_right_padding old_petunia_grey" title="Email">Email</span></td>
+          <td><a href="mailto:{{member.profile.email}}" title="Email {{member.name}}">{{member.profile.email}}</a></td>
+        </tr>
+      {{/if}}
+      {{{getVisibleTeamProfileFieldsForMember member}}}
+    </table>
+  {{/if}}
+
+  {{#pageNeedsEnterprise}}
+    {{#if teams}}
+      <hr class="member_details_divider">
+
+      <table class="member_data_table lato">
+        {{#if teams.shared}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="Shared Teams">Shared Teams</span></td>
+            <td>
+              {{#each teams.shared}}
+                {{name}}<br/>
+              {{/each}}
+            </td>
+          </tr>
+        {{/if}}
+      </table>
+    {{/if}}
+  {{/pageNeedsEnterprise}}
+
+  <div class="clear_both"></div>
+
+</div>
+
+{{#if member.is_slackbot}}
+  <div class="help">
+    <img src="{{versioned_slackbot_72}}" alt="Slackbot" class="slackbot_icon small_top_margin small_bottom_margin float_right left_margin" />
+      <p>Slackbot is our friendly, in-house bot, here to help you use Slack. Slackbot will occasionally send you notifications or reminders. </p>
+    {{#isClient}}
+      <i class="ts_icon ts_icon_question_circle member_help_center callout"></i>
+      {{#slackbotHelpEnabled}}
+        <p>In your direct messages with Slackbot, you can ask simple, Slack-related questions (or just type a few keywords). Slackbot will try to answer or will search the <a href="https://get.slack.help/hc/en-us" target="{{newWindowName}}">Help Center</a> for you. You can also type <strong>/feedback</strong> followed by your message to send a note or question to the humans at Slack.</p>
+      {{else}}
+        <p>If you have questions about how to use Slack, try searching our <a href="https://get.slack.help/hc/en-us" target="{{newWindowName}}">Help Center</a>. Or, type <strong>/feedback</strong> followed by your message to send a note to the team at Slack!</p>
+      {{/slackbotHelpEnabled}}
+    {{/isClient}}
+  </div>
+
+{{/if}}
