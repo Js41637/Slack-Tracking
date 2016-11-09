@@ -22,12 +22,10 @@
     <ts-icon class="ts_icon_caret_right"></ts-icon>
   </div>
   <div class="unread_group_nav_help">
-    {{#if supports_keyboard_commands}}
-      {{#unless marked_as_read}}
-        {{#unless collapsed}}
-        {{/unless}}
+    {{#unless marked_as_read}}
+      {{#unless collapsed}}
       {{/unless}}
-    {{/if}}
+    {{/unless}}
   </div>
 </div>
 
@@ -45,9 +43,7 @@
         {{marked_as_read_cnt}} {{pluralize marked_as_read_cnt 'message' 'messages'}} marked read
       </span>
       <span class="unread_group_undo">
-        {{#if supports_keyboard_commands}}
-          <span class="unread_group_undo_help {{#if active}}{{else}}hidden{{/if}}">Press <span class="unread_keyboard">r</span> to </span>
-        {{/if}}
+        <span class="unread_group_undo_help {{#if active}}{{else}}hidden{{/if}}">Press <span class="unread_keyboard">r</span> to </span>
         <a>Undo</a>
       </span>
       

@@ -23184,49 +23184,6 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   vertical-align: bottom
 }
 
-.unread_empty_state_refresh_old {
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  font-weight: 500;
-  font-size: 1.125rem;
-  line-height: 1.5625rem;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  -moz-flex-direction: column;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  -ms-flex-pack: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  justify-content: center;
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -moz-align-items: center;
-  align-items: center;
-  background: rgba(255, 255, 255, .97);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0
-}
-
-.unread_empty_state_refresh_old span {
-  text-transform: capitalize
-}
-
-.unread_empty_state_refresh_old .unread_empty_state_refresh_button {
-  margin-top: 10px
-}
-
 .unread_error_state {
   text-align: center;
   margin-top: -91px
@@ -24059,6 +24016,22 @@ ul li.highlighted a .app_slash_command_title_name {
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a .app_slash_command_desc,
 ul li.highlighted a .app_slash_command_desc {
   color: rgba(255, 255, 255, .7)
+}
+
+.app_card_posting_summary {
+  display: block;
+  text-decoration: none;
+  padding: 0 1rem 0 .5rem;
+  margin: 0 .9375rem;
+  border-radius: .25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  outline: 0;
+  font-size: .9375rem;
+  line-height: 1.5625rem;
+  background: 0 0;
+  color: #2c2d30;
+  white-space: normal
 }
 
 .app_video_thumbnail {

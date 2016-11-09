@@ -171,7 +171,9 @@
       return;
     }
     var LZString_url = cdn_url + "/85b8/js/libs/lz-string-1.4.4.js";
-    if (TS.boot_data.version_ts === "dev") {
+    var using_local_js = TS.qs_args["local_assets"] || TS.qs_args["js_path"];
+    var is_dev = TS.boot_data.version_ts === "dev";
+    if (using_local_js || is_dev) {
       LZString_url = location.protocol + "//" + location.host + LZString_url;
     }
     _worker = TS.utility.makeWebWorker("function() {			self.importScripts('" + LZString_url + "');			self.onmessage = function(e) {				var start = Date.now();				var result;				if (e.data.request == 'compress') {					result = LZString.compress(e.data.input)				}				var elapsed = Date.now() - start;				postMessage({					request: e.data.request,					result: result,					job_key: e.data.job_key,					k: e.data.k,					elapsed: elapsed				});			}		}", function(e) {
@@ -230,7 +232,7 @@
       }
       if (TS.qs_args.feature_flannel_fe && TS.qs_args.feature_flannel_fe == 0) {
         TS.log(1989, "Flannel: dumping LS because of feature_flannel_fe url_flag override");
-        TS.storage.cleanOutMsgStorageAndReset();
+        TS.storage.completelyEmptyAllStorageAndReset();
       }
       TS.log(488, "TS.storage.onStart should_disable:" + should_disable);
       TS.log(488, "TS.storage.do_compression:" + TS.storage.do_compression + " (_ls.getItem('is_compressed') == 'yes'):" + (_ls && _ls.getItem("is_compressed") == "yes"));
@@ -289,28 +291,28 @@
       if (TS.pri) TS.log(488, 'disableMemberBotCache(): _user_bot_caching_disabled is currently "' + _user_bot_caching_disabled + '"');
       _user_bot_caching_disabled = true;
     },
-    cleanOutMsgStorageAndResetIfTooOld: function() {
+    completelyEmptyAllStorageAndResetIfTooOld: function() {
       if (!_isStorageTooOld()) return false;
       TS.warn("last LS activity too old, we're purging");
-      TS.storage.cleanOutMsgStorageAndReset();
+      TS.storage.completelyEmptyAllStorageAndReset();
       return true;
     },
-    cleanOutMsgStorageAndReset: function() {
-      TS.info("cleanOutMsgStorageAndReset running");
-      _cleanOutMsgStorage();
+    completelyEmptyAllStorageAndReset: function() {
+      TS.info("completelyEmptyAllStorageAndReset running");
+      _completelyEmptyAllStorage();
       TS.storage.storeLastEventTS("", true, true);
       var fetched_b4_flush = TS.storage.fetchLastEventTS(true);
-      TS.info("cleanOutMsgStorageAndReset fetched_b4_flush:" + fetched_b4_flush);
+      TS.info("completelyEmptyAllStorageAndReset fetched_b4_flush:" + fetched_b4_flush);
       if (fetched_b4_flush) {
-        TS.info("cleanOutMsgStorageAndReset _getKeys:" + _getKeys().join(", "));
-        TS.info("cleanOutMsgStorageAndReset Object.keys(_buffer):" + Object.keys(_buffer).join(", "));
+        TS.info("completelyEmptyAllStorageAndReset _getKeys:" + _getKeys().join(", "));
+        TS.info("completelyEmptyAllStorageAndReset Object.keys(_buffer):" + Object.keys(_buffer).join(", "));
       }
-      _flushBuffer(true, "cleanOutMsgStorageAndReset");
+      _flushBuffer(true, "completelyEmptyAllStorageAndReset");
       var fetched_after_flush = TS.storage.fetchLastEventTS(true);
-      TS.info("cleanOutMsgStorageAndReset fetched_after_flush:" + fetched_after_flush);
+      TS.info("completelyEmptyAllStorageAndReset fetched_after_flush:" + fetched_after_flush);
       if (fetched_after_flush) {
-        TS.info("cleanOutMsgStorageAndReset _getKeys:" + _getKeys().join(", "));
-        TS.info("cleanOutMsgStorageAndReset Object.keys(_buffer):" + Object.keys(_buffer).join(", "));
+        TS.info("completelyEmptyAllStorageAndReset _getKeys:" + _getKeys().join(", "));
+        TS.info("completelyEmptyAllStorageAndReset Object.keys(_buffer):" + Object.keys(_buffer).join(", "));
       }
     },
     cleanOutCacheTsStorage: function() {
@@ -653,7 +655,7 @@
       _removeAllOurKeys();
     } else if (!TS.storage.fetchLastEventTS()) {
       TS.warn("TS.storage.fetchLastEventTS() is empty so flushing channel data");
-      _cleanOutMsgStorage();
+      _completelyEmptyAllStorage();
     } else if (storage_cache_ts_version != TS.storage.cache_ts_version) {
       TS.warn("storage_cache_ts_version:" + storage_cache_ts_version + " does not match TS.storage.cache_ts_version:" + TS.storage.cache_ts_version + " so flushing user/bot data");
       TS.storage.cleanOutCacheTsStorage();
@@ -680,7 +682,7 @@
     }
     return false;
   };
-  var _cleanOutMsgStorage = function() {
+  var _completelyEmptyAllStorage = function() {
     var keys = _getKeys();
     TS.log(488, keys, "_getKeys()");
     var key;
@@ -3150,7 +3152,7 @@
       TS.utility.msgs.maybeClearPrevLastRead();
       TS.utility.msgs.maybeClearPrevLastRead(channel);
       TS.shared.maybeClearHasAutoScrolled();
-      if (channel_id == TS.model.active_channel_id && !replace_history_state && !TS.model.unread_view_is_showing) {
+      if (channel_id == TS.model.active_channel_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
         TS.warn('channel "' + channel_id + '" already displayed');
         if (and_send_txt) {
           TS.channels.sendMsg(channel_id, $.trim(and_send_txt));
@@ -4369,7 +4371,7 @@ TS.registerModule("constants", {
         TS.shared.checkInitialMsgHistory(group, TS.groups);
       }
       TS.log(999, "displayGroup " + group.id + " from_history:" + from_history + " replace_history_state:" + replace_history_state);
-      if (group_id == TS.model.active_group_id && !replace_history_state && !TS.model.unread_view_is_showing) {
+      if (group_id == TS.model.active_group_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
         TS.warn('group "' + group_id + '" already displayed');
         if (and_send_txt) {
           TS.groups.sendMsg(group_id, $.trim(and_send_txt));
@@ -6990,7 +6992,7 @@ TS.registerModule("constants", {
       if (im._did_defer_initial_msg_history) {
         TS.shared.checkInitialMsgHistory(im, TS.ims);
       }
-      if (im_id == TS.model.active_im_id && !TS.model.unread_view_is_showing) {
+      if (im_id == TS.model.active_im_id && !TS.client.activeChannelIsHidden()) {
         if (and_send_txt) {
           TS.ims.sendMsg(im.id, $.trim(and_send_txt));
         }
@@ -7477,7 +7479,7 @@ TS.registerModule("constants", {
       if (mpim._did_defer_initial_msg_history) {
         TS.shared.checkInitialMsgHistory(mpim, TS.mpims);
       }
-      if (mpim_id == TS.model.active_mpim_id && !replace_history_state && !TS.model.unread_view_is_showing) {
+      if (mpim_id == TS.model.active_mpim_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
         TS.warn('mpim "' + mpim_id + '" already displayed');
         if (and_send_txt) {
           TS.mpims.sendMsg(mpim_id, $.trim(and_send_txt));
@@ -14639,8 +14641,8 @@ TS.registerModule("constants", {
     var data = resp.data;
     TS.error("_onEventLogError " + data);
     if (TS.client && data && data.error == "timestamp_too_old") {
-      TS.storage.cleanOutMsgStorageAndReset();
-      var msg = "TS.reload() after a TS.storage.cleanOutMsgStorageAndReset() because data.error: <code>timestamp_too_old</code>";
+      TS.storage.completelyEmptyAllStorageAndReset();
+      var msg = "TS.reload() after a TS.storage.completelyEmptyAllStorageAndReset() because data.error: <code>timestamp_too_old</code>";
       if (data.reason) {
         msg += " data.reason: <code>" + data.reason + "</code>";
       }
@@ -14665,10 +14667,12 @@ TS.registerModule("constants", {
       return null;
     }
     if (TS.client && data.has_more) {
-      TS.storage.cleanOutMsgStorageAndReset();
-      TS.info("going to call TS.reload() after a TS.storage.cleanOutMsgStorageAndReset() because data.has_more:" + data.has_more + ")");
+      if (TS.boot_data.feature_ms_eventlog_changes) {} else {
+        TS.storage.completelyEmptyAllStorageAndReset();
+      }
+      TS.info("going to call TS.reload() after a TS.storage.completelyEmptyAllStorageAndReset() because data.has_more:" + data.has_more + ")");
       setTimeout(function() {
-        TS.reload(null, "TS.reload() after a TS.storage.cleanOutMsgStorageAndReset() because data.has_more:" + data.has_more + ")");
+        TS.reload(null, "TS.reload() after a TS.storage.completelyEmptyAllStorageAndReset() because data.has_more:" + data.has_more + ")");
       }, 1);
       return null;
     }
@@ -14908,15 +14912,23 @@ TS.registerModule("constants", {
     TS.model.ms_connecting = false;
     TS.model.ms_connected = true;
     var last_event_ts = TS.storage.fetchLastEventTS();
-    if (last_event_ts && !_last_connect_was_fast) {
-      TS.info("calling eventlog.history with start:" + last_event_ts + " (from TS.storage.fetchLastEventTS())");
-      if (_whence_last_event_ts) TS.info("last_event_ts is from " + _whence_last_event_ts);
-      TS.api.callImmediately("eventlog.history", {
-        start: last_event_ts,
-        count: _eventlog_per_page
-      }).then(_onEventLogOK).catch(_onEventLogError).finally(_.noop);
-    } else {
-      if (TS.client) TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb());
+    var should_consistency_check = true;
+    if (TS.boot_data.feature_ms_eventlog_changes) {
+      should_consistency_check = !!TS.ms.num_times_connected;
+    }
+    if (should_consistency_check) {
+      if (last_event_ts && !_last_connect_was_fast) {
+        TS.info("calling eventlog.history with start:" + last_event_ts + " (from TS.storage.fetchLastEventTS())");
+        if (_whence_last_event_ts) TS.info("last_event_ts is from " + _whence_last_event_ts);
+        TS.api.callImmediately("eventlog.history", {
+          start: last_event_ts,
+          count: _eventlog_per_page,
+          no_payload_if_has_more: true,
+          batch_deleted_files: !!TS.boot_data.feature_batch_file_deleted_event
+        }).then(_onEventLogOK).catch(_onEventLogError).finally(_.noop);
+      } else {
+        if (TS.client) TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb());
+      }
     }
     TS.ms.connected_sig.dispatch(_last_connect_was_fast);
     TS.ms.num_times_connected++;
@@ -16086,7 +16098,10 @@ TS.registerModule("constants", {
       TS.files.upsertAndSignal(imsg.file);
     },
     file_deleted: function(imsg) {
-      TS.files.removeFile(imsg.file_id);
+      var ids = imsg.file_ids || [imsg.file_id];
+      ids.forEach(function(file_id) {
+        TS.files.removeFile(file_id);
+      });
     },
     file_private: function(imsg) {
       TS.files.fetchFileInfo(imsg.file_id);
@@ -26400,7 +26415,8 @@ TS.registerModule("constants", {
         }
         $input.data("textchange_lastvalue", txt);
         TS.utility.queueRAF(function populateInputRAF() {
-          $input.trigger("autosize").trigger("autosize-resize").trigger("textchange");
+          $input.trigger("autosize").trigger("autosize-resize");
+          $input.trigger("textchange");
         });
       }
     },
@@ -29744,7 +29760,7 @@ TS.registerModule("constants", {
       e.preventDefault();
       return;
     }
-    if (!focus_is_on_an_input && (!TS.client || TS.client.ui.isUserAttentionOnChat() && !TS.model.unread_view_is_showing) && !TS.utility.isArrowKey(e.which) && !TS.utility.isPageKey(e.which) && !e.metaKey && !e.ctrlKey && !e.altKey && e.which != keymap.shift) {
+    if (!focus_is_on_an_input && (!TS.client || TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden()) && !TS.utility.isArrowKey(e.which) && !TS.utility.isPageKey(e.which) && !e.metaKey && !e.ctrlKey && !e.altKey && e.which != keymap.shift) {
       _$input.focus();
     }
   };
@@ -30149,6 +30165,9 @@ TS.registerModule("constants", {
       model_ob = model_ob || TS.shared.getActiveModelOb();
       if (!msg && TS.boot_data.feature_message_replies && TS.replies.isEnabledForModelOb(model_ob)) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
+      }
+      if (!msg && TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+        msg = TS.client.threads.getMessage(model_ob, msg_ts);
       }
       if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
         msg = TS.client.unread.getMessage(model_ob, msg_ts);
@@ -31353,15 +31372,41 @@ var _on_esc;
       function showAllAppInformation(app) {
         _app_presence_list.add(app_id);
         var template_header_args = {
-          app: app
+          name: app.name,
+          desc: app.desc,
+          app_icons: app.icons,
+          is_slack_integration: app.is_slack_integration
         };
         if (app.app_card_color) {
           template_header_args.color = TS.utility.hex2rgb(app.app_card_color);
           template_header_args.color.hex = app.app_card_color;
         }
+        if (app.is_custom_integration && app.config) {
+          if (app.bot_user) {
+            template_header_args.name = app.bot_user.username;
+          } else {
+            var bot = TS.bots.getBotById(app.config.bot_id);
+            if (bot != null) template_header_args.name = bot.name;
+          }
+          template_header_args.desc = app.config.descriptive_label;
+          if (app.config.icons) template_header_args.bot_icons = app.config.icons;
+        }
         var template_args = {
           app: app
         };
+        if (app.card_posting_summary) {
+          var html = app.card_posting_summary.replace(/@([A-Z0-9]+)/g, function(match, user_id) {
+            var name_replace = "<b>";
+            if (TS.boot_data.feature_name_tagging_client) {
+              name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(app.auth.created_by));
+            } else {
+              name_replace += TS.members.getMemberDisplayNameById(app.auth.created_by, true);
+            }
+            name_replace += "</b>";
+            return name_replace;
+          });
+          template_args.card_posting_summary = new Handlebars.SafeString(html);
+        }
         TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
         TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
         TS.menu.start(e, position_by_click);
@@ -36503,7 +36548,9 @@ var _on_esc;
           if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
             var p = input.getCursorPosition();
             var val = input.val();
-            input.val(val.substr(0, p) + "\n" + val.substr(p)).trigger("autosize").trigger("autosize-resize").setCursorPosition(p + 1);
+            input.val(val.substr(0, p) + "\n" + val.substr(p));
+            input.trigger("autosize").trigger("autosize-resize");
+            input.setCursorPosition(p + 1);
           }
         } else if (e.which == TS.utility.keymap.enter) {
           if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey) {
@@ -44655,6 +44702,9 @@ $.fn.togglify = function(settings) {
       if (!msg && TS.boot_data.feature_message_replies) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
       }
+      if (!msg && TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+        msg = TS.client.threads.getMessage(model_ob, msg_ts);
+      }
       if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
         msg = TS.client.unread.getMessage({
           id: model_ob_id
@@ -45379,7 +45429,7 @@ $.fn.togglify = function(settings) {
       var $msg = $attachment.parents("ts-message");
       var channel_id = String($msg.data("model-ob-id"));
       var message_ts = String($msg.data("ts"));
-      if (TS.model.unread_view_is_showing || channel_id != TS.shared.getActiveModelOb().id) {
+      if (TS.client.activeChannelIsHidden() || channel_id != TS.shared.getActiveModelOb().id) {
         TS.client.ui.tryToJump(channel_id, message_ts);
       }
       var slack_action_url = $btn.data("slack-action-url");
@@ -48994,7 +49044,9 @@ $.fn.togglify = function(settings) {
             var error_key = data.error;
             var error_message;
             if (data.error === TS.signup.ERROR_USERNAME_NOT_ALLOWED) {
-              error_message = _ERROR_MESSAGES[error_key].replace("%USERNAME%", TS.utility.htmlEntities(username));
+              error_message = _ERROR_MESSAGES[error_key]({
+                username: TS.utility.htmlEntities(username)
+              });
             } else if (data.error === "taken") {
               error_key = TS.signup.ERROR_USERNAME_TAKEN;
             }
@@ -49174,7 +49226,9 @@ $.fn.togglify = function(settings) {
           var error_message;
           if (data.error === TS.signup.ERROR_BAD_EMAIL_DOMAIN && TS.utility.email_regex.test(api_args.email)) {
             var email_domain = TS.utility.htmlEntities(api_args.email.split("@")[1]);
-            error_message = _ERROR_MESSAGES[data.error].replace("%EMAIL_DOMAIN%", email_domain);
+            error_message = _ERROR_MESSAGES[data.error]({
+              email_domain: email_domain
+            });
           }
           return resolve({
             team_created: false,
@@ -49184,8 +49238,8 @@ $.fn.togglify = function(settings) {
         });
       });
     },
-    getErrorMessage: function(error_key) {
-      return _ERROR_MESSAGES[error_key] || _ERROR_MESSAGES[TS.signup.ERROR_MISC];
+    getErrorMessage: function(error_key, data) {
+      return (_ERROR_MESSAGES[error_key] || _ERROR_MESSAGES[TS.signup.ERROR_MISC])(data || {});
     },
     test: function() {
       return {
@@ -49194,28 +49248,28 @@ $.fn.togglify = function(settings) {
     }
   });
   var _ERROR_MESSAGES = {
-    bad_email_domain: "Sorry, but we do not allow signups from @%EMAIL_DOMAIN%. Please pick a different email address!",
-    domain_not_found: "Are you sure that address is typed correctly? If there are no mistakes, carry on!",
-    invalid_code: "That code wasn’t valid. Give it another go!",
-    missing_username: "Please fill in a username.",
-    name_is_slackbot: "Sorry, slackbot is a reserved word. Try something else!",
-    misc: "For some weird reason, that didn’t work. Please try again to continue.",
-    no_email: "For some really weird reason, we’re having trouble with your email. Please try again.",
-    no_email_misc: "For some really weird reason, we’re having trouble with your email preferences. Please try again.",
-    no_team_name: "For some really weird reason, we’re having trouble with your team name. Please try again.",
-    no_url: "For some really weird reason, we’re having trouble with your web address. Please try again.",
-    no_username: "For some really weird reason, we’re having trouble with your username. Please try again.",
-    ratelimited: "Sorry, you’ve hit the rate limit. You’ll be able to try again soon.",
-    url_bad: "Web addresses can only have letters, numbers, and dashes.",
-    url_long: "Web addresses must be 21 characters or less.",
-    url_no_letter: "Web addresses must have at least one letter.",
-    url_start_end_dash: "Web addresses can’t start or end with a dash. Sorry!",
-    url_taken: "This web address is not available. Sorry!",
-    username_bad: "Sorry, usernames can only contain letters, numbers, periods, hyphens, and underscores, with no spaces!",
-    username_long: "Usernames cannot be longer than 21 characters.",
-    username_not_allowed: "Oops, sorry! Your username can’t be %USERNAME%, as it’s reserved for other uses.",
-    username_start: "Sorry, usernames must begin with a letter or number!",
-    username_taken: "Sorry, but this username is not available! Please pick another one."
+    bad_email_domain: TS.i18n.t("Sorry, but we do not allow signups from @{email_domain}. Please pick a different email address!", "signup"),
+    domain_not_found: TS.i18n.t("Are you sure that address is typed correctly? If there are no mistakes, carry on!", "signup"),
+    invalid_code: TS.i18n.t("That code wasn’t valid. Give it another go!", "signup"),
+    missing_username: TS.i18n.t("Please fill in a username.", "signup"),
+    name_is_slackbot: TS.i18n.t("Sorry, slackbot is a reserved word. Try something else!", "signup"),
+    misc: TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "signup"),
+    no_email: TS.i18n.t("For some really weird reason, we’re having trouble with your email. Please try again.", "signup"),
+    no_email_misc: TS.i18n.t("For some really weird reason, we’re having trouble with your email preferences. Please try again.", "signup"),
+    no_team_name: TS.i18n.t("For some really weird reason, we’re having trouble with your team name. Please try again.", "signup"),
+    no_url: TS.i18n.t("For some really weird reason, we’re having trouble with your web address. Please try again.", "signup"),
+    no_username: TS.i18n.t("For some really weird reason, we’re having trouble with your username. Please try again.", "signup"),
+    ratelimited: TS.i18n.t("Sorry, you’ve hit the rate limit. You’ll be able to try again soon.", "signup"),
+    url_bad: TS.i18n.t("Web addresses can only have letters, numbers, and dashes.", "signup"),
+    url_long: TS.i18n.t("Web addresses must be 21 characters or less.", "signup"),
+    url_no_letter: TS.i18n.t("Web addresses must have at least one letter.", "signup"),
+    url_start_end_dash: TS.i18n.t("Web addresses can’t start or end with a dash. Sorry!", "signup"),
+    url_taken: TS.i18n.t("This web address is not available. Sorry!", "signup"),
+    username_bad: TS.i18n.t("Sorry, usernames can only contain letters, numbers, periods, hyphens, and underscores, with no spaces!", "signup"),
+    username_long: TS.i18n.t("Usernames cannot be longer than 21 characters.", "signup"),
+    username_not_allowed: TS.i18n.t("Oops, sorry! Your username can’t be {username}, as it’s reserved for other uses.", "signup"),
+    username_start: TS.i18n.t("Sorry, usernames must begin with a letter or number!", "signup"),
+    username_taken: TS.i18n.t("Sorry, but this username is not available! Please pick another one.", "signup")
   };
   var _MAX_URL_LENGTH = 21;
   var _MAX_USERNAME_LENGTH = 21;
@@ -49242,7 +49296,9 @@ $.fn.togglify = function(settings) {
         } else {
           var error_message;
           if (data.error === TS.signup.ERROR_BAD_EMAIL_DOMAIN) {
-            error_message = _ERROR_MESSAGES[data.error].replace("%EMAIL_DOMAIN%", email_domain);
+            error_message = _ERROR_MESSAGES[data.error]({
+              email_domain: email_domain
+            });
           } else if (data.error === TS.signup.ERROR_DOMAIN_NOT_FOUND) {
             _domain_found_mx_records[email_domain] = false;
           } else if (check_mx_records) {
@@ -49434,11 +49490,13 @@ $.fn.togglify = function(settings) {
     removeDuplicates: function(email_val) {
       return _.uniq(TS.utility.email.convertToArray(email_val)).join(",");
     },
-    getErrorMessage: function(error_key) {
-      return _ERROR_MESSAGES[error_key] || "";
+    getErrorMessage: function(error_key, data) {
+      return _ERROR_MESSAGES[error_key] ? _ERROR_MESSAGES[error_key](data || {}) : "";
     },
     getTooManyErrorMessage: function(max_addresses) {
-      return TS.utility.email.getErrorMessage(TS.utility.email.ERROR_TOO_MANY).replace(/%MAX_ADDRESSES%/g, max_addresses);
+      return _ERROR_MESSAGES[TS.utility.email.ERROR_TOO_MANY]({
+        max_addresses: max_addresses
+      });
     },
     test: function() {
       return {
@@ -49449,10 +49507,10 @@ $.fn.togglify = function(settings) {
     }
   });
   var _ERROR_MESSAGES = {
-    empty: "Please fill in your email.",
-    invalid: "Sorry, but your email is invalid.",
-    too_many: "Please make your list shorter — we can check up to %MAX_ADDRESSES% addresses at a time.",
-    invalid_domain: "Sorry, but that isn't a valid email domain."
+    empty: TS.i18n.t("Please fill in your email.", "email_utility"),
+    invalid: TS.i18n.t("Sorry, but your email is invalid.", "email_utility"),
+    too_many: TS.i18n.t("Please make your list shorter — we can check up to {max_addresses} addresses at a time.", "email_utility"),
+    invalid_domain: TS.i18n.t("Sorry, but that isn’t a valid email domain.", "email_utility")
   };
   var _validateDomain = function(domain_array) {
     if (!Array.isArray(domain_array)) TS.error("Type error: TS.utility.email._validateDomain requires an array. domain_array is a", typeof domain_array);
@@ -49468,7 +49526,7 @@ $.fn.togglify = function(settings) {
         is_valid: false,
         email_domain: domain_array,
         error_key: error_key,
-        error_message: _ERROR_MESSAGES[error_key],
+        error_message: _ERROR_MESSAGES[error_key](),
         error_domains: error_domain_array
       };
     }
@@ -49489,7 +49547,7 @@ $.fn.togglify = function(settings) {
     if (max_addresses && total_emails > max_addresses) {
       error_key = TS.utility.email.ERROR_TOO_MANY;
       if (max_addresses > 1) {
-        error_message = TS.utility.email.getErrorMessage(error_key).replace(/%MAX_ADDRESSES%/g, max_addresses);
+        error_message = TS.utility.email.getTooManyErrorMessage(max_addresses);
       } else {
         error_message = TS.utility.email.getErrorMessage(TS.utility.email.ERROR_INVALID);
       }
@@ -52030,7 +52088,9 @@ $.fn.togglify = function(settings) {
         if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
           var p = $input.getCursorPosition();
           var val = $input.val();
-          $input.val(val.substr(0, p) + "\n" + val.substr(p)).trigger("autosize").trigger("autosize-resize").setCursorPosition(p + 1);
+          $input.val(val.substr(0, p) + "\n" + val.substr(p));
+          $input.trigger("autosize").trigger("autosize-resize");
+          $input.setCursorPosition(p + 1);
         }
       } else if (e.which == TS.utility.keymap.enter) {
         if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey) {

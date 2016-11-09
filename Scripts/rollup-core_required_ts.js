@@ -544,13 +544,13 @@
     if (TS.model.ms_logged_in_once) {
       var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
       if (since_last_pong_ms > 1e3 * 60 * 5) {
-        if (TS.storage.cleanOutMsgStorageAndResetIfTooOld()) {
-          TS.info("going to call TS.reload() after a TS.storage.cleanOutMsgStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
-          TS.reload(null, "TS.reload() after a TS.storage.cleanOutMsgStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
+        if (TS.storage.completelyEmptyAllStorageAndResetIfTooOld()) {
+          TS.info("going to call TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
+          TS.reload(null, "TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
         }
       }
     } else {
-      TS.storage.cleanOutMsgStorageAndResetIfTooOld();
+      TS.storage.completelyEmptyAllStorageAndResetIfTooOld();
     }
     if (_parallel_rtm_start_rsp) {
       TS.ms.logConnectionFlow("login_with_parallel_rtm_start_rsp");
@@ -1781,7 +1781,8 @@
       TS.members.upsertMember(data.self);
       TS.members.finishBatchUpsert();
       TS.bots.finishBatchUpsert();
-      if (TS.storage.isUsingMemberBotCache()) {
+      var is_initial_partial_boot = TS.isPartiallyBooted() && !is_first_full_boot;
+      if (TS.storage.isUsingMemberBotCache() && !is_initial_partial_boot) {
         var cache_ts = data.cache_ts;
         if (TS.boot_data.feature_web_lean) {
           if (cache_ts == 0 || !cache_ts) {
@@ -5598,7 +5599,7 @@
     }];
   };
   var _getActiveChannelId = function() {
-    if (TS.model.unread_view_is_showing && _src_model_ob) {
+    if (TS.client.activeChannelIsHidden() && _src_model_ob) {
       return _src_model_ob.id;
     }
     var active = TS.shared.getActiveModelOb();
