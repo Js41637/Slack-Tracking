@@ -3704,6 +3704,7 @@
         channel: channel_id,
         include_shared: include_shared
       }).then(function(response) {
+        if (!response.data.ok) return TS.generic_dialog.alert("Something went wrong when fetching information about the channel.", "Oops! Something went wrong.");
         TS.channels.upsertChannel(response.data.channel);
         return TS.members.ensureMembersArePresent(response.data.channel.members, _.fill(Array(response.data.channel.members.length), channel_id));
       }).catch(function(error) {
@@ -7949,6 +7950,11 @@ TS.registerModule("constants", {
     model_ob_hotness_changed_sig: new signals.Signal,
     onStart: function() {
       TS.shared.updateHotnessByIdThrottled = TS.utility.throttleFunc(TS.shared.updateHotnessByIdThrottled, 1e3);
+      TS.ms.connected_sig.addOnce(_logChannelSwitch);
+      TS.channels.switched_sig.add(_logChannelSwitch);
+      TS.ims.switched_sig.add(_logChannelSwitch);
+      TS.groups.switched_sig.add(_logChannelSwitch);
+      TS.mpims.switched_sig.add(_logChannelSwitch);
     },
     calcUnreadCnts: function(model_ob, controller, and_mark) {
       if (TS._incremental_boot) {
@@ -9600,6 +9606,16 @@ TS.registerModule("constants", {
       });
     }
     if (!c_id) TS.metrics.measureAndClear("updated_hotness_all", mark_label);
+  };
+  var _logChannelSwitch = function() {
+    var active_model_ob = TS.shared.getActiveModelOb();
+    if (active_model_ob && active_model_ob.id) {
+      var id = active_model_ob.id;
+      TS.clog.track("CHANNEL_SWITCHED", {
+        channel_id: id,
+        channel_type: id.charAt(0)
+      });
+    }
   };
 })();
 (function() {
@@ -13314,7 +13330,7 @@ TS.registerModule("constants", {
           break;
         case "client_logs_pri":
           TS.model.prefs[imsg.name] = imsg.value;
-          TS.console.setAppropriatePri();
+          if (TS.boot_data.feature_console_me) TS.console.setAppropriatePri();
           break;
         default:
           TS.model.prefs[imsg.name] = imsg.value;
@@ -36288,7 +36304,12 @@ var _on_esc;
       var original_msg_text = TS.format.unFormatMsg(msg.text);
       var is_reopening_after_failed_edit = edit_state && edit_state.force_reopen;
       if (!is_reopening_after_failed_edit) {
-        if (TS.model.team.prefs.msg_edit_window_mins >= 0 && (Date.now() - TS.utility.date.toDateObject(msg.ts)) / 6e4 > TS.model.team.prefs.msg_edit_window_mins && !model_ob.is_self_im) {
+        var now = Date.now();
+        var ts = TS.utility.date.toDateObject(msg.ts);
+        var elapsed = now - ts;
+        var elapsed_minutes = elapsed / 6e4;
+        if (TS.model.team.prefs.msg_edit_window_mins >= 0 && elapsed_minutes > TS.model.team.prefs.msg_edit_window_mins && !model_ob.is_self_im) {
+          TS.warn("Editing unvailable on channel " + model_ob.id + ", msg with ts = " + msg.ts + ". now = " + now + ", elapsed (minutes) = " + elapsed_minutes + ", msg_edit_window_mins = " + TS.model.team.prefs.msg_edit_window_mins);
           TS.generic_dialog.alert(TS.msg_edit.editExpiration(TS.model.team.prefs.msg_edit_window_mins), "Editing Unavailable", "Got It");
           return;
         }

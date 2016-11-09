@@ -220,42 +220,109 @@
       return "(TSMakeLogDate not loaded) ";
     },
     shouldLog: function(pri) {
-      return TS.console.shouldLog(pri);
+      if (TS.boot_data.feature_console_me) return TS.console.shouldLog(pri);
+      var A = String(TS.pri).split(",");
+      if (A.indexOf("all") != -1) return true;
+      return A.indexOf(String(pri)) != -1;
     },
     replaceConsoleFunction: function(fn) {
-      return TS.console.replaceConsoleFunction(fn);
+      if (TS.boot_data.feature_console_me) {
+        return TS.console.replaceConsoleFunction(fn);
+      }
+      var prev_console = _console;
+      _console = fn;
+      return prev_console;
     },
     log: function(pri) {
-      TS.console.log.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.log.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      _console("log", pri, arguments);
     },
     info: function() {
-      TS.console.info.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.info.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      _console("info", null, arguments);
     },
     maybeWarn: function(pri) {
-      TS.console.maybeWarn.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.maybeWarn.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      _console("warn", pri, arguments);
     },
     warn: function() {
-      TS.console.warn.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.warn.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      _console("warn", null, arguments);
     },
     dir: function(pri, ob, txt) {
-      TS.console.dir.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.dir.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      if (!window.console || !console.dir) return;
+      if (pri) {
+        if (!TS.shouldLog(pri)) return;
+      }
+      txt = txt || "";
+      var dir_json = parseInt(TS.qs_args["dir_json"]);
+      if (dir_json) {
+        var limit = dir_json == 1 ? "2000" : dir_json;
+        try {
+          var st = JSON.stringify(ob, null, "  ");
+          if (st.length > limit) throw "too long";
+          console.info(TS.makeLogDate() + "[** " + pri + " **] " + txt + " " + st);
+          return;
+        } catch (err) {
+          if (err != "too long") {
+            console.info(TS.makeLogDate() + "[** " + pri + " **] " + txt + " " + ob);
+            return;
+          }
+        }
+      }
+      try {
+        var clone = _.cloneDeep(ob);
+        console.info(TS.makeLogDate() + "[** " + pri + " **] " + txt + " 👇");
+        console.dir(clone);
+      } catch (err) {
+        TS.warn("could not dir ob:" + ob + " err:" + err);
+      }
     },
     maybeError: function(pri) {
-      TS.console.maybeError.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.maybeError.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      _console("error", pri, arguments);
     },
     error: function() {
-      TS.console.error.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.error.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      _console("error", null, arguments);
     },
     logError: function(e, desc, subtype) {
-      TS.console.logError.apply(this, [].slice.call(arguments, 0));
-      return;
+      if (TS.boot_data.feature_console_me) {
+        TS.console.logError.apply(this, [].slice.call(arguments, 0));
+        return;
+      }
+      var error = e instanceof Error ? e : new Error;
+      var error_json = {
+        subtype: subtype ? subtype : "none",
+        message: e instanceof Error ? e.message || e.description : JSON.stringify(e),
+        fileName: error.fileName || error.sourceURL,
+        lineNumber: error.lineNumber || error.line,
+        stack: error.stack || error.backtrace || error.stacktrace
+      };
+      _beaconError(error_json, desc);
+      if (window.console && console.error) console.error(TS.makeLogDate() + "logging e:" + e + " e.stack:" + e.stack + " desc:" + desc + " e.message:" + e.message);
     },
     getQsArgsForUrl: function(no_cache) {
       if (!no_cache && _qs_url_args_cache) return _qs_url_args_cache;
@@ -451,6 +518,28 @@
       setConnecting: _.noop
     };
   }
+  var _console = function(type, pri, args) {
+    if (!window.console || !console[type]) return;
+    var clean_log = TS.qs_args.clean_log;
+    var has_pri = pri !== null;
+    args = Array.prototype.slice.call(args);
+    if (has_pri) {
+      if (!TS.shouldLog(pri)) return;
+      args.splice(0, 1);
+    }
+    var all_strings = true;
+    var i = args.length;
+    while (all_strings && i--) all_strings = typeof args[i] === "string";
+    if (clean_log && type !== "error" && (pri !== parseInt(TS.qs_args.pri, 10) || !has_pri)) return;
+    if (all_strings) {
+      var log_date = TS.makeLogDate();
+      if (has_pri && !clean_log) log_date += "[** " + pri + " **]";
+      args.unshift(log_date);
+      console[type](args.join(" "));
+    } else {
+      console[type].apply(console, args);
+    }
+  };
   var _loginMS = function() {
     if (TS.model.ms_logged_in_once) {
       var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
@@ -1074,6 +1163,18 @@
     if (_client_load_watchdog_ms < 3e5) {
       _client_load_watchdog_tim = window.setTimeout(_setClientLoadWatchdogTimer, _client_load_watchdog_ms);
     }
+  };
+  var _beaconError = function(e, desc) {
+    var team_id = TS.model && TS.model.team && TS.model.team.id ? TS.model.team.id : "none";
+    var user_id = TS.model && TS.model.user && TS.model.user.id ? TS.model.user.id : "none";
+    var beacon_data = {
+      description: desc,
+      error_json: JSON.stringify(e),
+      team: team_id,
+      user: user_id,
+      version: TS.boot_data.version_ts
+    };
+    $.post(TS.boot_data.beacon_error_url, beacon_data);
   };
   var _logSessionLoadCount = function() {
     if (!window.sessionStorage) return;

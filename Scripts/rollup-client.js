@@ -29018,29 +29018,31 @@
         template_args.show_app_download_path = show_app_download_path;
         template_args.app_download_path = app_download_path;
         if (TS.boot_data.feature_flannel_fe) template_args.show_flannel_pref = true;
-        template_args.show_console_whitelist = true;
-        var preselected = _.get(TS.model.prefs, "client_logs_pri", "");
-        template_args.whitelisted_pris = _(Object.keys(TS.boot_data.client_logs)).filter(function(key) {
-          var obj = TS.boot_data.client_logs[key];
-          var feature_allowed = true;
-          if (!_.isUndefined(obj.features)) {
-            var features = obj.features;
-            if (!_.isArray(obj.features)) features = features.split(",");
-            var count = 0;
-            features.forEach(function(feature) {
-              if (feature.indexOf("feature_") !== 0) feature = "feature_" + feature;
-              if (TS.boot_data[feature]) count++;
-            });
-            feature_allowed = count === features.length;
-          }
-          return !_.isUndefined(obj.whitelisted) && obj.whitelisted && feature_allowed;
-        }).map(function(key) {
-          var obj = _.merge({}, TS.boot_data.client_logs[key]);
-          obj.selected = preselected.indexOf(key) > -1;
-          if (obj.name) obj.name = obj.name[0].toUpperCase() + obj.name.substring(1);
-          return obj;
-        }).value();
-        template_args.client_logs_pri_all_selected = preselected.indexOf("all") > -1;
+        if (TS.boot_data.feature_console_me) {
+          template_args.show_console_whitelist = true;
+          var preselected = _.get(TS.model.prefs, "client_logs_pri", "");
+          template_args.whitelisted_pris = _(Object.keys(TS.boot_data.client_logs)).filter(function(key) {
+            var obj = TS.boot_data.client_logs[key];
+            var feature_allowed = true;
+            if (!_.isUndefined(obj.features)) {
+              var features = obj.features;
+              if (!_.isArray(obj.features)) features = features.split(",");
+              var count = 0;
+              features.forEach(function(feature) {
+                if (feature.indexOf("feature_") !== 0) feature = "feature_" + feature;
+                if (TS.boot_data[feature]) count++;
+              });
+              feature_allowed = count === features.length;
+            }
+            return !_.isUndefined(obj.whitelisted) && obj.whitelisted && feature_allowed;
+          }).map(function(key) {
+            var obj = _.merge({}, TS.boot_data.client_logs[key]);
+            obj.selected = preselected.indexOf(key) > -1;
+            if (obj.name) obj.name = obj.name[0].toUpperCase() + obj.name.substring(1);
+            return obj;
+          }).value();
+          template_args.client_logs_pri_all_selected = preselected.indexOf("all") > -1;
+        }
         html = TS.templates.prefs_advanced(template_args);
         break;
       case "labs":
@@ -29665,15 +29667,17 @@
         value: val
       });
     });
-    $("#client_logs_pri").hide().lazyFilterSelect({
-      placeholder_text: "Select logs to enable..."
-    }).on("change", function() {
-      var priorities = $(this).val();
-      TS.prefs.setPrefByAPI({
-        name: "client_logs_pri",
-        value: priorities ? priorities.join(",") : ""
+    if (TS.boot_data.feature_console_me) {
+      $("#client_logs_pri").hide().lazyFilterSelect({
+        placeholder_text: "Select logs to enable..."
+      }).on("change", function() {
+        var priorities = $(this).val();
+        TS.prefs.setPrefByAPI({
+          name: "client_logs_pri",
+          value: priorities ? priorities.join(",") : ""
+        });
       });
-    });
+    }
     var surprise_suffix = Math.random();
     if (TS.model.user.id == "U024BE7LV") {
       $("#emo_bear").attr("src", "/img/emo_bear2.gif?" + surprise_suffix);
@@ -31525,6 +31529,7 @@ var _timezones_alternative = {
     _$header = null;
     _$file_header_detailed = null;
     _gallery = null;
+    _settings.$el = null;
   };
   var _onEnd = function() {
     _removeSignals();
