@@ -7744,7 +7744,7 @@
         TS.client.ui.flex.openFlexTab("details");
       });
     } else {
-      $back.html(TS.templates.builders.filePreviewBackIcon() + " Team Directory").bind("click.back", function() {
+      $back.html(TS.templates.builders.filePreviewBackIcon() + (TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? " Organization Directory" : "Team Directory")).bind("click.back", function() {
         TS.client.ui.showTeamList();
       });
     }
@@ -9226,7 +9226,8 @@
     if (TS.team.getBestEffortTotalTeamSize() >= _MINIMUM_MEMBERS_FOR_SEARCH) {
       $_container.find("#team_list_scroller").before(TS.templates.team_search_bar({
         show_search: true,
-        show_filters: false
+        show_filters: false,
+        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       }));
       var search_full_profiles = true;
       var is_long_list_view = true;

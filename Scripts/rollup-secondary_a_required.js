@@ -19897,7 +19897,8 @@ TS.registerModule("constants", {
         show_user_groups: show_user_groups,
         user_groups: user_groups,
         show_user_groups_edit: show_user_groups_edit,
-        show_user_groups_add: show_user_groups_add
+        show_user_groups_add: show_user_groups_add,
+        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       }));
       var include_bots = true;
       var include_deleted = false;
@@ -21095,20 +21096,21 @@ TS.registerModule("constants", {
           type_description: ""
         }
       };
+      var directory_name = TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? "organization directory" : "team directory";
       if (member._is_external) {
         args.icon_class = "ts_icon_external_channel";
         args.tooltip.member_type = "External Guests";
-        args.tooltip.type_description = "are not on your team and can only see a partial team directory, messages, and files of the shared channels they are in.";
+        args.tooltip.type_description = "are not on your team and can only see a partial " + directory_name + ", messages, and files of the shared channels they are in.";
         return TS.templates.member_type_icon(args);
       } else if (member.is_ultra_restricted) {
         args.icon_class = "ts_icon_single_channel_guest";
         args.tooltip.member_type = "Single-Channel Guests";
-        args.tooltip.type_description = "see a partial team directory and can only access messages and files from the channel they belong to.";
+        args.tooltip.type_description = "see a partial " + directory_name + " and can only access messages and files from the channel they belong to.";
         return TS.templates.member_type_icon(args);
       } else if (member.is_restricted) {
         args.icon_class = "ts_icon_restricted_user";
         args.tooltip.member_type = TS.templates.builders.raLabel("Restricted Accounts");
-        args.tooltip.type_description = "see only a partial team directory and can only access messages and files from selected channels.";
+        args.tooltip.type_description = "see only a partial " + directory_name + " and can only access messages and files from selected channels.";
         return TS.templates.member_type_icon(args);
       } else {
         return "";
@@ -23111,6 +23113,20 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob) {
         var html = TS.client.ui.threads.buildThreadMsgHTML(msg, model_ob);
+        return new Handlebars.SafeString(html);
+      });
+      Handlebars.registerHelper("commaSeparatedList", function(items_array, options) {
+        var conjunction = !options.hash.conjunction || !_.isString(options.hash.conjunction) ? "and" : options.hash.conjunction;
+        var html;
+        if (items_array.length > 2) {
+          html = options.hash.bold_items ? _(items_array).dropRight().map(TS.utility.enterprise.wrapWithStrongTags).join(", ") + ", " + conjunction + " " + TS.utility.enterprise.wrapWithStrongTags(_.last(items_array)) : _(items_array).dropRight().join(", ") + ", " + conjunction + " " + _.last(items_array);
+        } else if (items_array.length === 2) {
+          html = options.hash.bold_items ? TS.utility.enterprise.wrapWithStrongTags(items_array[0]) + " " + conjunction + " " + TS.utility.enterprise.wrapWithStrongTags(items_array[1]) : items_array[0] + " " + conjunction + " " + items_array[1];
+        } else if (items_array.length === 1) {
+          html = options.hash.bold_items ? TS.utility.enterprise.wrapWithStrongTags(items_array[0]) : items_array[0];
+        } else {
+          html = "";
+        }
         return new Handlebars.SafeString(html);
       });
     },
@@ -30923,7 +30939,7 @@ TS.registerModule("constants", {
         search_only_my_channels: TS.model.prefs.search_only_my_channels,
         search_only_current_team: TS.model.prefs.search_only_current_team,
         result_type: TS.search.filter === "messages" ? "messages" : "files",
-        is_enterprise: TS.boot_data.page_needs_enterprise
+        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       };
       TS.menu.clean();
       TS.menu.$menu_header.addClass("hidden").empty();
