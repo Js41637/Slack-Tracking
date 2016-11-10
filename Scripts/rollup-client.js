@@ -9841,6 +9841,17 @@
         if (!$quick_switcher_btn.hasClass("hidden")) return;
       }
       $quick_switcher_btn.toggleClass("hidden", !!TS.model.prefs.no_omnibox_in_channels);
+      if ($quick_switcher_btn.hasClass("hidden")) {
+        TS.clog.track("QUICKSWITCHER_ACTION", {
+          trigger: "quick_switcher_pref",
+          action: "hide"
+        });
+      } else {
+        TS.clog.track("QUICKSWITCHER_ACTION", {
+          trigger: "quick_switcher_pref",
+          action: "show"
+        });
+      }
       _updateChannelPaneFooterVisibility();
     },
     getPriorityForModelOb: function(model_ob) {
@@ -10656,6 +10667,11 @@
     $("#quick_switcher_btn").off().html(TS.templates.builders.buildQuickSwitcherBtnHtml()).on("click", function() {
       if (TS.newxp.inOnboarding()) return false;
       TS.ui.jumper.start();
+      TS.clog.track("QUICKSWITCHER_ACTION", {
+        click_target: "quick_switcher_btn",
+        trigger: "quick_switcher_btn",
+        action: "open_switcher"
+      });
     });
     TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
   };
