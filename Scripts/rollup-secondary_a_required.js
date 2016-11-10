@@ -11759,7 +11759,7 @@ TS.registerModule("constants", {
     TS.error("Missing arguments for a bound filter");
   };
   var _updateTabCounts = function() {
-    if (TS.lazyLoadMembers() && TS.boot_data.feature_fresh_team_directory) return;
+    if (TS.boot_data.feature_fresh_team_directory) return;
     var members_count = _filters.members.filter_num_found - _filters.filtered_items.bots.length;
     var restricted_count = _filters.restricted.filter_num_found || 0;
     var deleted_count = _filters.deleted.filter_num_found || 0;
@@ -11907,8 +11907,17 @@ TS.registerModule("constants", {
       }
     }
     if (TS.boot_data.feature_fresh_team_directory) {
-      var items = TS.lazyLoadMembers() ? items : team_list_items.active_members_list_items;
-      TS.client.ui.team_list.getLongListView().longListView("setItems", items, true);
+      var current_filter = TS.client.ui.team_list.getCurrentFilter();
+      if (!TS.lazyLoadMembers()) {
+        var filtered_members = team_list_items[current_filter + "_list_items"];
+        if (current_filter === "disabled_members") filtered_members = team_list_items.deleted_members_list_items;
+      } else {
+        var filtered_members = items;
+      }
+      TS.client.ui.team_list.getLongListView().longListView("setItems", filtered_members, true);
+      if (items.length === 0) {
+        TS.warn("TODO: no users in this group, should show an empty state");
+      }
       return;
     }
     var need_to_reset_current_subtab = false;

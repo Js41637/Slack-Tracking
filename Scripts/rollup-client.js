@@ -2027,6 +2027,7 @@
       }
     },
     rebuildUserGroupTab: function() {
+      if (TS.boot_data.feature_fresh_team_directory) return;
       var user_groups = TS.model.user_groups.filter(function(ug) {
         return !ug.date_delete;
       });
@@ -9208,6 +9209,9 @@
     },
     getLongListView: function() {
       return $_long_list_view;
+    },
+    getCurrentFilter: function() {
+      return _current_filter;
     }
   });
   var _MINIMUM_MEMBERS_FOR_SEARCH = 10;
@@ -9216,6 +9220,9 @@
   var _approx_divider_height = 40;
   var $_container;
   var $_long_list_view;
+  var _search_input_id = "#team_filter";
+  var _long_list_view_id = "#team_list_scroller";
+  var _current_filter = "active_members";
   var _loadLocalMembersIntoLongListView = function(options) {
     var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
     _loadLongListView({
@@ -9226,14 +9233,22 @@
     if (TS.team.getBestEffortTotalTeamSize() >= _MINIMUM_MEMBERS_FOR_SEARCH) {
       $_container.find("#team_list_scroller").before(TS.templates.team_search_bar({
         show_search: true,
-        show_filters: false,
+        show_filters: !TS.lazyLoadMembers(),
         is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       }));
       var search_full_profiles = true;
       var is_long_list_view = true;
       var include_bots = true;
       var include_deleted = true;
-      TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", search_full_profiles, is_long_list_view, include_bots, include_deleted);
+      TS.members.view.bindTeamFilter(_search_input_id, _long_list_view_id, search_full_profiles, is_long_list_view, include_bots, include_deleted);
+      $_container.delegate("li", "click.team_list", function(e) {
+        e.preventDefault();
+        var $target = $(e.target).closest("li");
+        $_container.find("#team_tabs .active").removeClass("active");
+        $target.addClass("active");
+        _current_filter = $target.data("name");
+        TS.members.view.filterTeam($(_search_input_id).val(), _search_input_id, _long_list_view_id, search_full_profiles);
+      });
     }
   };
   var _loadLongListView = function(options) {
@@ -18957,7 +18972,7 @@
         var modifiers = window.desktop.app.getModifierKeys();
         immediate_upload = immediate_upload || modifiers && modifiers.shift;
       }
-      var dont_make_snippet = !TS.model.is_safari_desktop && TS.model.alt_key_pressed;
+      var dont_make_snippet = true;
       if (!TS.model.is_FF && e.clipboardData) {
         TS.info("clipboardData!");
         TS.info(e.clipboardData.types);

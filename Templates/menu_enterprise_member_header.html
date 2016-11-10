@@ -1,2 +1,6 @@
-{{#feature flag="feature_enterprise_user_account_settings"}}<li id="view_account"><a href="/account/settings">Account Settings</a></li>{{/feature}}
-<li id="sign_out"><a href="{{signout_url}}">Sign out of {{enterprise_name}}</a></li>
+{{#feature flag="feature_enterprise_user_account_settings"}}<li id="view_account"><a href="/account/settings">
+  {{#t note="Logged in user's account settings"}}Account Settings{{/t}}
+</a></li>{{/feature}}
+<li id="sign_out"><a href="{{signout_url}}">
+  {{#t}}Sign out of {enterprise_name}{{/t}}
+</a></li>

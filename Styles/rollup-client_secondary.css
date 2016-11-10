@@ -18648,7 +18648,6 @@ ts-thread .view_all_replies_container {
 }
 
 ts-thread .reply_input_container {
-  height: 2.25rem;
   margin-top: .3125rem
 }
 
@@ -18658,11 +18657,11 @@ html.supports_flexbox ts-thread .reply_input_container {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -moz-align-items: center;
-  align-items: center
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  -webkit-box-align: flex-start;
+  -moz-align-items: flex-start;
+  align-items: flex-start
 }
 
 ts-thread .reply_input_container .member_preview_link {
@@ -18671,7 +18670,6 @@ ts-thread .reply_input_container .member_preview_link {
 
 ts-thread .reply_input_container .inline_message_input_container {
   position: relative;
-  height: 2.25rem;
   margin: 0 0 0 .625rem
 }
 
@@ -18689,10 +18687,8 @@ ts-thread .reply_input_container .inline_message_input_container form {
 }
 
 ts-thread .reply_input_container .inline_message_input_container form textarea {
-  height: 2.25rem!important;
   max-height: 10rem;
   border: 1px solid #e0e0e0;
-  margin-top: .0625rem;
   padding-top: .4375rem;
   padding-bottom: .4375rem
 }
@@ -18703,9 +18699,8 @@ ts-thread .reply_input_container .inline_message_input_container form textarea:f
 }
 
 ts-thread .reply_input_container .inline_message_input_container form .emo_menu {
-  height: 2.25rem;
-  line-height: 2.25rem;
-  top: 0
+  top: 0;
+  line-height: 2.25rem
 }
 
 ts-thread .reply_input_container.has_focus .member_preview_link {
