@@ -11348,29 +11348,23 @@ TS.registerModule("constants", {
     promiseToGetFullAppProfile: function(app_id, bot_id) {
       if (!_.isString(app_id)) return null;
       if (!_.isString(bot_id)) return null;
-      var app = TS.apps.getAppById(app_id);
-      if (app && app._has_complete_profile) {
-        return Promise.resolve(app);
-      } else {
-        return new Promise(function(resolve, reject, onCancel) {
-          var apps_profile_promise = TS.api.call("apps.profile.get", {
-            bot: bot_id
-          }).then(function(res) {
-            if (res.data.ok && res.data.app_profile) {
-              var app = res.data.app_profile;
-              app._has_complete_profile = true;
-              TS.apps.ingestApp(app);
-              resolve(app);
-            } else {
-              reject(res.data.error);
-              TS.warn("Trying to look up app by bot id (" + bot_id + ") but it failed.");
-            }
-          });
-          onCancel(function() {
-            apps_profile_promise.cancel();
-          });
+      return new Promise(function(resolve, reject, onCancel) {
+        var apps_profile_promise = TS.api.call("apps.profile.get", {
+          bot: bot_id
+        }).then(function(res) {
+          if (res.data.ok && res.data.app_profile) {
+            var app = res.data.app_profile;
+            TS.apps.ingestApp(app);
+            resolve(app);
+          } else {
+            reject(res.data.error);
+            TS.warn("Trying to look up app by bot id (" + bot_id + ") but it failed.");
+          }
         });
-      }
+        onCancel(function() {
+          apps_profile_promise.cancel();
+        });
+      });
     },
     sortNames: function(names) {
       return names.slice().sort(TS.apps.compareNames);
@@ -42480,10 +42474,13 @@ $.fn.togglify = function(settings) {
     TS.rxns.rxn_records_changed_sig.dispatch();
   };
   var _displayTooManyError = function(error) {
+    var reaction_limit_reached_title = TS.i18n.t("Reaction Limit Reached", "rxns")();
+    var too_many_reactions = TS.i18n.t("A message can contain up to 20 different emojis from a single person. Sorry, you can’t add any more than this!", "rxns")();
+    var too_many_emoji = TS.i18n.t("A message can contain up to 50 different emojis in its reactions. Sorry, you can’t add any more than this!", "rxns")();
     if (error == TOO_MANY_REACTIONS) {
-      TS.generic_dialog.alert("A message can contain up to 20 different emojis from a single person. Sorry, you can’t add any more than this!", "Reaction Limit Reached");
+      TS.generic_dialog.alert(too_many_reactions, reaction_limit_reached_title);
     } else if (error == TOO_MANY_EMOJI) {
-      TS.generic_dialog.alert("A message can contain up to 50 different emojis in its reactions. Sorry, you can’t add any more than this!", "Reaction Limit Reached");
+      TS.generic_dialog.alert(too_many_emoji, reaction_limit_reached_title);
     } else {
       return;
     }

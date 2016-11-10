@@ -1,16 +1,34 @@
 {{#if actions.can_pin}}
-  <li id="pin_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Pin to {{#if model_ob.is_channel}}#{{/if}}{{model_ob.name}} &hellip;</a></li>
+  <li id="pin_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>
+    {{#if model_ob.is_channel}}
+      {{#t note="Pin this comment to a channel"}}Pin to #{model_ob.name} &hellip;{{/t}}
+    {{else}}
+      {{#t note="Pin this comment to a DM or MPDM"}}Pin to {model_ob.name} &hellip;{{/t}}
+    {{/if}}
+  </a></li>
 {{/if}}
 {{#if actions.can_unpin}}
-  <li id="unpin_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Un-pin from {{#if model_ob.is_channel}}#{{/if}}{{model_ob.name}}</a></li>
+  <li id="unpin_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>
+    {{#if model_ob.is_channel}}
+      {{#t note="Un-pin this comment from a channel"}}Un-pin from #{model_ob.name} &hellip;{{/t}}
+    {{else}}
+      {{#t note="Un-pin this comment from a DM or MPDM"}}Un-pin from {model_ob.name} &hellip;{{/t}}
+    {{/if}}
+  </a></li>
 {{/if}}
 {{#if actions.rxn_file_comment}}
-  <li id="rxn_file_comment" data-file-id="{{file.id}}" data-rxn-key="{{comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+  <li id="rxn_file_comment" data-file-id="{{file.id}}" data-rxn-key="{{comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">
+    {{#t note="Add a reaction to a file comment"}}Add reaction &hellip;{{/t}}
+  </a></li>
 {{/if}}
 {{#if actions.can_edit}}
-  <li id="edit_file_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Edit comment</a></li>
+  <li id="edit_file_comment" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>
+    {{#t note="Edit the comment on a file"}}Edit comment{{/t}}
+  </a></li>
 {{/if}}
 {{#if actions.can_delete}}
   <li class="divider"></li>
-  <li id="delete_file_comment" class="danger" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>Delete comment</a></li>
+  <li id="delete_file_comment" class="danger" data-file-id="{{file.id}}" data-comment-id="{{comment.id}}" role="menuitem"><a>
+    {{#t note="Delete the comment on a file"}}Delete comment{{/t}}
+  </a></li>
 {{/if}}

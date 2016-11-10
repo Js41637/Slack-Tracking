@@ -1,3 +1,4 @@
+{{i18n_ns "file_viewer"}}
 <header class="fs_modal_file_viewer_header{{#if link_url}} external{{/if}}">
   {{#if member}}
     <div class="star_btn btn_icon btn star_file">
@@ -11,7 +12,7 @@
 
     {{#if actions.download}}
       <a href="{{file.url_private_download}}" target="{{newWindowName}}" data-file-id="{{file.id}}" class="download_btn control_btn btn_icon btn ts_icon ts_icon_cloud_download ts_tip ts_tip_bottom file_ssb_download_link">
-        <div class="ts_tip_tip">Download
+        <div class="ts_tip_tip">{{#t}}Download{{/t}}
           <div class="muted_tooltip_info">{{makeFileSize file}}</div>
         </div>
         <div class="flex_menu_download_circle"></div>
@@ -20,7 +21,7 @@
 
     {{#if link_url}}
       <a {{makeRefererSafeLink url=link_url}} target="_blank" class="open_btn control_btn btn_icon btn ts_icon ts_icon_external_link ts_tip ts_tip_bottom">
-        <span class="ts_tip_tip">Open original</span>
+        <span class="ts_tip_tip">{{#t}}Open original{{/t}}</span>
       </a>
     {{/if}}
 
@@ -33,7 +34,7 @@
         data-exclude-download="true"{{! download is outside menu above \u2191 }}
         data-exclude-comment="true"{{! comments are below \u2193 }}
       >
-        <span class="ts_tip_tip">More actions</span>
+        <span class="ts_tip_tip">{{#t}}More actions{{/t}}</span>
       </button>
     {{/if}}
 
@@ -41,13 +42,13 @@
       <button class="comment_btn control_btn btn ts_tip ts_tip_bottom {{#if is_comment_panel_active}}active{{/if}}">
         <ts-icon class="ts_icon ts_icon_comment_o"></ts-icon>
         <span class="comment_count">{{comments_count}}</span>
-        <span class="ts_tip_tip" data-tip-toggle-auto="Hide comments">View comments</span>
+        <span class="ts_tip_tip" data-tip-toggle-auto="{{#t}}Hide comments{{/t}}">{{#t}}View comments{{/t}}</span>
       </button>
     {{/if}}
 
     <button id="fs_modal_close_btn" class="close_btn control_btn btn_icon btn ts_icon ts_icon_times ts_tip ts_tip_bottom ts_tip_right">
-      <div class="ts_tip_tip">Close
-        <div class="muted_tooltip_info">(esc)</div>
+      <div class="ts_tip_tip">{{#t}}Close{{/t}}
+        <div class="muted_tooltip_info">{{#t}}(esc){{/t}}</div>
       </div>
     </button>
 

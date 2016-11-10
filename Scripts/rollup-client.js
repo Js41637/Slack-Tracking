@@ -11913,7 +11913,7 @@
                 var shared_meta_template_args = {
                   model_ob: model_ob
                 };
-                if (TS.model.enterprise_teams.length === model_ob.shares.length) {
+                if (model_ob.is_global_shared) {
                   shared_meta_template_args.all_teams = true;
                 } else {
                   var number_of_teams_to_show_in_shared_with_meta = 3;
@@ -26363,16 +26363,10 @@
       show_set_purpose: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral()),
       show_edit_purpose_or_topic: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && !TS.model.user.is_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral())
     };
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_org_shared && model_ob.is_channel) {
-      if (!model_ob.shares) {
-        TS.warn("WTF, channel " + model_ob.id + " is org shared but no shares?");
-        return;
-      }
-      if (model_ob.shares.length === TS.model.enterprise_teams.length) {
-        template_args.is_globally_shared = true;
-        template_args.enterprise_org_name = TS.model.enterprise.name;
-        template_args.enterprise_org_icon = TS.model.enterprise.icon;
-      }
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_channel && model_ob.is_org_shared && model_ob.is_global_shared) {
+      template_args.is_globally_shared = true;
+      template_args.enterprise_org_name = TS.model.enterprise.name;
+      template_args.enterprise_org_icon = TS.model.enterprise.icon;
     }
     var user = TS.model.user;
     if (!user.is_ultra_restricted && !model_ob.is_archived && (model_ob.is_member || model_ob.is_group)) {
