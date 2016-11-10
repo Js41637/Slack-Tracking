@@ -10839,12 +10839,18 @@ TS.registerModule("constants", {
           what_changed.push(k);
         }
       } else if (k == "enterprise_user") {
-        for (var l in member[k]) {
-          if (!_.isEqual(existing_member[k][l], member[k][l])) {
-            existing_member[k][l] = member[k][l];
-            status = "CHANGED";
-            what_changed.push(k);
+        if (existing_member[k]) {
+          for (var l in member[k]) {
+            if (!_.isEqual(existing_member[k][l], member[k][l])) {
+              existing_member[k][l] = member[k][l];
+              status = "CHANGED";
+              what_changed.push(k);
+            }
           }
+        } else {
+          existing_member[k] = member[k];
+          status = "CHANGED";
+          what_changed.push(k);
         }
       } else if (k == "id") {
         var maybe_replace_id = existing_member.id != member.id && existing_member.enterprise_user && member.enterprise_user;
@@ -13341,7 +13347,7 @@ TS.registerModule("constants", {
           break;
         case "client_logs_pri":
           TS.model.prefs[imsg.name] = imsg.value;
-          if (TS.boot_data.feature_console_me) TS.console.setAppropriatePri();
+          TS.console.setAppropriatePri();
           break;
         default:
           TS.model.prefs[imsg.name] = imsg.value;
@@ -48804,6 +48810,7 @@ $.fn.togglify = function(settings) {
         team = existing_enterprise_team;
       } else {
         teams.push(team);
+        _processNewTeamForUpserting(team);
         _id_map[team.id] = team;
       }
       return team;
@@ -48825,10 +48832,8 @@ $.fn.togglify = function(settings) {
     },
     promiseToEnsureEnterprise: function() {
       if (!TS.boot_data.page_needs_enterprise) TS.warn("Unexpected call to TS.enterprise.promiseToEnsureEnterprise");
-      return Promise.all([TS.api.call("enterprise.info").reflect(), TS.api.call("enterprise.teams.list", {
-        include_archived: false,
-        include_deleted: false
-      }).reflect()]).then(function(responses) {
+      _maybeSetupEnterpriseModel();
+      return Promise.all([TS.api.call("enterprise.info").reflect(), TS.enterprise.promiseToGetTeams().reflect()]).then(function(responses) {
         var rejection_reasons = [];
         responses.forEach(function(response) {
           if (response.isFulfilled()) return;
@@ -48839,11 +48844,25 @@ $.fn.togglify = function(settings) {
         } else {
           var enterprise = responses[0].value().data.enterprise;
           TS.enterprise.upsertEnterprise(enterprise);
-          var teams = responses[1].value().data.teams;
-          teams.forEach(function(team) {
-            TS.enterprise.upsertEnterpriseTeam(team);
-          });
         }
+      });
+    },
+    promiseToGetTeams: function(exclude_discoverable) {
+      var calling_args = {
+        include_archived: false,
+        include_deleted: false
+      };
+      if (exclude_discoverable) calling_args.exclude_discoverable = exclude_discoverable;
+      return TS.api.call("enterprise.teams.list", calling_args).reflect().then(function(response) {
+        if (!response.isFulfilled()) return Promise.reject(new Error("The API failed:\n" + response.reason()));
+        var teams = response.value().data.teams;
+        teams.forEach(function(team) {
+          TS.enterprise.upsertEnterpriseTeam(team);
+        });
+        return Promise.resolve(TS.model.enterprise_teams.filter(function(team) {
+          if (!exclude_discoverable) return true;
+          return exclude_discoverable.indexOf(team.discoverable) < 0;
+        }));
       });
     },
     canMemberJoinChannel: function(channel_model_ob, member_model_ob) {
@@ -48894,6 +48913,22 @@ $.fn.togglify = function(settings) {
     if (TS.model.enterprise && TS.model.enterprise_teams) return;
     TS.model.enterprise = _.merge({}, TS.model.enterprise);
     TS.model.enterprise_teams = _.merge([], TS.model.enterprise_teams);
+  };
+  var _processNewTeamForUpserting = function(team) {
+    if (TS.boot_data.feature_discoverable_teams_client) {
+      switch (team.discoverable) {
+        case "public":
+          team.is_public = true;
+          break;
+        case "private":
+          team.is_private = true;
+          break;
+        case "unlisted":
+        default:
+          team.is_unlisted = true;
+          break;
+      }
+    }
   };
 })();
 (function() {
