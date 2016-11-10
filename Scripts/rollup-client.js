@@ -5511,6 +5511,9 @@
       function _bindUI() {
         TS.client.ui.enhanceComponents();
         TS.client.ui.bindCommentInput();
+        if (TS.boot_data.feature_message_inputs) {
+          _bindAttachmentActionSelect();
+        }
         $(window.document).keydown(TS.client.ui.onWindowKeyDown).keyup(TS.client.ui.onWindowKeyUp);
         $("#team_menu .notifications_menu_btn").bind("click", function(e) {
           if (TS.client.ui.shouldIgnoreClick(e)) return false;
@@ -7905,6 +7908,15 @@
       TS.menu.member.startWithMemberPreview(e, member.id, false, true);
     });
     if (expanded) _toggleCroppedMemberImage($member_preview.find(".member_image"));
+  };
+  var _bindAttachmentActionSelect = function() {
+    TS.client.ui.$msgs_div.on("change", ".attachment_actions_buttons select", function(e) {
+      e.preventDefault();
+      var selected_value = $(e.target).val();
+      var context = TS.attachment_actions.handleActionEventAndGetContext(e);
+      context.action.selected_options = _.filter(context.action.options, ["value", selected_value]);
+      TS.attachment_actions.action_triggered_sig.dispatch(context);
+    });
   };
 })();
 (function() {

@@ -1,10 +1,11 @@
+{{i18n_ns "messages_action_items"}}
 {{#feature flag="feature_reminders_v3"}}
   {{! Message Action reminds includes a reordering of this menu, hence the largely duplicative blocks }}
 
   {{#feature flag="feature_message_replies"}}
     {{#unless is_in_conversation}}
       {{#if actions.share_message}}
-        <li id="share_message_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Share message &hellip;</a></li>
+        <li id="share_message_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Share message &hellip;{{/t}}</a></li>
       {{/if}}
     {{/unless}}
   {{/feature}}
@@ -13,27 +14,27 @@
   {{#feature flag="feature_message_replies"}}
     {{#if is_in_conversation}}
       {{#if actions.jump_to_original}}
-        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Jump to original</a></li>
+        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Jump to original{{/t}}</a></li>
       {{/if}}
     {{/if}}
   {{/feature}}
 
   {{#if actions.copy_link}}
-    <li id="copy_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" data-permalink="{{abs_permalink}}" role="menuitem"><a>Copy link</a></li>
+    <li id="copy_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" data-permalink="{{abs_permalink}}" role="menuitem"><a>{{#t}}Copy link{{/t}}</a></li>
   {{/if}}
 
   {{#if actions.mark_unread}}
     <li id="mark_unread" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>
       {{#if is_all_unreads_showing}}
-        Mark above as read
+        {{#t}}Mark above as read{{/t}}
       {{else}}
-        Mark unread
+        {{#t}}Mark unread{{/t}}
       {{/if}}
     </a></li>
   {{/if}}
 
   {{#if actions.remind_me}}
-    <li id="remind_me" class="has_submenu" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Remind me about this <ts-icon class="ts_icon_caret_right submenu_caret"></a></li>
+    <li id="remind_me" class="has_submenu" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Remind me about this{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret"></a></li>
   {{/if}}
 
   {{#if actions.has_private_actions}}
@@ -45,29 +46,29 @@
   {{#feature flag="feature_message_replies"}}
     {{#unless is_in_conversation}}
       {{#if actions.reply}}
-        <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Reply &hellip;</a></li>
+        <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Reply &hellip;{{/t}}</a></li>
       {{/if}}
     {{/unless}}
   {{/feature}}
 
   {{#if actions.add_rxn}}
-    <li id="rxn_link" data-rxn-key="{{msg._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+    <li id="rxn_link" data-rxn-key="{{msg._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
   {{/if}}
 
   {{#if actions.add_file_rxn}}
-    <li id="rxn_link" data-rxn-key="{{msg.file._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+    <li id="rxn_link" data-rxn-key="{{msg.file._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
   {{/if}}
 
   {{#if actions.add_file_comment_rxn}}
-    <li id="rxn_link" data-rxn-key="{{msg.comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+    <li id="rxn_link" data-rxn-key="{{msg.comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
   {{/if}}
 
   {{#unless is_in_conversation}}
     {{#if actions.pin_msg}}
-      <li id="pin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Pin to {{pinToLabel model_ob}} &hellip;</a></li>
+      <li id="pin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t channel_name=(pinToLabel model_ob)}}Pin to {channel_name} &hellip;{{/t}}</a></li>
     {{/if}}
     {{#if actions.unpin_msg}}
-      <li id="unpin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Un-pin from {{pinToLabel model_ob}}</a></li>
+      <li id="unpin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t channel_name=(pinToLabel model_ob)}}Un-pin from {channel_name}{{/t}}</a></li>
     {{/if}}
   {{/unless}}
 
@@ -78,11 +79,11 @@
 
   {{! Admin actions }}
   {{#if actions.edit_msg}}
-    <li id="edit_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem" {{#if is_in_conversation}}data-edit-state="convo"{{/if}}><a>Edit message</a></li>
+    <li id="edit_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem" {{#if is_in_conversation}}data-edit-state="convo"{{/if}}><a>{{#t}}Edit message{{/t}}</a></li>
   {{/if}}
 
   {{#if actions.delete_msg}}
-    <li id="delete_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" class="danger" role="menuitem"><a>Delete message</a></li>
+    <li id="delete_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" class="danger" role="menuitem"><a>{{#t}}Delete message{{/t}}</a></li>
 
   {{/if}}
   {{! End admin actions}}
@@ -91,28 +92,28 @@
 
   {{#feature flag="feature_message_replies"}}
     {{#if actions.copy_link}}
-      <li id="copy_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" data-permalink="{{abs_permalink}}" role="menuitem"><a>Copy link</a></li>
+      <li id="copy_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" data-permalink="{{abs_permalink}}" role="menuitem"><a>{{#t}}Copy link{{/t}}</a></li>
     {{/if}}
   {{/feature}}
 
   {{#if actions.mark_unread}}
     <li id="mark_unread" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>
       {{#if is_all_unreads_showing}}
-        Mark above as read
+        {{#t}}Mark above as read{{/t}}
       {{else}}
-        Mark unread
+        {{#t}}Mark unread{{/t}}
       {{/if}}
     </a></li>
   {{/if}}
 
   {{#if actions.edit_msg}}
-    <li id="edit_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem" {{#if is_in_conversation}}data-edit-state="convo"{{/if}}><a>Edit message</a></li>
+    <li id="edit_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem" {{#if is_in_conversation}}data-edit-state="convo"{{/if}}><a>{{#t}}Edit message{{/t}}</a></li>
   {{/if}}
 
   {{#if actions.open_original}}
     <li id="open_original_link" data-file-id="{{msg.file.id}}" role="menuitem">
       <a href="{{msg.file.url_private}}" target="{{msg.file.id}}">
-        {{#if_equal msg.file.mode compare="snippet"}}View raw{{else}}Open original{{/if_equal}}
+        {{#if_equal msg.file.mode compare="snippet"}}{{#t}}View raw{{/t}}{{else}}{{#t}}Open original{{/t}}{{/if_equal}}
       </a>
     </li>
   {{/if}}
@@ -120,51 +121,51 @@
   {{#feature flag="feature_message_replies"}}
     {{#if is_in_conversation}}
       {{#if actions.jump_to_original}}
-        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Jump to original</a></li>
+        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Jump to original{{/t}}</a></li>
       {{/if}}
     {{/if}}
   {{/feature}}
 
   {{#unless is_in_conversation}}
     {{#if actions.pin_msg}}
-      <li id="pin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Pin to {{pinToLabel model_ob}} &hellip;</a></li>
+      <li id="pin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t channel_name=(pinToLabel model_ob)}}Pin to {channel_name} &hellip;{{/t}}</a></li>
     {{/if}}
     {{#if actions.unpin_msg}}
-      <li id="unpin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Un-pin from {{pinToLabel model_ob}}</a></li>
+      <li id="unpin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t channel_name=(pinToLabel model_ob)}}Un-pin from {channel_name}{{/t}}</a></li>
     {{/if}}
   {{/unless}}
 
   {{#if actions.add_rxn}}
-    <li id="rxn_link" data-rxn-key="{{msg._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+    <li id="rxn_link" data-rxn-key="{{msg._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
   {{/if}}
 
   {{#if actions.add_file_rxn}}
-    <li id="rxn_link" data-rxn-key="{{msg.file._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+    <li id="rxn_link" data-rxn-key="{{msg.file._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
   {{/if}}
 
   {{#feature flag="feature_message_replies"}}
     {{#unless is_in_conversation}}
       {{#if actions.reply}}
-        <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>Reply &hellip;</a></li>
+        <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Reply &hellip;{{/t}}</a></li>
       {{/if}}
     {{/unless}}
   {{/feature}}
 
   {{#if actions.add_file_comment_rxn}}
-    <li id="rxn_link" data-rxn-key="{{msg.comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">Add reaction &hellip;</a></li>
+    <li id="rxn_link" data-rxn-key="{{msg.comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
   {{/if}}
 
   {{#feature flag="feature_message_replies"}}
     {{! Copy link is at the top when replies are enabled }}
   {{else}}
     {{#if actions.copy_link}}
-      <li id="copy_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" data-permalink="{{abs_permalink}}" role="menuitem"><a>Copy link</a></li>
+      <li id="copy_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" data-permalink="{{abs_permalink}}" role="menuitem"><a>{{#t}}Copy link{{/t}}</a></li>
     {{/if}}
   {{/feature}}
 
   {{#if actions.delete_msg}}
     <li class="divider"></li>
-    <li id="delete_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" class="danger" role="menuitem"><a>Delete message</a></li>
+    <li id="delete_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" class="danger" role="menuitem"><a>{{#t}}Delete message{{/t}}</a></li>
   {{/if}}
 
 {{/feature}}

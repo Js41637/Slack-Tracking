@@ -18346,6 +18346,11 @@ TS.registerModule("constants", {
         switch (action.type) {
           case "button":
             return TS.templates.builders.buildAttachmentActionButtonHTML(action, disable_buttons);
+          case "select":
+            if (TS.boot_data.feature_message_inputs) {
+              return TS.templates.builders.buildAttachmentActionSelectHTML(action, disable_buttons);
+            }
+            break;
         }
       });
       var actions_html = rendered_actions.join("");
@@ -18557,6 +18562,21 @@ TS.registerModule("constants", {
       });
       return TS.templates.attachment_actions_button(button_model);
     },
+    buildAttachmentActionSelectHTML: function(action, disable_buttons) {
+      var model = _.merge({
+        _disabled: !!disable_buttons,
+        id: "",
+        name: "",
+        options: [],
+        text: ""
+      }, action);
+      model.options = _.map(model.options, function(option) {
+        option.text = _formatAndMarkSafe(option.text);
+        return option;
+      });
+      model.text = _formatAndMarkSafe(model.text);
+      return TS.templates.attachment_actions_select(model);
+    },
     shouldDoSimpleAttachment: function(attachment, msg) {
       var do_simple = false;
       if (msg.standalone_attachment) return false;
@@ -18633,15 +18653,19 @@ TS.registerModule("constants", {
           continue;
         }
         if (attachment.actions && attachment.actions.length) {
+          var ACTION_TYPE_WHITELIST = ["button"];
+          if (TS.boot_data.feature_message_inputs) {
+            ACTION_TYPE_WHITELIST.push("select");
+          }
           var action;
           var legacy_actions = [];
           var new_actions = [];
           for (var j = 0; j < attachment.actions.length; j++) {
             action = attachment.actions[j];
-            if (action.type !== "button") {
-              legacy_actions.push(action);
-            } else {
+            if (_.includes(ACTION_TYPE_WHITELIST, action.type)) {
               new_actions.push(action);
+            } else {
+              legacy_actions.push(action);
             }
           }
           if (legacy_actions.length) {
@@ -21246,6 +21270,10 @@ TS.registerModule("constants", {
       is_starred: ob.is_starred
     };
   }
+  var _formatAndMarkSafe = function(str) {
+    var formatted_text = TS.emoji.graphicReplace(str);
+    return new Handlebars.SafeString(formatted_text);
+  };
   var _session_ms = Date.now();
 })();
 (function() {
@@ -45424,31 +45452,9 @@ $.fn.togglify = function(settings) {
       }
       TS.client.msg_pane.rebuildMsgs();
     });
-    TS.click.addClientHandler(".attachment_actions_buttons .btn", function(e, $btn) {
+    TS.click.addClientHandler(".attachment_actions_buttons .btn", function(e) {
       e.preventDefault();
-      var $attachment = $btn.parents("[data-attachment-id]");
-      var $msg = $attachment.parents("ts-message");
-      var channel_id = String($msg.data("model-ob-id"));
-      var message_ts = String($msg.data("ts"));
-      if (TS.client.activeChannelIsHidden() || channel_id != TS.shared.getActiveModelOb().id) {
-        TS.client.ui.tryToJump(channel_id, message_ts);
-      }
-      var slack_action_url = $btn.data("slack-action-url");
-      if (slack_action_url) {
-        var actual_url = slack_action_url.match(/\<(.*?)\|/)[1];
-        if (actual_url && actual_url.indexOf(TS.utility.msgs.new_api_url_prefix) === 0) {
-          TS.utility.msgs.doNewApiUrl(actual_url);
-        } else {
-          TS.error(slack_action_url + " does not contain a valid slack action URL.");
-        }
-        return;
-      }
-      var context = TS.attachment_actions.getActionContext({
-        channel_id: channel_id,
-        message_ts: message_ts,
-        attachment_id: String($attachment.data("attachment-id")),
-        action_id: String($btn.data("action-id"))
-      });
+      var context = TS.attachment_actions.handleActionEventAndGetContext(e);
       if (context.action.confirm) {
         TS.attachment_actions.confirmAction(context.action, function() {
           TS.attachment_actions.action_triggered_sig.dispatch(context);
@@ -52763,6 +52769,32 @@ $.fn.togglify = function(settings) {
         message: message
       };
     },
+    handleActionEventAndGetContext: function(e) {
+      var $target = $(e.target);
+      var $attachment = $target.parents("[data-attachment-id]");
+      var $msg = $attachment.parents("ts-message");
+      var channel_id = String($msg.data("model-ob-id"));
+      var message_ts = String($msg.data("ts"));
+      if (TS.client.activeChannelIsHidden() || channel_id != TS.shared.getActiveModelOb().id) {
+        TS.client.ui.tryToJump(channel_id, message_ts);
+      }
+      var slack_action_url = $target.data("slack-action-url");
+      if (slack_action_url) {
+        var actual_url = slack_action_url.match(/\<(.*?)\|/)[1];
+        if (actual_url && actual_url.indexOf(TS.utility.msgs.new_api_url_prefix) === 0) {
+          TS.utility.msgs.doNewApiUrl(actual_url);
+        } else {
+          TS.error(slack_action_url + " does not contain a valid slack action URL.");
+        }
+        return;
+      }
+      return TS.attachment_actions.getActionContext({
+        channel_id: channel_id,
+        message_ts: message_ts,
+        attachment_id: String($attachment.data("attachment-id")),
+        action_id: String($target.data("action-id"))
+      });
+    },
     getPendingAttachment: function(attachment, actions) {
       if (!attachment || !actions || !actions.length) return;
       var changed_ids = _.map(actions, "id");
@@ -53155,6 +53187,18 @@ $.fn.togglify = function(settings) {
       placeholder = _.get(org_data, "saml_provider") || fallback;
       if (placeholder.toLowerCase() === "saml") placeholder = fallback;
       return TS.utility.enterprise.getSSOProviderLabel(_.get(org_data, "sso_provider"), placeholder);
+    },
+    wrapWithStrongTags: _.wrap(_.escape, function(esc, text) {
+      return "<strong>" + esc(text) + "</strong>";
+    }),
+    commaSeparatedListWithStrongFormatting: function(list) {
+      if (list.length > 1) {
+        return _(list).dropRight().map(TS.utility.enterprise.wrapWithStrongTags).join(", ") + ", and " + TS.utility.enterprise.wrapWithStrongTags(_.last(list));
+      } else if (list.length === 1) {
+        return TS.utility.enterprise.wrapWithStrongTags(list[0]);
+      } else {
+        return "";
+      }
     }
   });
 })();
