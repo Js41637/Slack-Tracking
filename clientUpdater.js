@@ -11,10 +11,15 @@ const releaseURL = 'https://downloads.slack-edge.com/releases'
 function downloadClient(release) {
   return new Promise((resolve, reject) => {
     console.log("Downloading", `${releaseURL}/${release}`)
-    request(`${releaseURL}/${release}`)
-      .on('error', reject)
-      .on('end', resolve)
-      .pipe(fs.createWriteStream(`./ClientExtracted/${release}`))
+    let r = request(`${releaseURL}/${release}`)
+    r.pause()
+    r.on('error', err => { return reject(`Request error ${err}`) })
+    r.on('end', resolve)
+    r.on('response', resp => {
+      if (resp.statusCode != 200) return reject(`Error downloading client, got status code ${resp.statusCode}`)
+      r.pipe(fs.createWriteStream(`./ClientExtracted/${release}`))
+      r.resume()
+    })
   })
 }
 

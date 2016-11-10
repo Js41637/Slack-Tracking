@@ -157,7 +157,7 @@ function checkClientVersion() {
     let latestRelease = last(releases)
     fs.readFile('./ClientExtracted/VERSION', 'utf8', (err, data) => {
       let currentVersion = err ? null : data
-      if (currentVersion != latestRelease.version) clientUpdater.update(latestRelease).then(pushToGit)
+      if (currentVersion != latestRelease.version) clientUpdater.update(latestRelease).then(pushToGit).catch(console.error)
       else console.log("Slack Client hasn't updated")
     })
   })
