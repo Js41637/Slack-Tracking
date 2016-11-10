@@ -64,7 +64,7 @@ function getIndividualScripts(urls) {
     return new Promise((resolve, reject) => {
       request({ url }, (err, resp, body) => {
         if (err || !body) return reject(`Error fetching script ${url}, ${err}`)
-        let name = last(url.split('/')).split('?')[0]
+        let name = last(url.split('/')).split('?')[0].replace('.php', '.js')
         return resolve({ name, body, type })
       })
     })
@@ -73,7 +73,7 @@ function getIndividualScripts(urls) {
 
 function processTemplates(scripts) {
   return new Promise((resolve, reject) => {
-    let temps = find(scripts, { name: 'templates.php'})
+    let temps = find(scripts, { name: 'templates.js' })
     if (!temps) return resolve(scripts)
     console.log("Got templates")
     let regex = /TS.raw_templates\['(\w+)'\] ?= ?"(.+)";/g
@@ -212,4 +212,6 @@ console.log("Starting up")
 // Init
 checkDirectories()
 startTheMagic()
-checkClientVersion()
+if (config.updateClient) {
+  checkClientVersion()
+}
