@@ -2,31 +2,31 @@
   <span class="channel_header_info_count">
     {{#if total_unread_count}}
       {{#if_gt total_unread_count compare=50}}
-        50+ messages
+        {{#t}}50+ messages{{/t}}
       {{else}}
-        {{total_unread_count}} new {{pluralize total_unread_count 'message' 'messages'}}
+        {{#t}}{total_unread_count, plural, =1 {# new message} other {# new messages}}{{/t}}
       {{/if_gt}}
     {{else}}
-      No unread messages
+      {{#t}}No unread messages{{/t}}
     {{/if}}
   </span>
 
   <span class="topic_divider">|</span>
   <span class="channel_header_info_sort_order">
     {{#if_equal sort_order compare="alphabetical"}}
-      Sorted alphabetically
+      {{#t}}Sorted alphabetically{{/t}}
     {{/if_equal}}
     {{#if_equal sort_order compare="priority"}}
-      Sorted scientifically
+      {{#t}}Sorted scientifically{{/t}}
     {{/if_equal}}
     {{#if_equal sort_order compare="oldest"}}
-      Sorted by oldest channel
+      {{#t}}Sorted by oldest channel{{/t}}
     {{/if_equal}}
     {{#if_equal sort_order compare="newest"}}
-      Sorted by newest channel
+      {{#t}}Sorted by newest channel{{/t}}
     {{/if_equal}}
     <ts-icon class="ts_icon_chevron_down"></ts-icon>
   </span>
 {{else}}
-  Loading messages
+  {{#t}}Loading messages{{/t}}
 {{/if}}

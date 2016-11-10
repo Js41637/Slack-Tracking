@@ -1,3 +1,4 @@
+{{i18n_ns "jumper"}}
 {{#if matches}}
   <ol class="no_pointer_events">{{!-- no_pointer_events to workaround webkit bug: see TS.ui.jumper._captureFakeMousemoveEvent() --}}
     {{#each matches}}
@@ -86,9 +87,9 @@
 {{else}}
   {{#if query}}
     <p>
-      No matches found. Did you spell it correctly?
+      {{#t}}No matches found. Did you spell it correctly?{{/t}}
       {{#if show_new_channel_link}}
-        <a data-action="new_channel" class="btn btn_outline" data-qa="jumper_new_channel_button">Create a channel named #{{clean_name}}</a>
+        <a data-action="new_channel" class="btn btn_outline" data-qa="jumper_new_channel_button">{{#t}}Create a channel named #{clean_name}{{/t}}</a>
       {{/if}}
     </p>
   {{/if}}

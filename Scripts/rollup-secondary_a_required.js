@@ -14508,10 +14508,10 @@ TS.registerModule("constants", {
     fastReconnect: function() {
       TS.info("Trying fast reconnect");
       TS.model.calling_test_fast_reconnect = true;
+      TS.ms.connectImmediately(_reconnect_url);
       TS.api.callImmediately("rtm.checkFastReconnect").then(function(response) {
         var data = response.data;
-        if (TS.reloadIfVersionsChanged(data)) return;
-        TS.ms.connectImmediately(_reconnect_url);
+        TS.reloadIfVersionsChanged(data);
       }, function(response) {
         var data = response.data;
         var error = data && data.error;
@@ -44763,8 +44763,9 @@ $.fn.togglify = function(settings) {
           TS.client.ui.tryToJump(model_ob.id, msg.ts);
           break;
         case "copy_link":
+          var floater_title = TS.i18n.t("Copied!", "messages_action_items")();
           TS.tips.updateFloater({
-            title: "Copied!",
+            title: floater_title,
             classes_to_add: ["success"]
           });
           TS.clipboard.writeText($action_el.data("permalink"));
@@ -50814,7 +50815,8 @@ $.fn.togglify = function(settings) {
       frame: false,
       windowType: "calls_mini_panel",
       show: false,
-      useContentSize: true
+      useContentSize: true,
+      skip_css: true
     };
     if (TS.model.is_mac && _areTransparentWindowsSupported()) {
       win_args.transparent = true;
@@ -50899,7 +50901,8 @@ $.fn.togglify = function(settings) {
             alwaysOnTop: true,
             frame: false,
             windowType: "calls_incoming_call",
-            show: false
+            show: false,
+            skip_css: true
           };
           if (TS.model.is_mac && _areTransparentWindowsSupported()) {
             win_args.transparent = true;

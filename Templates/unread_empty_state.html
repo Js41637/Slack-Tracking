@@ -1,3 +1,4 @@
+{{i18n_ns "all_unreads"}}
 <div class="unread_empty_state_wrapper">
   <div class="unread_empty_state {{#unless line_two}}one_liner{{/unless}}">
     <div class="unread_empty_state_emoji" style="background-image: url({{emoji}})"></div>
@@ -10,8 +11,8 @@
 {{#if marked_as_read_cnt}}
   <div class="unread_empty_state_undo">
     <div class="unread_empty_state_undo_inner">
-      You marked {{marked_as_read_cnt}} {{pluralize marked_as_read_cnt 'message' 'messages'}} read.
-      <span class="unread_empty_state_undo_action small_left_margin underline cursor_pointer">Undo</span>
+      {{#t}}You marked {marked_as_read_cnt, plural, =1 {# message} other {# messages} } read.{{/t}}
+      <span class="unread_empty_state_undo_action small_left_margin underline cursor_pointer">{{#t}}Undo{{/t}}</span>
     </div>
   </div>
 {{/if}}

@@ -1,13 +1,15 @@
+{{i18n_ns "menu"}}
+
 <li id="manage_team" role="menuitem">
-  <a href="/admin" target="{{newWindowName}}">Manage team members</a>
+  <a href="/admin" target="{{newWindowName}}">{{#t}}Manage team members{{/t}}</a>
 </li>
 
 <li id="team_settings" role="menuitem">
-  <a href="/admin/settings" target="{{newWindowName}}">Team settings</a>
+  <a href="/admin/settings" target="{{newWindowName}}">{{#t}}Team settings{{/t}}</a>
 </li>
 
 {{#if show_org_settings}}
   <li id="org_settings" role="menuitem">
-    <a href="//{{enterprise_domain}}" target="{{newWindowName}}">Organization settings</a>
+    <a href="//{{enterprise_domain}}" target="{{newWindowName}}">{{#t}}Organization settings{{/t}}</a>
   </li>
 {{/if}}

@@ -5599,7 +5599,7 @@
     }];
   };
   var _getActiveChannelId = function() {
-    if (TS.client.activeChannelIsHidden() && _src_model_ob) {
+    if (TS.client && TS.client.activeChannelIsHidden() && _src_model_ob) {
       return _src_model_ob.id;
     }
     var active = TS.shared.getActiveModelOb();
