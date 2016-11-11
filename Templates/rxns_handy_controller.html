@@ -1,3 +1,4 @@
+{{i18n_ns "rxns"}}
 <div id="handy_rxns_controller">
   {{#if in_poll_mode}}
   <div id="poll_ui">
@@ -7,9 +8,9 @@
   {{/if}}
   <div id="suggestions_ui">
     {{#if handy_rxns_suggestions}}
-    Some options: 
+    {{#t note="This is a prompt to optionally select an option from a list of handy presets"}}Some options:{{/t}}
     {{#each handy_rxns_suggestions}}
-    <a class="btn btn_outline btn_small" data-suggestion-key="{{@key}}">{{this.title}}</a> 
+    <a class="btn btn_outline btn_small" data-suggestion-key="{{@key}}">{{this.title}}</a>
     {{/each}}
     {{/if}}
   </div>
@@ -21,36 +22,46 @@
       <a class="handy_rxns_remover"><i class="ts_icon ts_icon_times_circle subtle_silver candy_red_on_hover"></i></a>
     </span>
     {{/repeat}}
-  
+
     {{#unless in_poll_mode}}
     <span id="handy_rxns_restricter">
       <label class="checkbox no_margin">
         <input id="handy_rxns_restrict_cb" type="checkbox" class="small_right_margin" />
         {{#if model_ob}}
-          Restrict the use of reactions in {{#unless model_ob.is_channel}}<i class="ts_icon ts_icon_lock"></i> {{/unless}}{{#if model_ob.is_channel}}#{{/if}}{{model_ob.name}} to those specified above.
+          {{#if model_ob.is_channel}}
+            {{#t name=(model_ob.name)}}Restrict the use of reactions in #{name} to those specified above.{{/t}}
+          {{else}}
+            {{#t name=(model_ob.name)}}Restrict the use of reactions in <i class="ts_icon ts_icon_lock"></i> {name} to those specified above.{{/t}}
+          {{/if}}
         {{else}}
-          Restrict the use of reactions on your team to those specified above (this can be overridden per channel)
+          {{#t}}Restrict the use of reactions on your team to those specified above (this can be overridden per channel){{/t}}
         {{/if}}
       </label>
     </span>
     {{/unless}}
-  
+
     {{#if in_poll_mode}}
       <div id="handy_rxns_controller_empty" class="hidden">
-        <p>1. Add a message above</p>
-        <p>2. Click the buttons to the left to add some responses for your poll</p>
-        <p>3. Pollofit</p>
+        {{#t note="Instructions for creating a poll"}}
+          <p>1. Add a message above</p>
+          <p>2. Click the buttons to the left to add some responses for your poll</p>
+          <p>3. Click the "Create" button to start the poll</p>
+        {{/t}}
       </div>
     {{else}}
       {{#if model_ob}}
         <div id="handy_rxns_controller_empty" class="hidden">
-          <p>This channel currently has no handy reactions specified, so it is by default using the team-wide set.</p>
-          <p>Click the buttons to the left to override the defaults.</p>
+          {{#t note="Informational message shown when a channel uses the default handy reactions"}}
+            <p>This channel currently has no handy reactions specified, so it is by default using the team-wide set.</p>
+            <p>Click the buttons to the left to override the defaults.</p>
+          {{/t}}
         </div>
       {{else}}
         <div id="handy_rxns_controller_empty" class="hidden">
-          <p>You've removed all team-wide handy reactions.</p>
-          <p>Click the buttons to the left to add some!</p>
+          {{#t note="Informational message shown when user has removed all the default reactions"}}
+            <p>You've removed all team-wide handy reactions.</p>
+            <p>Click the buttons to the left to add some!</p>
+          {{/t}}
         </div>
       {{/if}}
     {{/if}}

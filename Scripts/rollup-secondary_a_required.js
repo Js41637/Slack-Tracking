@@ -3136,6 +3136,10 @@
       TS.shared.onSendMsg(success, imsg, channel, TS.channels);
     },
     displayChannel: function(channel_id, and_send_txt, from_history, replace_history_state) {
+      if (TS.boot_data.feature_tinyspeck) {
+        var err = new Error;
+        TS.info("channel switch: " + err.stack);
+      }
       if (TS.isPartiallyBooted() && channel_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
         TS.sounds.play("beep");
@@ -31466,15 +31470,27 @@ var _on_esc;
           template_header_args.color = TS.utility.hex2rgb(app.app_card_color);
           template_header_args.color.hex = app.app_card_color;
         }
-        if (app.is_custom_integration && app.config) {
+        if (app.config && app.config.is_custom_integration) {
+          if (app.config.icons) {
+            if (app.config.icons.emoji) {
+              var emoji_img_html = TS.emoji.graphicReplace(TS.utility.htmlEntities(app.config.icons.emoji), {
+                force_img: true
+              });
+              template_header_args.emoji_img_tag = new Handlebars.SafeString(emoji_img_html);
+            } else {
+              template_header_args.bot_icons = app.config.icons;
+            }
+          }
           if (app.bot_user) {
-            template_header_args.name = app.bot_user.username;
+            if (TS.boot_data.feature_name_tagging_client) {
+              template_header_args.name = app.config.full_name ? app.config.full_name : app.bot_user.username;
+            } else {
+              template_header_args.name = app.config.real_name ? app.config.real_name : app.bot_user.username;
+            }
           } else {
-            var bot = TS.bots.getBotById(app.config.bot_id);
-            if (bot != null) template_header_args.name = bot.name;
+            template_header_args.name = app.config.username;
           }
           template_header_args.desc = app.config.descriptive_label;
-          if (app.config.icons) template_header_args.bot_icons = app.config.icons;
         }
         var template_args = {
           app: app
@@ -31485,7 +31501,7 @@ var _on_esc;
             if (TS.boot_data.feature_name_tagging_client) {
               name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(app.auth.created_by));
             } else {
-              name_replace += TS.members.getMemberDisplayNameById(app.auth.created_by, true);
+              name_replace += TS.members.getMemberDisplayNameById(app.auth.created_by, true, true);
             }
             name_replace += "</b>";
             return name_replace;
@@ -52303,10 +52319,17 @@ $.fn.togglify = function(settings) {
       _build();
       _setHandyRxns();
       _conformUIToModel();
+      var get_poll_title = _msg ? TS.i18n.t("Edit a poll in {name}", "rxns") : TS.i18n.t("Create a poll in {name}", "rxns");
+      var prefix = _model_ob.is_channel ? "#" : '<i class="ts_icon ts_icon_lock"></i> ';
+      var title = get_poll_title({
+        name: prefix + _model_ob.name
+      });
+      var go_button_text = _msg ? TS.i18n.t("Save", "rxns")() : TS.i18n.t("Create", "rxns")();
+      var placeholder = TS.i18n.t("Your poll text", "rxns")();
       TS.generic_dialog.start({
-        title: (_msg ? "Edit" : "Create") + " a poll in " + (_model_ob.is_channel ? "#" : '<i class="ts_icon ts_icon_lock"></i>') + _model_ob.name,
+        title: title,
         $body: _$container,
-        go_button_text: _msg ? "Save" : "Create",
+        go_button_text: go_button_text,
         onGo: function() {
           if (!_isPollSendable()) return false;
           var new_text = _$message_input.val();
@@ -52328,7 +52351,7 @@ $.fn.togglify = function(settings) {
         },
         onShow: function() {
           TS.ui.inline_msg_input.make(_$container.find("#poll_dialog_input_container"), {
-            placeholder: "Your poll text",
+            placeholder: placeholder,
             no_emo: true
           });
           _$message_input = _$container.find(".message_input");
@@ -52348,15 +52371,21 @@ $.fn.togglify = function(settings) {
       _build();
       _setHandyRxns();
       _conformUIToModel();
+      var get_poll_title = TS.i18n.t("Edit handy reactions for {name}", "rxns");
+      var prefix = _model_ob.is_channel ? "#" : '<i class="ts_icon ts_icon_lock"></i> ';
+      var title = get_poll_title({
+        name: prefix + _model_ob.name
+      });
+      var go_button_text = TS.i18n.t("Save", "rxns")();
       TS.generic_dialog.start({
-        title: "Edit handy reactions for " + (_model_ob.is_channel ? "#" : '<i class="ts_icon ts_icon_lock"></i>') + _model_ob.name,
+        title: title,
         $body: _$container,
-        go_button_text: "Save",
+        go_button_text: go_button_text,
         onGo: function() {
           TS.ui.handy_rxns.saveHandyRxns().then(function() {
             TS.generic_dialog.cancel();
             _clean();
-          }, function() {
+          }).catch(function() {
             alert("saving failed");
           });
           return false;
@@ -52405,7 +52434,7 @@ $.fn.togglify = function(settings) {
   var _poll_text;
   var _is_dirty;
   var _$rows = null;
-  var _poll_marker = "⁣\n\nThis is a poll. Choose from these reactions:";
+  var _poll_marker = TS.i18n.t("⁣\n\nThis is a poll. Choose from these reactions:", "rxns")();
   var _onLoginClient = function() {};
   var _setHandyRxns = function() {
     if (_in_poll_mode) {
@@ -52545,8 +52574,11 @@ $.fn.togglify = function(settings) {
   var _updateRow = function($row, name, title) {
     var suffix = TS.emoji.isNameSkinToneModifiable(name) ? TS.emoji.getChosenSkinToneModifier() : "";
     var html = name && TS.emoji.graphicReplace(":" + name + ":" + suffix) || '<i class="ts_icon ts_icon_add_reaction subtle_silver"></i>';
+    var title = name ? TS.i18n.t("say what {name} means", "rxns")({
+      name: name
+    }) : "";
     $row.find("a.btn").html(html).attr("data-rxn", name).data("rxn", name);
-    $row.find("input.title").val(title).attr("placeholder", name ? "say what :" + name + ": means" : "");
+    $row.find("input.title").val(title).attr("placeholder", title);
     $row.toggleClass("empty", !name);
     _updateUI();
     return $row;

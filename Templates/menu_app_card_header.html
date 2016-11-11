@@ -5,22 +5,26 @@
     style="background: linear-gradient(136.53deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.2) 100%), linear-gradient(312.01deg, {{color.hex}} 0%, rgba({{color.r}},{{color.g}},{{color.b}},0.75) 100%); background-color: #2C2D30;"
   {{/if}}
 >
-  <img class="app_card_header_icon rounded"
-    {{#if bot_icons}}
-      src="{{bot_icons.image_72}}"
-    {{else if app_icons}}
-      {{#if is_slack_integration}}
-        {{!-- Slack owned apps have icons with transparent backgrounds (and position) below 192px. --}}
-        src="{{app_icons.image_192}}"
-      {{else if large}}
-        src="{{app_icons.image_96}}" srcset="{{app_icons.image_96}} 1x, {{app_icons.image_192}} 2x"
+  {{#if emoji_img_tag}}
+    <div class="app_card_emoji rounded neutral_white_bg">{{emoji_img_tag}}</div>
+  {{else}}
+    <img class="app_card_header_icon rounded"
+      {{#if bot_icons}}
+        src="{{bot_icons.image_72}}"
+      {{else if app_icons}}
+        {{#if is_slack_integration}}
+          {{!-- Slack owned apps have icons with transparent backgrounds (and position) below 192px. --}}
+          src="{{app_icons.image_192}}"
+        {{else if large}}
+          src="{{app_icons.image_96}}" srcset="{{app_icons.image_96}} 1x, {{app_icons.image_192}} 2x"
+        {{else}}
+          src="{{app_icons.image_64}}" srcset="{{app_icons.image_64}} 1x, {{app_icons.image_128}} 2x"
+        {{/if}}
       {{else}}
-        src="{{app_icons.image_64}}" srcset="{{app_icons.image_64}} 1x, {{app_icons.image_128}} 2x"
+        src="{{versioned_default_application_icon}}"
       {{/if}}
-    {{else}}
-      src="{{versioned_default_application_icon}}"
-    {{/if}}
-  >
+    >
+  {{/if}}
   <div class="app_card_header_text">
     <div class="app_card_name_row lato_black flexpane_grey display_flex align_items_center">
       <span class="app_name overflow_ellipsis">{{name}}</span>

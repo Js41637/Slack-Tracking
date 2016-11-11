@@ -24001,12 +24001,14 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   padding: 33px 25px
 }
 
+.app_card_emoji .emoji,
 .app_card_header_icon {
   min-width: 4rem;
   max-width: 4rem;
   height: 4rem
 }
 
+.app_header_large .app_card_emoji .emoji,
 .app_header_large .app_card_header_icon {
   min-width: 5.625rem;
   max-width: 5.625rem;
