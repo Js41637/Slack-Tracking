@@ -20601,6 +20601,17 @@ TS.registerModule("constants", {
       if (!linksA.length) return "";
       return linksA.join(", ");
     },
+    makeFileCommentHelpText: function(file) {
+      if (file.is_public && file.channels.length) {
+        var channel_names = [];
+        for (var i = 0; i < file.channels.length; i++) {
+          var channel = TS.channels.getChannelById(file.channels[i]);
+          if (!channel) continue;
+          channel_names.push("#" + channel.name);
+        }
+        return "Commenting in " + channel_names.join(", ");
+      }
+    },
     makeMessageShareLabelSafe: function(model_ob) {
       var html = '<span class="message_share_label">';
       if (model_ob.is_channel) {
@@ -22671,6 +22682,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("makeFileContentsDomId", function(file) {
         return TS.templates.makeFileContentsDomId(file);
+      });
+      Handlebars.registerHelper("makeFileCommentHelpText", function(file) {
+        return TS.templates.builders.makeFileCommentHelpText(file);
       });
       Handlebars.registerHelper("makeFileHeader", function(file, member) {
         var args = TS.files.getFileActions(file);

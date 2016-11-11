@@ -8095,6 +8095,9 @@
         }
       }
       TS.ui.utility.updateClosestMonkeyScroller($("#file_preview_scroller"));
+      if (TS.boot_data.feature_file_comment_help_text) {
+        _displayFileCommentHelpText(file);
+      }
       if ($("#file_comment").is(":focus") || TS.utility.getActiveElementProp("id") == "file_comment") {
         $("#file_comment_submit_btn").scrollintoview({
           offset: "bottom",
@@ -8724,6 +8727,9 @@
     $(".file_comments_container").unhideWithRememberedScrollTop();
     _rebuildFileCommentsView(file, channel_id);
     $(".file_comments_scroller").scrollTop(0);
+  };
+  var _displayFileCommentHelpText = function(file) {
+    $(".file_comment_tip").text(TS.templates.builders.makeFileCommentHelpText(file));
   };
   var _rebuildFileDetailsView = function(file) {
     var template_args = $.extend(TS.files.getFileDetailsMetaTemplateArguments(file), TS.files.getFileTemplateArguments(file));

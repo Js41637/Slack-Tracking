@@ -11641,7 +11641,8 @@ audio {
 
 .file_comment_tip {
   font-size: .7rem;
-  margin-top: -.25rem
+  margin-top: -.25rem;
+  line-height: 1rem
 }
 
 .icon_quote {
