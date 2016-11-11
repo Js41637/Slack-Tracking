@@ -33233,6 +33233,10 @@ var _timezones_alternative = {
     shouldRecordMetrics: function() {
       return !!_should_record_metrics;
     },
+    debug: function(text, data) {
+      if (!TS.boot_data.feature_tinyspeck) return;
+      TS.info("[ALL_UNREADS] " + text, data);
+    },
     showUnreadView: function(from_history, replace_history_state, direct_from_boot) {
       if (TS.model.sorting_mode_is_showing) return false;
       if (!TS.client.unread.isEnabled()) return false;
@@ -33421,13 +33425,18 @@ var _timezones_alternative = {
       return group.msgs && group.msgs.length ? group.msgs[0].ts : null;
     },
     promiseToGetMoreMessages: function() {
+      TS.client.unread.debug("promiseToGetMoreMessages");
       if (!_direct_from_boot && !_current_model_ob_id && !TS.client.unread.getAllCurrentlyUnreadGroups().length) {
+        TS.client.unread.debug("DONE FETCHING: First fetch, not from boot, nothing in global model is unread, marking all msgs as fetched");
         _all_messages_fetched = true;
       }
-      if (_all_messages_fetched) return Promise.resolve({
-        groups: [],
-        has_more: false
-      });
+      if (_all_messages_fetched) {
+        TS.client.unread.debug("NO FETCHING: All messages are fetched");
+        return Promise.resolve({
+          groups: [],
+          has_more: false
+        });
+      }
       clearTimeout(_slow_loading_timeout);
       _slow_loading_timeout = setTimeout(function() {
         TS.client.ui.unread.displaySlowLoadingMessage();
@@ -33435,17 +33444,20 @@ var _timezones_alternative = {
       _more_messages_p = new Promise(function(resolve, reject) {
         TS.experiment.loadUserAssignments().then(function() {
           var skip_channels = [];
+          var api_args;
           if (_current_model_ob_id) {
             if (_should_record_metrics) TS.metrics.count("unread_view_scroll");
           }
           if (_backfilling_for_group) {
             var current_backfill_id = _backfilling_for_group.id;
-            TS.api.call(TS.shared.getHistoryApiMethodForModelOb(_backfilling_for_group.model_ob), {
+            api_args = {
               channel: _backfilling_for_group.id,
               oldest: TS.client.unread.getNewestMsgTs(_backfilling_for_group) || _backfilling_for_group.model_ob.last_read,
               latest: _init_timestamp,
               always_asc: true
-            }).then(function(resp) {
+            };
+            TS.client.unread.debug("Backfilling using api_args: ", _.clone(api_args));
+            TS.api.call(TS.shared.getHistoryApiMethodForModelOb(_backfilling_for_group.model_ob), api_args).then(function(resp) {
               clearTimeout(_slow_loading_timeout);
               if (!TS.model.unread_view_is_showing) return;
               if (_backfilling_for_group || _backfilling_for_group.id != current_backfill_id) {
@@ -33476,7 +33488,7 @@ var _timezones_alternative = {
               TS.client.ui.unread.displayFatalError();
             });
           } else {
-            var api_args = {
+            api_args = {
               timestamp: _init_timestamp,
               sort: TS.client.unread.getSortOrder()
             };
@@ -33493,6 +33505,7 @@ var _timezones_alternative = {
               }
             }
             if (_should_record_metrics || TS.boot_data.feature_tinyspeck) TS.metrics.mark("unread_history_sort_marker");
+            TS.client.unread.debug("Regular fetch using api_args: ", _.clone(api_args));
             TS.api.call("unread.history", api_args).then(function(resp) {
               if (_should_record_metrics || TS.boot_data.feature_tinyspeck) TS.metrics.measureAndClear("unread_history_sort_" + api_args.sort, "unread_history_sort_marker");
               clearTimeout(_slow_loading_timeout);
@@ -33756,6 +33769,21 @@ var _timezones_alternative = {
       has_more: true
     };
     TS.info("Received unread view response: " + data.channels_count + " channels; " + data.total_messages_count + " total messages (" + (first_fetch ? "first fetch" : "subsequent fetch") + ")");
+    TS.client.unread.debug("Process response starting info:", {
+      first_fetch: first_fetch,
+      skip_channels: skip_channels,
+      channels_count: data.channels_count,
+      total_messages_count: data.total_messages_count,
+      channels: data.channels.map(function(unread_obj) {
+        return {
+          channel_id: unread_obj.channel_id,
+          msg_count: unread_obj.messages ? unread_obj.messages.length : null,
+          collapsed: unread_obj.collapsed,
+          total_unreads: unread_obj.total_unreads,
+          has_more: unread_obj.has_more
+        };
+      })
+    });
     if (first_fetch) {
       if (_should_record_metrics) TS.metrics.count("unread_view_fetched_channels_first", data.channels_count);
       if (_should_record_metrics) TS.metrics.count("unread_view_fetched_messages_first", data.total_messages_count);
@@ -33768,11 +33796,13 @@ var _timezones_alternative = {
     if (data.channels.length === 0 || !data.channels[0].has_more && data.total_messages_count === 0) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
+      TS.client.unread.debug("DONE FETCHING: API response had no messages", data.channels.length);
       return processed_data;
     }
     if (data.channels.length === 1 && data.channels[0].messages.length === 0 && data.channels[0].collapsed && TS.client.unread.getGroup(data.channels[0].channel_id) && TS.client.unread.getGroup(data.channels[0].channel_id).collapsed && TS.client.unread.getGroup(data.channels[0].channel_id).msgs.length === 0) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
+      TS.client.unread.debug("DONE FETCHING: Received only one collapsed group with zero messages");
       return processed_data;
     }
     data.channels.forEach(function(unread_obj) {
@@ -33835,10 +33865,32 @@ var _timezones_alternative = {
     if (final_group && !final_group.has_more) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
+      TS.client.unread.debug("DONE FETCHING: Last group has no more messages", final_group.id);
     }
     if (first_fetch && _groups.length && !TS.client.unread.getActiveGroup()) {
       _groups[0].active = true;
     }
+    TS.client.unread.debug("Process response, processed data", {
+      has_more: processed_data.has_more,
+      touched_groups: processed_data.groups.map(function(g) {
+        return {
+          channel_id: g.id,
+          has_more: g.has_more,
+          msg_count: g.msgs.length,
+          marked_as_read: g.marked_as_read,
+          collapsed: g.collapsed
+        };
+      }),
+      all_groups: _groups.map(function(g) {
+        return {
+          channel_id: g.id,
+          has_more: g.has_more,
+          msg_count: g.msgs.length,
+          marked_as_read: g.marked_as_read,
+          collapsed: g.collapsed
+        };
+      })
+    });
     return processed_data;
   };
   var _sortAndDedupe = function(group, collection_key) {

@@ -1,24 +1,28 @@
+{{i18n_ns "menu"}}
+
 <div class="menu_member_header">
   <div class="member_details display_flex flex_direction_column align_items_flex_start cropped_preview">
-    {{{makeMemberPreviewCardLinkImage member.id}}}
+    {{makeMemberPreviewCardLinkImage member.id}}
 
     <p class="member_timezone_value">
       {{#or member._is_external (or member.is_restricted member.is_bot)}}
         <span class="float_right left_margin">
       {{/or}}
-      <span class="timezone_label" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</span>{{#if member.is_self}} (<a href='/account/settings' target={{newWindowName}}>change</a>){{/if}}
+      <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>{{#if member.is_self}} (<a href='/account/settings' target={{newWindowName}}>
+        {{#t note="A link to change your own timezone"}}change{{/t}}
+      </a>){{/if}}
       {{#or member._is_external (or member.is_restricted member.is_bot)}}
         </span>
       {{/or}}
       {{#if member._is_external}}
         <span class="lato">
-          <span class="overflow_ellipsis"><span class="very_small_right_margin">{{{makeMemberTypeBadge member 16 true false}}}</span> External Guest</span>
+          <span class="overflow_ellipsis"><span class="very_small_right_margin">{{makeMemberTypeBadge member 16 true false}}</span> External Guest</span>
         </span>
       {{else if member.is_restricted}}
         <span class="lato">
           <span class="overflow_ellipsis">
             {{#if member.is_ultra_restricted}}
-              Single-Channel Guest{{!--#if ura_channel}} in #{{ura_channel}}{{/if--}}
+              {{#t}}Single-Channel Guest in #{ura_channel}{{/t}}
             {{else}}
               {{raLabel 'Restricted Account'}}
             {{/if}}
@@ -26,7 +30,7 @@
         </span>
       {{else if member.is_bot}}
         <span class="lato">
-          <span class="overflow_ellipsis">Non-sentient Bot</span>
+          <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>
         </span>
       {{/if}}
     </p>
@@ -42,7 +46,7 @@
             {{else}}
               <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link" data-qa="member_name">{{getMemberFullName member}}</a>
             {{/if}}
-            {{{makeMemberPresenceIcon member}}}
+            {{makeMemberPresenceIcon member}}
           {{/if}}
         {{else}}
           {{#if member.deleted}}
@@ -53,7 +57,7 @@
             {{else}}
               <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="member_name internal_im_link" data-qa="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
             {{/if}}
-            {{{makeMemberPresenceIcon member}}}
+            {{makeMemberPresenceIcon member}}
           {{/if}}
         {{/feature}}
       </div>

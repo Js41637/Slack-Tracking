@@ -17887,7 +17887,8 @@ TS.registerModule("constants", {
             if (/(snippet)/.test(msg.file.mode)) {
               template_args.share_noun = msg.file.pretty_type + " snippet";
               var needs_an = ["A", "E", "O", "X"];
-              if (needs_an.indexOf(template_args.share_noun.charAt(0)) > -1 || template_args.share_noun == "HTML snippet") {
+              var snowflakes = ["HTML snippet", "R snippet"];
+              if (needs_an.indexOf(template_args.share_noun.charAt(0)) > -1 || snowflakes.indexOf(template_args.share_noun) > -1) {
                 template_args.share_determiner = "an";
               }
             }
@@ -18261,7 +18262,8 @@ TS.registerModule("constants", {
             if (/(snippet)/.test(msg.file.mode)) {
               template_args.share_noun = msg.file.pretty_type + " snippet";
               var needs_an = ["A", "E", "O", "X"];
-              if (needs_an.indexOf(template_args.share_noun.charAt(0)) > -1 || template_args.share_noun == "HTML snippet") {
+              var snowflakes = ["HTML snippet", "R snippet"];
+              if (needs_an.indexOf(template_args.share_noun.charAt(0)) > -1 || snowflakes.indexOf(template_args.share_noun) > -1) {
                 template_args.share_determiner = "an";
               }
             }
@@ -21711,7 +21713,7 @@ TS.registerModule("constants", {
         return TS.utility.date.timezoneLabel(member, include_local_time);
       });
       Handlebars.registerHelper("memberLocalTime", function(member) {
-        return TS.utility.date.memberLocalTime(member);
+        return new Handlebars.SafeString(TS.utility.date.memberLocalTime(member));
       });
       Handlebars.registerHelper("memberUTCOffset", function(member) {
         return TS.utility.date.memberUTCOffset(member);
@@ -22327,7 +22329,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeMemberPreviewLinkImage", function() {
         return new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLinkImage.apply(this, arguments));
       });
-      Handlebars.registerHelper("makeMemberPreviewCardLinkImage", TS.templates.builders.makeMemberPreviewCardLinkImage);
+      Handlebars.registerHelper("makeMemberPreviewCardLinkImage", function() {
+        return new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewCardLinkImage.apply(this, arguments));
+      });
       Handlebars.registerHelper("makeProfileImage", TS.templates.builders.makeProfileImage);
       Handlebars.registerHelper("makePendingUserImage", function() {
         return new Handlebars.SafeString(TS.templates.builders.makePendingUserImage.apply(this, arguments));

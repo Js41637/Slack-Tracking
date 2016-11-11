@@ -518,7 +518,7 @@
       }
     }
     if (TS.web) {
-      if (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms) {
+      if (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembers()) {
         login_args.no_presence = true;
       } else {
         login_args.no_state = true;
@@ -4917,7 +4917,7 @@
       var match_names_only = true;
       var only_channels = false;
       var only_dms = false;
-      if (TS.boot_data.page_needs_enterprise) {
+      if (TS.boot_data.page_needs_enterprise || TS.lazyLoadMembers()) {
         _file_share_options = {
           append: true,
           single: true,
