@@ -1,3 +1,5 @@
+{{i18n_ns 'channel_archives'}}
+
 {{#each channels}}
   <div class="{{#unless @first}}top_padding{{/unless}} {{#unless @last}}bottom_border{{/unless}}">
     <h4 class="no_bottom_margin">
@@ -31,7 +33,7 @@
           {{#if this.topic}}
             <em>{{this.topic}}</em>
           {{else}}
-            Created on {{this.date}}.
+            {{#t}}Created on {date_created, date, medium}.{{/t}}
           {{/if}}
         {{/if}}
       </p>
@@ -40,7 +42,7 @@
       {{#if ../show_shared}}
         {{#if is_shared}}
           <div class="col span_3_of_12 subtle_silver">
-            <div class="show_on_mobile bottom_margin">Teams</div>
+            <div class="show_on_mobile bottom_margin">{{#t}}Teams{{/t}}</div>
             {{#each shares}}
               <div class="shared_team bottom_margin clearfix">
                 <img class="member_image float_left" src="{{team.icon.image_68}}" srcset="{{team.icon.image_34}} 1x, {{team.icon.image_68}} 2x"/>
@@ -63,7 +65,7 @@
       <div class="col span_1_of_6 subtle_silver">
     {{/pageNeedsEnterprise}}
       {{#if this.creator_id}}
-        <span class="show_on_mobile inline">Created by </span><a href="/team/{{this.creator_username}}" class="member_name member subtle_silver" data-member-id="{{this.creator_id}}">
+        <span class="show_on_mobile inline">{{#t note="Who a channel was created by and will be followed by username, e.g. 'Created by username'"}}Created by{{/t}} </span><a href="/team/{{this.creator_username}}" class="member_name member subtle_silver" data-member-id="{{this.creator_id}}">
           {{~this.creator_display~}}
         </a>
       {{/if}}

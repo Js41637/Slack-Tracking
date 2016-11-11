@@ -1470,7 +1470,7 @@
   var _progress_check_methodsA = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"];
   var _one_at_a_time_methodsA = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto"];
   var _no_retry_methodsA = ["dnd.teamInfo", "screenhero.rooms.create", "screenhero.rooms.join", "screenhero.rooms.refreshToken", "screenhero.rooms.invite"];
-  var _no_token = ["api.test", "auth.emailToken", "auth.findTeam", "auth.findUser", "auth.loginMagic", "auth.signin", "enterprise.signup.complete", "enterprise.signup.checkDomain", "enterprise.signup.checkPassword", "helpdesk.get", "search.apps", "signup.addLead", "team.checkEmailDomains", "test.versionInfo"];
+  var _no_token = ["api.test", "auth.emailToken", "auth.findTeam", "auth.findUser", "auth.loginMagic", "auth.signin", "enterprise.signup.complete", "enterprise.signup.checkDomain", "enterprise.signup.checkPassword", "helpdesk.get", "search.apps", "signup.addLead", "team.checkEmailDomains", "test.versionInfo", "oauth.access"];
   var _pending = 0;
   var _main_Q = [];
   var _one_at_a_time_call_pending = false;
@@ -3386,7 +3386,7 @@
       if (channel) {
         return channel;
       }
-      if (!channels) return TS.groups.getGroupById(id);
+      if (!channels) return null;
       for (var i = 0; i < channels.length; i++) {
         channel = channels[i];
         if (channel.id == id) {
@@ -3406,9 +3406,9 @@
           _upsertChannel(channel, skip_existing_check_because_object_definitely_does_not_exist);
           return channel;
         }
-        return TS.groups.getGroupById(id);
+        return null;
       }
-      return TS.groups.getGroupById(id);
+      return null;
     },
     getFirstChannelYouAreIn: function() {
       var channels = TS.model.channels;
@@ -4776,7 +4776,11 @@ TS.registerModule("constants", {
         if (TS.client) TS.client.msg_pane.updateEndMarker();
         return;
       }
-      TS.api.call("groups.history", api_args, handler || TS.groups.onHistory);
+      if (group.is_private && _.startsWith(group.id, "C")) {
+        TS.api.call("channels.history", api_args, handler || TS.groups.onHistory);
+      } else {
+        TS.api.call("groups.history", api_args, handler || TS.groups.onHistory);
+      }
     },
     topicChanged: function(group, user_id, ts, topic) {
       if (!group.topic) group.topic = {};
@@ -9132,7 +9136,7 @@ TS.registerModule("constants", {
     },
     getHistoryApiMethodForModelOb: function(model_ob) {
       if (model_ob.is_mpim) return "mpim.history";
-      if (model_ob.is_group) return "groups.history";
+      if (model_ob.is_group && (!model_ob.is_private && !_.startsWith(model_ob.id, "C"))) return "groups.history";
       if (model_ob.is_im) return "im.history";
       return "channels.history";
     },
@@ -18441,10 +18445,21 @@ TS.registerModule("constants", {
           }
         }
       }
+      var is_broadcast = _.get(args.msg, "subtype") === "reply_broadcast";
+      var meta = false;
+      if (is_broadcast) {
+        var ampm = true;
+        if (attachment.ts) {
+          meta = TS.utility.date.toTime(attachment.ts, ampm);
+        } else {
+          meta = TS.utility.date.toTime(args.msg.ts, ampm);
+        }
+      }
       var attachment_args = {
         is_text_collapsed: should_expand,
         has_more: has_more,
         attachment: attachment,
+        attachment_meta: meta,
         short_fields: short_fields,
         long_fields: long_fields,
         msg: args.msg,
@@ -18468,7 +18483,7 @@ TS.registerModule("constants", {
           has_media: args.show_media_caret,
           has_text_content: !!(attachment.text || attachment.title),
           has_thumb: !!small_thumb,
-          has_footer: !!(attachment.footer || attachment.footer_icon || attachment.ts),
+          has_footer: !!(attachment.footer || attachment.footer_icon || attachment.ts) && !is_broadcast,
           disable_buttons: TS.boot_data.app === "web" || args.enable_slack_action_links !== true,
           border_color: attachment.color && "#" + attachment.color || null,
           break_border: args.break_border,
@@ -18481,6 +18496,7 @@ TS.registerModule("constants", {
           can_delete: attachment_args.can_delete,
           clickable: attachment.from_url && attachment_args.has_container,
           message_unfurl: attachment._unfurl_type_message,
+          reply_broadcast: is_broadcast,
           is_pinned: TS.boot_data.feature_pin_update && attachment.is_pinned
         });
         return TS.templates.message_attachment(attachment_args);
@@ -18642,6 +18658,12 @@ TS.registerModule("constants", {
       var use_shrink_wrap = has_container && _.some(attachments, TS.utility.attachments.getMediaType);
       var has_border = has_container ? _.some(attachments, "color") : true;
       var has_link = _.some(attachments, "from_url");
+      var is_broadcast = msg && msg.subtype === "reply_broadcast";
+      var preamble = false;
+      if (is_broadcast) {
+        preamble = TS.templates.reply_broadcast_preamble(attachments[0]);
+        preamble = new Handlebars.SafeString(preamble);
+      }
       var attachment;
       for (var i = 0; i < attachments.length; i++) {
         attachment = attachments[i];
@@ -18702,11 +18724,15 @@ TS.registerModule("constants", {
             has_content: has_content
           });
         }
+        if (is_broadcast && i === 0) {
+          html += TS.templates.reply_broadcast_count(attachment);
+        }
       }
       if (html || attachment.pretext) {
         return TS.templates.attachment_group({
           model_ob: model_ob,
           first_attachment: attachments[0],
+          preamble: preamble,
           msg: msg,
           has_border: has_border,
           has_container: has_container,
@@ -21935,6 +21961,11 @@ TS.registerModule("constants", {
           message: message,
           bg_color: bg_color
         });
+      });
+      Handlebars.registerHelper("getAttachmentAuthorMemberId", function(attachment) {
+        var decorated = TS.utility.attachments.getDecoratedAttachment(attachment);
+        if (!decorated) return "";
+        return decorated._slack_author_id || "";
       });
       Handlebars.registerHelper("concatMsgExtracts", function(message) {
         if (!message.extracts || message.extracts.length === 0) return "";
@@ -30821,7 +30852,8 @@ TS.registerModule("constants", {
       TS.menu.$menu_header.addClass("hidden").empty();
       TS.menu.$menu_items.html(TS.templates.menu_flexpane_items({
         special_flex_panes: TS.boot_data.special_flex_panes,
-        show_downloads: TS.model.supports_downloads
+        show_downloads: TS.model.supports_downloads,
+        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onFlexMenuItemClick);
       TS.menu.start(e);
@@ -45505,6 +45537,14 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       TS.client.ui.threads.jumpToTop();
     });
+    TS.click.addClientHandler(".reveal_new_replies", function(e, $el) {
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      e.preventDefault();
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      TS.client.threads.showNewRepliesAndMarkThread(model_ob_id, thread_ts);
+    });
     if (TS.boot_data.feature_app_cards_and_profs_frontend) {
       TS.click.addClientHandler(".app_preview_link", function(e, $el) {
         e.preventDefault();
@@ -51809,7 +51849,7 @@ $.fn.togglify = function(settings) {
       var slack_author_id = TS.utility.getMemberIdFromURL(attachment.author_link);
       if (slack_author_id) attachment._slack_author_id = slack_author_id;
     }
-    if (msg.subtype == "pinned_item") {
+    if (msg && msg.subtype == "pinned_item") {
       attachment.from_url = TS.utility.msgs.constructAbsoluteMsgPermalink(TS.shared.getActiveModelOb(), attachment.ts);
     }
     attachment.color = null;

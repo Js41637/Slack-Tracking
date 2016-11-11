@@ -106,11 +106,19 @@
             TS.model.last_reads_set_by_client[group.id + "_" + group.last_read] = true;
             group.needs_api_marking = false;
             dont_set_active = group._marked_reason == "muted" ? true : false;
-            TS.api.call("groups.mark", {
-              channel: group.id,
-              ts: group.last_read,
-              reason: group._marked_reason
-            }, TS.groups.onMarked, dont_set_active);
+            if (group.is_private && _.startsWith(group.id, "C")) {
+              TS.api.call("channels.mark", {
+                channel: group.id,
+                ts: group.last_read,
+                reason: group._marked_reason
+              }, TS.groups.onMarked, dont_set_active);
+            } else {
+              TS.api.call("groups.mark", {
+                channel: group.id,
+                ts: group.last_read,
+                reason: group._marked_reason
+              }, TS.groups.onMarked, dont_set_active);
+            }
           }
         }
       }
@@ -8812,6 +8820,17 @@
       });
       $header.delegate("#channel_members_toggle_count", "click", _toggleMembersView);
       $header.delegate("#pinned_item_count", "click", _togglePinsList);
+      $header.delegate("#whats_new_toggle", "click", function(e) {
+        if (TS.client.ui.shouldIgnoreClick(e)) return false;
+        if (TS.boot_data.feature_clog_whats_new) {
+          TS.clog.track("WHATSNEW_ACTION", {
+            action: "open_pane_badged",
+            trigger: "whats_new_toggle"
+          });
+        }
+        $("#client-ui").removeClass("whats_new_showing");
+        _toggleFlexTab("whats_new");
+      });
     },
     cleanupFlexExcluding: function(exclude) {
       if (exclude !== "files") {
@@ -13393,9 +13412,23 @@
     }
     if (!_$burst) return;
     if (_readEverythingAlready() || !_showBadges()) {
-      _$burst.addClass("all_read");
+      TS.experiment.loadUserAssignments().then(function() {
+        var group = TS.experiment.getGroup("whats_new_header_icon");
+        if (group === "treatment") {
+          $("#client-ui").removeClass("whats_new_showing");
+        } else {
+          _$burst.addClass("all_read");
+        }
+      });
     } else {
-      _$burst.removeClass("all_read");
+      TS.experiment.loadUserAssignments().then(function() {
+        var group = TS.experiment.getGroup("whats_new_header_icon");
+        if (group === "treatment") {
+          $("#client-ui").addClass("whats_new_showing");
+        } else {
+          _$burst.removeClass("all_read");
+        }
+      });
       TS.clog.track("WHATSNEW_ACTION", {
         action: "do_badge"
       });
@@ -13919,8 +13952,7 @@
               pages: results.messages.paging.pages
             })) : "",
             is_enterprise: TS.boot_data.page_needs_enterprise,
-            search_global: !TS.model.prefs.search_only_current_team,
-            search_feedback_exp: TS.experiment.getGroup("search_feedback")
+            search_global: !TS.model.prefs.search_only_current_team
           });
         } else if (!results.messages || results.messages.total > 0) {
           html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading page ' + TS.search.view.current_messages_page + "...</div>";
@@ -18307,6 +18339,7 @@
           avatarImage: avatar_image,
           ssbFilename: ssb_filename
         };
+        if (TS.boot_data.feature_message_replies && msg.thread_ts) args.thread_ts = msg.thread_ts;
         TSSSB.call("notify", args);
       } else if (window.macgap) {
         var local_onclick = function(x) {
@@ -26003,6 +26036,9 @@
       }
     });
     _$container.on("click", ".view_all_files_link", function() {
+      TS.clog.track("SEARCH_OPEN", {
+        open_method: "files"
+      });
       var model_ob = TS.shared.getActiveModelOb();
       TS.search.setInputVal("in:" + (model_ob.is_channel ? "#" : "") + model_ob.name);
       TS.search.setFilter("files");
@@ -34528,7 +34564,9 @@ var _timezones_alternative = {
         TS.client.ui.unread.updateHeader(group);
       } else {
         if (group.new_unread_cnt > 0 && group.new_unread_msgs) {
-          $group_footer.find(".unread_group_new_text").text(group.new_unread_cnt + " " + TS.utility.pluralize(group.new_unread_cnt, "new message", "new messages"));
+          $group_footer.find(".unread_group_new_text").text(TS.i18n.t("{new_unread_cnt, plural, =1 {# new message} other {# new messages}}", "all_unreads")({
+            new_unread_cnt: group.new_unread_cnt
+          }));
           $group.addClass("with_footer");
         } else if ($group_footer) {
           $group.removeClass("with_footer");
@@ -34675,107 +34713,107 @@ var _timezones_alternative = {
     var done_message_combo_options = [{
       emoji: "tada",
       skintone: false,
-      line_one: "Ta-da!",
-      line_two: "You’ve read everything there is to read."
+      line_one: TS.i18n.t("Ta-da!", "all_unreads")(),
+      line_two: TS.i18n.t("You’ve read everything there is to read.", "all_unreads")()
     }, {
       emoji: "victory",
       skintone: true,
-      line_one: "All caught up.",
-      line_two: "What’s next?"
+      line_one: TS.i18n.t("All caught up.", "all_unreads")(),
+      line_two: TS.i18n.t("What’s next?", "all_unreads")()
     }, {
       emoji: "ok",
       skintone: true,
-      line_one: "There.",
-      line_two: "All caught up."
+      line_one: TS.i18n.t("There.", "all_unreads")(),
+      line_two: TS.i18n.t("All caught up.", "all_unreads")()
     }, {
       emoji: "rocket",
       skintone: false,
-      line_one: "All done.",
-      line_two: "The future is yours."
+      line_one: TS.i18n.t("All done.", "all_unreads")(),
+      line_two: TS.i18n.t("The future is yours.", "all_unreads")()
     }, {
       emoji: "octopus",
       skintone: false,
-      line_one: "All done.",
-      line_two: "The world is your oyster."
+      line_one: TS.i18n.t("All done.", "all_unreads")(),
+      line_two: TS.i18n.t("The world is your oyster.", "all_unreads")()
     }, {
       emoji: "high5",
       skintone: true,
-      line_one: "That’s everything!",
+      line_one: TS.i18n.t("That’s everything!", "all_unreads")(),
       line_two: ""
     }, {
       emoji: "apple",
       skintone: false,
-      line_one: "You’ve read all you needed.",
-      line_two: "Take a moment."
+      line_one: TS.i18n.t("You’ve read all you needed.", "all_unreads")(),
+      line_two: TS.i18n.t("Take a moment.", "all_unreads")()
     }, {
       emoji: "sunglasses",
       skintone: false,
-      line_one: "All clear.",
+      line_one: TS.i18n.t("All clear.", "all_unreads")(),
       line_two: ""
     }, {
       emoji: "thumbup",
       skintone: true,
-      line_one: "That’s that.",
-      line_two: "You’re good to go."
+      line_one: TS.i18n.t("That’s that.", "all_unreads")(),
+      line_two: TS.i18n.t("You’re good to go.", "all_unreads")()
     }, {
       emoji: "boom",
       skintone: false,
-      line_one: "Boom.",
-      line_two: "You’re up to date."
+      line_one: TS.i18n.t("Boom.", "all_unreads")(),
+      line_two: TS.i18n.t("You’re up to date.", "all_unreads")()
     }, {
       emoji: "bee",
       skintone: false,
-      line_one: "You’re up to date.",
-      line_two: "Go forth and do great things."
+      line_one: TS.i18n.t("You’re up to date.", "all_unreads")(),
+      line_two: TS.i18n.t("Go forth and do great things.", "all_unreads")()
     }, {
       emoji: "clap",
       skintone: true,
-      line_one: "Everything unread is now read.",
-      line_two: "You’ve done it."
+      line_one: TS.i18n.t("Everything unread is now read.", "all_unreads")(),
+      line_two: TS.i18n.t("You’ve done it.", "all_unreads")()
     }, {
       emoji: "crystalball",
       skintone: false,
-      line_one: "All that was unread is now read.",
-      line_two: "What’s next?"
+      line_one: TS.i18n.t("All that was unread is now read.", "all_unreads")(),
+      line_two: TS.i18n.t("What’s next?", "all_unreads")()
     }, {
       emoji: "tada",
       skintone: false,
-      line_one: "Ta-da!",
-      line_two: "You’re up to date."
+      line_one: TS.i18n.t("Ta-da!", "all_unreads")(),
+      line_two: TS.i18n.t("You’re up to date.", "all_unreads")()
     }, {
       emoji: "tractor",
       skintone: false,
-      line_one: "You’re all read.",
-      line_two: "Here’s a tractor."
+      line_one: TS.i18n.t("You’re all read.", "all_unreads")(),
+      line_two: TS.i18n.t("Here’s a tractor.", "all_unreads")()
     }, {
       emoji: "pony",
       skintone: false,
-      line_one: "You’re all read.",
-      line_two: "Here’s a pony."
+      line_one: TS.i18n.t("You’re all read.", "all_unreads")(),
+      line_two: TS.i18n.t("Here’s a pony.", "all_unreads")()
     }, {
       emoji: "chick",
       skintone: false,
-      line_one: "Everything’s sorted!",
-      line_two: "Let’s start something new."
+      line_one: TS.i18n.t("Everything’s sorted!", "all_unreads")(),
+      line_two: TS.i18n.t("Let’s start something new.", "all_unreads")()
     }, {
       emoji: "sun",
       skintone: false,
-      line_one: "You’re all caught up!",
-      line_two: "Clear screens ahead."
+      line_one: TS.i18n.t("You’re all caught up!", "all_unreads")(),
+      line_two: TS.i18n.t("Clear screens ahead.", "all_unreads")()
     }, {
       emoji: "balloon",
       skintone: false,
-      line_one: "There! Caught up.",
-      line_two: "Set your mind to something new."
+      line_one: TS.i18n.t("There! Caught up.", "all_unreads")(),
+      line_two: TS.i18n.t("Set your mind to something new.", "all_unreads")()
     }, {
       emoji: "sweetpotato",
       skintone: false,
-      line_one: "Sweet potato!",
-      line_two: "You’re all done."
+      line_one: TS.i18n.t("Sweet potato!", "all_unreads")(),
+      line_two: TS.i18n.t("You’re all done.", "all_unreads")()
     }, {
       emoji: "leafs",
       skintone: false,
-      line_one: "Done and done.",
+      line_one: TS.i18n.t("Done and done.", "all_unreads")(),
       line_two: ""
     }];
     var emoji_paths = {
@@ -35257,7 +35295,7 @@ var _timezones_alternative = {
     TS.client.markLastReadsWithAPI();
     if (msg_id === parseFloat(group.msgs[group.msgs.length - 1].ts)) return;
     var divider_html = TS.templates.messages_unread_divider({
-      label: "UNREAD MESSAGES"
+      label: TS.i18n.t("unread messages", "all_unreads")()
     });
     var $last_read_msg = TS.client.ui.unread.$unread_msgs_div.find('ts-message[data-ts="' + group.msgs[marked_msg_index].ts + '"]');
     $last_read_msg.after(divider_html);

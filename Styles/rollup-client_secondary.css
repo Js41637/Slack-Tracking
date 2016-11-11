@@ -4555,6 +4555,11 @@ body.attachments_flush_with_avatar .inline_attachment {
   text-decoration: underline
 }
 
+.attachment_group .attachment_source .attachment_meta,
+.inline_attachment .attachment_meta {
+  font-size: .75rem
+}
+
 .inline_attachment .attachment_footer,
 .inline_attachment .attachment_ts {
   color: #9e9ea6;
@@ -18392,19 +18397,20 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
-.light_theme .thread_replies_container {
-  margin-left: 4.5rem
-}
-
+.light_theme .new_replies_container ts-message .message_gutter,
 .light_theme .thread_replies_container ts-message .message_gutter {
   width: 2.875rem
 }
 
+.light_theme .new_replies_container ts-message .message_content,
 .light_theme .thread_replies_container ts-message .message_content {
   margin-left: 2.875rem
 }
 
-.light_theme .reply_input_container {
+.light_theme .new_replies_container,
+.light_theme .new_reply_indicator,
+.light_theme .reply_input_container,
+.light_theme .thread_replies_container {
   margin-left: 4.5rem
 }
 
@@ -18575,20 +18581,21 @@ ts-message .emoji-sizer .mention {
   display: block
 }
 
+.dense_theme .new_replies_container,
+.dense_theme .new_reply_indicator,
+.dense_theme .reply_input_container,
 .dense_theme .thread_replies_container {
   margin-left: 4.875rem
 }
 
+.dense_theme .new_replies_container ts-message .message_gutter,
 .dense_theme .thread_replies_container ts-message .message_gutter {
   width: 4.5rem
 }
 
+.dense_theme .new_replies_container ts-message .message_content,
 .dense_theme .thread_replies_container ts-message .message_content {
   margin-left: 4.5rem
-}
-
-.dense_theme .reply_input_container {
-  margin-left: 4.875rem
 }
 
 .dense_theme .reply_input_container .member_preview_link {
@@ -19052,9 +19059,43 @@ ts-thread .thread_channel_name {
   font-weight: 900
 }
 
-.attachment_group .inline_attachment.message_unfurl .attachment_source .attachment_source_name+.attachment_author_name::before {
+.attachment_group .inline_attachment.message_unfurl .attachment_source .attachment_source_name+.attachment_author_name::before,
+.attachment_group .inline_attachment.message_unfurl .attachment_source .attachment_source_name+.attachment_meta::before {
   content: '';
   margin: 0 .4rem 0 0
+}
+
+.attachment_group .inline_attachment.reply_broadcast+.attachment_rule {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: 1rem;
+  padding: .25rem 0;
+  color: #9e9ea6;
+  font-size: .75rem;
+  line-height: 1.1667
+}
+
+.attachment_group .inline_attachment.reply_broadcast+.attachment_rule .attachment_rule_inner {
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  padding-right: .25rem
+}
+
+.attachment_group .inline_attachment.reply_broadcast+.attachment_rule:after {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+  content: '';
+  margin-bottom: .35rem;
+  border-bottom: 1px solid #e8e8e8
+}
+
+.attachment_group .inline_attachment.reply_broadcast~.reply_broadcast .column_border {
+  margin-top: -2rem
 }
 
 .attachment_group .attachment_footer_icon img {
@@ -22171,14 +22212,27 @@ ts-jumper ts-jumper-results:empty {
   transition: width .15s ease-out 0s
 }
 
+.whats_new_showing .flex_header {
+  width: 21.5625rem;
+  padding-right: 0
+}
+
 .flex_pane_showing:not(.details_showing) .flex_header,
 .search_focused .flex_header {
+  width: 24.5rem
+}
+
+.whats_new_showing.flex_pane_showing:not(.details_showing) .flex_header,
+.whats_new_showing.search_focused .flex_header {
   width: 24.5rem
 }
 
 @media screen and (min-width:1367px) {
   .flex_header {
     width: 22.8125rem
+  }
+  .whats_new_showing .flex_header {
+    width: 24.6875rem
   }
   .flex_pane_showing:not(.details_showing) .flex_header,
   .search_focused .flex_header {
@@ -22189,6 +22243,9 @@ ts-jumper ts-jumper-results:empty {
 @media screen and (min-width:1441px) {
   .flex_header {
     width: 25.9375rem
+  }
+  .whats_new_showing .flex_header {
+    width: 27.8125rem
   }
   .flex_pane_showing:not(.details_showing) .flex_header,
   .search_focused .flex_header {
@@ -22433,6 +22490,19 @@ ts-jumper ts-jumper-results:empty {
   border-radius: .5rem
 }
 
+#whats_new_toggle {
+  display: none;
+  border-radius: .25rem 0 0 .25rem
+}
+
+#whats_new_toggle .ts_tip_tip {
+  margin-right: .75rem
+}
+
+.whats_new_showing #whats_new_toggle {
+  display: block
+}
+
 #rxn_toast_div {
   position: absolute;
   top: .75rem;
@@ -22446,6 +22516,10 @@ ts-jumper ts-jumper-results:empty {
   text-align: center;
   cursor: pointer;
   background: #fff
+}
+
+.whats_new_showing #rxn_toast_div {
+  right: 6.1875rem
 }
 
 #rxn_toast_div:before {

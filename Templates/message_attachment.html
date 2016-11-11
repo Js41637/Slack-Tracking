@@ -73,6 +73,13 @@
           }}</span>
         {{/if}}
 
+        {{! Misc Bucket After Author }}
+        {{#if attachment_meta}}
+          <span class="attachment_meta">{{!
+            }}{{formatMessageAttachmentPart attachment_meta msg}}{{!
+          }}</span>
+        {{/if}}
+
         {{#if_equal caret_location compare='_source'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}
       </div>
     {{/if}}

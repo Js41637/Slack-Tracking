@@ -3539,11 +3539,16 @@
   var _getPseudoTranslation = function(str) {
     _textarea.innerHTML = str;
     str = _textarea.value;
+    var regex = /<[^>]+>/gi;
+    var tags = str.match(regex) || [];
+    str = str.split(regex).join("<>");
     var key;
     for (key in _PSEUDO_MAP) {
       str = str.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
     }
-    return str;
+    return str.split("<>").map(function(w, i) {
+      return w + (tags[i] || "");
+    }).join("");
   };
   var _DEFAULT_LOCALE = "en-US";
   var _PSEUDO_LOCALE = "pseudo";

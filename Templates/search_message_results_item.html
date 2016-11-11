@@ -35,7 +35,7 @@
         {{/feature}}
       </div>
       <div class="date_links flex_none auto_left_margin normal">
-        {{#if_equal search_feedback_exp compare='model'}}
+        {{#if show_feedback}}
           <span id="sli_feedback">
             <ts-icon class="ts_icon_plus_circle ts_tip ts_tip_top ts_tip_float sli_feedback sli_feedback_plus ts_tip_multiline {{#if_equal this.feedback_val compare='5'}}selected{{/if_equal}}">
               <span class="ts_tip_tip">
@@ -65,7 +65,7 @@
               </span>
             </ts-icon>
           </span> \u2022
-        {{/if_equal}}
+        {{/if}}
         {{#if_equal this.type compare='im'}}
           {{#if this.im_exists}}
             <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022

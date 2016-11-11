@@ -1,8 +1,8 @@
 <li data-filetype="all" {{#if_equal active_type compare='all'}}class="active"{{/if_equal}} role="menuitem">
-  <a><i class="ts_icon ts_icon_all_files_alt"></i> All File Types</a>
+  <a><i class="ts_icon ts_icon_all_files_alt"></i> {{#t note="For removing all file search filters"}}All File Types{{/t}}</a>
 </li>
 <li data-filetype="spaces" {{#if_equal active_type compare='spaces'}}class="active"{{/if_equal}} role="menuitem">
-  <a><i class="ts_icon ts_icon_create_post"></i> Posts</a>
+  <a><i class="ts_icon ts_icon_create_post"></i> {{#t note="Filter files by posts"}}Posts{{/t}}</a>
 </li>
 
 {{#feature flag="feature_multnomah"}}
@@ -12,19 +12,19 @@
 {{/feature}}
 
 <li data-filetype="snippets" {{#if_equal active_type compare='snippets'}}class="active"{{/if_equal}} role="menuitem">
-  <a><i class="ts_icon ts_icon_create_snippet"></i> Snippets</a>
+  <a><i class="ts_icon ts_icon_create_snippet"></i> {{#t note="Filter files by snippets"}}Snippets{{/t}}</a>
 </li>
 {{#if show_email_item}}
   <li data-filetype="emails" {{#if_equal active_type compare='emails'}}class="active"{{/if_equal}} role="menuitem">
-    <a><i class="ts_icon ts_icon_share_email"></i> Emails</a>
+    <a><i class="ts_icon ts_icon_share_email"></i> {{#t note="Filter files by emails"}}Emails{{/t}}</a>
   </li>
 {{/if}}
 <li data-filetype="images" {{#if_equal active_type compare='images'}}class="active"{{/if_equal}} role="menuitem">
-  <a><i class="ts_icon ts_icon_image"></i> Images</a>
+  <a><i class="ts_icon ts_icon_image"></i> {{#t note="Filter files by images"}}Images{{/t}}</a>
 </li>
 <li data-filetype="pdfs" {{#if_equal active_type compare='pdfs'}}class="active"{{/if_equal}} role="menuitem">
-  <a><i class="ts_icon ts_icon_book"></i> PDF Files</a>
+  <a><i class="ts_icon ts_icon_book"></i> {{#t note="Filter files by PDF files"}}PDF Files{{/t}}</a>
 </li>
 <li data-filetype="gdocs" {{#if_equal active_type compare='gdocs'}}class="active"{{/if_equal}} role="menuitem">
-  <a><i class="ts_icon ts_icon_google_drive"></i> Google Docs</a>
+  <a><i class="ts_icon ts_icon_google_drive"></i> {{#t note="Filter files by Google docs"}}Google Docs{{/t}}</a>
 </li>

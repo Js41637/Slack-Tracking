@@ -242,16 +242,11 @@
     if (_.get(file, "user") !== TS.model.user.id) return;
     if (!TS.model.team.prefs.gdrive_enabled_team) return;
     if (TS.model.prefs.seen_gdrive_coachmark) return;
-    TS.experiment.loadUserAssignments().then(function() {
-      var group = TS.experiment.getGroup("gdrive_1_5_coachmark_experiment");
-      if (group === "yes_coach_mark") {
-        TS.coachmark.start(TS.coachmarks.coachmarks.gdrive);
-        TS.model.prefs.seen_gdrive_coachmark = true;
-        TS.prefs.setPrefByAPI({
-          name: "seen_gdrive_coachmark",
-          value: true
-        });
-      }
+    TS.coachmark.start(TS.coachmarks.coachmarks.gdrive);
+    TS.model.prefs.seen_gdrive_coachmark = true;
+    TS.prefs.setPrefByAPI({
+      name: "seen_gdrive_coachmark",
+      value: true
     });
   };
 })();

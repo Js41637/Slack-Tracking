@@ -3,35 +3,6 @@
   TS.registerModule("generic_dialog", {
     div: null,
     is_showing: false,
-    default_setting: {
-      type: "default",
-      graphic: false,
-      title: "",
-      body: "BODY",
-      body_template: null,
-      $body: null,
-      show_go_button: true,
-      show_secondary_go_button: false,
-      show_cancel_button: true,
-      go_button_text: "OK",
-      go_button_class: "",
-      secondary_go_button_text: "OK 2",
-      secondary_go_button_class: "",
-      cancel_button_text: "Cancel",
-      onGo: null,
-      onSecondaryGo: null,
-      onCancel: null,
-      onEnd: null,
-      show_throbber: false,
-      esc_for_ok: false,
-      onShow: null,
-      force_small: false,
-      enter_always_gos: false,
-      fullscreen: false,
-      dialog_class: null,
-      hide_footer: false,
-      backdrop_click_to_dismiss: false
-    },
     current_setting: null,
     body_template_html: {},
     Q: [],
@@ -80,7 +51,7 @@
           body: msg,
           show_close_button: false,
           show_cancel_button: true,
-          cancel_button_text: "Close",
+          cancel_button_text: _CLOSE_TEXT,
           fullscreen: false,
           show_go_button: false,
           onCancel: resolve
@@ -100,7 +71,7 @@
         }
         return;
       }
-      var current_setting = TS.generic_dialog.current_setting = _.defaults({}, setting, TS.generic_dialog.default_setting);
+      var current_setting = TS.generic_dialog.current_setting = _.defaults({}, setting, _DEFAULT_SETTING);
       if (typeof setting.show_close_button === "undefined") {
         current_setting.show_close_button = current_setting.show_cancel_button;
       }
@@ -301,6 +272,38 @@
       TS.generic_dialog.div.find(".modal-footer .generic_dialog_error").remove();
     }
   });
+  var _CANCEL_TEXT = TS.i18n.t("Cancel", "generic_dialog")();
+  var _CLOSE_TEXT = TS.i18n.t("Close", "generic_dialog")();
+  var _OKAY_TEXT = TS.i18n.t("OK", "generic_dialog")();
+  var _DEFAULT_SETTING = {
+    type: "default",
+    graphic: false,
+    title: "",
+    body: "BODY",
+    body_template: null,
+    $body: null,
+    show_go_button: true,
+    show_secondary_go_button: false,
+    show_cancel_button: true,
+    go_button_text: _OKAY_TEXT,
+    go_button_class: "",
+    secondary_go_button_text: _OKAY_TEXT,
+    secondary_go_button_class: "",
+    cancel_button_text: _CANCEL_TEXT,
+    onGo: null,
+    onSecondaryGo: null,
+    onCancel: null,
+    onEnd: null,
+    show_throbber: false,
+    esc_for_ok: false,
+    onShow: null,
+    force_small: false,
+    enter_always_gos: false,
+    fullscreen: false,
+    dialog_class: null,
+    hide_footer: false,
+    backdrop_click_to_dismiss: false
+  };
 })();
 (function() {
   "use strict";

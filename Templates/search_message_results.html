@@ -1,7 +1,7 @@
 <div id="search_message_results">
   {{#if page}}
     {{#each page}}
-      {{> search_message_results_item is_enterprise=../is_enterprise teams_info=../results.teams search_global=../search_global search_feedback_exp=../search_feedback_exp}}
+      {{> search_message_results_item is_enterprise=../is_enterprise teams_info=../results.teams search_global=../search_global show_feedback=../results.show_feedback}}
     {{/each}}
     {{paging_html}}
   {{else}}
