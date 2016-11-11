@@ -172,7 +172,7 @@ function pullLatestChanges() {
         if (!err && stdout && stdout.startsWith('Updating')) return process.exit(1)
         if (!err && stdout && stdout.includes('Already up-to-date')) return resolve()
         else {
-          console.error("Error while updating, reverting")
+          console.error(`Error while updating, reverting! Err: ${err} \n STDOUT: ${stdout}`)
           exec(`git reset ${lastCommit} --hard`, () => process.exit())
         }
       })
