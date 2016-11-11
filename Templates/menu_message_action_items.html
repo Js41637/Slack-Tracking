@@ -2,36 +2,34 @@
 {{#feature flag="feature_reminders_v3"}}
   {{! Message Action reminds includes a reordering of this menu, hence the largely duplicative blocks }}
 
-  {{#feature flag="feature_message_replies"}}
-    {{#unless is_in_conversation}}
-      {{#if actions.share_message}}
-        <li id="share_message_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Share message &hellip;{{/t}}</a></li>
-      {{/if}}
-    {{/unless}}
-  {{/feature}}
-
   {{! Personal actions}}
   {{#feature flag="feature_message_replies"}}
-    {{#if is_in_conversation}}
+    {{#if is_in_thread}}
       {{#if actions.jump_to_original}}
         <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Jump to original{{/t}}</a></li>
       {{/if}}
     {{/if}}
   {{/feature}}
 
+  {{#if actions.share_message}}
+    <li id="share_message_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Share message &hellip;{{/t}}</a></li>
+  {{/if}}
+
   {{#if actions.copy_link}}
     <li id="copy_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" data-permalink="{{abs_permalink}}" role="menuitem"><a>{{#t}}Copy link{{/t}}</a></li>
   {{/if}}
 
-  {{#if actions.mark_unread}}
-    <li id="mark_unread" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>
-      {{#if is_all_unreads_showing}}
-        {{#t}}Mark above as read{{/t}}
-      {{else}}
-        {{#t}}Mark unread{{/t}}
-      {{/if}}
-    </a></li>
-  {{/if}}
+  {{#unless is_in_thread}}
+    {{#if actions.mark_unread}}
+      <li id="mark_unread" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>
+        {{#if is_all_unreads_showing}}
+          {{#t}}Mark above as read{{/t}}
+        {{else}}
+          {{#t}}Mark unread{{/t}}
+        {{/if}}
+      </a></li>
+    {{/if}}
+  {{/unless}}
 
   {{#if actions.remind_me}}
     <li id="remind_me" class="has_submenu" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Remind me about this{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret"></a></li>
@@ -44,7 +42,7 @@
 
   {{! Public actions}}
   {{#feature flag="feature_message_replies"}}
-    {{#unless is_in_conversation}}
+    {{#unless is_in_thread}}
       {{#if actions.reply}}
         <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Reply &hellip;{{/t}}</a></li>
       {{/if}}
@@ -63,7 +61,7 @@
     <li id="rxn_link" data-rxn-key="{{msg.comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
   {{/if}}
 
-  {{#unless is_in_conversation}}
+  {{#unless is_in_thread}}
     {{#if actions.pin_msg}}
       <li id="pin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t channel_name=(pinToLabel model_ob)}}Pin to {channel_name} &hellip;{{/t}}</a></li>
     {{/if}}
@@ -89,6 +87,14 @@
   {{! End admin actions}}
 
 {{else}}
+
+  {{#feature flag="feature_message_replies"}}
+    {{#if is_in_thread}}
+      {{#if actions.jump_to_original}}
+        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Open in channel{{/t}}</a></li>
+      {{/if}}
+    {{/if}}
+  {{/feature}}
 
   {{#feature flag="feature_message_replies"}}
     {{#if actions.copy_link}}
@@ -118,15 +124,7 @@
     </li>
   {{/if}}
 
-  {{#feature flag="feature_message_replies"}}
-    {{#if is_in_conversation}}
-      {{#if actions.jump_to_original}}
-        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Jump to original{{/t}}</a></li>
-      {{/if}}
-    {{/if}}
-  {{/feature}}
-
-  {{#unless is_in_conversation}}
+  {{#unless is_in_thread}}
     {{#if actions.pin_msg}}
       <li id="pin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t channel_name=(pinToLabel model_ob)}}Pin to {channel_name} &hellip;{{/t}}</a></li>
     {{/if}}

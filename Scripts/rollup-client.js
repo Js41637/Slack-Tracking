@@ -7942,7 +7942,10 @@
       function _bindUI() {
         TS.client.ui.files.bindUploadUI();
         TS.client.ui.files.bindFileUI();
-        TS.files.media.bindVideoElements();
+        TS.files.media.bindVideoElements({
+          container: "#msgs_div",
+          onError: _onVideoError
+        });
       }
       TS.log(82, "deferring UI bind until login_sig");
       TS.client.login_sig.add(function() {
@@ -8771,6 +8774,9 @@
       monkey_scroll.updateFunc();
     }
   };
+  var _onVideoError = function($el) {
+    $el.addClass("hidden");
+  };
 })();
 (function() {
   "use strict";
@@ -9336,7 +9342,7 @@
       TS.client.msg_input.$input = $input;
       if (TS.boot_data.feature_texty) TS.utility.contenteditable.create($input);
       TS.utility.contenteditable.enable($input);
-      if (TS.boot_data.feature_you_autocomplete_me) {
+      if (!TS.boot_data.feature_texty && TS.boot_data.feature_you_autocomplete_me) {
         $input.TS_tabCompleteNew({
           complete_cmds: true,
           complete_channels: true,
@@ -9353,7 +9359,7 @@
           sort_by_membership: true,
           include_self: !!TS.boot_data.feature_name_tagging_client
         });
-      } else {
+      } else if (!TS.boot_data.feature_texty) {
         $input.TS_tabComplete({
           complete_cmds: true,
           complete_channels: true,
@@ -9371,9 +9377,10 @@
           include_self: !!TS.boot_data.feature_name_tagging_client
         });
       }
-      if (!TS.boot_data.feature_msg_input_contenteditable) _bindResize();
-      $input.on("textchange", _onTextChange);
+      if (!TS.boot_data.feature_texty) _bindResize();
+      if (!TS.boot_data.feature_texty) $input.on("textchange", _onTextChange);
       $input.on("keydown.msg_input", function(e) {
+        if (TS.boot_data.feature_texty) return;
         var start = Date.now();
         var keymap = TS.utility.keymap;
         var val = TS.utility.contenteditable.value($input);
@@ -9554,18 +9561,22 @@
       var should_populate = !TS.boot_data.feature_name_tagging_client_extras || TS.model.ms_logged_in_once || TS.format.hasOnlyValidMemberIds(model_ob.last_msg_input);
       if (!should_populate) return;
       TS.chat_history.resetPosition("populateChatInputWithLast");
-      if (TS.boot_data.feature_you_autocomplete_me) {
-        TS.client.ui.$msg_input.TS_tabCompleteNew("suspend");
-      } else {
-        TS.client.ui.$msg_input.TS_tabComplete("suspend");
+      if (!TS.boot_data.feature_texty) {
+        if (TS.boot_data.feature_you_autocomplete_me) {
+          TS.client.ui.$msg_input.TS_tabCompleteNew("suspend");
+        } else {
+          TS.client.ui.$msg_input.TS_tabComplete("suspend");
+        }
       }
       TS.client.msg_input.populate(model_ob.last_msg_input);
-      if (TS.boot_data.feature_you_autocomplete_me) {
-        TS.client.ui.$msg_input.TS_tabCompleteNew("unsuspend");
-        TS.client.ui.$msg_input.TS_tabCompleteNew("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
-      } else {
-        TS.client.ui.$msg_input.TS_tabComplete("unsuspend");
-        TS.client.ui.$msg_input.TS_tabComplete("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
+      if (!TS.boot_data.feature_texty) {
+        if (TS.boot_data.feature_you_autocomplete_me) {
+          TS.client.ui.$msg_input.TS_tabCompleteNew("unsuspend");
+          TS.client.ui.$msg_input.TS_tabCompleteNew("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
+        } else {
+          TS.client.ui.$msg_input.TS_tabComplete("unsuspend");
+          TS.client.ui.$msg_input.TS_tabComplete("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
+        }
       }
     },
     startSnippet: function() {
@@ -33145,21 +33156,32 @@ var _timezones_alternative = {
     INLINE_VIDEO_CLASS_NAME: "inline_video",
     COUNT_LABEL_MOV_CANPLAY: "inline_mov_canplay",
     COUNT_LABEL_MOV_ERROR: "inline_mov_error",
-    bindVideoElements: function() {
-      var container_el = $("body")[0];
-      container_el.addEventListener("canplay", function(event) {
-        var $target = $(event.target);
-        if ($target.hasClass(TS.files.media.INLINE_VIDEO_CLASS_NAME)) {
-          _handleMetrics($target, TS.files.media.COUNT_LABEL_MOV_CANPLAY);
+    bindVideoElements: function(options) {
+      var $container_el = $(_.get(options, "container", "body"));
+      var on_canplay = _.get(options, "onCanplay", _.noop);
+      var on_error = _.get(options, "onError", _.noop);
+      $container_el[0].addEventListener("canplay", function(event) {
+        var $el = $(event.target);
+        if ($el.hasClass(TS.files.media.INLINE_VIDEO_CLASS_NAME)) {
+          _handleMetrics($el, TS.files.media.COUNT_LABEL_MOV_CANPLAY);
+          on_canplay($el);
         }
       }, true);
-      container_el.addEventListener("error", function(event) {
-        var $target = $(event.target);
-        if ($target.hasClass(TS.files.media.INLINE_VIDEO_CLASS_NAME)) {
-          _hideVideoElement($target);
-          _handleMetrics($target, TS.files.media.COUNT_LABEL_MOV_ERROR);
+      $container_el[0].addEventListener("error", function(event) {
+        var $el = $(event.target);
+        if ($el.hasClass(TS.files.media.INLINE_VIDEO_CLASS_NAME)) {
+          _handleMetrics($el, TS.files.media.COUNT_LABEL_MOV_ERROR);
+          on_error($el);
         }
       }, true);
+      $container_el.find("." + TS.files.media.INLINE_VIDEO_CLASS_NAME).each(function() {
+        var $el = $(this);
+        if (this.readyState >= HTMLVideoElement.HAVE_CURRENT_DATA) {
+          on_canplay($el);
+        } else if (this.error) {
+          on_error($el);
+        }
+      });
     },
     test: function() {
       return {
@@ -33167,9 +33189,6 @@ var _timezones_alternative = {
       };
     }
   });
-  var _hideVideoElement = function($el) {
-    $el.addClass("hidden");
-  };
   var _handleMetrics = function($el, label) {
     if (_isSrcMov($el.attr("src"))) {
       TS.metrics.count(label);

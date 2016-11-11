@@ -17574,6 +17574,7 @@ TS.registerModule("constants", {
         var member = _getEntityFromMessage(msg);
         var replies_enabled = TS.replies && TS.replies.isEnabledForModelOb(model_ob);
         var is_in_conversation = replies_enabled && !!args.is_in_conversation;
+        var is_threads_view = replies_enabled && !!args.is_threads_view;
         var show_user = true;
         var show_divider = !standalone && !is_in_conversation;
         var first_in_block = false;
@@ -17756,8 +17757,8 @@ TS.registerModule("constants", {
           ts_tip_delay_class: "ts_tip_delay_600",
           is_root_msg: args.is_root_msg,
           is_in_conversation: is_in_conversation,
+          is_threads_view: is_threads_view,
           file_title_only: msg.subtype === "file_reaction",
-          is_threads_view: !!args.is_threads_view,
           is_slackbot_response: msg.subtype === "slackbot_response"
         };
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
@@ -17774,10 +17775,13 @@ TS.registerModule("constants", {
           if (TS.utility.msgs.isFileMsg(msg)) selectable = false;
           template_args.selectable = selectable;
           if (is_in_conversation) {
-            template_args.show_reply_action = false;
-            template_args.show_jump_action = !!TS.client;
-            template_args.show_jump_action = !!TS.client && (!msg.thread_ts || msg.thread_ts == msg.ts);
             template_args.msg_dom_id = TS.templates.makeMsgDomIdInConversation(msg.ts);
+          }
+          if (is_in_conversation || is_threads_view) {
+            template_args.show_jump_action = !!TS.client && (!msg.thread_ts || msg.thread_ts == msg.ts);
+          }
+          if (TS.utility.msgs.isMsgReply(msg)) {
+            template_args.show_reply_action = false;
           } else {
             template_args.show_reply_action = TS.replies.canReplyToMsg(model_ob, msg) && !args.is_root_msg;
             if (!template_args.show_reply_action && TS.utility.msgs.isFileMsg(msg) && msg.file) template_args.show_comment_action = true;
@@ -24263,6 +24267,14 @@ TS.registerModule("constants", {
         msg = model_ob && TS.ui.replies.getActiveMessage(model_ob, ts);
         if (msg) return msg;
       }
+      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+        msg = TS.client.threads.getMessage(model_ob, ts);
+        if (msg) return msg;
+      }
+      if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
+        msg = TS.client.unread.getMessage(model_ob, ts);
+        if (msg) return msg;
+      }
       var mention = TS.mentions.getMentionByMsgId(ts);
       if (mention) return mention.message;
       return null;
@@ -30295,6 +30307,9 @@ TS.registerModule("constants", {
       }
       if (TS.replies && TS.replies.isEnabled()) {
         template_args.is_in_conversation = $(e.target).closest("ts-conversation").length > 0;
+        if (TS.boot_data.feature_message_replies) {
+          template_args.is_in_thread = TS.model.threads_view_is_showing || template_args.is_in_conversation;
+        }
       }
       TS.menu.$menu_header.addClass("hidden").empty();
       TS.menu.$menu_items.html(TS.templates.menu_message_action_items(template_args));
@@ -44780,11 +44795,17 @@ $.fn.togglify = function(settings) {
           }
         }
       }
+      if (TS.boot_data.feature_message_replies) {
+        var is_in_conversation = $msg.closest("ts-conversation").length > 0;
+        var is_in_threads_view = TS.model.threads_view_is_showing;
+        var is_in_thread = is_in_conversation || is_in_threads_view;
+      }
       $ahc.html(TS.templates.action_hover_items({
         msg: msg,
         actions: TS.utility.msgs.getMsgActions(msg, model_ob),
         ts_tip_delay_class: "ts_tip_delay_60",
         handy_rxns: handy_rxns_to_show,
+        is_in_thread: is_in_thread,
         show_rxn_action: !!$ahc.data("show_rxn_action") && (!handy_rxns_dd || !handy_rxns_dd.restrict),
         show_reply_action: !!$ahc.data("show_reply_action"),
         show_jump_action: !!$ahc.data("show_jump_action"),
@@ -52778,9 +52799,6 @@ $.fn.togglify = function(settings) {
   TS.registerModule("ui.share_message_dialog", {
     start: function(msg_ts, model_ob, initial_message) {
       var msg = TS.utility.msgs.findMsg(msg_ts, model_ob.id);
-      if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
-        msg = TS.client.unread.getMessage(model_ob, msg_ts);
-      }
       if (!msg) {
         TS.error("wtf no msg?");
         return;
@@ -52860,7 +52878,7 @@ $.fn.togglify = function(settings) {
       return TS.api.call("chat.shareMessage", args).then(function() {
         if (!TS.client) return;
         var active_model_ob = TS.shared.getActiveModelOb();
-        if (dest_model_ob && active_model_ob && active_model_ob.id === dest_model_ob.id) {
+        if (dest_model_ob && active_model_ob && active_model_ob.id === dest_model_ob.id && !TS.model.threads_view_is_showing && !TS.model.unread_view_is_showing) {
           TS.client.ui.instaScrollMsgsToBottom();
         } else if (args.share_channel && dest_model_ob) {
           return TS.client.displayModelOb(dest_model_ob);

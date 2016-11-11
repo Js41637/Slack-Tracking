@@ -11,18 +11,20 @@
   <a data-action="comment" {{#isWeb}}href="{{msg.file.permalink}}" target="{{newWindowName}}"{{/isWeb}} class="ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Add comment &hellip;{{/t}}"></a>
 {{~/if~}}
 {{~#if show_jump_action~}}
-  <a data-action="jump_to_original" class="ts_icon ts_icon_jump ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t note="Scroll back to the original message in the channel"}}Jump to original{{/t}}"></a>
+  <a data-action="jump_to_original" class="ts_icon ts_icon_jump ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t note="Scroll back to the original message in the channel"}}Open in channel{{/t}}"></a>
 {{~else~}}
-  {{~#if actions.share_message~}}
-    <a data-action="share_message" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_share_action ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Share message &hellip;{{/t}}"></a>
-  {{~else~}}
-    {{~#if actions.share_file~}}
-      <a data-action="share_file" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_share_action ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Share file &hellip;{{/t}}"></a>
+  {{~#unless is_in_thread~}}
+    {{~#if actions.share_message~}}
+      <a data-action="share_message" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_share_action ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Share message &hellip;{{/t}}"></a>
     {{~else~}}
-      {{~#if actions.copy_link~}}
-        <a data-action="copy_link" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_link ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Copy link{{/t}}"></a>
+      {{~#if actions.share_file~}}
+        <a data-action="share_file" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_share_action ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Share file &hellip;{{/t}}"></a>
+      {{~else~}}
+        {{~#if actions.copy_link~}}
+          <a data-action="copy_link" data-permalink="{{abs_permalink}}" class="ts_icon ts_icon_link ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Copy link{{/t}}"></a>
+        {{~/if~}}
       {{~/if~}}
     {{~/if~}}
-  {{~/if~}}
+  {{~/unless~}}
 {{~/if~}}
 <a data-action="actions_menu" class="ts_icon ts_icon_small_ellipsis ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t note="Show a menu with a full list of available actions to take on this message"}}Show message actions{{/t}}"></a>
