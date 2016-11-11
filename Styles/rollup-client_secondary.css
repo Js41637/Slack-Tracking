@@ -427,6 +427,17 @@ input.search_input {
   cursor: pointer
 }
 
+@media screen and (max-width:1366px) {
+  #flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4) a,
+  #flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4)~li a {
+    font-size: .75rem!important
+  }
+  #flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4) a span.normal,
+  #flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4)~li a span.normal {
+    font-size: .7rem!important
+  }
+}
+
 #flex_contents .flexpane_tab_bar li a {
   padding: 0 .75rem;
   color: #9e9ea6;

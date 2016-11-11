@@ -1,18 +1,5 @@
 <html>
 <head>
-<script>
-var TS = {
-  registerModule: function(name, obj) {
-    var splat = name.split('.');
-    if (splat.length == 2) {
-      TS[splat[0]] = {};
-      TS[splat[0]][splat[1]] = obj;
-    } else if (splat.length == 1) {
-      TS[name] = obj;
-    }
-  }
-};
-</{{!}}script>
 {{#each js_urls}}
 <script src="{{this}}"></{{!}}script>
 {{/each}}

@@ -3478,6 +3478,13 @@
     },
     t: function(key, ns) {
       if (!_is_setup) _setup();
+      if (typeof ns !== "string") {
+        var log = TS.error ? TS.error : console.error;
+        log.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + ns + ".");
+        return function() {
+          return "";
+        };
+      }
       var translations = _namespaced(ns);
       var translation = translations[key];
       if (translation === undefined) {
