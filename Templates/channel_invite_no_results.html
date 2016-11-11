@@ -1,7 +1,5 @@
 {{~#if teams~}}
-  We found <strong>{{truncate query 50}}</strong>, but they aren't in a team that can join this channel ({{#each teams~}}
-    {{~#if @last}} or {{/if}}<strong>{{this}}</strong>{{#unless @last}}{{#if_gt ../teams.length compare=2}}, {{/if_gt}}{{/unless~}}
-  {{~/each}})
+  We found <strong>{{truncate query 50}}</strong>, but they aren't in a team that can join this channel ({{commaSeparatedList teams conjunction='or' bold_items=true}})
 {{~else~}}
   {{~#if query~}}
     No one found matching <strong>{{truncate query 50}}</strong>

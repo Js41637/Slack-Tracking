@@ -28747,7 +28747,7 @@
         var template_args = {
           query: query
         };
-        if (_channel.is_shared && other_org_members_exist) template_args.teams = [TS.model.team.name].concat(_.map(_channel.shares, "name"));
+        if (_channel.is_shared && other_org_members_exist) template_args.teams = [TS.model.team.name].concat(_.map(_channel.shares, "team.name"));
         _$msg.html(TS.templates.channel_invite_no_results(template_args));
       } else {
         _$msg.empty();
