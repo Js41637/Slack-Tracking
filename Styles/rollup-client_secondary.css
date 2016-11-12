@@ -19077,6 +19077,23 @@ ts-thread .thread_channel_name {
   margin: 0 .4rem 0 0
 }
 
+.attachment_group .inline_attachment.reply_broadcast:first-child .attachment_text {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+.supports_line_clamp .attachment_group .inline_attachment.reply_broadcast:first-child .attachment_text {
+  margin-bottom: .15rem;
+  white-space: normal;
+  text-overflow: ellipsis!important;
+  display: -webkit-box!important;
+  -webkit-line-clamp: 2!important;
+  -webkit-box-orient: vertical!important;
+  overflow: hidden!important
+}
+
 .attachment_group .inline_attachment.reply_broadcast+.attachment_rule {
   display: -webkit-box;
   display: -webkit-flex;
