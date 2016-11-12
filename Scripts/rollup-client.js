@@ -33427,6 +33427,7 @@ var _timezones_alternative = {
     promiseToGetMoreMessages: function() {
       TS.client.unread.debug("promiseToGetMoreMessages");
       if (!_direct_from_boot && !_current_model_ob_id && !TS.client.unread.getAllCurrentlyUnreadGroups().length) {
+        _channelConsistencyCheck();
         TS.client.unread.debug("DONE FETCHING: First fetch, not from boot, nothing in global model is unread, marking all msgs as fetched");
         _all_messages_fetched = true;
       }
@@ -33762,6 +33763,22 @@ var _timezones_alternative = {
   var _direct_from_boot;
   var _coachmark_has_been_displayed = false;
   var _sort_order;
+  var _channelConsistencyCheck = function() {
+    if (_direct_from_boot) return;
+    var unread_models = TS.client.unread.getAllCurrentlyUnreadGroups();
+    var mismatched_models = [];
+    unread_models.forEach(function(model_ob) {
+      if (!TS.client.unread.getGroup(model_ob.id) && model_ob.oldest_unread_ts < _init_timestamp) {
+        mismatched_models.push(model_ob);
+      }
+    });
+    TS.client.unread.debug("Consistency check: Global model unread model count: ", unread_models.length);
+    TS.client.unread.debug("Consistency check: Mismatched model count: ", mismatched_models.length);
+    if (mismatched_models.length > 0) {
+      TS.metrics.count("unread_view_consistency_fail");
+      TS.metrics.count("unread_view_consistency_fail_count", mismatched_models.length);
+    }
+  };
   var _processResp = function(data, skip_channels, first_fetch) {
     skip_channels = skip_channels || [];
     var processed_data = {
@@ -33796,12 +33813,14 @@ var _timezones_alternative = {
     if (data.channels.length === 0 || !data.channels[0].has_more && data.total_messages_count === 0) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
+      _channelConsistencyCheck();
       TS.client.unread.debug("DONE FETCHING: API response had no messages", data.channels.length);
       return processed_data;
     }
     if (data.channels.length === 1 && data.channels[0].messages.length === 0 && data.channels[0].collapsed && TS.client.unread.getGroup(data.channels[0].channel_id) && TS.client.unread.getGroup(data.channels[0].channel_id).collapsed && TS.client.unread.getGroup(data.channels[0].channel_id).msgs.length === 0) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
+      _channelConsistencyCheck();
       TS.client.unread.debug("DONE FETCHING: Received only one collapsed group with zero messages");
       return processed_data;
     }
@@ -33865,6 +33884,7 @@ var _timezones_alternative = {
     if (final_group && !final_group.has_more) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
+      _channelConsistencyCheck();
       TS.client.unread.debug("DONE FETCHING: Last group has no more messages", final_group.id);
     }
     if (first_fetch && _groups.length && !TS.client.unread.getActiveGroup()) {

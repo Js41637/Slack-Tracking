@@ -14525,10 +14525,10 @@ TS.registerModule("constants", {
     fastReconnect: function() {
       TS.info("Trying fast reconnect");
       TS.model.calling_test_fast_reconnect = true;
-      TS.ms.connectImmediately(_reconnect_url);
       TS.api.callImmediately("rtm.checkFastReconnect").then(function(response) {
         var data = response.data;
-        TS.reloadIfVersionsChanged(data);
+        if (TS.reloadIfVersionsChanged(data)) return;
+        TS.ms.connectImmediately(_reconnect_url);
       }, function(response) {
         var data = response.data;
         var error = data && data.error;
@@ -20616,6 +20616,8 @@ TS.registerModule("constants", {
           channel_names.push("#" + channel.name);
         }
         return "Commenting in " + channel_names.join(", ");
+      } else {
+        return "";
       }
     },
     makeMessageShareLabelSafe: function(model_ob) {
