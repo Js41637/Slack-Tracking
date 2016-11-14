@@ -1545,7 +1545,7 @@
       if (is_enterprise) {
         message = "This user has been removed from the team.";
       } else {
-        message = "This account is now disabled.";
+        message = "This account is now deactivated.";
       }
       var undo_action = "api_enable_account";
       if (member.is_restricted) undo_action = "api_enable_ra";

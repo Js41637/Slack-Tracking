@@ -34,7 +34,7 @@
       deactivate: {
         primary: false,
         label: function(data) {
-          return data.team.is_enterprise ? "Remove from Team" : "Disable Account";
+          return data.team.is_enterprise ? "Remove from Team" : "Deactivate Account";
         },
         cls: "api_disable_account"
       },
