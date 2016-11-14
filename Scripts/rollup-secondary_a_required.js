@@ -3138,7 +3138,7 @@
     displayChannel: function(channel_id, and_send_txt, from_history, replace_history_state) {
       if (TS.boot_data.feature_tinyspeck) {
         var err = new Error;
-        TS.info("channel switch: " + err.stack);
+        TS.info("channel switch notice" + err.stack.replace(/^Error/, ""));
       }
       if (TS.isPartiallyBooted() && channel_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
@@ -6883,12 +6883,6 @@ TS.registerModule("constants", {
     closeIm: function(id) {
       var im = TS.ims.getImById(id);
       if (!im || !im.is_open) return;
-      if (!TS.boot_data.feature_optimistic_im_close) {
-        TS.api.call("im.close", {
-          channel: id
-        }, TS.ims.onClosed);
-        return;
-      }
       im.is_open = false;
       var is_im_active = TS.model.active_im_id == id;
       if (is_im_active && TS.client) TS.client.activeChannelDisplayGoneAway();
@@ -46995,14 +46989,14 @@ $.fn.togglify = function(settings) {
     if (to_join.length > 0) {
       channels.push({
         is_divider: true,
-        name: "Channels you can join"
+        name: TS.i18n.t("Channels you can join", "shared")
       });
       channels = channels.concat(to_join);
     }
     if (joined.length > 0) {
       channels.push({
         is_divider: true,
-        name: "Channels you belong to"
+        name: TS.i18n.t("Channels you belong to", "shared")
       });
       channels = channels.concat(joined);
     }
@@ -47189,30 +47183,38 @@ $.fn.togglify = function(settings) {
     return is_private ? _private_shared_invites : _shared_invites;
   };
   var _getToggleInputLabel = function() {
-    var label = "Anyone on your team can join";
+    var label = TS.i18n.t("Anyone on your team can join", "shared");
     if (_isEnterprise()) {
       var name = TS.utility.htmlEntities(TS.model.enterprise.name);
       switch (_$div.find('[name^="share_with"]:checked').val()) {
         case "specific":
-          label = "Specific teams at " + name + " can join";
+          label = TS.i18n.t("Specific teams at {name} can join", "shared")({
+            name: name
+          });
           break;
         case "all":
-          label = "Anyone at " + name + " can join";
+          label = TS.i18n.t("Anyone at {name} can join", "shared")({
+            name: name
+          });
           break;
       }
     }
     return label;
   };
   var _getToggleInputOffLabel = function() {
-    var label = "Restricted to invited members";
+    var label = TS.i18n.t("Restricted to invited members", "shared");
     if (_isEnterprise()) {
       var name = TS.utility.htmlEntities(TS.model.enterprise.name);
       switch (_$div.find('[name^="share_with"]:checked').val()) {
         case "specific":
-          label += " on specific " + name + " teams";
+          label = TS.i18n.t("Restricted to invited members on specific {name} teams", "shared")({
+            name: name
+          });
           break;
         case "all":
-          label += " at " + name;
+          label = TS.i18n.t("Restricted to invited members at {name}", "shared")({
+            name: name
+          });
           break;
       }
     }
@@ -47222,19 +47224,19 @@ $.fn.togglify = function(settings) {
     var body;
     switch (error.data.error) {
       case "invalid_target_domain":
-        body = "Darn&mdash;we couldn’t find a team with that domain. Try again?";
+        body = TS.i18n.t("Darn&mdash;we couldn’t find a team with that domain. Try again?", "shared");
         break;
       case "name_taken":
-        body = "Darn&mdash;that channel name is already taken. Try another?";
+        body = TS.i18n.t("Darn&mdash;that channel name is already taken. Try another?", "shared");
         break;
       case "invite_exists":
-        body = "An invitation already exists for that team and channel.";
+        body = TS.i18n.t("An invitation already exists for that team and channel.", "shared");
         break;
       case "shared_channel_exists":
-        body = "Good news! That team has already joined the shared channel.";
+        body = TS.i18n.t("Good news! That team has already joined the shared channel.", "shared");
         break;
       case "not_paid":
-        body = "Darn&mdash;that team has to upgrade to a paid Slack plan to join a shared channel.";
+        body = TS.i18n.t("Darn&mdash;that team has to upgrade to a paid Slack plan to join a shared channel.", "shared");
         break;
       default:
         return _handleUnexpectedError(error);
@@ -47245,7 +47247,8 @@ $.fn.togglify = function(settings) {
     var message = error.message || "";
     if (error.data && error.data.error) message += ": " + error.data.error;
     TS.error(message);
-    return TS.generic_dialog.alert("Sorry! Something went wrong. Please try again.");
+    var alert_str = TS.i18n.t("Sorry! Something went wrong. Please try again.", "shared");
+    return TS.generic_dialog.alert(alert_str);
   };
   var _hideAllSectionsBut = function(id) {
     var sections = ["#sci_loading", "#sci_no_shared_channels", "#sci_channels_container", "#sci_channels_create", "#sci_send", "#sci_invites_container"].filter(function(section_id) {
@@ -47488,8 +47491,8 @@ $.fn.togglify = function(settings) {
   };
   var _setupToggleInput = function() {
     _$div.find('#sci_channels_create [name="access"]').togglify({
-      on_text: "Public",
-      off_text: "Private",
+      on_text: TS.i18n.t("Public", "shared"),
+      off_text: TS.i18n.t("Private", "shared"),
       label: _getToggleInputLabel(),
       off_label: _getToggleInputOffLabel(),
       off_class: "ts_toggle_orange",
@@ -47660,16 +47663,19 @@ $.fn.togglify = function(settings) {
         if (item.shares) {
           var team_icons_html = "";
           var additional_teams = 0;
+          var shared_teams = [];
           item.shares.forEach(function(team, index) {
             if (index > 9) {
               additional_teams++;
               return;
             }
-            team_icons_html += TS.templates.shared_channel_list_team_icon(team);
+            shared_teams.push(team);
           });
-          if (additional_teams > 0) {
-            team_icons_html += '<span class="subtle_silver"><em>+' + additional_teams + " more</em></span>";
-          }
+          team_icons_html += TS.templates.shared_channel_list_team_icon({
+            teams: shared_teams,
+            show_additional_teams: additional_teams > 0,
+            additional_teams: additional_teams
+          });
           data.$teams.html(team_icons_html);
         } else {
           data.$teams.empty();
@@ -47793,9 +47799,12 @@ $.fn.togglify = function(settings) {
   var _updateNoChannelsMessage = function(query) {
     var _$empty_state = _$div.find("#sci_no_shared_channels");
     var _$msg = _$empty_state.find(".sci_no_shared_note");
-    var default_message = "You don't have any shared channels yet.";
+    var default_message = TS.i18n.t("You don’t have any shared channels yet.", "shared");
     if (query) {
-      _$msg.html("No matches found for <strong>" + TS.utility.truncateAndEscape(query, 50) + "</strong>");
+      var no_match_warning = TS.i18n.t("No matches found for <strong> {escaped_query_string} </strong>", "shared")({
+        escaped_query_string: TS.utility.truncateAndEscape(query, 50)
+      });
+      _$msg.html(no_match_warning);
     } else {
       _$msg.text(default_message);
     }
@@ -47817,7 +47826,8 @@ $.fn.togglify = function(settings) {
     channel = channel.trim();
     if (_findSharedInviteByTeamDomainAndChannelName(domain, channel)) {
       if (!options.quiet) $el.addClass("invalid_invite");
-      return void TS.ui.validation.showWarning($el, "This invite already exists. Try a different team or channel!", options);
+      var warning = TS.i18n.t("This invite already exists. Try a different team or channel!", "shared");
+      return void TS.ui.validation.showWarning($el, warning, options);
     }
     if ($domain_el === $el) {
       if (channel && !options.quiet && $channel_el.hasClass("invalid_invite")) {
