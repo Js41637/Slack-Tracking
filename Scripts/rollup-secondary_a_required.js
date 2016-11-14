@@ -13239,6 +13239,17 @@ TS.registerModule("constants", {
           if (TS.model.prefs.no_omnibox_in_channels != imsg.value) {
             TS.model.prefs.no_omnibox_in_channels = imsg.value;
             TS.prefs.no_omnibox_in_channels_changed_sig.dispatch();
+            if (TS.model.prefs.no_omnibox_in_channels) {
+              TS.clog.track("QUICKSWITCHER_ACTION", {
+                trigger: "quick_switcher_pref_changed",
+                action: "button_hidden"
+              });
+            } else {
+              TS.clog.track("QUICKSWITCHER_ACTION", {
+                trigger: "quick_switcher_pref_changed",
+                action: "button_shown"
+              });
+            }
           }
           break;
         case "k_key_omnibox_auto_hide_count":

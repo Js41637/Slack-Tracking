@@ -4994,6 +4994,10 @@
         name: "no_omnibox_in_channels",
         value: true
       });
+      TS.clog.track("QUICKSWITCHER_ACTION", {
+        trigger: "keyboard_shortcut",
+        action: "button_hidden"
+      });
     }
   };
   var _separatePrivateChannelsChanged = function() {
@@ -9899,17 +9903,6 @@
         if (!$quick_switcher_btn.hasClass("hidden")) return;
       }
       $quick_switcher_btn.toggleClass("hidden", !!TS.model.prefs.no_omnibox_in_channels);
-      if ($quick_switcher_btn.hasClass("hidden")) {
-        TS.clog.track("QUICKSWITCHER_ACTION", {
-          trigger: "quick_switcher_pref",
-          action: "hide"
-        });
-      } else {
-        TS.clog.track("QUICKSWITCHER_ACTION", {
-          trigger: "quick_switcher_pref",
-          action: "show"
-        });
-      }
       _updateChannelPaneFooterVisibility();
     },
     getPriorityForModelOb: function(model_ob) {
@@ -10728,7 +10721,7 @@
       TS.clog.track("QUICKSWITCHER_ACTION", {
         click_target: "quick_switcher_btn",
         trigger: "quick_switcher_btn",
-        action: "open_switcher"
+        action: "opened"
       });
     });
     TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
@@ -13760,6 +13753,16 @@
       },
       no_shift: true,
       func: function() {
+        if (TS.model.prefs.no_omnibox_in_channels) {
+          TS.clog.track("QUICKSWITCHER_ACTION", {
+            trigger: "keyboard_shortcut_no_btn",
+            action: "opened"
+          });
+        }
+        TS.clog.track("QUICKSWITCHER_ACTION", {
+          trigger: "keyboard_shortcut",
+          action: "opened"
+        });
         if (TS.model.prefs.k_key_omnibox_auto_hide_count < 5) TS.prefs.setPrefByAPI({
           name: "k_key_omnibox_auto_hide_count",
           value: TS.model.prefs.k_key_omnibox_auto_hide_count + 1
@@ -13786,6 +13789,16 @@
       },
       no_shift: true,
       func: function() {
+        if (TS.model.prefs.no_omnibox_in_channels) {
+          TS.clog.track("QUICKSWITCHER_ACTION", {
+            trigger: "keyboard_shortcut_no_btn",
+            action: "opened"
+          });
+        }
+        TS.clog.track("QUICKSWITCHER_ACTION", {
+          trigger: "keyboard_shortcut",
+          action: "opened"
+        });
         if (TS.model.prefs.k_key_omnibox_auto_hide_count < 5) TS.prefs.setPrefByAPI({
           name: "k_key_omnibox_auto_hide_count",
           value: TS.model.prefs.k_key_omnibox_auto_hide_count + 1
