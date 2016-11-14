@@ -174,11 +174,12 @@
       }
       $(document).ready(_onDOMReady);
     },
-    lazyLoadBots: function() {
-      return TS.boot_data.should_use_flannel && TS.qs_args.lazy_load_bots !== "0";
+    lazyLoadMembersAndBots: function() {
+      return !!TS.boot_data.should_use_flannel;
     },
     lazyLoadMembers: function() {
-      return !!TS.boot_data.should_use_flannel;
+      TS.warn("lazyLoadMembers is deprecated! Please use lazyLoadMembersAndBots instead.");
+      return TS.lazyLoadMembersAndBots();
     },
     registerModule: function(name, ob, delayed) {
       _extractAndDeleteTestProps(ob);
@@ -509,16 +510,14 @@
       if (TS.pri && (!login_args.cache_ts || parseInt(login_args.cache_ts, 10) == 0 || isNaN(login_args.cache_ts))) {
         TS.log(488, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
       }
-      if (TS.lazyLoadMembers()) {
+      if (TS.lazyLoadMembersAndBots()) {
         login_args.no_users = true;
-        if (TS.lazyLoadBots()) {
-          login_args.no_bots = true;
-        }
+        login_args.no_bots = true;
         login_args.cache_ts = 0;
       }
     }
     if (TS.web) {
-      if (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembers()) {
+      if (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots()) {
         login_args.no_presence = true;
       } else {
         login_args.no_state = true;
@@ -539,7 +538,7 @@
       login_args.canonical_avatars = true;
     }
     login_args.eac_cache_ts = true;
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       for (var k in TS.qs_args) {
         if (k.indexOf("feature_" === 0)) {
           TS.log(1989, "Flannel: Appending " + k + " (" + TS.qs_args[k] + ") to login_args");
@@ -547,7 +546,7 @@
         }
       }
     }
-    if (TS.lazyLoadMembers()) TS.log(1989, "Flannel: MS login args:", login_args);
+    if (TS.lazyLoadMembersAndBots()) TS.log(1989, "Flannel: MS login args:", login_args);
     return login_args;
   };
   var _callRTMStart = function(handler) {
@@ -602,7 +601,7 @@
       delete TS.boot_data.rtm_start_response;
       return Promise.resolve(rtm_start_response);
     }
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       if (!_ms_rtm_start_p) {
         if (TS.model.ms_connected) {
           TS.log(1989, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
@@ -808,9 +807,9 @@
           if (TS.isPartiallyBooted()) {
             TS.info("Finalizing incremental boot");
             TS.incremental_boot.beforeFullBoot();
-            var users_from_incr_boot = TS.lazyLoadMembers() ? _.map(TS.model.members, "id") : null;
+            var users_from_incr_boot = TS.lazyLoadMembersAndBots() ? _.map(TS.model.members, "id") : null;
             _performNonIncrementalBoot(_pending_rtm_start_p, _onLoginMS).then(function() {
-              if (TS.lazyLoadMembers()) {
+              if (TS.lazyLoadMembersAndBots()) {
                 _pending_rtm_start_p.then(function(rtm_start) {
                   var ready_to_query_p = new Promise(function(resolve) {
                     if (TS.model.ms_connected) {
@@ -1467,7 +1466,7 @@
         channel.is_member = true;
       });
     }
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       data.bots = data.bots || [];
     }
     return new Promise(function(resolve, reject) {
@@ -1583,7 +1582,7 @@
       for (i = 0; i < data_user_list.length; i++) {
         member = data_user_list[i];
         if (should_check_if_local && !TS.members.isLocalTeamMember(member)) continue;
-        if (TS.lazyLoadMembers()) {
+        if (TS.lazyLoadMembersAndBots()) {
           member.presence = _.has(member, "presence") && member.presence === "active" ? "active" : "away";
         } else {
           if (data.online_users) member.presence = _.includes(data.online_users, member.id) ? "active" : "away";
@@ -1624,7 +1623,7 @@
       if (TS.pri) TS.dir(481, bots_cache, "bots_cache");
       var doAllMembersFromChannelsInRawDataExist = function(with_shared) {
         if (TS._incremental_boot) return true;
-        if (TS.lazyLoadMembers()) return true;
+        if (TS.lazyLoadMembersAndBots()) return true;
         if (TS.calls && TS.calls.isRtmStartDisabled()) return true;
         if (TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members) return true;
         var ids = {};
@@ -1839,7 +1838,7 @@
   var _maybeOpenTokenlessConnection = function() {
     if (!_shouldConnectToMS()) return;
     if (!TS.boot_data.ms_connect_url) return;
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs()).catch(function() {
         return TS.api.connection.waitForAPIConnection().then(function() {
           return TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
@@ -4917,7 +4916,7 @@
       var match_names_only = true;
       var only_channels = false;
       var only_dms = false;
-      if (TS.boot_data.page_needs_enterprise || TS.lazyLoadMembers()) {
+      if (TS.boot_data.page_needs_enterprise || TS.lazyLoadMembersAndBots()) {
         _file_share_options = {
           append: true,
           single: true,
@@ -5315,7 +5314,7 @@
   };
   var _promiseToGetMembers = function(searcher) {
     var search_p;
-    if (_.trim(searcher.query) == "" && TS.lazyLoadMembers()) {
+    if (_.trim(searcher.query) == "" && TS.lazyLoadMembersAndBots()) {
       search_p = Promise.resolve(searcher);
     } else {
       search_p = TS.members.promiseToSearchMembers(searcher);

@@ -2009,7 +2009,7 @@
     if (!data.ok) return proceed();
     if (_ensure_model_methodsA.indexOf(method) == -1) return proceed();
     var ensureBots = function() {
-      if (!TS.lazyLoadBots()) return Promise.resolve();
+      if (!TS.lazyLoadMembersAndBots()) return Promise.resolve();
       TS.log(528, 'running api data from "' + method + '" through TS.members.ensureMembersInDataArePresent()');
       return TS.bots.ensureBotsInDataArePresent(data, method, args.channel || undefined).catch(function(err) {
         TS.error(err);
@@ -9716,7 +9716,7 @@ TS.registerModule("constants", {
         TS.viewmodel.teamdirectory.upsertModelOb(_.cloneDeep(member));
       }
       var upsert = TS.members.upsertMember(member);
-      if (upsert.status == "ADDED" && TS.lazyLoadMembers()) {
+      if (upsert.status == "ADDED" && TS.lazyLoadMembersAndBots()) {
         TS.members.lazily_added_sig.dispatch(upsert.member);
       } else if (upsert.status == "CHANGED") {
         if (upsert.what_changed.indexOf("profile") != -1) {
@@ -10294,7 +10294,7 @@ TS.registerModule("constants", {
       t_ids = t_ids || new Array(m_ids.length);
       var known_unique_m_ids = _(m_ids).uniq().filter(TS.members.getMemberById).value();
       var unknown_unique_m_ids = _.difference(m_ids, known_unique_m_ids);
-      var batch_size = TS.lazyLoadMembers() ? _flannel_max_users : _users_info_api_max_users;
+      var batch_size = TS.lazyLoadMembersAndBots() ? _flannel_max_users : _users_info_api_max_users;
       var promises = _(unknown_unique_m_ids).chunk(batch_size).map(function(batch) {
         return TS.members.ensureMembersArePresentBatch(batch).reflect();
       }).value();
@@ -10409,7 +10409,7 @@ TS.registerModule("constants", {
       };
     },
     promiseToSearchMembers: function(maybe_searcher_p) {
-      if (!TS.boot_data.page_needs_enterprise && !TS.lazyLoadMembers()) return Promise.reject(new Error("API search not yet enabled"));
+      if (!TS.boot_data.page_needs_enterprise && !TS.lazyLoadMembersAndBots()) return Promise.reject(new Error("API search not yet enabled"));
       return Promise.resolve(maybe_searcher_p).then(function(searcher) {
         if (!searcher) return Promise.reject(new Error("No search parameters provided"));
         searcher.query = searcher.query && searcher.query.trim() || "";
@@ -10438,7 +10438,7 @@ TS.registerModule("constants", {
       return _buildPromiseToSearchMembersArguments(searcher);
     },
     haveAllMembersForModelOb: function(model_ob) {
-      if (!TS.lazyLoadMembers()) return true;
+      if (!TS.lazyLoadMembersAndBots()) return true;
       var model_ob_members = model_ob.members || [model_ob.user];
       var available_members = _.map(TS.model.members, "id");
       return !_.difference(model_ob_members, available_members).length;
@@ -10518,7 +10518,7 @@ TS.registerModule("constants", {
   var _flannel_max_users = 100;
   var _maybeSetDeletedStatus = function(member) {
     if (!TS.boot_data.page_needs_enterprise) return;
-    if (TS.lazyLoadMembers() && TS.flannel.isMemberDeleted(member)) {
+    if (TS.lazyLoadMembersAndBots() && TS.flannel.isMemberDeleted(member)) {
       member.deleted = true;
       return;
     }
@@ -10601,7 +10601,7 @@ TS.registerModule("constants", {
     var calling_args = {
       users: m_ids
     };
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       calling_args.custom_fields_mode = "user";
     }
     return new Promise(function(resolve, reject) {
@@ -10630,7 +10630,7 @@ TS.registerModule("constants", {
     var unknown_id = m_id + "_" + c_id + "_" + t_id;
     var tries = TS.model.incrementUnknownIdHandled(unknown_id);
     var user_p;
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       user_p = _getMembersByIdFromFlannel([m_id]).then(function(members) {
         return members[0];
       });
@@ -10648,7 +10648,7 @@ TS.registerModule("constants", {
       TS.model.reportResultOfUnknownIdHandled(unknown_id, true);
     }).catch(function(resp) {
       TS.model.reportResultOfUnknownIdHandled(unknown_id, false);
-      var call_type = TS.lazyLoadMembers() ? "Flannel" : "API";
+      var call_type = TS.lazyLoadMembersAndBots() ? "Flannel" : "API";
       var error_message = _.get(resp, "data.error", "unknown error") + " try #" + tries + " calling " + call_type + " with user:" + m_id + " channel:" + c_id;
       return new Error(error_message);
     });
@@ -11198,7 +11198,7 @@ TS.registerModule("constants", {
       return _entire_team_loaded;
     },
     getBestEffortTotalTeamSize: function() {
-      if (TS.lazyLoadMembers()) {
+      if (TS.lazyLoadMembersAndBots()) {
         var general = TS.channels.getGeneralChannel();
         if (general) {
           return general.members.length;
@@ -11424,7 +11424,7 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(msg.user);
       var bot_id = msg.bot_id || _.get(member, "profile.bot_id");
       var bot = TS.bots.getBotById(bot_id);
-      if (bot_id && !bot && TS.lazyLoadBots()) {
+      if (bot_id && !bot && TS.lazyLoadMembersAndBots()) {
         TS.info(1989, "Flannel: failed to find a bot (" + bot_id + ") whilst lazy loading bots");
       }
       var app_id = _.get(member, "profile.api_app_id") || _.get(bot, "app_id");
@@ -11831,7 +11831,7 @@ TS.registerModule("constants", {
     var promiseToFilter = function() {
       return Promise.resolve().then(function() {
         if (scroller_id !== "#team_list_scroller") return Promise.reject();
-        if (TS.lazyLoadMembers() && TS.boot_data.feature_fresh_team_directory) {
+        if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_fresh_team_directory) {
           return TS.members.promiseToSearchMembers({
             query: _query_for_match,
             include_org: true,
@@ -11842,7 +11842,7 @@ TS.registerModule("constants", {
         }
         return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
       }).then(function(response) {
-        var items = TS.lazyLoadMembers() && TS.boot_data.feature_fresh_team_directory ? response.items : response;
+        var items = TS.lazyLoadMembersAndBots() && TS.boot_data.feature_fresh_team_directory ? response.items : response;
         _displayPromiseToSearchResults(items, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
         _stopSpinner(filter_container_id);
       }).finally(function() {
@@ -11900,7 +11900,7 @@ TS.registerModule("constants", {
   var _displayPromiseToSearchResults = function(items, filters, new_query, query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
     if (!items) return;
     _updateTabCounts();
-    if (!TS.lazyLoadMembers()) {
+    if (!TS.lazyLoadMembersAndBots()) {
       var team_list_items;
       if (TS.client) {
         team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
@@ -11910,7 +11910,7 @@ TS.registerModule("constants", {
     }
     if (TS.boot_data.feature_fresh_team_directory) {
       var current_filter = TS.client.ui.team_list.getCurrentFilter();
-      if (!TS.lazyLoadMembers()) {
+      if (!TS.lazyLoadMembersAndBots()) {
         var filtered_members = team_list_items[current_filter + "_list_items"];
         if (current_filter === "disabled_members") filtered_members = team_list_items.deleted_members_list_items;
       } else {
@@ -12083,7 +12083,7 @@ TS.registerModule("constants", {
   };
   var _promiseToSearch = function(filter, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, restricted) {
     var calling_args = _buildPromiseToSearchArguments(filter, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, restricted);
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       calling_args.raw_query = query_for_match;
     }
     return TS.utility.search.promiseToSearch(calling_args).then(function(response) {
@@ -15025,7 +15025,7 @@ TS.registerModule("constants", {
     _onMsgProvisional = undefined;
   };
   var _createNewSocket = function(url) {
-    if (TS.lazyLoadMembers()) {
+    if (TS.lazyLoadMembersAndBots()) {
       url = TS.utility.url.setUrlQueryStringValue(url, "flannel", 1);
       url = TS.utility.url.setUrlQueryStringValue(url, "token", TS.boot_data.api_token);
       if (TS.boot_data.version_ts === "dev" && TS.boot_data.should_use_flannel) {
@@ -16173,7 +16173,7 @@ TS.registerModule("constants", {
     },
     user_change: function(imsg) {
       var member = TS.members.getMemberById(imsg.user.id);
-      if (TS.lazyLoadMembers()) {
+      if (TS.lazyLoadMembersAndBots()) {
         if (_.has(imsg, "user.id") && _.has(imsg, "user.deleted")) {
           var did_change_deleted_status = TS.flannel.setMemberDeletedStatus(imsg.user.id, !!imsg.user.deleted);
           if (did_change_deleted_status && TS.client) {
@@ -16341,7 +16341,7 @@ TS.registerModule("constants", {
     },
     bot_changed: function(imsg) {
       var bot = TS.bots.getBotById(imsg.bot.id);
-      if (!bot && TS.lazyLoadBots()) {
+      if (!bot && TS.lazyLoadMembersAndBots()) {
         TS.log(1989, "Flannel: bot_changed for member not in model; ignoring");
         return;
       }
@@ -16353,7 +16353,7 @@ TS.registerModule("constants", {
     },
     bot_removed: function(imsg) {
       var bot = TS.bots.getBotById(imsg.bot.id);
-      if (!bot && TS.lazyLoadBots()) {
+      if (!bot && TS.lazyLoadMembersAndBots()) {
         TS.log(1989, "Flannel: bot_removed for bot not in model; ignoring");
         return;
       }
@@ -16598,7 +16598,6 @@ TS.registerModule("constants", {
     _ensureFileObjectsOnMsgAndProceed(_Q[0]);
   };
   var _ensureFileObjectsOnMsgAndProceed = function(imsg) {
-    if (!TS.boot_data.feature_simple_file_events) return _ensureModelObsAndMembersAndProceed(imsg);
     if (imsg.type == "message") return _ensureModelObsAndMembersAndProceed(imsg);
     var ob_with_file = imsg;
     var file_id = imsg.file && imsg.file.id || imsg.file_id;
@@ -16617,9 +16616,7 @@ TS.registerModule("constants", {
     }
     TS.dir(552, imsg, imsg.type + " -> _ensureFileObjectsOnMsgAndProceed()");
     if (!file_id) {
-      if (TS.boot_data.feature_simple_file_events) {
-        TS.maybeWarn(552, imsg.type + " referenced a relevant file but there is no file_id");
-      }
+      TS.maybeWarn(552, imsg.type + " referenced a relevant file but there is no file_id");
       return _ensureModelObsAndMembersAndProceed(imsg);
     }
     TS.log(552, imsg.type + " referenced a relevant file and we have to look it up via the API: " + file_id);
@@ -16761,7 +16758,7 @@ TS.registerModule("constants", {
     }
     var member = TS.members.getMemberById(member_id);
     if (!member) {
-      if (TS.lazyLoadMembers()) {} else {
+      if (TS.lazyLoadMembersAndBots()) {} else {
         TS.error('unknown member: "' + member_id + '"');
       }
       return;
@@ -20469,17 +20466,14 @@ TS.registerModule("constants", {
       return bot_link.start_a + TS.utility.htmlEntities(username) + bot_link.end_a;
     },
     makeBotLink: function(bot, username) {
-      var link_always = false;
       var start_a = "";
       var end_a = "";
-      var class_extras = link_always ? "bot_sender " : "";
-      var link_extras = link_always ? ' data-bot-identifier="' + (bot && !bot.deleted ? bot.id : username) + '"' : " ";
-      class_extras += TS.boot_data.feature_app_cards_and_profs_frontend ? "app_preview_link " : "";
+      var app_class_extras = TS.boot_data.feature_app_cards_and_profs_frontend ? "app_preview_link " : "";
       if (bot && !bot.deleted) {
-        start_a = "<a" + link_extras + ' class="' + class_extras + '" target="/services/' + bot.id + '" href="/services/' + bot.id + '">';
+        start_a = '<a class="' + app_class_extras + '" target="/services/' + bot.id + '" href="/services/' + bot.id + '">';
         end_a = "</a>";
-      } else if (link_always) {
-        start_a = "<a" + link_extras + ">";
+      } else if (TS.boot_data.feature_app_cards_and_profs_frontend) {
+        start_a = '<a class="' + app_class_extras + '">';
         end_a = "</a>";
       }
       return {
@@ -31521,9 +31515,16 @@ var _on_esc;
           }
           template_header_args.desc = app.config.descriptive_label;
         }
-        var template_args = {
-          app: app
+        var template_items_args = {
+          bot_id: bot_id,
+          commands: app.commands,
+          is_slack_integration: app.is_slack_integration
         };
+        if (!app.is_slack_integration && !app.auth) {
+          template_items_args.disabled = true;
+        } else if (app.is_slack_integration && app.config && (app.config.is_active !== "1" || app.config.date_deleted !== "0")) {
+          template_items_args.disabled = true;
+        }
         if (app.card_posting_summary) {
           var html = app.card_posting_summary.replace(/@([A-Z0-9]+)/g, function(match, user_id) {
             var name_replace = "<b>";
@@ -31535,10 +31536,10 @@ var _on_esc;
             name_replace += "</b>";
             return name_replace;
           });
-          template_args.card_posting_summary = new Handlebars.SafeString(html);
+          template_items_args.card_posting_summary = new Handlebars.SafeString(html);
         }
         TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
-        TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
+        TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_items_args));
         TS.menu.start(e, position_by_click);
         TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
         TS.menu.keepInBounds();
@@ -41135,10 +41136,14 @@ var _on_esc;
         TS.groups.switched_sig.add(_handleDisplayChannel);
         TS.ims.switched_sig.add(_handleDisplayChannel);
         TS.mpims.switched_sig.add(_handleDisplayChannel);
+        TS.ms.connected_sig.add(__handleSocketConnected);
+        TS.channels.left_sig.add(_handleLeftChannelOrGroup);
+        TS.groups.left_sig.add(_handleLeftChannelOrGroup);
       }
     },
     fetchPins: function(model_ob, callback) {
       if (!model_ob) return;
+      _are_pins_currently_being_fetched[model_ob.id] = true;
       TS.api.call("pins.list", {
         channel: model_ob.id
       }, function(ok, data, args) {
@@ -41147,10 +41152,18 @@ var _on_esc;
           TS.pins.upsertPinnedItems(pinned_items);
           model_ob.pinned_items = pinned_items;
           model_ob.has_pins = pinned_items.length > 0;
+          if (!model_ob.is_channel || model_ob.is_member) _have_pins_been_fetched[model_ob.id] = true;
           TS.pins.pins_fetched_sig.dispatch(model_ob, pinned_items);
         }
+        delete _are_pins_currently_being_fetched[model_ob.id];
         if (callback) callback(ok, data, args);
       });
+    },
+    arePinsCurrentlyBeingFetched: function(model_ob) {
+      return !!_are_pins_currently_being_fetched[model_ob.id];
+    },
+    havePinsBeenFetched: function(model_ob) {
+      return !!_have_pins_been_fetched[model_ob.id];
     },
     startPinFile: function(file_id, model_ob) {
       var file = TS.files.getFileById(file_id);
@@ -41385,10 +41398,14 @@ var _on_esc;
     test: function() {
       return {
         fileDeleted: _fileDeleted,
-        fileCommentDeleted: _fileCommentDeleted
+        fileCommentDeleted: _fileCommentDeleted,
+        have_pins_been_fetched: _have_pins_been_fetched
       };
     }
   });
+  var _have_pins_been_fetched = {};
+  var _are_pins_currently_being_fetched = {};
+  var _previously_connected = false;
   var _getPinnedFile = function(file_id, model_ob) {
     var file = TS.files.getFileById(file_id);
     if (!file || !file.pinned_to) return null;
@@ -41574,7 +41591,20 @@ var _on_esc;
   };
   var _handleDisplayChannel = function() {
     var model_ob = TS.shared.getActiveModelOb();
-    if (model_ob) TS.pins.fetchPins(model_ob);
+    if (model_ob && !_have_pins_been_fetched[model_ob.id] && !_are_pins_currently_being_fetched[model_ob.id]) TS.pins.fetchPins(model_ob);
+  };
+  var __handleSocketConnected = function() {
+    if (_previously_connected) {
+      _have_pins_been_fetched = {};
+      _are_pins_currently_being_fetched = {};
+    } else {
+      _previously_connected = true;
+    }
+  };
+  var _handleLeftChannelOrGroup = function() {
+    var model_ob = TS.shared.getActiveModelOb();
+    delete _have_pins_been_fetched[model_ob.id];
+    delete _are_pins_currently_being_fetched[model_ob.id];
   };
 })();
 (function() {
@@ -44243,7 +44273,7 @@ $.fn.togglify = function(settings) {
       TS.members.joined_team_sig.add(_memberJoinedTeam);
       TS.members.changed_deleted_sig.add(_memberDeletedChanged);
       TS.dnd.debouncedCheckForChanges = TS.utility.throttleFunc(TS.dnd.checkForChanges, 500, true);
-      if (TS.lazyLoadMembers()) {
+      if (TS.lazyLoadMembersAndBots()) {
         TS.members.lazily_added_sig.add(_maybeSetDndStatusForNewMemberAndSignal);
       }
     },
@@ -49913,7 +49943,7 @@ $.fn.togglify = function(settings) {
     promiseToSearch: function(args) {
       if (!args || !args.query) return Promise.reject(new Error("cannot search without arguments and a query"));
       if (args.all_of_org && !TS.boot_data.page_needs_enterprise) return Promise.reject(new Error("cannot search an org when not an enterprise team"));
-      if (TS.lazyLoadMembers()) {
+      if (TS.lazyLoadMembersAndBots()) {
         if (!args.hasOwnProperty("raw_query")) {
           return Promise.reject(new Error("Flannel searches require a `raw_query` to be provided"));
         }

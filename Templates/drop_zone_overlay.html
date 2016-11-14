@@ -18,12 +18,16 @@
         {{! Want the spinner next to the text}}
         <div class="display_flex align_items_center justify_content_center">
           <div class="drop_zone_progress"></div>
-          <span class="drop_zone_overlay_text_inline">Uploading</span>
+            <span class="drop_zone_overlay_text_inline">Uploading</span>
         </div>
       {{else}}
         {{! Want the spinner above the text}}
         <div class="drop_zone_progress drop_zone_block"></div>
-        <span class="drop_zone_block">Uploading</span>
+        {{#if state.is_attaching_logs}}
+          <span class="drop_zone_block">Attaching logs</span>
+        {{else}}
+          <span class="drop_zone_block">Uploading</span>
+        {{/if}}
       {{/if}}
     {{/if}}
   </div>
