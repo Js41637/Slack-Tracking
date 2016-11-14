@@ -3231,22 +3231,26 @@
       if (TS.model.previewed_member_id) TS.client.ui.previewMember(TS.model.previewed_member_id);
     },
     displayMsgInModelOb: function(model_ob, ts) {
+      var maybePromise;
       if (model_ob.is_channel) {
-        TS.channels.displayChannel(model_ob.id);
+        maybePromise = TS.channels.displayChannel(model_ob.id);
       } else if (model_ob.is_mpim) {
-        TS.mpims.displayMpim(model_ob.id);
+        maybePromise = TS.mpims.displayMpim(model_ob.id);
       } else if (model_ob.is_group) {
-        TS.groups.displayGroup(model_ob.id);
+        maybePromise = TS.groups.displayGroup(model_ob.id);
       } else {
-        TS.ims.startImById(model_ob.id);
+        maybePromise = TS.ims.startImById(model_ob.id);
       }
-      if (model_ob.id != TS.model.active_cid) return;
-      var existing_msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
-      if (existing_msg && !TS.model.archive_view_is_showing) {
-        TS.client.ui.scrollMsgsSoMsgIsInView(ts, false, true);
-      } else {
-        TS.client.archives.start(ts);
-      }
+      Promise.resolve(maybePromise).then(function() {
+        if (model_ob.id != TS.model.active_cid) return;
+        var existing_msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
+        if (existing_msg && !TS.model.archive_view_is_showing) {
+          TS.client.ui.scrollMsgsSoMsgIsInView(ts, false, true);
+        } else {
+          TS.client.archives.start(ts);
+        }
+        return null;
+      });
     },
     flexpaneDisplaySwitched: function(prev_flex_name) {
       var flex_name = TS.model.ui_state.flex_name;
@@ -35503,6 +35507,10 @@ var _timezones_alternative = {
         var $message_body = $element.find(".message_body");
         if ($message_body.length) $focus = $message_body;
       }
+      if ($element.is("ts-thread")) {
+        var $root_msg = $element.find("ts-message:first");
+        if ($root_msg.length) $focus = $root_msg;
+      }
       TS.ui.utility.preventElementFromScrolling($focus, function() {
         changes = TS.ui.message_container.update(config);
       }, function() {
@@ -35513,6 +35521,10 @@ var _timezones_alternative = {
         if ($element.is("ts-message")) {
           $message_body = $element.find(".message_body");
           if ($message_body.length) return $message_body;
+        }
+        if ($element.is("ts-thread")) {
+          $root_msg = $element.find("ts-message:first");
+          if ($root_msg.length) return $root_msg;
         }
         return $element;
       });
@@ -35821,9 +35833,11 @@ var _timezones_alternative = {
   var _buildDay = function(config, section, msgs) {
     var first_msg = msgs[0];
     var $day = $('<div class="day_container" data-ts="' + first_msg.ts + '"></div>');
-    var $divider = $(config.buildDayDivider(section, first_msg));
-    $day.append($divider);
-    _logAdd($divider);
+    if (!config.skip_day_groupings) {
+      var $divider = $(config.buildDayDivider(section, first_msg));
+      $day.append($divider);
+      _logAdd($divider);
+    }
     var prev_msg;
     var $msgs = _.map(msgs, function(msg) {
       var $msg = _buildMsg(config, msg, prev_msg, section);
@@ -36141,7 +36155,7 @@ var _timezones_alternative = {
     var all_days = [];
     var day = [];
     iterator(msgs, function(msg) {
-      if (!prev_msg || !TS.utility.msgs.areMsgsSameDay(msg, prev_msg)) {
+      if (!config.skip_day_groupings && (!prev_msg || !TS.utility.msgs.areMsgsSameDay(msg, prev_msg))) {
         if (day.length) all_days.push(day);
         day = [msg];
       } else {

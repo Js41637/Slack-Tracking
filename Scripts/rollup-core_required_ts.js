@@ -3472,6 +3472,11 @@
 (function() {
   "use strict";
   TS.registerModule("i18n", {
+    DE: "de",
+    ES: "es",
+    FR: "fr",
+    JP: "jp",
+    US: "en-US",
     onStart: function() {
       if (!_is_setup) _setup();
     },
@@ -3502,13 +3507,33 @@
         translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
       }
       return translations[key];
+    },
+    listify: function(arr) {
+      var and;
+      var list = [];
+      var l = arr.length;
+      switch (TS.i18n.locale) {
+        case TS.i18n.JP:
+          and = ", ";
+          break;
+        default:
+          and = " " + TS.i18n.t("and", "general")() + " ";
+      }
+      arr.forEach(function(s, i) {
+        list.push(s);
+        if (i < l - 2) {
+          list.push(", ");
+        } else if (i < l - 1) {
+          list.push(and);
+        }
+      });
+      return list;
     }
   });
   var _is_setup;
   var _translations;
   var _is_dev;
   var _is_pseudo;
-  var _textarea;
   var _setup = function() {
     _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
     if (_is_dev) {
@@ -3525,7 +3550,6 @@
       TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
     }
     _translations = _TRANSLATIONS[TS.i18n.locale] || {};
-    if (_is_dev) _textarea = document.createElement("textarea");
     _is_setup = true;
   };
   var _namespaced = function(namespace) {
@@ -3543,8 +3567,6 @@
     return _translations[namespace] || {};
   };
   var _getPseudoTranslation = function(str) {
-    _textarea.innerHTML = str;
-    str = _textarea.value;
     var regex = /<[^>]+>/gi;
     var tags = str.match(regex) || [];
     str = str.split(regex).join("<>");

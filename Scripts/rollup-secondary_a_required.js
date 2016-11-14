@@ -18422,12 +18422,13 @@ TS.registerModule("constants", {
       var should_expand = !attachment._always_expand && attachment._short_text && !TS.inline_attachments.shouldExpandText(TS.templates.makeMsgAttachmentTextExpanderDomId(args.msg.ts, attachment._index));
       var has_more = !!attachment.more;
       var ts_link = attachment.from_url || attachment.ts_link || attachment.title_link || attachment.author_link;
+      var is_broadcast = _.get(args.msg, "subtype") === "reply_broadcast";
       var thumb_link = attachment.thumb_link || ts_link;
       var can_delete = false;
       if (!model_ob) {
         TS.warn("need to get model_ob passed in here somehow! for expanding messages in activity feed");
       } else if (args.can_delete !== false) {
-        can_delete = (attachment.id || attachment.id === 0) && (attachment.from_url || args.msg.text) && (TS.model.user.is_admin && !model_ob.is_im || TS.model.user.id == args.msg.user) && args.msg.subtype !== "pinned_item";
+        can_delete = (attachment.id || attachment.id === 0) && (attachment.from_url || args.msg.text) && (TS.model.user.is_admin && !model_ob.is_im || TS.model.user.id == args.msg.user) && (args.msg.subtype !== "pinned_item" && !is_broadcast);
       }
       var small_thumb = attachment.thumb_url && !attachment.image_url && !attachment.video_html && !attachment.audio_html;
       var small_thumb_url = small_thumb ? attachment.proxied_thumb_url || attachment.thumb_url : null;
@@ -18446,7 +18447,6 @@ TS.registerModule("constants", {
           }
         }
       }
-      var is_broadcast = _.get(args.msg, "subtype") === "reply_broadcast";
       var meta = false;
       if (is_broadcast) {
         var ampm = true;
@@ -21344,10 +21344,6 @@ TS.registerModule("constants", {
         } else {
           ns = options.data.root && options.data.root._i18n_ns ? options.data.root._i18n_ns : "";
         }
-        if (options.hash.debug) {
-          TS.info("debug handlerbars t helper");
-          TS.info(this);
-        }
         var data = this;
         if (!_.isObject(data)) {
           data = {
@@ -21381,18 +21377,44 @@ TS.registerModule("constants", {
           var l = tokens.length;
           for (i; i < l; i++) {
             item = tokens[i].substr(1, tokens[i].length - 2);
-            value = getValue(item);
-            if (value !== undefined && modified_items[item] === undefined) {
-              modified_items[item] = data[item];
-              data[item] = Handlebars.Utils.escapeExpression(value);
+            if (options.hash[item] === undefined) {
+              value = getValue(item);
+              if (value !== undefined) {
+                modified_items[item] = data[item];
+                data[item] = Handlebars.Utils.escapeExpression(value);
+              }
             }
           }
+        }
+        if (options.hash.debug) {
+          TS.info("debug handlerbars t helper");
+          TS.info(this);
         }
         var str = TS.i18n.t(key, ns)(data);
         for (item in modified_items) {
           data[item] = modified_items[item];
         }
         return str;
+      });
+      Handlebars.registerHelper("convertTimestampToMilliseconds", function(ts) {
+        return ts * 1e3;
+      });
+      Handlebars.registerHelper("listify", function(array, options) {
+        if (options.hash.map) array = _.map(array, options.hash.map);
+        if (!options.hash.strong) return TS.i18n.listify(array).join("");
+        var list = TS.i18n.listify(array);
+        if (options.hash.strong) {
+          var wrap_start = "<strong>";
+          var wrap_end = "</strong>";
+          list = list.map(function(s, i) {
+            if (i % 2 === 0) {
+              return wrap_start + Handlebars.Utils.escapeExpression(s) + wrap_end;
+            } else {
+              return s;
+            }
+          });
+        }
+        return new Handlebars.SafeString(list.join(""));
       });
       Handlebars.registerHelper("isClient", function(options) {
         if (TS.boot_data.app == "client") {
@@ -23151,6 +23173,12 @@ TS.registerModule("constants", {
         } else {
           return options.inverse(this);
         }
+      });
+      Handlebars.registerHelper("constructConversationPermalink", function(model_ob, thread_ts) {
+        if (_.isString(model_ob)) model_ob = TS.shared.getModelObById(model_ob);
+        if (!model_ob) return "";
+        if (!_.isString(thread_ts)) return "";
+        return TS.utility.msgs.constructConversationPermalink(model_ob, thread_ts);
       });
       Handlebars.registerHelper("literalNumbers", function(number, max_literal) {
         var numbers = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
@@ -41628,6 +41656,7 @@ var _on_esc;
         settings.off_class = $checkbox.data("off-class") ? $checkbox.data("off-class") : _default_settings.off_class;
         settings.off_label = $checkbox.data("off-label") ? $checkbox.data("off-label") : _default_settings.off_label;
         settings.disabled = $checkbox.data("disabled") ? $checkbox.data("disabled") : _default_settings.disabled;
+        settings.cls = $checkbox.data("cls") ? $checkbox.data("cls") : _default_settings.cls;
       }
       if (settings.initial_state === null) {
         settings.initial_state = $checkbox.is(":checked") ? true : false;
@@ -41640,6 +41669,7 @@ var _on_esc;
     }
   });
   var _default_settings = {
+    cls: "",
     initial_state: null,
     label: "",
     on_text: "On",
@@ -41665,8 +41695,12 @@ var _on_esc;
     $toggle.on("click", function() {
       $(this).toggleClass("checked");
       $checkbox.prop("checked", $(this).hasClass("checked")).trigger("change");
-      $(this).toggleClass(settings.on_class, $(this).hasClass("checked"));
-      $(this).toggleClass(settings.off_class, !$(this).hasClass("checked"));
+      if (settings.on_class !== settings.off_class) {
+        $(this).toggleClass(settings.on_class, $(this).hasClass("checked"));
+        $(this).toggleClass(settings.off_class, !$(this).hasClass("checked"));
+      } else if (settings.on_class !== "") {
+        TS.warn("TS.ui.toggle: on & off classes are the same. You may want to use the `cls` option instead");
+      }
     });
   };
   var _build = function(settings) {
