@@ -11642,6 +11642,7 @@ audio {
 .file_comment_tip {
   font-size: .7rem;
   margin-top: -.25rem;
+  margin-bottom: .25rem;
   line-height: 1rem
 }
 

@@ -8732,7 +8732,9 @@
     $(".file_comments_scroller").scrollTop(0);
   };
   var _displayFileCommentHelpText = function(file) {
-    $(".file_comment_tip").text(TS.templates.builders.makeFileCommentHelpText(file));
+    var file_comment_help_text = TS.templates.builders.makeFileCommentHelpText(file);
+    $(".file_comment_tip").text(file_comment_help_text);
+    $("#select_share_at_channel_list").text(file_comment_help_text);
   };
   var _rebuildFileDetailsView = function(file) {
     var template_args = $.extend(TS.files.getFileDetailsMetaTemplateArguments(file), TS.files.getFileTemplateArguments(file));
