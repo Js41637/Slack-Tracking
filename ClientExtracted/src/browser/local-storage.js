@@ -1,9 +1,9 @@
-import _ from 'lodash';
 import logger from '../logger';
 import {p} from '../get-path';
-import rx from 'rx';
+import {Subject} from 'rxjs/Subject';
 import fs from 'graceful-fs';
 import {sync as writeFileAtomicSync} from 'write-file-atomic';
+import '../rx-operators';
 
 // Public: This class is a copy of the DOM LocalStorage API, backed by our local
 // settings file. Make sure to not use this directly, but use the instance in
@@ -21,8 +21,8 @@ class LocalStorage {
       this.data = {};
     }
 
-    this.saveDebounce = new rx.Subject();
-    this.saveDebounce.throttle(250).subscribe(() => this.save());
+    this.saveDebounce = new Subject();
+    this.saveDebounce.throttleTime(250).subscribe(() => this.save());
   }
 
   getItem(key) {
@@ -30,30 +30,30 @@ class LocalStorage {
   }
 
   key(index) {
-    return _.keys(this.data)[index];
+    return Object.keys(this.data)[index];
   }
 
   setItem(key, value) {
     this.data[key] = value;
-    this.length = _.keys(this.data).length;
-    this.saveDebounce.onNext(true);
+    this.length = Object.keys(this.data).length;
+    this.saveDebounce.next(true);
   }
 
   removeItem(key) {
     delete this.data[key];
-    this.length = _.keys(this.data).length;
-    this.saveDebounce.onNext(true);
+    this.length = Object.keys(this.data).length;
+    this.saveDebounce.next(true);
   }
 
   clear() {
     this.data = {};
     this.length = 0;
-    this.saveDebounce.onNext(true);
+    this.saveDebounce.next(true);
   }
 
   setItemSync(key, value) {
     this.data[key] = value;
-    this.length = _.keys(this.data).length;
+    this.length = Object.keys(this.data).length;
     this.save();
   }
 

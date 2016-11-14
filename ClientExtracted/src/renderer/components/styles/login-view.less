@@ -1,6 +1,7 @@
 .LoginView {
   width: 100%;
   height: 100%;
+  position: fixed;
   overflow: hidden;
 
   &-overlay {
@@ -12,7 +13,7 @@
     justify-content: center;
     background-color: white;
 
-    &Spinner{
+    &Spinner {
       width: 80px;
       height: 80px;
     }
@@ -25,40 +26,5 @@
   .overlay-leave.overlay-leave-active {
     opacity: 0.01;
     transition: opacity 0.3s ease-in;
-  }
-  
-  &-buttons {
-    height: 26px;
-    background: white;
-  }
-
-  &-dialog {
-    width: 100%;
-    height: 100%;
-    position: relative;
-  }
-
-  .login-button-mixin {
-    position: absolute;
-    text-decoration: none;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 18px;
-    padding: 4px;
-  }
-
-  &-back {
-    .login-button-mixin;
-    left: 2px;
-  }
-
-  &-cancel {
-    .login-button-mixin;
-    right: 2px;
-  }
-  
-  .WebViewContext {
-    width: 100%;
-    height: 100%;
   }
 }

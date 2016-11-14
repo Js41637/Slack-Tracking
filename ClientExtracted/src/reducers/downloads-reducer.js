@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import {DOWNLOADS, APP} from '../actions';
 
 const initialState = {
@@ -32,7 +30,7 @@ export default function reduce(state = initialState, action) {
     return downloadEvent(state, 'downloadFinished', action.data);
 
   case APP.RESET_STORE:
-    return _.assign({}, initialState);
+    return {...initialState};
   default:
     return state;
   }
@@ -40,6 +38,6 @@ export default function reduce(state = initialState, action) {
 
 function downloadEvent(state, eventName, data = {}) {
   let update = {};
-  update[eventName] = _.assign({}, {timestamp: Date.now()}, data);
-  return _.assign({}, state, update);
+  update[eventName] = {timestamp: Date.now(), ...data};
+  return {...state, ...update};
 }

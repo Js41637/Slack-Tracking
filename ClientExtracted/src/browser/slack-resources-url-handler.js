@@ -1,7 +1,6 @@
 import {protocol} from 'electron';
 import logger from '../logger';
 import path from 'path';
-import rx from 'rx';
 import LRU from 'lru-cache';
 import {requestGC} from '../run-gc';
 
@@ -77,7 +76,7 @@ export default class SlackResourcesUrlHandler extends ReduxComponent {
       }
     });
 
-    this.disposables.add(rx.Disposable.create(() => protocol.unregisterProtocol('slack-resource')));
+    this.disposables.add(() => protocol.unregisterProtocol('slack-resource'));
   }
 
   syncState() {

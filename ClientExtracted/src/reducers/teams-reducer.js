@@ -1,15 +1,15 @@
-import _ from 'lodash';
+import pick from '../utils/pick';
+import pickBy from '../utils/pick-by';
 import fs from 'fs';
 import url from 'url';
 import {p} from '../get-path';
 import handlePersistenceForKey from './helpers';
-import EventActions from '../actions/event-actions';
 
 import {TEAMS, SETTINGS, APP} from '../actions';
 
 const SLACK_CORP_TEAM_ID = 'T024BE7LD';
 
-let savedTsDevMenu = false;
+let EventActions, savedTsDevMenu = false;
 
 export default function reduce(teams = {}, action) {
   switch(action.type) {
@@ -21,6 +21,7 @@ export default function reduce(teams = {}, action) {
     return removeTeamWithId(teams, action.data);
   case TEAMS.REMOVE_TEAMS:
     return removeTeamsWithIds(teams, action.data);
+
   case TEAMS.UPDATE_TEAM_THEME:
     return updateTheme(teams, action.data.theme, action.data.teamId);
   case TEAMS.UPDATE_TEAM_ICONS:
@@ -33,6 +34,8 @@ export default function reduce(teams = {}, action) {
     return updateTeamName(teams, action.data.name, action.data.teamId);
   case TEAMS.UPDATE_TEAM_URL:
     return updateTeamUrl(teams, action.data.url, action.data.teamId);
+  case TEAMS.UPDATE_USER_ID:
+    return updateUserId(teams, action.data.userId, action.data.teamId);
 
   case SETTINGS.INITIALIZE_SETTINGS:
     return updateTeamsForDevEnvironment(teams, action.data);
@@ -53,24 +56,25 @@ export default function reduce(teams = {}, action) {
 export function getInitialsOfName(name, maxLength=2) {
   if (!name) return '';
 
-  let initials = '';
+  let initials = [];
   let words = name.split(' ');
 
   for (var word of words) {
     if (word.length < 1) continue;
-    initials += word.substring(0, 1);
+    initials.push([...word][0]);
   }
 
-  return initials.substring(0, maxLength);
+  maxLength = (initials.length < maxLength) ? initials.length : maxLength;
+  return initials.slice(0, maxLength).join('');
 }
 
 function parseTeamFromSsb(ssbTeam) {
   // The initial team data from the webapp (via `didSignIn`) won't have icons or theme
-  let team = _.pick(ssbTeam, [
+  let team = pick(ssbTeam, [
     'name', 'id', 'team_id', 'team_name', 'team_url', 'theme'
   ]);
 
-  if (!_.isEmpty(ssbTeam.team_icon)) {
+  if (ssbTeam.team_icon && Object.keys(ssbTeam.team_icon).length > 0) {
     team.icons = ssbTeam.team_icon;
   }
 
@@ -98,30 +102,31 @@ function addTeam(teamList, team) {
   // NB: When a session ends, we'll go through `didSignIn` again and try to
   // add the same team. This breaks Redux rules, but issue a refresh action.
   if (teamList[team.team_id]) {
+    EventActions = EventActions || require('../actions/event-actions').default;
     setTimeout(() => EventActions.refreshTeam(team.team_id), 50);
     return teamList;
   }
 
   let update = {};
   update[team.team_id] = team;
-  return _.assign({}, teamList, update);
+  return Object.assign({}, teamList, update);
 }
 
 function addTeams(teamList, newTeams) {
-  let update = _.reduce(newTeams, (acc, x) => {
+  let update = newTeams.reduce((acc, x) => {
     acc[x.team_id] = parseTeamFromSsb(x);
     return acc;
   }, {});
 
-  return _.assign({}, teamList, update);
+  return {...teamList, ...update};
 }
 
 function removeTeamWithId(teamList, teamId) {
-  return _.pick(teamList, (team) => team.team_id !== teamId);
+  return pickBy(teamList, (team) => team.team_id !== teamId);
 }
 
 function removeTeamsWithIds(teamList, teamIds) {
-  return _.pick(teamList, (team) => !teamIds.includes(team.team_id));
+  return pickBy(teamList, (team) => !teamIds.includes(team.team_id));
 }
 
 function updateTheme(teams, theme, teamId) {
@@ -173,6 +178,18 @@ function updateTeamUrl(teams, team_url, teamId) {
   };
 }
 
+function updateUserId(teams, id, teamId) {
+  let team = teams[teamId];
+  if (!team) return teams;
+  return {
+    ...teams,
+    [teamId]: {
+      ...team,
+      id
+    }
+  };
+}
+
 function updateUnreadsInfo(teams, {unreads, unreadHighlights, showBullet, teamId}) {
   let team = teams[teamId];
   if (!team) return teams;
@@ -193,14 +210,15 @@ function updateTeamUsage(teams, usagePerTeam) {
     if (!teams[teamId]) continue;
 
     let usage = (teams[teamId].usage || 0) + usagePerTeam[teamId];
-    update[teamId] = _.assign({}, teams[teamId], {usage});
+    update[teamId] = {...teams[teamId], usage};
   }
-  return _.assign({}, teams, update);
+  return {...teams, ...update};
 }
 
 function updateTeamsForDevEnvironment(teams, {devEnv}) {
   if (!devEnv) return teams;
-  return _.reduce(teams, (acc, team) => {
+  return Object.keys(teams).reduce((acc, teamId) => {
+    let team = teams[teamId];
     let domain = url.parse(team.team_url).host.split('.')[0];
     let team_url = `https://${domain}.${devEnv}.slack.com`;
 

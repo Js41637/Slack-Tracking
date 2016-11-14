@@ -45,6 +45,8 @@
         label: '&Developer'
         submenu: [
           { label: 'Toggle Developer &Tools', command: 'window:toggle-dev-tools', accelerator: "Alt+Control+I" }
+          { label: 'Show &Logs in File Manager', command: 'application:prepare-and-reveal-logs' }
+          { label: '&Reload Everything', command: 'window:reload-everything', accelerator: "Control+Shift+R" }
         ]
       }
     ]

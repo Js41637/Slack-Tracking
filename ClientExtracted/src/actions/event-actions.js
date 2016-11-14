@@ -34,6 +34,13 @@ class EventActions {
     });
   }
 
+  handleExternalLink(url, disposition) {
+    Store.dispatch({
+      type: EVENTS.HANDLE_EXTERNAL_LINK,
+      data: {url, disposition}
+    });
+  }
+
   quitApp() {
     Store.dispatch({type: EVENTS.QUIT_APP});
   }
@@ -88,6 +95,21 @@ class EventActions {
 
   reportIssue() {
     Store.dispatch({type: EVENTS.REPORT_ISSUE});
+  }
+
+  prepareAndRevealLogs() {
+    Store.dispatch({type: EVENTS.PREPARE_AND_REVEAL_LOGS});
+  }
+
+  sidebarClicked() {
+    Store.dispatch({
+      type: EVENTS.SIDEBAR_CLICKED,
+      omitFromLog: true
+    });
+  }
+
+  closeAllUpdateBanners() {
+    Store.dispatch({type: EVENTS.CLOSE_ALL_UPDATE_BANNERS});
   }
 }
 

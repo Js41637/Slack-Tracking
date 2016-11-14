@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {nativeImage, BrowserWindow} from 'electron';
 import ipc from '../ipc-rx';
 import logger from '../logger';
@@ -45,6 +44,7 @@ export default class BrowserWindowManager extends ReduxComponent {
       isShowingLoginDialog: AppStore.isShowingLoginDialog(),
 
       quitAppEvent: EventStore.getEvent('quitApp'),
+      signOutTeamEvent: EventStore.getEvent('signOutTeam'),
       reloadEvent: EventStore.getEvent('reload'),
       editingCommandEvent: EventStore.getEvent('editingCommand'),
       toggleFullScreenEvent: EventStore.getEvent('toggleFullScreen'),
@@ -96,6 +96,19 @@ export default class BrowserWindowManager extends ReduxComponent {
   }
 
   /**
+   * Ensures that child windows of a team are closed when the user signs out
+   *
+   * @param {Object.string} {teamId}
+   */
+  signOutTeamEvent({teamId}) {
+    if (!teamId) return;
+
+    this.forEachWindowOfTeam([teamId], (win) => {
+      if (win && win.close && !win.isDestroyed()) win.close();
+    });
+  }
+
+  /**
    * Reload the main window, or the focused child window. Individual team views
    * handle this event separately.
    *
@@ -103,13 +116,14 @@ export default class BrowserWindowManager extends ReduxComponent {
    *                              just the focused window or a single team
    */
   reloadEvent({everything}) {
+    const mainWindow = this.getMainWindow();
+
     if (everything) {
-      let mainWindow = this.getMainWindow();
       mainWindow.reload();
       return;
     }
 
-    let focusedWindow = BrowserWindow.getFocusedWindow();
+    const focusedWindow = BrowserWindow.getFocusedWindow();
     if (!focusedWindow) return;
 
     let windowParams = this.state.childWindows[focusedWindow.id];
@@ -129,7 +143,8 @@ export default class BrowserWindowManager extends ReduxComponent {
   forEachWindowOfType(types, action) {
     let windowSet = new Set(types);
 
-    _.forEach(this.state.childWindows, (entry) => {
+    Object.keys(this.state.childWindows).forEach((key) => {
+      let entry = this.state.childWindows[key];
       if (!windowSet.has(entry.type)) return;
 
       try {
@@ -138,6 +153,27 @@ export default class BrowserWindowManager extends ReduxComponent {
       } catch (e) {
         logger.warn(`Could not act on browser window ${JSON.stringify(entry)}: ${e.stack}`);
       }
+    });
+  }
+
+  /**
+   * Perform an action on each child window that matches the given team.
+   *
+   * @param {Array}     teams   An array of teams specifying which windows to act on
+   * @param {Function}  action  The action to take on the BrowserWindow
+   */
+  forEachWindowOfTeam(teams = [], action) {
+    teams.forEach((team) => {
+      Object.keys(WindowStore.getWindowsForTeam(team)).forEach((key) => {
+        let entry = this.state.childWindows[key];
+
+        try {
+          let browserWindow = BrowserWindow.fromId(entry.id);
+          if (browserWindow) action(browserWindow);
+        } catch (e) {
+          logger.warn(`Could not act on browser window ${JSON.stringify(entry)}: ${e.stack}`);
+        }
+      });
     });
   }
 
@@ -170,6 +206,13 @@ export default class BrowserWindowManager extends ReduxComponent {
   }
 
   toggleFullScreenEvent() {
+    let focusedWindow = BrowserWindow.getFocusedWindow();
+    let focusedWindowType = WindowStore.typeOfWindow(focusedWindow.id);
+
+    if (focusedWindowType === WINDOW_TYPES.WEBAPP && !WindowStore.isCallsWindow(focusedWindow)) {
+      return focusedWindow.setFullScreen(!focusedWindow.isFullScreen());
+    }
+
     let mainWindow = this.getMainWindow();
     mainWindow.setFullScreen(!mainWindow.isFullScreen());
   }
@@ -195,7 +238,7 @@ export default class BrowserWindowManager extends ReduxComponent {
    * it accordingly. This is deeply un-React, but it's too expensive to put
    * the image buffer into state.
    *
-   * @return {Disposable}  A Disposable that will unsubscribe the listener
+   * @return {Subscription}  A Subscription that will unsubscribe the listener
    */
   handleOverlayIcon() {
     return ipc.listen('window:set-overlay-icon').subscribe((buf) => {

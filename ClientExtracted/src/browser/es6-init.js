@@ -3,19 +3,21 @@
 // NB: This file is intentionally written using ES5 because at this time,
 // electron-compile is not yet initialized
 
-var _ = require('lodash');
+require('../stat-cache');
+
 var path = require('path');
+var app = require('electron').app;
 var parseCommandLine = require('../parse-command-line').parseCommandLine;
 var parseProtocolUrl = require('../parse-protocol-url').parseProtocolUrl;
-var app = require('electron').app;
+var isPrebuilt = require('../utils/process-helpers').isPrebuilt;
 
-var readOnlyMode = !process.execPath.match(/[\\\/]electron-prebuilt[\\\/]/);
+var readOnlyMode = !isPrebuilt();
 var appData;
 
 // NB: We have to do this *super* early because app.setData is basically one
 // giant race condition.
 var args = parseCommandLine();
-_.extend(args, parseProtocolUrl(args.protoUrl));
+Object.assign(args, parseProtocolUrl(args.protoUrl));
 
 if (args.devEnv) {
   appData = app.getPath('appData');

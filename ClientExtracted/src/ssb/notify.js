@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import {getIsQuietHours} from 'windows-quiet-hours';
+
 import logger from '../logger';
 import nativeInterop from '../native-interop';
 import NotificationActions from '../actions/notification-actions';
@@ -16,10 +17,9 @@ export default class NotificationIntegration {
    * @param  {String} args.channel    The channel ID where the notification occurred, e.g., "C054787UZ"
    */
   notify(args) {
-    if (nativeInterop.shouldDisplayNotifications()) {
-      NotificationActions.newNotification(_.extend(args, {teamId: window.teamId}));
-    } else {
-      logger.warn('Suppressing notification due to Presentation Mode');
+    if (nativeInterop.isWindows10OrHigher(true) ||
+      nativeInterop.shouldDisplayNotifications()) {
+      NotificationActions.newNotification(Object.assign(args, {teamId: window.teamId}));
     }
   }
 
@@ -30,7 +30,12 @@ export default class NotificationIntegration {
    * @return {Bool}  True if they should be muted
    */
   shouldMuteAudio() {
-    return !nativeInterop.shouldDisplayNotifications();
+    try {
+      return getIsQuietHours();
+    } catch (error) {
+      logger.warn(`Unable to read quiet hours setting: ${error.message}`);
+      return false;
+    }
   }
 
   /**

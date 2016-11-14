@@ -1,7 +1,7 @@
 import {BrowserWindow, powerMonitor, screen} from 'electron';
 
 import logger from '../logger';
-import {Observable} from 'rx';
+import {Observable} from 'rxjs/Observable';
 import '../custom-operators';
 
 import ReduxComponent from '../lib/redux-component';
@@ -55,7 +55,7 @@ export default class NotificationWindowManager extends ReduxComponent {
     // any event three seconds later.
     return anyDisplayChanged
       .guaranteedThrottle(3000)
-      .where(() => this.state.isShowingHtmlNotifications)
+      .filter(() => this.state.isShowingHtmlNotifications)
       .subscribe(() => {
         logger.info('Display changed! Recreating notifications window');
         this.closeNotificationsWindow();

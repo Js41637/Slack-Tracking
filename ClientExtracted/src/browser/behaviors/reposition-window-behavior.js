@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import {Observable, Disposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 import WindowBehavior from './window-behavior';
 
 const d = require('debug-electron')('reposition-window-behavior');
@@ -33,12 +33,12 @@ export default class RepositionWindowBehavior extends WindowBehavior {
    * size and position.
    *
    * @param  {BrowserWindow} browserWindow The window to attach the behavior to
-   * @return {Disposable}            A Disposable that will detach this behavior
+   * @return {Subscription}            A Subscription that will detach this behavior
    */
   setup(browserWindow) {
     if (process.platform === 'darwin' && !global.loadSettings.testMode) {
       d("Don't reposition windows on Mac");
-      return Disposable.empty;
+      return Subscription.EMPTY;
     }
 
     d('Attaching behavior to window');
@@ -58,15 +58,15 @@ export default class RepositionWindowBehavior extends WindowBehavior {
           Observable.fromEvent(electronScreen, 'display-removed'),
           Observable.fromEvent(electronScreen, 'display-metrics-changed'),
           resumeFromSleepEvent)
-        .where(() => browserWindow.isVisible())
-        .throttle(1000);
+        .filter(() => browserWindow.isVisible())
+        .throttleTime(1000);
 
       this.screenApi = electronScreen;
     }
 
     return this.shouldRecheckWindowPos
       .do(() => d('About to check window bounds against display'))
-      .where(() => {
+      .filter(() => {
         let coords = {
           position: browserWindow.getPosition(),
           size: browserWindow.getSize()
@@ -75,7 +75,7 @@ export default class RepositionWindowBehavior extends WindowBehavior {
           !RepositionWindowBehavior.windowPositionInBounds(this.screenApi, coords);
       })
       .do(() => this.recalculateWindowPositionFunc(this.screenApi, browserWindow))
-      .catch(Observable.return(null))
+      .catch(() => Observable.of(null))
       .subscribe();
   }
 
@@ -95,7 +95,7 @@ export default class RepositionWindowBehavior extends WindowBehavior {
     // NB: Check for bizarro sizes and fail them
     if (width < 10 || height < 10) return false;
 
-    return _.find(screenApi.getAllDisplays(), ({bounds}) => {
+    return screenApi.getAllDisplays().find(({bounds}) => {
       let displayRect = [
         bounds.x,
         bounds.y,
@@ -203,4 +203,43 @@ export default class RepositionWindowBehavior extends WindowBehavior {
 
     return true;
   }
+
+  /**
+   * Takes an object containing BrowserWindow parameters (x, y, width, height) and
+   * ensures that the resulting BrowserWindow would show up on an active screen.
+   *
+   * @param {Object} Window parameters
+   * @returns {Object} Window parameters
+   *
+   * @memberOf WindowCreator
+   */
+  static getValidWindowPositionAndSize(params = {}) {
+    // Windows & Linux only, macOS does this itself
+    if (process.platform === 'darwin' && !global.loadSettings.testMode) return params;
+
+    // Ensure valid pair
+    if ((params.x === undefined && (params.y || params.y === 0))) params.y = undefined;
+    if ((params.y === undefined && (params.x || params.x === 0))) params.x = undefined;
+    if (params.x === undefined && params.y === undefined) return params;
+
+    let screenApi = this.screenApi || require('electron').screen;
+    let position = [params.x, params.y];
+    let size = [params.width, params.height];
+    let inDisplay = this.windowPositionInBounds(screenApi, {position, size});
+
+    if (!inDisplay) {
+      let newPos = this.calculateDefaultPosition(screenApi, {position, size});
+
+      // Should never happen, but better save then sorry
+      if (!newPos.position || newPos.position.length < 2 || !newPos.size || newPos.length < 2) return params;
+
+      params.x = newPos.position[0];
+      params.Y = newPos.position[1];
+      params.width = newPos.size[0];
+      params.height = newPos.size[1];
+    }
+
+    return params;
+  }
+
 }

@@ -2,10 +2,10 @@ import Store from '../lib/store';
 import {WINDOWS} from './';
 
 class WindowActions {
-  addWindow(windowId, windowType, subType) {
+  addWindow(windowId, windowType, subType, teamId) {
     Store.dispatch({
       type: WINDOWS.ADD_WINDOW,
-      data: {windowId, windowType, subType}
+      data: {windowId, windowType, subType, teamId}
     });
   }
 

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import difference from 'lodash.difference';
 import logger from '../logger';
 import getUserAgent from '../ssb-user-agent';
 import {ipcRenderer, remote, screen as Screen} from 'electron';
@@ -16,6 +16,7 @@ const {BrowserWindow} = remote;
 
 const LOCAL_STORAGE_PREFIX = 'webappWindowManager';
 const LOCAL_STORAGE_REGEX = new RegExp(`^${LOCAL_STORAGE_PREFIX}_(\\d*)`);
+const CLOSE_DEFERRAL_NEEDED = ['www.dropbox.com'];
 
 function browserWindowFromToken(token) {
   return BrowserWindow.fromId(parseInt(token));
@@ -38,6 +39,8 @@ export default class WebappWindowManager extends ReduxComponent {
     ipcRenderer.on('inter-window-message', (event, ...args) => {
       this.receiveMessageSignal.dispatch(...args);
     });
+
+    if (CLOSE_DEFERRAL_NEEDED.includes(window.location.host)) this.deferClose();
   }
 
   syncState() {
@@ -52,9 +55,45 @@ export default class WebappWindowManager extends ReduxComponent {
    */
   update(prevState = {}) {
     if (this.state.windows !== prevState.windows) {
-      let removedWindows = _.difference(_.keys(prevState.windows), _.keys(this.state.windows));
-      _.forEach(removedWindows, this.removeKeyForWindowId);
+      let removedWindows = difference(Object.keys(prevState.windows), Object.keys(this.state.windows));
+      removedWindows.forEach((win) => this.removeKeyForWindowId(win));
     }
+  }
+
+  /**
+   * Defer window closure
+   */
+  deferClose() {
+    let webContents = remote.getCurrentWebContents();
+
+    remote.app.on('before-quit', () => this.willNavigate = true);
+    webContents.once('will-navigate', () => this.willNavigate = true);
+    window.onbeforeunload = () => this.deferCloseEvent();
+  }
+
+  /**
+   * Handles a window beforeunload event, hiding the window and delaying
+   * the actual close by 600ms. This allows all remaining IPC calls to
+   * succeed before the window is actually closed.
+   *
+   * This is only necessary for windows that call IPC methods right before
+   * closing (like `window.parent.postMessage(); window.close();`)
+   *
+   * @returns {any} If {void}, will exit - if {string}, will cancel
+   */
+  deferCloseEvent() {
+    if (this.closeRequested || this.willNavigate) return;
+    if (this.closingTimeout) return 'noop';
+
+    let currentWindow = remote.getCurrentWindow();
+    currentWindow.hide();
+
+    this.closingTimeout = setTimeout(() => {
+      this.closeRequested = true;
+      if (currentWindow && !currentWindow.isDestroyed()) currentWindow.destroy();
+    }, 600);
+
+    return 'noop';
   }
 
   /**
@@ -94,7 +133,8 @@ export default class WebappWindowManager extends ReduxComponent {
    * @return {Number} A token identifying the window for future calls
    */
   open(params = {}) {
-    _.extend(params, {
+    Object.assign(params, {
+      teamId: global.teamId,
       userAgent: getUserAgent(),
       parentInfo: getSenderIdentifier(),
       isPopupWindow: params.allowThirdPartyNavigation || window.TSSSB.canUrlBeOpenedInSSBWindow(params.url)
@@ -125,7 +165,7 @@ export default class WebappWindowManager extends ReduxComponent {
    * tokens, and whose values are the original metadata values passed to `open`
    */
   list() {
-    let windowMetadata = _.reduce(Object.keys(localStorage), (acc, key) => {
+    let windowMetadata = Object.keys(localStorage).reduce((acc, key) => {
       let match = key.match(LOCAL_STORAGE_REGEX);
       if (match) {
         let [,windowToken] = match;
@@ -141,18 +181,31 @@ export default class WebappWindowManager extends ReduxComponent {
    * Dispatches an event from the parent window to the popup's context, using
    * the `executeJavaScript` method
    *
-   * @param  {String} data         Data to attach to the `Event`
-   * @param  {String} window_token The value you got from `open`
+   * @param  {String} data            Data to attach to the `Event`
+   * @param  {Object} data            Data to attach to the `Event`
+   * @param  {String} window_token    The value you got from `open`
    */
-  postMessage(data, window_token) {
+  postMessage(data = '', window_token = '') {
     if (!window_token || !data) {
       throw new Error("Missing parameters, needs window_token and data");
     }
 
-    let opts = {
-      code: `var evt = new Event('message'); evt.data = ${JSON.stringify(data)}; window.dispatchEvent(evt);`,
-      window_token: window_token
-    };
+    data = (typeof data === 'string') ? `'${data}'` : JSON.stringify(data);
+
+    let code =
+      `(function () {` +
+        `let evt = new Event('message');` +
+        `evt.data = ${data};` +
+        `evt.origin = '${document.location.origin}';` +
+        `evt.source = {};` +
+        `evt.source.postMessage = function (message) {` +
+        `  if (!winssb || !winssb.window || !winssb.window.postMessage) throw 'winssb not ready';` +
+        `  return winssb.window.postMessage(message, ${window.winssb.browserWindowId});` +
+        `};` +
+        `window.dispatchEvent(evt);` +
+      `})();`;
+
+    let opts = { code, window_token };
 
     logger.info(`Signaling child from postMessage: ${opts.code}, ${window_token}`);
     this.executeJavaScriptInWindow(opts);

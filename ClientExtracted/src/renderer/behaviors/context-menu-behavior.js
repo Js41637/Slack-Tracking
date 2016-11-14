@@ -1,4 +1,4 @@
-import {DOM} from 'rx-dom';
+import {Observable} from 'rxjs/Observable';
 import {ContextMenuBuilder, setGlobalLogger} from 'electron-spellchecker';
 import {createProxyForRemote} from 'electron-remote';
 
@@ -13,10 +13,10 @@ class ContextMenuBehavior {
   //
   // webView - The {WebViewContext} to apply this behavior to
   //
-  // Returns a {Disposable} that will undo what the method did
+  // Returns a {Subscription} that will undo what the method did
   setup(webView) {
-    let signal = DOM.fromEvent(webView, 'ipc-message')
-      .where(({channel}) => channel === 'context-menu-show')
+    let signal = Observable.fromEvent(webView, 'ipc-message')
+      .filter(({channel}) => channel === 'context-menu-show')
       .map((message) => message.args[0]);
 
     let remoteSpellcheckHandler = createProxyForRemote(webView).winssb.spellCheckingHelper.spellCheckHandler;

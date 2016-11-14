@@ -1,10 +1,10 @@
-import _ from 'lodash';
 import logger from '../logger';
 import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
 import {electronEnhancer} from 'redux-electron-store';
 import {p} from '../get-path';
 import * as reducers from '../reducers';
 import fillShape from '../utils/fill-shape';
+import {isPrebuilt} from '../utils/process-helpers';
 
 import BaseStore from './base-store';
 import KeychainStorage from '../browser/keychain-storage';
@@ -67,7 +67,7 @@ export default class BrowserStore extends BaseStore {
     this.loadPersistentStores();
     this.loadKeychainStores();
 
-    let isDev = global.loadSettings.devMode && process.execPath.match(/[\\\/]electron-prebuilt[\\\/]/);
+    let isDev = global.loadSettings.devMode && isPrebuilt();
     let hasDevEnv = global.loadSettings.devEnv && global.loadSettings.devEnv.length > 1;
 
     let settings = this.getState().settings;
@@ -107,7 +107,9 @@ export default class BrowserStore extends BaseStore {
 
   loadLegacyData() {
     let updated = MigrationManager.getBrowserData();
-    _.set(updated || {}, 'settings.hasMigratedData.browser', true);
+    updated.settings = updated.settings || { hasMigratedData: { browser: true }};
+    updated.settings.hasMigratedData = updated.settings.hasMigratedData || { browser: true};
+    updated.settings.hasMigratedData.browser = true;
 
     if (updated) {
       this.dispatch({
@@ -117,8 +119,8 @@ export default class BrowserStore extends BaseStore {
     }
   }
 
-  async loadMacGapData(isDevMode) {
-    let newTeams = await MigrationManager.getMacGapData(isDevMode);
+  loadMacGapData(isDevMode) {
+    let newTeams = MigrationManager.getMacGapData(isDevMode);
     if (newTeams) {
       this.dispatch({
         type: TEAMS.ADD_NEW_TEAMS,

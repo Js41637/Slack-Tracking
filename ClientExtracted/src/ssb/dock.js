@@ -1,4 +1,6 @@
-import {Disposable, SerialDisposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import SerialSubscription from 'rxjs-serial-subscription';
+
 import {remote} from 'electron';
 
 const {app} = remote;
@@ -14,33 +16,33 @@ class FakeDock{
 
 export default class DockIntegration {
   constructor() {
-    this.disp = new SerialDisposable();
+    this.disp = new SerialSubscription();
     this.dock = app.dock || new FakeDock();
   }
 
-  badge() { 
-    return this.dock.getBadge(); 
+  badge() {
+    return this.dock.getBadge();
   }
 
-  bounceOnce() { 
-    this.bounce('informational'); 
+  bounceOnce() {
+    this.bounce('informational');
   }
 
-  bounceIndefinitely() { 
-    this.bounce('critical'); 
+  bounceIndefinitely() {
+    this.bounce('critical');
   }
 
   bounce(type) {
     let id = this.dock.bounce(type);
 
-    this.disp.setDisposable(new Disposable(() => {
+    this.disp.add(() => {
       if (id < 0) return;
       this.dock.cancelBounce(id);
-    }));
+    });
   }
 
   stopBouncing() {
-    this.disp.setDisposable(Disposable.empty);
+    this.disp.add(Subscription.EMPTY);
   }
 
   setBadgeCount(unreadHighlights, unread, showBullet) {

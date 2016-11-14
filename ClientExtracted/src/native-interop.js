@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import {spawn} from 'spawn-rx';
 import logger from './logger';
 
 let ref = null;
@@ -62,15 +63,12 @@ exports = {
 
       let result = outVal[0];
 
-      // https://msdn.microsoft.com/en-us/library/windows/desktop/bb762533(v=vs.85).aspx
-      console.log(`SHQueryUserNotificationState: ${result}`);
-
       if (result === 0) return true;    // NB: The call can succeed but return an empty state.
       if (result === 1) return true;    // Screensaver is running or machine is locked, who cares?
       if (result === 5) return true;    // All's good under the hood, boss
       if (result === 7) return true;    // Windows Store app is running, who cares?
 
-      logger.info(`Not displaying notifications due to ${result}`);
+      logger.info(`Suppressing notification due to Presentation Mode: ${result}`);
       return false;
     },
 
@@ -139,6 +137,29 @@ exports = {
     getIdleTimeInMs: () => {
       getIdleTime = getIdleTime || require("@paulcbetts/system-idle-time").getIdleTime;
       return getIdleTime();
+    },
+
+    getOSVersion: async function () {
+      let macOSVersion;
+      try {
+        macOSVersion = await spawn('sw_vers', ['-productVersion']).toPromise();
+      } catch(e) {
+        logger.error(e);
+
+        // Things have gotten really weird indeed
+        macOSVersion = '0.0.0';
+      }
+      let [major, minor, build] = macOSVersion.split('.').map((v) => v.trim());
+
+      return {
+        major,
+
+        // NB: Apparently for new (minor) versions of macOS, Apple doesn't
+        // include build numbers, so we have to account for it here. Minor
+        // version is just a precaution for whenever macOS 11 happens.
+        minor: minor || '0',
+        build: build || '0'
+      };
     },
 
     // NB: OS X is always 64-bit

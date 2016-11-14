@@ -11,7 +11,8 @@ export default class TeamAddButton extends Component {
     sizeOfList: React.PropTypes.number.isRequired,
     teamsByIndex: React.PropTypes.array.isRequired,
     hasOverflown: React.PropTypes.bool.isRequired,
-    dragInProgress: React.PropTypes.bool.isRequired
+    dragInProgress: React.PropTypes.bool.isRequired,
+    borderRadius: React.PropTypes.number.isRequired
   }
 
   render() {
@@ -28,7 +29,8 @@ export default class TeamAddButton extends Component {
       }}>
         <div className="TeamSelector-addButton" onClick={this.props.handleAddClick} title="Sign in to another team…" style={{
           backgroundColor: this.props.textColor,
-          visibility: (this.props.teamsByIndex.length > 0 ? 'visible' : 'hidden')
+          visibility: (this.props.teamsByIndex.length > 0 ? 'visible' : 'hidden'),
+          borderRadius: this.props.borderRadius
         }}>
           <svg width="18px" height="18px" viewBox="0 0 28 28" version="1.1" style={{
             fillRule: 'evenodd',

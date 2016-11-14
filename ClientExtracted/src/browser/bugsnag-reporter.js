@@ -49,7 +49,7 @@ export default class BugsnagReporter {
         title: 'Slack crashed!',
         message: "We're terribly sorry, but we've run into trouble and need to restart.",
         detail: "If the problem persists, you can report an issue or contact us at feedback@slack.com.",
-        buttons: ['Close', 'Restart', `Restart ${process.platform === 'darwin' ? '&' : '&&'} Report Issue`],
+        buttons: ['Close', 'Restart', `Restart ${process.platform === 'win32' ? '&&' : '&'} Report Issue`],
         defaultId: 2,
         cancelId: 0,
       }, resolve);

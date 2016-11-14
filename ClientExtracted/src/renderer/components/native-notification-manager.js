@@ -1,7 +1,7 @@
-import _ from 'lodash';
+import assignIn from 'lodash.assignin';
 import path from 'path';
-import {Observable} from 'rx';
-import clearNotificationsForChannel from '../../csx/clear-notifications';
+import {Observable} from 'rxjs/Observable';
+import {clearNotificationsForChannel} from '../../csx/clear-notifications';
 import logger from '../../logger';
 
 import AppStore from '../../stores/app-store';
@@ -33,7 +33,7 @@ export default class NativeNotificationManager extends ReduxComponent {
 
     // Notification position is only used on Windows 7 / 8.
     if (state.isWindows && SettingStore.getSetting('isBeforeWin10')) {
-      _.extend(state, {
+      assignIn(state, {
         notifyPosition: SettingStore.getSetting('notifyPosition')
       });
     }
@@ -97,7 +97,6 @@ export default class NativeNotificationManager extends ReduxComponent {
     // no longer running' error when clicking an older notification.
     if (this.state.isMac) {
       this.disposables.add(Observable.fromEvent(window, 'beforeunload')
-        .where(() => (element && element.close))
         .subscribe(() => element.close()));
     }
   }
@@ -120,7 +119,7 @@ export default class NativeNotificationManager extends ReduxComponent {
     };
 
     if (this.state.isWindows) {
-      _.extend(options, {
+      assignIn(options, {
         theme: team ? team.theme : args.theme,
         initials: team ? team.initials : args.initials,
         screenPosition: this.state.notifyPosition,
@@ -130,7 +129,7 @@ export default class NativeNotificationManager extends ReduxComponent {
         avatarImage: args.avatarImage
       });
     } else if (this.state.isMac) {
-      _.extend(options, {
+      assignIn(options, {
         icon: undefined,
         subtitle: args.subtitle,
         canReply: !!args.channel,

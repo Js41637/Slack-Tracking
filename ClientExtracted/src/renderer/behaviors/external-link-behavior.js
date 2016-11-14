@@ -1,13 +1,10 @@
-import logger from '../../logger';
-import {Observable} from 'rx';
-import {shell} from 'electron';
 import url from 'url';
+import {shell} from 'electron';
+import {Observable} from 'rxjs/Observable';
 
-/**
- * The protocols that we will try to open via `shell`
- */
-const VALID_SHELL_PROTOCOLS = ['http:', 'https:', 'mailto:', 'skype:', 'spotify:',
-  'live:', 'callto:', 'tel:', 'im:', 'sip:', 'sips:'];
+import logger from '../../logger';
+import AppActions from '../../actions/app-actions';
+import SettingStore from '../../stores/setting-store';
 
 class ExternalLinkBehavior {
 
@@ -16,7 +13,7 @@ class ExternalLinkBehavior {
    * action (e.g., open mail or Skype).
    *
    * @param  {WebContents} webView  The web contents to apply this behavior to
-   * @return {Disposable}           A Disposable that will undo what the method did
+   * @return {Subscription}           A Subscription that will undo what the method did
    */
   setup(webView) {
     return Observable.fromEvent(webView, 'new-window', (e, urlString, frameName, disposition) => {
@@ -25,20 +22,25 @@ class ExternalLinkBehavior {
       return e.url ?
         {e, urlString: e.url, disposition: e.disposition} :
         {e, urlString, disposition};
-
     }).subscribe(({e, urlString, disposition}) => {
       try {
         e.preventDefault();
-        let theUrl = url.parse(urlString);
+        const parsedUrl = url.parse(urlString);
+        const formattedUrl = (/^https?:\/\//.test(urlString)) ? this.escapeUrlWhenNeeded(parsedUrl) : urlString;
 
-        if (!VALID_SHELL_PROTOCOLS.includes(theUrl.protocol)) {
-          throw new Error("Invalid protocol");
+        if (SettingStore.getSetting('whitelistedUrlSchemes').includes(parsedUrl.protocol)) {
+          try {
+            logger.debug(`Opening external window to ${formattedUrl}`);
+            shell.openExternal(formattedUrl, {activate: disposition !== 'background-tab'});
+          } catch (error) {
+            logger.warn(`Failed to open external window: ${error.message}`);
+          }
+        } else {
+          AppActions.showUrlSchemeModal({
+            url: formattedUrl,
+            disposition: disposition
+          });
         }
-
-        let realUrl = url.format(this.escapeUrlWhenNeeded(theUrl));
-
-        logger.info(`Opening external window to ${realUrl}`);
-        shell.openExternal(realUrl, {activate: disposition !== 'background-tab'});
       } catch (error) {
         logger.warn(`Ignoring ${urlString} due to ${error.message}`);
       }
@@ -73,7 +75,7 @@ class ExternalLinkBehavior {
       parsedUrl.query = encodeURIComponent(parsedUrl.query);
     }
 
-    return parsedUrl;
+    return parsedUrl.format();
   }
 }
 

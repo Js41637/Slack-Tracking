@@ -1,11 +1,11 @@
 import {app} from 'electron';
-import {Observable, Subject} from 'rx';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 import {requireTaskPool} from 'electron-remote';
 import logger from '../logger';
 
 import AppActions from '../actions/app-actions';
 import AppStore from '../stores/app-store';
-import EventActions from '../actions/event-actions';
 import ReduxComponent from '../lib/redux-component';
 
 const {getJSON} = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
@@ -20,29 +20,24 @@ export default class BasicAuthHandler extends ReduxComponent {
     super();
 
     this.authInfoObservable = options.authInfoObservable || new Subject();
-    let reload = options.reload || EventActions.reload;
 
     // NB: Take the parameters we need from the event
     let loginEvent = options.loginObservable || Observable.fromEvent(app, 'login',
-      (event, webContents, request, authInfo, callback) => {
-        return {event, authInfo, callback};
+      (e, webContents, request, authInfo, callback) => {
+        return {e, authInfo, callback};
       });
 
     /**
      * When we get a login event:
-     * 1. Take one at a time otherwise we get spammed for each network request
-     * 2. Show our dialog and then wait for the user to close it
+     * 1. Show only one dialog at a time
+     * 2. Wait for the user to enter their credentials
      * 3. Invoke the callback from the Electron event
-     * 4. Check if we're online now and if not, retry the entire sequence
-     * 6. If we are, reload the app to kick it into gear
      */
-    this.disposables.add(loginEvent.take(1)
-      .do(({event, authInfo}) => this.showAuthDialog(event, authInfo))
+    this.disposables.add(loginEvent
+      .filter(() => this.state.authInfo === null)
+      .do(({e, authInfo}) => this.showAuthDialog(e, authInfo))
       .flatMap(({callback}) => this.credentialsFromDialog(callback))
-      .do(({callback, username, password}) => callback(username, password))
-      .flatMap(() => this.checkForNetworkOrError(options.networkCheckOverride))
-      .retry()
-      .subscribe(reload));
+      .subscribe(({callback, username, password}) => callback(username, password)));
   }
 
   syncState() {
@@ -57,15 +52,12 @@ export default class BasicAuthHandler extends ReduxComponent {
    * Prevents the default event behavior (that is, to cancel the auth) and
    * shows our own auth dialog.
    *
-   * @param  {Object} event     The `login` event from Electron
+   * @param  {Object} e         The `login` event from Electron
    * @param  {Object} authInfo  Contains info about the request
    */
-  showAuthDialog(event, authInfo) {
-    event.preventDefault();
+  showAuthDialog(e, authInfo) {
+    e.preventDefault();
     logger.info(`Got login event for ${JSON.stringify(authInfo)}`);
-
-    AppActions.setNetworkStatus('offline');
-    EventActions.foregroundApp();
     AppActions.showAuthenticationDialog(authInfo);
   }
 
@@ -80,7 +72,7 @@ export default class BasicAuthHandler extends ReduxComponent {
     logger.info('Waiting for user credentials');
 
     let ret = this.authInfoObservable
-      .where((authInfo) => authInfo === null)
+      .filter((authInfo) => authInfo === null)
       .map(() => {
         let {username, password} = this.state.credentials;
         return {callback, username, password};
@@ -106,9 +98,9 @@ export default class BasicAuthHandler extends ReduxComponent {
       Observable.fromPromise(getJSON('https://slack.com/api/api.test?error='));
 
     let ret = networkCheck
-      .catch(Observable.throw(new Error('No Network')))
+      .catch(() => Observable.throw(new Error('No Network')))
       .flatMap(({ok}) => ok ?
-        Observable.just(true) :
+        Observable.of(true) :
         Observable.throw('Bad Response'))
       .publishLast();
 
@@ -117,6 +109,6 @@ export default class BasicAuthHandler extends ReduxComponent {
   }
 
   update() {
-    this.authInfoObservable.onNext(this.state.authInfo);
+    this.authInfoObservable.next(this.state.authInfo);
   }
 }

@@ -2,15 +2,15 @@
   "env": {
     "development": {
       "application/javascript": {
-        "presets": ["es2016-node5", "react"],
-        "plugins": ["transform-class-properties", "transform-async-to-generator", "transform-runtime", "transform-object-rest-spread"],
+        "presets": ["es2015", "stage-2", "react"],
+        "plugins": ["transform-runtime", "rewire"],
         "sourceMaps": "inline"
       }
     },
     "production": {
       "application/javascript": {
-        "presets": ["es2016-node5", "react"],
-        "plugins": ["transform-class-properties", "transform-async-to-generator", "transform-runtime", "transform-object-rest-spread"],
+        "presets": ["es2015", "stage-2", "react"],
+        "plugins": ["transform-runtime"],
         "sourceMaps": false
       }
     }

@@ -60,6 +60,8 @@
         label: 'Developer'
         submenu: [
           { label: 'Toggle Developer Tools', command: 'window:toggle-dev-tools', accelerator: "Alt+Command+I" }
+          { label: 'Show Logs in Finder', command: 'application:prepare-and-reveal-logs' }
+          { label: 'Reload Everything', command: 'window:reload-everything', accelerator: "Command+Shift+R" }
         ]
       }
     ]

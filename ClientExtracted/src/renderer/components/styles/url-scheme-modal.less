@@ -1,0 +1,146 @@
+@about-width: 320px;
+@about-padding: 0 21px 21px 21px;
+@about-text-color: #2c2d30;
+@about-border-color: rgba(151, 151, 151, .25);
+@about-font-family: Slack-Lato, Lucida Grande, sans-serif;
+@shadow-color: rgba(0, 0, 0, .25);
+
+.UrlSchemeModal {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  
+  &-overlay {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+  }
+
+  .overlay-leave {
+    opacity: 1;
+  }
+
+  .overlay-leave.overlay-leave-active {
+    opacity: 0.01;
+    transition: opacity 0.3s ease-in;
+  }
+
+  .url-scheme-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    padding: 0 22px;
+  }
+
+  .url-scheme-header {
+    display: flex;
+    justify-content: center;
+    margin-top: 0;
+  }
+
+  header {
+    background: #FBFBFA;
+  }
+
+  h4 {
+    padding: 0 22px;
+  }
+
+  h5 {
+    margin: 10px 10px 0 10px;
+  }
+
+  p {
+    cursor: default;
+    margin: 22px 0 0 0;
+    line-height: 1.3em;
+    padding: 0 22px;
+  }
+
+  label {
+    cursor: pointer;
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    font-weight: normal;
+    line-height: 1.5rem;
+    margin: 15px 0;
+    min-height: 24px;
+    padding: 0 46px;
+  }
+
+  input[type=checkbox] {
+    cursor: pointer;
+    line-height: normal;
+    margin: -2px .4rem 0 -1.5rem;
+    vertical-align: middle;
+    width: auto;
+  }
+
+  code {
+    font-size: .72rem;
+    line-height: .72rem;
+    white-space: normal;
+    color: #c25;
+    padding: 1px 3px;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
+    border-radius: 3px;
+  }
+
+  button {
+    -webkit-app-region: no-drag;
+    -webkit-box-shadow: none;
+    -webkit-font-smoothing: antialiased;
+    -webkit-user-select: none;
+    background: #2ab27b;
+    border-radius: .25rem;
+    border: 0;
+    color: white !important;
+    cursor: default;
+    display: inline-block;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.2rem;
+    margin-left: 15px;
+    padding: 8px 14px 9px;
+    text-decoration: none;
+    text-shadow: 0 1px @shadow-color;
+    width: 150px;
+
+    &:hover,
+    &:focus,
+    &:active {
+      outline: none;
+    }
+
+    &.cancel {
+      background: #fff;
+      color: @about-text-color !important;
+      border: 1px solid #D5D8DB;
+      text-shadow: none;
+    }
+
+    &:hover::after {
+      box-shadow: inset 0 -2px @shadow-color;
+    }
+
+    &:active {
+      box-shadow: inset 0 2px 1px @shadow-color;
+
+      &::after {
+        box-shadow: none;
+      }
+    }
+  }
+}
+

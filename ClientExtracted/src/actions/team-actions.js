@@ -62,7 +62,7 @@ class TeamActions {
       data: usagePerTeam
     });
   }
-  
+
   updateTeamName(name, teamId) {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_NAME,
@@ -74,6 +74,13 @@ class TeamActions {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_URL,
       data: {url, teamId}
+    });
+  }
+
+  updateUserId(userId, teamId) {
+    Store.dispatch({
+      type: TEAMS.UPDATE_USER_ID,
+      data: {userId, teamId}
     });
   }
 }

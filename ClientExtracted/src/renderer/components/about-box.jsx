@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import packageJson from '../../../package.json';
 import {remote} from 'electron';
+import {ContextMenuListener, ContextMenuBuilder} from 'electron-spellchecker';
 
 import Component from '../../lib/component';
 import DependenciesView from './dependencies-view';
@@ -22,7 +23,8 @@ export default class AboutBox extends Component {
       versionName: SettingStore.getSetting('versionName'),
       copyright: packageJson.copyright,
       releaseChannel: SettingStore.getSetting('releaseChannel'),
-      isWindowsStore: SettingStore.getSetting('isWindowsStore'),
+      isStoreBuild: SettingStore.getSetting('isWindowsStore') ||
+        SettingStore.getSetting('isMacAppStore'),
       isMac: SettingStore.isMac(),
       isWindows: SettingStore.isWindows()
     };
@@ -45,20 +47,20 @@ export default class AboutBox extends Component {
   }
 
   render() {
-    let {appVersion, versionName, releaseChannel, isMac, isWindows, isWindowsStore, buttonState, dependenciesState} = this.state;
+    let {appVersion, versionName, releaseChannel, isMac, isWindows,
+      isStoreBuild, buttonState, dependenciesState} = this.state;
 
     let arch = process.arch === 'x64' ? ' 64-bit' : ' 32-bit';
     if (isMac) arch = '';
 
     const channelToFriendlyName = {
-      mas: 'App Store',
       beta: 'Beta Channel',
       prod: 'Direct Download'
     };
 
     let friendlyName = channelToFriendlyName[releaseChannel];
-    if (isWindowsStore) {
-      friendlyName = 'Windows Store';
+    if (isStoreBuild) {
+      friendlyName = isWindows ? 'Windows Store' : 'App Store';
     }
 
     let version = `${appVersion}${arch} ${friendlyName || ''}`;
@@ -92,5 +94,12 @@ export default class AboutBox extends Component {
           style={{width: dependenciesWidth}}/>
       </div>
     );
+  }
+
+  componentDidMount() {
+    let contextMenuBuilder = new ContextMenuBuilder();
+    new ContextMenuListener((info) => {
+      contextMenuBuilder.showPopupMenu(info);
+    });
   }
 }

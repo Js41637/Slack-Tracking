@@ -1,13 +1,15 @@
-import {dialog, shell} from 'electron';
+import {BrowserWindow, dialog, shell} from 'electron';
+import {Observable} from 'rxjs/Observable';
+import SerialSubscription from 'rxjs-serial-subscription';
 import logger from '../logger';
-import {Observable, Disposable, SerialDisposable} from 'rx';
 
 import AppActions from '../actions/app-actions';
 import AppStore from '../stores/app-store';
-import EventActions from '../actions/event-actions';
 import ReduxComponent from '../lib/redux-component';
 import SettingStore from '../stores/setting-store';
+import WindowStore from '../stores/window-store';
 
+import {getReleaseNotesUrl} from './updater-utils';
 import {UPDATE_STATUS} from '../utils/shared-constants';
 
 /**
@@ -15,24 +17,21 @@ import {UPDATE_STATUS} from '../utils/shared-constants';
  */
 export const UPDATE_CHECK_INTERVAL = 6 * 60 * 60 * 1000;
 
-export function getReleaseNotesUrl(isBetaChannel) {
-  let url = 'https://www.slack.com/apps/';
-  switch (process.platform) {
-  case 'win32': url += 'windows'; break;
-  case 'darwin': url += 'mac'; break;
-  case 'linux': url += 'linux'; break;
-  }
-  url += isBetaChannel ? '/release-notes-beta' : '/release-notes';
-  return url;
-}
-
 export default class SquirrelAutoUpdater extends ReduxComponent {
 
   constructor() {
     super();
-    this.autoUpdateDisp = new SerialDisposable();
-    this.autoUpdateDisp.setDisposable(this.setupAutomaticUpdates());
+    this.autoUpdateDisp = new SerialSubscription();
+    this.autoUpdateDisp.add(this.setupAutomaticUpdates());
     this.disposables.add(this.autoUpdateDisp);
+
+    if (this.isUpdateSupported()) {
+      this.autoUpdater = require('electron').autoUpdater;
+
+      Observable.fromEvent(this.autoUpdater, 'update-available').subscribe(() => {
+        AppActions.setUpdateStatus(UPDATE_STATUS.DOWNLOADING_UPDATE);
+      });
+    }
   }
 
   syncState() {
@@ -42,61 +41,34 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       disableUpdatesCheck: SettingStore.getSetting('isWindowsStore') ||
         SettingStore.getSetting('isMacAppStore'),
       releaseChannel: SettingStore.getSetting('releaseChannel'),
-      updateStatus: AppStore.getUpdateStatus()
+      updateStatus: AppStore.getUpdateStatus(),
+      mainWindow: WindowStore.getMainWindow()
     };
   }
 
   /**
    * Starts a timer that will check for updates every 6 hours.
    *
-   * @return {Disposable}  A `Disposable` that cancels the timer
+   * @return {Subscription}  A `Subscription` that cancels the timer
    */
   setupAutomaticUpdates() {
-    // NB: Store builds will update themselves
-    if (this.state.disableUpdatesCheck) {
-      return Disposable.empty;
-    }
-
-    return Observable.timer(0, UPDATE_CHECK_INTERVAL).subscribe(() => {
-      if (this.state.isDevMode) return;
-      if (process.env.SLACK_NO_AUTO_UPDATES) return;
-
-      let tmpDir = process.env.TMPDIR || process.env.TEMP || '/tmp';
-      if (process.execPath.indexOf(tmpDir) >= 0) {
-        logger.warn("Would've updated, but appears that we are running from temp dir, skipping!");
-        return;
-      }
-
-      let updater = this.getSquirrelUpdater();
-      if (!updater) return;
-
-      // NB: There are some differences between the platform-specific updater
-      // implementations. On Windows, `checkForUpdates` is just the check, it
-      // doesn't actually spawn an update process. On Mac, `checkForUpdates`
-      // does everything we need.
-      switch (process.platform) {
-      case 'win32':
-        updater.doBackgroundUpdate().subscribe(
-          (x) => logger.debug(`Background update returned ${x}`),
-          (e) => {
-            logger.error(`Failed to check for updates: ${e.message}`);
-            AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
-          }
-        );
-        break;
-
-      case 'darwin':
-        AppActions.setUpdateStatus(UPDATE_STATUS.CHECKING_FOR_UPDATE);
-        updater.checkForUpdates().subscribe(
-          (x) => logger.info(`Squirrel update returned ${x}`),
-          (e) => {
-            logger.error(`Failed to check for updates: ${e.message}`);
-            AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
-          }
-        );
-        break;
-      }
-    });
+    return Observable.timer(0, UPDATE_CHECK_INTERVAL)
+      .filter(() => this.isUpdateSupported())
+      .map(() => this.getUpdaterForCurrentPlatform())
+      .do(() => AppActions.setUpdateStatus(UPDATE_STATUS.CHECKING_FOR_UPDATE))
+      .flatMap((updater) => updater.checkForUpdates())
+      .subscribe((updateInfo) => {
+        if (updateInfo) {
+          logger.info(`Got an update: ${JSON.stringify(updateInfo)}`);
+          AppActions.updateDownloaded(updateInfo);
+        } else {
+          AppActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
+        }
+      },
+      (e) => {
+        logger.error(`Failed to check for updates: ${e.message}`);
+        AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
+      });
   }
 
   /**
@@ -105,24 +77,27 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
    * option to upgrade immediately.
    */
   manualCheckForUpdate() {
-    if (this.state.disableUpdatesCheck) {
-      logger.warn('Checking for updates should not happen on Store builds');
+    if (!this.isUpdateSupported()) {
+      logger.warn('Updates are not supported on this build.');
+      AppActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
       return;
     }
 
-    let updater = this.getSquirrelUpdater();
+    let updater = this.getUpdaterForCurrentPlatform();
     let updateInformation = getReleaseNotesUrl(this.state.releaseChannel === 'beta');
-    if (!updater) return;
+    let browserWindow = BrowserWindow.fromId(this.state.mainWindow.id);
 
-    let hasAnUpdate = () => {
-      AppActions.setUpdateStatus(UPDATE_STATUS.UPDATE_AVAILABLE);
+    let hasAnUpdate = (updateInfo) => {
+      logger.info(`Got an update: ${JSON.stringify(updateInfo)}`);
+      AppActions.updateDownloaded(updateInfo);
+
       let options = {
         title: 'An update is available',
         buttons: ['Close', "What's New", "Update Now"],
         message: 'A new version of Slack is available!'
       };
 
-      dialog.showMessageBox(options, (response) => {
+      dialog.showMessageBox(browserWindow, options, (response) => {
         if (response === 0) {
           AppActions.setUpdateStatus(UPDATE_STATUS.NONE);
         }
@@ -141,32 +116,28 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
     let alreadyUpToDate = () => {
       AppActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
 
-      let options = {
+      dialog.showMessageBox(browserWindow, {
         title: "You're all good",
         buttons: ['OK'],
         message: "You've got the latest version of Slack; thanks for staying on the ball."
-      };
-
-      dialog.showMessageBox(options);
+      });
     };
 
-    let somethingBadHappened = (error) => {
+    let somethingBadHappened = (errorMessage) => {
       AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
 
-      let options = {
+      dialog.showMessageBox(browserWindow, {
         title: "We couldn't check for updates",
         buttons: ['OK'],
         message: "Check your Internet connection, and contact support if this issue persists.",
-        detail: error
-      };
-
-      dialog.showMessageBox(options);
+        detail: process.platform === 'darwin' ? errorMessage : undefined
+      });
     };
 
     updater.checkForUpdates().subscribe(
       (update) => {
         if (update) {
-          hasAnUpdate();
+          hasAnUpdate(update);
         } else {
           alreadyUpToDate();
         }
@@ -183,7 +154,7 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
    *
    * @return {WindowsSquirrelUpdater|MacSquirrelUpdater}
    */
-  getSquirrelUpdater() {
+  getUpdaterForCurrentPlatform() {
     let SquirrelUpdater = null;
     switch (process.platform) {
     case 'linux':
@@ -202,14 +173,44 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
     });
   }
 
+  /**
+   * Returns true if updates can be applied, false if:
+   *
+   * 1. Running in developer mode
+   * 2. Running from a TEMP directory
+   * 3. Running from a Store build (Windows or Mac)
+   * 4. On Linux
+   * 5. An environment variable override is set
+   *
+   * @return {type}  description
+   */
+  isUpdateSupported() {
+    if (this.state.isDevMode) return false;
+    if (this.state.disableUpdatesCheck) return false;
+    if (process.platform === 'linux') return false;
+    if (process.env.SLACK_NO_AUTO_UPDATES) return false;
+
+    let tmpDir = process.env.TMPDIR || process.env.TEMP || '/tmp';
+    if (process.execPath.indexOf(tmpDir) >= 0) {
+      logger.warn('Updates are not supported when running from TEMP');
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Make sure we'll exit rather than hide the main window, then do it.
+   */
   restartToApplyUpdate() {
-    let updater = this.getSquirrelUpdater();
-    updater.forceUpdateAndRestart(() => EventActions.quitApp());
+    let browserWindow = BrowserWindow.fromId(this.state.mainWindow.id);
+    browserWindow.exitApp = true;
+    this.autoUpdater.quitAndInstall();
   }
 
   update(prevState={}) {
     if (this.state.releaseChannel !== prevState.releaseChannel) {
-      this.autoUpdateDisp.setDisposable(this.setupAutomaticUpdates());
+      this.autoUpdateDisp.add(this.setupAutomaticUpdates());
     }
 
     if (prevState.updateStatus !== this.state.updateStatus) {

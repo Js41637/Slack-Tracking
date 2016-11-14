@@ -1,4 +1,4 @@
-import {Disposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
 import logger from '../logger';
 
 export default class ObservableStorage {
@@ -16,7 +16,7 @@ export default class ObservableStorage {
     this.localStorage = localStorage || global.localStorage;
     this.data = initialState || this.load() || {};
 
-    this.disp = Disposable.create(() => this.save());
+    this.disp = new Subscription(() => this.save());
   }
 
   // Public: Reloads data from the backing storage. Normally not necessary to
@@ -50,6 +50,6 @@ export default class ObservableStorage {
   //
   // Returns Nothing
   dispose() {
-    this.disp.dispose();
+    this.disp.unsubscribe();
   }
 }

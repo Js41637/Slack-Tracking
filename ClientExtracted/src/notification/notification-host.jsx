@@ -1,6 +1,7 @@
-import _ from 'lodash';
+import union from '../utils/union';
 import {remote, webFrame} from 'electron';
-import {Observable, Subject} from 'rx';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -10,6 +11,7 @@ import NotificationStore from '../stores/notification-store';
 import NotificationWindowHelpers from '../components/helpers/notification-window-helpers';
 import SettingStore from '../stores/setting-store';
 import WindowStore from '../stores/window-store';
+import zoomLevelToFactor from '../utils/zoomlevel-to-factor';
 
 const {BrowserWindow} = remote;
 const {showPositionedNotificationWindow} = NotificationWindowHelpers;
@@ -38,17 +40,17 @@ export default class NotificationHost extends Component {
     this.windowState = new Subject();
 
     this.disposables.add(
-      this.windowState.where(({shouldHide}) => shouldHide)
+      this.windowState.filter(({shouldHide}) => shouldHide)
         .flatMap(() => Observable.timer(this.props.idleTimeoutMs))
         .map(() => this.getNotificationsWindow())
-        .where((browserWindow) => browserWindow)
+        .filter((browserWindow) => browserWindow)
         .subscribe((browserWindow) => browserWindow.hide())
     );
 
     this.disposables.add(
-      this.windowState.where(({shouldShow}) => shouldShow)
+      this.windowState.filter(({shouldShow}) => shouldShow)
         .map(() => this.getNotificationsWindow())
-        .where((browserWindow) => browserWindow)
+        .filter((browserWindow) => browserWindow)
         .subscribe((browserWindow) => {
           let mainWindowId = this.state.mainWindow.id;
           let mainWindow = BrowserWindow.fromId(mainWindowId);
@@ -70,19 +72,19 @@ export default class NotificationHost extends Component {
   }
 
   componentDidMount() {
-    webFrame.setZoomLevel(this.state.zoomLevel);
+    webFrame.setZoomFactor(zoomLevelToFactor(this.state.zoomLevel));
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.zoomLevel != this.state.zoomLevel) {
-      webFrame.setZoomLevel(this.state.zoomLevel);
+      webFrame.setZoomFactor(zoomLevelToFactor(this.state.zoomLevel));
     }
 
     let maxItems = this.props.maxItems;
     let prevNotifs = prevState.notifications;
     let notifs = this.state.notifications;
 
-    this.windowState.onNext({
+    this.windowState.next({
       shouldShow: prevNotifs.length === 0 && notifs.length > 0,
       shouldHide: prevNotifs.length > 0 && notifs.length === 0
     });
@@ -102,19 +104,19 @@ export default class NotificationHost extends Component {
       // Since we maintain immutability, a changed array will have different
       // values even if they are actually the same, so we need to filter using
       // the notification keys rather than _.difference or _.intersection
-      let displayedKeys = _.reduce(displayed, (set, notif) => {
+      let displayedKeys = displayed.reduce((set, notif) => {
         set.add(notif.id);
         return set;
       }, new Set());
 
-      let remaining = _.filter(notifs, (notif) => displayedKeys.has(notif.id));
+      let remaining = notifs.filter((notif) => displayedKeys.has(notif.id));
 
-      let added = _.filter(notifs, (notif) => !displayedKeys.has(notif.id))
+      let added = notifs.filter((notif) => !displayedKeys.has(notif.id))
                     .splice(0, maxItems - remaining.length);
 
-      displayed = _.union(displayed, added);
+      displayed = union(displayed, added);
       this.setState({displayedNotifs: displayed});
-      displayed = _.union(remaining, added);
+      displayed = union(remaining, added);
       requestAnimationFrame(() => this.setState({displayedNotifs: displayed}));
     }
   }

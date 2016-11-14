@@ -51,15 +51,13 @@ export default class BaseStore {
    */
   getWebViewShape() {
     return {
-      app: {
-        isShowingDevTools: true,
-        isMachineAwake: true,
-        selectedTeamId: true,
-      },
+      app: true,
       settings: true,
+      teams: true,
       events: {
         reload: true,
-        editingCommand: true
+        editingCommand: true,
+        sidebarClicked: true
       },
       windows: true
     };
@@ -86,7 +84,7 @@ export default class BaseStore {
         payload = action.data;
       }
 
-      logger.info(`${action.type} ${payload ? `: ${JSON.stringify(payload, null, 2)}` : ''}`);
+      logger.info(`${action.type} ${payload != null ? `: ${JSON.stringify(payload, null, 2)}` : ''}`);
       return next(action);
     };
   }

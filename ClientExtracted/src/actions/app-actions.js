@@ -9,7 +9,18 @@ class AppActions {
   }
 
   checkForUpdate() {
-    Store.dispatch({type: APP.SET_UPDATE_STATUS, data: UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL});
+    Store.dispatch({
+      type: APP.SET_UPDATE_STATUS,
+      data: UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL
+    });
+  }
+
+  updateDownloaded(updateInfo) {
+    Store.dispatch({
+      type: APP.SET_UPDATE_STATUS,
+      data: UPDATE_STATUS.UPDATE_DOWNLOADED,
+      updateInfo
+    });
   }
 
   setUpdateStatus(status) {
@@ -26,6 +37,21 @@ class AppActions {
 
   hideLoginDialog() {
     Store.dispatch({type: APP.SET_LOGIN_DIALOG, data: false});
+  }
+
+  showUrlSchemeModal({url, disposition}) {
+    Store.dispatch({
+      type: APP.SHOW_URL_SCHEME_MODAL,
+      data: {isShowing: true, url, disposition},
+      omitKeysFromLog: ['url']
+    });
+  }
+
+  hideUrlSchemeModal() {
+    Store.dispatch({
+      type: APP.SHOW_URL_SCHEME_MODAL,
+      data: {isShowing: false, url: '', disposition: ''}
+    });
   }
 
   showAuthenticationDialog(authInfo) {
@@ -89,8 +115,12 @@ class AppActions {
     Store.dispatch({type: APP.RESET_STORE});
   }
 
-  updateSearchBoxSize(newSize) {
-    Store.dispatch({type: APP.UPDATE_SEARCH_BOX_SIZE, data: {newSize}});
+  updateNoDragRegion(region) {
+    Store.dispatch({type: APP.UPDATE_NO_DRAG_REGION, data: {region}});
+  }
+
+  setFullScreen(isFullScreen) {
+    Store.dispatch({type: APP.SET_FULL_SCREEN, data: isFullScreen});
   }
 }
 

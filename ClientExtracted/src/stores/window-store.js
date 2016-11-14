@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import pickBy from '../utils/pick-by';
 import Store from '../lib/store';
 
 import {WINDOW_TYPES, CALLS_WINDOW_TYPES} from '../utils/shared-constants';
@@ -15,19 +15,28 @@ class WindowStore {
   getWindows(windowTypes = null) {
     let windows = Store.getState().windows;
     if (!windowTypes) return windows;
-    return _.pick(windows, ({type}) => windowTypes.includes(type));
+    return pickBy(windows, ({type}) => windowTypes.includes(type));
+  }
+
+  getWindowsForTeam(teamId = '') {
+    let windows = Store.getState().windows;
+    return pickBy(windows, (win) => win.teamId === teamId);
   }
 
   getWindowOfType(windowType) {
     let windows = Store.getState().windows;
-    return _.find(windows, ({type}) => type === windowType) || null;
+    let foundKey = Object.keys(windows).find((key) => windows[key].type === windowType);
+
+    return windows[foundKey] || null;
   }
 
   getWindowOfSubType(subType) {
     let windows = Store.getState().windows;
-    return _.find(windows, (win) => {
-      return win && win.type === WINDOW_TYPES.WEBAPP && win.subType === subType;
-    }) || null;
+    let foundKey = Object.keys(windows).find((key) => {
+      return windows[key] && windows[key].type === WINDOW_TYPES.WEBAPP && windows[key].subType === subType;
+    });
+
+    return windows[foundKey] || null;
   }
 
   getWindow(id) {
@@ -43,7 +52,7 @@ class WindowStore {
   }
 
   typeOfWindow(id) {
-    return this.getWindows()[id].type || null;
+    return this.getWindows()[id] ? this.getWindows()[id].type : null;
   }
 
   subTypeOfWindow(id = CURRENT_WINDOW_ID) {

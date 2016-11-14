@@ -6,6 +6,7 @@ import logger from '../logger';
 import AppActions from '../actions/app-actions';
 
 const {systemPreferences} = remote;
+const invalidEventTargetHeader = ['#search_container', '#topic_inline_edit'];
 
 /**
  * Sets up event handlers for swiping to go back and forward in history with a
@@ -24,6 +25,16 @@ function setupTouchscreenEvents() {
   threeSwipe.on('swiperight', () => AppActions.selectNextTeam());
 }
 
+function isEventInvalid(elements, event) {
+  return invalidEventTargetHeader.reduce((acc, id) => {
+    let target = elements[id];
+    if (!target) {
+      elements[id] = target = document.querySelector(id);
+    }
+    return (target && target.contains(event.target)) || acc;
+  }, false);
+}
+
 /**
  * Sets up an event handler for minimizing the main app window on double-
  * click.
@@ -33,27 +44,27 @@ function setupTouchscreenEvents() {
  */
 function setupDoubleClickHandler(mainWindow) {
   let channelHeader = null;
-  let searchContainer = null;
+  const invalidEventElements = { };
 
   window.addEventListener('dblclick', (event) => {
     let actionOnDoubleClick = systemPreferences.getUserDefault('AppleActionOnDoubleClick', 'string');
     channelHeader = channelHeader || document.querySelector('#client_header');
-    searchContainer = searchContainer || document.querySelector('#search_container');
 
-    if (channelHeader &&
-      channelHeader.contains(event.target) &&
-      !searchContainer.contains(event.target)) {
-      switch (actionOnDoubleClick) {
-      case 'Maximize':
-      default:
-        mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
-        break;
-      case 'Minimize':
-        mainWindow.minimize();
-        break;
-      case 'None':
-        break;
-      }
+    const isDblClickValid = channelHeader && channelHeader.contains(event.target);
+    if (!isDblClickValid || isEventInvalid(invalidEventElements, event)) {
+      return;
+    }
+
+    switch (actionOnDoubleClick) {
+    case 'Maximize':
+    default:
+      mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
+      break;
+    case 'Minimize':
+      mainWindow.minimize();
+      break;
+    case 'None':
+      break;
     }
   }, true);
 }

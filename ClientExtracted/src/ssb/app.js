@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import fs from 'fs';
 import logger from '../logger';
 import path from 'path';
@@ -6,11 +5,13 @@ import path from 'path';
 import {ipcRenderer, remote} from 'electron';
 import {channel} from '../../package.json';
 import {domFileFromPath} from '../utils/file-helpers';
+import '../rx-operators';
+import {Observable} from 'rxjs/Observable';
 import {requestGC} from '../run-gc';
-import {Observable} from 'rx';
 
 import AutoLaunch from '../auto-launch';
 import AppActions from '../actions/app-actions';
+import EventActions from '../actions/event-actions';
 import SettingActions from '../actions/setting-actions';
 import SettingStore from '../stores/setting-store';
 
@@ -18,7 +19,7 @@ const globalProcess = window.process;
 const isDarwin = globalProcess.platform === 'darwin';
 const isWin32 = globalProcess.platform === 'win32';
 
-import {TEAM_IDLE_TIMEOUT} from '../utils/shared-constants';
+import {TEAM_IDLE_TIMEOUT, UPDATE_STATUS} from '../utils/shared-constants';
 
 let systemPreferences, dialog;
 
@@ -27,7 +28,7 @@ const safeProcessKeys = ["title", "version", "versions", "arch", "platform",
   "memoryUsage", "type", "resourcesPath", "helperExecPath", "nextTick",
   "getProcessMemoryInfo", "getSystemMemoryInfo", "windowsStore"];
 
-const safeProcess = _.reduce(safeProcessKeys, (acc, k) => {
+const safeProcess = safeProcessKeys.reduce((acc, k) => {
   if (typeof(process[k]) !== 'function') {
     acc[k] = process[k];
     return acc;
@@ -46,7 +47,7 @@ export default class AppIntegration {
 
     // This will after a throttled 10sec delay, run a V8 GC
     Observable.fromEvent(window, 'blur')
-      .throttle(10 * 1000)
+      .throttleTime(10 * 1000)
       .subscribe(() => requestGC());
   }
 
@@ -161,6 +162,13 @@ export default class AppIntegration {
   }
 
   /**
+   * Quits the app, applies an available update, and restarts.
+   */
+  quitAndInstallUpdate() {
+    AppActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY);
+  }
+
+  /**
    * Occurs when a new input field is added to the DOM; wire it up to text
    * substitutions.
    *
@@ -250,20 +258,10 @@ export default class AppIntegration {
    * @return {Promise<Array<File>>} A Promise that resolves with an array of Files
    */
   getAppLogFiles(maxFiles = 5) {
-    let sortedLogs = logger.getLogFiles().sort((a, b) =>
-      fs.statSyncNoException(b).mtime - fs.statSyncNoException(a).mtime);
-
-    return Observable.fromArray(sortedLogs)
-      .where((files) => files.length > 0)
-      .take(maxFiles)
-      .flatMap((logFile) => domFileFromPath(logFile)
-        .catch((err) => logger.warn(`Unable to get file: ${err.message}`)))
-      .catch(Observable.return(null))
-      .reduce((acc, file) => {
-        if (file) acc.push(file);
-        return acc;
-      }, [])
-      .toPromise();
+    return logger.getMostRecentLogFiles(maxFiles, (observable) => {
+      return observable.flatMap((logFile) => domFileFromPath(logFile)
+        .catch((err) => logger.warn(`Unable to get file: ${err.message}`)));
+    });
   }
 
   /**
@@ -299,7 +297,15 @@ export default class AppIntegration {
     window.addEventListener('keyup', keyListener);
   }
 
-  searchBoxSizeDidChange(newSize) {
-    AppActions.updateSearchBoxSize(newSize);
+  updateNoDragRegion(region) {
+    AppActions.updateNoDragRegion(region);
+  }
+
+  isMainWindowFrameless() {
+    return SettingStore.getSetting('isTitleBarHidden');
+  }
+
+  closeAllUpdateBanners() {
+    EventActions.closeAllUpdateBanners();
   }
 }

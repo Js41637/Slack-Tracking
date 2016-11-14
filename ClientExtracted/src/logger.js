@@ -3,6 +3,8 @@ import path from 'path';
 import winston from 'winston';
 import {p} from './get-path';
 import promisify from './promisify';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 
 const pfs = promisify(fs);
 const isBrowser = process.type === 'browser';
@@ -13,7 +15,7 @@ const LOG_EXPIRY = 30 * 24 * 3600000;
 let d;
 
 class Logger {
-  constructor({autoPrune=true} = {}) {
+  constructor({dontSetUpWinston=false} = {}) {
     this.logApi = new winston.Logger();
 
     let {devMode, logFile, logLevel} = this.getLoggerConfiguration();
@@ -54,17 +56,23 @@ class Logger {
     } else {
       uniqueId = `renderer-${process.pid}`;
     }
-
-    this.logApi.add(winston.transports.File, {
-      level: logLevel,
-      filename: path.join(this.logLocation, `${uniqueId}.log`),
-      maxsize: 5 * 1048576,
-      json: false,
-    });
-
-    // NB: If the user specified a log file don't try to clean up anything from
-    // that directory.
-    if (isBrowser && autoPrune && !logFile) this.pruneLogs();
+    
+    if (!dontSetUpWinston) {
+      this.logApi.add(winston.transports.File, {
+        level: logLevel,
+        filename: path.join(this.logLocation, `${uniqueId}.log`),
+        maxsize: 5 * 1048576,
+        json: false,
+      });
+      
+      this.sub = new Subscription(() => this.logApi.close());
+    } else {
+      this.sub = new Subscription();
+    }
+  }
+  
+  unsubscribe() {
+    this.sub.unsubscribe();
   }
 
   /**
@@ -128,6 +136,31 @@ class Logger {
       this.logApi.warn(`Unable to retrieve logs: ${error.message}`);
       return [];
     }
+  }
+
+  /**
+   * Returns our app log files. The logs will be sorted by
+   * modification time, so we'll only grab the most recent `n` files.
+   *
+   * @param  {Number} maxFiles            The maximum number of log files to retrieve
+   * @param  {Function} [transform=null]  An optional function to apply to the Observable
+   * @return {Promise<Array<File>>}       A Promise that resolves with an array of Files
+   */
+  getMostRecentLogFiles(maxFiles=5, transform=null) {
+    let sortedLogs = this.getLogFiles().sort((a, b) =>
+      fs.statSyncNoException(b).mtime - fs.statSyncNoException(a).mtime);
+
+    transform = transform || ((observable) => observable);
+
+    return transform(Observable.from(sortedLogs)
+      .filter((files) => files.length > 0)
+      .take(maxFiles))
+      .catch(() => Observable.of(null))
+      .reduce((acc, file) => {
+        if (file) acc.push(file);
+        return acc;
+      }, [])
+      .toPromise();
   }
 
   /**

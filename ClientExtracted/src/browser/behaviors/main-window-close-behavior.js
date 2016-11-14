@@ -1,6 +1,6 @@
 import {app} from 'electron';
-import _ from 'lodash';
-import {Observable, CompositeDisposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 import logger from '../../logger';
 import WindowBehavior from './window-behavior';
 
@@ -19,7 +19,7 @@ export default class MainWindowCloseBehavior extends WindowBehavior {
     };
 
     if (state.isWindows) {
-      _.extend(state, {
+      Object.assign(state, {
         windowFlashBehavior: SettingStore.getSetting('windowFlashBehavior'),
         hasExplainedWindowFlash: SettingStore.getSetting('hasExplainedWindowFlash')
       });
@@ -33,10 +33,10 @@ export default class MainWindowCloseBehavior extends WindowBehavior {
    * window `close` event should first check `canWindowBeClosed`.
    *
    * @param  {BrowserWindow} mainWindow The window to attach the behavior to
-   * @return {Disposable}               A Disposable that will unsubscribe any listeners
+   * @return {Subscription}               A Subscription that will unsubscribe any listeners
    */
   setup(mainWindow) {
-    let disp = new CompositeDisposable();
+    let disp = new Subscription();
 
     disp.add(Observable.fromEvent(app, 'before-quit').subscribe(() => {
       mainWindow.exitApp = true;

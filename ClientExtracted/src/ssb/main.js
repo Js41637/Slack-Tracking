@@ -2,6 +2,7 @@ import {webFrame, remote} from 'electron';
 import {initializeEvalHandler, createProxyForRemote} from 'electron-remote';
 import logger from '../logger';
 import overrideWindowOpen from './override-window-open';
+import overrideDropbox from './override-dropbox';
 import setupCrashReporter from '../setup-crash-reporter';
 
 import AppIntegration from './app';
@@ -121,3 +122,4 @@ if (process.guestInstanceId) {
 }
 
 overrideWindowOpen((opts) => window.winssb.window.open(opts));
+overrideDropbox();

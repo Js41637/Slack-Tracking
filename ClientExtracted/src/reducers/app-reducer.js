@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import clone from 'lodash.clone';
+import union from '../utils/union';
 import url from 'url';
 import handlePersistenceForKey from './helpers';
 import TeamStore from '../stores/team-store';
@@ -14,6 +15,7 @@ const initialState = {
   isShowingLoginDialog: false,
   networkStatus: 'online', // One of [trying, online, slackDown, offline]
   updateStatus: UPDATE_STATUS.NONE,
+  updateInfo: null, // Has {releaseName: string}, others on macOS
   isMachineAwake: true,
   selectedTeamId: null,
   selectedChannelId: null,
@@ -22,7 +24,9 @@ const initialState = {
   teamsByIndex: [],
   teamsToLoad: [],
   windowSettings: null, // Has {position: [x,y], size: [width,height], isMaximized: bool}
-  searchBoxWidth: null,
+  noDragRegions: [],
+  urlSchemeModal: null, // Has {disposition: {string}, url: {string}, isShowing: {bool}
+  isFullScreen: false,
 
   authInfo: null,
   credentials: null // Has {username, password}
@@ -37,10 +41,10 @@ export default function reduce(state = initialState, action) {
   case TEAMS.REMOVE_TEAM:
     return handleRemoveTeam(state, action.data);
   case TEAMS.REMOVE_TEAMS:
-    return _.reduce(action.data, (acc, teamId) => handleRemoveTeam(acc, teamId), state);
+    return action.data.reduce((acc, teamId) => handleRemoveTeam(acc, teamId), state);
 
   case APP.SELECT_TEAM:
-    return _.assign({}, state, {selectedTeamId: action.data});
+    return Object.assign({}, state, {selectedTeamId: action.data});
   case APP.SELECT_TEAM_BY_USER_ID:
     return selectTeamByUserId(state, action.data);
   case APP.SELECT_NEXT_TEAM:
@@ -48,43 +52,49 @@ export default function reduce(state = initialState, action) {
   case APP.SELECT_PREVIOUS_TEAM:
     return selectPreviousTeam(state);
   case APP.SELECT_TEAM_BY_INDEX:
-    return _.assign({}, state, {selectedTeamId: getTeamAtIndex(state, action.data)});
+    return Object.assign({}, state, {selectedTeamId: getTeamAtIndex(state, action.data)});
   case APP.SET_TEAMS_BY_INDEX:
     return setTeamsByIndex(state, action.data);
   case APP.LOAD_TEAMS:
-    return _.assign({}, state, {teamsToLoad: _.union(state.teamsToLoad, action.data)});
+    return Object.assign({}, state, {teamsToLoad: union(state.teamsToLoad, action.data)});
   case APP.SELECT_CHANNEL:
-    return _.assign({}, state, {selectedChannelId: action.data});
+    return Object.assign({}, state, {selectedChannelId: action.data});
 
   case APP.SET_LOGIN_DIALOG:
-    return _.assign({}, state, {isShowingLoginDialog: action.data});
+    return Object.assign({}, state, {isShowingLoginDialog: action.data});
   case APP.SHOW_AUTH_DIALOG:
-    return _.assign({}, state, {authInfo: action.data});
+    return Object.assign({}, state, {authInfo: action.data});
+  case APP.SHOW_URL_SCHEME_MODAL:
+    return {...state, urlSchemeModal: action.data};
   case APP.SUBMIT_CREDENTIALS:
-    return _.assign({}, state, {
+    return Object.assign({}, state, {
       authInfo: null,
       credentials: action.data
     });
 
   case APP.SHOW_TRAY_BALLOON:
-    return _.assign({}, state, {lastBalloon: action.data});
+    return Object.assign({}, state, {lastBalloon: action.data});
   case APP.SET_SUSPEND_STATUS:
-    return _.assign({}, state, {isMachineAwake: action.data});
+    return Object.assign({}, state, {isMachineAwake: action.data});
   case APP.SET_NETWORK_STATUS:
-    return _.assign({}, state, {networkStatus: action.data});
+    return Object.assign({}, state, {networkStatus: action.data});
   case APP.SET_UPDATE_STATUS:
-    return _.assign({}, state, {updateStatus: action.data});
+    return setUpdateStatus(state, action.data, action.updateInfo);
   case APP.TOGGLE_DEV_TOOLS:
-    return _.assign({}, state, {isShowingDevTools: !state.isShowingDevTools});
+    return Object.assign({}, state, {isShowingDevTools: !state.isShowingDevTools});
   case APP.SAVE_WINDOW_SETTINGS:
-    return _.assign({}, state, {windowSettings: action.data});
+    return Object.assign({}, state, {windowSettings: action.data});
   case APP.RESET_STORE:
-    return _.assign({}, initialState);
-  case APP.UPDATE_SEARCH_BOX_SIZE:
-    return _.assign({}, state, {searchBoxWidth: action.data.newSize.width});
+    return Object.assign({}, initialState);
+  case APP.UPDATE_CHANNEL_EDIT_TOPIC_SIZE:
+    return Object.assign({}, state, {channelEditTopicSize: action.data.newSizeAndPosition});
+  case APP.UPDATE_NO_DRAG_REGION:
+    return updateNoDragRegion(state, action.data.region);
+  case APP.SET_FULL_SCREEN:
+    return {...state, isFullScreen: action.data};
 
   case NOTIFICATIONS.CLICK_NOTIFICATION:
-    return _.assign({}, state, {selectedTeamId: action.data.teamId});
+    return Object.assign({}, state, {selectedTeamId: action.data.teamId});
   case EVENTS.HANDLE_DEEP_LINK:
     return parseTeamFromDeepLink(state, action.data);
   default:
@@ -95,8 +105,8 @@ export default function reduce(state = initialState, action) {
 // Move the indices back to fill the space left over, and
 // assign a new selectedTeamId if needed
 function handleRemoveTeam(state, removedTeamId) {
-  let teamsByIndex = _.clone(state.teamsByIndex);
-  let removedIndex = _.findIndex(teamsByIndex, (teamId) => teamId === removedTeamId);
+  let teamsByIndex = clone(state.teamsByIndex);
+  let removedIndex = teamsByIndex.findIndex((teamId) => teamId === removedTeamId);
   teamsByIndex.splice(removedIndex, 1);
 
   let selectedTeamId = state.selectedTeamId;
@@ -104,22 +114,22 @@ function handleRemoveTeam(state, removedTeamId) {
     selectedTeamId = teamsByIndex[0] || null;
   }
 
-  return _.assign({}, state, {selectedTeamId, teamsByIndex});
+  return Object.assign({}, state, {selectedTeamId, teamsByIndex});
 }
 
 function handleNewTeam(state, teamId) {
-  return _.assign({}, state, {
+  return Object.assign({}, state, {
     selectedTeamId: teamId,
-    teamsByIndex: _.union(state.teamsByIndex, [teamId])
+    teamsByIndex: union(state.teamsByIndex, [teamId])
   });
 }
 
 function handleNewTeams(state, newTeams) {
   let teamIds = newTeams.map((team) => team.team_id);
 
-  return _.assign({}, state, {
+  return Object.assign({}, state, {
     selectedTeamId: teamIds[0],
-    teamsByIndex: _.union(state.teamsByIndex, teamIds)
+    teamsByIndex: union(state.teamsByIndex, teamIds)
   });
 }
 
@@ -132,38 +142,42 @@ function getTeamAtIndex(state, index) {
 
 function selectTeamByUserId(state, userId) {
   let teamList = TeamStore.getTeams();
-  let selectedTeam = _.find(teamList, (team) => team.id === userId);
-  if (selectedTeam) {
-    return _.assign({}, state, {selectedTeamId: selectedTeam.team_id});
-  } else {
-    return state;
-  }
+  let selectedTeam = Object.keys(teamList)
+    .map((teamId) => teamList[teamId])
+    .find((team) => team.id === userId);
+
+  if (!selectedTeam) return state;
+
+  return {
+    ...state,
+    selectedTeamId: selectedTeam.team_id
+  };
 }
 
 function selectNextTeam(state) {
-  let selectedIndex = _.findIndex(state.teamsByIndex, (teamAtIndex) => teamAtIndex === state.selectedTeamId);
+  let selectedIndex = state.teamsByIndex.findIndex((teamAtIndex) => teamAtIndex === state.selectedTeamId);
   if (selectedIndex === -1) return state;
 
   let nextIndex = mod(selectedIndex + 1, state.teamsByIndex.length);
-  return _.assign({}, state, {selectedTeamId: state.teamsByIndex[nextIndex]});
+  return Object.assign({}, state, {selectedTeamId: state.teamsByIndex[nextIndex]});
 }
 
 function selectPreviousTeam(state) {
-  let selectedIndex = _.findIndex(state.teamsByIndex, (teamAtIndex) => teamAtIndex === state.selectedTeamId);
+  let selectedIndex = state.teamsByIndex.findIndex((teamAtIndex) => teamAtIndex === state.selectedTeamId);
   if (selectedIndex === -1) return state;
 
   let previousIndex = mod(selectedIndex - 1, state.teamsByIndex.length);
-  return _.assign({}, state, {selectedTeamId: state.teamsByIndex[previousIndex]});
+  return Object.assign({}, state, {selectedTeamId: state.teamsByIndex[previousIndex]});
 }
 
 function setTeamsByIndex(state, teamsByIndex) {
   let teamList = TeamStore.getTeams();
 
   if (isTeamsByIndexValid(teamList, teamsByIndex)) {
-    return _.assign({}, state, {teamsByIndex});
+    return Object.assign({}, state, {teamsByIndex});
   } else {
     logger.warn(`teamsByIndex wasn't valid – starting from scratch`);
-    return _.assign({}, state, {
+    return Object.assign({}, state, {
       teamsByIndex: Object.keys(teamList)
     });
   }
@@ -175,12 +189,30 @@ function parseTeamFromDeepLink(state, evt) {
   if (theUrl.protocol === SLACK_PROTOCOL && theUrl.query && theUrl.query.team) {
 
     // Make sure the team exists before we assign it
-    let index = _.findIndex(state.teamsByIndex, (teamId) => teamId === theUrl.query.team);
+    let index = state.teamsByIndex.findIndex((teamId) => teamId === theUrl.query.team);
     if (index >= 0) {
-      return _.assign({}, state, {selectedTeamId: theUrl.query.team});
+      return Object.assign({}, state, {selectedTeamId: theUrl.query.team});
     }
   }
   return state;
+}
+
+function setUpdateStatus(state, updateStatus, updateInfo) {
+  return {
+    ...state,
+    updateStatus,
+    updateInfo
+  };
+}
+
+function updateNoDragRegion(state, region) {
+  return {
+    ...state,
+    noDragRegions: [
+      ...state.noDragRegions.filter((r) => r.id !== region.id),
+      region
+    ]
+  };
 }
 
 // The default javascript modulo handles negative numbers annoyingly,

@@ -1,5 +1,7 @@
 import fs from 'fs';
 import path from 'path';
+import {ZipFile} from 'yazl';
+import logger from '../logger';
 import promisify from '../promisify';
 
 const pfs = promisify(fs);
@@ -29,4 +31,36 @@ export async function domFileFromPath(filePath, type = 'text/plain') {
 export function copySmallFileSync(from, to) {
   let buf = fs.readFileSync(from);
   fs.writeFileSync(to, buf);
+}
+
+/**
+ * Creates a Zip archive and saves it to a path.
+ *
+ * @param  {String} filePath        The files to add to the Zip archive
+ * @param  {String} destination     The file path to save the Zip archive to
+ */
+export function createZipArchive(files, destination) {
+  return new Promise((resolve, reject) => {
+    let writeStream = fs.createWriteStream(destination);
+    let fileArchive = new ZipFile();
+
+    fileArchive.outputStream
+      .on('error', reject)
+      .pipe(writeStream)
+        .on('error', reject)
+        .on('finish', () => {
+          resolve(true);
+        });
+    
+    for (let file of files) {
+      try {
+        fs.statSync(file);
+        fileArchive.addFile(file, path.basename(file));
+      } catch(e) {
+        logger.error(`Couldn't find ${file} to include in Zip archive: ${e}`);
+      }
+    }
+    
+    fileArchive.end();
+  });
 }

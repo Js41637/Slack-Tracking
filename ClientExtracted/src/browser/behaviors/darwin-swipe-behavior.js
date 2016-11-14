@@ -1,4 +1,4 @@
-import {Disposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
 import WindowBehavior from './window-behavior';
 import AppActions from '../../actions/app-actions';
 
@@ -9,7 +9,7 @@ export default class DarwinSwipeBehavior extends WindowBehavior {
    * with Two or Three Fingers" (cf. https://github.com/electron/electron/pull/4843)
    *
    * @param  {BrowserWindow} mainWindow The window to attach the behavior to
-   * @return {Disposable}               A Disposable that will unsubscribe any listeners
+   * @return {Subscription}               A Subscription that will unsubscribe any listeners
    */
   setup(mainWindow) {
     let handler = (e, direction) => {
@@ -26,6 +26,6 @@ export default class DarwinSwipeBehavior extends WindowBehavior {
     };
 
     mainWindow.addListener('swipe', handler);
-    return Disposable.create(() => mainWindow.removeListener('swipe', handler));
+    return new Subscription(() => mainWindow.removeListener('swipe', handler));
   }
 }

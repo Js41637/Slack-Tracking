@@ -1,4 +1,4 @@
-import {cloneDeep} from 'lodash';
+import cloneDeep from 'lodash.clonedeep';
 import nativeInterop from '../native-interop';
 import handlePersistenceForKey from './helpers';
 
@@ -25,6 +25,7 @@ const defaultSettings = {
     webappSrcPath: null,
     isDevMode: false,
     devEnv: null,
+    launchedWithLink: null,
     logFile: null,
     openDevToolsOnStart: false,
     pretendNotReallyWindows10: false,
@@ -51,6 +52,7 @@ const defaultSettings = {
     runFromTray: true,
     launchOnStartup: false,
     zoomLevel: 0,
+    whitelistedUrlSchemes: ['http:', 'https:', 'mailto:', 'skype:', 'spotify:', 'live:', 'callto:', 'tel:', 'im:', 'sip:', 'sips:'],
 
     // Preferences needed for the webapp
     PrefSSBFileDownloadPath: null
@@ -93,9 +95,11 @@ export default function reduce(settings = initialSettings, action) {
   case SETTINGS.RESET_ZOOM:
     return changeWindowZoom(settings, -settings.zoomLevel);
   case EVENTS.REPORT_ISSUE:
-    return Object.assign({}, settings, {reportIssueOnStartup: false});
+    return {...settings, reportIssueOnStartup: false};
+  case EVENTS.HANDLE_DEEP_LINK:
+    return {...settings, launchedWithLink: null};
   case APP.RESET_STORE:
-    return Object.assign({}, initialSettings, {releaseChannel: 'prod'});
+    return {...initialSettings, releaseChannel: 'prod', pretendNotReallyWindows10: false};
   default:
     return handlePersistenceForKey(settings, action, 'settings');
   }
@@ -107,7 +111,7 @@ function getDefaultSettings() {
 
   switch(base.platform) {
   case 'linux':
-    return Object.assign({}, base, linux);
+    return {...base, ...linux};
   case 'win32':
     return Object.assign({}, base, notWin10 ? winBefore10 : win10);
   default:
@@ -133,8 +137,8 @@ function updateSettings(settings, update) {
 }
 
 function changeWindowZoom(settings, change) {
-  // clamp the zoom to be between [-2, 2]
-  let zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -2), 2);
+  // clamp the zoom to be between [-6, 7]
+  let zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -6), 7);
   return {
     ...settings,
     zoomLevel

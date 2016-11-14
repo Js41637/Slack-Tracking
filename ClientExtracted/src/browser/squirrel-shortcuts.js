@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import {filter} from 'lodash';
 
 import {p} from '../get-path';
 import {spawn} from 'spawn-rx';
@@ -20,7 +19,7 @@ export async function createShortcuts(locations) {
   // NB: 'Startup' is a special snowflake, because we need to add our hint to
   // the app that we're being started on startup
   if (locations.match(/Startup/)) {
-    locations = filter(locations.split(','), (x) => x !== 'Startup').join(',');
+    locations = locations.split(',').filter((x) => x !== 'Startup').join(',');
     shouldInstallStartup = true;
   }
 

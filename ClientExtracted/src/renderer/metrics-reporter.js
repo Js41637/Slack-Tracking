@@ -1,6 +1,7 @@
   /*eslint callback-return:0 */
 
-import rx from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {AsyncSubject} from 'rxjs/AsyncSubject';
 
 global.ga = () => {};
 
@@ -19,7 +20,7 @@ export default class Reporter {
       global.ga('send', 'pageview');
     });
 
-    this.disp = rx.Disposable.create(() => {
+    this.disp = new Subscription(() => {
       this.sendEvent('session', 'ended', Date.now() - this.reporterStartTime);
     });
   }
@@ -38,17 +39,17 @@ export default class Reporter {
   }
 
   // Public: Send a performance-related timing event, whose timing is determined
-  // by a {Disposable}. The clock starts when you call the method, and stops when
+  // by a {Subscription}. The clock starts when you call the method, and stops when
   // you Dispose the return value
   //
   // category - the category of event to bucket the event under.
   // name - the name of the perfomance event to log.
   //
-  // Returns a {Disposable} that will log the event when disposed.
+  // Returns a {Subscription} that will log the event when disposed.
   sendTimingDisposable(category, name) {
     let start = Date.now();
 
-    return rx.Disposable.create(() => {
+    return new Subscription(() => {
       let elapsed = Date.now() - start;
       this.sendTiming(category, name, elapsed);
     });
@@ -57,14 +58,14 @@ export default class Reporter {
   // Public: Disposes the reporter and sends an event indicating the session has
   // completed.
   dispose() {
-    this.disp.dispose();
+    this.disp.unsubscribe();
   }
 
   // Public: Sets us up to handle events remoted from the browser process.
   //
-  // Returns a {Disposable} which unhooks the events
+  // Returns a {Subscription} which unhooks the events
   handleBrowserEvents() {
-    let ret = new rx.CompositeDisposable();
+    let ret = new Subscription();
 
 /*
     ret.add(ipc.listen('reporter:sendEvent').subscribe((args) => {
@@ -108,24 +109,24 @@ export default class Reporter {
   //
   // Returns an {Observable} Promise which provides a user ID
   createUserId() {
-    let ret = new rx.AsyncSubject();
-    ret.onNext(require('node-uuid').v4());
-    ret.onCompleted();
+    let ret = new AsyncSubject();
+    ret.next(require('node-uuid').v4());
+    ret.complete();
     /*
 
     let callback = (error, macAddress) => {
       let username = process.env.USER || process.env.USERNAME || 'dunnolol';
 
       if (error) {
-        ret.onNext(require('node-uuid').v4());
+        ret.next(require('node-uuid').v4());
       } else {
         // NB: If we don't include another piece of information, the MAC address
         // could be extracted from this SHA1 simply by generating all SHA1s from
         // every possible MAC address
-        ret.onNext(crypto.createHash('sha1').update(macAddress + username, 'utf8').digest('hex'));
+        ret.next(crypto.createHash('sha1').update(macAddress + username, 'utf8').digest('hex'));
       }
 
-      ret.onCompleted();
+      ret.complete();
     };
 
     try {

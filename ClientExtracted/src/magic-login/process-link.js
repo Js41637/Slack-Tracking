@@ -1,6 +1,6 @@
 import logger from '../logger';
 import {BrowserWindow} from 'electron';
-import {Observable} from 'rx';
+import {Observable} from 'rxjs/Observable';
 import {executeJavaScriptMethod} from 'electron-remote';
 
 import AppActions from '../actions/app-actions';
@@ -57,7 +57,7 @@ export function processMagicLoginLink({teamId, token}) {
 
 function checkResponseOk(response) {
   if (response.ok) {
-    return Observable.return(response);
+    return Observable.of(response);
   } else {
     return Observable.throw(new Error(response.error));
   }

@@ -1,5 +1,4 @@
 import traverse from 'traverse';
-import _ from 'lodash';
 import safeRequire from '../utils/safe-require';
 
 const keytar = safeRequire('keytar', `Check to make sure that all native keytar dependencies are installed properly (especially libgnome-keyring on Linux)`);
@@ -85,6 +84,7 @@ class KeychainStorage {
    */
   convertToServices(dataToConvert, options={normalize: true}) {
     let services = [];
+    let filteredServices = [];
     // :'( Unfortunate, but necessary – if you save copies of functions from
     // this, and those functions also reference this, that reference will be undefined.
     let _this = this;
@@ -93,20 +93,22 @@ class KeychainStorage {
       if (this.isLeaf && this.node) {
         let parentNode = options.normalize ? _this.normalizeCredentials(this.parent.node) : this.parent.node;
 
-        services.push(Object.assign({
-          serviceName: `${_this.servicePrefix}.${this.parent.path.join('.')}`
-        }, parentNode));
+        services.push({
+          serviceName: `${_this.servicePrefix}.${this.parent.path.join('.')}`,
+          ...parentNode
+        });
       }
     });
+  
+    // Filter out duplicates and services with any falsy properties
+    services.forEach((service) => {
+      let seen = filteredServices.find((filteredService) => filteredService.serviceName === service.serviceName);
+      let noFalsyProps = Object.keys(service).every((key) => !!service[key]);
 
-    services = _.uniq(services, 'serviceName').filter((service) => {
-      // Filter out services with any falsy properties
-      return Object.keys(service).every((key) => {
-        return !!service[key];
-      });
+      if (!seen && noFalsyProps) filteredServices.push(service);
     });
 
-    return services;
+    return filteredServices;
   }
 
   /**
@@ -201,7 +203,7 @@ class KeychainStorage {
    */
   sanitize(services) {
     return services.map((service) => {
-      let serviceToSanitize = Object.assign({}, service);
+      let serviceToSanitize = {...service};
       delete serviceToSanitize.password;
       return serviceToSanitize;
     });

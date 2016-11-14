@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import logger from '../logger';
 
 /**
@@ -19,7 +18,7 @@ export default function stateEventHandler(component, event, eventName, prevState
 
     let handler = component[eventName];
 
-    if (handler && _.isFunction(handler)) {
+    if (handler && typeof handler === 'function') {
       // NB: Ensure this event is asynchronous, otherwise we can fall into a
       // Redux dispatch loop
       return ((...args) => process.nextTick(handler.bind(component, ...args)));

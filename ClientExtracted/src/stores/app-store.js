@@ -35,6 +35,10 @@ class AppStore {
     return this.getApp().updateStatus;
   }
 
+  getUpdateInfo() {
+    return this.getApp().updateInfo;
+  }
+
   getSuspendStatus() {
     return this.getApp().isMachineAwake;
   }
@@ -49,6 +53,10 @@ class AppStore {
 
   isShowingDevTools() {
     return this.getApp().isShowingDevTools;
+  }
+
+  getUrlSchemeModal() {
+    return this.getApp().urlSchemeModal;
   }
 
   getTeamsByIndex() {
@@ -71,8 +79,12 @@ class AppStore {
     return this.getApp().windowSettings;
   }
 
-  getSearchBoxSize() {
-    return this.getApp().searchBoxWidth;
+  getNoDragRegions() {
+    return this.getApp().noDragRegions;
+  }
+
+  isFullScreen() {
+    return this.getApp().isFullScreen;
   }
 }
 

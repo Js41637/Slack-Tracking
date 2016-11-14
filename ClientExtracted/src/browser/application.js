@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import assignIn from 'lodash.assignin';
+import '../rx-operators';
 import {dialog, shell, session, powerMonitor} from 'electron';
 import {requireTaskPool} from 'electron-remote';
 import ipc from '../ipc-rx';
@@ -8,10 +9,15 @@ import packageJson from '../../package.json';
 import restartApp from './restart-app';
 import semver from 'semver';
 import temp from 'temp';
-import {getReleaseNotesUrl} from './squirrel-auto-updater';
+import {getReleaseNotesUrl} from './updater-utils';
 import {processMagicLoginLink} from '../magic-login/process-link';
 import {parseProtocolUrl} from '../parse-protocol-url';
-import {Subject, Disposable, SerialDisposable, CompositeDisposable, Observable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
+import SerialSubscription from 'rxjs-serial-subscription';
+import {p} from '../get-path';
+import {createZipArchive} from '../utils/file-helpers';
 
 import AppActions from '../actions/app-actions';
 import AppMenu from '../components/app-menu';
@@ -54,7 +60,7 @@ export default class Application extends ReduxComponent {
     session.defaultSession.allowNTLMCredentialsForDomains('*');
 
     // Initialize Components
-    this.protocols = new CompositeDisposable();
+    this.protocols = new Subscription();
 
     this.protocols.add(new SlackResourcesUrlHandler());
     if (options.webappSrcPath) this.protocols.add(new SlackWebappDevHandler());
@@ -99,8 +105,8 @@ export default class Application extends ReduxComponent {
     }
 
     Observable.merge(
-      Observable.fromEvent(powerMonitor, 'suspend').map(() => false),
-      Observable.fromEvent(powerMonitor, 'resume').map(() => true)
+      Observable.fromEvent(powerMonitor, 'suspend').mapTo(false),
+      Observable.fromEvent(powerMonitor, 'resume').mapTo(true)
     ).subscribe((isAwake) => AppActions.setSuspendStatus(isAwake));
 
     logger.info(`Welcome to Slack ${this.state.appVersion} ${process.arch}`);
@@ -125,7 +131,8 @@ export default class Application extends ReduxComponent {
       runSpecsEvent: EventStore.getEvent('runSpecs'),
       showAboutEvent: EventStore.getEvent('showAbout'),
       showReleaseNotesEvent: EventStore.getEvent('showReleaseNotes'),
-      confirmAndResetAppEvent: EventStore.getEvent('confirmAndResetApp')
+      confirmAndResetAppEvent: EventStore.getEvent('confirmAndResetApp'),
+      prepareAndRevealLogsEvent: EventStore.getEvent('prepareAndRevealLogs')
     };
   }
 
@@ -133,11 +140,15 @@ export default class Application extends ReduxComponent {
     logger.info('Disposing application');
     super.dispose();
 
-    this.protocols.dispose();
+    this.protocols.unsubscribe();
     this.squirrelAutoUpdater.dispose();
     this.trayHandler.dispose();
 
     if (this.appMenu) this.appMenu.dispose();
+  }
+
+  handleDeepLink({url}) {
+    EventActions.handleDeepLink(url);
   }
 
   handleDeepLinkEvent({url}) {
@@ -160,7 +171,7 @@ export default class Application extends ReduxComponent {
 
     // Darwin v14.0.0 corresponds to Yosemite v10.10.0:
     // https://en.wikipedia.org/wiki/Darwin_%28operating_system%29#Release_history
-    let isTitleBarHidden = platformVersion.major >= 14;
+    let isTitleBarHidden = this.state.numTeams > 1 && platformVersion.major >= 14;
     let runningFromTempDir = process.execPath.indexOf('slack-build') >= 0;
 
     // NB: Supplying undefined for any setting will throw an error. Use null
@@ -172,6 +183,7 @@ export default class Application extends ReduxComponent {
       versionName: packageJson.versionName || null,
       devEnv: options.devEnv || null,
       resourcePath: options.resourcePath,
+      launchedWithLink: options.protoUrl || null,
       webappSrcPath: options.webappSrcPath || null,
       launchOnStartup: this.autoLaunch.isEnabled(),
       releaseChannel: options.releaseChannel || this.state.releaseChannel,
@@ -183,26 +195,26 @@ export default class Application extends ReduxComponent {
     };
 
     SettingActions.initializeSettings(payload);
-    _.extend(global.loadSettings, payload);
+    assignIn(global.loadSettings, payload);
   }
 
   setupTracingByIpc() {
     let tracing = null;
-    let tracingSession = new SerialDisposable();
+    let tracingSession = new SerialSubscription();
 
     ipc.listen('tracing:start').subscribe(() => {
       tracing = tracing || require('electron').contentTracing;
 
       tracing.startRecording('*', 'enable-sampling,enable-systrace', () => {});
-      tracingSession.setDisposable(Disposable.create(() => {
+      tracingSession.add(() => {
         tracing.stopRecording('', (tracingPath) => {
           logger.info(`Content logging written to ${tracingPath}`);
         });
-      }));
+      });
     });
 
     ipc.listen('tracing:stop').subscribe(() =>
-      tracingSession.setDisposable(Disposable.empty));
+      tracingSession.add(Subscription.EMPTY));
   }
 
   handleFirstExecution() {
@@ -218,12 +230,12 @@ export default class Application extends ReduxComponent {
    */
   setupSingleInstance() {
     var otherAppSignaledUs = new Subject();
-    global.secondaryParamsHandler = (cmd) => otherAppSignaledUs.onNext(cmd);
+    global.secondaryParamsHandler = (cmd) => otherAppSignaledUs.next(cmd);
 
     otherAppSignaledUs.startWith(...global.secondaryParamsReceived)
       .subscribe((cmd) => {
         let re = /^slack:/i;
-        let protoUrl = _.find(cmd, (x) => x.match(re));
+        let protoUrl = cmd.find((x) => x.match(re));
         if (protoUrl) EventActions.handleDeepLink(protoUrl);
         else EventActions.foregroundApp();
       });
@@ -244,6 +256,21 @@ export default class Application extends ReduxComponent {
   showReleaseNotesEvent() {
     let releaseNotesUrl = getReleaseNotesUrl(this.state.releaseChannel === 'beta');
     shell.openExternal(releaseNotesUrl);
+  }
+
+  async prepareAndRevealLogsEvent() {
+    try {
+      let logFiles = await logger.getMostRecentLogFiles();
+      let filesToArchive = [
+        ...logFiles,
+        p`${'userData'}/redux-state.json`
+      ];
+      let zipPath = p`${'temp'}/logs.zip`;
+      await createZipArchive(filesToArchive, zipPath);
+      shell.showItemInFolder(zipPath);
+    } catch(e) {
+      logger.error(`Couldn't zip up log files: ${e}`);
+    }
   }
 
   /**

@@ -1,6 +1,6 @@
-import _ from 'lodash';
+import omit from '../utils/omit';
 
-import {EVENTS, NOTIFICATIONS} from '../actions';
+import {APP, EVENTS, NOTIFICATIONS} from '../actions';
 
 const eventSignatures = {};
 
@@ -14,6 +14,12 @@ eventSignatures[EVENTS.SHOW_RELEASE_NOTES] = {name: 'showReleaseNotes'};
 eventSignatures[EVENTS.QUIT_APP] = {name: 'quitApp'};
 eventSignatures[EVENTS.CONFIRM_AND_RESET_APP] = {name: 'confirmAndResetApp'};
 eventSignatures[EVENTS.REPORT_ISSUE] = {name: 'reportIssue'};
+eventSignatures[EVENTS.PREPARE_AND_REVEAL_LOGS] = {name: 'prepareAndRevealLogs'};
+eventSignatures[EVENTS.SIDEBAR_CLICKED] = {name: 'sidebarClicked'};
+eventSignatures[EVENTS.CLOSE_ALL_UPDATE_BANNERS] = {name: 'closeAllUpdateBanners'};
+
+// Aliased events
+eventSignatures[APP.SHOW_AUTH_DIALOG] = {name: 'foregroundApp'};
 
 // Events which require additional arguments
 eventSignatures[NOTIFICATIONS.CLICK_NOTIFICATION] = {
@@ -43,6 +49,11 @@ eventSignatures[EVENTS.HANDLE_DEEP_LINK] = {
   name: 'handleDeepLink',
   url: null
 };
+eventSignatures[EVENTS.HANDLE_EXTERNAL_LINK] = {
+  name: 'handleExternalLink',
+  url: null,
+  disposition: null
+};
 eventSignatures[EVENTS.SIGN_OUT_TEAM] = {
   name: 'signOutTeam',
   teamId: null
@@ -60,12 +71,12 @@ eventSignatures[EVENTS.RELOAD] = {
   everything: null
 };
 
-const initialState = _.reduce(Object.keys(eventSignatures), (result, key) => {
+const initialState = Object.keys(eventSignatures).reduce((result, key) => {
   let evt = eventSignatures[key];
 
   // The initial state of each event is a zero timestamp, in addition to
   // the keys defined in the signature
-  result[evt.name] = _.assign({timestamp: 0}, _.omit(evt, 'name'));
+  result[evt.name] = {timestamp: 0, ...omit(evt, 'name')};
   return result;
 }, {});
 
@@ -76,8 +87,8 @@ export default function reduce(state = initialState, action) {
   let evt = eventSignatures[action.type];
   if (evt) {
     let update = {};
-    update[evt.name] = _.assign({timestamp: Date.now()}, action.data);
-    return _.assign({}, state, update);
+    update[evt.name] = {timestamp: Date.now(), ...action.data};
+    return {...state, ...update};
   } else {
     return state;
   }

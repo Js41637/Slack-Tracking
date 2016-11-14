@@ -1,9 +1,14 @@
 import {webFrame} from 'electron';
 
-import ReduxComponent from '../lib/redux-component';
 import AppStore from '../stores/app-store';
+import EventStore from '../stores/event-store';
+import ReduxComponent from '../lib/redux-component';
 import SettingStore from '../stores/setting-store';
 import WindowStore from '../stores/window-store';
+import zoomlevelToFactor from '../utils/zoomlevel-to-factor';
+
+import {getReleaseNotesUrl} from '../browser/updater-utils';
+import {UPDATE_STATUS} from '../utils/shared-constants';
 
 // NB: This is a Do Everything Component solely because having too many Redux
 // Components in the webapp layer is expensive on IPC dispatch, so we want to
@@ -21,13 +26,21 @@ export default class ReduxHelper extends ReduxComponent {
       isMachineAwake: AppStore.getSuspendStatus(),
       currentTeamId: AppStore.getSelectedTeamId(),
       zoomLevel: SettingStore.getSetting('zoomLevel'),
-      isCallsWindow: WindowStore.isCallsWindow()
+      isCallsWindow: WindowStore.isCallsWindow(),
+      sidebarClickedEvent: EventStore.getEvent('sidebarClicked'),
+      updateStatus: AppStore.getUpdateStatus(),
+      updateInfo: AppStore.getUpdateInfo(),
+      releaseChannel: SettingStore.getSetting('releaseChannel'),
+      canUpdate: !SettingStore.isLinux() &&
+        !SettingStore.getSetting('isWindowsStore') &&
+        !SettingStore.getSetting('isMacAppStore')
     };
   }
 
   update(prevState = {}) {
     this.updateLastActiveTeam(prevState);
     this.updateSuspendResume(prevState);
+    this.updateUpdateStatus(prevState);
     if (!this.state.isCallsWindow) this.updateZoomLevel(prevState);
   }
 
@@ -43,7 +56,7 @@ export default class ReduxHelper extends ReduxComponent {
 
   updateZoomLevel(prevState) {
     if (prevState.zoomLevel !== this.state.zoomLevel) {
-      webFrame.setZoomLevel(this.state.zoomLevel);
+      webFrame.setZoomFactor(zoomlevelToFactor(this.state.zoomLevel));
     }
   }
 
@@ -54,6 +67,30 @@ export default class ReduxHelper extends ReduxComponent {
     window.dispatchEvent(new Event(eventName));
   }
 
+  /**
+   * Potentially show an update banner in the webapp. We send an object wite
+   * the following keys:
+   *
+   *    canUpdate       True if the current app supports auto-updates
+   *    learnMoreUrl    URL to the release notes for this platform
+   *    releaseVersion  The version number for the available update
+   */
+  updateUpdateStatus(prevState) {
+    let {updateStatus, updateInfo, releaseChannel, canUpdate} = this.state;
+    if (updateStatus === prevState.updateStatus) return;
+
+    if (window.TSSSB &&
+      window.TSSSB.showUpdateBanner &&
+      updateStatus === UPDATE_STATUS.UPDATE_DOWNLOADED) {
+
+      window.TSSSB.showUpdateBanner({
+        canUpdate,
+        learnMoreUrl: getReleaseNotesUrl(releaseChannel === 'beta'),
+        releaseVersion: updateInfo.releaseName
+      });
+    }
+  }
+
   getLastActiveTeamIdForTeamIds(teamsToSelect) {
     let teamLookup = teamsToSelect.reduce((acc,x) => {
       if (x) acc[x] = true;
@@ -61,5 +98,11 @@ export default class ReduxHelper extends ReduxComponent {
     }, {});
 
     return this.lastSelectedTeams.filter((x) => x in teamLookup);
+  }
+
+  sidebarClickedEvent() {
+    if (window.TSSSB && window.TSSSB.ssbChromeClicked) {
+      window.TSSSB.ssbChromeClicked();
+    }
   }
 }

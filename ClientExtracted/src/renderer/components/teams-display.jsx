@@ -1,10 +1,13 @@
-import _ from 'lodash';
+import difference from 'lodash.difference';
 import logger from '../../logger';
 import nativeInterop from '../../native-interop';
 import objectSum from '../../utils/object-sum';
 import React from 'react';
 import {remote} from 'electron';
-import {Disposable, Observable, SerialDisposable, Subject} from 'rx';
+import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
+import SerialSubscription from 'rxjs-serial-subscription';
 import url from 'url';
 
 const {BrowserWindow} = remote;
@@ -12,8 +15,7 @@ const {BrowserWindow} = remote;
 import AppActions from '../../actions/app-actions';
 import AppStore from '../../stores/app-store';
 import Component from '../../lib/component';
-import DraggableRegion from './draggable-region';
-import NonDraggableRegion from './non-draggable-region';
+import EventActions from '../../actions/event-actions';
 import EventStore from '../../stores/event-store';
 import SettingActions from '../../actions/setting-actions';
 import SettingStore from '../../stores/setting-store';
@@ -26,11 +28,6 @@ import WindowStore from '../../stores/window-store';
 import getMostUsedTeams from '../most-used-teams';
 import {SLACK_PROTOCOL} from '../../reducers/app-reducer';
 import {WINDOW_TYPES} from '../../utils/shared-constants';
-
-// NB: Must match height of .client_header in webapp
-const CHANNEL_HEADER_HEIGHT = 65;
-const SEARCH_BOX_DEFAULT_WIDTH = 374;
-const SEARCH_BOX_POSITION_FROM_RIGHT = 109;
 
 export default class TeamsDisplay extends Component {
 
@@ -48,33 +45,42 @@ export default class TeamsDisplay extends Component {
       childWindows: WindowStore.getWindows([WINDOW_TYPES.WEBAPP]),
       isTitleBarHidden: SettingStore.getSetting('isTitleBarHidden'),
       releaseChannel: SettingStore.getSetting('releaseChannel'),
-      searchBoxWidth: AppStore.getSearchBoxSize(),
+      launchedWithLink: SettingStore.getSetting('launchedWithLink'),
+      devEnv: SettingStore.getSetting('devEnv'),
 
       handleDeepLinkEvent: EventStore.getEvent('handleDeepLink'),
       signOutTeamEvent: EventStore.getEvent('signOutTeam'),
-      devEnv: SettingStore.getSetting('devEnv'),
+      closeAllUpdateBannersEvent: EventStore.getEvent('closeAllUpdateBanners')
     };
   }
 
   componentDidMount() {
     this.disposables.add(this.loadTeamsByUsage());
 
-    this.releaseChannelDisp = new SerialDisposable();
-    this.releaseChannelDisp.setDisposable(this.checkForBetaReleaseChannel());
+    this.releaseChannelDisp = new SerialSubscription();
+    this.releaseChannelDisp.add(this.checkForBetaReleaseChannel());
     this.disposables.add(this.releaseChannelDisp);
 
     this.disposables.add(this.trackTeamUsage());
     this.disposables.add(this.setupIdleTickle());
     this.disposables.add(this.closeWindowsOnUnload());
+
+    if (this.state.launchedWithLink) {
+      EventActions.handleDeepLink(this.state.launchedWithLink);
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (this.didTeamsChange(prevState)) {
-      this.releaseChannelDisp.setDisposable(this.checkForBetaReleaseChannel());
+      this.releaseChannelDisp.add(this.checkForBetaReleaseChannel());
     }
 
     if (prevState.selectedTeamId !== this.state.selectedTeamId) {
-      this.teamSelected.onNext(prevState.selectedTeamId);
+      this.teamSelected.next(prevState.selectedTeamId);
+    }
+
+    if (!prevState.launchedWithLink && this.state.launchedWithLink) {
+      EventActions.handleDeepLink(this.state.launchedWithLink);
     }
   }
 
@@ -83,37 +89,37 @@ export default class TeamsDisplay extends Component {
    * finished loading. Note that we need to skip the initially selected team as
    * it will always load immediately.
    *
-   * @return {Disposable}  A Disposable that will clean up this subscription
+   * @return {Subscription}  A Subscription that will clean up this subscription
    */
   loadTeamsByUsage() {
     let {teams, selectedTeamId} = this.state;
 
     let mostUsedTeams = getMostUsedTeams(teams);
-    let otherTeams = _.difference(_.keys(teams), mostUsedTeams);
-    otherTeams = _.without(otherTeams, selectedTeamId);
+    let otherTeams = difference(Object.keys(teams), mostUsedTeams);
+    otherTeams = otherTeams.filter((team) => team !== selectedTeamId);
 
     AppActions.loadTeams(mostUsedTeams);
 
-    let teamsFinishedLoading = Observable.fromArray(mostUsedTeams)
+    let teamsFinishedLoading = Observable.from(mostUsedTeams)
       .flatMap((teamId) => this.refs[teamId].webAppHasLoaded)
       .reduce(() => true);
 
     return otherTeams.length > 0 ?
       teamsFinishedLoading.subscribe(() => AppActions.loadTeams(otherTeams)) :
-      Disposable.empty;
+      Subscription.EMPTY;
   }
 
   /**
    * Starts tracking team usage by listening for selected team events.
    *
-   * @return {Disposable}  A Disposable that will run when this component is unmounted
+   * @return {Subscription}  A Subscription that will run when this component is unmounted
    */
   trackTeamUsage() {
-    _.forEach(_.keys(this.state.teams), (teamId) => {
+    Object.keys(this.state.teams).forEach((teamId) => {
       logger.info(`${teamId} usage: ${this.state.teams[teamId].usage || 0}`);
     });
 
-    this.teamSelected.where((teamId) => teamId)
+    this.teamSelected.filter((teamId) => teamId)
       .timeInterval()
       .do(({value, interval}) => logger.info(`Team ${value} was active for ${interval}`))
       .reduce((acc, {value, interval}) => {
@@ -124,9 +130,9 @@ export default class TeamsDisplay extends Component {
       .subscribe((teamUsage) => TeamActions.updateTeamUsage(teamUsage));
 
     // Make sure we include the team that is selected when the app is quit
-    return new Disposable(() => {
-      this.teamSelected.onNext(this.state.selectedTeamId);
-      this.teamSelected.onCompleted();
+    return new Subscription(() => {
+      this.teamSelected.next(this.state.selectedTeamId);
+      this.teamSelected.complete();
     });
   }
 
@@ -135,20 +141,34 @@ export default class TeamsDisplay extends Component {
    * idle timer for the webapp is based on the user's machine, not whether
    * they've looked at a particular team.
    *
-   * @return {Disposable}  A Disposable that will kill the timer
+   * @return {Subscription}  A Subscription that will kill the timer
    */
   setupIdleTickle() {
-    const time = 1 * 60 * 1000;
+    const maxTimeBeforeIdle = 10 * 60 * 1000;
+    const idlePollingTime = 1 * 60 * 1000;
+    let idlePollingId;
 
-    return Observable.timer(time, time)
-      .where(() => nativeInterop.getIdleTimeInMs() < 10 * 1000)
-      .flatMap(() => Observable.fromArray(_.keys(this.state.teams)))
-      .flatMap((teamId) => {
-        let teamView = this.refs[teamId];
-        return teamView.executeJavaScriptMethod('TSSSB.maybeTickleMS');
-      })
-      .catch(Observable.return(null))
-      .subscribe();
+    const that = this;
+    const notifyAllTeams = async function() {
+      for (let teamId in that.state.teams) {
+        let teamView = that.refs[teamId];
+        await teamView.executeJavaScriptMethod('TSSSB.maybeTickleMS');
+      }
+    };
+
+    const doNextCheck = () => {
+      let currentIdleTime = nativeInterop.getIdleTimeInMs();
+      if (currentIdleTime > maxTimeBeforeIdle) {
+        idlePollingId = setTimeout(doNextCheck, idlePollingTime);
+        return;
+      }
+
+      notifyAllTeams().catch((e) => logger.info(`Couldn't tickle MS: ${e.message}`));
+      idlePollingId = setTimeout(doNextCheck, idlePollingTime);
+    };
+
+    doNextCheck();
+    return new Subscription(() => clearTimeout(idlePollingId));
   }
 
   /**
@@ -157,14 +177,14 @@ export default class TeamsDisplay extends Component {
    * This is necessary because all of our `webview` tags will be lost, and the
    * new ones will not have a connection to the existing windows.
    *
-   * @return {Disposable}  A Disposable that will do the work
+   * @return {Subscription}  A Subscription that will do the work
    */
   closeWindowsOnUnload() {
-    return new Disposable(() => {
+    return new Subscription(() => {
       // NB: We mostly do this to capture a snapshot of the child IDs
-      let childWindows = _.map(this.state.childWindows, (x) => x.id);
+      let childWindows = Object.keys(this.state.childWindows).map((key) => this.state.childWindows[key].id);
 
-      _.forEach(childWindows, (entry) => {
+      childWindows.forEach((entry) => {
         try {
           BrowserWindow.fromId(entry).close();
         } catch (err) {
@@ -179,31 +199,31 @@ export default class TeamsDisplay extends Component {
    * whether or not the team has opted into the beta program. If any team has,
    * put the app on the beta release channel.
    *
-   * @return {Disposable}  A Disposable that will clean up this subscription
+   * @return {Subscription}  A Subscription that will clean up this subscription
    */
   checkForBetaReleaseChannel() {
     if (this.state.devEnv) {
-      return Disposable.empty;
+      return Subscription.EMPTY;
     }
 
-    return Observable.fromArray(_.keys(this.state.teams))
+    return Observable.from(Object.keys(this.state.teams))
       .concatMap((teamId) => {
         let teamView = this.refs[teamId];
-        return teamView.executeJavaScriptMethod('TSSSB.isOnBetaReleaseChannel');
+        return teamView.executeJavaScriptMethodWhenBooted('TSSSB.isOnBetaReleaseChannel');
       })
-      .some((useBetaChannel) => useBetaChannel)
-      .catch(Observable.return(null))
-      .where((useBetaChannel) => useBetaChannel !== null &&
+      .reduce((acc, useBetaChannel) => useBetaChannel || acc, false)
+      .catch(() => Observable.of(null))
+      .filter((useBetaChannel) => useBetaChannel !== null &&
         useBetaChannel && this.state.releaseChannel !== 'beta')
       .subscribe(() => SettingActions.updateSettings({releaseChannel: 'beta'}));
   }
 
   didTeamsChange(prevState) {
-    let newTeams = _.keys(this.state.teams);
-    let oldTeams = _.keys(prevState.teams);
+    let newTeams = Object.keys(this.state.teams);
+    let oldTeams = Object.keys(prevState.teams);
 
-    let addedTeams = _.difference(newTeams, oldTeams).length > 0;
-    let removedTeams = _.difference(oldTeams, newTeams).length > 0;
+    let addedTeams = difference(newTeams, oldTeams).length > 0;
+    let removedTeams = difference(oldTeams, newTeams).length > 0;
 
     return addedTeams || removedTeams;
   }
@@ -214,7 +234,7 @@ export default class TeamsDisplay extends Component {
    * @return {Promise<CombinedStats>} A Promise to the stats Object
    */
   getCombinedMemoryUsage() {
-    return Observable.fromArray(_.keys(this.state.teams))
+    return Observable.from(Object.keys(this.state.teams))
       .flatMap((teamId) => {
         let teamView = this.refs[teamId];
         return teamView.executeJavaScriptMethod('winssb.stats.getMemoryUsage');
@@ -230,7 +250,7 @@ export default class TeamsDisplay extends Component {
    */
   handleDeepLinkEvent(evt) {
     let urlString = evt.url;
-    if (!_.isString(urlString)) return;
+    if (!(typeof urlString === 'string')) return;
 
     let theUrl = url.parse(urlString, true);
     if (theUrl.protocol !== SLACK_PROTOCOL) {
@@ -248,13 +268,13 @@ export default class TeamsDisplay extends Component {
 
     // If a team was specified in the URL, find the relevant {TeamView}
     // or just use the first
-    let teamId = _.keys(this.state.teams)[0];
+    let teamId = Object.keys(this.state.teams)[0];
     if (args.team && this.state.teams[args.team]) {
       teamId = args.team;
     }
 
     let teamView = this.refs[teamId];
-    return teamView.executeJavaScriptMethod('TSSSB.handleDeepLinkWithArgs', JSON.stringify(args));
+    return teamView.executeJavaScriptMethodWhenBooted('TSSSB.handleDeepLinkWithArgs', JSON.stringify(args));
   }
 
   /**
@@ -266,14 +286,30 @@ export default class TeamsDisplay extends Component {
    * @param  {Object}.teamId  The ID of the team to sign out
    */
   signOutTeamEvent({teamId}) {
-    Observable.just(this.refs[teamId])
-      .flatMap((teamView) => teamView.executeJavaScriptMethod('winssb.teams.signOutTeam'))
-      .catch(Observable.return(false))
+    Observable.of(this.refs[teamId])
+      .flatMap((teamView) => teamView.executeJavaScriptMethod('TSSSB.signOutAndRemoveTeam', teamId))
       .take(1)
-      .where((success) => !success)
       .subscribe(() => {
-        logger.warn('Signing out of team failed, removing team anyway');
+        logger.info(`Signed out of team ${teamId}`);
+      }, (error) => {
+        logger.warn(`Signing out of team failed: ${error.message}`);
         TeamActions.removeTeam(teamId);
+      });
+  }
+
+  /**
+   * Calls a method in the webapp context that will close any visible update
+   * banners in every signed-in team.
+   */
+  closeAllUpdateBannersEvent() {
+    Observable.from(Object.keys(this.state.teams))
+      .map((teamId) => this.refs[teamId])
+      .filter((teamView) => teamView)
+      .mergeMap((teamView) => teamView.executeJavaScriptMethod('TSSSB.closeUpdateBanner'))
+      .subscribe(null, (error) => {
+        logger.warn(`Couldn't close all update banners: ${error}`);
+      }, () => {
+        logger.info(`Closed update banners in all teams`);
       });
   }
 
@@ -284,7 +320,9 @@ export default class TeamsDisplay extends Component {
 
     // All webviews are displayed on top of each other but only the selected one
     // is displayed, since we cannot let the webviews be unmounted
-    let teamViews = _.map(teams, (team) => {
+    let teamViews = Object.keys(teams).map((key) => {
+      let team = teams[key];
+
       return (
         <div className="TeamsDisplay-teamView" key={team.team_id} style={{
           visibility: (this.state.selectedTeamId == team.team_id ? 'visible' : 'hidden'),
@@ -296,19 +334,8 @@ export default class TeamsDisplay extends Component {
       );
     });
 
-    let searchBoxWidth = this.state.searchBoxWidth || SEARCH_BOX_DEFAULT_WIDTH;
-    let draggableRegion = null;
-
-    if (this.state.isTitleBarHidden) {
-      draggableRegion =
-        <DraggableRegion height={CHANNEL_HEADER_HEIGHT}>
-          <NonDraggableRegion width={searchBoxWidth} right={SEARCH_BOX_POSITION_FROM_RIGHT} />
-        </DraggableRegion>;
-    }
-
     return (
       <div className="TeamsDisplay">
-        {draggableRegion}
         {teamSelector}
         <div className="TeamsDisplay-teamDisplay">
           {teamViews}

@@ -1,7 +1,9 @@
-import _ from 'lodash';
 import logger from '../../logger';
-import {Observable, Disposable, CompositeDisposable, Scheduler} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
+import {async} from 'rxjs/scheduler/async';
 import {screen as atomScreen} from 'electron';
+import isObject from '../../utils/is-object';
 
 import AppActions from '../../actions/app-actions';
 import AppStore from '../../stores/app-store';
@@ -26,7 +28,7 @@ export default class PersistSettingsWindowBehavior extends WindowBehavior {
    * values from a local file if they exist.
    *
    * @param  {BrowserWindow} browserWindow  The window to attach the behavior to
-   * @return {Disposable}                   A Disposable that will write these settings
+   * @return {Subscription}                   A Subscription that will write these settings
    */
   setup(browserWindow) {
     this.window = browserWindow;
@@ -36,7 +38,7 @@ export default class PersistSettingsWindowBehavior extends WindowBehavior {
     let [width, height] = size;
 
     let [minWidth, minHeight] = browserWindow.getMinimumSize();
-    let defaultSizeIsSmallerThanMinimum = !_.isObject(this.state.windowSettings) &&
+    let defaultSizeIsSmallerThanMinimum = !isObject(this.state.windowSettings) &&
       (width < minWidth || height < minHeight);
 
     if (defaultSizeIsSmallerThanMinimum) {
@@ -48,13 +50,13 @@ export default class PersistSettingsWindowBehavior extends WindowBehavior {
 
     // Maximizing the window immediately has no effect; delay it a bit.
     if (isMaximized) {
-      Scheduler.default.scheduleFuture(null, 200, () => browserWindow.maximize());
+      async.schedule(() => browserWindow.maximize(), 200);
     }
 
-    return new CompositeDisposable(
-      Disposable.create(() => this.saveSettings()),
-      this.saveSettingsOccasionally()
-    );
+    const ret = new Subscription();
+    ret.add(() => this.saveSettings());
+    ret.add(this.saveSettingsOccasionally());
+    return ret;
   }
 
   /**
@@ -75,7 +77,7 @@ export default class PersistSettingsWindowBehavior extends WindowBehavior {
 
     // If this is the first time the app was run or the window was out of
     // bounds, clear out the settings object (we'll use a default position).
-    if (!_.isObject(settings) ||
+    if (!isObject(settings) ||
       !RepositionWindowBehavior.windowPositionInBounds(atomScreen, settings)) {
       settings = null;
     }
@@ -115,7 +117,7 @@ export default class PersistSettingsWindowBehavior extends WindowBehavior {
    * to save on exit, if the user logs out of Windows or shuts the app down in
    * an obscene manner, they'd never be saved.
    *
-   * @return {Disposable}  A Disposable that will end this timer
+   * @return {Subscription}  A Subscription that will end this timer
    */
   saveSettingsOccasionally() {
     return Observable

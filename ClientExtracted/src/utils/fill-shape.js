@@ -23,8 +23,6 @@ Will return:
 }
 */
 
-import _ from 'lodash';
-
 export default function fillShape(source, sink) {
   if (typeof sink === 'function') {
     sink = sink(source); //eslint-disable-line
@@ -37,7 +35,7 @@ export default function fillShape(source, sink) {
   }
 
   let filledObject = {};
-  _.keys(sink).forEach((key) => {
+  Object.keys(sink).forEach((key) => {
     if (source[key] === undefined) {
       return;
     } else if (typeof sink[key] === 'object'

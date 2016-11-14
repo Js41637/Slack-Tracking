@@ -1,7 +1,7 @@
-import _ from 'lodash';
+import assignIn from 'lodash.assignin';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import rx from 'rx-dom';
+import {Observable} from 'rxjs/Observable';
 
 import Component from '../lib/component';
 
@@ -39,7 +39,7 @@ export default class Modal extends Component {
     });
 
     // Reposition the window on window resize
-    this.disposables.add(rx.DOM.fromEvent(window, 'resize').subscribe(() => {
+    this.disposables.add(Observable.fromEvent(window, 'resize').subscribe(() => {
       this.setState({styleOverride: {
         top: this.getCenteredDialogPos(),
         transition: 'none'
@@ -61,7 +61,7 @@ export default class Modal extends Component {
       top: '-100%'
     };
 
-    _.extend(dialogStyle, this.state.styleOverride); // Used for animations
+    assignIn(dialogStyle, this.state.styleOverride); // Used for animations
 
     return (
       <div className={`${this.props.className} Modal`} ref="main">

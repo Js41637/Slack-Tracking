@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import path from 'path';
 
 let electronApp = null;
@@ -80,9 +79,9 @@ export function getPath(key) {
 //
 // Returns a fully qualified path
 export function p(strings, ...values) {
-  let newVals = _.map(values, (x) => getPath(x) || x);
+  let newVals = values.map((x) => getPath(x) || x);
   let newPath = String.raw(strings, ...newVals);
-  let parts = _.map(newPath.split(/[\\\/]/), (x) => x || '/');
+  let parts = newPath.split(/[\\\/]/).map((x) => x || '/');
 
   // Handle Windows edge case: If the execution host is cmd.exe, path.resolve() will not understand
   // what `C:` is (it needs to be `C:\`)
@@ -97,7 +96,7 @@ export function p(strings, ...values) {
 
 export function pn(strings, ...values) {
   let newPath = String.raw(strings, ...values);
-  let parts = _.map(newPath.split(/[\\\/]/), (x) => x || '/');
+  let parts = newPath.split(/[\\\/]/).map((x) => x || '/');
 
   return path.join(...parts);
 }

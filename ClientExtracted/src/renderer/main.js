@@ -1,8 +1,8 @@
-import _ from 'lodash';
 import path from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import rx from 'rx';
+import '../rx-operators';
+import {Observable} from 'rxjs/Observable';
 import {requestGC} from '../run-gc';
 
 import {initializeEvalHandler} from 'electron-remote';
@@ -11,12 +11,13 @@ import SlackApp from './components/slack-app.jsx';
 import Reporter from './metrics-reporter';
 import WebappSharedMainModule from '../webapp-shared/main';
 
+
 initializeEvalHandler();
 
 if (global.loadSettings.liveReload) {
   const LiveReload = require('./livereload');
   let paths = ['src', 'spec'];
-  let realPaths = _.map(paths, (x) => path.resolve(global.loadSettings.resourcePath, x));
+  let realPaths = paths.map((x) => path.resolve(global.loadSettings.resourcePath, x));
 
   let liveReload = new LiveReload(realPaths);
   global.attachLiveReload = liveReload.attach();
@@ -28,13 +29,13 @@ if (!global.loadSettings.devMode) {
 }
 
 // This will after a throttled 10sec delay, run a V8 GC
-rx.Observable.fromEvent(window, 'blur')
-  .throttle(10 * 1000)
+Observable.fromEvent(window, 'blur')
+  .throttleTime(10 * 1000)
   .subscribe(() => requestGC());
 
 // Device Storage is (paradoxically) per-session.
-let toDelete = _.filter(Object.keys(localStorage), (x) => x.match(/^deviceStorage_/));
-_.each(toDelete, (x) => localStorage.removeItem(x));
+let toDelete = Object.keys(localStorage).filter((x) => x.match(/^deviceStorage_/)) || [];
+toDelete.forEach((x) => localStorage.removeItem(x));
 
 // Rendering directly into document.body is discouraged due to third-party scripts
 // and browser extensions frequently manipulating it

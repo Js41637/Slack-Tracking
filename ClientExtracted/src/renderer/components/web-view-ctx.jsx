@@ -1,12 +1,13 @@
-import _ from 'lodash';
+import assignIn from 'lodash.assignin';
 import getUserAgent from '../../ssb-user-agent';
 import logger from '../../logger';
 import path from 'path';
 import React from 'react';
-import {Observable} from 'rx';
+import {Observable} from 'rxjs/Observable';
 import url from 'url';
 import {executeJavaScriptMethod, remoteEval, setParentInformation} from 'electron-remote';
 
+import SettingStore from '../../stores/setting-store';
 import Component from '../../lib/component';
 import ContextMenuBehavior from '../behaviors/context-menu-behavior';
 import EventActions from '../../actions/event-actions';
@@ -34,6 +35,7 @@ export default class WebViewContext extends Component {
     onWebappLoad: () => {},
     onRedirect: () => {},
     onPageError: () => {},
+    onPageEmptyAfterLoad: () => {},
     onRequestClose: () => {}
   };
 
@@ -46,12 +48,19 @@ export default class WebViewContext extends Component {
     onWebappLoad: React.PropTypes.func,
     onRedirect: React.PropTypes.func,
     onPageError: React.PropTypes.func,
+    onPageEmptyAfterLoad: React.PropTypes.func,
     onRequestClose: React.PropTypes.func
   };
 
   constructor(props) {
     super(props);
     this.behaviors = [ContextMenuBehavior, ExternalLinkBehavior];
+  }
+
+  syncState() {
+    return {
+      isWindows: SettingStore.isWindows()
+    };
   }
 
   componentDidMount() {
@@ -61,7 +70,7 @@ export default class WebViewContext extends Component {
 
     this.disposables.add(
       Observable.fromEvent(webView, 'ipc-message')
-        .where(({channel}) => channel === 'didFinishLoading')
+        .filter(({channel}) => channel === 'didFinishLoading')
         .subscribe(this.props.onWebappLoad)
     );
 
@@ -82,28 +91,22 @@ export default class WebViewContext extends Component {
     }));
 
     this.disposables.add(Observable.fromEvent(webView, 'did-fail-load')
-      .where(({errorCode}) => !ERROR_CODES_TO_IGNORE.includes(errorCode))
+      .filter(({errorCode}) => !ERROR_CODES_TO_IGNORE.includes(errorCode))
       .subscribe((e) => this.props.onPageError(e)));
 
+    // We stopped loading - ensure that we actually received anything.
+    // This protects against a loss of internet right when we think
+    // that the WebView loaded successfully. ERR_NETWORK_CHANGED does
+    // not always bubble up appropriately.
     this.disposables.add(Observable.fromEvent(webView, 'did-stop-loading')
-      .delay(1000)
+      .debounceTime(1000)
       .flatMap(() => this.executeJavaScript('document.body.childElementCount'))
       .catch((err) => {
-        logger.warn(`Could not check webview's body child count: ${err.message}`);
-        Observable.return(null);
+        if (err.name !== 'TimeoutError') logger.warn(`Could not check webview's body child count: ${err.message}`);
+        return Observable.of(null);
       })
-      .where((count) => (count === 0))
-      .subscribe(() => {
-        // We stopped loading - ensure that we actually received anything.
-        // This protects against a loss of internet right when we think 
-        // that the WebView loaded successfully. ERR_NETWORK_CHANGED does
-        // not always bubble up appropriately.
-        this.props.onPageError({
-          errorCode: -1021,
-          errorDescription: 'The response was empty or the network changed',
-          validatedURL: webView.getURL()
-        });
-      }));
+      .filter((count) => count === 0)
+      .subscribe(() => this.props.onPageEmptyAfterLoad(webView.getURL())));
 
     this.disposables.add(Observable.fromEvent(webView, 'close').subscribe(() => {
       this.props.onRequestClose();
@@ -112,9 +115,9 @@ export default class WebViewContext extends Component {
     this.disposables.add(this.setupErrorHandling(webView));
 
     this.disposables.add(Observable.fromEvent(webView, 'did-get-redirect-request')
-      .where(({isMainFrame}) => isMainFrame)
+      .filter(({isMainFrame}) => isMainFrame)
       .subscribe((e) => {
-        logger.debug(`WebView received redirect request from ${e.oldURL} to ${e.newURL}`);
+        logger.info(`WebView received redirect request from ${e.oldURL} to ${e.newURL}`);
         this.props.onRedirect(e);
       })
     );
@@ -136,14 +139,14 @@ export default class WebViewContext extends Component {
    * Listen for any crash events from the webView and reload in response.
    *
    * @param  {WebView} webView  The webview tag
-   * @return {Disposable}       A Disposable that will clean up this subscription
+   * @return {Subscription}     A Subscription that will clean up this subscription
    */
   setupErrorHandling(webView) {
     return Observable.merge(
-      Observable.fromEvent(webView, 'crashed').map(() => 'Renderer'),
-      Observable.fromEvent(webView, 'gpu-crashed').map(() => 'GPU'),
+      Observable.fromEvent(webView, 'crashed').mapTo('Renderer'),
+      Observable.fromEvent(webView, 'gpu-crashed').mapTo('GPU'),
       Observable.fromEvent(webView, 'plugin-crashed').map((n, v) => `Plugin ${n} ${v}`))
-      .where((type) => !type.startsWith('Plugin'))
+      .filter((type) => !type.startsWith('Plugin'))
       .subscribe((type) => {
         logger.error(`${type} crash occurred in webView: ${JSON.stringify(this.props.options)}`);
 
@@ -161,6 +164,36 @@ export default class WebViewContext extends Component {
     return this.getWebView().getWebContents();
   }
 
+  /**
+   * `executeJavaScriptMethod`, but with patience. Checks if the webapp is
+   * fully booted, and if it isn't, waits until it is.
+   *
+   * @param {String} pathToObject Path to the method to be called
+   * @param {Array} ...args       Arguments passed on to the method
+   * @returns {Promise}           A Promise containing the result of the execution
+   */
+  executeJavaScriptMethodWhenBooted(pathToObject, ...args) {
+    let webView = this.refs.webView;
+    let cmd = `!!(typeof TSSSB !== 'undefined' && process && TS && TS._did_full_boot)`;
+
+    return Observable.of(true)
+      .flatMap(() => remoteEval(webView, cmd))
+      .map((result) => {
+        if (!result) throw 'WebApp not ready or not fully booted';
+        else return result;
+      })
+      .retryAtIntervals(20)
+      .flatMap(() => executeJavaScriptMethod(webView, pathToObject, ...args))
+      .toPromise();
+  }
+
+  /**
+   * Executes a JavaScript method inside the <WebView>.
+   *
+   * @param {string} pathToObject - Path to the method to be called
+   * @param {any} ...args - Arguments passed on to the method
+   * @returns {Promise}
+   */
   executeJavaScriptMethod(pathToObject, ...args) {
     return executeJavaScriptMethod(this.refs.webView, pathToObject, ...args);
   }
@@ -216,7 +249,7 @@ export default class WebViewContext extends Component {
   }
 
   render() {
-    let options = _.extend({
+    let options = assignIn({
       id: this.props.id,
       preload: url.format({
         protocol: 'file',
@@ -226,8 +259,8 @@ export default class WebViewContext extends Component {
     }, this.props.options);
 
     return (
-      <webview {...options} style={{backgroundColor: 'white'}}
-        className="WebViewContext" ref="webView"/>
+      <webview {...options} style={{width: '100%', height: '100%', backgroundColor: 'white'}}
+        className='WebViewContext' ref='webView'/>
     );
   }
 }

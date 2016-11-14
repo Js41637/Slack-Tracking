@@ -19,12 +19,13 @@ export default class TeamSelectorItem extends Component {
     selectedTeam: React.PropTypes.object.isRequired,
     index: React.PropTypes.number.isRequired,
     iconSize: React.PropTypes.number,
-    selectorLeftOffset: React.PropTypes.number
+    selectorLeftOffset: React.PropTypes.number,
+    borderRadius: React.PropTypes.number
   };
 
-  handleClick = () => {
+  handleClick() {
     AppActions.selectTeam(this.props.team.team_id);
-  };
+  }
 
   computeShortcutText(index) {
     let shortcut = null;
@@ -78,8 +79,14 @@ export default class TeamSelectorItem extends Component {
         <span className="TeamSelectorItem-unreadHighlights" style={{border: `2px solid ${highlightStroke}`}}>
           {unreadHighlights}
         </span>
-        <div className="TeamSelectorItem-item" onClick={this.handleClick}>
-          <TeamIcon team={this.props.team} size={iconSize} color={textColor} darkened={!selected}/>
+        <div className="TeamSelectorItem-item" onClick={this.handleClick.bind(this)}>
+          <TeamIcon
+            team={this.props.team}
+            size={iconSize}
+            color={textColor}
+            darkened={!selected}
+            borderRadius={this.props.borderRadius}
+          />
           <span className="TeamSelectorItem-shortcut"
             style={{
               fontSize: fontSize,

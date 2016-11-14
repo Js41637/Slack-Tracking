@@ -1,7 +1,7 @@
-import _ from 'lodash';
 import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
 import {electronEnhancer} from 'redux-electron-store';
 import * as reducers from '../reducers';
+import {isPrebuilt} from '../utils/process-helpers';
 
 import BaseStore from './base-store';
 import MigrationManager from '../browser/migration-manager';
@@ -24,7 +24,6 @@ export default class RendererStore extends BaseStore {
     super();
 
     let {devMode, testMode, windowType} = global.loadSettings;
-    let isPrebuilt = process.execPath.match(/[\\\/]electron-prebuilt[\\\/]/);
     this.windowType = windowType;
 
     let toCompose = [
@@ -42,7 +41,7 @@ export default class RendererStore extends BaseStore {
       }));
     }
 
-    if (devMode && isPrebuilt) {
+    if (devMode && isPrebuilt()) {
       toCompose.push(require('../renderer/components/dev-tools').default.instrument());
     }
 
@@ -80,15 +79,7 @@ export default class RendererStore extends BaseStore {
       return {
         notifications: true,
         windows: true,
-        teams: (teams) => {
-          return _.mapValues(teams, () => {
-            return {
-              theme: true,
-              icons: true,
-              initials: true
-            };
-          });
-        },
+        teams: true,
         settings: {
           zoomLevel: true,
           notifyPosition: true,
@@ -103,7 +94,9 @@ export default class RendererStore extends BaseStore {
 
   loadLegacyData(settings) {
     let updated = MigrationManager.getRendererData(settings);
-    _.set(updated, 'settings.hasMigratedData.renderer', true);
+    updated.settings = updated.settings || { hasMigratedData: { renderer: true }};
+    updated.settings.hasMigratedData = updated.settings.hasMigratedData || { renderer: true };
+    updated.settings.hasMigratedData.renderer = true;
 
     this.dispatch({
       type: BASE.LOAD_LEGACY,

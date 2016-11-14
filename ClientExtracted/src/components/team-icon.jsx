@@ -1,16 +1,14 @@
-import _ from 'lodash';
 import Color from 'color';
 import React from 'react';
 import Component from '../lib/component';
-
-const isDarwin = process.platform === 'darwin';
 
 export default class TeamIcon extends Component {
 
   static defaultProps = {
     size: 36,
     color: 'black',
-    darkened: false
+    darkened: false,
+    borderRadius: 6
   };
 
   static propTypes = {
@@ -23,7 +21,8 @@ export default class TeamIcon extends Component {
     }).isRequired,
     size: React.PropTypes.number,
     color: React.PropTypes.string,
-    darkened: React.PropTypes.bool
+    darkened: React.PropTypes.bool,
+    borderRadius: React.PropTypes.number
   };
 
   state = {
@@ -62,30 +61,22 @@ export default class TeamIcon extends Component {
     return {src: src, srcset: srcset};
   }
 
-
-  getScaledBorderRadius() {
-    let rounding = isDarwin ? 6.0 : 2.0;
-
-    // Linearly scale the border radius based on 36px == 6px border, but clamp
-    // the scale at 2.5x so we don't turn into a circle at hugebig sizes
-    let scale = Math.min((this.props.size / 36.0), 2.5);
-    return Math.floor(scale * rounding /*px*/);
-  }
-
   render() {
     let {team, size, color, darkened} = this.props;
     let initialsStyle = {
       color: 'white',
       backgroundColor: Color(color).alpha(0.3).rgbaString(),
       height: size,
-      width: size
+      width: size,
+      opacity: darkened ? 0.4 : 1.0
     };
 
-    let display = <span className="TeamIcon-initials" style={initialsStyle}>{team.initials}</span>;
+    let initials = team.initials || '';
+    let display = <span className="TeamIcon-initials" style={initialsStyle}>{initials}</span>;
 
     // If there is a custom icon we display it instead of initials.
     // Icon defaults don't give any indication of what team it is, so we ignore them.
-    if (!this.state.imgError && !_.isEmpty(team.icons) && !team.icons.image_default) {
+    if (!this.state.imgError && (team.icons && Object.keys(team.icons).length > 0) && !team.icons.image_default) {
       let {src, srcset} = this.extractSourceSet(team.icons, size);
       let img =
         <img
@@ -101,7 +92,7 @@ export default class TeamIcon extends Component {
     }
 
     return (
-      <span className="TeamIcon" ref="icon" style={{borderRadius: this.getScaledBorderRadius()}}>
+      <span className="TeamIcon" ref="icon" style={{borderRadius: this.props.borderRadius}}>
         {display}
       </span>
     );

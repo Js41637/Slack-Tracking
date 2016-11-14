@@ -1,4 +1,5 @@
-import rx from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 
 // Public: Reporter handles sending metrics and command information to Google
 // Analytics.
@@ -20,21 +21,21 @@ export default class MetricsReporter {
     if (!this.mainWindow) return;
 
     this.mainWindow.send('reporter:sendEvent', {category, action, label, value});
-    return rx.Observable.return(true);
+    return Observable.of(true);
   }
 
   // Public: Send a performance-related timing event, whose timing is determined
-  // by a {Disposable}. The clock starts when you call the method, and stops when
+  // by a {Subscription}. The clock starts when you call the method, and stops when
   // you Dispose the return value
   //
   // category - the category of event to bucket the event under.
   // name - the name of the perfomance event to log.
   //
-  // Returns a {Disposable} that will log the event when disposed.
+  // Returns a {Subscription} that will log the event when disposed.
   sendTimingDisposable(category, name) {
     let start = Date.now();
 
-    return rx.Disposable.create(() => {
+    return new Subscription(() => {
       let elapsed = Date.now() - start;
       this.sendTiming(category, name, elapsed);
     });
@@ -60,7 +61,7 @@ export default class MetricsReporter {
     if (!this.mainWindow) return;
 
     this.mainWindow.send('reporter:sendTiming', {category, name, value, label});
-    return rx.Observable.return(true);
+    return Observable.of(true);
   }
 
   // Private: Sends an event indicating that a menu item or other command was

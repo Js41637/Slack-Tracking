@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 // Public: This method takes functions or objects which contain node.js-like
 // async callback-based methods (i.e. methods whose last parameter is a callback,
 // with parameters (err, rest...), where err is an {Error}), and turn them into
@@ -41,7 +39,7 @@ export default function promisify(funcOrObject) {
   }
 
   if (typeof funcOrObject === 'object') {
-    return _.reduce(Object.keys(funcOrObject), (acc, x) => {
+    return Object.keys(funcOrObject).reduce((acc, x) => {
       acc[x] = promisify(funcOrObject[x]);
       return acc;
     }, {});

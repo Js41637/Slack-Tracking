@@ -1,20 +1,21 @@
-import _ from 'lodash';
-import {Observable, Disposable} from 'rx';
+import assignIn from 'lodash.assignin';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 
 const ipc = require('electron')[process.type === 'renderer' ?
   'ipcRenderer': 'ipcMain'];
 
-export default _.extend({}, ipc, {
+export default assignIn({}, ipc, {
   listen: (channel) => {
     return Observable.create((subj) => {
-      
+
       let listener = process.type === 'browser' ?
-        (event, args) => subj.onNext(args) :
-        (...args) => subj.onNext(args);
+        (event, args) => subj.next(args) :
+        (...args) => subj.next(args);
 
       ipc.on(channel, listener);
 
-      return Disposable.create(() =>
+      return new Subscription(() =>
         ipc.removeListener(channel, listener));
     });
   }

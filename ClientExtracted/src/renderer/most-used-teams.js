@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import sum from '../utils/sum';
+import sortBy from 'lodash.sortby';
 
 /**  
  * Returns an array of teams sorted by usage, that accounts for at least 70%
@@ -12,12 +13,12 @@ import _ from 'lodash';
  * @return {Array}                An array of the n most used team IDs
  */   
 export default function getMostUsedTeams(teams, usageTarget = 0.7) {
-  let usagePairs = _.keys(teams).map((id) => {
+  let usagePairs = Object.keys(teams).map((id) => {
     return [id, teams[id].usage || 0];
   });
   
-  let sortedPairs = _.sortBy(usagePairs, ([,usage]) => usage).reverse();
-  let totalTimeUsed = _.sum(usagePairs, ([,usage]) => usage);
+  let sortedPairs = sortBy(usagePairs, ([,usage]) => usage).reverse();
+  let totalTimeUsed = sum(usagePairs, ([,usage]) => usage);
   
   let mostUsedTeams = [];
   let usageTotal = 0.0;

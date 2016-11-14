@@ -1,6 +1,9 @@
 export const SIDEBAR_WIDTH = 65;
 export const SIDEBAR_WIDTH_NO_TITLE_BAR = 68;
 
+// NB: Must match height of .client_header in webapp
+export const CHANNEL_HEADER_HEIGHT = 65;
+
 export const WINDOW_TYPES = {
   MAIN: 'MAIN',
   NOTIFICATIONS: 'NOTIFICATIONS',

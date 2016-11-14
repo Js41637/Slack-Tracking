@@ -1,9 +1,10 @@
 import collect from '@paulcbetts/gc';
 import {Module} from 'module';
-import {Subject} from 'rx';
+import {Subject} from 'rxjs/Subject';
+import './rx-operators';
 
 let gcSignal = new Subject();
-gcSignal.throttle(1000).subscribe(() => runGCNow());
+gcSignal.throttleTime(1000).subscribe(() => runGCNow());
 
 export function runGCNow() {
   let keys = Object.keys(Module._pathCache);
@@ -13,5 +14,5 @@ export function runGCNow() {
 }
 
 export function requestGC() {
-  gcSignal.onNext(true);
+  gcSignal.next(true);
 }

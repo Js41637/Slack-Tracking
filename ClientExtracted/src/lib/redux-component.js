@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import rx from 'rx';
+import assignIn from 'lodash.assignin';
+import {Subscription} from 'rxjs/Subscription';
 import shallowEqual from '../utils/shallow-equal';
 import stateEventHandler from './state-events';
 
@@ -33,11 +33,12 @@ export default class ReduxComponent {
    * @param {object} args - The this. variables that get assigned prior to running syncState
    */
   constructor(args = {}) {
-    _.extend(this, args);
+    assignIn(this, args);
     this.state = this.syncState() || {};
 
     if (SettingStore.getSetting('isDevMode') === true) {
-      _.forEach(this.state, (value, key) => {
+      Object.keys(this.state).forEach((key) => {
+        let value = this.state[key];
         if (value === undefined) {
           throw new Error(`${this.constructor.name}.state.${key} is undefined.  The data may not have been included in the update shape in WindowStore`);
         }
@@ -49,10 +50,9 @@ export default class ReduxComponent {
      * methods are called, that way no two components will have
      * different data from the stores
      */
-    this.disposables = new rx.CompositeDisposable(
-      rx.Disposable.create(Store.subscribe(this._updateState.bind(this))), // Subscribe returns a function to unsub
-      rx.Disposable.create(Store.subscribePostDispatch(this._runUpdateCallbacks.bind(this)))
-    );
+    this.disposables = new Subscription();
+    this.disposables.add(new Subscription(Store.subscribe(this._updateState.bind(this)))); // Subscribe returns a function to unsub
+    this.disposables.add(new Subscription(Store.subscribePostDispatch(this._runUpdateCallbacks.bind(this))));
 
     /* In updateState, we figure out if the component has had its state changed
      * if it has, we add the update function as a callback to this set.
@@ -62,7 +62,7 @@ export default class ReduxComponent {
   }
 
   dispose() {
-    this.disposables.dispose();
+    this.disposables.unsubscribe();
   }
 
   // Updates the state variable of this component, as well as checks all the
@@ -73,9 +73,10 @@ export default class ReduxComponent {
     let prevState = this.state;
     let newState = this.syncState() || {};
     if (!shallowEqual(prevState, newState)) {
-      this.state = _.assign({}, this.state, newState);
+      this.state = {...this.state, ...newState};
 
-      _.forEach(newState, (value, key) => {
+      Object.keys(newState).forEach((key) => {
+        let value = newState[key];
         let handler = stateEventHandler(this, value, key, prevState);
         if (handler) this.updateCallbacks.add(() => handler(value));
       });

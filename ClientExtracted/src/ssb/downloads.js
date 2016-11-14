@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {shell} from 'electron';
 import uuid from 'node-uuid';
 
@@ -29,7 +28,7 @@ export default class DownloadIntegration {
 
   clearHistory() {
     let metadata = JSON.parse(this.metadataForDownloads());
-    let tokens = _.keys(metadata);
+    let tokens = Object.keys(metadata);
     this.pruneTokensFromHistory(tokens);
   }
 

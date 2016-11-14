@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import {Observable} from 'rx';
+import {Observable} from 'rxjs/Observable';
 import Component from '../lib/component';
 
 export default class ScrollableArea extends Component {

@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {sortBy} from 'lodash';
+import sortBy from 'lodash.sortby';
 
 /**
  * Reads the licenses file created by `generateLicenseFile` and parses out the

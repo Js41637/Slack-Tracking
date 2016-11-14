@@ -1,4 +1,4 @@
-import {isNumber, isObject} from 'lodash';
+import isObject from './is-object';
 
 /**
  * An accumulator function that will keep a running sum of all keys defined on
@@ -18,7 +18,7 @@ export default function objectSum(acc, x) {
 
   for (let key of Object.keys(x)) {
 
-    acc[key] = isNumber(x[key]) ?
+    acc[key] = (typeof x[key] == 'number') ?
       (acc[key] || 0) + x[key] :
       objectSum(acc[key] || {}, x[key]);
   }

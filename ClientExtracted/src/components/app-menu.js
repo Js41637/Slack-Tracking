@@ -1,6 +1,7 @@
-import _ from 'lodash';
 import season from 'season';
 import {app, BrowserWindow, Menu, MenuItem} from 'electron';
+import cloneDeep from 'lodash.clonedeep';
+import isEqualArrays from '../utils/array-is-equal';
 
 import AppActions from '../actions/app-actions';
 import AppStore from '../stores/app-store';
@@ -10,7 +11,7 @@ import SettingActions from '../actions/setting-actions';
 import SettingStore from '../stores/setting-store';
 import TeamStore from '../stores/team-store';
 
-import {UPDATE_STATUS} from '../utils/shared-constants';
+import {getMenuItemForUpdateStatus} from '../browser/updater-utils';
 
 export default class AppMenu extends ReduxComponent {
 
@@ -28,9 +29,11 @@ export default class AppMenu extends ReduxComponent {
     'application:keyboard-shortcuts': () => {
       EventActions.showWebappDialog('shortcuts');
     },
+    'application:prepare-and-reveal-logs': EventActions.prepareAndRevealLogs,
 
     // Window menu commands
     'window:reload': () => EventActions.reload(),
+    'window:reload-everything': () => EventActions.reload(true),
     'window:toggle-dev-tools': AppActions.toggleDevTools,
     'window:toggle-full-screen': EventActions.toggleFullScreen,
     'window:actual-size': SettingActions.resetZoom,
@@ -74,7 +77,7 @@ export default class AppMenu extends ReduxComponent {
     ).menu;
 
     if (!this.state.isDevMode && !process.env.SLACK_DEVELOPER_MENU) {
-      this.removeMenuItems(/&?View/, /&?Developer/);
+      this.removeMenuItems(/&?View/, /&?Developer/, { before: true });
     }
 
     if (this.state.disableUpdatesCheck) {
@@ -121,11 +124,11 @@ export default class AppMenu extends ReduxComponent {
       menuChanged = true;
     }
 
-    let teamNames = _.mapValues(this.state.teams, (t) => t.team_name);
-    let previousTeamNames = _.mapValues(prevState.teams, (t) => t.team_name);
+    let teamNames = Object.keys(this.state.teams || {}).map((teamId) => this.state.teams[teamId].team_name);
+    let previousTeamNames = Object.keys(prevState.teams || {}).map((teamId) => prevState.teams[teamId].team_name);
 
     if (this.state.teamsByIndex !== prevState.teamsByIndex ||
-      !_.isEqual(teamNames, previousTeamNames)) {
+      !isEqualArrays(teamNames, previousTeamNames)) {
       this.updateTeamItems();
       menuChanged = true;
     }
@@ -136,7 +139,7 @@ export default class AppMenu extends ReduxComponent {
     }
 
     if (menuChanged) {
-      let menu = Menu.buildFromTemplate(_.cloneDeep(this.template));
+      let menu = Menu.buildFromTemplate(cloneDeep(this.template));
       this.updateMenu(menu);
     }
   }
@@ -210,48 +213,12 @@ export default class AppMenu extends ReduxComponent {
    * status. This provides some feedback to the user.
    */
   updateUpdateStatus() {
-    let newUpdateStatusItem;
-    switch (this.state.updateStatus) {
-    case UPDATE_STATUS.CHECKING_FOR_UPDATE:
-    case UPDATE_STATUS.CHECKING_FOR_UPDATE_MANUAL:
-      newUpdateStatusItem = {
-        label: 'Checking for Update',
-        enabled: false
-      };
-      break;
-    case UPDATE_STATUS.DOWNLOADING_UPDATE:
-      newUpdateStatusItem = {
-        label: 'Downloading Update',
-        enabled: false
-      };
-      break;
-    case UPDATE_STATUS.UPDATE_AVAILABLE:
-      newUpdateStatusItem = {
-        label: 'An Update Is Available',
-        enabled: false
-      };
-      break;
-    case UPDATE_STATUS.UPDATE_DOWNLOADED:
-      newUpdateStatusItem = {
-        label: 'Restart to Apply Update',
-        enabled: true,
-        click: () => AppActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY)
-      };
-      break;
-    case UPDATE_STATUS.NONE:
-    case UPDATE_STATUS.UP_TO_DATE:
-    case UPDATE_STATUS.ERROR:
-    default:
-      newUpdateStatusItem = {
-        label: 'Check for Updates…',
-        enabled: true
-      };
-      break;
-    }
+    let {updateStatus, platform} = this.state;
+    let newUpdateStatusItem = getMenuItemForUpdateStatus(updateStatus);
 
-    if (this.state.platform === 'darwin') {
+    if (platform === 'darwin') {
       this.replaceMenuItem(/Slack/, /update-status/, newUpdateStatusItem);
-    } else if (this.state.platform === 'win32') {
+    } else if (platform === 'win32') {
       this.replaceMenuItem(/Help/, /update-status/, newUpdateStatusItem);
     }
   }
@@ -306,19 +273,23 @@ export default class AppMenu extends ReduxComponent {
    *
    * @param  {Regex} menuLabel      Describes the top-level menu to match
    * @param  {Regex} itemLabel      Describes the submenu item to match
+   * @param  {Object} separator     Separator to be removed.
    */
-  removeMenuItems(menuLabel, itemLabel, removeAdjacentSeparator = true) {
+  removeMenuItems(menuLabel, itemLabel, separator = { before: false, after: false }) {
     let {menuIndex, itemIndex} = this.findIndexByLabels(menuLabel, itemLabel);
     let submenu = this.template[menuIndex].submenu;
     submenu.splice(itemIndex, 1);
 
-    if (removeAdjacentSeparator) {
-      let adjacentItem = submenu[itemIndex];
-
-      if (adjacentItem && adjacentItem.type === 'separator') {
-        submenu.splice(itemIndex, 1);
+    const { before, after } = separator;
+    const removeSeparator = (index) => {
+      const item = submenu[index];
+      if (item && item.type === 'separator') {
+        submenu.splice(index, 1);
       }
-    }
+    };
+
+    after && removeSeparator(itemIndex + 1);
+    before && removeSeparator(itemIndex - 1);
   }
 
   /**
@@ -329,11 +300,8 @@ export default class AppMenu extends ReduxComponent {
    * @param  {Regex} itemId         Describes the submenu item id to match
    */
   findIndexById(menuLabel, itemId) {
-    let menuIndex = _.findIndex(this.template, (item) => {
-      return item.label.match(menuLabel);
-    });
-
-    let itemIndex = _.findIndex(this.template[menuIndex].submenu, (item) => {
+    let menuIndex = this.template.findIndex((item) => item.label.match(menuLabel));
+    let itemIndex = this.template[menuIndex].submenu.findIndex((item) => {
       return item.id && item.id.match(itemId);
     });
 
@@ -348,11 +316,11 @@ export default class AppMenu extends ReduxComponent {
    * @param  {Regex} itemLabel      Describes the submenu item to match
    */
   findIndexByLabels(menuLabel, itemLabel) {
-    let menuIndex = _.findIndex(this.template, (item) => {
+    let menuIndex = this.template.findIndex((item) => {
       return item.label.match(menuLabel);
     });
 
-    let itemIndex = _.findIndex(this.template[menuIndex].submenu, (item) => {
+    let itemIndex = this.template[menuIndex].submenu.findIndex((item) => {
       return item.label && item.label.match(itemLabel);
     });
 

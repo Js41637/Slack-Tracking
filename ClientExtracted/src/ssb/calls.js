@@ -1,5 +1,6 @@
 /*eslint no-unused-vars:0*/
 
+import {remote} from 'electron';
 import logger from '../logger';
 
 let WebRTC = null;
@@ -18,16 +19,32 @@ export default class Calls {
     this.callbacks = obj.callbacks;
   }
 
+  startMinipanelReceiver(cb) {
+    this.minipanelReceiver = new WebRTC.MinipanelReceiver(
+      this.onMemoryFrame.bind(this),
+      this.onLog.bind(this));
+    this.minipanelReceiverCallback = cb;
+  }
+
+  stopMinipanelReceiver() {
+    if (this.minipanelReceiver) {
+      this.minipanelReceiver.destroy();
+      this.minipanelReceiver = null;
+    }
+  }
+
   startNewCall() {
     let version = `${window.TS.model.win_ssb_version}.${window.TS.model.win_ssb_version_minor}`;
     logger.info("Starting new Calls");
+    this.appSleepId = remote.powerSaveBlocker.start('prevent-display-sleep');
     this.session = new WebRTC.SHSession(
       (j) => this.invokeJSMethod(j),
       () => this.onJanusDisconnected(),
       (i,j) => this.onLog(i,j),
       this.onRemoteFrame.bind(this),
       this.onLocalFrame.bind(this),
-      version);
+      version,
+      logger.logLocation);
   }
 
   invokeJSMethod(msg_json) {
@@ -82,7 +99,14 @@ export default class Calls {
     }
   }
 
+  waitForAsyncShutdown() {
+    if (this.session) {
+      this.session.waitForAsyncShutdown();
+    }
+  }
+  
   shutdown() {
+    remote.powerSaveBlocker.stop(this.appSleepId);
     if (this.session) {
       this.session.destroy();
       this.session = null;
@@ -105,12 +129,18 @@ export default class Calls {
     this.session.signalDoneRenderingLocalFrame();
   }
 
+  onMemoryFrame(...args) {
+    if (this.minipanelReceiverCallback) this.minipanelReceiverCallback(...args);
+    this.minipanelReceiver.signalDoneRenderingFrame();
+  }
+
   requestCapabilities() {
     return {
       supports_voice: true,
       supports_video: true,
       supports_screen_sharing: true,
-      supports_disconnection_cb: true
-    }; 
+      supports_disconnection_cb: true,
+      supports_mmap_minipanel: (process.platform === 'darwin')
+    };
   }
 }

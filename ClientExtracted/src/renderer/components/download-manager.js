@@ -1,5 +1,4 @@
-import _ from 'lodash';
-import {Disposable} from 'rx';
+import assignIn from 'lodash.assignin';
 import fs from 'fs';
 import {remote, ipcRenderer} from 'electron';
 
@@ -30,7 +29,7 @@ export default class DownloadManager extends ReduxComponent {
 
     // Restore download metadata that was previously saved from `localStorage`
     if (this.storage.data.downloadsByToken) {
-      _.extend(this, this.storage.data);
+      assignIn(this, this.storage.data);
       d(`Restoring previous download metadata: ${JSON.stringify(this.downloadsByToken)}`);
     }
 
@@ -39,9 +38,7 @@ export default class DownloadManager extends ReduxComponent {
     let onProgress = (e, info) => this.downloadUpdated(info);
     ipcRenderer.on('download-progress', onProgress);
 
-    this.disposables.add(new Disposable(() => {
-      ipcRenderer.removeListener('download-progress', onProgress);
-    }));
+    this.disposables.add(() => ipcRenderer.removeListener('download-progress', onProgress));
 
     this.syncWebApp();
     this.retryFailedDownloads();
@@ -185,7 +182,7 @@ export default class DownloadManager extends ReduxComponent {
 
   // Restarts any downloads that failed previously
   retryFailedDownloads() {
-    for (let token of _.keys(this.downloadsByToken)) {
+    for (let token of Object.keys(this.downloadsByToken)) {
       let state = this.downloadsByToken[token].state;
       if (state === 'failed') {
         this.retryDownload({token});

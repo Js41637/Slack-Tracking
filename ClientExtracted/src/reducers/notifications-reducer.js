@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import {NOTIFICATIONS, APP} from '../actions';
 
 // Here we store an array of all notifications as well as an event that
@@ -23,24 +21,23 @@ export default function reduce(state = initialState, action) {
     return removeNotification(state, action.data.notificationId);
 
   case APP.RESET_STORE:
-    return _.assign({}, initialState);
+    return Object.assign({}, initialState);
   default:
     return state;
   }
 }
 
 function newNotification(state, notification) {
-  return _.assign({}, state, {
+  return {
+    ...state,
     notifications: [...state.notifications, notification],
     newNotification: {
       timestamp: Date.now(),
       notification
     }
-  });
+  };
 }
 
 function removeNotification(state, notificationId) {
-  return _.assign({}, state, {
-    notifications: _.filter(state.notifications, (item) => item.id !== notificationId)
-  });
+  return {...state, notifications: state.notifications.filter((item) => item.id !== notificationId)};
 }

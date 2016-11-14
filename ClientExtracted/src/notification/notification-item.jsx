@@ -1,6 +1,7 @@
 import Color from 'color';
 import logger from '../logger';
-import {Observable, CompositeDisposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 import React from 'react';
 
 import Component from '../lib/component';
@@ -19,6 +20,8 @@ const defaultTheme = {
   menu_bg: "#3E313C",
   text_color: "#FFFFFF"
 };
+
+const ICON_SIZE = 72;
 
 export default class NotificationItem extends Component {
 
@@ -40,7 +43,7 @@ export default class NotificationItem extends Component {
 
   constructor(props) {
     super(props);
-    this.disp = new CompositeDisposable();
+    this.disp = new Subscription();
   }
 
   syncState() {
@@ -50,6 +53,8 @@ export default class NotificationItem extends Component {
 
     if (!state.team) {
       logger.warn(`No team in notification ${this.props.notification.id}!`);
+      logger.warn(`Requested teamId was: ${this.props.notification.teamId}`);
+      logger.warn(`Available teams: ${TeamStore.getTeamIds()}`);
     }
 
     return state;
@@ -110,7 +115,7 @@ export default class NotificationItem extends Component {
             borderColor: contentBackground.lighten(0.33).hexString()
           }}>
           <div className="NotificationItem-icon" style={{backgroundColor: headerBackground.hexString()}}>
-            <TeamIcon size={72} team={this.state.team} color={initialsColor}/>
+            <TeamIcon size={ICON_SIZE} team={this.state.team} color={initialsColor} borderRadius={0} />
           </div>
           <div className="NotificationItem-text" style={{color: textColor}}>
             <p className="NotificationItem-title">{notification.title}</p>

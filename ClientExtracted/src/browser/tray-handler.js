@@ -1,15 +1,17 @@
 import {app, dialog, Menu, MenuItem, Tray} from 'electron';
-import _ from 'lodash';
-import logger from '../logger';
-import {Observable, Disposable} from 'rx';
+import {Observable} from 'rxjs/Observable';
 
 import AppActions from '../actions/app-actions';
 import AppStore from '../stores/app-store';
 import EventActions from '../actions/event-actions';
 import ReduxComponent from '../lib/redux-component';
-import resolveImage from '../utils/resolve-image';
 import SettingStore from '../stores/setting-store';
 import TeamStore from '../stores/team-store';
+
+import logger from '../logger';
+import isEqualArrays from '../utils/array-is-equal';
+import resolveImage from '../utils/resolve-image';
+import {getMenuItemForUpdateStatus} from './updater-utils';
 
 import {requireTaskPool} from 'electron-remote';
 const {repairTrayRegistryKey} = requireTaskPool(require.resolve('../csx/tray-repair'));
@@ -42,15 +44,17 @@ export default class TrayHandler extends ReduxComponent {
       isWindows: SettingStore.isWindows(),
       teams: TeamStore.getTeams(),
       teamsByIndex: AppStore.getTeamsByIndex(),
+      updateStatus: AppStore.getUpdateStatus(),
       releaseChannel: SettingStore.getSetting('releaseChannel'),
       isDevMode: SettingStore.getSetting('isDevMode')
     };
   }
 
   update(prevState={}) {
-    let {icon, tooltip, badge, lastBalloon, hasRunApp, isWindows, releaseChannel} = this.state;
+    let {icon, tooltip, badge, lastBalloon, hasRunApp, isMac, isWindows,
+      teamsByIndex, updateStatus, releaseChannel} = this.state;
 
-    if (icon !== prevState.icon) {
+    if (!isMac && icon !== prevState.icon) {
       this.setTrayIcon(icon, tooltip);
     }
 
@@ -66,8 +70,10 @@ export default class TrayHandler extends ReduxComponent {
       this.showBalloon(lastBalloon);
     }
 
-    if (!_.isEqual(prevState.teamsByIndex, this.state.teamsByIndex)) {
-      this.createTrayMenu();
+    if (this.tray) {
+      let didTeamsChange = !isEqualArrays(prevState.teamsByIndex, teamsByIndex);
+      let didUpdateStatusChange = updateStatus !== prevState.updateStatus;
+      if (didTeamsChange || didUpdateStatusChange) this.createTrayMenu();
     }
 
     if (prevState.releaseChannel && releaseChannel !== prevState.releaseChannel) {
@@ -82,14 +88,14 @@ export default class TrayHandler extends ReduxComponent {
         });
       } else if (this.state.isDevMode) {
         dialog.showMessageBox({
-          title: 'Slack for Windows Beta',
+          title: 'Slack Beta',
           buttons: ['OK'],
           message: message
         });
       }
     }
 
-    if (hasRunApp !== prevState.hasRunApp && !hasRunApp) {
+    if (hasRunApp !== prevState.hasRunApp && !hasRunApp && !isMac) {
       this.showBalloon({
         title: 'Welcome to Slack!',
         content: "This icon will show a blue dot for unread messages, and a red one for notifications. If you'd like Slack to appear here all the time, drag the icon out of the overflow area."
@@ -204,11 +210,11 @@ export default class TrayHandler extends ReduxComponent {
     this.disposables.add(Observable.fromEvent(this.tray, 'click')
       .subscribe(() => EventActions.foregroundApp()));
 
-    this.disposables.add(Disposable.create(() => {
+    this.disposables.add(() => {
       if (!this.tray) return;
       this.tray.destroy();
       this.tray = null;
-    }));
+    });
   }
 
   /**
@@ -233,20 +239,18 @@ export default class TrayHandler extends ReduxComponent {
 
     teamMenuItems.forEach((x) => menu.append(new MenuItem(x)));
 
-    if (!this.state.isMac) {
-      menu.append(new MenuItem({
-        label: '&Preferences',
-        click: () => EventActions.showWebappDialog('prefs'),
-        accelerator: 'CommandOrControl+,'
-      }));
-
-      menu.append(new MenuItem({
-        label: '&Check for Updates...',
-        click: () => AppActions.checkForUpdate()
-      }));
-
-      menu.append(new MenuItem({type: 'separator'}));
+    if (!this.state.isLinux) {
+      let menuArgs = getMenuItemForUpdateStatus(this.state.updateStatus);
+      menu.append(new MenuItem(menuArgs));
     }
+
+    menu.append(new MenuItem({
+      label: '&Preferences',
+      click: () => EventActions.showWebappDialog('prefs'),
+      accelerator: 'CommandOrControl+,'
+    }));
+
+    menu.append(new MenuItem({type: 'separator'}));
 
     menu.append(new MenuItem({
       label: '&Quit',

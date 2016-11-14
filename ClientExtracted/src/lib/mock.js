@@ -36,14 +36,14 @@
 
 */
 
-import _ from 'lodash';
+import cloneDeep from 'lodash.clonedeep';
 
 export default class Mock {
 
   get(...modifiers) {
     if (!this.base) throw new Error("Mocks require a base attribute / function");
 
-    let obj = typeof this.base === 'function' ? this.base() : _.cloneDeep(this.base);
+    let obj = typeof this.base === 'function' ? this.base() : cloneDeep(this.base);
 
     modifiers.forEach((modifier) => {
       let value = this[modifier] || {};
@@ -51,7 +51,7 @@ export default class Mock {
       if (typeof value === 'function') {
         obj = value(obj);
       } else {
-        _.assign(obj, value);
+        Object.assign(obj, value);
       }
 
     });

@@ -1,9 +1,12 @@
 import {ipcMain, BrowserWindow} from 'electron';
 const {app} = require('electron');
-import _ from 'lodash';
+import omit from '../utils/omit';
+import assignIn from 'lodash.assignin';
+import kebabCase from 'lodash.kebabcase';
 import logger from '../logger';
 import {executeJavaScriptMethod, remoteEval} from 'electron-remote';
-import {Observable, Disposable, CompositeDisposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 
 import AppActions from '../actions/app-actions';
 import AppMenu from '../components/app-menu';
@@ -91,7 +94,7 @@ class WindowCreator extends ReduxComponent {
    * @return {BrowserWindow}  The created window
    */
   createMainWindow(params) {
-    let options = _.assign({}, this.getSlackWindowOpts(), params);
+    let options = {...this.getSlackWindowOpts(), ...params};
     options.windowType = WINDOW_TYPES.MAIN;
     options.bootstrapScript = require.resolve('../renderer/main');
 
@@ -110,7 +113,7 @@ class WindowCreator extends ReduxComponent {
     let setEmptyWindowIcon = this.actionToClearWindowIcon(options);
 
     let browserWindow = new BrowserWindow(options);
-    let disposable = new CompositeDisposable();
+    let disposable = new Subscription();
 
     WindowActions.addWindow(browserWindow.id, WINDOW_TYPES.MAIN);
 
@@ -125,15 +128,26 @@ class WindowCreator extends ReduxComponent {
       behaviors.push(new DarwinSwipeBehavior());
     }
 
-    _.forEach(behaviors, (behavior) => {
+    behaviors.forEach((behavior) => {
       disposable.add(behavior.setup(browserWindow));
+    });
+
+    browserWindow.on('enter-full-screen', () => {
+      AppActions.setFullScreen(true);
+    });
+
+    browserWindow.on('leave-full-screen', () => {
+      AppActions.setFullScreen(false);
     });
 
     browserWindow.on('focus', EventActions.focusPrimaryTeam);
     browserWindow.on('app-command', (e, cmd) => {
       if (cmd !== 'unknown') EventActions.appCommand(cmd);
     });
-    browserWindow.on('ready-to-show', () => this.mainWindowFinishedLoad(browserWindow, options, setEmptyWindowIcon));
+
+    this.windowReadyEvent(browserWindow).subscribe(() => {
+      this.onMainWindowReady(browserWindow, options, setEmptyWindowIcon);
+    });
 
     browserWindow.on('close', (e) => {
       if (windowCloseBehavior.canWindowBeClosed(browserWindow)) {
@@ -142,10 +156,10 @@ class WindowCreator extends ReduxComponent {
         // Hide immediately to appear more responsive.
         browserWindow.hide();
 
-        // Dispose all the child components and attached behaviors. Note that
+        // Unsubscribe all the child components and attached behaviors. Note that
         // this disposes `BrowserWindowManager`, which first closes all other
         // windows. So we can guarantee we're the last survivor.
-        disposable.dispose();
+        disposable.unsubscribe();
       } else {
         // The window was hidden by the behavior, just cancel the close.
         e.preventDefault();
@@ -166,12 +180,24 @@ class WindowCreator extends ReduxComponent {
 
     disposable.add(this.createChildComponents(browserWindow));
 
-    disposable.add(new Disposable(() => {
+    disposable.add(() => {
       global.application.dispose();
       WindowActions.removeWindow(browserWindow.id);
-    }));
+    });
 
     return browserWindow;
+  }
+
+  /**
+   * The ready-to-show event is broken since Electron 1.3.7, but when it's
+   * fixed we should switch back to it.
+   */
+  windowReadyEvent(browserWindow) {
+    return Observable.merge(
+      Observable.fromEvent(browserWindow.webContents, 'dom-ready'),
+      Observable.fromEvent(browserWindow, 'ready-to-show')
+        .do(() => logger.info('ready-to-show is back in action'))
+    ).take(1);
   }
 
   /**
@@ -181,13 +207,9 @@ class WindowCreator extends ReduxComponent {
    * @param  {Object} options An object containing BrowserWindow arguments
    * @param  {Function} setEmptyWindowIcon A method used to clear the icon
    */
-  mainWindowFinishedLoad(mainWindow, options, setEmptyWindowIcon) {
+  onMainWindowReady(mainWindow, options, setEmptyWindowIcon) {
     logger.info(`Main window finished load. Launched on login: ${options.invokedOnStartup}`);
     setTimeout(setEmptyWindowIcon, 5 * 1000);
-
-    if (options.protoUrl) {
-      EventActions.handleDeepLink(options.protoUrl);
-    }
 
     // NB: We have to wait for the window to finish load before minimizing,
     // otherwise the app never loads.
@@ -206,33 +228,33 @@ class WindowCreator extends ReduxComponent {
    * Creates browser components that depend on the main app window.
    *
    * @param  {BrowserWindow} mainWindow The main window
-   * @return {Disposable} A Disposable that will clean up all child components
+   * @return {Subscription} A Subscription that will clean up all child components
    */
   createChildComponents(mainWindow) {
-    let disp = new CompositeDisposable();
+    let disp = new Subscription();
     let windowManager = new BrowserWindowManager(mainWindow);
-    disp.add(Disposable.create(() => windowManager.dispose()));
+    disp.add(() => windowManager.dispose());
 
     if (!this.state.isMac) {
       let appMenu = new AppMenu(mainWindow);
-      disp.add(Disposable.create(() => appMenu.dispose()));
+      disp.add(() => appMenu.dispose());
     }
 
     if (this.state.isWindows) {
       let windowFlashManager = new WindowFlashNotificationManager(mainWindow);
-      disp.add(Disposable.create(() => windowFlashManager.dispose()));
+      disp.add(() => windowFlashManager.dispose());
     }
 
     if (this.state.isShowingHtmlNotifications) {
       let notificationWindowManager = new NotificationWindowManager(mainWindow);
-      disp.add(Disposable.create(() => notificationWindowManager.dispose()));
+      disp.add(() => notificationWindowManager.dispose());
     }
 
     let downloadListener = new DownloadListener(mainWindow);
-    disp.add(Disposable.create(() => downloadListener.dispose()));
+    disp.add(() => downloadListener.dispose());
 
     let metricsReporter = new MetricsReporter(mainWindow);
-    disp.add(Disposable.create(() => metricsReporter.dispose()));
+    disp.add(() => metricsReporter.dispose());
 
     disp.add(reportWindowMetrics(mainWindow, metricsReporter));
     disp.add(reportRendererCrashes(mainWindow, metricsReporter));
@@ -250,17 +272,17 @@ class WindowCreator extends ReduxComponent {
     let options = this.getNotificationWindowOpts();
     let browserWindow = new BrowserWindow(options);
     let windowId = browserWindow.id;
-    let disposable = new CompositeDisposable();
+    let disposable = new Subscription();
 
     loadWindowFileUrl(browserWindow, options);
     this.preventWindowNavigation(browserWindow);
 
     WindowActions.addWindow(windowId, WINDOW_TYPES.NOTIFICATIONS);
-    disposable.add(new Disposable(() => WindowActions.removeWindow(windowId)));
+    disposable.add(() => WindowActions.removeWindow(windowId));
 
     browserWindow.once('close', () => {
       logger.info('Notifications window closed, disposing');
-      disposable.dispose();
+      disposable.unsubscribe();
     });
 
     return browserWindow;
@@ -297,7 +319,7 @@ class WindowCreator extends ReduxComponent {
    *
    * @return {BrowserWindow}  The created window
    */
-  createWebappWindow(params, sender=null) {
+  createWebappWindow(params = {}, sender=null) {
     let options = this.getWebappWindowOpts();
 
     // Override default options with params, handling any custom options
@@ -305,16 +327,21 @@ class WindowCreator extends ReduxComponent {
       hideMenuBar: 'autoHideMenuBar'
     };
 
-    _.forEach(params, (value, key) => {
+    Object.keys(params).forEach((key) => {
+      let value = params[key];
       let option = customParamsMap[key] === undefined ? key : customParamsMap[key];
       options[option] = value;
     });
 
-    logger.info(`Creating webapp window with ${JSON.stringify(_.omit(options, ['url', 'content_html']))}`);
+    options.fullscreen = (params.fullscreen !== undefined) ? params.fullscreen : false;
+    options.fullscreenable = (params.fullscreenable !== undefined) ? params.fullscreenable : true;
+    options = RepositionWindowBehavior.getValidWindowPositionAndSize(options);
+
+    logger.info(`Creating webapp window with ${JSON.stringify(omit(options, 'url', 'content_html'))}`);
 
     let browserWindow = new BrowserWindow(options);
     let windowId = browserWindow.id;
-    let disposable = new CompositeDisposable();
+    let disposable = new Subscription();
 
     let repositionWindow = new RepositionWindowBehavior({
       recalculateWindowPositionFunc: browserWindow.center
@@ -337,40 +364,57 @@ class WindowCreator extends ReduxComponent {
       disposable.add(this.relayWindowEvents(browserWindow, sender));
     }
 
-    disposable.add(new Disposable(() => WindowActions.removeWindow(windowId)));
+    disposable.add(() => WindowActions.removeWindow(windowId));
 
     browserWindow.once('close', () => {
       browserWindow.hide();
 
       logger.info('Webapp window closed, disposing');
-      disposable.dispose();
+      disposable.unsubscribe();
     });
 
-    WindowActions.addWindow(windowId, WINDOW_TYPES.WEBAPP, params.windowType);
+    WindowActions.addWindow(windowId, WINDOW_TYPES.WEBAPP, params.windowType, params.teamId);
     return browserWindow;
   }
 
   /**
-   * Creates a new window used for the About box.
+   * Create a component window (about box, modals) that automatically renders a
+   * React Component. Place component files in ../renderer/components, using
+   * the component's dasherized name as filename.
    *
-   * @return {BrowserWindow}  The created window
+   * @param ...{Object} params          Options applied to the BrowserWindow.
+   * @param {string} params.name        Name of the component (camelCase)
+   * @param {string} params.component   Component file (overrides dasherized version of name)
+   *
+   * @returns {Electron.BrowserWindow}
    */
-  createAboutWindow() {
-    let options = _.extend(this.getSlackWindowOpts(), {
+
+  createComponentWindow(...params) {
+    let options = assignIn(this.getSlackWindowOpts(), {
       show: false,
       center: true,
-      width: 320,
-      height: this.state.isMac ? 304 : 328, // Add the titlebar height
+      height: 300,
+      width: 300,
       resizable: false,
       minimizable: false,
       maximizable: false,
-      skipTaskbar: true,
       parent: BrowserWindow.fromId(WindowStore.getMainWindow().id),
-      bootstrapScript: require.resolve('../renderer/components/about-box-main'),
-    });
+      bootstrapScript: require.resolve('../renderer/components/component-window-main'),
+    }, ...params);
 
     if (this.state.isTitleBarHidden) {
       options.titleBarStyle = 'hidden-inset';
+    }
+
+    // Add titlebar height
+    options.height = this.state.isMac ? options.height : options.height + 24;
+
+    // Add bootstrap script
+    if (options.name && !options.component) {
+      options.component = `./${kebabCase(options.name)}`;
+    } else {
+      logger.error('createComponentWindow requires either a name or a component property');
+      return;
     }
 
     let browserWindow = new BrowserWindow(options);
@@ -383,6 +427,20 @@ class WindowCreator extends ReduxComponent {
   }
 
   /**
+   * Creates a new window used for the About box.
+   *
+   * @return {BrowserWindow}  The created window
+   */
+  createAboutWindow() {
+    return this.createComponentWindow({
+      width: 320,
+      height: 304,
+      name: 'aboutBox',
+      parent: null
+    });
+  }
+
+  /**
    * Creates a new window used for running tests.
    *
    * @return {BrowserWindow}  The created window
@@ -390,7 +448,7 @@ class WindowCreator extends ReduxComponent {
   createSpecsWindow() {
     let size = this.getSpecsWindowSize();
 
-    let options = _.extend(this.getSlackWindowOpts(), {
+    let options = assignIn(this.getSlackWindowOpts(), {
       show: true,
       isSpec: true,
       width: size.width,
@@ -424,7 +482,7 @@ class WindowCreator extends ReduxComponent {
   }
 
   getNotificationWindowOpts() {
-    return _.extend(this.getSlackWindowOpts(), {
+    return assignIn(this.getSlackWindowOpts(), {
       windowType: WINDOW_TYPES.NOTIFICATIONS,
       bootstrapScript: require.resolve('../notification/main'),
       show: false,
@@ -484,12 +542,12 @@ class WindowCreator extends ReduxComponent {
    *
    * @param  {BrowserWindow} browserWindow  The child window
    * @param  {Object}         senderInfo    Identifies the `WebContents`
-   * @return {Disposable}                   A `Disposable` that will unsubscribe the event
+   * @return {Subscription}                   A Subscription that will unsubscribe the event
    */
   setParentInformation(browserWindow, senderInfo) {
     let parentInfoFailed = (error) => {
       logger.error(`Setting parentInfo failed: ${error.message}`);
-      return Observable.return(false);
+      return Observable.of(false);
     };
 
     let jsonSenderInfo = JSON.stringify(senderInfo);
@@ -507,18 +565,19 @@ class WindowCreator extends ReduxComponent {
    * @param  {BrowserWindow}  browserWindow The child window
    * @param  {WebContents}    sender        The `WebContents` that requested the window
    *
-   * @return {Disposable} A `Disposable` that will clean up what this method did
+   * @return {Subscription} A Subscription that will clean up what this method did
    */
   relayWindowEvents(browserWindow, sender) {
     let windowId = browserWindow.id;
-    let disp = new CompositeDisposable();
+    let disp = new Subscription();
 
     let executeJavaScriptFailed = (eventName, error) => {
       logger.error(`exec-js after ${eventName} failed: ${error.message}`);
-      return Observable.return(false);
+      return Observable.of(false);
     };
 
-    executeJavaScriptMethod(sender, 'TSSSB.windowWithTokenBeganLoading', windowId);
+    executeJavaScriptMethod(sender, 'TSSSB.windowWithTokenBeganLoading', windowId)
+      .catch((e) => executeJavaScriptFailed('loading', e));
 
     disp.add(Observable.fromEvent(browserWindow.webContents, 'did-finish-load')
       .flatMap(() => executeJavaScriptMethod(sender, 'TSSSB.windowWithTokenFinishedLoading', windowId)
@@ -537,7 +596,7 @@ class WindowCreator extends ReduxComponent {
       Observable.fromEvent(browserWindow, 'move')
     );
 
-    disp.add(resizedOrMoved.throttle(250)
+    disp.add(resizedOrMoved.throttleTime(250)
       .map(() => {
         let [x,y] = browserWindow.getPosition();
         let [width, height] = browserWindow.getSize();
@@ -564,7 +623,7 @@ class WindowCreator extends ReduxComponent {
     // quit we should make sure that list keeps its content. That way, the next
     // time around the webapp will ask to restore those windows.
     disp.add(Observable.fromEvent(browserWindow, 'close')
-      .where(() => !this.isQuitting)
+      .filter(() => !this.isQuitting)
       .flatMap(() => executeJavaScriptMethod(sender, 'TSSSB.windowWithTokenWillClose', windowId)
         .catch((e) => executeJavaScriptFailed('close', e)))
       .catch((e) => executeJavaScriptFailed('close', e))

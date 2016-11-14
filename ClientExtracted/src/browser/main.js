@@ -9,15 +9,19 @@ import {parseProtocolUrl} from '../parse-protocol-url';
 import {p} from '../get-path';
 import {spawn} from 'spawn-rx';
 import {createShortcuts, removeShortcuts, updateShortcuts} from './squirrel-shortcuts';
+import {Observable} from 'rxjs/Observable';
 
-import _ from 'lodash';
+import assignIn from 'lodash.assignin';
 import BugsnagReporter from './bugsnag-reporter';
 import fs from 'fs';
 import logger from '../logger';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import setupCrashReporter from '../setup-crash-reporter';
-import WindowHelpers from '../components/helpers/window-helpers';
+import {getAppId} from '../utils/app-id';
+
+import '../rx-operators';
+import '../custom-operators';
 
 initializeEvalHandler();
 
@@ -83,13 +87,47 @@ function handleDisableGpuOnLinux(shouldRun) {
   let disableGpu = localStorage.getItem('useHwAcceleration') === false;
   if (!disableGpu) return shouldRun;
 
-  if (_.find(process.argv, (x) => x.match(/disable-gpu/))) {
+  if (process.argv.find((x) => x.match(/disable-gpu/))) {
     // We've already been relaunched, bye!
     return shouldRun;
   }
 
   app.relaunch({args: process.argv.slice(1) + ['--disable-gpu']});
   return false;
+}
+
+/**
+ * To pass a process-level deep link URL to the application, it needs
+ * to exist first. This function accepts a URL and acts on it when the main
+ * window has loaded.
+ *
+ * @param {string} url  The URL from `open-url`
+ */
+function handleDeepLinkWhenReady(url = '') {
+  logger.info(`Got open-url with: ${url}`);
+
+  // If the user is supplying a dev environment using our protocol URL,
+  // open-url comes in too late for us to be able to set the user data path.
+  // So we need to relaunch ourselves with the URL appended as args.
+  if (url.match(/devEnv=(dev\d+)/)) {
+    app.relaunch({args: process.argv.slice(1) + [url]});
+  } else {
+    // Wait until the application is set up before we touch the Store. Because
+    // the component that sends the link to the webapp might not be ready (if
+    // the app was launched from a protocol link), we're going to stash this
+    // link in the Store.
+    Observable.of(true)
+      .map(() => {
+        if (!global.application) throw new Error('application not available');
+        return global.application;
+      })
+      .retryAtIntervals(20)
+      .delay(50)
+      .subscribe(() => {
+        let {updateSettings} = require('../actions/setting-actions').default;
+        updateSettings({launchedWithLink: url});
+      });
+  }
 }
 
 /**
@@ -116,21 +154,7 @@ function handleSingleInstance(shouldRun) {
 
   app.on('open-url', (e, url) => {
     e.preventDefault();
-    logger.info(`Got open-url with: ${url}`);
-
-    // NB: If the user is supplying a dev environment using our protocol URL,
-    // open-url comes in too late for us to be able to set the user data path.
-    // So we need to relaunch ourselves with the URL appended as args.
-    if (url.match(/devEnv=(dev\d+)/)) {
-      app.relaunch({args: process.argv.slice(1) + [url]});
-    } else {
-      // NB: We can't hit the store from here, so we have to reach into
-      // `Application` directly
-      global.application.handleDeepLinkEvent({url});
-      if (global.application.mainWindow) {
-        WindowHelpers.bringToForeground(global.application.mainWindow);
-      }
-    }
+    handleDeepLinkWhenReady(url);
   });
 
   if (!shouldRun || weAreSecondary) {
@@ -139,7 +163,7 @@ function handleSingleInstance(shouldRun) {
   }
 
   let args = parseCommandLine();
-  _.extend(args, parseProtocolUrl(args.protoUrl));
+  assignIn(args, parseProtocolUrl(args.protoUrl));
 
   protocol.registerStandardSchemes(['slack-resources', 'slack-webapp-dev']);
 
@@ -153,6 +177,14 @@ function handleSingleInstance(shouldRun) {
  */
 function startTheAppOnReady(args) {
   app.commandLine.appendSwitch('disable-pinch');
+
+  // NB: We need to have our own directory in PATH in order to affect DLL
+  // search order so that Calls can find the UCRT that's in the same
+  // directory as slack.exe
+  if (process.platform === 'win32') {
+    let ourDir = path.dirname(process.execPath);
+    process.env.PATH = `${ourDir};${process.env.PATH}`;
+  }
 
   if (!args.devEnv && !args.devMode) {
     let teamBasedSlackDevMenu = p`${'userData'}/.devMenu`;
@@ -185,14 +217,6 @@ function startTheAppOnReady(args) {
  * @param  {Object} args Contains the command-line arguments
  */
 function createSlackApplication(args) {
-  // Set our AppUserModelId based on the Squirrel shortcut
-  let appId = 'com.squirrel.slack.slack';
-  if (args.devMode) {
-    appId += '-dev';
-  } else {
-    if (!process.windowsStore) app.setAsDefaultProtocolClient('slack');
-  }
-
   // NB: Work around electron/electron#6643
   app.on('web-contents-created', (e, wc) => {
     wc.on('context-menu', (ee, params) => {
@@ -200,11 +224,14 @@ function createSlackApplication(args) {
     });
   });
 
-  if (!process.windowsStore) app.setAppUserModelId(appId);
 
   global.loadSettings = args;
   global.reporter = new BugsnagReporter(args.resourcePath, args.devMode);
   global.getMemoryUsage = getMemoryUsage;
+
+  // Set our AppUserModelId based on the Squirrel shortcut
+  if (!process.windowsStore && !args.devMode) app.setAsDefaultProtocolClient('slack');
+  if (!process.windowsStore) app.setAppUserModelId(getAppId());
 
   console.log('Creating Slack Application');
 
@@ -222,6 +249,9 @@ function createSlackApplication(args) {
     global.application = new Application(args);
 
     logger.info(`App load time: ${Date.now() - global.shellStartTime}ms`);
+
+    // Clean up much later once the app has started
+    setTimeout(() => logger.pruneLogs(), 30*1000);
   });
 }
 

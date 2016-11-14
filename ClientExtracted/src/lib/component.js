@@ -1,7 +1,7 @@
-import _ from 'lodash';
+import clone from 'lodash.clone';
 import logger from '../logger';
 import React from 'react';
-import {Disposable, CompositeDisposable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
 import shallowEqual from '../utils/shallow-equal';
 import stateEventHandler from './state-events';
 
@@ -16,20 +16,19 @@ export default class Component extends React.Component {
     this._mounted = true;
 
     let unsubscribe = Store.subscribe(this._update.bind(this));
-    this.disposables = new CompositeDisposable(
-      Disposable.create(unsubscribe)
-    );
-    
+    this.disposables = new Subscription(unsubscribe);
+
     this.isDevMode = SettingStore.getSetting('isDevMode') === true;
   }
 
   _update() {
     if (this._mounted) {
-      let prevState = _.clone(this.state);
+      let prevState = clone(this.state);
       let stateUpdates = this.syncState() || {};
-      
+
       if (this.isDevMode) {
-        _.forEach(stateUpdates, (value, key) => {
+        Object.keys(stateUpdates).forEach((key) => {
+          let value = stateUpdates[key];
           if (value === undefined) {
             throw new Error(`${this.constructor.name}.state.${key} is undefined.  The data may not have been included in the update shape in WindowStore`);
           }
@@ -38,7 +37,8 @@ export default class Component extends React.Component {
 
       this.setState(stateUpdates);
 
-      _.forEach(stateUpdates, (value, key) => {
+      Object.keys(stateUpdates).forEach((key) => {
+        let value = stateUpdates[key];
         let handler = stateEventHandler(this, value, key, prevState);
         if (handler) handler(value);
       });
@@ -56,7 +56,7 @@ export default class Component extends React.Component {
 
   componentWillUnmount() {
     this._mounted = false;
-    this.disposables.dispose();
+    this.disposables.unsubscribe();
   }
 
   syncState() {

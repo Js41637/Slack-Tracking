@@ -1,7 +1,8 @@
-import {Observable, Scheduler} from 'rx';
+import {Observable} from 'rxjs/Observable';
+import {async} from 'rxjs/scheduler/async';
 
 const newCoolOperators = {
-  guaranteedThrottle: function(time, scheduler=Scheduler.timeout) {
+  guaranteedThrottle: function(time, scheduler=async) {
     return this
       .map((x) => Observable.timer(time, scheduler).map(() => x))
       .switch();

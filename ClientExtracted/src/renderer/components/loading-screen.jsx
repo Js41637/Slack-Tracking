@@ -22,7 +22,7 @@ export default class LoadingScreen extends Component {
   }
 
   retryConnection() {
-    EventActions.reload();
+    EventActions.reload(true);
   }
 
   openStatusPage() {

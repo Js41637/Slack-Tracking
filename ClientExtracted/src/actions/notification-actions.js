@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import uuid from 'node-uuid';
 import Store from '../lib/store';
 import {NOTIFICATIONS} from './';
@@ -8,7 +7,7 @@ const keysToOmit = ['content', 'title', 'onclick', 'onclick_arg'];
 
 class NotificationActions {
   newNotification(notification) {
-    notification = _.assign({id: uuid.v4()}, notification);
+    notification = {id: uuid.v4(), ...notification};
 
     Store.dispatch({
       type: NOTIFICATIONS.NEW_NOTIFICATION,

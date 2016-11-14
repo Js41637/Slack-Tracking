@@ -1,5 +1,8 @@
-var _ = require('lodash');
+require('../stat-cache');
+
+var assignIn = require('lodash.assignin');
 var path = require('path');
+var isPrebuilt = require('../utils/process-helpers').isPrebuilt;
 
 process.on('uncaughtException', (e) => console.error(e));
 
@@ -7,9 +10,9 @@ process.on('uncaughtException', (e) => console.error(e));
 // want to edit src/ssb/main.js instead
 var start = function(loadSettings) {
   window.loadSettings = loadSettings;
-  
+
   var mainModule = path.join(loadSettings.resourcePath, 'src', 'ssb', 'main.js');
-  var isDevMode = loadSettings.devMode && process.execPath.match(/[\\\/]electron-prebuilt[\\\/]/);
+  var isDevMode = loadSettings.devMode && isPrebuilt();
   require('electron-compile').init(loadSettings.resourcePath, mainModule, !isDevMode);
 };
 
@@ -22,4 +25,4 @@ process.nextTick(function() { // eslint-disable-line
 // NB: For whatever reason, we have to wait longer to restore 'global'
 setTimeout(function() { window.global = window; }, 10); // eslint-disable-line
 
-start(_.extend({}, require('electron').remote.getGlobal('loadSettings'), {windowType: 'WEBAPP'}));
+start(assignIn({}, require('electron').remote.getGlobal('loadSettings'), {windowType: 'WEBAPP'}));

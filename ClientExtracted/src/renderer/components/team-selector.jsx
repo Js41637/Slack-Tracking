@@ -1,6 +1,9 @@
-import _ from 'lodash';
+import union from '../../utils/union';
+import difference from 'lodash.difference';
+import assignIn from 'lodash.assignin';
 import React from 'react';
-import {Observable, Subject} from 'rx';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 
 import {remote} from 'electron';
 const {Menu, MenuItem} = remote;
@@ -19,6 +22,7 @@ import {getSidebarColor} from './color-utils';
 import {requestGC} from '../../run-gc';
 import {getTextColor} from './color-utils';
 import shallowEqual from '../../utils/shallow-equal';
+import {getScaledBorderRadius} from '../../utils/component-helpers';
 
 import {SIDEBAR_WIDTH, SIDEBAR_WIDTH_NO_TITLE_BAR} from '../../utils/shared-constants';
 
@@ -41,7 +45,7 @@ export default class TeamSelector extends Component {
     this.state.hasScrolled = false;
     this.state.hasOverflown = false;
 
-    _.extend(this, {
+    assignIn(this, {
       draggedNode: null, // The DOM Node being dragged by the mouse
       iconOffsetFromMouse: 0 // The difference in height between the mouse and the top of the dragged icon
     });
@@ -63,7 +67,7 @@ export default class TeamSelector extends Component {
     this.requestGCLongDelaySubject = new Subject();
 
     this.requestGCLongDelaySubject
-      .throttle(10*1000)
+      .throttleTime(10*1000)
       .subscribe(() => requestGC());
 
     this.teamSelectorBackgroundClick = new Subject();
@@ -77,6 +81,9 @@ export default class TeamSelector extends Component {
       })
       .retry()
       .subscribe(() => AppActions.toggleDevTools());
+
+    this.teamSelectorBackgroundClick
+      .subscribe(() => EventActions.sidebarClicked());
   }
 
   syncState() {
@@ -86,8 +93,8 @@ export default class TeamSelector extends Component {
     this.updateTeamIndices(teamsByIndex);
 
     let isTitleBarHidden = SettingStore.getSetting('isTitleBarHidden');
-    this.itemListTopMargin = isTitleBarHidden ?
-      ITEM_LIST_MARGIN_TOP_NO_TITLE_BAR : ITEM_LIST_MARGIN_TOP;
+
+    let itemListTopMargin = isTitleBarHidden ? ITEM_LIST_MARGIN_TOP_NO_TITLE_BAR : ITEM_LIST_MARGIN_TOP;
     this.itemListLeftMargin = isTitleBarHidden ?
       ICON_MARGIN_LEFT_NO_TITLE_BAR : ICON_MARGIN_LEFT;
 
@@ -96,24 +103,35 @@ export default class TeamSelector extends Component {
       teamsByIndex: teamsByIndex,
       selectedTeamId: AppStore.getSelectedTeamId(),
       isMac: SettingStore.isMac(),
-      isTitleBarHidden: isTitleBarHidden
+      isTitleBarHidden: isTitleBarHidden,
+      itemListTopMargin,
+      isFullScreen: AppStore.isFullScreen()
     };
   }
 
   // Save a reference between teams and indices for quick access during repetitive drag methods
   updateTeamIndices(teamsByIndex) {
-    this.teamIndices = _.reduce(teamsByIndex,
+    this.teamIndices = teamsByIndex.reduce(
       (result, team, index) => { result[team] = index; return result; }
     , {});
   }
 
   componentDidMount() {
     let resizeSubscription = Observable.fromEvent(window, 'resize')
-      .throttle(200)
+      .throttleTime(200)
       .subscribe(this.handleWindowResize.bind(this));
 
     let scrollSubscription = this.refs.scrollable.observeScroll()
       .subscribe(this.handleScroll.bind(this));
+
+    if (this.state.isMac) {
+      let ctrlTabSubscription = Observable.fromEvent(document, 'keyup')
+        .filter((e) => e.key === 'Tab' && e.ctrlKey)
+        .map((e) => e.shiftKey ? AppActions.selectPreviousTeam : AppActions.selectNextTeam)
+        .subscribe((action) => action());
+
+      this.disposables.add(ctrlTabSubscription);
+    }
 
     this.disposables.add(resizeSubscription);
     this.disposables.add(scrollSubscription);
@@ -128,7 +146,7 @@ export default class TeamSelector extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.state.selectedTeamId && prevState.selectedTeamId !== this.state.selectedTeamId) {
       this.refs[`itemFor${this.state.selectedTeamId}`].scrollIntoViewIfNeeded();
-      this.requestGCLongDelaySubject.onNext(true);
+      this.requestGCLongDelaySubject.next(true);
     }
   }
 
@@ -137,11 +155,12 @@ export default class TeamSelector extends Component {
   }
 
   updateRemoveTeamMenus(currState, nextState) {
-    let currTeams = currState ? _.keys(currState.teams) : {};
-    let nextTeams = nextState ? _.keys(nextState.teams) : {};
-    let newTeams = _.difference(nextTeams, currTeams);
+    let currTeams = currState ? Object.keys(currState.teams) : {};
+    let nextTeams = nextState ? Object.keys(nextState.teams) : {};
+    let newTeams = difference(nextTeams, currTeams);
 
-    _.forEach(newTeams, (teamId) => {
+    Object.keys(newTeams).forEach((key) => {
+      let teamId = newTeams[key];
       if (!this.removeTeamMenus[teamId]) {
         let menu = new Menu();
 
@@ -210,7 +229,7 @@ export default class TeamSelector extends Component {
         // For every team in order of lowest to highest index, add them to either
         // the above or below arrays to determine whether they are above or below
         // the dragged icon
-        _.forEach(this.state.teamsByIndex, (teamId, index) => {
+        this.state.teamsByIndex.forEach((teamId, index) => {
           if (teamId == draggedTeamId) return; // Skip the dragged node checking itself
 
           let iconTop = this.getTop(index);
@@ -228,7 +247,7 @@ export default class TeamSelector extends Component {
         });
 
         if (above.length === draggedIndex) return;
-        let newTeamsByIndex = _.union(above, [draggedTeamId], below);
+        let newTeamsByIndex = union(above, [draggedTeamId], below);
 
         // HACK: We manually update the state here for performance reasons, as going through
         // the entire flux-ipc flow would take too long.  Any actions while the mouse is busy
@@ -273,7 +292,11 @@ export default class TeamSelector extends Component {
 
   // Returns the Y position of the top of a TeamSelectorItem at {index}
   getTop(index) {
-    return index * (ITEM_MARGIN_BETWEEN + ITEM_SIZE) + this.itemListTopMargin;
+    let {itemListTopMargin, isTitleBarHidden, isFullScreen} = this.state;
+    if (isTitleBarHidden && isFullScreen) {
+      itemListTopMargin = ITEM_LIST_MARGIN_TOP;
+    }
+    return index * (ITEM_MARGIN_BETWEEN + ITEM_SIZE) + itemListTopMargin;
   }
 
   // Pass focus to the webview to keep hotkeys working
@@ -286,7 +309,7 @@ export default class TeamSelector extends Component {
   }
 
   handleSelectorBackgroundClick() {
-    this.teamSelectorBackgroundClick.onNext(true);
+    this.teamSelectorBackgroundClick.next(true);
   }
 
   handleRightClick(e) {
@@ -303,14 +326,30 @@ export default class TeamSelector extends Component {
     this.removeTeamMenus[teamId].popup(remote.getCurrentWindow());
   }
 
+  renderTitleBarButtonsContainer(backgroundColor) {
+    if (this.state.teamsByIndex.length > 0 && !this.state.isFullScreen) {
+      return (
+        <TitleBarButtonsContainer
+          backgroundColor={backgroundColor}
+          blurRadius={OVERFLOW_BLUR_RADIUS}
+          isTitleBarHidden={this.state.isTitleBarHidden}
+          hasOverflown={this.state.hasOverflown}
+          hasScrolled={this.state.hasScrolled}
+        />
+      );
+    }
+  }
+
   render() {
     let selectedTeam = this.state.teams[this.state.selectedTeamId];
     let backgroundColor = getSidebarColor(selectedTeam);
     let textColor = getTextColor(selectedTeam);
     let dragInProgress = !!this.state.draggedTeamId;
+    let iconBorderRadius = getScaledBorderRadius(ICON_SIZE);
 
     // Have to iterate over teams rather than teamsByIndex due to animation issues
-    let teamSelectorItems = _.map(this.state.teams, (team, teamId) => {
+    let teamSelectorItems = Object.keys(this.state.teams).map((teamId) => {
+      let team = this.state.teams[teamId];
       let index = this.getIndexOfTeam(teamId);
       let isDragged = this.state.draggedTeamId === teamId;
       let itemTop = isDragged ? undefined : this.getTop(index);
@@ -339,20 +378,13 @@ export default class TeamSelector extends Component {
             selectedTeam={selectedTeam}
             selectorLeftOffset={-this.itemListLeftMargin}
             iconSize={ICON_SIZE}
-            />
+            borderRadius={iconBorderRadius}
+          />
         </div>
       );
     });
     let sizeOfList = this.getTop(this.state.teamsByIndex.length);
-    let titleBarButtonsContainer = this.state.teamsByIndex.length > 0 ?
-      <TitleBarButtonsContainer
-        backgroundColor={backgroundColor}
-        blurRadius={OVERFLOW_BLUR_RADIUS}
-        isTitleBarHidden={this.state.isTitleBarHidden}
-        hasOverflown={this.state.hasOverflown}
-        hasScrolled={this.state.hasScrolled}
-      /> :
-      null;
+    let titleBarButtonsContainer = this.renderTitleBarButtonsContainer(backgroundColor);
 
     return (
       <div className="TeamSelector"
@@ -389,6 +421,7 @@ export default class TeamSelector extends Component {
           teamsByIndex={this.state.teamsByIndex}
           hasOverflown={this.state.hasOverflown}
           dragInProgress={dragInProgress}
+          borderRadius={iconBorderRadius}
         />
       </div>
     );

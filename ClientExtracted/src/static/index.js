@@ -1,3 +1,5 @@
+require('../stat-cache');
+
 var startup = function() {
   var url = require('url');
 

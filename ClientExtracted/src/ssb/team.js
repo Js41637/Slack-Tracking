@@ -1,28 +1,28 @@
-import _ from 'lodash';
-import {Disposable, Observable} from 'rx';
+import {Subscription} from 'rxjs/Subscription';
+import {Observable} from 'rxjs/Observable';
 import logger from '../logger';
+import isObject from '../utils/is-object';
 
 import AppActions from '../actions/app-actions';
 import TeamActions from '../actions/team-actions';
+import TeamStore from '../stores/team-store';
 
-function fetchRecentMessages(userIdToFind="__current__") {
-  let {user_id, msgs} = window.TSSSB.recentMessagesFromCurrentChannel();
-  if (userIdToFind === "__current__") userIdToFind = user_id;
+function fetchRecentMessages() {
+  let {msgs} = window.TSSSB.recentMessagesFromCurrentChannel();
 
   let ret = msgs.reduce((acc,x) => {
     if (!x || !x.text) return acc;
-    if (userIdToFind && x.user !== userIdToFind) return acc;
 
     if (x.type !== 'message' || 'subtype' in x) return acc;
 
-    acc.push(x.text.replace(/<[^>]+>/g, ''));
+    let finalText = x.text
+      .replace(/<[^>]+>/g, '')  // <U1234556>
+      .replace(/:[a-zA-Z_]:/g, '')  // :slightly_smiling_face:
+      .replace(/@[a-zA-Z0-9.-]+/g, '');
+
+    acc.push(finalText);
     return acc;
   }, []);
-
-  // If we can't find enough messages written by the current user, just
-  // return the latest messages
-  let textLength = ret.reduce((acc,x) => acc + x.length, 0);
-  if (textLength < 10 && userIdToFind) return fetchRecentMessages(null);
 
   return ret;
 }
@@ -36,15 +36,6 @@ export default class TeamIntegration {
     AppActions.showLoginDialog();
   }
 
-  signOutTeam() {
-    if (window.TS && window.TS.boot_data.logout_url) {
-      window.TS.utility.loadUrlInWindowIfOnline(window.TS.boot_data.logout_url);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   /**
    * Called from the webapp when the user finishes the sign-in flow.
    *
@@ -52,9 +43,9 @@ export default class TeamIntegration {
    * or a single team object pre-Enterprise
    */
   didSignIn(teams) {
-    if (_.isArray(teams)) {
+    if (Array.isArray(teams)) {
       TeamActions.addTeams(teams);
-    } else if (_.isObject(teams)) {
+    } else if (isObject(teams)) {
       TeamActions.addTeam(teams);
     }
 
@@ -62,7 +53,7 @@ export default class TeamIntegration {
   }
 
   didSignOut(teamIds) {
-    if (_.isArray(teamIds)) {
+    if (Array.isArray(teamIds)) {
       TeamActions.removeTeams(teamIds);
     } else {
       TeamActions.removeTeam(teamIds);
@@ -85,21 +76,29 @@ export default class TeamIntegration {
     }
   }
 
+  /**
+   * Returns the IDs of all currently signed in teams.
+   * @returns {Array} The IDs of the currently signed in teams.
+   */
+  getSignedInTeamIds() {
+    return TeamStore.getTeamIds();
+  }
+
   fetchContentForChannel(retries=0) {
     let observableFetchRecentMessages = Observable.create((subj) => {
       try {
         let ret = fetchRecentMessages().join("\n");
         if (ret.length < 10) {
-          subj.onError(new Error("Failed to fetch recent messages"));
+          subj.error(new Error("Failed to fetch recent messages"));
         } else {
-          subj.onNext(ret);
-          subj.onCompleted();
+          subj.next(ret);
+          subj.complete();
         }
       } catch (e) {
-        subj.onError(e);
+        subj.error(e);
       }
 
-      return Disposable.empty;
+      return Subscription.EMPTY;
     });
 
     let fetchWithRetry = observableFetchRecentMessages

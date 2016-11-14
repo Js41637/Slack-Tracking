@@ -1,40 +1,40 @@
 /* eslint prefer-template:0, no-shadow:0, no-unused-vars:0, prefer-arrow-callback:0 */
 "use strict";
 
-var fs = require('fs')
-  , _ = require('lodash');
+var fs = require('fs');
 
 var Cookies = function() {
   this._init();
 };
 
-Cookies.prototype.parse = function(cookiePath, cb) {
+Cookies.prototype.parse = function(cookiePath) {
   this._init();
   this.cookiePath = cookiePath;
-  this._open(_.bind(function(err) {
-    if (err) return cb(err);
-    this._getNumPages();
-    this._getPageSizes();
-    this._getPages();
-    _.each(this.pages, _.bind(function(page, i) {
+
+  this._open();
+  this._getNumPages();
+  this._getPageSizes();
+  this._getPages();
+
+  this.pages.forEach((page, i) => {
+    try {
+      this._getNumCookies(i);
+      this._getCookieOffsets(i);
+      this._getCookieData(i);
+    } catch (e) {
+      return;
+    }
+
+    this.pages[i].cookies.forEach((cookie, j) => {
       try {
-        this._getNumCookies(i);
-        this._getCookieOffsets(i);
-        this._getCookieData(i);
+        this.cookies.push(this._parseCookieData(i, j));
       } catch (e) {
         return;
       }
+    });
+  });
 
-      _.each(this.pages[i].cookies, _.bind(function(cookie, j) {
-        try {
-          this.cookies.push(this._parseCookieData(i, j));
-        } catch (e) {
-          return;
-        }
-      }, this));
-    }, this));
-    cb(null, this.cookies);
-  }, this));
+  return this.cookies;
 };
 
 Cookies.prototype._init = function() {
@@ -48,29 +48,23 @@ Cookies.prototype._init = function() {
   this.cookies = [];
 };
 
-Cookies.prototype._open = function(cb) {
-  fs.open(this.cookiePath, 'r', _.bind(function(err, fd) {
-    if (err) return cb(err);
-    fs.stat(this.cookiePath, _.bind(function(err, stats) {
-      if (err) return cb(err);
-      this.data = new Buffer(stats.size);
-      fs.read(fd, this.data, 0, stats.size, 0, _.bind(function(err, num) {
-        this.bufSize = stats.size;
-        if (err) return cb(err);
+Cookies.prototype._open = function() {
+  let fileDescriptor = fs.openSync(this.cookiePath, 'r');
+  let fileStats = fs.statSync(this.cookiePath);
+  this.data = new Buffer(fileStats.size);
 
-        if (num !== stats.size) return cb(new Error("File size did not match"));
-        var header = this._readSlice(4).toString();
-        if (header === "cook") {
-          cb();
-          return;
-        } else {
-          cb(new Error("This file did not appear to be in the valid format for " +
-                      "binary cookies (missed 'cook' header)"));
-          return;
-        }
-      }, this));
-    }, this));
-  }, this));
+  let bytesRead = fs.readSync(fileDescriptor, this.data, 0, fileStats.size, 0);
+  this.bufSize = fileStats.size;
+
+  if (bytesRead !== fileStats.size) {
+    throw new Error('File size did not match');
+  }
+
+  let header = this._readSlice(4).toString();
+
+  if (header !== 'cook') {
+    throw new Error(`This file did not appear to be in the valid format for binary cookies (missed 'cook' header)`);
+  }
 };
 
 Cookies.prototype._readSlice = function(len) {
@@ -105,9 +99,9 @@ Cookies.prototype._getPageSizes = function() {
 };
 
 Cookies.prototype._getPages = function() {
-  _.each(this.pageSizes, _.bind(function(pageSize, pageIndex) {
+  this.pageSizes.forEach((pageSize, pageIndex) => {
     this.pages[pageIndex] = {buf: this._readSlice(pageSize)};
-  }, this));
+  });
   return this.pages;
 };
 
@@ -135,7 +129,7 @@ Cookies.prototype._getCookieData = function(pageIndex) {
   var p = this.pages[pageIndex];
   p.cookies = [];
   var endOfPagePos = 0;
-  _.each(p.cookieOffsets, _.bind(function(offset, cookieIndex) {
+  p.cookieOffsets.forEach((offset, cookieIndex) => {
     var bufPos = offset;
     //console.log(bufPos);
     var cookieSize = p.buf.readInt32LE(bufPos);
@@ -149,7 +143,7 @@ Cookies.prototype._getCookieData = function(pageIndex) {
     }
     //console.log(p.cookies[cookieIndex].buf.length);
     endOfPagePos = bufPos + cookieSize;
-  }, this));
+  });
   // ensure end of page is reached
   //if (p.buf.readInt32LE(endOfPagePos) !== 0) {
     //console.log(endOfPagePos);
@@ -170,7 +164,7 @@ Cookies.prototype._parseCookieData = function(pageIndex, cookieIndex) {
   data.unknown = c.buf.readInt32LE(bufPos);
   data.flags = c.buf.readInt32LE(bufPos += 4);
   data.unknown2 = c.buf.readUInt32LE(bufPos += 8);
-  _.each(['url', 'name', 'path', 'value'], function(key) {
+  ['url', 'name', 'path', 'value'].forEach((key) => {
     offsets[key] = c.buf.readInt32LE(bufPos += 4);
     numOffsets.push(offsets[key]);
   });
@@ -183,7 +177,8 @@ Cookies.prototype._parseCookieData = function(pageIndex, cookieIndex) {
   data.expiration = new Date(data.expiration * 1000);
   data.creation = c.buf.readDoubleLE(bufPos += 8) + macEpochOffset;
   data.creation = new Date(data.creation * 1000);
-  _.each(offsets, function(offset, key) {
+  Object.keys(offsets).forEach((key) => {
+    var offset = offsets[key];
     var str = "";
     var curChar = 0;
     do {

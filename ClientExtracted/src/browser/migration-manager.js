@@ -1,4 +1,6 @@
-import _ from 'lodash';
+import transform from 'lodash.transform';
+import pick from '../utils/pick';
+import mapValues from '../utils/map-values';
 import path from 'path';
 import fs from 'fs';
 import {session} from 'electron';
@@ -19,8 +21,9 @@ class MigrationManager {
    * retrieve the team list and auth tokens as a JSON blob.
    *
    * @param  {Boolean}  isDevMode  True if running in devMode, false if production
+   * @return {Array}               An array of team objects
    */
-  async getMacGapData(isDevMode) {
+  getMacGapData(isDevMode) {
     if (process.platform !== 'darwin') {
       logger.error('Should only be used on Mac');
       return null;
@@ -47,7 +50,7 @@ class MigrationManager {
       // to be correct' file is first), so if we grab something valid out of it
       // we want to stick with it.
       logger.info(`Files to try: ${JSON.stringify(tokenFiles)}`);
-      let teamList = _.reduce(tokenFiles, (acc, x) => {
+      let teamList = tokenFiles.reduce((acc, x) => {
         if (acc) return acc;
 
         // NB: I hate this so bad. Tokens are stored in the Preference file, but
@@ -70,16 +73,18 @@ class MigrationManager {
         return list;
       }, null);
 
-      await this.migrateMacGapCookiesToSession(tokenFiles);
+      this.migrateMacGapCookiesToSession(tokenFiles);
 
       if (!teamList) {
         logger.error("Found MacGap files, but none were parsable");
         return null;
       }
 
-      let teams = Object.values(this.parseTeamList(teamList));
-      logger.info(`Teams from MacGap: ${JSON.stringify(teams)}`);
-      return teams;
+      let teams = this.parseTeamList(teamList);
+      let teamsArray = Object.keys(teams).map((teamId) => teams[teamId]);
+
+      logger.info(`Teams from MacGap: ${JSON.stringify(teamsArray)}`);
+      return teamsArray;
     } catch (e) {
       logger.error(`MacGap teams migration failed: ${e.stack}`);
       return null;
@@ -99,26 +104,28 @@ class MigrationManager {
    *
    * @return {Promise}                    Completion.
    */
-  async migrateMacGapCookiesToSession(tokenFiles) {
+  migrateMacGapCookiesToSession(tokenFiles) {
     let cookiesToMigrate = [];
-    for (var x of tokenFiles) {
-      // Non-sandbox case
+    for (let x of tokenFiles) {
       let filePath = p`${path.dirname(x)}/../../Cookies/com.tinyspeck.slackmacgap.binarycookies`;
-      if (!fs.existsSync(filePath)) {
-        // Sandbox case
-        filePath = p`${path.dirname(x)}/../../Cookies/Cookies.binarycookies`;
+      let fileExists = fs.existsSync(filePath);
+      logger.info(`Checking for non-sandboxed cookie at ${filePath}: ${fileExists}`);
 
-        logger.info(`Checking ${filePath} for Cookie`);
-        if (!fs.existsSync(filePath)) continue;
+      if (!fileExists) {
+        filePath = p`${path.dirname(x)}/../../Cookies/Cookies.binarycookies`;
+        fileExists = fs.existsSync(filePath);
+
+        logger.info(`Checking for sandboxed cookie at ${filePath}: ${fileExists}`);
+        if (!fileExists) continue;
       }
 
       cookiesToMigrate.push(filePath);
     }
 
     let cookiesSeen = {};
-    logger.info(`Attempting to migrate cookies: ${JSON.stringify(cookiesToMigrate)}`);
     for (let file of cookiesToMigrate) {
-      await this.migrateCookieFile(file, cookiesSeen);
+      logger.info(`Attempting to migrate cookie: ${file}`);
+      this.migrateCookieFile(file, cookiesSeen);
     }
   }
 
@@ -132,16 +139,12 @@ class MigrationManager {
    *
    * @return {Promise}            Completion.
    */
-  async migrateCookieFile(file, cookiesSeen) {
+  migrateCookieFile (file, cookiesSeen) {
     const cookieParser = new CookieParser();
     let cookies = null;
 
     try {
-      cookies = await new Promise((res,rej) => {
-        cookieParser.parse(file, (err, val) => {
-          if (err) { rej(err); } else { res(val); }
-        });
-      });
+      cookies = cookieParser.parse(file);
     } catch (e) {
       logger.error(`Couldn't open cookie file ${file}: ${e.message}`);
       return;
@@ -151,29 +154,26 @@ class MigrationManager {
       let key = `${cookie.url}:${cookie.name}`;
       if (cookiesSeen[key]) continue;
 
-      try {
-        await new Promise((res,rej) => {
-          let chromiumCookie = {
-            url: `https://${cookie.url}`,
-            name: cookie.name,
-            value: cookie.value,
-            path: cookie.path,
-            secure: true,
-            session: false,
-            expirationDate: cookie.expiration.getTime() / 1000,
-          };
+      logger.info(`Setting ${key}`);
 
-          logger.info(JSON.stringify(chromiumCookie));
+      let chromiumCookie = {
+        url: `https://${cookie.url}`,
+        name: cookie.name,
+        value: cookie.value,
+        path: cookie.path,
+        secure: true,
+        session: false,
+        expirationDate: cookie.expiration.getTime() / 1000,
+      };
 
-          session.defaultSession.cookies.set(chromiumCookie, (e) => {
-            if (e) { logger.info(e); rej(e); } else { res(true); }
-          });
-        });
+      session.defaultSession.cookies.set(chromiumCookie, (e) => {
+        if (e) {
+          logger.info(e);
+          logger.error(`Failed to set cookie for ${cookie.url}: ${e.message}`);
+        }
+      });
 
-        cookiesSeen[key] = true;
-      } catch (e) {
-        logger.error(`Failed to set cookie for ${cookie.url}: ${e.message}`);
-      }
+      cookiesSeen[key] = true;
     }
   }
 
@@ -193,7 +193,9 @@ class MigrationManager {
     };
 
     let settings = {};
-    _.each(dataMap, (oldKey, newKey) => {
+
+    Object.keys(dataMap).forEach((oldKey) => {
+      let newKey = dataMap[oldKey];
       // Old values have dank memes / undefined rather than true / false
       settings[newKey] = localStorage.getItem(oldKey) !== undefined ? true : false;
     });
@@ -209,9 +211,10 @@ class MigrationManager {
    * @return {Object}                 An object to push to the store
    */
   getRendererData(defaultSettings) {
-    return _.assign({},
-      this.getRendererTeams(),
-      this.getRendererSettings(defaultSettings));
+    return {
+      ...this.getRendererTeams(),
+      ...this.getRendererSettings(defaultSettings)
+    };
   }
 
   getRendererTeams() {
@@ -226,7 +229,8 @@ class MigrationManager {
 
     if (themeAndIcons) {
       themeAndIcons = themeAndIcons.themeInfo;
-      _.each(teams, (team) => {
+      Object.keys(teams).forEach((key) => {
+        let team = teams[key];
         team.theme = themeAndIcons[team.team_id].theme;
         team.icons = themeAndIcons[team.team_id].icons;
       });
@@ -239,8 +243,8 @@ class MigrationManager {
   }
 
   parseTeamList(teamList) {
-    return _.transform(teamList, (teams, teamEntry) => {
-      let team = _.pick(teamEntry, 'name', 'team_id', 'team_name', 'team_url', 'theme', 'icons');
+    return transform(teamList, (teams, teamEntry) => {
+      let team = pick(teamEntry, 'name', 'id', 'team_id', 'team_name', 'team_url', 'theme', 'icons');
       team.initials = getInitialsOfName(team.team_name);
 
       teams[team.team_id] = team;
@@ -265,12 +269,12 @@ class MigrationManager {
     // Don't migrate settings that aren't defined by the store, otherwise the
     // webapp will display them in the Preferences dialog
     if (useHwAcceleration === undefined)
-      toMigrate = _.without(toMigrate, 'useHwAcceleration');
+      toMigrate = toMigrate.filter((setting) => setting !== 'useHwAcceleration');
     if (notifyPosition === undefined)
-      toMigrate = _.without(toMigrate, 'notifyPosition');
+      toMigrate = toMigrate.filter((setting) => setting !== 'notifyPosition');
 
-    let settings = _.pick(window.localStorage, toMigrate);
-    settings = _.mapValues(settings, (pref) => JSON.parse(pref));
+    let settings = pick(window.localStorage, toMigrate);
+    settings = mapValues(settings, (pref) => JSON.parse(pref));
     logger.info(`Found legacy settings: ${JSON.stringify(settings)}`);
 
     return { settings };
@@ -325,7 +329,7 @@ class MigrationManager {
 
       let entries = null;
       try {
-        entries = _.filter(fs.readdirSync(dir), (x) => x.match(/\.dat$/));
+        entries = fs.readdirSync(dir).filter((x) => x.match(/\.dat$/));
       } catch (e) {
         logger.error(`Failed to read ${dir}: ${e.message}`);
         continue;

@@ -2,9 +2,10 @@
 
 const fs = require('fs');
 const {app} = require('electron');
-const _ = require('lodash');
+const clone = require('lodash.clone');
 const path = require('path');
 const optimist = require('optimist');
+const {isPrebuilt} = require('./utils/process-helpers');
 
 // These Chromium switches let you hack yourself or do Weird Things. Blacklist
 // them.
@@ -24,11 +25,11 @@ function parseCommandLine() {
   let version = app.getVersion();
 
   let re = /^slack:/i;
-  let argList = _.clone(process.argv.slice(1));
-  let protoUrl = _.find(argList, (x) => x.match(re));
-  argList = _.filter(argList, (x) => !x.match(re));
+  let argList = clone(process.argv.slice(1));
+  let protoUrl = argList.find((x) => x.match(re));
+  argList = argList.filter((x) => !x.match(re));
 
-  if (_.find(argList, (x) => _.find(thingsIDontLike, (r) => x.match(r)))) {
+  if (argList.find((x) => thingsIDontLike.find((r) => x.match(r)))) {
     process.exit(-1);
   }
 
@@ -67,7 +68,7 @@ function parseCommandLine() {
   let logFile = args['log-file'];
   let logLevel = args['log-level'];
   let invokedOnStartup = args.startup;
-  let chromeDriver = !!_.find(process.argv.slice(1), (x) => x.match(/--test-type=webdriver/));
+  let chromeDriver = !!process.argv.slice(1).find((x) => x.match(/--test-type=webdriver/));
 
   let resourcePath = path.join(process.resourcesPath, 'app.asar');
   if (args['resource-path']) {
@@ -80,8 +81,8 @@ function parseCommandLine() {
   }
 
   // If we were started via npm start, convert devXYZ to the protocol URL version
-  if (process.execPath.match(/[\\\/]electron-prebuilt[\\\/]dist/)) {
-    let envToLoad = _.find(argList, (x) => x.match(/^(dev[0-9]{0,3}|staging)$/i));
+  if (isPrebuilt()) {
+    let envToLoad = argList.find((x) => x.match(/^(dev[0-9]{0,3}|staging)$/i));
     if (envToLoad) protoUrl = `slack://open?devEnv=${envToLoad}`;
   }
 
