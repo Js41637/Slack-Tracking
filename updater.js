@@ -127,16 +127,23 @@ function getChanges(client) {
   })
 }
 
+var pushing = false
 // Create a commit and push to Github
 function pushToGit(client) {
   return new Promise((resolve, reject) => {
+    if (pushing) setTimeout(function() {
+      pushToGit(client)
+    }, 4000);
+
     console.log("Preparing to push to Github")
     getChanges(client).then(changes => {
+      pushing = true
       if (!changes.length) return Promise.resolve('No new changes')
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${truncate(changes.join(', ').replace(/ClientExtracted(\/src)?/g, 'Client'), { length: 1000 })}`
       let cmd = `git commit -m "${msg}" ${config.noPush ? '' : '&& git push'}`
       exec(cmd, (err, stdout) => {
+        pushing = false
         console.log(err, stdout)
         if (err) return reject(err)
         return resolve(`Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`)
@@ -157,8 +164,8 @@ function checkClientVersion() {
     let latestRelease = last(releases)
     fs.readFile('./ClientExtracted/VERSION', 'utf8', (err, data) => {
       let currentVersion = err ? null : data
-      if (currentVersion != latestRelease.version) clientUpdater.update(latestRelease).then(pushToGit).catch(console.error)
-      else console.log("Slack Client hasn't updated")
+      if (currentVersion == latestRelease.version) return console.log("Slack Client hasn't updated")
+      clientUpdater.update(latestRelease).then(() => pushToGit(true)).catch(console.error)
     })
   })
 }
@@ -166,6 +173,7 @@ function checkClientVersion() {
 function pullLatestChanges() {
   return new Promise((resolve, reject) => {
     console.log("Pulling latest changes, if any")
+    if (config.dontPullLatest) return resolve()
     exec('git rev-parse HEAD', (err, lastCommit) => {
       if (err || !lastCommit) return reject(`Error fetching last commit, ${err}`)
       exec('git pull', (err, stdout) => {

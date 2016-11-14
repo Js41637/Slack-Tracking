@@ -1,4 +1,6 @@
 node_modules/
+ClientExtracted/temp/
+.cache/
 config.js
 err.log
 out.log
