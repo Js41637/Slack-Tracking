@@ -1,9 +1,11 @@
+{{i18n_ns 'channels'}}
+
 <div id="channel_joined" class="channel_overlay channel_overlay_redesign">
   {{#if channel.is_shared}}
     <img class="channel_overlay_shared_icon float_left" src="{{versioned_join_shared_channel '2x'}}" srcset="{{versioned_join_shared_channel '1x'}} 1x, {{versioned_join_shared_channel '2x'}} 2x" />
     <div class="channel_overlay_title_wrap bottom_margin">
       <p class="channel_overlay_title_shared small_bottom_margin">
-        You just joined a channel shared with {{#each channel.shares}}{{#if @last}}{{#if_gt ../channel.shares.length compare=1}}, and {{/if_gt}}{{else}}{{#if @first}}{{else}}, {{/if}}{{/if}}<strong>{{name}}</strong>{{/each}}
+        {{#t note="{teams} is a comma separated list of teams" teams=(listify channel.shares map='team.name' strong=true)}}You just joined a channel shared with {teams}{{/t}}
       </p>
   {{else}}
     <img class="channel_overlay_team_icon float_left" src="{{versioned_join_team_channel '2x'}}" srcset="{{versioned_join_team_channel '1x'}} 1x, {{versioned_join_team_channel '2x'}} 2x" />
@@ -11,7 +13,7 @@
   {{/if}}
     <p class="channel_overlay_title">
       {{#unless channel.is_shared}}
-        <span class="channel_overlay_title_opener">You just joined</span><br />
+        <span class="channel_overlay_title_opener">{{#t note="Appears above the name of the channel you joined, so will read 'You just joined {channel_name}'"}}You just joined{{/t}}</span><br />
       {{/unless}}
       <span class="channel_overlay_title_prefix">#</span><strong>{{channel.name}}</strong>
     </p>
@@ -19,35 +21,39 @@
   <ul>
     {{#pageNeedsEnterprise}}
       {{#if channel.is_shared}}
-        <li>Messages, files, and members in this channel will be visible to both teams.</li>
-        <li>Slack integrations are disabled in this channel.</li>
+        <li>{{#t}}Messages, files, and members in this channel will be visible to both teams.{{/t}}</li>
+        <li>{{#t}}Slack integrations are disabled in this channel.{{/t}}</li>
         {{#isThereComplianceExportsTeam channel}}
           <li>{{makeTeamsThatHaveComplianceExportsBlurb channel.shares}}</li>
         {{/isThereComplianceExportsTeam}}
       {{/if}}
     {{/pageNeedsEnterprise}}
-    <li>Created on {{toCalendarDate channel.created}} {{#if channel.creator}}by {{makeMemberPreviewLinkById channel.creator}}{{/if}}.</li>
-    {{#if invited}}
-      <li>{{#if channel.inviter}}You were invited to this channel by {{makeMemberPreviewLinkById channel.inviter}}.{{/if}}</li>
-    {{/if}}
-    {{#if_equal channel.active_members.length compare=1}}
-      <li>You are currently the only person in this channel.</li>
+    {{#if channel.creator}}
+    <li>{{#t date_created=(convertTimestampToMilliseconds channel.created) user_name=(makeMemberPreviewLinkById channel.creator)}}Created on {date_created, date, long} by {user_name}{{/t}}</li>
     {{else}}
-      <li>{{channel.active_members.length}} people have this channel open.</li>
+    <li>{{#t date_created=(convertTimestampToMilliseconds channel.created)}}Created on {date_created, date, long}{{/t}}</li>
+    {{/if}}
+    {{#if invited}}{{#if channel.inviter}}
+      <li>{{#t user_name=(makeMemberPreviewLinkById channel.inviter)}}You were invited to this channel by {user_name}.{{/t}}</li>
+    {{/if}}{{/if}}
+    {{#if_equal channel.active_members.length compare=1}}
+      <li>{{#t}}You are currently the only person in this channel.{{/t}}</li>
+    {{else}}
+      <li>{{#t members_that_have_channel_open=channel.active_members.length}}{members_that_have_channel_open, number} people have this channel open.{{/t}}</li>
     {{/if_equal}}
   </ul>
   {{#if channel.purpose.value}}
-    <p class="channel_overlay_purpose">The purpose of this channel is:<br /><em>{{formatTopicOrPurpose channel.purpose.value}}</em></p>
+    <p class="channel_overlay_purpose">{{#t channel_purpose=(formatTopicOrPurpose channel.purpose.value)}}The purpose of this channel is:<br /><em>{channel_purpose}</em>{{/t}}</p>
   {{/if}}
 
   <label class="checkbox overlay_pref block">
-    <input id="no_joined_overlays_cb" type="checkbox" /> Don't show me this message when I join a channel
+    <input id="no_joined_overlays_cb" type="checkbox" /> {{#t}}Don't show me this message when I join a channel{{/t}}
   </label>
 
-  <a class="btn padded">Got it!</a>
+  <a class="btn padded">{{#t note="Appears on a button to say the user understands the information and wishes to close the overlay"}}Got it!{{/t}}</a>
 
   <p class="hidden" aria-hidden="false">
-    Press enter to close this message and view the channel.
+    {{#t}}Press enter to close this message and view the channel.{{/t}}
   </p>
 
 </div>

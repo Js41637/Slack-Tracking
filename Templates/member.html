@@ -1,3 +1,5 @@
+{{i18n_ns 'channels'}}
+
   <li class='{{makeMemberDomId member}} member {{makeMemberDomClass member}} cursor_pointer'>
     {{makeModelObHotnessIconSafe model_ob}}
     {{makeModelObPriorityIconSafe model_ob}}
@@ -14,7 +16,7 @@
         {{else}}
           {{{makeMemberPresenceIcon member}}}
           {{getDisplayNameOfUserForIm model_ob}}
-          {{#if member.is_self}} (you){{/if}}
+          {{#if member.is_self}} ({{#t note="Appears next to user name when user is self, e.g. 'Steve (you)' when I am Steve"}}you{{/t}}){{/if}}
         {{/if_equal}}
       </span>
     </a>

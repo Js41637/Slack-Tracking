@@ -18410,8 +18410,14 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
+.light_theme .new_replies_container ts-message,
+.light_theme .thread_replies_container ts-message {
+  padding-left: 4.5rem
+}
+
 .light_theme .new_replies_container ts-message .message_gutter,
 .light_theme .thread_replies_container ts-message .message_gutter {
+  margin-left: 4.5rem;
   width: 2.875rem
 }
 
@@ -18420,10 +18426,9 @@ ts-message .emoji-sizer .mention {
   margin-left: 2.875rem
 }
 
-.light_theme .new_replies_container,
 .light_theme .new_reply_indicator,
 .light_theme .reply_input_container,
-.light_theme .thread_replies_container {
+.light_theme .view_all_replies_container {
   margin-left: 4.5rem
 }
 
@@ -18594,15 +18599,20 @@ ts-message .emoji-sizer .mention {
   display: block
 }
 
-.dense_theme .new_replies_container,
 .dense_theme .new_reply_indicator,
 .dense_theme .reply_input_container,
-.dense_theme .thread_replies_container {
-  margin-left: 4.875rem
+.dense_theme .view_all_replies_container {
+  margin-left: 5.0625rem
+}
+
+.dense_theme .new_replies_container ts-message,
+.dense_theme .thread_replies_container ts-message {
+  padding-left: 5.0625rem
 }
 
 .dense_theme .new_replies_container ts-message .message_gutter,
 .dense_theme .thread_replies_container ts-message .message_gutter {
+  margin-left: 5.0625rem;
   width: 4.5rem
 }
 
@@ -18615,13 +18625,30 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
-html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_input_container {
-  margin-top: 0;
+.dense_theme .reply_input_container .inline_message_input_container {
   margin-left: 0
+}
+
+html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_input_container {
+  margin-top: 0
 }
 
 .dense_theme .thread_channel_name {
   margin-left: .375rem
+}
+
+.dense_theme .time24 .new_replies_container ts-message .message_gutter,
+.dense_theme .time24 .thread_replies_container ts-message .message_gutter {
+  width: 3.125rem
+}
+
+.dense_theme .time24 .new_replies_container ts-message .message_content,
+.dense_theme .time24 .thread_replies_container ts-message .message_content {
+  margin-left: 3.125rem
+}
+
+.dense_theme .time24 .thread_channel_name {
+  margin-left: 1.625rem
 }
 
 .last_replier_wrapper {
@@ -18725,14 +18752,6 @@ ts-thread .reply_input_container .inline_message_input_container form .emo_menu 
 
 ts-thread .reply_input_container.has_focus .member_preview_link {
   opacity: 1
-}
-
-.day_divider+ts-thread {
-  padding-top: 0
-}
-
-ts-thread .thread_channel_name {
-  margin-bottom: 1rem
 }
 
 @font-face {

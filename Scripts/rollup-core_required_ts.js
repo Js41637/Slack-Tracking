@@ -451,16 +451,18 @@
     };
   }
   var _loginMS = function() {
-    if (TS.model.ms_logged_in_once) {
-      var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
-      if (since_last_pong_ms > 1e3 * 60 * 5) {
-        if (TS.storage.completelyEmptyAllStorageAndResetIfTooOld()) {
-          TS.info("going to call TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
-          TS.reload(null, "TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
+    if (!TS.boot_data.feature_do_not_clear_three_day_old_local_storage) {
+      if (TS.model.ms_logged_in_once) {
+        var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
+        if (since_last_pong_ms > 1e3 * 60 * 5) {
+          if (TS.storage.completelyEmptyAllStorageAndResetIfTooOld()) {
+            TS.info("going to call TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
+            TS.reload(null, "TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
+          }
         }
+      } else {
+        TS.storage.completelyEmptyAllStorageAndResetIfTooOld();
       }
-    } else {
-      TS.storage.completelyEmptyAllStorageAndResetIfTooOld();
     }
     if (_parallel_rtm_start_rsp) {
       TS.ms.logConnectionFlow("login_with_parallel_rtm_start_rsp");

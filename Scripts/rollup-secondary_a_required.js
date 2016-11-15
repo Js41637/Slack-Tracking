@@ -14,24 +14,40 @@
       TS.presence_manager.addPresenceList(list);
       return list;
     },
+    queryMemberPresence: function(member) {
+      if (_sub_list.indexOf(member) > -1) return;
+      if (_query_list.indexOf(member)) return;
+      _query_list.push(member);
+      _sendQueryList();
+    },
     test: {
-      getArray: function() {
-        return _list;
-      },
-      getObject: function() {
+      getSubObject: function() {
         return _members;
       },
-      getNames: function() {
-        return _list.map(function(id) {
+      getSubList: function() {
+        return _sub_list;
+      },
+      getSubNames: function() {
+        return _sub_list.map(function(id) {
+          return _.get(TS.members.getMemberById(id), "name", null);
+        });
+      },
+      getQueryList: function() {
+        return _sub_list;
+      },
+      getQueryNames: function() {
+        return _query_list.map(function(id) {
           return _.get(TS.members.getMemberById(id), "name", null);
         });
       }
     }
   });
-  var SLACKBOT_ID = "USLACKBOT";
+  var _SLACKBOT_ID = "USLACKBOT";
   var _members = {};
-  var _list = [];
-  var _sent = [];
+  var _sub_list = [];
+  var _query_list = [];
+  var _sub_timeout = null;
+  var _query_timeout = null;
   var _addMembers = function(members) {
     if (!_.isArray(members)) members = [members];
     members.forEach(function(member) {
@@ -45,34 +61,52 @@
     });
   };
   var _addMember = function(member) {
-    if (member === SLACKBOT_ID) return;
+    if (member === _SLACKBOT_ID) return;
     if (_members[member]) {
       _members[member]++;
     } else {
       _members[member] = 1;
-      _list.push(member);
-      _debouncedUpdateList();
+      _sub_list.push(member);
+      _sendSubList();
     }
   };
   var _removeMember = function(member) {
     if (_members[member]) {
       _members[member]--;
       if (!_members[member]) {
-        var index = _list.indexOf(member);
-        _list.splice(index, 1);
-        _debouncedUpdateList();
+        var index = _sub_list.indexOf(member);
+        _sub_list.splice(index, 1);
+        _sendSubList();
       }
     }
   };
-  var _updateList = function() {
-    TS.metrics.count("presence_manager", _list.length);
-    var add = _.difference(_list, _sent);
-    if (add.length || _sent.length !== _list.length) {
-      var remove = _.difference(_sent, _list);
-      _sent = _list.slice(0);
-    }
+  var _sendSubList = function() {
+    if (_sub_timeout) return;
+    _sub_timeout = setTimeout(function() {
+      TS.metrics.count("presence_manager", _sub_list.length);
+      if (TS.presence_manager.test) {
+        TS.log(1117, "presence subscription ->", TS.presence_manager.test.getSubNames());
+      }
+      TS.ms.send({
+        type: "presence_sub",
+        ids: _sub_list
+      });
+      _sub_timeout = null;
+    }, 1);
   };
-  var _debouncedUpdateList = _.debounce(_updateList, 500);
+  var _sendQueryList = function() {
+    if (_query_timeout) return;
+    _query_timeout = setTimeout(function() {
+      if (TS.presence_manager.test) {
+        TS.log(1117, "presence query ->", TS.presence_manager.test.getQueryNames());
+      }
+      TS.ms.send({
+        type: "presence_query",
+        ids: _query_list
+      });
+      _query_timeout = null;
+    }, 1);
+  };
 })();
 (function() {
   "use strict";

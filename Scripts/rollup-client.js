@@ -14482,26 +14482,13 @@
     var messages = {};
     results.messages.matches.forEach(function(match) {
       messages[match.ts] = match;
-      if (match.previous_2) {
-        match.previous_2.channel = match.channel;
-        match.previous_2._main_ts = match.ts;
-        messages[match.previous_2.ts] = match.previous_2;
-      }
-      if (match.previous) {
-        match.previous.channel = match.channel;
-        match.previous._main_ts = match.ts;
-        messages[match.previous.ts] = match.previous;
-      }
-      if (match.next) {
-        match.next.channel = match.channel;
-        match.next._main_ts = match.ts;
-        messages[match.next.ts] = match.next;
-      }
-      if (match.next_2) {
-        match.next_2.channel = match.channel;
-        match.next_2._main_ts = match.ts;
-        messages[match.next_2.ts] = match.next_2;
-      }
+      ["previous_2", "previous", "next", "next_2"].forEach(function(context) {
+        if (match[context]) {
+          match[context].channel = match.channel;
+          match[context]._main_ts = match.ts;
+          messages[match[context].ts] = messages[match[context].ts] || match[context];
+        }
+      });
     });
     if (!TS.model.prefs.full_text_extracts) {
       var all_unknowns = {};
@@ -20532,7 +20519,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/db4a/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/8df80/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
