@@ -13561,8 +13561,8 @@ only screen and (min-resolution:2dppx) {
   background: #fff
 }
 
-.feature_reposition_search_dropdown #search_autocomplete_popover .arrow,
-.feature_reposition_search_dropdown #search_autocomplete_popover .arrow_shadow {
+#search_autocomplete_popover .arrow,
+#search_autocomplete_popover .arrow_shadow {
   display: none
 }
 
@@ -22404,15 +22404,10 @@ ts-jumper ts-jumper-results:empty {
   -ms-flex: none;
   -webkit-flex: none;
   flex: none;
-  left: 0;
-  top: 2.75rem;
-  margin-top: 0
-}
-
-#search_container.feature_reposition_search_dropdown #search_autocomplete_popover {
   left: auto;
   right: 0;
-  top: 2.4375rem
+  top: 2.4375rem;
+  margin-top: 0
 }
 
 #details_toggle.active,

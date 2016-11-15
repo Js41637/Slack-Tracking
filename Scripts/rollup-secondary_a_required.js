@@ -31598,10 +31598,13 @@ var _on_esc;
         }
         TS.client.msg_input.$input.focus();
         TS.client.msg_input.$input.trigger("textchange");
+        if (current_input) {
+          TS.client.msg_input.$input[0].setSelectionRange(command.length + 1, (command + " " + current_input).length);
+        }
         if (TS.boot_data.feature_you_autocomplete_me) {
-          TS.client.msg_input.$input.TS_tabCompleteNew("promiseToChoose", 0, true);
+          TS.client.msg_input.$input.TS_tabCompleteNew("promiseToChoose", undefined, true);
         } else {
-          TS.client.msg_input.$input.TS_tabComplete("promiseToChoose", 0, true);
+          TS.client.msg_input.$input.TS_tabComplete("promiseToChoose", undefined, true);
         }
       }
       TS.menu.app.end();
