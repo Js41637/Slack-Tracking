@@ -24173,12 +24173,13 @@ TS.registerModule("constants", {
     },
     canEditMsg: function(msg, model_ob) {
       if (msg.user !== TS.model.user.id) return false;
+      if (TS.utility.msgs.isAutomatedMsg(msg)) return false;
+      if (TS.utility.msgs.isFileMsg(msg)) return false;
+      if (msg && msg.subtype === "reply_broadcast") return false;
       if (model_ob && model_ob.is_self_im) return true;
       if (TS.model.team.prefs.msg_edit_window_mins > -1 && (Date.now() - TS.utility.date.toDateObject(msg.ts)) / 6e4 > TS.model.team.prefs.msg_edit_window_mins) {
         return false;
       }
-      if (TS.utility.msgs.isAutomatedMsg(msg)) return false;
-      if (TS.utility.msgs.isFileMsg(msg)) return false;
       return true;
     },
     isAutomatedMsg: function(msg) {
