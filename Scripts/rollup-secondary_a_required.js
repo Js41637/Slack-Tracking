@@ -20607,7 +20607,7 @@ TS.registerModule("constants", {
       return linksA.join(", ");
     },
     makeFileCommentHelpText: function(file) {
-      if (file.is_public && file.channels.length) {
+      if (file && file.is_public && file.channels.length) {
         var channel_names = [];
         for (var i = 0; i < file.channels.length; i++) {
           var channel = TS.channels.getChannelById(file.channels[i]);
@@ -31565,7 +31565,8 @@ var _on_esc;
           template_items_args.disabled = true;
         }
         if (app.card_posting_summary) {
-          var html = app.card_posting_summary.replace(/@([A-Z0-9]+)/g, function(match, user_id) {
+          var escaped_summary = TS.utility.htmlEntities(app.card_posting_summary);
+          escaped_summary = escaped_summary.replace(/@([A-Z0-9]+)/g, function(match, user_id) {
             var name_replace = "<b>";
             if (TS.boot_data.feature_name_tagging_client) {
               name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(app.auth.created_by));
@@ -31575,7 +31576,7 @@ var _on_esc;
             name_replace += "</b>";
             return name_replace;
           });
-          template_items_args.card_posting_summary = new Handlebars.SafeString(html);
+          template_items_args.card_posting_summary = new Handlebars.SafeString(escaped_summary);
         }
         TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
         TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_items_args));

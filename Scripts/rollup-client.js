@@ -5957,7 +5957,7 @@
       if (!TS.client.ui.isUserAttentionOnChat()) {
         return;
       }
-      if (TS.client.activeChannelIsHidden()) {
+      if (TS.model.unread_view_is_showing) {
         return;
       }
       if (TS.model.archive_view_is_showing) {
@@ -6014,8 +6014,10 @@
             }
           });
         }
-      } else {
+      } else if (!TS.client.activeChannelIsHidden()) {
         TS.client.ui.forceMarkAllRead(TS.model.marked_reasons.esc, all_channels);
+      } else if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+        TS.client.threads.markAllNewThreads();
       }
     },
     checkForEditing: function(e) {
@@ -7723,11 +7725,20 @@
       _navigateHistoryUsingKeys(e.which, keymap.left, keymap.right, input_must_be_empty);
     } else if (using_command_key && using_arrow_keys) {
       _navigateHistoryUsingKeys(e.which, keymap.left, keymap.right, input_must_be_empty);
+    } else if (using_command_key && using_bracket_keys) {
+      TS.clog.track("HISTORY_NAV_ACTION", {
+        trigger: "keyboard_shortcut",
+        action: "nav_prev_next"
+      });
     }
   };
   var _navigateHistoryUsingKeys = function(pressed_key, back_key, forward_key, input_must_be_empty) {
     var input_is_empty = TS.utility.contenteditable.value(document.activeElement) === "";
     if (TS.utility.isFocusOnInput() && (input_is_empty || !input_must_be_empty) || document.activeElement == document.body) {
+      TS.clog.track("HISTORY_NAV_ACTION", {
+        trigger: "keyboard_shortcut",
+        action: "nav_prev_next"
+      });
       if (pressed_key === back_key) {
         window.history.go(-1);
       } else if (pressed_key === forward_key) {
