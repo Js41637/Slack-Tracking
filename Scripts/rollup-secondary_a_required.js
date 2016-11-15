@@ -28101,6 +28101,9 @@ TS.registerModule("constants", {
     applyStringifyTransformsToChildren: function(container, options) {
       if (!container) return false;
       if (!_.isObject(options)) options = {};
+      if (!container.childElementCount) return false;
+      var is_single_lonely_node = container.childNodes.length === 1 && container.firstChild.nodeType === 1 && container.firstChild.hasAttribute("data-stringify-requires-siblings");
+      if (is_single_lonely_node) return;
       _.each(container.querySelectorAll("pre br"), function(br) {
         br.parentElement.replaceChild(document.createTextNode("\n"), br);
       });
@@ -28133,6 +28136,9 @@ TS.registerModule("constants", {
           container_clone.appendChild(range.cloneContents());
           container_clone.classList.add("offscreen", "user_select_text");
           range.commonAncestorContainer.parentElement.appendChild(container_clone);
+          if (container_clone.lastChild && !container_clone.lastChild.textContent) {
+            container_clone.removeChild(container_clone.lastChild);
+          }
           TS.format.applyStringifyTransformsToChildren(container_clone, options);
           var restore = TS.selection.snapshot();
           var selection = TS.selection.selectNodeContents(container_clone);
@@ -28287,16 +28293,16 @@ TS.registerModule("constants", {
       "<SPACE:HARD>": "&nbsp;"
     };
     if (TS.boot_data.feature_better_msg_copying) {
-      map["<B:START>"] = '<b data-stringify-prefix="*" data-stringify-suffix="*">';
+      map["<B:START>"] = '<b data-stringify-prefix="*" data-stringify-suffix="*" data-stringify-requires-siblings>';
       map["<B:END>"] = "</b>";
-      map["<STRIKE:START>"] = '<strike data-stringify-prefix="~" data-stringify-suffix="~">';
+      map["<STRIKE:START>"] = '<strike data-stringify-prefix="~" data-stringify-suffix="~" data-stringify-requires-siblings>';
       map["<STRIKE:END>"] = "</strike>";
-      map["<CODE:START>"] = '<code class="special_formatting" data-stringify-prefix="`" data-stringify-suffix="`">';
+      map["<CODE:START>"] = '<code class="special_formatting" data-stringify-prefix="`" data-stringify-suffix="`" data-stringify-requires-siblings>';
       map["<CODE:END>"] = "</code>";
-      map["<I:START>"] = '<i data-stringify-prefix="_" data-stringify-suffix="_">';
+      map["<I:START>"] = '<i data-stringify-prefix="_" data-stringify-suffix="_" data-stringify-requires-siblings>';
       map["<I:END>"] = "</i>";
-      map["<PRE:START>"] = '<pre class="special_formatting" data-stringify-prefix="```" data-stringify-suffix="```">';
-      map["<PRE:END>"] = '<span class="offscreen"></span></pre>';
+      map["<PRE:START>"] = '<pre class="special_formatting" data-stringify-prefix="```" data-stringify-suffix="```" data-stringify-requires-siblings>';
+      map["<PRE:END>"] = "</pre>";
     }
     return map;
   };
@@ -45654,12 +45660,14 @@ $.fn.togglify = function(settings) {
         TS.attachment_actions.action_triggered_sig.dispatch(context);
       }
     });
-    TS.click.addClientHandler("#msgs_div ts-message", function(e, $el) {
-      if (!$el.data("triple-clicks-constrained")) {
-        $el.append('<span class="offscreen constrain-triple-clicks"></span>');
-        $el.data("triple-clicks-constrained", true);
-      }
-    });
+    if (!TS.boot_data.feature_better_msg_copying) {
+      TS.click.addClientHandler("#msgs_div ts-message", function(e, $el) {
+        if (!$el.data("triple-clicks-constrained")) {
+          $el.append('<span class="constrain_triple_clicks"></span>');
+          $el.data("triple-clicks-constrained", true);
+        }
+      });
+    }
     TS.click.addClientHandler("#threads_view_banner .clear_unread_messages", function(e, $el) {
       e.preventDefault();
       TS.client.threads.markAllNewThreads();

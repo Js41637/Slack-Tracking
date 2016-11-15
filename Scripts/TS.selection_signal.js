@@ -18,7 +18,7 @@
           var sel_text = TS.format.replaceUnicodeDoppelgangers(range.toString());
           var message_length = msg_text.length;
           var channe_id = $(ts_message).data("model-ob-id");
-          if ($(range.endContainer).hasClass("constrain-triple-clicks")) {
+          if ($(range.endContainer).hasClass("constrain_triple_clicks")) {
             sel_text = msg_text;
           }
           var start_offset = range.startOffset < range.endOffset ? range.startOffset : range.endOffset;

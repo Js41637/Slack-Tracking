@@ -205,12 +205,12 @@
       {{/if}}
     {{else}}
       {{!-- whitespace trimmed here to allow .message_body:empty CSS selection for empty message fallback --}}
-      <span class="message_body">{{!
+      <span class="message_body">{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}{{!
         }}{{{formatMessageByType msg do_inline_imgs enable_slack_action_links model_ob starred_items_list}}}{{!
         }}{{#unless no_attachments}}{{{formatAttachments msg model_ob enable_slack_action_links msg_dom_id}}}{{/unless}}{{!
         }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{toCalendarDateOrNamedDayShort msg.edited.ts}} at {{{toTime msg.edited.ts true true}}}"> (edited)</span>{{/if}}{{!
         }}{{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">Only visible to you</span>{{/if}}{{/if}}{{!
-      }}</span>
+      }}{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}</span>
 
       {{#unless standalone}}
         {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="dense_only"}}{{/unless}}{{/unless}}

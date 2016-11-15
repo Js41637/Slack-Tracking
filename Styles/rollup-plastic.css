@@ -3996,6 +3996,7 @@ html.no_touch .alert_page a:hover {
   top: 0!important
 }
 
+.constrain_triple_clicks,
 .offscreen {
   position: absolute;
   overflow: hidden;
