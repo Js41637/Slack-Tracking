@@ -1,15 +1,23 @@
-<label class="select small overflow_ellipsis {{#if _disabled}}disabled{{/if}}">
-  {{text}}
-  <select
-    class="small"
-    data-action-id="{{id}}"
-    name="{{name}}"
-    {{#if _disabled}}disabled aria-disabled="true"{{/if}}
+<select
+  name="{{name}}"
+  {{#if _disabled}}
+    disabled
+    aria-disabled="true"
+  {{/if}}
+  data-action-id="{{id}}"
+>
+  <option>&nbsp;</option>
+  {{#each options}}
+  <option
+    value="{{value}}"
+    {{#if icon}}
+      data-lfs-item-icon="{{icon}}"
+    {{/if}}
+    {{#if desc}}
+      data-lfs-item-desc="{{desc}}"
+    {{/if}}
   >
-    <option></option>
-    {{#each options}}
-    <option value="{{value}}">{{text}}</option>
-    {{/each}}
-  </select>
-</label>
-
+    {{text}}
+  </option>
+  {{/each}}
+</select>

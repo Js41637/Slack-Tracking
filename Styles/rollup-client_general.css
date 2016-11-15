@@ -6735,6 +6735,22 @@ ts-inline-saver.failed .failed {
   border-color: #d3ecfa
 }
 
+.lazy_filter_select.default_style .lfs_item_icon {
+  border-radius: 2px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  display: inline-block;
+  height: 24px;
+  margin-right: 5px;
+  vertical-align: middle;
+  width: 24px
+}
+
+.lazy_filter_select.default_style .lfs_item_desc {
+  color: #9e9ea6;
+  margin-left: 5px
+}
+
 .lazy_filter_select.default_style .lfs_token {
   display: inline-block;
   margin: .2rem 0 .2rem .4rem;

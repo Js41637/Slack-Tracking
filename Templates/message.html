@@ -183,14 +183,14 @@
             {{else}}
               {{share_verb}}
 
-              {{#if uploader}}
+              {{#and uploader is_not_welcome_post}}
                 </a>
                 {{makeMemberPreviewLink uploader false}}
                 {{~possessiveForMember uploader~}}
                 <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}">
               {{else}}
                 {{share_determiner}}
-              {{/if}}
+              {{/and}}
 
               {{share_noun}}{{#if title_hider}}<span class="msg_inline_file_title_hider">:{{else}}:{{/if}}
                 <span class="file_preview_link no_jumbomoji file_force_flexpane bold msg_inline_file_preview_title">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</span>

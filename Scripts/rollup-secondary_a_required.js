@@ -17871,6 +17871,7 @@ TS.registerModule("constants", {
               template_args.icon_class = TS.utility.getImageIconClass(msg.file, "thumb_80");
             } else if (msg.file.user != msg.user) {
               template_args.uploader = _getEntityFromFile(msg.file);
+              template_args.is_not_welcome_post = !_isWelcomePostToTeamOwner(msg);
             }
             if (msg.subtype == "file_mention") {
               template_args.share_verb = "mentioned";
@@ -18246,6 +18247,7 @@ TS.registerModule("constants", {
               template_args.icon_class = TS.utility.getImageIconClass(msg.file, "thumb_80");
             } else if (msg.file.user != msg.user) {
               template_args.uploader = _getEntityFromFile(msg.file);
+              template_args.is_not_welcome_post = !_isWelcomePostToTeamOwner(msg);
             }
             if (msg.subtype == "file_mention") {
               template_args.share_verb = "mentioned";
@@ -18600,18 +18602,7 @@ TS.registerModule("constants", {
       return TS.templates.attachment_actions_button(button_model);
     },
     buildAttachmentActionSelectHTML: function(action, disable_buttons) {
-      var model = _.merge({
-        _disabled: !!disable_buttons,
-        id: "",
-        name: "",
-        options: [],
-        text: ""
-      }, action);
-      model.options = _.map(model.options, function(option) {
-        option.text = _formatAndMarkSafe(option.text);
-        return option;
-      });
-      model.text = _formatAndMarkSafe(model.text);
+      var model = TS.attachment_actions.select.getActionModel(action, disable_buttons);
       return TS.templates.attachment_actions_select(model);
     },
     shouldDoSimpleAttachment: function(attachment, msg) {
@@ -21329,10 +21320,10 @@ TS.registerModule("constants", {
       is_starred: ob.is_starred
     };
   }
-  var _formatAndMarkSafe = function(str) {
-    var formatted_text = TS.emoji.graphicReplace(str);
-    return new Handlebars.SafeString(formatted_text);
-  };
+
+  function _isWelcomePostToTeamOwner(msg) {
+    return msg.file.name === "Getting_started_with_Slack__team_creator_welcome_post_identifier" && msg.user === "USLACKBOT" && msg.file.user === TS.model.user.id;
+  }
   var _session_ms = Date.now();
 })();
 (function() {
@@ -43225,14 +43216,12 @@ $.fn.togglify = function(settings) {
     item.lfs_slug_id = instance._slug_id_counter;
     instance._slug_id_counter++;
     instance._selected.push(item);
-    var $slug;
     var slug_html = TS.templates.lazy_filter_select_item({
       content: instance.tokenTemplate(item),
-      token: true,
+      applied_classes: "lfs_token",
       slug_id: item.lfs_slug_id
     }).replace(/(\r\n|\n|\r)/gm, "");
-    $slug = $(slug_html);
-    $slug.addClass("lfs_token");
+    var $slug = $(slug_html);
     $slug.insertBefore(instance.$input);
     if (instance.sluggify.validator) {
       instance.sluggify.validator($slug);
@@ -43395,7 +43384,6 @@ $.fn.togglify = function(settings) {
           e.stopPropagation();
           return;
         }
-        _selectListItem(instance);
         if (instance.$input.val() !== "") {
           instance.$input.val("");
           instance._previous_val = "";
@@ -43405,6 +43393,7 @@ $.fn.togglify = function(settings) {
           _hideList(instance);
           e.stopPropagation();
         }
+        _selectListItem(instance);
       }
       instance._prevent_blur = false;
     });
@@ -43450,30 +43439,32 @@ $.fn.togglify = function(settings) {
     instance.onReady();
   };
   var _buildItem = function(instance, item, token) {
+    var $item = $(item);
     var selected = _isAlreadySelected(instance, item);
     var disabled = item.disabled || item.lfs_disabled;
     if (instance.restrict_preselected_item_removal && item.preselected) disabled = true;
-    var active = instance._previous_val !== "" && !selected && !disabled;
     var content;
     if (token && _.isFunction(instance.tokenTemplate)) {
       content = instance.tokenTemplate(item);
     } else {
       content = instance.template(item);
     }
-    var item_class = "";
-    if ($(item).data("lfs-item-class")) item_class = $(item).data("lfs-item-class");
+    var class_map = {
+      active: instance._previous_val !== "" && !selected && !disabled,
+      disabled: disabled,
+      lfs_token: token,
+      selected: selected,
+      single: instance.single
+    };
     if (_.isFunction(instance.tokenClass)) {
-      item_class += " " + instance.tokenClass(item);
+      class_map[instance.tokenClass(item)] = true;
     }
     return TS.templates.lazy_filter_select_item({
-      active: active,
       content: content,
-      disabled: disabled,
-      lfs_id: item.lfs_id,
-      item_class: item_class,
-      selected: selected,
-      single: instance.single,
-      token: token
+      icon: $item.data("lfs-item-icon"),
+      desc: $item.data("lfs-item-desc"),
+      applied_classes: TS.utility.getAppliedClasses(class_map),
+      lfs_id: item.lfs_id
     }).replace(/(\r\n|\n|\r)/gm, "");
   };
   var _calculateHeight = function(instance) {
@@ -43484,7 +43475,9 @@ $.fn.togglify = function(settings) {
     var container_height = instance.$list_container.height();
     var padding = instance.$list_container.outerHeight() - container_height;
     var max_height = parseInt(instance.$list_container.css("max-height"), 10);
+    var available_height = Math.floor($(window).height() - instance.$list.offset().top);
     if (isNaN(max_height)) max_height = container_height;
+    if (max_height > available_height) max_height = available_height;
     max_height = max_height - padding;
     instance.$list.css({
       "max-height": Math.min(list_height, max_height)
@@ -43646,16 +43639,18 @@ $.fn.togglify = function(settings) {
   var _loadSlugAndRemoveFromData = function(instance, item, data) {
     if (!_instanceCanSluggify(instance)) return;
     if (!_itemIsUserCreatedSlug(item)) return;
+    var $item = $(item);
     instance._slug_id_counter = Math.max(item.lfs_slug_id, instance._slug_id_counter) + 1;
     instance._selected.push(item);
     var $slug;
     var slug_html = TS.templates.lazy_filter_select_item({
       content: instance.tokenTemplate(item),
-      token: true,
+      icon: $item.data("lfs-item-icon"),
+      desc: $item.data("lfs-item-desc"),
+      applied_classes: "lfs_token",
       slug_id: item.lfs_slug_id
     }).replace(/(\r\n|\n|\r)/gm, "");
     $slug = $(slug_html);
-    $slug.addClass("lfs_token");
     $slug.insertBefore(instance.$input);
     _adjustInput(instance);
     if (instance.sluggify.validator) {
@@ -43946,12 +43941,11 @@ $.fn.togglify = function(settings) {
       instance.$input.focus();
       _populate(instance);
     }
-    if (!instance._dimensions_set && instance.set_height) {
+    if (instance.set_height) {
       _calculateHeight(instance);
       if (instance.monkey_scroll && !TS.environment.supports_custom_scrollbar) {
         instance.$list.monkeyScroll();
       }
-      instance._dimensions_set = true;
     }
   };
   var _showNoResults = function(instance) {
@@ -43986,23 +43980,23 @@ $.fn.togglify = function(settings) {
       },
       renderItem: function($el, item, data) {
         if (instance.render_item_func) return instance.render_item_func($el, item, data);
-        var add_classes = "";
+        var $item = $(item);
         var remove_classes = "active selected disabled single group_item lfs_token";
-        var selected;
-        var disabled;
-        if (instance.single) add_classes += " single";
-        selected = _isAlreadySelected(instance, item);
-        disabled = item.disabled || item.lfs_disabled;
-        if (selected) {
-          add_classes += " selected";
+        var applied_classes = TS.utility.getAppliedClasses({
+          disabled: item.disabled || item.lfs_disabled,
+          selected: _isAlreadySelected(instance, item),
+          single: instance.single
+        });
+        $el.attr("data-lfs-id", item.lfs_id).removeClass(remove_classes).addClass(applied_classes).html(instance.template(item).string);
+        if ($item.data("lfs-item-icon")) {
+          var background_css = "url(" + $item.data("lfs-item-icon") + ")";
+          var $icon = $('<span class="lfs_item_icon">').css("background-image", background_css);
+          $el.prepend($icon);
         }
-        if (disabled) {
-          add_classes += " disabled";
+        if ($item.data("lfs-item-desc")) {
+          var $desc = $('<span class="lfs_item_desc">').text($item.data("lfs-item-desc"));
+          $el.append($desc);
         }
-        if ($(item).data("lfs-item-class")) {
-          add_classes += " " + $(item).data("lfs-item-class");
-        }
-        $el.attr("data-lfs-id", item.lfs_id).removeClass(remove_classes).addClass(add_classes).html(instance.template(item).string);
       }
     };
     instance.$list.longListView(long_list_view_args);
@@ -45651,7 +45645,7 @@ $.fn.togglify = function(settings) {
     });
     TS.click.addClientHandler(".attachment_actions_buttons .btn", function(e) {
       e.preventDefault();
-      var context = TS.attachment_actions.handleActionEventAndGetContext(e);
+      var context = TS.attachment_actions.handleActionEventAndGetContext($(e.target));
       if (context.action.confirm) {
         TS.attachment_actions.confirmAction(context.action, function() {
           TS.attachment_actions.action_triggered_sig.dispatch(context);
@@ -53027,15 +53021,20 @@ $.fn.togglify = function(settings) {
         id: args.action_id
       });
       if (!action) return;
+      var formatted_action = _.pick(action, _REQUIRED_ACTION_FIELDS_BY_TYPE[action.type]);
+      if (action.type === "select") {
+        formatted_action.selected_options = [{
+          value: args.selected_value
+        }];
+      }
       return {
-        action: action,
+        action: formatted_action,
         attachment: attachment,
         channel_id: args.channel_id,
         message: message
       };
     },
-    handleActionEventAndGetContext: function(e) {
-      var $target = $(e.target);
+    handleActionEventAndGetContext: function($target) {
       var $attachment = $target.parents("[data-attachment-id]");
       var $msg = $attachment.parents("ts-message");
       var channel_id = String($msg.data("model-ob-id"));
@@ -53057,7 +53056,9 @@ $.fn.togglify = function(settings) {
         channel_id: channel_id,
         message_ts: message_ts,
         attachment_id: String($attachment.data("attachment-id")),
-        action_id: String($target.data("action-id"))
+        action_id: String($target.data("action-id")),
+        action_type: String($target.data("action-type")),
+        selected_value: $target.val()
       });
     },
     getPendingAttachment: function(attachment, actions) {
@@ -53107,9 +53108,16 @@ $.fn.togglify = function(settings) {
           attachment: attachment
         });
         $container.html(html);
+        if (TS.boot_data.feature_message_inputs) {
+          TS.attachment_actions.select.decorateNewElements(TS.client.ui.$msgs_div);
+        }
       }
     }
   });
+  var _REQUIRED_ACTION_FIELDS_BY_TYPE = {
+    button: ["id", "name", "type", "value"],
+    select: ["id", "name", "type"]
+  };
 
   function _onActionTriggered(data) {
     if (!data || !data.message || !data.attachment || !data.action || !data.channel_id) {
@@ -53181,6 +53189,103 @@ $.fn.togglify = function(settings) {
   function _getAttachmentActionsContainer(attachment, message_ts) {
     var msg_dom_id = TS.templates.makeMsgDomId(message_ts);
     return $("#" + msg_dom_id).find("[data-attachment-id=" + attachment.id + "] .attachment_actions");
+  }
+})();
+(function() {
+  "use strict";
+  TS.registerModule("attachment_actions.select", {
+    onStart: _.noop,
+    decorateNewElements: function($container) {
+      $container.find(".attachment_actions_buttons select:visible").lazyFilterSelect({
+        onItemAdded: _onItemAdded,
+        filter: _filter
+      }).hide();
+    },
+    getActionModel: function(action, is_disabled) {
+      var qs = TS.utility.url.queryStringParse(window.location.search.slice(1));
+      var model = _.merge({
+        _disabled: !!is_disabled,
+        data_source: qs.data_source,
+        desc: "",
+        id: "",
+        name: "",
+        options: [],
+        text: ""
+      }, action);
+      model.options = _getOptionsForModel(model);
+      model.text = _formatAndMarkSafeString(model.text);
+      return model;
+    }
+  });
+  var _DATA_SOURCES = {
+    channels: "channels",
+    "default": "default",
+    users: "users"
+  };
+
+  function _onItemAdded(item) {
+    var context = TS.attachment_actions.handleActionEventAndGetContext(this.$select);
+    TS.attachment_actions.action_triggered_sig.dispatch(context);
+  }
+
+  function _filter(item, query) {
+    return TS.fuzzy.score(item.text.toLowerCase(), query) < Infinity;
+  }
+
+  function _getOptionsForModel(model) {
+    switch (model.data_source) {
+      case _DATA_SOURCES.channels:
+        return _getOptionsForChannels();
+      case _DATA_SOURCES.users:
+        return _getOptionsForUsers();
+      default:
+        return _getOptionsForDefault(model.options);
+    }
+  }
+
+  function _getOptionsForDefault(options) {
+    return _.map(options, function(option) {
+      option.text = _formatAndMarkSafeString(option.text);
+      option.desc = _formatAndMarkSafeString(option.desc);
+      return option;
+    });
+  }
+
+  function _getOptionsForChannels() {
+    var sorted_channels = TS.sorter.search("#", {
+      channels: TS.channels.getChannelsForUser()
+    }, {
+      frecency: true
+    });
+    return sorted_channels.map(function(result) {
+      var channel = result.model_ob;
+      return {
+        text: "#" + channel.name,
+        value: channel.id
+      };
+    });
+  }
+
+  function _getOptionsForUsers() {
+    var sorted_members = TS.sorter.search("@", {
+      members: TS.members.getActiveMembersExceptSelfAndBots()
+    }, {
+      frecency: true
+    });
+    return sorted_members.map(function(result) {
+      var member = result.model_ob;
+      return {
+        desc: TS.members.getMemberDisplayName(member),
+        icon: member.profile.image_24,
+        text: TS.members.getMemberFullName(member),
+        value: member.id
+      };
+    });
+  }
+
+  function _formatAndMarkSafeString(str) {
+    var formatted_text = TS.emoji.graphicReplace(str);
+    return new Handlebars.SafeString(formatted_text);
   }
 })();
 (function() {

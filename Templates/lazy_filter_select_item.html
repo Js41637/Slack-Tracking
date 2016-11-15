@@ -1,3 +1,20 @@
-<div class="lfs_item {{#if active}} active{{/if}}{{#if selected}} selected{{/if}}{{#if disabled}} disabled{{/if}}{{#if token}} lfs_token{{/if}}{{#if single}} single{{/if}}{{#if item_class}} {{item_class}}{{/if}}" {{#if lfs_id}}data-lfs-id="{{lfs_id}}"{{/if}} {{#if slug_id}}data-lfs-slug-id="{{slug_id}}"{{/if}}>
-  {{ content }}
+<div
+  class="lfs_item {{applied_classes}}"
+  {{#if item_style}}
+    style="{{item_style}}"
+  {{/if}}
+  {{#if lfs_id}}
+    data-lfs-id="{{lfs_id}}"
+  {{/if}}
+  {{#if slug_id}}
+    data-lfs-slug-id="{{slug_id}}"
+  {{/if}}
+>
+  {{#if icon}}
+    <span class="lfs_item_icon" style="background-image: url({{icon}});"></span>
+  {{/if}}
+  {{#if desc}}
+    <span class="lfs_item_desc">{{desc}}</span>
+  {{/if}}
+  {{content}}
 </div>
