@@ -117,8 +117,8 @@ function lintCode() {
 function getChanges(client) {
   console.log("Getting changes")
   return new Promise((resolve, reject) => {
-    let what = client ? 'ClientExtracted/' : './ && git reset ClientExtracted/'
-    exec(`git add ${what} && git diff --cached --name-status`, (err, stdout) => {
+    let what = client ? 'git reset ./ && git add ClientExtracted/' : 'git add ./ && git reset ClientExtracted/'
+    exec(`${what} && git diff --cached --name-status`, (err, stdout) => {
       if (err) return reject(err)
       let changes = compact(map(stdout.split('\n'), c => c.trim().replace('\t', ' ')))
       console.log(`Got ${changes.length} changed files`)
@@ -127,23 +127,17 @@ function getChanges(client) {
   })
 }
 
-var pushing = false
 // Create a commit and push to Github
 function pushToGit(client) {
   return new Promise((resolve, reject) => {
-    if (pushing) setTimeout(function() {
-      pushToGit(client)
-    }, 4000);
-
     console.log("Preparing to push to Github")
     getChanges(client).then(changes => {
-      pushing = true
-      if (!changes.length) return Promise.resolve('No new changes')
+      if (!changes.length) return resolve('No new changes')
+      if (changes[0].includes("Unstaged changes after reset")) return reject("Error: Git fucked up")
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${truncate(changes.join(', ').replace(/ClientExtracted(\/src)?/g, 'Client'), { length: 1000 })}`
       let cmd = `git commit -m "${msg}" ${config.noPush ? '' : '&& git push'}`
       exec(cmd, (err, stdout) => {
-        pushing = false
         console.log(err, stdout)
         if (err) return reject(err)
         return resolve(`Sucessfully committed changed ${config.noPush ? 'but did not push' : 'and pushed'} to Github`)
@@ -165,7 +159,7 @@ function checkClientVersion() {
     fs.readFile('./ClientExtracted/VERSION', 'utf8', (err, data) => {
       let currentVersion = err ? null : data
       if (currentVersion == latestRelease.version) return console.log("Slack Client hasn't updated")
-      clientUpdater.update(latestRelease).then(() => pushToGit(true)).catch(console.error)
+      else clientUpdater.update(latestRelease).then(() => pushToGit(true)).catch(console.error)
     })
   })
 }
