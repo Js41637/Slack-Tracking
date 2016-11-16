@@ -15353,7 +15353,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   display: inline
 }
 
-.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary {
+.light_theme .mention_rxn .mention_rxn_summary {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -15366,7 +15366,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   align-items: baseline
 }
 
-.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
+.light_theme .mention_rxn .mention_rxn_summary .mention_rxn_summary_left {
   -ms-flex: 1 1 auto;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto

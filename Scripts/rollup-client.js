@@ -2405,6 +2405,7 @@
         $("#member_mentions").html(html);
         TS.utility.makeSureAllLinksHaveTargets($("#member_mentions"));
         $("#member_mentions_explanation").addClass("hidden");
+        $("#member_replies_explanation").addClass("hidden");
         if (TS.mentions.has_more) {
           $("#member_mentions_more").css("visibility", "visible");
         } else {
@@ -2412,7 +2413,8 @@
         }
       } else {
         $("#member_mentions").html("");
-        $("#member_mentions_explanation").removeClass("hidden");
+        $("#member_mentions_explanation").toggleClass("hidden", TS.mentions.active_tab === "replies");
+        $("#member_replies_explanation").toggleClass("hidden", TS.mentions.active_tab !== "replies");
         $("#member_mentions_more").css("visibility", "hidden");
       }
       TS.view.resize();
@@ -2632,7 +2634,7 @@
           return;
         }
         TS.team.ensureEntireTeamLoaded().then(function() {
-          TS.log(1989, "Flannel: team directory fully loaded. Rendering ...");
+          TS.log(1989, "Flannel: directory fully loaded. Rendering ...");
           TS.view.rebuildTeamListSync(ignore_cache);
           TS.metrics.mark("team_directory_time_to_first_member");
           $("#flannel_team_dir_loading").remove();

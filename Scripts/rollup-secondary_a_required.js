@@ -1165,6 +1165,7 @@
         _ensure_model_methodsA.push("channels.replies");
         _ensure_model_methodsA.push("groups.replies");
         _ensure_model_methodsA.push("im.replies");
+        _ensure_model_methodsA.push("subscriptions.thread.getView");
       }
     },
     test: function() {
@@ -3247,6 +3248,7 @@
           return;
         }
         TS.info("going back in time on channel " + channel.id + ". last_read: " + channel.last_read + " new: " + ts + " reason: " + (reason || "unspecified"));
+        if (channel.last_read - ts > 10) TS.console.logStackTrace("going back in time callstack");
         TS.utility.msgs.maybeClearPrevLastRead(channel);
         TS.utility.msgs.setPrevLastRead(channel, ts);
       } else {
@@ -17795,11 +17797,7 @@ TS.registerModule("constants", {
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
         }
-        if (TS.boot_data.feature_refactored_message_template) {
-          template_args.star_components = _buildStarComponents("message", msg, model_ob);
-        } else {
-          template_args.star_html = TS.templates.builders.buildStarWithTip("message", msg, model_ob);
-        }
+        template_args.star_components = _buildStarComponents("message", msg, model_ob);
         if (TS.boot_data.feature_message_replies) {
           var selectable = true;
           if (standalone) selectable = false;
@@ -17856,17 +17854,9 @@ TS.registerModule("constants", {
         }
         if (!msg.subtype && args.for_search_display && msg.file) {
           if (msg.comment) {
-            if (TS.boot_data.feature_refactored_message_template) {
-              template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
-            } else {
-              template_args.star_html = TS.templates.builders.buildStarWithTip("file_comment", msg.comment, msg.file);
-            }
+            template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
           } else {
-            if (TS.boot_data.feature_refactored_message_template) {
-              template_args.star_components = _buildStarComponents("file", msg.file, null);
-            } else {
-              template_args.star_html = TS.templates.builders.buildStarWithTip("file", msg.file, null);
-            }
+            template_args.star_components = _buildStarComponents("file", msg.file, null);
           }
         }
         if (!TS.utility.msgs.isTempMsg(msg) && !msg.is_ephemeral) {
@@ -17881,11 +17871,7 @@ TS.registerModule("constants", {
             template_args.new_window = !template_args.edit && !template_args.download;
             template_args.abs_permalink = msg.file.permalink;
             if (!starred_items_list) {
-              if (TS.boot_data.feature_refactored_message_template) {
-                template_args.star_components = _buildStarComponents("file", msg.file, null);
-              } else {
-                template_args.star_html = TS.templates.builders.buildStarWithTip("file", msg.file, null);
-              }
+              template_args.star_components = _buildStarComponents("file", msg.file, null);
             }
             template_args.lightbox = false;
             if (msg.file.thumb_360_w == 360 || msg.file.thumb_360_h == 360) {
@@ -17957,11 +17943,7 @@ TS.registerModule("constants", {
             template_args["uploader"] = _getEntityFromFile(msg.file);
           }
           if (!starred_items_list) {
-            if (TS.boot_data.feature_refactored_message_template) {
-              template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
-            } else {
-              template_args.star_html = TS.templates.builders.buildStarWithTip("file_comment", msg.comment, msg.file);
-            }
+            template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
           }
           html += TS.templates.message(template_args);
         } else {
@@ -18175,11 +18157,7 @@ TS.registerModule("constants", {
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
         }
-        if (TS.boot_data.feature_refactored_message_template) {
-          template_args.star_components = _buildStarComponents("message", msg, model_ob);
-        } else {
-          template_args.star_html = TS.templates.builders.buildStarWithTip("message", msg, model_ob);
-        }
+        template_args.star_components = _buildStarComponents("message", msg, model_ob);
         if (TS.boot_data.feature_message_replies) {
           var selectable = true;
           if (standalone) selectable = false;
@@ -18232,17 +18210,9 @@ TS.registerModule("constants", {
         }
         if (!msg.subtype && args.for_search_display && msg.file) {
           if (msg.comment) {
-            if (TS.boot_data.feature_refactored_message_template) {
-              template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
-            } else {
-              template_args.star_html = TS.templates.builders.buildStarWithTip("file_comment", msg.comment, msg.file);
-            }
+            template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
           } else {
-            if (TS.boot_data.feature_refactored_message_template) {
-              template_args.star_components = _buildStarComponents("file", msg.file, null);
-            } else {
-              template_args.star_html = TS.templates.builders.buildStarWithTip("file", msg.file, null);
-            }
+            template_args.star_components = _buildStarComponents("file", msg.file, null);
           }
         }
         if (!TS.utility.msgs.isTempMsg(msg) && !msg.is_ephemeral) {
@@ -18257,11 +18227,7 @@ TS.registerModule("constants", {
             template_args.new_window = !template_args.edit && !template_args.download;
             template_args.abs_permalink = msg.file.permalink;
             if (!starred_items_list) {
-              if (TS.boot_data.feature_refactored_message_template) {
-                template_args.star_components = _buildStarComponents("file", msg.file, null);
-              } else {
-                template_args.star_html = TS.templates.builders.buildStarWithTip("file", msg.file, null);
-              }
+              template_args.star_components = _buildStarComponents("file", msg.file, null);
             }
             template_args.file_viewer = false;
             if (msg.file.thumb_360_w == 360 || msg.file.thumb_360_h == 360) {
@@ -18332,11 +18298,7 @@ TS.registerModule("constants", {
             template_args["uploader"] = _getEntityFromFile(msg.file);
           }
           if (!starred_items_list) {
-            if (TS.boot_data.feature_refactored_message_template) {
-              template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
-            } else {
-              template_args.star_html = TS.templates.builders.buildStarWithTip("file_comment", msg.comment, msg.file);
-            }
+            template_args.star_components = _buildStarComponents("file_comment", msg.comment, msg.file);
           }
           html += TS.templates.message(template_args);
         } else {
@@ -19395,11 +19357,6 @@ TS.registerModule("constants", {
           rolled_up = false;
         }
       }
-      var highlighted = false;
-      var subscription = TS.replies.getSubscriptionState(model_ob.id, thread.ts);
-      if (subscription) {
-        highlighted = reply.ts > subscription.last_read;
-      }
       var thread_author_name = thread.username;
       if (thread_author && !thread.bot_id) thread_author_name = thread_author.is_self ? "you" : TS.members.getMemberDisplayName(thread_author);
       if (!n_others && replier === thread_author) thread_author_name = "their message";
@@ -19418,8 +19375,7 @@ TS.registerModule("constants", {
         rolled_up: rolled_up,
         n_others: n_others,
         repliers: repliers,
-        additional_reply_count: additional_reply_count,
-        highlighted: highlighted
+        additional_reply_count: additional_reply_count
       };
       var html = TS.templates.mentions_reply(template_args);
       return html;
@@ -30451,6 +30407,7 @@ TS.registerModule("constants", {
         if (TS.model.unread_view_is_showing) {
           TS.client.ui.unread.setUnreadPoint(msg_ts);
         } else {
+          TS.info("setting unread point on " + model_ob.id + " due to message action click (" + msg_ts + ")");
           TS.client.msg_pane.setUnreadPoint(msg_ts);
         }
       } else if (id === "copy_link") {
@@ -45025,6 +44982,7 @@ $.fn.togglify = function(settings) {
           TS.msg_edit.startDelete(msg_ts, model_ob);
           break;
         case "mark_unread":
+          TS.info("_msgActionHandler: setting unread point on " + model_ob.id + ", ts = " + msg_ts + " (mark_unread)");
           TS.client.msg_pane.setUnreadPoint(msg_ts);
           break;
         case "reply":
@@ -45148,6 +45106,7 @@ $.fn.togglify = function(settings) {
       }
       if (e.altKey) {
         e.preventDefault();
+        TS.info("setting unread point on " + model_ob.id + " due to alt+click on message with ts = " + msg_id);
         TS.client.msg_pane.setUnreadPoint(msg_id);
         return;
       }

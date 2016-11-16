@@ -1470,11 +1470,17 @@
     var module;
     var name;
     var delete_after_calling = !TS.qs_args["keep_onstart"];
-    for (name in _modules) {
-      module = _modules[name];
-      if (!module.onStart) continue;
-      module.onStart();
-      if (delete_after_calling) module.onStart = _.noop;
+    try {
+      for (name in _modules) {
+        module = _modules[name];
+        if (!module.onStart) continue;
+        module.onStart();
+        if (delete_after_calling) module.onStart = _.noop;
+      }
+    } catch (e) {
+      TS.error("TS." + name + ".onStart encountered an error:");
+      TS.logError(e);
+      throw e;
     }
     if (delete_after_calling) {
       _callOnStarts = _.noop;

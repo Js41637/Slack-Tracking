@@ -1,10 +1,6 @@
 {{#unless starred_items_actions}}
   {{#if starred_items_list}}
-    {{#feature flag="feature_refactored_message_template"}}
-      {{>star_with_tip star_components}}
-    {{else}}
-      {{{star_html}}}
-    {{/feature}}
+    {{>star_with_tip star_components}}
   {{/if}}
 {{/unless}}
 <ts-message id="{{msg_dom_id}}"
@@ -49,9 +45,6 @@
                {{#if is_pinned}}is_pinned{{/if}}
              {{/feature}}
              {{#if app_id}}is_app{{/if}}
-      {{#feature flag="feature_refactored_message_template"}}
-        feature_refactored_message_template
-      {{/feature}}
          "
          {{#feature flag="feature_message_replies"}}data-selectable="{{selectable}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}" data-parent-user-id="{{msg.parent_user_id}}"{{/if}}{{/feature}}
          >
@@ -61,20 +54,6 @@
     </div>
   {{/unless}}
 
-  {{#feature flag="feature_refactored_message_template"}}
-  {{else}}
-    {{#if starred_items_actions}}
-      <div class="actions">
-        {{jump_link}}
-        <div class="file_star btn_icon btn btn_outline">
-          {{{star_html}}}
-        </div>
-      </div>
-    {{else}}
-      {{#if jump_link}}{{jump_link}}{{/if}}
-    {{/if}}
-  {{/feature}}
-
   {{#feature flag="feature_pin_update"}}<span class="is_pinned_holder">{{pin_html}}</span>{{/feature}}
 
   {{#unless format_for_thread_root}}
@@ -83,54 +62,51 @@
         {{> message_member_image}}
       </div>
       <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if show_user}}{{{toTime msg.ts}}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{{toTime msg.ts false}}}</span><span class="dense_only">{{{toTime msg.ts}}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
-      {{#if show_star}}<span class="message_star_holder">{{#feature flag="feature_refactored_message_template"}}{{>star_with_tip star_components}}{{else}}{{{star_html}}}{{/feature}}</span>{{/if}}
+      {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
     </div>
   {{/unless}}
 
   <div class="message_content {{#feature flag="feature_message_replies"}}feature_message_replies{{/feature}}">
-    {{#feature flag="feature_refactored_message_template"}}
-      <div class="message_content_header">
-        <div class="message_content_header_left">
-    {{/feature}}
-    {{#if format_for_thread_root}}
-      {{> message_member_image}}
-    {{/if}}
-    {{#if is_tombstone}}
-      {{#if format_for_thread_root}}
-        <span class="member">Deleted message</span>
-      {{/if}}
-    {{else}}
-      {{#if member}}
-        {{{makeMemberPreviewLink member}}}
-        {{~#if is_slackbot_response~}}
-        <span class="ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_delay_300"><span class="bot_label">Custom Response</span>
-        <span class="ts_tip_tip">Added by your team</span>
-        </span>
-        {{~/if~}}
-      {{else}}
-        <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">BOT</span>{{/if}}</span>
-      {{/if}}
-    {{/if}}
-    {{#if comment}}
-      {{#if is_file_convo_continuation}}
-        <span class="meta message_commented">commented:</span>
-      {{/if}}
-    {{/if}}
-    <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{{toTime msg.ts}}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
-    {{#unless standalone}}
-      {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
-    {{/unless}}
-    {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">Only visible to you</span>{{/if}}{{/if}}
+    <div class="message_content_header">
+      <div class="message_content_header_left">
+        {{#if format_for_thread_root}}
+          {{> message_member_image}}
+        {{/if}}
+        {{#if is_tombstone}}
+          {{#if format_for_thread_root}}
+            <span class="member">Deleted message</span>
+          {{/if}}
+        {{else}}
+          {{#if member}}
+            {{{makeMemberPreviewLink member}}}
+            {{~#if is_slackbot_response~}}
+            <span class="ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_delay_300"><span class="bot_label">Custom Response</span>
+            <span class="ts_tip_tip">Added by your team</span>
+            </span>
+            {{~/if~}}
+          {{else}}
+            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">BOT</span>{{/if}}</span>
+          {{/if}}
+        {{/if}}
+        {{#if comment}}
+          {{#if is_file_convo_continuation}}
+            <span class="meta message_commented">commented:</span>
+          {{/if}}
+        {{/if}}
+        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{{toTime msg.ts}}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+        {{#unless standalone}}
+          {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
+        {{/unless}}
+        {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">Only visible to you</span>{{/if}}{{/if}}
 
-    {{#if is_tombstone}}
-      {{#unless format_for_thread_root}}
-        <div class="deleted_message">This message was deleted</div>
-      {{/unless}}
-    {{else}}
-    {{#feature flag="feature_refactored_message_template"}}
-      {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
-      {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
-        </div>
+        {{#if is_tombstone}}
+          {{#unless format_for_thread_root}}
+            <div class="deleted_message">This message was deleted</div>
+          {{/unless}}
+        {{else}}
+        {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+        {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
+      </div>
       {{#if starred_items_actions}}
         <div class="actions">
           {{jump_link}}
@@ -141,11 +117,7 @@
       {{else}}
         {{#if jump_link}}{{jump_link}}{{/if}}
       {{/if}}
-      </div>
-    {{else}}
-      {{#if show_star}}<span class="message_star_holder">{{{star_html}}}</span>{{/if}}
-      {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
-    {{/feature}}
+    </div>
     {{#if file}}
       {{#if comment}}
         {{#unless is_file_convo_continuation}}

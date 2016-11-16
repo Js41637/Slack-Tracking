@@ -1843,22 +1843,6 @@ html.is_electron_mac #rxn_toast_div {
   color: #439fe0
 }
 
-.mentions_reply.highlighted {
-  background: #fffce0;
-  padding-top: .5rem;
-  padding-bottom: .5rem;
-  margin-left: -.5rem;
-  padding-left: 3.3125rem;
-  margin-right: -.5rem;
-  padding-right: .5rem
-}
-
-.mentions_reply.highlighted .mentions_reply_avatar .member_image,
-.mentions_reply.highlighted .mentions_reply_icon {
-  top: .5rem;
-  left: .5rem
-}
-
 .mentions_reply .replier_info {
   color: #9e9ea6;
   margin-bottom: 0;
@@ -3446,7 +3430,7 @@ body.sorting_mode .channels_list_holder ul {
   display: inline
 }
 
-.light_theme .feature_refactored_message_template .message_content_header {
+.light_theme .message_content_header {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -3459,7 +3443,7 @@ body.sorting_mode .channels_list_holder ul {
   align-items: baseline
 }
 
-.light_theme .feature_refactored_message_template .message_content_header_left {
+.light_theme .message_content_header_left {
   -ms-flex: 1 1 auto;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto
@@ -3474,7 +3458,7 @@ body.sorting_mode .channels_list_holder ul {
   float: right
 }
 
-.light_theme .feature_refactored_message_template .msg_right_link {
+.light_theme .msg_right_link {
   float: none;
   -ms-flex: 0 0 auto;
   -webkit-flex: 0 0 auto;
@@ -3482,7 +3466,7 @@ body.sorting_mode .channels_list_holder ul {
   text-align: right
 }
 
-.feature_refactored_message_template .message_content .message_content_header>.msg_right_link {
+.message_content .message_content_header>.msg_right_link {
   margin-right: -1rem
 }
 
@@ -12062,7 +12046,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   display: inline
 }
 
-.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary {
+.light_theme .mention_rxn .mention_rxn_summary {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -12075,7 +12059,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   align-items: baseline
 }
 
-.light_theme .mention_rxn.feature_refactored_message_template .mention_rxn_summary .mention_rxn_summary_left {
+.light_theme .mention_rxn .mention_rxn_summary .mention_rxn_summary_left {
   -ms-flex: 1 1 auto;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto
@@ -18173,13 +18157,11 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
-.light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender,
-.light_theme ts-message .message_content>.message_sender {
+.light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
   margin-right: .25rem
 }
 
-.light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender>.member_type_icon,
-.light_theme ts-message .message_content>.message_sender>.member_type_icon {
+.light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender>.member_type_icon {
   display: none
 }
 
@@ -18435,19 +18417,16 @@ ts-message .emoji-sizer .mention {
   display: block
 }
 
-.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender,
-.dense_theme ts-message .message_content>.message_sender {
+.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
   margin-right: .25rem;
   margin-left: -.5rem
 }
 
-.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender.has_member_type_badge,
-.dense_theme ts-message .message_content>.message_sender.has_member_type_badge {
+.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender.has_member_type_badge {
   margin-right: 0
 }
 
-.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender>.member_type_icon,
-.dense_theme ts-message .message_content>.message_sender>.member_type_icon {
+.dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender>.member_type_icon {
   line-height: 1.0625rem
 }
 
