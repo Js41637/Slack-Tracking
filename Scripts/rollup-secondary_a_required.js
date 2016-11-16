@@ -3174,7 +3174,7 @@
       TS.shared.onSendMsg(success, imsg, channel, TS.channels);
     },
     displayChannel: function(channel_id, and_send_txt, from_history, replace_history_state) {
-      if (TS.boot_data.feature_tinyspeck) TS.utility.logStackTrace("Channel switch notice");
+      if (TS.boot_data.feature_tinyspeck) TS.console.logStackTrace("Channel switch notice");
       if (TS.isPartiallyBooted() && channel_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
         TS.sounds.play("beep");
@@ -3511,11 +3511,7 @@
       return null;
     },
     upsertChannel: function(channel) {
-      if (channel.is_private) {
-        return TS.groups.upsertGroup(channel);
-      } else {
-        return _upsertChannel(channel);
-      }
+      return _upsertChannel(channel);
     },
     processNewChannelForUpserting: function(channel) {
       _processNewChannelForUpserting(channel);
@@ -3833,11 +3829,7 @@
   var _processNewChannelForUpserting = function(channel) {
     channel._hotness = 0;
     TS.shared.setPriorityForDev(channel);
-    if (channel.is_private) {
-      channel.is_group = true;
-    } else {
-      channel.is_channel = true;
-    }
+    channel.is_channel = true;
     channel.is_general = !!channel.is_general;
     channel._name_lc = _.toLower(channel.name);
     channel._show_in_list_even_though_no_unreads = false;
@@ -8718,7 +8710,7 @@ TS.registerModule("constants", {
       var model_ob;
       if (TS.client) {
         if (TS.model.active_channel_id) {
-          model_ob = TS.channels.getChannelById(TS.model.active_channel_id) || TS.groups.getGroupById(TS.model.active_channel_id);
+          model_ob = TS.channels.getChannelById(TS.model.active_channel_id);
         } else if (TS.model.active_im_id) {
           model_ob = TS.ims.getImById(TS.model.active_im_id);
         } else if (TS.model.active_mpim_id) {
@@ -8728,7 +8720,7 @@ TS.registerModule("constants", {
         }
       } else {
         if (TS.boot_data.channel_id) {
-          model_ob = TS.channels.getChannelById(TS.boot_data.channel_id) || TS.groups.getGroupById(TS.boot_data.channel_id);
+          model_ob = TS.channels.getChannelById(TS.boot_data.channel_id);
         } else if (TS.boot_data.im_id) {
           model_ob = TS.ims.getImById(TS.boot_data.im_id);
         } else if (TS.boot_data.mpim_id) {
@@ -27588,23 +27580,6 @@ TS.registerModule("constants", {
     queryIsMaybeSelf: function(query) {
       query = _.toLower(query);
       return query === "me" || query === "you";
-    },
-    logStackTrace: function(message) {
-      var stack = (new Error).stack;
-      var bits;
-      if (!stack) {
-        bits = ["no stacktrace available"];
-      } else {
-        bits = stack.split && stack.split("\n") || ["[could not parse stack]", stack];
-      }
-      bits = _.filter(bits, function(bit) {
-        if (bit.indexOf("Error") === 0) return false;
-        return bit.trim().length && bit.indexOf("logStackTrace") === -1;
-      });
-      bits = _.map(bits, function(bit) {
-        return bit.trim();
-      });
-      TS.info(message, "\nStacktrace: ↴\n" + bits.join("\n"));
     },
     test: {
       clearAndGetRefererPolicy: function() {

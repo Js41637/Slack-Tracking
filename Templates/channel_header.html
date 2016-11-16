@@ -55,6 +55,8 @@
       {{> ts_icon class="ts_icon_sync"}}
     </button>
     <div class="divider_bar channel_header_unread_view_divider_bar"></div>
+  {{else if threads.is_showing}}
+    {{! Nothing yet }}
   {{else}}
     <!-- calls button -->
     <div id="channel_calls_container" class="hidden channel_calls_container"></div>{{!--

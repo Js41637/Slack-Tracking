@@ -112,6 +112,25 @@
         TS.warn("could not dir ob:" + ob + " err:" + err);
       }
     },
+    logStackTrace: function(message) {
+      var stack = (new Error).stack;
+      var bits;
+      if (!stack) {
+        bits = ["no stacktrace available"];
+      } else {
+        bits = stack.split && stack.split("\n") || ["[could not parse stack]", stack];
+      }
+      bits = _.filter(bits, function(bit) {
+        if (bit.indexOf("Error") === 0) return false;
+        return bit.trim().length && bit.indexOf("logStackTrace") === -1;
+      });
+      bits = _.map(bits, function(bit) {
+        return bit.trim();
+      });
+      var details = bits.join("\n");
+      if (message) TS.console.info(message + "\nStacktrace: ↴\n", details);
+      return details;
+    },
     replaceConsoleFunction: function(fn) {
       var prev_console = _console;
       _console = fn;
@@ -1739,11 +1758,7 @@
         data.channels.forEach(function(channel) {
           if (just_general && !channel.is_general) return;
           channel.all_read_this_session_once = false;
-          if (channel.is_private) {
-            TS.groups.upsertGroup(channel);
-          } else {
-            TS.channels.upsertChannel(channel);
-          }
+          TS.channels.upsertChannel(channel);
         });
         TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
         var skip_ims_mpims = TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members;
@@ -2023,11 +2038,7 @@
       })) {
       data.users.push(data.self);
     }(users_counts_data.channels || []).forEach(function(ob) {
-      if (ob.is_private) {
-        ob.is_group = true;
-      } else {
-        ob.is_channel = true;
-      }
+      ob.is_channel = true;
       ob.is_member = true;
       ob.members = ob.members || [];
       _upsertModelOb(ob, data.channels);

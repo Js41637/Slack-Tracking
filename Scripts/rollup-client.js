@@ -10247,17 +10247,17 @@
       show_muted: !!TS.boot_data.feature_sli_channel_priority,
       show_starred: !!TS.boot_data.feature_sli_channel_priority
     };
-    if (c.is_channel) {
-      html = TS.templates.channel(template_args);
+    if (c.is_im) {
+      template_args.member = TS.members.getMemberById(c.user);
+      template_args.color_names = false;
+      template_args.show_close_link = true;
+      html = TS.templates.member(template_args);
     } else if (c.is_mpim) {
       html = TS.templates.mpim(template_args);
     } else if (c.is_group) {
       html = TS.templates.group(template_args);
     } else {
-      template_args.member = TS.members.getMemberById(c.user);
-      template_args.color_names = false;
-      template_args.show_close_link = true;
-      html = TS.templates.member(template_args);
+      html = TS.templates.channel(template_args);
     }
     return html;
   };
@@ -10937,12 +10937,13 @@
     _buildChannelMemberList();
   };
   var _getChannelNamePrefix = function() {
+    if (_model_ob.is_mpim || _model_ob.is_im) return;
     var prefix;
-    if (TS.model.active_channel_id) {
-      prefix = "#";
-      $("#channel_title").prepend(prefix);
-    } else if (TS.model.active_group_id) {
+    if (_model_ob.is_group || _model_ob.is_private) {
       prefix = '<i class="ts_icon ts_icon_lock"></i>';
+      $("#channel_title").prepend(prefix);
+    } else if (TS.model.active_channel_id) {
+      prefix = "#";
       $("#channel_title").prepend(prefix);
     }
   };
@@ -11042,6 +11043,7 @@
   };
   var _setMutedDisplay = function() {
     if (!_model_ob && TS.boot_data.feature_unread_view) return;
+    if (TS.client.activeChannelIsHidden()) return;
     var is_muted = TS.notifs.isCorGMuted(_model_ob.id);
     var bell = '<i class="ts_icon ts_icon_bell_slash muted_icon"></i>';
     var mute_tip = '<span class="ts_tip_tip">Unmute</span>';

@@ -5,7 +5,7 @@
       {{#if @last}}{{#unless @first}}and {{/unless}}{{/if}}#<strong>{{this.name}}</strong>{{#unless @last}}{{#if_gt ../default_channels.length compare=2}},{{/if_gt}}{{/unless}}{{#if @last}}.{{/if}}
     {{/each}}
     {{#if is_admin}}
-      <a onclick="$('#default_channels_note').hide(); $('#default_channels').show();" class="small_left_margin subtle_silver underline" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=edit_channels,trigger=click_cta_edit_channels">Edit / add</a>
+      <a onclick="$('#default_channels_note').hide(); $('#default_channels').show();" class="small_left_margin subtle_silver underline inline_block" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=edit_channels,trigger=click_cta_edit_channels">Edit / add</a>
     {{/if}}
   </p>
   <p id="default_channels" {{#if initial_channel_id}}{{else}}style="display: none; overflow: visible !important;"{{/if}}>
