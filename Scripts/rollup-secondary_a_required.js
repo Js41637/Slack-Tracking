@@ -2261,6 +2261,10 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("permissions", {});
+})();
+(function() {
+  "use strict";
   TS.registerModule("tips", {
     onStart: function() {
       _$body.delegate(".ts_tip_lazy, .ts_tip_float", "mouseenter", _onMouseEnter);
@@ -53099,14 +53103,13 @@ $.fn.togglify = function(settings) {
         id: args.action_id
       });
       if (!action) return;
-      var formatted_action = _.pick(action, _REQUIRED_ACTION_FIELDS_BY_TYPE[action.type]);
       if (action.type === "select") {
-        formatted_action.selected_options = [{
+        action.selected_options = [{
           value: args.selected_value
         }];
       }
       return {
-        action: formatted_action,
+        action: action,
         attachment: attachment,
         channel_id: args.channel_id,
         message: message
@@ -53192,10 +53195,6 @@ $.fn.togglify = function(settings) {
       }
     }
   });
-  var _REQUIRED_ACTION_FIELDS_BY_TYPE = {
-    button: ["id", "name", "type", "value"],
-    select: ["id", "name", "type"]
-  };
 
   function _onActionTriggered(data) {
     if (!data || !data.message || !data.attachment || !data.action || !data.channel_id) {
