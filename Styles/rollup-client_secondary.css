@@ -2823,6 +2823,11 @@ ul.member_list li a.nuc {
   left: 17px
 }
 
+.custom_status {
+  margin-left: .2rem;
+  opacity: .5
+}
+
 @-webkit-keyframes typing-sprite {
   100% {
     background-position: -240px

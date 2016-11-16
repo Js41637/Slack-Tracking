@@ -33781,6 +33781,7 @@ var _timezones_alternative = {
     TS.client.unread.debug("Consistency check: Mismatched model count: ", mismatched_models.length);
     if (mismatched_models.length > 0) {
       TS.metrics.count("unread_view_consistency_fail");
+      TS.metrics.count("unread_view_consistency_fail_" + TS.client.unread.getSortOrder());
       TS.metrics.count("unread_view_consistency_fail_count", mismatched_models.length);
     }
   };

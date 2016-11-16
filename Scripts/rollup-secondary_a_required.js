@@ -22522,6 +22522,9 @@ TS.registerModule("constants", {
         }
         return new Handlebars.SafeString(full_name_and_preferred_name_html);
       });
+      Handlebars.registerHelper("getMemberCurrentStatus", function(member) {
+        return member.profile.current_status;
+      });
       Handlebars.registerHelper("getDisplayNameOfUserForIm", function(im) {
         if (!im) return "MISSING_IM";
         return TS.ims.getDisplayNameOfUserForIm(im);
@@ -45318,7 +45321,7 @@ $.fn.togglify = function(settings) {
           TS.menu.member.startWithMember(e, member_id);
         } else if (parent_preview_scroller.length) {
           TS.menu.member.startWithMember(e, member_id, true);
-        } else if (preview_origin === "mentions" || preview_origin === "search_results" || preview_origin === "conversation") {
+        } else if (preview_origin === "mentions" || preview_origin === "search_results" || preview_origin === "conversation" || preview_origin === "threads") {
           TS.menu.member.startWithMember(e, member_id);
         } else {
           var parent_msgs_div = $el.closest("#msgs_div, #archives_msgs_div, #unread_msgs_div");
@@ -45809,6 +45812,7 @@ $.fn.togglify = function(settings) {
     if ($target.closest("#file_preview_scroller").length) return "file_preview";
     if ($target.closest("#member_preview_scroller").length) return "member_preview";
     if ($target.closest("#convo_scroller").length) return "conversation";
+    if (TS.boot_data.feature_message_replies && $target.closest("#threads_msgs_scroller_div").length) return "threads";
     if ($target.closest("#channel_page_scroller").length) {
       var model_ob = TS.shared.getActiveModelOb();
       var origin = "channel_page";

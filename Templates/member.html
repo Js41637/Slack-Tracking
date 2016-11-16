@@ -17,10 +17,15 @@
           {{{makeMemberPresenceIcon member}}}
           {{getDisplayNameOfUserForIm model_ob}}
           {{#if member.is_self}} ({{#t note="Appears next to user name when user is self, e.g. 'Steve (you)' when I am Steve"}}you{{/t}}){{/if}}
+          {{#feature flag="feature_user_custom_status"}}
+            {{#if member.profile.current_status}}
+              <span class="custom_status">{{getMemberCurrentStatus member}}</span>
+            {{/if}}
+          {{/feature}}
         {{/if_equal}}
       </span>
     </a>
     {{#if show_close_link}}
       <button class="ts_icon ts_icon_times_circle im_close btn_unstyle" aria-label="Close Direct Message with {{getDisplayNameOfUserForIm model_ob}}" data-qa="im_close"></button>
     {{/if}}
-  </li>  
+  </li>
