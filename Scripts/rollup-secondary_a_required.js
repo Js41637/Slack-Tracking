@@ -15440,7 +15440,8 @@ TS.registerModule("constants", {
       if (channel) TS.channels.member_left_sig.dispatch(channel, member);
     },
     member_left_channel: function(imsg) {
-      TS.ms.msg_handlers.subtype__channel_leave(imsg);
+      var channel = TS.channels.getChannelById(imsg.channel);
+      if (channel && channel.is_shared) TS.ms.msg_handlers.subtype__channel_leave(imsg);
     },
     channel_joined: function(imsg) {
       TS.info("You joined channel " + imsg.channel.name);
@@ -15634,7 +15635,8 @@ TS.registerModule("constants", {
       if (channel) TS.channels.member_joined_sig.dispatch(channel, member);
     },
     member_joined_channel: function(imsg) {
-      TS.ms.msg_handlers.subtype__channel_join(imsg);
+      var channel = TS.channels.getChannelById(imsg.channel);
+      if (channel && channel.is_shared) TS.ms.msg_handlers.subtype__channel_join(imsg);
     },
     channel_marked: function(imsg) {
       if (!TS.client) return;
@@ -45637,10 +45639,15 @@ $.fn.togglify = function(settings) {
       var tab_name = $el.attr("data-tab-name");
       TS.mentions.setActiveTab(tab_name);
     });
-    TS.click.addClientHandler("#reply_send", function(e, $el) {
+    TS.click.addClientHandler("#reply_container .reply_send", function(e, $el) {
       if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
       TS.ui.replies.submitReply(e, $el);
+    });
+    TS.click.addClientHandler("#threads_msgs .reply_send", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      e.preventDefault();
+      TS.client.ui.threads.submitReply(e, $el);
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {
@@ -51125,7 +51132,8 @@ $.fn.togglify = function(settings) {
       windowType: "calls_mini_panel",
       show: false,
       useContentSize: true,
-      skip_css: true
+      skip_css: true,
+      fullscreenable: false
     };
     if (TS.model.is_mac && _areTransparentWindowsSupported()) {
       win_args.transparent = true;
@@ -51211,7 +51219,8 @@ $.fn.togglify = function(settings) {
             frame: false,
             windowType: "calls_incoming_call",
             show: false,
-            skip_css: true
+            skip_css: true,
+            fullscreenable: false
           };
           if (TS.model.is_mac && _areTransparentWindowsSupported()) {
             win_args.transparent = true;

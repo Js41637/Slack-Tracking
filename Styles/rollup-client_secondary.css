@@ -17595,25 +17595,13 @@ ts-message .emoji-sizer .mention {
   margin-bottom: 1.625rem
 }
 
-#reply_container.has_focus .member_image {
-  opacity: 1
+.light_theme #reply_container .inline_message_input_container,
+.light_theme #reply_container .reply_broadcast_toggle_label {
+  margin-left: 2.875rem
 }
 
-#reply_container .member_image {
-  opacity: .5
-}
-
-.dense_theme #reply_container .member_image {
-  display: none
-}
-
-.light_theme #reply_container #reply_broadcast_toggle_label,
-.light_theme #reply_container .inline_message_input_container {
-  margin-left: 2.625rem
-}
-
-.dense_theme #reply_container #reply_broadcast_toggle_label,
-.dense_theme #reply_container .inline_message_input_container {
+.dense_theme #reply_container .inline_message_input_container,
+.dense_theme #reply_container .reply_broadcast_toggle_label {
   margin-left: -.25rem
 }
 
@@ -17625,23 +17613,6 @@ ts-message .emoji-sizer .mention {
   margin-top: -2.625rem
 }
 
-#reply_container .inline_message_input_container .message_input {
-  border: 1px solid #e0e0e0;
-  margin-top: .0625rem;
-  max-height: 10rem;
-  padding-top: .4375rem;
-  padding-bottom: .4375rem
-}
-
-#reply_container .inline_message_input_container .message_input:active,
-#reply_container .inline_message_input_container .message_input:focus {
-  border-color: #BBBDBF
-}
-
-#reply_container .inline_message_input_container textarea {
-  margin-bottom: 0
-}
-
 #reply_container .reply_limited_in_general {
   min-height: 2.625rem;
   background: #f7f7f7;
@@ -17651,23 +17622,6 @@ ts-message .emoji-sizer .mention {
   font-size: .9375rem;
   border-radius: .25rem;
   padding: .8125rem .625rem
-}
-
-#reply_container #reply_broadcast_toggle_label {
-  width: 250px;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: inline-block;
-  font-size: .8125rem;
-  font-weight: 400;
-  color: #555459
-}
-
-#reply_container #reply_send {
-  float: right;
-  margin-right: .5rem;
-  top: 6px
 }
 
 #convo_loading_indicator {
@@ -18477,6 +18431,10 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
+.dense_theme ts-message .message_content .actions .star {
+  display: block
+}
+
 .dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender,
 .dense_theme ts-message .message_content>.message_sender {
   margin-right: .25rem;
@@ -18715,11 +18673,11 @@ html.supports_flexbox ts-thread .reply_input_container {
   -webkit-align-items: flex-start;
   -webkit-box-align: flex-start;
   -moz-align-items: flex-start;
-  align-items: flex-start
-}
-
-ts-thread .reply_input_container .member_preview_link {
-  opacity: .5
+  align-items: flex-start;
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  -moz-flex-wrap: wrap;
+  flex-wrap: wrap
 }
 
 ts-thread .reply_input_container .inline_message_input_container {
@@ -18737,19 +18695,7 @@ html:not(.supports_flexbox) ts-thread .reply_input_container .inline_message_inp
 }
 
 ts-thread .reply_input_container .inline_message_input_container form {
-  margin: 0
-}
-
-ts-thread .reply_input_container .inline_message_input_container form textarea {
-  max-height: 10rem;
-  border: 1px solid #e0e0e0;
-  padding-top: .4375rem;
-  padding-bottom: .4375rem
-}
-
-ts-thread .reply_input_container .inline_message_input_container form textarea:active,
-ts-thread .reply_input_container .inline_message_input_container form textarea:focus {
-  border-color: #BBBDBF
+  margin-top: 0
 }
 
 ts-thread .reply_input_container .inline_message_input_container form .emo_menu {
@@ -18757,8 +18703,67 @@ ts-thread .reply_input_container .inline_message_input_container form .emo_menu 
   line-height: 2.25rem
 }
 
-ts-thread .reply_input_container.has_focus .member_preview_link {
+ts-thread .reply_input_container .reply_broadcast_buttons_container {
+  margin-left: 2.875rem
+}
+
+.dense_theme ts-thread .reply_input_container .reply_broadcast_buttons_container {
+  margin-left: 0
+}
+
+#reply_container.has_focus .member_image,
+.reply_input_container.has_focus .member_image {
   opacity: 1
+}
+
+#reply_container .member_image,
+.reply_input_container .member_image {
+  opacity: .5
+}
+
+.dense_theme #reply_container .member_image,
+.dense_theme .reply_input_container .member_image {
+  display: none
+}
+
+#reply_container .inline_message_input_container textarea,
+.reply_input_container .inline_message_input_container textarea {
+  margin-bottom: 0;
+  max-height: 10rem;
+  border: 1px solid #e0e0e0;
+  padding-top: .4375rem;
+  padding-bottom: .4375rem
+}
+
+#reply_container .inline_message_input_container textarea:active,
+#reply_container .inline_message_input_container textarea:focus,
+.reply_input_container .inline_message_input_container textarea:active,
+.reply_input_container .inline_message_input_container textarea:focus {
+  border-color: #BBBDBF
+}
+
+html.supports_flexbox #reply_container .reply_broadcast_buttons_container,
+html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container {
+  width: 100%
+}
+
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label {
+  width: 250px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block;
+  font-size: .8125rem;
+  font-weight: 400;
+  color: #555459
+}
+
+#reply_container .reply_broadcast_buttons_container .reply_send,
+.reply_input_container .reply_broadcast_buttons_container .reply_send {
+  float: right;
+  margin-right: .5rem;
+  top: 6px
 }
 
 @font-face {
