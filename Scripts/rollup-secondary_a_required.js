@@ -3170,10 +3170,7 @@
       TS.shared.onSendMsg(success, imsg, channel, TS.channels);
     },
     displayChannel: function(channel_id, and_send_txt, from_history, replace_history_state) {
-      if (TS.boot_data.feature_tinyspeck) {
-        var err = new Error;
-        TS.info("channel switch notice" + err.stack.replace(/^Error/, ""));
-      }
+      if (TS.boot_data.feature_tinyspeck) TS.utility.logStackTrace("Channel switch notice");
       if (TS.isPartiallyBooted() && channel_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
         TS.sounds.play("beep");
@@ -16555,7 +16552,7 @@ TS.registerModule("constants", {
       }
       var model_ob = TS.shared.getModelObById(imsg.channel);
       if (last_reply_ts && model_ob && model_ob.msgs) {
-        var msg = TS.utility.msgs.getMsg(imsg.ts, model_ob.msgs);
+        var msg = TS.utility.msgs.findMsg(message.ts, model_ob.id);
         if (msg && msg.replies) {
           var prev_last_reply = _.maxBy(msg.replies, "ts").ts;
           if (last_reply_ts < prev_last_reply) {
@@ -27585,6 +27582,23 @@ TS.registerModule("constants", {
       query = _.toLower(query);
       return query === "me" || query === "you";
     },
+    logStackTrace: function(message) {
+      var stack = (new Error).stack;
+      var bits;
+      if (!stack) {
+        bits = ["no stacktrace available"];
+      } else {
+        bits = stack.split && stack.split("\n") || ["[could not parse stack]", stack];
+      }
+      bits = _.filter(bits, function(bit) {
+        if (bit.indexOf("Error") === 0) return false;
+        return bit.trim().length && bit.indexOf("logStackTrace") === -1;
+      });
+      bits = _.map(bits, function(bit) {
+        return bit.trim();
+      });
+      TS.info(message, "\nStacktrace: ↴\n" + bits.join("\n"));
+    },
     test: {
       clearAndGetRefererPolicy: function() {
         _referer_policy = undefined;
@@ -32989,7 +33003,11 @@ var _on_esc;
       });
       if (member.is_self) {
         TS.menu.$menu_header.find(".member_timezone_value a").on("click.timezone", function(e) {
-          e.stopPropagation();
+          if (TS.boot_data.feature_client_tz_picker) {
+            e.preventDefault();
+          } else {
+            e.stopPropagation();
+          }
           TS.menu.member.end();
         });
       }
@@ -39191,7 +39209,10 @@ var _on_esc;
     onStart: function() {
       TS.members.changed_profile_sig.add(_maybeUpdateMemberPhoto);
       if (TS.view) TS.view.resize_sig.add(_maybeResizePhotoCrop);
-      $("body").on("click", '[data-action="edit_member_profile_modal"]', TS.ui.edit_member_profile.start);
+      $("body").on("click", '[data-action="edit_member_profile_modal"]', function(e) {
+        e.preventDefault();
+        TS.ui.edit_member_profile.start();
+      });
     },
     start: function() {
       _start();
@@ -39808,6 +39829,16 @@ var _on_esc;
         team: TS.model.team,
         team_member_profile_fields: TS.team.getVisibleTeamProfileFieldsForMember(TS.model.user, true)
       };
+      if (TS.boot_data.feature_client_tz_picker) {
+        var timezone_options = [];
+        _.each(TS.boot_data.timezones, function(tz) {
+          timezone_options.push({
+            label: tz[0],
+            val: tz[1]
+          });
+        });
+        template_args.timezone_options = timezone_options;
+      }
       var html = TS.templates.edit_member_profile_list(template_args);
       _$div.find("#edit_member_profile_list").html(html);
     }
@@ -39993,6 +40024,15 @@ var _on_esc;
     var calling_args = {
       profile: JSON.stringify(profile)
     };
+    if (TS.boot_data.feature_client_tz_picker) {
+      var tz_value = _$div.find('[name="tz"]').val();
+      if (tz_value !== TS.model.user.tz) {
+        TS.prefs.setPrefByAPI({
+          name: "tz",
+          value: tz_value
+        });
+      }
+    }
     TS.api.call("users.profile.set", calling_args).then(function(response) {
       $(".edit_member_profile_confirm_edit_btn").addClass("disabled");
       if (TS.web) {

@@ -18587,15 +18587,17 @@ ts-message .emoji-sizer .mention {
   top: auto
 }
 
-.dense_theme #convo_container ts-conversation>ts-message .message_content .member_image {
+.dense_theme #convo_container ts-message .message_content .member_image {
   display: none
 }
 
-.dense_theme #convo_container ts-conversation>ts-message .message_content .thread_channel_link {
+.dense_theme #convo_container ts-message .message_content .star,
+.dense_theme #convo_container ts-message .message_content .timestamp {
   display: inline
 }
 
-.dense_theme #convo_container ts-conversation>ts-message .message_content .message_body {
+.dense_theme #convo_container ts-message .message_content .message_body,
+.dense_theme #convo_container ts-message .message_content .thread_channel_link {
   display: block
 }
 

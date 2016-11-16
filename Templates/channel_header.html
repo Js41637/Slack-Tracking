@@ -28,12 +28,12 @@
       {{#if is_shared}}
         {{#if is_dm_or_mpdm}}{{else}}<ts-icon class="ts_icon_shared_channel"></ts-icon>{{/if}}
       {{/if}}</span>{{!--
-      --}}<div class="channel_actions_container"><a id="mute_container" class="mute_container ts_tip ts_tip_bottom"></a>{{#feature flag="feature_move_star_in_channel_header"}}{{else}}<div id="star_container" class="star_container"></div>{{/feature}}</div>
+      --}}<div class="channel_actions_container"><a id="mute_container" class="mute_container ts_tip ts_tip_bottom"></a>{{#if move_star_in_channel_header}}{{else}}<div id="star_container" class="star_container"></div>{{/if}}</div>
     </h2>
 
     <!-- channel members -->
     <div id="channel_header_info">
-      {{#feature flag="feature_move_star_in_channel_header"}}<div id="star_container" class="star_container"></div><span class="topic_divider">|</span>{{/feature}}
+      {{#if move_star_in_channel_header}}<div id="star_container" class="star_container"></div><span class="topic_divider">|</span>{{/if}}
       {{#if member}}<span class="header_user_status overflow_ellipsis">{{{makeMemberPresenceIcon member}}}<span id="header_status_message"></span>{{#feature flag="feature_name_tagging_client"}}{{#if member.profile.preferred_name}}<span class="topic_divider">|</span><span class="member_alt_name_header">{{getMemberPreferredName member}}</span>{{/if}}{{/feature}}</span>
       {{else}}<span id="channel_members_toggle_count" class="hidden blue_hover ts_tip ts_tip_bottom ts_tip_leftish"></span>{{/if}}
       {{#feature flag="feature_pin_update"}}

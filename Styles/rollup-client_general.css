@@ -3497,7 +3497,7 @@ label.select.disabled:after {
 
 label.select.small:after {
   right: .875rem;
-  bottom: .875rem;
+  bottom: 1rem;
   font-size: 1.25rem
 }
 

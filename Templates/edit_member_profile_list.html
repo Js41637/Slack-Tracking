@@ -54,6 +54,22 @@
   </p>
 </div>
 
+{{#feature flag="feature_client_tz_picker"}}
+<div class="clearfix">
+  <p class="col span_2_of_3">
+    <label class="select with_hint">
+      {{#t}}Timezone{{/t}}
+      <select class="no_bottom_margin" name="tz">
+        {{#each timezone_options}}
+          <option value="{{this.val}}"{{#if_equal this.val compare=../member.tz}} selected{{/if_equal}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </label>
+    <span class="input_note">{{#t}}Your current timezone. Used to send summary and notification emails, for times in your activity feeds, and for reminders.{{/t}}</span>
+  </p>
+</div>
+{{/feature}}
+
 {{#if team_member_profile_fields.length}}
   {{#each team_member_profile_fields}}
     <div class="clearfix">

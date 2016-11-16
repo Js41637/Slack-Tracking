@@ -121,16 +121,6 @@
       {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
     {{/unless}}
     {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">Only visible to you</span>{{/if}}{{/if}}
-    {{#if format_for_thread_root}}
-      {{#if model_ob.is_mpim}}
-        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="thread_channel_link ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline">
-          Direct message with {{mpimMemberCount model_ob}} others
-          <span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{mpimDisplayName model_ob}}</span></span>
-        </{{#if permalink}}a{{else}}span{{/if}}>
-      {{else}}
-        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="thread_channel_link">{{model_ob_name}}</{{#if permalink}}a{{else}}span{{/if}}>
-      {{/if}}
-    {{/if}}
 
     {{#if is_tombstone}}
       {{#unless format_for_thread_root}}
@@ -139,6 +129,7 @@
     {{else}}
     {{#feature flag="feature_refactored_message_template"}}
       {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+      {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
         </div>
       {{#if starred_items_actions}}
         <div class="actions">
@@ -153,6 +144,7 @@
       </div>
     {{else}}
       {{#if show_star}}<span class="message_star_holder">{{{star_html}}}</span>{{/if}}
+      {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
     {{/feature}}
     {{#if file}}
       {{#if comment}}

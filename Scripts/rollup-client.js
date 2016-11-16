@@ -10771,6 +10771,11 @@
       if (TS.boot_data.feature_channel_name_menu) {
         $("body").addClass("feature_channel_name_menu");
       }
+      TS.experiment.loadUserAssignments().then(function() {
+        var group = TS.experiment.getGroup("channel_starring");
+        _star_below_channel_name = group === "star_below_channel_name";
+        TS.client.channel_header.start();
+      });
     },
     test: function() {
       var test_ob = {};
@@ -10824,6 +10829,7 @@
         member: member,
         is_dm_or_mpdm: is_im || is_mpim,
         show_topic: show_topic,
+        move_star_in_channel_header: _star_below_channel_name,
         mpim: mpim,
         details_showing: $("#client-ui").hasClass("details_showing"),
         all_unreads: {
@@ -10864,6 +10870,7 @@
   var _model_ob;
   var _$header;
   var _member_presence_list;
+  var _star_below_channel_name = false;
   var _buildChannelMemberList = function() {
     TS.client.ui.rebuildMemberListToggle();
   };
@@ -14479,26 +14486,25 @@
   };
   var _initializeExtracts = function(results) {
     if (!results.messages) return;
-    var messages = {};
+    var messages = [];
     results.messages.matches.forEach(function(match) {
-      messages[match.ts] = match;
+      messages.push(match);
       ["previous_2", "previous", "next", "next_2"].forEach(function(context) {
         if (match[context]) {
           match[context].channel = match.channel;
-          match[context]._main_ts = match.ts;
-          messages[match[context].ts] = messages[match[context].ts] || match[context];
+          match[context]._main = match;
+          messages.push(match[context]);
         }
       });
     });
     if (!TS.model.prefs.full_text_extracts) {
       var all_unknowns = {};
-      _.keys(messages).forEach(function(ts) {
-        var msg = messages[ts];
+      messages.forEach(function(msg) {
         if (TS.boot_data.page_needs_enterprise) {
           var any_unknowns = TS.utility.msgs.allUnknownUsersInMessage(msg);
           if (any_unknowns.length) {
             any_unknowns.forEach(function(id) {
-              if (!all_unknowns[id]) all_unknowns[id] = ts;
+              if (!all_unknowns[id]) all_unknowns[id] = msg;
             });
           }
         }
@@ -14507,8 +14513,7 @@
       if (_.keys(all_unknowns).length) {
         TS.members.ensureMembersArePresent(_.keys(all_unknowns)).then(function() {
           _.keys(all_unknowns).forEach(function(id) {
-            var ts = all_unknowns[id];
-            var msg = messages[ts];
+            var msg = all_unknowns[id];
             _buildSearchMessageExtracts(messages, msg, true);
           });
         });
@@ -14522,8 +14527,8 @@
     if (!TS.search.view.msgHasExtracts(msg)) return;
     var selector = "#search_results_items #" + TS.templates.makeMsgDomId(msg.ts);
     if (TS.boot_data.feature_message_replies) {
-      var main_ts = msg._main_ts || msg.ts;
-      selector = "#" + TS.templates.makeMsgDomIdInSearch(msg.ts, messages[main_ts]);
+      var main = msg._main || msg;
+      selector = "#" + TS.templates.makeMsgDomIdInSearch(msg.ts, main);
     }
     $match = $(selector);
     if ($match.length === 0) return;
