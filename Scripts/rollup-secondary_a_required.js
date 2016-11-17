@@ -3373,6 +3373,18 @@
       if (channel.is_general || TS.model.user.is_restricted) {
         TS.generic_dialog.alert("Sorry, you can't leave <b>#" + channel.name + "</b>!");
         return;
+      } else if (channel.is_private) {
+        TS.generic_dialog.start({
+          title: "Leave " + channel.name,
+          body: "<p>If you leave the private channel, you will no longer be able to see any of its messages. To rejoin the private channel, you will have to be re-invited.</p><p>Are you sure you wish to leave?</p>",
+          go_button_text: "Yes, leave the private channel",
+          onGo: function() {
+            TS.api.call("channels.leave", {
+              channel: id
+            }, TS.channels.onLeave);
+          }
+        });
+        return;
       }
       TS.channels.markMostRecentReadMsg(channel, TS.model.marked_reasons.left);
       TS.client.markLastReadsWithAPI();
@@ -8698,12 +8710,12 @@ TS.registerModule("constants", {
     },
     getControllerForModelOb: function(model_ob) {
       if (!model_ob) return;
-      if (model_ob.is_mpim) {
+      if (model_ob.is_im) {
+        return TS.ims;
+      } else if (model_ob.is_mpim) {
         return TS.mpims;
       } else if (model_ob.is_group) {
         return TS.groups;
-      } else if (model_ob.is_im) {
-        return TS.ims;
       } else {
         return TS.channels;
       }

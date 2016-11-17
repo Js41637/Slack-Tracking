@@ -33890,6 +33890,7 @@ var _timezones_alternative = {
       TS.client.unread.debug("DONE FETCHING: Received only one collapsed group with zero messages");
       return processed_data;
     }
+    var last_has_more = true;
     data.channels.forEach(function(unread_obj) {
       _current_model_ob_id = unread_obj.channel_id;
       var model_ob = TS.shared.getModelObById(_current_model_ob_id);
@@ -33939,19 +33940,20 @@ var _timezones_alternative = {
       _sortAndDedupe(group, "msgs");
       TS.client.unread.messages_loaded = true;
       processed_data.groups.push(group);
+      last_has_more = unread_obj.has_more;
     });
     if (data.groups) {
       data.groups.forEach(function(group) {
         _groups.push(group);
         processed_data.groups.push(group);
+        last_has_more = group.has_more;
       });
     }
-    var final_group = _.last(_groups);
-    if (final_group && !final_group.has_more) {
+    if (!last_has_more) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
       _channelConsistencyCheck();
-      TS.client.unread.debug("DONE FETCHING: Last group has no more messages", final_group.id);
+      TS.client.unread.debug("DONE FETCHING: Last group has no more messages");
     }
     if (first_fetch && _groups.length && !TS.client.unread.getActiveGroup()) {
       _groups[0].active = true;

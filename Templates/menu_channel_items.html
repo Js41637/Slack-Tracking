@@ -13,11 +13,19 @@
   </li>
   <li id="channel_mute_item" role="menuitem">
     <a>
-      {{#if channel_is_muted}}
-        {{#t}}Unmute #{channel.name}{{/t}}
+      {{#unless channel.is_private}}
+        {{#if channel_is_muted}}
+          {{#t}}Unmute #{channel.name}{{/t}}
+        {{else}}
+          {{#t}}Mute #{channel.name}{{/t}}
+        {{/if}}
       {{else}}
-        {{#t}}Mute #{channel.name}{{/t}}
-      {{/if}}
+        {{#if channel_is_muted}}
+          {{#t}}Unmute {channel.name}{{/t}}
+        {{else}}
+          {{#t}}Mute {channel.name}{{/t}}
+        {{/if}}
+      {{/unless}}
     </a>
   </li>
 
@@ -41,11 +49,19 @@
       </li>
       <li id="channel_mute_item" role="menuitem">
         <a>
-          {{#if channel_is_muted}}
-            {{#t}}Unmute #{channel.name}{{/t}}
+          {{#unless channel.is_private}}
+            {{#if channel_is_muted}}
+              {{#t}}Unmute #{channel.name}{{/t}}
+            {{else}}
+              {{#t}}Mute #{channel.name}{{/t}}
+            {{/if}}
           {{else}}
-            {{#t}}Mute #{channel.name}{{/t}}
-          {{/if}}
+            {{#if channel_is_muted}}
+              {{#t}}Unmute {channel.name}{{/t}}
+            {{else}}
+              {{#t}}Mute {channel.name}{{/t}}
+            {{/if}}
+          {{/unless}}
         </a>
       </li>
     {{/if}}
@@ -63,11 +79,20 @@
       <li class="divider"></li>
       {{#if channel.was_archived_this_session}}
         {{#unless channel.is_general}}<li id="channel_close_archived_item" role="menuitem"><a>
-          {{#t}}Leave #{channel.name}{{/t}}
+          {{#unless channel.is_private}}
+            {{#t}}Leave #{channel.name}{{/t}}
+          {{else}}
+            {{#t}}Leave {channel.name}{{/t}}
+          {{/unless}}
         </a></li>{{/unless}}
       {{/if}}
       <li id="channel_unarchive_item" role="menuitem"><a>
-        {{#t}}Un-archive #{channel.name}{{/t}}
+        {{#unless channel.is_private}}
+          {{#t}}Un-archive #{channel.name}{{/t}}
+        {{else}}
+          {{#t}}Un-archive {channel.name}{{/t}}
+        {{/unless}}
+
       </a></li>
     {{else}}
       {{#unless hide_invite}}<li id="channel_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>
@@ -98,11 +123,19 @@
         </li>
         <li id="channel_mute_item" role="menuitem">
           <a>
-            {{#if channel_is_muted}}
-              {{#t}}Unmute #{channel.name}{{/t}}
+            {{#unless channel.is_private}}
+              {{#if channel_is_muted}}
+                {{#t}}Unmute #{channel.name}{{/t}}
+              {{else}}
+                {{#t}}Mute #{channel.name}{{/t}}
+              {{/if}}
             {{else}}
-              {{#t}}Mute #{channel.name}{{/t}}
-            {{/if}}
+              {{#if channel_is_muted}}
+                {{#t}}Unmute {channel.name}{{/t}}
+              {{else}}
+                {{#t}}Mute {channel.name}{{/t}}
+              {{/if}}
+            {{/unless}}
           </a>
         </li>
         <li class="divider"></li>
@@ -116,7 +149,11 @@
         {{#if show_email_item}}
           <li id="channel_email_item" role="menuitem">
             <a target="{{newWindowName}}" href="/services/new/email">
-              {{#t}}Send email to #{channel.name} &hellip;{{/t}}
+              {{#unless channel.is_private}}
+                {{#t}}Send email to #{channel.name} &hellip;{{/t}}
+              {{else}}
+                {{#t}}Send email to {channel.name} &hellip;{{/t}}
+              {{/unless}}
             </a>
           </li>
         {{/if}}
@@ -129,7 +166,11 @@
             {{/if}}
           {{/unless}}
           <li id="channel_leave_item" role="menuitem"><a>
-            {{#t}}Leave #{channel.name}{{/t}}
+            {{#unless channel.is_private}}
+              {{#t}}Leave #{channel.name}{{/t}}
+            {{else}}
+              {{#t}}Leave {channel.name}{{/t}}
+            {{/unless}}
           </a></li>
         {{/unless}}
       {{else}}
