@@ -1,3 +1,5 @@
+{{i18n_ns "team_creation"}}
+
 <div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
   {{#if minimal_ui_theme}}
   {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
@@ -11,69 +13,69 @@
     <div id="api_failed_alert" class="header_error_message hidden bottom_margin"></div>
 
     <div id="ratelimit_alert" class="header_error_message hidden bottom_margin">
-      <h3>Whoa, you\u2019re going too fast!</h3>
-      Slow down a bit. You might have better luck if you try again in a minute.
+      <h3>{{#t}}Whoa, you\u2019re going too fast!{{/t}}</h3>
+      {{#t}}Slow down a bit. You might have better luck if you try again in a minute.{{/t}}
     </div>
 
     <div id="create_team_body" class="fs_split_body">
-      <h1>Confirm your Slack details</h1>
+      <h1>{{#t}}Confirm your Slack details{{/t}}</h1>
 
       <div id="team_name_form_body" class="create_team_section disabled">
-        <label id="teamname_label">Team name</label>
+        <label id="teamname_label">{{#t}}Team name{{/t}}</label>
         <div class="ct_input_wrapper">
           <input type="text" autocomplete="off" id="signup_team_name" disabled="true" maxlength="255" data-qa="team_name_field" value="{{team_name}}" aria-labelledby="teamname_label"/>
-          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="This is the name of your Slack team." aria-label="Edit Slack team name" data-qa="edit_btn">Edit</button>
+          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="{{#t}}This is the name of your Slack team.{{/t}}" aria-label="{{#t}}Edit Slack team name{{/t}}" data-qa="edit_btn">{{#t}}Edit{{/t}}</button>
         </div>
         <p class="error_message"></p>
       </div>
 
       <div id="url_form_body" class="create_team_section disabled">
-        <label id="webaddress_label">Team domain</label>
+        <label id="webaddress_label">{{#t}}Team domain{{/t}}</label>
         <div class="ct_input_wrapper input_wrapper url_create">
           <p id="url_spinner" class="hidden"></p>
           <p id="url_checkmark" class="seafoam_green hidden"><i class="ts_icon ts_icon_check_small_bold neutral_white_bg"></i></p>
           <p id="url_overlay"></p>
           <input type="text" maxlength="21" autocomplete="off" id="signup_url" class="" disabled="true" data-qa="url_field" value="{{url}}" aria-labelledby="webaddress_label"/>
-          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="This is the URL of your Slack account." aria-label="Edit web address for your team" data-qa="edit_btn">Edit</button>
+          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="{{#t}}This is the URL of your Slack account.{{/t}}" aria-label="{{#t}}Edit web address for your team{{/t}}" data-qa="edit_btn">{{#t}}Edit{{/t}}</button>
         </div>
         <p class="error_message"></p>
       </div>
 
       <div id="name_fields" class="create_team_section signup_names_section disabled">
-        <label>Your name</label>
+        <label>{{#t}}Your name{{/t}}</label>
           <div class="ct_input_wrapper input_wrapper">
             <p id="name_input_overlay">{{first_name}} {{last_name}}</p>
             <div class="col span_1_of_2 no_padding name_field" id="first_name">
-              <input type="text" placeholder="first name" id="signup_first_name" maxlength="35" autocomplete="off" disabled="true" data-qa="first_name_field" value="{{first_name}}" aria-label="First name"/>
+              <input type="text" placeholder="first name" id="signup_first_name" maxlength="35" autocomplete="off" disabled="true" data-qa="first_name_field" value="{{first_name}}" aria-label="{{#t}}First name{{/t}}"/>
               <span class="error_message"></span>
             </div>
             <div class="col span_1_of_2 no_padding name_field" id="last_name">
-              <input type="text" placeholder="last name" id="signup_last_name" maxlength="35" autocomplete="off" disabled="true" data-qa="last_name_field" value="{{last_name}}" aria-label="Last name"/>
+              <input type="text" placeholder="last name" id="signup_last_name" maxlength="35" autocomplete="off" disabled="true" data-qa="last_name_field" value="{{last_name}}" aria-label="{{#t}}Last name{{/t}}"/>
               <span class="error_message"></span>
             </div>
-            <button class="btn_unstyle names_edit_btn" data-toggle="tooltip" data-original-title="This is how you will appear to others in Slack." data-qa="edit_btn">Edit</button>
+            <button class="btn_unstyle names_edit_btn" data-toggle="tooltip" data-original-title="{{#t}}This is how you will appear to others in Slack.{{/t}}" data-qa="edit_btn">{{#t}}Edit{{/t}}</button>
           </div>
         <div class="clear_both"></div>
       </div>
 
       <div id="username_form_body" class="create_team_section disabled">
-        <label id="username_label">Username</label>
+        <label id="username_label">{{#t}}Username{{/t}}</label>
         <div class="ct_input_wrapper input_wrapper username">
           <p id="username_overlay" class="input_overlay"></p>
           <input type="text" maxlength="21" autocomplete="off" id="signup_username" disabled="true" data-qa="username_field" value="{{username}}" aria-labelledby="username_label"/>
-          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="This is how you will appear to others in Slack." aria-label="Edit username" data-qa="edit_btn">Edit</button>
+          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="{{#t}}This is how you will appear to others in Slack.{{/t}}" aria-label="{{#t}}Edit username{{/t}}" data-qa="edit_btn">{{#t}}Edit{{/t}}</button>
         </div>
         <p class="error_message"></p>
       </div>
 
       <div id="email_form_body" class="create_team_section disabled">
-        <label id="email_label">Email</label>
+        <label id="email_label">{{#t}}Email{{/t}}</label>
         <div class="ct_input_wrapper input_wrapper email">
           <p id="email_overlay" class="input_overlay"></p>
           <input type="text" autocomplete="off" disabled="true" id="signup_email" data-qa="email_field" value="{{email}}" aria-labelledby="email_label"/>
-          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="This is the e-mail address linked to your Slack account." aria-label="Edit email" data-qa="edit_btn">Edit</button>
+          <button class="btn_unstyle edit_btn" data-toggle="tooltip" data-original-title="{{#t}}This is the e-mail address linked to your Slack account.{{/t}}" aria-label="{{#t}}Edit email{{/t}}" data-qa="edit_btn">{{#t}}Edit{{/t}}</button>
         </div>
-        <p class="error_message">Invalid email address!</p>
+        <p class="error_message">{{#t}}Invalid email address!{{/t}}</p>
       </div>
 
     </div>
@@ -82,7 +84,7 @@
       {{#if inc_misc_and_legalese}}{{> create_inc_email_misc this}}{{/if}}
       <div class="button_container">
         <button id="submit_btn" class="btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button">
-          <span class="ladda-label">Create My Team{{> ts_icon class="ts_icon_arrow_right"}}</span>
+          <span class="ladda-label">{{#t}}Create My Team{{/t}}{{> ts_icon class="ts_icon_arrow_right"}}</span>
         </button>
       </div>
     </div>

@@ -72,11 +72,7 @@
         {{#if format_for_thread_root}}
           {{> message_member_image}}
         {{/if}}
-        {{#if is_tombstone}}
-          {{#if format_for_thread_root}}
-            <span class="member">Deleted message</span>
-          {{/if}}
-        {{else}}
+        {{#unless is_tombstone}}
           {{#if member}}
             {{{makeMemberPreviewLink member}}}
             {{~#if is_slackbot_response~}}
@@ -87,7 +83,7 @@
           {{else}}
             <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">BOT</span>{{/if}}</span>
           {{/if}}
-        {{/if}}
+        {{/unless}}
         {{#if comment}}
           {{#if is_file_convo_continuation}}
             <span class="meta message_commented">commented:</span>
@@ -100,12 +96,11 @@
         {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">Only visible to you</span>{{/if}}{{/if}}
 
         {{#if is_tombstone}}
-          {{#unless format_for_thread_root}}
-            <div class="deleted_message">This message was deleted</div>
-          {{/unless}}
+          <div class="deleted_message">This message was deleted</div>
         {{else}}
-        {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
-        {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
+          {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+          {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
+        {{/if}}
       </div>
       {{#if starred_items_actions}}
         <div class="actions">
@@ -118,6 +113,7 @@
         {{#if jump_link}}{{jump_link}}{{/if}}
       {{/if}}
     </div>
+    {{#unless is_tombstone}}
     {{#if file}}
       {{#if comment}}
         {{#unless is_file_convo_continuation}}
@@ -180,7 +176,7 @@
         {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="dense_only"}}{{/unless}}{{/unless}}
       {{/unless}}
     {{/if}}
-    {{/if}}
+    {{/unless}}
 
     {{#if starred_items_list}}
     <span class="message_location_label">

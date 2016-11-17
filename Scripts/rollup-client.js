@@ -2185,7 +2185,7 @@
           TS.client.ui.checkInlineImgsAndIframes("main");
         }
         TS.client.msg_pane.insertUnreadDivider();
-        if (TS.boot_data.feature_message_inputs) {
+        if (TS.boot_data.feature_message_menus) {
           TS.attachment_actions.select.decorateNewElements(TS.client.ui.$msgs_div);
         }
         TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.$msgs_scroller_div);
@@ -7634,7 +7634,7 @@
       var model_ob = TS.shared.getModelObById(c_id);
       var in_reply_to_msg = model_ob && TS.utility.msgs.getMsg(in_reply_to_msg_ts, model_ob.msgs);
       if (in_reply_to_msg && TS.client.ui.maybeHandleReactionCmd(in_reply_to_msg, text)) return true;
-      if (TS.boot_data.feature_message_replies) {
+      if (TS.boot_data.feature_message_replies && in_reply_to_msg && !in_reply_to_msg.thread_ts) {
         in_reply_to_msg = null;
       }
       if (c_id.indexOf("C") == 0 && TS.channels.getChannelById(c_id)) {
@@ -9254,7 +9254,7 @@
       });
     },
     resetInitialState: function() {
-      if (!TS.lazyLoadMembers() || TS.team.getBestEffortTotalTeamSize() <= _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
+      if (!TS.lazyLoadMembersAndBots() || TS.team.getBestEffortTotalTeamSize() <= _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
         _loadLocalMembersIntoLongListView();
         return;
       }
@@ -9408,6 +9408,16 @@
           placeholder: $input.data("placeholder"),
           onSend: function() {
             _tryToSubmit({}, $input);
+          },
+          tabcomplete: {
+            appendMenu: function(menu) {
+              document.querySelector("#msg_form").appendChild(menu);
+            },
+            positionMenu: function(menu) {
+              menu.style.bottom = "100%";
+              menu.style.left = "42px";
+              menu.style.width = "90%";
+            }
           }
         });
       }
@@ -11634,7 +11644,7 @@
       TS.client.msg_pane.insertUnreadDivider();
       TS.client.msg_pane.updateEndMarker();
       TS.client.ui.checkInlineImgsAndIframesMain();
-      if (TS.boot_data.feature_message_inputs) {
+      if (TS.boot_data.feature_message_menus) {
         TS.attachment_actions.select.decorateNewElements(TS.client.ui.$msgs_div);
       }
       TS.client.msg_pane.padOutMsgsScroller();

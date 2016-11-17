@@ -1,12 +1,14 @@
+{{i18n_ns "team_creation"}}
+
 <div class="signup_team" role="group">
   <i class="team_icon small default float_left very_small_top_margin" aria-hidden="true"></i>
   {{#if username}}
-    <a href="#" class="btn float_right very_small_top_margin">Sign in</a>
+    <a href="#" class="btn float_right very_small_top_margin">{{#t}}Sign in{{/t}}</a>
     <p class="signup_team_ellipsis bold no_bottom_margin">{{name}}</p>
-    <p class="signup_team_ellipsis subtle_silver no_bottom_margin">Sign in as <span class="bold">{{username}}</span></p>
+    <p class="signup_team_ellipsis subtle_silver no_bottom_margin">{{#t}}Sign in as <span class="bold">{username}</span>{{/t}}</p>
   {{else}}
-    <a href="#" class="btn btn_outline float_right very_small_top_margin">Join</a>
+    <a href="#" class="btn btn_outline float_right very_small_top_margin">{{#t}}Join{{/t}}</a>
     <p class="signup_team_ellipsis bold no_bottom_margin">{{name}}</p>
-    <p class="signup_team_ellipsis subtle_silver no_bottom_margin"><span class="bold">{{members.length}} members</span> <span>including {{members.0.name}}</span></p>
+    <p class="signup_team_ellipsis subtle_silver no_bottom_margin">{{#t}}<span class="bold">{members.length} members</span> <span>including {members.0.name}</span>{{/t}}</p>
   {{/if}}
 </div>

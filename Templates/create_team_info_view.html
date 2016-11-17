@@ -1,3 +1,5 @@
+{{i18n_ns "team_creation"}}
+
 <div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
   {{#unless minimal_ui_theme}}{{> create_inc_find_team_mobile}}{{/unless}}
 
@@ -15,17 +17,19 @@
     <div id="team_info_form_body" class="fs_split_body">
       {{#if step_number_copy}}<div class="create_step_number_label">{{step_number_copy}}</div>{{/if}}
 
-      <h1>Tell us about your team</h1>
+      <h1>{{#t}}Tell us about your team{{/t}}</h1>
 
       <div class="team_info_question" data-question="organization_type">
         <label class="bold select" for="organization_type">
-          <span data-label="organization_type">What will your team use Slack for?</span>
+          <span data-label="organization_type">{{#t}}What will your team use Slack for?{{/t}}</span>
           <select id="team_info_organization_type_select" class="team_info_select unanswered" name="organization_type" required>
+            {{#t note="A question about the purpose of the user's Slack team."}}
             <option disabled selected hidden value="">Select an option</option>
             <option value="work">Work</option>
             <option value="school">School</option>
             <option value="shared_interest_group">Shared interest group</option>
             <option value="other">Other</option>
+            {{/t}}
           </select>
         </label>
       </div>
@@ -33,7 +37,8 @@
       <div class="team_info_question hidden" data-question="company_industry">
         <label class="bold select" for="company_industry">
           <span data-label="company_industry"></span>
-          <select id="team_info_company_industry_select" class="team_info_select unanswered" placeholder="Select an option" name="company_industry">
+          <select id="team_info_company_industry_select" class="team_info_select unanswered" name="company_industry">
+            {{#t note="A question about the industry of the user's Slack team."}}
             <option disabled selected hidden value="">Select an option</option>
             <option value="consumer_goods">Consumer Goods</option>
             <option value="financial">Financial Services</option>
@@ -44,6 +49,7 @@
             <option value="retail">Retail</option>
             <option value="tech">Technology</option>
             <option value="other">Other</option>
+            {{/t}}
           </select>
         </label>
       </div>
@@ -55,13 +61,14 @@
 
       <div class="team_info_question hidden" data-question="other_team_purpose">
         <label class="bold" for="other_team_purpose" data-label="other_team_purpose"></label>
-        <input type="text" maxlength="600" id="team_info_other_team_purpose_input" placeholder="We'll use Slack for..." name="other_team_purpose">
+        <input type="text" maxlength="600" id="team_info_other_team_purpose_input" placeholder="{{#t}}We'll use Slack for...{{/t}}" name="other_team_purpose">
       </div>
 
       <div class="team_info_question hidden" data-question="company_size">
         <label class="bold select" for="company_size">
           <span data-label="company_size"></span>
-          <select id="team_info_company_size_select" class="team_info_select unanswered" placeholder="Select an option..." name="company_size">
+          <select id="team_info_company_size_select" class="team_info_select unanswered" name="company_size">
+            {{#t note="A question about the size of the user's Slack team."}}
             <option disabled selected hidden value="">Select an option</option>
             <option value="1-9">1-9 people</option>
             <option value="10-49">10-49 people</option>
@@ -69,6 +76,7 @@
             <option value="100-499">100-499 people</option>
             <option value="500-999">500-999 people</option>
             <option value="1000+">1000 or more people</option>
+            {{/t}}
           </select>
         </label>
       </div>

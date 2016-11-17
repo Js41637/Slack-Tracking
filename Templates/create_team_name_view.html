@@ -1,3 +1,5 @@
+{{i18n_ns "team_creation"}}
+
 <div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
   {{#unless minimal_ui_theme}}{{> create_inc_find_team_mobile}}{{/unless}}
 
@@ -13,21 +15,21 @@
     <div id="team_name_form_body" class="fs_split_body">
       {{#if step_number_copy}}<div class="create_step_number_label">{{step_number_copy}}</div>{{/if}}
 
-      <h1>{{#if header_copy}}{{preventWidow header_copy}}{{else}}What do you want to call your Slack team?{{/if}}</h1>
+      <h1>{{#if header_copy}} {{preventWidow header_copy}} {{else}} {{#t}}What do you want to call your Slack team?{{/t}} {{/if}}</h1>
       {{#unless header_copy}}
       <p class="desc">
-        Name your team after the group that will be using Slack together.
+        {{#t}}Name your team after the group that will be using Slack together.{{/t}}
       </p>
       <p class="desc">
-        <span class="bold flat_grey">Work at a large company?</span> Try using the name of your division, instead of your company name.
+        <span class="bold flat_grey">{{#t}}Work at a large company?</span> Try using the name of your division, instead of your company name.{{/t}}
       </p>
       {{/unless}}
       <label id="teamname_label">
-        {{#if input_label}}{{input_label}}{{else}}Slack team name <span class="subtle_silver normal">(you can change this later)</span>{{/if}}
+        {{#if input_label}} {{input_label}} {{else}} {{#t}}Slack team name <span class="subtle_silver normal">(you can change this later)</span>{{/t}} {{/if}}
       </label>
-      <input type="text" placeholder="{{#if placeholder}}{{placeholder}}{{else}}Ex. Acme or Acme Marketing{{/if}}" id="signup_team_name" maxlength="255" autocomplete="off" data-qa="team_name_field" value="{{team_name}}" aria-labelledby="teamname_label"/>
+      <input type="text" placeholder="{{#if placeholder}}{{placeholder}}{{else}}{{#t}}Ex. Acme or Acme Marketing{{/t}}{{/if}}" id="signup_team_name" maxlength="255" autocomplete="off" data-qa="team_name_field" value="{{team_name}}" aria-labelledby="teamname_label"/>
       <p class="error_message"></p>
-      {{#if input_label}}<p class="subtle_silver normal">We'll use this to name your Slack team, which you can always change later.</p>{{/if}}
+      {{#if input_label}}<p class="subtle_silver normal">{{#t}}We\u2019ll use this to name your Slack team, which you can always change later.{{/t}}</p>{{/if}}
     </div>
 
 

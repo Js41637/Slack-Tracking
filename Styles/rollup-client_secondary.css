@@ -13900,19 +13900,19 @@ only screen and (min-resolution:2dppx) {
 }
 
 #autocomplete_menu.search_menu .result_item_btn {
-  display: block;
   text-decoration: none;
   padding: 0 1rem 0 .5rem;
   margin: 0 .9375rem;
   border-radius: .25rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   outline: 0;
   font-size: .9375rem;
   line-height: 1.5625rem;
   background: 0 0;
   color: #2c2d30;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
   padding-right: 2rem;
   padding-top: .125rem;
   padding-bottom: .125rem;
@@ -18346,8 +18346,8 @@ ts-message .emoji-sizer .mention {
   margin-top: .625rem
 }
 
-.light_theme ts-message.deleted:not(.selected) .message_content .star,
-.light_theme ts-message.deleted:not(.selected) .message_content .timestamp {
+.light_theme ts-message.deleted .message_content .star,
+.light_theme ts-message.deleted .message_content .timestamp {
   display: none
 }
 
@@ -18541,6 +18541,10 @@ ts-message .emoji-sizer .mention {
 .dense_theme #convo_container ts-message .message_content .message_body,
 .dense_theme #convo_container ts-message .message_content .thread_channel_link {
   display: block
+}
+
+.dense_theme #convo_container ts-message.deleted .message_content .timestamp {
+  display: none
 }
 
 .dense_theme .new_reply_indicator,
@@ -21249,13 +21253,13 @@ ts-jumper ol {
 }
 
 ts-jumper ol li {
-  display: block;
   text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   outline: 0;
   background: 0 0;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
   font-size: 1rem;
   line-height: 1.875rem;
   border-radius: 6px;
@@ -24130,8 +24134,6 @@ ul li.highlighted a .app_slash_command_desc {
   padding: 0 1rem 0 .5rem;
   margin: 0 .9375rem;
   border-radius: .25rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
   outline: 0;
   font-size: .9375rem;
   line-height: 1.5625rem;

@@ -1,3 +1,5 @@
+{{i18n_ns "team_creation"}}
+
 <div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
   {{#unless minimal_ui_theme}}{{> create_inc_find_team_mobile}}{{/unless}}
 
@@ -14,10 +16,10 @@
     {{> create_inc_api_alert}}
 
     <div id="url_form_body" class="fs_split_body">
-      <h1>What web domain do you want for your Slack team?</h1>
+      <h1>{{#t}}What web domain do you want for your Slack team?{{/t}}</h1>
 
-      <p class="desc">Choose the address you'll use to sign in to Slack.<p>
-      <label id="teamurl_label">Your team domain<span class="subtle_silver normal"> (letters, numbers, and dashes only)</span></label>
+      <p class="desc">{{#t}}Choose the address you\u2019ll use to sign in to Slack.{{/t}}<p>
+      <label id="teamurl_label">{{#t}}Your team domain<span class="subtle_silver normal"> (letters, numbers, and dashes only)</span>{{/t}}</label>
       <div class="input_wrapper url">
         <p class="hidden input_spinner"></p>
         <p class="seafoam_green hidden input_checkmark">
@@ -30,7 +32,7 @@
 
       <div id="url_info" class="small_top_margin">
         <div id="available_url_message" class="small_top_margin is_faded_out" aria-hidden="true" data-qa="available_url_message">
-          Good news! Your team name is <span class="strong seafoam_green">available</span> as your domain on Slack. We\u2019ve pre-filled it for you, but feel free to change it.
+          {{#t}}Good news! Your team name is <span class="strong seafoam_green">available</span> as your domain on Slack. We\u2019ve pre-filled it for you, but feel free to change it.{{/t}}
         </div>
 
         <div id="unavailable_url_message" class="is_faded_out" aria-hidden="true">
@@ -38,7 +40,7 @@
             <span class="bold">
               <span id="unavailable_url"></span>.slack.com
             </span>
-            is already taken, how about...
+            {{#t note="This Slack URL is already taken"}}is already taken, how about...{{/t}}
           </span>
 
           <div id="url_suggestions"></div>

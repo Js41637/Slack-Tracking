@@ -1,3 +1,5 @@
+{{i18n_ns "team_creation"}}
+
 <div id="signup_wrapper" class="fs_split_pane fs_split_pane_left">
   {{> create_inc_find_team_mobile}}
 
@@ -8,12 +10,12 @@
     {{> create_inc_api_alert}}
 
     <div id="email_form_body" class="fs_split_body">
-      <h1>Create a new team</h1>
-        <label id="email_label"><span class="normal">Your </span>email address</label>
-        <input type="text" placeholder="you@yourdomain.com" id="signup_email" data-qa="email_field" spellcheck="false" {{#if email}} value="{{email}}" {{/if}} aria-labelledby="email_label" data-email-healing="true"/>
+      <h1>{{#t}}Create a new team{{/t}}</h1>
+        <label id="email_label"><span class="normal">{{#t}}Your </span>email address{{/t}}</label>
+        <input type="text" placeholder="{{#t}}you@yourdomain.com{{/t}}" id="signup_email" data-qa="email_field" spellcheck="false" {{#if email}} value="{{email}}" {{/if}} aria-labelledby="email_label" data-email-healing="true"/>
         <p class="error_message"></p>
         {{#if referral}}
-          <h4>Sign up now and get $100.00 in free credit thanks to the team at {{referral}}!</h4>
+          <h4>{{#t}}Sign up now and get $100.00 in free credit thanks to the team at {referral}!{{/t}}</h4>
         {{/if}}
     </div>
 
@@ -22,7 +24,7 @@
 
       <div class="button_container">
         <button id="submit_btn" class="btn btn_large ladda-button" {{#unless email}}disabled="true" aria-disabled="true"{{/unless}} data-style="expand-right" data-qa="submit_button">
-          <span class="ladda-label">Next{{> ts_icon class="ts_icon_arrow_right"}}</span>
+          <span class="ladda-label">{{#t}}Next{{/t}}{{> ts_icon class="ts_icon_arrow_right"}}</span>
         </button>
       </div>
     </div>

@@ -8478,7 +8478,12 @@ TS.registerModule("constants", {
         params.thread_ts = in_reply_to_msg.thread_ts || in_reply_to_msg.ts;
         params.reply_broadcast = should_broadcast_reply;
       }
-      var rsp_id = TS.ms.send(params, controller.onSendMsg, temp_ts);
+      var rsp_id;
+      if (TS.boot_data.feature_message_replies && should_broadcast_reply) {
+        TS.api.callImmediately("chat.postMessage", params);
+      } else {
+        rsp_id = TS.ms.send(params, controller.onSendMsg, temp_ts);
+      }
       TS.typing.userEnded(model_ob);
       var placeholder_msg = {
         type: "message",
@@ -11942,7 +11947,7 @@ TS.registerModule("constants", {
   var _displayPromiseToSearchResults = function(items, filters, new_query, query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
     if (!items) return;
     _updateTabCounts();
-    if (!TS.lazyLoadMembersAndBots()) {
+    if (!TS.boot_data.feature_fresh_team_directory || !TS.lazyLoadMembersAndBots()) {
       var team_list_items;
       if (TS.client) {
         team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
@@ -11958,7 +11963,7 @@ TS.registerModule("constants", {
       } else {
         var filtered_members = items;
       }
-      if (items.length > 0) {
+      if (filtered_members.length > 0) {
         TS.client.ui.team_list.getLongListView().longListView("setItems", filtered_members, true);
       } else {
         TS.client.ui.team_list.resetInitialState();
@@ -18379,7 +18384,7 @@ TS.registerModule("constants", {
           case "button":
             return TS.templates.builders.buildAttachmentActionButtonHTML(action, disable_buttons);
           case "select":
-            if (TS.boot_data.feature_message_inputs) {
+            if (TS.boot_data.feature_message_menus) {
               return TS.templates.builders.buildAttachmentActionSelectHTML(action, disable_buttons);
             }
             break;
@@ -18693,7 +18698,7 @@ TS.registerModule("constants", {
         }
         if (attachment.actions && attachment.actions.length) {
           var ACTION_TYPE_WHITELIST = ["button"];
-          if (TS.boot_data.feature_message_inputs) {
+          if (TS.boot_data.feature_message_menus) {
             ACTION_TYPE_WHITELIST.push("select");
           }
           var action;
@@ -53124,15 +53129,15 @@ $.fn.togglify = function(settings) {
     confirmAction: function(action, callback) {
       var confirm_class = action.style == "danger" ? "btn_danger" : "btn_primary";
       var config = _.defaults(action.confirm, {
-        dismiss_text: "Cancel",
-        ok_text: "OK",
+        dismiss_text: TS.i18n.t("Cancel", "attachment_actions")(),
+        ok_text: TS.i18n.t("OK", "attachment_actions")(),
         text: "",
         title: ""
       });
       if (config.text) {
         config.text = TS.emoji.graphicReplace(config.text);
       } else if (!config.title) {
-        config.text = "Are you sure?";
+        config.text = TS.i18n.t("Are you sure?", "attachment_actions")();
       }
       if (config.title) {
         config.title = TS.emoji.graphicReplace(config.title);
@@ -53157,7 +53162,7 @@ $.fn.togglify = function(settings) {
           attachment: attachment
         });
         $container.html(html);
-        if (TS.boot_data.feature_message_inputs) {
+        if (TS.boot_data.feature_message_menus) {
           TS.attachment_actions.select.decorateNewElements(TS.client.ui.$msgs_div);
         }
       }
@@ -53206,8 +53211,9 @@ $.fn.togglify = function(settings) {
   function _onActionCompleted(args) {
     if (!args) return;
     if (args.err) {
+      var default_text = TS.i18n.t("Oh no, something went wrong. Please try that again.", "attachment_actions")();
       var ephemeral_msg = {
-        text: _.get(args, "err.data.response") || "Oh no, something went wrong. Please try that again.",
+        text: _.get(args, "err.data.response") || default_text,
         ephemeral_type: _.get(args, "err.data.error") || "attachment_action_error",
         slackbot_feels: "sad_surprise"
       };

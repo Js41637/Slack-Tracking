@@ -5011,13 +5011,16 @@ only screen and (min-resolution:2dppx) {
   display: inline-block;
   vertical-align: top;
   min-width: 13.75rem;
-  max-width: 20rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #2c2d30;
   background: #fff;
   box-shadow: 0 5px 10px rgba(0, 0, 0, .12);
   border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, .15)
+}
+
+#client-ui:not(.feature_shrinkwrap_menus) .menu {
+  max-width: 20rem
 }
 
 .menu .menu_content {
@@ -5053,8 +5056,15 @@ only screen and (min-resolution:2dppx) {
 
 .menu ul li i {
   margin-right: .5rem;
-  color: #babbbf;
+  color: #babbbf
+}
+
+#client-ui:not(.feature_shrinkwrap_menus) .menu ul li i {
   float: left
+}
+
+#client-ui.feature_shrinkwrap_menus .menu ul li i {
+  display: inline-block
 }
 
 .menu ul li i:before {
@@ -5076,14 +5086,19 @@ only screen and (min-resolution:2dppx) {
   padding: 0 1rem 0 .5rem;
   margin: 0 .9375rem;
   border-radius: .25rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   outline: 0;
   font-size: .9375rem;
   line-height: 1.5625rem;
   background: 0 0;
   color: #2c2d30
+}
+
+#client-ui:not(.feature_shrinkwrap_menus) .menu ul li a {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
 }
 
 .menu ul li a.delete_link {
@@ -5306,14 +5321,19 @@ only screen and (min-resolution:2dppx) {
   padding: 0 1rem 0 .5rem;
   margin: 0 .9375rem;
   border-radius: .25rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
   outline: 0;
   font-size: .9375rem;
   line-height: 1.5625rem;
   background: 0 0;
   color: #2c2d30
+}
+
+#client-ui:not(.feature_shrinkwrap_menus) .menu #menu_list_container #menu_list .menu_list_item a {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
 }
 
 .menu #menu_list_container #menu_list .menu_list_item a .member_image {
@@ -5329,8 +5349,7 @@ only screen and (min-resolution:2dppx) {
   background: #3aa3e3;
   color: #fff;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
-  text-decoration: none;
-  overflow: hidden
+  text-decoration: none
 }
 
 .menu #menu_list_container .monkey_scroll_hider.scrolling #menu_list .menu_list_item {
