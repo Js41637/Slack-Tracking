@@ -8502,7 +8502,7 @@ TS.registerModule("constants", {
       TS.shared.msg_sent_sig.dispatch(model_ob, rsp_id);
       return true;
     },
-    sendMsgGroup: function(model_ob_id, text, controller, in_reply_to_msg) {
+    sendMsgGroup: function(model_ob_id, text, controller, in_reply_to_msg, should_broadcast_reply) {
       var model_ob = TS.shared.getModelObById(model_ob_id);
       var model_label = model_ob.is_mpim ? "conversation" : "channel";
       if (!model_ob) return false;
@@ -8572,7 +8572,7 @@ TS.registerModule("constants", {
         TS.ui.at_channel_warning_dialog.startInMessagePane(model_ob_id, text, controller);
         return false;
       }
-      return TS.shared.sendMsg(model_ob_id, text, controller, in_reply_to_msg);
+      return TS.shared.sendMsg(model_ob_id, text, controller, in_reply_to_msg, should_broadcast_reply);
     },
     onHistory: function(model_ob, data, args, controller) {
       var msgs = model_ob.msgs;
@@ -11807,7 +11807,7 @@ TS.registerModule("constants", {
     TS.error("Missing arguments for a bound filter");
   };
   var _updateTabCounts = function() {
-    if (TS.boot_data.feature_fresh_team_directory) return;
+    if (TS.boot_data.feature_searchable_member_list) return;
     var members_count = _filters.members.filter_num_found - _filters.filtered_items.bots.length;
     var restricted_count = _filters.restricted.filter_num_found || 0;
     var deleted_count = _filters.deleted.filter_num_found || 0;
@@ -11877,8 +11877,8 @@ TS.registerModule("constants", {
     var promiseToFilter = function() {
       return Promise.resolve().then(function() {
         if (scroller_id !== "#team_list_scroller") return Promise.reject();
-        if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_fresh_team_directory) {
-          var current_filter = TS.client.ui.team_list.getCurrentFilter();
+        if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list) {
+          var current_filter = TS.client.ui.searchable_member_list.getCurrentFilter();
           return TS.members.promiseToSearchMembers({
             query: _query_for_match,
             include_org: true,
@@ -11889,7 +11889,7 @@ TS.registerModule("constants", {
         }
         return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
       }).then(function(response) {
-        var items = TS.lazyLoadMembersAndBots() && TS.boot_data.feature_fresh_team_directory ? response.items : response;
+        var items = TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list ? response.items : response;
         _displayPromiseToSearchResults(items, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
         _stopSpinner(filter_container_id);
       }).finally(function() {
@@ -11947,7 +11947,7 @@ TS.registerModule("constants", {
   var _displayPromiseToSearchResults = function(items, filters, new_query, query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
     if (!items) return;
     _updateTabCounts();
-    if (!TS.boot_data.feature_fresh_team_directory || !TS.lazyLoadMembersAndBots()) {
+    if (!TS.boot_data.feature_searchable_member_list || !TS.lazyLoadMembersAndBots()) {
       var team_list_items;
       if (TS.client) {
         team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
@@ -11955,8 +11955,8 @@ TS.registerModule("constants", {
         team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
       }
     }
-    if (TS.boot_data.feature_fresh_team_directory) {
-      var current_filter = TS.client.ui.team_list.getCurrentFilter();
+    if (TS.boot_data.feature_searchable_member_list) {
+      var current_filter = TS.client.ui.searchable_member_list.getCurrentFilter();
       if (!TS.lazyLoadMembersAndBots()) {
         var filtered_members = team_list_items[current_filter + "_list_items"];
         if (current_filter === "disabled_members") filtered_members = team_list_items.deleted_members_list_items;
@@ -11964,9 +11964,9 @@ TS.registerModule("constants", {
         var filtered_members = items;
       }
       if (filtered_members.length > 0) {
-        TS.client.ui.team_list.getLongListView().longListView("setItems", filtered_members, true);
+        TS.client.ui.searchable_member_list.getLongListView().longListView("setItems", filtered_members, true);
       } else {
-        TS.client.ui.team_list.resetInitialState();
+        TS.client.ui.searchable_member_list.resetInitialState();
       }
       return;
     }
@@ -18479,6 +18479,8 @@ TS.registerModule("constants", {
           meta = TS.utility.date.toTime(args.msg.ts, ampm);
         }
       }
+      var clickable = attachment.from_url && args.has_container;
+      if (is_broadcast) clickable = true;
       var attachment_args = {
         is_text_collapsed: should_expand,
         has_more: has_more,
@@ -18518,7 +18520,7 @@ TS.registerModule("constants", {
           standalone: attachment_args.is_standalone,
           has_thumb: attachment_args.has_thumb,
           can_delete: attachment_args.can_delete,
-          clickable: attachment.from_url && attachment_args.has_container,
+          clickable: clickable,
           message_unfurl: attachment._unfurl_type_message,
           reply_broadcast: is_broadcast,
           is_pinned: TS.boot_data.feature_pin_update && attachment.is_pinned
@@ -18667,11 +18669,12 @@ TS.registerModule("constants", {
       attachments = attachments.map(function(attachment) {
         return TS.utility.attachments.getDecoratedAttachment(attachment, msg);
       });
+      var is_broadcast = msg && msg.subtype === "reply_broadcast";
       var has_container = !!TS.model.prefs.attachments_with_borders;
+      if (is_broadcast) has_container = true;
       var use_shrink_wrap = has_container && _.some(attachments, TS.utility.attachments.getMediaType);
       var has_border = has_container ? _.some(attachments, "color") : true;
       var has_link = _.some(attachments, "from_url");
-      var is_broadcast = msg && msg.subtype === "reply_broadcast";
       var preamble = false;
       if (is_broadcast) {
         preamble = TS.templates.reply_broadcast_preamble(attachments[0]);
@@ -23704,6 +23707,12 @@ TS.registerModule("constants", {
     isToday: function(date_a) {
       var today = new Date;
       return TS.utility.date.sameDay(date_a, today);
+    },
+    isYesterday: function(date_a) {
+      var today = new Date;
+      var yesterday = new Date;
+      yesterday.setDate(today.getDate() - 1);
+      return TS.utility.date.sameDay(date_a, yesterday);
     },
     getNextActivityDayStamp: function(day_stamp) {
       var date = TS.utility.date.toDateObject(day_stamp);
@@ -45013,6 +45022,8 @@ $.fn.togglify = function(settings) {
             TS.ui.replies.openConversation(model_ob, thread_ts);
           }
           break;
+        case "open_conversation":
+          break;
         case "jump_to_original":
           TS.client.ui.tryToJump(model_ob.id, msg.ts);
           break;
@@ -45366,11 +45377,16 @@ $.fn.togglify = function(settings) {
         current_external_link: $el[0]
       });
     });
-    TS.click.addHandler(".inline_attachment.clickable", function(e, $el) {
+    TS.click.addHandler(".inline_attachment.clickable, .inline_attachment.clickable + .reply_broadcast_rule", function(e, $el) {
       var ignore_selectors = ["a", ".media_caret", ".delete_attachment_link", ".msg_inline_video_buttons_div"].join(",");
       if ($(e.target).closest(ignore_selectors).length) return;
-      var $hidden_link = $el.find(".attachment_from_url_link");
-      $hidden_link[0] && $hidden_link[0].click();
+      var $link;
+      if ($el.is(".reply_broadcast")) {
+        $link = $el.closest(".message_body").find('[data-action="open_conversation"]');
+      } else {
+        $link = $el.find(".attachment_from_url_link");
+      }
+      $link[0] && $link[0].click();
     }, true);
     TS.click.addClientHandler(".internal_file_list_filter", function(e, $el) {
       e.preventDefault();
@@ -53077,9 +53093,10 @@ $.fn.togglify = function(settings) {
       });
       if (!action) return;
       if (action.type === "select") {
-        action.selected_options = [{
+        action.selected_options = _.filter(action.options, {
           value: args.selected_value
-        }];
+        });
+        delete action.options;
       }
       return {
         action: action,

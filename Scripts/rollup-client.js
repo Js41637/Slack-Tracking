@@ -2035,7 +2035,7 @@
       }
     },
     rebuildUserGroupTab: function() {
-      if (TS.boot_data.feature_fresh_team_directory) return;
+      if (TS.boot_data.feature_searchable_member_list) return;
       var user_groups = TS.model.user_groups.filter(function(ug) {
         return !ug.date_delete;
       });
@@ -2627,7 +2627,7 @@
     },
     rebuildTeamList: _.noop(),
     rebuildTeamListThrottled: function(ignore_cache) {
-      if (TS.boot_data.feature_fresh_team_directory) return;
+      if (TS.boot_data.feature_searchable_member_list) return;
       if (TS.lazyLoadMembersAndBots()) {
         if (!TS.model.ui_state.flex_visible || TS.model.ui_state.flex_name !== "team") {
           TS.view.last_team_list_html = null;
@@ -7123,8 +7123,8 @@
       $("#member_preview_container").hideWithRememberedScrollTop();
       $("#team_list_container").unhideWithRememberedScrollTop();
       TS.view.resizeManually("TS.client.ui._displayTeamList");
-      if (TS.boot_data.feature_fresh_team_directory) {
-        TS.client.ui.team_list.showInitial({
+      if (TS.boot_data.feature_searchable_member_list) {
+        TS.client.ui.searchable_member_list.showInitial({
           $container: $("#team_list_container")
         });
       } else {
@@ -9226,7 +9226,7 @@
 })();
 (function() {
   "use strict";
-  TS.registerModule("client.ui.team_list", {
+  TS.registerModule("client.ui.searchable_member_list", {
     showInitial: function(options) {
       $_container = options.$container;
       if (TS.lazyLoadMembersAndBots() && TS.team.getBestEffortTotalTeamSize() <= _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
@@ -11950,15 +11950,15 @@
       var show_meta = false;
       var status;
       if (model_ob.history_fetch_failed) {
-        status_text = 'Retrieving history failed. <a onclick="TS.client.ui.doLoadScrollBackHistory(true)">Try again?</a>';
+        status_text = TS.i18n.t('Retrieving history failed. <a onclick="TS.client.ui.doLoadScrollBackHistory(true)">Try again?</a>', "client")();
       } else if (model_ob.history_is_being_fetched) {
-        status_text = "Retrieving history...";
+        status_text = TS.i18n.t("Retrieving history...", "client")();
       } else {
         status = TS.utility.msgs.getOlderMsgsStatus(model_ob);
         if (TS.qs_args["test_is_limited"] == 1 && !status.more) status.is_limited = true;
         if (status.more) {
           if (!(TS.model.seen_onboarding_this_session && model_ob.id == TS.model.welcome_model_ob.id)) {
-            status_text = '<a onclick="TS.client.ui.doLoadScrollBackHistory(true)">And more...</a>';
+            status_text = '<a onclick="TS.client.ui.doLoadScrollBackHistory(true)">' + TS.i18n.t("And more...", "client")() + "</a>";
           }
         } else if (!TS.newxp.shouldShowFirstWelcome()) {
           show_meta = true;
@@ -11968,11 +11968,14 @@
         end_display_meta.removeClass("hidden");
         if (model_ob.is_channel || model_ob.is_group) {
           var date_str = TS.utility.date.toCalendarDateOrNamedDay(model_ob.created);
-          var on = "";
-          if ($.trim(date_str.toLowerCase()) == "yesterday" || $.trim(date_str.toLowerCase()) == "today") {
-            date_str = $.trim(date_str.toLowerCase());
+          var date_ob = TS.utility.date.toDateObject(model_ob.created);
+          var on_date;
+          if (TS.utility.date.isYesterday(date_ob) || TS.utility.date.isToday(date_ob)) {
+            on_date = $.trim(date_str.toLowerCase());
           } else {
-            on = "on ";
+            on_date = TS.i18n.t("on {date}", "client")({
+              date: date_str
+            });
           }
           var creator = TS.members.getMemberById(model_ob.creator);
           if (model_ob.is_channel) {
@@ -12012,7 +12015,7 @@
             } else {
               $("#channel_creator_name").html(creator ? TS.templates.builders.makeMemberPreviewLink(creator) : "Unknown");
             }
-            $("#channel_create_date").html(on + date_str);
+            $("#channel_create_date").html(on_date);
             if (model_ob.purpose.value) {
               $("#channel_meta_purpose_container").removeClass("hidden");
               $("#channel_meta_purpose").html(TS.utility.formatTopicOrPurpose(model_ob.purpose.value));
@@ -12073,7 +12076,7 @@
                 $("#group_meta_archived_parent_link").attr("href", "/archives/" + parent_group.name).text(parent_group.name);
               }
             }
-            $("#group_create_date").html(on + date_str);
+            $("#group_create_date").html(on_date);
             if (model_ob.purpose.value) {
               $("#group_meta_purpose_container").removeClass("hidden");
               $("#group_meta_purpose").html(TS.utility.formatTopicOrPurpose(model_ob.purpose.value));
@@ -12553,15 +12556,25 @@
       } else {
         new_msg_info_ts = last_read_ts;
       }
-      var unread_str = unread_cnt_output + plus + " new message" + (unread_cnt_output == 1 ? "" : "s") + " since " + TS.utility.date.toTime(new_msg_info_ts, true);
       var date_str = TS.utility.date.toCalendarDateOrNamedDay(new_msg_info_ts, false, true);
-      if ($.trim(date_str) !== "Today") {
-        if ($.trim(date_str) == "Yesterday") {
-          unread_str += " " + date_str.toLowerCase();
+      var date_ob = TS.utility.date.toDateObject(new_msg_info_ts);
+      var i18n_str_func;
+      var unread_str;
+      if (!TS.utility.date.isToday(date_ob)) {
+        if (TS.utility.date.isYesterday(date_ob)) {
+          i18n_str_func = TS.i18n.t("{unread_message_count}{plus} new {unread_message_count, plural, =1 {message} other {messages}} since {time} {date_string}", "client");
         } else {
-          unread_str += " on " + date_str;
+          i18n_str_func = TS.i18n.t("{unread_message_count}{plus} new {unread_message_count, plural, =1 {message} other {messages}} since {time} on {date_string}", "client");
         }
+      } else {
+        i18n_str_func = TS.i18n.t("{unread_message_count}{plus} new {unread_message_count, plural, =1 {message} other {messages}} since {time}", "client");
       }
+      unread_str = i18n_str_func({
+        unread_message_count: unread_cnt_output,
+        plus: plus,
+        time: TS.utility.date.toTime(new_msg_info_ts, true),
+        date_string: date_str
+      });
       $("#new_msg_info").html(unread_str);
       TS.ui.a11y.saveUnreadCountMessage(model_ob, unread_str);
     } else {
@@ -12621,12 +12634,16 @@
       var html;
       if (TS.model.team.prefs.auth_mode == "normal" && TS.model.team.email_domain) {
         var hostname = location.hostname.replace(/[^\.]*/, TS.utility.htmlEntities(TS.model.team.domain));
-        html = '<i class="ts_icon ts_icon_user ts_icon_inherit"></i> Send <a class="underline" href="https://' + hostname + '/signup">this link</a> to your team to invite them';
+        html = TS.i18n.t('<i class="ts_icon ts_icon_user ts_icon_inherit"></i> Send <a class="underline" href="https://{hostname}/signup">this link</a> to your team to invite them', "client")({
+          hostname: hostname
+        });
         $slack_invite_action.off("click").html(html).find("a").on("click", function(e) {
           return false;
         });
       } else if (TS.model.user.is_admin) {
-        html = '<a><i class="ts_icon ts_icon_user ts_icon_inherit"></i> Invite people to <strong>' + TS.utility.htmlEntities(TS.model.team.name) + "</strong></a>";
+        html = TS.i18n.t('<a><i class="ts_icon ts_icon_user ts_icon_inherit"></i> Invite people to <strong>{teamname}</strong></a>', "client")({
+          teamname: TS.utility.htmlEntities(TS.model.team.name)
+        });
         $slack_invite_action.off("click").on("click.show_admin_invite_modal", TS.ui.admin_invites.start).html(html);
       }
       $slack_invite_action_wrapper.toggleClass("hidden", !html);
@@ -12682,29 +12699,46 @@
     if (TS.client.msg_pane.areCallsEnabled()) {
       var $calls_container = $("#channel_calls_container");
       var voice_tip_text;
+      var call_name;
       if (is_channel_preview) {
-        voice_tip_text = "Join this channel to start a call";
+        voice_tip_text = TS.i18n.t("Join this channel to start a call", "client")();
       } else if (is_call_allowed) {
         if (call_info.is_dm || call_info.is_mpdm) {
           if (additional_template_args.is_dm_user_offline) {
-            voice_tip_text = additional_template_args.name + " is currently offline and unreachable";
+            voice_tip_text = TS.i18n.t("{name} is currently offline and unreachable", "client")({
+              name: additional_template_args.name
+            });
           } else {
-            voice_tip_text = "Call " + (call_info.is_mpdm ? additional_template_args.names : additional_template_args.name);
+            if (call_info.is_mpdm) {
+              call_name = additional_template_args.names;
+            } else {
+              call_name = additional_template_args.name;
+            }
             if (is_third_party) {
-              voice_tip_text += " with " + TS.model.team.prefs.calling_app_name;
+              voice_tip_text = TS.i18n.t("Call {call_name} with {calling_app_name}", "client")({
+                call_name: call_name,
+                calling_app_name: TS.model.team.prefs.calling_app_name
+              });
+            } else {
+              voice_tip_text = TS.i18n.t("Call {call_name}", "client")({
+                call_name: call_name
+              });
             }
           }
         } else {
-          voice_tip_text = "Start a call";
           if (is_third_party) {
-            voice_tip_text += " with " + TS.model.team.prefs.calling_app_name;
+            voice_tip_text = voice_tip_text = TS.i18n.t("Start a call with {calling_app_name}", "client")({
+              calling_app_name: TS.model.team.prefs.calling_app_name
+            });
+          } else {
+            voice_tip_text = TS.i18n.t("Start a call", "client")();
           }
         }
       } else {
         if (call_info.is_mpdm) {
-          voice_tip_text = "Only paid teams can call from group conversations.";
+          voice_tip_text = TS.i18n.t("Only paid teams can call from group conversations.", "client")();
         } else {
-          voice_tip_text = "Only paid teams can start calls from channels.";
+          voice_tip_text = TS.i18n.t("Only paid teams can start calls from channels.", "client")();
         }
       }
       var html = "";

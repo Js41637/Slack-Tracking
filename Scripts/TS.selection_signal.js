@@ -8,7 +8,7 @@
     }
   });
   var _handleSelection = function() {
-    $("body").on("mouseup.clog_sel", "#msgs_div ts-message", function(e) {
+    $("body").on("copy.clog_sel", "#msgs_div ts-message", function(e) {
       var sel_obj = window.getSelection();
       if (!sel_obj.isCollapsed) {
         var range = sel_obj.getRangeAt(0);

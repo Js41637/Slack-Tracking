@@ -19011,7 +19011,7 @@ html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container 
   cursor: pointer
 }
 
-.attachment_group.has_container .inline_attachment::after {
+.attachment_group.has_container .inline_attachment:not(.reply_broadcast)::after {
   background-color: #e8e8e8;
   content: '';
   display: block;
@@ -19115,11 +19115,12 @@ html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container 
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-left: 1rem;
+  margin: 0 .75rem;
   padding: .25rem 0;
   color: #9e9ea6;
   font-size: .75rem;
-  line-height: 1.1667
+  line-height: 1.1667;
+  cursor: pointer
 }
 
 .attachment_group .inline_attachment.reply_broadcast+.attachment_rule .attachment_rule_inner {
@@ -19129,7 +19130,7 @@ html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container 
   padding-right: .25rem
 }
 
-.attachment_group .inline_attachment.reply_broadcast+.attachment_rule:after {
+.attachment_group .inline_attachment.reply_broadcast+.attachment_rule::after {
   -ms-flex: 1 1 auto;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto;
