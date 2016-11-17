@@ -3179,8 +3179,9 @@
       return true;
     },
     submit: function(e) {
-      if (!TS.model.ms_connected && TS.utility.contenteditable.value(TS.client.ui.$msg_input) != "/wakewake") return false;
-      TS.client.ui.onSubmit(TS.utility.contenteditable.value(TS.client.ui.$msg_input), e);
+      var text = TS.utility.contenteditable.value(TS.client.ui.$msg_input);
+      if (!TS.model.ms_connected && text != "/wakewake") return false;
+      TS.client.ui.onSubmit(text, e);
       return true;
     },
     focusMessageInput: function() {
@@ -9243,13 +9244,24 @@
           _loadLongListView({
             items: []
           });
-          return null;
+          return _fetchMoreMembers().then(function() {
+            $_long_list_view.longListView("setItems", _members_in_view, true);
+          });
         });
       }
       return Promise.resolve().then(function() {
         _loadSearchBar();
         _loadLocalMembersIntoLongListView();
         return null;
+      });
+    },
+    resetInitialState: function() {
+      if (!TS.lazyLoadMembers() || TS.team.getBestEffortTotalTeamSize() <= _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
+        _loadLocalMembersIntoLongListView();
+        return;
+      }
+      _fetchMoreMembers().then(function() {
+        $_long_list_view.longListView("setItems", _members_in_view, true, true);
       });
     },
     getLongListView: function() {
@@ -9261,6 +9273,10 @@
   });
   var _MINIMUM_MEMBERS_FOR_SEARCH = 10;
   var _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL = 100;
+  var _PAGE_SIZE = 10;
+  var _LOAD_MORE_AT_PIXELS_FROM_BOTTOM = 100;
+  var _RESIZE_THROTTLE_MS = 33;
+  var _SCROLL_DEBOUNCE_MS = 100;
   var _approx_item_height = 92;
   var _approx_divider_height = 40;
   var $_container;
@@ -9268,6 +9284,9 @@
   var _search_input_id = "#team_filter";
   var _long_list_view_id = "#team_list_scroller";
   var _current_filter = "active_members";
+  var _next_marker = "";
+  var _members_in_view = [];
+  var _have_all_members = false;
   var _loadLocalMembersIntoLongListView = function(options) {
     var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
     _loadLongListView({
@@ -9275,10 +9294,10 @@
     });
   };
   var _loadSearchBar = function() {
-    if (TS.team.getBestEffortTotalTeamSize() >= _MINIMUM_MEMBERS_FOR_SEARCH) {
-      $_container.find("#team_list_scroller").before(TS.templates.team_search_bar({
+    if (TS.team.getBestEffortTotalTeamSize() >= _MINIMUM_MEMBERS_FOR_SEARCH && $_container.find(".team_tabs_container").length == 0) {
+      $_container.find(_long_list_view_id).before(TS.templates.team_search_bar({
         show_search: true,
-        show_filters: !TS.lazyLoadMembersAndBots(),
+        show_filters: true,
         is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       }));
       var search_full_profiles = true;
@@ -9297,7 +9316,7 @@
     }
   };
   var _loadLongListView = function(options) {
-    $_long_list_view = $_container.find("#team_list_scroller");
+    $_long_list_view = $_container.find(_long_list_view_id);
     $_long_list_view.longListView({
       items: options.items,
       approx_item_height: _approx_item_height,
@@ -9333,6 +9352,38 @@
         return outer_height;
       }
     });
+    if (TS.lazyLoadMembersAndBots()) {
+      var container_height = $_long_list_view.height();
+      var list_height = $_long_list_view.find(".list_items").height();
+      TS.view.resize_sig.add(_.throttle(function() {
+        container_height = $_long_list_view.height();
+        list_height = $_long_list_view.find(".list_items").height();
+      }, _RESIZE_THROTTLE_MS));
+      $_long_list_view.on("scroll", _.debounce(function(e) {
+        var distance_from_bottom = list_height - ($(e.target).scrollTop() + container_height);
+        if (distance_from_bottom < _LOAD_MORE_AT_PIXELS_FROM_BOTTOM) {
+          _fetchMoreMembers().then(function() {
+            $_long_list_view.longListView("setItems", _members_in_view, true, true);
+          });
+        }
+      }, _SCROLL_DEBOUNCE_MS));
+    }
+  };
+  var _fetchMoreMembers = function() {
+    if (_have_all_members) return new Promise.resolve([]);
+    return TS.flannel.fetchAndUpsertObjectsWithQuery({
+      limit: _PAGE_SIZE,
+      marker: _next_marker
+    }).then(function(response) {
+      _members_in_view = _.concat(_members_in_view, response.objects);
+      if (response.next_marker) {
+        _next_marker = response.next_marker;
+      } else {
+        _have_all_members = true;
+        _next_marker = "";
+      }
+      return response.objects;
+    });
   };
 })();
 (function() {
@@ -9354,7 +9405,14 @@
     },
     bind: function($input) {
       TS.client.msg_input.$input = $input;
-      if (TS.boot_data.feature_texty) TS.utility.contenteditable.create($input);
+      if (TS.boot_data.feature_texty) {
+        TS.utility.contenteditable.create($input, {
+          placeholder: $input.data("placeholder"),
+          onSend: function() {
+            _tryToSubmit({}, $input);
+          }
+        });
+      }
       TS.utility.contenteditable.enable($input);
       if (!TS.boot_data.feature_texty && TS.boot_data.feature_you_autocomplete_me) {
         $input.TS_tabCompleteNew({
@@ -9424,7 +9482,7 @@
             if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input)) {
               return;
             }
-            tryToSubmit(e);
+            _tryToSubmit(e, $input);
           }
           e.preventDefault();
           if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("input keydown", Date.now() - start);
@@ -9440,7 +9498,7 @@
               $input.setCursorPosition(p + 1);
             }
           } else if (TS.model.prefs && TS.model.prefs.enter_is_special_in_tbt && e.which == keymap.enter && e.shiftKey && TS.utility.isCursorWithinTBTs($input)) {
-            tryToSubmit(e);
+            _tryToSubmit(e, $input);
           }
           if (_$chat_input_tab_ui.length && !_$chat_input_tab_ui.hasClass("hidden")) {
             if (TS.model.is_our_app && TS.model.is_electron) {
@@ -9475,34 +9533,6 @@
           TS.client.ui.$messages_input_container.removeClass("focus");
         });
       }
-      var tryToSubmit = function(e) {
-        var val = TS.format.cleanMsg(TS.utility.contenteditable.value($input));
-        if (val.length > TS.model.input_maxlength) {
-          _$snippet_prompt.highlight(600, "", null, 0);
-          e.preventDefault();
-          return;
-        }
-        var submitter = function() {
-          if (TS.view.submit(e)) {
-            if (!TS.ui.at_channel_warning_dialog.showing) TS.client.msg_input.reset();
-            TS.chat_history.resetPosition("enter key");
-          } else if (!TS.model.is_msg_rate_limited) {
-            TS.client.ui.addOrFlashEphemeralBotMsg({
-              channel: TS.model.active_cid,
-              icons: {
-                emoji: ":electric_plug:"
-              },
-              username: "connectbot",
-              text: "Hmm, you seem to be *offline*, so sending messages won’t work at the moment.",
-              ephemeral_type: "disconnected_feedback"
-            });
-          }
-        };
-        if (_maybeHandleReactionCmdInMsgInput(val)) return;
-        _maybeShareFilesInMessage(val, TS.shared.getActiveModelOb(), function(did_share) {
-          submitter();
-        });
-      };
     },
     setOffline: function() {
       if (TS.client.ui.$messages_input_container) {
@@ -9843,6 +9873,34 @@
       placeholder += "#" + model_ob.name;
     }
     return placeholder;
+  };
+  var _tryToSubmit = function(e, $input) {
+    var val = TS.format.cleanMsg(TS.utility.contenteditable.value($input));
+    if (val.length > TS.model.input_maxlength) {
+      _$snippet_prompt.highlight(600, "", null, 0);
+      e.preventDefault();
+      return;
+    }
+    var submitter = function() {
+      if (TS.view.submit(e)) {
+        if (!TS.ui.at_channel_warning_dialog.showing) TS.client.msg_input.reset();
+        TS.chat_history.resetPosition("enter key");
+      } else if (!TS.model.is_msg_rate_limited) {
+        TS.client.ui.addOrFlashEphemeralBotMsg({
+          channel: TS.model.active_cid,
+          icons: {
+            emoji: ":electric_plug:"
+          },
+          username: "connectbot",
+          text: "Hmm, you seem to be *offline*, so sending messages won’t work at the moment.",
+          ephemeral_type: "disconnected_feedback"
+        });
+      }
+    };
+    if (_maybeHandleReactionCmdInMsgInput(val)) return;
+    _maybeShareFilesInMessage(val, TS.shared.getActiveModelOb(), function(did_share) {
+      submitter();
+    });
   };
 })();
 (function() {

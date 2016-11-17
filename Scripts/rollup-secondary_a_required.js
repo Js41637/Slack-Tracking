@@ -11861,12 +11861,13 @@ TS.registerModule("constants", {
       return Promise.resolve().then(function() {
         if (scroller_id !== "#team_list_scroller") return Promise.reject();
         if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_fresh_team_directory) {
+          var current_filter = TS.client.ui.team_list.getCurrentFilter();
           return TS.members.promiseToSearchMembers({
             query: _query_for_match,
             include_org: true,
             full_profile_filter: full_profile_filter,
             include_bots: include_bots,
-            include_deleted: include_deleted
+            include_deleted: current_filter == "disabled_members"
           });
         }
         return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
@@ -11945,9 +11946,10 @@ TS.registerModule("constants", {
       } else {
         var filtered_members = items;
       }
-      TS.client.ui.team_list.getLongListView().longListView("setItems", filtered_members, true);
-      if (items.length === 0) {
-        TS.warn("TODO: no users in this group, should show an empty state");
+      if (items.length > 0) {
+        TS.client.ui.team_list.getLongListView().longListView("setItems", filtered_members, true);
+      } else {
+        TS.client.ui.team_list.resetInitialState();
       }
       return;
     }
@@ -46421,12 +46423,16 @@ $.fn.togglify = function(settings) {
             m._jumper_exact_match = true;
             exact_matches.push(m);
             return false;
+          } else {
+            m._jumper_exact_match = false;
           }
         }
         if (options.prefer_exact_match && m.name === searcher.query) {
           m._jumper_exact_match = true;
           exact_matches.push(m);
           return false;
+        } else {
+          m._jumper_exact_match = false;
         }
         return searcher.matchesMember(m);
       });
@@ -46451,6 +46457,8 @@ $.fn.togglify = function(settings) {
           c._jumper_exact_match = true;
           exact_matches.push(c);
           return false;
+        } else {
+          c._jumper_exact_match = false;
         }
         var matched = searcher.matchesChannel(c);
         if (!matched) return;
@@ -46471,6 +46479,8 @@ $.fn.togglify = function(settings) {
           g._jumper_exact_match = true;
           exact_matches.push(g);
           return false;
+        } else {
+          g._jumper_exact_match = false;
         }
         var matched = searcher.matchesGroup(g);
         if (!matched) return;
@@ -46488,6 +46498,8 @@ $.fn.togglify = function(settings) {
           team._jumper_exact_match = true;
           exact_matches.push(team);
           return false;
+        } else {
+          team._jumper_exact_match = false;
         }
         var match = searcher.matchesTeam(team);
         return match;
@@ -46499,6 +46511,8 @@ $.fn.togglify = function(settings) {
           e._jumper_exact_match = true;
           exact_matches.push(e);
           return false;
+        } else {
+          e._jumper_exact_match = false;
         }
         return searcher.matchesEmoji(e);
       });
@@ -51695,14 +51709,13 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("utility.contenteditable", {
-    create: function(input) {
+    create: function(input, options) {
+      if (!options) options = {};
       input = _normalizeInput(input);
       if (!input) return;
       if (_isFormElement(input)) return;
       if (_getTextyInstance(input)) return;
-      var texty = new Texty(input, {
-        placeholder: input.dataset.placeholder
-      });
+      var texty = new Texty(input, options);
       _setTextyInstance(input, texty);
     },
     isActiveElement: function(input) {
