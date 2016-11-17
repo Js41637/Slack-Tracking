@@ -1,16 +1,10 @@
 {{i18n_ns "team_creation"}}
 
-<div id="signup_wrapper" class="fs_split_pane {{#if minimal_ui_theme}}fs_split_pane_full_width{{else}}fs_split_pane_left{{/if}}">
-  {{#unless minimal_ui_theme}}{{> create_inc_find_team_mobile}}{{/unless}}
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width">
 
-  {{#if minimal_ui_theme}}
   {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
-  {{/if}}
 
   <form class="fs_split_flex_wrapper" onsubmit="return false;">
-    {{#unless minimal_ui_theme}}
-    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
-    {{/unless}}
 
     <div class="fs_split_body">
       {{#if step_number_copy}}<div class="create_step_number_label">{{step_number_copy}}</div>{{/if}}
@@ -38,20 +32,16 @@
         <p id="username_rule_label" class="subtle_silver">{{#t}}Usernames must be all lowercase, with no spaces. They can only contain letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
       </div>
 
-      {{#and minimal_ui_theme inc_misc_and_legalese}}
+      {{#if inc_misc_and_legalese}}
       <div class="minimal_ui_email_misc_checkbox">
         <input type="checkbox" id="email_misc" data-qa="email_checkbox" {{#if uncheck_email}}{{else}}checked{{/if}}>
         <label for="email_misc">{{#t}}It's ok to send me email about the Slack service.{{/t}}</label>
       </div>
-      {{/and}}
+      {{/if}}
     </div>
 
 
     <div id="submit" class="fs_split_footer">
-      {{#unless minimal_ui_theme}}
-      {{#if inc_misc_and_legalese}}{{> create_inc_email_misc this}}{{/if}}
-      {{/unless}}
-
       <div class="button_container">
         <button id="submit_btn" class="btn btn_large ladda-button" {{#unless username}}disabled="true" aria-disabled="true"{{/unless}} data-style="expand-right" data-qa="submit_button">
           <span class="ladda-label">{{continue_btn_copy}}{{> ts_icon class="ts_icon_arrow_right"}}</span>
@@ -60,17 +50,9 @@
     </div>
 
     {{#if inc_misc_and_legalese}}
-      {{#if minimal_ui_theme}}
-        <div class="minimal_ui_legalese">
-          {{#t}}By proceeding to create your account and use Slack, you are agreeing to our <a class="bold" href="/terms-of-service">Terms&nbsp;of&nbsp;Service</a> and <a href="/privacy-policy" class="bold">Privacy Policy</a>. If you do not agree, you cannot use Slack.{{/t}}
-        </div>
-      {{else}}
-        {{> create_inc_legalese_mobile}}
-      {{/if}}
+      <div class="minimal_ui_legalese">
+        {{#t}}By proceeding to create your account and use Slack, you are agreeing to our <a class="bold" href="/terms-of-service">Terms&nbsp;of&nbsp;Service</a> and <a href="/privacy-policy" class="bold">Privacy Policy</a>. If you do not agree, you cannot use Slack.{{/t}}
+      </div>
     {{/if}}
   </form>
 </div>
-
-{{#unless minimal_ui_theme}}
-{{> create_inc_graphics_pane inc_find_team=1 inc_legalese= inc_misc_and_legalese}}
-{{/unless}}

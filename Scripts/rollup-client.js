@@ -1621,10 +1621,10 @@
         if (!TS.view.last_input_height || TS.view.last_preview_height_changed) {
           TS.view.measureInput();
         }
-        if (!TS.boot_data.feature_msg_input_contenteditable && !TS.boot_data.feature_new_msg_input) {
+        if (!TS.boot_data.feature_new_msg_input) {
           $("#message-form").css("height", TS.view.last_input_height);
         }
-        if (TS.boot_data.feature_msg_input_contenteditable || TS.boot_data.feature_new_msg_input) {
+        if (TS.boot_data.feature_new_msg_input) {
           var msgs_scroller_height = wh - TS.view.msgs_scroller_y - TS.view.footer_outer_h;
           TS.client.ui.$msgs_scroller_div.css("height", msgs_scroller_height);
         } else {
@@ -1723,7 +1723,7 @@
     },
     never_set: true,
     measureInput: function() {
-      if (TS.boot_data.feature_msg_input_contenteditable || TS.boot_data.feature_new_msg_input) {
+      if (TS.boot_data.feature_new_msg_input) {
         TS.view.last_input_height = TS.view.footer_outer_h = $("#footer").outerHeight();
         return;
       }
@@ -1737,7 +1737,7 @@
       }
     },
     measureMsgPreview: function() {
-      if (TS.boot_data.feature_msg_input_contenteditable || TS.boot_data.feature_new_msg_input) return;
+      if (TS.boot_data.feature_new_msg_input) return;
       var footer_height, msg_preview_height, preview_height;
       var min_preview_height = 110;
       var window_height = TS.view.cached_wh || $(window).height();
@@ -1971,22 +1971,22 @@
       var active_model_ob = TS.shared.getActiveModelOb();
       if (active_model_ob && active_model_ob.is_general && !TS.members.canUserPostInGeneral()) {
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
-        if (!TS.boot_data.feature_msg_input_contenteditable) {
+        if (!TS.boot_data.feature_texty) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $("#footer").addClass("disabled");
-        var $el = TS.boot_data.feature_msg_input_contenteditable ? TS.client.ui.$msg_input : $("#message-input-message span");
+        var $el = TS.boot_data.feature_texty ? TS.client.ui.$msg_input : $("#message-input-message span");
         $el.html("Your Team Owners have limited who can post to #<b>" + TS.channels.getGeneralChannel().name + "</b>");
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
       } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.members.canMemberPostInChannel(active_model_ob)) {
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
-        if (!TS.boot_data.feature_msg_input_contenteditable) {
+        if (!TS.boot_data.feature_texty) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $("#footer").addClass("disabled");
-        var $el = TS.boot_data.feature_msg_input_contenteditable ? TS.client.ui.$msg_input : $("#message-input-message span");
+        var $el = TS.boot_data.feature_texty ? TS.client.ui.$msg_input : $("#message-input-message span");
         if (active_model_ob.is_group) {
           $el.html('Your Team Owners have limited who can post to <ts-icon class="ts_icon_lock prefix"></ts-icon>' + active_model_ob.name + '<ts-icon class="ts_icon_shared_channel"></ts-icon> </b>');
         } else {
@@ -2449,6 +2449,7 @@
       TS.client.msg_input.populateWithLast();
       TS.client.ui.rebuildMemberListToggle();
       TS.view.members.updateUserDisplayName();
+      if (TS.boot_data.feature_user_custom_status) TS.view.members.updateUserCurrentStatus();
       TS.view.showProperTeamPaneFiller();
       var is_long_list_view = TS.boot_data.page_needs_enterprise && !TS.lazyLoadMembersAndBots();
       var include_bots = true;
@@ -4416,6 +4417,7 @@
       }
       if (member.id == TS.model.user.id) {
         TS.view.members.updateUserDisplayName();
+        if (TS.boot_data.feature_user_custom_status) TS.view.members.updateUserCurrentStatus();
         if (member.is_restricted) {
           if (TS.environment.is_retina) {
             bg_img_urls.push("url(" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + ")");
@@ -4460,6 +4462,9 @@
       } else {
         $(".current_user_name").html(TS.members.getMemberDisplayName(TS.model.user, true));
       }
+    },
+    updateUserCurrentStatus: function() {
+      $(".current_user_current_status").text(TS.members.getMemberCurrentStatus(TS.model.user));
     },
     getUserPresenceStr: function() {
       var user = TS.model.user;
@@ -4875,6 +4880,7 @@
       TS.view.rebuildStars();
       TS.view.files.throttledRebuildList();
       TS.view.members.updateUserDisplayName();
+      if (TS.boot_data.feature_user_custom_status) TS.view.members.updateUserCurrentStatus();
       TS.client.channel_pane.rebuild("ims", "starred");
       TS.client.msg_pane.displayTitle();
       TS.client.msg_pane.rebuildChannelMembersList();
@@ -5471,10 +5477,10 @@
     CLIENT_HEADER_OVERHANG: 8,
     $msgs_scroller_div: $("#msgs_scroller_div"),
     $msgs_div: $("#msgs_div"),
-    $msg_input: TS.boot_data.feature_msg_input_contenteditable || TS.boot_data.feature_new_msg_input ? $("#msg_input") : $("#message-input"),
+    $msg_input: TS.boot_data.feature_new_msg_input ? $("#msg_input") : $("#message-input"),
     $msg_preview_msg: $("#msg_preview_msg"),
     $msg_preview: $("#msg_preview"),
-    $messages_input_container: TS.boot_data.feature_msg_input_contenteditable || TS.boot_data.feature_new_msg_input ? null : $("#messages-input-container"),
+    $messages_input_container: TS.boot_data.feature_new_msg_input ? null : $("#messages-input-container"),
     $emo_menu: null,
     $banner: $("#banner"),
     $msgs_unread_divider: null,
@@ -5571,7 +5577,7 @@
         });
         $(window).on("copy cut", function(e) {
           if (TS.utility.isFocusOnInput()) {
-            if (!TS.boot_data.feature_msg_input_contenteditable) return;
+            if (!TS.boot_data.feature_texty) return;
             var input = document.activeElement;
             if (!TS.utility.contenteditable.isContenteditable(input)) return;
           }
@@ -7532,7 +7538,7 @@
       if (msgs && msgs.length) {
         var model_ob = TS.shared.getActiveModelOb();
         var existing_msg = msgs[0];
-        if (TS.boot_data.feature_msg_input_contenteditable) {
+        if (TS.boot_data.feature_texty) {
           existing_msg.text = TS.format.cleanInternalMsg(ob.text);
         } else {
           existing_msg.text = ob.text;
@@ -7689,7 +7695,7 @@
     TS.view.resizeManually("TS.client.ui._displayMember");
   };
   var _addEphemeralMsg = function(c_id, msg, ephemeral_type) {
-    if (TS.boot_data.feature_msg_input_contenteditable) {
+    if (TS.boot_data.feature_texty) {
       msg.text = TS.format.cleanInternalMsg(msg.text);
     }
     msg.ts = msg.ts || TS.utility.date.makeTsStamp();
@@ -8595,7 +8601,7 @@
       checkFiles();
     },
     bindUploadUI: function() {
-      if (!TS.client.ui.files.$upload) TS.client.ui.files.$upload = TS.boot_data.feature_msg_input_contenteditable ? $("#file_upload") : $("#file-upload");
+      if (!TS.client.ui.files.$upload) TS.client.ui.files.$upload = TS.boot_data.feature_new_msg_input ? $("#file_upload") : $("#file-upload");
       $(".file_upload_btn").bind("click.file_menu", function(e) {
         if (TS.client.ui.shouldIgnoreClick(e)) return false;
         TS.menu.file.startWithNewFileOptions(e, $(this));
@@ -8918,7 +8924,7 @@
         TS.client.flexDisplaySwitched("", "", replace_state, no_history);
         TS.client.ui.flex.adjustIFramesInSpecialFlexPanes();
         if (document.activeElement && $(document.activeElement).closest("#col_flex").length > 0) TS.view.focusMessageInput();
-        if (!TS.boot_data.feature_msg_input_contenteditable) {
+        if (!TS.boot_data.feature_texty) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
       };
@@ -8993,7 +8999,7 @@
         }, 1);
       }
       TS.client.ui.flex.adjustIFramesInSpecialFlexPanes();
-      if (!TS.boot_data.feature_msg_input_contenteditable) {
+      if (!TS.boot_data.feature_texty) {
         TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
       }
     },
@@ -9410,6 +9416,8 @@
             _tryToSubmit({}, $input);
           },
           tabcomplete: {
+            menuTemplate: TS.templates.tabcomplete_menu,
+            completers: [TS.tabcomplete.members],
             appendMenu: function(menu) {
               document.querySelector("#msg_form").appendChild(menu);
             },
@@ -9499,7 +9507,7 @@
           TS.client.msg_input.startSnippet();
         } else {
           if (e.which == keymap.shift) {} else if (e.which == keymap.enter && (e.ctrlKey || e.altKey)) {
-            if (!TS.boot_data.feature_msg_input_contenteditable && (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop))) {
+            if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
               var p = $input.getCursorPosition();
               TS.utility.contenteditable.value($input, val.substr(0, p) + "\n" + val.substr(p));
               $input.trigger("autosize").trigger("autosize-resize");
@@ -9560,7 +9568,7 @@
       var start = Date.now();
       if (!TS.client.ui.$emo_menu) TS.client.ui.$emo_menu = $(".emo_menu");
       TS.view.measureInput();
-      if (!TS.boot_data.feature_msg_input_contenteditable && !TS.boot_data.feature_new_msg_input) {
+      if (!TS.boot_data.feature_texty && !TS.boot_data.feature_new_msg_input) {
         TS.client.ui.files.$file_btn.css("height", TS.view.last_input_height + "px");
       }
       TS.view.resizeManually("TS.client.msg_input.resized original:" + original + " height:" + height);
@@ -9576,7 +9584,7 @@
       if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("inputResized " + original + " " + height, Date.now() - start);
     },
     reset: function() {
-      if (TS.boot_data.feature_msg_input_contenteditable) {
+      if (TS.boot_data.feature_texty) {
         TS.view.measureInput();
         return;
       }
@@ -9603,7 +9611,7 @@
     populate: function(txt) {
       TS.utility.populateInput(TS.client.ui.$msg_input, txt);
       TS.client.msg_input.storeLastMsgForActiveModelOb(txt);
-      if (!TS.boot_data.feature_msg_input_contenteditable) {
+      if (!TS.boot_data.feature_texty) {
         TS.client.msg_input.$input.trigger("autosize").trigger("autosize-resize");
       }
     },
@@ -9645,7 +9653,7 @@
     },
     setPlaceholder: function() {
       TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, _getPlaceholderText());
-      if (!TS.boot_data.feature_msg_input_contenteditable) {
+      if (!TS.boot_data.feature_texty) {
         TS.client.msg_input.$input.trigger("autosize").trigger("autosize-resize");
       }
     },
@@ -9686,7 +9694,7 @@
       _resize_count = 0;
       _change_count = 0;
     }
-    if (TS.boot_data.feature_msg_input_contenteditable) _maybeResize();
+    if (TS.boot_data.feature_texty) _maybeResize();
     if (TS.model.prefs.msg_preview) _updateMsgPreview(val);
   };
   var _last_height = 0;
@@ -9780,9 +9788,9 @@
     } else if (!text_changed) {
       return;
     }
-    var prev_height = TS.boot_data.feature_msg_input_contenteditable ? TS.view.last_input_height : TS.view.last_input_container_height;
+    var prev_height = TS.boot_data.feature_texty ? TS.view.last_input_height : TS.view.last_input_container_height;
     TS.view.measureInput();
-    var new_height = TS.boot_data.feature_msg_input_contenteditable ? TS.view.last_input_height : TS.view.last_input_container_height;
+    var new_height = TS.boot_data.feature_texty ? TS.view.last_input_height : TS.view.last_input_container_height;
     if (prev_height != new_height) {
       TS.view.resizeManually();
     }
@@ -25631,7 +25639,7 @@
     TS.client.msg_input.setPlaceholder();
     TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.$msgs_scroller_div);
     TS.view.measureInput();
-    if (!TS.boot_data.feature_msg_input_contenteditable && !TS.boot_data.feature_new_msg_input) {
+    if (!TS.boot_data.feature_texty && !TS.boot_data.feature_new_msg_input) {
       TS.client.ui.files.$file_btn.css("height", TS.view.last_input_height + "px");
     }
   };

@@ -5795,6 +5795,7 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
   font-size: .8125rem
 }
 
+#current_user_name_and_current_status,
 #team_header_user_name {
   color: #ab9ba9;
   opacity: 1;
@@ -5811,6 +5812,20 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
   margin-top: .1875rem;
   display: block;
   max-width: 100%
+}
+
+#current_user_name_and_current_status #team_header_current_status,
+#current_user_name_and_current_status #team_header_user_name {
+  padding: 0;
+  margin-top: 0;
+  display: inline
+}
+
+#team_header_current_status {
+  opacity: .5;
+  -moz-opacity: .5;
+  -khtml-opacity: .5;
+  margin-left: .2rem
 }
 
 #presence {

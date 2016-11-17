@@ -962,6 +962,7 @@
         return null;
       }
       var $edit_form = TS.ui.comments.$edit_form;
+      $edit_form.find(".file_comment_tip").text(TS.templates.builders.makeFileCommentHelpText(file));
       var $comment_div;
       if (!$originated_from) {
         $comment_div = $("#" + comment.id);

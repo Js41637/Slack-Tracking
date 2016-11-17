@@ -2,14 +2,9 @@
 
 <div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width">
 
-  {{#if minimal_ui_theme}}
   {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
-  {{/if}}
 
   <form class="fs_split_flex_wrapper" onsubmit="return false;">
-    {{#unless minimal_ui_theme}}
-    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
-    {{/unless}}
 
     <div id="confirm_email_form_body" class="fs_split_body">
       <h1>{{#t note="This page tells the user to check their email inbox for a confirmation code we just sent them."}}Check your email!{{/t}}</h1>

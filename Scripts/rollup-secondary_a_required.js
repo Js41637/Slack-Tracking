@@ -10049,6 +10049,10 @@ TS.registerModule("constants", {
     getMemberPreferredNameLowerCase: function(member_or_id) {
       return _getMemberNameHelper(member_or_id, "_preferred_name_normalized_lc");
     },
+    getMemberCurrentStatus: function(member_or_id) {
+      var member = _.isString(member_or_id) ? TS.members.getMemberById(member_or_id) : member_or_id;
+      return member && member.profile && member.profile.current_status ? member.profile.current_status : "";
+    },
     invalidateMembersUserCanSeeArrayCaches: function(no_signal) {
       if (!TS.model.user || !TS.model.user.is_restricted) return;
       var was_length = _members_for_user.length;
@@ -22499,7 +22503,7 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(full_name_and_preferred_name_html);
       });
       Handlebars.registerHelper("getMemberCurrentStatus", function(member) {
-        return member.profile.current_status;
+        return TS.members.getMemberCurrentStatus(member);
       });
       Handlebars.registerHelper("getDisplayNameOfUserForIm", function(im) {
         if (!im) return "MISSING_IM";
@@ -26432,7 +26436,7 @@ TS.registerModule("constants", {
       return TS.utility.linkify(string, "", recognize_www, true);
     },
     getCursorPosition: function(selector) {
-      if (TS.boot_data.feature_msg_input_contenteditable) {
+      if (TS.boot_data.feature_texty) {
         if (_.isString(selector)) selector = $(selector);
         return TS.utility.contenteditable.cursorPosition(selector);
       }
@@ -26462,7 +26466,7 @@ TS.registerModule("constants", {
       return pos;
     },
     setCursorPosition: function(selector, pos, length) {
-      if (TS.boot_data.feature_msg_input_contenteditable) {
+      if (TS.boot_data.feature_texty) {
         if (_.isString(selector)) selector = $(selector);
         return TS.utility.contenteditable.cursorPosition(selector, pos, length);
       }
@@ -26549,7 +26553,7 @@ TS.registerModule("constants", {
     populateInput: function(input, txt, cursor_pos) {
       if (!txt) txt = "";
       var $input = $(input);
-      var should_use_html = TS.boot_data.feature_name_tagging_client && TS.boot_data.feature_msg_input_contenteditable && $input.is(TS.client.ui.$msg_input);
+      var should_use_html = TS.boot_data.feature_name_tagging_client && TS.boot_data.feature_texty && $input.is(TS.client.ui.$msg_input);
       if (should_use_html) {
         var new_html = txt;
         if (TS.boot_data.feature_name_tagging_client_extras) {
@@ -28819,7 +28823,7 @@ TS.registerModule("constants", {
   function _cleanMsgText(txt, options) {
     if (!txt) return "";
     if (!options) options = {};
-    if (TS.boot_data.feature_msg_input_contenteditable) {
+    if (TS.boot_data.feature_texty) {
       txt = TS.format.replaceUnicodeDoppelgangers(txt);
     }
     if (options.do_specials) {
@@ -29287,7 +29291,7 @@ TS.registerModule("constants", {
         left: e.clientX + 190
       };
     } else if (_$trigger && TS.client && (_$trigger.is(TS.client.ui.$msg_input) || $.contains(TS.client.ui.$msg_input.parent("form")[0], _$trigger[0]))) {
-      var prev_height = TS.boot_data.feature_msg_input_contenteditable ? TS.view.last_input_height : TS.view.last_input_container_height + 25;
+      var prev_height = TS.boot_data.feature_texty ? TS.view.last_input_height : TS.view.last_input_container_height + 25;
       offset = {
         top: window.innerHeight - prev_height,
         left: 284
@@ -29834,7 +29838,7 @@ TS.registerModule("constants", {
     var new_pos = current_pos + emo.length;
     var current_val = TS.utility.contenteditable.value($input_to_fill);
     var new_val = current_val.substr(0, current_pos) + emo + current_val.substr(current_pos);
-    if (TS.boot_data.feature_msg_input_contenteditable) {
+    if (TS.boot_data.feature_texty) {
       setTimeout(TS.utility.populateInput, 0, _input_to_fill, new_val, new_pos);
       if (!e || !e.shiftKey) _end();
     } else {
@@ -30738,6 +30742,7 @@ TS.registerModule("constants", {
       TS.menu.start(e);
       TS.menu.positionAt($("#team_menu"), 10, menu_offset_y);
       TS.view.members.updateUserDisplayName();
+      if (TS.boot_data.feature_user_custom_status) TS.view.members.updateUserCurrentStatus();
       TS.view.setFlexMenuSize();
     },
     onTeamAndUserItemMouseenter: function(e) {
@@ -51938,7 +51943,7 @@ $.fn.togglify = function(settings) {
     if (!input) return false;
     if (input instanceof jQuery && input[0]) input = input[0];
     if (input.nodeType !== Node.ELEMENT_NODE) return false;
-    if (!TS.boot_data.feature_msg_input_contenteditable) return input;
+    if (!TS.boot_data.feature_texty) return input;
     if (input.tagName.toLowerCase() === "textarea") return input;
     if (input.tagName.toLowerCase() === "input") return input;
     if (input.hasAttribute("contenteditable")) return input;
@@ -51947,7 +51952,7 @@ $.fn.togglify = function(settings) {
   };
   var _isFormElement = function(input) {
     if (!input) return false;
-    if (!TS.boot_data.feature_msg_input_contenteditable) return true;
+    if (!TS.boot_data.feature_texty) return true;
     if (input.tagName.toLowerCase() === "textarea") return true;
     if (input.tagName.toLowerCase() === "input") return true;
     return false;
@@ -53270,10 +53275,9 @@ $.fn.togglify = function(settings) {
       }).hide();
     },
     getActionModel: function(action, is_disabled) {
-      var qs = TS.utility.url.queryStringParse(window.location.search.slice(1));
       var model = _.merge({
         _disabled: !!is_disabled,
-        data_source: qs.data_source,
+        data_source: "default",
         desc: "",
         id: "",
         name: "",

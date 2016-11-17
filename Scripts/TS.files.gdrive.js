@@ -29,15 +29,15 @@
         if (err == "Promise already made") {
           return;
         }
-        var ephemeral_text = "Darn, that didn't work. Try again or <http://my.slack.com/help.requests/new|contact us> if it's still not working.";
+        var ephemeral_text = _FALLBACK_EPHEMERAL_MESSAGE;
         var model_ob = TS.shared.getActiveModelOb();
         TS.error(err);
         if ((err.data.error == "unidentified_external_url" || err.data.error == "file_type_has_no_handler") && err.args.link) {
-          ephemeral_text = "We don't currently support importing that type of Google Drive file, but we included the link so that others can access it.";
+          ephemeral_text = TS.i18n.t("We don’t currently support importing that type of Google Drive file, but we included the link so that others can access it.", "files")();
           _postMessage(model_ob.id, err.args.link);
         }
         if (err.data.error == "filename_too_long") {
-          ephemeral_text = "Sorry! The name of that file is too long for us to handle. Please try importing a file with a shorter filename.";
+          ephemeral_text = _FILENAME_TOO_LONG_ERROR_MESSAGE;
         }
         TS.client.ui.addEphemeralBotMsg({
           text: ephemeral_text,
@@ -85,12 +85,12 @@
         TS.menu.file.onGDriveCreateComplete(true, response);
       }).catch(function(err) {
         TS.menu.file.onGDriveCreateComplete(false);
-        var ephemeral_text = "Darn, that didn't work. Try again or <http://my.slack.com/help/requests/new|contact us> if it's still not working.";
+        var ephemeral_text = _FALLBACK_EPHEMERAL_MESSAGE;
         if (err.data.error == "use_auth_url") {
           return _authThenCreate(type, share_settings);
         }
         if (err.data.error == "filename_too_long") {
-          ephemeral_text = "Sorry! The name of that file is too long for us to handle. Please try importing a file with a shorter filename.";
+          ephemeral_text = _FILENAME_TOO_LONG_ERROR_MESSAGE;
         }
         TS.error(err);
         TS.client.ui.addEphemeralBotMsg({
@@ -106,6 +106,8 @@
   var _GDRIVE_MIMETYPE_PREFIX = "application/vnd.google-apps";
   var _GDRIVE_WINDOW_HEIGHT = 675;
   var _promise_picker_has_been_promised = false;
+  var _FALLBACK_EPHEMERAL_MESSAGE = TS.i18n.t("Darn, that didn’t work. Try again or <http://my.slack.com/help.requests/new|contact us> if it’s still not working.", "files")();
+  var _FILENAME_TOO_LONG_ERROR_MESSAGE = TS.i18n.t("Sorry! The name of that file is too long for us to handle. Please try importing a file with a shorter filename.", "files")();
   var _getMessageListenerForPicker = function(resolve, reject) {
     return _getMessageListener({
       resolve: resolve,
@@ -173,8 +175,11 @@
         type: _GDRIVE_MIMETYPE_PREFIX + type
       };
       var sharing_html = TS.templates.builders.buildFileSharingControls(file, false, false, true, null);
+      var modal_title = TS.i18n.t("Create a Google {gdrive_type}", "files")({
+        gdrive_type: _.capitalize(type)
+      });
       TS.generic_dialog.start({
-        title: "Create a Google " + _.capitalize(type),
+        title: modal_title,
         body: TS.templates.gdrive_create_dialog({
           sharing_html: new Handlebars.SafeString(sharing_html)
         }),
@@ -221,7 +226,7 @@
     }).catch(function(err) {
       TS.error(err);
       TS.client.ui.addEphemeralBotMsg({
-        text: "Oh no! I couldn't import your newly created file",
+        text: TS.i18n.t("Oh no! I couldn’t import your newly created file", "files")(),
         ephemeral_type: "gdrive_share_file_error",
         slackbot_feels: "sad_surprise"
       });
