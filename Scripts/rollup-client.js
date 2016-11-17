@@ -8111,9 +8111,7 @@
         }
       }
       TS.ui.utility.updateClosestMonkeyScroller($("#file_preview_scroller"));
-      if (TS.boot_data.feature_file_comment_help_text) {
-        _displayFileCommentHelpText(file);
-      }
+      _displayFileCommentHelpText(file);
       if ($("#file_comment").is(":focus") || TS.utility.getActiveElementProp("id") == "file_comment") {
         $("#file_comment_submit_btn").scrollintoview({
           offset: "bottom",
