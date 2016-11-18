@@ -1,11 +1,9 @@
+{{i18n_ns 'invite'}}
 {{#if_equal invite_type compare='full'}}
   <p id="default_channels_note" class="small align_center no_bottom_margin {{#if initial_channel_id}}hidden{{/if}}">
-    New <strong>full members</strong> will automatically join
-    {{#each default_channels}}
-      {{#if @last}}{{#unless @first}}and {{/unless}}{{/if}}#<strong>{{this.name}}</strong>{{#unless @last}}{{#if_gt ../default_channels.length compare=2}},{{/if_gt}}{{/unless}}{{#if @last}}.{{/if}}
-    {{/each}}
+    {{#t teams=(listify default_channels map="name" strong=true)}}New <strong>full members</strong> will automatically join {teams}{{/t}}
     {{#if is_admin}}
-      <a onclick="$('#default_channels_note').hide(); $('#default_channels').show();" class="small_left_margin subtle_silver underline inline_block" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=edit_channels,trigger=click_cta_edit_channels">Edit / add</a>
+      <a onclick="$('#default_channels_note').hide(); $('#default_channels').show();" class="small_left_margin subtle_silver underline inline_block" data-clog-click="true" data-clog-event="INVITEMODAL_ACTION" data-clog-params="action=edit_channels,trigger=click_cta_edit_channels">{{#t note="link that allows admin to edit or add default channels"}}Edit / add{{/t}}</a>
     {{/if}}
   </p>
   <p id="default_channels" {{#if initial_channel_id}}{{else}}style="display: none; overflow: visible !important;"{{/if}}>
@@ -20,15 +18,15 @@
       {{/each}}
     </select>
     <span class="small align_center">
-      New <strong>full members</strong> will automatically join these channels and <strong>#{{general_name}}</strong> <a href="/admin/settings#default_channels" target="admin_settings" class="small_left_margin subtle_silver underline">change defaults</a>
+      {{#t}}New <strong>full members</strong> will automatically join these channels and <strong>#{general_name}</strong>{{/t}} <a href="/admin/settings#default_channels" target="admin_settings" class="small_left_margin subtle_silver underline">{{#t note="link to change default channels"}}change defaults{{/t}}</a>
     </span>
   </p>
 {{/if_equal}}
 
 {{#if_equal invite_type compare='restricted'}}
-  <p class="small align_center small_bottom_margin">New <strong>{{raLabel 'restricted accounts'}}</strong> will only have access to these channels:</p>
+  <p class="small align_center small_bottom_margin">{{#t}}New <strong>multi-channel guests</strong> will only have access to these channels:{{/t}}</p>
   <p id="restricted_channel_picker_container">
-    <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" data-placeholder="Choose one or more channels ...">
+    <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" data-placeholder="{{#t}}Choose one or more channels ...{{/t}}">
       {{#each channels}}
         <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
       {{/each}}
@@ -40,10 +38,10 @@
 {{/if_equal}}
 
 {{#if_equal invite_type compare='ultra_restricted'}}
-  <p class="small align_center small_bottom_margin">New <strong>single-channel guests</strong> will only have access to this channel:</p>
+  <p class="small align_center small_bottom_margin">{{#t}}New <strong>single-channel guests</strong> will only have access to this channel:{{/t}}</p>
   <p id="ultra_restricted_channel_picker_container">
     <select id="ultra_restricted_channel_picker" name="ultra_restricted_channel_picker" class="full_width">
-      <option value="" selected="selected">Choose a channel ...</option>
+      <option value="" selected="selected">{{#t}}Choose a channel ...{{/t}}</option>
       {{#if channels}}
         <optgroup label="Channels">
           {{#each channels}}
@@ -65,10 +63,7 @@
 <p class="small align_center no_bottom_margin">
   <span id="sso_signup_notice" class="block small_top_margin hidden"></span>
   <span id="google_auth_email_domain_notice" class="hidden">
-    You can invite people with email addresses ending in 
-    {{#each email_domains}}
-      {{#if @last}}{{#unless @first}}and {{/unless}}{{/if}}<strong>@{{this}}</strong>{{#unless @last}},{{/unless}}
-    {{/each}}
-    <a href="/admin/auth/google" target="{{newWindowName}}" class="subtle_silver small_left_margin underline">change SSO settings</a>
+      {{#t email_domains=(listify email_domains)}}You can invite people with email addresses ending in {email_domains}{{/t}}
+    <a href="/admin/auth/google" target="{{newWindowName}}" class="subtle_silver small_left_margin underline">{{#t}}change SSO settings{{/t}}</a>
   </span>
 </p>
