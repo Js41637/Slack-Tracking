@@ -10,9 +10,7 @@
     <h2 id="channel_name_container" class="channel_name_container">
       <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">Threads</span>
     </h2>
-    <div id="channel_header_info" class="threads_channel_header_info {{#unless reply_count}}hidden{{/unless}}">
-      <span><span class="channel_header_info_count">{{reply_count}}</span> new {{pluralize reply_count "reply" "replies"}}</span>
-    </div>
+    <div id="channel_header_info" class="threads_channel_header_info {{#unless reply_count}}hidden{{/unless}}"></div>
   {{else}}
     <h2 id="channel_name_container" class="channel_name_container">
       <span id="channel_name" class="channel_name" data-qa="channel_name">

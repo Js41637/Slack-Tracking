@@ -8702,19 +8702,12 @@ TS.registerModule("constants", {
         }
         TS.info("removing temp_msg:" + temp_msg.ts + " " + temp_msg.text + " existing_msg:" + existing_msg.ts + " " + existing_msg.text);
         delete TS.ms.sent_map[k];
-        if (model_ob.is_channel) {
-          TS.channels.removeMsg(model_ob.id, temp_msg);
-        } else if (model_ob.is_mpim) {
-          TS.mpims.removeMsg(model_ob.id, temp_msg);
-        } else if (model_ob.is_group) {
-          TS.groups.removeMsg(model_ob.id, temp_msg);
-        } else {
-          TS.ims.removeMsg(model_ob.id, temp_msg);
-        }
+        if (!controller) controller = TS.shared.getControllerForModelOb(model_ob);
+        if (_.isFunction(controller.removeMsg)) controller.removeMsg(model_ob.id, temp_msg);
       }
     },
     getControllerForModelOb: function(model_ob) {
-      if (!model_ob) return;
+      if (!model_ob) return {};
       if (model_ob.is_im) {
         return TS.ims;
       } else if (model_ob.is_mpim) {
@@ -8762,7 +8755,7 @@ TS.registerModule("constants", {
         var escaped = false;
         var include_at_sign = true;
         return TS.members.getMemberDisplayNameById(model_ob.user, escaped, include_at_sign);
-      } else if (model_ob.is_group) {
+      } else if (model_ob.is_group || model_ob.is_private) {
         return model_ob.name;
       } else if (model_ob.is_channel) {
         return "#" + model_ob.name;
@@ -8778,9 +8771,7 @@ TS.registerModule("constants", {
         var escaped = false;
         var include_at_sign = false;
         return TS.members.getMemberDisplayNameById(model_ob.user, escaped, include_at_sign);
-      } else if (model_ob.is_group) {
-        return model_ob.name;
-      } else if (model_ob.is_channel) {
+      } else if (model_ob.is_group || model_ob.is_channel) {
         return model_ob.name;
       } else {
         TS.warn("getDisplayNameForModelOb: unknown model_ob type: " + model_ob.id);
@@ -8791,7 +8782,7 @@ TS.registerModule("constants", {
       if (!id) return null;
       var ob_type = id[0];
       if (ob_type === "C") {
-        return TS.channels.getChannelById(id) || TS.groups.getGroupById(id);
+        return TS.channels.getChannelById(id);
       } else if (ob_type === "G") {
         return TS.mpims.getMpimById(id) || TS.groups.getGroupById(id);
       } else if (ob_type === "S") {
@@ -8928,15 +8919,8 @@ TS.registerModule("constants", {
     },
     markReadMsg: function(model_ob_id, ts, reason) {
       var model_ob = TS.shared.getModelObById(model_ob_id);
-      if (model_ob.is_channel) {
-        TS.channels.markReadMsg(model_ob.id, ts, reason);
-      } else if (model_ob.is_mpim) {
-        TS.mpims.markReadMsg(model_ob.id, ts, reason);
-      } else if (model_ob.is_im) {
-        TS.ims.markReadMsg(model_ob.id, ts, reason);
-      } else if (model_ob.is_group) {
-        TS.groups.markReadMsg(model_ob.id, ts, reason);
-      }
+      var controller = TS.shared.getControllerForModelOb(model_ob);
+      if (_.isFunction(controller.markReadMsg)) controller.markReadMsg(model_ob.id, ts, reason);
     },
     moveLastMsgInput: function(from_channel, to_channel) {
       if (!from_channel.last_msg_input) return;
@@ -9190,15 +9174,8 @@ TS.registerModule("constants", {
     addMsgs: function(model_ob, msgs) {
       if (_addMsgsWorker(model_ob, msgs)) {
         var and_mark = false;
-        if (model_ob.is_channel) {
-          TS.channels.calcUnreadCnts(model_ob, and_mark);
-        } else if (model_ob.is_mpim) {
-          TS.mpims.calcUnreadCnts(model_ob, and_mark);
-        } else if (model_ob.is_group) {
-          TS.groups.calcUnreadCnts(model_ob, and_mark);
-        } else if (model_ob.is_im) {
-          TS.ims.calcUnreadCnts(model_ob, and_mark);
-        }
+        var controller = TS.shared.getControllerForModelOb(model_ob);
+        if (_.isFunction(controller.calcUnreadCnts)) controller.calcUnreadCnts(model_ob, and_mark);
         TS.utility.msgs.maybeTruncateMsgs(model_ob);
         if (TS.client) {
           if (TS.model.active_cid !== model_ob.id) {
@@ -10050,6 +10027,7 @@ TS.registerModule("constants", {
       return _getMemberNameHelper(member_or_id, "_preferred_name_normalized_lc");
     },
     getMemberCurrentStatus: function(member_or_id) {
+      if (!TS.boot_data.feature_user_custom_status) return "";
       var member = _.isString(member_or_id) ? TS.members.getMemberById(member_or_id) : member_or_id;
       return member && member.profile && member.profile.current_status ? member.profile.current_status : "";
     },
@@ -21649,35 +21627,17 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("currentTeamHostSafe", function() {
         return new Handlebars.SafeString(window.location.hostname);
       });
-      Handlebars.registerHelper("canUserAtEveryone", function(options) {
-        return TS.members.canUserAtEveryone() ? options.fn(this) : options.inverse(this);
-      });
-      Handlebars.registerHelper("canUserAtChannelOrAtGroup", function(options) {
-        return TS.members.canUserAtChannelOrAtGroup() ? options.fn(this) : options.inverse(this);
-      });
-      Handlebars.registerHelper("canUserCreateChannels", function(options) {
-        return TS.members.canUserCreateChannels() ? options.fn(this) : options.inverse(this);
-      });
-      Handlebars.registerHelper("canUserArchiveChannels", function(options) {
-        return TS.members.canUserArchiveChannels() ? options.fn(this) : options.inverse(this);
-      });
       Handlebars.registerHelper("canUserCreateGroups", function(options) {
         return TS.members.canUserCreateGroups() ? options.fn(this) : options.inverse(this);
       });
       Handlebars.registerHelper("canUserCreateMpims", function(options) {
         return TS.members.canUserCreateMpims() ? options.fn(this) : options.inverse(this);
       });
-      Handlebars.registerHelper("canUserPostInGeneral", function(options) {
-        return TS.members.canUserPostInGeneral() ? options.fn(this) : options.inverse(this);
-      });
       Handlebars.registerHelper("canUserKickFromChannels", function(options) {
         return TS.members.canUserKickFromChannels() ? options.fn(this) : options.inverse(this);
       });
       Handlebars.registerHelper("canUserKickFromGroups", function(options) {
         return TS.members.canUserKickFromGroups() ? options.fn(this) : options.inverse(this);
-      });
-      Handlebars.registerHelper("canUserCreateSharedChannels", function(options) {
-        return TS.members.canUserCreateSharedChannels() ? options.fn(this) : options.inverse(this);
       });
       Handlebars.registerHelper("numberWithMax", function(number, max) {
         if (number >= max) {
@@ -38599,6 +38559,8 @@ var _on_esc;
         msg = "Sorry! You can't use " + response.data.domain + ".";
       } else if (response.data.error === "invalid_domain") {
         msg = "Hmm, this doesn't look like a domain! Check for typos?";
+      } else if (response.data.error === "too_many_domains") {
+        msg = "Sorry! You’ve entered too many domains.";
       }
       $("#invite_signup_domains").focus().tooltip({
         title: msg,

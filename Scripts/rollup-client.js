@@ -4464,6 +4464,7 @@
       }
     },
     updateUserCurrentStatus: function() {
+      if (!TS.boot_data.feature_user_custom_status) return;
       $(".current_user_current_status").text(TS.members.getMemberCurrentStatus(TS.model.user));
     },
     getUserPresenceStr: function() {
@@ -11108,10 +11109,8 @@
       if (im) {
         star = TS.templates.builders.buildStarWithTip("im", im);
       }
-    } else if (TS.model.active_channel_id) {
+    } else if (TS.model.active_channel_id || TS.model.active_group_id) {
       star = TS.templates.builders.buildStarWithTip("channel", _model_ob);
-    } else if (TS.model.active_group_id) {
-      star = TS.templates.builders.buildStarWithTip("group", _model_ob);
     } else if (TS.model.active_mpim_id) {
       star = TS.templates.builders.buildStarWithTip("mpim", _model_ob);
     }
@@ -11242,10 +11241,18 @@
     var is_font_default = font_size == "normal";
     $recent_mentions_toggle.toggleClass("ts_tip_rightish", !is_font_default);
   };
-  var _replyCountChanged = function(reply_count) {
-    var $info = $("#channel_header_info");
-    $info.find(".channel_header_info_count").text(reply_count);
-    $info.removeClass("hidden");
+  var _replyCountChanged = function(new_reply_count) {
+    var $threads_header_info = $("#channel_header_info.threads_channel_header_info");
+    if (!new_reply_count) {
+      $threads_header_info.addClass("hidden");
+      $threads_header_info.empty();
+      return;
+    }
+    var text = TS.i18n.t("{new_reply_count,plural,=1{{new_reply_count} new reply}other{{new_reply_count} new replies}}", "threads")({
+      new_reply_count: new_reply_count
+    });
+    $threads_header_info.text(text);
+    $threads_header_info.removeClass("hidden");
   };
 })();
 (function() {

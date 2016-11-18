@@ -32,9 +32,9 @@
     }
 
     /* Active Item */
-    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name, 
-    #channels_scroller.show_which_channel_is_active ul li.active a.group_name, 
-    #channels_scroller.show_which_channel_is_active ul li.active a.im_name, 
+    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name,
+    #channels_scroller.show_which_channel_is_active ul li.active a.group_name,
+    #channels_scroller.show_which_channel_is_active ul li.active a.im_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.mpim_name,
     #channels_nav ul li.unread_link.active a {
       background: {{theme.active_item}};
@@ -74,12 +74,12 @@
     #team_menu:before,
     #team_menu .notifications_menu_btn,
     #team_menu .team_name_caret,
-    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix, 
+    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix,
     #channels_scroller.show_which_channel_is_active ul li.active a.group_name .prefix,
     #team_header_user_name,
     #channels_nav ul li button,
     .channels_list_holder ul li.unread .prefix,
-    .channels_list_holder ul li.member .im_close, 
+    .channels_list_holder ul li.member .im_close,
     .channels_list_holder ul li.mpim .mpim_close,
     .channels_list_holder ul li.group .group_close,
     #channels_nav ul li a,
@@ -87,7 +87,8 @@
       color: {{theme.text_color}} !important;
       opacity: 0.6;
     }
-    .channels_list_new_btn {
+    #current_user_name_and_current_status,
+    #team_header_user_name {
       color: {{theme.text_color}};
     }
     #quick_switcher_label,
@@ -112,9 +113,9 @@
     .invite_widget_link:hover {
       opacity: 1;
     }
-    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix, 
+    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix,
     #channels_scroller.show_which_channel_is_active ul li.active a.group_name .prefix {
-      color: {{theme.active_item_text}} !important;  
+      color: {{theme.active_item_text}} !important;
     }
     .list_more:hover {
       color: {{theme.text_color}} !important;
@@ -123,7 +124,7 @@
 
     .channels_list_holder ul li.unread a,
     .channels_list_holder ul li .channels_list_new_btn:hover,
-    .channels_list_holder ul li.member .im_close, 
+    .channels_list_holder ul li.member .im_close,
     .channels_list_holder ul li.mpim .mpim_close,
     .channels_list_holder ul li.group .group_close {
       opacity: 1 !important;
@@ -154,13 +155,13 @@
 
     #channels_scroller.show_which_channel_is_active li.active .presence.active i.presence_icon,
     #channels_scroller.show_which_channel_is_active li.active .slackbot_icon {
-      color: {{theme.active_item_text}} !important;  
+      color: {{theme.active_item_text}} !important;
     }
 
     /* Override for Hoth Theme presence dot on selected item. Fixes Bug #7154 */
     .sidebar_theme_hoth_theme #channels_scroller.show_which_channel_is_active li.active .presence.active i.presence_icon,
     .sidebar_theme_hoth_theme #channels_scroller.show_which_channel_is_active li.active .slackbot_icon {
-      color: {{theme.active_presence}} !important;  
+      color: {{theme.active_presence}} !important;
     }
 
     #channels_scroller.show_which_channel_is_active li.active .presence.away i.presence_icon {
@@ -176,7 +177,7 @@
 
     /* Badge + Mentions bar */
     .channels_list_holder .unread_highlights,
-    #channel_scroll_up.unseen_have_mentions, 
+    #channel_scroll_up.unseen_have_mentions,
     #channel_scroll_down.unseen_have_mentions,
     ts-jumper ol li .unread_count {
       background: {{theme.badge}};

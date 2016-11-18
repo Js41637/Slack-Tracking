@@ -2307,16 +2307,18 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover {
   float: left
 }
 
-.channels_list_holder ul li.group .prefix {
+.channels_list_holder ul li.channel .prefix {
+  margin: -3px -2px 0
+}
+
+.channels_list_holder ul li.group .prefix,
+.channels_list_holder ul li.private .prefix {
   margin: -1px 1px 0 -1px
 }
 
-.channels_list_holder ul li.group .prefix:before {
+.channels_list_holder ul li.group .prefix:before,
+.channels_list_holder ul li.private .prefix:before {
   font-size: 1rem
-}
-
-.channels_list_holder ul li.channel .prefix {
-  margin: -3px -2px 0
 }
 
 .channels_list_holder ul li.mpim .prefix {

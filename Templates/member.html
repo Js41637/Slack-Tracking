@@ -6,7 +6,7 @@
     {{#if show_starred}}{{makeModelObStarredIconSafe model_ob}}{{/if}}
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
     {{! NOTE: we add user_colored and nuc classes to disallow/allow the color to be applied via the css rule (with :not(.nuc)), and easily toggle that on and off}}
-    <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
+    <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}} {{#feature flag="feature_user_custom_status"}}{{#if member.profile.current_status}}ts_tip ts_tip_right ts_tip_float ts_tip_multiline" title="{{getMemberCurrentStatus member}}{{/if}}{{/feature}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
       <span class="{{makeUnreadHighlightDomId member}} unread_highlights {{#if_equal model_ob.unread_cnt compare=0}}hidden{{/if_equal}}{{#if_equal model_ob.unread_cnt compare=undefined}}hidden{{/if_equal}}">{{numberWithMax model_ob.unread_cnt 10}}</span>
       <span class="typing_indicator"></span>
       <span class="overflow_ellipsis">

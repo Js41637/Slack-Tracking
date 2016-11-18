@@ -147,6 +147,14 @@
     <hr class="member_details_divider">
 
     <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
+      {{#feature flag="feature_user_custom_status"}}
+        {{#if member.profile.current_status}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="Preferred name">Status</span></td>
+            <td>{{getMemberCurrentStatus member}}</td>
+          </tr>
+        {{/if}}
+      {{/feature}}
       {{#feature flag="feature_name_tagging_client"}}
         {{#if member.profile.preferred_name}}
           <tr>

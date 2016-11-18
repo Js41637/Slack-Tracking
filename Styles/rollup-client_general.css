@@ -618,8 +618,6 @@ html.no_touch .alert_page a:hover {
 }
 
 .ts_tip .ts_tip_tip .ts_tip_multiline_inner {
-  margin-left: auto;
-  margin-right: auto;
   display: table
 }
 
@@ -632,6 +630,12 @@ html.no_touch .alert_page a:hover {
   height: 0;
   margin: -6px;
   border: 6px solid transparent
+}
+
+.ts_tip.ts_tip_bottom .ts_tip_tip .ts_tip_multiline_inner,
+.ts_tip.ts_tip_top .ts_tip_tip .ts_tip_multiline_inner {
+  margin-left: auto;
+  margin-right: auto
 }
 
 .ts_tip.success .ts_tip_tip {
