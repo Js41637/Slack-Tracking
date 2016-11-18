@@ -5602,9 +5602,8 @@ hr {
   font-weight: 900;
   padding: 0 1rem;
   color: #fff;
-  height: 3.75rem;
+  height: 61px;
   width: 220px;
-  line-height: 72px;
   background: #4d394b;
   border-bottom: 1px solid #4d394b;
   float: left;
@@ -6066,7 +6065,7 @@ only screen and (min-resolution:2dppx) {
 
 #client_header {
   background: 0 0;
-  height: 3.3125rem;
+  height: 53px;
   position: fixed;
   z-index: 200;
   min-width: 768px;
@@ -6074,6 +6073,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .client_container #client_header {
+  flex: none;
   position: relative;
   min-width: 0
 }
@@ -6137,11 +6137,12 @@ only screen and (min-resolution:2dppx) {
 }
 
 #client_body:not(.onboarding):before {
+  box-sizing: border-box;
   position: absolute;
   left: 220px;
   right: 0;
-  height: .4375rem;
-  border-bottom: .0625rem solid #e8e8e8;
+  height: 8px;
+  border-bottom: 1px solid #e8e8e8;
   background: #fff;
   content: '';
   z-index: 199
@@ -7714,39 +7715,36 @@ ts-memory-instrument {
 }
 
 html.is_electron_mac #client_header {
-  height: 4.5rem
+  height: 72px
 }
 
 html.is_electron_mac #client_body {
-  margin-top: 4.0625rem
+  margin-top: 64px
 }
 
 html.is_electron_mac .client_container #client_header {
-  height: 3.9375rem
+  height: 64px
 }
 
 html.is_electron_mac .client_container #client_body {
   margin-top: 0
 }
 
-html.is_electron_mac #team_menu {
-  height: 4.5625rem
-}
-
+html.is_electron_mac #team_menu,
 html.is_electron_mac #team_menu:after {
-  height: 4.5rem
+  height: 72px
 }
 
 html.is_electron_mac #team_menu .notifications_menu_btn {
-  top: 1.3125rem
+  top: 21px
 }
 
 html.is_electron_mac #team_menu .team_name_container {
-  margin-top: 1.1875rem!important
+  margin-top: 19px!important
 }
 
 html.is_electron_mac #presence_container {
-  top: 2.3125rem
+  top: 37px
 }
 
 .placeholder_shimmer_clipper {

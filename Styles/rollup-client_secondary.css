@@ -7,7 +7,7 @@
 #col_flex {
   position: absolute;
   background: #fff;
-  top: 3.875rem;
+  top: 61px;
   right: 0;
   width: 0
 }
@@ -1961,7 +1961,7 @@ body:not(.loading) #col_channels_bg {
   float: left;
   position: relative;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  top: .4375rem
+  top: 8px
 }
 
 #col_channels:before {
@@ -2117,12 +2117,15 @@ body:not(.loading) #col_channels_bg {
 
 #channels_nav.has_scrolled:after {
   content: "";
-  height: 1px;
   width: 100%;
   position: absolute;
-  bottom: -1px;
-  z-index: 26;
-  background: rgba(0, 0, 0, .15)
+  top: -1px;
+  border-top: 1px solid rgba(0, 0, 0, .15);
+  z-index: 200
+}
+
+.client_container #channels_nav.has_scrolled:after {
+  z-index: 50
 }
 
 body.incremental_boot #col_channels .header_count {
@@ -3606,7 +3609,7 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
   padding: .2rem .4rem 0;
   position: absolute;
   right: 3px;
-  top: .5rem;
+  top: 8px;
   bottom: 0;
   z-index: 100
 }
@@ -17936,7 +17939,7 @@ ts-message .emoji-sizer .mention {
 }
 
 .day_container .day_divider .day_divider_label {
-  top: -.375rem
+  top: -6px
 }
 
 .day_container .day_msgs {
@@ -17980,10 +17983,10 @@ ts-message .emoji-sizer .mention {
   content: '';
   position: absolute;
   z-index: 98;
-  top: .46875rem;
+  top: 8px;
   left: 0;
-  right: .8125rem;
-  height: 1.625rem;
+  right: 13px;
+  height: 26px;
   background: #fff
 }
 
@@ -22604,7 +22607,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 #unread_msgs_scroller_div {
-  margin-top: 7px;
+  margin-top: 8px;
   overflow-y: scroll
 }
 
@@ -23008,14 +23011,14 @@ html:not(.supports_sticky_position) .unread_group_header {
 html:not(.supports_sticky_position) .currently_sticky .unread_group_header {
   position: fixed;
   top: 0;
-  margin-top: 60px;
   left: 220px;
   right: 0;
+  margin-top: 61px;
   margin-right: 12px
 }
 
 html:not(.supports_sticky_position).is_electron_mac .currently_sticky .unread_group_header {
-  margin-top: 72px
+  margin-top: 64px
 }
 
 html:not(.supports_sticky_position):not(.font_size_adjusted) .unread_group:first-child .unread_group_header {
