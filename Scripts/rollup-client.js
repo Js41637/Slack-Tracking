@@ -9246,11 +9246,10 @@
       if (TS.lazyLoadMembersAndBots()) {
         return Promise.resolve().then(function() {
           _loadSearchBar();
-          _loadLongListView({
-            items: []
-          });
           return _fetchMoreMembers().then(function() {
-            $_long_list_view.longListView("setItems", _members_in_view, true);
+            _loadLongListView({
+              items: _members_in_view
+            });
           });
         });
       }
@@ -9292,6 +9291,7 @@
   var _next_marker = "";
   var _members_in_view = [];
   var _have_all_members = false;
+  var _fetch_more_members_p = null;
   var _loadLocalMembersIntoLongListView = function(options) {
     var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
     _loadLongListView({
@@ -9364,6 +9364,16 @@
         container_height = $_long_list_view.height();
         list_height = $_long_list_view.find(".list_items").height();
       }, _RESIZE_THROTTLE_MS));
+      var recursivelyFillListToHeight = function() {
+        if (list_height < container_height && !_have_all_members) {
+          _fetchMoreMembers().then(function() {
+            $_long_list_view.longListView("setItems", _members_in_view, true, true);
+            list_height = $_long_list_view.find(".list_items").height();
+            recursivelyFillListToHeight();
+          });
+        }
+      };
+      recursivelyFillListToHeight();
       $_long_list_view.on("scroll", _.debounce(function(e) {
         var distance_from_bottom = list_height - ($(e.target).scrollTop() + container_height);
         if (distance_from_bottom < _LOAD_MORE_AT_PIXELS_FROM_BOTTOM) {
@@ -9376,10 +9386,12 @@
   };
   var _fetchMoreMembers = function() {
     if (_have_all_members) return new Promise.resolve([]);
-    return TS.flannel.fetchAndUpsertObjectsWithQuery({
+    if (_fetch_more_members_p) return _fetch_more_members_p;
+    _fetch_more_members_p = TS.flannel.fetchAndUpsertObjectsWithQuery({
       limit: _PAGE_SIZE,
       marker: _next_marker
     }).then(function(response) {
+      _fetch_more_members_p = null;
       _members_in_view = _.concat(_members_in_view, response.objects);
       if (response.next_marker) {
         _next_marker = response.next_marker;
@@ -9389,6 +9401,7 @@
       }
       return response.objects;
     });
+    return _fetch_more_members_p;
   };
 })();
 (function() {
@@ -11109,8 +11122,10 @@
       if (im) {
         star = TS.templates.builders.buildStarWithTip("im", im);
       }
-    } else if (TS.model.active_channel_id || TS.model.active_group_id) {
+    } else if (TS.model.active_channel_id) {
       star = TS.templates.builders.buildStarWithTip("channel", _model_ob);
+    } else if (TS.model.active_group_id) {
+      star = TS.templates.builders.buildStarWithTip("group", _model_ob);
     } else if (TS.model.active_mpim_id) {
       star = TS.templates.builders.buildStarWithTip("mpim", _model_ob);
     }
