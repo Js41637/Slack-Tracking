@@ -2266,6 +2266,25 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("permissions.channels", {
+    canMemberJoinChannel: function(channel_model_ob, member_model_ob) {
+      if (!channel_model_ob || !member_model_ob) return false;
+      if (!TS.boot_data.page_needs_enterprise) return true;
+      if (channel_model_ob.is_im || channel_model_ob.is_mpim) return true;
+      if (!channel_model_ob.is_shared && !member_model_ob._is_local) return false;
+      if (channel_model_ob.is_shared && !member_model_ob._is_local) {
+        var allowed_teams = channel_model_ob.shares.map(function(team) {
+          return team.id;
+        });
+        var matches = _.intersection(member_model_ob.enterprise_user.teams, allowed_teams);
+        if (!matches.length) return false;
+      }
+      return true;
+    }
+  });
+})();
+(function() {
+  "use strict";
   TS.registerModule("tips", {
     onStart: function() {
       _$body.delegate(".ts_tip_lazy, .ts_tip_float", "mouseenter", _onMouseEnter);
@@ -33715,7 +33734,7 @@ var _on_esc;
                 TS.cmd_handlers.addTempEphemeralFeedback(member_identifier + " is already in this channel.", cmd + " " + rest);
                 return;
               }
-              if (TS.boot_data.page_needs_enterprise && !TS.enterprise.canMemberJoinChannel(channel, m)) {
+              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(channel, m)) {
                 TS.cmd_handlers.addTempEphemeralFeedback("This channel is not available to " + member_identifier, cmd + " " + rest, "sad_surprise");
                 return;
               }
@@ -33728,7 +33747,7 @@ var _on_esc;
               var users_to_invite = ug.users.filter(function(member_id) {
                 if (TS.boot_data.page_needs_enterprise) {
                   var mbr = TS.members.getMemberById(member_id);
-                  if (!TS.enterprise.canMemberJoinChannel(c, mbr)) return false;
+                  if (!TS.permissions.channels.canMemberJoinChannel(c, mbr)) return false;
                 }
                 return c.members.indexOf(member_id) === -1;
               });
@@ -33745,7 +33764,7 @@ var _on_esc;
                 TS.cmd_handlers.addTempEphemeralFeedback(member_identifier + " is already in this group.", cmd + " " + rest);
                 return;
               }
-              if (TS.boot_data.page_needs_enterprise && !TS.enterprise.canMemberJoinChannel(g, m)) {
+              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(g, m)) {
                 TS.cmd_handlers.addTempEphemeralFeedback("This channel is not available to " + member_identifier, cmd + " " + rest, "sad_surprise");
                 return;
               }
@@ -33755,7 +33774,7 @@ var _on_esc;
               var users_to_invite = ug.users.filter(function(member_id) {
                 if (TS.boot_data.page_needs_enterprise) {
                   var mbr = TS.members.getMemberById(member_id);
-                  if (!TS.enterprise.canMemberJoinChannel(g, mbr)) return false;
+                  if (!TS.permissions.channels.canMemberJoinChannel(g, mbr)) return false;
                 }
                 return g.members.indexOf(member_id) === -1;
               });
@@ -33773,7 +33792,7 @@ var _on_esc;
                 TS.cmd_handlers.addTempEphemeralFeedback(member_identifier + " is already in this channel.", cmd + " " + rest);
                 return;
               }
-              if (TS.boot_data.page_needs_enterprise && !TS.enterprise.canMemberJoinChannel(channel, m)) {
+              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(channel, m)) {
                 TS.cmd_handlers.addTempEphemeralFeedback("This channel is not available to " + member_identifier, cmd + " " + rest, "sad_surprise");
                 return;
               }
@@ -33787,7 +33806,7 @@ var _on_esc;
                 var users_to_invite = ug.users.filter(function(member_id) {
                   if (TS.boot_data.page_needs_enterprise) {
                     var mbr = TS.members.getMemberById(member_id);
-                    if (!TS.enterprise.canMemberJoinChannel(channel, mbr)) return false;
+                    if (!TS.permissions.channels.canMemberJoinChannel(channel, mbr)) return false;
                   }
                   return channel.members.indexOf(member_id) === -1;
                 });
@@ -33815,7 +33834,7 @@ var _on_esc;
                 TS.cmd_handlers.addTempEphemeralFeedback(member_identifier + " is already in this channel.", cmd + " " + rest);
                 return;
               }
-              if (TS.boot_data.page_needs_enterprise && !TS.enterprise.canMemberJoinChannel(group, m)) {
+              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(group, m)) {
                 TS.cmd_handlers.addTempEphemeralFeedback("This channel is not available to " + member_identifier, cmd + " " + rest, "sad_surprise");
                 return;
               }
@@ -33826,7 +33845,7 @@ var _on_esc;
                 var users_to_invite = ug.users.filter(function(member_id) {
                   if (TS.boot_data.page_needs_enterprise) {
                     var mbr = TS.members.getMemberById(member_id);
-                    if (!TS.enterprise.canMemberJoinChannel(c, mbr)) return false;
+                    if (!TS.permissions.channels.canMemberJoinChannel(c, mbr)) return false;
                   }
                   return group.members.indexOf(member_id) === -1;
                 });
@@ -49112,20 +49131,6 @@ $.fn.togglify = function(settings) {
           return exclude_discoverable.indexOf(team.discoverable) < 0;
         }));
       });
-    },
-    canMemberJoinChannel: function(channel_model_ob, member_model_ob) {
-      if (!channel_model_ob || !member_model_ob) return false;
-      if (!TS.boot_data.page_needs_enterprise) return true;
-      if (channel_model_ob.is_im || channel_model_ob.is_mpim) return true;
-      if (!channel_model_ob.is_shared && !member_model_ob._is_local) return false;
-      if (channel_model_ob.is_shared && !member_model_ob._is_local) {
-        var allowed_teams = channel_model_ob.shares.map(function(team) {
-          return team.id;
-        });
-        var matches = _.intersection(member_model_ob.enterprise_user.teams, allowed_teams);
-        if (!matches.length) return false;
-      }
-      return true;
     },
     addTeamsToSharedForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
