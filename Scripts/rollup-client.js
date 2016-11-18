@@ -1500,6 +1500,17 @@
           $btn.data("ladda").stop();
         });
       });
+      if (TS.boot_data.feature_searchable_member_list) {
+        var $div = $("#user_group_filter");
+        var $input = $div.find("input.member_filter");
+        var $icon_close = $div.find(".icon_close");
+        $input.bind("keyup update-user-group-filter", function(e) {
+          _userGroupQuery = $input.val().trim().toLocaleLowerCase();
+          TS.view.rebuildUserGroupList();
+          $icon_close.toggleClass("hidden", !_userGroupQuery.trim());
+        });
+        $icon_close.bind("click", _clearUserGroupFilter);
+      }
     },
     was_at_bottom_at_first_resize_event: false,
     resize_tim: 0,
@@ -2055,7 +2066,14 @@
       if (!user_groups) {
         user_groups = TS.model.user_groups.concat();
       }
-      var query = TS.members.view.getTeamFilter();
+      var query;
+      if (TS.boot_data.feature_searchable_member_list) {
+        $("#user_group_edit [data-action=admin_user_groups_modal]").toggleClass("hidden", !TS.members.canUserEditUserGroups());
+        $("#user_group_edit [data-action=admin_user_groups_modal_new]").toggleClass("hidden", !TS.members.canUserCreateAndDeleteUserGroups());
+        query = _userGroupQuery;
+      } else {
+        query = TS.members.view.getTeamFilter();
+      }
       if (query !== undefined && query !== null && query.length) {
         query = query.toLowerCase();
         user_groups = user_groups.filter(function(ug) {
@@ -2077,7 +2095,7 @@
           items: user_groups,
           approx_item_height: min_item_height,
           preserve_dom_order: true,
-          scrollable: $("#team_list_scroller"),
+          scrollable: TS.boot_data.feature_searchable_member_list ? $("#user_group_list_scroller") : $("#team_list_scroller"),
           makeElement: function() {
             return $('<div style="width:100%">');
           },
@@ -2101,7 +2119,11 @@
         var html = '<div class="no_results top_margin">' + TS.templates.team_list_no_results(template_args) + "</div>";
         $user_groups_wrapper.html(html);
         $user_groups_wrapper.find(".clear_members_filter").on("click", function() {
-          TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
+          if (TS.boot_data.feature_searchable_member_list) {
+            _clearUserGroupFilter();
+          } else {
+            TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
+          }
         });
       } else {
         $user_groups_wrapper.html(TS.templates.user_group_tip({
@@ -3316,6 +3338,7 @@
     TS.view.ms.maybeChangeConnectionDisplay();
   };
   var _loggedInFired;
+  var _userGroupQuery;
   var _saveMsgInputCursorPosition = function(c_id) {
     if (!TS.utility.contenteditable.value(TS.client.ui.$msg_input)) {
       delete TS.model.input_cursor_positions[c_id];
@@ -3325,6 +3348,18 @@
     if (cursor_pos) {
       TS.model.input_cursor_positions[c_id] = cursor_pos;
     }
+  };
+  var _clearUserGroupFilter = function() {
+    var $div = $("#user_group_filter");
+    var $input = $div.find("input.member_filter");
+    var $icon_close = $div.find(".icon_close");
+    _userGroupQuery = undefined;
+    TS.view.rebuildUserGroupList();
+    setTimeout(function() {
+      $input.focus();
+    }, 0);
+    $input.val("");
+    $icon_close.addClass("hidden");
   };
 })();
 (function() {
@@ -7139,6 +7174,14 @@
       }
       return true;
     },
+    showGroupsList: function() {
+      if (!TS.client.ui._displayGroupsList()) return;
+      TS.client.flexDisplaySwitched("groups");
+    },
+    _displayGroupsList: function() {
+      if (!TS.client.ui.flex._displayFlexTab("groups")) return false;
+      return true;
+    },
     previewUserGroup: function(id, origin) {
       if (!TS.client.ui._displayUserGroup(id, origin)) return;
       var user_group = TS.user_groups.getUserGroupsById(id);
@@ -7192,9 +7235,9 @@
           show_user_groups_edit: show_user_groups_edit,
           is_user_group_deleted: is_user_group_deleted
         });
-        var user_group_preview_scroller = $("#user_group_preview_scroller");
-        user_group_preview_scroller.html(html);
-        TS.utility.makeSureAllLinksHaveTargets(user_group_preview_scroller);
+        var $user_group_preview_scroller = $("#user_group_preview_scroller");
+        $user_group_preview_scroller.html(html);
+        TS.utility.makeSureAllLinksHaveTargets($user_group_preview_scroller);
         $("#user_group_menu_toggle").on("click", function(e) {
           TS.menu.startWithUserGroupMenu(e, user_group.id);
         });
@@ -7203,14 +7246,14 @@
         });
         TS.ui.tabs.create($("#user_group_tabs"));
         if (TS.model.last_previewed_user_group_id != TS.model.previewed_user_group_id) {
-          user_group_preview_scroller.scrollTop(0);
+          $user_group_preview_scroller.scrollTop(0);
         }
         TS.model.last_previewed_user_group_id = user_group.id;
         var $member_list = $("#user_group_members");
         $member_list.bind("click.view", TS.view.onMemberListClick);
         $member_list.on("click.toggle_list_item", ".team_list_item", TS.members.view.onTeamDirectoryItemClick);
         TS.utility.makeSureAllLinksHaveTargets($member_list);
-        user_group_preview_scroller.find(".user_group_member_list").monkeyScroll();
+        $user_group_preview_scroller.find(".user_group_member_list").monkeyScroll();
         TS.view.user_groups_members_list_lazyload = $member_list.find(".lazy").lazyload({
           container: $(".user_group_member_list"),
           ignore_when_hidden_element: $("#user_group_members"),
@@ -7928,9 +7971,9 @@
     $("#user_group_preview_container").hideWithRememberedScrollTop();
     $("#team_list_container").hideWithRememberedScrollTop();
     $member_preview.unhideWithRememberedScrollTop();
-    var member_preview_scroller = $("#member_preview_scroller");
-    member_preview_scroller.html(html);
-    TS.utility.makeSureAllLinksHaveTargets(member_preview_scroller);
+    var $member_preview_scroller = $("#member_preview_scroller");
+    $member_preview_scroller.html(html);
+    TS.utility.makeSureAllLinksHaveTargets($member_preview_scroller);
     if (TS.model.last_previewed_member_id != TS.model.previewed_member_id) {
       $("#member_preview_scroller").scrollTop(0);
     }
@@ -7938,11 +7981,11 @@
     var $back_from_member_preview = $("#back_from_member_preview");
     _rebuildBackFromMemberorUserGroupPreview(origin, $back_from_member_preview);
     TS.view.resizeManually("TS.client.ui._displayMember");
-    member_preview_scroller.find(".member_details .member_image").click(function(e) {
+    $member_preview_scroller.find(".member_details .member_image").click(function(e) {
       _toggleCroppedMemberImage(this);
       return false;
     });
-    member_preview_scroller.find(".member_preview_menu_target").click(function(e) {
+    $member_preview_scroller.find(".member_preview_menu_target").click(function(e) {
       TS.menu.member.startWithMemberPreview(e, member.id, false, true);
     });
     if (expanded) _toggleCroppedMemberImage($member_preview.find(".member_image"));
@@ -9922,7 +9965,7 @@
             emoji: ":electric_plug:"
           },
           username: "connectbot",
-          text: "Hmm, you seem to be *offline*, so sending messages won’t work at the moment.",
+          text: "Hmm, your computer seems to be *offline*, so sending messages won’t work at the moment.",
           ephemeral_type: "disconnected_feedback"
         });
       }

@@ -1,5 +1,5 @@
   <div class="admin_list_item active member_item {{#if_equal member.is_inactive compare="1"}}{{#unless member.is_bot}}{{#unless member.is_slackbot}}inactive{{/unless}}{{/unless}}{{/if_equal}}" id="row_{{member.id}}" data-member-id="{{member.id}}" {{#if show_inactive_tip}}data-toggle="tooltip" title="This team member has not been active in Slack recently."{{/if}}>
-    
+
     {{#if exclude_lazy_load}}
       {{{makeMemberPreviewLinkImage member.id 36 false}}}
     {{else}}
@@ -153,12 +153,8 @@
       {{/if}}
     </span>
 
-    {{#unless omit_caret}}
-      {{#unless member.omit_caret}}
-        <i class="admin_member_caret ts_icon ts_icon_caret_right"></i>
-        <i class="admin_member_caret ts_icon ts_icon_caret_down"></i>
-      {{/unless}}
-    {{/unless}}
+    <i class="admin_member_caret ts_icon ts_icon_caret_right"></i>
+    <i class="admin_member_caret ts_icon ts_icon_caret_down"></i>
 
     <div class="member_actions clearfix">
       {{#if actions}}

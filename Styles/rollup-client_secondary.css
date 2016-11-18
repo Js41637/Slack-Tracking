@@ -91,10 +91,18 @@
   color: #2ab27b
 }
 
-.flex_menu #help .ts_icon:before,
-.flex_menu #help.highlighted .ts_icon:before,
 .flex_menu #list_team .ts_icon:before,
 .flex_menu #list_team.highlighted .ts_icon:before {
+  color: #eb4d5c
+}
+
+.flex_menu #list_groups .ts_icon:before,
+.flex_menu #list_groups.highlighted .ts_icon:before {
+  color: #edb431
+}
+
+.flex_menu #help .ts_icon:before,
+.flex_menu #help.highlighted .ts_icon:before {
   color: #eb4d5c
 }
 
@@ -508,7 +516,8 @@ input.search_input {
   max-width: none
 }
 
-#flex_contents .flexpane_tab_toolbar #search #team_filter .member_filter {
+#flex_contents .flexpane_tab_toolbar #search #team_filter .member_filter,
+#flex_contents .flexpane_tab_toolbar #search #user_group_filter .member_filter {
   border: none;
   font-size: 1rem;
   width: 100%
@@ -6225,7 +6234,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   display: block
 }
 
-#team_filter .member_filter {
+#team_filter .member_filter,
+#user_group_filter .member_filter {
   padding-left: 1.9rem;
   padding-right: 1.9rem
 }
@@ -6240,12 +6250,14 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   outline: 0
 }
 
-#client-ui #team_list_container #team_filter {
+#client-ui #team_list_container #team_filter,
+#client-ui #user_groups_container #user_group_filter {
   margin-right: 0;
   margin-top: -1px
 }
 
-#client-ui #team_list_container #team_filter .member_filter {
+#client-ui #team_list_container #team_filter .member_filter,
+#client-ui #user_groups_container #user_group_filter .member_filter {
   border: none;
   box-shadow: none;
   border-left: 1px solid #f0f0f0;
@@ -6268,7 +6280,9 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #team_filter .icon_search,
-#team_filter .ts_icon_spinner {
+#team_filter .ts_icon_spinner,
+#user_group_filter .icon_search,
+#user_group_filter .ts_icon_spinner {
   position: absolute;
   font-size: 1rem;
   top: .3125rem;
@@ -6276,15 +6290,18 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   color: #9e9ea6
 }
 
-#team_filter .ts_icon_spinner {
+#team_filter .ts_icon_spinner,
+#user_group_filter .ts_icon_spinner {
   top: .625rem
 }
 
-#team_filter .icon_search.indifferent_grey+.ts_icon_spinner {
+#team_filter .icon_search.indifferent_grey+.ts_icon_spinner,
+#user_group_filter .icon_search.indifferent_grey+.ts_icon_spinner {
   color: #555459
 }
 
-#team_filter a.icon_close {
+#team_filter a.icon_close,
+#user_group_filter a.icon_close {
   position: absolute;
   right: .5rem;
   top: .375rem;
@@ -6292,7 +6309,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   font-size: 1.25rem
 }
 
-#team_filter a.icon_close:hover {
+#team_filter a.icon_close:hover,
+#user_group_filter a.icon_close:hover {
   color: #3aa3e3;
   text-decoration: none
 }
@@ -19120,8 +19138,7 @@ html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container 
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  margin: 0 .75rem;
-  padding: .25rem 0;
+  margin: -3px .75rem 0;
   color: #9e9ea6;
   font-size: .75rem;
   line-height: 1.1667;

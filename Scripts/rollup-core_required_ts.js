@@ -3403,6 +3403,9 @@
       } else {
         _method = window.callSlackAPIUnauthed;
       }
+      if (TS.boot_data.experiment_assignments) {
+        _recordAssignments(TS.boot_data.experiment_assignments);
+      }
     },
     loadLeadAssignments: function(lead_id) {
       if (lead_id === undefined) {
@@ -3458,17 +3461,20 @@
     return new Promise(function(resolve, reject) {
       _method(api_url, _.extend(TS.utility.url.queryStringParse(location.search.substring(1)), api_args), function(ok, data, args) {
         if (ok && data.assignments) {
-          var assignment;
-          for (assignment in data.assignments) {
-            if (!_.isEqual(_clogged[assignment], data.assignments[assignment])) {
-              _clogged[assignment] = null;
-            }
-            _assignments[assignment] = data.assignments[assignment];
-          }
+          _recordAssignments(data.assignments);
         }
         resolve(ok);
       });
     });
+  };
+  var _recordAssignments = function(assignments) {
+    var assignment;
+    for (assignment in assignments) {
+      if (!_.isEqual(_clogged[assignment], assignments[assignment])) {
+        _clogged[assignment] = null;
+      }
+      _assignments[assignment] = assignments[assignment];
+    }
   };
   var _isCacheExpired = function(last_call) {
     var time_since_last = Date.now() - last_call - _CACHE_TIMEOUT;
