@@ -11,7 +11,9 @@ Create a config.js file in the root directory, requires valid cookies so you are
 module.exports = {
   "teamName": "",
   "updateInterval": 90,
+  "updateClient": true,
   "noPush": false,
+  "dontPullLatest": false,
   "cookies": [
     "a=",
     "a-<a>=",

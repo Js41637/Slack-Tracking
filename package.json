@@ -17,6 +17,8 @@
     "moment": "^2.15.1",
     "request": "^2.75.0",
     "rimraf": "^2.5.4",
+    "striptags": "^2.1.1",
+    "to-markdown": "^3.0.3",
     "unzip": "^0.1.11",
     "walk": "^2.3.9"
   }

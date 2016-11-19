@@ -5,6 +5,8 @@ const beautify = require('js-beautify')
 const fs = require('fs')
 const { exec } = require('child_process')
 const { CLIEngine } = require('eslint')
+var striptags = require('striptags');
+var toMarkdown = require('to-markdown');
 const emojis = require('./emojis')
 const config = require('./config')
 const clientUpdater = require('./clientUpdater')
@@ -17,7 +19,7 @@ if (!config || !config.teamName || !config.updateInterval || !config.cookies) {
 const clientReleasesURL = 'http://slack-ssb-updates.global.ssl.fastly.net/releases_beta_x64/RELEASES'
 const URL = `https://${config.teamName}.slack.com`
 const headers = { Cookie: config.cookies.join(';') }
-const types = { js: 'Scripts', css: 'Styles' }
+const types = { js: 'Scripts', css: 'Styles', md: 'Random' }
 const beautifyOptions = { indent_size: 2, end_with_newline: true }
 const jsRegex = /(analytics|beacon|required_libs)(.js|.php)/
 
@@ -96,11 +98,28 @@ function processTemplates(scripts) {
   })
 }
 
+function getTerms(scripts) {
+  return new Promise((resolve, reject) => {
+    request('http://slack.com/terms-of-service', (err, resp, body) => {
+      if (err || !body) return reject(`Error: ${err || 'No body'}`)
+      let $ = cheerio.load(body)
+      let html = $('#page_contents > div')
+      html.find('style').remove() // striptags pls
+      let terms = toMarkdown(striptags(html.html(), '<p><b><h1><h2><h3><h4>'))
+      scripts.push({ name: 'TOS.md', body: terms, type: 'md'})
+      return resolve(scripts)
+    })
+  })
+}
+
 // Write all scripts to disk, overwriting existing
 function writeToDisk(scripts) {
   console.log("Writing to disk")
   return Promise.all(scripts.map(({ name, body, type }) => {
-    return new Promise(resolve => fs.writeFile(`./${types[type]}/${name}`, beautify[type](body, beautifyOptions), resolve))
+    return new Promise(resolve => {
+      body = (type == 'js' || type == 'css') ? beautify[type](body, beautifyOptions) : body
+      fs.writeFile(`./${types[type]}/${name}`, body, resolve)
+    })
   }))
 }
 
@@ -187,6 +206,7 @@ function startTheMagic() {
     .then(getPageScripts)
     .then(getIndividualScripts)
     .then(processTemplates)
+    .then(getTerms)
     .then(writeToDisk)
     .then(lintCode)
     .then(() => pushToGit())
@@ -200,6 +220,7 @@ function checkDirectories() {
   fs.stat('./Styles', err => err ? fs.mkdir('./Styles') : void 0)
   fs.stat('./Templates', err => err ? fs.mkdir('./Templates') : void 0)
   fs.stat('./ClientExtracted', err => err ? fs.mkdir('./ClientExtracted') : void 0)
+  fs.stat('./Random', err => err ? fs.mkdir('./Random') : void 0)
 }
 
 // Check scripts and client for updates every x mins
