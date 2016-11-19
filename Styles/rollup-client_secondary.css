@@ -17545,6 +17545,10 @@ ts-message:hover .view_conv_hover {
   visibility: visible
 }
 
+ts-message .reply_broadcast_preamble a {
+  color: inherit
+}
+
 ts-message .theme_installer_btn {
   vertical-align: baseline
 }

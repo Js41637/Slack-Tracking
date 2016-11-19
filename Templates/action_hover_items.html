@@ -5,7 +5,7 @@
 {{~/each~}}
 {{~#if show_rxn_action~}}<a data-action="reaction" class="ts_icon ts_icon_small_reaction ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}{{#if handy_rxns.items}} msg_action_btn_small{{/if}}" title="{{#t}}Add reaction &hellip;{{/t}}"></a>{{~/if~}}
 {{~#if show_reply_action~}}
-  <a data-action="reply" class="ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#if msg.reply_count}}{{#t}}Reply in thread &hellip;{{/t}}{{else}}{{#t}}Start a thread &hellip;{{/t}}{{/if}}"></a>
+  <a data-action="reply" class="ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#if msg.reply_count}}{{#t}}View thread{{/t}}{{else}}{{#t}}Start a thread{{/t}}{{/if}}"></a>
 {{~/if~}}
 {{~#if show_comment_action~}}
   <a data-action="comment" {{#isWeb}}href="{{msg.file.permalink}}" target="{{newWindowName}}"{{/isWeb}} class="ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Add comment &hellip;{{/t}}"></a>
