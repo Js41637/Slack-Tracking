@@ -2821,7 +2821,7 @@ ul.member_list li a.nuc {
   left: 17px
 }
 
-.custom_status {
+.channels_list_holder .current_status {
   margin-left: .2rem;
   opacity: .5
 }
@@ -17629,6 +17629,17 @@ ts-message .emoji-sizer .mention {
   font-size: .9375rem;
   border-radius: .25rem;
   padding: .8125rem .625rem
+}
+
+#reply_container .join_channel_from_thread_container {
+  text-align: center;
+  font-size: .8125rem;
+  margin-right: .625rem
+}
+
+#reply_container .join_channel_from_thread_container button {
+  margin-top: .75rem;
+  margin-bottom: .625rem
 }
 
 #convo_loading_indicator {

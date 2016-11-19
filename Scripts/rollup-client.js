@@ -9472,6 +9472,9 @@
           onSend: function() {
             _tryToSubmit({}, $input);
           },
+          onTextChange: function() {
+            _maybeResize();
+          },
           tabcomplete: {
             menuTemplate: TS.templates.tabcomplete_menu,
             completers: [TS.tabcomplete.members],
@@ -9758,6 +9761,10 @@
   var _maybeResize = function() {
     var height = TS.client.msg_input.$input.height();
     if (height !== _last_height) {
+      TS.utility.rAF(function() {
+        TS.client.ui.files.$file_btn.height(height);
+        TS.client.ui.files.$file_btn.height("");
+      });
       TS.client.msg_input.resized(_last_height, height);
       _last_height = height;
     }
@@ -18745,10 +18752,6 @@
         display = true;
       }
       if (setting == "everything") display = true;
-      if (TS.boot_data.feature_message_replies && TS.replies.isAllThreadsViewEnabled() && TS.utility.msgs.isMsgReply(msg)) {
-        var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
-        if (subscription && subscription.subscribed) display = true;
-      }
       if (display && (is_in_active_channel || is_in_active_thread) && TS.model.ui.is_window_focused && !contains_cmd) {
         display = false;
       }
@@ -18762,7 +18765,23 @@
         display = false;
       }
       if (display && is_muted) {
-        display = false;
+        if (TS.boot_data.feature_message_replies_threads_view && TS.utility.msgs.isMsgReply(msg)) {
+          var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
+          if (subscription) {
+            if (!subscription.subscribed) display = false;
+          } else {
+            var args = arguments;
+            TS.replies.promiseToGetSubscriptionState(model_ob.id, msg.thread_ts).then(function() {
+              subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
+              if (subscription && subscription.subscribed) {
+                TS.ui.growls.growlchannelOrGroupMessage.apply(window, args);
+              }
+            });
+            return;
+          }
+        } else {
+          display = false;
+        }
       }
       if (display && TS.members.isMemberInDnd(TS.model.user) && !msg._ignore_dnd) {
         display = false;

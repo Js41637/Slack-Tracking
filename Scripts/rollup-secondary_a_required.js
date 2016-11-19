@@ -45634,6 +45634,11 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       TS.client.ui.threads.submitReply(e, $el);
     });
+    TS.click.addClientHandler("#reply_container .join_channel_from_thread", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies) return;
+      e.preventDefault();
+      TS.ui.replies.joinChannelFromThread(e, $el);
+    });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {
         e.preventDefault();

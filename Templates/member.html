@@ -6,7 +6,16 @@
     {{#if show_starred}}{{makeModelObStarredIconSafe model_ob}}{{/if}}
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
     {{! NOTE: we add user_colored and nuc classes to disallow/allow the color to be applied via the css rule (with :not(.nuc)), and easily toggle that on and off}}
-    <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}} {{#feature flag="feature_user_custom_status"}}{{#if member.profile.current_status}}ts_tip ts_tip_right ts_tip_float ts_tip_multiline" title="{{getMemberCurrentStatus member}}{{/if}}{{/feature}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
+    <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}} {{#feature flag="feature_user_custom_status"}}{{#if member.profile.current_status}}ts_tip ts_tip_right ts_tip_float ts_tip_multiline{{/if}}{{/feature}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
+      {{#feature flag="feature_user_custom_status"}}
+        {{#if member.profile.current_status}}
+          <span class="ts_tip_tip">
+            <span class="ts_tip_multiline_inner">
+              {{getMemberCurrentStatus member}}
+            </span>
+          </span>
+        {{/if}}
+      {{/feature}}
       <span class="{{makeUnreadHighlightDomId member}} unread_highlights {{#if_equal model_ob.unread_cnt compare=0}}hidden{{/if_equal}}{{#if_equal model_ob.unread_cnt compare=undefined}}hidden{{/if_equal}}">{{numberWithMax model_ob.unread_cnt 10}}</span>
       <span class="typing_indicator"></span>
       <span class="overflow_ellipsis">
@@ -19,7 +28,7 @@
           {{#if member.is_self}} ({{#t note="Appears next to user name when user is self, e.g. 'Steve (you)' when I am Steve"}}you{{/t}}){{/if}}
           {{#feature flag="feature_user_custom_status"}}
             {{#if member.profile.current_status}}
-              <span class="custom_status">{{getMemberCurrentStatus member}}</span>
+              <span class="current_status">{{getMemberCurrentStatus member}}</span>
             {{/if}}
           {{/feature}}
         {{/if_equal}}

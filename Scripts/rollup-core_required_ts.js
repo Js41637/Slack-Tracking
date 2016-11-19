@@ -3403,7 +3403,7 @@
       } else {
         _method = window.callSlackAPIUnauthed;
       }
-      if (TS.boot_data.experiment_assignments) {
+      if (TS.boot_data && TS.boot_data.experiment_assignments) {
         _recordAssignments(TS.boot_data.experiment_assignments);
       }
     },
