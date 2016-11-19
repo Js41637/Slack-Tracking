@@ -45499,8 +45499,15 @@ $.fn.togglify = function(settings) {
       }
       TS.client.ui.tryToJump(c_id, first_with_extracts.ts, "", "", load_history);
     });
-    TS.click.addWebHandler(".msg_select_cb", function(e, $el) {
-      TS.msg_edit.batchDeleteSelectionChanged($el, e.shiftKey);
+    TS.click.addWebHandler("#msgs_div.selecting_messages ts-message", function(e, $el) {
+      var $target = $(e.target);
+      if ($target.attr("href") || $target.hasClass("star")) return;
+      var $message = $target.closest("ts-message");
+      var $checkbox = $message.find(".msg_select_cb");
+      if (!$target.is("input")) {
+        $checkbox.prop("checked", !$checkbox.prop("checked"));
+      }
+      TS.msg_edit.batchDeleteSelectionChanged($checkbox, e.shiftKey);
     });
     TS.click.addHandler(TS.rxns.checkForRxnClick);
     TS.click.addHandler(TS.stars.checkForStarClick);
