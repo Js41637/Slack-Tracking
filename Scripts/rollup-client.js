@@ -1500,17 +1500,6 @@
           $btn.data("ladda").stop();
         });
       });
-      if (TS.boot_data.feature_searchable_member_list) {
-        var $div = $("#user_group_filter");
-        var $input = $div.find("input.member_filter");
-        var $icon_close = $div.find(".icon_close");
-        $input.bind("keyup update-user-group-filter", function(e) {
-          _userGroupQuery = $input.val().trim().toLocaleLowerCase();
-          TS.view.rebuildUserGroupList();
-          $icon_close.toggleClass("hidden", !_userGroupQuery.trim());
-        });
-        $icon_close.bind("click", _clearUserGroupFilter);
-      }
     },
     was_at_bottom_at_first_resize_event: false,
     resize_tim: 0,
@@ -2068,9 +2057,7 @@
       }
       var query;
       if (TS.boot_data.feature_searchable_member_list) {
-        $("#user_group_edit [data-action=admin_user_groups_modal]").toggleClass("hidden", !TS.members.canUserEditUserGroups());
-        $("#user_group_edit [data-action=admin_user_groups_modal_new]").toggleClass("hidden", !TS.members.canUserCreateAndDeleteUserGroups());
-        query = _userGroupQuery;
+        query = TS.client.ui.user_groups.getUserGroupQuery();
       } else {
         query = TS.members.view.getTeamFilter();
       }
@@ -2118,13 +2105,11 @@
         };
         var html = '<div class="no_results top_margin">' + TS.templates.team_list_no_results(template_args) + "</div>";
         $user_groups_wrapper.html(html);
-        $user_groups_wrapper.find(".clear_members_filter").on("click", function() {
-          if (TS.boot_data.feature_searchable_member_list) {
-            _clearUserGroupFilter();
-          } else {
+        if (!TS.boot_data.feature_searchable_member_list) {
+          $user_groups_wrapper.find(".clear_members_filter").on("click", function() {
             TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
-          }
-        });
+          });
+        }
       } else {
         $user_groups_wrapper.html(TS.templates.user_group_tip({
           is_flexpane: true
@@ -3338,7 +3323,6 @@
     TS.view.ms.maybeChangeConnectionDisplay();
   };
   var _loggedInFired;
-  var _userGroupQuery;
   var _saveMsgInputCursorPosition = function(c_id) {
     if (!TS.utility.contenteditable.value(TS.client.ui.$msg_input)) {
       delete TS.model.input_cursor_positions[c_id];
@@ -3348,18 +3332,6 @@
     if (cursor_pos) {
       TS.model.input_cursor_positions[c_id] = cursor_pos;
     }
-  };
-  var _clearUserGroupFilter = function() {
-    var $div = $("#user_group_filter");
-    var $input = $div.find("input.member_filter");
-    var $icon_close = $div.find(".icon_close");
-    _userGroupQuery = undefined;
-    TS.view.rebuildUserGroupList();
-    setTimeout(function() {
-      $input.focus();
-    }, 0);
-    $input.val("");
-    $icon_close.addClass("hidden");
   };
 })();
 (function() {
@@ -7990,6 +7962,11 @@
       TS.menu.member.startWithMemberPreview(e, member.id, false, true);
     });
     if (expanded) _toggleCroppedMemberImage($member_preview.find(".member_image"));
+    if (TS.boot_data.feature_user_custom_status) {
+      if (member.is_self) {
+        TS.client.ui.current_status_input.bindEvents();
+      }
+    }
   };
 })();
 (function() {
@@ -8913,7 +8890,11 @@
         TS.view.files.cleanList();
         TS.client.ui.files.cleanFilePreview();
       }
-      if (exclude !== "team") {}
+      if (exclude !== "team") {
+        if (TS.boot_data.feature_user_custom_status) {
+          TS.client.ui.current_status_input.unbindEvents();
+        }
+      }
       if (exclude !== "stars") {
         TS.view.cleanStars();
       }
@@ -9331,7 +9312,7 @@
   var $_long_list_view;
   var _search_input_id = "#team_filter";
   var _long_list_view_id = "#team_list_scroller";
-  var _current_filter = "active_members";
+  var _current_filter = "everyone";
   var _next_marker = "";
   var _members_in_view = [];
   var _have_all_members = false;
@@ -9347,9 +9328,13 @@
       $_container.find(_long_list_view_id).before(TS.templates.team_search_bar({
         show_search: true,
         show_filters: true,
+        everyone_filter_selected: _current_filter == "everyone",
         members_filter_selected: _current_filter == "active_members",
         restricted_filter_selected: _current_filter == "restricted_members",
         deactivated_filter_selected: _current_filter == "disabled_members",
+        everyone_count: 100,
+        members_count: 80,
+        guests_count: 20,
         is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       }));
       var search_full_profiles = true;
@@ -9452,6 +9437,55 @@
     });
     return _fetch_more_members_p;
   };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("client.ui.user_groups", {
+    onStart: function() {
+      if (TS.boot_data.feature_searchable_member_list) {
+        TS.client.login_sig.addOnce(_renderUserGroupContainer);
+      }
+    },
+    clearUserGroupFilter: function() {
+      var $div = $_container.find("#user_group_filter");
+      var $input = $div.find("input.member_filter");
+      var $icon_close = $div.find(".icon_close");
+      _user_group_query = undefined;
+      TS.view.rebuildUserGroupList();
+      setTimeout(function() {
+        $input.focus();
+      }, 0);
+      $input.val("");
+      $icon_close.addClass("hidden");
+    },
+    getUserGroupQuery: function() {
+      return _user_group_query;
+    }
+  });
+  var _renderUserGroupContainer = function() {
+    $_container = $("#user_groups_container");
+    $_container.html(TS.templates.user_groups_flexpane_tab({
+      can_user_edit_user_groups: TS.members.canUserEditUserGroups(),
+      can_user_create_and_delete_user_groups: TS.members.canUserCreateAndDeleteUserGroups()
+    }));
+    _addEventListeners();
+  };
+  var _addEventListeners = function() {
+    var $div = $_container.find("#user_group_filter");
+    var $input = $div.find("input.member_filter");
+    var $icon_close = $div.find(".icon_close");
+    $input.bind("keyup update-user-group-filter", function(e) {
+      _user_group_query = $input.val().trim().toLocaleLowerCase();
+      TS.view.rebuildUserGroupList();
+      $icon_close.toggleClass("hidden", !_user_group_query.trim());
+    });
+    $_container.delegate("#user_groups_list .clear_members_filter", "click", function() {
+      TS.client.ui.user_groups.clearUserGroupFilter();
+    });
+    $icon_close.bind("click", TS.client.ui.user_groups.clearUserGroupFilter);
+  };
+  var _user_group_query;
+  var $_container;
 })();
 (function() {
   "use strict";
@@ -33540,6 +33574,10 @@ function timezones_guess() {
       return !!_should_record_metrics;
     },
     debug: function(text, data) {
+      _debug_data.push({
+        msg: text,
+        data: data
+      });
       if (!TS.boot_data.feature_tinyspeck) return;
       TS.info("[ALL_UNREADS] " + text, data);
     },
@@ -33733,9 +33771,9 @@ function timezones_guess() {
     promiseToGetMoreMessages: function() {
       TS.client.unread.debug("promiseToGetMoreMessages");
       if (!_direct_from_boot && !_current_model_ob_id && !TS.client.unread.getAllCurrentlyUnreadGroups().length) {
-        _channelConsistencyCheck();
         TS.client.unread.debug("DONE FETCHING: First fetch, not from boot, nothing in global model is unread, marking all msgs as fetched");
         _all_messages_fetched = true;
+        _channelConsistencyCheck();
       }
       if (_all_messages_fetched) {
         TS.client.unread.debug("NO FETCHING: All messages are fetched");
@@ -34069,6 +34107,7 @@ function timezones_guess() {
   var _direct_from_boot;
   var _coachmark_has_been_displayed = false;
   var _sort_order;
+  var _debug_data = [];
   var _channelConsistencyCheck = function() {
     if (_direct_from_boot) return;
     var unread_models = TS.client.unread.getAllCurrentlyUnreadGroups();
@@ -34078,12 +34117,15 @@ function timezones_guess() {
         mismatched_models.push(model_ob);
       }
     });
-    TS.client.unread.debug("Consistency check: Global model unread model count: ", unread_models.length);
-    TS.client.unread.debug("Consistency check: Mismatched model count: ", mismatched_models.length);
     if (mismatched_models.length > 0) {
       TS.metrics.count("unread_view_consistency_fail");
       TS.metrics.count("unread_view_consistency_fail_" + TS.client.unread.getSortOrder());
       TS.metrics.count("unread_view_consistency_fail_count", mismatched_models.length);
+      TS.client.unread.debug("Consistency check: Unread models", _.map(unread_models, "id"));
+      TS.client.unread.debug("Consistency check: Mismatched models: ", _.map(mismatched_models, "id"));
+      if (mismatched_models.length > 2) {
+        TS.logError(_debug_data, "all_unreads_consistency_debug");
+      }
     }
   };
   var _processResp = function(data, skip_channels, first_fetch) {
@@ -34120,15 +34162,15 @@ function timezones_guess() {
     if (data.channels.length === 0 || !data.channels[0].has_more && data.total_messages_count === 0) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
-      _channelConsistencyCheck();
       TS.client.unread.debug("DONE FETCHING: API response had no messages", data.channels.length);
+      _channelConsistencyCheck();
       return processed_data;
     }
     if (data.channels.length === 1 && data.channels[0].messages.length === 0 && data.channels[0].collapsed && TS.client.unread.getGroup(data.channels[0].channel_id) && TS.client.unread.getGroup(data.channels[0].channel_id).collapsed && TS.client.unread.getGroup(data.channels[0].channel_id).msgs.length === 0) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
-      _channelConsistencyCheck();
       TS.client.unread.debug("DONE FETCHING: Received only one collapsed group with zero messages");
+      _channelConsistencyCheck();
       return processed_data;
     }
     var last_has_more = true;
@@ -34193,8 +34235,6 @@ function timezones_guess() {
     if (!last_has_more) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
-      _channelConsistencyCheck();
-      TS.client.unread.debug("DONE FETCHING: Last group has no more messages");
     }
     if (first_fetch && _groups.length && !TS.client.unread.getActiveGroup()) {
       _groups[0].active = true;
@@ -34220,6 +34260,10 @@ function timezones_guess() {
         };
       })
     });
+    if (!last_has_more) {
+      TS.client.unread.debug("DONE FETCHING: Last group has no more messages");
+      _channelConsistencyCheck();
+    }
     return processed_data;
   };
   var _sortAndDedupe = function(group, collection_key) {
@@ -34390,6 +34434,7 @@ function timezones_guess() {
       clearTimeout(_slow_loading_timeout);
       _slow_loading_timeout = null;
     }
+    _debug_data = [];
   };
   var _addUnreadSignals = function() {
     TS.channels.unread_changed_sig.add(_handleAllUnreadSignals);

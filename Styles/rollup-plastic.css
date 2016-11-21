@@ -11936,6 +11936,15 @@ only screen and (min-resolution:2dppx) {
   opacity: 1
 }
 
+#member_preview_scroller #member_current_status_input,
+#member_preview_web_container #member_current_status_input,
+#team_list #member_current_status_input,
+.menu_member_header #member_current_status_input {
+  text-align: left;
+  width: 100%;
+  margin-bottom: 2rem
+}
+
 #member_preview_scroller .member_data_table,
 #member_preview_web_container .member_data_table,
 #team_list .member_data_table,

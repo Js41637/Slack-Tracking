@@ -196,10 +196,6 @@
     lazyLoadMembersAndBots: function() {
       return !!TS.boot_data.should_use_flannel;
     },
-    lazyLoadMembers: function() {
-      TS.warn("lazyLoadMembers is deprecated! Please use lazyLoadMembersAndBots instead.");
-      return TS.lazyLoadMembersAndBots();
-    },
     registerModule: function(name, ob, delayed) {
       _extractAndDeleteTestProps(ob);
       if (_dom_is_ready) return TS.error('module "' + name + '" must be registered on before dom ready');

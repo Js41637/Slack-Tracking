@@ -689,12 +689,11 @@ input.search_input {
   pointer-events: none
 }
 
-.searchable_member_list_filter_menu ul li a {
-  font-weight: 700
+.searchable_member_list_filter_menu {
+  width: 352px
 }
 
 .searchable_member_list_filter_menu ul li a span {
-  font-weight: 400;
   color: #babbbf
 }
 
@@ -5577,6 +5576,15 @@ only screen and (min-resolution:2dppx) {
 
 #client-ui #team_list .show_extra_data .expanded_member_details {
   opacity: 1
+}
+
+#member_preview_scroller #member_current_status_input,
+#member_preview_web_container #member_current_status_input,
+#team_list #member_current_status_input,
+.menu_member_header #member_current_status_input {
+  text-align: left;
+  width: 100%;
+  margin-bottom: 2rem
 }
 
 #member_preview_scroller .member_data_table,

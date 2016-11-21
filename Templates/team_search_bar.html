@@ -14,11 +14,14 @@
     {{#if show_filters}}
       <div class="searchable_member_list_filter">
         <input type="text" value="
+{{#if everyone_filter_selected}}
+{{#t note='A filter option for a list of members' count=everyone_count}}Everyone ({count}){{/t}}
+{{/if}}
 {{#if members_filter_selected}}
-{{#t note='A filter option for a list of members'}}Members{{/t}}
+{{#t note='A filter option for a list of members' count=members_count}}Members ({count}){{/t}}
 {{/if}}
 {{#if restricted_filter_selected}}
-{{#t note='A filter option for a list of members'}}Guest accounts{{/t}}
+{{#t note='A filter option for a list of members' count=guests_count}}Guest accounts ({count}){{/t}}
 {{/if}}
 {{#if deactivated_filter_selected}}
 {{#t note='A filter option for a list of members'}}Deactivated accounts{{/t}}

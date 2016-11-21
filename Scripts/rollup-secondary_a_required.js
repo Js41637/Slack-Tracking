@@ -31195,7 +31195,11 @@ TS.registerModule("constants", {
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
-      var template_args = {};
+      var template_args = {
+        everyone_count: 100,
+        members_count: 80,
+        guests_count: 20
+      };
       TS.menu.$menu.addClass("searchable_member_list_filter_menu");
       TS.menu.$menu_items.html(TS.templates.searchable_member_list_filter_items(template_args));
       TS.menu.$menu_items.on("click.menu", "li", function(e) {
@@ -50585,9 +50589,17 @@ $.fn.togglify = function(settings) {
           platform_calls_window.focus();
         } catch (e) {
           if (!is_ssb) {
-            var browser = bowser.name || "your browser";
+            var browser = bowser.name;
+            var popup_ephemeral_msg_text;
+            if (browser) {
+              popup_ephemeral_msg_text = TS.i18n.t("Please allow pop-ups in {browser} to make a call. You can <http://my.slack.com/help/requests/new|contact Slack> if you need help.", "utility")({
+                browser: browser
+              });
+            } else {
+              popup_ephemeral_msg_text = TS.i18n.t("Please allow pop-ups in your browser to make a call. You can <http://my.slack.com/help/requests/new|contact Slack> if you need help.", "utility")();
+            }
             var popup_ephemeral_msg = {
-              text: "Please allow pop-ups in " + browser + " to make a call. You can <http://my.slack.com/help/requests/new|contact Slack> if you need help.",
+              text: popup_ephemeral_msg_text,
               ephemeral_type: "enable_popups",
               slackbot_feels: "sad_surprise"
             };
@@ -50800,33 +50812,33 @@ $.fn.togglify = function(settings) {
     getPlatformErrorMessage: function() {
       if (TS.model.is_our_app) {
         if (TS.model.lin_ssb_version) {
-          return "Unfortunately, the calls feature is not available on Linux.";
+          return TS.i18n.t("Unfortunately, the calls feature is not available on Linux.", "utility")();
         } else if (window.winssb) {
-          return "To use the calls feature, please upgrade to the latest version of Slack for Windows.";
+          return TS.i18n.t("To use the calls feature, please upgrade to the latest version of Slack for Windows.", "utility")();
         } else {
-          return "To use the calls feature, please upgrade to the latest version of the Mac app for Slack.";
+          return TS.i18n.t("To use the calls feature, please upgrade to the latest version of the Mac app for Slack.", "utility")();
         }
       } else if (bowser.mobile && bowser.ios) {
-        return "Please update your Slack iOS app to the newest version.";
+        return TS.i18n.t("Please update your Slack iOS app to the newest version.", "utility")();
       } else if (bowser.mobile) {
-        return "Unfortunately, the calls feature is not available on mobile browsers.";
+        return TS.i18n.t("Unfortunately, the calls feature is not available on mobile browsers.", "utility")();
       } else {
-        return "Unfortunately, the calls feature is not available in this browser. Please switch to Chrome.";
+        return TS.i18n.t("Unfortunately, the calls feature is not available in this browser. Please switch to Chrome.", "utility")();
       }
     },
     getPlatformErrorTitle: function() {
       if (TS.model.is_our_app) {
         if (TS.model.lin_ssb_version) {
-          return "Calls feature is not available on Linux";
+          return TS.i18n.t("Calls feature is not available on Linux", "utility")();
         } else if (window.winssb) {
-          return "Please update your Slack for Windows";
+          return TS.i18n.t("Please update your Slack for Windows", "utility")();
         } else {
-          return "Please update your Slack for Mac";
+          return TS.i18n.t("Please update your Slack for Mac", "utility")();
         }
       } else if (bowser.mobile) {
-        return "Calls feature is not available on mobile browsers";
+        return TS.i18n.t("Calls feature is not available on mobile browsers", "utility")();
       } else {
-        return "Calls feature is not available in this browser";
+        return TS.i18n.t("Calls feature is not available in this browser", "utility")();
       }
     },
     platformHasCallsCode: function() {
@@ -50920,7 +50932,7 @@ $.fn.togglify = function(settings) {
   var _utility_call_state = {};
   var _handleCallsRequestError = function(res) {
     var ephemeral_msg = {
-      text: res.data.response || "Darn, that didn't work. Try your call again or <http://my.slack.com/help.requests/new|contact us> if it's still not working.",
+      text: res.data.response || TS.i18n.t("Darn, that didn’t work. Try your call again or <http://my.slack.com/help.requests/new|contact us> if it’s still not working.", "utility")(),
       ephemeral_type: res.data.error || "uncaught_third_party_call_error",
       slackbot_feels: "sad_surprise"
     };
@@ -51108,7 +51120,7 @@ $.fn.togglify = function(settings) {
       title: TS.utility.calls.getPlatformErrorTitle(),
       body: TS.utility.calls.getPlatformErrorMessage(),
       show_cancel_button: true,
-      go_button_text: "Update Slack App",
+      go_button_text: TS.i18n.t("Update Slack App", "utility")(),
       onGo: function() {
         var target = "_" + Math.random();
         TS.utility.openInNewTab("https://slack.com/downloads", target);
@@ -51497,10 +51509,18 @@ $.fn.togglify = function(settings) {
     });
   };
   var _showModalForAlreadyInCall = function(team_name) {
+    var dialog_title;
+    if (team_name) {
+      dialog_title = TS.i18n.t("You’re already in a call on another team ({team_name})", "utility")({
+        team_name: team_name
+      });
+    } else {
+      dialog_title = TS.i18n.t("You’re already in a call on another team", "utility")();
+    }
     TS.generic_dialog.start({
-      title: "You're already in a call on another team" + (team_name ? " (" + team_name + ")" : ""),
-      body: '<p class="no_bottom_margin">You can only be in one call at a time. Please end that call and try again.',
-      go_button_text: "OK",
+      title: dialog_title,
+      body: '<p class="no_bottom_margin">' + TS.i18n.t("You can only be in one call at a time. Please end that call and try again.", "utility")() + "</p>",
+      go_button_text: TS.i18n.t("OK", "utility")(),
       show_cancel_button: false
     });
   };
