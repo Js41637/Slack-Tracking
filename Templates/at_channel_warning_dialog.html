@@ -1,11 +1,7 @@
   <div class="modal-body">
     <p>
-      By using <span class="mention_yellow_bg">@{{keyword}}</span>, you are about to notify 
-      {{#if no_member_list}}
-        <strong>{{pluralCount member_count "person" "people"}}</strong>
-      {{else}}
-        <a href="#" class="channel_members_toggle">{{pluralCount member_count "person" "people"}}</a>
-      {{/if}}
+      By using <span class="mention_yellow_bg">@{{keyword}}</span>, you are about to notify
+      <strong>{{pluralCount member_count "person" "people"}}</strong>
       {{#if_equal timezone_count compare=1}}{{else}} in <strong>{{timezone_count}} timezones{{/if_equal}}</strong>. Are you sure?
     </p>
     <div>

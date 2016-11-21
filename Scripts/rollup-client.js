@@ -8387,7 +8387,7 @@
           return TS.ui.needToShowAtChannelWarning(channel_id, comment_unclean);
         });
         if (channels_and_groups_included_in_dialog.length > 0) {
-          TS.ui.at_channel_warning_dialog.startInFlexPane(channels_and_groups_included_in_dialog, comment_unclean);
+          TS.ui.at_channel_warning_dialog.startInFlexPane(file, channels_and_groups_included_in_dialog, comment_unclean);
           return;
         }
       }
@@ -24974,7 +24974,7 @@
           break;
       }
     },
-    start: function($el, text, members, timezone_count, callback, fullsize) {
+    start: function($el, text, member_count, timezone_count, callback, fullsize) {
       if (!TS.ui.at_channel_warning_dialog.$div) TS.ui.at_channel_warning_dialog.build();
       if (TS.ui.at_channel_warning_dialog.showing) return;
       var $div = TS.ui.at_channel_warning_dialog.$div;
@@ -24989,15 +24989,14 @@
       } else if (TS.model.group_regex.test(clean_text)) {
         keyword = "group";
       }
-      if (members.length < AT_CHANNEL_WARNING_MINIMUM_MEMBER_COUNT) {
+      if (member_count < AT_CHANNEL_WARNING_MINIMUM_MEMBER_COUNT) {
         TS.ui.at_channel_warning_dialog.go();
         return;
       }
       var html = TS.templates.at_channel_warning_dialog({
         keyword: keyword,
-        member_count: members.length,
-        timezone_count: timezone_count,
-        no_member_list: TS.lazyLoadMembersAndBots()
+        member_count: member_count,
+        timezone_count: timezone_count
       });
       $div.html(html);
       fullsize ? $div.addClass("fullsize") : $div.removeClass("fullsize");
@@ -25005,20 +25004,6 @@
       TS.ui.a11y.saveCurrentFocusAndFocusOnElement($div);
       $div.find(".dialog_cancel").click(TS.ui.at_channel_warning_dialog.cancel);
       $div.find(".dialog_go").click(TS.ui.at_channel_warning_dialog.go);
-      $div.find(".channel_members_toggle").click(TS.ui.at_channel_warning_dialog.showChannelMemberList);
-      $div.find(".channel_members_count_underlay").click(TS.ui.at_channel_warning_dialog.hideChannelMemberList);
-      var channel_member_list_html = TS.templates.channel_members_list({
-        channel: {
-          id: "at_warning_dialog_" + Date.now()
-        },
-        members: members,
-        current_user_id: TS.model.user.id,
-        color_names: TS.model.prefs.color_names_in_list
-      });
-      _$channel_member_list = $div.find(".channel_members");
-      _$channel_member_scroller = _$channel_member_list.find(".channel_members_scroller");
-      _$channel_member_scroller.html(channel_member_list_html);
-      _$channel_member_scroller.monkeyScroll();
       $(window).bind("resize", TS.ui.at_channel_warning_dialog.position);
       TS.ui.at_channel_warning_dialog.position();
       TS.prefs.setPrefByAPI({
@@ -25027,24 +25012,22 @@
       });
     },
     startInMessagePane: function(c_id, text, controller) {
+      var eligible_members;
+      var timezone_count;
       var model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob || model_ob.is_im) return;
-      var eligible_members = _(model_ob.members).map(TS.members.getMemberById).compact().sortBy(TS.members.memberSorterByName).value().filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf);
-      var timezone_p = new Promise(function(resolve, reject) {
+      var c_info_p = new Promise(function(resolve, reject) {
         if (TS.lazyLoadMembersAndBots()) {
-          TS.api.call(model_ob.is_group ? "groups.info" : "channels.info", {
-            channel: c_id,
-            timezone_count: true
-          }).then(function(response) {
-            resolve(model_ob.is_group ? response.data.group.timezone_count : response.data.channel.timezone_count);
-          });
+          _promiseToGetTimezoneCountAndMemberCountForObject(model_ob).then(resolve);
         } else {
-          resolve(_(eligible_members).map("tz_offset").uniq().value().length);
+          eligible_members = _(model_ob.members).map(TS.members.getMemberById).compact().sortBy(TS.members.memberSorterByName).value().filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf);
+          timezone_count = _(eligible_members).map("tz_offset").uniq().value().length;
+          resolve({
+            member_count: eligible_members.length,
+            timezone_count: timezone_count
+          });
         }
       });
-      if (TS.lazyLoadMembersAndBots()) {
-        eligible_members = Array(TS.flannel.getMemberCountForModelOb(model_ob) - 1);
-      }
       var callback = function() {
         TS.view.clearMessageInput();
         TS.shared.sendMsg(c_id, text, controller);
@@ -25052,44 +25035,45 @@
       var $el = TS.client.ui.$msg_input;
       var fullsize = true;
       TS.client.msg_input.populate(text);
-      timezone_p.then(function(timezone_count) {
-        TS.ui.at_channel_warning_dialog.start($el, text, eligible_members, timezone_count, callback, fullsize);
+      c_info_p.then(function(result) {
+        TS.ui.at_channel_warning_dialog.start($el, text, result.member_count, result.timezone_count, callback, fullsize);
         return null;
       });
     },
-    startInFlexPane: function(channel_ids, text, did_fetch_all_members) {
+    startInFlexPane: function(file, channel_ids, text) {
+      if (!file) {
+        TS.error("no file to warn about!");
+        return;
+      }
       var callback = function() {
         var bypass_at_warning_check = true;
         TS.client.ui.files.submitFileComment(bypass_at_warning_check);
       };
       var $el = $("#file_comment_form #file_comment");
       var fullsize = false;
-      var model_obs = _(channel_ids).map(TS.shared.getModelObById).compact().reject({
-        is_im: true
-      }).value();
-      var member_ids = _(model_obs).map("members").flatten().uniq().value();
-      var members = _(member_ids).map(TS.members.getMemberById).compact().sortBy(TS.members.memberSorterByName).value();
-      var eligible_members = members.filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf);
-      if (TS.lazyLoadMembersAndBots() && !did_fetch_all_members && members.length !== member_ids.length) {
-        if (member_ids.length < AT_CHANNEL_WARNING_MINIMUM_MEMBER_COUNT) {} else {
-          model_obs.forEach(function(model_ob) {
-            model_ob._checking_at_channel_status = true;
+      var eligible_members;
+      var timezone_count;
+      var f_info_p = new Promise(function(resolve, reject) {
+        if (TS.lazyLoadMembersAndBots()) {
+          _promiseToGetTimezoneCountAndMemberCountForObject(file).then(resolve);
+        } else {
+          var model_obs = _(channel_ids).map(TS.shared.getModelObById).compact().reject({
+            is_im: true
+          }).value();
+          var member_ids = _(model_obs).map("members").flatten().uniq().value();
+          var members = _(member_ids).map(TS.members.getMemberById).compact().sortBy(TS.members.memberSorterByName).value();
+          eligible_members = members.filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf);
+          timezone_count = _(eligible_members).map("tz_offset").uniq().value().length;
+          resolve({
+            member_count: eligible_members.length,
+            timezone_count: timezone_count
           });
-          TS.view.checkIfInputShouldBeDisabledAndPopulate();
-          TS.members.ensureMembersArePresent(member_ids, channel_ids, [TS.model.team.id]).catch(_.noop).finally(function() {
-            model_obs.forEach(function(model_ob) {
-              delete model_ob._checking_at_channel_status;
-            });
-            TS.view.checkIfInputShouldBeDisabledAndPopulate();
-            var fetched_all_members = true;
-            TS.ui.at_channel_warning_dialog.startInFlexPane(channel_ids, text, fetched_all_members);
-            return null;
-          });
-          return;
         }
-      }
-      var timezones = _(eligible_members).map("tz_offset").uniq().value();
-      TS.ui.at_channel_warning_dialog.start($el, text, eligible_members, timezones.length, callback, fullsize);
+      });
+      f_info_p.then(function(result) {
+        TS.ui.at_channel_warning_dialog.start($el, text, result.member_count, result.timezone_count, callback, fullsize);
+        return null;
+      });
     },
     position: function() {
       var $div = TS.ui.at_channel_warning_dialog.$div;
@@ -25098,31 +25082,6 @@
         top: offset.top - $div.height() - 8,
         left: offset.left
       });
-    },
-    showChannelMemberList: function(e) {
-      if (e) e.preventDefault();
-      var $div = TS.ui.at_channel_warning_dialog.$div;
-      var div_offset = $div.offset();
-      var link_offset = $div.find(".channel_members_toggle").offset();
-      _$channel_member_list.removeClass("hidden");
-      _$channel_member_list.css({
-        top: link_offset.top - div_offset.top - _$channel_member_list.outerHeight() - 2,
-        left: link_offset.left - div_offset.left - 13
-      });
-      TS.ui.utility.updateClosestMonkeyScroller(_$channel_member_scroller);
-      _$channel_member_scroller.bind("click.view", TS.ui.at_channel_warning_dialog.onMemberClick);
-    },
-    hideChannelMemberList: function(e) {
-      if (e) e.preventDefault();
-      _$channel_member_list.addClass("hidden");
-      _$channel_member_scroller.unbind("click.view", TS.ui.at_channel_warning_dialog.onMemberClick);
-    },
-    onMemberClick: function(e) {
-      e.preventDefault();
-      var member_id = $(e.target).closest("li").data("member-id");
-      if (!member_id) return;
-      TS.ui.at_channel_warning_dialog.cancel();
-      TS.client.ui.previewMember(member_id);
     },
     go: function() {
       TS.ui.at_channel_warning_dialog.$div.modal("hide");
@@ -25158,9 +25117,47 @@
   });
   var _callback = function() {};
   var _$el;
-  var _$channel_member_list;
-  var _$channel_member_scroller;
   var AT_CHANNEL_WARNING_MINIMUM_MEMBER_COUNT = 5;
+  var _promiseToGetTimezoneCountAndMemberCountForObject = function(model_ob) {
+    var is_file = false;
+    var api_endpoint;
+    var api_args = {
+      timezone_count: true,
+      display_counts: true
+    };
+    if (model_ob.is_group) {
+      api_endpoint = "groups.info";
+      api_args.channel = model_ob.id;
+    } else if (model_ob.is_channel) {
+      api_endpoint = "channels.info";
+      api_args.channel = model_ob.id;
+    } else {
+      is_file = true;
+      api_endpoint = "files.info";
+      api_args.file = model_ob.id;
+    }
+    return TS.api.call(api_endpoint, api_args).then(function(response) {
+      var member_count;
+      var timezone_count;
+      if (is_file) {
+        member_count = _.get(response, "data.display_counts.display_counts") || 1;
+        timezone_count = response.data.timezone_count;
+      } else {
+        member_count = (model_ob.is_group ? _.get(response, "data.group.display_counts.display_counts") : _.get(response, "data.channel.display_counts.display_counts")) || 1;
+        timezone_count = model_ob.is_group ? response.data.group.timezone_count : response.data.channel.timezone_count;
+      }
+      member_count--;
+      return {
+        member_count: member_count,
+        timezone_count: timezone_count
+      };
+    }).catch(function(err) {
+      return {
+        member_count: 0,
+        timezone_count: 1
+      };
+    });
+  };
 })();
 (function() {
   "use strict";
