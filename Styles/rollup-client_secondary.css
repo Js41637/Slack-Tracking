@@ -17300,8 +17300,7 @@ ts-message .action_hover_container.narrow_buttons a {
 
 ts-message.selected {
   padding-top: .625rem!important;
-  padding-bottom: .625rem!important;
-  z-index: 1
+  padding-bottom: .625rem!important
 }
 
 ts-message.selected:not(.delete_mode) {
@@ -17408,6 +17407,27 @@ ts-message .pinned_item_message_header .ts_icon_thumb_tack {
 
 ts-message .pinned_item_message_header .ts_icon_thumb_tack:before {
   font-size: 1.0625rem
+}
+
+ts-message .is_recap {
+  width: 52px;
+  height: 16px;
+  font-size: .8125rem;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  text-align: left;
+  color: #717274;
+  background: #c8fad9;
+  border-radius: .1875rem;
+  padding: 0 5px
+}
+
+ts-message .is_recap.marker {
+  position: absolute;
+  top: 6px;
+  right: 0;
+  z-index: 9999999999;
+  width: 8px;
+  padding: 0
 }
 
 ts-message .comment {
@@ -17592,6 +17612,10 @@ ts-message .emoji-sizer .mention {
 .feature_name_tagging_client .mention {
   padding: 0 0 2px;
   border-radius: 3px
+}
+
+ts-message.selected {
+  z-index: 1
 }
 
 #convo_tab .message_input,

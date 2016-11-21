@@ -44,6 +44,9 @@
              {{#feature flag="feature_pin_update"}}
                {{#if is_pinned}}is_pinned{{/if}}
              {{/feature}}
+      {{#feature flag="feature_sli_recaps"}}
+        {{#if is_recap}}is_recap{{/if}}
+      {{/feature}}
              {{#if app_id}}is_app{{/if}}
          "
          {{#feature flag="feature_message_replies"}}data-selectable="{{selectable}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}" data-parent-user-id="{{msg.parent_user_id}}"{{/if}}{{/feature}}
@@ -98,7 +101,9 @@
         {{#if is_tombstone}}
           <div class="deleted_message">This message was deleted</div>
         {{else}}
+          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="is_recap">Highlight</span>{{/if}}{{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="is_recap marker"></span>{{/if}}{{/feature}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
         {{/if}}
       </div>
