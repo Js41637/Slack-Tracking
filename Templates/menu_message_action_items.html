@@ -6,7 +6,7 @@
   {{#feature flag="feature_message_replies"}}
     {{#if is_in_thread}}
       {{#if actions.jump_to_original}}
-        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Jump to original{{/t}}</a></li>
+        <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Open in channel{{/t}}</a></li>
       {{/if}}
     {{/if}}
   {{/feature}}

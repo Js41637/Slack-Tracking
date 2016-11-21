@@ -12,11 +12,19 @@
       </div>
     {{/if}}
     {{#if show_filters}}
-      <ul class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border three_tabs">
-        <li id="active_members_tab" class="tab bold active" href="#active_members" data-name="active_members"><a href="#active_members" data-name="active_members" data-action="search">Members <span id="active_members_count" class="normal"></span></a></li>
-        <li id="restricted_members_tab" class="tab bold" href="#restricted_members" data-name="restricted_members"><a href="#restricted_members" data-name="restricted_members" data-action="search">Guests <span id="restricted_members_count" class="normal"></span></a></li>
-        <li id="disabled_members_tab" class="tab bold" href="#disabled_members" data-name="disabled_members"><a href="#disabled_members" data-name="disabled_members" data-action="search">Disabled <span id="disabled_members_count" class="normal"></span></a></li>
-      </ul>
+      <div class="searchable_member_list_filter">
+        <input type="text" value="
+{{#if members_filter_selected}}
+{{#t note='A filter option for a list of members'}}Members{{/t}}
+{{/if}}
+{{#if restricted_filter_selected}}
+{{#t note='A filter option for a list of members'}}Guest accounts{{/t}}
+{{/if}}
+{{#if deactivated_filter_selected}}
+{{#t note='A filter option for a list of members'}}Deactivated accounts{{/t}}
+{{/if}}
+        " class="small" disabled>
+      </div>
     {{/if}}
   </div>
 </div>

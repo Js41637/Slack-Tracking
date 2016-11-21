@@ -661,6 +661,43 @@ input.search_input {
   padding-right: 8px
 }
 
+.searchable_member_list_filter {
+  margin: .8rem 1rem;
+  position: relative
+}
+
+.searchable_member_list_filter input {
+  margin: 0
+}
+
+.searchable_member_list_filter input:hover {
+  cursor: pointer
+}
+
+.searchable_member_list_filter input:disabled {
+  color: #555459;
+  background: #fff
+}
+
+.searchable_member_list_filter:after {
+  right: .875rem;
+  bottom: .8rem;
+  font-size: 1.25rem;
+  content: "\E271";
+  font-family: Slack;
+  position: absolute;
+  pointer-events: none
+}
+
+.searchable_member_list_filter_menu ul li a {
+  font-weight: 700
+}
+
+.searchable_member_list_filter_menu ul li a span {
+  font-weight: 400;
+  color: #babbbf
+}
+
 #flannel_team_dir_loading {
   display: inline-block;
   vertical-align: top;
@@ -17660,14 +17697,7 @@ ts-message.selected {
 }
 
 #reply_container .join_channel_from_thread_container {
-  text-align: center;
-  font-size: .8125rem;
   margin-right: .625rem
-}
-
-#reply_container .join_channel_from_thread_container button {
-  margin-top: .75rem;
-  margin-bottom: .625rem
 }
 
 #convo_loading_indicator {
@@ -18756,6 +18786,14 @@ ts-thread .reply_input_container .reply_broadcast_buttons_container {
   margin-left: 0
 }
 
+ts-thread .reply_input_container .join_channel_from_thread_container {
+  margin-right: 4.5rem
+}
+
+.dense_theme ts-thread .reply_input_container .join_channel_from_thread_container {
+  margin-right: 5.0625rem
+}
+
 #reply_container.has_focus .member_image,
 .reply_input_container.has_focus .member_image {
   opacity: 1
@@ -18809,6 +18847,25 @@ html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container 
   float: right;
   margin-right: .5rem;
   top: 6px
+}
+
+#reply_container .join_channel_from_thread_container,
+.reply_input_container .join_channel_from_thread_container {
+  text-align: center;
+  font-size: .8125rem;
+  width: 100%
+}
+
+#reply_container .join_channel_from_thread_container span,
+.reply_input_container .join_channel_from_thread_container span {
+  margin-right: .625rem
+}
+
+#reply_container .join_channel_from_thread_container button,
+.reply_input_container .join_channel_from_thread_container button {
+  margin-top: .75rem;
+  margin-bottom: .625rem;
+  vertical-align: baseline
 }
 
 @font-face {

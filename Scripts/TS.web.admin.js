@@ -43,9 +43,9 @@
       TS.team.ensureTeamProfileFields();
       active_bots_header_html = '<h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin"></i> Bots</h5>';
       invite_restricted_html = "<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any " + TS.templates.builders.raLabel("Restricted Accounts") + ". <a data-action='admin_invites_modal' data-account-type='restricted'>Invite a new " + TS.templates.builders.raLabel("Restricted Account") + "</a></p>";
-      invite_ultra_restricted_html = "<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any Single-channel Guests. <a data-action='admin_invites_modal' data-account-type='ultra_restricted'>Invite a new Single-channel Guest</a></p>";
+      invite_ultra_restricted_html = "<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any Single-Channel Guests. <a data-action='admin_invites_modal' data-account-type='ultra_restricted'>Invite a new Single-Channel Guest</a></p>";
       restricted_header_html = "<h5 class='restricted_header small_bottom_margin'><i class='presence large away ra small_right_margin'></i> " + TS.templates.builders.raLabel("Restricted Accounts") + "</h5>";
-      ultra_restricted_header_html = "<h5 class='restricted_header small_bottom_margin large_top_margin'><i class='presence large away ura small_right_margin'></i> Single-channel Guests</h5>";
+      ultra_restricted_header_html = "<h5 class='restricted_header small_bottom_margin large_top_margin'><i class='presence large away ura small_right_margin'></i> Single-Channel Guests</h5>";
       TS.web.login_sig.add(TS.web.admin.onLogin, TS.web.admin);
       TS.web.admin.member_profile_set_sig.add(TS.web.admin.memberProfileSet, TS.web.admin);
       TS.web.admin.member_profile_set_email_sig.add(TS.web.admin.memberProfileSetEmail, TS.web.admin);
@@ -581,7 +581,7 @@
         if (invite.type == "restricted") {
           invite_type_label = TS.templates.builders.raLabel("Restricted Account");
         } else if (invite.type == "ultra_restricted") {
-          invite_type_label = "Single-channel Guest";
+          invite_type_label = "Single-Channel Guest";
         }
       }
       var inviter_link;
@@ -766,7 +766,7 @@
       } else if (member.is_admin) {
         member_type = "Admin";
       } else if (member.is_ultra_restricted) {
-        member_type = "Single-channel Guest";
+        member_type = "Single-Channel Guest";
       } else if (member.is_restricted) {
         member_type = TS.templates.builders.raLabel("Restricted Account");
       } else {
@@ -1041,7 +1041,7 @@
       $row.find(".admin_member_restrict_link_unpaid").unbind("click").bind("click", function() {
         TS.generic_dialog.start({
           title: TS.templates.builders.raLabel("Restricted accounts") + " are available for paid teams",
-          body: "<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>" + TS.templates.builders.raLabel("Restricted Accounts") + '</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing">Learn more about our pricing</a> or upgrade today.</p>',
+          body: "<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>" + TS.templates.builders.raLabel("Restricted Accounts") + '</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-Channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing">Learn more about our pricing</a> or upgrade today.</p>',
           go_button_text: "Upgrade your team",
           go_button_class: "btn_success",
           cancel_button_text: "Not now",
@@ -1644,7 +1644,7 @@
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
         if (data.error == "ura_limit_reached") {
-          $("#step2_guest").find("#convert_to_ura_confirmation").after('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i> You\'ve reached your limit for the number of Single-channel Guests you can invite. You must invite more paid team members before you can add more Single-channel Guests.</p>');
+          $("#step2_guest").find("#convert_to_ura_confirmation").after('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i> You\'ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.</p>');
         } else {
           $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text("Try Again");
         }
@@ -1672,7 +1672,7 @@
       TS.web.admin.updateTabCounts();
       TS.web.admin.rebuildList();
       var $row = TS.web.admin.selectRow(member);
-      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">Undo</a>', true);
+      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">Undo</a>', true);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
       $("#restrict_account").addClass("hidden");
@@ -1866,7 +1866,7 @@
       if (!ok) {
         TS.error("failed onEnableUltraRestrictedMember");
         if (data.error == "ura_limit_reached") {
-          $("#step2_guest").find("#convert_to_ura_confirmation").after('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i> You\'ve reached your limit for the number of Single-channel Guests you can invite. You must invite more paid team members before you can add more Single-channel Guests.</p>');
+          $("#step2_guest").find("#convert_to_ura_confirmation").after('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i> You\'ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.</p>');
         } else {
           $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text("Try Again");
         }
@@ -1909,7 +1909,7 @@
     ultraRestrictedMemberEnabled: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-channel Guest. <a class="api_disable_account undo_link" data-member-id="' + member.id + '">Undo</a>');
+      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-Channel Guest. <a class="api_disable_account undo_link" data-member-id="' + member.id + '">Undo</a>');
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
       _moveMemberTo(member, TS.web.admin.ultra_restricted_members);

@@ -31189,6 +31189,22 @@ TS.registerModule("constants", {
       TS.client.unread.reload();
       TS.menu.end();
     },
+    startWithSearchableMemberListFilter: function(e, selectCallback) {
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.client.ui.checkForEditing(e)) return;
+      if (TS.model.menu_is_showing) return;
+      TS.menu.buildIfNeeded();
+      TS.menu.clean();
+      var template_args = {};
+      TS.menu.$menu.addClass("searchable_member_list_filter_menu");
+      TS.menu.$menu_items.html(TS.templates.searchable_member_list_filter_items(template_args));
+      TS.menu.$menu_items.on("click.menu", "li", function(e) {
+        TS.menu.end();
+        selectCallback(e);
+      });
+      TS.menu.start(e);
+      TS.menu.positionAt($(".searchable_member_list_filter"), 0, 40);
+    },
     positionAt: function($el, x_plus, y_plus) {
       x_plus = x_plus || 0;
       y_plus = y_plus || 0;
@@ -31290,7 +31306,7 @@ TS.registerModule("constants", {
     clean: function() {
       TS.menu.$menu_footer.empty();
       TS.menu.$menu_header.removeClass("hidden");
-      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu").css("max-height", "");
+      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu searchable_member_list_filter_menu").css("max-height", "");
       TS.menu.$menu.removeAttr("data-qa");
       TS.menu.$menu.find("#menu_items_scroller").css("max-height", "");
       TS.menu.$menu.find(".arrow, .arrow_shadow").remove();
@@ -33373,6 +33389,7 @@ var _on_esc;
       if (!txt_trimmed) return args;
       args.words = txt_trimmed.split(/\s/);
       args.cmd = args.words[0].toLowerCase();
+      args.disp = args.words[0];
       args.rest = txt_trimmed.substring(args.cmd.length).trim();
       return args;
     },
@@ -45678,6 +45695,11 @@ $.fn.togglify = function(settings) {
       if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
       TS.ui.replies.joinChannelFromThread(e, $el);
+    });
+    TS.click.addClientHandler("#threads_msgs .join_channel_from_thread", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      e.preventDefault();
+      TS.client.ui.threads.joinChannelFromThread(e, $el);
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {

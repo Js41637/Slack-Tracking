@@ -6283,7 +6283,8 @@
         TS.api.call("chat.command", {
           command: args.cmd,
           text: TS.format.cleanCommandText(args.rest),
-          channel: model_ob.id
+          channel: model_ob.id,
+          disp: args.disp
         }, function(ok, data, api_args) {
           TS.client.ui.onAPICommand(ok, data, api_args, args.rest);
         });
@@ -6332,10 +6333,10 @@
       var active_cid = TS.model.active_cid;
       if (!ok) {
         if (!TS.utility.contenteditable.value(TS.client.ui.$msg_input)) {
-          TS.utility.populateInput(TS.client.ui.$msg_input, args.command + " " + display_text);
+          TS.utility.populateInput(TS.client.ui.$msg_input, args.disp + " " + display_text);
         }
         var err_txt;
-        var cmd_txt = "*" + TS.utility.htmlEntities(args.command) + (display_text ? " " + TS.utility.htmlEntities(display_text) : "") + "*";
+        var cmd_txt = "*" + TS.utility.htmlEntities(args.disp) + (display_text ? " " + TS.utility.htmlEntities(display_text) : "") + "*";
         if (data.error && data.error == "restricted_action") {
           err_txt = "" + cmd_txt + " failed because you are not allowed to perform that action. Talk to your Team Owner.";
         } else if (data.error && (data.error != "Unknown command" && data.error != "unknown_command")) {
@@ -9280,7 +9281,7 @@
     showInitial: function(options) {
       $_container = options.$container;
       if (TS.lazyLoadMembersAndBots() && TS.team.getBestEffortTotalTeamSize() <= _MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
-        return TS.team.ensureEntireTeamLoaded.then(function() {
+        return TS.team.ensureEntireTeamLoaded().then(function() {
           _loadSearchBar();
           _loadLocalMembersIntoLongListView();
           return null;
@@ -9346,6 +9347,9 @@
       $_container.find(_long_list_view_id).before(TS.templates.team_search_bar({
         show_search: true,
         show_filters: true,
+        members_filter_selected: _current_filter == "active_members",
+        restricted_filter_selected: _current_filter == "restricted_members",
+        deactivated_filter_selected: _current_filter == "disabled_members",
         is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
       }));
       var search_full_profiles = true;
@@ -9353,13 +9357,15 @@
       var include_bots = true;
       var include_deleted = true;
       TS.members.view.bindTeamFilter(_search_input_id, _long_list_view_id, search_full_profiles, is_long_list_view, include_bots, include_deleted);
-      $_container.delegate("li", "click.team_list", function(e) {
-        e.preventDefault();
-        var $target = $(e.target).closest("li");
-        $_container.find("#team_tabs .active").removeClass("active");
-        $target.addClass("active");
-        _current_filter = $target.data("name");
-        TS.members.view.filterTeam($(_search_input_id).val(), _search_input_id, _long_list_view_id, search_full_profiles);
+      $_container.delegate(".searchable_member_list_filter", "click.searchable_member_list", function(menu_event) {
+        menu_event.preventDefault();
+        TS.menu.startWithSearchableMemberListFilter(menu_event, function(e) {
+          var $action = $(e.target).closest("[data-filter]");
+          if (!$action.length) return;
+          _current_filter = $action.data("filter");
+          $(menu_event.target).val(_.trim($action.text()));
+          TS.members.view.filterTeam($(_search_input_id).find("input").val(), _search_input_id, _long_list_view_id, search_full_profiles);
+        });
       });
     }
   };
