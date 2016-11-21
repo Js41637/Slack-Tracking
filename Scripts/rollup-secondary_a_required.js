@@ -11683,7 +11683,7 @@ TS.registerModule("constants", {
       var args = _getFilterArgumentsByScrollerId(scroller_id);
       if (full_profile_filter || args && args.full_profile_filter) {
         return TS.team.ensureTeamProfileFields().then(function() {
-          if (TS.boot_data.feature_roster_changes) {
+          if (TS.boot_data.feature_searchable_member_list) {
             if (scroller_id == "#team_list_scroller") {
               return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
             }
@@ -11737,7 +11737,7 @@ TS.registerModule("constants", {
       }
       $input.val("");
       $icon_close.addClass("hidden");
-      if (TS.boot_data.feature_roster_changes) {
+      if (TS.boot_data.feature_searchable_member_list) {
         if (scroller_id == "#team_list_scroller") {
           TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
         }
@@ -11959,7 +11959,11 @@ TS.registerModule("constants", {
     if (TS.boot_data.feature_searchable_member_list) {
       var current_filter = TS.client.ui.searchable_member_list.getCurrentFilter();
       if (!TS.lazyLoadMembersAndBots()) {
-        var filtered_members = team_list_items[current_filter + "_list_items"];
+        if (current_filter == "everyone") {
+          filtered_members = _(team_list_items).values().flatten().uniq().value();
+        } else {
+          filtered_members = team_list_items[current_filter + "_list_items"];
+        }
         if (current_filter === "disabled_members") filtered_members = team_list_items.deleted_members_list_items;
       } else {
         var filtered_members = items;
@@ -45854,6 +45858,7 @@ $.fn.togglify = function(settings) {
     if ($target.closest("#file_preview_scroller").length) return "file_preview";
     if ($target.closest("#member_preview_scroller").length) return "member_preview";
     if ($target.closest("#convo_scroller").length) return "conversation";
+    if ($target.closest("#groups_tab").length) return "groups";
     if (TS.boot_data.feature_message_replies && $target.closest("#threads_msgs_scroller_div").length) return "threads";
     if ($target.closest("#channel_page_scroller").length) {
       var model_ob = TS.shared.getActiveModelOb();

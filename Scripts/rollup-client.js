@@ -2656,126 +2656,7 @@
         });
       }
     },
-    rebuildTeamListSyncAlwaysLongList: function(ignore_cache) {
-      if (TS.lazyLoadMembersAndBots() && !TS.team.isEntireTeamLoaded()) {
-        throw new Error("Flannel: team list can only be built after the entire team has been loaded");
-      }
-      if (ignore_cache) TS.view.last_team_list_html = null;
-      if (!TS.model.ui_state.flex_visible || TS.model.ui_state.flex_name !== "team") return;
-      var $members;
-      var list_dom_id = "team_list_members";
-      var list_dom_wrapper_id = "team_list_members_wrapper";
-      var $members_wrapper = $("#" + list_dom_wrapper_id);
-      var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
-      if (!TS.view.last_team_list_html || !$("#" + list_dom_id).length) {
-        TS.view.cleanTeamList();
-        if (!TS.view.last_team_list_html) TS.view.last_team_list_html = '<div id="' + list_dom_id + '">' + TS.templates.builders.buildTeamListHTML(members_for_user.members, true, false) + "</div>";
-        $members_wrapper.html(TS.view.last_team_list_html);
-        if (TS.lazyLoadMembersAndBots()) TS.metrics.measureAndClear("team_directory_time_to_first_member", "team_directory_time_to_first_member");
-        var $scrollable = $("#team_list_scroller");
-        var approx_item_height = 92;
-        var approx_divider_height = 40;
-        var make = function($el, items, approx_item_height, approx_divider_height, $scrollable) {
-          if (!$el.length) return;
-          return $el.longListView({
-            items: items,
-            approx_item_height: approx_item_height,
-            approx_divider_height: approx_divider_height,
-            preserve_dom_order: true,
-            scrollable: $scrollable,
-            makeElement: function(data) {
-              return $(TS.templates.team_list_item({
-                is_long_list_view: true
-              }));
-            },
-            makeDivider: function(data) {
-              return $("<div></div>");
-            },
-            renderItem: function($el, item, data) {
-              $el.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item", item);
-              $el.html(TS.templates.team_list_item_member_details({
-                member: item,
-                is_long_list_view: true
-              }));
-              TS.utility.makeSureAllLinksHaveTargets($el);
-            },
-            renderDivider: function($el, item, data) {
-              $el.data("item", item).html(TS.templates.team_list_item_divider(item));
-            },
-            calcItemHeight: function($el) {
-              var outer_height = $el.outerHeight();
-              if (!outer_height) return approx_item_height;
-              return Math.max(outer_height, approx_item_height);
-            },
-            calcDividerHeight: function($el) {
-              var outer_height = $el.outerHeight();
-              if (!outer_height) return approx_divider_height;
-              return outer_height;
-            }
-          });
-        };
-        _$active_members_list = _$restricted_members_list = _$deleted_members_list = null;
-        _$active_members_list = make($("#active_members_list"), members_for_user.members, approx_item_height, approx_divider_height, $scrollable);
-        _$restricted_members_list = make($("#restricted_members_list"), members_for_user.restricted_members, approx_item_height, approx_divider_height, $scrollable);
-        _$deleted_members_list = make($("#deleted_members_list"), members_for_user.disabled_members, approx_item_height, approx_divider_height, $scrollable);
-        if (_$restricted_members_list) _$restricted_members_list.longListView("setHidden", true);
-        if (_$deleted_members_list) _$deleted_members_list.longListView("setHidden", true);
-        _tab_scroll_tops = {};
-        $scrollable.off("scroll.tab").on("scroll.tab", function(e) {
-          _tab_scroll_tops[TS.model.ui_state.tab_name] = $scrollable.scrollTop();
-        });
-        $("#team_tabs").on("click", "li.tab", function(e) {
-          var $list, is_visible;
-          if (_$active_members_list) {
-            is_visible = TS.model.ui_state.tab_name == "active_members";
-            if (is_visible) $list = _$active_members_list;
-            _$active_members_list.longListView("setHidden", !is_visible);
-          }
-          if (_$restricted_members_list) {
-            is_visible = TS.model.ui_state.tab_name == "restricted_members";
-            if (is_visible) $list = _$restricted_members_list;
-            _$restricted_members_list.longListView("setHidden", !is_visible);
-          }
-          if (_$deleted_members_list) {
-            is_visible = TS.model.ui_state.tab_name == "disabled_members";
-            if (is_visible) $list = _$deleted_members_list;
-            _$deleted_members_list.longListView("setHidden", !is_visible);
-          }
-          if (!$list) return;
-          if (_tab_scroll_tops[TS.model.ui_state.tab_name]) {
-            $list.longListView("scrollToPosition", _tab_scroll_tops[TS.model.ui_state.tab_name], true);
-          } else {
-            $list.longListView("scrollToTop", true);
-          }
-        });
-        $members = $("#" + list_dom_id);
-        $members.on("click.toggle_list_item", ".team_list_item", TS.members.view.onTeamDirectoryItemClick);
-        TS.client.flex_pane.startLocalTimeInterval();
-        TS.ui.utility.updateClosestMonkeyScroller($scrollable);
-      }
-      TS.view.refilterTeamList();
-      if (TS.model.ui_state.tab_name === "user_groups") {
-        var $user_groups_tab = $("#user_groups_list_tab a");
-        if ($user_groups_tab.length) $user_groups_tab.trigger("click");
-      }
-      if (TS.model.ui_state.tab_name === "restricted_members") {
-        var $restricted_tab = $("#restricted_members_tab a");
-        if ($restricted_tab.length) $restricted_tab.trigger("click");
-      }
-      if (TS.model.ui_state.tab_name === "disabled_members") {
-        var $disabled_tab = $("#disabled_members_tab a");
-        if ($disabled_tab.length) $disabled_tab.trigger("click");
-      }
-      if (!TS.model.ui_state.tab_name) {
-        TS.model.ui_state.tab_name = "active_members";
-        TS.storage.storeUIState(TS.model.ui_state);
-      }
-    },
     rebuildTeamListSync: function(ignore_cache) {
-      if (TS.boot_data.feature_roster_changes) {
-        TS.view.rebuildTeamListSyncAlwaysLongList.apply(this, [].slice.call(arguments, 0));
-        return;
-      }
       if (TS.lazyLoadMembersAndBots() && !TS.team.isEntireTeamLoaded()) {
         throw new Error("Flannel: team list can only be built after the entire team has been loaded");
       }
@@ -2971,7 +2852,7 @@
       var $input = $("#team_list_container input.member_filter");
       var last_query = TS.storage.fetchFilterState();
       if (typeof last_query !== "string") last_query = "";
-      if (last_query || TS.boot_data.page_needs_enterprise && !TS.lazyLoadMembersAndBots() || TS.boot_data.feature_roster_changes && !TS.lazyLoadMembersAndBots()) {
+      if (last_query || TS.boot_data.page_needs_enterprise && !TS.lazyLoadMembersAndBots()) {
         $input.val(last_query);
         $("#team_list_container .icon_close").toggleClass("hidden", !last_query);
         TS.members.view.filterTeam(last_query, "#team_filter", "#team_list_scroller", true);
@@ -7153,92 +7034,116 @@
     },
     _displayGroupsList: function() {
       if (!TS.client.ui.flex._displayFlexTab("groups")) return false;
+      $("#user_groups_container").unhideWithRememberedScrollTop();
       return true;
     },
     previewUserGroup: function(id, origin) {
+      if (!origin && TS.boot_data.feature_searchable_member_list) {
+        origin = "groups";
+      }
       if (!TS.client.ui._displayUserGroup(id, origin)) return;
       var user_group = TS.user_groups.getUserGroupsById(id);
-      TS.client.flexDisplaySwitched("team", user_group.id);
+      if (TS.boot_data.feature_searchable_member_list) {
+        TS.client.flexDisplaySwitched("groups", user_group.id);
+      } else {
+        TS.client.flexDisplaySwitched("team", user_group.id);
+      }
     },
     _displayUserGroup: function(id, origin) {
       if (_displayUserGroupInFlight) return;
       _displayUserGroupInFlight = true;
       var user_group = TS.user_groups.getUserGroupsById(id);
       if (!user_group) return false;
-      if (!TS.client.ui.flex._displayFlexTab("team")) return false;
+      if (TS.boot_data.feature_searchable_member_list) {
+        if (!TS.client.ui.flex._displayFlexTab("groups")) return false;
+      } else {
+        if (!TS.client.ui.flex._displayFlexTab("team")) return false;
+      }
       if (TS.view.user_groups_members_list_lazyload) {
         TS.view.user_groups_members_list_lazyload.detachEvents();
         TS.view.user_groups_members_list_lazyload = null;
       }
       TS.model.previewed_user_group_id = user_group.id;
       TS.info("TS.model.previewed_user_group_id:" + TS.model.previewed_user_group_id);
-      $("#team_list_container").hideWithRememberedScrollTop();
-      $("#member_preview_container").hideWithRememberedScrollTop();
+      if (TS.boot_data.feature_searchable_member_list) {
+        $("#user_groups_container").hideWithRememberedScrollTop();
+      } else {
+        $("#team_list_container").hideWithRememberedScrollTop();
+        $("#member_preview_container").hideWithRememberedScrollTop();
+      }
       var i;
       var selected_members;
       var work = function() {
         $("#user_group_preview_container").unhideWithRememberedScrollTop();
         selected_members = user_group.users;
-        var members = [];
-        for (i = 0; i < selected_members.length; i++) {
-          members.push(TS.members.getMemberById(selected_members[i]));
+        var populate_members_p;
+        if (TS.lazyLoadMembersAndBots()) {
+          populate_members_p = TS.members.ensureMembersArePresent(selected_members);
+        } else {
+          populate_members_p = Promise.resolve();
         }
-        members.sort(function(a, b) {
-          var a_name = a._real_name_lc || a._name_lc;
-          var b_name = b._real_name_lc || b._name_lc;
-          return a_name > b_name ? 1 : b_name > a_name ? -1 : 0;
+        populate_members_p.then(function() {
+          var members = [];
+          for (i = 0; i < selected_members.length; i++) {
+            members.push(TS.members.getMemberById(selected_members[i]));
+          }
+          members.sort(function(a, b) {
+            var a_name = a._real_name_lc || a._name_lc;
+            var b_name = b._real_name_lc || b._name_lc;
+            return a_name > b_name ? 1 : b_name > a_name ? -1 : 0;
+          });
+          var selected_channels = user_group.prefs.channels;
+          var channels = [];
+          for (i = 0; i < selected_channels.length; i++) {
+            channels.push(TS.channels.getChannelById(selected_channels[i]));
+          }
+          var selected_groups = user_group.prefs.groups;
+          var groups = [];
+          for (i = 0; i < selected_groups.length; i++) {
+            groups.push(TS.groups.getGroupById(selected_groups[i]));
+          }
+          channels = channels.concat(groups);
+          var is_user_group_deleted = user_group.date_delete === -1;
+          var show_user_groups_edit = TS.members.canUserEditUserGroups() || TS.members.canUserCreateAndDeleteUserGroups();
+          var html = TS.templates.user_group_preview({
+            user_group: user_group,
+            members: members,
+            channels: channels,
+            show_user_groups_edit: show_user_groups_edit,
+            is_user_group_deleted: is_user_group_deleted
+          });
+          var $user_group_preview_scroller = $("#user_group_preview_scroller");
+          $user_group_preview_scroller.html(html);
+          TS.utility.makeSureAllLinksHaveTargets($user_group_preview_scroller);
+          $("#user_group_menu_toggle").on("click", function(e) {
+            TS.menu.startWithUserGroupMenu(e, user_group.id);
+          });
+          $("#edit_default_channels").on("click", function(e) {
+            TS.ui.admin_user_groups.editInfo(user_group);
+          });
+          TS.ui.tabs.create($("#user_group_tabs"));
+          if (TS.model.last_previewed_user_group_id != TS.model.previewed_user_group_id) {
+            $user_group_preview_scroller.scrollTop(0);
+          }
+          TS.model.last_previewed_user_group_id = user_group.id;
+          var $member_list = $("#user_group_members");
+          $member_list.bind("click.view", TS.view.onMemberListClick);
+          $member_list.on("click.toggle_list_item", ".team_list_item", TS.members.view.onTeamDirectoryItemClick);
+          TS.utility.makeSureAllLinksHaveTargets($member_list);
+          $user_group_preview_scroller.find(".user_group_member_list").monkeyScroll();
+          TS.view.user_groups_members_list_lazyload = $member_list.find(".lazy").lazyload({
+            container: $(".user_group_member_list"),
+            ignore_when_hidden_element: $("#user_group_members"),
+            all_images_same_size: true
+          });
+          $(".user_group_member_list").trigger("resize-immediate");
+          var $back_from_user_group_preview = $("#back_from_user_group_preview");
+          _rebuildBackFromMemberorUserGroupPreview(origin, $back_from_user_group_preview);
+          TS.client.flex_pane.stopLocalTimeInterval();
+          TS.view.resizeManually("TS.client.ui._displayUserGroup");
+          _displayUserGroupInFlight = false;
+          return true;
         });
-        var selected_channels = user_group.prefs.channels;
-        var channels = [];
-        for (i = 0; i < selected_channels.length; i++) {
-          channels.push(TS.channels.getChannelById(selected_channels[i]));
-        }
-        var selected_groups = user_group.prefs.groups;
-        var groups = [];
-        for (i = 0; i < selected_groups.length; i++) {
-          groups.push(TS.groups.getGroupById(selected_groups[i]));
-        }
-        channels = channels.concat(groups);
-        var is_user_group_deleted = user_group.date_delete === -1;
-        var show_user_groups_edit = TS.members.canUserEditUserGroups() || TS.members.canUserCreateAndDeleteUserGroups();
-        var html = TS.templates.user_group_preview({
-          user_group: user_group,
-          members: members,
-          channels: channels,
-          show_user_groups_edit: show_user_groups_edit,
-          is_user_group_deleted: is_user_group_deleted
-        });
-        var $user_group_preview_scroller = $("#user_group_preview_scroller");
-        $user_group_preview_scroller.html(html);
-        TS.utility.makeSureAllLinksHaveTargets($user_group_preview_scroller);
-        $("#user_group_menu_toggle").on("click", function(e) {
-          TS.menu.startWithUserGroupMenu(e, user_group.id);
-        });
-        $("#edit_default_channels").on("click", function(e) {
-          TS.ui.admin_user_groups.editInfo(user_group);
-        });
-        TS.ui.tabs.create($("#user_group_tabs"));
-        if (TS.model.last_previewed_user_group_id != TS.model.previewed_user_group_id) {
-          $user_group_preview_scroller.scrollTop(0);
-        }
-        TS.model.last_previewed_user_group_id = user_group.id;
-        var $member_list = $("#user_group_members");
-        $member_list.bind("click.view", TS.view.onMemberListClick);
-        $member_list.on("click.toggle_list_item", ".team_list_item", TS.members.view.onTeamDirectoryItemClick);
-        TS.utility.makeSureAllLinksHaveTargets($member_list);
-        $user_group_preview_scroller.find(".user_group_member_list").monkeyScroll();
-        TS.view.user_groups_members_list_lazyload = $member_list.find(".lazy").lazyload({
-          container: $(".user_group_member_list"),
-          ignore_when_hidden_element: $("#user_group_members"),
-          all_images_same_size: true
-        });
-        $(".user_group_member_list").trigger("resize-immediate");
-        var $back_from_user_group_preview = $("#back_from_user_group_preview");
-        _rebuildBackFromMemberorUserGroupPreview(origin, $back_from_user_group_preview);
-        TS.client.flex_pane.stopLocalTimeInterval();
-        TS.view.resizeManually("TS.client.ui._displayUserGroup");
-        _displayUserGroupInFlight = false;
-        return true;
       };
       if (user_group.users === undefined) {
         TS.user_groups.getUserGroupMembers(id, function(updated_group) {
@@ -7796,6 +7701,10 @@
     } else if (origin == "im_page") {
       $back.html(TS.templates.builders.filePreviewBackIcon() + " Conversation Details").bind("click.back", function() {
         TS.client.ui.flex.openFlexTab("details");
+      });
+    } else if (origin == "groups" && TS.boot_data.feature_searchable_member_list) {
+      $back.html(TS.templates.builders.filePreviewBackIcon() + " User Groups").bind("click.back", function() {
+        TS.client.ui.showGroupsList();
       });
     } else {
       $back.html(TS.templates.builders.filePreviewBackIcon() + (TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? " Organization Directory" : "Team Directory")).bind("click.back", function() {
