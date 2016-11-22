@@ -17690,9 +17690,11 @@ TS.registerModule("constants", {
                     var neither_are_part_of_convo = !msg.thread_ts && !prev_msg.thread_ts;
                     if (is_part_of_same_convo || neither_are_part_of_convo) {
                       show_user = false;
+                      if (msg.recap) show_user = true;
                     }
                   } else {
                     show_user = false;
+                    if (msg.recap) show_user = true;
                   }
                 }
                 if (TS.utility.msgs.isTempMsg(msg) && (msg.type == "bot_message" || msg.user == "USLACKBOT")) {

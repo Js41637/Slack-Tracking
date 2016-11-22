@@ -5662,6 +5662,10 @@ only screen and (min-resolution:2dppx) {
   text-decoration: none
 }
 
+.current_status_input_container {
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
 .current_status_input_container label.countdown.validation_error:after,
 .current_status_input_container label.countdown.validation_success:after,
 .current_status_input_container label.countdown.validation_warning:after {
@@ -17545,7 +17549,7 @@ ts-message .pinned_item_message_header .ts_icon_thumb_tack:before {
   font-size: 1.0625rem
 }
 
-ts-message .is_recap {
+ts-message .recap_highlight {
   width: 52px;
   height: 16px;
   font-size: .8125rem;
@@ -17557,7 +17561,7 @@ ts-message .is_recap {
   padding: 0 5px
 }
 
-ts-message .is_recap.marker {
+ts-message .recap_highlight.marker {
   position: absolute;
   top: 6px;
   right: 0;
@@ -22697,6 +22701,7 @@ ts-jumper ts-jumper-results:empty {
 
 #details_toggle.active,
 #recent_mentions_toggle.active,
+#sli_recap_toggle.active,
 #stars_toggle.active {
   background: #f2f2f5
 }

@@ -8795,6 +8795,20 @@
         $("#client-ui").removeClass("whats_new_showing");
         _toggleFlexTab("whats_new");
       });
+      if (TS.boot_data.feature_sli_recaps) {
+        $header.delegate("#sli_recap_toggle", "click", function(e) {
+          var $sli_toggle_ts_tip_tip = $("#sli_recap_toggle").find(".ts_tip_tip");
+          if ($(this).hasClass("active")) {
+            $(this).removeClass("active");
+            $sli_toggle_ts_tip_tip.text("Turn highlight messages on");
+            $(".recap_highlight").addClass("invisible");
+          } else {
+            var model_ob = TS.shared.getActiveModelOb();
+            $(".recap_highlight").removeClass("invisible");
+            _resetFlexpaneToggles(model_ob);
+          }
+        });
+      }
     },
     cleanupFlexExcluding: function(exclude) {
       if (exclude !== "files") {
@@ -9151,6 +9165,10 @@
     var $details_toggle_ts_tip_tip = $("#details_toggle .ts_tip_tip");
     $("#client-ui").removeClass("details_showing");
     $(".channel_header_icon.active").removeClass("active");
+    if (TS.boot_data.feature_sli_recaps) {
+      $("#sli_recap_toggle").addClass("active");
+      $("#sli_recap_toggle .ts_tip_tip").text("Turn highlight messages off");
+    }
     if (model_ob) {
       if (model_ob.is_im || model_ob.is_mpim) {
         $details_toggle_ts_tip_tip.text(TS.i18n.t("Show Conversation Details", "flexpane")());
@@ -10926,6 +10944,7 @@
         move_star_in_channel_header: _star_below_channel_name,
         mpim: mpim,
         details_showing: $("#client-ui").hasClass("details_showing"),
+        is_recap: TS.boot_data.feature_sli_recaps,
         all_unreads: {
           is_showing: TS.model.unread_view_is_showing,
           has_new_messages: TS.model.unread_view_is_showing && TS.client.unread.new_messages_in_channels.length,
@@ -34073,7 +34092,7 @@ function timezones_guess() {
         return skip_channels.indexOf(c.channel_id) !== -1;
       });
     }
-    if (data.channels.length === 0 || !data.channels[0].has_more && data.total_messages_count === 0) {
+    if (data.channels.length === 0 || data.channels.length === 1 && !data.channels[0].has_more && (!data.channels[0].messages || data.channels[0].messages.length === 0)) {
       _all_messages_fetched = true;
       processed_data.has_more = false;
       TS.client.unread.debug("DONE FETCHING: API response had no messages", data.channels.length);

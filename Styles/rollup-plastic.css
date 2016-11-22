@@ -739,8 +739,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/297d4/fonts/slack-icons-Regular.eot);
-  src: url(/297d4/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/297d4/fonts/slack-icons-Regular.woff) format('woff'), url(/297d4/fonts/slack-icons-Regular.ttf) format('truetype'), url(/297d4/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/c1e8/fonts/slack-icons-Regular.eot);
+  src: url(/c1e8/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/c1e8/fonts/slack-icons-Regular.woff) format('woff'), url(/c1e8/fonts/slack-icons-Regular.ttf) format('truetype'), url(/c1e8/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -11963,6 +11963,10 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon:hover {
   text-decoration: none
+}
+
+.current_status_input_container {
+  font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .current_status_input_container label.countdown.validation_error:after,

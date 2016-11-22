@@ -1486,8 +1486,8 @@ html.is_mac .CodeMirror .CodeMirror-sizer {
 
 @font-face {
   font-family: Slack;
-  src: url(/297d4/fonts/slack-icons-Regular.eot);
-  src: url(/297d4/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/297d4/fonts/slack-icons-Regular.woff) format('woff'), url(/297d4/fonts/slack-icons-Regular.ttf) format('truetype'), url(/297d4/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/c1e8/fonts/slack-icons-Regular.eot);
+  src: url(/c1e8/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/c1e8/fonts/slack-icons-Regular.woff) format('woff'), url(/c1e8/fonts/slack-icons-Regular.ttf) format('truetype'), url(/c1e8/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
