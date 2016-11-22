@@ -20,9 +20,9 @@
     {{/each}}
   {{/if}}
 {{/unless}}
-{{#if card_posting_summary}}
+{{#if installation_summary}}
   <li class="divider"></li>
-  <li role="menuitem"><span class="app_card_posting_summary">{{card_posting_summary}}</span></li>
+  <li role="menuitem"><span class="app_card_installation_summary">{{installation_summary}}</span></li>
 {{/if}}
 {{#and disabled (if_not_equal is_slack_integration compare=false)}}
   <li role="menuitem" class="disabled italic"><a>This rule has been disabled.</a></li>

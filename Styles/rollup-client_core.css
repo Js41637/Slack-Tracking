@@ -6120,7 +6120,12 @@ only screen and (min-resolution:2dppx) {
 .client_container #client_body {
   margin-top: 0;
   height: 100%;
-  overflow: hidden
+  overflow: hidden;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
 }
 
 .threads_view_is_showing .client_container #client_body:not(.footer_msg_input),
@@ -6235,61 +6240,35 @@ only screen and (min-resolution:2dppx) {
   margin-left: 3px
 }
 
-.flex_pane_showing #footer {
+.flex_pane_showing:not(.flexbox_client) #footer {
   right: 392px
 }
 
-.flex_pane_showing.flexbox_client #footer {
-  right: auto;
-  margin-right: 392px
-}
-
 @media screen and (min-width:1367px) {
-  .flex_pane_showing #footer {
+  .flex_pane_showing:not(.flexbox_client) #footer {
     right: 442px
-  }
-  .flex_pane_showing.flexbox_client #footer {
-    right: auto;
-    margin-right: 442px
   }
 }
 
 @media screen and (min-width:1441px) {
-  .flex_pane_showing #footer {
+  .flex_pane_showing:not(.flexbox_client) #footer {
     right: 492px
-  }
-  .flex_pane_showing.flexbox_client #footer {
-    right: auto;
-    margin-right: 492px
   }
 }
 
-.flex_pane_showing.details_showing #footer {
+.flex_pane_showing.details_showing:not(.flexbox_client) #footer {
   right: 315px
 }
 
-.flex_pane_showing.details_showing.flexbox_client #footer {
-  right: auto;
-  margin-right: 315px
-}
-
 @media screen and (min-width:1367px) {
-  .flex_pane_showing.details_showing #footer {
+  .flex_pane_showing.details_showing:not(.flexbox_client) #footer {
     right: 365px
-  }
-  .flex_pane_showing.details_showing.flexbox_client #footer {
-    right: auto;
-    margin-right: 365px
   }
 }
 
 @media screen and (min-width:1441px) {
-  .flex_pane_showing.details_showing #footer {
+  .flex_pane_showing.details_showing:not(.flexbox_client) #footer {
     right: 415px
-  }
-  .flex_pane_showing.details_showing.flexbox_client #footer {
-    right: auto;
-    margin-right: 415px
   }
 }
 

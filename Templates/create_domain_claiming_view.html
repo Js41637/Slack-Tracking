@@ -1,0 +1,73 @@
+<div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width domain_claiming">
+
+  {{#if minimal_ui_theme}}
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+  {{/if}}
+
+  <div class="fs_split_flex_wrapper">
+    {{#unless minimal_ui_theme}}
+    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+    {{/unless}}
+
+    <div class="fs_split_body align_center">
+
+      <div class="bottom_margin">
+        <img class="member_image" src="{{enterprise.icon.image_88}}" srcset="{{enterprise.icon.image_88}} 1x, {{enterprise.icon.image_230}} 2x" />
+      </div>
+
+      {{#if email_has_account}}
+
+        <h3>Only Org Admins can create new {{enterprise.name}} workspaces.</h3>
+
+        {{#if is_logged_in}}
+
+          <!-- signed-in version -->
+
+          <p>If you need help getting access to or creating a workspace, <a href="mailto:{{enterprise.org_contact_email}}">contact an Org Admin</a>. Or, continue to access your workspaces.</p>
+
+          <div class="large_top_margin">
+            <!-- link to myteam.slack.com -->
+            <a href="{{next_action_href}}" id="next_action" type="button" class="btn_large btn_info btn">Continue to Slack</a>
+          </div>
+
+        {{else}}
+
+          <!-- signed-out version -->
+
+          <p>If you need help getting access to or creating a workspace, <a href="mailto:{{enterprise.org_contact_email}}">contact an Org Admin</a>. Or, sign in to access your workspaces.</p>
+
+          <div class="medium_top_margin medium_bottom_margin">
+            {{!-- button will be updated to include "with [okta]" or likewise based on auth.sso response --}}
+            <a href="{{next_action_href}}" id="next_action" type="button" class="btn_large btn_info btn">Sign in</a>
+          </div>
+
+        {{/if}}
+
+      {{else}}
+
+        <!-- user has not yet created an account -->
+
+        <h3>{{enterprise.name}} is already using Slack</h3>
+
+        <p>
+          Sign in with SSO to create your account.
+        </p>
+
+        <div class="large_top_margin medium_bottom_margin">
+          <a href="{{next_action_href}}" id="next_action" type="button" class="btn_large btn_info btn">Sign in</a>
+        </div>
+
+        <hr />
+
+        <p class="small">
+          Your organization has restricted the creation of workspaces by accounts using {{email_domain}} email addresses. If you need help getting access or creating a workspace, <a href="#">contact an organization administrator</a>.
+        </p>
+
+      {{/if}}
+
+    </div>
+    <div class="fs_split_footer"></div>
+  </div>
+
+</div>
+

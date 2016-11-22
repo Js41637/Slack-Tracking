@@ -52,7 +52,10 @@
       <span class="ts_tip_tip small_top_margin">Refresh</span>
       {{> ts_icon class="ts_icon_sync"}}
     </button>
-    <div class="divider_bar channel_header_unread_view_divider_bar"></div>
+
+    {{#feature flag="feature_slim_scrollbar"}}{{else}}
+      <div class="divider_bar channel_header_unread_view_divider_bar"></div>
+    {{/feature}}
   {{else if threads.is_showing}}
     {{! Nothing yet }}
   {{else}}
@@ -63,6 +66,8 @@
 
     <!--channel details icon  -->
     --}}<button id="details_toggle" class="channel_header_icon btn_unstyle blue_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}"><span class="ts_tip_tip">{{#if details_showing}}Hide {{else}}Show {{/if}}{{#if member}}Conversation{{else if mpim}}Conversation{{else}}Channel{{/if}} Details</span>{{> ts_icon class="ts_icon_side_panel"}}</button>
-    <div class="divider_bar"></div>
+    {{#feature flag="feature_slim_scrollbar"}}{{else}}
+      <div class="divider_bar"></div>
+    {{/feature}}
   {{/if}}
 </div>

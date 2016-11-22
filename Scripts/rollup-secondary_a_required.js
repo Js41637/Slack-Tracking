@@ -3132,9 +3132,10 @@
         return false;
       }
       var clean_text = TS.format.cleanMsg(text);
+      var is_reply = TS.boot_data.feature_message_replies && !!in_reply_to_msg;
       var is_at_here = TS.model.here_regex.test(clean_text);
-      var is_at_channel = TS.model.channel_regex.test(clean_text) || TS.model.group_regex.test(clean_text) || is_at_here;
-      var is_at_everyone = TS.model.everyone_regex.test(clean_text) || channel.is_general && is_at_channel;
+      var is_at_channel = TS.model.channel_regex.test(clean_text) && !is_reply || TS.model.group_regex.test(clean_text) && !is_reply || is_at_here;
+      var is_at_everyone = TS.model.everyone_regex.test(clean_text) && !is_reply || channel.is_general && is_at_channel;
       if (is_at_everyone) {
         if (!TS.members.canUserAtEveryone()) {
           err_txt = "<p>A Team Owner has restricted the use of <b>@everyone</b> messages.</p>";
@@ -3179,7 +3180,7 @@
         errorOut(err_txt);
         return false;
       }
-      if (TS.ui.needToShowAtChannelWarning(channel_id, text)) {
+      if (!is_reply && TS.ui.needToShowAtChannelWarning(channel_id, text)) {
         TS.ui.at_channel_warning_dialog.startInMessagePane(channel_id, text, TS.channels);
         return false;
       }
@@ -8542,8 +8543,9 @@ TS.registerModule("constants", {
         }
       };
       var clean_text = TS.format.cleanMsg(text);
+      var is_reply = TS.boot_data.feature_message_replies && !!in_reply_to_msg;
       var err_txt;
-      if (TS.model.everyone_regex.test(clean_text)) {
+      if (TS.model.everyone_regex.test(clean_text) && !is_reply) {
         if (!TS.members.canUserAtEveryone()) {
           err_txt = "<p>A Team Owner has restricted the use of <b>@everyone</b> messages.</p>";
           if (TS.model.user.is_restricted) {
@@ -8580,14 +8582,14 @@ TS.registerModule("constants", {
         return false;
       }
       var is_at_here = TS.model.here_regex.test(clean_text);
-      var is_at_group = TS.model.channel_regex.test(clean_text) || TS.model.group_regex.test(clean_text) || is_at_here;
-      if (is_at_group && !TS.members.canUserAtChannelOrAtGroup()) {
+      var is_at_group = (TS.model.channel_regex.test(clean_text) || TS.model.group_regex.test(clean_text)) && !is_reply;
+      if ((is_at_group || is_at_here) && !TS.members.canUserAtChannelOrAtGroup()) {
         var key_word = is_at_here ? "@here" : "@channel";
         err_txt = "<p>A Team Owner has restricted the use of <b>" + key_word + "</b> messages.</p>";
         errorOut(err_txt);
         return false;
       }
-      if (TS.ui.needToShowAtChannelWarning(model_ob_id, text)) {
+      if (!is_reply && TS.ui.needToShowAtChannelWarning(model_ob_id, text)) {
         TS.ui.at_channel_warning_dialog.startInMessagePane(model_ob_id, text, controller);
         return false;
       }
@@ -22241,6 +22243,10 @@ TS.registerModule("constants", {
         if (!TS.boot_data.page_needs_enterprise) return "";
         return TS.model.enterprise.name || "";
       });
+      Handlebars.registerHelper("isOnEnterpriseTeam", function(options) {
+        if (!TS.boot_data.page_needs_enterprise) return options.inverse(this);
+        return TS.model.user.enterprise_user.teams.indexOf(options.hash.team_id) > -1 ? options.fn(this) : options.inverse(this);
+      });
       Handlebars.registerHelper("makeTeamlabel", function(team_id, teams_info) {
         var html = TS.templates.builders.makeTeamlabel(team_id, teams_info);
         return new Handlebars.SafeString(html);
@@ -24493,14 +24499,15 @@ TS.registerModule("constants", {
     msgContainsMention: function(msg, ignore_at_here_mentions) {
       var highlight_rx = TS.utility.msgs.getHighlightWordsRegex();
       var dont_check_highlight_words = msg.subtype == "bot_message";
+      var is_reply = TS.utility.msgs.isMsgReply(msg);
 
       function check(txt) {
         if (!txt) return false;
         if (TS.model.you_regex.test(txt)) return true;
         if (TS.model.here_regex.test(txt) && !ignore_at_here_mentions) return true;
-        if (TS.model.everyone_regex.test(txt)) return true;
-        if (TS.model.channel_regex.test(txt)) return true;
-        if (TS.model.group_regex.test(txt)) return true;
+        if (TS.model.everyone_regex.test(txt) && !is_reply) return true;
+        if (TS.model.channel_regex.test(txt) && !is_reply) return true;
+        if (TS.model.group_regex.test(txt) && !is_reply) return true;
         for (var k in TS.model.your_user_group_regex) {
           if (TS.model.your_user_group_regex[k].test(txt)) {
             return true;
@@ -24540,6 +24547,7 @@ TS.registerModule("constants", {
       };
       var highlight_rx = TS.utility.msgs.getHighlightWordsRegex();
       var dont_check_highlight_words = msg.subtype == "bot_message";
+      var is_reply = TS.utility.msgs.isMsgReply(msg);
 
       function check(txt) {
         if (checkNonChannelMentions(txt)) {
@@ -24564,9 +24572,9 @@ TS.registerModule("constants", {
 
       function checkChannelMentions(txt) {
         if (!txt) return false;
-        if (TS.model.everyone_regex.test(txt)) return true;
-        if (TS.model.channel_regex.test(txt)) return true;
-        if (TS.model.group_regex.test(txt)) return true;
+        if (TS.model.everyone_regex.test(txt) && !is_reply) return true;
+        if (TS.model.channel_regex.test(txt) && !is_reply) return true;
+        if (TS.model.group_regex.test(txt) && !is_reply) return true;
         return false;
       }
       if (!msg.ignore_if_attachments_supported && check(msg.text)) return ret;
@@ -31622,24 +31630,28 @@ var _on_esc;
         } else if (app.is_slack_integration && app.config && (app.config.is_active !== "1" || app.config.date_deleted !== "0")) {
           template_items_args.disabled = true;
         }
-        if (app.card_posting_summary) {
-          var escaped_summary = TS.utility.htmlEntities(app.card_posting_summary);
-          escaped_summary = escaped_summary.replace(/@([A-Z0-9]+)/g, function(match, user_id) {
-            var name_replace = "<b>";
+        if (app.installation_summary) {
+          var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
+            if (!TS.members.getMemberById(user_id)) return match;
+            var name_replace = '<span class="app_card_member_dm_link" data-member-id=' + user_id + ">";
             if (TS.boot_data.feature_name_tagging_client) {
-              name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(app.auth.created_by));
+              name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(user_id));
             } else {
-              name_replace += TS.members.getMemberDisplayNameById(app.auth.created_by, true, true);
+              name_replace += TS.members.getMemberDisplayNameById(user_id, true, true);
             }
-            name_replace += "</b>";
+            name_replace += "</span>";
             return name_replace;
           });
-          template_items_args.card_posting_summary = new Handlebars.SafeString(escaped_summary);
+          template_items_args.installation_summary = new Handlebars.SafeString(installation_summary);
         }
         TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_header_args));
         TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_items_args));
         TS.menu.start(e, position_by_click);
         TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
+        TS.menu.$menu_items.on("click.menu", ".app_card_member_dm_link", function(e) {
+          e.preventDefault();
+          TS.ims.startImByMemberId($(this).data("member-id"));
+        });
         TS.menu.keepInBounds();
       }
     },
@@ -32065,12 +32077,13 @@ var _on_esc;
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.model.menu_is_showing) return;
       options = _.merge({}, options);
+      _team_id = options.team_id;
       TS.menu.buildIfNeeded();
       TS.menu.enterprise_team_signin.clean();
       TS.menu.$menu.addClass("enterprise_team_signin_menu");
       TS.menu.$menu_header.addClass("hidden").empty();
       var items_html = TS.templates.enterprise_team_signin_menu_items({
-        should_show_leave_team: false,
+        should_show_leave_team: options.should_show_leave_team,
         team_site_url: options.team_site_url || ""
       });
       TS.menu.$menu_items.html(items_html);
@@ -32086,6 +32099,7 @@ var _on_esc;
       var which = $clicked.data("which");
       if (which == "visit_team_site") {} else if (which == "leave_team") {
         e.preventDefault();
+        _leaveTeamConfirm();
       } else {
         e.preventDefault();
         TS.warn("not sure what to do with clicked element:" + which);
@@ -32099,6 +32113,51 @@ var _on_esc;
       TS.menu.end();
     }
   });
+  var _team_id;
+  var _leaveTeamConfirm = function() {
+    var team = TS.enterprise.getTeamById(_team_id);
+    var template_args = {
+      team: team
+    };
+    var settings = {
+      title: "Leave Workspace",
+      body_template_html: TS.templates.leave_workspace_dialog(template_args),
+      onShow: _onShowLeaveTeamConfirm,
+      onCancel: _onCancelLeaveTeamConfirm,
+      modal_class: "leave_team_modal"
+    };
+    TS.ui.fs_modal.start(settings);
+  };
+  var _onShowLeaveTeamConfirm = function() {
+    var $div = $(".leave_team_modal .leave_team_modal_contents");
+    $div.find(".buttons").on("click", "button", function(e) {
+      var option = $(this).data("qa");
+      if (option === "cancel_leave_team") {
+        TS.ui.fs_modal.close();
+        return;
+      } else if (option === "confirm_leave_team") {
+        var calling_args = {
+          team: _team_id
+        };
+        TS.api.call("enterprise.teams.leave", calling_args, function(ok, data, args) {
+          if (ok) {
+            TS.ui.fs_modal.close();
+            return;
+          }
+          var err_str = 'Leaving team failed with error "' + data.error + '"';
+          if (data.error === "disable_denied_due_to_idpgroup_membership") {
+            err_str = "This team was assigned to this user via an IDP group, user cannot leave it by themselves.";
+          } else if (data.error === "user_deleted_already") {
+            err_str = "User has been deleted from this team already.";
+          } else if (data.error === "failed_to_convert_org_user_to_team_user") {
+            err_str = "User is not found on the team or not called from enterprise context or team provided is an enterprise.";
+          }
+          setTimeout(TS.generic_dialog.alert, 500, err_str);
+        });
+      }
+    });
+  };
+  var _onCancelLeaveTeamConfirm = function() {};
 })();
 (function() {
   "use strict";
@@ -33209,10 +33268,11 @@ var _on_esc;
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
+      var is_custom_image = !!TS.model.user.profile.image_original || TS.model.user.profile.is_custom_image === true;
       var $el = $(e.target);
       var is_button = $el.is(".btn");
       var template_args = {
-        show_delete: !!TS.model.user.profile.image_original && !is_button,
+        show_delete: is_custom_image && !is_button,
         is_iOS: TS.model.is_iOS
       };
       TS.menu.clean();
@@ -39871,9 +39931,12 @@ var _on_esc;
     }
     return null;
   };
+  var _canDeleteImage = function() {
+    return !!TS.model.user.profile.image_original || TS.model.user.profile.is_custom_image === true;
+  };
   var _maybeShowDelete = function() {
     var $delete = _$div.find(".show_delete");
-    if (TS.model.user.profile.image_original) {
+    if (_canDeleteImage()) {
       $delete.removeClass("hidden");
       _$div.find(".member_image_wrapped_no_photo").addClass("hidden");
       _$div.find(".member_image_wrapped").removeClass("hidden");
@@ -39884,7 +39947,7 @@ var _on_esc;
     }
   };
   var _showImageUpload = function() {
-    if (TS.model.user.profile.image_original) {
+    if (_canDeleteImage()) {
       _$div.find(".member_image_wrapped").addClass("hidden");
     } else {
       _$div.find(".member_image_wrapped_no_photo").addClass("hidden");
@@ -39900,7 +39963,7 @@ var _on_esc;
     }, "slow");
   };
   var _hideImageUpload = function() {
-    if (TS.model.user.profile.image_original) {
+    if (_canDeleteImage()) {
       _$div.find(".member_image_wrapped").removeClass("hidden");
     } else {
       _$div.find(".member_image_wrapped_no_photo").removeClass("hidden");
@@ -40083,7 +40146,7 @@ var _on_esc;
   };
   var _maybeOpenPhotoMenu = function(e) {
     e.stopPropagation();
-    if ((!TS.model.user.profile.image_original || $(e.target).is(".btn")) && !TS.model.is_iOS) {
+    if ((!_canDeleteImage() || $(e.target).is(".btn")) && !TS.model.is_iOS) {
       _$div.find('[data-action="edit_member_profile_upload_photo"]').trigger("click");
     } else {
       TS.menu.member.startWithEditMemberProfilePhotoActions(e, _onPhotoMenuClick);
@@ -49252,10 +49315,12 @@ $.fn.togglify = function(settings) {
     if (TS.boot_data.feature_discoverable_teams_client) {
       switch (team.discoverable) {
         case "public":
-          team.is_public = true;
+        case "open":
+          team.is_open = true;
           break;
         case "private":
-          team.is_private = true;
+        case "closed":
+          team.is_closed = true;
           break;
         case "unlisted":
         default:
@@ -49358,7 +49423,8 @@ $.fn.togglify = function(settings) {
         _method("signup.confirmCode", api_args, function(ok, data, args) {
           if (ok) {
             return resolve({
-              is_valid: true
+              is_valid: true,
+              api_response: data
             });
           }
           var error_key = data.error;
@@ -52399,7 +52465,7 @@ $.fn.togglify = function(settings) {
       if (opts.placeholder) {
         $input.attr("placeholder", opts.placeholder);
       }
-      _initTabComplete($input);
+      _initTabComplete($input, opts);
       _initUI($form, $input, submit_fn, cancel_fn, get_edit_msg_div_fn);
       _initEmoMenu($form, $input);
       if (opts.scrollIntoView) {
@@ -52415,13 +52481,15 @@ $.fn.togglify = function(settings) {
       $form.submit();
     }
   };
-  var _initTabComplete = function($input) {
+  var _initTabComplete = function($input, opts) {
+    var complete_member_specials = true;
+    if (false === opts.complete_member_specials) complete_member_specials = false;
     if (TS.boot_data.feature_you_autocomplete_me) {
       $input.TS_tabCompleteNew({
         complete_cmds: false,
         complete_channels: true,
         complete_emoji: true,
-        complete_member_specials: true,
+        complete_member_specials: complete_member_specials,
         complete_user_groups: true,
         no_tab_out: true,
         onComplete: function(txt, new_cp) {
@@ -52435,7 +52503,7 @@ $.fn.togglify = function(settings) {
         complete_cmds: false,
         complete_channels: true,
         complete_emoji: true,
-        complete_member_specials: true,
+        complete_member_specials: complete_member_specials,
         complete_user_groups: true,
         no_tab_out: true,
         onComplete: function(txt, new_cp) {

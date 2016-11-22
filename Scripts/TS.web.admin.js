@@ -68,8 +68,17 @@
       TS.web.admin.member_kicked_group_sig.add(TS.web.admin.rerenderMemberAndHighlight, TS.web.admin);
       TS.web.admin.member_ura_changed_sig.add(TS.web.admin.rerenderMember, TS.web.admin);
       TS.ui.admin_user_groups.user_groups_fetched.add(TS.web.admin.onUserGroupsFetched);
+      if (TS.idp_groups) TS.idp_groups.loaded_sig.add(TS.web.admin.onIdpGroupsLoaded, TS.web.admin);
     },
-    onLogin: function(ok, data) {
+    onIdpGroupsLoaded: function() {
+      _groups_loaded = true;
+      if (_logged_in) TS.web.admin.startup();
+    },
+    onLogin: function() {
+      _logged_in = true;
+      if (!TS.idp_groups || !TS.idp_groups.shouldLoad() || _groups_loaded) TS.web.admin.startup();
+    },
+    startup: function() {
       var show_bounce_warning = false;
       if (boot_data.admin_view) TS.web.admin.view = boot_data.admin_view;
       TS.members.startBatchUpsert();
@@ -1050,6 +1059,26 @@
           }
         });
       });
+      $row.find(".api_cant_deactivate").unbind("click").bind("click", function() {
+        var user_id = $row.data("member-id");
+        var member = TS.members.getMemberById(user_id);
+        var group_names = _.map(TS.idp_groups.getGroupsForMember(user_id), "name");
+        TS.ui.fs_modal.start({
+          title: "Can't Remove Member",
+          body: TS.templates.admin_cant_deactivate_modal({
+            team_name: TS.model.team.name,
+            idp_label: TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on")),
+            full_member_name: member.profile.real_name,
+            member_name: member.profile.first_name,
+            groups: group_names
+          }),
+          show_go_button: false,
+          show_cancel_button: true,
+          cancel_button_text: "Okay",
+          modal_class: "fs_modal_header align_center"
+        });
+        return false;
+      });
       $row.find(".api_change_ura_channel").unbind("click").bind("click", function(e) {
         var user_id = $row.data("member-id");
         TS.menu.channel.startWithChannelPickerForChange(e, user_id);
@@ -2003,6 +2032,8 @@
       return test_ob;
     }
   });
+  var _logged_in = false;
+  var _groups_loaded = false;
   var _actions_delegated = false;
   var _last_search_range = null;
   var _members;

@@ -1608,10 +1608,12 @@
         }
       }
       var banner_h = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"));
-      if (banner_h) {
-        $("#col_flex").css("top", TS.view.default_col_flex_top + banner_h);
-      } else {
-        $("#col_flex").css("top", TS.view.default_col_flex_top);
+      if (!TS.boot_data.feature_flexbox_client) {
+        if (banner_h) {
+          $("#col_flex").css("top", TS.view.default_col_flex_top + banner_h);
+        } else {
+          $("#col_flex").css("top", TS.view.default_col_flex_top);
+        }
       }
       if (TS.model.menu_is_showing) TS.view.setFlexMenuSize();
       if (wh_changed || !!TS.view.last_input_height) {
@@ -9426,7 +9428,7 @@
           },
           tabcomplete: {
             menuTemplate: TS.templates.tabcomplete_menu,
-            completers: [TS.tabcomplete.members],
+            completers: [TS.tabcomplete.members, TS.tabcomplete.channels],
             appendMenu: function(menu) {
               document.querySelector("#msg_form").appendChild(menu);
             },
@@ -34106,9 +34108,26 @@ function timezones_guess() {
       } else {
         if (!unread_obj.has_more && !unread_obj.collapsed && !unread_obj.messages.length) {
           TS.warn("Received model_ob with no messages for unread view: " + _current_model_ob_id);
+          TS.client.unread.debug("all_unreads_ignored_channel no msgs", {
+            current_model_ob_id: _current_model_ob_id,
+            unread_obj_id: unread_obj.channel_id,
+            has_more: unread_obj.has_more,
+            collapsed: !!unread_obj.collapsed,
+            msg_count: unread_obj.messages.length
+          });
           return;
         }
-        if (!(first_fetch && _direct_from_boot) && model_ob.unread_cnt === 0) return;
+        if (!(first_fetch && _direct_from_boot) && model_ob.unread_cnt === 0) {
+          TS.client.unread.debug("all_unreads_ignored_channel model_ob has no unreads", {
+            current_model_ob_id: _current_model_ob_id,
+            unread_obj_id: unread_obj.channel_id,
+            model_ob_id: model_ob.id,
+            model_ob_unread_cnt: model_ob.unread_cnt,
+            first_fetch: first_fetch,
+            direct_from_boot: _direct_from_boot
+          });
+          return;
+        }
         msgs = unread_obj.messages.map(function(msg) {
           return TS.utility.msgs.processImsg(msg, model_ob.id);
         });

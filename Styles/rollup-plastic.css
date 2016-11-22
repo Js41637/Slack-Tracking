@@ -7197,7 +7197,7 @@ only screen and (min-resolution:2dppx) {
 
 .enterprise_team_card {
   background-color: #fff;
-  border-radius: .375rem;
+  border-radius: .25rem;
   padding: 1rem;
   margin: 0 auto 2rem;
   position: relative;
@@ -9130,8 +9130,7 @@ textarea.validation_warning:focus {
 .modal-header-image {
   display: inline-block;
   width: 200px;
-  height: 200px;
-  margin-top: -100px
+  height: 200px
 }
 
 .modal-header-image--oops {
@@ -9379,6 +9378,10 @@ only screen and (min-resolution:2dppx) {
   padding-bottom: 0;
   margin-top: 1.875rem;
   margin-bottom: .9375rem
+}
+
+.c-modal_header--dark .modal-header-image {
+  margin-top: -100px
 }
 
 .c-modal_body--dark {
@@ -11934,6 +11937,39 @@ only screen and (min-resolution:2dppx) {
 
 #client-ui #team_list .show_extra_data .expanded_member_details {
   opacity: 1
+}
+
+.current_status_input_wrap {
+  position: relative
+}
+
+.current_status_input_wrap .current_status_input {
+  padding-right: 1.5625rem
+}
+
+.current_status_input_wrap .status_clear_icon_wrap {
+  position: absolute;
+  right: .25rem;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%)
+}
+
+.current_status_input_wrap .status_clear_icon .ts_icon_times_circle {
+  color: #9e9ea6
+}
+
+.current_status_input_wrap .status_clear_icon:hover {
+  text-decoration: none
+}
+
+.current_status_input_container label.countdown.validation_error:after,
+.current_status_input_container label.countdown.validation_success:after,
+.current_status_input_container label.countdown.validation_warning:after {
+  margin-right: .75rem;
+  z-index: 1
 }
 
 #member_preview_scroller #member_current_status_input,

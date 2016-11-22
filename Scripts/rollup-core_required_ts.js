@@ -2558,6 +2558,7 @@
     rooms: null,
     bots: null,
     user_groups: null,
+    idp_groups: null,
     apps: {},
     files: [],
     requested_im_opens: {},

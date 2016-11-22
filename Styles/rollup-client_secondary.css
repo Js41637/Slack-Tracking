@@ -5,11 +5,28 @@
 }
 
 #col_flex {
-  position: absolute;
   background: #fff;
-  top: 61px;
-  right: 0;
   width: 0
+}
+
+.flexbox_client #col_flex {
+  max-width: 500px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-top: .5625rem
+}
+
+.flexbox_client #flex_contents {
+  width: 100%
+}
+
+#client-ui:not(.flexbox_client) #col_flex {
+  position: absolute;
+  top: 61px;
+  right: 0
 }
 
 html.is_electron_mac {
@@ -17,34 +34,51 @@ html.is_electron_mac {
 }
 
 #client-ui.flex_pane_showing #col_flex {
+  width: 37%
+}
+
+#client-ui.flex_pane_showing:not(.flexbox_client) #col_flex {
   width: 392px
 }
 
 @media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing #col_flex {
+  #client-ui.flex_pane_showing:not(.flexbox_client) #col_flex {
     width: 442px
   }
 }
 
 @media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing #col_flex {
+  #client-ui.flex_pane_showing:not(.flexbox_client) #col_flex {
     width: 492px
   }
 }
 
 #client-ui.flex_pane_showing.details_showing #col_flex {
+  width: 30%
+}
+
+#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #col_flex {
   width: 315px
 }
 
 @media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing.details_showing #col_flex {
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #col_flex {
     width: 365px
   }
 }
 
 @media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing.details_showing #col_flex {
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #col_flex {
     width: 415px
+  }
+}
+
+@media screen and (max-width:860px) {
+  #client-ui.flex_pane_showing.flexbox_client #col_flex {
+    width: 48%
+  }
+  #client-ui.flex_pane_showing.details_showing.flexbox_client #col_flex {
+    width: 40%
   }
 }
 
@@ -3338,8 +3372,36 @@ body.sorting_mode .channels_list_holder ul {
   position: relative
 }
 
-.client_container #col_messages {
-  height: 100%
+.flexbox_client #col_messages {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column
+}
+
+.flex_pane_showing.flexbox_client #col_messages {
+  width: 63%
+}
+
+.flex_pane_showing.details_showing.flexbox_client #col_messages {
+  width: 70%
+}
+
+@media screen and (max-width:860px) {
+  .flex_pane_showing.flexbox_client #col_messages {
+    width: 52%
+  }
+  .flex_pane_showing.details_showing.flexbox_client #col_messages {
+    width: 60%
+  }
 }
 
 #messages_container {
@@ -3348,17 +3410,9 @@ body.sorting_mode .channels_list_holder ul {
 
 .client_container #messages_container {
   margin-left: 0;
+  overflow: hidden;
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow: hidden
-}
-
-.is_macgap .client_container #messages_container,
-.is_safari_desktop .client_container #messages_container {
-  position: static
+  width: 100%
 }
 
 .supports_custom_scrollbar #messages_container:after {
@@ -3371,34 +3425,34 @@ body.sorting_mode .channels_list_holder ul {
   width: 8px
 }
 
-#client-ui.flex_pane_showing #messages_container {
+#client-ui.flex_pane_showing:not(.flexbox_client) #messages_container {
   margin-right: 392px
 }
 
 @media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing #messages_container {
+  #client-ui.flex_pane_showing:not(.flexbox_client) #messages_container {
     margin-right: 442px
   }
 }
 
 @media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing #messages_container {
+  #client-ui.flex_pane_showing:not(.flexbox_client) #messages_container {
     margin-right: 492px
   }
 }
 
-#client-ui.flex_pane_showing.details_showing #messages_container {
+#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
   margin-right: 315px
 }
 
 @media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing.details_showing #messages_container {
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
     margin-right: 365px
   }
 }
 
 @media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing.details_showing #messages_container {
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
     margin-right: 415px
   }
 }
@@ -3663,34 +3717,34 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
   z-index: 100
 }
 
-#client-ui.flex_pane_showing #msgs_overlay_div {
+#client-ui.flex_pane_showing:not(.flexbox_client) #msgs_overlay_div {
   margin-right: 392px
 }
 
 @media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing #msgs_overlay_div {
+  #client-ui.flex_pane_showing:not(.flexbox_client) #msgs_overlay_div {
     margin-right: 442px
   }
 }
 
 @media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing #msgs_overlay_div {
+  #client-ui.flex_pane_showing:not(.flexbox_client) #msgs_overlay_div {
     margin-right: 492px
   }
 }
 
-#client-ui.flex_pane_showing.details_showing #msgs_overlay_div {
+#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
   margin-right: 315px
 }
 
 @media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing.details_showing #msgs_overlay_div {
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
     margin-right: 365px
   }
 }
 
 @media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing.details_showing #msgs_overlay_div {
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
     margin-right: 415px
   }
 }
@@ -5580,6 +5634,39 @@ only screen and (min-resolution:2dppx) {
 
 #client-ui #team_list .show_extra_data .expanded_member_details {
   opacity: 1
+}
+
+.current_status_input_wrap {
+  position: relative
+}
+
+.current_status_input_wrap .current_status_input {
+  padding-right: 1.5625rem
+}
+
+.current_status_input_wrap .status_clear_icon_wrap {
+  position: absolute;
+  right: .25rem;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%)
+}
+
+.current_status_input_wrap .status_clear_icon .ts_icon_times_circle {
+  color: #9e9ea6
+}
+
+.current_status_input_wrap .status_clear_icon:hover {
+  text-decoration: none
+}
+
+.current_status_input_container label.countdown.validation_error:after,
+.current_status_input_container label.countdown.validation_success:after,
+.current_status_input_container label.countdown.validation_warning:after {
+  margin-right: .75rem;
+  z-index: 1
 }
 
 #member_preview_scroller #member_current_status_input,
@@ -22386,6 +22473,27 @@ ts-jumper ts-jumper-results:empty {
   transition: width .15s ease-out 0s
 }
 
+.flexbox_client .flex_header {
+  padding: 0 10px 0 0;
+  width: 30%;
+  max-width: 500px
+}
+
+.flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+.flexbox_client.search_focused .flex_header {
+  width: 37%
+}
+
+@media screen and (max-width:860px) {
+  .flexbox_client .flex_header {
+    width: 40%
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 48%
+  }
+}
+
 .whats_new_showing .flex_header {
   width: 21.5625rem;
   padding-right: 0
@@ -22487,6 +22595,25 @@ ts-jumper ts-jumper-results:empty {
   width: 30px
 }
 
+.flexbox_client #search_container .icon_search {
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none;
+  position: relative;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  margin-right: -1.5625rem;
+  margin-left: .5rem;
+  text-shadow: none;
+  color: #717274;
+  opacity: 1;
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  width: 1.0625rem;
+  height: 1.0625rem
+}
+
 #search_spinner,
 .icon_search,
 .search_clear_icon {
@@ -22511,6 +22638,20 @@ ts-jumper ts-jumper-results:empty {
 
 .search_clear_icon .ts_icon_times_circle {
   color: #9e9ea6
+}
+
+.flexbox_client #search_container .search_input {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  margin: 0;
+  -webkit-transition: width .15s ease-out 0s;
+  -moz-transition: width .15s ease-out 0s;
+  transition: width .15s ease-out 0s
+}
+
+.flexbox_client #search_container .search_input:focus {
+  outline: 0
 }
 
 .search_clear_icon:hover {
@@ -24258,7 +24399,7 @@ ul li.highlighted a .app_slash_command_desc {
   color: rgba(255, 255, 255, .7)
 }
 
-.app_card_posting_summary {
+.app_card_installation_summary {
   display: block;
   text-decoration: none;
   padding: 0 1rem 0 .5rem;
@@ -24269,7 +24410,17 @@ ul li.highlighted a .app_slash_command_desc {
   line-height: 1.5625rem;
   background: 0 0;
   color: #2c2d30;
-  white-space: normal
+  white-space: normal;
+  word-break: break-word
+}
+
+.app_card_member_dm_link {
+  font-weight: 700;
+  cursor: pointer
+}
+
+.app_card_member_dm_link:hover {
+  text-decoration: underline
 }
 
 .app_video_thumbnail {

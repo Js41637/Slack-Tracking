@@ -38,6 +38,11 @@
         },
         cls: "api_disable_account"
       },
+      cant_deactivate: {
+        primary: false,
+        label: new Handlebars.SafeString('Can\'t remove or convert member <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>'),
+        cls: "inline_flex no_underline api_cant_deactivate"
+      },
       demote_admin: {
         primary: true,
         label: "Remove Admin Privileges",
@@ -201,7 +206,8 @@
         is_single_channel_guest: member.is_ultra_restricted,
         is_multi_channel_guest: member.is_restricted,
         is_configurable: member.is_bot && member.bot_can_be_configured || member.is_slackbot,
-        only_belongs_to_this_team: member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length <= 1
+        only_belongs_to_this_team: member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length <= 1,
+        has_removal_restriction: TS.idp_groups && TS.idp_groups.memberBelongsToAnyGroup(member.id)
       }
     };
   };
@@ -215,7 +221,9 @@
       case "activate_as_guest":
         return member.is_human && member.is_deleted && !member.is_primary_owner && team.is_paid && (!team.is_enterprise || team.is_enterprise && member.is_guest);
       case "deactivate":
-        return member.is_human && !member.is_deleted && !member.is_primary_owner && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
+        return member.is_human && !member.is_deleted && !member.is_primary_owner && !member.has_removal_restriction && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
+      case "cant_deactivate":
+        return member.has_removal_restriction && team.is_enterprise && member.is_human && !member.is_deleted && !member.is_primary_owner && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
       case "demote_admin":
         return member.is_human && member.is_admin && !member.is_owner && !member.is_deleted && actor.is_owner;
       case "demote_owner":
