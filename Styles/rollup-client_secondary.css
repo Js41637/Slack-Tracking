@@ -12,6 +12,10 @@
   width: 0
 }
 
+html.is_electron_mac {
+  top: 69px
+}
+
 #client-ui.flex_pane_showing #col_flex {
   width: 392px
 }
@@ -2166,7 +2170,7 @@ body:not(.loading) #col_channels_bg {
   position: absolute;
   top: -1px;
   border-top: 1px solid rgba(0, 0, 0, .15);
-  z-index: 200
+  z-index: 201
 }
 
 .client_container #channels_nav.has_scrolled:after {
@@ -23139,7 +23143,7 @@ html:not(.supports_sticky_position) .currently_sticky .unread_group_header {
 }
 
 html:not(.supports_sticky_position).is_electron_mac .currently_sticky .unread_group_header {
-  margin-top: 64px
+  margin-top: 69px
 }
 
 html:not(.supports_sticky_position):not(.font_size_adjusted) .unread_group:first-child .unread_group_header {

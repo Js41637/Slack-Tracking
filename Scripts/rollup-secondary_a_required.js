@@ -52010,6 +52010,7 @@ $.fn.togglify = function(settings) {
     if (!TS.boot_data.feature_texty) return input;
     if (input.tagName.toLowerCase() === "textarea") return input;
     if (input.tagName.toLowerCase() === "input") return input;
+    if ($(input).hasClass("ql-editor")) return input.parentNode;
     if (input.hasAttribute("contenteditable")) return input;
     if (TS.boot_data.feature_texty && input.tagName === "DIV") return input;
     return false;

@@ -5622,7 +5622,7 @@ hr {
   left: 0;
   display: block;
   width: 220px;
-  height: 60px;
+  height: 61px;
   background-image: url(/57c6/img/loading_channel_pane@2x.png);
   background-position: 16px 16px;
   background-size: 178px 230px;
@@ -6067,7 +6067,7 @@ only screen and (min-resolution:2dppx) {
   background: 0 0;
   height: 53px;
   position: fixed;
-  z-index: 200;
+  z-index: 201;
   min-width: 768px;
   width: 100%
 }
@@ -6114,7 +6114,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #client_body {
-  margin-top: 3.3125rem
+  margin-top: 53px
 }
 
 .client_container #client_body {
@@ -6145,7 +6145,7 @@ only screen and (min-resolution:2dppx) {
   border-bottom: 1px solid #e8e8e8;
   background: #fff;
   content: '';
-  z-index: 199
+  z-index: 200
 }
 
 .client_container #client_body:not(.onboarding):before {
@@ -7715,15 +7715,15 @@ ts-memory-instrument {
 }
 
 html.is_electron_mac #client_header {
-  height: 72px
+  height: 61px
 }
 
 html.is_electron_mac #client_body {
-  margin-top: 64px
+  margin-top: 61px
 }
 
 html.is_electron_mac .client_container #client_header {
-  height: 64px
+  height: 61px
 }
 
 html.is_electron_mac .client_container #client_body {
@@ -7732,7 +7732,7 @@ html.is_electron_mac .client_container #client_body {
 
 html.is_electron_mac #team_menu,
 html.is_electron_mac #team_menu:after {
-  height: 72px
+  height: 69px
 }
 
 html.is_electron_mac #team_menu .notifications_menu_btn {
