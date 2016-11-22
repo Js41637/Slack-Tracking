@@ -1,6 +1,6 @@
 const request = require('request')
 const cheerio = require('cheerio')
-const { chain, compact, map, last, random, uniq, truncate, find } = require('lodash') // eslint-disable-line
+const { chain, compact, map, last, random, uniq, truncate, find, sortBy } = require('lodash') // eslint-disable-line
 const beautify = require('js-beautify')
 const fs = require('fs')
 const { exec } = require('child_process')
@@ -100,6 +100,7 @@ function processTemplates(scripts) {
 
 function getTerms(scripts) {
   return new Promise((resolve, reject) => {
+    console.log("Fetching TOS")
     request('http://slack.com/terms-of-service', (err, resp, body) => {
       if (err || !body) return reject(`Error: ${err || 'No body'}`)
       let $ = cheerio.load(body)
@@ -139,7 +140,7 @@ function getChanges(client) {
     let what = client ? 'git reset ./ && git add ClientExtracted/' : 'git add ./ && git reset ClientExtracted/'
     exec(`${what} && git diff --cached --name-status`, (err, stdout) => {
       if (err) return reject(err)
-      let changes = compact(map(stdout.split('\n'), c => c.trim().replace('\t', ' ')))
+      let changes = chain(stdout.split('\n')).map(c => c.trim().replace('\t', ' ')).compact().sortBy(change => change.match(/A [A-z/-]+\.\w+/)).value()
       console.log(`Got ${changes.length} changed files`)
       return resolve(changes)
     })
@@ -152,7 +153,7 @@ function pushToGit(client) {
     console.log("Preparing to push to Github")
     getChanges(client).then(changes => {
       if (!changes.length) return resolve('No new changes')
-      if (changes[0].includes("Unstaged changes after reset")) return reject("Error: Git fucked up")
+      if (changes.indexOf("Unstaged changes after reset") >= 0) return reject("Error: Git fucked up")
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${truncate(changes.join(', ').replace(/ClientExtracted(\/src)?/g, 'Client'), { length: 1000 })}`
       let cmd = `git commit -m "${msg}" ${config.noPush ? '' : '&& git push'}`
