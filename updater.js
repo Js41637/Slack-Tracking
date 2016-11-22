@@ -5,8 +5,8 @@ const beautify = require('js-beautify')
 const fs = require('fs')
 const { exec } = require('child_process')
 const { CLIEngine } = require('eslint')
-var striptags = require('striptags');
-var toMarkdown = require('to-markdown');
+const striptags = require('striptags');
+const toMarkdown = require('to-markdown');
 const emojis = require('./emojis')
 const config = require('./config')
 const clientUpdater = require('./clientUpdater')
@@ -18,7 +18,7 @@ if (!config || !config.teamName || !config.updateInterval || !config.cookies) {
 
 const clientReleasesURL = 'http://slack-ssb-updates.global.ssl.fastly.net/releases_beta_x64/RELEASES'
 const URL = `https://${config.teamName}.slack.com`
-const headers = { Cookie: config.cookies.join(';') }
+const headers = { Cookie: config.cookies.join(';') } // Cookies ;)
 const types = { js: 'Scripts', css: 'Styles', md: 'Random' }
 const beautifyOptions = { indent_size: 2, end_with_newline: true }
 const jsRegex = /(analytics|beacon|required_libs)(.js|.php)/
@@ -28,7 +28,7 @@ const eslint = new CLIEngine({
   useEslintrc: false,
   fix: true,
   rules: {
-    semi: ['error', 'always']
+    semi: ['error', 'always'] // Always error on missing semicolons
   }
 })
 
@@ -73,6 +73,8 @@ function getIndividualScripts(urls) {
   }))
 }
 
+// Parses the Javascript file we downloaded containing minified HTML templates
+//  and seperates them into seperate files
 function processTemplates(scripts) {
   return new Promise((resolve, reject) => {
     let temps = find(scripts, { name: 'templates.js' })
@@ -89,6 +91,7 @@ function processTemplates(scripts) {
       return reject("Error processing templates")
     }
 
+    // Write each template to the disk
     Promise.all(templates.map(template => {
       return new Promise(resolve => {
         let body = template.body.replace(/\\n/g, '\n').replace(/\\t/g, '  ').replace(/\\"/g, '"').replace(/\\\//g, '/')
@@ -98,6 +101,7 @@ function processTemplates(scripts) {
   })
 }
 
+// Fetches Slacks Terms Of Service and converts it to markdown
 function getTerms(scripts) {
   return new Promise((resolve, reject) => {
     console.log("Fetching TOS")
@@ -105,6 +109,7 @@ function getTerms(scripts) {
       if (err || !body) return reject(`Error: ${err || 'No body'}`)
       let $ = cheerio.load(body)
       let html = $('#page_contents > div')
+      if (!html) return reject("Can't find da terms")
       html.find('style').remove() // striptags pls
       let terms = toMarkdown(striptags(html.html(), '<p><b><h1><h2><h3><h4>'))
       scripts.push({ name: 'TOS.md', body: terms, type: 'md'})
@@ -113,7 +118,7 @@ function getTerms(scripts) {
   })
 }
 
-// Write all scripts to disk, overwriting existing
+// Write all scripts and styles and stuff to disk, overwriting existing
 function writeToDisk(scripts) {
   console.log("Writing to disk")
   return Promise.all(scripts.map(({ name, body, type }) => {
@@ -124,6 +129,8 @@ function writeToDisk(scripts) {
   }))
 }
 
+// Lints all the JS code in the ./Scripts directory to add missing semicolons so
+//  we get nice diffs, this can take up to 2 minutes to complete.
 function lintCode() {
   return new Promise((resolve) => { // synchronous
     console.log("Linting code")
@@ -153,7 +160,10 @@ function pushToGit(client) {
     console.log("Preparing to push to Github")
     getChanges(client).then(changes => {
       if (!changes.length) return resolve('No new changes')
-      if (changes.indexOf("Unstaged changes after reset") >= 0) return reject("Error: Git fucked up")
+      if (changes.indexOf("Unstaged changes after reset") >= 0) {
+        console.error("Error: Git fucked up")
+        return exec('git reset HEAD --hard', () => process.exit())
+      }
       let emoji = emojis[random(0, emojis.length - 1)]
       let msg = `${emoji} ${truncate(changes.join(', ').replace(/ClientExtracted(\/src)?/g, 'Client'), { length: 1000 })}`
       let cmd = `git commit -m "${msg}" ${config.noPush ? '' : '&& git push'}`
@@ -202,6 +212,7 @@ function pullLatestChanges() {
   })
 }
 
+// Start The Magic
 function startTheMagic() {
   pullLatestChanges()
     .then(getPageScripts)
