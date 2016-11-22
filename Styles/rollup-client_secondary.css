@@ -22006,7 +22006,8 @@ ts-jumper ts-jumper-results:empty {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1;
-  min-width: 1px
+  min-width: 1px;
+  color: #717274
 }
 
 .channel_title {
@@ -22026,7 +22027,6 @@ ts-jumper ts-jumper-results:empty {
   margin: 0 0 -2px;
   line-height: 1.3;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  color: #9e9ea6;
   font-size: 1.125rem;
   font-weight: 900;
   -webkit-transition: .15s;
@@ -22078,7 +22078,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .channel_title .channel_name.muted {
-  color: #a0a0a2
+  color: #717274
 }
 
 .channel_title .ts_icon_lock {
@@ -22094,7 +22094,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .channel_title .ts_icon_shared_channel.away {
-  color: #9e9ea6
+  color: #717274
 }
 
 .channel_title .dm_title {
@@ -22111,7 +22111,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .channel_title .mpdm_member.away {
-  color: #9e9ea6;
+  color: #717274;
   font-style: italic
 }
 
@@ -22122,7 +22122,7 @@ ts-jumper ts-jumper-results:empty {
 .channel_title .muted_icon {
   margin-left: 4px;
   font-size: .85rem;
-  color: #9e9ea6
+  color: #717274
 }
 
 .channel_title .muted_icon:hover {
@@ -22147,7 +22147,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 #im_title.away {
-  color: #9e9ea6;
+  color: #717274;
   font-style: italic
 }
 
@@ -22164,7 +22164,6 @@ ts-jumper ts-jumper-results:empty {
   align-items: center;
   margin-top: 4px;
   padding-left: 1.3rem;
-  color: #717274;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .8125rem;
   font-weight: 400;
@@ -22182,7 +22181,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 #channel_header_info .star {
-  color: #717274
+  color: inherit
 }
 
 #channel_header_info .star.starred,

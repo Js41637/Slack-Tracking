@@ -10106,6 +10106,9 @@
       }
       if (TS.client.ui.checkForEditing(e)) return TS.sounds.play("beep");
       var $el = $(e.target);
+      if (TS.model && TS.model.team && TS.boot_data.feature_tinyspeck) {
+        TS.info("Channel switch clicked", $el, $el[0] ? $el[0].outerHTML : "");
+      }
       var member_el = $el.closest(".member").find(".im_name");
       var member_id = member_el.data("member-id");
       var group_el = $el.closest(".group_name");
