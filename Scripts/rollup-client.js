@@ -9243,8 +9243,10 @@
     },
     showInitial: function() {
       var self = this;
+      this._startLoadingState();
       if (TS.lazyLoadMembersAndBots() && TS.team.getBestEffortTotalTeamSize() <= self._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
         return TS.team.ensureEntireTeamLoaded().then(function() {
+          self._stopLoadingState();
           self._loadSearchBar();
           self._loadLocalMembersIntoLongListView();
           return null;
@@ -9254,6 +9256,7 @@
         return Promise.resolve().then(function() {
           self._loadSearchBar();
           return self._fetchMoreMembers().then(function() {
+            self._stopLoadingState();
             self._loadLongListView({
               items: self._members_in_view
             });
@@ -9261,6 +9264,7 @@
         });
       }
       return Promise.resolve().then(function() {
+        self._stopLoadingState();
         self._loadSearchBar();
         self._loadLocalMembersIntoLongListView();
         return null;
@@ -9307,11 +9311,14 @@
       return this._current_filter;
     },
     _loadLocalMembersIntoLongListView: function(options) {
-      var self = this;
       var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
-      self._loadLongListView({
-        items: members_for_user.members
-      });
+      if (this.$_long_list_view) {
+        this.$_long_list_view.longListView("setItems", options.items, true, true);
+      } else {
+        this._loadLongListView({
+          items: members_for_user.members
+        });
+      }
     },
     _loadSearchBar: function() {
       var self = this;
@@ -9429,6 +9436,15 @@
         return response.objects;
       });
       return self._fetch_more_members_p;
+    },
+    _startLoadingState: function() {
+      this.$_container.find(this._long_list_view_id).before(TS.templates.infinite_spinner({
+        color: "white",
+        size: "medium"
+      }));
+    },
+    _stopLoadingState: function() {
+      this.$_container.find(".infinite_spinner").remove();
     }
   });
 })();
@@ -23213,7 +23229,7 @@
           do_check = false;
         }
       }
-      if (do_check) show_archive_btn = c_or_g === "channel" && TS.members.canUserArchiveChannels() || c_or_g === "group" && TS.members.canUserArchiveChannels() && !TS.model.user.is_restricted;
+      if (do_check) show_archive_btn = c_or_g === "channel" && TS.permissions.members.canArchiveChannels() || c_or_g === "group" && TS.permissions.members.canArchiveChannels() && !TS.model.user.is_restricted;
     }
     var show_rename_btn = false;
     if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.boot_data.feature_shared_channels_settings && TS.members.canUserManageSharedChannels()) {

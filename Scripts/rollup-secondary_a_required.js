@@ -2307,6 +2307,10 @@
     canAtMentionEveryone: function() {
       return _checkPrefCascade("who_can_at_everyone", TS.model.user);
     },
+    canArchiveChannels: function() {
+      if (TS.model.user.is_restricted) return false;
+      return _checkPrefCascade("who_can_archive_channels", TS.model.user);
+    },
     test: function() {
       var test_ob = {};
       Object.defineProperty(test_ob, "_checkPrefCascade", {
@@ -10170,13 +10174,6 @@ TS.registerModule("constants", {
         return false;
       }
       return false;
-    },
-    canUserArchiveChannels: function() {
-      if (TS.model.user.is_restricted) return false;
-      if (TS.model.team.prefs.who_can_archive_channels == "regular") return true;
-      if (TS.model.team.prefs.who_can_archive_channels == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_archive_channels == "owner") return !!TS.model.user.is_owner;
-      return true;
     },
     canUserCreateGroups: function() {
       if (TS.model.user.is_ultra_restricted) return false;
@@ -28635,9 +28632,18 @@ TS.registerModule("constants", {
               str += '<a target="_self" href="' + url + '">';
             } else {
               var file_id = TS.utility.getFileIDFromURL(url);
-              var css_class = file_id ? ' class="file_preview_link no_jumbomoji"' : "";
+              var is_welcome_post = false;
+              if (file_id && TS.model && TS.model.user && TS.model.user.is_primary_owner) {
+                var file = TS.files ? TS.files.getFileById(file_id) : false;
+                if (file && TS.utility.welcome_post && file.name == TS.utility.welcome_post.WELCOME_POST_NAME) {
+                  is_welcome_post = true;
+                }
+              }
+              var file_link_type = is_welcome_post ? "file_new_window_link" : "file_preview_link";
+              var css_class = file_id ? ' class="no_jumbomoji ' + file_link_type + '"' : "";
               var data_file_id = file_id ? ' data-file-id="' + file_id + '"' : "";
-              str += "<a " + TS.utility.makeRefererSafeLink(url) + ' target="_blank"' + css_class + data_file_id + ">";
+              var onclick_action = is_welcome_post ? ' onclick="TS.utility.welcome_post.clogEditLink()"' : "";
+              str += "<a " + TS.utility.makeRefererSafeLink(url) + ' target="_blank"' + css_class + data_file_id + onclick_action + ">";
               if (attach_html) {
                 TS.error("WTF we should have no attach_html");
               }
@@ -34082,7 +34088,7 @@ var _on_esc;
         var model_ob = TS.shared.getActiveModelOb();
         if (model_ob.is_archived || model_ob.is_general) return;
         if (TS.model.active_channel_id) {
-          if (!TS.members.canUserArchiveChannels()) return;
+          if (!TS.permissions.members.canArchiveChannels()) return;
           var channel = TS.channels.getChannelById(TS.model.active_channel_id);
           TS.channels.ui.showArchiveChannelDialog(channel);
         } else if (TS.model.active_group_id) {
@@ -43685,6 +43691,7 @@ $.fn.togglify = function(settings) {
           e.stopPropagation();
           return;
         }
+        _selectListItem(instance);
         if (instance.$input.val() !== "") {
           instance.$input.val("");
           instance._previous_val = "";
@@ -43694,7 +43701,6 @@ $.fn.togglify = function(settings) {
           _hideList(instance);
           e.stopPropagation();
         }
-        _selectListItem(instance);
       }
       instance._prevent_blur = false;
     });
@@ -53935,6 +53941,13 @@ $.fn.togglify = function(settings) {
           action: "disable"
         });
       }
+    },
+    clogEditLink: function() {
+      TS.clog.track("WEBSITE_CLICK", {
+        click_target: "edit_post_link",
+        trigger: "welcome_post_team_creator",
+        action: "open_post"
+      });
     }
   });
 })();

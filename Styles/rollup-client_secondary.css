@@ -699,6 +699,10 @@ input.search_input {
   padding-right: 8px
 }
 
+.searchable_member_list .infinite_spinner {
+  margin: 50% auto
+}
+
 .searchable_member_list_filter {
   margin: .8rem 1rem;
   position: relative
@@ -19346,23 +19350,6 @@ html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container 
 .attachment_group .inline_attachment.message_unfurl .attachment_source .attachment_source_name+.attachment_meta::before {
   content: '';
   margin: 0 .4rem 0 0
-}
-
-.attachment_group .inline_attachment.reply_broadcast:first-child .attachment_text {
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-.supports_line_clamp .attachment_group .inline_attachment.reply_broadcast:first-child .attachment_text {
-  margin-bottom: .15rem;
-  white-space: normal;
-  text-overflow: ellipsis!important;
-  display: -webkit-box!important;
-  -webkit-line-clamp: 2!important;
-  -webkit-box-orient: vertical!important;
-  overflow: hidden!important
 }
 
 .attachment_group .inline_attachment.reply_broadcast+.attachment_rule {
