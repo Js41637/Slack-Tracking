@@ -16641,7 +16641,7 @@ TS.registerModule("constants", {
     update_thread_state: function(imsg) {
       if (!TS.boot_data.feature_message_replies || !TS.boot_data.feature_message_replies_threads_view) return;
       if (!TS.client) return;
-      TS.client.threads.setThreadsUnreadData(imsg.has_unreads, imsg.mention_count);
+      TS.client.threads.setThreadsUnreadData(imsg.has_unreads, imsg.mention_count, imsg.timestamp);
     }
   });
   var _did_queue_rebuild_member_list_toggle = false;
