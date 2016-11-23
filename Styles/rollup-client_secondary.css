@@ -73,9 +73,27 @@ html.is_electron_mac {
   }
 }
 
+@media screen and (max-width:1279px) {
+  #client-ui.flex_pane_showing.flexbox_client #col_flex {
+    width: 39%
+  }
+  #client-ui.flex_pane_showing.details_showing.flexbox_client #col_flex {
+    width: 32%
+  }
+}
+
+@media screen and (max-width:1070px) {
+  #client-ui.flex_pane_showing.flexbox_client #col_flex {
+    width: 42%
+  }
+  #client-ui.flex_pane_showing.details_showing.flexbox_client #col_flex {
+    width: 35%
+  }
+}
+
 @media screen and (max-width:860px) {
   #client-ui.flex_pane_showing.flexbox_client #col_flex {
-    width: 48%
+    width: 46%
   }
   #client-ui.flex_pane_showing.details_showing.flexbox_client #col_flex {
     width: 40%
@@ -3399,9 +3417,27 @@ body.sorting_mode .channels_list_holder ul {
   width: 70%
 }
 
+@media screen and (max-width:1279px) {
+  .flex_pane_showing.flexbox_client #col_messages {
+    width: 61%
+  }
+  .flex_pane_showing.details_showing.flexbox_client #col_messages {
+    width: 68%
+  }
+}
+
+@media screen and (max-width:1070px) {
+  .flex_pane_showing.flexbox_client #col_messages {
+    width: 58%
+  }
+  .flex_pane_showing.details_showing.flexbox_client #col_messages {
+    width: 65%
+  }
+}
+
 @media screen and (max-width:860px) {
   .flex_pane_showing.flexbox_client #col_messages {
-    width: 52%
+    width: 54%
   }
   .flex_pane_showing.details_showing.flexbox_client #col_messages {
     width: 60%
@@ -22509,13 +22545,33 @@ ts-jumper ts-jumper-results:empty {
   width: 37%
 }
 
+@media screen and (max-width:1279px) {
+  .flexbox_client .flex_header {
+    width: 32%
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 39%
+  }
+}
+
+@media screen and (max-width:1070px) {
+  .flexbox_client .flex_header {
+    width: 35%
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 42%
+  }
+}
+
 @media screen and (max-width:860px) {
   .flexbox_client .flex_header {
     width: 40%
   }
   .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
   .flexbox_client.search_focused .flex_header {
-    width: 48%
+    width: 46%
   }
 }
 

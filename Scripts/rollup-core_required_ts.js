@@ -4755,7 +4755,7 @@
       if (!is_at_everyone && !is_at_channel && !is_at_group) return false;
       model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob || model_ob.is_im) return false;
-      if ((is_at_channel || is_at_group) && !TS.members.canUserAtChannelOrAtGroup()) return false;
+      if ((is_at_channel || is_at_group) && !TS.permissions.members.canAtChannelOrGroup()) return false;
       if (model_ob.is_general && is_at_everyone && !TS.permissions.members.canAtMentionEveryone()) return false;
       if (TS.model.team.prefs.warn_before_at_channel === "never") return false;
       if (TS.model.team.prefs.warn_before_at_channel === "once" && user_has_seen_it) return false;
@@ -4781,7 +4781,7 @@
       if (only_general && has_at_everyone && (!has_at_here && !has_at_channel && !has_at_group)) {
         if (TS.permissions.members.canAtMentionEveryone()) return false;
       }
-      if (!TS.members.canUserAtChannelOrAtGroup()) {
+      if (!TS.permissions.members.canAtChannelOrGroup()) {
         if (has_at_here) return "@here";
         if (has_at_channel) return "@channel";
         if (has_at_group) return "@group";

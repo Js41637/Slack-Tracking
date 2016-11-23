@@ -2307,9 +2307,16 @@
     canAtMentionEveryone: function() {
       return _checkPrefCascade("who_can_at_everyone", TS.model.user);
     },
+    canAtChannelOrGroup: function() {
+      return _checkPrefCascade("who_can_at_channel", TS.model.user);
+    },
     canArchiveChannels: function() {
       if (TS.model.user.is_restricted) return false;
       return _checkPrefCascade("who_can_archive_channels", TS.model.user);
+    },
+    canCreateChannels: function() {
+      if (TS.model.user.is_restricted) return false;
+      return _checkPrefCascade("who_can_create_channels", TS.model.user);
     },
     test: function() {
       var test_ob = {};
@@ -3194,7 +3201,7 @@
           if (TS.model.user.is_restricted) {
             err_txt = "<p>Your account is restricted, and you cannot send <b>@everyone</b> messages.</p>";
           }
-          if (!channel.is_general && TS.members.canUserAtChannelOrAtGroup()) {
+          if (!channel.is_general && TS.permissions.members.canAtChannelOrGroup()) {
             err_txt += '<p class="no_bottom_margin">If you just want to address everyone in this channel, use <b>@channel</b> instead.</p>';
           }
           errorOut(err_txt);
@@ -3203,7 +3210,7 @@
         if (!channel.is_general && !is_at_here) {
           if (!general || !general.is_member) {
             err_txt = "<p>You cannot send <b>@everyone</b> messages.</p>";
-            if (TS.members.canUserAtChannelOrAtGroup()) {
+            if (TS.permissions.members.canAtChannelOrGroup()) {
               err_txt += '<p class="no_bottom_margin">If you just want to address everyone in this channel, use <b>@channel</b> instead.</p>';
             }
             errorOut(err_txt);
@@ -3226,7 +3233,7 @@
           return false;
         }
       }
-      if (is_at_channel && !TS.members.canUserAtChannelOrAtGroup()) {
+      if (is_at_channel && !TS.permissions.members.canAtChannelOrGroup()) {
         var key_word = is_at_here ? "@here" : "@channel";
         err_txt = "<p>A Team Owner has restricted the use of <b>" + key_word + "</b> messages.</p>";
         errorOut(err_txt);
@@ -8601,7 +8608,7 @@ TS.registerModule("constants", {
           if (TS.model.user.is_restricted) {
             err_txt = "<p>Your account is restricted, and you cannot send <b>@everyone</b> messages.</p>";
           }
-          if (TS.members.canUserAtChannelOrAtGroup()) {
+          if (TS.permissions.members.canAtChannelOrGroup()) {
             err_txt += '<p class="no_bottom_margin">If you just want to address everyone in this ' + model_label + ", use <b>@" + model_label + "</b> instead.</p>";
           }
           errorOut(err_txt);
@@ -8609,7 +8616,7 @@ TS.registerModule("constants", {
         }
         if (!general || !general.is_member) {
           err_txt = "<p>You cannot send <b>@everyone</b> messages.</p>";
-          if (TS.members.canUserAtChannelOrAtGroup()) {
+          if (TS.permissions.members.canAtChannelOrGroup()) {
             err_txt += '<p class="no_bottom_margin">If you just want to address everyone in this ' + model_label + ", use <b>@" + model_label + "</b> instead.</p>";
           }
           errorOut(err_txt);
@@ -8633,7 +8640,7 @@ TS.registerModule("constants", {
       }
       var is_at_here = TS.model.here_regex.test(clean_text);
       var is_at_group = (TS.model.channel_regex.test(clean_text) || TS.model.group_regex.test(clean_text)) && !is_reply;
-      if ((is_at_group || is_at_here) && !TS.members.canUserAtChannelOrAtGroup()) {
+      if ((is_at_group || is_at_here) && !TS.permissions.members.canAtChannelOrGroup()) {
         var key_word = is_at_here ? "@here" : "@channel";
         err_txt = "<p>A Team Owner has restricted the use of <b>" + key_word + "</b> messages.</p>";
         errorOut(err_txt);
@@ -10122,23 +10129,6 @@ TS.registerModule("constants", {
       _active_members_with_slackbot_and_not_self.length = 0;
       _active_local_members_with_slackbot_and_not_self.length = 0;
       _active_local_members_with_self_and_slackbot.length = 0;
-    },
-    canUserAtChannelOrAtGroup: function() {
-      if (TS.model.user.is_restricted) {
-        return TS.model.team.prefs.who_can_at_channel == "ra";
-      }
-      if (TS.model.team.prefs.who_can_at_channel == "ra") return true;
-      if (TS.model.team.prefs.who_can_at_channel == "regular") return true;
-      if (TS.model.team.prefs.who_can_at_channel == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_at_channel == "owner") return !!TS.model.user.is_owner;
-      return true;
-    },
-    canUserCreateChannels: function() {
-      if (TS.model.user.is_restricted) return false;
-      if (TS.model.team.prefs.who_can_create_channels == "regular") return true;
-      if (TS.model.team.prefs.who_can_create_channels == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_create_channels == "owner") return !!TS.model.user.is_owner;
-      return true;
     },
     canUserCreateSharedChannels: function() {
       var is_enabled = TS.boot_data.page_needs_enterprise && (TS.model.enterprise && TS.model.enterprise.id) || TS.boot_data.feature_external_shared_channels_ui;
@@ -16662,7 +16652,7 @@ TS.registerModule("constants", {
     update_thread_state: function(imsg) {
       if (!TS.boot_data.feature_message_replies || !TS.boot_data.feature_message_replies_threads_view) return;
       if (!TS.client) return;
-      TS.client.threads.setThreadsUnreadData(imsg.has_unreads, imsg.mention_count, imsg.timestamp);
+      TS.client.threads.updateThreadState(imsg.has_unreads, imsg.mention_count, imsg.timestamp);
     }
   });
   var _did_queue_rebuild_member_list_toggle = false;
@@ -26008,7 +25998,7 @@ TS.registerModule("constants", {
           return bk.id === "BKeveryone" || bk.id === "BKall";
         });
       }
-      if (TS.members.canUserAtChannelOrAtGroup() && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.permissions.members.canAtMentionEveryone())) {
+      if (TS.permissions.members.canAtChannelOrGroup() && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.permissions.members.canAtMentionEveryone())) {
         channel_keywords = _.filter(TS.model.BROADCAST_KEYWORDS, function(bk) {
           return bk.id === "BKchannel" || bk.id === "BKgroup" || bk.id === "BKhere";
         });
@@ -33117,11 +33107,7 @@ var _on_esc;
       });
       if (member.is_self) {
         TS.menu.$menu_header.find(".member_timezone_value a").on("click.timezone", function(e) {
-          if (TS.boot_data.feature_client_tz_picker) {
-            e.preventDefault();
-          } else {
-            e.stopPropagation();
-          }
+          e.preventDefault();
           TS.menu.member.end();
         });
       }
@@ -33758,7 +33744,7 @@ var _on_esc;
               TS.groups.displayGroup(group.id);
             }
           } else {
-            if (TS.members.canUserCreateChannels()) {
+            if (TS.permissions.members.canCreateChannels()) {
               TS.ui.new_channel_modal.start(channel_name);
             } else {
               TS.cmd_handlers.addEphemeralFeedback("I couldn't find a channel named \"" + channel_name + '", sorry', "", "sad_surprise");
@@ -39947,16 +39933,14 @@ var _on_esc;
         team: TS.model.team,
         team_member_profile_fields: TS.team.getVisibleTeamProfileFieldsForMember(TS.model.user, true)
       };
-      if (TS.boot_data.feature_client_tz_picker) {
-        var timezone_options = [];
-        _.each(TS.boot_data.timezones, function(tz) {
-          timezone_options.push({
-            label: tz[0],
-            val: tz[1]
-          });
+      var timezone_options = [];
+      _.each(TS.boot_data.slack_timezones, function(tz) {
+        timezone_options.push({
+          label: tz[0],
+          val: tz[1]
         });
-        template_args.timezone_options = timezone_options;
-      }
+      });
+      template_args.timezone_options = timezone_options;
       var html = TS.templates.edit_member_profile_list(template_args);
       _$div.find("#edit_member_profile_list").html(html);
     }
@@ -40145,14 +40129,12 @@ var _on_esc;
     var calling_args = {
       profile: JSON.stringify(profile)
     };
-    if (TS.boot_data.feature_client_tz_picker) {
-      var tz_value = _$div.find('[name="tz"]').val();
-      if (tz_value !== TS.model.user.tz) {
-        TS.prefs.setPrefByAPI({
-          name: "tz",
-          value: tz_value
-        });
-      }
+    var tz_value = _$div.find('[name="tz"]').val();
+    if (tz_value !== TS.model.user.tz) {
+      TS.prefs.setPrefByAPI({
+        name: "tz",
+        value: tz_value
+      });
     }
     TS.api.call("users.profile.set", calling_args).then(function(response) {
       $(".edit_member_profile_confirm_edit_btn").addClass("disabled");
@@ -42900,7 +42882,7 @@ $.fn.togglify = function(settings) {
   TS.registerModule("ui.new_channel_modal", {
     onStart: function() {},
     start: function(title, is_public, preselected_ids) {
-      if (!TS.members.canUserCreateChannels() && !TS.members.canUserCreateGroups()) return;
+      if (!TS.permissions.members.canCreateChannels() && !TS.members.canUserCreateGroups()) return;
       TS.ui.fs_modal.start({
         body_template_html: '<div id="new_channel_modal_container"></div>',
         onShow: _onShow,
@@ -42910,12 +42892,12 @@ $.fn.togglify = function(settings) {
       return TS.ui.new_channel_modal.startInContainer(_$modal_container, title, is_public, preselected_ids);
     },
     startInContainer: function($container, title, is_public, preselected_ids) {
-      if (!TS.members.canUserCreateChannels() && !TS.members.canUserCreateGroups()) return;
+      if (!TS.permissions.members.canCreateChannels() && !TS.members.canUserCreateGroups()) return;
       _$modal_container = $container;
       _is_public = is_public !== false;
-      if (!TS.members.canUserCreateChannels()) _is_public = false;
+      if (!TS.permissions.members.canCreateChannels()) _is_public = false;
       if (!TS.members.canUserCreateGroups()) _is_public = true;
-      var can_toggle_private = TS.members.canUserCreateChannels() && TS.members.canUserCreateGroups();
+      var can_toggle_private = TS.permissions.members.canCreateChannels() && TS.members.canUserCreateGroups();
       title = TS.utility.cleanChannelName(title || "").substr(0, TS.model.channel_name_max_length);
       preselected_ids = preselected_ids || [];
       var members_you_can_invite = TS.groups.getActiveMembersForInviting(TS.model.user.is_admin);

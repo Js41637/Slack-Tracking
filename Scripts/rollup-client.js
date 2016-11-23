@@ -731,7 +731,7 @@
     if (modal_to_open == "create_channel") {
       if (TS.model.ms_connected || TS.model.change_channels_when_offline) {
         if (!TS.model.sorting_mode_is_showing) {
-          if (TS.members.canUserCreateChannels() || TS.members.canUserCreateGroups()) {
+          if (TS.permissions.members.canCreateChannels() || TS.members.canUserCreateGroups()) {
             TS.ui.new_channel_modal.start();
           }
         }
@@ -10160,7 +10160,7 @@
     };
     $(".new_channel_btn").on("click", function(e) {
       e.stopPropagation();
-      if (!TS.members.canUserCreateChannels() && !TS.members.canUserCreateGroups()) return;
+      if (!TS.permissions.members.canCreateChannels() && !TS.members.canUserCreateGroups()) return;
       if (!canSwitchChannels()) return TS.sounds.play("beep");
       _openCreateChannelDialog();
     });
@@ -10455,7 +10455,7 @@
     return html;
   };
   var _updateCreateChannelButton = function() {
-    var can_create_channels = TS.members.canUserCreateChannels() || TS.members.canUserCreateGroups();
+    var can_create_channels = TS.permissions.members.canCreateChannels() || TS.members.canUserCreateGroups();
     $(".new_channel_btn").toggleClass("hidden", !can_create_channels);
   };
   var _getCustomSorterStr = function(c) {
@@ -10772,7 +10772,7 @@
     var display_total = all_channels.length;
     _updateCreateChannelButton();
     if (TS.model.user.is_restricted) {
-      if (!TS.members.canUserCreateChannels() && !TS.members.canUserCreateGroups() && 0 === display_total) {
+      if (!TS.permissions.members.canCreateChannels() && !TS.members.canUserCreateGroups() && 0 === display_total) {
         $("#channels").addClass("hidden");
         return;
       }
@@ -18333,7 +18333,7 @@
         TS.ui.channel_create_dialog.is_edit = true;
         TS.ui.channel_create_dialog.model_ob = model_ob;
       } else {
-        if (!TS.members.canUserCreateChannels()) return;
+        if (!TS.permissions.members.canCreateChannels()) return;
         TS.ui.channel_create_dialog.is_edit = false;
         TS.ui.channel_create_dialog.model_ob = null;
       }
@@ -18748,7 +18748,13 @@
         TS.error("no channel/group?");
         return;
       }
-      TS.ui.growls.growlchannelOrGroupMessage(model_ob, msg, true);
+      if (TS.boot_data.feature_message_replies) {
+        _ensureSubscriptionsForReplies(model_ob, msg).then(function() {
+          TS.ui.growls.growlchannelOrGroupMessage(model_ob, msg, true);
+        });
+      } else {
+        TS.ui.growls.growlchannelOrGroupMessage(model_ob, msg, true);
+      }
     },
     growlchannelOrGroupMessage: function(model_ob, msg, change_title, force) {
       if (!msg) {
@@ -18765,8 +18771,16 @@
       var channel_mentions_can_growl = TS.notifs.canCorGHaveChannelMentions(model_ob.id);
       var contains_mention;
       var mentions_data;
+      var thread_subscribed = true;
+      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+        var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
+        thread_subscribed = subscription && subscription.subscribed;
+      }
       if (channel_mentions_can_growl) {
         var ignore_at_here_mentions = TS.model.user.presence == "away";
+        if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+          ignore_at_here_mentions = ignore_at_here_mentions || !thread_subscribed;
+        }
         contains_mention = TS.utility.msgs.msgContainsMention(msg, ignore_at_here_mentions);
         if (contains_mention) TS.mentions.maybeUpdateMentions();
       } else {
@@ -18798,6 +18812,9 @@
         }
       }
       if (!force && setting == "nothing") return;
+      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg) && !force && setting == "everything" && !thread_subscribed) {
+        setting = "mentions";
+      }
       if (!TS.ui.growls.checkPermission()) return;
       var is_in_active_channel = model_ob.id == TS.model.active_channel_id || model_ob.id == TS.model.active_group_id || model_ob.id == TS.model.active_mpim_id;
       var is_in_active_thread = TS.boot_data.feature_message_replies && msg.thread_ts && model_ob.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
@@ -18819,20 +18836,8 @@
         display = false;
       }
       if (display && is_muted) {
-        if (TS.boot_data.feature_message_replies_threads_view && TS.utility.msgs.isMsgReply(msg)) {
-          var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
-          if (subscription) {
-            if (!subscription.subscribed) display = false;
-          } else {
-            var args = arguments;
-            TS.replies.promiseToGetSubscriptionState(model_ob.id, msg.thread_ts).then(function() {
-              subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
-              if (subscription && subscription.subscribed) {
-                TS.ui.growls.growlchannelOrGroupMessage.apply(window, args);
-              }
-            });
-            return;
-          }
+        if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+          if (!thread_subscribed) display = false;
         } else {
           display = false;
         }
@@ -19008,7 +19013,13 @@
       if (msg.no_display) {
         return;
       }
-      TS.ui.growls.growlImMessage(model_ob, msg, true);
+      if (TS.boot_data.feature_message_replies) {
+        _ensureSubscriptionsForReplies(model_ob, msg).then(function() {
+          TS.ui.growls.growlImMessage(model_ob, msg, true);
+        });
+      } else {
+        TS.ui.growls.growlImMessage(model_ob, msg, true);
+      }
     },
     growlImMessage: function(im, msg, change_title, force) {
       if (!msg) {
@@ -19026,11 +19037,17 @@
       var display = false;
       if (TS.boot_data.feature_message_replies) {
         var is_in_active_im = im.id === TS.model.active_im_id;
-        var is_reply = msg.thread_ts && msg.thread_ts !== msg.ts;
+        var is_reply = TS.utility.msgs.isMsgReply(msg);
         var is_in_active_thread = is_reply && im.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
+        var thread_subscribed = true;
+        if (is_reply) {
+          var subscription = TS.replies.getSubscriptionState(im.id, msg.thread_ts);
+          thread_subscribed = subscription && subscription.subscribed;
+        }
         if (!TS.model.ui.is_window_focused) display = true;
         if (!display && !is_in_active_im && !is_in_active_thread) display = true;
         if (!display && is_in_active_im && is_reply && !is_in_active_thread) display = true;
+        if (display && is_reply && !thread_subscribed) display = false;
       } else {
         if (im.id != TS.model.active_im_id || !TS.model.ui.is_window_focused) {
           display = true;
@@ -19187,6 +19204,17 @@
       }
     }
   });
+  var _ensureSubscriptionsForReplies = function(model_ob, msg) {
+    if (!TS.utility.msgs.isMsgReply(msg)) return Promise.resolve();
+    var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
+    if (subscription) return Promise.resolve();
+    return TS.replies.promiseToGetSubscriptionState(model_ob.id, msg.thread_ts).then(function() {
+      subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
+      if (!subscription) {
+        throw new Error("promiseToGetSubscriptionState resolved but subscription is missing for " + msg.thread_ts);
+      }
+    });
+  };
 })();
 (function() {
   "use strict";
@@ -27246,7 +27274,7 @@
       var measure_label = "channel_browser_show";
       var start_mark_label = "start_channel_browser_show";
       TS.metrics.mark(start_mark_label);
-      var can_create = TS.members.canUserCreateChannels() || TS.members.canUserCreateGroups();
+      var can_create = TS.permissions.members.canCreateChannels() || TS.members.canUserCreateGroups();
       var channel_count = TS.channels.getUnarchivedChannelsForUser().length;
       var group_count = TS.groups.getUnarchivedGroups().length;
       var title = "Browse all " + (channel_count + group_count) + " channels";
@@ -32873,7 +32901,7 @@ function timezones_guess() {
     var disambiguate_mpims = false;
     if (matches.length == 0) {
       show_new_channel_link = !(query.charAt(0) === "@" || query.charAt(0) === "#" && query.length === 1 || query.indexOf(",") > -1);
-      if (!query || !/[a-zA-Z\d]/.test(query) || !TS.members.canUserCreateChannels()) {
+      if (!query || !/[a-zA-Z\d]/.test(query) || !TS.permissions.members.canCreateChannels()) {
         show_new_channel_link = false;
       }
       clean_name = TS.utility.cleanChannelName(query.substring(0, 21));

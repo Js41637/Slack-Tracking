@@ -10,7 +10,7 @@
       {{/or}}
       <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
       {{#if member.is_self}}
-        (<a href='/account/settings' target="{{newWindowName}}" {{#feature flag="feature_client_tz_picker"}}data-action="edit_member_profile_modal"{{/feature}}>{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
+        (<a href='/account/settings' target="{{newWindowName}}" data-action="edit_member_profile_modal">{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
       {{/if}}
       {{#or member._is_external (or member.is_restricted member.is_bot)}}
         </span>
