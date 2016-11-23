@@ -2285,6 +2285,28 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("permissions.members", {
+    canPostInChannel: function(model_ob) {
+      if (!TS.boot_data.feature_shared_channels_settings) return true;
+      return !TS.channels.read_only.isReadOnly(model_ob.id);
+    },
+    canPostInGeneral: function(user) {
+      if (!user) {
+        return false;
+      }
+      if (user.is_restricted) {
+        return TS.model.team.prefs.who_can_post_general === "ra";
+      }
+      if (TS.model.team.prefs.who_can_post_general === "ra") return true;
+      if (TS.model.team.prefs.who_can_post_general === "regular") return true;
+      if (TS.model.team.prefs.who_can_post_general === "admin") return !!user.is_admin;
+      if (TS.model.team.prefs.who_can_post_general === "owner") return !!user.is_owner;
+      return true;
+    }
+  });
+})();
+(function() {
+  "use strict";
   TS.registerModule("tips", {
     onStart: function() {
       _$body.delegate(".ts_tip_lazy, .ts_tip_float", "mouseenter", _onMouseEnter);
@@ -10075,28 +10097,11 @@ TS.registerModule("constants", {
     },
     canMemberPostInModelOb: function(member, model_ob) {
       if (model_ob.is_general) {
-        return TS.members.canMemberPostInGeneral(member);
+        return TS.permissions.members.canPostInGeneral(member);
       } else if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
-        return TS.members.canMemberPostInChannel(model_ob);
+        return TS.permissions.members.canPostInChannel(model_ob);
       }
       return true;
-    },
-    canMemberPostInGeneral: function(user) {
-      if (!user) {
-        return false;
-      }
-      if (user.is_restricted) {
-        return TS.model.team.prefs.who_can_post_general == "ra";
-      }
-      if (TS.model.team.prefs.who_can_post_general == "ra") return true;
-      if (TS.model.team.prefs.who_can_post_general == "regular") return true;
-      if (TS.model.team.prefs.who_can_post_general == "admin") return !!user.is_admin;
-      if (TS.model.team.prefs.who_can_post_general == "owner") return !!user.is_owner;
-      return true;
-    },
-    canMemberPostInChannel: function(model_ob) {
-      if (!TS.boot_data.feature_shared_channels_settings) return true;
-      return !TS.channels.read_only.isReadOnly(model_ob.id);
     },
     canUserAtEveryone: function() {
       if (TS.model.user.is_restricted) {
@@ -10198,7 +10203,7 @@ TS.registerModule("constants", {
       return true;
     },
     canUserPostInGeneral: function() {
-      return TS.members.canMemberPostInGeneral(TS.model.user);
+      return TS.permissions.members.canPostInGeneral(TS.model.user);
     },
     canUserKickFromChannels: function() {
       if (TS.model.user.is_restricted) return false;
@@ -12973,7 +12978,7 @@ TS.registerModule("constants", {
       } else if (imsg.name == "who_can_post_general") {
         TS.model.team.prefs[imsg.name] = imsg.value;
         var general_id = TS.channels.getGeneralChannel().id;
-        if (TS.members.canMemberPostInGeneral()) {
+        if (TS.permissions.members.canPostInGeneral()) {
           TS.channels.read_only.removeChannelFromList(general_id);
         } else {
           TS.channels.read_only.addChannelToList(general_id);
@@ -17857,6 +17862,7 @@ TS.registerModule("constants", {
             template_args.show_reply_bar = true;
           }
           template_args.is_tombstone = msg.subtype === "tombstone";
+          template_args.is_new_reply = !!args.is_new_reply;
         }
         if (TS.boot_data.feature_pin_update) {
           var item;
@@ -23226,8 +23232,8 @@ TS.registerModule("constants", {
           return numbers[number];
         }
       });
-      Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob) {
-        var html = TS.client.ui.threads.buildThreadMsgHTML(msg, model_ob);
+      Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob, thread) {
+        var html = TS.client.ui.threads.buildThreadMsgHTML(msg, model_ob, thread);
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("commaSeparatedList", function(items_array, options) {
@@ -41521,7 +41527,7 @@ var _on_esc;
       if (!TS.client || !model_ob) return false;
       if (model_ob.is_general && !TS.members.canUserPostInGeneral()) return false;
       if (model_ob.is_channel && !model_ob.is_member) return false;
-      if (!TS.members.canMemberPostInChannel(model_ob)) return false;
+      if (!TS.permissions.members.canPostInChannel(model_ob)) return false;
       return true;
     },
     getPinData: function(msg) {

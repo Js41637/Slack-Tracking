@@ -39,6 +39,7 @@
              {{#if highlight_as_new}}new{{/if}}
              {{#feature flag="feature_message_replies"}}
                {{#if is_root_msg}}selected{{/if}}
+               {{#if is_new_reply}}new_reply{{/if}}
              {{/feature}}
              {{#if is_tombstone}}deleted{{/if}}
              {{#feature flag="feature_pin_update"}}

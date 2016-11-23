@@ -11976,6 +11976,10 @@ only screen and (min-resolution:2dppx) {
   z-index: 1
 }
 
+.current_status_input_container ts-inline-saver {
+  font-size: .9rem
+}
+
 #member_preview_scroller #member_current_status_input,
 #member_preview_web_container #member_current_status_input,
 #team_list #member_current_status_input,

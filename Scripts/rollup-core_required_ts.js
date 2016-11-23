@@ -5434,7 +5434,7 @@
       channel = TS.model.channels[i];
       var should_see = true;
       should_see = _fileShareFilter(channel, searcher);
-      var can_post_in_channel = TS.members.canMemberPostInChannel(channel);
+      var can_post_in_channel = TS.permissions.members.canPostInChannel(channel);
       if ((!channel.is_general || can_post_in_general) && !channel.is_archived && should_see && can_post_in_channel) {
         channels.push({
           model_ob: channel,
@@ -5451,7 +5451,7 @@
       group = TS.model.groups[i];
       var should_see = true;
       should_see = _fileShareFilter(group, searcher);
-      var can_post_in_channel = TS.members.canMemberPostInChannel(group);
+      var can_post_in_channel = TS.permissions.members.canPostInChannel(group);
       if (!group.is_archived && should_see && can_post_in_channel) {
         groups.push({
           model_ob: group,

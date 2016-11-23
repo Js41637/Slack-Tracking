@@ -1981,7 +1981,7 @@
         var $el = TS.boot_data.feature_texty ? TS.client.ui.$msg_input : $("#message-input-message span");
         $el.html("Your Team Owners have limited who can post to #<b>" + TS.channels.getGeneralChannel().name + "</b>");
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
-      } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.members.canMemberPostInChannel(active_model_ob)) {
+      } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.permissions.members.canPostInChannel(active_model_ob)) {
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
         if (!TS.boot_data.feature_texty) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
@@ -4355,7 +4355,9 @@
     },
     updateUserCurrentStatus: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
-      $(".current_user_current_status").text(TS.members.getMemberCurrentStatus(TS.model.user));
+      var current_status = TS.members.getMemberCurrentStatus(TS.model.user);
+      $(".current_user_current_status").text(current_status);
+      $("#current_user_name_and_current_status").attr("title", TS.utility.htmlEntities(current_status));
     },
     getUserPresenceStr: function() {
       var user = TS.model.user;
@@ -8591,7 +8593,7 @@
           });
           return false;
         }
-        if (model_ob && TS.boot_data.page_needs_enterprise && !TS.members.canMemberPostInChannel(model_ob) && model_ob.is_shared) {
+        if (model_ob && TS.boot_data.page_needs_enterprise && !TS.permissions.members.canPostInChannel(model_ob) && model_ob.is_shared) {
           TS.generic_dialog.start({
             title: "Cannot Post To #" + model_ob.name + ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>',
             body: "An Owner of your team has limited who can post to <strong>#" + model_ob.name + '<ts-icon class="ts_icon_shared_channel"></ts-icon></strong>. Nothing personal! You can share your file in another channel.',
@@ -12438,7 +12440,7 @@
         }
       } else if (TS.model.active_channel_id || TS.model.active_group_id) {
         model_ob = TS.shared.getActiveModelOb();
-        var can_user_post_in_channel = !model_ob.is_general || TS.members.canMemberPostInGeneral(TS.model.user);
+        var can_user_post_in_channel = !model_ob.is_general || TS.permissions.members.canPostInGeneral(TS.model.user);
         if (TS.client.msg_pane.areCallsEnabled() && can_user_post_in_channel) {
           if (TS.model.active_channel_id) {
             call_info = {
@@ -34106,7 +34108,8 @@ function timezones_guess() {
       _channelConsistencyCheck();
       return processed_data;
     }
-    var last_has_more = true;
+    var last_channel = _.last(data.channels);
+    var last_has_more = last_channel.has_more;
     data.channels.forEach(function(unread_obj) {
       _current_model_ob_id = unread_obj.channel_id;
       var model_ob = TS.shared.getModelObById(_current_model_ob_id);
@@ -34173,7 +34176,6 @@ function timezones_guess() {
       _sortAndDedupe(group, "msgs");
       TS.client.unread.messages_loaded = true;
       processed_data.groups.push(group);
-      last_has_more = unread_obj.has_more;
     });
     if (data.groups) {
       data.groups.forEach(function(group) {
@@ -36183,7 +36185,7 @@ function timezones_guess() {
     var $beginning = $container.find(".and_more_beginning");
     $beginning.remove();
     if (more_at_beginning) {
-      $container.prepend('<div class="and_more_beginning italic align_center large_top_margin large_bottom_margin">And more...</div>');
+      $container.prepend('<div class="and_more_beginning italic align_center large_top_margin large_bottom_margin">Loading more messages...</div>');
     }
     var $end = $container.find(".and_more_end");
     $end.remove();

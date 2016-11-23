@@ -6,7 +6,7 @@
     {{#if show_starred}}{{makeModelObStarredIconSafe model_ob}}{{/if}}
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
     {{! NOTE: we add user_colored and nuc classes to disallow/allow the color to be applied via the css rule (with :not(.nuc)), and easily toggle that on and off}}
-    <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}} {{#feature flag="feature_user_custom_status"}}{{#if member.profile.current_status}}ts_tip ts_tip_right ts_tip_float ts_tip_multiline{{/if}}{{/feature}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
+    <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}} {{#feature flag="feature_user_custom_status"}}{{#if member.profile.current_status}}ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_600{{/if}}{{/feature}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
       {{#feature flag="feature_user_custom_status"}}
         {{#if member.profile.current_status}}
           <span class="ts_tip_tip">
