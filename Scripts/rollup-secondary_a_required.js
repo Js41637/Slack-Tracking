@@ -2296,6 +2296,14 @@
       }
       return _checkPrefCascade("who_can_post_general", user);
     },
+    canPostInModelOb: function(member, model_ob) {
+      if (model_ob.is_general) {
+        return TS.permissions.members.canPostInGeneral(member);
+      } else if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
+        return TS.permissions.members.canPostInChannel(model_ob);
+      }
+      return true;
+    },
     canAtMentionEveryone: function() {
       return _checkPrefCascade("who_can_at_everyone", TS.model.user);
     },
@@ -10110,14 +10118,6 @@ TS.registerModule("constants", {
       _active_members_with_slackbot_and_not_self.length = 0;
       _active_local_members_with_slackbot_and_not_self.length = 0;
       _active_local_members_with_self_and_slackbot.length = 0;
-    },
-    canMemberPostInModelOb: function(member, model_ob) {
-      if (model_ob.is_general) {
-        return TS.permissions.members.canPostInGeneral(member);
-      } else if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
-        return TS.permissions.members.canPostInChannel(model_ob);
-      }
-      return true;
     },
     canUserAtChannelOrAtGroup: function() {
       if (TS.model.user.is_restricted) {
@@ -32173,6 +32173,11 @@ var _on_esc;
         };
         TS.api.call("enterprise.teams.leave", calling_args, function(ok, data, args) {
           if (ok) {
+            var team = TS.enterprise.getTeamById(_team_id);
+            TS.ui.toast.show({
+              type: "success",
+              message: "Left " + team.name
+            });
             TS.ui.fs_modal.close();
             return;
           }

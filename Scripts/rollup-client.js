@@ -9967,7 +9967,7 @@
   };
   var _getPlaceholderText = function() {
     var model_ob = TS.shared.getActiveModelOb();
-    if (!model_ob || !TS.members.canMemberPostInModelOb(TS.model.user, model_ob) || !model_ob.is_im && !model_ob.is_mpim && !model_ob.is_channel && !model_ob.is_group) {
+    if (!model_ob || !TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) || !model_ob.is_im && !model_ob.is_mpim && !model_ob.is_channel && !model_ob.is_group) {
       return "";
     }
     var placeholder = "Message ";

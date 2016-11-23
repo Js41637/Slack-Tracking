@@ -219,7 +219,7 @@ html.no_touch .alert_page a:hover {
   }
 }
 
-.alert_page.bottom {
+.alert_page.alert_bottom {
   bottom: 0;
   top: auto!important;
   padding: 1.3rem 1rem 1.4rem;
