@@ -3463,6 +3463,13 @@ html.no_touch .alert_page a:hover {
   }
 }
 
+.alert_page.bottom {
+  bottom: 0;
+  top: auto!important;
+  padding: 1.3rem 1rem 1.4rem;
+  z-index: 1042
+}
+
 .ts_toggle {
   display: inline-block;
   margin: 0 0 1rem;
@@ -11963,10 +11970,6 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon:hover {
   text-decoration: none
-}
-
-.current_status_input_container {
-  font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .current_status_input_container label.countdown.validation_error:after,

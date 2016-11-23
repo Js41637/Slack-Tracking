@@ -4756,7 +4756,7 @@
       model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob || model_ob.is_im) return false;
       if ((is_at_channel || is_at_group) && !TS.members.canUserAtChannelOrAtGroup()) return false;
-      if (model_ob.is_general && is_at_everyone && !TS.members.canUserAtEveryone()) return false;
+      if (model_ob.is_general && is_at_everyone && !TS.permissions.members.canAtMentionEveryone()) return false;
       if (TS.model.team.prefs.warn_before_at_channel === "never") return false;
       if (TS.model.team.prefs.warn_before_at_channel === "once" && user_has_seen_it) return false;
       if (TS.model.team.prefs.warn_before_at_channel === "daily" && user_has_seen_it_today) return false;
@@ -4779,7 +4779,7 @@
         only_general = !!channel.is_general;
       }
       if (only_general && has_at_everyone && (!has_at_here && !has_at_channel && !has_at_group)) {
-        if (TS.members.canUserAtEveryone()) return false;
+        if (TS.permissions.members.canAtMentionEveryone()) return false;
       }
       if (!TS.members.canUserAtChannelOrAtGroup()) {
         if (has_at_here) return "@here";
@@ -4794,7 +4794,7 @@
           if (channel && channel.is_general) is_general = true;
         });
       }
-      if (is_general && !TS.members.canUserAtEveryone()) {
+      if (is_general && !TS.permissions.members.canAtMentionEveryone()) {
         if (has_at_everyone || has_at_here || has_at_group || has_at_channel) return "@everyone";
       }
       return false;
@@ -4924,7 +4924,6 @@
 (function() {
   "use strict";
   TS.registerModule("ui.file_share", {
-    onStart: function() {},
     handleDraghoverstartFromWinSSB: function() {
       $(window).trigger("draghoverstart", [null, true]);
     },

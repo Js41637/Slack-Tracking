@@ -2294,16 +2294,34 @@
       if (!user) {
         return false;
       }
-      if (user.is_restricted) {
-        return TS.model.team.prefs.who_can_post_general === "ra";
-      }
-      if (TS.model.team.prefs.who_can_post_general === "ra") return true;
-      if (TS.model.team.prefs.who_can_post_general === "regular") return true;
-      if (TS.model.team.prefs.who_can_post_general === "admin") return !!user.is_admin;
-      if (TS.model.team.prefs.who_can_post_general === "owner") return !!user.is_owner;
-      return true;
+      return _checkPrefCascade("who_can_post_general", user);
+    },
+    canAtMentionEveryone: function() {
+      return _checkPrefCascade("who_can_at_everyone", TS.model.user);
+    },
+    test: function() {
+      var test_ob = {};
+      Object.defineProperty(test_ob, "_checkPrefCascade", {
+        get: function() {
+          return _checkPrefCascade;
+        },
+        set: function(v) {
+          _checkPrefCascade = v;
+        }
+      });
+      return test_ob;
     }
   });
+  var _checkPrefCascade = function(pref_name, user) {
+    if (user.is_restricted) {
+      return TS.model.team.prefs[pref_name] === "ra";
+    }
+    if (TS.model.team.prefs[pref_name] == "ra") return true;
+    if (TS.model.team.prefs[pref_name] == "regular") return true;
+    if (TS.model.team.prefs[pref_name] == "admin") return !!user.is_admin;
+    if (TS.model.team.prefs[pref_name] == "owner") return !!user.is_owner;
+    return true;
+  };
 })();
 (function() {
   "use strict";
@@ -3159,7 +3177,7 @@
       var is_at_channel = TS.model.channel_regex.test(clean_text) && !is_reply || TS.model.group_regex.test(clean_text) && !is_reply || is_at_here;
       var is_at_everyone = TS.model.everyone_regex.test(clean_text) && !is_reply || channel.is_general && is_at_channel;
       if (is_at_everyone) {
-        if (!TS.members.canUserAtEveryone()) {
+        if (!TS.permissions.members.canAtMentionEveryone()) {
           err_txt = "<p>A Team Owner has restricted the use of <b>@everyone</b> messages.</p>";
           if (TS.model.user.is_restricted) {
             err_txt = "<p>Your account is restricted, and you cannot send <b>@everyone</b> messages.</p>";
@@ -5323,7 +5341,6 @@ TS.registerModule("constants", {
         return;
       }
       TS.files.fetchFileInfo(args.file, function(id, file) {
-        TS.templates.builders.updateFileShareLabels(file);
         if (TS.web) {
           TS.files.upsertAndSignal(file);
         }
@@ -5354,7 +5371,6 @@ TS.registerModule("constants", {
         return;
       } else {
         TS.files.fetchFileInfo(args.file, function(id, file) {
-          TS.templates.builders.updateFileShareLabels(file);
           if (TS.web) {
             TS.files.upsertAndSignal(file);
           }
@@ -8568,7 +8584,7 @@ TS.registerModule("constants", {
       var is_reply = TS.boot_data.feature_message_replies && !!in_reply_to_msg;
       var err_txt;
       if (TS.model.everyone_regex.test(clean_text) && !is_reply) {
-        if (!TS.members.canUserAtEveryone()) {
+        if (!TS.permissions.members.canAtMentionEveryone()) {
           err_txt = "<p>A Team Owner has restricted the use of <b>@everyone</b> messages.</p>";
           if (TS.model.user.is_restricted) {
             err_txt = "<p>Your account is restricted, and you cannot send <b>@everyone</b> messages.</p>";
@@ -10101,16 +10117,6 @@ TS.registerModule("constants", {
       } else if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
         return TS.permissions.members.canPostInChannel(model_ob);
       }
-      return true;
-    },
-    canUserAtEveryone: function() {
-      if (TS.model.user.is_restricted) {
-        return TS.model.team.prefs.who_can_at_everyone == "ra";
-      }
-      if (TS.model.team.prefs.who_can_at_everyone == "ra") return true;
-      if (TS.model.team.prefs.who_can_at_everyone == "regular") return true;
-      if (TS.model.team.prefs.who_can_at_everyone == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_at_everyone == "owner") return !!TS.model.user.is_owner;
       return true;
     },
     canUserAtChannelOrAtGroup: function() {
@@ -11666,7 +11672,7 @@ TS.registerModule("constants", {
         var search = function() {
           if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
             TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter).then(function() {
-              if (TS.view) TS.view.rebuildUserGroupList();
+              if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
             });
           }
           $icon_close.toggleClass("hidden", !new_query.trim());
@@ -11736,6 +11742,7 @@ TS.registerModule("constants", {
       var list_items_id = $div.data("list-items-id");
       var $list_items_container = $(list_items_id);
       var $list_items = $list_items_container.find(".member_item");
+      var searchable_member_list = TS.component_manager.get("SearchableMemberList", "team_list");
       _query_for_match = "";
       TS.storage.storeFilterState(_query_for_match);
       if (TS.members.view.filter_timer) {
@@ -11747,6 +11754,7 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_searchable_member_list) {
         if (scroller_id == "#team_list_scroller") {
           TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
+          searchable_member_list.maybeClearNoResults();
         }
       } else {
         if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
@@ -11886,7 +11894,13 @@ TS.registerModule("constants", {
       return Promise.resolve().then(function() {
         if (scroller_id !== "#team_list_scroller") return Promise.reject();
         if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list) {
-          var current_filter = TS.client.ui.searchable_member_list.getCurrentFilter();
+          var current_filter;
+          var searchable_member_list = TS.component_manager.get("SearchableMemberList", "team_list");
+          if (searchable_member_list) {
+            current_filter = searchable_member_list.getCurrentFilter();
+          } else {
+            TS.warn("No active team list found");
+          }
           return TS.members.promiseToSearchMembers({
             query: _query_for_match,
             include_org: true,
@@ -11964,7 +11978,12 @@ TS.registerModule("constants", {
       }
     }
     if (TS.boot_data.feature_searchable_member_list) {
-      var current_filter = TS.client.ui.searchable_member_list.getCurrentFilter();
+      var searchable_member_list = TS.component_manager.get("SearchableMemberList", "team_list");
+      if (!searchable_member_list) {
+        TS.warn("No active team list found");
+        return;
+      }
+      var current_filter = searchable_member_list.getCurrentFilter();
       if (!TS.lazyLoadMembersAndBots()) {
         if (current_filter == "everyone") {
           filtered_members = _(team_list_items).values().flatten().uniq().value();
@@ -11976,9 +11995,14 @@ TS.registerModule("constants", {
         var filtered_members = items;
       }
       if (filtered_members.length > 0) {
-        TS.client.ui.searchable_member_list.getLongListView().longListView("setItems", filtered_members, true);
+        searchable_member_list.maybeClearNoResults();
+        searchable_member_list.getLongListView().longListView("setItems", filtered_members, true);
       } else {
-        TS.client.ui.searchable_member_list.resetInitialState();
+        if (query_for_match == "") {
+          searchable_member_list.resetInitialState();
+        } else {
+          searchable_member_list.showNoResults(query_for_display);
+        }
       }
       return;
     }
@@ -25982,12 +26006,12 @@ TS.registerModule("constants", {
       if (!model_ob) return [];
       var everyone_keywords = [];
       var channel_keywords = [];
-      if (model_ob.is_general && TS.members.canUserAtEveryone()) {
+      if (model_ob.is_general && TS.permissions.members.canAtMentionEveryone()) {
         everyone_keywords = _.filter(TS.model.BROADCAST_KEYWORDS, function(bk) {
           return bk.id === "BKeveryone" || bk.id === "BKall";
         });
       }
-      if (TS.members.canUserAtChannelOrAtGroup() && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.members.canUserAtEveryone())) {
+      if (TS.members.canUserAtChannelOrAtGroup() && (model_ob.is_channel || model_ob.is_group) && (!model_ob.is_general || TS.permissions.members.canAtMentionEveryone())) {
         channel_keywords = _.filter(TS.model.BROADCAST_KEYWORDS, function(bk) {
           return bk.id === "BKchannel" || bk.id === "BKgroup" || bk.id === "BKhere";
         });
@@ -41172,7 +41196,11 @@ var _on_esc;
     div: null,
     showing: false,
     delegate: undefined,
-    onStart: function() {},
+    onStart: function() {
+      TS.files.team_file_changed_sig.add(_teamFileChanged);
+      TS.files.team_file_comment_added_sig.add(_teamFileCommentCountChanged);
+      TS.files.team_file_comment_deleted_sig.add(_teamFileCommentCountChanged);
+    },
     onKeydown: function(e) {
       if (!TS.ui.share_dialog.showing) return;
       if (e.which == TS.utility.keymap.enter) {
@@ -41189,6 +41217,7 @@ var _on_esc;
     start: function(item_id, hide_file_preview, has_title, source_model_ob_id) {
       if (TS.client && TS.client.ui.checkForEditing()) return;
       _submitting = false;
+      _item_id = item_id;
       var item = TS.files.getFileById(item_id);
       var type = "file";
       if (item.mode == "post") {
@@ -41239,7 +41268,6 @@ var _on_esc;
       }
       if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return;
       var div = $("#share_dialog");
-      var item_id = div.find("#share_item_id").val();
       var model_ob_id = div.find("#share_model_ob_id").val();
       if (!model_ob_id) {
         var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
@@ -41256,7 +41284,8 @@ var _on_esc;
       var share_fn = function() {
         TS.shared.getShareModelObId(model_ob_id, function(real_model_ob_id) {
           var shared_from_msg = false;
-          TS.files.shareFile(item_id, real_model_ob_id, comment, shared_from_msg).then(function() {
+          TS.files.shareFile(_item_id, real_model_ob_id, comment, shared_from_msg).then(function() {
+            _item_id = null;
             if (!TS.client) return;
             var dest_model_ob = TS.shared.getModelObById(real_model_ob_id);
             if (!dest_model_ob) return;
@@ -41278,9 +41307,11 @@ var _on_esc;
       TS.ui.share_dialog.div.modal("hide");
     },
     cancel: function() {
+      _item_id = null;
       TS.ui.share_dialog.div.modal("hide");
     },
     end: function() {
+      _item_id = null;
       if (_thumbnail_lazy_load && _thumbnail_lazy_load.detachEvents) {
         _thumbnail_lazy_load.detachEvents();
       }
@@ -41315,7 +41346,31 @@ var _on_esc;
     }
   });
   var _thumbnail_lazy_load = null;
+  var _item_id;
   var _submitting = false;
+  var _teamFileChanged = function(file) {
+    if (TS.ui.share_dialog.showing && _item_id === file.id) {
+      _updateFileSharedChannels(file);
+      _rebuildFileHtml(file);
+    }
+  };
+  var _teamFileCommentCountChanged = function(file) {
+    if (TS.ui.share_dialog.showing && _item_id === file.id) {
+      _rebuildFileHtml(file);
+    }
+  };
+  var _updateFileSharedChannels = function(file) {
+    TS.templates.builders.updateFileShareLabels(file);
+    $("#select_share_at_channel_list").text(TS.templates.builders.makeFileCommentHelpText(file));
+  };
+  var _rebuildFileHtml = function(file) {
+    var item_dom_id = TS.templates.makeFileDomId(file);
+    $("#" + item_dom_id).replaceWith(TS.templates.builders.fileHTML(file, {
+      for_share_dialog: true
+    }));
+    var $lazy_loaded_img = $("#" + item_dom_id).find("img.lazy");
+    $lazy_loaded_img.removeClass("lazy").attr("src", $lazy_loaded_img.attr("data-original"));
+  };
 })();
 (function() {
   "use strict";
@@ -43137,6 +43192,86 @@ $.fn.togglify = function(settings) {
     _$modal_container = null;
     _ladda = null;
     _deferred = null;
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.toast", {
+    show: function(settings) {
+      _maybeInsertToast();
+      var instance = $.extend({}, _DEFAULT_SETTINGS, settings);
+      if (["success", "warning", "error"].indexOf(instance.type) < 0) instance.type = _DEFAULT_SETTINGS.type;
+      if (["top", "bottom"].indexOf(instance.position) < 0) instance.position = _DEFAULT_SETTINGS.position;
+      _maybeShowToast(instance);
+      return instance;
+    }
+  });
+  var _DEFAULT_SETTINGS = {
+    position: "bottom",
+    use_emoji: false,
+    emoji: "",
+    message: "Success",
+    type: "success"
+  };
+  var _queue = [];
+  var _is_currently_visible = false;
+  var _$toast_parent;
+  var _toast_timeout;
+  var _toast_timeout_time = 3e3;
+  var _ensureNothingInQueue = function() {
+    if (_needToShowNextToast()) _maybeShowNextToast();
+  };
+  var _getNextToast = function() {
+    return _queue.shift();
+  };
+  var _hideToast = function() {
+    var $toast = _$toast_parent.find(".toast");
+    $toast.addClass("hidden");
+    _is_currently_visible = false;
+    _ensureNothingInQueue();
+  };
+  var _markToastForDeath = function() {
+    if (_toast_timeout) clearTimeout(_toast_timeout);
+    _toast_timeout = setTimeout(function() {
+      if (_needToShowNextToast()) {
+        _maybeShowNextToast();
+      } else {
+        _hideToast();
+      }
+    }, _toast_timeout_time);
+  };
+  var _maybeInsertToast = function() {
+    if (!_$toast_parent) {
+      _$toast_parent = $('<div id="toast">');
+      var html = TS.templates.toast({});
+      _$toast_parent.html(html);
+      _$toast_parent.appendTo("body");
+    }
+  };
+  var _maybeShowNextToast = function() {
+    var next_toast = _getNextToast();
+    if (next_toast) _maybeShowToast(next_toast, true);
+  };
+  var _maybeShowToast = function(instance, should_show) {
+    if (_is_currently_visible && !should_show) {
+      _queue.push(instance);
+    } else {
+      var html = TS.templates.toast({
+        instance: instance
+      });
+      var $toast = _$toast_parent.find(".toast");
+      $toast.replaceWith(html);
+      _unhideToast();
+    }
+  };
+  var _needToShowNextToast = function() {
+    return _queue.length > 0;
+  };
+  var _unhideToast = function() {
+    var $toast = _$toast_parent.find(".toast");
+    $toast.removeClass("hidden");
+    _is_currently_visible = true;
+    _markToastForDeath();
   };
 })();
 (function() {
@@ -45864,13 +45999,21 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       TS.client.ui.threads.jumpToTop();
     });
-    TS.click.addClientHandler(".reveal_new_replies", function(e, $el) {
+    TS.click.addClientHandler("ts-thread .reveal_new_replies", function(e, $el) {
       var $thread = $el.closest("ts-thread");
       if (!$thread.length) return;
       e.preventDefault();
       var model_ob_id = $thread.attr("data-model-ob-id");
       var thread_ts = $thread.attr("data-thread-ts");
       TS.client.threads.showNewRepliesAndMarkThread(model_ob_id, thread_ts);
+    });
+    TS.click.addClientHandler("ts-thread .view_all_replies", function(e, $el) {
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      e.preventDefault();
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      TS.client.threads.showPreviousReplies(model_ob_id, thread_ts);
     });
     if (TS.boot_data.feature_app_cards_and_profs_frontend) {
       TS.click.addClientHandler(".app_preview_link", function(e, $el) {

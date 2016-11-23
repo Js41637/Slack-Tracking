@@ -1,0 +1,21 @@
+<div id="active_no_results" class="no_results">
+  <div class="align_center">
+    <p class="small_bottom_margin">
+      {{#if everyone_filter_selected}}
+        {{#t note="In response to a search" query=query}}No members found matching <span class="query bold">{query}</span>.{{/t}}
+      {{/if}}
+      {{#if members_filter_selected}}
+        {{#t note="In response to a search" query=query}}No members found matching <span class="query bold">{query}</span>.{{/t}}
+      {{/if}}
+      {{#if restricted_filter_selected}}
+        {{#t note="In response to a search" query=query}}No guests found matching <span class="query bold">{query}</span>.{{/t}}
+      {{/if}}
+      {{#if deactivated_filter_selected}}
+        {{#t note="In response to a search" query=query}}No deactivated members found matching <span class="query bold">{query}</span>.{{/t}}
+      {{/if}}
+    </p>
+  </div>
+  <p class="top_margin"><a class="clear_members_filter btn btn_outline btn_small btn_outline btn_small">
+    {{#t note="Button label used when no results are displayed for a member search"}}Clear search{{/t}}
+  </a></p>
+</div>

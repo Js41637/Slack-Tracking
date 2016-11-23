@@ -3542,6 +3542,24 @@ body.sorting_mode .channels_list_holder ul {
   display: inline
 }
 
+.dense_theme .feature_user_custom_status .message_content_header,
+.dense_theme .feature_user_custom_status .message_content_header_left {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -moz-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -ms-flex-align: baseline;
+  -webkit-align-items: baseline;
+  -webkit-box-align: baseline;
+  -moz-align-items: baseline;
+  align-items: baseline
+}
+
+.dense_theme .feature_user_custom_status .message_current_status {
+  cursor: pointer
+}
+
 .light_theme .message_content_header {
   display: -webkit-box;
   display: -webkit-flex;
@@ -3559,6 +3577,23 @@ body.sorting_mode .channels_list_holder ul {
   -ms-flex: 1 1 auto;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto
+}
+
+.light_theme .feature_user_custom_status .message_content_header_left {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: baseline;
+  -webkit-align-items: baseline;
+  -webkit-box-align: baseline;
+  -moz-align-items: baseline;
+  align-items: baseline
+}
+
+.light_theme .feature_user_custom_status .message_current_status {
+  cursor: pointer
 }
 
 .msg_right_link {
@@ -5664,10 +5699,6 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon:hover {
   text-decoration: none
-}
-
-.current_status_input_container {
-  font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .current_status_input_container label.countdown.validation_error:after,
@@ -18360,6 +18391,16 @@ ts-message.selected {
   display: none
 }
 
+.light_theme ts-message .message_content .message_current_status {
+  font-size: .875rem;
+  margin-right: .25rem;
+  color: #565759;
+  max-width: 7.5rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
 .light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
   margin-right: .25rem
 }
@@ -18617,6 +18658,10 @@ ts-message.selected {
   display: block
 }
 
+.dense_theme ts-message .message_content .message_current_status {
+  display: none
+}
+
 .dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
   margin-right: .25rem;
   margin-left: -.5rem
@@ -18811,8 +18856,8 @@ ts-thread:last-child {
 }
 
 ts-thread .view_all_replies_container {
-  padding-top: .3125rem;
-  padding-bottom: .375rem
+  height: 1.6875rem;
+  line-height: 1.6875rem
 }
 
 ts-thread .reply_input_container {
