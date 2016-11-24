@@ -18641,12 +18641,12 @@ ts-message.selected {
   margin-left: 3.6875rem
 }
 
-.light_theme .thread_channel_name,
 .light_theme .view_all_replies_container {
   margin-left: .8125rem
 }
 
-.light_theme .new_reply_indicator {
+.light_theme .new_reply_indicator,
+.light_theme .thread_channel_name {
   margin-left: 1.625rem
 }
 
@@ -18843,7 +18843,7 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 }
 
 .dense_theme .thread_channel_name {
-  margin-left: .375rem
+  margin-left: 1.25rem
 }
 
 .last_replier_wrapper {
@@ -18880,6 +18880,10 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 
 ts-thread {
   display: block;
+  margin-top: 1.5rem
+}
+
+ts-thread:first-child {
   margin-top: 1rem
 }
 

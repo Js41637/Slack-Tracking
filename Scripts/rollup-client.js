@@ -3185,7 +3185,7 @@
   var _$restricted_members_list;
   var _$deleted_members_list;
   var _log_resize_duration = false;
-  var _electron_window_gripper_offset = 12;
+  var _electron_window_gripper_offset = 16;
   var _setChannelsScrollerHeight = function(window_h, banner_h) {
     var window_h = window_h || TS.view.cached_wh || $(window).height();
     var banner_h = banner_h || (TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height")));
