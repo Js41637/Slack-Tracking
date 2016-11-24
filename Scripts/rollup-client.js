@@ -3185,7 +3185,7 @@
   var _$restricted_members_list;
   var _$deleted_members_list;
   var _log_resize_duration = false;
-  var _electron_window_gripper_offset = 16;
+  var _electron_window_gripper_offset = 8;
   var _setChannelsScrollerHeight = function(window_h, banner_h) {
     var window_h = window_h || TS.view.cached_wh || $(window).height();
     var banner_h = banner_h || (TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height")));
@@ -10085,9 +10085,11 @@
           $("#col_channels_footer").append('<div id="history_nav_btn" class="clearfix"></div>');
           $("#history_nav_btn").html(TS.templates.builders.buildHistoryNavBtnHtml());
           $("#left_arrow_btn").off().on("click", function() {
+            if (TS.newxp.inOnboarding()) return false;
             window.history.go(-1);
           });
           $("#right_arrow_btn").off().on("click", function() {
+            if (TS.newxp.inOnboarding()) return false;
             window.history.go(1);
           });
           $("#quickswitcher_btn").off().on("click", function() {
@@ -31953,7 +31955,7 @@ function timezones_guess() {
         var new_gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
         if (new_gallery !== _gallery) {
           _gallery = new_gallery;
-          if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled) {
+          if (TS.model.pdf_viewer_enabled) {
             _filterPDFs();
           }
           _updateCurrentIndex();
@@ -32253,7 +32255,7 @@ function timezones_guess() {
       return;
     }
     _gallery = $("#msgs_div").find(".file_viewer_link, .file_viewer_external_link, .thumbnail_link");
-    if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled) {
+    if (TS.model.pdf_viewer_enabled) {
       _filterPDFs();
     }
   };
@@ -32299,7 +32301,7 @@ function timezones_guess() {
       _current_file.member = TS.members.getMemberById(_current_file.file.user);
       _current_file.original_w = _current_file.file.original_w;
       _current_file.original_h = _current_file.file.original_h;
-      _current_file.is_pdf = TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && TS.files.fileIsPDF(_current_file.file);
+      _current_file.is_pdf = TS.model.pdf_viewer_enabled && TS.files.fileIsPDF(_current_file.file);
       TS.files.fetchFileInfo(_current_file.file.id, function() {
         if (_current_file.file && _current_file.file.comments && _current_file.file.comments.length) {
           if (!TS.boot_data.feature_share_mention_comment_cleanup) {
@@ -32371,7 +32373,7 @@ function timezones_guess() {
       actions: actions,
       link_url: _current_file.link_url
     };
-    if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && _current_file.is_pdf) {
+    if (TS.model.pdf_viewer_enabled && _current_file.is_pdf) {
       template_args.file_is_pdf = true;
       template_args.control_btns = false;
       template_args.pdf_viewer_url = TS.boot_data.abs_root_url + "pdf-viewer?feature_pdf_viewer=1";
@@ -32590,7 +32592,7 @@ function timezones_guess() {
       file: TS.files.getFileById($preload_image.data("file-id")) || {},
       external_file_src: is_preload_image_external ? $preload_image.data("src") : undefined
     };
-    if (TS.boot_data.feature_pdf_viewer && TS.model.pdf_viewer_enabled && TS.files.fileIsPDF(preload_current_file.file)) return;
+    if (TS.model.pdf_viewer_enabled && TS.files.fileIsPDF(preload_current_file.file)) return;
     var preload_src = _getImageSrc(preload_current_file);
     var image_for_preload = new Image;
     image_for_preload.src = preload_src.scaled;
