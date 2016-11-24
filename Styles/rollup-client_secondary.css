@@ -18633,14 +18633,6 @@ ts-message.selected {
   margin-left: 1.5rem
 }
 
-.light_theme ts-thread .reply_input_container .member_image {
-  margin-left: .8125rem
-}
-
-.light_theme ts-thread .reply_input_container .reply_broadcast_buttons_container {
-  margin-left: 3.6875rem
-}
-
 .light_theme .view_all_replies_container {
   margin-left: .8125rem
 }
@@ -18648,6 +18640,12 @@ ts-message.selected {
 .light_theme .new_reply_indicator,
 .light_theme .thread_channel_name {
   margin-left: 1.625rem
+}
+
+.light_theme .reply_input_container .inline_message_input_container textarea {
+  padding-left: .8125rem;
+  padding-top: .6875rem;
+  padding-bottom: .6875rem
 }
 
 .dense_theme .dense_only {
@@ -18837,11 +18835,6 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
   margin-top: 0
 }
 
-.dense_theme .reply_input_container .inline_message_input_container,
-.dense_theme .reply_input_container .reply_broadcast_buttons_container {
-  margin-left: 5.0625rem
-}
-
 .dense_theme .thread_channel_name {
   margin-left: 1.25rem
 }
@@ -18880,10 +18873,6 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 
 ts-thread {
   display: block;
-  margin-top: 1.5rem
-}
-
-ts-thread:first-child {
   margin-top: 1rem
 }
 
@@ -18894,10 +18883,6 @@ ts-thread:last-child {
 ts-thread .view_all_replies_container {
   height: 1.6875rem;
   line-height: 1.6875rem
-}
-
-ts-thread .reply_input_container {
-  margin-top: .3125rem
 }
 
 html.supports_flexbox ts-thread .reply_input_container {
@@ -18919,7 +18904,8 @@ html.supports_flexbox ts-thread .reply_input_container {
 
 ts-thread .reply_input_container .inline_message_input_container {
   position: relative;
-  margin: 0 0 0 .625rem
+  margin: 0;
+  z-index: 1
 }
 
 html.supports_flexbox ts-thread .reply_input_container .inline_message_input_container {
@@ -18932,12 +18918,22 @@ html:not(.supports_flexbox) ts-thread .reply_input_container .inline_message_inp
 }
 
 ts-thread .reply_input_container .inline_message_input_container form {
-  margin-top: 0
+  margin-top: 0;
+  padding-right: 0
+}
+
+ts-thread .reply_input_container .inline_message_input_container form textarea {
+  border-color: #e0e0e0;
+  border-radius: 0 0 10px 10px
 }
 
 ts-thread .reply_input_container .inline_message_input_container form .emo_menu {
-  top: 0;
+  top: .25rem;
   line-height: 2.25rem
+}
+
+ts-thread .reply_input_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
+  right: 1rem
 }
 
 ts-thread .reply_input_container .reply_limited_in_general {
@@ -18946,17 +18942,37 @@ ts-thread .reply_input_container .reply_limited_in_general {
   border-radius: 0 0 10px 10px
 }
 
+ts-thread .reply_input_container .reply_broadcast_buttons_container {
+  padding-left: .5rem;
+  margin-top: -1rem;
+  opacity: 0;
+  -webkit-transition: all .25s ease-out 0s;
+  -moz-transition: all .25s ease-out 0s;
+  transition: all .25s ease-out 0s
+}
+
+ts-thread .reply_input_container.has_focus .reply_broadcast_buttons_container {
+  opacity: 1;
+  margin-top: 0
+}
+
 ts-thread .thread_messages {
   padding-top: .375rem;
-  margin-left: .9375rem;
-  margin-right: .9375rem;
   background: #fff;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border: 1px solid #e0e0e0;
+  border-bottom: none
 }
 
 ts-thread .thread_messages>ts-message {
   background: 0 0
+}
+
+ts-thread .reply_input_container,
+ts-thread .thread_messages {
+  margin-left: .9375rem;
+  margin-right: .9375rem
 }
 
 ts-thread ts-message.new_reply {
@@ -18978,6 +18994,11 @@ ts-thread ts-message.new_reply {
   display: none
 }
 
+#reply_container .inline_message_input_container form,
+.reply_input_container .inline_message_input_container form {
+  margin-top: .25rem
+}
+
 #reply_container .inline_message_input_container textarea,
 .reply_input_container .inline_message_input_container textarea {
   margin-bottom: 0;
@@ -18994,14 +19015,33 @@ ts-thread ts-message.new_reply {
   border-color: #BBBDBF
 }
 
-html.supports_flexbox #reply_container .reply_broadcast_buttons_container,
-html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container {
-  width: 100%
+#reply_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu,
+.reply_input_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
+  right: 1.25rem
+}
+
+#reply_container .reply_broadcast_buttons_container,
+.reply_input_container .reply_broadcast_buttons_container {
+  width: 100%;
+  padding-top: .1875rem;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  -webkit-box-align: flex-start;
+  -moz-align-items: flex-start;
+  align-items: flex-start
 }
 
 #reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label,
 .reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label {
-  width: 250px;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  margin-bottom: 0;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -19011,11 +19051,15 @@ html.supports_flexbox .reply_input_container .reply_broadcast_buttons_container 
   color: #555459
 }
 
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label input[type=checkbox],
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label input[type=checkbox] {
+  margin-top: -.3125rem
+}
+
 #reply_container .reply_broadcast_buttons_container .reply_send,
 .reply_input_container .reply_broadcast_buttons_container .reply_send {
   float: right;
-  margin-right: .5rem;
-  top: 6px
+  margin-right: .5rem
 }
 
 #reply_container .join_channel_from_thread_container,
