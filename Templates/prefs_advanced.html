@@ -107,6 +107,12 @@
     <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
     Hide the quick switcher in the channel list
   </label>
+  {{#feature flag='feature_prev_next_button'}}
+    <label class="checkbox">
+      <input id="prev_next_btn" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
+      Hide the previous and next button in the channel list
+    </label>
+  {{/feature}}
   <label class="checkbox">
     <input id="ask_after_away_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
     Ask if I want to toggle my away status when I log in after having set myself away

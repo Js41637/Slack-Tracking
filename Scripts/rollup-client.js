@@ -4752,8 +4752,13 @@
       TS.prefs.sidebar_theme_changed_sig.add(TS.view.prefs.sidebarThemePrefChanged, TS.view.prefs);
       TS.prefs.mentions_exclude_at_channels_changed_sig.add(TS.view.prefs.rebuildMentionOptions, TS.view.prefs);
       TS.prefs.mentions_exclude_at_user_groups_changed_sig.add(TS.view.prefs.rebuildMentionOptions, TS.view.prefs);
-      TS.prefs.no_omnibox_in_channels_changed_sig.add(TS.client.channel_pane.updateQuickSwitcherBtnVisibility, TS.view.prefs);
-      TS.prefs.k_key_omnibox_auto_hide_count_changed_sig.add(_maybeHideQuickSwitcherBtn, TS.view.prefs);
+      if (TS.boot_data.feature_prev_next_button) {
+        TS.prefs.prev_next_btn_changed_sig.add(TS.client.channel_pane.rebuildFooter, TS.view.prefs);
+        TS.prefs.no_omnibox_in_channels_changed_sig.add(TS.client.channel_pane.rebuildFooter, TS.view.prefs);
+      } else {
+        TS.prefs.no_omnibox_in_channels_changed_sig.add(TS.client.channel_pane.updateQuickSwitcherBtnVisibility, TS.view.prefs);
+        TS.prefs.k_key_omnibox_auto_hide_count_changed_sig.add(_maybeHideQuickSwitcherBtn, TS.view.prefs);
+      }
       TS.prefs.separate_private_channels_changed_sig.add(_separatePrivateChannelsChanged);
       TS.prefs.team_display_email_addresses_changed_sig.add(TS.view.prefs.farReachingDisplayPrefChanged, TS.view.prefs);
     },
@@ -10054,14 +10059,7 @@
     },
     rebuild: function() {
       $("#col_channels").toggleClass("no_unread_msgs_badges", !TS.model.channel_sort.is_custom_sorted || !_sortingByUnreadMessagesCount());
-      if (TS.boot_data.feature_prev_next_button) {
-        if (!$("#history_nav_btn").length) {
-          $("#col_channels_footer").append('<div id="history_nav_btn" class="clearfix"></div>');
-          $("#history_nav_btn").html(TS.templates.builders.buildHistoryNavBtnHtml());
-        }
-      } else {
-        _rebuildQuickSwitcherBtn();
-      }
+      TS.client.channel_pane.rebuildFooter();
       if (TS.model.channel_sort.is_custom_sorted) {
         _rebuildCustomListThrottled();
         return;
@@ -10078,6 +10076,28 @@
         } else {
           TS.error("unknown channel_pane section:" + section);
         }
+      }
+    },
+    rebuildFooter: function() {
+      if (TS.boot_data.feature_prev_next_button) {
+        $("#col_channels_footer").empty();
+        if (!$("#history_nav_btn").length) {
+          $("#col_channels_footer").append('<div id="history_nav_btn" class="clearfix"></div>');
+          $("#history_nav_btn").html(TS.templates.builders.buildHistoryNavBtnHtml());
+          $("#left_arrow_btn").off().on("click", function() {
+            window.history.go(-1);
+          });
+          $("#right_arrow_btn").off().on("click", function() {
+            window.history.go(1);
+          });
+          $("#quickswitcher_btn").off().on("click", function() {
+            if (TS.newxp.inOnboarding()) return false;
+            TS.ui.jumper.start();
+          });
+        }
+        _updateChannelPaneFooterVisibility();
+      } else {
+        _rebuildQuickSwitcherBtn();
       }
     },
     maybeRebuildBecauseUnreadCntChanged: function(model_ob) {
@@ -10902,9 +10922,13 @@
     return _getSortedStarredList().concat(_getSortedChannelList(), _getSortedDmList());
   };
   var _updateChannelPaneFooterVisibility = function() {
+    var is_footer_hidden = TS.model.prefs.no_omnibox_in_channels;
+    if (TS.boot_data.feature_prev_next_button) {
+      is_footer_hidden = is_footer_hidden && TS.model.prefs.prev_next_btn;
+    }
     var $channel_scroll_down = $("#channel_scroll_down");
-    $("#col_channels_footer").toggleClass("hidden", TS.model.prefs.no_omnibox_in_channels);
-    $channel_scroll_down.toggleClass("no_sidebar_footer", !TS.model.prefs.no_omnibox_in_channels);
+    $("#col_channels_footer").toggleClass("hidden", is_footer_hidden);
+    $channel_scroll_down.toggleClass("no_sidebar_footer", !is_footer_hidden);
     TS.utility.queueRAF(function() {
       TS.view.resizeManually("TS.client.channel_pane _updateChannelPaneFooterVisibility");
     });
@@ -29937,6 +29961,15 @@
         value: !!$(this).prop("checked")
       });
     });
+    if (TS.boot_data.feature_prev_next_button) {
+      $("#prev_next_btn").prop("checked", TS.model.prefs.prev_next_btn === true).removeClass("hidden");
+      $("#prev_next_btn").on("change", function() {
+        TS.prefs.setPrefByAPI({
+          name: "prev_next_btn",
+          value: !!$(this).prop("checked")
+        });
+      });
+    }
     $("#ask_after_away_cb").prop("checked", TS.model.prefs.confirm_user_marked_away === true);
     $("#ask_after_away_cb").on("change", function() {
       var val = !!$(this).prop("checked");

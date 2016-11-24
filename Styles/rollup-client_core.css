@@ -7147,6 +7147,44 @@ only screen and (min-resolution:2dppx) {
   padding: 1rem 1.2rem 0
 }
 
+#history_nav_btn .col {
+  display: block;
+  float: left;
+  margin: 0 0 2%;
+  padding-right: 2%
+}
+
+#history_nav_btn .col_1_of_1 {
+  width: 100%;
+  padding-right: 0
+}
+
+#history_nav_btn .col_1_of_2 {
+  width: 49.2%
+}
+
+#history_nav_btn .col_2_of_2 {
+  width: 100%;
+  padding-right: 0
+}
+
+#history_nav_btn .col_1_of_3 {
+  width: 32.26%
+}
+
+#history_nav_btn .col_2_of_3 {
+  width: 66.13%
+}
+
+#history_nav_btn .col_3_of_3 {
+  width: 100%;
+  padding-right: 0
+}
+
+#history_nav_btn .ts_tip {
+  z-index: 1
+}
+
 #history_nav_btn ts-icon:active,
 #history_nav_btn ts-icon:focus,
 #history_nav_btn ts-icon:hover {

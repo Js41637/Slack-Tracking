@@ -251,7 +251,7 @@
         TS.storage.do_compression = false;
       }
       TS.storage.version += TS.storage.do_compression ? "-compressed-LZString" : "";
-      var should_disable = _disabled || TS.qs_args["ls_disabled"] == "1" || !_ls || TS.boot_data && TS.boot_data.ls_disabled || TS.boot_data && TS.boot_data.feature_tw && TS.boot_data.feature_tw_ls_disabled || function() {
+      var should_disable = _disabled || TS.qs_args["ls_disabled"] == "1" || !_ls || TS.boot_data && TS.boot_data.ls_disabled || function() {
         if (!TS.storage.storageAvailable()) {
           _removeAllOurKeys();
           if (!TS.storage.storageAvailable()) {
@@ -261,9 +261,6 @@
         }
         return false;
       }();
-      if (TS.boot_data && TS.boot_data.feature_tw && TS.boot_data.feature_tw_ls_disabled) {
-        TS.warn("feature_tw_ls_disabled is on: you should call TS.storage.flush() if you are working with model data. Gets will be from the buffer and Sets will not persist.");
-      }
       if (TS.qs_args.feature_flannel_fe && TS.qs_args.feature_flannel_fe == 0) {
         TS.log(1989, "Flannel: dumping LS because of feature_flannel_fe url_flag override");
         TS.storage.completelyEmptyAllStorageAndReset();
@@ -12631,6 +12628,7 @@ TS.registerModule("constants", {
     no_invites_widget_in_sidebar_changed_sig: new signals.Signal,
     no_omnibox_in_channels_changed_sig: new signals.Signal,
     k_key_omnibox_auto_hide_count_changed_sig: new signals.Signal,
+    prev_next_btn_changed_sig: new signals.Signal,
     display_preferred_names_changed_sig: new signals.Signal,
     display_real_names_override_changed_sig: new signals.Signal,
     team_display_real_names_changed_sig: new signals.Signal,
@@ -13327,6 +13325,12 @@ TS.registerModule("constants", {
           if (TS.model.prefs.k_key_omnibox_auto_hide_count != imsg.value) {
             TS.model.prefs.k_key_omnibox_auto_hide_count = imsg.value;
             TS.prefs.k_key_omnibox_auto_hide_count_changed_sig.dispatch();
+          }
+          break;
+        case "prev_next_btn":
+          if (TS.model.prefs.prev_next_btn != imsg.value) {
+            TS.model.prefs.prev_next_btn = imsg.value;
+            TS.prefs.prev_next_btn_changed_sig.dispatch();
           }
           break;
         case "preferred_skin_tone":
@@ -21080,7 +21084,7 @@ TS.registerModule("constants", {
     },
     buildHistoryNavBtnHtml: function() {
       var hide_quick_switcher_btn = TS.model.prefs.no_omnibox_in_channels;
-      var hide_prev_next_btn = false;
+      var hide_prev_next_btn = TS.model.prefs.prev_next_btn;
       var num_col = 0;
       if (!hide_prev_next_btn) {
         num_col += 2;
@@ -21089,18 +21093,21 @@ TS.registerModule("constants", {
         num_col += 1;
       }
       var left_btn_html = TS.templates.footer_nav_btn({
+        id: "left_arrow_btn",
         col: num_col,
         ts_icon_type: "ts_icon_arrow_large_left",
         ts_tip_name: "Previous",
         ts_tip_shortcut: TS.model.is_mac ? "⌘ ←" : "Alt + ←"
       });
       var right_btn_html = TS.templates.footer_nav_btn({
+        id: "right_arrow_btn",
         col: num_col,
         ts_icon_type: "ts_icon_arrow_large_right",
         ts_tip_name: "Next",
         ts_tip_shortcut: TS.model.is_mac ? "⌘ →" : "Alt + →"
       });
       var quick_switcher_btn_html = TS.templates.footer_nav_btn({
+        id: "quickswitcher_btn",
         col: num_col,
         ts_icon_type: "ts_icon_filter",
         ts_tip_name: "Quick Switcher",
