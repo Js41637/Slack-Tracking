@@ -1603,7 +1603,7 @@
       }
       if (TS.view.default_col_flex_top == -1) {
         TS.view.default_col_flex_top = parseInt($("#col_flex").css("top"));
-        if (TS.boot_data.feature_electron_window_gripper && TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
+        if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
           TS.view.default_col_flex_top += 10;
         }
       }
@@ -3196,7 +3196,7 @@
       nav_h = TS.client.channel_pane.$nav.outerHeight();
       $("#channel_scroll_up").css("top", nav_h);
     }
-    if (TS.boot_data.feature_electron_window_gripper && TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
+    if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
       top_offset += _electron_window_gripper_offset;
     }
     var height = window_h - (top_offset + footer_h + banner_h + nav_h);
@@ -10961,9 +10961,6 @@
       }).bind("mouseout", function(e) {
         _$header.removeClass("hover_topic");
       });
-      if (TS.boot_data.feature_channel_name_menu) {
-        $("body").addClass("feature_channel_name_menu");
-      }
       TS.experiment.loadUserAssignments().then(function() {
         var group = TS.experiment.getGroup("channel_starring");
         _star_below_channel_name = group === "star_below_channel_name";
@@ -11327,11 +11324,7 @@
   var _bindChannelMenu = function() {
     if (TS.client.activeChannelIsHidden() && (TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies_threads_view)) return;
     if (TS.newxp.inOnboarding()) return false;
-    if (TS.boot_data.feature_channel_name_menu) {
-      var $actions_toggle = $("#channel_actions_toggle, #channel_name");
-    } else {
-      var $actions_toggle = $("#channel_actions_toggle");
-    }
+    var $actions_toggle = $("#channel_actions_toggle, #channel_name");
     if (TS.model.active_channel_id) {
       $actions_toggle.on("click.channel_actions", function(e) {
         TS.menu.channel.startWithChannel(e, _model_ob.id);

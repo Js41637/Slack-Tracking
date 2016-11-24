@@ -30788,7 +30788,7 @@ TS.registerModule("constants", {
         TS.menu.submenu_template_args["switch_teams"] = template_args;
       }
       var menu_offset_y = 55;
-      if (TS.boot_data.feature_electron_window_gripper && TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
+      if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
         menu_offset_y += 7;
       }
       TS.menu.start(e);
@@ -31764,7 +31764,7 @@ var _on_esc;
         TS.menu.$menu.addClass("narrow_menu");
         TS.ui.date_picker.getOldestMsgTs();
       }
-      var use_channel_name_toggle = TS.boot_data.feature_channel_name_menu && $(e.target).closest("#channel_name").length;
+      var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
       var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
       var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
@@ -32914,7 +32914,7 @@ var _on_esc;
         TS.ui.date_picker.getOldestMsgTs();
       }
       $("#menu_group_topic_input").bind("keydown", TS.menu.handleTopicKeydown);
-      var use_channel_name_toggle = TS.boot_data.feature_channel_name_menu && $(e.target).closest("#channel_name").length;
+      var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
       var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
       var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
@@ -33115,7 +33115,7 @@ var _on_esc;
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.member.onMemberItemClick);
       TS.kb_nav.setSubmitItemHandler(TS.menu.member.onMemberItemClick);
       if (is_im_menu) {
-        var use_channel_name_toggle = TS.boot_data.feature_channel_name_menu && $(e.target).closest("#channel_name").length;
+        var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
         var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
         var toggle_button_height = $toggle_button.height();
         var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
@@ -33393,7 +33393,7 @@ var _on_esc;
         TS.menu.$menu.addClass("narrow_menu");
         TS.ui.date_picker.getOldestMsgTs();
       }
-      var use_channel_name_toggle = TS.boot_data.feature_channel_name_menu && $(e.target).closest("#channel_name").length;
+      var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
       var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
       var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;

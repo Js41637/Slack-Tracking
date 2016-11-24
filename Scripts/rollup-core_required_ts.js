@@ -2877,7 +2877,7 @@
       if (TS.model.supports_sticky_position) {
         html_classes.push("supports_sticky_position");
       }
-      if (TS.boot_data.feature_electron_window_gripper && TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
+      if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
         html_classes.push("is_electron_mac");
       }
       if (TS.model.is_mac) html_classes.push("is_mac");

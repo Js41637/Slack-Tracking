@@ -22198,10 +22198,7 @@ ts-jumper ts-jumper-results:empty {
   -ms-user-select: text;
   user-select: text;
   padding: 0 .1rem 0 1.3rem;
-  color: #2c2d30
-}
-
-.feature_channel_name_menu .channel_title .channel_name {
+  color: #2c2d30;
   cursor: pointer
 }
 
