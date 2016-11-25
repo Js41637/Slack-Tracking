@@ -18634,7 +18634,8 @@ ts-message.selected {
 }
 
 .light_theme .view_all_replies_container {
-  margin-left: .8125rem
+  margin-left: .8125rem;
+  margin-right: .8125rem
 }
 
 .light_theme .new_reply_indicator,
@@ -18827,6 +18828,10 @@ ts-message.selected {
   margin-left: 5.0625rem
 }
 
+.dense_theme .view_all_replies_container {
+  margin-right: .5rem
+}
+
 .dense_theme .reply_input_container .member_preview_link {
   display: none
 }
@@ -18977,6 +18982,12 @@ ts-thread .thread_messages {
 
 ts-thread ts-message.new_reply {
   background: #f0f7fb
+}
+
+ts-thread .view_all_replies_count {
+  float: right;
+  font-size: .8rem;
+  color: #babbbf
 }
 
 #reply_container.has_focus .member_image,
