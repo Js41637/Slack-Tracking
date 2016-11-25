@@ -11,6 +11,9 @@
          {{#if app_id}}data-app-id="{{app_id}}"{{/if}}
          {{#if bot_id}}data-bot-id="{{bot_id}}"{{/if}}
          {{/feature}}
+         {{#feature flag="feature_refactor_buildmsghtml"}}
+           class="{{msg_classes}}"
+         {{else}}
          class="{{#unless standalone}}dirty_hover_container {{/unless}}
              message feature_fix_files
              {{#if msg.no_display}}hidden{{/if}}
@@ -50,6 +53,7 @@
       {{/feature}}
              {{#if app_id}}is_app{{/if}}
          "
+         {{/feature}}
          {{#feature flag="feature_message_replies"}}data-selectable="{{selectable}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}" data-parent-user-id="{{msg.parent_user_id}}"{{/if}}{{/feature}}
          >
   {{#unless hide_actions}}
@@ -116,7 +120,6 @@
         {{else}}
           {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="recap_highlight">Highlight</span>{{/if}}{{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
-          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="recap_highlight marker hidden"></span>{{/if}}{{/feature}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
         {{/if}}
       </div>

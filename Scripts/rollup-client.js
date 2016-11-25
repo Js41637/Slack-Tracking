@@ -7194,8 +7194,9 @@
     },
     getNextOpenChannelOrIMElements: function(with_unreads) {
       var with_unreads_or_starred = false;
-      if (TS.model.prefs.sidebar_behavior == "hide_read_channels") {
-        with_unreads = true;
+      var with_unreads_or_visible_muted = false;
+      if (!with_unreads && TS.model.prefs.sidebar_behavior == "hide_read_channels") {
+        with_unreads_or_visible_muted = true;
       } else if (!with_unreads && TS.model.prefs.sidebar_behavior == "hide_read_channels_unless_starred") {
         with_unreads_or_starred = true;
       }
@@ -7204,6 +7205,8 @@
         lis_selector = "LI.unread:not(.hidden), LI.active";
       } else if (with_unreads_or_starred) {
         lis_selector = "LI.unread:not(.hidden), LI.active, LI.show_in_list_even_though_no_unreads:not(.hidden), UL#starred-list LI";
+      } else if (with_unreads_or_visible_muted) {
+        lis_selector = "LI.unread:not(.hidden), LI.active, LI.show_in_list_even_though_no_unreads:not(.hidden)";
       }
       var $lis = TS.client.channel_pane.$scroller.find(lis_selector);
       $lis = $lis.filter(":not(.all_unreads):not(.all_threads)");
@@ -11720,6 +11723,9 @@
         if (TS.boot_data.feature_message_replies) {
           visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
         }
+        if (TS.boot_data.feature_tinyspeck) {
+          TS.metrics.mark("buildMsgHTML");
+        }
         for (var i = visible_msgs.length - 1; i > -1; i--) {
           if (!msg || !TS.utility.msgs.isMsgHidden(msg)) prev_msg = msg;
           msg = visible_msgs[i];
@@ -11765,6 +11771,10 @@
             TS.client.msg_pane.last_in_stream_msg = msg;
             if (!TS.utility.msgs.isMsgHidden(msg)) TS.client.msg_pane.last_rendered_msg = msg;
           }
+        }
+        if (TS.boot_data.feature_tinyspeck) {
+          var duration = TS.metrics.measureAndClear(TS.boot_data.feature_refactor_buildmsghtml ? "buildMsgHTML_refactor" : "buildMsgHTML", "buildMsgHTML");
+          TS.log(8, "buildMsgHTML duration: " + duration + " (" + (TS.boot_data.feature_refactor_buildmsghtml ? "buildMsgHTML_refactor" : "buildMsgHTML") + ")");
         }
         var min_count = 20;
         if (!TS.isPartiallyBooted() && msgs.length && count < min_count) {
@@ -11902,6 +11912,9 @@
       html = null;
       msgs = null;
       model_ob = null;
+      if (TS.boot_data.feature_sli_recaps) {
+        TS.recaps_signal.handleUpdateScrollbar();
+      }
       TS.client.msg_pane.is_rebuilding = false;
     },
     displayTitle: function() {

@@ -1419,6 +1419,12 @@
       promises.push(_callDocumentsConnectInParallel());
     }
     Promise.all(promises).then(_allParallelCallsComplete);
+    if (TS.boot_data.feature_tinyspeck) {
+      if (TS.utility.enableFeatureForUser(50)) {
+        TS.boot_data.feature_refactor_buildmsghtml = true;
+        TS.info("Turning on feature_refactor_buildmsghtml. Lucky you! Here's a tractor: 🚜");
+      }
+    }
   };
   var _onTemplatesLoaded = function(parallel_callback) {
     TSConnLogger.log("templates_appended", "_onTemplatesLoaded()");

@@ -21348,6 +21348,8 @@ TS.registerModule("constants", {
             template_args.star_components = TS.templates.builders.buildStarComponents("file_comment", msg.comment, msg.file);
           }
         }
+        var msg_classes = _assignMsgClasses(msg, template_args);
+        template_args.msg_classes = msg_classes.join(" ");
         html += TS.templates.message(template_args);
         html = TS.format.replaceHighlightMarkers(html);
         return html;
@@ -21369,6 +21371,88 @@ TS.registerModule("constants", {
       }
     }
   });
+
+  function _assignMsgClasses(msg, template_args) {
+    var msg_classes = ["message"];
+    if (msg.subtype) {
+      if (msg.subtype == "channel_join" || msg.subtype == "group_join") {
+        msg_classes.push("joined", "automated");
+      } else if (msg.subtype == "channel_leave" || msg.subtype == "group_leave") {
+        msg_classes.push("left", "automated");
+      } else if (msg.subtype == "channel_topic" || msg.subtype == "group_topic") {
+        msg_classes.push("topic", "automated");
+      } else if (msg.subtype == "channel_name" || msg.subtype == "group_name") {
+        msg_classes.push("rename", "automated");
+      } else if (msg.subtype == "channel_purpose" || msg.subtype == "group_purpose") {
+        msg_classes.push("purpose", "automated");
+      } else if (msg.subtype == "channel_archive" || msg.subtype == "group_archive") {
+        msg_classes.push("archived", "automated");
+      } else if (msg.subtype == "channel_unarchive" || msg.subtype == "group_unarchive") {
+        msg_classes.push("unarchived", "automated");
+      } else if (msg.subtype == "bot_message") {
+        msg_classes.push("bot_message");
+      } else if (msg.subtype === "pinned_item") {
+        msg_classes.push("pinned");
+      } else if (msg.subtype === "sh_room_shared") {
+        msg_classes.push("sh_shared", "automated");
+      } else if (msg.subtype === "sh_room_created") {
+        msg_classes.push("sh_created", "automated");
+      } else if (msg.subtype === "bot_add" || msg.subtype === "bot_remove" || msg.subtype === "bot_enable" || msg.subtype === "bot_disable") {
+        msg_classes.push("bot_change", "automated");
+      } else if (msg.subtype === "reminder_add" || msg.subtype === "reminder_delete") {
+        msg_classes.push("reminder_change", "automated");
+      }
+    }
+    if (TS.boot_data.feature_fix_files) msg_classes.push("feature_fix_files");
+    if (msg.no_display) msg_classes.push("hidden");
+    if (template_args.for_search_display) msg_classes.push("for_search_display");
+    if (template_args.starred_items_list) msg_classes.push("for_star_display");
+    if (template_args.for_mention_display) msg_classes.push("for_mention_display");
+    if (template_args.for_mention_rxn_display) msg_classes.push("for_mention_rxn_display");
+    if (template_args.is_ephemeral) msg_classes.push("ephemeral");
+    if (template_args.unprocessed) msg_classes.push("unprocessed");
+    if (template_args.highlight) msg_classes.push("highlight");
+    if (template_args.highlight_as_new) msg_classes.push("new");
+    if (template_args.app_id) msg_classes.push("is_app");
+    if (template_args.standalone) {
+      msg_classes.push("standalone");
+    } else {
+      msg_classes.push("dirty_hover_container");
+    }
+    if (template_args.show_user) {
+      msg_classes.push("first");
+    } else {
+      if (template_args.file) msg_classes.push("first");
+      if (template_args.is_in_conversation) msg_classes.push("is_in_conversation");
+    }
+    if (template_args.file) {
+      msg_classes.push("file_reference");
+      if (template_args.is_mention) {
+        msg_classes.push("file_mention");
+      } else {
+        msg_classes.push("file_share");
+      }
+    }
+    if (template_args.comment) {
+      if (template_args.is_file_convo_continuation) {
+        msg_classes.push("comment_continuation");
+      } else {
+        msg_classes.push("first");
+      }
+    }
+    if (TS.boot_data.feature_message_replies) {
+      if (template_args.is_root_msg) msg_classes.push("selected");
+      if (template_args.is_new_reply) msg_classes.push("new_reply");
+      if (template_args.is_tombstone) msg_classes.push("deleted");
+    }
+    if (TS.boot_data.feature_pin_update) {
+      if (template_args.is_pinned) msg_classes.push("is_pinned");
+    }
+    if (TS.boot_data.feature_sli_recaps) {
+      if (template_args.is_recap) msg_classes.push("is_recap");
+    }
+    return msg_classes;
+  }
 
   function _isWelcomePostToTeamOwner(msg) {
     return msg.file.name === TS.utility.welcome_post.WELCOME_POST_NAME && msg.user === "USLACKBOT" && msg.file.user === TS.model.user.id;
@@ -46027,6 +46111,21 @@ $.fn.togglify = function(settings) {
         } else {
           TS.warn("hmm, no data-app-id?");
         }
+      });
+    }
+    if (TS.boot_data.feature_sli_recaps) {
+      TS.click.addClientHandler("#sli_recap_toggle", function(e) {
+        e.preventDefault();
+        if ($("#sli_recap_toggle").hasClass("active")) {
+          TS.recaps_signal.handleUpdateScrollbar();
+        } else {
+          TS.recaps_signal.remove();
+        }
+      });
+      TS.click.addClientHandler(".recap_highlight_marker", function(e) {
+        e.preventDefault();
+        var ts = $(e.target).data("ts");
+        TS.client.ui.scrollMsgsSoMsgIsInView(ts, false, true);
       });
     }
   };

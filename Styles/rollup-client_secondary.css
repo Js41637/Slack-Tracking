@@ -17519,7 +17519,8 @@ ts-message .action_hover_container.narrow_buttons a {
 
 ts-message.selected {
   padding-top: .625rem!important;
-  padding-bottom: .625rem!important
+  padding-bottom: .625rem!important;
+  z-index: 1
 }
 
 ts-message.selected:not(.delete_mode) {
@@ -17638,15 +17639,6 @@ ts-message .recap_highlight {
   background: #c8fad9;
   border-radius: .1875rem;
   padding: 0 5px
-}
-
-ts-message .recap_highlight.marker {
-  position: absolute;
-  top: 6px;
-  right: 0;
-  z-index: 9999999999;
-  width: 8px;
-  padding: 0
 }
 
 ts-message .comment {
@@ -17831,10 +17823,6 @@ ts-message .emoji-sizer .mention {
 .feature_name_tagging_client .mention {
   padding: 0 0 2px;
   border-radius: 3px
-}
-
-ts-message.selected {
-  z-index: 1
 }
 
 #convo_tab .message_input,
@@ -19109,6 +19097,16 @@ ts-thread .view_all_replies_count {
   font-size: .9375rem;
   border-radius: .25rem;
   padding: .8125rem .625rem
+}
+
+.recap_highlight_marker {
+  position: absolute;
+  right: .1875rem;
+  height: .375rem;
+  width: .625rem;
+  border-radius: .1875rem;
+  z-index: 9999;
+  background-color: #78c896
 }
 
 @font-face {
