@@ -18961,6 +18961,13 @@ ts-thread .reply_input_container.has_focus .reply_broadcast_buttons_container {
   margin-top: 0
 }
 
+ts-thread .reply_input_container .join_channel_from_thread_container {
+  border: 1px solid #e0e0e0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  background: #fff
+}
+
 ts-thread .thread_messages {
   padding-top: .375rem;
   background: #fff;

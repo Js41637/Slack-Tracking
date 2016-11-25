@@ -7206,7 +7206,7 @@
         lis_selector = "LI.unread:not(.hidden), LI.active, LI.show_in_list_even_though_no_unreads:not(.hidden), UL#starred-list LI";
       }
       var $lis = TS.client.channel_pane.$scroller.find(lis_selector);
-      $lis = $lis.filter(":not(.all_unreads)");
+      $lis = $lis.filter(":not(.all_unreads):not(.all_threads)");
       if (!$lis.length) {
         TS.error('no $lis found for "' + lis_selector + '"');
       }
@@ -7242,7 +7242,7 @@
     },
     gotoNextOpenChannelOrIM: function(with_unreads, backwards) {
       var $current_li;
-      if (TS.boot_data.feature_unread_view && TS.client.unread.isEnabled() && TS.model.unread_view_is_showing) {
+      if (TS.client.activeChannelIsHidden()) {
         var $lis = TS.client.ui.getNextOpenChannelOrIMElements(with_unreads);
         $current_li = backwards ? $lis.filter(":first") : $lis.filter(":last");
       }
