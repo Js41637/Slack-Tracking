@@ -24083,7 +24083,7 @@ TS.registerModule("constants", {
 (function() {
   "use strict";
   TS.registerModule("utility.msgs", {
-    automated_subtypes: ["channel_join", "channel_leave", "channel_topic", "channel_purpose", "channel_archive", "channel_unarchive", "group_join", "group_leave", "group_topic", "group_purpose", "group_archive", "group_unarchive", "group_name", "channel_name", "play_sound", "pinned_item", "unpinned_item", "sh_room_shared", "sh_room_created", "bot_enable", "bot_disable", "bot_add", "bot_remove", "reminder_add", "reminder_delete"],
+    automated_subtypes: ["channel_join", "channel_leave", "channel_topic", "channel_purpose", "channel_archive", "channel_unarchive", "group_join", "group_leave", "group_topic", "group_purpose", "group_archive", "group_unarchive", "group_name", "channel_name", "play_sound", "pinned_item", "unpinned_item", "sh_room_shared", "sh_room_created", "bot_enable", "bot_disable", "bot_add", "bot_remove", "reminder_add", "reminder_delete", "reply_broadcast"],
     file_subtypes: ["file_comment", "file_mention", "file_share", "file_upload"],
     allowed_embed_attributes: ["class", "name", "id", "src", "width", "oldwidth", "height", "oldheight", "frameborder", "title", "scrolling", "allowtransparency", "allowfullscreen", "oallowfullscreen", "msallowfullscreen", "webkitallowfullscreen", "mozallowfullscreen", "controls", "autoplay", "loop", "muted", "poster", "preload", "webkit-playsinline", "type"],
     ephemeral_msgs_map: {},
@@ -24336,7 +24336,8 @@ TS.registerModule("constants", {
             actions.delete_msg = false;
           }
         } else if (TS.utility.msgs.isAutomatedMsg(msg)) {
-          if (!TS.model.user.is_admin && msg.subtype !== "pinned_item" && msg.subtype !== "sh_room_created" && msg.subtype !== "sh_room_shared") {
+          var deletion_exceptions = ["pinned_item", "sh_room_created", "sh_room_shared", "reply_broadcast"];
+          if (!TS.model.user.is_admin && !_.includes(deletion_exceptions, msg.subtype)) {
             actions.delete_msg = false;
           }
         }
@@ -26247,6 +26248,9 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_unread_view) {
         if (/.com\/+unreads/.test(url)) return "";
       }
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        if (/.com\/+threads/.test(url)) return "";
+      }
       var pathA = TS.utility._getPathAFromUrl(url);
       if (pathA && pathA.length > 0) {
         return decodeURIComponent(pathA[0]);
@@ -26284,6 +26288,8 @@ TS.registerModule("constants", {
         splitter = "/archives/";
       } else if (TS.boot_data.feature_unread_view && url.indexOf("/unreads/") != -1) {
         splitter = "/unreads/";
+      } else if (TS.boot_data.feature_message_replies_threads_view && url.indexOf("/threads/") != -1) {
+        splitter = "/threads/";
       }
       if (!splitter) {
         return null;

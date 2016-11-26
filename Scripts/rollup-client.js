@@ -1849,6 +1849,9 @@
       }
       if (TS.boot_data.feature_message_replies_threads_view) {
         TS.client.threads.destroyThreadsView();
+        if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
+          TS.client.ui.flex.openFlexTab("details", true);
+        }
       }
       if (model_ob.is_channel && (!model_ob.is_member || model_ob.is_archived)) {
         TS.client.archives.start();
@@ -34991,8 +34994,10 @@ function timezones_guess() {
       TS.groups.renamed_sig.remove(_onRename);
       TS.client.ui.unread.unread_groups = null;
       $_currently_sticky = null;
-      if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
-        TS.client.ui.flex.openFlexTab("details", true);
+      if (!TS.boot_data.feature_message_replies_threads_view) {
+        if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
+          TS.client.ui.flex.openFlexTab("details", true);
+        }
       }
       var payload = TS.client.ui.unread.getTrackingData();
       TS.clog.track("UNREADS_CLOSE", payload);
