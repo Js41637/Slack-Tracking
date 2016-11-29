@@ -467,19 +467,6 @@ input.search_input {
   display: flex
 }
 
-#flex_contents .flexpane_tab_bar.two_tabs li {
-  width: 50%
-}
-
-#flex_contents .flexpane_tab_bar.three_tabs li {
-  width: 33.33%
-}
-
-#flex_contents .flexpane_tab_bar.three_tabs li a {
-  max-width: 125px;
-  padding: 0
-}
-
 #flex_contents .flexpane_tab_bar li {
   height: 35px;
   float: left;
@@ -489,6 +476,22 @@ input.search_input {
   white-space: nowrap;
   text-align: center;
   cursor: pointer
+}
+
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(2),
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(2)~li {
+  width: 50%
+}
+
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(3),
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(3)~li {
+  width: 33.33%
+}
+
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(3) a,
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(3)~li a {
+  max-width: 125px;
+  padding: 0
 }
 
 @media screen and (max-width:1366px) {
@@ -547,17 +550,22 @@ input.search_input {
   flex-wrap: wrap
 }
 
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar.three_tabs li,
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar.two_tabs li {
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2),
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2)~li,
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3),
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3)~li {
   width: auto
 }
 
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar.three_tabs li a,
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar.two_tabs li a {
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2) a,
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2)~li a,
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3) a,
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3)~li a {
   max-width: none
 }
 
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar.three_tabs li {
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3),
+.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3)~li {
   max-width: 50%
 }
 
@@ -1528,7 +1536,6 @@ html:not(.font_size_adjusted) #details_tab .heading #details_tab_header {
 #details_tab .restricted_members_count {
   display: inline-block;
   font-size: .8rem;
-  line-height: 1.25rem;
   margin-left: auto;
   margin-right: .75rem;
   opacity: .6;

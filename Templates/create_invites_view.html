@@ -13,7 +13,6 @@
     </div>
 
     <div id="invite_form_body" class="fs_split_body">
-      {{#if step_number_copy}}<div class="create_step_number_label">{{step_number_copy}}</div>{{/if}}
 
       <div>
         <h1 class="small_bottom_margin">{{#t}}Send Invitations{{/t}}</h1>
@@ -26,14 +25,20 @@
 
     <div id="submit" class="fs_split_footer">
       {{#if signup_domain}}
-      <div class="fs_split_well align_left bottom_margin">
+      <div class="fs_split_well align_left large_bottom_margin">
         <label class="signup_whitelist_domain_notice" for="whitelist_domain">
           <input type="checkbox" id="whitelist_domain" data-qa="whitelist_domain" class="position_absolute" checked>
           <span class="normal inline_block">{{#t}}Let people on your team sign up with their verified <span class="bold">@{signup_domain}</span> email address{{/t}}</span>
         </label>
       </div>
       {{/if}}
-      
+
+      {{#if show_back_link}}
+      <div class="shared_invite_link_back_container">
+        <span>Or, you can get a <a data-action="shared_invite_link_back"  data-clog-params="action=back_to_shared_invite_link,trigger=click_back_to_shared_invite_link,step=invites">signup link to share with your teammates</a>.<span>
+      </div>  
+      {{/if}}
+
       <div class="button_container send_invitations_button_container">
         <a id="secondary_btn" class="btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_invites,trigger=create_team,step=invites" >
           <span class="ladda-label">{{#t}}Skip For Now{{/t}}</span>

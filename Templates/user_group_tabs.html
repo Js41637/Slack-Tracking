@@ -20,7 +20,7 @@
     {{/if}}
   </div>
 {{else}}
-  <ul class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border {{#and show_restricted_members show_user_groups}}three_tabs{{/and}}{{#unless show_user_groups}}two_tabs{{/unless}}">
+  <ul class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border">
     {{#if show_members}}
       <li id="active_members_tab" class="tab bold active" href="#active_members"><a href="#active_members" data-name="active_members" data-action="search">{{#isWeb}}Full {{/isWeb}}Members <span id="active_members_count" class="normal">(<span id="active_members_count_value">{{members.length}}</span>)</span></a></li>
     {{/if}}

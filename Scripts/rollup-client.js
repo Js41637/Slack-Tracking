@@ -11757,9 +11757,6 @@
         if (TS.boot_data.feature_message_replies) {
           visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
         }
-        if (TS.boot_data.feature_tinyspeck) {
-          TS.metrics.mark("buildMsgHTML");
-        }
         for (var i = visible_msgs.length - 1; i > -1; i--) {
           if (!msg || !TS.utility.msgs.isMsgHidden(msg)) prev_msg = msg;
           msg = visible_msgs[i];
@@ -11805,10 +11802,6 @@
             TS.client.msg_pane.last_in_stream_msg = msg;
             if (!TS.utility.msgs.isMsgHidden(msg)) TS.client.msg_pane.last_rendered_msg = msg;
           }
-        }
-        if (TS.boot_data.feature_tinyspeck) {
-          var duration = TS.metrics.measureAndClear(TS.boot_data.feature_refactor_buildmsghtml ? "buildMsgHTML_refactor" : "buildMsgHTML", "buildMsgHTML");
-          TS.log(8, "buildMsgHTML duration: " + duration + " (" + (TS.boot_data.feature_refactor_buildmsghtml ? "buildMsgHTML_refactor" : "buildMsgHTML") + ")");
         }
         var min_count = 20;
         if (!TS.isPartiallyBooted() && msgs.length && count < min_count) {
@@ -21358,6 +21351,18 @@
           display: "inline-block"
         };
         $("#select_invite_channels").hide().lazyFilterSelect({
+          filter: function(item, query) {
+            if (!item || !item.name) return false;
+            var item_name = item.name.toLowerCase();
+            var query_name = query.toLowerCase();
+            while (query_name[0] === "#") {
+              query_name = query_name.slice(1, query_name.length);
+            }
+            if (item_name.indexOf(query_name) > -1) {
+              return true;
+            }
+            return false;
+          },
           placeholder_text: "Select a channel",
           css: filter_select_css,
           classes: "select_invite_channels",
@@ -26117,7 +26122,7 @@
       TS.groups.shared_teams_updated_sig.add(_sharedTeamsUpdated);
       TS.ims.switched_sig.add(_modelObSwitched);
       TS.mpims.switched_sig.add(_modelObSwitched);
-      TS.members.presence_changed_sig.add(_memberChanged);
+      TS.members.presence_changed_sig.add(_memberChangedPresence);
       TS.members.changed_name_sig.add(_memberChanged);
       TS.members.changed_profile_sig.add(_memberChanged);
       TS.members.changed_account_type_sig.add(_memberChanged);
@@ -26665,13 +26670,18 @@
     _rebuildMembersTabs(model_ob);
     if (_expanded_sections.members) _removeMemberItem(member);
   };
-  var _memberChanged = function(member) {
+  var _memberChangedPresence = function(member) {
+    var is_presence_change = true;
+    _memberChanged(member, is_presence_change);
+  };
+  var _memberChanged = function(member, is_presence_change) {
     if (!TS.model.ms_connected) return;
     if (!member) return;
     if (!_isChannelPageVisible()) return;
     var model_ob = TS.shared.getActiveModelOb();
     if (model_ob && model_ob.members && model_ob.members.indexOf(member.id) > -1) {
-      _rebuildMembersTabs(model_ob);
+      var should_rebuild_tabs = !TS.lazyLoadMembersAndBots() || !is_presence_change;
+      if (should_rebuild_tabs) _rebuildMembersTabs(model_ob);
       if (_expanded_sections.members) _rebuildMember(member);
     }
   };

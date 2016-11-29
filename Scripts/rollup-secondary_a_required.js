@@ -2352,7 +2352,9 @@
   TS.registerModule("tips", {
     onStart: function() {
       _$body.delegate(".ts_tip_lazy, .ts_tip_float", "mouseenter", _onMouseEnter);
+      _$body.delegate(".ts_tip_lazy, .ts_tip_float", "focus", _onMouseEnter);
       _$body.delegate(".ts_tip_float", "mouseleave", _onMouseLeave);
+      _$body.delegate(".ts_tip_float", "focusout", _onMouseLeave);
       _$body.on("click", ".ts_tip", function(e) {
         if (TS.isPartiallyBooted()) {
           e.preventDefault();
@@ -21476,8 +21478,6 @@ TS.registerModule("constants", {
         msg_classes.push("unarchived", "automated");
       } else if (msg.subtype == "bot_message") {
         msg_classes.push("bot_message");
-      } else if (msg.subtype === "pinned_item") {
-        msg_classes.push("pinned");
       } else if (msg.subtype === "sh_room_shared") {
         msg_classes.push("sh_shared", "automated");
       } else if (msg.subtype === "sh_room_created") {
@@ -41592,8 +41592,8 @@ var _on_esc;
         return;
       }
       if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return;
-      var div = $("#share_dialog");
-      var model_ob_id = div.find("#share_model_ob_id").val();
+      var $div = $("#share_dialog");
+      var model_ob_id = $div.find("#share_model_ob_id").val();
       if (!model_ob_id) {
         var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
         if (selected) {
@@ -41624,7 +41624,7 @@ var _on_esc;
         });
       };
       if (TS.ui.share_dialog.delegate && typeof TS.ui.share_dialog.delegate.submit == "function") {
-        TS.ui.share_dialog.delegate.submit(div, share_fn);
+        TS.ui.share_dialog.delegate.submit($div, share_fn);
       } else {
         share_fn();
       }
@@ -41636,7 +41636,6 @@ var _on_esc;
       TS.ui.share_dialog.div.modal("hide");
     },
     end: function() {
-      _item_id = null;
       if (_thumbnail_lazy_load && _thumbnail_lazy_load.detachEvents) {
         _thumbnail_lazy_load.detachEvents();
       }
@@ -45262,24 +45261,42 @@ $.fn.togglify = function(settings) {
       }
     }, true);
   };
-  var _current_single_user_requests = {};
+  var _pending_single_user_updates = [];
   var _fetchUserInfo = function(member) {
-    if (_current_single_user_requests[member.id]) return;
-    _current_single_user_requests[member.id] = true;
+    _pending_single_user_updates.push(member.id);
+    _pending_single_user_updates = _.uniq(_pending_single_user_updates);
+    if (_pending_single_user_updates.length > 1) return;
     return new Promise(function(resolve, reject) {
       setTimeout(function() {
-        TS.api.call("dnd.info", {
-          user: member.id
-        }, function(ok, data, args) {
-          delete _current_single_user_requests[member.id];
+        var member_ids = _pending_single_user_updates;
+        _pending_single_user_updates = [];
+        var api_method = "dnd.info";
+        var api_args = {
+          user: member_ids[0]
+        };
+        if (member_ids.length > 1) {
+          api_method = "dnd.teamInfo";
+          api_args = member_ids.length > _INDIVIDUAL_UPDATE_LIMIT ? {} : {
+            users: member_ids.join(",")
+          };
+        }
+        TS.api.call(api_method, api_args, function(ok, data, args) {
           if (!ok) {
-            TS.warn("dnd.info failed for " + member.id);
-            reject(new Error("dnd.info failed for " + member.id));
+            if (member_ids.length > 1) {
+              TS.warn("dnd.teamInfo failed for a multi-user request (bundled single-user fetches)");
+            } else {
+              TS.warn("dnd.info failed for " + member_ids[0]);
+              reject(new Error("dnd.info failed for " + member_ids[0]));
+            }
             return;
           }
-          var user_id = member.id;
-          var props = data;
-          _updateUserDndProps(user_id, props);
+          if (data.users) {
+            _.forOwn(data.users, function(props, user_id) {
+              _updateUserDndProps(user_id, props);
+            });
+          } else {
+            _updateUserDndProps(member_ids[0], data);
+          }
           resolve();
         }, true);
       }, _single_user_info_delay * 1e3);

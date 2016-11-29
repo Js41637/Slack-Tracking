@@ -30,6 +30,15 @@
   border-radius: 10px
 }
 
+.monkey_scroll_bar_native_scrollbar_shim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 17px;
+  background-color: #fff
+}
+
 .monkey_scroll_bar.debug {
   background: red
 }
