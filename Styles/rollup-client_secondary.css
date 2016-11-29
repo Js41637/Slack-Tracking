@@ -469,7 +469,6 @@ input.search_input {
 
 #flex_contents .flexpane_tab_bar li {
   height: 35px;
-  float: left;
   list-style-type: none;
   font-size: .85rem;
   border-bottom: 4px solid transparent;
@@ -494,6 +493,18 @@ input.search_input {
   padding: 0
 }
 
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4),
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4)~li {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto
+}
+
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4) a,
+#flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4)~li a {
+  padding: 0
+}
+
 @media screen and (max-width:1366px) {
   #flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4) a,
   #flex_contents .flexpane_tab_bar li:first-child:nth-last-child(4)~li a {
@@ -510,7 +521,6 @@ input.search_input {
   color: #9e9ea6;
   font-weight: 700;
   text-decoration: none!important;
-  display: inline-block;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
@@ -18912,6 +18922,7 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 
 ts-thread {
   display: block;
+  position: relative;
   margin-top: 1rem
 }
 

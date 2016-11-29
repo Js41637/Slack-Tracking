@@ -24463,17 +24463,15 @@ TS.registerModule("constants", {
         actions.jump_to_original = is_root;
         if (actions.mark_unread && !is_root) actions.mark_unread = false;
       }
-      if (TS.boot_data.feature_reminders_v3) {
-        var allowed_subtypes = ["bot_message", "file_share", "file_mention", "file_comment", "me_message"];
-        if (!msg.is_ephemeral && (!msg.subtype || allowed_subtypes.indexOf(msg.subtype) !== -1)) {
-          actions.remind_me = true;
-        }
-        if (actions.jump_to_original || actions.copy_link || actions.mark_unread || actions.remind_me) {
-          actions.has_private_actions = true;
-        }
-        if (actions.copy_link || actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn || actions.pin_msg || actions.unpin_msg) {
-          actions.has_public_actions = true;
-        }
+      var allowed_subtypes = ["bot_message", "file_share", "file_mention", "file_comment", "me_message"];
+      if (!msg.is_ephemeral && (!msg.subtype || allowed_subtypes.indexOf(msg.subtype) !== -1)) {
+        actions.remind_me = true;
+      }
+      if (actions.jump_to_original || actions.copy_link || actions.mark_unread || actions.remind_me) {
+        actions.has_private_actions = true;
+      }
+      if (actions.copy_link || actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn || actions.pin_msg || actions.unpin_msg) {
+        actions.has_public_actions = true;
       }
       if (!msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg)) {
         if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
@@ -30630,19 +30628,17 @@ TS.registerModule("constants", {
       TS.menu.$menu_header.addClass("hidden").empty();
       TS.menu.$menu_items.html(TS.templates.menu_message_action_items(template_args));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onMessageActionClick);
-      if (TS.boot_data.feature_reminders_v3) {
-        TS.log("enabled reminders msg action menu");
-        TS.menu.has_submenu = true;
-        var $remind_me = TS.menu.$menu_items.find("#remind_me");
-        $remind_me.on("highlighted", function() {
-          $remind_me.submenu({
-            items_html: TS.templates.remind_me_items(),
-            onclick: TS.menu.onMessageActionClick
-          });
-        }).on("unhighlighted", function() {
-          if (TS.menu.$submenu && !TS.menu.$submenu.hasClass("kb_active")) $remind_me.submenu("destroy");
+      TS.log("enabled reminders msg action menu");
+      TS.menu.has_submenu = true;
+      var $remind_me = TS.menu.$menu_items.find("#remind_me");
+      $remind_me.on("highlighted", function() {
+        $remind_me.submenu({
+          items_html: TS.templates.remind_me_items(),
+          onclick: TS.menu.onMessageActionClick
         });
-      }
+      }).on("unhighlighted", function() {
+        if (TS.menu.$submenu && !TS.menu.$submenu.hasClass("kb_active")) $remind_me.submenu("destroy");
+      });
       TS.menu.start(e);
       var $el = $(e.target);
       TS.menu.$target_element = $el.closest("[data-action]");
@@ -43401,6 +43397,7 @@ $.fn.togglify = function(settings) {
   };
   var _bindUI = function(members) {
     _bindFilterSelect(members);
+    _$modal_container.find(".lfs_input").attr("id", "invite_members_input");
     _$modal_container.find(".new_channel_go").click(TS.ui.new_channel_modal.go);
     _bindKeyboardShortcuts();
     _bindPublicPrivateToggle();
@@ -46256,6 +46253,20 @@ $.fn.togglify = function(settings) {
       if (!TS.boot_data.feature_message_replies_threads_view) return;
       e.preventDefault();
       TS.client.ui.threads.joinChannelFromThread(e, $el);
+    });
+    TS.click.addClientHandler(".subscription_container_btn", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      e.preventDefault();
+      var thread_ts = $el.attr("data-thread-ts");
+      var model_ob_id = $el.attr("data-model-ob-id");
+      if (!model_ob_id || !thread_ts) return;
+      var is_subscribed = $el.data("subscribed");
+      var last_read;
+      var root_msg = TS.utility.msgs.findMsg(thread_ts, model_ob_id);
+      if (root_msg && root_msg.replies && root_msg.replies.length) {
+        last_read = _.last(root_msg.replies).ts;
+      }
+      TS.replies.setSubscriptionState(model_ob_id, thread_ts, !is_subscribed, last_read);
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {
