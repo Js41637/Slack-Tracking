@@ -1059,17 +1059,21 @@
           failure_sig.dispatch();
           return;
         }
-        var info = retry_attempts ? "Internet connection still offline after " + retry_attempts + " retry attempts" : "Internet connection still offline";
-        TS.warn([info, text_status, error_msg].join(" "));
+        if (retry_attempts > 0) {
+          var info = retry_attempts ? "Internet connection still offline after " + retry_attempts + " retry attempts" : "Internet connection still offline";
+          TS.warn([info, text_status, error_msg].join(" "));
+        }
         retry_attempts++;
         setTimeout(_testConnection, retry_interval_ms);
       };
       var _onSuccess = function() {
-        if (_should_send_timing_data) var offline_duration_ms = TS.metrics.measureAndClear("api_offline_duration", "api_connectivity_lost");
-        var offline_duration_s = _.round(offline_duration_ms / 1e3, 2);
-        var message = retry_attempts ? "Internet connection has been re-established after " + retry_attempts + " retry attempts;" : "Internet connection has been re-established";
-        var info = [message, "offline for " + offline_duration_s + " seconds"];
-        TS.info(info.join(" "));
+        if (retry_attempts > 0) {
+          if (_should_send_timing_data) var offline_duration_ms = TS.metrics.measureAndClear("api_offline_duration", "api_connectivity_lost");
+          var offline_duration_s = _.round(offline_duration_ms / 1e3, 2);
+          var message = retry_attempts ? "Internet connection has been re-established after " + retry_attempts + " retry attempts;" : "Internet connection has been re-established";
+          var info = [message, "offline for " + offline_duration_s + " seconds"];
+          TS.info(info.join(" "));
+        }
         success_sig.dispatch();
       };
       var _testConnection = function() {
@@ -11411,6 +11415,87 @@ TS.registerModule("constants", {
     compareNames: function(a, b) {
       if (!a || !b) return !a ? -1 : 1;
       return a.localeCompare(b);
+    },
+    constructTemplateArgsForCardAndProfile: function(app, bot_id) {
+      var template_args = {
+        name: app.name,
+        desc: app.desc,
+        app_icons: app.icons,
+        bot_id: bot_id,
+        is_slack_integration: app.is_slack_integration,
+        commands: _.toArray(app.commands)
+      };
+      var is_bot = _.get(app, "bot_user.id");
+      var app_name;
+      if (app.app_card_color) {
+        template_args.color = TS.utility.hex2rgb(app.app_card_color);
+        template_args.color.hex = app.app_card_color;
+      }
+      if (app.config && app.config.is_custom_integration) {
+        if (app.config.icons) {
+          if (app.config.icons.emoji) {
+            var emoji_img_html = TS.emoji.graphicReplace(TS.utility.htmlEntities(app.config.icons.emoji), {
+              force_img: true
+            });
+            template_args.emoji_img_tag = new Handlebars.SafeString(emoji_img_html);
+          } else {
+            template_args.bot_icons = app.config.icons;
+          }
+        }
+        if (app.bot_user) {
+          if (TS.boot_data.feature_name_tagging_client) {
+            app_name = app.config.full_name ? app.config.full_name : app.bot_user.username;
+          } else {
+            app_name = app.config.real_name ? app.config.real_name : app.bot_user.username;
+          }
+        } else {
+          app_name = app.config.username;
+        }
+        template_args.name = app_name;
+        template_args.desc = app.config.descriptive_label;
+        template_args.username = app.config.username;
+      }
+      if (!app.is_slack_integration && !app.auth) {
+        template_args.disabled = true;
+      } else if (app.is_slack_integration && app.config && (app.config.is_active !== "1" || app.config.date_deleted !== "0")) {
+        template_args.disabled = true;
+      }
+      if (app.installation_summary) {
+        var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
+          if (!TS.members.getMemberById(user_id)) return match;
+          var name_replace = '<span class="app_card_member_dm_link" data-member-id=' + user_id + ">";
+          if (TS.boot_data.feature_name_tagging_client) {
+            name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(user_id));
+          } else {
+            name_replace += TS.members.getMemberDisplayNameById(user_id, true, true);
+          }
+          name_replace += "</span>";
+          return name_replace;
+        });
+        template_args.installation_summary = new Handlebars.SafeString(installation_summary);
+      }
+      if (is_bot) {
+        template_args.bot_user = app.bot_user.id;
+        template_args.username = app.bot_user.username;
+        var model_ob = TS.shared.getActiveModelOb();
+        if (TS.model.active_channel_id || TS.model.active_group_id) {
+          if (!model_ob.is_general && model_ob.members && model_ob.members.indexOf(app.bot_user.id) != -1) {
+            if (model_ob.is_group && TS.members.canUserKickFromGroups() || model_ob.is_channel && TS.members.canUserKickFromChannels()) {
+              template_args.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + model_ob.name;
+            }
+          }
+        }
+        if (_.get(app.config, "is_active")) {
+          if (!TS.model.user.is_ultra_restricted) {
+            var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(app.bot_user.id);
+            if (invite_channels.length) {
+              template_args.show_channel_invite = true;
+            }
+          }
+        }
+      }
+      if (app.long_desc_formatted) template_args.long_description = new Handlebars.SafeString(app.long_desc_formatted);
+      return template_args;
     }
   });
   var _resetUpAppsThrottled = function() {
@@ -14465,6 +14550,10 @@ TS.registerModule("constants", {
       TS.warn("TS.ms.onFailure reason_str:" + reason_str);
       if (reason_str) _reportDisconnect("You got disconnected, so here are some details:\n>>>" + reason_str);
       _check_last_pong_time = false;
+      clearInterval(_check_ping_interv);
+      clearInterval(_send_ping_interv);
+      _have_sent_ping = false;
+      TS.info("Deprecating current socket in onFailure with reason: " + reason_str);
       _deprecateCurrentSocket();
       if (TS.model.ms_connected) {
         TS.info("Disconnected from MS, TS.model.rtm_start_throttler:" + TS.model.rtm_start_throttler);
@@ -14490,8 +14579,6 @@ TS.registerModule("constants", {
         TS.ms.disconnected_sig.dispatch();
       }
       delete TS.ms.is_flannel;
-      clearInterval(_check_ping_interv);
-      clearInterval(_send_ping_interv);
       if (TS.model.ms_asleep) {
         TS.warn("NOT doing startReconnection(), we are asleep");
         return;
@@ -14538,6 +14625,7 @@ TS.registerModule("constants", {
     disconnect: function() {
       if (_websocket && TS.model.ms_connected) {
         TS.ms.logConnectionFlow("disconnect");
+        TS.info("TS.ms.disconnect called; closing the socket");
         _websocket.close();
       } else {
         TS.warn("TS.ms.disconnect called, but _websocket=" + _websocket + " TS.model.ms_connected=" + TS.model.ms_connected);
@@ -14762,12 +14850,9 @@ TS.registerModule("constants", {
       return null;
     }
     if (TS.client && data.has_more) {
-      if (TS.boot_data.feature_ms_eventlog_changes) {} else {
-        TS.storage.completelyEmptyAllStorageAndReset();
-      }
-      TS.info("going to call TS.reload() after a TS.storage.completelyEmptyAllStorageAndReset() because data.has_more:" + data.has_more + ")");
+      TS.info("going to call TS.reload() because data.has_more:" + data.has_more + ")");
       setTimeout(function() {
-        TS.reload(null, "TS.reload() after a TS.storage.completelyEmptyAllStorageAndReset() because data.has_more:" + data.has_more + ")");
+        TS.reload(null, "TS.reload() because data.has_more:" + data.has_more + ")");
       }, 1);
       return null;
     }
@@ -15007,10 +15092,7 @@ TS.registerModule("constants", {
     TS.model.ms_connecting = false;
     TS.model.ms_connected = true;
     var last_event_ts = TS.storage.fetchLastEventTS();
-    var should_consistency_check = true;
-    if (TS.boot_data.feature_ms_eventlog_changes) {
-      should_consistency_check = !!TS.ms.num_times_connected;
-    }
+    var should_consistency_check = !!TS.ms.num_times_connected;
     if (should_consistency_check) {
       if (last_event_ts && !_last_connect_was_fast) {
         TS.info("calling eventlog.history with start:" + last_event_ts + " (from TS.storage.fetchLastEventTS())");
@@ -15093,6 +15175,7 @@ TS.registerModule("constants", {
     _pong_log.push(TS.makeLogDate() + msg_desc);
   };
   var _handleConnectAfterProvisionalConnection = function() {
+    TS.info("Finalizing provisional MS connection");
     if (_websocket.readyState != WebSocket.OPEN) {
       _startConnectTimeout();
     }
@@ -15137,6 +15220,7 @@ TS.registerModule("constants", {
     return true;
   };
   var _initSocketHandlersProvisional = function() {
+    TS.log("Initializing provisional MS connection");
     _did_make_provisional_connection = true;
     _did_make_tokenless_connection = true;
     _onConnectProvisional = _makeBufferHandler();
@@ -15149,6 +15233,7 @@ TS.registerModule("constants", {
     _websocket.onopen = _onConnectProvisional;
   };
   var _initSocketHandlersProvisionalRtmStart = function() {
+    TS.log("Initializing provisional MS connection and fetching rtm.start over the socket");
     _did_make_provisional_connection = true;
     var rtm_start_p = new Promise(function(resolve, reject) {
       var abortRtmStartAttempt = function(err) {
@@ -15161,6 +15246,7 @@ TS.registerModule("constants", {
           return;
         }
         reject(err);
+        TS.info("Deprecating current socket due to rtm.start-over-MS failure");
         _deprecateCurrentSocket();
       };
       var rtm_start_timeout = setTimeout(function() {
@@ -15244,18 +15330,19 @@ TS.registerModule("constants", {
         return false;
     }
   };
-  var _finalizeProvisionalConnection = function(connection_type) {
+  var _finalizeProvisionalConnection = function() {
     if (_did_make_provisional_connection && !_websocket) {
       _did_make_provisional_connection = false;
-      TS.warn("TS.ms.connect called while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error.");
+      TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error.");
+      return false;
     }
-    if (_did_make_provisional_connection) {
-      _did_make_provisional_connection = false;
-      if (connection_type !== undefined) return;
-      _handleConnectAfterProvisionalConnection();
-      return true;
+    if (!_did_make_provisional_connection) {
+      TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is false. This is a programming error.");
+      return false;
     }
-    return false;
+    _did_make_provisional_connection = false;
+    _handleConnectAfterProvisionalConnection();
+    return true;
   };
   var _connect = function(url) {
     TSConnLogger.log("ms_connecting", "TS.ms.connect " + url);
@@ -29924,9 +30011,8 @@ TS.registerModule("constants", {
       }
     }
     var item;
-    var one_shown = false;
-    var two_plus_shown = false;
     var skin_tone = TS.emoji.getChosenSkinTone();
+    var visible_items = [];
     for (name in _name_to_li_map) {
       if (matches.indexOf(name) === -1) continue;
       if (skin_tone && TS.emoji.isNameSkinToneModifiable(name)) {
@@ -29937,18 +30023,29 @@ TS.registerModule("constants", {
         TS.error(name);
         continue;
       }
-      two_plus_shown = one_shown;
-      one_shown = true;
-      preview_emoji = ":" + name + ":";
-      preview_names = item.names;
-      item.$li.removeClass("hidden");
+      visible_items.push(item.$li);
     }
     TS.log(96, "after show/hide " + (Date.now() - start));
+    visible_items = _.uniq(visible_items);
+    visible_items.forEach(function($item) {
+      $item.removeClass("hidden");
+    });
+    var not_very_many_results = 20;
+    if (visible_items.length <= not_very_many_results) {
+      visible_items = visible_items.filter(function($item) {
+        return $item.is(":visible");
+      });
+      if (visible_items.length === 1) {
+        var $only_item = $(visible_items[0]);
+        preview_emoji = $only_item.data("name");
+        preview_names = $only_item.data("names");
+      }
+    }
     if (!TS.model.supports_sticky_position) {
       _$emoji_search_results_h3.css("top", 0);
       TS.log(96, " after _$emoji_search_results_h3.css " + (Date.now() - start));
     }
-    _$emoji_zero_results.toggleClass("hidden", one_shown);
+    _$emoji_zero_results.toggleClass("hidden", visible_items.length > 0);
     TS.log(96, " after emoji_zero_results.toggleClass " + (Date.now() - start));
     if (!TS.boot_data.feature_emoji_menu_tuning || TS.model.is_FF || TS.model.is_IE) {
       if (_$scroller[0]["scrollTop"]) _$scroller[0]["scrollTop"] = 0;
@@ -29960,9 +30057,9 @@ TS.registerModule("constants", {
       });
     }
     _one_search_result = null;
-    if (two_plus_shown) {
+    if (visible_items.length >= 2) {
       preview_names = preview_emoji = _default_emo;
-    } else if (one_shown) {
+    } else if (visible_items.length === 1) {
       _one_search_result = preview_emoji;
       preview_emoji = preview_emoji;
       preview_names = preview_names;
@@ -31759,6 +31856,7 @@ var _on_esc;
       _app_presence_list = TS.presence_manager.createList();
     },
     active_app: null,
+    active_app_bot_id: null,
     app_item_click_sig: new signals.Signal,
     startWithApp: function(e, app_id, bot_id, position_by_click) {
       if (TS.menu.isRedundantClick(e)) return;
@@ -31771,84 +31869,11 @@ var _on_esc;
       TS.apps.promiseToGetFullAppProfile(app_id, bot_id).then(showAllAppInformation);
 
       function showAllAppInformation(app) {
+        TS.menu.app.active_app = app;
+        TS.menu.app.active_app_bot_id = bot_id;
         _app_presence_list.add(app_id);
-        var template_args = {
-          name: app.name,
-          desc: app.desc,
-          app_icons: app.icons,
-          bot_id: bot_id,
-          is_slack_integration: app.is_slack_integration,
-          commands: app.commands
-        };
+        var template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
         var is_bot = _.get(app, "bot_user.id");
-        var app_name;
-        if (app.app_card_color) {
-          template_args.color = TS.utility.hex2rgb(app.app_card_color);
-          template_args.color.hex = app.app_card_color;
-        }
-        if (app.config && app.config.is_custom_integration) {
-          if (app.config.icons) {
-            if (app.config.icons.emoji) {
-              var emoji_img_html = TS.emoji.graphicReplace(TS.utility.htmlEntities(app.config.icons.emoji), {
-                force_img: true
-              });
-              template_args.emoji_img_tag = new Handlebars.SafeString(emoji_img_html);
-            } else {
-              template_args.bot_icons = app.config.icons;
-            }
-          }
-          if (app.bot_user) {
-            if (TS.boot_data.feature_name_tagging_client) {
-              app_name = app.config.full_name ? app.config.full_name : app.bot_user.username;
-            } else {
-              app_name = app.config.real_name ? app.config.real_name : app.bot_user.username;
-            }
-          } else {
-            app_name = app.config.username;
-          }
-          template_args.name = app_name;
-          template_args.desc = app.config.descriptive_label;
-          template_args.username = app.config.username;
-        }
-        if (!app.is_slack_integration && !app.auth) {
-          template_args.disabled = true;
-        } else if (app.is_slack_integration && app.config && (app.config.is_active !== "1" || app.config.date_deleted !== "0")) {
-          template_args.disabled = true;
-        }
-        if (app.installation_summary) {
-          var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
-            if (!TS.members.getMemberById(user_id)) return match;
-            var name_replace = '<span class="app_card_member_dm_link" data-member-id=' + user_id + ">";
-            if (TS.boot_data.feature_name_tagging_client) {
-              name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(user_id));
-            } else {
-              name_replace += TS.members.getMemberDisplayNameById(user_id, true, true);
-            }
-            name_replace += "</span>";
-            return name_replace;
-          });
-          template_args.installation_summary = new Handlebars.SafeString(installation_summary);
-        }
-        if (is_bot) {
-          template_args.bot_user = app.bot_user.id;
-          template_args.username = app.bot_user.username;
-          var model_ob = TS.shared.getActiveModelOb();
-          if (TS.model.active_channel_id || TS.model.active_group_id) {
-            if (!model_ob.is_general && model_ob.members && model_ob.members.indexOf(app.bot_user.id) != -1) {
-              if (model_ob.is_group && TS.members.canUserKickFromGroups() || model_ob.is_channel && TS.members.canUserKickFromChannels()) {
-                template_args.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + model_ob.name;
-              }
-            }
-          }
-          if (_.get(app.config, "is_active")) {
-            if (!TS.model.user.is_ultra_restricted) {
-              var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(app.bot_user.id);
-              if (invite_channels.length) {
-                template_args.show_channel_invite = true;
-              }
-            }
-          }
-        }
         TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
         TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
         TS.menu.$menu_footer.html(TS.templates.menu_app_card_footer(template_args));
@@ -31870,8 +31895,13 @@ var _on_esc;
             }
           });
         }
+        if (TS.boot_data.feature_app_profiles_frontend) {
+          TS.menu.$menu_header.on("click", function(e) {
+            TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
+            TS.menu.app.end();
+          });
+        }
         TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
-        TS.menu.app.active_app = app;
         TS.menu.$menu_items.on("click.menu", ".app_card_member_dm_link", function(e) {
           e.preventDefault();
           TS.ims.startImByMemberId($(this).data("member-id"));
@@ -31883,24 +31913,8 @@ var _on_esc;
       var $item = $(this);
       var action = $item.data("action");
       clearTimeout(TS.menu.end_time);
-      if (action === "slash_command") {
-        var command = $item.data("name");
-        var current_input = TS.utility.contenteditable.value(TS.client.msg_input.$input);
-        if (current_input) {
-          TS.client.msg_input.populate(command + " " + current_input);
-        } else {
-          TS.client.msg_input.populate(command);
-        }
-        TS.client.msg_input.$input.focus();
-        TS.client.msg_input.$input.trigger("textchange");
-        if (current_input) {
-          TS.client.msg_input.$input[0].setSelectionRange(command.length + 1, (command + " " + current_input).length);
-        }
-        if (TS.boot_data.feature_you_autocomplete_me) {
-          TS.client.msg_input.$input.TS_tabCompleteNew("promiseToChoose", undefined, true);
-        } else {
-          TS.client.msg_input.$input.TS_tabComplete("promiseToChoose", undefined, true);
-        }
+      if (action === "view_details") {
+        TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
       } else if (action === "files") {
         e.preventDefault();
         TS.view.files.clearFilter();
@@ -46340,6 +46354,25 @@ $.fn.togglify = function(settings) {
           TS.menu.app.startWithApp(e, app_id, bot_id);
         } else {
           TS.warn("hmm, no data-app-id?");
+        }
+      });
+      TS.click.addHandler("[data-slash-command-autofill]", function(e, $el) {
+        var command = $el.data("slash-command-autofill");
+        var current_input = TS.utility.contenteditable.value(TS.client.msg_input.$input);
+        if (current_input) {
+          TS.client.msg_input.populate(command + " " + current_input);
+        } else {
+          TS.client.msg_input.populate(command);
+        }
+        TS.client.msg_input.$input.focus();
+        TS.client.msg_input.$input.trigger("textchange");
+        if (current_input) {
+          TS.client.msg_input.$input[0].setSelectionRange(command.length + 1, (command + " " + current_input).length);
+        }
+        if (TS.boot_data.feature_you_autocomplete_me) {
+          TS.client.msg_input.$input.TS_tabCompleteNew("promiseToChoose", undefined, true);
+        } else {
+          TS.client.msg_input.$input.TS_tabComplete("promiseToChoose", undefined, true);
         }
       });
     }

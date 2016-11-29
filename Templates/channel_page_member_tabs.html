@@ -1,5 +1,13 @@
   <i class="ts_icon ts_icon_user icon_member_header small_right_margin"></i>
-  <a id="member_count_title" title="Click to expand or collapse" class="flex_one">{{#if loading_members}}Members{{else}}{{online_count}}<span class="dull_grey">/{{member_count}}</span> {{pluralize member_count 'Member' 'Members'}}{{/if}}</a>
+  <a id="member_count_title" title="Click to expand or collapse" class="flex_one">{{~#if is_loading_members~}}
+    Members
+  {{else}}
+    {{~#if lazy_load_members_and_bots~}}
+      {{member_count}} {{pluralize member_count 'Member' 'Members'}}
+    {{else}}
+      {{online_count}}<span class="dull_grey">/{{member_count}}</span> {{pluralize member_count 'Member' 'Members'}}
+    {{/if}}
+  {{/if}}</a>
 
   {{#if show_restricted_members}}
     <div class="restricted_members_count ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_300" title="{{restricted_count}} {{pluralize restricted_count 'Guest' 'Guests'}}">

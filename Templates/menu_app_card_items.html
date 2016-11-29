@@ -5,8 +5,9 @@
     {{#t}}This app has been disabled.{{/t}}
   </a></li>
 {{/and}}
-{{!--Commented out while app profiles are unfinished.--}}
-{{!--<li role="menuitem"><a>View details</a></li>--}}
+{{#feature flag="feature_app_profiles_frontend"}}
+<li role="menuitem" data-action="view_details"><a>{{#t}}View details{{/t}}</a></li>
+{{/feature}}
 <li role="menuitem"><a href="/services/{{bot_id}}" target="/services/{{bot_id}}">
   {{#t}}Edit settings{{/t}}
 </a></li>
@@ -28,14 +29,11 @@
     </a></li>
   {{/if}}
 {{/if}}
-
-
-
 {{#unless disabled}}
   {{#if commands}}
     <li class="divider"></li>
-    {{#each commands}}
-      <li role="menuitem" data-action="slash_command" data-name="{{name}}">
+    {{#with commands.[0]}}
+      <li role="menuitem" data-slash-command-autofill="{{name}}">
         <a class="app_slash_command">
           <div class="app_slash_command_title overflow_ellipsis">
             <span class="app_slash_command_title_name">{{name}}</span>
@@ -44,7 +42,7 @@
           <div class="app_slash_command_desc overflow_ellipsis">{{desc}}</div>
         </a>
       </li>
-    {{/each}}
+    {{/with}}
   {{/if}}
 {{/unless}}
 {{#if installation_summary}}

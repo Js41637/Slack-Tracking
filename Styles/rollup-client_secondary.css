@@ -24580,7 +24580,7 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .app_slash_command_title_name {
-  color: #2a80b9
+  font-weight: 700
 }
 
 .app_slash_command_desc {
@@ -24589,16 +24589,7 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   color: #717274
 }
 
-.menu:not(.keyboard_active) ul li:hover:not(.disabled) a .app_slash_command,
-ul li.highlighted a .app_slash_command {
-  text-shadow: 1px 2px 0 rgba(0, 0, 0, .1)
-}
-
-.menu:not(.keyboard_active) ul li:hover:not(.disabled) a .app_slash_command_title_name,
-ul li.highlighted a .app_slash_command_title_name {
-  color: #fff
-}
-
+.app_profile_slash_command:hover .app_slash_command_desc,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a .app_slash_command_desc,
 ul li.highlighted a .app_slash_command_desc {
   color: rgba(255, 255, 255, .7)
@@ -24626,6 +24617,82 @@ ul li.highlighted a .app_slash_command_desc {
 
 .app_card_member_dm_link:hover {
   text-decoration: underline
+}
+
+.app_profile {
+  padding: 10px
+}
+
+.app_profile section {
+  margin-top: 25px
+}
+
+.app_profile .app_profile_section_header {
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.1875rem;
+  margin-bottom: 8px
+}
+
+.app_profile .app_profile_section_text {
+  font-size: .9375rem;
+  line-height: 1.3125rem
+}
+
+.app_profile_buttons {
+  margin-top: 11px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.app_profile_buttons .btn {
+  margin-right: 9px;
+  height: inherit;
+  min-width: 2rem
+}
+
+.app_profile_btn {
+  font-size: .8125rem;
+  line-height: 1rem;
+  background: 0 0;
+  color: rgba(255, 255, 255, .9);
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 3px;
+  padding: 6px 10px 7px
+}
+
+.app_profile_btn.btn_icon {
+  padding: 0
+}
+
+.app_profile_btn:focus {
+  background: 0 0
+}
+
+.app_profile_btn:hover,
+.app_profile_btn:hover:focus {
+  background-color: rgba(255, 255, 255, .1)
+}
+
+.app_profile_btn:after {
+  box-shadow: none!important
+}
+
+.app_profile_slash_command {
+  margin-top: 10px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 12px 16px;
+  cursor: pointer
+}
+
+.app_profile_slash_command:hover {
+  background: #3aa3e3;
+  color: #fff;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .1)
 }
 
 .app_video_thumbnail {

@@ -1,0 +1,26 @@
+{{i18n_ns "app_profile"}}
+<div class="app_profile">
+  {{> menu_app_card_header this large=true}}
+  <div class="lato charcoal_grey">
+    {{#if long_description}}
+      <section>
+        <div class="app_profile_section_header">{{#t}}How to use this app{{/t}}</div>
+        <div class="app_profile_section_text">{{long_description}}</div>
+      </section>
+    {{/if}}
+    {{#if commands}}
+      <section>
+        <div class="app_profile_section_header">{{#t note="Refers to slash commands the app responds to."}}Responds to&hellip;{{/t}}</div>
+        {{#each commands}}
+          <div class="app_profile_slash_command" data-slash-command-autofill="{{name}}">
+            <div class="app_slash_command_title overflow_ellipsis">
+              <span class="app_slash_command_title_name">{{name}}</span>
+              <span>{{usage}}</span>
+            </div>
+            <div class="app_slash_command_desc overflow_ellipsis">{{desc}}</div>
+          </div>
+        {{/each}}
+      </section>
+    {{/if}}
+  </div>
+</div>
