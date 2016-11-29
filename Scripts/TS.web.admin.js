@@ -1284,14 +1284,22 @@
       });
     },
     onMemberProfileSet: function(ok, data, args) {
-      var member = TS.members.getMemberById(args.user);
+      var member, error_messages;
+      error_messages = {
+        reserved_name: TS.i18n.t("Unfortunately, that’s a reserved word. Try something else!", "admin_team_member_edit")
+      };
+      member = TS.members.getMemberById(args.user);
       if (!member) {
         TS.error("no member? user:" + args.user);
         return;
       }
       if (!ok) {
         TS.error("failed onMemberProfileSet");
-        TS.web.admin.rowError(member);
+        if (data.error && error_messages[data.error]) {
+          TS.web.admin.rowError(member, error_messages[data.error]);
+        } else {
+          TS.web.admin.rowError(member);
+        }
         return;
       }
       TS.members.upsertMember({

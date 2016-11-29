@@ -1598,6 +1598,10 @@ svg.ts_icon_spinner svg {
   content: '\E182'
 }
 
+.ts_icon_custom_status:before {
+  content: '\E183'
+}
+
 .ts_icon_expand:before {
   content: '\E200'
 }

@@ -9981,6 +9981,10 @@ img.orientation_8 {
   white-space: inherit
 }
 
+.file_container .file_header .post_header_title {
+  padding-right: .5rem
+}
+
 .file_container .file_header .file_header_meta {
   margin: 0;
   font-size: .8125rem;

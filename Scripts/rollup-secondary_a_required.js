@@ -8351,7 +8351,11 @@ TS.registerModule("constants", {
             controller.fetchHistory(model_ob, api_args);
           }
         };
-        if (TS.model.ms_connected) doIt();
+        if (TS.model.ms_connected) {
+          doIt();
+        } else {
+          TS.ms.connected_sig.addOnce(doIt);
+        }
       }
     },
     maybeLoadScrollBackHistory: function(model_ob, controller, force) {
@@ -11722,7 +11726,7 @@ TS.registerModule("constants", {
       var $icon_close = $div.find(".icon_close");
       var include_org = TS.boot_data.page_needs_enterprise;
       if (TS.client) {
-        _searchable_member_list = TS.component_manager.get("SearchableMemberList", "team_list");
+        _searchable_member_list = TS.SearchableMemberList.get("team_list");
       }
       _storeFilterArgumentsByScrollerId(scroller_id, full_profile_filter, is_long_list_view, include_org, include_bots, include_deleted);
       _query_for_match = null;
@@ -21508,7 +21512,7 @@ TS.registerModule("constants", {
       msg_classes.push("first");
     } else {
       if (template_args.file) msg_classes.push("first");
-      if (template_args.is_in_conversation) msg_classes.push("is_in_conversation");
+      if (template_args.is_in_conversation) msg_classes.push("first");
     }
     if (template_args.file) {
       msg_classes.push("file_reference");
@@ -23409,17 +23413,8 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("commaSeparatedList", function(items_array, options) {
-        var conjunction = !options.hash.conjunction || !_.isString(options.hash.conjunction) ? "and" : options.hash.conjunction;
-        var html;
-        if (items_array.length > 2) {
-          html = options.hash.bold_items ? _(items_array).dropRight().map(TS.utility.enterprise.wrapWithStrongTags).join(", ") + ", " + conjunction + " " + TS.utility.enterprise.wrapWithStrongTags(_.last(items_array)) : _(items_array).dropRight().join(", ") + ", " + conjunction + " " + _.last(items_array);
-        } else if (items_array.length === 2) {
-          html = options.hash.bold_items ? TS.utility.enterprise.wrapWithStrongTags(items_array[0]) + " " + conjunction + " " + TS.utility.enterprise.wrapWithStrongTags(items_array[1]) : items_array[0] + " " + conjunction + " " + items_array[1];
-        } else if (items_array.length === 1) {
-          html = options.hash.bold_items ? TS.utility.enterprise.wrapWithStrongTags(items_array[0]) : items_array[0];
-        } else {
-          html = "";
-        }
+        var list_options = options.hash;
+        var html = TS.utility.enterprise.commaSeparatedList(items_array, list_options);
         return new Handlebars.SafeString(html);
       });
     },
@@ -40270,6 +40265,7 @@ var _on_esc;
         });
       });
       template_args.timezone_options = timezone_options;
+      template_args.member_tz = TS.model.user.tz || TS.boot_data.default_tz;
       var html = TS.templates.edit_member_profile_list(template_args);
       _$div.find("#edit_member_profile_list").html(html);
     }
@@ -54443,14 +54439,20 @@ $.fn.togglify = function(settings) {
     wrapWithStrongTags: _.wrap(_.escape, function(esc, text) {
       return "<strong>" + esc(text) + "</strong>";
     }),
-    commaSeparatedListWithStrongFormatting: function(list) {
-      if (list.length > 1) {
-        return _(list).dropRight().map(TS.utility.enterprise.wrapWithStrongTags).join(", ") + ", and " + TS.utility.enterprise.wrapWithStrongTags(_.last(list));
-      } else if (list.length === 1) {
-        return TS.utility.enterprise.wrapWithStrongTags(list[0]);
+    commaSeparatedList: function(items_array, options) {
+      var conjunction = !options || !options.conjunction || !_.isString(options.conjunction) ? "and" : _.escape(options.conjunction);
+      var bold_items = _.get(options, "bold_items") || false;
+      var html;
+      if (items_array.length > 2) {
+        html = bold_items ? _(items_array).dropRight().map(TS.utility.enterprise.wrapWithStrongTags).join(", ") + ", " + conjunction + " " + TS.utility.enterprise.wrapWithStrongTags(_.last(items_array)) : _(items_array).dropRight().map(_.escape).join(", ") + ", " + conjunction + " " + _.last(items_array);
+      } else if (items_array.length === 2) {
+        html = bold_items ? TS.utility.enterprise.wrapWithStrongTags(items_array[0]) + " " + conjunction + " " + TS.utility.enterprise.wrapWithStrongTags(items_array[1]) : _.escape(items_array[0]) + " " + conjunction + " " + _.escape(items_array[1]);
+      } else if (items_array.length === 1) {
+        html = bold_items ? TS.utility.enterprise.wrapWithStrongTags(items_array[0]) : _.escape(items_array[0]);
       } else {
-        return "";
+        html = "";
       }
+      return html;
     }
   });
 })();

@@ -7040,7 +7040,7 @@
       if (TS.boot_data.feature_searchable_member_list) {
         var searchable_member_list = new TS.SearchableMemberList({
           $container: $("#team_list_container"),
-          namespace: "team_list"
+          id: "team_list"
         });
         searchable_member_list.showInitial();
       } else {
@@ -9218,31 +9218,6 @@
 })();
 (function() {
   "use strict";
-  TS.registerModule("component_manager", {
-    add: function(component_name, instance_name, instance) {
-      if (!refs[component_name]) refs[component_name] = {};
-      if (refs[component_name][instance_name]) {
-        TS.warn(component_name, ".", instance_name, "already exists! Not overwriting.");
-        return;
-      }
-      refs[component_name][instance_name] = instance;
-    },
-    get: function(component_name, instance_name) {
-      if (refs[component_name]) {
-        return refs[component_name][instance_name];
-      }
-      return;
-    },
-    remove: function(component_name, instance_name) {
-      if (refs[component_name]) {
-        delete refs[component_name][instance_name];
-      }
-    }
-  });
-  var refs = {};
-})();
-(function() {
-  "use strict";
   TS.registerComponent("SearchableMemberList", {
     _constructor: function(options) {
       this._MINIMUM_MEMBERS_FOR_SEARCH = 10;
@@ -9251,7 +9226,6 @@
       this._LOAD_MORE_AT_PIXELS_FROM_BOTTOM = 100;
       this._RESIZE_THROTTLE_MS = 33;
       this._SCROLL_DEBOUNCE_MS = 100;
-      this._namespace = options.namespace;
       this._approx_item_height = 92;
       this._approx_divider_height = 40;
       this.$_container = options.$container;
@@ -9264,15 +9238,14 @@
       this._have_all_members = false;
       this._fetch_more_members_p = null;
       this._is_searching = false;
+      this.id = options.id;
       this._resize_sig_handler = null;
-      TS.component_manager.add("SearchableMemberList", this._namespace, this);
     },
     destroy: function() {
       TS.warn("SearchableMemberList destroy not currently implemented");
       if (this._resize_sig_handler) {
         TS.view.resize_sig.remove(this._resize_sig_handler);
       }
-      TS.component_manager.remove("SearchableMemberList", this._namespace);
       return;
     },
     showInitial: function() {

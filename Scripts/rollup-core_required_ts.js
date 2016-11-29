@@ -170,6 +170,7 @@
   "use strict";
   var _raw_templates = window.TS && TS.raw_templates;
   var _console_module = window.TS && TS.console;
+  var _guid = 0;
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -219,15 +220,38 @@
       if (typeof proto.destroy !== "function") return TS.error('component "' + name + '" cannot be registered as it does not have a destroy method');
       var Component = function() {
         if (this._constructor) this._constructor.apply(this, arguments);
+        this.id = this.id || name + "_auto_guid_" + _guid++;
+        Component._add(this.id, this);
       };
       var namespace = _registerInNamespace(name, Component, "component");
       if (namespace === undefined) {
         _delayed_component_loads[name] = proto;
         return;
       }
+      var destroy = proto.destroy;
+      proto.destroy = function() {
+        Component._remove(this.id);
+        destroy.call(this);
+      };
       Component.prototype = Object.create(proto);
+      Component.instances = {};
       Component._name = name;
       _components[name] = Component;
+      Component._add = function(instance_id, instance) {
+        if (_components[name].instances[instance_id]) {
+          TS.warn("A " + name + " component with the instance id " + instance_id + "already exists");
+        }
+        _components[name].instances[instance_id] = instance;
+      };
+      Component._remove = function(instance_id) {
+        _components[name].instances[instance_id] = null;
+      };
+      Component.get = function(instance_id) {
+        return _components[name].instances[instance_id];
+      };
+      Component.getAll = function() {
+        return _components[name].instances;
+      };
     },
     makeLogDate: function() {
       if (window.TSMakeLogDate) return TSMakeLogDate();

@@ -60,7 +60,7 @@
       {{#t}}Time Zone{{/t}}
       <select class="no_bottom_margin" name="tz">
         {{#each timezone_options}}
-          <option value="{{this.val}}"{{#if_equal this.val compare=../member.tz}} selected{{/if_equal}}>{{this.label}}</option>
+          <option value="{{this.val}}"{{#if_equal this.val compare=../member_tz}} selected{{/if_equal}}>{{this.label}}</option>
         {{/each}}
       </select>
     </label>
