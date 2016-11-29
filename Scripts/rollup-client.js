@@ -6080,6 +6080,7 @@
       }
       qry = TS.search.truncateQuery(qry);
       qry = qry.replace(/%23/g, "#");
+      qry = qry.replace(/%252F/g, "/");
       $("#search_terms").val(qry).data("textchange_lastvalue", qry);
       $("#header_search_form").submit();
       TS.client.flexDisplaySwitched("search", qry, false, true);
