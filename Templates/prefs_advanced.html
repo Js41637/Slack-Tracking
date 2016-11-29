@@ -13,12 +13,12 @@
   <label class="checkbox">
     <input id="enter_is_special_in_tbt_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
     When typing code with ```, <em>Enter</em> should not send the message<br />
-    <span class="normal subtle_silver">With this checked use <em>Shift+Enter</em> to send</span>
+    <span class="normal greigh">With this checked use <em>Shift+Enter</em> to send</span>
   </label>
   <label class="checkbox">
     <input id="arrow_history_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_input_options">
     Use <i class="ts_icon ts_icon_square_arrow_up ts_icon_inherit"></i> and <i class="ts_icon ts_icon_square_arrow_down ts_icon_inherit"></i> to cycle through your typed history<br>
-    <span class="normal subtle_silver">With this checked, use {{#isMac}}Cmd{{else}}Ctrl{{/isMac}} + <i class="ts_icon ts_icon_square_arrow_up ts_icon_inherit"></i>&nbsp;&nbsp;to edit your last message</span>
+    <span class="normal greigh">With this checked, use {{#isMac}}Cmd{{else}}Ctrl{{/isMac}} + <i class="ts_icon ts_icon_square_arrow_up ts_icon_inherit"></i>&nbsp;&nbsp;to edit your last message</span>
   </label>
 </p>
 
@@ -74,7 +74,7 @@
   <label class="checkbox nor_margin">
     <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">
     Turn on All Unreads<br />
-    <span class="normal subtle_silver">This collects all the messages you\u2019ve missed in one handy place.</span>
+    <span class="normal greigh">This collects all the messages you\u2019ve missed in one handy place.</span>
   </label>
 </p>
 {{/feature}}
@@ -94,12 +94,12 @@
     <label class="checkbox">
       <input id="f_key_search_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
       {{#isMac}}Cmd{{else}}Ctrl{{/isMac}} + F starts a Slack search<br>
-      <span class="normal subtle_silver">Overrides normal browser search behavior</span>
+      <span class="normal greigh">Overrides normal browser search behavior</span>
     </label>
     <label class="checkbox">
       <input id="k_key_omnibox_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
       {{#isMac}}Cmd{{else}}Ctrl{{/isMac}} + K starts the quick switcher<br>
-      <span class="normal subtle_silver">Overrides normal behavior in some browsers</span>
+      <span class="normal greigh">Overrides normal behavior in some browsers</span>
     </label>
   {{/isOurApp}}
 
@@ -152,7 +152,7 @@
         <option value="{{this.numbers}}"{{#if this.selected}} selected{{/if}}>{{#if this.name}}{{this.name}}{{else}}{{this.numbers}}{{/if}}</option>
       {{/each}}
     </select>
-    <span class="normal tiny_top_margin block subtle_silver">Enabling console logs can help Slack engineers and customer experience agents track down issues you are experiencing.</span>
+    <span class="normal tiny_top_margin block greigh">Enabling console logs can help Slack engineers and customer experience agents track down issues you are experiencing.</span>
   </p>
 {{/if}}
 <p class="bold">Changing the following preferences will reload Slack.</p>

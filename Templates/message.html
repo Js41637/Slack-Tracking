@@ -101,7 +101,7 @@
             </span>
             {{~/if~}}
           {{else}}
-            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">BOT</span>{{/if}}</span>
+            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_profiles_frontend"}}APP{{else}}BOT{{/feature}}</span>{{/if}}</span>
           {{/if}}
         {{/unless}}
         {{#if comment}}

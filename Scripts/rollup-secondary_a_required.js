@@ -11463,17 +11463,17 @@ TS.registerModule("constants", {
       }
       if (!app.is_slack_integration && !app.auth) {
         template_args.disabled = true;
-      } else if (app.is_slack_integration && app.config && (app.config.is_active !== "1" || app.config.date_deleted !== "0")) {
+      } else if (app.is_slack_integration && (!app.config || (app.config.is_active !== "1" || app.config.date_deleted !== "0"))) {
         template_args.disabled = true;
       }
       if (app.installation_summary) {
         var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
           if (!TS.members.getMemberById(user_id)) return match;
-          var name_replace = '<span class="app_card_member_dm_link" data-member-id=' + user_id + ">";
+          var name_replace = '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">";
           if (TS.boot_data.feature_name_tagging_client) {
             name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(user_id));
           } else {
-            name_replace += TS.members.getMemberDisplayNameById(user_id, true, true);
+            name_replace += TS.utility.htmlEntities(TS.members.getMemberRealName(user_id));
           }
           name_replace += "</span>";
           return name_replace;
@@ -11491,7 +11491,7 @@ TS.registerModule("constants", {
             }
           }
         }
-        if (_.get(app.config, "is_active")) {
+        if (!template_args.disabled) {
           if (!TS.model.user.is_ultra_restricted) {
             var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(app.bot_user.id);
             if (invite_channels.length) {
@@ -11501,6 +11501,7 @@ TS.registerModule("constants", {
         }
       }
       if (app.long_desc_formatted) template_args.long_description = new Handlebars.SafeString(app.long_desc_formatted);
+      if (app.support_url) template_args.support_url = app.support_url;
       return template_args;
     }
   });
@@ -19921,7 +19922,11 @@ TS.registerModule("constants", {
       html += TS.templates.builders.makeMemberTypeBadgeCompact(member, false);
       html += "</a>";
       if (member.is_bot || member.is_service) {
-        html += '<span class="bot_label">BOT</span>';
+        if (TS.boot_data.feature_app_profiles_frontend) {
+          html += '<span class="bot_label">APP</span>';
+        } else {
+          html += '<span class="bot_label">BOT</span>';
+        }
       }
       return html;
     },
@@ -31893,9 +31898,9 @@ var _on_esc;
           });
         }
         TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
-        TS.menu.$menu_items.on("click.menu", ".app_card_member_dm_link", function(e) {
+        TS.menu.$menu_items.on("click.menu", "[data-member-profile-link]", function(e) {
           e.preventDefault();
-          TS.ims.startImByMemberId($(this).data("member-id"));
+          TS.client.ui.previewMember($(this).data("member-profile-link"));
         });
         TS.menu.keepInBounds();
       }
@@ -31903,7 +31908,6 @@ var _on_esc;
     onAppItemClick: function(e) {
       var $item = $(this);
       var action = $item.data("action");
-      clearTimeout(TS.menu.end_time);
       if (action === "view_details") {
         TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
       } else if (action === "files") {
@@ -32386,26 +32390,33 @@ var _on_esc;
           team: _team_id
         };
         TS.api.call("enterprise.teams.leave", calling_args, function(ok, data, args) {
+          var team = TS.enterprise.getTeamById(_team_id);
+          var success_message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + " You've successfully left <strong>" + team.name + "</strong>");
           if (ok) {
-            var team = TS.enterprise.getTeamById(_team_id);
-            TS.ui.toast.show({
-              type: "success",
-              message: "Left " + team.name
-            });
+            _showToastMessage("success", success_message);
             TS.ui.fs_modal.close();
-            return;
+          } else {
+            if (data.error === "disable_denied_due_to_idpgroup_membership") {
+              _showToastMessage("error", "You can't leave this team.<br>Because you're in an IdP group assigned to this team, you can't leave it here. <Contact an Org Admin> for help leaving the team.");
+            } else if (data.error === "user_deleted_already") {
+              _showToastMessage("success", success_message);
+              TS.ui.fs_modal.close();
+            } else if (data.error === "failed_to_convert_org_user_to_team_user") {
+              _showToastMessage("success", success_message);
+              TS.ui.fs_modal.close();
+            } else {
+              _showToastMessage("error", 'Leaving team failed with error "' + data.error + '"');
+            }
           }
-          var err_str = 'Leaving team failed with error "' + data.error + '"';
-          if (data.error === "disable_denied_due_to_idpgroup_membership") {
-            err_str = "This team was assigned to this user via an IDP group, user cannot leave it by themselves.";
-          } else if (data.error === "user_deleted_already") {
-            err_str = "User has been deleted from this team already.";
-          } else if (data.error === "failed_to_convert_org_user_to_team_user") {
-            err_str = "User is not found on the team or not called from enterprise context or team provided is an enterprise.";
-          }
-          setTimeout(TS.generic_dialog.alert, 500, err_str);
+          return;
         });
       }
+    });
+  };
+  var _showToastMessage = function(type, message) {
+    TS.ui.toast.show({
+      type: type,
+      message: message
     });
   };
   var _onCancelLeaveTeamConfirm = function() {};
@@ -43542,8 +43553,7 @@ $.fn.togglify = function(settings) {
     return _queue.shift();
   };
   var _hideToast = function() {
-    var $toast = _$toast_parent.find(".toast");
-    $toast.addClass("hidden");
+    _$toast_parent.removeClass("toast_in").addClass("toast_out");
     _is_currently_visible = false;
     _ensureNothingInQueue();
   };
@@ -43559,7 +43569,7 @@ $.fn.togglify = function(settings) {
   };
   var _maybeInsertToast = function() {
     if (!_$toast_parent) {
-      _$toast_parent = $('<div id="toast">');
+      _$toast_parent = $('<div id="toast" class="hidden">');
       var html = TS.templates.toast({});
       _$toast_parent.html(html);
       _$toast_parent.appendTo("body");
@@ -43574,10 +43584,10 @@ $.fn.togglify = function(settings) {
       _queue.push(instance);
     } else {
       var html = TS.templates.toast({
-        instance: instance
+        instance: instance,
+        already_exists: !!should_show
       });
-      var $toast = _$toast_parent.find(".toast");
-      $toast.replaceWith(html);
+      _$toast_parent.html(html);
       _unhideToast();
     }
   };
@@ -43585,9 +43595,10 @@ $.fn.togglify = function(settings) {
     return _queue.length > 0;
   };
   var _unhideToast = function() {
-    var $toast = _$toast_parent.find(".toast");
-    $toast.removeClass("hidden");
-    _is_currently_visible = true;
+    if (!_is_currently_visible) {
+      _$toast_parent.removeClass("hidden").removeClass("toast_out").addClass("toast_in");
+      _is_currently_visible = true;
+    }
     _markToastForDeath();
   };
 })();
@@ -43910,11 +43921,10 @@ $.fn.togglify = function(settings) {
               if ($(this).val() !== "") {
                 $(this).val("");
                 instance._previous_val = "";
+                _populate(instance);
               }
               if (instance.single) {
                 _hideList(instance);
-              } else {
-                _populate(instance);
               }
             }
           }
@@ -44004,12 +44014,11 @@ $.fn.togglify = function(settings) {
         if (instance.$input.val() !== "") {
           instance.$input.val("");
           instance._previous_val = "";
+          _populate(instance);
         }
         if (instance.single) {
           _hideList(instance);
           e.stopPropagation();
-        } else {
-          _populate(instance);
         }
       }
       instance._prevent_blur = false;
@@ -53018,6 +53027,9 @@ $.fn.togglify = function(settings) {
       if (opts.placeholder) {
         $input.attr("placeholder", opts.placeholder);
       }
+      if (opts.aria_label) {
+        $input.attr("aria-label", opts.aria_label);
+      }
       _initTabComplete($input, opts);
       _initUI($form, $input, submit_fn, cancel_fn, get_edit_msg_div_fn);
       _initEmoMenu($form, $input);
@@ -53592,6 +53604,7 @@ $.fn.togglify = function(settings) {
     $dialog.css("display", "");
     var $container = $dialog.find("#share_dialog_input_container");
     TS.ui.inline_msg_input.make($container, {
+      aria_label: "Add optional comment before sharing.",
       no_emo: false,
       placeholder: "Add a message, if you’d like."
     });
@@ -54003,7 +54016,7 @@ $.fn.togglify = function(settings) {
     context.action.selected_options = [{
       value: item.value
     }];
-    TS.attachment_actions.action_triggered_sig.dispatch(context);
+    _.defer(TS.attachment_actions.action_triggered_sig.dispatch, context);
   }
 
   function _filter(item, query) {

@@ -3487,6 +3487,120 @@ html.no_touch .alert_page a:hover {
   z-index: 1042
 }
 
+.alert_page.toast {
+  font-weight: 400
+}
+
+#toast.toast_in .toast:not(.no_slide) {
+  -webkit-transform: translate(0, 0);
+  -moz-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  transform: translate(0, 0);
+  -webkit-animation: toast_in .2s ease-out;
+  -moz-animation: toast_in .2s ease-out;
+  animation: toast_in .2s ease-out
+}
+
+@-webkit-keyframes toast_in {
+  from {
+    -webkit-transform: translate(0, 100%);
+    -moz-transform: translate(0, 100%);
+    -ms-transform: translate(0, 100%);
+    transform: translate(0, 100%)
+  }
+  to {
+    -webkit-transform: translate(0, 0);
+    -moz-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0)
+  }
+}
+
+@-moz-keyframes toast_in {
+  from {
+    -webkit-transform: translate(0, 100%);
+    -moz-transform: translate(0, 100%);
+    -ms-transform: translate(0, 100%);
+    transform: translate(0, 100%)
+  }
+  to {
+    -webkit-transform: translate(0, 0);
+    -moz-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0)
+  }
+}
+
+@keyframes toast_in {
+  from {
+    -webkit-transform: translate(0, 100%);
+    -moz-transform: translate(0, 100%);
+    -ms-transform: translate(0, 100%);
+    transform: translate(0, 100%)
+  }
+  to {
+    -webkit-transform: translate(0, 0);
+    -moz-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0)
+  }
+}
+
+#toast.toast_out .toast {
+  -webkit-transform: translate(0, 100%);
+  -moz-transform: translate(0, 100%);
+  -ms-transform: translate(0, 100%);
+  transform: translate(0, 100%);
+  -webkit-animation: toast_out .2s ease-out;
+  -moz-animation: toast_out .2s ease-out;
+  animation: toast_out .2s ease-out
+}
+
+@-webkit-keyframes toast_out {
+  from {
+    -webkit-transform: translate(0, 0);
+    -moz-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0)
+  }
+  to {
+    -webkit-transform: translate(0, 100%);
+    -moz-transform: translate(0, 100%);
+    -ms-transform: translate(0, 100%);
+    transform: translate(0, 100%)
+  }
+}
+
+@-moz-keyframes toast_out {
+  from {
+    -webkit-transform: translate(0, 0);
+    -moz-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0)
+  }
+  to {
+    -webkit-transform: translate(0, 100%);
+    -moz-transform: translate(0, 100%);
+    -ms-transform: translate(0, 100%);
+    transform: translate(0, 100%)
+  }
+}
+
+@keyframes toast_out {
+  from {
+    -webkit-transform: translate(0, 0);
+    -moz-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    transform: translate(0, 0)
+  }
+  to {
+    -webkit-transform: translate(0, 100%);
+    -moz-transform: translate(0, 100%);
+    -ms-transform: translate(0, 100%);
+    transform: translate(0, 100%)
+  }
+}
+
 .ts_toggle {
   display: inline-block;
   margin: 0 0 1rem;
@@ -5016,6 +5130,14 @@ html.no_touch .alert_page a:hover {
 
 .old_petunia_grey_bg {
   background-color: #a0a0a2!important
+}
+
+.greigh {
+  color: #717274!important
+}
+
+.greigh_bg {
+  background-color: #717274!important
 }
 
 .seafoam_green {

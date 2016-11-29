@@ -1,0 +1,20 @@
+{{i18n_ns "app_profile"}}
+{{!-- Bot-specific --}}
+{{#if bot_user}}
+  <li role="menuitem" data-action="files"><a href="/files/{{username}}">
+    {{#t}}View files{{/t}}
+  </a></li>
+  {{#if show_channel_invite}}
+    <li role="menuitem" data-action="invite_to_channel"><a>
+      {{#t}}Invite to a channel&hellip;{{/t}}
+    </a></li>
+  {{/if}}
+  <li role="menuitem"><a href="/team/{{username}}" target="_blank">
+    {{#t}}Open profile in new window{{/t}}
+  </a></li>
+  <li class="divider"></li>
+{{/if}}
+{{#if support_url}}
+  <li role="menuitem"><a href="{{support_url}}" target="_blank">{{#t}}{name} Help{{/t}}</a></li>
+{{/if}}
+<li role="menuitem"><a href="/apps" target="_blank">{{#t}}Slack App Directory{{/t}}</a></li>

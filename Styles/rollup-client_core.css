@@ -6359,7 +6359,7 @@ only screen and (min-resolution:2dppx) {
 
 #message-input-message {
   text-align: center;
-  color: #a4a4a4;
+  color: #717274;
   display: none;
   position: absolute;
   height: 100%;
@@ -6803,7 +6803,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 #typing_text {
-  color: #9e9ea6;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  color: #717274;
   display: inline-block;
   font-size: .7em;
   line-height: 1rem;
@@ -6826,7 +6827,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 #special_formatting_text {
-  color: #9e9ea6;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  color: #717274;
   display: inline-block;
   font-size: .7em;
   line-height: 1rem;

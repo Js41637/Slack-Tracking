@@ -1880,6 +1880,11 @@ html.is_electron_mac #rxn_toast_div {
   right: .75rem
 }
 
+#convo_tab .heading .close_flexpane .ts_icon {
+  position: relative;
+  top: .125rem
+}
+
 #convo_tab_header {
   font-size: 1.125rem
 }
@@ -1905,25 +1910,14 @@ html.is_electron_mac #rxn_toast_div {
 }
 
 #convo_subscription_container {
-  border-top: 1px solid #e0e0e0;
   color: #9e9ea6;
   font-size: .8125rem;
-  margin-top: .625rem;
-  margin-left: .625rem;
-  margin-right: .5rem;
-  padding-top: 1.25rem;
-  min-height: 6.25rem
+  position: absolute;
+  right: 2.75rem
 }
 
 #convo_subscription_container button {
-  font-size: inherit;
-  float: right
-}
-
-#convo_subscription_container>span {
-  display: inline-block;
-  line-height: 1.25rem;
-  max-width: 18.75rem
+  font-size: inherit
 }
 
 .mentions_reply {
@@ -21606,7 +21600,7 @@ ts-jumper ts-jumper-container {
 
 ts-jumper ts-jumper-help {
   margin: 0 0 .5rem;
-  color: #8b898f;
+  color: #717274;
   font-size: .75rem;
   display: block
 }
@@ -21736,7 +21730,7 @@ ts-jumper ol li .member_username+.member_real_name,
 ts-jumper ol li .team_username {
   font-weight: 400;
   margin-left: .5rem;
-  color: #9e9ea6
+  color: #717274
 }
 
 ts-jumper ol li .member_type {
@@ -24632,12 +24626,12 @@ ul li.highlighted a .app_slash_command_desc {
   word-break: break-word
 }
 
-.app_card_member_dm_link {
+.app_card_member_link {
   font-weight: 700;
   cursor: pointer
 }
 
-.app_card_member_dm_link:hover {
+.app_card_member_link:hover {
   text-decoration: underline
 }
 

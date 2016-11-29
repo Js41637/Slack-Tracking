@@ -36937,9 +36937,9 @@ function timezones_guess() {
     active_app: null,
     openWithApp: function(app, bot_id) {
       TS.client.ui.app_profile.active_app = app;
-      var template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
+      _profile_template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
       TS.client.ui.flex.openAppProfileFlex();
-      $('[data-js="app_profile_scroller"]').html(TS.templates.app_profile(template_args));
+      $('[data-js="app_profile_scroller"]').html(TS.templates.app_profile(_profile_template_args));
     },
     onButtonClick: function(e) {
       var $item = $(this);
@@ -36947,7 +36947,39 @@ function timezones_guess() {
       if (action === "open_bot_dm") {
         e.preventDefault();
         TS.ims.startImByMemberId(TS.client.ui.app_profile.active_app.bot_user.id);
+      } else if (action === "open_overflow_menu") {
+        TS.client.ui.app_profile.openOverflowMenu(e);
       }
+    },
+    openOverflowMenu: function(e) {
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.client.ui.checkForEditing(e)) return;
+      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
+        return;
+      }
+      TS.menu.buildIfNeeded();
+      TS.menu.clean();
+      TS.menu.$menu_items.html(TS.templates.menu_app_profile_items(_profile_template_args));
+      TS.menu.start(e, true);
+      var $el = $(e.target);
+      TS.menu.positionAt($el, $el.width() - TS.menu.$menu.width(), $el.height() + 8);
+      TS.menu.$menu_items.on("click.menu", "li", TS.client.ui.app_profile.onOverflowMenuClick);
+      TS.menu.keepInBounds();
+    },
+    onOverflowMenuClick: function(e) {
+      var $item = $(this);
+      var action = $item.data("action");
+      var active_app = TS.client.ui.app_profile.active_app;
+      if (action === "files") {
+        e.preventDefault();
+        TS.view.files.clearFilter();
+        TS.client.ui.files.filterFileList(active_app.bot_user.id);
+      } else if (action === "invite_to_channel") {
+        e.preventDefault();
+        TS.ui.invite.showInviteMemberToChannelDialog(active_app.bot_user.id);
+      }
+      TS.menu.end();
     }
   });
+  var _profile_template_args;
 })();

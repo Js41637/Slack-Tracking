@@ -21,7 +21,7 @@
           <span class="pin_member_name tiny_right_margin">{{{makeMemberPreviewLinkById item.message.user}}}</span>
         {{else}}
           <span class="pin_member_name tiny_right_margin">{{{getBotNameWithLink item.message}}}</span>
-          {{#if is_bot}}<span class="bot_label">BOT</span>{{/if}}
+          {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_profiles_frontend"}}APP{{else}}BOT{{/feature}}</span>{{/if}}
         {{/if}}
         <{{#if is_reply}}span{{else}}a href="{{permalink}}" target="{{newWindowName}}"{{/if}} class="pin_metadata">{{toCalendarDateOrNamedDayShort item.message.ts}}{{#isToday item.message.ts}} at {{toTime item.message.ts}}{{/isToday}}</{{#if is_reply}}span{{else}}a{{/if}}>
       </p>
