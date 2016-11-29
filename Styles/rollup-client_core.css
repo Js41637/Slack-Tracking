@@ -6074,8 +6074,7 @@ only screen and (min-resolution:2dppx) {
 
 .client_container #client_header {
   flex: none;
-  position: relative;
-  min-width: 0
+  position: static
 }
 
 .help_icon_icon {
@@ -6119,13 +6118,15 @@ only screen and (min-resolution:2dppx) {
 
 .client_container #client_body {
   margin-top: 0;
-  height: 100%;
   overflow: hidden;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
-  display: flex
+  display: flex;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 .threads_view_is_showing .client_container #client_body:not(.footer_msg_input),
@@ -6135,10 +6136,6 @@ only screen and (min-resolution:2dppx) {
 
 .is_macgap .client_container #client_body {
   overflow: visible
-}
-
-.is_safari_desktop .client_container #client_body {
-  height: auto
 }
 
 #client_body:not(.onboarding):before {

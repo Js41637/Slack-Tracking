@@ -23,10 +23,10 @@
 
           <!-- signed-in version -->
 
-          <p>If you need help getting access to or creating a workspace, <a href="mailto:{{enterprise.org_contact_email}}">contact an Org Admin</a>. Or, continue to access your workspaces.</p>
+          <p>If you need help getting access to or creating a workspace, {{#if enterprise.org_contact_email}}<a href="mailto:{{enterprise.org_contact_email}}">{{/if}}contact an Org Admin{{#if enterprise.org_contact_email}}</a>{{/if}}. Or, continue to access your workspaces.</p>
 
           <div class="large_top_margin">
-            <!-- link to myteam.slack.com -->
+            {{!-- link to myteam.slack.com --}}
             <a href="{{next_action_href}}" id="next_action" type="button" class="btn_large btn_info btn">Continue to Slack</a>
           </div>
 
@@ -34,7 +34,7 @@
 
           <!-- signed-out version -->
 
-          <p>If you need help getting access to or creating a workspace, <a href="mailto:{{enterprise.org_contact_email}}">contact an Org Admin</a>. Or, sign in to access your workspaces.</p>
+          <p>If you need help getting access to or creating a workspace, {{#if enterprise.org_contact_email}}<a href="mailto:{{enterprise.org_contact_email}}">{{/if}}contact an Org Admin{{#if enterprise.org_contact_email}}</a>{{/if}}. Or, sign in to access your workspaces.</p>
 
           <div class="medium_top_margin medium_bottom_margin">
             {{!-- button will be updated to include "with [okta]" or likewise based on auth.sso response --}}
@@ -60,7 +60,7 @@
         <hr />
 
         <p class="small">
-          Your organization has restricted the creation of workspaces by accounts using {{email_domain}} email addresses. If you need help getting access or creating a workspace, <a href="#">contact an organization administrator</a>.
+          Your organization has restricted the creation of workspaces by accounts using {{email_domain}} email addresses. If you need help getting access or creating a workspace, {{#if enterprise.org_contact_email}}<a href="mailto:{{enterprise.org_contact_email}}">{{/if}}contact an organization administrator{{#if enterprise.org_contact_email}}</a>{{/if}}.
         </p>
 
       {{/if}}

@@ -1875,41 +1875,38 @@ html.is_electron_mac #rxn_toast_div {
   border-right: 1px solid #e0e0e0
 }
 
+#convo_tab_back {
+  position: relative;
+  top: -1px;
+  color: #555459
+}
+
+#convo_tab_back:focus,
+#convo_tab_back:hover {
+  outline: 0;
+  color: #2a80b9
+}
+
 #convo_subscription_container {
   border-top: 1px solid #e0e0e0;
-  padding: 2.5rem 5rem 2rem;
-  text-align: center;
-  font-size: .8125rem
+  color: #9e9ea6;
+  font-size: .8125rem;
+  margin-top: .625rem;
+  margin-left: .625rem;
+  margin-right: .5rem;
+  padding-top: 1.25rem;
+  min-height: 6.25rem
 }
 
 #convo_subscription_container button {
   font-size: inherit;
-  min-width: 150px
+  float: right
 }
 
-#convo_subscription_container button ts-icon:before {
-  font-size: 1rem;
-  vertical-align: middle
-}
-
-#convo_subscription_container button[data-subscribed=true] #follow_thread_btn_unfollow,
-#convo_subscription_container button[data-subscribed=true]:hover #follow_thread_btn_following {
-  display: none
-}
-
-#convo_subscription_container button[data-subscribed=true]:hover {
-  background-color: #eb4d5c!important
-}
-
-#convo_subscription_container button[data-subscribed=true]:hover #follow_thread_btn_unfollow {
-  display: inline-block
-}
-
-#convo_subscription_container p {
-  color: #9e9ea6;
-  font-size: inherit;
-  line-height: 1.125rem;
-  margin-bottom: 0
+#convo_subscription_container>span {
+  display: inline-block;
+  line-height: 1.25rem;
+  max-width: 18.75rem
 }
 
 .mentions_reply {
@@ -5741,10 +5738,8 @@ only screen and (min-resolution:2dppx) {
   text-decoration: none
 }
 
-.current_status_input_container label.countdown.validation_error:after,
-.current_status_input_container label.countdown.validation_success:after,
-.current_status_input_container label.countdown.validation_warning:after {
-  margin-right: .75rem;
+.current_status_input_container label.countdown:after {
+  margin-right: .875rem;
   z-index: 1
 }
 
@@ -5752,10 +5747,10 @@ only screen and (min-resolution:2dppx) {
   font-size: .9rem
 }
 
-#member_preview_scroller #member_current_status_input,
-#member_preview_web_container #member_current_status_input,
-#team_list #member_current_status_input,
-.menu_member_header #member_current_status_input {
+#member_preview_scroller .current_status_input_container,
+#member_preview_web_container .current_status_input_container,
+#team_list .current_status_input_container,
+.menu_member_header .current_status_input_container {
   text-align: left;
   width: 100%;
   margin-bottom: 2rem
@@ -17305,6 +17300,10 @@ ts-message .message_gutter .star {
   margin-left: .25rem
 }
 
+ts-message .message_current_status {
+  display: none
+}
+
 ts-message .message_sender {
   display: none;
   word-break: break-word;
@@ -17928,6 +17927,14 @@ ts-message .emoji-sizer .mention {
   border-bottom: 1px solid #d4d4d9
 }
 
+.light_theme #convo_container #message_edit_container #message_edit_form {
+  margin-left: 3.5rem
+}
+
+.dense_theme #convo_container #message_edit_container #message_edit_form {
+  margin-left: 1.125rem
+}
+
 #convo_container ts-conversation {
   display: block
 }
@@ -18405,10 +18412,10 @@ ts-message .emoji-sizer .mention {
 }
 
 .light_theme ts-message .message_content .message_current_status {
-  font-size: .875rem;
   margin-right: .25rem;
-  color: #565759;
-  max-width: 7.5rem;
+  color: #2c2d30;
+  font-weight: 600;
+  max-width: 8.75rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
@@ -18490,8 +18497,10 @@ ts-message .emoji-sizer .mention {
 }
 
 .light_theme ts-message.first .message_content .bot_label,
+.light_theme ts-message.first .message_content .message_current_status,
 .light_theme ts-message.first .message_content .message_sender,
 .light_theme ts-message.selected .message_content .bot_label,
+.light_theme ts-message.selected .message_content .message_current_status,
 .light_theme ts-message.selected .message_content .message_sender {
   display: inline
 }
@@ -18608,16 +18617,27 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
-.light_theme ts-thread ts-message {
+.light_theme ts-thread ts-message,
+.light_theme ts-thread ts-message#message_edit_container {
   padding-left: 2.25rem
 }
 
-.light_theme ts-thread ts-message .message_gutter {
+.light_theme ts-thread ts-message .message_gutter,
+.light_theme ts-thread ts-message#message_edit_container .message_gutter {
   margin-left: .8125rem;
   width: 2.875rem
 }
 
-.light_theme ts-thread ts-message .message_content {
+.light_theme ts-thread ts-message .message_content,
+.light_theme ts-thread ts-message#message_edit_container .message_content {
+  margin-left: 1.5rem
+}
+
+.light_theme ts-thread #message_edit_container {
+  margin-left: 0
+}
+
+.light_theme ts-thread #message_edit_container #message_edit_form {
   margin-left: 1.5rem
 }
 
@@ -18678,7 +18698,12 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message .message_content .message_current_status {
-  display: none
+  margin-right: .25rem;
+  font-weight: 500;
+  max-width: 8.75rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
 }
 
 .dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
@@ -18729,8 +18754,10 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message.first .message_content .bot_label,
+.dense_theme ts-message.first .message_content .message_current_status,
 .dense_theme ts-message.first .message_content .message_sender,
 .dense_theme ts-message.selected .message_content .bot_label,
+.dense_theme ts-message.selected .message_content .message_current_status,
 .dense_theme ts-message.selected .message_content .message_sender {
   display: inline
 }
@@ -18809,6 +18836,14 @@ ts-message .emoji-sizer .mention {
 
 .dense_theme #convo_container ts-message.deleted .message_content .timestamp {
   display: none
+}
+
+.dense_theme ts-thread #message_edit_container .message_gutter {
+  width: 3.9375rem
+}
+
+.dense_theme ts-thread #message_edit_container #message_edit_form {
+  margin-left: 5rem
 }
 
 .dense_theme .new_reply_indicator,
@@ -18929,12 +18964,6 @@ ts-thread .reply_input_container .inline_message_input_container .message_input.
   right: 1rem
 }
 
-ts-thread .reply_input_container .reply_limited_in_general {
-  margin-top: .625rem;
-  margin-bottom: 0;
-  border-radius: 0 0 10px 10px
-}
-
 ts-thread .reply_input_container .reply_broadcast_buttons_container {
   padding-left: .5rem;
   margin-top: -1rem;
@@ -18949,15 +18978,32 @@ ts-thread .reply_input_container.has_focus .reply_broadcast_buttons_container {
   margin-top: 0
 }
 
-ts-thread .reply_input_container .join_channel_from_thread_container {
+ts-thread .reply_input_container .join_channel_from_thread_container,
+ts-thread .reply_input_container .reply_limited_in_general {
   border: 1px solid #e0e0e0;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  background: #fff
+  background: #fff;
+  padding: 0;
+  font-size: .8125rem;
+  min-height: 2.75rem;
+  line-height: 2.75rem
+}
+
+ts-thread .reply_input_container .join_channel_from_thread_container button,
+ts-thread .reply_input_container .reply_limited_in_general button {
+  margin: 0
+}
+
+.dense_theme ts-thread .reply_input_container .join_channel_from_thread_container,
+.dense_theme ts-thread .reply_input_container .reply_limited_in_general {
+  min-height: 2.25rem;
+  line-height: 2.25rem
 }
 
 ts-thread .thread_messages {
-  padding-top: .375rem;
+  padding-top: .625rem;
+  padding-bottom: .4375rem;
   background: #fff;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -19089,7 +19135,6 @@ ts-thread .view_all_replies_count {
 
 #reply_container .reply_limited_in_general,
 .reply_input_container .reply_limited_in_general {
-  min-height: 2.625rem;
   background: #f7f7f7;
   color: #a4a4a4;
   text-align: center;
@@ -21876,6 +21921,21 @@ ts-jumper ts-jumper-results:empty {
   background: #fff
 }
 
+#slack_menu_current_status_submenu {
+  width: 18.75rem
+}
+
+#slack_menu_current_status_submenu #slack_menu_current_status_input_container {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem
+}
+
+#slack_menu_current_status_submenu #slack_menu_current_status_input_container .current_status_input_label_content,
+#slack_menu_current_status_submenu #slack_menu_current_status_input_container .status_clear_icon_wrap,
+#slack_menu_current_status_submenu #slack_menu_current_status_input_container .validation_message {
+  display: none!important
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -24428,6 +24488,10 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   pointer-events: none
 }
 
+.menu.app_card {
+  max-width: 20rem
+}
+
 .app_card_header {
   min-width: 20rem;
   padding: 25px;
@@ -24486,7 +24550,6 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 .app_card_header_text .app_card_desc {
   font-size: .9375rem;
   line-height: 1.125rem;
-  max-height: 2.25rem;
   text-shadow: 0 1px 4px rgba(0, 0, 0, .2)
 }
 
@@ -24504,8 +24567,7 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 
 .app_header_large .app_card_header_text .app_card_desc {
   font-size: 1rem;
-  line-height: 1.1875rem;
-  max-height: 2.375rem
+  line-height: 1.1875rem
 }
 
 .app_slash_command {

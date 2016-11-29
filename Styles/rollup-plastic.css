@@ -11003,6 +11003,10 @@ body.winssb #emoji_menu {
   min-width: 250px
 }
 
+#recap_menu_items .inline-emoji {
+  padding-right: .625rem
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -11976,10 +11980,8 @@ only screen and (min-resolution:2dppx) {
   text-decoration: none
 }
 
-.current_status_input_container label.countdown.validation_error:after,
-.current_status_input_container label.countdown.validation_success:after,
-.current_status_input_container label.countdown.validation_warning:after {
-  margin-right: .75rem;
+.current_status_input_container label.countdown:after {
+  margin-right: .875rem;
   z-index: 1
 }
 
@@ -11987,10 +11989,10 @@ only screen and (min-resolution:2dppx) {
   font-size: .9rem
 }
 
-#member_preview_scroller #member_current_status_input,
-#member_preview_web_container #member_current_status_input,
-#team_list #member_current_status_input,
-.menu_member_header #member_current_status_input {
+#member_preview_scroller .current_status_input_container,
+#member_preview_web_container .current_status_input_container,
+#team_list .current_status_input_container,
+.menu_member_header .current_status_input_container {
   text-align: left;
   width: 100%;
   margin-bottom: 2rem

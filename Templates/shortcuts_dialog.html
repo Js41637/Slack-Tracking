@@ -59,7 +59,7 @@
         <li>Toggle Flexpane: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">.</span></li>
           <ul>
             {{#isOurApp}}<li>Channel Info: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">i</span></li>{{/isOurApp}}
-            {{#isChrome}}{{else}}<li>Mentions: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">m</span></li>{{/isChrome}}
+            {{#isChrome}}{{else}}<li>{{#feature flag="feature_message_replies"}}Activity{{else}}Mentions{{/feature}}: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">m</span></li>{{/isChrome}}
             {{#isFF}}{{else}}<li>Team: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">e</span></li>{{/isFF}}
             <li>Stars: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">s</span></li>
             {{#isOurApp}}<li>Search: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">f</span></li>{{/isOurApp}}

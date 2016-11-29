@@ -69,7 +69,7 @@
       <div class="message_icon">
         {{> message_member_image}}
       </div>
-      <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if show_user}}{{{toTime msg.ts}}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{{toTime msg.ts false}}}</span><span class="dense_only">{{{toTime msg.ts}}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+      <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if show_user}}{{{toTime msg.ts}}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{{toTime msg.ts false}}}</span><span class="dense_only">{{{toTime msg.ts}}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
       {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
     </div>
   {{/unless}}
@@ -85,7 +85,7 @@
             {{{makeMemberPreviewLink member}}}
             {{#feature flag="feature_user_custom_status"}}
               {{#if member.profile.current_status}}
-                <span class="message_current_status ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_600">
+                <span class="message_current_status ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_600 {{makeMemberColorClass member}}">
                   {{getMemberCurrentStatus member}}
                   <span class="ts_tip_tip">
                     <span class="ts_tip_multiline_inner">
@@ -109,7 +109,7 @@
             <span class="meta message_commented">commented:</span>
           {{/if}}
         {{/if}}
-        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{{toTime msg.ts}}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{{toTime msg.ts}}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
         {{#unless standalone}}
           {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
         {{/unless}}
@@ -118,7 +118,7 @@
         {{#if is_tombstone}}
           <div class="deleted_message">This message was deleted</div>
         {{else}}
-          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="recap_highlight">Highlight</span>{{/if}}{{/feature}}
+          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="recap_highlight"><a>Highlight</a></span>{{/if}}{{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
         {{/if}}

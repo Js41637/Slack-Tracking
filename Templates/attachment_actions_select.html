@@ -5,6 +5,9 @@
     aria-disabled="true"
   {{/if}}
   data-action-id="{{id}}"
+  {{#if _is_external}}
+    data-is-external="true"
+  {{/if}}
 >
   <option>&nbsp;</option>
   {{#each options}}

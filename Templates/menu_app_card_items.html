@@ -1,9 +1,36 @@
+{{i18n_ns "app_card"}}
+
 {{#and disabled (if_not_equal is_slack_integration compare=true)}}
-  <li role="menuitem" class="disabled italic"><a>This app has been disabled.</a></li>
+  <li role="menuitem" class="disabled italic"><a>
+    {{#t}}This app has been disabled.{{/t}}
+  </a></li>
 {{/and}}
 {{!--Commented out while app profiles are unfinished.--}}
 {{!--<li role="menuitem"><a>View details</a></li>--}}
-<li role="menuitem"><a href="/services/{{bot_id}}" target="/services/{{bot_id}}">Edit settings</a></li>
+<li role="menuitem"><a href="/services/{{bot_id}}" target="/services/{{bot_id}}">
+  {{#t}}Edit settings{{/t}}
+</a></li>
+{{!-- Bot-specific --}}
+{{#if bot_user}}
+  {{!-- Files --}}
+  <li role="menuitem" data-action="files"><a href="/files/{{username}}">
+    {{#t}}View files{{/t}}
+  </a></li>
+  {{!-- Remove from channel --}}
+  {{#if channel_kick_name}}
+    <li role="menuitem" data-action="remove_from_channel"><a>
+      {{#t}}Remove from <b>{channel_kick_name}</b>{{/t}}
+    </a></li>
+  {{/if}}
+  {{#if show_channel_invite}}
+    <li role="menuitem" data-action="invite_to_channel"><a>
+      {{#t}}Invite to a channel &hellip;{{/t}}
+    </a></li>
+  {{/if}}
+{{/if}}
+
+
+
 {{#unless disabled}}
   {{#if commands}}
     <li class="divider"></li>
@@ -25,5 +52,5 @@
   <li role="menuitem"><span class="app_card_installation_summary">{{installation_summary}}</span></li>
 {{/if}}
 {{#and disabled (if_not_equal is_slack_integration compare=false)}}
-  <li role="menuitem" class="disabled italic"><a>This rule has been disabled.</a></li>
+  <li role="menuitem" class="disabled italic"><a>{{#t}}This rule has been disabled.{{/t}}</a></li>
 {{/and}}

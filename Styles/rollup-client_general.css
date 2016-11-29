@@ -6021,6 +6021,10 @@ body.winssb #emoji_menu {
   min-width: 250px
 }
 
+#recap_menu_items .inline-emoji {
+  padding-right: .625rem
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");

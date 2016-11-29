@@ -5,15 +5,10 @@
   {{#if member}}
     {{#t
       member_display_name=(getMemberDisplayName member)
-      ra_label=(raLabel 'restricted account')
     }}
-      <strong>{member_display_name}</strong> is a {is_ura, select,
-        true { single-channel guest. }
-        other { {ra_label}. }
-      }
+      <strong>{member_display_name}</strong> is a guest of your team, so share files and information with care.
     {{/t}}
   {{else}}
-    {{#t}}Some participants have guest accounts.{{/t}}
+    {{#t}}Some participants have guest accounts, so share files and information with care.{{/t}}
   {{/if}}
-  {{#t note="This refers to there being guest accounts in the channel."}}Bear this in mind when sharing information in this discussion.{{/t}}
 </div>
