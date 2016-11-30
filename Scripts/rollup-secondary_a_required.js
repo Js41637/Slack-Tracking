@@ -11727,7 +11727,7 @@ TS.registerModule("constants", {
       var $icon_close = $div.find(".icon_close");
       var include_org = TS.boot_data.page_needs_enterprise;
       if (TS.client) {
-        _searchable_member_list = TS.SearchableMemberList.get("team_list");
+        _searchable_member_list = TS.SearchableMemberList.get(scroller_id.slice(1));
       }
       _storeFilterArgumentsByScrollerId(scroller_id, full_profile_filter, is_long_list_view, include_org, include_bots, include_deleted);
       _query_for_match = null;
@@ -11757,7 +11757,7 @@ TS.registerModule("constants", {
       });
       $icon_close.bind("click", function() {
         TS.members.view.clearFilter(filter_container_id, scroller_id);
-        if (TS.view) TS.view.rebuildUserGroupList();
+        if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
         _query_for_match = null;
         setTimeout(function() {
           $input.focus();
@@ -11769,15 +11769,11 @@ TS.registerModule("constants", {
       if (full_profile_filter || args && args.full_profile_filter) {
         return TS.team.ensureTeamProfileFields().then(function() {
           if (TS.boot_data.feature_searchable_member_list && TS.client) {
-            if (scroller_id == "#team_list_scroller") {
-              _searchable_member_list.startSearch();
-              return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
-            }
+            _searchable_member_list.startSearch();
+            return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
           } else {
             if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
-              if (scroller_id == "#team_list_scroller") {
-                return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
-              }
+              return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
             } else {
               _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
               return Promise.resolve();
@@ -11824,16 +11820,12 @@ TS.registerModule("constants", {
       $input.val("");
       $icon_close.addClass("hidden");
       if (TS.boot_data.feature_searchable_member_list && TS.client) {
-        if (scroller_id == "#team_list_scroller") {
-          _searchable_member_list.resetSearch();
-          TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
-          _searchable_member_list.maybeClearNoResults();
-        }
+        _searchable_member_list.resetSearch();
+        TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
+        _searchable_member_list.maybeClearNoResults();
       } else {
         if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
-          if (scroller_id == "#team_list_scroller") {
-            TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
-          }
+          TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
         } else {
           $(".restricted_header, .bot_header, .ra_invite_prompt, .restricted_info").removeClass("hidden");
           $list_items_container.find(".no_results").addClass("hidden");
@@ -11966,7 +11958,6 @@ TS.registerModule("constants", {
     _startSpinner(filter_container_id);
     var promiseToFilter = function() {
       return Promise.resolve().then(function() {
-        if (scroller_id !== "#team_list_scroller") return Promise.reject();
         if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list && TS.client) {
           var current_filter;
           if (_searchable_member_list) {
@@ -19149,8 +19140,9 @@ TS.registerModule("constants", {
       var n_others = 0;
       var reply_max = 9;
       var additional_reply_count = 0;
-      var repliers = rolled_up && mention.replies_rolled_up.map(TS.utility.members.getEntityFromMessage);
+      var repliers = rolled_up && _.map(mention.replies_rolled_up, "message");
       if (repliers) {
+        repliers = repliers.map(TS.utility.members.getEntityFromMessage);
         repliers.unshift(replier);
         repliers = _.uniqBy(repliers, "id");
         repliers = _.reject(repliers, "is_self");
@@ -19193,20 +19185,7 @@ TS.registerModule("constants", {
       var member = TS.model.user;
       if (!member.mentions || !member.mentions.length) return html;
       var mentions = [];
-      if (TS.boot_data.feature_message_replies) {
-        member.mentions.forEach(function(mention) {
-          var prev_mention = _.last(mentions);
-          if (prev_mention && prev_mention.type === "thread" && prev_mention.message.thread_ts === mention.message.thread_ts) {
-            if (!prev_mention.replies_rolled_up) prev_mention.replies_rolled_up = [];
-            prev_mention.replies_rolled_up.push(mention.message);
-          } else {
-            mentions.push(mention);
-            if (mention.replies_rolled_up) delete mention.replies_rolled_up;
-          }
-        });
-      } else {
-        mentions = member.mentions;
-      }
+      mentions = member.mentions;
       $.each(mentions, function(i, mention) {
         var h;
         try {
@@ -35771,6 +35750,18 @@ var _on_esc;
     after_ts: null,
     fetched_once: false,
     active_tab: "all",
+    test: function() {
+      var test = {};
+      Object.defineProperty(test, "_replies_rollup_ts_map", {
+        get: function() {
+          return _replies_rollup_ts_map;
+        },
+        set: function(v) {
+          _replies_rollup_ts_map = v;
+        }
+      });
+      return test;
+    },
     onStart: function() {
       TS.prefs.mentions_exclude_at_channels_changed_sig.add(_excludeAtChannelsPrefChanged);
       TS.prefs.mentions_exclude_at_user_groups_changed_sig.add(_excludeUserGroupsPrefChanged);
@@ -35803,19 +35794,48 @@ var _on_esc;
       TS.api.call("activity.mentions", args, TS.mentions.onFetchMentions);
     },
     getMentionByMsgId: function(id, replace_message_with, and_remove_it) {
-      for (var i = 0; i < TS.model.user.mentions.length; i++) {
-        var mention = TS.model.user.mentions[i];
-        if (!mention.message) continue;
-        if (mention.message.ts == id) {
-          if (replace_message_with) {
-            TS.model.user.mentions[i].message = replace_message_with;
-          } else if (and_remove_it) {
-            TS.model.user.mentions.splice(i, 1);
+      var mention;
+      var remove_from_array;
+      var remove_from_array_index;
+
+      function findMentionInArrayByMsgId(array, ts) {
+        return _.find(array, function(mention, index) {
+          if (mention.message && mention.message.ts === ts) {
+            remove_from_array = array;
+            remove_from_array_index = index;
+            return true;
           }
-          return mention;
+          return false;
+        });
+      }
+      if (TS.boot_data.feature_message_replies && _replies_rollup_ts_map[id]) {
+        var rollup_parent_ts = _replies_rollup_ts_map[id];
+        var rollup_parent = findMentionInArrayByMsgId(TS.model.user.mentions, rollup_parent_ts);
+        if (rollup_parent && rollup_parent.message && rollup_parent.message.ts !== id) {
+          mention = findMentionInArrayByMsgId(rollup_parent.replies_rolled_up, id);
+        } else {
+          mention = rollup_parent;
         }
       }
-      return null;
+      if (!mention) {
+        mention = findMentionInArrayByMsgId(TS.model.user.mentions, id);
+      }
+      if (!mention) return null;
+      if (replace_message_with && mention.message) {
+        mention.message = replace_message_with;
+      } else if (and_remove_it && _.isArray(remove_from_array) && _.isNumber(remove_from_array_index)) {
+        if (TS.boot_data.feature_message_replies && mention === rollup_parent && mention.replies_rolled_up && mention.replies_rolled_up.length > 0) {
+          var new_rollup_parent = mention.replies_rolled_up.shift();
+          new_rollup_parent.replies_rolled_up = mention.replies_rolled_up;
+          remove_from_array.splice(remove_from_array_index, 1, new_rollup_parent);
+        } else {
+          remove_from_array.splice(remove_from_array_index, 1);
+        }
+        if (TS.boot_data.feature_message_replies && mention.message && mention.message.ts && _replies_rollup_ts_map[mention.message.ts]) {
+          delete _replies_rollup_ts_map[mention.message.ts];
+        }
+      }
+      return mention;
     },
     onFetchMentions: function(ok, data, args) {
       TS.mentions.mentions_being_fetched = false;
@@ -35863,6 +35883,9 @@ var _on_esc;
           } else {
             continue;
           }
+        }
+        if (TS.boot_data.feature_message_replies) {
+          if (!_.isArray(mention.replies_rolled_up)) mention.replies_rolled_up = [];
         }
         var msg = mention.message;
         if (!msg) continue;
@@ -35919,14 +35942,29 @@ var _on_esc;
           }
         }
         if (TS.mentions.getMentionByMsgId(msg.ts, msg)) continue;
-        mentions.push(mention);
+        if (TS.boot_data.feature_message_replies) {
+          var prev_mention = _.last(mentions) || _.last(TS.model.user.mentions);
+          if (prev_mention && prev_mention.type === "thread" && prev_mention.message.thread_ts === msg.thread_ts) {
+            prev_mention.replies_rolled_up.push(mention);
+            _replies_rollup_ts_map[msg.ts] = prev_mention.message.ts;
+          } else {
+            mentions.push(mention);
+          }
+        } else {
+          mentions.push(mention);
+        }
       }
       TS.model.user.mentions = TS.model.user.mentions.concat(mentions);
       TS.mentions.sortMentions();
-      if (TS.mentions.after_ts === null || args.after_ts) {
-        TS.mentions.has_more = data.has_more;
-        if (TS.model.user.mentions.length) {
-          TS.mentions.after_ts = TS.model.user.mentions[TS.model.user.mentions.length - 1].message.ts;
+      TS.mentions.has_more = data.has_more;
+      if (TS.model.user.mentions.length) {
+        TS.mentions.after_ts = TS.model.user.mentions[TS.model.user.mentions.length - 1].message.ts;
+      }
+      if (TS.boot_data.feature_message_replies && TS.mentions.has_more && data.mentions && data.mentions.length > 0) {
+        var mention_timestamps = _.map(data.mentions, "message.ts");
+        var oldest_mention_timestamp = _.min(mention_timestamps);
+        if (oldest_mention_timestamp < TS.mentions.after_ts) {
+          TS.mentions.after_ts = oldest_mention_timestamp;
         }
       }
       if (TS.boot_data.feature_message_replies) {
@@ -35934,6 +35972,10 @@ var _on_esc;
           if (!mention.thread) return;
           TS.replies.maybeSlurpSubscriptionState(mention.channel, [mention.thread]);
         });
+      }
+      if (TS.mentions.has_more && 0 < TS.model.user.mentions.length && TS.model.user.mentions.length < 20) {
+        TS.mentions.fetchMoreMentions();
+        return;
       }
       TS.mentions.mentions_fetched_sig.dispatch();
     },
@@ -36033,6 +36075,7 @@ var _on_esc;
       TS.mentions.maybeUpdateMentions();
     }
   });
+  var _replies_rollup_ts_map = {};
   var _activityMentionsArgs = function() {
     if (TS.boot_data.feature_message_replies) {
       if (TS.mentions.active_tab === "replies") {

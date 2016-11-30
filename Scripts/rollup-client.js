@@ -7039,8 +7039,7 @@
       TS.view.resizeManually("TS.client.ui._displayTeamList");
       if (TS.boot_data.feature_searchable_member_list) {
         var searchable_member_list = new TS.SearchableMemberList({
-          $container: $("#team_list_container"),
-          id: "team_list"
+          $container: $("#team_list_container")
         });
         searchable_member_list.showInitial();
       } else {
@@ -8834,6 +8833,12 @@
       }
       if (exclude !== "team") {
         if (TS.boot_data.feature_user_custom_status) TS.client.ui.flex._unregisterCurrentStatusInput();
+        if (TS.boot_data.feature_searchable_member_list) {
+          var searchable_member_list = TS.SearchableMemberList.get("team_list_scroller");
+          if (searchable_member_list) {
+            searchable_member_list.destroy();
+          }
+        }
       }
       if (exclude !== "stars") {
         TS.view.cleanStars();
@@ -9230,27 +9235,40 @@
       this._approx_divider_height = 40;
       this.$_container = options.$container;
       this.$_long_list_view;
+      this.$_search_bar;
       this._search_input_id = options.search_input_id || "#team_filter";
-      this._long_list_view_id = options.long_list_view_id || "#team_list_scroller";
+      this._long_list_view_id = "#" + (options.id || "team_list_scroller");
       this._current_filter = "everyone";
       this._next_marker = "";
       this._members_in_view = [];
       this._have_all_members = false;
       this._fetch_more_members_p = null;
       this._is_searching = false;
-      this.id = options.id;
+      this.id = options.id || "team_list_scroller";
       this._resize_sig_handler = null;
     },
     destroy: function() {
-      TS.warn("SearchableMemberList destroy not currently implemented");
       if (this._resize_sig_handler) {
         TS.view.resize_sig.remove(this._resize_sig_handler);
+      }
+      this.$_container.off();
+      if (this.$_long_list_view) this.$_long_list_view.off();
+      var $input = this.$_container.find("input.member_filter");
+      var $icon_close = this.$_container.find(".icon_close");
+      if ($input) $input.off();
+      if ($icon_close) $icon_close.off();
+      if (this.$_long_list_view && this.$_long_list_view.length && $.data(this.$_long_list_view.get(0), "TS-longListView")) {
+        this.$_long_list_view.longListView("destroy");
+      }
+      if (this.$_search_bar) {
+        this.$_search_bar.remove();
       }
       return;
     },
     showInitial: function() {
       var this_searchable_member_list = this;
       this.$_long_list_view = this.$_container.find(this._long_list_view_id);
+      TS.view.resizeManually("TS.SearchableMemberList.showInitial");
       this._startLoadingState();
       if (TS.lazyLoadMembersAndBots() && TS.team.getBestEffortTotalTeamSize() <= this_searchable_member_list._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
         return TS.team.ensureEntireTeamLoaded().then(function() {
@@ -9300,7 +9318,7 @@
         deactivated_filter_selected: this._current_filter == "disabled_members"
       });
       this.$_long_list_view.hide().before(no_results);
-      this.$_container.find(".clear_members_filter").on("click", function() {
+      this.$_container.delegate(".clear_members_filter", "click", function() {
         this_searchable_member_list.$_container.find(this_searchable_member_list._search_input_id + " input").val("");
         this_searchable_member_list.maybeClearNoResults();
         this_searchable_member_list.resetInitialState();
@@ -9336,8 +9354,9 @@
     },
     _loadSearchBar: function() {
       var this_searchable_member_list = this;
-      if (TS.team.getBestEffortTotalTeamSize() >= this_searchable_member_list._MINIMUM_MEMBERS_FOR_SEARCH && this_searchable_member_list.$_container.find(".team_tabs_container").length == 0) {
+      if (TS.team.getBestEffortTotalTeamSize() >= this_searchable_member_list._MINIMUM_MEMBERS_FOR_SEARCH) {
         this_searchable_member_list.$_container.find(this_searchable_member_list._long_list_view_id).before(TS.templates.team_search_bar({
+          search_input_id: this._search_input_id.slice(1),
           show_search: true,
           show_filters: true,
           everyone_filter_selected: this_searchable_member_list._current_filter == "everyone",
@@ -9349,6 +9368,7 @@
           guests_count: 20,
           is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
         }));
+        this_searchable_member_list.$_search_bar = this_searchable_member_list.$_container.find(".team_tabs_container");
         var search_full_profiles = true;
         var is_long_list_view = true;
         var include_bots = true;
@@ -11029,6 +11049,7 @@
       var member;
       var mpim;
       var name;
+      var recap_highlight = false;
       _member_presence_list.clear();
       if (_model_ob) {
         if (TS.model.active_im_id) {
@@ -11049,6 +11070,10 @@
         is_shared = TS.boot_data.page_needs_enterprise && _model_ob.is_shared;
         name = _model_ob.name;
       }
+      var recap_group = TS.experiment.getGroup("sli_recaps_preview");
+      if (recap_group === "sli_sneak_preview") {
+        recap_highlight = true;
+      }
       var template_args = {
         is_shared: is_shared,
         name: name,
@@ -11058,6 +11083,7 @@
         move_star_in_channel_header: _star_below_channel_name,
         mpim: mpim,
         details_showing: $("#client-ui").hasClass("details_showing"),
+        sli_preview: recap_highlight,
         is_recap: TS.boot_data.feature_sli_recaps,
         all_unreads: {
           is_showing: TS.model.unread_view_is_showing,
@@ -26290,6 +26316,7 @@
   var _max_num_files_to_preview = 10;
   var _member_presence_list;
   var _cached_scroll_top;
+  var _searchable_member_list;
   var SEE_ALL_MEMBERS_DIALOG_THRESHOLD = 100;
   var _initEvents = function() {
     _$container.on("click", ".invite_link", function() {
@@ -27101,7 +27128,7 @@
   var _rebuildMemberLists = function(model_ob) {
     if (model_ob.is_im) return;
     _cleanMemberLists();
-    if (TS.lazyLoadMembersAndBots() && !TS.members.haveAllMembersForModelOb(model_ob)) {
+    if (!TS.boot_data.feature_searchable_member_list && TS.lazyLoadMembersAndBots() && !TS.members.haveAllMembersForModelOb(model_ob)) {
       TS.log(1989, "Flannel: fetching missing members for channel " + model_ob.name);
       _$member_lists.addClass("loading").html(TS.templates.infinite_spinner({
         color: "white",
@@ -27124,37 +27151,48 @@
       return;
     }
     if (!_expanded_sections.members) return;
-    var template_args = {
-      model_ob: model_ob
-    };
-    var members = [];
-    var member;
-    for (var i = 0; i < model_ob.members.length; i++) {
-      member = TS.members.getMemberById(model_ob.members[i]);
-      if (member && !member.deleted) {
-        members.push(member);
-      }
-    }
-    members.sort(TS.members.memberSorterByActiveWithBotsLast);
-    _members = members;
-    var MAX_SIDEBAR_MEMBERS_COUNT = 10;
-    if (members.length > SEE_ALL_MEMBERS_DIALOG_THRESHOLD) {
-      template_args.members = members.slice(0, MAX_SIDEBAR_MEMBERS_COUNT);
-      template_args.show_more_members_link = true;
-      template_args.total_member_count = members.length;
-    } else {
-      template_args.members = members;
-    }
     _member_presence_list.clear();
-    _member_presence_list.add(_.map(template_args.members, "id"));
-    _$member_lists.html(TS.templates.channel_page_member_lists(template_args));
-    _$member_lists.find("#see_all_members").on("click", function(e) {
-      e.preventDefault();
-      TS.client.channel_page.members_dialog.show(model_ob, members);
-    });
+    if (TS.boot_data.feature_searchable_member_list) {
+      _$member_lists.html(TS.templates.channel_page_searchable_member_lists());
+      _searchable_member_list = new TS.SearchableMemberList({
+        $container: $("#channel_member_list_container"),
+        id: "channel_member_list_scroller",
+        search_input_id: "#channel_member_list_filter"
+      });
+      _searchable_member_list.showInitial();
+    } else {
+      var template_args = {
+        model_ob: model_ob
+      };
+      var members = [];
+      var member;
+      for (var i = 0; i < model_ob.members.length; i++) {
+        member = TS.members.getMemberById(model_ob.members[i]);
+        if (member && !member.deleted) {
+          members.push(member);
+        }
+      }
+      members.sort(TS.members.memberSorterByActiveWithBotsLast);
+      _members = members;
+      var MAX_SIDEBAR_MEMBERS_COUNT = 10;
+      if (members.length > SEE_ALL_MEMBERS_DIALOG_THRESHOLD) {
+        template_args.members = members.slice(0, MAX_SIDEBAR_MEMBERS_COUNT);
+        template_args.show_more_members_link = true;
+        template_args.total_member_count = members.length;
+      } else {
+        template_args.members = members;
+      }
+      _member_presence_list.add(_.map(template_args.members, "id"));
+      _$member_lists.html(TS.templates.channel_page_member_lists(template_args));
+      _$member_lists.find("#see_all_members").on("click", function(e) {
+        e.preventDefault();
+        TS.client.channel_page.members_dialog.show(model_ob, members);
+      });
+    }
     _resetLazyLoad();
   };
   var _removeMemberItem = function(member) {
+    if (TS.boot_data.feature_searchable_member_list) return;
     var $row = $("#channel_page_all_members #" + _memberRowId(member));
     $row.remove();
     var i;
@@ -27169,6 +27207,7 @@
     _triggerInitialLazyLoad();
   };
   var _addMemberItem = function(member) {
+    if (TS.boot_data.feature_searchable_member_list) return;
     var i;
     for (i = 0; i < _members.length; i++) {
       var compare = TS.members.memberSorterByActiveWithBotsLast(member, _members[i]);
@@ -27192,6 +27231,7 @@
     TS.client.channel_page.members_dialog.updateMembers(_members);
   };
   var _rebuildMember = function(member) {
+    if (TS.boot_data.feature_searchable_member_list) return;
     _removeMemberItem(member);
     _addMemberItem(member);
   };
@@ -27202,9 +27242,16 @@
     _member_presence_list.clear();
     _detachLazyLoad();
     _$member_lists.empty();
-    _members = [];
-    if (TS.lazyLoadMembersAndBots()) {
-      _$member_lists.removeClass("loading");
+    if (TS.boot_data.feature_searchable_member_list) {
+      _searchable_member_list = TS.SearchableMemberList.get("channel_member_list_scroller");
+      if (_searchable_member_list) {
+        _searchable_member_list.destroy();
+      }
+    } else {
+      _members = [];
+      if (TS.lazyLoadMembersAndBots()) {
+        _$member_lists.removeClass("loading");
+      }
     }
   };
   var _rebuildSharedFiles = function(model_ob) {
