@@ -118,7 +118,7 @@
         {{#if is_tombstone}}
           <div class="deleted_message">This message was deleted</div>
         {{else}}
-          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="recap_highlight"><a>Highlight</a></span>{{/if}}{{/feature}}
+          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="recap_highlight"><a>Highlight: {{is_recap}} </a></span>{{/if}}{{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
         {{/if}}

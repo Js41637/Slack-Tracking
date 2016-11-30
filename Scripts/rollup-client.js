@@ -9244,6 +9244,7 @@
       this._have_all_members = false;
       this._fetch_more_members_p = null;
       this._is_searching = false;
+      this.long_list_view_initialized = false;
       this.id = options.id || "team_list_scroller";
       this._resize_sig_handler = null;
     },
@@ -9342,10 +9343,10 @@
     resetSearch: function() {
       this._is_searching = false;
     },
-    _loadLocalMembersIntoLongListView: function(options) {
+    _loadLocalMembersIntoLongListView: function() {
       var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
-      if (this.$_long_list_view) {
-        this.$_long_list_view.longListView("setItems", options.items, true, true);
+      if (this.long_list_view_initialized) {
+        this.$_long_list_view.longListView("setItems", members_for_user.members, true, true);
       } else {
         this._loadLongListView({
           items: members_for_user.members
@@ -9388,7 +9389,7 @@
     },
     _loadLongListView: function(options) {
       var this_searchable_member_list = this;
-      this_searchable_member_list.$_long_list_view.longListView({
+      this.$_long_list_view.longListView({
         items: options.items,
         approx_item_height: this_searchable_member_list._approx_item_height,
         approx_divider_height: this_searchable_member_list._approx_divider_height,
@@ -9423,6 +9424,7 @@
           return outer_height;
         }
       });
+      this.long_list_view_initialized = true;
       if (TS.lazyLoadMembersAndBots()) {
         var container_height = this_searchable_member_list.$_long_list_view.height();
         var list_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
@@ -35273,7 +35275,7 @@ function timezones_guess() {
         TS.client.ui.unread.$scroller.off("scroll", _throttled_update_sticky_header);
         TS.ui.banner.show_hide_sig.remove(_updateBannerHeight);
       }
-      TS.client.ui.unread.$unread_msgs_div.empty();
+      TS.client.ui.unread.$unread_msgs_div.html("");
       TS.client.ui.unread.$scroller.addClass("loading");
       $("#footer").removeClass("invisible");
       TS.view.resize_sig.remove(_onResize);

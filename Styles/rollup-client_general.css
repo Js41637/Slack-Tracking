@@ -3818,7 +3818,7 @@ a.btn {
 
 .btn.btn_outline.disabled,
 .btn.btn_outline.disabled:hover {
-  color: #9e9ea6!important;
+  color: #717274!important;
   background: #fff!important
 }
 
@@ -3851,7 +3851,7 @@ a.btn {
 .btn:disabled,
 .btn:disabled:active,
 .btn:disabled:hover {
-  background-color: #9e9ea6!important;
+  background-color: #717274!important;
   color: #fff;
   opacity: .35;
   -moz-opacity: .35;
@@ -4444,7 +4444,7 @@ only screen and (min-resolution:2dppx) {
 
 .modal_input_note {
   font-size: .8rem;
-  color: #9e9ea6;
+  color: #717274;
   margin-left: 132px;
   display: block;
   line-height: 1rem;
@@ -4453,7 +4453,7 @@ only screen and (min-resolution:2dppx) {
 
 .modal_input_note_full_width {
   font-size: .8rem;
-  color: #9e9ea6;
+  color: #717274;
   display: block;
   line-height: 1rem;
   margin-top: .25rem

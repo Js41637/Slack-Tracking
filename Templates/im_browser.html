@@ -19,7 +19,7 @@
       <div class="subtle_silver mini align_right tiny_right_margin return_hint">{{#t}}Return{{/t}} <i class="ts_icon ts_icon_enter ts_icon_inherit"></i></div>
     </div>
     {{> im_browser_tokens members=preselected}}
-    <div class="remaining_participant_hint cloud_silver">{{#if reached_maximum}}{{#t}}You have reached the maximum number of participants{{/t}}{{/if}}</div>
+    <div class="remaining_participant_hint greigh">{{#if reached_maximum}}{{#t}}You have reached the maximum number of participants{{/t}}{{/if}}</div>
     {{> channel_kb_nav_label multiple_select=true}}
   </div>
   <div id="im_browser_empty" class="hidden align_center margin_auto display_flex align_items_center justify_content_center">
@@ -27,11 +27,11 @@
   </div>
   {{#canUserCreateGroups}}
     <div class="create_private_channel_container align_center large_top_margin">
-      <div class="subtle_silver">{{#t}}Need to add more people?{{/t}}</div>
+      <div class="greigh">{{#t}}Need to add more people?{{/t}}</div>
       <button class="btn btn_outline small_top_margin create_private_channel">{{#t}}Create a private channel instead{{/t}}</button>
     </div>
   {{/canUserCreateGroups}}
-  <div class="recent_label cloud_silver mini small_bottom_margin">{{#t}}Recent conversations{{/t}}</div>
+  <div class="recent_label greigh mini small_bottom_margin">{{#t}}Recent conversations{{/t}}</div>
   <div id="im_list_container" class="channel_modal_list"></div>
 </div>
 

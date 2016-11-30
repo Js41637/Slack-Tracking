@@ -518,7 +518,7 @@ input.search_input {
 
 #flex_contents .flexpane_tab_bar li a {
   padding: 0 .75rem;
-  color: #9e9ea6;
+  color: #717274;
   font-weight: 700;
   text-decoration: none!important;
   text-overflow: ellipsis;
@@ -532,7 +532,7 @@ input.search_input {
 }
 
 #flex_contents .flexpane_tab_bar li:hover a {
-  color: #9e9ea6
+  color: #717274
 }
 
 #flex_contents .flexpane_tab_bar li.active {
@@ -793,7 +793,7 @@ input.search_input {
 
 #flex_contents .help {
   font-size: 1rem;
-  color: #9e9ea6;
+  color: #717274;
   font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 1.3rem;
   padding-top: 1rem;
@@ -12864,7 +12864,7 @@ ts-icon.sli_feedback::before {
   line-height: 1.25rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   text-align: center;
-  color: #9e9ea6
+  color: #717274
 }
 
 #search_results_team {
@@ -14386,7 +14386,7 @@ html.fs_modal_active {
   z-index: 1;
   text-align: center;
   cursor: pointer;
-  color: #9e9ea6;
+  color: #717274;
   font-size: .8rem;
   line-height: 1.5rem;
   border-radius: 100%;
@@ -15530,7 +15530,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   cursor: pointer;
   font-size: .875rem;
   line-height: 1.4;
-  color: #9e9ea6
+  color: #717274
 }
 
 #channel_browser .channel_browser_channel_purpose {
@@ -15550,7 +15550,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_creator_name {
-  color: #67686e
+  color: #2c2d30
 }
 
 #channel_browser .channel_browser_type_icon {
@@ -15643,7 +15643,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 
 #channel_browser .channel_browser_sort_container:after {
   content: 'Sort by';
-  color: #9e9ea6;
+  color: #717274;
   font-size: 1rem;
   position: absolute;
   top: .625rem;
@@ -16307,7 +16307,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .input_note_special {
   font-size: .9rem;
   line-height: 1.25rem;
-  color: #9e9ea6;
+  color: #717274;
   margin-top: 1rem
 }
 
@@ -17643,10 +17643,13 @@ ts-message .recap_highlight {
   font-size: .8125rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   text-align: left;
-  color: #717274;
   background: #c8fad9;
   border-radius: .1875rem;
   padding: 0 5px
+}
+
+ts-message .recap_highlight a {
+  color: #295a42
 }
 
 ts-message .comment {

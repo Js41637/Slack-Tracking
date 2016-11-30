@@ -21537,7 +21537,13 @@ TS.registerModule("constants", {
         this._i18n_ns = namespace;
       });
       Handlebars.registerHelper("t", function(options) {
-        var key = options.fn();
+        var key;
+        if (typeof options === "string") {
+          key = options;
+          options = arguments[1];
+        } else {
+          key = options.fn();
+        }
         var ns;
         if (options.hash.ns !== undefined) {
           ns = options.hash.ns;
@@ -54533,6 +54539,9 @@ $.fn.togglify = function(settings) {
         html = "";
       }
       return html;
+    },
+    buildTeamUrl: function(domain) {
+      return "https://" + domain + "." + TS.boot_data.abs_root_url.replace(/(http:\/\/|https:\/\/)/, "");
     }
   });
 })();

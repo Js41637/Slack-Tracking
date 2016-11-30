@@ -1435,7 +1435,7 @@ svg.ts_icon_spinner svg {
 }
 
 .ts_icon_highlight:before {
-  content: '\E140'
+  content: '\E546'
 }
 
 .ts_icon_flag:before {
@@ -8303,7 +8303,7 @@ a.btn {
 
 .btn.btn_outline.disabled,
 .btn.btn_outline.disabled:hover {
-  color: #9e9ea6!important;
+  color: #717274!important;
   background: #fff!important
 }
 
@@ -8336,7 +8336,7 @@ a.btn {
 .btn:disabled,
 .btn:disabled:active,
 .btn:disabled:hover {
-  background-color: #9e9ea6!important;
+  background-color: #717274!important;
   color: #fff;
   opacity: .35;
   -moz-opacity: .35;
@@ -9653,7 +9653,7 @@ html.fs_modal_active {
   z-index: 1;
   text-align: center;
   cursor: pointer;
-  color: #9e9ea6;
+  color: #717274;
   font-size: .8rem;
   line-height: 1.5rem;
   border-radius: 100%;
@@ -13788,7 +13788,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   cursor: pointer;
   font-size: .875rem;
   line-height: 1.4;
-  color: #9e9ea6
+  color: #717274
 }
 
 #channel_browser .channel_browser_channel_purpose {
@@ -13808,7 +13808,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_creator_name {
-  color: #67686e
+  color: #2c2d30
 }
 
 #channel_browser .channel_browser_type_icon {
@@ -13901,7 +13901,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 
 #channel_browser .channel_browser_sort_container:after {
   content: 'Sort by';
-  color: #9e9ea6;
+  color: #717274;
   font-size: 1rem;
   position: absolute;
   top: .625rem;
@@ -14565,7 +14565,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .input_note_special {
   font-size: .9rem;
   line-height: 1.25rem;
-  color: #9e9ea6;
+  color: #717274;
   margin-top: 1rem
 }
 
