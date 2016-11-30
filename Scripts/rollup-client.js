@@ -28532,6 +28532,7 @@
     });
   };
   var _filterListUsingFrecency = function(query) {
+    _filter_last_query = query;
     if (query && query !== "@") {
       TS.metrics.mark("im_browser_search_start");
       _filtered_items = _getResultsFromSorter(query);
@@ -28708,6 +28709,11 @@
     if (_selected_members.length === _MAX) return;
     if (!TS.members.canUserCreateMpims()) return _openIm($row);
     var row_id = $row.data("row_id");
+    if (TS.boot_data.feature_frecency_im_browser && _filter_last_query) {
+      TS.ui.frecency.record({
+        id: row_id
+      }, _filter_last_query);
+    }
     if (row_id === TS.model.user.id || row_id === "USLACKBOT") return _openIm($row);
     var members_changed = [];
     if (TS.utility.strLooksLikeAMemberId(row_id)) {

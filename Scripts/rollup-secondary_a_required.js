@@ -17939,13 +17939,10 @@ TS.registerModule("constants", {
           if (is_in_conversation) {
             template_args.msg_dom_id = TS.templates.makeMsgDomIdInConversation(msg.ts);
           }
-          if (is_in_conversation || is_threads_view) {
-            template_args.show_jump_action = !!TS.client && (!msg.thread_ts || msg.thread_ts == msg.ts);
-          }
           if (TS.utility.msgs.isMsgReply(msg)) {
             template_args.show_reply_action = false;
           } else {
-            template_args.show_reply_action = TS.replies.canReplyToMsg(model_ob, msg) && !args.is_root_msg;
+            template_args.show_reply_action = TS.replies.canReplyToMsg(model_ob, msg) && !args.is_root_msg && !is_threads_view;
             if (!template_args.show_reply_action && TS.utility.msgs.isFileMsg(msg) && msg.file) template_args.show_comment_action = true;
           }
           if (TS.boot_data.feature_message_replies_off && template_args.show_reply_action) template_args.show_reply_action = !!msg.reply_count;
@@ -21270,13 +21267,10 @@ TS.registerModule("constants", {
           if (is_in_conversation) {
             template_args.msg_dom_id = TS.templates.makeMsgDomIdInConversation(msg.ts);
           }
-          if (is_in_conversation || is_threads_view) {
-            template_args.show_jump_action = !!TS.client && (!msg.thread_ts || msg.thread_ts == msg.ts);
-          }
           if (TS.utility.msgs.isMsgReply(msg)) {
             template_args.show_reply_action = false;
           } else {
-            template_args.show_reply_action = TS.replies.canReplyToMsg(model_ob, msg) && !args.is_root_msg;
+            template_args.show_reply_action = TS.replies.canReplyToMsg(model_ob, msg) && !args.is_root_msg && !is_threads_view;
             if (!template_args.show_reply_action && TS.utility.msgs.isFileMsg(msg) && msg.file) template_args.show_comment_action = true;
           }
           if (TS.boot_data.feature_message_replies_off && template_args.show_reply_action) template_args.show_reply_action = !!msg.reply_count;
@@ -31925,6 +31919,7 @@ var _on_esc;
       if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
         return;
       }
+      if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
       TS.menu.channel.channel = TS.channels.getChannelById(channel_id);
@@ -31963,11 +31958,11 @@ var _on_esc;
         TS.menu.$menu.addClass("narrow_menu");
         TS.ui.date_picker.getOldestMsgTs();
       }
-      var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
-      var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
+      if (!_use_channel_name_toggle) _use_channel_name_toggle = $(e.target).closest("#channel_name").length;
+      var $toggle_button = _use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
-      var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
-      var x_plus = use_channel_name_toggle ? 18 : 6;
+      var y_plus = _use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
+      var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
       if (template_args.disable_invite) {
         $("#channel_invite_item a").tooltip({
@@ -32216,6 +32211,7 @@ var _on_esc;
       TS.menu.end();
     }
   });
+  var _use_channel_name_toggle;
   var _bindChannelFilterStart = function() {
     var $none_found = TS.menu.$menu.find(".no_results");
     var $close_icon = TS.menu.$menu.find(".icon_close");
@@ -33088,6 +33084,7 @@ var _on_esc;
       if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
         return;
       }
+      if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
       var group = TS.menu.group.group = TS.groups.getGroupById(group_id);
@@ -33123,11 +33120,11 @@ var _on_esc;
         TS.ui.date_picker.getOldestMsgTs();
       }
       $("#menu_group_topic_input").bind("keydown", TS.menu.handleTopicKeydown);
-      var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
-      var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
+      if (!_use_channel_name_toggle) _use_channel_name_toggle = $(e.target).closest("#channel_name").length;
+      var $toggle_button = _use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
-      var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
-      var x_plus = use_channel_name_toggle ? 18 : 6;
+      var y_plus = _use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
+      var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
       if (template_args.disable_invite) {
         $("#group_invite_item a").tooltip({
@@ -33206,6 +33203,7 @@ var _on_esc;
       TS.menu.end();
     }
   });
+  var _use_channel_name_toggle;
 })();
 (function() {
   "use strict";
@@ -33221,6 +33219,7 @@ var _on_esc;
       if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
         return;
       }
+      if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       var member = TS.menu.member.member = TS.members.getMemberById(member_id);
       if (!member) return;
@@ -33323,11 +33322,11 @@ var _on_esc;
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.member.onMemberItemClick);
       TS.kb_nav.setSubmitItemHandler(TS.menu.member.onMemberItemClick);
       if (is_im_menu) {
-        var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
-        var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
+        if (!_use_channel_name_toggle) _use_channel_name_toggle = $(e.target).closest("#channel_name").length;
+        var $toggle_button = _use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
         var toggle_button_height = $toggle_button.height();
-        var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
-        var x_plus = use_channel_name_toggle ? 18 : 6;
+        var y_plus = _use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
+        var x_plus = _use_channel_name_toggle ? 18 : 6;
         TS.menu.positionAt($toggle_button, x_plus, y_plus);
         TS.menu.$menu.attr("data-qa", "member_menu");
         if (TS.boot_data.feature_browse_date) {
@@ -33562,6 +33561,7 @@ var _on_esc;
     }
   });
   var _member_presence_list;
+  var _use_channel_name_toggle;
 })();
 (function() {
   "use strict";
@@ -33574,6 +33574,7 @@ var _on_esc;
       if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
         return;
       }
+      if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
       var mpim = TS.menu.mpim.mpim = TS.mpims.getMpimById(mpim_id);
@@ -33600,11 +33601,11 @@ var _on_esc;
         TS.menu.$menu.addClass("narrow_menu");
         TS.ui.date_picker.getOldestMsgTs();
       }
-      var use_channel_name_toggle = $(e.target).closest("#channel_name").length;
-      var $toggle_button = use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
+      if (!_use_channel_name_toggle) _use_channel_name_toggle = $(e.target).closest("#channel_name").length;
+      var $toggle_button = _use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
-      var y_plus = use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
-      var x_plus = use_channel_name_toggle ? 18 : 6;
+      var y_plus = _use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
+      var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
       if (template_args.disable_invite) {
         $("#mpim_invite_item a").tooltip({
@@ -33672,6 +33673,7 @@ var _on_esc;
       TS.menu.end();
     }
   });
+  var _use_channel_name_toggle;
 })();
 (function() {
   "use strict";
@@ -37218,7 +37220,12 @@ var _on_esc;
           return;
         }
         if (!edited_text) {
-          TS.msg_edit.startDelete(TS.msg_edit.current_msg.ts, TS.msg_edit.current_model_ob, TS.msg_edit.onCancelEdit, true);
+          var msg_actions = TS.utility.msgs.getMsgActions(msg, model_ob);
+          if (msg_actions.delete_msg) {
+            TS.msg_edit.startDelete(TS.msg_edit.current_msg.ts, TS.msg_edit.current_model_ob, TS.msg_edit.onCancelEdit, true);
+          } else {
+            TS.msg_edit.onConfirmEdit("~" + msg.text.replace(/~/g, "") + "~");
+          }
           return;
         }
         var blocked_keyword = TS.ui.needToBlockAtChannelKeyword(edited_text, null, TS.msg_edit.current_model_ob.id);
@@ -45576,7 +45583,6 @@ $.fn.togglify = function(settings) {
         is_in_thread: is_in_thread,
         show_rxn_action: !!$ahc.data("show_rxn_action") && (!handy_rxns_dd || !handy_rxns_dd.restrict),
         show_reply_action: !!$ahc.data("show_reply_action"),
-        show_jump_action: !!$ahc.data("show_jump_action"),
         show_comment_action: !!$ahc.data("show_comment_action"),
         abs_permalink: $ahc.data("abs_permalink")
       }));
@@ -46320,6 +46326,12 @@ $.fn.togglify = function(settings) {
         last_read = _.last(root_msg.replies).ts;
       }
       TS.replies.setSubscriptionState(model_ob_id, thread_ts, !is_subscribed, last_read);
+      $el.addClass("disabled");
+    });
+    TS.click.addClientHandler("#threads_msgs .jump_to_original", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      e.preventDefault();
+      TS.client.ui.threads.jumpToOriginal(e, $el);
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {

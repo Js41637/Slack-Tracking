@@ -57,7 +57,7 @@
          {{#feature flag="feature_message_replies"}}data-selectable="{{selectable}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}" data-parent-user-id="{{msg.parent_user_id}}"{{/if}}{{/feature}}
          >
   {{#unless hide_actions}}
-    <div class="action_hover_container {{#feature flag="feature_message_replies"}}stretch_btn_heights{{/feature}}" data-show_rxn_action="{{show_rxn_action}}" data-show_reply_action="{{show_reply_action}}" data-show_jump_action="{{show_jump_action}}" data-show_comment_action="{{show_comment_action}}" data-abs_permalink="{{abs_permalink}}">
+    <div class="action_hover_container {{#feature flag="feature_message_replies"}}stretch_btn_heights{{/feature}}" data-show_rxn_action="{{show_rxn_action}}" data-show_reply_action="{{show_reply_action}}" data-show_comment_action="{{show_comment_action}}" data-abs_permalink="{{abs_permalink}}">
       {{! to be filled by action_hover_items on hover; the data attributes can be used to rebuild the contents with action_hover_items at anytime}}
     </div>
   {{/unless}}

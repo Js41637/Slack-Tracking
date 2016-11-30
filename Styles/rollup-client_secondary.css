@@ -10521,25 +10521,11 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .file_container .preview_actions .btn.preview_show_less_header {
   display: none;
-  background-color: #ddd;
+  background-color: rgba(85, 84, 89, .8);
   color: #fff!important;
   -webkit-transition: opacity .1s cubic-bezier(.2, .3, .25, .9);
   -moz-transition: opacity .1s cubic-bezier(.2, .3, .25, .9);
   transition: opacity .1s cubic-bezier(.2, .3, .25, .9)
-}
-
-.file_container .preview_actions .btn.preview_show_less_header:after {
-  border: .125rem solid #ddd
-}
-
-.file_container .preview_actions .btn.preview_show_less_header:focus,
-.file_container .preview_actions .btn.preview_show_less_header:hover {
-  background-color: #555459
-}
-
-.file_container .preview_actions .btn.preview_show_less_header:focus:after,
-.file_container .preview_actions .btn.preview_show_less_header:hover:after {
-  border-color: #555459
 }
 
 .file_container .preview_actions .ts_icon:before {
@@ -10754,12 +10740,6 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .file_container:focus .preview_show_less .preview_show_btn,
 .file_container:hover .preview_show_less .preview_show_btn {
   color: #fff;
-  background: rgba(85, 84, 89, .2)
-}
-
-.file_container.file_menu_open .preview_show_less .preview_show_btn:hover,
-.file_container:focus .preview_show_less .preview_show_btn:hover,
-.file_container:hover .preview_show_less .preview_show_btn:hover {
   background: rgba(85, 84, 89, .8)
 }
 
