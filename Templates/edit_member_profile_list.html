@@ -90,7 +90,7 @@
           <input type="text" class="no_bottom_margin ts_icon_placeholder" name="{{this.id}}" data-plastic-type="date" placeholder="&#xe023;" data-qa="{{this.label}}" data-validation="dateandformat=Y-m-d" value="{{this.value}}" />
         {{/if_equal}}
         {{#if_equal this.type compare="link"}}
-          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="https://" data-qa="{{this.label}}" data-validation="maxlength=256 isurl" value="{{this.value}}" />
+          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="https://" data-qa="{{this.label}}" data-validation="maxlength=256 islink" value="{{this.value}}" />
         {{/if_equal}}
         {{#if_equal this.type compare="user"}}
           <input class="edit_member_profile_lazy_filter_select no_bottom_margin" name={{this.id}} data-qa="{{this.label}}" data-validation="maxcsv=25" value="{{this.value}}" />

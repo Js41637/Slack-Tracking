@@ -3556,16 +3556,18 @@
       }
       return translations[key];
     },
-    listify: function(arr) {
+    listify: function(arr, conj) {
       var and;
       var list = [];
       var l = arr.length;
+      var conjunction = conj === "or" ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
+      var oxford = l > 2 ? "," : "";
       switch (TS.i18n.locale) {
         case TS.i18n.JP:
           and = ", ";
           break;
         default:
-          and = " " + TS.i18n.t("and", "general")() + " ";
+          and = oxford + " " + conjunction + " ";
       }
       arr.forEach(function(s, i) {
         list.push(s);

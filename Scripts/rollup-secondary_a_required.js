@@ -21609,8 +21609,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("listify", function(array, options) {
         if (options.hash.map) array = _.map(array, options.hash.map);
-        if (!options.hash.strong) return TS.i18n.listify(array).join("");
-        var list = TS.i18n.listify(array);
+        var conjunction = _.get(options.hash, "conjunction");
+        if (!options.hash.strong) return TS.i18n.listify(array, conjunction).join("");
+        var list = TS.i18n.listify(array, conjunction);
         if (options.hash.strong) {
           var wrap_start = "<strong>";
           var wrap_end = "</strong>";
@@ -30698,6 +30699,12 @@ TS.registerModule("constants", {
         }, function(ok, data, args) {});
       } else if (id === "share_message_link") {
         TS.ui.share_message_dialog.start(msg_ts, model_ob);
+      } else if (id === "suggest_recap_link") {
+        var clog_args = {};
+        clog_args["channel_id"] = model_ob_id;
+        clog_args["message_timestamp"] = msg_ts;
+        clog_args["channel_type"] = model_ob_id[0] || "";
+        TS.clog.track("MSG_RECAP_SUGGEST_CLICK", clog_args);
       }
       TS.menu.end();
     },
@@ -40775,11 +40782,13 @@ var _on_esc;
     }
   });
   var OPTIONAL_PROTOCOL_URL_REGEXP = /^(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
+  var ALL_SCHEMES_LINK_REGEXP = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/gi;
   var _validator_map = {
     dateandformat: _validateDateAndFormat,
     firstalphanumeric: _validateFirstAlphanumeric,
     hasnourl: _validateHasNoUrl,
     isurl: _validateIsUrl,
+    islink: _validateIsLink,
     lowercase: _validateLowercase,
     maxcsv: _validateMaxCSV,
     maxlength: _validateMaxLength,
@@ -40880,6 +40889,20 @@ var _on_esc;
       return void TS.ui.validation.showWarning($el, error_message, options);
     } else {
       return void TS.error("WTF: cannot validate");
+    }
+  }
+
+  function _validateIsLink($el, options) {
+    var error_message = "This doesn’t seem like a proper link. Sorry!";
+    if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
+    if ($el.is("input") || $el.is("textarea")) {
+      var value = $el.val();
+      if (!value) return true;
+      var found = value.match(ALL_SCHEMES_LINK_REGEXP);
+      if (found && found.length === 1 && found[0] === value) return true;
+      return void TS.ui.validation.showWarning($el, error_message, options);
+    } else {
+      return void TS.error("cannot validate");
     }
   }
 
@@ -46487,15 +46510,32 @@ $.fn.togglify = function(settings) {
       });
       TS.click.addClientHandler(".recap_highlight a", function(e) {
         e.preventDefault();
-        TS.menu.recaps_feedback.startWithMember(e);
+        var $ts = $(e.target).closest("ts-message");
+        var msg_ts = $ts.data("ts");
+        var model_ob_id = $ts.data("model-ob-id");
+        TS.menu.recaps_feedback.startWithMember(e, msg_ts, model_ob_id);
       });
       TS.click.addClientHandler("#recap_positive", function(e) {
         e.preventDefault();
+        var $el = $(e.target).closest("#recap_menu_items");
+        var msg_ts = $el.data("msg-ts") + "";
+        var clog_args = {};
+        clog_args["channel_id"] = $el.data("model-ob-id");
+        clog_args["message_timestamp"] = msg_ts;
+        clog_args["channel_type"] = $el.data("model-ob-id")[0] || "";
+        TS.clog.track("MSG_RECAP_POSITIVE_CLICK", clog_args);
         TS.menu.recaps_feedback.end();
         return;
       });
       TS.click.addClientHandler("#recap_negative", function(e) {
         e.preventDefault();
+        var $el = $(e.target).closest("#recap_menu_items");
+        var msg_ts = $el.data("msg-ts") + "";
+        var clog_args = {};
+        clog_args["channel_id"] = $el.data("model-ob-id");
+        clog_args["message_timestamp"] = msg_ts;
+        clog_args["channel_type"] = $el.data("model-ob-id")[0] || "";
+        TS.clog.track("MSG_RECAP_NEGATIVE_CLICK", clog_args);
         TS.menu.recaps_feedback.end();
         return;
       });

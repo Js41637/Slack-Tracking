@@ -15,7 +15,7 @@
             <div class="msg_inline_attachment_thumb_holder at_top">
               {{#if thumb_link}}<a {{makeRefererSafeLink url=thumb_link}} target="{{thumb_link}}">{{/if}}
               {{!using style for width height is important! we must override default img styles}}
-              <img class="msg_inline_attachment_thumb" src="{{small_thumb_url}}" style="width:{{attachment._floated_thumb_display_width}}px; height:{{attachment._floated_thumb_display_height}}px;">
+              <img class="msg_inline_attachment_thumb" src="{{small_thumb_url}}" style="width:{{attachment._floated_thumb_display_width}}px; height:{{attachment._floated_thumb_display_height}}px;" alt="">
               {{#if thumb_link}}</a>{{/if}}
             </div>
           {{/if}}
@@ -52,7 +52,7 @@
           <div class="msg_inline_attachment_thumb_holder">
             {{#if thumb_link}}<a {{makeRefererSafeLink url=thumb_link}} target="{{thumb_link}}">{{/if}}
             {{!using style for width height is important! we must override default img styles}}
-            <img class="msg_inline_attachment_thumb" src="{{small_thumb_url}}" style="width:{{attachment._floated_thumb_display_width}}px; height:{{attachment._floated_thumb_display_height}}px;">
+            <img class="msg_inline_attachment_thumb" src="{{small_thumb_url}}" style="width:{{attachment._floated_thumb_display_width}}px; height:{{attachment._floated_thumb_display_height}}px;" alt="">
             {{#if thumb_link}}</a>{{/if}}
           </div>
         {{/if}}

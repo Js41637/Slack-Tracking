@@ -666,6 +666,19 @@ input.search_input {
   display: none
 }
 
+@media screen and (max-width:1024px) {
+  .flexbox_client li:first-child:nth-last-child(4) #active_members_count,
+  .flexbox_client li:first-child:nth-last-child(4) #disabled_members_count,
+  .flexbox_client li:first-child:nth-last-child(4) #restricted_members_count,
+  .flexbox_client li:first-child:nth-last-child(4) #usergroup_count,
+  .flexbox_client li:first-child:nth-last-child(4)~li #active_members_count,
+  .flexbox_client li:first-child:nth-last-child(4)~li #disabled_members_count,
+  .flexbox_client li:first-child:nth-last-child(4)~li #restricted_members_count,
+  .flexbox_client li:first-child:nth-last-child(4)~li #usergroup_count {
+    display: none
+  }
+}
+
 #file_list_toggle_users {
   padding: 0 .5rem .5rem .25rem;
   float: right;
