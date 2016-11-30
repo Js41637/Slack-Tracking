@@ -3598,6 +3598,10 @@ body.sorting_mode .channels_list_holder ul {
   clear: both
 }
 
+.experiment_search_limit_extracts .light_theme .message_content_header_left {
+  margin-right: 3.375rem
+}
+
 .dense_theme .message_content_header,
 .dense_theme .message_content_header_left {
   display: inline
@@ -13221,6 +13225,18 @@ body.winssb .search_result_with_extract {
   transition-timing-function: linear
 }
 
+.extract_expand_text {
+  position: absolute;
+  right: 1.25rem;
+  top: .3125rem;
+  font-size: .75rem;
+  color: #439fe0
+}
+
+.search_result_with_extract:hover .extract_expand_text {
+  color: #439fe0
+}
+
 .extract_expand_icons {
   position: absolute;
   top: -.1875rem;
@@ -13249,6 +13265,7 @@ body.winssb .search_result_with_extract {
   top: .75rem
 }
 
+.experiment_search_limit_extracts .extract_expand_icons,
 .search_result_with_extract:hover .extract_expand_icons {
   color: #439fe0
 }
@@ -17289,8 +17306,8 @@ ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.n
   background: #f9f9f9
 }
 
-ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned,
-ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned {
+ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned:not([data-thread-ts]),
+ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned:not([data-thread-ts]) {
   background: rgba(255, 243, 184, .35)
 }
 
@@ -18939,8 +18956,8 @@ ts-thread:last-child {
 }
 
 ts-thread .view_all_replies_container {
-  height: 1.6875rem;
-  line-height: 1.6875rem
+  height: 2rem;
+  line-height: 2rem
 }
 
 html.supports_flexbox ts-thread .reply_input_container {
@@ -18968,11 +18985,6 @@ ts-thread .reply_input_container .inline_message_input_container {
 
 html.supports_flexbox ts-thread .reply_input_container .inline_message_input_container {
   flex-grow: 1
-}
-
-html:not(.supports_flexbox) ts-thread .reply_input_container .inline_message_input_container {
-  margin-left: 2.875rem;
-  margin-top: -2.375rem
 }
 
 ts-thread .reply_input_container .inline_message_input_container form {
@@ -19032,8 +19044,6 @@ ts-thread .reply_input_container .reply_limited_in_general button {
 }
 
 ts-thread .thread_messages {
-  padding-top: .625rem;
-  padding-bottom: .4375rem;
   background: #fff;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -19043,6 +19053,27 @@ ts-thread .thread_messages {
 
 ts-thread .thread_messages>ts-message {
   background: 0 0
+}
+
+ts-thread .thread_messages>ts-message:first-child {
+  padding-top: .5rem
+}
+
+ts-thread .thread_messages>ts-message:first-child .message_gutter {
+  top: auto
+}
+
+ts-thread .thread_messages>ts-message:first-child.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply),
+ts-thread .thread_messages>ts-message:first-child:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply) {
+  border-radius: 10px 10px 0 0
+}
+
+ts-thread .thread_messages .is_pinned_holder {
+  display: none
+}
+
+ts-thread .thread_messages:not(.show_new_reply_indicator) .thread_replies_container>ts-message:last-child {
+  padding-bottom: .5625rem
 }
 
 ts-thread .reply_input_container,

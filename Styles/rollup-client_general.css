@@ -2066,6 +2066,10 @@ moscow_red_bg {
   background-color: #4d6dc3!important
 }
 
+.dusty_springfield_grey {
+  color: #565759!important
+}
+
 .dropbox_blue {
   color: #007ee5!important
 }
@@ -2995,6 +2999,9 @@ a.delete_link:hover {
 #coachmark.channels_coachmark_div,
 #coachmark.channels_coachmark_div #coachmark_callout,
 #coachmark.channels_coachmark_div #coachmark_interior,
+#coachmark.highlights_coachmark_div,
+#coachmark.highlights_coachmark_div #coachmark_callout,
+#coachmark.highlights_coachmark_div #coachmark_interior,
 #coachmark.search_coachmark_div,
 #coachmark.search_coachmark_div #coachmark_callout,
 #coachmark.search_coachmark_div #coachmark_interior {

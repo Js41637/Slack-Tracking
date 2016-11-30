@@ -9363,19 +9363,7 @@
     _loadSearchBar: function() {
       var this_searchable_member_list = this;
       if (TS.team.getBestEffortTotalTeamSize() >= this_searchable_member_list._MINIMUM_MEMBERS_FOR_SEARCH) {
-        this_searchable_member_list.$_container.find(this_searchable_member_list._long_list_view_id).before(TS.templates.team_search_bar({
-          search_input_id: this._search_input_id.slice(1),
-          show_search: true,
-          show_filters: true,
-          everyone_filter_selected: this_searchable_member_list._current_filter == "everyone",
-          members_filter_selected: this_searchable_member_list._current_filter == "active_members",
-          restricted_filter_selected: this_searchable_member_list._current_filter == "restricted_members",
-          deactivated_filter_selected: this_searchable_member_list._current_filter == "disabled_members",
-          everyone_count: 100,
-          members_count: 80,
-          guests_count: 20,
-          is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
-        }));
+        this_searchable_member_list.$_container.find(this_searchable_member_list._long_list_view_id).before(TS.templates.team_search_bar(this._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_search_bar = this_searchable_member_list.$_container.find(".team_tabs_container");
         var search_full_profiles = true;
         var is_long_list_view = true;
@@ -9388,7 +9376,7 @@
             var $action = $(e.target).closest("[data-filter]");
             if (!$action.length) return;
             this_searchable_member_list._current_filter = $action.data("filter");
-            $(menu_event.target).val(_.trim($action.text()));
+            this_searchable_member_list.$_container.find(".searchable_member_list_filter").replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
             TS.members.view.filterTeam($(this_searchable_member_list._search_input_id).find("input").val(), this_searchable_member_list._search_input_id, this_searchable_member_list._long_list_view_id, search_full_profiles);
           });
         });
@@ -9489,6 +9477,45 @@
     },
     _stopLoadingState: function() {
       this.$_container.find(".infinite_spinner").remove();
+    },
+    _generateFilterSearchBarTemplateArgs: function() {
+      var template_args = {
+        everyone_count: 120,
+        members_count: 70,
+        admins_count: 30,
+        guests_count: 20,
+        search_input_id: this._search_input_id.slice(1),
+        show_search: true,
+        show_filters: true,
+        everyone_filter_selected: this._current_filter == "everyone",
+        deactivated_filter_selected: this._current_filter == "disabled_members"
+      };
+      if (TS.boot_data.page_needs_enterprise) {
+        _.merge(template_args, {
+          org_name: TS.model.team.enterprise_name,
+          team_name: TS.model.team.name,
+          everyone_count: 500,
+          org_members_count: 200,
+          org_admins_count: 20,
+          org_guests_count: 80,
+          team_members_count: 160,
+          team_admins_count: 20,
+          team_guests_count: 20,
+          org_members_filter_selected: this._current_filter == "org_active_members",
+          org_admins_filter_selected: this._current_filter == "org_admin_members",
+          org_restricted_filter_selected: this._current_filter == "org_restricted_members",
+          team_members_filter_selected: this._current_filter == "team_active_members",
+          team_admins_filter_selected: this._current_filter == "team_admin_members",
+          team_restricted_filter_selected: this._current_filter == "team_restricted_members"
+        });
+      } else {
+        _.merge(template_args, {
+          members_filter_selected: this._current_filter == "active_members",
+          admins_filter_selected: this._current_filter == "admin_members",
+          restricted_filter_selected: this._current_filter == "restricted_members"
+        });
+      }
+      return template_args;
     }
   });
 })();
@@ -22146,6 +22173,16 @@
             groups_count: TS.groups.getUnarchivedGroups().length
           };
           return TS.templates.direct_messages_coachmark(template_args);
+        }
+      },
+      highlights: {
+        id: "highlights_coachmark",
+        coachmark_el_id: "highlights_coachmark_div",
+        place: function() {
+          TS.coachmark.placeBelowOf($("#sli_recap_toggle"), 13, -110, 5);
+        },
+        content: function() {
+          return TS.templates.highlights_coachmark();
         }
       },
       search: {

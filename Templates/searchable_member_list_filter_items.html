@@ -1,16 +1,61 @@
 {{i18n_ns "menu"}}
 
-<li><a data-filter="everyone">{{#t note="Searchable member list filter option with total count of this type" total=everyone_count}}
-  Everyone <span>({total})</span>
-{{/t}}</a></li>
-<li class="divider">
-<li><a data-filter="active_members">{{#t note="Searchable member list filter option with total count of this type" total=members_count}}
-  Members <span>({total})</span>
-{{/t}}</a></li>
-<li><a data-filter="restricted_members">{{#t note="Searchable member list filter option with total count of this type" total=guests_count}}
-  Guest accounts <span>({total})</span>
-{{/t}}</a></li>
-<li class="divider">
-<li><a data-filter="disabled_members">{{#t note="Searchable member list filter option with total count of this type"}}
-  Disabled accounts
-{{/t}}</a></li>
+{{#if extra_filter_options}}
+
+  <li><a data-filter="everyone">{{#t note="Searchable member list filter option with total count of this type" total=everyone_count}}
+    Everyone <span>({total})</span>
+  {{/t}}</a></li>
+
+  <div class="section_header"><hr><span class="header_label menu_mini">{{org_name}}</span></div>
+  
+  <li><a data-filter="org_active_members">{{#t note="Searchable member list filter option with total count of this type in an organization" total=org_members_count}}
+    Members <span>({total})</span>
+  {{/t}}</a></li>
+  <li><a data-filter="org_admin_members">{{#t note="Searchable member list filter option with total count of this type in an organization" total=org_admins_count}}
+    Admins <span>({total})</span>
+  {{/t}}</a></li>
+  <li><a data-filter="org_restricted_members">{{#t note="Searchable member list filter option with total count of this type in an organization" total=org_guests_count}}
+    Guest accounts <span>({total})</span>
+  {{/t}}</a></li>
+  
+  <div class="section_header"><hr><span class="header_label menu_mini">{{team_name}}</span></div>
+  
+  <li><a data-filter="team_active_members">{{#t note="Searchable member list filter option with total count of this type in a team" total=team_members_count}}
+    Members <span>({total})</span>
+  {{/t}}</a></li>
+  <li><a data-filter="team_admin_members">{{#t note="Searchable member list filter option with total count of this type in a team" total=team_admins_count}}
+    Admins <span>({total})</span>
+  {{/t}}</a></li>
+  <li><a data-filter="team_restricted_members">{{#t note="Searchable member list filter option with total count of this type in a team" total=team_guests_count}}
+    Guest accounts <span>({total})</span>
+  {{/t}}</a></li>
+  
+  <div class="section_header"><hr><span class="header_label menu_mini">{{#t note="Filter menu section heading for disabled members filter option"}}Other{{/t}}</span></div>
+
+  <li><a data-filter="disabled_members">{{#t note="Searchable member list filter option with total count of this type"}}
+    Disabled accounts
+  {{/t}}</a></li>
+
+{{else}}
+
+  <li><a data-filter="everyone">{{#t note="Searchable member list filter option with total count of this type" total=everyone_count}}
+    Everyone <span>({total})</span>
+  {{/t}}</a></li>
+  <li class="divider">
+  <li><a data-filter="active_members">{{#t note="Searchable member list filter option with total count of this type" total=members_count}}
+    Members <span>({total})</span>
+  {{/t}}</a></li>
+  {{#unless is_flannel}}
+    <li><a data-filter="admin_members">{{#t note="Searchable member list filter option with total count of this type" total=members_count}}
+      Admins <span>({total})</span>
+    {{/t}}</a></li>
+  {{/unless}}
+  <li><a data-filter="restricted_members">{{#t note="Searchable member list filter option with total count of this type" total=guests_count}}
+    Guest accounts <span>({total})</span>
+  {{/t}}</a></li>
+  <li class="divider">
+  <li><a data-filter="disabled_members">{{#t note="Searchable member list filter option with total count of this type"}}
+    Disabled accounts
+  {{/t}}</a></li>
+  
+{{/if}}

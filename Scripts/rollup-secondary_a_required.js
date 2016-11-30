@@ -1044,9 +1044,26 @@
           _should_send_timing_data = v;
         }
       });
+      Object.defineProperty(test_ob, "_internet_connected_p", {
+        get: function() {
+          return _internet_connected_p;
+        },
+        set: function(v) {
+          _internet_connected_p = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_ms_reconnected_p", {
+        get: function() {
+          return _ms_reconnected_p;
+        },
+        set: function(v) {
+          _ms_reconnected_p = v;
+        }
+      });
       return test_ob;
     },
     waitForAPIConnection: function() {
+      if (_internet_connected_p) return _internet_connected_p;
       var retry_interval = arguments.length <= 0 || arguments[0] === undefined ? 1e3 : arguments[0];
       var max_retries = arguments[1];
       var connection_timeout_ms = 6e4;
@@ -1091,51 +1108,52 @@
       var success_sig = new signals.Signal;
       var failure_sig = new signals.Signal;
       if (_should_send_timing_data) TS.metrics.mark("api_connectivity_lost");
-      return new Promise(function(resolve, reject) {
-        success_sig.addOnce(resolve);
+      _internet_connected_p = new Promise(function(resolve, reject) {
+        success_sig.addOnce(function() {
+          _internet_connected_p = undefined;
+          resolve();
+        });
         failure_sig.addOnce(reject);
         _testConnection();
       });
+      return _internet_connected_p;
     },
     waitForMSToReconnect: function() {
-      return new Promise(function(resolve, reject) {
+      if (_ms_reconnected_p) {
+        return _ms_reconnected_p;
+      }
+      if (TS.model.ms_connected) {
+        return Promise.resolve();
+      }
+      _ms_reconnected_p = new Promise(function(resolve, reject) {
         var ms_asleep = TS.model.ms_asleep;
-        var ms_connected = TS.model.ms_connected;
         var calling_rtm_start = TS.model.calling_rtm_start;
         var calling_test_fast_reconnect = TS.model.calling_test_fast_reconnect;
-        var should_reconnect = !ms_connected && !calling_rtm_start && !calling_test_fast_reconnect;
-        var info = ["API paused? " + TS.api.isPaused(), "MS asleep? " + ms_asleep, "MS connected? " + ms_connected, "Starting RTM? " + calling_rtm_start, "Attempting fast reconnect? " + calling_test_fast_reconnect];
+        var info = ["API paused? " + TS.api.isPaused(), "MS asleep? " + ms_asleep, "Starting RTM? " + calling_rtm_start, "Attempting fast reconnect? " + calling_test_fast_reconnect];
         TS.info("Re-establishing the MS connection. Current state: " + info.join(", "));
-        if (ms_connected) {
-          TS.info("MS is already connected");
-          resolve();
-          return;
-        }
         if (calling_rtm_start) {
           TS.info("MS not connected, proceeding with rtm.start");
+          _ms_reconnected_p = undefined;
           resolve();
           return;
         }
         if (calling_test_fast_reconnect) {
           TS.info("MS not connected, proceeding with a fast reconnect");
+          _ms_reconnected_p = undefined;
           resolve();
           return;
         }
-        if (should_reconnect) {
-          TS.info("MS not connected, listening for the connected signal");
-          TS.ms.connected_sig.addOnce(resolve);
-          if (ms_asleep) {
-            if (_should_send_timing_data) TS.metrics.count("ms_should_wake_up_from_sleep");
-            TS.info("Trying to wake up the MS up.");
-            TS.ms.wake();
-          } else {
-            TS.info("Restarting MS connection");
-            TS.ms.startReconnectionImmediately();
-          }
-        }
+        TS.info("MS not connected, listening for the connected signal");
+        TS.ms.connected_sig.addOnce(function() {
+          _ms_reconnected_p = undefined;
+          resolve();
+        });
       });
+      return _ms_reconnected_p;
     }
   });
+  var _internet_connected_p;
+  var _ms_reconnected_p;
   var _timing_percentage = 1;
   var _should_send_timing_data;
 })();
@@ -1501,7 +1519,7 @@
   });
   var _default_api_args = {};
   var _default_api_args_by_method = {};
-  var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history"];
+  var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list"];
   var _timing_methodsA = ["rtm.start", "rtm.leanStart", "files.list"];
   var _progress_check_methodsA = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"];
   var _one_at_a_time_methodsA = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto"];
@@ -18965,8 +18983,15 @@ TS.registerModule("constants", {
       }
       var html = "";
       if (result_type === "extract") {
-        html += '<div class="search_result_with_extract">';
-        html += '<div class="extract_expand_icons"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
+        var group = TS.boot_data.search_limit_extracts_group;
+        if (group === "limit_50" || group === "limit_100") {
+          html += '<div class="search_result_with_extract experiment_search_limit_extracts">';
+          html += '<div class="extract_expand_text">Expand</div>';
+          html += '<div class="extract_expand_icons blue"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
+        } else {
+          html += '<div class="search_result_with_extract">';
+          html += '<div class="extract_expand_icons"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
+        }
       } else if (result_type === "context") {
         html += '<div class="search_result_for_context">';
       } else {
@@ -31453,10 +31478,27 @@ TS.registerModule("constants", {
       TS.menu.buildIfNeeded();
       TS.menu.clean();
       var template_args = {
-        everyone_count: 100,
-        members_count: 80,
-        guests_count: 20
+        everyone_count: 120,
+        members_count: 70,
+        admins_count: 30,
+        guests_count: 20,
+        extra_filter_options: TS.boot_data.page_needs_enterprise && TS.lazyLoadMembersAndBots(),
+        is_flannel: TS.lazyLoadMembersAndBots()
       };
+      if (TS.boot_data.page_needs_enterprise) {
+        _.merge(template_args, {
+          is_enterprise: true,
+          org_name: TS.model.team.enterprise_name,
+          team_name: TS.model.team.name,
+          everyone_count: 500,
+          org_members_count: 200,
+          org_admins_count: 20,
+          org_guests_count: 80,
+          team_members_count: 160,
+          team_admins_count: 20,
+          team_guests_count: 20
+        });
+      }
       TS.menu.$menu.addClass("searchable_member_list_filter_menu");
       TS.menu.$menu_items.html(TS.templates.searchable_member_list_filter_items(template_args));
       TS.menu.$menu_items.on("click.menu", "li", function(e) {
@@ -37179,6 +37221,7 @@ var _on_esc;
         TS.msg_edit.editing_in_msg_pane = false;
         TS.msg_edit.editing_in_convo_pane = false;
         TS.msg_edit.edit_ended_sig.dispatch();
+        TSSSB.call("inputFieldRemoved", input.get(0));
         form = null;
         input = null;
         TS.msg_edit.resetEditUI();
@@ -38876,10 +38919,14 @@ var _on_esc;
       var $show_custom_message = _$div.find(".admin_invites_show_custom_message");
       var $custom_message = _$div.find("#admin_invite_custom_message");
       var channels;
+      var is_default = false;
       var invite_mode = TS.google_auth.isAuthed(_google_auth_instance_id) ? "contact" : "manual";
       if (account_type == "full" || account_type == "restricted") {
         var default_channels = _$div.find("#defaultchannelsmulti").val();
-        if (default_channels) channels = default_channels.join(",");
+        if (default_channels) {
+          channels = default_channels.join(",");
+          is_default = true;
+        }
       } else if (account_type == "ultra_restricted") {
         channels = _$div.find("#ultra_restricted_channel_picker").val();
       }
@@ -38900,6 +38947,7 @@ var _on_esc;
         if (invite.full_name) args.full_name = invite.full_name;
         if (invite.first_name) args.first_name = invite.first_name;
         if (invite.last_name) args.last_name = invite.last_name;
+        args.is_default = is_default;
         if (account_type == "restricted") {
           args.restricted = 1;
         } else if (account_type == "ultra_restricted") {
@@ -42709,9 +42757,9 @@ $.fn.togglify = function(settings) {
       return null;
     },
     doesRxnsHaveRxnFromMember: function(rxns, name, member_id) {
-      name = TS.emoji.nameToCanonicalName(name);
+      var canonical_name = TS.emoji.nameToCanonicalName(name);
       if (!rxns) return false;
-      var rxn = TS.rxns.getRxnFromRxns(rxns, name);
+      var rxn = TS.rxns.getRxnFromRxns(rxns, name) || TS.rxns.getRxnFromRxns(rxns, canonical_name);
       if (!rxn) return false;
       if (!rxn.count) return false;
       if (!rxn.users) return false;
@@ -42805,7 +42853,10 @@ $.fn.togglify = function(settings) {
       }
     },
     changeRxnsFromUserAction: function(rxn_key, name, adding) {
-      name = TS.emoji.nameToCanonicalName(name);
+      var canonical_name = TS.emoji.nameToCanonicalName(name);
+      var rxns = TS.rxns.getExistingRxnsByKey(rxn_key);
+      var rxn = TS.rxns.getRxnFromRxns(rxns, name);
+      if (adding || !rxn) name = canonical_name;
       TS.log(888, "changeRxnsFromUserAction rxn_key:" + rxn_key + " name:" + name + " adding:" + adding);
       if (adding && !TS.emoji.isValidName(name)) {
         TS.error('"' + name + '" is not a valid emoji');
@@ -45418,24 +45469,44 @@ $.fn.togglify = function(settings) {
   };
   var _snoozeReadableCountdown = function(end_time_ts) {
     var remaining = end_time_ts - _now();
-    if (remaining < 0) return "0s";
+    if (remaining < 0) {
+      return TS.i18n.t("0s", "dnd")();
+    }
     var hours, minutes;
     hours = remaining / 3600;
     if (hours >= 1) {
       hours = Math.floor(hours);
       minutes = (remaining - hours * 3600) / 60;
       minutes = Math.round(minutes);
-      if (minutes === 60) return hours + 1 + "h";
-      if (minutes === 0) return hours + "h";
-      return hours + "h" + " " + minutes + "m";
+      if (minutes === 60) {
+        hours = hours + 1;
+        return TS.i18n.t("{dnd_hours}h", "dnd")({
+          dnd_hours: hours
+        });
+      }
+      if (minutes === 0) {
+        return TS.i18n.t("{dnd_hours}h", "dnd")({
+          dnd_hours: hours
+        });
+      }
+      return TS.i18n.t("{dnd_hours}h {dnd_minutes}m", "dnd")({
+        dnd_hours: hours,
+        dnd_minutes: minutes
+      });
     }
     minutes = remaining / 60;
     if (minutes >= 1) {
       minutes = Math.round(minutes);
-      if (minutes === 60) return "1h";
-      return minutes + "m";
+      if (minutes === 60) {
+        return TS.i18n.t("1h", "dnd")();
+      }
+      return TS.i18n.t("{dnd_minutes}m", "dnd")({
+        dnd_minutes: minutes
+      });
     }
-    return remaining + "s";
+    return TS.i18n.t("{dnd_remaining}s", "dnd")({
+      dnd_remaining: remaining
+    });
   };
   var _memberHasStaleTimes = function(member, now) {
     if (!now) now = _now();
@@ -46498,6 +46569,16 @@ $.fn.togglify = function(settings) {
       TS.click.addClientHandler("#sli_recap_toggle", function(e) {
         e.preventDefault();
         if ($("#sli_recap_toggle").hasClass("active")) {
+          if (TS.client && !TS.model.prefs.seen_highlights_coachmark) {
+            setTimeout(function() {
+              TS.coachmark.start(TS.coachmarks.coachmarks.highlights);
+              TS.model.prefs.seen_highlights_coachmark = true;
+              TS.prefs.setPrefByAPI({
+                name: "seen_highlights_coachmark",
+                value: true
+              });
+            }, 500);
+          }
           TS.recaps_signal.handleUpdateScrollbar();
         } else {
           TS.recaps_signal.remove();
@@ -53126,6 +53207,7 @@ $.fn.togglify = function(settings) {
       var $form = $(html);
       $form.appendTo($container);
       var $input = $form.find("textarea");
+      TSSSB.call("inputFieldCreated", $input.get(0));
       if (opts.placeholder) {
         $input.attr("placeholder", opts.placeholder);
       }
@@ -53194,6 +53276,7 @@ $.fn.togglify = function(settings) {
   var _initUI = function($form, $input, submit_fn, cancel_fn, get_edit_msg_div_fn) {
     $form.bind("destroyed", function() {
       cancel_fn($form);
+      TSSSB.call("inputFieldRemoved", $input.get(0));
     });
     $form.bind("submit", function(e) {
       e.preventDefault();
