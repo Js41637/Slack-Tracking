@@ -17092,6 +17092,20 @@ img.jcrop-preview {
   background: #fff
 }
 
+.jumbomoji_disabled_note {
+  display: none;
+  color: #555459;
+  font-weight: 400
+}
+
+.jumbomoji_pref_disabled {
+  color: #9e9ea6
+}
+
+.jumbomoji_pref_disabled .jumbomoji_disabled_note {
+  display: block
+}
+
 #fs_modal.show_sidebar,
 #fs_modal_bg.show_sidebar {
   left: 220px
@@ -18252,6 +18266,10 @@ ts-message .emoji-sizer .mention {
   right: 13px;
   height: 26px;
   background: #fff
+}
+
+.threads_view_is_showing #messages_container.has_top_messages_banner:before {
+  background: #f2f2f5
 }
 
 #messages_container>.monkey_scroll_wrapper:not(#monkey_scroll_wrapper_for_unread_msgs_scroller_div)>.monkey_scroll_bar {

@@ -868,6 +868,7 @@
                   ready_to_query_p.then(function() {
                     TS.log(1989, "Re-fetching " + users_to_refetch.length + " members so we have presence status");
                     TS.flannel.fetchAndUpsertObjectsByIds(users_to_refetch);
+                    return null;
                   });
                   return null;
                 });
@@ -875,6 +876,7 @@
               _pending_rtm_start_p = undefined;
               TS.incremental_boot.afterFullBoot();
               TS.info("Completed incremental boot");
+              return null;
             });
           } else {
             $("#col_channels, #team_menu").removeClass("placeholder");

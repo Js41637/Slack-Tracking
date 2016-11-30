@@ -88,11 +88,12 @@
     None: <span class="normal">plain text only</span>
   </label>
 </p>
-<p class="large_bottom_margin">
+<p id="jumbomoji_pref" class="large_bottom_margin{{#if_equal messages_theme compare="dense"}} jumbomoji_pref_disabled{{/if_equal}}">
   <label class="checkbox">
-    <input id="jumbomoji_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_emoji_style">
+    <input id="jumbomoji_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_emoji_style" {{#if_equal messages_theme compare="dense"}}disabled="disabled" aria-disabled="true"{{/if_equal}}>
     Show JUMBOMOJI<br>
-    <span class="normal">Display the jumbo versions of emoji (up to 23 at a time!) in messages containing no text</span>
+    <span class="normal">Display the jumbo versions of emoji (up to 23 at a time!) in messages without text.</span>
+    <span class="jumbomoji_disabled_note"><strong>Note:</strong> In compact mode, all emoji remain at a smaller, more sensible size.</span>
   </label>
 </p>
 

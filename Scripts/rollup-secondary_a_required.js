@@ -11986,8 +11986,8 @@ TS.registerModule("constants", {
         return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
       }).then(function(response) {
         var items = TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list && TS.client ? response.items : response;
-        _displayPromiseToSearchResults(items, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
         _stopSpinner(filter_container_id);
+        return _displayPromiseToSearchResults(items, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
       }).finally(function() {
         TS.utility.rAF(function() {
           if (TS.client) TS.ui.utility.updateClosestMonkeyScroller($(scroller_id));
@@ -12072,13 +12072,14 @@ TS.registerModule("constants", {
         _searchable_member_list.getLongListView().longListView("setItems", filtered_members, true);
       } else {
         if (query_for_match == "") {
+          _searchable_member_list.maybeClearNoResults();
           _searchable_member_list.resetSearch();
           _searchable_member_list.resetInitialState();
         } else {
           _searchable_member_list.showNoResults(query_for_display);
         }
       }
-      return;
+      return null;
     }
     var need_to_reset_current_subtab = false;
     if ("disabled_members" === TS.model.ui_state.tab_name && 0 === (_filters.deleted.filter_num_found || 0)) need_to_reset_current_subtab = true;
@@ -45265,8 +45266,8 @@ $.fn.togglify = function(settings) {
   };
   var _pending_single_user_updates = [];
   var _fetchUserInfo = function(member) {
+    if (_pending_single_user_updates.indexOf(member.id) !== -1) return;
     _pending_single_user_updates.push(member.id);
-    _pending_single_user_updates = _.uniq(_pending_single_user_updates);
     if (_pending_single_user_updates.length > 1) return;
     return new Promise(function(resolve, reject) {
       setTimeout(function() {

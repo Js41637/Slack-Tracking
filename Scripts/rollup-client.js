@@ -9250,6 +9250,7 @@
     },
     showInitial: function() {
       var this_searchable_member_list = this;
+      this.$_long_list_view = this.$_container.find(this._long_list_view_id);
       this._startLoadingState();
       if (TS.lazyLoadMembersAndBots() && TS.team.getBestEffortTotalTeamSize() <= this_searchable_member_list._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
         return TS.team.ensureEntireTeamLoaded().then(function() {
@@ -9367,7 +9368,6 @@
     },
     _loadLongListView: function(options) {
       var this_searchable_member_list = this;
-      this_searchable_member_list.$_long_list_view = this_searchable_member_list.$_container.find(this_searchable_member_list._long_list_view_id);
       this_searchable_member_list.$_long_list_view.longListView({
         items: options.items,
         approx_item_height: this_searchable_member_list._approx_item_height,
@@ -9453,7 +9453,7 @@
       return this_searchable_member_list._fetch_more_members_p;
     },
     _startLoadingState: function() {
-      this.$_container.find(this._long_list_view_id).before(TS.templates.infinite_spinner({
+      this.$_long_list_view.before(TS.templates.infinite_spinner({
         color: "white",
         size: "medium"
       }));
@@ -29621,7 +29621,8 @@
           clean_theme: TS.model.prefs.messages_theme == "light_with_avatars",
           compact_theme: TS.model.prefs.messages_theme == "dense",
           thumbs_up_name_with_skin_tone_modifier: ":thumbsup:" + skin_tone_modifier,
-          should_use_local_lato_2: TS.boot_data.should_use_local_lato_2
+          should_use_local_lato_2: TS.boot_data.should_use_local_lato_2,
+          messages_theme: TS.model.prefs.messages_theme
         };
         html = TS.templates.prefs_messages_media(template_args);
         break;
@@ -29975,13 +29976,19 @@
     if (match) return match[0];
     return null;
   };
+  var _disableJumbomojiPref = function(disabled) {
+    TS.utility.disableElement($("#jumbomoji_cb"), disabled);
+    $("#jumbomoji_pref").toggleClass("jumbomoji_pref_disabled", disabled);
+  };
   var _bindMessagesMediaPrefs = function() {
     $('input:radio[name="messages_theme_select"]').filter('[value="' + TS.model.prefs.messages_theme + '"]').prop("checked", true);
     $('input:radio[name="messages_theme_select"]').on("change", function() {
       $(".prefs_messages_theme_preview").toggleClass("hidden");
+      var value = $(this).val();
+      _disableJumbomojiPref(value === "dense");
       TS.prefs.setPrefByAPI({
         name: "messages_theme",
-        value: $(this).val()
+        value: value
       });
     });
     $("#show_typing_cb").prop("checked", TS.model.prefs.show_typing === true).removeClass("hidden");

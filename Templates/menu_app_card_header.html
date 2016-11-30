@@ -6,9 +6,9 @@
   {{/if}}
 >
   {{#if emoji_img_tag}}
-    <div class="app_card_emoji rounded neutral_white_bg">{{emoji_img_tag}}</div>
+    <div class="app_card_emoji rounded neutral_white_bg" data-qa="app_header_icon">{{emoji_img_tag}}</div>
   {{else}}
-    <img class="app_card_header_icon rounded"
+    <img class="app_card_header_icon rounded" data-qa="app_header_icon"
       {{#if bot_icons}}
         src="{{bot_icons.image_72}}"
       {{else if app_icons}}
@@ -27,11 +27,11 @@
   {{/if}}
   <div class="app_card_header_text">
     <div class="app_card_name_row lato_black flexpane_grey display_flex align_items_center">
-      <span class="app_name overflow_ellipsis">{{name}}</span>
+      <span class="app_name overflow_ellipsis" data-qa="app_header_name">{{name}}</span>
       <div><span class="app_label lato neutral_white">APP</span></div>
     </div>
     {{#if desc}}
-      <div class="app_card_desc lato flexpane_grey overflow_hidden">{{desc}}</div>
+      <div class="app_card_desc lato flexpane_grey overflow_hidden" data-qa="app_header_description">{{desc}}</div>
     {{/if}}
     {{#if large}}
       <div class="app_profile_buttons">
