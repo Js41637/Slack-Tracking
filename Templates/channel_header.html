@@ -62,7 +62,7 @@
     <!-- calls button -->
     <div id="channel_calls_container" class="hidden channel_calls_container"></div>{{!--
     <!-- sli recaps -->
-    --}}{{#if sli_preview}}<button id="sli_recap_toggle" class="btn_unstyle blue_hover sli_recaps_toggle channel_header_icon ts_tip ts_tip_bottom {{#if is_recap}}active{{/if}}"><span class="ts_tip_tip">{{#if is_recap}}Turn highlight messages off{{else}}Turn highlight messages on{{/if}}</span>{{> ts_icon class="ts_icon_highlight"}}</button>{{/if}}{{!--
+    --}}{{#if sli_preview}}<button id="sli_recap_toggle" class="btn_unstyle blue_hover sli_recaps_toggle channel_header_icon ts_tip ts_tip_bottom {{#if is_recap}}active{{/if}}"><span class="ts_tip_tip">{{#if is_recap}}Turn highlight messages off{{else}}Turn highlight messages on{{/if}}</span>{{#if is_recap}}{{> ts_icon class="ts_icon_highlight_filled"}}{{else}}{{> ts_icon class="ts_icon_highlight"}}{{/if}}</button>{{/if}}{{!--
     <!-- channel actions menu toggle -->
     --}}<button id="channel_actions_toggle" class="btn_unstyle blue_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom"><span class="ts_tip_tip">{{#if member}}Conversation{{else if mpim}}Conversation{{else}}Channel{{/if}} Settings</span>{{> ts_icon class="ts_icon_cog_o"}}</button>{{!--
 

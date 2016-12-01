@@ -6803,6 +6803,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 #typing_text {
+  position: absolute;
+  bottom: 0;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #717274;
   display: inline-block;
@@ -6882,12 +6884,6 @@ only screen and (min-resolution:2dppx) {
 
 .special_formatting_tips .quote {
   display: inline-block
-}
-
-.special_formatting_tips b,
-.special_formatting_tips i {
-  position: relative;
-  top: 1px
 }
 
 .special_formatting_tips b,

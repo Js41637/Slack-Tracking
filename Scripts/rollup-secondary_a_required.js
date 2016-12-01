@@ -22101,7 +22101,6 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("formatMessageExcerpt", function(msg, length) {
         length = length || 80;
-        var ellipsis = "&hellip;";
         var text = msg.text;
         if (TS.boot_data.feature_message_replies) {
           text = TS.format.formatNoHighlightsNoInlineImgs(text, msg);
@@ -22110,17 +22109,7 @@ TS.registerModule("constants", {
           text = TS.utility.htmlEntities(text);
           text = TS.emoji.graphicReplace(text);
         }
-        var truncated = truncate(text, length, {
-          ellipsis: ellipsis
-        });
-        if (truncated.length !== text.length) {
-          var regex = /&[a-z]*&hellip;$/;
-          var match = regex.exec(truncated);
-          if (match && match.index) {
-            truncated = truncated.substring(0, match.index) + ellipsis;
-          }
-        }
-        return new Handlebars.SafeString(truncated);
+        return new Handlebars.SafeString(text);
       });
       Handlebars.registerHelper("rxnPanel", function(rxn_key) {
         var panel_html = TS.templates.builders.rxnPanel(rxn_key);

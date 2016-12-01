@@ -144,12 +144,14 @@ function lintCode() {
 function getChanges(client) {
   console.log("Getting changes")
   return new Promise((resolve, reject) => {
-    let what = client ? 'git reset ./ && git add ClientExtracted/' : 'git add ./ && git reset ClientExtracted/'
-    exec(`${what} && git diff --cached --name-status`, (err, stdout) => {
+    exec(client ? 'git reset ./ && git add ClientExtracted/' : 'git add ./ && git reset ClientExtracted/', err => {
       if (err) return reject(err)
-      let changes = chain(stdout.split('\n')).map(c => c.trim().replace('\t', ' ')).compact().sortBy(change => change.match(/A [A-z/-]+\.\w+/)).value()
-      console.log(`Got ${changes.length} changed files`)
-      return resolve(changes)
+      exec(`git diff --cached --name-status`, (error, stdout) => {
+        if (error) return reject(error)
+        let changes = chain(stdout.split('\n')).map(c => c.trim().replace('\t', ' ')).compact().sortBy(change => change.match(/A [A-z/-]+\.\w+/)).value()
+        console.log(`Got ${changes.length} changed files`)
+        return resolve(changes)
+      })
     })
   })
 }

@@ -8822,10 +8822,14 @@
         $header.delegate("#sli_recap_toggle", "click", function(e) {
           var $sli_toggle_ts_tip_tip = $("#sli_recap_toggle").find(".ts_tip_tip");
           if ($(this).hasClass("active")) {
+            $(this).find("ts-icon").addClass("ts_icon_highlight");
+            $(this).find("ts-icon").removeClass("ts_icon_highlight_filled");
             $(this).removeClass("active");
             $sli_toggle_ts_tip_tip.text("Turn highlight messages on");
             $(".recap_highlight").addClass("invisible");
           } else {
+            $(this).find("ts-icon").addClass("ts_icon_highlight_filled");
+            $(this).find("ts-icon").removeClass("ts_icon_highlight");
             var model_ob = TS.shared.getActiveModelOb();
             $(".recap_highlight").removeClass("invisible");
             _resetFlexpaneToggles(model_ob);
@@ -19415,7 +19419,7 @@
         immediate_upload = immediate_upload || modifiers && modifiers.shift;
       }
       var dont_make_snippet = true;
-      if (!TS.model.is_FF && e.clipboardData) {
+      if (!(TS.model.is_FF && bowser.version < 50) && e.clipboardData) {
         TS.info("clipboardData!");
         TS.info(e.clipboardData.types);
         var i;
