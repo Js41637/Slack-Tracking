@@ -16,13 +16,13 @@
           <input type="text" name="shared_invite_link" class="shared_invite_link_input" readonly value={{invite_url}} onclick="select()"/>
           <button data-action="copy_invite_link" class="shared_invite_link_copy_btn btn btn_info ts_tip ts_tip_top" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=copy_shared_invite_link,trigger=click_copy_btn,step=shared_invite_link">
             {{#t}}Copy{{/t}}
-            <span class="shared_invite_link_tooltip ts_tip_tip hidden">Link copied! \ud83d\udc4f\ud83c\udffe</span>
+            <span class="shared_invite_link_tooltip ts_tip_tip hidden">{{#t}}Link copied!{{/t}} \ud83d\udc4f\ud83c\udffe</span>
           </button>
         </div>
       </div>
 
       <div class="shared_invite_link_skip_container">
-        <span>Or, you can <a data-action="shared_invite_link_skip" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_to_invite_by_email,trigger=click_invite_by_email_link,step=shared_invite_link">invite people by email</a>.<span>
+        <span>{{#t}}Or, you can <a data-action="shared_invite_link_skip" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_to_invite_by_email,trigger=click_invite_by_email_link,step=shared_invite_link">invite people by email</a>.{{/t}}<span>
       </div>
     </div>
 

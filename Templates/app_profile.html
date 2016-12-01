@@ -1,12 +1,41 @@
 {{i18n_ns "app_profile"}}
 <div class="app_profile">
-  {{> menu_app_card_header this large=true}}
+  {{> menu_app_card_header this app_profile=true large=true}}
   <div class="lato charcoal_grey">
-    {{#if long_description}}
+    {{#if custom_integration_type}}
       <section>
-        <div class="app_profile_section_header">{{#t}}How to use this app{{/t}}</div>
-        <div class="app_profile_section_text">{{long_description}}</div>
+        <div class="app_profile_section_header">
+          {{#if_equal custom_integration_type compare="incoming-webhook"}}
+            {{#t}}About this Incoming Webhook{{/t}}
+          {{else if_equal custom_integration_type compare="outgoing-webhook"}}
+            {{#t}}About this Outgoing Webhook{{/t}}
+          {{else if_equal custom_integration_type compare="bot"}}
+            {{#t}}How to use this Bot{{/t}}
+          {{else if_equal custom_integration_type compare="slash-commands"}}
+            {{#t}}How to use this Slash Command{{/t}}
+          {{/if_equal}}
+        </div>
+        <div class="app_profile_section_text">
+          {{#if desc}}
+            <div class="bottom_margin">{{desc}}</div>
+          {{/if}}
+          {{#if_equal custom_integration_type compare="outgoing-webhook"}}
+            {{!-- TODO: Outgoing webhook description. --}}
+          {{else if_equal custom_integration_type compare="bot"}}
+            {{#t}}You can message bots and invite them to channels like other team members.{{/t}}
+          {{else if_equal custom_integration_type compare="slash-commands"}}
+            {{#t}}Slash commands take actions when you post them in a conversation.{{/t}}
+          {{/if_equal}}
+          {{#t date_created=(convertTimestampToMilliseconds date_created)}}Created by {custom_integration_creator} on {date_created, date, long}.{{/t}}
+        </div>
       </section>
+    {{else}}
+      {{#if long_description}}
+        <section>
+          <div class="app_profile_section_header">{{#t}}How to use this app{{/t}}</div>
+          <div class="app_profile_section_text">{{long_description}}</div>
+        </section>
+      {{/if}}
     {{/if}}
     {{#if commands}}
       <section>

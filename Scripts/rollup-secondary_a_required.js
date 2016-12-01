@@ -11478,8 +11478,12 @@ TS.registerModule("constants", {
         template_args.name = app_name;
         template_args.desc = app.config.descriptive_label;
         template_args.username = app.config.username;
+        template_args.custom_integration_type = app.config.custom_integration_type;
+        template_args.date_created = app.config.date_created;
+        var creator_name = '<a class="bold member charcoal_grey" data-member-id=' + app.config.created_by + ">" + TS.members.getMemberDisplayNameById(app.config.created_by, true, true) + "</a>";
+        template_args.custom_integration_creator = new Handlebars.SafeString(creator_name);
       }
-      if (!app.is_slack_integration && !app.auth) {
+      if (!app.is_slack_integration && (!app.auth || app.auth.revoked)) {
         template_args.disabled = true;
       } else if (app.is_slack_integration && (!app.config || (app.config.is_active !== "1" || app.config.date_deleted !== "0"))) {
         template_args.disabled = true;
@@ -11487,14 +11491,7 @@ TS.registerModule("constants", {
       if (app.installation_summary) {
         var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
           if (!TS.members.getMemberById(user_id)) return match;
-          var name_replace = '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">";
-          if (TS.boot_data.feature_name_tagging_client) {
-            name_replace += TS.utility.htmlEntities(TS.members.getMemberFullName(user_id));
-          } else {
-            name_replace += TS.utility.htmlEntities(TS.members.getMemberRealName(user_id));
-          }
-          name_replace += "</span>";
-          return name_replace;
+          return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getMemberDisplayNameById(user_id, true, true) + "</span>";
         });
         template_args.installation_summary = new Handlebars.SafeString(installation_summary);
       }
@@ -11520,6 +11517,7 @@ TS.registerModule("constants", {
       }
       if (app.long_desc_formatted) template_args.long_description = new Handlebars.SafeString(app.long_desc_formatted);
       if (app.support_url) template_args.support_url = app.support_url;
+      if (!app.config || app.config.user_can_manage) template_args.user_can_manage = true;
       return template_args;
     }
   });
@@ -14604,6 +14602,7 @@ TS.registerModule("constants", {
         TS.warn("NOT doing startReconnection() because TS.api.isPaused()");
         return;
       }
+      TS.info("MS: starting reconnection after socket failure");
       TS.ms.startReconnection();
     },
     startReconnection: function() {
@@ -14620,6 +14619,7 @@ TS.registerModule("constants", {
       }, TS.model.ms_reconnect_ms);
     },
     startReconnectionImmediately: function() {
+      TS.info("MS wants to reconnect because of a start call");
       clearTimeout(_auto_reconnect_tim);
       if (TS.model.attempting_fast_reconnect && _isReconnectUrlValid()) {
         TS.ms.fastReconnect();
@@ -14635,6 +14635,7 @@ TS.registerModule("constants", {
       clearTimeout(_connect_timeout_tim);
       _connect_timeout_count = 0;
       if (!TS.model.window_unloading) {
+        TS.info("MS wants to reconnect because of a user interaction");
         TS.ms.reconnect_requested_sig.dispatch();
         TS.ms.reconnecting_sig.dispatch(0);
       }
@@ -14737,6 +14738,7 @@ TS.registerModule("constants", {
     wake: function() {
       if (!TS.model.ms_asleep) return;
       TS.model.ms_asleep = false;
+      TS.info("MS: starting reconnection after waking");
       TS.ms.startReconnection();
     },
     showConnectionTroubleDialog: function() {

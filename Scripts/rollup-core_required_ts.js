@@ -530,7 +530,7 @@
       return;
     }
     TSConnLogger.setConnecting(true);
-    TS.info("MS reconnection requested");
+    TS.info("MS reconnection requested: " + TS.console.logStackTrace());
     TS.metrics.mark("ms_reconnect_requested");
     TS.ms.connected_sig.addOnce(function() {
       var reconnect_duration_ms = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");

@@ -24590,6 +24590,11 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   height: 5.625rem
 }
 
+.app_card_emoji .emoji {
+  border-radius: 2px;
+  background-color: #fff
+}
+
 .app_card_header_text {
   margin-left: .875rem;
   margin-bottom: .3125rem;

@@ -37163,6 +37163,7 @@ function timezones_guess() {
       TS.client.ui.app_profile.active_app = app;
       _profile_template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
       TS.client.ui.flex.openAppProfileFlex();
+      $('[data-js="app_profile_header"]').html(TS.templates.app_profile_title(_profile_template_args));
       $('[data-js="app_profile_scroller"]').html(TS.templates.app_profile(_profile_template_args));
     },
     onButtonClick: function(e) {

@@ -6,11 +6,24 @@
   </a></li>
 {{/and}}
 {{#feature flag="feature_app_profiles_frontend"}}
-<li role="menuitem" data-action="view_details" data-qa="app_card_view_details"><a>{{#t}}View details{{/t}}</a></li>
+{{#or (if_not_equal disabled compare=true) is_slack_integration}}
+  <li role="menuitem" data-action="view_details" data-qa="app_card_view_details"><a>{{#t}}View details{{/t}}</a></li>
+{{/or}}
 {{/feature}}
-<li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
-  {{#t}}Edit settings{{/t}}
-</a></li>
+{{#if user_can_manage}}
+  <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
+    {{#t}}Edit settings{{/t}}
+  </a></li>
+{{else}}
+  <li role="menuitem" class="disabled ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" data-qa="app_card_edit_settings"><a>
+    {{#t}}Edit settings{{/t}}
+    <span class="ts_tip_tip">
+      <span class="ts_tip_multiline_inner">
+        {{#t}}Only certain users are allowed to edit apps.{{/t}}
+      </span>
+    </span>
+  </a></li>
+{{/if}}
 {{!-- Bot-specific --}}
 {{#if bot_user}}
   {{!-- Files --}}
@@ -51,7 +64,7 @@
     <span class="app_card_installation_summary">{{installation_summary}}</span>
   </li>
 {{/if}}
-{{#and disabled (if_not_equal is_slack_integration compare=false)}}
+{{#and disabled is_slack_integration}}
   <li role="menuitem" class="disabled italic" data-qa="app_card_service_disabled"><a>
     {{#t}}This rule has been disabled.{{/t}}
   </a></li>

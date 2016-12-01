@@ -16,5 +16,7 @@
 {{/if}}
 {{#if support_url}}
   <li role="menuitem"><a href="{{support_url}}" target="_blank">{{#t}}{name} Help{{/t}}</a></li>
+{{else if is_slack_integration}}
+  <li role="menuitem"><a href="https://get.slack.help/" target="_blank">{{#t}}{name} Help{{/t}}</a></li>
 {{/if}}
 <li role="menuitem"><a href="/apps" target="_blank">{{#t}}Slack App Directory{{/t}}</a></li>
