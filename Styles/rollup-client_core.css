@@ -5458,13 +5458,17 @@ button.close {
   -moz-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);
   transform: rotate(-45deg);
-  animation: spin 1.2s cubic-bezier(.25, .29, .54, .86) infinite;
-  -webkit-animation: spin 1.2s cubic-bezier(.25, .29, .54, .86) infinite
+  -webkit-animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin;
+  -moz-animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin;
+  -o-animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin;
+  animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin
 }
 
 .infinite_spinner_tail {
-  animation: spin 1.2s cubic-bezier(.41, .24, .64, .69) infinite;
-  -webkit-animation: spin 1.2s cubic-bezier(.41, .24, .64, .69) infinite
+  -webkit-animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin;
+  -moz-animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin;
+  -o-animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin;
+  animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin
 }
 
 .infinite_spinner_bg,

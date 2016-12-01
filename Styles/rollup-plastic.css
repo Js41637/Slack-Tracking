@@ -801,48 +801,6 @@ svg.ts_icon_spinner {
   animation: 1s linear 0s infinite normal none spin
 }
 
-@-webkit-keyframes spin {
-  0% {
-    -webkit-transform: rotate(0);
-    transform: rotate(0)
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg)
-  }
-}
-
-@-moz-keyframes spin {
-  0% {
-    -moz-transform: rotate(0);
-    transform: rotate(0)
-  }
-  100% {
-    -moz-transform: rotate(360deg);
-    transform: rotate(360deg)
-  }
-}
-
-@-ms-keyframes spin {
-  0% {
-    -ms-transform: rotate(0);
-    transform: rotate(0)
-  }
-  100% {
-    -ms-transform: rotate(360deg);
-    transform: rotate(360deg)
-  }
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0)
-  }
-  100% {
-    transform: rotate(360deg)
-  }
-}
-
 .ts_icon_spin.ts_icon_spinner:before,
 svg.ts_icon_spinner:before {
   display: none
@@ -11394,13 +11352,59 @@ a.plastic_typeahead_item:hover {
   -moz-transform: rotate(-45deg);
   -ms-transform: rotate(-45deg);
   transform: rotate(-45deg);
-  animation: spin 1.2s cubic-bezier(.25, .29, .54, .86) infinite;
-  -webkit-animation: spin 1.2s cubic-bezier(.25, .29, .54, .86) infinite
+  -webkit-animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin;
+  -moz-animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin;
+  -o-animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin;
+  animation: 1.2s cubic-bezier(.25, .29, .54, .86) 0s infinite normal none spin
 }
 
 .infinite_spinner_tail {
-  animation: spin 1.2s cubic-bezier(.41, .24, .64, .69) infinite;
-  -webkit-animation: spin 1.2s cubic-bezier(.41, .24, .64, .69) infinite
+  -webkit-animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin;
+  -moz-animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin;
+  -o-animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin;
+  animation: 1.2s cubic-bezier(.41, .24, .64, .69) 0s infinite normal none spin
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0);
+    transform: rotate(0)
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg)
+  }
+}
+
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0);
+    transform: rotate(0)
+  }
+  100% {
+    -moz-transform: rotate(360deg);
+    transform: rotate(360deg)
+  }
+}
+
+@-ms-keyframes spin {
+  0% {
+    -ms-transform: rotate(0);
+    transform: rotate(0)
+  }
+  100% {
+    -ms-transform: rotate(360deg);
+    transform: rotate(360deg)
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0)
+  }
+  100% {
+    transform: rotate(360deg)
+  }
 }
 
 .infinite_spinner_bg,

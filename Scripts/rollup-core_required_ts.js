@@ -2323,10 +2323,10 @@
             TS.metrics.store("memory_usage_all_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all)));
             TS.metrics.store("memory_usage_all_per_team_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all_per_team)));
           } else {
-            TS.log(1983, "Unexpected results from call to _getCombinedMemoryUsage()", result);
+            TS.warn("Unexpected results from call to _getCombinedMemoryUsage()", result);
           }
         }).catch(function(err) {
-          TS.log(1983, "Error logging combined memory stats", err);
+          TS.warn("Error logging combined memory stats", err);
         });
       }
     }
@@ -4970,7 +4970,8 @@
       }
       TS.client.ui.files.validateFiles(files, TS.model.shift_key_pressed);
     },
-    bindFileShareDropdowns: function(show_share_prefix, src_model_ob) {
+    preselected: [],
+    bindFileShareDropdowns: function(show_share_prefix, src_model_ob, preselected) {
       var $select_share_channels = $("#select_share_channels");
       var chosen_width = "60%";
       if (TS.web && TS.web.space) chosen_width = "100%";
@@ -4978,6 +4979,7 @@
         alert("error: " + $select_share_channels.length + " $('#select_share_channels')s");
         return;
       }
+      TS.ui.file_share.preselected = preselected || [];
       _src_model_ob = src_model_ob;
       var prev_query;
       var prefix_regexes;
@@ -5413,7 +5415,7 @@
         }
         if (item.model_ob && typeof item.preselected !== "undefined") return item;
         var preselected = TS.model.ims.some(function(im) {
-          return im.user === item.id && im.id === searcher._current_model_ob_id;
+          return im.user === item.id && _isPreselected(im.id, searcher._current_model_ob_id);
         });
         return {
           model_ob: item,
@@ -5437,7 +5439,7 @@
       if (should_see) {
         mpims.push({
           model_ob: mpim,
-          preselected: mpim.id === searcher._current_model_ob_id
+          preselected: _isPreselected(mpim.id, searcher._current_model_ob_id)
         });
         searcher._mpim_name_map[mpim.id] = mpim_name_lowercase;
       }
@@ -5472,7 +5474,7 @@
       if ((!channel.is_general || can_post_in_general) && !channel.is_archived && should_see && can_post_in_channel) {
         channels.push({
           model_ob: channel,
-          preselected: channel.id === searcher._current_model_ob_id
+          preselected: _isPreselected(channel.id, searcher._current_model_ob_id)
         });
       }
     }
@@ -5489,7 +5491,7 @@
       if (!group.is_archived && should_see && can_post_in_channel) {
         groups.push({
           model_ob: group,
-          preselected: group.id === searcher._current_model_ob_id
+          preselected: _isPreselected(group.id, searcher._current_model_ob_id)
         });
       }
     }
@@ -5506,7 +5508,7 @@
       if ((!channel.is_general || can_post_in_general) && !channel.is_archived) {
         channels.push({
           model_ob: channel,
-          preselected: channel.id === current_model_ob_id
+          preselected: _isPreselected(channel.id, current_model_ob_id)
         });
       }
     }
@@ -5517,7 +5519,7 @@
       if (!group.is_archived) {
         groups.push({
           model_ob: group,
-          preselected: group.id === current_model_ob_id
+          preselected: _isPreselected(group.id, current_model_ob_id)
         });
       }
     }
@@ -5534,7 +5536,7 @@
       im_id = im ? im.id : null;
       members.push({
         model_ob: member,
-        preselected: im && im_id === current_model_ob_id
+        preselected: im && _isPreselected(im_id, current_model_ob_id)
       });
       if (TS.boot_data.feature_name_tagging_client) {
         member_name_map[member.id] = TS.members.getMemberFullNameLowerCase(member);
@@ -5550,7 +5552,7 @@
       mpim = visible_mpims[i];
       mpims.push({
         model_ob: mpim,
-        preselected: mpim.id === current_model_ob_id
+        preselected: _isPreselected(mpim.id, current_model_ob_id)
       });
       mpim_name_map[mpim.id] = TS.mpims.getDisplayNameLowerCase(mpim);
     }
@@ -5592,5 +5594,8 @@
     if (active) return active.id;
     if (TS.web && TS.web.space) return TS.web.space.getOriginChannel();
     return null;
+  };
+  var _isPreselected = function(id, id_to_check_against) {
+    return TS.ui.file_share.preselected.length ? TS.ui.file_share.preselected.indexOf(id) > -1 : id === id_to_check_against;
   };
 })();

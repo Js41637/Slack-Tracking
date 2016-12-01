@@ -1907,12 +1907,16 @@ html.is_electron_mac #rxn_toast_div {
   font-size: 1.125rem;
   -ms-flex: 1;
   -webkit-flex: 1;
-  flex: 1
+  flex: 1;
+  min-width: 0
 }
 
 #convo_tab #convo_tab_header .thread_participants {
-  width: 13.4375rem;
   line-height: .9375rem
+}
+
+html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
+  max-width: 12.5rem
 }
 
 #convo_tab #convo_tab_back_container {
@@ -1935,7 +1939,7 @@ html.is_electron_mac #rxn_toast_div {
   color: #2a80b9
 }
 
-#convo_tab_btns html:not(.supports_flexbox) #convo_tab {
+html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   display: inline-block;
   position: absolute;
   right: .75rem;
@@ -18700,20 +18704,40 @@ ts-message .emoji-sizer .mention {
   margin-left: 1.5rem
 }
 
+.light_theme ts-thread ts-message.first .action_hover_container,
+.light_theme ts-thread ts-message.selected .action_hover_container {
+  right: .8125rem
+}
+
 .light_theme .view_all_replies_container {
   margin-left: .8125rem;
   margin-right: .8125rem
 }
 
-.light_theme .new_reply_indicator,
 .light_theme .thread_channel_name {
-  margin-left: 1.625rem
+  margin-left: 1.5rem
+}
+
+.light_theme .new_reply_indicator {
+  margin-left: 1.6875rem
 }
 
 .light_theme .reply_input_container .inline_message_input_container textarea {
   padding-left: .8125rem;
   padding-top: .6875rem;
   padding-bottom: .6875rem
+}
+
+.light_theme .reply_input_container .inline_message_input_container form .emo_menu {
+  right: .1875rem
+}
+
+.light_theme .reply_input_container .reply_broadcast_buttons_container {
+  margin-left: .875rem
+}
+
+.light_theme .reply_input_container .reply_broadcast_buttons_container .reply_send {
+  margin-right: .875rem
 }
 
 .dense_theme .dense_only {
@@ -18922,8 +18946,16 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
   margin-top: 0
 }
 
+.dense_theme .reply_input_container .reply_broadcast_buttons_container {
+  margin-left: .5625rem
+}
+
+.dense_theme .reply_input_container .reply_broadcast_buttons_container .reply_send {
+  margin-right: .5625rem
+}
+
 .dense_theme .thread_channel_name {
-  margin-left: 1.25rem
+  margin-left: 1.1875rem
 }
 
 .last_replier_wrapper {
@@ -19020,7 +19052,6 @@ ts-thread .reply_input_container .inline_message_input_container .message_input.
 }
 
 ts-thread .reply_input_container .reply_broadcast_buttons_container {
-  padding-left: .5rem;
   margin-top: -1rem;
   opacity: 0;
   -webkit-transition: all .25s ease-out 0s;
@@ -19101,7 +19132,7 @@ ts-thread ts-message.new_reply {
 
 ts-thread .view_all_replies_count {
   float: right;
-  font-size: .8rem;
+  font-size: .8125rem;
   color: #babbbf
 }
 
@@ -19224,7 +19255,7 @@ ts-thread .view_all_replies_count {
   height: .375rem;
   width: .625rem;
   border-radius: .1875rem;
-  z-index: 9999;
+  z-index: 99;
   background-color: #78c896
 }
 

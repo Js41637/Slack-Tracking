@@ -1522,7 +1522,7 @@
   var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list"];
   var _timing_methodsA = ["rtm.start", "rtm.leanStart", "files.list"];
   var _progress_check_methodsA = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"];
-  var _one_at_a_time_methodsA = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto"];
+  var _one_at_a_time_methodsA = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto", "signup.createTeam"];
   var _no_retry_methodsA = ["dnd.teamInfo", "screenhero.rooms.create", "screenhero.rooms.join", "screenhero.rooms.refreshToken", "screenhero.rooms.invite"];
   var _no_token = ["api.test", "auth.emailToken", "auth.findTeam", "auth.findUser", "auth.loginMagic", "auth.signin", "enterprise.signup.complete", "enterprise.signup.checkDomain", "enterprise.signup.checkPassword", "helpdesk.get", "search.apps", "signup.addLead", "team.checkEmailDomains", "test.versionInfo", "oauth.access"];
   var _pending = 0;
@@ -11751,22 +11751,36 @@ TS.registerModule("constants", {
         });
       }
       $input.bind("keyup update-team-filter", function(e) {
-        var new_query = $input.val();
-        if (TS.members.view.filter_timer) {
-          window.clearTimeout(TS.members.view.filter_timer);
-        }
-        var search = function() {
-          if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
-            TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter).then(function() {
-              if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
-            });
+        if (TS.client && TS.boot_data.feature_searchable_member_list && _searchable_member_list.getCurrentMemberIds()) {
+          if (TS.lazyLoadMembersAndBots()) {} else {
+            var new_query = $input.val();
+            if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
+              var members_to_filter = _.map(_searchable_member_list.getCurrentMemberIds(), TS.members.getMemberById);
+              var query_for_display = new_query.trim();
+              _query_for_match = query_for_display.toLocaleLowerCase();
+              var filtered_members = TS.utility.members.filterMembersByQuery(members_to_filter, _query_for_match);
+              _displayPromiseToSearchResults(TS.members.allocateTeamListMembers(filtered_members), undefined, undefined, _query_for_match, query_for_display);
+            }
+            $icon_close.toggleClass("hidden", !query_for_display);
           }
-          $icon_close.toggleClass("hidden", !new_query.trim());
-        };
-        if (is_long_list_view) {
-          search();
         } else {
-          TS.members.view.filter_timer = window.setTimeout(search, TS.members.getMembersForUser().length > 500 ? 250 : 50);
+          var new_query = $input.val();
+          if (TS.members.view.filter_timer) {
+            window.clearTimeout(TS.members.view.filter_timer);
+          }
+          var search = function() {
+            if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
+              TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter).then(function() {
+                if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
+              });
+            }
+            $icon_close.toggleClass("hidden", !new_query.trim());
+          };
+          if (is_long_list_view) {
+            search();
+          } else {
+            TS.members.view.filter_timer = window.setTimeout(search, TS.members.getMembersForUser().length > 500 ? 250 : 50);
+          }
         }
       });
       $icon_close.bind("click", function() {
@@ -11835,7 +11849,15 @@ TS.registerModule("constants", {
       $icon_close.addClass("hidden");
       if (TS.boot_data.feature_searchable_member_list && TS.client) {
         _searchable_member_list.resetSearch();
-        TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
+        if (_searchable_member_list.getCurrentMemberIds()) {
+          if (TS.lazyLoadMembersAndBots()) {} else {
+            var members_to_filter = _.map(_searchable_member_list.getCurrentMemberIds(), TS.members.getMemberById);
+            var filtered_members = TS.utility.members.filterMembersByQuery(members_to_filter, _query_for_match);
+            _displayPromiseToSearchResults(TS.members.allocateTeamListMembers(filtered_members), undefined, undefined, _query_for_match, _query_for_match);
+          }
+        } else {
+          TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
+        }
         _searchable_member_list.maybeClearNoResults();
       } else {
         if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
@@ -11988,6 +12010,12 @@ TS.registerModule("constants", {
             include_deleted: current_filter == "disabled_members"
           });
         }
+        if (TS.boot_data.feature_searchable_member_list && TS.boot_data.page_needs_enterprise) {
+          var current_filter = _searchable_member_list.getCurrentFilter();
+          if (current_filter.match(/^org|team/)) {
+            include_org = current_filter.match(/^org/) ? true : false;
+          }
+        }
         return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
       }).then(function(response) {
         var items = TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list && TS.client ? response.items : response;
@@ -12032,6 +12060,9 @@ TS.registerModule("constants", {
       matches.ultra_restricted_members = _.uniqBy(matches.ultra_restricted_members, function(member) {
         return member.id;
       });
+      if (TS.boot_data.feature_searchable_member_list) {
+        matches.admin_members = _.filter(matches.members, "is_admin");
+      }
       if (new_query) {
         filters.filtered_items = matches;
       } else {
@@ -12066,6 +12097,9 @@ TS.registerModule("constants", {
         if (current_filter == "everyone") {
           filtered_members = _(team_list_items).values().flatten().uniq().value();
         } else {
+          if (current_filter.match(/^org|team/)) {
+            current_filter = current_filter.replace(/^org_|team_/, "");
+          }
           filtered_members = team_list_items[current_filter + "_list_items"];
         }
         if (current_filter === "disabled_members") filtered_members = team_list_items.deleted_members_list_items;
@@ -12076,7 +12110,7 @@ TS.registerModule("constants", {
         _searchable_member_list.maybeClearNoResults();
         _searchable_member_list.getLongListView().longListView("setItems", filtered_members, true);
       } else {
-        if (query_for_match == "") {
+        if (query_for_match == "" && current_filter == "everyone") {
           _searchable_member_list.maybeClearNoResults();
           _searchable_member_list.resetSearch();
           _searchable_member_list.resetInitialState();
@@ -31485,7 +31519,7 @@ TS.registerModule("constants", {
         members_count: 70,
         admins_count: 30,
         guests_count: 20,
-        extra_filter_options: TS.boot_data.page_needs_enterprise && TS.lazyLoadMembersAndBots(),
+        extra_filter_options: TS.boot_data.page_needs_enterprise,
         is_flannel: TS.lazyLoadMembersAndBots()
       };
       if (TS.boot_data.page_needs_enterprise) {
@@ -50422,8 +50456,11 @@ $.fn.togglify = function(settings) {
       });
     },
     createTeam: function(api_args) {
+      if (_create_request_in_progress) return Promise.resolve(false);
+      _create_request_in_progress = true;
       return new Promise(function(resolve, reject) {
         _method("signup.createTeam", api_args, function(ok, data, args) {
+          _create_request_in_progress = false;
           if (ok) {
             return resolve({
               team_created: true,
@@ -50492,6 +50529,7 @@ $.fn.togglify = function(settings) {
   var _method;
   var _checked_bad_domains = {};
   var _domain_found_mx_records = {};
+  var _create_request_in_progress = false;
   var _checkEmail = function(email, email_domain, options) {
     var check_mx_records = options && options.get_info;
     var api_args = {
@@ -54172,12 +54210,18 @@ $.fn.togglify = function(settings) {
   function _getActionContextDataFromDOM($target) {
     var $attachment = $target.parents("[data-attachment-id]");
     var $msg = $attachment.parents("ts-message");
-    return {
+    var context_data = {
       action_id: String($target.data("action-id") || ""),
       attachment_id: String($attachment.data("attachment-id") || ""),
       channel_id: String($msg.data("model-ob-id") || ""),
       message_ts: String($msg.data("ts") || "")
     };
+    Object.keys(context_data).forEach(function(key) {
+      if (!context_data[key]) {
+        throw new Error('Attachment is missing "' + key + '"');
+      }
+    });
+    return context_data;
   }
 })();
 (function() {
@@ -54691,6 +54735,24 @@ $.fn.togglify = function(settings) {
     },
     buildTeamUrl: function(domain) {
       return "https://" + domain + "." + TS.boot_data.abs_root_url.replace(/(http:\/\/|https:\/\/)/, "");
+    },
+    getSanitizedIdpLabel: function(provider_label) {
+      var possesive;
+      if (provider_label !== "IDP") {
+        if (_.endsWith(provider_label, "s")) {
+          possesive = "’";
+        } else {
+          possesive = "’s";
+        }
+      }
+      return {
+        simple: provider_label === "IDP" || !provider_label ? "" : provider_label,
+        your: provider_label === "IDP" || !provider_label ? TS.i18n.t("your IdP", "enterprise_utility")() : provider_label,
+        possessive: provider_label === "IDP" || !provider_label ? TS.i18n.t("your IdP’s", "enterprise_utility")() : TS.i18n.t("{label}{s}", "enterprise_utility")({
+          label: provider_label,
+          s: possesive
+        })
+      };
     }
   });
 })();

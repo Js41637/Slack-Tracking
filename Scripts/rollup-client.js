@@ -2873,6 +2873,7 @@
       var bots = team_list_members.bots;
       var restricted_members = team_list_members.restricted_members;
       var ultra_restricted_members = team_list_members.ultra_restricted_members;
+      var admin_members = team_list_members.admin_members;
       var active_members_list_items = members.slice(0);
       if (bots.length) {
         if (!no_dividers) active_members_list_items.push({
@@ -2905,10 +2906,15 @@
         });
         deleted_members_list_items.push.apply(deleted_members_list_items, deleted_bots);
       }
+      var admin_members_list_items = [];
+      if (admin_members && admin_members.length) {
+        admin_members_list_items = admin_members;
+      }
       return {
         active_members_list_items: active_members_list_items,
         restricted_members_list_items: restricted_members_list_items,
-        deleted_members_list_items: deleted_members_list_items
+        deleted_members_list_items: deleted_members_list_items,
+        admin_members_list_items: admin_members_list_items
       };
     },
     cleanTeamList: function(remove) {
@@ -9257,6 +9263,7 @@
       this._is_searching = false;
       this.long_list_view_initialized = false;
       this.id = options.id || "team_list_scroller";
+      this._member_ids = options.member_ids;
       this._resize_sig_handler = null;
     },
     destroy: function() {
@@ -9348,6 +9355,9 @@
     getCurrentFilter: function() {
       return this._current_filter;
     },
+    getCurrentMemberIds: function() {
+      return this._member_ids;
+    },
     startSearch: function() {
       this._is_searching = true;
     },
@@ -9355,7 +9365,13 @@
       this._is_searching = false;
     },
     _loadLocalMembersIntoLongListView: function() {
-      var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
+      var members_for_user;
+      if (this._member_ids) {
+        members_for_user = _.map(this._member_ids, TS.members.getMemberById);
+      } else {
+        members_for_user = TS.members.getMembersForUser();
+      }
+      members_for_user = TS.members.allocateTeamListMembers(members_for_user);
       if (this.long_list_view_initialized) {
         this.$_long_list_view.longListView("setItems", members_for_user.members, true, true);
       } else {
@@ -20740,13 +20756,11 @@
       $div.find(".dialog_cancel_all").click(TS.ui.upload_dialog.cancelAll);
       $div.find(".dialog_cancel").click(TS.ui.upload_dialog.cancel);
       $div.find(".dialog_go").click(TS.ui.upload_dialog.go);
-      TS.ui.file_share.bindFileShareDropdowns();
+      var preselected = !first && TS.ui.upload_dialog.selection ? TS.ui.upload_dialog.selection : null;
+      TS.ui.file_share.bindFileShareDropdowns(undefined, undefined, preselected);
       TS.ui.file_share.bindFileShareShareToggle();
       TS.ui.file_share.bindFileShareCommentField();
       var data_key = "TS-lazyFilterSelect";
-      if (!first && TS.ui.upload_dialog.selection) {
-        $div.find("#select_share_channels").data(data_key).instance.setValue(TS.ui.upload_dialog.selection);
-      }
       $div.find(".lfs_input_container").attr("tabindex", "0");
       $div.find("#file_comment_textarea").attr("tabindex", "0");
       $div.find("#select_share_channels").data(data_key).instance.onKeyDown = function(e) {
@@ -20798,7 +20812,7 @@
             is_dropbox: TS.ui.upload_dialog.file.is_dropbox,
             is_box: TS.ui.upload_dialog.file.is_box
           });
-          _switchToSharedInChannel(share_channels);
+          if (share_channels) _switchToSharedInChannel(share_channels);
         });
       } else {
         var file = TS.ui.upload_dialog.file;
@@ -20810,7 +20824,7 @@
             channels: model_ob_id,
             initial_comment: initial_comment
           });
-          _switchToSharedInChannel(share_channels);
+          if (share_channels) _switchToSharedInChannel(share_channels);
         });
       }
       _submitting = true;
@@ -27343,7 +27357,8 @@
       _searchable_member_list = new TS.SearchableMemberList({
         $container: $("#channel_member_list_container"),
         id: "channel_member_list_scroller",
-        search_input_id: "#channel_member_list_filter"
+        search_input_id: "#channel_member_list_filter",
+        member_ids: model_ob.members
       });
       _searchable_member_list.showInitial();
     } else {

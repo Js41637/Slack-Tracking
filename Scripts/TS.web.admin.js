@@ -617,6 +617,10 @@
       var $row = TS.web.admin.selectRow(invite);
       $row.replaceWith(TS.web.admin.buildInviteHTML(invite));
     },
+    updateRowLocations: function() {
+      TS.web.admin.updateTabCounts();
+      TS.web.admin.rebuildList();
+    },
     updateTabCounts: function() {
       var $active_count = $("#active_members_tab").find(".count");
       var $restricted_tab = $("#restricted_members_tab");
@@ -659,11 +663,12 @@
         processing: false
       });
     },
-    rowFadeSuccess: function(member) {
+    rowFadeSuccess: function(member, callback) {
       setTimeout(function() {
         _setMemberRowState(member, {
           success: false
         });
+        if (callback) callback();
       }, 3e3);
     },
     startRestrictWorkflow: function(member, type) {
@@ -1549,9 +1554,8 @@
       }
       TS.web.admin.showSuccessMessageOnRow($row, html, true);
       TS.web.admin.bindActions(member);
-      TS.web.admin.rowFadeSuccess(member);
       _moveMemberTo(member, TS.web.admin.active_members);
-      TS.web.admin.updateTabCounts();
+      TS.web.admin.rowFadeSuccess(member, TS.web.admin.updateRowLocations);
     },
     onMemberDisable: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
@@ -1591,9 +1595,8 @@
         $row.find(".admin_member_type").text("Removed");
       }
       TS.web.admin.bindActions(member);
-      TS.web.admin.rowFadeSuccess(member);
       _moveMemberTo(member, TS.web.admin.disabled_members);
-      TS.web.admin.updateTabCounts();
+      TS.web.admin.rowFadeSuccess(member, TS.web.admin.updateRowLocations);
     },
     onBotEnable: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
@@ -1660,8 +1663,7 @@
     memberRestricted: function(member) {
       var previous_collection = _moveMemberTo(member, TS.web.admin.restricted_members);
       TS.web.admin.rebuildMember(member);
-      TS.web.admin.updateTabCounts();
-      TS.web.admin.rebuildList();
+      TS.web.admin.updateRowLocations();
       var success_msg_html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now a Multi-Channel Guest.";
       if (previous_collection === TS.web.admin.active_members) {
         success_msg_html += '<a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">Undo</a>';
@@ -1706,8 +1708,7 @@
     memberUltraRestricted: function(member) {
       _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
       TS.web.admin.rebuildMember(member);
-      TS.web.admin.updateTabCounts();
-      TS.web.admin.rebuildList();
+      TS.web.admin.updateRowLocations();
       var $row = TS.web.admin.selectRow(member);
       TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">Undo</a>', true);
       TS.web.admin.bindActions(member);
