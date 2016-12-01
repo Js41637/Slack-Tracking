@@ -23363,7 +23363,8 @@
   var _start = function() {
     var model_ob = TS.shared.getModelObById(TS.ui.channel_options_dialog.c_id);
     if (!model_ob || model_ob.is_im) {
-      TS.generic_dialog.alert('<p class="no_bottom_margin">Oops! No channel found???</p>');
+      var alert_msg = TS.i18n.t("Oops! No channel found???", "channel_options")();
+      TS.generic_dialog.alert('<p class="no_bottom_margin">' + alert_msg + "</p>");
       return;
     }
     var c_or_g = model_ob.is_channel ? "channel" : "group";
@@ -23412,8 +23413,11 @@
       show_convert_to_shared_btn: show_convert_to_shared_btn,
       show_manage_posting_privilege_btn: show_manage_posting_privilege_btn
     };
+    var title = TS.i18n.t("Additional Options for #{channel_name}", "channel_options")({
+      channel_name: model_ob.name
+    });
     var settings = {
-      title: "Additional Options for #" + model_ob.name,
+      title: title,
       body_template_html: TS.templates.channel_options_dialog(template_args),
       onShow: _onShow,
       onCancel: _onCancel,
@@ -23468,7 +23472,7 @@
     } else if (model_ob.is_group) {
       channel_name = '<ts-icon class="ts_icon_inherit ts_icon_lock"></ts-icon>' + TS.utility.htmlEntities(model_ob.name);
     } else {
-      channel_name = "this conversation";
+      return "";
     }
     var shared = TS.boot_data.page_needs_enterprise && model_ob.is_shared ? ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>' : "";
     return "<strong>" + channel_name + shared + "</strong>";
@@ -23526,13 +23530,21 @@
     _$current_option.find(".channel_option_buttons").show();
   };
   var _showArchiveChannel = function(model_ob) {
-    _setHeaderHtml("Archive " + _createChannelNameMarkup(model_ob));
+    var header_html;
+    if (model_ob.is_channel || model_ob.is_group) {
+      header_html = TS.i18n.t("Archive {channel_name}", "channel_options")({
+        channel_name: _createChannelNameMarkup(model_ob)
+      });
+    } else {
+      header_html = TS.i18n.t("Archive <strong>this conversation</strong>", "channel_options")();
+    }
+    _setHeaderHtml(header_html);
     var template_args = {
       name: model_ob.name,
       is_shared: TS.boot_data.page_needs_enterprise && model_ob.is_shared
     };
     _setOptionContentHtml(TS.templates.channel_option_archive_channel(template_args));
-    _setOptionGoText("Yes, archive the channel");
+    _setOptionGoText(TS.i18n.t("Yes, archive the channel", "channel_options")());
     _current_option_go_callback = function() {
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       TS.api.call("channels.archive", {
@@ -23549,18 +23561,21 @@
           TS.ui.fs_modal.close();
           return;
         }
-        var err_str = 'Archiving failed with error "' + data.error + '"';
+        var err_str = TS.i18n.t("Archiving failed with error: {error}", "channel_options")({
+          error: data.error
+        });
         if (data.error === "last_ra_channel") {
-          err_str = "Sorry, you can't archive this channel because it is the only channel one of the guest account members belongs to.";
           if (TS.model.user.is_admin) {
-            err_str += " If you first disable the guest account, you will then be able to archive the channel.";
+            err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to archive the channel.", "channel_options")();
+          } else {
+            err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to.", "channel_options")();
           }
         } else if (data.error === "restricted_action") {
-          err_str = "<p>You don't have permission to archive channels.</p><p>Talk to your Team Owner.</p>";
+          err_str = TS.i18n.t("<p>You don’t have permission to archive channels.</p><p>Talk to your Team Owner.</p>", "channel_options")();
         } else if (data.error === "already_archived") {
-          err_str = "This channel was already archived.";
+          err_str = TS.i18n.t("This channel was already archived.", "channel_options")();
         } else if (data.error === "cant_archive_general") {
-          err_str = "This channel cannot be archived.";
+          err_str = TS.i18n.t("This channel cannot be archived.", "channel_options")();
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str);
       });
@@ -23568,13 +23583,21 @@
     _showOptionSection(true);
   };
   var _showArchiveGroup = function(model_ob) {
-    _setHeaderHtml("Archive " + _createChannelNameMarkup(model_ob));
+    var header_html;
+    if (model_ob.is_channel || model_ob.is_group) {
+      header_html = TS.i18n.t("Archive {channel_name}", "channel_options")({
+        channel_name: _createChannelNameMarkup(model_ob)
+      });
+    } else {
+      header_html = TS.i18n.t("Archive <strong>this conversation</strong>", "channel_options")();
+    }
+    _setHeaderHtml(header_html);
     _setOptionContentHtml(TS.templates.channel_option_archive_group({
       name: model_ob.name,
       group_prefix: TS.model.group_prefix,
       is_shared: TS.boot_data.page_needs_enterprise && model_ob.is_shared
     }));
-    _setOptionGoText("Yes, archive the channel");
+    _setOptionGoText(TS.i18n.t("Yes, archive the channel", "channel_options")());
     _current_option_go_callback = function() {
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       TS.api.call("groups.archive", {
@@ -23585,16 +23608,21 @@
           TS.ui.fs_modal.close();
           return;
         }
-        var err_str = 'Archiving failed with error "' + data.error + '"';
+        var err_str;
         if (data.error === "last_ra_channel") {
-          err_str = "Sorry, you can't archive this channel because it is the only channel one of the guest account members belongs to.";
           if (TS.model.user.is_admin) {
-            err_str += " If you first disable the guest account, you will then be able to archive the channel.";
+            err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to archive the channel.", "channel_options")();
+          } else {
+            err_str = TS.i18n.t("Sorry, you can’t archive this channel because it is the only channel one of the guest account members belongs to.", "channel_options")();
           }
         } else if (data.error === "already_archived") {
-          err_str = "This channel was already archived.";
+          err_str = TS.i18n.t("This channel was already archived.", "channel_options")();
         } else if (data.error === "restricted_action") {
-          err_str = "<p>You don't have permission to archive private channels.</p><p>Talk to your Team Owner.</p>";
+          err_str = TS.i18n.t("<p>You don’t have permission to archive private channels.</p><p>Talk to your Team Owner.</p>", "channel_options")();
+        } else {
+          err_str = TS.i18n.t("Archiving failed with error: {error}", "channel_options")({
+            error: data.error
+          });
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str);
       });
@@ -23602,11 +23630,19 @@
     _showOptionSection(true);
   };
   var _showConvertChannel = function(model_ob) {
-    _setHeaderHtml("Convert " + _createChannelNameMarkup(model_ob) + " to a private channel?");
+    var header_html;
+    if (model_ob.is_channel || model_ob.is_group) {
+      header_html = TS.i18n.t("Convert {channel_name} to a private channel?", "channel_options")({
+        channel_name: _createChannelNameMarkup(model_ob)
+      });
+    } else {
+      header_html = TS.i18n.t("Convert <strong>this conversation</strong> to a private channel?", "channel_options")();
+    }
+    _setHeaderHtml(header_html);
     _setOptionContentHtml(TS.templates.channel_conversion_dialog({
       name: TS.utility.htmlEntities(model_ob.name)
     }));
-    _setOptionGoText("Yes, convert the channel");
+    _setOptionGoText(TS.i18n.t("Yes, convert the channel", "channel_options")());
     _current_option_go_callback = function() {
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       TS.api.call("channels.convertToGroup", {
@@ -23617,13 +23653,17 @@
           TS.ui.fs_modal.close();
           return;
         }
-        var err_str = 'converting to private channel failed with error "' + data.error + '"';
+        var err_str;
         if (data.error === "restricted_action") {
-          err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>";
+          err_str = TS.i18n.t("<p>You don’t have permission to create private channels.</p><p>Talk to your Team Owner.</p>", "channel_options")();
         } else if (data.error === "last_ra_channel") {
-          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>";
+          err_str = TS.i18n.t("<p>Sorry, you can’t convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>", "channel_options")();
         } else if (data.error === "name_taken") {
-          err_str = '<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>';
+          err_str = TS.i18n.t('<p>Converting this channel failed because of a naming collision, which should never happen, but did. Please <a href="/help/requests/new">let us know</a> this happened.</p>', "channel_options")();
+        } else {
+          err_str = TS.i18n.t("Converting to private channel failed with error: {error}", "channel_options")({
+            error: data.error
+          });
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str);
       });
@@ -23631,14 +23671,22 @@
     _showOptionSection(true);
   };
   var _showConvertShared = function(model_ob) {
-    _setHeaderHtml("Convert " + _createChannelNameMarkup(model_ob) + " to a shared channel");
+    var header_html;
+    if (model_ob.is_channel || model_ob.is_group) {
+      header_html = TS.i18n.t("Convert {channel_name} to a shared channel?", "channel_options")({
+        channel_name: _createChannelNameMarkup(model_ob)
+      });
+    } else {
+      header_html = TS.i18n.t("Convert <strong>this conversation</strong> to a shared channel?", "channel_options")();
+    }
+    _setHeaderHtml(header_html);
     var channel_conversion_dialog_args = {
       name: TS.utility.htmlEntities(model_ob.name),
       purpose: TS.utility.htmlEntities(model_ob.purpose.value)
     };
     if (TS.boot_data.page_needs_enterprise) channel_conversion_dialog_args.enterprise_info = TS.model.enterprise;
     _setOptionContentHtml(TS.templates.shared_channel_conversion_dialog(channel_conversion_dialog_args));
-    _setOptionGoText("Convert to Shared Channel");
+    _setOptionGoText(TS.i18n.t("Convert to Shared Channel", "channel_options")());
     _current_option_go_callback = function() {
       if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
       var $convert_to_shared = _$current_option.find(".convert_to_shared");
@@ -23679,11 +23727,15 @@
           TS.ui.fs_modal.close();
           return;
         }
-        var err_str = 'converting to private channel failed with error "' + data.error + '"';
+        var err_str;
         if (data.error === "restricted_action") {
-          err_str = "<p>You don't have permission to create private channels.</p><p>Talk to your Team Owner.</p>";
+          err_str = TS.i18n.t("<p>You don’t have permission to create private channels.</p><p>Talk to your Team Owner.</p>", "channel_options")();
         } else if (data.error === "last_ra_channel") {
-          err_str = "<p>Sorry, you can't convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>";
+          err_str = TS.i18n.t("<p>Sorry, you can’t convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>", "channel_options")();
+        } else {
+          err_str = TS.i18n.t("Converting to private channel failed with error: {error}", "channel_options")({
+            error: data.error
+          });
         }
         setTimeout(TS.generic_dialog.alert, 500, err_str);
       });
@@ -23764,13 +23816,18 @@
             if (!ok) {
               _toggleChannelNameChecking(true, false);
               _bad_channel_name = true;
-              TS.generic_dialog.alert("Something failed! " + data.error);
+              TS.generic_dialog.alert(TS.i18n.t("Something failed! : {error}", "channel_options")({
+                error: data.error
+              }));
             } else {
               if (data.name_taken) {
                 _toggleChannelNameChecking(true, false);
                 _bad_channel_name = true;
                 _toggleOptionGoButton(true);
-                return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(new_name) + '"' + " is already taken by a channel, username, or user group.", {});
+                var str = TS.i18n.t('"{new_name}" is already taken by a channel, username, or user group.', "channel_options")({
+                  new_name: TS.utility.htmlEntities(new_name)
+                });
+                return void TS.ui.validation.showWarning($el, str, {});
               }
               _toggleChannelNameChecking(true, true);
               _toggleOptionGoButton();
@@ -23807,13 +23864,13 @@
   };
   var _showRenameChannel = function(model_ob) {
     if (TS.model.user.is_restricted) return;
-    _setHeaderHtml("Rename this channel");
+    _setHeaderHtml(TS.i18n.t("Rename this channel", "channel_options")());
     var title = TS.utility.cleanChannelName(model_ob.name || "").substr(0, TS.model.channel_name_max_length);
     _setOptionContentHtml(TS.templates.channel_option_rename_channel({
       title: title
     }));
-    var go_text = "Rename Channel";
-    if (model_ob.is_group) go_text = "Rename private channel";
+    var go_text = TS.i18n.t("Rename Channel", "channel_options")();
+    if (model_ob.is_group) go_text = TS.i18n.t("Rename private Channel", "channel_options")();
     _setOptionGoText(go_text);
     _current_option_go_callback = function() {
       var validated = TS.channels.ui.channelCreateDialogValidateInput(_$current_option);
@@ -23830,7 +23887,10 @@
           if (data.error === "name_taken") {
             TS.channels.ui.channelCreateDialogShowNameTakenAlert(TS.ui.channel_options_dialog.div);
           } else {
-            TS.generic_dialog.alert("failed! " + data.error);
+            var str = TS.i18n.t("Failed! {error}", "channel_options")({
+              error: data.error
+            });
+            TS.generic_dialog.alert(str);
           }
           return;
         }
@@ -23840,12 +23900,12 @@
     _showOptionSection(true);
   };
   var _showPurposeChannel = function(model_ob) {
-    _setHeaderHtml("Set channel purpose");
+    _setHeaderHtml(TS.i18n.t("Set channel purpose", "channel_options")());
     _setOptionContentHtml(TS.templates.channel_option_purpose({
       model_ob: model_ob,
       is_group: model_ob.is_group
     }));
-    _setOptionGoText("Update purpose");
+    _setOptionGoText(TS.i18n.t("Update purpose", "channel_options")());
     _current_option_go_callback = function() {
       var new_purpose = _$current_option.find("#purpose_input").val().trim();
       if (model_ob.is_group) {
@@ -23893,13 +23953,13 @@
       var groups = responses[1];
       if (groups._items.length) {
         response.items.push({
-          label: "User Groups",
+          label: TS.i18n.t("User Groups", "channel_options")(),
           children: groups._items
         });
       }
       if (members.items.length) {
         response.items.push({
-          label: "Members",
+          label: TS.i18n.t("Members", "channel_options")(),
           children: members.items
         });
       }
@@ -23995,7 +24055,7 @@
     });
   };
   var _posting_privilege_lfs_options = {
-    placeholder_text: "Search",
+    placeholder_text: TS.i18n.t("Search", "channel_options")(),
     approx_item_height: 38,
     data_promise: _promiseToGetListData,
     template: function(item) {
@@ -24033,8 +24093,10 @@
       return "lfs_token";
     },
     noResultsTemplate: function(query) {
-      if (!query) return "No match found";
-      return "No match found for <strong>" + TS.utility.htmlEntities(query) + "</strong>";
+      if (!query) return TS.i18n.t("No match found", "channel_options")();
+      return TS.i18n.t("No match found for <strong>{query}</strong>", "channel_options")({
+        query: TS.utility.htmlEntities(query)
+      });
     },
     onItemAdded: function(item) {
       if (item.member) {
@@ -24071,10 +24133,18 @@
       user: []
     };
     _is_posting_privilege_lfs_started = false;
-    _setHeaderHtml("Manage posting privileges for " + _createChannelNameMarkup(model_ob));
+    var header_html;
+    if (model_ob.is_channel || model_ob.is_group) {
+      header_html = TS.i18n.t("Manage posting privileges for {channel_name}", "channel_options")({
+        channel_name: _createChannelNameMarkup(model_ob)
+      });
+    } else {
+      header_html = TS.i18n.t("Manage posting privileges for <strong>this conversation</strong>", "channel_options")();
+    }
+    _setHeaderHtml(header_html);
     _setOptionContentHtml(TS.templates.channel_options_posting_privileges());
     _hideOptionButtons();
-    _setOptionGoText("Save Changes");
+    _setOptionGoText(TS.i18n.t("Save Changes", "channel_options")());
     _current_option_go_callback = function() {
       var formatted_value;
       var val = _$current_option.find(".post_opt_radios:checked").val();
@@ -24101,7 +24171,10 @@
       TS.api.callImmediately("channels.prefs.set", calling_args, function(ok, data, args) {
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
         if (!ok) {
-          TS.generic_dialog.alert("failed! " + data.error);
+          var str = TS.i18n.t("Failed! {error}", "channel_options")({
+            error: data.error
+          });
+          TS.generic_dialog.alert(str);
           return;
         }
         TS.ui.fs_modal.close();
@@ -24134,10 +24207,18 @@
     });
   };
   var _showDataRetention = function(model_ob) {
-    _setHeaderHtml("Edit retention policy for " + _createChannelNameMarkup(model_ob));
+    var header_html;
+    if (model_ob.is_channel || model_ob.is_group) {
+      header_html = TS.i18n.t("Edit retention policy for {channel_name}", "channel_options")({
+        channel_name: _createChannelNameMarkup(model_ob)
+      });
+    } else {
+      header_html = TS.i18n.t("Edit retention policy for <strong>this conversation</strong>", "channel_options")();
+    }
+    _setHeaderHtml(header_html);
     var html = _retentionLoadingHtml();
     _setOptionContentHtml(html);
-    _setOptionGoText("Save settings");
+    _setOptionGoText(TS.i18n.t("Save Settings", "channel_options")());
     _hideOptionButtons();
     _current_option_go_callback = function() {
       var type = _$current_option.find('select[name="retention_type"]').val();
@@ -24152,17 +24233,23 @@
           if (data.error === "invalid_duration") {
             _$current_option.find(".invalid_duration_error").removeClass("hidden");
           } else {
-            TS.generic_dialog.alert('<p class="no_bottom_margin">Oops! Something went wrong. Please try again.</p>');
+            TS.generic_dialog.alert(TS.i18n.t('<p class="no_bottom_margin">Oops! Something went wrong. Please try again.</p>', "channel_options")());
           }
           return;
         }
         var ephemeral_message = "";
         if (model_ob.is_im) {
-          ephemeral_message = "Message retention settings updated for your direct messages with @" + model_ob.user.username + ".";
+          ephemeral_message = TS.i18n.t("Message retention settings updated for your direct messages with @{username}.", "channel_options")({
+            username: model_ob.user.username
+          });
         } else if (model_ob.is_mpim) {
-          ephemeral_message = "Message retention settings updated for your direct messages with " + model_ob._display_name + ".";
+          ephemeral_message = TS.i18n.t("Message retention settings updated for your direct messages with {display_name}.", "channel_options")({
+            display_name: model_ob._display_name
+          });
         } else {
-          ephemeral_message = "Message retention settings updated for #" + model_ob.name + ".";
+          ephemeral_message = TS.i18n.t("Message retention settings updated for #{channel_name}.", "channel_options")({
+            channel_name: model_ob.name
+          });
         }
         TS.ui.channel_options_dialog.addTempEphemeralFeedback(ephemeral_message);
         TS.ui.fs_modal.close();
@@ -24191,7 +24278,8 @@
   };
   var _retentionLoadingHtml = function() {
     var url = cdn_url + "/f85a/img/loading_hash_animation_@2x.gif";
-    return '<div class="loading_hash_animation large_margin"><img src="' + url + '" alt="Loading" /><br />loading...</div>';
+    var loading_str = TS.i18n.t("loading...", "channel_options")();
+    return '<div class="loading_hash_animation large_margin"><img src="' + url + '" alt="Loading" /><br />' + loading_str + "</div>";
   };
   var _onChannelsGetRetention = function(ok, data, args) {
     if (ok) {
@@ -24260,9 +24348,12 @@
       if (model_type === "group") {
         model_type = "channel";
       }
-      html = '<p class="no_bottom_margin">Sorry! You can\'t change the retention duration for this ' + model_type + ".</p>";
+      html = '<p class="no_bottom_margin">' + TS.i18n.t("Sorry! You can’t change the retention duration for this {type}.", "channel_options")({
+        type: model_type
+      });
+      html += "</p>";
     } else {
-      html = '<p class="no_bottom_margin">Oops! Something went wrong. Please try again.</p>';
+      html = '<p class="no_bottom_margin">' + TS.i18n.t("Oops! Something went wrong. Please try again.", "channel_options")() + "</p>";
     }
     _setOptionContentHtml(html);
   };
