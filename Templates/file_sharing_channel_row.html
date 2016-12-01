@@ -1,13 +1,15 @@
+{{i18n_ns 'file_share'}}
+
 {{#if item.is_group}}
   {{#if item.is_mpim}}
-    {{#if show_share_prefix}}<span class="share_prefix">Share in: </span>{{/if}}<i class="ts_icon multipary_dm_icon ts_icon_multiparty_dm_{{mpimMemberCount item}}"></i>{{mpimDisplayName item}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon multipary_dm_icon ts_icon_multiparty_dm_{{mpimMemberCount item}}"></i>{{mpimDisplayName item}}
   {{else}}
-    {{#if show_share_prefix}}<span class="share_prefix">Share in: </span>{{/if}}<i class="ts_icon ts_icon_lock"></i>{{item.name}} {{#pageNeedsEnterprise}}{{#if item.is_shared}}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>{{/if}}{{/pageNeedsEnterprise}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_lock"></i>{{item.name}} {{#pageNeedsEnterprise}}{{#if item.is_shared}}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>{{/if}}{{/pageNeedsEnterprise}}
   {{/if}}
 {{else}}
   {{#if item.is_channel}}
-    {{#if show_share_prefix}}<span class="share_prefix">Share in: </span>{{/if}}<i class="ts_icon ts_icon_channel"></i>{{item.name}} {{#pageNeedsEnterprise}}{{#if item.is_shared}}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>{{/if}}{{/pageNeedsEnterprise}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_channel"></i>{{item.name}} {{#pageNeedsEnterprise}}{{#if item.is_shared}}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>{{/if}}{{/pageNeedsEnterprise}}
   {{else}}
-    {{#if show_share_prefix}}<span class="share_prefix">Share with: </span>{{/if}}{{makeMemberPresenceIcon item}}{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName item}}{{#if item.is_self}} (you) {{/if}}{{#if item.profile.preferred_name}}<span class="preferred_name">{{getMemberPreferredName item}}</span>{{/if}}{{else}}{{getMemberDisplayName item}}{{#if item.is_self}} (you){{/if}}{{/feature}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share with:{{/t}} </span>{{/if}}{{makeMemberPresenceIcon item}}{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName item}}{{#if item.is_self}} {{#t}}(you){{/t}} {{/if}}{{#if item.profile.preferred_name}}<span class="preferred_name">{{getMemberPreferredName item}}</span>{{/if}}{{else}}{{getMemberDisplayName item}}{{#if item.is_self}} {{#t}}(you){{/t}}{{/if}}{{/feature}}
   {{/if}}
 {{/if}}

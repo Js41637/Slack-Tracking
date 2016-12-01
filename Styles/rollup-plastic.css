@@ -14969,6 +14969,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   left: 0;
   overflow: auto;
   margin-top: .1875rem;
+  margin-bottom: .1875rem;
   border: 1px solid #d8d8d8;
   border-radius: .25rem;
   background: #FFF;
@@ -14981,6 +14982,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 .lazy_filter_select.default_style .lfs_list_container.visible {
   display: block
+}
+
+.lazy_filter_select.default_style .lfs_list_container.position_above {
+  top: auto;
+  bottom: 100%
 }
 
 .lazy_filter_select.default_style .lfs_list_container .monkey_scroll_bar:not(.hidden)+.monkey_scroll_hider>.lfs_list {

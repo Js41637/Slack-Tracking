@@ -1998,7 +1998,7 @@
       if (!TS._did_incremental_boot) return Promise.reject(new Error("No incremental boot to finish"));
       if (TS._did_full_boot) return Promise.reject(new Error("No incremental boot to finish"));
       TS._incremental_boot = false;
-      _recent_incremental_boot_timer = setTimeout(_removeRecentIncrementalBootState, 5e3);
+      _recent_incremental_boot_timer = setTimeout(_removeRecentIncrementalBootState, 1e4);
       if (TS.client && TS.client.ui && TS.client.ui.$messages_input_container) {
         TS.client.ui.$messages_input_container.one(_message_input_change_events, _removeRecentIncrementalBootState);
       }
@@ -2129,7 +2129,7 @@
   var _removeRecentIncrementalBootState = function() {
     if (TS.client && TS.client.ui && TS.client.ui.$messages_input_container) {
       TS.client.ui.$messages_input_container.off(_message_input_change_events);
-      TS.client.ui.$messages_input_container.removeClass("recent-incremental-boot");
+      TS.client.ui.$messages_input_container.removeClass("pretend-to-be-online");
     }
     TS.ms.connected_sig.remove(_removeRecentIncrementalBootState);
     if (_recent_incremental_boot_timer) {
@@ -5215,9 +5215,11 @@
     fileShowPublicUrlDialog: function(file) {
       if (!file || !file.public_url_shared) return;
       var html = $('<input type="text" id="public_url" class="full_width small">').attr("value", file.permalink_public)[0].outerHTML;
-      var title = "Public link to this file";
+      var title;
       if (TS.boot_data.feature_external_files) {
-        title = 'External link to this file <p style="display: inline-block;font-weight: 400"> (shareable with anyone) </p>';
+        title = TS.i18n.t('External link to this file <p style="display: inline-block;font-weight: 400"> (shareable with anyone) </p>', "file_share")();
+      } else {
+        title = TS.i18n.t("Public link to this file", "file_share")();
       }
       TS.generic_dialog.start({
         title: title,
@@ -5226,9 +5228,9 @@
         show_close_button: true,
         show_secondary_go_button: true,
         secondary_go_button_class: "btn_outline",
-        secondary_go_button_text: "Revoke",
+        secondary_go_button_text: TS.i18n.t("Revoke", "file_share")(),
         show_go_button: true,
-        go_button_text: "Done",
+        go_button_text: TS.i18n.t("Done", "file_share")(),
         esc_for_ok: true,
         onSecondaryGo: function() {
           TS.ui.file_share.fileRevokePublicLink(file.id);
@@ -5249,16 +5251,19 @@
     fileRevokePublicLink: function(id) {
       var file = TS.files.getFileById(id);
       if (!file) return false;
-      var title = "Revoke public file link";
-      var body = '<p class="no_bottom_margin">This will disable the Public Link for this file. This will cause any previously shared links to stop working.<br /><br />Are you sure you want to revoke this public link?</p>';
+      var title;
+      var body;
       if (TS.boot_data.feature_external_files) {
-        title = "Revoke external file link";
-        body = '<p class="no_bottom_margin">This will disable the external link for this file. Any previously shared links will stop working.<br /><br />Are you sure you want to revoke this link?</p>';
+        title = TS.i18n.t("Revoke external file link", "file_share")();
+        body = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the external link for this file. Any previously shared links will stop working.<br /><br />Are you sure you want to revoke this link?", "file_share")() + "</p>";
+      } else {
+        title = TS.i18n.t("Revoke public file link", "file_share")();
+        body = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the Public Link for this file. This will cause any previously shared links to stop working.<br /><br />Are you sure you want to revoke this public link?", "file_share")() + "</p>";
       }
       TS.generic_dialog.start({
         title: title,
         body: body,
-        go_button_text: "Revoke it",
+        go_button_text: TS.i18n.t("Revoke it", "file_share")(),
         go_button_class: "btn_warning",
         onGo: function() {
           TS.files.upsertAndSignal({
@@ -5352,14 +5357,14 @@
       if (all_channels.length) {
         response.items.push({
           lfs_group: true,
-          label: "Channels",
+          label: TS.i18n.t("Channels", "file_share")(),
           children: all_channels
         });
       }
       if (all_dms.length) {
         response.items.push({
           lfs_group: true,
-          label: "Direct Messages",
+          label: TS.i18n.t("Direct Messages", "file_share")(),
           children: all_dms
         });
       }
@@ -5571,11 +5576,11 @@
     });
     return [{
       lfs_group: true,
-      label: "Channels",
+      label: TS.i18n.t("Channels", "file_share")(),
       children: all_channels
     }, {
       lfs_group: true,
-      label: "Direct Messages",
+      label: TS.i18n.t("Direct Messages", "file_share")(),
       children: all_dms
     }];
   };

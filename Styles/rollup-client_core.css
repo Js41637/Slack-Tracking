@@ -6453,8 +6453,8 @@ only screen and (min-resolution:2dppx) {
   white-space: nowrap
 }
 
-#messages-input-container.offline:not(.recent-incremental-boot) #message-input,
-#messages-input-container.offline:not(.recent-incremental-boot) #primary_file_button {
+#messages-input-container.offline:not(.pretend-to-be-online) #message-input,
+#messages-input-container.offline:not(.pretend-to-be-online) #primary_file_button {
   background-color: #fdf1c1!important
 }
 

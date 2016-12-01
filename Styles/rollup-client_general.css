@@ -6584,6 +6584,7 @@ ts-inline-saver.failed .failed {
   left: 0;
   overflow: auto;
   margin-top: .1875rem;
+  margin-bottom: .1875rem;
   border: 1px solid #d8d8d8;
   border-radius: .25rem;
   background: #FFF;
@@ -6596,6 +6597,11 @@ ts-inline-saver.failed .failed {
 
 .lazy_filter_select.default_style .lfs_list_container.visible {
   display: block
+}
+
+.lazy_filter_select.default_style .lfs_list_container.position_above {
+  top: auto;
+  bottom: 100%
 }
 
 .lazy_filter_select.default_style .lfs_list_container .monkey_scroll_bar:not(.hidden)+.monkey_scroll_hider>.lfs_list {

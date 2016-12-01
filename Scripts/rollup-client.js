@@ -405,7 +405,7 @@
       if (TS.qs_args["halt_at_loading_screen"] == 1) throw new Error("Intentionally halting at loading screen");
       if (TS._incremental_boot) {
         if (TS.client.ui && TS.client.ui.$messages_input_container) {
-          TS.client.ui.$messages_input_container.addClass("recent-incremental-boot");
+          TS.client.ui.$messages_input_container.addClass("pretend-to-be-online");
         }
       }
       $("#loading_welcome").transition({
@@ -4695,7 +4695,7 @@
       });
     }
   };
-  var RECONNECT_BANNER_DELAY_MS = 5e3;
+  var RECONNECT_BANNER_DELAY_MS = 1e4;
   var _reconnect_banner_delay_tim;
   var _reconnect_banner_timeout_secs;
   var _showReconnectingBannerAfterDelay = function(secs) {
@@ -9599,6 +9599,7 @@
           },
           onTextChange: function() {
             _maybeResize();
+            _maybeStopPretendingToBeOnline();
           },
           tabcomplete: {
             menuTemplate: TS.templates.tabcomplete_menu,
@@ -9741,6 +9742,7 @@
       } else {
         TS.client.msg_input.$input.addClass("offline");
       }
+      _maybeStartPretendingToBeOnline();
     },
     setOnline: function() {
       if (TS.client.ui.$messages_input_container) {
@@ -9748,6 +9750,7 @@
       } else {
         TS.client.msg_input.$input.removeClass("offline");
       }
+      _maybeStopPretendingToBeOnline();
     },
     resized: function(original, height) {
       var start = Date.now();
@@ -9879,6 +9882,7 @@
       _resize_count = 0;
       _change_count = 0;
     }
+    _maybeStopPretendingToBeOnline();
     if (TS.boot_data.feature_texty) _maybeResize();
     if (TS.model.prefs.msg_preview) _updateMsgPreview(val);
   };
@@ -10106,6 +10110,23 @@
     _maybeShareFilesInMessage(val, TS.shared.getActiveModelOb(), function(did_share) {
       submitter();
     });
+  };
+  var _pretend_to_be_online_timer;
+  var PRETEND_TO_BE_ONLINE_DURATION_MS = 1e4;
+  var _maybeStartPretendingToBeOnline = function() {
+    if (_pretend_to_be_online_timer) return;
+    var $input = TS.client.ui.$messages_input_container || TS.client.msg_input.$input;
+    $input.addClass("pretend-to-be-online");
+    _pretend_to_be_online_timer = setTimeout(function() {
+      $input.removeClass("pretend-to-be-online");
+    }, PRETEND_TO_BE_ONLINE_DURATION_MS);
+  };
+  var _maybeStopPretendingToBeOnline = function() {
+    if (!_pretend_to_be_online_timer) return;
+    var $input = TS.client.ui.$messages_input_container || TS.client.msg_input.$input;
+    $input.removeClass("pretend-to-be-online");
+    clearTimeout(_pretend_to_be_online_timer);
+    _pretend_to_be_online_timer = undefined;
   };
 })();
 (function() {
@@ -24401,7 +24422,8 @@
     var model_ob = TS.shared.getModelObById(TS.ui.channel_manage_teams_dialog.c_id);
     if (!model_ob || model_ob.is_im) {
       TS.log(1337, "No model_ob found for channel id :" + TS.ui.channel_manage_teams_dialog.c_id);
-      TS.generic_dialog.alert('<p class="no_bottom_margin">Oops! No channel found???</p>');
+      var str = TS.i18n.t("Oops! No channel found???", "channel_manage_teams")();
+      TS.generic_dialog.alert('<p class="no_bottom_margin">' + str + "</p>");
       return;
     }
     var c_or_g = model_ob.is_channel ? "channel" : "group";

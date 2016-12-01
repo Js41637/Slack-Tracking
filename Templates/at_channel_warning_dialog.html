@@ -1,29 +1,33 @@
+{{i18n_ns 'at_channel'}}
+
   <div class="modal-body">
     <p>
-      By using <span class="mention_yellow_bg">@{{keyword}}</span>, you are about to notify
-      <strong>{{pluralCount member_count "person" "people"}}</strong>
-      {{#if_equal timezone_count compare=1}}{{else}} in <strong>{{timezone_count}} timezones{{/if_equal}}</strong>. Are you sure?
+      {{#if_equal timezone_count compare=1}}
+        {{#t}}By using <span class="mention_yellow_bg">@{keyword}</span>, you are about to notify <strong>{member_count, plural, =1 {# person} other {# people}}</strong>. Are you sure?{{/t}}
+      {{else}}
+        {{#t}}By using <span class="mention_yellow_bg">@{keyword}</span>, you are about to notify <strong>{member_count, plural, =1 {# person} other {# people}}</strong> in <strong>{timezone_count} timezones</strong>. Are you sure?{{/t}}
+      {{/if_equal}}
     </p>
     <div>
-      <a class="btn btn_outline small_right_margin dialog_cancel">Edit message</a>
-      <a class="btn btn_success dialog_go">Send it now</a>
+      <a class="btn btn_outline small_right_margin dialog_cancel">{{#t}}Edit message{{/t}}</a>
+      <a class="btn btn_success dialog_go">{{#t}}Send it now{{/t}}</a>
     </div>
     <div>
-      <span class="tiny dialog_cancel_hint"><strong aria-label="escape">Esc</strong> to edit</span>
-      <span class="tiny dialog_go_hint"><strong aria-label="return">Return <span class="return_char">&crarr;</span></strong> to send</span>
+      <span class="tiny dialog_cancel_hint">{{#t}}<strong aria-label="escape">Esc</strong> to edit{{/t}}</span>
+      <span class="tiny dialog_go_hint">{{#t}}<strong aria-label="return">Return <span class="return_char">&crarr;</span></strong> to send{{/t}}</span>
     </div>
 {{#currentUserIsAdmin}}
     <div>
-      <span class="tiny dialog_admin_hint">Pssst... admins! <a href="/admin/settings#permissions" target="_blank">Team settings</a> control this warning</span>
+      <span class="tiny dialog_admin_hint">{{#t}}Pssst... admins! <a href="/admin/settings#permissions" target="_blank">Team settings</a> control this warning{{/t}}</span>
     </div>
 {{else}}
     <div>
-      <span class="tiny dialog_admin_hint">Psssssst! These warnings can be modified by a Team Admin!</span>
+      <span class="tiny dialog_admin_hint">{{#t}}Psssssst! These warnings can be modified by a Team Admin!{{/t}}</span>
     </div>
 {{/currentUserIsAdmin}}
 
     <div class="channel_members popover_menu hidden">
       <div class="channel_members_scroller"></div>
-      <a href="#" class="channel_members_count_underlay overflow_ellipsis">{{pluralCount member_count "person" "people"}}</a>
+      <a href="#" class="channel_members_count_underlay overflow_ellipsis">{{#t}}{member_count, plural, =1 {# person} other {# people}}{{/t}}</a>
     </div>
   </div>

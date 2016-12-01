@@ -43817,6 +43817,7 @@ $.fn.togglify = function(settings) {
   });
   var _DEFAULT_SETTINGS = {
     allow_item_unselect: false,
+    allow_list_position_above: false,
     always_visible: false,
     append: false,
     approx_divider_height: 28,
@@ -44227,15 +44228,27 @@ $.fn.togglify = function(settings) {
       lfs_id: item.lfs_id
     }).replace(/(\r\n|\n|\r)/gm, "");
   };
-  var _calculateHeight = function(instance) {
+  var _sizeAndPostionItemsList = function(instance) {
     if (!instance._list_built) return;
+    var LIST_POSITION_ABOVE_CLASSNAME = "position_above";
     var list_height = instance.$list.css({
       "max-height": ""
     }).height();
     var container_height = instance.$list_container.height();
     var padding = instance.$list_container.outerHeight() - container_height;
     var max_height = parseInt(instance.$list_container.css("max-height"), 10);
-    var available_height = Math.floor($(window).height() - instance.$list.offset().top);
+    var window_height = $(window).height();
+    instance.$list_container.removeClass(LIST_POSITION_ABOVE_CLASSNAME);
+    var available_height = Math.floor(window_height - instance.$list.offset().top);
+    if (instance.allow_list_position_above) {
+      var available_height_above = window_height - available_height;
+      var can_fit_above = list_height <= available_height_above;
+      var can_fit_below = list_height <= available_height;
+      if (!can_fit_below && can_fit_above) {
+        available_height = available_height_above;
+        instance.$list_container.addClass(LIST_POSITION_ABOVE_CLASSNAME);
+      }
+    }
     if (isNaN(max_height)) max_height = container_height;
     if (max_height > available_height) max_height = available_height;
     max_height = max_height - padding;
@@ -44702,7 +44715,7 @@ $.fn.togglify = function(settings) {
       _populate(instance);
     }
     if (instance.set_height) {
-      _calculateHeight(instance);
+      _sizeAndPostionItemsList(instance);
       if (instance.monkey_scroll && !TS.environment.supports_custom_scrollbar) {
         instance.$list.monkeyScroll();
       }
@@ -44812,7 +44825,7 @@ $.fn.togglify = function(settings) {
     }
     if (instance.monkey_scroll && !TS.environment.supports_custom_scrollbar) {
       TS.utility.rAF(function() {
-        _calculateHeight(instance);
+        _sizeAndPostionItemsList(instance);
         TS.ui.utility.updateClosestMonkeyScroller(instance.$list, true);
       });
     }
@@ -44842,7 +44855,7 @@ $.fn.togglify = function(settings) {
           always_visible: !!options.always_visible,
           approx_item_height: options.approx_item_height || 50,
           data_promise: _createFilterFunction(options),
-          placeholder_text: options.placeholder_text || "Search by name",
+          placeholder_text: options.placeholder_text || TS.i18n.t("Search by name", "people_picker")(),
           classes: options.classes || "normal_style",
           scroll_threshold: 2500,
           single: !!options.single,
@@ -44863,9 +44876,11 @@ $.fn.togglify = function(settings) {
           },
           noResultsTemplate: function(query) {
             if (!query) {
-              return "No one found";
+              return TS.i18n.t("No one found", "people_picker")();
             } else {
-              return "No one found matching <strong>" + TS.utility.htmlEntities(query) + "</strong>";
+              return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
+                query: TS.utility.htmlEntities(query)
+              });
             }
           },
           onItemAdded: options.onItemAdded,
@@ -44879,7 +44894,7 @@ $.fn.togglify = function(settings) {
           data: _makeMembersWithPreselectsForTemplate(options.members || data_specified, options.preselected_ids || []),
           per_page: 50,
           approx_item_height: options.approx_item_height || 50,
-          placeholder_text: options.placeholder_text || "Search by name",
+          placeholder_text: options.placeholder_text || TS.i18n.t("Search by name", "people_picker")(),
           classes: options.classes || "normal_style",
           single: !!options.single,
           template: options.template || function(item) {
@@ -44913,9 +44928,11 @@ $.fn.togglify = function(settings) {
           },
           noResultsTemplate: function(query) {
             if (!query) {
-              return "No one found";
+              return TS.i18n.t("No one found", "people_picker")();
             } else {
-              return "No one found matching <strong>" + TS.utility.htmlEntities(query) + "</strong>";
+              return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
+                query: TS.utility.htmlEntities(query)
+              });
             }
           },
           onItemAdded: options.onItemAdded,
@@ -48891,7 +48908,7 @@ $.fn.togglify = function(settings) {
         data: _makeTeamsWithPreselectsForTemplate(options.teams || [], options.preselected_ids || []),
         approx_item_height: 38,
         per_page: 50,
-        placeholder_text: "Add teams",
+        placeholder_text: TS.i18n.t("Add teams", "team_picker")(),
         classes: options.classes || "normal_style",
         restrict_preselected_item_removal: options.restrict_preselected_item_removal || false,
         single: !!options.single,
@@ -48918,9 +48935,11 @@ $.fn.togglify = function(settings) {
         },
         noResultsTemplate: function(query) {
           if (!query) {
-            return "No teams found";
+            return TS.i18n.t("No teams found", "team_picker")();
           } else {
-            return "No teams found matching <strong>" + TS.utility.htmlEntities(query) + "</strong>";
+            return TS.i18n.t("No teams found matching <strong>{query}</strong>", "team_picker")({
+              query: TS.utility.htmlEntities(query)
+            });
           }
         }
       };
@@ -54167,8 +54186,9 @@ $.fn.togglify = function(settings) {
     onStart: _.noop,
     decorateNewElements: function($container) {
       var lfs_options = {
-        onItemAdded: _onItemAdded,
-        filter: _filter
+        allow_list_position_above: true,
+        filter: _filter,
+        onItemAdded: _onItemAdded
       };
       $container.find(".attachment_actions_buttons select:visible").each(function() {
         var $el = $(this);

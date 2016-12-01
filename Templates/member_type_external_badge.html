@@ -1,3 +1,5 @@
+{{i18n_ns 'member_badges'}}
+
 <ts-icon class="member_type_badge {{size}}{{#if with_border}} with_border{{/if}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_multiline ts_tip_float{{/if}}">
   {{#if big}}
     <svg width="22px" height="22px" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -22,7 +24,7 @@
   {{/if}}
   {{#if with_tooltip}}
     <span class="ts_tip_tip">
-      <span class="ts_tip_multiline_inner">External Guests <span class="old_petunia_grey">are not on your team and can only see a partial directory, messages, and files of the shared channels they are in.</span></span>
+      <span class="ts_tip_multiline_inner">{{#t}}External Guests <span class="old_petunia_grey">are not on your team and can only see a partial directory, messages, and files of the shared channels they are in.</span>{{/t}}</span>
     </span>
   {{/if}}
 </ts-icon>

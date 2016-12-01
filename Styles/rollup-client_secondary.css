@@ -3607,7 +3607,7 @@ body.sorting_mode .channels_list_holder ul {
   clear: both
 }
 
-.experiment_search_limit_extracts .light_theme .message_content_header_left {
+.light_theme .experiment_search_limit_extracts .message_content_header_left {
   margin-right: 3.375rem
 }
 
@@ -13244,6 +13244,10 @@ body.winssb .search_result_with_extract {
 
 .search_result_with_extract:hover .extract_expand_text {
   color: #439fe0
+}
+
+.dense_theme .experiment_search_limit_extracts .extract_expand_text {
+  display: none
 }
 
 .extract_expand_icons {
