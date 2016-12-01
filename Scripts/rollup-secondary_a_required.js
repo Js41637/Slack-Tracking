@@ -46417,10 +46417,13 @@ $.fn.togglify = function(settings) {
       TS.replies.setSubscriptionState(model_ob_id, thread_ts, !is_subscribed, last_read);
       $el.addClass("disabled");
     });
-    TS.click.addClientHandler("#threads_msgs .jump_to_original", function(e, $el) {
+    TS.click.addClientHandler("#threads_msgs .jump_to_original, #convo_tab .jump_to_original", function(e, $el) {
       if (!TS.boot_data.feature_message_replies_threads_view) return;
       e.preventDefault();
-      TS.client.ui.threads.jumpToOriginal(e, $el);
+      var model_ob_id = $el.attr("data-model-ob-id");
+      var thread_ts = $el.attr("data-thread-ts");
+      if (!model_ob_id || !thread_ts) return;
+      TS.client.ui.tryToJump(model_ob_id, thread_ts);
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {

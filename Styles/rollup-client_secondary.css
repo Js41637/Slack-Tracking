@@ -1884,25 +1884,37 @@ html.is_electron_mac #rxn_toast_div {
 }
 
 #convo_tab .heading {
-  padding-right: 2.5rem
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center
 }
 
 #convo_tab .heading .close_flexpane {
   float: none;
-  position: absolute;
-  right: .75rem
-}
-
-#convo_tab .heading .close_flexpane .ts_icon {
   position: relative;
-  top: .125rem
+  top: -.125rem
 }
 
-#convo_tab_header {
-  font-size: 1.125rem
+#convo_tab #convo_tab_header {
+  font-size: 1.125rem;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
-#convo_tab_back_container {
+#convo_tab #convo_tab_header .thread_participants {
+  width: 13.4375rem;
+  line-height: .9375rem
+}
+
+#convo_tab #convo_tab_back_container {
   display: inline-block;
   padding-left: .3125rem;
   padding-right: .9375rem;
@@ -1910,27 +1922,23 @@ html.is_electron_mac #rxn_toast_div {
   border-right: 1px solid #e0e0e0
 }
 
-#convo_tab_back {
+#convo_tab #convo_tab_back {
   position: relative;
-  top: -1px;
+  top: -.0625rem;
   color: #555459
 }
 
-#convo_tab_back:focus,
-#convo_tab_back:hover {
+#convo_tab #convo_tab_back:focus,
+#convo_tab #convo_tab_back:hover {
   outline: 0;
   color: #2a80b9
 }
 
-#convo_subscription_container {
-  color: #9e9ea6;
-  font-size: .8125rem;
+#convo_tab_btns html:not(.supports_flexbox) #convo_tab {
+  display: inline-block;
   position: absolute;
-  right: 2.75rem
-}
-
-#convo_subscription_container button {
-  font-size: inherit
+  right: .75rem;
+  top: 1.25rem
 }
 
 .mentions_reply {
