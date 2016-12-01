@@ -23376,9 +23376,7 @@
     if (!model_ob.is_general) {
       var do_check = true;
       if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
-        if (TS.boot_data.feature_shared_channels_settings && !TS.members.canUserManageSharedChannels()) {
-          do_check = false;
-        } else if (!TS.model.user.enterprise_user.is_owner) {
+        if (!TS.members.canUserManageSharedChannels() && !TS.model.user.enterprise_user.is_owner) {
           do_check = false;
         }
       }
