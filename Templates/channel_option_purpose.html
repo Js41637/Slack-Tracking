@@ -1,14 +1,16 @@
+{{i18n_ns 'channel_options'}}
+
 <p>
   <label for="purpose_input" class="inline_block right_padding">
-    Purpose <span class="normal">(optional)</span>
+    {{#t}}Purpose <span class="normal">(optional)</span>{{/t}}
   </label>
   <textarea id="purpose_input" name="purpose_input" type="text" maxlength="{{ChannelPurposeMaxLength}}" tabindex="1">{{unFormatMessage model_ob.purpose.value}}</textarea>
   <span class="modal_input_note">
-    Give your channel a purpose that describes what it will be used for.
+    {{#t}}Give your channel a purpose that describes what it will be used for.{{/t}}
     {{#if model_ob.purpose.creator}}
       {{#if model_ob.purpose.value}}
         <br />
-        The purpose was last set by {{makeMemberPreviewLinkById model_ob.purpose.creator}} on {{toCalendarDate model_ob.purpose.last_set}}.
+        {{#t creator_name=(makeMemberPreviewLinkById model_ob.purpose.creator) date=(toCalendarDate model_ob.purpose.last_set)}}The purpose was last set by {creator_name} on {date}.{{/t}}
       {{/if}}
     {{/if}}
   </span>

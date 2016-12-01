@@ -20574,15 +20574,32 @@
       if (!TS.ui.upload_dialog.showing) return;
       if (e.which == TS.utility.keymap.enter) {
         if (TS.utility.getActiveElementProp("NODENAME") != "TEXTAREA") {
-          TS.ui.upload_dialog.go();
+          if (_confirmation_displayed) {
+            TS.ui.upload_dialog.cancel();
+          } else {
+            TS.ui.upload_dialog.go();
+          }
           e.preventDefault();
         }
-      } else if (e.which == TS.utility.keymap.esc) {} else if (e.which == TS.utility.keymap.tab) {
+      } else if (e.which == TS.utility.keymap.esc) {
+        TS.ui.upload_dialog.cancel();
+      } else if (e.which == TS.utility.keymap.tab) {
         if ($(document.activeElement).hasClass("dialog_go")) {
           e.preventDefault();
-          TS.ui.upload_dialog.div.find("[tabindex]").first().focus();
+          TS.ui.upload_dialog.div.find(".title_input").focus();
         }
       }
+    },
+    shouldShowConfirmation: function() {
+      return !_confirmation_displayed && TS.ui.upload_dialog.div.find("#file_comment_textarea").val().length > 400;
+    },
+    showConfirmation: function() {
+      var $div = TS.ui.upload_dialog.div;
+      var confirm_section = $div.find(".modal-footer-confirm");
+      $div.find(".upload_actions").addClass("hidden");
+      confirm_section.removeClass("hidden");
+      confirm_section.find(".dialog_cancel").focus();
+      _confirmation_displayed = true;
     },
     start: function(files) {
       if (!files || !files.length) {
@@ -20646,8 +20663,8 @@
         file_retention_type: parseInt(TS.model.team.prefs.file_retention_type),
         file_retention_duration: TS.utility.date.daysToYearsPretty(TS.model.team.prefs.file_retention_duration)
       });
-      var div = TS.ui.upload_dialog.div;
-      div.html(html);
+      var $div = TS.ui.upload_dialog.div;
+      $div.html(html);
       var displayImg = function(str) {
         $("#upload_image_preview").removeClass("hidden").find("img").attr("src", str);
       };
@@ -20689,39 +20706,40 @@
       $file_comment_textarea.autogrow();
       $file_comment_textarea = null;
       var already_showing = TS.ui.upload_dialog.showing;
-      div.modal("show");
+      $div.modal("show");
       if (TS.ui.upload_dialog.filesQ.length) {
-        div.find(".file_count").text(" (and " + TS.ui.upload_dialog.filesQ.length + " more...)");
+        $div.find(".file_count").text(" (and " + TS.ui.upload_dialog.filesQ.length + " more...)");
       }
       if (first) {
-        div.find("#share_cb").prop("checked", true);
+        $div.find("#share_cb").prop("checked", true);
       } else {
-        div.find("#share_cb").prop("checked", TS.ui.upload_dialog.last_share_cb_checked === true);
+        $div.find("#share_cb").prop("checked", TS.ui.upload_dialog.last_share_cb_checked === true);
       }
-      div.find(".modal-header > .close").click(_closeModal);
-      div.find(".dialog_cancel_all").click(TS.ui.upload_dialog.cancelAll);
-      div.find(".dialog_cancel").click(TS.ui.upload_dialog.cancel);
-      div.find(".dialog_go").click(TS.ui.upload_dialog.go);
+      $div.find(".modal-header > .close").click(_closeModal);
+      $div.find(".dialog_cancel_all").click(TS.ui.upload_dialog.cancelAll);
+      $div.find(".dialog_cancel").click(TS.ui.upload_dialog.cancel);
+      $div.find(".dialog_go").click(TS.ui.upload_dialog.go);
       TS.ui.file_share.bindFileShareDropdowns();
       TS.ui.file_share.bindFileShareShareToggle();
       TS.ui.file_share.bindFileShareCommentField();
       var data_key = "TS-lazyFilterSelect";
       if (!first && TS.ui.upload_dialog.selection) {
-        div.find("#select_share_channels").data(data_key).instance.setValue(TS.ui.upload_dialog.selection);
+        $div.find("#select_share_channels").data(data_key).instance.setValue(TS.ui.upload_dialog.selection);
       }
-      TS.ui.upload_dialog.div.find(".lfs_input_container").attr("tabindex", "2");
-      TS.ui.upload_dialog.div.find("#select_share_channels").data(data_key).instance.onKeyDown = function(e) {
+      $div.find(".lfs_input_container").attr("tabindex", "0");
+      $div.find("#file_comment_textarea").attr("tabindex", "0");
+      $div.find("#select_share_channels").data(data_key).instance.onKeyDown = function(e) {
         if (e.which == TS.utility.keymap.tab) {
           e.preventDefault();
           if (e.shiftKey) {
-            div.find("#share_cb").focus();
+            $div.find("#share_cb").focus();
           } else {
-            div.find("#file_comment_textarea").focus();
+            $div.find("#file_comment_textarea").focus();
           }
         }
       };
       if (already_showing) {
-        _setFocusOnInput(div);
+        _setFocusOnInput($div);
       }
     },
     go: function() {
@@ -20738,15 +20756,15 @@
         return;
       }
       if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return;
-      var div = TS.ui.upload_dialog.div;
-      var do_share = !!div.find("#share_cb").prop("checked");
+      var $div = TS.ui.upload_dialog.div;
+      var do_share = !!$div.find("#share_cb").prop("checked");
       TS.ui.upload_dialog.last_share_cb_checked = !!do_share;
       TS.ui.upload_dialog.selection = $("#share_model_ob_id").val();
       var share_channels = do_share ? TS.ui.upload_dialog.selection : null;
       var initial_comment = TS.format.cleanMsg($("#file_comment_textarea").val());
       if ($.trim(initial_comment) === "") initial_comment = "";
-      var filename = div.find(".filename_input").val();
-      var title = div.find(".title_input").val();
+      var filename = $div.find(".filename_input").val();
+      var title = $div.find(".title_input").val();
       if (TS.ui.upload_dialog.file.is_dropbox || TS.ui.upload_dialog.file.is_box) {
         var link = TS.ui.upload_dialog.file.link;
         TS.shared.getShareModelObId(share_channels, function(model_ob_id) {
@@ -20787,6 +20805,10 @@
       return false;
     },
     cancel: function() {
+      if (TS.ui.upload_dialog.shouldShowConfirmation()) {
+        TS.ui.upload_dialog.showConfirmation();
+        return;
+      }
       TS.ui.upload_dialog.selection = $("#share_model_ob_id").val();
       var text_from_input = _text_from_input;
       var went_away = TS.ui.upload_dialog.maybeGoAway();
@@ -20796,6 +20818,7 @@
       if (went_away && text_from_input) {
         setTimeout(TS.view.focusMessageInput, 10);
       }
+      _confirmation_displayed = false;
     },
     cancelAll: function() {
       TS.ui.upload_dialog.filesQ = [];
@@ -20805,25 +20828,26 @@
       TS.ui.upload_dialog.showing = TS.model.dialog_is_showing = false;
       TS.ui.upload_dialog.file = null;
       _text_from_input = "";
+      _confirmation_displayed = false;
       TS.ui.comments.unbindInput($("#file_comment_textarea"));
       TS.ui.upload_dialog.div.empty();
       $(window.document).unbind("keydown", TS.ui.upload_dialog.onKeydown);
     },
     build: function() {
       $("body").append('<div id="upload_dialog" class="modal hide fade" data-keyboard="false" data-backdrop="static"></div>');
-      var div = TS.ui.upload_dialog.div = $("#upload_dialog");
-      div.on("hidden", function(e) {
+      var $div = TS.ui.upload_dialog.div = $("#upload_dialog");
+      $div.on("hidden", function(e) {
         if (e.target != this) return;
         TS.ui.upload_dialog.end();
       });
-      div.on("show", function(e) {
+      $div.on("show", function(e) {
         if (e.target != this) return;
         TS.ui.upload_dialog.showing = TS.model.dialog_is_showing = true;
       });
-      div.on("shown", function(e) {
+      $div.on("shown", function(e) {
         if (e.target != this) return;
         setTimeout(function() {
-          _setFocusOnInput(div);
+          _setFocusOnInput($div);
           $(window.document).bind("keydown", TS.ui.upload_dialog.onKeydown);
         }, 100);
       });
@@ -20832,11 +20856,12 @@
   var _text_from_input = "";
   var _max_chars_to_pre_fill_title = 50;
   var _submitting = false;
-  var _setFocusOnInput = function(div) {
+  var _confirmation_displayed = false;
+  var _setFocusOnInput = function($div) {
     if (_text_from_input && _text_from_input.length > _max_chars_to_pre_fill_title) {
-      div.find("#file_comment_textarea").focus().select();
+      $div.find("#file_comment_textarea").focus().select();
     } else {
-      div.find("#upload_file_title").focus().select();
+      $div.find("#upload_file_title").focus().select();
     }
   };
   var _initialTitle = function(file) {

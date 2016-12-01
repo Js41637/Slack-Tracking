@@ -5100,7 +5100,9 @@
         $(this).lazyFilterSelect("destroy");
       });
       $("#file_sharing_div").on("keydown", function(e) {
-        e.stopPropagation();
+        if (e.keyCode == 13) {
+          e.stopPropagation();
+        }
       });
     },
     bindFileShareShareToggle: function() {

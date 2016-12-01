@@ -1,9 +1,15 @@
-<p>Archiving a channel is useful to clean things up when you do not anticipate using the channel any more. If you archive this channel:</p>
+{{i18n_ns 'channel_options'}}
+
+<p>{{#t}}Archiving a channel is useful to clean things up when you do not anticipate using the channel any more. If you archive this channel:{{/t}}</p>
 <ul>
-  <li>No one will be able to send messages to it anymore</li>
-  <li>It will be closed for anyone who has it open and all members will be removed</li>
-  <li>You will be able to view past conversations in the Archives on the site</li>
-  <li>You will be able to search for archived messages from this channel</li>
-  <li>You will always be able to un-archive it later</li>
+  <li>{{#t}}No one will be able to send messages to it anymore{{/t}}</li>
+  <li>{{#t}}It will be closed for anyone who has it open and all members will be removed{{/t}}</li>
+  <li>{{#t}}You will be able to view past conversations in the Archives on the site{{/t}}</li>
+  <li>{{#t}}You will be able to search for archived messages from this channel{{/t}}</li>
+  <li>{{#t}}You will always be able to un-archive it later{{/t}}</li>
 </ul>
-<p>Are you sure you want to archive <strong>#{{name}}{{#if is_shared}}<ts-icon class="ts_icon_shared_channel"></ts-icon>{{/if}}</strong>?</p>
+{{#if is_shared}}
+  <p>{{#t}}Are you sure you want to archive <strong>#{name} <ts-icon class="ts_icon_shared_channel"></ts-icon></strong>?{{/t}}</p>
+{{else}}
+  <p>{{#t}}Are you sure you want to archive <strong>#{name}</strong>?{{/t}}</p>
+{{/if}}

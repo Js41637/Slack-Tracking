@@ -30607,11 +30607,17 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_message_replies && TS.boot_data.feature_message_replies_off && actions.reply) {
         actions.reply = !!msg.reply_count;
       }
+      var recap_highlight = false;
+      var recap_group = TS.experiment.getGroup("sli_recaps_preview");
+      if (recap_group === "sli_sneak_preview") {
+        recap_highlight = true;
+      }
       var template_args = {
         msg: msg,
         actions: actions,
         model_ob: model_ob,
-        is_all_unreads_showing: TS.model.unread_view_is_showing
+        is_all_unreads_showing: TS.model.unread_view_is_showing,
+        sli_recap_preview: recap_highlight
       };
       template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts);
       if (msg.subtype == "file_share" || msg.subtype == "file_mention") {
