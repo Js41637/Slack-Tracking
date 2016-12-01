@@ -2370,9 +2370,7 @@
   TS.registerModule("tips", {
     onStart: function() {
       _$body.delegate(".ts_tip_lazy, .ts_tip_float", "mouseenter", _onMouseEnter);
-      _$body.delegate(".ts_tip_lazy, .ts_tip_float", "focus", _onMouseEnter);
       _$body.delegate(".ts_tip_float", "mouseleave", _onMouseLeave);
-      _$body.delegate(".ts_tip_float", "focusout", _onMouseLeave);
       _$body.on("click", ".ts_tip", function(e) {
         if (TS.isPartiallyBooted()) {
           e.preventDefault();
@@ -2402,10 +2400,10 @@
       }
     },
     updateFloater: function(args) {
-      if (args.title) {
+      if (_$floater_tip_el && args.title) {
         _$floater_tip_el.text(args.title);
       }
-      if (args.classes_to_add) {
+      if (_$floater && args.classes_to_add) {
         _$floater.addClass(args.classes_to_add.join(" "));
       }
     }
@@ -18297,6 +18295,7 @@ TS.registerModule("constants", {
           has_actions: !!(!_.isEmpty(attachment.actions) || !_.isEmpty(attachment.legacy_actions)),
           has_source: _.some(attachment._source),
           has_border: args.has_border,
+          has_indent: attachment.indent,
           has_container: args.has_container,
           has_media: args.show_media_caret,
           has_text_content: !!(attachment.text || attachment.title),
@@ -18467,6 +18466,7 @@ TS.registerModule("constants", {
       var use_shrink_wrap = has_container && _.some(attachments, TS.utility.attachments.getMediaType);
       var has_border = has_container ? _.some(attachments, "color") : true;
       var has_link = _.some(attachments, "from_url");
+      var has_indent = _.some(attachments, "indent");
       var preamble = false;
       if (is_broadcast) {
         preamble = TS.templates.reply_broadcast_preamble(attachments[0]);
@@ -18521,6 +18521,7 @@ TS.registerModule("constants", {
             model_ob: model_ob,
             attachment: attachment,
             has_border: has_border,
+            has_indent: has_indent,
             has_container: has_container,
             break_border: has_border && next_attachment && attachment.color != next_attachment.color,
             url: null,
@@ -18543,6 +18544,7 @@ TS.registerModule("constants", {
           preamble: preamble,
           msg: msg,
           has_border: has_border,
+          has_indent: has_indent,
           has_container: has_container,
           has_link: has_link,
           use_shrink_wrap: use_shrink_wrap,
@@ -21361,8 +21363,8 @@ TS.registerModule("constants", {
           }
         }
         if (!TS.utility.msgs.isTempMsg(msg) && !msg.is_ephemeral) {
-          template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts);
-          template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts);
+          template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
+          template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
         }
         if (msg.subtype == "file_share" || msg.subtype == "file_mention" || msg.subtype == "file_reaction") {
           if (msg.file) {
@@ -25516,14 +25518,18 @@ TS.registerModule("constants", {
         if (imsg.item_type === "F" && imsg.item && imsg.item.id && !imsg.item.is_deleted) TS.files.upsertAndSignal(imsg.item);
       }
     },
-    constructMsgPermalink: function(model_ob, ts) {
+    constructMsgPermalink: function(model_ob, ts, thread_ts) {
+      var permalink;
       if (model_ob.is_im || model_ob.is_mpim) {
-        return "/archives/" + model_ob.id + "/p" + ts.replace(".", "");
+        permalink = "/archives/" + model_ob.id + "/p" + ts.replace(".", "");
+      } else {
+        permalink = "/archives/" + model_ob.name + "/p" + ts.replace(".", "");
       }
-      return "/archives/" + model_ob.name + "/p" + ts.replace(".", "");
+      if (TS.boot_data.feature_message_replies && thread_ts && thread_ts !== ts) permalink += "?thread_ts=" + thread_ts;
+      return permalink;
     },
-    constructAbsoluteMsgPermalink: function(model_ob, ts) {
-      var abs_permalink = TS.boot_data.team_url.slice(0, -1) + TS.utility.msgs.constructMsgPermalink(model_ob, ts);
+    constructAbsoluteMsgPermalink: function(model_ob, ts, thread_ts) {
+      var abs_permalink = TS.boot_data.team_url.slice(0, -1) + TS.utility.msgs.constructMsgPermalink(model_ob, ts, thread_ts);
       return abs_permalink;
     },
     constructConversationPermalink: function(model_ob, thread_ts) {
@@ -30621,7 +30627,7 @@ TS.registerModule("constants", {
         is_all_unreads_showing: TS.model.unread_view_is_showing,
         sli_recap_preview: recap_highlight
       };
-      template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts);
+      template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
       if (msg.subtype == "file_share" || msg.subtype == "file_mention") {
         if (msg.file) {
           template_args.abs_permalink = msg.file.permalink;
@@ -37201,7 +37207,7 @@ var _on_esc;
       var html = TS.templates.message_edit_form({
         msg: msg,
         edit_text: edit_text,
-        permalink: TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts),
+        permalink: TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts),
         include_emo: !!TS.client
       });
       msg_el.after(html);
@@ -53881,7 +53887,7 @@ $.fn.togglify = function(settings) {
         initial_message: initial_message,
         attachment_html: msg_html,
         warning: warning,
-        copy_link: TS.utility.msgs.constructAbsoluteMsgPermalink(_model_ob, _msg_ts),
+        copy_link: TS.utility.msgs.constructAbsoluteMsgPermalink(_model_ob, _msg_ts, msg.thread_ts),
         copy_text: copy_link_tooltip,
         onGo: _onGo,
         onEnd: _onEnd,

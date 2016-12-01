@@ -8,8 +8,14 @@
     {{/feature}}
   {{/if}}
 >
+
+  {{#if has_indent}}
+    <div class="msg_inline_attachment_column column_border{{#if break_border}} break_border{{/if}}">
+    </div>
+  {{/if}}
+
   {{#if has_border}}
-    <div class="msg_inline_attachment_column column_border{{#if break_border}} break_border{{/if}}"{{#if border_color}} style="background-color:{{border_color}};"{{/if}}>
+    <div class="msg_inline_attachment_column column_border{{#if break_border}} break_border{{/if}}{{#if has_indent}} has_indent{{/if}}"{{#if border_color}} style="background-color:{{border_color}};"{{/if}}>
     </div>
   {{/if}}
 
@@ -26,7 +32,7 @@
     </div>
   {{/if}}{{/if}}
 
-  <div class="msg_inline_attachment_column column_content">
+  <div class="msg_inline_attachment_column column_content{{#if has_indent}} has_indent{{/if}}">
 
     {{#feature flag="feature_pin_update"}}
       <span class="is_pinned_holder">

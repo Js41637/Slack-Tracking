@@ -208,7 +208,8 @@ input.search_input {
 }
 
 #flex_contents {
-  margin: 4px;
+  margin: .25rem;
+  margin-top: .0625rem;
   overflow: hidden
 }
 
@@ -19274,6 +19275,10 @@ ts-thread .view_all_replies_count {
 
 .search_message_result_text .has_thumb .msg_inline_attachment_column.column_content {
   width: calc(100% - 42px)
+}
+
+.msg_inline_attachment_column.has_indent {
+  margin-left: 20px
 }
 
 .msg_inline_attachment_row {

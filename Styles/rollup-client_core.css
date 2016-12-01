@@ -6845,7 +6845,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #special_formatting_text.showing {
-  opacity: .7
+  opacity: 1
 }
 
 #footer.disabled #special_formatting_text {
@@ -6899,7 +6899,7 @@ only screen and (min-resolution:2dppx) {
   bottom: 0;
   font-size: .7em;
   line-height: 1rem;
-  color: #9e9ea6
+  color: #717274
 }
 
 #snippet_prompt .ts_tip {

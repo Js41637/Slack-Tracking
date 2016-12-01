@@ -26408,7 +26408,7 @@
           }
           template_args.is_message = true;
           template_args.member = member;
-          template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, pinned_item.message.ts);
+          template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, pinned_item.message.ts, pinned_item.message.thread_ts);
           template_args.is_bot = is_bot;
           template_args.is_reply = TS.boot_data.feature_message_replies && msg.thread_ts && msg.thread_ts != msg.ts;
           template_args.app_id = app_id;
@@ -35437,7 +35437,7 @@ function timezones_guess() {
         TS.client.ui.unread.$scroller.off("scroll", _throttled_update_sticky_header);
         TS.ui.banner.show_hide_sig.remove(_updateBannerHeight);
       }
-      TS.client.ui.unread.$unread_msgs_div.html("");
+      TS.client.ui.unread.$unread_msgs_div.empty();
       TS.client.ui.unread.$scroller.addClass("loading");
       $("#footer").removeClass("invisible");
       TS.view.resize_sig.remove(_onResize);
