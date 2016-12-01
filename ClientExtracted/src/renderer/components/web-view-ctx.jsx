@@ -59,7 +59,8 @@ export default class WebViewContext extends Component {
 
   syncState() {
     return {
-      isWindows: SettingStore.isWindows()
+      isWindows: SettingStore.isWindows(),
+      zoomLevel: SettingStore.getSetting('zoomLevel')
     };
   }
 
@@ -76,6 +77,7 @@ export default class WebViewContext extends Component {
 
     this.disposables.add(Observable.fromEvent(webView, 'dom-ready').subscribe(() => {
       setParentInformation(webView);
+      this.setZoomLevelAndLimits(webView);
 
       // NB: For whatever reason, we sometimes cannot intercept the drag-drop event
       // and attempt to navigate to the dropped file. Prevent it!
@@ -125,6 +127,17 @@ export default class WebViewContext extends Component {
     this.behaviors.forEach((behavior) => {
       this.disposables.add(behavior.setup(webView));
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.zoomLevel !== this.state.zoomLevel) {
+      this.setZoomLevelAndLimits(this.getWebView());
+    }
+  }
+
+  setZoomLevelAndLimits(webView) {
+    webView.setLayoutZoomLevelLimits(this.state.zoomLevel, this.state.zoomLevel);
+    webView.setZoomLevel(this.state.zoomLevel);
   }
 
   openDevTools() {

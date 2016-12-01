@@ -217,14 +217,6 @@ function startTheAppOnReady(args) {
  * @param  {Object} args Contains the command-line arguments
  */
 function createSlackApplication(args) {
-  // NB: Work around electron/electron#6643
-  app.on('web-contents-created', (e, wc) => {
-    wc.on('context-menu', (ee, params) => {
-      wc.send('context-menu-ipc', params);
-    });
-  });
-
-
   global.loadSettings = args;
   global.reporter = new BugsnagReporter(args.resourcePath, args.devMode);
   global.getMemoryUsage = getMemoryUsage;

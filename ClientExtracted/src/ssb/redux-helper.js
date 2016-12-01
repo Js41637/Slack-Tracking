@@ -1,11 +1,7 @@
-import {webFrame} from 'electron';
-
 import AppStore from '../stores/app-store';
 import EventStore from '../stores/event-store';
 import ReduxComponent from '../lib/redux-component';
 import SettingStore from '../stores/setting-store';
-import WindowStore from '../stores/window-store';
-import zoomlevelToFactor from '../utils/zoomlevel-to-factor';
 
 import {getReleaseNotesUrl} from '../browser/updater-utils';
 import {UPDATE_STATUS} from '../utils/shared-constants';
@@ -17,7 +13,6 @@ export default class ReduxHelper extends ReduxComponent {
   constructor() {
     super();
     this.lastSelectedTeams = [];
-
     this.update();
   }
 
@@ -25,8 +20,6 @@ export default class ReduxHelper extends ReduxComponent {
     return {
       isMachineAwake: AppStore.getSuspendStatus(),
       currentTeamId: AppStore.getSelectedTeamId(),
-      zoomLevel: SettingStore.getSetting('zoomLevel'),
-      isCallsWindow: WindowStore.isCallsWindow(),
       sidebarClickedEvent: EventStore.getEvent('sidebarClicked'),
       updateStatus: AppStore.getUpdateStatus(),
       updateInfo: AppStore.getUpdateInfo(),
@@ -41,7 +34,6 @@ export default class ReduxHelper extends ReduxComponent {
     this.updateLastActiveTeam(prevState);
     this.updateSuspendResume(prevState);
     this.updateUpdateStatus(prevState);
-    if (!this.state.isCallsWindow) this.updateZoomLevel(prevState);
   }
 
   updateLastActiveTeam(prevState) {
@@ -51,12 +43,6 @@ export default class ReduxHelper extends ReduxComponent {
 
     while (this.lastSelectedTeams.length > 16) {
       this.lastSelectedTeams.pop();
-    }
-  }
-
-  updateZoomLevel(prevState) {
-    if (prevState.zoomLevel !== this.state.zoomLevel) {
-      webFrame.setZoomFactor(zoomlevelToFactor(this.state.zoomLevel));
     }
   }
 

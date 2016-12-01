@@ -1,15 +1,17 @@
 import assignIn from 'lodash.assignin';
 import path from 'path';
+import {requireTaskPool} from 'electron-remote';
 import {Observable} from 'rxjs/Observable';
-import {clearNotificationsForChannel} from '../../csx/clear-notifications';
-import logger from '../../logger';
 
+import logger from '../../logger';
 import AppStore from '../../stores/app-store';
 import NotificationActions from '../../actions/notification-actions';
 import NotificationStore from '../../stores/notification-store';
 import ReduxComponent from '../../lib/redux-component';
 import SettingStore from '../../stores/setting-store';
 import TeamStore from '../../stores/team-store';
+
+const {clearNotificationsForChannel} = requireTaskPool(require.resolve('../../csx/clear-notifications'));
 
 let NativeNotification;
 

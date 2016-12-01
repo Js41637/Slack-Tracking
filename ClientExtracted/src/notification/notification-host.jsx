@@ -72,12 +72,12 @@ export default class NotificationHost extends Component {
   }
 
   componentDidMount() {
-    webFrame.setZoomFactor(zoomLevelToFactor(this.state.zoomLevel));
+    this.setZoomLevelAndLimits();
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.zoomLevel != this.state.zoomLevel) {
-      webFrame.setZoomFactor(zoomLevelToFactor(this.state.zoomLevel));
+      this.setZoomLevelAndLimits();
     }
 
     let maxItems = this.props.maxItems;
@@ -119,6 +119,11 @@ export default class NotificationHost extends Component {
       displayed = union(remaining, added);
       requestAnimationFrame(() => this.setState({displayedNotifs: displayed}));
     }
+  }
+
+  setZoomLevelAndLimits() {
+    webFrame.setLayoutZoomLevelLimits(this.state.zoomLevel, this.state.zoomLevel);
+    webFrame.setZoomLevel(this.state.zoomLevel);
   }
 
   getNotificationsWindow() {

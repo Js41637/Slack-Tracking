@@ -1,11 +1,11 @@
 'use strict';
 
 const fs = require('fs');
-const {app} = require('electron');
 const clone = require('lodash.clone');
 const path = require('path');
 const optimist = require('optimist');
 const {isPrebuilt} = require('./utils/process-helpers');
+const {version} = require('../package.json');
 
 // These Chromium switches let you hack yourself or do Weird Things. Blacklist
 // them.
@@ -22,8 +22,6 @@ const thingsIDontLike = [
 // Returns an object with sanitized versions of the command-line parameters.
 // Check the return value for supported options.
 function parseCommandLine() {
-  let version = app.getVersion();
-
   let re = /^slack:/i;
   let argList = clone(process.argv.slice(1));
   let protoUrl = argList.find((x) => x.match(re));

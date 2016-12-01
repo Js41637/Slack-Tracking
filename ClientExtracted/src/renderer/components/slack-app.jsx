@@ -58,7 +58,7 @@ export default class SlackApp extends Component {
 
   componentDidMount() {
     // Disable pinch-to-zoom (should still allow manual zooming via menu commands)
-    webFrame.setZoomLevelLimits(1, 1);
+    webFrame.setVisualZoomLevelLimits(1, 1);
 
     this.disposables.add(this.setupNetwork());
     this.disposables.add(this.setupKeyDownHandlers());

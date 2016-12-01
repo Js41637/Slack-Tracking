@@ -33,6 +33,7 @@ import SlackWebappDevHandler from './slack-webapp-dev-handler';
 import SquirrelAutoUpdater from './squirrel-auto-updater';
 import TeamStore from '../stores/team-store';
 import TrayHandler from './tray-handler';
+import WebContentsMediator from './web-contents-mediator';
 import WindowCreator from './window-creator';
 
 const {repairTrayRegistryKey} = requireTaskPool(require.resolve('../csx/tray-repair'));
@@ -67,6 +68,7 @@ export default class Application extends ReduxComponent {
 
     this.squirrelAutoUpdater = new SquirrelAutoUpdater();
     this.trayHandler = new TrayHandler();
+    this.webContentsMediator = new WebContentsMediator();
 
     if (this.state.isMac) {
       this.appMenu = new AppMenu();
