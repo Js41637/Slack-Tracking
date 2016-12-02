@@ -31564,11 +31564,12 @@ TS.registerModule("constants", {
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
+      var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
       var template_args = {
-        everyone_count: 120,
-        members_count: 70,
-        admins_count: 30,
-        guests_count: 20,
+        everyone_count: TS.lazyLoadMembersAndBots() ? 120 : TS.members.getMembersForUser().length,
+        members_count: TS.lazyLoadMembersAndBots() ? 70 : members_for_user.members.length,
+        admins_count: TS.lazyLoadMembersAndBots() ? 30 : _.filter(members_for_user.members, "is_admin").length,
+        guests_count: TS.lazyLoadMembersAndBots() ? 20 : _.concat(members_for_user.restricted_members, members_for_user.ultra_restricted_users).length,
         extra_filter_options: TS.boot_data.page_needs_enterprise,
         is_flannel: TS.lazyLoadMembersAndBots()
       };

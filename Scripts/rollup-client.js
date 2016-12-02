@@ -9337,8 +9337,9 @@
       var no_results = TS.templates.team_searchable_no_results({
         query: query,
         everyone_filter_selected: this._current_filter == "everyone",
-        members_filter_selected: this._current_filter == "active_members",
-        restricted_filter_selected: this._current_filter == "restricted_members",
+        members_filter_selected: this._current_filter.match(/active_members/),
+        admins_filter_selected: this._current_filter.match(/admin_members/),
+        restricted_filter_selected: this._current_filter.match(/restricted_members/),
         deactivated_filter_selected: this._current_filter == "disabled_members"
       });
       this.$_long_list_view.hide().before(no_results);
@@ -9351,6 +9352,8 @@
     maybeClearNoResults: function() {
       var $no_results = this.$_container.find(".no_results");
       if ($no_results.length == 0) return;
+      this._current_filter = "everyone";
+      this.$_container.find(".searchable_member_list_filter").replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
       $no_results.remove();
       this.$_long_list_view.show();
     },
@@ -9504,11 +9507,12 @@
       this.$_container.find(".infinite_spinner").remove();
     },
     _generateFilterSearchBarTemplateArgs: function() {
+      var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
       var template_args = {
         everyone_count: 120,
-        members_count: 70,
-        admins_count: 30,
-        guests_count: 20,
+        members_count: TS.lazyLoadMembersAndBots() ? 70 : members_for_user.members.length,
+        admins_count: TS.lazyLoadMembersAndBots() ? 30 : _.filter(members_for_user.members, "is_admin").length,
+        guests_count: TS.lazyLoadMembersAndBots() ? 20 : _.concat(members_for_user.restricted_members, members_for_user.ultra_restricted_users).length,
         search_input_id: this._search_input_id.slice(1),
         show_search: true,
         show_filters: true,
@@ -9523,9 +9527,9 @@
           org_members_count: 200,
           org_admins_count: 20,
           org_guests_count: 80,
-          team_members_count: 160,
-          team_admins_count: 20,
-          team_guests_count: 20,
+          team_members_count: TS.lazyLoadMembersAndBots() ? 70 : members_for_user.members.length,
+          team_admins_count: TS.lazyLoadMembersAndBots() ? 30 : _.filter(members_for_user.members, "is_admin").length,
+          team_guests_count: TS.lazyLoadMembersAndBots() ? 20 : _.concat(members_for_user.restricted_members, members_for_user.ultra_restricted_users).length,
           org_members_filter_selected: this._current_filter == "org_active_members",
           org_admins_filter_selected: this._current_filter == "org_admin_members",
           org_restricted_filter_selected: this._current_filter == "org_restricted_members",

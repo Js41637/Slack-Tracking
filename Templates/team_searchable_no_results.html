@@ -2,16 +2,39 @@
   <div class="align_center">
     <p class="small_bottom_margin">
       {{#if everyone_filter_selected}}
-        {{#t note="In response to a search" query=query}}No members found matching <span class="query bold">{query}</span>.{{/t}}
+        {{#if query}}
+          {{#t note="In response to a search" query=query}}No members found matching <span class="query bold">{query}</span>.{{/t}}
+        {{else}}
+          {{#t note="In response to a search"}}No members found.{{/t}}
+        {{/if}}
       {{/if}}
       {{#if members_filter_selected}}
-        {{#t note="In response to a search" query=query}}No members found matching <span class="query bold">{query}</span>.{{/t}}
+        {{#if query}}
+          {{#t note="In response to a search" query=query}}No members found matching <span class="query bold">{query}</span>.{{/t}}
+        {{else}}
+          {{#t note="In response to a search"}}No members found.{{/t}}
+        {{/if}}
+      {{/if}}
+      {{#if admins_filter_selected}}
+        {{#if query}}
+          {{#t note="In response to a search" query=query}}No admins found matching <span class="query bold">{query}</span>.{{/t}}
+        {{else}}
+          {{#t note="In response to a search"}}No admins found.{{/t}}
+        {{/if}}
       {{/if}}
       {{#if restricted_filter_selected}}
-        {{#t note="In response to a search" query=query}}No guests found matching <span class="query bold">{query}</span>.{{/t}}
+        {{#if query}}
+          {{#t note="In response to a search" query=query}}No guests found matching <span class="query bold">{query}</span>.{{/t}}
+        {{else}}
+          {{#t note="In response to a search"}}No guests found.{{/t}}
+        {{/if}}
       {{/if}}
       {{#if deactivated_filter_selected}}
-        {{#t note="In response to a search" query=query}}No deactivated members found matching <span class="query bold">{query}</span>.{{/t}}
+        {{#if query}}
+          {{#t note="In response to a search" query=query}}No deactivated members found matching <span class="query bold">{query}</span>.{{/t}}
+        {{else}}
+          {{#t note="In response to a search"}}No deactivated members found.{{/t}}
+        {{/if}}
       {{/if}}
     </p>
   </div>
