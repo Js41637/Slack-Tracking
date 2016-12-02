@@ -516,7 +516,7 @@
     _handleParsedDeepLink: function(cmd, qs_args) {
       if (!qs_args.team) return;
       if (qs_args.team != TS.model.team.id) {
-        TS.generic_dialog.alert("You tried to perform an action on a team you're not yet logged into! Sorry, no can do :/");
+        TS.generic_dialog.alert(TS.i18n.t("You tried to perform an action on a team you’re not yet logged into! Sorry, no can do :/", "client")());
         return;
       }
       var id = qs_args.id;
@@ -546,11 +546,11 @@
     apiPaused: function(info) {
       var message;
       if (info.reason.API_ERROR) {
-        message = 'We’re having trouble connecting to Slack. We’ll try again shortly, or you can <a onclick="TS.ms.manualReconnectNow()">try now</a>.';
+        message = TS.i18n.t('We’re having trouble connecting to Slack. We’ll try again shortly, or you can <a onclick="TS.ms.manualReconnectNow()">try now</a>.', "client")();
       } else if (info.reason.SERVICE_DOWN) {
-        message = 'Slack is unavailable, but don’t worry — we’re on the case. <a href="https://status.slack.com/">Check our status page</a> for updates.';
+        message = TS.i18n.t('Slack is unavailable, but don’t worry — we’re on the case. <a href="https://status.slack.com/">Check our status page</a> for updates.', "client")();
       } else if (info.reason.OFFLINE) {
-        message = 'Your computer seems to be offline. We’ll keep trying to reconnect, or you can <a onclick="TS.ms.manualReconnectNow()">try now</a>.';
+        message = TS.i18n.t('Your computer seems to be offline. We’ll keep trying to reconnect, or you can <a onclick="TS.ms.manualReconnectNow()">try now</a>.', "client")();
       }
       if (TS.model.ms_logged_in_once) {
         $("#connection_div").html(message).removeClass("hidden");
@@ -568,7 +568,7 @@
       } else {
         $("#loading_message_attribution").empty();
         $("#loading_message_attribution_img").remove();
-        $("#loading_welcome_msg").html("Trying to log in again.");
+        $("#loading_welcome_msg").html(TS.i18n.t("Trying to log in again.", "client")());
       }
     },
     displayModelOb: function(model_ob) {
@@ -590,7 +590,7 @@
       TS.model.is_msg_rate_limited = true;
       if (args.notify_user) {
         TS.client.ui.addEphemeralBotMsg({
-          text: "_Avalanche!_ That's too many messages for Slack to handle — could you slow down just a bit?",
+          text: TS.i18n.t("_Avalanche!_ That’s too many messages for Slack to handle — could you slow down just a bit?", "client")(),
           ephemeral_type: "disconnected_feedback",
           slackbot_feels: "sad_surprise"
         });
@@ -660,10 +660,12 @@
       if (TS.model._user_removed_from_team) return;
       TS.model._user_removed_from_team = true;
       TS.generic_dialog.start({
-        body: "<p>You have been removed from the <b>" + TS.utility.htmlEntities(TS.model.team.name) + " team.</p>",
+        body: "<p>" + TS.i18n.t("You have been removed from the <strong>{team_name}</strong> team.", "client")({
+          team_name: TS.utility.htmlEntities(TS.model.team.name)
+        }) + "</p>",
         show_cancel_button: false,
         esc_for_ok: true,
-        go_button_text: "OK",
+        go_button_text: TS.i18n.t("OK", "client")(),
         onGo: function() {
           if (TS.model.is_our_app) {
             TS.info("calling TSSSB.signOutAndRemoveTeam because user_removed_from_team with team_id = " + team_id);
@@ -691,20 +693,20 @@
   };
   var _memberAccountTypeChanged = function(member) {
     if (!member || member.id != TS.model.user.id) return;
-    var desc;
+    var body;
     if (member.is_ultra_restricted) {
-      desc = " You are now a single-channel guest of the team. ";
+      body = TS.i18n.t("Your account permissions have changed! You are now a single-channel guest of the team. You must now reload for the changes to take effect.", "client")();
     } else if (member.is_restricted) {
-      desc = " You are now a restricted member of the team. ";
+      body = TS.i18n.t("Your account permissions have changed! You are now a restricted member of the team. You must now reload for the changes to take effect.", "client")();
     } else {
-      desc = " You are now a full member of the team. ";
+      body = TS.i18n.t("Your account permissions have changed! You are now a full member of the team. You must now reload for the changes to take effect.", "client")();
     }
     TS.generic_dialog.start({
-      title: "Reload required",
-      body: "<p>Your account permissions have changed!" + desc + "You must now reload for the changes to take effect.</p>",
+      title: TS.i18n.t("Reload required", "client")(),
+      body: "<p>" + body + "</p>",
       show_cancel_button: false,
       esc_for_ok: true,
-      go_button_text: "Reload",
+      go_button_text: TS.i18n.t("Reload", "client")(),
       onGo: function() {
         TS.reload();
       }
@@ -1031,7 +1033,10 @@
         TS.model.welcome_model_ob = slackbot;
       } else {
         TS.error("Tried to lookup Slackbot but failed");
-        TS.generic_dialog.alert("Slack has encountered a problem and needs to reload.", "Reload required", "Reload").then(TS.reload);
+        var alert_msg = TS.i18n.t("Slack has encountered a problem and needs to reload.", "client")();
+        var alert_title = TS.i18n.t("Reload required", "client")();
+        var alert_btn = TS.i18n.t("Reload", "client")();
+        TS.generic_dialog.alert(alert_msg, alert_title, alert_btn).then(TS.reload);
       }
     };
     if (!window.location.pathname.match(/^\/(message|unreads|threads)/) && window.history) {
@@ -1104,7 +1109,7 @@
         var general = TS.channels.getGeneralChannel();
         if (general) return general.id;
       }
-      alert("ERROR could not find starting channel");
+      alert(TS.i18n.t("ERROR could not find starting channel", "client")());
     };
     TS.model.initial_cid = getInitialChannelId();
   };

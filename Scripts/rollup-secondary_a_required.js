@@ -24595,7 +24595,7 @@ TS.registerModule("constants", {
       if (mention) return mention.message;
       return null;
     },
-    replaceMsg: function(model_ob, new_msg, might_not_exist) {
+    replaceMsg: function(model_ob, new_msg, might_not_exist, force_update) {
       var original_msg = TS.utility.msgs.getMsg(new_msg.ts, model_ob.msgs);
       if (!original_msg && model_ob._archive_msgs) {
         original_msg = TS.utility.msgs.getMsg(new_msg.ts, model_ob._archive_msgs);
@@ -24633,7 +24633,7 @@ TS.registerModule("constants", {
       var changed_keys = _.union(Object.keys(new_msg), Object.keys(original_msg)).filter(function(key) {
         return new_msg[key] != original_msg[key];
       });
-      if (!changed_keys.length) {
+      if (!changed_keys.length && !force_update) {
         TS.info("Not signalling message change because it doesn't look like anything has changed for " + new_msg.ts + " in " + model_ob.id);
         return;
       }
@@ -36735,27 +36735,32 @@ var _on_esc;
             });
           },
           onGo: function() {
-            var do_blacklist = !!$("#attachment_blacklist_cb").prop("checked");
-            var blacklist_type = do_blacklist ? $("#attachment_blacklist_select").val() : "none";
-            var blacklist_url = do_blacklist ? $("#attachment_blacklist_select").find(":selected").data("url") : "";
-            var args = {
-              channel: c_id,
-              ts: msg_id,
-              attachment: attach_id,
-              blacklist_type: blacklist_type,
-              blacklist_url: blacklist_url
-            };
-            TS.dir(0, args);
-            TS.api.call("chat.deleteAttachment", args, function(ok, data, args) {
-              if (ok) {
-                if (TS.web) {
-                  msg.attachments = TS.inline_attachments.removeAttachmentById(msg.attachments, attach_id);
-                  TS.utility.msgs.replaceMsg(model_ob, msg);
+            if (msg.is_ephemeral) {
+              msg.attachments = TS.inline_attachments.removeAttachmentById(msg.attachments, attach_id);
+              TS.utility.msgs.replaceMsg(model_ob, msg, false, true);
+            } else {
+              var do_blacklist = !!$("#attachment_blacklist_cb").prop("checked");
+              var blacklist_type = do_blacklist ? $("#attachment_blacklist_select").val() : "none";
+              var blacklist_url = do_blacklist ? $("#attachment_blacklist_select").find(":selected").data("url") : "";
+              var args = {
+                channel: c_id,
+                ts: msg_id,
+                attachment: attach_id,
+                blacklist_type: blacklist_type,
+                blacklist_url: blacklist_url
+              };
+              TS.dir(0, args);
+              TS.api.call("chat.deleteAttachment", args, function(ok, data, args) {
+                if (ok) {
+                  if (TS.web) {
+                    msg.attachments = TS.inline_attachments.removeAttachmentById(msg.attachments, attach_id);
+                    TS.utility.msgs.replaceMsg(model_ob, msg);
+                  }
+                } else {
+                  TS.generic_dialog.alert("Attachment removing failed!");
                 }
-              } else {
-                TS.generic_dialog.alert("Attachment removing failed!");
-              }
-            });
+              });
+            }
           }
         });
       }
@@ -50118,7 +50123,8 @@ $.fn.togglify = function(settings) {
     promiseToGetTeams: function(exclude_discoverable) {
       var calling_args = {
         include_archived: false,
-        include_deleted: false
+        include_deleted: false,
+        include_user_counts: true
       };
       if (exclude_discoverable) calling_args.exclude_discoverable = exclude_discoverable;
       return TS.api.call("enterprise.teams.list", calling_args).reflect().then(function(response) {
@@ -50184,6 +50190,12 @@ $.fn.togglify = function(settings) {
           team.is_unlisted = true;
           break;
       }
+    }
+    if (!team.user_counts) {
+      team.user_counts = {};
+    }
+    if (team.user_counts && !team.user_counts.active_members) {
+      team.user_counts.active_members = 0;
     }
   };
 })();
