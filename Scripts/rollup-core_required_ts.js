@@ -371,7 +371,7 @@
       if (msg) {
         TS.info("TS.reload called msg:" + msg);
         TS.generic_dialog.start({
-          title: "Reloading!",
+          title: TS.i18n.t("Reloading!", "ts")(),
           body: msg,
           show_cancel_button: false,
           esc_for_ok: true,
