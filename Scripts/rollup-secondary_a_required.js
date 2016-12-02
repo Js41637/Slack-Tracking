@@ -52611,7 +52611,7 @@ $.fn.togglify = function(settings) {
       return;
     }
     if (evt.data.origin_window_type === TS.utility.calls.window_types.call_window) {
-      switch (event.data.message_type) {
+      switch (evt.data.message_type) {
         case TS.utility.calls.messages_from_call_window_types.update_mini_panel:
           _updateMiniPanelState(evt.data.mini_panel_state);
           if (evt.data.mini_panel_state.hidden) TSSSB.call("hideWindow", _utility_call_state.mini_panel_token);
@@ -52653,7 +52653,7 @@ $.fn.togglify = function(settings) {
           });
           break;
         case TS.utility.calls.messages_from_call_window_types.force_janus_disconnect:
-          _forceJanusDisconnect(event.data.server, event.data.session_id, event.data.token, event.data.transaction_id);
+          _forceJanusDisconnect(evt.data.server, evt.data.session_id, evt.data.token, evt.data.transaction_id);
           break;
         case TS.utility.calls.messages_from_call_window_types.get_regions:
           TS.utility.calls.promiseToGetRegions().then(function(regions) {
@@ -52664,8 +52664,8 @@ $.fn.togglify = function(settings) {
           });
           break;
         case TS.utility.calls.messages_from_call_window_types.get_server:
-          var call_id = event.data.id;
-          var call_regions = event.data.regions;
+          var call_id = evt.data.id;
+          var call_regions = evt.data.regions;
           TS.utility.calls.promiseToGetServer(call_regions, call_id).then(function(response) {
             _sendMessageToCallWindow({
               message_type: TS.utility.calls.messages_to_call_window_types.got_server,
@@ -52681,17 +52681,19 @@ $.fn.togglify = function(settings) {
           });
           break;
         case TS.utility.calls.messages_from_call_window_types.get_member_data:
-          _sendMessageToCallWindow({
-            reply_to: event.data.message_id,
-            message_type: event.data.message_type,
-            message: {
-              user_id: evt.data.user_id,
-              member: TS.members.getMemberById(evt.data.user_id)
-            }
+          TS.members.ensureMemberIsPresent(evt.data.user_id).then(function() {
+            _sendMessageToCallWindow({
+              reply_to: evt.data.message_id,
+              message_type: evt.data.message_type,
+              message: {
+                user_id: evt.data.user_id,
+                member: TS.members.getMemberById(evt.data.user_id)
+              }
+            });
           });
           break;
         case TS.utility.calls.messages_from_call_window_types.play_sound:
-          TS.sounds.play("call/" + event.data.sound + "_" + TS.boot_data.call_sounds_version + ".mp3");
+          TS.sounds.play("call/" + evt.data.sound + "_" + TS.boot_data.call_sounds_version + ".mp3");
           break;
         default:
           TS.utility.calls_log.logEvent({
@@ -52705,7 +52707,7 @@ $.fn.togglify = function(settings) {
         case TS.utility.calls.messages_from_incoming_call_types.user_clicked_accept_or_reject:
           TS.utility.calls_log.logEvent({
             event: _utility_calls_config.log_events.incoming_call_click,
-            value: event.data
+            value: evt.data
           });
           TS.utility.calls.sendInvitationResponseToCaller({
             user_id: evt.data.user_id,
@@ -52728,7 +52730,7 @@ $.fn.togglify = function(settings) {
         case TS.utility.calls.messages_from_mini_panel_types.user_clicked_action:
           TS.utility.calls_log.logEvent({
             event: _utility_calls_config.log_events.mini_panel_click,
-            value: event.data
+            value: evt.data
           });
           if (evt.data.action === "mute" || evt.data.action === "leave" || evt.data.action === "stop_screenshare") {
             _sendMessageToCallWindow({
