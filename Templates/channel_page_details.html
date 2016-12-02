@@ -1,7 +1,7 @@
 {{#pageNeedsEnterprise}}
   {{#if model_ob.shares}}
     <div class="channel_shared_teams_section">
-    <div class="bold subtle_silver shared_teams_label mini small_bottom_margin">Teams</div>
+    <div class="bold greigh shared_teams_label mini small_bottom_margin">Teams</div>
     {{#if is_globally_shared}}
       <p>
         <img class="member_image float_left small_right_margin" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
@@ -25,8 +25,8 @@
 {{/pageNeedsEnterprise}}
 
 <div class="channel_purpose_section">
-  <div class="bold subtle_silver purpose_label mini{{#pageNeedsEnterprise}}{{#if model_ob.shares}} top_margin{{/if}}{{/pageNeedsEnterprise}}">Purpose</div>
-  <div class="bold subtle_silver edit_purpose_label hidden mini tiny_bottom_margin">Set a new purpose</div>
+  <div class="bold greigh purpose_label mini{{#pageNeedsEnterprise}}{{#if model_ob.shares}} top_margin{{/if}}{{/pageNeedsEnterprise}}">Purpose</div>
+  <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">Set a new purpose</div>
 
   <div class="channel_purpose_text no_jumbomoji">
     {{#if model_ob.purpose.value}}
@@ -47,6 +47,6 @@
   <button class="hidden btn btn_small purpose_done" tabindex="2">Done</button>
 </div>
 
-<div class="creator italic subtle_silver top_margin">
-  <a class="creator_link subtle_silver"> Created by {{creator_name}} {{creation_date}} </a>
+<div class="creator italic greigh top_margin">
+  <a class="creator_link greigh"> Created by {{creator_name}} {{creation_date}} </a>
 </div>

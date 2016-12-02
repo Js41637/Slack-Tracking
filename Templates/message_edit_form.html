@@ -7,7 +7,7 @@
         {{{makeUsernameImage msg 36}}}
       {{/if}}
     </div>
-    {{!-- <i class="copy_only">[</i> --}}<{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}">{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{{toTime msg.ts}}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>{{!-- <i class="copy_only">[</i> --}}
+    {{!-- <i class="copy_only">[</i> --}}<{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}">{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>{{!-- <i class="copy_only">[</i> --}}
     {{#if show_star}}<span class="message_star_holder">{{star 'message' msg model_ob}}</span>{{/if}}
   </div>
   <form id="message_edit_form" data-msg-ts="{{msg.ts}}">

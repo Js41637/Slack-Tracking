@@ -1,7 +1,7 @@
 {{i18n_ns "menu"}}
 
 {{!-- 90% copied from templates/js/menu/team_and_user_items.hbs --}}
-<section class="slack_menu_you slack_menu_section" aria-label="you">
+<section class="slack_menu_you slack_menu_section" aria-label="{{#t}}you{{/t}}">
   {{> slack_menu_you_header user}}
 
   <ul class="menu_list">
@@ -49,7 +49,7 @@
   </ul>
 </section>
 
-<section class="slack_menu_current_team slack_menu_section" aria-label="current team">
+<section class="slack_menu_current_team slack_menu_section" aria-label="{{#t}}current team{{/t}}">
   {{> slack_menu_team_header team}}
 
   <ul class="menu_list">
@@ -137,7 +137,7 @@
 
 {{#pageNeedsEnterprise}}
   {{#if show_switch_teams_submenu}}
-    <section class="slack_menu_your_teams slack_menu_section" aria-label="switch teams">
+    <section class="slack_menu_your_teams slack_menu_section" aria-label="{{#t}}switch teams{{/t}}">
       <ul class="menu_list">
         {{#isOurApp}}
           {{#if signin_url}}
@@ -151,7 +151,7 @@
       </ul>
     </section>
   {{else}}
-    <section class="slack_menu_your_teams slack_menu_section" aria-label="other team accounts">
+    <section class="slack_menu_your_teams slack_menu_section" aria-label="{{#t}}other team accounts{{/t}}">
       <ul class="menu_list">
         {{#isOurApp}}{{else}}
           {{#if other_accounts}}
@@ -170,7 +170,7 @@
     </section>
   {{/if}}
 {{else}}
-  <section class="slack_menu_your_teams slack_menu_section" aria-label="other team accounts">
+  <section class="slack_menu_your_teams slack_menu_section" aria-label="{{#t}}other team accounts{{/t}}">
     <ul class="menu_list">
       {{#isOurApp}}{{else}}
         {{#if other_accounts}}
@@ -190,7 +190,7 @@
 {{/pageNeedsEnterprise}}
 
 {{#isOurApp}}{{else}}
-  <section class="slack_menu_download slack_menu_section" aria-label="download apps">
+  <section class="slack_menu_download slack_menu_section" aria-label="{{#t}}download apps{{/t}}">
     <ul class="menu_list">
       <li id="team_apps" role="menuitem">
         <a href="/downloads" class="download_link bold" target="{{newWindowName}}">{{#t}}Download the Slack app&hellip;{{/t}}</a>

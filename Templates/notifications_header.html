@@ -1,11 +1,13 @@
+{{i18n_ns "menu_notifications_header"}}
+
 {{#if in_dnd}}
   <div class="dnd_banner">
     <div class="{{#if is_snoozing}}snooze_illustration{{else}}dnd_illustration{{/if}}"></div>
-    <div class="dnd_on_label"><strong>Do Not Disturb ON</strong></div>
+    <div class="dnd_on_label">{{#t}}Do Not Disturb ON{{/t}}</div>
     {{#if is_snoozing}}
-      <div class="snooze_time_label">Notifications snoozed for {{readable_end_time}}</div>
+      <div class="snooze_time_label">{{#t duration=readable_end_time}}Notifications snoozed for {duration}{{/t}}</div>
     {{else}}
-      <div class="dnd_schedule_label">Scheduled until {{readable_end_time}}</div>
+      <div class="dnd_schedule_label">{{#t end_time=readable_end_time}}Scheduled until {end_time}{{/t}}</div>
     {{/if}}
   </div>
 {{/if}}

@@ -1,25 +1,19 @@
+{{i18n_ns "menu_notifications_items"}}
 {{#if in_dnd}}
-  <li><a data-dnd-menu-action="turn_off">Turn OFF</a></li>
+  <li><a data-dnd-menu-action="turn_off">{{#t}}Turn OFF{{/t}}</a></li>
 {{else}}
-  <div class="section_header"><hr><span class="header_label menu_mini">Snooze notifications:</span></div>
-
-  <li role="menuitem"><a data-snooze-length="20"   data-dnd-menu-action="snooze">20 minutes</a></li>
-  <li role="menuitem"><a data-snooze-length="60"   data-dnd-menu-action="snooze">1 hour</a></li>
-  <li role="menuitem"><a data-snooze-length="120"  data-dnd-menu-action="snooze">2 hours</a></li>
-  <li role="menuitem"><a data-snooze-length="240"  data-dnd-menu-action="snooze">4 hours</a></li>
-  <li role="menuitem"><a data-snooze-length="480"  data-dnd-menu-action="snooze">8 hours</a></li>
-  <li role="menuitem"><a data-snooze-length="1440" data-dnd-menu-action="snooze">24 hours</a></li>
-
+  <div class="section_header"><hr><span class="header_label menu_mini">{{#t note="Heading for a list of durations (e.g., 2 hours)"}}Snooze notifications:{{/t}}</span></div>
+  {{> snooze_items}}
   <li class="divider"></li>
 {{/if}}
 
 {{#if is_snoozing}}
-  <li id="adjust_snooze_time" class="has_submenu" role="menuitem"><a>Adjust time <ts-icon class="ts_icon_caret_right submenu_caret"></a></li>
+  <li id="adjust_snooze_time" class="has_submenu" role="menuitem"><a>{{#t}}Adjust time <ts-icon class="ts_icon_caret_right submenu_caret"></ts-icon>{{/t}}</a></li>
 {{else}}
   {{#if in_dnd}}
-    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule" aria-haspopup="true">Adjust schedule &hellip;</a></li>
+    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule" aria-haspopup="true">{{#t}}Adjust schedule &hellip;{{/t}}</a></li>
   {{else}}
-    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule">Do Not Disturb schedule &hellip;</a></li>
+    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule">{{#t}}Do Not Disturb schedule &hellip;{{/t}}</a></li>
   {{/if}}
 {{/if}}
 
@@ -27,8 +21,8 @@
 
 {{#unless model_ob.is_im}}
   <li id="channel_notification_settings" class="overflow_ellipsis" role="menuitem">
-    <a data-dnd-menu-action="channel_settings">Settings for <strong>{{#if model_ob.is_channel}}#{{/if}}{{#if model_ob.is_mpim}}{{mpimDisplayName model_ob}}{{else}}{{model_ob.name}}{{/if}}</strong> &hellip;</a>
+    <a data-dnd-menu-action="channel_settings">{{#t name=model_ob_name note="{name} is the title of a channel, group, or mpim"}}Settings for <strong>{name}</strong> &hellip;{{/t}}</a>
   </li>
 {{/unless}}
 
-<li id="notification_settings" class="overflow_ellipsis" role="menuitem"><a data-dnd-menu-action="notif_prefs">Your notification preferences &hellip;</a></li>
+<li id="notification_settings" class="overflow_ellipsis" role="menuitem"><a data-dnd-menu-action="notif_prefs">{{#t}}Your notification preferences &hellip;{{/t}}</a></li>

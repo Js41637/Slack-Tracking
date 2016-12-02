@@ -3768,7 +3768,7 @@ html.no_touch .alert_page a:hover {
   width: 0;
   height: 0;
   margin: -6px;
-  border: 6px solid transparent
+  border: 7px solid transparent
 }
 
 .ts_tip.ts_tip_bottom .ts_tip_tip .ts_tip_multiline_inner,
@@ -10943,6 +10943,10 @@ body.winssb #emoji_menu {
   line-height: 1.5625rem;
   color: #fff;
   position: relative
+}
+
+#menu.notifications_menu .dnd_banner .dnd_on_label {
+  font-weight: 700
 }
 
 #menu.notifications_menu .dnd_banner .dnd_on_label,

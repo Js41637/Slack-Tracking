@@ -7,10 +7,10 @@
          data-ts="{{msg.ts}}"
          data-model-ob-id="{{model_ob.id}}"
          data-member-id="{{member.id}}"
-         {{#feature flag="feature_app_cards_and_profs_frontend"}}
+         {{#if is_app_data_enabled}}
          {{#if app_id}}data-app-id="{{app_id}}"{{/if}}
          {{#if bot_id}}data-bot-id="{{bot_id}}"{{/if}}
-         {{/feature}}
+         {{/if}}
          {{#feature flag="feature_refactor_buildmsghtml"}}
            class="{{msg_classes}}"
          {{else}}
@@ -69,7 +69,7 @@
       <div class="message_icon">
         {{> message_member_image}}
       </div>
-      <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if show_user}}{{{toTime msg.ts}}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{{toTime msg.ts false}}}</span><span class="dense_only">{{{toTime msg.ts}}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+      <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if show_user}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts false}}}{{/if}}</span><span class="dense_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
       {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
     </div>
   {{/unless}}
@@ -109,7 +109,7 @@
             <span class="meta message_commented">commented:</span>
           {{/if}}
         {{/if}}
-        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{{toTime msg.ts}}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
         {{#unless standalone}}
           {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
         {{/unless}}

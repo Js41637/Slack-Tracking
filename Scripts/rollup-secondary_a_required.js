@@ -17806,12 +17806,14 @@ TS.registerModule("constants", {
         var is_bot = TS.utility.msgs.shouldHaveBotLabel(msg, member);
         var app_id;
         var bot_id;
-        if (TS.boot_data.feature_app_cards_and_profs_frontend && is_bot) {
+        var is_app_data_enabled;
+        if ((TS.boot_data.feature_app_cards_and_profs_frontend || TS.boot_data.feature_platform_metrics) && is_bot) {
           var bot_info = TS.bots.getBotInfoByMsg(msg);
           if (bot_info) {
             app_id = bot_info.app_id;
             bot_id = bot_info.bot_id;
           }
+          is_app_data_enabled = true;
         }
         var prev_speaker;
         if (prev_msg) {
@@ -17966,6 +17968,7 @@ TS.registerModule("constants", {
           is_bot: is_bot,
           bot_id: bot_id,
           app_id: app_id,
+          is_app_data_enabled: is_app_data_enabled,
           highlight_as_new: highlight_as_new,
           show_star: !starred_items_list && !is_ephemeral,
           has_rxns: has_rxns,
@@ -18239,9 +18242,6 @@ TS.registerModule("constants", {
           TS.warn("msg " + args.msg.ts + " has an invalid (non string) color:" + attachment.color + " (removed in client)");
           delete attachment.color;
         } else {
-          if (attachment.color.indexOf("#") != -1) {
-            TS.warn("msg " + args.msg.ts + " has an invalid color:" + attachment.color + " (fixed in client)");
-          }
           attachment.color = attachment.color.replace(/\#/g, "");
         }
       }
@@ -21148,6 +21148,7 @@ TS.registerModule("constants", {
         var hide_actions = !!args.hide_actions;
         var full_date = !!args.full_date;
         if (TS.model.prefs.fuller_timestamps && !full_date) full_date = !TS.utility.date.sameDay(TS.utility.date.toDateObject(msg.ts), new Date);
+        var relative_ts = !!args.relative_ts;
         var jump_link = args.jump_link ? new Handlebars.SafeString(args.jump_link) : "";
         var starred_items_list = !!args.starred_items_list;
         var starred_items_actions = args.starred_items_actions;
@@ -21168,7 +21169,9 @@ TS.registerModule("constants", {
         var actions = TS.utility.msgs.getMsgActions(msg, model_ob);
         if (!current_speaker) current_speaker = TS.templates.builders.getBotIdentifier(msg);
         var is_bot = TS.utility.msgs.shouldHaveBotLabel(msg, member);
-        var app_id, bot_id;
+        var app_id;
+        var bot_id;
+        var is_app_data_enabled;
         if (TS.boot_data.feature_message_replies || TS.boot_data.feature_unread_view) {
           msg_dom_id = args.msg_dom_id || msg_dom_id;
         }
@@ -21179,12 +21182,13 @@ TS.registerModule("constants", {
           msg = _.cloneDeep(msg);
           msg.text += " <slack-action://BSLACKBOT/help/files/D026MK7NF|testing>";
         }
-        if (TS.boot_data.feature_app_cards_and_profs_frontend && is_bot) {
+        if ((TS.boot_data.feature_app_cards_and_profs_frontend || TS.boot_data.feature_platform_metrics) && is_bot) {
           var bot_info = TS.bots.getBotInfoByMsg(msg);
           if (bot_info) {
             app_id = bot_info.app_id;
             bot_id = bot_info.bot_id;
           }
+          is_app_data_enabled = true;
         }
         if (prev_msg) {
           prev_speaker = prev_msg.subtype == "file_comment" && prev_msg.comment ? prev_msg.comment.user : prev_msg.user;
@@ -21295,6 +21299,7 @@ TS.registerModule("constants", {
           standalone: standalone,
           hide_actions: standalone || hide_actions,
           full_date: full_date,
+          relative_ts: relative_ts,
           jump_link: jump_link,
           show_resend_controls: msg.ts in TS.model.display_unsent_msgs,
           starred_items_list: starred_items_list,
@@ -21305,6 +21310,7 @@ TS.registerModule("constants", {
           is_bot: is_bot,
           bot_id: bot_id,
           app_id: app_id,
+          is_app_data_enabled: is_app_data_enabled,
           highlight_as_new: highlight_as_new,
           show_star: !starred_items_list && !is_ephemeral,
           has_rxns: has_rxns,
@@ -21962,6 +21968,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("toTimeAgo", function(ts) {
         return TS.utility.date.toTimeAgo(ts);
+      });
+      Handlebars.registerHelper("toTimeAgoShort", function(ts) {
+        return TS.utility.date.toTimeAgoShort(ts);
       });
       Handlebars.registerHelper("toTimeDuration", function(ts) {
         return TS.utility.date.toTimeDuration(ts);
@@ -23828,6 +23837,37 @@ TS.registerModule("constants", {
       }
       is_future ? prefix = "in " : suffix = " ago";
       return prefix + output + suffix;
+    },
+    toTimeAgoShort: function(ts) {
+      var date = TS.utility.date.toDateObject(ts);
+      var today = new Date;
+      var raw_seconds = TS.utility.date.distanceInSeconds(today, date);
+      var seconds = Math.abs(raw_seconds);
+      var minutes = seconds / 60;
+      var hours = minutes / 60;
+      var days = hours / 24;
+      var years = days / 365;
+      var output = "";
+      if (seconds < 45) {
+        output = "<1m";
+      } else if (seconds < 90) {
+        output = "1m";
+      } else if (minutes < 45) {
+        output = Math.round(minutes) + "m";
+      } else if (minutes < 90) {
+        output = "1h";
+      } else if (hours < 24) {
+        output = Math.round(hours) + "h";
+      } else if (days < 7) {
+        output = Math.round(days) + "d";
+      } else if (days < 365) {
+        output = TS.utility.date.toCalendarDate(ts, true, true, true);
+      } else if (years < 1.5) {
+        output = "1y";
+      } else {
+        output = Math.round(years) + "y";
+      }
+      return output;
     },
     timezoneLabel: function(member, include_local_time) {
       var tz_label = "Pacific Standard Time";
@@ -31211,9 +31251,19 @@ TS.registerModule("constants", {
       TS.menu.buildIfNeeded();
       TS.menu.clean();
       var status = TS.dnd.memberDndStatus();
+      var model_ob = TS.shared.getActiveModelOb();
+      var model_ob_name;
+      if (model_ob.is_mpim) {
+        model_ob_name = TS.mpims.getDisplayName(model_ob, false, false);
+      } else if (model_ob.is_channel || model_ob.is_group) {
+        model_ob_name = "#" + model_ob.name;
+      } else {
+        model_ob_name = model_ob.name;
+      }
       var template_args = {
         user: TS.model.user,
-        model_ob: TS.shared.getActiveModelOb(),
+        model_ob: model_ob,
+        model_ob_name: model_ob_name,
         in_dnd: status.in_dnd,
         is_snoozing: status.snoozed,
         readable_end_time: status.readable_end_time
@@ -31914,9 +31964,7 @@ var _on_esc;
 (function() {
   "use strict";
   TS.registerModule("menu.app", {
-    onStart: function() {
-      _app_presence_list = TS.presence_manager.createList();
-    },
+    onStart: function() {},
     active_app: null,
     active_app_bot_id: null,
     app_item_click_sig: new signals.Signal,
@@ -31933,7 +31981,6 @@ var _on_esc;
       function showAllAppInformation(app) {
         TS.menu.app.active_app = app;
         TS.menu.app.active_app_bot_id = bot_id;
-        _app_presence_list.add(app_id);
         var template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
         var is_bot = _.get(app, "bot_user.id");
         TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
@@ -31998,7 +32045,6 @@ var _on_esc;
       TS.menu.end();
     }
   });
-  var _app_presence_list;
 })();
 (function() {
   "use strict";
@@ -37242,7 +37288,8 @@ var _on_esc;
         msg: msg,
         edit_text: edit_text,
         permalink: TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts),
-        include_emo: !!TS.client
+        include_emo: !!TS.client,
+        relative_ts: TS.utility.msgs.isMsgReply(msg)
       });
       msg_el.after(html);
       var form = $("#message_edit_form");
@@ -43806,7 +43853,8 @@ $.fn.togglify = function(settings) {
       if ($select.prop("disabled")) instance.disabled = true;
       if (instance.disabled) $container.addClass("disabled");
       var html = TS.templates.lazy_filter_select_container({
-        instance: instance
+        instance: instance,
+        aria_labelledby: $select.attr("aria-labelledby")
       });
       $container.html(html);
       if (instance.append) {
@@ -46064,12 +46112,18 @@ $.fn.togglify = function(settings) {
       var $message = $el.closest("ts-message");
       var message_ts = $message.data("ts") + "";
       var message_c_id = $message.data("model-ob-id");
+      var member_id = $message.data("member-id");
+      var app_id = $message.data("app-id");
+      var bot_id = $message.data("app-id");
       var original_href = $el.data("referer-original-href");
       var url = original_href ? original_href : $el.attr("href");
       var payload = {
         message_timestamp: message_ts,
         channel_id: message_c_id,
         channel_type: message_c_id ? message_c_id.charAt(0) : "",
+        member_id: member_id,
+        app_id: app_id,
+        bot_id: bot_id,
         url: url ? url : ""
       };
       if ($el.is(".channel_link, .internal_channel_link")) {
@@ -54079,7 +54133,7 @@ $.fn.togglify = function(settings) {
       pending_attachment._pending = true;
       return pending_attachment;
     },
-    confirmAction: function(action, callback) {
+    confirmAction: function(action, onGo, onCancel) {
       var confirm_class = action.style == "danger" ? "btn_danger" : "btn_primary";
       var config = _.defaults(action.confirm, {
         dismiss_text: TS.i18n.t("Cancel", "attachment_actions")(),
@@ -54103,7 +54157,8 @@ $.fn.togglify = function(settings) {
         go_button_text: config.ok_text,
         go_button_class: confirm_class,
         cancel_button_text: config.dismiss_text,
-        onGo: callback
+        onGo: onGo,
+        onCancel: onCancel
       });
     },
     render: function(attachment, message_ts, only_render_if_pending) {
@@ -54266,12 +54321,23 @@ $.fn.togglify = function(settings) {
   };
 
   function _onItemAdded(item) {
-    var context = TS.attachment_actions.handleActionEventAndGetContext(this.$select);
-    delete context.action.options;
-    context.action.selected_options = [{
-      value: item.value
-    }];
-    _.defer(TS.attachment_actions.action_triggered_sig.dispatch, context);
+    var $select = this.$select;
+    var context = TS.attachment_actions.handleActionEventAndGetContext($select);
+    var onGo = function() {
+      delete context.action.options;
+      context.action.selected_options = [{
+        value: item.value
+      }];
+      _.defer(TS.attachment_actions.action_triggered_sig.dispatch, context);
+    };
+    var onCancel = function() {
+      $select.lazyFilterSelect("clearValue");
+    };
+    if (context.action.confirm) {
+      TS.attachment_actions.confirmAction(context.action, onGo, onCancel);
+    } else {
+      onGo();
+    }
   }
 
   function _filter(item, query) {

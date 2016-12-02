@@ -1,7 +1,14 @@
 <div class="lfs_input_container empty">
   <ts-icon class="ts_icon_search ts_icon search_icon subtle_silver"></ts-icon>
   {{#if instance.single}}<div class="lfs_value"></div>{{/if}}
-  <input type="text" class="lfs_input" size="1" placeholder="{{instance.placeholder_text}}"{{#if instance.disabled}} disabled="true"{{/if}}>
+  <input
+    type="text"
+    class="lfs_input"
+    size="1"
+    placeholder="{{instance.placeholder_text}}"
+    {{#if instance.disabled}} disabled="true"{{/if}}
+    {{#if aria_labelledby}} aria-labelledby="{{aria_labelledby}}"{{/if}}
+  >
 </div>
 <div class="lfs_list_container">
   <div class="lfs_list"></div>

@@ -2,16 +2,16 @@
 <div class="clearfix display_flex flex_wrap position_relative">
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
-      <label for="full_name">Full name</label>
-      <input type="text" class="no_bottom_margin" name="full_name" value="{{member.profile.full_name}}" placeholder="Full name" data-validation="required maxlength=71 keywords" />
+      <label id="full_name_profile_label">Full name</label>
+      <input type="text" class="no_bottom_margin" name="full_name" value="{{member.profile.full_name}}" placeholder="Full name" data-validation="required maxlength=71 keywords" aria-labelledby="full_name_profile_label" />
       <span class="input_note">This is how your teammates will refer to you in Slack, unless you add a preferred name below.</span>
     {{else}}
-      <label for="first_name">First name</label>
-      <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="First name" data-validation="maxlength=34" />
+      <label id="first_name_profile_label">First name</label>
+      <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="First name" data-validation="maxlength=34" aria-labelledby="first_name_profile_label" />
     {{/feature}}
   </p>
   <div id="edit_member_profile_photo_container" class="col">
-    <label for="first_name">Profile photo</label>
+    <label>Profile photo</label>
     {{#feature flag="feature_take_profile_photo"}}
       <div class="member_image_wrapped">{{makeMemberPreviewLinkImage member.id 192 false true}}</div>
       <div class="member_image_wrapped_no_photo">{{makeMemberPreviewLinkImage member.id 192 false true}}</div>
@@ -20,7 +20,7 @@
       <ts-icon class="member_upload ts_icon_cloud_upload" data-action="edit_member_profile_upload_image"><a>Upload a photo</a></ts-icon>
       <ts-icon class="show_delete ts_icon_trash" data-action="edit_member_profile_to_delete"><a>Remove photo</a></ts-icon>
     {{else}}
-      <div class="member_image_wrapper" data-action="edit_member_profile_photo_menu"><ts-icon class="upload_camera_icon ts_icon_camera">{{makeMemberPreviewLinkImage member.id 192 false true}}</ts-icon></div>
+      <div class="member_image_wrapper" data-action="edit_member_profile_photo_menu"><ts-icon class="upload_camera_icon ts_icon_camera" aria-label="upload a photo">{{makeMemberPreviewLinkImage member.id 192 false true}}</ts-icon></div>
     {{/feature}}
   </div>
 </div>
@@ -28,37 +28,37 @@
 <div class="clearfix">
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
-      <label for="preferred_name">Preferred name <span class="subtle_silver normal">(optional)</span></label>
-      <input type="text" class="no_bottom_margin" name="preferred_name" value="{{member.profile.preferred_name}}" placeholder="Preferred name" data-validation="maxlength=71 keywords" />
+      <label id="preferred_name_profile_label">Preferred name <span class="subtle_silver normal">(optional)</span></label>
+      <input type="text" class="no_bottom_margin" name="preferred_name" value="{{member.profile.preferred_name}}" placeholder="Preferred name" data-validation="maxlength=71 keywords" aria-labelledby="preferred_name_profile_label" />
       <span class="input_note">If you\u2019d rather be called something shorter, set it here.</span>
     {{else}}
-      <label for="last_name">Last name</label>
-      <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="Last name" data-validation="maxlength=35" />
+      <label id="last_name_profile_label">Last name</label>
+      <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="Last name" data-validation="maxlength=35" aria-labelledby="last_name_profile_label" />
     {{/feature}}
   </p>
 </div>
 
 <div class="clearfix">
   <p class="col span_2_of_3">
-    <label for="title">What I do</label>
-    <input type="text" class="no_bottom_margin" name="title" value="{{member.profile.title}}" placeholder="What I do" data-validation="maxlength=249" />
+    <label id="title_profile_label">What I do</label>
+    <input type="text" class="no_bottom_margin" name="title" value="{{member.profile.title}}" placeholder="What I do" data-validation="maxlength=249" aria-labelledby="title_profile_label" />
     <span class="input_note">Let people know what you do at {{team.name}}.</span>
   </p>
 </div>
 
 <div class="clearfix">
   <p class="col span_2_of_3">
-    <label for="phone">Phone number</label>
-    <input type="text" class="no_bottom_margin" name="phone" value="{{member.profile.phone}}" placeholder="(123) 555-5555" data-validation="maxlength=98" />
+    <label id="phone_profile_label">Phone number</label>
+    <input type="text" class="no_bottom_margin" name="phone" value="{{member.profile.phone}}" placeholder="(123) 555-5555" data-validation="maxlength=98" aria-labelledby="phone_profile_label" />
     <span class="input_note">Enter a phone number.</span>
   </p>
 </div>
 
 <div class="clearfix">
   <p class="col span_2_of_3">
-    <label class="select with_hint">
+    <label class="select with_hint" id="timezone_profile_label">
       {{#t}}Time Zone{{/t}}
-      <select class="no_bottom_margin" name="tz">
+      <select class="no_bottom_margin" name="tz" aria-labelledby="timezone_profile_label">
         {{#each timezone_options}}
           <option value="{{this.val}}"{{#if_equal this.val compare=../member_tz}} selected{{/if_equal}}>{{this.label}}</option>
         {{/each}}
@@ -72,13 +72,13 @@
   {{#each team_member_profile_fields}}
     <div class="clearfix">
       <p class="col {{#if_equal this.type compare="link"}}span_2_of_3{{else}}{{#if_equal this.type compare="date"}}span_2_of_3{{else}}span_1_of_1{{/if_equal}}{{/if_equal}} no_padding">
-        {{#if_not_equal this.type compare="options_list"}}<label for="{{this.id}}">{{this.label}}</label>{{/if_not_equal}}
+        {{#if_not_equal this.type compare="options_list"}}<label id="{{this.id}}_profile_label">{{this.label}}</label>{{/if_not_equal}}
         {{#if_equal this.type compare="text"}}
-          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="{{this.label}}" data-qa="{{this.label}}" data-validation="maxlength=256" value="{{this.value}}" />
+          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="{{this.label}}" data-qa="{{this.label}}" data-validation="maxlength=256" value="{{this.value}}" aria-labelledby="{{this.id}}_profile_label" />
         {{/if_equal}}
         {{#if_equal this.type compare="options_list"}}
-          <label for="{{this.id}}" class="select no_bottom_margin with_hint">{{this.label}}
-            <select class="no_bottom_margin" name="{{this.id}}" data-qa="{{this.label}}">
+          <label class="select no_bottom_margin with_hint" id="{{this.id}}_profile_label">{{this.label}}
+            <select class="no_bottom_margin" name="{{this.id}}" data-qa="{{this.label}}" aria-labelledby="{{this.id}}_profile_label">
               <option value='' {{#unless ../this.value}} selected{{/unless}}>Select &hellip;</option>
               {{#each this.possible_values}}
                 <option{{#if_equal ../this.value compare=this}} selected{{/if_equal}}>{{this}}</option>
@@ -87,13 +87,13 @@
           </label>
         {{/if_equal}}
         {{#if_equal this.type compare="date"}}
-          <input type="text" class="no_bottom_margin ts_icon_placeholder" name="{{this.id}}" data-plastic-type="date" placeholder="&#xe023;" data-qa="{{this.label}}" data-validation="dateandformat=Y-m-d" value="{{this.value}}" />
+          <input type="text" class="no_bottom_margin ts_icon_placeholder" name="{{this.id}}" data-plastic-type="date" placeholder="&#xe023;" data-qa="{{this.label}}" data-validation="dateandformat=Y-m-d" value="{{this.value}}" aria-labelledby="{{this.id}}_profile_label" />
         {{/if_equal}}
         {{#if_equal this.type compare="link"}}
-          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="https://" data-qa="{{this.label}}" data-validation="maxlength=256 islink" value="{{this.value}}" />
+          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="https://" data-qa="{{this.label}}" data-validation="maxlength=256 islink" value="{{this.value}}" aria-labelledby="{{this.id}}_profile_label"  />
         {{/if_equal}}
         {{#if_equal this.type compare="user"}}
-          <input class="edit_member_profile_lazy_filter_select no_bottom_margin" name={{this.id}} data-qa="{{this.label}}" data-validation="maxcsv=25" value="{{this.value}}" />
+          <input class="edit_member_profile_lazy_filter_select no_bottom_margin" name={{this.id}} data-qa="{{this.label}}" data-validation="maxcsv=25" value="{{this.value}}" aria-labelledby="{{this.id}}_profile_label" />
         {{/if_equal}}
         {{#if this.hint}}
           <span class="input_note">{{this.hint}}</span>
@@ -101,15 +101,15 @@
       </p>
       {{#if_equal this.type compare="link"}}
         <p class="col span_1_of_3 no_padding">
-          <label for="{{this.id}}_alt">Display text</label>
-          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My link" data-qa="{{this.label}}_display" data-validation="maxlength=256" value="{{this.alt}}" />
+          <label id="{{this.id}}_alt_profile_label">Display text</label>
+          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My link" data-qa="{{this.label}}_display" data-validation="maxlength=256" value="{{this.alt}}" aria-labelledby="{{this.id}}_alt_profile_label" />
           <span class="input_note">Optional</span>
         </p>
       {{/if_equal}}
       {{#if_equal this.type compare="date"}}
         <p class="col span_1_of_3 no_padding">
-          <label for="{{this.id}}_alt">Display text</label>
-          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My date" data-qa="{{this.label}}_display" data-validation="maxlength=256" value="{{this.alt}}" />
+          <label id="{{this.id}}_alt_profile_label">Display text</label>
+          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My date" data-qa="{{this.label}}_display" data-validation="maxlength=256" value="{{this.alt}}" aria-labelledby="{{this.id}}_alt_profile_label" />
           <span class="input_note">Optional</span>
         </p>
       {{/if_equal}}

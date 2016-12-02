@@ -37193,7 +37193,7 @@ function timezones_guess() {
   "use strict";
   TS.registerModule("client.ui.app_profile", {
     onStart: function() {
-      $('[data-js="app_profile_tab"]').on("click", ".btn", TS.client.ui.app_profile.onButtonClick);
+      $('[data-js="app_profile_tab"]').on("click", '[data-js="app_profile_btn"]', TS.client.ui.app_profile.onButtonClick);
     },
     active_app: null,
     openWithApp: function(app, bot_id) {
@@ -37201,7 +37201,14 @@ function timezones_guess() {
       _profile_template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
       TS.client.ui.flex.openAppProfileFlex();
       $('[data-js="app_profile_header"]').html(TS.templates.app_profile_title(_profile_template_args));
-      $('[data-js="app_profile_scroller"]').html(TS.templates.app_profile(_profile_template_args));
+      var $app_profile = $('[data-js="app_profile_scroller"]');
+      $app_profile.html(TS.templates.app_profile(_profile_template_args));
+      _$app_profile_desc = $app_profile.find('[data-js="app_profile_desc"]');
+      if (_$app_profile_desc.find('[data-js="app_profile_desc_inner"]').height() <= _$app_profile_desc.height() * 1.2) {
+        _$app_profile_desc.removeClass("app_desc_expand_showing");
+      } else {
+        _$app_profile_desc.css("max-height", _$app_profile_desc.find('[data-js="app_profile_desc_inner"]').height());
+      }
     },
     onButtonClick: function(e) {
       var $item = $(this);
@@ -37211,6 +37218,12 @@ function timezones_guess() {
         TS.ims.startImByMemberId(TS.client.ui.app_profile.active_app.bot_user.id);
       } else if (action === "open_overflow_menu") {
         TS.client.ui.app_profile.openOverflowMenu(e);
+      } else if (action === "desc_expand") {
+        _$app_profile_desc.removeClass("app_desc_expand_showing");
+        _$app_profile_desc.addClass("app_desc_collapse_showing");
+      } else if (action === "desc_collapse") {
+        _$app_profile_desc.removeClass("app_desc_collapse_showing");
+        _$app_profile_desc.addClass("app_desc_expand_showing");
       }
     },
     openOverflowMenu: function(e) {
@@ -37244,4 +37257,5 @@ function timezones_guess() {
     }
   });
   var _profile_template_args;
+  var _$app_profile_desc;
 })();

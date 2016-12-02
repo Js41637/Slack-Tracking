@@ -1,3 +1,5 @@
+{{i18n_ns "inline_saver"}}
+
 <ts-inline-saver class="saving">
   <span class="saving">
     <svg class="ts_icon ts_icon_spin ts_icon_spinner">
@@ -7,7 +9,7 @@
       {{#if custom_text}}
         {{custom_text.saving}}
       {{else}}
-        Saving &hellip;
+        {{#t note="Indication that save is in progress"}}Saving &hellip;{{/t}}
       {{/if}}
     {{/unless}}
   </span>
@@ -17,7 +19,7 @@
       {{#if custom_text}}
         {{custom_text.saved}}
       {{else}}
-        Saved!
+        {{#t note="Indication that save has succeeded"}}Saved!{{/t}}
       {{/if}}
     {{/unless}}
   </span>
@@ -27,7 +29,7 @@
       {{#if custom_text}}
         {{custom_text.failed}}
       {{else}}
-        Not saved
+        {{#t note="Indication that save has failed"}}Not saved{{/t}}
       {{/if}}
     {{/unless}}
   </span>

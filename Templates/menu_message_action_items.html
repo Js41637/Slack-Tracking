@@ -42,7 +42,7 @@
 {{#feature flag="feature_message_replies"}}
   {{#unless is_in_thread}}
     {{#if actions.reply}}
-      <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Reply &hellip;{{/t}}</a></li>
+      <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#if msg.reply_count}}{{#t}}View thread{{/t}}{{else}}{{#t}}Start a thread{{/t}}{{/if}} &hellip;</a></li>
     {{/if}}
   {{/unless}}
 {{/feature}}

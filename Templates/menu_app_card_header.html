@@ -43,11 +43,11 @@
       <div class="app_profile_buttons">
         {{!-- Message button --}}
         {{#if bot_user}}
-          <a class="btn app_profile_btn" type="button" data-action="open_bot_dm" href="/messages/@{{username}}" data-qa="app_header_message_button">{{#t}}Message{{/t}}</a>
+          <a class="btn app_profile_btn" type="button" data-js="app_profile_btn" data-action="open_bot_dm" href="/messages/@{{username}}" data-qa="app_header_message_button">{{#t}}Message{{/t}}</a>
         {{/if}}
         {{!-- Settings button --}}
         {{#if user_can_manage}}
-          <a class="btn app_profile_btn" type="button" href="/services/{{bot_id}}" target="_blank" data-qa="app_header_settings_button">
+          <a class="btn app_profile_btn" type="button" data-js="app_profile_btn" href="/services/{{bot_id}}" target="_blank" data-qa="app_header_settings_button">
             {{#t}}Settings{{/t}}
           </a>
         {{else}}
@@ -64,7 +64,7 @@
         {{/if}}
         {{!-- Overflow menu button --}}
         {{#unless (and custom_integration_type (if_not_equal custom_integration_type compare="bot"))}}
-          <button class="btn app_profile_btn btn_icon ts_icon ts_icon_chevron_large_down" type="button" data-action="open_overflow_menu" data-qa="app_header_overflow_menu_button"></button>
+          <button class="btn app_profile_btn btn_icon ts_icon ts_icon_chevron_large_down" type="button" data-js="app_profile_btn" data-action="open_overflow_menu" data-qa="app_header_overflow_menu_button"></button>
         {{/unless}}
       </div>
     {{/if}}
