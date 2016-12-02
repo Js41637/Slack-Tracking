@@ -2385,7 +2385,8 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul li.all_unreads ts-icon {
   float: left;
   opacity: .6;
-  margin-left: -3px
+  margin-left: -3px;
+  width: 1.25rem
 }
 
 .channels_list_holder ul li.all_threads.active ts-icon,
@@ -2393,17 +2394,16 @@ body.incremental_boot #col_channels .header_count {
   opacity: 1
 }
 
-.channels_list_holder ul li.all_threads ts-icon {
-  margin-left: -.125rem;
-  margin-right: .125rem
-}
-
 .channels_list_holder ul li.all_threads ts-icon:before {
-  font-size: 1.125rem
+  font-size: 1.0625rem;
+  position: relative;
+  left: .0625rem
 }
 
 .channels_list_holder ul li.all_threads.unread ts-icon:before {
-  content: '\E518'
+  content: '\E542';
+  font-size: 1.3125rem;
+  left: -.0625rem
 }
 
 #all_threads_nav {
@@ -18955,7 +18955,7 @@ ts-message .emoji-sizer .mention {
 
 .dense_theme .new_reply_indicator,
 .dense_theme .view_all_replies_container {
-  margin-left: 5.0625rem
+  margin-left: 3.9375rem
 }
 
 .dense_theme .view_all_replies_container {
@@ -22684,11 +22684,19 @@ ts-jumper ts-jumper-results:empty {
 }
 
 #channel_members_toggle_count .ts_tip_tip {
-  left: -20px
+  border-radius: 6px;
+  background: #000;
+  left: -20px;
+  margin: 0;
+  padding: 8px 12px
 }
 
 #channel_members_toggle_count .ts_tip_tip:after {
   left: 40px
+}
+
+#channel_members_toggle_count.ts_tip_multiline .ts_tip_tip {
+  white-space: normal
 }
 
 #pinned_item_count_count {

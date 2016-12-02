@@ -1,13 +1,11 @@
 <select
   name="{{name}}"
-  {{#if _disabled}}
+  {{#if disabled}}
     disabled
     aria-disabled="true"
   {{/if}}
   data-action-id="{{id}}"
-  {{#if _is_external}}
-    data-is-external="true"
-  {{/if}}
+  data-data-source="{{data_source}}"
 >
   <option>&nbsp;</option>
   {{#each options}}

@@ -9261,6 +9261,8 @@
       this._search_input_id = options.search_input_id || "#team_filter";
       this._long_list_view_id = "#" + (options.id || "team_list_scroller");
       this._current_filter = "everyone";
+      this._current_query_for_display = "";
+      this._current_query_for_match = "";
       this._next_marker = "";
       this._members_in_view = [];
       this._have_all_members = false;
@@ -9330,24 +9332,19 @@
         this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members_in_view, true, true);
       });
     },
-    showNoResults: function(query) {
-      var $no_results = this.$_container.find(".no_results");
-      if ($no_results.length != 0) return;
-      var this_searchable_member_list = this;
-      var no_results = TS.templates.team_searchable_no_results({
-        query: query,
-        everyone_filter_selected: this._current_filter == "everyone",
-        members_filter_selected: this._current_filter.match(/active_members/),
-        admins_filter_selected: this._current_filter.match(/admin_members/),
-        restricted_filter_selected: this._current_filter.match(/restricted_members/),
-        deactivated_filter_selected: this._current_filter == "disabled_members"
-      });
-      this.$_long_list_view.hide().before(no_results);
-      this.$_container.delegate(".clear_members_filter", "click", function() {
-        this_searchable_member_list.$_container.find(this_searchable_member_list._search_input_id + " input").val("");
-        this_searchable_member_list.maybeClearNoResults();
-        this_searchable_member_list.resetInitialState();
-      });
+    showResults: function(matching_members) {
+      if (matching_members.length > 0) {
+        this.maybeClearNoResults();
+        this.getLongListView().longListView("setItems", matching_members, true);
+      } else {
+        if (this._current_query_for_match == "" && this._current_filter == "everyone") {
+          this.maybeClearNoResults();
+          this.resetSearch();
+          this.resetInitialState();
+        } else {
+          this._showNoResults();
+        }
+      }
     },
     maybeClearNoResults: function() {
       var $no_results = this.$_container.find(".no_results");
@@ -9362,6 +9359,10 @@
     },
     getCurrentFilter: function() {
       return this._current_filter;
+    },
+    setCurrentQuery: function(query_for_display) {
+      this._current_query_for_display = query_for_display.trim();
+      this._current_query_for_match = query_for_display.trim().toLocaleLowerCase();
     },
     getCurrentMemberIds: function() {
       return this._member_ids;
@@ -9505,6 +9506,25 @@
     },
     _stopLoadingState: function() {
       this.$_container.find(".infinite_spinner").remove();
+    },
+    _showNoResults: function() {
+      var $no_results = this.$_container.find(".no_results");
+      if ($no_results.length != 0) return;
+      var this_searchable_member_list = this;
+      var no_results = TS.templates.team_searchable_no_results({
+        query: this._current_query_for_display,
+        everyone_filter_selected: this._current_filter == "everyone",
+        members_filter_selected: this._current_filter.match(/active_members/),
+        admins_filter_selected: this._current_filter.match(/admin_members/),
+        restricted_filter_selected: this._current_filter.match(/restricted_members/),
+        deactivated_filter_selected: this._current_filter == "disabled_members"
+      });
+      this.$_long_list_view.hide().before(no_results);
+      this.$_container.delegate(".clear_members_filter", "click", function() {
+        this_searchable_member_list.$_container.find(this_searchable_member_list._search_input_id + " input").val("");
+        this_searchable_member_list.maybeClearNoResults();
+        this_searchable_member_list.resetInitialState();
+      });
     },
     _generateFilterSearchBarTemplateArgs: function() {
       var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
@@ -11079,6 +11099,7 @@
       TS.groups.converted_to_shared_sig.add(_convertedToShared);
       TS.channels.member_left_sig.add(_CorGChanged);
       TS.channels.member_joined_sig.add(_CorGChanged);
+      TS.channels.member_joined_sig.add(_queueHiddenChannelJoinAlert);
       TS.channels.topic_changed_sig.add(_topicChanged);
       TS.channels.joined_sig.add(_getChannelTopic);
       TS.channels.converted_to_shared_sig.add(_convertedToShared);
@@ -11110,7 +11131,9 @@
       });
     },
     test: function() {
-      var test_ob = {};
+      var test_ob = {
+        _getHiddenChannelJoinAlertMessage: _getHiddenChannelJoinAlertMessage
+      };
       Object.defineProperty(test_ob, "_$header", {
         get: function() {
           return _$header;
@@ -11513,6 +11536,48 @@
     });
     $threads_header_info.text(text);
     $threads_header_info.removeClass("hidden");
+  };
+  var _hidden_channel_join_member_names = {};
+  var _queueHiddenChannelJoinAlert = function(channel, member, is_msg_hidden) {
+    if (is_msg_hidden) {
+      _hidden_channel_join_member_names[channel.id] = _hidden_channel_join_member_names[channel.id] || [];
+      _hidden_channel_join_member_names[channel.id].push("@" + member.name);
+      _alertHiddenChannelJoins();
+    }
+  };
+  var _alertHiddenChannelJoins = _.debounce(function() {
+    var EXTRA_CLASSNAMES = "ts_tip_multiline ts_tip_multiline_bottom ts_tip_multiline_leftish";
+    var $toggle = $("#channel_members_toggle_count");
+    var $tooltip = $toggle.find(".ts_tip_tip");
+    var active_channel_id = TS.model.active_channel_id;
+    var original_tooltip_text = $tooltip.text();
+    var tooltip_text = _getHiddenChannelJoinAlertMessage(_hidden_channel_join_member_names[active_channel_id]);
+    _hidden_channel_join_member_names = {};
+    if (!tooltip_text) return;
+    $toggle.addClass(EXTRA_CLASSNAMES);
+    $tooltip.text(tooltip_text);
+    $toggle.highlight(2499, null, function() {
+      $tooltip.text(original_tooltip_text);
+      $toggle.removeClass(EXTRA_CLASSNAMES);
+    });
+    _alertHiddenChannelJoins = _.debounce(_alertHiddenChannelJoins, 2500, {
+      maxWait: 5e3
+    });
+  }, 2500, {
+    maxWait: 5e3
+  });
+  var _getHiddenChannelJoinAlertMessage = function(member_names) {
+    if (_.isEmpty(member_names)) return "";
+    if (member_names.length > 3) {
+      member_names = member_names.slice(0, 3);
+      member_names.push("others");
+    }
+    return TS.i18n.t("{num_member_names, plural, =1{{first_member_name} has joined the channel} =2{{first_member_name} and {second_member_name} have joined the channel} other{{members} have joined the channel}}", "jobs")({
+      num_member_names: member_names.length,
+      first_member_name: member_names[0],
+      second_member_name: member_names[1],
+      members: TS.i18n.listify(member_names).join("")
+    });
   };
 })();
 (function() {
@@ -29170,7 +29235,10 @@
         modal_class: "fs_modal_internal_scroll"
       });
       if (TS.model.user.is_admin) {
-        var admin_invite_html = '<div class="channel_modal_footer">Or, <a class="do_admin_invite" data-channel-id="' + channel_id + '">invite a new person to your team</a></div>';
+        var admin_invite_copy = TS.i18n.t('Or, <a class="do_admin_invite" data-channel-id="{channel_id}">invite a new person to your team</a>', "channel_modal")({
+          channel_id: channel_id
+        });
+        var admin_invite_html = '<div class="channel_modal_footer">' + admin_invite_copy + "</div>";
         $("#channel_invite_modal").append(admin_invite_html);
       }
     }
@@ -29276,7 +29344,7 @@
         if (!ok) {
           if (data && data.error == "restricted_action") {
             setTimeout(function() {
-              TS.generic_dialog.alert("<p>You don't have permission to create new groups.</p><p>Talk to your Team Owner.</p>");
+              TS.generic_dialog.alert(TS.i18n.t("<p>You don’t have permission to create new groups.</p><p>Talk to your Team Owner.</p>", "channel_modal")());
             }, 500);
           } else {
             alert("failed! " + data.error);
@@ -29504,7 +29572,10 @@
   var _maybeShowRaTip = function() {
     if (_show_ra_tip) {
       if (!_$container.find(".ra_not_appear_warning").length) {
-        var html = '<p class="mini subtle_silver no_bottom_margin ra_not_appear_warning">' + TS.templates.builders.raLabel("Restricted accounts") + " may not appear below. Ask a Team Administrator to invite them.</p>";
+        var copy = TS.i18n.t("{restricted_accounts} may not appear below. Ask a Team Administrator to invite them.", "channel_modal")({
+          restricted_accounts: TS.templates.builders.raLabel("Restricted accounts")
+        });
+        var html = '<p class="mini subtle_silver no_bottom_margin ra_not_appear_warning">' + copy + "</p>";
         _$container.find(".kb_nav_label").after(html);
       }
     }
@@ -29592,7 +29663,7 @@
       data: _invite_members,
       approx_item_height: _APPROXIMATE_ITEM_HEIGHT,
       per_page: 50,
-      placeholder_text: "Search",
+      placeholder_text: TS.i18n.t("Search", "channel_modal")(),
       always_visible: true,
       tab_to_nav: true,
       template: function(item) {
@@ -29622,9 +29693,11 @@
       },
       noResultsTemplate: function(query) {
         if (_invite_members.length) {
-          return "No one found matching <strong>" + TS.utility.htmlEntities(query) + "</strong>";
+          return TS.i18n.t("No one found matching <strong>{query}</strong>", "channel_modal")({
+            query: TS.utility.htmlEntities(query)
+          });
         } else {
-          return "Everyone is already in this channel, so there is no one to invite!";
+          return TS.i18n.t("Everyone is already in this channel, so there is no one to invite!", "channel_modal")();
         }
       },
       onItemAdded: function() {
@@ -29684,7 +29757,7 @@
       $input_container.attr("style", "max-width: 85%").addClass("inline_block").addClass("no_padding");
       $input_container.after(TS.templates.channel_modal_go_button({
         class_name: "invite_go",
-        label: "Invite"
+        label: TS.i18n.t("Invite", "channel_modal")()
       }));
     }
     _toggleEnterToGoLabel();

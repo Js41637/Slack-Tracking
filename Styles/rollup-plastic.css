@@ -7120,7 +7120,7 @@ header .header_btns a i {
 
 header .header_btns .btn_link .label,
 header .header_btns a .label {
-  color: #9e9ea6;
+  color: #717274;
   margin-left: -1px
 }
 
@@ -7374,7 +7374,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .plastic_row .description {
-  color: #9e9ea6;
+  color: #717274;
   display: block;
   word-wrap: break-word;
   word-break: break-word;
