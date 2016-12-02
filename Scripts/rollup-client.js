@@ -3852,7 +3852,7 @@
         msg_go_button_text = "Yes, delete this post";
       } else {
         msg_title = "Delete file";
-        msg_body = "Are you sure you want to delete this file permanently?";
+        msg_body = obj.is_external ? "Are you sure you want to permanently delete this file from Slack?" : "Are you sure you want to delete this file permanently?";
         msg_go_button_text = "Yes, delete this file";
       }
       TS.generic_dialog.start({
@@ -5696,7 +5696,7 @@
       } else if (TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isFocusOnInput() && TS.utility.cmdKey(e) && !e.altKey && e.which == keymap.up) {
         TS.client.ui.maybeEditLast(e);
       } else if (TS.client.ui.isUserAttentionOnChat() && (e.which == keymap.left_square_bracket || e.which == keymap.right_square_bracket || e.which == keymap.left || e.which == keymap.right)) {
-        if (TS.client.activeChannelIsHidden() && (e.which == keymap.left || e.which == keymap.right) && (TS.model.is_mac && e.metaKey || !TS.model.mac && e.ctrlKey)) {
+        if (!TS.boot_data.feature_message_replies && TS.model.unread_view_is_showing && (e.which == keymap.left || e.which == keymap.right) && (TS.model.is_mac && e.metaKey || !TS.model.mac && e.ctrlKey)) {
           e.preventDefault();
           e.stopPropagation();
         }
@@ -7691,11 +7691,11 @@
     var using_arrow_keys = e.which == keymap.left || e.which == keymap.right;
     var input_must_be_empty = using_command_key && using_arrow_keys;
     if (is_mac_ssb && !supports_history_navigation && using_command_key && using_bracket_keys) {
-      _navigateHistoryUsingKeys(e.which, keymap.left_square_bracket, keymap.right_square_bracket, input_must_be_empty);
+      _navigateHistoryUsingKeys(e.which, keymap.left_square_bracket, keymap.right_square_bracket, input_must_be_empty, e);
     } else if (is_win_linux_ssb && !supports_history_navigation && using_alt_key && using_arrow_keys) {
-      _navigateHistoryUsingKeys(e.which, keymap.left, keymap.right, input_must_be_empty);
+      _navigateHistoryUsingKeys(e.which, keymap.left, keymap.right, input_must_be_empty, e);
     } else if (using_command_key && using_arrow_keys) {
-      _navigateHistoryUsingKeys(e.which, keymap.left, keymap.right, input_must_be_empty);
+      _navigateHistoryUsingKeys(e.which, keymap.left, keymap.right, input_must_be_empty, e);
     } else if (using_command_key && using_bracket_keys) {
       TS.clog.track("HISTORY_NAV_ACTION", {
         trigger: "keyboard_shortcut",
@@ -7703,7 +7703,7 @@
       });
     }
   };
-  var _navigateHistoryUsingKeys = function(pressed_key, back_key, forward_key, input_must_be_empty) {
+  var _navigateHistoryUsingKeys = function(pressed_key, back_key, forward_key, input_must_be_empty, event) {
     var input_is_empty = TS.utility.contenteditable.value(document.activeElement) === "";
     if (TS.utility.isFocusOnInput() && (input_is_empty || !input_must_be_empty) || document.activeElement == document.body) {
       TS.clog.track("HISTORY_NAV_ACTION", {
@@ -7714,6 +7714,9 @@
         window.history.go(-1);
       } else if (pressed_key === forward_key) {
         window.history.go(1);
+      }
+      if (TS.boot_data.feature_message_replies && event) {
+        event.preventDefault();
       }
     }
   };
@@ -18823,7 +18826,7 @@
           avatarImage: avatar_image,
           ssbFilename: ssb_filename
         };
-        if (TS.boot_data.feature_message_replies && msg.thread_ts) args.thread_ts = msg.thread_ts;
+        if (TS.boot_data.feature_message_replies && msg && msg.thread_ts) args.thread_ts = msg.thread_ts;
         TSSSB.call("notify", args);
       } else if (window.macgap) {
         var local_onclick = function(x) {

@@ -15417,9 +15417,6 @@ TS.registerModule("constants", {
       TS.ms.msg_handlers.msgReceived(imsg);
     },
     msgReceived: function(imsg) {
-      if (TS.boot_data.feature_tinyspeck && imsg.user === "USLACKBOT" && REMINDER_REGEXP.test(imsg.text)) {
-        TS.info("Reminder debug message for bug #24000:", imsg);
-      }
       if (imsg.reply_to) return;
       if (!TS.ms.msg_handlers[imsg.type]) return;
       _addToQ(imsg);
@@ -16795,7 +16792,6 @@ TS.registerModule("constants", {
     }
   });
   var _did_queue_rebuild_member_list_toggle = false;
-  var REMINDER_REGEXP = /^Reminder:+\s/;
   var _isFileMsgRelevant = function(imsg, file_id) {
     if (!file_id) return false;
     if (TS.web && TS.web.space && !TS.web.space.isFileRelevant(file_id)) return false;
@@ -35975,7 +35971,7 @@ var _on_esc;
             mention.message = mention.item.message;
             mention.item.message._rxn_key = TS.rxns.getRxnKey("message", mention.item.message.ts, mention.item.channel);
             delete mention.item;
-          } else if (TS.boot_data.feature_file_reactions_activity && mention.item.type === "file") {
+          } else if (mention.item.type === "file") {
             mention.rxn_ts = mention.ts;
             mention.channel = _.first(mention.item.file.channels);
             mention.message = {
@@ -38908,7 +38904,7 @@ var _on_esc;
         var default_channels = _$div.find("#defaultchannelsmulti").val();
         if (default_channels) {
           channels = default_channels.join(",");
-          is_default = true;
+          if (account_type == "full") is_default = true;
         }
       } else if (account_type == "ultra_restricted") {
         channels = _$div.find("#ultra_restricted_channel_picker").val();
@@ -43052,7 +43048,7 @@ $.fn.togglify = function(settings) {
     var was_at_bottom;
     if (!can_ignore_scroll) was_at_bottom = TS.client && TS.client.ui && TS.client.ui.areMsgsScrolledToBottom();
     TS.templates.builders.updateRxnPanels(rxn_key, name, member_id);
-    if (TS.boot_data.feature_file_reactions_activity && item_type === "file") {
+    if (item_type === "file") {
       TS.log("(Temporary) Rebuilding mentions due to file reaction.");
       TS.view.rebuildMentions();
     }
