@@ -10559,6 +10559,14 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   transition: opacity .1s cubic-bezier(.2, .3, .25, .9)
 }
 
+.file_container .preview_actions .btn.preview_show_less_header.btn {
+  border-radius: 1px
+}
+
+.file_container .preview_actions .btn.preview_show_less_header.btn:after {
+  border-color: rgba(85, 84, 89, .8)
+}
+
 .file_container .preview_actions .ts_icon:before {
   position: absolute;
   top: 50%;
