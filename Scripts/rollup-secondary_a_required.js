@@ -1130,7 +1130,7 @@
         var calling_rtm_start = TS.model.calling_rtm_start;
         var calling_test_fast_reconnect = TS.model.calling_test_fast_reconnect;
         var info = ["API paused? " + TS.api.isPaused(), "MS asleep? " + ms_asleep, "Starting RTM? " + calling_rtm_start, "Attempting fast reconnect? " + calling_test_fast_reconnect];
-        TS.info("Re-establishing the MS connection. Current state: " + info.join(", "));
+        TS.info("Waiting for the MS to be reconnected. Current state: " + info.join(", "));
         if (calling_rtm_start) {
           TS.info("MS not connected, proceeding with rtm.start");
           _ms_reconnected_p = undefined;
@@ -1143,11 +1143,17 @@
           resolve();
           return;
         }
-        TS.info("MS not connected, listening for the connected signal");
+        TS.info("Listening for the MS connected signal");
         TS.ms.connected_sig.addOnce(function() {
           _ms_reconnected_p = undefined;
           resolve();
         });
+        if (ms_asleep) {
+          TS.info("MS is not connected, but it is asleep so not trying to wake it up");
+        } else {
+          TS.info("MS is not connected, but it is not asleep, so requesting a reconnect");
+          TS.ms.reconnect_requested_sig.dispatch();
+        }
       });
       return _ms_reconnected_p;
     }
@@ -7764,9 +7770,11 @@ TS.registerModule("constants", {
       if (!mpim) return;
       if (mpim._members && mpim._members.length === mpim.members.length - 1) return mpim._members;
       mpim._members = _.without(mpim.members, TS.model.user.id).map(function(user_id) {
-        return mpim._submodel ? mpim._submodel.getMemberById(user_id) : TS.members.getMemberById(user_id);
+        var member = mpim._submodel ? mpim._submodel.getMemberById(user_id) : TS.members.getMemberById(user_id);
+        if (!member) TS.warn("Could not find a member in " + (mpim._submodel ? "sub" : "") + "model with id: " + user_id);
+        return member;
       });
-      return mpim._members;
+      return _.compact(mpim._members);
     },
     getDisplayName: function(mpim, for_header, show_last_initial, truncate_at) {
       var should_truncate = _.isInteger(truncate_at);
@@ -14639,7 +14647,7 @@ TS.registerModule("constants", {
     },
     startReconnection: function() {
       TS.model.ms_reconnect_time = Date.now() + TS.model.ms_reconnect_ms;
-      TS.info("Attempting to reconnect in " + TS.model.ms_reconnect_ms + "ms");
+      TS.console.logStackTrace("Attempting to reconnect in " + TS.model.ms_reconnect_ms + "ms");
       clearInterval(_reconnect_interv);
       _reconnect_interv = setInterval(_onReconnectInterval, _reconnect_interv_ms);
       _onReconnectInterval();
@@ -15291,7 +15299,6 @@ TS.registerModule("constants", {
         TS.warn("Giving up on rtm.start-over-MS attempt");
         clearTimeout(rtm_start_timeout);
         rtm_start_timeout = undefined;
-        TS.ms.fast_reconnects_enabled = true;
         if (rtm_start_p && !rtm_start_p.isPending()) {
           TS.warn("Timeout fired after promise has been rejected; this is a programming error.");
           return;
@@ -16461,7 +16468,11 @@ TS.registerModule("constants", {
       }
       if (!member.is_self) return;
       TS.stars.userStarStatusHasChanged(false, imsg.item, imsg.type);
-      TS.stars.maybeUpdateUserStarredList();
+      if (TS.model.ui_state.flex_name == "stars") {
+        TS.stars.maybeRemoveStarredListItem(imsg.item);
+      } else {
+        TS.stars.maybeUpdateUserStarredList();
+      }
     },
     reaction_added: function(imsg) {
       if (!imsg.item) {
@@ -35527,6 +35538,22 @@ var _on_esc;
         return;
       }
       _updateUserStarredList(args);
+    },
+    maybeRemoveStarredListItem: function(item) {
+      if (!TS.client) return;
+      if (TS.model.ui_state.flex_name !== "stars") return;
+      var $star;
+      var selector;
+      if (item.type == "file") {
+        selector = ".star_item #file_" + item.file_id;
+        $star = $(selector).parent(".star_item");
+      } else if (item.type == "message") {
+        selector = '.star_item .message[data-ts="' + item.message.ts + '"]';
+        $star = $(selector).parent(".star_item");
+      } else {
+        return;
+      }
+      $star.remove();
     },
     fetchUserStarredItems: function() {
       var api_args = _starsListArgs();

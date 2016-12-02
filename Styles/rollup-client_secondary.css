@@ -17332,9 +17332,14 @@ ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.n
   background: #f9f9f9
 }
 
-ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned:not([data-thread-ts]),
-ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned:not([data-thread-ts]) {
+ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned,
+ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned {
   background: rgba(255, 243, 184, .35)
+}
+
+ts-thread ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned,
+ts-thread ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).is_pinned {
+  background: #f9f9f9
 }
 
 ts-message:hover .rxn_hover_container.feature_thanks {

@@ -26780,7 +26780,7 @@
     if (_members_tabs_last_rendered_for_model_ob) {
       var last_model_ob = TS.shared.getModelObById(_members_tabs_last_rendered_for_model_ob);
       if (last_model_ob && last_model_ob.is_channel && !last_model_ob.is_member) {
-        TS.info(1989, "Channel member counts (" + last_model_ob.id + "): removing local counts because we switched away and we are not a member");
+        TS.log(1989, "Channel member counts (" + last_model_ob.id + "): removing local counts because we switched away and we are not a member");
         delete _channel_member_counts_info[last_model_ob.id];
       }
     }
@@ -26932,7 +26932,7 @@
   var _leftChannelOrGroup = function(model_ob) {
     delete _channels_with_files_loaded[model_ob.id];
     if (TS.lazyLoadMembersAndBots()) {
-      TS.info(1989, "Channel member counts (" + model_ob.id + "): removing local counts because we left the channel");
+      TS.log(1989, "Channel member counts (" + model_ob.id + "): removing local counts because we left the channel");
       delete _channel_member_counts_info[model_ob.id];
     }
     if (_isChannelPageVisible() && TS.model.user.is_restricted) {
@@ -27230,7 +27230,7 @@
     var rate_limit_p;
     if (time_since_last_fetch < MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS) {
       rate_limit_p = new Promise(function(resolve) {
-        TS.info(1989, "Channel member counts (" + model_ob.id + "): it's only been " + time_since_last_fetch + "ms since last fetch; waiting " + (MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch) + " ms before fetching");
+        TS.log(1989, "Channel member counts (" + model_ob.id + "): it's only been " + time_since_last_fetch + "ms since last fetch; waiting " + (MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch) + " ms before fetching");
         setTimeout(resolve, MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch);
       });
     } else {
@@ -27238,7 +27238,7 @@
     }
     var api_endpoint = model_ob.is_group ? "groups.info" : "channels.info";
     return rate_limit_p.then(function() {
-      TS.info(1989, "Channel member counts (" + model_ob.id + "): fetching counts from API");
+      TS.log(1989, "Channel member counts (" + model_ob.id + "): fetching counts from API");
       return TS.api.call(api_endpoint, {
         channel: model_ob.id,
         display_counts: true
@@ -27249,7 +27249,7 @@
         } else {
           counts = resp.data.channel.display_counts;
         }
-        TS.info(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
+        TS.log(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
         return {
           member_count: counts.display_counts,
           restricted_member_count: counts.guest_counts
@@ -27290,14 +27290,14 @@
     var channel_member_counts = _getChannelMemberCounts(model_ob);
     if (channel_member_counts.promise) {
       if (!channel_member_counts.will_rebuild_after_resolved) {
-        TS.info(1989, "Channel member counts (" + model_ob.id + "): Will rebuild member tabs after we get counts from API");
+        TS.log(1989, "Channel member counts (" + model_ob.id + "): Will rebuild member tabs after we get counts from API");
         channel_member_counts.will_rebuild_after_resolved = true;
         channel_member_counts.promise.then(function() {
           if (model_ob == TS.shared.getActiveModelOb()) {
-            TS.info(1989, "Channel member counts (" + model_ob.id + "): Got counts from API, rebuilding member tabs now");
+            TS.log(1989, "Channel member counts (" + model_ob.id + "): Got counts from API, rebuilding member tabs now");
             _rebuildMembersTabs(model_ob);
           } else {
-            TS.info(1989, "Channel member counts (" + model_ob.id + "): Got counts from API, but active model object has changed, so not rebuilding member tabs");
+            TS.log(1989, "Channel member counts (" + model_ob.id + "): Got counts from API, but active model object has changed, so not rebuilding member tabs");
           }
           channel_member_counts.will_rebuild_after_resolved = false;
         });
@@ -27315,7 +27315,7 @@
     } else {
       rebuild_status = "have up-to-date data";
     }
-    TS.info(1989, "Channel member counts (" + model_ob.id + "): Rebuilding member tabs: " + rebuild_status + "; member count = " + member_count + "; restricted member count = " + restricted_count);
+    TS.log(1989, "Channel member counts (" + model_ob.id + "): Rebuilding member tabs: " + rebuild_status + "; member count = " + member_count + "; restricted member count = " + restricted_count);
     _rebuildMembersTabsInner(model_ob, is_loading_members, member_count, online_count, restricted_count);
   };
   var _rebuildMembersTabsInner = function(model_ob, is_loading_members, member_count, online_count, restricted_count) {
@@ -35144,6 +35144,7 @@ function timezones_guess() {
       $("#client-ui").addClass("unread_view_is_showing");
       $("#msgs_scroller_div").addClass("hidden");
       $("#archives_return").addClass("hidden");
+      if (TS.boot_data.feature_sli_recaps) TS.recaps_signal.remove();
       if (TS.model.ui_state.flex_name === "details") TS.client.ui.flex.hideFlex(true);
       var skip_mark_msgs_read_immediate_check = true;
       TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);

@@ -112,7 +112,7 @@
         TS.warn("could not dir ob:" + ob + " err:" + err);
       }
     },
-    logStackTrace: function(message) {
+    getStackTrace: function() {
       var stack = (new Error).stack;
       var bits;
       if (!stack) {
@@ -128,8 +128,10 @@
         return bit.trim();
       });
       var details = bits.join("\n");
-      if (message) TS.console.info(message + "\nStacktrace: ↴\n", details);
       return details;
+    },
+    logStackTrace: function(message) {
+      TS.console.info(message + "\nStacktrace: ↴\n", TS.console.getStackTrace());
     },
     replaceConsoleFunction: function(fn) {
       var prev_console = _console;
@@ -524,17 +526,30 @@
       _callRTMStart(_onLoginMS);
     }
   };
+  var _did_request_ms_reconnection;
   var _reconnectRequestedMS = function() {
     if (TS.model.ms_asleep) {
       TS.error("NOT reconnecting, we are asleep");
       return;
+    } else if (TS.model.ms_connected) {
+      TS.warn("Reconnect requested, but we are already connected; doing nothing.");
+      return;
+    } else if (TS.model.ms_connecting) {
+      TS.warn("Reconnect requested, but we are already connecting; doing nothing.");
+      return;
     }
+    if (_did_request_ms_reconnection) {
+      TS.warn("Reconnect requested, but we have already requested a reconnection; doing nothing.");
+      return;
+    }
+    _did_request_ms_reconnection = true;
     TSConnLogger.setConnecting(true);
-    TS.info("MS reconnection requested: " + TS.console.logStackTrace());
+    TS.console.logStackTrace("MS reconnection requested");
     TS.metrics.mark("ms_reconnect_requested");
     TS.ms.connected_sig.addOnce(function() {
       var reconnect_duration_ms = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");
       TS.info("OK, MS is now reconnected -- it took " + _.round(reconnect_duration_ms / 1e3, 2) + " seconds");
+      _did_request_ms_reconnection = false;
     });
     _loginMS();
   };
