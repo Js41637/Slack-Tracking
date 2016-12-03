@@ -11529,16 +11529,15 @@
   };
   var _replyCountChanged = function(new_reply_count) {
     var $threads_header_info = $("#channel_header_info.threads_channel_header_info");
+    var text;
     if (!new_reply_count) {
-      $threads_header_info.addClass("hidden");
-      $threads_header_info.empty();
-      return;
+      text = TS.i18n.t("No new replies", "threads")();
+    } else {
+      text = TS.i18n.t("{new_reply_count,plural,=1{{new_reply_count} new reply}other{{new_reply_count} new replies}}", "threads")({
+        new_reply_count: new_reply_count
+      });
     }
-    var text = TS.i18n.t("{new_reply_count,plural,=1{{new_reply_count} new reply}other{{new_reply_count} new replies}}", "threads")({
-      new_reply_count: new_reply_count
-    });
     $threads_header_info.text(text);
-    $threads_header_info.removeClass("hidden");
   };
   var _hidden_channel_join_member_names = {};
   var _queueHiddenChannelJoinAlert = function(channel, member, is_msg_hidden) {
