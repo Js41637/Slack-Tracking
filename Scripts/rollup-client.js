@@ -18828,6 +18828,7 @@
         };
         if (TS.boot_data.feature_message_replies && msg && msg.thread_ts) args.thread_ts = msg.thread_ts;
         TSSSB.call("notify", args);
+        _maybeSaveMsgDetailsForOldElectron(c_id, msg);
       } else if (window.macgap) {
         var local_onclick = function(x) {
           window.focus();
@@ -19418,6 +19419,12 @@
       } else {
         if (ssb_api.dock.bounceOnce) ssb_api.dock.bounceOnce();
       }
+    },
+    maybeGetThreadTsForLastNotification: function(c_id) {
+      if (!_isElectronBeforeTwoPointFour() || !_last_notification_details) return null;
+      var last_c_id = _last_notification_details.c_id;
+      if (last_c_id === c_id) return _last_notification_details.thread_ts;
+      return null;
     }
   });
   var _ensureSubscriptionsForReplies = function(model_ob, msg) {
@@ -19430,6 +19437,26 @@
         throw new Error("promiseToGetSubscriptionState resolved but subscription is missing for " + msg.thread_ts);
       }
     });
+  };
+  var _last_notification_details = null;
+  var _isElectronBeforeTwoPointFour = function() {
+    if (!TS.boot_data.feature_message_replies) return false;
+    if (!TS.model.is_our_app || !TS.model.is_electron) return false;
+    var version = TS.model.mac_ssb_version || TS.model.win_ssb_version;
+    if (!version || version >= 2.4) return false;
+    return true;
+  };
+  var _maybeSaveMsgDetailsForOldElectron = function(c_id, msg) {
+    if (!_isElectronBeforeTwoPointFour()) return;
+    if (!c_id || !msg || !TS.utility.msgs.isMsgReply(msg)) {
+      _last_notification_details = null;
+      return;
+    }
+    _last_notification_details = {
+      c_id: c_id,
+      ts: msg.ts,
+      thread_ts: msg.thread_ts
+    };
   };
 })();
 (function() {

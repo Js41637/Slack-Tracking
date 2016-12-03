@@ -46,8 +46,8 @@
   var _members = {};
   var _sub_list = [];
   var _query_list = [];
-  var _sub_timeout = null;
-  var _query_timeout = null;
+  var _is_sub_waiting = false;
+  var _is_query_waiting = false;
   var _addMembers = function(members) {
     if (!_.isArray(members)) members = [members];
     members.forEach(function(member) {
@@ -81,31 +81,27 @@
     }
   };
   var _sendSubList = function() {
-    if (_sub_timeout) return;
-    _sub_timeout = setTimeout(function() {
+    if (_is_sub_waiting) return;
+    _is_sub_waiting = true;
+    TS.api.connection.waitForMSToReconnect().then(function() {
       TS.metrics.count("presence_manager", _sub_list.length);
-      if (TS.presence_manager.test) {
-        TS.log(1117, "presence subscription ->", TS.presence_manager.test.getSubNames());
-      }
       TS.ms.send({
         type: "presence_sub",
         ids: _sub_list
       });
-      _sub_timeout = null;
-    }, 1);
+      _is_sub_waiting = false;
+    });
   };
   var _sendQueryList = function() {
-    if (_query_timeout) return;
-    _query_timeout = setTimeout(function() {
-      if (TS.presence_manager.test) {
-        TS.log(1117, "presence query ->", TS.presence_manager.test.getQueryNames());
-      }
+    if (_is_query_waiting) return;
+    _is_query_waiting = true;
+    TS.api.connection.waitForMSToReconnect().then(function() {
       TS.ms.send({
         type: "presence_query",
         ids: _query_list
       });
-      _query_timeout = null;
-    }, 1);
+      _is_query_waiting = false;
+    });
   };
 })();
 (function() {
@@ -29151,6 +29147,13 @@ TS.registerModule("constants", {
         jumbomoji: TS.model.prefs.jumbomoji
       });
     }
+    var replace_contents_map = [];
+    if (TS.boot_data.feature_ignore_code_mentions) {
+      txt = TSF.replaceFormatContents(replace_contents_map, txt, {
+        replace_pre: true,
+        replace_code: true
+      });
+    }
     txt = txt.replace(_at_mention_rx, function(match, boundry, at_member_id, member_id, offset) {
       if (boundry === "/" && _isPartOfUrl(txt, match, offset)) return match;
       var extra = "";
@@ -29210,6 +29213,9 @@ TS.registerModule("constants", {
     });
     if (TS.model.prefs.convert_emoticons && TS.model.prefs.emoji_mode != "as_text") {
       txt = TS.format.doEmoticonConversion(txt);
+    }
+    if (TS.boot_data.feature_ignore_code_mentions) {
+      txt = TSF.swapOutPlaceholders(replace_contents_map, txt);
     }
     return txt;
   }
@@ -53836,6 +53842,7 @@ $.fn.togglify = function(settings) {
       TS.generic_dialog.div.off("shown", shown);
       $container.find(".message_input").select();
     });
+    $dialog.find(".share_dialog_attachment_container").find("a[href]", "button").attr("tabindex", "-1");
     $input.on("keydown", function(e) {
       if (e.which === TS.utility.keymap.esc) {
         if (!$input.val()) {
@@ -53847,7 +53854,7 @@ $.fn.togglify = function(settings) {
           e.preventDefault();
           TS.generic_dialog.go();
         }
-      } else if (e.which === TS.utility.keymap.tab && !e.shiftKey && !$input.tab_complete_ui("isShowing") && !$input.tab_complete_ui("hasMatches")) {
+      } else if (e.which === TS.utility.keymap.tab && $channel_picker.find(".lfs_input_container:visible").length && !e.shiftKey && !$input.tab_complete_ui("isShowing") && !$input.tab_complete_ui("hasMatches")) {
         e.preventDefault();
         $channel_picker.find(".lfs_input_container").click();
       }

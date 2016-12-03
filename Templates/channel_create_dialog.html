@@ -44,14 +44,14 @@
     {{/unless}}
   </div>
   <div class="modal-footer">
-    <a class="btn btn_outline dialog_cancel">Cancel</a>
+    <button type="button" class="btn btn_outline dialog_cancel">Cancel</button>
     {{#if is_edit}}
       {{#if is_group}}
-        <button class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Rename Private Channel</span></button>
+        <button type="button" class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Rename Private Channel</span></button>
       {{else}}
-        <button class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Rename Channel</span></button>
+        <button type="button" class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Rename Channel</span></button>
       {{/if}}
     {{else}}
-      <button class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Create Channel</span></button>
+      <button type="button" class="btn dialog_go ladda-button" data-style="expand-right"><span class="ladda-label">Create Channel</span></button>
     {{/if}}
   </div>
