@@ -27872,11 +27872,15 @@
       var start_mark_label = "start_channel_browser_show";
       TS.metrics.mark(start_mark_label);
       var can_create = TS.permissions.members.canCreateChannels() || TS.permissions.members.canCreateGroups();
-      var channel_count = TS.channels.getUnarchivedChannelsForUser().length;
-      var group_count = TS.groups.getUnarchivedGroups().length;
-      var title = "Browse all " + (channel_count + group_count) + " channels";
+      var title;
       if (TS.model.user.is_restricted) {
-        title = "Browse channels";
+        title = TS.i18n.t("Browse channels", "channel_browser")();
+      } else {
+        var channel_count = TS.channels.getUnarchivedChannelsForUser().length;
+        var group_count = TS.groups.getUnarchivedGroups().length;
+        title = TS.i18n.t("Browse all {channel_count} channels", "channel_browser")({
+          channel_count: channel_count + group_count
+        });
       }
       var html = TS.templates.channel_browser({
         can_create: can_create,
@@ -28029,14 +28033,14 @@
     if (non_member_channels.length > 0) {
       channels.push({
         is_divider: true,
-        name: "Channels you can join"
+        name: TS.i18n.t("Channels you can join", "channel_browser")()
       });
       channels = channels.concat(non_member_channels);
     }
     if (member_channels.length > 0) {
       channels.push({
         is_divider: true,
-        name: "Channels you belong to"
+        name: TS.i18n.t("Channels you belong to", "channel_browser")()
       });
       channels = channels.concat(member_channels);
     }
@@ -28195,9 +28199,11 @@
     var _$empty_state = $("#channel_browser_empty");
     var _$msg = _$empty_state.find(".channel_browser_empty_message");
     if (query) {
-      _$msg.html("No matches found for <strong>" + TS.utility.truncateAndEscape(query, 50) + "</strong>");
+      _$msg.html(TS.i18n.t("No matches found for <strong>{query}</strong>", "channel_browser")({
+        query: TS.utility.truncateAndEscape(query, 50)
+      }));
     } else {
-      _$msg.text("No channels");
+      _$msg.text(TS.i18n.t("No channels", "channel_browser")());
     }
     _$empty_state.removeClass("hidden");
   };

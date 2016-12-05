@@ -1,9 +1,13 @@
+{{i18n_ns "channel_browser"}}
+
 <div class="channel_browser_row">
   <div class="channel_browser_row_header overflow_ellipsis">
-    <ts-icon class="channel_browser_type_icon greigh"></ts-icon><span class="channel_browser_channel_name bold"></span> <ts-icon class="shared_channel_icon greigh ts_icon_shared_channel hidden"></ts-icon> <span class="channel_browser_joined hidden greigh">JOINED</span>
+    <ts-icon class="channel_browser_type_icon greigh"></ts-icon><span class="channel_browser_channel_name bold"></span> <ts-icon class="shared_channel_icon greigh ts_icon_shared_channel hidden"></ts-icon> <span class="channel_browser_joined hidden greigh">{{#t}}JOINED{{/t}}</span>
   </div>
   <div class="overflow_ellipsis italic">
+    {{#t note="Populated by code and will have user name and date added, e.g. 'Created by {username} on {date}'"}}
     Created <span class="channel_browser_created_by hidden">by <span class="channel_browser_creator_name"></span></span> on <span class="channel_browser_created_on"></span>
+    {{/t}}
   </div>
   <div class="channel_browser_channel_purpose greigh"></div>
 
@@ -12,7 +16,7 @@
     <i class="ts_icon ts_icon_enter"></i>
   </div>
   <div class="channel_browser_preview align_center">
-    <i class="ts_icon ts_icon_enter"></i><br>preview
+    <i class="ts_icon ts_icon_enter"></i><br>{{#t}}preview{{/t}}
   </div>
 
   {{#if is_shared}}
