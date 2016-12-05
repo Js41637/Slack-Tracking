@@ -18759,7 +18759,7 @@ TS.registerModule("constants", {
       do_inline_imgs = do_inline_imgs === true;
       enable_slack_action_links = enable_slack_action_links === true;
       var channel, group, inviter, room;
-      if ((msg.hasOwnProperty("_jl_rollup_hash") || msg.hasOwnProperty("_jl_rolled_up_in")) && _jl_rollup_limit_reached) {
+      if ((msg._jl_rollup_hash || msg._jl_rolled_up_in) && _jl_rollup_limit_reached && (!msg._jl_rolled_up_in || msg._jl_rolled_up_in !== msg.ts)) {
         return html;
       } else {
         _jl_rollup_limit_reached = false;
