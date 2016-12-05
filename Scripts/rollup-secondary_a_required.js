@@ -43651,17 +43651,24 @@ $.fn.togglify = function(settings) {
     }
   });
   var _DEFAULT_SETTINGS = {
+    dismissable: false,
+    message: TS.i18n.t("Success", "toast")(),
     position: "bottom",
-    use_emoji: false,
-    emoji: "",
-    message: "Success",
     type: "success"
   };
+  var _DISMISS_SELECTOR = ".dismiss_toast";
   var _queue = [];
   var _is_currently_visible = false;
   var _$toast_parent;
   var _toast_timeout;
   var _toast_timeout_time = 3e3;
+  var _bindEvents = function() {
+    _$toast_parent.on("click", _DISMISS_SELECTOR, _dismissToast);
+  };
+  var _dismissToast = function(event) {
+    if (_toast_timeout) clearTimeout(_toast_timeout);
+    _hideToast();
+  };
   var _ensureNothingInQueue = function() {
     if (_needToShowNextToast()) _maybeShowNextToast();
   };
@@ -43669,18 +43676,18 @@ $.fn.togglify = function(settings) {
     return _queue.shift();
   };
   var _hideToast = function() {
-    _$toast_parent.removeClass("toast_in").addClass("toast_out");
-    _is_currently_visible = false;
-    _ensureNothingInQueue();
+    if (_needToShowNextToast()) {
+      _maybeShowNextToast();
+    } else {
+      _$toast_parent.removeClass("toast_in").addClass("toast_out");
+      _is_currently_visible = false;
+      _ensureNothingInQueue();
+    }
   };
   var _markToastForDeath = function() {
     if (_toast_timeout) clearTimeout(_toast_timeout);
     _toast_timeout = setTimeout(function() {
-      if (_needToShowNextToast()) {
-        _maybeShowNextToast();
-      } else {
-        _hideToast();
-      }
+      _hideToast();
     }, _toast_timeout_time);
   };
   var _maybeInsertToast = function() {
@@ -43689,6 +43696,7 @@ $.fn.togglify = function(settings) {
       var html = TS.templates.toast({});
       _$toast_parent.html(html);
       _$toast_parent.appendTo("body");
+      _bindEvents();
     }
   };
   var _maybeShowNextToast = function() {

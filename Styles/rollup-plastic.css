@@ -3449,6 +3449,14 @@ html.no_touch .alert_page a:hover {
   font-weight: 400
 }
 
+.alert_page.toast .dismiss_toast {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: .625rem;
+  cursor: pointer
+}
+
 #toast.toast_in .toast:not(.no_slide) {
   -webkit-transform: translate(0, 0);
   -moz-transform: translate(0, 0);
