@@ -1,3 +1,5 @@
+{{i18n_ns 'channel_invite'}}
+
 <div id="channel_invite_tokens">
   {{#each members}}
     <div class="member_token {{getMemberTypeClass this}}" data-member-id="{{this.id}}">
@@ -10,7 +12,7 @@
       <i class="ts_icon ts_icon_times ts_icon_inherit remove_member_icon"></i>
     </div>
   {{/each}}
-  <input type="text" id="channel_invite_filter" {{#unless members}}placeholder="{{#pageNeedsEnterprise}}Search by name and profile field{{else}}Search{{/pageNeedsEnterprise}}"{{/unless}}>
+  <input type="text" id="channel_invite_filter" {{#unless members}}placeholder="{{#pageNeedsEnterprise}}{{#t}}Search by name and profile field{{/t}}{{else}}{{#t}}Search{{/t}}{{/pageNeedsEnterprise}}"{{/unless}}>
   {{#pageNeedsEnterprise}}
     <svg id="channel_invite_spinner" class="ts_icon ts_icon_spin ts_icon_spinner hidden"><use xlink:href="/img/starburst.svg#starburst_svg"/></svg>
   {{/pageNeedsEnterprise}}

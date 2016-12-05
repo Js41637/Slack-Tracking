@@ -1,14 +1,16 @@
+{{i18n_ns "channel_header"}}
+
 <div class="channel_title">
   {{#if all_unreads.is_showing}}
     <h2 id="channel_name_container" class="channel_name_container">
-      <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">All Unreads</span>
+      <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}All Unreads{{/t}}</span>
     </h2>
     <div id="channel_header_info">
       {{> unread_header_info all_unreads}}
     </div>
   {{else if threads.is_showing}}
     <h2 id="channel_name_container" class="channel_name_container">
-      <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">Threads</span>
+      <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}Threads{{/t}}</span>
     </h2>
     <div id="channel_header_info" class="threads_channel_header_info"></div>
   {{else}}
@@ -18,9 +20,9 @@
         <ul id="dm_title" class="dm_title">{{mpimDisplayName mpim true}}</ul>
       {{else}}
         {{#if member}}
-          <span id="im_title">{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}} {{#if member.is_self}}<span class="normal subtle_silver"> (you)</span>{{/if}}</span>
+          <span id="im_title">{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}} {{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</span>
         {{else}}
-          <span id="channel_title">{{name}}{{#if member.is_self}}<span class="normal subtle_silver"> (you)</span>{{/if}}</span>
+          <span id="channel_title">{{name}}{{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</span>
         {{/if}}
       {{/if}}
       {{#if is_shared}}
@@ -35,11 +37,11 @@
       {{#if member}}<span class="header_user_status overflow_ellipsis">{{{makeMemberPresenceIcon member}}}<span id="header_status_message"></span>{{#feature flag="feature_name_tagging_client"}}{{#if member.profile.preferred_name}}<span class="topic_divider">|</span><span class="member_alt_name_header">{{getMemberPreferredName member}}</span>{{/if}}{{/feature}}</span>
       {{else}}<span id="channel_members_toggle_count" class="hidden blue_hover ts_tip ts_tip_bottom ts_tip_leftish"></span>{{/if}}
       {{#feature flag="feature_pin_update"}}
-          <span id="pinned_count_divider" class="topic_divider">|</span><span id="pinned_item_count" class="blue_hover ts_tip ts_tip_bottom ts_tip_multiline"><ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon "></ts-icon><span id="pinned_item_count_count"></span><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">View Pinned Items<br/><span class="subtle_silver pin_count_new_pin_message"></span></span></span></span>
+          <span id="pinned_count_divider" class="topic_divider">|</span><span id="pinned_item_count" class="blue_hover ts_tip ts_tip_bottom ts_tip_multiline"><ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon "></ts-icon><span id="pinned_item_count_count"></span><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t}}View Pinned Items{{/t}}<br/><span class="subtle_silver pin_count_new_pin_message"></span></span></span></span>
       {{/feature}}
       {{#if show_topic}}<span class="topic_divider">|</span><span id="topic_inline_edit" class="channel_topic inline_edit">
         <span class="inline_edit_inner">
-          <span id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}Add a topic{{/currentUserIsRA}}"></span>
+          <span id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>
         </span>
       </span>{{/if}}
     </div>
@@ -49,7 +51,7 @@
 <div class="channel_title_info">
   {{#if all_unreads.is_showing}}
     <button id="channel_header_unread_refresh" class="channel_header_icon channel_actions_toggle btn_unstyle ts_tip ts_tip_bottom {{#unless unread_has_new_messages}}hidden{{/unless}}">
-      <span class="ts_tip_tip small_top_margin">Refresh</span>
+      <span class="ts_tip_tip small_top_margin">{{#t}}Refresh{{/t}}</span>
       {{> ts_icon class="ts_icon_sync"}}
     </button>
 
@@ -62,12 +64,40 @@
     <!-- calls button -->
     <div id="channel_calls_container" class="hidden channel_calls_container"></div>{{!--
     <!-- sli recaps -->
-    --}}{{#if sli_preview}}{{#if is_dm_or_mpdm}}{{else}}<button id="sli_recap_toggle" class="btn_unstyle blue_hover sli_recaps_toggle channel_header_icon ts_tip ts_tip_bottom {{#if is_recap}}active{{/if}}"><span class="ts_tip_tip">{{#if is_recap}}Turn highlight messages off{{else}}Turn highlight messages on{{/if}}</span>{{#if is_recap}}{{> ts_icon class="ts_icon_highlight_filled"}}{{else}}{{> ts_icon class="ts_icon_highlight"}}{{/if}}</button>{{/if}}{{/if}}{{!--
+    --}}{{#if sli_preview}}{{#if is_dm_or_mpdm}}{{else}}<button id="sli_recap_toggle" class="btn_unstyle blue_hover sli_recaps_toggle channel_header_icon ts_tip ts_tip_bottom {{#if is_recap}}active{{/if}}"><span class="ts_tip_tip">{{#if is_recap}}{{#t}}Turn highlight messages off{{/t}}{{else}}{{#t}}Turn highlight messages on{{/t}}{{/if}}</span>{{#if is_recap}}{{> ts_icon class="ts_icon_highlight_filled"}}{{else}}{{> ts_icon class="ts_icon_highlight"}}{{/if}}</button>{{/if}}{{/if}}{{!--
     <!-- channel actions menu toggle -->
-    --}}<button id="channel_actions_toggle" class="btn_unstyle blue_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom"><span class="ts_tip_tip">{{#if member}}Conversation{{else if mpim}}Conversation{{else}}Channel{{/if}} Settings</span>{{> ts_icon class="ts_icon_cog_o"}}</button>{{!--
+    --}}<button id="channel_actions_toggle" class="btn_unstyle blue_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom">
+      {{#if member}}
+      <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+      {{else if mpim}}
+      <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
+      {{else}}
+      <span class="ts_tip_tip">{{#t}}Channel Settings{{/t}}</span>
+      {{/if}}
+      {{> ts_icon class="ts_icon_cog_o"}}
+    </button>{{!--
 
     <!--channel details icon  -->
-    --}}<button id="details_toggle" class="channel_header_icon btn_unstyle blue_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}"><span class="ts_tip_tip">{{#if details_showing}}Hide {{else}}Show {{/if}}{{#if member}}Conversation{{else if mpim}}Conversation{{else}}Channel{{/if}} Details</span>{{> ts_icon class="ts_icon_side_panel"}}</button>
+    --}}<button id="details_toggle" class="channel_header_icon btn_unstyle blue_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}">
+      {{#if details_showing}}
+        {{#if member}}
+        <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
+        {{else if mpim}}
+        <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>
+        {{else}}
+        <span class="ts_tip_tip">{{#t}}Hide Channel Details{{/t}}</span>
+        {{/if}}
+      {{else}}
+        {{#if member}}
+        <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
+        {{else if mpim}}
+        <span class="ts_tip_tip">{{#t}}Show Conversation Details{{/t}}</span>
+        {{else}}
+        <span class="ts_tip_tip">{{#t}}Show Channel Details{{/t}}</span>
+        {{/if}}
+      {{/if}}
+      {{> ts_icon class="ts_icon_side_panel"}}
+    </button>
     {{#feature flag="feature_slim_scrollbar"}}{{else}}
       <div class="divider_bar"></div>
     {{/feature}}

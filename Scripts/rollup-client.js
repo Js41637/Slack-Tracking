@@ -4336,9 +4336,7 @@
         $('a[data-member-id="' + TS.model.user.id + '"] .member_image, a[data-member-id="' + TS.model.user.id + '"].member_image').attr("style", "background-image: " + bg_img_urls.join(","));
         $('#menu a[data-member-id="' + TS.model.user.id + '"].member_image').attr("style", "background-image: " + TS.templates.builders.makeMemberPreviewCardLinkImageBackground(TS.model.user.id));
       }
-      if (TS.viewmodel && TS.viewmodel.teamdirectory && !member._submodel) {} else {
-        TS.view.rebuildTeamMember(member);
-      }
+      TS.view.rebuildTeamMember(member);
       if (member.id != TS.model.previewed_member_id) return;
       TS.client.ui.previewMember(member.id);
     },
@@ -7016,17 +7014,6 @@
       }, _.noop);
     },
     _displayMember: function(id, origin) {
-      if (TS.viewmodel && TS.viewmodel.teamdirectory) {
-        return new Promise(function(resolve, reject) {
-          TS.viewmodel.teamdirectory.withActiveSubmodel(function(submodel) {
-            var member = submodel.getMemberById(id);
-            if (!member) return void reject(new Error("wtf: no member to display"));
-            if (!TS.client.ui.flex._displayFlexTab("team")) return void reject(new Error("wtf: failed to open team tab"));
-            _renderMember(member, origin);
-            resolve(member.name);
-          });
-        });
-      }
       return new Promise(function(resolve, reject) {
         var member = TS.members.getMemberById(id);
         if (!member) return void reject(new Error("wtf: no member to display"));
@@ -7356,7 +7343,7 @@
       maybePreloadNext();
       return true;
     },
-    tryToJump: function(c_id, ts) {
+    tryToJump: function(c_id, ts, thread_ts) {
       var model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob) {
         TS.error("NO CHANNEL NO IM GROUP");
@@ -7369,6 +7356,10 @@
           TS.ui.replies.openConversation(model_ob, existing_msg.thread_ts, existing_msg.ts);
           return true;
         }
+      }
+      if (TS.boot_data.feature_message_replies && !existing_msg && thread_ts) {
+        TS.ui.replies.openConversation(model_ob, thread_ts, ts);
+        return true;
       }
       TS.view.displayMsgInModelOb(model_ob, ts);
       return true;
@@ -7840,9 +7831,6 @@
     TS.shared.onDisplayEmailAddressesPrefChanged();
   };
   var _renderMember = function(member, origin) {
-    if (TS.viewmodel && TS.viewmodel.teamdirectory && !TS.model.submodel) {
-      throw new Error("_renderMember expects to be called with an active submodel");
-    }
     var $member_preview = $("#member_preview_container");
     var expanded = TS.model.previewed_member_id === member.id && !$member_preview.find(".cropped_preview").length || origin == "menu_member_header" || TS.model.ui_state.expand_member_images_in_flexpane;
     TS.model.previewed_member_name = member.name;
@@ -14100,18 +14088,34 @@
     },
     220: {
       isDisabled: function(e) {
+        if (TS.boot_data.feature_message_replies_threads_view) {
+          var in_convo = $(e.target).closest("#reply_container").length > 0;
+          var in_threads_view = $(e.target).closest(".reply_input_container").length > 0;
+          var in_thread = in_convo || in_threads_view;
+          return !in_thread && TS.client.activeChannelIsHidden();
+        }
         return TS.client.activeChannelIsHidden();
       },
       shift_optional: false,
       func: function(e) {
         var model_ob = TS.shared.getActiveModelOb();
         if (!model_ob) return;
-        var is_reply = TS.boot_data.feature_message_replies && $(e.target).closest("#reply_container").length > 0;
+        var in_convo = TS.boot_data.feature_message_replies && $(e.target).closest("#reply_container.has_focus").length > 0;
+        var in_threads_view = TS.boot_data.feature_message_replies_threads_view && $(e.target).closest(".reply_input_container.has_focus").length > 0;
         var msgs;
-        if (is_reply) {
+        if (in_convo) {
           var msgs_arr = _.clone(TS.ui.replies.getActiveMessages());
           msgs = _.reverse(msgs_arr);
           e.target = $("#reply_container");
+        } else if (in_threads_view) {
+          var $reply_container = $(".reply_input_container.has_focus");
+          var thread = TS.client.ui.threads.getThreadFromEl($reply_container);
+          var thread_msgs = thread.replies && thread.replies.length ? _.clone(thread.replies) : _.clone(thread.root_msg);
+          thread_msgs = _.dropRightWhile(thread.replies, function(reply) {
+            return reply.ts > thread.max_visible_ts;
+          });
+          msgs = _.reverse(thread_msgs);
+          e.target = $reply_container;
         } else {
           msgs = TS.utility.msgs.getDisplayedMsgs(model_ob.msgs);
           e.target = TS.client.ui.$msg_input;
@@ -14130,9 +14134,14 @@
           TS.sounds.play("beep");
           return;
         }
+        var callback = function() {
+          var $input = $(e.target).find("textarea").addBack();
+          $input.focus();
+        };
         TS.menu.emoji.start({
           e: e,
-          rxn_key: rxn_key
+          rxn_key: rxn_key,
+          callback: callback
         });
       }
     },
@@ -25845,6 +25854,12 @@
       while (href.indexOf("/") === 0) {
         href = href.substr(1);
       }
+      var query;
+      if (TS.boot_data.feature_message_replies && href.indexOf("?") !== -1) {
+        var B = href.split("?");
+        href = B[0];
+        query = TS.utility.url.queryStringParse(B[1]);
+      }
       if (href.indexOf("archives/") === 0) {
         var A = href.split("/");
         if (A.length < 2) return false;
@@ -25882,7 +25897,11 @@
             }
           }
         }
-        return TS.client.ui.tryToJump(model_ob.id, actual_ts);
+        var thread_ts;
+        if (query && query.thread_ts) {
+          if (/\d+\.\d+/.test(query.thread_ts)) thread_ts = query.thread_ts;
+        }
+        return TS.client.ui.tryToJump(model_ob.id, actual_ts, thread_ts);
       }
       return false;
     },
@@ -26120,6 +26139,13 @@
       if (msg_to_keep_in_place_if_overlap) {
         TS.client.ui.$msgs_scroller_div.scrollTop(scrolltop);
       } else if (msg_id_to_highlight) {
+        if (TS.boot_data.feature_message_replies) {
+          var msg = TS.utility.msgs.getMsg(msg_id_to_highlight, model_ob.msgs);
+          if (msg && TS.utility.msgs.isMsgReply(msg)) {
+            TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
+            return false;
+          }
+        }
         TS.client.ui.scrollMsgsSoMsgIsInView(msg_id_to_highlight, false, true);
       }
       return false;

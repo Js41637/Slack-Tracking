@@ -1,12 +1,17 @@
+{{i18n_ns 'channel_invite'}}
+
 <div id="channel_invite_modal" class="channel_modal_with_list channel_modal">
   <h1 class="large_bottom_margin channel_modal_header">
-    Invite others to
-    {{#if is_private}}<i class="ts_icon ts_icon_lock"></i>{{else}}<i class="ts_icon ts_icon_channel"></i>{{/if~}}
-    {{~channel_name}}
+    {{#if is_private}}
+    {{#t icon="ts_icon_lock"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}}
+    {{else}}
+    {{#t icon="ts_icon_channel"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}}
+    {{/if}}
   </h1>
 
   {{#if is_private}}
     <div id="private_channel_invite_step_one" class="">
+      {{#t}}
       <p class="bold">Should new members be allowed to see the channel's message history?</p>
 
       <p><span class="bold">If Yes</span>, new members will be invited and will have access to this channel's entire message history.</p>
@@ -21,6 +26,7 @@
         <button class="btn btn_info right_margin no_create_channel">No, start a new channel</button>
         <button class="btn btn_primary yes_show_history">Yes, show channel history</button>
       </div>
+      {{/t}}
     </div>
   {{/if}}
 
@@ -28,9 +34,9 @@
     <div class="channel_invite_filter_container full_width{{#if is_private}} hidden{{/if}}">
       <div class="float_right left_margin">
         <button class="btn btn_primary btn_large {{#unless preselected}}disabled{{/unless}} invite_go ladda-button" data-style="zoom-in">
-          <span class="ladda-label">Invite</span>
+          <span class="ladda-label">{{#t}}Invite{{/t}}</span>
         </button>
-        <div class="subtle_silver mini align_right tiny_right_margin return_hint">Return <i class="ts_icon ts_icon_enter ts_icon_inherit"></i></div>
+        <div class="subtle_silver mini align_right tiny_right_margin return_hint">{{#t}}Return <i class="ts_icon ts_icon_enter ts_icon_inherit"></i>{{/t}}</div>
       </div>
       {{> channel_invite_tokens members=preselected}}
       {{> channel_kb_nav_label multiple_select=true}}

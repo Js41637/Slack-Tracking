@@ -3521,7 +3521,6 @@
       return !!_id_map[id];
     },
     getChannelById: function(id) {
-      if (TS.model.submodel) return TS.model.submodel.getChannelById(id);
       var channels = TS.model.channels;
       var channel = _id_map[id];
       if (channel) {
@@ -3581,7 +3580,6 @@
     },
     getChannelByName: function(name) {
       name = _.toLower(name);
-      if (TS.model.submodel) return TS.model.submodel.getChannelByName(name);
       var channels = TS.model.channels;
       var channel = _name_map[name];
       if (channel) {
@@ -3794,7 +3792,6 @@
       return TS.shared.kickMember(channel, member_id);
     },
     getChannelsForUser: function() {
-      if (TS.model.submodel) return TS.model.submodel.getChannelsForUser();
       if (!TS.model.user.is_restricted) {
         return TS.model.channels;
       }
@@ -4757,7 +4754,6 @@ TS.registerModule("constants", {
       return !!_id_map[id];
     },
     getGroupById: function(id) {
-      if (TS.model.submodel) return TS.model.submodel.getGroupById(id);
       var groups = TS.model.groups;
       var group = _id_map[id];
       if (group) {
@@ -4788,7 +4784,6 @@ TS.registerModule("constants", {
     },
     getGroupByName: function(name) {
       name = _.toLower(name);
-      if (TS.model.submodel) return TS.model.submodel.getGroupByName(name);
       var groups = TS.model.groups;
       var group = _name_map[name];
       if (group) {
@@ -4961,7 +4956,6 @@ TS.registerModule("constants", {
       return _getActiveMembersForInvitingWorker(act_like_an_admin);
     },
     getGroupsWithTheseActiveMembers: function(members_idsA) {
-      if (TS.model.submodel) return TS.model.submodel.getGroupsWithTheseActiveMembers(members_idsA);
       var A = [];
       var groups = TS.model.groups;
       var group;
@@ -7205,7 +7199,6 @@ TS.registerModule("constants", {
       if (!ok) im.needs_api_marking = true;
     },
     getImById: function(id) {
-      if (TS.model.submodel) return TS.model.submodel.getImById(id);
       var ims = TS.model.ims;
       var im = _id_map[id];
       if (im) {
@@ -7233,13 +7226,11 @@ TS.registerModule("constants", {
       return TS.members.getMemberDisplayNameLowerCase(TS.members.getMemberById(im.user));
     },
     getImByUsername: function(name) {
-      if (TS.model.submodel) return TS.model.submodel.getImByUsername(name);
       var member = TS.members.getMemberByName(name);
       if (!member) return null;
       return TS.ims.getImByMemberId(member.id);
     },
     getImByMemberId: function(id) {
-      if (TS.model.submodel) return TS.model.submodel.getImByMemberId(id);
       var ims = TS.model.ims;
       var im = _member_id_map[id];
       if (im) {
@@ -7273,7 +7264,7 @@ TS.registerModule("constants", {
       return true;
     },
     setNameFromMember: function(member) {
-      var im = member._submodel ? member._submodel.getImByMemberId(member.id) : TS.ims.getImByMemberId(member.id);
+      var im = TS.ims.getImByMemberId(member.id);
       if (!im) return;
       _setName(im, member);
     },
@@ -7705,7 +7696,6 @@ TS.registerModule("constants", {
       if (!ok) mpim.needs_api_marking = true;
     },
     getMpimById: function(id) {
-      if (TS.model.submodel) return TS.model.submodel.getMpimById(id);
       var mpims = TS.model.mpims;
       var mpim = _id_map[id];
       if (mpim) {
@@ -7724,7 +7714,6 @@ TS.registerModule("constants", {
     },
     getMpimByName: function(name) {
       name = _.toLower(name);
-      if (TS.model.submodel) return TS.model.submodel.getMpimByName(name);
       var mpims = TS.model.mpims;
       var mpim = _name_map[name];
       if (mpim) return mpim;
@@ -7750,8 +7739,8 @@ TS.registerModule("constants", {
       if (!mpim) return;
       if (mpim._members && mpim._members.length === mpim.members.length - 1) return mpim._members;
       mpim._members = _.without(mpim.members, TS.model.user.id).map(function(user_id) {
-        var member = mpim._submodel ? mpim._submodel.getMemberById(user_id) : TS.members.getMemberById(user_id);
-        if (!member) TS.warn("Could not find a member in " + (mpim._submodel ? "sub" : "") + "model with id: " + user_id);
+        var member = TS.members.getMemberById(user_id);
+        if (!member) TS.warn("Could not find a member in model with id: " + user_id);
         return member;
       });
       return _.compact(mpim._members);
@@ -7931,8 +7920,7 @@ TS.registerModule("constants", {
       TS.api.call("mpim.history", api_args, handler || TS.mpims.onHistory);
     },
     setNamesFromMember: function(member) {
-      var mpims = member._submodel ? member._submodel.getAllMpims() : TS.model.mpims;
-      mpims.forEach(function(mpim) {
+      TS.model.mpims.forEach(function(mpim) {
         if (_.includes(mpim.members, member.id)) {
           _updateMpimName(mpim);
           _clearDisplayNameCache(mpim);
@@ -7999,18 +7987,9 @@ TS.registerModule("constants", {
   };
   var _updateMpimName = function(mpim) {
     if (mpim._name_lc) delete _name_map[mpim._name_lc];
-    if (mpim._submodel) {
-      if (mpim._is_updating_name) {
-        return;
-      }
-      mpim._is_updating_name = true;
-    }
     mpim.name = _makeNameForMpim(mpim);
     mpim._name_lc = _.toLower(mpim.name);
     _name_map[mpim._name_lc] = mpim;
-    if (mpim._submodel) {
-      delete mpim._is_updating_name;
-    }
   };
   var _memberRealNameChanged = function(member) {
     TS.model.mpims.forEach(function(mpim) {
@@ -9773,7 +9752,6 @@ TS.registerModule("constants", {
     getMemberById: function(id) {
       if (!_.isString(id)) return null;
       if (id && id.charAt(0) == "@") id = id.substring(1);
-      if (TS.model.submodel) return TS.model.submodel.getMemberById(id);
       var members = TS.model.members;
       var member = _id_map[id];
       if (member) {
@@ -9797,7 +9775,6 @@ TS.registerModule("constants", {
     },
     getMemberByName: function(name) {
       name = _.toLower(name);
-      if (TS.model.submodel) return TS.model.submodel.getMemberByName(name);
       var members = TS.model.members;
       var member = _name_map[name];
       if (member) {
@@ -9816,7 +9793,6 @@ TS.registerModule("constants", {
     },
     getMemberByEmail: function(email) {
       email = _.toLower(email);
-      if (TS.model.submodel) return TS.model.submodel.getMemberByEmail(email);
       var members = TS.model.members;
       var member;
       for (var i = 0; i < members.length; i++) {
@@ -9828,9 +9804,6 @@ TS.registerModule("constants", {
       return null;
     },
     upsertAndSignal: function(member) {
-      if (TS.viewmodel && TS.viewmodel.teamdirectory) {
-        TS.viewmodel.teamdirectory.upsertModelOb(_.cloneDeep(member));
-      }
       var upsert = TS.members.upsertMember(member);
       if (upsert.status == "ADDED" && TS.lazyLoadMembersAndBots()) {
         TS.members.lazily_added_sig.dispatch(upsert.member);
@@ -10017,7 +9990,6 @@ TS.registerModule("constants", {
       return A;
     },
     getMembersForUser: function() {
-      if (TS.model.submodel) return TS.model.submodel.getMembersForUser();
       if (!TS.model.user.is_restricted) return TS.model.members;
       if (_members_for_user.length) return _members_for_user;
       var user_id_map = {};
@@ -11413,6 +11385,9 @@ TS.registerModule("constants", {
             reject(res.data.error);
             TS.warn("Trying to look up app by bot id (" + bot_id + ") but it failed.");
           }
+        }).catch(function(error) {
+          TS.warn("Trying to look up app by bot id (" + bot_id + ") but it failed.");
+          reject(error.data);
         });
         onCancel(function() {
           apps_profile_promise.cancel();
@@ -11524,7 +11499,6 @@ TS.registerModule("constants", {
       _storeBotsThrottled = TS.utility.throttleFunc(_storeBotsThrottled, 20);
     },
     getBotById: function(id) {
-      if (TS.model.submodel) return TS.model.submodel.getBotById(id);
       if (_id_map[id]) return _id_map[id];
       var bots = TS.model.bots;
       var bot;
@@ -11539,7 +11513,6 @@ TS.registerModule("constants", {
       return null;
     },
     getBotByName: function(name) {
-      if (TS.model.submodel) return TS.model.submodel.getBotByName(name);
       var bots = TS.model.bots;
       var bot;
       if (typeof name === "undefined") {
@@ -11880,10 +11853,8 @@ TS.registerModule("constants", {
       if ($(e.target).closest("a").length) return;
       var $item = $(this);
       var member_id = $item.data("member-id");
-      if (!(TS.viewmodel && TS.viewmodel.teamdirectory)) {
-        var member = TS.members.getMemberById(member_id);
-        if (!member) return;
-      }
+      var member = TS.members.getMemberById(member_id);
+      if (!member) return;
       if (TS.client) TS.client.ui.previewMember(member_id);
     },
     findMatchesInMemberList: function(members, query, include_profile_fields) {
@@ -43436,7 +43407,7 @@ $.fn.togglify = function(settings) {
       data: members,
       per_page: 50,
       approx_item_height: 50 * TS.utility.getA11yFontSizeMultiplier(),
-      placeholder_text: "Search by name",
+      placeholder_text: TS.i18n.t("Search by name", "new_channel")(),
       template: function(item) {
         var html;
         if (item.member) {
@@ -43486,9 +43457,11 @@ $.fn.togglify = function(settings) {
       },
       noResultsTemplate: function(query) {
         if (!query) {
-          return "No one found";
+          return TS.i18n.t("No one found", "new_channel")();
         } else {
-          return "No one found matching <strong>" + TS.utility.truncateAndEscape(query, 50) + "</strong>";
+          return TS.i18n.t("No one found matching <strong>{query}</strong>", "new_channel")({
+            query: TS.utility.truncateAndEscape(query, 50)
+          });
         }
       }
     });
@@ -43531,10 +43504,10 @@ $.fn.togglify = function(settings) {
         if (data.error == "name_taken") {
           _showNameTakenAlert();
         } else if (data.error == "restricted_action") {
-          _showError("Sorry! An admin on your team has restricted who can create public channels.");
+          _showError(TS.i18n.t("Sorry! An admin on your team has restricted who can create public channels.", "new_channel")());
         } else {
           TS.error("Failed to create public channel: " + data.error);
-          _showError("Sorry! Something went wrong.");
+          _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
         }
         return;
       }
@@ -46238,7 +46211,6 @@ $.fn.togglify = function(settings) {
       if (!match_with_index) return;
       var match = match_with_index.match;
       e.preventDefault();
-      var load_history = false;
       var first_with_extracts = TS.search.view.firstResultWithExtracts(match);
       var c_id = match.channel && match.channel.id ? match.channel.id : match.channel;
       if (TS.boot_data.feature_message_replies) {
@@ -46249,7 +46221,7 @@ $.fn.togglify = function(settings) {
           return;
         }
       }
-      TS.client.ui.tryToJump(c_id, first_with_extracts.ts, "", "", load_history);
+      TS.client.ui.tryToJump(c_id, first_with_extracts.ts);
     });
     TS.click.addWebHandler("#msgs_div.selecting_messages ts-message", function(e, $el) {
       var $target = $(e.target);

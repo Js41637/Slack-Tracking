@@ -6079,7 +6079,8 @@ only screen and (min-resolution:2dppx) {
 
 .client_container #client_header {
   flex: none;
-  position: static
+  position: static;
+  min-width: 0
 }
 
 .help_icon_icon {

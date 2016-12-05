@@ -798,12 +798,10 @@
     TS.model.emoji_cache_ts = data.emoji_cache_ts;
     TS.model.apps_cache_ts = data.apps_cache_ts;
     TS.model.commands_cache_ts = data.commands_cache_ts;
-    if (TS.boot_data.feature_latest_event_ts) {
-      if (!TS.model.ms_logged_in_once && !TS.storage.fetchLastEventTS() && data.latest_event_ts) {
-        TS.ms.connected_sig.addOnce(function() {
-          TS.ms.storeLastEventTS(data.latest_event_ts, "_onLoginMS");
-        });
-      }
+    if (!TS.model.ms_logged_in_once && !TS.storage.fetchLastEventTS() && data.latest_event_ts) {
+      TS.ms.connected_sig.addOnce(function() {
+        TS.ms.storeLastEventTS(data.latest_event_ts, "_onLoginMS");
+      });
     }
     if (TS.client) {
       if (TS.reloadIfVersionsChanged(data)) return;
@@ -3039,30 +3037,6 @@
     getUnknownIdsHandled: function(min_tries, state) {
       return _getUnknownIdsHandledLogOb(min_tries, state);
     },
-    useSubmodel: function(submodel) {
-      if (TS.model.submodel) throw new Error("Another submodel is already active");
-      TS.model.submodel = submodel;
-      _original_model_obs = {};
-      ["bots", "channels", "groups", "ims", "members", "mpims"].forEach(function(ob_type) {
-        _original_model_obs[ob_type] = TS.model[ob_type];
-        Object.defineProperty(TS.model, ob_type, {
-          get: function() {
-            throw new Error("Accessing model objects via TS.model is forbidden while a submodel is set; this is a programming error");
-          }
-        });
-      });
-    },
-    clearSubmodel: function() {
-      if (!TS.model.submodel) return;
-      TS.model.submodel = undefined;
-      Object.keys(_original_model_obs).forEach(function(ob_type) {
-        Object.defineProperty(TS.model, ob_type, {
-          value: _original_model_obs[ob_type],
-          writable: true
-        });
-      });
-      _original_model_obs = undefined;
-    },
     test: function() {
       return {
         getOSXVersion: _getOSXVersion,
@@ -3092,7 +3066,6 @@
     }
   });
   _.merge(TS.model, _sniffUserAgent(navigator.userAgent));
-  var _original_model_obs;
   var _unknown_ids_handled = {};
   var _unknown_ids_handled_states = [-1, 0, 1];
   var _getUnknownIdsHandledLogOb = function(min_tries, state) {

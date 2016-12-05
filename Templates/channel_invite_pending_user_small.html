@@ -1,3 +1,5 @@
+{{i18n_ns 'channel'}}
+
 <div class="channel_invite_pending_user_small clearfix">
   <i class="enter_icon ts_icon ts_icon_enter sky_blue not_in_token float_right small_top_margin"></i>
   {{makePendingUserImage invitee 36}}
@@ -5,13 +7,13 @@
     {{#and invitee.invite_prefs invitee.invite_prefs.full_name}}
       <div>
         <span class="bold">{{invitee.invite_prefs.full_name}}</span>
-        <span> (invitation pending)</span>
+        <span> {{#t}}(invitation pending){{/t}}</span>
       </div>
       <div class="subtle_silver not_in_token">{{invitee.email}}</div>
     {{else}}
       <div>
         <span class="bold">{{invitee.email}}</span>
-        <span> (invitation pending)</span>
+        <span> {{#t}}(invitation pending){{/t}}</span>
       </div>
     {{/and}}
   </div>
