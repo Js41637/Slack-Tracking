@@ -1291,7 +1291,7 @@
     onMemberProfileSet: function(ok, data, args) {
       var member, error_messages;
       error_messages = {
-        reserved_name: TS.i18n.t("Unfortunately, that’s a reserved word. Try something else!", "admin_team_member_edit")
+        reserved_name: TS.i18n.t("Unfortunately, that’s a reserved word. Try something else!", "web_admin")()
       };
       member = TS.members.getMemberById(args.user);
       if (!member) {

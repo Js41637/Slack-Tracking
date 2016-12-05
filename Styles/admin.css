@@ -556,10 +556,6 @@
   max-width: 600px
 }
 
-#shared_invite_link_url {
-  padding: .5rem 85px .625rem .5rem
-}
-
 label[for=enable_calls_checkbox] input[type=checkbox] {
   width: .9375rem
 }

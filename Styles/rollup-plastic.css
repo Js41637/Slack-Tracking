@@ -12141,6 +12141,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container ts-inline-saver {
+  margin-left: .25rem;
   font-size: .9rem
 }
 

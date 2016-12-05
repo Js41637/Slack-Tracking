@@ -5569,7 +5569,8 @@ hr {
   -webkit-flex-grow: 1;
   -moz-flex-grow: 1;
   -ms-flex-positive: 1;
-  flex-grow: 1
+  flex-grow: 1;
+  overflow: hidden
 }
 
 .client_channels_list_container {
@@ -6160,6 +6161,12 @@ only screen and (min-resolution:2dppx) {
 
 #client_body:not(.onboarding).disable_border:before {
   border-bottom: 0rem solid #fff
+}
+
+.client_container #col_messages>.row-fluid {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 #footer {

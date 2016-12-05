@@ -7,8 +7,8 @@
   <div class="fs_split_flex_wrapper">
 
     <div class="shared_invite_link_form_body fs_split_body">
-      <h1 class="small_bottom_margin">{{#t}}Share this link with your&nbsp;teammates{{/t}}</h1>
-      <p class="desc shared_invite_link_text">{{#t}}Anyone with this link will be able to instantly join your new Slack team. (We\u2019ll also send you an email that you can forward to your team).{{/t}}</p>
+      <h1 class="small_bottom_margin">{{#t}}Share your invite link with&nbsp;teammates{{/t}}</h1>
+      <p class="desc shared_invite_link_text">{{#t}}Anyone can use the following link to quickly join your new Slack team. Simply copy and share it!.{{/t}}</p>
 
       <div class="shared_invite_link_container">
         <span class="shared_invite_link_label">{{#t}}{team_name}\u2019s invite link{{/t}}</span>
@@ -19,10 +19,11 @@
             <span class="shared_invite_link_tooltip ts_tip_tip hidden">{{#t}}Link copied!{{/t}} \ud83d\udc4f\ud83c\udffe</span>
           </button>
         </div>
+        <div class="shared_invite_link_info">{{#t}}Your link will work for {link_duration} and up to {link_max_signups} team members.{{/t}}</div>
       </div>
 
       <div class="shared_invite_link_skip_container">
-        <span>{{#t}}Or, you can <a data-action="shared_invite_link_skip" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_to_invite_by_email,trigger=click_invite_by_email_link,step=shared_invite_link">invite people by email</a>.{{/t}}<span>
+        <span>{{#t}}You can also <a data-action="shared_invite_link_skip" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_to_invite_by_email,trigger=click_invite_by_email_link,step=shared_invite_link">send email invitations</a>.{{/t}}<span>
       </div>
     </div>
 

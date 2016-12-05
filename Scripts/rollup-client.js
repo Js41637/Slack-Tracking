@@ -9335,6 +9335,30 @@
         this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members_in_view, true, true);
       });
     },
+    fetchResults: function() {
+      if (TS.lazyLoadMembersAndBots()) {
+        return TS.members.promiseToSearchMembers({
+          query: this._current_query_for_match,
+          include_self: true,
+          include_org: true,
+          full_profile_filter: true,
+          include_bots: true,
+          include_deleted: this._current_filter == "disabled_members"
+        });
+      } else {
+        var search_full_profiles = true;
+        var include_bots = true;
+        var include_deleted = true;
+        var just_return = true;
+        var include_org = false;
+        if (TS.boot_data.page_needs_enterprise) {
+          if (this._current_filter.match(/^org|team/)) {
+            include_org = this._current_filter.match(/^org/) ? true : false;
+          }
+        }
+        return TS.members.view.promiseToFilterTeam(this._current_query_for_match, this._search_input_id, this._long_list_view_id, search_full_profiles, include_org, include_bots, include_deleted, just_return);
+      }
+    },
     showResults: function(matching_members) {
       if (matching_members.length > 0) {
         this.maybeClearNoResults();
@@ -30025,7 +30049,7 @@
         }
         template_args.show_app_download_path = show_app_download_path;
         template_args.app_download_path = app_download_path;
-        if (TS.boot_data.feature_flannel_fe) template_args.show_flannel_pref = true;
+        if (TS.boot_data.feature_flannel_fe && TS.boot_data.feature_tinyspeck) template_args.show_flannel_pref = true;
         template_args.show_console_whitelist = true;
         var preselected = _.get(TS.model.prefs, "client_logs_pri", "");
         template_args.whitelisted_pris = _(Object.keys(TS.boot_data.client_logs)).filter(function(key) {

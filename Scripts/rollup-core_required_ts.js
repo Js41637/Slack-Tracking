@@ -180,6 +180,17 @@
     console: _console_module,
     boot: function(boot_data) {
       TS.boot_data = boot_data;
+      if (TS.boot_data.is_in_flannel_experiment) {
+        var byte_counting_duration = 10 * 60 * 1e3;
+        TS._count_bytes_received = true;
+        TS._bytes_received = 0;
+        setTimeout(function() {
+          TS.info("Received " + TS._bytes_received + " bytes in the first " + _.round(byte_counting_duration / 6e4, 2) + " minutes of the session");
+          TS._count_bytes_received = false;
+          TS.metrics.count("client_session_bytes_received", TS._bytes_received);
+          TS.metrics.count("client_total_members_loaded", TS.model.members.length);
+        }, byte_counting_duration);
+      }
       TS.console.onStart();
       TSConnLogger.log("start", "TS.boot");
       _setClientLoadWatchdogTimer();
@@ -492,19 +503,6 @@
     };
   }
   var _loginMS = function() {
-    if (!TS.boot_data.feature_do_not_clear_three_day_old_local_storage) {
-      if (TS.model.ms_logged_in_once) {
-        var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
-        if (since_last_pong_ms > 1e3 * 60 * 5) {
-          if (TS.storage.completelyEmptyAllStorageAndResetIfTooOld()) {
-            TS.info("going to call TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
-            TS.reload(null, "TS.reload() after a TS.storage.completelyEmptyAllStorageAndResetIfTooOld() because since_last_pong_ms > 1000*60*5");
-          }
-        }
-      } else {
-        TS.storage.completelyEmptyAllStorageAndResetIfTooOld();
-      }
-    }
     if (_parallel_rtm_start_rsp) {
       TS.ms.logConnectionFlow("login_with_parallel_rtm_start_rsp");
       TSConnLogger.log("ms_login_parallel", "login_with_parallel_rtm_start_rsp");
