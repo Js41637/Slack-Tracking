@@ -1,5 +1,7 @@
-<li data-which="visit_team_site" class="enterprise_team_signin_menu_item"><a href="{{team_site_url}}" target="blank">Visit Workspace Site</a></li>
+{{i18n_ns 'enterprise_workspaces'}}
+
+<li data-which="visit_team_site" class="enterprise_team_signin_menu_item"><a href="{{team_site_url}}" target="blank">{{#t}}Visit Workspace Site{{/t}}</a></li>
 
 {{#if should_show_leave_team}}
-  <li data-which="leave_team" class="enterprise_team_signin_menu_item"><a class="candy_red">Leave Workspace</a></li>
+  <li data-which="leave_team" class="enterprise_team_signin_menu_item"><a class="candy_red">{{#t}}Leave Workspace{{/t}}</a></li>
 {{/if}}

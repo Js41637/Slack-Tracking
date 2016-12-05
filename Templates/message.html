@@ -49,7 +49,9 @@
                {{#if is_pinned}}is_pinned{{/if}}
              {{/feature}}
       {{#feature flag="feature_sli_recaps"}}
-        {{#if is_recap}}is_recap{{/if}}
+        {{#if is_recap}}is_recap
+          {{#if recap_threshold}}recap_marker_threshold{{/if}}
+        {{/if}}
       {{/feature}}
              {{#if app_id}}is_app{{/if}}
          "
@@ -118,7 +120,20 @@
         {{#if is_tombstone}}
           <div class="deleted_message">This message was deleted</div>
         {{else}}
-          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}<span class="recap_highlight"><a>Highlight: {{is_recap}} </a></span>{{/if}}{{/feature}}
+          {{#feature flag="feature_sli_recaps"}}
+            {{#if is_recap}}
+              {{#if recap_threshold}}
+                <span class="recap_highlight"><a>Highlight </a></span>
+              {{/if}}
+              <button class="ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
+                <span class="ts_tip_tip ts_tip_multiline_inner">
+                  Clicks: {{msg.recap.clicks}}<br />
+                  Reactions: {{msg.recap.reactions}} <br />
+                  Total score: {{msg.recap.weight}}
+                </span>
+              </button>
+            {{/if}}
+          {{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
         {{/if}}

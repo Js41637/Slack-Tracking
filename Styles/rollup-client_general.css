@@ -6158,6 +6158,10 @@ body.winssb #emoji_menu {
   height: 100%
 }
 
+.react_popover_mask {
+  z-index: 1053
+}
+
 .menu.file_menu {
   min-width: 250px
 }

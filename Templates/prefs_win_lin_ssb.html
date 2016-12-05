@@ -1,9 +1,11 @@
 <h2 id="prefs_app_settings" class="inline_block">App Settings</h2>
 <p>
-  <label class="checkbox">
-    <input id="winssb_launch_on_start_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_app_settings">
-    Launch app on login
-  </label>
+  {{#unless is_app_store_build}}
+    <label class="checkbox">
+      <input id="winssb_launch_on_start_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_app_settings">
+      Launch app on login
+    </label>
+  {{/unless}}
   <label class="checkbox">
     <input id="winssb_run_from_tray_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_app_settings">
     Leave app running in notification area when the window is closed

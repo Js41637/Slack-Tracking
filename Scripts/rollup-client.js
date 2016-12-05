@@ -9323,7 +9323,10 @@
         this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members_in_view, true, true);
       });
     },
-    fetchResults: function() {
+    fetchResults: function(query) {
+      this._current_query_for_display = query.trim();
+      this._current_query_for_match = query.trim().toLocaleLowerCase();
+      this._is_searching = true;
       if (TS.lazyLoadMembersAndBots()) {
         return TS.members.promiseToSearchMembers({
           query: this._current_query_for_match,
@@ -9344,49 +9347,35 @@
             include_org = this._current_filter.match(/^org/) ? true : false;
           }
         }
+        if (this._member_ids) {
+          var members_to_filter = _.map(this._member_ids, TS.members.getMemberById);
+          var filtered_members = TS.utility.members.filterMembersByQuery(members_to_filter, this._current_query_for_match);
+          return new Promise.resolve(TS.members.allocateTeamListMembers(filtered_members));
+        }
         return TS.members.view.promiseToFilterTeam(this._current_query_for_match, this._search_input_id, this._long_list_view_id, search_full_profiles, include_org, include_bots, include_deleted, just_return);
       }
     },
     showResults: function(matching_members) {
       if (matching_members.length > 0) {
-        this.maybeClearNoResults();
-        this.getLongListView().longListView("setItems", matching_members, true);
+        this._maybeClearNoResults();
+        this.$_long_list_view.longListView("setItems", matching_members, true);
       } else {
         if (this._current_query_for_match == "" && this._current_filter == "everyone") {
-          this.maybeClearNoResults();
-          this.resetSearch();
+          this._maybeClearNoResults();
+          this.resetResults();
           this.resetInitialState();
         } else {
           this._showNoResults();
         }
       }
     },
-    maybeClearNoResults: function() {
-      var $no_results = this.$_container.find(".no_results");
-      if ($no_results.length == 0) return;
-      this._current_filter = "everyone";
-      this.$_container.find(".searchable_member_list_filter").replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
-      $no_results.remove();
-      this.$_long_list_view.show();
-    },
-    getLongListView: function() {
-      return this.$_long_list_view;
-    },
     getCurrentFilter: function() {
       return this._current_filter;
     },
-    setCurrentQuery: function(query_for_display) {
-      this._current_query_for_display = query_for_display.trim();
-      this._current_query_for_match = query_for_display.trim().toLocaleLowerCase();
-    },
-    getCurrentMemberIds: function() {
-      return this._member_ids;
-    },
-    startSearch: function() {
-      this._is_searching = true;
-    },
-    resetSearch: function() {
+    resetResults: function() {
       this._is_searching = false;
+      this._maybeClearNoResults();
+      return this.fetchResults("");
     },
     _loadLocalMembersIntoLongListView: function() {
       var members_for_user;
@@ -9537,9 +9526,17 @@
       this.$_long_list_view.hide().before(no_results);
       this.$_container.delegate(".clear_members_filter", "click", function() {
         this_searchable_member_list.$_container.find(this_searchable_member_list._search_input_id + " input").val("");
-        this_searchable_member_list.maybeClearNoResults();
+        this_searchable_member_list._maybeClearNoResults();
         this_searchable_member_list.resetInitialState();
       });
+    },
+    _maybeClearNoResults: function() {
+      var $no_results = this.$_container.find(".no_results");
+      if ($no_results.length == 0) return;
+      this._current_filter = "everyone";
+      this.$_container.find(".searchable_member_list_filter").replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
+      $no_results.remove();
+      this.$_long_list_view.show();
     },
     _generateFilterSearchBarTemplateArgs: function() {
       var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
@@ -9653,6 +9650,30 @@
       TS.client.msg_input.$input = $input;
       if (TS.boot_data.feature_texty) {
         TS.utility.contenteditable.create($input, {
+          modules: {
+            msginput: {
+              onLeftWhenEmpty: function() {
+                TS.utility.contenteditable.blur($input);
+                $("#primary_file_button").click();
+              },
+              onUpWhenEmpty: function() {
+                if (!TS.client.ui.isUserAttentionOnChat()) return;
+                TS.client.ui.maybeEditLast(new Event("fakeEvent"));
+              }
+            },
+            tabcomplete: {
+              menuTemplate: TS.templates.tabcomplete_menu,
+              completers: [TS.tabcomplete.members, TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji],
+              appendMenu: function(menu) {
+                document.querySelector("#msg_form").appendChild(menu);
+              },
+              positionMenu: function(menu) {
+                menu.style.bottom = "100%";
+                menu.style.left = "42px";
+                menu.style.width = "90%";
+              }
+            }
+          },
           placeholder: $input.data("placeholder"),
           onSend: function() {
             _tryToSubmit({}, $input);
@@ -9660,18 +9681,6 @@
           onTextChange: function() {
             _maybeResize();
             _maybeStopPretendingToBeOnline();
-          },
-          tabcomplete: {
-            menuTemplate: TS.templates.tabcomplete_menu,
-            completers: [TS.tabcomplete.members, TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji],
-            appendMenu: function(menu) {
-              document.querySelector("#msg_form").appendChild(menu);
-            },
-            positionMenu: function(menu) {
-              menu.style.bottom = "100%";
-              menu.style.left = "42px";
-              menu.style.width = "90%";
-            }
           }
         });
       }
@@ -22082,9 +22091,8 @@
 
   function _isLegacyAppStoreBuild() {
     if (!("macgap" in window)) return false;
-    if (!("isAppStoreBuild" in macgap.app)) return false;
     try {
-      return macgap.app.isAppStoreBuild() === "1";
+      return TSSSB.call("isAppStoreBuild") === "1";
     } catch (err) {
       TS.logError(err, "macgap.app.isAppStoreBuild() failed", "macgap error");
       return false;
@@ -30029,7 +30037,8 @@
       case "win_ssb":
       case "lin_ssb":
         html = TS.templates.prefs_win_lin_ssb({
-          show_lin_ssb_prefs: _show_lin_ssb_prefs
+          show_lin_ssb_prefs: _show_lin_ssb_prefs,
+          is_app_store_build: TSSSB.call("isAppStoreBuild")
         });
         break;
       case "messages_media":
@@ -36611,6 +36620,7 @@ function timezones_guess() {
           if (loader) {
             config._pending_op = loader().then(function() {
               TS.ui.message_container.updateWithFocus(config, $container.find(".message_container_item").first());
+              return null;
             }).finally(function() {
               config._pending_op = null;
             });
@@ -36636,6 +36646,7 @@ function timezones_guess() {
       }
       TS.ui.utility.preventElementFromScrolling($focus, function() {
         changes = TS.ui.message_container.update(config);
+        return null;
       }, function() {
         var $container = $(config.container);
         if ($.contains($container[0], $focus[0])) return $focus;

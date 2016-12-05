@@ -1,6 +1,8 @@
+{{i18n_ns "team_profile"}}
+
 {{#if default_team_profile_fields}}
   <div class="row clearfix  header_row no_padding_right">
-    <div class="col no_bottom_margin"><span class="no_margin subtle_silver">Default Fields</span></div>
+    <div class="col no_bottom_margin"><span class="no_margin subtle_silver">{{#t}}Default Fields{{/t}}</span></div>
   </div>
   {{#each default_team_profile_fields}}
     <div class="row clearfix" data-action="edit_team_profile_to_edit" data-type="{{this.type}}" data-label="{{this.label}}">

@@ -11712,43 +11712,28 @@ TS.registerModule("constants", {
         });
       }
       $input.bind("keyup update-team-filter", function(e) {
-        if (TS.client && TS.boot_data.feature_searchable_member_list && _searchable_member_list.getCurrentMemberIds()) {
-          if (TS.lazyLoadMembersAndBots()) {} else {
-            var new_query = $input.val();
-            if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
-              _searchable_member_list.setCurrentQuery(new_query);
-              var members_to_filter = _.map(_searchable_member_list.getCurrentMemberIds(), TS.members.getMemberById);
-              var query_for_display = new_query.trim();
-              _query_for_match = query_for_display.toLocaleLowerCase();
-              var filtered_members = TS.utility.members.filterMembersByQuery(members_to_filter, _query_for_match);
-              _displayPromiseToSearchResults(TS.members.allocateTeamListMembers(filtered_members), undefined, undefined, _query_for_match, query_for_display);
-            }
-            $icon_close.toggleClass("hidden", !query_for_display);
-          }
-        } else {
-          var new_query = $input.val();
-          if (TS.members.view.filter_timer) {
-            window.clearTimeout(TS.members.view.filter_timer);
-          }
-          var search = function() {
-            if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
-              if (TS.boot_data.feature_searchable_member_list && TS.client) {
-                _searchable_member_list.setCurrentQuery(new_query);
-                return _searchable_member_list.fetchResults().then(function(response) {
-                  _displayPromiseToSearchResults(TS.lazyLoadMembersAndBots() ? response.items : response);
-                });
-              }
-              TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter).then(function() {
-                if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
+        var new_query = $input.val();
+        if (TS.members.view.filter_timer) {
+          window.clearTimeout(TS.members.view.filter_timer);
+        }
+        var search = function() {
+          if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
+            if (TS.boot_data.feature_searchable_member_list && TS.client) {
+              return _searchable_member_list.fetchResults(new_query).then(function(response) {
+                _displayPromiseToSearchResults(TS.lazyLoadMembersAndBots() ? response.items : response);
+                $icon_close.toggleClass("hidden", !new_query.trim());
               });
             }
-            $icon_close.toggleClass("hidden", !new_query.trim());
-          };
-          if (is_long_list_view) {
-            search();
-          } else {
-            TS.members.view.filter_timer = window.setTimeout(search, TS.members.getMembersForUser().length > 500 ? 250 : 50);
+            TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter).then(function() {
+              if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
+            });
           }
+          $icon_close.toggleClass("hidden", !new_query.trim());
+        };
+        if (is_long_list_view) {
+          search();
+        } else {
+          TS.members.view.filter_timer = window.setTimeout(search, TS.members.getMembersForUser().length > 500 ? 250 : 50);
         }
       });
       $icon_close.bind("click", function() {
@@ -11765,7 +11750,6 @@ TS.registerModule("constants", {
       if (full_profile_filter || args && args.full_profile_filter) {
         return TS.team.ensureTeamProfileFields().then(function() {
           if (TS.boot_data.feature_searchable_member_list && TS.client) {
-            _searchable_member_list.startSearch();
             return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
           } else {
             if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
@@ -11816,17 +11800,9 @@ TS.registerModule("constants", {
       $input.val("");
       $icon_close.addClass("hidden");
       if (TS.boot_data.feature_searchable_member_list && TS.client) {
-        _searchable_member_list.resetSearch();
-        if (_searchable_member_list.getCurrentMemberIds()) {
-          if (TS.lazyLoadMembersAndBots()) {} else {
-            var members_to_filter = _.map(_searchable_member_list.getCurrentMemberIds(), TS.members.getMemberById);
-            var filtered_members = TS.utility.members.filterMembersByQuery(members_to_filter, _query_for_match);
-            _displayPromiseToSearchResults(TS.members.allocateTeamListMembers(filtered_members), undefined, undefined, _query_for_match, _query_for_match);
-          }
-        } else {
-          TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
-        }
-        _searchable_member_list.maybeClearNoResults();
+        _searchable_member_list.resetResults().then(function(response) {
+          _displayPromiseToSearchResults(TS.lazyLoadMembersAndBots() ? response.items : response);
+        });
       } else {
         if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
           TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
@@ -17973,6 +17949,7 @@ TS.registerModule("constants", {
         }
         if (TS.boot_data.feature_sli_recaps) {
           var recap_item;
+          var score_threshold = 80;
           if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
             recap_item = msg.file;
           } else if (msg.subtype === "file_comment") {
@@ -17980,8 +17957,11 @@ TS.registerModule("constants", {
           } else {
             recap_item = msg;
           }
-          if (recap_item && recap_item.recap) {
-            template_args.is_recap = recap_item.recap;
+          if (recap_item && recap_item.recap.weight * 100 > 0) {
+            template_args.is_recap = true;
+            if (recap_item.recap.weight * 100 > score_threshold) {
+              template_args.recap_threshold = true;
+            }
           } else {
             template_args.is_recap = false;
           }
@@ -21259,6 +21239,7 @@ TS.registerModule("constants", {
         }
         if (TS.boot_data.feature_sli_recaps) {
           var recap_item;
+          var score_threshold = 80;
           if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
             recap_item = msg.file;
           } else if (msg.subtype === "file_comment") {
@@ -21268,6 +21249,9 @@ TS.registerModule("constants", {
           }
           if (recap_item && recap_item.recap) {
             template_args.is_recap = recap_item.recap;
+            if (recap_item.recap.weight * 100 > score_threshold) {
+              template_args.recap_threshold = true;
+            }
           } else {
             template_args.is_recap = false;
           }
@@ -21464,6 +21448,7 @@ TS.registerModule("constants", {
     }
     if (TS.boot_data.feature_sli_recaps) {
       if (template_args.is_recap) msg_classes.push("is_recap");
+      if (template_args.recap_threshold) msg_classes.push("recap_marker_threshold");
     }
     return msg_classes;
   }
@@ -28817,11 +28802,10 @@ TS.registerModule("constants", {
                   is_welcome_post = true;
                 }
               }
-              var file_link_type = is_welcome_post ? "file_new_window_link" : "file_preview_link";
+              var file_link_type = is_welcome_post ? "file_new_window_link welcome_post_slackbot_message" : "file_preview_link";
               var css_class = file_id ? ' class="no_jumbomoji ' + file_link_type + '"' : "";
               var data_file_id = file_id ? ' data-file-id="' + file_id + '"' : "";
-              var onclick_action = is_welcome_post ? ' onclick="TS.utility.welcome_post.clogEditLink()"' : "";
-              str += "<a " + TS.utility.makeRefererSafeLink(url) + ' target="_blank"' + css_class + data_file_id + onclick_action + ">";
+              str += "<a " + TS.utility.makeRefererSafeLink(url) + ' target="_blank"' + css_class + data_file_id + ">";
               if (attach_html) {
                 TS.error("WTF we should have no attach_html");
               }
@@ -29342,7 +29326,11 @@ TS.registerModule("constants", {
       TS.prefs.channel_handy_rxns_changed_sig.add(_buildDefaultRxns);
     },
     start: function(args) {
-      _start(args);
+      if (TS.boot_data.feature_react_emoji_picker) {
+        TS.ui.react_emoji_menu.start(args);
+      } else {
+        _start(args);
+      }
       TS.emoji.maybeCommitDeferredEmojiUsage();
     },
     setDirtyAndMaybeRender: function() {
@@ -30388,6 +30376,7 @@ TS.registerModule("constants", {
     _$menu.addClass("skin_tone_" + id);
   };
   var _updateSkinButton = function() {
+    if (!_$emoji_skin_button) return;
     var chosen = _skin_picker_base + TS.emoji.getChosenSkinToneModifier();
     chosen = TS.utility.htmlEntities(chosen);
     var options = _shouldForceEmojiStyle() ? {
@@ -30425,11 +30414,11 @@ TS.registerModule("constants", {
     _$emoji_skin_picker.html(TS.emoji.graphicReplace(choices.join(""), options));
   };
   var _skinTonePrefChanged = function() {
-    _updateSkinButton();
-    _updateSkinClass();
-    _hideSkinTonePickerLabel();
-    if (_$emoji_skin_picker && _$emoji_skin_picker.hasClass("shown")) {
-      _updateSkinPicker();
+    if (_$emoji_skin_picker) {
+      _updateSkinButton();
+      _updateSkinClass();
+      _hideSkinTonePickerLabel();
+      if (_$emoji_skin_picker.hasClass("shown")) _updateSkinPicker();
     }
     if (_in_search_mode) _onInputTextchange();
   };
@@ -32418,7 +32407,7 @@ var _on_esc;
       team: team
     };
     var settings = {
-      title: "Leave Workspace",
+      title: TS.i18n.t("Leave Workspace", "enterprise_workspaces")(),
       body_template_html: TS.templates.leave_workspace_dialog(template_args),
       onShow: _onShowLeaveTeamConfirm,
       onCancel: _onCancelLeaveTeamConfirm,
@@ -32439,13 +32428,28 @@ var _on_esc;
         };
         TS.api.call("enterprise.teams.leave", calling_args, function(ok, data, args) {
           var team = TS.enterprise.getTeamById(_team_id);
-          var success_message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + " You've successfully left <strong>" + team.name + "</strong>");
+          var success_message = emoji.replace_colons(":sparkles:");
+          success_message += TS.i18n.t(" You’ve successfully left <strong>{team_name}</strong>", "enterprise_workspaces")({
+            team_name: team.name
+          });
           if (ok) {
+            var updated_member = _.merge({}, TS.model.user);
+            updated_member.enterprise_user.teams = updated_member.enterprise_user.teams.filter(function(team) {
+              return team !== args.team;
+            });
+            if (TS.boot_data.app === "web") {
+              TS.model.user = updated_member;
+            } else {
+              TS.members.upsertMember(updated_member);
+            }
+            TS.enterprise.signin.loadPage("teams_on");
             _showToastMessage("success", success_message);
             TS.ui.fs_modal.close();
           } else {
+            var error_message;
             if (data.error === "disable_denied_due_to_idpgroup_membership") {
-              _showToastMessage("error", "You can't leave this team.<br>Because you're in an IdP group assigned to this team, you can't leave it here. <Contact an Org Admin> for help leaving the team.");
+              error_message = TS.i18n.t("You can’t leave this team.<br>Because you’re in an IdP group assigned to this team, you can’t leave it here. <Contact an Org Admin> for help leaving the team.", "enterprise_workspaces")();
+              _showToastMessage("error", error_message);
             } else if (data.error === "user_deleted_already") {
               _showToastMessage("success", success_message);
               TS.ui.fs_modal.close();
@@ -32453,7 +32457,10 @@ var _on_esc;
               _showToastMessage("success", success_message);
               TS.ui.fs_modal.close();
             } else {
-              _showToastMessage("error", 'Leaving team failed with error "' + data.error + '"');
+              error_message = TS.i18n.t('Leaving team failed with error "{error}"', "enterprise_workspaces")({
+                error: data.error
+              });
+              _showToastMessage("error", error_message);
             }
           }
           return;
@@ -32533,7 +32540,11 @@ var _on_esc;
       var on_esc;
       if (TS.client && is_primary_file_button) {
         on_esc = function() {
-          TS.client.ui.$msg_input.focus();
+          if (TS.boot_data.feature_texty) {
+            TS.utility.contenteditable.focus(TS.client.msg_input.$input);
+          } else {
+            TS.client.ui.$msg_input.focus();
+          }
         };
       }
       TS.menu.start(e, false, {
@@ -43590,6 +43601,7 @@ $.fn.togglify = function(settings) {
       var instance = $.extend({}, _DEFAULT_SETTINGS, settings);
       if (["success", "warning", "error"].indexOf(instance.type) < 0) instance.type = _DEFAULT_SETTINGS.type;
       if (["top", "bottom"].indexOf(instance.position) < 0) instance.position = _DEFAULT_SETTINGS.position;
+      instance.message = new Handlebars.SafeString(instance.message);
       _maybeShowToast(instance);
       return instance;
     }
@@ -54567,11 +54579,19 @@ $.fn.togglify = function(settings) {
       var file = TS.files.getFileById(file_id);
       if (file && file.name === TS.utility.welcome_post.WELCOME_POST_NAME) {
         if (TS.model.user.is_primary_owner) {
-          TS.clog.track("WEBSITE_CLICK", {
-            click_target: "edit_in_new_window_button",
-            trigger: "welcome_post_team_creator",
-            action: "open_post"
-          });
+          if ($el.hasClass("welcome_post_slackbot_message")) {
+            TS.clog.track("WEBSITE_CLICK", {
+              click_target: "edit_post_link",
+              trigger: "welcome_post_team_creator",
+              action: "open_post"
+            });
+          } else {
+            TS.clog.track("WEBSITE_CLICK", {
+              click_target: "edit_in_new_window_button",
+              trigger: "welcome_post_team_creator",
+              action: "open_post"
+            });
+          }
         } else {
           TS.clog.track("WEBSITE_CLICK", {
             click_target: "open_in_new_window_button",
@@ -54595,13 +54615,6 @@ $.fn.togglify = function(settings) {
           action: "disable"
         });
       }
-    },
-    clogEditLink: function() {
-      TS.clog.track("WEBSITE_CLICK", {
-        click_target: "edit_post_link",
-        trigger: "welcome_post_team_creator",
-        action: "open_post"
-      });
     }
   });
 })();
@@ -54778,4 +54791,47 @@ $.fn.togglify = function(settings) {
       _updatePinnedMessageUI(model_ob, msg, is_pinned);
     });
   };
+})();
+(function() {
+  "use strict";
+  TS.registerComponent("PromiseQueue", {
+    _constructor: function() {
+      this.queue = [];
+      this.current_job = null;
+    },
+    destroy: function() {
+      this.clear();
+    },
+    clear: function() {
+      this.queue = [];
+      if (this.current_job && this.current_job.isPending()) this.current_job.cancel();
+      this.current_job = null;
+    },
+    addToQ: function(job) {
+      return new Promise(function(resolve, reject) {
+        this.queue.push(function() {
+          var ret = job();
+          if (!ret || !ret.then) ret = Promise.resolve();
+          ret.then(resolve, reject);
+          return ret;
+        }.bind(this));
+        if (this.queue.length === 1 && !this.current_job) {
+          return this._nextFromQ();
+        }
+      }.bind(this));
+    },
+    _nextFromQ: function() {
+      if (this.current_job) return;
+      if (!this.queue.length) return;
+      var next = this.queue.shift();
+      var ret = next();
+      this.current_job = ret;
+      ret.finally(function() {
+        this.current_job = null;
+        this._nextFromQ();
+        return null;
+      }.bind(this));
+      return null;
+    }
+  });
 })();

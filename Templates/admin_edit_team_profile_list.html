@@ -1,21 +1,23 @@
+{{i18n_ns "team_profile"}}
+
 <div id="edit_team_profile_list_drag_and_drop_area">
   <div class="row clearfix hide_on_mobile header_row">
-    <div class="col no_bottom_margin span_2_of_6">Field label</div>
-    <div class="col no_bottom_margin span_4_of_6">Hint</div>
+    <div class="col no_bottom_margin span_2_of_6">{{#t}}Field label{{/t}}</div>
+    <div class="col no_bottom_margin span_4_of_6">{{#t}}Hint{{/t}}</div>
   </div>
   <div class="row clearfix default_row">
-    <div class="col no_bottom_margin span_5_of_6"><span class="no_margin">First &amp; Last Name</span></div>
-    <div class="col no_bottom_margin span_1_of_6"><em class="subtle_silver cloud_silver">default field</em></div>
+    <div class="col no_bottom_margin span_5_of_6"><span class="no_margin">{{#t}}First &amp; Last Name{{/t}}</span></div>
+    <div class="col no_bottom_margin span_1_of_6"><em class="subtle_silver cloud_silver">{{#t}}default field{{/t}}</em></div>
   </div>
   <div class="row clearfix default_row">
-    <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">What I Do</span></div>
-    <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">Let others on your team know what you do.</p></div>
-    <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">default field</em></div>
+    <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">{{#t}}What I Do{{/t}}</span></div>
+    <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">{{#t}}Let others on your team know what you do.{{/t}}</p></div>
+    <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">{{#t}}default field{{/t}}</em></div>
   </div>
   <div class="row clearfix default_row">
-    <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">Phone Number</span></div>
-    <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">This will be displayed on your profile.</p></div>
-    <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">default field</em></div>
+    <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">{{#t}}Phone Number{{/t}}</span></div>
+    <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">{{#t}}This will be displayed on your profile.{{/t}}</p></div>
+    <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">{{#t}}default field{{/t}}</em></div>
   </div>
   {{#if team_profile_fields}}
     {{#each team_profile_fields}}
@@ -25,7 +27,7 @@
           <p class="subtle_silver no_bottom_margin">{{this.hint}}</p>
           {{#if_equal this.type compare="options_list"}}
             {{#if this.possible_values}}
-              <p class="subtle_silver italic no_bottom_margin">{{this.possible_values.length}} {{pluralize this.possible_values.length 'option'}}</p>
+              <p class="subtle_silver italic no_bottom_margin">{{#t}}{possible_values.length, plural, =1{# option}other{# options}}{{/t}}</p>
             {{/if}}
           {{/if_equal}}
         </div>
@@ -41,12 +43,12 @@
   {{#if hidden_team_profile_fields}}
     {{#each hidden_team_profile_fields}}
       <div class="row clearfix hidden_row" data-action="edit_team_profile_to_edit" data-id="{{this.id}}">
-        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin subtle_silver">{{this.label}}</span> <em class="subtle_silver normal">(Disabled)</em></div>
+        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin subtle_silver">{{this.label}}</span> <em class="subtle_silver normal">{{#t}}(Disabled){{/t}}</em></div>
         <div class="col no_bottom_margin span_3_of_6">
           <p class="subtle_silver no_bottom_margin">{{this.hint}}</p>
           {{#if_equal this.type compare="options_list"}}
             {{#if this.possible_values}}
-              <p class="subtle_silver italic no_bottom_margin">{{this.possible_values.length}} {{pluralize this.possible_values.length 'option'}}</p>
+                            <p class="subtle_silver italic no_bottom_margin">{{#t}}{possible_values.length, plural, =1{# option}other{# options}}{{/t}}</p>
             {{/if}}
           {{/if_equal}}
         </div>
@@ -58,7 +60,7 @@
   {{/if}}
   <div class="row clearfix"></div>
   <p class="align_left large_top_margin display_flex flex_wrap">
-    <button id="edit_team_profile_add_new_btn" class="col span_1_of_2 btn btn_large btn_outline" data-action="edit_team_profile_to_custom">Create a custom field</button>
-    <button id="edit_team_profile_add_existing_btn" class="col span_1_of_2 btn btn_large{{#unless default_team_profile_fields}} disabled{{/unless}}" data-action="edit_team_profile_to_add">{{#unless default_team_profile_fields}}You've selected all existing fields{{else}}Select existing field{{/unless}}</button>
+    <button id="edit_team_profile_add_new_btn" class="col span_1_of_2 btn btn_large btn_outline" data-action="edit_team_profile_to_custom">{{#t}}Create a custom field{{/t}}</button>
+    <button id="edit_team_profile_add_existing_btn" class="col span_1_of_2 btn btn_large{{#unless default_team_profile_fields}} disabled{{/unless}}" data-action="edit_team_profile_to_add">{{#unless default_team_profile_fields}}{{#t}}You\u2018ve selected all existing fields{{/t}}{{else}}{{#t}}Select existing field{{/t}}{{/unless}}</button>
   </p>
 </div>
