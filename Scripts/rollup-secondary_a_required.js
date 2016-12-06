@@ -1,6 +1,11 @@
 (function() {
   "use strict";
   TS.registerModule("presence_manager", {
+    onStart: function() {
+      _has_started = true;
+      if (_sub_list.length) _sendSubList();
+      if (_query_list.length) _sendQueryList();
+    },
     addPresenceList: function(presence_list) {
       presence_list.added_sig.add(_addMembers);
       presence_list.removed_sig.add(_removeMembers);
@@ -43,6 +48,7 @@
     }
   });
   var _SLACKBOT_ID = "USLACKBOT";
+  var _has_started = false;
   var _members = {};
   var _sub_list = [];
   var _query_list = [];
@@ -81,7 +87,7 @@
     }
   };
   var _sendSubList = function() {
-    if (_is_sub_waiting) return;
+    if (!_has_started || _is_sub_waiting) return;
     _is_sub_waiting = true;
     TS.api.connection.waitForMSToReconnect().then(function() {
       TS.metrics.count("presence_manager", _sub_list.length);
@@ -90,10 +96,11 @@
         ids: _sub_list
       });
       _is_sub_waiting = false;
+      return null;
     });
   };
   var _sendQueryList = function() {
-    if (_is_query_waiting) return;
+    if (!_has_started || _is_query_waiting) return;
     _is_query_waiting = true;
     TS.api.connection.waitForMSToReconnect().then(function() {
       TS.ms.send({
@@ -101,6 +108,7 @@
         ids: _query_list
       });
       _is_query_waiting = false;
+      return null;
     });
   };
 })();
@@ -8876,6 +8884,10 @@ TS.registerModule("constants", {
         return TS.ims.getImById(id);
       }
     },
+    getModelObByName: function(name) {
+      if (!_.isString(name)) return null;
+      return TS.ims.getImByUsername(name) || TS.mpims.getMpimByName(name) || TS.groups.getGroupByName(name) || TS.channels.getChannelByName(name);
+    },
     getAllModelObsForUser: function() {
       return TS.channels.getChannelsForUser().concat(TS.model.groups, TS.model.ims, TS.model.mpims);
     },
@@ -9371,7 +9383,8 @@ TS.registerModule("constants", {
     },
     isSharedModelOb: function(model_ob) {
       if (!model_ob || !TS.model || !TS.model.team) return false;
-      return !!(TS.boot_data.page_needs_enterprise && TS.model && TS.model.team && TS.model.team.enterprise_id && (model_ob.is_shared || model_ob.is_org_shared));
+      var can_have_shared_obs = TS.boot_data.page_needs_enterprise && _.get(TS, "model.team.enterprise_id") || TS.boot_data.feature_external_shared_channels_ui;
+      return can_have_shared_obs && (model_ob.is_shared || model_ob.is_org_shared);
     },
     isRelevantTeam: function() {
       var is_relevant = true;
@@ -10137,7 +10150,7 @@ TS.registerModule("constants", {
       return false;
     },
     canUserCreateConvertSharedChannels: function() {
-      if (!TS.boot_data.page_needs_enterprise) return false;
+      if (!TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_external_shared_channels_ui) return false;
       if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return true;
       if (TS.boot_data.feature_shared_channels_settings) return TS.members.canUserManageSharedChannels();
       return false;
@@ -10145,7 +10158,7 @@ TS.registerModule("constants", {
     canUserManageSharedChannels: function() {
       if (!TS.boot_data.feature_shared_channels_settings) return true;
       if (!TS.model.team.prefs.who_can_manage_shared_channels) return true;
-      if (!TS.boot_data.page_needs_enterprise) return false;
+      if (!TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_external_shared_channels_ui) return false;
       var user = TS.model.user;
       if (user.is_restricted) return false;
       if (TS.model.team.prefs.can_user_manage_shared_channels !== undefined) return TS.model.team.prefs.can_user_manage_shared_channels;
@@ -11708,9 +11721,6 @@ TS.registerModule("constants", {
       var $input = $div.find("input.member_filter");
       var $icon_close = $div.find(".icon_close");
       var include_org = TS.boot_data.page_needs_enterprise;
-      if (TS.client) {
-        _searchable_member_list = TS.SearchableMemberList.get(scroller_id.slice(1));
-      }
       _storeFilterArgumentsByScrollerId(scroller_id, full_profile_filter, is_long_list_view, include_org, include_bots, include_deleted);
       _query_for_match = null;
       if (full_profile_filter && !is_long_list_view) {
@@ -11725,14 +11735,8 @@ TS.registerModule("constants", {
         }
         var search = function() {
           if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
-            if (TS.boot_data.feature_searchable_member_list && TS.client) {
-              return _searchable_member_list.fetchResults(new_query).then(function(response) {
-                _displayPromiseToSearchResults(TS.lazyLoadMembersAndBots() ? response.items : response);
-                $icon_close.toggleClass("hidden", !new_query.trim());
-              });
-            }
             TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter).then(function() {
-              if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
+              if (TS.view) TS.view.rebuildUserGroupList();
             });
           }
           $icon_close.toggleClass("hidden", !new_query.trim());
@@ -11745,7 +11749,7 @@ TS.registerModule("constants", {
       });
       $icon_close.bind("click", function() {
         TS.members.view.clearFilter(filter_container_id, scroller_id);
-        if (TS.view && !TS.boot_data.feature_searchable_member_list) TS.view.rebuildUserGroupList();
+        if (TS.view) TS.view.rebuildUserGroupList();
         _query_for_match = null;
         setTimeout(function() {
           $input.focus();
@@ -11756,15 +11760,11 @@ TS.registerModule("constants", {
       var args = _getFilterArgumentsByScrollerId(scroller_id);
       if (full_profile_filter || args && args.full_profile_filter) {
         return TS.team.ensureTeamProfileFields().then(function() {
-          if (TS.boot_data.feature_searchable_member_list && TS.client) {
+          if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view || TS.boot_data.feature_searchable_member_list && TS.client) {
             return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
           } else {
-            if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
-              return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
-            } else {
-              _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
-              return Promise.resolve();
-            }
+            _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
+            return Promise.resolve();
           }
         });
       } else {
@@ -11806,29 +11806,23 @@ TS.registerModule("constants", {
       }
       $input.val("");
       $icon_close.addClass("hidden");
-      if (TS.boot_data.feature_searchable_member_list && TS.client) {
-        _searchable_member_list.resetResults().then(function(response) {
-          _displayPromiseToSearchResults(TS.lazyLoadMembersAndBots() ? response.items : response);
-        });
+      if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
+        TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
       } else {
-        if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
-          TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
-        } else {
-          $(".restricted_header, .bot_header, .ra_invite_prompt, .restricted_info").removeClass("hidden");
-          $list_items_container.find(".no_results").addClass("hidden");
-          $list_items.addClass("active");
-          if (_lazy_clones[scroller_id]) {
-            _lazy_clones[scroller_id].detachEvents();
-            delete _lazy_clones[scroller_id];
-          }
-          $list_items_container.find(".member_item.clone").remove();
-          $list_items_container.find(".filter_header").remove();
-          TS.members.view.team_filter_changed_sig.dispatch("", TS.members.getMembersForUser().length);
-          if (TS.client && scroller_id) {
-            var $scroller = $(scroller_id);
-            $scroller.trigger("resize-immediate");
-            TS.ui.utility.updateClosestMonkeyScroller($scroller);
-          }
+        $(".restricted_header, .bot_header, .ra_invite_prompt, .restricted_info").removeClass("hidden");
+        $list_items_container.find(".no_results").addClass("hidden");
+        $list_items.addClass("active");
+        if (_lazy_clones[scroller_id]) {
+          _lazy_clones[scroller_id].detachEvents();
+          delete _lazy_clones[scroller_id];
+        }
+        $list_items_container.find(".member_item.clone").remove();
+        $list_items_container.find(".filter_header").remove();
+        TS.members.view.team_filter_changed_sig.dispatch("", TS.members.getMembersForUser().length);
+        if (TS.client && scroller_id) {
+          var $scroller = $(scroller_id);
+          $scroller.trigger("resize-immediate");
+          TS.ui.utility.updateClosestMonkeyScroller($scroller);
         }
       }
     },
@@ -11854,7 +11848,6 @@ TS.registerModule("constants", {
   var _lazy_clones = {};
   var _label_map = {};
   var _arguments_map = {};
-  var _searchable_member_list;
   var _filters = {
     members: {},
     restricted: {},
@@ -12009,28 +12002,11 @@ TS.registerModule("constants", {
   var _displayPromiseToSearchResults = function(items, filters, new_query, query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
     if (!items) return;
     _updateTabCounts();
-    if (!TS.boot_data.feature_searchable_member_list || !TS.lazyLoadMembersAndBots()) {
-      var team_list_items;
-      if (TS.client) {
-        team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
-      } else {
-        team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
-      }
-    }
-    if (TS.boot_data.feature_searchable_member_list && TS.client) {
-      var current_filter = _searchable_member_list.getCurrentFilter();
-      var filtered_members = items;
-      if (!TS.lazyLoadMembersAndBots()) {
-        if (current_filter == "everyone") {
-          filtered_members = _(team_list_items).values().flatten().uniq().value();
-        } else if (current_filter == "disabled_members") {
-          filtered_members = team_list_items.deleted_members_list_items;
-        } else {
-          filtered_members = team_list_items[current_filter.replace(/^org_|team_/, "") + "_list_items"];
-        }
-      }
-      _searchable_member_list.showResults(filtered_members);
-      return null;
+    var team_list_items;
+    if (TS.client) {
+      team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
+    } else {
+      team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
     }
     var need_to_reset_current_subtab = false;
     if ("disabled_members" === TS.model.ui_state.tab_name && 0 === (_filters.deleted.filter_num_found || 0)) need_to_reset_current_subtab = true;
@@ -18427,8 +18403,33 @@ TS.registerModule("constants", {
       var has_indent = _.some(attachments, "indent");
       var preamble = false;
       if (is_broadcast) {
-        preamble = TS.templates.reply_broadcast_preamble(attachments[0]);
-        preamble = new Handlebars.SafeString(preamble);
+        var model_ob = attachments[0].channel_id ? TS.shared.getModelObById(attachments[0].channel_id) : false;
+        var thread_ts = attachments[0].ts;
+        if ((!model_ob || !/\d+\.\d+/.test(thread_ts)) && attachments[1] && attachments[1].from_url) {
+          var from_url = attachments[1].from_url;
+          var channel_id = TS.utility.getChannelNameFromUrl(from_url);
+          if (channel_id) {
+            if (/[DGCSBUW][A-Z0-9]{8}/.test(channel_id)) {
+              model_ob = TS.shared.getModelObById(channel_id);
+            } else {
+              model_ob = TS.shared.getModelObByName(channel_id);
+            }
+          }
+          if (/\?thread_ts=/.test(from_url)) {
+            var query = TS.utility.url.urlQueryStringParse(from_url);
+            thread_ts = query.thread_ts;
+            if (thread_ts.indexOf(".") < 0) thread_ts = thread_ts.substr(0, 10) + "." + thread_ts.substr(10);
+          }
+        }
+        if (model_ob && thread_ts) {
+          var preamble_args = {
+            thread_ts: thread_ts,
+            model_ob_id: model_ob.id,
+            convo_href: TS.utility.msgs.constructConversationPermalink(model_ob, thread_ts)
+          };
+          preamble = TS.templates.reply_broadcast_preamble(preamble_args);
+          preamble = new Handlebars.SafeString(preamble);
+        }
       }
       var attachment;
       for (var i = 0; i < attachments.length; i++) {
@@ -19579,9 +19580,20 @@ TS.registerModule("constants", {
     },
     buildCommentStandalone: function(comment, file) {
       var entity = TS.utility.members.getEntityFromFile(file);
+      var file_type;
+      if (file.mode === "snippet") {
+        file_type = TS.i18n.t("snippet", "comments")();
+      } else if (file.mode === "post") {
+        file_type = TS.i18n.t("post", "comments")();
+      } else if (file.mode === "space") {
+        file_type = TS.i18n.t("space", "comments")();
+      } else if (file.mode === "hosted" || file.mode === "external") {
+        file_type = TS.i18n.t("file", "comments")();
+      }
       return TS.templates.comment_standalone({
         comment: comment,
         file: file,
+        file_type: file_type,
         entity: entity,
         current_user_id: TS.model.user.id
       });
@@ -21746,11 +21758,7 @@ TS.registerModule("constants", {
         return out;
       });
       Handlebars.registerHelper("possessive", function(str) {
-        if (_.endsWith(str, "s")) {
-          return "’";
-        } else {
-          return "’s";
-        }
+        return TS.i18n.possessive(str);
       });
       Handlebars.registerHelper("possessiveForMemberById", function(id) {
         var member = TS.members.getMemberById(id);
@@ -21759,11 +21767,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("possessiveForMember", function(member) {
         var str = TS.members.getMemberDisplayName(member);
-        if (_.endsWith(str, "s")) {
-          return "’";
-        } else {
-          return "’s";
-        }
+        return TS.i18n.possessive(str);
       });
       Handlebars.registerHelper("concatStr", function() {
         return Array.prototype.slice.call(arguments, 0, arguments.length - 1).join("");
@@ -23305,12 +23309,6 @@ TS.registerModule("constants", {
         } else {
           return options.inverse(this);
         }
-      });
-      Handlebars.registerHelper("constructConversationPermalink", function(model_ob, thread_ts) {
-        if (_.isString(model_ob)) model_ob = TS.shared.getModelObById(model_ob);
-        if (!model_ob) return "";
-        if (!_.isString(thread_ts)) return "";
-        return TS.utility.msgs.constructConversationPermalink(model_ob, thread_ts);
       });
       Handlebars.registerHelper("literalNumbers", function(number, max_literal) {
         var numbers = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
@@ -31007,6 +31005,7 @@ TS.registerModule("constants", {
       if (TS.boot_data.page_needs_enterprise) {
         if ((signed_into_enterprise || template_args.current_team_is_in_enterprise) && (template_args.other_enterprise_accounts && Object.keys(template_args.other_enterprise_accounts).length || template_args.other_accounts && Object.keys(template_args.other_accounts).length)) template_args.show_switch_teams_submenu = true;
       }
+      template_args.show_shared_channels = TS.boot_data.feature_external_shared_channels_ui || TS.boot_data.page_needs_enterprise;
       TS.menu.$menu.addClass("team_menu slack_menu");
       TS.menu.$menu.attr("data-qa", "team_menu");
       TS.menu.$menu_header.addClass("hidden").empty();
@@ -47838,7 +47837,7 @@ $.fn.togglify = function(settings) {
       TS.ui.validation.register("valid_invite", _validateValidInvite);
     },
     start: function() {
-      if (TS.boot_data.page_needs_enterprise) _start();
+      if (TS.boot_data.page_needs_enterprise || TS.boot_data.feature_external_shared_channels_ui) _start();
     }
   });
   var _$body;

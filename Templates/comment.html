@@ -1,3 +1,5 @@
+{{i18n_ns "comments"}}
+
 <div class="comment" data-timestamp="{{comment.timestamp}}" data-comment-id="{{comment.id}}">
   <a name="{{comment.id}}"></a>
   <span class="no_print">{{{makeMemberPreviewLinkImage comment.user 36}}}</span>
@@ -5,7 +7,12 @@
     <span class="no_print">{{{makeMemberPreviewLinkById comment.user}}}</span>
     <span class="print_only_inline"><strong>{{getMemberDisplayNameById comment.user}}</strong> \u2022 </span>
     <span class="comment_date_star_cog">
-      {{toCalendarDateOrNamedDayShort comment.timestamp}} at {{toTime comment.timestamp}}
+      {{#t
+        note="{date} is either a calendar date e.g. 'Dec 6th' or 'Today'/'Yesterday' depending on when the comment was made"
+        date=(toCalendarDateOrNamedDayShort comment.timestamp)
+        time=(toTime comment.timestamp)}}
+      {date} at {time}
+      {{/t}}
       {{#unless hide_star}}{{#if file}}<span class="no_print">{{starWithTip 'file_comment' comment file}}</span>{{/if}}{{/unless}}
       {{#if show_comment_actions}}
       <a class="comment_actions" {{#if file}}data-file-id="{{file.id}}"{{/if}} data-comment-id="{{comment.id}}"><i class="comment_cog ts_icon ts_icon_cog ts_icon_inherit"></i></a>

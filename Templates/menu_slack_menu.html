@@ -112,11 +112,12 @@
       {{/isOurApp}}
     {{/if}}
 
-    {{#pageNeedsEnterprise}}
+    {{#show_shared_channels}}
       <li id="shared_channels" role="menuitem">
         <a>{{#t}}Shared channels{{/t}}</a>
       </li>
-
+    {{/show_shared_channels}}
+    {{#pageNeedsEnterprise}}
       {{#feature flag="feature_discoverable_teams_client"}}
         <li id="workspaces" role="menuitem">
           <a>{{#t}}Workspaces{{/t}}</a>

@@ -1,34 +1,49 @@
-  <span class="subtle_silver">
-    {{#if_equal comment.user compare=current_user_id}}
-      Your
-    {{else}}
-      <span class="{{getMemberColorClassById comment.user}}">{{{makeMemberPreviewLinkById comment.user}}}</span>'s
-    {{/if_equal}}
-    comment on
-    {{#if_equal file.user compare=current_user_id}}
-      your
-    {{else}}
-      <span class="{{getMemberColorClassById file.user}}">{{{makeMemberPreviewLink entity false}}}</span>'s
-    {{/if_equal}}
-    {{#if_equal file.mode compare="snippet"}}
-      snippet:
-    {{/if_equal}}
-    {{#if_equal file.mode compare="post"}}
-      post:
-    {{/if_equal}}
-    {{#if_equal file.mode compare="space"}}
-      space:
-    {{/if_equal}}
-    {{#if_equal file.mode compare="hosted"}}
-      file:
-    {{/if_equal}}
-    {{#if_equal file.mode compare="external"}}
-      file:
-    {{/if_equal}}
-  </span>
-  <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link bold">{{{formatFileTitle file}}}</a><br />
-  
-  <i class="icon_quote float_left ts_icon ts_icon_quote"></i>
-  
-  <p class="comment small_bottom_margin">{{{formatMessage comment.comment}}}</p>
+{{i18n_ns "comments"}}
 
+<span class="subtle_silver">
+  {{#if_equal comment.user compare=current_user_id}}
+    {{!-- your comment --}}
+    {{#if_equal file.user compare=current_user_id}}
+      {{!-- your file --}}
+      {{#t}}Your comment on your {file_type}:{{/t}}
+    {{else}}
+      {{!-- other user's file --}}
+      {{#t
+        note="The current users comment on another users file, e.g. 'Your comment on MemberA's file'"
+        file_owner=(makeMemberPreviewLink entity false)
+        file_owner_possessive=(possessiveForMember entity)
+        file_owner_class=(getMemberColorClassById file.user)
+      }}
+      Your comment on <span class="{file_owner_class}">{file_owner}</span>{file_owner_possessive} {file_type}:{{/t}}
+    {{/if_equal}}
+  {{else}}
+    {{!-- other user's comment --}}
+    {{#if_equal file.user compare=current_user_id}}
+      {{!-- your file --}}
+      {{#t
+        note="A users comment on current users file, e.g. 'MemberA's comment on your file'"
+        commenter=(makeMemberPreviewLinkById comment.user)
+        commenter_possessive=(possessiveForMemberById comment.user)
+        commenter_class=(getMemberColorClassById comment.user)
+      }}
+      <span class="{commenter_class}">{commenter}</span>{commenter_possessive} comment on your {file_type}:{{/t}}
+    {{else}}
+      {{!-- other user's file --}}
+      {{#t
+        note="A users comment on another users file, e.g. 'MemberA's comment on MemberB's file'"
+        commenter=(makeMemberPreviewLinkById comment.user)
+        commenter_possessive=(possessiveForMemberById comment.user)
+        commenter_class=(getMemberColorClassById comment.user)
+        file_owner=(makeMemberPreviewLink entity false)
+        file_owner_possessive=(possessiveForMember entity)
+        file_owner_class=(getMemberColorClassById file.user)
+      }}
+      <span class="{commenter_class}">{commenter}</span>{commenter_possessive} comment on <span class="{file_owner_class}">{file_owner}</span>{file_owner_possessive} {file_type}:{{/t}}
+    {{/if_equal}}
+  {{/if_equal}}
+</span>
+<a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link bold">{{{formatFileTitle file}}}</a><br />
+
+<i class="icon_quote float_left ts_icon ts_icon_quote"></i>
+
+<p class="comment small_bottom_margin">{{{formatMessage comment.comment}}}</p>
