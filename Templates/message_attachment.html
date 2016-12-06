@@ -34,13 +34,11 @@
 
   <div class="msg_inline_attachment_column column_content{{#if has_indent}} has_indent{{/if}}">
 
-    {{#feature flag="feature_pin_update"}}
+    {{#if pin_html}}
       <span class="is_pinned_holder">
-      {{#if attachment.is_pinned}}
-        {{attachment.pin_html}}
-      {{/if}}
+        {{pin_html}}
       </span>
-    {{/feature}}
+    {{/if}}
 
     {{! Source (Author) }}
     {{#if has_source}}

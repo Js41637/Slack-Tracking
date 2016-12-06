@@ -116,6 +116,12 @@
       <li id="shared_channels" role="menuitem">
         <a>{{#t}}Shared channels{{/t}}</a>
       </li>
+
+      {{#feature flag="feature_discoverable_teams_client"}}
+        <li id="workspaces" role="menuitem">
+          <a>{{#t}}Workspaces{{/t}}</a>
+        </li>
+      {{/feature}}
     {{/pageNeedsEnterprise}}
 
     {{! add logout_url here if user is either: }}

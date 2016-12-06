@@ -6370,8 +6370,7 @@ only screen and (min-resolution:2dppx) {
   background-clip: padding-box
 }
 
-#message-input-message,
-#msg_input_message {
+#message-input-message {
   text-align: center;
   color: #717274;
   display: none;
@@ -6380,8 +6379,7 @@ only screen and (min-resolution:2dppx) {
   width: 100%
 }
 
-#message-input-message span,
-#msg_input_message span {
+#message-input-message span {
   display: table-cell;
   vertical-align: middle;
   padding: 0 30px;
@@ -6389,13 +6387,8 @@ only screen and (min-resolution:2dppx) {
   font-family: Slack-Lato, appleLogo, sans-serif
 }
 
-#footer.disabled #message-input-message,
-#footer.disabled #msg_input_message {
+#footer.disabled #message-input-message {
   display: table
-}
-
-#msg_input_message {
-  z-index: 2
 }
 
 #messages-input-container #message-input {

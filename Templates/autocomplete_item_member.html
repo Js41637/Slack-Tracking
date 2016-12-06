@@ -1,3 +1,5 @@
+{{i18n_ns "autocomplete"}}
+
 <li class="tab_complete_ui_item" data-index="{{index}}">
 
   {{#if member.presence}}
@@ -24,7 +26,7 @@
 
   {{#if show_channel_membership}}
     {{#if member_does_not_belong_to_channel}}
-      <span class="not_in_channel">(not in channel)</span>
+      <span class="not_in_channel">{{#t}}(not in channel){{/t}}</span>
     {{/if}}
   {{/if}}
 

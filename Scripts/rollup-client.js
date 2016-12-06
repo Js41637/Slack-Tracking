@@ -1988,12 +1988,8 @@
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
-        $("#footer").addClass("disabled");
-        var $el = $("#message-input-message span");
-        if (TS.boot_data.feature_new_msg_input) {
-          $el = $("#msg_input_message span");
-          $("#msg_form").height(TS.client.ui.$msg_input.outerHeight());
-        }
+        if (!TS.boot_data.feature_new_msg_input) $("#footer").addClass("disabled");
+        var $el = TS.boot_data.feature_new_msg_input ? $("#msg_input_message span") : $("#message-input-message span");
         $el.html("Your Team Owners have limited who can post to #<b>" + TS.channels.getGeneralChannel().name + "</b>");
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
       } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.permissions.members.canPostInChannel(active_model_ob)) {
@@ -2002,12 +1998,9 @@
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
-        $("#footer").addClass("disabled");
+        if (!TS.boot_data.feature_new_msg_input) $("#footer").addClass("disabled");
         var $el = $("#message-input-message span");
-        if (TS.boot_data.feature_new_msg_input) {
-          $el = $("#msg_input_message span");
-          $("#msg_form").height(TS.client.ui.$msg_input.outerHeight());
-        }
+        var $el = TS.boot_data.feature_new_msg_input ? $("#msg_input_message span") : $("#message-input-message span");
         if (active_model_ob.is_group) {
           $el.html('Your Team Owners have limited who can post to <ts-icon class="ts_icon_lock prefix"></ts-icon>' + active_model_ob.name + '<ts-icon class="ts_icon_shared_channel"></ts-icon> </b>');
         } else {
@@ -2018,12 +2011,11 @@
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "Sending...");
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
-        $("#footer").addClass("disabled");
+        if (!TS.boot_data.feature_new_msg_input) $("#footer").addClass("disabled");
       } else {
-        if (TS.boot_data.feature_new_msg_input) $("#msg_form").height("");
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
         TS.utility.contenteditable.enable(TS.client.ui.$msg_input);
-        $("#footer").removeClass("disabled");
+        if (!TS.boot_data.feature_new_msg_input) $("#footer").removeClass("disabled");
         TS.client.msg_input.populateWithLast();
         TS.client.msg_input.setPlaceholder();
       }
@@ -6434,7 +6426,7 @@
     },
     markMostRecentReadMsgInActive: function(reason, get_rid_of_line) {
       var model_ob = TS.shared.getActiveModelOb();
-      if (TS.pri) TS.log(999, "TS.client.ui.markMostRecentReadMsgInActive: reason = " + reason + (get_rid_of_line ? ", get_rid_of_line = " + get_rid_of_line : ""));
+      if (TS.pri) TS.log(142, "TS.client.ui.markMostRecentReadMsgInActive, " + model_ob.id + ": reason = " + reason + (get_rid_of_line ? ", get_rid_of_line = " + get_rid_of_line : ""));
       if (TS.model.active_channel_id) {
         TS.channels.markMostRecentReadMsg(model_ob, reason);
       } else if (TS.model.active_group_id) {
@@ -6445,7 +6437,7 @@
         TS.ims.markMostRecentReadMsg(model_ob, reason);
       }
       if (get_rid_of_line) {
-        if (TS.pri) TS.log(999, "markMostRecentReadMsgInActive, #" + model_ob.name + ', reason = "' + reason + '": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()');
+        if (TS.pri) TS.log(142, "markMostRecentReadMsgInActive, " + model_ob.id + ', reason = "' + reason + '": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()');
         TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
         if (TS.boot_data.feature_pin_update) TS.ui.pins.clearUnreadPinState(model_ob);
       }
@@ -12657,35 +12649,35 @@
       } else {
         if (model_ob.oldest_unread_ts) {
           all_unreads_are_seen = TS.client.ui.isMsgInView(model_ob.oldest_unread_ts);
-          if (TS.pri) TS.log(58, "checkUnreads (#" + model_ob.name + "): oldest_unread_ts = " + model_ob.oldest_unread_ts + ", isMsgInView (all_unreads_are_seen) = " + all_unreads_are_seen);
+          if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": oldest_unread_ts = " + model_ob.oldest_unread_ts + ", isMsgInView (all_unreads_are_seen) = " + all_unreads_are_seen);
         } else {
-          if (TS.pri) TS.log(58, "checkUnreads (#" + model_ob.name + "): no oldest_unread_ts?");
+          if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": no oldest_unread_ts?");
         }
       }
       if (TS.boot_data.feature_wait_for_all_mentions_in_client) {
         if (!is_muted && model_ob._mention_count_display_via_users_counts && model_ob.unread_highlight_cnt_in_client < model_ob._mention_count_display_via_users_counts) {
           if (model_ob.last_read && TS.utility.msgs.getMsg(model_ob.last_read, model_ob.msgs)) {
-            if (TS.pri) TS.warn("checkUnreads (#" + model_ob.name + "): live unread_highlight_cnt = " + model_ob.unread_highlight_cnt_in_client + " and users.counts mention_count_display is " + model_ob._mention_count_display_via_users_counts + ", but history has loaded back to last_read. allowing mark-as-read.");
+            if (TS.pri) TS.warn("checkUnreads " + model_ob.id + ": live unread_highlight_cnt = " + model_ob.unread_highlight_cnt_in_client + " and users.counts mention_count_display is " + model_ob._mention_count_display_via_users_counts + ", but history has loaded back to last_read. allowing mark-as-read.");
           } else {
-            if (TS.pri) TS.log(58, "checkUnreads: Preventing auto-mark-as-read because live unread_highlight_cnt = " + model_ob.unread_highlight_cnt_in_client + " and users.counts mention_count_display is " + model_ob._mention_count_display_via_users_counts);
+            if (TS.pri) TS.log(142, "checkUnreads: Preventing auto-mark-as-read because live unread_highlight_cnt = " + model_ob.unread_highlight_cnt_in_client + " and users.counts mention_count_display is " + model_ob._mention_count_display_via_users_counts);
             all_unreads_are_seen = false;
           }
         }
       }
-      if (TS.pri) TS.log(58, "checkUnreads (#" + model_ob.name + "): all_unreads_are_seen = " + all_unreads_are_seen + ", last_read_msg_div = " + (_$last_read_msg_div && _$last_read_msg_div.length) + ", last_read = " + model_ob.last_read);
+      if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": all_unreads_are_seen = " + all_unreads_are_seen + ", last_read_msg_div = " + (_$last_read_msg_div && _$last_read_msg_div.length) + ", last_read = " + model_ob.last_read);
       if (all_unreads_are_seen && (_$last_read_msg_div && _$last_read_msg_div.length || !parseInt(model_ob.last_read) || TS.model.prefs.mark_msgs_read_immediately || is_muted)) {
         if (!TS.model.prefs.mark_msgs_read_immediately) {
-          if (TS.pri) TS.log(58, "checkUnreads: All unreads are seen. Marking #" + model_ob.name + " as viewed.");
+          if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": All unreads are seen. Marking as viewed.");
           TS.client.ui.markMostRecentReadMsgInActive(TS.model.marked_reasons.viewed);
         } else {
-          if (TS.pri) TS.log(58, "Maybe marking most recent read msg in active because viewed: #" + model_ob.name);
+          if (TS.pri) TS.log(142, "Maybe marking most recent read msg in active because viewed: " + model_ob.id);
           if (model_ob.history_is_being_fetched) {
-            if (TS.pri) TS.log(58, "NOT MARKING most recent as read because history being fetched");
+            if (TS.pri) TS.log(142, "NOT MARKING most recent as read because history being fetched");
           } else if (TS.client.msg_pane.new_msgs_bar_showing) {
-            if (TS.pri) TS.log(58, "NOT MARKING most recent as read because new msgs bar is showing.");
+            if (TS.pri) TS.log(142, "NOT MARKING most recent as read because new msgs bar is showing.");
             if (TS.model.prefs.mark_msgs_read_immediately) {
               if (!model_ob._mark_most_recent_read_timer) {
-                if (TS.pri) TS.log(58, "Setting a timer to mark #" + model_ob.name + " as read.");
+                if (TS.pri) TS.log(142, "Setting a timer to mark " + model_ob.id + " as read.");
                 model_ob._mark_most_recent_read_timer = window.setTimeout(function() {
                   model_ob._mark_most_recent_read_timer = null;
                   _clearTempReadState(model_ob);
@@ -12696,7 +12688,7 @@
               TS.client.msg_pane.maybeStartNewMsgsTimer(model_ob);
             }
           } else {
-            if (TS.pri) TS.log(58, "Marking most recent read msg in active because viewed: #" + model_ob.name);
+            if (TS.pri) TS.log(142, "Marking most recent read msg in active because viewed: " + model_ob.id);
             TS.client.ui.markMostRecentReadMsgInActive(TS.model.marked_reasons.viewed);
           }
         }
@@ -12814,7 +12806,7 @@
       TS.client.markLastReadsWithAPI();
       if (TS.pri) TS.log(999, "setUnreadPoint for #" + model_ob.name + ": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()");
       TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
-      if (TS.pri) TS.log(58, 'setUnreadPoint for "' + model_ob.id + '" "' + model_ob.name + '" - marking dont_check_unreads_til_switch = true.');
+      if (TS.pri) TS.log(142, "setUnreadPoint for " + model_ob.id + " - marking dont_check_unreads_til_switch = true.");
       TS.client.msg_pane.dont_check_unreads_til_switch = true;
       TS.utility.msgs.maybeClearPrevLastRead();
       TS.client.msg_pane.insertUnreadDivider();

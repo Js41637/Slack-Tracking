@@ -3328,22 +3328,23 @@
         TS.error("bad ts: " + ts);
         return false;
       }
+      var log_msg = channel.id + ". last_read = " + channel.last_read + " -> " + ts + ", reason: " + (reason || "unspecified");
       if (channel.last_read > ts) {
         var dont_allow_back_setting = TS.model.last_reads_set_by_client[channel.id + "_" + ts];
         delete TS.model.last_reads_set_by_client[channel.id + "_" + ts];
         if (dont_allow_back_setting) {
-          TS.warn("NOT going back in time on channel " + channel.id + ". last_read:" + channel.last_read + " new:" + ts + " reason: " + (reason || "unspecified"));
+          TS.warn("NOT going back in time on channel " + log_msg);
           return;
         }
-        TS.info("going back in time on channel " + channel.id + ". last_read: " + channel.last_read + " new: " + ts + " reason: " + (reason || "unspecified"));
+        TS.info("going back in time on channel " + log_msg);
         if (channel.last_read - ts > 10) TS.console.logStackTrace("going back in time callstack");
         TS.utility.msgs.maybeClearPrevLastRead(channel);
         TS.utility.msgs.setPrevLastRead(channel, ts);
       } else {
+        if (TS.pri) TS.log(142, "TS.channels.setLastRead: " + log_msg);
         TS.utility.msgs.maybeClearPrevLastRead(channel);
         TS.utility.msgs.maybeSetPrevLastRead(channel, ts);
       }
-      if (TS.pri) TS.log(999, "TS.channels.setLastRead: #" + channel.name + ", current last_read = " + channel.last_read + ", new value = " + ts + " reason: " + (reason || "unspecified"));
       channel.last_read = ts;
       if (TS.boot_data.feature_pin_update) {
         if (reason) channel._marked_reason = reason;
@@ -4542,17 +4543,19 @@ TS.registerModule("constants", {
         TS.error("bad ts:" + ts);
         return false;
       }
+      var log_msg = group.id + ". last_read = " + group.last_read + " -> " + ts + ", reason: " + (reason || "unspecified");
       if (group.last_read > ts) {
         var dont_allow_back_setting = TS.model.last_reads_set_by_client[group.id + "_" + ts];
         delete TS.model.last_reads_set_by_client[group.id + "_" + ts];
         if (dont_allow_back_setting) {
-          TS.warn("NOT going back in time group.last_read:" + group.last_read + " new:" + ts);
+          TS.warn("NOT going back in time on group " + log_msg);
           return;
         }
-        TS.info("going back in time group.last_read:" + group.last_read + " new:" + ts);
+        TS.info("going back in time on group " + log_msg);
         TS.utility.msgs.maybeClearPrevLastRead(group);
         TS.utility.msgs.setPrevLastRead(group, ts);
       } else {
+        if (TS.pri) TS.log(142, "TS.groups.setLastRead: " + log_msg);
         TS.utility.msgs.maybeClearPrevLastRead(group);
         TS.utility.msgs.maybeSetPrevLastRead(group, ts);
       }
@@ -7138,17 +7141,19 @@ TS.registerModule("constants", {
         TS.error("bad ts:" + ts);
         return false;
       }
+      var log_msg = im.id + ". last_read = " + im.last_read + " -> " + ts + ", reason: " + (reason || "unspecified");
       if (im.last_read > ts) {
         var dont_allow_back_setting = TS.model.last_reads_set_by_client[im.id + "_" + ts];
         delete TS.model.last_reads_set_by_client[im.id + "_" + ts];
         if (dont_allow_back_setting) {
-          TS.warn("NOT going back in time im.last_read:" + im.last_read + " new:" + ts);
+          TS.warn("NOT going back in time on im " + log_msg);
           return;
         }
-        TS.info("going back in time im.last_read:" + im.last_read + " new:" + ts);
+        TS.info("going back in time on im " + log_msg);
         TS.utility.msgs.maybeClearPrevLastRead(im);
         TS.utility.msgs.setPrevLastRead(im, ts);
       } else {
+        if (TS.pri) TS.log(142, "TS.ims.setLastRead: " + log_msg);
         TS.utility.msgs.maybeClearPrevLastRead(im);
         TS.utility.msgs.maybeSetPrevLastRead(im, ts);
       }
@@ -7635,17 +7640,19 @@ TS.registerModule("constants", {
         TS.error("bad ts:" + ts);
         return false;
       }
+      var log_msg = mpim.id + ". last_read = " + mpim.last_read + " -> " + ts + ", reason: " + (reason || "unspecified");
       if (mpim.last_read > ts) {
         var dont_allow_back_setting = TS.model.last_reads_set_by_client[mpim.id + "_" + ts];
         delete TS.model.last_reads_set_by_client[mpim.id + "_" + ts];
         if (dont_allow_back_setting) {
-          TS.warn("NOT going back in time mpim.last_read:" + mpim.last_read + " new:" + ts);
+          TS.warn("NOT going back in time on mpim " + log_msg);
           return;
         }
-        TS.info("going back in time mpim.last_read:" + mpim.last_read + " new:" + ts);
+        TS.info("going back in time on mpim " + log_msg);
         TS.utility.msgs.maybeClearPrevLastRead(mpim);
         TS.utility.msgs.setPrevLastRead(mpim, ts);
       } else {
+        if (TS.pri) TS.log(142, "TS.mpims.setLastRead: " + log_msg);
         TS.utility.msgs.maybeClearPrevLastRead(mpim);
         TS.utility.msgs.maybeSetPrevLastRead(mpim, ts);
       }
@@ -15737,7 +15744,7 @@ TS.registerModule("constants", {
       }
       channel.needs_invited_message = false;
       delete TS.model.last_reads_set_by_client[channel.id + "_" + imsg.ts];
-      if (TS.boot_data.feature_tinyspeck && channel.last_read !== imsg.ts) TS.info("channel_marked for " + channel.id + ", " + channel.last_read + " -> " + imsg.ts);
+      if (TS.pri && channel.last_read !== imsg.ts) TS.log(141, "channel_marked for " + channel.id + ", " + channel.last_read + " -> " + imsg.ts);
       TS.channels.setLastRead(channel, imsg.ts);
     },
     subtype__channel_topic: function(imsg) {
@@ -15847,6 +15854,7 @@ TS.registerModule("constants", {
         return;
       }
       mpim.needs_invited_message = false;
+      if (TS.pri && mpim.last_read !== imsg.ts) TS.log(141, "mpim_marked for " + mpim.id + ", " + mpim.last_read + " -> " + imsg.ts);
       delete TS.model.last_reads_set_by_client[mpim.id + "_" + imsg.ts];
       TS.mpims.setLastRead(mpim, imsg.ts);
     },
@@ -16021,6 +16029,7 @@ TS.registerModule("constants", {
         return;
       }
       group.needs_invited_message = false;
+      if (TS.pri && group.last_read !== imsg.ts) TS.log(141, "group_marked for " + group.id + ", " + group.last_read + " -> " + imsg.ts);
       delete TS.model.last_reads_set_by_client[group.id + "_" + imsg.ts];
       TS.groups.setLastRead(group, imsg.ts);
     },
@@ -16139,6 +16148,7 @@ TS.registerModule("constants", {
         TS.error('unknown im: "' + imsg.channel + '"');
         return;
       }
+      if (TS.pri && im.last_read !== imsg.ts) TS.log(141, "im_marked for " + im.id + ", " + im.last_read + " -> " + imsg.ts);
       delete TS.model.last_reads_set_by_client[im.id + "_" + imsg.ts];
       TS.ims.setLastRead(im, imsg.ts);
     },
@@ -18192,17 +18202,17 @@ TS.registerModule("constants", {
       }
       var small_thumb = attachment.thumb_url && !attachment.image_url && !attachment.video_html && !attachment.audio_html;
       var small_thumb_url = small_thumb ? attachment.proxied_thumb_url || attachment.thumb_url : null;
+      var is_pinned = false;
+      var pin_html = "";
       if (TS.boot_data.feature_pin_update) {
         if (attachment.is_msg_unfurl) {
           var attached_msg = TS.utility.msgs.getMsg(attachment.ts, model_ob.msgs);
           if (attached_msg && attached_msg.pinned_to && attached_msg.pinned_to.length > 0) {
-            attachment.is_pinned = _.some(attached_msg.pinned_to, function(id) {
+            is_pinned = _.some(attached_msg.pinned_to, function(id) {
               return id === model_ob.id;
             });
-            if (attachment.is_pinned) {
-              attachment.pin_html = TS.templates.builders.buildPinInfoHtml(attached_msg);
-            } else {
-              attachment.pin_html = "";
+            if (is_pinned && !is_broadcast) {
+              pin_html = TS.templates.builders.buildPinInfoHtml(attached_msg);
             }
           }
         }
@@ -18223,6 +18233,7 @@ TS.registerModule("constants", {
         has_more: has_more,
         attachment: attachment,
         attachment_meta: meta,
+        pin_html: pin_html,
         short_fields: short_fields,
         long_fields: long_fields,
         msg: args.msg,
@@ -18261,7 +18272,7 @@ TS.registerModule("constants", {
           clickable: clickable,
           message_unfurl: attachment._unfurl_type_message,
           reply_broadcast: is_broadcast,
-          is_pinned: TS.boot_data.feature_pin_update && attachment.is_pinned
+          is_pinned: is_pinned
         });
         return TS.templates.message_attachment(attachment_args);
       } else {
@@ -31100,6 +31111,10 @@ TS.registerModule("constants", {
       var subroutine = $this.attr("id");
       if (!subroutine && $this.hasClass("switch_team")) subroutine = "switch_team";
       switch (subroutine) {
+        case "workspaces":
+          e.preventDefault();
+          TS.ui.workspaces.start();
+          break;
         case "shared_channels":
           e.preventDefault();
           TS.ui.shared_channels_invites.start();
@@ -41299,6 +41314,12 @@ var _on_esc;
     }
     if (options && options.onTokenChange) options.onTokenChange($input);
   };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.workspaces", {
+    start: function() {}
+  });
 })();
 (function() {
   "use strict";

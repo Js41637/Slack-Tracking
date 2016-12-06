@@ -1,11 +1,13 @@
+{{i18n_ns "autocomplete"}}
+
 <li class="tab_complete_ui_item" data-index="{{index}}">
 
   <span class="broadcast">@{{usergroup.handle}}</span>
   
   <span class="realname">
-    {{pluralCount usergroup.user_count 'Member' 'Members'}}
+    {{#t}}{usergroup.user_count, plural, =1 {# Member} other {# Members}}{{/t}}
     {{#if members_not_in_channel}}
-      ({{members_not_in_channel}} not in channel)
+      {{#t}}({members_not_in_channel, number} not in channel){{/t}}
     {{/if}}
     {{#if usergroup.description}}
       <span class="bullet">&bull;</span> {{usergroup.description}}
