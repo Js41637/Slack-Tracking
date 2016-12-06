@@ -1,9 +1,11 @@
+{{i18n_ns "channel_pages"}}
+
   <div id="channel_page_member_{{member.id}}" class="channel_page_member_row overflow_ellipsis {{member.presence}}">
     {{{makeMemberPreviewLinkImage member.id 20 lazy false true}}}
     {{{makeMemberPresenceIcon member}}}
     {{#feature flag="feature_name_tagging_client"}}
-      <a href="/team/{{member.id}}" data-member-id="{{member.id}}" class="member">{{getMemberFullName member}}{{#if member.is_self}} (you){{/if}}</a>
+      <a href="/team/{{member.id}}" data-member-id="{{member.id}}" class="member">{{getMemberFullName member}}{{#if member.is_self}} {{#t}}(you){{/t}}{{/if}}</a>
     {{else}}
-      <a href="/team/{{member.name}}" data-member-id="{{member.id}}" class="member">{{getMemberDisplayName member false}}{{#if member.is_self}} (you){{/if}}</a>
+      <a href="/team/{{member.name}}" data-member-id="{{member.id}}" class="member">{{getMemberDisplayName member false}}{{#if member.is_self}} {{#t}}(you){{/t}}{{/if}}</a>
     {{/feature}}
   </div>

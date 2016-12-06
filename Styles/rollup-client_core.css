@@ -4144,7 +4144,7 @@ input[type=submit].btn.btn-mini {
   bottom: 0;
   left: 50%;
   margin-left: -5px;
-  border-width: 5px 5px 0;
+  border-width: 6px 6px 0;
   border-top-color: #000
 }
 
@@ -4152,7 +4152,7 @@ input[type=submit].btn.btn-mini {
   top: 50%;
   left: 0;
   margin-top: -5px;
-  border-width: 5px 5px 5px 0;
+  border-width: 6px 6px 6px 0;
   border-right-color: #000
 }
 
@@ -4160,7 +4160,7 @@ input[type=submit].btn.btn-mini {
   top: 50%;
   right: 0;
   margin-top: -5px;
-  border-width: 5px 0 5px 5px;
+  border-width: 6px 0 6px 6px;
   border-left-color: #000
 }
 
@@ -4168,7 +4168,7 @@ input[type=submit].btn.btn-mini {
   top: 0;
   left: 50%;
   margin-left: -5px;
-  border-width: 0 5px 5px;
+  border-width: 0 6px 6px;
   border-bottom-color: #000
 }
 

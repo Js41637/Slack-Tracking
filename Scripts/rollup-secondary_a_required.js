@@ -21538,6 +21538,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("convertTimestampToMilliseconds", function(ts) {
         return ts * 1e3;
       });
+      Handlebars.registerHelper("i18n_number", function(num, options) {
+        return TS.i18n.number(num);
+      });
       Handlebars.registerHelper("listify", function(array, options) {
         if (options.hash.map) array = _.map(array, options.hash.map);
         var conjunction = _.get(options.hash, "conjunction");

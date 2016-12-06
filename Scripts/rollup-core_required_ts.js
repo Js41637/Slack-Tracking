@@ -3542,6 +3542,9 @@
       }
       return translations[key];
     },
+    number: function(num) {
+      return new Intl.NumberFormat(TS.i18n.locale).format(num);
+    },
     listify: function(arr, conj) {
       var and;
       var list = [];

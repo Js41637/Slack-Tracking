@@ -1,3 +1,5 @@
+{{i18n_ns "channel_pages"}}
+
 <div id="channel_page_all_members">
   {{#each members}}
     {{> channel_page_member_row member=this lazy=true}}
@@ -5,11 +7,11 @@
 </div>
 
 {{#if show_more_members_link}}
-  <button id="see_all_members" class="btn btn_small btn_outline small_top_margin">See all {{numberWithCommas total_member_count}} members</button>
+  <button id="see_all_members" class="btn btn_small btn_outline small_top_margin">{{#t}}See all {total_member_count, number} members{{/t}}</button>
 {{/if}}
 
 {{#if model_ob.is_mpim}}
   {{#canUserCreateMpims}}
-    <a class="add_someone small_top_margin block">Add someone &hellip;</a>
+    <a class="add_someone small_top_margin block">{{#t}}Add someone &hellip;{{/t}}</a>
   {{/canUserCreateMpims}}
 {{/if}}

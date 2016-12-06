@@ -1,4 +1,6 @@
+{{i18n_ns "cant_deactivate_modal"}}
+
 <span class="modal-header-image modal-header-image--oops"></span>
-<h3>Can't remove {{full_member_name}}</h3>
-<p>{{full_member_name}} is part of {{groups.length}} {{pluralize groups.length 'group' 'groups'}} assigned to this team: {{commaSeparatedList groups conjunction='and' bold_items=true}}.</p>
-<p>To remove {{member_name}}, an Org Admin must either remove them from the groups in {{idp_label}}, or unassign the groups from {{team_name}}.</p>
+<h3>{{#t}}Can\u2018t remove {full_member_name}{{/t}}</h3>
+<p>{{#t group_list=(listify groups strong=true)}}{full_member_name} is part of {groups.length, plural, =1{# group}other{# groups}} assigned to this team: {group_list}.{{/t}}</p>
+<p>{{#t}}To remove {member_name}, an Org Admin must either remove them from the groups in {idp_label}, or unassign the groups from {team_name}.{{/t}}</p>

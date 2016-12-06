@@ -1,34 +1,44 @@
+{{i18n_ns "channel_pages"}}
+
 {{#unless is_muted}}
   <div class="channel_desktop_notifs small_bottom_margin">
-    <div class="bold greigh mini">Desktop notifications</div>
+    <div class="bold greigh mini">{{#t}}Desktop notifications{{/t}}</div>
     {{#if desktop_notifs_enabled}}
-      {{#if desktop_everything}}Activity of any kind{{/if}}
-      {{#if desktop_mentions}}Highlight words &amp; @mentions{{/if}}
-      {{#if desktop_nothing}}Nothing please{{/if}}
+      {{#if desktop_everything}}{{#t}}Activity of any kind{{/t}}{{/if}}
+      {{#if desktop_mentions}}{{#t}}Highlight words &amp; @mentions{{/t}}{{/if}}
+      {{#if desktop_nothing}}{{#t}}Nothing please{{/t}}{{/if}}
     {{else}}
       <p class="highlight_yellow_bg">
         {{#if notifications_not_yet_allowed}}
-          <span>You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.prefs_dialog.start('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.</span>
+          <span>{{#t}}You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.prefs_dialog.start('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.{{/t}}</span>
         {{/if}}
         {{#if notifications_not_allowed}}
-          <span>You've disallowed notifications in your browser. You'll need to open your browser preferences to change that.</span>
+          <span>{{#t}}You\u2019ve disallowed notifications in your browser. You\u2019ll need to open your browser preferences to change that.{{/t}}</span>
         {{/if}}
         {{#if notifications_impossible}}
-          <span>Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a></span>
+          <span>{{#t}}Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a>{{/t}}</span>
         {{/if}}
       </p>
     {{/if}}
   </div>
   <div class="channel_push_notifs bottom_margin">
-    <div class="bold greigh mini">Mobile push notifications</div>
-      {{#if push_everything}}Activity of any kind{{/if}}
-      {{#if push_mentions}}Highlight words &amp; @mentions{{/if}}
-      {{#if push_nothing}}Nothing please{{/if}}
+    <div class="bold greigh mini">{{#t}}Mobile push notifications{{/t}}</div>
+      {{#if push_everything}}{{#t}}Activity of any kind{{/t}}{{/if}}
+      {{#if push_mentions}}{{#t}}Highlight words &amp; @mentions{{/t}}{{/if}}
+      {{#if push_nothing}}{{#t}}Nothing please{{/t}}{{/if}}
   </div>
 {{/unless}}
 {{#if is_muted}}
   <div class="bold bottom_margin">
-    This {{> channel_page_channel_conversation_or_group}} is muted
+    {{#if model_ob.is_channel}}
+      {{#t}}This channel is muted{{/t}}
+    {{else}}
+      {{#if model_ob.is_mpim}}
+        {{#t}}This conversation is muted{{/t}}
+      {{else}}
+        {{#t}}This channel is muted{{/t}}
+      {{/if}}
+    {{/if}}
   </div>
 {{/if}}
-<button class="edit_notif_prefs_btn btn btn_small btn_outline">Edit notification preferences</button>
+<button class="edit_notif_prefs_btn btn btn_small btn_outline">{{#t}}Edit notification preferences{{/t}}</button>

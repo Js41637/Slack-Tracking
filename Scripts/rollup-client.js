@@ -4372,7 +4372,6 @@
       if (!TS.boot_data.feature_user_custom_status) return;
       var current_status = TS.members.getMemberCurrentStatus(TS.model.user);
       $(".current_user_current_status").text(current_status);
-      $("#current_user_name_and_current_status").attr("title", TS.utility.htmlEntities(current_status));
     },
     getUserPresenceStr: function() {
       var user = TS.model.user;
@@ -27216,7 +27215,7 @@
     }
     var creator = TS.members.getMemberById(model_ob.creator);
     if (creator && creator.is_self) {
-      template_args.creator_name = "you";
+      template_args.creator_name = TS.i18n.t("you", "channel_pages")();
     } else if (creator) {
       if (TS.boot_data.feature_name_tagging_client) {
         template_args.creator_name = TS.members.getMemberFullName(creator);
@@ -27224,16 +27223,15 @@
         template_args.creator_name = TS.members.getMemberDisplayName(creator);
       }
     } else {
-      template_args.creator_name = "unknown";
+      template_args.creator_name = TS.i18n.t("unknown", "channel_pages")();
     }
-    var date_str = TS.utility.date.toCalendarDateOrNamedDay(model_ob.created);
-    var on = "";
-    if ($.trim(date_str.toLowerCase()) == "yesterday" || $.trim(date_str.toLowerCase()) == "today") {
-      date_str = $.trim(date_str.toLowerCase());
-    } else {
-      on = "on ";
+    var date = TS.utility.date.toDateObject(model_ob.created);
+    if (TS.utility.date.isToday(date)) {
+      template_args.days_since_creation = 0;
+    } else if (TS.utility.date.isYesterday(date)) {
+      template_args.days_since_creation = 1;
     }
-    template_args.creation_date = on + date_str;
+    template_args.creation_date = model_ob.created * 1e3;
     _$details.html(TS.templates.channel_page_details(template_args)).removeClass("hidden");
   };
   var _rebuildNotifPrefs = function(model_ob) {
@@ -27285,13 +27283,11 @@
       loading = true;
     }
     if (pins && pins.length > 0) {
-      if (pins.length === 1) {
-        $("#pinned_items_title").text("1 Pinned Item");
-      } else {
-        $("#pinned_items_title").text(pins.length + " Pinned Items");
-      }
+      $("#pinned_items_title").text(TS.i18n.t("{pinned_items_count, plural, =1 {# Pinned Item} other {# Pinned Items}}", "channel_pages")({
+        pinned_items_count: pins.length
+      }));
     } else {
-      $("#pinned_items_title").text("Pinned Items");
+      $("#pinned_items_title").text(TS.i18n.t("Pinned Items", "channel_pages")());
     }
     if (!_expanded_sections.pinned_items) return;
     if (pins && pins.length > 0) {
@@ -27808,13 +27804,16 @@
 
   function _showMembersDialog(model_ob, members) {
     var body_html = TS.templates.channel_page_all_members_dialog();
-    var title = TS.utility.numberWithCommas(members.length) + " members in " + TS.shared.getDisplayNameForModelOb(model_ob);
+    var title = TS.i18n.t("{member_count, number} members in {channel_name}", "channel_pages")({
+      member_count: members.length,
+      channel_name: TS.shared.getDisplayNameForModelOb(model_ob)
+    });
     _members = members;
     TS.generic_dialog.start({
       dialog_class: DIALOG_CLASS,
       title: title,
       body: body_html,
-      cancel_button_text: "Close",
+      cancel_button_text: TS.i18n.t("Close", "channel_pages")(),
       hide_footer: true,
       show_cancel_button: true,
       show_go_button: false,
@@ -36550,6 +36549,9 @@ function timezones_guess() {
       config._state = visible_sections;
       _buildLoadingIndicators(config);
       _bindUI(config);
+      if (TS.client && config.name) {
+        TS.client.ui.checkInlineImgsAndIframes(config.name);
+      }
     },
     cleanup: function(config) {
       var $container = $(config.container);
@@ -36724,7 +36726,7 @@ function timezones_guess() {
         _appendMoreMessages(config, $container);
       }
       if (TS.client) {
-        TS.client.ui.checkInlineImgsAndIframes("unread");
+        TS.client.ui.checkInlineImgsAndIframes(config.name);
       }
     }, 250);
     $scroller.on("scroll.message_container", function() {

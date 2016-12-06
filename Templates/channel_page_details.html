@@ -1,11 +1,13 @@
+{{i18n_ns "channel_pages"}}
+
 {{#pageNeedsEnterprise}}
   {{#if model_ob.shares}}
     <div class="channel_shared_teams_section">
-    <div class="bold greigh shared_teams_label mini small_bottom_margin">Teams</div>
+    <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
     {{#if is_globally_shared}}
       <p>
         <img class="member_image float_left small_right_margin" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
-        Shared with all teams in the {{enterprise_org_name}} organization
+        {{#t}}Shared with all teams in the {enterprise_org_name} organization{{/t}}
       </p>
     {{else}}
       <div class="channel_shared_teams">
@@ -25,28 +27,32 @@
 {{/pageNeedsEnterprise}}
 
 <div class="channel_purpose_section">
-  <div class="bold greigh purpose_label mini{{#pageNeedsEnterprise}}{{#if model_ob.shares}} top_margin{{/if}}{{/pageNeedsEnterprise}}">Purpose</div>
-  <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">Set a new purpose</div>
+  <div class="bold greigh purpose_label mini{{#pageNeedsEnterprise}}{{#if model_ob.shares}} top_margin{{/if}}{{/pageNeedsEnterprise}}">{{#t}}Purpose{{/t}}</div>
+  <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">{{#t}}Set a new purpose{{/t}}</div>
 
   <div class="channel_purpose_text no_jumbomoji">
     {{#if model_ob.purpose.value}}
       {{{formatTopicOrPurpose model_ob.purpose.value}}}
-      {{#if show_edit_purpose_or_topic}}<a class="edit_purpose mini">edit</a>{{/if}}
+      {{#if show_edit_purpose_or_topic}}<a class="edit_purpose mini">{{#t}}edit{{/t}}</a>{{/if}}
     {{else}}
       {{#if show_edit_purpose_or_topic}}
-        <a class="edit_purpose mini block">Set a channel purpose</a>
+        <a class="edit_purpose mini block">{{#t}}Set a channel purpose{{/t}}</a>
       {{else}}
-        <span class="italic">A purpose has not been set for {{#unless model_ob.is_channel}}<i class="ts_icon ts_icon_lock"></i> {{/unless}}{{#if model_ob.is_channel}}#{{/if}}{{model_ob.name}}.</span>
+        {{#if model_ob.is_channel}}
+        <span class="italic">{{#t}}A purpose has not been set for #{model_ob.name}.{{/t}}</span>
+        {{else}}
+        <span class="italic">{{#t}}A purpose has not been set for <i class="ts_icon ts_icon_lock"></i>{model_ob.name}.{{/t}}</span>
+        {{/if}}
       {{/if}}
     {{/if}}
   </div>
 
   <textarea type="text" id="channel_purpose_input" class="hidden small" maxLength="{{ChannelPurposeMaxLength}}" tabindex="1">{{#if model_ob.purpose.value}}{{unFormatMessage model_ob.purpose.value}}{{else}}{{/if}}</textarea>
 
-  <button class="hidden btn btn_outline btn_small purpose_cancel tiny_right_margin" tabindex="3">Cancel</button>
-  <button class="hidden btn btn_small purpose_done" tabindex="2">Done</button>
+  <button class="hidden btn btn_outline btn_small purpose_cancel tiny_right_margin" tabindex="3">{{#t}}Cancel{{/t}}</button>
+  <button class="hidden btn btn_small purpose_done" tabindex="2">{{#t}}Done{{/t}}</button>
 </div>
 
 <div class="creator italic greigh top_margin">
-  <a class="creator_link greigh"> Created by {{creator_name}} {{creation_date}} </a>
+  <a class="creator_link greigh"> {{#t}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
 </div>
