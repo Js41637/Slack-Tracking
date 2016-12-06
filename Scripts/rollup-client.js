@@ -1989,7 +1989,11 @@
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $("#footer").addClass("disabled");
-        var $el = TS.boot_data.feature_texty ? TS.client.ui.$msg_input : $("#message-input-message span");
+        var $el = $("#message-input-message span");
+        if (TS.boot_data.feature_new_msg_input) {
+          $el = $("#msg_input_message span");
+          $("#msg_form").height(TS.client.ui.$msg_input.outerHeight());
+        }
         $el.html("Your Team Owners have limited who can post to #<b>" + TS.channels.getGeneralChannel().name + "</b>");
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
       } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.permissions.members.canPostInChannel(active_model_ob)) {
@@ -1999,7 +2003,11 @@
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $("#footer").addClass("disabled");
-        var $el = TS.boot_data.feature_texty ? TS.client.ui.$msg_input : $("#message-input-message span");
+        var $el = $("#message-input-message span");
+        if (TS.boot_data.feature_new_msg_input) {
+          $el = $("#msg_input_message span");
+          $("#msg_form").height(TS.client.ui.$msg_input.outerHeight());
+        }
         if (active_model_ob.is_group) {
           $el.html('Your Team Owners have limited who can post to <ts-icon class="ts_icon_lock prefix"></ts-icon>' + active_model_ob.name + '<ts-icon class="ts_icon_shared_channel"></ts-icon> </b>');
         } else {
@@ -2012,6 +2020,7 @@
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         $("#footer").addClass("disabled");
       } else {
+        if (TS.boot_data.feature_new_msg_input) $("#msg_form").height("");
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
         TS.utility.contenteditable.enable(TS.client.ui.$msg_input);
         $("#footer").removeClass("disabled");
@@ -9644,6 +9653,15 @@
       TS.prefs.display_preferred_names_changed_sig.add(TS.client.msg_input.setPlaceholder);
       TS.prefs.display_real_names_override_changed_sig.add(TS.client.msg_input.setPlaceholder);
       TS.prefs.team_display_real_names_changed_sig.add(TS.client.msg_input.setPlaceholder);
+      if (TS.boot_data.feature_new_msg_input) {
+        TS.client.login_sig.add(function() {
+          TS.utility.queueRAF(TS.client.msg_input.onLogin);
+        });
+      }
+    },
+    onLogin: function() {
+      var width = TS.client.ui.files.$file_btn.width();
+      TS.client.msg_input.$input.data("tab_complete_ui_x_offset", width);
     },
     bind: function($input) {
       TS.client.msg_input.$input = $input;
@@ -9840,7 +9858,7 @@
       if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("inputResized " + original + " " + height, Date.now() - start);
     },
     reset: function() {
-      if (TS.boot_data.feature_texty) {
+      if (TS.boot_data.feature_new_msg_input) {
         TS.view.measureInput();
         return;
       }
@@ -27367,12 +27385,6 @@
     return channel_member_counts;
   };
   var _promiseToGetChannelMemberCountsFromAPI = function(model_ob, last_fetched_ts) {
-    if (_.isEmpty(model_ob.members)) {
-      return Promise.resolve({
-        member_count: 0,
-        restricted_member_count: 0
-      });
-    }
     var MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS = 1e4;
     var time_since_last_fetch = Date.now() - last_fetched_ts;
     var rate_limit_p;

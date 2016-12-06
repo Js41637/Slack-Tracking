@@ -5790,6 +5790,10 @@ only screen and (min-resolution:2dppx) {
   font-size: .9rem
 }
 
+.current_status_input_container .input_note {
+  margin-top: .375rem
+}
+
 #member_preview_scroller .current_status_input_container,
 #member_preview_web_container .current_status_input_container,
 #team_list .current_status_input_container,

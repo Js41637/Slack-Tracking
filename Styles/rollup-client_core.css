@@ -6359,7 +6359,8 @@ only screen and (min-resolution:2dppx) {
   background-color: #F5F5F5
 }
 
-#footer.disabled #message-input {
+#footer.disabled #message-input,
+#footer.disabled #msg_input {
   border: 2px solid #f7f7f7!important;
   background: #f7f7f7!important;
   border-top-right-radius: .2rem;
@@ -6369,7 +6370,8 @@ only screen and (min-resolution:2dppx) {
   background-clip: padding-box
 }
 
-#message-input-message {
+#message-input-message,
+#msg_input_message {
   text-align: center;
   color: #717274;
   display: none;
@@ -6378,7 +6380,8 @@ only screen and (min-resolution:2dppx) {
   width: 100%
 }
 
-#message-input-message span {
+#message-input-message span,
+#msg_input_message span {
   display: table-cell;
   vertical-align: middle;
   padding: 0 30px;
@@ -6386,8 +6389,13 @@ only screen and (min-resolution:2dppx) {
   font-family: Slack-Lato, appleLogo, sans-serif
 }
 
-#footer.disabled #message-input-message {
+#footer.disabled #message-input-message,
+#footer.disabled #msg_input_message {
   display: table
+}
+
+#msg_input_message {
+  z-index: 2
 }
 
 #messages-input-container #message-input {

@@ -54165,6 +54165,7 @@ $.fn.togglify = function(settings) {
         var lfs_options = {
           allow_list_position_above: true,
           filter: _filter,
+          no_default_selection: true,
           onItemAdded: _onItemAdded,
           onListShown: _logMenuOpen.bind(null, data_source, service_id)
         };
@@ -54270,36 +54271,26 @@ $.fn.togglify = function(settings) {
   function _getExternalDataPromise($select) {
     return function(query) {
       return new Promise(function(resolve, reject) {
-        if (query.length) {
-          var context = TS.attachment_actions.getActionContext($select);
-          var payload = {
-            name: TS.model.user.name,
-            value: query,
-            attachment_id: context.attachment.id,
-            callback_id: context.attachment.callback_id,
-            channel_id: context.channel_id,
-            is_ephemeral: true,
-            message_ts: context.message.ts
-          };
-          TS.api.call("chat.attachmentSuggestion", {
-            service_id: context.message.bot_id,
-            payload: JSON.stringify(payload)
-          }).then(function(response) {
-            var items = _.get(response, "data.options", []).map(_createOptionEl);
-            resolve({
-              items: items,
-              _replace_all_items: true
-            });
+        var context = TS.attachment_actions.getActionContext($select);
+        var payload = {
+          name: TS.model.user.name,
+          value: query,
+          attachment_id: context.attachment.id,
+          callback_id: context.attachment.callback_id,
+          channel_id: context.channel_id,
+          is_ephemeral: true,
+          message_ts: context.message.ts
+        };
+        TS.api.call("chat.attachmentSuggestion", {
+          service_id: context.message.bot_id,
+          payload: JSON.stringify(payload)
+        }).then(function(response) {
+          var items = _.get(response, "data.options", []).map(_createOptionEl);
+          resolve({
+            items: items,
+            _replace_all_items: true
           });
-        } else {
-          resolve([_createOptionEl({
-            text: "Default Option 1",
-            value: "Default Option 1"
-          }), _createOptionEl({
-            text: "Default Option 2",
-            value: "Default Option 2"
-          })]);
-        }
+        });
       });
     };
   }
