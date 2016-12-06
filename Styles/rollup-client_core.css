@@ -6187,9 +6187,12 @@ only screen and (min-resolution:2dppx) {
   -moz-order: 1;
   -ms-flex-order: 1;
   order: 1;
-  margin-right: 1rem;
   margin-top: auto;
   z-index: 200
+}
+
+#client-ui:not(.flex_pane_showing) .client_container #footer {
+  margin-right: 1rem
 }
 
 #footer:not(.footer_msg_input) {

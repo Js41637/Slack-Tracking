@@ -30107,7 +30107,9 @@
         html = TS.templates.prefs_search(_buildSearchPrefsData());
         break;
       case "read_state_tracking":
-        html = TS.templates.prefs_read_state_tracking();
+        html = TS.templates.prefs_read_state_tracking({
+          short_key_name: TS.model.is_mac ? "Option" : "Alt"
+        });
         break;
       case "a11y":
         html = TS.templates.prefs_a11y();

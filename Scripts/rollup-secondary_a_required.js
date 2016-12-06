@@ -46130,7 +46130,7 @@ $.fn.togglify = function(settings) {
       var ignore_selectors = ["a", ".media_caret", ".delete_attachment_link", ".msg_inline_video_buttons_div"].join(",");
       if ($(e.target).closest(ignore_selectors).length) return;
       var $link;
-      if ($el.is(".reply_broadcast")) {
+      if ($el.is(".reply_broadcast") || $el.closest(".reply_broadcast_rule")) {
         $link = $el.closest(".message_body").find('[data-action="open_conversation"]');
       } else {
         $link = $el.find(".attachment_from_url_link");
