@@ -9754,6 +9754,10 @@
     bind: function($input) {
       TS.client.msg_input.$input = $input;
       if (TS.boot_data.feature_texty) {
+        var eventuallyOnTextChange = _.throttle(function() {
+          var serialized_contents = TS.utility.contenteditable.serialize($input);
+          TS.client.msg_input.storeLastMsgForActiveModelOb(serialized_contents);
+        }, 100);
         TS.utility.contenteditable.create($input, {
           modules: {
             msginput: {
@@ -9786,6 +9790,7 @@
           onTextChange: function() {
             _maybeResize();
             _maybeStopPretendingToBeOnline();
+            eventuallyOnTextChange();
           }
         });
       }
@@ -9983,15 +9988,15 @@
       var should_populate = !TS.boot_data.feature_name_tagging_client_extras || TS.model.ms_logged_in_once || TS.format.hasOnlyValidMemberIds(model_ob.last_msg_input);
       if (!should_populate) return;
       TS.chat_history.resetPosition("populateChatInputWithLast");
-      if (!TS.boot_data.feature_texty) {
+      if (TS.boot_data.feature_texty) {
+        TS.utility.contenteditable.deserialize(TS.client.msg_input.$input, model_ob.last_msg_input);
+      } else {
         if (TS.boot_data.feature_you_autocomplete_me) {
           TS.client.ui.$msg_input.TS_tabCompleteNew("suspend");
         } else {
           TS.client.ui.$msg_input.TS_tabComplete("suspend");
         }
-      }
-      TS.client.msg_input.populate(model_ob.last_msg_input);
-      if (!TS.boot_data.feature_texty) {
+        TS.client.msg_input.populate(model_ob.last_msg_input);
         if (TS.boot_data.feature_you_autocomplete_me) {
           TS.client.ui.$msg_input.TS_tabCompleteNew("unsuspend");
           TS.client.ui.$msg_input.TS_tabCompleteNew("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
@@ -11071,15 +11076,13 @@
       $channels_header.find(".channel_list_header_label").tooltip("destroy");
       $channels_header.toggleClass("hoverable", header_clickable);
       if (header_clickable) {
-        var tooltip_title = TS.model.user.is_restricted ? "Browse channels" : "Browse all channels";
         $channels_header.find(".channel_list_header_label").tooltip({
           placement: "top-left",
           container: "body",
           delay: {
             show: 400,
             hide: 150
-          },
-          title: tooltip_title
+          }
         });
       }
     }
@@ -11383,7 +11386,7 @@
     _markUnreadPinIcon(_model_ob);
     if (!_model_ob.has_pins) {
       if (_model_ob.is_channel) {
-        $pinned_count_number.html("0");
+        $pinned_count_number.html(TS.i18n.number(0, "client"));
       } else {
         $pinned_count.hide();
         $pinned_count_divider.hide();
@@ -11391,7 +11394,7 @@
     } else if (!pins) {
       $pinned_count_number.html(" ");
     } else {
-      $pinned_count_number.html(pins.length);
+      $pinned_count_number.html(TS.i18n.number(pins.length, "client"));
       if (!_model_ob.is_channel) {
         $pinned_count.show();
         $pinned_count_divider.show();
@@ -11410,10 +11413,13 @@
     if (unread_pins.length === 1) {
       var user_id = unread_pins[0].created_by;
       if (!user_id) return;
-      var user_display_name = TS.members.getMemberDisplayNameById(user_id);
-      pin_tooltip_message = "1 new pin by " + user_display_name;
+      pin_tooltip_message = TS.i18n.t("1 new pin by {user_display_name}", "client")({
+        user_display_name: TS.members.getMemberDisplayNameById(user_id)
+      });
     } else {
-      pin_tooltip_message = unread_pins.length + " new pins";
+      pin_tooltip_message = TS.i18n.t("{pin_length} new pins", "client")({
+        pin_length: unread_pins.length
+      });
     }
     var $pin_count_new_pin_message = $("#pinned_item_count .pin_count_new_pin_message");
     $pin_count_new_pin_message.html(pin_tooltip_message);
@@ -11493,13 +11499,13 @@
     }
     if (member.is_restricted) {
       if (member.is_ultra_restricted) {
-        status = "Single-Channel Guest";
+        status = TS.i18n.t("Single-Channel Guest", "client")();
       } else {
         status = TS.templates.builders.raLabel("Restricted Account");
       }
     }
     if (member._is_in_dnd) {
-      status = "notifications snoozed";
+      status = TS.i18n.t("notifications snoozed", "client")();
     }
     $("#header_status_message").html(status);
   };
@@ -11537,7 +11543,7 @@
     if (TS.client.activeChannelIsHidden()) return;
     var is_muted = TS.notifs.isCorGMuted(_model_ob.id);
     var bell = '<i class="ts_icon ts_icon_bell_slash muted_icon"></i>';
-    var mute_tip = '<span class="ts_tip_tip">Unmute</span>';
+    var mute_tip = '<span class="ts_tip_tip">' + TS.i18n.t("Unmute", "client")() + "</span>";
     var $mute_icon = $("#mute_container");
     var muted_class = "muted";
     var $channel_name = $("#channel_name");
@@ -27265,18 +27271,22 @@
   var _setTitle = function(model_ob) {
     var html;
     if (model_ob.is_channel || !model_ob.is_channel && model_ob.is_group && !model_ob.is_mpim) {
-      $("#channel_page_title").text("Channel Details");
+      $("#channel_page_title").text(TS.i18n.t("Channel Details", "client")());
+      var formatted_channel_name;
       if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && model_ob.is_channel) {
-        html = 'About <span class="channel_name"><ts-icon class="ts_icon_channel"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon></strong></span>';
+        formatted_channel_name = '<span class="channel_name"><ts-icon class="ts_icon_channel"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon></strong></span>';
       } else if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) {
-        html = 'About <span class="channel_name"><ts-icon class="ts_icon_lock prefix"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon></strong></span>';
+        formatted_channel_name = '<span class="channel_name"><ts-icon class="ts_icon_lock prefix"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon></strong></span>';
       } else if (model_ob.is_group && !model_ob.is_mpim) {
-        html = 'About <span class="channel_name"><ts-icon class="ts_icon_lock prefix"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + " </strong></span>";
+        formatted_channel_name = '<span class="channel_name"><ts-icon class="ts_icon_lock prefix"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + " </strong></span>";
       } else {
-        html = 'About <span class="channel_name"><ts-icon class="ts_icon_channel"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + "</strong></span>";
+        formatted_channel_name = '<span class="channel_name"><ts-icon class="ts_icon_channel"></ts-icon><strong>' + TS.utility.htmlEntities(model_ob.name) + "</strong></span>";
       }
+      html = TS.i18n.t("About {formatted_channel_name}", "client")({
+        formatted_channel_name: formatted_channel_name
+      });
     } else {
-      html = '<span class="overflow_ellipsis">About this conversation</span>';
+      html = '<span class="overflow_ellipsis">' + TS.i18n.t("About this conversation", "client")() + "</span>";
     }
     $("#details_tab_header").html(html);
   };
@@ -27602,7 +27612,7 @@
         TS.log(1989, "Flannel error: failed to fetch all members for channel " + model_ob.name);
         TS.logError(err, "failed to fetch all members for channel " + model_ob.name, "Flannel error");
         _$member_lists.removeClass("loading");
-        _$member_lists.html('<div class="align_center subtle_silver">Oops, failed to fetch users. <a href="#">Try again</a></div>');
+        _$member_lists.html('<div class="align_center subtle_silver">' + TS.i18n.t("Oops, failed to fetch users.", "client")() + '<a href="#">' + TS.i18n.t("Try again", "client")() + "</a></div>");
         _$member_lists.find("a").click(function(e) {
           e.preventDefault();
           _rebuildMemberLists(model_ob);
@@ -30817,7 +30827,6 @@
     });
     $("#flannel_lazy_members").prop("checked", TS.model.prefs.flannel_lazy_members === true);
     $("#flannel_lazy_members").on("change", function() {
-      TS.storage.completelyEmptyAllStorageAndReset();
       var val = !!$(this).prop("checked");
       TS.prefs.setPrefByAPI({
         name: "flannel_lazy_members",
@@ -31199,6 +31208,18 @@
       });
       TS.prefs.onPrefChanged({
         name: "measure_css_usage",
+        value: val
+      });
+    });
+    $("#react_emoji_picker_cb").prop("checked", TS.model.prefs.enable_react_emoji_picker === true);
+    $("#react_emoji_picker_cb").on("change", function() {
+      var val = !!$(this).prop("checked");
+      TS.prefs.setPrefByAPI({
+        name: "enable_react_emoji_picker",
+        value: val
+      });
+      TS.prefs.onPrefChanged({
+        name: "enable_react_emoji_picker",
         value: val
       });
     });

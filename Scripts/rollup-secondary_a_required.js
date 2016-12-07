@@ -250,7 +250,6 @@
       if (TS.boot_data.page_has_incomplete_user_model) {
         if (TS.boot_data.feature_flannel_fe) TS.log(1989, "Flannel: disabling member bot cache");
         TS.storage.disableMemberBotCache();
-        TS.storage.version += "-nomemberbotcache";
       }
       if (!TS.storage.do_compression && !TS.boot_data.feature_disable_ls_compression && TS.boot_data.feature_force_ls_compression) {
         TS.warn("Special case: force-enabling LS compression for this session.");
@@ -271,10 +270,6 @@
         }
         return false;
       }();
-      if (TS.qs_args.feature_flannel_fe && TS.qs_args.feature_flannel_fe == 0) {
-        TS.log(1989, "Flannel: dumping LS because of feature_flannel_fe url_flag override");
-        TS.storage.completelyEmptyAllStorageAndReset();
-      }
       TS.log(488, "TS.storage.onStart should_disable:" + should_disable);
       TS.log(488, "TS.storage.do_compression:" + TS.storage.do_compression + " (_ls.getItem('is_compressed') == 'yes'):" + (_ls && _ls.getItem("is_compressed") == "yes"));
       TS.ui.window_unloaded_sig.add(_windowUnloaded);
@@ -12687,6 +12682,7 @@ TS.registerModule("constants", {
     show_memory_instrument_changed_sig: new signals.Signal,
     enable_unread_view_changed_sig: new signals.Signal,
     measure_css_usage_changed_sig: new signals.Signal,
+    enable_react_emoji_picker_changed_sig: new signals.Signal,
     team_disable_file_editing_changed_sig: new signals.Signal,
     team_disable_file_deleting_changed_sig: new signals.Signal,
     team_display_email_addresses_changed_sig: new signals.Signal,
@@ -13456,6 +13452,12 @@ TS.registerModule("constants", {
           if (TS.model.prefs.measure_css_usage !== imsg.value) {
             TS.model.prefs.measure_css_usage = imsg.value;
             TS.prefs.measure_css_usage_changed_sig.dispatch();
+          }
+          break;
+        case "enable_react_emoji_picker":
+          if (TS.model.prefs.enable_react_emoji_picker !== imsg.value) {
+            TS.model.prefs.enable_react_emoji_picker = imsg.value;
+            TS.prefs.enable_react_emoji_picker_changed_sig.dispatch();
           }
           break;
         case "client_logs_pri":
@@ -20837,32 +20839,32 @@ TS.registerModule("constants", {
       var new_label = old_label;
       switch (old_label) {
         case "Restricted Account":
-          new_label = "Multi-Channel Guest";
+          new_label = TS.i18n.t("Multi-Channel Guest", "restricted_labels")();
           break;
         case "restricted account":
-          new_label = "multi-channel guest";
+          new_label = TS.i18n.t("multi-channel guest", "restricted_labels")();
           break;
         case "Restricted account":
-          new_label = "Multi-channel guest";
+          new_label = TS.i18n.t("Multi-channel guest", "restricted_labels")();
           break;
         case "Restricted Accounts":
-          new_label = "Multi-Channel Guests";
+          new_label = TS.i18n.t("Multi-Channel Guests", "restricted_labels")();
           break;
         case "restricted accounts":
-          new_label = "multi-channel guests";
+          new_label = TS.i18n.t("multi-channel guests", "restricted_labels")();
           break;
         case "Restricted accounts":
-          new_label = "Multi-channel guests";
+          new_label = TS.i18n.t("Multi-channel guests", "restricted_labels")();
           break;
         case "guest and restricted accounts":
-          new_label = "guest accounts";
+          new_label = TS.i18n.t("guest accounts", "restricted_labels")();
           break;
         case "Restricted Accounts & Single-Channel Guests":
         case "Guest or Restricted Accounts":
-          new_label = "guest accounts";
+          new_label = TS.i18n.t("guest accounts", "restricted_labels")();
           break;
         case "Restricted & Guest Accounts":
-          new_label = "Guest Accounts";
+          new_label = TS.i18n.t("Guest Accounts", "restricted_labels")();
           break;
       }
       return new_label;
@@ -26136,8 +26138,13 @@ TS.registerModule("constants", {
       if (!TS.boot_data.feature_hide_join_leave) return false;
       if (imsg.subtype === "channel_join") {
         var channel = _.isObject(channel_or_channel_id) ? channel_or_channel_id : TS.channels.getChannelById(channel_or_channel_id);
+        var user = TS.members.getMemberById(imsg.user);
+        var is_restricted_user = _.get(user, "is_restricted", false);
+        var was_invited = !!imsg.inviter;
         var has_enough_members = _.get(channel, "members.length") > 20;
-        if (!imsg.inviter && has_enough_members) return true;
+        if (!(is_restricted_user || was_invited) && has_enough_members) {
+          return true;
+        }
       } else if (imsg.subtype === "channel_leave") {
         return true;
       }
@@ -29396,7 +29403,7 @@ TS.registerModule("constants", {
       TS.prefs.channel_handy_rxns_changed_sig.add(_buildDefaultRxns);
     },
     start: function(args) {
-      if (TS.boot_data.feature_react_emoji_picker) {
+      if (TS.model.prefs.enable_react_emoji_picker) {
         TS.ui.react_emoji_menu.start(args);
       } else {
         _start(args);
@@ -33860,7 +33867,7 @@ var _on_esc;
         if (name == "/archive" || name == "/unarchive") {
           if (model_ob.is_general) continue;
           if (TS.model.active_group_id && TS.model.user.is_restricted) continue;
-          if (TS.model.active_channel_id && !TS.members.canUserArchiveChannels()) continue;
+          if (TS.model.active_channel_id && !TS.permissions.members.canArchiveChannels()) continue;
           if (TS.model.active_im_id) continue;
           if (TS.model.active_mpim_id) continue;
         } else if (name == "/kick" || name == "/remove") {
