@@ -6311,14 +6311,37 @@ only screen and (min-resolution:2dppx) {
   }
 }
 
-.flexbox_client #member_preview_scroller {
-  width: auto
+.flexbox_client #team_tab #member_preview_container .heading {
+  width: auto;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding-right: 1rem
 }
 
-.flexbox_client #member_preview_scroller .member_details .member_image.thumb_512 {
+.flexbox_client #team_tab #back_from_member_preview {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -moz-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1
+}
+
+.flexbox_client #team_tab #member_preview_scroller {
+  width: 100%
+}
+
+.flexbox_client #team_tab #member_preview_scroller .member_details {
+  padding: 0 .25rem
+}
+
+.flexbox_client #team_tab #member_preview_scroller .member_details .member_image.thumb_512 {
   display: block;
   width: 100%;
-  background-size: cover
+  background-size: cover;
+  background-position-x: 50%
 }
 
 @media only screen and (-webkit-min-device-pixel-ratio:2),
@@ -24663,7 +24686,8 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .menu.app_card {
-  max-width: 20rem
+  max-width: 20rem;
+  overflow: hidden
 }
 
 .app_card_header {

@@ -6,23 +6,31 @@
   </a></li>
 {{/and}}
 {{#feature flag="feature_app_profiles_frontend"}}
-{{#or (if_not_equal disabled compare=true) is_slack_integration}}
+
+{{#unless hide_link_to_app_profile}}
   <li role="menuitem" data-action="view_details" data-qa="app_card_view_details"><a>{{#t}}View details{{/t}}</a></li>
-{{/or}}
+{{/unless}}
+
 {{/feature}}
-{{#if user_can_manage}}
-  <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
-    {{#t}}Edit settings{{/t}}
+{{#if deleted}}
+  <li role="menuitem" data-qa="app_card_view_app_directory"><a href="/apps/{{app_id}}" target="_blank">
+    {{#t}}View in app directory{{/t}}
   </a></li>
 {{else}}
-  <li role="menuitem" class="disabled ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" data-qa="app_card_edit_settings"><a>
-    {{#t}}Edit settings{{/t}}
-    <span class="ts_tip_tip">
-      <span class="ts_tip_multiline_inner">
-        {{#t}}Only certain users are allowed to edit apps.{{/t}}
+  {{#if user_can_manage}}
+    <li role="menuitem" data-qa="app_card_edit_settings"><a href="/services/{{bot_id}}" target="_blank">
+      {{#t}}Edit settings{{/t}}
+    </a></li>
+  {{else}}
+    <li role="menuitem" class="disabled ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" data-qa="app_card_edit_settings"><a>
+      {{#t}}Edit settings{{/t}}
+      <span class="ts_tip_tip">
+        <span class="ts_tip_multiline_inner">
+          {{#t}}Only certain users are allowed to edit apps.{{/t}}
+        </span>
       </span>
-    </span>
-  </a></li>
+    </a></li>
+  {{/if}}
 {{/if}}
 {{!-- Bot-specific --}}
 {{#if bot_user}}

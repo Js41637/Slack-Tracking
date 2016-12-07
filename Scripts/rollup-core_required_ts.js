@@ -425,12 +425,10 @@
           return true;
         }
       }
-      if (!TS.boot_data.feature_web_lean || TS.boot_data.feature_web_lean_all_users) {
-        if (TS.model.ms_logged_in_once && data.cache_ts_version) {
-          if (data.cache_ts_version != TS.storage.cache_ts_version) {
-            TS.reload(null, "TS.reload() because data.cache_ts_version " + data.cache_ts_version + " != TS.storage.cache_ts_version " + TS.storage.cache_ts_version);
-            return true;
-          }
+      if (TS.model.ms_logged_in_once && data.cache_ts_version) {
+        if (data.cache_ts_version != TS.storage.cache_ts_version) {
+          TS.reload(null, "TS.reload() because data.cache_ts_version " + data.cache_ts_version + " != TS.storage.cache_ts_version " + TS.storage.cache_ts_version);
+          return true;
         }
       }
       return false;
@@ -506,18 +504,6 @@
     if (_parallel_rtm_start_rsp) {
       TS.ms.logConnectionFlow("login_with_parallel_rtm_start_rsp");
       TSConnLogger.log("ms_login_parallel", "login_with_parallel_rtm_start_rsp");
-      if (TS.boot_data.feature_web_lean_all_users) {
-        if (_parallel_users_list_rsp) {
-          _parallel_rtm_start_rsp.login_data.updated_users = _parallel_users_list_rsp.data.members;
-          _parallel_rtm_start_rsp.login_data.cache_ts = _parallel_users_list_rsp.data.cache_ts;
-          _parallel_rtm_start_rsp.login_args.cache_ts = _parallel_users_list_rsp.args.cache_ts;
-          _parallel_users_list_rsp = null;
-        }
-        if (_parallel_bots_list_rsp) {
-          _parallel_rtm_start_rsp.login_data.updated_bots = _parallel_bots_list_rsp.data.bots;
-          _parallel_bots_list_rsp = null;
-        }
-      }
       _onLoginMS(_parallel_rtm_start_rsp.ok, _parallel_rtm_start_rsp.login_data, _parallel_rtm_start_rsp.login_args);
       _parallel_rtm_start_rsp = null;
     } else {
@@ -564,16 +550,14 @@
     if (TS.boot_data.feature_no_unread_counts) {
       login_args.no_unreads = true;
     }
-    if (!TS.boot_data.feature_web_lean) {
-      login_args.cache_ts = _last_rtm_start_event_ts || TS.storage.fetchLastCacheTS();
-      if (TS.pri && (!login_args.cache_ts || parseInt(login_args.cache_ts, 10) == 0 || isNaN(login_args.cache_ts))) {
-        TS.log(488, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
-      }
-      if (TS.lazyLoadMembersAndBots()) {
-        login_args.no_users = true;
-        login_args.no_bots = true;
-        login_args.cache_ts = 0;
-      }
+    login_args.cache_ts = _last_rtm_start_event_ts || TS.storage.fetchLastCacheTS();
+    if (TS.pri && (!login_args.cache_ts || parseInt(login_args.cache_ts, 10) == 0 || isNaN(login_args.cache_ts))) {
+      TS.log(488, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
+    }
+    if (TS.lazyLoadMembersAndBots()) {
+      login_args.no_users = true;
+      login_args.no_bots = true;
+      login_args.cache_ts = 0;
     }
     if (TS.web) {
       if (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots()) {
@@ -688,8 +672,7 @@
         };
       });
     }
-    var method = TS.boot_data.feature_web_lean ? "rtm.leanStart" : "rtm.start";
-    return TS.api.callImmediately(method, _getMSLoginArgs());
+    return TS.api.callImmediately("rtm.start", _getMSLoginArgs());
   };
   var _rtmStartOKHandler = function(resp) {
     TS.model.calling_rtm_start = false;
@@ -747,38 +730,6 @@
           login_args: args
         };
         resolve();
-      });
-    });
-  };
-  var _callUsersListInParallel = function(cache_ts) {
-    return new Promise(function(resolve, reject) {
-      TS.api.callImmediately("users.list", {
-        cache_ts: cache_ts
-      }).then(function(resp) {
-        _parallel_users_list_rsp = {
-          ok: resp.ok,
-          data: resp.data,
-          args: resp.args
-        };
-        resolve();
-      }, function(error) {
-        reject(error);
-      });
-    });
-  };
-  var _callBotsListInParallel = function(cache_ts) {
-    return new Promise(function(resolve, reject) {
-      TS.api.callImmediately("bots.list", {
-        cache_ts: cache_ts
-      }).then(function(resp) {
-        _parallel_bots_list_rsp = {
-          ok: resp.ok,
-          data: resp.data,
-          args: resp.args
-        };
-        resolve();
-      }, function(error) {
-        reject(error);
       });
     });
   };
@@ -923,19 +874,13 @@
         return Promise.reject(new Error(error_msg));
       }
     }
-    if (TS.client && TS.boot_data.feature_web_lean) {
-      return TS.shared.fetchInitialModelObData(TS.model.initial_cid).then(function() {
-        return completeOnLogin();
-      });
-    } else {
-      if (TS.client && TS.boot_data.page_needs_enterprise && TS.model.initial_cid) {
-        var model_ob = TS.shared.getModelObById(TS.model.initial_cid);
-        if (!model_ob) TS.error("TS.model.initial_cid (" + TS.model.initial_cid + ") referred to a channel that does not exist, which should be impossible");
-        if (model_ob.is_shared && model_ob.is_channel) return TS.channels.promiseToEnsureChannelsInfo(TS.model.initial_cid, true).then(completeOnLogin);
-        if (model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) return TS.groups.promiseToEnsureGroupsInfo(TS.model.initial_cid, true).then(completeOnLogin);
-      }
-      return completeOnLogin();
+    if (TS.client && TS.boot_data.page_needs_enterprise && TS.model.initial_cid) {
+      var model_ob = TS.shared.getModelObById(TS.model.initial_cid);
+      if (!model_ob) TS.error("TS.model.initial_cid (" + TS.model.initial_cid + ") referred to a channel that does not exist, which should be impossible");
+      if (model_ob.is_shared && model_ob.is_channel) return TS.channels.promiseToEnsureChannelsInfo(TS.model.initial_cid, true).then(completeOnLogin);
+      if (model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) return TS.groups.promiseToEnsureGroupsInfo(TS.model.initial_cid, true).then(completeOnLogin);
     }
+    return completeOnLogin();
   };
   var _socketConnectedMS = function() {
     if (!TS.boot_data.page_has_ms) return;
@@ -977,9 +922,6 @@
   var _ds_last_login_tim = 0;
   var _ds_last_login_ms = 0;
   var _parallel_rtm_start_rsp;
-  var _parallel_users_list_rsp;
-  var _parallel_bots_list_rsp;
-  var _parallel_documents_connect_rsp;
   var _qs_url_args_cache;
   var _allParallelCallsComplete = function() {
     TSConnLogger.log("parallel_complete", "_allParallelCallsComplete(), calling gogogos");
@@ -1024,18 +966,6 @@
     login_args.file = boot_data.file.id;
     return login_args;
   };
-  var _callDocumentsConnectInParallel = function() {
-    return Promise(function(resolve) {
-      _callDocumentsConnect(function(ok, data, args) {
-        _parallel_documents_connect_rsp = {
-          ok: ok,
-          login_data: data,
-          login_args: args
-        };
-        resolve();
-      });
-    });
-  };
   var _callDocumentsConnect = function(handler) {
     TS.ds.logConnectionFlow("_loginDS");
     TSConnLogger.log("call_documents_connect", "TS._callDocumentsConnect");
@@ -1059,11 +989,6 @@
         data: TS.boot_data.space_login_data
       }, login_args);
       delete TS.boot_data.space_login_data;
-    } else if (_parallel_documents_connect_rsp) {
-      TS.ms.logConnectionFlow("login_with_parallel_documents_connect_rsp");
-      TSConnLogger.log("ds_login_parallel", "login_with_parallel_documents_connect_rsp");
-      _onLoginDS(_parallel_documents_connect_rsp.ok, _parallel_documents_connect_rsp.login_data, _parallel_documents_connect_rsp.login_args);
-      _parallel_documents_connect_rsp = null;
     } else {
       _callDocumentsConnect(_onLoginDS);
     }
@@ -1427,11 +1352,6 @@
     var promises = [];
     if (!TS.boot_data.no_login) {
       promises.push(_callRTMStartInParallel());
-      if (TS.boot_data.feature_web_lean_all_users) {
-        var cache_ts = TS.storage.fetchLastCacheTS();
-        promises.push(_callUsersListInParallel(cache_ts));
-        promises.push(_callBotsListInParallel(cache_ts));
-      }
     }
     promises.push(loadTemplates());
     if (TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login) {
@@ -1439,9 +1359,6 @@
     }
     if (TS.web && TS.boot_data.page_needs_team_profile_fields) {
       promises.push(TS.team.ensureTeamProfileFields());
-    }
-    if (TS.web && TS.web.space && !TS.boot_data.space_login_data) {
-      promises.push(_callDocumentsConnectInParallel());
     }
     Promise.all(promises).then(_allParallelCallsComplete);
   };

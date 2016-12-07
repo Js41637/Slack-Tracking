@@ -3203,7 +3203,10 @@
         }
       };
       if (channel.is_general && !TS.members.canUserPostInGeneral()) {
-        errorOut("A Team Owner has restricted posting to the #*" + channel.name + "* channel.", "general_posting_restricted");
+        var general_posting_restricted = TS.i18n.t("A Team Owner has restricted posting to the #*{channel_name}* channel.", "channels")({
+          channel_name: channel.name
+        });
+        errorOut(general_posting_restricted, "general_posting_restricted");
         return false;
       }
       var clean_text = TS.format.cleanMsg(text);
@@ -3213,30 +3216,32 @@
       var is_at_everyone = TS.model.everyone_regex.test(clean_text) && !is_reply || channel.is_general && is_at_channel;
       if (is_at_everyone) {
         if (!TS.permissions.members.canAtMentionEveryone()) {
-          err_txt = "<p>A Team Owner has restricted the use of <b>@everyone</b> messages.</p>";
+          err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>@everyone</b> messages.", "channels")() + "</p>";
           if (TS.model.user.is_restricted) {
-            err_txt = "<p>Your account is restricted, and you cannot send <b>@everyone</b> messages.</p>";
+            err_txt = "<p>" + TS.i18n.t("Your account is restricted, and you cannot send <b>@everyone</b> messages.", "channels")() + "</p>";
           }
           if (!channel.is_general && TS.permissions.members.canAtChannelOrGroup()) {
-            err_txt += '<p class="no_bottom_margin">If you just want to address everyone in this channel, use <b>@channel</b> instead.</p>';
+            err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this channel, use <b>@channel</b> instead.", "channels")() + "</p>";
           }
           errorOut(err_txt);
           return false;
         }
         if (!channel.is_general && !is_at_here) {
           if (!general || !general.is_member) {
-            err_txt = "<p>You cannot send <b>@everyone</b> messages.</p>";
+            err_txt = "<p>" + TS.i18n.t("You cannot send <b>@everyone</b> messages.", "channels")() + "</p>";
             if (TS.permissions.members.canAtChannelOrGroup()) {
-              err_txt += '<p class="no_bottom_margin">If you just want to address everyone in this channel, use <b>@channel</b> instead.</p>';
+              err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this channel, use <b>@channel</b> instead.", "channels")() + "</p>";
             }
             errorOut(err_txt);
           } else {
             TS.generic_dialog.start({
-              title: "Send @everyone a message",
-              body: '<p class="bold">Would you like to switch to #' + general.name + ' and send your message?</p><p class="">Using <b>@everyone</b> in a message is a way to address your whole team, but it must be done in the #' + general.name + ' channel.</p><p class="no_bottom_margin">If you just want to address everyone in this channel, use <b>@channel</b> instead.</p>',
+              title: TS.i18n.t("Send @everyone a message", "channels")(),
+              body: TS.i18n.t('<p class="bold">Would you like to switch to #{general_channel} and send your message?</p>							<p class="">Using <b>@everyone</b> in a message is a way to address your whole team, but it must be done in the #{general_channel} channel.</p>							<p class="no_bottom_margin">If you just want to address everyone in this channel, use <b>@channel</b> instead.</p>', "channels")({
+                general_channel: general.name
+              }),
               show_cancel_button: true,
               show_go_button: true,
-              go_button_text: "Yes, send it",
+              go_button_text: TS.i18n.t("Yes, send it", "channels")(),
               onGo: function() {
                 TS.channels.displayChannel(general.id, text);
               },
@@ -3251,7 +3256,9 @@
       }
       if (is_at_channel && !TS.permissions.members.canAtChannelOrGroup()) {
         var key_word = is_at_here ? "@here" : "@channel";
-        err_txt = "<p>A Team Owner has restricted the use of <b>" + key_word + "</b> messages.</p>";
+        err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <b>{key_word}</b> messages.", "channels")({
+          key_word: key_word
+        }) + "</p>";
         errorOut(err_txt);
         return false;
       }
@@ -3395,7 +3402,7 @@
     onMarked: function(ok, data, args) {
       var channel = TS.channels.getChannelById(args.channel);
       if (!channel) {
-        TS.error('wtf no channel "' + args.channel + '"');
+        TS.error('error: no channel "' + args.channel + '"');
         return;
       }
       if (ok || data && (data.error == "not_in_channel" || data.error == "is_archived")) {} else {
@@ -3429,7 +3436,7 @@
         if (data.error == "name_taken") {} else if (data.error == "is_archived") {
           TS.channels.displayChannel(TS.channels.getChannelByName(args.name).id);
         } else if (data.error == "restricted_action") {
-          TS.generic_dialog.alert("<p>You don't have permission to create new channels.</p><p>Talk to your Team Owner.</p>");
+          TS.generic_dialog.alert(TS.i18n.t("<p>You don’t have permission to create new channels.</p><p>Talk to your Team Owner.</p>", "channels")());
         } else {
           TS.error("failed to join channel");
           alert("failed to join channel");
@@ -3467,13 +3474,17 @@
       var channel = TS.channels.getChannelById(id);
       if (!channel) return;
       if (channel.is_general || TS.model.user.is_restricted) {
-        TS.generic_dialog.alert("Sorry, you can't leave <b>#" + channel.name + "</b>!");
+        TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <b>#{channel_name}</b>!", "channels")({
+          channel_name: channel.name
+        }));
         return;
       } else if (channel.is_private) {
         TS.generic_dialog.start({
-          title: "Leave " + channel.name,
-          body: "<p>If you leave the private channel, you will no longer be able to see any of its messages. To rejoin the private channel, you will have to be re-invited.</p><p>Are you sure you wish to leave?</p>",
-          go_button_text: "Yes, leave the private channel",
+          title: TS.i18n.t("Leave {channel_name}", "channels")({
+            channel_name: channel.name
+          }),
+          body: TS.i18n.t("<p>If you leave the private channel, you will no longer be able to see any of its messages. To rejoin the private channel, you will have to be re-invited.</p><p>Are you sure you wish to leave?</p>", "channels")(),
+          go_button_text: TS.i18n.t("Yes, leave the private channel", "channels")(),
           onGo: function() {
             TS.api.call("channels.leave", {
               channel: id
@@ -3495,7 +3506,7 @@
       }
       var channel = TS.channels.getChannelById(args.channel);
       if (!channel) {
-        TS.error('wtf no channel "' + args.channel + '"');
+        TS.error('error no channel "' + args.channel + '"');
         return;
       }
       channel.msgs.length = 0;
@@ -3677,7 +3688,7 @@
     onHistory: function(ok, data, args) {
       var channel = TS.channels.getChannelById(args.channel);
       if (!channel) {
-        TS.error('wtf no channel "' + args.channel + '"');
+        TS.error('error no channel "' + args.channel + '"');
         return;
       }
       if (!ok || !data || !data.messages) {
@@ -3697,7 +3708,7 @@
     },
     fetchHistory: function(channel, api_args, handler) {
       if (!channel) {
-        TS.error('wtf no channel "' + channel + '"');
+        TS.error('error no channel "' + channel + '"');
         return;
       }
       TS.shared.maybeClearHasAutoScrolled(channel);
@@ -3853,7 +3864,7 @@
         channel: channel_id,
         include_shared: include_shared
       }).then(function(response) {
-        if (!response.data.ok) return TS.generic_dialog.alert("Something went wrong when fetching information about the channel.", "Oops! Something went wrong.");
+        if (!response.data.ok) return TS.generic_dialog.alert(TS.i18n.t("Something went wrong when fetching information about the channel.", "channels")(), TS.i18n.t("Oops! Something went wrong.", "channels")());
         TS.channels.upsertChannel(response.data.channel);
         return TS.members.ensureMembersArePresent(response.data.channel.members, _.fill(Array(response.data.channel.members.length), channel_id));
       }).catch(function(error) {
@@ -9207,45 +9218,6 @@ TS.registerModule("constants", {
       var c_ids = TS.utility.extractAllModelObIds(data, source);
       return TS.shared.ensureModelObsArePresent(c_ids);
     },
-    fetchInitialModelObData: function(c_id) {
-      return new Promise(function(resolve, reject) {
-        var method = "channels.view";
-        if (TS.boot_data.feature_web_lean_all_users) {
-          if (c_id.charAt(0) === "C") {
-            method = "channels.info";
-          } else if (c_id.charAt(0) === "G") {
-            method = "groups.info";
-          } else {
-            method = "im.info";
-          }
-        }
-        return TS.api.callImmediately(method, {
-          channel: c_id
-        }).then(function(resp) {
-          var model_ob_data = resp.data.channel || resp.data.im || resp.data.mpim || resp.data.group;
-          var model_ob;
-          if (model_ob_data.is_channel) {
-            model_ob = TS.channels.upsertChannel(model_ob_data);
-          } else if (model_ob_data.is_im) {
-            model_ob = TS.ims.upsertIm(model_ob_data);
-          } else if (model_ob_data.is_mpim) {
-            model_ob = TS.mpims.upsertMpim(model_ob_data);
-          } else if (model_ob_data.is_group) {
-            model_ob = TS.groups.upsertGroup(model_ob_data);
-          }
-          if (resp.data.history) model_ob._prefetched_history = resp.data.history;
-          if (resp.data.users) {
-            resp.data.users.forEach(function(m) {
-              TS.members.upsertMember(m);
-            });
-          }
-          if (resp.data.self) TS.members.upsertMember(resp.data.self);
-          resolve();
-        }, function() {
-          reject(Error("fetchChannelView api call failed: " + method + " channel:" + c_id));
-        });
-      });
-    },
     updateHotnessForAll: function() {
       return _updateHotness();
     },
@@ -11421,6 +11393,7 @@ TS.registerModule("constants", {
       return a.localeCompare(b);
     },
     constructTemplateArgsForCardAndProfile: function(app, bot_id) {
+      if (!app) return TS.warn("Trying to build app card but it failed.");
       var template_args = {
         name: app.name,
         desc: app.desc,
@@ -11463,6 +11436,10 @@ TS.registerModule("constants", {
         var creator_name = '<a class="bold member charcoal_grey" data-member-id=' + app.config.created_by + ">" + TS.members.getMemberDisplayNameById(app.config.created_by, true, true) + "</a>";
         template_args.custom_integration_creator = new Handlebars.SafeString(creator_name);
       }
+      if (_.get(app.config, "date_deleted") > 0 || _.get(app.auth, "revoked") === true) {
+        template_args.deleted = true;
+        template_args.app_id = app.id;
+      }
       if (!app.is_slack_integration && (!app.auth || app.auth.revoked)) {
         template_args.disabled = true;
       } else if (app.is_slack_integration && (!app.config || (app.config.is_active !== "1" || app.config.date_deleted !== "0"))) {
@@ -11493,6 +11470,9 @@ TS.registerModule("constants", {
               template_args.show_channel_invite = true;
             }
           }
+        }
+        if (template_args.deleted === true) {
+          template_args.hide_link_to_app_profile = true;
         }
       }
       if (app.long_desc_formatted) template_args.long_description = new Handlebars.SafeString(app.long_desc_formatted);
@@ -32008,12 +31988,18 @@ var _on_esc;
               }
             }
           });
+          if (_.get(TS.menu.app.active_app.config, "date_deleted") > 0) {
+            var app_deleted = true;
+          }
         }
         if (TS.boot_data.feature_app_profiles_frontend) {
-          TS.menu.$menu_header.on("click", function(e) {
-            TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
-            TS.menu.app.end();
-          });
+          if (!app_deleted) {
+            TS.menu.$menu_header.on("click", function(e) {
+              TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
+              TS.menu.$menu_header.unbind("click");
+              TS.menu.app.end();
+            });
+          }
         }
         TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
         TS.menu.$menu_items.on("click.menu", "[data-member-profile-link]", function(e) {
@@ -41384,15 +41370,19 @@ var _on_esc;
   TS.registerModule("enterprise.workspaces", {
     showList: function($container, teams) {
       var html = "";
-      teams.forEach(function(team) {
-        var url = TS.enterprise.workspaces.createURL(team, TS.boot_data.signout_url);
-        team.launch_url = url;
-        team.site_url = url + "home";
-        team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, TS.boot_data.signout_url);
-        html += TS.templates.enterprise_teams_launch_card({
-          team: team
+      if (teams.length) {
+        teams.forEach(function(team) {
+          var url = TS.enterprise.workspaces.createURL(team, TS.boot_data.signout_url);
+          team.launch_url = url;
+          team.site_url = url + "home";
+          team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, TS.boot_data.signout_url);
+          html += TS.templates.enterprise_teams_launch_card({
+            team: team
+          });
         });
-      });
+      } else {
+        html += TS.templates.no_workspaces_to_join();
+      }
       $container.html(html);
       _bindEvents($container);
       return Promise.resolve();
@@ -41406,7 +41396,7 @@ var _on_esc;
         if (TS.model.user.enterprise_user.teams.indexOf(team.id) > -1) {
           teams.teams_on.push(team);
         } else {
-          teams.teams_not_on.push(team);
+          if (team.is_open || team.closed) teams.teams_not_on.push(team);
         }
       });
       return teams[list];
@@ -41432,6 +41422,11 @@ var _on_esc;
           }
         }
         return;
+      });
+    },
+    requestToJoinTeam: function() {
+      return new Promise(function(resolve, reject) {
+        resolve("true");
       });
     },
     createLogoutURL: function(team_id, base_url) {
@@ -41462,6 +41457,14 @@ var _on_esc;
     $container.on("click", ".enterprise_team_join", function(e) {
       var team_id = $(this).data("id");
       TS.enterprise.workspaces.joinTeam(team_id);
+    });
+    $container.on("click", ".enterprise_team_request", function(e) {
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
+        console.log("here");
+      }).catch(function() {
+        console.log("butts");
+      });
     });
   };
   var _isUserOnTeam = function(team_id) {
@@ -46136,9 +46139,9 @@ $.fn.togglify = function(settings) {
       var payload = {};
       var tip = "";
       var tooltip_text_map = {
-        plus: "Search result is relevant<br><span class='subtle_silver'>(query string will be logged!)</span>",
-        circle: "Search result is somewhat relevant<br><span class='subtle_silver'>(query string will be logged!)</span>",
-        minus: "Search result is not relevant<br><span class='subtle_silver'>(query string will be logged!)</span>"
+        plus: TS.i18n.t('Search result is relevant<br><span class="subtle_silver">(query string will be logged!)</span>', "clicks")(),
+        circle: TS.i18n.t('Search result is somewhat relevant<br><span class="subtle_silver">(query string will be logged!)</span>', "clicks")(),
+        minus: TS.i18n.t('Search result is not relevant<br><span class="subtle_silver">(query string will be logged!)</span>', "clicks")()
       };
       if ($target.is(".selected")) {
         payload.undo = true;
@@ -46150,7 +46153,7 @@ $.fn.togglify = function(settings) {
           tip = tooltip_text_map["minus"];
         }
       } else {
-        tip = "oops!<br><span class='subtle_silver'>remove my feedback</span>";
+        tip = TS.i18n.t('oops!<br><span class="subtle_silver">remove my feedback</span>', "clicks")();
       }
       TS.tips.updateTipTitle($target, tip);
       $target.toggleClass("selected");
@@ -46352,7 +46355,7 @@ $.fn.togglify = function(settings) {
       if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
       var file = TS.files.getFileById(file_id);
       if (file && file.is_deleted) {
-        TS.generic_dialog.alert("<p>This file has been deleted.</p>");
+        TS.generic_dialog.alert("<p>" + TS.i18n.t("This file has been deleted.", "clicks")() + "</p>");
         return;
       }
       if (preview_origin === "search_results" && TS.files.fileIsImage(file)) {
@@ -46413,7 +46416,7 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       var msg_id = $el.closest("[data-ts]").data("ts") + "";
       if (!msg_id) {
-        TS.error("WTF no msg_id to jump to?");
+        TS.error("error no msg_id to jump to?");
         return;
       }
       var c_id = $el.data("cid");
