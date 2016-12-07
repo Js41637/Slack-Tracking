@@ -1,9 +1,10 @@
-  <div class="restricted_info_sso">
-    {{#if enterprise_id}}
-    <p class="emphasized align_center">Need to add a new guest to {{currentTeamName}}? Please contact an Org Admin for assistance provisioning a new guest and assigning them to the team.</p>
-    {{else}}
-    <p class="emphasized align_center">Because you have SSO enabled and required for all users, you do not need to invite users to your team. If they have an account with your SSO provider, they can sign in to your Slack team.</p>
+{{i18n_ns "restricted_accounts"}}
 
-    <p class="no_bottom_margin align_center"><a href="/admin/auth" class="btn">Manage Authentication Settings</a></p>
+<div class="restricted_info_sso">
+    {{#if enterprise_id}}
+    <p class="emphasized align_center">{{#t}}Need to add a new guest to {currentTeamName}? Please contact an Org Admin for assistance provisioning a new guest and assigning them to the team.{{/t}}</p>
+    {{else}}
+    <p class="emphasized align_center">{{#t}}Because you have SSO enabled and required for all users, you do not need to invite users to your team. If they have an account with your SSO provider, they can sign in to your Slack team.{{/t}}</p>
+    <p class="no_bottom_margin align_center"><a href="/admin/auth" class="btn">{{#t}}Manage Authentication Settings{{/t}}</a></p>
     {{/if}}
-  </div>
+</div>

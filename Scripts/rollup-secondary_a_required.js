@@ -51632,6 +51632,23 @@ $.fn.togglify = function(settings) {
       if (!call_info) return;
       if (!call_info.id) return;
       if (!TS.utility.calls.isCallWindowReady()) return;
+      if (_utility_call_state.incoming_caller_info) {
+        var im = TS.ims.getImByMemberId(_utility_call_state.incoming_caller_info.user_id);
+        if (im && im.id === call_info.id) {
+          _isInIncomingCall().then(function(is_in_incoming_call) {
+            if (is_in_incoming_call) {
+              TS.utility.calls.closeIncomingCallWindow();
+              TS.utility.calls.sendInvitationResponseToCaller({
+                user_id: _utility_call_state.incoming_caller_info.user_id,
+                room_id: _utility_call_state.incoming_caller_info.room_id,
+                response: TS.utility.calls.invite_response_types.accept,
+                did_choose_video: false
+              });
+              return;
+            }
+          });
+        }
+      }
       _isCallWindowBusy().then(function(is_busy) {
         if (is_busy) {
           _handleAlreadyInCall();
@@ -51664,7 +51681,7 @@ $.fn.togglify = function(settings) {
         });
         if (args.response === TS.utility.calls.invite_response_types.accept) {
           _utility_call_state.accepted_caller_id = args.user_id;
-          _joinVideoCall(args.room_id, args.did_choose_video);
+          if (!args.currently_calling_caller) _joinVideoCall(args.room_id, args.did_choose_video);
         }
       }
       Promise.join(_isCallWindowBusy(), _isInIncomingCall(), function(call_window_busy, incoming_call_window_busy) {
@@ -51699,6 +51716,7 @@ $.fn.togglify = function(settings) {
           if (is_in_incoming_call) TS.incoming_call.timeout();
         });
       }
+      delete _utility_call_state.incoming_caller_info;
       if (!skip_teardown) _teardownIncomingCall();
     },
     maybeHandleCallLink: function($el) {
@@ -52252,11 +52270,17 @@ $.fn.togglify = function(settings) {
     if (!TS.utility.calls.isEnabled()) return;
     var is_relevant = TS.shared.isRelevantTeam();
     if (!is_relevant) return;
-    if (call_window_busy || incoming_call_window_busy) {
+    var currently_calling_caller = false;
+    var im = TS.ims.getImByMemberId(imsg.caller);
+    if (im && im.id === _utility_call_state.call_channel) {
+      currently_calling_caller = true;
+    }
+    if (call_window_busy || incoming_call_window_busy || currently_calling_caller) {
       TS.utility.calls.sendInvitationResponseToCaller({
         user_id: imsg.caller,
         room_id: imsg.room,
-        response: TS.utility.calls.invite_response_types.on_call
+        response: currently_calling_caller ? TS.utility.calls.invite_response_types.accept : TS.utility.calls.invite_response_types.on_call,
+        currently_calling_caller: currently_calling_caller
       });
       return;
     }
@@ -52349,6 +52373,10 @@ $.fn.togglify = function(settings) {
           }
         });
       }
+      _utility_call_state.incoming_caller_info = {
+        user_id: imsg.caller,
+        room_id: imsg.room
+      };
     });
   };
   var _setupIncomingCall = function() {
@@ -52374,6 +52402,7 @@ $.fn.togglify = function(settings) {
       delete _utility_call_state.incoming_ring_timer;
     }
     delete _utility_call_state.in_incoming_call;
+    delete _utility_call_state.incoming_caller_info;
     _notifySSBsIncomingCallWindowAvailable();
   };
   var _isInIncomingCall = function() {
@@ -52466,6 +52495,7 @@ $.fn.togglify = function(settings) {
       }
     } else {
       _notifySSBsCallWindowAvailable();
+      _utility_call_state.call_channel = undefined;
     }
     if (_utility_call_state.accepted_caller_id) delete _utility_call_state.accepted_caller_id;
     if (_utility_call_state.cached_invite_cancel) delete _utility_call_state.cached_invite_cancel;
@@ -52494,6 +52524,7 @@ $.fn.togglify = function(settings) {
     } else {
       _utility_call_state.window_handle = window.open(url, name);
     }
+    _utility_call_state.call_channel = name;
   };
   var _joinVideoCall = function(room_id, start_with_video) {
     if (!TS.model.supports_voice_calls && !TS.utility.calls.platformHasCallsCode()) {
