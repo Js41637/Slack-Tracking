@@ -43819,6 +43819,7 @@ $.fn.togglify = function(settings) {
     onKeyDown: function(e, handled) {},
     onMaxItemsSelected: function() {},
     onListShown: _.noop,
+    onListHidden: _.noop,
     placeholder_text: "Search",
     render_divider_func: null,
     render_item_func: null,
@@ -44344,6 +44345,7 @@ $.fn.togglify = function(settings) {
     if (instance._list_built) {
       instance.$list.longListView("setHidden", true);
     }
+    instance.onListHidden();
   };
   var _hideNoResults = function(instance) {
     instance.$empty.addClass("hidden");
@@ -53071,7 +53073,7 @@ $.fn.togglify = function(settings) {
       if (TS.boot_data.feature_calls) {
         html = TS.templates.calls_incoming_call({
           caller: setting.caller,
-          name: setting.name,
+          name: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(setting.caller) : setting.name,
           is_video_call: setting.is_video_call,
           team: TS.model.team.name
         });
@@ -54187,7 +54189,9 @@ $.fn.togglify = function(settings) {
           filter: _filter,
           no_default_selection: true,
           onItemAdded: _onItemAdded,
-          onListShown: _logMenuOpen.bind(null, data_source, service_id)
+          onListHidden: _onListHidden,
+          onListShown: _getOnListShownCallback(data_source, service_id),
+          placeholder_text: _PLACEHOLDER_TEXT.default
         };
         if (data_source === _DATA_SOURCES.external) {
           lfs_options.data_promise = _getExternalDataPromise($el);
@@ -54204,6 +54208,10 @@ $.fn.togglify = function(settings) {
       return model;
     }
   });
+  var _PLACEHOLDER_TEXT = {
+    "default": TS.i18n.t("Choose an option…", "attachment_actions")(),
+    list_shown: TS.i18n.t("Search for options", "attachment_actions")()
+  };
   var _DATA_SOURCES = {
     channels: "channels",
     "default": "default",
@@ -54233,6 +54241,17 @@ $.fn.togglify = function(settings) {
 
   function _filter(item, query) {
     return TS.fuzzy.score(item.text.toLowerCase(), query) < Infinity;
+  }
+
+  function _onListHidden() {
+    this.$select.lazyFilterSelect("updatePlaceholder", _PLACEHOLDER_TEXT.default);
+  }
+
+  function _getOnListShownCallback(data_source, service_id) {
+    return function onListShown() {
+      this.$select.lazyFilterSelect("updatePlaceholder", _PLACEHOLDER_TEXT.list_shown);
+      _logMenuOpen(data_source, service_id);
+    };
   }
 
   function _getOptionsForModel(model) {

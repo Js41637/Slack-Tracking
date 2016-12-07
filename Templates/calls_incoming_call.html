@@ -1,11 +1,12 @@
+{{i18n_ns "calls"}}
 <div id="incoming_call_window">
   <div class="avatar_holder">
     {{{makeMemberPreviewLinkImage caller.id 192 false true}}}
   </div>
-  <div class="name_label_holder"><span class="name">{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName caller}}{{else}}{{name}}{{/feature}}</span><span class="others">{{#if other_count}} and {{other_count}} more{{/if}}</span></div>
+  <div class="name_label_holder"><span class="name">{{name}}</span></div>
   <div class="type_label_holder">
     <span class="type_label type_label_0">&nbsp;</span>
-    <span class="type_label type_label_fade">{{#if is_video_call}}Video call{{else}}Voice call{{/if}}</span>
+    <span class="type_label type_label_fade">{{#if is_video_call}}{{#t}}Video call{{/t}}{{else}}{{#t}}Voice call{{/t}}{{/if}}</span>
     <span class="type_label type_label_fade type_label_fade_delay">{{team}}</span>
   </div>
   <div class="button_holder">

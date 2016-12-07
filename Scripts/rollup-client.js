@@ -19116,7 +19116,7 @@
         setting = "mentions";
       }
       if (!TS.ui.growls.checkPermission()) return;
-      var is_in_active_channel = (model_ob.id == TS.model.active_channel_id || model_ob.id == TS.model.active_group_id || model_ob.id == TS.model.active_mpim_id) && !is_hidden_reply;
+      var is_in_active_channel = (model_ob.id == TS.model.active_channel_id || model_ob.id == TS.model.active_group_id || model_ob.id == TS.model.active_mpim_id) && !is_hidden_reply && !TS.client.activeChannelIsHidden();
       var is_in_active_thread = TS.boot_data.feature_message_replies && msg.thread_ts && model_ob.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
       var display = false;
       if (qualifies_as_mention) {
@@ -19336,7 +19336,7 @@
       if (!TS.ui.growls.checkPermission()) return;
       var display = false;
       if (TS.boot_data.feature_message_replies) {
-        var is_in_active_im = im.id === TS.model.active_im_id;
+        var is_in_active_im = im.id === TS.model.active_im_id && !TS.client.activeChannelIsHidden();
         var is_reply = TS.utility.msgs.isMsgReply(msg);
         var is_in_active_thread = is_reply && im.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
         var thread_subscribed = true;
@@ -25949,7 +25949,7 @@
         }
         var thread_ts;
         if (query && query.thread_ts) {
-          if (/\d+\.\d+/.test(query.thread_ts)) thread_ts = query.thread_ts;
+          if (/^\d+\.\d+$/.test(query.thread_ts)) thread_ts = query.thread_ts;
         }
         return TS.client.ui.tryToJump(model_ob.id, actual_ts, thread_ts);
       }

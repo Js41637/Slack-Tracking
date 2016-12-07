@@ -1,40 +1,42 @@
+{{i18n_ns "coachmarks"}}
+
 <div id="private_groups_coachmark_div" class="coachmark_div">
   <div class="small_coachmark_contents">
-    <span><strong class="black">Click</strong> to learn more about private groups.</span>
+    <span>{{#t}}<strong class="black">Click</strong> to learn more about private groups.{{/t}}</span>
   </div>
   <div class="coachmark_contents">
     <h2 class="black">
       {{~#currentUserIsRA~}}
         {{~#if_gt channels_count compare=0~}}
           {{~#if_gt groups_count compare=1~}}
-            These are your private groups
+            {{#t}}These are your private groups{{/t}}
           {{~else~}}
             {{~#if_equal groups_count compare=1~}}
-              This is your private group
+              {{#t}}This is your private group{{/t}}
             {{~else~}}
-              Private groups are invite-only
+              {{#t}}Private groups are invite-only{{/t}}
             {{~/if_equal~}}
           {{~/if_gt~}}
         {{~else~}}
-          This is your group
+          {{#t}}This is your group{{/t}}
         {{~/if_gt~}}
       {{~else~}}
-        Private groups are invite-only
+        {{#t}}Private groups are invite-only{{/t}}
       {{~/currentUserIsRA~}}
     </h2>
     {{~#currentUserIsRA~}}
-      <p>Groups are private, <strong>invite-only rooms</strong>. {{#if_gt groups_count compare=1~}}
-        You have access to the groups listed here
+      <p>{{#t}}Groups are private, <strong>invite-only rooms</strong>.{{/t}} {{#if_gt groups_count compare=1~}}
+        {{#t}}You have access to the groups listed here{{/t}}
       {{~else~}}
         {{~#if_equal groups_count compare=1~}}
-          You only have access to this group
+          {{#t}}You only have access to this group{{/t}}
         {{~else~}}
-          People in <strong>{{currentTeamName}}</strong> will not know about a private group unless you invite them.
+          {{#t team_name=(currentTeamName)}}People in <strong>{team_name}</strong> will not know about a private group unless you invite them.{{/t}}
         {{~/if_equal~}}
       {{~/if_gt~}}
       .<p>
     {{~else~}}
-      <p>Use private groups for <strong>invite-only conversations</strong>. People in <strong>{{currentTeamName}}</strong> will not know about a private group unless you invite them.</p>
+      <p>{{#t team_name=(currentTeamName)}}Use private groups for <strong>invite-only conversations</strong>. People in <strong>{team_name}</strong> will not know about a private group unless you invite them.{{/t}}</p>
     {{~/currentUserIsRA~}}
   </div>
 </div>

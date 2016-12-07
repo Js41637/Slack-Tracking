@@ -19168,6 +19168,10 @@ ts-thread ts-message.new_reply {
   background: #f0f7fb
 }
 
+ts-thread ts-message.new_reply:hover {
+  background: #E7F2F9
+}
+
 ts-thread .view_all_replies_count {
   float: right;
   font-size: .8125rem;
