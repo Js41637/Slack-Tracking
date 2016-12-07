@@ -1183,7 +1183,8 @@
       var member = TS.members.getMemberById(member_id);
       var $row = TS.web.admin.selectRow(member);
       var confirm_body = [];
-      var username = $.trim($row.find('input[name="username"]').val());
+      var raw_username = $.trim($row.find('input[name="username"]').val());
+      var username = Handlebars.Utils.escapeExpression(raw_username);
       var args;
 
       function doRename() {
