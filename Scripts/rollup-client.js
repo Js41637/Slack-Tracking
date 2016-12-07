@@ -21165,9 +21165,9 @@
         wrap_lines: TS.model.prefs.snippet_editor_wrap_long_lines
       };
       if (TS.ui.snippet_dialog.edit_file_id) {
-        template_args["mode"] = "Edit";
+        template_args["is_edit"] = true;
       } else {
-        template_args["mode"] = "Create";
+        template_args["is_edit"] = false;
         template_args["sharing_html"] = TS.templates.builders.buildFileSharingControls();
       }
       var html = TS.templates.snippet_dialog(template_args);

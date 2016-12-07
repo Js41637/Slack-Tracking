@@ -6318,7 +6318,7 @@ only screen and (min-resolution:2dppx) {
 .flexbox_client #member_preview_scroller .member_details .member_image.thumb_512 {
   display: block;
   width: 100%;
-  margin: -.2rem
+  background-size: cover
 }
 
 @media only screen and (-webkit-min-device-pixel-ratio:2),

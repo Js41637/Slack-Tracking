@@ -1,6 +1,8 @@
+  {{i18n_ns "snippet"}}
+
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-    <h3>{{mode}} snippet</h3>
+    <h3>{{#if is_edit}}{{#t}}Edit snippet{{/t}}{{else}}{{#t}}Create snippet{{/t}}{{/if}}</h3>
   </div>
   <div class="modal-body share_dialog">
 
@@ -9,19 +11,19 @@
       <div class="top_margin">
         <label id="client_file_snippet_select_label" class="select small float_right no_right_padding">
           <select name="filetype" id="client_file_snippet_select" name="client_file_snippet_select" class="small no_top_margin">
-            <option value="auto">Auto Detect Type</option>
+            <option value="auto">{{#t}}Auto Detect Type{{/t}}</option>
             {{#each codemirror_types}}
               <option value="{{this.type}}">{{this.label}}</option>
             {{/each}}
           </select>
         </label>
-        <input type="text" id="client_file_snippet_title_input" class="small" name="client_file_snippet_title_input" value="" placeholder="Title (optional)" />
+        <input type="text" id="client_file_snippet_title_input" class="small" name="client_file_snippet_title_input" value="" placeholder="{{#t}}Title (optional){{/t}}" />
       </div>
 
       <div class="top_margin bottom_margin">
-        <textarea name="content" wrap="virtual" id="client_file_snippet_textarea" class="client_file_snippet_textarea full_width{{#if_equal mode compare="Create"}} create_snippet{{/if_equal}}"></textarea>
+        <textarea name="content" wrap="virtual" id="client_file_snippet_textarea" class="client_file_snippet_textarea full_width{{#unless is_edit}} create_snippet{{/unless}}"></textarea>
         <label class="checkbox normal mini float_right no_min_width" style="margin-top: 3px; padding-right: 0; width: auto;">
-          <input type="checkbox" id="client_file_wrap_cb" {{#if wrap_lines}}checked{{/if}}> wrap
+          <input type="checkbox" id="client_file_wrap_cb" {{#if wrap_lines}}checked{{/if}}> {{#t note="Refers to line wraps / breaks when writing code in a snippet"}}wrap{{/t}}
         </label>
       </div>
 
@@ -34,35 +36,34 @@
   <div class="modal-footer">
     <div class="modal-footer-confirm hidden">
       <p class="confirm-text">
-        {{#if_equal mode compare="Edit"}}
-          Are you sure you want to discard your changes?
+        {{#if is_edit}}
+          {{#t}}Are you sure you want to discard your changes?{{/t}}
         {{else}}
-          Are you sure you want to discard this snippet permanently?
-        {{/if_equal}}
+          {{#t}}Are you sure you want to discard this snippet permanently?{{/t}}
+        {{/if}}
       </p>
-      <button type="button" class="btn btn_outline dialog_cancel_decline">No, keep it</button>
+      <button type="button" class="btn btn_outline dialog_cancel_decline">{{#t}}No, keep it{{/t}}</button>
       <button type="button" class="btn btn_danger dialog_cancel">
-        {{#if_equal mode compare="Edit"}}
-          Yes, discard the changes
+        {{#if is_edit}}
+          {{#t}}Yes, discard the changes{{/t}}
         {{else}}
-          Yes, discard this snippet
-        {{/if_equal}}
+          {{#t}}Yes, discard this snippet{{/t}}
+        {{/if}}
       </button>
     </div>
     <div class="modal-footer-action">
-      <a class="btn btn_outline cancel" data-dismiss="modal" tabindex="3">Cancel</a>
-      {{#if_equal mode compare="Edit"}}
+      <a class="btn btn_outline cancel" data-dismiss="modal" tabindex="3">{{#t}}Cancel{{/t}}</a>
+      {{#if is_edit}}
       <a class="btn dialog_go ts_tip ts_tip_top ts_tip_hide" tabindex="2">
-        Save changes
-        <span class="ts_tip_tip">Add text before saving your changes</span>
+        {{#t}}Save changes
+        <span class="ts_tip_tip">Add text before saving your changes</span>{{/t}}
       </a>
-      {{/if_equal}}
-      {{#if_equal mode compare="Create"}}
+      {{/if}}
+      {{#unless is_edit}}
       <a class="btn dialog_go ts_tip ts_tip_top" tabindex="2">
-        Create Snippet
-        <span class="ts_tip_tip">Add text before saving your snippet</span>
+        {{#t}}Create Snippet
+        <span class="ts_tip_tip">Add text before saving your snippet</span>{{/t}}
       </a>
-      {{/if_equal}}
+      {{/unless}}
     </div>
   </div>
-

@@ -1,26 +1,24 @@
   <p class="no_results">
-    No 
     {{#if_equal filter compare='files'}}
       {{#if_equal filetype compare="all"}}
-        files
+        {{#t}}No files found matching:<br><strong>{query_string}</strong>.{{/t}}
       {{else}}
-        {{filetype_label}}
+        {{#t}}No {filetype_label} found matching:<br><strong>{query_string}</strong>.{{/t}}
       {{/if_equal}}
     {{else}}
-      {{filter}} 
+      {{#t}}No {filter} found matching:<br><strong>{query_string}</strong>.{{/t}}
     {{/if_equal}}
-    found matching:<br><strong>{{query_string}}</strong>.
   </p>
 
   {{#if error}}
     <p class="alert alert_info">
-      <i class="ts_icon ts_icon_warning"></i> <strong>Our sincere apologies!</strong><br />
+      <i class="ts_icon ts_icon_warning"></i> <strong>{{#t note="Error message"}}Our sincere apologies!{{/t}}</strong><br />
       {{#if_equal error compare="temporarily_disabled"}}
-        Search has been temporarily disabled while we deal with some issues. You can check <a href="http://status.slack.com" class="bold underline" target="{{newWindowName}}">our status site</a> for updates if it does not become available shortly.
+        {{#t}}Search has been temporarily disabled while we deal with some issues. You can check <a href="http://status.slack.com" class="bold underline" target="{newWindowName}">our status site</a> for updates if it does not become available shortly.{{/t}}
       {{else}}
-        Search failed with an error. This incident has been logged and is being investigated. You can check <a href="http://status.slack.com" class="bold underline" target="{{newWindowName}}">our status site</a> for updates if this problem persists.
-        <span class="subtle_silver">(error: "{{error}}")</span>
+        {{#t}}Search failed with an error. This incident has been logged and is being investigated. You can check <a href="http://status.slack.com" class="bold underline" target="{newWindowName}">our status site</a> for updates if this problem persists.{{/t}}
+        <span class="subtle_silver">{{#t note="An error message to help debug search issues."}}(error: "{error}"){{/t}}</span>
       {{/if_equal}}
-    </p>  
+    </p>
   {{/if}}
 
