@@ -2250,10 +2250,8 @@
       if (!_pause_secs) {
         clearInterval(_pause_interv);
         _unPause();
-        TS.api.connection.waitForMSToReconnect().then(function() {
-          _notifyUnpaused();
-          _nextFromQ();
-        });
+        _notifyUnpaused();
+        _nextFromQ();
       }
     }, _PAUSE_TICK_MS);
   };
@@ -2264,7 +2262,7 @@
     _pause({
       reason: reason
     });
-    return TS.api.connection.waitForAPIConnection(retry_interval, max_retries).then(_unPause).then(TS.api.connection.waitForMSToReconnect).then(_notifyUnpaused).then(_nextFromQ);
+    return TS.api.connection.waitForAPIConnection(retry_interval, max_retries).then(_unPause).then(_notifyUnpaused).then(_nextFromQ);
   };
   var _pauseUntilBackOnline = function(consecutive_connection_failures) {
     TS.warn(consecutive_connection_failures + " consecutive connection errors. Pausing API queue until internet returns");
@@ -14525,7 +14523,11 @@ TS.registerModule("constants", {
         return;
       }
       if (TS.api.isPaused()) {
-        TS.warn("NOT doing startReconnection() because TS.api.isPaused()");
+        TS.warn("NOT doing startReconnection() because TS.api.isPaused(), but will try after it unpauses");
+        TS.api.unpaused_sig.add(function() {
+          TS.info("MS: starting reconnection after socket failure, having waited for API to unpause");
+          TS.ms.startReconnection();
+        });
         return;
       }
       TS.info("MS: starting reconnection after socket failure");
@@ -14567,10 +14569,16 @@ TS.registerModule("constants", {
       }
     },
     disconnect: function() {
-      if (_websocket && TS.model.ms_connected) {
+      if (_websocket && _websocket.readyState != WebSocket.CLOSED) {
         TS.ms.logConnectionFlow("disconnect");
-        TS.info("TS.ms.disconnect called; closing the socket");
+        if (TS.model.ms_connected) {
+          TS.info("TS.ms.disconnect called; closing the socket");
+        } else {
+          TS.info("TS.ms.disconnect called while we have a WebSocket but are not connected; closing the socket");
+        }
         _websocket.close();
+        TS.model.ms_connected = false;
+        TS.ms.disconnected_sig.dispatch();
       } else {
         TS.warn("TS.ms.disconnect called, but _websocket=" + _websocket + " TS.model.ms_connected=" + TS.model.ms_connected);
       }
@@ -14663,6 +14671,10 @@ TS.registerModule("constants", {
     },
     wake: function() {
       if (!TS.model.ms_asleep) return;
+      if (_websocket) {
+        _onDisconnect(null, "Forcing disconnect because we are trying to wake up");
+        _deprecateCurrentSocket();
+      }
       TS.model.ms_asleep = false;
       TS.info("MS: starting reconnection after waking");
       TS.ms.startReconnection();
@@ -14911,6 +14923,7 @@ TS.registerModule("constants", {
     clearTimeout(_connect_timeout_tim);
     _did_make_tokenless_connection = false;
     _did_make_provisional_connection = false;
+    _cancelProvisionalConnectionTimeout();
     if (e) {
       TS.info("_onDisconnect event.code:" + e.code);
       if (e.code == TS.ms.errors.CONNECTION_TROUBLE && false) {
@@ -14935,19 +14948,21 @@ TS.registerModule("constants", {
     return;
   };
   var _deprecateCurrentSocket = function() {
-    if (!_websocket) return;
-    _websocket.onclose = null;
-    _websocket.onerror = null;
-    _websocket.onmessage = null;
-    _websocket.onopen = null;
-    try {
-      _websocket.close();
-    } catch (err) {
-      TS.info("Problem while deprecating current socket: " + err);
-    }
-    _websocket = undefined;
-    _did_make_provisional_connection = false;
     TS.model.ms_connecting = false;
+    if (_websocket) {
+      _websocket.onclose = null;
+      _websocket.onerror = null;
+      _websocket.onmessage = null;
+      _websocket.onopen = null;
+      try {
+        _websocket.close();
+      } catch (err) {
+        TS.info("Problem while deprecating current socket: " + err);
+      }
+      _websocket = undefined;
+    }
+    _did_make_provisional_connection = false;
+    _cancelProvisionalConnectionTimeout();
   };
   var _onReconnectInterval = function() {
     var ms = TS.model.ms_reconnect_time - Date.now();
@@ -15030,6 +15045,7 @@ TS.registerModule("constants", {
     if (TS.client && since_last_pong_ms > _away_limit_ms && !_last_connect_was_fast) {
       TS.client.ui.maybePromptForSetActive();
     }
+    TS.model.ms_reconnect_ms = 0;
     clearInterval(_reconnect_interv);
     _check_last_pong_time = true;
     TS.ms.last_pong_time = Date.now();
@@ -15168,9 +15184,10 @@ TS.registerModule("constants", {
     return true;
   };
   var _initSocketHandlersProvisional = function() {
-    TS.log("Initializing provisional MS connection");
+    TS.info("Initializing provisional MS connection");
     _did_make_provisional_connection = true;
     _did_make_tokenless_connection = true;
+    _startProvisionalConnectionTimeout();
     _onConnectProvisional = _makeBufferHandler();
     _onDisconnectProvisional = _makeBufferHandler();
     _onErrorProvisional = _makeBufferHandler();
@@ -15181,8 +15198,9 @@ TS.registerModule("constants", {
     _websocket.onopen = _onConnectProvisional;
   };
   var _initSocketHandlersProvisionalRtmStart = function() {
-    TS.log("Initializing provisional MS connection and fetching rtm.start over the socket");
+    TS.info("Initializing provisional MS connection and fetching rtm.start over the socket");
     _did_make_provisional_connection = true;
+    _startProvisionalConnectionTimeout();
     var rtm_start_p = new Promise(function(resolve, reject) {
       var abortRtmStartAttempt = function(err) {
         TS.warn("Giving up on rtm.start-over-MS attempt");
@@ -15197,15 +15215,18 @@ TS.registerModule("constants", {
         _deprecateCurrentSocket();
       };
       var rtm_start_timeout = setTimeout(function() {
+        TS.warn("Provisional WebSocket timed out");
         abortRtmStartAttempt(new Error("Waited " + _rtm_start_timeout_tim_ms + " ms for rtm.start response but didn't get one"));
       }, _rtm_start_timeout_tim_ms);
       _onConnectProvisional = _makeBufferHandler(_maybeResolveOpenWebSocketPromise);
       _onDisconnectProvisional = _makeBufferHandler(function() {
+        TS.warn("Provisional WebSocket got disconnected");
         if (rtm_start_p && rtm_start_p.isPending()) {
           abortRtmStartAttempt(new Error("WebSocket got disconnected"));
         }
       });
       _onErrorProvisional = _makeBufferHandler(function(e) {
+        TS.warn("Provisional WebSocket encountered an error");
         if (rtm_start_p && rtm_start_p.isPending()) {
           var err = new Error("WebSocket got error");
           err.event = e;
@@ -15228,6 +15249,7 @@ TS.registerModule("constants", {
           }
           return false;
         }
+        TS.info("Provisional WebSocket received a message of type " + imsg.type);
         if (rtm_start_p && rtm_start_p.isPending()) {
           if (imsg.type == "hello") {
             clearTimeout(rtm_start_timeout);
@@ -15245,6 +15267,13 @@ TS.registerModule("constants", {
       _websocket.onerror = _onErrorProvisional;
       _websocket.onmessage = _onMsgProvisional;
       _websocket.onopen = _onConnectProvisional;
+      setTimeout(function() {
+        if (_websocket && _websocket.readyState == WebSocket.CLOSED) {
+          if (rtm_start_p && rtm_start_p.isPending()) {
+            abortRtmStartAttempt(new Error("WebSocket already closed; maybe internet is offline?"));
+          }
+        }
+      }, 100);
     }).catch(function(err) {
       TS.logError(err, "rtm-start-over-MS error", "Flannel error");
       throw err;
@@ -15278,6 +15307,7 @@ TS.registerModule("constants", {
     }
   };
   var _finalizeProvisionalConnection = function() {
+    _cancelProvisionalConnectionTimeout();
     if (_did_make_provisional_connection && !_websocket) {
       _did_make_provisional_connection = false;
       TS.warn("Tried to finalize provisional connection while _did_make_provisional_connection flag is true, but there is no _websocket. This is a programming error.");
@@ -15308,6 +15338,24 @@ TS.registerModule("constants", {
     _open_websocket_p_resolve();
     _open_websocket_p = undefined;
     _open_websocket_p_resolve = undefined;
+  };
+  var _provisional_connection_timeout;
+  var _startProvisionalConnectionTimeout = function() {
+    _cancelProvisionalConnectionTimeout();
+    _provisional_connection_timeout = setTimeout(function() {
+      if (_did_make_provisional_connection) {
+        TS.warn("Giving up on provisional connection because no one ever finalized it");
+        _deprecateCurrentSocket();
+      } else {
+        TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
+      }
+    }, 3e4);
+  };
+  var _cancelProvisionalConnectionTimeout = function() {
+    if (_provisional_connection_timeout) {
+      clearTimeout(_provisional_connection_timeout);
+      _provisional_connection_timeout = undefined;
+    }
   };
 })();
 (function() {
@@ -24780,6 +24828,10 @@ TS.registerModule("constants", {
         TS.model.all_unread_cnt += unread;
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(mpim, unread, highlight);
+      }
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        if (TS.model.threads_has_unreads) TS.model.all_unread_cnt += 1;
+        if (TS.model.threads_mention_count) TS.model.all_unread_highlights_cnt += TS.model.threads_mention_count;
       }
     },
     maybeExcludeUnreads: function(model_ob, unread_cnt, highlight_cnt) {
@@ -41322,9 +41374,128 @@ var _on_esc;
 })();
 (function() {
   "use strict";
-  TS.registerModule("ui.workspaces", {
-    start: function() {}
+  TS.registerModule("enterprise.workspaces", {
+    showList: function($container, teams) {
+      var html = "";
+      teams.forEach(function(team) {
+        var url = TS.enterprise.workspaces.createURL(team, TS.boot_data.signout_url);
+        team.launch_url = url;
+        team.site_url = url + "home";
+        team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, TS.boot_data.signout_url);
+        html += TS.templates.enterprise_teams_launch_card({
+          team: team
+        });
+      });
+      $container.html(html);
+      _bindEvents($container);
+      return Promise.resolve();
+    },
+    getList: function(list) {
+      var teams = {
+        teams_on: [],
+        teams_not_on: []
+      };
+      TS.model.enterprise_teams.forEach(function(team) {
+        if (TS.model.user.enterprise_user.teams.indexOf(team.id) > -1) {
+          teams.teams_on.push(team);
+        } else {
+          teams.teams_not_on.push(team);
+        }
+      });
+      return teams[list];
+    },
+    joinTeam: function(team_id) {
+      var team = TS.enterprise.getTeamById(team_id);
+      if (!team) return TS.generic_dialog.alert("Invalid workspace", "Oops! Something went wrong.");
+      if (!team.is_open) return TS.generic_dialog.alert("This workspace is not available to join.", "Oops! Something went wrong.");
+      var calling_args = {
+        team: team.id
+      };
+      TS.api.call("enterprise.teams.join", calling_args, function(ok, data, args) {
+        var message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + " You've successfully joined <strong>" + team.name + "</strong>");
+        if (ok) {
+          _showToastMessage("success", message);
+        } else {
+          if (data.error === "user_already_team_member") {
+            _showToastMessage("success", message);
+          } else if (data.error === "team_is_not_open") {
+            _showToastMessage("error", "This team is not open to join.");
+          } else {
+            _showToastMessage("error", 'Joining team failed with error "' + data.error + '"');
+          }
+        }
+        return;
+      });
+    },
+    createLogoutURL: function(team_id, base_url) {
+      var el_a = document.createElement("a");
+      el_a.href = base_url;
+      var logout_url = el_a.protocol + "//" + el_a.host + "/signout/" + team_id + el_a.search + el_a.hash;
+      el_a = null;
+      return logout_url;
+    },
+    createURL: function(team, base_url) {
+      var el_a = document.createElement("a");
+      el_a.href = base_url;
+      var url = el_a.protocol + "//" + team.domain + "." + el_a.host + "/";
+      el_a = null;
+      return url;
+    }
   });
+  var _bindEvents = function($container) {
+    $container.on("click", ".enterprise_team_menu", function(e) {
+      var team_site_url = $(this).val();
+      var team_id = $(this).data("id");
+      TS.menu.enterprise_team_signin.start(e, $(this), {
+        team_id: team_id,
+        team_site_url: team_site_url,
+        should_show_leave_team: _isUserOnTeam(team_id)
+      });
+    });
+    $container.on("click", ".enterprise_team_join", function(e) {
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.joinTeam(team_id);
+    });
+  };
+  var _isUserOnTeam = function(team_id) {
+    return TS.model.user.enterprise_user.teams.indexOf(team_id) > -1;
+  };
+  var _showToastMessage = function(type, message) {
+    TS.ui.toast.show({
+      type: type,
+      message: message
+    });
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.workspaces", {
+    start: function() {
+      var teams = TS.enterprise.workspaces.getList("teams_not_on");
+      teams = teams.map(function(team) {
+        var url = TS.enterprise.workspaces.createURL(team, TS.boot_data.signout_url);
+        team.launch_url = url;
+        team.site_url = url + "home";
+        team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, TS.boot_data.signout_url);
+        return team;
+      });
+      var template_args = {
+        teams: teams
+      };
+      var settings = {
+        title: TS.i18n.t("Join {enterprise_name} Workspaces", "enterprise_workspaces")({
+          enterprise_name: TS.model.enterprise.name
+        }),
+        body_template_html: TS.templates.workspaces_dialog(template_args),
+        onShow: _onShowWorkspaces,
+        onCancel: _onCancelWorkspaces,
+        modal_class: "fs_modal_header workspaces_modal"
+      };
+      TS.ui.fs_modal.start(settings);
+    }
+  });
+  var _onShowWorkspaces = function() {};
+  var _onCancelWorkspaces = function() {};
 })();
 (function() {
   "use strict";
@@ -52646,6 +52817,8 @@ $.fn.togglify = function(settings) {
       if (!input) return;
       if (_isFormElement(input)) return;
       if (_getTextyInstance(input)) return;
+      options.log = _.partial(TS.log, 116);
+      options.logError = TS.error;
       var texty = new Texty(input, options);
       _setTextyInstance(input, texty);
     },
@@ -52775,7 +52948,10 @@ $.fn.togglify = function(settings) {
         next_value = input.getAttribute("placeholder");
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (_.isString(value)) texty.setPlaceholder(value);
+        if (_.isString(value)) {
+          if (TS.boot_data.feature_tinyspeck) value += " (with texty!)";
+          texty.setPlaceholder(value);
+        }
         next_value = texty.getPlaceholder();
       }
       return next_value || "";
@@ -52823,6 +52999,27 @@ $.fn.togglify = function(settings) {
         }
       }
       return pos;
+    },
+    serialize: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return;
+      if (_isFormElement(input)) {
+        return input.value;
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.serialize();
+      }
+      return "";
+    },
+    deserialize: function(input, serialized) {
+      input = _normalizeInput(input);
+      if (!input) return;
+      if (_isFormElement(input)) {
+        input.value = serialized;
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        texty.deserialize(serialized);
+      }
     },
     test: function() {
       var test = {

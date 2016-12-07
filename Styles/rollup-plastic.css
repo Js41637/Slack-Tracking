@@ -7311,20 +7311,6 @@ only screen and (min-resolution:2dppx) {
   align-self: center
 }
 
-.enterprise_team_card {
-  background-color: #fff;
-  border-radius: .25rem;
-  padding: 1rem;
-  margin: 0 auto 2rem;
-  position: relative;
-  border: 1px solid #e8e8e8
-}
-
-.enterprise_team_card.hover,
-.enterprise_team_card:hover {
-  box-shadow: 0 1px 8px 0 rgba(0, 0, 0, .19)
-}
-
 .plastic_row {
   display: block;
   border-radius: .25rem;
@@ -9948,7 +9934,7 @@ html.fs_modal_active {
 
 .menu ul li.divider.subdivider {
   width: 40%;
-  margin: .9375rem 1.875rem
+  margin: .9375rem 1.4375rem
 }
 
 .menu ul li i {

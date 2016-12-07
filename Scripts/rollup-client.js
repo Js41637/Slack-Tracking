@@ -4713,12 +4713,20 @@
     if (_reconnect_banner_delay_tim) return;
     _reconnect_banner_delay_tim = setTimeout(function() {
       _reconnect_banner_delay_tim = undefined;
-      _showReconnectingBannerImmediately(_reconnect_banner_timeout_secs);
+      if (TS.model.ms_connected) {
+        TS.info("Would have show reconnection banner after delay, but we got connected in the meantime");
+      } else {
+        _showReconnectingBannerImmediately(_reconnect_banner_timeout_secs);
+      }
     }, RECONNECT_BANNER_DELAY_MS);
   };
   var _showReconnectingBannerImmediately = function(secs) {
-    TS.info("Showing reconnection banner immediately");
     _cancelDelayedReconnectingBanner();
+    if (TS.api.isPaused() && !$("#connection_div").hasClass("hidden")) {
+      TS.info("Not showing reconnecting banner because API is paused and showing its own banner");
+      return;
+    }
+    TS.info("Showing reconnection banner immediately");
     var txt = "Reconnecting";
     if (secs) {
       txt += " in " + secs + " second" + (secs == 1 ? "" : "s...");
@@ -9259,6 +9267,7 @@
       this._current_query_for_match = "";
       this._next_marker = "";
       this._members_in_view = [];
+      this._member_ids_in_view = [];
       this._have_all_members = false;
       this._fetch_more_members_p = null;
       this._is_searching = false;
@@ -9289,8 +9298,19 @@
       this.$_long_list_view = this.$_container.find(this._long_list_view_id);
       TS.view.resizeManually("TS.SearchableMemberList.showInitial");
       this._startLoadingState();
-      if (TS.lazyLoadMembersAndBots() && TS.team.getBestEffortTotalTeamSize() <= this_searchable_member_list._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
-        return TS.team.ensureEntireTeamLoaded().then(function() {
+      if (TS.lazyLoadMembersAndBots() && this_searchable_member_list._getBestEffortNumMembers() <= this_searchable_member_list._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
+        var load_members_p;
+        if (this._member_ids) {
+          var missing_member_ids = _.reject(this._member_ids, TS.members.getMemberById);
+          if (!missing_member_ids.length) {
+            load_members_p = Promise.resolve();
+          } else {
+            load_members_p = TS.flannel.fetchAndUpsertObjectsByIds(missing_member_ids);
+          }
+        } else {
+          load_members_p = TS.team.ensureEntireTeamLoaded();
+        }
+        return load_members_p.then(function() {
           this_searchable_member_list._stopLoadingState();
           this_searchable_member_list._loadSearchBar();
           this_searchable_member_list._loadLocalMembersIntoLongListView();
@@ -9324,7 +9344,7 @@
       this._maybeClearNoResults();
       this.$_search_input.val("");
       this.$_clear_icon.addClass("hidden");
-      if (!TS.lazyLoadMembersAndBots() || TS.team.getBestEffortTotalTeamSize() <= this._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
+      if (!TS.lazyLoadMembersAndBots() || this._getBestEffortNumMembers() <= this._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
         this._loadLocalMembersIntoLongListView();
         return;
       }
@@ -9397,6 +9417,13 @@
     getCurrentFilter: function() {
       return this._current_filter;
     },
+    _getBestEffortNumMembers: function() {
+      if (this._member_ids) {
+        return this._member_ids.length;
+      } else {
+        return TS.team.getBestEffortTotalTeamSize();
+      }
+    },
     _loadLocalMembersIntoLongListView: function() {
       var members_for_user;
       if (this._member_ids) {
@@ -9405,6 +9432,7 @@
         members_for_user = TS.members.getMembersForUser();
       }
       members_for_user = TS.members.allocateTeamListMembers(members_for_user);
+      this._have_all_members = true;
       if (this.long_list_view_initialized) {
         this.$_long_list_view.longListView("setItems", members_for_user.members, true, true);
       } else {
@@ -9415,7 +9443,7 @@
     },
     _loadSearchBar: function() {
       var this_searchable_member_list = this;
-      if (TS.team.getBestEffortTotalTeamSize() >= this_searchable_member_list._MINIMUM_MEMBERS_FOR_SEARCH) {
+      if (this_searchable_member_list._getBestEffortNumMembers() >= this_searchable_member_list._MINIMUM_MEMBERS_FOR_SEARCH) {
         this.$_long_list_view.before(TS.templates.team_search_bar(this._generateFilterSearchBarTemplateArgs()));
         this.$_search_bar = this_searchable_member_list.$_container.find(".team_tabs_container");
         this.$_search_input = this.$_container.find(this._search_input_id + " input");
@@ -9500,14 +9528,43 @@
     },
     _fetchMoreMembers: function() {
       var this_searchable_member_list = this;
+      var query;
       if (this_searchable_member_list._have_all_members) return new Promise.resolve([]);
       if (this_searchable_member_list._fetch_more_members_p) return this_searchable_member_list._fetch_more_members_p;
-      this_searchable_member_list._fetch_more_members_p = TS.flannel.fetchAndUpsertObjectsWithQuery({
-        limit: this_searchable_member_list._PAGE_SIZE,
-        marker: this_searchable_member_list._next_marker
-      }).then(function(response) {
+      if (this_searchable_member_list._member_ids) {
+        var member_ids_not_in_view = _.difference(this_searchable_member_list._member_ids, this_searchable_member_list._member_ids_in_view);
+        var local_members_not_in_view = _(member_ids_not_in_view).map(TS.members.getMemberById).compact().value();
+        if (local_members_not_in_view.length) {
+          this_searchable_member_list._prepareToAddMembersToView(local_members_not_in_view);
+          return new Promise.resolve(local_members_not_in_view);
+        }
+        if (!member_ids_not_in_view.length) {
+          this_searchable_member_list._have_all_members = true;
+          this_searchable_member_list._next_marker = "";
+          return new Promise.resolve([]);
+        }
+        member_ids_not_in_view = member_ids_not_in_view.slice(0, this_searchable_member_list._PAGE_SIZE);
+        query = {
+          ids: member_ids_not_in_view
+        };
+      } else {
+        query = {
+          limit: this_searchable_member_list._PAGE_SIZE,
+          marker: this_searchable_member_list._next_marker
+        };
+      }
+      this_searchable_member_list._fetch_more_members_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query).then(function(response) {
         this_searchable_member_list._fetch_more_members_p = null;
-        this_searchable_member_list._members_in_view = _.concat(this_searchable_member_list._members_in_view, response.objects);
+        if (this_searchable_member_list._member_ids) {
+          this_searchable_member_list._prepareToAddMembersToView(response);
+          var missing_member_ids = _.difference(this_searchable_member_list._member_ids, this_searchable_member_list._member_ids_in_view);
+          if (!missing_member_ids.length) {
+            this_searchable_member_list._have_all_members = true;
+            this_searchable_member_list._next_marker = "";
+          }
+          return response;
+        }
+        this_searchable_member_list._prepareToAddMembersToView(response.objects);
         if (response.next_marker) {
           this_searchable_member_list._next_marker = response.next_marker;
         } else {
@@ -9517,6 +9574,12 @@
         return response.objects;
       });
       return this_searchable_member_list._fetch_more_members_p;
+    },
+    _prepareToAddMembersToView: function(members) {
+      if (!members.length) return;
+      var member_ids = _.map(members, "id");
+      this._member_ids_in_view = _.concat(this._member_ids_in_view, member_ids);
+      this._members_in_view = _.concat(this._members_in_view, members);
     },
     _startLoadingState: function() {
       this.$_long_list_view.before(TS.templates.infinite_spinner({
@@ -18829,6 +18892,9 @@
       TS.mpims.unread_highlight_changed_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       TS.client.login_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       TS.prefs.mac_ssb_bullet_changed_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        TS.client.threads.threads_unread_changed.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
+      }
       TS.ui.window_focus_changed_sig.add(TS.ui.growls.windowFocusChanged, TS.ui.growls);
       if (window.macgap) {} else if (window.Notification || window.webkitNotifications) {} else if (window.winssb) {} else {
         TS.ui.growls.no_notifications = true;

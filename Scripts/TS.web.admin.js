@@ -41,11 +41,16 @@
     lazyload: null,
     onStart: function() {
       TS.team.ensureTeamProfileFields();
-      active_bots_header_html = '<h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin"></i> Bots</h5>';
-      invite_restricted_html = "<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any " + TS.templates.builders.raLabel("Restricted Accounts") + ". <a data-action='admin_invites_modal' data-account-type='restricted'>Invite a new " + TS.templates.builders.raLabel("Restricted Account") + "</a></p>";
-      invite_ultra_restricted_html = "<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any Single-Channel Guests. <a data-action='admin_invites_modal' data-account-type='ultra_restricted'>Invite a new Single-Channel Guest</a></p>";
-      restricted_header_html = "<h5 class='restricted_header small_bottom_margin'><i class='presence large away ra small_right_margin'></i> " + TS.templates.builders.raLabel("Restricted Accounts") + "</h5>";
-      ultra_restricted_header_html = "<h5 class='restricted_header small_bottom_margin large_top_margin'><i class='presence large away ura small_right_margin'></i> Single-Channel Guests</h5>";
+      active_bots_header_html = TS.i18n.t('<h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin"></i> Bots</h5>', "web_admin")();
+      invite_restricted_html = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any {restricted_accounts}. <a data-action="admin_invites_modal" data-account-type="restricted">Invite a new {restricted_account}</a></p>', "web_admin")({
+        restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts"),
+        restricted_account: TS.templates.builders.raLabel("Restricted Account")
+      });
+      invite_ultra_restricted_html = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any Single-Channel Guests. <a data-action="admin_invites_modal" data-account-type="ultra_restricted">Invite a new Single-Channel Guest</a></p>', "web_admin")();
+      restricted_header_html = TS.i18n.t('<h5 class="restricted_header small_bottom_margin"><i class="presence large away ra small_right_margin"></i> {restricted_accounts}</h5>', "web_admin")({
+        restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts")
+      });
+      ultra_restricted_header_html = TS.i18n.t('<h5 class="restricted_header small_bottom_margin large_top_margin"><i class="presence large away ura small_right_margin"></i> Single-Channel Guests</h5>', "web_admin")();
       TS.web.login_sig.add(TS.web.admin.onLogin, TS.web.admin);
       TS.web.admin.member_profile_set_sig.add(TS.web.admin.memberProfileSet, TS.web.admin);
       TS.web.admin.member_profile_set_email_sig.add(TS.web.admin.memberProfileSetEmail, TS.web.admin);
@@ -588,9 +593,10 @@
       var invite_type_label = "";
       if (invite.type) {
         if (invite.type == "restricted") {
-          invite_type_label = TS.templates.builders.raLabel("Restricted Account");
+          var restricted_label = TS.i18n.t("Restricted Account", "web_admin")();
+          invite_type_label = TS.templates.builders.raLabel(restricted_label);
         } else if (invite.type == "ultra_restricted") {
-          invite_type_label = "Single-Channel Guest";
+          invite_type_label = TS.i18n.t("Single-Channel Guest", "web_admin")();
         }
       }
       var inviter_link;
@@ -629,9 +635,20 @@
       var restricted_text;
       var disabled_text;
       if (TS.web.admin.isSubsetCase()) {
-        active_text = TS.web.admin.active_members.length + " of " + TS.web.admin.subset_data.active_members_count;
-        restricted_text = TS.web.admin.restricted_members.length + TS.web.admin.ultra_restricted_members.length + " of " + (TS.web.admin.subset_data.restricted_members_count + TS.web.admin.subset_data.ultra_restricted_members_count);
-        disabled_text = TS.web.admin.disabled_members.length + " of " + TS.web.admin.subset_data.disabled_members_count;
+        active_text = TS.i18n.t("{displayed_members} of {total_members}", "web_admin")({
+          displayed_members: TS.web.admin.active_members.length,
+          total_members: TS.web.admin.subset_data.active_members_count
+        });
+        var displayed_restricted_members = TS.web.admin.restricted_members.length + TS.web.admin.ultra_restricted_members.length;
+        var total_restricted_members = TS.web.admin.subset_data.restricted_members_count + TS.web.admin.subset_data.ultra_restricted_members_count;
+        restricted_text = TS.i18n.t("{displayed_restricted_members} of {total_restricted_members}", "web_admin")({
+          displayed_restricted_members: displayed_restricted_members,
+          total_restricted_members: total_restricted_members
+        });
+        disabled_text = TS.i18n.t("{displayed_disabled_members} of {total_disabled_members}", "web_admin")({
+          displayed_disabled_members: TS.web.admin.disabled_members.length,
+          total_disabled_members: TS.web.admin.subset_data.disabled_members_count
+        });
       } else {
         active_text = TS.web.admin.active_members.length;
         restricted_text = TS.web.admin.restricted_members.length + TS.web.admin.ultra_restricted_members.length;
@@ -774,29 +791,31 @@
     getType: function(member) {
       var member_type;
       if (member.is_primary_owner) {
-        member_type = "Primary Owner";
+        member_type = TS.i18n.t("Primary Owner", "web_admin")();
       } else if (member.is_owner) {
-        member_type = "Owner";
+        member_type = TS.i18n.t("Owner", "web_admin")();
       } else if (member.is_admin) {
-        member_type = "Admin";
+        member_type = TS.i18n.t("Admin", "web_admin")();
       } else if (member.is_ultra_restricted) {
-        member_type = "Single-Channel Guest";
+        member_type = TS.i18n.t("Single-Channel Guest", "web_admin")();
       } else if (member.is_restricted) {
         member_type = TS.templates.builders.raLabel("Restricted Account");
       } else {
         if (member.is_bot || member.is_slackbot) {
-          member_type = "Bot";
+          member_type = TS.i18n.t("Bot", "web_admin")();
         } else if (TS.boot_data.page_needs_enterprise) {
-          member_type = "Team Member";
+          member_type = TS.i18n.t("Team Member", "web_admin")();
         } else {
-          member_type = "Member";
+          member_type = TS.i18n.t("Member", "web_admin")();
         }
       }
       if (member.deleted && !TS.boot_data.page_needs_enterprise) {
         if (member_type == "Member") {
-          member_type = "Deactivated Account";
+          member_type = TS.i18n.t("Deactivated Account", "web_admin")();
         } else {
-          member_type = "Deactivated " + member_type;
+          member_type = TS.i18n.t("Deactivated {member_type}", "web_admin")({
+            member_type: member_type
+          });
         }
       }
       return member_type;
@@ -805,7 +824,7 @@
       var member_status;
       if (!member.deleted && member.is_inactive) {
         if (!member.is_bot) {
-          member_status = "(Inactive)";
+          member_status = TS.i18n.t("(Inactive)", "web_admin")();
         }
       }
       return member_status;
@@ -1054,11 +1073,15 @@
       });
       $row.find(".admin_member_restrict_link_unpaid").unbind("click").bind("click", function() {
         TS.generic_dialog.start({
-          title: TS.templates.builders.raLabel("Restricted accounts") + " are available for paid teams",
-          body: "<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>" + TS.templates.builders.raLabel("Restricted Accounts") + '</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-Channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing">Learn more about our pricing</a> or upgrade today.</p>',
-          go_button_text: "Upgrade your team",
+          title: TS.i18n.t("{restricted_accounts} are available for paid teams", "web_admin")({
+            restricted_accounts: TS.templates.builders.raLabel("Restricted accounts")
+          }),
+          body: TS.i18n.t('<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>{restricted_accounts}</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-Channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing">Learn more about our pricing</a> or upgrade today.</p>', "web_admin")({
+            restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts")
+          }),
+          go_button_text: TS.i18n.t("Upgrade your team", "web_admin")(),
           go_button_class: "btn_success",
-          cancel_button_text: "Not now",
+          cancel_button_text: TS.i18n.t("Not now", "web_admin")(),
           onGo: function() {
             window.location = "/admin/billing";
           }
@@ -1069,7 +1092,7 @@
         var member = TS.members.getMemberById(user_id);
         var group_names = _.map(TS.idp_groups.getGroupsForMember(user_id), "name");
         TS.ui.fs_modal.start({
-          title: "Can't Remove Member",
+          title: TS.i18n.t("Can’t Remove Member", "web_admin")(),
           body: TS.templates.admin_cant_deactivate_modal({
             team_name: TS.model.team.name,
             idp_label: TS.utility.enterprise.getProviderLabel(_.get(TS.model, "enterprise"), _.get(TS.model, "enterprise.sso_provider.label", "single sign-on")),
@@ -1079,7 +1102,7 @@
           }),
           show_go_button: false,
           show_cancel_button: true,
-          cancel_button_text: "Okay",
+          cancel_button_text: TS.i18n.t("Okay", "web_admin")(),
           modal_class: "fs_modal_header align_center"
         });
         return false;
@@ -1116,11 +1139,13 @@
         var member_id = $row.data("member-id");
         var member = TS.members.getMemberById(member_id);
         TS.generic_dialog.start({
-          title: "Confirm Disable 2FA",
-          body: "<p>You are about to disable two-factor authentication for <b>" + member.name + "</b>.</p>",
+          title: TS.i18n.t("Confirm Disable 2FA", "web_admin")(),
+          body: TS.i18n.t("<p>You are about to disable two-factor authentication for <b>{member_name}</b>.</p>", "web_admin")({
+            member_name: member.name
+          }),
           show_cancel_button: true,
           show_go_button: true,
-          go_button_text: "Disable 2FA",
+          go_button_text: TS.i18n.t("Disable 2FA", "web_admin")(),
           onGo: function() {
             TS.web.admin.rowProcessing(row);
             TS.api.call("users.admin.disable2FA", {
@@ -1205,29 +1230,42 @@
         return;
       }
       if (TS.model.user.id === member.id) {
-        confirm_body.push("<p>You are about to rename yourself from <b>" + member.name + "</b> to <b>" + username + "</b>.</p>");
+        var confirmation_msg = TS.i18n.t("<p>You are about to rename yourself from <b>{member_name}</b> to <b>{new_member_name}</b>.</p>", "web_admin")({
+          member_name: member.name,
+          new_member_name: username
+        });
       } else {
-        confirm_body.push("<p>You are about to rename <b>" + member.name + "</b> to <b>" + username + "</b>.</p>");
+        var confirmation_msg = TS.i18n.t("<p>You are about to rename <b>{member_name}</b> to <b>{new_member_name}</b>.</p>", "web_admin")({
+          member_name: member.name,
+          new_member_name: username
+        });
       }
+      confirm_body.push(confirmation_msg);
+      var confirmation_messages = {
+        self: TS.i18n.t("<p>The change will take effect immediately and you will be notified.</p>", "web_admin")(),
+        bot: TS.i18n.t("<p>The change will take effect immediately.</p>", "web_admin")(),
+        member: TS.i18n.t("<p>The change will take effect immediately and the user will be notified.</p>", "web_admin")(),
+        disabled: TS.i18n.t("<p>Because this account is disabled, the change will take effect immediately.</p>", "web_admin")()
+      };
       if (!member.deleted) {
         if (TS.model.user.id === member.id) {
-          confirm_body.push("<p>The change will take effect immediately and you will be notified.</p>");
+          confirm_body.push(confirmation_messages["self"]);
         } else {
           if (member.is_bot) {
-            confirm_body.push("<p>The change will take effect immediately.</p>");
+            confirm_body.push(confirmation_messages["bot"]);
           } else {
-            confirm_body.push("<p>The change will take effect immediately and the user will be notified.</p>");
+            confirm_body.push(confirmation_messages["member"]);
           }
         }
       } else {
-        confirm_body.push("<p>Because this account is disabled, the change will take effect immediately.</p>");
+        confirm_body.push(confirmation_messages["disabled"]);
       }
       TS.generic_dialog.start({
-        title: "Confirm username change",
+        title: TS.i18n.t("Confirm username change", "web_admin")(),
         body: confirm_body.join("\n"),
         show_cancel_button: true,
         show_go_button: true,
-        go_button_text: "Rename",
+        go_button_text: TS.i18n.t("Rename", "web_admin")(),
         onGo: function() {
           doRename();
         },
@@ -1262,25 +1300,39 @@
         return;
       }
       if (TS.model.user.id === member.id) {
-        confirm_body.push("<p>You are about to change your email address from <b>" + member.profile.email + "</b> to <b>" + email + "</b>.</p>");
+        var email_change_confirmation = TS.i18n.t("<p>You are about to change your email address from <b>{member_email}</b> to <b>{new_email}</b>.</p>", "web_admin")({
+          member_email: member.profile.email,
+          new_email: email
+        });
+        confirm_body.push(email_change_confirmation);
       } else {
-        confirm_body.push("<p>You are about to change the email address for <b>" + member.name + "</b> from <b>" + member.profile.email + "</b> to <b>" + email + "</b>.</p>");
+        var email_change_confirmation = TS.i18n.t("<p>You are about to change the email address for <b>{member_name}</b> from <b>{member_email}</b> to <b>{new_email}</b>.</p>", "web_admin")({
+          member_name: member.name,
+          member_email: member.profile.email,
+          new_email: email
+        });
+        confirm_body.push(email_change_confirmation);
       }
+      var confirmation_messages = {
+        self: TS.i18n.t("<p>A confirmation email will be sent to your new address. The change will take effect when the new address is confirmed.</p>", "web_admin")(),
+        member: TS.i18n.t("<p>A notification email will be sent to the user at both the old and new address. The change will take effect immediately.</p>", "web_admin")(),
+        disabled: TS.i18n.t("<p>Because this account is disabled, the change will take effect immediately.</p>", "web_admin")()
+      };
       if (!member.deleted) {
         if (TS.model.user.id === member.id) {
-          confirm_body.push("<p>A confirmation email will be sent to your new address. The change will take effect when the new address is confirmed.</p>");
+          confirm_body.push(confirmation_messages["self"]);
         } else {
-          confirm_body.push("<p>A notification email will be sent to the user at both the old and new address. The change will take effect immediately.</p>");
+          confirm_body.push(confirmation_messages["member"]);
         }
       } else {
-        confirm_body.push("<p>Because this account is disabled, the change will take effect immediately.</p>");
+        confirm_body.push(confirmation_messages["disabled"]);
       }
       TS.generic_dialog.start({
-        title: "Confirm email change",
+        title: TS.i18n.t("Confirm email change", "web_admin")(),
         body: confirm_body.join("\n"),
         show_cancel_button: true,
         show_go_button: true,
-        go_button_text: "Change Email",
+        go_button_text: TS.i18n.t("Change Email", "web_admin")(),
         onGo: function() {
           doEmailUpdate();
         },
@@ -1320,8 +1372,8 @@
     onMemberProfileSetEmail: function(ok, data, args) {
       var member, error_messages;
       error_messages = {
-        email_bad: "Please choose a valid new email address.",
-        email_taken: "That email address is being used by another account."
+        email_bad: TS.i18n.t("Please choose a valid new email address.", "web_admin")(),
+        email_taken: TS.i18n.t("That email address is being used by another account.", "web_admin")()
       };
       member = TS.members.getMemberById(args.user);
       if (!member) {
@@ -1349,13 +1401,13 @@
     onMemberProfileSetUsername: function(ok, data, args) {
       var error_messages, member;
       error_messages = {
-        username_empty: "A name is required.",
-        bad_username: "Usernames may only contain lowercase letters, numbers, periods, dashes and underscores and must start with a letter or number.",
-        long_username: "Username must be 21 characters or less.",
-        username_not_allowed: "Unfortunately, that’s a reserved word. Try something else!",
-        username_same: "Username is unchanged.",
-        username_taken: "That username is taken.",
-        ratelimited: "Only two renames are permitted per hour."
+        username_empty: TS.i18n.t("A name is required.", "web_admin")(),
+        bad_username: TS.i18n.t("Usernames may only contain lowercase letters, numbers, periods, dashes and underscores and must start with a letter or number.", "web_admin")(),
+        long_username: TS.i18n.t("Username must be 21 characters or less.", "web_admin")(),
+        username_not_allowed: TS.i18n.t("Unfortunately, that’s a reserved word. Try something else!", "web_admin")(),
+        username_same: TS.i18n.t("Username is unchanged.", "web_admin")(),
+        username_taken: TS.i18n.t("That username is taken.", "web_admin")(),
+        ratelimited: TS.i18n.t("Only two renames are permitted per hour.", "web_admin")()
       };
       member = TS.members.getMemberById(args.user);
       if (!member) {
@@ -1429,10 +1481,15 @@
     memberAdminSet: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      var html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now an Admin.";
+      var html = TS.i18n.t("<strong>{member_name}</strong> is now an Admin.", "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name)
+      });
       var demote_admin = TS.web.member_actions.actions.demote_admin;
       if (TS.web.member_actions.canPerformAction(demote_admin, member)) {
-        html += '<a class="api_remove_admin undo_link" data-member-id="' + member.id + '">Undo</a>';
+        var undo = TS.i18n.t('<a class="api_remove_admin undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_id: member.id
+        });
+        html += undo;
       }
       TS.web.admin.showSuccessMessageOnRow($row, html, true);
       TS.web.admin.bindActions(member);
@@ -1456,10 +1513,15 @@
     memberAdminRemoved: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      var html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is no longer an Admin.";
+      var html = TS.i18n.t("<strong>{member_name}</strong> is no longer an Admin.", "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name)
+      });
       var promote_admin = TS.web.member_actions.actions.promote_to_admin;
       if (TS.web.member_actions.canPerformAction(promote_admin, member)) {
-        html += ' <a class="api_make_admin undo_link" data-member-id="' + member.id + '">Undo</a>';
+        var undo = TS.i18n.t(' <a class="api_make_admin undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_id: member.id
+        });
+        html += undo;
       }
       TS.web.admin.showSuccessMessageOnRow($row, html, true);
       TS.web.admin.bindActions(member);
@@ -1483,10 +1545,15 @@
     memberOwnerSet: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      var html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now an Owner of this team.";
+      var html = TS.i18n.t("<strong>{member_name}</strong> is now an Owner of this team.", "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name)
+      });
       var demote_owner = TS.web.member_actions.actions.demote_owner;
       if (TS.web.member_actions.canPerformAction(demote_owner, member)) {
-        html += ' <a class="api_remove_owner undo_link" data-member-id="' + member.id + '">Undo</a>';
+        var undo = TS.i18n.t(' <a class="api_remove_owner undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_id: member.id
+        });
+        html += undo;
       }
       TS.web.admin.showSuccessMessageOnRow($row, html, true);
       TS.web.admin.bindActions(member);
@@ -1511,10 +1578,15 @@
     memberOwnerRemoved: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      var html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is no longer an Owner of this team.";
+      var html = TS.i18n.t("<strong>{member_name}</strong> is no longer an Owner of this team.", "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name)
+      });
       var promote_to_owner = TS.web.member_actions.actions.promote_to_owner;
       if (TS.web.member_actions.canPerformAction(promote_to_owner, member)) {
-        html += ' <a class="api_make_owner undo_link" data-member-id="' + member.id + '">Undo</a>';
+        var undo = TS.i18n.t(' <a class="api_make_owner undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_id: TS.utility.htmlEntities(member.name)
+        });
+        html += undo;
       }
       TS.web.admin.showSuccessMessageOnRow($row, html, true);
       TS.web.admin.bindActions(member);
@@ -1545,13 +1617,18 @@
       var $row = TS.web.admin.selectRow(member);
       var html;
       if (is_enterprise) {
-        html = "This user has been added to the team.";
+        html = TS.i18n.t("This user has been added to the team.", "web_admin")();
       } else {
-        html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now enabled.";
+        html = TS.i18n.t("<strong>{member_name}</strong> is now enabled.", "web_admin")({
+          member_name: TS.utility.htmlEntities(member.name)
+        });
       }
       var deactivate = TS.web.member_actions.actions.deactivate;
       if (TS.web.member_actions.canPerformAction(deactivate, member)) {
-        html += ' <a class="api_disable_account undo_link" data-member-id="' + member.id + '">Undo</a>';
+        var undo = TS.i18n.t(' <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_id: member.id
+        });
+        html += undo;
       }
       TS.web.admin.showSuccessMessageOnRow($row, html, true);
       TS.web.admin.bindActions(member);
@@ -1585,15 +1662,19 @@
       var is_enterprise = TS.boot_data.page_needs_enterprise;
       var message;
       if (is_enterprise) {
-        message = "This user has been removed from the team.";
+        message = TS.i18n.t("This user has been removed from the team.", "web_admin")();
       } else {
-        message = "This account is now deactivated.";
+        message = TS.i18n.t("This account is now deactivated.", "web_admin")();
       }
       var undo_action = "api_enable_account";
       if (member.is_restricted) undo_action = "api_enable_ra";
-      TS.web.admin.showSuccessMessageOnRow($row, message + ' <a class="' + undo_action + ' undo_link" data-member-id="' + member.id + '">Undo</a>', true);
+      var success_message = message + TS.i18n.t(' <a class="{undo_action} undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+        undo_action: undo_action,
+        member_id: member.id
+      });
+      TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
       if (is_enterprise) {
-        $row.find(".admin_member_type").text("Removed");
+        $row.find(".admin_member_type").text(TS.i18n.t("Removed", "web_admin")());
       }
       TS.web.admin.bindActions(member);
       _moveMemberTo(member, TS.web.admin.disabled_members);
@@ -1630,7 +1711,10 @@
     memberRebound: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> has been sent a re-binding email.");
+      var success_message = TS.i18n.t("<strong>{member_name}</strong> has been sent a re-binding email.", "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name)
+      });
+      TS.web.admin.showSuccessMessageOnRow($row, success_message);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
     },
@@ -1642,7 +1726,7 @@
       }
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
-        $("#step2_restricted").find(".error_message").removeClass("hidden").end().find(".api_set_restricted").removeClass("disabled").prop("disabled", false).text("Try Again");
+        $("#step2_restricted").find(".error_message").removeClass("hidden").end().find(".api_set_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
         return;
       }
       if (_.isArray(data.memberships.channels)) {
@@ -1665,9 +1749,14 @@
       var previous_collection = _moveMemberTo(member, TS.web.admin.restricted_members);
       TS.web.admin.rebuildMember(member);
       TS.web.admin.updateRowLocations();
-      var success_msg_html = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now a Multi-Channel Guest.";
+      var success_msg_html = TS.i18n.t("<strong>{member_name}</strong> is now a Multi-Channel Guest.", "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name)
+      });
       if (previous_collection === TS.web.admin.active_members) {
-        success_msg_html += '<a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">Undo</a>';
+        var undo = TS.i18n.t('<a class="api_unrestrict_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_id: member.id
+        });
+        success_msg_html += undo;
       }
       TS.web.admin.showSuccessMessageForMember(member, success_msg_html, true);
       TS.web.admin.rowFadeSuccess(member);
@@ -1684,9 +1773,10 @@
       if (!ok) {
         TS.error("failed onMemberSetRestricted");
         if (data.error == "ura_limit_reached") {
-          $("#step2_guest").find("#convert_to_ura_confirmation").after('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i> You\'ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.</p>');
+          var error = TS.i18n.t('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>You’ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.</p>', "web_admin")();
+          $("#step2_guest").find("#convert_to_ura_confirmation").after(error);
         } else {
-          $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text("Try Again");
+          $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
         }
         return;
       }
@@ -1711,7 +1801,11 @@
       TS.web.admin.rebuildMember(member);
       TS.web.admin.updateRowLocations();
       var $row = TS.web.admin.selectRow(member);
-      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">Undo</a>', true);
+      var success_message = TS.i18n.t('<strong>{member_name}</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name),
+        member_id: member.id
+      });
+      TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
       $("#restrict_account").addClass("hidden");
@@ -1737,7 +1831,10 @@
     memberUnrestricted: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now a full team member.", true);
+      var success_message = TS.i18n.t("<strong>{member_name}</strong> is now a full team member.", "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name)
+      });
+      TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
       _moveMemberTo(member, TS.web.admin.active_members);
@@ -1880,12 +1977,18 @@
       var is_enterprise = TS.boot_data.page_needs_enterprise;
       var message;
       if (is_enterprise) {
-        message = "This user has been added to the team";
+        message = TS.i18n.t("This user has been added to the team", "web_admin")();
       } else {
-        message = "<strong>" + TS.utility.htmlEntities(member.name) + "</strong> is now enabled";
+        message = TS.i18n.t("<strong>{member_name}</strong> is now enabled", "web_admin")({
+          member_name: TS.utility.htmlEntities(member.name)
+        });
       }
       $row = TS.web.admin.selectRow(member);
-      TS.web.admin.showSuccessMessageOnRow($row, message + " as a " + TS.templates.builders.raLabel("Restricted Account") + '. <a class="api_disable_account undo_link" data-member-id="' + member.id + '">Undo</a>');
+      var success_message = message + TS.i18n.t(' as a {restricted_account}. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+        restricted_account: TS.templates.builders.raLabel("Restricted Account"),
+        member_id: TS.templates.builders.raLabel("Restricted Account")
+      });
+      TS.web.admin.showSuccessMessageOnRow($row, success_message);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
       _moveMemberTo(member, TS.web.admin.restricted_members);
@@ -1905,9 +2008,10 @@
       if (!ok) {
         TS.error("failed onEnableUltraRestrictedMember");
         if (data.error == "ura_limit_reached") {
-          $("#step2_guest").find("#convert_to_ura_confirmation").after('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i> You\'ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.</p>');
+          var error = TS.i18n.t('<p class="alert alert_info align_left"><i class="ts_icon ts_icon_warning small_right_margin"></i>You’ve reached your limit for the number of Single-Channel Guests you can invite. You must invite more paid team members before you can add more Single-Channel Guests.</p>', "web_admin")();
+          $("#step2_guest").find("#convert_to_ura_confirmation").after(error);
         } else {
-          $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text("Try Again");
+          $("#step2_guest").find(".error_message").removeClass("hidden").end().find(".api_set_ultra_restricted").removeClass("disabled").prop("disabled", false).text(TS.i18n.t("Try Again", "web_admin")());
         }
         return;
       }
@@ -1948,7 +2052,11 @@
     ultraRestrictedMemberEnabled: function(member) {
       TS.web.admin.rebuildMember(member);
       var $row = TS.web.admin.selectRow(member);
-      TS.web.admin.showSuccessMessageOnRow($row, "<strong>" + TS.utility.htmlEntities(member.name) + '</strong> is now a Single-Channel Guest. <a class="api_disable_account undo_link" data-member-id="' + member.id + '">Undo</a>');
+      var success_message = TS.i18n.t('<strong>{member_name}</strong> is now a Single-Channel Guest. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+        member_name: TS.utility.htmlEntities(member.name),
+        member_id: member.id
+      });
+      TS.web.admin.showSuccessMessageOnRow($row, success_message);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
       _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
@@ -2114,7 +2222,7 @@
       }
       return _(results).map(function(matches, key) {
         var label = TS.members.view.getHeaderLabelForMatchKey(key);
-        var divider_html = '<div class="filter_header"><strong>' + TS.utility.htmlEntities(label) + "</strong></div";
+        var divider_html = '<div class="filter_header"><strong>' + TS.utility.htmlEntities(label) + "</strong></div>";
         var divider_for_key = {
           is_divider: true,
           html: divider_html
@@ -2269,9 +2377,14 @@
         return TS.templates.admin_restricted_info_sso(TS.model.team);
       } else {
         if (TS.boot_data.can_invite_ras) {
-          return "<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any " + TS.templates.builders.raLabel("Guest or Restricted Accounts") + ". <a href='/admin/invites/restricted'>Invite a new " + TS.templates.builders.raLabel("Restricted Account") + "</a></p>";
+          return TS.i18n.t("<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any {guest_or_restricted_accounts}. <a href='/admin/invites/restricted'>Invite a new {restricted_accounts}</a></p>", "web_admin")({
+            guest_or_restricted_accounts: TS.templates.builders.raLabel("Guest or Restricted Accounts"),
+            restricted_accounts: TS.templates.builders.raLabel("Restricted Account")
+          });
         } else {
-          return "<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any " + TS.templates.builders.raLabel("Guest or Restricted Accounts") + ".</p>";
+          return TS.i18n.t("<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any {guest_or_restricted_accounts}.</p>", "web_admin")({
+            guest_or_restricted_accounts: TS.templates.builders.raLabel("Guest or Restricted Accounts")
+          });
         }
       }
     }

@@ -524,31 +524,36 @@
       _callRTMStart(_onLoginMS);
     }
   };
-  var _did_request_ms_reconnection;
   var _reconnectRequestedMS = function() {
     if (TS.model.ms_asleep) {
       TS.error("NOT reconnecting, we are asleep");
+      TS.console.logStackTrace();
       return;
     } else if (TS.model.ms_connected) {
       TS.warn("Reconnect requested, but we are already connected; doing nothing.");
+      TS.console.logStackTrace();
       return;
     } else if (TS.model.ms_connecting) {
       TS.warn("Reconnect requested, but we are already connecting; doing nothing.");
+      TS.console.logStackTrace();
       return;
     }
-    if (_did_request_ms_reconnection) {
-      TS.warn("Reconnect requested, but we have already requested a reconnection; doing nothing.");
-      return;
-    }
-    _did_request_ms_reconnection = true;
     TSConnLogger.setConnecting(true);
     TS.console.logStackTrace("MS reconnection requested");
     TS.metrics.mark("ms_reconnect_requested");
-    TS.ms.connected_sig.addOnce(function() {
+    var _apiPaused = function() {
+      TS.info("API queue got paused while waiting for MS reconnection");
+      TS.ms.connected_sig.remove(_didGetConnected);
+      TS.api.unpaused_sig.addOnce(_reconnectRequestedMS);
+    };
+    var _didGetConnected = function() {
       var reconnect_duration_ms = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");
       TS.info("OK, MS is now reconnected -- it took " + _.round(reconnect_duration_ms / 1e3, 2) + " seconds");
-      _did_request_ms_reconnection = false;
-    });
+      TS.api.paused_sig.remove(_apiPaused);
+      TS.api.unpaused_sig.remove(_reconnectRequestedMS);
+    };
+    TS.api.paused_sig.addOnce(_apiPaused);
+    TS.ms.connected_sig.addOnce(_didGetConnected);
     _loginMS();
   };
   var _getMSLoginArgs = function() {
@@ -655,6 +660,15 @@
       delete TS.boot_data.rtm_start_response;
       return Promise.resolve(rtm_start_response);
     }
+    if (TS.model.calling_rtm_start) {
+      var error_msg = "_callRTMStart was called but TS.model.calling_rtm_start=true";
+      TS.error(error_msg);
+      return Promise.reject(new Error(error_msg));
+    }
+    TS.ms.logConnectionFlow("login");
+    TSConnLogger.log("call_rtm_start", "_callRTMStart");
+    TS.model.rtm_start_throttler++;
+    TS.model.calling_rtm_start = true;
     if (TS.lazyLoadMembersAndBots()) {
       if (!_ms_rtm_start_p) {
         if (TS.model.ms_connected) {
@@ -667,38 +681,13 @@
       _ms_rtm_start_p = undefined;
       return rtm_start_p.then(function(rtm_start_data) {
         TS.log(1989, "Flannel: got rtm.start response 💕");
-        _failed_rtm_start_attempts = 0;
         return {
           ok: true,
           args: {},
           data: rtm_start_data
         };
-      }).catch(function(err) {
-        TS.log(1989, "Flannel: rtm.start fetch failed or timed out 💔");
-        console.log(err, err.stack);
-        _failed_rtm_start_attempts++;
-        TS.log(1989, "Checking for internet connectivity before trying rtm.start fetch again...");
-        var wait_start_time = performance.now();
-        return TS.api.connection.waitForAPIConnection().then(function() {
-          var MAX_RTM_START_DELAY_MS = 15e3;
-          var DELAY_PER_FAILED_RTM_START_ATTEMPT_MS = 3e3;
-          _rtm_start_retry_delay_ms = Math.min(MAX_RTM_START_DELAY_MS, _failed_rtm_start_attempts * DELAY_PER_FAILED_RTM_START_ATTEMPT_MS);
-          var time_spent_waiting_for_connection = Math.floor(performance.now() - wait_start_time);
-          _rtm_start_retry_delay_ms = Math.max(0, _rtm_start_retry_delay_ms - time_spent_waiting_for_connection);
-          TS.log(1989, "OK, spent " + time_spent_waiting_for_connection + " ms waiting for internet connectivity");
-          return _promiseToCallRTMStart();
-        });
       });
     }
-    if (TS.model.calling_rtm_start) {
-      var error_msg = "_callRTMStart was called but TS.model.calling_rtm_start=true";
-      TS.error(error_msg);
-      return Promise.reject(new Error(error_msg));
-    }
-    TS.ms.logConnectionFlow("login");
-    TSConnLogger.log("call_rtm_start", "_callRTMStart");
-    TS.model.rtm_start_throttler++;
-    TS.model.calling_rtm_start = true;
     var method = TS.boot_data.feature_web_lean ? "rtm.leanStart" : "rtm.start";
     return TS.api.callImmediately(method, _getMSLoginArgs());
   };
@@ -819,7 +808,7 @@
       TS.apps.setUp();
       TS.cmd_handlers.setUpCmds();
       var no_rebuild_ui = !TS.model.ms_logged_in_once;
-      TS.emoji.setUpEmoji(no_rebuild_ui).then(function() {
+      TS.emoji.setUpEmoji(no_rebuild_ui).finally(function() {
         return _continueOnLogin(data);
       });
       return null;
@@ -964,7 +953,6 @@
     if (!TS.web.space) return;
     TS.ds.disconnect();
   };
-  var _failed_rtm_start_attempts = 0;
   var _rtm_start_retry_delay_ms;
   var _last_rtm_start_event_ts;
   var _ms_rtm_start_p;

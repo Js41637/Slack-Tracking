@@ -4998,7 +4998,7 @@ only screen and (min-resolution:2dppx) {
 
 .menu ul li.divider.subdivider {
   width: 40%;
-  margin: .9375rem 1.875rem
+  margin: .9375rem 1.4375rem
 }
 
 .menu ul li i {
