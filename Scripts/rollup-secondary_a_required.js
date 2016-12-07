@@ -86,10 +86,16 @@
       }
     }
   };
+  var _getWaitPromise = function() {
+    if (!TS.ms.hasOpenWebSocket()) {
+      return Promise.all([TS.ms.promiseToHaveOpenWebSocket(), TS.api.connection.waitForAPIConnection()]);
+    }
+    return TS.api.connection.waitForMSToReconnect();
+  };
   var _sendSubList = function() {
     if (!_has_started || _is_sub_waiting) return;
     _is_sub_waiting = true;
-    TS.api.connection.waitForMSToReconnect().then(function() {
+    _getWaitPromise().then(function() {
       TS.metrics.count("presence_manager", _sub_list.length);
       TS.ms.send({
         type: "presence_sub",
@@ -102,7 +108,7 @@
   var _sendQueryList = function() {
     if (!_has_started || _is_query_waiting) return;
     _is_query_waiting = true;
-    TS.api.connection.waitForMSToReconnect().then(function() {
+    _getWaitPromise().then(function() {
       TS.ms.send({
         type: "presence_query",
         ids: _query_list

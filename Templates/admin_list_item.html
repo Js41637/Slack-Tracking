@@ -1,254 +1,262 @@
-  <div class="admin_list_item active member_item {{#if_equal member.is_inactive compare="1"}}{{#unless member.is_bot}}{{#unless member.is_slackbot}}inactive{{/unless}}{{/unless}}{{/if_equal}}" id="row_{{member.id}}" data-member-id="{{member.id}}" {{#if show_inactive_tip}}data-toggle="tooltip" title="This team member has not been active in Slack recently."{{/if}}>
+{{i18n_ns "loading_messages"}}
+
+<div class="admin_list_item active member_item {{#if_equal member.is_inactive compare="1"}}{{#unless member.is_bot}}{{#unless member.is_slackbot}}inactive{{/unless}}{{/unless}}{{/if_equal}}" id="row_{{member.id}}" data-member-id="{{member.id}}" {{#if show_inactive_tip}}data-toggle="tooltip" title="{{#t}}This team member has not been active in Slack recently.{{/t}}"{{/if}}>
 
     {{#if exclude_lazy_load}}
-      {{{makeMemberPreviewLinkImage member.id 36 false}}}
+        {{makeMemberPreviewLinkImage member.id 36 false}}
     {{else}}
-      {{{makeMemberPreviewLinkImage member.id 36 true}}}
+        {{makeMemberPreviewLinkImage member.id 36 true}}
     {{/if}}
 
     {{#feature flag="feature_name_tagging_client"}}
-      {{#if show_rename}}
+        {{#if show_rename}}
 
-        {{#memberIsSelf id=member.id}}
-          <span class="admin_member_full_name">You <span class="normal bullet">\u2022</span><span class="normal inline_name">{{getMemberFullName member}}</span></span>
+            {{#memberIsSelf id=member.id}}
+                <span class="admin_member_full_name">{{#t}}You{{/t}} <span class="normal bullet">\u2022</span><span class="normal inline_name">{{getMemberFullName member}}</span></span>
+            {{else}}
+                <span class="inline_name admin_member_full_name" title="{{#t}}Click to edit full name{{/t}}">{{getMemberFullName member}}</span>
+            {{/memberIsSelf}}
+
+            <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
+                {{! no need for crumb_input }}
+                <input type="text" name="full_name" placeholder="{{#t}}Full name{{/t}}" value="{{getMemberFullName member}}" />
+                <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+            </form>
+
         {{else}}
-          <span class="inline_name admin_member_full_name" title="Click to edit full name">{{getMemberFullName member}}</span>
-        {{/memberIsSelf}}
 
-        <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
-          {{! no need for crumb_input }}
-          <input type="text" name="full_name" placeholder="Full name" value="{{getMemberFullName member}}" />
-          <span class="mini"><a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm('{{member.id}}');">cancel</a></span>
-        </form>
+            {{#memberIsSelf id=member.id}}
+                <span class="admin_member_full_name">{{#t}}You{{/t}} <span class="normal"><span class="bullet">\u2022</span> {{getMemberFullName member}}</span></span>
+            {{else}}
+                <span class="admin_member_full_name">{{getMemberFullName member}}</span>
+            {{/memberIsSelf}}
 
-      {{else}}
-
-        {{#memberIsSelf id=member.id}}
-          <span class="admin_member_full_name">You <span class="normal"><span class="bullet">\u2022</span> {{getMemberFullName member}}</span></span>
-        {{else}}
-          <span class="admin_member_full_name">{{getMemberFullName member}}</span>
-        {{/memberIsSelf}}
-
-      {{/if}}
+        {{/if}}
     {{else}}
 
-      {{#if show_rename}}
+        {{#if show_rename}}
 
-        {{#memberIsSelf id=member.id}}
-          <span class="admin_member_real_name">You{{#if member.profile.real_name}} <span class="normal bullet">\u2022</span> <span class="normal inline_name">{{member.profile.real_name}}</span>{{/if}}</span>
+            {{#memberIsSelf id=member.id}}
+                <span class="admin_member_real_name">{{#t}}You{{/t}}{{#if member.profile.real_name}} <span class="normal bullet">\u2022</span> <span class="normal inline_name">{{member.profile.real_name}}</span>{{/if}}</span>
+            {{else}}
+                {{#if member.profile.real_name}}
+                    <span class="inline_name admin_member_real_name" title="{{#t}}Click to edit full name{{/t}}">{{member.profile.real_name}}</span>
+                {{else}}
+                    <span class="inline_name" title="{{#t}}Click to edit{{/t}}">{{#t}}Click to add a full name{{/t}}</span>
+                {{/if}}
+            {{/memberIsSelf}}
+
+            <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
+                {{! no need for crumb_input }}
+                <input type="text" name="first_name" placeholder="{{#t}}First name{{/t}}" value="{{member.profile.first_name}}" />
+                <input type="text" name="last_name" placeholder="{{#t}}Last name{{/t}}" value="{{member.profile.last_name}}" />
+                <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+            </form>
+
         {{else}}
-          {{#if member.profile.real_name}}
-            <span class="inline_name admin_member_real_name" title="Click to edit full name">{{member.profile.real_name}}</span>
-          {{else}}
-            <span class="inline_name" title="Click to edit">Click to add a full name</span>
-          {{/if}}
-        {{/memberIsSelf}}
 
-        <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
-          {{! no need for crumb_input }}
-          <input type="text" name="first_name" placeholder="First name" value="{{member.profile.first_name}}" />
-          <input type="text" name="last_name" placeholder="Last name" value="{{member.profile.last_name}}" />
-          <span class="mini"><a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm('{{member.id}}');">cancel</a></span>
-        </form>
+            {{#memberIsSelf id=member.id}}
+                <span class="admin_member_real_name">{{#t}}You{{/t}}{{#if member.profile.real_name}} <span class="normal"><span class="bullet">\u2022</span> {{member.profile.real_name}}</span>{{/if}}</span>
+            {{else}}
+                {{#if member.profile.real_name}}
+                    <span class="admin_member_real_name">{{member.profile.real_name}}</span>
+                {{else}}
+                    {{#t}}No real name set{{/t}}
+                {{/if}}
+            {{/memberIsSelf}}
 
-      {{else}}
-
-        {{#memberIsSelf id=member.id}}
-          <span class="admin_member_real_name">You{{#if member.profile.real_name}} <span class="normal"><span class="bullet">\u2022</span> {{member.profile.real_name}}</span>{{/if}}</span>
-        {{else}}
-          {{#if member.profile.real_name}}
-            <span class="admin_member_real_name">{{member.profile.real_name}}</span>
-          {{else}}
-            No real name set
-          {{/if}}
-        {{/memberIsSelf}}
-
-      {{/if}}
+        {{/if}}
     {{/feature}}
 
     <br />
 
-      {{#feature flag="feature_name_tagging_client"}}
-      <span class="admin_member_preferred_name_and_email">
-        {{#if member.profile.preferred_name}}
-        <span class="indifferent_grey">{{getMemberPreferredName member}}</span>
-        <span class="bullet">\u2022</span>
-        {{/if}}
-        {{#unless member.is_bot}}
-          <span{{#if show_email_edit}} class="inline_email" title="Click to edit email"{{/if}}>{{member.profile.email}}</span>
-        {{/unless}}
+        {{#feature flag="feature_name_tagging_client"}}
+        <span class="admin_member_preferred_name_and_email">
+            {{#if member.profile.preferred_name}}
+            <span class="indifferent_grey">{{getMemberPreferredName member}}</span>
+            <span class="bullet">\u2022</span>
+            {{/if}}
+            {{#unless member.is_bot}}
+                <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}}"{{/if}}>{{member.profile.email}}</span>
+            {{/unless}}
+        </span>
+        {{else}}
+        <span class="admin_member_username_and_email">
+            <span class="indifferent_grey{{#if show_username_edit}} inline_username{{/if}}" {{#if show_username_edit}}title="{{#t}}Click to edit username{{/t}}"{{/if}}>@{{member.name}}</span>
 
-      {{else}}
-      <span class="admin_member_username_and_email">
-        <span class="indifferent_grey{{#if show_username_edit}} inline_username{{/if}}" {{#if show_username_edit}}title="Click to edit username"{{/if}}>@{{member.name}}</span>
+            {{#if show_username_edit}}
+                {{#if member.username_is_editable}}
+                <form class="inline_username_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitUsernameForm('{{member.id}}')">
+                    {{! no need for crumb_input }}
+                    <input type="text" name="username" placeholder="{{#t}}Username{{/t}}" value="{{member.name}}" maxlength="21" required />
+                    <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelUsernameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+                </form>
+                {{/if}}
+            {{/if}}
 
-        {{#if show_username_edit}}
-          {{#if member.username_is_editable}}
-          <form class="inline_username_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitUsernameForm('{{member.id}}')">
-            {{! no need for crumb_input }}
-            <input type="text" name="username" placeholder="Username" value="{{member.name}}" maxlength="21" required />
-            <span class="mini"><a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelUsernameForm('{{member.id}}');">cancel</a></span>
-          </form>
-          {{/if}}
-        {{/if}}
-
-        {{#unless member.is_bot}}
-          <span class="bullet">\u2022</span>
-          <span{{#if show_email_edit}} class="inline_email" title="Click to edit email"{{/if}}>{{member.profile.email}}</span>
-        {{/unless}}
-      {{/feature}}
+            {{#unless member.is_bot}}
+                <span class="bullet">\u2022</span>
+                <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}}"{{/if}}>{{member.profile.email}}</span>
+            {{/unless}}
+        {{/feature}}
 
     </span>
 
     {{#if show_email_edit}}
-      {{#if member.email_is_editable}}
-      <form class="inline_email_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitEmailForm('{{member.id}}')">
-        {{! no need for crumb_input }}
-        <input type="email" name="email" placeholder="Email address" value="{{member.profile.email}}" required />
-        <span class="mini"><a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelEmailForm('{{member.id}}');">cancel</a></span>
-      </form>
-      {{/if}}
+        {{#if member.email_is_editable}}
+        <form class="inline_email_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitEmailForm('{{member.id}}')">
+            {{! no need for crumb_input }}
+            <input type="email" name="email" placeholder="{{#t}}Email address{{/t}}" value="{{member.profile.email}}" required />
+            <span class="mini">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelEmailForm(''{member.id}'');">cancel</a>{{/t}}</span>
+        </form>
+        {{/if}}
     {{/if}}
 
     {{#if member.email_pending}}
-      <span title="A confirmation email has been sent to this address." class="inline_email_pending">(pending: {{member.email_pending}})</span>
+        <span title="{{#t}}A confirmation email has been sent to this address.{{/t}}" class="inline_email_pending">{{#t}}(pending: {member.email_pending}){{/t}}</span>
     {{/if}}
 
     <span class="admin_member_type show_pill_action">
 
-      {{#if member.has_sso_token}}<span title="Has SSO token" class="small_right_margin two_factor_auth_badge">SSO <i class="ts_icon ts_icon_check_circle_o"></i></span>{{/if}}
+        {{#if member.has_sso_token}}<span title="{{#t}}Has SSO token{{/t}}" class="small_right_margin two_factor_auth_badge">{{#t}}SSO{{/t}} <i class="ts_icon ts_icon_check_circle_o"></i></span>{{/if}}
 
-      {{#if member.two_factor_auth_enabled}}<span title="Two-factor authentication enabled" class="small_right_margin two_factor_auth_badge">2FA <i class="ts_icon ts_icon_check_circle_o"></i></span>{{/if}}
+        {{#if member.two_factor_auth_enabled}}<span title="{{#t}}Two-factor authentication enabled{{/t}}" class="small_right_margin two_factor_auth_badge">{{#t}}2FA{{/t}} <i class="ts_icon ts_icon_check_circle_o"></i></span>{{/if}}
 
-      {{#if member_status}}<em class="subtle_silver">{{member_status}}</em>{{/if}}
-      {{#if member.is_restricted}}
-        {{#if member.deleted}}
-          {{member_type}}
-        {{else}}
-          {{#if member.is_ultra_restricted}}
-            {{#each member.channels}}
-              <a class="channel pill inline_block api_change_ura_channel" title="Change the channel that {{../member.name}} can access">#{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
-            {{/each}}
-            {{#each member.groups}}
-              <a class="group pill inline_block api_change_ura_channel" title="Change the channel that {{../member.name}} can access">{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
-            {{/each}}
-            {{#if member.more_groups}}
-              <a class="group pill inline_block api_change_ura_channel" title="Change the channel that {{../member.name}} can access">Private Channel <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+        {{#if member_status}}<em class="subtle_silver">{{member_status}}</em>{{/if}}
+        {{#if member.is_restricted}}
+            {{#if member.deleted}}
+                {{member_type}}
+            {{else}}
+                {{#if member.is_ultra_restricted}}
+                    {{#each member.channels}}
+                        <a class="channel pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">#{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                    {{/each}}
+                    {{#each member.groups}}
+                        <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                    {{/each}}
+                    {{#if member.more_groups}}
+                        <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{#t}}Private Channel{{/t}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                    {{/if}}
+                {{else}}
+                    <span class="mini">
+                        {{#if channels_count}}
+                            {{#if group_count}}
+                                {{#t}}Belongs to {channels_count, plural, =1{# public channel}other{# public channels}} and {group_count} private {group_count, plural, =1{channel}other{channels}}{{/t}}
+                            {{else}}
+                                {{#t}}Belongs to {channels_count, plural, =1{# public channel}other{# public channels}}{{/t}}
+                            {{/if}}
+                        {{else}}
+                            {{#if group_count}}
+                                {{#t}}Belongs to {group_count, plural, =1{# private channel}other{# private channels}}{{/t}}
+                            {{/if}}
+                        {{/if}}
+                    </span>
+                {{/if}}
             {{/if}}
-          {{else}}
-            <span class="mini">
-              Belongs to
-              {{#if channels_count}}
-                {{channels_count}} public {{pluralize channels_count "channel" "channels"}}
-              {{/if}}
-              {{#if group_count}}
-                {{#if channels_count}}and{{/if}}
-                {{group_count}} private {{pluralize group_count "channel" "channels"}}
-              {{/if}}
-            </span>
-          {{/if}}
+        {{else}}
+            {{member_type}}
         {{/if}}
-      {{else}}
-        {{member_type}}
-      {{/if}}
     </span>
 
     <i class="admin_member_caret ts_icon ts_icon_caret_right"></i>
     <i class="admin_member_caret ts_icon ts_icon_caret_down"></i>
 
     <div class="member_actions clearfix">
-      {{#if actions}}
-        {{#each actions}}
-          <a
-            class="{{this.cls}} {{#if this.primary}}btn btn_outline btn_small{{else}}sub_action{{/if}}"
-            {{#if this.href}}href="{{this.href}}"{{/if}}
-            {{#if this.title}}title="{{this.title}}"{{/if}}
-          >{{this.label}}</a>
-        {{/each}}
-      {{else}}
-        {{#if show_transfer_btn}}
-          <a href="/admin/transfer" class="btn btn_outline btn_small btn_outline btn_small">Transfer team ownership</a>
-
-          {{#memberIsSelf id=member.id}}
-            To make edits, see your <a href="/account/settings">account settings</a>.
-          {{/memberIsSelf}}
+        {{#if actions}}
+            {{#each actions}}
+                <a
+                    class="{{this.cls}} {{#if this.primary}}btn btn_outline btn_small{{else}}sub_action{{/if}}"
+                    {{#if this.href}}href="{{this.href}}"{{/if}}
+                    {{#if this.title}}title="{{#t}}{title}{{/t}}"{{/if}}
+                >{{label}}</a>
+            {{/each}}
         {{else}}
-          {{#memberIsSelf id=member.id}}
-            {{#if show_username_edit}}
-              {{#if show_email_edit}}
-                There aren't any actions for you to take on yourself. Click your name or email address to edit.
-              {{else}}
-                There aren't any actions for you to take on yourself. Click your name to edit. To edit your email, see your <a href="/account/settings">account settings</a>.
-              {{/if}}
+            {{#if show_transfer_btn}}
+                <a href="/admin/transfer" class="btn btn_outline btn_small btn_outline btn_small">{{#t}}Transfer team ownership{{/t}}</a>
+
+                {{#memberIsSelf id=member.id}}
+                    {{#t}}To make edits, see your <a href="/account/settings">account settings</a>.{{/t}}
+                {{/memberIsSelf}}
             {{else}}
-              There aren't any actions for you to take on yourself. To make edits, see your <a href="/account/settings">account settings</a>.
+                {{#memberIsSelf id=member.id}}
+                    {{#if show_username_edit}}
+                        {{#if show_email_edit}}
+                            {{#t}}There aren't any actions for you to take on yourself. Click your name or email address to edit.{{/t}}
+                        {{else}}
+                            {{#t}}There aren't any actions for you to take on yourself. Click your name to edit. To edit your email, see your <a href="/account/settings">account settings</a>.{{/t}}
+                        {{/if}}
+                    {{else}}
+                        {{#t}}There aren't any actions for you to take on yourself. To make edits, see your <a href="/account/settings">account settings</a>.{{/t}}
+                    {{/if}}
+                {{else}}
+                    {{#if show_email_edit}}
+                        {{#if show_username_edit}}
+                            {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}). Click their name or email address to edit.{{/t}}
+                        {{else}}
+                            {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}). Click their email address to edit.{{/t}}
+                        {{/if}}
+                    {{else}}
+                        {{#if show_username_edit}}
+                            {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}). Click their name to edit.{{/t}}
+                        {{else}}
+                            {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}).{{/t}}
+                        {{/if}}
+                    {{/if}}
+                {{/memberIsSelf}}
             {{/if}}
-          {{else}}
-            {{#if show_email_edit}}
-              {{#if show_username_edit}}
-                There aren't any actions for you to take on <strong>@{{member.name}}</strong> ({{member_type}}). Click their name or email address to edit.
-              {{else}}
-                There aren't any actions for you to take on <strong>@{{member.name}}</strong> ({{member_type}}). Click their email address to edit.
-              {{/if}}
-            {{else}}
-              {{#if show_username_edit}}
-                There aren't any actions for you to take on <strong>@{{member.name}}</strong> ({{member_type}}). Click their name to edit.
-              {{else}}
-                There aren't any actions for you to take on <strong>@{{member.name}}</strong> ({{member_type}}).
-              {{/if}}
-            {{/if}}
-          {{/memberIsSelf}}
         {{/if}}
-      {{/if}}
-      {{#if paid_team}}
-        {{#if member.is_restricted}}
-          {{#if member.is_ultra_restricted}}
-            {{#if member.deleted}}
-              <p class="small_bottom_margin small_top_margin show_pill_action">
-                {{#each member.channels}}
-                  <a class="channel pill inline_block api_change_ura_channel" title="Change the channel that {{../member.name}} can access">#{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
-                {{/each}}
-                {{#each member.groups}}
-                  <a class="group pill inline_block api_change_ura_channel" title="Change the channel that {{../member.name}} can access">{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
-                {{/each}}
-                {{#if member.more_groups}}
-                  <a class="group pill inline_block api_change_ura_channel" title="Change the channel that {{../member.name}} can access">Private Channel <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+        {{#if paid_team}}
+            {{#if member.is_restricted}}
+                {{#if member.is_ultra_restricted}}
+                    {{#if member.deleted}}
+                        <p class="small_bottom_margin small_top_margin show_pill_action">
+                            {{#each member.channels}}
+                                <a class="channel pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">#{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                            {{/each}}
+                            {{#each member.groups}}
+                                <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{this}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                            {{/each}}
+                            {{#if member.more_groups}}
+                                <a class="group pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">{{#t}}Private Channel{{/t}} <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i></a>
+                            {{/if}}
+                        </p>
+                    {{/if}}
+                {{else}}
+                    <p class="small_bottom_margin small_top_margin pill_container">
+                        {{#if_gt total_memberships compare=1}}<span class="show_pill_action">{{/if_gt}}
+                            {{#each member.channels}}
+                                <span class="channel pill">#{{this}}{{#if_gt ../total_memberships compare=1}}{{#canUserKickFromChannels}} <i class="ts_icon ts_icon_times_circle pill_action api_channel_kick" data-channel-id="{{@key}}" title="{{#t member_name=../member.name}}Remove {member_name} from #{this}{{/t}}"></i>{{/canUserKickFromChannels}}{{/if_gt}}</span>
+                            {{/each}}
+                            {{#each member.groups}}
+                                <span class="group pill">{{this}}{{#if_gt ../total_memberships compare=1}}{{#canUserKickFromGroups}} <i class="ts_icon ts_icon_times_circle pill_action api_group_kick" data-group-id="{{@key}}" title="{{#t member_name=../member.name}}Remove {member_name} from {this}{{/t}}"></i>{{/canUserKickFromGroups}}{{/if_gt}}</span>
+                            {{/each}}
+                        {{#if_gt total_memberships compare=1}}</span>{{/if_gt}}
+                        {{#if show_add_channel_btn}}
+                            <a class="channel pill api_channel_invite"><i class="ts_icon ts_icon_plus"></i></a>
+                        {{/if}}
+                        {{#if member.more_groups}}
+                            {{#if groups_count}}
+                                {{#t}}+{member.more_groups, plural, =1{# other private channel}other{# other private channels}}{{/t}}
+                            {{else}}
+                                {{#t}}+{member.more_groups, plural, =1{# private channel}other{# private channels}}{{/t}}
+                            {{/if}}
+                        {{/if}}
+                    </p>
                 {{/if}}
-              </p>
             {{/if}}
-          {{else}}
-            <p class="small_bottom_margin small_top_margin pill_container">
-              {{#if_gt total_memberships compare=1}}<span class="show_pill_action">{{/if_gt}}
-                {{#each member.channels}}
-                  <span class="channel pill">#{{this}}{{#if_gt ../total_memberships compare=1}}{{#canUserKickFromChannels}} <i class="ts_icon ts_icon_times_circle pill_action api_channel_kick" data-channel-id="{{@key}}" title="Remove {{../member.name}} from #{{this}}"></i>{{/canUserKickFromChannels}}{{/if_gt}}</span>
-                {{/each}}
-                {{#each member.groups}}
-                  <span class="group pill">{{this}}{{#if_gt ../total_memberships compare=1}}{{#canUserKickFromGroups}} <i class="ts_icon ts_icon_times_circle pill_action api_group_kick" data-group-id="{{@key}}" title="Remove {{../member.name}} from {{this}}"></i>{{/canUserKickFromGroups}}{{/if_gt}}</span>
-                {{/each}}
-              {{#if_gt total_memberships compare=1}}</span>{{/if_gt}}
-              {{#if show_add_channel_btn}}
-                <a class="channel pill api_channel_invite"><i class="ts_icon ts_icon_plus"></i></a>
-              {{/if}}
-              {{#if member.more_groups}}
-                +{{member.more_groups}} {{#if groups_count}}other{{/if}} private {{pluralize member.more_groups "channel" "channels"}}
-              {{/if}}
-            </p>
-          {{/if}}
         {{/if}}
-      {{/if}}
     </div>
 
-    <div class="notice_processing progress_bar_progress_animated">Updating ...</div>
+    <div class="notice_processing progress_bar_progress_animated">{{#t}}Updating ...{{/t}}</div>
     <div class="notice_success">
-      <span class="success_message"></span>
-      <a class="notice_dismiss neutral_white">Okay</a>
+        <span class="success_message"></span>
+        <a class="notice_dismiss neutral_white">{{#t}}Okay{{/t}}</a>
     </div>
     <div class="notice_error">
-      <span class="error_message">
-        <span class="error_generic">Oops! There was an error performing your action.</span> <span class="error_detail"></span>
-      </span>
-      <span class="notice_dismiss neutral_white">Try again</span>
+        <span class="error_message">
+            <span class="error_generic">{{#t}}Oops! There was an error performing your action.{{/t}}</span> <span class="error_detail"></span>
+        </span>
+        <span class="notice_dismiss neutral_white">{{#t}}Try again{{/t}}</span>
     </div>
 
-  </div>
-</script>
+</div>
