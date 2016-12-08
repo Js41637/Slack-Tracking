@@ -19788,8 +19788,16 @@ ts-thread .view_all_replies_count {
   margin-bottom: -8px
 }
 
-.attachment_group .attachment_actions_buttons .btn_attachment:last-of-type {
+.attachment_group .attachment_actions_buttons .btn_attachment:last-of-type,
+.attachment_group .attachment_actions_buttons .select_attachment:last-of-type {
   margin-right: 32px
+}
+
+.attachment_group .attachment_actions_buttons .select_attachment {
+  display: inline-block;
+  margin-bottom: 8px;
+  vertical-align: middle;
+  width: calc(100% - 32px)
 }
 
 .attachment_group .attachment_actions_buttons ts-inline-saver {

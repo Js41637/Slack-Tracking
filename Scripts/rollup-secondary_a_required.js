@@ -54446,6 +54446,8 @@ $.fn.togglify = function(settings) {
         var service_id = $el.closest("ts-message").data("bot-id");
         var lfs_options = {
           allow_list_position_above: true,
+          classes: "select_attachment",
+          disabled: $el.attr("disabled"),
           filter: _filter,
           no_default_selection: true,
           onItemAdded: _onItemAdded,
@@ -54461,8 +54463,8 @@ $.fn.togglify = function(settings) {
     },
     getActionModel: function(action, is_disabled) {
       var model = _.clone(action);
+      model._disabled = model._disabled || !!is_disabled;
       model.data_source = model.data_source || _DATA_SOURCES.default;
-      model.disabled = !!is_disabled;
       model.options = _getOptionsForModel(model);
       model.text = _formatAndMarkSafeString(model.text);
       return model;
