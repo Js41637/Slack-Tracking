@@ -18012,7 +18012,7 @@ ts-message .emoji-sizer .mention {
 
 #convo_loading_indicator {
   height: 2.5rem;
-  background-image: url(/272a/img/loading_hash_animation.gif);
+  background-image: url(/9c217/img/loading_hash_animation.gif);
   background-position: bottom center;
   background-repeat: no-repeat;
   background-size: 40px
@@ -18021,7 +18021,7 @@ ts-message .emoji-sizer .mention {
 @media (-webkit-min-device-pixel-ratio:2),
 (min-resolution:192dpi) {
   #convo_loading_indicator {
-    background-image: url(/f85a/img/loading_hash_animation_@2x.gif)
+    background-image: url(/9c217/img/loading_hash_animation_@2x.gif)
   }
 }
 

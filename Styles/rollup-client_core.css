@@ -7547,7 +7547,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #onboarding_welcome_text {
-  background: url(/0180/img/welcome_wave.gif) left no-repeat;
+  background: url(/9c217/img/welcome_wave.gif) left no-repeat;
   font-size: 4.5rem;
   line-height: 5.5rem;
   padding-left: 5.125rem
@@ -7604,7 +7604,7 @@ only screen and (min-resolution:2dppx) {
     background-size: 120px 37px
   }
   #onboarding_welcome_text {
-    background-image: url(/0180/img/welcome_wave@2x.gif);
+    background-image: url(/9c217/img/welcome_wave@2x.gif);
     background-size: 82px 88px
   }
   #stars_toggle .starburst {

@@ -734,6 +734,7 @@
     });
   };
   var _onLoginMS = function(ok, data, args) {
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Got rtm.start login data");
     if (!ok) return;
     TS.model.emoji_cache_ts = data.emoji_cache_ts;
     TS.model.apps_cache_ts = data.apps_cache_ts;
@@ -755,11 +756,16 @@
       return;
     }
     TS.ms.logConnectionFlow("on_login");
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up model");
     return _setUpModel(data, args).then(function() {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Model did set up; setting up apps");
       TS.apps.setUp();
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up commands");
       TS.cmd_handlers.setUpCmds();
       var no_rebuild_ui = !TS.model.ms_logged_in_once;
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji");
       TS.emoji.setUpEmoji(no_rebuild_ui).finally(function() {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Emoji did set up; continuing boot");
         return _continueOnLogin(data);
       });
       return null;
@@ -769,6 +775,7 @@
     });
   };
   var _continueOnLogin = function(data) {
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _continueOnLogin");
     TS.ui.setThemeClasses();
     if (TS.client) {
       TSSSB.call("setCurrentTeam", TS.model.team.domain);
@@ -791,9 +798,11 @@
       }
     }
     var completeOnLogin = function() {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin");
       TSConnLogger.log("on_login_ms", "completeOnLogin");
       var completing_incremental_boot = !!TS._incremental_boot;
       if (!TS.model.ms_logged_in_once) {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin doing first-boot things");
         if (TS.client) {
           TS.client.onFirstLoginMS(data);
           if (TS.isPartiallyBooted()) {
@@ -849,15 +858,22 @@
       if (TS.client) TS.client.onEveryLoginMS(data);
       if (TS.web) TS.web.onEveryLoginMS(data);
       if (_shouldConnectToMS()) {
-        if (!completing_incremental_boot) {
+        if (completing_incremental_boot) {
+          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin not connecting to MS until we complete incremental boot");
+        } else {
+          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin wants to connect to MS");
           if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
+            if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin finalized MS connection");
             TS.log(1996, "Successfully finalized a provisional MS connection");
           } else {
+            if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin made a new MS connection");
             TS.log(1996, "No valid provisional MS connection; making a new connection");
             TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url);
           }
+          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin did connect to MS");
         }
       } else {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin will not connect to MS");
         if (!TS.web.space) {
           TSConnLogger.setConnecting(false);
         }
@@ -877,9 +893,22 @@
     if (TS.client && TS.boot_data.page_needs_enterprise && TS.model.initial_cid) {
       var model_ob = TS.shared.getModelObById(TS.model.initial_cid);
       if (!model_ob) TS.error("TS.model.initial_cid (" + TS.model.initial_cid + ") referred to a channel that does not exist, which should be impossible");
-      if (model_ob.is_shared && model_ob.is_channel) return TS.channels.promiseToEnsureChannelsInfo(TS.model.initial_cid, true).then(completeOnLogin);
-      if (model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) return TS.groups.promiseToEnsureGroupsInfo(TS.model.initial_cid, true).then(completeOnLogin);
+      if (model_ob.is_shared && model_ob.is_channel) {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring channels.info for " + TS.model.initial_cid);
+        return TS.channels.promiseToEnsureChannelsInfo(TS.model.initial_cid, true).then(function() {
+          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got channels.info, completing login");
+          return completeOnLogin();
+        });
+      }
+      if (model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring groups.info for " + TS.model.initial_cid);
+        return TS.groups.promiseToEnsureGroupsInfo(TS.model.initial_cid, true).then(function() {
+          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got groups.info, completing login");
+          return completeOnLogin();
+        });
+      }
     }
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra enterprise data; completing login");
     return completeOnLogin();
   };
   var _socketConnectedMS = function() {

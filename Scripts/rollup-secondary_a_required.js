@@ -4341,7 +4341,7 @@
     }).change();
   };
   var _retentionDialogLoadingHtml = function() {
-    var url = cdn_url + "/f85a/img/loading_hash_animation_@2x.gif";
+    var url = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
     var loading_text = TS.i18n.t("Loading...", "channels")();
     return '<div class="loading_hash_animation" style="margin: 2rem;"><img src="' + url + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
   };
@@ -20963,8 +20963,8 @@ TS.registerModule("constants", {
       return html;
     },
     loadingHTML: function() {
-      var url_2x = cdn_url + "/f85a/img/loading_hash_animation_@2x.gif";
-      var url_1x = cdn_url + "/272a/img/loading_hash_animation.gif";
+      var url_2x = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
+      var url_1x = cdn_url + "/9c217/img/loading_hash_animation.gif";
       return '<div class="loading_hash_animation"><img src="' + url_2x + '" alt="Loading" srcset="' + url_1x + " 1x, " + url_2x + ' 2x" /><br />loading...</div>';
     },
     test: function() {
@@ -23135,10 +23135,10 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(TS.templates.builders.loadingHTML());
       });
       Handlebars.registerHelper("versioned_loading_animation", function() {
-        return cdn_url + "/272a/img/loading.gif";
+        return cdn_url + "/9c217/img/loading.gif";
       });
       Handlebars.registerHelper("versioned_loading_hash_animation", function() {
-        return cdn_url + "/f85a/img/loading_hash_animation_@2x.gif";
+        return cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
       });
       Handlebars.registerHelper("versioned_mac_dock_badge", function() {
         return cdn_url + "/9135/img/prefs_mac_dock_badge@2x.png";
@@ -28947,7 +28947,11 @@ TS.registerModule("constants", {
         }
         from_name = from_name + ": ";
       }
-      str = msg.subtype === "sh_room_created" ? from_name + "Started a call" : from_name + "Shared a call";
+      str = msg.subtype === "sh_room_created" ? TS.i18n.t("{from_name} Started a call", "string_format")({
+        from_name: from_name
+      }) : TS.i18n.t("{from_name} Shared a call", "string_format")({
+        from_name: from_name
+      });
     }
     str = TS.format.deTokenizeStr(html_token_map, str);
     return str;
@@ -31939,7 +31943,8 @@ TS.registerModule("constants", {
   $.widget("TS.submenu", {
     _create: function() {
       this.element.data("has-submenu", true);
-      var html = '<div class="menu submenu" data-origin-id="' + this.element.attr("id") + '" data-model-ob-id="' + this.element.data("modelObId") + '"><ul aria-hidden="true" aria-label="submenu">' + this.options.items_html + "</ul></div>";
+      var html_label = TS.i18n.t("submenu", "menu_source")();
+      var html = '<div class="menu submenu" data-origin-id="' + this.element.attr("id") + '" data-model-ob-id="' + this.element.data("modelObId") + '"><ul aria-hidden="true" aria-label="' + html_label + '">' + this.options.items_html + "</ul></div>";
       var X_OFFSET = 7;
       var Y_OFFSET = 11;
       var x = TS.menu.$menu.offset().left + TS.menu.$menu.width() + X_OFFSET;
@@ -32667,7 +32672,9 @@ var _on_esc;
       if (success && response) {
         if ($("#allow_popups_banner").is(":visible")) {
           TS.client.ui.addEphemeralBotMsg({
-            text: "It looks like your browser is blocking popups so here's a link to your <" + response.data.url + "|document>",
+            text: TS.i18n.t("It looks like your browser is blocking popups so here’s a link to your <{url}|document>", "menu_file")({
+              url: response.data.url
+            }),
             ephemeral_type: "created_google_drive_document"
           });
         }
@@ -32917,12 +32924,12 @@ var _on_esc;
         e.preventDefault();
         if (TS.model.team.prefs.disallow_public_file_urls) {
           if (TS.boot_data.feature_external_files) {
-            TS.generic_dialog.alert("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.");
-            return;
+            var message = TS.i18n.t("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.", "menu_file")();
           } else {
-            TS.generic_dialog.alert("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.");
-            return;
+            var message = TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.", "menu_file")();
           }
+          TS.generic_dialog.alert(message);
+          return;
         }
         TS.files.createPublicURL(file, function(ok, data, args) {
           if (ok) {
@@ -32944,7 +32951,7 @@ var _on_esc;
       } else if (id == "refresh_file") {
         e.preventDefault();
         TS.files.refreshFile(file.id);
-        TS.menu.$menu.find("#refresh_file .item_label").text("Refreshing...").end();
+        TS.menu.$menu.find("#refresh_file .item_label").text(TS.i18n.t("Refreshing...", "menu_file")()).end();
         return;
       } else if (id == "download_file") {
         var open_flexpane = !(TS.ui.fs_modal_file_viewer && TS.ui.fs_modal_file_viewer.is_showing);
@@ -33032,10 +33039,11 @@ var _on_esc;
             } else if (data.error && data.error === "not_allowed") {
               TS.model.team.prefs.disallow_public_file_urls = true;
               if (TS.boot_data.feature_external_files) {
-                TS.generic_dialog.alert("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.");
+                var message = TS.i18n.t("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.", "menu_file")();
               } else {
-                TS.generic_dialog.alert("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.");
+                var message = TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.", "menu_file")();
               }
+              TS.generic_dialog.alert(message);
             }
           });
         }
@@ -33305,8 +33313,9 @@ var _on_esc;
       var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
       if (template_args.disable_invite) {
+        var title = TS.i18n.t("Everyone on your team is already in this private channel", "menu_group")();
         $("#group_invite_item a").tooltip({
-          title: "Everyone on your team is already in this private channel",
+          title: title,
           delay: {
             show: 500,
             hide: 0
@@ -33786,8 +33795,9 @@ var _on_esc;
       var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
       if (template_args.disable_invite) {
+        var title = TS.i18n.t("Everyone on your team is already in this conversation", "menu_mpim")();
         $("#mpim_invite_item a").tooltip({
-          title: "Everyone on your team is already in this conversation",
+          title: title,
           delay: {
             show: 500,
             hide: 0
@@ -38955,14 +38965,10 @@ var _on_esc;
       var $show_custom_message = _$div.find(".admin_invites_show_custom_message");
       var $custom_message = _$div.find("#admin_invite_custom_message");
       var channels;
-      var is_default = false;
       var invite_mode = TS.google_auth.isAuthed(_google_auth_instance_id) ? "contact" : "manual";
       if (account_type == "full" || account_type == "restricted") {
         var default_channels = _$div.find("#defaultchannelsmulti").val();
-        if (default_channels) {
-          channels = default_channels.join(",");
-          if (account_type == "full") is_default = true;
-        }
+        if (default_channels) channels = default_channels.join(",");
       } else if (account_type == "ultra_restricted") {
         channels = _$div.find("#ultra_restricted_channel_picker").val();
       }
@@ -38983,7 +38989,6 @@ var _on_esc;
         if (invite.full_name) args.full_name = invite.full_name;
         if (invite.first_name) args.first_name = invite.first_name;
         if (invite.last_name) args.last_name = invite.last_name;
-        args.is_default = is_default;
         if (account_type == "restricted") {
           args.restricted = 1;
         } else if (account_type == "ultra_restricted") {

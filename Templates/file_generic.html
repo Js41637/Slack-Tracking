@@ -41,20 +41,19 @@
         {{#if_equal file.mode compare='hosted'}}
           {{#fileDefaultIsNewWindow id=file.id}}
             {{#nonImageCanUseFSFV file}}
-              Click to view
+              {{#t}}Click to view{{/t}}
             {{else}}
-              Click to open original
+              {{#t}}Click to open original{{/t}}
             {{/nonImageCanUseFSFV}}
           {{else}}
-            Click to download
+            {{#t}}Click to download{{/t}}
           {{/fileDefaultIsNewWindow}}
         {{else}}
-          Click to open in
-            {{#if_equal file.external_type compare="gdrive"}}Google\u00a0Drive{{/if_equal}}
-            {{#if_equal file.external_type compare="dropbox"}}Dropbox{{/if_equal}}
-            {{#if_equal file.external_type compare="box"}}Box{{/if_equal}}
-            {{#if_equal file.external_type compare="onedrive"}}OneDrive{{/if_equal}}
-            {{#if_equal file.external_type compare="unknown"}}a\u00a0web\u00a0page{{/if_equal}}
+          {{#if_equal file.external_type compare="gdrive"}}{{#t}}Click to open in Google\u00a0Drive{{/t}}{{/if_equal}}
+          {{#if_equal file.external_type compare="dropbox"}}{{#t}}Click to open in Dropbox{{/t}}{{/if_equal}}
+          {{#if_equal file.external_type compare="box"}}{{#t}}Click to open in Box{{/t}}{{/if_equal}}
+          {{#if_equal file.external_type compare="onedrive"}}{{#t}}Click to open in OneDrive{{/t}}{{/if_equal}}
+          {{#if_equal file.external_type compare="unknown"}}{{#t}}Click to open in a\u00a0web\u00a0page{{/t}}{{/if_equal}}
         {{/if_equal}}
       </span></span>
     </p>
@@ -78,12 +77,12 @@
   {{#feature flag="feature_inline_media_playback"}}
     {{#if file_is_video}}
       <video class="inline_video" controls preload="{{video_preload}}" height="{{video_height}}" src="{{best_source}}">
-        Your browser does not support HTML5 Video. Try <a href="http://browsehappy.com/">a modern browser</a>.
+        {{#t}}Your browser does not support HTML5 Video. Try <a href="http://browsehappy.com/">a modern browser</a>.{{/t}}
       </video>
     {{/if}}
     {{#if file_is_audio}}
       <audio controls preload="{{audio_preload}}" src="{{file.url_private}}">
-        Your browser does not support HTML5 Audio. Try <a href="http://browsehappy.com/">a modern browser</a>.
+        {{#t}}Your browser does not support HTML5 Audio. Try <a href="http://browsehappy.com/">a modern browser</a>.{{/t}}
       </audio>
     {{/if}}
   {{/feature}}

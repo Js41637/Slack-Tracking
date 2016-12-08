@@ -636,7 +636,7 @@
         var app_params;
         _.each(authed_teams, function(item) {
           if (item && item.team_id == team_id) {
-            var url_root = document.domain.split(".").splice(1).join(".") + "/messages";
+            var url_root = document.domain.split(".").splice(1).join(".");
             app_params = {
               name: TS.model.user.name,
               id: TS.model.user.id,
@@ -9169,7 +9169,7 @@
     });
   });
   var loading_text = TS.i18n.t("Loading...", "flexpane")();
-  var loader_html = '<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
+  var loader_html = '<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
   var _toggleFlexTab = function(flex_name) {
     if (TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === flex_name) {
       TS.client.ui.flex.hideFlex();
@@ -14628,7 +14628,7 @@
             search_global: !TS.model.prefs.search_only_current_team
           });
         } else if (!results.messages || results.messages.total > 0) {
-          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading page ' + TS.search.view.current_messages_page + "...</div>";
+          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading page ' + TS.search.view.current_messages_page + "...</div>";
         } else {
           html = TS.templates.search_results_none({
             query_string: TS.search.query_string,
@@ -14663,7 +14663,7 @@
           });
           html += paging_html;
         } else if (!results.files || results.files.total > 0) {
-          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading page ' + TS.search.view.current_files_page + "...</div>";
+          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading page ' + TS.search.view.current_files_page + "...</div>";
         } else {
           html += TS.templates.search_results_none({
             query_string: TS.search.query_string,
@@ -24616,7 +24616,7 @@
     }
   };
   var _retentionLoadingHtml = function() {
-    var url = cdn_url + "/f85a/img/loading_hash_animation_@2x.gif";
+    var url = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
     var loading_str = TS.i18n.t("loading...", "channel_options")();
     return '<div class="loading_hash_animation large_margin"><img src="' + url + '" alt="Loading" /><br />' + loading_str + "</div>";
   };
@@ -25866,7 +25866,7 @@
         }
       }
       var loading_text = TS.i18n.t("Loading...", "archives")();
-      TS.client.archives.$archives_msgs_div.html('<div class="loading_hash_animation"><img src="' + cdn_url + "/f85a/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>");
+      TS.client.archives.$archives_msgs_div.html('<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>");
       _showing_id = model_ob.id + (msg_id || "");
       _msg_id = msg_id || null;
       TS.client.archives.current_model_ob = model_ob;
