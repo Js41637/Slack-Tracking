@@ -2947,7 +2947,7 @@ ul.member_list li a.nuc {
   width: 11px;
   height: 3px;
   vertical-align: top;
-  background-image: url(/c844c/img/typing-sprite.png);
+  background-image: url(/bfaba/img/typing-sprite.png);
   background-repeat: no-repeat;
   -webkit-animation: 1s steps(15) 0s infinite normal none typing-sprite;
   -moz-animation: 1s steps(15) 0s infinite normal none typing-sprite;
@@ -3019,7 +3019,7 @@ only screen and (min-resolution:192dpi),
 only screen and (min-resolution:2dppx) {
   .channels_list_holder .typing_indicator {
     background-size: cover;
-    background-image: url(/c844c/img/typing-sprite@2x.png)
+    background-image: url(/bfaba/img/typing-sprite@2x.png)
   }
 }
 
@@ -12573,7 +12573,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   background-position: center center;
   background-repeat: repeat-x;
   background-size: 36px 36px;
-  background-image: url(/64d3/img/progress_bar_pattern.png);
+  background-image: url(/bfaba/img/progress_bar_pattern.png);
   border-radius: .25rem;
   height: 100%;
   -webkit-animation: progress_bar 1s linear infinite;
@@ -12586,7 +12586,7 @@ only screen and (min-resolution:192dpi),
 only screen and (min-resolution:2dppx) {
   .progress_bar_progress_animated,
   .progress_bar_progress_animated_thin {
-    background-image: url(/64d3/img/progress_bar_pattern@2x.png)
+    background-image: url(/bfaba/img/progress_bar_pattern@2x.png)
   }
 }
 
@@ -12653,14 +12653,14 @@ only screen and (min-resolution:2dppx) {
   background-position: center center;
   background-repeat: repeat-x;
   background-size: 36px 36px;
-  background-image: url(/64d3/img/progress_bar_pattern.png)
+  background-image: url(/bfaba/img/progress_bar_pattern.png)
 }
 
 @media only screen and (-webkit-min-device-pixel-ratio:2),
 only screen and (min-resolution:192dpi),
 only screen and (min-resolution:2dppx) {
   .progress_bar_progress_striped {
-    background-image: url(/64d3/img/progress_bar_pattern@2x.png)
+    background-image: url(/bfaba/img/progress_bar_pattern@2x.png)
   }
 }
 
@@ -21103,7 +21103,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .fs_modal_file_viewer_content .viewer .broken_image {
-  background-image: url(/dcad/img/files/file_viewer_broken_image.png);
+  background-image: url(/bfaba/img/files/file_viewer_broken_image.png);
   background-repeat: no-repeat;
   background-position: center
 }
@@ -21112,7 +21112,7 @@ only screen and (min-resolution:2dppx) {
 only screen and (min-resolution:192dpi),
 only screen and (min-resolution:2dppx) {
   .fs_modal_file_viewer_content .viewer .broken_image {
-    background-image: url(/dcad/img/files/file_viewer_broken_image@2x.png)
+    background-image: url(/bfaba/img/files/file_viewer_broken_image@2x.png)
   }
 }
 
@@ -23385,8 +23385,8 @@ html:not(.supports_sticky_position) #unread_msgs_scroller_div {
 }
 
 #unread_msgs_scroller_div.loading {
-  background-image: url(/137d/img/unread/uv-loader@2x.gif);
-  background-size: 140px 153px;
+  background-image: url(/d5d4a/img/unread/uv-loader@2x.gif);
+  background-size: 200px 200px;
   background-repeat: no-repeat;
   background-position: center center;
   display: -webkit-box;

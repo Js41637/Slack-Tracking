@@ -23199,7 +23199,7 @@ TS.registerModule("constants", {
         }
       });
       Handlebars.registerHelper("versioned_default_application_icon", function() {
-        return cdn_url + "/ca27/img/apps/default_new_app_icon.png";
+        return cdn_url + "/bfaba/img/apps/default_new_app_icon.png";
       });
       Handlebars.registerHelper("versioned_join_shared_channel", function(res) {
         if (res === "1x") {
@@ -37271,7 +37271,8 @@ var _on_esc;
             TS.utility.populateInput(input, txt, new_cp);
           },
           sort_by_membership: true,
-          include_self: !!TS.boot_data.feature_name_tagging_client
+          include_self: !!TS.boot_data.feature_name_tagging_client,
+          model_ob: model_ob
         });
       } else {
         input.TS_tabComplete({
@@ -37285,12 +37286,14 @@ var _on_esc;
             TS.utility.populateInput(input, txt, new_cp);
           },
           sort_by_membership: true,
-          include_self: !!TS.boot_data.feature_name_tagging_client
+          include_self: !!TS.boot_data.feature_name_tagging_client,
+          model_ob: model_ob
         });
       }
       var tab_complete_ui_props = {
         id: "msg_edit_tab_ui",
-        scroll_with_element: !!TS.client
+        scroll_with_element: !!TS.client,
+        model_ob: model_ob
       };
       var in_flexpane = input.closest("#col_flex").length > 0;
       if (in_flexpane) {
@@ -41479,7 +41482,7 @@ var _on_esc;
       TS.menu.enterprise_team_signin.start(e, $(this), {
         team_id: team_id,
         team_site_url: team_site_url,
-        should_show_leave_team: _isUserOnTeam(team_id)
+        should_show_leave_team: _isUserOnTeam(team_id) && !TS.model.user.is_restricted
       });
     });
     $container.on("click", ".enterprise_team_join", function(e) {
@@ -52551,6 +52554,9 @@ $.fn.togglify = function(settings) {
     if (TS.qs_args._calls_halt_at_loading_screen) {
       url += "&_calls_halt_at_loading_screen=1";
     }
+    if (TS.qs_args.locale) {
+      url += "&locale=" + TS.qs_args.locale;
+    }
     TS.utility.calls.promiseToGetRegions().then(function(regions) {
       TS.utility.calls.promiseToGetServer(regions, name).catch(_.noop);
     });
@@ -53542,7 +53548,8 @@ $.fn.togglify = function(settings) {
           TS.utility.populateInput($input, txt, new_cp);
         },
         sort_by_membership: true,
-        include_self: !!TS.boot_data.feature_name_tagging_client
+        include_self: !!TS.boot_data.feature_name_tagging_client,
+        model_ob: opts.model_ob
       });
     } else {
       $input.TS_tabComplete({
@@ -53556,12 +53563,14 @@ $.fn.togglify = function(settings) {
           TS.utility.populateInput($input, txt, new_cp);
         },
         sort_by_membership: true,
-        include_self: !!TS.boot_data.feature_name_tagging_client
+        include_self: !!TS.boot_data.feature_name_tagging_client,
+        model_ob: opts.model_ob
       });
     }
     var props = {
       id: "inline_msg_input_tab_ui_" + _uniq_id++,
-      scroll_with_element: !!TS.client
+      scroll_with_element: !!TS.client,
+      model_ob: opts.model_ob
     };
     var in_flexpane = $input.closest("#col_flex").length > 0;
     if (in_flexpane) {
