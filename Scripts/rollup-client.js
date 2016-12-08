@@ -6858,24 +6858,22 @@
         }
       }, 1e3);
     },
-    rebuildMemberListToggle: function(display_member_count) {
+    rebuildMemberListToggle: function() {
       if (TS.model.active_channel_id || TS.model.active_group_id || TS.model.active_mpim_id) {
         var model_ob = TS.shared.getActiveModelOb();
+        var display_member_count = 0;
         var online_count = 0;
-        if (_.isUndefined(display_member_count)) {
-          display_member_count = 0;
-          if (TS.isPartiallyBooted()) {
-            display_member_count = _.get(model_ob, "_incremental_boot_counts.member_count_display", 0);
-          } else if (TS.lazyLoadMembersAndBots()) {
-            display_member_count = TS.flannel.getMemberCountForModelOb(model_ob);
-          } else {
-            var member;
-            for (var i = 0; i < model_ob.members.length; i++) {
-              member = TS.members.getMemberById(model_ob.members[i]);
-              if (member && !member.deleted) {
-                display_member_count++;
-                if (member.presence === "active") online_count++;
-              }
+        if (TS.isPartiallyBooted()) {
+          display_member_count = _.get(model_ob, "_incremental_boot_counts.member_count_display", 0);
+        } else if (TS.lazyLoadMembersAndBots()) {
+          display_member_count = TS.flannel.getMemberCountForModelOb(model_ob);
+        } else {
+          var member;
+          for (var i = 0; i < model_ob.members.length; i++) {
+            member = TS.members.getMemberById(model_ob.members[i]);
+            if (member && !member.deleted) {
+              display_member_count++;
+              if (member.presence === "active") online_count++;
             }
           }
         }
@@ -27591,9 +27589,6 @@
     var online_count = null;
     var member_count = _.get(channel_member_counts, "counts.member_count");
     var restricted_count = _.get(channel_member_counts, "counts.restricted_member_count");
-    if (!is_loading_members) {
-      TS.client.ui.rebuildMemberListToggle(member_count);
-    }
     var rebuild_status;
     if (is_loading_members) {
       rebuild_status = "waiting for initial data";

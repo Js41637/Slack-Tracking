@@ -3496,7 +3496,7 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .supports_custom_scrollbar #messages_container:after {
-  background: url(/7329/img/scroll_mask_top.svg) no-repeat;
+  background: url(/9a9a/img/scroll_mask_top.svg) no-repeat;
   content: '';
   height: 8px;
   position: absolute;
@@ -9622,7 +9622,7 @@ html.no_touch #snippet_expand_toggle:hover {
   min-height: 1rem;
   padding: 0;
   margin: .15rem 0 0 -1.44rem;
-  background-image: url(/31b5/img/spaces/checklist.svg);
+  background-image: url(/9a9a/img/spaces/checklist.svg);
   background-position: 0 -100%;
   opacity: .7;
   background-size: 1rem 4rem;
@@ -9672,7 +9672,7 @@ html.no_touch #snippet_expand_toggle:hover {
   min-height: 1rem;
   padding: 0;
   margin: .15rem 0 0 -1.44rem;
-  background-image: url(/31b5/img/spaces/checklist.svg);
+  background-image: url(/9a9a/img/spaces/checklist.svg);
   background-position: 0 -100%;
   opacity: .7;
   background-size: 1rem 4rem;
@@ -22347,7 +22347,7 @@ ts-jumper ts-jumper-results:empty {
   margin-left: .12em;
   width: .76em;
   height: .76em;
-  background: url(/ce10/img/starburst.svg);
+  background: url(/9a9a/img/starburst.svg);
   background-size: 100% 100%;
   content: '';
   -webkit-animation: 1s linear 0s infinite normal none spin;

@@ -5285,9 +5285,9 @@ TS.registerModule("constants", {
         } else if (data.error && data.error === "not_allowed") {
           TS.model.team.prefs.disallow_public_file_urls = true;
           if (TS.boot_data.feature_external_files) {
-            TS.generic_dialog.alert("An administator has disabled external file URL creation. You will not be able to create an external URL for this Post.");
+            TS.generic_dialog.alert(TS.i18n.t("An administator has disabled external file URL creation. You will not be able to create an external URL for this Post.", "files")());
           } else {
-            TS.generic_dialog.alert("An administator has disabled public file URL creation. You will not be able to create a public URL for this space.");
+            TS.generic_dialog.alert(TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this space.", "files")());
           }
         }
         if (callback && typeof callback == "function") {
@@ -5302,7 +5302,7 @@ TS.registerModule("constants", {
           if (TS.web) TS.ssb.upsertFileInSSBParentWin(file);
           callback(file);
         } else {
-          TS.generic_dialog.alert('<p class="no_bottom_margin">Oops! Something went wrong. Please try again.</p>');
+          TS.generic_dialog.alert('<p class="no_bottom_margin">' + TS.i18n.t("Oops! Something went wrong. Please try again.", "files")() + "</p>");
           callback(null);
         }
       });
@@ -5328,7 +5328,7 @@ TS.registerModule("constants", {
           if (TS.web) TS.ssb.upsertFileInSSBParentWin(file);
           callback(file);
         } else {
-          TS.generic_dialog.alert('<p class="no_bottom_margin">Oops! Something went wrong. Please try again.</p>');
+          TS.generic_dialog.alert('<p class="no_bottom_margin">' + TS.i18n.t("Oops! Something went wrong. Please try again.", "files")() + "</p>");
           callback(null);
         }
       });
@@ -5352,13 +5352,17 @@ TS.registerModule("constants", {
       if (!channel) var group = TS.groups.getGroupById(c_id);
       if (!group) group = TS.mpims.getMpimById(c_id);
       if (!group && !channel) return;
+      var body = TS.i18n.t("<p>Are you sure you want to un-share this file from the <strong>{channel_name}</strong> {is_private, select, true {private} other {}} channel?</p>			<p>Un-sharing the file will not remove existing share and comment messages, but it will keep any future comments from appearing in the channel.</p>", "files")({
+        is_private: !channel,
+        channel_name: channel ? "#" + channel.name : group.name
+      });
       TS.generic_dialog.start({
-        title: "Un-share file",
-        body: "<p>Are you sure you want to un-share this file from the <b>" + (channel ? "#" + channel.name + "</b> channel" : group.name + "</b> private channel") + "?</p>					<p>Un-sharing the file will not remove existing share and comment messages, but it will keep any future comments from appearing 					in the channel.</p>",
+        title: TS.i18n.t("Un-share file", "files")(),
+        body: body,
         show_cancel_button: true,
         show_go_button: true,
-        go_button_text: "Yes, unshare this file",
-        cancel_button_text: "Cancel",
+        go_button_text: TS.i18n.t("Yes, unshare this file", "files")(),
+        cancel_button_text: TS.i18n.t("Cancel", "files")(),
         onGo: function() {
           TS.files.unshareFile(file_id, c_id);
         }
@@ -6362,10 +6366,10 @@ TS.registerModule("constants", {
             TS.files.actuallyUpload(args);
           } else {
             TS.generic_dialog.start({
-              title: "Upload failed",
-              body: "Hmm, it looks like your file failed to upload. Want to try again?",
-              go_button_text: "Yes, try again",
-              cancel_button_text: "No, cancel",
+              title: TS.i18n.t("Upload failed", "files")(),
+              body: TS.i18n.t("Hmm, it looks like your file failed to upload. Want to try again?", "files")(),
+              go_button_text: TS.i18n.t("Yes, try again", "files")(),
+              cancel_button_text: TS.i18n.t("No, cancel", "files")(),
               onGo: function() {
                 args.retry_num++;
                 TS.files.actuallyUpload(args);
@@ -6393,10 +6397,10 @@ TS.registerModule("constants", {
                       debug_str = "<br><br>TS only Debugging:<br><br>" + data.debug;
                     }
                     TS.generic_dialog.start({
-                      title: "Upload failed",
-                      body: "Hmm, it looks like your file failed to upload. Want to try again?" + debug_str,
-                      go_button_text: "Yes, try again",
-                      cancel_button_text: "No, cancel",
+                      title: TS.i18n.t("Upload failed", "files")(),
+                      body: TS.i18n.t("Hmm, it looks like your file failed to upload. Want to try again?", "files")() + debug_str,
+                      go_button_text: TS.i18n.t("Yes, try again", "files")(),
+                      cancel_button_text: TS.i18n.t("No, cancel", "files")(),
                       onGo: function() {
                         args.retry_num++;
                         TS.files.actuallyUpload(args);
@@ -6410,8 +6414,8 @@ TS.registerModule("constants", {
                   }
                 } else {
                   TS.generic_dialog.start({
-                    title: "Upload failed",
-                    body: "Hmm, it looks like your file failed to upload.",
+                    title: TS.i18n.t("Upload failed", "files")(),
+                    body: TS.i18n.t("Hmm, it looks like your file failed to upload.", "files")(),
                     show_cancel_button: true
                   });
                   TS.files.uploadProcessingOver(false, TS.files.polling_file_id);
@@ -6431,8 +6435,10 @@ TS.registerModule("constants", {
                 TS.files.actuallyUpload(args);
               } else if (data.error === "folders_not_supported") {
                 TS.generic_dialog.start({
-                  title: "Folders not supported",
-                  body: "<p>Sorry, <b>" + TS.utility.htmlEntities(args.filename) + "</b> is a folder, and folder uploads are not supported by Slack.</p>									<p>Try uploading a .zip version of the file instead.</p>",
+                  title: TS.i18n.t("Folders not supported", "files")(),
+                  body: TS.i18n.t("<p>Sorry, <strong>{folder_name}</strong> is a folder, and folder uploads are not supported by Slack.</p>									<p>Try uploading a .zip version of the file instead.</p>", "files")({
+                    folder_name: TS.utility.htmlEntities(args.filename)
+                  }),
                   show_cancel_button: false,
                   esc_for_ok: true,
                   onGo: function() {
@@ -6442,8 +6448,10 @@ TS.registerModule("constants", {
                 });
               } else if (data.error === "request_timeout") {
                 TS.generic_dialog.start({
-                  title: "File upload timed out",
-                  body: '<p>It looks like you\'re on a slow or inconsistent internet connection. You may want to try your file upload again later. Or, try again now and it might work if you cross your fingers!</p>									<p>If you\'re still having problems, you can:</p><ul><li><a href="/help/test" target="' + TS.templates.builders.newWindowName() + '" class="bold">Run our Self-Help Tests</a></li><li><a href="/help/requests/new" target="' + TS.templates.builders.newWindowName() + '" class="bold">Contact our support team</li></ul>',
+                  title: TS.i18n.t("File upload timed out", "files")(),
+                  body: TS.i18n.t('<p>It looks like you’re on a slow or inconsistent internet connection. You may want to try your file upload again later. Or, try again now and it might work if you cross your fingers!</p>									<p>If you’re still having problems, you can:</p>									<ul><li><a href="/help/test" target="{new_win_name}" class="bold">Run our Self-Help Tests</a></li>									<li><a href="/help/requests/new" target="{new_win_name}" class="bold">Contact our support team</li></ul>', "files")({
+                    new_win_name: TS.templates.builders.newWindowName()
+                  }),
                   show_cancel_button: false,
                   esc_for_ok: true,
                   onGo: function() {
@@ -6453,8 +6461,8 @@ TS.registerModule("constants", {
                 });
               } else if (data.error === "file_uploads_disabled") {
                 TS.generic_dialog.start({
-                  title: "Upload failed",
-                  body: "At the request of your administrator, file uploads have been disabled on this team.",
+                  title: TS.i18n.t("Upload failed", "files")(),
+                  body: TS.i18n.t("At the request of your administrator, file uploads have been disabled on this team.", "files")(),
                   show_cancel_button: false,
                   onGo: function() {
                     TS.files.uploadOver(false);
@@ -6462,8 +6470,8 @@ TS.registerModule("constants", {
                 });
               } else if (data.error === "file_uploads_except_images_disabled") {
                 TS.generic_dialog.start({
-                  title: "Upload failed",
-                  body: "At the request of your administrator, only images can be uploaded to this team.",
+                  title: TS.i18n.t("Upload failed", "files")(),
+                  body: TS.i18n.t("At the request of your administrator, only images can be uploaded to this team.", "files")(),
                   show_cancel_button: false,
                   onGo: function() {
                     TS.files.uploadOver(false);
@@ -6471,10 +6479,10 @@ TS.registerModule("constants", {
                 });
               } else {
                 TS.generic_dialog.start({
-                  title: "Upload failed",
-                  body: "Hmm, it looks like your file failed to upload. Want to try again?",
-                  go_button_text: "Yes, try again",
-                  cancel_button_text: "No, cancel",
+                  title: TS.i18n.t("Upload failed", "files")(),
+                  body: TS.i18n.t("Hmm, it looks like your file failed to upload. Want to try again?", "files")(),
+                  go_button_text: TS.i18n.t("Yes, try again", "files")(),
+                  cancel_button_text: TS.i18n.t("No, cancel", "files")(),
                   onGo: function() {
                     args.retry_num++;
                     TS.files.actuallyUpload(args);
@@ -6574,7 +6582,7 @@ TS.registerModule("constants", {
             id: file_id,
             title: prev_title
           });
-          TS.generic_dialog.alert("Something's gone wrong, and your change didn't save. If you see this message more than once, you may want to try restarting Slack.", "Oh, crumbs!", "Got it");
+          TS.generic_dialog.alert(TS.i18n.t("Something’s gone wrong, and your change didn’t save. If you see this message more than once, you may want to try restarting Slack.", "files")(), TS.i18n.t("Oh, crumbs!", "files")(), TS.i18n.t("Got it", "files")());
         }
       });
       val = TS.utility.htmlEntities(val);
@@ -6638,12 +6646,14 @@ TS.registerModule("constants", {
       TS.ui.upload_dialog.startWithCommentFromChatInput(files);
     },
     makeFileNameFromFile: function(file) {
-      var now = Date.now() / 1e3;
-      return file.name || "Pasted image at " + TS.utility.date.toFilenameFriendlyDate(now) + ".png";
+      return file.name || TS.i18n.t("Pasted image at {date}", "files")({
+        date: TS.utility.date.toFilenameFriendlyDate(Date.now() / 1e3)
+      }) + ".png";
     },
     makeFileTitleFromFile: function(file) {
-      var now = Date.now() / 1e3;
-      return file.name || "Pasted image at " + TS.utility.date.toDate(now);
+      return file.name || TS.i18n.t("Pasted image at {date}", "files")({
+        date: TS.utility.date.toDate(Date.now() / 1e3)
+      });
     },
     justUploadTheseFileNow: function(files) {
       var file;
@@ -6670,16 +6680,16 @@ TS.registerModule("constants", {
     onFileRefresh: function(ok, data, args) {
       var id = args.file;
       if (ok) {
-        TS.menu.$menu.find("#refresh_file").find(".item_label").text("File refreshed!").end();
+        TS.menu.$menu.find("#refresh_file").find(".item_label").text(TS.i18n.t("File refreshed!", "files")()).end();
       } else if (!ok) {
-        TS.files.doneRefreshingFile(id, '<span class="moscow_red">Refresh failed.</span>', 5e3);
-        TS.menu.$menu.find("#refresh_file").find(".item_label").text("Refresh failed").end();
+        TS.files.doneRefreshingFile(id, '<span class="moscow_red">' + TS.i18n.t("Refresh failed.", "files")() + "</span>", 5e3);
+        TS.menu.$menu.find("#refresh_file").find(".item_label").text(TS.i18n.t("Refresh failed", "files")()).end();
       }
       if (ok & !data.will_refresh) {
-        TS.files.doneRefreshingFile(id, '<span class="moscow_red">File refreshed < 1 minute ago.</span>', 5e3);
+        TS.files.doneRefreshingFile(id, '<span class="moscow_red">' + TS.i18n.t("File refreshed < 1 minute ago.", "files")() + "</span>", 5e3);
       }
       if (TS.web && ok) {
-        TS.menu.$menu.find("#refresh_file").find(".item_label").text("Reloading...");
+        TS.menu.$menu.find("#refresh_file").find(".item_label").text(TS.i18n.t("Reloading...", "files")());
         location.reload();
       }
       if (!ok) {
@@ -6695,7 +6705,7 @@ TS.registerModule("constants", {
     fileWasMaybeRefreshed: function(file) {
       if (!file) return;
       if (!TS.files.waiting_for_refresh[file.id]) return;
-      TS.files.doneRefreshingFile(file.id, '<span class="kelly_green">File refreshed!</span>', 6e4);
+      TS.files.doneRefreshingFile(file.id, '<span class="kelly_green">' + TS.i18n.t("File refreshed!", "files")() + "</span>", 6e4);
     },
     startRefreshingFile: function(id) {
       TS.files.waiting_for_refresh[id] = true;
@@ -6707,7 +6717,7 @@ TS.registerModule("constants", {
       $('.file_refresh_status[data-file-id="' + id + '"]').html(msg);
       setTimeout(function() {
         $('.file_refresh[data-file-id="' + id + '"]').removeClass("hidden");
-        $('.file_refresh_status[data-file-id="' + id + '"]').text("Refreshing file...").addClass("hidden");
+        $('.file_refresh_status[data-file-id="' + id + '"]').text(TS.i18n.t("Refreshing file...", "files")()).addClass("hidden");
       }, ms);
     },
     shareOrReshareFile: function(file_id, hide_file_preview, space_has_title, source_model_ob_id) {
@@ -6734,31 +6744,22 @@ TS.registerModule("constants", {
         return TS.members.getMemberDisplayNameById(file.user, true);
       });
       file_owners = _.uniq(file_owners);
-      var user_names = TS.utility.concatNames(file_owners);
-      var has_pluralization = "has";
-      var file_pluralization = "this file";
-      var msg_title = "You're about to share a private file";
-      var it_pluralization = "it";
-      if (file_owners.length > 1) {
-        has_pluralization = "have";
-      }
-      if (files.length > 1) {
-        file_pluralization = "these files";
-        msg_title = "You're about to share private files";
-        it_pluralization = "them";
-      } else {
-        var title = files[0].title || "Untitled";
-        title = TS.format.formatNoSpecials(title);
-        file_pluralization = "the file <b>" + title + "</b>";
-      }
-      var msg_body = "<p><b>" + user_names + "</b> " + has_pluralization + " privately shared " + file_pluralization + " with you. Are you sure you want to proceed with sharing " + it_pluralization + " somewhere else?</p><p>It’s important to note that any comments on " + file_pluralization + " will also be shared.</p>";
+      var msg_title = TS.i18n.t("You’re about to share {file_count, plural, =1 {a private file} other {private files}}", "files")({
+        file_count: files.length
+      });
+      var msg_body = TS.i18n.t("<p><strong>{user_names}</strong> {file_owners_count, plural, =1 {has} other {have}} privately shared {file_count, plural, =1 {the file <strong>{file_title}</strong>} other {these files}} with you. Are you sure you want to proceed with sharing {file_count, plural, =1 {it} other {them}} somewhere else?</p><p>It’s important to note that any comments on {file_count, plural, =1 {the file <strong>{file_title}</strong>} other {these files}} will also be shared.</p>", "files")({
+        user_names: TS.utility.concatNames(file_owners),
+        file_owners_count: file_owners.length,
+        file_count: files.length,
+        file_title: files.length === 1 ? TS.format.formatNoSpecials(files[0].title || "Untitled") : ""
+      });
       TS.generic_dialog.start({
         title: msg_title,
         body: msg_body,
         show_cancel_button: true,
         show_go_button: true,
-        go_button_text: "Proceed with sharing",
-        cancel_button_text: "Cancel",
+        go_button_text: TS.i18n.t("Proceed with sharing", "files")(),
+        cancel_button_text: TS.i18n.t("Cancel", "files")(),
         onGo: callback
       });
     },
@@ -17198,7 +17199,7 @@ TS.registerModule("constants", {
         _websocket.onclose = _onDisconnect;
         _websocket.onerror = _onError;
       } else {
-        alert("Your browser does not support Web Sockets.");
+        alert(TS.i18n.t("Your browser does not support Web Sockets.", "ds")());
       }
     },
     sleep: function() {
@@ -17303,11 +17304,11 @@ TS.registerModule("constants", {
       TS.info("_onDisconnect event.code:" + e.code);
       if (e.code == "1006" && false) {
         TS.generic_dialog.start({
-          title: "Connection trouble error #1006",
-          body: "Apologies, we're having some trouble with your connection. The particular error code indicates that restarting the application might fix it.",
+          title: TS.i18n.t("Connection trouble error #1006", "ds")(),
+          body: TS.i18n.t("Apologies, we’re having some trouble with your connection. The particular error code indicates that restarting the application might fix it.", "ds")(),
           show_cancel_button: false,
           show_go_button: true,
-          go_button_text: "OK",
+          go_button_text: TS.i18n.t("OK", "ds")(),
           esc_for_ok: true
         });
       }
@@ -17365,11 +17366,17 @@ TS.registerModule("constants", {
       if (TS.model.is_chrome_desktop) {
         TS.ms.showConnectionTroubleDialog();
       } else {
+        var body_text;
+        if (TS.model.is_our_app) {
+          body_text = TS.i18n.t("We’ve seen this problem clear up with a restart of Slack, a solution which we suggest to you now only with great regret and self-loathing.", "ds")();
+        } else {
+          body_text = TS.i18n.t("We’ve seen this problem clear up with a restart of your browser, a solution which we suggest to you now only with great regret and self-loathing.", "ds")();
+        }
         TS.generic_dialog.start({
-          title: "Connection trouble",
-          body: "<p>Apologies, we're having some trouble with your web socket connection.</p>					<p>We've seen this problem clear up with a restart of " + (TS.model.is_our_app ? "Slack" : "your browser") + ", 					a solution which we suggest to you now only with great regret and self-loathing.</p>					",
+          title: TS.i18n.t("Connection trouble", "ds")(),
+          body: "<p>" + TS.i18n.t("Apologies, we’re having some trouble with your web socket connection.", "ds")() + "</p><p>" + body_text + "</p>",
           show_cancel_button: false,
-          go_button_text: "OK",
+          go_button_text: TS.i18n.t("OK", "ds")(),
           esc_for_ok: true
         });
       }
@@ -41487,7 +41494,7 @@ var _on_esc;
       TS.menu.enterprise_team_signin.start(e, $(this), {
         team_id: team_id,
         team_site_url: team_site_url,
-        should_show_leave_team: _isUserOnTeam(team_id) && !TS.model.user.is_restricted
+        should_show_leave_team: TS.enterprise.isUserOnTeam(team_id) && !TS.model.user.is_restricted
       });
     });
     $container.on("click", ".enterprise_team_join", function(e) {
@@ -41499,12 +41506,9 @@ var _on_esc;
       TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
         console.log("here");
       }).catch(function() {
-        console.log("butts");
+        console.log("nope");
       });
     });
-  };
-  var _isUserOnTeam = function(team_id) {
-    return TS.model.user.enterprise_user.teams.indexOf(team_id) > -1;
   };
   var _showToastMessage = function(type, message) {
     TS.ui.toast.show({
@@ -42383,16 +42387,21 @@ var _on_esc;
     return changed;
   };
   var _promptAddPin = function(type, model_ob, item) {
-    var template = Handlebars.compile("<p>Are you sure you want to pin this {{type}} to {{pinToLabel model_ob}}?</p>");
-    var body = template({
+    var body_text = TS.i18n.t("Are you sure you want to pin this {type} to {pin_to_label}?", "pins")({
       type: type,
-      model_ob: model_ob
+      pin_to_label: Handlebars.helpers.pinToLabel(model_ob)
     });
-    body += TS.client.channel_page.pinnedItemHtml(item, model_ob);
+    var body = "<p>" + body_text + "</p>" + TS.client.channel_page.pinnedItemHtml(item, model_ob);
+    var title = TS.i18n.t("Pin {type}", "pins")({
+      type: type
+    });
+    var button_text = TS.i18n.t("Yes, pin this {type}", "pins")({
+      type: type
+    });
     TS.generic_dialog.start({
-      title: "Pin " + type,
+      title: title,
       body: body,
-      go_button_text: "Yes, pin this " + type,
+      go_button_text: button_text,
       onGo: function() {
         _callPinsAdd(model_ob, item);
       }
@@ -42408,8 +42417,10 @@ var _on_esc;
           if (item.type === "file") type = "file";
           if (item.type === "file_comment") type = "comment";
           TS.generic_dialog.start({
-            title: "Couldn't pin " + type,
-            body: "<p>Sorry! You've hit the limit on how many pins you can have in this channel.</p>",
+            title: TS.i18n.t("Couldn’t pin {type}", "pins")({
+              type: type
+            }),
+            body: "<p>" + TS.i18n.t("Sorry! You’ve hit the limit on how many pins you can have in this channel.", "pins")() + "</p>",
             show_cancel_button: false
           });
         } else {
@@ -42448,9 +42459,9 @@ var _on_esc;
     TS.client.channel_page.highlightPinnedItemForRemoval(item);
     var html = TS.client.channel_page.pinnedItemHtml(item, model_ob);
     TS.generic_dialog.start({
-      title: "Remove Pinned Item",
-      body: "<p>Are you sure you want to remove this pinned item?</p>" + html,
-      go_button_text: "Yes, remove this pinned item",
+      title: TS.i18n.t("Remove Pinned Item", "pins")(),
+      body: "<p>" + TS.i18n.t("Are you sure you want to remove this pinned item?", "pins")() + "</p>" + html,
+      go_button_text: TS.i18n.t("Yes, remove this pinned item", "pins")(),
       onGo: callback,
       onCancel: function() {
         TS.client.channel_page.unHighlightPinnedItemForRemoval(item);
@@ -50274,6 +50285,9 @@ $.fn.togglify = function(settings) {
         });
       });
       channel.shares = shares;
+    },
+    isUserOnTeam: function(team_id) {
+      return TS.model.user.enterprise_user.teams.indexOf(team_id) > -1;
     }
   });
   var _id_map = {};
@@ -51236,7 +51250,7 @@ $.fn.togglify = function(settings) {
   };
   var _handleError = function(error) {
     TS.error(error.data.error + " error occured while searching");
-    TS.generic_dialog.alert("Sorry! Something went wrong. Please try again.");
+    TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong. Please try again.", "utility_search")());
     throw error;
   };
 })();
