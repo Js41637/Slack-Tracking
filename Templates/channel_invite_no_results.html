@@ -1,9 +1,9 @@
 {{~#if teams~}}
-  We found <strong>{{truncate query 50}}</strong>, but they aren't in a team that can join this channel ({{commaSeparatedList teams conjunction='or' bold_items=true}})
+    {{#t query=(truncate query 50) teams=(listify teams conjunction='or' strong=true)}}We found <strong>{query}</strong>, but they aren't in a team that can join this channel ({teams}){{/t}}
 {{~else~}}
   {{~#if query~}}
-    No one found matching <strong>{{truncate query 50}}</strong>
+        {{#t query=(truncate query 50)}}No one found matching <strong>{query}</strong>{{/t}}
   {{~else~}}
-    Everyone is already in this channel, so there is no one to invite!
+    {{#t}}Everyone is already in this channel, so there is no one to invite!{{/t}}
   {{~/if~}}
 {{~/if~}}

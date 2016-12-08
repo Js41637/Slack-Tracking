@@ -821,7 +821,7 @@
     if (model_ob.is_im) {
       $("#im_meta").html(TS.templates.dm_badge({
         member: member,
-        im: model_ob,
+        model_ob: model_ob,
         compliance_exports_enabled_for_team: !!TS.model.team.prefs.compliance_export_start
       }));
     }
@@ -9757,6 +9757,8 @@
         var eventuallyOnTextChange = _.throttle(function() {
           var serialized_contents = TS.utility.contenteditable.serialize($input);
           TS.client.msg_input.storeLastMsgForActiveModelOb(serialized_contents);
+          var plain_text = TS.utility.contenteditable.value($input);
+          _maybeToggleSpecialFormatting(plain_text);
         }, 100);
         TS.utility.contenteditable.create($input, {
           modules: {
@@ -10050,12 +10052,7 @@
     } else if (!show_snippet_prompt && _snippet_prompt_text_showing) {
       _maybePromptForSnippet(show_snippet_prompt);
     }
-    var show_special_formatting = val.length > 2;
-    if (show_special_formatting && !_special_formatting_text_showing) {
-      _maybeToggleSpecialFormatting(show_special_formatting);
-    } else if (!show_special_formatting && _special_formatting_text_showing) {
-      _maybeToggleSpecialFormatting(show_special_formatting);
-    }
+    _maybeToggleSpecialFormatting(val_formatted);
     _change_count++;
     if (val_formatted === "") {
       _resize_count = 0;
@@ -10121,13 +10118,14 @@
   };
   var _$special_formatting_text;
   var _special_formatting_text_showing;
-  var _maybeToggleSpecialFormatting = function(show) {
+  var _maybeToggleSpecialFormatting = function(message) {
     if (!_$special_formatting_text) _$special_formatting_text = $("#special_formatting_text");
-    if (show) {
-      _$special_formatting_text.addClass("showing", show);
+    var show_special_formatting = message.length > 2;
+    if (show_special_formatting && !_special_formatting_text_showing) {
+      _$special_formatting_text.addClass("showing");
       _special_formatting_text_showing = true;
-    } else {
-      _$special_formatting_text.removeClass("showing", show);
+    } else if (!show_special_formatting && _special_formatting_text_showing) {
+      _$special_formatting_text.removeClass("showing");
       _special_formatting_text_showing = false;
     }
   };
@@ -12595,6 +12593,7 @@
             _member_presence_list.add(member.id);
             $("#im_meta").html(TS.templates.dm_badge({
               member: member,
+              model_ob: model_ob,
               compliance_exports_enabled_for_team: !!TS.model.team.prefs.compliance_export_start,
               compliance_export_start: TS.model.team.prefs.compliance_export_start || 0
             }));
@@ -13263,6 +13262,7 @@
     var _$mpim_notif_prefs;
     var template_args = {
       members: TS.mpims.getMembersInDisplayOrder(model_ob),
+      model_ob: model_ob,
       compliance_exports_enabled_for_team: !!TS.model.team.prefs.compliance_export_start,
       compliance_export_start: TS.model.team.prefs.compliance_export_start || 0,
       desktop_setting: desktop_setting,

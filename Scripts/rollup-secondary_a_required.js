@@ -7770,12 +7770,13 @@ TS.registerModule("constants", {
       });
       return _.compact(mpim._members);
     },
-    getDisplayName: function(mpim, for_header, show_last_initial, truncate_at) {
+    getDisplayName: function(mpim, for_header, show_last_initial, truncate_at, for_dm_badge) {
       var should_truncate = _.isInteger(truncate_at);
-      if (mpim._display_name && !for_header && !show_last_initial && !should_truncate) return mpim._display_name;
-      if (mpim._display_name_truncated && !for_header && !show_last_initial && should_truncate) return mpim._display_name_truncated;
-      var members = TS.mpims.getMembersInDisplayOrder(mpim);
+      if (mpim._display_name && !for_header && !show_last_initial && !should_truncate && !for_dm_badge) return mpim._display_name;
+      if (mpim._display_name_truncated && !for_header && !show_last_initial && !for_dm_badge && should_truncate) return mpim._display_name_truncated;
+      if (for_dm_badge) return _getDmBadgeDisplayName(mpim);
       if (TS.boot_data.feature_name_tagging_client) return _getDisplayTitle(mpim, for_header);
+      var members = TS.mpims.getMembersInDisplayOrder(mpim);
       var display_real_names = TS.members.shouldDisplayRealNames();
       var first_name_map = {};
       if (display_real_names) {
@@ -8051,6 +8052,17 @@ TS.registerModule("constants", {
     });
     var display_name = for_header ? names.join(" ") : names.join(", ");
     if (!for_header) mpim._display_name = display_name;
+    return display_name;
+  };
+  var _getDmBadgeDisplayName = function(mpim) {
+    var members = TS.mpims.getMembersInDisplayOrder(mpim);
+    var names = members.map(function(member) {
+      var name = TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(member) : TS.members.getMemberDisplayName(member);
+      return name;
+    });
+    var display_name = TS.i18n.listify(names, {
+      strong: true
+    }).join("");
     return display_name;
   };
   var _processNewMpimForUpserting = function(mpim_group) {
@@ -21608,19 +21620,10 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("listify", function(array, options) {
         if (options.hash.map) array = _.map(array, options.hash.map);
         var conjunction = _.get(options.hash, "conjunction");
-        if (!options.hash.strong) return TS.i18n.listify(array, conjunction).join("");
-        var list = TS.i18n.listify(array, conjunction);
-        if (options.hash.strong) {
-          var wrap_start = "<strong>";
-          var wrap_end = "</strong>";
-          list = list.map(function(s, i) {
-            if (i % 2 === 0) {
-              return wrap_start + Handlebars.Utils.escapeExpression(s) + wrap_end;
-            } else {
-              return s;
-            }
-          });
-        }
+        var list = TS.i18n.listify(array, {
+          conj: conjunction,
+          strong: options.hash.strong
+        });
         return new Handlebars.SafeString(list.join(""));
       });
       Handlebars.registerHelper("isClient", function(options) {
@@ -22421,10 +22424,11 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("mpimMemberCount", function(mpim) {
         return TS.mpims.getMemberCount(mpim);
       });
-      Handlebars.registerHelper("mpimDisplayName", function(mpim, for_header, show_last_initial) {
+      Handlebars.registerHelper("mpimDisplayName", function(mpim, for_header, show_last_initial, truncate_at, for_dm_badge) {
         for_header = for_header === true;
-        var name = TS.mpims.getDisplayName(mpim, for_header, show_last_initial === true);
-        if (for_header) {
+        for_dm_badge = for_dm_badge === true;
+        var name = TS.mpims.getDisplayName(mpim, for_header, show_last_initial === true, truncate_at, for_dm_badge);
+        if (for_header || for_dm_badge) {
           return new Handlebars.SafeString(name);
         } else {
           return name;
@@ -23022,9 +23026,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getVisibleTeamProfileFieldsForMember", function(member) {
         var fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
-        return TS.templates.team_profile_fields({
+        return new Handlebars.SafeString(TS.templates.team_profile_fields({
           fields: fields
-        });
+        }));
       });
       Handlebars.registerHelper("isSkypeTeamProfileField", function(field, options) {
         if (field.type === "text" && field.label.toLocaleLowerCase() === "skype") {
@@ -25516,7 +25520,9 @@ TS.registerModule("constants", {
       } else {
         permalink = "/archives/" + model_ob.name + "/p" + ts.replace(".", "");
       }
-      if (TS.boot_data.feature_message_replies && thread_ts && thread_ts !== ts) permalink += "?thread_ts=" + thread_ts;
+      if (TS.boot_data.feature_message_replies && thread_ts && thread_ts !== ts) {
+        permalink += "?thread_ts=" + thread_ts + "&cid=" + model_ob.id;
+      }
       return permalink;
     },
     constructAbsoluteMsgPermalink: function(model_ob, ts, thread_ts) {

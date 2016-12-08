@@ -3456,12 +3456,14 @@
       }
       return "’s";
     },
-    listify: function(arr, conj) {
+    listify: function(arr, options) {
       var and;
       var list = [];
       var l = arr.length;
-      var conjunction = conj === "or" ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
+      var conjunction = options && options.conj === "or" ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
       var oxford = l > 2 ? "," : "";
+      var wrap_start = options && options.strong ? "<strong>" : "";
+      var wrap_end = options && options.strong ? "</strong>" : "";
       switch (TS.i18n.locale) {
         case TS.i18n.JP:
           and = ", ";
@@ -3470,7 +3472,7 @@
           and = oxford + " " + conjunction + " ";
       }
       arr.forEach(function(s, i) {
-        list.push(s);
+        list.push(wrap_start + TS.utility.htmlEntities(s) + wrap_end);
         if (i < l - 2) {
           list.push(", ");
         } else if (i < l - 1) {

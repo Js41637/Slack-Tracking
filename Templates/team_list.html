@@ -1,3 +1,5 @@
+  {{i18n_ns "team"}}
+
   <div id="team_list"{{#pageNeedsEnterprise}}{{#isWeb}} class="display_flex flex_one no_bottom_margin"{{/isWeb}}{{/pageNeedsEnterprise}}>
     <div class="tab_panels {{#isClient}}no_bottom_margin{{else}}{{#pageNeedsEnterprise}}display_flex flex_one no_bottom_margin{{else}}large_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}}">
       <div class="{{#isClient}}panel{{else}}tab_pane{{#pageNeedsEnterprise}} display_flex flex_one flex_direction_column no_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}} selected active" id="active_members" data-tab="active">
@@ -48,10 +50,10 @@
           <div id="restricted_no_results" class="no_results hidden"></div>
           {{#isWeb}}
             <p class="help">
-              These team members are restricted to the channels that they are invited to join.
+              {{#t}}These team members are restricted to the channels that they are invited to join.{{/t}}
               {{#currentUserIsAdmin}}
                 <br />{{#isClient}}<br />{{/isClient}}
-                <a href="/admin?tab=restricted" {{#isClient}}target="new"{{/isClient}} class="bold">Manage {{raLabel 'restricted accounts'}}</a>
+                <a href="/admin?tab=restricted" {{#isClient}}target="new"{{/isClient}} class="bold">{{#t}}Manage multi-channel guests{{/t}}</a>
               {{/currentUserIsAdmin}}
             </p>
           {{/isWeb}}
@@ -77,10 +79,10 @@
           </div>
           <div id="disabled_no_results" class="no_results hidden"></div>
           <p class="help">
-            These team members have been deactivated and can no longer access your team.
+            {{#t}}These team members have been deactivated and can no longer access your team.{{/t}}
             {{#currentUserIsAdmin}}
               <br />
-              <a href="/admin" class="bold" target="_blank">Manage deactivated accounts</a>
+              <a href="/admin" class="bold" target="_blank">{{#t}}Manage deactivated accounts{{/t}}</a>
             {{/currentUserIsAdmin}}
           </p>
         </div>

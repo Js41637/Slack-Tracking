@@ -1,138 +1,127 @@
-  <div class="dm_badge display_flex align_items_center">
-    {{#if members}}
-      {{#each members}}
-        {{{makeMemberPreviewLinkImage this.id 72 false false true}}}
-      {{/each}}
-    {{else}}
-      {{{makeMemberPreviewLinkImage member.id 72 false false true}}}
-    {{/if}}
+{{i18n_ns "team"}}
 
-    {{#if member.profile}}
-      <p class="dm_badge_meta">
-        {{#feature flag="feature_name_tagging_client"}}
-          <span class="member_full_name bold"><a href="/team/{{member.id}}" class="member_preview_link member_full_name" data-member-id="{{member.id}}">{{getMemberFullName member}}</a></span>
-        {{else}}
-          {{#if member.profile.real_name}}
-            <span class="member_real_name bold">{{member.profile.real_name}}</span>
-          {{/if}}
-        {{/feature}}
-        {{{makeMemberPresenceIcon member}}}
-
-        {{#feature flag="feature_name_tagging_client"}}
-        {{else}}
-          <span class="{{getMemberColorClassById member.id}}">
-            <a href="/team/{{member.name}}" class="member_preview_link member_name" data-member-id="{{member.id}}">@{{member.name}}</a>
-          </span>
-        {{/feature}}
-
-        <br />
-        {{#if member.profile.title}}
-          {{member.profile.title}}
-        {{/if}}
-        {{#pageNeedsEnterprise}}
-          {{#if member.profile.title}}
-            <br />
-          {{/if}}
-          {{#if member._is_external}}
-            <span class="member_type_and_description float_left old_petunia_grey lato">
-              <span class="overflow_ellipsis">
-                <span class="very_small_right_margin">{{{makeMemberTypeBadge member 16 true true}}}</span> External Guest</span>
-            </span>
-          {{else if member.is_restricted}}
-            <span class="member_type_and_description float_left old_petunia_grey lato">
-              <span class="overflow_ellipsis">
-                {{#if member.is_ultra_restricted}}
-                  Single-Channel Guest{{!--#if ura_channel}} in #{{ura_channel}}{{/if--}}
-                {{else}}
-                  {{raLabel 'Restricted Account'}}
-                {{/if}}
-              </span>
-            </span>
-          {{else if member.is_bot}}
-            <span class="member_type_and_description float_left old_petunia_grey lato">
-              <span class="overflow_ellipsis">Non-sentient Bot</span>
-            </span>
-          {{/if}}
-        {{/pageNeedsEnterprise}}
-      </p>
-    {{/if}}
-  </div>
-
-  <p class="dm_explanation margin_auto align_left clear_both">
-    {{#if member.is_self}}
-      {{#feature flag="feature_tos_oct2016"}}
-        <strong>This is your space.</strong> Draft messages, list your to-dos, or keep links and files handy. You <em>can</em> also talk to yourself here, but please bear in mind you'll have to supply both sides of the conversation.
-      {{else}}
-        {{#if compliance_exports_enabled_for_team}}
-          <strong>This is your space.</strong> Draft messages, list your to-dos, or keep links and files handy. You <em>can</em> also talk to yourself here, but bear in mind you'll have to supply both sides of the conversation.<br><br>These notes are just for you \u2014 but please note that all messages and notes sent on or after {{toDate compliance_export_start}} are accessible to your Team Owners via <a href="https://get.slack.help/hc/en-us/articles/203950296-FAQs-about-privacy#complianceexport">Compliance Exports</a>.
-        {{else}}
-          <strong>This is your space.</strong> Only you can see these notes. Draft messages, list your to-dos, or keep links and files handy. You <em>can</em> also talk to yourself here, but please bear in mind you'll have to supply both sides of the conversation.
-        {{/if}}
-      {{/feature}}
-    {{else}}
-      This is <span class="not_limited_copy">the very beginning of</span> your direct message history with
-      {{#if members~}}
-        {{#each members~}}
-          {{#unless @first}}{{#if_gt ../members.length compare=2}},{{/if_gt}} {{/unless}}{{#if @last}}and {{/if~}}
-          {{#feature flag="feature_name_tagging_client"}}<strong>{{getMemberFullName this}}</strong>{{else}}<strong>{{getMemberDisplayName this}}</strong>{{/feature}}
-        {{~/each}}.
-      {{else}}
-        {{#feature flag="feature_name_tagging_client"}}<strong>{{getMemberFullName member}}</strong>{{else}}<strong>{{getMemberDisplayName member}}</strong>{{/feature}}.
-      {{/if}}
-
-      {{#feature flag="feature_tos_oct2016"}}
-      {{else}}
-        {{#if compliance_exports_enabled_for_team}}
-          Direct messages are generally private {{#if members}}within this group{{else}}between you and {{getMemberDisplayName member}}{{/if}}, but all messages in this team sent on or after {{toDate compliance_export_start}} are accessible to your Team Owners via <a href="https://get.slack.help/hc/en-us/articles/203950296-FAQs-about-privacy#complianceexport">Compliance Exports</a>.
-        {{else}}
-          Direct messages are private {{#if members}}within this group{{else}}between the two of you{{/if}}.
-        {{/if}}
-      {{/feature}}
-    {{/if}}
-  </p>
+<div class="dm_badge display_flex align_items_center">
   {{#if members}}
-    {{#if desktop_notifs_enabled}}
-      <div class="mpim_notif_prefs special_formatting_quote medium_bottom_margin">
-        <div class="quote_bar">
-          <div class="shim"></div>
-        </div>
-        <p class="content">
-          <span class="bold">Send me desktop notifications for:</span>
-          <span class="mini small_left_margin"><a class="more_options">More options</a></span>
-          {{#if_equal desktop_setting compare="nothing"}}
-          {{else}}
-          {{#unless is_muted}}
-            <label class="radio no_margin normal">
-              <input id="all_notifications_rd" type="radio" name="notifications" {{#if_equal desktop_setting compare="everything"}}checked="checked"{{/if_equal}}>
-              Activity of any kind
-            </label>
-            <label class="radio no_margin normal">
-              <input id="mentions_rd" type="radio" name="notifications" {{#if_equal desktop_setting compare="mentions"}}checked="checked"{{/if_equal}}>
-              Only mentions of my name or highlight words
-            </label>
-          {{/unless}}
-          {{/if_equal}}
-          <label class="checkbox no_margin normal {{#if_equal desktop_setting compare="nothing"}}{{#if is_muted}}hidden{{/if}}{{else}}hidden{{/if_equal}}">
-            <input id="no_notifications_cb" type="checkbox" checked="checked">
-            No notifications
-          </label>
-          <label class="checkbox no_margin normal {{#if is_muted}}{{else}}hidden{{/if}}">
-            <input id="notifications_muted_cb" type="checkbox" checked="checked">
-            Mute this conversation
-          </label>
-        </p>
-      </div>
+    {{#each members}}
+      {{makeMemberPreviewLinkImage this.id 72 false false true}}
+    {{/each}}
+  {{else}}
+    {{makeMemberPreviewLinkImage member.id 72 false false true}}
+  {{/if}}
+
+  {{#if member.profile}}
+    <p class="dm_badge_meta">
+      {{#feature flag="feature_name_tagging_client"}}
+        <span class="member_full_name bold"><a href="/team/{{member.id}}" class="member_preview_link member_full_name" data-member-id="{{member.id}}">{{getMemberFullName member}}</a></span>
+      {{else}}
+        {{#if member.profile.real_name}}
+          <span class="member_real_name bold">{{member.profile.real_name}}</span>
+        {{/if}}
+      {{/feature}}
+      {{makeMemberPresenceIcon member}}
+
+      {{#feature flag="feature_name_tagging_client"}}
+      {{else}}
+        <span class="{{getMemberColorClassById member.id}}">
+          <a href="/team/{{member.name}}" class="member_preview_link member_name" data-member-id="{{member.id}}">@{{member.name}}</a>
+        </span>
+      {{/feature}}
+
+      <br />
+      {{#if member.profile.title}}
+        {{member.profile.title}}
+      {{/if}}
+      {{#pageNeedsEnterprise}}
+        {{#if member.profile.title}}
+          <br />
+        {{/if}}
+        {{#if member._is_external}}
+          <span class="member_type_and_description float_left old_petunia_grey lato">
+            <span class="overflow_ellipsis">
+              <span class="very_small_right_margin">{{makeMemberTypeBadge member 16 true true}}</span> {{#t}}External Guest{{/t}}</span>
+          </span>
+        {{else if member.is_restricted}}
+          <span class="member_type_and_description float_left old_petunia_grey lato">
+            <span class="overflow_ellipsis">
+              {{#if member.is_ultra_restricted}}
+                {{#if ura_channel}}
+                  {{#t note="{ura_channel} is the channel a single-channel guest has membership to"}}Single-Channel Guest in #{ura_channel}{{/t}}
+                {{else}}
+                  {{#t}}Single-Channel Guest{{/t}}
+                {{/if}}
+              {{else}}
+                {{#t}}Multi-Channel Guest{{/t}}
+              {{/if}}
+            </span>
+          </span>
+        {{else if member.is_bot}}
+          <span class="member_type_and_description float_left old_petunia_grey lato">
+            <span class="overflow_ellipsis">{{#t note="Description for bots"}}Non-sentient Bot{{/t}}</span>
+          </span>
+        {{/if}}
+      {{/pageNeedsEnterprise}}
+    </p>
+  {{/if}}
+</div>
+
+<p class="dm_explanation margin_auto align_left clear_both">
+  {{#if member.is_self}}
+    {{#t note="Description for self DM"}}<strong>This is your space.</strong> Draft messages, list your to-dos, or keep links and files handy. You <em>can</em> also talk to yourself here, but please bear in mind you\u2019ll have to supply both sides of the conversation.{{/t}}
+  {{else}}
+    {{#if members~}}
+      {{#t members=(mpimDisplayName model_ob false false false true)}}This is <span class="not_limited_copy">the very beginning of</span> your direct message history with {members}.{{/t}}
     {{else}}
-      <p class="highlight_yellow_bg">
-        {{#if notifications_not_yet_allowed}}
-          <span>You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.prefs_dialog.start('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.</span>
-        {{/if}}
-        {{#if notifications_not_allowed}}
-          <span>You've disallowed notifications in your browser. You'll need to open your browser preferences to change that.</span>
-        {{/if}}
-        {{#if notifications_impossible}}
-          <span>Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a></span>
-        {{/if}}
-      </p>
+      {{#feature flag="feature_name_tagging_client"}}
+        {{#t member_name=(getMemberFullName member)}}This is <span class="not_limited_copy">the very beginning of</span> your direct message history with <strong>{member_name}</strong>.{{/t}}
+      {{else}}
+        {{#t member_name=(getMemberDisplayName member)}}This is <span class="not_limited_copy">the very beginning of</span> your direct message history with <strong>{member_name}</strong>.{{/t}}
+      {{/feature}}
     {{/if}}
   {{/if}}
+</p>
+{{#if members}}
+  {{#if desktop_notifs_enabled}}
+    <div class="mpim_notif_prefs special_formatting_quote medium_bottom_margin">
+      <div class="quote_bar">
+        <div class="shim"></div>
+      </div>
+      <p class="content">
+        <span class="bold">{{#t note="Followed by various notification preferences e.g. Activity of any kind, Only mentions of my name or highlight words, etc."}}Send me desktop notifications for:{{/t}}</span>
+        <span class="mini small_left_margin"><a class="more_options">{{#t}}More options{{/t}}</a></span>
+        {{#if_equal desktop_setting compare="nothing"}}
+        {{else}}
+        {{#unless is_muted}}
+          <label class="radio no_margin normal">
+            <input id="all_notifications_rd" type="radio" name="notifications" {{#if_equal desktop_setting compare="everything"}}checked="checked"{{/if_equal}}>
+            {{#t note="One of many notification preference settings"}}Activity of any kind{{/t}}
+          </label>
+          <label class="radio no_margin normal">
+            <input id="mentions_rd" type="radio" name="notifications" {{#if_equal desktop_setting compare="mentions"}}checked="checked"{{/if_equal}}>
+            {{#t note="One of many notification preference settings"}}Only mentions of my name or highlight words{{/t}}
+          </label>
+        {{/unless}}
+        {{/if_equal}}
+        <label class="checkbox no_margin normal {{#if_equal desktop_setting compare="nothing"}}{{#if is_muted}}hidden{{/if}}{{else}}hidden{{/if_equal}}">
+          <input id="no_notifications_cb" type="checkbox" checked="checked">
+            {{#t note="One of many notification preference settings"}}No notifications{{/t}}
+        </label>
+        <label class="checkbox no_margin normal {{#if is_muted}}{{else}}hidden{{/if}}">
+          <input id="notifications_muted_cb" type="checkbox" checked="checked">
+          {{#t}}Mute this conversation{{/t}}
+        </label>
+      </p>
+    </div>
+  {{else}}
+    <p class="highlight_yellow_bg">
+      {{#if notifications_not_yet_allowed}}
+        <span>{{#t}}You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.prefs_dialog.start('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.{{/t}}</span>
+      {{/if}}
+      {{#if notifications_not_allowed}}
+        <span>{{#t}}You\u2019ve disallowed notifications in your browser. You\u2019ll need to open your browser preferences to change that.{{/t}}</span>
+      {{/if}}
+      {{#if notifications_impossible}}
+        <span>{{#t}}Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a>{{/t}}</span>
+      {{/if}}
+    </p>
+  {{/if}}
+{{/if}}

@@ -1,9 +1,11 @@
+{{i18n_ns "team"}}
+
 {{#or bot deleted_bot}}
-  <h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin{{#if bot}} ts_icon_inherit float_left{{/if}}"></i> Bots</h5>
+  <h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin{{#if bot}} ts_icon_inherit float_left{{/if}}"></i> {{#t}}Bots{{/t}}</h5>
 {{/or}}
 {{#if single_channel_guest}}
-  <h5 class="restricted_header {{#if restricted_members}}large_top_margin{{else}}small_top_margin{{/if}} small_bottom_margin"><i class="presence large away ura small_right_margin"></i> Single-channel Guests</h5>
+  <h5 class="restricted_header {{#if restricted_members}}large_top_margin{{else}}small_top_margin{{/if}} small_bottom_margin"><i class="presence large away ura small_right_margin"></i> {{#t}}Single-Channel Guests{{/t}}</h5>
 {{/if}}
 {{#if multi_channel_guest}}
-  <h5 class="restricted_header small_top_margin small_bottom_margin"><i class="presence large away ra small_right_margin"></i> {{raLabel 'Restricted Accounts'}}</h5>
+  <h5 class="restricted_header small_top_margin small_bottom_margin"><i class="presence large away ra small_right_margin"></i> {{#t}}Mutli-Channel Guests{{/t}}</h5>
 {{/if}}

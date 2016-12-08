@@ -1,9 +1,11 @@
+{{i18n_ns "team"}}
+
 {{!-- Avatar, Real Name, username, presence dot --}}
 <div class="member_details member_item_inset {{#isWeb}}col span_5_of_12 no_bottom_margin{{/isWeb}}">
   {{#if is_long_list_view}}
-    {{{makeMemberPreviewLinkImage member.id 72}}}
+    {{makeMemberPreviewLinkImage member.id 72}}
   {{else}}
-    {{{makeMemberPreviewLinkImage member.id 72 true}}}
+    {{makeMemberPreviewLinkImage member.id 72 true}}
   {{/if}}
 
   <div class="member_name_and_title">
@@ -12,7 +14,7 @@
         <a href="/team/{{member.id}}" {{#isClient}}target="/team/{{member.id}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{getMemberFullName member}}</a>
       </div>
       <div class="inline_block">
-        {{#unless member.deleted}}{{{makeMemberPresenceIcon member}}}{{/unless}}
+        {{#unless member.deleted}}{{makeMemberPresenceIcon member}}{{/unless}}
         {{getMemberPreferredName member}}
       </div>
       {{#if member.profile}}
@@ -43,12 +45,12 @@
         {{else}}
           <a href="/team/{{member.name}}" {{#isClient}}target="/team/{{member.name}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{member.name}}</a>
         {{/if}}
-        {{#unless member.deleted}}{{{makeMemberPresenceIcon member}}}{{/unless}}
+        {{#unless member.deleted}}{{makeMemberPresenceIcon member}}{{/unless}}
 
         {{#isClient}}
           {{#unless member.is_bot}}
             {{#isInDifferentTimeZone member}}
-              <span class="mini timezone_label" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</span>
+              <span class="mini timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
             {{/isInDifferentTimeZone}}
           {{/unless}}
         {{else}}
@@ -76,17 +78,17 @@
       <table class="member_data_table">
         {{#if member.profile.phone}}
           <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="Phone Number">Phone Number</span></td>
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Phone Number{{/t}}">{{#t}}Phone Number{{/t}}</span></td>
             <td><a class="overflow_ellipsis" href="tel:{{member.profile.phone}}">{{member.profile.phone}}</a></td>
           </tr>
         {{/if}}
         {{#if member.profile.email}}
           <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="Email">Email</span></td>
-            <td><a class="overflow_ellipsis" href="mailto:{{member.profile.email}}" title="Email {{member.name}}">{{member.profile.email}}</a></td>
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Email{{/t}}">{{#t}}Email{{/t}}</span></td>
+            <td><a class="overflow_ellipsis" href="mailto:{{member.profile.email}}" title="{{#t}}Email {member.name}{{/t}}">{{member.profile.email}}</a></td>
           </tr>
         {{/if}}
-        {{{getVisibleTeamProfileFieldsForMember member}}}
+        {{getVisibleTeamProfileFieldsForMember member}}
       </table>
     {{/if}}
 
@@ -98,7 +100,7 @@
       <div class="team_directory_icon more_icon inline_block no_right_margin"></div>
     </a>
     <a class="member_preview_menu_target member_action_button btn btn_outline bottom_margin top_margin show_on_mobile subtle_silver">
-      <div class="team_directory_icon more_icon inline_block small_right_margin"></div>More
+      <div class="team_directory_icon more_icon inline_block small_right_margin"></div>{{#t}}More{{/t}}
     </a>
   </div>
 {{/isWeb}}
