@@ -7715,7 +7715,7 @@ TS.registerModule("constants", {
     onMarked: function(ok, data, args) {
       var mpim = TS.mpims.getMpimById(args.channel);
       if (!mpim) {
-        TS.error('wtf no mpim "' + args.channel + '"');
+        TS.error('error no mpim "' + args.channel + '"');
         return;
       }
       if (!ok) mpim.needs_api_marking = true;
@@ -7816,7 +7816,10 @@ TS.registerModule("constants", {
         display_name = names.join(" ");
       } else if (should_truncate && names.length > truncate_at + 1) {
         var show_names = names.splice(0, truncate_at);
-        display_name = show_names.join(", ") + " and " + names.length + " others";
+        display_name = TS.i18n.t("{names} and {others_count, number} others", "mpims")({
+          names: show_names.join(", "),
+          others_count: names.length
+        });
       } else {
         display_name = names.join(", ");
       }
@@ -7904,7 +7907,7 @@ TS.registerModule("constants", {
     onHistory: function(ok, data, args) {
       var mpim = TS.mpims.getMpimById(args.channel);
       if (!mpim) {
-        TS.error('wtf no mpim "' + args.channel + '"');
+        TS.error('error no mpim "' + args.channel + '"');
         return;
       }
       if (!ok || !data || !data.messages) {
@@ -7929,7 +7932,7 @@ TS.registerModule("constants", {
     },
     fetchHistory: function(mpim, api_args, handler) {
       if (!mpim) {
-        TS.error('wtf no mpim "' + mpim + '"');
+        TS.error('error no mpim "' + mpim + '"');
         return;
       }
       TS.shared.maybeClearHasAutoScrolled(mpim);
@@ -9366,7 +9369,7 @@ TS.registerModule("constants", {
     },
     isSharedModelOb: function(model_ob) {
       if (!model_ob || !TS.model || !TS.model.team) return false;
-      var can_have_shared_obs = TS.boot_data.page_needs_enterprise && _.get(TS, "model.team.enterprise_id") || TS.boot_data.feature_external_shared_channels_ui;
+      var can_have_shared_obs = TS.model.shared_channels_enabled;
       return can_have_shared_obs && (model_ob.is_shared || model_ob.is_org_shared);
     },
     isRelevantTeam: function() {
@@ -10121,7 +10124,7 @@ TS.registerModule("constants", {
       _active_local_members_with_self_and_slackbot.length = 0;
     },
     canUserCreateSharedChannels: function() {
-      var is_enabled = TS.boot_data.page_needs_enterprise && (TS.model.enterprise && TS.model.enterprise.id) || TS.boot_data.feature_external_shared_channels_ui;
+      var is_enabled = TS.model.shared_channels_enabled;
       if (!is_enabled) return false;
       if (TS.model.user.is_restricted) return false;
       if (TS.boot_data.feature_shared_channels_settings) {
@@ -10133,7 +10136,7 @@ TS.registerModule("constants", {
       return false;
     },
     canUserCreateConvertSharedChannels: function() {
-      if (!TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_external_shared_channels_ui) return false;
+      if (!TS.model.shared_channels_enabled) return false;
       if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return true;
       if (TS.boot_data.feature_shared_channels_settings) return TS.members.canUserManageSharedChannels();
       return false;
@@ -10141,7 +10144,7 @@ TS.registerModule("constants", {
     canUserManageSharedChannels: function() {
       if (!TS.boot_data.feature_shared_channels_settings) return true;
       if (!TS.model.team.prefs.who_can_manage_shared_channels) return true;
-      if (!TS.boot_data.page_needs_enterprise && !TS.boot_data.feature_external_shared_channels_ui) return false;
+      if (!TS.model.shared_channels_enabled) return false;
       var user = TS.model.user;
       if (user.is_restricted) return false;
       if (TS.model.team.prefs.can_user_manage_shared_channels !== undefined) return TS.model.team.prefs.can_user_manage_shared_channels;
@@ -10544,7 +10547,7 @@ TS.registerModule("constants", {
   var _flannel_max_users = 100;
   var _maybeSetDeletedStatus = function(member) {
     if (!TS.boot_data.page_needs_enterprise) return;
-    if (TS.lazyLoadMembersAndBots() && TS.flannel.isMemberDeleted(member)) {
+    if (TS.lazyLoadMembersAndBots() && TS.flannel.isMemberDeleted(member.id)) {
       member.deleted = true;
       return;
     }
@@ -14339,7 +14342,7 @@ TS.registerModule("constants", {
       if (!window.WebSocket) {
         window.WebSocket = window.MozWebSocket;
         if (!window.WebSocket) {
-          alert("Your browser does not support WebSockets.");
+          alert(TS.i18n.t("Your browser does not support WebSockets.", "ms")());
           return;
         }
       }
@@ -14680,10 +14683,10 @@ TS.registerModule("constants", {
     },
     showConnectionTroubleDialog: function() {
       TS.generic_dialog.start({
-        title: "Connection trouble",
-        body: "<p>Apologies, we're having some trouble with your web socket connection.</p>				<p>We've seen this problem clear up with a restart of your browser, 				a solution which we suggest to you now only with great regret and self-loathing.</p>",
+        title: TS.i18n.t("Connection trouble", "ms")(),
+        body: TS.i18n.t("<p>Apologies, we’re having some trouble with your web socket connection.</p>				<p>We’ve seen this problem clear up with a restart of your browser, 				a solution which we suggest to you now only with great regret and self-loathing.</p>", "ms")(),
         show_cancel_button: false,
-        go_button_text: "OK",
+        go_button_text: TS.i18n.t("OK", "ms")(),
         esc_for_ok: true
       });
     }
@@ -14927,11 +14930,11 @@ TS.registerModule("constants", {
       TS.info("_onDisconnect event.code:" + e.code);
       if (e.code == TS.ms.errors.CONNECTION_TROUBLE && false) {
         TS.generic_dialog.start({
-          title: "Connection trouble error #1006",
-          body: "Apologies, we're having some trouble with your connection. The particular error code indicates that restarting the application might fix it.",
+          title: TS.i18n.t("Connection trouble error #1006", "ms")(),
+          body: TS.i18n.t("Apologies, we’re having some trouble with your connection. The particular error code indicates that restarting the application might fix it.", "ms")(),
           show_cancel_button: false,
           show_go_button: true,
-          go_button_text: "OK",
+          go_button_text: TS.i18n.t("OK", "ms")(),
           esc_for_ok: true
         });
       }
@@ -14988,11 +14991,17 @@ TS.registerModule("constants", {
       if (TS.model.is_chrome_desktop) {
         TS.ms.showConnectionTroubleDialog();
       } else {
+        var err_body;
+        if (TS.model.is_our_app) {
+          err_body = TS.i18n.t("We’ve seen this problem clear up with a restart of Slack, a solution which we suggest to you now only with great regret and self-loathing.", "ms")();
+        } else {
+          err_body = TS.i18n.t("We’ve seen this problem clear up with a restart of your browser, a solution which we suggest to you now only with great regret and self-loathing.", "ms")();
+        }
         TS.generic_dialog.start({
-          title: "Connection trouble",
-          body: "<p>Apologies, we're having some trouble with your web socket connection.</p>					<p>We've seen this problem clear up with a restart of " + (TS.model.is_our_app ? "Slack" : "your browser") + ", 					a solution which we suggest to you now only with great regret and self-loathing.</p>					",
+          title: TS.i18n.t("Connection trouble", "ms")(),
+          body: TS.i18n.t("<p>Apologies, we’re having some trouble with your web socket connection.</p>", "ms")() + "<p>" + err_body + "</p>",
           show_cancel_button: false,
-          go_button_text: "OK",
+          go_button_text: TS.i18n.t("OK", "ms")(),
           esc_for_ok: true
         });
       }
@@ -16132,7 +16141,7 @@ TS.registerModule("constants", {
       TS.ims.upsertIm(imsg.channel);
       im = TS.ims.getImById(imsg.channel.id);
       if (!im) {
-        TS.error("WTF why can we not find this im: " + imsg.channel.id);
+        TS.error("error why can we not find this im: " + imsg.channel.id);
         return;
       }
       var member = TS.members.getMemberById(imsg.user);
@@ -16441,7 +16450,7 @@ TS.registerModule("constants", {
     },
     slack_broadcast: function(imsg) {
       var onGo = null;
-      var title = imsg.title || "Broadcast message";
+      var title = imsg.title || TS.i18n.t("Broadcast message", "msg_handlers")();
       var body = imsg.body || "";
       var body_plus = "";
       var go_button_text = imsg.button || (imsg.reload ? "Reload" : "OK");
@@ -16467,7 +16476,10 @@ TS.registerModule("constants", {
       }
       if (do_reload) {
         var secs = _.random(10, 20);
-        body_plus = '<p class="top_margin">(You will be auto reloaded in <span id="auto_secs">' + secs + "</span> seconds.)</p>";
+        var reload_msg = TS.i18n.t('(You will be auto reloaded in <span id="auto_secs">{secs}</span> seconds.)', "msg_handlers")({
+          secs: secs
+        });
+        body_plus = '<p class="top_margin">' + reload_msg + "</p>";
         setTimeout(function() {
           if (TS.client) TS.reload();
         }, secs * 1e3);
@@ -16507,7 +16519,7 @@ TS.registerModule("constants", {
       TS.bots.upsertBot(bot);
       bot = TS.bots.getBotById(bot.id);
       if (!bot) {
-        TS.error("wtf no bot " + bot.id + "?");
+        TS.error("error no bot " + bot.id + "?");
         return;
       }
       TS.bots.added_sig.dispatch(bot);
@@ -16519,7 +16531,7 @@ TS.registerModule("constants", {
         return;
       }
       if (!bot) {
-        TS.error("wtf no bot " + imsg.bot.id + "?");
+        TS.error("error no bot " + imsg.bot.id + "?");
         return;
       }
       TS.bots.upsertAndSignal(imsg.bot);
@@ -16531,7 +16543,7 @@ TS.registerModule("constants", {
         return;
       }
       if (!bot) {
-        TS.error("wtf no bot " + imsg.bot.id + "?");
+        TS.error("error no bot " + imsg.bot.id + "?");
         return;
       }
       TS.bots.upsertAndSignal(imsg.bot);
@@ -21701,6 +21713,13 @@ TS.registerModule("constants", {
           return options.fn(this);
         } else {
           return options.inverse(this);
+        }
+      });
+      Handlebars.registerHelper("enterprisePOEmail", function(options) {
+        if (TS.boot_data.page_needs_enterprise) {
+          return TS.model.enterprise.primary_owner.email;
+        } else {
+          return "";
         }
       });
       Handlebars.registerHelper("comments", function(file) {
@@ -30976,14 +30995,6 @@ TS.registerModule("constants", {
         show_team_subdivider: TS.model.user.is_admin,
         can_invite: TS.ui.admin_invites.canInvite()
       };
-
-      function createLogoutURL(team_id) {
-        var el_a = document.createElement("a");
-        el_a.href = TS.boot_data.logout_url;
-        var logout_url = el_a.protocol + "//" + el_a.host + "/signout/" + team_id + el_a.search + el_a.hash;
-        el_a = null;
-        return logout_url;
-      }
       var other_accounts_length = Object.keys(TS.boot_data.other_accounts).length;
       if (other_accounts_length) template_args.other_accounts = TS.boot_data.other_accounts;
       if (TS.model.team.enterprise_id) template_args.current_team_is_in_enterprise = true;
@@ -31034,7 +31045,7 @@ TS.registerModule("constants", {
                 if (item[0].team_id !== TS.model.team.id) {}
               } else {
                 ob.needs_other_enterprise_logout = true;
-                ob.logout_url = createLogoutURL(ob.enterprise_id);
+                ob.logout_url = TS.enterprise.workspaces.createLogoutURL(ob.enterprise_id, TS.boot_data.logout_url);
               }
               return ob;
             }).value();
@@ -31047,7 +31058,7 @@ TS.registerModule("constants", {
             }
           }
         } else {
-          other_accounts_obj[team].logout_url = createLogoutURL(other_accounts_obj[team].team_id);
+          other_accounts_obj[team].logout_url = TS.enterprise.workspaces.createLogoutURL(other_accounts_obj[team].team_id, TS.boot_data.logout_url);
           other_accounts_without_enterprise_teams[other_accounts_obj[team]["team_id"]] = other_accounts_obj[team];
         }
       }
@@ -31066,7 +31077,7 @@ TS.registerModule("constants", {
       if (TS.boot_data.page_needs_enterprise) {
         if ((signed_into_enterprise || template_args.current_team_is_in_enterprise) && (template_args.other_enterprise_accounts && Object.keys(template_args.other_enterprise_accounts).length || template_args.other_accounts && Object.keys(template_args.other_accounts).length)) template_args.show_switch_teams_submenu = true;
       }
-      template_args.show_shared_channels = TS.boot_data.feature_external_shared_channels_ui || TS.boot_data.page_needs_enterprise;
+      template_args.show_shared_channels = TS.model.shared_channels_enabled;
       TS.menu.$menu.addClass("team_menu slack_menu");
       TS.menu.$menu.attr("data-qa", "team_menu");
       TS.menu.$menu_header.addClass("hidden").empty();
@@ -41393,7 +41404,8 @@ var _on_esc;
           team.site_url = url + "home";
           team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, TS.boot_data.signout_url);
           html += TS.templates.enterprise_teams_launch_card({
-            team: team
+            team: team,
+            user: TS.model.user
           });
         });
       } else {
@@ -41497,6 +41509,7 @@ var _on_esc;
   "use strict";
   TS.registerModule("ui.workspaces", {
     start: function() {
+      if (TS.model.user.is_restricted) return;
       var teams = TS.enterprise.workspaces.getList("teams_not_on");
       teams = teams.map(function(team) {
         var url = TS.enterprise.workspaces.createURL(team, TS.boot_data.signout_url);
@@ -41506,7 +41519,8 @@ var _on_esc;
         return team;
       });
       var template_args = {
-        teams: teams
+        teams: teams,
+        user: TS.model.user
       };
       var settings = {
         title: TS.i18n.t("Join {enterprise_name} Workspaces", "enterprise_workspaces")({
@@ -48042,7 +48056,7 @@ $.fn.togglify = function(settings) {
       TS.ui.validation.register("valid_invite", _validateValidInvite);
     },
     start: function() {
-      if (TS.boot_data.page_needs_enterprise || TS.boot_data.feature_external_shared_channels_ui) _start();
+      if (TS.model.shared_channels_enabled) _start();
     }
   });
   var _$body;
@@ -50190,7 +50204,9 @@ $.fn.togglify = function(settings) {
     promiseToEnsureEnterprise: function() {
       if (!TS.boot_data.page_needs_enterprise) TS.warn("Unexpected call to TS.enterprise.promiseToEnsureEnterprise");
       _maybeSetupEnterpriseModel();
-      return Promise.all([TS.api.call("enterprise.info").reflect(), TS.enterprise.promiseToGetTeams().reflect()]).then(function(responses) {
+      return Promise.all([TS.api.call("enterprise.info", {
+        include_primary_owner: true
+      }).reflect(), TS.enterprise.promiseToGetTeams().reflect()]).then(function(responses) {
         var rejection_reasons = [];
         responses.forEach(function(response) {
           if (response.isFulfilled()) return;
@@ -53077,6 +53093,15 @@ $.fn.togglify = function(settings) {
         var texty = _getTextyInstance(input);
         texty.deserialize(serialized);
       }
+    },
+    isCursorInPreBlock: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return false;
+      if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.isCursorInPreBlock();
+      }
+      return false;
     },
     test: function() {
       var test = {

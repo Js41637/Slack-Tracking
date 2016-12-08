@@ -9453,7 +9453,7 @@
         this.$_clear_icon = this.$_container.find(".icon_close");
         this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
         this.$_search_input.bind("keyup.searchable_member_list", this._handleSearchKeyUp.bind(this));
-        this.$_filter_input.bind("click.searchable_member_list", this._handleFilterSelect.bind(this));
+        this.$_container.delegate(".searchable_member_list_filter", "click", this._handleFilterSelect.bind(this));
         this.$_clear_icon.bind("click", function() {
           this_searchable_member_list.resetResults();
           Promise.resolve().then(function() {
@@ -9615,6 +9615,7 @@
       if ($no_results.length == 0) return;
       this._current_filter = "everyone";
       this.$_filter_input.replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
+      this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
       $no_results.remove();
       this.$_long_list_view.show();
     },
@@ -9634,6 +9635,7 @@
         if (!$action.length) return;
         this_searchable_member_list._current_filter = $action.data("filter");
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
+        this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
         this_searchable_member_list.fetchAndShowResults(this_searchable_member_list._current_query_for_display);
       });
     },
@@ -9789,8 +9791,16 @@
             }
           },
           placeholder: $input.data("placeholder"),
-          onSend: function() {
-            _tryToSubmit({}, $input);
+          onEnter: function(args) {
+            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock($input)) {
+              if (!args.shiftKey) return true;
+              _tryToSubmit({}, $input);
+              return false;
+            } else {
+              if (args.shiftKey) return true;
+              _tryToSubmit({}, $input);
+              return false;
+            }
           },
           onTextChange: function() {
             _maybeResize();
@@ -10245,21 +10255,27 @@
     if (!model_ob || !TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) || !model_ob.is_im && !model_ob.is_mpim && !model_ob.is_channel && !model_ob.is_group) {
       return "";
     }
-    var placeholder = "Message ";
+    var placeholder;
     if (model_ob.is_self_im) {
-      placeholder += "yourself";
-    } else if (model_ob.is_im) {
-      if (TS.boot_data.feature_name_tagging_client) {
-        placeholder += TS.members.getMemberFullName(model_ob.user);
-      } else {
-        placeholder += TS.members.getMemberDisplayNameById(model_ob.user, false, true);
+      placeholder = TS.i18n.t("Message yourself", "msg_input")();
+    } else {
+      var msg;
+      if (model_ob.is_im) {
+        if (TS.boot_data.feature_name_tagging_client) {
+          msg = TS.members.getMemberFullName(model_ob.user);
+        } else {
+          msg = TS.members.getMemberDisplayNameById(model_ob.user, false, true);
+        }
+      } else if (model_ob.is_mpim) {
+        msg = TS.mpims.getDisplayName(model_ob, false, false, 3);
+      } else if (model_ob.is_group) {
+        msg = model_ob.name;
+      } else if (model_ob.is_channel) {
+        msg = "#" + model_ob.name;
       }
-    } else if (model_ob.is_mpim) {
-      placeholder += TS.mpims.getDisplayName(model_ob, false, false, 3);
-    } else if (model_ob.is_group) {
-      placeholder += model_ob.name;
-    } else if (model_ob.is_channel) {
-      placeholder += "#" + model_ob.name;
+      placeholder = TS.i18n.t("Message {msg}", "msg_input")({
+        msg: msg
+      });
     }
     return placeholder;
   };
@@ -10281,7 +10297,7 @@
             emoji: ":electric_plug:"
           },
           username: "connectbot",
-          text: "Hmm, your computer seems to be *offline*, so sending messages won’t work at the moment.",
+          text: TS.i18n.t("Hmm, your computer seems to be *offline*, so sending messages won’t work at the moment.", "msg_input")(),
           ephemeral_type: "disconnected_feedback"
         });
       }
@@ -13411,7 +13427,9 @@
         TS.error("downloadWithTokenDidFailWithReasonAndCode: no download for token: " + token);
         return;
       }
-      TS.generic_dialog.alert("Download failed: " + reason);
+      TS.generic_dialog.alert(TS.i18n.t("Download failed: {reason}", "downloads")({
+        reason: reason
+      }));
       _fetchDownloadsDataAndUpdate();
     },
     downloadMetadataChanged: function() {
@@ -13556,11 +13574,11 @@
   var _removeAllDownloads = function(confirmed) {
     if (!confirmed && _getDownloadByState("in_progress")) {
       TS.generic_dialog.start({
-        title: "Clear all downloads",
-        body: "<p>You have an active download. Are you sure you want to clear them all?</p>",
+        title: TS.i18n.t("Clear all downloads", "downloads")(),
+        body: "<p>" + TS.i18n.t("You have an active download. Are you sure you want to clear them all?", "downloads")() + "</p>",
         show_cancel_button: true,
         show_go_button: true,
-        go_button_text: "Yes, clear them all",
+        go_button_text: TS.i18n.t("Yes, clear them all", "downloads")(),
         onGo: function() {
           _removeAllDownloads(true);
         }
@@ -13861,7 +13879,9 @@
     var secs_so_far = Date.now() / 1e3 - dl.dl_start_ts;
     var total_secs_estimate = secs_so_far * (1 / dl.progress);
     var secs_to_go_estimate = total_secs_estimate - secs_so_far;
-    return Math.ceil(secs_to_go_estimate) + "s remaining";
+    return TS.i18n.t("{seconds}s remaining", "downloads")({
+      seconds: Math.ceil(secs_to_go_estimate)
+    });
   };
   var _getDlDiv = function(token) {
     return _$scroller.find('[data-token="' + token + '"]');
