@@ -6209,6 +6209,10 @@ only screen and (min-resolution:2dppx) {
   right: 0
 }
 
+.feature_texty #footer {
+  z-index: 201
+}
+
 #footer_archives_table {
   vertical-align: middle;
   display: table;

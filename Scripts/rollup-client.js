@@ -28,6 +28,9 @@
       if (TS.boot_data.feature_name_tagging_client) {
         $("body").addClass("feature_name_tagging_client");
       }
+      if (TS.boot_data.feature_texty) {
+        $("body").addClass("feature_texty");
+      }
       if (TS.boot_data.feature_min_web && TS.boot_data.version_ts === "dev") {
         var timeout_s = 5;
         TSSSB.call("setTeamIdleTimeout", timeout_s);
