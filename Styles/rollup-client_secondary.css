@@ -5796,7 +5796,39 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container .input_note {
-  margin-top: .375rem
+  margin-top: .375rem;
+  -webkit-transition: all .15s ease;
+  -moz-transition: all .15s ease;
+  transition: all .15s ease;
+  opacity: 1
+}
+
+.current_status_input_container .input_note.invisible {
+  opacity: 0
+}
+
+.current_status_input_container .current_status_clear,
+.current_status_input_container .current_status_suggestions {
+  list-style-type: none;
+  margin: 0
+}
+
+.current_status_input_container .current_status_clear li,
+.current_status_input_container .current_status_suggestions li {
+  padding-top: .125rem;
+  padding-bottom: .125rem
+}
+
+.current_status_input_container .current_status_clear li a,
+.current_status_input_container .current_status_suggestions li a {
+  color: #2c2d30!important
+}
+
+.current_status_input_container .current_status_clear li a:active,
+.current_status_input_container .current_status_clear li a:hover,
+.current_status_input_container .current_status_suggestions li a:active,
+.current_status_input_container .current_status_suggestions li a:hover {
+  text-decoration: none!important
 }
 
 #member_preview_scroller .current_status_input_container,
@@ -22071,6 +22103,35 @@ ts-jumper ts-jumper-results:empty {
   transform: translateY(-.3125rem)
 }
 
+.current_status_input_for_team_menu .current_status_input_wrap,
+.current_status_input_for_team_menu .input_note {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem
+}
+
+.current_status_input_for_team_menu .input_note {
+  max-height: 3rem;
+  margin-bottom: 0
+}
+
+.current_status_input_for_team_menu .input_note.invisible {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: .875rem
+}
+
+.current_status_input_for_team_menu .current_status_suggestions {
+  margin-top: .375rem;
+  padding-top: .8125rem;
+  padding-bottom: .8125rem;
+  border-top: 1px solid #e8e8e8;
+  border-bottom: 1px solid #e8e8e8
+}
+
+.current_status_input_for_team_menu .current_status_clear {
+  padding-top: .8125rem
+}
+
 .slack_menu_download .download_link {
   padding-left: 2.375rem
 }
@@ -22112,11 +22173,6 @@ ts-jumper ts-jumper-results:empty {
 
 #slack_menu_current_status_submenu {
   width: 18.75rem
-}
-
-#slack_menu_current_status_submenu #slack_menu_current_status_input_container {
-  padding-left: 1.25rem;
-  padding-right: 1.25rem
 }
 
 #slack_menu_current_status_submenu #slack_menu_current_status_input_container .current_status_input_label_content,

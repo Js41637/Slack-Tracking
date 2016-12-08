@@ -11176,6 +11176,10 @@ TS.registerModule("constants", {
         return field.is_hidden;
       });
     },
+    getTeamCustomStatusSuggestions: function() {
+      if (!TS.boot_data.feature_user_custom_status) return;
+      return TS.model.team.prefs.custom_status_suggestions;
+    },
     sortTeamProfileFieldsByOrdering: function() {
       if (!TS.model.team.profile.fields.length) return void TS.warn("Ensure profile fields exist before calling sortTeamProfileFieldsByOrdering");
       TS.model.team.profile.fields.sort(function(this_field, that_field) {
@@ -11361,12 +11365,13 @@ TS.registerModule("constants", {
       }
       return null;
     },
-    promiseToGetFullAppProfile: function(app_id, bot_id) {
+    promiseToGetFullAppProfile: function(app_id, bot_id, show_auth_summary) {
       if (!_.isString(app_id)) return null;
       if (!_.isString(bot_id)) return null;
       return new Promise(function(resolve, reject, onCancel) {
         var apps_profile_promise = TS.api.call("apps.profile.get", {
-          bot: bot_id
+          bot: bot_id,
+          show_auth_summary: show_auth_summary ? true : false
         }).then(function(res) {
           if (res.data.ok && res.data.app_profile) {
             var app = res.data.app_profile;
@@ -22660,6 +22665,11 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getMemberCurrentStatus", function(member) {
         return TS.members.getMemberCurrentStatus(member);
+      });
+      Handlebars.registerHelper("getTeamCustomStatusSuggestions", function() {
+        return _.map(TS.team.getTeamCustomStatusSuggestions(), function(suggestion) {
+          return new Handlebars.SafeString(TS.format.formatDefault(suggestion));
+        });
       });
       Handlebars.registerHelper("getDisplayNameOfUserForIm", function(im) {
         if (!im) return "MISSING_IM";

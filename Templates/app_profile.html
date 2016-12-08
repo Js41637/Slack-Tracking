@@ -64,5 +64,15 @@
         {{/each}}
       </section>
     {{/if}}
+    {{#unless is_slack_integration}}
+      <section>
+        <div class="app_profile_section_header">{{#t}}Settings{{/t}}</div>
+        <div class="app_profile_section_text" data-js="app_profile_settings">
+          <svg class="ts_icon ts_icon_spin ts_icon_spinner">
+            <use xlink:href="/img/starburst.svg#starburst_svg"/>
+          </svg>
+        </div>
+      </section>
+    {{/unless}}
   </div>
 </div>

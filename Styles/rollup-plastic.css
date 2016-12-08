@@ -12136,7 +12136,39 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container .input_note {
-  margin-top: .375rem
+  margin-top: .375rem;
+  -webkit-transition: all .15s ease;
+  -moz-transition: all .15s ease;
+  transition: all .15s ease;
+  opacity: 1
+}
+
+.current_status_input_container .input_note.invisible {
+  opacity: 0
+}
+
+.current_status_input_container .current_status_clear,
+.current_status_input_container .current_status_suggestions {
+  list-style-type: none;
+  margin: 0
+}
+
+.current_status_input_container .current_status_clear li,
+.current_status_input_container .current_status_suggestions li {
+  padding-top: .125rem;
+  padding-bottom: .125rem
+}
+
+.current_status_input_container .current_status_clear li a,
+.current_status_input_container .current_status_suggestions li a {
+  color: #2c2d30!important
+}
+
+.current_status_input_container .current_status_clear li a:active,
+.current_status_input_container .current_status_clear li a:hover,
+.current_status_input_container .current_status_suggestions li a:active,
+.current_status_input_container .current_status_suggestions li a:hover {
+  text-decoration: none!important
 }
 
 #member_preview_scroller .current_status_input_container,

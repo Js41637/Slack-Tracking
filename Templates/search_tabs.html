@@ -1,5 +1,5 @@
   <div id="search_filters" class="{{searchFilter}}">
-    <a id="filter_messages" onclick="TS.search.setFilter('messages'); return false;">Messages ({{messages_count}})</a>
-    <a id="filter_files" onclick="TS.search.setFilter('files'); return false;">Files ({{files_count}})</a>
+    <a id="filter_messages" onclick="TS.search.setFilter('messages'); return false;"{{#t note="A message count label that shows next to search results. For example, Messages (5)"}}>Messages ({messages_count}){{/t}}</a>
+    <a id="filter_files" onclick="TS.search.setFilter('files'); return false;">{{#t note="A file count label that shows next to search results. For example, Files (5)"}}Files ({files_count}){{/t}}</a>
   </div>
-    
+

@@ -37516,6 +37516,13 @@ function timezones_guess() {
       } else {
         _$app_profile_desc.css("max-height", _$app_profile_desc.find('[data-js="app_profile_desc_inner"]').height());
       }
+      if (!app.is_slack_integration) {
+        TS.apps.promiseToGetFullAppProfile(app.id, bot_id, true).then(function(app) {
+          if (app.auth_summary) {
+            $app_profile.find('[data-js="app_profile_settings"]').html(app.auth_summary);
+          }
+        });
+      }
     },
     onButtonClick: function(e) {
       var $item = $(this);
