@@ -35609,15 +35609,10 @@ function timezones_guess() {
       TS.ui.message_container.register(_msgs_config);
       _preloadEmptyState();
       TS.client.ui.unread.$scroller.attr("tabindex", "-1");
-      var scroller_height;
-      if (TS.boot_data.feature_flexbox_client) {
-        scroller_height = TS.client.ui.unread.$scroller.css("height");
-        TS.client.ui.unread.$scroller.height(1);
-      }
+      var scroller_height = TS.client.ui.unread.$scroller.css("height");
+      TS.client.ui.unread.$scroller.height(1);
       TS.client.ui.unread.$scroller.get(0).focus();
-      if (TS.boot_data.feature_flexbox_client) {
-        TS.client.ui.unread.$scroller.css("height", scroller_height);
-      }
+      TS.client.ui.unread.$scroller.css("height", scroller_height);
       TS.client.ui.rebuildAllButMsgs();
       TS.client.ui.unread.promiseToShowNextPage().then(function() {
         if (TS.client.unread.shouldRecordMetrics()) TS.metrics.measureAndClear("unread_view_time_to_display", "unread_view_time_to_display");

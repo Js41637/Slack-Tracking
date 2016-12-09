@@ -5169,6 +5169,10 @@ only screen and (min-resolution:2dppx) {
   margin: .9375rem
 }
 
+.menu.submenu.submenu_help .help_message {
+  font-size: .9rem
+}
+
 .menu.submenu.submenu_help ts-icon {
   position: relative;
   top: 2px
