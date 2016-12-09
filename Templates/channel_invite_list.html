@@ -1,10 +1,12 @@
-  <p class="top_margin no_bottom_margin">
-    <label for="select_invite_channels" class="inline_block lazy_filter_select">Invite to</label>
+{{i18n_ns 'channel_invite'}}
+
+<p class="top_margin no_bottom_margin">
+    <label for="select_invite_channels" class="inline_block lazy_filter_select">{{#t}}Invite to{{/t}}</label>
     <select id="select_invite_channels" name="select_invite_channels" class="file_share_select no_margin">
-      <option value="ts_null_value">Select a channel</option>
-      {{#each channels}}
-        <option value="{{this.id}}">#{{this.name}}</option>
-      {{/each}}
+        <option value="ts_null_value">{{#t}}Select a channel{{/t}}</option>
+        {{#each channels}}
+            <option value="{{this.id}}">#{{this.name}}</option>
+        {{/each}}
     </select>
-  </p>
+</p>
 

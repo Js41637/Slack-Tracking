@@ -19,6 +19,16 @@
 
 <li class="divider"></li>
 
+{{#feature flag="feature_focus_mode"}}
+  <li>
+    <label class="checkbox no_margin normal">
+      <input type="checkbox" class="small_right_margin no_left_margin" data-dnd-menu-action="enter_focus_mode"> {{#t}}Focus Mode{{/t}}
+      <span class="float_right subtle_silver right_margin tiny">{{cmd_key}}+shift+f</span>
+    </label>
+  </li>
+  <li class="divider"></li>
+{{/feature}}
+
 {{#unless model_ob.is_im}}
   <li id="channel_notification_settings" class="overflow_ellipsis" role="menuitem">
     <a data-dnd-menu-action="channel_settings">{{#t name=model_ob_name note="{name} is the title of a channel, group, or mpim"}}Settings for <strong>{name}</strong> &hellip;{{/t}}</a>

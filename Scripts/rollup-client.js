@@ -14358,20 +14358,25 @@
     },
     70: {
       isDisabled: function(e) {
-        return !(TS.model.is_our_app || TS.model && TS.model.prefs && TS.model.prefs.f_key_search);
+        return !(TS.model.is_our_app || TS.model && TS.model.prefs && TS.model.prefs.f_key_search || TS.boot_data.feature_focus_mode && e.shiftKey);
       },
-      no_shift: true,
-      func: function() {
-        TS.client.ui.flex.openFlexTab("search");
-        TS.view.resizeManually("TS.key_triggers");
-        TS.clog.track("SEARCH_OPEN", {
-          open_method: "key"
-        });
-        var txt = "in:" + TS.shared.getActiveModelOb().name + " ";
-        TS.search.setInputVal(txt);
-        var system_find_str = TSSSB.call("readFindString");
-        if (system_find_str) {
-          TS.search.appendToInputAndSelect(system_find_str);
+      shift_optional: true,
+      func: function(e) {
+        if (e.shiftKey) {
+          if (!TS.boot_data.feature_focus_mode) return;
+          TS.ui.focus_mode.start();
+        } else {
+          TS.client.ui.flex.openFlexTab("search");
+          TS.view.resizeManually("TS.key_triggers");
+          TS.clog.track("SEARCH_OPEN", {
+            open_method: "key"
+          });
+          var txt = "in:" + TS.shared.getActiveModelOb().name + " ";
+          TS.search.setInputVal(txt);
+          var system_find_str = TSSSB.call("readFindString");
+          if (system_find_str) {
+            TS.search.appendToInputAndSelect(system_find_str);
+          }
         }
       }
     },
@@ -21690,31 +21695,43 @@
       var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(member.id);
       if (TS.model.user.is_ultra_restricted) {
         TS.generic_dialog.start({
-          title: "Invite " + TS.members.getMemberDisplayName(member, true) + " to a channel",
-          body: "You are not allowed to invite other members to channels.",
+          title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
+          body: TS.i18n.t("You are not allowed to invite other members to channels.", "channel_invite")(),
           show_cancel_button: false
         });
       } else if (member.is_ultra_restricted) {
         TS.generic_dialog.start({
-          title: "Invite " + TS.members.getMemberDisplayName(member, true) + " to a channel",
-          body: TS.members.getMemberDisplayName(member, true) + " cannot be invited to any new channels.",
+          title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
+          body: TS.i18n.t("{name} cannot be invited to any new channels.", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
           show_cancel_button: false
         });
       } else if (member.is_restricted && !TS.model.user.is_admin) {
         TS.generic_dialog.start({
-          title: "Invite " + TS.members.getMemberDisplayName(member, true) + " to a channel",
-          body: "Only a Team Admin can invite " + TS.members.getMemberDisplayName(member, true) + " into new channels.",
+          title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
+          body: TS.i18n.t("Only a Team Admin can invite {name} into new channels.", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
           show_cancel_button: false
         });
       } else if (invite_channels.length) {
         TS.generic_dialog.start({
-          title: "Invite " + TS.members.getMemberDisplayName(member, true) + " to a channel",
+          title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
           body: TS.templates.channel_invite_list({
             channels: invite_channels
           }),
           show_cancel_button: true,
           show_go_button: true,
-          go_button_text: "Invite",
+          go_button_text: TS.i18n.t("Invite", "channel_invite")(),
           onGo: function() {
             var channels = $("#select_invite_channels").lazyFilterSelect("value");
             if (!channels[0]) return false;
@@ -21742,7 +21759,7 @@
             }
             return false;
           },
-          placeholder_text: "Select a channel",
+          placeholder_text: TS.i18n.t("Select a channel", "channel_invite")(),
           css: filter_select_css,
           classes: "select_invite_channels",
           data: invite_channels,
@@ -21755,11 +21772,15 @@
         $("#generic_dialog").find(".modal-body").css("overflow", "visible");
       } else {
         TS.generic_dialog.start({
-          title: "" + TS.members.getMemberDisplayName(member, true) + " is already in all the channels you are in",
-          body: "Since " + TS.members.getMemberDisplayName(member, true) + " is already in all the channels you are in, there is nothing to invite them to!",
+          title: TS.i18n.t("{name} is already in all the channels you are in", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
+          body: TS.i18n.t("Since {name} is already in all the channels you are in, there is nothing to invite them to!", "channel_invite")({
+            name: TS.members.getMemberDisplayName(member, true)
+          }),
           show_cancel_button: false,
           show_go_button: true,
-          go_button_text: "OK",
+          go_button_text: TS.i18n.t("OK", "channel_invite")(),
           esc_for_ok: true
         });
       }
@@ -21773,18 +21794,17 @@
     var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(members_you_can_invite);
     if (invite_members.length) {
       var on_second_step = false;
+      var who_text;
       var showMemberSelect = function(allow_archive_access) {
         on_second_step = true;
         $("#archive_access_cb").prop("checked", allow_archive_access);
-        $("#generic_dialog").find(".dialog_secondary_go").addClass("hidden");
-        $("#generic_dialog").find(".dialog_go").text("Invite New Members").removeClass("btn_success");
+        $("#generic_dialog").find(".dialog_secondary_go").addClass("hidden").end().find(".dialog_go").text(TS.i18n.t("Invite New Members", "channel_invite")()).removeClass("btn_success");
         $("#group_invite_archives_prompt").addClass("hidden");
         $("#group_invite_member_chooser").removeClass("hidden");
         if (TS.model.user.is_admin) {
-          var footer_html = '<span class="mini float_left small_top_margin">Or, <a data-action="admin_invites_modal" onclick="TS.generic_dialog.cancel();">invite a new person to your team</a></span>';
+          var footer_html = '<span class="mini float_left small_top_margin">' + TS.i18n.t('Or, <a data-action="admin_invites_modal" onclick="TS.generic_dialog.cancel();">invite a new person to your team</a>', "channel_invite")() + "</span>";
           $("#generic_dialog").find(".modal-footer").prepend(footer_html);
         }
-        return;
       };
       var doWork = function(allow_archive_access, selected_idsA) {
         if (ephemeral_msg_ts) {
@@ -21803,32 +21823,29 @@
           if (!ok) {
             if (data && data.error == "restricted_action") {
               setTimeout(function() {
-                TS.generic_dialog.alert("<p>You don't have permission to create new groups.</p><p>Talk to your Team Owner.</p>");
+                TS.generic_dialog.alert(TS.i18n.t("<p>You don‘t have permission to create new groups.</p><p>Talk to your Team Owner.</p>", "channel_invite")());
               }, 500);
             } else {
               alert("failed! " + data.error);
             }
-            return;
           }
         });
       };
-      var who_text = "new members";
       if (preselected_idsA.length) {
-        who_text = "";
-        for (var i = 0; i < preselected_idsA.length; i++) {
-          if (i !== 0) {
-            if (i == preselected_idsA.length - 1) {
-              if (preselected_idsA.length > 2) who_text += ",";
-              who_text += " and ";
-            } else {
-              who_text += ", ";
-            }
-          }
-          who_text += "<b>" + TS.members.getMemberDisplayName(TS.members.getMemberById(preselected_idsA[i]), true) + "</b>";
-        }
+        var member_list = preselected_idsA.map(function(id) {
+          return TS.members.getMemberDisplayName(TS.members.getMemberById(id), true);
+        });
+        who_text = TS.i18n.listify(member_list, {
+          strong: true
+        }).join("");
+      } else {
+        who_text = TS.i18n.t("new members", "channel_invite")();
       }
       TS.generic_dialog.start({
-        title: "Invite " + who_text + " to " + TS.model.group_prefix + group.name,
+        title: TS.i18n.t("Invite {who} to {group}", "channel_invite")({
+          who: who_text,
+          group: TS.model.group_prefix + group.name
+        }),
         body: TS.templates.group_member_invite_list({
           invite_members: invite_members,
           group: group,
@@ -21836,9 +21853,9 @@
         }),
         show_cancel_button: true,
         show_go_button: true,
-        go_button_text: "Yes, show channel history",
+        go_button_text: TS.i18n.t("Yes, show channel history", "channel_invite")(),
         show_secondary_go_button: true,
-        secondary_go_button_text: "No, start new private channel",
+        secondary_go_button_text: TS.i18n.t("No, start new private channel", "channel_invite")(),
         secondary_go_button_class: "btn_info",
         onGo: function() {
           if (!on_second_step) {
@@ -21870,11 +21887,11 @@
       $(".modal-body").css("overflow-y", "visible");
     } else {
       TS.generic_dialog.start({
-        title: "Everyone is already in this private channel",
-        body: "Since everyone is already in this private channel, there is no one to invite!",
+        title: TS.i18n.t("Everyone is already in this private channel", "channel_invite")(),
+        body: TS.i18n.t("Since everyone is already in this private channel, there is no one to invite!", "channel_invite")(),
         show_cancel_button: false,
         show_go_button: true,
-        go_button_text: "OK",
+        go_button_text: TS.i18n.t("OK", "channel_invite")(),
         esc_for_ok: true
       });
     }
@@ -30077,7 +30094,9 @@
     }
     _is_open = true;
     var settings = {
-      title: "Your preferences for " + TS.model.team.name,
+      title: TS.i18n.t("Your preferences for {team_name}", "prefs")({
+        team_name: TS.model.team.name
+      }),
       body_template_html: "",
       sidebar_html: _sidebar_html,
       onShow: _onShow,
@@ -30342,9 +30361,9 @@
     $("#growls_test").on("click", function() {
       TS.sounds.play("new_message");
       if (TS.model.prefs.no_text_in_notifications) {
-        TS.ui.growls.show("A Notification from Slack", "");
+        TS.ui.growls.show(TS.i18n.t("A Notification from Slack", "prefs")(), "");
       } else {
-        TS.ui.growls.show("A Notification from Slack", "What do you know? It works.");
+        TS.ui.growls.show(TS.i18n.t("A Notification from Slack", "prefs")(), TS.i18n.t("What do you know? It works.", "prefs")());
       }
     }).addClass("hidden");
     if (TS.ui.growls.shouldShowPermissionButton()) {
@@ -30666,7 +30685,7 @@
   };
   var _bindSearchPrefs = function() {
     $("#search_channel_exclusion").lazyFilterSelect({
-      placeholder_text: "Pick channels to exclude..."
+      placeholder_text: TS.i18n.t("Pick channels to exclude...", "prefs")()
     }).on("change", function() {
       var channels = $(this).val();
       TS.prefs.setPrefByAPI({
@@ -30728,7 +30747,7 @@
       var default_path = TSSSB.call("getPreference", "PrefSSBFileDownloadPath") || "";
       var options = {
         type: "openDirectory",
-        title: "Select a download location",
+        title: TS.i18n.t("Select a download location", "prefs")(),
         defaultPath: default_path
       };
       TSSSB.call("showOpenDialog", {
@@ -30888,7 +30907,7 @@
       });
     });
     $("#client_logs_pri").hide().lazyFilterSelect({
-      placeholder_text: "Select logs to enable..."
+      placeholder_text: TS.i18n.t("Select logs to enable...", "prefs")()
     }).on("change", function() {
       var priorities = $(this).val();
       TS.prefs.setPrefByAPI({
@@ -31538,7 +31557,7 @@
       TS.info("callback called allowed:" + allowed + " permission_level:" + permission_level);
       $("#growls_instructions_div").addClass("hidden");
       if (permission_level == "granted" && allowed) {
-        $("#growls_allowed_div").removeClass("hidden").find(".desktop_notifications_title").addClass("kelly_green").text("Desktop Notifications enabled!");
+        $("#growls_allowed_div").removeClass("hidden").find(".desktop_notifications_title").addClass("kelly_green").text(TS.i18n.t("Desktop Notifications enabled!", "prefs")());
         $("#growls_test").removeClass("hidden");
         if (!TS.model.prefs.growls_enabled) {
           TS.prefs.setPrefByAPI({
@@ -35431,6 +35450,7 @@ function timezones_guess() {
   TS.registerModule("client.ui.unread", {
     $channel_pane_item: $("#channels_scroller .all_unreads"),
     $scroller: $("#unread_msgs_scroller_div"),
+    $loading_msg_container: null,
     $unread_msgs_div: null,
     $container: null,
     unread_groups: [],
@@ -35463,6 +35483,8 @@ function timezones_guess() {
       TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);
       TS.client.ui.unread.$scroller.html(TS.templates.unread_main());
       TS.client.ui.unread.$unread_msgs_div = $("#unread_msgs_div");
+      _loading = true;
+      TS.client.ui.unread.displayLoadingMessage();
       if (TS.environment.supports_custom_scrollbar) {
         TS.client.ui.unread.$container = $("#unread_msgs_scroller_div");
       } else {
@@ -35587,12 +35609,14 @@ function timezones_guess() {
       TS.ui.message_container.register(_msgs_config);
       _preloadEmptyState();
       TS.client.ui.unread.$scroller.attr("tabindex", "-1");
+      var scroller_height;
       if (TS.boot_data.feature_flexbox_client) {
+        scroller_height = TS.client.ui.unread.$scroller.css("height");
         TS.client.ui.unread.$scroller.height(1);
       }
       TS.client.ui.unread.$scroller.get(0).focus();
       if (TS.boot_data.feature_flexbox_client) {
-        TS.client.ui.unread.$scroller.css("height", "");
+        TS.client.ui.unread.$scroller.css("height", scroller_height);
       }
       TS.client.ui.rebuildAllButMsgs();
       TS.client.ui.unread.promiseToShowNextPage().then(function() {
@@ -35676,7 +35700,8 @@ function timezones_guess() {
       _msgs_config.sections = [];
       _msgs_config.has_more_end = false;
       TS.ui.message_container.register(_msgs_config);
-      TS.client.ui.unread.$scroller.addClass("loading");
+      _loading = true;
+      TS.client.ui.unread.displayLoadingMessage();
       _preloadEmptyState();
       _keyboard_in_use = false;
       TS.client.ui.unread.promiseToShowNextPage().then(function() {
@@ -35690,8 +35715,29 @@ function timezones_guess() {
         }
       });
     },
+    createLoadingMsgHTML: function() {
+      var $loading_msg_container = $('<div class="unread_msgs_loading"><div class="unread_msgs_loading_msg"></div></div>');
+      TS.client.ui.unread.$scroller.after($loading_msg_container);
+      TS.client.ui.unread.$loading_msg_container = $loading_msg_container;
+    },
+    displayLoadingMessage: function(message) {
+      if (!TS.client.ui.unread.$loading_msg_container) {
+        TS.client.ui.unread.createLoadingMsgHTML();
+      }
+      TS.client.ui.unread.$loading_msg_container.removeClass("hidden");
+      var default_message = TS.i18n.t("Loading messages...", "unread")();
+      var loading_message = message || default_message;
+      TS.client.ui.unread.$loading_msg_container.find(".unread_msgs_loading_msg").text(loading_message);
+    },
+    hideLoadingMessage: function() {
+      TS.client.ui.unread.$loading_msg_container.addClass("hidden");
+    },
     displaySlowLoadingMessage: function() {
-      if (TS.client.ui.unread.$scroller.hasClass("loading")) TS.client.ui.unread.$scroller.addClass("loading-slow");
+      if (!_loading) {
+        return;
+      }
+      var message = TS.i18n.t("Still loading... sorry for the long wait!", "unread")();
+      TS.client.ui.unread.displayLoadingMessage(message);
     },
     isFatalErrorDisplaying: function() {
       return $("#messages_container .unread_error_state").length;
@@ -35804,7 +35850,8 @@ function timezones_guess() {
         TS.ui.banner.show_hide_sig.remove(_updateBannerHeight);
       }
       TS.client.ui.unread.$unread_msgs_div.empty();
-      TS.client.ui.unread.$scroller.addClass("loading");
+      _loading = false;
+      TS.client.ui.unread.hideLoadingMessage();
       $("#footer").removeClass("invisible");
       TS.view.resize_sig.remove(_onResize);
       TS.channels.renamed_sig.remove(_onRename);
@@ -36085,6 +36132,7 @@ function timezones_guess() {
   };
   var _delay_refresh_button;
   var _keyboard_in_use = false;
+  var _loading = false;
   var _preloadEmptyState = function() {
     var done_message_combo_options = [{
       emoji: "tada",
@@ -36450,7 +36498,7 @@ function timezones_guess() {
     if ([TS.utility.keymap.left, TS.utility.keymap.right, 82].indexOf(e.which) === -1) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     if (_currently_loading_more_promise && _currently_loading_more_promise.isPending()) return;
-    if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !TS.client.ui.unread.$scroller.hasClass("loading") && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
+    if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !_loading && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
       var current_group = TS.client.unread.getActiveGroup();
       if (e.which === TS.utility.keymap.right || e.which === TS.utility.keymap.left) {
         _keyboard_in_use = true;
@@ -36648,8 +36696,8 @@ function timezones_guess() {
     if (all_channels_read) TS.client.ui.unread.displayEmptyState();
   };
   var _transitionToMessages = function() {
-    TS.client.ui.unread.$scroller.removeClass("loading");
-    TS.client.ui.unread.$scroller.removeClass("loading-slow");
+    _loading = false;
+    TS.client.ui.unread.hideLoadingMessage();
     TS.client.ui.unread.$scroller.addClass("transitioning");
     TS.client.ui.unread.updateChannelHeader();
     TS.client.ui.unread.updateMsgs();

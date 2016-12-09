@@ -4946,6 +4946,23 @@ only screen and (min-resolution:2dppx) {
   padding-left: 1.625rem
 }
 
+#fs_modal.focus_mode_overlay .contents_container {
+  padding: 0
+}
+
+#fs_modal.focus_mode_overlay .contents_container .contents {
+  -webkit-align-self: center;
+  -moz-align-self: center;
+  -ms-flex-item-align: center;
+  align-self: center;
+  width: auto;
+  text-align: center
+}
+
+#fs_modal.focus_mode_overlay .contents_container .contents p {
+  margin-top: 3rem
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -5139,6 +5156,22 @@ only screen and (min-resolution:2dppx) {
 .menu.submenu .section_header .header_label {
   text-transform: uppercase;
   font-size: .75rem
+}
+
+.menu.submenu.submenu_help {
+  background: #fbfbfa;
+  color: #565759;
+  line-height: 1;
+  width: 250px
+}
+
+.menu.submenu.submenu_help ul {
+  margin: .9375rem
+}
+
+.menu.submenu.submenu_help ts-icon {
+  position: relative;
+  top: 2px
 }
 
 .menu #menu_header .menu_simple_header {

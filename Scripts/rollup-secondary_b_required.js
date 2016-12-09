@@ -543,7 +543,7 @@
       body_template_html: TS.templates.help_modal(),
       modal_class: "help_modal fs_modal_footer fs_modal_header",
       show_cancel_button: false,
-      go_button_text: "Contact Us",
+      go_button_text: TS.i18n.t("Contact Us", "help")(),
       onShow: _onShow,
       onGo: _onGo,
       onEnd: _onEnd,
@@ -720,7 +720,7 @@
     if (popularArticles.length > 0) {
       articles.push({
         is_divider: true,
-        title: "Popular help topics"
+        title: TS.i18n.t("Popular help topics", "help")()
       });
       articles = articles.concat(popularArticles);
     }
@@ -729,7 +729,9 @@
   var _concatWithGenericSearch = function(filteredArticles, query) {
     filteredArticles.push({
       is_divider: false,
-      title: 'Search for "' + query + '" on the Help Center',
+      title: TS.i18n.t('Search for "{query}" on the Help Center', "help")({
+        query: query
+      }),
       url: _createSearchUrl(query)
     });
     return filteredArticles;

@@ -4618,7 +4618,7 @@ TS.registerModule("constants", {
     onMarked: function(ok, data, args) {
       var group = TS.groups.getGroupById(args.channel);
       if (!group) {
-        TS.error('wtf no group "' + args.channel + '"');
+        TS.error('error no group "' + args.channel + '"');
         return;
       }
       if (ok || data && data.error == "is_archived") {} else {
@@ -4658,7 +4658,6 @@ TS.registerModule("constants", {
       if (!ok) {
         if (data.error == "name_taken") {} else if (data.error == "restricted_action") {} else {
           TS.error("failed to create group");
-          alert("failed to create group");
         }
         return;
       }
@@ -4717,9 +4716,11 @@ TS.registerModule("constants", {
         TS.channels.ui.showArchiveGroupDialog(group, true);
       } else if (leave_action === "leave") {
         TS.generic_dialog.start({
-          title: "Leave " + TS.model.group_prefix + group.name,
-          body: "<p>If you leave the private channel, you will no longer be able to see any of its messages. To rejoin the private channel, you will have to be re-invited.</p><p>Are you sure you wish to leave?</p>",
-          go_button_text: "Yes, leave the private channel",
+          title: TS.i18n.t("Leave {group}", "groups")({
+            group: TS.model.group_prefix + group.name
+          }),
+          body: TS.i18n.t("<p>If you leave the private channel, you will no longer be able to see any of its messages. To rejoin the private channel, you will have to be re-invited.</p><p>Are you sure you wish to leave?</p>", "groups")(),
+          go_button_text: TS.i18n.t("Yes, leave the private channel", "groups")(),
           onGo: function() {
             TS.api.call("groups.leave", {
               channel: id
@@ -4727,7 +4728,9 @@ TS.registerModule("constants", {
           }
         });
       } else {
-        TS.generic_dialog.alert("Sorry, you can't leave <b>" + TS.model.group_prefix + group.name + "</b>!");
+        TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <strong>{group}</strong>!", "groups")({
+          group: TS.model.group_prefix + group.name
+        }));
       }
     },
     onLeave: function(ok, data, args) {
@@ -4741,7 +4744,7 @@ TS.registerModule("constants", {
       }
       var group = TS.groups.getGroupById(args.channel);
       if (!group) {
-        TS.error('wtf no group "' + args.channel + '"');
+        TS.error('error no group "' + args.channel + '"');
         return;
       }
       group.msgs.length = 0;
@@ -4891,7 +4894,7 @@ TS.registerModule("constants", {
     onHistory: function(ok, data, args) {
       var group = TS.groups.getGroupById(args.channel);
       if (!group) {
-        TS.error('wtf no group "' + args.channel + '"');
+        TS.error('error no group "' + args.channel + '"');
         return;
       }
       if (!ok || !data || !data.messages) {
@@ -4911,7 +4914,7 @@ TS.registerModule("constants", {
     },
     fetchHistory: function(group, api_args, handler) {
       if (!group) {
-        TS.error('wtf no group "' + group + '"');
+        TS.error('error no group "' + group + '"');
         return;
       }
       TS.shared.maybeClearHasAutoScrolled(group);
@@ -23228,6 +23231,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("versioned_file_drop_blue", function() {
         return cdn_url + "/c3881/img/file-drop-blue@2x.png";
       });
+      Handlebars.registerHelper("versioned_focus_orb", function() {
+        return cdn_url + "/fa6b/img/focus_orb.gif";
+      });
       Handlebars.registerHelper("pinnedFileType", function(file) {
         if (!file) return "file";
         if (file.mode === "space") return "post";
@@ -31288,7 +31294,8 @@ TS.registerModule("constants", {
         model_ob_name: model_ob_name,
         in_dnd: status.in_dnd,
         is_snoozing: status.snoozed,
-        readable_end_time: status.readable_end_time
+        readable_end_time: status.readable_end_time,
+        cmd_key: TS.model.is_mac ? "⌘" : "ctrl"
       };
       TS.menu.has_submenu = true;
       TS.menu.$menu.addClass("notifications_menu");
@@ -31325,6 +31332,9 @@ TS.registerModule("constants", {
         }
       } else if (action === "dnd_schedule") {
         TS.ui.prefs_dialog.start("notifications", null, "prefs_dnd");
+      } else if (action === "enter_focus_mode") {
+        if (!TS.boot_data.feature_focus_mode) return;
+        TS.ui.focus_mode.start();
       } else if (action === "channel_settings") {
         var model_ob = TS.shared.getActiveModelOb();
         TS.ui.channel_prefs_dialog.start(model_ob.id);
@@ -31559,6 +31569,11 @@ TS.registerModule("constants", {
       TS.menu.$menu.addClass("all_unreads_sort_order_menu");
       TS.menu.$menu_items.html(TS.templates.unread_sort_order_menu(template_args));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onAllUnreadsSortOrderMenuItemClick);
+      TS.menu.addSubmenu(".priority", TS.templates.menu_help_submenu({
+        icon: "ts_icon_emoji_objects",
+        title: TS.i18n.t("Sort by science", "all_unreads")(),
+        message: TS.i18n.t("This sorts your unreads based on how you use Slack.", "all_unreads")()
+      }), _.noop, true);
       TS.menu.start(e);
       TS.menu.positionAt($(".channel_header_info_count"), 105, 20);
     },
@@ -31906,12 +31921,13 @@ TS.registerModule("constants", {
         $menu.css("top", Math.max(allow_rect.top, allow_rect.bottom - rect.height + $(window).scrollTop()));
       }
     },
-    addSubmenu: function(submenu_selector, items_html, onclick) {
+    addSubmenu: function(submenu_selector, items_html, onclick, help) {
       var $submenu_element = TS.menu.$menu_items.find(submenu_selector);
       $submenu_element.on("highlighted", function() {
         $submenu_element.submenu({
           items_html: items_html,
-          onclick: onclick
+          onclick: onclick,
+          help: help
         });
       }).on("unhighlighted", function() {
         if (TS.menu.$submenu && !TS.menu.$submenu.hasClass("kb_active")) {
@@ -31951,7 +31967,7 @@ TS.registerModule("constants", {
     _create: function() {
       this.element.data("has-submenu", true);
       var html_label = TS.i18n.t("submenu", "menu_source")();
-      var html = '<div class="menu submenu" data-origin-id="' + this.element.attr("id") + '" data-model-ob-id="' + this.element.data("modelObId") + '"><ul aria-hidden="true" aria-label="' + html_label + '">' + this.options.items_html + "</ul></div>";
+      var html = '<div class="menu submenu' + (this.options.help ? " submenu_help" : "") + '" data-origin-id="' + this.element.attr("id") + '" data-model-ob-id="' + this.element.data("modelObId") + '"><ul aria-hidden="true" aria-label="' + html_label + '">' + this.options.items_html + "</ul></div>";
       var X_OFFSET = 7;
       var Y_OFFSET = 11;
       var x = TS.menu.$menu.offset().left + TS.menu.$menu.width() + X_OFFSET;

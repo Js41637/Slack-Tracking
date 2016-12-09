@@ -3180,11 +3180,12 @@
     test.id = "__sb";
     test.style.overflow = "scroll";
     test.style.width = "40px";
+    test.style.height = "40px";
     test.style.position = "absolute";
     test.style.left = "-40px";
-    test["innerHTML"] = "&shy;<style>#__sb::-webkit-scrollbar {width:0px;}</style>";
+    test["innerHTML"] = "&shy;<style>#__sb::-webkit-scrollbar {width:10px;}</style>";
     document.body.appendChild(test);
-    var is_css_scrollbar_supported = test.scrollWidth == 40;
+    var is_css_scrollbar_supported = test.scrollWidth == 30;
     document.body.removeChild(test);
     return is_css_scrollbar_supported;
   }

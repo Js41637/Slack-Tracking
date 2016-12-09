@@ -10077,6 +10077,22 @@ html.fs_modal_active {
   font-size: .75rem
 }
 
+.menu.submenu.submenu_help {
+  background: #fbfbfa;
+  color: #565759;
+  line-height: 1;
+  width: 250px
+}
+
+.menu.submenu.submenu_help ul {
+  margin: .9375rem
+}
+
+.menu.submenu.submenu_help ts-icon {
+  position: relative;
+  top: 2px
+}
+
 .menu #menu_header .menu_simple_header {
   font-size: 1rem;
   line-height: 1.5rem;
