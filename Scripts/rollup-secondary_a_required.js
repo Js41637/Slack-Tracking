@@ -1637,7 +1637,10 @@
     if (window.TSConnLogger) TSConnLogger.log("api_call_" + _makeLogSafeMethodName(method), "TS.api calling " + method);
     TS.log(2, 'calling method "' + method + '" args._attempts:' + args._attempts);
     _incrementPending(method);
-    if (TS.boot_data.page_needs_enterprise && args.enterprise_token && TS.boot_data.feature_enterprise_search_ui && !TS.model.prefs.search_only_current_team) {
+    var is_search = method.indexOf("search.") > -1;
+    if (TS.boot_data.page_needs_enterprise && args.enterprise_token && is_search && !TS.model.prefs.search_only_current_team) {
+      args.token = args.enterprise_token;
+    } else if (TS.boot_data.page_needs_enterprise && args.enterprise_token && !is_search) {
       args.token = args.enterprise_token;
     } else {
       args.token = TS.model.api_token;
@@ -9764,6 +9767,8 @@ TS.registerModule("constants", {
     members_for_user_changed_sig: new signals.Signal,
     onStart: function() {
       _storeMembersThrottled = TS.utility.throttleFunc(_storeMembersThrottled, 20);
+      if (TS.client) TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam);
+      if (TS.client) TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam);
     },
     getMemberById: function(id) {
       if (!_.isString(id)) return null;
@@ -10481,6 +10486,18 @@ TS.registerModule("constants", {
       var model_ob_members = model_ob.members || [model_ob.user];
       var available_members = _.map(TS.model.members, "id");
       return !_.difference(model_ob_members, available_members).length;
+    },
+    userAddedToTeam: function(team_id) {
+      var updated_member = _.merge({}, TS.model.user);
+      updated_member.enterprise_user.teams = _.uniq(updated_member.enterprise_user.teams.concat(team_id));
+      TS.members.upsertMember(updated_member);
+    },
+    userRemovedFromTeam: function(team_id) {
+      var updated_member = _.merge({}, TS.model.user);
+      updated_member.enterprise_user.teams = updated_member.enterprise_user.teams.filter(function(team) {
+        return team !== team_id;
+      });
+      TS.members.upsertMember(updated_member);
     },
     test: function() {
       var test = {};
@@ -23269,8 +23286,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("versioned_file_drop_blue", function() {
         return cdn_url + "/c3881/img/file-drop-blue@2x.png";
       });
-      Handlebars.registerHelper("versioned_focus_orb", function() {
-        return cdn_url + "/fa6b/img/focus_orb.gif";
+      Handlebars.registerHelper("versioned_bonsai", function() {
+        return cdn_url + "/d1496/img/bonsai-0.png";
       });
       Handlebars.registerHelper("pinnedFileType", function(file) {
         if (!file) return "file";
@@ -32597,16 +32614,7 @@ var _on_esc;
             team_name: team.name
           });
           if (ok) {
-            var updated_member = _.merge({}, TS.model.user);
-            updated_member.enterprise_user.teams = updated_member.enterprise_user.teams.filter(function(team) {
-              return team !== args.team;
-            });
-            if (TS.boot_data.app === "web") {
-              TS.model.user = updated_member;
-            } else {
-              TS.members.upsertMember(updated_member);
-            }
-            TS.enterprise.signin.loadPage("teams_on");
+            _updateTeamsList(args.team);
             _showToastMessage("success", success_message);
             TS.ui.fs_modal.close();
           } else {
@@ -32615,9 +32623,11 @@ var _on_esc;
               error_message = TS.i18n.t("You can’t leave this team.<br>Because you’re in an IdP group assigned to this team, you can’t leave it here. <Contact an Org Admin> for help leaving the team.", "enterprise_workspaces")();
               _showToastMessage("error", error_message);
             } else if (data.error === "user_deleted_already") {
+              _updateTeamsList(args.team);
               _showToastMessage("success", success_message);
               TS.ui.fs_modal.close();
             } else if (data.error === "failed_to_convert_org_user_to_team_user") {
+              _updateTeamsList(args.team);
               _showToastMessage("success", success_message);
               TS.ui.fs_modal.close();
             } else {
@@ -32631,6 +32641,19 @@ var _on_esc;
         });
       }
     });
+  };
+  var _updateTeamsList = function(team_id) {
+    var updated_member = _.merge({}, TS.model.user);
+    updated_member.enterprise_user.teams = updated_member.enterprise_user.teams.filter(function(team) {
+      return team !== team_id;
+    });
+    if (TS.boot_data.app === "web") {
+      TS.model.user = updated_member;
+    } else {
+      TS.members.upsertMember(updated_member);
+    }
+    var team = TS.enterprise.getTeamById(team_id);
+    $('[data-id="' + team_id + '"]').replaceWith(TS.enterprise.workspaces.getTeamCardHTML(team));
   };
   var _showToastMessage = function(type, message) {
     TS.ui.toast.show({
@@ -34639,29 +34662,13 @@ var _on_esc;
       alias_of: null,
       desc: "Stars the current channel or conversation",
       func: function(cmd, rest, words, e, in_reply_to_msg) {
-        var model_ob = TS.shared.getActiveModelOb();
-        var starred = model_ob.is_starred;
-        var api_args = {};
-        api_args.channel = model_ob.id;
-        if (!starred) {
-          TS.api.call("stars.add", api_args, function(ok, data, args) {
-            if (ok) {
-              TS.cmd_handlers.addTempEphemeralFeedback("Ok, I starred " + model_ob.name);
-              return;
-            } else if (data.error) {
-              TS.error(data.error);
-            }
-          });
-        } else {
-          TS.api.call("stars.remove", api_args, function(ok, data, args) {
-            if (ok) {
-              TS.cmd_handlers.addTempEphemeralFeedback("Ok, " + model_ob.name + " is unstarred");
-              return;
-            } else if (data.error) {
-              TS.error(data.error);
-            }
-          });
-        }
+        TS.stars.toggleStarOnActiveModelObject(function(model_ob) {
+          if (model_ob.is_starred) {
+            TS.cmd_handlers.addTempEphemeralFeedback("Ok, I starred " + model_ob.name);
+          } else {
+            TS.cmd_handlers.addTempEphemeralFeedback("Ok, " + model_ob.name + " is unstarred");
+          }
+        });
       }
     },
     "/close": {
@@ -35817,6 +35824,32 @@ var _on_esc;
     },
     updateFileStar: function(file_id, starred) {
       _updateFileStar(file_id, starred);
+    },
+    toggleStarOnActiveModelObject: function(callback) {
+      var model_ob = TS.shared.getActiveModelOb();
+      if (!model_ob || TS.client.activeChannelIsHidden()) return;
+      var starred = model_ob.is_starred;
+      var api_args = {};
+      api_args.channel = model_ob.id;
+      if (!starred) {
+        TS.api.call("stars.add", api_args, function(ok, data, args) {
+          if (ok) {
+            if (callback) callback(model_ob);
+            return;
+          } else if (data.error) {
+            TS.error(data.error);
+          }
+        });
+      } else {
+        TS.api.call("stars.remove", api_args, function(ok, data, args) {
+          if (ok) {
+            if (callback) callback(model_ob);
+            return;
+          } else if (data.error) {
+            TS.error(data.error);
+          }
+        });
+      }
     }
   });
   var _page = 1;
@@ -41471,14 +41504,7 @@ var _on_esc;
       var html = "";
       if (teams.length) {
         teams.forEach(function(team) {
-          var url = TS.enterprise.workspaces.createURL(team, TS.boot_data.signout_url);
-          team.launch_url = url;
-          team.site_url = url + "home";
-          team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, TS.boot_data.signout_url);
-          html += TS.templates.enterprise_teams_launch_card({
-            team: team,
-            user: TS.model.user
-          });
+          html += TS.enterprise.workspaces.getTeamCardHTML(team);
         });
       } else {
         html += TS.templates.no_workspaces_to_join();
@@ -41508,20 +41534,24 @@ var _on_esc;
       var calling_args = {
         team: team.id
       };
-      TS.api.call("enterprise.teams.join", calling_args, function(ok, data, args) {
+      if (TS.boot_data.app === "client") calling_args.enterprise_token = TS.model.enterprise_api_token;
+      return TS.api.call("enterprise.teams.join", calling_args, function(ok, data, args) {
         var message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + " You've successfully joined <strong>" + team.name + "</strong>");
         if (ok) {
           _showToastMessage("success", message);
+          return true;
         } else {
           if (data.error === "user_already_team_member") {
             _showToastMessage("success", message);
+            return true;
           } else if (data.error === "team_is_not_open") {
             _showToastMessage("error", "This team is not open to join.");
+            return false;
           } else {
             _showToastMessage("error", 'Joining team failed with error "' + data.error + '"');
+            return false;
           }
         }
-        return;
       });
     },
     requestToJoinTeam: function() {
@@ -41542,6 +41572,16 @@ var _on_esc;
       var url = el_a.protocol + "//" + team.domain + "." + el_a.host + "/";
       el_a = null;
       return url;
+    },
+    getTeamCardHTML: function(team, base_url) {
+      var url = TS.enterprise.workspaces.createURL(team, base_url);
+      team.launch_url = url + "messages";
+      team.site_url = url + "home";
+      team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, base_url);
+      return TS.templates.enterprise_teams_launch_card({
+        team: team,
+        user: TS.model.user
+      });
     }
   });
   var _bindEvents = function($container) {
@@ -41551,14 +41591,27 @@ var _on_esc;
       TS.menu.enterprise_team_signin.start(e, $(this), {
         team_id: team_id,
         team_site_url: team_site_url,
-        should_show_leave_team: TS.enterprise.isUserOnTeam(team_id) && !TS.model.user.is_restricted
+        should_show_leave_team: TS.boot_data.feature_discoverable_teams_client_v1 && TS.enterprise.isUserOnTeam(team_id) && !TS.model.user.is_restricted
       });
     });
-    $container.on("click", ".enterprise_team_join", function(e) {
+    $container.find(".enterprise_team_join").on("click", function(e) {
       var team_id = $(this).data("id");
-      TS.enterprise.workspaces.joinTeam(team_id);
+      TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
+        if (result) {
+          var updated_member = _.merge({}, TS.model.user);
+          updated_member.enterprise_user.teams = _.uniq(updated_member.enterprise_user.teams.concat(team_id));
+          if (TS.boot_data.app === "web") {
+            TS.model.user = updated_member;
+          } else {
+            TS.members.upsertMember(updated_member);
+          }
+          var team = TS.enterprise.getTeamById(team_id);
+          $container.find('[data-id="' + team_id + '"]').replaceWith(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.signout_url));
+        }
+        return null;
+      });
     });
-    $container.on("click", ".enterprise_team_request", function(e) {
+    $container.find(".enterprise_team_request").on("click", function(e) {
       var team_id = $(this).data("id");
       TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
         console.log("here");
@@ -41580,13 +41633,6 @@ var _on_esc;
     start: function() {
       if (TS.model.user.is_restricted) return;
       var teams = TS.enterprise.workspaces.getList("teams_not_on");
-      teams = teams.map(function(team) {
-        var url = TS.enterprise.workspaces.createURL(team, TS.boot_data.signout_url);
-        team.launch_url = url;
-        team.site_url = url + "home";
-        team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, TS.boot_data.signout_url);
-        return team;
-      });
       var template_args = {
         teams: teams,
         user: TS.model.user
@@ -41603,8 +41649,43 @@ var _on_esc;
       TS.ui.fs_modal.start(settings);
     }
   });
-  var _onShowWorkspaces = function() {};
+  var _onShowWorkspaces = function() {
+    _bindEvents();
+  };
   var _onCancelWorkspaces = function() {};
+  var _bindEvents = function() {
+    var $container = $(".workspaces_modal");
+    $container.on("click", ".enterprise_team_menu", function(e) {
+      var team_site_url = $(this).val();
+      var team_id = $(this).data("id");
+      TS.menu.enterprise_team_signin.start(e, $(this), {
+        team_id: team_id,
+        team_site_url: team_site_url,
+        should_show_leave_team: TS.boot_data.feature_discoverable_teams_client_v1 && TS.enterprise.isUserOnTeam(team_id) && !TS.model.user.is_restricted
+      });
+    });
+    $container.find(".enterprise_team_join").on("click", function(e) {
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
+        if (result) {
+          var updated_member = _.merge({}, TS.model.user);
+          updated_member.enterprise_user.teams = _.uniq(updated_member.enterprise_user.teams.concat(team_id));
+          TS.members.upsertMember(updated_member);
+          var team = TS.enterprise.getTeamById(team_id);
+          $container.find('[data-id="' + team_id + '"]').replaceWith(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
+        }
+        return null;
+      });
+    });
+    $container.find(".enterprise_team_request").on("click", function(e) {
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
+        console.log("here");
+      }).catch(function() {
+        console.log("nope");
+      });
+    });
+  };
 })();
 (function() {
   "use strict";

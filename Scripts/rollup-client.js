@@ -14313,11 +14313,18 @@
       }
     },
     83: {
-      func: function() {
-        if (TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === "stars") {
-          TS.client.ui.flex.hideFlex();
+      shift_optional: true,
+      func: function(e) {
+        if (TS.boot_data.feature_star_shortcut && e.altKey) {
+          TS.stars.toggleStarOnActiveModelObject();
         } else {
-          TS.client.ui.flex.openFlexTab("stars");
+          if (e.shiftKey) {
+            if (TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === "stars") {
+              TS.client.ui.flex.hideFlex();
+            } else {
+              TS.client.ui.flex.openFlexTab("stars");
+            }
+          }
         }
       }
     },
@@ -19027,6 +19034,9 @@
       } else if (window.macgap) {
         var local_onclick = function(x) {
           window.focus();
+          if (TS.boot_data.feature_focus_mode) {
+            if (TS.ui.focus_mode.is_in_focus_mode) TS.ui.focus_mode.end();
+          }
           if (onclick) onclick();
         };
         if (window.macgap.growl) {
@@ -19063,6 +19073,9 @@
         try {
           growl.onclick = function() {
             window.focus();
+            if (TS.boot_data.feature_focus_mode) {
+              if (TS.ui.focus_mode.is_in_focus_mode) TS.ui.focus_mode.end();
+            }
             if (onclick) {
               onclick();
             }
@@ -19274,6 +19287,9 @@
             TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
             return;
           }
+        }
+        if (TS.boot_data.feature_focus_mode) {
+          if (TS.ui.focus_mode.is_in_focus_mode) TS.ui.focus_mode.end();
         }
         if (model_ob.is_channel) {
           TS.channels.displayChannel(model_ob.id);
@@ -19491,6 +19507,9 @@
             TS.ui.replies.openConversation(im, msg.thread_ts);
             return;
           }
+        }
+        if (TS.boot_data.feature_focus_mode) {
+          if (TS.ui.focus_mode.is_in_focus_mode) TS.ui.focus_mode.end();
         }
         TS.ims.startImByMemberId(im.user);
       };
@@ -34494,7 +34513,6 @@ function timezones_guess() {
   "use strict";
   TS.registerModule("client.unread", {
     switched_sig: new signals.Signal,
-    is_showing: false,
     new_messages_in_channels: [],
     messages_loaded: false,
     onStart: function() {

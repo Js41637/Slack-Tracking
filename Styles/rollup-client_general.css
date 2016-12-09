@@ -4959,8 +4959,9 @@ only screen and (min-resolution:2dppx) {
   text-align: center
 }
 
-#fs_modal.focus_mode_overlay .contents_container .contents p {
-  margin-top: 3rem
+#fs_modal.focus_mode_overlay .contents_container .contents img {
+  width: 179px;
+  height: 173px
 }
 
 @font-face {

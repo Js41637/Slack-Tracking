@@ -21,10 +21,10 @@
 
 {{#feature flag="feature_focus_mode"}}
   <li>
-    <label class="checkbox no_margin normal">
-      <input type="checkbox" class="small_right_margin no_left_margin" data-dnd-menu-action="enter_focus_mode"> {{#t}}Focus Mode{{/t}}
-      <span class="float_right subtle_silver right_margin tiny">{{cmd_key}}+shift+f</span>
-    </label>
+    <a data-dnd-menu-action="enter_focus_mode">
+      {{#t}}Turn on Focus Mode{{/t}}
+      <span class="float_right tiny">{{cmd_key}}+shift+f</span>
+    </a>
   </li>
   <li class="divider"></li>
 {{/feature}}

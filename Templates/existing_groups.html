@@ -1,11 +1,13 @@
+{{i18n_ns 'existing_groups'}}
+
 {{#if_equal existing_groups.length compare=1}}{{!
-}}  The following group has the same members as the one you are trying to create. Would you like to use it instead?<br><br>{{!
+}}  {{#t}}The following group has the same members as the one you are trying to create. Would you like to use it instead?{{/t}}<br><br>{{!
 }}{{else}}{{!
-}}  The following groups have the same members as the one you are trying to create. Would you like to use one of them instead?<br><br>{{!
+}}  {{#t}}The following groups have the same members as the one you are trying to create. Would you like to use one of them instead?{{/t}}<br><br>{{!
 }}{{/if_equal}}{{!
 }}{{#each existing_groups}}{{!
-}}  <p class="small_bottom_margin" style="font-size:0.8rem; color:black"><span style="color: #AAA;">{{{groupPrefix}}}</span>{{this.name}}&nbsp;&nbsp;<a onclick="TS.ui.group_create_dialog.useExistingGroup('{{this.id}}')" class="btn btn_small ">{{#if this.is_archived}}unarchive{{else}}open{{/if}}</a></p>{{!
+}}  <p class="small_bottom_margin" style="font-size:0.8rem; color:black"><span style="color: #AAA;">{{groupPrefix}}</span>{{this.name}}&nbsp;<a onclick="TS.ui.group_create_dialog.useExistingGroup('{{this.id}}')" class="btn btn_small ">{{#if this.is_archived}}{{#t}}unarchive{{/t}}{{else}}{{#t}}open{{/t}}{{/if}}</a></p>{{!
 }}{{/each}}{{!
 }}<br>{{!
-}}If you really want to create a new group, just click the "create new group" button again.{{!
+}}{{#t}}If you really want to create a new group, just click the "create new group" button again.{{/t}}{{!
 }}
