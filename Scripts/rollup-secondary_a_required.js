@@ -20888,6 +20888,21 @@ TS.registerModule("constants", {
       }
       return new_label;
     },
+    atLabel: function(type) {
+      var at_label = type;
+      switch (type) {
+        case "channel":
+          at_label = "@channel";
+          break;
+        case "everyone":
+          at_label = "@everyone";
+          break;
+        case "here":
+          at_label = "@here";
+          break;
+      }
+      return at_label;
+    },
     makeMemberTypeBadge: function(member, size, is_standalone, with_tooltip) {
       if (!TS.boot_data.page_needs_enterprise) return "";
       size = parseInt(size, 10);
@@ -23308,6 +23323,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeSHRoomSharedList", TS.templates.builders.makeSHRoomSharedList);
       Handlebars.registerHelper("raLabel", function(old_label) {
         return TS.templates.builders.raLabel(old_label);
+      });
+      Handlebars.registerHelper("atLabel", function(type) {
+        return TS.templates.builders.atLabel(type);
       });
       Handlebars.registerHelper("renderAttachmentActions", function(attachment, disable_buttons) {
         return new Handlebars.SafeString(TS.templates.builders.buildAttachmentActions(attachment, disable_buttons));
@@ -29708,7 +29726,7 @@ TS.registerModule("constants", {
     _reusable_top_scroller_rect.top = 0;
     _reusable_top_scroller_rect.bottom = _cached_scroller_rect.height * .4;
     _calcHeaderRanges();
-    if (!TS.model.supports_sticky_position) {
+    if (!TS.environment.supports_sticky_position) {
       $("#emoji_h3_" + TS.menu.emoji.active_emoji_group).scrollintoview({
         offset: "top",
         px_offset: 0,
@@ -29877,7 +29895,7 @@ TS.registerModule("constants", {
     _$headers.each(function(i, h3) {
       var $h3 = $(h3);
       group_name = $h3.data("group-name");
-      if (!TS.model.supports_sticky_position) {
+      if (!TS.environment.supports_sticky_position) {
         $h3.css("top", 0);
       }
       if ($h3.hasClass("hidden")) return;
@@ -30009,7 +30027,7 @@ TS.registerModule("constants", {
     if (_in_search_mode) _onInputTextchange();
   };
   var _onScroll = function(e) {
-    if (!TS.model.supports_sticky_position) {
+    if (!TS.environment.supports_sticky_position) {
       _getActiveGroupAndMaybePositionHeaders();
     }
     clearTimeout(_scroll_tim);
@@ -30032,11 +30050,11 @@ TS.registerModule("constants", {
       if (sc + i === 0) active_emoji_group = range.group_name;
       if (sc >= range.vis.top && sc <= range.vis.bottom) {
         active_emoji_group = range.group_name;
-        if (!TS.model.supports_sticky_position) {
+        if (!TS.environment.supports_sticky_position) {
           range.set_top = Math.min(sc - range.vis.top, range.vis.max_top);
           range.$el.css("top", range.set_top);
         }
-      } else if (range.set_top && !TS.model.supports_sticky_position) {
+      } else if (range.set_top && !TS.environment.supports_sticky_position) {
         range.set_top = 0;
         range.$el.css("top", range.set_top);
       }
@@ -30146,7 +30164,7 @@ TS.registerModule("constants", {
         preview_names = $only_item.data("names");
       }
     }
-    if (!TS.model.supports_sticky_position) {
+    if (!TS.environment.supports_sticky_position) {
       _$emoji_search_results_h3.css("top", 0);
       TS.log(96, " after _$emoji_search_results_h3.css " + (Date.now() - start));
     }
@@ -31566,12 +31584,12 @@ TS.registerModule("constants", {
         is_paid_team: TS.model.team.plan !== ""
       };
       TS.menu.has_submenu = true;
-      TS.menu.$menu.addClass("all_unreads_sort_order_menu");
+      TS.menu.$menu.addClass("all_unreads_sort_order_menu selectable");
       TS.menu.$menu_items.html(TS.templates.unread_sort_order_menu(template_args));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onAllUnreadsSortOrderMenuItemClick);
       TS.menu.addSubmenu(".priority", TS.templates.menu_help_submenu({
         icon: "ts_icon_emoji_objects",
-        title: TS.i18n.t("Sort by science", "all_unreads")(),
+        title: TS.i18n.t("Sorted by science", "all_unreads")(),
         message: TS.i18n.t("This sorts your unreads based on how you use Slack.", "all_unreads")()
       }), _.noop, true);
       TS.menu.start(e);
@@ -31737,7 +31755,7 @@ TS.registerModule("constants", {
     clean: function() {
       TS.menu.$menu_footer.empty();
       TS.menu.$menu_header.removeClass("hidden");
-      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu searchable_member_list_filter_menu").css("max-height", "");
+      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu searchable_member_list_filter_menu selectable").css("max-height", "");
       TS.menu.$menu.removeAttr("data-qa");
       TS.menu.$menu.find("#menu_items_scroller").css("max-height", "");
       TS.menu.$menu.find(".arrow, .arrow_shadow").remove();

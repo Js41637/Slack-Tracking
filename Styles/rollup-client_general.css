@@ -5400,6 +5400,35 @@ only screen and (min-resolution:2dppx) {
   min-width: 240px
 }
 
+.menu.selectable li {
+  position: relative
+}
+
+.menu.selectable li a {
+  padding-left: 31px
+}
+
+.menu.selectable li.selected,
+.menu.selectable li.selected a {
+  color: #3aa3e3
+}
+
+.menu.selectable li.selected a:hover,
+.menu.selectable li.selected.highlighted a,
+.menu.selectable li.selected:hover {
+  color: #fff
+}
+
+.menu.selectable li.selected:before {
+  position: absolute;
+  top: 1px;
+  left: 22px;
+  font-family: Slack;
+  font-weight: 400;
+  font-size: 19px;
+  content: '\E285'
+}
+
 #emoji_menu {
   position: absolute;
   min-width: 22.4375rem;

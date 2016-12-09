@@ -35457,6 +35457,7 @@ function timezones_guess() {
   TS.registerModule("client.ui.unread", {
     $channel_pane_item: $("#channels_scroller .all_unreads"),
     $scroller: $("#unread_msgs_scroller_div"),
+    $loading_msg_container: null,
     $unread_msgs_div: null,
     $container: null,
     unread_groups: [],
@@ -35489,6 +35490,8 @@ function timezones_guess() {
       TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);
       TS.client.ui.unread.$scroller.html(TS.templates.unread_main());
       TS.client.ui.unread.$unread_msgs_div = $("#unread_msgs_div");
+      _loading = true;
+      TS.client.ui.unread.displayLoadingMessage();
       if (TS.environment.supports_custom_scrollbar) {
         TS.client.ui.unread.$container = $("#unread_msgs_scroller_div");
       } else {
@@ -35544,7 +35547,7 @@ function timezones_guess() {
       $(window).on("keydown.unread", function(e) {
         _onKeyDown(e);
       });
-      if (!TS.model.supports_sticky_position) {
+      if (!TS.environment.supports_sticky_position) {
         if ($("body").hasClass("banner_showing")) {
           _updateBannerHeight();
         }
@@ -35699,7 +35702,8 @@ function timezones_guess() {
       _msgs_config.sections = [];
       _msgs_config.has_more_end = false;
       TS.ui.message_container.register(_msgs_config);
-      TS.client.ui.unread.$scroller.addClass("loading");
+      _loading = true;
+      TS.client.ui.unread.displayLoadingMessage();
       _preloadEmptyState();
       _keyboard_in_use = false;
       TS.client.ui.unread.promiseToShowNextPage().then(function() {
@@ -35713,13 +35717,35 @@ function timezones_guess() {
         }
       });
     },
+    createLoadingMsgHTML: function() {
+      var $loading_msg_container = $('<div class="unread_msgs_loading"><div class="unread_msgs_loading_msg"></div></div>');
+      TS.client.ui.unread.$scroller.after($loading_msg_container);
+      TS.client.ui.unread.$loading_msg_container = $loading_msg_container;
+    },
+    displayLoadingMessage: function(message) {
+      if (!TS.client.ui.unread.$loading_msg_container) {
+        TS.client.ui.unread.createLoadingMsgHTML();
+      }
+      TS.client.ui.unread.$loading_msg_container.removeClass("hidden");
+      var default_message = TS.i18n.t("Loading messages...", "unread")();
+      var loading_message = message || default_message;
+      TS.client.ui.unread.$loading_msg_container.find(".unread_msgs_loading_msg").text(loading_message);
+    },
+    hideLoadingMessage: function() {
+      TS.client.ui.unread.$loading_msg_container.addClass("hidden");
+    },
     displaySlowLoadingMessage: function() {
-      if (TS.client.ui.unread.$scroller.hasClass("loading")) TS.client.ui.unread.$scroller.addClass("loading-slow");
+      if (!_loading) {
+        return;
+      }
+      var message = TS.i18n.t("Still loading... sorry for the long wait!", "unread")();
+      TS.client.ui.unread.displayLoadingMessage(message);
     },
     isFatalErrorDisplaying: function() {
       return $("#messages_container .unread_error_state").length;
     },
     displayFatalError: function() {
+      TS.client.ui.unread.hideLoadingMessage();
       TS.client.ui.unread.$scroller.addClass("invisible");
       $("#messages_container .unread_empty_state_wrapper").remove();
       $("#messages_container").prepend(TS.templates.unread_error({
@@ -35735,6 +35761,7 @@ function timezones_guess() {
       });
     },
     displayEmptyState: function(marked_as_read_cnt, skip_delay) {
+      TS.client.ui.unread.hideLoadingMessage();
       TS.client.ui.unread.$scroller.addClass("invisible");
       $("#messages_container .unread_empty_state_wrapper").remove();
       $("#messages_container").prepend(TS.templates.unread_empty_state({
@@ -35822,12 +35849,13 @@ function timezones_guess() {
       TS.client.ui.unread.removeEmptyState();
       TS.client.ui.unread.$unread_msgs_div.off("click.unread", ".unread_group_mark");
       TS.client.ui.unread.$unread_msgs_div.off("click.unread", ".unread_group_undo > a");
-      if (!TS.model.supports_sticky_position) {
+      if (!TS.environment.supports_sticky_position) {
         TS.client.ui.unread.$scroller.off("scroll", _throttled_update_sticky_header);
         TS.ui.banner.show_hide_sig.remove(_updateBannerHeight);
       }
       TS.client.ui.unread.$unread_msgs_div.empty();
-      TS.client.ui.unread.$scroller.addClass("loading");
+      _loading = false;
+      TS.client.ui.unread.hideLoadingMessage();
       $("#footer").removeClass("invisible");
       TS.view.resize_sig.remove(_onResize);
       TS.channels.renamed_sig.remove(_onRename);
@@ -35875,7 +35903,7 @@ function timezones_guess() {
             _scrollGroupElementToTop($group);
           }
           _updateUnreadGroupPositions();
-          if (!TS.model.supports_sticky_position) _updateStickyHeader();
+          if (!TS.environment.supports_sticky_position) _updateStickyHeader();
           $msgs_holder.css("opacity", 1);
           resolve(group);
         });
@@ -35911,7 +35939,7 @@ function timezones_guess() {
           }, 300);
         });
         _updateUnreadGroupPositions();
-        if (!TS.model.supports_sticky_position) _updateStickyHeader();
+        if (!TS.environment.supports_sticky_position) _updateStickyHeader();
         resolve(group);
       });
     },
@@ -36108,6 +36136,7 @@ function timezones_guess() {
   };
   var _delay_refresh_button;
   var _keyboard_in_use = false;
+  var _loading = false;
   var _preloadEmptyState = function() {
     var done_message_combo_options = [{
       emoji: "tada",
@@ -36458,7 +36487,7 @@ function timezones_guess() {
   var _onResize = function() {
     TS.client.ui.unread.$scroller.height(TS.view.cached_wh - $("#client_header").outerHeight() - TS.client.ui.CLIENT_HEADER_OVERHANG);
     if (!TS.environment.supports_custom_scrollbar) TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.unread.$scroller);
-    if (!TS.model.supports_sticky_position) {
+    if (!TS.environment.supports_sticky_position) {
       _updateBannerHeight();
       _updateUnreadGroupPositions();
     }
@@ -36473,7 +36502,7 @@ function timezones_guess() {
     if ([TS.utility.keymap.left, TS.utility.keymap.right, 82].indexOf(e.which) === -1) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     if (_currently_loading_more_promise && _currently_loading_more_promise.isPending()) return;
-    if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !TS.client.ui.unread.$scroller.hasClass("loading") && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
+    if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !_loading && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
       var current_group = TS.client.unread.getActiveGroup();
       if (e.which === TS.utility.keymap.right || e.which === TS.utility.keymap.left) {
         _keyboard_in_use = true;
@@ -36656,7 +36685,7 @@ function timezones_guess() {
       is_mpim: group.model_ob.is_mpim,
       is_im: group.model_ob.is_im,
       im_user: group.model_ob.user ? TS.members.getMemberById(group.model_ob.user) : null,
-      supports_sticky_position: TS.model.supports_sticky_position
+      supports_sticky_position: TS.environment.supports_sticky_position
     };
   };
   var _checkToShowEmptyState = function() {
@@ -36671,8 +36700,8 @@ function timezones_guess() {
     if (all_channels_read) TS.client.ui.unread.displayEmptyState();
   };
   var _transitionToMessages = function() {
-    TS.client.ui.unread.$scroller.removeClass("loading");
-    TS.client.ui.unread.$scroller.removeClass("loading-slow");
+    _loading = false;
+    TS.client.ui.unread.hideLoadingMessage();
     TS.client.ui.unread.$scroller.addClass("transitioning");
     TS.client.ui.unread.updateChannelHeader();
     TS.client.ui.unread.updateMsgs();

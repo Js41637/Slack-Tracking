@@ -200,7 +200,7 @@
       TS.model.api_token = TS.boot_data.api_token;
       TS.model.webhook_url = TS.boot_data.webhook_url;
       TS.model.can_add_ura = TS.boot_data.can_add_ura;
-      TS.info("booted! pri:" + TS.pri);
+      TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms);
       TS.warn(Date.now() - TSConnLogger.start_time + "ms from first html to TS.boot()");
       if (TS.web && TS.web.space) {
         TS.web.space.showFastPreview();
@@ -511,21 +511,18 @@
     }
   };
   var _reconnectRequestedMS = function() {
+    TS.console.logStackTrace("MS reconnection requested");
     if (TS.model.ms_asleep) {
       TS.error("NOT reconnecting, we are asleep");
-      TS.console.logStackTrace();
       return;
     } else if (TS.model.ms_connected) {
       TS.warn("Reconnect requested, but we are already connected; doing nothing.");
-      TS.console.logStackTrace();
       return;
     } else if (TS.model.ms_connecting) {
       TS.warn("Reconnect requested, but we are already connecting; doing nothing.");
-      TS.console.logStackTrace();
       return;
     }
     TSConnLogger.setConnecting(true);
-    TS.console.logStackTrace("MS reconnection requested");
     TS.metrics.mark("ms_reconnect_requested");
     var _apiPaused = function() {
       TS.info("API queue got paused while waiting for MS reconnection");
@@ -1849,12 +1846,16 @@
       is_asleep = true;
       if (TS.client) TS.ms.sleep();
       if (TS.web && TS.web.space) TS.ds.sleep();
-      sleep_timeout_tim = setTimeout(_onWake, SLEEP_TIMEOUT_MS);
+      sleep_timeout_tim = setTimeout(function() {
+        TS.warn("It's been " + SLEEP_TIMEOUT_MS + " ms since our sleep event and we haven't gotten a wake event; waking up just to be safe");
+        TS.metrics.count("synthetic_wake_event");
+        _onWake();
+      }, SLEEP_TIMEOUT_MS);
     };
     var _onWake = function() {
       if (!is_asleep) return;
       is_asleep = false;
-      TS.info("wake event!");
+      TS.info("wake event! version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms);
       if (TS.client) TS.ms.wake();
       if (TS.web) TS.ds.wake();
       if (sleep_timeout_tim) {
@@ -2738,7 +2739,6 @@
     desktop_app_version: TSSSB.env.desktop_app_version,
     supports_downloads: false,
     supports_spaces_in_windows: false,
-    supports_sticky_position: false,
     supports_growl_subtitle: false,
     supports_voice_calls: false,
     supports_video_calls: false,
@@ -2844,10 +2844,6 @@
       var html_classes = [];
       if (TS.model.is_safari_desktop) {
         html_classes.push("is_safari_desktop");
-      }
-      TS.model.supports_sticky_position = !!(TS.model.is_safari_desktop || TS.model.is_FF || TS.model.mac_ssb_version && !TS.model.is_electron);
-      if (TS.model.supports_sticky_position) {
-        html_classes.push("supports_sticky_position");
       }
       if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
         html_classes.push("is_electron_mac");
@@ -3073,6 +3069,7 @@
     is_macgap: false,
     is_retina: false,
     retina_changed_sig: new signals.Signal,
+    supports_sticky_position: false,
     supports_custom_scrollbar: false,
     supports_flexbox: false,
     supports_line_clamp: false,
@@ -3119,16 +3116,28 @@
           _cssPropertySupported = v;
         }
       });
+      Object.defineProperty(test_object, "cssValueSupported", {
+        get: function() {
+          return _cssValueSupported;
+        },
+        set: function(v) {
+          _cssValueSupported = v;
+        }
+      });
       return test_object;
     }
   });
+  var CSS_PREFIXES = ["-webkit-", "-moz-", "-o-", "-ms-", ""];
+  var JS_PREFIXES = ["Webkit", "Moz", "O", "ms", ""];
+  var CSS_PREFIX_REGEXP = new RegExp("^(-*" + CSS_PREFIXES.slice(0, CSS_PREFIXES.length - 1).join("|-*") + ")");
+  var JS_PREFIX_REGEXP = new RegExp("^(" + JS_PREFIXES.slice(0, JS_PREFIXES.length - 1).join("|") + ")");
 
   function _isRetina() {
     return window["devicePixelRatio"] > 1;
   }
 
   function _decoratePageWithSupport() {
-    var features = ["is_apple_webkit", "is_macgap", "supports_custom_scrollbar", "supports_flexbox", "supports_line_clamp"];
+    var features = ["is_apple_webkit", "is_macgap", "supports_sticky_position", "supports_custom_scrollbar", "supports_flexbox", "supports_line_clamp"];
     var partitioned = _.partition(features, function(feature) {
       return TS.environment[feature];
     });
@@ -3140,23 +3149,27 @@
   function _cssPropertySupported(property) {
     if (property === "scrollbar") return _cssScrollbarSupported();
     var style = document.createElement("css_property_supported").style;
-    var css_prefixes = ["-webkit-", "-moz-", "-o-", "-ms-", ""];
-    var js_prefixes = ["Webkit", "Moz", "O", "ms", ""];
-    var css_prefix_regexp = new RegExp("^(-*" + css_prefixes.slice(0, css_prefixes.length - 1).join("|-*") + ")");
-    var js_prefix_regexp = new RegExp("^(" + js_prefixes.slice(0, js_prefixes.length - 1).join("|") + ")");
-    property = property.replace(js_prefix_regexp, "").replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2").replace(/([a-z\d])([A-Z])/g, "$1-$2").replace(css_prefix_regexp, "").toLowerCase();
+    property = property.replace(JS_PREFIX_REGEXP, "").replace(/([A-Z]+)([A-Z][a-z])/g, "$1-$2").replace(/([a-z\d])([A-Z])/g, "$1-$2").replace(CSS_PREFIX_REGEXP, "").toLowerCase();
     property = _.camelCase(property, "-");
     var capitalized_property = _.upperFirst(property);
     if (style[property] !== undefined) return true;
-    return js_prefixes.some(function(prefix) {
+    return JS_PREFIXES.some(function(prefix) {
       return style[prefix + capitalized_property] !== undefined || style[prefix + property] !== undefined;
     });
+  }
+
+  function _cssValueSupported(property, value) {
+    var test = document.createElement("css_value_supported");
+    value = value.replace(CSS_PREFIX_REGEXP, "").toLowerCase();
+    test.style.cssText = property + ":" + CSS_PREFIXES.join(value + ";" + property + ":") + value + ";";
+    return !!test.style.length;
   }
 
   function _initialSetup() {
     TS.environment.is_apple_webkit = !!(TS.model.mac_ssb_version || TS.model.is_safari_desktop);
     TS.environment.is_macgap = !!window.macgap;
     TS.environment.is_retina = _isRetina();
+    TS.environment.supports_sticky_position = _cssValueSupported("position", "sticky");
     TS.environment.supports_custom_scrollbar = _cssPropertySupported("scrollbar");
     TS.environment.supports_flexbox = _cssPropertySupported("flex-wrap");
     TS.environment.supports_line_clamp = TS.boot_data.feature_files_list && _cssPropertySupported("line-clamp");

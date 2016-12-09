@@ -1,75 +1,84 @@
 <div class="modal-header">
   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-  <h3>Notification Preferences: {{display_name}}</h3>
+  <h3>{{#t}}Notification Preferences: {display_name}{{/t}}</h3>
 </div>
 <div class="modal-body feature_muting">
 
   <div id="notifications_not_working" class="hidden">
-    <p class="bold small_bottom_margin"><i class="ts_icon ts_icon_laptop ts_icon_inherit small_right_margin" style="margin-left: 0.4rem; width: 1rem"></i> Desktop notifications</p>
+    <p class="bold small_bottom_margin"><i class="ts_icon ts_icon_laptop ts_icon_inherit small_right_margin" style="margin-left: 0.4rem; width: 1rem"></i> {{#t}}Desktop notifications{{/t}}</p>
     <p class="highlight_yellow_bg">
-      <span id="notifications_not_yet_allowed" class="hidden">You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.</span>
-      <span id="notifications_not_enabled" class="hidden">You've disabled desktop notifications. Open the <a onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications')" class="cursor_pointer bold">Preferences Dialog</a> to change that.</span>
-      <span id="notifications_not_allowed" class="hidden">You've disallowed notifications in your browser. You'll need to open your browser preferences to change that.</span>
-      <span id="notifications_impossible" class="hidden">Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a></span>
+      <span id="notifications_not_yet_allowed" class="hidden">{{#t}}You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.{{/t}}</span>
+      <span id="notifications_not_enabled" class="hidden">{{#t}}You\u2018ve disabled desktop notifications. Open the <a onclick="TS.ui.channel_prefs_dialog.showMainPrefs('notifications')" class="cursor_pointer bold">Preferences Dialog</a> to change that.{{/t}}</span>
+      <span id="notifications_not_allowed" class="hidden">{{#t}}You\u2018ve disallowed notifications in your browser. You\u2018ll need to open your browser preferences to change that.{{/t}}</span>
+      <span id="notifications_impossible" class="hidden">{{#t}}Your browser does not support desktop notifications. <a href="/downloads" target="_blank">Try one of our apps?</a>{{/t}}</span>
     </p>
   </div>
 
   <div id="non_muting_prefs" {{#if is_muted}}style="display: none;"{{/if}}>
 
     <div id="notifications_working" class="hidden">
-      <p class="bold small_bottom_margin"><i class="ts_icon ts_icon_laptop ts_icon_inherit small_right_margin" style="margin-left: 0.4rem; width: 1rem"></i> Desktop notifications</p>
+      <p class="bold small_bottom_margin"><i class="ts_icon ts_icon_laptop ts_icon_inherit small_right_margin" style="margin-left: 0.4rem; width: 1rem"></i> {{#t}}Desktop notifications{{/t}}</p>
       <p class="small_left_margin">
         <label class="radio no_margin normal">
-          <input name="channel_loud_rd" type="radio" class="small_right_margin" value="everything" /> Activity of any kind <span id="all_everything_default" class="bold">(default)</span>
+          <input name="channel_loud_rd" type="radio" class="small_right_margin" value="everything" /> {{#t}}Activity of any kind <span id="all_everything_default" class="bold">(default)</span>{{/t}}
         </label>
         <label class="radio no_margin normal">
-          <input name="channel_loud_rd" type="radio" class="small_right_margin" value="mentions" /> Mentions of my name or highlight words <span id="all_mentions_default" class="bold">(default)</span>
+          <input name="channel_loud_rd" type="radio" class="small_right_margin" value="mentions" /> {{#t}}Mentions of my name or highlight words <span id="all_mentions_default" class="bold">(default)</span>{{/t}}
         </label>
 
         {{#if show_two_suppressed_cbs}}
           <span id="suppressed_span" class="large_left_margin inline_block">
           <label class="checkbox no_margin" id="suppressed_label">
-            <input id="suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" /> Except for @channel mentions <span id="suppressed_disabled_explain" class="normal mini subtle_silver">(disabled due to <strong id="suppressed_disabled_explain_tip_link" class="cursor_pointer">team settings</strong>)</span>
+            <input id="suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" /> {{#t at_channel=(atLabel 'channel')}}Except for {at_channel} mentions <span id="suppressed_disabled_explain" class="normal mini subtle_silver">(disabled due to <strong id="suppressed_disabled_explain_tip_link" class="cursor_pointer">team settings</strong>)</span>{{/t}}
           </label>
           </span>
         {{/if}}
 
         <label class="radio no_margin normal">
-          <input name="channel_loud_rd" type="radio" class="small_right_margin" value="nothing" /> Nothing <span id="all_nothing_default" class="bold">(default)</span>
+          <input name="channel_loud_rd" type="radio" class="small_right_margin" value="nothing" /> {{#t}}Nothing <span id="all_nothing_default" class="bold">(default)</span>{{/t}}
         </label>
       </p>
     </div>
 
-    <p class="bold small_bottom_margin"><i class="ts_icon ts_icon_mobile ts_icon_inherit" style="font-size: 19px; width: 1rem; margin-left: 0.3rem; margin-right: 0.3rem;"></i> Mobile push notifications</p>
+    <p class="bold small_bottom_margin"><i class="ts_icon ts_icon_mobile ts_icon_inherit" style="font-size: 19px; width: 1rem; margin-left: 0.3rem; margin-right: 0.3rem;"></i> {{#t}}Mobile push notifications{{/t}}</p>
     <p class="small_left_margin">
       <label class="radio no_margin normal">
-        <input name="channel_push_loud_rd" type="radio" class="small_right_margin" value="everything" /> Activity of any kind <span id="all_push_everything_default" class="bold">(default)</span>
+        <input name="channel_push_loud_rd" type="radio" class="small_right_margin" value="everything" /> {{#t}}Activity of any kind <span id="all_push_everything_default" class="bold">(default)</span>{{/t}}
       </label>
       <label class="radio no_margin normal">
-        <input name="channel_push_loud_rd" type="radio" class="small_right_margin" value="mentions" /> Mentions of my name or highlight words <span id="all_push_mentions_default" class="bold">(default)</span>
+        <input name="channel_push_loud_rd" type="radio" class="small_right_margin" value="mentions" /> {{#t}}Mentions of my name or highlight words <span id="all_push_mentions_default" class="bold">(default)</span>{{/t}}
       </label>
 
       {{#if show_two_suppressed_cbs}}
         <span id="push_suppressed_span" class="large_left_margin inline_block">
         <label class="checkbox no_margin" id="push_suppressed_label">
-          <input id="push_suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" /> Except for @channel mentions <span id="push_suppressed_disabled_explain" class="normal mini subtle_silver">(disabled due to <strong id="push_suppressed_disabled_explain_tip_link" class="cursor_pointer">team settings</strong>)</span>
+          <input id="push_suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" /> {{#t at_channel=(atLabel 'channel')}}Except for {at_channel} mentions <span id="push_suppressed_disabled_explain" class="normal mini subtle_silver">(disabled due to <strong id="push_suppressed_disabled_explain_tip_link" class="cursor_pointer">team settings</strong>)</span>{{/t}}
         </label>
         </span>
       {{/if}}
 
       <label class="radio no_margin normal">
-        <input name="channel_push_loud_rd" type="radio" class="small_right_margin" value="nothing" /> Nothing <span id="all_push_nothing_default" class="bold">(default)</span>
+        <input name="channel_push_loud_rd" type="radio" class="small_right_margin" value="nothing" /> {{#t}}Nothing <span id="all_push_nothing_default" class="bold">(default)</span>{{/t}}
       </label>
     </p>
 
     {{#if show_one_suppressed_cb}}
       <div id="single_suppressed_div">
         <p class="bold no_bottom_margin" style="margin-left: 0.45rem;">
-          {{#if model_ob.is_general}}@everyone{{else}}@channel{{/if}} notifications
+          {{#if model_ob.is_general}}
+                        {{#t at_label='@everyone'}}{at_label} notifications{{/t}}
+                    {{else}}
+                        {{#t at_label='@channel'}}{at_label} notifications{{/t}}
+                    {{/if}}
         </p>
         <p class="small_left_margin">
           <label class="checkbox no_margin normal" id="single_suppressed_label">
-            <input id="single_suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" />Mute notifications for <strong>{{#if model_ob.is_general}}@everyone{{else}}@channel{{/if}}</strong> and <strong>@here</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>
+            <input id="single_suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" />
+                        {{#if model_ob.is_general}}
+                            {{#t at_label=(atLabel 'everyone') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong><span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+                        {{else}}
+                            {{#t at_label=(atLabel 'channel') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong><span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+                        {{/if}}
           </label>
         </p>
       </div>
@@ -80,17 +89,34 @@
   <div id="muting_div">
     <p class="bold no_bottom_margin">
       <label class="checkbox no_margin no_left_padding" id="muting_label">
-        <i class="ts_icon ts_icon_bell_slash ts_icon_inherit small_right_margin" style="font-size: 18px; margin-left: 0.5rem; width: 1rem"></i> Mute this {{#if is_mpim}}conversation{{else}}{{#if_equal c_or_g compare="channel"}}channel{{else}}private channel{{/if_equal}}{{/if}}
+        <i class="ts_icon ts_icon_bell_slash ts_icon_inherit small_right_margin" style="font-size: 18px; margin-left: 0.5rem; width: 1rem"></i>
+                {{#if is_mpim}}
+                    {{#t}}Mute this conversation{{/t}}
+                {{else}}
+                    {{#if_equal c_or_g compare="channel"}}
+                        {{#t}}Mute this channel{{/t}}
+                    {{else}}
+                        {{#t}}Mute this private channel{{/t}}
+                    {{/if_equal}}
+                {{/if}}
         <input id="muting_cb" checked="checked" type="checkbox" style="float: none; margin: -1px 0 0 0.5rem !important; vertical-align: middle;" />
       </label>
     </p>
     <p class="small_left_margin no_bottom_margin">
-      Muting prevents all notifications from this {{#if is_mpim}}conversation{{else}}{{#if_equal c_or_g compare="channel"}}channel{{else}}private channel{{/if_equal}}{{/if}} and prevents the {{#if is_mpim}}conversation{{else}}channel{{/if}} from appearing as unread unless you are mentioned.
+            {{#if is_mpim}}
+                {{#t}}Muting prevents all notifications from this conversation and prevents the conversation from appearing as unread unless you are mentioned.{{/t}}
+            {{else}}
+                {{#if_equal c_or_g compare="channel"}}
+                    {{#t}}Muting prevents all notifications from this channel and prevents the channel from appearing as unread unless you are mentioned.{{/t}}
+                {{else}}
+                    {{#t}}Muting prevents all notifications from this private channel and prevents the channel from appearing as unread unless you are mentioned.{{/t}}
+                {{/if_equal}}
+            {{/if}}
     </p>
   </div>
 
 </div>
 <div class="modal-footer">
-  <p class="mini float_left small_top_margin no_bottom_margin">Set your default notifications settings in your <a href="/account/notifications" target="_blank" class="bold">Account Preferences</a></p>
-  <a class="btn dialog_go">Done</a>
+  <p class="mini float_left small_top_margin no_bottom_margin">{{#t}}Set your default notifications settings in your <a href="/account/notifications" target="_blank" class="bold">Account Preferences</a>{{/t}}</p>
+  <a class="btn dialog_go">{{#t}}Done{{/t}}</a>
 </div>
