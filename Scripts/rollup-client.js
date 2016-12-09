@@ -35457,7 +35457,6 @@ function timezones_guess() {
   TS.registerModule("client.ui.unread", {
     $channel_pane_item: $("#channels_scroller .all_unreads"),
     $scroller: $("#unread_msgs_scroller_div"),
-    $loading_msg_container: null,
     $unread_msgs_div: null,
     $container: null,
     unread_groups: [],
@@ -35490,8 +35489,6 @@ function timezones_guess() {
       TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);
       TS.client.ui.unread.$scroller.html(TS.templates.unread_main());
       TS.client.ui.unread.$unread_msgs_div = $("#unread_msgs_div");
-      _loading = true;
-      TS.client.ui.unread.displayLoadingMessage();
       if (TS.environment.supports_custom_scrollbar) {
         TS.client.ui.unread.$container = $("#unread_msgs_scroller_div");
       } else {
@@ -35702,8 +35699,7 @@ function timezones_guess() {
       _msgs_config.sections = [];
       _msgs_config.has_more_end = false;
       TS.ui.message_container.register(_msgs_config);
-      _loading = true;
-      TS.client.ui.unread.displayLoadingMessage();
+      TS.client.ui.unread.$scroller.addClass("loading");
       _preloadEmptyState();
       _keyboard_in_use = false;
       TS.client.ui.unread.promiseToShowNextPage().then(function() {
@@ -35717,29 +35713,8 @@ function timezones_guess() {
         }
       });
     },
-    createLoadingMsgHTML: function() {
-      var $loading_msg_container = $('<div class="unread_msgs_loading"><div class="unread_msgs_loading_msg"></div></div>');
-      TS.client.ui.unread.$scroller.after($loading_msg_container);
-      TS.client.ui.unread.$loading_msg_container = $loading_msg_container;
-    },
-    displayLoadingMessage: function(message) {
-      if (!TS.client.ui.unread.$loading_msg_container) {
-        TS.client.ui.unread.createLoadingMsgHTML();
-      }
-      TS.client.ui.unread.$loading_msg_container.removeClass("hidden");
-      var default_message = TS.i18n.t("Loading messages...", "unread")();
-      var loading_message = message || default_message;
-      TS.client.ui.unread.$loading_msg_container.find(".unread_msgs_loading_msg").text(loading_message);
-    },
-    hideLoadingMessage: function() {
-      TS.client.ui.unread.$loading_msg_container.addClass("hidden");
-    },
     displaySlowLoadingMessage: function() {
-      if (!_loading) {
-        return;
-      }
-      var message = TS.i18n.t("Still loading... sorry for the long wait!", "unread")();
-      TS.client.ui.unread.displayLoadingMessage(message);
+      if (TS.client.ui.unread.$scroller.hasClass("loading")) TS.client.ui.unread.$scroller.addClass("loading-slow");
     },
     isFatalErrorDisplaying: function() {
       return $("#messages_container .unread_error_state").length;
@@ -35852,8 +35827,7 @@ function timezones_guess() {
         TS.ui.banner.show_hide_sig.remove(_updateBannerHeight);
       }
       TS.client.ui.unread.$unread_msgs_div.empty();
-      _loading = false;
-      TS.client.ui.unread.hideLoadingMessage();
+      TS.client.ui.unread.$scroller.addClass("loading");
       $("#footer").removeClass("invisible");
       TS.view.resize_sig.remove(_onResize);
       TS.channels.renamed_sig.remove(_onRename);
@@ -36134,7 +36108,6 @@ function timezones_guess() {
   };
   var _delay_refresh_button;
   var _keyboard_in_use = false;
-  var _loading = false;
   var _preloadEmptyState = function() {
     var done_message_combo_options = [{
       emoji: "tada",
@@ -36500,7 +36473,7 @@ function timezones_guess() {
     if ([TS.utility.keymap.left, TS.utility.keymap.right, 82].indexOf(e.which) === -1) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     if (_currently_loading_more_promise && _currently_loading_more_promise.isPending()) return;
-    if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !_loading && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
+    if (!_currently_changing_active_group && TS.client.ui.isUserAttentionOnChat() && !TS.utility.isFocusOnInput() && !$("#messages_container .unread_empty_state").length && !TS.client.ui.unread.$scroller.hasClass("loading") && !TS.client.ui.unread.$scroller.hasClass("transitioning") && !TS.client.ui.unread.$unread_msgs_div.find(".collapsing").length) {
       var current_group = TS.client.unread.getActiveGroup();
       if (e.which === TS.utility.keymap.right || e.which === TS.utility.keymap.left) {
         _keyboard_in_use = true;
@@ -36698,8 +36671,8 @@ function timezones_guess() {
     if (all_channels_read) TS.client.ui.unread.displayEmptyState();
   };
   var _transitionToMessages = function() {
-    _loading = false;
-    TS.client.ui.unread.hideLoadingMessage();
+    TS.client.ui.unread.$scroller.removeClass("loading");
+    TS.client.ui.unread.$scroller.removeClass("loading-slow");
     TS.client.ui.unread.$scroller.addClass("transitioning");
     TS.client.ui.unread.updateChannelHeader();
     TS.client.ui.unread.updateMsgs();

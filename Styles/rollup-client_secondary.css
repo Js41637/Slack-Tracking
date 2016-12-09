@@ -23397,6 +23397,44 @@ html:not(.supports_sticky_position) #unread_msgs_scroller_div {
   outline: 0
 }
 
+#unread_msgs_scroller_div.loading {
+  background-image: url(/d5d4a/img/unread/uv-loader@2x.gif);
+  background-size: 200px 200px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center
+}
+
+#unread_msgs_scroller_div.loading:before {
+  display: block;
+  content: "Loading messages...";
+  text-align: center;
+  margin-top: -220px;
+  color: #babbbf;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  font-style: italic
+}
+
+#unread_msgs_scroller_div.loading.loading-slow:before {
+  content: "Still loading... sorry for the long wait!"
+}
+
 #unread_msgs_scroller_div:after {
   opacity: 0;
   content: "";
@@ -23418,45 +23456,6 @@ html:not(.supports_sticky_position) #unread_msgs_scroller_div {
 
 #unread_msgs_scroller_div.transitioning:after {
   opacity: 1
-}
-
-.unread_msgs_loading {
-  background-color: #fff;
-  background-image: url(/d5d4a/img/unread/uv-loader@2x.gif);
-  background-size: 200px 200px;
-  background-repeat: no-repeat;
-  background-position: center center;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 199;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -moz-align-items: center;
-  align-items: center;
-  -ms-flex-pack: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  justify-content: center
-}
-
-.unread_msgs_loading_msg {
-  text-align: center;
-  height: 220px;
-  color: #babbbf;
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  font-weight: 700;
-  font-size: 1rem;
-  font-style: italic
 }
 
 #unread_msgs_div {
