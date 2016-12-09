@@ -1,0 +1,18 @@
+{{i18n_ns "threads"}}
+<li role='menuitem' data-action='open-in-channel'><a>{{#t}}Open in channel{{/t}}</a></li>
+{{#if in_threads_view}}<li role='menuitem' data-action='view-in-flexpane'><a>{{#t}}View in flexpane{{/t}}</a></li>{{/if}}
+
+{{#if permitted_to_subscribe}}
+  <li class="divider"></li>
+  <li role="menuitem" data-action='toggle-subscription-status' {{#if subscription}}data-subscribed={{subscription.subscribed}}{{else}}class="disabled"{{/if}}><a>
+    {{#if subscription}}
+      {{#if subscription.subscribed}}
+        {{#t}}Unfollow thread{{/t}}
+      {{else}}
+        {{#t}}Follow thread{{/t}}
+      {{/if}}
+    {{else}}
+      {{#t}}Loading...{{/t}}
+    {{/if}}
+  </a></li>
+{{/if}}

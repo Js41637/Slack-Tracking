@@ -4902,13 +4902,17 @@
       var exclude_at_channels = TS.model.prefs.mentions_exclude_at_channels;
       var exclude_at_user_groups = TS.model.prefs.mentions_exclude_at_user_groups;
       if (exclude_at_channels && exclude_at_user_groups) {
-        include_text = "mentions and reactions, no @channel or User Groups";
+        include_text = TS.i18n.t("mentions and reactions, no {at_label} or User Groups", "prefs")({
+          at_label: TS.templates.builders.atLabel("channel")
+        });
       } else if (!exclude_at_channels && exclude_at_user_groups) {
-        include_text = "mentions, reactions, and @channel mentions";
+        include_text = TS.i18n.t("mentions, reactions, and {at_label} mentions", "prefs")({
+          at_label: TS.templates.builders.atLabel("channel")
+        });
       } else if (exclude_at_channels && !exclude_at_user_groups) {
-        include_text = "mentions, reactions, and User Group mentions";
+        include_text = TS.i18n.t("mentions, reactions, and User Group mentions", "prefs")();
       } else {
-        include_text = "everything";
+        include_text = TS.i18n.t("everything", "prefs")();
       }
       var html = TS.templates.mentions_options({
         include_text: include_text

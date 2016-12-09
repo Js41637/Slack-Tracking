@@ -30113,6 +30113,7 @@ TS.registerModule("constants", {
     var start = Date.now();
     TS.log(96, "--- _onInputTextchange ---");
     if (!val) {
+      _$footer.removeClass("previewing");
       _endSearchMode();
       return;
     }
@@ -30227,7 +30228,8 @@ TS.registerModule("constants", {
       preview_emoji = preview_emoji;
       preview_names = preview_names;
     } else {
-      preview_names = preview_emoji = ":cry:";
+      preview_emoji = ":cry:";
+      preview_names = false;
     }
     _updateFooter(preview_emoji, preview_names);
     if (TS.boot_data.feature_emoji_menu_tuning) {
@@ -30239,11 +30241,17 @@ TS.registerModule("constants", {
   };
   var _updateFooter = function(colon_name, colon_names) {
     if (colon_name) {
-      var title = TS.rxns.getHandyRxnsTitleForEmojiByRxnKey(colon_name, _rxn_key);
-      title = title ? '"' + title + '"' : TS.emoji.stripWrappingColons(colon_name.replace(/(\:\:skin-tone-[2-6]\:)/g, ":"));
+      var title;
+      if (colon_names) {
+        title = TS.rxns.getHandyRxnsTitleForEmojiByRxnKey(colon_name, _rxn_key);
+        title = title ? '"' + title + '"' : TS.emoji.stripWrappingColons(colon_name.replace(/(\:\:skin-tone-[2-6]\:)/g, ":"));
+      } else {
+        title = TS.i18n.t("Oh no!", "menu_emoji")();
+        colon_names = TS.i18n.t("We couldn’t find that emoji", "menu_emoji")();
+      }
       _$footer.addClass("previewing");
       _$emoji_preview_img.html(TS.emoji.graphicReplace(colon_name));
-      _$emoji_name.html(title);
+      _$emoji_name.text(title);
       _$emoji_aliases.html((colon_names || "").replace(/(\:\:skin-tone-[2-6]\:)/g, ":").replace(/\: /g, ":&nbsp;&nbsp;"));
     } else {
       _$footer.removeClass("previewing");
@@ -31810,6 +31818,10 @@ TS.registerModule("constants", {
         TS.menu.$menu_list = TS.menu.$menu.find("#menu_list");
         TS.menu.$menu.off("keydown", "#file_member_filter .member_filter");
       }
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        TS.menu.$menu.removeAttr("data-model-ob-id");
+        TS.menu.$menu.removeAttr("data-thread-ts");
+      }
       _on_esc = null;
     },
     end: function() {
@@ -32588,7 +32600,7 @@ var _on_esc;
       team: team
     };
     var settings = {
-      title: TS.i18n.t("Leave Workspace", "enterprise_workspaces")(),
+      title: TS.i18n.t("Leave Team", "enterprise_workspaces")(),
       body_template_html: TS.templates.leave_workspace_dialog(template_args),
       onShow: _onShowLeaveTeamConfirm,
       onCancel: _onCancelLeaveTeamConfirm,
@@ -33949,6 +33961,77 @@ var _on_esc;
     }
   });
   var _use_channel_name_toggle;
+})();
+(function() {
+  "use strict";
+  TS.registerModule("menu.threads", {
+    startWithThread: function(e, model_ob_id, thread_ts, view) {
+      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      if (TS.menu.isRedundantClick(e)) return;
+      if (TS.client.ui.checkForEditing(e)) return;
+      if (TS.model.menu_is_showing) return;
+      TS.menu.buildIfNeeded();
+      TS.menu.file.clean();
+      var subscription = TS.replies.getSubscriptionState(model_ob_id, thread_ts);
+      _updateThreadMenu(model_ob_id, thread_ts, subscription, view);
+      TS.menu.start(e, true);
+      if (!subscription) {
+        TS.replies.promiseToGetSubscriptionState(model_ob_id, thread_ts).then(function(subscription_data) {
+          TS.menu.threads.maybeUpdateVisibleThreadMenu(model_ob_id, thread_ts, subscription_data, view);
+        });
+      }
+      var $el = $(e.target);
+      TS.menu.positionAt($el, $el.width() - TS.menu.$menu.width(), $el.height() + 8);
+      TS.menu.$menu_items.on("click.menu", "li", TS.menu.threads.onThreadItemClick);
+    },
+    onThreadItemClick: function(e) {
+      e.preventDefault();
+      var $el = $(e.target).data("action") ? $(e.target) : $(e.target).closest("li");
+      var $menu = $el.closest("#menu");
+      var model_ob_id = $menu.attr("data-model-ob-id");
+      var thread_ts = $menu.attr("data-thread-ts");
+      var action = $el.data("action");
+      if (!model_ob_id || !thread_ts || !action) return;
+      switch (action) {
+        case "open-in-channel":
+          TS.client.ui.tryToJump(model_ob_id, thread_ts);
+          break;
+        case "view-in-flexpane":
+          var model_ob = TS.shared.getModelObById(model_ob_id);
+          TS.ui.replies.openConversation(model_ob, thread_ts);
+          break;
+        case "toggle-subscription-status":
+          var is_subscribed = $el.data("subscribed");
+          var last_read;
+          var root_msg = TS.utility.msgs.findMsg(thread_ts, model_ob_id);
+          if (root_msg && root_msg.replies && root_msg.replies.length) {
+            last_read = _.last(root_msg.replies).ts;
+          }
+          TS.replies.setSubscriptionState(model_ob_id, thread_ts, !is_subscribed, last_read);
+          $el.addClass("disabled");
+          break;
+      }
+      TS.menu.end();
+    },
+    maybeUpdateVisibleThreadMenu: function(model_ob_id, thread_ts, subscription, view) {
+      var is_thread_menu_showing = TS.menu.$menu.attr("data-thread-ts") === thread_ts;
+      if (is_thread_menu_showing) _updateThreadMenu(model_ob_id, thread_ts, subscription, view);
+    }
+  });
+  var _updateThreadMenu = function(model_ob_id, thread_ts, subscription, view) {
+    TS.menu.$menu.attr({
+      "data-model-ob-id": model_ob_id,
+      "data-thread-ts": thread_ts
+    });
+    var model_ob = TS.shared.getModelObById(model_ob_id);
+    if (!model_ob) return;
+    TS.menu.$menu_items.html(TS.templates.menu_thread_action_items({
+      permitted_to_subscribe: !model_ob.is_channel || model_ob.is_member,
+      subscription: subscription,
+      in_convo: view === "in_convo",
+      in_threads_view: view === "in_threads_view"
+    }));
+  };
 })();
 (function() {
   "use strict";
@@ -41631,6 +41714,7 @@ var _on_esc;
   "use strict";
   TS.registerModule("ui.workspaces", {
     start: function() {
+      if (!TS.boot_data.page_needs_enterprise) return;
       if (TS.model.user.is_restricted) return;
       var teams = TS.enterprise.workspaces.getList("teams_not_on");
       var template_args = {
@@ -41638,7 +41722,7 @@ var _on_esc;
         user: TS.model.user
       };
       var settings = {
-        title: TS.i18n.t("Join {enterprise_name} Workspaces", "enterprise_workspaces")({
+        title: TS.i18n.t("Join {enterprise_name} Teams", "enterprise_workspaces")({
           enterprise_name: TS.model.enterprise.name
         }),
         body_template_html: TS.templates.workspaces_dialog(template_args),
@@ -46781,28 +46865,15 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       TS.client.ui.threads.joinChannelFromThread(e, $el);
     });
-    TS.click.addClientHandler(".subscription_container_btn", function(e, $el) {
+    TS.click.addClientHandler(".thread_action_menu", function(e, $el) {
       if (!TS.boot_data.feature_message_replies_threads_view) return;
       e.preventDefault();
-      var thread_ts = $el.attr("data-thread-ts");
-      var model_ob_id = $el.attr("data-model-ob-id");
+      var $root_msg = $el.closest("ts-thread, #convo_tab").find("ts-message:first");
+      var thread_ts = $root_msg.attr("data-ts");
+      var model_ob_id = $root_msg.attr("data-model-ob-id");
       if (!model_ob_id || !thread_ts) return;
-      var is_subscribed = $el.data("subscribed");
-      var last_read;
-      var root_msg = TS.utility.msgs.findMsg(thread_ts, model_ob_id);
-      if (root_msg && root_msg.replies && root_msg.replies.length) {
-        last_read = _.last(root_msg.replies).ts;
-      }
-      TS.replies.setSubscriptionState(model_ob_id, thread_ts, !is_subscribed, last_read);
-      $el.addClass("disabled");
-    });
-    TS.click.addClientHandler("#threads_msgs .jump_to_original, #convo_tab .jump_to_original", function(e, $el) {
-      if (!TS.boot_data.feature_message_replies_threads_view) return;
-      e.preventDefault();
-      var model_ob_id = $el.attr("data-model-ob-id");
-      var thread_ts = $el.attr("data-thread-ts");
-      if (!model_ob_id || !thread_ts) return;
-      TS.client.ui.tryToJump(model_ob_id, thread_ts);
+      var view = $el.closest("#convo_tab").length > 0 ? "in_convo" : "in_threads_view";
+      TS.menu.threads.startWithThread(e, model_ob_id, thread_ts, view);
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {

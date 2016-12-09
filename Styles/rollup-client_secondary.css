@@ -1899,9 +1899,7 @@ html.is_electron_mac #rxn_toast_div {
 
 #convo_tab .heading .close_flexpane {
   float: none;
-  position: relative;
-  top: -.125rem;
-  margin-left: .5rem
+  margin-left: .375rem
 }
 
 #convo_tab #convo_tab_header {
@@ -1945,6 +1943,11 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   position: absolute;
   right: .75rem;
   top: 1.25rem
+}
+
+#convo_tab #convo_tab_btns .thread_action_menu ts-icon {
+  position: relative;
+  top: -.0625rem
 }
 
 .mentions_reply {
@@ -5786,12 +5789,13 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
-  right: .25rem;
+  right: .4375rem;
   top: 50%;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
-  transform: translateY(-50%)
+  transform: translateY(-50%);
+  line-height: 1.5rem
 }
 
 .current_status_input_wrap .status_clear_icon .ts_icon_times_circle {
@@ -5803,7 +5807,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container label.countdown:after {
-  margin-right: .875rem;
+  margin-right: 1.125rem;
   z-index: 1
 }
 
@@ -18829,10 +18833,6 @@ ts-message .emoji-sizer .mention {
   margin-right: .8125rem
 }
 
-.light_theme .thread_channel_name {
-  margin-left: 1.5rem
-}
-
 .light_theme .new_reply_indicator {
   margin-left: 1.6875rem
 }
@@ -19076,10 +19076,6 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 
 .dense_theme .reply_input_container .reply_broadcast_buttons_container .reply_send {
   margin-right: .5625rem
-}
-
-.dense_theme .thread_channel_name {
-  margin-left: 1.1875rem
 }
 
 .last_replier_wrapper {
@@ -22139,13 +22135,18 @@ ts-jumper ts-jumper-results:empty {
   transform: translateY(-.3125rem)
 }
 
-.current_status_input_for_team_menu .current_status_input_wrap,
-.current_status_input_for_team_menu .input_note {
+.current_status_input_for_team_menu .current_status_input_wrap {
   padding-left: 1.25rem;
   padding-right: 1.25rem
 }
 
+.current_status_input_for_team_menu .current_status_input_wrap .current_status_input {
+  padding-right: .75rem
+}
+
 .current_status_input_for_team_menu .input_note {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
   max-height: 3rem;
   margin-bottom: 0
 }

@@ -1,5 +1,11 @@
+{{i18n_ns 'files'}}
+
 {{#if comment_group}}
-  <p class="file_comments_header">Started on {{toCalendarDateOrNamedDayShort comment_group.first_share.timestamp}} at {{toTime comment_group.first_share.timestamp}} in {{makeChannelOrGroupLinkById c_id}}
+  <p class="file_comments_header">
+        {{#t date=(toCalendarDateOrNamedDayShort comment_group.first_share.timestamp) time=(toTime comment_group.first_share.timestamp) channel_link=(makeChannelOrGroupLinkById c_id)}}
+                Started on {date} at {time} in {channel_link}
+        {{/t}}
+    </p>
 {{/if}}
 
 {{#if file_partial}}

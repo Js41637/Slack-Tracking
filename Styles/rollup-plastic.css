@@ -12158,12 +12158,13 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
-  right: .25rem;
+  right: .4375rem;
   top: 50%;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
-  transform: translateY(-50%)
+  transform: translateY(-50%);
+  line-height: 1.5rem
 }
 
 .current_status_input_wrap .status_clear_icon .ts_icon_times_circle {
@@ -12175,7 +12176,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container label.countdown:after {
-  margin-right: .875rem;
+  margin-right: 1.125rem;
   z-index: 1
 }
 
