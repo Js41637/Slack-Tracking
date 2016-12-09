@@ -19266,7 +19266,7 @@ ts-thread .view_all_replies_count {
 #reply_container .inline_message_input_container textarea:focus,
 .reply_input_container .inline_message_input_container textarea:active,
 .reply_input_container .inline_message_input_container textarea:focus {
-  border-color: #BBBDBF
+  border-color: #bbbdbf
 }
 
 #reply_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu,

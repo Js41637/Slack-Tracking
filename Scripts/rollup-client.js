@@ -9917,7 +9917,13 @@
         }
         if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("input keydown", Date.now() - start);
       });
-      if (TS.client.ui.$messages_input_container) {
+      if (TS.boot_data.feature_texty) {
+        $input.on("focusin", function() {
+          $input.parent().addClass("focus");
+        }).on("focusout", function() {
+          $input.parent().removeClass("focus");
+        });
+      } else if (TS.client.ui.$messages_input_container) {
         $input.on("focus", function() {
           TS.client.ui.$messages_input_container.addClass("focus");
         }).on("blur", function() {
