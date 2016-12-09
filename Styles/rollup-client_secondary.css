@@ -22711,6 +22711,19 @@ ts-jumper ts-jumper-results:empty {
   color: #fc0
 }
 
+.header_user_status.feature_user_custom_status {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.header_user_status.feature_user_custom_status .current_status {
+  max-width: 8.75rem;
+  cursor: pointer
+}
+
 .header_user_status .presence {
   width: .875rem;
   height: auto;

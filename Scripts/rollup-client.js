@@ -4375,7 +4375,8 @@
     updateUserCurrentStatus: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
       var current_status = TS.members.getMemberCurrentStatus(TS.model.user);
-      $(".current_user_current_status").text(current_status);
+      $("#current_user_name_and_current_status").toggleClass("ts_tip", !!current_status);
+      $(".current_user_current_status").toggleClass("hidden", !current_status).text(current_status);
     },
     getUserPresenceStr: function() {
       var user = TS.model.user;
