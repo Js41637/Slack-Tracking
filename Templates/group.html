@@ -7,7 +7,11 @@
       {{#if model_ob.is_archived}}
         {{> ts_icon class="ts_icon_archived_channel prefix"}}
       {{else}}
-        {{> ts_icon class="ts_icon_lock prefix"}}
+        {{#showDraftIcon model_ob}}
+          {{> ts_icon class="ts_icon_pencil prefix"}}
+        {{else}}
+          {{> ts_icon class="ts_icon_lock prefix"}}
+        {{/showDraftIcon}}
       {{/if}}
       <span class="{{makeUnreadMsgsDomId model_ob}} unread_msgs 
                    {{#if_equal model_ob.unread_cnt compare=0}}hidden{{/if_equal}}">

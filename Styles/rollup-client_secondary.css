@@ -2473,6 +2473,23 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover {
   margin: -3px 0 0 -3px
 }
 
+.channels_list_holder ul li .ts_icon_pencil.prefix {
+  margin: 1px 1px 0 -1px
+}
+
+.channels_list_holder ul li .ts_icon_pencil.prefix:before {
+  font-size: 1rem
+}
+
+.channels_list_holder ul li.member .ts_icon_pencil.prefix,
+.channels_list_holder ul li.mpim .ts_icon_pencil.prefix {
+  margin-right: 2px
+}
+
+.channels_list_holder ul li .slackbot_icon {
+  margin-right: 1px
+}
+
 .channels_list_holder ul li .ts_icon_shared_channel {
   margin-top: -3px;
   margin-left: 2px
@@ -21914,6 +21931,17 @@ ts-jumper ol li ts-icon.ts_icon_random:before {
 ts-jumper ol li ts-icon.ts_icon_check_small {
   position: relative;
   top: 3px
+}
+
+ts-jumper ol li ts-icon.ts_icon_pencil {
+  position: relative;
+  top: 1px
+}
+
+ts-jumper ol li ts-icon.ts_icon_pencil:before {
+  font-size: 1rem;
+  margin-right: 3px;
+  margin-left: 1px
 }
 
 ts-jumper ol li .jumper_team_icon {

@@ -390,6 +390,12 @@
       return _get(TS.storage._makeMsgInputId(id), null);
     },
     storeLastMsgInput: function(id, txt) {
+      if (TS.boot_data.feature_show_drafts) {
+        var previous = TS.storage.fetchLastMsgInput(id);
+        if (!txt && previous || !previous && txt) {
+          TS.client.channel_pane.maybeRebuildBecauseMsgInputChanged(id, !!txt);
+        }
+      }
       _set(TS.storage._makeMsgInputId(id), txt);
     },
     _makeCommentInputId: function(id) {
@@ -22360,7 +22366,7 @@ TS.registerModule("constants", {
         if (channel.unread_highlight_cnt > 0) dom_class += "mention ";
         if (channel.is_starred) dom_class += "is_starred ";
         if (TS.notifs.isCorGMuted(channel.id)) dom_class += "muted_channel ";
-        if (channel._show_in_list_even_though_no_unreads) dom_class += "show_in_list_even_though_no_unreads ";
+        if (channel._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && channel.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("makeChannelOrGroupLinkById", function(id, omit_prefix) {
@@ -22462,7 +22468,7 @@ TS.registerModule("constants", {
         if (group.unread_highlight_cnt > 0) dom_class += "mention ";
         if (group.is_starred) dom_class += "is_starred ";
         if (TS.notifs.isCorGMuted(group.id)) dom_class += "muted_channel ";
-        if (group._show_in_list_even_though_no_unreads) dom_class += "show_in_list_even_though_no_unreads ";
+        if (group._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && group.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("mpimMemberCount", function(mpim) {
@@ -22485,6 +22491,7 @@ TS.registerModule("constants", {
         if (mpim.unread_cnt > 0 || mpim.unread_highlight_cnt > 0) dom_class += "unread mention ";
         if (TS.notifs.isCorGMuted(mpim.id)) dom_class += "muted_channel ";
         if (mpim.is_starred) dom_class += "is_starred ";
+        if (TS.boot_data.feature_show_drafts && mpim.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("makeMpimDomId", function(mpim) {
@@ -22542,8 +22549,24 @@ TS.registerModule("constants", {
         if (im) {
           if (im.unread_cnt > 0 || im.unread_highlight_cnt > 0) dom_class += "unread mention ";
           if (im.is_starred) dom_class += "is_starred ";
+          if (TS.boot_data.feature_show_drafts && im.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
         }
         return dom_class;
+      });
+      Handlebars.registerHelper("showDraftIcon", function(model_ob, options) {
+        var last_msg_input;
+        if (TS.boot_data.feature_show_drafts) {
+          last_msg_input = model_ob.last_msg_input;
+          if (!last_msg_input && model_ob.presence) {
+            var im = TS.ims.getImByMemberId(model_ob.id);
+            last_msg_input = im && im.last_msg_input;
+          }
+        }
+        if (last_msg_input) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        }
       });
       Handlebars.registerHelper("makeMemberListDomClass", function(member) {
         var dom_class = "member ";
@@ -46402,7 +46425,7 @@ $.fn.togglify = function(settings) {
       var ignore_selectors = ["a", ".media_caret", ".delete_attachment_link", ".msg_inline_video_buttons_div"].join(",");
       if ($(e.target).closest(ignore_selectors).length) return;
       var $link;
-      if ($el.is(".reply_broadcast") || $el.closest(".reply_broadcast_rule")) {
+      if ($el.is(".reply_broadcast") || $el.closest(".reply_broadcast_rule").length) {
         $link = $el.closest(".message_body").find('[data-action="open_conversation"]');
       } else {
         $link = $el.find(".attachment_from_url_link");

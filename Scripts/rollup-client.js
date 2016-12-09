@@ -10401,6 +10401,13 @@
       TS.client.channel_pane.rebuild();
       return true;
     },
+    maybeRebuildBecauseMsgInputChanged: function(model_ob, msg_input_has_text) {
+      if (!TS.boot_data.feature_show_drafts) {
+        return false;
+      }
+      TS.client.channel_pane.rebuild("ims", "channels", "starred");
+      return true;
+    },
     updateQuickSwitcherBtnVisibility: function() {
       var $quick_switcher_btn = $("#quick_switcher_btn");
       if (TS.model.prefs.no_omnibox_in_channels) {
@@ -34052,6 +34059,7 @@ function timezones_guess() {
   var _getUnreadList = function() {
     var highlights = [];
     var unreads = [];
+    var drafts = [];
     var list = [];
     _data.members.forEach(function(member) {
       var im = TS.ims.getImByMemberId(member.id);
@@ -34060,11 +34068,21 @@ function timezones_guess() {
           model_ob: member,
           score: 0
         });
+      } else if (im && im.last_msg_input) {
+        drafts.push({
+          model_ob: member,
+          score: 0
+        });
       }
     });
     _data.mpims.forEach(function(mpim) {
       if (mpim.unread_cnt && mpim.unread_cnt > 0) {
         highlights.push({
+          model_ob: mpim,
+          score: 0
+        });
+      } else if (mpim.last_msg_input) {
+        drafts.push({
           model_ob: mpim,
           score: 0
         });
@@ -34081,6 +34099,11 @@ function timezones_guess() {
           model_ob: group,
           score: 0
         });
+      } else if (group.last_msg_input) {
+        drafts.push({
+          model_ob: group,
+          score: 0
+        });
       }
     });
     _data.channels.forEach(function(channel) {
@@ -34094,9 +34117,18 @@ function timezones_guess() {
           model_ob: channel,
           score: 0
         });
+      } else if (channel.last_msg_input) {
+        drafts.push({
+          model_ob: channel,
+          score: 0
+        });
       }
     });
-    list = highlights.concat(unreads);
+    if (TS.boot_data.feature_show_drafts) {
+      list = highlights.concat(unreads, drafts);
+    } else {
+      list = highlights.concat(unreads);
+    }
     if (!list.length) {
       if (_data.channels.length + _data.groups.length < 10) {
         _data.channels.forEach(function(channel) {

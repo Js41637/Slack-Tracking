@@ -20,10 +20,18 @@
       <span class="typing_indicator"></span>
       <span class="overflow_ellipsis">
         {{#if_equal model_ob.name compare="slackbot"}}
-          <i class="ts_icon ts_icon_heart slackbot_icon"></i>
+          {{#showDraftIcon model_ob}}
+            {{> ts_icon class="ts_icon_pencil prefix"}}
+          {{else}}
+            <i class="ts_icon ts_icon_heart slackbot_icon"></i>
+          {{/showDraftIcon}}
           {{model_ob.name}}
         {{else}}
-          {{{makeMemberPresenceIcon member}}}
+          {{#showDraftIcon model_ob}}
+            {{> ts_icon class="ts_icon_pencil prefix"}}
+          {{else}}
+            {{{makeMemberPresenceIcon member}}}
+          {{/showDraftIcon}}
           {{getDisplayNameOfUserForIm model_ob}}
           {{#if member.is_self}} ({{#t note="Appears next to user name when user is self, e.g. 'Steve (you)' when I am Steve"}}you{{/t}}){{/if}}
           {{#feature flag="feature_user_custom_status"}}

@@ -4,7 +4,11 @@
   {{#if show_starred}}{{makeModelObStarredIconSafe model_ob}}{{/if}}
   {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
   <a class="mpim_name" data-mpim-id="{{model_ob.id}}">
-    <ts-icon class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}} prefix"></ts-icon>
+    {{#showDraftIcon model_ob}}
+      {{> ts_icon class="ts_icon_pencil prefix"}}
+    {{else}}
+      <ts-icon class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}} prefix"></ts-icon>
+    {{/showDraftIcon}}
     <ts-icon class="ts_icon ts_icon_times_circle mpim_close"></ts-icon>
     {{#isCorGMuted model_ob.id}}
       <span class="{{makeUnreadHighlightDomId model_ob}} unread_highlights {{#if_equal model_ob.unread_highlight_cnt compare=0}}hidden{{/if_equal}}{{#if_equal model_ob.unread_highlight_cnt compare=undefined}}hidden{{/if_equal}}">{{numberWithMax model_ob.unread_highlight_cnt 10}}</span>

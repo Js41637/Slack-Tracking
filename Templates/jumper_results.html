@@ -8,17 +8,20 @@
         <li aria-label="{{#if this.model_ob.team_url}}{{this.model_ob.team_name}}{{else}}{{this.model_ob.name}}{{/if}}" data-item-id="{{this.model_ob.id}}" {{#if this.model_ob.team_url}}data-item-team-id="{{this.model_ob.team_id}}"{{/if}}>
       {{/feature}}
         <span class="item_details float_left overflow_ellipsis">
-          {{#if this.model_ob.is_group}}
-            {{#if this.model_ob.is_mpim}}
-              <ts-icon class="ts_icon_multiparty_dm_{{mpimMemberCount this.model_ob}}"></ts-icon>
-            {{else}}
-              <ts-icon class="ts_icon_lock"></ts-icon>
+          {{#showDraftIcon this.model_ob}}
+            <ts-icon aria-hidden="true" class="ts_icon_pencil"></ts-icon>
+          {{else}}
+            {{#if this.model_ob.is_group}}
+              {{#if this.model_ob.is_mpim}}
+                <ts-icon class="ts_icon_multiparty_dm_{{mpimMemberCount this.model_ob}}"></ts-icon>
+              {{else}}
+                <ts-icon class="ts_icon_lock"></ts-icon>
+              {{/if}}
             {{/if}}
-          {{/if}}
-          {{#if this.model_ob.is_channel}}<ts-icon aria-hidden="true" class="ts_icon_channel_pane_hash"></ts-icon>{{/if}}
-          {{#if this.model_ob.presence}}{{makeMemberPresenceIcon this.model_ob}}{{/if}}
-          {{#if this.model_ob.team_url}}{{#if this.model_ob.team_icon}}<img class="jumper_team_icon" aria-hidden="true" src="{{this.model_ob.team_icon.image_44}}">{{else}}<ts-icon class="ts_icon_random"></ts-icon>{{/if}}{{/if}}
-
+            {{#if this.model_ob.is_channel}}<ts-icon aria-hidden="true" class="ts_icon_channel_pane_hash"></ts-icon>{{/if}}
+            {{#if this.model_ob.presence}}{{makeMemberPresenceIcon this.model_ob}}{{/if}}
+            {{#if this.model_ob.team_url}}{{#if this.model_ob.team_icon}}<img class="jumper_team_icon" aria-hidden="true" src="{{this.model_ob.team_icon.image_44}}">{{else}}<ts-icon class="ts_icon_random"></ts-icon>{{/if}}{{/if}}
+          {{/showDraftIcon}}
           {{#if this.model_ob.presence}}
             {{#feature flag="feature_name_tagging_client"}}
               {{getMemberFullNameAndPreferredNameInOrder this.model_ob}}

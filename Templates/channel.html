@@ -6,10 +6,14 @@
     <a href="/archives/{{model_ob.name}}" target="{{newWindowName}}" class="channel_name" data-channel-id="{{model_ob.id}}" aria-label="{{{makeChannelLinkAriaLabelSafe model_ob}}}">
       {{#if model_ob.is_archived}}
         {{> ts_icon class="ts_icon_archived_channel prefix"}}
-      {{else if model_ob.is_private}}
-        {{> ts_icon class="ts_icon_lock prefix"}}
       {{else}}
-        {{> ts_icon class="ts_icon_channel_pane_hash prefix"}}
+        {{#showDraftIcon model_ob}}
+          {{> ts_icon class="ts_icon_pencil prefix"}}
+        {{else if model_ob.is_private}}
+          {{> ts_icon class="ts_icon_lock prefix"}}
+        {{else}}
+          {{> ts_icon class="ts_icon_channel_pane_hash prefix"}}
+        {{/showDraftIcon}}
       {{/if}}
       <span class="{{makeUnreadMsgsDomId model_ob}} unread_msgs {{#if_equal model_ob.unread_cnt compare=0}}hidden{{/if_equal}}">
         {{numberWithMax model_ob.unread_cnt 10}}
