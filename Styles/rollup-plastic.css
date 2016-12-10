@@ -12203,9 +12203,9 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_container .input_note {
   margin-top: .375rem;
-  -webkit-transition: opacity .15s ease margin-bottom .15s ease max-height .15s ease 0s;
-  -moz-transition: opacity .15s ease margin-bottom .15s ease max-height .15s ease 0s;
-  transition: opacity .15s ease margin-bottom .15s ease max-height .15s ease 0s;
+  -webkit-transition: opacity .15s ease, margin-bottom .15s ease, max-height .15s ease;
+  -moz-transition: opacity .15s ease, margin-bottom .15s ease, max-height .15s ease;
+  transition: opacity .15s ease, margin-bottom .15s ease, max-height .15s ease;
   opacity: 1
 }
 

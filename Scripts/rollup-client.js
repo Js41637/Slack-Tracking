@@ -16557,6 +16557,9 @@
       newTxt = this._replaceAll(newTxt, "\n", "<br/>");
       newTxt = this._replaceAll(newTxt, "  ", "  ");
       this._$underlay.html(newTxt);
+      if (this._ghost_text && !_.isString(this._ghost_text)) {
+        this._ghost_text = "";
+      }
       if (this._ghost_text) {
         if (this._prevVal && val.length > this._prevVal.length && val.charAt(val.length - 1) === this._ghost_text.charAt(0)) {
           this.setGhostText(this._ghost_text.substring(1));
