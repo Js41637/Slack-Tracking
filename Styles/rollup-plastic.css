@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/5ce3/fonts/slack-icons-Regular.eot);
-  src: url(/5ce3/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/5ce3/fonts/slack-icons-Regular.woff) format('woff'), url(/5ce3/fonts/slack-icons-Regular.ttf) format('truetype'), url(/5ce3/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/fad6/fonts/slack-icons-Regular.eot);
+  src: url(/fad6/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/fad6/fonts/slack-icons-Regular.woff) format('woff'), url(/fad6/fonts/slack-icons-Regular.ttf) format('truetype'), url(/fad6/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -1932,6 +1932,22 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_share_filled:before {
   content: '\E549'
+}
+
+.ts_icon_cog_filled:before {
+  content: '\E550'
+}
+
+.ts_icon_side_panel_filled:before {
+  content: '\E551'
+}
+
+.ts_icon_add_reaction_filled:before {
+  content: '\E552'
+}
+
+.ts_icon_mentions_filled:before {
+  content: '\E553'
 }
 
 .ts_icon_arrow_right:before {
@@ -12187,9 +12203,9 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_container .input_note {
   margin-top: .375rem;
-  -webkit-transition: all .15s ease;
-  -moz-transition: all .15s ease;
-  transition: all .15s ease;
+  -webkit-transition: opacity .15s ease margin-bottom .15s ease max-height .15s ease 0s;
+  -moz-transition: opacity .15s ease margin-bottom .15s ease max-height .15s ease 0s;
+  transition: opacity .15s ease margin-bottom .15s ease max-height .15s ease 0s;
   opacity: 1
 }
 
@@ -12209,15 +12225,12 @@ only screen and (min-resolution:2dppx) {
   padding-bottom: .125rem
 }
 
-.current_status_input_container .current_status_clear li a,
-.current_status_input_container .current_status_suggestions li a {
+.current_status_suggestion_option {
   color: #2c2d30!important
 }
 
-.current_status_input_container .current_status_clear li a:active,
-.current_status_input_container .current_status_clear li a:hover,
-.current_status_input_container .current_status_suggestions li a:active,
-.current_status_input_container .current_status_suggestions li a:hover {
+.current_status_suggestion_option:active,
+.current_status_suggestion_option:hover {
   text-decoration: none!important
 }
 

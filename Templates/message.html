@@ -11,51 +11,7 @@
          {{#if app_id}}data-app-id="{{app_id}}"{{/if}}
          {{#if bot_id}}data-bot-id="{{bot_id}}"{{/if}}
          {{/if}}
-         {{#feature flag="feature_refactor_buildmsghtml"}}
-           class="{{msg_classes}}"
-         {{else}}
-         class="{{#unless standalone}}dirty_hover_container {{/unless}}
-             message feature_fix_files
-             {{#if msg.no_display}}hidden{{/if}}
-             {{makeMsgSubtypeDomClass msg}}
-             {{#if standalone}}standalone{{/if}}
-             {{#if for_search_display}}for_search_display{{/if}}
-             {{#if starred_items_list}}for_star_display{{/if}}
-             {{#if for_mention_display}}for_mention_display{{/if}}
-             {{#if for_mention_rxn_display}}for_mention_rxn_display{{/if}}
-             {{#if show_user}}
-               first
-             {{else}}
-               {{#if file}}first{{/if}}
-               {{#if is_in_conversation}}first{{/if}}
-             {{/if}}
-             {{#if is_ephemeral}}ephemeral{{/if}}
-             {{#if unprocessed}}unprocessed{{/if}}
-             {{#if highlight}}highlight{{/if}}
-             {{#if file}}
-               file_reference
-               {{#if is_mention}}file_mention{{else}}file_share{{/if}}
-             {{/if}}
-             {{#if comment}}
-               {{#if is_file_convo_continuation}}comment_continuation{{else}}first{{/if}}
-             {{/if}}
-             {{#if highlight_as_new}}new{{/if}}
-             {{#feature flag="feature_message_replies"}}
-               {{#if is_root_msg}}selected{{/if}}
-               {{#if is_new_reply}}new_reply{{/if}}
-             {{/feature}}
-             {{#if is_tombstone}}deleted{{/if}}
-             {{#feature flag="feature_pin_update"}}
-               {{#if is_pinned}}is_pinned{{/if}}
-             {{/feature}}
-      {{#feature flag="feature_sli_recaps"}}
-        {{#if is_recap}}is_recap
-          {{#if recap_threshold}}recap_marker_threshold{{/if}}
-        {{/if}}
-      {{/feature}}
-             {{#if app_id}}is_app{{/if}}
-         "
-         {{/feature}}
+   class="{{msg_classes}}"
          {{#feature flag="feature_message_replies"}}data-selectable="{{selectable}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}" data-parent-user-id="{{msg.parent_user_id}}"{{/if}}{{/feature}}
          >
   {{#unless hide_actions}}

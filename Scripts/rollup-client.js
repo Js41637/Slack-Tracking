@@ -1750,7 +1750,12 @@
       }
     },
     measureMsgPreview: function() {
-      if (TS.boot_data.feature_new_msg_input) return;
+      if (TS.boot_data.feature_new_msg_input) {
+        TS.view.footer_outer_h = $("#footer").outerHeight();
+        TS.view.last_preview_height_changed = TS.view.last_preview_height !== TS.view.footer_outer_h;
+        TS.view.last_preview_height = TS.view.footer_outer_h;
+        return;
+      }
       var footer_height, msg_preview_height, preview_height;
       var min_preview_height = 110;
       var window_height = TS.view.cached_wh || $(window).height();
@@ -2164,7 +2169,7 @@
         scroll_down = true;
       }
       var prev_msg = TS.utility.msgs.getPrevDisplayedMsg(msg.ts, model_ob.msgs);
-      var html = TS.templates.builders.buildMsgHTML({
+      var html = TS.templates.builders.msgs.buildHTML({
         msg: msg,
         model_ob: model_ob,
         prev_msg: prev_msg,
@@ -2239,7 +2244,7 @@
       var model_ob = TS.shared.getActiveModelOb();
       var was_at_bottom = TS.client.ui.areMsgsScrolledToBottom();
       var prev_msg = TS.utility.msgs.getPrevDisplayedMsg(msg.ts, model_ob.msgs);
-      var html = TS.templates.builders.buildMsgHTML({
+      var html = TS.templates.builders.msgs.buildHTML({
         msg: msg,
         model_ob: model_ob,
         prev_msg: prev_msg,
@@ -4374,9 +4379,9 @@
     },
     updateUserCurrentStatus: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
-      var current_status = TS.members.getMemberCurrentStatus(TS.model.user);
+      var current_status = TS.format.formatDefault(TS.members.getMemberCurrentStatus(TS.model.user));
       $("#current_user_name_and_current_status").toggleClass("ts_tip", !!current_status);
-      $(".current_user_current_status").toggleClass("hidden", !current_status).text(current_status);
+      $(".current_user_current_status").toggleClass("hidden", !current_status).html(current_status);
     },
     getUserPresenceStr: function() {
       var user = TS.model.user;
@@ -7409,7 +7414,7 @@
       }
       TS.generic_dialog.start({
         title: "Send message to users not in #" + model_ob.name + "",
-        body: "<p>Would you like to have slackbot send " + names_text + " your message?</p>" + TS.templates.builders.buildMsgHTML({
+        body: "<p>Would you like to have slackbot send " + names_text + " your message?</p>" + TS.templates.builders.msgs.buildHTML({
           msg: msg,
           model_ob: model_ob,
           standalone: true
@@ -9133,7 +9138,9 @@
     registerCurrentStatusInput: function() {
       TS.client.ui.flex._unregisterCurrentStatusInput();
       TS.client.ui.flex._current_status_input = new TS.client.ui.CurrentStatusInput({
-        $parent: $("#member_preview_container")
+        $parent: $("#member_preview_container"),
+        has_suggestions_menu: true,
+        $scroll_container: $("#member_preview_scroller")
       });
     },
     _unregisterCurrentStatusInput: function() {
@@ -9353,6 +9360,7 @@
       this._maybeClearNoResults();
       this.$_search_input.val("");
       this.$_clear_icon.addClass("hidden");
+      this.$_long_list_view.scrollTop(0);
       if (!TS.lazyLoadMembersAndBots() || this._getBestEffortNumMembers() <= this._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
         this._loadLocalMembersIntoLongListView();
         return;
@@ -9422,6 +9430,7 @@
           this._showNoResults();
         }
       }
+      return null;
     },
     getCurrentFilter: function() {
       return this._current_filter;
@@ -9509,11 +9518,6 @@
       if (TS.lazyLoadMembersAndBots()) {
         var container_height = this_searchable_member_list.$_long_list_view.height();
         var list_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-        this_searchable_member_list._resize_sig_handler = _.throttle(function() {
-          container_height = this_searchable_member_list.$_long_list_view.height();
-          list_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-        }, this_searchable_member_list._RESIZE_THROTTLE_MS);
-        TS.view.resize_sig.add(this_searchable_member_list._resize_sig_handler);
         var recursivelyFillListToHeight = function() {
           if (list_height < container_height && !this_searchable_member_list._have_all_members) {
             this_searchable_member_list._fetchMoreMembers().then(function() {
@@ -9524,6 +9528,12 @@
           }
         };
         recursivelyFillListToHeight();
+        this_searchable_member_list._resize_sig_handler = _.throttle(function() {
+          container_height = this_searchable_member_list.$_long_list_view.height();
+          list_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
+          recursivelyFillListToHeight();
+        }, this_searchable_member_list._RESIZE_THROTTLE_MS);
+        TS.view.resize_sig.add(this_searchable_member_list._resize_sig_handler);
         this_searchable_member_list.$_long_list_view.on("scroll", _.debounce(function(e) {
           if (self._is_searching) return;
           var distance_from_bottom = list_height - ($(e.target).scrollTop() + container_height);
@@ -10180,9 +10190,16 @@
     } else if (!text_changed) {
       return;
     }
-    var prev_height = TS.boot_data.feature_texty ? TS.view.last_input_height : TS.view.last_input_container_height;
-    TS.view.measureInput();
-    var new_height = TS.boot_data.feature_texty ? TS.view.last_input_height : TS.view.last_input_container_height;
+    var prev_height, new_height;
+    if (TS.boot_data.feature_texty || TS.boot_data.feature_new_msg_input) {
+      prev_height = TS.view.last_preview_height;
+      TS.view.measureMsgPreview();
+      new_height = TS.view.last_preview_height;
+    } else {
+      prev_height = TS.view.last_input_container_height;
+      TS.view.measureInput();
+      new_height = TS.view.last_input_container_height;
+    }
     if (prev_height != new_height) {
       TS.view.resizeManually();
     }
@@ -12105,7 +12122,7 @@
             });
             html += '<div class="day_msgs" data-date="' + TS.utility.date.toCalendarDate(msg.ts) + '" data-ts="' + msg.ts + '">';
           }
-          html += TS.templates.builders.buildMsgHTML({
+          html += TS.templates.builders.msgs.buildHTML({
             msg: msg,
             model_ob: model_ob,
             prev_msg: prev_msg,
@@ -14633,6 +14650,7 @@
       var page = [];
       var start;
       var display_paging_in_scroller = true;
+      var loading_alt = TS.i18n.t("Loading", "search");
       if (TS.search.filter == "messages") {
         start = (TS.search.view.current_messages_page - 1) * TS.search.per_page;
         if (results.messages && results.messages.matches) page = results.messages.matches.slice(start, start + TS.search.per_page);
@@ -14656,7 +14674,10 @@
             search_global: !TS.model.prefs.search_only_current_team
           });
         } else if (!results.messages || results.messages.total > 0) {
-          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading page ' + TS.search.view.current_messages_page + "...</div>";
+          var loading_msgs = TS.i18n.t("loading page {page_num}...", "search")({
+            page_num: TS.search.view.current_messages_page
+          });
+          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_alt + '" /><br />' + loading_msgs + "</div>";
         } else {
           html = TS.templates.search_results_none({
             query_string: TS.search.query_string,
@@ -14691,7 +14712,10 @@
           });
           html += paging_html;
         } else if (!results.files || results.files.total > 0) {
-          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="Loading" /><br />loading page ' + TS.search.view.current_files_page + "...</div>";
+          var loading_files = TS.i18n.t("loading page {page_num}...", "search")({
+            page_num: TS.search.view.current_files_page
+          });
+          html += '<div class="loading_hash_animation"><img src="' + cdn_url + "/9c217/img/loading_hash_animation_@2x.gif" + '" alt="' + loading_alt + '" /><br />' + loading_files + "</div>";
         } else {
           html += TS.templates.search_results_none({
             query_string: TS.search.query_string,
@@ -14793,7 +14817,7 @@
         menu_is_showing: TS.menu.search_filter_is_showing
       };
       var results = TS.search.results[TS.search.query_string];
-      var include_text = "everything";
+      var include_text = TS.i18n.t("everything", "search");
       var search_only_my_channels = TS.model.prefs.search_only_my_channels;
       var search_exclude_bots = TS.model.prefs.search_exclude_bots;
       var search_only_current_team = TS.model.prefs.search_only_current_team;
@@ -14802,53 +14826,84 @@
       var name_list = "";
       if (exclude_bots_ignored) {
         var names = _fromNames(TS.search.query_string);
-        name_list = TS.utility.concatNames(names);
-        name_list = TS.utility.htmlEntities(name_list);
+        name_list = TS.i18n.listify(names);
       }
       var result_type = TS.search.filter === "messages" ? "messages" : "files";
       if (search_only_my_channels && search_exclude_bots) {
         if (exclude_bots_ignored) {
-          include_text = "only channels I have joined, " + result_type + " from " + name_list;
+          if (result_type === "messages") {
+            include_text = TS.i18n.t("only channels I have joined, messages from {names}", "search")({
+              names: name_list
+            });
+          } else {
+            include_text = TS.i18n.t("only channels I have joined, files from {names}", "search")({
+              names: name_list
+            });
+          }
         } else {
-          include_text = "only channels I have joined, no bots or integrations";
+          include_text = TS.i18n.t("only channels I have joined, no bots or integrations", "search");
         }
       } else if (search_only_my_channels && !search_exclude_bots) {
-        include_text = "only " + result_type + " from channels I have open";
+        if (result_type === "messages") {
+          include_text = TS.i18n.t("only messages from channels I have open", "search");
+        } else {
+          include_text = TS.i18n.t("only files from channels I have open", "search");
+        }
       } else if (!search_only_my_channels && search_exclude_bots) {
         if (exclude_bots_ignored) {
-          include_text = result_type + " from " + name_list;
+          if (result_type === "messages") {
+            include_text = TS.i18n.t("messages from {names}", "search")({
+              names: name_list
+            });
+          } else {
+            include_text = TS.i18n.t("files from {names}", "search")({
+              names: name_list
+            });
+          }
         } else {
-          include_text = "only " + result_type + " from people";
+          if (result_type === "messages") {
+            include_text = TS.i18n.t("only messages from people", "search");
+          } else {
+            include_text = TS.i18n.t("only files from people", "search");
+          }
         }
       }
       if (TS.boot_data.page_needs_enterprise && TS.boot_data.feature_enterprise_search_ui) {
         var org_name = TS.model.enterprise.name;
-        var fitler_label_text = {
-          org_bots_allchannels: "everything I can access in " + org_name,
-          org_bots_openchannels: "only messages from channels I have open in " + org_name,
-          org_nobots_allchannels: "only messages from people in " + org_name,
-          org_nobots_openchannels: "messages from people in all channels I have open in " + org_name,
-          noorg_bots_allchannels: "everything on this team",
-          noorg_bots_openchannels: "only messages from channels I have open on this team",
-          noorg_nobots_allchannels: "only messages from people on this team",
-          noorg_nobots_openchannels: "messages from people, in only channels I have open, on this team"
+        var filter_label_text = {
+          org_bots_allchannels: TS.i18n.t("everything I can access in {org_name}", "search")({
+            org_name: org_name
+          }),
+          org_bots_openchannels: TS.i18n.t("only messages from channels I have open in {org_name}", "search")({
+            org_name: org_name
+          }),
+          org_nobots_allchannels: TS.i18n.t("only messages from people in {org_name}", "search")({
+            org_name: org_name
+          }),
+          org_nobots_openchannels: TS.i18n.t("messages from people in all channels I have open in {org_name}", "search")({
+            org_name: org_name
+          }),
+          noorg_bots_allchannels: TS.i18n.t("everything on this team", "search"),
+          noorg_bots_openchannels: TS.i18n.t("only messages from channels I have open on this team", "search"),
+          noorg_nobots_allchannels: TS.i18n.t("only messages from people on this team", "search"),
+          noorg_nobots_openchannels: TS.i18n.t("messages from people, in only channels I have open, on this team", "search")
         };
         if (!search_only_current_team && !search_only_my_channels && !search_exclude_bots) {
-          include_text = fitler_label_text.org_bots_allchannels;
+          include_text = filter_label_text.org_bots_allchannels;
         } else if (!search_only_current_team && search_only_my_channels && !search_exclude_bots) {
-          include_text = fitler_label_text.org_bots_openchannels;
+          include_text = filter_label_text.org_bots_openchannels;
         } else if (!search_only_current_team && !search_only_my_channels && search_exclude_bots) {
-          include_text = fitler_label_text.org_nobots_allchannels;
+          include_text = filter_label_text.org_nobots_allchannels;
         } else if (!search_only_current_team && search_only_my_channels && search_exclude_bots) {
-          include_text = fitler_label_text.org_nobots_openchannels;
+          include_text = filter_label_text.org_nobots_openchannels;
         } else if (search_only_current_team && !search_only_my_channels && !search_exclude_bots) {
-          include_text = fitler_label_text.noorg_bots_allchannels;
+          include_text = filter_label_text.noorg_bots_allchannels;
         } else if (search_only_current_team && search_only_my_channels && !search_exclude_bots) {
-          include_text = fitler_label_text.noorg_bots_openchannels;
+          include_text = filter_label_text.noorg_bots_openchannels;
         } else if (search_only_current_team && !search_only_my_channels && search_exclude_bots) {
-          include_text = fitler_label_text.noorg_nobots_allchannels;
+          include_text = filter_label_text.noorg_nobots_allchannels;
         } else if (search_only_current_team && search_only_my_channels && search_exclude_bots) {
-          include_text = fitler_label_text.noorg_nobots_openchannels;
+          include_text = filter_label_text.noorg_nobots_openchannels;
         }
       }
       template_args.include_text = include_text;
@@ -18166,38 +18221,38 @@
     modifier: "after:",
     keywords: _date_keywords.concat(_date_range_keywords),
     dynamic_keywords: [_dynamicYearKeyword],
-    keyword_placeholder: "a date"
+    keyword_placeholder: TS.i18n.t("a date", "search")
   }, {
     modifier: "before:",
     keywords: _date_and_date_range_keywords,
     dynamic_keywords: [_beforeDynamicYearKeyword],
-    keyword_placeholder: "a date"
+    keyword_placeholder: TS.i18n.t("a date", "search")
   }, {
     modifier: "during:",
     keywords: _date_and_date_range_keywords,
     dynamic_keywords: [_dynamicYearKeyword],
-    keyword_placeholder: "a month or year"
+    keyword_placeholder: TS.i18n.t("a month or year", "search")
   }, {
     modifier: "from:",
     keywords: ["me"],
-    keyword_placeholder: "team member"
+    keyword_placeholder: TS.i18n.t("team member", "search")
   }, {
     modifier: "to:",
     keywords: ["me"],
-    keyword_placeholder: "a channel, group or direct message"
+    keyword_placeholder: TS.i18n.t("a channel, group or direct message", "search")
   }, {
     modifier: "has:",
     keywords: ["star", "link", "reaction"],
-    keyword_placeholder: "star, link, or reaction"
+    keyword_placeholder: TS.i18n.t("star, link, or reaction", "search")
   }, {
     modifier: "in:",
     keywords: ["me"],
-    keyword_placeholder: "a channel, group or direct message"
+    keyword_placeholder: TS.i18n.t("a channel, group or direct message", "search")
   }, {
     modifier: "on:",
     keywords: _date_and_date_range_keywords,
     dynamic_keywords: [_dynamicYearKeyword],
-    keyword_placeholder: "a date"
+    keyword_placeholder: TS.i18n.t("a date", "search")
   }];
   var _ac_data;
   var _getAcData = function() {
@@ -18368,7 +18423,7 @@
             modifier.keyword_testers.push(_matchChannel);
             modifier.keyword_testers.push(_matchGroup);
             modifier.keyword_testers.push(_matchMpim);
-            modifier.keyword_placeholder = "channel or direct message";
+            modifier.keyword_placeholder = TS.i18n.t("channel or direct message", "search");
             break;
           default:
             break;
@@ -26165,7 +26220,7 @@
       if (!$msg_div.length) return;
       var model_ob = TS.client.archives.current_model_ob;
       var prev_msg = TS.utility.msgs.getPrevDisplayedMsg(msg.ts, model_ob._archive_msgs);
-      var html = TS.templates.builders.buildMsgHTML({
+      var html = TS.templates.builders.msgs.buildHTML({
         msg: msg,
         model_ob: model_ob,
         prev_msg: prev_msg,
@@ -26219,7 +26274,7 @@
         });
         html += '<div class="day_msgs" data-date="' + TS.utility.date.toCalendarDate(msg.ts) + '" data-ts="' + msg.ts + '">';
       }
-      html += TS.templates.builders.buildMsgHTML({
+      html += TS.templates.builders.msgs.buildHTML({
         msg: msg,
         model_ob: model_ob,
         prev_msg: prev_msg,
@@ -35627,7 +35682,7 @@ function timezones_guess() {
           return TS.client.ui.unread.promiseToShowNextPage();
         },
         buildMsgHTML: function(msg, prev_msg, section) {
-          var $msg = $(TS.templates.builders.buildMsgHTML({
+          var $msg = $(TS.templates.builders.msgs.buildHTML({
             msg_dom_id: TS.templates.makeMsgDomIdInUnreadView(msg.ts),
             msg: msg,
             model_ob: section.model_ob,
