@@ -5166,9 +5166,9 @@
       var html = $('<input type="text" id="public_url" class="full_width small">').attr("value", file.permalink_public)[0].outerHTML;
       var title;
       if (TS.boot_data.feature_external_files) {
-        title = TS.i18n.t('External link to this file <p style="display: inline-block;font-weight: 400"> (shareable with anyone) </p>', "file_share")();
+        title = TS.i18n.t('External link to this file <p style="display: inline-block;font-weight: 400"> (shareable with anyone) </p>', "files")();
       } else {
-        title = TS.i18n.t("Public link to this file", "file_share")();
+        title = TS.i18n.t("Public link to this file", "files")();
       }
       TS.generic_dialog.start({
         title: title,
@@ -5177,9 +5177,9 @@
         show_close_button: true,
         show_secondary_go_button: true,
         secondary_go_button_class: "btn_outline",
-        secondary_go_button_text: TS.i18n.t("Revoke", "file_share")(),
+        secondary_go_button_text: TS.i18n.t("Revoke", "files")(),
         show_go_button: true,
-        go_button_text: TS.i18n.t("Done", "file_share")(),
+        go_button_text: TS.i18n.t("Done", "files")(),
         esc_for_ok: true,
         onSecondaryGo: function() {
           TS.ui.file_share.fileRevokePublicLink(file.id);
@@ -5203,16 +5203,16 @@
       var title;
       var body;
       if (TS.boot_data.feature_external_files) {
-        title = TS.i18n.t("Revoke external file link", "file_share")();
-        body = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the external link for this file. Any previously shared links will stop working.<br /><br />Are you sure you want to revoke this link?", "file_share")() + "</p>";
+        title = TS.i18n.t("Revoke external file link", "files")();
+        body = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the external link for this file. Any previously shared links will stop working.<br /><br />Are you sure you want to revoke this link?", "files")() + "</p>";
       } else {
-        title = TS.i18n.t("Revoke public file link", "file_share")();
-        body = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the Public Link for this file. This will cause any previously shared links to stop working.<br /><br />Are you sure you want to revoke this public link?", "file_share")() + "</p>";
+        title = TS.i18n.t("Revoke public file link", "files")();
+        body = '<p class="no_bottom_margin">' + TS.i18n.t("This will disable the Public Link for this file. This will cause any previously shared links to stop working.<br /><br />Are you sure you want to revoke this public link?", "files")() + "</p>";
       }
       TS.generic_dialog.start({
         title: title,
         body: body,
-        go_button_text: TS.i18n.t("Revoke it", "file_share")(),
+        go_button_text: TS.i18n.t("Revoke it", "files")(),
         go_button_class: "btn_warning",
         onGo: function() {
           TS.files.upsertAndSignal({
@@ -5248,20 +5248,20 @@
     type_prefix = selected_val.substring(0, 1);
     if (type_prefix === "C") {
       $("#select_share_channels_note").removeClass("hidden");
-      $("#share_context_label").text("in");
+      $("#share_context_label").text(TS.i18n.t("Share in", "files")());
       var channel = TS.shared.getModelObById(selected_val);
       if (channel && !channel.is_member) {
         $("#select_share_channels_join_note").removeClass("hidden");
       }
     } else if (type_prefix === "U" || type_prefix === "W" || type_prefix === "D") {
       $("#select_share_ims_note").removeClass("hidden");
-      $("#share_context_label").text("with");
+      $("#share_context_label").text(TS.i18n.t("Share with", "files")());
     } else if (item && item.model_ob && item.model_ob.is_mpim) {
       $("#select_share_mpims_note").removeClass("hidden");
-      $("#share_context_label").text("with");
+      $("#share_context_label").text(TS.i18n.t("Share with", "files")());
     } else {
       $("#select_share_groups_note").removeClass("hidden");
-      $("#share_context_label").text("in");
+      $("#share_context_label").text(TS.i18n.t("Share in", "files")());
     }
     TS.ui.file_share.updateAtChannelWarningNote();
     TS.ui.file_share.updateAtChannelBlockedNote();
@@ -5306,14 +5306,14 @@
       if (all_channels.length) {
         response.items.push({
           lfs_group: true,
-          label: TS.i18n.t("Channels", "file_share")(),
+          label: TS.i18n.t("Channels", "files")(),
           children: all_channels
         });
       }
       if (all_dms.length) {
         response.items.push({
           lfs_group: true,
-          label: TS.i18n.t("Direct Messages", "file_share")(),
+          label: TS.i18n.t("Direct Messages", "files")(),
           children: all_dms
         });
       }
@@ -5525,11 +5525,11 @@
     });
     return [{
       lfs_group: true,
-      label: TS.i18n.t("Channels", "file_share")(),
+      label: TS.i18n.t("Channels", "files")(),
       children: all_channels
     }, {
       lfs_group: true,
-      label: TS.i18n.t("Direct Messages", "file_share")(),
+      label: TS.i18n.t("Direct Messages", "files")(),
       children: all_dms
     }];
   };

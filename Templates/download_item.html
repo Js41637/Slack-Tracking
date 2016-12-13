@@ -1,28 +1,38 @@
+{{i18n_ns 'files'}}
+
 <div class="download_item {{item.state}} clearfix" data-token="{{item.token}}">
-  <div class="icon_actions">
-    {{#if img_src}}
-      <img src="{{img_src}}" width="32" height="32" class="download_icon download_img">
-    {{else}}
-      <i class="filetype_icon {{filetype}} s48 download_icon download_filetype"></i>
-    {{/if}}
-    <i class="ts_icon action_icon {{filetype}} {{#if img_src}}image{{/if}}"></i>
-  </div>
-  <i class="ts_icon ts_icon_times_circle download_remove_link"></i>
-  <div class="download_data">
-    <div class="download_name_row">
-      <span class="download_name overflow_ellipsis">{{name}}</span>
-      <a class="download_cancel_link">Cancel</a>
+    <div class="icon_actions">
+        {{#if img_src}}
+            <img src="{{img_src}}" width="32" height="32" class="download_icon download_img">
+        {{else}}
+            <i class="filetype_icon {{filetype}} s48 download_icon download_filetype"></i>
+        {{/if}}
+        <i class="ts_icon action_icon {{filetype}} {{#if img_src}}image{{/if}}"></i>
     </div>
-    <div class="download_size_row">
-      <span class="download_size overflow_ellipsis"><span class="partial_size">{{#if partial_size}}{{convertFilesize partial_size}} of {{/if}}</span>{{convertFilesize size}} {{pretty_type}}</span>
-      <span class="download_actions">
-        <a class="download_show_link">{{#isMac}}Show in Finder{{else}}Open containing folder{{/isMac}}</a>
-        <a class="download_open_link">Click to open</a>
-        <a class="download_retry_link">Retry</a>
-      </span>
-      <span class="download_estimate">{{estimate}}</span>
+    <i class="ts_icon ts_icon_times_circle download_remove_link"></i>
+    <div class="download_data">
+        <div class="download_name_row">
+            <span class="download_name overflow_ellipsis">{{name}}</span>
+            <a class="download_cancel_link">{{#t}}Cancel{{/t}}</a>
+        </div>
+        <div class="download_size_row">
+            <span class="download_size overflow_ellipsis">
+                <span class="partial_size">
+                    {{#if partial_size}}
+                        {{#t partial_size=(convertFilesize partial_size) size=(convertFilesize size)}}{partial_size} of {size} {pretty_type}{{/t}}
+                    {{else}}
+                       {{convertFilesize size}} {{pretty_type}}
+                    {{/if}}
+                </span>
+            </span>
+            <span class="download_actions">
+                <a class="download_show_link">{{#isMac}}{{#t}}Show in Finder{{/t}}{{else}}{{#t}}Open containing folder{{/t}}{{/isMac}}</a>
+                <a class="download_open_link">{{#t}}Click to open{{/t}}</a>
+                <a class="download_retry_link">{{#t}}Retry{{/t}}</a>
+            </span>
+            <span class="download_estimate">{{estimate}}</span>
+        </div>
+        <div class="download_progress_row"><div class="download_progress_bar" style="width:{{perc}}%"></div></div>
     </div>
-    <div class="download_progress_row"><div class="download_progress_bar" style="width:{{perc}}%"></div></div>
-  </div>
-  <pre class="hidden download_debug"></pre>
+    <pre class="hidden download_debug"></pre>
 </div>

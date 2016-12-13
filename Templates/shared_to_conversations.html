@@ -1,3 +1,5 @@
+{{i18n_ns 'files'}}
+
 <div class="shared_to_conversations">
   <ul class="no_bullets">
     {{#each _comments_grouped}}
@@ -9,7 +11,7 @@
               <span class="first_share_user">{{name}}</span>
             {{/if}}
             <span class="first_share_timestamp">
-              {{toCalendarDateOrNamedDayShort timestamp}} at {{toTime timestamp}}
+              {{#t date=(toCalendarDateOrNamedDayShort timestamp) time=(toTime timestamp)}}{date} at {time}{{/t}}
             </span>
           </div>
         {{/with}}{{/if}}

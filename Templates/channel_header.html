@@ -1,6 +1,6 @@
 {{i18n_ns "channel_header"}}
 
-<div class="channel_title">
+<div class="channel_title{{#feature flag="feature_user_custom_status"}} feature_user_custom_status{{/feature}}">
   {{#if all_unreads.is_showing}}
     <h2 id="channel_name_container" class="channel_name_container">
       <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}All Unreads{{/t}}</span>

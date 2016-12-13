@@ -5811,11 +5811,14 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
   font-size: .875rem;
   font-weight: 400;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  line-height: 1.0625rem;
   padding: 0 .25rem 0 1rem;
-  margin-top: .1875rem;
   display: block;
   max-width: 100%
+}
+
+#team_header_user_name {
+  line-height: 1.0625rem;
+  margin-top: .1875rem
 }
 
 #current_user_name_and_current_status #team_header_current_status,

@@ -34,7 +34,7 @@
         {{#if file.preview_plain_text}}
           {{file.preview_plain_text}}
         {{else}}
-          <p class="cloud_silver small">(No Content)</p>
+          <p class="cloud_silver small">{{#t}}(No Content){{/t}}</p>
         {{/if}}
       </div>
     </div>
@@ -47,7 +47,7 @@
         {{#if file.from}}
           <p class="file_header_meta email_header_meta">
             {{#each file.from}}
-              <span class="email_header_label">From</span>{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}></span>
+              <span class="email_header_label">{{#t note='Followed by a name, email address, or both.'}}From{{/t}}</span>{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}&gt;</span>
             {{/each}}
           </p>
         {{/if}}
@@ -56,15 +56,15 @@
           <p class="file_header_meta email_header_meta">
             {{#each file.to}}
               {{#if @first}}
-                <span class="email_header_label">To</span>{{#if this.name}}{{this.name}} {{/if}}{{#if this.address}}<span class="email_address">&lt;{{this.address}}></span>{{/if}}{{#if_gt ../to_more_count compare=0}}, {{/if_gt}}
+                <span class="email_header_label">{{#t note='Followed by a name, email address, or both.'}}To{{/t}}</span>{{#if this.name}}{{this.name}} {{/if}}{{#if this.address}}<span class="email_address">&lt;{{this.address}}&gt;</span>{{/if}}{{#if_gt ../to_more_count compare=0}}, {{/if_gt}}
               {{else}}
                 {{#if_equal ../to_more_count compare=1}}
-                  {{#if this.name}}{{this.name}} {{/if}}{{#if this.address}}<span class="email_address">&lt;{{this.address}}></span>{{/if}}
+                  {{#if this.name}}{{this.name}} {{/if}}{{#if this.address}}<span class="email_address">&lt;{{this.address}}&gt;</span>{{/if}}
                 {{else}}
                   {{#if_equal @index compare=1}}
-                    <a class="subtle_silver" onclick="$(this).siblings('.email_more').removeClass('hidden'); $(this).addClass('hidden');">and {{../to_more_count}} more</a>
+                    <a class="subtle_silver" onclick="$(this).siblings('.email_more').removeClass('hidden'); $(this).addClass('hidden');">{{#t more_count=../to_more_count}}and {more_count} more{{/t}}</a>
                   {{/if_equal}}
-                  <span class="email_more hidden">{{#if this.name}}{{this.name}} {{/if}}{{#if this.address}}<span class="email_address">&lt;{{this.address}}></span>{{/if}}{{#if @last}}{{else}},{{/if}}</span>
+                  <span class="email_more hidden">{{#if this.name}}{{this.name}} {{/if}}{{#if this.address}}<span class="email_address">&lt;{{this.address}}&gt;</span>{{/if}}{{#if @last}}{{else}},{{/if}}</span>
                 {{/if_equal}}
               {{/if}}
             {{/each}}
@@ -75,41 +75,41 @@
           <p class="file_header_meta email_header_meta">
             {{#each file.cc}}
               {{#if @first}}
-                <span class="email_header_label">CC</span>{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}></span>{{#if_gt ../cc_more_count compare=0}}, {{/if_gt}}
+                <span class="email_header_label">{{#t note='Followed by a name, email address, or both.'}}CC{{/t}}</span>{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}&gt;</span>{{#if_gt ../cc_more_count compare=0}}, {{/if_gt}}
               {{else}}
                 {{#if_equal ../cc_more_count compare=1}}
-                  {{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}></span>
+                  {{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}&gt;</span>
                 {{else}}
                   {{#if_equal @index compare=1}}
-                    <a class="subtle_silver" onclick="$(this).siblings('.email_more').removeClass('hidden'); $(this).addClass('hidden');">and {{../cc_more_count}} more</a>
+                    <a class="subtle_silver" onclick="$(this).siblings('.email_more').removeClass('hidden'); $(this).addClass('hidden');">{{#t more_count=../cc_more_count}}and {more_count} more{{/t}}</a>
                   {{/if_equal}}
-                  <span class="email_more hidden">{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}></span>{{#if @last}}{{else}},{{/if}}</span>
+                  <span class="email_more hidden">{{#if this.name}}{{this.name}} {{/if}}<span class="email_address">&lt;{{this.address}}&gt;</span>{{#if @last}}{{else}},{{/if}}</span>
                 {{/if_equal}}
               {{/if}}
             {{/each}}
           </p>
         {{/if}}
 
-        <h4 class="file_header_title email_header_title"><span class="email_header_label">Subject</span><strong>{{#if file.subject}}{{file.subject}}{{else}}(No Subject){{/if}}</strong></h4>
+        <h4 class="file_header_title email_header_title"><span class="email_header_label">{{#t}}Subject{{/t}}</span><strong>{{#if file.subject}}{{file.subject}}{{else}}{{#t}}(No Subject){{/t}}{{/if}}</strong></h4>
 
         {{#if file.timestamp}}
-          <p class="file_header_meta email_header_meta"><span class="email_header_label">Date</span>{{toCalendarDateOrNamedDayShort file.timestamp}} at {{toTime file.timestamp}}</p>
+          <p class="file_header_meta email_header_meta">{{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}<span class="email_header_label">Date</span>{date} at {time}{{/t}}</p>
         {{/if}}
 
       </div>
       <div class="file_body email_body">
 
         <div class="email_content">
-          <div class="loading_hash_animation large_top_margin large_bottom_margin"><img src="{{versioned_loading_hash_animation}}" alt="Loading" /><br />loading ...</div>
+          <div class="loading_hash_animation large_top_margin large_bottom_margin"><img src="{{versioned_loading_hash_animation}}" alt="{{#t}}Loading&hellip;{{/t}}" /><br />{{#t}}Loading&hellip;{{/t}}</div>
           {{#if_not_equal file.simplified_html compare=""}}
             {{{proxyImgUrls file.simplified_html}}}
           {{else}}
-            (No Content)
+            {{#t}}(No Content){{/t}}
           {{/if_not_equal}}
         </div>
 
         {{#if file.attachments}}
-          <div class="file_attachments">{{pluralCount file.attachments.length 'attachment' 'attachments'}}</div>
+          <div class="file_attachments">{{#t}}{file.attachments.length, plural, =1{attachment}other{attachments}}{{/t}}</div>
         {{/if}}
 
         {{#if file.attachments}}

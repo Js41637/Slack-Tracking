@@ -6237,6 +6237,14 @@ body.winssb #emoji_menu {
   padding-right: .625rem
 }
 
+.member_file_filter_menu #menu_items_scroller {
+  display: none
+}
+
+.member_file_filter_menu #menu_list_container {
+  margin-bottom: 1rem
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");

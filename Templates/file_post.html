@@ -1,3 +1,5 @@
+{{i18n_ns 'files'}}
+
 <div data-file-id="{{file.id}}" class="file_container post_container
   {{#if is_message}}
     {{#shouldTruncateInlineFilePreview file}}
@@ -15,10 +17,10 @@
     <h4 class="file_header_title post_header_title overflow_ellipsis">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</h4>
     <p class="file_header_meta post_header_meta">
       {{#if file.updated}}
-        Last edited <span class="file_time_ago" data-file-id="{{file.id}}">{{toTimeAgo file.updated}}</span>
+        {{#t note='Followed by a timestamp like "2 minutes ago"'}}Last edited{{/t}} <span class="file_time_ago" data-file-id="{{file.id}}">{{toTimeAgo file.updated}}</span>
       {{else}}
         {{#if file.timestamp}}
-          Added {{toCalendarDateOrNamedDayShort file.timestamp}} at {{toTime file.timestamp}}
+          {{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}Added {date} at {time}{{/t}}
         {{/if}}
       {{/if}}
     </p>

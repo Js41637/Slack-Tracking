@@ -1,3 +1,5 @@
+{{i18n_ns 'files'}}
+
 <div id="{{makeFileDomId file}}" class="file_list_item file_item {{file.mode}} {{#if is_hosted_or_external}}{{#if file.thumb_80}}has_image{{else}}has_icon{{/if}}{{else}}has_icon{{/if}}" data-file-id="{{file.id}}">
 
   {{#if for_files_list}}
@@ -6,18 +8,24 @@
       {{#isClient}}
         {{#if can_share}}
           <button class="file_share btn_icon btn_outline btn ts_icon ts_icon_share_action ts_tip_btn ts_tip ts_tip_top" data-file-id="{{file.id}}">
-            <div class="ts_tip_tip">Share</div>
+            <div class="ts_tip_tip">{{#t}}Share{{/t}}</div>
           </button>
         {{/if}}
         <button class="file_actions btn_icon btn_outline btn ts_icon ts_icon_ellipsis ts_tip_btn ts_tip ts_tip_top" data-file-id="{{file.id}}" data-include-view-public-link="true">
-          <div class="ts_tip_tip">{{#if info_pane_visible}}File{{else}}More{{/if}} actions</div>
+          <div class="ts_tip_tip">
+            {{#if info_pane_visible}}
+              {{#t}}File actions{{/t}}
+            {{else}}
+              {{#t}}More actions{{/t}}
+            {{/if}}
+          </div>
         </button>
       {{/isClient}}
 
       <button class="file_star btn_icon btn btn_outline ts_tip_btn ts_tip ts_tip_top">
         {{star 'file' file null}}
-        <div class="star_message ts_tip_tip">Star</div>
-         <div class="unstar_message ts_tip_tip">Unstar</div>
+        <div class="star_message ts_tip_tip">{{#t}}Star{{/t}}</div>
+         <div class="unstar_message ts_tip_tip">{{#t}}Unstar{{/t}}</div>
       </button>
     </div>
 
@@ -56,15 +64,13 @@
     <div class="contents">
 
       <span class="author">{{makeMemberPreviewLink member}}</span>
-      <span class="time">{{toCalendarDateOrNamedDayShort file.timestamp}} at {{toTime file.timestamp}}</span>
+      <span class="time">{{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}{date} at {time}{{/t}}</span>
 
       <h4 class="title {{#if supports_line_clamp}}{{else}}overflow_ellipsis{{/if}} {{#unless file.plain_text}}{{#unless file.preview_in_list}}{{#unless file.preview}}no_preview{{/unless}}{{/unless}}{{/unless}}">
         {{#isWeb}}<a href="{{file.permalink}}">{{/isWeb}}
           {{highlightSearchMatchesInFileTitle file.title}}
         {{#isWeb}}</a>{{/isWeb}}
       </h4>
-
-
 
       {{#if is_email}}
         {{#if file.preview_plain_text}}
@@ -127,11 +133,11 @@
         <span class="share_info">
           <span class="file_share_public_label{{#unless file.is_public}} hidden{{/unless}}" data-file-id="{{file.id}}">
             <span class="file_share_shared_label{{#unless file.is_shared}} hidden{{/unless}}" data-file-id="{{file.id}}">
-              Shared {{makeFileShareLabel file}}
+              {{#t note='Followed by where the file is shared, like "in general"'}}Shared{{/t}} {{makeFileShareLabel file}}
             </span>
           </span>
           <span class="file_share_private_label {{#if file.is_public}} hidden{{/if}}" data-file-id="{{file.id}}">
-            Private file {{makeFileShareLabel file}}
+            {{#t note='Followed by "shared with you"'}}Private file{{/t}} {{makeFileShareLabel file}}
           </span>
         </span>
       {{/feature}}
@@ -189,7 +195,7 @@
       </div>
 
       {{makeMemberPreviewLink member}}
-      <span class="time"><span class="bullet">\u2022</span> {{toCalendarDateOrNamedDayShort file.timestamp}} at {{toTime file.timestamp}}</span><br />
+      <span class="time"><span class="bullet">\u2022</span> {{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}{date} at {time}{{/t}}</span><br />
 
       {{#if file.comments_count}}
         <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link file_comment_link no_wrap small_right_margin">{{#if_gt file.comments_count compare="0"}}{{file.comments_count}}{{/if_gt}} <i class="ts_icon ts_icon_comment"></i></a>
@@ -198,11 +204,11 @@
       <span class="share_info">
         <span class="file_share_public_label{{#unless file.is_public}} hidden{{/unless}}" data-file-id="{{file.id}}">
           <span class="file_share_shared_label{{#unless file.is_shared}} hidden{{/unless}}" data-file-id="{{file.id}}">
-            shared {{makeFileShareLabel file}}
+            {{#t note='Followed by where the file is shared, like "in general"'}}shared{{/t}} {{makeFileShareLabel file}}
           </span>
         </span>
         <span class="file_share_private_label {{#if file.is_public}} hidden{{/if}}" data-file-id="{{file.id}}">
-          private file {{makeFileShareLabel file}}
+          {{#t note='Followed by "shared with you"'}}private file{{/t}} {{makeFileShareLabel file}}
         </span>
       </span>
 
@@ -258,7 +264,7 @@
         <div class="snippet_preview">
           {{dangerouslyRenderHTML file.preview_highlight}}
           {{#if_gt file.lines_more compare=0}}
-            <a href="{{file.permalink}}" data-file-id="{{file.id}}" class="file_preview_link snippet_preview_more" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link">+ {{file.lines_more}} more line{{#if_gt file.lines_more compare=1}}s{{/if_gt}}...</a>
+            <a href="{{file.permalink}}" data-file-id="{{file.id}}" class="file_preview_link snippet_preview_more" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link">{{#t}}+ {file.lines_more, plural, =1{# more line}other{# more lines}}&hellip;{{/t}}</a>
           {{/if_gt}}
         </div>
       {{/if}}

@@ -13,7 +13,7 @@
       <span class="bullet" aria-hidden="true">\u2022</span>
     {{/if}}
 
-    {{toCalendarDateOrNamedDayShort timestamp}} at {{toTime timestamp}}
+    {{#t date=(toCalendarDateOrNamedDayShort timestamp) time=(toTime timestamp)}}{date} at {time}{{/t}}
 
     {{{share_label}}}
 

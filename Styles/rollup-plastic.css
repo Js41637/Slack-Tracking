@@ -11171,6 +11171,14 @@ body.winssb #emoji_menu {
   padding-right: .625rem
 }
 
+.member_file_filter_menu #menu_items_scroller {
+  display: none
+}
+
+.member_file_filter_menu #menu_list_container {
+  margin-bottom: 1rem
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -11854,13 +11862,13 @@ h3 .presence {
   border-bottom-color: transparent
 }
 
-#member_preview_scroller a:not(.member_name),
-.team_list_item a:not(.member_name) {
+#member_preview_scroller a:not(.member_name):not(.current_status_suggestion_option),
+.team_list_item a:not(.member_name):not(.current_status_suggestion_option) {
   color: #555459
 }
 
-#member_preview_scroller a:not(.member_name):hover,
-.team_list_item a:not(.member_name):hover {
+#member_preview_scroller a:not(.member_name):not(.current_status_suggestion_option):hover,
+.team_list_item a:not(.member_name):not(.current_status_suggestion_option):hover {
   color: #439fe0;
   text-decoration: underline
 }
@@ -12213,6 +12221,15 @@ only screen and (min-resolution:2dppx) {
   opacity: 0
 }
 
+.current_status_input_container #menu_items li {
+  padding-top: .125rem;
+  padding-bottom: .125rem
+}
+
+.current_status_input_container #menu_items li .current_status_suggestion_option {
+  text-decoration: none
+}
+
 .current_status_input_container .current_status_clear,
 .current_status_input_container .current_status_suggestions {
   list-style-type: none;
@@ -12223,15 +12240,6 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_container .current_status_suggestions li {
   padding-top: .125rem;
   padding-bottom: .125rem
-}
-
-.current_status_suggestion_option {
-  color: #2c2d30!important
-}
-
-.current_status_suggestion_option:active,
-.current_status_suggestion_option:hover {
-  text-decoration: none!important
 }
 
 #member_preview_scroller .current_status_input_container,

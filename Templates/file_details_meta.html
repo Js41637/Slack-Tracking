@@ -1,3 +1,5 @@
+{{i18n_ns 'files'}}
+
 {{#if_equal file_partial compare="image"}}
   {{> file_image}}
 {{else}}
@@ -7,7 +9,7 @@
 <strong class="file_title">
   {{#if is_post_or_space}}
     {{#if preview}}
-      {{makeFilePrivacyLabel file}} post
+      {{#t privacy_label=(makeFilePrivacyLabel file) note="Can be 'draft', 'shared', or 'private'"}}{privacy_label} post{{/t}}
     {{else}}
       {{highlightSearchMatchesInFileTitle file.title}}
     {{/if}}
@@ -22,17 +24,17 @@
 
   {{#if download}}
     <li class="file_action_item inline_block">
-      <a class="file_ssb_download_link btn_outline btn" href="{{file.url_private_download}}" target="{{newWindowName}}" data-file-id="{{file.id}}">Download</a>
+      <a class="file_ssb_download_link btn_outline btn" href="{{file.url_private_download}}" target="{{newWindowName}}" data-file-id="{{file.id}}">{{#t}}Download{{/t}}</a>
     </li>
   {{/if}}
 
   {{#if is_post_or_space}}
     <li class="file_action_item inline_block">
-      <a class="file_new_window_link btn_outline btn" href="{{file.permalink}}" target="{{file.id}}" data-file-id="{{file.id}}">Open</a>
+      <a class="file_new_window_link btn_outline btn" href="{{file.permalink}}" target="{{file.id}}" data-file-id="{{file.id}}">{{#t}}Open{{/t}}</a>
     </li>
   {{/if}}
 
-  <li id="share_file" class="inline_block" data-file-id="{{file.id}}" role="menuitem"><button class="btn_outline btn">Share</button></li>
+  <li id="share_file" class="inline_block" data-file-id="{{file.id}}" role="menuitem"><button class="btn_outline btn">{{#t}}Share{{/t}}</button></li>
 
   <li class="file_action_item inline_block">
     <button class="ts_tip ts_tip_bottom ts_tip_right file_actions btn_outline btn" data-file-id="{{file.id}}"
@@ -44,7 +46,7 @@
       {{#if edit}}data-exclude-edit="true"{{/if}}
     >
       <span class="ts_tip_btn ts_icon ts_icon_ellipsis_o"></span>
-      <span class="ts_tip_tip">More actions</span>
+      <span class="ts_tip_tip">{{#t}}More actions{{/t}}</span>
     </button>
   </li>
 </ul>
@@ -52,10 +54,10 @@
 <div id="file_edit_title_container" class="hidden">
   <form action="" id="file_edit_title_form" class="small_bottom_margin" method="post" onSubmit="TS.files.saveEditFileTitle('{{file.id}}'); return false;">
     {{! no need for crumb_input }}
-    <p class="no_bottom_margin"><input type="text" id="file_edit_title_input" class="small" name="file_edit_title_input"></input></p>
+    <p class="no_bottom_margin"><input type="text" id="file_edit_title_input" class="small" name="file_edit_title_input"></p>
     <p class="no_bottom_margin align_right">
-      <button type="button" class="btn btn_small btn_outline" onClick="TS.files.endEditFileTitle(); return false;">Cancel</button>
-      <button type="submit" class="btn btn_small">Save Changes</button>
+      <button type="button" class="btn btn_small btn_outline" onClick="TS.files.endEditFileTitle(); return false;">{{#t}}Cancel{{/t}}</button>
+      <button type="submit" class="btn btn_small">{{#t}}Save Changes{{/t}}</button>
     </p>
   </form>
 </div>

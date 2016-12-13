@@ -5469,13 +5469,13 @@ h3 .presence {
   border-bottom-color: transparent
 }
 
-#member_preview_scroller a:not(.member_name),
-.team_list_item a:not(.member_name) {
+#member_preview_scroller a:not(.member_name):not(.current_status_suggestion_option),
+.team_list_item a:not(.member_name):not(.current_status_suggestion_option) {
   color: #555459
 }
 
-#member_preview_scroller a:not(.member_name):hover,
-.team_list_item a:not(.member_name):hover {
+#member_preview_scroller a:not(.member_name):not(.current_status_suggestion_option):hover,
+.team_list_item a:not(.member_name):not(.current_status_suggestion_option):hover {
   color: #439fe0;
   text-decoration: underline
 }
@@ -5828,6 +5828,15 @@ only screen and (min-resolution:2dppx) {
   opacity: 0
 }
 
+.current_status_input_container #menu_items li {
+  padding-top: .125rem;
+  padding-bottom: .125rem
+}
+
+.current_status_input_container #menu_items li .current_status_suggestion_option {
+  text-decoration: none
+}
+
 .current_status_input_container .current_status_clear,
 .current_status_input_container .current_status_suggestions {
   list-style-type: none;
@@ -5838,15 +5847,6 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_container .current_status_suggestions li {
   padding-top: .125rem;
   padding-bottom: .125rem
-}
-
-.current_status_suggestion_option {
-  color: #2c2d30!important
-}
-
-.current_status_suggestion_option:active,
-.current_status_suggestion_option:hover {
-  text-decoration: none!important
 }
 
 #member_preview_scroller .current_status_input_container,
@@ -18594,7 +18594,7 @@ ts-message .emoji-sizer .mention {
   margin-right: .25rem;
   color: #2c2d30;
   font-weight: 400;
-  max-width: 8.75rem;
+  max-width: 11.25rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
@@ -18896,7 +18896,7 @@ ts-message .emoji-sizer .mention {
   margin-left: .25rem;
   margin-right: .25rem;
   font-weight: 400;
-  max-width: 8.75rem;
+  max-width: 11.25rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
@@ -19323,6 +19323,12 @@ ts-thread .view_all_replies_count {
 #reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label input[type=checkbox],
 .reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label input[type=checkbox] {
   margin-top: -.3125rem
+}
+
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label ts-icon,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label ts-icon {
+  font-size: 1.125rem;
+  margin-right: -.0625rem
 }
 
 #reply_container .reply_broadcast_buttons_container .reply_send,
@@ -22205,6 +22211,13 @@ ts-jumper ts-jumper-results:empty {
   background: #fff
 }
 
+.submenu[data-origin-id=member_current_status_item] {
+  -webkit-transform: translateY(-16px);
+  -moz-transform: translateY(-16px);
+  -ms-transform: translateY(-16px);
+  transform: translateY(-16px)
+}
+
 #slack_menu_current_status_submenu {
   width: 18.75rem
 }
@@ -22723,6 +22736,11 @@ ts-jumper ts-jumper-results:empty {
   display: inline-block
 }
 
+.feature_user_custom_status #channel_header_info {
+  margin-top: 0;
+  line-height: 1.5rem
+}
+
 #channel_header_info .channel_members_icon,
 #channel_header_info .pinned_count_icon {
   line-height: 1
@@ -22746,7 +22764,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .header_user_status.feature_user_custom_status .current_status {
-  max-width: 8.75rem;
+  max-width: 11.25rem;
   cursor: pointer
 }
 
