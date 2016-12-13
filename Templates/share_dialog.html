@@ -1,12 +1,13 @@
+  {{i18n_ns "share_dialog"}}
+
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
     <h3>
-      Share
-      {{#if_equal type compare='file'}}file{{/if_equal}}
-      {{#if_equal type compare='file_snippet'}}snippet{{/if_equal}}
-      {{#if_equal type compare='file_post'}}post{{/if_equal}}
-      {{#if_equal type compare='file_space'}}post{{/if_equal}}
-      {{#if_equal type compare='file_multnomah'}}multnomah{{/if_equal}}
+      {{#if_equal type compare='file'}}{{#t}}Share file{{/t}}{{/if_equal}}
+      {{#if_equal type compare='file_snippet'}}{{#t}}Share snippet{{/t}}{{/if_equal}}
+      {{#if_equal type compare='file_post'}}{{#t}}Share post{{/t}}{{/if_equal}}
+      {{#if_equal type compare='file_space'}}{{#t}}Share post{{/t}}{{/if_equal}}
+      {{#if_equal type compare='file_multnomah'}}{{#t}}Share multnomah{{/t}}{{/if_equal}}
     </h3>
   </div>
   <div class="modal-body share_dialog">
@@ -14,12 +15,12 @@
     <input type="hidden" id="share_type" value="{{type}}" />
     <input type="hidden" id="share_item_id" value="{{item.id}}" />
 
-    {{{file_html}}}
+    {{file_html}}
 
-    {{{sharing_html}}}
+    {{sharing_html}}
 
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn_outline dialog_cancel" tabindex="3">Cancel</button>
-    <button type="button" class="btn dialog_go" tabindex="2">Share</button>
+    <button type="button" class="btn btn_outline dialog_cancel" tabindex="3">{{#t}}Cancel{{/t}}</button>
+    <button type="button" class="btn dialog_go" tabindex="2">{{#t}}Share{{/t}}</button>
   </div>

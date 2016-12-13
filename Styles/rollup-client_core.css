@@ -7210,17 +7210,53 @@ only screen and (min-resolution:2dppx) {
   padding-right: 0
 }
 
-#history_nav_btn .ts_tip {
-  z-index: 1
+#history_nav_btn #left_arrow_btn ts-icon,
+#history_nav_btn #quickswitcher_btn ts-icon,
+#history_nav_btn #right_arrow_btn ts-icon {
+  color: #fff;
+  opacity: .7
 }
 
-#history_nav_btn ts-icon:active,
-#history_nav_btn ts-icon:focus,
-#history_nav_btn ts-icon:hover {
-  color: #fff;
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1
+#history_nav_btn #left_arrow_btn .shortcut,
+#history_nav_btn #quickswitcher_btn .shortcut,
+#history_nav_btn #right_arrow_btn .shortcut {
+  display: flex;
+  height: 17px;
+  margin-left: 4px;
+  justify-content: center
+}
+
+#history_nav_btn #left_arrow_btn .shortcut ts-icon,
+#history_nav_btn #quickswitcher_btn .shortcut ts-icon,
+#history_nav_btn #right_arrow_btn .shortcut ts-icon {
+  margin-top: -6px
+}
+
+#history_nav_btn #left_arrow_btn:active ts-icon,
+#history_nav_btn #left_arrow_btn:focus ts-icon,
+#history_nav_btn #left_arrow_btn:hover ts-icon,
+#history_nav_btn #quickswitcher_btn:active ts-icon,
+#history_nav_btn #quickswitcher_btn:focus ts-icon,
+#history_nav_btn #quickswitcher_btn:hover ts-icon,
+#history_nav_btn #right_arrow_btn:active ts-icon,
+#history_nav_btn #right_arrow_btn:focus ts-icon,
+#history_nav_btn #right_arrow_btn:hover ts-icon {
+  opacity: 1
+}
+
+#history_nav_btn #left_arrow_btn.disabled ts-icon,
+#history_nav_btn #left_arrow_btn.disabled:active ts-icon,
+#history_nav_btn #left_arrow_btn.disabled:focus ts-icon,
+#history_nav_btn #left_arrow_btn.disabled:hover ts-icon,
+#history_nav_btn #quickswitcher_btn.disabled ts-icon,
+#history_nav_btn #quickswitcher_btn.disabled:active ts-icon,
+#history_nav_btn #quickswitcher_btn.disabled:focus ts-icon,
+#history_nav_btn #quickswitcher_btn.disabled:hover ts-icon,
+#history_nav_btn #right_arrow_btn.disabled ts-icon,
+#history_nav_btn #right_arrow_btn.disabled:active ts-icon,
+#history_nav_btn #right_arrow_btn.disabled:focus ts-icon,
+#history_nav_btn #right_arrow_btn.disabled:hover ts-icon {
+  opacity: .2
 }
 
 #quick_switcher_btn {
@@ -7724,26 +7760,6 @@ ts-memory-instrument {
   color: #3d3c40;
   font-family: Helvetica;
   border-radius: .25rem 0 0
-}
-
-#mentions_badge_count {
-  position: absolute;
-  top: -.125rem;
-  right: -.0625rem;
-  font-size: .75rem;
-  background-color: #eb4d5c;
-  color: #fff;
-  font-weight: 900;
-  padding-left: .1875rem;
-  padding-right: .1875rem;
-  border-radius: .1875rem;
-  opacity: 1;
-  transition: opacity .5s
-}
-
-.rxn_toasting #mentions_badge_count {
-  display: none;
-  opacity: 0
 }
 
 #mentions_clear_notifications_container {

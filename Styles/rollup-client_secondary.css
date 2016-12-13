@@ -2409,6 +2409,13 @@ body.incremental_boot #col_channels .header_count {
   left: -.0625rem
 }
 
+.channels_list_holder.feature_message_replies_threads_view ul li.all_threads,
+.channels_list_holder.feature_message_replies_threads_view ul li.all_unreads {
+  text-transform: capitalize;
+  font-size: 1rem;
+  font-weight: 500
+}
+
 #all_threads_nav {
   margin-top: .3125rem
 }
@@ -23261,10 +23268,6 @@ ts-jumper ts-jumper-results:empty {
 
 #recent_mentions_toggle .ts_tip_tip.not_feature_message_replies_simple:after {
   margin-left: .375rem
-}
-
-#recent_mentions_toggle #mentions_badge_count {
-  line-height: 1.4
 }
 
 #stars_toggle {

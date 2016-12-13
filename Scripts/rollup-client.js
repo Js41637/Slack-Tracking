@@ -935,6 +935,9 @@
         }
       }
     }
+    if (TS.boot_data.feature_prev_next_button) {
+      TS.model.nav_used = true;
+    }
     if (im) {
       TS.ims.startImByMemberId(im.user, true);
     } else if (channel) {
@@ -993,6 +996,10 @@
     }
     if (TS.model.initial_threads_view) {
       TS.client.threads.showThreadsView(false, replace_history_state);
+    }
+    if (TS.boot_data.feature_prev_next_button) {
+      TS.client.nav_history.initialSetup();
+      TS.client.nav_history.updateNavHistory();
     }
   };
   var _cleanFlexExtra = function(flex_extra) {
@@ -7717,6 +7724,9 @@
     var using_bracket_keys = e.which == keymap.left_square_bracket || e.which == keymap.right_square_bracket;
     var using_arrow_keys = e.which == keymap.left || e.which == keymap.right;
     var input_must_be_empty = using_command_key && using_arrow_keys;
+    if (TS.boot_data.feature_prev_next_button) {
+      TS.client.nav_history.setDirection(e.which);
+    }
     if (is_mac_ssb && !supports_history_navigation && using_command_key && using_bracket_keys) {
       _navigateHistoryUsingKeys(e.which, keymap.left_square_bracket, keymap.right_square_bracket, input_must_be_empty, e);
     } else if (is_win_linux_ssb && !supports_history_navigation && using_alt_key && using_arrow_keys) {
@@ -10418,23 +10428,32 @@
         if (!$("#history_nav_btn").length) {
           $("#col_channels_footer").append('<div id="history_nav_btn" class="clearfix"></div>');
           $("#history_nav_btn").html(TS.templates.builders.buildHistoryNavBtnHtml());
-          $("#left_arrow_btn").off().on("click", function() {
-            if (TS.newxp.inOnboarding()) return false;
-            window.history.go(-1);
-          });
-          $("#right_arrow_btn").off().on("click", function() {
-            if (TS.newxp.inOnboarding()) return false;
-            window.history.go(1);
-          });
-          $("#quickswitcher_btn").off().on("click", function() {
-            if (TS.newxp.inOnboarding()) return false;
-            TS.ui.jumper.start();
-          });
+          TS.client.channel_pane.updateFooterUI();
         }
         _updateChannelPaneFooterVisibility();
       } else {
         _rebuildQuickSwitcherBtn();
       }
+    },
+    updateFooterUI: function() {
+      var $left_arrow_btn = $("#left_arrow_btn");
+      var $right_arrow_btn = $("#right_arrow_btn");
+      var $quickswitcher_btn = $("#quickswitcher_btn");
+      _updateToolTipChannelName();
+      if (TS.model.nav_history.length === 1) {
+        _disableNavigationBtn($left_arrow_btn);
+        _disableNavigationBtn($right_arrow_btn);
+      } else if (TS.model.nav_current_index === 0) {
+        _disableNavigationBtn($left_arrow_btn);
+        _enableNavigationBtn($right_arrow_btn);
+      } else if (TS.model.nav_current_index === TS.model.nav_history.length - 1) {
+        _disableNavigationBtn($right_arrow_btn);
+        _enableNavigationBtn($left_arrow_btn);
+      } else {
+        _enableNavigationBtn($left_arrow_btn);
+        _enableNavigationBtn($right_arrow_btn);
+      }
+      _enableNavigationBtn($quickswitcher_btn);
     },
     maybeRebuildBecauseUnreadCntChanged: function(model_ob) {
       if (!TS.model.channel_sort.is_custom_sorted) return false;
@@ -10631,6 +10650,79 @@
       var channel_list_aria_label = $channel_list_header_label.attr("aria-label") || "";
       $channel_list_header_label.attr("aria-label", channel_list_aria_label.replace("[0]", total_count));
     }
+  };
+  var _disableNavigationBtn = function($nav_btn) {
+    $nav_btn.off();
+    $nav_btn.children("span.ts_tip_tip").addClass("hidden");
+    $nav_btn.addClass("disabled");
+  };
+  var _enableNavigationBtn = function($nav_btn) {
+    var selector = $nav_btn.selector;
+    if (selector === "#left_arrow_btn") {
+      $nav_btn.off().on("click", function() {
+        if (TS.newxp.inOnboarding()) return false;
+        TS.client.nav_history.setDirection(TS.utility.keymap.left);
+        window.history.go(-1);
+      });
+    } else if (selector === "#right_arrow_btn") {
+      $nav_btn.off().on("click", function() {
+        if (TS.newxp.inOnboarding()) return false;
+        TS.client.nav_history.setDirection(TS.utility.keymap.right);
+        window.history.go(1);
+      });
+    } else if (selector === "#quickswitcher_btn") {
+      $nav_btn.off().on("click", function() {
+        if (TS.newxp.inOnboarding()) return false;
+        TS.ui.jumper.start();
+      });
+    }
+    $nav_btn.children("span.ts_tip_tip").removeClass("hidden");
+    $nav_btn.removeClass("disabled");
+  };
+  var _getNavigationHistoryNameById = function(id) {
+    if (id === null) {
+      return "";
+    } else if (id === "All Unreads" || id === "Threads") {
+      return id;
+    } else {
+      return TS.shared.getDisplayNameForModelOb(TS.shared.getModelObById(id));
+    }
+  };
+  var _updateToolTipChannelName = function() {
+    var left_arrow_args = {
+      type: "ts_icon_arrow_large_left",
+      name: "Previous",
+      mac_or_pc: TS.model.is_mac ? "⌘" : "Alt",
+      prev_or_next: "ts_icon_arrow_left_medium"
+    };
+    var right_arrow_args = {
+      type: "ts_icon_arrow_large_right",
+      name: "Next",
+      mac_or_pc: TS.model.is_mac ? "⌘" : "Alt",
+      prev_or_next: "ts_icon_arrow_right_medium"
+    };
+    var curr_index = TS.model.nav_current_index;
+    var history = TS.model.nav_history;
+    var max_length = history.length;
+    var left_id = null;
+    var right_id = null;
+    if (max_length === 0) {
+      TS.error("No navigation history yet!!!");
+    } else if (max_length === 1) {
+      left_id = history[curr_index].id;
+      right_id = history[curr_index].id;
+    } else if (curr_index === max_length - 1) {
+      left_id = history[curr_index - 1].id;
+    } else if (curr_index === 0) {
+      right_id = history[curr_index + 1].id;
+    } else {
+      left_id = history[curr_index - 1].id;
+      right_id = history[curr_index + 1].id;
+    }
+    left_arrow_args.name = _getNavigationHistoryNameById(left_id);
+    right_arrow_args.name = _getNavigationHistoryNameById(right_id);
+    $("#left_arrow_btn").html(TS.templates.footer_tool_tip(left_arrow_args));
+    $("#right_arrow_btn").html(TS.templates.footer_tool_tip(right_arrow_args));
   };
   var _openDMBrowser = function(e) {
     TS.ui.im_browser.start();
@@ -11285,6 +11377,88 @@
       });
     });
     TS.client.channel_pane.updateQuickSwitcherBtnVisibility();
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("client.nav_history", {
+    onStart: function() {
+      if (!TS.boot_data.feature_prev_next_button) return;
+      TS.client.nav_history.setDirection(-1);
+      _is_initial_setup = false;
+      _done_inital_setup = false;
+      _left_arrow = TS.utility.keymap.left;
+      _right_arrow = TS.utility.keymap.right;
+      _left_square_bracket = TS.utility.keymap.left_square_bracket;
+      _right_square_bracket = TS.utility.keymap.right_square_bracket;
+      TS.client.unread.switched_sig.add(TS.client.nav_history.updateNavHistory);
+      if (TS.boot_data.feature_message_replies_threads_view) {
+        TS.client.threads.switched_sig.add(TS.client.nav_history.updateNavHistory);
+      }
+      TS.channels.switched_sig.add(TS.client.nav_history.updateNavHistory);
+      TS.ims.switched_sig.add(TS.client.nav_history.updateNavHistory);
+      TS.groups.switched_sig.add(TS.client.nav_history.updateNavHistory);
+      TS.mpims.switched_sig.add(TS.client.nav_history.updateNavHistory);
+    },
+    setDirection: function(direction) {
+      _nav_direction = direction;
+    },
+    initialSetup: function() {
+      _is_initial_setup = true;
+    },
+    updateNavHistory: function() {
+      if (TS.model.nav_used) {
+        _updateNavCurrentIndex();
+      }
+      if (_is_initial_setup || _done_inital_setup) {
+        var model_ob;
+        if (_is_initial_setup) {
+          model_ob = TS.shared.getModelObById(TS.model.initial_cid);
+        } else {
+          model_ob = TS.shared.getModelObById(TS.model.active_cid);
+        }
+        if (!model_ob) {
+          TS.error("UpdateNavHistory missing model_ob!!!");
+        }
+        if (!TS.model.nav_used) {
+          var model_ob_id = model_ob.id;
+          TS.model.nav_history.splice(TS.model.nav_current_index + 1);
+          if (TS.boot_data.feature_unread_view && (TS.model.initial_unread_view && TS.model.prefs.enable_unread_view && _is_initial_setup || TS.model.unread_view_is_showing)) {
+            TS.model.nav_history.push({
+              id: "All Unreads"
+            });
+          } else if (TS.boot_data.feature_message_replies_threads_view && (TS.model.initial_threads_view && _is_initial_setup || TS.model.threads_view_is_showing)) {
+            TS.model.nav_history.push({
+              id: "Threads"
+            });
+          } else {
+            TS.model.nav_history.push({
+              id: model_ob_id
+            });
+          }
+          TS.model.nav_current_index = TS.model.nav_current_index + 1;
+        }
+        _is_initial_setup = false;
+        _done_inital_setup = true;
+        TS.client.nav_history.setDirection(-1);
+        TS.model.nav_used = false;
+        TS.client.channel_pane.updateFooterUI();
+      }
+    }
+  });
+  var _nav_direction;
+  var _is_initial_setup;
+  var _done_inital_setup;
+  var _left_arrow;
+  var _right_arrow;
+  var _left_square_bracket;
+  var _right_square_bracket;
+  var _updateNavCurrentIndex = function() {
+    if ((_nav_direction === _left_arrow || _nav_direction === _left_square_bracket) && TS.model.nav_current_index > 0) {
+      TS.model.nav_current_index--;
+    } else if ((_nav_direction === _right_arrow || _nav_direction === _right_square_bracket) && TS.model.nav_current_index < TS.model.nav_history.length - 1) {
+      TS.model.nav_current_index++;
+    } else {}
   };
 })();
 (function() {
@@ -13313,6 +13487,22 @@
             TS.utility.calls.startCallInModelOb(call_info);
           }
         });
+        var user_is_older_than_7_days = Date.now() - new Date(TS.model.user.created * 1e3) > 1e3 * 60 * 60 * 24 * 7;
+        if (user_is_older_than_7_days && TS.model.seen_welcome_2 && TS.model.supports_video_calls) {
+          TS.experiment.loadUserAssignments().then(function() {
+            var group = TS.experiment.getGroup("video_calls");
+            if (group === "video_enabled_ss_disabled") {
+              if (!TS.model.prefs.seen_calls_video_ga_coachmark) {
+                TS.coachmark.start(TS.coachmarks.coachmarks.calls_video_ga);
+                TS.model.prefs.seen_calls_video_ga_coachmark = true;
+                TS.prefs.setPrefByAPI({
+                  name: "seen_calls_video_ga_coachmark",
+                  value: true
+                });
+              }
+            }
+          });
+        }
       }
     }
   };
@@ -18646,7 +18836,7 @@
       }
       var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(members_you_can_invite, preselected_member_idsA);
       var html = TS.templates.generic_dialog({
-        title: "Create a private group",
+        title: TS.i18n.t("Create a private group", "group_create")(),
         body: TS.templates.group_create({
           title: group_title,
           invite_members: invite_members,
@@ -18735,7 +18925,7 @@
       }
       $("#group_create_title").val(clean_title);
       if (clean_title != title) {
-        alert("You entered some disallowed characters in the group name, which we've fixed. Make sure it looks good to you, and try again!");
+        alert(TS.i18n.t("You entered some disallowed characters in the group name, which we’ve fixed. Make sure it looks good to you, and try again!", "group_create")());
         return false;
       }
       if (TS.channels.getChannelByName(title) || TS.groups.getGroupByName(title) || TS.members.getMemberByName(title)) {
@@ -18759,7 +18949,7 @@
           if (data.error == "name_taken") {
             TS.ui.group_create_dialog.showNameTakenAlert();
           } else if (data.error == "restricted_action") {
-            TS.generic_dialog.alert("<p>You don't have permission to create new groups.</p><p>Talk to your Team Owner.</p>");
+            TS.generic_dialog.alert(TS.i18n.t("<p>You don’t have permission to create new groups.</p><p>Talk to your Team Owner.</p>", "group_create")());
           } else {
             alert("failed! " + data.error);
           }
@@ -19383,7 +19573,9 @@
       };
       var msg_txt = TS.ui.growls.extractTxtFromMsg(msg, true);
       msg_txt = msg_txt.replace(":simple_smile:", ":)");
-      var growl_txt = TS.model.prefs.no_text_in_notifications ? from_name ? "a message from " + from_name : "" : from_name ? from_name + ": " : "";
+      var growl_txt = TS.model.prefs.no_text_in_notifications ? from_name ? TS.i18n.t("a message from {name}", "growl")({
+        name: from_name
+      }) : "" : from_name ? from_name + ": " : "";
       growl_txt += msg_txt;
       var ssbFilename;
       var soundUrl;
@@ -19408,10 +19600,15 @@
           title = TS.model.team.name;
           subtitle = model_ob_name;
         } else {
-          title = "[" + TS.model.team.domain + "] in " + model_ob_name;
+          title = TS.i18n.t("[{team_domain}] in {channel}", "growl")({
+            team_domain: TS.model.team.domain,
+            channel: model_ob_name
+          });
         }
       } else {
-        title = "New message in " + model_ob_name;
+        title = TS.i18n.t("New message in {channel}", "growl")({
+          channel: model_ob_name
+        });
       }
       var avatar_image = TS.ui.growls.getProfileImageFromUserId(msg.user);
       TS.ui.growls.show(title, TS.format.formatNotification(growl_txt, msg), onclick, {
@@ -19444,18 +19641,27 @@
       msg_txt = msg_txt || TS.ui.growls.extractTxtFromMsg(msg, true);
       from_name = from_name || TS.ui.growls.extractFromNameFromCorGMessage(msg);
       var title;
-      var model_type = "channel";
+      var model_type = TS.i18n.t("channel", "growl")();
       if (model_ob.is_group) {
         if (model_ob.is_mpim) {
-          model_type = "conversation";
+          model_type = TS.i18n.t("conversation", "growl")();
         } else {
-          model_type = "private channel";
+          model_type = TS.i18n.t("private channel", "growl")();
         }
       }
       if (TS.getOtherAccountsCount() > 0) {
-        title = "On team " + TS.model.team.name + ", a message in " + model_type + ' "' + model_ob.name + '" from "' + from_name + '": ';
+        title = TS.i18n.t('On team {team_name}, a message in {channel_or_conversation} "{channel_or_conversation_name}" from "{user_name}": ', "growl")({
+          team_name: TS.model.team.name,
+          channel_or_conversation: model_type,
+          channel_or_conversation_name: model_ob.name,
+          user_name: from_name
+        });
       } else {
-        title = "message in " + model_type + ' "' + model_ob.name + '" from "' + from_name + '": ';
+        title = TS.i18n.t('message in {channel_or_conversation} "{channel_or_conversation_name}" from "{user_name}": ', "growl")({
+          channel_or_conversation: model_type,
+          channel_or_conversation_name: model_ob.name,
+          user_name: from_name
+        });
       }
       var spoken_txt = title + TS.format.formatNotification(msg_txt, msg);
       TS.ui.growls.speak(spoken_txt);
@@ -19618,14 +19824,31 @@
         if (TS.model.supports_growl_subtitle) {
           title = TS.model.team.name;
           subtitle = from_name;
-          if (msg._ignore_dnd) subtitle = from_name + " is trying to reach you";
+          if (msg._ignore_dnd) subtitle = TS.i18n.t("{name} is trying to reach you", "growl")({
+            name: from_name
+          });
         } else {
-          title = "[" + TS.model.team.domain + "] from " + from_name;
-          if (msg._ignore_dnd) title = from_name + " is trying to reach you";
+          if (msg._ignore_dnd) {
+            title = TS.i18n.t("{name} is trying to reach you", "growl")({
+              name: from_name
+            });
+          } else {
+            title = TS.i18n.t("[{team_domain}] from {name}", "growl")({
+              team_domain: TS.model.team.domain,
+              name: from_name
+            });
+          }
         }
       } else {
-        title = "New message from " + from_name;
-        if (msg._ignore_dnd) title = from_name + " is trying to reach you";
+        if (msg._ignore_dnd) {
+          title = TS.i18n.t("{name} is trying to reach you", "growl")({
+            name: from_name
+          });
+        } else {
+          title = TS.i18n.t("New message from {name}", "growl")({
+            name: from_name
+          });
+        }
       }
       var avatar_image = TS.ui.growls.getProfileImageFromUserId(im.user);
       TS.ui.growls.show(title, TS.format.formatNotification(growl_txt, msg), onclick, {
@@ -19653,9 +19876,14 @@
       var from_name = bot_name || TS.ims.getDisplayNameOfUserForIm(im);
       var title;
       if (TS.getOtherAccountsCount() > 0) {
-        title = "On team " + TS.model.team.name + ', a direct message from "' + from_name + '": ';
+        title = TS.i18n.t('On team {team_name}, a direct message from "{name}": ', "growl")({
+          team_name: TS.model.team.name,
+          name: from_name
+        });
       } else {
-        title = 'DM message from "' + from_name + '": ';
+        title = TS.i18n.t('DM message from "{name}": ', "growl")({
+          name: from_name
+        });
       }
       var spoken_txt = title + TS.format.formatNotification(msg_txt, msg);
       TS.ui.growls.speak(spoken_txt);
@@ -19676,7 +19904,7 @@
     },
     extractTxtFromMsg: function(msg, obey_pref) {
       if (obey_pref && TS.model.prefs.no_text_in_notifications) return "";
-      var msg_txt = msg.type + " " + msg.subtype + " (message missing text)";
+      var msg_txt = msg.type + " " + msg.subtype + " " + TS.i18n.t("(message missing text)", "growl")();
       if (msg.text) {
         msg_txt = msg.text;
       } else if (msg.attachments && msg.attachments.length) {
@@ -22776,6 +23004,16 @@
         },
         content: function() {
           return TS.templates.calls_video_beta_coachmark();
+        }
+      },
+      calls_video_ga: {
+        id: "calls_video_ga_coachmark",
+        coachmark_el_id: "calls_video_ga_coachmark_div",
+        place: function() {
+          TS.coachmark.placeBelowOf($(".call_icon"), 17, -97, 5);
+        },
+        content: function() {
+          return TS.templates.calls_video_ga_coachmark();
         }
       },
       gdrive: {

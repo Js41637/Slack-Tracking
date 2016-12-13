@@ -1,3 +1,5 @@
+{{i18n_ns 'group_overlay'}}
+
 <div id="group_created" class="channel_overlay channel_overlay_redesign">
   {{#if group.is_shared}}
     <img class="channel_overlay_shared_icon float_left" src="{{versioned_join_shared_channel '2x'}}" srcset="{{versioned_join_shared_channel 1x}} '1x', {{versioned_join_shared_channel '2x'}} 2x" />
@@ -34,7 +36,7 @@
     <input id="no_created_overlays_cb" type="checkbox" /> {{#t}}Don't show me this message when I create a channel{{/t}}
   </label>
 
-  <a class="btn padded">Got it!</a>
+  <a class="btn padded">{{#t}}Got it!{{/t}}</a>
 
   <p class="hidden" aria-hidden="false">
     {{#t}}Press enter to close this message and view the channel.{{/t}}

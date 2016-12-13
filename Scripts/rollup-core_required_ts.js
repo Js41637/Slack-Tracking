@@ -1773,9 +1773,6 @@
         if (data.dnd.snooze_enabled) TS.model.dnd.snooze_enabled = data.dnd.snooze_enabled;
         if (data.dnd.snooze_endtime) TS.model.dnd.snooze_endtime = data.dnd.snooze_endtime;
       }
-      if (TS.boot_data.feature_message_replies && data.hasOwnProperty("mentions_badge_count")) {
-        TS.replies.setMentionsBadgeCount(parseInt(data.mentions_badge_count, 10));
-      }
       if (!TS._incremental_boot) {
         var maybe_shared_model_obs = data.ims.concat(data.mpims || [], data.groups || []);
         return TS.members.ensureMembersArePresentInSharedModelObs(maybe_shared_model_obs).then(function() {
@@ -2601,6 +2598,9 @@
     active_history: [],
     all_custom_emoji: [],
     user_hiddens: [],
+    nav_history: [],
+    nav_current_index: -1,
+    nav_used: false,
     user_colors: null,
     emoji_use: {},
     at_channel_suppressed_channels: null,
@@ -2834,7 +2834,6 @@
     },
     frecency_jumper: {},
     typing_msg: "several people are typing",
-    mentions_badge_count: 0,
     pdf_viewer_enabled: true,
     onStart: function(ua) {
       ua = ua || navigator.userAgent;
