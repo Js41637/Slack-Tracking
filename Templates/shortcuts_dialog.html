@@ -24,6 +24,7 @@
         <li>{{#t}}Mark all as read:{{/t}} <span class="keyboard">Shift</span><span class="keyboard" aria-label="Escape">Esc</span></li>
         <li>{{#t}}Quick switcher:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">k</span>{{#isOurApp}} {{#t}}or{{/t}} <span class="keyboard">t</span>{{/isOurApp}}</li>
         {{#if show_browse_dms_shortcut}}<li>{{#t}}Browse DMs:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">k</span></li>{{/if}}
+        {{#feature flag="feature_star_shortcut"}}<li>{{#t}}Toggle star:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{meta_key}}</span><span class="keyboard">s</span></li>{{/feature}}
       </ul>
     </div>
 

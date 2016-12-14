@@ -1,3 +1,5 @@
+{{i18n_ns 'screenhero_attachment'}}
+
 <div class="sh_call_container {{makeSHRoomClass room.id}} {{#unless show_room_link}}sh_call_ended{{/unless}} {{#unless expand_it}}sh_call_collapsed{{/unless}}" data-room-id="{{ room.id }}">
   <span class="meta">{{title}}<span class="furled_desc">: 
   {{#if show_room_link}}<a class="room_name" href="{{room_url}}" target="screenhero_{{room.id}}">{{room_name}}</a>{{else}}{{room_name}}{{/if}}</span>
@@ -29,17 +31,20 @@
       </p>
       <p class="call_subinfo no_bottom_margin">
         {{#if room.is_dm_call}}
-          Started at {{toTime room.date_start}}
           {{#if room.date_end}}
-            {{#unless room.was_missed}}
-              and lasted <b>{{toTimeDuration duration}}</b>
-            {{/unless}}
+            {{#if room.was_missed}}
+              {{#t start_time=(toTime room.date_start)}}Started at {start_time}{{/t}}
+            {{else}}
+              {{#t start_time=(toTime room.date_start) duration=(toTimeDuration duration)}}Started at {start_time} and lasted <strong>{duration}</strong>{{/t}}
+            {{/if}}
+          {{else}}
+            {{#t start_time=(toTime room.date_start)}}Started at {start_time}{{/t}}
           {{/if}}
         {{else}}
           {{#if room.date_end}}
-            Lasted <b>{{toTimeDuration duration}}</b> with <span class="participant_list">{{makeSHRoomParticipantList room}}</span>
+            {{#t duration=(toTimeDuration duration) participants=(makeSHRoomParticipantList room)}}Lasted <strong>{duration}</strong> with <span class="participant_list">{participants}</span>{{/t}}
           {{else}}
-            Started at {{toTime room.date_start}}
+            {{#t start_time=(toTime room.date_start)}}Started at {start_time}{{/t}}
             {{#if room.participants.length}}<span class="participant_count"><i class="ts_icon ts_icon_user"></i>{{room.participants.length}}</span>
               {{#each participants}}
                 {{#feature flag="feature_name_tagging_client"}}

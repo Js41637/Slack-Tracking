@@ -30,7 +30,10 @@
             {{/feature}}
           {{else if this.model_ob.is_view}}
             {{#if_equal this.model_ob.id compare="Vall_unreads"}}
-              <ts-icon class="ts_icon_check_small"></ts-icon>
+              <ts-icon class="ts_icon_list"></ts-icon>
+            {{/if_equal}}
+            {{#if_equal this.model_ob.id compare="Vall_threads"}}
+              <ts-icon class="ts_icon_small_reply"></ts-icon>
             {{/if_equal}}
             <span class="view_name">{{this.model_ob.name}}</span>
           {{else}}

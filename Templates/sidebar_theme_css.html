@@ -35,8 +35,12 @@
     #channels_scroller.show_which_channel_is_active ul li.active a.channel_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.group_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.im_name,
+    #channels_scroller.show_which_channel_is_active ul li.active span.im_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.mpim_name,
-    #channels_nav ul li.unread_link.active a {
+    #channels_nav ul li.unread_link.active .im_name,
+    #channels_nav ul li.unread_link.active .mpim_name,
+    #channels_nav ul li.unread_link.active .group_name,
+    #channels_nav ul li.unread_link.active .channel_name {
       background: {{theme.active_item}};
       opacity: 1;
       color: {{theme.active_item_text}} !important;
@@ -53,7 +57,11 @@
     }
 
     /* Hovered Item */
-    body:not(.sorting_mode) .channels_list_holder ul li a:hover,
+    body:not(.sorting_mode) .channels_list_holder ul li a.im_name:hover,
+    body:not(.sorting_mode) .channels_list_holder ul li span.im_name:hover,
+    body:not(.sorting_mode) .channels_list_holder ul li a.mpim_name:hover,
+    body:not(.sorting_mode) .channels_list_holder ul li a.group_name:hover,
+    body:not(.sorting_mode) .channels_list_holder ul li a.channel_name:hover,
     #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
       background: {{theme.hover_item}};
     }
@@ -68,7 +76,11 @@
     }
 
     /* Text Color */
-    .channels_list_holder ul li a,
+    .channels_list_holder ul li a.im_name,
+    .channels_list_holder ul li span.im_name,
+    .channels_list_holder ul li a.mpim_name,
+    .channels_list_holder ul li a.group_name,
+    .channels_list_holder ul li a.channel_name,
     .channels_list_holder h2,
     .list_more,
     #team_menu:before,
@@ -82,7 +94,11 @@
     .channels_list_holder ul li.member .im_close,
     .channels_list_holder ul li.mpim .mpim_close,
     .channels_list_holder ul li.group .group_close,
-    #channels_nav ul li a,
+    #channels_nav ul li a.im_name,
+    #channels_nav ul li span.im_name,
+    #channels_nav ul li a.mpim_name,
+    #channels_nav ul li a.group_name,
+    #channels_nav ul li a.channel_name,
     #quick_switcher_btn > i {
       color: {{theme.text_color}} !important;
       opacity: 0.6;

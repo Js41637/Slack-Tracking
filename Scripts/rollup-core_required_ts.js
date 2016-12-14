@@ -1971,7 +1971,7 @@
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
-      if (TS.boot_data.feature_message_replies_threads_view && TS.utility.isThreadsViewPath(loc.pathname)) {
+      if (TS.boot_data.feature_message_replies && TS.utility.isThreadsViewPath(loc.pathname)) {
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
@@ -3478,13 +3478,10 @@
         if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) {
           translations[key] = new MessageFormat(TS.i18n.locale, key).format;
         } else {
-          translations[key] = function(data) {
-            if (!_is_pseudo) {
-              TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
-            }
-            var str = new MessageFormat(TS.i18n.locale, key).format(data);
-            return _getPseudoTranslation(str);
-          };
+          if (!_is_pseudo) {
+            TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
+          }
+          translations[key] = new MessageFormat(TS.i18n.locale, _getPseudoTranslation(key)).format;
         }
       } else if (typeof translation !== "function") {
         translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
@@ -3537,7 +3534,11 @@
       if (locale) TS.i18n.locale = locale[1];
     }
     if (!TS.i18n.locale) {
-      TS.i18n.locale = TS.boot_data && TS.boot_data.locale ? TS.boot_data.locale : _DEFAULT_LOCALE;
+      if (TS.boot_data && TS.boot_data.locale) {
+        TS.i18n.locale = TS.boot_data.locale;
+      } else {
+        TS.i18n.locale = document.documentElement.getAttribute("data-locale") || _DEFAULT_LOCALE;
+      }
     }
     if (TS.i18n.locale === _PSEUDO_LOCALE) {
       _is_pseudo = true;
@@ -3563,13 +3564,23 @@
     return _translations[namespace] || {};
   };
   var _getPseudoTranslation = function(str) {
-    var regex = /<[^>]+>/gi;
+    var regex = /(<[^>]+>)|(&\w+;)/gi;
     var tags = str.match(regex) || [];
-    str = str.split(regex).join("<>");
+    str = str.replace(regex, "<>");
+    var parsed = parseMessageFormatString(str);
+    if (parsed.error) TS.error(parsed.error);
+    var substr;
     var key;
-    for (key in _PSEUDO_MAP) {
-      str = str.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
-    }
+    str = parsed.tokens.map(function(t) {
+      if (t[0] === "text") {
+        substr = t[1];
+        for (key in _PSEUDO_MAP) {
+          substr = substr.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
+        }
+        return substr;
+      }
+      return t[1];
+    }).join("");
     return str.split("<>").map(function(w, i) {
       return w + (tags[i] || "");
     }).join("");

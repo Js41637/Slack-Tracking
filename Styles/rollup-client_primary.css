@@ -1495,8 +1495,8 @@ html.is_mac .CodeMirror .CodeMirror-sizer {
 
 @font-face {
   font-family: Slack;
-  src: url(/fad6/fonts/slack-icons-Regular.eot);
-  src: url(/fad6/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/fad6/fonts/slack-icons-Regular.woff) format('woff'), url(/fad6/fonts/slack-icons-Regular.ttf) format('truetype'), url(/fad6/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/75299/fonts/slack-icons-Regular.eot);
+  src: url(/75299/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/75299/fonts/slack-icons-Regular.woff) format('woff'), url(/75299/fonts/slack-icons-Regular.ttf) format('truetype'), url(/75299/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -2049,7 +2049,7 @@ svg.ts_icon_spinner svg {
   content: '\E105'
 }
 
-.ts_icon_mobile_home_channel:before {
+.ts_icon_broadcast:before {
   content: '\E106'
 }
 
@@ -2347,6 +2347,14 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_custom_status:before {
   content: '\E183'
+}
+
+.ts_icon_mobile_notification:before {
+  content: '\E184'
+}
+
+.ts_icon_desktop_notification:before {
+  content: '\E185'
 }
 
 .ts_icon_expand:before {
@@ -2683,7 +2691,7 @@ svg.ts_icon_spinner svg {
   content: '\E539'
 }
 
-.ts_icon_reply:before {
+.ts_icon_broadcast_filled:before {
   content: '\E540'
 }
 
@@ -2723,7 +2731,7 @@ svg.ts_icon_spinner svg {
   content: '\E549'
 }
 
-.ts_icon_cog_filled:before {
+.ts_icon_pencil_filled:before {
   content: '\E550'
 }
 

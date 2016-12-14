@@ -680,6 +680,10 @@ input.search_input {
   }
 }
 
+#flex_contents .message_current_status {
+  display: none
+}
+
 #file_list_toggle_users {
   padding: 0 .5rem .5rem .25rem;
   float: right;
@@ -2429,7 +2433,10 @@ body.incremental_boot #col_channels .header_count {
   display: none
 }
 
-.channels_list_holder ul li a {
+.channels_list_holder ul li .channel_name,
+.channels_list_holder ul li .group_name,
+.channels_list_holder ul li .im_name,
+.channels_list_holder ul li .mpim_name {
   color: #ab9ba9;
   display: block;
   height: 1.5rem;
@@ -2442,21 +2449,34 @@ body.incremental_boot #col_channels .header_count {
   text-decoration: none!important
 }
 
-.channels_list_holder ul#channel-list li a .overflow-ellipsis {
+.channels_list_holder ul#channel-list li .channel_name .overflow-ellipsis,
+.channels_list_holder ul#channel-list li .group_name .overflow-ellipsis,
+.channels_list_holder ul#channel-list li .im_name .overflow-ellipsis,
+.channels_list_holder ul#channel-list li .mpim_name .overflow-ellipsis {
   max-width: 175px;
   padding-right: .75rem
 }
 
-.channels_list_holder ul#group-list li a .overflow-ellipsis,
-.channels_list_holder ul#im-list li a .overflow-ellipsis {
+.channels_list_holder ul#group-list li .group_name .overflow-ellipsis,
+.channels_list_holder ul#group-list li .im_name .overflow-ellipsis,
+.channels_list_holder ul#group-list li .mpim_name .overflow-ellipsis,
+.channels_list_holder ul#im-list li .group_name .overflow-ellipsis,
+.channels_list_holder ul#im-list li .im_name .overflow-ellipsis,
+.channels_list_holder ul#im-list li .mpim_name .overflow-ellipsis {
   max-width: 160px
 }
 
-body:not(.sorting_mode) .channels_list_holder ul li a:hover {
+body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover,
+body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover,
+body:not(.sorting_mode) .channels_list_holder ul li .im_name:hover,
+body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover {
   background: #3e313c
 }
 
-.channels_list_holder ul li a .prefix {
+.channels_list_holder ul li .channel_name .prefix,
+.channels_list_holder ul li .group_name .prefix,
+.channels_list_holder ul li .im_name .prefix,
+.channels_list_holder ul li .mpim_name .prefix {
   font-weight: 300;
   opacity: .5;
   -moz-opacity: .5;
@@ -3653,8 +3673,8 @@ body.sorting_mode .channels_list_holder ul {
   display: inline
 }
 
-.dense_theme .feature_user_custom_status .message_content_header,
-.dense_theme .feature_user_custom_status .message_content_header_left {
+.dense_theme .feature_user_custom_status:not(.format_for_thread_root) .message_content_header,
+.dense_theme .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -moz-inline-flex;
@@ -3667,7 +3687,7 @@ body.sorting_mode .channels_list_holder ul {
   align-items: baseline
 }
 
-.dense_theme .feature_user_custom_status .message_current_status {
+.dense_theme .feature_user_custom_status:not(.format_for_thread_root) .message_current_status {
   cursor: pointer
 }
 
@@ -3690,7 +3710,7 @@ body.sorting_mode .channels_list_holder ul {
   flex: 1 1 auto
 }
 
-.light_theme .feature_user_custom_status .message_content_header_left {
+.light_theme .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -3703,7 +3723,7 @@ body.sorting_mode .channels_list_holder ul {
   align-items: baseline
 }
 
-.light_theme .feature_user_custom_status .message_current_status {
+.light_theme .feature_user_custom_status:not(.format_for_thread_root) .message_current_status {
   cursor: pointer
 }
 
@@ -5918,18 +5938,18 @@ only screen and (min-resolution:2dppx) {
   color: #439fe0
 }
 
-#member_preview_scroller .member_data_table i,
-#member_preview_web_container .member_data_table i,
-#team_list .member_data_table i,
-.menu_member_header .member_data_table i {
+#member_preview_scroller .member_data_table i:not([data-stringify-prefix]),
+#member_preview_web_container .member_data_table i:not([data-stringify-prefix]),
+#team_list .member_data_table i:not([data-stringify-prefix]),
+.menu_member_header .member_data_table i:not([data-stringify-prefix]) {
   margin: -.0625rem .25rem -.0625rem 0;
   float: left
 }
 
-#member_preview_scroller .member_data_table i:before,
-#member_preview_web_container .member_data_table i:before,
-#team_list .member_data_table i:before,
-.menu_member_header .member_data_table i:before {
+#member_preview_scroller .member_data_table i:not([data-stringify-prefix]):before,
+#member_preview_web_container .member_data_table i:not([data-stringify-prefix]):before,
+#team_list .member_data_table i:not([data-stringify-prefix]):before,
+.menu_member_header .member_data_table i:not([data-stringify-prefix]):before {
   font-size: 1.125rem
 }
 
@@ -18598,7 +18618,7 @@ ts-message .emoji-sizer .mention {
 
 .light_theme ts-message .message_content .message_current_status {
   margin-left: .25rem;
-  margin-right: .25rem;
+  margin-right: .5rem;
   color: #2c2d30;
   font-weight: 400;
   max-width: 11.25rem;
@@ -21934,7 +21954,8 @@ ts-jumper ol li ts-icon.ts_icon_random:before {
   margin-right: 2px
 }
 
-ts-jumper ol li ts-icon.ts_icon_check_small {
+ts-jumper ol li ts-icon.ts_icon_list,
+ts-jumper ol li ts-icon.ts_icon_small_reply {
   position: relative;
   top: 3px
 }
@@ -22219,10 +22240,10 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .submenu[data-origin-id=member_current_status_item] {
-  -webkit-transform: translateY(-16px);
-  -moz-transform: translateY(-16px);
-  -ms-transform: translateY(-16px);
-  transform: translateY(-16px)
+  -webkit-transform: translateY(-14px);
+  -moz-transform: translateY(-14px);
+  -ms-transform: translateY(-14px);
+  transform: translateY(-14px)
 }
 
 #slack_menu_current_status_submenu {
@@ -24096,7 +24117,8 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 .unread_error_state_message {
   margin: 2rem auto;
   width: 425px;
-  line-height: 1.5
+  line-height: 1.5;
+  font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .channel_header_info_sort_order:hover {

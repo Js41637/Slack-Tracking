@@ -280,7 +280,7 @@
       TS.model.active_group_id = null;
       TS.model.active_mpim_id = null;
       TS.model.unread_view_is_showing = false;
-      if (TS.boot_data.feature_message_replies_threads_view) TS.model.threads_view_is_showing = false;
+      if (TS.boot_data.feature_message_replies) TS.model.threads_view_is_showing = false;
       if (model_ob.is_channel) {
         TS.model.active_channel_id = model_ob_id;
       } else if (model_ob.is_im) {
@@ -322,7 +322,7 @@
         TS.warn("not switching, unread view is already active");
         return false;
       }
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         TS.client.threads.destroyThreadsView();
         TS.model.threads_view_is_showing = false;
       }
@@ -686,12 +686,12 @@
   var _users_counts_resp_from_incremental_boot;
   var _groupRenamed = function(group) {
     if (group.id != TS.model.active_group_id) return;
-    if ((TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies_threads_view) && TS.client.activeChannelIsHidden()) return;
+    if ((TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies) && TS.client.activeChannelIsHidden()) return;
     TS.client.channelDisplaySwitched(group.id, true);
   };
   var _channelRenamed = function(channel) {
     if (channel.id != TS.model.active_channel_id) return;
-    if ((TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies_threads_view) && TS.client.activeChannelIsHidden()) return;
+    if ((TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies) && TS.client.activeChannelIsHidden()) return;
     TS.client.channelDisplaySwitched(channel.id, true);
   };
   var _memberAccountTypeChanged = function(member) {
@@ -850,11 +850,11 @@
     var loc = history.location || document.location;
     TS.qs_args = TS.utility.url.queryStringParse(loc.search.substring(1));
     var is_unread_view = TS.boot_data.feature_unread_view && TS.utility.isUnreadViewPath(loc.pathname);
-    var is_threads_view = TS.boot_data.feature_message_replies_threads_view && TS.utility.isThreadsViewPath(loc.pathname);
+    var is_threads_view = TS.boot_data.feature_message_replies && TS.utility.isThreadsViewPath(loc.pathname);
     var flex_name = TS.utility.getFlexNameFromUrl(loc.href);
     var flex_extra = TS.utility.getFlexExtraFromUrl(loc.href);
     if (TS.model.prefs.no_flex_in_history) {
-      if ((TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies_threads_view) && !is_unread_view && !is_threads_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
+      if ((TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies) && !is_unread_view && !is_threads_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
         flex_name = "details";
         flex_extra = "";
       } else {
@@ -1070,7 +1070,7 @@
     }
     var c_name = TS.model.c_name_in_url = TS.utility.getChannelNameFromUrl(location.href);
     var unread_view = TS.boot_data.feature_unread_view && TS.utility.isUnreadViewPath(location.pathname);
-    var threads_view = TS.boot_data.feature_message_replies_threads_view && TS.utility.isThreadsViewPath(location.pathname);
+    var threads_view = TS.boot_data.feature_message_replies && TS.utility.isThreadsViewPath(location.pathname);
     if (unread_view) TS.model.initial_unread_view = true;
     if (threads_view) TS.model.initial_threads_view = true;
     var getInitialChannelId = function() {
@@ -1232,7 +1232,7 @@
       only_relevant_ims: true,
       simple_unreads: true
     };
-    if (TS.boot_data.feature_message_replies_threads_view) args.include_threads = true;
+    if (TS.boot_data.feature_message_replies) args.include_threads = true;
     TS.api.callImmediately("users.counts", args).then(_updateUnreadsWithUsersCountsResponse);
   };
   var _updateUnreadsWithUsersCountsResponse = function(resp) {
@@ -1255,7 +1255,7 @@
         return TS.mpims.getMpimById(count_info.id);
       }
     });
-    if (TS.boot_data.feature_message_replies_threads_view) {
+    if (TS.boot_data.feature_message_replies) {
       var threads = resp.data.threads;
       if (threads) TS.client.threads.setThreadsUnreadData(threads.has_unreads, threads.mention_count);
     }
@@ -1877,7 +1877,7 @@
       if (TS.boot_data.feature_unread_view && TS.client.unread.isEnabled()) {
         TS.client.unread.destroyUnreadView();
       }
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         TS.client.threads.destroyThreadsView();
         if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
           TS.client.ui.flex.openFlexTab("details", true);
@@ -2456,7 +2456,6 @@
         $("#member_mentions").html(html);
         TS.utility.makeSureAllLinksHaveTargets($("#member_mentions"));
         $("#member_mentions_explanation").addClass("hidden");
-        $("#member_replies_explanation").addClass("hidden");
         if (TS.mentions.has_more) {
           $("#member_mentions_more").css("visibility", "visible");
         } else {
@@ -2465,7 +2464,6 @@
       } else {
         $("#member_mentions").html("");
         $("#member_mentions_explanation").toggleClass("hidden", TS.mentions.active_tab === "replies");
-        $("#member_replies_explanation").toggleClass("hidden", TS.mentions.active_tab !== "replies");
         $("#member_mentions_more").css("visibility", "hidden");
       }
       TS.view.resize();
@@ -5624,7 +5622,7 @@
       if (TS.boot_data.feature_unread_view && TS.client.unread.isEnabled()) {
         TS.client.ui.unread.updateSidebarLink();
       }
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         TS.client.ui.threads.updateChannelPaneActiveState();
       }
     },
@@ -5986,7 +5984,7 @@
         }
       } else if (!TS.client.activeChannelIsHidden()) {
         TS.client.ui.forceMarkAllRead(TS.model.marked_reasons.esc, all_channels);
-      } else if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+      } else if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
         TS.client.threads.markAllNewThreads();
       }
     },
@@ -6163,7 +6161,10 @@
     showView: function(view_id) {
       switch (view_id) {
         case "Vall_unreads":
-          TS.client.unread.showUnreadView(false, true);
+          TS.client.unread.showUnreadView();
+          break;
+        case "Vall_threads":
+          TS.client.threads.showThreadsView();
           break;
         default:
           TS.warn('Unknown view "' + view_id + '" passed to TS.client.ui.showView()');
@@ -6352,7 +6353,7 @@
         TS.client.ui.checkInlineImgsAndIframes("file_preview", log);
         TS.client.ui.checkInlineImgsAndIframes("file_list", log);
         if (TS.boot_data.feature_message_replies) TS.client.ui.checkInlineImgsAndIframes("replies", log);
-        if (TS.boot_data.feature_message_replies_threads_view) TS.client.ui.checkInlineImgsAndIframes("threads", log);
+        if (TS.boot_data.feature_message_replies) TS.client.ui.checkInlineImgsAndIframes("threads", log);
         if (TS.boot_data.feature_unread_view) TS.client.ui.checkInlineImgsAndIframes("unread", log);
       });
     },
@@ -6404,7 +6405,7 @@
       } else if (which == "unread" && TS.boot_data.feature_unread_view) {
         $container = TS.client.ui.unread.$scroller;
         scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_unread_scroller_rect", $container);
-      } else if (which == "threads" && TS.boot_data.feature_message_replies_threads_view) {
+      } else if (which == "threads" && TS.boot_data.feature_message_replies) {
         $container = TS.client.ui.threads.$scroller;
         scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_threads_scroller_rect", $container);
       } else {
@@ -6574,11 +6575,16 @@
       TS.client.ui.getCachedDimensionsRect("cached_channels_scroller_rect", TS.client.channel_pane.$scroller);
       var unseen_above, unseen_below, unseen_above_has_mention, unseen_below_has_mention = false;
       var $unreads;
-      $unreads = TS.client.channel_pane.$scroller.find("li.unread:not(.muted_channel):not(.all_unreads):not(.all_threads)");
+      $unreads = TS.client.channel_pane.$scroller.find("li.unread:not(.muted_channel):not(.all_unreads)");
       $unreads.each(function() {
         var $li = $(this);
         if (!TS.client.ui.isElInView($li, 10, TS.model.ui.cached_channels_scroller_rect)) {
-          var top = $li.closest(".section_holder").position().top + $li.position().top;
+          var top;
+          if (TS.boot_data.feature_message_replies && $li.hasClass("all_threads")) {
+            top = $li.closest("#channels_scroller").position().top + $li.position().top;
+          } else {
+            top = $li.closest(".section_holder").position().top + $li.position().top;
+          }
           if (top < TS.model.ui.cached_channels_scroller_rect.top) {
             unseen_above = true;
             if ($li.hasClass("mention")) unseen_above_has_mention = true;
@@ -7276,7 +7282,7 @@
         lis_selector = "LI.unread:not(.hidden), LI.active, LI.show_in_list_even_though_no_unreads:not(.hidden)";
       }
       var $lis = TS.client.channel_pane.$scroller.find(lis_selector);
-      $lis = $lis.filter(":not(.all_unreads):not(.all_threads)");
+      $lis = $lis.filter(":not(.all_unreads)");
       if (!$lis.length) {
         TS.error('no $lis found for "' + lis_selector + '"');
       }
@@ -7312,7 +7318,7 @@
     },
     gotoNextOpenChannelOrIM: function(with_unreads, backwards) {
       var $current_li;
-      if (TS.client.activeChannelIsHidden()) {
+      if (TS.model.unread_view_is_showing) {
         var $lis = TS.client.ui.getNextOpenChannelOrIMElements(with_unreads);
         $current_li = backwards ? $lis.filter(":first") : $lis.filter(":last");
       }
@@ -7373,6 +7379,10 @@
           type = "mpim";
           displayMethod = TS.mpims.displayMpim;
           byIdMethod = TS.mpims.getMpimById;
+        } else if ($li.hasClass("all_threads")) {
+          data_attribute = "data-action";
+          inner_class_name = "channel_name";
+          type = "threads_view";
         }
         var $inner_node = $li.find("." + inner_class_name);
         if (!$inner_node || !$inner_node.length) return result;
@@ -7387,6 +7397,10 @@
       var data = getDataFromListItem($next_li);
       if (data.type === "unread_view") {
         TS.client.unread.showUnreadView();
+        return;
+      }
+      if (data.type === "threads_view") {
+        TS.client.threads.showThreadsView();
         return;
       }
       if (!data.id || !data.type || !data.displayMethod) {
@@ -10462,13 +10476,6 @@
       TS.client.channel_pane.rebuild();
       return true;
     },
-    maybeRebuildBecauseMsgInputChanged: function(model_ob, msg_input_has_text) {
-      if (!TS.boot_data.feature_show_drafts) {
-        return false;
-      }
-      TS.client.channel_pane.rebuild("ims", "channels", "starred");
-      return true;
-    },
     updateQuickSwitcherBtnVisibility: function() {
       var $quick_switcher_btn = $("#quick_switcher_btn");
       if (TS.model.prefs.no_omnibox_in_channels) {
@@ -10491,7 +10498,7 @@
       return _getSortedNormalList();
     },
     makeSureActiveChannelIsInView: function() {
-      if (TS.client.activeChannelIsHidden()) return;
+      if (TS.model.unread_view_is_showing) return;
       _makeSureActiveChannelIsInView();
     },
     startSortingMode: function() {
@@ -10570,7 +10577,7 @@
       if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
       TS.client.unread.showUnreadView();
     });
-    if (TS.boot_data.feature_message_replies_threads_view) {
+    if (TS.boot_data.feature_message_replies) {
       TS.client.channel_pane.$threads_nav.on("click", function(e) {
         e.preventDefault();
         if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
@@ -11049,7 +11056,12 @@
     TS.utility.queueRAF(_actuallyMakeSureActiveChannelIsInView);
   };
   var _actuallyMakeSureActiveChannelIsInView = function() {
-    var $active = TS.client.channel_pane.$scroller.find(".section_holder ul li.active");
+    var $active;
+    if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
+      $active = TS.client.channel_pane.$scroller.find(".all_threads");
+    } else {
+      $active = TS.client.channel_pane.$scroller.find(".section_holder ul li.active");
+    }
     if (!$active.length) return;
     $active.scrollintoview({
       offset: "top",
@@ -11392,7 +11404,7 @@
       _left_square_bracket = TS.utility.keymap.left_square_bracket;
       _right_square_bracket = TS.utility.keymap.right_square_bracket;
       TS.client.unread.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         TS.client.threads.switched_sig.add(TS.client.nav_history.updateNavHistory);
       }
       TS.channels.switched_sig.add(TS.client.nav_history.updateNavHistory);
@@ -11427,7 +11439,7 @@
             TS.model.nav_history.push({
               id: "All Unreads"
             });
-          } else if (TS.boot_data.feature_message_replies_threads_view && (TS.model.initial_threads_view && _is_initial_setup || TS.model.threads_view_is_showing)) {
+          } else if (TS.boot_data.feature_message_replies && (TS.model.initial_threads_view && _is_initial_setup || TS.model.threads_view_is_showing)) {
             TS.model.nav_history.push({
               id: "Threads"
             });
@@ -11490,7 +11502,7 @@
         TS.mpims.marked_sig.add(_markUnreadPinIcon);
         TS.ims.marked_sig.add(_markUnreadPinIcon);
       }
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         TS.client.threads.reply_count_changed.add(_replyCountChanged);
       }
       TS.prefs.a11y_font_size_changed_sig.add(_updateChannelHeader);
@@ -11580,7 +11592,7 @@
         },
         threads: {
           is_showing: TS.model.threads_view_is_showing,
-          reply_count: TS.boot_data.feature_message_replies_threads_view && TS.client.threads.getCurrentReplyCount()
+          reply_count: TS.boot_data.feature_message_replies && TS.client.threads.getCurrentReplyCount()
         }
       };
       _$header.html(TS.templates.channel_header(template_args));
@@ -11873,7 +11885,7 @@
     }
   };
   var _bindChannelMenu = function() {
-    if (TS.client.activeChannelIsHidden() && (TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies_threads_view)) return;
+    if (TS.client.activeChannelIsHidden() && (TS.boot_data.feature_unread_view || TS.boot_data.feature_message_replies)) return;
     if (TS.newxp.inOnboarding()) return false;
     var $actions_toggle = $("#channel_actions_toggle, #channel_name");
     if (TS.model.active_channel_id) {
@@ -14475,7 +14487,7 @@
     },
     220: {
       isDisabled: function(e) {
-        if (TS.boot_data.feature_message_replies_threads_view) {
+        if (TS.boot_data.feature_message_replies) {
           var in_convo = $(e.target).closest("#reply_container").length > 0;
           var in_threads_view = $(e.target).closest(".reply_input_container").length > 0;
           var in_thread = in_convo || in_threads_view;
@@ -14488,7 +14500,7 @@
         var model_ob = TS.shared.getActiveModelOb();
         if (!model_ob) return;
         var in_convo = TS.boot_data.feature_message_replies && $(e.target).closest("#reply_container.has_focus").length > 0;
-        var in_threads_view = TS.boot_data.feature_message_replies_threads_view && $(e.target).closest(".reply_input_container.has_focus").length > 0;
+        var in_threads_view = TS.boot_data.feature_message_replies && $(e.target).closest(".reply_input_container.has_focus").length > 0;
         var msgs;
         if (in_convo) {
           var msgs_arr = _.clone(TS.ui.replies.getActiveMessages());
@@ -14754,7 +14766,7 @@
             TS.search.view.maybeLogSearchInteraction("files");
           }
         });
-        $("#search_tabs").html(TS.templates.search_tabs);
+        $("#search_tabs").html(TS.templates.search_tabs());
         $("#search_clear").bind("click.switch_to_files", function() {
           if (TS.search.filter == "files" && TS.model.ui_state.flex_visible) {
             setTimeout(function() {
@@ -19217,7 +19229,7 @@
       TS.mpims.unread_highlight_changed_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       TS.ms.connected_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       TS.prefs.mac_ssb_bullet_changed_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         TS.client.threads.threads_unread_changed.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       }
       TS.ui.window_focus_changed_sig.add(TS.ui.growls.windowFocusChanged, TS.ui.growls);
@@ -25770,7 +25782,7 @@
       var name = "";
       if (TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
         name = "All unread messages";
-      } else if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+      } else if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
         name = "Threads";
       } else if (model_ob.is_channel) {
         name = "Channel #" + model_ob.name;
@@ -34096,7 +34108,7 @@ function timezones_guess() {
   };
   var _bindUI = function() {
     _$jumper_input.on("input.search", function() {
-      var query = $.trim(_$jumper_input.val());
+      var query = _.trim(_$jumper_input.val());
       var matches;
       if (_search_p) _search_p.cancel();
       if (query) {
@@ -34118,7 +34130,7 @@ function timezones_guess() {
     });
   };
   var _render = function(matches, query) {
-    if (!query && $.trim(_$jumper_input.val()).length > 0) return;
+    if (!query && _.trim(_$jumper_input.val()).length > 0) return;
     var show_extended_search = _shouldShowExtendedSearch(matches, query);
     var show_new_channel_link = false;
     var clean_name = "";
@@ -34197,7 +34209,7 @@ function timezones_guess() {
         return;
       }
     } else if (!e.altKey && TS.utility.cmdKey(e) && (e.which == 75 || TS.model.is_our_app && e.which == 84)) {
-      if (!$.trim(_$jumper_input.val())) {
+      if (!_.trim(_$jumper_input.val())) {
         TS.ui.jumper.end();
         e.preventDefault();
       } else {
@@ -34213,7 +34225,7 @@ function timezones_guess() {
     if ($el.data("item-team-id")) team_id = $el.data("item-team-id");
     var item_selected;
     var team_match = false;
-    var query = $.trim(_$jumper_input.val());
+    var query = _.trim(_$jumper_input.val());
     if (id.charAt(0) === "G") {
       item_selected = TS.shared.getModelObById(id);
     } else if (id.charAt(0) === "C") {
@@ -34298,7 +34310,7 @@ function timezones_guess() {
     _$jumper_input.removeAttr("disabled").trigger("input.search");
   };
   var _endJumperAndOpenNewChannelModal = function() {
-    var query = $.trim(_$jumper_input.val());
+    var query = _.trim(_$jumper_input.val());
     TS.ui.jumper.end();
     TS.ui.new_channel_modal.start(query);
   };
@@ -34396,6 +34408,10 @@ function timezones_guess() {
       return Promise.resolve(response.items);
     });
   };
+  var _isActive = function(model_ob) {
+    var active_id = TS.shared.getActiveModelOb().id;
+    return active_id && active_id == model_ob.id;
+  };
   var _getUnreadList = function() {
     var highlights = [];
     var unreads = [];
@@ -34408,7 +34424,7 @@ function timezones_guess() {
           model_ob: member,
           score: 0
         });
-      } else if (im && im.last_msg_input) {
+      } else if (im && _.trim(im.last_msg_input) && !_isActive(im)) {
         drafts.push({
           model_ob: member,
           score: 0
@@ -34421,7 +34437,7 @@ function timezones_guess() {
           model_ob: mpim,
           score: 0
         });
-      } else if (mpim.last_msg_input) {
+      } else if (_.trim(mpim.last_msg_input) && !_isActive(mpim)) {
         drafts.push({
           model_ob: mpim,
           score: 0
@@ -34439,7 +34455,7 @@ function timezones_guess() {
           model_ob: group,
           score: 0
         });
-      } else if (group.last_msg_input) {
+      } else if (_.trim(group.last_msg_input) && !_isActive(group)) {
         drafts.push({
           model_ob: group,
           score: 0
@@ -34457,7 +34473,7 @@ function timezones_guess() {
           model_ob: channel,
           score: 0
         });
-      } else if (channel.last_msg_input) {
+      } else if (_.trim(channel.last_msg_input) && !_isActive(channel)) {
         drafts.push({
           model_ob: channel,
           score: 0
@@ -36233,7 +36249,7 @@ function timezones_guess() {
       TS.groups.renamed_sig.remove(_onRename);
       TS.client.ui.unread.unread_groups = null;
       $_currently_sticky = null;
-      if (!TS.boot_data.feature_message_replies_threads_view) {
+      if (!TS.boot_data.feature_message_replies) {
         if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
           TS.client.ui.flex.openFlexTab("details", true);
         }
@@ -37586,15 +37602,16 @@ function timezones_guess() {
     if (!more_at_end) {
       if (last && end && !_.isEqual(last, end)) more_at_end = true;
     }
+    var loading_text = TS.i18n.t("Loading more messages...", "unread")();
     var $beginning = $container.find(".and_more_beginning");
     $beginning.remove();
     if (more_at_beginning) {
-      $container.prepend('<div class="and_more_beginning italic align_center large_top_margin large_bottom_margin">Loading more messages...</div>');
+      $container.prepend('<div class="and_more_beginning italic align_center large_top_margin large_bottom_margin">' + loading_text + "</div>");
     }
     var $end = $container.find(".and_more_end");
     $end.remove();
     if (more_at_end) {
-      $container.append('<div class="and_more_end italic align_center large_top_margin large_bottom_margin">Loading more messages...</div>');
+      $container.append('<div class="and_more_end italic align_center large_top_margin large_bottom_margin">' + loading_text + "</div>");
     } else {
       $container.find(".unread_group:last").addClass("at_bottom");
     }

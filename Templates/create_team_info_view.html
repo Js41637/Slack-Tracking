@@ -15,9 +15,8 @@
       <div class="team_info_question" data-question="organization_type">
         <label class="bold select" for="organization_type">
           <span data-label="organization_type">{{#t}}What will your team use Slack for?{{/t}}</span>
-          <select id="team_info_organization_type_select" class="team_info_select unanswered" name="organization_type" required>
+          <select id="team_info_organization_type_select" class="team_info_select unanswered hidden" name="organization_type" aria-hidden="true">
             {{#t note="A question about the purpose of the user's Slack team."}}
-            <option disabled selected hidden value="">Select an option</option>
             <option value="work">Work</option>
             <option value="school">School</option>
             <option value="shared_interest_group">Shared interest group</option>
@@ -30,9 +29,8 @@
       <div class="team_info_question hidden" data-question="company_industry">
         <label class="bold select" for="company_industry">
           <span data-label="company_industry"></span>
-          <select id="team_info_company_industry_select" class="team_info_select unanswered" name="company_industry">
+          <select id="team_info_company_industry_select" class="team_info_select unanswered hidden" name="company_industry" aria-hidden="true">
             {{#t note="A question about the industry of the user's Slack team."}}
-            <option disabled selected hidden value="">Select an option</option>
             <option value="consumer_goods">Consumer Goods</option>
             <option value="financial">Financial Services</option>
             <option value="government">Government</option>
@@ -60,9 +58,8 @@
       <div class="team_info_question hidden" data-question="company_size">
         <label class="bold select" for="company_size">
           <span data-label="company_size"></span>
-          <select id="team_info_company_size_select" class="team_info_select unanswered" name="company_size">
+          <select id="team_info_company_size_select" class="team_info_select unanswered hidden" name="company_size" aria-hidden="true">
             {{#t note="A question about the size of the user's Slack team."}}
-            <option disabled selected hidden value="">Select an option</option>
             <option value="1-9">1-9 people</option>
             <option value="10-49">10-49 people</option>
             <option value="50-99">50-99 people</option>

@@ -390,12 +390,6 @@
       return _get(TS.storage._makeMsgInputId(id), null);
     },
     storeLastMsgInput: function(id, txt) {
-      if (TS.boot_data.feature_show_drafts) {
-        var previous = TS.storage.fetchLastMsgInput(id);
-        if (!txt && previous || !previous && txt) {
-          TS.client.channel_pane.maybeRebuildBecauseMsgInputChanged(id, !!txt);
-        }
-      }
       _set(TS.storage._makeMsgInputId(id), txt);
     },
     _makeCommentInputId: function(id) {
@@ -8911,10 +8905,6 @@ TS.registerModule("constants", {
         return TS.ims.getImById(id);
       }
     },
-    getModelObByName: function(name) {
-      if (!_.isString(name)) return null;
-      return TS.ims.getImByUsername(name) || TS.mpims.getMpimByName(name) || TS.groups.getGroupByName(name) || TS.channels.getChannelByName(name);
-    },
     getAllModelObsForUser: function() {
       return TS.channels.getChannelsForUser().concat(TS.model.groups, TS.model.ims, TS.model.mpims);
     },
@@ -15529,7 +15519,7 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_message_replies && !original_msg) {
         original_msg = TS.ui.replies.getActiveMessage(model_ob, imsg.deleted_ts);
       }
-      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !original_msg) {
+      if (TS.boot_data.feature_message_replies && !original_msg) {
         original_msg = TS.client.threads.getMessage(model_ob, imsg.deleted_ts);
       }
       if (!original_msg) {
@@ -16769,7 +16759,7 @@ TS.registerModule("constants", {
       if (TS.client) TS.client.user_removed_from_team_sig.dispatch(imsg.team_id);
     },
     update_thread_state: function(imsg) {
-      if (!TS.boot_data.feature_message_replies || !TS.boot_data.feature_message_replies_threads_view) return;
+      if (!TS.boot_data.feature_message_replies) return;
       if (!TS.client) return;
       TS.client.threads.updateThreadState(imsg.has_unreads, imsg.mention_count, imsg.timestamp);
     }
@@ -18086,25 +18076,18 @@ TS.registerModule("constants", {
       var has_indent = _.some(attachments, "indent");
       var preamble = false;
       if (is_broadcast) {
-        var model_ob = attachments[0].channel_id ? TS.shared.getModelObById(attachments[0].channel_id) : false;
-        var thread_ts = attachments[0].ts;
-        if ((!model_ob || !/\d+\.\d+/.test(thread_ts)) && attachments[1] && attachments[1].from_url) {
+        var model_ob_id = msg.channel_id || attachments[0].channel_id || attachments[1].channel_id;
+        var model_ob = TS.shared.getModelObById(model_ob_id);
+        var thread_ts = msg.broadcast_thread_ts || attachments[0].ts;
+        if (!/\d+\.\d+/.test(thread_ts) && attachments[1] && attachments[1].from_url) {
           var from_url = attachments[1].from_url;
-          var channel_id = TS.utility.getChannelNameFromUrl(from_url);
-          if (channel_id) {
-            if (/[DGCSBUW][A-Z0-9]{8}/.test(channel_id)) {
-              model_ob = TS.shared.getModelObById(channel_id);
-            } else {
-              model_ob = TS.shared.getModelObByName(channel_id);
-            }
-          }
           if (/\?thread_ts=/.test(from_url)) {
             var query = TS.utility.url.urlQueryStringParse(from_url);
             thread_ts = query.thread_ts;
-            if (thread_ts.indexOf(".") < 0) thread_ts = thread_ts.substr(0, 10) + "." + thread_ts.substr(10);
           }
         }
         if (model_ob && thread_ts) {
+          if (thread_ts.indexOf(".") < 0) thread_ts = thread_ts.substr(0, 10) + "." + thread_ts.substr(10);
           var preamble_args = {
             thread_ts: thread_ts,
             model_ob_id: model_ob.id,
@@ -18290,23 +18273,6 @@ TS.registerModule("constants", {
       });
       return msg_html;
     },
-    buildJoinLeaveRollUpStr: function(ob) {
-      var str = "";
-      if (ob.is_in) {
-        if (ob.joined && ob.left) {
-          str = TS.i18n.t("left and rejoined", "template_builders")();
-        } else {
-          str = TS.i18n.t("joined", "template_builders")();
-        }
-      } else {
-        if (ob.joined && ob.left) {
-          str = TS.i18n.t("joined and left", "template_builders")();
-        } else {
-          str = TS.i18n.t("left", "template_builders")();
-        }
-      }
-      return str;
-    },
     buildSHRoomAttachment: function(room) {
       if (!TS.boot_data.feature_calls) return "<div>" + TS.i18n.t("The Calls feature is not turned on", "calls")() + "</div>";
       var participants = room.participants.map(function(participant_id) {
@@ -18382,6 +18348,23 @@ TS.registerModule("constants", {
         duration: duration
       });
     },
+    buildJoinLeaveRollUpStr: function(ob) {
+      var str = "";
+      if (ob.is_in) {
+        if (ob.joined && ob.left) {
+          str = TS.i18n.t("left and rejoined", "template_builders")();
+        } else {
+          str = TS.i18n.t("joined", "template_builders")();
+        }
+      } else {
+        if (ob.joined && ob.left) {
+          str = TS.i18n.t("joined and left", "template_builders")();
+        } else {
+          str = TS.i18n.t("left", "template_builders")();
+        }
+      }
+      return str;
+    },
     formatMessageByType: function(msg, do_inline_imgs, enable_slack_action_links, model_ob, starred_items_list) {
       var html = "";
       var txt;
@@ -18397,17 +18380,34 @@ TS.registerModule("constants", {
         _jl_rollup_limit_reached = false;
       }
       if (msg._jl_rollup_hash && msg.user in msg._jl_rollup_hash.users) {
-        channel = model_ob;
         inviter = TS.members.getMemberById(msg.inviter);
         var user_ob = msg._jl_rollup_hash.users[msg.user];
         var str = TS.templates.builders.buildJoinLeaveRollUpStr(user_ob);
-        str += channel ? " #" + channel.name : " the channel";
+        var channel_name;
+        if (model_ob.is_group || model_ob.is_private) {
+          channel_name = TS.model.group_prefix + model_ob.name;
+        } else {
+          channel_name = "#" + model_ob.name;
+        }
+        str += model_ob ? " " + channel_name : " the channel";
         if (user_ob.is_in && inviter) {
           str += " by invitation from <@" + inviter.id + "|" + inviter.name + ">";
         }
         var alsoA = [];
         var otherA = [];
         var also_str = "along with";
+        var channel_name;
+        if (channel) {
+          channel_name = "#" + channel.name;
+        } else {
+          channel_name = "the channel";
+        }
+        var inviter_name;
+        if (user_ob.is_in && inviter) {
+          inviter_name = "<@" + inviter.id + "|" + inviter.name + ">";
+        }
+        var did_invite;
+        var str_builder;
         var ob;
         var count = 0;
         for (var k in msg._jl_rollup_hash.users) {
@@ -18419,7 +18419,10 @@ TS.registerModule("constants", {
           ob = msg._jl_rollup_hash.users[k];
           if (ob.is_in === user_ob.is_in) {
             if (ob.is_in) {
-              if (ob.inviter == msg.user) also_str = "and invited";
+              if (ob.inviter == msg.user) {
+                also_str = "and invited";
+                did_invite = true;
+              }
               if (ob.inviter && (ob.inviter == user_ob.inviter || ob.inviter == msg.user)) {
                 alsoA.push("<@" + k + ">");
               } else {
@@ -18434,6 +18437,67 @@ TS.registerModule("constants", {
           count++;
         }
         if (alsoA.length) {
+          if (did_invite) {
+            if (otherA.length) {
+              if (_jl_rollup_limit_reached) {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                } else {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                }
+              } else {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}. Also, {others}.", "template_builders");
+                } else {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}. Also, {others}.", "template_builders");
+                }
+              }
+            } else {
+              if (_jl_rollup_limit_reached) {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                } else {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                }
+              } else {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}", "template_builders");
+                } else {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}", "template_builders");
+                }
+              }
+            }
+          } else {
+            if (otherA.length) {
+              if (_jl_rollup_limit_reached) {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                } else {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                }
+              } else {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}. Also, {others}.", "template_builders");
+                } else {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, along with {users}. Also, {others}.", "template_builders");
+                }
+              }
+            } else {
+              if (_jl_rollup_limit_reached) {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                } else {
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                }
+              } else {
+                if (inviter_name) {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}", "template_builders");
+                } else {
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, along with {users}", "template_builders");
+                }
+              }
+            }
+          }
           str += ", " + also_str + " " + alsoA.join(", ");
           html = TS.format.formatNoHighlightsNoSpecials(str);
           if (_jl_rollup_limit_reached) html += ' and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.';
@@ -18444,25 +18508,70 @@ TS.registerModule("constants", {
             html += ".";
           }
         } else if (otherA.length) {
+          if (_jl_rollup_limit_reached) {
+            if (inviter_name) {
+              str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+            } else {
+              str_builder = TS.i18n.t('{joined_or_left} {channel_name}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+            }
+          } else {
+            if (inviter_name) {
+              str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others}.", "template_builders");
+            } else {
+              str_builder = TS.i18n.t("{joined_or_left} {channel_name}. Also, {others}.", "template_builders");
+            }
+          }
           str += ". Also, " + otherA.join(", ");
           html = TS.format.formatNoHighlightsNoSpecials(str);
           if (_jl_rollup_limit_reached) html += ' along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>';
           html += ".";
         } else {
           html = TS.format.formatNoHighlightsNoSpecials(str);
+          if (inviter_name) {
+            str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}", "template_builders");
+          } else {
+            str_builder = TS.i18n.t("{joined_or_left} {channel_name}", "template_builders");
+          }
+        }
+        var new_html = str_builder({
+          joined_or_left: TS.templates.builders.buildJoinLeaveRollUpStr(user_ob),
+          channel_name: channel_name,
+          inviter: inviter,
+          users: TS.format.formatNoHighlightsNoSpecials(alsoA.join(", ")),
+          others: TS.format.formatNoHighlightsNoSpecials(otherA.join(", "))
+        });
+        if (false && TS.boot_data.feature_tinyspeck) {
+          if (html !== new_html) {
+            TS.info("- - -");
+            TS.info("TS only: issue with user leave/join message. Please message @steveb with the following info:");
+            TS.info("old html:", html);
+            TS.info("new html:", new_html);
+            TS.info("- - -");
+          }
+          html = new_html;
         }
       } else if (msg.subtype == "channel_join") {
-        channel = model_ob;
         inviter = TS.members.getMemberById(msg.inviter);
+        var channel_name;
+        if (model_ob.is_private) {
+          channel_name = TS.model.group_prefix + model_ob.name;
+        } else {
+          channel_name = "#" + model_ob.name;
+        }
         if (inviter) {
-          txt = "joined" + (channel ? " #" + channel.name : " the channel") + " from an invitation by <@" + inviter.id + "|" + inviter.name + ">";
+          txt = "joined " + (model_ob ? channel_name : "the channel") + " from an invitation by <@" + inviter.id + "|" + inviter.name + ">";
           html = TS.format.formatNoHighlightsNoSpecials(txt, msg);
         } else {
-          html = "joined" + (channel ? " #" + channel.name : " the channel");
+          html = "joined " + (model_ob ? channel_name : "the channel");
         }
       } else if (msg.subtype == "channel_leave") {
-        channel = model_ob;
-        html = "left" + (channel ? " #" + channel.name : " the channel");
+        var channel_name;
+        if (model_ob.is_private) {
+          channel_name = TS.model.group_prefix + model_ob.name;
+        } else {
+          channel_name = "#" + model_ob.name;
+        }
+        html = "left " + (model_ob ? channel_name : "the channel");
       } else if (msg.subtype == "channel_name") {
         html = 'renamed the channel from "' + msg.old_name + '" to "' + msg.name + '"';
       } else if (msg.subtype == "channel_topic") {
@@ -18530,9 +18639,14 @@ TS.registerModule("constants", {
         group = model_ob;
         html = "un-archived" + (group ? " " + TS.model.group_prefix + group.name : " the private channel");
       } else if (msg.subtype == "channel_archive") {
-        channel = model_ob;
-        html = "archived" + (channel ? " #" + channel.name : " the channel");
-        if (TS.client && channel && channel.is_archived) {
+        var channel_name;
+        if (model_ob.is_private) {
+          channel_name = TS.model.group_prefix + model_ob.name;
+        } else {
+          channel_name = "#" + model_ob.name;
+        }
+        html = "archived " + (model_ob ? channel_name : "the channel");
+        if (TS.client && model_ob && model_ob.is_archived) {
           if (TS.model.archive_view_is_showing) {
             html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + channel.name + '?force-browser=1">archives</a>.';
           } else {
@@ -18540,8 +18654,13 @@ TS.registerModule("constants", {
           }
         }
       } else if (msg.subtype == "channel_unarchive") {
-        channel = model_ob;
-        html = "un-archived" + (channel ? " #" + channel.name : " the channel");
+        var channel_name;
+        if (model_ob.is_private) {
+          channel_name = TS.model.group_prefix + model_ob.name;
+        } else {
+          channel_name = "#" + model_ob.name;
+        }
+        html = "un-archived " + (model_ob ? channel_name : "the channel");
       } else if (msg.subtype == "me_message") {
         html = "<i>" + TS.format.formatWithOptions(msg.text, msg, {
           do_inline_imgs: do_inline_imgs
@@ -18742,9 +18861,9 @@ TS.registerModule("constants", {
       } else if (type === "im" || type === "mpim") {
         star_tip_text = star_cta + "direct message";
         star_toggle_tip = unstar_cta + "direct message";
-      } else if (type === "group") {
-        star_tip_text = star_cta + "channel";
-        star_toggle_tip = unstar_cta + "channel";
+      } else if (type === "group" || ob.is_private) {
+        star_tip_text = star_cta + "private channel";
+        star_toggle_tip = unstar_cta + "private channel";
       }
       if (ob.is_starred) {
         var tmp = star_tip_text;
@@ -18926,8 +19045,7 @@ TS.registerModule("constants", {
         }
         html += TS.templates.builders.fileHTML(star.file);
       } else if (star.type == "channel" || star.type == "group") {
-        model_ob = TS.channels.getChannelById(star.channel);
-        if (!model_ob) model_ob = TS.groups.getGroupById(star.channel);
+        model_ob = TS.shared.getModelObById(star.channel);
         if (!model_ob) {
           TS.warn("channel or group " + star.channel + " was probably deleted");
           return "";
@@ -19444,7 +19562,8 @@ TS.registerModule("constants", {
     makeInternalChannelLink: function(channel) {
       if (!channel) return "ERROR: MISSING CHANNEL";
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + channel.name + '"' : "";
-      return '<a href="/archives/' + channel.name + '" ' + target + ' class="internal_channel_link" data-channel-id="' + channel.id + '"><span class="normal">#</span>' + channel.name + "</a>";
+      var prefix = channel.is_private ? TS.model.group_prefix : '<span class="normal">#</span>';
+      return '<a href="/archives/' + channel.name + '" ' + target + ' class="internal_channel_link" data-channel-id="' + channel.id + '">' + prefix + channel.name + "</a>";
     },
     makeInternalGroupLink: function(group) {
       if (!group) return "ERROR: MISSING GROUP";
@@ -19454,11 +19573,12 @@ TS.registerModule("constants", {
     makeChannelLink: function(channel, omit_prefix) {
       if (!channel) return "ERROR: MISSING CHANNEL";
       var shared_icon = "";
-      if (TS.boot_data.page_needs_enterprise && channel.is_shared) {
+      if (TS.model.shared_channels_enabled && channel.is_shared) {
         shared_icon = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
       }
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + channel.name + '"' : "";
-      return '<a href="/archives/' + channel.name + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : '<span class="normal">#</span>') + channel.name + shared_icon + "</a>";
+      var prefix = channel.is_private ? TS.model.group_prefix : '<span class="normal">#</span>';
+      return '<a href="/archives/' + channel.name + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
     },
     makeChannelLinkAriaLabelSafe: function(channel) {
       if (!channel) TS.warn("No valid channel to make channel link aria label");
@@ -19471,7 +19591,7 @@ TS.registerModule("constants", {
     makeGroupLink: function(group, omit_prefix) {
       if (!group) return "ERROR: MISSING GROUP";
       var shared_icon = "";
-      if (TS.boot_data.page_needs_enterprise && group.is_shared) {
+      if (TS.model.shared_channels_enabled && group.is_shared) {
         shared_icon = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
       }
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + group.name + '"' : "";
@@ -20093,14 +20213,16 @@ TS.registerModule("constants", {
       } else if (TS.web && TS.web.space) {
         model_ob = TS.shared.getModelObById(TS.web.space.getOriginChannel());
       }
-      if (!model_ob || model_ob.is_channel) {
+      if (!model_ob) {
         share_context = "channel";
       } else if (model_ob.is_im) {
         share_context = "im";
       } else if (model_ob.is_mpim) {
         share_context = "mpim";
-      } else if (model_ob.is_group) {
+      } else if (model_ob.is_group || model_ob.is_private) {
         share_context = "group";
+      } else if (model_ob.is_channel) {
+        share_context = "channel";
       }
       if (model_ob && model_ob.is_general && !TS.members.canUserPostInGeneral()) {
         model_ob = {};
@@ -20661,14 +20783,8 @@ TS.registerModule("constants", {
 
   function _buildStarComponents(type, ob, parent_ob) {
     if (!type) return "";
-    if (type === "channel" && ob && typeof ob === "string") {
-      ob = TS.channels.getChannelById(ob);
-    } else if (type === "group" && ob && typeof ob === "string") {
-      ob = TS.groups.getGroupById(ob);
-    } else if (type === "im" && ob && typeof ob === "string") {
-      ob = TS.ims.getImById(ob);
-    } else if (type === "mpim" && ob && typeof ob === "string") {
-      ob = TS.mpims.getMpimById(ob);
+    if (ob && typeof ob === "string" && type === ("channel" || "group" || "mpim" || " im")) {
+      ob = TS.shared.getModelObById(ob);
     }
     if (!ob) return "";
     if (type === "message" && parent_ob && typeof parent_ob === "string") {
@@ -21757,7 +21873,7 @@ TS.registerModule("constants", {
         var i, word;
         var has_search_term = false;
         for (i = 0; i < words.length; i++) {
-          word = $.trim(words[i]);
+          word = _.trim(words[i]);
           if (word.length > 0 && !TS.search.keyword_modifier_pair_regex.test(word)) {
             has_search_term = true;
             break;
@@ -21894,10 +22010,12 @@ TS.registerModule("constants", {
         return TS.templates.makeUnreadMsgsDomId(channel);
       });
       Handlebars.registerHelper("getCorGNameWithPrefixById", function(id, hide_unknown_groups) {
-        var channel = TS.channels.getChannelById(id);
-        if (channel) return "#" + channel.name;
-        var group = TS.groups.getGroupById(id);
-        if (group) return TS.model.group_prefix + group.name;
+        var channel = TS.shared.getModelObById(id);
+        if (channel.is_group || channel.is_private) {
+          return TS.model.group_prefix + channel.name;
+        } else if (channel.is_channel) {
+          return "#" + channel.name;
+        }
         if (hide_unknown_groups) {
           return;
         } else {
@@ -21922,18 +22040,18 @@ TS.registerModule("constants", {
         if (channel.unread_highlight_cnt > 0) dom_class += "mention ";
         if (channel.is_starred) dom_class += "is_starred ";
         if (TS.notifs.isCorGMuted(channel.id)) dom_class += "muted_channel ";
-        if (channel._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && channel.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
+        if (channel._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && _.trim(channel.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("makeChannelOrGroupLinkById", function(id, omit_prefix) {
         var ob = TS.shared.getModelObById(id);
         var html = "";
-        if (ob.is_channel) {
-          html = TS.templates.builders.makeChannelLink(ob, omit_prefix);
-        } else if (ob.is_mpim) {
+        if (ob.is_mpim) {
           html = TS.templates.builders.makeMpimLink(ob, false);
         } else if (ob.is_group) {
           html = TS.templates.builders.makeGroupLink(ob, omit_prefix);
+        } else if (ob.is_channel) {
+          html = TS.templates.builders.makeChannelLink(ob, omit_prefix);
         }
         return new Handlebars.SafeString(html);
       });
@@ -21942,22 +22060,22 @@ TS.registerModule("constants", {
         if (!ob) return;
         var text;
         var url = "slack://channel?team=" + TS.model.team.id + "&id=" + id;
-        if (ob.is_channel) {
+        if (ob.is_group || ob.is_private) {
+          text = TS.model.group_prefix + ob.name;
+          return "<a href=" + url + ">" + text + "</a>";
+        } else if (ob.is_channel) {
           var channel = TS.channels.getChannelById(id);
           text = "#" + channel.name;
-          return "<a href=" + url + ">" + text + "</a>";
-        } else if (ob.is_group) {
-          text = TS.model.group_prefix + ob.name;
           return "<a href=" + url + ">" + text + "</a>";
         }
       });
       Handlebars.registerHelper("makeInternalChannelOrGroupLinkById", function(id) {
         var ob = TS.shared.getModelObById(id);
         if (!ob) return;
-        if (ob.is_channel) {
-          return TS.templates.builders.makeInternalChannelLink(ob);
-        } else if (ob.is_group) {
+        if (ob.is_group) {
           return TS.templates.builders.makeInternalGroupLink(ob);
+        } else if (ob.is_channel) {
+          return TS.templates.builders.makeInternalChannelLink(ob);
         }
       });
       Handlebars.registerHelper("isTeamInOrg", function(team, options) {
@@ -22024,7 +22142,7 @@ TS.registerModule("constants", {
         if (group.unread_highlight_cnt > 0) dom_class += "mention ";
         if (group.is_starred) dom_class += "is_starred ";
         if (TS.notifs.isCorGMuted(group.id)) dom_class += "muted_channel ";
-        if (group._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && group.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
+        if (group._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && _.trim(group.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("mpimMemberCount", function(mpim) {
@@ -22047,7 +22165,7 @@ TS.registerModule("constants", {
         if (mpim.unread_cnt > 0 || mpim.unread_highlight_cnt > 0) dom_class += "unread mention ";
         if (TS.notifs.isCorGMuted(mpim.id)) dom_class += "muted_channel ";
         if (mpim.is_starred) dom_class += "is_starred ";
-        if (TS.boot_data.feature_show_drafts && mpim.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
+        if (TS.boot_data.feature_show_drafts && _.trim(mpim.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("makeMpimDomId", function(mpim) {
@@ -22105,20 +22223,26 @@ TS.registerModule("constants", {
         if (im) {
           if (im.unread_cnt > 0 || im.unread_highlight_cnt > 0) dom_class += "unread mention ";
           if (im.is_starred) dom_class += "is_starred ";
-          if (TS.boot_data.feature_show_drafts && im.last_msg_input) dom_class += "show_in_list_even_though_no_unreads ";
+          if (TS.boot_data.feature_show_drafts && _.trim(im.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         }
         return dom_class;
       });
       Handlebars.registerHelper("showDraftIcon", function(model_ob, options) {
         var last_msg_input;
+        var model_id = model_ob.id;
         if (TS.boot_data.feature_show_drafts) {
           last_msg_input = model_ob.last_msg_input;
           if (!last_msg_input && model_ob.presence) {
             var im = TS.ims.getImByMemberId(model_ob.id);
             last_msg_input = im && im.last_msg_input;
+            model_id = im && im.id;
+          }
+          var active_id = TS.shared.getActiveModelOb().id;
+          if (active_id && active_id == model_id && !TS.client.activeChannelIsHidden()) {
+            last_msg_input = null;
           }
         }
-        if (last_msg_input) {
+        if (_.trim(last_msg_input)) {
           return options.fn(this);
         } else {
           return options.inverse(this);
@@ -24094,7 +24218,7 @@ TS.registerModule("constants", {
         msg = model_ob && TS.ui.replies.getActiveMessage(model_ob, ts);
         if (msg) return msg;
       }
-      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+      if (TS.boot_data.feature_message_replies) {
         msg = TS.client.threads.getMessage(model_ob, ts);
         if (msg) return msg;
       }
@@ -24114,7 +24238,7 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_message_replies && !original_msg && TS.ui.replies) {
         original_msg = TS.ui.replies.getActiveMessage(model_ob, new_msg.ts);
       }
-      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !original_msg) {
+      if (TS.boot_data.feature_message_replies && !original_msg) {
         original_msg = TS.client.threads.getMessage(model_ob, new_msg.ts);
       }
       if (TS.boot_data.feature_unread_view && !original_msg) {
@@ -24422,7 +24546,7 @@ TS.registerModule("constants", {
         TS.model.all_unread_highlights_cnt += highlight;
         TS.utility.msgs.maybeExcludeUnreads(mpim, unread, highlight);
       }
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         if (TS.model.threads_has_unreads) TS.model.all_unread_cnt += 1;
         if (TS.model.threads_mention_count) TS.model.all_unread_highlights_cnt += TS.model.threads_mention_count;
       }
@@ -24780,6 +24904,10 @@ TS.registerModule("constants", {
         if (imsg.thread_ts !== imsg.ts) {
           new_msg._hidden_reply = true;
         }
+      }
+      if (TS.boot_data.feature_message_replies && imsg.subtype === "reply_broadcast") {
+        if (imsg.broadcast_thread_ts) new_msg.broadcast_thread_ts = imsg.broadcast_thread_ts;
+        if (imsg.channel) new_msg.channel_id = imsg.channel;
       }
       if (TS.boot_data.feature_message_replies) {
         if (imsg.replies) new_msg.replies = imsg.replies;
@@ -25993,7 +26121,7 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_unread_view) {
         if (/.com\/+unreads/.test(url)) return "";
       }
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         if (/.com\/+threads/.test(url)) return "";
       }
       var pathA = TS.utility._getPathAFromUrl(url);
@@ -26033,7 +26161,7 @@ TS.registerModule("constants", {
         splitter = "/archives/";
       } else if (TS.boot_data.feature_unread_view && url.indexOf("/unreads/") != -1) {
         splitter = "/unreads/";
-      } else if (TS.boot_data.feature_message_replies_threads_view && url.indexOf("/threads/") != -1) {
+      } else if (TS.boot_data.feature_message_replies && url.indexOf("/threads/") != -1) {
         splitter = "/threads/";
       }
       if (!splitter) {
@@ -30280,7 +30408,7 @@ TS.registerModule("constants", {
       if (!msg && TS.boot_data.feature_message_replies && TS.replies.isEnabledForModelOb(model_ob)) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
       }
-      if (!msg && TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+      if (!msg && TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
         msg = TS.client.threads.getMessage(model_ob, msg_ts);
       }
       if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
@@ -31324,7 +31452,7 @@ TS.registerModule("constants", {
         TS.menu.$menu_list = TS.menu.$menu.find("#menu_list");
         TS.menu.$menu.off("keydown", "#file_member_filter .member_filter");
       }
-      if (TS.boot_data.feature_message_replies_threads_view) {
+      if (TS.boot_data.feature_message_replies) {
         TS.menu.$menu.removeAttr("data-model-ob-id");
         TS.menu.$menu.removeAttr("data-thread-ts");
       }
@@ -31958,12 +32086,12 @@ var _on_esc;
       var groups = [];
       var mpims = [];
       model_obs.forEach(function(model_ob) {
-        if (model_ob.is_channel) {
-          channels.push(model_ob);
-        } else if (model_ob.is_mpim) {
+        if (model_ob.is_mpim) {
           mpims.push(model_ob);
-        } else if (model_ob.is_group) {
+        } else if (model_ob.is_group || model_ob.is_private) {
           groups.push(model_ob);
+        } else if (model_ob.is_channel) {
+          channels.push(model_ob);
         }
       });
       var template_args = {
@@ -31998,7 +32126,9 @@ var _on_esc;
       var channel_id = $(this).data("channel-id");
       if (channel_id) {
         var channel = TS.channels.getChannelById(channel_id);
-        if (channel) {
+        if (channel.is_private) {
+          $(this).data("name", channel.name);
+        } else if (channel) {
           $(this).data("name", "#" + channel.name);
         }
         return;
@@ -33496,7 +33626,7 @@ var _on_esc;
   "use strict";
   TS.registerModule("menu.threads", {
     startWithThread: function(e, model_ob_id, thread_ts, view) {
-      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      if (!TS.boot_data.feature_message_replies) return;
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
       if (TS.model.menu_is_showing) return;
@@ -36925,7 +37055,7 @@ var _on_esc;
       if (TS.boot_data.feature_message_replies && !msg) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
       }
-      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !msg) {
+      if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing && !msg) {
         msg = TS.client.threads.getMessage(model_ob, msg_ts);
       }
       if (!msg) {
@@ -37223,7 +37353,7 @@ var _on_esc;
     },
     getDivForMsgInMsgPane: function(ts) {
       var is_unread_view = TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing;
-      var is_threads_view = TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing;
+      var is_threads_view = TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing;
       if (is_unread_view) {
         return $("#" + TS.templates.makeMsgDomIdInUnreadView(ts));
       } else if (is_threads_view) {
@@ -37350,7 +37480,7 @@ var _on_esc;
       if (TS.boot_data.feature_message_replies && !msg) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
       }
-      if (TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing && !msg) {
+      if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing && !msg) {
         msg = TS.client.threads.getMessage(model_ob, msg_ts);
       }
       if (!msg) {
@@ -45640,7 +45770,7 @@ $.fn.togglify = function(settings) {
       if (!msg && model_ob._archive_msgs) msg = TS.utility.msgs.getMsg(msg_ts, model_ob._archive_msgs);
       if (!msg && TS.model.unread_view_is_showing) msg = TS.client.unread.getMessage(model_ob, msg_ts);
       if (!msg && TS.boot_data.feature_message_replies) msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
-      if (!msg && TS.boot_data.feature_message_replies_threads_view) msg = TS.client.threads.getMessage(model_ob, msg_ts);
+      if (!msg && TS.boot_data.feature_message_replies) msg = TS.client.threads.getMessage(model_ob, msg_ts);
       if (!msg) {
         TS.error(msg_ts + " not found in " + model_ob_id);
         return;
@@ -45716,7 +45846,7 @@ $.fn.togglify = function(settings) {
       if (!msg && TS.boot_data.feature_message_replies) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
       }
-      if (!msg && TS.boot_data.feature_message_replies_threads_view && TS.model.threads_view_is_showing) {
+      if (!msg && TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
         msg = TS.client.threads.getMessage(model_ob, msg_ts);
       }
       if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
@@ -46402,7 +46532,7 @@ $.fn.togglify = function(settings) {
       TS.ui.replies.submitReply(e, $el);
     });
     TS.click.addClientHandler("#threads_msgs .reply_send", function(e, $el) {
-      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
       TS.client.ui.threads.submitReply(e, $el);
     });
@@ -46412,12 +46542,12 @@ $.fn.togglify = function(settings) {
       TS.ui.replies.joinChannelFromThread(e, $el);
     });
     TS.click.addClientHandler("#threads_msgs .join_channel_from_thread", function(e, $el) {
-      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
       TS.client.ui.threads.joinChannelFromThread(e, $el);
     });
     TS.click.addClientHandler(".thread_action_menu", function(e, $el) {
-      if (!TS.boot_data.feature_message_replies_threads_view) return;
+      if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
       var $root_msg = $el.closest("ts-thread, #convo_tab").find("ts-message:first");
       var thread_ts = $root_msg.attr("data-ts");
