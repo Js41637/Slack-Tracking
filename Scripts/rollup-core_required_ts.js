@@ -1567,7 +1567,7 @@
         if (should_check_if_local && !TS.members.isLocalTeamMember(member)) continue;
         if (data_user_list_by_id[member.id]) continue;
         if (data.online_users) member.presence = _.includes(data.online_users, member.id) ? "active" : "away";
-        if (TS.boot_data.feature_always_active_bots && member.profile.always_active) member.presence = "active";
+        if (_.get(member, "profile.always_active")) member.presence = "active";
         upsert = TS.members.upsertAndSignal(member);
         if (TS.pri) TS.log(481, "upsert from CACHE: " + member.id + " " + upsert.status);
         if (upsert.member.id == data.self.id) setModelUser(upsert.member);
@@ -1580,7 +1580,7 @@
         } else {
           if (data.online_users) member.presence = _.includes(data.online_users, member.id) ? "active" : "away";
         }
-        if (TS.boot_data.feature_always_active_bots && member.profile && member.profile.always_active) member.presence = "active";
+        if (_.get(member, "profile.always_active")) member.presence = "active";
         upsert = TS.members.upsertAndSignal(member);
         if (TS.pri) TS.log(481, "upsert from DATA: " + member.id + " " + upsert.status);
         if (upsert.member.id == data.self.id) setModelUser(upsert.member);

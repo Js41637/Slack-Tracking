@@ -12872,19 +12872,6 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   }
 }
 
-#user_status_input {
-  margin: 0
-}
-
-#user_status_dialog {
-  width: 75%
-}
-
-#user_status_form {
-  width: 75%;
-  margin-bottom: .5rem
-}
-
 .member_details {
   padding-left: 164px;
   position: relative
@@ -13029,10 +13016,47 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   width: 99%!important
 }
 
+#client-ui #channel_member_list_container.searchable_member_list .no_results {
+  margin-top: 1rem
+}
+
+#client-ui .searchable_member_list_search_bar {
+  margin-bottom: 1rem
+}
+
+#client-ui .searchable_member_list_search_bar a.icon_close {
+  top: .3rem
+}
+
+#client-ui .searchable_member_list_input {
+  padding-left: 1.8rem
+}
+
+#client-ui #team_list_container .searchable_member_list_search {
+  border-bottom: 1px solid #e8e8e8
+}
+
+#client-ui #team_list_container .searchable_member_list_search .icon_search {
+  top: .8rem;
+  left: .8rem
+}
+
+#client-ui #team_list_container .searchable_member_list_search .icon_close {
+  top: .8rem;
+  right: .8rem
+}
+
+#client-ui #team_list_container .searchable_member_list_input {
+  border: none;
+  padding: .7rem .75rem .7rem 2.3rem
+}
+
 #team_filter .icon_search,
 #team_filter .ts_icon_spinner,
 #user_group_filter .icon_search,
-#user_group_filter .ts_icon_spinner {
+#user_group_filter .ts_icon_spinner,
+.searchable_member_list_search_bar .icon_search,
+.searchable_member_list_search_bar .ts_icon_spinner {
   position: absolute;
   font-size: 1rem;
   top: .3125rem;
@@ -13041,17 +13065,20 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #team_filter .ts_icon_spinner,
-#user_group_filter .ts_icon_spinner {
+#user_group_filter .ts_icon_spinner,
+.searchable_member_list_search_bar .ts_icon_spinner {
   top: .625rem
 }
 
 #team_filter .icon_search.indifferent_grey+.ts_icon_spinner,
-#user_group_filter .icon_search.indifferent_grey+.ts_icon_spinner {
+#user_group_filter .icon_search.indifferent_grey+.ts_icon_spinner,
+.searchable_member_list_search_bar .icon_search.indifferent_grey+.ts_icon_spinner {
   color: #555459
 }
 
 #team_filter a.icon_close,
-#user_group_filter a.icon_close {
+#user_group_filter a.icon_close,
+.searchable_member_list_search_bar a.icon_close {
   position: absolute;
   right: .5rem;
   top: .375rem;
@@ -13060,7 +13087,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #team_filter a.icon_close:hover,
-#user_group_filter a.icon_close:hover {
+#user_group_filter a.icon_close:hover,
+.searchable_member_list_search_bar a.icon_close:hover {
   color: #3aa3e3;
   text-decoration: none
 }

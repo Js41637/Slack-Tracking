@@ -1503,6 +1503,14 @@ html:not(.font_size_adjusted) #details_tab .heading #details_tab_header {
   margin-top: 0
 }
 
+#details_tab .channel_page_section.channel_page_members #channel_member_list_container {
+  margin-top: -.5rem
+}
+
+#details_tab .channel_page_section.channel_page_members #channel_member_list_container .icon_search {
+  top: .3rem
+}
+
 #details_tab .channel_page_section .channel_page_details_highlighter,
 #details_tab .channel_page_section .channel_page_members_highlighter,
 #details_tab .channel_page_section .channel_page_pinned_items_highlighter {
@@ -2436,7 +2444,8 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul li .channel_name,
 .channels_list_holder ul li .group_name,
 .channels_list_holder ul li .im_name,
-.channels_list_holder ul li .mpim_name {
+.channels_list_holder ul li .mpim_name,
+.channels_list_holder ul li>a {
   color: #ab9ba9;
   display: block;
   height: 1.5rem;
@@ -2452,7 +2461,8 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul#channel-list li .channel_name .overflow-ellipsis,
 .channels_list_holder ul#channel-list li .group_name .overflow-ellipsis,
 .channels_list_holder ul#channel-list li .im_name .overflow-ellipsis,
-.channels_list_holder ul#channel-list li .mpim_name .overflow-ellipsis {
+.channels_list_holder ul#channel-list li .mpim_name .overflow-ellipsis,
+.channels_list_holder ul#channel-list li>a .overflow-ellipsis {
   max-width: 175px;
   padding-right: .75rem
 }
@@ -2462,21 +2472,24 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul#group-list li .mpim_name .overflow-ellipsis,
 .channels_list_holder ul#im-list li .group_name .overflow-ellipsis,
 .channels_list_holder ul#im-list li .im_name .overflow-ellipsis,
-.channels_list_holder ul#im-list li .mpim_name .overflow-ellipsis {
+.channels_list_holder ul#im-list li .mpim_name .overflow-ellipsis,
+.channels_list_holder ul#im-list li>a .overflow-ellipsis {
   max-width: 160px
 }
 
 body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover,
 body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover,
 body:not(.sorting_mode) .channels_list_holder ul li .im_name:hover,
-body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover {
+body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover,
+body:not(.sorting_mode) .channels_list_holder ul li>a:hover {
   background: #3e313c
 }
 
 .channels_list_holder ul li .channel_name .prefix,
 .channels_list_holder ul li .group_name .prefix,
 .channels_list_holder ul li .im_name .prefix,
-.channels_list_holder ul li .mpim_name .prefix {
+.channels_list_holder ul li .mpim_name .prefix,
+.channels_list_holder ul li>a .prefix {
   font-weight: 300;
   opacity: .5;
   -moz-opacity: .5;
@@ -2607,7 +2620,8 @@ body.winssb .channels_list_new_btn {
 #channels_scroller.show_which_channel_is_active ul li.active a.channel_name,
 #channels_scroller.show_which_channel_is_active ul li.active a.group_name,
 #channels_scroller.show_which_channel_is_active ul li.active a.im_name,
-#channels_scroller.show_which_channel_is_active ul li.active a.mpim_name {
+#channels_scroller.show_which_channel_is_active ul li.active a.mpim_name,
+#channels_scroller.show_which_channel_is_active ul li.active span.im_name {
   color: #fff;
   background: #4c9689
 }
@@ -2636,7 +2650,8 @@ body.winssb .channels_list_new_btn {
   right: 3px;
   top: 0;
   color: #ab9ba9;
-  outline: 0
+  outline: 0;
+  z-index: 1
 }
 
 #channels_nav ul li button .group_close:before,
@@ -2675,7 +2690,11 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 }
 
 .channels_list_holder ul li.mention a,
-.channels_list_holder ul li.unread:not(.muted_channel) a {
+.channels_list_holder ul li.unread:not(.muted_channel) .channel_name,
+.channels_list_holder ul li.unread:not(.muted_channel) .group_name,
+.channels_list_holder ul li.unread:not(.muted_channel) .im_name,
+.channels_list_holder ul li.unread:not(.muted_channel) .mpim_name,
+.channels_list_holder ul li.unread:not(.muted_channel)>a {
   font-weight: 900;
   color: #fff
 }
@@ -2685,29 +2704,69 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   color: #fff
 }
 
-#channels_scroller ul li.muted_channel:not(.active) a,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel a {
+#channels_scroller ul li.muted_channel:not(.active) .channel_name,
+#channels_scroller ul li.muted_channel:not(.active) .group_name,
+#channels_scroller ul li.muted_channel:not(.active) .im_name,
+#channels_scroller ul li.muted_channel:not(.active) .mpim_name,
+#channels_scroller ul li.muted_channel:not(.active)>a,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a {
   font-weight: 400!important
 }
 
-#channels_scroller ul li.muted_channel:not(.active) a>*,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel a>* {
+#channels_scroller ul li.muted_channel:not(.active) .channel_name>*,
+#channels_scroller ul li.muted_channel:not(.active) .group_name>*,
+#channels_scroller ul li.muted_channel:not(.active) .im_name>*,
+#channels_scroller ul li.muted_channel:not(.active) .mpim_name>*,
+#channels_scroller ul li.muted_channel:not(.active)>a>*,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name>*,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name>*,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name>*,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>*,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a>* {
   opacity: .35;
   -moz-opacity: .35;
   -khtml-opacity: .35
 }
 
-#channels_scroller ul li.muted_channel:not(.active) a .prefix,
-#channels_scroller ul li.muted_channel:not(.active) a .unread_highlights,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel a .prefix,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel a .unread_highlights {
+#channels_scroller ul li.muted_channel:not(.active) .channel_name .prefix,
+#channels_scroller ul li.muted_channel:not(.active) .channel_name .unread_highlights,
+#channels_scroller ul li.muted_channel:not(.active) .group_name .prefix,
+#channels_scroller ul li.muted_channel:not(.active) .group_name .unread_highlights,
+#channels_scroller ul li.muted_channel:not(.active) .im_name .prefix,
+#channels_scroller ul li.muted_channel:not(.active) .im_name .unread_highlights,
+#channels_scroller ul li.muted_channel:not(.active) .mpim_name .prefix,
+#channels_scroller ul li.muted_channel:not(.active) .mpim_name .unread_highlights,
+#channels_scroller ul li.muted_channel:not(.active)>a .prefix,
+#channels_scroller ul li.muted_channel:not(.active)>a .unread_highlights,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name .prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name .unread_highlights,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name .prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name .unread_highlights,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name .prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name .unread_highlights,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name .prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name .unread_highlights,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a .prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a .unread_highlights {
   opacity: .75;
   -moz-opacity: .75;
   -khtml-opacity: .75
 }
 
-#channels_scroller ul li.muted_channel:not(.active) a>.prefix,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel a>.prefix {
+#channels_scroller ul li.muted_channel:not(.active) .channel_name>.prefix,
+#channels_scroller ul li.muted_channel:not(.active) .group_name>.prefix,
+#channels_scroller ul li.muted_channel:not(.active) .im_name>.prefix,
+#channels_scroller ul li.muted_channel:not(.active) .mpim_name>.prefix,
+#channels_scroller ul li.muted_channel:not(.active)>a>.prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name>.prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name>.prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name>.prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>.prefix,
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a>.prefix {
   opacity: .2625;
   -moz-opacity: .2625;
   -khtml-opacity: .2625
@@ -2752,8 +2811,16 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   text-shadow: none
 }
 
-body:not(.sorting_mode) .channels_list_holder ul li a:hover .unread_highlights,
-body:not(.sorting_mode) .channels_list_holder ul li a:hover .unread_msgs {
+body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover .unread_highlights,
+body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover .unread_msgs,
+body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover .unread_highlights,
+body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover .unread_msgs,
+body:not(.sorting_mode) .channels_list_holder ul li .im_name:hover .unread_highlights,
+body:not(.sorting_mode) .channels_list_holder ul li .im_name:hover .unread_msgs,
+body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover .unread_highlights,
+body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover .unread_msgs,
+body:not(.sorting_mode) .channels_list_holder ul li>a:hover .unread_highlights,
+body:not(.sorting_mode) .channels_list_holder ul li>a:hover .unread_msgs {
   text-decoration: none
 }
 
@@ -2762,11 +2829,19 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover .unread_msgs {
   display: none
 }
 
-.channels_list_holder li.away a {
+.channels_list_holder li.away .channel_name,
+.channels_list_holder li.away .group_name,
+.channels_list_holder li.away .im_name,
+.channels_list_holder li.away .mpim_name,
+.channels_list_holder li.away>a {
   font-style: italic
 }
 
-.channels_list_holder li.away a .overflow-ellipsis {
+.channels_list_holder li.away .channel_name .overflow-ellipsis,
+.channels_list_holder li.away .group_name .overflow-ellipsis,
+.channels_list_holder li.away .im_name .overflow-ellipsis,
+.channels_list_holder li.away .mpim_name .overflow-ellipsis,
+.channels_list_holder li.away>a .overflow-ellipsis {
   padding-right: 2px
 }
 
@@ -6498,19 +6573,6 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   }
 }
 
-#user_status_input {
-  margin: 0
-}
-
-#user_status_dialog {
-  width: 75%
-}
-
-#user_status_form {
-  width: 75%;
-  margin-bottom: .5rem
-}
-
 .member_details {
   padding-left: 164px;
   position: relative
@@ -6655,10 +6717,47 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   width: 99%!important
 }
 
+#client-ui #channel_member_list_container.searchable_member_list .no_results {
+  margin-top: 1rem
+}
+
+#client-ui .searchable_member_list_search_bar {
+  margin-bottom: 1rem
+}
+
+#client-ui .searchable_member_list_search_bar a.icon_close {
+  top: .3rem
+}
+
+#client-ui .searchable_member_list_input {
+  padding-left: 1.8rem
+}
+
+#client-ui #team_list_container .searchable_member_list_search {
+  border-bottom: 1px solid #e8e8e8
+}
+
+#client-ui #team_list_container .searchable_member_list_search .icon_search {
+  top: .8rem;
+  left: .8rem
+}
+
+#client-ui #team_list_container .searchable_member_list_search .icon_close {
+  top: .8rem;
+  right: .8rem
+}
+
+#client-ui #team_list_container .searchable_member_list_input {
+  border: none;
+  padding: .7rem .75rem .7rem 2.3rem
+}
+
 #team_filter .icon_search,
 #team_filter .ts_icon_spinner,
 #user_group_filter .icon_search,
-#user_group_filter .ts_icon_spinner {
+#user_group_filter .ts_icon_spinner,
+.searchable_member_list_search_bar .icon_search,
+.searchable_member_list_search_bar .ts_icon_spinner {
   position: absolute;
   font-size: 1rem;
   top: .3125rem;
@@ -6667,17 +6766,20 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #team_filter .ts_icon_spinner,
-#user_group_filter .ts_icon_spinner {
+#user_group_filter .ts_icon_spinner,
+.searchable_member_list_search_bar .ts_icon_spinner {
   top: .625rem
 }
 
 #team_filter .icon_search.indifferent_grey+.ts_icon_spinner,
-#user_group_filter .icon_search.indifferent_grey+.ts_icon_spinner {
+#user_group_filter .icon_search.indifferent_grey+.ts_icon_spinner,
+.searchable_member_list_search_bar .icon_search.indifferent_grey+.ts_icon_spinner {
   color: #555459
 }
 
 #team_filter a.icon_close,
-#user_group_filter a.icon_close {
+#user_group_filter a.icon_close,
+.searchable_member_list_search_bar a.icon_close {
   position: absolute;
   right: .5rem;
   top: .375rem;
@@ -6686,7 +6788,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #team_filter a.icon_close:hover,
-#user_group_filter a.icon_close:hover {
+#user_group_filter a.icon_close:hover,
+.searchable_member_list_search_bar a.icon_close:hover {
   color: #3aa3e3;
   text-decoration: none
 }
@@ -9858,10 +9961,15 @@ html.no_touch #snippet_expand_toggle:hover {
   position: absolute;
   top: .2rem;
   left: .4rem;
+  right: .4rem;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
-  width: 100%
+  white-space: nowrap
+}
+
+.loaded #file_progress #progress_text {
+  color: #fff;
+  text-shadow: 0 1px rgba(0, 0, 0, .15)
 }
 
 #file_progress .progress_bar {
@@ -9871,11 +9979,6 @@ html.no_touch #snippet_expand_toggle:hover {
 
 #file_progress .progress_bar.no_transition {
   transition: none
-}
-
-#file_progress.loaded #progress_text {
-  color: #fff;
-  text-shadow: 0 1px rgba(0, 0, 0, .15)
 }
 
 @media only screen and (max-width:640px) {
@@ -12588,28 +12691,25 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   display: inline-block
 }
 
-.progress_bar_progress::after,
 .progress_bar_progress::before,
-.progress_bar_progress_thin::after,
 .progress_bar_progress_thin::before {
   line-height: 2.25rem;
   position: absolute;
   font-size: .9rem;
-  font-weight: 900
-}
-
-.progress_bar_progress::after,
-.progress_bar_progress_thin::after {
-  content: attr(data-label);
-  right: 0;
-  margin-right: .5rem
-}
-
-.progress_bar_progress::before,
-.progress_bar_progress_thin::before {
+  font-weight: 900;
   content: attr(data-label-left);
   left: 0;
-  margin-left: .5rem
+  right: 0;
+  margin-left: .5rem;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+.is_cancelable .progress_bar_progress::before,
+.is_cancelable .progress_bar_progress_thin::before {
+  right: 100px
 }
 
 .progress_bar_progress_animated,
@@ -12635,28 +12735,25 @@ only screen and (min-resolution:2dppx) {
   }
 }
 
-.progress_bar_progress_animated::after,
 .progress_bar_progress_animated::before,
-.progress_bar_progress_animated_thin::after,
 .progress_bar_progress_animated_thin::before {
   line-height: 2.25rem;
   position: absolute;
   font-size: .9rem;
-  font-weight: 900
-}
-
-.progress_bar_progress_animated::after,
-.progress_bar_progress_animated_thin::after {
-  content: attr(data-label);
-  right: 0;
-  margin-right: .5rem
-}
-
-.progress_bar_progress_animated::before,
-.progress_bar_progress_animated_thin::before {
+  font-weight: 900;
   content: attr(data-label-left);
   left: 0;
-  margin-left: .5rem
+  right: 0;
+  margin-left: .5rem;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+.is_cancelable .progress_bar_progress_animated::before,
+.is_cancelable .progress_bar_progress_animated_thin::before {
+  right: 100px
 }
 
 @-webkit-keyframes progress_bar {
@@ -12771,6 +12868,23 @@ only screen and (min-resolution:2dppx) {
 .search_form .search_input:focus {
   border-color: #439fe0;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075)
+}
+
+.search_module_header {
+  background: #f7f7f7;
+  color: #555459
+}
+
+.search_module_header p {
+  padding: .5rem .75rem;
+  margin: 0;
+  font-size: .8rem;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  color: #555459
+}
+
+.search_module_header a {
+  float: right
 }
 
 .search_message_result {
@@ -18617,10 +18731,10 @@ ts-message .emoji-sizer .mention {
 }
 
 .light_theme ts-message .message_content .message_current_status {
-  margin-left: .25rem;
-  margin-right: .5rem;
-  color: #2c2d30;
-  font-weight: 400;
+  margin-left: .1rem;
+  margin-right: .3rem;
+  color: #717274;
+  font-weight: 900;
   max-width: 11.25rem;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -18920,8 +19034,8 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message .message_content .message_current_status {
-  margin-left: .25rem;
-  margin-right: .25rem;
+  margin-left: .1rem;
+  margin-right: .3rem;
   font-weight: 400;
   max-width: 11.25rem;
   text-overflow: ellipsis;
@@ -19407,7 +19521,88 @@ ts-thread .view_all_replies_count {
   width: .625rem;
   border-radius: .1875rem;
   z-index: 99;
-  background-color: #78c896
+  background-color: #78c896;
+  cursor: pointer
+}
+
+.recap_hover {
+  position: absolute;
+  top: -1.8125rem;
+  left: -19.6875rem;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, .01)
+}
+
+.recap_hover .recap_hover_callout {
+  position: absolute;
+  top: 1.3125rem;
+  left: 18.125rem;
+  width: 1rem;
+  height: 1rem;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, .01)
+}
+
+.recap_hover .recap_hover_interior {
+  position: absolute;
+  width: 18.625rem;
+  height: 3.1875rem;
+  padding-top: .3125rem;
+  padding-left: .625rem;
+  padding-right: .625rem;
+  border-radius: 10px
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview {
+  height: 2.875rem;
+  overflow: hidden
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview .is_pinned {
+  background: #fff
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview ts-message {
+  width: 50rem
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_gutter {
+  width: 3rem
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview .is_pinned_holder {
+  display: none
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content {
+  margin-left: 3rem
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .message_star_holder,
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .msg_inline_media_toggler,
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .recap_highlight,
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .rxn_panel,
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .ts_icon {
+  display: none
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .msg_inline_file_title_hider {
+  display: inline
+}
+
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content pre {
+  margin: 0;
+  padding: .1rem 0 0;
+  background: #fff;
+  border: none
 }
 
 @font-face {
@@ -24801,7 +24996,6 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .app_card_header {
-  min-width: 20rem;
   padding: 25px;
   background: linear-gradient(136.53deg, rgba(255, 255, 255, .05) 0, rgba(255, 255, 255, .2) 100%), linear-gradient(312.01deg, #2c2d30 0, rgba(44, 45, 48, .75) 100%);
   background-color: #2c2d30
@@ -24812,7 +25006,7 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .app_header_large {
-  padding: 33px 25px
+  padding: 25px
 }
 
 .app_card_emoji .emoji,
@@ -24824,9 +25018,9 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 
 .app_header_large .app_card_emoji .emoji,
 .app_header_large .app_card_header_icon {
-  min-width: 5.625rem;
-  max-width: 5.625rem;
-  height: 5.625rem
+  min-width: 5rem;
+  max-width: 5rem;
+  height: 5rem
 }
 
 .app_card_emoji .emoji {
@@ -24875,7 +25069,19 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .app_header_large .app_card_header_text .app_card_name_row .app_name {
-  font-size: 1.375rem
+  font-size: 1.125rem
+}
+
+@media screen and (min-width:1367px) {
+  .app_header_large .app_card_emoji .emoji,
+  .app_header_large .app_card_header_icon {
+    min-width: 5.625rem;
+    max-width: 5.625rem;
+    height: 5.625rem
+  }
+  .app_header_large .app_card_header_text .app_card_name_row .app_name {
+    font-size: 1.375rem
+  }
 }
 
 .app_header_large .app_card_header_text .app_card_desc {
@@ -24897,8 +25103,8 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .app_slash_command_desc {
-  font-size: .8125rem;
-  line-height: 1.3125rem;
+  font-size: .85rem;
+  line-height: 1.4rem;
   color: #717274
 }
 
@@ -24916,11 +25122,11 @@ ul li.highlighted a .app_slash_command_desc {
   border-radius: .25rem;
   outline: 0;
   font-size: .9375rem;
-  line-height: 1.5625rem;
   background: 0 0;
   color: #2c2d30;
   white-space: normal;
-  word-break: break-word
+  word-break: break-word;
+  line-height: 1.4rem
 }
 
 .app_card_member_link {
@@ -24953,12 +25159,16 @@ ul li.highlighted a .app_slash_command_desc {
 }
 
 .app_profile_buttons {
-  margin-top: 11px;
+  margin-top: 6px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
-  display: flex
+  display: flex;
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  -moz-flex-wrap: wrap;
+  flex-wrap: wrap
 }
 
 .app_profile_buttons .btn {
@@ -24967,31 +25177,35 @@ ul li.highlighted a .app_slash_command_desc {
   min-width: 2rem
 }
 
+.app_profile_buttons .btn:last-child {
+  margin-right: 0
+}
+
 .app_profile_btn {
   font-size: .8125rem;
   line-height: 1rem;
+  margin-top: 5px;
   background: 0 0;
   color: rgba(255, 255, 255, .9);
   border: 1px solid rgba(255, 255, 255, .3);
   border-radius: 3px;
-  padding: 6px 10px 7px
+  padding: 6px 10px 7px;
+  text-shadow: none
 }
 
 .app_profile_btn.btn_icon {
   padding: 0
 }
 
+.app_profile_btn:after,
 .app_profile_btn:focus {
-  background: 0 0
+  background: 0 0;
+  box-shadow: none!important
 }
 
 .app_profile_btn:hover,
 .app_profile_btn:hover:focus {
   background-color: rgba(255, 255, 255, .1)
-}
-
-.app_profile_btn:after {
-  box-shadow: none!important
 }
 
 .app_profile_slash_command {
@@ -25005,13 +25219,14 @@ ul li.highlighted a .app_slash_command_desc {
 .app_profile_slash_command:hover {
   background: #3aa3e3;
   color: #fff;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, .1)
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+  border-color: transparent
 }
 
 .app_profile_desc {
-  -webkit-transition: max-height .5s ease-out 0s;
-  -moz-transition: max-height .5s ease-out 0s;
-  transition: max-height .5s ease-out 0s;
+  -webkit-transition: max-height .25s ease-out 0s;
+  -moz-transition: max-height .25s ease-out 0s;
+  transition: max-height .25s ease-out 0s;
   box-sizing: content-box;
   position: relative;
   overflow: hidden
@@ -25029,16 +25244,16 @@ ul li.highlighted a .app_slash_command_desc {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0, #fff 100%)
 }
 
+.app_desc_collapse_showing.app_profile_desc {
+  padding-bottom: 1rem
+}
+
 .app_desc_btn {
   display: flex;
   align-items: center;
   position: absolute;
   bottom: 0;
   left: 50%;
-  -webkit-transform: translateX(-50%);
-  -moz-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  transform: translateX(-50%);
   font-size: .8125rem;
   line-height: 1rem;
   border-radius: 1.25rem;
@@ -25060,19 +25275,55 @@ ul li.highlighted a .app_slash_command_desc {
 }
 
 .app_desc_expand_btn {
-  display: none
+  opacity: 0;
+  -webkit-transition: transform .2s ease-out, opacity .2s ease-out;
+  -moz-transition: transform .2s ease-out, opacity .2s ease-out;
+  transition: transform .2s ease-out, opacity .2s ease-out;
+  -webkit-transform: translateX(-50%) translateY(100%);
+  -moz-transform: translateX(-50%) translateY(100%);
+  -ms-transform: translateX(-50%) translateY(100%);
+  transform: translateX(-50%) translateY(100%)
+}
+
+.app_desc_expand_showing .app_desc_expand_btn {
+  -webkit-transform: translateX(-50%) translateY(-15px);
+  -moz-transform: translateX(-50%) translateY(-15px);
+  -ms-transform: translateX(-50%) translateY(-15px);
+  transform: translateX(-50%) translateY(-15px)
 }
 
 .app_desc_expand_showing:hover .app_desc_expand_btn {
-  display: flex
+  opacity: 1;
+  -webkit-transform: translateX(-50%) translateY(-10px);
+  -moz-transform: translateX(-50%) translateY(-10px);
+  -ms-transform: translateX(-50%) translateY(-10px);
+  transform: translateX(-50%) translateY(-10px)
 }
 
 .app_desc_collapse_btn {
-  display: none
+  opacity: 0;
+  -webkit-transition: transform .2s ease-out, opacity .2s ease-out;
+  -moz-transition: transform .2s ease-out, opacity .2s ease-out;
+  transition: transform .2s ease-out, opacity .2s ease-out;
+  -webkit-transform: translateX(-50%) translateY(100%);
+  -moz-transform: translateX(-50%) translateY(100%);
+  -ms-transform: translateX(-50%) translateY(100%);
+  transform: translateX(-50%) translateY(100%)
+}
+
+.app_desc_collapse_showing .app_desc_collapse_btn {
+  -webkit-transform: translateX(-50%) translateY(0);
+  -moz-transform: translateX(-50%) translateY(0);
+  -ms-transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(0)
 }
 
 .app_desc_collapse_showing:hover .app_desc_collapse_btn {
-  display: flex
+  opacity: 1;
+  -webkit-transform: translateX(-50%) translateY(-5px);
+  -moz-transform: translateX(-50%) translateY(-5px);
+  -ms-transform: translateX(-50%) translateY(-5px);
+  transform: translateX(-50%) translateY(-5px)
 }
 
 .app_video_thumbnail {

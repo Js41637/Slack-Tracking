@@ -2005,7 +2005,7 @@
     actuallyCheckIfInputShouldBeDisabledAndPopulate: function() {
       var active_model_ob = TS.shared.getActiveModelOb();
       if (active_model_ob && active_model_ob.is_general && !TS.members.canUserPostInGeneral()) {
-        TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
+        TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
         if (!TS.boot_data.feature_texty) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
@@ -2017,7 +2017,7 @@
         }));
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
       } else if (active_model_ob && (active_model_ob.is_channel || active_model_ob.is_group) && TS.boot_data.page_needs_enterprise && active_model_ob.is_shared && !TS.permissions.members.canPostInChannel(active_model_ob)) {
-        TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
+        TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
         if (!TS.boot_data.feature_texty) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
@@ -2036,12 +2036,12 @@
         }
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, "");
       } else if (active_model_ob && active_model_ob._checking_at_channel_status && TS.lazyLoadMembersAndBots()) {
-        TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
+        TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, TS.i18n.t("Sending...", "view")());
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         if (!TS.boot_data.feature_new_msg_input) $("#footer").addClass("disabled");
       } else {
-        TS.utility.contenteditable.clear(TS.client.ui.$msg_input);
+        TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
         TS.utility.contenteditable.enable(TS.client.ui.$msg_input);
         if (!TS.boot_data.feature_new_msg_input) $("#footer").removeClass("disabled");
         TS.client.msg_input.populateWithLast();
@@ -2495,7 +2495,9 @@
       TS.presence_manager.createList(TS.model.user.id);
       _updateUserPresenceIcon();
       TS.view.buildTeamList();
-      TS.client.msg_input.populateWithLast();
+      if (!TS.boot_data.feature_texty) {
+        TS.client.msg_input.populateWithLast();
+      }
       TS.client.ui.rebuildMemberListToggle();
       TS.view.members.updateUserDisplayName();
       if (TS.boot_data.feature_user_custom_status) TS.view.members.updateUserCurrentStatus();
@@ -3494,7 +3496,7 @@
     },
     currentUserDndStatusChanged: function() {
       if (TS.model.ms_connected) TS.view.ms.maybeChangeConnectionDisplay();
-      var $icon = $("#client_header").find(".notifications_menu_btn");
+      var $icon = $("#team_menu").find(".notifications_menu_btn");
       if (TS.members.isMemberInDnd(TS.model.user)) {
         $icon.removeClass("ts_icon_bell_o").addClass("ts_icon_snooze_outline");
       } else {
@@ -3551,7 +3553,7 @@
     },
     uploading: function(filename, retry, cancelable) {
       var html = "";
-      if (cancelable) html += '<a id="cancel_upload_in_progress" class="float_right right_margin">cancel</a>';
+      if (cancelable) html += '<a id="cancel_upload_in_progress" class="float_right very_small_right_margin">cancel</a>';
       var label = "";
       if (retry) {
         label += "Re-uploading";
@@ -3560,7 +3562,7 @@
       }
       label += " " + filename;
       $("#file_progress").queue(function(next) {
-        $(this).removeClass("hidden loaded").find(".progress_bar").removeClass("candy_red_bg seafoam_green_bg").end().find(".progress_bar_progress_thin").removeClass("no_transition").data("label-left-original", label).attr("data-label-left", label).end().find("#progress_text").html(html).find("#cancel_upload_in_progress").click(TS.files.cancelCurrentUpload);
+        $(this).toggleClass("is_cancelable", !!cancelable).removeClass("hidden loaded").find(".progress_bar").removeClass("candy_red_bg seafoam_green_bg").end().find(".progress_bar_progress_thin").removeClass("no_transition").data("label-left-original", label).attr("data-label-left", label).end().find("#progress_text").html(html).find("#cancel_upload_in_progress").click(TS.files.cancelCurrentUpload);
         next();
         TS.client.msg_pane.topMessagesBannerShown();
       }).fadeIn(200);
@@ -5791,7 +5793,7 @@
         } else if (e.which == keymap.esc) {
           TS.client.ui.onEscKey(e);
         } else if (TS.utility.isPageKey(e.which) && TS.model.prefs && TS.model.prefs.pagekeys_handled && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) {
-          var msg_input_focused = TS.client.ui.$msg_input.is(document.activeElement);
+          var msg_input_focused = TS.utility.contenteditable.isActiveElement(TS.client.ui.$msg_input);
           var other_input_focused = !msg_input_focused && TS.utility.isFocusOnInput();
           var in_archives = TS.model.archive_view_is_showing;
           var $scroller = in_archives ? TS.client.archives.$scroller : TS.client.ui.$msgs_scroller_div;
@@ -7239,31 +7241,6 @@
       } else {
         return work();
       }
-    },
-    showStatusForm: function(div_id) {
-      if ($("#user_status_form").data("last_div_id")) {
-        TS.client.ui.removeStatusForm($("#user_status_form").data("last_div_id"));
-      }
-      var html = TS.templates.user_status_form({
-        user: TS.model.user,
-        div_id: div_id
-      });
-      var div = $("#" + div_id);
-      div.addClass("hidden");
-      div.after(html);
-      $("#user_status_form").data("last_div_id", div_id);
-      $("#user_status_input").select();
-    },
-    submitUserStatus: function(div_id) {
-      var status = $("#user_status_input").val();
-      TS.members.setUserStatus(status);
-      TS.client.ui.removeStatusForm(div_id);
-      return false;
-    },
-    removeStatusForm: function(div_id) {
-      var div = $("#" + div_id);
-      div.removeClass("hidden");
-      $("#user_status_form").remove();
     },
     getNextOpenChannelOrIMElements: function(with_unreads) {
       var with_unreads_or_starred = false;
@@ -9313,8 +9290,8 @@
       this._LOAD_MORE_AT_PIXELS_FROM_BOTTOM = 100;
       this._RESIZE_THROTTLE_MS = 33;
       this._SCROLL_DEBOUNCE_MS = 100;
-      this._approx_item_height = 92;
-      this._approx_divider_height = 40;
+      this._approx_item_height = options.member_ids ? 20 : 92;
+      this._approx_divider_height = options.member_ids ? 0 : 40;
       this.$_container = options.$container;
       this.$_long_list_view;
       this.$_search_bar;
@@ -9531,6 +9508,7 @@
         preserve_dom_order: true,
         makeElement: function(data) {
           return $(TS.templates.team_list_item({
+            is_channel_membership: this_searchable_member_list._member_ids,
             is_long_list_view: true
           }));
         },
@@ -9539,10 +9517,17 @@
         },
         renderItem: function($el, item, data) {
           $el.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item", item);
-          $el.html(TS.templates.team_list_item_member_details({
-            member: item,
-            is_long_list_view: true
-          }));
+          if (this_searchable_member_list._member_ids) {
+            $el.html(TS.templates.channel_page_member_row({
+              member: item,
+              lazy: false
+            }));
+          } else {
+            $el.html(TS.templates.team_list_item_member_details({
+              member: item,
+              is_long_list_view: true
+            }));
+          }
           TS.utility.makeSureAllLinksHaveTargets($el);
         },
         renderDivider: function($el, item, data) {
@@ -9737,6 +9722,9 @@
           admins_filter_selected: this._current_filter == "admin_members",
           restricted_filter_selected: this._current_filter == "restricted_members"
         });
+      }
+      if (this._member_ids) {
+        template_args.show_filters = false;
       }
       return template_args;
     }
@@ -10052,8 +10040,8 @@
     },
     populate: function(txt) {
       TS.utility.populateInput(TS.client.ui.$msg_input, txt);
-      TS.client.msg_input.storeLastMsgForActiveModelOb(txt);
       if (!TS.boot_data.feature_texty) {
+        TS.client.msg_input.storeLastMsgForActiveModelOb(txt);
         TS.client.msg_input.$input.trigger("autosize").trigger("autosize-resize");
       }
     },
@@ -10660,7 +10648,7 @@
   };
   var _disableNavigationBtn = function($nav_btn) {
     $nav_btn.off();
-    $nav_btn.children("span.ts_tip_tip").addClass("hidden");
+    $nav_btn.children("div.ts_tip_tip").addClass("hidden");
     $nav_btn.addClass("disabled");
   };
   var _enableNavigationBtn = function($nav_btn) {
@@ -10683,7 +10671,7 @@
         TS.ui.jumper.start();
       });
     }
-    $nav_btn.children("span.ts_tip_tip").removeClass("hidden");
+    $nav_btn.children("div.ts_tip_tip").removeClass("hidden");
     $nav_btn.removeClass("disabled");
   };
   var _getNavigationHistoryNameById = function(id) {
@@ -14872,6 +14860,7 @@
       var html = "";
       var page = [];
       var start;
+      var show_best_matches = false;
       var display_paging_in_scroller = true;
       var loading_alt = TS.i18n.t("Loading", "search")();
       if (TS.search.filter == "messages") {
@@ -14884,8 +14873,22 @@
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
         }
+        var best_match_group = TS.experiment.getGroup("search_best_matches");
+        show_best_matches = best_match_group == "best_matches" && TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score.best_matches ? true : false;
+        if (show_best_matches) {
+          html += '<div class="search_module_header"><p><span>Top Results</span><a onclick="TS.search.moreBestResults();">see more</a></span></p></div>';
+          html += '<div class="search_module" id="best_matches">' + TS.templates.search_message_results({
+            results: results.messages.modules.score.best_matches,
+            page: results.messages.modules.score.best_matches,
+            module_name: "score_best_matches",
+            module_order: results.messages.modules.score.order,
+            show_feedback: results.show_feedback,
+            best_match_module: true
+          }) + "</div>";
+          html += '<div class="search_module_header"><p><span>All Results</span></p></div>';
+        }
         if (page.length) {
-          html = TS.templates.search_message_results({
+          html += TS.templates.search_message_results({
             results: results,
             page: page,
             current_page: TS.search.view.current_messages_page,
@@ -14893,8 +14896,12 @@
               current_page: TS.search.view.current_messages_page,
               pages: results.messages.paging.pages
             })) : "",
+            module_name: TS.search.sort,
+            module_order: results.messages.order || 0,
             is_enterprise: TS.boot_data.page_needs_enterprise,
-            search_global: !TS.model.prefs.search_only_current_team
+            search_global: !TS.model.prefs.search_only_current_team,
+            show_feedback: results.show_feedback,
+            best_match_module: false
           });
         } else if (!results.messages || results.messages.total > 0) {
           var loading_msgs = TS.i18n.t("loading page {page_num}...", "search")({
@@ -15318,7 +15325,13 @@
       if (!$result.length) return null;
       var c_id = $result.data("channel");
       var ts = $result.data("ts") + "";
-      var match_with_index = TS.search.getMatchByQueryAndChannelAndTs(TS.search.view.latest_msg_search_results.query, c_id, ts);
+      var match_with_index;
+      var module_name = $result.data("module-name");
+      if (module_name == "score_best_matches") {
+        match_with_index = TS.search.getMatchByQueryAndChannelAndTsAndModule(true, TS.search.view.latest_msg_search_results.query, c_id, ts, "score");
+      } else {
+        match_with_index = TS.search.getMatchByQueryAndChannelAndTs(TS.search.view.latest_msg_search_results.query, c_id, ts);
+      }
       return match_with_index;
     },
     firstResultWithExtracts: function(match) {
@@ -15327,14 +15340,17 @@
     toggleExtractsForMatch: function(e, match_with_index) {
       var $target = $(e.target);
       var match = match_with_index.match;
+      var $search_result = $target.closest(".search_message_result");
+      var module_name = $search_result.data("module-name") || "";
+      var module_order = $search_result.data("module-order") || 0;
       var payload = {
         click_target_type: match.extracts_expanded ? "collapse" : "expand",
         click_position: match_with_index.index,
         click_user_id: match.user,
         click_channel_id: match.channel.id,
         click_timestamp: match.ts,
-        click_module_name: "",
-        click_module_position: 0
+        click_module_name: module_name,
+        click_module_position: module_order
       };
       var $message = $target.closest("ts-message");
       if ($message.length) {
@@ -15402,7 +15418,6 @@
     }
   };
   var _searchSortChanged = function() {
-    TS.search.searchAll();
     if (TS.search.sort === "timestamp") {
       $("#search_sort_timestamp").addClass("active");
       $("#search_sort_score").removeClass("active");
@@ -15480,12 +15495,26 @@
   };
   var _expandExtractResults = function(match, $clicked_msg) {
     match.extracts_expanded = true;
-    var $match = $("#search_results_items").find("#" + TS.templates.makeMSRDomId(match));
+    var $result = $clicked_msg.closest(".search_message_result");
+    var module = $result.data("module-name");
+    var $match;
+    if (module == "score_best_matches") {
+      $match = $("#search_results_items").find("#" + TS.templates.makeMSRDomIdWithModule(match, module));
+    } else {
+      $match = $("#search_results_items").find("#" + TS.templates.makeMSRDomId(match));
+    }
     _animateExtractsExpanding($match, $clicked_msg);
   };
   var _collapseExtractResults = function(match, $clicked_msg) {
     match.extracts_expanded = false;
-    var $match = $("#search_results_items").find("#" + TS.templates.makeMSRDomId(match));
+    var $result = $clicked_msg.closest(".search_message_result");
+    var module = $result.data("module-name");
+    var $match;
+    if (module == "score_best_matches") {
+      $match = $("#search_results_items").find("#" + TS.templates.makeMSRDomIdWithModule(match, module));
+    } else {
+      $match = $("#search_results_items").find("#" + TS.templates.makeMSRDomId(match));
+    }
     var reverse = true;
     _animateExtractsExpanding($match, $clicked_msg, reverse);
   };
@@ -20414,12 +20443,12 @@
       var c_or_g = _c_id.charAt(0) === "C" ? "channel" : "group";
       var tip_html;
       if (c_or_g == "group") {
-        tip_html = "A Team Owner has restricted the use of <b>@channel</b> to admins and/or owners, which renders you powerless to ignore those notifications.";
+        tip_html = TS.i18n.t("A Team Owner has restricted the use of <b>@channel</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
       } else {
         if (model_ob.is_general) {
-          tip_html = "A Team Owner has restricted who can post to general and/or restricted the use of <b>@channel</b> and/or <b>@everyone</b> to admins and/or owners, which renders you powerless to ignore those notifications.";
+          tip_html = TS.i18n.t("A Team Owner has restricted who can post to general and/or restricted the use of <b>@channel</b> and/or <b>@everyone</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
         } else {
-          tip_html = "A Team Owner has restricted the use of <b>@channel</b> to admins and/or owners, which renders you powerless to ignore those notifications.";
+          tip_html = TS.i18n.t("A Team Owner has restricted the use of <b>@channel</b> to admins and/or owners, which renders you powerless to ignore those notifications.", "channel_prefs")();
         }
       }
       $tip_link.tooltip("destroy").attr("title", tip_html).tooltip({
@@ -22345,7 +22374,7 @@
       TS.ui.growls.promptForPermission(function(allowed, permission_level) {
         if (permission_level == "granted" && allowed) {
           TS.sounds.play("new_message");
-          TS.ui.growls.show("A Notification from Slack", "Nice, notifications are enabled!");
+          TS.ui.growls.show(TS.i18n.t("A Notification from Slack", "prefs")(), TS.i18n.t("Nice, notifications are enabled!", "prefs")());
           if (!TS.model.prefs.growls_enabled) {
             TS.prefs.setPrefByAPI({
               name: "growls_enabled",
@@ -29665,13 +29694,11 @@
     var remaining = Math.max(0, max - _selected_members.length);
     var $div = _$im_browser.find(".remaining_participant_hint");
     if (remaining) {
-      if (remaining === 1) {
-        $div.text("You can add 1 more person");
-      } else {
-        $div.text("You can add " + remaining + " more people");
-      }
+      $div.text(TS.i18n.t("You can add {num_remaining, plural, =1 {# more person} other {# more people}}", "im_browser")({
+        num_remaining: remaining
+      }));
     } else {
-      $div.text("You have reached the maximum number of participants");
+      $div.text(TS.i18n.t("You have reached the maximum number of participants", "im_browser")());
     }
   };
   var _rebuildTokens = function() {
@@ -29691,7 +29718,9 @@
     var _$empty_state = $("#im_browser_empty");
     var _$msg = _$empty_state.find(".im_browser_empty_message");
     if (query) {
-      _$msg.html("No one found matching <strong>" + TS.utility.truncateAndEscape(query, 50) + "</strong>");
+      _$msg.html(TS.i18n.t("No one found matching <strong>{query}</strong>", "im_browser")({
+        query: TS.utility.truncateAndEscape(query, 50)
+      }));
     } else {
       _$msg.empty();
     }
@@ -29741,7 +29770,7 @@
     return 0;
   };
   var _pickSlackbotMsgPlaceholder = function() {
-    var options = ["Yay! You’re here. What can I do for you?", "Hello, What’s up?", "How can I help today?", "Hi hi! How can I help?", "You’re here! What can I do to help?", "You rang?"];
+    var options = [TS.i18n.t("Yay! You’re here. What can I do for you?", "im_browser")(), TS.i18n.t("Hello, What’s up?", "im_browser")(), TS.i18n.t("How can I help today?", "im_browser")(), TS.i18n.t("Hi hi! How can I help?", "im_browser")(), TS.i18n.t("You’re here! What can I do to help?", "im_browser")(), TS.i18n.t("You rang?", "im_browser")()];
     _last_slackbot_msg_placeholder = options[Math.round(Math.random() * (options.length - 1))];
   };
   var _switchToNewChannel = function() {
@@ -37971,6 +38000,7 @@ function timezones_guess() {
     },
     active_app: null,
     openWithApp: function(app, bot_id) {
+      if (!app) return;
       TS.client.ui.app_profile.active_app = app;
       _profile_template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
       TS.client.ui.flex.openAppProfileFlex();
@@ -37983,12 +38013,15 @@ function timezones_guess() {
       } else {
         _$app_profile_desc.css("max-height", _$app_profile_desc.find('[data-js="app_profile_desc_inner"]').height());
       }
-      if (!app.is_slack_integration) {
+      var $app_auth_settings = $app_profile.find('[data-js="app_auth_settings"]');
+      if (!_.get(app, "is_slack_integration")) {
         TS.apps.promiseToGetFullAppProfile(app.id, bot_id, true).then(function(app) {
           if (app.auth_summary) {
-            $app_profile.find('[data-js="app_profile_settings"]').html(app.auth_summary);
+            $app_auth_settings.html(app.auth_summary);
           }
         });
+      } else {
+        $app_auth_settings.hide();
       }
     },
     onButtonClick: function(e) {
@@ -38001,7 +38034,9 @@ function timezones_guess() {
         TS.client.ui.app_profile.openOverflowMenu(e);
       } else if (action === "desc_expand") {
         _$app_profile_desc.removeClass("app_desc_expand_showing");
-        _$app_profile_desc.addClass("app_desc_collapse_showing");
+        setTimeout(function() {
+          _$app_profile_desc.addClass("app_desc_collapse_showing");
+        }, 300);
       } else if (action === "desc_collapse") {
         _$app_profile_desc.removeClass("app_desc_collapse_showing");
         _$app_profile_desc.addClass("app_desc_expand_showing");

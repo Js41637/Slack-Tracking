@@ -32,15 +32,18 @@
     }
 
     /* Active Item */
+    #channels_scroller.show_which_channel_is_active ul li.active > a,
     #channels_scroller.show_which_channel_is_active ul li.active a.channel_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.group_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.im_name,
     #channels_scroller.show_which_channel_is_active ul li.active span.im_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.mpim_name,
-    #channels_nav ul li.unread_link.active .im_name,
-    #channels_nav ul li.unread_link.active .mpim_name,
-    #channels_nav ul li.unread_link.active .group_name,
-    #channels_nav ul li.unread_link.active .channel_name {
+    #channels_nav ul li.unread_link.active > a,
+    #channels_nav ul li.unread_link.active a.im_name,
+    #channels_nav ul li.unread_link.active span.im_name,
+    #channels_nav ul li.unread_link.active a.mpim_name,
+    #channels_nav ul li.unread_link.active a.group_name,
+    #channels_nav ul li.unread_link.active a.channel_name {
       background: {{theme.active_item}};
       opacity: 1;
       color: {{theme.active_item_text}} !important;
@@ -57,6 +60,7 @@
     }
 
     /* Hovered Item */
+    body:not(.sorting_mode) .channels_list_holder ul li > a:hover,
     body:not(.sorting_mode) .channels_list_holder ul li a.im_name:hover,
     body:not(.sorting_mode) .channels_list_holder ul li span.im_name:hover,
     body:not(.sorting_mode) .channels_list_holder ul li a.mpim_name:hover,
@@ -76,6 +80,7 @@
     }
 
     /* Text Color */
+    .channels_list_holder ul li > a,
     .channels_list_holder ul li a.im_name,
     .channels_list_holder ul li span.im_name,
     .channels_list_holder ul li a.mpim_name,
@@ -94,6 +99,7 @@
     .channels_list_holder ul li.member .im_close,
     .channels_list_holder ul li.mpim .mpim_close,
     .channels_list_holder ul li.group .group_close,
+    #channels_nav ul li > a,
     #channels_nav ul li a.im_name,
     #channels_nav ul li span.im_name,
     #channels_nav ul li a.mpim_name,
@@ -138,7 +144,11 @@
       border-bottom-color: {{theme.text_color}};
     }
 
-    .channels_list_holder ul li.unread a,
+    .channels_list_holder ul li.unread > a,
+    .channels_list_holder ul li.unread .im_name,
+    .channels_list_holder ul li.unread .mpim_name,
+    .channels_list_holder ul li.unread .group_name,
+    .channels_list_holder ul li.unread .channel_name,
     .channels_list_holder ul li .channels_list_new_btn:hover,
     .channels_list_holder ul li.member .im_close,
     .channels_list_holder ul li.mpim .mpim_close,

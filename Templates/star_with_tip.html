@@ -1,5 +1,7 @@
+{{i18n_ns 'star'}}
+
 <button {{#each html_attrs}}{{@key}}="{{this}}" {{/each}} class="{{#each class_names}}{{this}} {{/each}}ts_tip ts_tip_float ts_tip_hidden btn_unstyle">
-  <span class="ts_tip_tip" data-tip-toggle-auto="{{#if is_starred}}Star{{else}}Unstar{{/if}} this {{readable_type}}">
-    {{#if is_starred}}Unstar{{else}}Star{{/if}} this {{readable_type}}
+  <span class="ts_tip_tip" data-tip-toggle-auto="{{#if is_starred}}{{#t}}Star this {readable_type}{{/t}}{{else}}{{#t}}Unstar this {readable_type}{{/t}}{{/if}}">
+    {{#if is_starred}}{{#t}}Unstar this {readable_type}{{/t}}{{else}}{{#t}}Star this {readable_type}{{/t}}{{/if}}
   </span>
 </button>

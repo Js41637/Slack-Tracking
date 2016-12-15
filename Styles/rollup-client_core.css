@@ -5855,7 +5855,8 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
 }
 
 #presence.connecting {
-  top: 32px;
+  top: 2px;
+  position: relative;
   -webkit-animation: 1s linear 0s infinite normal none spin;
   -moz-animation: 1s linear 0s infinite normal none spin;
   -o-animation: 1s linear 0s infinite normal none spin;
@@ -7211,26 +7212,17 @@ only screen and (min-resolution:2dppx) {
   padding-right: 0
 }
 
+#history_nav_btn #left_arrow_btn,
+#history_nav_btn #quickswitcher_btn,
+#history_nav_btn #right_arrow_btn {
+  z-index: 500
+}
+
 #history_nav_btn #left_arrow_btn ts-icon,
 #history_nav_btn #quickswitcher_btn ts-icon,
 #history_nav_btn #right_arrow_btn ts-icon {
   color: #fff;
   opacity: .7
-}
-
-#history_nav_btn #left_arrow_btn .shortcut,
-#history_nav_btn #quickswitcher_btn .shortcut,
-#history_nav_btn #right_arrow_btn .shortcut {
-  display: flex;
-  height: 17px;
-  margin-left: 4px;
-  justify-content: center
-}
-
-#history_nav_btn #left_arrow_btn .shortcut ts-icon,
-#history_nav_btn #quickswitcher_btn .shortcut ts-icon,
-#history_nav_btn #right_arrow_btn .shortcut ts-icon {
-  margin-top: -6px
 }
 
 #history_nav_btn #left_arrow_btn:active ts-icon,
@@ -7258,6 +7250,17 @@ only screen and (min-resolution:2dppx) {
 #history_nav_btn #right_arrow_btn.disabled:focus ts-icon,
 #history_nav_btn #right_arrow_btn.disabled:hover ts-icon {
   opacity: .2
+}
+
+.history_nav_btn_shortcut {
+  display: flex;
+  height: 17px;
+  margin-left: 4px;
+  justify-content: center
+}
+
+.history_nav_btn_shortcut ts-icon {
+  margin-top: -6px
 }
 
 #quick_switcher_btn {

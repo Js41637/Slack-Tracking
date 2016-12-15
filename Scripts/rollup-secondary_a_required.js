@@ -6743,7 +6743,7 @@ TS.registerModule("constants", {
         file_count: files.length
       });
       var msg_body = TS.i18n.t("<p><strong>{user_names}</strong> {file_owners_count, plural, =1 {has} other {have}} privately shared {file_count, plural, =1 {the file <strong>{file_title}</strong>} other {these files}} with you. Are you sure you want to proceed with sharing {file_count, plural, =1 {it} other {them}} somewhere else?</p><p>It’s important to note that any comments on {file_count, plural, =1 {the file <strong>{file_title}</strong>} other {these files}} will also be shared.</p>", "files")({
-        user_names: TS.utility.concatNames(file_owners),
+        user_names: TS.i18n.listify(file_owners).join(""),
         file_owners_count: file_owners.length,
         file_count: files.length,
         file_title: files.length === 1 ? TS.format.formatNoSpecials(files[0].title || "Untitled") : ""
@@ -9902,16 +9902,6 @@ TS.registerModule("constants", {
       }
       TS.members.user_color_changed_sig.dispatch(member);
     },
-    setUserStatus: function(txt) {
-      TS.api.call("status.set", {
-        status: txt
-      }, TS.members.onUserStatusSet);
-    },
-    onUserStatusSet: function(ok, data) {
-      if (!ok) {
-        return;
-      }
-    },
     toggleUserPresence: function() {
       var new_presence = TS.model.user.presence == "away" ? "active" : "away";
       var args = {
@@ -10980,9 +10970,8 @@ TS.registerModule("constants", {
     delete member.profile.image_original;
   };
   var _setPresenceForMemberAlwaysActive = function(existing_member, member) {
-    if (!TS.boot_data.feature_always_active_bots) return;
     if (_.get(existing_member, "profile.always_active") !== _.get(member, "profile.always_active")) {
-      member.presence = member["profile"]["always_active"] ? "active" : "away";
+      member.presence = _.get(member, "profile.always_active") ? "active" : "away";
     }
   };
   var _setPresenceForNewMember = function(member) {
@@ -10994,7 +10983,6 @@ TS.registerModule("constants", {
       }
     }
     member.presence = member.presence == "active" ? "active" : "away";
-    if (!TS.boot_data.feature_always_active_bots) return;
     if (_.get(member, "profile.always_active")) {
       member.presence = "active";
     }
@@ -11471,6 +11459,9 @@ TS.registerModule("constants", {
       } else if (app.is_slack_integration && (!app.config || (app.config.is_active !== "1" || app.config.date_deleted !== "0"))) {
         template_args.disabled = true;
       }
+      if (is_bot || !app.is_slack_integration) {
+        template_args.show_settings_section = true;
+      }
       if (app.installation_summary) {
         var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
           if (!TS.members.getMemberById(user_id)) return match;
@@ -11481,6 +11472,10 @@ TS.registerModule("constants", {
       if (is_bot) {
         template_args.bot_user = app.bot_user.id;
         template_args.username = app.bot_user.username;
+        template_args.bot_user_channel_count = app.bot_user.memberships_count;
+        if (app.bot_user.memberships_count < 1 && _.get(app.config, "is_custom_integration")) {
+          template_args.show_settings_section = false;
+        }
         var model_ob = TS.shared.getActiveModelOb();
         if (TS.model.active_channel_id || TS.model.active_group_id) {
           if (!model_ob.is_general && model_ob.members && model_ob.members.indexOf(app.bot_user.id) != -1) {
@@ -12045,15 +12040,15 @@ TS.registerModule("constants", {
     var disabled_matches = items.disabled_members.concat(items.deleted_bots);
     var tabs = [{
       name: "active",
-      label: "full team members",
+      label: TS.i18n.t("full team members", "members_view")(),
       matches: active_matches
     }, {
       name: "restricted",
-      label: TS.templates.builders.raLabel("restricted accounts"),
+      label: TS.i18n.t("multi-channel guests", "members_view")(),
       matches: restricted_matches
     }, {
       name: "disabled",
-      label: "deactivated accounts",
+      label: TS.i18n.t("deactivated accounts", "members_view")(),
       matches: disabled_matches
     }];
     tabs.forEach(function(tab) {
@@ -12277,11 +12272,11 @@ TS.registerModule("constants", {
       }
       tabs = [{
         name: "pending",
-        label: "pending invitations",
+        label: TS.i18n.t("pending invitations", "members_view")(),
         matches: pending_matches
       }, {
         name: "accepted",
-        label: "accepted invitations",
+        label: TS.i18n.t("accepted invitations", "members_view")(),
         matches: accepted_matches
       }];
       tabs.forEach(function(tab) {
@@ -12343,15 +12338,15 @@ TS.registerModule("constants", {
       if (filter_container_id == "#team_filter") {
         tabs = [{
           name: "active",
-          label: "full team members",
+          label: TS.i18n.t("full team members", "members_view")(),
           matches: active_matches
         }, {
           name: "restricted",
-          label: TS.templates.builders.raLabel("restricted accounts"),
+          label: TS.i18n.t("multi-channel guests", "members_view")(),
           matches: restricted_matches
         }, {
           name: "disabled",
-          label: "deactivated accounts",
+          label: TS.i18n.t("deactivated accounts", "members_view")(),
           matches: disabled_matches
         }];
         tabs.forEach(function(tab) {
@@ -13743,6 +13738,16 @@ TS.registerModule("constants", {
       TS.search.filetype = filter;
       TS.search.search_filetype_filter_set_sig.dispatch();
     },
+    moreBestResults: function() {
+      TS.search.sort = "score";
+      TS.search.results[TS.search.query].messages.matches = TS.search.results[TS.search.query].messages.modules.score.matches;
+      TS.search.results[TS.search.query].messages.paging = TS.search.results[TS.search.query].messages.modules.score.paging;
+      TS.search.results[TS.search.query].messages.pagination = TS.search.results[TS.search.query].messages.modules.score.pagination;
+      TS.search.results[TS.search.query].messages.total = TS.search.results[TS.search.query].messages.modules.score.total;
+      TS.search.results[TS.search.query].messages.order = 0;
+      TS.search.search_sort_set_sig.dispatch();
+      TS.search.view.renderResults();
+    },
     setSort: function(sort) {
       if (TS.search.sort == sort) return;
       $(".search_toggle").toggleClass("active");
@@ -13755,6 +13760,7 @@ TS.registerModule("constants", {
         name: "search_sort",
         value: sort
       });
+      TS.search.searchAll();
     },
     setChannel: function(id) {
       var channel = TS.channels.getChannelById(id);
@@ -14080,6 +14086,39 @@ TS.registerModule("constants", {
     },
     getMatchByQueryAndChannelAndTs: function(query, channel_id, ts) {
       return TS.search.getMatchByQueryByThings(query, ts, channel_id);
+    },
+    getMatchByQueryAndChannelAndTsAndModule: function(return_ob, query, channel_id, ts, module) {
+      var results = TS.search.getResultsByQuery(query);
+      if (!results) {
+        TS.error("WTF no results?");
+        return null;
+      }
+      if (!results.messages.modules) {
+        TS.error("WTF no results.messages.modules?");
+        return null;
+      }
+      if (!results.messages.modules[module]) {
+        TS.error("WTF no results.messages.modules." + module + "?");
+      }
+      var match;
+      for (var i = 0; i < results.messages.modules[module].best_matches.length; i++) {
+        match = results.messages.modules[module].best_matches[i];
+        if (!match) {
+          TS.error("WTF no match?");
+          continue;
+        }
+        if ((!channel_id || match.channel.id == channel_id) && match.ts == ts) {
+          if (return_ob) {
+            return {
+              match: match,
+              index: i
+            };
+          } else {
+            return match;
+          }
+        }
+      }
+      return null;
     },
     getMatchByQueryByThings: function(query, ts, channel_id) {
       var results = TS.search.getResultsByQuery(query);
@@ -16956,7 +16995,7 @@ TS.registerModule("constants", {
       return;
     }
     if (member.presence == presence) return;
-    if (TS.boot_data.feature_always_active_bots && member.profile.always_active) presence = "active";
+    if (_.get(member, "profile.always_active")) presence = "active";
     if (member.is_self) {
       member._presence_last_changed = new Date;
     }
@@ -17491,6 +17530,9 @@ TS.registerModule("constants", {
     },
     makeMSRDomId: function(match) {
       return TS.utility.makeSafeForDomId("MSR_" + match.channel.id + "_" + match.ts);
+    },
+    makeMSRDomIdWithModule: function(match, module) {
+      return TS.utility.makeSafeForDomId("MSR_" + match.channel.id + "_" + match.ts + "_" + module);
     },
     makeSHRoomClass: function(room_id) {
       return TS.utility.makeSafeForDomId("screenhero_room_" + room_id);
@@ -18777,7 +18819,7 @@ TS.registerModule("constants", {
         var group = TS.boot_data.search_limit_extracts_group;
         if (group === "limit_50" || group === "limit_100") {
           html += '<div class="search_result_with_extract experiment_search_limit_extracts">';
-          html += '<div class="extract_expand_text">Expand</div>';
+          html += '<div class="extract_expand_text">' + TS.i18n.t("Expand", "template_builders")() + "</div>";
           html += '<div class="extract_expand_icons blue"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
         } else {
           html += '<div class="search_result_with_extract">';
@@ -18831,7 +18873,9 @@ TS.registerModule("constants", {
     search_ellipsis: '<span class="extract_ellipsis">&hellip;</span>',
     buildStar: function(type, ob, parent_ob) {
       var star_components = _buildStarComponents(type, ob, parent_ob);
-      if (star_components === "") return "";
+      if (!_.isObject(star_components)) {
+        return {};
+      }
       if (TS.boot_data.feature_refactored_message_template) {
         return TS.templates.star(star_components);
       }
@@ -18841,7 +18885,9 @@ TS.registerModule("constants", {
     },
     buildStarWithTip: function(type, ob, parent_ob) {
       var star_components = _buildStarComponents(type, ob, parent_ob);
-      if (star_components === "") return "";
+      if (!_.isObject(star_components)) {
+        return {};
+      }
       if (TS.boot_data.feature_refactored_message_template) {
         return TS.templates.star_with_tip(star_components);
       }
@@ -18850,20 +18896,25 @@ TS.registerModule("constants", {
       var tip_class_names = ["ts_tip", "ts_tip_float", "ts_tip_hidden"];
       var position_class = TS.boot_data.feature_move_star_in_channel_header ? "ts_tip_bottom" : "ts_tip_top";
       tip_class_names.push(position_class);
-      var star_cta = "Star this ";
-      var unstar_cta = "Unstar this ";
       class_names = class_names.concat(tip_class_names);
-      var star_tip_text = star_cta + type;
-      var star_toggle_tip = unstar_cta + type;
+      var star_tip_text;
+      var star_toggle_tip;
       if (type === "file_comment") {
-        star_tip_text = star_cta + "file comment";
-        star_toggle_tip = unstar_cta + "file comment";
+        star_tip_text = TS.i18n.t("Star this file comment", "star")();
+        star_toggle_tip = TS.i18n.t("Unstar this file comment", "star")();
       } else if (type === "im" || type === "mpim") {
-        star_tip_text = star_cta + "direct message";
-        star_toggle_tip = unstar_cta + "direct message";
+        star_tip_text = TS.i18n.t("Star this direct message", "star")();
+        star_toggle_tip = TS.i18n.t("Unstar this direct message", "star")();
       } else if (type === "group" || ob.is_private) {
-        star_tip_text = star_cta + "private channel";
-        star_toggle_tip = unstar_cta + "private channel";
+        star_tip_text = TS.i18n.t("Star this private channel", "star")();
+        star_toggle_tip = TS.i18n.t("Unstar this private channel", "star")();
+      } else {
+        star_tip_text = TS.i18n.t("Star this {type}", "star")({
+          type: type
+        });
+        star_toggle_tip = TS.i18n.t("Unstar this {type}", "star")({
+          type: type
+        });
       }
       if (ob.is_starred) {
         var tmp = star_tip_text;
@@ -18885,11 +18936,11 @@ TS.registerModule("constants", {
       var rxns;
       var max_rxns_to_display = 4;
       var rxns_to_display = [];
-      var others = "";
+      var rxn_members = "";
       var jump_link = "";
       var msg_html = "";
       var for_mention_rxn_display = mention.type == "reaction";
-      jump_link = TS.templates.builders.strBuilder('<a class="msg_right_link msg_jump" data-cid="${cid}">Jump</a>', {
+      jump_link = TS.templates.builders.strBuilder('<a class="msg_right_link msg_jump" data-cid="${cid}">' + TS.i18n.t("Jump", "template_builders")() + "</a>", {
         cid: model_ob.id
       });
       msg_html = TS.templates.builders.msgs.buildHTML({
@@ -18909,30 +18960,39 @@ TS.registerModule("constants", {
         var newest_rxn = rxns[rxns.length - 1];
         var newest_rxn_member_id = newest_rxn.users[newest_rxn.users.length - 1];
         if (!TS.rxns.getRxnFromRxns(rxns, newest_rxn.name)) return "";
+        var newest_member = TS.members.getMemberById(newest_rxn_member_id);
         var all_rxners_but_newest = TS.rxns.getAllUniqueRxners(rxns, newest_rxn_member_id);
         var total_count = all_rxners_but_newest.length + 1;
         if (total_count == 2) {
           var other_member = TS.members.getMemberById(all_rxners_but_newest[0]);
-          others = " & " + TS.templates.builders.makeMemberPreviewLink(other_member);
+          rxn_members = TS.i18n.t("{user} & {another_user}", "rxn")({
+            user: TS.templates.builders.makeMemberPreviewLink(newest_member, true),
+            another_user: TS.templates.builders.makeMemberPreviewLink(other_member)
+          });
         } else if (total_count > 2) {
           var should_escape = true;
           var include_at_sign = true;
           var tooltip_names = all_rxners_but_newest.map(function(member_id) {
             return TS.members.getMemberDisplayNameById(member_id, should_escape, include_at_sign);
           });
-          others = ' & <span class="ts_tip ts_tip_multiline ts_tip_lazy ts_tip_top" title="' + TS.utility.concatNames(tooltip_names) + '">' + (total_count - 1) + " " + (total_count == 2 ? "other" : "others") + "</span>";
+          rxn_members = TS.i18n.t('{user} & <span class="ts_tip ts_tip_multiline ts_tip_lazy ts_tip_top" title="{names}">{count, plural, =1 {# other} other {# others}}</span>', "rxn")({
+            user: TS.templates.builders.makeMemberPreviewLink(newest_member, true),
+            names: TS.i18n.listify(tooltip_names).join(""),
+            count: total_count - 1
+          });
+        } else {
+          rxn_members = TS.templates.builders.makeMemberPreviewLink(newest_member, true);
         }
         rxns_to_display = rxns.filter(function(rxn) {
           return TS.emoji.isValidName(rxn.name);
         }).slice(0, max_rxns_to_display).map(function(rxn) {
           return new Handlebars.SafeString(TS.emoji.graphicReplace(":" + rxn.name + ":"));
         });
-        var newest_member = TS.members.getMemberById(newest_rxn_member_id);
         html = TS.templates.mentions_rxn({
           ts: msg.ts,
           rxns_to_display: rxns_to_display,
           msg_html: new Handlebars.SafeString(msg_html),
-          rxn_members: new Handlebars.SafeString(TS.templates.builders.makeMemberPreviewLink(newest_member, true) + others),
+          rxn_members: new Handlebars.SafeString(rxn_members),
           jump_link_html: new Handlebars.SafeString(jump_link),
           is_file_reaction: msg.subtype === "file_reaction"
         });
@@ -20782,11 +20842,15 @@ TS.registerModule("constants", {
   }
 
   function _buildStarComponents(type, ob, parent_ob) {
-    if (!type) return "";
+    if (!type) {
+      return {};
+    }
     if (ob && typeof ob === "string" && type === ("channel" || "group" || "mpim" || " im")) {
       ob = TS.shared.getModelObById(ob);
     }
-    if (!ob) return "";
+    if (!ob) {
+      return {};
+    }
     if (type === "message" && parent_ob && typeof parent_ob === "string") {
       var c_id = parent_ob;
       parent_ob = TS.channels.getChannelById(c_id);
@@ -20802,7 +20866,9 @@ TS.registerModule("constants", {
     var id = ob.id || ob.ts;
     var parent_id = parent_ob ? parent_ob.id : null;
     if (type === "message") {
-      if (!parent_id) return "";
+      if (!parent_id) {
+        return {};
+      }
       html_attrs["data-msg-id"] = id;
       html_attrs["data-c-id"] = parent_id;
       if (TS.utility.msgs.isTempMsg(ob)) {
@@ -20824,7 +20890,7 @@ TS.registerModule("constants", {
       html_attrs["data-mpim-id"] = id;
     } else {
       TS.error("buildStar needs to handle star item type:" + type);
-      return "";
+      return {};
     }
     if (ob.is_starred) {
       class_names.push("starred", "ts_icon_star");
@@ -21326,6 +21392,10 @@ TS.registerModule("constants", {
     },
     register: function() {
       Handlebars.registerHelper("i18n_ns", function(namespace, options) {
+        if (!_.isObject(this)) {
+          TS.warn("Cannot set i18n namespace. Chances are you‘ve inadvertently changed the context in a Handlebars partial to something that‘s not an object.");
+          return;
+        }
         this._i18n_ns = namespace;
       });
       Handlebars.registerHelper("t", function(options) {
@@ -21852,6 +21922,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeMsgDomId", TS.templates.makeMsgDomId);
       Handlebars.registerHelper("makeMsgLabelDomId", TS.templates.makeMsgLabelDomId);
       Handlebars.registerHelper("makeMSRDomId", TS.templates.makeMSRDomId);
+      Handlebars.registerHelper("makeMSRDomIdWithModule", TS.templates.makeMSRDomIdWithModule);
       Handlebars.registerHelper("makeSHRoomClass", TS.templates.makeSHRoomClass);
       Handlebars.registerHelper("makeMemberColorClass", function() {
         return TS.templates.builders.makeMemberColorClass.apply(this, arguments);
@@ -22011,6 +22082,11 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getCorGNameWithPrefixById", function(id, hide_unknown_groups) {
         var channel = TS.shared.getModelObById(id);
+        if (!channel) {
+          TS.warn("getCorGNameWithPrefixById: Could not find model ob for ID " + id);
+          if (hide_unknown_groups) return;
+          return id;
+        }
         if (channel.is_group || channel.is_private) {
           return TS.model.group_prefix + channel.name;
         } else if (channel.is_channel) {
@@ -22934,6 +23010,13 @@ TS.registerModule("constants", {
           return cdn_url + "/742c/img/join-channel/join_team_channel.png";
         } else if (res === "2x") {
           return cdn_url + "/742c/img/join-channel/join_team_channel@2x.png";
+        }
+      });
+      Handlebars.registerHelper("versioned_signin_no_teams", function(res) {
+        if (res === "1x") {
+          return cdn_url + "/7c9e4/img/enterprise/signin-no-teams.png";
+        } else if (res === "2x") {
+          return cdn_url + "/7c9e4/img/enterprise/signin-no-teams@2x.png";
         }
       });
       Handlebars.registerHelper("versioned_slack_logo_240", function() {
@@ -25857,17 +25940,20 @@ TS.registerModule("constants", {
     },
     shouldHideChannelJoinOrLeaveMsg: function(imsg, channel_or_channel_id) {
       if (!TS.boot_data.feature_hide_join_leave) return false;
+      var user = TS.members.getMemberById(imsg.user);
+      var is_restricted_user = _.get(user, "is_restricted", false);
+      var is_bot_user = _.get(user, "is_bot", false);
       if (imsg.subtype === "channel_join") {
         var channel = _.isObject(channel_or_channel_id) ? channel_or_channel_id : TS.channels.getChannelById(channel_or_channel_id);
-        var user = TS.members.getMemberById(imsg.user);
-        var is_restricted_user = _.get(user, "is_restricted", false);
         var was_invited = !!imsg.inviter;
         var has_enough_members = _.get(channel, "members.length") > 20;
-        if (!(is_restricted_user || was_invited) && has_enough_members) {
+        if (!is_restricted_user && !is_bot_user && !was_invited && has_enough_members) {
           return true;
         }
       } else if (imsg.subtype === "channel_leave") {
-        return true;
+        if (!is_restricted_user || !is_bot_user) {
+          return true;
+        }
       }
       return false;
     }
@@ -26554,15 +26640,6 @@ TS.registerModule("constants", {
       });
       txt = txt.replace(/(<br[^>]*>)/, '<span class="hidden br_ellipsis">…</span>$1');
       return txt;
-    },
-    concatNames: function(names, conjunction) {
-      conjunction = conjunction || "and";
-      if (!names || names.length === 0) return "";
-      if (names.length === 1) return names[0];
-      if (names.length === 2) return names[0] + " " + conjunction + " " + names[1];
-      var s = names.slice(0, names.length - 1).join(", ");
-      s += ", " + conjunction + " " + names[names.length - 1];
-      return s;
     },
     populateInput: function(input, txt, cursor_pos) {
       if (!txt) txt = "";
@@ -29128,7 +29205,7 @@ TS.registerModule("constants", {
       TS.prefs.channel_handy_rxns_changed_sig.add(_buildDefaultRxns);
     },
     start: function(args) {
-      if (TS.model.prefs.enable_react_emoji_picker) {
+      if (TS.boot_data.feature_react_emoji_picker && TS.model.prefs.enable_react_emoji_picker) {
         TS.ui.react_emoji_menu.start(args);
       } else {
         _start(args);
@@ -32314,7 +32391,7 @@ var _on_esc;
       TS.members.upsertMember(updated_member);
     }
     var team = TS.enterprise.getTeamById(team_id);
-    $('[data-id="' + team_id + '"]').replaceWith(TS.enterprise.workspaces.getTeamCardHTML(team));
+    $('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team));
   };
   var _showToastMessage = function(type, message) {
     TS.ui.toast.show({
@@ -33280,7 +33357,6 @@ var _on_esc;
           TS.ui.date_picker.getOldestMsgTs();
         }
       }
-      $("#menu_user_status_input").select();
       if (is_im_menu) {
         TS.view.setFlexMenuSize();
       } else {
@@ -33939,16 +34015,6 @@ var _on_esc;
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.last_active_cid);
       }
       TS.cmd_handlers[cmd].func(cmd, rest, words, e, in_reply_to_msg, model_ob);
-    },
-    "/status": {
-      type: "client",
-      autocomplete: false,
-      alias_of: null,
-      aliases: null,
-      desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.members.setUserStatus(rest);
-      }
     },
     "/away": {
       type: "client",
@@ -39259,7 +39325,7 @@ var _on_esc;
     return _apiCall(method, calling_args).catch(function(error) {
       if (error.data.error === "no_perms" || error.data.error === "missing_scope") {
         TS.generic_dialog.start({
-          body: "Sorry! An owner on your team has restricted who can customize your team's profile.",
+          body: TS.i18n.t("Sorry! An owner on your team has restricted who can customize your team’s profile.", "team_profile")(),
           show_cancel_button: false,
           esc_for_ok: true,
           fullscreen: false,
@@ -39267,7 +39333,7 @@ var _on_esc;
         });
       } else {
         TS.error("Failed to customize profile: " + error.data.error);
-        return TS.generic_dialog.alert("Sorry! Something went wrong. Please try again.");
+        return TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong. Please try again.", "team_profile")());
       }
     }).finally(Ladda.stopAll);
   };
@@ -39284,9 +39350,9 @@ var _on_esc;
     _$div.find("#edit_team_profile_header").text("Customize profile").removeClass("hidden center_and_narrow");
     var note;
     if (TS.model.team.profile && TS.model.team.profile.fields.length >= 50) {
-      note = '<div class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i> You have reached the maximum number of fields that can be added to profiles.</div>';
+      note = '<div class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>' + TS.i18n.t("You have reached the maximum number of fields that can be added to profiles.", "team_profile")() + "</div>";
     } else {
-      note = "Expand your team's profiles by adding additional fields below";
+      note = TS.i18n.t("Expand your team’s profiles by adding additional fields below", "team_profile")();
     }
     _$div.find("#edit_team_profile_value_note").html(note).removeClass("hidden center_and_narrow");
     _$div.find("#edit_team_profile_list").html(html);
@@ -39302,7 +39368,7 @@ var _on_esc;
     var template_args = {};
     template_args.default_team_profile_fields = _getDefaultTeamProfileFields();
     var html = TS.templates.admin_edit_team_profile_add(template_args);
-    _$div.find("#edit_team_profile_header").text("Select a field type").removeClass("center_and_narrow");
+    _$div.find("#edit_team_profile_header").text(TS.i18n.t("Select a field type", "team_profile")()).removeClass("center_and_narrow");
     _$div.find("#edit_team_profile_value_note").addClass("hidden");
     _$div.find("#edit_team_profile_add").html(html);
     _hideAllSectionsBut("#edit_team_profile_add");
@@ -39314,8 +39380,8 @@ var _on_esc;
       back: _switchToCustom
     });
     var html = TS.templates.admin_edit_team_profile_custom();
-    _$div.find("#edit_team_profile_header").text("Create a new field").removeClass("center_and_narrow");
-    _$div.find("#edit_team_profile_value_note").text("Which type of field would you like to create?").removeClass("hidden center_and_narrow");
+    _$div.find("#edit_team_profile_header").text(TS.i18n.t("Create a new field", "team_profile")()).removeClass("center_and_narrow");
+    _$div.find("#edit_team_profile_value_note").text(TS.i18n.t("Which type of field would you like to create?", "team_profile")()).removeClass("hidden center_and_narrow");
     _$div.find("#edit_team_profile_custom").html(html);
     _hideAllSectionsBut("#edit_team_profile_custom");
     _unflexContentsAndCenter();
@@ -39333,11 +39399,11 @@ var _on_esc;
     if (!id) {
       template_args.type = $el.data("type");
       template_args.label = $el.data("label");
-      header_text = "Customize profile field";
+      header_text = TS.i18n.t("Customize profile field", "team_profile")();
     } else {
       template_args = TS.team.getTeamProfileFieldById(id);
       if (!template_args) return;
-      header_text = "Edit profile field";
+      header_text = TS.i18n.t("Edit profile field", "team_profile")();
     }
     e.stopPropagation();
     _back_stack.push({
@@ -39371,9 +39437,11 @@ var _on_esc;
       event: e
     });
     var html = TS.templates.admin_edit_team_profile_hide(field);
-    var header_text = 'Disable "' + field.label + '"';
+    var header_text = TS.i18n.t('Disable "{field_label}"', "team_profile")({
+      field_label: field.label
+    });
     _$div.find("#edit_team_profile_header").text(header_text).addClass("center_and_narrow");
-    var note = "All data entered for this field will no longer be visible on your team's profiles. You can re-enable it later.";
+    var note = TS.i18n.t("All data entered for this field will no longer be visible on your team’s profiles. You can re-enable it later.", "team_profile")();
     _$div.find("#edit_team_profile_value_note").text(note).addClass("center_and_narrow").removeClass("hidden");
     _$div.find("#edit_team_profile_hide").html(html);
     _hideAllSectionsBut("#edit_team_profile_hide");
@@ -39395,9 +39463,11 @@ var _on_esc;
       event: e
     });
     var html = TS.templates.admin_edit_team_profile_delete(field);
-    var header_text = 'Delete "' + field.label + '"';
+    var header_text = TS.i18n.t('Delete "{field_label}"', "team_profile")({
+      field_label: field.label
+    });
     _$div.find("#edit_team_profile_header").text(header_text).addClass("center_and_narrow");
-    var note = "<strong>Are you sure?</strong> All data associated with this field will be permanently deleted. This <strong>cannot be undone</strong>.";
+    var note = TS.i18n.t("<strong>Are you sure?</strong> All data associated with this field will be permanently deleted. This <strong>cannot be undone</strong>.", "team_profile")();
     _$div.find("#edit_team_profile_value_note").html(note).addClass("center_and_narrow").removeClass("hidden");
     _$div.find("#edit_team_profile_delete").html(html);
     _hideAllSectionsBut("#edit_team_profile_delete");
@@ -39579,52 +39649,52 @@ var _on_esc;
     var map = _getLabelsMap();
     var fields = [{
       type: "text",
-      label: "Address"
+      label: TS.i18n.t("Address", "team_profile")()
     }, {
       type: "date",
-      label: "Birthdate"
+      label: TS.i18n.t("Birthdate", "team_profile")()
     }, {
       type: "user",
-      label: "Direct Reports"
+      label: TS.i18n.t("Direct Reports", "team_profile")()
     }, {
       type: "link",
-      label: "Facebook"
+      label: TS.i18n.t("Facebook", "team_profile")()
     }, {
       type: "link",
-      label: "Flickr"
+      label: TS.i18n.t("Flickr", "team_profile")()
     }, {
       type: "link",
-      label: "GitHub"
+      label: TS.i18n.t("GitHub", "team_profile")()
     }, {
       type: "link",
-      label: "Instagram"
+      label: TS.i18n.t("Instagram", "team_profile")()
     }, {
       type: "link",
-      label: "LinkedIn"
+      label: TS.i18n.t("LinkedIn", "team_profile")()
     }, {
       type: "user",
-      label: "Manager"
+      label: TS.i18n.t("Manager", "team_profile")()
     }, {
       type: "link",
-      label: "Pinterest"
+      label: TS.i18n.t("Pinterest", "team_profile")()
     }, {
       type: "text",
-      label: "Skype"
+      label: TS.i18n.t("Skype", "team_profile")()
     }, {
       type: "link",
-      label: "SoundCloud"
+      label: TS.i18n.t("SoundCloud", "team_profile")()
     }, {
       type: "date",
-      label: "Start Date"
+      label: TS.i18n.t("Start Date", "team_profile")()
     }, {
       type: "link",
-      label: "Tumblr"
+      label: TS.i18n.t("Tumblr", "team_profile")()
     }, {
       type: "link",
-      label: "Twitter"
+      label: TS.i18n.t("Twitter", "team_profile")()
     }, {
       type: "link",
-      label: "YouTube"
+      label: TS.i18n.t("YouTube", "team_profile")()
     }].filter(function(field) {
       return !map[field.label.toLowerCase()];
     });
@@ -41260,14 +41330,25 @@ var _on_esc;
 (function() {
   "use strict";
   TS.registerModule("enterprise.workspaces", {
-    showList: function($container, teams) {
+    showList: function($container, list, base_url) {
+      var teams = TS.enterprise.workspaces.getList(list);
+      var $automatic_signed_in_message = $(".automatic_signed_in_message");
       var html = "";
       if (teams.length) {
         teams.forEach(function(team) {
-          html += TS.enterprise.workspaces.getTeamCardHTML(team);
+          html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
         });
+        if (list === "teams_on") {
+          $automatic_signed_in_message.removeClass("hidden");
+        } else {
+          $automatic_signed_in_message.addClass("hidden");
+        }
       } else {
-        html += TS.templates.no_workspaces_to_join();
+        if (list === "teams_on") {
+          html += TS.templates.not_on_any_workspaces();
+        } else {
+          html += TS.templates.no_workspaces_to_join();
+        }
       }
       $container.html(html);
       _bindEvents($container);
@@ -41289,14 +41370,20 @@ var _on_esc;
     },
     joinTeam: function(team_id) {
       var team = TS.enterprise.getTeamById(team_id);
-      if (!team) return TS.generic_dialog.alert("Invalid workspace", "Oops! Something went wrong.");
-      if (!team.is_open) return TS.generic_dialog.alert("This workspace is not available to join.", "Oops! Something went wrong.");
+      if (!team) {
+        return TS.generic_dialog.alert(TS.i18n.t("Invalid workspace", "enterprise_dashboard")(), TS.i18n.t("Oops! Something went wrong.", "enterprise_dashboard")());
+      }
+      if (!team.is_open) {
+        return TS.generic_dialog.alert(TS.i18n.t("This workspace is not available to join.", "enterprise_dashboard")(), TS.i18n.t("Oops! Something went wrong.", "enterprise_dashboard")());
+      }
       var calling_args = {
         team: team.id
       };
       if (TS.boot_data.app === "client") calling_args.enterprise_token = TS.model.enterprise_api_token;
       return TS.api.call("enterprise.teams.join", calling_args, function(ok, data, args) {
-        var message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + " You've successfully joined <strong>" + team.name + "</strong>");
+        var message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + TS.i18n.t(" You‘ve successfully joined <strong>{team_name}</strong>", "enterprise_dashboard")({
+          team_name: team.name
+        }));
         if (ok) {
           _showToastMessage("success", message);
           return true;
@@ -41305,10 +41392,12 @@ var _on_esc;
             _showToastMessage("success", message);
             return true;
           } else if (data.error === "team_is_not_open") {
-            _showToastMessage("error", "This team is not open to join.");
+            _showToastMessage("error", TS.i18n.t("This team is not open to join.", "enterprise_dashboard")());
             return false;
           } else {
-            _showToastMessage("error", 'Joining team failed with error "' + data.error + '"');
+            _showToastMessage("error", TS.i18n.t('Joining team failed with error "{error}"', "enterprise_dashboard")({
+              error: data.error
+            }));
             return false;
           }
         }
@@ -41333,19 +41422,22 @@ var _on_esc;
       el_a = null;
       return url;
     },
-    getTeamCardHTML: function(team, base_url) {
+    getTeamCardHTML: function(team, base_url, with_wrapper) {
       var url = TS.enterprise.workspaces.createURL(team, base_url);
       team.launch_url = url + "messages";
       team.site_url = url + "home";
       team.signout_url = TS.enterprise.workspaces.createLogoutURL(team.id, base_url);
-      return TS.templates.enterprise_teams_launch_card({
+      var template_name = "enterprise_teams_launch_card";
+      if (with_wrapper) template_name = "enterprise_teams_launch_card_wrapper";
+      return TS.templates[template_name]({
         team: team,
         user: TS.model.user
       });
     }
   });
   var _bindEvents = function($container) {
-    $container.on("click", ".enterprise_team_menu", function(e) {
+    var $cards = $container.find(".enterprise_team_card");
+    $cards.on("click", ".enterprise_team_menu", function(e) {
       var team_site_url = $(this).val();
       var team_id = $(this).data("id");
       TS.menu.enterprise_team_signin.start(e, $(this), {
@@ -41354,7 +41446,7 @@ var _on_esc;
         should_show_leave_team: TS.boot_data.feature_discoverable_teams_client_v1 && TS.enterprise.isUserOnTeam(team_id) && !TS.model.user.is_restricted
       });
     });
-    $container.find(".enterprise_team_join").on("click", function(e) {
+    $cards.on("click", ".enterprise_team_join", function(e) {
       var team_id = $(this).data("id");
       TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
         if (result) {
@@ -41366,18 +41458,25 @@ var _on_esc;
             TS.members.upsertMember(updated_member);
           }
           var team = TS.enterprise.getTeamById(team_id);
-          $container.find('[data-id="' + team_id + '"]').replaceWith(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.signout_url));
+          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.signout_url));
         }
         return null;
       });
     });
-    $container.find(".enterprise_team_request").on("click", function(e) {
+    $cards.on("click", ".enterprise_team_request", function(e) {
       var team_id = $(this).data("id");
       TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
         console.log("here");
       }).catch(function() {
         console.log("nope");
       });
+    });
+    $container.find(".not_on_any_workspaces").on("click", ".find_teams", function(e) {
+      e.preventDefault();
+      var $menu_items = $(".menu_item_teams");
+      $menu_items.removeClass("selected");
+      $menu_items.filter('[data-qa="find-teams"]').addClass("selected");
+      TS.enterprise.signin.loadPage("teams_not_on");
     });
   };
   var _showToastMessage = function(type, message) {
@@ -46041,6 +46140,9 @@ $.fn.togglify = function(settings) {
       var target_type;
       var target_user_id;
       var target_ts;
+      var $search_result = $target.closest(".search_message_result");
+      var module_name = $search_result.data("module-name") || "";
+      var module_order = $search_result.data("module-order") || 0;
       if ($target.hasClass("search_jump")) {
         target_type = "jump";
       } else if ($target.hasClass("archive")) {
@@ -46074,8 +46176,8 @@ $.fn.togglify = function(settings) {
           click_timestamp: match.ts,
           click_target_user_id: target_user_id,
           click_target_timestamp: target_ts,
-          click_module_name: "",
-          click_module_position: 0
+          click_module_name: module_name,
+          click_module_position: module_order
         };
         if (TS.search.last_request_id) {
           payload["request_id"] = TS.search.last_request_id;
@@ -46171,6 +46273,51 @@ $.fn.togglify = function(settings) {
         TS.client.ui.unread.incrementTrackingSeqId();
       }
       TS.clog.track("MSG_LINK_CLICKED", payload);
+    });
+    TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_play_button", function(e, $el) {
+      if (TS.boot_data.feature_platform_metrics) {
+        var $message = $el.closest("ts-message");
+        var message_ts = $message.data("ts") + "";
+        var message_c_id = $message.data("model-ob-id");
+        var member_id = $message.data("member-id");
+        var app_id = $message.data("app-id");
+        var bot_id = $message.data("app-id");
+        var open_new_window_link = $message.find(".msg_inline_video_new_window_button");
+        var original_href = open_new_window_link.data("referer-original-href");
+        var url = original_href ? original_href : open_new_window_link.attr("href");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: member_id,
+          app_id: app_id,
+          bot_id: bot_id,
+          url: url ? url : ""
+        };
+        TS.clog.track("MSG_VIDEO_PLAY", payload);
+      }
+    });
+    TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_new_window_button", function(e, $el) {
+      if (TS.boot_data.feature_platform_metrics) {
+        var $message = $el.closest("ts-message");
+        var message_ts = $message.data("ts") + "";
+        var message_c_id = $message.data("model-ob-id");
+        var member_id = $message.data("member-id");
+        var app_id = $message.data("app-id");
+        var bot_id = $message.data("app-id");
+        var original_href = $el.data("referer-original-href");
+        var url = original_href ? original_href : $el.attr("href");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: member_id,
+          app_id: app_id,
+          bot_id: bot_id,
+          url: url ? url : ""
+        };
+        TS.clog.track("MSG_VIDEO_OPEN", payload);
+      }
     });
     TS.click.addClientHandler(".member_preview_link, .member_preview_image", function(e, $el, preview_origin) {
       e.preventDefault();
@@ -46658,8 +46805,17 @@ $.fn.togglify = function(settings) {
     });
     if (TS.boot_data.feature_app_cards_and_profs_frontend) {
       TS.click.addClientHandler(".app_preview_link", function(e, $el) {
-        e.preventDefault();
         var $closest_ts_message = $el.closest("[data-app-id]");
+        if (TS.model.user.is_restricted || TS.model.user.is_ultra_restricted) {
+          var member_name = $el.data("member-name");
+          if (member_name) {
+            e.preventDefault();
+            return TS.view.onMemberReferenceClick(e, member_name);
+          } else {
+            return;
+          }
+        }
+        e.preventDefault();
         var app_id = $closest_ts_message.data("app-id");
         var bot_id = $closest_ts_message.data("bot-id");
         if (app_id) {
@@ -52936,14 +53092,16 @@ $.fn.togglify = function(settings) {
       }
       return "";
     },
-    clear: function(input) {
+    clear: function(input, silent) {
       input = _normalizeInput(input);
       if (!input) return;
       if (_isFormElement(input)) {
         input.value = "";
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        texty.clear();
+        texty.clear({
+          silent: !!silent
+        });
       }
     },
     placeholder: function(input, value) {

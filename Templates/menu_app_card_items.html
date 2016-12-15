@@ -1,7 +1,7 @@
 {{i18n_ns "app_card"}}
 
 {{#and disabled (if_not_equal is_slack_integration compare=true)}}
-  <li role="menuitem" class="disabled italic" data-qa="app_card_app_disabled"><a>
+  <li role="menuitem" class="disabled italic" data-qa="app_card_app_disabled"><a class="greigh">
     {{#t}}This app has been disabled.{{/t}}
   </a></li>
 {{/and}}
@@ -73,7 +73,7 @@
   </li>
 {{/if}}
 {{#and disabled is_slack_integration}}
-  <li role="menuitem" class="disabled italic" data-qa="app_card_service_disabled"><a>
+  <li role="menuitem" class="disabled italic small_top_margin" data-qa="app_card_service_disabled"><a class="greigh">
     {{#t}}This rule has been disabled.{{/t}}
   </a></li>
 {{/and}}

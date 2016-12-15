@@ -1,18 +1,12 @@
-<div class="team_tabs_container clearfix no_bottom_border">
-  <div id="team_tabs">
-    {{#if show_search}}
-      <div class="flexpane_tab_toolbar">
-        <div id="search" class="tab_action bottom_border">
-          <div id="{{search_input_id}}" class="position_relative small_margin" data-list-items-id="#team_list_scroller">
-            <i class="icon_search ts_icon ts_icon_search"></i>
-            <a class="ts_icon ts_icon_times_circle icon_close hidden"></a>
-            <input type="text" class="member_filter no_margin small" name="team_filter" placeholder="Search directory"/>
-          </div>
-        </div>
-      </div>
-    {{/if}}
-    {{#if show_filters}}
+<div class="searchable_member_list_search_bar">
+  {{#if show_search}}
+    <div id="{{search_input_id}}" class="searchable_member_list_search position_relative" data-list-items-id="#team_list_scroller">
+      <i class="icon_search ts_icon ts_icon_search"></i>
+      <a class="ts_icon ts_icon_times_circle icon_close hidden"></a>
+      <input type="text" class="searchable_member_list_input no_margin small" name="team_filter" placeholder="{{#t note='Placeholder text for member search input field'}}Search members{{/t}}"/>
+    </div>
+  {{/if}}
+  {{#if show_filters}}
 {{> team_filter_bar}}
-    {{/if}}
-  </div>
+  {{/if}}
 </div>

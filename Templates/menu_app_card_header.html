@@ -78,7 +78,9 @@
         {{/unless}}
         {{!-- Overflow menu button --}}
         {{#unless (and custom_integration_type (if_not_equal custom_integration_type compare="bot"))}}
-          <button class="btn app_profile_btn btn_icon ts_icon ts_icon_chevron_large_down" type="button" data-js="app_profile_btn" data-action="open_overflow_menu" data-qa="app_header_overflow_menu_button"></button>
+          <button class="btn app_profile_btn" type="button" data-js="app_profile_btn" data-action="open_overflow_menu" data-qa="app_header_overflow_menu_button">
+            <ts-icon class="ts_icon_chevron_large_down no_right_margin"></ts-icon>
+          </button>
         {{/unless}}
       </div>
     {{/if}}

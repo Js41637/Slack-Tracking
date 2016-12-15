@@ -1,7 +1,7 @@
 {{i18n_ns "app_profile"}}
 <div class="app_profile">
   {{> menu_app_card_header this app_profile=true large=true}}
-  <div class="lato charcoal_grey">
+  <div class="lato charcoal_grey large_bottom_margin">
     {{#if custom_integration_type}}
       <section>
         <div class="app_profile_section_header">
@@ -39,11 +39,11 @@
             </div>
             <div class="app_profile_desc_fade"></div>
             <button class="app_desc_btn app_desc_expand_btn" data-js="app_profile_btn" data-action="desc_expand">
-              Expand
+              {{#t}}Expand{{/t}}
               <ts-icon class="ts_icon_arrow_down_medium"></ts-icon>
             </button>
             <button class="app_desc_btn app_desc_collapse_btn" data-js="app_profile_btn" data-action="desc_collapse">
-              Collapse
+              {{#t}}Collapse{{/t}}
               <ts-icon class="ts_icon_arrow_up_medium"></ts-icon>
             </button>
           </div>
@@ -64,15 +64,24 @@
         {{/each}}
       </section>
     {{/if}}
-    {{#unless is_slack_integration}}
+    {{#if show_settings_section}}
       <section>
         <div class="app_profile_section_header">{{#t}}Settings{{/t}}</div>
-        <div class="app_profile_section_text" data-js="app_profile_settings">
-          <svg class="ts_icon ts_icon_spin ts_icon_spinner">
-            <use xlink:href="/img/starburst.svg#starburst_svg"/>
-          </svg>
+        <div class="app_profile_section_text">
+          <div data-js="app_auth_settings" class="bottom_margin">
+            <svg class="ts_icon ts_icon_spin ts_icon_spinner">
+              <use xlink:href="/img/starburst.svg#starburst_svg"/>
+            </svg>
+          </div>
+          {{#if bot_user_channel_count}}
+            {{#if custom_integration_type}}
+              <div>{{#t}}This bot is in {bot_user_channel_count, plural, =1 {# channel} other {# channels} }.{{/t}}</div>
+            {{else}}
+              <div>{{#t}}This app is in {bot_user_channel_count, plural, =1 {# channel} other {# channels} }.{{/t}}</div>
+            {{/if}}
+          {{/if}}
         </div>
       </section>
-    {{/unless}}
+    {{/if}}
   </div>
 </div>

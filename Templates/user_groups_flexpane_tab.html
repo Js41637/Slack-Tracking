@@ -1,18 +1,20 @@
+{{i18n_ns 'user_groups'}}
+
 <div class="heading" tabindex="-1">
-  User Groups
-  <a class="close_flexpane" title="Close Flexpane"><i class="ts_icon ts_icon_times"></i></a>
+  {{#t}}User Groups{{/t}}
+  <a class="close_flexpane" title="{{#t}}Close Flexpane{{/t}}"><i class="ts_icon ts_icon_times"></i></a>
 </div>
 <div class="user_groups_tabs_container clearfix no_bottom_border">
   <div class="flexpane_tab_toolbar">
     <div id="user_group_edit" class="tab_action bottom_border">
-      <a class="tab_action_button lato_bold {{#unless can_user_edit_user_groups}}hidden{{/unless}}" data-action="admin_user_groups_modal"><i class="ts_icon ts_icon_cog_o"></i> Edit User Groups</a>
-      <a class="tab_action_button lato_bold {{#unless can_user_create_and_delete_user_groups}}hidden{{/unless}}" data-action="admin_user_groups_modal_new"><i class="ts_icon ts_icon_plus_circle"></i> Create a User Group</a>
+      <a class="tab_action_button lato_bold {{#unless can_user_edit_user_groups}}hidden{{/unless}}" data-action="admin_user_groups_modal"><i class="ts_icon ts_icon_cog_o"></i> {{#t}}Edit User Groups{{/t}}</a>
+      <a class="tab_action_button lato_bold {{#unless can_user_create_and_delete_user_groups}}hidden{{/unless}}" data-action="admin_user_groups_modal_new"><i class="ts_icon ts_icon_plus_circle"></i> {{#t}}Create a User Group{{/t}}</a>
     </div>
     <div id="search" class="tab_action bottom_border">
       <div id="user_group_filter" class="position_relative small_margin" data-list-items-id="#user_group_list_scroller">
         <i class="icon_search ts_icon ts_icon_search"></i>
         <a class="ts_icon ts_icon_times_circle icon_close hidden"></a>
-        <input type="text" class="member_filter no_margin small" name="_filter" placeholder="Search directory"/>
+        <input type="text" class="member_filter no_margin small" name="_filter" placeholder="{{#t}}Search directory{{/t}}">
       </div>
     </div>
   </div>
