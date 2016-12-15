@@ -1,0 +1,183 @@
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+.tiny {
+  font-size: .7rem
+}
+
+.small {
+  font-size: .9rem
+}
+
+.no_pointer_events {
+  pointer-events: none
+}
+
+#msg_form {
+  position: relative;
+  margin: 0 1.25rem 1.375rem
+}
+
+#msg_form.focus {
+  outline: 0;
+  box-shadow: none
+}
+
+#msg_form.focus #msg_input {
+  border-color: #bbbdbf
+}
+
+#msg_form.focus #primary_file_button:not(:hover):not(.active) {
+  border-color: #bbbdbf
+}
+
+#msg_input {
+  overflow: auto;
+  margin: 0;
+  width: 100%;
+  min-height: 2.625rem;
+  height: 38px;
+  max-height: 11.25rem;
+  padding-top: .5625rem;
+  padding-right: 1.875rem;
+  padding-bottom: .625rem;
+  padding-left: 3.125rem;
+  border: 2px solid #e0e0e0;
+  border-radius: .375rem;
+  outline: 0;
+  background: #fff;
+  resize: none;
+  box-shadow: none;
+  color: #3d3c40;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .9375rem;
+  line-height: 1.2rem;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto
+}
+
+#msg_input::-webkit-input-placeholder {
+  color: #000;
+  opacity: .375;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+#msg_input::-moz-placeholder {
+  color: #000;
+  opacity: .375;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+#msg_input:-ms-input-placeholder {
+  color: #000;
+  opacity: .375;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+#msg_input::placeholder {
+  color: #000;
+  opacity: .375;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap
+}
+
+#msg_input[data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: #000;
+  opacity: .375;
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none
+}
+
+#msg_input:focus {
+  border-color: #bbbdbf;
+  outline: 0;
+  box-shadow: none
+}
+
+#msg_input:focus+#primary_file_button:not(:hover):not(.active) {
+  border-color: #bbbdbf
+}
+
+#msg_input.offline:not(.pretend-to-be-online) {
+  background-color: #fdf1c1!important
+}
+
+#msg_input.disabled,
+#msg_input.ql-disabled {
+  padding-left: 1.875rem;
+  border-color: #f7f7f7;
+  border-radius: .2rem;
+  background-color: #f7f7f7;
+  color: #a4a4a4;
+  text-align: center
+}
+
+#msg_input_message {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: none;
+  padding: 0 30px;
+  border-radius: .2rem;
+  background-color: #f7f7f7;
+  color: #717274;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: 1rem;
+  text-align: center
+}
+
+#msg_input.ql-disabled~#msg_input_message,
+#msg_input[disabled]~#msg_input_message {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center
+}
+
+#msg_input_message span {
+  margin-top: -2px
+}

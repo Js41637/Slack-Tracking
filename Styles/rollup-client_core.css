@@ -7871,3 +7871,44 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
   top: 16px;
   left: 16px
 }
+
+#msg_form.show_recap_nav {
+  width: calc(100% - 60px)
+}
+
+#recap_nav {
+  position: absolute;
+  top: 0rem;
+  right: -2.5rem;
+  height: 2.6875rem;
+  width: 2.5rem
+}
+
+#recap_nav button {
+  position: absolute;
+  height: 1.34375rem;
+  margin-left: .3125rem
+}
+
+#recap_nav button.prev {
+  top: 0
+}
+
+#recap_nav button.prev:after {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0
+}
+
+#recap_nav button.next {
+  top: 1.3125rem
+}
+
+#recap_nav button.next:after {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0
+}
+
+#recap_nav button ts-icon {
+  margin-right: 0rem;
+  margin-top: .1875rem
+}

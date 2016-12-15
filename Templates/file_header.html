@@ -1,4 +1,8 @@
-  <div class="flexpane_file_title">
+  <div class="flexpane_file_title"
+    {{#if member.is_bot}}
+      data-app-id="{{member.app_id}}" data-bot-id="{{member.id}}"
+    {{/if}}
+  >
 
     {{makeProfileImage member size=36}}
 

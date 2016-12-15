@@ -16,23 +16,23 @@
             {{/if_equal}}
           {{/if_equal}}
         </strong>
-        {{#feature flag="feature_enterprise_search_ui"}}
-          {{#or (if_equal this.type compare='message') (if_equal this.type compare='group')}}
-            {{#if is_enterprise}}
-              {{#unless this.channel.is_shared}}
-                {{#if search_global}}
-                  <div class="org_team_label">
-                    {{makeTeamlabel team}}
-                  </div>
-                {{else}}
-                  <div class="org_team_label">
-                    {{currentTeamName}}
-                  </div>
-                {{/if}}
-              {{/unless}}
-            {{/if}}
-          {{/or}}
-        {{/feature}}
+
+        {{#or (if_equal this.type compare='message') (if_equal this.type compare='group')}}
+          {{#if is_enterprise}}
+            {{#unless this.channel.is_shared}}
+              {{#if search_global}}
+                <div class="org_team_label">
+                  {{makeTeamlabel team}}
+                </div>
+              {{else}}
+                <div class="org_team_label">
+                  {{currentTeamName}}
+                </div>
+              {{/if}}
+            {{/unless}}
+          {{/if}}
+        {{/or}}
+
       </div>
       <div class="date_links flex_none auto_left_margin normal">
         {{#if show_feedback}}
@@ -71,7 +71,6 @@
             <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
           {{/if}}
         {{else}}
-          {{#feature flag="feature_enterprise_search_ui"}}
             {{#if is_enterprise}}
               {{#or (isLocalTeam this.team) (if_equal this.channel.is_shared compare=true)}}
                 <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
@@ -81,9 +80,6 @@
             {{else}}
               <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
             {{/if}}
-          {{else}}
-            <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
-          {{/feature}}
 
         {{/if_equal}}
 

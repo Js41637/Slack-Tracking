@@ -116,31 +116,19 @@
         <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link file_comment_link no_wrap tiny_right_margin">{{#if_gt file.comments_count compare="0"}}{{file.comments_count}}{{/if_gt}} <i class="ts_icon ts_icon_comment"></i></a>
       {{/if}}
 
-      {{#feature flag="feature_enterprise_search_ui"}}
-        {{#and (if_not_equal for_search compare=true) (if_not_equal is_enterprise compare=true)}}
-          <span class="share_info">
-            <span class="file_share_public_label{{#unless file.is_public}} hidden{{/unless}}" data-file-id="{{file.id}}">
-              <span class="file_share_shared_label{{#unless file.is_shared}} hidden{{/unless}}" data-file-id="{{file.id}}">
-                Shared {{makeFileShareLabel file}}
-              </span>
-            </span>
-            <span class="file_share_private_label {{#if file.is_public}} hidden{{/if}}" data-file-id="{{file.id}}">
-              Private file {{makeFileShareLabel file}}
-            </span>
-          </span>
-        {{/and}}
-      {{else}}
+
+      {{#and (if_not_equal for_search compare=true) (if_not_equal is_enterprise compare=true)}}
         <span class="share_info">
           <span class="file_share_public_label{{#unless file.is_public}} hidden{{/unless}}" data-file-id="{{file.id}}">
             <span class="file_share_shared_label{{#unless file.is_shared}} hidden{{/unless}}" data-file-id="{{file.id}}">
-              {{#t note='Followed by where the file is shared, like "in general"'}}Shared{{/t}} {{makeFileShareLabel file}}
+              Shared {{makeFileShareLabel file}}
             </span>
           </span>
           <span class="file_share_private_label {{#if file.is_public}} hidden{{/if}}" data-file-id="{{file.id}}">
-            {{#t note='Followed by "shared with you"'}}Private file{{/t}} {{makeFileShareLabel file}}
+            Private file {{makeFileShareLabel file}}
           </span>
         </span>
-      {{/feature}}
+      {{/and}}
 
     </div>
 

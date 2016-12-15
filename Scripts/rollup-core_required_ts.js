@@ -411,13 +411,11 @@
       }
     },
     reloadIfVersionsChanged: function(data) {
-      if (TS.model.ms_logged_in_once && data.min_version_ts) {
-        if (TS.boot_data.version_ts == "dev") {} else {
-          if (parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)) {
-            TS.info("calling TS.reload() because parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
-            TS.reload(null, "calling TS.reload() because parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
-            return true;
-          }
+      if (TS.model.ms_logged_in_once && data.min_version_ts && TS.boot_data.version_ts !== "dev") {
+        if (parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)) {
+          TS.info("calling TS.reload() because parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
+          TS.reload(null, "calling TS.reload() because parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
+          return true;
         }
       }
       if (TS.model.ms_logged_in_once && data.cache_version) {
@@ -447,7 +445,7 @@
     test: function() {
       return {
         _onTemplatesLoaded: _onTemplatesLoaded,
-        _allParallelCallsComplete: _allParallelCallsComplete,
+        _initialDataFetchesComplete: _initialDataFetchesComplete,
         _maybeOpenTokenlessConnection: _maybeOpenTokenlessConnection,
         _shouldConnectToMS: _shouldConnectToMS,
         _getMSLoginArgs: _getMSLoginArgs,
@@ -501,16 +499,6 @@
       setConnecting: _.noop
     };
   }
-  var _loginMS = function() {
-    if (_parallel_rtm_start_rsp) {
-      TS.ms.logConnectionFlow("login_with_parallel_rtm_start_rsp");
-      TSConnLogger.log("ms_login_parallel", "login_with_parallel_rtm_start_rsp");
-      _onLoginMS(_parallel_rtm_start_rsp.ok, _parallel_rtm_start_rsp.login_data, _parallel_rtm_start_rsp.login_args);
-      _parallel_rtm_start_rsp = null;
-    } else {
-      _callRTMStart(_onLoginMS);
-    }
-  };
   var _reconnectRequestedMS = function() {
     TS.console.logStackTrace("MS reconnection requested");
     if (TS.model.ms_asleep) {
@@ -538,7 +526,7 @@
     };
     TS.api.paused_sig.addOnce(_apiPaused);
     TS.ms.connected_sig.addOnce(_didGetConnected);
-    _loginMS();
+    _callRTMStart().then(_processStartData);
   };
   var _getMSLoginArgs = function() {
     var login_args = {
@@ -548,7 +536,6 @@
     if (TS.boot_data.feature_no_unread_counts) {
       login_args.no_unreads = true;
     }
-    login_args.cache_ts = _last_rtm_start_event_ts || TS.storage.fetchLastCacheTS();
     if (TS.pri && (!login_args.cache_ts || parseInt(login_args.cache_ts, 10) == 0 || isNaN(login_args.cache_ts))) {
       TS.log(488, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
     }
@@ -556,6 +543,8 @@
       login_args.no_users = true;
       login_args.no_bots = true;
       login_args.cache_ts = 0;
+    } else {
+      login_args.cache_ts = _last_rtm_start_event_ts || TS.storage.fetchLastCacheTS();
     }
     if (TS.web) {
       if (TS.boot_data.page_needs_state || TS.boot_data.page_has_ms || TS.lazyLoadMembersAndBots()) {
@@ -575,9 +564,7 @@
     if (TS.boot_data.feature_name_tagging_client) {
       login_args.name_tagging = true;
     }
-    if (TS.boot_data.feature_canonical_avatars_web_client) {
-      login_args.canonical_avatars = true;
-    }
+    login_args.canonical_avatars = true;
     login_args.eac_cache_ts = true;
     if (TS.lazyLoadMembersAndBots()) {
       for (var k in TS.qs_args) {
@@ -590,30 +577,26 @@
     if (TS.lazyLoadMembersAndBots()) TS.log(1989, "Flannel: MS login args:", login_args);
     return login_args;
   };
-  var _callRTMStart = function(handler) {
+  var _callRTMStart = function() {
     var should_attempt_incremental_boot = TS.incremental_boot && TS.incremental_boot.shouldIncrementalBoot();
     var rtm_start_p = _promiseToCallRTMStart();
     if (!should_attempt_incremental_boot) {
       TS.info("Starting non-incremental boot");
-      return _performNonIncrementalBoot(rtm_start_p, handler);
+      return _performNonIncrementalBoot(rtm_start_p);
     }
     _pending_rtm_start_p = rtm_start_p;
     TS.info("Starting incremental boot");
-    TS.incremental_boot.startIncrementalBoot().then(function(resp) {
-      handler(true, resp.data, resp.args);
-      return null;
-    }).catch(function() {
+    return TS.incremental_boot.startIncrementalBoot().catch(function() {
       TS.info("Recovering from incremental boot error");
       _pending_rtm_start_p = undefined;
-      return _performNonIncrementalBoot(rtm_start_p, handler);
+      return _performNonIncrementalBoot(rtm_start_p);
     });
   };
-  var _performNonIncrementalBoot = function(rtm_start_p, handler) {
-    return rtm_start_p.tap(_rtmStartOKHandler).then(function(resp) {
-      var ok = true;
-      handler(ok, resp.data, resp.args);
-      return null;
-    }).catch(_rtmStartErrorHandler);
+  var _performNonIncrementalBoot = function(rtm_start_p) {
+    return rtm_start_p.tap(_maybeDeferArchivedObjects).catch(function(err) {
+      _rtmStartErrorHandler(err);
+      throw err;
+    });
   };
   var _promiseToCallRTMStart = function() {
     if (TS.qs_args["no_rtm_start"]) {
@@ -643,12 +626,12 @@
       return Promise.resolve(rtm_start_response);
     }
     if (TS.model.calling_rtm_start) {
-      var error_msg = "_callRTMStart was called but TS.model.calling_rtm_start=true";
+      var error_msg = "_promiseToCallRTMStart was called but TS.model.calling_rtm_start=true";
       TS.error(error_msg);
       return Promise.reject(new Error(error_msg));
     }
     TS.ms.logConnectionFlow("login");
-    TSConnLogger.log("call_rtm_start", "_callRTMStart");
+    TSConnLogger.log("call_rtm_start", "_promiseToCallRTMStart");
     TS.model.rtm_start_throttler++;
     TS.model.calling_rtm_start = true;
     if (TS.lazyLoadMembersAndBots()) {
@@ -668,16 +651,15 @@
           args: {},
           data: rtm_start_data
         };
+      }).finally(function() {
+        TS.model.calling_rtm_start = false;
       });
     }
-    return TS.api.callImmediately("rtm.start", _getMSLoginArgs());
+    return TS.api.callImmediately("rtm.start", _getMSLoginArgs()).finally(function() {
+      TS.model.calling_rtm_start = false;
+    });
   };
-  var _rtmStartOKHandler = function(resp) {
-    TS.model.calling_rtm_start = false;
-    if (resp.data.latest_event_ts) {
-      TS.info("rtm.start included latest event timestamp: " + resp.data.latest_event_ts);
-      _last_rtm_start_event_ts = parseInt(resp.data.latest_event_ts, 10);
-    }
+  var _maybeDeferArchivedObjects = function(resp) {
     TS.model.deferred_archived_channels = _.filter(resp.data.channels, function(c) {
       c.is_archived && !TS.channels.lookupById(c.id);
     });
@@ -688,7 +670,6 @@
     resp.data.groups = _.difference(resp.data.groups, TS.model.deferred_archived_groups);
   };
   var _rtmStartErrorHandler = function(resp) {
-    TS.model.calling_rtm_start = false;
     var error = resp.data && resp.data.error;
     if (error == "user_removed_from_team" && TS.boot_data.feature_user_removed_from_team) {
       TS.warn("You have been removed from the " + TS.model.team.name + " team.");
@@ -716,30 +697,19 @@
     _rtm_start_retry_delay_ms = 1e3 * _.clamp(retry_after_secs, RTM_START_ERROR_MIN_DELAY, RTM_START_ERROR_MAX_DELAY);
     return null;
   };
-  var _callRTMStartInParallel = function() {
-    TSConnLogger.log("call_rtm_start_in_parallel", "_callRTMStartInParallel", null, {
-      ephemeral: true
-    });
-    return new Promise(function(resolve) {
-      _callRTMStart(function(ok, data, args) {
-        _parallel_rtm_start_rsp = {
-          ok: ok,
-          login_data: data,
-          login_args: args
-        };
-        resolve();
-      });
-    });
-  };
-  var _onLoginMS = function(ok, data, args) {
+  var _processStartData = function(resp) {
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Got rtm.start login data");
-    if (!ok) return;
+    var data = resp.data;
     TS.model.emoji_cache_ts = data.emoji_cache_ts;
     TS.model.apps_cache_ts = data.apps_cache_ts;
     TS.model.commands_cache_ts = data.commands_cache_ts;
+    if (data.latest_event_ts && !TS.lazyLoadMembersAndBots()) {
+      TS.info("rtm.start included latest event timestamp: " + resp.data.latest_event_ts);
+      _last_rtm_start_event_ts = parseInt(resp.data.latest_event_ts, 10);
+    }
     if (!TS.model.ms_logged_in_once && !TS.storage.fetchLastEventTS() && data.latest_event_ts) {
       TS.ms.connected_sig.addOnce(function() {
-        TS.ms.storeLastEventTS(data.latest_event_ts, "_onLoginMS");
+        TS.ms.storeLastEventTS(data.latest_event_ts, "_processStartData");
       });
     }
     if (TS.client) {
@@ -755,18 +725,16 @@
     }
     TS.ms.logConnectionFlow("on_login");
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up model");
-    return _setUpModel(data, args).then(function() {
+    return _setUpModel(resp.data, resp.args).then(function() {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Model did set up; setting up apps");
       TS.apps.setUp();
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up commands");
       TS.cmd_handlers.setUpCmds();
-      var no_rebuild_ui = !TS.model.ms_logged_in_once;
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji");
-      TS.emoji.setUpEmoji(no_rebuild_ui).finally(function() {
-        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Emoji did set up; continuing boot");
-        return _continueOnLogin(data);
-      });
-      return null;
+      return TS.emoji.setUpEmoji().catch(_.noop);
+    }).finally(function() {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Emoji did set up; continuing boot");
+      return _continueOnLogin(data);
     }).catch(function(err) {
       TS.error("_setUpModel failed with err: " + (err ? err.message : "no err provided"));
       TS.dir(err);
@@ -778,22 +746,6 @@
     if (TS.client) {
       TSSSB.call("setCurrentTeam", TS.model.team.domain);
       TS.client.updateTeamIcon();
-    }
-    if (TS.client && !TS.boot_data.feature_server_side_emoji_counts) {
-      TS.model.emoji_use = TS.model.emoji_use || {};
-      var ls_emoji_use = TS.storage.fetchEmojiUse();
-      var ls_len = Object.keys(ls_emoji_use).length;
-      var pref_len = Object.keys(TS.model.emoji_use).length;
-      if (pref_len === 0 && ls_len == 0) {
-        TS.log(777, "kicking off emoji_use filling because it is empty");
-        TS.api.callFuncWhenApiQisEmpty(TS.utility.msgs.populateEmojiUsePrefFromExistingMsgs);
-      } else if (TS.prefs.mergeEmojiUse(ls_emoji_use)) {
-        TS.log(777, "saving emoji_use onlogin cause it looks like we failed to save last time");
-        TS.api.callFuncWhenApiQisEmpty(TS.prefs.saveEmojiUse);
-      } else {
-        TS.log(777, "making sure we have emoji_use in LS");
-        TS.storage.storeEmojiUse(TS.model.emoji_use);
-      }
     }
     var completeOnLogin = function() {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin");
@@ -807,7 +759,8 @@
             TS.info("Finalizing incremental boot");
             TS.incremental_boot.beforeFullBoot();
             var users_from_incr_boot = TS.lazyLoadMembersAndBots() ? _.map(TS.model.members, "id") : null;
-            _performNonIncrementalBoot(_pending_rtm_start_p, _onLoginMS).then(function() {
+            _performNonIncrementalBoot(_pending_rtm_start_p).then(function(resp) {
+              _processStartData(resp);
               if (TS.lazyLoadMembersAndBots()) {
                 _pending_rtm_start_p.then(function(rtm_start) {
                   var ready_to_query_p = new Promise(function(resolve) {
@@ -948,10 +901,9 @@
   var _dom_is_ready = false;
   var _ds_last_login_tim = 0;
   var _ds_last_login_ms = 0;
-  var _parallel_rtm_start_rsp;
   var _qs_url_args_cache;
-  var _allParallelCallsComplete = function() {
-    TSConnLogger.log("parallel_complete", "_allParallelCallsComplete(), calling gogogos");
+  var _initialDataFetchesComplete = function(rtm_start_resp) {
+    TSConnLogger.log("parallel_complete", "_initialDataFetchesComplete(), calling gogogos");
     if (TS.client) {
       TSSSB.call("didStartLoading", 6e4);
     }
@@ -967,10 +919,11 @@
     if (TS.boot_data.no_login) {
       TS.info("running without a user");
       if (TS.web) TS.web.no_login_complete_sig.dispatch();
+    } else if (rtm_start_resp) {
+      _processStartData(rtm_start_resp);
     } else {
-      _loginMS();
+      TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
     }
-    return Promise.resolve();
   };
   var _reconnectRequestedDS = function() {
     if (TS.model.ds_asleep) {
@@ -1376,18 +1329,18 @@
     }
     TS.storage.onStart();
     TSConnLogger.log("after_storage_start", "_onDOMReady");
-    var promises = [];
-    if (!TS.boot_data.no_login) {
-      promises.push(_callRTMStartInParallel());
-    }
-    promises.push(loadTemplates());
+    var initial_rtm_start_p = TS.boot_data.no_login ? Promise.resolve() : _callRTMStart();
+    var promises = [loadTemplates(), initial_rtm_start_p];
     if (TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login) {
       promises.push(TS.enterprise.promiseToEnsureEnterprise());
     }
     if (TS.web && TS.boot_data.page_needs_team_profile_fields) {
       promises.push(TS.team.ensureTeamProfileFields());
     }
-    Promise.all(promises).then(_allParallelCallsComplete);
+    Promise.all(promises).then(function() {
+      initial_rtm_start_p.then(_initialDataFetchesComplete);
+      return null;
+    });
   };
   var _onTemplatesLoaded = function(parallel_callback) {
     TSConnLogger.log("templates_appended", "_onTemplatesLoaded()");
@@ -1884,14 +1837,12 @@
       var incremental_boot_data = TS.boot_data.incremental_boot_data;
       delete TS.boot_data.incremental_boot_data;
       var channels_view_args = {
+        canonical_avatars: true,
         include_full_users: true,
         count: TS.model.initial_msgs_cnt - 1
       };
       if (TS.boot_data.feature_name_tagging_client) {
         channels_view_args.name_tagging = true;
-      }
-      if (TS.boot_data.feature_canonical_avatars_web_client) {
-        channels_view_args.canonical_avatars = true;
       }
       var channel_name = TS.utility.getChannelNameFromUrl(window.location.toString());
       if (channel_name) {
@@ -2507,6 +2458,214 @@
 })();
 (function() {
   "use strict";
+  TS.registerModule("i18n", {
+    DE: "de",
+    ES: "es",
+    FR: "fr",
+    JP: "jp",
+    US: "en-US",
+    onStart: function() {
+      if (!_is_setup) _setup();
+    },
+    t: function(key, ns) {
+      if (!_is_setup) _setup();
+      if (typeof ns !== "string") {
+        var log = TS.error ? TS.error : console.error;
+        log.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + ns + ".");
+        return function() {
+          return "";
+        };
+      }
+      var translations = _namespaced(ns);
+      var translation = translations[key];
+      if (translation === undefined) {
+        if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) {
+          translations[key] = new MessageFormat(TS.i18n.locale, key).format;
+        } else {
+          if (!_is_pseudo) {
+            TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
+          }
+          translations[key] = new MessageFormat(TS.i18n.locale, _getPseudoTranslation(key)).format;
+        }
+      } else if (typeof translation !== "function") {
+        translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
+      }
+      return translations[key];
+    },
+    number: function(num) {
+      return new Intl.NumberFormat(TS.i18n.locale).format(num);
+    },
+    possessive: function(str) {
+      if (_.endsWith(str, "s")) {
+        return "’";
+      }
+      return "’s";
+    },
+    listify: function(arr, options) {
+      var and;
+      var list = [];
+      var l = arr.length;
+      var conjunction = options && options.conj === "or" ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
+      var oxford = l > 2 ? "," : "";
+      var wrap_start = options && options.strong ? "<strong>" : "";
+      var wrap_end = options && options.strong ? "</strong>" : "";
+      switch (TS.i18n.locale) {
+        case TS.i18n.JP:
+          and = ", ";
+          break;
+        default:
+          and = oxford + " " + conjunction + " ";
+      }
+      arr.forEach(function(s, i) {
+        list.push(wrap_start + TS.utility.htmlEntities(s) + wrap_end);
+        if (i < l - 2) {
+          list.push(", ");
+        } else if (i < l - 1) {
+          list.push(and);
+        }
+      });
+      return list;
+    }
+  });
+  var _is_setup;
+  var _translations;
+  var _is_dev;
+  var _is_pseudo;
+  var _setup = function() {
+    _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
+    if (_is_dev) {
+      var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
+      if (locale) TS.i18n.locale = locale[1];
+    }
+    if (!TS.i18n.locale) {
+      if (TS.boot_data && TS.boot_data.locale) {
+        TS.i18n.locale = TS.boot_data.locale;
+      } else {
+        TS.i18n.locale = document.documentElement.getAttribute("data-locale") || _DEFAULT_LOCALE;
+      }
+    }
+    if (TS.i18n.locale === _PSEUDO_LOCALE) {
+      _is_pseudo = true;
+      TS.i18n.locale = _DEFAULT_LOCALE;
+    } else {
+      TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
+    }
+    _translations = _TRANSLATIONS[TS.i18n.locale] || {};
+    _is_setup = true;
+  };
+  var _namespaced = function(namespace) {
+    var parts = namespace.split(".");
+    if (parts.length > 1) {
+      var i = 0;
+      var l = parts.length;
+      var translations = _translations;
+      for (i; i < l; i++) {
+        translations = translations[parts[i]];
+        if (translations === undefined) return {};
+      }
+      return translations;
+    }
+    return _translations[namespace] || {};
+  };
+  var _getPseudoTranslation = function(str) {
+    var regex = /(<[^>]+>)|(&\w+;)/gi;
+    var tags = str.match(regex) || [];
+    str = str.replace(regex, "<>");
+    var parsed = parseMessageFormatString(str);
+    if (parsed.error) TS.error(parsed.error);
+    var substr;
+    var key;
+    str = parsed.tokens.map(function(t) {
+      if (t[0] === "text") {
+        substr = t[1];
+        for (key in _PSEUDO_MAP) {
+          substr = substr.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
+        }
+        return substr;
+      }
+      return t[1];
+    }).join("");
+    return str.split("<>").map(function(w, i) {
+      return w + (tags[i] || "");
+    }).join("");
+  };
+  var _DEFAULT_LOCALE = "en-US";
+  var _PSEUDO_LOCALE = "pseudo";
+  var _PSEUDO_MAP = {
+    a: [/a/g, "á"],
+    b: [/b/g, "β"],
+    c: [/c/g, "ç"],
+    d: [/d/g, "δ"],
+    e: [/e/g, "è"],
+    f: [/f/g, "ƒ"],
+    g: [/g/g, "ϱ"],
+    h: [/h/g, "λ"],
+    i: [/i/g, "ï"],
+    j: [/j/g, "J"],
+    k: [/k/g, "ƙ"],
+    l: [/l/g, "ℓ"],
+    m: [/m/g, "₥"],
+    n: [/n/g, "ñ"],
+    o: [/o/g, "ô"],
+    p: [/p/g, "ƥ"],
+    q: [/q/g, "9"],
+    r: [/r/g, "ř"],
+    u: [/u/g, "ú"],
+    v: [/v/g, "Ʋ"],
+    w: [/w/g, "ω"],
+    x: [/x/g, "ж"],
+    y: [/y/g, "¥"],
+    z: [/z/g, "ƺ"],
+    A: [/A/g, "Â"],
+    B: [/B/g, "ß"],
+    C: [/C/g, "Ç"],
+    D: [/D/g, "Ð"],
+    E: [/E/g, "É"],
+    I: [/I/g, "Ì"],
+    L: [/L/g, "£"],
+    O: [/O/g, "Ó"],
+    P: [/P/g, "Þ"],
+    S: [/S/g, "§"],
+    U: [/U/g, "Û"],
+    Y: [/Y/g, "Ý"]
+  };
+  var _TRANSLATIONS = {
+    en_US: {
+      menu: {
+        "Profile &amp; account": "Profile &amp; account",
+        Preferences: "Preferences",
+        "Version info (TS only)": "Version info (TS only)",
+        "Sign out of": "Sign out of",
+        "Set yourself to <strong>away</strong>": "Set yourself to <strong>away</strong>",
+        "[Away] Set yourself to <strong>active</strong>": "[Away] Set yourself to <strong>active</strong>"
+      },
+      channel: {
+        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} member}other{{member_count} members}}"
+      }
+    },
+    es: {
+      menu: {
+        "Profile &amp; account": "Perfil y cuenta",
+        Preferences: "Preferencias"
+      },
+      channel: {
+        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} miembro}other{{member_count} miembros}}"
+      }
+    },
+    fr: {
+      menu: {
+        "Profile &amp; account": "Profil et gestion du compte",
+        Preferences: "Préférences",
+        "Version info (TS only)": "Version info (TS uniquement)"
+      },
+      channel: {
+        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} membre}other{{member_count} membres}}"
+      }
+    }
+  };
+})();
+(function() {
+  "use strict";
   TS.registerModule("model", {
     did_we_load_with_user_cache: false,
     did_we_load_with_emoji_cache: false,
@@ -2567,7 +2726,7 @@
     }],
     NAMED_VIEWS: [{
       id: "Vall_unreads",
-      name: "All Unreads",
+      name: TS.i18n.t("All Unreads", "model")(),
       is_view: true
     }],
     unsent_msgs: {},
@@ -2629,35 +2788,35 @@
       name: "-",
       value: ""
     }, {
-      name: "Starred",
+      name: TS.i18n.t("Starred", "model")(),
       value: "starred"
     }, {
-      name: "Type",
+      name: TS.i18n.t("Type", "model")(),
       value: "type"
     }, {
-      name: "Muted",
+      name: TS.i18n.t("Muted", "model")(),
       value: "muted"
     }, {
-      name: "SLI priority score",
+      name: TS.i18n.t("SLI priority score", "model")(),
       value: "sli"
     }, {
-      name: "Has unread messages",
+      name: TS.i18n.t("Has unread messages", "model")(),
       value: "has_unread_msgs"
     }, {
-      name: "Unread message count",
+      name: TS.i18n.t("Unread message count", "model")(),
       value: "unread_msgs_count"
     }, {
-      name: "Has unread mentions",
+      name: TS.i18n.t("Has unread mentions", "model")(),
       value: "has_unread_mentions"
     }, {
-      name: "Unread mention count",
+      name: TS.i18n.t("Unread mention count", "model")(),
       value: "unread_mentions_count"
     }],
     channel_sort_simple_options: [{
-      name: "None",
+      name: TS.i18n.t("None", "model")(),
       value: ""
     }, {
-      name: "SLI priority score",
+      name: TS.i18n.t("SLI priority score", "model")(),
       value: "sli"
     }],
     inline_attachments: {},
@@ -2754,15 +2913,15 @@
     alt_key_pressed: false,
     join_leave_subtypes: ["channel_leave", "channel_join", "group_leave", "group_join"],
     file_list_type_map: {
-      all: "All File Types",
-      posts: "Posts",
-      spaces: "Posts",
+      all: TS.i18n.t("All File Types", "model")(),
+      posts: TS.i18n.t("Posts", "model")(),
+      spaces: TS.i18n.t("Posts", "model")(),
       multnomah: "Multnomah",
-      snippets: "Snippets",
-      emails: "Emails",
-      images: "Images",
-      pdfs: "PDF Files",
-      gdocs: "Google Docs"
+      snippets: TS.i18n.t("Snippets", "model")(),
+      emails: TS.i18n.t("Emails", "model")(),
+      images: TS.i18n.t("Images", "model")(),
+      pdfs: TS.i18n.t("PDF Files", "model")(),
+      gdocs: TS.i18n.t("Google Docs", "model")()
     },
     marked_reasons: {
       viewed: "viewed",
@@ -2833,7 +2992,7 @@
       team: {}
     },
     frecency_jumper: {},
-    typing_msg: "several people are typing",
+    typing_msg: TS.i18n.t("several people are typing", "model")(),
     pdf_viewer_enabled: true,
     onStart: function(ua) {
       ua = ua || navigator.userAgent;
@@ -3454,214 +3613,6 @@
 })();
 (function() {
   "use strict";
-  TS.registerModule("i18n", {
-    DE: "de",
-    ES: "es",
-    FR: "fr",
-    JP: "jp",
-    US: "en-US",
-    onStart: function() {
-      if (!_is_setup) _setup();
-    },
-    t: function(key, ns) {
-      if (!_is_setup) _setup();
-      if (typeof ns !== "string") {
-        var log = TS.error ? TS.error : console.error;
-        log.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + ns + ".");
-        return function() {
-          return "";
-        };
-      }
-      var translations = _namespaced(ns);
-      var translation = translations[key];
-      if (translation === undefined) {
-        if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) {
-          translations[key] = new MessageFormat(TS.i18n.locale, key).format;
-        } else {
-          if (!_is_pseudo) {
-            TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
-          }
-          translations[key] = new MessageFormat(TS.i18n.locale, _getPseudoTranslation(key)).format;
-        }
-      } else if (typeof translation !== "function") {
-        translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
-      }
-      return translations[key];
-    },
-    number: function(num) {
-      return new Intl.NumberFormat(TS.i18n.locale).format(num);
-    },
-    possessive: function(str) {
-      if (_.endsWith(str, "s")) {
-        return "’";
-      }
-      return "’s";
-    },
-    listify: function(arr, options) {
-      var and;
-      var list = [];
-      var l = arr.length;
-      var conjunction = options && options.conj === "or" ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
-      var oxford = l > 2 ? "," : "";
-      var wrap_start = options && options.strong ? "<strong>" : "";
-      var wrap_end = options && options.strong ? "</strong>" : "";
-      switch (TS.i18n.locale) {
-        case TS.i18n.JP:
-          and = ", ";
-          break;
-        default:
-          and = oxford + " " + conjunction + " ";
-      }
-      arr.forEach(function(s, i) {
-        list.push(wrap_start + TS.utility.htmlEntities(s) + wrap_end);
-        if (i < l - 2) {
-          list.push(", ");
-        } else if (i < l - 1) {
-          list.push(and);
-        }
-      });
-      return list;
-    }
-  });
-  var _is_setup;
-  var _translations;
-  var _is_dev;
-  var _is_pseudo;
-  var _setup = function() {
-    _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
-    if (_is_dev) {
-      var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
-      if (locale) TS.i18n.locale = locale[1];
-    }
-    if (!TS.i18n.locale) {
-      if (TS.boot_data && TS.boot_data.locale) {
-        TS.i18n.locale = TS.boot_data.locale;
-      } else {
-        TS.i18n.locale = document.documentElement.getAttribute("data-locale") || _DEFAULT_LOCALE;
-      }
-    }
-    if (TS.i18n.locale === _PSEUDO_LOCALE) {
-      _is_pseudo = true;
-      TS.i18n.locale = _DEFAULT_LOCALE;
-    } else {
-      TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
-    }
-    _translations = _TRANSLATIONS[TS.i18n.locale] || {};
-    _is_setup = true;
-  };
-  var _namespaced = function(namespace) {
-    var parts = namespace.split(".");
-    if (parts.length > 1) {
-      var i = 0;
-      var l = parts.length;
-      var translations = _translations;
-      for (i; i < l; i++) {
-        translations = translations[parts[i]];
-        if (translations === undefined) return {};
-      }
-      return translations;
-    }
-    return _translations[namespace] || {};
-  };
-  var _getPseudoTranslation = function(str) {
-    var regex = /(<[^>]+>)|(&\w+;)/gi;
-    var tags = str.match(regex) || [];
-    str = str.replace(regex, "<>");
-    var parsed = parseMessageFormatString(str);
-    if (parsed.error) TS.error(parsed.error);
-    var substr;
-    var key;
-    str = parsed.tokens.map(function(t) {
-      if (t[0] === "text") {
-        substr = t[1];
-        for (key in _PSEUDO_MAP) {
-          substr = substr.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
-        }
-        return substr;
-      }
-      return t[1];
-    }).join("");
-    return str.split("<>").map(function(w, i) {
-      return w + (tags[i] || "");
-    }).join("");
-  };
-  var _DEFAULT_LOCALE = "en-US";
-  var _PSEUDO_LOCALE = "pseudo";
-  var _PSEUDO_MAP = {
-    a: [/a/g, "á"],
-    b: [/b/g, "β"],
-    c: [/c/g, "ç"],
-    d: [/d/g, "δ"],
-    e: [/e/g, "è"],
-    f: [/f/g, "ƒ"],
-    g: [/g/g, "ϱ"],
-    h: [/h/g, "λ"],
-    i: [/i/g, "ï"],
-    j: [/j/g, "J"],
-    k: [/k/g, "ƙ"],
-    l: [/l/g, "ℓ"],
-    m: [/m/g, "₥"],
-    n: [/n/g, "ñ"],
-    o: [/o/g, "ô"],
-    p: [/p/g, "ƥ"],
-    q: [/q/g, "9"],
-    r: [/r/g, "ř"],
-    u: [/u/g, "ú"],
-    v: [/v/g, "Ʋ"],
-    w: [/w/g, "ω"],
-    x: [/x/g, "ж"],
-    y: [/y/g, "¥"],
-    z: [/z/g, "ƺ"],
-    A: [/A/g, "Â"],
-    B: [/B/g, "ß"],
-    C: [/C/g, "Ç"],
-    D: [/D/g, "Ð"],
-    E: [/E/g, "É"],
-    I: [/I/g, "Ì"],
-    L: [/L/g, "£"],
-    O: [/O/g, "Ó"],
-    P: [/P/g, "Þ"],
-    S: [/S/g, "§"],
-    U: [/U/g, "Û"],
-    Y: [/Y/g, "Ý"]
-  };
-  var _TRANSLATIONS = {
-    en_US: {
-      menu: {
-        "Profile &amp; account": "Profile &amp; account",
-        Preferences: "Preferences",
-        "Version info (TS only)": "Version info (TS only)",
-        "Sign out of": "Sign out of",
-        "Set yourself to <strong>away</strong>": "Set yourself to <strong>away</strong>",
-        "[Away] Set yourself to <strong>active</strong>": "[Away] Set yourself to <strong>active</strong>"
-      },
-      channel: {
-        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} member}other{{member_count} members}}"
-      }
-    },
-    es: {
-      menu: {
-        "Profile &amp; account": "Perfil y cuenta",
-        Preferences: "Preferencias"
-      },
-      channel: {
-        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} miembro}other{{member_count} miembros}}"
-      }
-    },
-    fr: {
-      menu: {
-        "Profile &amp; account": "Profil et gestion du compte",
-        Preferences: "Préférences",
-        "Version info (TS only)": "Version info (TS uniquement)"
-      },
-      channel: {
-        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} membre}other{{member_count} membres}}"
-      }
-    }
-  };
-})();
-(function() {
-  "use strict";
   TS.registerModule("emoji", {
     onStart: function() {
       if (TS.web) TS.web.login_sig.add(TS.emoji.onLogin);
@@ -3798,11 +3749,11 @@
       }
       _canonical_names_map = _makeCanonicalNamesMap();
     },
-    setUpEmoji: function(no_rebuild_ui) {
+    setUpEmoji: function() {
       return new Promise(function(resolve) {
         if (!_emoji) return resolve();
         var complete = function() {
-          _customEmojiDidChange(no_rebuild_ui);
+          _customEmojiDidChange();
           resolve();
         };
         _customEmojiWillChange();
@@ -4339,10 +4290,12 @@
     }
     _emoji.init_colons();
   };
-  var _customEmojiDidChange = function(no_rebuild_ui) {
+  var _customEmojiDidChange = function() {
     TS.emoji.setEmojiMode();
     TS.emoji.makeMenuLists();
-    if (TS.client && !no_rebuild_ui) TS.client.ui.rebuildAll();
+    var make_sure_active_channel_is_in_view = false;
+    var should_rebuild_ui = !!TS.model.ms_logged_in_once;
+    if (TS.client && should_rebuild_ui) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
   };
   var _updateCustomEmoji = function(name, value, cache_ts) {
     if (!_emoji) return;
@@ -4353,7 +4306,6 @@
     }
     if (typeof value === "undefined") {
       delete TS.model.emoji_use[name];
-      TS.storage.storeEmojiUse(TS.model.emoji_use);
       if (!ls_emoji.data.hasOwnProperty(name)) {
         return;
       }
@@ -4818,12 +4770,14 @@
       var VERSION_INFO_DIALOG_NAME = "version_info";
       var this_version = new Date(TS.boot_data.version_ts * 1e3) + " (<b>" + TS.boot_data.version_ts + "</b>)";
       TS.generic_dialog.start({
-        title: "Version Info",
+        title: TS.i18n.t("Version Info", "ui")(),
         unique: VERSION_INFO_DIALOG_NAME,
-        body: "<p>This version: " + this_version + '</p><p class="latest_version checking">Checking for updates...</p>',
+        body: TS.i18n.t('<p>This version: {version_num}</p><p class="latest_version checking">Checking for updates&hellip;</p>', "ui")({
+          version_num: this_version
+        }),
         show_cancel_button: false,
         go_button_class: "btn_outline",
-        go_button_text: "Close",
+        go_button_text: TS.i18n.t("Close", "ui")(),
         show_secondary_go_button: false,
         onSecondaryGo: function() {
           window.location.reload();
@@ -4837,14 +4791,20 @@
         $latest_version.removeClass("checking");
         var is_up_to_date = resp.data.version_ts.toString() == TS.boot_data.version_ts.toString();
         if (is_up_to_date) {
-          $latest_version.html("Your copy of Slack is up-to-date! " + TS.emoji.graphicReplace(":tada:"));
+          $latest_version.html(TS.i18n.t("Your copy of Slack is up-to-date! {tada_emoji}", "ui")({
+            tada_emoji: TS.emoji.graphicReplace(":tada:")
+          }));
         } else {
           TS.generic_dialog.div.find(".btn.dialog_secondary_go").removeClass("hidden").text("Update");
           var requires_update = resp.data.min_version_ts > TS.boot_data.version_ts;
           if (requires_update) {
-            $latest_version.html("An important new version of Slack is available. " + TS.emoji.graphicReplace(":sparkles:"));
+            $latest_version.html(TS.i18n.t("An important new version of Slack is available. {sparkles_emoji}", "ui")({
+              sparkles_emoji: TS.emoji.graphicReplace(":sparkles:")
+            }));
           } else {
-            $latest_version.html("A newer version of Slack is available. " + TS.emoji.graphicReplace(":sparkles:"));
+            $latest_version.html(TS.i18n.t("A newer version of Slack is available. {sparkles_emoji}", "ui")({
+              sparkles_emoji: TS.emoji.graphicReplace(":sparkles:")
+            }));
           }
         }
       }).catch(_.noop);

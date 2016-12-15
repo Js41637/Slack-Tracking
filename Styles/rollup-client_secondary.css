@@ -2410,15 +2410,12 @@ body.incremental_boot #col_channels .header_count {
 }
 
 .channels_list_holder ul li.all_threads ts-icon:before {
-  font-size: 1.0625rem;
-  position: relative;
-  left: .0625rem
+  font-size: 1.25rem;
+  position: relative
 }
 
 .channels_list_holder ul li.all_threads.unread ts-icon:before {
-  content: '\E542';
-  font-size: 1.3125rem;
-  left: -.0625rem
+  content: '\E554'
 }
 
 .channels_list_holder.feature_message_replies_threads_view ul li.all_threads,
@@ -2498,6 +2495,16 @@ body:not(.sorting_mode) .channels_list_holder ul li>a:hover {
   float: left
 }
 
+.channels_list_holder ul li .channel_name .prefix.ts_icon_pencil,
+.channels_list_holder ul li .group_name .prefix.ts_icon_pencil,
+.channels_list_holder ul li .im_name .prefix.ts_icon_pencil,
+.channels_list_holder ul li .mpim_name .prefix.ts_icon_pencil,
+.channels_list_holder ul li>a .prefix.ts_icon_pencil {
+  opacity: .8;
+  -moz-opacity: .8;
+  -khtml-opacity: .8
+}
+
 .channels_list_holder ul li.channel .prefix {
   margin: -3px -2px 0
 }
@@ -2521,7 +2528,8 @@ body:not(.sorting_mode) .channels_list_holder ul li>a:hover {
 }
 
 .channels_list_holder ul li .ts_icon_pencil.prefix:before {
-  font-size: 1rem
+  font-size: .9375rem;
+  width: 1rem
 }
 
 .channels_list_holder ul li.member .ts_icon_pencil.prefix,
@@ -17933,10 +17941,10 @@ ts-message .pinned_item_message_header .ts_icon_thumb_tack:before {
 }
 
 ts-message .recap_highlight {
-  width: 52px;
   height: 16px;
   font-size: .8125rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
+  line-height: 16px;
   text-align: left;
   background: #c8fad9;
   border-radius: .1875rem;
@@ -18141,7 +18149,7 @@ ts-message .emoji-sizer .mention {
   height: 4.875rem;
   margin-left: .625rem;
   margin-top: .625rem;
-  margin-bottom: .625rem
+  margin-bottom: 1.5625rem
 }
 
 .light_theme #reply_container .inline_message_input_container,
@@ -18734,11 +18742,17 @@ ts-message .emoji-sizer .mention {
   margin-left: .1rem;
   margin-right: .3rem;
   color: #717274;
-  font-weight: 900;
+  font-weight: 500;
+  font-size: .8125rem;
   max-width: 11.25rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
+}
+
+.light_theme ts-message .message_content .message_current_status .emoji-sizer {
+  width: 1rem;
+  height: 1rem
 }
 
 .light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
@@ -18757,6 +18771,14 @@ ts-message .emoji-sizer .mention {
 
 .light_theme ts-message .message_content .timestamp {
   display: none
+}
+
+.light_theme ts-message .message_content.feature_message_replies .recap_highlight_debug {
+  color: #717274
+}
+
+.light_theme ts-message .message_content.feature_message_replies .recap_highlight_debug:before {
+  font-size: 16px
 }
 
 .light_theme ts-message .message_content.feature_message_replies .meta {
@@ -19037,10 +19059,16 @@ ts-message .emoji-sizer .mention {
   margin-left: .1rem;
   margin-right: .3rem;
   font-weight: 400;
+  font-size: .8125rem;
   max-width: 11.25rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
+}
+
+.dense_theme ts-message .message_content .message_current_status .emoji-sizer {
+  width: 1rem;
+  height: 1rem
 }
 
 .dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
@@ -19586,6 +19614,7 @@ ts-thread .view_all_replies_count {
   margin-left: 3rem
 }
 
+.recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .message_current_status,
 .recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .message_star_holder,
 .recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .msg_inline_media_toggler,
 .recap_hover .recap_hover_interior .recap_hover_message_preview .message_content .recap_highlight,
@@ -22391,6 +22420,11 @@ ts-jumper ts-jumper-results:empty {
   border-bottom: 1px solid #e8e8e8
 }
 
+.current_status_input_for_team_menu .current_status_suggestions:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0
+}
+
 .current_status_input_for_team_menu .current_status_clear {
   padding-top: .8125rem
 }
@@ -24991,7 +25025,7 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 }
 
 .menu.app_card {
-  max-width: 20rem;
+  width: 20rem;
   overflow: hidden
 }
 

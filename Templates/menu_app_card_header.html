@@ -8,9 +8,7 @@
         app_header_large rounded
       {{else}}
         rounded_top
-        {{#feature flag="feature_app_profiles_frontend"}}
-          {{#unless hide_link_to_app_profile}}cursor_pointer{{/unless}}
-        {{/feature}}
+        {{#unless hide_link_to_app_profile}}cursor_pointer{{/unless}}
       {{/if}}"
 
   {{!-- Styling for dynamic background color --}}
@@ -46,7 +44,9 @@
   <div class="app_card_header_text">
     <div class="app_card_name_row lato_black flexpane_grey display_flex align_items_center">
       <span class="app_name overflow_ellipsis" data-qa="app_header_name">{{name}}</span>
-      <div><span class="app_label lato neutral_white">{{#t}}APP{{/t}}</span></div>
+      <div><span class="app_label lato neutral_white">
+        {{#feature flag="feature_app_cards_app_label"}}{{#t}}APP{{/t}}{{else}}{{#t}}BOT{{/t}}{{/feature}}
+      </span></div>
     </div>
     {{#if desc}}
       <div class="app_card_desc lato flexpane_grey overflow_hidden" data-qa="app_header_description">{{desc}}</div>

@@ -1,24 +1,23 @@
 {{i18n_ns "coachmarks"}}
 
+{{!-- TODO: move to separate templates... so many conditions --}}
 <div id="channels_coachmark_div" class="coachmark_div">
   <div class="coachmark_contents">
-    <h2 class="black">{{#if_gt total_count compare=1~}}
+    <h2 class="black">
       {{#feature flag="feature_update_coachmarks_copy"}}
         {{#t}}Messaging happens in channels{{/t}}
-      {{else}}
-        {{#t}}These are your channels{{/t}}
-      {{/feature}}
-    {{~else~}}
-      {{~#if in_single_private_channel~}}
-        {{#t}}This is your private channel{{/t}}
       {{~else~}}
-        {{#feature flag="feature_update_coachmarks_copy"}}
-          {{#t}}Messaging happens in channels{{/t}}
-        {{else}}
-          {{#t}}This is your channel{{/t}}
-        {{/feature}}
-      {{~/if~}}
-    {{~/if_gt}}</h2>
+        {{#if_gt total_count compare=1~}}
+          {{#t}}These are your channels{{/t}}
+        {{~else~}}
+          {{~#if in_single_private_channel~}}
+            {{#t}}This is your private channel{{/t}}
+          {{~else~}}
+            {{#t}}This is your channel{{/t}}
+          {{~/if~}}
+        {{~/if_gt~}}
+      {{/feature}}
+    </h2>
     {{~#currentUserIsAdmin~}}
       {{#feature flag="feature_update_coachmarks_copy"}}
         <p>{{#t}}Channels bring order and searchability to your team\u2019s conversations. Organize by topic (#research), working group (#sales), or specific project (#sales-tv-ad).{{/t}}</p>
@@ -28,20 +27,26 @@
     {{~else~}}
       {{~#currentUserIsRA~}}
         <p>{{#if in_single_private_channel~}}
-          {{#t}}Private channels are invite-only rooms. You only have access to this channel right now.{{/t}}
+          {{#feature flag="feature_update_coachmarks_copy"}}
+            {{#t}}Channels organize your team's conversations by topic or working group. As a guest,{{/t}}
+          {{~else~}}
+            {{#t}}Private channels are invite-only rooms. You only have access to this channel right now.{{/t}}
+          {{/feature}}
         {{~else~}}
           {{#feature flag="feature_update_coachmarks_copy"}}
             {{~#if_equal total_count compare=1~}}
-              {{#t first_listed_channel=(firstListedChannel)}}Channels organize your team\u2019s conversations by topic or working group. As a guest, you\u2019ve been invited to send messages in one channel, <strong>{first_listed_channel}</strong>.{{/t}}
+              {{#t first_listed_channel=(firstListedChannel)}}Channels organize your team's conversations by topic or working group. As a guest, you can send messages and browse archives in one channel, <strong>{first_listed_channel}</strong>.{{/t}}
             {{~else~}}
-              {{#t}}Channels organize your team\u2019s conversations by topic or working group. As a guest, you\u2019ve been invited to send messages and browse archives in the channels in this list.{{/t}}
+              {{#t}}Channels organize your team's conversations by topic or working group. As a guest, you can send messages and browse archives in the channels listed here.{{/t}}
             {{~/if_equal~}}
           {{else}}
             {{#t}}Channels are chat rooms based around a project, a topic (such as <em>music</em>), or a team (such as <em>sales</em>).{{/t}}
           {{/feature}}
         {{~/if~}}
         {{~#unless in_single_private_channel~}}
-          {{~#currentUserIsURA}}{{else~}}
+          {{~#currentUserIsURA}}
+              {{!-- Don't show anything --}}
+          {{~else~}}
             {{#feature flag="feature_update_coachmarks_copy"}}
               {{!-- Don't show anything --}}
             {{else~}}
@@ -50,6 +55,10 @@
               {{~/if_equal~}}
             {{/feature}}
           {{~/currentUserIsURA~}}
+        {{~else~}}
+          {{#feature flag="feature_update_coachmarks_copy"}}
+            {{#t}}you can access one channel, <span class="no_wrap"><ts-icon class="ts_icon_lock"></ts-icon><strong>{first_group_channel_name}</strong></span>. This is a private, invitation-only channel.{{/t}}
+          {{/feature}}
         {{~/unless}}</p>
       {{~else~}}
         {{#feature flag="feature_update_coachmarks_copy"}}

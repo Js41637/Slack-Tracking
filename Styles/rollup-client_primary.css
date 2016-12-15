@@ -1495,8 +1495,8 @@ html.is_mac .CodeMirror .CodeMirror-sizer {
 
 @font-face {
   font-family: Slack;
-  src: url(/75299/fonts/slack-icons-Regular.eot);
-  src: url(/75299/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/75299/fonts/slack-icons-Regular.woff) format('woff'), url(/75299/fonts/slack-icons-Regular.ttf) format('truetype'), url(/75299/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/904a3/fonts/slack-icons-Regular.eot);
+  src: url(/904a3/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/904a3/fonts/slack-icons-Regular.woff) format('woff'), url(/904a3/fonts/slack-icons-Regular.ttf) format('truetype'), url(/904a3/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -2745,6 +2745,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_mentions_filled:before {
   content: '\E553'
+}
+
+.ts_icon_small_reply_filled:before {
+  content: '\E554'
 }
 
 .ts_icon_arrow_right:before {

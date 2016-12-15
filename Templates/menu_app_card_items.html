@@ -5,13 +5,11 @@
     {{#t}}This app has been disabled.{{/t}}
   </a></li>
 {{/and}}
-{{#feature flag="feature_app_profiles_frontend"}}
 
 {{#unless hide_link_to_app_profile}}
   <li role="menuitem" data-action="view_details" data-qa="app_card_view_details"><a>{{#t}}View details{{/t}}</a></li>
 {{/unless}}
 
-{{/feature}}
 {{#if deleted}}
   <li role="menuitem" data-qa="app_card_view_app_directory"><a href="/apps/{{app_id}}" target="_blank">
     {{#t}}View in app directory{{/t}}

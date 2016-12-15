@@ -1893,10 +1893,11 @@
       model_ob._show_in_list_even_though_no_unreads = false;
       TS.client.msg_pane.clearBlueBarTimer();
       TS.view.cacheMsgsHtml();
+      var make_sure_active_channel_is_in_view = true;
       if (skip_rebuild_msgs) {
-        TS.client.ui.rebuildAllButMsgs();
+        TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
       } else {
-        TS.client.ui.rebuildAll();
+        TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
       }
       window.setTimeout(TS.view.focusMessageInput, 0);
       TS.view.checkIfInputShouldBeDisabledAndPopulate();
@@ -2486,10 +2487,11 @@
       TS.templates.makeSidebarBehaviorRule();
       TS.ui.setThemeClasses(true);
       var model_ob = TS.shared.getActiveModelOb();
+      var make_sure_active_channel_is_in_view = true;
       if (!TS.isPartiallyBooted() && TS.boot_data.feature_prevent_msg_rebuild && model_ob.is_group) {
-        TS.client.ui.rebuildAllButMsgs();
+        TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
       } else {
-        TS.client.ui.rebuildAll();
+        TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
       }
       TS.view.focusMessageInput();
       TS.presence_manager.createList(TS.model.user.id);
@@ -3292,7 +3294,8 @@
       TS.channels.msg_not_sent_sig.add(TS.view.channel.channelMsgNotsent, TS.view.channel);
     },
     channelRenamed: function() {
-      TS.client.ui.rebuildAll();
+      var make_sure_active_channel_is_in_view = false;
+      TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
       TS.view.updateTitleWithContext();
     },
     channelSwitched: function() {
@@ -3944,7 +3947,8 @@
     },
     groupRenamed: function() {
       TS.view.updateTitleWithContext();
-      TS.client.ui.rebuildAll();
+      var make_sure_active_channel_is_in_view = false;
+      TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
     },
     groupSwitched: function() {
       TS.view._maybeUpdateOnboarding();
@@ -4331,7 +4335,8 @@
         TS.prefs.setHighlightWords(TS.model.prefs.highlight_words);
       }
       TS.view.updateTitleWithContext();
-      TS.client.ui.rebuildAll();
+      var make_sure_active_channel_is_in_view = false;
+      TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
       TS.view.rebuildTeamMember(member);
       if (member.id != TS.model.previewed_member_id) return;
       TS.client.ui.previewMember(member.id);
@@ -4350,7 +4355,8 @@
     memberChangedProfile: function(member) {
       var bg_img_urls = [];
       if (!TS.members.is_in_bulk_upsert_mode) {
-        TS.client.ui.rebuildAllButMsgs();
+        var make_sure_active_channel_is_in_view = false;
+        TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
         TS.view.rebuildMsgsIncludingMember(member);
       }
       if (member.id == TS.model.user.id) {
@@ -4372,7 +4378,8 @@
       TS.client.ui.previewMember(member.id);
     },
     memberChangedTZ: function(member) {
-      if (!TS.members.is_in_bulk_upsert_mode) TS.client.ui.rebuildAll();
+      var make_sure_active_channel_is_in_view = false;
+      if (!TS.members.is_in_bulk_upsert_mode) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
       TS.view.rebuildTeamMember(member);
       if (member.id != TS.model.previewed_member_id) return;
       TS.client.ui.previewMember(member.id);
@@ -4402,7 +4409,8 @@
     updateUserCurrentStatus: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
       var current_status = TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(TS.model.user), undefined, {
-        no_jumbomoji: true
+        no_jumbomoji: true,
+        no_highlights: true
       });
       $("#current_user_name_and_current_status").toggleClass("ts_tip", !!current_status);
       $(".current_user_current_status").toggleClass("hidden", !current_status).html(current_status);
@@ -4606,7 +4614,8 @@
       TSConnLogger.setConnecting(false);
       if (TS.view.ms.ever_connected) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("disconnected_feedback");
-        TS.client.ui.rebuildAllButMsgs();
+        var make_sure_active_channel_is_in_view = true;
+        TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
         TS.client.ui.rebuildMemberListToggle();
         TS.mentions.maybeUpdateMentions();
         if (was_fast_reconnect) {
@@ -5616,11 +5625,13 @@
         _setMemoryInstrumentInterval();
       }
     },
-    rebuildAllButMsgs: function() {
+    rebuildAllButMsgs: function(make_sure_active_channel_is_in_view) {
       TS.client.channel_pane.rebuild("channels", "ims", "starred");
       TS.client.msg_pane.rebuildChannelMembersList();
       TS.client.msg_pane.displayTitle();
-      TS.client.channel_pane.makeSureActiveChannelIsInView();
+      if (make_sure_active_channel_is_in_view) {
+        TS.client.channel_pane.makeSureActiveChannelIsInView();
+      }
       if (TS.boot_data.feature_unread_view && TS.client.unread.isEnabled()) {
         TS.client.ui.unread.updateSidebarLink();
       }
@@ -5628,8 +5639,8 @@
         TS.client.ui.threads.updateChannelPaneActiveState();
       }
     },
-    rebuildAll: function() {
-      TS.client.ui.rebuildAllButMsgs();
+    rebuildAll: function(make_sure_active_channel_is_in_view) {
+      TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
       TS.client.msg_pane.rebuildMsgsWithReason("rebuildAll");
     },
     windowFocusChanged: function(has_focus) {
@@ -6478,15 +6489,8 @@
     markMostRecentReadMsgInActive: function(reason, get_rid_of_line) {
       var model_ob = TS.shared.getActiveModelOb();
       if (TS.pri) TS.log(142, "TS.client.ui.markMostRecentReadMsgInActive, " + model_ob.id + ": reason = " + reason + (get_rid_of_line ? ", get_rid_of_line = " + get_rid_of_line : ""));
-      if (TS.model.active_channel_id) {
-        TS.channels.markMostRecentReadMsg(model_ob, reason);
-      } else if (TS.model.active_group_id) {
-        TS.groups.markMostRecentReadMsg(model_ob, reason);
-      } else if (TS.model.active_mpim_id) {
-        TS.mpims.markMostRecentReadMsg(model_ob, reason);
-      } else {
-        TS.ims.markMostRecentReadMsg(model_ob, reason);
-      }
+      var controller = TS.shared.getControllerForModelOb(model_ob);
+      if (_.isFunction(controller.markMostRecentReadMsg)) controller.markMostRecentReadMsg(model_ob, reason);
       if (get_rid_of_line) {
         if (TS.pri) TS.log(142, "markMostRecentReadMsgInActive, " + model_ob.id + ', reason = "' + reason + '": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()');
         TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
@@ -6661,15 +6665,9 @@
         scroll_top = TS.client.ui.$msgs_scroller_div[0].scrollTop;
       }
       var marked = false;
-      if (TS.model.active_channel_id) {
-        marked = TS.channels.markScrollTop(TS.model.active_channel_id, scroll_top);
-      } else if (TS.model.active_mpim_id) {
-        marked = TS.mpims.markScrollTop(TS.model.active_mpim_id, scroll_top);
-      } else if (TS.model.active_im_id) {
-        marked = TS.ims.markScrollTop(TS.model.active_im_id, scroll_top);
-      } else if (TS.model.active_group_id) {
-        marked = TS.groups.markScrollTop(TS.model.active_group_id, scroll_top);
-      }
+      var model_ob = TS.shared.getActiveModelOb();
+      var controller = TS.shared.getControllerForModelOb(model_ob);
+      if (_.isFunction(controller.markScrollTop)) marked = controller.markScrollTop(model_ob.id, scroll_top);
       if (scroll_top === 0 && TS.shared.getActiveModelOb() && TS.shared.getActiveModelOb().id == TS.model.welcome_model_ob.id && TS.model.cancelled_welcome_2_this_session) {
         TS.model.cancelled_welcome_2_this_session = false;
         TS.view.adjustForWelcomeSlideShow();
@@ -6684,15 +6682,9 @@
       TS.client.ui.doLoadScrollBackHistory();
     },
     doLoadScrollBackHistory: function(force) {
-      if (TS.model.active_channel_id) {
-        TS.channels.maybeLoadScrollBackHistory(TS.model.active_channel_id, force);
-      } else if (TS.model.active_mpim_id) {
-        TS.mpims.maybeLoadScrollBackHistory(TS.model.active_mpim_id, force);
-      } else if (TS.model.active_im_id) {
-        TS.ims.maybeLoadScrollBackHistory(TS.model.active_im_id, force);
-      } else if (TS.model.active_group_id) {
-        TS.groups.maybeLoadScrollBackHistory(TS.model.active_group_id, force);
-      }
+      var model_ob = TS.shared.getActiveModelOb();
+      var controller = TS.shared.getControllerForModelOb(model_ob);
+      if (_.isFunction(controller.maybeLoadScrollBackHistory)) controller.maybeLoadScrollBackHistory(model_ob.id, force);
     },
     areMsgsScrolledToBottom: function(allowance) {
       var cache = TS.model.archive_view_is_showing ? TS.model.ui.cached_archive_scroll_result : TS.model.ui.cached_msgs_scroll_result;
@@ -7259,7 +7251,7 @@
         lis_selector = "LI.unread:not(.hidden), LI.active, LI.show_in_list_even_though_no_unreads:not(.hidden)";
       }
       var $lis = TS.client.channel_pane.$scroller.find(lis_selector);
-      $lis = $lis.filter(":not(.all_unreads)");
+      $lis = $lis.filter(":not(.all_unreads):not(.all_threads)");
       if (!$lis.length) {
         TS.error('no $lis found for "' + lis_selector + '"');
       }
@@ -7295,7 +7287,7 @@
     },
     gotoNextOpenChannelOrIM: function(with_unreads, backwards) {
       var $current_li;
-      if (TS.model.unread_view_is_showing) {
+      if (TS.client.activeChannelIsHidden()) {
         var $lis = TS.client.ui.getNextOpenChannelOrIMElements(with_unreads);
         $current_li = backwards ? $lis.filter(":first") : $lis.filter(":last");
       }
@@ -10002,7 +9994,7 @@
         TS.client.ui.files.$file_btn.css("height", TS.view.last_input_height + "px");
       }
       TS.view.resizeManually("TS.client.msg_input.resized original:" + original + " height:" + height);
-      if (TS.model.is_FF) {
+      if (TS.model.is_FF && !TS.boot_data.feature_texty) {
         if (TS.view.last_input_height >= 115) {
           TS.client.ui.$msg_input.removeClass("with-emoji-menu");
           TS.client.ui.$emo_menu.addClass("hidden");
@@ -11684,7 +11676,7 @@
     if (_model_ob.is_group || _model_ob.is_private) {
       prefix = '<i class="ts_icon ts_icon_lock"></i>';
       $("#channel_title").prepend(prefix);
-    } else if (TS.model.active_channel_id) {
+    } else if (_model_ob.is_channel) {
       prefix = "#";
       $("#channel_title").prepend(prefix);
     }
@@ -15098,7 +15090,7 @@
           }
         }
       }
-      if (TS.boot_data.page_needs_enterprise && TS.boot_data.feature_enterprise_search_ui) {
+      if (TS.boot_data.page_needs_enterprise) {
         var org_name = TS.model.enterprise.name;
         var filter_label_text = {
           org_bots_allchannels: TS.i18n.t("everything I can access in {org_name}", "search")({
@@ -22672,11 +22664,10 @@
       }
       _place();
       $(window).on("resize.coachmark_placement", _place);
-      if (TS.boot_data.feature_update_coachmarks_cta && TS.newxp.canIncludeInviteCTA()) {
+      if (TS.boot_data.feature_update_coachmarks_copy) {
         if (TS.coachmark.context.ui_click) {
           $(".coachmark_got_it").removeClass("hidden");
           $(".coachmark_next_tip").addClass("hidden");
-          $(".coachmark_invite_people").addClass("hidden");
         }
       }
       if (!TS.coachmark.context.no_bg_on_small) $("#coachmark_bg").removeClass("hidden");
@@ -22861,11 +22852,10 @@
     $coachmark.css("opacity", 0);
     $coachmark.on("click", ".coachmark_skip_link", TS.coachmark.reject);
     $coachmark.on("click", ".coachmark_got_it", TS.coachmark.resolve);
-    if (TS.boot_data.feature_update_coachmarks_cta && TS.newxp.canIncludeInviteCTA()) {
+    if (TS.boot_data.feature_update_coachmarks_copy) {
       $coachmark.on("click", ".coachmark_close", TS.coachmark.reject);
       $coachmark.on("click", ".coachmark_next_tip", TS.coachmark.resolve);
       $coachmark.on("click", ".coachmark_done", TS.coachmark.resolve);
-      $coachmark.on("click", ".coachmark_invite_people", TS.coachmark.onClickInvite);
       $coachmark.on("click", ".coachmark_ok", TS.coachmark.resolve);
     }
   };
@@ -22886,10 +22876,12 @@
         content: function() {
           var channels_count = TS.channels.getChannelsForUser().length;
           var groups_count = TS.groups.getUnarchivedGroups().length;
+          var group_name = TS.groups.getUnarchivedGroups().length ? TS.groups.getUnarchivedGroups()[0].name : "";
           var template_args = {
             channels_count: channels_count,
             groups_count: groups_count,
             total_count: channels_count + groups_count,
+            first_group_channel_name: group_name,
             in_single_private_channel: !channels_count && groups_count === 1
           };
           return TS.templates.channels_coachmark(template_args);
@@ -23198,7 +23190,7 @@
       complete: {
         step_name: "onboarding_complete",
         pref_name: "seen_onboarding_complete",
-        show: "#mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header, .coachmark_ok",
+        show: "#mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
         hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #in_skip_messaging, #unskip_messaging, .coachmark_done",
         hide_admin: ".coachmark_invite_people",
         unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #col_channels_footer, #groups_header",
@@ -23363,8 +23355,8 @@
         step_name: "onboarding_channels",
         pref_name: "seen_onboarding_channels",
         show: "#active_channel_name_overlay, #in_skip_messaging, .coachmark_next_tip",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_ok",
-        style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
+        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #direct_messages, #channel_list_invites_link");
@@ -23391,12 +23383,12 @@
         step_name: "onboarding_direct_messages",
         pref_name: "seen_onboarding_direct_messages",
         show: "#active_channel_name_overlay, #in_skip_messaging",
-        show_member: ".coachmark_done",
+        show_member: ".coachmark_got_it",
         show_admin: ".coachmark_next_tip",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_ok, .coachmark_invite_people",
-        hide_member: ".coachmark_next_tip, .coachmark_skip_link",
+        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_invite_people",
+        hide_member: ".coachmark_next_tip",
         hide_admin: ".coachmark_done",
-        style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #channel_list_invites_link");
@@ -23423,8 +23415,8 @@
         pref_name: "seen_onboarding_invites",
         show: "#active_channel_name_overlay, #in_skip_messaging",
         show_admin: ".coachmark_invite_people, .coachmark_close",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip, .coachmark_done, .coachmark_ok",
-        style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
+        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip, .coachmark_done",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
         unstyle: "#quick_switcher_btn",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #direct_messages");
@@ -23695,7 +23687,7 @@
     $(step.hide).addClass("hidden");
     $(step.style).addClass("onboarding");
     $(step.unstyle).removeClass("onboarding");
-    if (TS.boot_data.feature_update_coachmarks_cta && TS.newxp.canIncludeInviteCTA()) {
+    if (TS.boot_data.feature_update_coachmarks_copy) {
       if (TS.ui.admin_invites.canInvite() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length < 26) {
         $(step.hide_admin).addClass("hidden");
         $(step.show_admin).removeClass("hidden");
@@ -23853,23 +23845,23 @@
     }
   };
   var _setupCoachmarkExperiment = function() {
-    if (!TS.boot_data.feature_update_coachmarks_cta) return;
+    if (!TS.boot_data.feature_update_coachmarks_copy) return;
+    var additional_show_hide = {
+      complete: {
+        show: ".coachmark_got_it"
+      },
+      invites: {
+        show: ".coachmark_got_it"
+      }
+    };
+    for (var step in additional_show_hide) {
+      for (var prop in additional_show_hide[step]) {
+        TS.newxp.onboarding[step][prop] += ", " + additional_show_hide[step][prop];
+      }
+    }
     var group = TS.experiment.getGroup("update_invite_coachmarks_cta");
     if (group === "invite_cm_invite_people") {
-      var additional_show_hide = {
-        complete: {
-          show: ".coachmark_got_it"
-        },
-        invites: {
-          hide: ".coachmark_got_it"
-        }
-      };
       _can_include_invite_cta = true;
-      for (var step in additional_show_hide) {
-        for (var prop in additional_show_hide[step]) {
-          TS.newxp.onboarding[step][prop] += ", " + additional_show_hide[step][prop];
-        }
-      }
     }
   };
   var _canIncludeInviteCTA = function() {
@@ -23907,8 +23899,10 @@
     started_sig: new signals.Signal,
     ended_sig: new signals.Signal,
     map: {},
-    onStart: function() {
-      setInterval(TS.typing.checkMap, 1e3);
+    onStart: function() {},
+    maybeStartTimer: function() {
+      if (_check_map_timer) return;
+      _check_map_timer = setInterval(TS.typing.checkMap, 1e3);
     },
     userStarted: function(model_ob) {
       if (!TS.model.ms_connected) return;
@@ -23934,6 +23928,7 @@
         TS.log(47, "added " + key);
         TS.typing.started_sig.dispatch(model_ob, member);
       }
+      TS.typing.maybeStartTimer();
     },
     userEnded: function(model_ob) {
       if (!model_ob) return;
@@ -23953,14 +23948,20 @@
     checkMap: function() {
       var now = Date.now();
       var record;
+      var count = 0;
       for (var key in TS.typing.map) {
         record = TS.typing.map[key];
         var lasts_ms = record.member.is_self ? TS.typing.typing_self_lasts_ms : TS.typing.typing_lasts_ms;
         var elapsed_ms = now - record.started;
+        count++;
         if (elapsed_ms >= lasts_ms) {
           TS.typing.memberEnded(record.model_ob, record.member);
           TS.log(47, "removed " + key + " after " + elapsed_ms);
         }
+      }
+      if (count < 1) {
+        clearTimeout(_check_map_timer);
+        _check_map_timer = null;
       }
     },
     getTypersInChannel: function(c_id) {
@@ -23980,6 +23981,7 @@
       return A;
     }
   });
+  var _check_map_timer = null;
 })();
 (function() {
   "use strict";
@@ -27245,7 +27247,7 @@
         TS.groups.leave(model_ob.id);
       }
     });
-    _$container.on("click", "a[data-member-id]", function(e) {
+    _$container.on("click", ".member_preview_link[data-member-id]", function(e) {
       e.preventDefault();
       var id = $(this).data("member-id");
       TS.menu.member.startWithMember(e, id);
@@ -34484,7 +34486,7 @@ function timezones_guess() {
           model_ob: group,
           score: 0
         });
-      } else if (_.trim(group.last_msg_input) && !_isActive(group)) {
+      } else if (_.trim(group.last_msg_input) && !_isActive(group) && !group.is_archived) {
         drafts.push({
           model_ob: group,
           score: 0
@@ -34502,7 +34504,7 @@ function timezones_guess() {
           model_ob: channel,
           score: 0
         });
-      } else if (_.trim(channel.last_msg_input) && !_isActive(channel)) {
+      } else if (_.trim(channel.last_msg_input) && !_isActive(channel) && !channel.is_archived && channel.is_member) {
         drafts.push({
           model_ob: channel,
           score: 0
@@ -36036,7 +36038,8 @@ function timezones_guess() {
       TS.client.ui.unread.$scroller.height(1);
       TS.client.ui.unread.$scroller.get(0).focus();
       TS.client.ui.unread.$scroller.css("height", scroller_height);
-      TS.client.ui.rebuildAllButMsgs();
+      var make_sure_active_channel_is_in_view = true;
+      TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
       TS.client.ui.unread.promiseToShowNextPage().then(function() {
         if (TS.client.unread.shouldRecordMetrics()) TS.metrics.measureAndClear("unread_view_time_to_display", "unread_view_time_to_display");
         if (!TS.model.unread_view_is_showing) return;
@@ -38015,7 +38018,7 @@ function timezones_guess() {
       }
       var $app_auth_settings = $app_profile.find('[data-js="app_auth_settings"]');
       if (!_.get(app, "is_slack_integration")) {
-        TS.apps.promiseToGetFullAppProfile(app.id, bot_id, true).then(function(app) {
+        TS.apps.promiseToGetFullAppProfile(bot_id, true).then(function(app) {
           if (app.auth_summary) {
             $app_auth_settings.html(app.auth_summary);
           }

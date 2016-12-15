@@ -146,11 +146,13 @@
   {{#if member.profile}}
     <hr class="member_details_divider">
 
-    {{#feature flag="feature_user_custom_status"}}
-      {{#if member.is_self}}
-        {{> current_status_input}}
-      {{/if}}
-    {{/feature}}
+    {{#isClient}}
+      {{#feature flag="feature_user_custom_status"}}
+        {{#if member.is_self}}
+          {{> current_status_input}}
+        {{/if}}
+      {{/feature}}
+    {{/isClient}}
 
     <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
       {{#feature flag="feature_user_custom_status"}}

@@ -454,12 +454,6 @@
     storeCustomEmoji: function(val) {
       _set("custom_emoji", val);
     },
-    fetchEmojiUse: function() {
-      return _get("emoji_use", {}) || {};
-    },
-    storeEmojiUse: function(val) {
-      _set("emoji_use", val);
-    },
     fetchApps: function() {
       return _get("apps", null) || null;
     },
@@ -627,7 +621,7 @@
   var _slow_write_logged = false;
   var _slow_all_write_logged = false;
   var _flush_all_buffer_interv = null;
-  var _flush_all_buffer_interv_ms = 2e3;
+  var _flush_all_buffer_interv_ms = 5 * 60 * 1e3;
   var _flush_all_buffer_user_inactive_ms = 1e4;
   var _flush_one_buffer_user_inactive_ms = 1e3;
   var _getKeys = function() {
@@ -1159,17 +1153,15 @@
       if (TS.boot_data.feature_name_tagging_client) {
         var name_tagging_arg_methods = ["channels.view", "rtm.leanStart", "rtm.start", "users.info", "users.list"];
         _.forEach(name_tagging_arg_methods, function(method) {
-          _default_api_args_by_method[method] = {
-            name_tagging: true
-          };
-        });
-      }
-      if (TS.boot_data.feature_canonical_avatars_web_client) {
-        var canonical_avatars_arg_methods = ["channels.view", "rtm.leanStart", "rtm.start", "users.info", "users.list"];
-        _.forEach(canonical_avatars_arg_methods, function(method) {
-          _default_api_args_by_method[method] = {
-            canonical_avatars: true
-          };
+          if (_default_api_args_by_method[method]) {
+            _.assign(_default_api_args_by_method[method], {
+              name_tagging: true
+            });
+          } else {
+            _default_api_args_by_method[method] = {
+              name_tagging: true
+            };
+          }
         });
       }
       if (TS.boot_data.feature_message_replies) {
@@ -1510,7 +1502,23 @@
     }
   });
   var _default_api_args = {};
-  var _default_api_args_by_method = {};
+  var _default_api_args_by_method = {
+    "channels.view": {
+      canonical_avatars: true
+    },
+    "rtm.leanStart": {
+      canonical_avatars: true
+    },
+    "rtm.start": {
+      canonical_avatars: true
+    },
+    "users.info": {
+      canonical_avatars: true
+    },
+    "users.list": {
+      canonical_avatars: true
+    }
+  };
   var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list"];
   var _timing_methodsA = ["rtm.start", "rtm.leanStart", "files.list"];
   var _progress_check_methodsA = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"];
@@ -1784,10 +1792,12 @@
       var data = JSON.parse(req.responseText);
       _consecutive_errors = 0;
       var ret = dataHandler(data, req.getResponseHeader("X-Slack-Req-Id"));
-      setTimeout(function() {
-        if (ret.try_again) _reQueue(method, args, p, dont_set_active, progressHandler);
-        _onRequestDone(method);
-      }, ret.breathing_ms);
+      if (ret.try_again) {
+        setTimeout(function() {
+          _reQueue(method, args, p, dont_set_active, progressHandler);
+        }, ret.breathing_ms);
+      }
+      _onRequestDone(method);
     };
     if (TS.boot_data.feature_tinyspeck) {
       var on200ResponseInner = on200Response;
@@ -8468,7 +8478,6 @@ TS.registerModule("constants", {
       }
       controller.addMsg(imsg.SENT_MSG.channel || model_ob.id, TS.utility.msgs.processImsg(new_msg, model_ob.id));
       TS.client.ui.maybeHandleSingleEmoji(imsg.text);
-      TS.prefs.recordEmojiUse(imsg.text);
       var not_present_membersA;
       var what;
       var ts = TS.utility.date.makeTsStamp();
@@ -9516,7 +9525,8 @@ TS.registerModule("constants", {
         TS.storage.storeMembers(members);
         TS.storage.disableMemberBotCache();
       }
-      if (TS.client && TS.client.ui & !TS.model.ms_logged_in_once) TS.client.ui.rebuildAll();
+      var make_sure_active_channel_is_in_view = false;
+      if (TS.client && TS.client.ui & !TS.model.ms_logged_in_once) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
     }
   });
   var _ensure_im_ids_p;
@@ -10253,9 +10263,7 @@ TS.registerModule("constants", {
           if (k.indexOf("_") === 0) continue;
           new_member[k] = member[k];
         }
-        if (TS.boot_data.feature_canonical_avatars_web_client) {
-          new_member.profile = _omitImagesFromProfile(new_member.profile);
-        }
+        new_member.profile = _omitImagesFromProfile(new_member.profile);
       }
       return new_members;
     },
@@ -10825,6 +10833,7 @@ TS.registerModule("constants", {
     });
   };
   var _omitImagesFromProfile = function(profile) {
+    if (!_.isObject(profile)) return profile;
     return _.omitBy(profile, function(value, key) {
       return key.indexOf("image_") === 0;
     });
@@ -10835,13 +10844,8 @@ TS.registerModule("constants", {
     _setPresenceForMemberAlwaysActive(existing_member, member);
     for (var k in member) {
       if (k == "profile") {
-        if (TS.boot_data.feature_canonical_avatars_web_client) {
-          var old_profile = _omitImagesFromProfile(existing_member.profile);
-          var new_profile = _omitImagesFromProfile(member.profile);
-        } else {
-          var old_profile = existing_member.profile;
-          var new_profile = member.profile;
-        }
+        var old_profile = _omitImagesFromProfile(existing_member.profile);
+        var new_profile = _omitImagesFromProfile(member.profile);
         if (_.isObject(new_profile) && !_.isEqual(old_profile, new_profile)) {
           var name_changed = _.some(["real_name", "full_name", "preferred_name"], function(name_type) {
             return new_profile[name_type] != old_profile[name_type];
@@ -10852,11 +10856,7 @@ TS.registerModule("constants", {
             }
             new_profile["fields"] = old_profile["fields"];
           }
-          if (TS.boot_data.feature_canonical_avatars_web_client) {
-            existing_member["profile"] = _.assign(existing_member["profile"], new_profile);
-          } else {
-            existing_member["profile"] = new_profile;
-          }
+          existing_member["profile"] = _.assign(existing_member["profile"], new_profile);
           if (name_changed) {
             _setLowerCaseNamesForMember(existing_member);
           }
@@ -10961,7 +10961,7 @@ TS.registerModule("constants", {
     }
   };
   var _setImagesForMember = function(member) {
-    if (!TS.boot_data.feature_canonical_avatars_web_client || !_.isObject(member.profile)) return;
+    if (!_.isObject(member.profile)) return;
     _maybeSetTeamId(member);
     var image_url = TS.model.team.avatar_base_url + member.team_id + "-" + member.id + "-" + member.profile.avatar_hash + "-";
     _.forEach(["24", "32", "48", "72", "192", "512", "1024"], function(size) {
@@ -11374,8 +11374,7 @@ TS.registerModule("constants", {
       }
       return null;
     },
-    promiseToGetFullAppProfile: function(app_id, bot_id, show_auth_summary) {
-      if (!_.isString(app_id)) return null;
+    promiseToGetFullAppProfile: function(bot_id, show_auth_summary) {
       if (!_.isString(bot_id)) return null;
       return new Promise(function(resolve, reject, onCancel) {
         var apps_profile_promise = TS.api.call("apps.profile.get", {
@@ -11414,6 +11413,7 @@ TS.registerModule("constants", {
         app_icons: app.icons,
         bot_id: bot_id,
         is_slack_integration: app.is_slack_integration,
+        is_directory_published: app.is_directory_published,
         commands: _.toArray(app.commands)
       };
       var is_bot = _.get(app, "bot_user.id");
@@ -11499,6 +11499,9 @@ TS.registerModule("constants", {
       if (app.long_desc_formatted) template_args.long_description = new Handlebars.SafeString(app.long_desc_formatted);
       if (app.support_url) template_args.support_url = app.support_url;
       if (app.user_can_manage) template_args.user_can_manage = app.user_can_manage;
+      if (app.is_slack_integration && _.isEmpty(_.get(app, "commands"))) {
+        template_args.hide_expand_button = true;
+      }
       return template_args;
     }
   });
@@ -12690,15 +12693,6 @@ TS.registerModule("constants", {
     all_unreads_sort_order_changed_sig: new signals.Signal,
     a11y_font_size_changed_sig: new signals.Signal,
     a11y_animations_changed_sig: new signals.Signal,
-    onStart: function() {
-      if (TS.client) TS.client.login_sig.add(TS.prefs.onLogin, TS.prefs);
-    },
-    onLogin: function(ok, data) {
-      if (!TS.boot_data.feature_server_side_emoji_counts) {
-        setInterval(_maybeSaveEmojiUse, 1e3 * 60 * 10);
-        TS.ui.window_unloaded_sig.add(_maybeSaveEmojiUse);
-      }
-    },
     setPrefs: function(prefs) {
       TS.model.prefs = prefs;
       TS.prefs.mergeEmojiUse(TS.model.prefs.emoji_use);
@@ -12853,28 +12847,6 @@ TS.registerModule("constants", {
       if (search_exclude_channels && typeof search_exclude_channels == "string") {
         TS.model.search_exclude_channels = TS.model.search_exclude_channels.concat(search_exclude_channels.split(","));
       }
-    },
-    recordEmojiUse: function(str) {
-      if (TS.boot_data.feature_server_side_emoji_counts) return;
-      var added = TS.utility.msgs.recordEmojiInHash(str, TS.model.emoji_use);
-      if (!added) return;
-      TS.emoji.maybeRemakeMenuListsIfFrequentsChanged();
-      _emoji_use_dirty_cnt++;
-      if (_emoji_use_dirty_cnt > 10) {
-        TS.prefs.saveEmojiUse();
-      } else {
-        TS.storage.storeEmojiUse(TS.model.emoji_use);
-      }
-    },
-    saveEmojiUse: function() {
-      if (TS.boot_data.feature_server_side_emoji_counts) return;
-      TS.dir(777, TS.model.emoji_use, "saving emoji_use pref");
-      _emoji_use_dirty_cnt = 0;
-      TS.storage.storeEmojiUse(TS.model.emoji_use);
-      TS.prefs.setPrefByAPI({
-        name: "emoji_use",
-        value: JSON.stringify(TS.model.emoji_use)
-      });
     },
     mergeFrecencyJumper: function(frecency_jumper) {
       if (!frecency_jumper || typeof frecency_jumper !== "object") {
@@ -13600,13 +13572,7 @@ TS.registerModule("constants", {
       };
     }
   });
-  var _emoji_use_dirty_cnt = 0;
   var _has_set_muted_channels_before = false;
-  var _maybeSaveEmojiUse = function() {
-    if (TS.boot_data.feature_server_side_emoji_counts) return;
-    if (!_emoji_use_dirty_cnt) return;
-    TS.prefs.saveEmojiUse();
-  };
   var _cleanHighlightWords = function(val) {
     if (!_.isString(val)) return "";
     val = TS.format.replaceUnicodeDoppelgangers(val);
@@ -14230,7 +14196,7 @@ TS.registerModule("constants", {
     };
     if (method === "search.all") args.no_posts = 1;
     if (method !== "search.files") args.more_matches = true;
-    if (TS.boot_data.feature_enterprise_search_ui && TS.boot_data.page_needs_enterprise && TS.boot_data.enterprise_api_token) {
+    if (TS.boot_data.page_needs_enterprise && TS.boot_data.enterprise_api_token) {
       args.enterprise_token = TS.boot_data.enterprise_api_token;
       if (method === "search.messages") args.team = TS.model.team.id;
     }
@@ -18394,15 +18360,15 @@ TS.registerModule("constants", {
       var str = "";
       if (ob.is_in) {
         if (ob.joined && ob.left) {
-          str = TS.i18n.t("left and rejoined", "template_builders")();
+          str = TS.i18n.t("left and rejoined", "templates_builders")();
         } else {
-          str = TS.i18n.t("joined", "template_builders")();
+          str = TS.i18n.t("joined", "templates_builders")();
         }
       } else {
         if (ob.joined && ob.left) {
-          str = TS.i18n.t("joined and left", "template_builders")();
+          str = TS.i18n.t("joined and left", "templates_builders")();
         } else {
-          str = TS.i18n.t("left", "template_builders")();
+          str = TS.i18n.t("left", "templates_builders")();
         }
       }
       return str;
@@ -18428,22 +18394,18 @@ TS.registerModule("constants", {
         var channel_name;
         if (model_ob.is_group || model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
-        } else {
+        } else if (model_ob) {
           channel_name = "#" + model_ob.name;
+        } else {
+          channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        str += model_ob ? " " + channel_name : " the channel";
+        str += " " + channel_name;
         if (user_ob.is_in && inviter) {
           str += " by invitation from <@" + inviter.id + "|" + inviter.name + ">";
         }
         var alsoA = [];
         var otherA = [];
         var also_str = "along with";
-        var channel_name;
-        if (channel) {
-          channel_name = "#" + channel.name;
-        } else {
-          channel_name = "the channel";
-        }
         var inviter_name;
         if (user_ob.is_in && inviter) {
           inviter_name = "<@" + inviter.id + "|" + inviter.name + ">";
@@ -18483,29 +18445,29 @@ TS.registerModule("constants", {
             if (otherA.length) {
               if (_jl_rollup_limit_reached) {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 }
               } else {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}. Also, {others}.", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}. Also, {others}.", "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}. Also, {others}.", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}. Also, {others}.", "templates_builders");
                 }
               }
             } else {
               if (_jl_rollup_limit_reached) {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, and invited {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 }
               } else {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, and invited {users}", "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, and invited {users}", "templates_builders");
                 }
               }
             }
@@ -18513,29 +18475,29 @@ TS.registerModule("constants", {
             if (otherA.length) {
               if (_jl_rollup_limit_reached) {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 }
               } else {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}. Also, {others}.", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}. Also, {others}.", "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, along with {users}. Also, {others}.", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, along with {users}. Also, {others}.", "templates_builders");
                 }
               }
             } else {
               if (_jl_rollup_limit_reached) {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+                  str_builder = TS.i18n.t('{joined_or_left} {channel_name}, along with {users} and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
                 }
               } else {
                 if (inviter_name) {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}, along with {users}", "templates_builders");
                 } else {
-                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, along with {users}", "template_builders");
+                  str_builder = TS.i18n.t("{joined_or_left} {channel_name}, along with {users}", "templates_builders");
                 }
               }
             }
@@ -18552,15 +18514,15 @@ TS.registerModule("constants", {
         } else if (otherA.length) {
           if (_jl_rollup_limit_reached) {
             if (inviter_name) {
-              str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+              str_builder = TS.i18n.t('{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
             } else {
-              str_builder = TS.i18n.t('{joined_or_left} {channel_name}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "template_builders");
+              str_builder = TS.i18n.t('{joined_or_left} {channel_name}. Also, {others} along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders");
             }
           } else {
             if (inviter_name) {
-              str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others}.", "template_builders");
+              str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}. Also, {others}.", "templates_builders");
             } else {
-              str_builder = TS.i18n.t("{joined_or_left} {channel_name}. Also, {others}.", "template_builders");
+              str_builder = TS.i18n.t("{joined_or_left} {channel_name}. Also, {others}.", "templates_builders");
             }
           }
           str += ". Also, " + otherA.join(", ");
@@ -18570,19 +18532,19 @@ TS.registerModule("constants", {
         } else {
           html = TS.format.formatNoHighlightsNoSpecials(str);
           if (inviter_name) {
-            str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}", "template_builders");
+            str_builder = TS.i18n.t("{joined_or_left} {channel_name} by invitation from {inviter}", "templates_builders");
           } else {
-            str_builder = TS.i18n.t("{joined_or_left} {channel_name}", "template_builders");
+            str_builder = TS.i18n.t("{joined_or_left} {channel_name}", "templates_builders");
           }
         }
-        var new_html = str_builder({
-          joined_or_left: TS.templates.builders.buildJoinLeaveRollUpStr(user_ob),
-          channel_name: channel_name,
-          inviter: inviter,
-          users: TS.format.formatNoHighlightsNoSpecials(alsoA.join(", ")),
-          others: TS.format.formatNoHighlightsNoSpecials(otherA.join(", "))
-        });
         if (false && TS.boot_data.feature_tinyspeck) {
+          var new_html = TS.format.formatNoHighlightsNoSpecials(str_builder({
+            joined_or_left: TS.templates.builders.buildJoinLeaveRollUpStr(user_ob),
+            channel_name: channel_name,
+            inviter: inviter ? "<@" + inviter.id + "|" + inviter.name + ">" : "",
+            users: alsoA.join(", "),
+            others: otherA.join(", ")
+          }));
           if (html !== new_html) {
             TS.info("- - -");
             TS.info("TS only: issue with user leave/join message. Please message @steveb with the following info:");
@@ -18597,122 +18559,190 @@ TS.registerModule("constants", {
         var channel_name;
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
-        } else {
+        } else if (model_ob) {
           channel_name = "#" + model_ob.name;
+        } else {
+          channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
         if (inviter) {
-          txt = "joined " + (model_ob ? channel_name : "the channel") + " from an invitation by <@" + inviter.id + "|" + inviter.name + ">";
+          txt = TS.i18n.t("joined {channel_name} from an invitation by {inviter}", "templates_builders")({
+            channel_name: channel_name,
+            inviter: "<@" + inviter.id + "|" + inviter.name + ">"
+          });
           html = TS.format.formatNoHighlightsNoSpecials(txt, msg);
         } else {
-          html = "joined " + (model_ob ? channel_name : "the channel");
+          html = TS.i18n.t("joined {channel_name}", "templates_builders")({
+            channel_name: channel_name
+          });
         }
       } else if (msg.subtype == "channel_leave") {
         var channel_name;
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
-        } else {
+        } else if (model_ob) {
           channel_name = "#" + model_ob.name;
+        } else {
+          channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        html = "left " + (model_ob ? channel_name : "the channel");
+        html = TS.i18n.t("left {channel_name}", "templates_builders")({
+          channel_name: channel_name
+        });
       } else if (msg.subtype == "channel_name") {
-        html = 'renamed the channel from "' + msg.old_name + '" to "' + msg.name + '"';
+        html = TS.i18n.t('renamed the channel from "{old_name}" to "{new_name}"', "templates_builders")({
+          old_name: msg.old_name,
+          new_name: msg.name
+        });
       } else if (msg.subtype == "channel_topic") {
         if (!msg.topic) {
-          html = "cleared the channel topic";
+          html = TS.i18n.t("cleared the channel topic", "templates_builders")();
         } else {
           var formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
             no_highlights: true
           });
-          html = 'set the channel topic: <span class="topic no_jumbomoji">' + formatted_topic + "</span>";
+          html = TS.i18n.t('set the channel topic: <span class="topic no_jumbomoji">{topic}</span>', "templates_builders")({
+            topic: formatted_topic
+          });
         }
       } else if (msg.subtype == "channel_purpose") {
         if (!msg.purpose) {
-          html = "cleared the channel purpose";
+          html = TS.i18n.t("cleared the channel purpose", "templates_builders")();
         } else {
           var formatted_purpose = TS.format.formatWithOptions(msg.purpose, msg, {
             no_highlights: true
           });
-          html = 'set the channel purpose: <span class="purpose no_jumbomoji">' + formatted_purpose + "</span>";
+          html = TS.i18n.t('set the channel purpose: <span class="purpose no_jumbomoji">{purpose}</span>', "templates_builders")({
+            purpose: formatted_purpose
+          });
         }
       } else if (msg.subtype == "group_join") {
         group = model_ob;
+        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         inviter = TS.members.getMemberById(msg.inviter);
         if (inviter) {
-          txt = "joined" + (group ? " " + TS.model.group_prefix + group.name : " the private channel") + " from an invitation by <@" + inviter.id + "|" + inviter.name + ">";
+          txt = TS.i18n.t("joined {group_name} from an invitation by {inviter}", "templates_builders")({
+            group_name: group_name,
+            inviter: "<@" + inviter.id + "|" + inviter.name + ">"
+          });
           html = TS.format.formatNoHighlightsNoSpecials(txt, msg);
         } else {
-          html = "joined" + (group ? " " + TS.model.group_prefix + group.name : " the private channel");
+          html = TS.i18n.t("joined {group_name}", "templates_builders")({
+            group_name: group_name
+          });
         }
       } else if (msg.subtype == "group_leave") {
         group = model_ob;
-        html = "left" + (group ? " " + TS.model.group_prefix + group.name : " the private channel");
+        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
+        html = TS.i18n.t("left {group_name}", "templates_builders")({
+          group_name: group_name
+        });
       } else if (msg.subtype == "group_name") {
         html = 'renamed the private channel from "' + msg.old_name + '" to "' + msg.name + '"';
+        html = TS.i18n.t('renamed the private channel from "{old_name}" to "{new_name}"', "templates_builders")({
+          old_name: msg.old_name,
+          new_name: msg.name
+        });
       } else if (msg.subtype == "group_topic") {
         if (!msg.topic) {
-          html = "cleared the channel topic";
+          html = TS.i18n.t("cleared the channel topic", "templates_builders")();
         } else {
           var formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
             no_highlights: true
           });
-          html = 'set the channel topic: <span class="no_jumbomoji">' + formatted_topic + "</span>";
+          html = TS.i18n.t('set the channel topic: <span class="no_jumbomoji">{topic}</span>', "templates_builders")({
+            topic: formatted_topic
+          });
         }
       } else if (msg.subtype == "group_purpose") {
         if (!msg.purpose) {
-          html = "cleared the channel purpose";
+          html = TS.i18n.t("cleared the channel purpose", "templates_builders")();
         } else {
           var formatted_purpose = TS.format.formatWithOptions(msg.purpose, msg, {
             no_highlights: true
           });
-          html = 'set the channel purpose: <span class="no_jumbomoji">' + formatted_purpose + "</span>";
+          html = TS.i18n.t('set the channel purpose: <span class="no_jumbomoji">{purpose}</span>', "templates_builders")({
+            purpose: formatted_purpose
+          });
         }
       } else if (msg.subtype == "group_archive") {
         group = model_ob;
-        html = "archived" + (group ? " " + TS.model.group_prefix + group.name : " the private channel");
+        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         if (TS.client && group && group.is_archived) {
           if (TS.model.archive_view_is_showing) {
-            html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + group.name + '?force-browser=1">archives</a>.';
+            html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
+              group_name: group_name,
+              name_for_url: group.name
+            });
           } else {
             var method = "TS.shared.closeArchivedChannel";
-            html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + group.name + '?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="' + method + "('" + group.id + "')\">click here</a>.";
+            html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
+              group_name: group_name,
+              name_for_url: group.name,
+              method: method,
+              group_id: "'" + group.id + "'"
+            });
           }
+        } else {
+          html = TS.i18n.t("archived {group_name}", "templates_builders")({
+            group_name: group_name
+          });
         }
       } else if (msg.subtype == "group_unarchive") {
         group = model_ob;
-        html = "un-archived" + (group ? " " + TS.model.group_prefix + group.name : " the private channel");
+        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
+        html = TS.i18n.t("un-archived {group_name}", "templates_builders")({
+          group_name: group_name
+        });
       } else if (msg.subtype == "channel_archive") {
         var channel_name;
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
-        } else {
+        } else if (model_ob) {
           channel_name = "#" + model_ob.name;
+        } else {
+          channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        html = "archived " + (model_ob ? channel_name : "the channel");
         if (TS.client && model_ob && model_ob.is_archived) {
           if (TS.model.archive_view_is_showing) {
-            html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + channel.name + '?force-browser=1">archives</a>.';
+            html = TS.i18n.t('archived {channel_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
+              channel_name: channel_name,
+              name_for_url: channel.name
+            });
           } else {
-            html += '. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/' + channel.name + '?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="TS.channels.closeArchivedChannel(\'' + channel.id + "')\">click here</a>.";
+            html = TS.i18n.t('archived {channel_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
+              channel_name: channel_name,
+              name_for_url: channel.name,
+              channel_id: "'" + channel.id + "'"
+            });
           }
+        } else {
+          html = TS.i18n.t("archived {channel_name}", "templates_builders")({
+            channel_name: channel_name
+          });
         }
       } else if (msg.subtype == "channel_unarchive") {
         var channel_name;
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
-        } else {
+        } else if (model_ob) {
           channel_name = "#" + model_ob.name;
+        } else {
+          channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        html = "un-archived " + (model_ob ? channel_name : "the channel");
+        html = TS.i18n.t("un-archived {channel_name}", "templates_builders")({
+          channel_name: channel_name
+        });
       } else if (msg.subtype == "me_message") {
         html = "<i>" + TS.format.formatWithOptions(msg.text, msg, {
           do_inline_imgs: do_inline_imgs
         }) + "</i>";
       } else if (msg.subtype == "play_sound") {
-        html = 'played "' + msg.sound + '"';
+        html = TS.i18n.t('played "{msg_sound}"', "templates_builders")({
+          msg_sound: msg.sound
+        });
       } else if (msg.subtype == "sh_room_shared" || msg.subtype == "sh_room_created") {
         if (msg.subtype == "sh_room_shared") {} else {}
         if (starred_items_list) {
-          html += "<span>Shared a call</span>";
+          html += "<span>" + TS.i18n.t("Shared a call", "templates_builders")() + "</span>";
         } else if (msg._room_id && (room = TS.rooms.getRoomById(msg._room_id))) {
           html += TS.templates.builders.buildSHRoomAttachment(room);
         } else {}
@@ -18819,7 +18849,7 @@ TS.registerModule("constants", {
         var group = TS.boot_data.search_limit_extracts_group;
         if (group === "limit_50" || group === "limit_100") {
           html += '<div class="search_result_with_extract experiment_search_limit_extracts">';
-          html += '<div class="extract_expand_text">' + TS.i18n.t("Expand", "template_builders")() + "</div>";
+          html += '<div class="extract_expand_text">' + TS.i18n.t("Expand", "templates_builders")() + "</div>";
           html += '<div class="extract_expand_icons blue"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
         } else {
           html += '<div class="search_result_with_extract">';
@@ -18940,7 +18970,7 @@ TS.registerModule("constants", {
       var jump_link = "";
       var msg_html = "";
       var for_mention_rxn_display = mention.type == "reaction";
-      jump_link = TS.templates.builders.strBuilder('<a class="msg_right_link msg_jump" data-cid="${cid}">' + TS.i18n.t("Jump", "template_builders")() + "</a>", {
+      jump_link = TS.templates.builders.strBuilder('<a class="msg_right_link msg_jump" data-cid="${cid}">' + TS.i18n.t("Jump", "templates_builders")() + "</a>", {
         cid: model_ob.id
       });
       msg_html = TS.templates.builders.msgs.buildHTML({
@@ -19074,11 +19104,11 @@ TS.registerModule("constants", {
         var jump_link = "";
         if (!im_with_disabled_user) {
           if (TS.boot_data.feature_files_list) {
-            jump_link = TS.templates.builders.strBuilder('<a class="star_jump msg_right_link btn btn_outline" data-cid="${cid}">Jump</a>', {
+            jump_link = TS.templates.builders.strBuilder('<a class="star_jump msg_right_link btn btn_outline" data-cid="${cid}">' + TS.i18n.t("Jump", "templates_builders")() + "</a>", {
               cid: model_ob.id
             });
           } else {
-            jump_link = TS.templates.builders.strBuilder('<a class="star_jump msg_right_link" data-cid="' + model_ob.id + '">Jump</a>', {
+            jump_link = TS.templates.builders.strBuilder('<a class="star_jump msg_right_link" data-cid="' + model_ob.id + '">' + TS.i18n.t("Jump", "templates_builders")() + "</a>", {
               cid: model_ob.id
             });
           }
@@ -19150,18 +19180,32 @@ TS.registerModule("constants", {
       var too_many_px = inline_img.width && inline_img.height && inline_img.width * inline_img.height > TS.model.inline_img_pixel_limit;
       var show_expander = !too_many_px;
       var too_large_explain = "";
+      var too_large_explain_str = "";
       if (!expand_it && (!TS.model.prefs.obey_inline_img_limit || too_many_b) || too_many_px) {
         var would_expand = !inline_img.internal_file_id && TS.model.prefs.expand_inline_imgs && TS.model.expandable_state["img_" + container_id + inline_img.src] !== false;
         if (would_expand && too_many_px) {
           show_expander = false;
-          too_large_explain = '<span class="too_large_for_auto_expand"> (Not automatically expanded because ' + inline_img.width + "x" + inline_img.height + " is too large to display inline.</span>";
+          too_large_explain_str = TS.i18n.t("(Not automatically expanded because {img_width}x{img_height} is too large to display inline.)", "templates_builders")({
+            img_width: inline_img.width,
+            img_height: inline_img.height
+          });
+          too_large_explain = '<span class="too_large_for_auto_expand"> ' + too_large_explain_str + "</span>";
         } else if (would_expand && too_many_b) {
-          too_large_explain = '<span class="too_large_for_auto_expand"> (Not automatically expanded because ' + TS.utility.convertFilesize(inline_img.bytes) + ' is too large. You can <a class="cursor_pointer too_large_but_expand_anyway" data-real-src="' + TS.utility.htmlEntities(inline_img.src) + '">expand it anyway</a> or <a ' + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="Open original in new tab">open it in a new window</a>.';
           if (TS.model.show_inline_img_size_pref_reminder && !TS.model.shown_inline_img_size_pref_reminder_once) {
-            too_large_explain += " You can also <a class=\"cursor_pointer\" onclick=\"TS.ui.prefs_dialog.start('messages_media', '#prefs_inline_media')\">change your preferences</a> to allow images of any file size to auto expand.";
+            too_large_explain_str = TS.i18n.t('(Not automatically expanded because {file_size} is too large. 						You can <a class="cursor_pointer too_large_but_expand_anyway" data-real-src="{real_src}">expand it anyway</a> or <a {referer_safe_link} target="_blank" title="Open original in new tab">open it in a new window</a>. 						You can also <a class="cursor_pointer" onclick="TS.ui.prefs_dialog.start(\'messages_media\', \'#prefs_inline_media\')">change your preferences</a> to allow images of any file size to auto expand.)', "templates_builders")({
+              file_size: TS.utility.convertFilesize(inline_img.bytes),
+              real_src: TS.utility.htmlEntities(inline_img.src),
+              referer_safe_link: TS.utility.makeRefererSafeLink(link_url)
+            });
             TS.model.shown_inline_img_size_pref_reminder_once = true;
+          } else {
+            too_large_explain_str = TS.i18n.t('(Not automatically expanded because {file_size} is too large. 						You can <a class="cursor_pointer too_large_but_expand_anyway" data-real-src="{real_src}">expand it anyway</a> or <a {referer_safe_link} target="_blank" title="Open original in new tab">open it in a new window</a>.)', "templates_builders")({
+              file_size: TS.utility.convertFilesize(inline_img.bytes),
+              real_src: TS.utility.htmlEntities(inline_img.src),
+              referer_safe_link: TS.utility.makeRefererSafeLink(link_url)
+            });
           }
-          too_large_explain += ")</span>";
+          too_large_explain = '<span class="too_large_for_auto_expand"> ' + too_large_explain_str + "</span>";
         }
       }
       var bytes = inline_img.bytes && no_bytes !== true ? '<span class="inline_img_bytes ' + (too_large_explain ? "hidden" : "") + '"> (' + TS.utility.convertFilesize(inline_img.bytes) + ")</span>" : "";
@@ -19200,6 +19244,9 @@ TS.registerModule("constants", {
       html += ">";
       var cmd_key = "ctrl";
       if (TS.model.is_mac) cmd_key = "cmd";
+      var open_new_tab_str = TS.i18n.t("{cmd_key}+click to open original in new tab", "templates_builders")({
+        cmd_key: cmd_key
+      });
       var may_show_file_viewer = args && args.hasOwnProperty("maybe_show_file_viewer") ? args.maybe_show_file_viewer : true;
       var show_file_viewer_link;
       if (inline_img.internal_file_id) {
@@ -19207,12 +19254,12 @@ TS.registerModule("constants", {
           show_file_viewer_link = may_show_file_viewer;
           if (file.external_type == "dropbox" || file.external_type == "gdrive" || file.external_type == "box" || file.external_type == "onedrive") {
             var file_to_show = file.thumb_720 ? file.thumb_720 : file.thumb_360;
-            html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="cmd+click to open original in new tab" class="file_viewer_external_link" data-src="' + TS.utility.htmlEntities(file_to_show) + '"data-link-url="' + link_url + '">';
+            html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + open_new_tab_str + '" class="file_viewer_external_link" data-src="' + TS.utility.htmlEntities(file_to_show) + '"data-link-url="' + link_url + '">';
           } else {
             if (show_file_viewer_link) {
               html += '<a href="' + link_url + '" target="_blank" class="file_viewer_channel_link file_viewer_link" data-file-id="' + inline_img.internal_file_id + '">';
             } else {
-              html += '<a href="' + link_url + '" target="_blank" title="' + cmd_key + '+click to open original in new tab" class="file_preview_link thumbnail_link" data-file-id="' + inline_img.internal_file_id + '">';
+              html += '<a href="' + link_url + '" target="_blank" title="' + open_new_tab_str + '" class="file_preview_link thumbnail_link" data-file-id="' + inline_img.internal_file_id + '">';
             }
           }
         } else {
@@ -19224,7 +19271,7 @@ TS.registerModule("constants", {
         if (may_show_file_viewer) {
           img_class = "file_viewer_external_link";
         } else {
-          img_title = "Click to open original in new tab";
+          img_title = TS.i18n.t("Click to open original in new tab", "templates_builders")();
         }
         html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + img_title + '" class="' + img_class + '" data-src="' + TS.utility.htmlEntities(inline_img.src) + '" data-link-url="' + inline_img.link_url + '"';
         if (inline_img.width) html += ' data-width="' + TS.utility.htmlEntities(inline_img.width) + '"';
@@ -19643,7 +19690,7 @@ TS.registerModule("constants", {
     makeChannelLinkAriaLabelSafe: function(channel) {
       if (!channel) TS.warn("No valid channel to make channel link aria label");
       var name = TS.utility.htmlEntities(channel.name);
-      var active_or_regular_channel = TS.model.active_channel_id === channel.id ? "active channel" : "channel";
+      var active_or_regular_channel = TS.model.active_channel_id === channel.id ? TS.i18n.t("active channel", "templates_builders")() : TS.i18n.t("channel", "templates_builders")();
       var unread_message = _getUnreadMessageLabelText(channel);
       var aria_label = name + ", " + active_or_regular_channel + (unread_message ? ", " + unread_message : "");
       return new Handlebars.SafeString(aria_label);
@@ -19660,7 +19707,7 @@ TS.registerModule("constants", {
     makeGroupLinkAriaLabelSafe: function(group) {
       if (!group) TS.warn("No valid group to make private channel link aria label");
       var name = TS.utility.htmlEntities(group.name);
-      var active_or_regular_channel = TS.model.active_group_id === group.id ? "active channel" : "channel";
+      var active_or_regular_channel = TS.model.active_group_id === group.id ? TS.i18n.t("active channel", "templates_builders")() : TS.i18n.t("channel", "templates_builders")();
       var unread_message = _getUnreadMessageLabelText(group);
       var aria_label = name + ", " + active_or_regular_channel + (unread_message ? ", " + unread_message : "");
       return new Handlebars.SafeString(aria_label);
@@ -19669,23 +19716,14 @@ TS.registerModule("constants", {
       if (!teams || !teams.length) {
         return "";
       }
-      var blurb = "";
       var exports_teams = teams.filter(function(team) {
         return team.team.has_compliance_export;
       });
-      exports_teams.forEach(function(team, index) {
-        if (index > 0) {
-          if (exports_teams.length > 2) blurb += ", ";
-          if (index === exports_teams.length - 1) blurb += " and ";
-        }
-        blurb += team.name;
+      var teams = TS.i18n.listify(_.map(exports_teams, "name")).join("");
+      var blurb = TS.i18n.t('{team_or_teams} {teams_count, plural, =1 {has} other {have}} <a href="https://get.slack.help/hc/en-us/articles/204897248-Understanding-Slack-data-exports" target="_blank">Compliance Exports</a> enabled which allows their Team Owners to export communication history.', "templates_builders")({
+        team_or_teams: teams,
+        teams_count: teams.length
       });
-      if (exports_teams.length > 1) {
-        blurb += " have";
-      } else {
-        blurb += " has";
-      }
-      blurb += ' <a href="https://get.slack.help/hc/en-us/articles/204897248-Understanding-Slack-data-exports" target="_blank">Compliance Exports</a> enabled which allows their Team Owners to export communication history.';
       return new Handlebars.SafeString(blurb);
     },
     makeMpimLink: function(mpim, with_title) {
@@ -19720,7 +19758,7 @@ TS.registerModule("constants", {
         html = '<a href="/team/' + safe_name + '" ' + target + ' class="message_sender ' + class_extras + '" data-member-id="' + member.id + '">';
       }
       if (show_you_for_current_user && member.id == TS.model.user.id) {
-        html += "You";
+        html += TS.i18n.t("You", "templates_builders")();
       } else {
         if (TS.boot_data.feature_name_tagging_client) {
           html += TS.utility.htmlEntities(TS.members.getMemberFullName(member));
@@ -19731,10 +19769,10 @@ TS.registerModule("constants", {
       html += TS.templates.builders.makeMemberTypeBadgeCompact(member, false);
       html += "</a>";
       if (member.is_bot || member.is_service) {
-        if (TS.boot_data.feature_app_profiles_frontend) {
-          html += '<span class="bot_label">APP</span>';
+        if (TS.boot_data.feature_app_cards_app_label) {
+          html += '<span class="bot_label">' + TS.i18n.t("APP", "templates_builders")() + "</span>";
         } else {
-          html += '<span class="bot_label">BOT</span>';
+          html += '<span class="bot_label">' + TS.i18n.t("BOT", "templates_builders")() + "</span>";
         }
       }
       return html;
@@ -19996,7 +20034,7 @@ TS.registerModule("constants", {
       var aria_label = "";
       if (member && im) {
         var name = TS.utility.htmlEntities(TS.ims.getDisplayNameOfUserForIm(im));
-        var active_or_regular_direct_message = TS.model.active_im_id === member.id ? "active direct message" : "direct message";
+        var active_or_regular_direct_message = TS.model.active_im_id === member.id ? TS.i18n.t("active direct message", "templates_builders")() : TS.i18n.t("direct message", "templates_builders")();
         var presence_state = TS.templates.makeMemberPresenceStateAriaLabel(member);
         var unread_message = _getUnreadMessageLabelText(im);
         aria_label = name + ", " + active_or_regular_direct_message + ", " + presence_state + (unread_message ? ", " + unread_message : "");
@@ -20091,12 +20129,12 @@ TS.registerModule("constants", {
       var html = "";
       html += '<a href="' + file.url_private_download + '" ';
       html += 'target="' + file.url_private_download + '" ';
-      html += 'title="Download this file" ';
+      html += 'title="' + TS.i18n.t("Download this file", "templates_builders")() + '" ';
       html += 'data-file-id="' + file.id + '" ';
       html += 'class="subtle_silver file_ssb_download_link">';
       html += TS.utility.convertFilesize(file.size) + " ";
       html += "<span>" + file.pretty_type + "</span>";
-      if (file.mode === "snippet") html += " snippet";
+      if (file.mode === "snippet") html += " " + TS.i18n.t("snippet", "templates_builders")();
       html += "</a>";
       return html;
     },
@@ -20107,38 +20145,47 @@ TS.registerModule("constants", {
         case "gdrive":
           switch (file.filetype) {
             case "gsheet":
-              external_filetype_html = "Spreadsheet";
+              external_filetype_html = TS.i18n.t("Spreadsheet from Google Drive", "templates_builders")();
               break;
             case "gdoc":
-              external_filetype_html = "Document";
+              external_filetype_html = TS.i18n.t("Document from Google Drive", "templates_builders")();
               break;
             case "gpres":
-              external_filetype_html = "Presentation";
+              external_filetype_html = TS.i18n.t("Presentation from Google Drive", "templates_builders")();
               break;
             case "gdraw":
-              external_filetype_html = "Drawing";
+              external_filetype_html = TS.i18n.t("Drawing from Google Drive", "templates_builders")();
               break;
             default:
-              external_filetype_html = ["<span>", "</span>"].join(file.pretty_type);
+              external_filetype_html = TS.i18n.t("<span>{file_type}</span> from Google Drive", "templates_builders")({
+                file_type: file.pretty_type
+              });
           }
-          external_filetype_html += " from Google Drive";
           break;
         case "dropbox":
-          external_filetype_html = ["<span>", "</span> from Dropbox"].join(file.pretty_type);
+          external_filetype_html = TS.i18n.t("<span>{file_type}</span> from Dropbox", "templates_builders")({
+            file_type: file.pretty_type
+          });
           break;
         case "box":
-          external_filetype_html = ["<span>", "</span> from Box"].join(file.pretty_type);
+          external_filetype_html = TS.i18n.t("<span>{file_type}</span> from Box", "templates_builders")({
+            file_type: file.pretty_type
+          });
           break;
         case "onedrive":
-          external_filetype_html = ["<span>", "</span> from OneDrive"].join(file.pretty_type);
+          external_filetype_html = TS.i18n.t("<span>{file_type}</span> from OneDrive", "templates_builders")({
+            file_type: file.pretty_type
+          });
           break;
         default:
-          external_filetype_html = "File";
+          external_filetype_html = TS.i18n.t("File", "templates_builders")();
       }
       return external_filetype_html;
     },
     makeUnshareLink: function(channel_or_group, file) {
-      var title = channel_or_group.is_channel ? "Unshare from #" + channel_or_group.name : "Unshare from " + channel_or_group.name;
+      var title = TS.i18n.t("Unshare from {channel}", "templates_builders")({
+        channel: (channel_or_group.is_channel ? "#" : "") + channel_or_group.name
+      });
       return '<a class="unshare_link ts_tip ts_tip_top ts_tip_float ts_tip_unshare_link" onclick="TS.files.promptForFileUnshare(\'' + file.id + "', '" + channel_or_group.id + '\')"><span class="ts_tip_tip">' + title + '</span><i class="ts_icon ts_icon_minus_circle_small"></i></a>';
     },
     updateFileShareLabels: function(file) {
@@ -20166,10 +20213,12 @@ TS.registerModule("constants", {
       var share_list = TS.templates.builders.makeFileGroupChannelList(file);
       if (!share_list.length) {
         if (!file.is_public && file.user !== TS.model.user.id) {
-          html += "shared with you";
+          html += TS.i18n.t("shared with you", "templates_builders")();
         }
       } else {
-        html += "in " + share_list;
+        html += TS.i18n.t("in {share_list}", "templates_builders")({
+          share_list: share_list
+        });
       }
       html += "</span>";
       return html;
@@ -20208,23 +20257,29 @@ TS.registerModule("constants", {
           if (!channel) continue;
           channel_names.push("#" + channel.name);
         }
-        return "Commenting in " + channel_names.join(", ");
+        return TS.i18n.t("Commenting in {channel_names}", "templates_builders")({
+          channel_names: TS.i18n.listify(channel_names).join("")
+        });
       } else {
         return "";
       }
     },
     makeMessageShareLabelSafe: function(model_ob) {
       var html = '<span class="message_share_label">';
+      var channel_or_group = "";
       if (model_ob.is_channel) {
-        html += "in " + TS.templates.builders.makeChannelLink(model_ob);
+        channel_or_group = TS.templates.builders.makeChannelLink(model_ob);
       } else if (model_ob.is_group) {
-        html += "in " + TS.templates.builders.makeGroupLink(model_ob);
+        channel_or_group = TS.templates.builders.makeGroupLink(model_ob);
       }
+      html += TS.i18n.t("in {channel}", "templates_builders")({
+        channel: channel_or_group
+      });
       html += "</span>";
       return new Handlebars.SafeString(html);
     },
     makeMessageLinkLabelSafe: function(url) {
-      var html = "From URL: " + "<a " + TS.utility.makeRefererSafeLink(url) + ' class="external_link"' + 'title="' + url + '"' + 'target="_blank">' + TS.utility.htmlEntities(url) + "</a>";
+      var html = TS.i18n.t("From URL:", "templates_builders")() + " " + "<a " + TS.utility.makeRefererSafeLink(url) + ' class="external_link"' + 'title="' + url + '"' + 'target="_blank">' + TS.utility.htmlEntities(url) + "</a>";
       return new Handlebars.SafeString(html);
     },
     makeSHRoomParticipantList: function(room) {
@@ -20299,13 +20354,22 @@ TS.registerModule("constants", {
       } else if (file.user === TS.model.user.id) {
         is_owner = true;
       }
-      var file_sharing_notice = "Files are private until they are shared in a public channel.";
+      var file_sharing_notice = TS.i18n.t("Files are private until they are shared in a public channel.", "templates_builders")();
       if (file) {
         if (file.is_public) {
-          file_sharing_notice = "Files you share into a channel are visible to all team members.";
+          file_sharing_notice = TS.i18n.t("Files you share into a channel are visible to all team members.", "templates_builders")();
         }
         if (file.type && file.type.indexOf("application/vnd.google-apps") != -1) {
-          file_sharing_notice = "Anyone" + (TS.model.team.name ? " at " + TS.model.team.name : "") + " with the link will be able to edit this Google " + _.capitalize(file.type.replace("application/vnd.google-apps", ""));
+          if (TS.model.team.name) {
+            file_sharing_notice = TS.i18n.t("Anyone at {team_name} with the link will be able to edit this Google {file_type}", "templates_builders")({
+              team_name: TS.model.team.name,
+              file_type: _.capitalize(file.type.replace("application/vnd.google-apps", ""))
+            });
+          } else {
+            file_sharing_notice = TS.i18n.t("Anyone with the link will be able to edit this Google {file_type}", "templates_builders")({
+              file_type: _.capitalize(file.type.replace("application/vnd.google-apps", ""))
+            });
+          }
         }
       }
       var enable_collab_editing = TS.web && TS.web.space && is_owner && !TS.model.team.prefs.disable_file_editing && !file.channels.concat(file.groups).concat(file.ims).length;
@@ -20332,17 +20396,17 @@ TS.registerModule("constants", {
       var i;
       var ob = TS.notifs.getCorGsNotUsingGlobalNotificationSetting();
       if (ob.everything.length) {
-        html += '<div class="' + classes + '">Set to notify for <b>all activity</b>:';
+        html += '<div class="' + classes + '">' + TS.i18n.t("Set to notify for <strong>all activity</strong>:", "templates_builders")();
         for (i = 0; i < ob.everything.length; i++) html += " " + (ob.everything[i].id.charAt(0) === "C" ? "#" : "") + ob.everything[i].name + (i != ob.everything.length - 1 ? "," : "");
         html += "</div>";
       }
       if (ob.mentions.length) {
-        html += '<div class="' + classes + '">Set to notify only for <b>Highlight Words</b>:';
+        html += '<div class="' + classes + '">' + TS.i18n.t("Set to notify only for <strong>Highlight Words</strong>:", "templates_builders")();
         for (i = 0; i < ob.mentions.length; i++) html += " " + (ob.mentions[i].id.charAt(0) === "C" ? "#" : "") + ob.mentions[i].name + (i != ob.mentions.length - 1 ? "," : "");
         html += "</div>";
       }
       if (ob.nothing.length) {
-        html += '<div class="' + classes + '">Set to <b>never notify</b>:';
+        html += '<div class="' + classes + '">' + TS.i18n.t("Set to <strong>never notify</strong>:", "templates_builders")();
         for (i = 0; i < ob.nothing.length; i++) html += " " + (ob.nothing[i].id.charAt(0) === "C" ? "#" : "") + ob.nothing[i].name + (i != ob.nothing.length - 1 ? "," : "");
         html += "</div>";
       }
@@ -20359,7 +20423,9 @@ TS.registerModule("constants", {
       if (args.is_handy || args.is_poll && !args.count) {
         if (args.is_poll) return "Vote for “" + TS.utility.htmlEntities(handy_title || args.name) + "”";
         if (handy_title) return "Say “" + TS.utility.htmlEntities(handy_title) + "”";
-        return "Add reaction :" + TS.utility.htmlEntities(args.name) + ":";
+        return TS.i18n.t("Add reaction {emoji}", "rxn")({
+          emoji: ":" + TS.utility.htmlEntities(args.name) + ":"
+        });
       }
       var should_escape = false;
       var include_at_sign = true;
@@ -20369,26 +20435,27 @@ TS.registerModule("constants", {
       } else if (handy_title) {
         subtitle = "said “" + TS.utility.htmlEntities(handy_title) + "”";
       } else {
-        subtitle = "reacted with :" + TS.utility.htmlEntities(args.name) + ":";
+        subtitle = TS.i18n.t("reacted with {emoji}", "rxn")({
+          emoji: ":" + TS.utility.htmlEntities(args.name) + ":"
+        });
       }
-      if (!TS.emoji.isValidName(args.name)) subtitle += " (emoji has been removed)";
+      if (!TS.emoji.isValidName(args.name)) subtitle += " " + TS.i18n.t("(emoji has been removed)", "rxn")();
       subtitle = ' <span class="subtle_silver">' + subtitle + "</span>";
       if (args.count == 1) {
         if (args.user_reacted) {
-          if (TS.boot_data.feature_thanks) return "You" + subtitle;
-          return "You (click to remove)" + subtitle;
+          if (TS.boot_data.feature_thanks) return TS.i18n.t("You", "rxn")() + subtitle;
+          return TS.i18n.t("You (click to remove)", "rxn")() + subtitle;
         } else if (TS.boot_data.feature_name_tagging_client) {
           return TS.utility.htmlEntities(TS.members.getMemberFullName(args.member_ids[0])) + subtitle;
         } else {
           return TS.utility.htmlEntities(TS.members.getMemberDisplayNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
         }
       }
-      var final_name;
       var was_already_truncated = args.member_ids.length != args.count;
       var names = args.member_ids.map(function(id, index) {
         var name;
         if (TS.model.user.id === id) {
-          name = index === 0 ? "You" : "you";
+          name = index === 0 ? TS.i18n.t("You", "rxn")() : TS.i18n.t("you", "rxn")();
         } else if (TS.boot_data.feature_name_tagging_client) {
           name = TS.members.getMemberFullName(id);
         } else {
@@ -20396,8 +20463,8 @@ TS.registerModule("constants", {
         }
         return name;
       });
-      final_name = was_already_truncated ? "others" : names.pop();
-      return TS.utility.htmlEntities(names.join(", ") + " and " + final_name) + subtitle;
+      if (was_already_truncated) names.push(TS.i18n.t("others", "rxn")());
+      return TS.utility.htmlEntities(TS.i18n.listify(names).join("")) + subtitle;
     },
     buildRxnHtml: function(args) {
       var emoji_html;
@@ -20544,7 +20611,7 @@ TS.registerModule("constants", {
       var rxns_html = "";
       var buildPoll = function() {
         classesA.push("handy_rxns_poll");
-        rxns_html = '<span class="handy_rxns_poll_label">Poll:</span> ';
+        rxns_html = '<span class="handy_rxns_poll_label">' + TS.i18n.t("Poll:", "rxn")() + "</span> ";
         for (var k in handy_rxns_dd.items) {
           var rxn = TS.rxns.getRxnFromRxns(rxns, k);
           rxns_html += TS.templates.builders.buildRxnHtml({
@@ -20666,7 +20733,8 @@ TS.registerModule("constants", {
       return '<i class="ts_icon ts_icon_chevron_medium_left back_icon"></i>';
     },
     buildQuickSwitcherBtnHtml: function() {
-      var html = !TS.model.is_mac && (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">Quick Switcher</span>' : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">Quick Switcher</span>';
+      var label = TS.i18n.t("Quick Switcher", "templates_builders")();
+      var html = !TS.model.is_mac && (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + label + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + label + "</span>";
       if (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) {
         return [html, '<span id="quick_switcher_shortcut">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span>"].join("");
       }
@@ -20763,21 +20831,27 @@ TS.registerModule("constants", {
           type_description: ""
         }
       };
-      var directory_name = TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? "organization directory" : "team directory";
+      var directory_name = TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? TS.i18n.t("organization directory", "templates_builders")() : TS.i18n.t("team directory", "templates_builders")();
       if (member._is_external) {
         args.icon_class = "ts_icon_external_channel";
-        args.tooltip.member_type = "External Guests";
-        args.tooltip.type_description = "are not on your team and can only see a partial " + directory_name + ", messages, and files of the shared channels they are in.";
+        args.tooltip.member_type = TS.i18n.t("External Guests", "templates_builders")();
+        args.tooltip.type_description = TS.i18n.t("are not on your team and can only see a partial {directory_name}, messages, and files of the shared channels they are in.", "templates_builders")({
+          directory_name: directory_name
+        });
         return TS.templates.member_type_icon(args);
       } else if (member.is_ultra_restricted) {
         args.icon_class = "ts_icon_single_channel_guest";
-        args.tooltip.member_type = "Single-Channel Guests";
-        args.tooltip.type_description = "see a partial " + directory_name + " and can only access messages and files from the channel they belong to.";
+        args.tooltip.member_type = TS.i18n.t("Single-Channel Guests", "templates_builders")();
+        args.tooltip.type_description = TS.i18n.t("see a partial {directory_name} and can only access messages and files from the channel they belong to.", "templates_builders")({
+          directory_name: directory_name
+        });
         return TS.templates.member_type_icon(args);
       } else if (member.is_restricted) {
         args.icon_class = "ts_icon_restricted_user";
         args.tooltip.member_type = TS.templates.builders.raLabel("Restricted Accounts");
-        args.tooltip.type_description = "see only a partial " + directory_name + " and can only access messages and files from selected channels.";
+        args.tooltip.type_description = TS.i18n.t("see only a partial {directory_name} and can only access messages and files from selected channels.", "templates_builders")({
+          directory_name: directory_name
+        });
         return TS.templates.member_type_icon(args);
       } else {
         return "";
@@ -20808,7 +20882,8 @@ TS.registerModule("constants", {
     loadingHTML: function() {
       var url_2x = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
       var url_1x = cdn_url + "/9c217/img/loading_hash_animation.gif";
-      return '<div class="loading_hash_animation"><img src="' + url_2x + '" alt="Loading" srcset="' + url_1x + " 1x, " + url_2x + ' 2x" /><br />loading...</div>';
+      var loading_str = TS.i18n.t("loading&hellip;", "templates_builders")();
+      return '<div class="loading_hash_animation"><img src="' + url_2x + '" alt="' + loading_str + '" srcset="' + url_1x + " 1x, " + url_2x + ' 2x" /><br />' + loading_str + "</div>";
     },
     test: function() {
       var test_ob = {};
@@ -20831,12 +20906,14 @@ TS.registerModule("constants", {
     var unread_highlight_cnt = channel.unread_highlight_cnt;
     var unread_cnt = channel.unread_cnt;
     if (unread_highlight_cnt && !channel.is_im) {
-      unread_message += unread_highlight_cnt + " unread highlight ";
+      unread_message += unread_highlight_cnt + " " + TS.i18n.t("unread highlight", "templates_builders")() + " ";
     } else if (unread_cnt) {
-      unread_message += unread_cnt + " unread ";
+      unread_message += unread_cnt + " " + TS.i18n.t("unread", "templates_builders")() + " ";
     }
     if (unread_cnt) {
-      unread_message += unread_cnt === 1 ? "message" : "messages";
+      unread_message += TS.i18n.t("{count, plural, =1 {message} other {messages}}", "templates_builders")({
+        count: unread_cnt
+      });
     }
     return unread_message;
   }
@@ -20845,7 +20922,7 @@ TS.registerModule("constants", {
     if (!type) {
       return {};
     }
-    if (ob && typeof ob === "string" && type === ("channel" || "group" || "mpim" || " im")) {
+    if (ob && typeof ob === "string" && (type === "channel" || type === "group" || type === "mpim" || type === "im")) {
       ob = TS.shared.getModelObById(ob);
     }
     if (!ob) {
@@ -20902,11 +20979,11 @@ TS.registerModule("constants", {
     });
     var readable_type = type;
     if (type === "file_comment") {
-      readable_type = "file comment";
+      readable_type = TS.i18n.t("file comment", "templates_builders")();
     } else if (type === "im" || type === "mpim") {
-      readable_type = "direct message";
+      readable_type = TS.i18n.t("direct message", "templates_builders")();
     } else if (type === "group") {
-      readable_type = "channel";
+      readable_type = TS.i18n.t("channel", "templates_builders")();
     }
     return {
       attributes: attributes,
@@ -21166,7 +21243,7 @@ TS.registerModule("constants", {
         }
         if (TS.boot_data.feature_sli_recaps) {
           var recap_item;
-          var score_threshold = 80;
+          var score_threshold = 90;
           if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
             recap_item = msg.file;
           } else if (msg.subtype === "file_comment") {
@@ -22177,7 +22254,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("isLocalTeam", function(team_id, options) {
         options = _optionsFnInverseBooleanHelper(options);
-        if (!TS.boot_data.feature_enterprise_search_ui || !TS.boot_data.page_needs_enterprise) return options.inverse(this);
+        if (!TS.boot_data.page_needs_enterprise) return options.inverse(this);
         if (team_id == TS.model.team.id) {
           return options.fn(this);
         } else {
@@ -22316,6 +22393,12 @@ TS.registerModule("constants", {
           var active_id = TS.shared.getActiveModelOb().id;
           if (active_id && active_id == model_id && !TS.client.activeChannelIsHidden()) {
             last_msg_input = null;
+          }
+          if (model_ob.is_channel) {
+            if (model_ob.is_archived || !model_ob.is_member) last_msg_input = null;
+          }
+          if (model_ob.is_group && !model_ob.is_mpim) {
+            if (model_ob.is_archived) last_msg_input = null;
           }
         }
         if (_.trim(last_msg_input)) {
@@ -22492,13 +22575,15 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getMemberCurrentStatus", function(member) {
         return new Handlebars.SafeString(TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(member), undefined, {
-          no_jumbomoji: true
+          no_jumbomoji: true,
+          no_highlights: true
         }));
       });
       Handlebars.registerHelper("getTeamCustomStatusSuggestions", function() {
         return _.map(TS.team.getTeamCustomStatusSuggestions(), function(suggestion) {
           return new Handlebars.SafeString(TS.format.formatWithOptions(suggestion, undefined, {
-            no_jumbomoji: true
+            no_jumbomoji: true,
+            no_highlights: true
           }));
         });
       });
@@ -24674,111 +24759,6 @@ TS.registerModule("constants", {
       }
       return added;
     },
-    populateEmojiUsePrefFromExistingMsgs: function() {
-      if (TS.boot_data.feature_server_side_emoji_counts) return;
-      TS.model.emoji_use = {};
-      TS.utility.msgs.countAllExistingEmoji(TS.shared.getAllModelObsForUser(), TS.model.emoji_use, TS.model.user.id, {});
-      TS.dir(888, TS.model.emoji_use, "TS.model.emoji_use is now:");
-      TS.api.callFuncWhenApiQisEmpty(TS.prefs.saveEmojiUse);
-    },
-    populateEmojiUsePrefFromAllHistory: function() {
-      TS.model.emoji_use = {};
-      var user_id = TS.model.user.id;
-      var after_ts = TS.utility.date.makeTsStamp(TS.model.user.created * 1e3);
-      var deduper_map = {};
-      var model_ob_deduper_map = {};
-      var total_count = 0;
-      var per_user_count = 0;
-      var per_model_ob_count = 0;
-      var model_ob_count = 0;
-      var getModelOb = function() {
-        per_model_ob_count = 0;
-        model_ob_count++;
-        var model_obs = TS.shared.getAllModelObsForUser();
-        for (var i = 0; i < model_obs.length; i++) {
-          if (model_ob_deduper_map[model_obs[i].id]) continue;
-          model_ob_deduper_map[model_obs[i].id] = true;
-          return model_obs[i];
-        }
-        return null;
-      };
-      var getHistoryInABit = function(model_ob, latest) {
-        setTimeout(getHistory, parseInt(TS.qs_args.delay) || 3e3, model_ob, latest);
-      };
-      var getHistory = function(model_ob, latest) {
-        if (!model_ob) {
-          TS.log(888, "done getting all messages");
-          return;
-        }
-        TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), {
-          channel: model_ob.id,
-          count: 1e3,
-          latest: latest || ""
-        }, function(ok, data, args) {
-          if (!ok || !data || !data.messages) {
-            TS.error("failed to get history");
-            getHistoryInABit(getModelOb());
-            return;
-          }
-          if (window.stahp) {
-            TS.error("stahp");
-            return;
-          }
-          data.messages.forEach(function(msg) {
-            total_count++;
-            per_model_ob_count++;
-            if (user_id && msg.user != user_id) return;
-            var id = model_ob.id + "_" + msg.ts;
-            if (deduper_map) {
-              if (deduper_map[id]) return;
-              deduper_map[id] = true;
-            }
-            TS.prefs.recordEmojiUse(msg.text);
-            per_user_count++;
-          });
-          TS.log(888, "getHistory [" + model_ob_count + " of " + TS.shared.getAllModelObsForUser().length + "] " + model_ob.name + " model_ob:" + per_model_ob_count + " total:" + total_count + " user:" + per_user_count);
-          if (!data.messages.length) {
-            TS.error("no data.messages? so moving on");
-            getHistoryInABit(getModelOb());
-          } else {
-            var oldest_ts = data.messages[data.messages.length - 1].ts;
-            if (oldest_ts < after_ts) {
-              TS.log(888, "oldest_ts:" + oldest_ts + " < after_ts:" + after_ts + " so moving on");
-              getHistoryInABit(getModelOb());
-            } else if (data.has_more) {
-              getHistoryInABit(model_ob, oldest_ts);
-            } else {
-              getHistoryInABit(getModelOb());
-            }
-          }
-        });
-      };
-      getHistoryInABit(getModelOb());
-    },
-    countAllExistingEmoji: function(model_obs, hash, member_id, deduper_map) {
-      model_obs = model_obs || TS.channels.getChannelsForUser();
-      hash = hash || {};
-      model_obs.forEach(function(model_ob) {
-        if (!model_ob.msgs) return;
-        model_ob.msgs.forEach(function(msg) {
-          var id = model_ob.id + "_" + msg.ts;
-          if (deduper_map) {
-            if (deduper_map[id]) return;
-            deduper_map[id] = true;
-          }
-          var rxns = TS.rxns.getExistingRxnsByKey(msg._rxn_key);
-          if (rxns) {
-            rxns.forEach(function(rxn) {
-              if (member_id && TS.rxns.doesRxnsHaveRxnFromMember(rxns, rxn.name, member_id)) return;
-              TS.utility.msgs.recordEmojiInHash(rxn.name, hash);
-            });
-          }
-          if (member_id && msg.user != member_id) return;
-          TS.utility.msgs.recordEmojiInHash(msg.text, hash);
-        });
-      });
-      return hash;
-    },
     reCalcAndCountSomeUnreads: function(c_ids) {
       if (!c_ids || !c_ids.length) return;
       var i;
@@ -25945,9 +25925,10 @@ TS.registerModule("constants", {
       var is_bot_user = _.get(user, "is_bot", false);
       if (imsg.subtype === "channel_join") {
         var channel = _.isObject(channel_or_channel_id) ? channel_or_channel_id : TS.channels.getChannelById(channel_or_channel_id);
+        var is_default_channel = _.includes(TS.model.team.prefs.default_channels, channel.id);
         var was_invited = !!imsg.inviter;
         var has_enough_members = _.get(channel, "members.length") > 20;
-        if (!is_restricted_user && !is_bot_user && !was_invited && has_enough_members) {
+        if (!is_restricted_user && !is_bot_user && !is_default_channel && !was_invited && has_enough_members) {
           return true;
         }
       } else if (imsg.subtype === "channel_leave") {
@@ -27239,11 +27220,7 @@ TS.registerModule("constants", {
         if (pathname_parts.length < 3) return null;
         var member_name = pathname_parts[1];
         if (!member_name) return null;
-        if (TS.boot_data.feature_file_id_from_url_update) {
-          if (!(TS.members.getMemberByName(member_name) || TS.members.getMemberById(member_name))) return null;
-        } else {
-          if (!TS.members.getMemberByName(member_name)) return null;
-        }
+        if (!(TS.members.getMemberByName(member_name) || TS.members.getMemberById(member_name))) return null;
         file_id = pathname_parts[2];
       } else if (pathname.indexOf("files-pri/") === 0) {
         pathname_parts = pathname.split("/");
@@ -27464,7 +27441,7 @@ TS.registerModule("constants", {
         }
       };
       worker(ob, "_DATA");
-      if (source === "search.messages" && TS.boot_data.page_needs_enterprise && TS.boot_data.feature_enterprise_search_ui) {
+      if (source === "search.messages" && TS.boot_data.page_needs_enterprise) {
         _excludeNonLocalModelObs(ob, c_ids);
       }
       if (TS.shouldLog("794")) {
@@ -29988,7 +29965,7 @@ TS.registerModule("constants", {
     }
     var $input_to_fill = $(_input_to_fill);
     if (TS.boot_data.feature_texty && TS.utility.contenteditable.isContenteditable($input_to_fill)) {
-      setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, _input_to_fill, emo, true);
+      setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, _input_to_fill, emo, !e || !e.shiftKey);
       if (!e || !e.shiftKey) _end();
     } else {
       var current_pos = TS.utility.getCursorPosition($input_to_fill).start;
@@ -31724,12 +31701,16 @@ TS.registerModule("constants", {
         onEscape: TS.menu.end,
         onSave: TS.menu.end
       });
+      TS.menu.$menu_body.find("#member_current_status_item").on("click.current_status_item", function() {
+        if (TS.menu._current_status_input) TS.menu._current_status_input.focus();
+      });
     },
     _unregisterCurrentStatusInput: function() {
       if (TS.menu._current_status_input) {
         TS.menu._current_status_input.destroy();
         TS.menu._current_status_input = null;
       }
+      TS.menu.$menu_body.find("#member_current_status_item").off(".current_status_item");
     }
   });
   var _no_reposition = false;
@@ -31802,7 +31783,7 @@ var _on_esc;
     active_app: null,
     active_app_bot_id: null,
     app_item_click_sig: new signals.Signal,
-    startWithApp: function(e, app_id, bot_id, position_by_click) {
+    startWithApp: function(e, bot_id, position_by_click) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
       if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
@@ -31810,7 +31791,7 @@ var _on_esc;
       }
       TS.menu.buildIfNeeded();
       TS.menu.clean();
-      TS.apps.promiseToGetFullAppProfile(app_id, bot_id).then(showAllAppInformation);
+      TS.apps.promiseToGetFullAppProfile(bot_id).then(showAllAppInformation);
 
       function showAllAppInformation(app) {
         TS.menu.app.active_app = app;
@@ -31841,14 +31822,12 @@ var _on_esc;
             var app_deleted = true;
           }
         }
-        if (TS.boot_data.feature_app_profiles_frontend) {
-          if (!app_deleted) {
-            TS.menu.$menu_header.on("click", function(e) {
-              TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
-              TS.menu.$menu_header.unbind("click");
-              TS.menu.app.end();
-            });
-          }
+        if (!app_deleted) {
+          TS.menu.$menu_header.on("click", function(e) {
+            TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
+            TS.menu.$menu_header.unbind("click");
+            TS.menu.app.end();
+          });
         }
         TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
         TS.menu.$menu_items.on("click.menu", "[data-member-profile-link]", function(e) {
@@ -33247,6 +33226,9 @@ var _on_esc;
       var member = TS.menu.member.member = TS.members.getMemberById(member_id);
       if (!member) return;
       if (!TS.members.canUserSeeMember(member)) return;
+      if (TS.boot_data.feature_app_cards_and_profs_frontend && member.is_bot && _.get(member.profile, "bot_id")) {
+        return TS.menu.app.startWithApp(e, _.get(member.profile, "bot_id"));
+      }
       var show_email_item = TS.model.team.prefs.allow_email_ingestion;
       TS.menu.clean();
       _member_presence_list.add(member_id);
@@ -33525,7 +33507,7 @@ var _on_esc;
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
-      var is_custom_image = !!TS.model.user.profile.image_original || TS.model.user.profile.is_custom_image === true;
+      var is_custom_image = TS.model.user.profile.is_custom_image === true;
       var $el = $(e.target);
       var is_button = $el.is(".btn");
       var template_args = {
@@ -40371,7 +40353,7 @@ var _on_esc;
     return null;
   };
   var _canDeleteImage = function() {
-    return !!TS.model.user.profile.image_original || TS.model.user.profile.is_custom_image === true;
+    return TS.model.user.profile.is_custom_image === true;
   };
   var _maybeShowDelete = function() {
     var $delete = _$div.find(".show_delete");
@@ -41332,17 +41314,11 @@ var _on_esc;
   TS.registerModule("enterprise.workspaces", {
     showList: function($container, list, base_url) {
       var teams = TS.enterprise.workspaces.getList(list);
-      var $automatic_signed_in_message = $(".automatic_signed_in_message");
       var html = "";
       if (teams.length) {
         teams.forEach(function(team) {
           html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
         });
-        if (list === "teams_on") {
-          $automatic_signed_in_message.removeClass("hidden");
-        } else {
-          $automatic_signed_in_message.addClass("hidden");
-        }
       } else {
         if (list === "teams_on") {
           html += TS.templates.not_on_any_workspaces();
@@ -41473,9 +41449,7 @@ var _on_esc;
     });
     $container.find(".not_on_any_workspaces").on("click", ".find_teams", function(e) {
       e.preventDefault();
-      var $menu_items = $(".menu_item_teams");
-      $menu_items.removeClass("selected");
-      $menu_items.filter('[data-qa="find-teams"]').addClass("selected");
+      TS.enterprise.member_header.setPage("teams_not_on");
       TS.enterprise.signin.loadPage("teams_not_on");
     });
   };
@@ -43099,9 +43073,7 @@ $.fn.togglify = function(settings) {
       TS.api.call(method, api_args, function(ok, data, args) {
         _decrementPendingCnt(rxn_key);
         var update_ui = false;
-        if (ok) {
-          if (adding) TS.prefs.recordEmojiUse(":" + args.name + ":");
-        } else if (!adding && data.error && data.error == "no_reaction") {} else {
+        if (ok) {} else if (!adding && data.error && data.error == "no_reaction") {} else {
           if (data.error == TOO_MANY_EMOJI || data.error == TOO_MANY_REACTIONS) {
             _displayTooManyError(data.error);
           } else if (data.error == INVALID_NAME) {
@@ -46703,6 +46675,12 @@ $.fn.togglify = function(settings) {
       var view = $el.closest("#convo_tab").length > 0 ? "in_convo" : "in_threads_view";
       TS.menu.threads.startWithThread(e, model_ob_id, thread_ts, view);
     });
+    TS.click.addClientHandler(".thread_error_state_refresh_button", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies) return;
+      e.preventDefault();
+      $(".threads_empty_state_wrapper").remove();
+      TS.client.threads.maybeReloadThreadsView();
+    });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {
         e.preventDefault();
@@ -46805,7 +46783,7 @@ $.fn.togglify = function(settings) {
     });
     if (TS.boot_data.feature_app_cards_and_profs_frontend) {
       TS.click.addClientHandler(".app_preview_link", function(e, $el) {
-        var $closest_ts_message = $el.closest("[data-app-id]");
+        var $closest_ts_message = $el.closest("[data-bot-id]");
         if (TS.model.user.is_restricted || TS.model.user.is_ultra_restricted) {
           var member_name = $el.data("member-name");
           if (member_name) {
@@ -46816,12 +46794,11 @@ $.fn.togglify = function(settings) {
           }
         }
         e.preventDefault();
-        var app_id = $closest_ts_message.data("app-id");
         var bot_id = $closest_ts_message.data("bot-id");
-        if (app_id) {
-          TS.menu.app.startWithApp(e, app_id, bot_id);
+        if (bot_id) {
+          TS.menu.app.startWithApp(e, bot_id);
         } else {
-          TS.warn("hmm, no data-app-id?");
+          TS.warn("hmm, no data-bot-id?");
         }
       });
       TS.click.addHandler("[data-slash-command-autofill]", function(e, $el) {
@@ -46848,6 +46825,8 @@ $.fn.togglify = function(settings) {
       TS.click.addClientHandler("#sli_recap_toggle", function(e) {
         e.preventDefault();
         if ($("#sli_recap_toggle").hasClass("active")) {
+          $("#msg_form").addClass("show_recap_nav");
+          $("#recap_nav").removeClass("hidden");
           if (TS.client && !TS.model.prefs.seen_highlights_coachmark) {
             setTimeout(function() {
               TS.coachmark.start(TS.coachmarks.coachmarks.highlights);
@@ -46861,10 +46840,13 @@ $.fn.togglify = function(settings) {
           TS.recaps_signal.handleUpdateScrollbar();
         } else {
           TS.recaps_signal.remove();
+          $("#msg_form").removeClass("show_recap_nav");
+          $("#recap_nav").addClass("hidden");
         }
       });
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
         e.preventDefault();
+        TS.recaps_signal.prevClickedEl = e.target;
         var ts = $(e.target).data("ts");
         TS.client.ui.scrollMsgsSoMsgIsInView(ts, false, true);
       });
@@ -46885,6 +46867,7 @@ $.fn.togglify = function(settings) {
         clog_args["channel_type"] = $el.data("model-ob-id")[0] || "";
         TS.clog.track("MSG_RECAP_POSITIVE_CLICK", clog_args);
         TS.menu.recaps_feedback.end();
+        TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 1);
         return;
       });
       TS.click.addClientHandler("#recap_negative", function(e) {
@@ -46897,7 +46880,16 @@ $.fn.togglify = function(settings) {
         clog_args["channel_type"] = $el.data("model-ob-id")[0] || "";
         TS.clog.track("MSG_RECAP_NEGATIVE_CLICK", clog_args);
         TS.menu.recaps_feedback.end();
+        TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 0);
         return;
+      });
+      TS.click.addClientHandler("#recap_nav .next", function(e) {
+        e.preventDefault();
+        TS.recaps_signal.navigateRecap("next");
+      });
+      TS.click.addClientHandler("#recap_nav .prev", function(e) {
+        e.preventDefault();
+        TS.recaps_signal.navigateRecap("prev");
       });
     }
   };
@@ -53052,7 +53044,7 @@ $.fn.togglify = function(settings) {
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
         if (_.isString(value)) texty.setText(value);
-        return texty.getFormattedContents();
+        return texty.getText();
       }
       return "";
     },
@@ -53072,11 +53064,9 @@ $.fn.togglify = function(settings) {
         }
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (_.isString(value)) texty.insertTextAtCursor(value);
-        if (focus_after_insert) {
-          TS.utility.contenteditable.focus(input);
-          current_cursor = TS.utility.contenteditable.cursorPosition(input);
-          TS.utility.contenteditable.cursorPosition(input, current_cursor.start + value.length, 0);
+        if (_.isString(value)) {
+          if (focus_after_insert) TS.utility.contenteditable.focus(input);
+          texty.insertTextAtCursor(value);
         }
       }
       return "";
@@ -53382,9 +53372,11 @@ $.fn.togglify = function(settings) {
     var channel_name = TS.utility.getChannelNameFromUrl(url);
     var model_ob = TS.shared.getModelObById(channel_name);
     if (model_ob && (model_ob.is_im || model_ob.is_mpim)) {
-      footer_text = "Direct message";
+      footer_text = TS.i18n.t("Direct message", "attachments")();
     } else if (channel_name) {
-      footer_text = "Posted in #" + channel_name;
+      footer_text = TS.i18n.t("Posted in #{channel_name}", "attachments")({
+        channel_name: channel_name
+      });
     }
     return footer_text;
   };
@@ -53394,7 +53386,7 @@ $.fn.togglify = function(settings) {
     attachment._source.author_name = attachment.author_subname;
     attachment._source.author_link = attachment._source.link;
     attachment._unfurl_type_message = true;
-    if (!attachment.footer) attachment.footer = "Twitter";
+    if (!attachment.footer) attachment.footer = TS.i18n.t("Twitter", "attachments")();
     if (!attachment.footer_icon) attachment.footer_icon = cdn_url + "/6e067/img/services/twitter_pixel_snapped_32.png";
     return attachment;
   };
@@ -55133,7 +55125,7 @@ $.fn.togglify = function(settings) {
         }
         $(window).on("beforeunload", function() {
           if (!form_submitted && !_.isEqual(initial_form, $(form).serializeArray())) {
-            return "Changes you made may not be saved.";
+            return TS.i18n.t("Changes you made may not be saved.", "unsaved_warning")();
           }
         });
       });
