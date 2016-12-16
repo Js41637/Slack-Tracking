@@ -1,28 +1,32 @@
-<table class="full_width">
-  <tr>
-    <th class="billing_list_cell cell_date hide_on_mobile">Date</th>
-    <th>Item</th>
-    <th class="billing_list_cell cell_charges">Charges</th>
-    <th class="billing_list_cell cell_credit_balance">Credit Balance</th>
-  </tr>
-  {{#each history}}
-  <tr>
-    <td class=" billing_list_cell cell_date hide_on_mobile">
-      {{#if this.has_billing_statement}}
-        <a href="/admin/billing/{{this.id}}">{{this.formatted_date}}</a>
-      {{else}}
-        {{this.formatted_date}}
-      {{/if}}
-    </td>
-    <td class="billing_list_cell">
-      {{> billing_history_list_item_cell this}}
-    </td>
-    <td class="billing_list_cell cell_charges">
-      {{> billing_history_list_charges_cell this}}
-    </td>
-    <td class="billing_list_cell cell_credit_balance">
-      {{> billing_history_list_balance_cell this}}
-    </td>
-  </tr>
-  {{/each}}
+{{#if_gt history.length compare=0}}
+  <table class="full_width">
+    <tr>
+      <th class="billing_list_cell cell_date hide_on_mobile">Date</th>
+      <th>Item</th>
+      <th class="billing_list_cell cell_charges">Charges</th>
+      <th class="billing_list_cell cell_credit_balance">Credit<br>Balance</th>
+    </tr>
+    {{#each history}}
+    <tr data-qa="{{this.id}}" >
+      <td data-qa="billing_item_date" class=" billing_list_cell cell_date hide_on_mobile">
+        {{#if this.has_billing_statement}}
+          <a data-qa="billing_item_link" href="/admin/billing/{{this.id}}">{{this.formatted_date}}</a>
+        {{else}}
+          {{this.formatted_date}}
+        {{/if}}
+      </td>
+      <td data-qa="billing_item_description" class="billing_list_cell">
+        {{> billing_history_list_item_cell this}}
+      </td>
+      <td data-qa="billing_item_charges" class="billing_list_cell cell_charges">
+        {{> billing_history_list_charges_cell this}}
+      </td>
+      <td data-qa="billing_item_credit" class="billing_list_cell cell_credit_balance">
+        {{> billing_history_list_balance_cell this}}
+      </td>
+    </tr>
+    {{/each}}
+{{else}}
+  <p class="subtle_silver align_center large_top_padding col span_1_of_2 margin_auto float_none">You have no billing history for this month.</p>
+{{/if_gt}}
 </table>

@@ -2106,6 +2106,18 @@ moscow_red_bg {
   background-color: #1a9cdb!important
 }
 
+.blue_link {
+  color: #007ab8
+}
+
+.blue_hover {
+  color: #005e99
+}
+
+.blue_fill {
+  color: #2d9ee0
+}
+
 .show_on_mobile {
   display: none!important
 }
@@ -2262,16 +2274,16 @@ img.grayscale {
 a.mini,
 a.mini:link,
 a.mini:visited {
-  color: #2a80b9
+  color: #007ab8
 }
 
 a.mini:active,
 a.mini:hover {
-  color: #439fe0
+  color: #005e99
 }
 
 .link:hover {
-  color: #439fe0;
+  color: #005e99;
   text-decoration: underline
 }
 
@@ -2971,7 +2983,7 @@ body.plaid {
   margin-left: 3px;
   line-height: .9rem;
   border-radius: 3px;
-  background: #439fe0;
+  background: #2d9ee0;
   color: #fff;
   font-size: .64rem;
   text-shadow: none
@@ -3049,7 +3061,7 @@ a.delete_link:hover {
 #coachmark.unread_view_coachmark_div,
 #coachmark.unread_view_coachmark_div #coachmark_callout,
 #coachmark.unread_view_coachmark_div #coachmark_interior {
-  background: #439fe0
+  background: #2d9ee0
 }
 
 #coachmark.small_coachmark #coachmark_interior {
@@ -3576,7 +3588,7 @@ label.validation_warning .validation_message:before {
 
 label.validation_success .validation_message,
 label.validation_success .validation_message:before {
-  color: #439fe0
+  color: #007ab8
 }
 
 .feature_name_tagging_client .username_input_container::before {
@@ -3757,7 +3769,7 @@ a.btn {
 .btn_outline.btn_transparent:active,
 .btn_outline.btn_transparent:focus,
 .btn_outline.btn_transparent:hover {
-  color: #3aa3e3!important;
+  color: #007ab8!important;
   background: rgba(255, 255, 255, .9)!important
 }
 
@@ -3779,7 +3791,7 @@ a.btn {
 .btn_outline:focus,
 .btn_outline:hover {
   background: #fff;
-  color: #3aa3e3!important
+  color: #007ab8!important
 }
 
 .btn_outline.hover:after,
@@ -3789,7 +3801,7 @@ a.btn {
 }
 
 .btn_outline:active {
-  color: #3aa3e3
+  color: #007ab8
 }
 
 .btn_outline:active:after {
@@ -3920,7 +3932,7 @@ a.btn {
 }
 
 .btn_info {
-  background: #3aa3e3!important
+  background: #2d9ee0!important
 }
 
 .btn_warning {
@@ -5093,7 +5105,7 @@ only screen and (min-resolution:2dppx) {
 
 .menu ul li.highlighted a,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a {
-  background: #3aa3e3;
+  background: #2d9ee0;
   color: #fff;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .1)
 }
@@ -5334,7 +5346,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .menu #menu_list_container #menu_list .menu_list_item.active a {
-  background: #3aa3e3;
+  background: #2d9ee0;
   color: #fff;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
   text-decoration: none
@@ -5414,7 +5426,7 @@ only screen and (min-resolution:2dppx) {
 
 .menu.selectable li.selected,
 .menu.selectable li.selected a {
-  color: #3aa3e3
+  color: #007ab8
 }
 
 .menu.selectable li.selected a:hover,
@@ -6178,7 +6190,7 @@ body.winssb #emoji_menu {
 }
 
 .menu.avatar_menu ul li:hover ts-icon {
-  color: #3aa3e3;
+  color: #007ab8;
   background: #fff
 }
 
@@ -6200,7 +6212,7 @@ body.winssb #emoji_menu {
 }
 
 .menu.avatar_menu ul li a ts-icon {
-  background-color: #3aa3e3
+  background-color: #2d9ee0
 }
 
 .menu.avatar_menu ul li a ts-icon:before {
@@ -6213,7 +6225,7 @@ body.winssb #emoji_menu {
 }
 
 .avatar_menu_signin_item {
-  color: #3aa3e3
+  color: #007ab8
 }
 
 .avatar_menu_signin_item:hover {
@@ -6484,7 +6496,7 @@ body.winssb #emoji_menu {
 
 .tab_complete_ui li.tab_complete_ui_group.active,
 .tab_complete_ui li.tab_complete_ui_item.active {
-  background: #439fe0;
+  background: #2d9ee0;
   color: #fff!important;
   text-shadow: 0 1px rgba(0, 0, 0, .1)
 }

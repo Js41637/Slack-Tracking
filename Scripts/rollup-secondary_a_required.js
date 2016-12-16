@@ -8185,7 +8185,7 @@ TS.registerModule("constants", {
           controller.markMostRecentReadMsg(model_ob, TS.model.marked_reasons.none_qualify);
         }
       }
-      if (TS.pri) TS.log(99, "TS.shared.calcUnreadCnts: #" + model_ob.name + ", unreads.length: " + model_ob.unreads.length + " and_mark: " + and_mark);
+      if (TS.pri) TS.log(99, "TS.shared.calcUnreadCnts: " + model_ob.id + ", unreads.length: " + model_ob.unreads.length + " and_mark: " + and_mark);
       model_ob.unread_cnt = model_ob.unreads.length;
       if (model_ob_is_muted) {
         if (model_ob.unread_cnt) model_ob._show_in_list_even_though_no_unreads = true;
@@ -8212,12 +8212,12 @@ TS.registerModule("constants", {
         if (!model_ob.msgs.length || model_ob.unread_cnt) return;
         delete model_ob._users_counts_info;
         if (TS.notifs.isCorGMuted(model_ob.id)) {
-          if (TS.pri) TS.log(99, "TS.shared.calcUnreadCnts: #" + model_ob.name + ": ignoring possible users.counts has_unreads discrepancy because channel is muted.");
+          if (TS.pri) TS.log(99, "TS.shared.calcUnreadCnts: " + model_ob.id + ": ignoring possible users.counts has_unreads discrepancy because channel is muted.");
           return;
         }
         var current_model_ob = TS.shared.getActiveModelOb();
         if (current_model_ob && current_model_ob.id === model_ob.id) {
-          if (TS.pri) TS.log(99, "TS.shared.calcUnreadCnts: #" + model_ob.name + ": ignoring possible users.counts has_unreads discrepancy due to active channel.");
+          if (TS.pri) TS.log(99, "TS.shared.calcUnreadCnts: " + model_ob.id + ": ignoring possible users.counts has_unreads discrepancy due to active channel.");
           return;
         }
         var latest = TS.utility.msgs.getMostRecentValidTs(model_ob);
@@ -8244,7 +8244,7 @@ TS.registerModule("constants", {
       controller.history_fetched_sig.addOnce(function(history_model_ob) {
         if (!history_model_ob) return;
         if (history_model_ob._consistency_is_being_checked || history_model_ob._consistency_has_been_checked) return;
-        if (TS.pri) TS.log(58, '"' + model_ob.id + '" "' + model_ob.name + '": fetched history, now checking consistency.');
+        if (TS.pri) TS.log(58, '"' + model_ob.id + '": fetched history, now checking consistency.');
         TS.utility.msgs.checkConsistencyViaApi(history_model_ob.id);
       });
     },
@@ -8258,7 +8258,7 @@ TS.registerModule("constants", {
         return;
       }
       var function_sig;
-      if (TS.pri) function_sig = 'maybeFetchHistory: "' + model_ob.id + '" "' + model_ob.name + '": ';
+      if (TS.pri) function_sig = 'maybeFetchHistory: "' + model_ob.id + '": ';
       if (model_ob.history_is_being_fetched) {
         if (TS.pri) TS.log(58, function_sig + "history is being fetched already. Queueing consistency check and exiting.");
         TS.shared.queueConsistencyCheckAfterHistory(model_ob);
@@ -8283,7 +8283,7 @@ TS.registerModule("constants", {
     },
     checkInitialMsgHistory: function(model_ob, controller, defer_api_check) {
       if (model_ob.history_is_being_fetched) {
-        TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + model_ob.name + '" history_is_being_fetched:true');
+        TS.warn('checkInitialMsgHistory NOT DOING ANYTHING, because "' + model_ob.id + '" history_is_being_fetched:true');
         return;
       }
       delete model_ob._did_defer_initial_msg_history;
@@ -8296,18 +8296,18 @@ TS.registerModule("constants", {
       var latest_ts = TS.shared.getLatestMsgTs(model_ob);
       var msg = TS.utility.msgs.getMsg(latest_ts, model_ob.msgs);
       if (msg && !model_ob._history_fetched_since_last_connect) {
-        if (TS.pri) TS.log(58, 'We have all recent "' + model_ob.id + '" "' + model_ob.name + '" messages, but have not fetched history since last connect. Will fetch, omitting "latest".');
+        if (TS.pri) TS.log(58, 'We have all recent "' + model_ob.id + '" messages, but have not fetched history since last connect. Will fetch, omitting "latest".');
         msg = null;
         latest_ts = null;
       }
       if (msg) {
-        TS.log(58, 'we have all recent "' + model_ob.id + '" "' + model_ob.name + '" msgs unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
+        TS.log(58, 'we have all recent "' + model_ob.id + '" msgs unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
         TS.shared.maybeDealWithAllSentTempMsgs(model_ob, controller);
         var status = TS.utility.msgs.getOlderMsgsStatus(model_ob);
         if (model_ob.msgs.length < TS.model.initial_msgs_cnt && status.more) {
           if (TS.isPartiallyBooted()) {} else {
             TS.error("calling loadHistory because status.more=true && model_ob.msgs.length < TS.model.initial_msgs_cnt: " + model_ob.msgs.length + " < " + TS.model.initial_msgs_cnt);
-            TS.dir(0, status, model_ob.name);
+            TS.dir(0, status, model_ob.id);
             TS.shared.loadHistory(model_ob, controller, initial_count);
           }
           return true;
@@ -8316,7 +8316,7 @@ TS.registerModule("constants", {
           if (model_ob.msgs.length < model_ob.unread_count && status.more) {
             initial_count = Math.min(TS.model.special_initial_msgs_cnt, model_ob.unread_count - model_ob.msgs.length + 1);
             TS.log(58, "calling loadHistory because model_ob.msgs.length < model_ob.unread_count");
-            TS.warn('setting special initial_count for "' + model_ob.id + '" "' + model_ob.name + '" to:' + initial_count);
+            TS.warn('setting special initial_count for "' + model_ob.id + '" to:' + initial_count);
             TS.shared.loadHistory(model_ob, controller, initial_count);
             return true;
           }
@@ -8324,11 +8324,11 @@ TS.registerModule("constants", {
       } else if (defer_api_check) {
         model_ob._did_defer_initial_msg_history = true;
       } else {
-        TS.log(58, 'WE DO NOT HAVE ALL RECENT MESSAGES for "' + model_ob.id + '" "' + model_ob.name + '" unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
+        TS.log(58, 'WE DO NOT HAVE ALL RECENT MESSAGES for "' + model_ob.id + '" unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
         var no_oldest = false;
         if (!TS.boot_data.feature_no_unread_counts && model_ob.unread_count > TS.model.initial_msgs_cnt) {
           initial_count = Math.min(TS.model.special_initial_msgs_cnt, model_ob.unread_count);
-          TS.warn('setting special initial_count for "' + model_ob.id + '" "' + model_ob.name + '" to:' + initial_count);
+          TS.warn('setting special initial_count for "' + model_ob.id + '" to:' + initial_count);
         } else if (!model_ob.msgs.length) {}
         var api_args = {
           channel: model_ob.id,
@@ -8339,44 +8339,44 @@ TS.registerModule("constants", {
           api_args.latest = latest_ts;
         }
         if (no_oldest) {
-          TS.log(58, 'we have some but not all recent "' + model_ob.id + '" "' + model_ob.name + '" msgs but we no_oldest so are not setting oldest for api call');
+          TS.log(58, 'we have some but not all recent "' + model_ob.id + '" msgs but we no_oldest so are not setting oldest for api call');
         } else if (model_ob.msgs.length && !TS.utility.msgs.isTempMsg(model_ob.msgs[0])) {
-          TS.log(58, 'we have some but not all recent "' + model_ob.id + '" "' + model_ob.name + '" msgs');
+          TS.log(58, 'we have some but not all recent "' + model_ob.id + '" msgs');
           api_args.oldest = model_ob.msgs[0].ts;
         } else {
           TS.log(58, 'we have no "' + model_ob.id + '" msgs');
         }
         if (!model_ob._history_fetched_since_last_connect) {
           if (!model_ob.msgs.length) {
-            if (TS.pri) TS.log(58, 'we have no msgs for "' + model_ob.id + '" "' + model_ob.name + '", and have not fetched history since last connection');
+            if (TS.pri) TS.log(58, 'we have no msgs for "' + model_ob.id + '", and have not fetched history since last connection');
             if (api_args.latest) {
-              if (TS.pri) TS.log(58, "no msgs.length. dropping api_args.latest of " + api_args.latest + ' for "' + model_ob.id + '" "' + model_ob.name + '"');
+              if (TS.pri) TS.log(58, "no msgs.length. dropping api_args.latest of " + api_args.latest + ' for "' + model_ob.id + '"');
               delete api_args.latest;
             }
             if (api_args.oldest) {
-              if (TS.pri) TS.log(58, "no msgs.length. dropping api_args.oldest of " + api_args.oldest + ' for "' + model_ob.id + '" "' + model_ob.name + '"');
+              if (TS.pri) TS.log(58, "no msgs.length. dropping api_args.oldest of " + api_args.oldest + ' for "' + model_ob.id + '"');
               delete api_args.oldest;
             }
           } else if (model_ob.msgs.length === 1 && !TS.utility.msgs.isTempMsg(model_ob.msgs[0])) {
-            if (TS.pri) TS.log(58, 'first new message on "' + model_ob.id + '" "' + model_ob.name + ", fetching history without any latest/oldest");
+            if (TS.pri) TS.log(58, 'first new message on "' + model_ob.id + ", fetching history without any latest/oldest");
             delete api_args.latest;
             delete api_args.oldest;
           } else {
-            if (TS.pri) TS.log(58, "we have some (" + model_ob.msgs.length + ') but not all recent msgs for "' + model_ob.id + '" "' + model_ob.name + '", and have not fetched history since last connection');
+            if (TS.pri) TS.log(58, "we have some (" + model_ob.msgs.length + ') but not all recent msgs for "' + model_ob.id + '", and have not fetched history since last connection');
             if (api_args.latest) {
-              if (TS.pri) TS.log(58, 'first history fetch since connect for "' + model_ob.id + '" "' + model_ob.name + '" - deleting api_args.latest of ' + api_args.latest);
+              if (TS.pri) TS.log(58, 'first history fetch since connect for "' + model_ob.id + '" - deleting api_args.latest of ' + api_args.latest);
               delete api_args.latest;
             }
             if (api_args.oldest && api_args.count) {
-              if (TS.pri) TS.log(58, "We have api_args.oldest, fetching oldest + " + api_args.count + ' messages on "' + model_ob.id + '" "' + model_ob.name + '" to get client up-to-date.');
+              if (TS.pri) TS.log(58, "We have api_args.oldest, fetching oldest + " + api_args.count + ' messages on "' + model_ob.id + '" to get client up-to-date.');
             }
           }
         }
         var doIt = function() {
           if (model_ob.history_is_being_fetched) {
-            if (TS.pri) TS.log(58, 'NOT fetching history on "' + model_ob.id + '" "' + model_ob.name + '", history already being fetched');
+            if (TS.pri) TS.log(58, 'NOT fetching history on "' + model_ob.id + '", history already being fetched');
           } else {
-            if (TS.pri) TS.log(58, 'fetching history for "' + model_ob.id + '" "' + model_ob.name + '" with api_args', api_args);
+            if (TS.pri) TS.log(58, 'fetching history for "' + model_ob.id + '" with api_args', api_args);
             controller.fetchHistory(model_ob, api_args);
           }
         };
@@ -8695,20 +8695,20 @@ TS.registerModule("constants", {
       var msgs = model_ob.msgs;
       var imsg;
       if (data.is_limited) {
-        if (TS.pri) TS.log(58, 'data.is_limited case: setting has_more = false, is_limited = true for "' + model_ob.id + '" "' + model_ob.name + '"', model_ob, data, args);
+        if (TS.pri) TS.log(58, 'data.is_limited case: setting has_more = false, is_limited = true for "' + model_ob.id + '"', model_ob, data, args);
         data.has_more = false;
         model_ob.is_limited = true;
       }
       var needs_unread_recalc;
       if (!model_ob._history_fetched_since_last_connect) {
-        if (TS.pri) TS.log(58, 'first history fetch for "' + model_ob.id + '" "' + model_ob.name + '"', model_ob, data, args);
+        if (TS.pri) TS.log(58, 'first history fetch for "' + model_ob.id + '"', model_ob, data, args);
         if (TS.client && TS.client.msg_pane) TS.client.msg_pane.maybeResetUnreadsCheck(model_ob);
         if (args.oldest) {
           if (!data.has_more) {
-            if (TS.pri) TS.log(58, 'first history fetch. has_more is false for "' + model_ob.id + '" "' + model_ob.name + '" - we should have all recent msgs. Setting _history_fetched_since_last_connect.', args, data, model_ob);
+            if (TS.pri) TS.log(58, 'first history fetch. has_more is false for "' + model_ob.id + '" - we should have all recent msgs. Setting _history_fetched_since_last_connect.', args, data, model_ob);
             model_ob._history_fetched_since_last_connect = true;
             if (model_ob.history_is_being_fetched) {
-              if (TS.pri) TS.log(58, 'Resetting history_is_being_fetched for "' + model_ob.id + '" "' + model_ob.name + '"');
+              if (TS.pri) TS.log(58, 'Resetting history_is_being_fetched for "' + model_ob.id + '"');
               model_ob.history_is_being_fetched = false;
             }
             needs_unread_recalc = true;
@@ -8722,14 +8722,14 @@ TS.registerModule("constants", {
               count: TS.model.initial_msgs_cnt,
               inclusive: true
             };
-            if (TS.pri) TS.log(58, 'first history fetch. has_more is TRUE for "' + model_ob.id + '" "' + model_ob.name + '" - dumping history and fetching most recent ' + TS.model.initial_msgs_cnt + " msgs. prior history call data follows.", args, data, model_ob);
+            if (TS.pri) TS.log(58, 'first history fetch. has_more is TRUE for "' + model_ob.id + '" - dumping history and fetching most recent ' + TS.model.initial_msgs_cnt + " msgs. prior history call data follows.", args, data, model_ob);
             return controller.fetchHistory(model_ob, api_args);
           }
         } else {
-          if (TS.pri) TS.log(58, 'first history fetch. no "oldest" param for "' + model_ob.id + '" "' + model_ob.name + '", marking _history_fetched_since_last_connect = true.', args, data, model_ob);
+          if (TS.pri) TS.log(58, 'first history fetch. no "oldest" param for "' + model_ob.id + '", marking _history_fetched_since_last_connect = true.', args, data, model_ob);
           model_ob._history_fetched_since_last_connect = true;
           if (model_ob.history_is_being_fetched) {
-            if (TS.pri) TS.log(58, 'Resetting history_is_being_fetched for "' + model_ob.id + '" "' + model_ob.name + '"');
+            if (TS.pri) TS.log(58, 'Resetting history_is_being_fetched for "' + model_ob.id + '"');
             model_ob.history_is_being_fetched = false;
           }
           needs_unread_recalc = true;
@@ -8738,8 +8738,8 @@ TS.registerModule("constants", {
       }
       if (args.oldest) {
         if (data.has_more) {
-          TS.info(model_ob.name + " has more than one page of msg history between what is in cache and the latest, so let's dump what we have and just use this page of results");
-          TS.info(model_ob.name + " args.oldest:" + args.oldest);
+          TS.info(model_ob.id + " has more than one page of msg history between what is in cache and the latest, so let's dump what we have and just use this page of results");
+          TS.info(model_ob.id + " args.oldest:" + args.oldest);
           msgs.length = 0;
           if (model_ob.is_limited) model_ob.is_limited = false;
         }
@@ -8754,23 +8754,23 @@ TS.registerModule("constants", {
             new_msgs_tses.push(imsg.ts);
           }
         }
-        if (TS.pri) TS.log(58, 'got history for "' + model_ob.id + '" "' + model_ob.name + '", added ' + new_msgs.length + " new messages out of " + data.messages.length + " total.");
+        if (TS.pri) TS.log(58, 'got history for "' + model_ob.id + '", added ' + new_msgs.length + " new messages out of " + data.messages.length + " total.");
       }
       if (TS.boot_data.feature_updated_history_fetch_and_merge && model_ob._msgs_to_merge_on_history && model_ob._msgs_to_merge_on_history.length) {
         var did_add_merged_messages;
         _.each(model_ob._msgs_to_merge_on_history, function(item, offset) {
           if (new_msgs_tses.indexOf(item.ts) === -1 && !TS.utility.msgs.getMsg(item.ts, msgs) && !TS.utility.msgs.isTempMsg(item)) {
-            if (TS.boot_data.feature_tinyspeck) TS.warn('got history for "' + model_ob.id + '" "' + model_ob.name + '", merging in msg with ts=' + item.ts + " because it was not included in the history response.", args);
+            if (TS.boot_data.feature_tinyspeck) TS.warn('got history for "' + model_ob.id + '", merging in msg with ts=' + item.ts + " because it was not included in the history response.", args);
             new_msgs.push(TS.utility.msgs.processImsgFromHistory(item, model_ob.id));
             did_add_merged_messages = true;
           } else {
-            if (TS.pri) TS.log(58, "NOT merging message for #" + model_ob.name + " because it already exists, or is temporary.", item);
+            if (TS.pri) TS.log(58, "NOT merging message for " + model_ob.id + " because it already exists, or is temporary.", item);
           }
         });
         model_ob._msgs_to_merge_on_history = null;
       }
       if (new_msgs.length && !TS.utility.msgs.getDisplayedMsgs(new_msgs).length) {
-        TS.warn("no displayed msgs in this page for " + model_ob.id + ' "' + model_ob.name + '"! We expect TS.client.ui.afterHistoryFetch to detect this and load another page');
+        TS.warn("no displayed msgs in this page for " + model_ob.id + " ! We expect TS.client.ui.afterHistoryFetch to detect this and load another page");
       }
       msgs = new_msgs.concat(msgs);
       if (did_add_merged_messages) TS.utility.msgs.sortMsgs(msgs);
@@ -8789,7 +8789,7 @@ TS.registerModule("constants", {
       }
       TS.shared.maybeDealWithAllSentTempMsgs(model_ob, controller);
       if (needs_unread_recalc) {
-        if (TS.pri) TS.log(58, "onHistory: post-message merge, doing recalc of unread counts for #" + model_ob.name);
+        if (TS.pri) TS.log(58, "onHistory: post-message merge, doing recalc of unread counts for " + model_ob.id);
         var and_mark = false;
         controller.calcUnreadCnts(model_ob, and_mark);
       }
@@ -9136,7 +9136,7 @@ TS.registerModule("constants", {
         }
         ms_since_activity = new Date - activity_date;
         if (ms_since_activity > allow_elapsed_ms) {
-          TS.info(model_ob.name + " " + activity_date + " ms_since_activity:" + ms_since_activity + " allow_elapsed_ms:" + allow_elapsed_ms);
+          TS.info(model_ob.id + " " + activity_date + " ms_since_activity:" + ms_since_activity + " allow_elapsed_ms:" + allow_elapsed_ms);
           leaveA.push({
             model_ob: model_ob,
             ms_since_activity: ms_since_activity
@@ -9156,7 +9156,7 @@ TS.registerModule("constants", {
       leaveA.length = leaveA.length > this_too_many ? this_too_many : leaveA.length;
       for (i = 0; i < leaveA.length; i++) {
         model_ob = leaveA[i].model_ob;
-        TS.warn("checkForOldImsToClose CLOSING:" + model_ob.name + " ms_since_activity:" + leaveA[i].ms_since_activity);
+        TS.warn("checkForOldImsToClose CLOSING:" + model_ob.id + " ms_since_activity:" + leaveA[i].ms_since_activity);
         if (model_ob.is_im) {
           TS.ims.closeIm(model_ob.id);
         } else if (model_ob.is_mpim) {
@@ -9257,10 +9257,10 @@ TS.registerModule("constants", {
         TS.utility.msgs.maybeTruncateMsgs(model_ob);
         if (TS.client) {
           if (TS.model.active_cid !== model_ob.id) {
-            if (TS.pri) TS.log(58, 'Got message(s) for "' + model_ob.id + '" "' + model_ob.name + '", but not active_cid "' + TS.model.active_cid + '" (yet.) NOT rebuilding.');
+            if (TS.pri) TS.log(58, 'Got message(s) for "' + model_ob.id + '", but not active_cid "' + TS.model.active_cid + '" (yet.) NOT rebuilding.');
           } else {
             if (TS.pri) TS.log(58, "Got messages on active channel, rebuilding.");
-            TS.client.msg_pane.rebuildMsgsWithReason("addMsgs: got messages on active channel #" + model_ob.name);
+            TS.client.msg_pane.rebuildMsgsWithReason("addMsgs: got messages on active channel " + model_ob.id);
           }
         }
         return true;
@@ -9352,13 +9352,13 @@ TS.registerModule("constants", {
         return;
       }
       if (!model_ob._history_fetched_since_last_connect) return;
-      if (TS.pri && model_ob._history_fetched_since_last_connect) TS.log(58, 'resetting history_fetched_since_last_connect for "' + model_ob.id + '" "' + model_ob.name + '"');
+      if (TS.pri && model_ob._history_fetched_since_last_connect) TS.log(58, 'resetting history_fetched_since_last_connect for "' + model_ob.id + '"');
       model_ob._history_fetched_since_last_connect = false;
     },
     maybeClearHasAutoScrolled: function() {
       var active_model_ob = TS.shared.getActiveModelOb();
       if (active_model_ob && active_model_ob._has_auto_scrolled) {
-        if (TS.pri) TS.log(58, 'resetting _has_auto_scrolled for "' + active_model_ob.id + '" "' + active_model_ob.name + '"');
+        if (TS.pri) TS.log(58, 'resetting _has_auto_scrolled for "' + active_model_ob.id + '"');
         active_model_ob._has_auto_scrolled = false;
       }
     },
@@ -9415,22 +9415,22 @@ TS.registerModule("constants", {
       if (!model_ob.is_org_shared && !model_ob.is_shared) return is_relevant;
       var enterprise_team_ids;
       var ncc = 1701;
-      if (TS.pri) TS.log(ncc, "isRelevantTeamForSharedModelOb(): #" + model_ob.name);
+      if (TS.pri) TS.log(ncc, "isRelevantTeamForSharedModelOb(): " + model_ob.id);
       if (model_ob.shares) {
         enterprise_team_ids = _.map(model_ob.shares, function(item) {
           return item.id;
         });
         if (enterprise_team_ids.indexOf(TS.model.team.id) === -1) {
-          console.warn('WTF, TS.model.team.id of "' + TS.model.team.id + '" is not in enterprise_team_ids from model_ob.shares on #' + model_ob.name + "?", model_ob.shares);
+          console.warn('WTF, TS.model.team.id of "' + TS.model.team.id + '" is not in enterprise_team_ids from model_ob.shares on ' + model_ob.id + "?", model_ob.shares);
         }
       } else {
-        if (TS.pri) TS.log(ncc, "no model_ob.shares on # " + model_ob.name + ", model ob is " + (!model_ob.is_org_shared ? "NOT " : "") + "org_shared");
+        if (TS.pri) TS.log(ncc, "no model_ob.shares on " + model_ob.id + ", model ob is " + (!model_ob.is_org_shared ? "NOT " : "") + "org_shared");
         enterprise_team_ids = _.map(TS.model.enterprise_teams, function(item) {
           return item.id;
         });
       }
       if (!enterprise_team_ids) {
-        if (TS.pri) TS.log(ncc, "Could not find shared team IDs for #" + model_ob.name + "? Exiting.");
+        if (TS.pri) TS.log(ncc, "Could not find shared team IDs for " + model_ob.id + "? Exiting.");
         return is_relevant;
       }
       var relevant_team_ids = TSSSB.call("getLastActiveTeamIdForTeamIds", enterprise_team_ids);
@@ -9450,14 +9450,14 @@ TS.registerModule("constants", {
         }
       }
       if (!most_relevant_team_id) {
-        if (TS.pri) TS.log(ncc, "Invalid response from SSB lastActiveTeamIdForTeamIds() call on #" + model_ob.name + "? Exiting.");
+        if (TS.pri) TS.log(ncc, "Invalid response from SSB lastActiveTeamIdForTeamIds() call on " + model_ob.id + "? Exiting.");
         return is_relevant;
       }
       if (TS.pri) TS.log(ncc, "comparing most_relevant_team_id ( " + most_relevant_team_id + ") -> TS.model.team_id (" + TS.model.team.id + ")");
       if (most_relevant_team_id === TS.model.team.id) {
-        if (TS.pri) TS.log(ncc, "Shared channel #" + model_ob.name + " is relevant for this team (" + TS.model.team.id + "). Including.");
+        if (TS.pri) TS.log(ncc, "Shared channel " + model_ob.id + " is relevant for this team (" + TS.model.team.id + "). Including.");
       } else {
-        if (TS.pri) TS.log(ncc, "Shared channel #" + model_ob.name + " is NOT relevant for this team (" + TS.model.team.id + "). Excluding.");
+        if (TS.pri) TS.log(ncc, "Shared channel " + model_ob.id + " is NOT relevant for this team (" + TS.model.team.id + "). Excluding.");
         is_relevant = false;
       }
       return is_relevant;
@@ -9535,10 +9535,10 @@ TS.registerModule("constants", {
     var added_any = false;
     if (!model_ob._history_fetched_since_last_connect) {
       var log_prefix;
-      if (TS.pri) log_prefix = 'Defer case: First new message on "' + model_ob.id + '" "' + model_ob.name + '" - ';
-      if (!msgs || !msgs.length) TS.warn("_addMsgsWorker(#" + model_ob.id + "): WTF no msgs to add?");
+      if (TS.pri) log_prefix = 'Defer case: First new message on "' + model_ob.id + '" - ';
+      if (!msgs || !msgs.length) TS.warn("_addMsgsWorker(" + model_ob.id + "): WTF no msgs to add?");
       if (model_ob.history_is_being_fetched || !model_ob._history_fetched_since_last_connect) {
-        if (TS.pri) TS.log(58, log_prefix + "queueing msgs to merge on history fetch for #" + model_ob.name, msgs);
+        if (TS.pri) TS.log(58, log_prefix + "queueing msgs to merge on history fetch for " + model_ob.id, msgs);
         model_ob._msgs_to_merge_on_history = (model_ob._msgs_to_merge_on_history || []).concat(msgs);
       }
       if (model_ob.msgs.length) {
@@ -9561,14 +9561,14 @@ TS.registerModule("constants", {
     }
     msgs = _.filter(msgs, function(msg) {
       var exists = msg.ts && TS.utility.msgs.getMsg(msg.ts, model_ob.msgs);
-      if (exists) TS.log(58, "Not adding duplicate message " + msg.ts + ", already in " + model_ob.id + " #" + model_ob.name);
+      if (exists) TS.log(58, "Not adding duplicate message " + msg.ts + ", already in " + model_ob.id);
       return !exists;
     });
     if (!msgs.length) {
-      if (TS.pri) TS.log(58, "No messages to add to " + model_ob.id + " #" + model_ob.name + " - exiting.");
+      if (TS.pri) TS.log(58, "No messages to add to " + model_ob.id + " - exiting.");
       return false;
     }
-    if (TS.pri) TS.log(58, "Adding " + (msgs.length > 1 ? "messages" : "message") + " to " + model_ob.id + " #" + model_ob.name, msgs);
+    if (TS.pri) TS.log(58, "Adding " + (msgs.length > 1 ? "messages" : "message") + " to " + model_ob.id, msgs);
     msgs.forEach(function(msg) {
       if (TS.utility.msgs.validateMsg(model_ob.id, msg, model_ob.msgs)) {
         added_any = true;
@@ -9718,7 +9718,7 @@ TS.registerModule("constants", {
       });
       model_obs.slice(0, 10).forEach(function(model_ob, i) {
         if (!_isModelObRelevantToHotness(model_ob)) return;
-        TS.info(i + " " + model_ob._hotness + " " + TS.templates.makeHotnessIconDomClasses(model_ob) + " " + TS.shared.getDisplayNameForModelOb(model_ob));
+        TS.info(i + " " + model_ob._hotness + " " + TS.templates.makeHotnessIconDomClasses(model_ob) + " " + model_ob.id);
       });
     }
     if (!c_id) TS.metrics.measureAndClear("updated_hotness_all", mark_label);
@@ -11502,8 +11502,11 @@ TS.registerModule("constants", {
       }
       if (app.installation_summary) {
         var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
-          if (!TS.members.getMemberById(user_id)) return match;
-          return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getMemberDisplayNameById(user_id, true, true) + "</span>";
+          if (TS.members.getMemberById(user_id)) {
+            return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getMemberDisplayNameById(user_id, true, true) + "</span>";
+          } else {
+            return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">A user</span>";
+          }
         });
         template_args.installation_summary = new Handlebars.SafeString(installation_summary);
       }
@@ -15610,7 +15613,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " left channel " + imsg.channel);
+      TS.info(member.id + " left channel " + imsg.channel);
       var channel = TS.channels.getChannelById(imsg.channel);
       if (channel) {
         for (var i = 0; i < channel.members.length; i++) {
@@ -15798,7 +15801,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " joined channel " + imsg.channel);
+      TS.info(member.id + " joined channel " + imsg.channel);
       var channel = TS.channels.getChannelById(imsg.channel);
       var existing_member_id;
       if (channel) {
@@ -15849,7 +15852,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " changed topic for channel " + imsg.channel + " to " + imsg.topic);
+      TS.info(member.id + " changed topic for channel " + imsg.channel + " to " + imsg.topic);
       TS.channels.topicChanged(channel, member.id, imsg.ts, imsg.topic);
     },
     subtype__channel_purpose: function(imsg) {
@@ -15864,7 +15867,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " changed purpose for channel " + imsg.channel + " to " + imsg.purpose);
+      TS.info(member.id + " changed purpose for channel " + imsg.channel + " to " + imsg.purpose);
       TS.channels.purposeChanged(channel, member.id, imsg.ts, imsg.purpose);
     },
     channel_history_changed: function(imsg) {
@@ -15897,7 +15900,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " joined mpim " + imsg.channel);
+      TS.info(member.id + " joined mpim " + imsg.channel);
       return;
     },
     mpim_open: function(imsg) {
@@ -15979,7 +15982,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " left group " + imsg.channel);
+      TS.info(member.id + " left group " + imsg.channel);
       var group = TS.groups.getGroupById(imsg.channel);
       if (group) {
         for (var i = 0; i < group.members.length; i++) {
@@ -16065,7 +16068,7 @@ TS.registerModule("constants", {
         return;
       }
       if (imsg.is_mpim) return;
-      TS.info(member.name + " joined group " + imsg.channel);
+      TS.info(member.id + " joined group " + imsg.channel);
       var group = TS.groups.getGroupById(imsg.channel);
       var existing_member_id;
       if (group) {
@@ -16150,7 +16153,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " changed topic for group " + imsg.channel + " to " + imsg.topic);
+      TS.info(member.id + " changed topic for group " + imsg.channel + " to " + imsg.topic);
       TS.groups.topicChanged(group, member.id, imsg.ts, imsg.topic);
     },
     subtype__group_purpose: function(imsg) {
@@ -16167,7 +16170,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.name + " changed purpose for group " + imsg.channel + " to " + imsg.purpose);
+      TS.info(member.id + " changed purpose for group " + imsg.channel + " to " + imsg.purpose);
       TS.groups.purposeChanged(group, member.id, imsg.ts, imsg.purpose);
     },
     group_history_changed: function(imsg) {
@@ -16391,7 +16394,7 @@ TS.registerModule("constants", {
     },
     team_join: function(imsg) {
       var member = imsg.user;
-      TS.info(member.name + " joined the team");
+      TS.info(member.id + " joined the team");
       TS.members.upsertMember(member);
       member = TS.members.getMemberById(member.id);
       if (!member) {
@@ -18884,15 +18887,9 @@ TS.registerModule("constants", {
       }
       var html = "";
       if (result_type === "extract") {
-        var group = TS.boot_data.search_limit_extracts_group;
-        if (group === "limit_50" || group === "limit_100") {
-          html += '<div class="search_result_with_extract experiment_search_limit_extracts">';
-          html += '<div class="extract_expand_text">' + TS.i18n.t("Expand", "templates_builders")() + "</div>";
-          html += '<div class="extract_expand_icons blue"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
-        } else {
-          html += '<div class="search_result_with_extract">';
-          html += '<div class="extract_expand_icons"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
-        }
+        html += '<div class="search_result_with_extract">';
+        html += '<div class="extract_expand_text">' + TS.i18n.t("Expand", "template_builders")() + "</div>";
+        html += '<div class="extract_expand_icons blue"><i class="ts_icon ts_icon_chevron_up up_arrow"></i><i class="ts_icon ts_icon_chevron_down down_arrow"></i></div>';
       } else if (result_type === "context") {
         html += '<div class="search_result_for_context">';
       } else {
@@ -24573,7 +24570,7 @@ TS.registerModule("constants", {
     api_url_prefix: "api::",
     doApiUrl: function(url) {
       if (!TS.client) {
-        alert("This link will not work in the archives.");
+        alert(TS.i18n.t("This link will not work in the archives.", "msgs")());
         return;
       }
       url = url.replace(TS.utility.msgs.api_url_prefix, "");
@@ -24596,7 +24593,7 @@ TS.registerModule("constants", {
     new_api_url_prefix: "slack-action://",
     doNewApiUrl: function(url) {
       if (!TS.client) {
-        alert("This link will not work in the archives.");
+        alert(TS.i18n.t("This link will not work in the archives.", "msgs")());
         return;
       }
       var parts = url.replace(TS.utility.msgs.new_api_url_prefix, "").split("/");
@@ -24797,11 +24794,11 @@ TS.registerModule("constants", {
       if (!unread_cnt && !highlight_cnt) return;
       if (!TS.shared.isSharedModelOb(model_ob)) return;
       if (!TS.shared.isRelevantTeamForSharedModelOb(model_ob)) {
-        if (TS.pri) TS.log(67, "Excluding unread of " + unread_cnt + " and highlight of " + highlight_cnt + " for shared channel #" + model_ob.name + " because this is NOT the relevant team.");
+        if (TS.pri) TS.log(67, "Excluding unread of " + unread_cnt + " and highlight of " + highlight_cnt + " for shared channel " + model_ob.id + " because this is NOT the relevant team.");
         TS.model.all_unread_cnt_to_exclude += unread_cnt;
         TS.model.all_unread_highlights_cnt_to_exclude += highlight_cnt;
       } else {
-        if (TS.pri) TS.log(67, "Using unread of " + unread_cnt + " and highlight of " + highlight_cnt + " for shared channel #" + model_ob.name + " because this IS the relevant team.");
+        if (TS.pri) TS.log(67, "Using unread of " + unread_cnt + " and highlight of " + highlight_cnt + " for shared channel " + model_ob.id + " because this IS the relevant team.");
       }
     },
     doesMsgHaveRxnFromUser: function(msg, name) {
@@ -25248,7 +25245,7 @@ TS.registerModule("constants", {
       if (model_ob._fetched_user_data_from_ls) return;
       if (!model_ob.last_msg_input) {
         model_ob.last_msg_input = TS.storage.fetchLastMsgInput(model_ob.id);
-        if (model_ob.last_msg_input && TS.pri) TS.log(667, 'Got last_msg_input for "' + model_ob.id + '" "' + model_ob.name + '": ' + model_ob.last_msg_input);
+        if (model_ob.last_msg_input && TS.pri) TS.log(667, 'Got last_msg_input for "' + model_ob.id + '": ' + model_ob.last_msg_input);
       }
       model_ob._fetched_user_data_from_ls = true;
     },
@@ -25404,7 +25401,7 @@ TS.registerModule("constants", {
       if (model_ob) {
         var active_model_ob = TS.shared.getActiveModelOb();
         if (!active_model_ob || active_model_ob.id !== model_ob.id) {
-          if (TS.pri && active_model_ob) TS.log(58, "shouldMarkUnreadsOnMessageFetch: returning FALSE because model_ob is #" + model_ob.name + " and not active of #" + active_model_ob.name);
+          if (TS.pri && active_model_ob) TS.log(58, "shouldMarkUnreadsOnMessageFetch: returning FALSE because model_ob is " + model_ob.id + " and not active of " + active_model_ob.id);
           return false;
         }
       }
@@ -25550,7 +25547,7 @@ TS.registerModule("constants", {
       var msg = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, model_ob.msgs);
       if (!msg) {
         TS.sounds.play("beep");
-        alert("Found no recent messages from you to edit :(");
+        alert(TS.i18n.t("Found no recent messages from you to edit :(", "msgs")());
         return;
       }
       var text = TS.format.unFormatMsg(msg.text, msg);
@@ -25844,7 +25841,7 @@ TS.registerModule("constants", {
       var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob.msgs);
       if (!oldest_ts_we_have) return;
       var newest_ts_we_have = TS.utility.msgs.getMostRecentValidTs(model_ob);
-      var log_prefix = "checkConsistencyViaApi for: " + c_id + " " + TS.shared.getDisplayNameForModelOb(model_ob);
+      var log_prefix = "checkConsistencyViaApi for: " + c_id;
       model_ob._consistency_is_being_checked = true;
       var options = {
         channel: model_ob.id,
@@ -25875,7 +25872,7 @@ TS.registerModule("constants", {
       var model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob || !model_ob.msgs || !model_ob.msgs.length) return;
       var missing_msgs = [];
-      var log_prefix = "checkConsistency for: " + c_id + " " + TS.shared.getDisplayNameForModelOb(model_ob);
+      var log_prefix = "checkConsistency for: " + c_id;
       TS.log(773, log_prefix + " from_msgs.length:" + from_msgs.length + " model_ob.msgs.length:" + model_ob.msgs.length);
       from_msgs.forEach(function(msg, i) {
         if (!TS.utility.msgs.getMsg(msg.ts, model_ob.msgs)) {
@@ -25970,13 +25967,13 @@ TS.registerModule("constants", {
       if (!model_ob) return;
       if (model_ob.last_read >= model_ob.latest) TS.utility.msgs.maybeClearUsersCountsMentionCountDisplay(model_ob);
       if (!model_ob._users_counts_info) return;
-      if (TS.pri) TS.log(888, "Deleting _users_counts_info on #" + model_ob.name);
+      if (TS.pri) TS.log(888, "Deleting _users_counts_info on " + model_ob.id);
       delete model_ob._users_counts_info;
     },
     maybeClearUsersCountsMentionCountDisplay: function(model_ob) {
       if (!model_ob || !TS.boot_data.feature_wait_for_all_mentions_in_client) return;
       if (model_ob._mention_count_display_via_users_counts) {
-        if (TS.pri) TS.log(888, "deleting _mention_count_display_via_users_counts on #" + model_ob.name);
+        if (TS.pri) TS.log(888, "deleting _mention_count_display_via_users_counts on " + model_ob.id);
         delete model_ob._mention_count_display_via_users_counts;
       }
     },
@@ -31564,7 +31561,7 @@ TS.registerModule("constants", {
     clean: function() {
       TS.menu.$menu_footer.empty();
       TS.menu.$menu_header.removeClass("hidden");
-      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu searchable_member_list_filter_menu selectable member_file_filter_menu").css("max-height", "");
+      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu searchable_member_list_filter_menu selectable member_file_filter_menu app_card").css("max-height", "");
       TS.menu.$menu.removeAttr("data-qa");
       TS.menu.$menu.find("#menu_items_scroller").css("max-height", "");
       TS.menu.$menu.find(".arrow, .arrow_shadow").remove();
@@ -32396,6 +32393,7 @@ var _on_esc;
         var calling_args = {
           team: _team_id
         };
+        if (TS.model.enterprise_api_token) calling_args.enterprise_token = TS.model.enterprise_api_token;
         TS.api.call("enterprise.teams.leave", calling_args, function(ok, data, args) {
           var team = TS.enterprise.getTeamById(_team_id);
           var success_message = emoji.replace_colons(":sparkles:");
@@ -41567,7 +41565,7 @@ var _on_esc;
           updated_member.enterprise_user.teams = _.uniq(updated_member.enterprise_user.teams.concat(team_id));
           TS.members.upsertMember(updated_member);
           var team = TS.enterprise.getTeamById(team_id);
-          $container.find('[data-id="' + team_id + '"]').replaceWith(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
+          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
         }
         return null;
       });
@@ -50342,7 +50340,8 @@ $.fn.togglify = function(settings) {
       var calling_args = {
         include_archived: false,
         include_deleted: false,
-        include_user_counts: true
+        include_user_counts: true,
+        include_leave_team: true
       };
       if (exclude_discoverable) calling_args.exclude_discoverable = exclude_discoverable;
       return TS.api.call("enterprise.teams.list", calling_args).reflect().then(function(response) {
@@ -52408,10 +52407,9 @@ $.fn.togglify = function(settings) {
       js_urls: TS.boot_data.electron_window_injection_urls ? TS.boot_data.electron_window_injection_urls.calls_cursors.js : [],
       css_urls: TS.boot_data.electron_window_injection_urls ? TS.boot_data.electron_window_injection_urls.calls_cursors.css : []
     });
-    var display = TSSSB.call("getDisplayForWindow", _utility_call_state.call_window_token);
     var cursors_win_args = {
-      width: display.workAreaSize.width,
-      height: display.workAreaSize.height,
+      width: 0,
+      height: 0,
       windowType: "calls_cursors",
       transparent: true,
       alwaysOnTop: true,

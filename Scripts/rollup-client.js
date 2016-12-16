@@ -1132,7 +1132,7 @@
         return;
       }
       if (model_ob.is_archived && !model_ob.is_member) {
-        if (TS.pri) TS.log(58, 'ignoring users.counts response for "' + model_ob.id + '" "' + model_ob.name + '" because is_archived and !is_member');
+        if (TS.pri) TS.log(58, 'ignoring users.counts response for "' + model_ob.id + '" because is_archived and !is_member');
         return;
       }
       controller = controller || TS.shared.getControllerForModelOb(model_ob);
@@ -1161,15 +1161,15 @@
         return;
       }
       if (model_ob.msgs.length && (model_ob.unread_cnt !== model_prev_unread_cnt || model_ob.unread_highlight_cnt !== model_prev_highlight_cnt)) {
-        if (TS.pri) TS.log(58, 'msgs exist, calculating unreads for "' + model_ob.id + '" "' + model_ob.name + '"');
+        if (TS.pri) TS.log(58, 'msgs exist, calculating unreads for "' + model_ob.id + '"');
         controller.calcUnreadCnts(model_ob, and_mark);
       }
       if (model_ob.unread_cnt !== model_prev_unread_cnt && !is_muted) {
-        if (TS.pri) TS.log(58, 'unread count has changed for "' + model_ob.id + '" "' + model_ob.name + '", from ' + model_prev_unread_cnt + " to " + model_ob.unread_cnt);
+        if (TS.pri) TS.log(58, 'unread count has changed for "' + model_ob.id + '", from ' + model_prev_unread_cnt + " to " + model_ob.unread_cnt);
         controller.unread_changed_sig.dispatch(model_ob);
       }
       if (model_ob.unread_highlight_cnt !== model_prev_highlight_cnt) {
-        if (TS.pri) TS.log(58, 'unread highlight count has changed for "' + model_ob.id + '" "' + model_ob.name + '", from ' + model_prev_highlight_cnt + " to " + model_ob.unread_highlight_cnt);
+        if (TS.pri) TS.log(58, 'unread highlight count has changed for "' + model_ob.id + '", from ' + model_prev_highlight_cnt + " to " + model_ob.unread_highlight_cnt);
         controller.unread_highlight_changed_sig.dispatch(model_ob);
       }
       if (is_muted) {
@@ -1178,40 +1178,40 @@
           controller.markMostRecentReadMsg(model_ob, TS.model.marked_reasons.none_qualify);
         }
         model_ob._show_in_list_even_though_no_unreads = true;
-        if (TS.pri) TS.log(58, "we have a muted channel: #" + model_ob.name);
+        if (TS.pri) TS.log(58, "we have a muted channel: " + model_ob.id);
         if (TS.model.prefs.sidebar_behavior == "hide_read_channels") {
           if (TS.pri) TS.log(58, "user pref is to HIDE READ CHANNELS");
           if (!model_ob.unread_cnt && !model_ob.unread_highlight_cnt) {
-            if (TS.pri) TS.log(58, "#" + model_ob.name + " has no unreads");
+            if (TS.pri) TS.log(58, model_ob.id + " has no unreads");
             if (model_ob.id == TS.model.active_cid) {
-              if (TS.pri) TS.log(58, "#" + model_ob.name + " is currently being viewed. showing even though no unreads.");
+              if (TS.pri) TS.log(58, model_ob.id + " is currently being viewed. showing even though no unreads.");
               model_ob._show_in_list_even_though_no_unreads = true;
             } else {
-              if (TS.pri) TS.log(58, "#" + model_ob.name + " is not the active channel. no unreads, can be hidden.");
+              if (TS.pri) TS.log(58, model_ob.id + " is not the active channel. no unreads, can be hidden.");
               model_ob._show_in_list_even_though_no_unreads = false;
             }
           } else {
-            if (TS.pri) TS.log(58, "#" + model_ob.name + " has unreads.");
+            if (TS.pri) TS.log(58, model_ob.id + " has unreads.");
             model_ob._show_in_list_even_though_no_unreads = false;
           }
         } else if (TS.model.prefs.sidebar_behavior == "hide_read_channels_unless_starred") {
           if (TS.pri) TS.log(58, "user pref is to HIDE READ CHANNELS UNLESS STARRED");
           if (!model_ob.unread_cnt && !model_ob.unread_highlight_cnt) {
-            if (TS.pri) TS.log(58, "#" + model_ob.name + " has no unreads");
+            if (TS.pri) TS.log(58, model_ob.id + " has no unreads");
             if (model_ob.is_starred) {
-              if (TS.pri) TS.log(58, "#" + model_ob.name + " IS STARRED - showing even though no unreads.");
+              if (TS.pri) TS.log(58, model_ob.id + " IS STARRED - showing even though no unreads.");
               model_ob._show_in_list_even_though_no_unreads = true;
             } else {
               if (model_ob.id == TS.model.active_cid) {
-                if (TS.pri) TS.log(58, "#" + model_ob.name + " is currently being viewed. showing even though no unreads.");
+                if (TS.pri) TS.log(58, model_ob.id + " is currently being viewed. showing even though no unreads.");
                 model_ob._show_in_list_even_though_no_unreads = true;
               } else {
-                if (TS.pri) TS.log(58, "#" + model_ob.name + " is not the active channel. no unreads, can be hidden.");
+                if (TS.pri) TS.log(58, model_ob.id + " is not the active channel. no unreads, can be hidden.");
                 model_ob._show_in_list_even_though_no_unreads = false;
               }
             }
           } else {
-            if (TS.pri) TS.log(58, "#" + model_ob.name + " has unreads.");
+            if (TS.pri) TS.log(58, model_ob.id + " has unreads.");
             model_ob._show_in_list_even_though_no_unreads = false;
           }
         }
@@ -3556,14 +3556,17 @@
     },
     uploading: function(filename, retry, cancelable) {
       var html = "";
-      if (cancelable) html += '<a id="cancel_upload_in_progress" class="float_right very_small_right_margin">cancel</a>';
+      if (cancelable) html += '<a id="cancel_upload_in_progress" class="float_right very_small_right_margin">' + TS.i18n.t("cancel", "files")() + "</a>";
       var label = "";
       if (retry) {
-        label += "Re-uploading";
+        label = TS.i18n.t("Re-uploading {filename}", "files")({
+          filename: filename
+        });
       } else {
-        label += "Uploading";
+        label = TS.i18n.t("Uploading {filename}", "files")({
+          filename: filename
+        });
       }
-      label += " " + filename;
       $("#file_progress").queue(function(next) {
         $(this).toggleClass("is_cancelable", !!cancelable).removeClass("hidden loaded").find(".progress_bar").removeClass("candy_red_bg seafoam_green_bg").end().find(".progress_bar_progress_thin").removeClass("no_transition").data("label-left-original", label).attr("data-label-left", label).end().find("#progress_text").html(html).find("#cancel_upload_in_progress").click(TS.files.cancelCurrentUpload);
         next();
@@ -3574,16 +3577,21 @@
       $("#file_progress").queue(function(next) {
         $(this).find(".progress_bar.no_transition").removeClass("no_transition");
         var $progress_bar_progress = $(".progress_bar_progress_thin");
-        var queue_string = TS.files.uploadQ.length ? " (1 of " + (TS.files.uploadQ.length + 1) + ")" : "";
+        var queue_string = "";
+        if (TS.files.uploadQ.length) {
+          queue_string = TS.i18n.t("(1 of {total})", "files")({
+            total: TS.files.uploadQ.length + 1
+          });
+        }
         if (percent < 99) {
-          var new_label = $progress_bar_progress.data("label-left-original") + "..." + percent + "%" + queue_string;
+          var new_label = $progress_bar_progress.data("label-left-original") + "&hellip" + percent + "% " + queue_string;
           $progress_bar_progress.css({
             width: percent + "%"
           }).attr("data-label-left", new_label);
         } else {
           $("#file_progress").addClass("loaded").find(".progress_bar_progress_thin").removeClass("progress_bar_progress_thin progress_bar_progress_striped").addClass("progress_bar_progress_animated_thin").css({
             width: "100%"
-          }).attr("data-label-left", "Processing uploaded file..." + queue_string).end().find("#cancel_upload_in_progress").remove().end();
+          }).attr("data-label-left", TS.i18n.t("Processing uploaded file&hellip", "files")() + " " + queue_string).end().find("#cancel_upload_in_progress").remove().end();
         }
         next();
       });
@@ -3592,7 +3600,9 @@
       $("#file_progress").queue(function(next) {
         $(this).removeClass("loaded").find(".progress_bar").addClass("candy_red_bg").end().find(".progress_bar_progress_thin").addClass("no_transition progress_bar_progress_striped").css({
           width: "0%"
-        }).attr("data-label-left", "").end().find("#progress_text").html("Canceling <strong class='filename'>" + TS.utility.htmlEntities(filename) + "</strong> ...").end().find("#cancel_upload_in_progress").remove().end();
+        }).attr("data-label-left", "").end().find("#progress_text").html(TS.i18n.t('Canceling <strong class="filename">{filename}</strong> &hellip', "files")({
+          filename: TS.utility.htmlEntities(filename)
+        })).end().find("#cancel_upload_in_progress").remove().end();
         next();
       }).delay(1e3);
     },
@@ -3658,17 +3668,28 @@
         $help_block.find('.subsection[data-filter="' + types[0] + '"]').removeClass("hidden");
       }
       if (!html) {
-        var from_str = ".";
-        if (list_type == "user") {
-          from_str = " from you.";
-        } else if (member) {
-          from_str = " from <strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>.";
-        }
+        var html_str = "";
         if (no_filter) {
-          html = '<p class="no_results">No files' + from_str + "</p>";
+          if (list_type == "user") {
+            html_str = TS.i18n.t("No files from you.", "files")();
+          } else {
+            html_str = TS.i18n.t("No files from {user}.", "files")({
+              user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
+            });
+          }
         } else {
-          html = '<p class="no_results">No ' + TS.model.file_list_type_map[types[0]] + from_str + "</p>";
+          if (list_type == "user") {
+            html_str = TS.i18n.t("No {file_type} from you.", "files")({
+              file_type: TS.model.file_list_type_map[types[0]]
+            });
+          } else {
+            html_str = TS.i18n.t("No {file_type} from {user}.", "files")({
+              file_type: TS.model.file_list_type_map[types[0]],
+              user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
+            });
+          }
         }
+        html = '<p class="no_results">' + html_str + "</p>";
       }
       if (html != TS.view.files.last_files_html || !$file_list.children().length) {
         if (TS.view.file_list_lazyload && TS.view.file_list_lazyload.detachEvents) TS.view.file_list_lazyload.detachEvents();
@@ -3726,23 +3747,32 @@
         $help_block.find('.subsection[data-filter="' + types[0] + '"]').removeClass("hidden");
       }
       if (!filtered_files.length) {
-        var html;
-        var from_str = ".";
-        if (list_type == "user") {
-          from_str = " from you.";
-        } else if (member) {
-          from_str = " from <strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>.";
-        }
+        var html_str = "";
         if (no_filter) {
-          html = '<p class="no_results">No files' + from_str + "</p>";
+          if (list_type === "user") {
+            html_str = TS.i18n.t("No files from you.", "files")();
+          } else {
+            html_str = TS.i18n.t("No files from {user}.", "files")({
+              user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
+            });
+          }
         } else {
-          html = '<p class="no_results">No ' + TS.model.file_list_type_map[types[0]] + from_str + "</p>";
+          if (list_type === "user") {
+            html_str = TS.i18n.t("No {files_type} from you.", "files")({
+              files_type: TS.model.file_list_type_map[types[0]]
+            });
+          } else {
+            html_str = TS.i18n.t("No {files_type} from {user}.", "files")({
+              files_type: TS.model.file_list_type_map[types[0]],
+              user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
+            });
+          }
         }
         if (_file_list_initialized) {
           $file_list.longListView("destroy");
           _file_list_initialized = false;
         }
-        $file_list.empty().html(html);
+        $file_list.empty().html('<p class="no_results">' + html_str + "</p>");
       }
       if (filtered_files.length) {
         if (!_file_list_initialized) {
@@ -3804,7 +3834,7 @@
     },
     clearFilter: function() {
       TS.model.active_file_list_filter = "all";
-      TS.view.file_list_heading = "All File Types";
+      TS.view.file_list_heading = TS.i18n.t("All File Types", "files")();
       TS.model.file_list_types = ["all"];
       TS.view.files.filterSet();
       TS.view.files.setButtonState("all");
@@ -3881,13 +3911,13 @@
       var msg_go_button_text;
       var obj = TS.files && TS.files.getFileById ? TS.files.getFileById(file_id) : null;
       if (obj && obj.filetype && obj.filetype === "space") {
-        msg_title = "Delete post";
-        msg_body = "Are you sure you want to delete this post permanently?";
-        msg_go_button_text = "Yes, delete this post";
+        msg_title = TS.i18n.t("Delete post", "files")();
+        msg_body = TS.i18n.t("Are you sure you want to delete this post permanently?", "files")();
+        msg_go_button_text = TS.i18n.t("Yes, delete this post", "files")();
       } else {
-        msg_title = "Delete file";
-        msg_body = obj.is_external ? "Are you sure you want to permanently delete this file from Slack?" : "Are you sure you want to delete this file permanently?";
-        msg_go_button_text = "Yes, delete this file";
+        msg_title = TS.i18n.t("Delete file", "files")();
+        msg_body = obj.is_external ? TS.i18n.t("Are you sure you want to permanently delete this file from Slack?", "files")() : TS.i18n.t("Are you sure you want to delete this file permanently?", "files")();
+        msg_go_button_text = TS.i18n.t("Yes, delete this file", "files")();
       }
       TS.generic_dialog.start({
         title: msg_title,
@@ -3896,7 +3926,7 @@
         show_go_button: true,
         go_button_class: "btn_danger",
         go_button_text: msg_go_button_text,
-        cancel_button_text: "Cancel",
+        cancel_button_text: TS.i18n.t("Cancel", "files")(),
         onGo: function() {
           TS.files.deleteFile(file_id);
         }
@@ -3904,12 +3934,12 @@
     },
     saveToDropbox: function(file_id) {
       TS.generic_dialog.start({
-        title: "Save to Dropbox",
-        body: "Do you want to save this file to your Dropbox Slack folder?",
+        title: TS.i18n.t("Save to Dropbox", "files")(),
+        body: TS.i18n.t("Do you want to save this file to your Dropbox Slack folder?", "files")(),
         show_cancel_button: true,
         show_go_button: true,
-        go_button_text: "Yes",
-        cancel_button_text: "No",
+        go_button_text: TS.i18n.t("Yes", "files")(),
+        cancel_button_text: TS.i18n.t("No", "files")(),
         onGo: function() {
           TS.files.saveFileToDropbox(file_id);
         }
@@ -11852,7 +11882,7 @@
       var mpim_ob = TS.mpims.getMpimById(TS.model.active_mpim_id);
       TS.client.msg_pane.maybeSetupCalls(false, mpim_ob);
     }
-    $(".channel_calls_button").addClass("blue_hover");
+    $(".channel_calls_button").addClass("blue_on_hover");
   };
   var _bindUnreadView = function() {
     if (TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
@@ -12243,8 +12273,8 @@
       if (TS.msg_edit.editing && TS.msg_edit.editing_in_msg_pane) edit_state = TS.msg_edit.pauseEditing();
       TS.log(5, "rebuilding msgs for " + TS.model.active_cid);
       TS.model.ui.msgs_are_auto_scrolling = false;
-      if (TS.pri) TS.log(999, "rebuildMsgs(), #" + model_ob.name + ", reason: " + (reason || "not specified"));
-      if (TS.pri) TS.log(999, "rebuildMsgs(), #" + model_ob.name + ": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()");
+      if (TS.pri) TS.log(999, "rebuildMsgs(), " + model_ob.id + ", reason: " + (reason || "not specified"));
+      if (TS.pri) TS.log(999, "rebuildMsgs(), " + model_ob.id + ": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()");
       TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
       var msgs;
       var last_scroll_top = -1;
@@ -12364,10 +12394,10 @@
         var start_at_oldest = TS.model.prefs && TS.model.prefs.start_scroll_at_oldest;
         if (start_at_oldest && model_ob.unread_cnt && TS.client.msg_pane.new_msgs_bar_showing && !model_ob._has_auto_scrolled) {
           if (!TS.model.ui.is_window_focused) {
-            if (TS.pri) TS.log(888, "rebuildMsgs(): NOT resetting and applying auto-scroll on #" + model_ob.name + ", because window is not in focus.");
+            if (TS.pri) TS.log(888, "rebuildMsgs(): NOT resetting and applying auto-scroll on " + model_ob.id + ", because window is not in focus.");
             return;
           }
-          if (TS.pri) TS.log(888, "rebuildMsgs(): resetting has_auto_scrolled on #" + model_ob.name + " and forcing first unread to scroll into view, because new msgs bar is still up and unread_cnt = " + model_ob.unread_cnt);
+          if (TS.pri) TS.log(888, "rebuildMsgs(): resetting has_auto_scrolled on " + model_ob.id + " and forcing first unread to scroll into view, because new msgs bar is still up and unread_cnt = " + model_ob.unread_cnt);
           last_scroll_top = -1;
           _resetHasAutoScrolled(model_ob);
         }
@@ -12426,7 +12456,7 @@
           query: JSON.stringify(or_clause)
         };
         var current_model_ob_id = model_ob.id;
-        if (TS.boot_data.feature_tinyspeck) TS.log("calling search.enterprise for unknowns in #" + model_ob.name, all_unknowns);
+        if (TS.boot_data.feature_tinyspeck) TS.log("calling search.enterprise for unknowns in " + model_ob.id, all_unknowns);
         TS.api.callImmediately("search.enterprise", calling_args).then(function(response) {
           if (!response.data.items.length) return null;
           response.data.items.map(function(member) {
@@ -12484,7 +12514,7 @@
       } else {
         var model_ob = TS.shared.getActiveModelOb();
         if (model_ob && !model_ob._temp_unread_cnt && !model_ob.unread_cnt) {
-          if (TS.pri) TS.log(999, "TS.client.msg_pane.maybeHideNewMsgsBar: no _temp_ or unread_cnt - hiding new msgs bar for #" + model_ob.name);
+          if (TS.pri) TS.log(999, "TS.client.msg_pane.maybeHideNewMsgsBar: no _temp_ or unread_cnt - hiding new msgs bar for " + model_ob.id);
           TS.client.msg_pane.hideNewMsgsBar();
         }
       }
@@ -12496,7 +12526,7 @@
     maybeClearUnreadDivider: function(model_ob, msg) {
       if (!model_ob || !msg) return;
       if (!model_ob.unread_cnt && msg.user && msg.user == TS.model.user.id) {
-        if (TS.pri) TS.log(999, "TS.client.msg_pane.maybeClearUnreadDivider: clearing because you sent a message in #" + model_ob.name + " and unread_cnt = " + model_ob.unread_cnt);
+        if (TS.pri) TS.log(999, "TS.client.msg_pane.maybeClearUnreadDivider: clearing because you sent a message in " + model_ob.id + " and unread_cnt = " + model_ob.unread_cnt);
         TS.client.msg_pane.clearUnreadDivider();
         TS.utility.msgs.maybeClearPrevLastRead();
       }
@@ -12548,29 +12578,29 @@
       var is_rebuild = TS.client.msg_pane.is_rebuilding;
       if (model_ob.unread_cnt && TS.client.msg_pane.last_in_stream_msg && !TS.client.msg_pane.dont_check_unreads_til_switch) {
         if (is_rebuild || !TS.model.ui.is_window_focused) {
-          if (TS.pri) TS.log(888, "TS.view.addMsg() on #" + model_ob.name + ": inserting red line because is_rebuild, or window not focused.");
+          if (TS.pri) TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": inserting red line because is_rebuild, or window not focused.");
         } else {
           if (TS.model.ui.is_window_focused) {
             var msg_in_view = TS.client.ui.isMsgInView(TS.client.msg_pane.last_in_stream_msg.ts);
             if (msg_in_view) {
               if (model_ob.is_im) {
-                if (TS.pri) TS.log(888, "TS.view.addMsg() on #" + model_ob.name + ": clearing red line because new msg is in view.");
+                if (TS.pri) TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": clearing red line because new msg is in view.");
                 TS.client.msg_pane.clearUnreadDivider();
               }
               TS.utility.msgs.maybeClearPrevLastRead();
               skip_red_line = true;
             } else {
-              if (TS.pri) TS.log(888, "TS.view.addMsg() on #" + model_ob.name + ": inserting red line because new msg is out of view.");
+              if (TS.pri) TS.log(888, "TS.view.addMsg() on " + model_ob.id + ": inserting red line because new msg is out of view.");
             }
           }
         }
       }
       if (TS.notifs.isCorGMuted(model_ob.id)) {
-        if (TS.pri) TS.log(888, "insertUnreadDivider(): #" + model_ob.name + " is muted - exiting");
+        if (TS.pri) TS.log(888, "insertUnreadDivider(): " + model_ob.id + " is muted - exiting");
         return;
       }
       if (last_read === "0000000000.000000") {
-        if (TS.pri) TS.log(888, "insertUnreadDivider(): #" + model_ob.name + " last_read is zero (" + last_read + ") - not inserting.");
+        if (TS.pri) TS.log(888, "insertUnreadDivider(): " + model_ob.id + " last_read is zero (" + last_read + ") - not inserting.");
         skip_red_line = true;
       }
       if (TS.boot_data.feature_pin_update && _$last_read_msg_div) {
@@ -12901,7 +12931,7 @@
       }
       var active_model_ob = TS.shared.getActiveModelOb();
       if (related_model_ob && related_model_ob.id !== active_model_ob.id) return;
-      if (TS.pri) TS.log(999, "TS.client.msg_pane.maybeClearNewMsgsTimer: starting _onNewMsgsTimer while on #" + active_model_ob.name);
+      if (TS.pri) TS.log(999, "TS.client.msg_pane.maybeClearNewMsgsTimer: starting _onNewMsgsTimer while on " + active_model_ob.id);
       TS.client.msg_pane.startNewMsgsTimer();
     },
     startNewMsgsTimer: function() {
@@ -12911,13 +12941,13 @@
         _new_msgs_tim = null;
       }
       _new_msgs_tim = setTimeout(_onNewMsgsTimer, 1500);
-      if (TS.pri) TS.log(999, "TS.client.msg_pane.startNewMsgsTimer: set timer ID = " + _new_msgs_tim + " while on #" + TS.shared.getActiveModelOb().name);
+      if (TS.pri) TS.log(999, "TS.client.msg_pane.startNewMsgsTimer: set timer ID = " + _new_msgs_tim + " while on " + TS.shared.getActiveModelOb().id);
     },
     showNewMsgsBar: function() {
       if (TS.client.activeChannelIsHidden()) return;
       var active_model_ob = TS.shared.getActiveModelOb();
       if (active_model_ob && TS.notifs.isCorGMuted(active_model_ob.id)) {
-        if (TS.pri) TS.log(999, "insertUnreadDivider(): #" + active_model_ob.name + " is muted - exiting");
+        if (TS.pri) TS.log(999, "insertUnreadDivider(): " + active_model_ob.id + " is muted - exiting");
         return;
       }
       if (TS.pri) TS.log(999, "TS.client.msg_pane.showNewMsgsBar");
@@ -13144,7 +13174,7 @@
       }
       TS.model.client.reads.length = 0;
       TS.client.markLastReadsWithAPI();
-      if (TS.pri) TS.log(999, "setUnreadPoint for #" + model_ob.name + ": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()");
+      if (TS.pri) TS.log(999, "setUnreadPoint for " + model_ob.id + ": calling TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar()");
       TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
       if (TS.pri) TS.log(142, "setUnreadPoint for " + model_ob.id + " - marking dont_check_unreads_til_switch = true.");
       TS.client.msg_pane.dont_check_unreads_til_switch = true;
@@ -13164,28 +13194,28 @@
       if (!model_ob) return;
       var current_model_ob = TS.shared.getActiveModelOb();
       if (!current_model_ob || model_ob.id !== current_model_ob.id) return;
-      if (TS.pri) TS.log(99, "channelUnreadCountChanged: #" + model_ob.name + " - unread count changed for active model_ob of #" + current_model_ob.name);
+      if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - unread count changed for active model_ob of " + current_model_ob.id);
       if (!model_ob.unread_cnt) {
-        if (TS.pri) TS.log(99, "channelUnreadCountChanged: #" + model_ob.name + " - unread_cnt is 0. Maybe starting new msgs timer.");
+        if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - unread_cnt is 0. Maybe starting new msgs timer.");
         TS.client.msg_pane.startNewMsgsTimer();
         return;
       }
       if (!TS.model.ui.is_window_focused) {
-        if (TS.pri) TS.log(99, "channelUnreadCountChanged: #" + model_ob.name + " - window is not in focus, so removing and re-inserting unread divider so it can be updated.");
+        if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - window is not in focus, so removing and re-inserting unread divider so it can be updated.");
         TS.client.msg_pane.clearUnreadDividerAndHideNewMsgsBar();
         TS.utility.msgs.maybeClearPrevLastRead();
       } else {
         if (TS.model.prefs && !TS.model.prefs.mark_msgs_read_immediately && TS.client.ui.$msgs_unread_divider && !TS.client.ui.isUnreadDividerInView()) {
-          if (TS.pri) TS.log(99, "channelUnreadCountChanged: #" + model_ob.name + " - window is in focus, BUT, unread divider is not in view - clearing existing state, will show in new position.");
+          if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - window is in focus, BUT, unread divider is not in view - clearing existing state, will show in new position.");
           TS.client.msg_pane.clearUnreadDivider();
           TS.utility.msgs.maybeClearPrevLastRead();
         }
       }
       TS.client.msg_pane.insertUnreadDivider();
       if (TS.model.ui.is_window_focused) {
-        if (TS.pri) TS.log(99, "channelUnreadCountChanged: #" + model_ob.name + " - NOT showing new msgs bar because window is in focus.");
+        if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - NOT showing new msgs bar because window is in focus.");
       } else {
-        if (TS.pri) TS.log(99, "channelUnreadCountChanged: #" + model_ob.name + " - showing new msgs bar.");
+        if (TS.pri) TS.log(99, "channelUnreadCountChanged: " + model_ob.id + " - showing new msgs bar.");
         TS.client.msg_pane.showNewMsgsBar();
       }
     },
@@ -13235,7 +13265,7 @@
   var _clearTempReadState = function(model_ob) {
     if (!model_ob) return;
     if (!model_ob._temp_unread_cnt && !model_ob._temp_last_read) return;
-    if (TS.pri) TS.log(58, "_clearTempReadState: Nulling _temp_unread_cnt and _temp_last_read on #" + model_ob.name);
+    if (TS.pri) TS.log(58, "_clearTempReadState: Nulling _temp_unread_cnt and _temp_last_read on " + model_ob.id);
     model_ob._temp_unread_cnt = null;
     model_ob._temp_last_read = null;
   };
@@ -13243,7 +13273,7 @@
     if (!TS.client.ui.$msgs_unread_divider) return;
     var model_ob = TS.shared.getActiveModelOb();
     TS.utility.msgs.maybeCalcUnreadCnts(model_ob);
-    if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: #" + model_ob.name + ", unread_cnt = " + model_ob.unread_cnt);
+    if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: " + model_ob.id + ", unread_cnt = " + model_ob.unread_cnt);
     _maybeStoreTempReadState(model_ob);
     var unread_cnt = model_ob._temp_unread_cnt || model_ob.unread_cnt;
     var last_read = model_ob._temp_last_read || model_ob.last_read;
@@ -13258,10 +13288,10 @@
       var new_msg_info_ts;
       var last_read_ts = TS.client.ui.$msgs_unread_divider.data("last_read_ts");
       if (!last_read_ts) {
-        if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: #" + model_ob.name + " - No last_read_ts - no unread divider? Trying _prev_last_read (" + model_ob._prev_last_read + ") || model_ob.last_read (" + model_ob.last_read + ")");
+        if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: " + model_ob.id + " - No last_read_ts - no unread divider? Trying _prev_last_read (" + model_ob._prev_last_read + ") || model_ob.last_read (" + model_ob.last_read + ")");
         last_read_ts = model_ob._prev_last_read || model_ob.last_read;
         if (!last_read_ts) {
-          if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: #" + model_ob.name + " - Still no last_read_ts - exiting.");
+          if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: " + model_ob.id + " - Still no last_read_ts - exiting.");
           return;
         }
       }
@@ -13294,7 +13324,7 @@
       TS.ui.a11y.saveUnreadCountMessage(model_ob, unread_str);
     } else {
       if (TS.client.msg_pane.new_msgs_bar_showing) {
-        if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: #" + model_ob.name + ", unread_cnt = " + unread_cnt + " - maybe starting new msgs timer.");
+        if (TS.pri) TS.log(999, "_updateNewMsgsDisplay: " + model_ob.id + ", unread_cnt = " + unread_cnt + " - maybe starting new msgs timer.");
         TS.client.msg_pane.maybeStartNewMsgsTimer();
       }
     }
@@ -13309,7 +13339,7 @@
   var _onNewMsgsTimer = function() {
     var model_ob = TS.shared.getActiveModelOb();
     if (!model_ob) return;
-    if (TS.pri) TS.log(999, "_onNewMsgsTimer: current model is #" + model_ob.name + ", unread_cnt = " + model_ob.unread_cnt + ", timer ID = " + _new_msgs_tim);
+    if (TS.pri) TS.log(999, "_onNewMsgsTimer: current model is " + model_ob.id + ", unread_cnt = " + model_ob.unread_cnt + ", timer ID = " + _new_msgs_tim);
     _new_msgs_tim = null;
     if (!model_ob.unread_cnt) {
       if (TS.model.prefs.mark_msgs_read_immediately && !TS.model.prefs.start_scroll_at_oldest && !_hide_blue_bar_tim) {
@@ -13322,7 +13352,7 @@
         }, delay);
       } else {
         if (model_ob.history_is_being_fetched) {
-          if (TS.pri) TS.log(999, "_onNewMsgsTimer: not hiding new msgs bar because history is being fetched for current model_ob (#" + model_ob.name + ")");
+          if (TS.pri) TS.log(999, "_onNewMsgsTimer: not hiding new msgs bar because history is being fetched for current model_ob (" + model_ob.id + ")");
           return TS.client.msg_pane.startNewMsgsTimer();
         }
         if (TS.pri) TS.log(999, "_onNewMsgsTimer: calling TS.client.msg_pane.hideNewMsgsBar() immediately");
@@ -17518,7 +17548,7 @@
           menu_type: MENU_TYPES.conversation,
           conversation_modifier: modifier,
           special: this.options.data.conversationsStarred(),
-          special_section_header: "Starred",
+          special_section_header: TS.i18n.t("Starred", "search_menu")(),
           channels: this.options.data.channelsOpen(),
           dms: this.options.data.usersOpen(),
           groups: this.options.data.groupsOpen()
@@ -17597,7 +17627,7 @@
       if (!query || query.length === 1 && query.charAt(0) === "@") {
         this._render_data.conversation_modifier = "from:";
         this._render_data.special = this.options.data.usersStarred().concat(this.options.data.usersOpen());
-        this._render_data.special_section_header = "Starred and recent";
+        this._render_data.special_section_header = TS.i18n.t("Starred and recent", "search_menu")();
         var modifier = this.options.data.modifiers_by_name["from:"];
         this._render_data.modifiers = modifier.keywords.map(function(keyword) {
           return $.extend({}, modifier, {
@@ -21317,11 +21347,17 @@
       if (added_cnt < files.length) {
         var alert_txt = "";
         if (files.length == 1) {
-          alert_txt = "That file is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + ".";
+          alert_txt = TS.i18n.t("That file is too large and cannot be uploaded. The limit is {limit_size}.", "upload_dialog")({
+            limit_size: TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes)
+          });
         } else if (!added_cnt) {
-          alert_txt = "All of those file are too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + ".";
+          alert_txt = TS.i18n.t("All of those file are too large and cannot be uploaded. The limit is {limit_size}.", "upload_dialog")({
+            limit_size: TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes)
+          });
         } else {
-          alert_txt = "We'll upload what we can, but one or more of those files is too large and cannot be uploaded. The limit is " + TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes) + ".";
+          alert_txt = TS.i18n.t("We’ll upload what we can, but one or more of those files is too large and cannot be uploaded. The limit is {limit_size}.", "upload_dialog")({
+            limit_size: TS.utility.convertFilesize(TS.model.upload_file_size_limit_bytes)
+          });
         }
         alert(alert_txt);
       }
@@ -21406,7 +21442,9 @@
       var already_showing = TS.ui.upload_dialog.showing;
       $div.modal("show");
       if (TS.ui.upload_dialog.filesQ.length) {
-        $div.find(".file_count").text(" (and " + TS.ui.upload_dialog.filesQ.length + " more...)");
+        $div.find(".file_count").text(TS.i18n.t(" (and {num_files_remaining, number} more&hellip;)", "upload_dialog")({
+          num_files_remaining: TS.ui.upload_dialog.filesQ.length
+        }));
       }
       if (first) {
         $div.find("#share_cb").prop("checked", true);

@@ -3,11 +3,11 @@
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
       <label for="full_name_profile_field">Full name</label>
-      <input type="text" class="no_bottom_margin" name="full_name" value="{{member.profile.full_name}}" placeholder="Full name" data-validation="required maxlength=71 keywords" id="full_name_profile_field" />
+      <input type="text" class="no_bottom_margin" name="full_name" value="{{member.profile.full_name}}" placeholder="Full name" data-validation="required maxlength=71 keywords" data-validation-for="full_name_profile_field" id="full_name_profile_field" />
       <span class="input_note">This is how your teammates will refer to you in Slack, unless you add a preferred name below.</span>
     {{else}}
       <label for="first_name_profile_field">First name</label>
-      <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="First name" data-validation="maxlength=34" id="first_name_profile_field" />
+      <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="First name" data-validation="maxlength=34" data-validation-for="first_name_profile_field" id="first_name_profile_field" />
     {{/feature}}
   </p>
   <div id="edit_member_profile_photo_container" class="col">
@@ -29,11 +29,11 @@
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
       <label for="preferred_name_profile_field">Preferred name <span class="subtle_silver normal">(optional)</span></label>
-      <input type="text" class="no_bottom_margin" name="preferred_name" value="{{member.profile.preferred_name}}" placeholder="Preferred name" data-validation="maxlength=71 keywords" id="preferred_name_profile_field" />
+      <input type="text" class="no_bottom_margin" name="preferred_name" value="{{member.profile.preferred_name}}" placeholder="Preferred name" data-validation="maxlength=71 keywords" data-validation-for="preferred_name_profile_field" id="preferred_name_profile_field" />
       <span class="input_note">If you\u2019d rather be called something shorter, set it here.</span>
     {{else}}
       <label for="last_name_profile_field">Last name</label>
-      <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="Last name" data-validation="maxlength=35" id="last_name_profile_field" />
+      <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="Last name" data-validation="maxlength=35" data-validation-for="last_name_profile_field" id="last_name_profile_field" />
     {{/feature}}
   </p>
 </div>
@@ -41,7 +41,7 @@
 <div class="clearfix">
   <p class="col span_2_of_3">
     <label for="title_profile_field">What I do</label>
-    <input type="text" class="no_bottom_margin" name="title" value="{{member.profile.title}}" placeholder="What I do" data-validation="maxlength=249" id="title_profile_field" />
+    <input type="text" class="no_bottom_margin" name="title" value="{{member.profile.title}}" placeholder="What I do" data-validation="maxlength=249" data-validation-for="title_profile_field" id="title_profile_field" />
     <span class="input_note">Let people know what you do at {{team.name}}.</span>
   </p>
 </div>
@@ -49,7 +49,7 @@
 <div class="clearfix">
   <p class="col span_2_of_3">
     <label for="phone_profile_field">Phone number</label>
-    <input type="text" class="no_bottom_margin" name="phone" value="{{member.profile.phone}}" placeholder="(123) 555-5555" data-validation="maxlength=98" id="phone_profile_field" />
+    <input type="text" class="no_bottom_margin" name="phone" value="{{member.profile.phone}}" placeholder="(123) 555-5555" data-validation="maxlength=98" data-validation-for="phone_profile_field" id="phone_profile_field" />
     <span class="input_note">Enter a phone number.</span>
   </p>
 </div>
@@ -74,7 +74,7 @@
       <p class="col {{#if_equal this.type compare="link"}}span_2_of_3{{else}}{{#if_equal this.type compare="date"}}span_2_of_3{{else}}span_1_of_1{{/if_equal}}{{/if_equal}} no_padding">
         {{#if_not_equal this.type compare="options_list"}}<label for="{{this.id}}_profile_field">{{this.label}}</label>{{/if_not_equal}}
         {{#if_equal this.type compare="text"}}
-          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="{{this.label}}" data-qa="{{this.label}}" data-validation="maxlength=256" value="{{this.value}}" id="{{this.id}}_profile_field" />
+          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="{{this.label}}" data-qa="{{this.label}}" data-validation="maxlength=256" data-validation-for="{{this.id}}_profile_field" value="{{this.value}}" id="{{this.id}}_profile_field" />
         {{/if_equal}}
         {{#if_equal this.type compare="options_list"}}
           <label class="select no_bottom_margin with_hint" id="{{this.id}}_profile_field">{{this.label}}
@@ -87,13 +87,13 @@
           </label>
         {{/if_equal}}
         {{#if_equal this.type compare="date"}}
-          <input type="text" class="no_bottom_margin ts_icon_placeholder" name="{{this.id}}" data-plastic-type="date" placeholder="&#xe023;" data-qa="{{this.label}}" data-validation="dateandformat=Y-m-d" value="{{this.value}}" id="{{this.id}}_profile_field" />
+          <input type="text" class="no_bottom_margin ts_icon_placeholder" name="{{this.id}}" data-plastic-type="date" placeholder="&#xe023;" data-qa="{{this.label}}" data-validation="dateandformat=Y-m-d" data-validation-for="{{this.id}}_profile_field" value="{{this.value}}" id="{{this.id}}_profile_field" />
         {{/if_equal}}
         {{#if_equal this.type compare="link"}}
-          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="https://" data-qa="{{this.label}}" data-validation="maxlength=256 isurl" value="{{this.value}}" id="{{this.id}}_profile_field"  />
+          <input type="text" class="no_bottom_margin" name="{{this.id}}" placeholder="https://" data-qa="{{this.label}}" data-validation="maxlength=256 isurl" data-validation-for="{{this.id}}_profile_field" value="{{this.value}}" id="{{this.id}}_profile_field"  />
         {{/if_equal}}
         {{#if_equal this.type compare="user"}}
-          <input class="edit_member_profile_lazy_filter_select no_bottom_margin" name={{this.id}} data-qa="{{this.label}}" data-validation="maxcsv=25" value="{{this.value}}" id="{{this.id}}_profile_field" />
+          <input class="edit_member_profile_lazy_filter_select no_bottom_margin" name={{this.id}} data-qa="{{this.label}}" data-validation="maxcsv=25" data-validation-for="{{this.id}}_profile_field" value="{{this.value}}" id="{{this.id}}_profile_field" />
         {{/if_equal}}
         {{#if this.hint}}
           <span class="input_note">{{this.hint}}</span>
@@ -102,14 +102,14 @@
       {{#if_equal this.type compare="link"}}
         <p class="col span_1_of_3 no_padding">
           <label for="{{this.id}}_alt_profile_field">Display text</label>
-          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My link" data-qa="{{this.label}}_display" data-validation="maxlength=256" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
+          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My link" data-qa="{{this.label}}_display" data-validation="maxlength=256" data-validation-for="{{this.id}}_alt_profile_field" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
           <span class="input_note">Optional</span>
         </p>
       {{/if_equal}}
       {{#if_equal this.type compare="date"}}
         <p class="col span_1_of_3 no_padding">
           <label for="{{this.id}}_alt_profile_field">Display text</label>
-          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My date" data-qa="{{this.label}}_display" data-validation="maxlength=256" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
+          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My date" data-qa="{{this.label}}_display" data-validation="maxlength=256" data-validation-for="{{this.id}}_alt_profile_field" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
           <span class="input_note">Optional</span>
         </p>
       {{/if_equal}}

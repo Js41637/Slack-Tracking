@@ -1,3 +1,5 @@
+{{i18n_ns "fs_modal"}}
+
 <div id="fs_modal_bg"></div>
 <div id="fs_modal">
 
@@ -5,11 +7,11 @@
     {{!-- Back and Close buttons --}}
     <a id="fs_modal_back_btn" class="fs_modal_btn hidden">
       <i class="ts_icon ts_icon_arrow_large_left"></i>
-      <span class="key_label">back</span>
+      <span class="key_label">{{#t note="In a fullscreen modal, this is the back button's label"}}back{{/t}}</span>
     </a>
     <a id="fs_modal_close_btn" class="fs_modal_btn"{{#if settings.clog_name}} data-clog-click="true" data-clog-event="{{settings.clog_name}}_ACTION" data-clog-params="action=close_modal,trigger=click_fs_modal_close_btn"{{/if}}>
       <i class="ts_icon ts_icon_times"></i>
-      <span class="key_label">esc</span>
+      <span class="key_label">{{#t note="In a fullscreen modal, this is the escape button's label"}}esc{{/t}}</span>
     </a>
   {{/unless}}
 

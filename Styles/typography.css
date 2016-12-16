@@ -110,13 +110,13 @@ h1 a:visited {
 a,
 a:link,
 a:visited {
-  color: #2a80b9
+  color: #007ab8
 }
 
 a:active,
 a:focus,
 a:hover {
-  color: #439fe0
+  color: #005e99
 }
 
 li {

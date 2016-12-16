@@ -39,9 +39,9 @@
           {{getMemberCurrentStatus member}}
         </span>
       </span></span>{{/if}}{{/feature}}{{#feature flag="feature_name_tagging_client"}}{{#if member.profile.preferred_name}}<span class="topic_divider">|</span><span class="member_alt_name_header">{{getMemberPreferredName member}}</span>{{/if}}{{/feature}}</span>
-      {{else}}<span id="channel_members_toggle_count" class="hidden blue_hover ts_tip ts_tip_bottom ts_tip_leftish"></span>{{/if}}
+      {{else}}<span id="channel_members_toggle_count" class="hidden blue_on_hover ts_tip ts_tip_bottom ts_tip_leftish"></span>{{/if}}
       {{#feature flag="feature_pin_update"}}
-          <span id="pinned_count_divider" class="topic_divider">|</span><span id="pinned_item_count" class="blue_hover ts_tip ts_tip_bottom ts_tip_multiline"><ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon "></ts-icon><span id="pinned_item_count_count"></span><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t}}View Pinned Items{{/t}}<br/><span class="subtle_silver pin_count_new_pin_message"></span></span></span></span>
+          <span id="pinned_count_divider" class="topic_divider">|</span><span id="pinned_item_count" class="blue_on_hover ts_tip ts_tip_bottom ts_tip_multiline"><ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon "></ts-icon><span id="pinned_item_count_count"></span><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t}}View Pinned Items{{/t}}<br/><span class="subtle_silver pin_count_new_pin_message"></span></span></span></span>
       {{/feature}}
       {{#if show_topic}}<span class="topic_divider">|</span><span id="topic_inline_edit" class="channel_topic inline_edit">
         <span class="inline_edit_inner">
@@ -68,9 +68,9 @@
     <!-- calls button -->
     <div id="channel_calls_container" class="hidden channel_calls_container"></div>{{!--
     <!-- sli recaps -->
-    --}}{{#if sli_preview}}{{#if is_dm_or_mpdm}}{{else}}<button id="sli_recap_toggle" class="btn_unstyle blue_hover sli_recaps_toggle channel_header_icon ts_tip ts_tip_bottom {{#if is_recap}}active{{/if}}"><span class="ts_tip_tip">{{#if is_recap}}{{#t}}Turn highlight messages off{{/t}}{{else}}{{#t}}Turn highlight messages on{{/t}}{{/if}}</span>{{#if is_recap}}{{> ts_icon class="ts_icon_highlight_filled"}}{{else}}{{> ts_icon class="ts_icon_highlight"}}{{/if}}</button>{{/if}}{{/if}}{{!--
+    --}}{{#if sli_preview}}{{#if is_dm_or_mpdm}}{{else}}<button id="sli_recap_toggle" class="btn_unstyle blue_on_hover sli_recaps_toggle channel_header_icon ts_tip ts_tip_bottom {{#if is_recap}}active{{/if}}"><span class="ts_tip_tip">{{#if is_recap}}{{#t}}Turn highlight messages off{{/t}}{{else}}{{#t}}Turn highlight messages on{{/t}}{{/if}}</span>{{#if is_recap}}{{> ts_icon class="ts_icon_highlight_filled"}}{{else}}{{> ts_icon class="ts_icon_highlight"}}{{/if}}</button>{{/if}}{{/if}}{{!--
     <!-- channel actions menu toggle -->
-    --}}<button id="channel_actions_toggle" class="btn_unstyle blue_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom">
+    --}}<button id="channel_actions_toggle" class="btn_unstyle blue_on_hover channel_actions_toggle channel_header_icon ts_tip ts_tip_bottom">
       {{#if member}}
       <span class="ts_tip_tip">{{#t}}Conversation Settings{{/t}}</span>
       {{else if mpim}}
@@ -82,7 +82,7 @@
     </button>{{!--
 
     <!--channel details icon  -->
-    --}}<button id="details_toggle" class="channel_header_icon btn_unstyle blue_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}">
+    --}}<button id="details_toggle" class="channel_header_icon btn_unstyle blue_on_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}">
       {{#if details_showing}}
         {{#if member}}
         <span class="ts_tip_tip">{{#t}}Hide Conversation Details{{/t}}</span>

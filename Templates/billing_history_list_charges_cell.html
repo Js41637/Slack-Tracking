@@ -8,7 +8,7 @@
   <span class="inline_negative">Failed to charge <strong>{{formatted_charges.card_charge}}</strong></span>
 {{/if_equal}}
 {{#if_equal charge_type compare="is_voided_or_refunded"}}
-  <span class="inline_negative">Charged <strong>{{formatted_charges.card_charge}}</strong></span>
+  <s class="inline_negative">Charged <strong>{{formatted_charges.card_charge}}</strong></s>
 {{/if_equal}}
 {{#if_equal charge_type compare="is_charge"}}
   Charged <strong>{{formatted_charges.card_charge}}</strong>
@@ -25,13 +25,15 @@
   {{/if_gt}}
 {{/if_equal}}
 {{#if_equal charge_type compare="is_unpaid_invoice"}}
-  {{#if_gt invoice.amount compare=0}}
+  {{#if_gt amount compare=0}}
     Unpaid:
-    {{#if invoice.amount_adjusted}}
+    <strong>
+    {{#if amount_adjusted}}
       {{formatted_invoice.amount_adjusted}}
     {{else}}
       {{formatted_invoice.amount}}
     {{/if}}
+    </strong>
   {{/if_gt}}
 {{/if_equal}}
 {{!-- item is free credits from a trial start --}}

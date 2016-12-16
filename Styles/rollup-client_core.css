@@ -6001,7 +6001,7 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
 #macssb2_banner,
 #winssb1_banner,
 #winssb1_dismiss_banner {
-  background: #2a80b9
+  background: #2d9ee0
 }
 
 #macssb1_dismiss_banner,
@@ -6136,7 +6136,7 @@ only screen and (min-resolution:2dppx) {
 
 #flex_menu_toggle.open #help_icon_circle_count {
   display: inline-block;
-  background-color: #439fe0;
+  background-color: #2d9ee0;
   color: #fff;
   z-index: 2
 }
@@ -6838,7 +6838,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .secondary_file_button:hover {
-  color: #439fe0!important;
+  color: #005e99!important;
   text-decoration: none
 }
 
@@ -7455,7 +7455,7 @@ only screen and (min-resolution:2dppx) {
 
 #message-input.onboarding,
 #primary_file_button.onboarding {
-  border-color: #439fe0!important;
+  border-color: #2d9ee0!important;
   -webkit-transition: border-color ease-in .75s 0s;
   -moz-transition: border-color ease-in .75s 0s;
   transition: border-color ease-in .75s 0s

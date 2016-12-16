@@ -90,7 +90,7 @@
   position: absolute;
   right: .5rem;
   top: 1rem;
-  color: #2a80b9
+  color: #007ab8
 }
 
 .admin_list_item .member_actions,
@@ -234,13 +234,13 @@
 }
 
 .admin_list_item.expanded .btn_outline {
-  color: #2a80b9!important;
-  border-color: #2a80b9
+  color: #007ab8!important;
+  border-color: #007ab8
 }
 
 .admin_list_item.expanded .btn_outline:hover {
-  color: #439fe0!important;
-  border-color: #439fe0
+  color: #005e99!important;
+  border-color: #005e99
 }
 
 .admin_list_item.expanded .sub_action {
@@ -250,7 +250,7 @@
 }
 
 .admin_list_item.expanded .sub_action:hover {
-  color: #439fe0
+  color: #005e99
 }
 
 @media screen and (max-width:768px) {
@@ -386,7 +386,7 @@
 }
 
 .restriction_option:hover .ts_icon_arrow_right {
-  color: #439fe0
+  color: #005e99
 }
 
 .restriction_option i {
@@ -409,7 +409,7 @@
 .restriction_option .ts_icon_arrow_right {
   float: right;
   line-height: 2rem;
-  color: #2a80b9
+  color: #007ab8
 }
 
 @media only screen and (max-width:767px) {

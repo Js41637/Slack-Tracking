@@ -170,14 +170,38 @@
 })();
 (function() {
   "use strict";
+  if (!window.TS) window.TS = {};
+  TS.features = {
+    isEnabled: function(feature_flag) {
+      if (feature_flag.indexOf("feature_") === 0) {
+        TS.console.warn("Do not prefix your feature flag check with `feature_`. Flag:", feature_flag);
+        return;
+      }
+      if (_.isUndefined(TS.boot_data)) {
+        TS.console.warn("Trying to check feature flag before TS.boot_data is available");
+        return;
+      }
+      var formatted_feature_flag = "feature_" + feature_flag;
+      if (_.isUndefined(TS.boot_data[formatted_feature_flag])) {
+        TS.console.warn("Trying to access feature flag not present in TS.boot_data -- Expose your feature flag to JS. Flag:", feature_flag);
+        return;
+      }
+      return TS.boot_data[formatted_feature_flag];
+    }
+  };
+})();
+(function() {
+  "use strict";
   var _raw_templates = window.TS && TS.raw_templates;
   var _console_module = window.TS && TS.console;
+  var _features_module = window.TS && TS.features;
   var _guid = 0;
   window.TS = {
     boot_data: {},
     qs_args: {},
     pri: 0,
     console: _console_module,
+    features: _features_module,
     boot: function(boot_data) {
       TS.boot_data = boot_data;
       if (TS.boot_data.is_in_flannel_experiment) {
@@ -2532,7 +2556,7 @@
   var _is_dev;
   var _is_pseudo;
   var _setup = function() {
-    _is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
+    _is_dev = location.host.match(/(dev[0-9]*)\.slack.com/);
     if (_is_dev) {
       var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
       if (locale) TS.i18n.locale = locale[1];

@@ -12,20 +12,20 @@
       activate: {
         primary: true,
         label: function(data) {
-          return data.team.is_enterprise ? "Add to Team" : "Enable Account";
+          return data.team.is_enterprise ? TS.i18n.t("Add to Team", "member_actions")() : TS.i18n.t("Enable Account", "member_actions")();
         },
         cls: "api_enable_account"
       },
       activate_as_guest: {
         primary: false,
         label: function(data) {
-          var label = "Enable ";
+          var label = "";
           if (data.member.is_single_channel_guest) {
-            label += "Single-Channel Guest";
+            label = TS.i18n.t("Enable Single-Channel Guest", "member_actions")();
           } else if (data.member.is_guest) {
-            label += TS.templates.builders.raLabel("Restricted Account");
+            label = TS.i18n.t("Enable Multi-Channel Guest", "member_actions")();
           } else {
-            label += "Guest";
+            label = TS.i18n.t("Enable Guest", "member_actions")();
           }
           return label;
         },
@@ -34,43 +34,43 @@
       deactivate: {
         primary: false,
         label: function(data) {
-          return data.team.is_enterprise ? "Remove from Team" : "Deactivate Account";
+          return data.team.is_enterprise ? TS.i18n.t("Remove from Team", "member_actions")() : TS.i18n.t("Deactivate Account", "member_actions")();
         },
         cls: "api_disable_account"
       },
       cant_deactivate: {
         primary: false,
-        label: new Handlebars.SafeString('Can\'t remove or convert member <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>'),
+        label: new Handlebars.SafeString(TS.i18n.t('Can’t remove or convert member <ts-icon class="very_small_left_padding ts_icon_question_circle"></ts-icon>', "member_actions")()),
         cls: "inline_flex no_underline api_cant_deactivate"
       },
       demote_admin: {
         primary: true,
-        label: "Remove Admin Privileges",
+        label: TS.i18n.t("Remove Admin Privileges", "member_actions")(),
         cls: "api_remove_admin"
       },
       demote_owner: {
         primary: true,
-        label: "Remove Ownership",
+        label: TS.i18n.t("Remove Ownership", "member_actions")(),
         cls: "api_remove_owner"
       },
       promote_to_member: {
         primary: true,
-        label: "Make Full Team Member",
+        label: TS.i18n.t("Make Full Team Member", "member_actions")(),
         cls: "api_unrestrict_account"
       },
       promote_to_admin: {
         primary: true,
-        label: "Make an Admin",
+        label: TS.i18n.t("Make an Admin", "member_actions")(),
         cls: "api_make_admin"
       },
       promote_to_owner: {
         primary: true,
-        label: "Make an Owner",
+        label: TS.i18n.t("Make an Owner", "member_actions")(),
         cls: "api_make_owner"
       },
       convert_to_guest: {
         primary: false,
-        label: "Convert to Guest",
+        label: TS.i18n.t("Convert to Guest", "member_actions")(),
         cls: function(data) {
           return data.team.is_paid ? "admin_member_restrict_link" : "admin_member_restrict_link_unpaid";
         }
@@ -78,30 +78,30 @@
       promote_to_mc_guest: {
         primary: false,
         label: function(data) {
-          return "Convert to " + TS.templates.builders.raLabel("Restricted Account");
+          return TS.i18n.t("Convert to Multi-Channel Guest", "member_actions")();
         },
         cls: "api_set_restricted"
       },
       demote_to_sc_guest: {
         primary: false,
-        label: "Convert to Single-Channel Guest",
+        label: TS.i18n.t("Convert to Single-Channel Guest", "member_actions")(),
         cls: "admin_member_restrict_link_ura"
       },
       transfer_ownership: {
         primary: true,
-        label: "Transfer team ownership",
+        label: TS.i18n.t("Transfer team ownership", "member_actions")(),
         href: "/admin/transfer"
       },
       activate_bot: {
         primary: true,
         label: function(data) {
-          return data.team.is_enterprise ? "Add to Team" : "Enable Account";
+          return data.team.is_enterprise ? TS.i18n.t("Add to Team", "member_actions")() : TS.i18n.t("Enable Account", "member_actions")();
         },
         cls: "api_enable_bot"
       },
       configure_bot: {
         primary: false,
-        label: "Configure",
+        label: TS.i18n.t("Configure", "member_actions")(),
         cls: "api_configure_bot",
         href: function(data) {
           return "/services/" + data.member.object.profile.bot_id;
@@ -109,14 +109,14 @@
       },
       send_sso: {
         primary: false,
-        label: "Send SSO binding email",
+        label: TS.i18n.t("Send SSO binding email", "member_actions")(),
         cls: "api_sso_bind"
       },
       disable_2fa: {
         primary: false,
-        label: "Disable 2FA",
+        label: TS.i18n.t("Disable 2FA", "member_actions")(),
         cls: "admin_member_disable_2fa_link",
-        title: "Disable two-factor verification for this account"
+        title: TS.i18n.t("Disable two-factor verification for this account", "member_actions")()
       }
     },
     getActionsForMember: function(member) {

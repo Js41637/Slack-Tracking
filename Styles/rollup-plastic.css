@@ -5357,6 +5357,18 @@ moscow_red_bg {
   background-color: #1a9cdb!important
 }
 
+.blue_link {
+  color: #007ab8
+}
+
+.blue_hover {
+  color: #005e99
+}
+
+.blue_fill {
+  color: #2d9ee0
+}
+
 .show_on_mobile {
   display: none!important
 }
@@ -5513,16 +5525,16 @@ img.grayscale {
 a.mini,
 a.mini:link,
 a.mini:visited {
-  color: #2a80b9
+  color: #007ab8
 }
 
 a.mini:active,
 a.mini:hover {
-  color: #439fe0
+  color: #005e99
 }
 
 .link:hover {
-  color: #439fe0;
+  color: #005e99;
   text-decoration: underline
 }
 
@@ -6222,7 +6234,7 @@ body.plaid {
   margin-left: 3px;
   line-height: .9rem;
   border-radius: 3px;
-  background: #439fe0;
+  background: #2d9ee0;
   color: #fff;
   font-size: .64rem;
   text-shadow: none
@@ -6321,7 +6333,7 @@ h1 i:first-of-type {
 a,
 a:link,
 a:visited {
-  color: #3aa3e3;
+  color: #007ab8;
   text-decoration: none
 }
 
@@ -6331,7 +6343,7 @@ a.active {
 }
 
 a:active {
-  color: #3aa3e3
+  color: #007ab8
 }
 
 a.sub_link {
@@ -8212,7 +8224,7 @@ a.btn {
 .btn_outline.btn_transparent:active,
 .btn_outline.btn_transparent:focus,
 .btn_outline.btn_transparent:hover {
-  color: #3aa3e3!important;
+  color: #007ab8!important;
   background: rgba(255, 255, 255, .9)!important
 }
 
@@ -8234,7 +8246,7 @@ a.btn {
 .btn_outline:focus,
 .btn_outline:hover {
   background: #fff;
-  color: #3aa3e3!important
+  color: #007ab8!important
 }
 
 .btn_outline.hover:after,
@@ -8244,7 +8256,7 @@ a.btn {
 }
 
 .btn_outline:active {
-  color: #3aa3e3
+  color: #007ab8
 }
 
 .btn_outline:active:after {
@@ -8375,7 +8387,7 @@ a.btn {
 }
 
 .btn_info {
-  background: #3aa3e3!important
+  background: #2d9ee0!important
 }
 
 .btn_warning {
@@ -9145,7 +9157,7 @@ label.validation_warning .validation_message:before {
 
 label.validation_success .validation_message,
 label.validation_success .validation_message:before {
-  color: #439fe0
+  color: #007ab8
 }
 
 .feature_name_tagging_client .username_input_container::before {
@@ -10040,7 +10052,7 @@ html.fs_modal_active {
 
 .menu ul li.highlighted a,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a {
-  background: #3aa3e3;
+  background: #2d9ee0;
   color: #fff;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .1)
 }
@@ -10281,7 +10293,7 @@ html.fs_modal_active {
 }
 
 .menu #menu_list_container #menu_list .menu_list_item.active a {
-  background: #3aa3e3;
+  background: #2d9ee0;
   color: #fff;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
   text-decoration: none
@@ -10361,7 +10373,7 @@ html.fs_modal_active {
 
 .menu.selectable li.selected,
 .menu.selectable li.selected a {
-  color: #3aa3e3
+  color: #007ab8
 }
 
 .menu.selectable li.selected a:hover,
@@ -11125,7 +11137,7 @@ body.winssb #emoji_menu {
 }
 
 .menu.avatar_menu ul li:hover ts-icon {
-  color: #3aa3e3;
+  color: #007ab8;
   background: #fff
 }
 
@@ -11147,7 +11159,7 @@ body.winssb #emoji_menu {
 }
 
 .menu.avatar_menu ul li a ts-icon {
-  background-color: #3aa3e3
+  background-color: #2d9ee0
 }
 
 .menu.avatar_menu ul li a ts-icon:before {
@@ -11160,7 +11172,7 @@ body.winssb #emoji_menu {
 }
 
 .avatar_menu_signin_item {
-  color: #3aa3e3
+  color: #007ab8
 }
 
 .avatar_menu_signin_item:hover {
@@ -11297,8 +11309,8 @@ a.sidebar_menu_list_item:hover {
 }
 
 .plastic_typeahead_item:not(.plastic_typeahead_item_no_results).is_active {
-  background: #3aa3e3;
-  border-top-color: #3aa3e3;
+  background: #2d9ee0;
+  border-top-color: #2d9ee0;
   color: #fff;
   text-decoration: none
 }
@@ -11885,7 +11897,7 @@ h3 .presence {
 
 #member_preview_scroller a:not(.member_name):not(.current_status_suggestion_option):hover,
 .team_list_item a:not(.member_name):not(.current_status_suggestion_option):hover {
-  color: #439fe0;
+  color: #005e99;
   text-decoration: underline
 }
 
@@ -11932,7 +11944,7 @@ h3 .presence {
 
 #disabled_members_tab a:hover {
   background: #fff;
-  color: #439fe0
+  color: #005e99
 }
 
 #disabled_members_tab.active a {
@@ -12010,7 +12022,7 @@ h3 .presence {
 
 #member_preview_scroller .member_data_table a:hover,
 #team_list .member_data_table a:hover {
-  color: #439fe0
+  color: #005e99
 }
 
 #member_preview_scroller a.member_action_button,
@@ -12025,8 +12037,8 @@ h3 .presence {
 #team_list a.member_action_button:hover {
   border-width: 1px;
   text-decoration: none;
-  color: #439fe0!important;
-  border-color: #439fe0!important
+  color: #005e99!important;
+  border-color: #005e99!important
 }
 
 #member_preview_scroller .team_directory_icon,
@@ -12317,7 +12329,7 @@ only screen and (min-resolution:2dppx) {
 #member_preview_web_container .member_data_table a:hover,
 #team_list .member_data_table a:hover,
 .menu_member_header .member_data_table a:hover {
-  color: #439fe0
+  color: #005e99
 }
 
 #member_preview_scroller .member_data_table i:not([data-stringify-prefix]),
@@ -12663,7 +12675,7 @@ only screen and (min-resolution:2dppx) {
 
 .menu_member_header .member_details .member_restriction a:hover,
 .menu_member_header .member_details .member_timezone_value a:hover {
-  color: #439fe0
+  color: #005e99
 }
 
 .menu_member_header .member_details_divider {
@@ -13097,7 +13109,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #team_filter a.icon_close:hover,
 #user_group_filter a.icon_close:hover,
 .searchable_member_list_search_bar a.icon_close:hover {
-  color: #3aa3e3;
+  color: #007ab8;
   text-decoration: none
 }
 
@@ -13130,7 +13142,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #client-ui a.icon_close:hover {
-  color: #3aa3e3;
+  color: #007ab8;
   text-decoration: none
 }
 
@@ -13192,7 +13204,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 .dm_badge .dm_badge:hover a {
-  color: #2a80b9
+  color: #007ab8
 }
 
 .dm_badge .hint {
@@ -13698,7 +13710,7 @@ screen and (max-width:640px) {
 
 .tab_complete_ui li.tab_complete_ui_group.active,
 .tab_complete_ui li.tab_complete_ui_item.active {
-  background: #439fe0;
+  background: #2d9ee0;
   color: #fff!important;
   text-shadow: 0 1px rgba(0, 0, 0, .1)
 }
@@ -13794,9 +13806,9 @@ screen and (max-width:640px) {
 }
 
 .token_input .token {
-  border: 1px solid #439fe0;
+  border: 1px solid #2d9ee0;
   border-radius: .25rem;
-  background-color: #439fe0;
+  background-color: #2d9ee0;
   color: #fff;
   font-weight: 400;
   padding: .3125rem .375rem;
@@ -14446,7 +14458,7 @@ html:not(.supports_flexbox) #im_browser_tokens {
 
 #im_browser_tokens .member_token {
   position: relative;
-  background: #3aa3e3;
+  background: #2d9ee0;
   color: #fff;
   border-radius: .2rem;
   font-weight: 700;
@@ -14555,7 +14567,7 @@ html:not(.supports_flexbox) #channel_invite_tokens {
 
 #channel_invite_tokens .member_token {
   position: relative;
-  background: #3aa3e3;
+  background: #2d9ee0;
   color: #fff;
   border-radius: .2rem;
   font-weight: 700;
@@ -14642,7 +14654,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .channel_invite_pending_user_small .invite_user_group_avatar {
   width: 2.25rem;
   height: 2.25rem;
-  background-color: #3aa3e3;
+  background-color: #2d9ee0;
   padding-top: .75rem;
   padding-left: .5rem;
   color: #fff;
