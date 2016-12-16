@@ -3092,6 +3092,33 @@ ul.member_list li a.nuc {
   opacity: .5
 }
 
+.channels_list_holder ul li .feature_user_custom_status.im_name {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.channels_list_holder ul li .feature_user_custom_status.im_name .typing_indicator,
+.channels_list_holder ul li .feature_user_custom_status.im_name .unread_highlights {
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto
+}
+
+.channels_list_holder ul li .feature_user_custom_status.im_name .member_name {
+  -ms-flex: 0 1 auto;
+  -webkit-flex: 0 1 auto;
+  flex: 0 1 auto
+}
+
+.channels_list_holder ul li .feature_user_custom_status.im_name .current_status {
+  -ms-flex: 0 9999 auto;
+  -webkit-flex: 0 9999 auto;
+  flex: 0 9999 auto
+}
+
 @-webkit-keyframes typing-sprite {
   100% {
     background-position: -240px

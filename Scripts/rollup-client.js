@@ -38019,8 +38019,12 @@ function timezones_guess() {
       var $app_auth_settings = $app_profile.find('[data-js="app_auth_settings"]');
       if (!_.get(app, "is_slack_integration")) {
         TS.apps.promiseToGetFullAppProfile(bot_id, true).then(function(app) {
-          if (app.auth_summary) {
-            $app_auth_settings.html(app.auth_summary);
+          if (app.auth_summary_list) {
+            var template_args = {
+              name: _profile_template_args.name,
+              auth_summary_list: app.auth_summary_list
+            };
+            $app_auth_settings.html(TS.templates.app_profile_settings(template_args));
           }
         });
       } else {

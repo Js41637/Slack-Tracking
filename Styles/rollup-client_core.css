@@ -5821,12 +5821,30 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
   margin-top: .1875rem
 }
 
-#current_user_name_and_current_status #team_header_current_status,
+#current_user_name_and_current_status {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
 #current_user_name_and_current_status #team_header_user_name {
+  -ms-flex: 0 1 auto;
+  -webkit-flex: 0 1 auto;
+  flex: 0 1 auto;
   padding: 0;
   margin-top: 0;
-  line-height: 1.5rem;
-  display: inline
+  line-height: 1.5
+}
+
+#current_user_name_and_current_status #team_header_current_status {
+  -ms-flex: 0 9999 auto;
+  -webkit-flex: 0 9999 auto;
+  flex: 0 9999 auto;
+  padding: 0;
+  margin-top: 0;
+  line-height: 1.5
 }
 
 #team_header_current_status {
