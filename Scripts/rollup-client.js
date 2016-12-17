@@ -3584,14 +3584,14 @@
           });
         }
         if (percent < 99) {
-          var new_label = $progress_bar_progress.data("label-left-original") + "&hellip" + percent + "% " + queue_string;
+          var new_label = $progress_bar_progress.data("label-left-original") + "&hellip;" + percent + "% " + queue_string;
           $progress_bar_progress.css({
             width: percent + "%"
           }).attr("data-label-left", new_label);
         } else {
           $("#file_progress").addClass("loaded").find(".progress_bar_progress_thin").removeClass("progress_bar_progress_thin progress_bar_progress_striped").addClass("progress_bar_progress_animated_thin").css({
             width: "100%"
-          }).attr("data-label-left", TS.i18n.t("Processing uploaded file&hellip", "files")() + " " + queue_string).end().find("#cancel_upload_in_progress").remove().end();
+          }).attr("data-label-left", TS.i18n.t("Processing uploaded file&hellip;", "files")() + " " + queue_string).end().find("#cancel_upload_in_progress").remove().end();
         }
         next();
       });
@@ -3600,7 +3600,7 @@
       $("#file_progress").queue(function(next) {
         $(this).removeClass("loaded").find(".progress_bar").addClass("candy_red_bg").end().find(".progress_bar_progress_thin").addClass("no_transition progress_bar_progress_striped").css({
           width: "0%"
-        }).attr("data-label-left", "").end().find("#progress_text").html(TS.i18n.t('Canceling <strong class="filename">{filename}</strong> &hellip', "files")({
+        }).attr("data-label-left", "").end().find("#progress_text").html(TS.i18n.t('Canceling <strong class="filename">{filename}</strong> &hellip;', "files")({
           filename: TS.utility.htmlEntities(filename)
         })).end().find("#cancel_upload_in_progress").remove().end();
         next();
@@ -11691,6 +11691,10 @@
     var $pin_count_new_pin_message = $("#pinned_item_count .pin_count_new_pin_message");
     $pin_count_new_pin_message.html(pin_tooltip_message);
   };
+  var _toggleChannelMemberIconFill = function(should_be_filled) {
+    var $icon = $("#channel_members_toggle_count .channel_members_icon");
+    if ($icon.length) $icon.toggleClass("is_filled", should_be_filled);
+  };
   var _togglePinIconFill = function(should_be_filled) {
     var $pinned_count_icon = $("#pinned_item_count .pinned_count_icon");
     if ($pinned_count_icon.length === 0) return;
@@ -11951,16 +11955,21 @@
     var $toggle = $("#channel_members_toggle_count");
     var $tooltip = $toggle.find(".ts_tip_tip");
     var active_channel_id = TS.model.active_channel_id;
+    var active_channel_queued_member_names = _hidden_channel_join_member_names[active_channel_id];
+    var has_no_queued_members = active_channel_queued_member_names.length === 0;
+    var is_only_current_user = _.isEqual(active_channel_queued_member_names, ["@" + TS.model.user.name]);
+    if (has_no_queued_members || is_only_current_user) return;
     var original_tooltip_text = $tooltip.text();
-    var tooltip_text = _getHiddenChannelJoinAlertMessage(_hidden_channel_join_member_names[active_channel_id]);
+    var tooltip_text = _getHiddenChannelJoinAlertMessage(active_channel_queued_member_names);
     _hidden_channel_join_member_names = {};
-    if (!tooltip_text) return;
     $toggle.addClass(EXTRA_CLASSNAMES);
     $tooltip.text(tooltip_text);
-    $toggle.highlight(2499, null, function() {
+    _toggleChannelMemberIconFill();
+    setTimeout(function() {
       $tooltip.text(original_tooltip_text);
       $toggle.removeClass(EXTRA_CLASSNAMES);
-    });
+      _toggleChannelMemberIconFill();
+    }, 2499);
     _alertHiddenChannelJoins = _.debounce(_alertHiddenChannelJoins, 2500, {
       maxWait: 5e3
     });
@@ -36489,10 +36498,10 @@ function timezones_guess() {
             opacity: 1
           }, 300);
         });
+        _updateUnreadGroupPositions();
       });
       $group.removeClass("collapsed").removeClass("marked_as_read");
       TS.client.ui.unread.updateHeader(group);
-      _updateUnreadGroupPositions();
     },
     updateSidebarLink: function() {
       if (TS.model.unread_view_is_showing) {

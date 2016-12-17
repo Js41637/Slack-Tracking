@@ -19297,9 +19297,12 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 }
 
 ts-thread {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .9375rem;
   display: block;
   position: relative;
-  margin-top: 1rem
+  margin-top: 1rem;
+  background: #f2f2f5
 }
 
 ts-thread:last-child {
@@ -19430,6 +19433,117 @@ ts-thread .view_all_replies_count {
   float: right;
   font-size: .8125rem;
   color: #babbbf
+}
+
+ts-thread .thread_header {
+  margin-bottom: 1rem;
+  margin-left: 1.5rem;
+  margin-right: 1.6875rem;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center
+}
+
+.dense_theme ts-thread .thread_header {
+  margin-left: 1.1875rem
+}
+
+ts-thread .thread_header .thread_channel_name {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+  -webkit-flex-shrink: 0;
+  -moz-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  min-width: 0
+}
+
+ts-thread .thread_header .thread_channel_name .ts_icon_channel_pane_hash {
+  margin-right: -.25rem
+}
+
+ts-thread .thread_header .thread_channel_name .mpim_icon {
+  margin-right: -.1875rem;
+  top: .0625rem;
+  position: relative
+}
+
+ts-thread .thread_header .thread_channel_name .ts_icon_lock {
+  margin-right: -.25rem
+}
+
+ts-thread .thread_header .thread_channel_name .presence {
+  margin-right: .3125rem
+}
+
+ts-thread .thread_header .thread_channel_name .presence .presence_icon {
+  left: -.1875rem
+}
+
+ts-thread .thread_header .thread_channel_name a {
+  font-weight: 700;
+  color: #2c2d30
+}
+
+ts-thread .thread_header .thread_participants {
+  margin-left: .25rem
+}
+
+ts-thread .thread_header .thread_action_btns {
+  position: relative;
+  top: .25rem
+}
+
+html:not(.supports_flexbox) ts-thread .thread_header .thread_action_btns {
+  position: absolute;
+  right: 1.6875rem;
+  top: .875rem
+}
+
+ts-thread .thread_header .thread_action_btns button {
+  color: #9e9ea6
+}
+
+ts-thread .new_replies_container {
+  height: 0;
+  overflow: hidden
+}
+
+ts-thread .new_reply_indicator {
+  position: relative;
+  margin-top: .3125rem;
+  padding-bottom: .5625rem;
+  display: none
+}
+
+ts-thread .new_reply_indicator .blue_dot {
+  color: #439fe0;
+  position: absolute;
+  left: -1rem;
+  top: -.0625rem;
+  font-size: 1.25rem
+}
+
+ts-thread .show_new_reply_indicator .new_reply_indicator {
+  display: block
+}
+
+ts-thread ts-message.first .action_hover_container,
+ts-thread ts-message.selected .action_hover_container {
+  right: .8125rem
+}
+
+.dense_theme ts-thread ts-message.first .action_hover_container,
+.dense_theme ts-thread ts-message.selected .action_hover_container {
+  right: .5rem
 }
 
 #reply_container.has_focus .member_image,
@@ -23130,6 +23244,11 @@ ts-jumper ts-jumper-results:empty {
 
 #channel_members_toggle_count.ts_tip_multiline .ts_tip_tip {
   white-space: normal
+}
+
+#channel_members_toggle_count .channel_members_icon.is_filled:before {
+  content: '\E555';
+  color: #007ab8
 }
 
 #pinned_item_count_count {

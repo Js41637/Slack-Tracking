@@ -20965,6 +20965,16 @@ TS.registerModule("constants", {
       var loading_str = TS.i18n.t("loading&hellip;", "templates_builders")();
       return '<div class="loading_hash_animation"><img src="' + url_2x + '" alt="' + loading_str + '" srcset="' + url_1x + " 1x, " + url_2x + ' 2x" /><br />' + loading_str + "</div>";
     },
+    buildThreadMsgHTML: function(msg, model_ob, thread) {
+      return TS.templates.builders.msgs.buildHTML({
+        msg_dom_id: TS.templates.makeMsgDomIdInThreadsView(msg.ts),
+        model_ob: model_ob,
+        msg: msg,
+        is_threads_view: true,
+        is_new_reply: TS.utility.msgs.isMsgReply(msg) && thread && msg.ts > thread.initial_last_read,
+        relative_ts: true
+      });
+    },
     test: function() {
       var test_ob = {};
       Object.defineProperty(test_ob, "_buildStarComponents", {
@@ -23317,7 +23327,7 @@ TS.registerModule("constants", {
         }
       });
       Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob, thread) {
-        var html = TS.client.ui.threads.buildThreadMsgHTML(msg, model_ob, thread);
+        var html = TS.templates.builders.buildThreadMsgHTML(msg, model_ob, thread);
         return new Handlebars.SafeString(html);
       });
     },
@@ -24344,6 +24354,13 @@ TS.registerModule("constants", {
     isFileMsg: function(msg) {
       return msg && TS.utility.msgs.file_subtypes.indexOf(msg.subtype) >= 0;
     },
+    isMsgFromOtherTeam: function(msg) {
+      if (!msg.source_team_id) return false;
+      if (msg.source_team_id && TS.model.team.id != msg.source_team_id) {
+        return true;
+      }
+      return false;
+    },
     getMsgActions: function(msg, model_ob) {
       if (!msg) return;
       model_ob = model_ob || TS.shared.getActiveModelOb();
@@ -24353,11 +24370,14 @@ TS.registerModule("constants", {
       };
       var msg_belongs_to_user = false;
       if (msg.user == TS.model.user.id) msg_belongs_to_user = true;
+      var msg_from_other_team = TS.utility.msgs.isMsgFromOtherTeam(msg);
       if (msg.file && msg.file.mode === "email") {
         actions.open_original = true;
       }
       if (!TS.model.team.prefs.allow_message_deletion) {
-        if (!TS.model.user.is_admin) {
+        if (msg_from_other_team) {
+          actions.delete_msg = false;
+        } else if (!TS.model.user.is_admin) {
           actions.delete_msg = false;
         } else if (TS.model.active_im_id) {
           if (!msg_belongs_to_user && msg.user != "USLACKBOT" && msg.subtype != "bot_message") {
@@ -24365,7 +24385,9 @@ TS.registerModule("constants", {
           }
         }
       } else {
-        if (TS.model.active_im_id) {
+        if (msg_from_other_team) {
+          actions.delete_msg = false;
+        } else if (TS.model.active_im_id) {
           if (!msg_belongs_to_user && msg.user != "USLACKBOT" && msg.subtype != "bot_message") {
             actions.delete_msg = false;
           }
@@ -25024,6 +25046,9 @@ TS.registerModule("constants", {
         type: "message",
         ts: imsg.ts
       };
+      if (imsg.team) {
+        new_msg.source_team_id = imsg.team;
+      }
       if (imsg.user === "USLACKBOT" && imsg.slackbot_feels) {
         new_msg.slackbot_feels = imsg.slackbot_feels;
       }
@@ -39399,7 +39424,7 @@ var _on_esc;
     template_args.hidden_team_profile_fields = _getHiddenTeamProfileFields();
     template_args.default_team_profile_fields = _getDefaultTeamProfileFields();
     var html = TS.templates.admin_edit_team_profile_list(template_args);
-    _$div.find("#edit_team_profile_header").text("Customize profile").removeClass("hidden center_and_narrow");
+    _$div.find("#edit_team_profile_header").text(TS.i18n.t("Customize profile", "team_profile")()).removeClass("hidden center_and_narrow");
     var note;
     if (TS.model.team.profile && TS.model.team.profile.fields.length >= 50) {
       note = '<div class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i>' + TS.i18n.t("You have reached the maximum number of fields that can be added to profiles.", "team_profile")() + "</div>";
@@ -40863,7 +40888,7 @@ var _on_esc;
   var _validate = function($el, options, e) {
     options = options || {};
     if ($el.is("[data-validation-for]")) options.custom_for = $el.attr("data-validation-for");
-    options.success_message = "Nice, thanks!";
+    options.success_message = TS.i18n.t("Nice, thanks!", "ui_validation")();
     if ($el.is("[data-validation-success]")) options.success_message = $el.attr("data-validation-success");
     if ($el.is("[data-validation-warning]")) options.warning_message = $el.attr("data-validation-warning");
     if ($el.is("[data-validation-error]")) options.error_message = $el.attr("data-validation-error");
@@ -40894,18 +40919,18 @@ var _on_esc;
   function _validateRequired($el, options) {
     if ($el.is('input[type="radio"]')) {
       if ($(document.querySelectorAll('[name="' + $el.prop("name") + '"][data-validation]')).filter(":checked").length) return true;
-      return void TS.ui.validation.showWarning($el, "Please select an option", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("Please select an option", "ui_validation")(), options);
     } else if ($el.is('input[type="checkbox"]')) {
       if ($(document.querySelectorAll('[name="' + $el.prop("name") + '"][data-validation]')).filter(":checked").length) return true;
-      return void TS.ui.validation.showWarning($el, "Please select at least one option", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("Please select at least one option", "ui_validation")(), options);
     } else if ($el.is("select")) {
       if ($el.val()) return true;
-      return void TS.ui.validation.showWarning($el, "Please select an option", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("Please select an option", "ui_validation")(), options);
     } else if ($el.is("input") || $el.is("textarea")) {
       if ($el.val().trim()) return true;
-      return void TS.ui.validation.showWarning($el, "This field can't be empty", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can‘t be empty", "ui_validation")(), options);
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -40915,7 +40940,9 @@ var _on_esc;
       var value = $el.val().trim().toLowerCase();
       var reserved_words = reserved.split(",");
       if (reserved_words.indexOf(value) === -1) return true;
-      return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(value) + '" is a reserved word. Try something else!', options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t('"{word}" is a reserved word. Try something else!', "ui_validation")({
+        word: TS.utility.htmlEntities(value)
+      }), options);
     } else {
       return void TS.error("WTF: cannot validate");
     }
@@ -40926,7 +40953,7 @@ var _on_esc;
   }
 
   function _validateIsUrl($el, options, protocols) {
-    var error_message = "This doesn't seem like a proper link. Sorry!";
+    var error_message = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")();
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if ($el.is("input") || $el.is("textarea")) {
       var value = $el.val();
@@ -40939,18 +40966,18 @@ var _on_esc;
           if (found[0].indexOf(allowed_protocols[i]) === 0) {
             return true;
           } else if (allowed_protocols[i] == "https") {
-            error_message = "Please use https (for security).";
+            error_message = TS.i18n.t("Please use https (for security).", "ui_validation")();
           }
         }
       }
       return void TS.ui.validation.showWarning($el, error_message, options);
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
   function _validateIsLink($el, options) {
-    var error_message = "This doesn’t seem like a proper link. Sorry!";
+    var error_message = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")();
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if ($el.is("input") || $el.is("textarea")) {
       var value = $el.val();
@@ -40959,7 +40986,7 @@ var _on_esc;
       if (found && found.length === 1 && found[0] === value) return true;
       return void TS.ui.validation.showWarning($el, error_message, options);
     } else {
-      return void TS.error("cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -40971,9 +40998,9 @@ var _on_esc;
       if (!TS.utility.findUrls(value).length) {
         return true;
       }
-      return void TS.ui.validation.showWarning($el, "Unfortunately, custom messages can't contain URLs.", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("Unfortunately, custom messages can‘t contain URLs.", "ui_validation")(), options);
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -40990,18 +41017,21 @@ var _on_esc;
     if ($el.is("input") || $el.is("textarea")) {
       var value = $el.val();
       length = +length;
-      if (value === undefined || isNaN(length)) return void TS.error("WTF: no length to validate");
-      var plural_str = length > 1 ? "s" : "";
+      if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
       if ("minlength" === key) {
         if (value.length >= length) return true;
-        return void TS.ui.validation.showError($el, "This field can't be less than " + length + " character" + plural_str, options);
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t be less than {minlength, plural, =1{# character}other{# characters}}", "ui_validation")({
+          minlength: length
+        }), options);
       } else if ("maxlength" === key) {
         if (!hide_countdown) _countdown($el, value.length, length, options);
         if (value.length <= length) return true;
-        return void TS.ui.validation.showError($el, "This field can't be more than " + length + " character" + plural_str, options);
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t be more than {maxlength, plural, =1{# character}other{# characters}}", "ui_validation")({
+          maxlength: length
+        }), options);
       }
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -41018,17 +41048,20 @@ var _on_esc;
     if ($el.is("input") || $el.is("textarea")) {
       var value = $el.val().trim();
       length = +length;
-      if (value === undefined || isNaN(length)) return void TS.error("WTF: no length to validate");
-      var plural_str = length > 1 ? "s" : "";
+      if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
       if ("mincsv" === key) {
         if (value.split(/\s*\,\s*/).length >= length) return true;
-        return void TS.ui.validation.showError($el, "This field can't have less than " + length + " value" + plural_str, options);
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t have less than {minlength, plural, =1{# value}other{# values}}", "ui_validation")({
+          minlength: length
+        }), options);
       } else if ("maxcsv" === key) {
         if (value.split(/\s*\,\s*/).length <= length) return true;
-        return void TS.ui.validation.showError($el, "This field can't have more than " + length + " value" + plural_str, options);
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t have more than {maxlength, plural, =1{# value}other{# values}}", "ui_validation")({
+          maxlength: length
+        }), options);
       }
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -41052,13 +41085,17 @@ var _on_esc;
           if (match) valid = _isValidISODate("0000-" + value + "T00:00:00.000Z");
           break;
         default:
-          return void TS.error("WTF: cannot validate");
+          return void TS.error("Error: cannot validate");
       }
       if (match && valid) return true;
-      if (!match) return void TS.ui.validation.showWarning($el, "This needs to be in the format " + ui_pattern + ". Sorry!", options);
-      if (!valid) return void TS.ui.validation.showWarning($el, TS.utility.htmlEntities(value) + " doesn't appear to be a valid date. Sorry!", options);
+      if (!match) return void TS.ui.validation.showWarning($el, TS.i18n.t("This needs to be in the format {pattern}. Sorry!", "ui_validation")({
+        pattern: ui_pattern
+      }), options);
+      if (!valid) return void TS.ui.validation.showWarning($el, TS.i18n.t("{value} doesn‘t appear to be a valid date. Sorry!", "ui_validation")({
+        value: TS.utility.htmlEntities(value)
+      }), options);
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -41066,31 +41103,33 @@ var _on_esc;
     var value = $el.val();
     var is_lowercase = value === value.toLocaleLowerCase();
     if (is_lowercase) return true;
-    return void TS.ui.validation.showWarning($el, "This field must be lowercase only", options);
+    return void TS.ui.validation.showWarning($el, TS.i18n.t("This field must be lowercase only", "ui_validation")(), options);
   }
 
   function _validateNospace($el, options) {
     var value = $el.val();
     var has_spaces = /\s/.test(value);
     if (!has_spaces) return true;
-    return void TS.ui.validation.showWarning($el, "This field can't contain spaces", options);
+    return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can‘t contain spaces", "ui_validation")(), options);
   }
 
   function _validateFirstAlphanumeric($el, options) {
     var value = $el.val();
     var is_first_alphanumeric = /^[^\W_]/.test(value);
     if (is_first_alphanumeric) return true;
-    return void TS.ui.validation.showWarning($el, "This first character must be a letter or number", options);
+    return void TS.ui.validation.showWarning($el, TS.i18n.t("This first character must be a letter or number", "ui_validation")(), options);
   }
 
   function _validateUsername($el, options) {
     var max_length = 21;
     var msgs = {
-      firstalphanumeric: "Usernames must start with a letter or number. Sorry about that!",
-      lowercase: "Sorry, usernames must be lowercase!",
-      maxlength: "Sorry, that’s a bit too long! Usernames must be fewer than " + max_length + " characters.",
-      required: "Please fill in a username.",
-      specials: "Usernames can’t contain special characters. Sorry about that!"
+      firstalphanumeric: TS.i18n.t("Usernames must start with a letter or number. Sorry about that!", "ui_validation")(),
+      lowercase: TS.i18n.t("Sorry, usernames must be lowercase!", "ui_validation")(),
+      maxlength: TS.i18n.t("Sorry, that’s a bit too long! Usernames must be fewer than {maxlength} characters.", "ui_validation")({
+        maxlength: max_length
+      }),
+      required: TS.i18n.t("Please fill in a username.", "ui_validation")(),
+      specials: TS.i18n.t("Usernames can’t contain special characters. Sorry about that!", "ui_validation")()
     };
     var quiet_options = $.extend({}, options, {
       quiet: true
@@ -41108,11 +41147,13 @@ var _on_esc;
   function _channelNameValidation($el, options) {
     var max_length = 21;
     var msgs = {
-      lowercase: "Channel names must be all lowercase. Try again?",
-      maxlength: "Blerg, that's a bit too long! Channel names must be fewer than " + (max_length + 1) + " characters.",
-      required: "Please fill in a channel name.",
-      specials: "Channel names can't contain special characters, spaces, or periods. Try again?",
-      single_punctuation: "Names can't be a single hyphen or underscore. Please elaborate!"
+      lowercase: TS.i18n.t("Channel names must be all lowercase. Try again?", "ui_validation")(),
+      maxlength: TS.i18n.t("Blerg, that‘s a bit too long! Channel names must be fewer than {maxlength} characters.", "ui_validation")({
+        maxlength: max_length + 1
+      }),
+      required: TS.i18n.t("Please fill in a channel name.", "ui_validation")(),
+      specials: TS.i18n.t("Channel names can‘t contain special characters, spaces, or periods. Try again?", "ui_validation")(),
+      single_punctuation: TS.i18n.t("Names can‘t be a single hyphen or underscore. Please elaborate!", "ui_validation")()
     };
     var quiet_options = $.extend({}, options, {
       quiet: true
@@ -41151,9 +41192,11 @@ var _on_esc;
       var value = $el.val();
       var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
       if (!other_channel) return true;
-      return void TS.ui.validation.showWarning($el, '"' + TS.utility.htmlEntities(value) + '"' + " is already taken by a channel, username, or user group.", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
+        name: TS.utility.htmlEntities(value)
+      }), options);
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -41168,14 +41211,16 @@ var _on_esc;
       var current_model_ob = TS.shared.getActiveModelOb();
       if (!other_channel) need_to_check_api = true;
       if (other_channel && other_channel.id === current_model_ob.id) need_to_check_api = true;
-      if (other_channel && other_channel.id !== current_model_ob.id) return void TS.ui.validation.showWarning($el, TS.utility.htmlEntities(value) + " has already been taken. Try something else!", options);
+      if (other_channel && other_channel.id !== current_model_ob.id) return void TS.ui.validation.showWarning($el, TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation")({
+        name: TS.utility.htmlEntities(value)
+      }), options);
       if (need_to_check_api) {
         return true;
       } else {
         return false;
       }
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
@@ -41186,16 +41231,16 @@ var _on_esc;
       if (!value) return true;
       var found = value.match(TS.utility.email_regex);
       if (found && found.length === 1 && found[0] === value) return true;
-      return void TS.ui.validation.showWarning($el, "This doesn't seem like an email address. Sorry!", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("This doesn‘t seem like an email address. Sorry!", "ui_validation")(), options);
     } else {
-      return void TS.error("WTF: cannot validate");
+      return void TS.error("Error: cannot validate");
     }
   }
 
   function _validatePattern($el, options, pattern) {
     var value = $el.val();
     if (!pattern.test(value)) {
-      return void TS.ui.validation.showWarning($el, "This field contains invalid characters", options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("This field contains invalid characters", "ui_validation")(), options);
     }
     return true;
   }
@@ -46712,7 +46757,7 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler("#threads_msgs .reply_send", function(e, $el) {
       if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
-      TS.client.ui.threads.submitReply(e, $el);
+      TS.ui.thread.submitReply(e, $el);
     });
     TS.click.addClientHandler("#reply_container .join_channel_from_thread", function(e, $el) {
       if (!TS.boot_data.feature_message_replies) return;
@@ -46722,7 +46767,7 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler("#threads_msgs .join_channel_from_thread", function(e, $el) {
       if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
-      TS.client.ui.threads.joinChannelFromThread(e, $el);
+      TS.ui.thread.joinChannelFromThread(e, $el);
     });
     TS.click.addClientHandler(".thread_action_menu", function(e, $el) {
       if (!TS.boot_data.feature_message_replies) return;
@@ -52420,6 +52465,8 @@ $.fn.togglify = function(settings) {
       content_html: content_html,
       type: "desktop",
       fullscreenable: false,
+      enableLargerThanScreen: true,
+      hasShadow: false,
       show: false
     };
     _utility_call_state.cursors_window_token = TS.client.windows.openWindow(cursors_win_args);
