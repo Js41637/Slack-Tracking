@@ -187,7 +187,7 @@
         esc_for_ok: false,
         fullscreen: false,
         go_button_text: "Create",
-        type: "new_gdrive",
+        type: "overflow_visible",
         onGo: function() {
           var gdrive_sharing_settings = {
             title: _.trim($("#document_title").val()) || "Untitled",

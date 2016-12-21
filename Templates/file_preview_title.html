@@ -1,3 +1,5 @@
+{{i18n_ns "files"}}
+
 <div class="file_preview_title">
   <div id="file_title_container">
     {{makeFilePreviewHeader file member}}
@@ -8,8 +10,8 @@
       {{! no need for crumb_input }}
       <p class="no_bottom_margin"><input type="text" id="file_edit_title_input" class="small" name="file_edit_title_input"></input></p>
       <p class="no_bottom_margin align_right">
-        <button type="button" class="btn btn_small btn_outline" onClick="TS.files.endEditFileTitle(); return false;">Cancel</button>
-        <button type="submit" class="btn btn_small">Save Changes</button>
+        <button type="button" class="btn btn_small btn_outline" onClick="TS.files.endEditFileTitle(); return false;">{{#t}}Cancel{{/t}}</button>
+        <button type="submit" class="btn btn_small">{{#t}}Save Changes{{/t}}</button>
       </p>
     </form>
   </div>

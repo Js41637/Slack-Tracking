@@ -1,3 +1,5 @@
+{{i18n_ns "files"}}
+
   <div class="flexpane_file_title"
     {{#if member.is_bot}}
       data-app-id="{{member.app_id}}" data-bot-id="{{member.id}}"
@@ -11,7 +13,7 @@
     <span class="title break_word">
       {{#if is_post}}
         {{#if preview}}
-          <a href="{{file.permalink}}" {{#isClient}}target="{{file.id}}"{{/isClient}} data-file-id="{{file.id}}" class="file_new_window_link">{{makeFilePrivacyLabel file}} post</a>
+          <a href="{{file.permalink}}" {{#isClient}}target="{{file.id}}"{{/isClient}} data-file-id="{{file.id}}" class="file_new_window_link">{{#t privacy_label=(makeFilePrivacyLabel file) note="Can be 'draft', 'shared', or 'private'"}}{privacy_label} post{{/t}}</a>
         {{else}}
           <a href="{{file.permalink}}" {{#isClient}}target="{{file.id}}"{{/isClient}} data-file-id="{{file.id}}" class="file_new_window_link">{{{highlightSearchMatchesInFileTitle file.title}}}</a>
         {{/if}}
@@ -31,7 +33,7 @@
         <li class="file_action_item inline_block">
           <a class="ts_tip ts_tip_bottom file_ssb_download_link" data-file-id="{{file.id}}" href="{{file.url_private_download}}" target="{{newWindowName}}">
             <span class="ts_tip_btn ts_icon ts_icon_cloud_download"></span>
-            <span class="ts_tip_tip">Download</span>
+            <span class="ts_tip_tip">{{#t}}Download{{/t}}</span>
           </a>
         </li>
       {{/if}}
@@ -46,7 +48,7 @@
             {{/if}}
           >
             <span class="ts_tip_btn ts_icon {{#if is_snippet}}ts_icon_pencil{{else}}ts_icon_external_link{{/if}}"></span>
-            <span class="ts_tip_tip">{{#if is_snippet}}Edit{{else}}Edit in new window{{/if}}</span>
+            <span class="ts_tip_tip">{{#if is_snippet}}{{#t}}Edit{{/t}}{{else}}{{#t}}Edit in new window{{/t}}{{/if}}</span>
           </a>
         </li>
       {{else}}
@@ -56,21 +58,20 @@
             <a class="ts_tip ts_tip_bottom ts_tip_rightish" href="{{file.url_private}}" target="{{newWindowName}}">
               <span class="ts_tip_btn ts_icon ts_icon_external_link"></span>
               <span class="ts_tip_tip">
-                Open file on
                 {{#if_equal file.external_type compare="gdrive"}}
-                  Google\u00a0Drive
+                  {{#t}}Open file on Google\u00a0Drive{{/t}}
                 {{/if_equal}}
                 {{#if_equal file.external_type compare="dropbox"}}
-                  Dropbox
+                  {{#t}}Open file on Dropbox{{/t}}
                 {{/if_equal}}
                 {{#if_equal file.external_type compare="box"}}
-                  Box
+                  {{#t}}Open file on Box{{/t}}
                 {{/if_equal}}
                 {{#if_equal file.external_type compare="onedrive"}}
-                  OneDrive
+                  {{#t}}Open file on OneDrive{{/t}}
                 {{/if_equal}}
                 {{#if_equal file.external_type compare="unknown"}}
-                  a web page
+                  {{#t}}Open file on a web page{{/t}}
                 {{/if_equal}}
               </span>
             </a>
@@ -78,12 +79,12 @@
             {{#fileIsImage id=file.id}}
               <a class="ts_tip ts_tip_bottom ts_tip_rightish" href="{{file.url_private}}" target="{{file.id}}">
                 <span class="ts_tip_btn ts_icon ts_icon_external_link"></span>
-                <span class="ts_tip_tip">Open original</span>
+                <span class="ts_tip_tip">{{#t}}Open original{{/t}}</span>
               </a>
             {{else}}
               <a class="ts_tip ts_tip_bottom ts_tip_rightish file_new_window_link" href="{{file.permalink}}" target="{{file.permalink}}" data-file-id="{{file.id}}">
                 <span class="ts_tip_btn ts_icon ts_icon_external_link"></span>
-                <span class="ts_tip_tip">Open in new window</span>
+                <span class="ts_tip_tip">{{#t}}Open in new window{{/t}}</span>
               </a>
             {{/fileIsImage}}
           {{/if}}
@@ -101,7 +102,7 @@
           {{#if edit}}data-exclude-edit="true"{{/if}}
         >
           <span class="ts_tip_btn ts_icon ts_icon_ellipsis_o"></span>
-          <span class="ts_tip_tip">More actions</span>
+          <span class="ts_tip_tip">{{#t}}More actions{{/t}}</span>
         </a>
       </li>
     </ul>

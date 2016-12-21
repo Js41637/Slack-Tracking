@@ -5529,11 +5529,15 @@ body:not(.loading) #client-ui {
   top: 0;
   right: 0;
   bottom: 0;
-  left: 0;
-  overflow: hidden
+  left: 0
 }
 
-body:not(.loading) #client-ui.flexbox_client {
+body:not(.loading) #client-ui:after,
+body:not(.loading) #client-ui:before {
+  display: none
+}
+
+#client-ui.flexbox_client {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -5542,12 +5546,8 @@ body:not(.loading) #client-ui.flexbox_client {
   -ms-flex-direction: column;
   -moz-flex-direction: column;
   -webkit-flex-direction: column;
-  flex-direction: column
-}
-
-body:not(.loading) #client-ui:after,
-body:not(.loading) #client-ui:before {
-  display: none
+  flex-direction: column;
+  height: 100%
 }
 
 body.file_post,

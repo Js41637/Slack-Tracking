@@ -1,3 +1,5 @@
+{{i18n_ns "files"}}
+
 <div class="file_container image_container" style="width: {{image_width}}px;">
 
   <a data-file-id="{{file.id}}"
@@ -11,9 +13,17 @@
 
     {{#unless file.is_external}}
       title="{{~#if file_viewer~}}
-        Open in File Viewer ({{#isMac}}cmd{{else}}ctrl{{/isMac}}+click to open original in new tab)
+        {{~#isMac~}}
+          {{#t}}Open in File Viewer (cmd+click to open original in new tab){{/t}}
+        {{~else~}}
+          {{#t}}Open in File Viewer (ctrl+click to open original in new tab){{/t}}
+        {{~/isMac~}}
       {{~else~}}
-        {{#isMac}}cmd{{else}}ctrl{{/isMac}}+click to open original in new tab
+        {{~#isMac~}}
+          {{#t}}cmd+click to open original in new tab{{/t}}
+        {{~else~}}
+          {{#t}}ctrl+click to open original in new tab{{/t}}
+        {{~/isMac~}}
       {{~/if~}}"
     {{/unless}}>
 

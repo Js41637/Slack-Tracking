@@ -69,12 +69,20 @@
     #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
       background: {{theme.hover_item}};
     }
-    /* Separated b/c FF will drop all rules since it doesn't recognize -webkit-scrollbar */
-    .supports_custom_scrollbar #channels_scroller::-webkit-scrollbar-track {
+    /* Separated b/c FF will drop all rules since it doesn't recognize -webkit-scrollbar
+     * Note: when we have slim scrollbar, we do not want a track, so increasing specificity
+     *       will remove increased specificity once feature_slim_scrollbar is 100% GA
+     */
+    .supports_custom_scrollbar:not(.slim_scrollbar) #channels_scroller::-webkit-scrollbar-track,
+    .supports_custom_scrollbar.slim_scrollbar #channels_scroller::-webkit-scrollbar-track,
+    .supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
       background: transparent;
       color: transparent;
     }
-    .supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
+
+    /* TODO: will remove once feature_slim_scrollbar is 100% GA */
+    .supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-track,
+    .supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
       background: {{theme.hover_item}};
       color: {{theme.column_bg}};
     }
@@ -161,11 +169,17 @@
       opacity: 0.7;
     }
     /* Separated b/c FF will drop all rules since it doesn't recognize -webkit-scrollbar */
-    .supports_custom_scrollbar #channels_scroller::-webkit-scrollbar-thumb {
+    /* Will remove increased specificity once feature_slim_scrollbar is 100% GA */
+    .supports_custom_scrollbar:not(.slim_scrollbar) #channels_scroller::-webkit-scrollbar-thumb,
+    .supports_custom_scrollbar.slim_scrollbar #channels_scroller::-webkit-scrollbar-thumb {
       background: transparent;
       color: transparent;
     }
-    .supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb {
+    /* Temporarily increasing specificity by adding .slim_scrollbar to override default theme styling.
+     * Will remove increased specificity once feature_slim_scrollbar is 100% GA
+     */
+    .supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb,
+    .supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb {
       background: rgba({{theme.text_color_rgb.r}}, {{theme.text_color_rgb.g}}, {{theme.text_color_rgb.b}}, .7);
       color: {{theme.column_bg}};
     }

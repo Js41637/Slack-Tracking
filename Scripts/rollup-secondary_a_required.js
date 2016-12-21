@@ -1046,11 +1046,10 @@
       if (_internet_connected_p) return _internet_connected_p;
       var retry_interval = arguments.length <= 0 || arguments[0] === undefined ? 1e3 : arguments[0];
       var max_retries = arguments[1];
-      var connection_timeout_ms = 6e4;
       var retry_attempts = 0;
       var retry_interval_value = typeof retry_interval == "function" ? retry_interval() : retry_interval;
       var retry_interval_ms = retry_interval_value;
-      var _retryLater = function(jq_xhr, text_status, error_msg) {
+      var _retryLater = function() {
         if (typeof max_retries == "number" && retry_attempts > max_retries) {
           TS.warn("Unable to reconnect to the API after " + retry_attempts + " retry attempts");
           failure_sig.dispatch();
@@ -1058,7 +1057,7 @@
         }
         if (retry_attempts > 0) {
           var info = retry_attempts ? "Internet connection still offline after " + retry_attempts + " retry attempts" : "Internet connection still offline";
-          TS.warn([info, text_status, error_msg].join(" "));
+          TS.warn(info);
         }
         retry_attempts++;
         setTimeout(_testConnection, retry_interval_ms);
@@ -1074,16 +1073,13 @@
         success_sig.dispatch();
       };
       var _testConnection = function() {
-        $.ajax({
-          url: TS.model.api_url + "api.test",
-          timeout: connection_timeout_ms
-        }).then(function(data, status, resp) {
-          if (data && data.ok) {
+        _testAPIConnection(function(is_online) {
+          if (is_online) {
             _onSuccess();
           } else {
             _retryLater();
           }
-        }).fail(_retryLater);
+        });
       };
       var success_sig = new signals.Signal;
       var failure_sig = new signals.Signal;
@@ -1097,6 +1093,13 @@
         _testConnection();
       });
       return _internet_connected_p;
+    },
+    promiseToTestAPIConnection: function() {
+      return new Promise(function(resolve) {
+        _testAPIConnection(function(is_online) {
+          resolve(is_online);
+        });
+      });
     },
     waitForMSToReconnect: function() {
       if (_ms_reconnected_p) {
@@ -1142,6 +1145,18 @@
   var _ms_reconnected_p;
   var _timing_percentage = 1;
   var _should_send_timing_data;
+  var _testAPIConnection = function(callback) {
+    var connection_timeout_ms = 6e4;
+    $.ajax({
+      url: TS.model.api_url + "api.test",
+      timeout: connection_timeout_ms
+    }).then(function(data, status, resp) {
+      var is_online = !!(data && data.ok);
+      callback(is_online);
+    }).fail(function() {
+      callback(false);
+    });
+  };
 })();
 (function() {
   "use strict";
@@ -1216,6 +1231,14 @@
         },
         set: function(v) {
           _pauseUntilServiceIsUp = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_maybePauseUntilServiceIsUp", {
+        get: function() {
+          return _maybePauseUntilServiceIsUp;
+        },
+        set: function(v) {
+          _maybePauseUntilServiceIsUp = v;
         }
       });
       Object.defineProperty(test_ob, "_one_at_a_time_call_pending", {
@@ -1737,9 +1760,11 @@
               args._delay_ms = _calculateHTTPErrorDelayMs(args, data);
             };
           }();
-          _pauseUntilServiceIsUp(retry_delay, _max_attempts, args._attempts);
+          _maybePauseUntilServiceIsUp(retry_delay, _getMaxAttempts(method), args._attempts);
+          var try_again = args._attempts < _getMaxAttempts(method);
           return {
-            breathing_ms: 0
+            breathing_ms: args._delay_ms,
+            try_again: try_again
           };
         }
         _method_call_counts.total_non_200s++;
@@ -2284,6 +2309,18 @@
       SERVICE_DOWN: true
     }, retry_interval, max_retries);
   };
+  var _is_checking_to_see_if_service_is_up = false;
+  var _maybePauseUntilServiceIsUp = function(retry_interval, max_retries, consecutive_500s) {
+    if (_is_checking_to_see_if_service_is_up) return;
+    _is_checking_to_see_if_service_is_up = true;
+    TS.api.connection.promiseToTestAPIConnection().then(function(is_online) {
+      if (is_online) {} else {
+        _pauseUntilServiceIsUp(retry_interval, max_retries, consecutive_500s);
+      }
+    }).finally(function() {
+      _is_checking_to_see_if_service_is_up = false;
+    });
+  };
 })();
 (function() {
   "use strict";
@@ -2305,6 +2342,20 @@
         if (!matches.length) return false;
       }
       return true;
+    }
+  });
+})();
+(function() {
+  "use strict";
+  TS.registerModule("permissions.enterprise", {
+    canUserLeaveTeam: function(user, team) {
+      if (!TS.boot_data.page_needs_enterprise) return false;
+      if (user.is_restricted) return false;
+      if (!TS.enterprise.isUserOnTeam(user, team)) return false;
+      if (TS.boot_data.feature_discoverable_teams_client_v1) {
+        return !!team.can_leave;
+      }
+      return false;
     }
   });
 })();
@@ -3341,7 +3392,7 @@
         }
         return null;
       };
-      if (TS.boot_data.page_needs_enterprise && channel.is_shared) {
+      if (TS.model.shared_channels_enabled && channel.is_shared) {
         return TS.channels.promiseToEnsureChannelsInfo(channel_id, channel.is_shared).then(signal);
       } else {
         return Promise.resolve(signal());
@@ -11156,7 +11207,7 @@ TS.registerModule("constants", {
       }
       return upsert;
     },
-    upsertTeam: function(team, log) {
+    upsertTeam: function(team, do_not_propagate) {
       _maybeSetupTeamModel();
       var existing_team = TS.model.team;
       var status = "NOOP";
@@ -11185,6 +11236,15 @@ TS.registerModule("constants", {
               what_changed.push(k);
               status = "CHANGED";
             }
+          }
+        }
+        if (TS.boot_data.page_needs_enterprise) {
+          var enterprise_team = TS.enterprise.getTeamById(team.id);
+          existing_team = _.merge({}, existing_team, enterprise_team);
+          TS.model.team = existing_team;
+          if (!do_not_propagate) {
+            do_not_propagate = true;
+            TS.enterprise.upsertEnterpriseTeam(existing_team, do_not_propagate);
           }
         }
       }
@@ -11804,7 +11864,7 @@ TS.registerModule("constants", {
       var args = _getFilterArgumentsByScrollerId(scroller_id);
       if (full_profile_filter || args && args.full_profile_filter) {
         return TS.team.ensureTeamProfileFields().then(function() {
-          if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view || TS.boot_data.feature_searchable_member_list && TS.client) {
+          if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view || TS.useSearchableMemberList() && TS.client) {
             return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
           } else {
             _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
@@ -11914,7 +11974,7 @@ TS.registerModule("constants", {
     TS.error("Missing arguments for a bound filter");
   };
   var _updateTabCounts = function() {
-    if (TS.boot_data.feature_searchable_member_list) return;
+    if (TS.useSearchableMemberList()) return;
     var members_count = _filters.members.filter_num_found - _filters.filtered_items.bots.length;
     var restricted_count = _filters.restricted.filter_num_found || 0;
     var deleted_count = _filters.deleted.filter_num_found || 0;
@@ -12027,7 +12087,7 @@ TS.registerModule("constants", {
       matches.ultra_restricted_members = _.uniqBy(matches.ultra_restricted_members, function(member) {
         return member.id;
       });
-      if (TS.boot_data.feature_searchable_member_list) {
+      if (TS.useSearchableMemberList()) {
         matches.admin_members = _.filter(matches.members, "is_admin");
       }
       if (new_query) {
@@ -13754,6 +13814,18 @@ TS.registerModule("constants", {
       TS.search.results[TS.search.query].messages.order = 0;
       TS.search.search_sort_set_sig.dispatch();
       TS.search.view.renderResults();
+      TS.clog.track("SEARCH_OPEN", {
+        open_method: "best_matches_see_more",
+        click_module_position: 0,
+        click_module_name: "score",
+        request_id: TS.search.last_request_id
+      });
+    },
+    bestMatchFeedback: function(feedback_value) {
+      TS.clog.track("SEARCH_FEEDBACK", {
+        search_feedback_value: feedback_value,
+        request_id: TS.search.last_request_id
+      });
     },
     setSort: function(sort) {
       if (TS.search.sort == sort) return;
@@ -16749,13 +16821,13 @@ TS.registerModule("constants", {
       if (!TS.boot_data.feature_message_replies) return;
       var message = imsg.message;
       var last_reply_ts;
-      if (message && message.replies) {
+      if (message && message.replies && message.replies.length) {
         last_reply_ts = _.maxBy(message.replies, "ts").ts;
       }
       var model_ob = TS.shared.getModelObById(imsg.channel);
       if (last_reply_ts && model_ob && model_ob.msgs) {
         var msg = TS.utility.msgs.findMsg(message.ts, model_ob.id);
-        if (msg && msg.replies) {
+        if (msg && msg.replies && msg.replies.length) {
           var prev_last_reply = _.maxBy(msg.replies, "ts").ts;
           if (last_reply_ts < prev_last_reply) {
             TS.warn("Not processing older message_replied event, " + last_reply_ts + " < " + prev_last_reply + ", in " + imsg.channel);
@@ -17687,8 +17759,6 @@ TS.registerModule("constants", {
         rule = "				.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) {					display: none;			}";
       } else if (TS.model.prefs.sidebar_behavior == "hide_read_channels_unless_starred") {
         rule = "				.channels_list_holder div:not(#starred_div)>ul li:not(.unread):not(.active):not(.is_starred):not(.show_in_list_even_though_no_unreads) {					display: none;			}";
-      } else if (TS.model.prefs.sidebar_behavior == "shrink_left_column") {
-        rule = "				.real_names .im_name, .real_names .mpim_name, .feature_name_tagging_client .im_name, .feature_name_tagging_client .mpim_name {					font-size: 0.7rem;				}				.channels_list_holder ul li a {					height: auto;				}				.channels_list_holder ul li {					height: auto;					font-size: .7rem;					line-height: .8rem;				}				.channels_list_holder .section_holder {					margin: .3rem 0 .4rem;				}				.channels_list_holder ul li.group .prefix:before {					font-size: 0.7rem !important;				}				.channels_list_holder ul li.channel .prefix {					margin-top: -2px;				}				.channels_list_holder ul li.channel .prefix:before {					font-size: 0.8rem !important;				}				.channels_list_holder ul li.mpim .prefix {					margin-top: -2px;				}				.channels_list_holder ul li.mpim .prefix:before {					font-size: 0.8rem !important;				}				.channels_list_holder ul li .prefix.ts_icon_archived_channel {					margin-top: -2px !important;				}				.channels_list_holder ul li .prefix.ts_icon_archived_channel.prefix:before {					font-size: 0.8rem !important;				}				.channels_list_holder .unread_highlights {					background: none repeat scroll 0 0 #eb4d5c;					font-size: 0.5rem;					font-weight: 400;					line-height: 10px;					padding: 0 4px;					margin-top: -2px;					margin-right: -2px;				}				.channels_list_holder .presence {   					margin-right: -.2rem !important;				}				.channels_list_holder .presence_icon:before {   					font-size: 14px !important;					margin-top: 3px;				}				#col_channels ul li .priority_icon {					font-size: .6rem;					top: 0;				}				#col_channels ul li .hotness_icon .emoji-sizer {					font-size: .9rem;					margin-left: 1px;				}				.channels_list_holder h2, .list_more {					font-size: .6rem;			}";
       }
       if (rule) {
         if ($style.length) {
@@ -18126,15 +18196,14 @@ TS.registerModule("constants", {
       var preamble = false;
       if (is_broadcast) {
         var model_ob_id = msg.channel_id || attachments[0].channel_id || attachments[1].channel_id;
-        var model_ob = TS.shared.getModelObById(model_ob_id);
         var thread_ts = msg.broadcast_thread_ts || attachments[0].ts;
-        if (!/\d+\.\d+/.test(thread_ts) && attachments[1] && attachments[1].from_url) {
+        if ((!model_ob_id || !/\d+\.\d+/.test(thread_ts)) && attachments[1] && attachments[1].from_url) {
           var from_url = attachments[1].from_url;
-          if (/\?thread_ts=/.test(from_url)) {
-            var query = TS.utility.url.urlQueryStringParse(from_url);
-            thread_ts = query.thread_ts;
-          }
+          var query = TS.utility.url.urlQueryStringParse(from_url);
+          if (query.cid) model_ob_id = query.cid;
+          if (query.thread_ts) thread_ts = query.thread_ts;
         }
+        var model_ob = TS.shared.getModelObById(model_ob_id);
         if (model_ob && thread_ts) {
           if (thread_ts.indexOf(".") < 0) thread_ts = thread_ts.substr(0, 10) + "." + thread_ts.substr(10);
           var preamble_args = {
@@ -18578,14 +18647,14 @@ TS.registerModule("constants", {
             str_builder = TS.i18n.t("{joined_or_left} {channel_name}", "templates_builders");
           }
         }
-        if (false && TS.boot_data.feature_tinyspeck) {
-          var new_html = TS.format.formatNoHighlightsNoSpecials(str_builder({
+        if (TS.boot_data.feature_tinyspeck) {
+          var new_html = str_builder({
             joined_or_left: TS.templates.builders.buildJoinLeaveRollUpStr(user_ob),
             channel_name: channel_name,
-            inviter: inviter ? "<@" + inviter.id + "|" + inviter.name + ">" : "",
-            users: alsoA.join(", "),
-            others: otherA.join(", ")
-          }));
+            inviter: inviter ? TS.format.formatNoHighlightsNoSpecials("<@" + inviter.id + "|" + inviter.name + ">") : "",
+            users: TS.format.formatNoHighlightsNoSpecials(alsoA.join(", ")),
+            others: TS.format.formatNoHighlightsNoSpecials(otherA.join(", "))
+          });
           if (html !== new_html) {
             TS.info("- - -");
             TS.info("TS only: issue with user leave/join message. Please message @steveb with the following info:");
@@ -19701,16 +19770,14 @@ TS.registerModule("constants", {
         show_user_groups_help: show_user_groups_help
       });
     },
-    makeInternalChannelLink: function(channel) {
-      if (!channel) return "ERROR: MISSING CHANNEL";
-      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + channel.name + '"' : "";
-      var prefix = channel.is_private ? TS.model.group_prefix : '<span class="normal">#</span>';
-      return '<a href="/archives/' + channel.name + '" ' + target + ' class="internal_channel_link" data-channel-id="' + channel.id + '">' + prefix + channel.name + "</a>";
-    },
-    makeInternalGroupLink: function(group) {
-      if (!group) return "ERROR: MISSING GROUP";
-      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + group.name + '"' : "";
-      return '<a href="/archives/' + group.name + '" ' + target + '" class="internal_group_link" data-group-id="' + group.id + '">' + TS.model.group_prefix + group.name + "</a>";
+    makeChannelPrefix: function(channel) {
+      if (!channel) return "";
+      if (channel.is_group || channel.is_private) {
+        return '<ts-icon class="ts_icon_lock"></ts-icon>';
+      } else if (channel.is_channel) {
+        return "#";
+      }
+      return "";
     },
     makeChannelLink: function(channel, omit_prefix) {
       if (!channel) return "ERROR: MISSING CHANNEL";
@@ -19719,7 +19786,7 @@ TS.registerModule("constants", {
         shared_icon = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
       }
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + channel.name + '"' : "";
-      var prefix = channel.is_private ? TS.model.group_prefix : '<span class="normal">#</span>';
+      var prefix = TS.templates.builders.makeChannelPrefix(channel);
       return '<a href="/archives/' + channel.name + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
     },
     makeChannelLinkAriaLabelSafe: function(channel) {
@@ -20972,7 +21039,8 @@ TS.registerModule("constants", {
         msg: msg,
         is_threads_view: true,
         is_new_reply: TS.utility.msgs.isMsgReply(msg) && thread && msg.ts > thread.initial_last_read,
-        relative_ts: true
+        relative_ts: true,
+        enable_slack_action_links: true
       });
     },
     test: function() {
@@ -21167,11 +21235,11 @@ TS.registerModule("constants", {
                     var neither_are_part_of_convo = !msg.thread_ts && !prev_msg.thread_ts;
                     if (is_part_of_same_convo || neither_are_part_of_convo) {
                       show_user = false;
-                      if (msg.recap) show_user = true;
+                      if (msg.recap && msg.recap.show_recap) show_user = true;
                     }
                   } else {
                     show_user = false;
-                    if (msg.recap) show_user = true;
+                    if (msg.recap && msg.recap.show_recap) show_user = true;
                   }
                 }
                 if (TS.utility.msgs.isTempMsg(msg) && (msg.type == "bot_message" || msg.user == "USLACKBOT")) {
@@ -21331,9 +21399,8 @@ TS.registerModule("constants", {
             template_args.pin_html = "";
           }
         }
-        if (TS.boot_data.feature_sli_recaps) {
+        if (TS.boot_data.feature_sli_recaps && show_user) {
           var recap_item;
-          var score_threshold = 90;
           if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
             recap_item = msg.file;
           } else if (msg.subtype === "file_comment") {
@@ -21343,7 +21410,7 @@ TS.registerModule("constants", {
           }
           if (recap_item && recap_item.recap) {
             template_args.is_recap = recap_item.recap;
-            if (recap_item.recap.weight * 100 > score_threshold) {
+            if (recap_item.recap.show_recap) {
               template_args.recap_threshold = true;
             }
           } else {
@@ -22254,16 +22321,19 @@ TS.registerModule("constants", {
           if (hide_unknown_groups) return;
           return id;
         }
-        if (channel.is_group || channel.is_private) {
+        if (channel.is_group) {
           return TS.model.group_prefix + channel.name;
         } else if (channel.is_channel) {
-          return "#" + channel.name;
+          return TS.templates.builders.makeChannelPrefix(channel) + channel.name;
         }
         if (hide_unknown_groups) {
           return;
         } else {
           return id;
         }
+      });
+      Handlebars.registerHelper("makeChannelPrefix", function(channel) {
+        return new Handlebars.SafeString(TS.templates.builders.makeChannelPrefix(channel));
       });
       Handlebars.registerHelper("makeChannelLink", function(channel) {
         return new Handlebars.SafeString(TS.templates.builders.makeChannelLink(channel));
@@ -22310,15 +22380,6 @@ TS.registerModule("constants", {
           var channel = TS.channels.getChannelById(id);
           text = "#" + channel.name;
           return "<a href=" + url + ">" + text + "</a>";
-        }
-      });
-      Handlebars.registerHelper("makeInternalChannelOrGroupLinkById", function(id) {
-        var ob = TS.shared.getModelObById(id);
-        if (!ob) return;
-        if (ob.is_group) {
-          return TS.templates.builders.makeInternalGroupLink(ob);
-        } else if (ob.is_channel) {
-          return TS.templates.builders.makeInternalChannelLink(ob);
         }
       });
       Handlebars.registerHelper("isTeamInOrg", function(team, options) {
@@ -24478,11 +24539,11 @@ TS.registerModule("constants", {
         msg = model_ob && TS.ui.replies.getActiveMessage(model_ob, ts);
         if (msg) return msg;
       }
-      if (TS.boot_data.feature_message_replies) {
+      if (TS.boot_data.feature_message_replies && TS.client) {
         msg = TS.client.threads.getMessage(model_ob, ts);
         if (msg) return msg;
       }
-      if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
+      if (!msg && TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing && TS.client) {
         msg = TS.client.unread.getMessage(model_ob, ts);
         if (msg) return msg;
       }
@@ -24498,10 +24559,10 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_message_replies && !original_msg && TS.ui.replies) {
         original_msg = TS.ui.replies.getActiveMessage(model_ob, new_msg.ts);
       }
-      if (TS.boot_data.feature_message_replies && !original_msg) {
+      if (TS.boot_data.feature_message_replies && !original_msg && TS.client) {
         original_msg = TS.client.threads.getMessage(model_ob, new_msg.ts);
       }
-      if (TS.boot_data.feature_unread_view && !original_msg) {
+      if (TS.boot_data.feature_unread_view && !original_msg && TS.client) {
         original_msg = TS.client.unread.getMessage(model_ob, new_msg.ts);
       }
       if (!original_msg) {
@@ -26016,18 +26077,18 @@ TS.registerModule("constants", {
     shouldHideChannelJoinOrLeaveMsg: function(imsg, channel_or_channel_id) {
       if (!TS.boot_data.feature_hide_join_leave) return false;
       var user = TS.members.getMemberById(imsg.user);
-      var is_restricted_user = _.get(user, "is_restricted", false);
       var is_bot_user = _.get(user, "is_bot", false);
       if (imsg.subtype === "channel_join") {
         var channel = _.isObject(channel_or_channel_id) ? channel_or_channel_id : TS.channels.getChannelById(channel_or_channel_id);
+        if (!channel) return false;
         var is_default_channel = _.includes(TS.model.team.prefs.default_channels, channel.id);
         var was_invited = !!imsg.inviter;
         var has_enough_members = _.get(channel, "members.length") > 20;
-        if (!is_restricted_user && !is_bot_user && !is_default_channel && !was_invited && has_enough_members) {
+        if (!is_bot_user && !is_default_channel && !was_invited && has_enough_members) {
           return true;
         }
       } else if (imsg.subtype === "channel_leave") {
-        if (!is_restricted_user || !is_bot_user) {
+        if (!is_bot_user) {
           return true;
         }
       }
@@ -30838,6 +30899,21 @@ TS.registerModule("constants", {
       if (TS.client.ui.checkForEditing(e)) return;
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
+      TS.menu.startWithTeamAndUserRebuild(e);
+      if (TS.boot_data.page_needs_enterprise) TS.menu.listenForRebuildWorthiness();
+    },
+    did_start_slack_menu_signal_listeners: false,
+    listenForRebuildWorthiness: function() {
+      TS.menu.did_start_slack_menu_signal_listeners = true;
+      TS.client.user_added_to_team_sig.add(TS.menu.startWithTeamAndUserRebuild);
+      TS.client.user_removed_from_team_sig.add(TS.menu.startWithTeamAndUserRebuild);
+    },
+    stopListeningForRebuildWorthiness: function() {
+      TS.menu.did_start_slack_menu_signal_listeners = false;
+      TS.client.user_added_to_team_sig.remove(TS.menu.startWithTeamAndUserRebuild);
+      TS.client.user_removed_from_team_sig.remove(TS.menu.startWithTeamAndUserRebuild);
+    },
+    startWithTeamAndUserRebuild: function(e) {
       TS.menu.clean();
       TS.menu.submenu_template_args = {};
       var is_tinyspeck = TS.model && TS.model.team && TS.boot_data.feature_tinyspeck;
@@ -30863,7 +30939,7 @@ TS.registerModule("constants", {
       if (other_accounts_length) template_args.other_accounts = TS.boot_data.other_accounts;
       if (TS.model.team.enterprise_id) template_args.current_team_is_in_enterprise = true;
       var signed_into_enterprise = false;
-      var other_accounts_obj = TS.boot_data.other_accounts;
+      var other_accounts_obj = _.merge({}, TS.boot_data.other_accounts);
       var other_accounts_without_enterprise_teams = {};
       for (var team in other_accounts_obj) {
         if (other_accounts_obj[team]["enterprise_id"]) {
@@ -30965,6 +31041,7 @@ TS.registerModule("constants", {
       if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
         menu_offset_y += 7;
       }
+      if (TS.boot_data.page_needs_enterprise && typeof e === "string") _no_reposition = true;
       TS.menu.start(e);
       TS.menu.positionAt($("#team_menu"), 10, menu_offset_y);
       TS.view.members.updateUserDisplayName();
@@ -30975,6 +31052,7 @@ TS.registerModule("constants", {
           member: TS.model.user
         };
         $menu_content.on("highlighted", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
+        if (!TS.model.prefs.seen_custom_status_badge) $(".current_status_badge").removeClass("hidden");
       }
       TS.view.setFlexMenuSize();
     },
@@ -31199,7 +31277,8 @@ TS.registerModule("constants", {
       TS.menu.$menu_items.html(TS.templates.menu_flexpane_items({
         special_flex_panes: TS.boot_data.special_flex_panes,
         show_downloads: TS.model.supports_downloads,
-        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
+        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise,
+        show_user_groups: TS.useSearchableMemberList()
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onFlexMenuItemClick);
       TS.menu.start(e);
@@ -31231,7 +31310,7 @@ TS.registerModule("constants", {
             TS.client.ui.files.filterFileList("all");
           } else if (flex_name == "team") {
             TS.client.ui.showTeamList();
-          } else if (flex_name == "groups" && TS.boot_data.feature_searchable_member_list) {
+          } else if (flex_name == "groups" && TS.useSearchableMemberList()) {
             TS.client.ui.showGroupsList();
           } else {
             if (flex_name == "whats_new" && TS.boot_data.feature_clog_whats_new) {
@@ -31615,6 +31694,7 @@ TS.registerModule("constants", {
       TS.menu.has_submenu = false;
       TS.menu.$submenu_parent = null;
       TS.menu.submenu_template_args = {};
+      if (TS.menu.did_start_slack_menu_signal_listeners) TS.menu.stopListeningForRebuildWorthiness();
       var $menu = TS.menu.$menu;
       var menu_end = function() {
         if (TS.model.menu_is_showing) return;
@@ -40545,7 +40625,7 @@ var _on_esc;
     if (!_$progress) _makeProgressCircle();
     _hideAllSectionsBut("#edit_member_profile_photo_upload");
     TS.ui.fs_modal.hideFooter();
-    TS.ui.fs_modal.setHeaderTitle(TS.i18n.t("Uploading your photo&hellip;", "edit_profile")());
+    TS.ui.fs_modal.setHeaderTitle(TS.i18n.t("Uploading your photo…", "edit_profile")());
     _unflexContentsAndCenter();
     _updateBackButton();
   };
@@ -41520,10 +41600,11 @@ var _on_esc;
     $cards.on("click", ".enterprise_team_menu", function(e) {
       var team_site_url = $(this).val();
       var team_id = $(this).data("id");
+      var team = TS.enterprise.getTeamById(team_id);
       TS.menu.enterprise_team_signin.start(e, $(this), {
         team_id: team_id,
         team_site_url: team_site_url,
-        should_show_leave_team: TS.boot_data.feature_discoverable_teams_client_v1 && TS.enterprise.isUserOnTeam(team_id) && !TS.model.user.is_restricted
+        should_show_leave_team: TS.permissions.enterprise.canUserLeaveTeam(TS.model.user, team)
       });
     });
     $cards.on("click", ".enterprise_team_join", function(e) {
@@ -41596,10 +41677,11 @@ var _on_esc;
     $container.on("click", ".enterprise_team_menu", function(e) {
       var team_site_url = $(this).val();
       var team_id = $(this).data("id");
+      var team = TS.enterprise.getTeamById(team_id);
       TS.menu.enterprise_team_signin.start(e, $(this), {
         team_id: team_id,
         team_site_url: team_site_url,
-        should_show_leave_team: TS.boot_data.feature_discoverable_teams_client_v1 && TS.enterprise.isUserOnTeam(team_id) && !TS.model.user.is_restricted
+        should_show_leave_team: TS.permissions.enterprise.canUserLeaveTeam(TS.model.user, team)
       });
     });
     $container.find(".enterprise_team_join").on("click", function(e) {
@@ -42700,14 +42782,30 @@ $.fn.togglify = function(settings) {
       }
       var $container = $el.closest(".inline_file_preview_container, .file_container");
       if ($container.length === 0) return;
+      if (TS.boot_data.feature_platform_metrics) {
+        var $el = $(e.target);
+        var $message = $el.closest("ts-message");
+        var message_ts = $message.data("ts") + "";
+        var message_c_id = $message.data("model-ob-id");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: $message.data("member-id"),
+          app_id: $message.data("app-id"),
+          bot_id: $message.data("bot-id")
+        };
+      }
       if ($el.closest(".preview_show.preview_show_more").length > 0) {
         e.preventDefault();
         _expandContent(e, $msg, $container);
+        if (TS.boot_data.feature_platform_metrics) TS.clog.track("PREVIEW_EXPAND", payload);
         return true;
       }
       if ($el.closest(".preview_show.preview_show_less .preview_show_btn, .preview_show_less_header").length > 0) {
         e.preventDefault();
         _collapseContent(e, $msg, $container);
+        if (TS.boot_data.feature_platform_metrics) TS.clog.track("PREVIEW_COLLAPSE", payload);
         return true;
       }
       if ($el.closest("a").length) return false;
@@ -43166,7 +43264,22 @@ $.fn.togglify = function(settings) {
       var api_args = _getApiArgsFromKey(rxn_key, {
         name: name
       });
-      var payload = {};
+      if (TS.boot_data.feature_platform_metrics) {
+        var $el = $('[data-rxn-key="' + rxn_key + '"]');
+        var $message = $el.closest("ts-message");
+        var message_ts = $message.data("ts") + "";
+        var message_c_id = $message.data("model-ob-id");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: $message.data("member-id"),
+          app_id: $message.data("app-id"),
+          bot_id: $message.data("bot-id")
+        };
+      } else {
+        var payload = {};
+      }
       var clog_key = adding ? "REACTION_ADDED" : "REACTION_REMOVED";
       if (TS.model.unread_view_is_showing && api_args.timestamp) {
         _.merge(payload, TS.client.ui.unread.getTrackingData(api_args.timestamp));
@@ -44074,6 +44187,7 @@ $.fn.togglify = function(settings) {
       instance.$list_container = $container.find(".lfs_list_container");
       instance.$list = $container.find(".lfs_list");
       instance.$empty = $container.find(".lfs_empty");
+      instance.$error = $container.find(".lfs_error");
       instance._page_number = 1;
       instance._slug_id_counter = 1;
       instance.run = _run;
@@ -44087,12 +44201,15 @@ $.fn.togglify = function(settings) {
           if (typeof response.num_remaining !== "undefined" && response.num_remaining === 0) instance._all_done_fetching = true;
           instance.data = data.slice();
           instance.run();
+          _bindUI(instance);
         }, function(error) {
-          TS.log(null, "Something failed while trying to return the initial promise for lazyFilterSelect.");
+          instance._initial_call_failed = true;
+          _bindUI(instance);
         });
       } else {
         if (instance.data) instance.data = instance.data.slice();
         instance.run();
+        _bindUI(instance);
       }
       return instance;
     }
@@ -44105,6 +44222,7 @@ $.fn.togglify = function(settings) {
     approx_divider_height: 28,
     approx_item_height: 30,
     data_promise: null,
+    data_qa: "lfs",
     default_style: true,
     disabled: false,
     filter: function(item, query) {
@@ -44121,7 +44239,13 @@ $.fn.togglify = function(settings) {
     monkey_scroll: true,
     no_default_selection: false,
     noResultsTemplate: function(query) {
-      return "No items matched <strong>" + TS.utility.htmlEntities(query) + "</strong>";
+      return TS.i18n.t("No items matched {query}", "lazy_filter_select")({
+        query: "<strong>" + TS.utility.htmlEntities(query) + "</strong>"
+      });
+    },
+    errorTemplate: function(error) {
+      error = error || TS.i18n.t("Couldn't load results.", "lazy_filter_select")();
+      return error;
     },
     onInputBlur: _.noop,
     onInputFocus: _.noop,
@@ -44172,7 +44296,8 @@ $.fn.togglify = function(settings) {
     _prevent_blur: false,
     _previous_val: "",
     _running_promise: null,
-    _scroll_callback_was_called: false
+    _scroll_callback_was_called: false,
+    _initial_call_failed: false
   };
   $.widget("TS.lazyFilterSelect", {
     _create: function() {
@@ -44216,6 +44341,7 @@ $.fn.togglify = function(settings) {
     hideList: function() {
       _hideList(this.instance, true);
       _hideNoResults(this.instance);
+      _hideError(this.instance);
     },
     recomputeHeight: function() {
       _updateMonkeyScroll(this.instance);
@@ -44249,6 +44375,7 @@ $.fn.togglify = function(settings) {
       return this.instance._selected;
     }
   });
+  var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _addUserCreatedSlugFromString = function(instance, str) {
     if (!_instanceCanSluggify(instance)) return;
     if (!str.trim()) return;
@@ -44262,7 +44389,8 @@ $.fn.togglify = function(settings) {
     var slug_html = TS.templates.lazy_filter_select_item({
       content: instance.tokenTemplate(item),
       applied_classes: "lfs_token",
-      slug_id: item.lfs_slug_id
+      slug_id: item.lfs_slug_id,
+      data_qa: instance.data_qa
     }).replace(/(\r\n|\n|\r)/gm, "");
     var $slug = $(slug_html);
     $slug.insertBefore(instance.$input);
@@ -44284,6 +44412,7 @@ $.fn.togglify = function(settings) {
         _showEmptyState(instance);
       } else {
         instance.$input_container.removeClass("empty");
+        instance.$input_container.removeClass("error");
         instance.$input.prop("placeholder", "");
       }
     }
@@ -44344,6 +44473,7 @@ $.fn.togglify = function(settings) {
               }
               if (instance.single) {
                 _hideList(instance);
+                _hideError(instance);
               }
             }
           }
@@ -44376,6 +44506,7 @@ $.fn.togglify = function(settings) {
           _stopThePresses(e);
           _hideList(instance);
           _hideNoResults(instance);
+          _hideError(instance);
           instance.$input.blur();
           break;
       }
@@ -44385,6 +44516,7 @@ $.fn.togglify = function(settings) {
       if (!instance._prevent_blur) {
         _hideList(instance);
         _hideNoResults(instance);
+        _hideError(instance);
       }
       if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
         _addUserCreatedSlugFromString(instance, instance.$input.val());
@@ -44509,20 +44641,20 @@ $.fn.togglify = function(settings) {
       icon: $item.data("lfs-item-icon"),
       desc: $item.data("lfs-item-desc"),
       applied_classes: TS.utility.getAppliedClasses(class_map),
-      lfs_id: item.lfs_id
+      lfs_id: item.lfs_id,
+      data_qa: instance.data_qa
     }).replace(/(\r\n|\n|\r)/gm, "");
   };
   var _sizeAndPostionItemsList = function(instance) {
     if (!instance._list_built) return;
-    var LIST_POSITION_ABOVE_CLASSNAME = "position_above";
     var list_height = instance.$list.css({
       "max-height": ""
     }).height();
     var container_height = instance.$list_container.height();
     var padding = instance.$list_container.outerHeight() - container_height;
     var max_height = parseInt(instance.$list_container.css("max-height"), 10);
-    var window_height = $(window).height();
-    instance.$list_container.removeClass(LIST_POSITION_ABOVE_CLASSNAME);
+    var window_height = $(window).height() - $("#footer").height();
+    instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     var available_height = Math.floor(window_height - instance.$list.offset().top);
     if (instance.allow_list_position_above) {
       var available_height_above = window_height - available_height;
@@ -44530,7 +44662,7 @@ $.fn.togglify = function(settings) {
       var can_fit_below = list_height <= available_height;
       if (!can_fit_below && can_fit_above) {
         available_height = available_height_above;
-        instance.$list_container.addClass(LIST_POSITION_ABOVE_CLASSNAME);
+        instance.$list_container.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
       }
     }
     if (isNaN(max_height)) max_height = container_height;
@@ -44539,6 +44671,21 @@ $.fn.togglify = function(settings) {
     instance.$list.css({
       "max-height": Math.min(list_height, max_height)
     });
+  };
+  var _sizeAndPostionMessageContainer = function(instance, messageContainer) {
+    var message_container_height = messageContainer.outerHeight();
+    var window_height = $(window).height() - $("#footer").height();
+    messageContainer.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
+    var available_height = Math.floor(window_height - messageContainer.offset().top);
+    if (instance.allow_list_position_above) {
+      var available_height_above = window_height - available_height;
+      var can_fit_above = message_container_height <= available_height_above;
+      var can_fit_below = message_container_height <= available_height;
+      if (!can_fit_below && can_fit_above) {
+        available_height = available_height_above;
+        messageContainer.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
+      }
+    }
   };
   var _callScrollCallback = function(instance, query, page_number) {
     if (instance._running_promise) instance._running_promise.cancel("Scrolling happened");
@@ -44568,6 +44715,8 @@ $.fn.togglify = function(settings) {
       } else {
         instance._all_done_fetching = true;
       }
+    }, function(error) {
+      _showError(instance, "Something failed while trying to return the next batch of data promise for lazyFilterSelect.");
     });
   };
   var _canAddNewItem = function(instance) {
@@ -44664,6 +44813,13 @@ $.fn.togglify = function(settings) {
     instance.$input_container.removeClass("active");
     instance.$container.removeClass("showing_no_results");
   };
+  var _hideError = function(instance) {
+    if (instance.$error) {
+      instance.$error.addClass("hidden");
+      instance.$input_container.removeClass("active");
+      instance.$container.removeClass("showing_error");
+    }
+  };
   var _instanceCanSluggify = function(instance) {
     if (!instance.sluggify.enabled) {
       return false;
@@ -44706,7 +44862,8 @@ $.fn.togglify = function(settings) {
       icon: $item.data("lfs-item-icon"),
       desc: $item.data("lfs-item-desc"),
       applied_classes: "lfs_token",
-      slug_id: item.lfs_slug_id
+      slug_id: item.lfs_slug_id,
+      data_qa: instance.data_qa
     }).replace(/(\r\n|\n|\r)/gm, "");
     $slug = $(slug_html);
     $slug.insertBefore(instance.$input);
@@ -44721,7 +44878,7 @@ $.fn.togglify = function(settings) {
   };
   var _parseHTMLOptionData = function($select) {
     var $items = $select.children("option, optgroup");
-    var data = [];
+    var data = $items.length > 0 ? [] : undefined;
     $items.each(function() {
       if ($(this).prop("tagName") === "OPTGROUP") {
         var children = $(this).children("option").toArray();
@@ -44745,12 +44902,17 @@ $.fn.togglify = function(settings) {
   };
   var _populate = function(instance, data) {
     if (!data) data = instance.data;
+    if (!data) {
+      _showError(instance);
+      return;
+    }
     if (data.length === 0) {
       _showNoResults(instance);
       return;
     }
     instance.$empty.addClass("hidden");
     instance.$list_container.removeClass("empty");
+    instance.$list_container.removeClass("error");
     if (!instance._list_built) {
       _startListView(instance);
     } else {
@@ -44818,6 +44980,7 @@ $.fn.togglify = function(settings) {
       } else {
         $(html).insertBefore(instance.$input);
         instance.$input_container.removeClass("empty");
+        instance.$input_container.removeClass("error");
         instance.$input.prop("placeholder", "");
       }
     }
@@ -44868,7 +45031,6 @@ $.fn.togglify = function(settings) {
   var _run = function() {
     if (this.data && this.data.length === 0) TS.warn("Data passed to lazyFilterSelect is empty.");
     _update(this, this.data);
-    _bindUI(this);
     if (this.always_visible) _showList(this);
     if (this.restrict_input_container_height) {
       this.$container.addClass("has_restricted_input_container_height");
@@ -44896,6 +45058,8 @@ $.fn.togglify = function(settings) {
         data = data.slice();
         _showList(instance, keep_value);
         _doAllTheThingsRequiredWithNewData(instance, data);
+      }, function(error) {
+        _showError(instance, "Something failed while trying to return the filtered promise for lazyFilterSelect.");
       });
     } else {
       _showList(instance, keep_value);
@@ -44950,6 +45114,7 @@ $.fn.togglify = function(settings) {
     }
     if (!instance.single) {
       instance.$input_container.removeClass("empty");
+      instance.$input_container.removeClass("error");
       instance.$input.prop("placeholder", "");
     }
     instance.$container.addClass("value");
@@ -44985,6 +45150,25 @@ $.fn.togglify = function(settings) {
       instance.$input.focus();
     });
     if (instance._list_visible) return;
+    if (instance._initial_call_failed) {
+      if (instance._running_promise) instance._running_promise.cancel("Uhhh...");
+      instance._running_promise = instance.data_promise("").then(function(response) {
+        instance._running_promise = null;
+        var data = response;
+        if (data.items) data = data.items;
+        if (typeof response.all_items_fetched !== "undefined") instance._all_done_fetching = !!response.all_items_fetched;
+        if (typeof response.num_remaining !== "undefined" && response.num_remaining === 0) instance._all_done_fetching = true;
+        instance.data = data.slice();
+        instance._initial_call_failed = false;
+        _hideError(instance);
+        instance.run();
+        _showList(instance, keep_value);
+      }, function(error) {
+        instance._initial_call_failed = true;
+        _showError(instance);
+      });
+      return;
+    }
     if (!instance._list_built) _startListView(instance);
     if (instance._list_built) {
       instance._list_visible = true;
@@ -45015,11 +45199,24 @@ $.fn.togglify = function(settings) {
       instance.$list_container.addClass("empty");
       instance.$empty.html(instance.noResultsTemplate(instance.$input.val()));
       instance.$empty.removeClass("hidden");
+      _sizeAndPostionMessageContainer(instance, instance.$empty);
       instance._$active = null;
     }
   };
+  var _showError = function(instance, error_message) {
+    TS.error(error_message || "Something failed while trying to return the promise for lazyFilterSelect.");
+    instance.$container.addClass("showing_error");
+    _hideList(instance, true);
+    _hideNoResults(instance);
+    instance.$input_container.addClass("active");
+    instance.$list_container.addClass("error");
+    instance.$error.html(instance.errorTemplate());
+    instance.$error.removeClass("hidden");
+    _sizeAndPostionMessageContainer(instance, instance.$error);
+    instance._$active = null;
+  };
   var _startListView = function(instance) {
-    if (instance.data.length === 0) return;
+    if (!instance.data || instance.data.length === 0) return;
     var data = _preLongListViewPrep(instance.data);
     instance._list_built = true;
     var long_list_view_args = {
@@ -45047,6 +45244,7 @@ $.fn.togglify = function(settings) {
           single: instance.single
         });
         $el.attr("data-lfs-id", item.lfs_id).removeClass(remove_classes).addClass(applied_classes).html(instance.template(item).string);
+        $el.attr("data-qa", instance.data_qa + "-item-" + item.lfs_id);
         if ($item.data("lfs-item-icon")) {
           var background_css = "url(" + $item.data("lfs-item-icon") + ")";
           var $icon = $('<span class="lfs_item_icon">').css("background-image", background_css);
@@ -45097,12 +45295,14 @@ $.fn.togglify = function(settings) {
   };
   var _update = function(instance, data) {
     instance.data = data || _parseHTMLOptionData(instance.$select);
-    instance._selected = [];
-    _prepItems(instance);
-    if (instance.$input.val().length) {
-      var query = instance.$input.val();
-      instance._previous_val = "";
-      _runQuery(instance, query);
+    if (instance.data) {
+      instance._selected = [];
+      _prepItems(instance);
+      if (instance.$input.val().length) {
+        var query = instance.$input.val();
+        instance._previous_val = "";
+        _runQuery(instance, query);
+      }
     }
   };
   var _updateMonkeyScroll = function(instance) {
@@ -46323,7 +46523,7 @@ $.fn.togglify = function(settings) {
       var message_c_id = $message.data("model-ob-id");
       var member_id = $message.data("member-id");
       var app_id = $message.data("app-id");
-      var bot_id = $message.data("app-id");
+      var bot_id = $message.data("bot-id");
       var original_href = $el.data("referer-original-href");
       var url = original_href ? original_href : $el.attr("href");
       var payload = {
@@ -46348,7 +46548,15 @@ $.fn.togglify = function(settings) {
         _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
         TS.client.ui.unread.incrementTrackingSeqId();
       }
-      TS.clog.track("MSG_LINK_CLICKED", payload);
+      var is_image = $el.closest(".msg_inline_img_holder").length > 0;
+      var file_id = $el.attr("data-file-id");
+      if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
+      var file = file_id ? TS.files.getFileById(file_id) : null;
+      if (is_image || file && TS.files.fileIsImage(file)) {
+        TS.clog.track("MSG_PHOTO_EXPAND", payload);
+      } else {
+        TS.clog.track("MSG_LINK_CLICKED", payload);
+      }
     });
     TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_play_button", function(e, $el) {
       if (TS.boot_data.feature_platform_metrics) {
@@ -46357,7 +46565,7 @@ $.fn.togglify = function(settings) {
         var message_c_id = $message.data("model-ob-id");
         var member_id = $message.data("member-id");
         var app_id = $message.data("app-id");
-        var bot_id = $message.data("app-id");
+        var bot_id = $message.data("bot-id");
         var open_new_window_link = $message.find(".msg_inline_video_new_window_button");
         var original_href = open_new_window_link.data("referer-original-href");
         var url = original_href ? original_href : open_new_window_link.attr("href");
@@ -46371,28 +46579,6 @@ $.fn.togglify = function(settings) {
           url: url ? url : ""
         };
         TS.clog.track("MSG_VIDEO_PLAY", payload);
-      }
-    });
-    TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_new_window_button", function(e, $el) {
-      if (TS.boot_data.feature_platform_metrics) {
-        var $message = $el.closest("ts-message");
-        var message_ts = $message.data("ts") + "";
-        var message_c_id = $message.data("model-ob-id");
-        var member_id = $message.data("member-id");
-        var app_id = $message.data("app-id");
-        var bot_id = $message.data("app-id");
-        var original_href = $el.data("referer-original-href");
-        var url = original_href ? original_href : $el.attr("href");
-        var payload = {
-          message_timestamp: message_ts,
-          channel_id: message_c_id,
-          channel_type: message_c_id ? message_c_id.charAt(0) : "",
-          member_id: member_id,
-          app_id: app_id,
-          bot_id: bot_id,
-          url: url ? url : ""
-        };
-        TS.clog.track("MSG_VIDEO_OPEN", payload);
       }
     });
     TS.click.addClientHandler(".member_preview_link, .member_preview_image", function(e, $el, preview_origin) {
@@ -46782,7 +46968,7 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".thread_error_state_refresh_button", function(e, $el) {
       if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
-      $(".threads_empty_state_wrapper").remove();
+      $(".threads_error_state_wrapper").remove();
       TS.client.threads.maybeReloadThreadsView();
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
@@ -46881,9 +47067,17 @@ $.fn.togglify = function(settings) {
       var $thread = $el.closest("ts-thread");
       if (!$thread.length) return;
       e.preventDefault();
+      if ($el.hasClass("active")) return;
+      $el.addClass("active");
       var model_ob_id = $thread.attr("data-model-ob-id");
       var thread_ts = $thread.attr("data-thread-ts");
       TS.client.threads.showPreviousReplies(model_ob_id, thread_ts);
+    });
+    TS.click.addClientHandler("#msgs_div ts-thread .expand_inline_thread", function(e, $el) {
+      e.preventDefault();
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      TS.ui.thread.expandInlineThread($thread);
     });
     if (TS.boot_data.feature_app_cards_and_profs_frontend) {
       TS.click.addClientHandler(".app_preview_link", function(e, $el) {
@@ -50252,6 +50446,8 @@ $.fn.togglify = function(settings) {
     enterprise_domain_changed_sig: new signals.Signal,
     onStart: function() {
       if (TS.boot_data.page_needs_enterprise) _maybeSetupEnterpriseModel();
+      if (TS.client) TS.client.user_added_to_team_sig.add(TS.enterprise.ensureTeamInModel);
+      if (TS.client) TS.client.user_removed_from_team_sig.add(TS.enterprise.ensureTeamInModel);
     },
     getTeamsForMember: function(member, with_shared) {
       var user = TS.model.user;
@@ -50330,20 +50526,27 @@ $.fn.togglify = function(settings) {
         what_changed: what_changed
       };
     },
-    upsertEnterpriseTeam: function(team) {
+    upsertEnterpriseTeam: function(team, do_not_propagate) {
       if (!TS.boot_data.page_needs_enterprise) TS.warn("Unexpected call to TS.enterprise.upsertEnterpriseTeam");
       if (!team || typeof team === "string") return;
       var teams = TS.model.enterprise_teams;
       var existing_enterprise_team = TS.enterprise.getTeamById(team.id);
+      var is_current_team = TS.model.team && team.id === TS.model.team.id;
       if (existing_enterprise_team) {
         for (var k in team) {
           existing_enterprise_team[k] = team[k];
         }
         team = existing_enterprise_team;
+        if (is_current_team) team = _.merge({}, existing_enterprise_team, TS.model.team);
       } else {
-        teams.push(team);
         _processNewTeamForUpserting(team);
+        if (is_current_team) team = _.merge({}, team, TS.model.team);
+        teams.push(team);
         _id_map[team.id] = team;
+      }
+      if (is_current_team && !do_not_propagate) {
+        do_not_propagate = true;
+        TS.team.upsertTeam(team, do_not_propagate);
       }
       return team;
     },
@@ -50401,6 +50604,21 @@ $.fn.togglify = function(settings) {
         }));
       });
     },
+    ensureTeamInModel: function(team_id) {
+      var calling_args = {
+        include_user_counts: true,
+        include_leave_team: true,
+        team: team_id,
+        enterprise_token: TS.model.enterprise_api_token
+      };
+      return TS.api.callImmediately("enterprise.teams.info", calling_args, function(ok, data, args) {
+        if (!ok) {
+          return;
+        }
+        var team = data.team;
+        TS.enterprise.upsertEnterpriseTeam(team);
+      });
+    },
     addTeamsToSharedForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (!channel.is_shared) return;
@@ -50429,8 +50647,8 @@ $.fn.togglify = function(settings) {
       });
       channel.shares = shares;
     },
-    isUserOnTeam: function(team_id) {
-      return TS.model.user.enterprise_user.teams.indexOf(team_id) > -1;
+    isUserOnTeam: function(user, team) {
+      return user.enterprise_user.teams.indexOf(team.id) > -1;
     }
   });
   var _id_map = {};
@@ -52432,6 +52650,7 @@ $.fn.togglify = function(settings) {
       show: false,
       useContentSize: true,
       skip_css: true,
+      skipTaskbar: true,
       fullscreenable: false
     };
     if (TS.model.is_mac && _areTransparentWindowsSupported()) {
@@ -52467,6 +52686,7 @@ $.fn.togglify = function(settings) {
       fullscreenable: false,
       enableLargerThanScreen: true,
       hasShadow: false,
+      focusable: false,
       show: false
     };
     _utility_call_state.cursors_window_token = TS.client.windows.openWindow(cursors_win_args);
@@ -53157,7 +53377,7 @@ $.fn.togglify = function(settings) {
         return input.disabled === true;
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        return texty.isDisabled();
+        return !texty.isEnabled();
       }
       return false;
     },
@@ -54868,6 +55088,8 @@ $.fn.togglify = function(settings) {
             items: items,
             _replace_all_items: true
           });
+        }).catch(function(error) {
+          reject(error);
         });
       });
     };

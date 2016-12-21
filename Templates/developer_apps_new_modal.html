@@ -17,28 +17,18 @@
 
   {{!-- Team Selector --}}
   <label for="team_id" class="top_margin">{{#t note="Label for a dropdown where a third party developer chooses Slack Team their proposed app will belong to"}}Development Slack Team{{/t}}</label>
-  <span class="team_picker menu_launcher_large overflow_ellipsis full_width block">
-    {{#if auto_select_team}}{{!-- auto_select_team is behind feature_single_team_apps in TS.developer_apps.new.source.js --}}
+  {{#feature flag="feature_single_team_apps"}}
+    <div id="team_id_picker"></div>
+    {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
+    <input name="team_id" class="hidden" value="" data-validation="required" />
+  {{else}}
+    <span class="team_picker menu_launcher_large overflow_ellipsis full_width block">
       <img class="small_border_radius" src="{{teams.[0].icon_src}}">
       <span class="selected_team_name">{{teams.[0].name}}</span>
       {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
       <input name="team_id" class="hidden" value="{{teams.[0].encoded_id}}" />
-    {{else}}
-      {{#feature flag="feature_single_team_apps"}}
-        <img class="hidden small_border_radius">
-        <span class="selected_team_name">
-          {{#t note="Helper text that shows up in a dropdown where a user can select a team that they are currently logged into. Copy not final"}}Please select a team for this app to belong to{{/t}}
-        </span>
-        {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
-        <input name="team_id" class="hidden" value="" data-validation="required" />
-      {{else}}
-        <img class="small_border_radius" src="{{teams.[0].icon_src}}">
-        <span class="selected_team_name">{{teams.[0].name}}</span>
-        {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
-        <input name="team_id" class="hidden" value="{{teams.[0].encoded_id}}" />
-      {{/feature}}
-    {{/if}}
-  </span>
+    </span>
+  {{/feature}}
   <aside>
     {{#feature flag="feature_multiple_app_ownership"}}
       {{#t note="helper text letting the third party developer know what happens to the app they're creating if they leave their team"}}Your app belongs to this team\u2014leaving this team will remove your ability to manage this app. Unfortunately, this can\u2019t be changed later.{{/t}}
@@ -47,20 +37,24 @@
       You can't change this later.{{/t}}
     {{/feature}}
   </aside>
-  <ul id="teams_list" class="hidden">
-    {{#each teams}}
-      <li role="menuitem" data-team-id="{{this.encoded_id}}" data-team-name="{{this.name}}"><a>
-        <img src="{{this.icon_src}}">
-        {{this.name}}
-      </a></li>
-    {{/each}}
-    <li role="menuitem" class="avatar_menu_signin_item">
-      <a href="https://slack.com/signin">
-        <ts-icon class="ts_icon_plus"></ts-icon>
-        {{#t note="a button allowing the third party developer sign into another team"}}Sign in to another team{{/t}}
-      </a>
-    </li>
-  </ul>
+
+  {{#feature flag="feature_single_team_apps"}}
+  {{else}}
+    <ul id="teams_list" class="hidden">
+      {{#each teams}}
+        <li role="menuitem" data-team-id="{{this.encoded_id}}" data-team-name="{{this.name}}"><a>
+          <img src="{{this.icon_src}}">
+          {{this.name}}
+        </a></li>
+      {{/each}}
+      <li role="menuitem" class="avatar_menu_signin_item">
+        <a href="https://slack.com/signin">
+          <ts-icon class="ts_icon_plus"></ts-icon>
+          {{#t note="a button allowing the third party developer sign into another team"}}Sign in to another team{{/t}}
+        </a>
+      </li>
+    </ul>
+  {{/feature}}
 
   {{#if should_show_app_submission}}
   {{!-- Enable Submission Checkbox --}}

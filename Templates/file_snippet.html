@@ -1,3 +1,5 @@
+{{i18n_ns "files"}}
+
 <div data-file-id="{{file.id}}" class="file_container snippet_container
   {{#if is_message}}
     {{#shouldTruncateInlineFilePreview file}}
@@ -28,12 +30,12 @@
 </div>{{!--/file_container--}}
 
 {{#if file.is_truncated}}
-  <p class="file_meta inline_block {{#if is_message}}mini{{/if}}"><i class="ts_icon ts_icon_inherit ts_icon_info_circle"></i> This snippet was truncated for display: <a href="{{file.permalink}}" target="{{file.permalink}}">see it in full</a>.</p>
+  <p class="file_meta inline_block {{#if is_message}}mini{{/if}}"><i class="ts_icon ts_icon_inherit ts_icon_info_circle"></i> {{#t}}This snippet was truncated for display: <a href="{file.permalink}" target="{file.permalink}">see it in full</a>{{/t}}.</p>
 {{/if}}
 
 {{#unless is_message}}
   <label class="checkbox normal mini" for="snippet_wrap">
-    <input type="checkbox" id="snippet_wrap" /> wrap
+    <input type="checkbox" id="snippet_wrap" /> {{#t note="wrap, as in long lines of text"}}wrap{{/t}}
   </label>
 
 {{/unless}}

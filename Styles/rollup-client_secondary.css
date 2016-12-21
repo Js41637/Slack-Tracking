@@ -37,6 +37,10 @@ html.is_electron_mac {
   width: 37%
 }
 
+.slim_scrollbar #client-ui.flex_pane_showing #col_flex {
+  border-left: 1px solid #e8e8e8
+}
+
 #client-ui.flex_pane_showing:not(.flexbox_client) #col_flex {
   width: 392px
 }
@@ -260,6 +264,10 @@ input.search_input {
   width: calc(100% - 4px)
 }
 
+.supports_custom_scrollbar.slim_scrollbar #flex_contents .subheading {
+  width: 100%
+}
+
 #flex_contents .subheading p {
   padding: .5rem .75rem;
   margin: 0
@@ -374,37 +382,60 @@ input.search_input {
   padding-right: 1rem
 }
 
-.supports_custom_scrollbar .flex_content_scroller {
-  border-right: .25rem solid transparent;
-  padding-right: 0
+.supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller {
+  padding-right: 0;
+  border-right: .25rem solid transparent
 }
 
-.supports_custom_scrollbar .flex_content_scroller::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar .flex_content_scroller::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar .flex_content_scroller::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.supports_custom_scrollbar .flex_content_scroller::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar .flex_content_scroller::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar .flex_content_scroller::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) .flex_content_scroller::-webkit-scrollbar-corner {
   background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar .flex_content_scroller {
+  padding-right: 0;
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .flex_content_scroller::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .flex_content_scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .flex_content_scroller::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
 }
 
 .font_size_adjusted .flex_content_scroller {
@@ -1511,6 +1542,14 @@ html:not(.font_size_adjusted) #details_tab .heading #details_tab_header {
   top: .3rem
 }
 
+#details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_search {
+  top: .6rem
+}
+
+#details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_close {
+  top: .65rem
+}
+
 #details_tab .channel_page_section .channel_page_details_highlighter,
 #details_tab .channel_page_section .channel_page_members_highlighter,
 #details_tab .channel_page_section .channel_page_pinned_items_highlighter {
@@ -2181,69 +2220,122 @@ body:not(.loading) #col_channels_bg {
   opacity: 1;
   -webkit-transition: opacity .2s ease 0s;
   -moz-transition: opacity .2s ease 0s;
-  transition: opacity .2s ease 0s;
+  transition: opacity .2s ease 0s
+}
+
+html:not(.slim_scrollbar) #col_channels #channels_scroller {
   border-right: .25rem solid transparent
 }
 
-#col_channels #channels_scroller::-webkit-scrollbar {
+html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-#col_channels #channels_scroller::-webkit-scrollbar-thumb,
-#col_channels #channels_scroller::-webkit-scrollbar-track {
+html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar-thumb,
+html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: transparent
 }
 
-#col_channels #channels_scroller::-webkit-scrollbar-track {
+html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar-track {
   background: 0 0;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-#col_channels #channels_scroller::-webkit-scrollbar-thumb {
+html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar-thumb {
   background: 0 0;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-#col_channels #channels_scroller::-webkit-scrollbar-corner {
+html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar-corner {
   background: 0 0
 }
 
-.supports_custom_scrollbar #col_channels:hover #channels_scroller {
+.slim_scrollbar #col_channels #channels_scroller {
+  margin-right: 2px
+}
+
+.slim_scrollbar #col_channels #channels_scroller::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.slim_scrollbar #col_channels #channels_scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: transparent;
+  min-height: 36px
+}
+
+.slim_scrollbar #col_channels #channels_scroller::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, .8);
+  background-color: transparent
+}
+
+.slim_scrollbar #col_channels #channels_scroller::-webkit-scrollbar-thumb {
+  background-color: transparent
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller {
   overflow-y: auto;
   border-right: .25rem solid transparent
 }
 
-.supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #4d394b
 }
 
-.supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
   background: #3e313c;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb {
   background: #ab9ba9;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-corner {
   background: #4d394b
+}
+
+.supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller {
+  overflow-y: auto;
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(171, 155, 169, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #ab9ba9;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(171, 155, 169, .8)
 }
 
 #channels_nav .section_holder {
@@ -3652,7 +3744,7 @@ body.sorting_mode .channels_list_holder ul {
   width: 100%
 }
 
-.supports_custom_scrollbar #messages_container:after {
+.supports_custom_scrollbar:not(.slim_scrollbar) #messages_container:after {
   background: url(/9a9a/img/scroll_mask_top.svg) no-repeat;
   content: '';
   height: 8px;
@@ -3660,6 +3752,17 @@ body.sorting_mode .channels_list_holder ul {
   right: 4px;
   top: 8px;
   width: 8px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #messages_container:after {
+  background: url(/9a9a/img/scroll_mask_top.svg) no-repeat;
+  content: '';
+  height: 8px;
+  position: absolute;
+  right: 2px;
+  top: 8px;
+  width: 6px;
+  background-size: 6px
 }
 
 .supports_custom_scrollbar .threads_view_is_showing #messages_container:after {
@@ -3708,45 +3811,73 @@ body.sorting_mode .channels_list_holder ul {
   outline: 0
 }
 
-.supports_custom_scrollbar #archive_msgs_scroller_div,
-.supports_custom_scrollbar #msgs_scroller_div {
+.supports_custom_scrollbar:not(.slim_scrollbar) #archive_msgs_scroller_div,
+.supports_custom_scrollbar:not(.slim_scrollbar) #msgs_scroller_div {
   overflow-x: hidden;
   overflow-y: scroll;
   border-right: .25rem solid transparent
 }
 
-.supports_custom_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar,
-.supports_custom_scrollbar #msgs_scroller_div::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) #archive_msgs_scroller_div::-webkit-scrollbar,
+.supports_custom_scrollbar:not(.slim_scrollbar) #msgs_scroller_div::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-track,
-.supports_custom_scrollbar #msgs_scroller_div::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar #msgs_scroller_div::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #archive_msgs_scroller_div::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #archive_msgs_scroller_div::-webkit-scrollbar-track,
+.supports_custom_scrollbar:not(.slim_scrollbar) #msgs_scroller_div::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #msgs_scroller_div::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.supports_custom_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-track,
-.supports_custom_scrollbar #msgs_scroller_div::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #archive_msgs_scroller_div::-webkit-scrollbar-track,
+.supports_custom_scrollbar:not(.slim_scrollbar) #msgs_scroller_div::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar #msgs_scroller_div::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) #archive_msgs_scroller_div::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #msgs_scroller_div::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-corner,
-.supports_custom_scrollbar #msgs_scroller_div::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) #archive_msgs_scroller_div::-webkit-scrollbar-corner,
+.supports_custom_scrollbar:not(.slim_scrollbar) #msgs_scroller_div::-webkit-scrollbar-corner {
   background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar #archive_msgs_scroller_div,
+.supports_custom_scrollbar.slim_scrollbar #msgs_scroller_div {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar,
+.supports_custom_scrollbar.slim_scrollbar #msgs_scroller_div::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar.slim_scrollbar #msgs_scroller_div::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-thumb:hover,
+.supports_custom_scrollbar.slim_scrollbar #msgs_scroller_div::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
 }
 
 #archives_info {
@@ -12916,6 +13047,19 @@ only screen and (min-resolution:2dppx) {
   float: right
 }
 
+.search_module_footer {
+  background: #f7f7f7;
+  color: #555459
+}
+
+.search_module_footer p {
+  padding: .5rem .75rem;
+  margin: 0;
+  font-size: .7rem;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  color: #555459
+}
+
 .search_message_result {
   background: #fff;
   font-size: .9375rem;
@@ -14065,19 +14209,19 @@ only screen and (min-resolution:2dppx) {
   overflow-y: auto
 }
 
-.supports_custom_scrollbar .autocomplete_menu_scrollable {
+.supports_custom_scrollbar:not(.slim_scrollbar) .autocomplete_menu_scrollable {
   border-right: .25rem solid transparent;
   border-right: none
 }
 
-.supports_custom_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) .autocomplete_menu_scrollable::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 16px
 }
 
-.supports_custom_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .autocomplete_menu_scrollable::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) .autocomplete_menu_scrollable::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   color: #fff;
   border-left: 4px solid #fff;
@@ -14085,19 +14229,49 @@ only screen and (min-resolution:2dppx) {
   border-radius: 6px/4px
 }
 
-.supports_custom_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .autocomplete_menu_scrollable::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) .autocomplete_menu_scrollable::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) .autocomplete_menu_scrollable::-webkit-scrollbar-corner {
   background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar .autocomplete_menu_scrollable {
+  margin-right: 2px;
+  border-right: none
+}
+
+.supports_custom_scrollbar.slim_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 16px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-thumb {
+  background-color: rgba(217, 217, 222, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #d9d9de;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(217, 217, 222, .8)
+}
+
+.supports_custom_scrollbar.slim_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar.slim_scrollbar .autocomplete_menu_scrollable::-webkit-scrollbar-track {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-radius: 6px/4px
 }
 
 #search_autocomplete_popover .arrow,
@@ -15833,6 +16007,64 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   height: 25rem
 }
 
+.supports_custom_scrollbar .channel_modal_with_list .channel_modal_list {
+  overflow-y: scroll
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list {
+  border-right: .25rem solid transparent
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 8px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-track {
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #fff
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-track {
+  background: #f3f3f3;
+  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-thumb {
+  background: #d9d9de;
+  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-corner {
+  background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar .channel_modal_with_list .channel_modal_list {
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .channel_modal_with_list .channel_modal_list::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .channel_modal_with_list .channel_modal_list::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
+}
+
 .channel_modal_with_list .lazy_filter_select:not(.team_picker) {
   overflow-y: hidden
 }
@@ -16943,6 +17175,60 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   display: block
 }
 
+.supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container {
+  border-right: .25rem solid transparent
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 8px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-track {
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #fff
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-track {
+  background: #f3f3f3;
+  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-thumb {
+  background: #d9d9de;
+  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-corner {
+  background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar #generic_dialog.modal.all_members_dialog #all_members_container {
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #generic_dialog.modal.all_members_dialog #all_members_container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
+}
+
 .jcrop-holder {
   direction: ltr;
   text-align: left;
@@ -17325,69 +17611,114 @@ img.jcrop-preview {
   overflow-y: scroll
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container {
   border-right: .25rem solid transparent;
   margin-top: 2px
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-track {
   background: #fff;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-thumb {
   background: #fff;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-corner {
   background: #fff
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container:hover {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container:hover {
   border-right: .25rem solid transparent
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-corner {
   background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container {
+  margin-right: 2px;
+  margin-top: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #fff;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, .8)
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container:hover {
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #fs_modal.prefs_modal .contents_container:hover::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
 }
 
 .jumbomoji_disabled_note {
@@ -19035,6 +19366,10 @@ ts-message .emoji-sizer .mention {
   margin-right: .875rem
 }
 
+.light_theme .reply_input_container .collapsed_input_placeholder {
+  padding-left: .8125rem
+}
+
 .dense_theme .dense_only {
   display: inline
 }
@@ -19264,6 +19599,10 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
   margin-right: .5625rem
 }
 
+.dense_theme .reply_input_container .collapsed_input_placeholder {
+  padding-left: 3.9375rem
+}
+
 .last_replier_wrapper {
   position: relative;
   vertical-align: top;
@@ -19314,6 +19653,16 @@ ts-thread .view_all_replies_container {
   line-height: 2rem
 }
 
+ts-thread .view_all_replies_container .infinite_spinner {
+  display: inline-block;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0;
+  margin-left: .375rem;
+  position: relative;
+  top: .1875rem
+}
+
 html.supports_flexbox ts-thread .reply_input_container {
   display: -webkit-box;
   display: -webkit-flex;
@@ -19359,6 +19708,7 @@ ts-thread .reply_input_container .inline_message_input_container .message_input.
   right: 1rem
 }
 
+ts-thread .reply_input_container .collapsed_input_placeholder,
 ts-thread .reply_input_container .join_channel_from_thread_container,
 ts-thread .reply_input_container .reply_limited_in_general {
   border: 1px solid #e0e0e0;
@@ -19367,15 +19717,18 @@ ts-thread .reply_input_container .reply_limited_in_general {
   background: #fff;
   padding: 0;
   font-size: .8125rem;
+  width: 100%;
   min-height: 2.75rem;
   line-height: 2.75rem
 }
 
+ts-thread .reply_input_container .collapsed_input_placeholder button,
 ts-thread .reply_input_container .join_channel_from_thread_container button,
 ts-thread .reply_input_container .reply_limited_in_general button {
   margin: 0
 }
 
+.dense_theme ts-thread .reply_input_container .collapsed_input_placeholder,
 .dense_theme ts-thread .reply_input_container .join_channel_from_thread_container,
 .dense_theme ts-thread .reply_input_container .reply_limited_in_general {
   min-height: 2.25rem;
@@ -19395,7 +19748,8 @@ ts-thread .thread_messages>ts-message {
 }
 
 ts-thread .thread_messages>ts-message:first-child {
-  padding-top: .5rem
+  padding-top: .5rem;
+  margin-bottom: 0
 }
 
 ts-thread .thread_messages>ts-message:first-child .message_gutter {
@@ -19493,6 +19847,7 @@ ts-thread .thread_header .thread_channel_name a {
   color: #2c2d30
 }
 
+ts-thread .thread_header .inline_thread_title,
 ts-thread .thread_header .thread_participants {
   margin-left: .25rem
 }
@@ -19544,6 +19899,25 @@ ts-thread ts-message.selected .action_hover_container {
 .dense_theme ts-thread ts-message.first .action_hover_container,
 .dense_theme ts-thread ts-message.selected .action_hover_container {
   right: .5rem
+}
+
+#msgs_div ts-thread {
+  padding-top: 1rem;
+  margin-bottom: 1rem
+}
+
+#msgs_div ts-thread:first-child {
+  margin-top: 0
+}
+
+#msgs_div ts-thread:not(.expanded) {
+  padding-top: 0;
+  background: 0 0
+}
+
+#msgs_div ts-thread:not(.expanded) .thread_header,
+#msgs_div ts-thread:not(.expanded) .view_all_replies_container {
+  display: none
 }
 
 #reply_container.has_focus .member_image,
@@ -19649,8 +20023,7 @@ ts-thread ts-message.selected .action_hover_container {
 #reply_container .join_channel_from_thread_container,
 .reply_input_container .join_channel_from_thread_container {
   text-align: center;
-  font-size: .8125rem;
-  width: 100%
+  font-size: .8125rem
 }
 
 #reply_container .join_channel_from_thread_container span,
@@ -19670,7 +20043,6 @@ ts-thread ts-message.selected .action_hover_container {
   background: #f7f7f7;
   color: #a4a4a4;
   text-align: center;
-  width: 100%;
   font-size: .9375rem;
   border-radius: .25rem;
   padding: .8125rem .625rem
@@ -19679,12 +20051,17 @@ ts-thread ts-message.selected .action_hover_container {
 .recap_highlight_marker {
   position: absolute;
   right: .1875rem;
-  height: .375rem;
+  height: .1875rem;
   width: .625rem;
   border-radius: .1875rem;
   z-index: 99;
   background-color: #78c896;
   cursor: pointer
+}
+
+.recap_highlight_marker:hover {
+  background-color: #459965;
+  width: .75rem
 }
 
 .recap_hover {
@@ -19713,10 +20090,15 @@ ts-thread ts-message.selected .action_hover_container {
   width: 50rem
 }
 
+.recap_hover .recap_hover_message_preview ts-message:hover {
+  background: #fff!important
+}
+
 .recap_hover .recap_hover_message_preview .message_gutter {
   width: 3rem
 }
 
+.dense_theme .recap_hover .recap_hover_message_preview .message_gutter,
 .recap_hover .recap_hover_message_preview .is_pinned_holder {
   display: none
 }
@@ -19743,6 +20125,23 @@ ts-thread ts-message.selected .action_hover_container {
   padding: .1rem 0 0;
   background: #fff;
   border: none
+}
+
+.dense_theme .recap_hover .recap_hover_message_preview .message_content {
+  padding-left: 0;
+  margin-left: 0
+}
+
+.dense_theme .recap_hover .recap_hover_message_preview .message_content .message_content_header {
+  display: block
+}
+
+.dense_theme .recap_hover .recap_hover_message_preview .message_content .message_content_header .message_sender {
+  margin-left: 0
+}
+
+.dense_theme .recap_hover .recap_hover_message_preview .message_content .message_content_header .timestamp {
+  display: inline
 }
 
 @font-face {
@@ -21379,19 +21778,19 @@ only screen and (min-resolution:2dppx) {
   transition: width .25s ease-out
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .viewer {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .viewer {
   border-right: .25rem solid transparent;
   border-right: none
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .viewer::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 16px
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   color: #f3f3f3;
   border-left: 4px solid #f3f3f3;
@@ -21399,19 +21798,49 @@ only screen and (min-resolution:2dppx) {
   border-radius: 6px/4px
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-corner {
   background: #f3f3f3
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .viewer {
+  margin-right: 2px;
+  border-right: none
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 16px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-thumb {
+  background-color: rgba(217, 217, 222, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #d9d9de;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(217, 217, 222, .8)
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .viewer::-webkit-scrollbar-track {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-radius: 6px/4px
 }
 
 .fs_modal_file_viewer_content .viewer #pdf_loading_spinner {
@@ -21635,36 +22064,58 @@ only screen and (min-resolution:2dppx) {
   transform: translateX(23.4375rem)
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .aside_panel {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel {
   border-right: .25rem solid transparent
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-corner {
   background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .aside_panel {
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar .fs_modal_file_viewer_content .aside_panel::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
 }
 
 .fs_modal_file_viewer_content .comment_header {
@@ -22577,6 +23028,21 @@ ts-jumper ts-jumper-results:empty {
 
 .supports_custom_scrollbar .team_menu.slack_menu .menu_content {
   background: #fff
+}
+
+.current_status_badge {
+  position: absolute;
+  top: .25rem;
+  right: 1.375rem;
+  font-size: .625rem;
+  padding-top: .0625rem;
+  padding-right: .375rem;
+  padding-bottom: .125rem;
+  padding-left: .375rem
+}
+
+.current_status_badge~.submenu_caret {
+  top: -.0625rem
 }
 
 .submenu[data-origin-id=member_current_status_item] {
@@ -23770,36 +24236,58 @@ html:not(.supports_sticky_position) #unread_msgs_scroller_div {
   margin-top: 8px
 }
 
-.supports_custom_scrollbar #unread_msgs_scroller_div {
+.supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div {
   border-right: .25rem solid transparent
 }
 
-.supports_custom_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.supports_custom_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.supports_custom_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div::-webkit-scrollbar-corner {
   background: #fff
+}
+
+.supports_custom_scrollbar.slim_scrollbar #unread_msgs_scroller_div {
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #unread_msgs_scroller_div::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
 }
 
 #unread_msgs_scroller_div:before {
@@ -24292,7 +24780,6 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 
 .unread_empty_state_wrapper {
   overflow-y: scroll;
-  border-right: .25rem solid transparent;
   position: absolute;
   top: 0;
   left: 0;
@@ -24300,32 +24787,58 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   bottom: 0
 }
 
-.unread_empty_state_wrapper::-webkit-scrollbar {
+html:not(.slim_scrollbar) .unread_empty_state_wrapper {
+  border-right: .25rem solid transparent
+}
+
+html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 8px
 }
 
-.unread_empty_state_wrapper::-webkit-scrollbar-thumb,
-.unread_empty_state_wrapper::-webkit-scrollbar-track {
+html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-thumb,
+html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
   color: #fff
 }
 
-.unread_empty_state_wrapper::-webkit-scrollbar-track {
+html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.unread_empty_state_wrapper::-webkit-scrollbar-thumb {
+html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.unread_empty_state_wrapper::-webkit-scrollbar-corner {
+html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner {
   background: #fff
+}
+
+.slim_scrollbar .unread_empty_state_wrapper {
+  margin-right: 2px
+}
+
+.slim_scrollbar .unread_empty_state_wrapper::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.slim_scrollbar .unread_empty_state_wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.slim_scrollbar .unread_empty_state_wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
 }
 
 .unread_empty_state {

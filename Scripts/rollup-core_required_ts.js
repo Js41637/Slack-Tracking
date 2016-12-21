@@ -235,6 +235,9 @@
     lazyLoadMembersAndBots: function() {
       return !!TS.boot_data.should_use_flannel;
     },
+    useSearchableMemberList: function() {
+      return TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list;
+    },
     registerModule: function(name, ob, delayed) {
       _extractAndDeleteTestProps(ob);
       if (_dom_is_ready) return TS.error('module "' + name + '" must be registered on before dom ready');
@@ -723,27 +726,26 @@
   };
   var _processStartData = function(resp) {
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Got rtm.start login data");
-    var data = resp.data;
-    TS.model.emoji_cache_ts = data.emoji_cache_ts;
-    TS.model.apps_cache_ts = data.apps_cache_ts;
-    TS.model.commands_cache_ts = data.commands_cache_ts;
-    if (data.latest_event_ts && !TS.lazyLoadMembersAndBots()) {
+    TS.model.emoji_cache_ts = resp.data.emoji_cache_ts;
+    TS.model.apps_cache_ts = resp.data.apps_cache_ts;
+    TS.model.commands_cache_ts = resp.data.commands_cache_ts;
+    if (resp.data.latest_event_ts && !TS.lazyLoadMembersAndBots()) {
       TS.info("rtm.start included latest event timestamp: " + resp.data.latest_event_ts);
       _last_rtm_start_event_ts = parseInt(resp.data.latest_event_ts, 10);
     }
-    if (!TS.model.ms_logged_in_once && !TS.storage.fetchLastEventTS() && data.latest_event_ts) {
+    if (!TS.model.ms_logged_in_once && !TS.storage.fetchLastEventTS() && resp.data.latest_event_ts) {
       TS.ms.connected_sig.addOnce(function() {
-        TS.ms.storeLastEventTS(data.latest_event_ts, "_processStartData");
+        TS.ms.storeLastEventTS(resp.data.latest_event_ts, "_processStartData");
       });
     }
     if (TS.client) {
-      if (TS.reloadIfVersionsChanged(data)) return;
+      if (TS.reloadIfVersionsChanged(resp.data)) return;
     }
-    if (!data.self) {
+    if (!resp.data.self) {
       TS.error("No self?");
       return;
     }
-    if (!data.team) {
+    if (!resp.data.team) {
       TS.error("No team?");
       return;
     }
@@ -754,137 +756,139 @@
       TS.apps.setUp();
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up commands");
       TS.cmd_handlers.setUpCmds();
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji");
-      return TS.emoji.setUpEmoji().catch(_.noop);
-    }).finally(function() {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Emoji did set up; continuing boot");
-      return _continueOnLogin(data);
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up UI");
+      _setUpUserInterface();
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Finding initial channel");
+      _ensureInitialChannelIsKnown();
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji and shared channels");
+      return Promise.join(TS.emoji.setUpEmoji().catch(_.noop), _maybeFetchInitialSharedChannelInfo());
+    }).then(function() {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Nearly there! Finalizing...");
+      if (!TS.model.ms_logged_in_once) _finalizeFirstBoot(resp.data);
+      if (TS.client) TS.client.onEveryLoginMS(resp.data);
+      if (TS.web) TS.web.onEveryLoginMS(resp.data);
+      _maybeFinalizeOrOpenConnectionToMS();
+      TS.model.ms_logged_in_once = true;
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Holy guacamole, we're all done!");
+      return null;
     }).catch(function(err) {
       TS.error("_setUpModel failed with err: " + (err ? err.message : "no err provided"));
       TS.dir(err);
+      TS._last_boot_error = err;
     });
   };
-  var _continueOnLogin = function(data) {
-    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _continueOnLogin");
+  var _setUpUserInterface = function() {
     TS.ui.setThemeClasses();
     if (TS.client) {
       TSSSB.call("setCurrentTeam", TS.model.team.domain);
       TS.client.updateTeamIcon();
     }
-    var completeOnLogin = function() {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin");
-      TSConnLogger.log("on_login_ms", "completeOnLogin");
-      var completing_incremental_boot = !!TS._incremental_boot;
-      if (!TS.model.ms_logged_in_once) {
-        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin doing first-boot things");
-        if (TS.client) {
-          TS.client.onFirstLoginMS(data);
-          if (TS.isPartiallyBooted()) {
-            TS.info("Finalizing incremental boot");
-            TS.incremental_boot.beforeFullBoot();
-            var users_from_incr_boot = TS.lazyLoadMembersAndBots() ? _.map(TS.model.members, "id") : null;
-            _performNonIncrementalBoot(_pending_rtm_start_p).then(function(resp) {
-              _processStartData(resp);
-              if (TS.lazyLoadMembersAndBots()) {
-                _pending_rtm_start_p.then(function(rtm_start) {
-                  var ready_to_query_p = new Promise(function(resolve) {
-                    if (TS.model.ms_connected) {
-                      resolve();
-                    } else {
-                      TS.ms.connected_sig.addOnce(resolve);
-                    }
-                  });
-                  var users_from_rtm_start = _.map(rtm_start.data.users, "id");
-                  var users_to_refetch = _.difference(users_from_incr_boot, users_from_rtm_start);
-                  if (!users_to_refetch.length) {
-                    TS.log(1989, "No need to re-fetch any members for presence status");
-                    return;
-                  }
-                  ready_to_query_p.then(function() {
-                    TS.log(1989, "Re-fetching " + users_to_refetch.length + " members so we have presence status");
-                    TS.flannel.fetchAndUpsertObjectsByIds(users_to_refetch);
-                    return null;
-                  });
-                  return null;
-                });
-              }
-              _pending_rtm_start_p = undefined;
-              TS.incremental_boot.afterFullBoot();
-              TS.info("Completed incremental boot");
-              return null;
-            });
-          } else {
-            $("#col_channels, #team_menu").removeClass("placeholder");
-          }
-          TSConnLogger.log("on_first_login_ms", "onFirstLoginMS hiding loading screen");
-          _reportLoad();
-          _reportLoadTiming("timing-www-perceived-load");
-          TSSSB.call("didFinishLoading");
-        }
-        if (TS.web) {
-          TS.web.onFirstLoginMS(data);
-          if (!TS.boot_data.page_has_ms) {
-            if (TS.web.space) {
-              _loginDS();
-            }
-          }
-        }
-      }
-      if (TS.client) TS.client.onEveryLoginMS(data);
-      if (TS.web) TS.web.onEveryLoginMS(data);
-      if (_shouldConnectToMS()) {
-        if (completing_incremental_boot) {
-          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin not connecting to MS until we complete incremental boot");
-        } else {
-          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin wants to connect to MS");
-          if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
-            if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin finalized MS connection");
-            TS.log(1996, "Successfully finalized a provisional MS connection");
-          } else {
-            if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin made a new MS connection");
-            TS.log(1996, "No valid provisional MS connection; making a new connection");
-            TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url);
-          }
-          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin did connect to MS");
-        }
+  };
+  var _ensureInitialChannelIsKnown = function() {
+    if (!TS.client) return;
+    if (TS._incremental_boot) {
+      return;
+    }
+    TS.client.calculateInitialCid();
+    if (!TS.model.initial_cid) {
+      var error_msg = "TS.client.calculateInitialCid() failed to find a channel";
+      TS.error(error_msg);
+      throw new Error(error_msg);
+    }
+  };
+  var _maybeFetchInitialSharedChannelInfo = function() {
+    if (!TS.client || !TS.boot_data.page_needs_enterprise || !TS.model.initial_cid) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra enterprise data; completing login");
+      return;
+    }
+    if (TS.model.ms_logged_in_once) return;
+    var model_ob = TS.shared.getModelObById(TS.model.initial_cid);
+    if (!model_ob) {
+      throw new Error("TS.model.initial_cid (" + TS.model.initial_cid + ") referred to a channel that does not exist, which should be impossible");
+    }
+    if (model_ob.is_shared && model_ob.is_channel) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring channels.info for " + TS.model.initial_cid);
+      return TS.channels.promiseToEnsureChannelsInfo(TS.model.initial_cid, true).then(function() {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got channels.info, completing login");
+      });
+    }
+    if (model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring groups.info for " + TS.model.initial_cid);
+      return TS.groups.promiseToEnsureGroupsInfo(TS.model.initial_cid, true).then(function() {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got groups.info, completing login");
+      });
+    }
+  };
+  var _finalizeFirstBoot = function(rtm_start_data) {
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _finalizeFirstBoot");
+    if (TS.model.ms_logged_in_once) {
+      TS.warn("_finalizeFirstBoot called, but we have already done this before. This is a progamming error.");
+      return;
+    }
+    if (TS.client) {
+      TS.client.onFirstLoginMS(rtm_start_data);
+      if (TS.isPartiallyBooted()) {
+        _finalizeIncrementalBoot();
       } else {
-        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: completeOnLogin will not connect to MS");
-        if (!TS.web.space) {
-          TSConnLogger.setConnecting(false);
-        }
+        $("#col_channels, #team_menu").removeClass("placeholder");
       }
-      TS.model.ms_logged_in_once = true;
-      if (!TS.model.ms_connection_start_ts) TS.model.ms_connection_start_ts = Date.now();
-      return Promise.resolve();
-    };
-    if (TS.client && TS._incremental_boot) {} else if (TS.client) {
-      TS.client.calculateInitialCid();
-      if (!TS.model.initial_cid) {
-        var error_msg = "TS.client.calculateInitialCid() failed to find a channel";
-        TS.error(error_msg);
-        return Promise.reject(new Error(error_msg));
-      }
+      TSConnLogger.log("on_first_login_ms", "onFirstLoginMS hiding loading screen");
+      _reportLoad();
+      _reportLoadTiming("timing-www-perceived-load");
+      TSSSB.call("didFinishLoading");
     }
-    if (TS.client && TS.boot_data.page_needs_enterprise && TS.model.initial_cid) {
-      var model_ob = TS.shared.getModelObById(TS.model.initial_cid);
-      if (!model_ob) TS.error("TS.model.initial_cid (" + TS.model.initial_cid + ") referred to a channel that does not exist, which should be impossible");
-      if (model_ob.is_shared && model_ob.is_channel) {
-        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring channels.info for " + TS.model.initial_cid);
-        return TS.channels.promiseToEnsureChannelsInfo(TS.model.initial_cid, true).then(function() {
-          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got channels.info, completing login");
-          return completeOnLogin();
-        });
-      }
-      if (model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) {
-        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring groups.info for " + TS.model.initial_cid);
-        return TS.groups.promiseToEnsureGroupsInfo(TS.model.initial_cid, true).then(function() {
-          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got groups.info, completing login");
-          return completeOnLogin();
-        });
-      }
+    if (TS.web) {
+      TS.web.onFirstLoginMS(rtm_start_data);
     }
-    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra enterprise data; completing login");
-    return completeOnLogin();
+  };
+  var _finalizeIncrementalBoot = function() {
+    TS.info("Finalizing incremental boot");
+    TS.incremental_boot.beforeFullBoot();
+    var users_from_incr_boot = TS.lazyLoadMembersAndBots() ? _.map(TS.model.members, "id") : null;
+    _performNonIncrementalBoot(_pending_rtm_start_p).then(function(resp) {
+      _processStartData(resp);
+      if (TS.lazyLoadMembersAndBots()) {
+        var users_from_rtm_start = _.map(resp.data.users, "id");
+        var users_to_refetch = _.difference(users_from_incr_boot, users_from_rtm_start);
+        _refetchMembers(users_to_refetch);
+      }
+      _pending_rtm_start_p = undefined;
+      TS.incremental_boot.afterFullBoot();
+      TS.info("Completed incremental boot");
+      return null;
+    });
+  };
+  var _refetchMembers = function(users_to_refetch) {
+    if (!TS.lazyLoadMembersAndBots()) return;
+    if (!users_to_refetch.length) {
+      TS.log(1989, "No need to re-fetch any members for presence status");
+      return;
+    }
+    TS.log(1989, "Re-fetching " + users_to_refetch.length + " members so we have presence status");
+    TS.flannel.fetchAndUpsertObjectsByIds(users_to_refetch);
+  };
+  var _maybeFinalizeOrOpenConnectionToMS = function() {
+    if (TS.isPartiallyBooted()) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS not connecting to MS until we complete incremental boot");
+      return;
+    }
+    if (!_shouldConnectToMS()) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS");
+      if (!TS.web.space) {
+        TSConnLogger.setConnecting(false);
+      }
+      return;
+    }
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS");
+    if (TS.ms.hasProvisionalConnection() && TS.ms.finalizeProvisionalConnection()) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS finalized MS connection");
+      TS.log(1996, "Successfully finalized a provisional MS connection");
+    } else {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS made a new MS connection");
+      TS.log(1996, "No valid provisional MS connection; making a new connection");
+      TS.ms.connectImmediately(TS.model.team.url || TS.boot_data.ms_connect_url);
+    }
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did connect to MS");
   };
   var _socketConnectedMS = function() {
     if (!TS.boot_data.page_has_ms) return;
@@ -948,6 +952,7 @@
     } else {
       TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
     }
+    return null;
   };
   var _reconnectRequestedDS = function() {
     if (TS.model.ds_asleep) {
@@ -1068,8 +1073,8 @@
   };
   var _configureBluebirdBeforeFirstUse = function(boot_data) {
     Promise.config({
-      longStackTraces: boot_data.version_ts == "dev",
-      warnings: boot_data.version_ts == "dev",
+      longStackTraces: boot_data.version_ts == "dev" || TS.qs_args.js_path,
+      warnings: boot_data.version_ts == "dev" || TS.qs_args.js_path,
       cancellation: true
     });
   };
@@ -1316,6 +1321,22 @@
       url: "/img/sm/",
       debugMode: false
     });
+    TS.storage.onStart();
+    TSConnLogger.log("after_storage_start", "_onDOMReady");
+    var initial_rtm_start_p = TS.boot_data.no_login ? Promise.resolve() : _callRTMStart();
+    var promises = [_promiseToLoadTemplates(), initial_rtm_start_p];
+    if (TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login) {
+      promises.push(TS.enterprise.promiseToEnsureEnterprise());
+    }
+    if (TS.web && TS.boot_data.page_needs_team_profile_fields) {
+      promises.push(TS.team.ensureTeamProfileFields());
+    }
+    Promise.all(promises).then(function() {
+      initial_rtm_start_p.then(_initialDataFetchesComplete);
+      return null;
+    });
+  };
+  var _promiseToLoadTemplates = function() {
     var templates_cb;
     if (TS.boot_data.hbs_templates_version && TS.boot_data.version_ts !== "dev") {
       templates_cb = TS.boot_data.hbs_templates_version;
@@ -1351,20 +1372,7 @@
         });
       });
     }
-    TS.storage.onStart();
-    TSConnLogger.log("after_storage_start", "_onDOMReady");
-    var initial_rtm_start_p = TS.boot_data.no_login ? Promise.resolve() : _callRTMStart();
-    var promises = [loadTemplates(), initial_rtm_start_p];
-    if (TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login) {
-      promises.push(TS.enterprise.promiseToEnsureEnterprise());
-    }
-    if (TS.web && TS.boot_data.page_needs_team_profile_fields) {
-      promises.push(TS.team.ensureTeamProfileFields());
-    }
-    Promise.all(promises).then(function() {
-      initial_rtm_start_p.then(_initialDataFetchesComplete);
-      return null;
-    });
+    return loadTemplates();
   };
   var _onTemplatesLoaded = function(parallel_callback) {
     TSConnLogger.log("templates_appended", "_onTemplatesLoaded()");
@@ -3254,6 +3262,7 @@
     retina_changed_sig: new signals.Signal,
     supports_sticky_position: false,
     supports_custom_scrollbar: false,
+    slim_scrollbar: false,
     supports_flexbox: false,
     supports_line_clamp: false,
     onStart: function() {
@@ -3320,7 +3329,7 @@
   }
 
   function _decoratePageWithSupport() {
-    var features = ["is_apple_webkit", "is_macgap", "supports_sticky_position", "supports_custom_scrollbar", "supports_flexbox", "supports_line_clamp"];
+    var features = ["is_apple_webkit", "is_macgap", "supports_sticky_position", "supports_custom_scrollbar", "slim_scrollbar", "supports_flexbox", "supports_line_clamp"];
     var partitioned = _.partition(features, function(feature) {
       return TS.environment[feature];
     });
@@ -3354,6 +3363,7 @@
     TS.environment.is_retina = _isRetina();
     TS.environment.supports_sticky_position = _cssValueSupported("position", "sticky");
     TS.environment.supports_custom_scrollbar = _cssPropertySupported("scrollbar");
+    TS.environment.slim_scrollbar = TS.environment.supports_custom_scrollbar && TS.boot_data.feature_slim_scrollbar;
     TS.environment.supports_flexbox = _cssPropertySupported("flex-wrap");
     TS.environment.supports_line_clamp = TS.boot_data.feature_files_list && _cssPropertySupported("line-clamp");
   }

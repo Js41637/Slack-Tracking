@@ -3,9 +3,9 @@
 <li id="files_user" class="flexpane_menu_item" data-filetype="user" role="menuitem"><a><i class="ts_icon ts_icon_all_files"></i>{{#t note="View your files in the flex pane"}}Your Files{{/t}}</a></li>
 <li id="files_all" class="flexpane_menu_item" data-filetype="all" role="menuitem"><a><i class="ts_icon ts_icon_all_files_alt"></i>{{#t note="View all files in the flex pane"}}All Files{{/t}}</a></li>
 <li id="list_team" class="flexpane_menu_item" data-tab-id="team" role="menuitem"><a><i class="ts_icon ts_icon_team_directory"></i>{{#t note="View the directory in the flex pane"}}Directory{{/t}}</a></li>
-{{#feature flag="feature_searchable_member_list"}}
+{{#if show_user_groups}}
 <li id="list_groups" class="flexpane_menu_item" data-tab-id="groups" role="menuitem"><a><i class="ts_icon ts_icon_happy_smile"></i>{{#t note="View user groups in the flex pane"}}User Groups{{/t}}</a></li>
-{{/feature}}
+{{/if}}
 <li id="help" class="flexpane_menu_item" role="menuitem"><a><i class="ts_icon ts_icon_question_circle"></i>{{#t note="View the help search form"}}Help<span class="badge candy_red_bg hidden help_icon_circle_count">0</span>{{/t}}</a></li>
 <li id="whats_new" class="flexpane_menu_item" data-tab-id="whats_new" role="menuitem"><a><i class="ts_icon ts_icon_emoji_celebration"></i>{{#t note="View latest what's new updates with a count of new items"}}What's New<span id="whats_new_count" class="badge candy_red_bg"></span>{{/t}}</a></li>
 {{#if show_downloads}}
