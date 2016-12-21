@@ -1,9 +1,17 @@
 {{i18n_ns 'user_groups'}}
 
 <div class="heading" tabindex="-1">
-  {{#t}}User Groups{{/t}}
-  <a class="close_flexpane" title="{{#t}}Close Flexpane{{/t}}"><i class="ts_icon ts_icon_times"></i></a>
+  {{#feature flag="feature_flexpane_redesign"}}
+    <div class="heading_row">
+      <h2 class="heading_text overflow_ellipsis">{{#t}}User Groups{{/t}}</h2>
+      <button type="button" class="btn_unstyle close_flexpane" title="{{#t}}Close Flexpane{{/t}}"><i class="ts_icon ts_icon_times"></i></button>
+    </div>
+  {{else}}
+    {{#t}}User Groups{{/t}}
+    <a class="close_flexpane" title="{{#t}}Close Flexpane{{/t}}"><i class="ts_icon ts_icon_times"></i></a>
+  {{/feature}}
 </div>
+
 <div class="user_groups_tabs_container clearfix no_bottom_border">
   <div class="flexpane_tab_toolbar">
     <div id="user_group_edit" class="tab_action bottom_border">

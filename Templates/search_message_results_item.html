@@ -1,4 +1,4 @@
-  <div class="search_message_result null_transform {{#ifExtracts this}}{{else}}extracts_expanded no_extracts{{/ifExtracts}}" {{#if best_match_module}}id="{{makeMSRDomIdWithModule this module_name}}"{{else}}id="{{makeMSRDomId this}}"{{/if}} data-channel="{{this.channel.id}}" data-ts="{{this.ts}}" data-module-order="{{module_order}}"{{#if best_match_module}}data-index="{{index}}" data-module-name="{{module_name}}"{{/if}}>
+  <div class="search_message_result null_transform {{#ifExtracts this}}{{else}}extracts_expanded no_extracts{{/ifExtracts}}" id="{{makeMSRDomId this}}" data-channel="{{this.channel.id}}" data-ts="{{this.ts}}" data-module-order="{{module_order}}">
     <div class="search_message_result_meta display_flex black indifferent_grey align_items_end">
       <div class="small_right_margin">
         <strong class="overflow_ellipsis">

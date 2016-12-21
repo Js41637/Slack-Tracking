@@ -119,6 +119,16 @@
       </li>
     {{/show_shared_channels}}
 
+    {{#feature flag="feature_discoverable_teams_client_v1"}}
+      {{#pageNeedsEnterprise}}
+        {{#if can_show_leave_workspace}}
+          <li id="leave_workspace" role="menuitem">
+            <a>{{#t}}Leave this team{{/t}}</a>
+          </li>
+        {{/if}}
+      {{/pageNeedsEnterprise}}
+    {{/feature}}
+
     {{! add logout_url here if user is either: }}
     {{! 1. Not currently logged into any orgs }}
     {{! 2. Currently veiwing an org team but not logged into any other teams of that same org}}

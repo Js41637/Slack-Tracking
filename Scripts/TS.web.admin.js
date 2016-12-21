@@ -247,11 +247,11 @@
       if (TS.shouldLog(1e3)) {
         TS.log(1e3, TS.boot_data.accepted_invites.length + " accepted invites:");
         TS.boot_data.accepted_invites.forEach(function(invite) {
-          TS.log(1e3, invite.id + "/@" + invite.name + " (invited by " + _.get(invite, "inviter.id") + "/@" + _.get(invite, "inviter.name") + ")");
+          TS.log(1e3, invite.id + " (invited by " + _.get(invite, "inviter.id") + ")");
         });
         TS.log(1e3, TS.boot_data.pending_invites.length + " pending invites:");
         TS.boot_data.pending_invites.forEach(function(invite) {
-          TS.log(1e3, invite.id + " (invited by " + _.get(invite, "inviter.id") + "/@" + _.get(invite, "inviter.name") + ")");
+          TS.log(1e3, invite.id + " (invited by " + _.get(invite, "inviter.id") + ")");
         });
       }
     },

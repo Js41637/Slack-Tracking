@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/199d/fonts/slack-icons-Regular.eot);
-  src: url(/199d/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/199d/fonts/slack-icons-Regular.woff) format('woff'), url(/199d/fonts/slack-icons-Regular.ttf) format('truetype'), url(/199d/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/a4355/fonts/slack-icons-Regular.eot);
+  src: url(/a4355/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/a4355/fonts/slack-icons-Regular.woff) format('woff'), url(/a4355/fonts/slack-icons-Regular.ttf) format('truetype'), url(/c101/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -1966,6 +1966,18 @@ svg.ts_icon_spinner svg {
   content: '\E555'
 }
 
+.ts_icon_microphone_on:before {
+  content: '\E556'
+}
+
+.ts_icon_camera_on:before {
+  content: '\E557'
+}
+
+.ts_icon_screenshare_on:before {
+  content: '\E558'
+}
+
 .ts_icon_arrow_right:before {
   content: '\E286'
 }
@@ -2384,6 +2396,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_stitcher:before {
   content: '\E833'
+}
+
+.ts_icon_pocket_casts:before {
+  content: '\E834'
 }
 
 .ts_icon_file_generic:before {
@@ -8365,6 +8381,26 @@ a.btn {
   line-height: inherit
 }
 
+.btn_link {
+  -webkit-font-smoothing: antialiased;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  background: 0 0;
+  border: none;
+  padding: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  outline: 0
+}
+
+.btn_link:focus,
+.btn_link:hover {
+  color: #005e99
+}
+
 .btn.btn_border {
   background: 0 0;
   border: 2px solid #fff
@@ -11268,6 +11304,30 @@ body.winssb #emoji_menu {
   width: 24px
 }
 
+#toggle-subscription-status .follow_message,
+#toggle-subscription-status .follow_thread,
+#toggle-subscription-status .unfollow_message,
+#toggle-subscription-status .unfollow_thread,
+#toggle-subscription-status[data-subscribed] .loading_subscription_status {
+  display: none
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=true][data-thread-ts] .unfollow_thread {
+  display: inline
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=true]:not([data-thread-ts]) .unfollow_message {
+  display: inline
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=false][data-thread-ts] .follow_thread {
+  display: inline
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=false]:not([data-thread-ts]) .follow_message {
+  display: inline
+}
+
 .avatar_menu_signin_item {
   color: #007ab8
 }
@@ -12286,6 +12346,15 @@ only screen and (min-resolution:2dppx) {
   transform: translateY(-1px)
 }
 
+#client-ui.flexpane_redesign #team_list,
+.flexpane_redesign #member_preview_scroller {
+  margin-left: .5rem
+}
+
+.flexpane_redesign #team_list_scroller {
+  margin-top: .375rem
+}
+
 #client-ui #team_list .expanded_member_details {
   opacity: 0;
   -webkit-transition: opacity .1s;
@@ -12881,12 +12950,15 @@ only screen and (min-resolution:2dppx) {
 
 .flexbox_client #team_tab #member_preview_container .heading {
   width: auto;
+  padding-right: 1rem
+}
+
+.flexbox_client:not(.flexpane_redesign) #team_tab #member_preview_container .heading {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
-  display: flex;
-  padding-right: 1rem
+  display: flex
 }
 
 .flexbox_client #team_tab #back_from_member_preview {
@@ -12903,6 +12975,10 @@ only screen and (min-resolution:2dppx) {
 
 .flexbox_client #team_tab #member_preview_scroller .member_details {
   padding: 0 .25rem
+}
+
+.flexbox_client.flexpane_redesign #team_tab #member_preview_scroller .member_details {
+  padding-left: .5rem
 }
 
 .flexbox_client #team_tab #member_preview_scroller .member_details .member_image.thumb_512 {

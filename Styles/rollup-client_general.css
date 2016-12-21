@@ -3910,6 +3910,26 @@ a.btn {
   line-height: inherit
 }
 
+.btn_link {
+  -webkit-font-smoothing: antialiased;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  background: 0 0;
+  border: none;
+  padding: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  outline: 0
+}
+
+.btn_link:focus,
+.btn_link:hover {
+  color: #005e99
+}
+
 .btn.btn_border {
   background: 0 0;
   border: 2px solid #fff
@@ -6319,6 +6339,30 @@ body.winssb #emoji_menu {
   text-shadow: none;
   -webkit-font-smoothing: none;
   width: 24px
+}
+
+#toggle-subscription-status .follow_message,
+#toggle-subscription-status .follow_thread,
+#toggle-subscription-status .unfollow_message,
+#toggle-subscription-status .unfollow_thread,
+#toggle-subscription-status[data-subscribed] .loading_subscription_status {
+  display: none
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=true][data-thread-ts] .unfollow_thread {
+  display: inline
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=true]:not([data-thread-ts]) .unfollow_message {
+  display: inline
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=false][data-thread-ts] .follow_thread {
+  display: inline
+}
+
+#toggle-subscription-status[data-subscribed][data-subscribed=false]:not([data-thread-ts]) .follow_message {
+  display: inline
 }
 
 .avatar_menu_signin_item {

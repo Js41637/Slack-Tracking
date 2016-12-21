@@ -92,6 +92,10 @@
           {{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
+          {{#if for_top_results_search_display}}
+            <span class="channel">in #{{msg.channel.name}}</span>
+            <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">Jump</a></span>
+          {{/if}}
         {{/if}}
       </div>
       {{#if starred_items_actions}}

@@ -1,24 +1,25 @@
+{{i18n_ns "profile"}}
 <div class="edit_profile_drop_overlay hidden"></div>
 <div class="clearfix display_flex flex_wrap position_relative">
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
-      <label for="full_name_profile_field">Full name</label>
-      <input type="text" class="no_bottom_margin" name="full_name" value="{{member.profile.full_name}}" placeholder="Full name" data-validation="required maxlength=71 keywords" data-validation-for="full_name_profile_field" id="full_name_profile_field" />
-      <span class="input_note">This is how your teammates will refer to you in Slack, unless you add a preferred name below.</span>
+      <label for="full_name_profile_field">{{#t note="For a members profile"}}Full name{{/t}}</label>
+      <input type="text" class="no_bottom_margin" name="full_name" value="{{member.profile.full_name}}" placeholder="{{#t note='For a members profile'}}Full name{{/t}}" data-validation="required maxlength=71 keywords" data-validation-for="full_name_profile_field" id="full_name_profile_field" />
+      <span class="input_note">{{#t}}This is how your teammates will refer to you in Slack, unless you add a preferred name below.{{/t}}</span>
     {{else}}
-      <label for="first_name_profile_field">First name</label>
-      <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="First name" data-validation="maxlength=34" data-validation-for="first_name_profile_field" id="first_name_profile_field" />
+      <label for="first_name_profile_field">{{#t note="For a members profile"}}First name{{/t}}</label>
+      <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="{{#t note='For a members profile'}}First name{{/t}}" data-validation="maxlength=34" data-validation-for="first_name_profile_field" id="first_name_profile_field" />
     {{/feature}}
   </p>
   <div id="edit_member_profile_photo_container" class="col">
-    <label>Profile photo</label>
+    <label>{{#t note="Label for the profile fiend"}}Profile photo{{/t}}</label>
     {{#feature flag="feature_take_profile_photo"}}
       <div class="member_image_wrapped">{{makeMemberPreviewLinkImage member.id 192 false true}}</div>
       <div class="member_image_wrapped_no_photo">{{makeMemberPreviewLinkImage member.id 192 false true}}</div>
       <div class="member_image_upload hidden"><img src="{{versioned_file_drop_blue}}" class="file_drop_icon animate_file_drop" /></div>
-      <ts-icon class="show_take hidden member_upload ts_icon_camera" data-action="edit_member_profile_take_photo"><a>Take a photo</a></ts-icon>
-      <ts-icon class="member_upload ts_icon_cloud_upload" data-action="edit_member_profile_upload_image"><a>Upload a photo</a></ts-icon>
-      <ts-icon class="show_delete ts_icon_trash" data-action="edit_member_profile_to_delete"><a>Remove photo</a></ts-icon>
+      <ts-icon class="show_take hidden member_upload ts_icon_camera" data-action="edit_member_profile_take_photo"><a>{{#t note="For your profile avatar"}}Take a photo{{/t}}</a></ts-icon>
+      <ts-icon class="member_upload ts_icon_cloud_upload" data-action="edit_member_profile_upload_image"><a>{{#t note="For your profile avatar"}}Upload a photo{{/t}}</a></ts-icon>
+      <ts-icon class="show_delete ts_icon_trash" data-action="edit_member_profile_to_delete"><a>{{#t note="Remove your profile avatar photo"}}Remove photo{{/t}}</a></ts-icon>
     {{else}}
       <div class="member_image_wrapper" data-action="edit_member_profile_photo_menu"><ts-icon class="upload_camera_icon ts_icon_camera" aria-label="upload a photo">{{makeMemberPreviewLinkImage member.id 192 false true}}</ts-icon></div>
     {{/feature}}
@@ -28,29 +29,29 @@
 <div class="clearfix">
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
-      <label for="preferred_name_profile_field">Preferred name <span class="subtle_silver normal">(optional)</span></label>
-      <input type="text" class="no_bottom_margin" name="preferred_name" value="{{member.profile.preferred_name}}" placeholder="Preferred name" data-validation="maxlength=71 keywords" data-validation-for="preferred_name_profile_field" id="preferred_name_profile_field" />
-      <span class="input_note">If you\u2019d rather be called something shorter, set it here.</span>
+      <label for="preferred_name_profile_field">{{#t note="For a members profile"}}Preferred name <span class="subtle_silver normal">(optional)</span>{{/t}}</label>
+      <input type="text" class="no_bottom_margin" name="preferred_name" value="{{member.profile.preferred_name}}" placeholder="{{#t note='For a members profile'}}Preferred name{{/t}}" data-validation="maxlength=71 keywords" data-validation-for="preferred_name_profile_field" id="preferred_name_profile_field" />
+      <span class="input_note">{{#t note="Helper note for setting a preferred name"}}If you\u2019d rather be called something shorter, set it here.{{/t}}</span>
     {{else}}
-      <label for="last_name_profile_field">Last name</label>
-      <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="Last name" data-validation="maxlength=35" data-validation-for="last_name_profile_field" id="last_name_profile_field" />
+      <label for="last_name_profile_field">{{#t note="For a members profile"}}Last name{{/t}}</label>
+      <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="{{#t note='For a members profile'}}Last name{{/t}}" data-validation="maxlength=35" data-validation-for="last_name_profile_field" id="last_name_profile_field" />
     {{/feature}}
   </p>
 </div>
 
 <div class="clearfix">
   <p class="col span_2_of_3">
-    <label for="title_profile_field">What I do</label>
-    <input type="text" class="no_bottom_margin" name="title" value="{{member.profile.title}}" placeholder="What I do" data-validation="maxlength=249" data-validation-for="title_profile_field" id="title_profile_field" />
-    <span class="input_note">Let people know what you do at {{team.name}}.</span>
+    <label for="title_profile_field">{{#t note="Label for a members profile field"}}What I do{{/t}}</label>
+    <input type="text" class="no_bottom_margin" name="title" value="{{member.profile.title}}" placeholder="{{#t note='Label for a members profile field'}}What I do{{/t}}" data-validation="maxlength=249" data-validation-for="title_profile_field" id="title_profile_field" />
+    <span class="input_note">{{#t note="For a members profile"}}Let people know what you do at {team.name}.{{/t}}</span>
   </p>
 </div>
 
 <div class="clearfix">
   <p class="col span_2_of_3">
-    <label for="phone_profile_field">Phone number</label>
+    <label for="phone_profile_field">{{#t note="Label for a members profile field"}}Phone number{{/t}}</label>
     <input type="text" class="no_bottom_margin" name="phone" value="{{member.profile.phone}}" placeholder="(123) 555-5555" data-validation="maxlength=98" data-validation-for="phone_profile_field" id="phone_profile_field" />
-    <span class="input_note">Enter a phone number.</span>
+    <span class="input_note">{{#t note="Help text for a members profile field"}}Enter a phone number.{{/t}}</span>
   </p>
 </div>
 
@@ -79,7 +80,7 @@
         {{#if_equal this.type compare="options_list"}}
           <label class="select no_bottom_margin with_hint" id="{{this.id}}_profile_field">{{this.label}}
             <select class="no_bottom_margin" name="{{this.id}}" data-qa="{{this.label}}" id="{{this.id}}_profile_field">
-              <option value='' {{#unless ../this.value}} selected{{/unless}}>Select &hellip;</option>
+              <option value='' {{#unless ../this.value}} selected{{/unless}}>{{#t note="Select a date"}}Select \u2026{{/t}}</option>
               {{#each this.possible_values}}
                 <option{{#if_equal ../this.value compare=this}} selected{{/if_equal}}>{{this}}</option>
               {{/each}}
@@ -101,16 +102,16 @@
       </p>
       {{#if_equal this.type compare="link"}}
         <p class="col span_1_of_3 no_padding">
-          <label for="{{this.id}}_alt_profile_field">Display text</label>
-          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My link" data-qa="{{this.label}}_display" data-validation="maxlength=256" data-validation-for="{{this.id}}_alt_profile_field" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
-          <span class="input_note">Optional</span>
+          <label for="{{this.id}}_alt_profile_field">{{#t}}Display text{{/t}}</label>
+          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="{{#t}}My link{{/t}}" data-qa="{{this.label}}_display" data-validation="maxlength=256" data-validation-for="{{this.id}}_alt_profile_field" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
+          <span class="input_note">{{#t}}Optional{{/t}}</span>
         </p>
       {{/if_equal}}
       {{#if_equal this.type compare="date"}}
         <p class="col span_1_of_3 no_padding">
-          <label for="{{this.id}}_alt_profile_field">Display text</label>
-          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="My date" data-qa="{{this.label}}_display" data-validation="maxlength=256" data-validation-for="{{this.id}}_alt_profile_field" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
-          <span class="input_note">Optional</span>
+          <label for="{{this.id}}_alt_profile_field">{{#t}}Display text{{/t}}</label>
+          <input type="text" class="no_bottom_margin" name="{{this.id}}_alt" placeholder="{{#t}}My date{{/t}}" data-qa="{{this.label}}_display" data-validation="maxlength=256" data-validation-for="{{this.id}}_alt_profile_field" value="{{this.alt}}" id="{{this.id}}_alt_profile_field" />
+          <span class="input_note">{{#t}}Optional{{/t}}</span>
         </p>
       {{/if_equal}}
     </div>

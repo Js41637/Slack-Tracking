@@ -18,9 +18,9 @@ Used in billing_history_list_item_col.hbs
 {{else if_equal type compare="invoice_cancel"}}
   Your team is no longer paying by invoice.
 {{else if_equal type compare="purchase"}}
-  Purchased the <strong>{{this.product.level_nice}} plan</strong>{{#if this.product.discount}}<span class="inline_discount"> (Discounted{{#if this.product.is_simple_discount}} {{this.product.discount.0.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal this.product.termly compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+  Purchased the <strong>{{this.product.level_nice}} plan</strong>{{#if this.product.discount}}<span class="inline_discount"> (Discounted{{#if this.product.is_simple_discount}} {{this.discount_plan.0.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal this.product.termly compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
 {{else if_equal type compare="renewal"}}
-  Renewed the <strong>{{this.product.level_nice}} plan</strong>{{#if this.is_discounted}}<span class="inline_discount"> (Discounted{{#if this.is_simple_discount}} {{this.product.discount.0.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal this.product.termly compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+  Renewed the <strong>{{this.product.level_nice}} plan</strong>{{#if this.is_discounted}}<span class="inline_discount"> (Discounted{{#if this.is_simple_discount}} {{this.discount_plan.0.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal this.product.termly compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
 {{else if_equal type compare="cancel"}}
   Switched to the <strong>Free plan</strong>
 {{else if_equal type compare="switch"}}

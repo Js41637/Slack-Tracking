@@ -1,10 +1,18 @@
+{{i18n_ns "groups"}}
+
 <div class="user_group_item channel_item normal_padding clearfix">
   <div class="col span_6_of_6 no_bottom_margin">
     <a target="/messages/{{this.id}}" {{#if this.is_channel}}data-channel-id="{{this.id}}" class="internal_channel_link"{{else}}data-group-id="{{this.id}}" class="internal_group_link"{{/if}}>
-      <h4 class="tiny_bottom_margin lato_bold">{{#if this.is_channel}}<span class="lato subtle_silver">#</span>{{/if}}{{this.name}} {{#if this.is_member}}<span class="mini subtle_silver lato">JOINED</span>{{/if}}</h4>
+      <h4 class="tiny_bottom_margin lato_bold">{{#if this.is_channel}}<span class="lato subtle_silver">#</span>{{/if}}{{this.name}} {{#if this.is_member}}<span class="mini subtle_silver lato">{{#t note="Logged in member has joined this channel"}}JOINED{{/t}}</span>{{/if}}</h4>
       {{#if this.creator}}
         {{#if this.created}}
-          <p class="lato subtle_silver tiny_bottom_margin"><i>Created by <b>{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName this.creator}}{{else}}{{getMemberDisplayNameById this.creator}}{{/feature}}</b> on {{toCalendarDate this.created}}</i></p>
+          <p class="lato subtle_silver tiny_bottom_margin">
+            {{#feature flag="feature_name_tagging_client"}}
+              <i>{{#t note="Channel created information" member=(getMemberFullName this.creator) date_created=(convertTimestampToMilliseconds this.created)}}Created by <b>{member}</b> on {date_created, date, long}{{/t}}</i>
+            {{else}}
+              <i>{{#t note="Channel created information" member=(getMemberDisplayNameById this.creator) date_created=(convertTimestampToMilliseconds this.created)}}Created by <b>{member}</b> on {date_created, date, long}{{/t}}</i>
+            {{/feature}}
+          </p>
         {{/if}}
       {{/if}}
       {{#if this.purpose}}

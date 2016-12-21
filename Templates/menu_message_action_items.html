@@ -1,14 +1,24 @@
 {{i18n_ns "messages_action_items"}}
 
-{{! Personal actions}}
+{{! Thread actions}}
 {{#feature flag="feature_message_replies"}}
-  {{#if is_in_thread}}
-    {{#if actions.jump_to_original}}
-      <li id="jump_to_original_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t note="Scroll back to the original message in the channel"}}Open in channel{{/t}}</a></li>
-    {{/if}}
+  {{#if can_subscribe}}
+    <li role="menuitem" id="toggle-subscription-status" data-model-ob-id="{{model_ob.id}}" data-msg-ts="{{msg.ts}}" {{#if msg.thread_ts}}data-thread-ts="{{msg.thread_ts}}"{{/if}} {{#if subscription}}data-subscribed="{{subscription.subscribed}}"{{else}}class="disabled"{{/if}}>
+      <a>
+        <span class="unfollow_thread">{{#t}}Unfollow this thread{{/t}}</span>
+        <span class="follow_thread">{{#t}}Follow this thread{{/t}}</span>
+
+        <span class="unfollow_message">{{#t}}Unfollow this message{{/t}}</span>
+        <span class="follow_message">{{#t}}Follow this message{{/t}}</span>
+
+        <span class="loading_subscription_status">{{#t}}Loading...{{/t}}</span>
+      </a>
+    <li class="divider"></li>
   {{/if}}
 {{/feature}}
+{{! End thread actions}}
 
+{{! Personal actions}}
 {{#if actions.share_message}}
   <li id="share_message_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t}}Share message &hellip;{{/t}}</a></li>
 {{/if}}
@@ -41,9 +51,7 @@
 {{! Public actions}}
 {{#feature flag="feature_message_replies"}}
   {{#unless is_in_thread}}
-    {{#if actions.reply}}
-      <li id="reply_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#if msg.reply_count}}{{#t}}View thread{{/t}}{{else}}{{#t}}Start a thread{{/t}}{{/if}} &hellip;</a></li>
-    {{/if}}
+
   {{/unless}}
 {{/feature}}
 

@@ -216,7 +216,6 @@
         }, byte_counting_duration);
       }
       TS.console.onStart();
-      TSConnLogger.log("start", "TS.boot");
       _setClientLoadWatchdogTimer();
       _configureBluebirdBeforeFirstUse(boot_data);
       TS.model.api_url = TS.boot_data.api_url;
@@ -225,8 +224,7 @@
       TS.model.webhook_url = TS.boot_data.webhook_url;
       if (TS.boot_data.page_needs_enterprise) TS.model.enterprise_api_token = TS.boot_data.enterprise_api_token;
       TS.model.can_add_ura = TS.boot_data.can_add_ura;
-      TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms);
-      TS.warn(Date.now() - TSConnLogger.start_time + "ms from first html to TS.boot()");
+      TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms + " (" + (Date.now() - TS.boot_data.start_ms + "ms ago)"));
       if (TS.web && TS.web.space) {
         TS.web.space.showFastPreview();
       }
@@ -459,13 +457,6 @@
       }
       return false;
     },
-    didWeBootWithCache: function() {
-      if (!TS.model.did_we_load_with_user_cache) return false;
-      if (!TS.model.did_we_load_with_emoji_cache) return false;
-      if (!TS.model.did_we_load_with_app_cache) return false;
-      if (!TS.model.did_we_load_with_cmd_cache) return false;
-      return true;
-    },
     isPartiallyBooted: function() {
       return !!(TS._incremental_boot || TS._did_incremental_boot && !TS._did_full_boot);
     },
@@ -518,14 +509,6 @@
     TS.raw_templates = _raw_templates;
     _raw_templates = null;
   }
-  if (!window.TSConnLogger) {
-    window.TSConnLogger = {
-      log: _.noop,
-      logs: [],
-      start_time: Date.now(),
-      setConnecting: _.noop
-    };
-  }
   var _reconnectRequestedMS = function() {
     TS.console.logStackTrace("MS reconnection requested");
     if (TS.model.ms_asleep) {
@@ -538,12 +521,17 @@
       TS.warn("Reconnect requested, but we are already connecting; doing nothing.");
       return;
     }
-    TSConnLogger.setConnecting(true);
     TS.metrics.mark("ms_reconnect_requested");
     var _apiPaused = function() {
       TS.info("API queue got paused while waiting for MS reconnection");
       TS.ms.connected_sig.remove(_didGetConnected);
-      TS.api.unpaused_sig.addOnce(_reconnectRequestedMS);
+      TS.api.unpaused_sig.addOnce(function() {
+        if (TS.model.calling_rtm_start) {
+          TS.info("API queue got unpaused, but rtm.start calling is pending, so doing nothing");
+          return;
+        }
+        _reconnectRequestedMS();
+      });
     };
     var _didGetConnected = function() {
       var reconnect_duration_ms = TS.metrics.measureAndClear("ms_reconnect_delay", "ms_reconnect_requested");
@@ -553,7 +541,12 @@
     };
     TS.api.paused_sig.addOnce(_apiPaused);
     TS.ms.connected_sig.addOnce(_didGetConnected);
-    _callRTMStart().then(_processStartData);
+    if (TS.isPartiallyBooted()) {
+      var rtm_start_p = _callRTMStart();
+      _finalizeIncrementalBoot(rtm_start_p);
+    } else {
+      _callRTMStart().then(_processStartData);
+    }
   };
   var _getMSLoginArgs = function() {
     var login_args = {
@@ -658,7 +651,6 @@
       return Promise.reject(new Error(error_msg));
     }
     TS.ms.logConnectionFlow("login");
-    TSConnLogger.log("call_rtm_start", "_promiseToCallRTMStart");
     TS.model.rtm_start_throttler++;
     TS.model.calling_rtm_start = true;
     if (TS.lazyLoadMembersAndBots()) {
@@ -828,12 +820,11 @@
     if (TS.client) {
       TS.client.onFirstLoginMS(rtm_start_data);
       if (TS.isPartiallyBooted()) {
-        _finalizeIncrementalBoot();
+        _finalizeIncrementalBoot(_pending_rtm_start_p);
+        _pending_rtm_start_p = undefined;
       } else {
         $("#col_channels, #team_menu").removeClass("placeholder");
       }
-      TSConnLogger.log("on_first_login_ms", "onFirstLoginMS hiding loading screen");
-      _reportLoad();
       _reportLoadTiming("timing-www-perceived-load");
       TSSSB.call("didFinishLoading");
     }
@@ -841,21 +832,23 @@
       TS.web.onFirstLoginMS(rtm_start_data);
     }
   };
-  var _finalizeIncrementalBoot = function() {
+  var _finalizeIncrementalBoot = function(rtm_start_p) {
     TS.info("Finalizing incremental boot");
     TS.incremental_boot.beforeFullBoot();
     var users_from_incr_boot = TS.lazyLoadMembersAndBots() ? _.map(TS.model.members, "id") : null;
-    _performNonIncrementalBoot(_pending_rtm_start_p).then(function(resp) {
+    _performNonIncrementalBoot(rtm_start_p).then(function(resp) {
       _processStartData(resp);
       if (TS.lazyLoadMembersAndBots()) {
         var users_from_rtm_start = _.map(resp.data.users, "id");
         var users_to_refetch = _.difference(users_from_incr_boot, users_from_rtm_start);
         _refetchMembers(users_to_refetch);
       }
-      _pending_rtm_start_p = undefined;
       TS.incremental_boot.afterFullBoot();
       TS.info("Completed incremental boot");
       return null;
+    }).catch(function(err) {
+      TS.error("Tried to finalize incremental boot, but rtm.start failed. Will recover when we reconnect.");
+      throw err;
     });
   };
   var _refetchMembers = function(users_to_refetch) {
@@ -874,9 +867,6 @@
     }
     if (!_shouldConnectToMS()) {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS will not connect to MS");
-      if (!TS.web.space) {
-        TSConnLogger.setConnecting(false);
-      }
       return;
     }
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS wants to connect to MS");
@@ -890,21 +880,11 @@
     }
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _maybeFinalizeOrOpenConnectionToMS did connect to MS");
   };
-  var _socketConnectedMS = function() {
-    if (!TS.boot_data.page_has_ms) return;
-    if (!TS.web) return;
-    if (!TS.web.space) return;
-    _reconnectRequestedDS();
-  };
   var _socketDisconnectedMS = function() {
     TS.shared.getAllModelObsForUser().forEach(function(model_ob) {
       if (model_ob._consistency_has_been_checked) delete model_ob._consistency_has_been_checked;
       if (model_ob._consistency_is_being_checked) delete model_ob._consistency_is_being_checked;
     });
-    if (!TS.boot_data.page_has_ms) return;
-    if (!TS.web) return;
-    if (!TS.web.space) return;
-    TS.ds.disconnect();
   };
   var _rtm_start_retry_delay_ms;
   var _last_rtm_start_event_ts;
@@ -927,11 +907,8 @@
   }();
   TS.pri = TS.qs_args.pri ? TS.qs_args.pri + ",0" : TS.pri;
   var _dom_is_ready = false;
-  var _ds_last_login_tim = 0;
-  var _ds_last_login_ms = 0;
   var _qs_url_args_cache;
   var _initialDataFetchesComplete = function(rtm_start_resp) {
-    TSConnLogger.log("parallel_complete", "_initialDataFetchesComplete(), calling gogogos");
     if (TS.client) {
       TSSSB.call("didStartLoading", 6e4);
     }
@@ -953,97 +930,6 @@
       TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
     }
     return null;
-  };
-  var _reconnectRequestedDS = function() {
-    if (TS.model.ds_asleep) {
-      TS.error("NOT reconnecting, we are asleep");
-      return;
-    }
-    TSConnLogger.setConnecting(true);
-    if (TS.boot_data.page_has_ms) {
-      if (TS.model.ms_connected) {
-        _loginDS();
-      }
-    } else {
-      _loginDS();
-    }
-  };
-  var _getDSLoginArgs = function() {
-    var login_args = {
-      _login_ms: _ds_last_login_ms
-    };
-    login_args.file = boot_data.file.id;
-    return login_args;
-  };
-  var _callDocumentsConnect = function(handler) {
-    TS.ds.logConnectionFlow("_loginDS");
-    TSConnLogger.log("call_documents_connect", "TS._callDocumentsConnect");
-    clearTimeout(_ds_last_login_tim);
-    _ds_last_login_tim = setTimeout(function() {
-      clearTimeout(_ds_last_login_tim);
-      TS.ds.logConnectionFlow("last_login_timeout");
-      TS.ds.onFailure("15secs passed, no files.documents.connect rsp");
-    }, 15e3);
-    TS.model.rtd_start_throttler++;
-    TS.api.callImmediately("files.documents.connect", _getDSLoginArgs(), handler);
-  };
-  var _loginDS = function() {
-    TS.info("_loginDS");
-    _ds_last_login_ms = Date.now();
-    var login_args = _getDSLoginArgs();
-    if (TS.boot_data.space_login_data) {
-      TSConnLogger.log("ds_login_with_boot_data", "ds_login_with_boot_data");
-      TS.ds.logConnectionFlow("login_with_boot_data");
-      _onLoginDS(true, {
-        data: TS.boot_data.space_login_data
-      }, login_args);
-      delete TS.boot_data.space_login_data;
-    } else {
-      _callDocumentsConnect(_onLoginDS);
-    }
-  };
-  var _onLoginDS = function(ok, data, args) {
-    clearTimeout(_ds_last_login_tim);
-    if (_ds_last_login_ms != args._login_ms) {
-      TS.warn("ignoring this files.documents.connect rsp, it came too late (_ds_last_login_ms != args._login_ms)");
-      return;
-    }
-    if (!ok) {
-      if (data && (data.error == "account_inactive" || data.error == "team_disabled" || data.error == "invalid_auth")) {
-        alert("_onLoginDS data.error: " + data.error);
-        return;
-      }
-      TS.ds.logConnectionFlow("on_login_failure");
-      TS.ds.onFailure("API files.documents.connect rsp was no good: " + (data && data.error ? "data.error:" + data.error : "unspecified error"));
-      return;
-    }
-    if (!data.data) {
-      TS.error("No data.data?");
-      return;
-    }
-    if (!data.data.ws) {
-      TS.error("No ws url?");
-      TS.ds.logConnectionFlow("on_login_missing_ws");
-      TS.ds.onFailure("no ws url in response to a documents.connectUser call, calling api again now.");
-      return;
-    }
-    TS.web.space.login_data = data.data;
-    TS.ds.logConnectionFlow("on_login");
-    TSConnLogger.log("on_login_ds", "_onLoginDS");
-    if (!TS.model.ds_logged_in_once) {
-      _reportLoad();
-      _reportLoadTiming("timing-spaces-perceived-load");
-    }
-    if (!TS.model.ds_logged_in_once) {
-      TS.warn(new Date - TSConnLogger.start_time + "ms from first html to ds_login_sig.dispatch()");
-      TS.web.ds_login_sig.dispatch();
-    }
-    TS.ds.connect();
-    TS.model.ds_logged_in_once = true;
-  };
-  var _socketDisconnectedDS = function() {
-    if (!TS.boot_data.page_has_ms) return;
-    TS.ms.disconnect();
   };
   var _client_load_watchdog_tim = null;
   var _client_load_watchdog_ms = 1e4;
@@ -1082,158 +968,6 @@
   var _delayed_module_loads = {};
   var _components = {};
   var _delayed_component_loads = {};
-  var _monkeyed_functions = [];
-  var _monkeyed_signals = [];
-  var _monkeyWatch = window._monkeyWatch = function(ob, name, limit, log) {
-    log = log !== false && (log || TS.shouldLog(621));
-    var logSignalDispatch = function(path, sig, args, duration) {
-      var str = "SIGN: " + duration + "ms " + path + ".dispatch()";
-      if (duration > 30) {
-        console.warn(str);
-      } else {}
-    };
-    var logFunctionCall = function(path, args, duration) {
-      var str = "FUNC: " + duration + "ms " + path + "()";
-      if (duration > 30) {
-        console.warn(str);
-      } else {}
-    };
-    name = name || "ROOT";
-    var seens = [];
-    var limit = parseInt(limit) || 1;
-    var start = Date.now();
-    var signals_c = 0;
-    var funcs_c = 0;
-    var c = 0;
-    var worker = function(ob, path) {
-      if (typeof ob !== "object") return;
-      c++;
-      if (c >= limit) {
-        TS.info("_monkeyWatch BAILING at limit:" + limit);
-        return;
-      }
-      seens.push(ob);
-      var k;
-      var val;
-      var this_path;
-      for (k in ob) {
-        c++;
-        if (c >= limit) {
-          TS.info("_monkeyWatch BAILING at limit:" + limit);
-          return;
-        }
-        val = ob[k];
-        this_path = path + "." + k;
-        if (log) TS.warn(this_path);
-        if (typeof val === "function") {
-          funcs_c++;
-          if (_monkeyed_functions.indexOf(val) == -1 && !val.monkeyed) {
-            if (log) TS.info(c + " " + this_path + " FUNCTION OVERRIDDEN");
-            TS.utility.ensureInArray(_monkeyed_functions, val);
-            var original_k = ob[k];
-            ob[k] = function() {
-              var start = Date.now();
-              var ret = original_k.apply(this, arguments);
-              logFunctionCall(this_path, arguments, Date.now() - start);
-              this.monkeyed = true;
-              return ret;
-            };
-          } else {
-            if (log) TS.warn(c + " " + this_path + " function already overridden");
-          }
-        } else if (typeof val === "object") {
-          if (seens.indexOf(val) != -1) {} else if (val instanceof Array) {} else if (val instanceof Date) {} else if (val instanceof HTMLElement) {} else if (val instanceof Node) {} else if (val instanceof jQuery) {} else if (val instanceof signals) {
-            signals_c++;
-            if (_monkeyed_signals.indexOf(val) == -1) {
-              if (log) TS.info(c + " " + this_path + " SIGNAL.DISPATCH OVERRIDDEN");
-              TS.utility.ensureInArray(_monkeyed_signals, val);
-              var original_dispatch = val.dispatch;
-              val.dispatch = function() {
-                var start = Date.now();
-                var ret = original_dispatch.apply(this, arguments);
-                logSignalDispatch(this_path, this, arguments, Date.now() - start);
-                return ret;
-              };
-            } else {
-              if (log) TS.warn(c + " " + this_path + " signal.dispatch already overridden");
-            }
-          } else {
-            worker(val, this_path);
-          }
-        }
-      }
-    };
-    worker(ob, name);
-    TS.info("_monkeyWatch took " + (Date.now() - start) + "ms for " + c + " items, " + seens.length + " objects, " + funcs_c + " functions, " + signals_c + " signals");
-  };
-  var _reportLoad = function(i, type) {
-    if (!TSConnLogger.logs.length) return;
-    if (!TS.model || !TS.model.team || !TS.boot_data.feature_tinyspeck) return;
-    if (TS.model.prefs && !TS.model.prefs.seen_welcome_2) return;
-    TS.dir(88, TSConnLogger.logs);
-    if (!TS.client || !TS.ims) return;
-    type = type || "short";
-    i = i || TSConnLogger.logs.length - 1;
-    var total = TSConnLogger.logs[i]["t"];
-    var text = "total time: " + total + "s (at index " + i + ")";
-    var report;
-    var im;
-    var report_str = "";
-    TSConnLogger.logs.forEach(function(item, i) {
-      var duration = i > 0 ? item.t * 1e3 - TSConnLogger.logs[i - 1].t * 1e3 : 0;
-      var bold = duration > 10 ? "*" : "";
-      report_str += bold + item.t + " " + item.k + " (" + duration + ")" + bold + "\n";
-    });
-    if (type == "complete") {
-      report = "_reportLoad(" + i + ", 'snippet')";
-      TS.client.msg_pane.addMaybeClick(report, _reportLoad.bind(Object.create(null), i, "snippet"));
-      text += "\n" + report_str;
-      text += "\n<javascript:" + report + ")|share this with eric as a snippet>";
-    } else if (type == "short") {
-      report = "_reportLoad(" + i + ", 'complete')";
-      TS.client.msg_pane.addMaybeClick(report, _reportLoad.bind(Object.create(null), i, "complete"));
-      text += " <javascript:" + report + "|click for details>";
-    } else if (type == "snippet") {
-      text += "\n" + navigator.userAgent + "\n" + "version_ts: " + TS.boot_data.version_ts + "\n";
-      "version_uid: " + TS.boot_data.version_uid + "\n";
-      if (TS.storage && TS.storage.storageAvailable) {
-        text += "TS.storage.storageAvailable: " + TS.storage.storageAvailable + "\n" + "TS.storage.storageSize(): " + TS.storage.storageSize() + "\n";
-        text += "TS.storage.version: " + TS.storage.version + "\n" + "TS.storage.fetchStorageVersion(): " + TS.storage.fetchStorageVersion() + "\n" + "TS.storage.msgs_version: " + TS.storage.msgs_version + "\n";
-        if (TS.model) {
-          text += "TS.model.initial_ui_state_str: " + TS.model.initial_ui_state_str + "\n";
-        }
-      }
-      text += report_str;
-      im = TS.ims.getImByUsername("eric");
-      TS.files.upload({
-        text: text,
-        title: "load times " + TS.utility.date.toDate(TS.utility.date.makeTsStamp()),
-        filetype: "javascript",
-        channels: im ? [im.id] : null,
-        initial_comment: ""
-      });
-      return;
-    } else {
-      alert("type:" + type);
-      return;
-    }
-    var msg = {
-      type: "message",
-      subtype: "bot_message",
-      username: "loadBot",
-      icons: {
-        emoji: ":rocket:"
-      },
-      is_ephemeral: true,
-      ts: TS.utility.date.makeTsStamp(),
-      text: text,
-      no_notifications: true
-    };
-    im = TS.ims.getImByMemberId("USLACKBOT");
-    if (im) {
-      TS.ims.addMsg(im.id, msg);
-    }
-  };
   var _reportLoadTiming = function(key) {
     window.clearTimeout(_client_load_watchdog_tim);
     if (!window.performance) return;
@@ -1315,14 +1049,12 @@
         TS.web.apiUnpaused();
       }
     });
-    TSConnLogger.log("dom_ready", "_onDOMReady");
     soundManager.ignoreFlash = true;
     soundManager.setup({
       url: "/img/sm/",
       debugMode: false
     });
     TS.storage.onStart();
-    TSConnLogger.log("after_storage_start", "_onDOMReady");
     var initial_rtm_start_p = TS.boot_data.no_login ? Promise.resolve() : _callRTMStart();
     var promises = [_promiseToLoadTemplates(), initial_rtm_start_p];
     if (TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login) {
@@ -1354,7 +1086,6 @@
     function loadTemplates() {
       attempts++;
       return new Promise(function(resolve) {
-        TSConnLogger.log("templates_loading", "loading " + templates_url);
         if (window.TS && TS.raw_templates && Object.keys(TS.raw_templates).length > 0) {
           _onTemplatesLoaded(resolve);
           return;
@@ -1375,8 +1106,7 @@
     return loadTemplates();
   };
   var _onTemplatesLoaded = function(parallel_callback) {
-    TSConnLogger.log("templates_appended", "_onTemplatesLoaded()");
-    TS.warn(new Date - TSConnLogger.start_time + "ms from first html to calling onStarts()");
+    TS.log(Date() - TS.boot_data.start_ms + "ms from first html to calling onStarts()");
     _.sortBy(Object.keys(_delayed_module_loads), "length").forEach(function(name) {
       TS.registerModule(name, _delayed_module_loads[name], true);
     });
@@ -1400,20 +1130,10 @@
     }
     if (should_init_sockets) {
       TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
-      TS.ds.reconnect_requested_sig.add(_reconnectRequestedDS);
-      TS.ms.connected_sig.add(_socketConnectedMS);
       TS.ms.disconnected_sig.add(_socketDisconnectedMS);
-      TS.ds.disconnected_sig.add(_socketDisconnectedDS);
     }
-    TSConnLogger.log("calling_onstarts", "_onTemplatesLoaded(), calling onStart()s", null, {
-      ephemeral: true
-    });
     _callOnStarts();
-    TSConnLogger.log("called_onstarts", "_onTemplatesLoaded(), called onStart()s");
     _dom_is_ready = true;
-    if (TS.qs_args["monkey_watch"] == 1) {
-      _monkeyWatch(TS, "TS", 6e4, undefined);
-    }
     parallel_callback();
   };
   var _callOnStarts = function() {
@@ -1840,7 +1560,7 @@
       is_asleep = false;
       TS.info("wake event! version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms);
       if (TS.client) TS.ms.wake();
-      if (TS.web) TS.ds.wake();
+      if (TS.web && TS.web.space) TS.ds.wake();
       if (sleep_timeout_tim) {
         clearTimeout(sleep_timeout_tim);
         sleep_timeout_tim = undefined;
@@ -1922,9 +1642,9 @@
       });
     },
     beforeFullBoot: function() {
-      if (!TS._incremental_boot) return Promise.reject(new Error("No incremental boot to finish"));
-      if (!TS._did_incremental_boot) return Promise.reject(new Error("No incremental boot to finish"));
-      if (TS._did_full_boot) return Promise.reject(new Error("No incremental boot to finish"));
+      if (!TS._incremental_boot) return;
+      if (!TS._did_incremental_boot) return;
+      if (TS._did_full_boot) return;
       TS._incremental_boot = false;
       _recent_incremental_boot_timer = setTimeout(_removeRecentIncrementalBootState, 1e4);
       if (TS.client && TS.client.ui && TS.client.ui.$messages_input_container) {
@@ -5097,7 +4817,7 @@
         var model_ob = TS.shared.getModelObById(c_id);
         if (!model_ob || model_ob.is_im) show = false;
         if (show && !TS.members.haveAllMembersForModelOb(model_ob) && !did_fetch_all_members) {
-          TS.log(1989, "Flannel: need to fetch all members in " + model_ob.name + " (" + model_ob.id + ") to see if we have to show at-channel dialog");
+          TS.log(1989, "Flannel: need to fetch all members in " + model_ob.id + " to see if we have to show at-channel dialog");
           TS.flannel.fetchAndUpsertAllMembersForModelOb(model_ob).then(function() {
             if (!TS.generic_dialog.is_showing) return;
             if (!TS.generic_dialog.div.find("#select_share_channels").length) return;

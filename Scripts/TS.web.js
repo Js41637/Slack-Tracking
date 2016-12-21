@@ -33,7 +33,6 @@
       if (TS.boot_data && !TS.boot_data.api_active_migration_error_response_type) TS.boot_data.api_active_migration_error_response_type = "show_dialog";
     },
     gogogo: function() {
-      TSConnLogger.log("gogogo", "TS.web.gogogo");
       $("html").bind("mousedown", function() {
         TS.model.ui.is_mouse_down = true;
       });
@@ -98,8 +97,7 @@
     },
     onFirstLoginMS: function(data) {
       _emojiReplaceOnLoad();
-      TSConnLogger.log("first_rtm_start", "TS.web logged in first time");
-      TS.warn(new Date - TSConnLogger.start_time + "ms from first html to login_sig.dispatch()");
+      TS.warn(Date.now() - TS.boot_data.start_ms + "ms from first html to login_sig.dispatch()");
       TS.web.before_login_sig.dispatch();
       TS.web.login_sig.dispatch();
     },

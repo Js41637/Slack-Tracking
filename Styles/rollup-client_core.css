@@ -6158,11 +6158,6 @@ only screen and (min-resolution:2dppx) {
   flex: 1
 }
 
-.threads_view_is_showing .client_container #client_body:not(.footer_msg_input),
-.unread_view_is_showing .client_container #client_body:not(.footer_msg_input) {
-  margin-bottom: -4rem
-}
-
 .is_macgap .client_container #client_body {
   overflow: visible
 }
@@ -6197,8 +6192,13 @@ only screen and (min-resolution:2dppx) {
   position: fixed;
   bottom: 0;
   left: 220px;
-  right: 1rem;
-  z-index: 52
+  right: 0;
+  z-index: 52;
+  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0), #fff 6px);
+  background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0), #fff 6px);
+  background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0), #fff 6px);
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 6px);
+  height: auto
 }
 
 .client_container #footer {
@@ -6216,20 +6216,6 @@ only screen and (min-resolution:2dppx) {
 
 #client-ui:not(.flex_pane_showing) .client_container #footer {
   margin-right: 1rem
-}
-
-#footer:not(.footer_msg_input) {
-  height: 4rem;
-  background: #fff
-}
-
-#footer.footer_msg_input {
-  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0), #fff 6px);
-  background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0), #fff 6px);
-  background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0), #fff 6px);
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 6px);
-  height: auto;
-  right: 0
 }
 
 .feature_texty #footer {
@@ -6311,22 +6297,8 @@ only screen and (min-resolution:2dppx) {
   }
 }
 
-#messages-input-container {
-  font-size: .9rem;
-  position: absolute;
-  bottom: 1.375rem;
-  left: 4rem;
-  right: .25rem;
-  padding-right: 1rem;
-  box-shadow: none
-}
-
-#footer.disabled #messages-input-container {
-  left: 1.25rem
-}
-
 #msg_preview {
-  position: absolute;
+  position: relative;
   bottom: 0;
   padding-top: 0;
   padding-bottom: 0;
@@ -6339,11 +6311,7 @@ only screen and (min-resolution:2dppx) {
   filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#f4f4f4', endColorstr='#ffffff', GradientType=0);
   border-top: 1px solid #D9D9DE;
   left: 0;
-  right: -1rem
-}
-
-.footer_msg_input #msg_preview {
-  position: relative;
+  right: -1rem;
   height: auto
 }
 
@@ -6365,31 +6333,6 @@ only screen and (min-resolution:2dppx) {
   overflow: auto
 }
 
-#message-form {
-  position: relative;
-  margin: 0
-}
-
-#message-input.with-emoji-menu {
-  padding-top: .5625rem;
-  padding-bottom: .5625rem;
-  padding-left: .5rem;
-  padding-right: 1.875rem
-}
-
-#message-input:focus {
-  box-shadow: none
-}
-
-#message-input.offline {
-  background-color: #fdf1c1!important
-}
-
-#message-input.disabled {
-  background-color: #F5F5F5
-}
-
-#footer.disabled #message-input,
 #footer.disabled #msg_input {
   border: 2px solid #f7f7f7!important;
   background: #f7f7f7!important;
@@ -6400,118 +6343,7 @@ only screen and (min-resolution:2dppx) {
   background-clip: padding-box
 }
 
-#message-input-message {
-  text-align: center;
-  color: #717274;
-  display: none;
-  position: absolute;
-  height: 100%;
-  width: 100%
-}
-
-#message-input-message span {
-  display: table-cell;
-  vertical-align: middle;
-  padding: 0 30px;
-  font-size: 1rem;
-  font-family: Slack-Lato, appleLogo, sans-serif
-}
-
-#footer.disabled #message-input-message {
-  display: table
-}
-
-#messages-input-container #message-input {
-  background: #fff;
-  width: 100%;
-  font-size: .9375rem;
-  line-height: 1.2rem;
-  border: 2px solid #E0E0E0;
-  border-left: none;
-  background-clip: padding-box;
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  margin: 0;
-  color: #3d3c40;
-  -webkit-appearance: none;
-  box-shadow: none;
-  outline: 0;
-  position: absolute;
-  bottom: 0;
-  height: 100%;
-  min-height: 2.625rem!important;
-  padding-top: .5625rem;
-  padding-bottom: .5625rem;
-  padding-left: .5rem;
-  padding-right: 2.5rem;
-  max-height: 10rem!important;
-  resize: none!important;
-  -webkit-transition: none;
-  -moz-transition: none;
-  transition: none;
-  border-radius: 0 6px 6px 0
-}
-
-#messages-input-container #message-input:focus {
-  border-color: #bbbdbf
-}
-
-#messages-input-container #message-input::-webkit-input-placeholder {
-  -webkit-filter: grayscale(100%);
-  color: #000;
-  opacity: .375;
-  filter: grayscale(100%);
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-#messages-input-container #message-input::-moz-placeholder {
-  color: #000;
-  opacity: .375;
-  filter: grayscale(100%);
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-#messages-input-container #message-input:-ms-input-placeholder {
-  color: #000;
-  opacity: .375;
-  filter: grayscale(100%);
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-#messages-input-container #message-input::placeholder {
-  color: #000;
-  opacity: .375;
-  filter: grayscale(100%);
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
-}
-
-#messages-input-container.offline:not(.pretend-to-be-online) #message-input,
-#messages-input-container.offline:not(.pretend-to-be-online) #primary_file_button {
-  background-color: #fdf1c1!important
-}
-
-#messages-input-container.offline #primary_file_button {
-  color: rgba(0, 0, 0, .35);
-  border-color: #E0E0E0
-}
-
-#messages-input-container.focus #primary_file_button:not(:hover) {
-  border-color: #bbbdbf
-}
-
 #message_edit_form .emo_menu,
-#messages-input-container .emo_menu,
 #msg_form .emo_menu,
 .inline_message_input_container .emo_menu {
   position: absolute;
@@ -6534,7 +6366,6 @@ only screen and (min-resolution:2dppx) {
 }
 
 #message_edit_form .emo_menu .ts_icon,
-#messages-input-container .emo_menu .ts_icon,
 #msg_form .emo_menu .ts_icon,
 .inline_message_input_container .emo_menu .ts_icon {
   position: absolute;
@@ -6545,8 +6376,6 @@ only screen and (min-resolution:2dppx) {
 
 #message_edit_form .emo_menu .ts_icon_circle_fill,
 #message_edit_form .emo_menu .ts_icon_happy_smile,
-#messages-input-container .emo_menu .ts_icon_circle_fill,
-#messages-input-container .emo_menu .ts_icon_happy_smile,
 #msg_form .emo_menu .ts_icon_circle_fill,
 #msg_form .emo_menu .ts_icon_happy_smile,
 .inline_message_input_container .emo_menu .ts_icon_circle_fill,
@@ -6555,7 +6384,6 @@ only screen and (min-resolution:2dppx) {
 }
 
 #message_edit_form .with-emoji-menu.has_scrollbar~.emo_menu,
-#messages-input-container .with-emoji-menu.has_scrollbar~.emo_menu,
 #msg_form .with-emoji-menu.has_scrollbar~.emo_menu,
 .inline_message_input_container .with-emoji-menu.has_scrollbar~.emo_menu {
   right: 1.125rem;
@@ -6563,7 +6391,6 @@ only screen and (min-resolution:2dppx) {
 }
 
 #message_edit_form.focus .emo_menu,
-#messages-input-container.focus .emo_menu,
 #msg_form.focus .emo_menu,
 .inline_message_input_container.focus .emo_menu {
   color: rgba(0, 0, 0, .2)
@@ -6571,8 +6398,6 @@ only screen and (min-resolution:2dppx) {
 
 #message_edit_form .emo_menu.active,
 #message_edit_form .emo_menu:hover,
-#messages-input-container .emo_menu.active,
-#messages-input-container .emo_menu:hover,
 #msg_form .emo_menu.active,
 #msg_form .emo_menu:hover,
 .inline_message_input_container .emo_menu.active,
@@ -6585,8 +6410,6 @@ only screen and (min-resolution:2dppx) {
 
 #message_edit_form .emo_menu.active .ts_icon_circle_fill,
 #message_edit_form .emo_menu:hover .ts_icon_circle_fill,
-#messages-input-container .emo_menu.active .ts_icon_circle_fill,
-#messages-input-container .emo_menu:hover .ts_icon_circle_fill,
 #msg_form .emo_menu.active .ts_icon_circle_fill,
 #msg_form .emo_menu:hover .ts_icon_circle_fill,
 .inline_message_input_container .emo_menu.active .ts_icon_circle_fill,
@@ -6597,8 +6420,6 @@ only screen and (min-resolution:2dppx) {
 
 #message_edit_form .emo_menu.active .ts_icon_smile_o,
 #message_edit_form .emo_menu:hover .ts_icon_smile_o,
-#messages-input-container .emo_menu.active .ts_icon_smile_o,
-#messages-input-container .emo_menu:hover .ts_icon_smile_o,
 #msg_form .emo_menu.active .ts_icon_smile_o,
 #msg_form .emo_menu:hover .ts_icon_smile_o,
 .inline_message_input_container .emo_menu.active .ts_icon_smile_o,
@@ -6608,8 +6429,6 @@ only screen and (min-resolution:2dppx) {
 
 #message_edit_form .emo_menu.active .ts_icon_happy_smile,
 #message_edit_form .emo_menu:hover .ts_icon_happy_smile,
-#messages-input-container .emo_menu.active .ts_icon_happy_smile,
-#messages-input-container .emo_menu:hover .ts_icon_happy_smile,
 #msg_form .emo_menu.active .ts_icon_happy_smile,
 #msg_form .emo_menu:hover .ts_icon_happy_smile,
 .inline_message_input_container .emo_menu.active .ts_icon_happy_smile,
@@ -6634,6 +6453,8 @@ only screen and (min-resolution:2dppx) {
 #primary_file_button {
   position: absolute;
   bottom: 0;
+  top: 0;
+  left: 0;
   width: 2.75rem;
   padding: 0;
   border: 2px solid #e0e0e0;
@@ -6646,18 +6467,6 @@ only screen and (min-resolution:2dppx) {
   -moz-transition: background 50ms, color 50ms;
   transition: background 50ms, color 50ms;
   border-radius: 6px 0 0 6px
-}
-
-#footer:not(.footer_msg_input) #primary_file_button {
-  left: -2.75rem;
-  min-height: 2.625rem!important;
-  height: 2.625rem;
-  max-height: 10rem!important
-}
-
-#footer.footer_msg_input #primary_file_button {
-  top: 0;
-  left: 0
 }
 
 #primary_file_button .ts_icon {
