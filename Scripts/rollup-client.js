@@ -2219,14 +2219,28 @@
       if (!$msg_div.length) return;
       var model_ob = TS.shared.getActiveModelOb();
       var was_at_bottom = TS.client.ui.areMsgsScrolledToBottom();
-      var prev_msg = TS.utility.msgs.getPrevDisplayedMsg(msg.ts, model_ob.msgs);
-      var html = TS.templates.builders.msgs.buildHTML({
-        msg: msg,
-        model_ob: model_ob,
-        prev_msg: prev_msg,
-        container_id: "msgs_div",
-        enable_slack_action_links: true
-      });
+      var html;
+      if (TS.boot_data.feature_message_replies_inline && msg.thread_ts) {
+        if (msg.ts === msg.thread_ts && !$msg_div.closest("ts-thread").length) {
+          html = TS.ui.thread.buildThreadHTML(TS.ui.thread.makeInlineThread(model_ob.id, msg.thread_ts), {
+            inline: true,
+            expanded: TS.ui.thread.isThreadExpanded(model_ob.id, msg.ts)
+          });
+        } else {
+          html = TS.templates.builders.buildThreadMsgHTML(msg, model_ob, TS.ui.thread.makeInlineThread(model_ob.id, msg.thread_ts), {
+            inline: true
+          });
+        }
+      } else {
+        var prev_msg = TS.utility.msgs.getPrevDisplayedMsg(msg.ts, model_ob.msgs);
+        html = TS.templates.builders.msgs.buildHTML({
+          msg: msg,
+          model_ob: model_ob,
+          prev_msg: prev_msg,
+          container_id: "msgs_div",
+          enable_slack_action_links: true
+        });
+      }
       TS.client.msg_pane.cleanMsgDiv($msg_div);
       var was_hidden = $msg_div.hasClass("hidden");
       $msg_div.replaceWith(html);
@@ -3180,6 +3194,14 @@
           TS.newxp.cancelOnboarding();
         }
       }
+    },
+    addReplyMsg: function(model_ob, msg) {
+      if (!TS.ui.thread.isThreadExpanded(model_ob.id, msg.thread_ts)) return;
+      var $thread = TS.client.ui.$msgs_div.find('ts-thread[data-thread-ts="' + msg.thread_ts + '"]');
+      if (!$thread.length) return;
+      var thread = TS.ui.thread.makeInlineThread(model_ob.id, msg.thread_ts);
+      var show_immediately = true;
+      TS.ui.thread.updateThreadWithMessage($thread, thread, msg, show_immediately);
     }
   });
   var _last_title = null;
@@ -3307,12 +3329,18 @@
         TS.error("no msg?");
         return;
       }
+      if (TS.boot_data.feature_message_replies_inline) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
+          TS.view.addReplyMsg(channel, msg);
+          return;
+        }
+      }
+      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
       var msgs = channel.msgs;
       if (TS.boot_data.feature_message_replies) {
         var visible_msgs = _.reject(channel.msgs, TS.utility.msgs.isMsgHidden);
         msgs = visible_msgs;
       }
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
       var will_be_rolled_up = msgs.length > 1 && TS.utility.msgs.msgMightBeRolledUp(msg) && TS.utility.msgs.msgMightBeRolledUp(msgs[1]);
       if (will_be_rolled_up || msgs.length == 1 || msgs[0] != msg) {
         TS.client.msg_pane.rebuildMsgsWithReason("channelMessageReceived");
@@ -3993,12 +4021,18 @@
         TS.error("no msg?");
         return;
       }
+      if (TS.boot_data.feature_message_replies_inline) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
+          TS.view.addReplyMsg(group, msg);
+          return;
+        }
+      }
+      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
       var msgs = group.msgs;
       if (TS.boot_data.feature_message_replies) {
         var visible_msgs = _.reject(group.msgs, TS.utility.msgs.isMsgHidden);
         msgs = visible_msgs;
       }
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
       var will_be_rolled_up = msgs.length > 1 && TS.utility.msgs.msgMightBeRolledUp(msg) && TS.utility.msgs.msgMightBeRolledUp(msgs[1]);
       if (will_be_rolled_up || msgs.length == 1 || msgs[0] != msg) {
         TS.client.msg_pane.rebuildMsgsWithReason("groupMessageReceived");
@@ -4171,6 +4205,12 @@
       if (!msg) {
         TS.error("no msg?");
         return;
+      }
+      if (TS.boot_data.feature_message_replies_inline) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
+          TS.view.addReplyMsg(im, msg);
+          return;
+        }
       }
       if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
       if (im.msgs.length === 1 || im.msgs[0] !== msg) {
@@ -4493,6 +4533,12 @@
       if (!msg) {
         TS.error("no msg?");
         return;
+      }
+      if (TS.boot_data.feature_message_replies_inline) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
+          TS.view.addReplyMsg(mpim, msg);
+          return;
+        }
       }
       if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
       if (mpim.msgs.length === 1 || mpim.msgs[0] !== msg) {
@@ -12073,16 +12119,8 @@
         var jl_rolled_up_msgs = [];
         var count = 0;
         var visible_msgs = msgs;
-        var hidden_msgs = [];
         if (TS.boot_data.feature_message_replies) {
-          visible_msgs = [];
-          _.forEach(msgs, function(msg) {
-            if (TS.utility.msgs.isMsgHidden(msg)) {
-              hidden_msgs.push(msg);
-            } else {
-              visible_msgs.push(msg);
-            }
-          });
+          visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
         }
         for (var i = visible_msgs.length - 1; i > -1; i--) {
           if (!msg || !TS.utility.msgs.isMsgHidden(msg)) prev_msg = msg;
@@ -12117,24 +12155,14 @@
           }
           if (TS.boot_data.feature_message_replies_inline && msg.replies && msg.replies.length) {
             try {
-              thread = {
-                model_ob: model_ob,
-                root_msg: msg,
-                replies: [],
-                ts: msg.ts
-              };
-              var already_expanded = TS.ui.thread.isThreadExpanded(model_ob.id, thread.root_msg.ts);
-              if (already_expanded) {
-                thread.replies = _.filter(hidden_msgs, function(hidden_msg) {
-                  return hidden_msg.thread_ts === msg.ts;
+              thread = TS.ui.thread.makeInlineThread(model_ob.id, msg.ts);
+              if (thread) {
+                threads.push(thread);
+                html += TS.ui.thread.buildThreadHTML(thread, {
+                  inline: true,
+                  expanded: TS.ui.thread.isThreadExpanded(model_ob.id, msg.ts)
                 });
-                _.reverse(thread.replies);
               }
-              threads.push(thread);
-              html += TS.ui.thread.buildThreadHTML(thread, {
-                inline: true,
-                expanded: already_expanded
-              });
             } catch (err) {
               if (!err.message) err.message = "";
               TS.warn("Problem building inline thread " + msg.ts + ": " + JSON.stringify(err.message));
@@ -14455,8 +14483,6 @@
           if (!TS.boot_data.feature_focus_mode) return;
           TS.ui.focus_mode.start();
         } else {
-          TS.client.ui.flex.openFlexTab("search");
-          TS.view.resizeManually("TS.key_triggers");
           TS.clog.track("SEARCH_OPEN", {
             open_method: "key"
           });
@@ -14619,9 +14645,9 @@
     },
     loggedIn: function(ok, data) {
       if (TS.client) {
-        if (TS.model.prefs.search_sort === "timestamp") {
+        if (TS.search.sort === "timestamp") {
           $("#search_sort_timestamp").addClass("active");
-        } else if (TS.model.prefs.search_sort === "model" && $("#search_sort_model").length) {
+        } else if (TS.search.sort === "model" && $("#search_sort_model").length) {
           $("#search_sort_model").addClass("active");
         } else {
           $("#search_sort_score").addClass("active");
@@ -14718,7 +14744,7 @@
         var top_results_group = TS.experiment.getGroup("search_best_matches");
         show_top_results = (top_results_group == "best_matches" || top_results_group == "sli_best_matches") && TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
         if (show_top_results) {
-          var show_top_results_not_triggered = results.messages.modules.score.debug.show_top_results_not_triggered;
+          var debug = results.messages.modules.score.debug || {};
           html += TS.templates.search_top_results_message_results({
             results: results.messages.modules.score.top_results,
             page: results.messages.modules.score.top_results,
@@ -14726,7 +14752,7 @@
             module_order: results.messages.modules.score.order,
             show_feedback: results.show_feedback,
             for_search_display: true,
-            show_top_results_not_triggered: show_top_results_not_triggered
+            debug: debug
           });
           html += '<div class="search_module_header"><p><span>All Results</span></p></div>';
         }
@@ -14879,6 +14905,13 @@
     },
     clearFiletypeFilter: function() {
       TS.search.setFiletypeFilter("all");
+    },
+    resetSearchIfNewSession: function() {
+      var search_is_visible = TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === "search";
+      if (!search_is_visible && TS.search.searchSessionExpired()) {
+        TS.search.input.val("");
+        TS.search.setSort("timestamp");
+      }
     },
     updateOptions: function() {
       var template_args = {
@@ -15314,7 +15347,7 @@
     var $match;
     var html;
     if (!TS.search.view.msgHasExtracts(msg)) return;
-    var selector = "#search_results_items ";
+    var selector = "#search_message_results ";
     if (msg._main && msg._main.ts) {
       selector += '[data-ts="' + msg._main.ts + '"] ';
     }
@@ -18165,6 +18198,7 @@
           return false;
         });
         $input.bind("focus", function() {
+          TS.search.view.resetSearchIfNewSession();
           if ($.trim($input.val()) !== "") {
             if (TS.model.ui_state.flex_name !== "search") _inputAutocomplete("preventMenuOnNextFocus");
             TS.search.view.showResults();
@@ -22704,7 +22738,7 @@
       $ui_wrapper = $("#calls_conference_content");
     }
     $ui_wrapper.append(TS.templates.coachmark({
-      can_include_invite_cta: TS.newxp.canIncludeInviteCTA()
+      can_include_invite_cta: !TS.calls && TS.newxp.canIncludeInviteCTA()
     }));
     var $coachmark = TS.coachmark.$coachmark = $("#coachmark");
     $coachmark.css("opacity", 0);

@@ -67,7 +67,9 @@
             <span class="meta message_commented">commented:</span>
           {{/if}}
         {{/if}}
+        {{#unless for_top_results_search_display}}
         <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+        {{/unless}}
         {{#unless standalone}}
           {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
         {{/unless}}
@@ -93,7 +95,6 @@
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
           {{#if for_top_results_search_display}}
-            <span class="channel">in #{{msg.channel.name}}</span>
             <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">Jump</a></span>
           {{/if}}
         {{/if}}
@@ -109,6 +110,30 @@
         {{#if jump_link}}{{jump_link}}{{/if}}
       {{/if}}
     </div>
+
+    {{#if for_top_results_search_display}}
+    <div class="message_content_header">
+      <div class="message_content_header_left">
+        <span class="timestamp">{{toCalendarDateOrNamedDayShort msg.ts}} at {{{toTime msg.ts}}} in&nbsp;</span>
+        <span class="channel">
+          {{#if_equal msg.type compare='im'}}
+            {{makeIMLinkById msg.channel.id}}
+          {{else}}
+            {{#if_equal msg.type compare='group'}}
+              {{#if msg.channel.is_mpim}}
+                {{makeMpimLink msg.channel true}}
+              {{else}}
+                {{makeGroupLink msg.channel}}
+              {{/if}}
+            {{else}}
+              {{makeChannelLink msg.channel}}
+            {{/if_equal}}
+          {{/if_equal}}
+        </span>
+      </div>
+    </div>
+    {{/if}}
+
     {{#unless is_tombstone}}
     {{#if file}}
       {{#if comment}}

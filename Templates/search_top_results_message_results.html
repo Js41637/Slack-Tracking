@@ -1,9 +1,9 @@
 <div class="search_module_header"><p><span>Top Results</span></span></p></div>
 <div class="search_module">
-  <div class="top_results_message_results{{#if show_top_results_not_triggered}} show_top_results_not_triggered{{/if}}">
+  <div class="top_results_message_results{{#if debug.show_top_results_not_triggered}} show_top_results_not_triggered{{/if}}">
     {{#if page}}
       {{#each page}}
-      {{> search_top_results_message_results_item is_enterprise=../is_enterprise teams_info=../results.teams search_global=../search_global show_feedback=../show_feedback index=@index module_order=../module_order module_name=../module_name top_results_module=../top_results_module show_top_results_not_triggered=../show_top_results_not_triggered}}
+      {{> search_top_results_message_results_item is_enterprise=../is_enterprise teams_info=../results.teams search_global=../search_global show_feedback=../show_feedback index=@index module_order=../module_order module_name=../module_name top_results_module=../top_results_module show_top_results_not_triggered=../debug.show_top_results_not_triggered message_ids_overlap=../debug.message_ids_overlap}}
       {{/each}}
       {{paging_html}}
     {{else}}
@@ -11,9 +11,17 @@
     {{/if}}
   </div>
 </div>
-<div class="search_module_footer{{#if show_top_results_not_triggered}} show_top_results_not_triggered{{/if}}">
+<div class="search_module_footer{{#if debug.show_top_results_not_triggered}} show_top_results_not_triggered{{/if}}">
   <p>
     <span>Were these <span class="top_results_feedback"><u><a onclick="TS.search.topResultsFeedback(\\'top_results_useful\\');">useful</a></u></span> or <span class="top_results_feedback"><u><a onclick="TS.search.topResultsFeedback(\\'top_results_not_useful\\');">not useful</a></u></span>?</span>
     <span id="see_more"><a onclick="TS.search.moreTopResults();">See more</a><ts-icon style="position: absolute" class="ts_icon_chevron_right"></ts-icon></span>
   </p>
 </div>
+{{#if debug.show_top_results_not_triggered}}
+<div style="color: red; font-size: 12px;">Triggers Failed</div>
+<ul>
+  {{#each debug.triggers_failed}}
+    <li><span style="color: red; font-size: 12px">{{this}}</span></li>
+  {{/each}}
+</ul>
+{{/if}}

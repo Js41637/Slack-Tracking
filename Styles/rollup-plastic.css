@@ -814,7 +814,7 @@ svg.ts_icon_spinner.ts_icon_inherit {
 
 .ts_icon_spin.ts_icon_spinner:empty,
 svg.ts_icon_spinner:empty {
-  background: url(/9a9a/img/starburst.svg);
+  background: url(/b2b1/img/starburst.svg);
   background-size: 100% auto
 }
 
@@ -12346,8 +12346,7 @@ only screen and (min-resolution:2dppx) {
   transform: translateY(-1px)
 }
 
-#client-ui.flexpane_redesign #team_list,
-.flexpane_redesign #member_preview_scroller {
+#client-ui.flexpane_redesign #team_list {
   margin-left: .5rem
 }
 

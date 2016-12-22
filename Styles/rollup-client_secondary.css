@@ -4230,7 +4230,8 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .light_theme .top_results_search_message_result .message_content_header_left {
-  margin-right: 0rem
+  margin-right: 0rem;
+  line-height: .75rem
 }
 
 .msg_right_link {
@@ -6301,8 +6302,7 @@ only screen and (min-resolution:2dppx) {
   transform: translateY(-1px)
 }
 
-#client-ui.flexpane_redesign #team_list,
-.flexpane_redesign #member_preview_scroller {
+#client-ui.flexpane_redesign #team_list {
   margin-left: .5rem
 }
 
@@ -13341,7 +13341,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 .flexpane_redesign .search_message_result {
-  padding-left: .5rem
+  padding-left: .5rem;
+  margin-right: 0
 }
 
 .search_message_result:first-child {
@@ -13542,11 +13543,15 @@ span.match {
   border-right: 1px solid #F3F3F3;
   border-bottom: 1px solid #F3F3F3;
   margin-bottom: 0;
-  border-top: none;
+  border-top: 1px solid transparent;
   padding-top: .25rem;
   padding-bottom: .25rem;
   padding-left: .5rem;
   padding-right: .5rem
+}
+
+.top_results_search_message_result.duplicate {
+  background-color: #F99
 }
 
 .top_results_search_message_result .message_star_holder {
@@ -13554,15 +13559,19 @@ span.match {
 }
 
 .top_results_search_message_result .timestamp {
-  font-size: 12px;
+  font-size: 11px;
   color: #9B9B9B;
   margin-right: 0!important
 }
 
 .top_results_search_message_result .channel {
-  font-size: 12px;
+  font-size: 11px;
   color: #9B9B9B;
   font-weight: 700
+}
+
+.top_results_search_message_result .channel a {
+  color: #9B9B9B
 }
 
 .top_results_search_message_result .jump {
@@ -13575,6 +13584,10 @@ span.match {
 
 .top_results_search_message_result .dense_theme .jump {
   display: none
+}
+
+.top_results_search_message_result:hover {
+  border: 1px solid rgba(160, 160, 162, .6)!important
 }
 
 .top_results_search_message_result:first-child {
@@ -13682,6 +13695,10 @@ ts-icon.sli_feedback::before {
   padding: 0 1rem 0 .5rem
 }
 
+.flexpane_redesign #search_results_container .flex_content_scroller {
+  padding-right: 0
+}
+
 #search_results_container .heading {
   border-bottom: none;
   height: auto;
@@ -13724,7 +13741,8 @@ ts-icon.sli_feedback::before {
   border: 1px solid #f3f3f3
 }
 
-.feature_new_team_list #search_results_team .team_result {
+.feature_new_team_list #search_results_team .team_result,
+.flexpane_redesign #search_results_team .team_result {
   margin-left: .25rem
 }
 
@@ -23611,7 +23629,7 @@ ts-jumper ts-jumper-results:empty {
   margin-left: .12em;
   width: .76em;
   height: .76em;
-  background: url(/9a9a/img/starburst.svg);
+  background: url(/b2b1/img/starburst.svg);
   background-size: 100% 100%;
   content: '';
   -webkit-animation: 1s linear 0s infinite normal none spin;

@@ -1199,12 +1199,6 @@
           TS.refreshTeams();
         }
       }
-      if (_should_record_boot_size_metrics && (first_time || is_first_full_boot)) {
-        TS.utility.rAF(function() {
-          var log_name = first_time ? "incremental_boot_size" : "rtm_start_size";
-          TS.metrics.count(log_name, JSON.stringify(data).length);
-        });
-      }
       if (data.online_users && _.isArray(data.online_users)) {
         TS.model.online_users = _.filter(data.online_users, function(user_id) {
           return user_id !== "USLACKBOT";
@@ -1259,11 +1253,6 @@
       if (TS._did_incremental_boot && !TS._incremental_boot && !TS._did_full_boot) {} else {
         for (i = 0; i < data_user_list.length; i++) {
           data_user_list_by_id[data_user_list[i].id] = true;
-        }
-        if (_should_record_boot_size_metrics) {
-          TS.utility.rAF(function() {
-            TS.metrics.count("members_local_storage_size", JSON.stringify(users_cache).length);
-          });
         }
       }
       var should_check_if_local = TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members;
@@ -1322,7 +1311,7 @@
       var doAllMembersFromChannelsInRawDataExist = function(with_shared) {
         if (TS._incremental_boot) return true;
         if (TS.lazyLoadMembersAndBots()) return true;
-        if (TS.calls && TS.calls.isRtmStartDisabled()) return true;
+        if (TS.calls) return true;
         if (TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members) return true;
         var ids = {};
         var addMembersToHash = function(model_ob) {
@@ -1569,7 +1558,6 @@
     window.addEventListener("sleep", _onSleep, false);
     window.addEventListener("wake", _onWake, false);
   };
-  var _should_record_boot_size_metrics = _.random(0, 100) < 10 || /should_record_boot_size_metrics/.test(document.location.search);
 })();
 (function() {
   "use strict";
@@ -2783,7 +2771,6 @@
         if (window.winssb) {
           TS.model.supports_voice_calls = !!(winssb.screenhero || winssb.calls);
           if (TS.model.win_ssb_version && TS.model.win_ssb_version < 2) TS.model.supports_voice_calls = false;
-          if (TS.model.lin_ssb_version && !TS.boot_data.feature_calls_linux) TS.model.supports_voice_calls = false;
         } else if (window.macgap) {
           TS.model.supports_voice_calls = !!(macgap.screenhero || macgap.calls);
           if (TS.model.mac_ssb_version < 2) TS.model.supports_voice_calls = false;

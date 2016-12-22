@@ -9938,7 +9938,6 @@ TS.registerModule("constants", {
         return;
       }
       if (!TS.members.is_in_bulk_upsert_mode) {
-        TS.utility.rAF(_logIncompleteMembers);
         TS.members.invalidateMembersUserCanSeeArrayCaches();
         TS.members.invalidateActiveMembersArrayCaches();
       }
@@ -10462,7 +10461,6 @@ TS.registerModule("constants", {
     finishBatchUpsert: function() {
       if (!TS.members.is_in_bulk_upsert_mode) return false;
       TS.members.is_in_bulk_upsert_mode = false;
-      TS.utility.rAF(_logIncompleteMembers);
       TS.members.invalidateMembersUserCanSeeArrayCaches();
       TS.members.invalidateActiveMembersArrayCaches();
       TS.members.maybeStoreMembers();
@@ -10612,14 +10610,6 @@ TS.registerModule("constants", {
         },
         set: function(v) {
           _setImagesForMember = v;
-        }
-      });
-      Object.defineProperty(test, "_logIncompleteMembers", {
-        get: function() {
-          return _logIncompleteMembers;
-        },
-        set: function(v) {
-          _logIncompleteMembers = v;
         }
       });
       return test;
@@ -11077,54 +11067,6 @@ TS.registerModule("constants", {
     member.presence = member.presence == "active" ? "active" : "away";
     if (_.get(member, "profile.always_active")) {
       member.presence = "active";
-    }
-  };
-  var _already_tried_to_fix_incomplete_members = false;
-  var _logIncompleteMembers = function() {
-    if (!TS.client) return;
-    var incomplete = _.filter(TS.model.members, function(member) {
-      return !_.isObject(member.profile) || !member.profile.image_24 || !member.profile.avatar_hash;
-    });
-    if (incomplete.length > 0) {
-      TS.metrics.count("incomplete_model_members");
-      var profiles = _.filter(incomplete, function(member) {
-        return !_.isObject(member.profile);
-      });
-      var images = _.difference(incomplete, profiles);
-      images = _.filter(images, function(member) {
-        return !member.profile.image_24;
-      });
-      var avatars = _.difference(incomplete, profiles);
-      avatars = _.filter(avatars, function(member) {
-        return !member.profile.avatar_hash;
-      });
-      incomplete = _.map(incomplete, "id");
-      profiles = _.map(profiles, "id");
-      images = _.map(images, "id");
-      avatars = _.map(avatars, "id");
-      var desc = "missing";
-      if (profiles.length > 0) desc += " profiles";
-      if (images.length > 0) desc += " images";
-      if (avatars.length > 0) desc += " avatars";
-      TS.logError({
-        profiles: profiles,
-        images: images,
-        avatar: avatars,
-        try_to_fix: !_already_tried_to_fix_incomplete_members
-      }, desc, "incomplete_model_members");
-      if (!_already_tried_to_fix_incomplete_members) {
-        _already_tried_to_fix_incomplete_members = true;
-        TS.members.startBatchUpsert();
-        incomplete = _.chunk(incomplete, 10);
-        var promises = _.map(incomplete, function(member_ids) {
-          return TS.api.call("users.info", {
-            users: member_ids.join(",")
-          }).then(function(resp) {
-            resp.data.users.forEach(TS.members.upsertAndSignal);
-          });
-        });
-        Promise.all(promises).then(TS.members.finishBatchUpsert);
-      }
     }
   };
 })();
@@ -13745,11 +13687,16 @@ TS.registerModule("constants", {
       TSSSB.call("inputFieldCreated", TS.search.input.get(0));
     },
     loggedIn: function() {
-      var pref = TS.model.prefs.search_sort;
-      if (pref === "model" && !$("#search_sort_model").length) {
-        pref = "score";
+      var experiment_group = _.get(TS.boot_data.experiment_assignments, "search_best_matches.group");
+      if (experiment_group == "sli_best_matches" || experiment_group == "best_matches") {
+        TS.search.sort = "timestamp";
+      } else {
+        var pref = TS.model.prefs.search_sort;
+        if (pref === "model" && !$("#search_sort_model").length) {
+          pref = "score";
+        }
+        TS.search.sort = pref == "score" || pref == "timestamp" || pref == "model" ? pref : TS.search.sort;
       }
-      TS.search.sort = pref == "score" || pref == "timestamp" || pref == "model" ? pref : TS.search.sort;
     },
     startSearchTimer: function(query, count, callback) {
       clearTimeout(TS.search.submit_tim);
@@ -14005,6 +13952,7 @@ TS.registerModule("constants", {
         clearTimeout(TS.search.widget.key_tim);
       }
       TS.search.previous_query = TS.search.query;
+      _last_search_time = new Date;
       if (query) {
         TS.search.query = query;
       } else {
@@ -14115,38 +14063,53 @@ TS.registerModule("constants", {
       var highlighted = value.replace(new RegExp("(" + TS.utility.preg_quote(TS.search.input.val()) + ")", "gi"), "<b>$1</b>");
       return highlighted;
     },
+    expandChannelsAndCheckForMsgsInMatch: function(match) {
+      var model_ob;
+      var c_id = match.channel.id;
+      var existing_rxns;
+      _ingestMsgSearchResultExtras(match, c_id);
+      _nextprev_names.forEach(function(name) {
+        if (!match[name]) return;
+        _ingestMsgSearchResultExtras(match[name], c_id);
+      });
+      existing_rxns = TS.rxns.getExistingRxnsByKey(match._rxn_key);
+      if (existing_rxns && !match.reactions) {
+        TS.warn("msg:" + match.ts + " has reactions in local model, but we got an object in search results that does NOT have reactions, which seems suspicious");
+      } else {
+        TS.rxns.upsertRxnsFromDataAndUpdateUI(match._rxn_key, match.reactions);
+      }
+      model_ob = TS.shared.getModelObById(c_id);
+      if (model_ob) {
+        if (match.type == "im" && !TS.ims.isImWithDeletedMember(model_ob)) {
+          match.im_exists = true;
+        }
+        if (model_ob.msgs) {
+          match.is_loaded = !!TS.utility.msgs.getMsg(match.ts, model_ob.msgs);
+        } else if (TS.client) {
+          TS.warn(model_ob.id + " has no msgs");
+        }
+        match.channel = model_ob;
+        if (!match.permalink) match.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, match.ts);
+      }
+    },
     expandChannelsAndCheckForMsgsInModel: function(results) {
       var match;
-      var model_ob;
       if (!results.messages || !results.messages.matches) return;
-      var existing_rxns;
       for (var i = 0; i < results.messages.matches.length; i++) {
         match = results.messages.matches[i];
         if (!match) continue;
-        var c_id = match.channel.id;
-        _ingestMsgSearchResultExtras(match, c_id);
-        _nextprev_names.forEach(function(name) {
-          if (!match[name]) return;
-          _ingestMsgSearchResultExtras(match[name], c_id);
-        });
-        existing_rxns = TS.rxns.getExistingRxnsByKey(match._rxn_key);
-        if (existing_rxns && !match.reactions) {
-          TS.warn("msg:" + match.ts + " has reactions in local model, but we got an object in search results that does NOT have reactions, which seems suspicious");
-        } else {
-          TS.rxns.upsertRxnsFromDataAndUpdateUI(match._rxn_key, match.reactions);
+        TS.search.expandChannelsAndCheckForMsgsInMatch(match);
+      }
+      if (results.messages.modules && results.messages.modules.score) {
+        for (var i = 0; i < results.messages.modules.score.matches.length; i++) {
+          match = results.messages.modules.score.matches[i];
+          if (!match) continue;
+          TS.search.expandChannelsAndCheckForMsgsInMatch(match);
         }
-        model_ob = TS.shared.getModelObById(c_id);
-        if (model_ob) {
-          if (match.type == "im" && !TS.ims.isImWithDeletedMember(model_ob)) {
-            match.im_exists = true;
-          }
-          if (model_ob.msgs) {
-            match.is_loaded = !!TS.utility.msgs.getMsg(match.ts, model_ob.msgs);
-          } else if (TS.client) {
-            TS.warn(model_ob.id + " has no msgs");
-          }
-          match.channel = model_ob;
-          if (!match.permalink) match.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, match.ts);
+        for (var i = 0; i < results.messages.modules.score.top_results.length; i++) {
+          match = results.messages.modules.score.top_results[i];
+          if (!match) continue;
+          TS.search.expandChannelsAndCheckForMsgsInMatch(match);
         }
       }
     },
@@ -14278,11 +14241,21 @@ TS.registerModule("constants", {
     submitSearch: function() {
       TS.search.input.closest("form").trigger("submit");
     },
+    searchSessionExpired: function() {
+      var experiment_group = _.get(TS.boot_data.experiment_assignments, "search_best_matches.group");
+      if (experiment_group == "sli_best_matches" || experiment_group == "best_matches") {
+        return _last_search_time && Date.now() - _last_search_time > _max_session_time;
+      } else {
+        return false;
+      }
+    },
     debugQuery: function(team_id, user_id) {
       var uri = "/mc/search_eval_query.php" + "?team_id=" + team_id + "&user_id=" + user_id + "&query=" + encodeURIComponent(TS.search.query_string);
       window.open(uri);
     }
   });
+  var _last_search_time;
+  var _max_session_time = 5 * 60 * 1e3;
   var _nextprev_names = ["next", "next_2", "previous", "previous_2"];
   var _ingestMsgSearchResultExtras = function(ob, c_id) {
     ob._rxn_key = TS.rxns.getRxnKey("message", ob.ts, c_id);
@@ -18436,9 +18409,7 @@ TS.registerModule("constants", {
           description = TS.i18n.t("This call has ended", "calls")();
         }
       } else {
-        if (TS.model.is_our_app && !!TS.model.lin_ssb_version && !TS.boot_data.feature_calls_linux) {
-          description = TS.i18n.t("The calls feature is not yet available for Linux", "calls")();
-        } else if (!room.is_dm_call) {
+        if (!room.is_dm_call) {
           description = room.participants.indexOf(TS.model.user.id) != -1 ? TS.i18n.t("You are on this call", "calls")() : TS.i18n.t("Join this call", "calls")();
         } else if (room.participants.length === 2) {
           description = TS.i18n.t("On a call with {name}", "calls")({
@@ -18466,7 +18437,7 @@ TS.registerModule("constants", {
         title: title,
         description: description,
         show_description_ellipsis: room.participants.length === 2,
-        show_room_link: !room.date_end && !(TS.model.is_our_app && !!TS.model.lin_ssb_version && !TS.boot_data.feature_calls_linux),
+        show_room_link: !room.date_end,
         expand_it: TS.inline_room_previews.shouldExpand(room.id),
         duration: duration
       });
@@ -21056,9 +21027,11 @@ TS.registerModule("constants", {
       var loading_str = TS.i18n.t("loading&hellip;", "templates_builders")();
       return '<div class="loading_hash_animation"><img src="' + url_2x + '" alt="' + loading_str + '" srcset="' + url_1x + " 1x, " + url_2x + ' 2x" /><br />' + loading_str + "</div>";
     },
-    buildThreadMsgHTML: function(msg, model_ob, thread) {
+    buildThreadMsgHTML: function(msg, model_ob, thread, options) {
+      var inline = !!_.get(options, "inline");
+      var msg_dom_id = inline ? TS.templates.makeMsgDomId(msg.ts) : TS.templates.makeMsgDomIdInThreadsView(msg.ts);
       return TS.templates.builders.msgs.buildHTML({
-        msg_dom_id: TS.templates.makeMsgDomIdInThreadsView(msg.ts),
+        msg_dom_id: msg_dom_id,
         model_ob: model_ob,
         msg: msg,
         is_threads_view: true,
@@ -21740,6 +21713,12 @@ TS.registerModule("constants", {
           strong: options.hash.strong
         });
         return new Handlebars.SafeString(list.join(""));
+      });
+      Handlebars.registerHelper("ifInArray", function(item, array, options) {
+        if (array.indexOf(item) > -1) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("getDisplayNamesFromIds", function(arr) {
         var names = arr.map(function(id) {
@@ -23417,8 +23396,8 @@ TS.registerModule("constants", {
           return options.inverse(this);
         }
       });
-      Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob, thread) {
-        var html = TS.templates.builders.buildThreadMsgHTML(msg, model_ob, thread);
+      Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob, thread, options) {
+        var html = TS.templates.builders.buildThreadMsgHTML(msg, model_ob, thread, options);
         return new Handlebars.SafeString(html);
       });
     },
@@ -46456,6 +46435,24 @@ $.fn.togglify = function(settings) {
         }
       }
     });
+    TS.click.addClientHandler(".top_results_search_message_result", function(e, $el, origin) {
+      var $target = $(e.target);
+      if ($target.attr("href")) return;
+      var match_with_index = TS.search.view.getMatchForSearchResult($el);
+      if (!match_with_index) return;
+      var match = match_with_index.match;
+      e.preventDefault();
+      var c_id = match.channel && match.channel.id ? match.channel.id : match.channel;
+      if (TS.boot_data.feature_message_replies) {
+        var model_ob = TS.shared.getModelObById(c_id);
+        var thread_ts = match.thread_ts;
+        if (thread_ts && thread_ts != match.ts) {
+          TS.ui.replies.openConversation(model_ob, thread_ts, match.ts, origin);
+          return;
+        }
+      }
+      TS.client.ui.tryToJump(c_id, match.ts);
+    });
     TS.click.addClientHandler(".search_message_result a, .search_message_result button", function(e, $el) {
       var $target = $(e.target);
       var match_with_index = TS.search.view.getMatchForSearchResult($el);
@@ -46560,7 +46557,7 @@ $.fn.togglify = function(settings) {
       payload.message_id = match_with_index.match.ts;
       payload.permalink = match_with_index.match.permalink;
       payload.query = TS.search.view.latest_msg_search_results.query;
-      payload.search_sort = TS.model.prefs.search_sort;
+      payload.search_sort = TS.search.sort;
       payload.search_exclude_bots = TS.model.prefs.search_exclude_bots;
       payload.search_only_current_team = TS.model.prefs.search_only_current_team;
       payload.search_exclude_channel = TS.model.prefs.search_exclude_channels;
@@ -47047,6 +47044,7 @@ $.fn.togglify = function(settings) {
       var $target = $(e.target);
       if ($target.attr("href") || $target.attr("onclick")) return;
       if ($target.parents(".message").length && window.getSelection && window.getSelection().toString()) return;
+      if ($el.hasClass("top_results_search_message_result")) return;
       var match_with_index = TS.search.view.getMatchForSearchResult($el);
       if (!match_with_index) return;
       if ($result.hasClass("no_extracts")) return;
@@ -52029,9 +52027,6 @@ $.fn.togglify = function(settings) {
     },
     isEnabled: function() {
       if (!TS.model || !TS.model.team || !TS.model.team.prefs) return false;
-      if (TS.model.is_our_app && TS.model.lin_ssb_version && !TS.boot_data.feature_calls_linux) {
-        return false;
-      }
       return TS.boot_data.feature_calls && TS.model.team.prefs.allow_calls;
     },
     isCallWindowReady: function() {
@@ -52298,10 +52293,6 @@ $.fn.togglify = function(settings) {
     },
     isSupportedMessage: function(type) {
       var calls_supported_message_types = ["user_change", "pref_change", "team_join", "channel_created", "channel_deleted", "channel_archive", "channel_unarchive", "channel_rename", "channel_joined", "channel_left", "group_deleted", "group_archive", "group_unarchive", "group_rename", "group_joined", "group_left", "im_open", "mpim_joined", "mpim_open", "mpim_close"];
-      if (!TS.boot_data.feature_calls_no_rtm_start) {
-        calls_supported_message_types.push("presence_change");
-        calls_supported_message_types.push("manual_presence_change");
-      }
       return calls_supported_message_types.indexOf(type) !== -1;
     },
     getPlatformErrorMessage: function() {
