@@ -1,5 +1,6 @@
+{{i18n_ns "pages_admin"}}
 {{#if_equal select_context compare="territories"}}
-  <option value="" {{#unless @key compare=selected_option}}selected{{/unless}} disabled>Please select a state/province/region</option>
+  <option value="" {{#unless @key compare=selected_option}}selected{{/unless}} disabled>{{#t note="default in state selection dropdown for billing address"}}Please select a state/province/region{{/t}}</option>
 {{/if_equal}}
 {{#each select_content}}
   {{#if_equal ../select_context compare="countries"}}

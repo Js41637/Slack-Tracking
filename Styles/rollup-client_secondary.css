@@ -1793,12 +1793,9 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
   top: .3rem
 }
 
+#details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_close,
 #details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_search {
-  top: .6rem
-}
-
-#details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_close {
-  top: .65rem
+  top: .4rem
 }
 
 #details_tab .channel_page_section .channel_page_details_highlighter,

@@ -1,22 +1,23 @@
+  {{i18n_ns "pages_admin"}}  
   <div class="billing_contact {{#if member.is_primary_owner}}primary_owner{{/if}} {{#if member.deleted}}inactive{{/if}}" data-contact-id="{{contact.id}}">
     {{#if member}}
       {{{makeMemberPreviewLinkImage member.id 48}}}
       <div class="inline_block" style="margin-left: 8px">
         <div class="no_wrap">
-          <strong>{{#if member.is_self}}You &bull; {{/if}}{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}}</strong>
-          {{#if member.deleted}}&bull; <em class="subtle_silver">(Disabled)</em>{{/if}}
+          <strong>{{#if member.is_self}}{{#t note="Shown when primary owner is viewing primary owner field"}}You &bull;{{/t}} {{/if}}{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}}</strong>
+          {{#if member.deleted}}&bull; <em class="subtle_silver">{{#t note="Display next to username if user is disabled"}}(Disabled){{/t}}</em>{{/if}}
         </div>
         <div>{{member_type}} {{#unless member.is_primary_owner}}&bull; {{member.profile.email}}{{/unless}}</div>
       </div>
       {{#if is_primary_and_self}}
         <label class="checkbox primary_owner_toggle_label" for="primary_owner_toggle">
-          <input id="primary_owner_toggle" type="checkbox"> Send billing emails to you at <strong>{{member.profile.email}}</strong>
+          <input id="primary_owner_toggle" type="checkbox"> {{#t}}Send billing emails to you at <strong>{member.profile.email}</strong>{{/t}}
         </label>
       {{/if}}
     {{else}}
       <div class="inline_block" style="margin-left: 56px">
         <div class="no_wrap"><strong>{{contact.email}}</strong></div>
-        <div>Billing Contact</div>
+        <div>{{#t note="header to display billing contact information"}}Billing Contact{{/t}}</div>
       </div>
     {{/if}}
     {{#unless member.is_primary_owner}}

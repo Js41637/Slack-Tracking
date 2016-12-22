@@ -9243,16 +9243,15 @@
 })();
 (function() {
   "use strict";
+  var MINIMUM_MEMBERS_FOR_SEARCH = 10;
+  var FETCH_PAGE_SIZE = 10;
+  var LOAD_MORE_AT_PIXELS_FROM_BOTTOM = 100;
+  var RESIZE_THROTTLE_MS = 33;
+  var SCROLL_DEBOUNCE_MS = 100;
   TS.registerComponent("SearchableMemberList", {
     _constructor: function(options) {
-      this._MINIMUM_MEMBERS_FOR_SEARCH = 10;
-      this._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL = 100;
-      this._PAGE_SIZE = 10;
-      this._LOAD_MORE_AT_PIXELS_FROM_BOTTOM = 100;
-      this._RESIZE_THROTTLE_MS = 33;
-      this._SCROLL_DEBOUNCE_MS = 100;
-      this._approx_item_height = options.member_ids ? 20 : 92;
-      this._approx_divider_height = options.member_ids ? 0 : 40;
+      this.id = options.id;
+      this._approx_item_height = options.channel_member_ids ? 30 : 92;
       this.$_container = options.$container;
       this.$_long_list_view;
       this.$_search_bar;
@@ -9263,22 +9262,18 @@
       this._current_query_for_display = "";
       this._current_query_for_match = "";
       this._next_marker = "";
-      this._members_in_view = [];
-      this._member_ids_in_view = [];
       this._have_all_members = false;
-      this._fetch_more_members_p = null;
-      this._is_searching = false;
-      this.long_list_view_initialized = false;
+      this._members = [];
+      this._channel_member_ids = options.channel_member_ids;
+      this._long_list_view_height = 0;
+      this._long_list_view_items_height = 0;
+      this._long_list_view_initial_height = null;
+      this._fetch_page_p = null;
       this._presence_list = new TS.PresenceList;
-      this._member_ids_loaded = [];
-      this.id = options.id;
-      this._member_ids = options.member_ids;
       this._resize_sig_handler = null;
     },
     destroy: function() {
-      if (this._resize_sig_handler) {
-        TS.view.resize_sig.remove(this._resize_sig_handler);
-      }
+      if (this._resize_sig_handler) TS.view.resize_sig.remove(this._resize_sig_handler);
       TS.utility.cancelRAF(this._animation_frame_callback);
       this.$_container.off();
       if (this.$_long_list_view) this.$_long_list_view.off();
@@ -9288,183 +9283,88 @@
       if (this.$_long_list_view && this.$_long_list_view.length && $.data(this.$_long_list_view.get(0), "TS-longListView")) {
         this.$_long_list_view.longListView("destroy");
       }
-      if (this.$_search_bar) {
-        this.$_search_bar.remove();
-      }
-      this._presence_list.remove(this._member_ids_loaded);
-      return;
+      if (this.$_search_bar) this.$_search_bar.remove();
+      this._presence_list.clear();
     },
     showInitial: function() {
       var this_searchable_member_list = this;
       this.$_long_list_view = this.$_container.find(".searchable_member_list_scroller");
-      TS.view.resizeManually("TS.SearchableMemberList.showInitial");
-      this._startLoadingState();
-      if (this_searchable_member_list._getBestEffortNumMembers() <= this_searchable_member_list._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
-        var load_members_p;
-        if (this._member_ids) {
-          var missing_member_ids = _.reject(this._member_ids, TS.members.getMemberById);
-          if (!missing_member_ids.length) {
-            load_members_p = Promise.resolve();
-          } else {
-            load_members_p = TS.flannel.fetchAndUpsertObjectsByIds(missing_member_ids);
-          }
-        } else {
-          load_members_p = TS.team.ensureEntireTeamLoaded();
-        }
-        return load_members_p.then(function() {
-          this_searchable_member_list._stopLoadingState();
-          this_searchable_member_list._loadSearchBar();
-          this_searchable_member_list._loadLocalMembersIntoLongListView();
-          return null;
-        });
-      }
-      return Promise.resolve().then(function() {
-        this_searchable_member_list._loadSearchBar();
-        return this_searchable_member_list._fetchMoreMembers().then(function(response) {
-          this_searchable_member_list._trackPresence(_.map(response, "id"));
-          this_searchable_member_list._stopLoadingState();
-          this_searchable_member_list._loadLongListView({
-            items: this_searchable_member_list._members_in_view
-          });
-          return null;
-        });
+      this._showLoadingState();
+      this._fetchPage().then(function(members) {
+        this_searchable_member_list._hideLoadingState();
+        this_searchable_member_list._processPage(members);
+        this_searchable_member_list._setupLongListView();
+        this_searchable_member_list._maybeSetupSearchBar();
       });
     },
-    resetResults: function() {
+    _fetchPage: function() {
       var this_searchable_member_list = this;
-      this._is_searching = false;
-      this._current_query_for_match = "";
-      this._current_query_for_display = "";
-      this._current_filter = "everyone";
-      this._maybeClearNoResults();
-      this.$_search_input.val("");
-      this.$_clear_icon.addClass("hidden");
-      this.$_long_list_view.scrollTop(0);
-      this.$_long_list_view.height(this.long_list_view_intial_height);
-      if (this._getBestEffortNumMembers() <= this._MAXIMUM_MEMBERS_BEFORE_NO_INITIAL) {
-        this._loadLocalMembersIntoLongListView();
-        return;
-      }
-      this._fetchMoreMembers().then(function() {
-        this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members_in_view, true, true);
-      });
-    },
-    fetchAndShowResults: function(query) {
-      var this_searchable_member_list = this;
-      this.fetchResults(query).then(function(response) {
-        return this_searchable_member_list.showResults(response.items);
-      });
-    },
-    fetchResults: function(query) {
-      var this_searchable_member_list = this;
-      this._current_query_for_display = query.trim();
-      this._current_query_for_match = query.trim().toLocaleLowerCase();
-      this._is_searching = true;
-      return TS.members.promiseToSearchMembers({
+      if (this._fetch_page_p) return this._fetch_page_p;
+      this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery({
         query: this._current_query_for_match,
-        include_self: true,
-        include_org: true,
-        full_profile_filter: true,
-        include_bots: true,
-        include_deleted: this._current_filter == "disabled_members"
+        limit: FETCH_PAGE_SIZE,
+        marker: this._next_marker,
+        ids: this._channel_member_ids
       }).then(function(response) {
-        this_searchable_member_list._trackPresence(_.map(response.items, "id"));
-        return response;
+        this_searchable_member_list._fetch_page_p = null;
+        this_searchable_member_list._next_marker = response.next_marker;
+        if (!response.next_marker) this_searchable_member_list._have_all_members = true;
+        return response.objects;
+      });
+      return this._fetch_page_p;
+    },
+    _processPage: function(members) {
+      this._members = _.union(this._members, members);
+      this._presence_list.add(_.map(this._members, "id"));
+    },
+    _fetchProcessAndDisplayPage: function() {
+      var this_searchable_member_list = this;
+      return this._fetchPage().then(function(members) {
+        this_searchable_member_list._processPage(members);
+        if (this_searchable_member_list._members.length > 0) {
+          this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
+          TS.utility.rAF(function() {
+            this_searchable_member_list._resize_sig_handler();
+          });
+          this_searchable_member_list._matchHeightToContents();
+        } else {
+          this_searchable_member_list._showNoResultsState();
+        }
       });
     },
-    showResults: function(matching_members) {
+    _maybeSetupSearchBar: function() {
       var this_searchable_member_list = this;
-      if (!this.long_list_view_intial_height) {
-        this.long_list_view_intial_height = this.$_long_list_view.height();
-      }
-      if (matching_members.length > 0) {
-        this._maybeClearNoResults();
-        this.$_long_list_view.longListView("setItems", matching_members, true);
-        this._animation_frame_callback = TS.utility.rAF(function() {
-          var long_list_view_contents_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-          if (long_list_view_contents_height < this_searchable_member_list.long_list_view_intial_height) {
-            this_searchable_member_list.$_long_list_view.height(long_list_view_contents_height);
-          } else {
-            this_searchable_member_list.$_long_list_view.height(this_searchable_member_list.long_list_view_intial_height);
-          }
-        });
-      } else {
-        if (this._current_query_for_match == "" && this._current_filter == "everyone") {
-          this._maybeClearNoResults();
-          this.resetResults();
-        } else {
-          this._showNoResults();
-        }
-      }
-      return null;
-    },
-    getCurrentFilter: function() {
-      return this._current_filter;
-    },
-    _getBestEffortNumMembers: function() {
-      if (this._member_ids) {
-        return this._member_ids.length;
-      } else {
-        return TS.team.getBestEffortTotalTeamSize();
-      }
-    },
-    _loadLocalMembersIntoLongListView: function() {
-      var members_for_user;
-      if (this._member_ids) {
-        members_for_user = _.map(this._member_ids, TS.members.getMemberById);
-      } else {
-        members_for_user = TS.members.getMembersForUser();
-      }
-      members_for_user = TS.members.allocateTeamListMembers(members_for_user);
-      members_for_user = members_for_user.members.concat(members_for_user.restricted_members).concat(members_for_user.ultra_restricted_members);
-      members_for_user.sort(TS.members.memberSorterByActiveWithBotsLast);
-      this._have_all_members = true;
-      this._presence_list.add(_.map(members_for_user, "id"));
-      if (this.long_list_view_initialized) {
-        this.$_long_list_view.longListView("setItems", members_for_user, true, true);
-      } else {
-        this._loadLongListView({
-          items: members_for_user
-        });
-      }
-    },
-    _loadSearchBar: function() {
-      var this_searchable_member_list = this;
-      if (this_searchable_member_list._getBestEffortNumMembers() >= this_searchable_member_list._MINIMUM_MEMBERS_FOR_SEARCH) {
+      if (this._getBestEffortNumMembers() >= MINIMUM_MEMBERS_FOR_SEARCH) {
         this.$_long_list_view.before(TS.templates.team_search_bar(this._generateFilterSearchBarTemplateArgs()));
-        this.$_search_bar = this_searchable_member_list.$_container.find(".team_tabs_container");
+        this.$_search_bar = this.$_container.find(".team_tabs_container");
         this.$_search_input = this.$_container.find(".searchable_member_list_input");
         this.$_clear_icon = this.$_container.find(".icon_close");
         this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
         this.$_search_input.bind("keyup.searchable_member_list", this._handleSearchKeyUp.bind(this));
         this.$_container.delegate(".searchable_member_list_filter", "click", this._handleFilterSelect.bind(this));
         this.$_clear_icon.bind("click", function() {
-          this_searchable_member_list.resetResults();
+          this_searchable_member_list._reset();
           Promise.resolve().then(function() {
             this_searchable_member_list.$_search_input.focus();
           });
         });
       }
     },
-    _loadLongListView: function(options) {
+    _setupLongListView: function() {
       var this_searchable_member_list = this;
       this.$_long_list_view.longListView({
-        items: options.items,
-        approx_item_height: this_searchable_member_list._approx_item_height,
-        approx_divider_height: this_searchable_member_list._approx_divider_height,
-        preserve_dom_order: true,
+        items: this._members,
+        approx_item_height: this._approx_item_height,
+        approx_divider_height: this._approx_divider_height,
         makeElement: function(data) {
           return $(TS.templates.team_list_item({
-            is_channel_membership: this_searchable_member_list._member_ids,
+            is_channel_membership: this_searchable_member_list._channel_member_ids,
             is_long_list_view: true
           }));
         },
-        makeDivider: function(data) {
-          return $("<div></div>");
-        },
         renderItem: function($el, item, data) {
           $el.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item", item);
-          if (this_searchable_member_list._member_ids) {
+          if (this_searchable_member_list._channel_member_ids) {
             $el.html(TS.templates.channel_page_member_row({
               member: item,
               lazy: false
@@ -9476,120 +9376,69 @@
             }));
           }
           TS.utility.makeSureAllLinksHaveTargets($el);
-        },
-        renderDivider: function($el, item, data) {
-          $el.data("item", item).html(TS.templates.team_list_item_divider(item));
-        },
-        calcItemHeight: function($el) {
-          var outer_height = $el.outerHeight();
-          if (!outer_height) return this_searchable_member_list._approx_item_height;
-          return Math.max(outer_height, this_searchable_member_list._approx_item_height);
-        },
-        calcDividerHeight: function($el) {
-          var outer_height = $el.outerHeight();
-          if (!outer_height) return this_searchable_member_list._approx_divider_height;
-          return outer_height;
         }
       });
-      this.long_list_view_initialized = true;
-      var container_height = this_searchable_member_list.$_long_list_view.height();
-      var list_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-      var recursivelyFillListToHeight = function() {
-        if (list_height < container_height && !this_searchable_member_list._have_all_members) {
-          this_searchable_member_list._fetchMoreMembers().then(function() {
-            this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members_in_view, true, true);
-            list_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-            recursivelyFillListToHeight();
-            return null;
-          });
+      this._resize_sig_handler = _.throttle(function() {
+        this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
+        this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
+      }, RESIZE_THROTTLE_MS);
+      this._resize_sig_handler();
+      TS.view.resize_sig.add(this._resize_sig_handler);
+      this.$_long_list_view.on("scroll", _.debounce(function(e) {
+        if (this_searchable_member_list._current_query_for_match) return;
+        var distance_from_bottom = this_searchable_member_list._long_list_view_items_height - ($(e.target).scrollTop() + this_searchable_member_list._long_list_view_height);
+        if (distance_from_bottom < LOAD_MORE_AT_PIXELS_FROM_BOTTOM) {
+          this_searchable_member_list._fetchProcessAndDisplayPage();
         }
-      };
-      recursivelyFillListToHeight();
-      this_searchable_member_list._resize_sig_handler = _.throttle(function() {
-        container_height = this_searchable_member_list.$_long_list_view.height();
-        list_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-        if (!this_searchable_member_list._is_searching) {
-          recursivelyFillListToHeight();
-        }
-      }, this_searchable_member_list._RESIZE_THROTTLE_MS);
-      TS.view.resize_sig.add(this_searchable_member_list._resize_sig_handler);
-      this_searchable_member_list.$_long_list_view.on("scroll", _.debounce(function(e) {
-        if (self._is_searching) return;
-        var distance_from_bottom = list_height - ($(e.target).scrollTop() + container_height);
-        if (distance_from_bottom < this_searchable_member_list._LOAD_MORE_AT_PIXELS_FROM_BOTTOM) {
-          this_searchable_member_list._fetchMoreMembers().then(function() {
-            this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members_in_view, true, true);
-          });
-        }
-      }, this_searchable_member_list._SCROLL_DEBOUNCE_MS));
+      }, SCROLL_DEBOUNCE_MS));
+      TS.view.resizeManually("TS.SearchableMemberList.showInitial");
+      this._recursivelyFillLongListViewToHeight();
     },
-    _fetchMoreMembers: function() {
+    _recursivelyFillLongListViewToHeight: function() {
       var this_searchable_member_list = this;
-      var query;
-      if (this_searchable_member_list._have_all_members) return new Promise.resolve([]);
-      if (this_searchable_member_list._fetch_more_members_p) return this_searchable_member_list._fetch_more_members_p;
-      if (this_searchable_member_list._member_ids) {
-        var member_ids_not_in_list = _.difference(this_searchable_member_list._member_ids, this_searchable_member_list._member_ids_in_view);
-        var member_ids_to_add_to_list;
-        if (!member_ids_not_in_list.length) {
-          this_searchable_member_list._have_all_members = true;
-          this_searchable_member_list._next_marker = "";
-          return new Promise.resolve([]);
-        }
-        var member_ids_to_add_to_list = member_ids_not_in_list.slice(0, this_searchable_member_list._PAGE_SIZE);
-        var local_members_to_add_to_list = _(member_ids_to_add_to_list).map(TS.members.getMemberById).compact().value();
-        if (member_ids_to_add_to_list.length === local_members_to_add_to_list.length) {
-          this_searchable_member_list._prepareToAddMembersToView(local_members_to_add_to_list);
-          return new Promise.resolve(local_members_to_add_to_list);
-        }
-        query = {
-          ids: member_ids_to_add_to_list
-        };
-      } else {
-        query = {
-          limit: this_searchable_member_list._PAGE_SIZE,
-          marker: this_searchable_member_list._next_marker
-        };
+      if (this._current_query_for_match) return;
+      if (this._long_list_view_items_height < this._long_list_view_height && !this._have_all_members) {
+        this._fetchProcessAndDisplayPage().then(function() {
+          this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
+          this_searchable_member_list._recursivelyFillLongListViewToHeight();
+          return null;
+        });
       }
-      this_searchable_member_list._fetch_more_members_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query).then(function(response) {
-        this_searchable_member_list._fetch_more_members_p = null;
-        this_searchable_member_list._trackPresence(_.map(response.objects, "id"));
-        if (this_searchable_member_list._member_ids) {
-          this_searchable_member_list._prepareToAddMembersToView(response);
-          var missing_member_ids = _.difference(this_searchable_member_list._member_ids, this_searchable_member_list._member_ids_in_view);
-          if (!missing_member_ids.length) {
-            this_searchable_member_list._have_all_members = true;
-            this_searchable_member_list._next_marker = "";
-          }
-          return response;
-        }
-        this_searchable_member_list._prepareToAddMembersToView(response.objects);
-        if (response.next_marker) {
-          this_searchable_member_list._next_marker = response.next_marker;
+    },
+    _reset: function() {
+      this._members = [];
+      this._current_query_for_match = "";
+      this._current_query_for_display = "";
+      this._current_filter = "everyone";
+      this._next_marker = "";
+      this.$_search_input.val("");
+      this.$_clear_icon.addClass("hidden");
+      this._maybeHideNoResultsState();
+      this.$_long_list_view.scrollTop(0);
+      this.$_long_list_view.height(this._long_list_view_initial_height);
+      this._fetchProcessAndDisplayPage();
+    },
+    _matchHeightToContents: function() {
+      var this_searchable_member_list = this;
+      if (!this._long_list_view_initial_height) this._long_list_view_initial_height = this._long_list_view_height;
+      this._animation_frame_callback = TS.utility.rAF(function() {
+        if (this_searchable_member_list._long_list_view_items_height < this_searchable_member_list._long_list_view_initial_height) {
+          this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_items_height);
         } else {
-          this_searchable_member_list._have_all_members = true;
-          this_searchable_member_list._next_marker = "";
+          this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_initial_height);
         }
-        return response.objects;
       });
-      return this_searchable_member_list._fetch_more_members_p;
     },
-    _prepareToAddMembersToView: function(members) {
-      if (!members.length) return;
-      var member_ids = _.map(members, "id");
-      this._member_ids_in_view = _.concat(this._member_ids_in_view, member_ids);
-      this._members_in_view = _.concat(this._members_in_view, members);
-    },
-    _startLoadingState: function() {
+    _showLoadingState: function() {
       this.$_long_list_view.before(TS.templates.infinite_spinner({
         color: "white",
         size: "medium"
       }));
     },
-    _stopLoadingState: function() {
+    _hideLoadingState: function() {
       this.$_container.find(".infinite_spinner").remove();
     },
-    _showNoResults: function() {
+    _showNoResultsState: function() {
       var $no_results = this.$_container.find(".no_results");
       if ($no_results.length != 0) return;
       var this_searchable_member_list = this;
@@ -9603,10 +9452,10 @@
       });
       this.$_long_list_view.hide().before(no_results);
       this.$_container.delegate(".clear_members_filter", "click", function() {
-        this_searchable_member_list.resetResults();
+        this_searchable_member_list._reset();
       });
     },
-    _maybeClearNoResults: function() {
+    _maybeHideNoResultsState: function() {
       var $no_results = this.$_container.find(".no_results");
       if ($no_results.length == 0) return;
       this._current_filter = "everyone";
@@ -9614,13 +9463,18 @@
       this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
       $no_results.remove();
       this.$_long_list_view.show();
+      this._reset();
     },
     _handleSearchKeyUp: function(e) {
-      var this_searchable_member_list = this;
       var new_query = $(e.target).val();
-      if (new_query.trim().toLocaleLowerCase() !== this_searchable_member_list._current_query_for_match) {
-        this_searchable_member_list.fetchAndShowResults(new_query);
-        this_searchable_member_list.$_clear_icon.toggleClass("hidden", !new_query.trim());
+      if (new_query.trim().toLocaleLowerCase() !== this._current_query_for_match) {
+        this._presence_list.clear();
+        this._members = [];
+        this._next_marker = "";
+        this._current_query_for_display = new_query;
+        this._current_query_for_match = new_query.trim().toLocaleLowerCase();
+        this._fetchProcessAndDisplayPage();
+        this.$_clear_icon.toggleClass("hidden", !new_query.trim());
       }
     },
     _handleFilterSelect: function(evt) {
@@ -9629,11 +9483,21 @@
       TS.menu.startWithSearchableMemberListFilter(evt, function(e) {
         var $action = $(e.target).closest("[data-filter]");
         if (!$action.length) return;
+        this._presence_list.clear();
+        this_searchable_member_list._members = [];
+        this_searchable_member_list._next_marker = "";
         this_searchable_member_list._current_filter = $action.data("filter");
+        this_searchable_member_list._fetchProcessAndDisplayPage();
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
-        this_searchable_member_list.fetchAndShowResults(this_searchable_member_list._current_query_for_display);
       });
+    },
+    _getBestEffortNumMembers: function() {
+      if (this._channel_member_ids) {
+        return this._channel_member_ids.length;
+      } else {
+        return TS.team.getBestEffortTotalTeamSize();
+      }
     },
     _generateFilterSearchBarTemplateArgs: function() {
       var template_args = {
@@ -9671,14 +9535,10 @@
           restricted_filter_selected: this._current_filter == "restricted_members"
         });
       }
-      if (this._member_ids) {
+      if (this._channel_member_ids) {
         template_args.show_filters = false;
       }
       return template_args;
-    },
-    _trackPresence: function(member_ids) {
-      this._member_ids_loaded = _.union(this._member_ids_loaded, member_ids);
-      this._presence_list.add(member_ids);
     }
   });
 })();
@@ -28055,7 +27915,7 @@
         $container: $("#channel_member_list_container"),
         id: "channel_member_list_scroller",
         search_input_id: "#channel_member_list_filter",
-        member_ids: model_ob.members
+        channel_member_ids: model_ob.members
       });
       _searchable_member_list.showInitial();
     } else {
@@ -35938,9 +35798,6 @@ function timezones_guess() {
       TS.inline_attachments.collapse_sig.add(_updateUnreadGroupPositions);
       TS.prefs.a11y_font_size_changed_sig.add(_updateStickyHeader);
       TS.prefs.a11y_font_size_changed_sig.add(_updateUnreadGroupPositions);
-      TS.view.resize_sig.add(function() {
-        if (!TS.environment.supports_sticky_position) _updateStickyHeader();
-      });
       _initialized_time = Date.now();
       _keyboard_in_use = false;
       $("#client-ui").addClass("unread_view_is_showing");
@@ -36953,6 +36810,7 @@ function timezones_guess() {
     if (!TS.environment.supports_sticky_position) {
       _updateBannerHeight();
       _updateUnreadGroupPositions();
+      _updateStickyHeader();
     }
   };
   var _onRename = function(model_ob) {

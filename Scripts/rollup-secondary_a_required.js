@@ -47190,9 +47190,7 @@ $.fn.togglify = function(settings) {
       });
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
         e.preventDefault();
-        TS.recaps_signal.prevClickedEl = e.target;
-        var ts = $(e.target).data("ts");
-        TS.client.ui.scrollMsgsSoMsgIsInView(ts, false, true);
+        TS.recaps_signal.scrollRecapMessageIntoView(e.target);
       });
       TS.click.addClientHandler(".recap_highlight a", function(e) {
         e.preventDefault();
