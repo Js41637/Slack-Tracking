@@ -66,6 +66,10 @@
             {{#memberHasImUnreadCount member=this.model_ob}}
               <span class="unread_count">{{getUnreadCountForIMByMemberId this.model_ob.id}}</span>
             {{/memberHasImUnreadCount}}
+          {{else if this.model_ob.is_view}}
+            {{#if_equal this.model_ob.id compare="Vall_threads"}}
+              {{#if ../threads_mention_count}}<span class="unread_count">{{../threads_mention_count}}</span>{{/if}}
+            {{/if_equal}}
           {{else}}
             {{#if this.model_ob.unread_highlight_cnt}}
               <span class="unread_count">{{this.model_ob.unread_highlight_cnt}}</span>

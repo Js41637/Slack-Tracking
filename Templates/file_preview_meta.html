@@ -1,8 +1,10 @@
+{{i18n_ns "files"}}
+
 <div class="file_preview_meta">
 
   <p class="file_meta {{file.mode}}">
 
-    <span class="date">{{toCalendarDateOrNamedDayShort file.timestamp}} at {{toTime file.timestamp}}</span>
+    <span class="date">{{#t date=(toCalendarDateOrNamedDayShort file.timestamp) time=(toTime file.timestamp)}}{date} at {time}{{/t}}</span>
     <span class="bullet">\u2022</span>
 
     {{#if meta_filetype}}
@@ -11,9 +13,9 @@
     {{/if}}
 
     <span class="file_share_public_label inline_block{{#unless file.is_public}} hidden{{/unless}}" data-file-id="{{file.id}}">
-      <span class="file_share_shared_label bold_share_labels{{#unless file.is_shared}} hidden{{/unless}}">Shared {{makeFileShareLabel file}}</span>
+      <span class="file_share_shared_label bold_share_labels{{#unless file.is_shared}} hidden{{/unless}}">{{#t note='Followed by where the file is shared, like "in general"'}}Shared{{/t}} {{makeFileShareLabel file}}</span>
       <span class= "file_share_unshared_label{{#if file.is_shared}} hidden{{/if}}" data-file-id="{{file.id}}">
-        Team file
+        {{#t}}Team file{{/t}}
       </span>
     </span>
 
@@ -21,10 +23,10 @@
       <i class="ts_icon ts_icon_eye ts_icon_inherit"></i>
       {{makeFilePrivacyLabel file}}
       {{#if_equal file.mode compare="email"}}
-        email
+        {{#t}}email{{/t}}
       {{else}}
         {{#and (if_not_equal file.mode compare="post") (if_not_equal file.mode compare="space")}}
-          {{#if_equal file.mode compare="snippet"}}snippet{{else}}file{{/if_equal}}
+          {{#if_equal file.mode compare="snippet"}}{{#t}}snippet{{/t}}{{else}}{{#t}}file{{/t}}{{/if_equal}}
           {{makeFileShareLabel file}}
         {{/and}}
       {{/if_equal}}

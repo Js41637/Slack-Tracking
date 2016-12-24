@@ -3427,9 +3427,7 @@
         TS.utility.msgs.maybeSetPrevLastRead(channel, ts);
       }
       channel.last_read = ts;
-      if (TS.boot_data.feature_pin_update) {
-        if (reason) channel._marked_reason = reason;
-      }
+      if (reason) channel._marked_reason = reason;
       TS.channels.marked_sig.dispatch(channel);
       TS.utility.msgs.maybeClearUsersCountsInfo(channel);
       TS.channels.calcUnreadCnts(channel);
@@ -3600,8 +3598,20 @@
     onSetPurpose: function(ok, data, args) {
       if (!ok) {
         TS.error("failed to set channel purpose");
+        TS.channels.alertSetPurposeError(data.error);
         return;
       }
+    },
+    alertSetPurposeError: function(error) {
+      var alert_text;
+      if (error == "too_long") {
+        alert_text = TS.i18n.t("Oooops! That purpose is too long. Please try again with fewer than 250 characters.", "channels")();
+      } else if (error == "restricted_action" || error == "user_is_restricted") {
+        alert_text = TS.i18n.t("Uh oh! You don’t have permission to change the purpose. Talk to your team admin.", "channels")();
+      } else {
+        alert_text = TS.i18n.t("Uh oh! Something went wrong with setting the purpose. Please try again.", "channels")();
+      }
+      TS.generic_dialog.alert(alert_text);
     },
     lookupById: function(id) {
       return !!_id_map[id];
@@ -4634,9 +4644,7 @@ TS.registerModule("constants", {
         TS.utility.msgs.maybeSetPrevLastRead(group, ts);
       }
       group.last_read = ts;
-      if (TS.boot_data.feature_pin_update) {
-        if (reason) group._marked_reason = reason;
-      }
+      if (reason) group._marked_reason = reason;
       TS.groups.marked_sig.dispatch(group);
       TS.utility.msgs.maybeClearUsersCountsInfo(group);
       TS.groups.calcUnreadCnts(group);
@@ -4827,6 +4835,7 @@ TS.registerModule("constants", {
     onSetPurpose: function(ok, data, args) {
       if (!ok) {
         TS.error("failed to set group purpose");
+        TS.channels.alertSetPurposeError(data.error);
         return;
       }
     },
@@ -7236,9 +7245,7 @@ TS.registerModule("constants", {
         TS.utility.msgs.maybeSetPrevLastRead(im, ts);
       }
       im.last_read = ts;
-      if (TS.boot_data.feature_pin_update) {
-        if (reason) im._marked_reason = reason;
-      }
+      if (reason) im._marked_reason = reason;
       TS.ims.marked_sig.dispatch(im);
       TS.utility.msgs.maybeClearUsersCountsInfo(im);
       TS.ims.calcUnreadCnts(im);
@@ -7735,9 +7742,7 @@ TS.registerModule("constants", {
         TS.utility.msgs.maybeSetPrevLastRead(mpim, ts);
       }
       mpim.last_read = ts;
-      if (TS.boot_data.feature_pin_update) {
-        if (reason) mpim._marked_reason = reason;
-      }
+      if (reason) mpim._marked_reason = reason;
       TS.mpims.marked_sig.dispatch(mpim);
       TS.utility.msgs.maybeClearUsersCountsInfo(mpim);
       TS.mpims.calcUnreadCnts(mpim);
@@ -13771,13 +13776,16 @@ TS.registerModule("constants", {
         request_id: TS.search.last_request_id
       });
     },
-    topResultsFeedback: function(feedback_value) {
+    topResultsFeedback: function(source, feedback_value) {
+      var emoji_list = [":tada:", ":bow::skin-tone-5:", ":raised_hands::skin-tone-4:"];
+      var emoji = emoji_list[Math.floor(Math.random() * emoji_list.length)];
+      $(source).closest(".top_results_feedback").html("Thanks! " + TS.emoji.graphicReplace(emoji));
       TS.clog.track("SEARCH_FEEDBACK", {
         search_feedback_value: feedback_value,
         request_id: TS.search.last_request_id
       });
     },
-    setSort: function(sort) {
+    setSort: function(sort, no_reissue_search) {
       if (TS.search.sort == sort) return;
       $(".search_toggle").toggleClass("active");
       TS.search.sort = sort;
@@ -13789,7 +13797,9 @@ TS.registerModule("constants", {
         name: "search_sort",
         value: sort
       });
-      TS.search.searchAll();
+      if (!no_reissue_search) {
+        TS.search.searchAll();
+      }
     },
     setChannel: function(id) {
       var channel = TS.channels.getChannelById(id);
@@ -17950,16 +17960,14 @@ TS.registerModule("constants", {
       var small_thumb_url = small_thumb ? attachment.proxied_thumb_url || attachment.thumb_url : null;
       var is_pinned = false;
       var pin_html = "";
-      if (TS.boot_data.feature_pin_update) {
-        if (attachment.is_msg_unfurl) {
-          var attached_msg = TS.utility.msgs.getMsg(attachment.ts, model_ob.msgs);
-          if (attached_msg && attached_msg.pinned_to && attached_msg.pinned_to.length > 0) {
-            is_pinned = _.some(attached_msg.pinned_to, function(id) {
-              return id === model_ob.id;
-            });
-            if (is_pinned && !is_broadcast) {
-              pin_html = TS.templates.builders.buildPinInfoHtml(attached_msg);
-            }
+      if (attachment.is_msg_unfurl) {
+        var attached_msg = TS.utility.msgs.getMsg(attachment.ts, model_ob.msgs);
+        if (attached_msg && attached_msg.pinned_to && attached_msg.pinned_to.length > 0) {
+          is_pinned = _.some(attached_msg.pinned_to, function(id) {
+            return id === model_ob.id;
+          });
+          if (is_pinned && !is_broadcast) {
+            pin_html = TS.templates.builders.buildPinInfoHtml(attached_msg);
           }
         }
       }
@@ -18844,75 +18852,6 @@ TS.registerModule("constants", {
           enable_slack_action_links: enable_slack_action_links,
           no_highlights: true
         });
-      } else if (msg.subtype === "pinned_item" && !msg.no_display) {
-        if (msg.item_type === "F") {
-          var uploader = TS.utility.members.getEntityFromFile(msg.item);
-          var pinned_file_type = "file";
-          if (msg.item) {
-            if (msg.item.mode === "space") pinned_file_type = "post";
-            if (msg.item.mode === "snippet") pinned_file_type = "text snippet";
-            if (msg.item.mode === "post") pinned_file_type = "post";
-            if (msg.item.mode === "external") {
-              var external_type = TS.templates.builders.makeExternalFiletypeHTML(msg.item);
-              if (external_type) pinned_file_type = new Handlebars.SafeString(external_type);
-            }
-          }
-          html = TS.templates.message_pinned_file({
-            file: msg.item,
-            pinned_file_type: pinned_file_type,
-            own_file: !!msg.item && msg.item.user === msg.user,
-            theme: TS.model.prefs.theme,
-            uploader: uploader,
-            model_ob: model_ob,
-            display_name: TS.members.getMemberDisplayName(uploader)
-          });
-        } else if (msg.item_type === "Fc") {
-          html = TS.templates.message_pinned_comment({
-            theme: TS.model.prefs.theme,
-            model_ob: model_ob
-          });
-          var commenter;
-          if (msg.item) commenter = TS.members.getMemberById(msg.item.user);
-          if (commenter && msg.item.comment) {
-            html += TS.templates.builders.buildAttachmentHTML({
-              attachment: {
-                author_icon: commenter.profile.image_24,
-                author_name: commenter.profile.real_name,
-                author_subname: commenter.name,
-                color: "D0D0D0",
-                ts: msg.item.timestamp,
-                text: msg.item.comment,
-                mrkdwn_in_hash: {
-                  text: true
-                }
-              },
-              msg: msg
-            });
-          }
-        } else if (msg.item_type === "C" || msg.item_type === "G" || msg.item_type === "D") {
-          html = TS.templates.message_pinned_message({
-            theme: TS.model.prefs.theme,
-            model_ob: model_ob
-          });
-          var author;
-          if (msg.item) author = TS.members.getMemberById(msg.item.user);
-          if (author && msg.item.text) {
-            html += TS.templates.builders.buildAttachmentHTML({
-              attachment: {
-                author_icon: author.profile.image_24,
-                author_name: author.profile.real_name,
-                author_subname: author.name,
-                color: "D0D0D0",
-                ts: msg.item.ts,
-                text: msg.item.text,
-                mrkdwn_in_hash: {
-                  text: true
-                }
-              },
-              msg: msg
-            });
-          }
-        }
       } else {
         html = TS.format.formatWithOptions(msg.text, msg, {
           do_inline_imgs: do_inline_imgs,
@@ -21375,37 +21314,28 @@ TS.registerModule("constants", {
           template_args.is_tombstone = msg.subtype === "tombstone";
           template_args.is_new_reply = !!args.is_new_reply;
         }
-        if (TS.boot_data.feature_pin_update) {
-          var item;
-          if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
-            item = msg.file;
-          } else if (msg.subtype === "file_comment") {
-            item = msg.comment;
-          } else {
-            item = msg;
-          }
-          if (item && item.pinned_to && item.pinned_to.length > 0) {
-            template_args.is_pinned = _.some(item.pinned_to, function(id) {
-              return id === model_ob.id;
-            });
-          } else {
-            template_args.is_pinned = false;
-          }
-          if (template_args.is_pinned) {
-            template_args.pin_html = TS.templates.builders.buildPinInfoHtml(msg);
-          } else {
-            template_args.pin_html = "";
-          }
+        var item;
+        if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
+          item = msg.file;
+        } else if (msg.subtype === "file_comment") {
+          item = msg.comment;
+        } else {
+          item = msg;
+        }
+        if (item && item.pinned_to && item.pinned_to.length > 0) {
+          template_args.is_pinned = _.some(item.pinned_to, function(id) {
+            return id === model_ob.id;
+          });
+        } else {
+          template_args.is_pinned = false;
+        }
+        if (template_args.is_pinned) {
+          template_args.pin_html = TS.templates.builders.buildPinInfoHtml(msg);
+        } else {
+          template_args.pin_html = "";
         }
         if (TS.boot_data.feature_sli_recaps && show_user) {
-          var recap_item;
-          if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
-            recap_item = msg.file;
-          } else if (msg.subtype === "file_comment") {
-            recap_item = msg.comment;
-          } else {
-            recap_item = msg;
-          }
+          var recap_item = msg;
           if (recap_item && recap_item.recap) {
             template_args.is_recap = recap_item.recap;
             if (recap_item.recap.show_recap) {
@@ -21572,6 +21502,7 @@ TS.registerModule("constants", {
     if (template_args.highlight) msg_classes.push("highlight");
     if (template_args.highlight_as_new) msg_classes.push("new");
     if (template_args.app_id) msg_classes.push("is_app");
+    if (template_args.is_pinned) msg_classes.push("is_pinned");
     if (template_args.standalone) {
       msg_classes.push("standalone");
     } else {
@@ -21602,9 +21533,6 @@ TS.registerModule("constants", {
       if (template_args.is_root_msg) msg_classes.push("selected");
       if (template_args.is_new_reply) msg_classes.push("new_reply");
       if (template_args.is_tombstone) msg_classes.push("deleted");
-    }
-    if (TS.boot_data.feature_pin_update) {
-      if (template_args.is_pinned) msg_classes.push("is_pinned");
     }
     if (TS.boot_data.feature_sli_recaps) {
       if (template_args.is_recap) msg_classes.push("is_recap");
@@ -21944,6 +21872,13 @@ TS.registerModule("constants", {
           return JSON.stringify(this);
         } else {
           return JSON.stringify(obj);
+        }
+      });
+      Handlebars.registerHelper("prettyJson", function(obj) {
+        if (typeof obj === "object" && obj !== null && obj.name === "json") {
+          return JSON.stringify(this, null, 2);
+        } else {
+          return JSON.stringify(obj, null, 2);
         }
       });
       Handlebars.registerHelper("currentTeamName", function() {
@@ -23264,15 +23199,6 @@ TS.registerModule("constants", {
           str = words.join(" ");
         }
         return new Handlebars.SafeString(str);
-      });
-      Handlebars.registerHelper("seeAllPinsLink", function(model_ob) {
-        var channel_type = "channel";
-        if (model_ob.is_im || model_ob.is_mpim) {
-          channel_type = "conversation";
-        }
-        return new Handlebars.SafeString(TS.templates.see_all_pins_link({
-          channel_type: channel_type
-        }));
       });
       Handlebars.registerHelper("numberWithCommas", function(num) {
         return TS.utility.numberWithCommas(num);
@@ -25324,10 +25250,8 @@ TS.registerModule("constants", {
             }
           } else if (imsg.item_type === "Fc" || imsg.item_type === "C" || imsg.item_type === "G" || imsg.item_type === "D") {
             new_msg.item = imsg.item;
-          } else {
-            new_msg.no_display = true;
           }
-          if (TS.boot_data.feature_pin_update) new_msg.no_display = true;
+          new_msg.no_display = true;
         }
       }
       return new_msg;
@@ -26048,7 +25972,7 @@ TS.registerModule("constants", {
       if (!model_ob) return;
       if (!model_ob._prev_last_read && model_ob.unread_cnt && !TS.notifs.isCorGMuted(model_ob.id)) {
         model_ob._prev_last_read = ts;
-      } else if (TS.boot_data.feature_pin_update) {
+      } else {
         var mos_recent_ts = TS.utility.msgs.getMostRecentValidTs(model_ob);
         var most_recent_msg = TS.utility.msgs.getMsg(mos_recent_ts, model_ob.msgs);
         if (most_recent_msg && most_recent_msg.subtype === "pinned_item") model_ob._prev_last_read = ts;
@@ -26076,6 +26000,11 @@ TS.registerModule("constants", {
       if (!TS.boot_data.feature_message_replies) return false;
       if (!msg) return false;
       return msg.thread_ts && msg.thread_ts != msg.ts;
+    },
+    msgHasReplies: function(msg) {
+      if (!TS.boot_data.feature_message_replies) return false;
+      if (!msg) return false;
+      return msg.ts === msg.thread_ts && !!msg.reply_count;
     },
     startUpdatingRelativeTimestamps: function(root_selector) {
       _relative_timestamp_updater.start(root_selector);
@@ -30655,6 +30584,7 @@ TS.registerModule("constants", {
           template_args.abs_permalink = msg.file.permalink;
         }
       }
+      var $el = $(e.target);
       if (TS.boot_data.feature_message_replies && TS.replies && TS.replies.isEnabled()) {
         if (TS.replies.canReplyToMsg(model_ob, msg)) {
           template_args.can_subscribe = true;
@@ -30665,6 +30595,7 @@ TS.registerModule("constants", {
             });
           }
         }
+        template_args.is_in_conversation = $el.closest("ts-conversation").length > 0;
       }
       TS.menu.$menu_header.addClass("hidden").empty();
       TS.menu.$menu_items.html(TS.templates.menu_message_action_items(template_args));
@@ -30681,7 +30612,6 @@ TS.registerModule("constants", {
         if (TS.menu.$submenu && !TS.menu.$submenu.hasClass("kb_active")) $remind_me.submenu("destroy");
       });
       TS.menu.start(e);
-      var $el = $(e.target);
       TS.menu.$target_element = $el.closest("[data-action]");
       TS.menu.$target_element.addClass("active");
       TS.menu.$secondary_target_element = $el.closest("ts-message");
@@ -37207,9 +37137,11 @@ var _on_esc;
       var exp = TS.utility.date.toDateObject(TS.msg_edit.current_msg.ts).getTime() + TS.model.team.prefs.msg_edit_window_mins * 60 * 1e3;
       var seconds = Math.floor((exp - Date.now()) / 1e3);
       if (seconds < 1) {
-        $("#edit_countdown").html("(your time to edit ran out)&nbsp&nbsp&nbsp&nbsp");
+        $("#edit_countdown").html(TS.i18n.t("(your time to edit ran out)", "msg_edit")() + "&nbsp&nbsp&nbsp&nbsp");
       } else if (seconds < 61) {
-        $("#edit_countdown").html("(you have <b>" + seconds + "</b> seconds)&nbsp&nbsp&nbsp&nbsp");
+        $("#edit_countdown").html(TS.i18n.t("(you have <strong>{seconds_count, number}</strong> seconds)", "msg_edit")({
+          seconds_count: seconds
+        }) + "&nbsp&nbsp&nbsp&nbsp");
       } else {
         $("#edit_countdown").empty();
       }
@@ -37226,17 +37158,19 @@ var _on_esc;
       return false;
     },
     editExpiration: function(minutes) {
-      var expiration_text = "<p>Oops&mdash;";
+      var expiration_text;
       if (minutes > 0) {
         var msg_edit_duration_text = _getReadableMessageEditDuration(minutes);
-        expiration_text += "Messages can only be edited up to <b>" + msg_edit_duration_text + "</b> after posting.</p><p>Never mind, we all make mistakes. Post again!</p>";
+        expiration_text = TS.i18n.t("<p>Oops&mdash;Messages can only be edited up to <strong>{msg_edit_duration_text}</strong> after posting.</p><p>Never mind, we all make mistakes. Post again!</p>", "msg_edit")({
+          msg_edit_duration_text: msg_edit_duration_text
+        });
         if (TS.model.user.is_admin) {
-          expiration_text += '<p>(To adjust the message editing window, visit <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.)</p>';
+          expiration_text += "<p>" + TS.i18n.t('(To adjust the message editing window, visit <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.)', "msg_edit")() + "</p>";
         }
       } else {
-        expiration_text += "You cannot edit your message after posting.</p>";
+        expiration_text = "<p>" + TS.i18n.t("Oops&mdash;You cannot edit your message after posting.", "msg_edit")() + "</p>";
         if (TS.model.user.is_admin) {
-          expiration_text += '<p>(To enable message editing, visit <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.)</p>';
+          expiration_text += "<p>" + TS.i18n.t('(To enable message editing, visit <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.)', "msg_edit")() + "</p>";
         }
       }
       return expiration_text;
@@ -37281,7 +37215,7 @@ var _on_esc;
         var elapsed_minutes = elapsed / 6e4;
         if (TS.model.team.prefs.msg_edit_window_mins >= 0 && elapsed_minutes > TS.model.team.prefs.msg_edit_window_mins && !model_ob.is_self_im) {
           TS.warn("Editing unavailable on channel " + model_ob.id + ", msg with ts = " + msg.ts + ". now = " + now + ", elapsed (minutes) = " + elapsed_minutes + ", msg_edit_window_mins = " + TS.model.team.prefs.msg_edit_window_mins);
-          TS.generic_dialog.alert(TS.msg_edit.editExpiration(TS.model.team.prefs.msg_edit_window_mins), "Editing Unavailable", "Got It");
+          TS.generic_dialog.alert(TS.msg_edit.editExpiration(TS.model.team.prefs.msg_edit_window_mins)), TS.i18n.t("Editing Unavailable", "msg_edit")(), TS.i18n.t("Got It", "msg_edit")();
           return;
         }
       }
@@ -37396,7 +37330,9 @@ var _on_esc;
         }
         var blocked_keyword = TS.ui.needToBlockAtChannelKeyword(edited_text, null, TS.msg_edit.current_model_ob.id);
         if (blocked_keyword) {
-          TS.generic_dialog.alert("<p>A Team Owner has restricted the use of <b>" + TS.utility.htmlEntities(blocked_keyword) + "</b> messages.</p>");
+          TS.generic_dialog.alert("<p>" + TS.i18n.t("A Team Owner has restricted the use of <strong>{blocked_keyword}</strong> messages.", "msg_edit")({
+            blocked_keyword: TS.utility.htmlEntities(blocked_keyword)
+          }) + "</p>");
           return;
         }
         if (!$.trim(edited_text)) return;
@@ -37613,7 +37549,7 @@ var _on_esc;
           }
         } else {
           if (!data || !data.error) {
-            TS.generic_dialog.alert("Sorry, something went wrong with editing your message. Try again in a moment.", "Message editing failed");
+            TS.generic_dialog.alert(TS.i18n.t("Sorry, something went wrong with editing your message. Try again in a moment.", "msg_edit")(), TS.i18n.t("Message editing failed", "msg_edit")());
           } else if (data.error == "message_not_found") {
             if (args._attempts < 10) {
               args._delay_ms *= 1.75;
@@ -37631,17 +37567,19 @@ var _on_esc;
             } else if (model_ob.is_group) {
               TS.groups.removeMsg(model_ob.id, msg);
             }
-            TS.generic_dialog.alert("Sorry, something went wrong with editing your message. Try again in a moment.", "Message editing failed");
+            TS.generic_dialog.alert(TS.i18n.t("Sorry, something went wrong with editing your message. Try again in a moment.", "msg_edit")(), TS.i18n.t("Message editing failed", "msg_edit")());
           } else if (data.error == "edit_window_closed") {
-            var error_text = "<p>Sorry, but messages can only be edited for <b>" + _getReadableMessageEditDuration(TS.model.team.prefs.msg_edit_window_mins) + "</b> after posting.</p>";
+            var error_text = "<p>" + TS.i18n.t("Sorry, but messages can only be edited for <strong>{msg_edit_duration_text}</strong> after posting.", "msg_edit")({
+              msg_edit_duration_text: _getReadableMessageEditDuration(TS.model.team.prefs.msg_edit_window_mins)
+            }) + "</p>";
             if (TS.model.user.is_admin) {
-              error_text += '<p>(To adjust the message editing window, visit <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.)</p>';
+              error_text += "<p>" + TS.i18n.t('(To adjust the message editing window, visit <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.)', "msg_edit")() + "</p>";
             }
-            TS.generic_dialog.alert(error_text, "Message editing failed");
+            TS.generic_dialog.alert(error_text, TS.i18n.t("Message editing failed", "msg_edit")());
           } else if (data.error == "msg_too_long") {
-            TS.generic_dialog.alert("Sorry, your message is too long. Please shorten it and try again.", "Message editing failed");
+            TS.generic_dialog.alert(TS.i18n.t("Sorry, your message is too long. Please shorten it and try again.", "msg_edit")(), TS.i18n.t("Message editing failed", "msg_edit")());
           } else {
-            TS.generic_dialog.alert("Sorry, something went wrong with editing your message. Try again in a moment.", "Message editing failed");
+            TS.generic_dialog.alert(TS.i18n.t("Sorry, something went wrong with editing your message. Try again in a moment.", "msg_edit")(), TS.i18n.t("Message editing failed", "msg_edit")());
           }
           TS.msg_edit.startEdit(msg.ts, model_ob, {
             text: edited_text,
@@ -37698,7 +37636,7 @@ var _on_esc;
       TS.msg_edit.current_msg = msg;
       TS.msg_edit.current_model_ob = model_ob;
       var $msg_el = TS.msg_edit.getAllDivsForMsg(msg.ts);
-      var dialog_body = '<p class="small_bottom_margin">Are you sure you want to delete this message? This cannot be undone.</p>';
+      var dialog_body = '<p class="small_bottom_margin">' + TS.i18n.t("Are you sure you want to delete this message? This cannot be undone.", "msg_edit")() + "</p>";
       if (msg.subtype) {
         var file_label;
         if (msg.file) {
@@ -37711,11 +37649,15 @@ var _on_esc;
         }
         var txt = "";
         if (msg.subtype == "file_upload") {
-          txt = "Note that deleting this message will not delete the " + file_label + " that was uploaded.";
+          txt = TS.i18n.t("Note that deleting this message will not delete the {file_label} that was uploaded.", "msg_edit")({
+            file_label: file_label
+          });
         } else if (msg.subtype == "file_share") {
-          txt = "Note that deleting this message will not unshare the " + file_label + ".";
+          txt = TS.i18n.t("Note that deleting this message will not unshare the {file_label}.", "msg_edit")({
+            file_label: file_label
+          });
         } else if (msg.subtype == "file_comment") {
-          txt = "Note that deleting this message will not delete the comment.";
+          txt = TS.i18n.t("Note that deleting this message will not delete the comment.", "msg_edit")();
         }
         if (txt) {
           dialog_body += "<p>" + txt + "</p>";
@@ -37723,13 +37665,13 @@ var _on_esc;
       }
       $msg_el.addClass("delete_mode");
       TS.generic_dialog.start({
-        title: "Delete Message",
+        title: TS.i18n.t("Delete Message", "msg_edit")(),
         body: dialog_body + TS.templates.builders.msgs.buildHTML({
           msg: msg,
           model_ob: model_ob,
           standalone: true
         }),
-        go_button_text: "Yes, delete this message",
+        go_button_text: TS.i18n.t("Yes, delete this message", "msg_edit")(),
         go_button_class: "btn_danger",
         onGo: function() {
           if (TS.msg_edit.deleting_from_editing) {
@@ -37852,9 +37794,16 @@ var _on_esc;
           } else {
             if (onFailFunc) onFailFunc();
             if (!no_fail_alert) {
-              var txt = "The message was not deleted.  The error was: " + (data && data.error ? data.error : "unknown");
+              var txt;
+              if (data && data.error) {
+                txt = TS.i18n.t("The message was not deleted. The error was: {error}", "msg_edit")({
+                  error: data.error
+                });
+              } else {
+                txt = TS.i18n.t("The message was not deleted. The error was: unknown", "msg_edit")();
+              }
               TS.generic_dialog.start({
-                title: "Delete Message Failed",
+                title: TS.i18n.t("Delete Message Failed", "msg_edit")(),
                 body: txt,
                 show_cancel_button: false,
                 esc_for_ok: true
@@ -37897,8 +37846,9 @@ var _on_esc;
           TS.msg_edit.startDelete($cbs_checked.eq(0).closest(".message").data("ts"), model_ob, TS.msg_edit.cancelBatchDelete);
           return;
         }
-        var count_txt = count == 1 ? "this message" : "these " + count + " messages";
-        var dialog_body = '<p class="small_bottom_margin">Are you sure you want to delete ' + count_txt + "? This cannot be undone! Note that deleting these messages will not delete any files or file comments.</p>";
+        var dialog_body = '<p class="small_bottom_margin">' + TS.i18n.t("Are you sure you want to delete {count, plural, =1 {this message} other {these messages}}? This cannot be undone! Note that deleting these messages will not delete any files or file comments.", "msg_edit")({
+          count: count
+        }) + "</p>";
         var prev_msg;
         var msg;
         for (var i = 0; i < count; i++) {
@@ -37927,7 +37877,7 @@ var _on_esc;
               TS.generic_dialog.cancel();
               TS.generic_dialog.start({
                 title: "",
-                body: "Messages deleted.",
+                body: TS.i18n.t("Messages deleted.", "msg_edit")(),
                 show_cancel_button: false,
                 esc_for_ok: true
               });
@@ -37935,16 +37885,16 @@ var _on_esc;
           }
           TS.generic_dialog.start({
             title: "",
-            body: "<P>Deleting messages...</p>",
+            body: "<p>" + TS.i18n.t("Deleting messages...", "msg_edit")() + "</p>",
             show_cancel_button: false,
             show_go_button: false
           });
           next();
         };
         TS.generic_dialog.start({
-          title: "Delete Messages",
+          title: TS.i18n.t("Delete Messages", "msg_edit")(),
           body: dialog_body,
-          go_button_text: "Yes, delete these messages",
+          go_button_text: TS.i18n.t("Yes, delete these messages", "msg_edit")(),
           go_button_class: "btn_danger",
           onGo: function() {
             var A = [];
@@ -37983,15 +37933,13 @@ var _on_esc;
         }
       }
       TS.msg_edit.$last_clicked_cb = $last_clicked_cb = $cb;
-      var count_txt = "0 messages";
+      var count_txt = TS.i18n.t("0 messages", "msg_edit")();
       var $cbs_checked = $("#msgs_div").find(".msg_select_cb:checked");
       $("#msgs_div").find(".multi_delete_mode").removeClass("multi_delete_mode");
       if ($cbs_checked.length) {
-        if ($cbs_checked.length == 1) {
-          count_txt = "1 message";
-        } else {
-          count_txt = $cbs_checked.length + " messages";
-        }
+        count_txt = TS.i18n.t("{count, plural, =1 {# message} other {# messages}}", "msg_edit")({
+          count: $cbs_checked.length
+        });
         $("#batch_delete_button").removeClass("disabled");
         $cbs_checked.each(function() {
           $(this).closest(".message").addClass("multi_delete_mode");
@@ -38047,21 +37995,29 @@ var _on_esc;
   };
   var _getReadableMessageEditDuration = function(minutes) {
     if (minutes == 1) {
-      return "1 minute ";
+      return TS.i18n.t("1 minute", "msg_edit")() + " ";
     }
     var time = TS.utility.date.toTimeAmount(minutes);
     var expiration_text = "";
     if (time.w >= 1) {
-      expiration_text += time.w + " week" + (time.w > 1 ? "s " : " ");
+      expiration_text += TS.i18n.t("{week_count, plural, =1 {# week} other {# weeks}}", "msg_edit")({
+        week_count: time.w
+      });
     }
     if (time.d >= 1) {
-      expiration_text += time.d + " day" + (time.d > 1 ? "s " : " ");
+      expiration_text += TS.i18n.t("{day_count, plural, =1 {# day} other {# days}}", "msg_edit")({
+        day_count: time.d
+      });
     }
     if (time.h >= 1) {
-      expiration_text += time.h + " hour" + (time.h > 1 ? "s " : " ");
+      expiration_text += TS.i18n.t("{hour_count, plural, =1 {# hour} other {# others}}", "msg_edit")({
+        hour_count: time.h
+      });
     }
     if (time.mi >= 1) {
-      expiration_text += time.mi + " minute" + (time.mi > 1 ? "s " : " ");
+      expiration_text += TS.i18n.t("{minute_count, plural, =1 {# minute} other {# minutes}}", "msg_edit")({
+        minute_count: time.mi
+      });
     }
     return expiration_text;
   };
@@ -42209,20 +42165,18 @@ var _on_esc;
     onStart: function() {
       TS.files.team_file_comment_deleted_sig.add(_fileCommentDeleted);
       TS.files.team_file_deleted_sig.add(_fileDeleted);
-      if (TS.boot_data.feature_pin_update) {
-        if (TS.client && TS.client.login_sig) {
-          TS.client.login_sig.add(_handleDisplayChannel);
-        } else if (TS.web && TS.web.login_sig) {
-          TS.web.login_sig.add(_handleDisplayChannel);
-        }
-        TS.channels.switched_sig.add(_handleDisplayChannel);
-        TS.groups.switched_sig.add(_handleDisplayChannel);
-        TS.ims.switched_sig.add(_handleDisplayChannel);
-        TS.mpims.switched_sig.add(_handleDisplayChannel);
-        TS.ms.connected_sig.add(__handleSocketConnected);
-        TS.channels.left_sig.add(_handleLeftChannelOrGroup);
-        TS.groups.left_sig.add(_handleLeftChannelOrGroup);
+      if (TS.client && TS.client.login_sig) {
+        TS.client.login_sig.add(_handleDisplayChannel);
+      } else if (TS.web && TS.web.login_sig) {
+        TS.web.login_sig.add(_handleDisplayChannel);
       }
+      TS.channels.switched_sig.add(_handleDisplayChannel);
+      TS.groups.switched_sig.add(_handleDisplayChannel);
+      TS.ims.switched_sig.add(_handleDisplayChannel);
+      TS.mpims.switched_sig.add(_handleDisplayChannel);
+      TS.ms.connected_sig.add(__handleSocketConnected);
+      TS.channels.left_sig.add(_handleLeftChannelOrGroup);
+      TS.groups.left_sig.add(_handleLeftChannelOrGroup);
     },
     fetchPins: function(model_ob, callback) {
       if (!model_ob) return;
@@ -44285,6 +44239,7 @@ $.fn.togglify = function(settings) {
     restrict_preselected_item_removal: false,
     scroll_threshold: 1e3,
     set_height: true,
+    should_graphic_replace_emoji: false,
     single: false,
     sluggify: {
       enabled: false,
@@ -44302,6 +44257,9 @@ $.fn.togglify = function(settings) {
         ts_icon = TS.utility.htmlEntities($(item).attr("data-ts-icon"));
       }
       text = TS.utility.htmlEntities(text);
+      if (this.should_graphic_replace_emoji) {
+        text = TS.emoji.graphicReplace(text);
+      }
       if (addl_text) text += ' <span class="addl_text">' + addl_text + "</span>";
       if (ts_icon) text += ' <ts-icon class="addl_icon ' + ts_icon + '"></ts-icon>';
       return new Handlebars.SafeString(text);
@@ -46301,7 +46259,11 @@ $.fn.togglify = function(settings) {
               TS.metrics.count("unread_view_reply");
             }
             var thread_ts = msg.thread_ts || msg.ts;
-            TS.ui.replies.openConversation(model_ob, thread_ts);
+            if (TS.boot_data.feature_message_replies_inline) {
+              TS.ui.thread.startInlineThread(model_ob, msg, $msg_el);
+            } else {
+              TS.ui.replies.openConversation(model_ob, thread_ts);
+            }
           }
           break;
         case "open_in_channel":
@@ -48035,7 +47997,7 @@ $.fn.togglify = function(settings) {
         return searcher.matchesEmoji(e);
       });
     }
-    if (TS.boot_data.feature_unread_view && TS.client && TS.client.unread.isEnabled()) {
+    if (TS.client && data.views) {
       if (!searcher.only_channels && !searcher.only_members) {
         view_matches = data.views.filter(function(v) {
           if (options.prefer_exact_match && v.name === searcher.query) {
@@ -54859,9 +54821,7 @@ $.fn.togglify = function(settings) {
           attachment: attachment
         });
         $container.html(html);
-        if (TS.boot_data.feature_message_menus) {
-          TS.attachment_actions.select.decorateNewElements(TS.client.ui.$msgs_div);
-        }
+        TS.attachment_actions.select.decorateNewElements();
       }
     },
     test: function() {
@@ -54973,26 +54933,30 @@ $.fn.togglify = function(settings) {
   TS.registerModule("attachment_actions.select", {
     onStart: _.noop,
     decorateNewElements: function($container) {
-      $container.find(".attachment_actions_buttons select:visible").each(function() {
-        var $el = $(this);
-        var data_source = $el.data("data-source");
-        var service_id = $el.closest("ts-message").data("bot-id");
-        var lfs_options = {
-          allow_list_position_above: true,
-          classes: "select_attachment",
-          disabled: $el.attr("disabled"),
-          filter: _filter,
-          no_default_selection: true,
-          onItemAdded: _onItemAdded,
-          onListHidden: _onListHidden,
-          onListShown: _getOnListShownCallback(data_source, service_id),
-          placeholder_text: _PLACEHOLDER_TEXT.default
-        };
-        if (data_source === _DATA_SOURCES.external) {
-          lfs_options.data_promise = _getExternalDataPromise($el);
-        }
-        $el.lazyFilterSelect(lfs_options).hide();
-      });
+      if (TS.boot_data.feature_message_menus) {
+        $container = $container || TS.client.ui.$msgs_div;
+        $container.find(".attachment_actions_buttons select:visible").each(function() {
+          var $el = $(this);
+          var data_source = $el.data("data-source");
+          var service_id = $el.closest("ts-message").data("bot-id");
+          var lfs_options = {
+            allow_list_position_above: true,
+            classes: "select_attachment",
+            disabled: $el.attr("disabled"),
+            filter: _filter,
+            no_default_selection: true,
+            onItemAdded: _onItemAdded,
+            onListHidden: _onListHidden,
+            onListShown: _getOnListShownCallback(data_source, service_id),
+            placeholder_text: _PLACEHOLDER_TEXT.default,
+            should_graphic_replace_emoji: true
+          };
+          if (data_source === _DATA_SOURCES.external) {
+            lfs_options.data_promise = _getExternalDataPromise($el);
+          }
+          $el.lazyFilterSelect(lfs_options).hide();
+        });
+      }
     },
     getActionModel: function(action, is_disabled) {
       var model = _.clone(action);
@@ -55088,7 +55052,7 @@ $.fn.togglify = function(settings) {
       var name_data = TS.members.getMemberUsernameAndRealNameInCorrectOrder(member);
       if (!name_data.is_username_first) name_data.names_in_order.reverse();
       return {
-        desc: TS.utility.htmlEntities(name_data.names_in_order[1]),
+        description: TS.utility.htmlEntities(name_data.names_in_order[1]),
         icon: member.profile.image_24,
         text: TS.utility.htmlEntities(name_data.names_in_order[0]),
         value: member.id
@@ -55538,10 +55502,8 @@ $.fn.togglify = function(settings) {
   "use strict";
   TS.registerModule("ui.pins", {
     onStart: function() {
-      if (TS.boot_data.feature_pin_update) {
-        TS.pins.pins_fetched_sig.add(TS.ui.pins.rebuildPinnedMessagesUI);
-        TS.pins.pinned_status_changed_sig.add(TS.ui.pins.updatePinUI);
-      }
+      TS.pins.pins_fetched_sig.add(TS.ui.pins.rebuildPinnedMessagesUI);
+      TS.pins.pinned_status_changed_sig.add(TS.ui.pins.updatePinUI);
     },
     updatePinUI: function(model_ob, pinned_item, is_pinned) {
       if (!model_ob || !pinned_item) return;

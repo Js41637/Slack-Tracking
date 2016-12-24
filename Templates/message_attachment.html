@@ -5,9 +5,7 @@
   data-attachment-id="{{attachment.id}}"
   {{#if real_src}}data-real-src="{{real_src}}"{{/if}}
   {{#if attachment._unfurl_type_message}}
-    {{#feature flag="feature_pin_update"}}
-      data-attachment-ts="{{attachment.ts}}"
-    {{/feature}}
+    data-attachment-ts="{{attachment.ts}}"
   {{/if}}
 >
 

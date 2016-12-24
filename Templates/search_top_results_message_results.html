@@ -13,7 +13,7 @@
 </div>
 <div class="search_module_footer{{#if debug.show_top_results_not_triggered}} show_top_results_not_triggered{{/if}}">
   <p>
-    <span>Were these <span class="top_results_feedback"><u><a onclick="TS.search.topResultsFeedback(\\'top_results_useful\\');">useful</a></u></span> or <span class="top_results_feedback"><u><a onclick="TS.search.topResultsFeedback(\\'top_results_not_useful\\');">not useful</a></u></span>?</span>
+    <span class="top_results_feedback">Were these <span><u><a onclick="TS.search.topResultsFeedback(this, 'top_results_useful');">useful</a></u></span> or <span><u><a onclick="TS.search.topResultsFeedback(this, 'top_results_not_useful');">not useful</a></u></span>?</span>
     <span id="see_more"><a onclick="TS.search.moreTopResults();">See more</a><ts-icon style="position: absolute" class="ts_icon_chevron_right"></ts-icon></span>
   </p>
 </div>

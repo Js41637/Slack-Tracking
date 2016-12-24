@@ -1,3 +1,4 @@
+{{i18n_ns "billing_history_list"}}
 {{#if is_event}}
   {{event_desc}}
 {{else if is_billing}}
@@ -20,15 +21,15 @@
     <span>{{> billing_history_item_strings this}}</span>
   {{/if}}
   {{#if has_billing_statement}}
-    <span>(<a href="/admin/billing/{{id}}/pdf">PDF</a>)</span>
+    <span>(<a href="/admin/billing/{{id}}/pdf">{{#t note="download PDF button label"}}PDF{{/t}}</a>)</span>
   {{/if}}
 {{else}}
   <span>{{> billing_history_item_strings this}}</span>
 {{/if}}
 <br />
 {{#if_equal type compare="invoice"}}
-  <span class="link_invoice_id">Invoice #{{id}}</span>
+  <span class="link_invoice_id">{{#t}}Invoice #{id}{{/t}}</span>
 {{/if_equal}}
 {{#if has_billing_statement}}
-  <span><a data-qa="link_statement_id" href="/admin/billing/{{id}}" class="link_statement_id">Billing Statement #{{id}}</a></span>
+  <span><a data-qa="link_statement_id" href="/admin/billing/{{id}}" class="link_statement_id">{{#t}}Billing Statement #{id}{{/t}}</a></span>
 {{/if}}

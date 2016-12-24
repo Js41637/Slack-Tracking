@@ -55,14 +55,15 @@
       });
       $section.toggleClass("open");
       $section.find("textarea").trigger("autosize-resize");
+      var opening = $section.hasClass("open");
       var expand_btn = $section.find(".accordion_expand");
-      if (expand_btn.text() == "expand") {
-        expand_btn.text("close");
+      if (opening) {
+        expand_btn.text(TS.i18n.t("close", "web")());
         $section.find(".ladda-button").each(function() {
           Ladda.bind($(this)[0]);
         });
       } else {
-        expand_btn.text("expand");
+        expand_btn.text(TS.i18n.t("expand", "web")());
       }
       if (!no_add_hash) {
         history.pushState(null, null, "#" + section.replace("change_", ""));

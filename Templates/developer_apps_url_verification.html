@@ -1,13 +1,20 @@
+{{i18n_ns "developer_apps"}}
+
 <div class="request_url_verification_container" data-status={{status}}>
   {{!-- Request URL Labels --}}
-  <label for="{{#if changing_url}}previous_{{/if}}request_url" class="block align_left current_request_url">{{#if changing_url}}Previous {{/if}}Request URL
+  <label for="{{#if changing_url}}previous_{{/if}}request_url" class="block align_left current_request_url">
+    {{#if changing_url}}
+      {{#t note="This is a field where we compare an already saved URL with one we wish to replace"}}Previous Request URL{{/t}}
+    {{else}}
+      {{#t note="This is a field where we wish to add a new URL to send slash command requests to"}}Request URL{{/t}}
+    {{/if}}
     <span class="verification_dialogue_container inline {{#if verified}}verified{{/if}}">
     {{#or unverified first_verification}}
       <p class="verification_help_text small inline {{#if failed_verification}}warning_text{{else if verified}}verified{{/if}} small_left_margin">
         {{#if failed_verification}}
-          Your URL didn't respond with the value of the <code>challenge</code> parameter.
+          {{#t note="This is an error we respond with when the developer's server did not respond with the value of the challenge parameter"}}Your URL didn't respond with the value of the <code>challenge</code> parameter.{{/t}}
         {{else if verified}}
-          Verified
+          {{#t note="Verified means the developer's server responded properly"}}Verified{{/t}}
           <ts-icon class="ts_icon_check_small verified"></ts-icon>
         {{/if}}
       </p>
@@ -17,7 +24,7 @@
         </svg>
       </div>
     {{else}}
-      Verified
+      {{#t note="Verified means the developer's server responded properly"}}Verified{{/t}}
       <ts-icon class="ts_icon_check_small verified"></ts-icon>
     {{/or}}
     </span>
@@ -37,7 +44,7 @@
     "
     placeholder="https://my.app.com/slack/action-endpoint"
     {{#or unverified first_verification}}
-      data-validation="isurl=https" data-validation-success=" " data-validation-error="Valid HTTPS URLs only, please and thanks!"
+      data-validation="isurl=https" data-validation-success=" " data-validation-error="{{#t}}Valid HTTPS URLs only, please and thanks!{{/t}}"
     {{else}}
       disabled
     {{/or}}
@@ -55,16 +62,16 @@
           {{/if}}
         class="btn btn_small btn_outline small_top_margin" for="request_url">
         {{#if failed_verification}}
-          Retry
+          {{#t note="Button for the developer to retry verifying their URL"}}Retry{{/t}}
         {{else}}
-          Change
+          {{#t note="Button for the developer to change their URL"}}Change{{/t}}
         {{/if}}
       </button>
   \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0</div>
   {{/or}}
   {{#if changing_url}}
     {{!-- Label for New Request URL --}}
-    <label for="new_request_url" class="block align_left">New Request URL
+    <label for="new_request_url" class="block align_left">{{#t note="a Request URL is a URL a third party developer owns that Slack sends requests to"}}New Request URL{{/t}}
       <span class="verification_dialogue_container inline">
         <p class="verification_help_text inline small small_left_margin
           {{#if new_url_verified}}
@@ -74,10 +81,10 @@
           {{/if}}
         ">
         {{#if new_url_verified}}
-          Verified
+          {{#t note="Verified means the developer's server responded properly"}}Verified{{/t}}
           <ts-icon class="ts_icon_check_small verified"></ts-icon>
         {{else if failed_verification}}
-          Your URL didn't respond with the value of the <code>challenge</code> parameter.
+          {{#t note="This is an error we respond with when the developer's server did not respond with the value of the challenge parameter"}}Your URL didn't respond with the value of the <code>challenge</code> parameter.{{/t}}
         {{/if}}
         </p>
         <div class="verification_spinner inline hidden">
@@ -90,17 +97,19 @@
     {{!-- Input Field for New Request URL --}}
     <input type="text" name="new_request_url" id="request_url" class="small no_bottom_margin new_request_url request_url verified" placeholder="https://my.app.com/slack/action-endpoint" data-validation="isurl=https" data-validation-success=" " data-validation-warning="Valid HTTPS URLs only, please and thanks!"value="{{new_url}}"><br>
     <div class="inline_textfield_button">
-  \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0<button id="cancel_change_url" class="btn btn_small btn_outline small_top_margin" for="request_url">Cancel</button>
+  \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0<button id="cancel_change_url" class="btn btn_small btn_outline small_top_margin" for="request_url">{{#t note="cancel button"}}Cancel{{/t}}</button>
     {{#if failed_verification}}
-      <button id="retry_url_verification" class="btn btn_small btn_outline small_top_margin" for="new_request_url">Retry</button>
+      <button id="retry_url_verification" class="btn btn_small btn_outline small_top_margin" for="new_request_url">{{#t note="retry button"}}Retry{{/t}}</button>
     {{/if}}
     </div>
   {{/if}}
   {{#if response}}
     <br><br>
     <div class="failed_url_verification_challenge">
-    <pre><code><span class="bold">Our Request:</span><br>POST<br>"body": { <br>&#09 "type": <span class="code_string request">"url_verification"</span>,<br>&#09 "token": <span class="code_string request">"{{response.token}}"</span>,<br>&#09 "challenge": <span class="code_string request">"{{response.challenge}}"</span><br>}<br><span class="bold">Your Response:</span><br>"code": <span class="code_string response">{{response.code}}</span><br>"error": <span class="code_string response">"{{response.error}}"</span><br>"body": {<br> <span class="code_string response">{{response.body}}</span> <br>}</code></pre>
+    <pre><code><span class="bold">{{#t note="Title of a block of code showing our request data"}}Our Request:{{/t}}</span><br>POST<br>"body": { <br>&#09 "type": <span class="code_string request">"url_verification"</span>,<br>&#09 "token": <span class="code_string request">"{{response.token}}"</span>,<br>&#09 "challenge": <span class="code_string request">"{{response.challenge}}"</span><br>}<br><span class="bold">{{#t note="Title of a block of code showing the developer's response"}}Your Response:{{/t}}</span><br>"code": <span class="code_string response">{{response.code}}</span><br>"error": <span class="code_string response">"{{response.error}}"</span><br>"body": {<br> <span class="code_string response">{{response.body}}</span> <br>}</code></pre>
     </div>
   {{/if}}
-  <aside class="small subtle_silver bottom_margin">We'll send an HTTP POST requests to this URL when events occur. As soon as you enter a URL, we'll send a request with a <code>challenge</code> parameter, and your endpoint must respond with the challenge value.<a href="/events/url_verification"> Learn more.</a></aside><br><br>
+  {{#t}}
+  <aside class="small subtle_silver bottom_margin">We\u2019ll send an HTTP POST requests to this URL when events occur. As soon as you enter a URL, we\u2019ll send a request with a <code>challenge</code> parameter, and your endpoint must respond with the challenge value.<a href="/events/url_verification"> Learn more.</a></aside><br><br>
+  {{/t}}
 </div>

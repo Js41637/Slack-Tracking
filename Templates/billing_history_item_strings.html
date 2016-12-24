@@ -1,3 +1,4 @@
+{{i18n_ns "billing_history_list"}}
 {{!--
 Billing item type to string partial
 Used in billing_history_list_item_col.hbs
@@ -5,84 +6,142 @@ Used in billing_history_list_item_col.hbs
 
 {{!-- types that have a billing statement associated --}}
 {{#if_equal type compare="monthly_statement"}}
-  <a href="/admin/billing/{{this.id}}" class="link_billing_statement">Monthly Statement
-  <span class="show_on_mobile inline"> \u2013 {{this.formatted_date}}</span></a>
+  <a href="/admin/billing/{{this.id}}" class="link_billing_statement">
+  {{#t}}
+    Monthly Statement
+    <span class="show_on_mobile inline"> \u2013 {this.formatted_date}</span>
+  {{/t}}
+  </a>
 {{else if payments_event_description}}
   {{payments_event_description}}
 {{else if_equal type compare="invoice_switch"}}
-  Switched to invoice
+  {{#t}}Switched to invoice{{/t}}
 {{else if_equal type compare="invoice"}}
-  Invoice
+  {{#t}}Invoice{{/t}}
 {{else if_equal type compare="invoice_adjust"}}
-  Invoice adjusted
+  {{#t}}Invoice adjusted{{/t}}
 {{else if_equal type compare="invoice_cancel"}}
-  Your team is no longer paying by invoice.
+  {{#t}}Your team is no longer paying by invoice.{{/t}}
 {{else if_equal type compare="purchase"}}
-  Purchased the <strong>{{this.product.level_nice}} plan</strong>{{#if this.product.discount}}<span class="inline_discount"> (Discounted{{#if this.product.is_simple_discount}} {{this.discount_plan.0.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal this.product.termly compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+  {{#if_equal is_discounted compare=true}}
+    {{#if_equal is_simple_discount compare=true}}
+      {{#if_equal product.termly compare="yearly"}}
+        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Annually{{/t}}
+      {{else}}
+        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Monthly{{/t}}
+      {{/if_equal}}
+
+    {{else}}
+      {{#if_equal this.product.termly compare="yearly"}}
+        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Annually{{/t}}
+      {{else}}
+        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Monthly{{/t}}
+      {{/if_equal}}
+    {{/if_equal}}
+  {{else}}
+    {{#if_equal product.termly compare="yearly"}}
+      {{#t}}Purchased the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
+    {{else}}
+      {{#t}}Purchased the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
+    {{/if_equal}}
+  {{/if_equal}}
 {{else if_equal type compare="renewal"}}
-  Renewed the <strong>{{this.product.level_nice}} plan</strong>{{#if this.is_discounted}}<span class="inline_discount"> (Discounted{{#if this.is_simple_discount}} {{this.discount_plan.0.percentage}}%{{/if}})</span>{{/if}}, paying {{#if_equal this.product.termly compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+  {{#if_equal is_discounted compare=true}}
+    {{#if_equal is_simple_discount compare=true}}
+      {{#if_equal product.termly compare="yearly"}}
+        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Annually{{/t}}
+      {{else}}
+        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Monthly{{/t}}
+      {{/if_equal}}
+
+    {{else}}
+      {{#if_equal this.product.termly compare="yearly"}}
+        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Annually{{/t}}
+      {{else}}
+        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Monthly{{/t}}
+      {{/if_equal}}
+    {{/if_equal}}
+  {{else}}
+    {{#if_equal this.product.termly compare="yearly"}}
+      {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
+    {{else}}
+      {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
+    {{/if_equal}}
+  {{/if_equal}}
 {{else if_equal type compare="cancel"}}
-  Switched to the <strong>Free plan</strong>
+  {{#t}}Switched to the <strong>Free plan</strong>{{/t}}
 {{else if_equal type compare="switch"}}
-  Switched to the <strong>{{product.type}} plan</strong>, paying {{#if_equal product.term compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+  {{#if_equal product.termly compare="yearly"}}
+    {{#t}}Switched to the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
+  {{else}}
+    {{#t}}Switched to the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
+  {{/if_equal}}
 {{else if_equal type compare="future_cancel"}}
-  Switch to the <strong>Free plan</strong> at renewal time
+  {{#t}}Switch to the <strong>Free plan</strong> at renewal time{{/t}}
 {{else if_equal type compare="future_switch"}}
-  Switch to the <strong>{{product.type}} plan</strong> at renewal time, paying {{#if_equal product.term compare="yearly"}}Annually{{else}}Monthly{{/if_equal}}
+  {{#if_equal product.termly compare="yearly"}}
+    {{#t}}Switch to the <strong>{product.level_nice} plan</strong>at renewal time, paying Annually{{/t}}
+  {{else}}
+    {{#t}}Switch to the <strong>{product.level_nice} plan</strong>at renewal time, paying Monthly{{/t}}
+  {{/if_equal}}
 {{else if_equal type compare="users_change"}}
-  Switched from <strong>{{num_users_from}} to {{num_users_to}}</strong> {{pluralize num_users_to 'user' 'users'}}
+  {{#t}}Switched from <strong>{num_users_from} to {num_users_to}</strong> {num_users_to, plural, =1 {user} other {users}}{{/t}}
 {{else if_equal type compare="late"}}
-  Paid money owed
+  {{#t}}Paid money owed{{/t}}
 {{else if_equal type compare="expire"}}
-  Paid plan expired
+  {{#t}}Paid plan expired{{/t}}
 {{else if_equal type compare="comp_gift"}}
-  Given the <strong>{{product.typ}} plan</strong>
+  {{#t}}Given the <strong>{product.typ} plan</strong>{{/t}}
 {{else if_equal type compare="trial_start"}}
-  Started a free trial
+  {{#t}}Started a free trial{{/t}}
 {{else if_equal type compare="charge_high_balance"}}
-  Charged for high balance
+  {{#t}}Charged for high balance{{/t}}
 {{else if_equal type compare="annual_team_balance_paid"}}
-  Monthly accrued balance for annual teams
+  {{#t}}Monthly accrued balance for annual teams{{/t}}
 {{!-- Types with no billing statment associated, will not link --}}
 {{else if_equal type compare="staff_gift"}}
   {{#if_gt charges.delta compare=0}}
-    Gift from Slack
+    {{#t}}Gift from Slack{{/t}}
   {{else}}
-    Credit adjustment
+    {{#t}}Credit adjustment{{/t}}
   {{/if_gt}}
 {{else if_equal type compare="referral_purchase_credit"}}
-  Credit for referring a new team
+  {{#t}}Credit for referring a new team{{/t}}
 {{else if_equal type compare="referral_credit"}}
-  Referral signup credit
+  {{#t}}Referral signup credit{{/t}}
 {{else if_equal type compare="beta_credit"}}
-  Beta testing credit
+  {{#t}}Beta testing credit{{/t}}
 {{else if_equal type compare="launch_credit"}}
-  New team credit
+  {{#t}}New team credit{{/t}}
 {{else if_equal type compare="credit_test_group"}}
-  New team credit
+  {{#t}}New team credit{{/t}}
 {{else if_equal type compare="survey_credit"}}
-  Survey completed
+  {{#t}}Survey completed{{/t}}
 {{else if_equal type compare="txn_void"}}
-  Voided Payment
+  {{#t}}Voided Payment{{/t}}
 {{else if_equal type compare="txn_refund"}}
-  Refunded Payment
+  {{#t}}Refunded Payment{{/t}}
 {{else if_equal type compare="sales_tax_refund"}}
-  Sales Tax Refund
+  {{#t}}Sales Tax Refund{{/t}}
 {{else if_equal type compare="enterprise_transfer"}}
   {{#if enterprise_transfer.enterprise_id}}
-    Transferred to <a href="{{enterprise_transfer.enterprise_url}}">{{enterprise_transfer.enterprise_name}}</a>
+    {{#t}}Transferred to <a href="{enterprise_transfer.enterprise_url}">{enterprise_transfer.enterprise_name}</a>{{/t}}
   {{else if enterprise_transfer.team_id}}
-    Transferred to <a href="{{enterprise_transfer.team_url}}">{{enterprise_transfer.team_name}}</a>
+    {{#t}}Transferred to <a href="{enterprise_transfer.team_url}">{enterprise_transfer.team_name}</a>{{/t}}
   {{else}}
-    Enterprise plan transfer
+    {{#t}}Enterprise plan transfer{{/t}}
   {{/if}}
 {{else if_equal type compare="transfer"}}
-    Transferred ${{charges.delta}}{$row.delta|abs|cash} {{#if_gt charges.delta compare=0}}from{{else}}to{{/if_gt}} {{transfer.other_team_type}}
-  {{#if_equal transfer.reason compare='payments_group'}}
-    (payment group transfer)
+  {{#if_gt delta compare=0}}
+    {{#t}}Transferred {formatted_charges.delta} to team{{/t}}
+  {{else}}
+    {{#t}}Transferred {formatted_charges.delta} from team{{/t}}
+  {{/if_gt}}
+  {{#if_equal details.reason compare='payments_group'}}
+    {{#t}}(payment group transfer){{/t}}
   {{/if_equal}}
-  {{#if_equal transfer.reason compare='enterprise'}}
-    (enterprise plan transfer)
+  {{#if_equal details.reason compare='enterprise'}}
+    {{#t}}(enterprise plan transfer){{/t}}
   {{/if_equal}}
 {{/if_equal}}
 

@@ -20,7 +20,7 @@
     </div>
   {{/unless}}
 
-  {{#feature flag="feature_pin_update"}}<span class="is_pinned_holder">{{pin_html}}</span>{{/feature}}
+  <span class="is_pinned_holder">{{pin_html}}</span>
 
   {{#unless format_for_thread_root}}
     <div class="message_gutter">
@@ -87,7 +87,8 @@
                 <span class="ts_tip_tip ts_tip_multiline_inner">
                   Clicks: {{msg.recap.clicks}}<br />
                   Reactions: {{msg.recap.reactions}} <br />
-                  Total score: {{msg.recap.weight}}
+                  Total score: {{msg.recap.weight}} <br />
+                  Debug: {{{ nl2br (prettyJson msg.recap.debug) }}}
                 </span>
               </button>
             {{/if}}

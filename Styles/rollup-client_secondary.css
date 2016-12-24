@@ -2260,6 +2260,12 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   display: flex
 }
 
+#convo_tab #convo_tab_btns .close_flexpane:focus,
+#convo_tab #convo_tab_btns .close_flexpane:hover {
+  outline: 0;
+  color: #005e99
+}
+
 .mentions_reply {
   position: relative;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -18906,12 +18912,12 @@ ts-message .emoji-sizer .mention {
 }
 
 .light_theme #reply_container .inline_message_input_container,
-.light_theme #reply_container .reply_broadcast_toggle_label {
+.light_theme #reply_container .reply_broadcast_label_container {
   margin-left: 2.875rem
 }
 
 .dense_theme #reply_container .inline_message_input_container,
-.dense_theme #reply_container .reply_broadcast_toggle_label {
+.dense_theme #reply_container .reply_broadcast_label_container {
   margin-left: -.25rem
 }
 
@@ -20387,35 +20393,44 @@ ts-thread ts-message.selected .action_hover_container {
   -webkit-box-align: flex-start;
   -moz-align-items: flex-start;
   align-items: flex-start;
-  margin-top: -1rem;
+  margin-top: -2.25rem;
   opacity: 0;
   -webkit-transition: all .15s ease-out 0s;
   -moz-transition: all .15s ease-out 0s;
   transition: all .15s ease-out 0s
 }
 
-#reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label,
-.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label {
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1;
+  margin-right: .5rem;
+  min-width: 0;
   margin-bottom: 0;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: inline-block;
   font-size: .8125rem;
   font-weight: 400;
   color: #555459
 }
 
-#reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label input[type=checkbox],
-.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label input[type=checkbox] {
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container label,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container label {
+  font-weight: inherit;
+  font-size: inherit;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block
+}
+
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container input[type=checkbox],
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container input[type=checkbox] {
   margin-top: -.3125rem
 }
 
-#reply_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label ts-icon,
-.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_toggle_label ts-icon {
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon {
   font-size: 1.125rem;
   margin-right: -.0625rem
 }
