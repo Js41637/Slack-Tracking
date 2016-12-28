@@ -1,15 +1,10 @@
-<select
-  name="{{name}}"
-  {{#if _disabled}}
-    disabled
-    aria-disabled="true"
-  {{/if}}
-  data-action-id="{{id}}"
-  data-data-source="{{data_source}}"
->
-  {{#each options}}
+{{#*inline "option"}}
   <option
     value="{{value}}"
+    {{#if selected}}
+      selected
+      aria-selected="true"
+    {{/if}}
     {{#if icon}}
       data-lfs-item-icon="{{icon}}"
     {{/if}}
@@ -19,5 +14,32 @@
   >
     {{text}}
   </option>
-  {{/each}}
+{{/inline}}
+
+<select
+  class="select small"
+  name="{{name}}"
+  {{#if _disabled}}
+    disabled
+    aria-disabled="true"
+  {{/if}}
+  {{#if text}}
+    placeholder="{{text}}"
+  {{/if}}
+  data-action-id="{{id}}"
+  data-data-source="{{data_source}}"
+>
+  {{#if option_groups}}
+    {{#each}}
+      <optgroup label="{{text}}">
+        {{#each options}}
+          {{> option}}
+        {{/each}}
+      </optgroup>
+    {{/each}}
+  {{else}}
+    {{#each options}}
+      {{> option}}
+    {{/each}}
+  {{/if}}
 </select>

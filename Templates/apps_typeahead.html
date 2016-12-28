@@ -1,3 +1,4 @@
+{{i18n_ns "app_directory"}}
 <div class="apps_typeahead">
   {{#if data.suggestions}}
     {{#each data.suggestions}}
@@ -17,11 +18,11 @@
       <a href="/apps/search?q={{term}}" class="plastic_typeahead_item">
         <ts-icon class="ts_icon_search apps_typeahead_item_media"></ts-icon>
         <div>
-          <span class="apps_typeahead_item_title">See all results for "{{term}}"</span>
+          <span class="apps_typeahead_item_title">{{#t note='Link at bottom of search typeahead to see more'}}See all results for "{term}"{{/t}}</span>
         </div>
       </a>
     {{/if}}
   {{else}}
-    <div class="plastic_typeahead_item plastic_typeahead_item_no_results">No results for "{{term}}"</div>
+    <div class="plastic_typeahead_item plastic_typeahead_item_no_results">{{#t note='Message at bottom of search typeahead when no results of'}}No results for "{term}"{{/t}}</div>
   {{/if}}
 </div>

@@ -1,7 +1,9 @@
+{{i18n_ns "developer_apps"}}
 <div class="{{type}}_events_table_container">
   <table id="{{type}}_events_table" class="events_table full_width no_bottom_border no_bottom_margin {{#unless events}} hidden{{/unless}}">
     <thead>
       <tr>
+        {{#t note="heading descriptions for Events API events"}}
         <th class="no_bottom_margin no_border">
           Event Name
         </th>
@@ -13,13 +15,14 @@
             Required Scope
           </th>
         {{/unless}}
+        {{/t}}
       </tr>
     </thead>
       {{#each events as |event|}}
       <tbody>
-          <tr class="no_padding" 
-            {{#unless event.current}}data-pending{{/unless}} 
-            data-event-type="{{@key}}" data-event-scope="{{event.scope}}" 
+          <tr class="no_padding"
+            {{#unless event.current}}data-pending{{/unless}}
+            data-event-type="{{@key}}" data-event-scope="{{event.scope}}"
             data-event-description="{{event.description}}" data-table="{{../type}}"
           >
             <td class="no_bottom_padding">
@@ -39,8 +42,8 @@
             <td class="no_bottom_padding">
               {{!-- We set the flex direction to row_reverse so that if no description exists, the icons still appear on the right hand side  --}}
               <div class="display_flex flex_direction_row_reverse no_wrap">
-                  <ts_icon class="{{#if event.current}}delete_event{{else}}remove_event{{/if}} {{#if event.pending_removal}}ts_icon_undo{{else}}ts_icon_trash{{/if}} btn_icon ts_icon cursor_pointer" 
-                    aria-label="Delete">
+                  <ts_icon class="{{#if event.current}}delete_event{{else}}remove_event{{/if}} {{#if event.pending_removal}}ts_icon_undo{{else}}ts_icon_trash{{/if}} btn_icon ts_icon cursor_pointer"
+                    aria-label="{{#t}}Delete{{/t}}">
                   </ts_icon>
               </div>
             </td>
@@ -49,7 +52,7 @@
       {{else}}
         <tbody class="no_border">
           <tr class="no_bottom_border">
-            <td class="subtle_silver small"><i>No events added yet.</i></td>
+            <td class="subtle_silver small"><i>{{#t note="no Events API events added yet"}}No events added yet.{{/t}}</i></td>
           </tr>
         </tbody>
       {{/each}}

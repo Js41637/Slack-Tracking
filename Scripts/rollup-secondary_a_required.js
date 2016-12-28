@@ -18892,14 +18892,12 @@ TS.registerModule("constants", {
       html += "</div>";
       return html;
     },
-    msgHtmlForSearchTopResults: function(msg, channel) {
-      var html = "";
-      var show_attachments = msg["extracts"].length == 0 && msg["attachments"];
-      msg["text"] = msg["extracts"].length ? msg["extracts"][0]["text"] : msg["text"];
-      html += TS.templates.builders.msgs.buildHTML({
+    msgHtmlForSearchTopResults: function(msg) {
+      var show_attachments = msg.extracts.length == 0 && msg.attachments;
+      var html = TS.templates.builders.msgs.buildHTML({
         msg: msg,
-        msg_dom_id: TS.boot_data.feature_message_replies && TS.templates.makeMsgDomIdInSearchTopResults(msg.ts, msg, "sort_top_results"),
-        model_ob: channel,
+        msg_dom_id: TS.templates.makeMsgDomIdInSearchTopResults(msg.ts, msg, "sort_top_results"),
+        model_ob: msg.channel,
         container_id: "search_message_results",
         standalone: true,
         for_top_results_search_display: true,
@@ -18908,8 +18906,7 @@ TS.registerModule("constants", {
       return html;
     },
     buildMsgHTMLForSearchTopResults: function(main_msg) {
-      var channel = main_msg.channel;
-      return TS.templates.builders.msgHtmlForSearchTopResults(main_msg, channel);
+      return TS.templates.builders.msgHtmlForSearchTopResults(main_msg);
     },
     buildMsgHTMLForSearch: function(main_msg) {
       var model_ob = main_msg.channel;
@@ -19844,6 +19841,9 @@ TS.registerModule("constants", {
         }
         if (model_ob.is_group && !model_ob.is_mpim) {
           if (model_ob.is_archived) last_msg_input = null;
+        }
+        if (!TS.permissions.members.canPostInChannel(model_ob)) {
+          last_msg_input = null;
         }
       }
       if (_.trim(last_msg_input)) {
@@ -24510,6 +24510,9 @@ TS.registerModule("constants", {
       }
       if (!("is_starred" in new_msg)) {
         new_msg.is_starred = original_msg.is_starred;
+      }
+      if (TS.boot_data.feature_sli_recaps && !new_msg.recap && original_msg.recap) {
+        new_msg.recap = original_msg.recap;
       }
       var comment = null;
       if (new_msg.comment && new_msg.file) {
@@ -30576,7 +30579,8 @@ TS.registerModule("constants", {
         actions: actions,
         model_ob: model_ob,
         is_all_unreads_showing: TS.model.unread_view_is_showing,
-        sli_recap_preview: recap_highlight
+        sli_recap_preview: recap_highlight,
+        recappable_message: !model_ob.is_mpim && !model_ob.is_im
       };
       template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
       if (msg.subtype == "file_share" || msg.subtype == "file_mention") {
@@ -38143,11 +38147,11 @@ var _on_esc;
     show_go_button: true,
     show_secondary_go_button: false,
     show_cancel_button: true,
-    go_button_text: "OK",
+    go_button_text: TS.i18n.t("OK", "fs_modal")(),
     go_button_class: "",
-    secondary_go_button_text: "OK 2",
+    secondary_go_button_text: TS.i18n.t("OK 2", "fs_modal")(),
     secondary_go_button_class: "",
-    cancel_button_text: "Cancel",
+    cancel_button_text: TS.i18n.t("Cancel", "fs_modal")(),
     disable_default_controls: false,
     disable_esc: false,
     onGo: null,
@@ -46399,7 +46403,8 @@ $.fn.togglify = function(settings) {
     });
     TS.click.addClientHandler(".top_results_search_message_result", function(e, $el, origin) {
       var $target = $(e.target);
-      if ($target.attr("href")) return;
+      if ($target.attr("href") || $target.parent().attr("href").length) return;
+      if ($target.parents(".rxn").length) return;
       var match_with_index = TS.search.view.getMatchForSearchResult($el);
       if (!match_with_index) return;
       var match = match_with_index.match;
@@ -54538,10 +54543,11 @@ $.fn.togglify = function(settings) {
         copy_text: options.copy_text
       });
       var dialog_class = "basic_share_dialog";
+      var default_title = TS.i18n.t("Share", "basic_share_dialog")();
       if (options.dialog_class) dialog_class += " " + options.dialog_class;
       TS.generic_dialog.start({
-        title: options.title || "Share",
-        go_button_text: options.go_button_text || "Share",
+        title: options.title || default_title,
+        go_button_text: options.go_button_text || default_title,
         dialog_class: dialog_class,
         body: html,
         onShow: _onShow,
@@ -54556,9 +54562,9 @@ $.fn.togglify = function(settings) {
     $dialog.css("display", "");
     var $container = $dialog.find("#share_dialog_input_container");
     TS.ui.inline_msg_input.make($container, {
-      aria_label: "Add optional comment before sharing.",
+      aria_label: TS.i18n.t("Add optional comment before sharing.", "basic_share_dialog")(),
       no_emo: false,
-      placeholder: "Add a message, if you’d like."
+      placeholder: TS.i18n.t("Add a message, if you’d like.", "basic_share_dialog")()
     });
     var $input = $container.find(".message_input");
     $input.attr("id", "file_comment_textarea");
@@ -54614,7 +54620,7 @@ $.fn.togglify = function(settings) {
   var _onCopy = function() {
     if (!_options.copy_link || !TS.clipboard.canWriteText()) return;
     TS.tips.updateFloater({
-      title: "Copied!",
+      title: TS.i18n.t("Copied!", "basic_share_dialog")(),
       classes_to_add: ["success"]
     });
     TS.clipboard.writeText(_options.copy_link);
@@ -54634,18 +54640,18 @@ $.fn.togglify = function(settings) {
       _model_ob = model_ob;
       _submitting = false;
       var msg_html = TS.templates.builders.formatMessageAsAttachment(msg, model_ob);
-      var copy_link_tooltip = "Copy a link to this message.<br>To share, paste it anywhere.";
+      var copy_link_tooltip = TS.i18n.t("Copy a link to this message.<br>To share, paste it anywhere.", "share_message")();
       var warning;
       if (!_canShareToOtherChannels()) {
-        copy_link_tooltip = "Copy a link to this message.<br>It’s private, so sharing is limited.";
+        copy_link_tooltip = TS.i18n.t("Copy a link to this message.<br>It’s private, so sharing is limited.", "share_message")();
         warning = TS.templates.share_message_dialog_warning({
           from_private_channel: model_ob.is_group && !model_ob.is_mpim
         });
         warning = new Handlebars.SafeString(warning);
       }
       TS.ui.basic_share_dialog.start({
-        title: "Share message",
-        go_button_text: "Share",
+        title: TS.i18n.t("Share message", "share_message")(),
+        go_button_text: TS.i18n.t("Share", "share_message")(),
         initial_message: initial_message,
         attachment_html: msg_html,
         warning: warning,
@@ -54715,9 +54721,9 @@ $.fn.togglify = function(settings) {
       if (e && e.data && e.data.error) error = e.data.error;
       TS.error("chat.shareMessage error: " + error);
       TS.generic_dialog.start({
-        title: "Message could not be shared",
-        body: "Sorry! Something went wrong.",
-        go_button_text: "Try again",
+        title: TS.i18n.t("Message could not be shared", "share_message")(),
+        body: TS.i18n.t("Sorry! Something went wrong.", "share_message")(),
+        go_button_text: TS.i18n.t("Try again", "share_message")(),
         onGo: function() {
           TS.ui.share_message_dialog.start(msg_ts, src_model_ob, original_text);
         }
@@ -54935,26 +54941,28 @@ $.fn.togglify = function(settings) {
     decorateNewElements: function($container) {
       if (TS.boot_data.feature_message_menus) {
         $container = $container || TS.client.ui.$msgs_div;
-        $container.find(".attachment_actions_buttons select:visible").each(function() {
+        var $new_els = $container.find(".attachment_actions_buttons select:not(.hidden)");
+        $new_els.each(function() {
           var $el = $(this);
           var data_source = $el.data("data-source");
           var service_id = $el.closest("ts-message").data("bot-id");
+          var has_selected_options = _.some($el.find("option"), "attributes.selected");
           var lfs_options = {
             allow_list_position_above: true,
             classes: "select_attachment",
             disabled: $el.attr("disabled"),
             filter: _filter,
-            no_default_selection: true,
+            no_default_selection: !has_selected_options,
             onItemAdded: _onItemAdded,
             onListHidden: _onListHidden,
             onListShown: _getOnListShownCallback(data_source, service_id),
-            placeholder_text: _PLACEHOLDER_TEXT.default,
+            placeholder_text: $el.attr("placeholder") || _PLACEHOLDER_TEXT.default,
             should_graphic_replace_emoji: true
           };
           if (data_source === _DATA_SOURCES.external) {
             lfs_options.data_promise = _getExternalDataPromise($el);
           }
-          $el.lazyFilterSelect(lfs_options).hide();
+          $el.lazyFilterSelect(lfs_options).addClass("hidden");
         });
       }
     },
@@ -54963,7 +54971,9 @@ $.fn.togglify = function(settings) {
       model._disabled = model._disabled || !!is_disabled;
       model.data_source = model.data_source || _DATA_SOURCES.default;
       model.options = _getOptionsForModel(model);
-      model.text = _formatAndMarkSafeString(model.text);
+      if (model.text) {
+        model.text = _formatAndMarkSafeString(model.text);
+      }
       return model;
     }
   });
@@ -55003,7 +55013,9 @@ $.fn.togglify = function(settings) {
   }
 
   function _onListHidden() {
-    this.$select.lazyFilterSelect("updatePlaceholder", _PLACEHOLDER_TEXT.default);
+    var $select = this.$select;
+    var placeholder_text = $select.attr("placeholder") || _PLACEHOLDER_TEXT.default;
+    $select.lazyFilterSelect("updatePlaceholder", placeholder_text);
   }
 
   function _getOnListShownCallback(data_source, service_id) {

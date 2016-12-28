@@ -69,7 +69,9 @@
 
 {{#feature flag="feature_sli_recaps"}}
   {{#if sli_recap_preview}}
-  <li id="suggest_recap_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a class="suggest_recap_menu_item">{{#t}}Suggest as a highlight{{/t}}</a></li>
+    {{#if recappable_message}}
+    <li id="suggest_recap_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a class="suggest_recap_menu_item">{{#t}}Suggest as a highlight{{/t}}</a></li>
+    {{/if}}
   {{/if}}
 {{/feature}}
 

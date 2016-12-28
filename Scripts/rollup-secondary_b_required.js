@@ -1007,7 +1007,7 @@
             if ($comment_bodies.length) {
               $comment_bodies.html(TS.format.formatJustText(comment.comment));
             }
-            TS.generic_dialog.alert("Something's gone wrong, and your change didn't save. If you see this message more than once, you may want to try restarting Slack.", "Oh, crumbs!", "Got it");
+            TS.generic_dialog.alert(TS.i18n.t("Something‘s gone wrong, and your change didn‘t save. If you see this message more than once, you may want to try restarting Slack.", "comments")(), TS.i18n.t("Oh, crumbs!", "comments")(), TS.i18n.t("Got it", "comments")());
           }
         });
       }
@@ -1035,14 +1035,14 @@
         return null;
       }
       TS.generic_dialog.start({
-        title: "Delete a file comment",
-        body: "<p>Are you sure you want to delete this comment? This cannot be undone.</p>" + TS.templates.builders.buildCommentHTML({
+        title: TS.i18n.t("Delete a file comment", "comments")(),
+        body: TS.i18n.t("<p>Are you sure you want to delete this comment? This cannot be undone.</p>", "comments")() + TS.templates.builders.buildCommentHTML({
           comment: comment,
           file: file,
           show_comment_actions: false,
           hide_star: true
         }),
-        go_button_text: "Yes, delete the comment",
+        go_button_text: TS.i18n.t("Yes, delete the comment", "comments")(),
         go_button_class: "btn_danger",
         onGo: function() {
           TS.ui.comments.commitDelete(file_id, comment_id);

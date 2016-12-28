@@ -15326,13 +15326,22 @@
     if (!results.messages) return;
     var messages = [];
     results.messages.matches.forEach(function(match) {
+      match._dom_id = TS.boot_data.feature_message_replies ? TS.templates.makeMsgDomIdInSearch(match.ts, match) : TS.templates.makeMsgDomId(match.ts);
       messages.push(match);
       ["previous_2", "previous", "next", "next_2"].forEach(function(context) {
         if (match[context]) {
           match[context].channel = match.channel;
           match[context]._main = match;
+          match[context]._dom_id = TS.boot_data.feature_message_replies ? TS.templates.makeMsgDomIdInSearch(match[context].ts, match) : TS.templates.makeMsgDomId(match[context].ts);
           messages.push(match[context]);
         }
+      });
+    });
+    _.forEach(results.messages.modules, function(module) {
+      module.top_results.forEach(function(match) {
+        match._dom_id = TS.templates.makeMsgDomIdInSearchTopResults(match.ts, match, "sort_top_results");
+        match._dom_container_id = "search_module_results";
+        messages.push(match);
       });
     });
     if (!TS.model.prefs.full_text_extracts) {
@@ -15363,15 +15372,11 @@
     var $match;
     var html;
     if (!TS.search.view.msgHasExtracts(msg)) return;
-    var selector = "#search_message_results ";
-    if (msg._main && msg._main.ts) {
-      selector += '[data-ts="' + msg._main.ts + '"] ';
+    var selector = msg._dom_container_id ? "#" + msg._dom_container_id : "#search_message_results";
+    if (msg._main && msg._main.ts && !msg._dom_container_id) {
+      selector += ' [data-ts="' + msg._main.ts + '"]';
     }
-    selector += "#" + TS.templates.makeMsgDomId(msg.ts);
-    if (TS.boot_data.feature_message_replies) {
-      var main = msg._main || msg;
-      selector = "#" + TS.templates.makeMsgDomIdInSearch(msg.ts, main);
-    }
+    selector += " #" + msg._dom_id;
     $match = $(selector);
     if ($match.length === 0) return;
     html = TS.templates.search_message_extracts({
@@ -25681,7 +25686,7 @@
       if (TS.client.ui.$msgs_unread_divider && TS.client.ui.$msgs_unread_divider.next().length) {
         TS.ui.a11y.focusAndAddTabindex(TS.client.ui.$msgs_unread_divider.next());
       } else {
-        TS.ui.a11y.ariaLiveAnnounce("No unread messages.", true);
+        TS.ui.a11y.ariaLiveAnnounce(TS.i18n.t("No unread messages.", "a11y")(), true);
       }
     },
     focusOnMessageInput: function() {
@@ -25731,21 +25736,31 @@
       var model_ob = TS.shared.getActiveModelOb();
       var name = "";
       if (TS.boot_data.feature_unread_view && TS.model.unread_view_is_showing) {
-        name = "All unread messages";
+        name = TS.i18n.t("All unread messages", "a11y")();
       } else if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
-        name = "Threads";
+        name = TS.i18n.t("Threads", "a11y")();
       } else if (model_ob.is_channel) {
-        name = "Channel #" + model_ob.name;
+        name = TS.i18n.t("Channel #{model_name}", "a11y")({
+          model_name: model_ob.name
+        });
       } else if (model_ob.is_im) {
         if (TS.boot_data.feature_name_tagging_client) {
-          name = "Direct message with " + TS.members.getMemberFullName(model_ob.user);
+          name = TS.i18n.t("Direct message with {model_name}", "a11y")({
+            model_name: TS.members.getMemberFullName(model_ob.user)
+          });
         } else {
-          name = "Direct message with " + model_ob.name;
+          name = TS.i18n.t("Direct message with {model_name}", "a11y")({
+            model_name: model_ob.name
+          });
         }
       } else if (model_ob.is_mpim) {
-        name = "Direct message with " + TS.mpims.getDisplayName(model_ob);
+        name = TS.i18n.t("Direct message with {model_name}", "a11y")({
+          model_name: TS.mpims.getDisplayName(model_ob)
+        });
       } else if (model_ob.is_group) {
-        name = "Private Channel " + model_ob.name;
+        name = TS.i18n.t("Private Channel {model_name}", "a11y")({
+          model_name: model_ob.name
+        });
       }
       return name;
     },
@@ -25767,7 +25782,9 @@
         delete TS.ui.a11y.unread_message_strings[model_ob.name];
       }
       TS.ui.a11y.ariaLiveAnnounce(announce_message, true);
-      TS.client.ui.$msg_input.attr("aria-label", "Message input for " + name);
+      TS.client.ui.$msg_input.attr("aria-label", TS.i18n.t("Message input for {model_name}", "a11y")({
+        model_name: name
+      }));
     },
     adjustFontSize: function() {
       TS.ui.a11y.setFontSize();

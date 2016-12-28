@@ -13556,6 +13556,10 @@ span.match {
   padding-right: .5rem
 }
 
+.top_results_search_message_result :hover {
+  cursor: pointer
+}
+
 .top_results_search_message_result.duplicate {
   background-color: #F99
 }
@@ -20475,9 +20479,16 @@ ts-thread ts-message.selected .action_hover_container {
   padding: .8125rem .625rem
 }
 
+#markers_container {
+  position: absolute;
+  width: .625rem;
+  top: 0;
+  right: .1875rem
+}
+
 .recap_highlight_marker {
   position: absolute;
-  right: .1875rem;
+  right: 0;
   height: .1875rem;
   width: .625rem;
   border-radius: .1875rem;
@@ -20489,6 +20500,29 @@ ts-thread ts-message.selected .action_hover_container {
 .recap_highlight_marker:hover {
   background-color: #459965;
   width: .75rem
+}
+
+.recap_highlight_marker::after,
+.recap_highlight_marker::before {
+  display: block;
+  content: "";
+  width: 100%;
+  height: .1875rem
+}
+
+.recap_highlight_marker::before {
+  position: absolute;
+  top: -.1875rem
+}
+
+.recap_highlight_marker::after {
+  position: absolute;
+  top: .1875rem
+}
+
+.recap_highlight_marker.no_after::after,
+.recap_highlight_marker.no_before::before {
+  height: 0
 }
 
 .recap_hover {
