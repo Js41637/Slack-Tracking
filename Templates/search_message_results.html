@@ -1,3 +1,5 @@
+{{i18n_ns "search"}}
+
 <div id="search_message_results">
   {{#if page}}
     {{#each page}}
@@ -5,6 +7,6 @@
     {{/each}}
     {{paging_html}}
   {{else}}
-    <div class="loading_hash_animation"><img src="{{versioned_loading_hash_animation}}" alt="Loading" /><br />loading page {{current_page}}...</div>
+    <div class="loading_hash_animation"><img src="{{versioned_loading_hash_animation}}" alt="{{#t}}Loading{{/t}}" /><br />{{#t}}loading page {current_page, number}...{{/t}}</div>
   {{/if}}
 </div>

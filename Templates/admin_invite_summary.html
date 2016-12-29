@@ -1,23 +1,30 @@
+{{i18n_ns "invite"}}
+
 <h1 class="light align_center">
   {{#if error_invites}}
     {{#if success_invites}}
-      That was only a partial success.
+      {{#t}}That was only a partial success.{{/t}}
     {{else}}
-      That didn't work!
+      {{#t}}That didn't work!{{/t}}
     {{/if}}
   {{else}}
-    Your invitation{{#if_gt success_invites.length compare=1}}s have{{else}} has{{/if_gt}} been sent!
+    {{#if_gt success_invites.length compare=1}}
+      {{#t}}Your invitation has been sent!{{/t}}
+    {{else}}
+      {{#t}}Your invitations have been sent!{{/t}}
+    {{/if_gt}}
   {{/if}}
 </h1>
 
 <p class="align_center large_bottom_margin">
   {{#if error_invites}}
     {{#if success_invites}}
-      You've invited {{dangerouslyRenderHTML success_invites_html}}, but
+      {{#t success=(dangerouslyRenderHTML success_invites_html) invitations=(pluralize error_invites.length 'invitation' 'invitations')}}You've invited {success_invites_html}, but <span class="bold">{error_invites.length} {invitations} didn't send</span>. Review the errors below.{{/t}}
+    {{else}}
+      {{#t invitations=(pluralize error_invites.length 'invitation' 'invitations')}}<span class="bold">{error_invites.length} {invitations} didn't send</span>. Review the errors below.{{/t}}
     {{/if}}
-    <span class="bold">{{error_invites.length}} {{pluralize error_invites.length 'invitation' 'invitations'}} didn't send</span>. Review the errors below.
   {{else}}
-    You've invited {{dangerouslyRenderHTML success_invites_html}} to {{team_name}}.
+    {{#t success=(dangerouslyRenderHTML success_invites_html)}}You've invited {success} to {team_name}.{{/t}}
   {{/if}}
 </p>
 
@@ -25,8 +32,8 @@
   {{#feature flag="feature_name_tagging_client"}}
     <table class="addresses large_bottom_margin align_left full_width">
       <tr>
-        <th class="span_1_of_2">Email Address</th>
-        <th class="span_1_of_2">Full Name</th>
+        <th class="span_1_of_2">{{#t}}Email Address{{/t}}</th>
+        <th class="span_1_of_2">{{#t}}Full Name{{/t}}</th>
       </tr>
       {{#each success_invites}}
         <tr>
@@ -38,8 +45,8 @@
   {{else}}
     <table class="addresses large_bottom_margin align_left full_width">
       <tr>
-        <th class="span_1_of_2">Email Address</th>
-        <th class="span_1_of_2">Name</th>
+        <th class="span_1_of_2">{{#t}}Email Address{{/t}}</th>
+        <th class="span_1_of_2">{{#t}}Name{{/t}}</th>
       </tr>
       {{#each success_invites}}
         <tr>
@@ -54,8 +61,8 @@
 {{#if error_invites}}
   <table class="addresses error large_bottom_margin align_left full_width">
     <tr>
-      <th class="span_1_of_2">Email Address</th>
-      <th class="span_1_of_2">What went wrong</th>
+      <th class="span_1_of_2">{{#t}}Email Address{{/t}}</th>
+      <th class="span_1_of_2">{{#t}}What went wrong{{/t}}</th>
     </tr>
     {{#each error_invites}}
       <tr>
@@ -69,7 +76,7 @@
 {{#if custom_message}}
   <table class="large_bottom_margin align_left full_width">
     <tr>
-      <th class="span_1_of_1">Custom Message</th>
+      <th class="span_1_of_1">{{#t}}Custom Message{{/t}}/th>
     </tr>
     <tr>
       <td class="align_top break_word">{{custom_message}}</td>
@@ -80,26 +87,26 @@
 {{#if domains}}
   <div class="alert alert_success no_bottom_margin clearfix">
     <i class="ts_icon ts_icon_check_circle_o"></i>
-    <p class="value_proposition">You can set <strong>{{team_name}}</strong> to allow automatic sign up from anyone with a confirmed email address.</p>
-    {{#if paid_team}}<p class="value_proposition">Slack will automatically charge or credit your account when active members are added to or removed from your team.</p>{{/if}}
+    <p class="value_proposition">{{#t}}You can set <strong>{team_name}</strong> to allow automatic sign up from anyone with a confirmed email address.{{/t}}</p>
+    {{#if paid_team}}<p class="value_proposition">{{#t}}Slack will automatically charge or credit your account when active members are added to or removed from your team.{{/t}}</p>{{/if}}
     <p class="top_margin">
       <span class="col span_3_of_4 no_right_padding small_bottom_margin">
         <input type="text" id="invite_signup_domains" class="no_bottom_margin small" value="{{domains}}" />
       </span>
-      <button class="btn ladda-button col span_1_of_4" data-style="expand-right" data-action="add_signup_domains">Set Up</button>
-      <span class="input_note col span_1_of_1 no_margin">To allow email addresses from multiple domains, separate them with commas.</span>
+      <button class="btn ladda-button col span_1_of_4" data-style="expand-right" data-action="add_signup_domains">{{#t}}Set Up{{/t}}</button>
+      <span class="input_note col span_1_of_1 no_margin">{{#t}}To allow email addresses from multiple domains, separate them with commas.{{/t}}</span>
     </p>
   </div>
 {{/if}}
 
 <p class="large_top_padding">
   {{#if is_admin}}
-    <a class="btn btn_outline col span_1_of_3" href="/admin/invites" {{#isClient}}target="admin_invites"{{/isClient}}>View Pending Invites</a>
+    <a class="btn btn_outline col span_1_of_3" href="/admin/invites" {{#isClient}}target="admin_invites"{{/isClient}}>{{#t}}View Pending Invites{{/t}}</a>
   {{/if}}
   {{#if error_invites}}
-    <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_try_again">Try Again</button>
+    <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_try_again">{{#t}}Try Again{{/t}}</button>
   {{else}}
-    <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_reset">Invite More People</button>
+    <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_reset">{{#t}}Invite More People{{/t}}</button>
   {{/if}}
-  <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}} dialog_cancel">Done</button>
+  <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}} dialog_cancel">{{#t}}Done{{/t}}</button>
 </p>

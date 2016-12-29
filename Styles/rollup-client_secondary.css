@@ -1793,9 +1793,12 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
   top: .3rem
 }
 
-#details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_close,
 #details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_search {
-  top: .4rem
+  top: .6rem
+}
+
+#details_tab .channel_page_section.channel_page_members #channel_member_list_container .searchable_member_list_search .icon_close {
+  top: .7rem
 }
 
 #details_tab .channel_page_section .channel_page_details_highlighter,
@@ -19484,6 +19487,11 @@ ts-message .emoji-sizer .mention {
   padding-top: 1.5rem
 }
 
+.light_theme ts-message:not(.first) .recap_highlight,
+.light_theme ts-message:not(.first) .recap_highlight_debug {
+  display: none
+}
+
 .light_theme ts-message .message_gutter {
   width: 4.5rem;
   padding-right: .625rem
@@ -20483,7 +20491,8 @@ ts-thread ts-message.selected .action_hover_container {
   position: absolute;
   width: .625rem;
   top: 0;
-  right: .1875rem
+  right: .1875rem;
+  pointer-events: none
 }
 
 .recap_highlight_marker {
@@ -20494,7 +20503,8 @@ ts-thread ts-message.selected .action_hover_container {
   border-radius: .1875rem;
   z-index: 99;
   background-color: #78c896;
-  cursor: pointer
+  cursor: pointer;
+  pointer-events: auto
 }
 
 .recap_highlight_marker:hover {

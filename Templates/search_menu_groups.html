@@ -1,5 +1,7 @@
+{{i18n_ns "search"}}
+
 {{#if groups}}
-  <div class="section_header"><span class="header_label search_mini">Channels</span></div>
+  <div class="section_header"><span class="header_label search_mini">{{#t}}Channels{{/t}}</span></div>
   <ol class="results groups">
     {{#each groups}}
       <li data-replacement="{{../conversation_modifier}}{{name}}">
@@ -18,7 +20,7 @@
       {{!-- TODO: reveal_hidden_items should not be a list item because it does not create an accurate representation of this list's count, but the way search-autocomplete-menu.js is built does not allow for an easy change :( --}}
       <li class="reveal_hidden_items">
         <button class="reveal_items_btn action_btn btn_unstyle" type="button">
-          Show {{groups_archived.length}} archived {{pluralize groups_archived.length group_label}}
+          {{#t}}Show { groups_archived.length, plural, =1 { # archived {group_label} } other { # archived {group_label}s }}{{/t}}
         </button>
       </li>
 

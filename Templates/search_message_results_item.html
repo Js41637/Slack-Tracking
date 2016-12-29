@@ -1,3 +1,5 @@
+  {{i18n_ns "search"}}
+
   <div class="search_message_result null_transform {{#ifExtracts this}}{{else}}extracts_expanded no_extracts{{/ifExtracts}}" id="{{makeMSRDomId this}}" data-channel="{{this.channel.id}}" data-ts="{{this.ts}}" data-module-order="{{module_order}}">
     <div class="search_message_result_meta display_flex black indifferent_grey align_items_end">
       <div class="small_right_margin">
@@ -40,27 +42,27 @@
             <ts-icon class="ts_icon_plus_circle ts_tip ts_tip_top ts_tip_float sli_feedback sli_feedback_plus ts_tip_multiline {{#if_equal this.feedback_val compare='5'}}selected{{/if_equal}}">
               <span class="ts_tip_tip">
                 <span class="ts_tip_multiline_inner">
-                  Search result is super relevant!
+                  {{#t}}Search result is super relevant!
                   <br>
-                  <span class="subtle_silver">(query string will be logged!)</span>
+                  <span class="subtle_silver">(query string will be logged!)</span>{{/t}}
                 </span>
               </span>
             </ts-icon>
             <ts-icon class="ts_icon_circle_large ts_tip ts_tip_top ts_tip_float sli_feedback sli_feedback_circle ts_tip_multiline {{#if_equal this.feedback_val compare='1'}}selected{{/if_equal}}">
               <span class="ts_tip_tip">
                 <span class="ts_tip_multiline_inner">
-                  Search result is somewhat relevant
+                  {{#t}}Search result is somewhat relevant
                   <br>
-                  <span class="subtle_silver">(query string will be logged!)</span>
+                  <span class="subtle_silver">(query string will be logged!)</span>{{/t}}
                 </span>
               </span>
             </ts-icon>
             <ts-icon class="ts_icon_minus_circle ts_tip ts_tip_top ts_tip_float sli_feedback sli_feedback_minus ts_tip_multiline {{#if_equal this.feedback_val compare='-5'}}selected{{/if_equal}}">
               <span class="ts_tip_tip">
                 <span class="ts_tip_multiline_inner">
-                Search result is not at all relevant
+                {{#t}}Search result is not at all relevant
                 <br>
-                <span class="subtle_silver">(query string will be logged!)</span>
+                <span class="subtle_silver">(query string will be logged!)</span>{{/t}}
                 </span>
               </span>
             </ts-icon>
@@ -68,17 +70,17 @@
         {{/if}}
         {{#if_equal this.type compare='im'}}
           {{#if this.im_exists}}
-            <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
+            <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> \u2022
           {{/if}}
         {{else}}
             {{#if is_enterprise}}
               {{#or (isLocalTeam this.team) (if_equal this.channel.is_shared compare=true)}}
-                <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
+                <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> \u2022
               {{else}}
-                <a href="{{this.permalink}}" target="{{newWindowName}}">View in Archive</a> \u2022
+                <a href="{{this.permalink}}" target="{{newWindowName}}">{{#t}}View in Archive{{/t}}</a> \u2022
               {{/or}}
             {{else}}
-              <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">Jump</a> \u2022
+              <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump">{{#t}}Jump{{/t}}</a> \u2022
             {{/if}}
 
         {{/if_equal}}
@@ -99,6 +101,6 @@
     </div>
 
     {{#isMsgReply msg=this}}
-      <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump thread_jump subtle_silver">Jump to conversation <ts-icon class="ts_icon_chevron_right"></ts-icon></a>
+      <a href="{{this.permalink}}" target="{{newWindowName}}" class="search_jump thread_jump subtle_silver">{{#t}}Jump to conversation{{/t}} <ts-icon class="ts_icon_chevron_right"></ts-icon></a>
     {{/isMsgReply}}
   </div>

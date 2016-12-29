@@ -1,4 +1,5 @@
-{{i18n_ns 'invite'}}
+{{i18n_ns "invite"}}
+
 {{#if_equal invite_type compare='full'}}
   <p id="default_channels_note" class="small align_center no_bottom_margin {{#if initial_channel_id}}hidden{{/if}}">
     {{#t teams=(listify default_channels map="name" strong=true)}}New <strong>full members</strong> will automatically join {teams}{{/t}}
@@ -43,14 +44,14 @@
     <select id="ultra_restricted_channel_picker" name="ultra_restricted_channel_picker" class="full_width">
       <option value="" selected="selected">{{#t}}Choose a channel ...{{/t}}</option>
       {{#if channels}}
-        <optgroup label="Channels">
+        <optgroup label="{{#t}}Channels{{/t}}">
           {{#each channels}}
             <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
           {{/each}}
         </optgroup>
       {{/if}}
       {{#if groups}}
-        <optgroup label="Private Channels">
+        <optgroup label="{{#t}}Private Channels{{/t}}">
           {{#each groups}}
             <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
           {{/each}}

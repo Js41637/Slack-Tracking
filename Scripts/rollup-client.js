@@ -4335,9 +4335,9 @@
         if (TS.model.ms_connected) TS.view.ms.maybeChangeConnectionDisplay();
         var menu_presence_toggle = $("#menu").find("#member_presence").find(".menu_item_label");
         if (member.presence == "away") {
-          menu_presence_toggle.text("[Away] Set yourself to active");
+          menu_presence_toggle.text(TS.i18n.t("[Away] Set yourself to active", "view_members")());
         } else {
-          menu_presence_toggle.text("Set yourself away");
+          menu_presence_toggle.text(TS.i18n.t("Set yourself away", "view_members")());
         }
       } else {
         selector = "." + TS.templates.makeMemberDomId(member);
@@ -4467,7 +4467,7 @@
     getUserPresenceStr: function() {
       var user = TS.model.user;
       if (user.manual_presence === "away") {
-        return user.presence + " (manual)";
+        return user.presence + " " + TS.i18n.t("(manual)", "view_members")();
       } else {
         return user.presence;
       }
@@ -9273,11 +9273,7 @@
       $("#client-ui").addClass("details_showing");
     } else if (name === "mentions") {
       $recent_mentions_toggle.addClass("active");
-      if (TS.boot_data.feature_message_replies) {
-        $recent_mentions_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Activity", "flexpane")());
-      } else {
-        $recent_mentions_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Mentions & Reactions", "flexpane")());
-      }
+      $recent_mentions_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Activity", "flexpane")());
     } else if (name === "stars") {
       $stars_toggle.addClass("active");
       $stars_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Starred Items", "flexpane")());
@@ -9298,12 +9294,7 @@
         $details_toggle_ts_tip_tip.text(TS.i18n.t("Show Channel Details", "flexpane")());
       }
     }
-    if (TS.boot_data.feature_message_replies) {
-      $("#recent_mentions_toggle .ts_tip_tip").text(TS.i18n.t("Show Activity", "flexpane")());
-    } else {
-      $("#recent_mentions_toggle").addClass("ts_tip_rightish");
-      $("#recent_mentions_toggle .ts_tip_tip").text(TS.i18n.t("Show Mentions & Reactions", "flexpane")());
-    }
+    $("#recent_mentions_toggle .ts_tip_tip").text(TS.i18n.t("Show Activity", "flexpane")());
     $("#stars_toggle .ts_tip_tip").text(TS.i18n.t("Show Starred Items", "flexpane")());
   };
 })();
@@ -9311,6 +9302,7 @@
   "use strict";
   var MINIMUM_MEMBERS_FOR_SEARCH = 10;
   var FETCH_PAGE_SIZE = 10;
+  var FETCH_PAGE_SIZE_SEARCH = 100;
   var LOAD_MORE_AT_PIXELS_FROM_BOTTOM = 100;
   var RESIZE_THROTTLE_MS = 33;
   var SCROLL_DEBOUNCE_MS = 100;
@@ -9368,9 +9360,8 @@
       if (this._fetch_page_p) return this._fetch_page_p;
       this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery({
         query: this._current_query_for_match,
-        limit: FETCH_PAGE_SIZE,
-        marker: this._next_marker,
-        ids: this._channel_member_ids
+        limit: this._current_query_for_match ? FETCH_PAGE_SIZE_SEARCH : FETCH_PAGE_SIZE,
+        marker: this._next_marker
       }).then(function(response) {
         this_searchable_member_list._fetch_page_p = null;
         this_searchable_member_list._next_marker = response.next_marker;
@@ -9400,9 +9391,10 @@
     },
     _maybeSetupSearchBar: function() {
       var this_searchable_member_list = this;
+      if (this.$_search_bar) return;
       if (this._getBestEffortNumMembers() >= MINIMUM_MEMBERS_FOR_SEARCH) {
         this.$_long_list_view.before(TS.templates.team_search_bar(this._generateFilterSearchBarTemplateArgs()));
-        this.$_search_bar = this.$_container.find(".team_tabs_container");
+        this.$_search_bar = this.$_container.find(".searchable_member_list_search_bar");
         this.$_search_input = this.$_container.find(".searchable_member_list_input");
         this.$_clear_icon = this.$_container.find(".icon_close");
         this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
@@ -9457,8 +9449,10 @@
           this_searchable_member_list._fetchProcessAndDisplayPage();
         }
       }, SCROLL_DEBOUNCE_MS));
-      TS.view.resizeManually("TS.SearchableMemberList.showInitial");
-      this._recursivelyFillLongListViewToHeight();
+      TS.utility.rAF(function() {
+        TS.view.resizeManually("TS.SearchableMemberList.showInitial");
+        this_searchable_member_list._recursivelyFillLongListViewToHeight();
+      });
     },
     _recursivelyFillLongListViewToHeight: function() {
       var this_searchable_member_list = this;
@@ -9524,16 +9518,13 @@
     _maybeHideNoResultsState: function() {
       var $no_results = this.$_container.find(".no_results");
       if ($no_results.length == 0) return;
-      this._current_filter = "everyone";
-      this.$_filter_input.replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
-      this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
       $no_results.remove();
       this.$_long_list_view.show();
-      this._reset();
     },
     _handleSearchKeyUp: function(e) {
       var new_query = $(e.target).val();
       if (new_query.trim().toLocaleLowerCase() !== this._current_query_for_match) {
+        this._maybeHideNoResultsState();
         this._presence_list.clear();
         this._members = [];
         this._next_marker = "";
@@ -22203,21 +22194,15 @@
       TS.ui.growls.permission_changed_sig.add(TS.ui.banner.growlsPermissionChanged, TS.ui.banner);
     },
     loggedIn: function() {
-      if (TS.qs_args["show_notifications_banner"] == "1" || TS.qs_args["show_banner"] == "1") {
-        TS.ui.banner.show("notifications");
-        return;
-      }
-      if (TS.qs_args["show_macssb1_banner"] == "1") {
-        TS.ui.banner.show("macssb1");
-        return;
-      }
-      if (TS.qs_args["show_macssb2_banner"] == "1") {
-        TS.ui.banner.show("macssb2");
-        return;
-      }
-      if (TS.qs_args["show_winssb1_banner"] == "1") {
-        TS.ui.banner.show("winssb1");
-        return;
+      for (var arg in TS.qs_args) {
+        var banner_regex = /^show_([\w_]+)_banner$/;
+        if (banner_regex.test(arg) && TS.qs_args[arg] === "1") {
+          var requested_banner = arg.replace(banner_regex, "$1");
+          if ($("#" + requested_banner + "_banner").length > 0) {
+            TS.ui.banner.show(requested_banner);
+            return;
+          }
+        }
       }
       var show_notifications_banner = !TS.model.is_iOS && !TS.ui.growls.no_notifications && TS.ui.growls.shouldShowPermissionButton() && TS.ui.growls.getPermissionLevel() != "denied" && readCookie("no_growl_banner") != "1";
       if (show_notifications_banner) {
@@ -22227,8 +22212,8 @@
       var deprecated_osx_versions = [10.6, 10.7, 10.8];
       var show_macssb_osx_deprecated_banner = TS.model.is_our_app && TS.model.is_mac && deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0;
       var is_app_store = _isLegacyAppStoreBuild();
-      var show_macelectron1_banner = TS.boot_data.feature_macelectron1_banner && TS.model.is_mac && !deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0 && !TS.model.is_electron && !("macgap" in window) && !TS.model.prefs.no_macelectron_banner;
-      var show_macelectron2_banner = TS.boot_data.feature_macelectron2_banner && TS.model.is_mac && "macgap" in window && !is_app_store && !TS.model.prefs.no_macelectron_banner;
+      var show_macelectron1_banner = TS.model.is_mac && !deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0 && !TS.model.is_electron && !("macgap" in window) && !TS.model.prefs.no_macelectron_banner;
+      var show_macelectron2_banner = TS.model.is_mac && "macgap" in window && !is_app_store && !TS.model.prefs.no_macelectron_banner;
       var show_macssb1_banner = TS.boot_data.feature_macssb1_banner && TS.model.is_mac && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
       var show_macssb2_banner = TS.boot_data.feature_macssb2_banner && TS.model.is_mac && TS.model.mac_ssb_version && TS.model.mac_ssb_version < 2 && !TS.model.prefs.no_macssb2_banner;
       var show_winssb1_banner = TS.model.is_win_7_plus && !TS.model.win_ssb_version && !TS.model.prefs.no_winssb1_banner;
@@ -22262,7 +22247,7 @@
         return;
       }
       _prev_ssb_update_version_shown = version_number;
-      var $banner = $("#ssb_new_version_available");
+      var $banner = $("#ssb_new_version_available_banner");
       if (!$banner.length) return;
       $banner.find(".old_version_number").text(TS.model.desktop_app_version.major + "." + TS.model.desktop_app_version.minor + "." + TS.model.desktop_app_version.patch);
       $banner.find(".new_version_number").text(version_number);
@@ -22430,7 +22415,7 @@
           TS.ui.banner.close();
         });
       } else if (which == "ssb_new_version_available") {
-        var $generic_banner = $banner.find("#" + which);
+        var $generic_banner = $banner.find("#" + which + "_banner");
         if (!$generic_banner.length) {
           TS.error("Tried to show a banner called " + which + ", but can't find an element with that as its ID");
           return;
@@ -22441,7 +22426,7 @@
           TSSSB.call("closeAllUpdateBanners");
         });
       } else {
-        var $generic_banner = $banner.find("#" + which);
+        var $generic_banner = $banner.find("#" + which + "_banner");
         if (!$generic_banner.length) {
           TS.error("Tried to show a banner called " + which + ", but can't find an element with that as its ID");
           return;
@@ -22454,7 +22439,6 @@
       TS.view.resizeForBanner("TS.ui.banner.show");
     },
     onClickedMacElectronLink: function(elem, close) {
-      if (!TS.boot_data.feature_macelectron1_banner && !TS.boot_data.feature_macelectron2_banner) return;
       if (close) TS.ui.banner.close();
       var $elem = $(elem);
       if (!$elem.parent().hasClass("hidden")) {
@@ -22466,7 +22450,6 @@
       }
     },
     onDismissedMacElectronLink: function(elem) {
-      if (!TS.boot_data.feature_macelectron1_banner && !TS.boot_data.feature_macelectron2_banner) return;
       var $elem = $(elem);
       if (!$elem.parent().hasClass("hidden")) {
         TS.clog.track("WEBSITE_CLICK", {
@@ -23925,9 +23908,9 @@
       TS.ui.shortcuts_dialog.is_space = TS.web && TS.web.space;
       if (!TS.ui.shortcuts_dialog.$div) TS.ui.shortcuts_dialog.build();
       var html = TS.templates.shortcuts_dialog({
-        meta_key: TS.model.is_mac ? "Option" : "Alt",
-        cmd_key: TS.model.is_mac ? "Cmd" : "Ctrl",
-        cmd_key_label: TS.model.is_mac ? "Command" : "Control",
+        meta_key: TS.model.is_mac ? TS.i18n.t("Option", "keys")() : TS.i18n.t("Alt", "keys")(),
+        cmd_key: TS.model.is_mac ? TS.i18n.t("Cmd", "keys")() : TS.i18n.t("Ctrl", "keys")(),
+        cmd_key_label: TS.model.is_mac ? TS.i18n.t("Command", "keys")() : TS.i18n.t("Control", "keys")(),
         can_show_a11y_keyboard_shortcuts: TS.boot_data.feature_a11y_keyboard_shortcuts,
         can_show_unread_view: TS.boot_data.feature_unread_view && TS.client && TS.client.unread.isEnabled(),
         show_browse_dms_shortcut: true
@@ -23935,9 +23918,9 @@
       if (TS.ui.shortcuts_dialog.is_space) {
         html = TS.templates.shortcuts_spaces_dialog({
           clear_formatting: !TS.model.is_win,
-          meta_key: TS.model.is_mac ? "Option" : "Alt",
-          cmd_key: TS.model.is_mac ? "Cmd" : "Ctrl",
-          cmd_key_label: TS.model.is_mac ? "Command" : "Control"
+          meta_key: TS.model.is_mac ? TS.i18n.t("Option", "keys")() : TS.i18n.t("Alt", "keys")(),
+          cmd_key: TS.model.is_mac ? TS.i18n.t("Cmd", "keys")() : TS.i18n.t("Ctrl", "keys")(),
+          cmd_key_label: TS.model.is_mac ? TS.i18n.t("Command", "keys")() : TS.i18n.t("Control", "keys")()
         });
       }
       var $div = TS.ui.shortcuts_dialog.$div;

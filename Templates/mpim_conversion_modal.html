@@ -1,53 +1,50 @@
+{{i18n_ns "mpims"}}
+
 {{#if_gt uras.length compare=0}}
   <div id="ura_alert" class="alert alert_warning">
     <i class="ts_icon ts_icon_warning"></i>
-      {{#each uras~}}
-        {{#if_equal ../uras.length compare=1}}
-          <strong>{{getMemberDisplayName this}}</strong>
-        {{else}}{{#unless @first}}{{#if_gt ../uras.length compare=2}},{{/if_gt}} {{/unless}}{{#if @last}}and {{/if~}}
-          <strong>{{getMemberDisplayName this}}</strong>{{/if_equal}}
-      {{~/each}}
-      {{#if_equal uras.length compare=1}}is a Single-Channel Guest{{else}}are Single-Channel Guests{{/if_equal}}. {{#if_equal uras.length compare=1}}They are already a member{{else}}They are already members{{/if_equal}} of one channel, and will not have access to this new private channel.
+      {{#t ura_list=(listify (getDisplayNames uras) strong=true should_escape=false)}}
+        {ura_list} { uras.length, plural, =1 { is a Single-Channel Guest. They are already a member } other { are Single-Channel Guests. They are already members }} of one channel, and will not have access to this new private channel.
+      {{/t}}
   </div>
 {{/if_gt}}
 <div id="confirmation_step" class="channel_modal">
   <h1 class="large_bottom_margin channel_modal_header">
-    Are you sure?
+    {{#t}}Are you sure?{{/t}}
   </h1>
-  <p>By converting this conversation to a private channel, you will make the entire message history and all shared files visible to the new members that you invite to the channel.</p>
-  <button type="button" class="btn btn_outline dialog_cancel tiny_right_margin">Cancel</button>
-  <button type="button" class="btn btn_primary dialog_go continue">Yes, continue</button>
+  <p>{{#t}}By converting this conversation to a private channel, you will make the entire message history and all shared files visible to the new members that you invite to the channel.{{/t}}</p>
+  <button type="button" class="btn btn_outline dialog_cancel tiny_right_margin">{{#t}}Cancel{{/t}}</button>
+  <button type="button" class="btn btn_primary dialog_go continue">{{#t}}Yes, continue{{/t}}</button>
 </div>
 <div id="conversion_step" class="hidden">
   <h1 class="large_bottom_margin channel_modal_header">
-    Enter a name for the channel
+    {{#t}}Enter a name for the channel{{/t}}
   </h1>
   <input id="channel_create_title" type="text" class="title_input no_margin" value maxlength="21" placeholder="Enter name here">
   <span class="modal_input_note margin_auto">
-    Names must be lowercase, no more than 21 characters, and cannot contain spaces or periods.
+    {{#t}}Names must be lowercase, no more than 21 characters, and cannot contain spaces or periods.{{/t}}
   </span>
   <span class="modal_input_note mustard_yellow hidden name_taken_warning margin_auto block">
     <i class="ts_icon ts_icon_warning"></i>
-    That name has been taken. Try something different.
+    {{#t}}That name has been taken. Try something different.{{/t}}
   </span>
   <span class="modal_input_note mustard_yellow hidden invalid_chars_warning margin_auto block">
     <i class="ts_icon ts_icon_warning"></i>
-    You entered some disallowed characters in the name, which we've fixed. Make sure it looks good to you, and try again!
+    {{#t}}You entered some disallowed characters in the name, which we've fixed. Make sure it looks good to you, and try again!{{/t}}
   </span>
   <span class="modal_input_note mustard_yellow hidden single_punctuation_warning margin_auto block">
     <i class="ts_icon ts_icon_warning"></i>
-    Sorry! Names cannot be a single hyphen or underscore.
+    {{#t}}Sorry! Names cannot be a single hyphen or underscore.{{/t}}
   </span>
   <span class="modal_input_note mustard_yellow hidden other_error margin_auto block">
     <i class="ts_icon ts_icon_warning"></i>
     <span class="error_message"></span>
   </span>
-  <p class="large_top_margin">You are about to convert the group DM with
-  {{#each members~}}
-    {{#unless @first}}{{#if_gt ../members.length compare=2}},{{/if_gt}} {{/unless}}{{#if @last}}and {{/if~}}
-      <strong>{{getMemberDisplayName this}}</strong>
-  {{~/each}}
-  to a private channel. <strong>This cannot be undone.</strong></p>
-  <button type="button" class="btn btn_outline dialog_cancel tiny_right_margin">Cancel</button>
-  <button type="button" class="btn btn_primary convert_mpim_go ladda-button" data-style="expand-right"><span class="ladda-label">Convert to a private channel</span></button>
+  <p class="large_top_margin">
+    {{#t member_list=(listify (getDisplayNames members) strong=true should_escape=false)}}
+      You are about to convert the group DM with {member_list} to a private channel. <strong>This cannot be undone.</strong>
+    {{/t}}
+  </p>
+  <button type="button" class="btn btn_outline dialog_cancel tiny_right_margin">{{#t}}Cancel{{/t}}</button>
+  <button type="button" class="btn btn_primary convert_mpim_go ladda-button" data-style="expand-right"><span class="ladda-label">{{#t}}Convert to a private channel{{/t}}</span></button>
 </div>

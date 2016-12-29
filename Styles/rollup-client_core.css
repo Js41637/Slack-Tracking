@@ -6182,12 +6182,6 @@ only screen and (min-resolution:2dppx) {
   border-bottom: 0rem solid #fff
 }
 
-.client_container #col_messages>.row-fluid {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1
-}
-
 #footer {
   position: fixed;
   bottom: 0;

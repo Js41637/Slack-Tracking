@@ -119,6 +119,6 @@
   };
   var _askUserToAllowPopups = function() {
     if (bowser && bowser.name) $("#allow_popups_banner_browser").text(bowser.name);
-    TS.ui.banner.show("allow_popups_banner");
+    TS.ui.banner.show("allow_popups");
   };
 })();
