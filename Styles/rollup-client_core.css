@@ -5930,20 +5930,16 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
   text-decoration: underline
 }
 
-#banner .dismiss {
+#banner .banner_dismiss {
   position: absolute;
-  right: .85rem;
-  top: .25rem;
-  font-size: 1.25rem;
-  text-decoration: none!important;
-  line-height: 1.9rem
+  z-index: 1;
+  top: .5rem;
+  right: .85rem
 }
 
-#banner .dismiss_link {
-  position: absolute;
-  right: .85rem;
-  top: .25rem;
-  line-height: 2rem
+#banner .banner_dismiss.ts_icon {
+  font-size: 1.25rem;
+  margin-top: -.05rem
 }
 
 .banner_content {
@@ -5974,26 +5970,15 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
   background: #4c9689
 }
 
-.notifications_dismiss_options {
-  display: inline-block;
-  white-space: nowrap
-}
-
-#macssb1_banner a,
-#macssb1_dismiss_banner a,
-#macssb2_banner a,
-#notifications_dismiss_banner a,
-#winssb1_banner a,
-#winssb1_dismiss_banner a {
+#notifications_dismiss_banner a {
   font-weight: 900
 }
 
-#macelectron1_banner img,
-#macelectron2_banner img {
+#banner .banner_emoji {
   display: inline-block;
-  height: 1.8em;
-  padding-bottom: .3em;
-  padding-right: .2rem
+  margin-top: -.25rem;
+  width: 1.5em;
+  height: 1.5em
 }
 
 #macssb1_banner,
@@ -6002,6 +5987,14 @@ body:not(.loading) #team_menu:hover #team_header_user_name {
 #winssb1_banner,
 #winssb1_dismiss_banner {
   background: #2d9ee0
+}
+
+#macssb1_banner a,
+#macssb1_dismiss_banner a,
+#macssb2_banner a,
+#winssb1_banner a,
+#winssb1_dismiss_banner a {
+  font-weight: 900
 }
 
 #macssb1_dismiss_banner,

@@ -2252,7 +2252,7 @@
       var oxford = l > 2 ? "," : "";
       var wrap_start = options && options.strong ? "<strong>" : "";
       var wrap_end = options && options.strong ? "</strong>" : "";
-      var should_escape = !(options && options.should_escape === false);
+      var no_escape = options && options.no_escape;
       switch (TS.i18n.locale) {
         case TS.i18n.JP:
           and = ", ";
@@ -2261,7 +2261,7 @@
           and = oxford + " " + conjunction + " ";
       }
       arr.forEach(function(s, i) {
-        if (should_escape) s = TS.utility.htmlEntities(s);
+        if (!no_escape) s = TS.utility.htmlEntities(s);
         list.push(wrap_start + s + wrap_end);
         if (i < l - 2) {
           list.push(", ");

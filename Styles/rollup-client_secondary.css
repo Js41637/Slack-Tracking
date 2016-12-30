@@ -1265,7 +1265,8 @@ input.search_input {
 
 #downloads_tab .icon_actions .action_icon.xls,
 #downloads_tab .icon_actions .action_icon.xlsm,
-#downloads_tab .icon_actions .action_icon.xlsx {
+#downloads_tab .icon_actions .action_icon.xlsx,
+#downloads_tab .icon_actions .action_icon.xltx {
   background: #377437
 }
 
@@ -11025,7 +11026,8 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .file_container.generic_container .file_header_icon .ts_icon.xls,
 .file_container.generic_container .file_header_icon .ts_icon.xlsm,
-.file_container.generic_container .file_header_icon .ts_icon.xlsx {
+.file_container.generic_container .file_header_icon .ts_icon.xlsx,
+.file_container.generic_container .file_header_icon .ts_icon.xltx {
   background: #377437
 }
 

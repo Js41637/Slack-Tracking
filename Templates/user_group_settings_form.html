@@ -1,49 +1,58 @@
+{{i18n_ns 'user_groups'}}
+
 <div id="user_groups_header" class="clearfix">
-  <h1 class="channel_modal_header">{{#if this.id}}Edit {{this.name}}{{else}}Create a user group{{/if}}</h1>
+  <h1 class="channel_modal_header">{{#if this.id}}{{#t note="heading for editing a user group" name=this.name}}Edit {name}{{/t}}{{else}}{{#t note="heading for creating a user group"}}Create a user group{{/t}}{{/if}}</h1>
 </div>
 
-<p class="input_note medium_bottom_margin">{{#unless this.id}}User groups make it easy to get the attention of many team members at once. When you use a group\u2019s handle \u2014 like @accounts, for example \u2014 everyone in that group will be notified.{{/unless}}</p>
+<p class="input_note medium_bottom_margin">{{#unless this.id}}{{#t}}User groups make it easy to get the attention of many team members at once. When you use a group\u2019s handle \u2014 like @accounts, for example \u2014 everyone in that group will be notified.{{/t}}{{/unless}}</p>
 
 <div id="user_group_alerts"></div>
 
 <form class="user_group_settings_form">
   {{#if this.is_external}}
-    <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i> The name of this User Group is managed by an external service. Use that service if you wish to rename this User Group.</p>
+    <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i> {{#t}}The name of this User Group is managed by an external service. Use that service if you wish to rename this User Group.{{/t}}</p>
   {{/if}}
 
   {{#if this.auto_type}}
-    <p class="alert alert_info"><i class="ts_icon ts_icon_info_circle"></i> This User Group is automatically generated for team {{this.auto_type}}s.</p>
+    <p class="alert alert_info">
+      <i class="ts_icon ts_icon_info_circle"></i>
+      {{#if_equal this.auto_type compare="admin"}}
+        {{#t}}This User Group is automatically generated for team admins.{{/t}}
+      {{else}}
+        {{#t}}This User Group is automatically generated for team owners.{{/t}}
+      {{/if_equal}}
+    </p>
   {{/if}}
 
   <p>
-    <label for="user_group_name_input">Name</label>
-    <input id="user_group_name_input" type="text" class="no_bottom_margin {{#or this.is_external this.auto_type}}disabled{{/or}}" name="name" value="{{this.name}}" maxlength="100" placeholder="e.g. Accounts Team" {{#or this.is_external this.auto_type}}disabled{{/or}}/>
+    <label for="user_group_name_input">{{#t note="label for user group name input"}}Name{{/t}}</label>
+    <input id="user_group_name_input" type="text" class="no_bottom_margin {{#or this.is_external this.auto_type}}disabled{{/or}}" name="name" value="{{this.name}}" maxlength="100" placeholder="{{#t note="placeholder text for user group name input"}}e.g. Accounts Team{{/t}}" {{#or this.is_external this.auto_type}}disabled{{/or}}/>
   </p>
 
   <p class="handle_input empty">
-    <label for="user_group_handle_input">Handle</label>
+    <label for="user_group_handle_input">{{#t note="label for user group handle input"}}Handle{{/t}}</label>
     <span class="icon_at">@</span>
     <input id="user_group_handle_input" type="text" class="no_bottom_margin" name="handle" value="{{this.handle}}" maxlength="100" placeholder="e.g. @accounts"/><br />
-    <span class="input_note">You\u2019ll use this handle to get the group\u2019s attention. It should be all lowercase, with no spaces.</span>
+    <span class="input_note">{{#t}}You\u2019ll use this handle to get the group\u2019s attention. It should be all lowercase, with no spaces.{{/t}}</span>
   </p>
 
   <p>
-    <label for="description">Purpose <span class="subtle_silver normal">(optional)</span></label>
+    <label for="description">{{#t note="label for optional user group purpose input"}}Purpose <span class="subtle_silver normal">(optional)</span>{{/t}}</label>
     <input type="text" class="no_bottom_margin" name="description" value="{{this.description}}" placeholder="" maxlength="140"/>
-    <span class="input_note">What\u2019s this group about?</span>
+    <span class="input_note">{{#t note="help text below user group purpose input"}}What\u2019s this group about?{{/t}}</span>
   </p>
 
   <p>
-    <label for="user_group_default_channels">Default channels: <span class="subtle_silver normal">(optional)</span></label>
+    <label for="user_group_default_channels">{{#t note="label for optional user group default channels input"}}Default channels: <span class="subtle_silver normal">(optional)</span>{{/t}}</label>
     <select class="hidden" multiple="true" id="user_group_default_channels" name="defaultchannels[]"></select>
     {{#if this.user_count}}
-      <span class="input_note">New members will be automatically added to default channels. Existing members will be added immediately.</span>
+      <span class="input_note">{{#t note="help text below user group default channels input"}}New members will be automatically added to default channels. Existing members will be added immediately.{{/t}}</span>
     {{else}}
-      <span class="input_note">Group members are added to these channels automatically.</span>
+      <span class="input_note">{{#t note="help text below user group default channels input"}}Group members are added to these channels automatically.{{/t}}</span>
     {{/if}}
   </p>
 
-  <button id="save_user_group" type="submit" class="btn btn_large ladda-button float_right"><span class="ladda-label">{{#if this.id}}Save{{else}}Create Group{{/if}}</span></button>
-  <button type="reset" class="btn btn_large btn_outline float_right small_right_margin ladda-button"><span class="ladda-label">Cancel</span></button>
+  <button id="save_user_group" type="submit" class="btn btn_large ladda-button float_right"><span class="ladda-label">{{#if this.id}}{{#t}}Save{{/t}}{{else}}{{#t}}Create Group{{/t}}{{/if}}</span></button>
+  <button type="reset" class="btn btn_large btn_outline float_right small_right_margin ladda-button"><span class="ladda-label">{{#t}}Cancel{{/t}}</span></button>
 
 </form>

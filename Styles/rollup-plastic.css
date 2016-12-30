@@ -2919,6 +2919,8 @@ svg.ts_icon_spinner svg {
 .filetype_icon.xlsm.s48:before,
 .filetype_icon.xlsx.s30:before,
 .filetype_icon.xlsx.s48:before,
+.filetype_icon.xltx.s30:before,
+.filetype_icon.xltx.s48:before,
 .ts_icon_file_excel:before {
   content: '\E452';
   font-size: 3.125rem;
@@ -2928,6 +2930,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.xls.s24:before,
 .filetype_icon.xlsm.s24:before,
 .filetype_icon.xlsx.s24:before,
+.filetype_icon.xltx.s24:before,
 .ts_icon_file_excel_small:before {
   content: '\E453';
   font-size: 2.5rem;

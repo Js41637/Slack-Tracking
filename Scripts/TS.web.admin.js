@@ -522,6 +522,10 @@
       }
       if (member.is_bot) {
         show_email_edit = 0;
+        if (!member.username_is_editable) {
+          show_rename = 0;
+          show_username_edit = 0;
+        }
       }
       var show_inactive_tip = false;
       if (member.is_inactive && !member.deleted && TS.boot_data.app != "mobile") show_inactive_tip = true;

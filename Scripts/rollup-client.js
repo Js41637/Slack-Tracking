@@ -8165,51 +8165,53 @@
     _rebuildBackFromFilePreview: function(origin) {
       var $back = $("#back_from_file_preview");
       $back.unbind();
-      if (origin == "member_preview") {
-        $back.html(TS.templates.builders.filePreviewBackIcon() + " Team Member");
+      if (origin === "member_preview") {
+        var back_link_text = TS.i18n.t("Team Member", "files")();
+        $back.html(TS.templates.builders.filePreviewBackIcon() + " " + back_link_text);
         $back.bind("click.back", function() {
           TS.client.ui.previewMember(TS.model.last_previewed_member_id);
         });
-        $back.data("origin", origin);
-      } else if (origin == "starred_items") {
-        $back.html(TS.templates.builders.filePreviewBackIcon() + " Starred Items");
+      } else if (origin === "starred_items") {
+        var back_link_text = TS.i18n.t("Starred Items", "files")();
+        $back.html(TS.templates.builders.filePreviewBackIcon() + " " + back_link_text);
         $back.bind("click.back", function() {
           TS.client.ui.flex.openFlexTab("stars");
         });
-        $back.data("origin", origin);
-      } else if (origin == "search_results") {
-        $back.html(TS.templates.builders.filePreviewBackIcon() + " Search Results");
+      } else if (origin === "search_results") {
+        var back_link_text = TS.i18n.t("Search Results", "files")();
+        $back.html(TS.templates.builders.filePreviewBackIcon() + " " + back_link_text);
         $back.bind("click.back", function() {
           TS.search.view.showResults();
           TS.search.view.maybeRebuildResults();
         });
-        $back.data("origin", origin);
-      } else if (origin == "channel_page") {
-        $back.html(TS.templates.builders.filePreviewBackIcon() + " Channel Details");
+      } else if (origin === "channel_page") {
+        var back_link_text = TS.i18n.t("Channel Details", "files")();
+        $back.html(TS.templates.builders.filePreviewBackIcon() + " " + back_link_text);
         $back.bind("click.back", function() {
           TS.client.ui.flex.openFlexTab("details");
         });
         $back.data("origin", origin);
-      } else if (origin == "group_page") {
-        $back.html(TS.templates.builders.filePreviewBackIcon() + " Channel Info");
+      } else if (origin === "group_page") {
+        var back_link_text = TS.i18n.t("Channel Info", "files")();
+        $back.html(TS.templates.builders.filePreviewBackIcon() + " " + back_link_text);
         $back.bind("click.back", function() {
           TS.client.ui.flex.openFlexTab("details");
         });
-        $back.data("origin", origin);
-      } else if (origin == "im_page") {
-        $back.html(TS.templates.builders.filePreviewBackIcon() + " Conversation Details");
+      } else if (origin === "im_page") {
+        var back_link_text = TS.i18n.t("Conversation Details", "files")();
+        $back.html(TS.templates.builders.filePreviewBackIcon() + " " + back_link_text);
         $back.bind("click.back", function() {
           TS.client.ui.flex.openFlexTab("details");
         });
-        $back.data("origin", origin);
       } else {
-        $back.html(TS.templates.builders.filePreviewBackIcon() + " Files");
+        var back_link_text = TS.i18n.t("Files", "files")();
+        $back.html(TS.templates.builders.filePreviewBackIcon() + " " + back_link_text);
         $back.bind("click.back", function() {
           TS.client.ui.files.showFileList();
           TS.client.flex_pane.maybeFetchFileList();
         });
-        $back.data("origin", origin);
       }
+      $back.data("origin", origin);
     },
     previewFile: function(id, origin, no_refetch, focus_comment_input, channel_id) {
       var file = TS.files.getFileById(id);
@@ -8224,7 +8226,7 @@
           if (file) {
             TS.client.ui.files.previewFile(file.id, origin, true, channel_id);
           } else {
-            TS.generic_dialog.alert("This file can't be found.", "Sorry, that didn't work");
+            TS.generic_dialog.alert(TS.i18n.t("This file can’t be found.", "files")(), TS.i18n.t("Sorry, that didn’t work", "files")());
           }
         });
         return;
@@ -8319,11 +8321,12 @@
         $file_list_toggle_all = $("#file_list_toggle_all"),
         $file_list_toggle_user = $("#file_list_toggle_user"),
         $file_list_toggle_users = $("#file_list_toggle_users");
+      var just_you_text = TS.i18n.t("Just You", "files")();
       if ($file_list.data("list") == id) return;
       $file_list.data("list", id);
       if (id == "all") {
         TS.model.active_file_list_member_filter = "all";
-        $file_list_toggle_user.removeClass("active").find("a").text("Just You");
+        $file_list_toggle_user.removeClass("active").find("a").text(just_you_text);
         $file_list_toggle_users.removeClass("active");
         $file_list_toggle_all.addClass("active");
         $file_list.data("filter-user", TS.model.user.id);
@@ -8335,7 +8338,7 @@
           $file_list_toggle_user.addClass("active");
           $file_list_toggle_users.addClass("active");
           if (member.id == TS.model.user.id) {
-            $file_list_toggle_user.find("a").text("Just You");
+            $file_list_toggle_user.find("a").text(just_you_text);
           } else {
             $file_list_toggle_user.find("a").text(TS.members.getMemberDisplayName(member));
           }
@@ -8366,7 +8369,9 @@
       }
       var key_word = TS.ui.needToBlockAtChannelKeyword(comment_unclean, file);
       if (key_word) {
-        TS.generic_dialog.alert("<p>A Team Owner has restricted the use of <b>" + TS.utility.htmlEntities(key_word) + "</b> messages.</p>");
+        TS.generic_dialog.alert(TS.i18n.t("<p>A Team Owner has restricted the use of <strong>{keyword}</strong> messages.</p>", "files")({
+          keyword: TS.utility.htmlEntities(key_word)
+        }));
         return;
       }
       if (!bypass_at_warning_check) {
@@ -8552,25 +8557,43 @@
       }
 
       function maybeShowSupportDialog(file_list, onGoCallback) {
-        var i, j, file_names, good_files, title, file_html, suggestions_html, dont_worry_html;
+        var i, j, file_names, good_files, title, unsupported_warning_html, file_html, suggestions_html, dont_worry_html;
         if (excluded_files.length) {
           file_names = [];
-          title = "File unsupported";
           file_html = "";
           dont_worry_html = "";
           for (i = 0, j = excluded_files.length; i < j; i++) {
-            file_names.push("<li><b>" + TS.utility.htmlEntities(excluded_files[i].name) + "</b></li>");
+            file_names.push("<li><strong>" + TS.utility.htmlEntities(excluded_files[i].name) + "</strong></li>");
           }
           if (excluded_files.length > 1) {
-            title = excluded_files.length === selected_file_count ? "All files unsupported" : "Some files unsupported";
+            title = excluded_files.length === selected_file_count ? TS.i18n.t("All files unsupported", "files")() : TS.i18n.t("Some files unsupported", "files")();
             file_html = "<ul>" + file_names.join("\n") + "</ul>";
+          } else if (excluded_files.length === 1) {
+            title = TS.i18n.t("File unsupported", "files")();
           }
           good_files = selected_file_count - excluded_files.length;
-          suggestions_html = "<p>" + (excluded_files.length === 1 ? "Try uploading a .zip version of this file instead." : "Try uploading .zip versions of these files instead.") + "</p>";
-          if (good_files) dont_worry_html = "<p>(Don't worry, your other " + (good_files > 1 ? "files are next." : "file is next.") + ")</p>";
+          if (excluded_files.length > 1) {
+            suggestions_html = TS.i18n.t("<p>Try uploading a .zip version of these files instead.", "files")();
+          } else if (excluded_files.length === 1) {
+            suggestions_html = TS.i18n.t("<p>Try uploading a .zip version of this file instead.", "files")();
+          }
+          if (good_files > 1) {
+            dont_worry_html = TS.i18n.t("<p>(Don’t worry, your other files are next.)</p>", "files")();
+          } else if (good_files === 1) {
+            dont_worry_html = TS.i18n.t("<p>(Don’t worry, your other file is next.)</p>", "files")();
+          }
+          if (excluded_files.length === 1) {
+            unsupported_warning_html = TS.i18n.t("<p>Sorry, <strong>{excluded_file}</strong> is a type of file not supported by Slack</p>", "files")({
+              excluded_file: TS.utility.htmlEntities(excluded_files[0].name)
+            });
+          } else if (excluded_files.length === selected_file_count) {
+            unsupported_warning_html = TS.i18n.t("<p>Sorry, none of those file types are supported by Slack.</p>", "files")();
+          } else {
+            unsupported_warning_html = TS.i18n.t("<p>Sorry, some of those file types are not supported by Slack.</p>", "files")();
+          }
           TS.generic_dialog.start({
             title: title,
-            body: "<p>Sorry, " + (excluded_files.length === 1 ? "<b>" + TS.utility.htmlEntities(excluded_files[0].name) + "</b> is a type of file not " : excluded_files.length === selected_file_count ? " none of those file types are" : " some of those file types are not") + " supported by Slack.</p>" + file_html + suggestions_html + dont_worry_html,
+            body: unsupported_warning_html + file_html + suggestions_html + dont_worry_html,
             show_cancel_button: false,
             esc_for_ok: true,
             onGo: function() {
@@ -8665,8 +8688,8 @@
         if (TS.client.ui.checkForEditing(e)) return;
         if (TS.model.team.prefs.disable_file_uploads === "disable_all") {
           TS.generic_dialog.start({
-            title: "Upload failed",
-            body: "At the request of your administrator, file uploads have been disabled on this team.",
+            title: TS.i18n.t("Upload failed", "files")(),
+            body: TS.i18n.t("At the request of your administrator, file uploads have been disabled on this team.", "files")(),
             show_cancel_button: false,
             onGo: function() {
               TS.files.uploadOver(false);
@@ -8683,19 +8706,23 @@
         var model_ob = TS.shared.getActiveModelOb();
         if (model_ob && model_ob.is_general && !TS.members.canUserPostInGeneral()) {
           TS.generic_dialog.start({
-            title: "Cannot Post To General",
-            body: "An Owner of your team has limited who can post to #<strong>general</strong>. Nothing personal! You can share your file in another channel.",
+            title: TS.i18n.t("Cannot Post To General", "files")(),
+            body: TS.i18n.t("An Owner of your team has limited who can post to #<strong>general</strong>. Nothing personal! You can share your file in another channel.", "files")(),
             show_cancel_button: false,
-            go_button_text: "Okay!"
+            go_button_text: TS.i18n.t("Okay!", "files")()
           });
           return false;
         }
         if (model_ob && TS.boot_data.page_needs_enterprise && !TS.permissions.members.canPostInChannel(model_ob) && model_ob.is_shared) {
           TS.generic_dialog.start({
-            title: "Cannot Post To #" + model_ob.name + ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>',
-            body: "An Owner of your team has limited who can post to <strong>#" + model_ob.name + '<ts-icon class="ts_icon_shared_channel"></ts-icon></strong>. Nothing personal! You can share your file in another channel.',
+            title: TS.i18n.t('Cannot Post To #{channel_name}<ts-icon class="ts_icon_org_shared_channel"></ts-icon>', "files")({
+              channel_name: model_ob.name
+            }),
+            body: TS.i18n.t('An Owner of your team has limited who can post to <strong>#{channel_name}<ts-icon class="ts_icon_shared_channel"></ts-icon></strong>. Nothing personal! You can share your file in another channel.', "files")({
+              channel_name: model_ob.name
+            }),
             show_cancel_button: false,
-            go_button_text: "Okay!"
+            go_button_text: TS.i18n.t("Okay!", "files")()
           });
           return false;
         }
@@ -9690,10 +9717,9 @@
                 TS.utility.contenteditable.blur($input);
                 $("#primary_file_button").click();
               },
-              onUpWhenEmpty: function() {
-                if (!TS.client.ui.isUserAttentionOnChat()) return;
-                TS.client.ui.maybeEditLast(new Event("fakeEvent"));
-              }
+              onUpArrowCmd: function() {},
+              onUpArrow: function() {},
+              onDownArrow: function() {}
             },
             tabcomplete: {
               menuTemplate: TS.templates.tabcomplete_menu,
@@ -9766,7 +9792,6 @@
       $input.on("keydown.msg_input", function(e) {
         if (TS.boot_data.feature_texty) return;
         var start = Date.now();
-        var keymap = TS.utility.keymap;
         var val = TS.utility.contenteditable.value($input);
         var val_trimmed = $.trim(val);
         _maybeUserTyping(val);
@@ -9775,10 +9800,10 @@
           if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("input keydown", Date.now() - start);
           return;
         }
-        if (e.which == keymap.enter && e.metaKey && e.shiftKey) {
+        if (e.which == _keymap.enter && e.metaKey && e.shiftKey) {
           TS.client.msg_input.startSnippet();
-        } else if (e.which == keymap.enter && (!e.shiftKey && !e.altKey && !e.ctrlKey)) {
-          if (e.which == keymap.enter && e.metaKey) {
+        } else if (e.which == _keymap.enter && (!e.shiftKey && !e.altKey && !e.ctrlKey)) {
+          if (e.which == _keymap.enter && e.metaKey) {
             TS.client.msg_input.startSnippet();
           } else if (val_trimmed !== "" && !TS.client.ui.cal_key_checker.prevent_enter) {
             if (_$chat_input_tab_ui.length && !_$chat_input_tab_ui.hasClass("hidden") && TS.model.prefs.tab_ui_return_selects) {
@@ -9793,37 +9818,37 @@
           e.preventDefault();
           if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("input keydown", Date.now() - start);
           return;
-        } else if (e.which == keymap.enter && (!TS.model.is_mac && e.shiftKey && !e.altKey && e.ctrlKey)) {
+        } else if (e.which == _keymap.enter && (!TS.model.is_mac && e.shiftKey && !e.altKey && e.ctrlKey)) {
           TS.client.msg_input.startSnippet();
         } else {
-          if (e.which == keymap.shift) {} else if (e.which == keymap.enter && (e.ctrlKey || e.altKey)) {
+          if (e.which == _keymap.shift) {} else if (e.which == _keymap.enter && (e.ctrlKey || e.altKey)) {
             if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
               var p = $input.getCursorPosition();
               TS.utility.contenteditable.value($input, val.substr(0, p) + "\n" + val.substr(p));
               $input.trigger("autosize").trigger("autosize-resize");
               $input.setCursorPosition(p + 1);
             }
-          } else if (TS.model.prefs && TS.model.prefs.enter_is_special_in_tbt && e.which == keymap.enter && e.shiftKey && TS.utility.isCursorWithinTBTs($input)) {
+          } else if (TS.model.prefs && TS.model.prefs.enter_is_special_in_tbt && e.which == _keymap.enter && e.shiftKey && TS.utility.isCursorWithinTBTs($input)) {
             _tryToSubmit(e, $input);
           }
           if (_$chat_input_tab_ui.length && !_$chat_input_tab_ui.hasClass("hidden")) {
             if (TS.model.is_our_app && TS.model.is_electron) {
-              if (e.which == keymap.up || e.which == keymap.left || e.which == keymap.down || e.which == keymap.right) {
+              if (e.which == _keymap.up || e.which == _keymap.left || e.which == _keymap.down || e.which == _keymap.right) {
                 e.preventDefault();
               }
             }
           } else if (TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) {
             TS.client.ui.maybeEditLast(e);
-          } else if (val == "" && !e.altKey && !TS.utility.cmdKey(e) && e.which == TS.utility.keymap.left) {
+          } else if (val == "" && !e.altKey && !TS.utility.cmdKey(e) && e.which == _keymap.left) {
             e.preventDefault();
             TS.menu.file.startWithNewFileOptions(e, $("#primary_file_button"));
             $input.blur();
-          } else if (!e.shiftKey && (e.which == keymap.up || e.which == keymap.down)) {
+          } else if (!e.shiftKey && (e.which == _keymap.up || e.which == _keymap.down)) {
             var selection = TS.utility.getCursorPosition(TS.client.msg_input.$input);
             if (!selection || selection.length === 0) {
-              if (e.which == keymap.up && selection.start < 1) {
+              if (e.which == _keymap.up && selection.start < 1) {
                 TS.chat_history.onArrowKey(e, TS.client.msg_input.$input);
-              } else if (e.which == keymap.down && selection.end >= val.length) {
+              } else if (e.which == _keymap.down && selection.end >= val.length) {
                 TS.chat_history.onArrowKey(e, TS.client.msg_input.$input);
               }
             }
@@ -9941,6 +9966,7 @@
   var _$chat_input_tab_ui;
   var _snippet_prompt_text_showing;
   var _click_snippet_prompt = false;
+  var _keymap = TS.utility.keymap;
   var _onTextChange = function(e, prev_txt) {
     var start = Date.now();
     var val = TS.utility.contenteditable.value(TS.client.msg_input.$input);
@@ -14494,12 +14520,6 @@
           });
           var txt = "in:" + TS.shared.getActiveModelOb().name + " ";
           TS.search.setInputVal(txt);
-          if (!TS.boot_data.feature_stop_pasting) {
-            var system_find_str = TSSSB.call("readFindString");
-            if (system_find_str) {
-              TS.search.appendToInputAndSelect(system_find_str);
-            }
-          }
         }
       }
     },
@@ -22214,8 +22234,8 @@
       var is_app_store = _isLegacyAppStoreBuild();
       var show_macelectron1_banner = TS.model.is_mac && !deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0 && !TS.model.is_electron && !("macgap" in window) && !TS.model.prefs.no_macelectron_banner;
       var show_macelectron2_banner = TS.model.is_mac && "macgap" in window && !is_app_store && !TS.model.prefs.no_macelectron_banner;
-      var show_macssb1_banner = TS.boot_data.feature_macssb1_banner && TS.model.is_mac && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
-      var show_macssb2_banner = TS.boot_data.feature_macssb2_banner && TS.model.is_mac && TS.model.mac_ssb_version && TS.model.mac_ssb_version < 2 && !TS.model.prefs.no_macssb2_banner;
+      var show_macssb1_banner = TS.model.is_mac && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
+      var show_macssb2_banner = TS.model.is_mac && TS.model.mac_ssb_version && TS.model.mac_ssb_version < 2 && !TS.model.prefs.no_macssb2_banner;
       var show_winssb1_banner = TS.model.is_win_7_plus && !TS.model.win_ssb_version && !TS.model.prefs.no_winssb1_banner;
       if (show_macssb_osx_deprecated_banner) {
         TS.ui.banner.show("macssb_osx_deprecated");
@@ -22299,7 +22319,7 @@
       } else if (which == "notifications") {
         $("#notifications_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest(".dismiss").length === 0) {
+          if ($(e.target).closest('[data-action="dismiss_banner"]').length === 0) {
             TS.ui.banner.growlsPermissionPrompt();
           } else {
             $("#notifications_banner").addClass("hidden");
@@ -22311,8 +22331,8 @@
       } else if (which == "macelectron1") {
         $("#macelectron1_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest(".dismiss").length) {
-            var $dismiss_link = $(this).find(".dismiss");
+          if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
+            var $dismiss_link = $(this).find('[data-action="dismiss_banner"]');
             $("#macelectron1_banner").addClass("hidden");
             TS.ui.banner.close();
             $dismiss_link.click();
@@ -22331,8 +22351,8 @@
       } else if (which == "macelectron2") {
         $("#macelectron2_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest(".dismiss").length) {
-            var $dismiss_link = $(this).find(".dismiss");
+          if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
+            var $dismiss_link = $(this).find('[data-action="dismiss_banner"]');
             $("#macelectron2_banner").addClass("hidden");
             TS.ui.banner.close();
             $dismiss_link.click();
@@ -22350,7 +22370,7 @@
       } else if (which == "macssb1") {
         $("#macssb1_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest(".dismiss").length) {
+          if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
             $("#macssb1_banner").addClass("hidden");
             TS.ui.banner.show("macssb1_dismiss");
           } else {
@@ -22372,7 +22392,7 @@
       } else if (which == "macssb2") {
         $("#macssb2_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest(".dismiss").length) {
+          if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
             $("#macssb2_banner").addClass("hidden");
             TS.ui.banner.close();
             TS.prefs.setPrefByAPI({
@@ -22390,7 +22410,7 @@
       } else if (which == "winssb1") {
         $("#winssb1_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest(".dismiss").length) {
+          if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
             $("#winssb1_banner").addClass("hidden");
             TS.ui.banner.show("winssb1_dismiss");
           } else {
@@ -22421,7 +22441,7 @@
           return;
         }
         $generic_banner.removeClass("hidden");
-        $generic_banner.find("a.dismiss").unbind("click").bind("click", function(e) {
+        $generic_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function(e) {
           TS.ui.banner.close();
           TSSSB.call("closeAllUpdateBanners");
         });
@@ -22432,7 +22452,7 @@
           return;
         }
         $generic_banner.removeClass("hidden");
-        $generic_banner.find("a.dismiss").unbind("click").bind("click", function(e) {
+        $generic_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function(e) {
           TS.ui.banner.close();
         });
       }
@@ -24040,7 +24060,7 @@
       if (do_check) show_archive_btn = c_or_g === "channel" && TS.permissions.members.canArchiveChannels() || c_or_g === "group" && TS.permissions.members.canArchiveChannels() && !TS.model.user.is_restricted;
     }
     var show_rename_btn = false;
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.boot_data.feature_shared_channels_settings && TS.members.canUserManageSharedChannels()) {
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.members.canUserManageSharedChannels()) {
       show_rename_btn = true;
     } else {
       if (TS.model.user.is_admin || model_ob.creator === TS.model.user.id) show_rename_btn = true;
@@ -24050,7 +24070,7 @@
     var show_data_retention_link = false;
     if (TS.model.team.plan !== "" && (TS.model.user.is_owner || c_or_g === "group") && TS.model.team.prefs.allow_retention_override) show_data_retention_link = true;
     var show_manage_posting_privilege_btn = false;
-    if (TS.boot_data.feature_shared_channels_settings && TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.members.canUserManageSharedChannels()) {
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.members.canUserManageSharedChannels()) {
       show_manage_posting_privilege_btn = true;
     }
     var show_convert_to_shared_btn = false;
@@ -24592,6 +24612,8 @@
     if (settings.type && settings.type[0] === "owner") {
       if (settings.user && settings.user.length || settings.subteam && settings.subteam.length) {
         settings.type[0] = "multi";
+      } else {
+        settings.type[0] = "admin";
       }
     }
     return settings;
@@ -24808,17 +24830,23 @@
       var val = _$current_option.find(".post_opt_radios:checked").val();
       var lfs_values = [];
       if (val === "multi") {
-        val = "owner";
         lfs_values = _$current_option.find("#lfs_channel_posting").lazyFilterSelect("value");
+        if (lfs_values.lenth) {
+          val = "owner";
+        } else {
+          val = "admin";
+        }
       }
       formatted_value = "type:" + val;
-      lfs_values.forEach(function(value) {
-        if (value.member) {
-          formatted_value += ",user:" + value.member.id;
-        } else if (value.user_group) {
-          formatted_value += ",subteam:" + value.user_group.id;
-        }
-      });
+      if (lfs_values.length) {
+        lfs_values.forEach(function(value) {
+          if (value.member) {
+            formatted_value += ",user:" + value.member.id;
+          } else if (value.user_group) {
+            formatted_value += ",subteam:" + value.user_group.id;
+          }
+        });
+      }
       var calling_args = {
         prefs: JSON.stringify({
           who_can_post: formatted_value
@@ -26532,6 +26560,9 @@
     _onMsgsScrollThrottled();
     TS.client.archives.msgs_are_auto_scrolling = false;
     TS.ui.utility.updateClosestMonkeyScroller(TS.client.archives.$scroller);
+    if (TS.boot_data.feature_sli_recaps) {
+      TS.recaps_signal.handleUpdateScrollbar();
+    }
     _updateDateDisplayed();
   };
   var _loadMoreTop = function(callback) {

@@ -3,7 +3,7 @@
 {{#if_gt uras.length compare=0}}
   <div id="ura_alert" class="alert alert_warning">
     <i class="ts_icon ts_icon_warning"></i>
-      {{#t ura_list=(listify (getDisplayNames uras) strong=true should_escape=false)}}
+      {{#t ura_list=(listify (getDisplayNames uras) strong=true no_escape=true)}}
         {ura_list} { uras.length, plural, =1 { is a Single-Channel Guest. They are already a member } other { are Single-Channel Guests. They are already members }} of one channel, and will not have access to this new private channel.
       {{/t}}
   </div>
@@ -41,7 +41,7 @@
     <span class="error_message"></span>
   </span>
   <p class="large_top_margin">
-    {{#t member_list=(listify (getDisplayNames members) strong=true should_escape=false)}}
+    {{#t member_list=(listify (getDisplayNames members) strong=true no_escape=true)}}
       You are about to convert the group DM with {member_list} to a private channel. <strong>This cannot be undone.</strong>
     {{/t}}
   </p>

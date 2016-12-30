@@ -67,5 +67,5 @@
     <td class="radio_cell"><input type="radio" id="mobile_mentions_{{channel.id}}" name="mobile_{{channel.id}}" data-id="{{channel.id}}" data-device="mobile" value="mentions" {{#if channel.is_muted}}{{#t}}disabled{{/t}}{{/if}}></td>
     <td class="radio_cell"><input type="radio" id="mobile_nothing_{{channel.id}}" name="mobile_{{channel.id}}" data-id="{{channel.id}}" data-device="mobile" value="nothing" {{#if channel.is_muted}}{{#t}}disabled{{/t}}{{/if}}></td>
 
-    <td class="align_center"><i class="ts_icon ts_icon_times_circle revert_to_default" data-id="{{channel.id}}" data-toggle="tooltip" title="{{#t}}Clear custom notification settings from {channel.is_channel, select, true{#}other{}}{channel.name}{{/t}}"></i></td>
+    <td class="align_center"><i class="ts_icon ts_icon_times_circle revert_to_default" data-id="{{channel.id}}" data-toggle="tooltip" title="{{#t channel_name=channel.name}}Clear custom notification settings from {channel.is_channel, select, true{#}other{}}{channel_name}{{/t}}"></i></td>
 </tr>
