@@ -41,16 +41,11 @@
     lazyload: null,
     onStart: function() {
       TS.team.ensureTeamProfileFields();
-      active_bots_header_html = TS.i18n.t('<h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin"></i> Bots</h5>', "web_admin")();
-      invite_restricted_html = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any {restricted_accounts}. <a data-action="admin_invites_modal" data-account-type="restricted">Invite a new {restricted_account}</a></p>', "web_admin")({
-        restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts"),
-        restricted_account: TS.templates.builders.raLabel("Restricted Account")
-      });
+      active_bots_header_html = '<h5 class="bot_header large_top_margin no_bottom_margin subtle_silver"><i class="ts_icon ts_icon_bolt small_right_margin"></i> ' + TS.i18n.t("Bots", "web_admin")() + "</h5>";
+      invite_restricted_html = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any Multi-Channel Guests. <a data-action="admin_invites_modal" data-account-type="restricted">Invite a new Multi-Channel Guest</a></p>', "web_admin")();
       invite_ultra_restricted_html = TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any Single-Channel Guests. <a data-action="admin_invites_modal" data-account-type="ultra_restricted">Invite a new Single-Channel Guest</a></p>', "web_admin")();
-      restricted_header_html = TS.i18n.t('<h5 class="restricted_header small_bottom_margin"><i class="presence large away ra small_right_margin"></i> {restricted_accounts}</h5>', "web_admin")({
-        restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts")
-      });
-      ultra_restricted_header_html = TS.i18n.t('<h5 class="restricted_header small_bottom_margin large_top_margin"><i class="presence large away ura small_right_margin"></i> Single-Channel Guests</h5>', "web_admin")();
+      restricted_header_html = '<h5 class="restricted_header small_bottom_margin"><i class="presence large away ra small_right_margin"></i> ' + TS.i18n.t("Multi-Channel Guests", "web_admin")() + "</h5>";
+      ultra_restricted_header_html = '<h5 class="restricted_header small_bottom_margin large_top_margin"><i class="presence large away ura small_right_margin"></i> ' + TS.i18n.t("Single-Channel Guests", "web_admin")() + "</h5>";
       TS.web.login_sig.add(TS.web.admin.onLogin, TS.web.admin);
       TS.web.admin.member_profile_set_sig.add(TS.web.admin.memberProfileSet, TS.web.admin);
       TS.web.admin.member_profile_set_email_sig.add(TS.web.admin.memberProfileSetEmail, TS.web.admin);
@@ -597,8 +592,7 @@
       var invite_type_label = "";
       if (invite.type) {
         if (invite.type == "restricted") {
-          var restricted_label = TS.i18n.t("Restricted Account", "web_admin")();
-          invite_type_label = TS.templates.builders.raLabel(restricted_label);
+          invite_type_label = TS.i18n.t("Multi-Channel Guest", "web_admin")();
         } else if (invite.type == "ultra_restricted") {
           invite_type_label = TS.i18n.t("Single-Channel Guest", "web_admin")();
         }
@@ -803,7 +797,7 @@
       } else if (member.is_ultra_restricted) {
         member_type = TS.i18n.t("Single-Channel Guest", "web_admin")();
       } else if (member.is_restricted) {
-        member_type = TS.templates.builders.raLabel("Restricted Account");
+        member_type = TS.i18n.t("Multi-Channel Guest", "web_admin")();
       } else {
         if (member.is_bot || member.is_slackbot) {
           member_type = TS.i18n.t("Bot", "web_admin")();
@@ -1077,12 +1071,8 @@
       });
       $row.find(".admin_member_restrict_link_unpaid").unbind("click").bind("click", function() {
         TS.generic_dialog.start({
-          title: TS.i18n.t("{restricted_accounts} are available for paid teams", "web_admin")({
-            restricted_accounts: TS.templates.builders.raLabel("Restricted accounts")
-          }),
-          body: TS.i18n.t('<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>{restricted_accounts}</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-Channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing">Learn more about our pricing</a> or upgrade today.</p>', "web_admin")({
-            restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts")
-          }),
+          title: TS.i18n.t("Multi-channel guests are available for paid teams", "web_admin")(),
+          body: TS.i18n.t('<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>Multi-Channel Guests</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-Channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing">Learn more about our pricing</a> or upgrade today.</p>', "web_admin")(),
           go_button_text: TS.i18n.t("Upgrade your team", "web_admin")(),
           go_button_class: "btn_success",
           cancel_button_text: TS.i18n.t("Not now", "web_admin")(),
@@ -1979,19 +1969,18 @@
       TS.web.admin.rebuildMember(member);
       var $row;
       var is_enterprise = TS.boot_data.page_needs_enterprise;
-      var message;
+      var success_message;
       if (is_enterprise) {
-        message = TS.i18n.t("This user has been added to the team", "web_admin")();
+        success_message = TS.i18n.t('This user has been added to the team as a Multi-Channel Guest. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_id: member.id
+        });
       } else {
-        message = TS.i18n.t("<strong>{member_name}</strong> is now enabled", "web_admin")({
-          member_name: TS.utility.htmlEntities(member.name)
+        success_message = TS.i18n.t('<strong>{member_name}</strong> is now enabled as a Multi-Channel Guest. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
+          member_name: TS.utility.htmlEntities(member.name),
+          member_id: member.id
         });
       }
       $row = TS.web.admin.selectRow(member);
-      var success_message = message + TS.i18n.t(' as a {restricted_account}. <a class="api_disable_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
-        restricted_account: TS.templates.builders.raLabel("Restricted Account"),
-        member_id: TS.templates.builders.raLabel("Restricted Account")
-      });
       TS.web.admin.showSuccessMessageOnRow($row, success_message);
       TS.web.admin.bindActions(member);
       TS.web.admin.rowFadeSuccess(member);
@@ -2271,7 +2260,7 @@
         list_items: results.active
       }, {
         name: "restricted",
-        label: TS.templates.builders.raLabel("restricted accounts"),
+        label: "multi-channel guests",
         list_items: results.restricted
       }, {
         name: "disabled",
@@ -2381,14 +2370,9 @@
         return TS.templates.admin_restricted_info_sso(TS.model.team);
       } else {
         if (TS.boot_data.can_invite_ras) {
-          return TS.i18n.t("<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any {guest_or_restricted_accounts}. <a href='/admin/invites/restricted'>Invite a new {restricted_accounts}</a></p>", "web_admin")({
-            guest_or_restricted_accounts: TS.templates.builders.raLabel("Guest or Restricted Accounts"),
-            restricted_accounts: TS.templates.builders.raLabel("Restricted Account")
-          });
+          return TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any guest accounts. <a href="/admin/invites/restricted">Invite a new Multi-Channel Guest</a></p>', "web_admin")();
         } else {
-          return TS.i18n.t("<p class='ra_invite_prompt subtle_silver top_margin align_center'>Your team does not have any {guest_or_restricted_accounts}.</p>", "web_admin")({
-            guest_or_restricted_accounts: TS.templates.builders.raLabel("Guest or Restricted Accounts")
-          });
+          return TS.i18n.t('<p class="ra_invite_prompt subtle_silver top_margin align_center">Your team does not have any guest accounts.</p>', "web_admin")();
         }
       }
     }

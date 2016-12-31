@@ -11615,7 +11615,7 @@
       if (member.is_ultra_restricted) {
         status = TS.i18n.t("Single-Channel Guest", "client")();
       } else {
-        status = TS.templates.builders.raLabel("Restricted Account");
+        status = TS.i18n.t("Multi-Channel Guest", "client")();
       }
     }
     if (member._is_in_dnd) {
@@ -30179,9 +30179,7 @@
   var _maybeShowRaTip = function() {
     if (_show_ra_tip) {
       if (!_$container.find(".ra_not_appear_warning").length) {
-        var copy = TS.i18n.t("{restricted_accounts} may not appear below. Ask a Team Administrator to invite them.", "channel_modal")({
-          restricted_accounts: TS.templates.builders.raLabel("Restricted accounts")
-        });
+        var copy = TS.i18n.t("Multi-channel guests may not appear below. Ask a Team Administrator to invite them.", "channel_modal")();
         var html = '<p class="mini subtle_silver no_bottom_margin ra_not_appear_warning">' + copy + "</p>";
         _$container.find(".kb_nav_label").after(html);
       }

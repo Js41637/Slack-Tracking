@@ -39062,9 +39062,7 @@ var _on_esc;
     var channel_picker_html = TS.templates.admin_invite_channel_picker(template_args);
     var invite_type_label = TS.i18n.t("Full Members", "invite")();
     if (invite_type == "restricted") {
-      invite_type_label = TS.i18n.t("{restricted_accounts}", "invite")({
-        restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts")
-      });
+      invite_type_label = TS.i18n.t("Multi-Channel Guests", "invite")();
     } else if (invite_type == "ultra_restricted") {
       invite_type_label = TS.i18n.t("Single-Channel Guests", "invite")();
     }
@@ -39205,9 +39203,7 @@ var _on_esc;
       if (data.error == "requires_channel") {
         setTimeout(Ladda.stopAll, 0);
         _$div.find("#ra_channel_picker_header").highlightText();
-        var pick_at_least_one_channel = TS.i18n.t("Pick at least one channel before inviting {restricted_accounts}.", "invite")({
-          restricted_accounts: TS.templates.builders.raLabel("Restricted Accounts")
-        });
+        var pick_at_least_one_channel = TS.i18n.t("Pick at least one channel before inviting Multi-Channel Guests.", "invite")();
         var message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_at_least_one_channel;
         _showInfoMessage("alert_warning", message_html);
         return;
@@ -39273,9 +39269,8 @@ var _on_esc;
       });
       success_invites_html = "<strong>" + full_member + "</strong>";
     } else if (account_type == "restricted") {
-      var multi_channel_guest = TS.i18n.t("{invites_length,plural,=1{{invites_length} {restricted_account}}other{{invites_length} {restricted_account}s}}", "invite")({
-        invites_length: _success_invites.length,
-        restricted_account: TS.templates.builders.raLabel("Restricted Account")
+      var multi_channel_guest = TS.i18n.t("{invites_length,plural,=1{{invites_length} Multi-Channel Guest}other{{invites_length} Multi-Channel Guests}}", "invite")({
+        invites_length: _success_invites.length
       });
       success_invites_html = "<strong>" + multi_channel_guest + "</strong>";
     } else if (account_type == "ultra_restricted") {
