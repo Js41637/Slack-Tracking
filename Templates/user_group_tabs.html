@@ -6,7 +6,7 @@
       <a id="active_members_tab" data-tab="active" class="selected">{{#t}}Full Members{{/t}} <span id="active_members_count" class="normal">(<span id="active_members_count_value">{{members.length}}</span>)</span></a>
     {{/if}}
     {{#if show_restricted_members}}
-      <a id="restricted_members_tab" data-tab="restricted" {{#if restricted_members.length}}{{else}}class="hidden"{{/if}}>{{raLabel 'Restricted & Guest Accounts'}} <span id="restricted_members_count" class="normal">(<span id="restricted_members_count_value">{{restricted_members.length}}</span>)</span></a>
+      <a id="restricted_members_tab" data-tab="restricted" {{#if restricted_members.length}}{{else}}class="hidden"{{/if}}>{{#t}}Guest Accounts{{/t}} <span id="restricted_members_count" class="normal">(<span id="restricted_members_count_value">{{restricted_members.length}}</span>)</span></a>
     {{/if}}
     {{#if disabled_members}}
       <a id="disabled_members_tab" data-tab="disabled" class="secondary {{#if disabled_members.length}}{{else}}hidden{{/if}}">{{#t}}Deactivated Accounts{{/t}} <span id="disabled_members_count" class="normal">(<span id="disabled_members_count_value">{{disabled_members.length}}</span>)</span></a>

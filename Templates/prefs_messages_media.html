@@ -43,6 +43,10 @@
     <input id="time24_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
     {{#t}}Show times with 24-hour clock <span class="normal">(16:00 rather than 4:00 PM)</span>{{/t}}
   </label>
+  <label class="checkbox">
+    <input id="hide_hex_swatch_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+    {{#t}}Display preview swatches next to hex colors{{/t}}
+  </label>
   {{#if should_use_local_lato_2}}
     {{#isOurApp}}
       {{! We don't show the Lato 2 pref in the SSB, since we load it locally for all users }}

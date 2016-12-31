@@ -225,10 +225,10 @@
                     <p class="small_bottom_margin small_top_margin pill_container">
                         {{#if_gt total_memberships compare=1}}<span class="show_pill_action">{{/if_gt}}
                             {{#each member.channels}}
-                                <span class="channel pill">#{{this}}{{#if_gt ../total_memberships compare=1}}{{#canUserKickFromChannels}} <i class="ts_icon ts_icon_times_circle pill_action api_channel_kick" data-channel-id="{{@key}}" title="{{#t member_name=../member.name}}Remove {member_name} from #{this}{{/t}}"></i>{{/canUserKickFromChannels}}{{/if_gt}}</span>
+                                <span class="channel pill">#{{this}}{{#if_gt ../total_memberships compare=1}}{{#canKickFromChannels}} <i class="ts_icon ts_icon_times_circle pill_action api_channel_kick" data-channel-id="{{@key}}" title="{{#t member_name=../member.name}}Remove {member_name} from #{this}{{/t}}"></i>{{/canKickFromChannels}}{{/if_gt}}</span>
                             {{/each}}
                             {{#each member.groups}}
-                                <span class="group pill">{{this}}{{#if_gt ../total_memberships compare=1}}{{#canUserKickFromGroups}} <i class="ts_icon ts_icon_times_circle pill_action api_group_kick" data-group-id="{{@key}}" title="{{#t member_name=../member.name}}Remove {member_name} from {this}{{/t}}"></i>{{/canUserKickFromGroups}}{{/if_gt}}</span>
+                                <span class="group pill">{{this}}{{#if_gt ../total_memberships compare=1}}{{#canKickFromGroups}} <i class="ts_icon ts_icon_times_circle pill_action api_group_kick" data-group-id="{{@key}}" title="{{#t member_name=../member.name}}Remove {member_name} from {this}{{/t}}"></i>{{/canKickFromGroups}}{{/if_gt}}</span>
                             {{/each}}
                         {{#if_gt total_memberships compare=1}}</span>{{/if_gt}}
                         {{#if show_add_channel_btn}}

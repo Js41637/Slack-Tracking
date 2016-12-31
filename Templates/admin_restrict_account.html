@@ -4,7 +4,7 @@
   
     <h4>
     {{#if enabling}}
-        {{#t raLabel=(raLabel 'restricted account')}}Enable a {raLabel}{{/t}}
+        {{#t}}Enable a multi-channel guest{{/t}}
     {{else}}
         {{#t}}Convert to Guest{{/t}}
     {{/if}}
@@ -12,19 +12,19 @@
 
     <p class="small_bottom_margin">
         {{#if enabling}}
-            {{#t raLabel=(raLabel 'Restricted Account')}}Team members you enable with a {raLabel} will have the following capabilities:{{/t}}
+            {{#t}}Team members you enable with a Multi-Channel Guest will have the following capabilities:{{/t}}
         {{else}}
-            {{#t raLabel=(raLabel 'Restricted Accounts')}}Team members you convert to {raLabel} will have the following capabilities:{{/t}}
+            {{#t}}Team members you convert to Multi-Channel Guest will have the following capabilities:{{/t}}
         {{/if}}
     </p>
-    {{#t}}
+    {{#t note="List items describing multi-channel guest capabilities"}}
     <ul>
         <li>participate in the channels they are invited to join</li>
         <li>exchange direct messages with others in the channels to which they belong</li>
     </ul>
     {{/t}}
     <p class="small_bottom_margin">{{#t}}They will <strong>not</strong> be able to:{{/t}}</p>
-    {{#t}}
+    {{#t note="List items preceded by '[Multi-channel guests] will not be able to:'"}}
     <ul>
         <li>create new channels</li>
         <li>see files or messages in channels they don't belong to</li>
@@ -32,9 +32,9 @@
     {{/t}}
     <p class="large_bottom_margin">{{#t}}Single-Channel Guests only have access to one channel.{{/t}}</p>
 
-    {{#t raLabel=(raLabel 'Restricted Accounts')}}
+    {{#t}}
     <h4>Billing</h4>
-    <p class="large_bottom_margin">{raLabel} count as paid users when they are active. Single-Channel Guests are free.</p>
+    <p class="large_bottom_margin">Multi-Channel Guests count as paid users when they are active. Single-Channel Guests are free.</p>
     {{/t}}
 </div>
 
@@ -60,9 +60,9 @@
             {{/if}}
         </h3>
 
-        {{#t raLabel=(raLabel 'restricted account')}}
+        {{#t note="Space before 'A multi-channel guest' and 'A single-channel guest' should be preserved"}}
         <a class="restriction_option" id="restricted_user">
-            <i class="presence large active ra"></i> A {raLabel} <i class="ts_icon ts_icon_arrow_right"></i>
+            <i class="presence large active ra"></i> A multi-channel guest <i class="ts_icon ts_icon_arrow_right"></i>
         </a>
         <a class="restriction_option" id="guest_user">
             <i class="presence large active ura"></i> A single-channel guest <i class="ts_icon ts_icon_arrow_right"></i>
@@ -79,25 +79,25 @@
         <h3 class="top_margin">
             {{#if enabling}}
                 {{#if member.profile.real_name}}
-                    {{#t raLabel=(raLabel 'Restricted Account')}}Enable {{member.profile.real_name}} as a {raLabel}{{/t}}
+                    {{#t}}Enable {member.profile.real_name} as a Multi-Channel Guest{{/t}}
                 {{else}}
-                    {{#t raLabel=(raLabel 'Restricted Account')}}Enable {{member.name}} as a {raLabel}{{/t}}
+                    {{#t}}Enable {member.name} as a Multi-Channel Guest{{/t}}
                 {{/if}}
             {{else}}
                 {{#if member.profile.real_name}}
-                    {{#t raLabel=(raLabel 'Restricted Account')}}Convert {{member.profile.real_name}} to a {raLabel}{{/t}}
+                    {{#t}}Convert {member.profile.real_name} to a Multi-Channel Guest{{/t}}
                 {{else}}
-                    {{#t raLabel=(raLabel 'Restricted Account')}}Convert {{member.name}} to a {raLabel}{{/t}}
+                    {{#t}}Convert {member.name} to a Multi-Channel Guest{{/t}}
                 {{/if}}
             {{/if}}
         </h3>
 
         <p>
             {{#if show_ra_channel_picker}}
-                {{#t raLabel=(raLabel 'Restricted Account')}}You must pick one channel for this {raLabel} to join.
+                {{#t}}You must pick one channel for this Multi-Channel Guest to join.
                 (You can set additional channels in the next step.){{/t}}
             {{else}}
-                {{#t raLabel=(raLabel 'restricted account')}}You can set the channels for this {raLabel} in the next step.{{/t}}
+                {{#t}}You can set the channels for this multi-channel guest in the next step.{{/t}}
             {{/if}}
             {{#if enabling}}{{else}}<p>{{#t}}This change will take effect immediately.{{/t}}</p>{{/if}}
         </p>
@@ -153,7 +153,7 @@
             {{/if}}
         </h3>
 
-        <p class="no_bottom_margin">{{#t}}With access to this channel:{{/t}}</p>
+        <p class="no_bottom_margin">{{#t note="Preceded with '...Single-Channel Guest'"}}With access to this channel:{{/t}}</p>
 
         <p>
             <label class="select small">

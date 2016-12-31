@@ -1,3 +1,5 @@
+{{i18n_ns 'pinned_item'}}
+
   <div   class="pinned_item"
       data-type="{{item.type}}"
       data-ts="{{item.message.ts}}"
@@ -14,16 +16,28 @@
 
     {{#if is_message}}
       {{#if item.message.parent_user_id}}
-        <div class="pin_metadata tiny_bottom_margin">in reply to {{getMemberDisplayNameById item.message.parent_user_id}}</div>
+        <div class="pin_metadata tiny_bottom_margin">{{#t user=(getMemberDisplayNameById item.message.parent_user_id)}}in reply to {user}{{/t}}</div>
       {{/if}}
       <p class="no_bottom_margin">
         {{#if member}}
           <span class="pin_member_name tiny_right_margin">{{{makeMemberPreviewLinkById item.message.user}}}</span>
         {{else}}
           <span class="pin_member_name tiny_right_margin">{{{getBotNameWithLink item.message}}}</span>
-          {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_cards_app_label"}}APP{{else}}BOT{{/feature}}</span>{{/if}}
+          {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_cards_app_label"}}{{#t}}APP{{/t}}{{else}}{{#t}}BOT{{/t}}{{/feature}}</span>{{/if}}
         {{/if}}
-        <{{#if is_reply}}span{{else}}a href="{{permalink}}" target="{{newWindowName}}"{{/if}} class="pin_metadata">{{toCalendarDateOrNamedDayShort item.message.ts}}{{#isToday item.message.ts}} at {{toTime item.message.ts}}{{/isToday}}</{{#if is_reply}}span{{else}}a{{/if}}>
+        {{#if is_reply}}
+          {{#isToday item.message.ts}}
+          <span class="pin_metadata">{{#t time=(toTime item.message.ts)}}Today at {time}{{/t}}</span>
+          {{else}}
+          <span class="pin_metadata">{{toCalendarDateOrNamedDayShort item.message.ts}}</span>
+          {{/isToday}}
+        {{else}}
+          {{#isToday item.message.ts}}
+          <a href="{{permalink}}" target="{{newWindowName}}" class="pin_metadata">{{#t time=(toTime item.message.ts)}}Today at {time}{{/t}}</a>
+          {{else}}
+          <a href="{{permalink}}" target="{{newWindowName}}" class="pin_metadata">{{toCalendarDateOrNamedDayShort item.message.ts}}</a>
+          {{/isToday}}
+        {{/if}}
       </p>
       <div class="tiny_top_margin pinned_message_text">
         {{{formatMessageByType item.message true false model_ob}}}
@@ -32,7 +46,7 @@
       </div>
       {{#if item.message.reply_count}}
         <div class="tiny_top_margin pin_metadata">
-          {{item.message.reply_count}} {{pluralize item.message.reply_count "reply" "replies"}}
+          {{#t}}{item.message.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}
         </div>
       {{/if}}
     {{/if}}
@@ -44,7 +58,7 @@
           {{{makeExternalFiletypeHTML item.file}}}
         {{else}}
           {{#if_equal item.file.filetype compare="space"}}
-            Post
+            {{#t}}Post{{/t}}
           {{else}}
             {{item.file.pretty_type}}
           {{/if_equal}}

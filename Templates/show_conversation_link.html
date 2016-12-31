@@ -1,5 +1,7 @@
+{{i18n_ns "messages"}}
+
 {{#isClient}}
   {{#if msg.reply_count}}
-    <a class="show_replies {{link_class}}" title="Show conversation" href="{{permalink}}" target="{{newWindowName}}">{{msg.reply_count}} {{pluralize msg.reply_count 'reply' 'replies'}}</a>
+    <a class="show_replies {{link_class}}" title="{{#t}}Show conversation{{/t}}" href="{{permalink}}" target="{{newWindowName}}">{{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}</a>
   {{/if}}
 {{/isClient}}

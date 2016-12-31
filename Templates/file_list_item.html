@@ -121,11 +121,11 @@
         <span class="share_info">
           <span class="file_share_public_label{{#unless file.is_public}} hidden{{/unless}}" data-file-id="{{file.id}}">
             <span class="file_share_shared_label{{#unless file.is_shared}} hidden{{/unless}}" data-file-id="{{file.id}}">
-              Shared {{makeFileShareLabel file}}
+              {{#t note="shared [in channels]"}}Shared{{/t}} {{makeFileShareLabel file}}
             </span>
           </span>
           <span class="file_share_private_label {{#if file.is_public}} hidden{{/if}}" data-file-id="{{file.id}}">
-            Private file {{makeFileShareLabel file}}
+            {{#t note="indication the file is not shared"}}Private file{{/t}} {{makeFileShareLabel file}}
           </span>
         </span>
       {{/and}}

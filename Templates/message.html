@@ -1,3 +1,5 @@
+{{i18n_ns 'message'}}
+
 {{#unless starred_items_actions}}
   {{#if starred_items_list}}
     {{>star_with_tip star_components}}
@@ -54,17 +56,17 @@
               {{/if}}
             {{/feature}}
             {{~#if is_slackbot_response~}}
-            <span class="ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_delay_300"><span class="bot_label">Custom Response</span>
-            <span class="ts_tip_tip">Added by your team</span>
+            <span class="ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_delay_300"><span class="bot_label">{{#t note="label that a message is a custom response from a bot"}}Custom Response{{/t}}</span>
+            <span class="ts_tip_tip">{{#t note="tip on a custom response message from a bot"}}Added by your team{{/t}}</span>
             </span>
             {{~/if~}}
           {{else}}
-            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_cards_app_label"}}APP{{else}}BOT{{/feature}}</span>{{/if}}</span>
+            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_cards_app_label"}}{{#t note="short tag on a message that indicates the sender is an application"}}APP{{/t}}{{else}}{{#t note="short tag on a message that indicates the sender is a bot"}}BOT{{/t}}{{/feature}}</span>{{/if}}</span>
           {{/if}}
         {{/unless}}
         {{#if comment}}
           {{#if is_file_convo_continuation}}
-            <span class="meta message_commented">commented:</span>
+            <span class="meta message_commented">{{#t note="[sender] commented: [comment]"}}commented:{{/t}}</span>
           {{/if}}
         {{/if}}
         {{#unless for_top_results_search_display}}
@@ -73,22 +75,22 @@
         {{#unless standalone}}
           {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
         {{/unless}}
-        {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">Only visible to you</span>{{/if}}{{/if}}
+        {{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}
 
         {{#if is_tombstone}}
-          <div class="deleted_message">This message was deleted</div>
+          <div class="deleted_message">{{#t}}This message was deleted{{/t}}</div>
         {{else}}
           {{#feature flag="feature_sli_recaps"}}
             {{#if is_recap}}
               {{#if recap_threshold}}
-                <span class="recap_highlight"><a>Highlight </a></span>
+                <span class="recap_highlight"><a>{{#t note="link to highlight message for sli recap"}}Highlight{{/t}} </a></span>
               {{/if}}
               <button class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
                 <span class="ts_tip_tip ts_tip_multiline_inner">
-                  Clicks: {{msg.recap.clicks}}<br />
-                  Reactions: {{msg.recap.reactions}} <br />
-                  Total score: {{msg.recap.weight}} <br />
-                  Debug: {{{ nl2br (prettyJson msg.recap.debug) }}}
+                  {{#t note="stat for clicks message has received"}}Clicks:{{/t}} {{msg.recap.clicks}}<br />
+                  {{#t note="stat for reactions on message"}}Reactions:{{/t}} {{msg.recap.reactions}} <br />
+                  {{#t note="stat for weight message has received"}}Total score:{{/t}} {{msg.recap.weight}} <br />
+                  {{#t note="debug content"}}Debug:{{/t}} {{{ nl2br (prettyJson msg.recap.debug) }}}
                 </span>
               </button>
             {{/if}}
@@ -96,7 +98,7 @@
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
           {{#if for_top_results_search_display}}
-            <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">Jump</a></span>
+            <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">{{#t note="link to scroll back to this message in its original context"}}Jump{{/t}}</a></span>
           {{/if}}
         {{/if}}
       </div>
@@ -140,15 +142,24 @@
       {{#if comment}}
         {{#unless is_file_convo_continuation}}
           <span class="meta meta_feature_fix_files message_body no_jumbomoji">
-            commented on
             {{#if uploader}}
-              {{{makeMemberPreviewLinkById uploader.id false}}}{{possessive uploader.name}} {{#if_equal file.mode compare="snippet"}}snippet{{else}}file{{/if_equal}}
+              {{#if_equal file.mode compare="snippet"}}
+                {{#t note="[sender] commented on joe's snippet" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive uploader.name)}}
+                  commented on {uploader_link}{uploader_possessive} snippet
+                {{/t}}
+              {{else}}
+                {{#t note="[sender] commented on joe's file" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive uploader.name)}}
+                  commented on {uploader_link}{uploader_possessive} file
+                {{/t}}
+              {{/if_equal}}
+            {{else}}
+              {{#t note="[sender] commented on [file name]"}}commented on{{/t}}
             {{/if}}
             <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}" class="file_preview_link file_force_flexpane file_name">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</a>
             {{#if file.is_external}}
-              <a {{makeRefererSafeLink url=file.url_private}} target="{{newWindowName}}" data-toggle="tooltip" title="Open file in a new tab" aria-label="Open file in a new tab">
+              <a {{makeRefererSafeLink url=file.url_private}} target="{{newWindowName}}" data-toggle="tooltip" title="{{#t note="tip on link to open file"}}Open file in a new tab{{/t}}" aria-label="{{#t note="aria-label on link to open file"}}Open file in a new tab{{/t}}">
             {{else}}
-              <a href="{{file.permalink}}" target="{{newWindowName}}" data-toggle="tooltip" title="Open file in a new tab" aria-label="Open file in a new tab" data-file-id="{{file.id}}" class="file_new_window_link">
+              <a href="{{file.permalink}}" target="{{newWindowName}}" data-toggle="tooltip" title="{{#t note="tip on link to open file"}}Open file in a new tab{{/t}}" aria-label="{{#t note="aria-label on link to open file"}}Open file in a new tab{{/t}}" data-file-id="{{file.id}}" class="file_new_window_link">
             {{/if}}
             <i class="ts_icon ts_icon_external_link file_inline_icon"></i></a>
           </span>
@@ -190,8 +201,8 @@
       <span class="message_body">{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}{{!
         }}{{{formatMessageByType msg do_inline_imgs enable_slack_action_links model_ob starred_items_list}}}{{!
         }}{{#unless no_attachments}}{{{formatAttachments msg model_ob enable_slack_action_links msg_dom_id}}}{{/unless}}{{!
-        }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{toCalendarDateOrNamedDayShort msg.edited.ts}} at {{{toTime msg.edited.ts true true}}}"> (edited)</span>{{/if}}{{!
-        }}{{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">Only visible to you</span>{{/if}}{{/if}}{{!
+        }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{toCalendarDateOrNamedDayShort msg.edited.ts}} at {{{toTime msg.edited.ts true true}}}"> {{#t note="indication a message was edited"}}(edited){{/t}}</span>{{/if}}{{!
+        }}{{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}{{!
       }}{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}</span>
 
       {{#unless standalone}}
@@ -203,28 +214,43 @@
     {{#if starred_items_list}}
     <span class="message_location_label overflow_ellipsis">
       {{#if msg.parent_user_id}}
-        <a href="{{conversation_permalink}}" class="show_replies"><span class="normal">from a thread
+        <a href="{{conversation_permalink}}" class="show_replies"><span class="normal">
         {{#if model_ob.is_im}}
-          with</span> @{{model_ob.name}}
+          {{#t note="description of the message's original context"}}from a thread with</span> @{model_ob.name}{{/t}}
         {{else if model_ob.is_mpim}}
-          in a</span> group message
+          {{#t note="description of the message's original context"}}from a thread in a</span> group message{{/t}}
         {{else if model_ob.is_channel}}
-          in</span> #{{model_ob.name}}
+          {{#t note="description of the message's original context"}}from a thread in</span> #{model_ob.name}{{/t}}
         {{else}}
-          in</span> <ts_icon class="ts_icon ts_icon_lock ts_icon_inherit"></ts_icon>{{model_ob.name}}
+          {{#t note="description of the message's original context"}}from a thread in</span> <ts_icon class="ts_icon ts_icon_lock ts_icon_inherit"></ts_icon>{model_ob.name}{{/t}}
         {{/if}}
         </a>
       {{else}}
         {{#if model_ob.is_im}}
-          <a href="{{permalink}}" target="{{newWindowName}}">Direct Message</a>
+          <a href="{{permalink}}" target="{{newWindowName}}">{{#t}}Direct Message{{/t}}</a>
         {{else}}
-          Posted in <a href="{{permalink}}" target="{{newWindowName}}">
           {{#if model_ob.is_mpim}}
-            {{mpimDisplayName model_ob}}
+            {{#t note="description of the message's original context in an mpim" mpim_display_name=(mpimDisplayName model_ob)}}
+              Posted in <a href="{permalink}" target="{newWindowName}">{mpim_display_name}</a>
+            {{/t}}
           {{else}}
-            {{#if model_ob.is_channel}}<span class="normal">#</span>{{else}}<ts_icon class="ts_icon ts_icon_lock ts_icon_inherit"></ts_icon>{{/if}}{{model_ob.name}}
+            {{#if model_ob.is_channel}}
+              {{#t note="description of the message's original context in a channel"}}
+                Posted in
+                <a href="{permalink}" target="{newWindowName}">
+                  <span class="normal">#</span>{model_ob.name}
+                </a>
+              {{/t}}
+            {{else}}
+              {{#t note="description of the message's original context"}}
+                Posted in
+                <a href="{permalink}" target="{newWindowName}">
+                  <ts_icon class="ts_icon ts_icon_lock ts_icon_inherit"></ts_icon>
+                  {model_ob.name}
+                </a>
+              {{/t}}
+            {{/if}}
           {{/if}}
-          </a>
         {{/if}}
       {{/if}}
     </span>
@@ -305,7 +331,7 @@
 
     <i class="copy_only"><br></i>
     {{#if unprocessed}}
-      <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">(this message send failed, would you like to <nobr><a class="resend_temp_msg">resend</a> \u2022 <a class="remove_temp_msg">remove</a>?)</nobr></span>
+      <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><a class="resend_temp_msg">resend</a> \u2022 <a class="remove_temp_msg">remove</a>?)</nobr>{{/t}}</span>
     {{/if}}
 
     {{#if standalone}}
@@ -320,12 +346,12 @@
           {{! TBD - What do we want to put here for screenreaders? The whole snippet? }}
         {{else}}
           {{#if msg.reply_count}}
-            {{msg.reply_count}} {{pluralize msg.reply_count 'reply' 'replies'}}
+            {{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}
           {{/if}}
         {{/if}}
       {{/if}}
-      {{msg.reply_count}} {{pluralize msg.reply_count 'reply' 'replies'}}
-      {{toTimeWords msg.ts}}.{{#if msg.edited}} Edited.{{/if}}{{#if msg.is_starred}} Starred.{{/if}}{{#if is_ephemeral}} Only visible to you.{{/if}}
+      {{#t}}{msg.reply_count, plural, =1 {# reply} other {# replies}}{{/t}}
+      {{toTimeWords msg.ts}}.{{#if msg.edited}} {{#t note="indication a message was edited"}}Edited.{{/t}}{{/if}}{{#if msg.is_starred}} {{#t note="indication a message is starred"}}Starred.{{/t}}{{/if}}{{#if is_ephemeral}} {{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you.{{/t}}{{/if}}
     </span>
 
   </div>

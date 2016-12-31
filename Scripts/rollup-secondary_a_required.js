@@ -2400,6 +2400,19 @@
       if (TS.model.user.is_ultra_restricted) return false;
       return _checkPrefCascade("who_can_create_groups", TS.model.user);
     },
+    canCreateMpims: function() {
+      if (TS.model.user.is_ultra_restricted) return false;
+      if (TS.boot_data.feature_mpim_restrictions && TS.model.team.prefs.who_can_create_mpdm === "off") return false;
+      return true;
+    },
+    canCreateAndDeleteUserGroups: function() {
+      if (TS.model.user.is_restricted) return false;
+      return _checkPrefCascade("who_can_create_delete_user_groups", TS.model.user, true);
+    },
+    canEditUserGroups: function() {
+      if (TS.model.user.is_restricted) return false;
+      return _checkPrefCascade("who_can_edit_user_groups", TS.model.user, true);
+    },
     canUserSeeMember: function(member) {
       if (!TS.model.user.is_restricted) {
         return true;
@@ -2409,6 +2422,35 @@
         return true;
       }
       return TS.members.getMembersForUser().indexOf(member) >= 0;
+    },
+    canKickFromChannels: function() {
+      if (TS.model.user.is_restricted) return false;
+      return _checkPrefCascade("who_can_kick_channels", TS.model.user, true);
+    },
+    canKickFromGroups: function() {
+      if (TS.model.user.is_restricted) return false;
+      return _checkPrefCascade("who_can_kick_groups", TS.model.user, true);
+    },
+    canCreateConvertSharedChannels: function() {
+      if (!TS.model.shared_channels_enabled) return false;
+      if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return true;
+      return TS.permissions.members.canManageSharedChannels();
+    },
+    canManageSharedChannels: function() {
+      if (!TS.model.team.prefs.who_can_manage_shared_channels) return true;
+      if (!TS.model.shared_channels_enabled) return false;
+      var user = TS.model.user;
+      if (user.is_restricted) return false;
+      if (TS.model.team.prefs.can_user_manage_shared_channels !== undefined) return TS.model.team.prefs.can_user_manage_shared_channels;
+      var type = TS.model.team.prefs.who_can_manage_shared_channels.type[0];
+      if (type === "regular") return true;
+      if (type === "admin") return user.is_admin || user.is_owner || !!(user.enterprise_user && (user.enterprise_user.is_admin || user.enterprise_user.is_owner));
+      if (type === "owner") {
+        if (user.enterprise_user && (user.enterprise_user.is_admin || user.enterprise_user.is_owner)) return true;
+        if (TS.model.team.prefs.who_can_manage_shared_channels.user && TS.model.team.prefs.who_can_manage_shared_channels.user.indexOf(TS.model.user.id) > -1) return true;
+        return false;
+      }
+      return false;
     },
     test: function() {
       var test_ob = {};
@@ -2423,7 +2465,8 @@
       return test_ob;
     }
   });
-  var _checkPrefCascade = function(pref_name, user) {
+  var _checkPrefCascade = function(pref_name, user, dflt) {
+    if (typeof dflt === "undefined") dflt = true;
     if (user.is_restricted) {
       return TS.model.team.prefs[pref_name] === "ra";
     }
@@ -2431,7 +2474,7 @@
     if (TS.model.team.prefs[pref_name] == "regular") return true;
     if (TS.model.team.prefs[pref_name] == "admin") return !!user.is_admin;
     if (TS.model.team.prefs[pref_name] == "owner") return !!user.is_owner;
-    return true;
+    return dflt;
   };
 })();
 (function() {
@@ -3891,7 +3934,7 @@
       TS.channels.list_fetched_sig.dispatch(data.channels);
     },
     kickMember: function(id, member_id) {
-      if (!TS.members.canUserKickFromChannels()) return;
+      if (!TS.permissions.members.canKickFromChannels()) return;
       var channel = TS.channels.getChannelById(id);
       if (!channel) return;
       return TS.shared.kickMember(channel, member_id);
@@ -5137,7 +5180,7 @@ TS.registerModule("constants", {
       return name;
     },
     kickMember: function(id, member_id) {
-      if (!TS.members.canUserKickFromGroups()) return;
+      if (!TS.permissions.members.canKickFromGroups()) return;
       var group = TS.groups.getGroupById(id);
       if (!group) return;
       return TS.shared.kickMember(group, member_id);
@@ -6081,7 +6124,7 @@ TS.registerModule("constants", {
           }
         } catch (err) {
           TS.log(93, "problem with file.preview id:" + file.id);
-          TS.log(93, "file.preview: " + file.preview);
+          if (TS.boot_data.feature_tinyspeck) TS.log(93, "(TS-ONLY log) file.preview: " + file.preview);
         }
         try {
           if (file.content_html) {
@@ -6090,7 +6133,7 @@ TS.registerModule("constants", {
           }
         } catch (err) {
           TS.log(93, "problem with file.content_html id:" + file.id);
-          TS.log(93, "file.content_html: " + file.content_html);
+          if (TS.boot_data.feature_tinyspeck) TS.log(93, "(TS-ONLY log) file.content_html: " + file.content_html);
         }
       }
       if (TS.boot_data.feature_files_list && file.mode === "post" && file.preview) {
@@ -8809,17 +8852,17 @@ TS.registerModule("constants", {
       var msgs = model_ob.msgs;
       var imsg;
       if (data.is_limited) {
-        if (TS.pri) TS.log(58, 'data.is_limited case: setting has_more = false, is_limited = true for "' + model_ob.id + '"', model_ob, data, args);
+        if (TS.pri) TS.log(58, 'data.is_limited case: setting has_more = false, is_limited = true for "' + model_ob.id + '"', args);
         data.has_more = false;
         model_ob.is_limited = true;
       }
       var needs_unread_recalc;
       if (!model_ob._history_fetched_since_last_connect) {
-        if (TS.pri) TS.log(58, 'first history fetch for "' + model_ob.id + '"', model_ob, data, args);
+        if (TS.pri) TS.log(58, 'first history fetch for "' + model_ob.id + '"', args);
         if (TS.client && TS.client.msg_pane) TS.client.msg_pane.maybeResetUnreadsCheck(model_ob);
         if (args.oldest) {
           if (!data.has_more) {
-            if (TS.pri) TS.log(58, 'first history fetch. has_more is false for "' + model_ob.id + '" - we should have all recent msgs. Setting _history_fetched_since_last_connect.', args, data, model_ob);
+            if (TS.pri) TS.log(58, 'first history fetch. has_more is false for "' + model_ob.id + '" - we should have all recent msgs. Setting _history_fetched_since_last_connect.', args);
             model_ob._history_fetched_since_last_connect = true;
             if (model_ob.history_is_being_fetched) {
               if (TS.pri) TS.log(58, 'Resetting history_is_being_fetched for "' + model_ob.id + '"');
@@ -8836,11 +8879,11 @@ TS.registerModule("constants", {
               count: TS.model.initial_msgs_cnt,
               inclusive: true
             };
-            if (TS.pri) TS.log(58, 'first history fetch. has_more is TRUE for "' + model_ob.id + '" - dumping history and fetching most recent ' + TS.model.initial_msgs_cnt + " msgs. prior history call data follows.", args, data, model_ob);
+            if (TS.pri) TS.log(58, 'first history fetch. has_more is TRUE for "' + model_ob.id + '" - dumping history and fetching most recent ' + TS.model.initial_msgs_cnt + " msgs. prior history call data follows.", args);
             return controller.fetchHistory(model_ob, api_args);
           }
         } else {
-          if (TS.pri) TS.log(58, 'first history fetch. no "oldest" param for "' + model_ob.id + '", marking _history_fetched_since_last_connect = true.', args, data, model_ob);
+          if (TS.pri) TS.log(58, 'first history fetch. no "oldest" param for "' + model_ob.id + '", marking _history_fetched_since_last_connect = true.', args);
           model_ob._history_fetched_since_last_connect = true;
           if (model_ob.history_is_being_fetched) {
             if (TS.pri) TS.log(58, 'Resetting history_is_being_fetched for "' + model_ob.id + '"');
@@ -8878,7 +8921,7 @@ TS.registerModule("constants", {
             new_msgs.push(TS.utility.msgs.processImsgFromHistory(item, model_ob.id));
             did_add_merged_messages = true;
           } else {
-            if (TS.pri) TS.log(58, "NOT merging message for " + model_ob.id + " because it already exists, or is temporary.", item);
+            if (TS.pri) TS.log(58, "NOT merging message for " + model_ob.id + " with ts = " + item.ts + " because it already exists, or is temporary.");
           }
         });
         model_ob._msgs_to_merge_on_history = null;
@@ -9385,9 +9428,9 @@ TS.registerModule("constants", {
       var is_kickable_model_ob = model_ob.is_channel || model_ob.is_group && !model_ob.is_mpim;
       if (!is_kickable_model_ob) return;
       if (model_ob.is_group) {
-        if (!TS.members.canUserKickFromGroups()) return;
+        if (!TS.permissions.members.canKickFromGroups()) return;
       } else {
-        if (!TS.members.canUserKickFromChannels()) return;
+        if (!TS.permissions.members.canKickFromChannels()) return;
       }
       var member = TS.members.getMemberById(member_id);
       if (!member) return;
@@ -9428,7 +9471,7 @@ TS.registerModule("constants", {
           }).catch(function(resp) {
             TS.info("Removing user failed; api=" + api_endpoint + "; error=" + resp.data.error);
             setTimeout(function() {
-              var account_type = member.is_ultra_restricted ? "Single-channel guests" : TS.templates.builders.raLabel("Restricted accounts");
+              var account_type = member.is_ultra_restricted ? TS.i18n.t("Single-channel guests", "shared")() : TS.i18n.t("Multi-channel guests", "shared")();
               if (resp.data.error == "cant_kick_from_last_channel" && TS.model.user.is_admin) {
                 TS.generic_dialog.start({
                   title: TS.i18n.t("Removing {member_display_name} failed", "shared")({
@@ -9678,24 +9721,24 @@ TS.registerModule("constants", {
       if (TS.pri) log_prefix = 'Defer case: First new message on "' + model_ob.id + '" - ';
       if (!msgs || !msgs.length) TS.warn("_addMsgsWorker(" + model_ob.id + "): WTF no msgs to add?");
       if (model_ob.history_is_being_fetched || !model_ob._history_fetched_since_last_connect) {
-        if (TS.pri) TS.log(58, log_prefix + "queueing msgs to merge on history fetch for " + model_ob.id, msgs);
+        if (TS.pri) TS.log(58, log_prefix + "queueing " + msgs.length + " msgs to merge on history fetch for " + model_ob.id);
         model_ob._msgs_to_merge_on_history = (model_ob._msgs_to_merge_on_history || []).concat(msgs);
       }
       if (model_ob.msgs.length) {
         if (model_ob.history_is_being_fetched) {
-          if (TS.pri) TS.log(58, log_prefix + "some history, history fetch is already underway - queueing " + msgs.length + " message(s) to be merged with history call, as they are unlikely to be in the history response.", msgs);
+          if (TS.pri) TS.log(58, log_prefix + "some history, history fetch is already underway - queueing " + msgs.length + " message(s) to be merged with history call, as they are unlikely to be in the history response.");
         } else if (!model_ob._history_fetched_since_last_connect) {
-          if (TS.pri) TS.log(58, log_prefix + "some history, have not fetched history since last reconnect - attaching new messages to model for merging when the history call returns.", msgs);
+          if (TS.pri) TS.log(58, log_prefix + "some history, have not fetched history since last reconnect - attaching " + msgs.length + " new messages to model for merging when the history call returns.");
           TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
         }
       } else {
         if (model_ob.history_is_being_fetched) {
-          if (TS.pri) TS.log(58, log_prefix + "no history in model, but history is already pending - queueing " + msgs.length + " message(s) for merging with history call", msgs);
+          if (TS.pri) TS.log(58, log_prefix + "no history in model, but history is already pending - queueing " + msgs.length + " message(s) for merging with history call");
         } else if (!model_ob._history_fetched_since_last_connect) {
-          if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call", msgs);
+          if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call");
           TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
         } else {
-          if (TS.pri) TS.log(58, log_prefix + "Edge case - new message(s) to add, but no history and we have called history, too?", msgs);
+          if (TS.pri) TS.log(58, log_prefix + "Edge case - " + msgs.length + " new message(s) to add, but no history and we have called history, too?");
         }
       }
     }
@@ -9708,7 +9751,7 @@ TS.registerModule("constants", {
       if (TS.pri) TS.log(58, "No messages to add to " + model_ob.id + " - exiting.");
       return false;
     }
-    if (TS.pri) TS.log(58, "Adding " + (msgs.length > 1 ? "messages" : "message") + " to " + model_ob.id, msgs);
+    if (TS.pri) TS.log(58, "Adding " + (msgs.length > 1 ? "messages" : "message") + " to " + model_ob.id);
     msgs.forEach(function(msg) {
       if (TS.utility.msgs.validateMsg(model_ob.id, msg, model_ob.msgs)) {
         added_any = true;
@@ -10280,70 +10323,8 @@ TS.registerModule("constants", {
       _active_local_members_with_slackbot_and_not_self.length = 0;
       _active_local_members_with_self_and_slackbot.length = 0;
     },
-    canUserCreateSharedChannels: function() {
-      var is_enabled = TS.model.shared_channels_enabled;
-      if (!is_enabled) return false;
-      if (TS.model.user.is_restricted) return false;
-      if (TS.model.team.prefs.who_can_create_shared_channels == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_create_shared_channels == "owner") return !!TS.model.user.is_owner;
-      return false;
-    },
-    canUserCreateConvertSharedChannels: function() {
-      if (!TS.model.shared_channels_enabled) return false;
-      if (TS.model.user.enterprise_user && TS.model.user.enterprise_user.is_owner) return true;
-      return TS.members.canUserManageSharedChannels();
-    },
-    canUserManageSharedChannels: function() {
-      if (!TS.model.team.prefs.who_can_manage_shared_channels) return true;
-      if (!TS.model.shared_channels_enabled) return false;
-      var user = TS.model.user;
-      if (user.is_restricted) return false;
-      if (TS.model.team.prefs.can_user_manage_shared_channels !== undefined) return TS.model.team.prefs.can_user_manage_shared_channels;
-      var type = TS.model.team.prefs.who_can_manage_shared_channels.type[0];
-      if (type === "regular") return true;
-      if (type === "admin") return user.is_admin || user.is_owner || user.enterprise_user && (user.enterprise_user.is_admin || user.enterprise_user.is_owner);
-      if (type === "owner") {
-        if (user.enterprise_user && (user.enterprise_user.is_admin || user.enterprise_user.is_owner)) return true;
-        if (TS.model.team.prefs.who_can_manage_shared_channels.user && TS.model.team.prefs.who_can_manage_shared_channels.user.indexOf(TS.model.user.id) > -1) return true;
-        return false;
-      }
-      return false;
-    },
-    canUserCreateMpims: function() {
-      if (TS.model.user.is_ultra_restricted) return false;
-      if (TS.boot_data.feature_mpim_restrictions && TS.model.team.prefs.who_can_create_mpdm === "off") return false;
-      return true;
-    },
-    canUserCreateAndDeleteUserGroups: function() {
-      if (TS.model.user.is_restricted) return false;
-      if (TS.model.team.prefs.who_can_create_delete_user_groups == "regular") return true;
-      if (TS.model.team.prefs.who_can_create_delete_user_groups == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_create_delete_user_groups == "owner") return !!TS.model.user.is_owner;
-      return true;
-    },
-    canUserEditUserGroups: function() {
-      if (TS.model.user.is_restricted) return false;
-      if (TS.model.team.prefs.who_can_edit_user_groups == "regular") return true;
-      if (TS.model.team.prefs.who_can_edit_user_groups == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_edit_user_groups == "owner") return !!TS.model.user.is_owner;
-      return true;
-    },
     canUserPostInGeneral: function() {
       return TS.permissions.members.canPostInGeneral(TS.model.user);
-    },
-    canUserKickFromChannels: function() {
-      if (TS.model.user.is_restricted) return false;
-      if (TS.model.team.prefs.who_can_kick_channels == "regular") return true;
-      if (TS.model.team.prefs.who_can_kick_channels == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_kick_channels == "owner") return !!TS.model.user.is_owner;
-      return true;
-    },
-    canUserKickFromGroups: function() {
-      if (TS.model.user.is_restricted) return false;
-      if (TS.model.team.prefs.who_can_kick_groups == "regular") return true;
-      if (TS.model.team.prefs.who_can_kick_groups == "admin") return !!TS.model.user.is_admin;
-      if (TS.model.team.prefs.who_can_kick_groups == "owner") return !!TS.model.user.is_owner;
-      return true;
     },
     memberSorterByActive: function(a, b) {
       if (a.presence != b.presence) {
@@ -11595,7 +11576,7 @@ TS.registerModule("constants", {
         var model_ob = TS.shared.getActiveModelOb();
         if (TS.model.active_channel_id || TS.model.active_group_id) {
           if (!model_ob.is_general && model_ob.members && model_ob.members.indexOf(app.bot_user.id) != -1) {
-            if (model_ob.is_group && TS.members.canUserKickFromGroups() || model_ob.is_channel && TS.members.canUserKickFromChannels()) {
+            if (model_ob.is_group && TS.permissions.members.canKickFromGroups() || model_ob.is_channel && TS.permissions.members.canKickFromChannels()) {
               template_args.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + model_ob.name;
             }
           }
@@ -11879,7 +11860,7 @@ TS.registerModule("constants", {
       var args = _getFilterArgumentsByScrollerId(scroller_id);
       if (full_profile_filter || args && args.full_profile_filter) {
         return TS.team.ensureTeamProfileFields().then(function() {
-          if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view || TS.useSearchableMemberList() && TS.client) {
+          if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
             return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
           } else {
             _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
@@ -11958,9 +11939,6 @@ TS.registerModule("constants", {
     },
     getHeaderLabelForMatchKey: function(key) {
       return _getHeaderLabelForMatchKey(key);
-    },
-    promiseToFilterTeam: function() {
-      return _promiseToFilterTeam.apply(this, arguments);
     }
   });
   var _query_for_match = "";
@@ -12045,7 +12023,7 @@ TS.registerModule("constants", {
       $("#deleted_members_list").off("scroll.filter").scrollTop(0);
     }
   };
-  var _promiseToFilterTeam = function(raw_query, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted, just_return) {
+  var _promiseToFilterTeam = function(raw_query, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
     var query_for_display = raw_query.trim();
     _query_for_match = query_for_display.toLocaleLowerCase();
     TS.storage.storeFilterState(_query_for_match);
@@ -12061,7 +12039,6 @@ TS.registerModule("constants", {
         return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
       }).then(function(response) {
         _stopSpinner(filter_container_id);
-        if (just_return) return response;
         return _displayPromiseToSearchResults(response, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
       }).finally(function() {
         TS.utility.rAF(function() {
@@ -12102,9 +12079,6 @@ TS.registerModule("constants", {
       matches.ultra_restricted_members = _.uniqBy(matches.ultra_restricted_members, function(member) {
         return member.id;
       });
-      if (TS.useSearchableMemberList()) {
-        matches.admin_members = _.filter(matches.members, "is_admin");
-      }
       if (new_query) {
         filters.filtered_items = matches;
       } else {
@@ -12797,6 +12771,7 @@ TS.registerModule("constants", {
     hotness_changed_sig: new signals.Signal,
     frecency_jumper_changed_sig: new signals.Signal,
     jumbomoji_changed_sig: new signals.Signal,
+    hide_hex_swatch_changed_sig: new signals.Signal,
     attachments_with_borders_changed_sig: new signals.Signal,
     channel_sort_changed_sig: new signals.Signal,
     show_memory_instrument_changed_sig: new signals.Signal,
@@ -13493,6 +13468,12 @@ TS.registerModule("constants", {
           if (TS.model.prefs.jumbomoji != imsg.value) {
             TS.model.prefs.jumbomoji = imsg.value;
             TS.prefs.jumbomoji_changed_sig.dispatch();
+          }
+          break;
+        case "hide_hex_swatch":
+          if (TS.model.prefs.hide_hex_swatch != imsg.value) {
+            TS.model.prefs.hide_hex_swatch = imsg.value;
+            TS.prefs.hide_hex_swatch_changed_sig.dispatch();
           }
           break;
         case "a11y_font_size":
@@ -19672,8 +19653,8 @@ TS.registerModule("constants", {
       });
       show_user_groups_help = !user_groups.length;
       var $team_tabs = $("#team_tabs");
-      var show_user_groups_edit = TS.members.canUserEditUserGroups();
-      var show_user_groups_add = TS.members.canUserCreateAndDeleteUserGroups();
+      var show_user_groups_edit = TS.permissions.members.canEditUserGroups();
+      var show_user_groups_add = TS.permissions.members.canCreateAndDeleteUserGroups();
       $team_tabs.html(TS.templates.user_group_tabs({
         show_members: !!members.length,
         members: is_lazy ? [] : members,
@@ -19700,8 +19681,8 @@ TS.registerModule("constants", {
         var $team_block = $("#team_block");
         $team_tabs.find("li a").on("click", function() {
           var action = $(this).data("action");
-          var show_user_groups_edit = TS.members.canUserEditUserGroups();
-          var show_user_groups_add = TS.members.canUserCreateAndDeleteUserGroups();
+          var show_user_groups_edit = TS.permissions.members.canEditUserGroups();
+          var show_user_groups_add = TS.permissions.members.canCreateAndDeleteUserGroups();
           $team_tab_actions.addClass("hidden");
           if (action === "user_group_edit") {
             if (!show_user_groups_edit && !show_user_groups_add) return;
@@ -19757,7 +19738,7 @@ TS.registerModule("constants", {
       var user_groups = [];
       var disabled_user_groups = [];
       var show_delete = TS.boot_data.feature_subteams_hard_delete;
-      var show_toggle = TS.members.canUserCreateAndDeleteUserGroups();
+      var show_toggle = TS.permissions.members.canCreateAndDeleteUserGroups();
       for (var i = 0; i < all_user_groups.length; i++) {
         user_group = all_user_groups[i];
         if (user_group.date_delete) {
@@ -21901,12 +21882,6 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("stripWhitespace", function(str) {
         return str.replace(/\s+/g, "");
       });
-      Handlebars.registerHelper("pluralize", function(number, singular, plural) {
-        return TS.utility.pluralize(number, singular, plural);
-      });
-      Handlebars.registerHelper("pluralCount", function(number, singular, plural) {
-        return number + " " + Handlebars.helpers.pluralize.apply(this, arguments);
-      });
       Handlebars.registerHelper("cash", function(options) {
         var all_digits = options.hash.all_digits || false;
         var neg = false;
@@ -21971,14 +21946,14 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("canUserCreateGroups", function(options) {
         return TS.permissions.members.canCreateGroups() ? options.fn(this) : options.inverse(this);
       });
-      Handlebars.registerHelper("canUserCreateMpims", function(options) {
-        return TS.members.canUserCreateMpims() ? options.fn(this) : options.inverse(this);
+      Handlebars.registerHelper("canCreateMpims", function(options) {
+        return TS.permissions.members.canCreateMpims() ? options.fn(this) : options.inverse(this);
       });
-      Handlebars.registerHelper("canUserKickFromChannels", function(options) {
-        return TS.members.canUserKickFromChannels() ? options.fn(this) : options.inverse(this);
+      Handlebars.registerHelper("canKickFromChannels", function(options) {
+        return TS.permissions.members.canKickFromChannels() ? options.fn(this) : options.inverse(this);
       });
-      Handlebars.registerHelper("canUserKickFromGroups", function(options) {
-        return TS.members.canUserKickFromGroups() ? options.fn(this) : options.inverse(this);
+      Handlebars.registerHelper("canKickFromGroups", function(options) {
+        return TS.permissions.members.canKickFromGroups() ? options.fn(this) : options.inverse(this);
       });
       Handlebars.registerHelper("numberWithMax", function(number, max) {
         if (number >= max) {
@@ -25362,7 +25337,7 @@ TS.registerModule("constants", {
       if (model_ob._fetched_user_data_from_ls) return;
       if (!model_ob.last_msg_input) {
         model_ob.last_msg_input = TS.storage.fetchLastMsgInput(model_ob.id);
-        if (model_ob.last_msg_input && TS.pri) TS.log(667, 'Got last_msg_input for "' + model_ob.id + '": ' + model_ob.last_msg_input);
+        if (model_ob.last_msg_input && TS.pri) TS.log(667, 'Got last_msg_input for "' + model_ob.id + '": length = ' + (model_ob.last_msg_input.length || "unknown"));
       }
       model_ob._fetched_user_data_from_ls = true;
     },
@@ -26260,6 +26235,8 @@ TS.registerModule("constants", {
       TS.utility.makeRefererSafeLink = _.memoize(TS.utility.makeRefererSafeLink);
       if (TS.ms) TS.ms.connected_sig.add(TS.utility.resetRefererSafeLinkCache);
       if (TS.prefs && TS.prefs.team_hide_referers_changed_sig) TS.prefs.team_hide_referers_changed_sig.add(TS.utility.resetRefererSafeLinkCache);
+      _me_en = TS.i18n.t("me", "utility")();
+      _you_en = TS.i18n.t("you", "utility")();
     },
     keymap: {
       alt: 18,
@@ -27325,7 +27302,7 @@ TS.registerModule("constants", {
           $("body").addClass("hidden");
           doc.location = url;
         } else {
-          TS.generic_dialog.alert("You can't perform that action because you are not online :(");
+          TS.generic_dialog.alert(TS.i18n.t("You can’t perform that action because you are not online :(", "utility")());
         }
       });
     },
@@ -27778,13 +27755,6 @@ TS.registerModule("constants", {
       $el.attr("disabled", disabled);
       $el.attr("aria-disabled", disabled);
     },
-    pluralize: function(number, singular, plural) {
-      number = parseInt(number);
-      if (number === 1) {
-        return singular;
-      }
-      return typeof plural === "string" ? plural : singular + "s";
-    },
     strToApparentlyRndPerc: function(str) {
       return parseFloat("." + TS.utility.strToApparentlyRndNum(str));
     },
@@ -27829,7 +27799,10 @@ TS.registerModule("constants", {
     },
     queryIsMaybeSelf: function(query) {
       query = _.toLower(query);
-      return query === "me" || query === "you";
+      if (query === "me" || query === "you" || query === _me_en || query === _you_en) {
+        return true;
+      }
+      return false;
     },
     test: {
       clearAndGetRefererPolicy: function() {
@@ -27847,27 +27820,33 @@ TS.registerModule("constants", {
   var _parser;
   var _double_check_ids_channel_rx = /(?:"|<#)([CGD][0-9a-zA-Z]{8,10})(?:"|\||\>)/g;
   var _double_check_ids_member_rx = /(?:"|<@)([WU][0-9a-zA-Z]{8,10})(?:"|\||\>)/g;
+  var _me_en;
+  var _you_en;
   var _spaceUnsafeLinkDialog = function(originalUrl, actionUrl, safeUrl) {
     var title = "",
       body = "";
     title += '<ts-icon class="ts_icon_warning yolk_orange small_right_margin"></ts-icon> ';
-    title += "Caution: Tricky Link";
+    title += TS.i18n.t("Caution: Tricky Link", "utility")();
     body += "<p>";
-    body += '  <span class="inline_block">The link you clicked (<strong>' + TS.utility.htmlEntities(safeUrl) + "</strong>) is tricky.</span>";
-    body += '  <span class="inline_block">It has been formatted to look like another web address (<strong>' + TS.utility.htmlEntities(originalUrl) + "</strong>).</span>";
+    body += '  <span class="inline_block">' + TS.i18n.t("The link you clicked (<strong>{url}</strong>) is tricky.", "utility")({
+      url: TS.utility.htmlEntities(safeUrl)
+    }) + "</span>";
+    body += '  <span class="inline_block">' + TS.i18n.t("It has been formatted to look like another web address (<strong>{url}</strong>).", "utility")({
+      url: TS.utility.htmlEntities(originalUrl)
+    }) + "</span>";
     body += "</p>";
-    body += "<p>Are you sure you want to follow it?</p>";
+    body += "<p>" + TS.i18n.t("Are you sure you want to follow it?", "utility")() + "</p>";
     TS.generic_dialog.start({
       title: title,
       body: body,
       show_cancel_button: false,
       show_secondary_go_button: true,
-      secondary_go_button_text: "Let’s risk it",
+      secondary_go_button_text: TS.i18n.t("Let’s risk it", "utility")(),
       secondary_go_button_class: "btn_outline",
       onSecondaryGo: function() {
         window.open(actionUrl);
       },
-      go_button_text: "Take me back to safety",
+      go_button_text: TS.i18n.t("Take me back to safety", "utility")(),
       esc_for_ok: true,
       enter_always_gos: true
     });
@@ -28676,6 +28655,9 @@ TS.registerModule("constants", {
     if (for_edit) no_specials = true;
     var no_emoji = msg && msg.no_emoji;
     var no_hex_colors = !(do_inline_imgs && (!msg || msg.subtype != "bot_message"));
+    if (no_hex_colors !== true) {
+      no_hex_colors = !!TS.model.prefs.hide_hex_swatch;
+    }
     var do_theme_install_buttons = !no_hex_colors && TS.client && TS.model.team;
     var tsf_mode = "NORMAL";
     if (no_specials) tsf_mode = "NOMRKDWN";
@@ -31421,12 +31403,12 @@ TS.registerModule("constants", {
       TS.menu.clean();
       TS.menu.user_group = TS.user_groups.getUserGroupsById(user_group_id);
       TS.menu.$menu.addClass("no_min_width");
-      var show_user_groups_disable = TS.members.canUserCreateAndDeleteUserGroups() && !TS.menu.user_group.date_delete;
-      var show_user_groups_enable = TS.members.canUserCreateAndDeleteUserGroups() && TS.menu.user_group.date_delete;
+      var show_user_groups_disable = TS.permissions.members.canCreateAndDeleteUserGroups() && !TS.menu.user_group.date_delete;
+      var show_user_groups_enable = TS.permissions.members.canCreateAndDeleteUserGroups() && TS.menu.user_group.date_delete;
       var show_user_group_delete = TS.boot_data.feature_subteams_hard_delete && !TS.menu.user_group.auto_type && !TS.menu.user_group.is_external;
       TS.menu.$menu_header.addClass("hidden").empty();
       TS.menu.$menu_items.html(TS.templates.user_group_items({
-        show_user_groups_edit: TS.members.canUserEditUserGroups(),
+        show_user_groups_edit: TS.permissions.members.canEditUserGroups(),
         show_user_groups_disable: show_user_groups_disable,
         show_user_groups_enable: show_user_groups_enable,
         show_user_group_delete: show_user_group_delete
@@ -32142,7 +32124,7 @@ var _on_esc;
       if (TS.boot_data.page_needs_enterprise && channel.is_shared) {
         if (TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
         if (template_args.show_advanced_item) {
-          if (!TS.members.canUserManageSharedChannels()) template_args.show_advanced_item = false;
+          if (!TS.permissions.members.canManageSharedChannels()) template_args.show_advanced_item = false;
         }
         template_args.is_not_allowed_integrations = true;
       }
@@ -33363,7 +33345,7 @@ var _on_esc;
       if (TS.boot_data.page_needs_enterprise && group.is_shared) {
         if (TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
         if (group.creator !== TS.model.user.id) template_args.show_advanced_item = false;
-        if (TS.members.canUserManageSharedChannels()) template_args.show_advanced_item = true;
+        if (TS.permissions.members.canManageSharedChannels()) template_args.show_advanced_item = true;
         template_args.is_not_allowed_integrations = true;
       }
       TS.menu.$menu_items.html(TS.templates.menu_group_items(template_args));
@@ -33520,7 +33502,7 @@ var _on_esc;
       if (TS.model.active_channel_id || TS.model.active_group_id) {
         if ((!model_ob.is_general || member.is_restricted) && member_id != TS.model.user.id && model_ob.members && model_ob.members.indexOf(member_id) != -1) {
           if (!member.is_ultra_restricted) {
-            if (model_ob.is_group && TS.members.canUserKickFromGroups() || model_ob.is_channel && TS.members.canUserKickFromChannels()) {
+            if (model_ob.is_group && TS.permissions.members.canKickFromGroups() || model_ob.is_channel && TS.permissions.members.canKickFromChannels()) {
               template_args.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + model_ob.name;
             }
           }
@@ -33846,7 +33828,7 @@ var _on_esc;
         mpim: mpim,
         user: TS.model.user,
         show_email_item: show_email_item,
-        show_mpim_create: TS.members.canUserCreateMpims(),
+        show_mpim_create: TS.permissions.members.canCreateMpims(),
         show_mpim_convert: TS.permissions.members.canCreateGroups()
       };
       TS.menu.$menu_header.addClass("hidden").empty();
@@ -33967,8 +33949,8 @@ var _on_esc;
           if (TS.model.active_mpim_id) continue;
         } else if (name == "/kick" || name == "/remove") {
           if (model_ob.is_archived) continue;
-          if (TS.model.active_group_id && !TS.members.canUserKickFromGroups()) continue;
-          if (TS.model.active_channel_id && !TS.members.canUserKickFromChannels()) continue;
+          if (TS.model.active_group_id && !TS.permissions.members.canKickFromGroups()) continue;
+          if (TS.model.active_channel_id && !TS.permissions.members.canKickFromChannels()) continue;
           if (TS.model.active_im_id) continue;
           if (TS.model.active_mpim_id) continue;
         } else if (name == "/join") {
@@ -35197,11 +35179,11 @@ var _on_esc;
         optional: false
       }],
       func: function(cmd, rest, words, e, in_reply_to_msg) {
-        if (TS.model.active_channel_id && !TS.members.canUserKickFromChannels()) {
+        if (TS.model.active_channel_id && !TS.permissions.members.canKickFromChannels()) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Removing from channels is a restricted action.", "cmd_handlers")(), "", "sad_surprise");
           return;
         }
-        if (TS.model.active_group_id && !TS.members.canUserKickFromGroups()) {
+        if (TS.model.active_group_id && !TS.permissions.members.canKickFromGroups()) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Removing from private channels is a restricted action.", "cmd_handlers")(), "", "sad_surprise");
           return;
         }
@@ -49475,7 +49457,7 @@ $.fn.togglify = function(settings) {
     }
   };
   var _start = function() {
-    var show_create_shared_channel_btn = TS.members.canUserCreateConvertSharedChannels();
+    var show_create_shared_channel_btn = TS.permissions.members.canCreateConvertSharedChannels();
     var settings = {
       body_template_html: TS.templates.shared_channels_invites_modal({
         show_create_shared_channel_btn: show_create_shared_channel_btn
@@ -50188,7 +50170,7 @@ $.fn.togglify = function(settings) {
   var _start = function() {
     var body_template_html = TS.templates.user_group_modal({
       show_info_pane: !TS.model.prefs.hide_user_group_info_pane,
-      show_user_groups_add: TS.members.canUserCreateAndDeleteUserGroups()
+      show_user_groups_add: TS.permissions.members.canCreateAndDeleteUserGroups()
     });
     var settings = {
       body_template_html: body_template_html,

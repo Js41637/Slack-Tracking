@@ -4868,6 +4868,7 @@
       }
       TS.prefs.separate_private_channels_changed_sig.add(_separatePrivateChannelsChanged);
       TS.prefs.team_display_email_addresses_changed_sig.add(TS.view.prefs.farReachingDisplayPrefChanged, TS.view.prefs);
+      TS.prefs.hide_hex_swatch_changed_sig.add(TS.view.prefs.hideHexSwatchPrefChanged, TS.view.prefs);
     },
     toggleSpellcheck: function() {
       $("textarea").attr("autocorrect", "off");
@@ -4937,6 +4938,13 @@
       TS.client.channel_pane.rebuild("ims", "starred");
       if (TS.model.previewed_file_id) TS.client.ui.files.rebuildFilePreview(TS.files.getFileById(TS.model.previewed_file_id));
     },
+    hideHexSwatchPrefChanged: function() {
+      TS.client.msg_pane.rebuildMsgs();
+      TS.search.view.renderResults();
+      TS.view.rebuildMentions();
+      TS.view.rebuildStars();
+      if (TS.model.previewed_file_id) TS.client.ui.files.rebuildFilePreview(TS.files.getFileById(TS.model.previewed_file_id));
+    },
     sidebarThemePrefChanged: function(remove_last_theme_selected) {
       remove_last_theme_selected = remove_last_theme_selected !== false;
       if (TS.model.prefs.sidebar_theme) {
@@ -5002,8 +5010,8 @@
     },
     userGroupPrefUpdated: function() {
       var $user_group_edit_tab = $("#user_group_edit.tab_action");
-      var show_user_groups_edit = TS.members.canUserEditUserGroups();
-      var show_user_groups_add = TS.members.canUserCreateAndDeleteUserGroups();
+      var show_user_groups_edit = TS.permissions.members.canEditUserGroups();
+      var show_user_groups_add = TS.permissions.members.canCreateAndDeleteUserGroups();
       $('[data-action="admin_user_groups_modal"]').toggleClass("hidden", show_user_groups_edit);
       $('[data-action="admin_user_groups_modal_new"]').toggleClass("hidden", show_user_groups_add);
       $user_group_edit_tab.toggleClass("hidden", !(show_user_groups_edit || show_user_groups_add));
@@ -7217,7 +7225,7 @@
           }
           channels = channels.concat(groups);
           var is_user_group_deleted = user_group.date_delete === -1;
-          var show_user_groups_edit = TS.members.canUserEditUserGroups() || TS.members.canUserCreateAndDeleteUserGroups();
+          var show_user_groups_edit = TS.permissions.members.canEditUserGroups() || TS.permissions.members.canCreateAndDeleteUserGroups();
           var html = TS.templates.user_group_preview({
             user_group: user_group,
             members: members,
@@ -9653,8 +9661,8 @@
   var _renderUserGroupContainer = function() {
     $_container = $("#user_groups_container");
     $_container.html(TS.templates.user_groups_flexpane_tab({
-      can_user_edit_user_groups: TS.members.canUserEditUserGroups(),
-      can_user_create_and_delete_user_groups: TS.members.canUserCreateAndDeleteUserGroups()
+      can_user_edit_user_groups: TS.permissions.members.canEditUserGroups(),
+      can_user_create_and_delete_user_groups: TS.permissions.members.canCreateAndDeleteUserGroups()
     }));
     _addEventListeners();
   };
@@ -19958,8 +19966,10 @@
       }
       hist.unshift(txt);
       TS.storage.storeInputHistory(hist);
-      TS.log(23, txt);
-      TS.dir(23, hist);
+      if (TS.boot_data.feature_tinyspeck) {
+        TS.log(23, "(TS-ONLY log)", txt);
+        TS.dir(23, "(TS-ONLY log)", hist);
+      }
     },
     resetPosition: function(why) {
       TS.model.input_history_index = -1;
@@ -24053,14 +24063,14 @@
     if (!model_ob.is_general) {
       var do_check = true;
       if (TS.boot_data.page_needs_enterprise && model_ob.is_shared) {
-        if (!TS.members.canUserManageSharedChannels() && !TS.model.user.enterprise_user.is_owner) {
+        if (!TS.permissions.members.canManageSharedChannels() && !TS.model.user.enterprise_user.is_owner) {
           do_check = false;
         }
       }
       if (do_check) show_archive_btn = c_or_g === "channel" && TS.permissions.members.canArchiveChannels() || c_or_g === "group" && TS.permissions.members.canArchiveChannels() && !TS.model.user.is_restricted;
     }
     var show_rename_btn = false;
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.members.canUserManageSharedChannels()) {
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.permissions.members.canManageSharedChannels()) {
       show_rename_btn = true;
     } else {
       if (TS.model.user.is_admin || model_ob.creator === TS.model.user.id) show_rename_btn = true;
@@ -24070,12 +24080,12 @@
     var show_data_retention_link = false;
     if (TS.model.team.plan !== "" && (TS.model.user.is_owner || c_or_g === "group") && TS.model.team.prefs.allow_retention_override) show_data_retention_link = true;
     var show_manage_posting_privilege_btn = false;
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.members.canUserManageSharedChannels()) {
+    if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && TS.permissions.members.canManageSharedChannels()) {
       show_manage_posting_privilege_btn = true;
     }
     var show_convert_to_shared_btn = false;
     if (TS.boot_data.page_needs_enterprise && !model_ob.is_shared && (TS.boot_data.feature_allow_shared_general || !model_ob.is_general)) {
-      if (TS.members.canUserCreateConvertSharedChannels()) show_convert_to_shared_btn = true;
+      if (TS.permissions.members.canCreateConvertSharedChannels()) show_convert_to_shared_btn = true;
     }
     var template_args = {
       c_or_g: c_or_g,
@@ -29557,7 +29567,7 @@
       });
       return;
     }
-    if (!TS.members.canUserCreateMpims()) return;
+    if (!TS.permissions.members.canCreateMpims()) return;
     _ladda.start();
     TS.mpims.startMpimWithMembers(_selected_members, function(ok, data) {
       if (_ladda) _ladda.stop();
@@ -29579,7 +29589,7 @@
   };
   var _selectRow = function($row) {
     if (_selected_members.length === _MAX) return;
-    if (!TS.members.canUserCreateMpims()) return _openIm($row);
+    if (!TS.permissions.members.canCreateMpims()) return _openIm($row);
     var row_id = $row.data("row_id");
     if (TS.boot_data.feature_frecency_im_browser && _filter_last_query) {
       TS.ui.frecency.record({
@@ -30965,6 +30975,16 @@
         value: !!$(this).prop("checked")
       });
     });
+    if (TS.boot_data.feature_hex_swatch_pref) {
+      $("#hide_hex_swatch_cb").prop("checked", TS.model.prefs.hide_hex_swatch === false);
+      $("#hide_hex_swatch_cb").on("change", function() {
+        var checked = !!$(this).prop("checked");
+        TS.prefs.setPrefByAPI({
+          name: "hide_hex_swatch",
+          value: !checked
+        });
+      });
+    }
     $("#load_lato_2_cb").prop("checked", TS.model.prefs.load_lato_2 === true);
     $("#load_lato_2_cb").on("change", function() {
       var val = !!$(this).prop("checked");

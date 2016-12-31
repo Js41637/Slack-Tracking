@@ -5,7 +5,7 @@
     {{#if success_invites}}
       {{#t}}That was only a partial success.{{/t}}
     {{else}}
-      {{#t}}That didn't work!{{/t}}
+      {{#t}}That didn\u2019t work!{{/t}}
     {{/if}}
   {{else}}
     {{#if_gt success_invites.length compare=1}}
@@ -19,12 +19,12 @@
 <p class="align_center large_bottom_margin">
   {{#if error_invites}}
     {{#if success_invites}}
-      {{#t success=(dangerouslyRenderHTML success_invites_html) invitations=(pluralize error_invites.length 'invitation' 'invitations')}}You've invited {success_invites_html}, but <span class="bold">{error_invites.length} {invitations} didn't send</span>. Review the errors below.{{/t}}
+      {{#t success=(dangerouslyRenderHTML success_invites_html)}}You\u2019ve invited {success}, but <span class="bold">{error_invites.length, plural, =1 {# invitation} other {# invitations}} didn\u2019t send</span>. Review the errors below.{{/t}}
     {{else}}
-      {{#t invitations=(pluralize error_invites.length 'invitation' 'invitations')}}<span class="bold">{error_invites.length} {invitations} didn't send</span>. Review the errors below.{{/t}}
+      {{#t}}<span class="bold">{error_invites.length, plural, =1 {# invitation} other {# invitations}} didn\u2019t send</span>. Review the errors below.{{/t}}
     {{/if}}
   {{else}}
-    {{#t success=(dangerouslyRenderHTML success_invites_html)}}You've invited {success} to {team_name}.{{/t}}
+    {{#t success=(dangerouslyRenderHTML success_invites_html)}}You\u2019ve invited {success} to {team_name}.{{/t}}
   {{/if}}
 </p>
 

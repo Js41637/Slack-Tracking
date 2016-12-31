@@ -6,11 +6,11 @@
 
     <div class="account_type">
         <div class="restricted_account_icon"></div>
-        <h3 class="no_bottom_margin">{{raLabel 'Restricted Accounts'}}</h3>
+        <h3 class="no_bottom_margin">{{#t}}Multi-Channel Guests{{/t}}</h3>
         <p class="no_bottom_margin">{{#t}}Can only access channels that they are invited to join.{{/t}}</p>
         {{#if paid_team}}
             <p>
-                <a data-action="admin_invites_modal" data-account-type="restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t raLabel=(raLabel 'restricted accounts')}}Invite new {raLabel}{{/t}}</a>
+                <a data-action="admin_invites_modal" data-account-type="restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t}}Invite new multi-channel guests{{/t}}</a>
             </p>
         {{/if}}
     </div>
