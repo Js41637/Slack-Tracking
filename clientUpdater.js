@@ -6,7 +6,7 @@ const asar = require('asar')
 const { find } = require('lodash')
 const rf = require('rimraf')
 
-const releaseURL = 'https://downloads.slack-edge.com/releases'
+const releaseURL = 'https://slack-ssb-updates.global.ssl.fastly.net/releases_beta_x64'
 
 function downloadClient(release) {
   return new Promise((resolve, reject) => {
