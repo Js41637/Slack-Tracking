@@ -225,7 +225,10 @@ function startTheMagic() {
     .then(lintCode)
     .then(() => pushToGit())
     .then(console.log)
-    .catch(err => console.error("Error while doing stuff", err))
+    .catch(err => {
+      console.error("Error while doing stuff", err)
+      exec(`git reset --hard`, () => process.exit())
+    })
 }
 
 // Create directories if they don't exist
@@ -248,7 +251,9 @@ console.log("Starting up")
 
 // Init
 checkDirectories()
-startTheMagic()
+if (!config.onlyClient) {
+  startTheMagic()
+}
 if (config.updateClient) {
   checkClientVersion()
 }
