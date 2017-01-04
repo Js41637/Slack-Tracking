@@ -216,7 +216,7 @@
         }, byte_counting_duration);
       }
       TS.console.onStart();
-      _setClientLoadWatchdogTimer();
+      if (TS.client) TS.client.setClientLoadWatchdogTimer();
       _configureBluebirdBeforeFirstUse(boot_data);
       TS.model.api_url = TS.boot_data.api_url;
       TS.model.async_api_url = TS.boot_data.async_api_url;
@@ -462,8 +462,7 @@
     },
     test: function() {
       return {
-        _onTemplatesLoaded: _onTemplatesLoaded,
-        _initialDataFetchesComplete: _initialDataFetchesComplete,
+        _registerDelayedComponentsAndModules: _registerDelayedComponentsAndModules,
         _maybeOpenTokenlessConnection: _maybeOpenTokenlessConnection,
         _shouldConnectToMS: _shouldConnectToMS,
         _getMSLoginArgs: _getMSLoginArgs,
@@ -652,6 +651,7 @@
     }
     TS.ms.logConnectionFlow("login");
     TS.model.rtm_start_throttler++;
+    TS.info("Setting calling_rtm_start to true");
     TS.model.calling_rtm_start = true;
     if (TS.lazyLoadMembersAndBots()) {
       if (!_ms_rtm_start_p) {
@@ -672,10 +672,12 @@
         };
       }).finally(function() {
         TS.model.calling_rtm_start = false;
+        TS.info("Setting calling_rtm_start to false (after rtm.start from Flannel)");
       });
     }
     return TS.api.callImmediately("rtm.start", _getMSLoginArgs()).finally(function() {
       TS.model.calling_rtm_start = false;
+      TS.info("Setting calling_rtm_start to false (after rtm.start from API)");
     });
   };
   var _maybeDeferArchivedObjects = function(resp) {
@@ -778,7 +780,7 @@
   };
   var _ensureInitialChannelIsKnown = function() {
     if (!TS.client) return;
-    if (TS._incremental_boot) {
+    if (TS.model.initial_cid) {
       return;
     }
     TS.client.calculateInitialCid();
@@ -825,8 +827,6 @@
       } else {
         $("#col_channels, #team_menu").removeClass("placeholder");
       }
-      _reportLoadTiming("timing-www-perceived-load");
-      TSSSB.call("didFinishLoading");
     }
     if (TS.web) {
       TS.web.onFirstLoginMS(rtm_start_data);
@@ -912,6 +912,13 @@
     if (TS.client) {
       TSSSB.call("didStartLoading", 6e4);
     }
+    _registerDelayedComponentsAndModules();
+    if (_shouldConnectToMS()) {
+      TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
+      TS.ms.disconnected_sig.add(_socketDisconnectedMS);
+    }
+    _callOnStarts();
+    _dom_is_ready = true;
     if (TS.model.is_our_app) {
       _initSleepWake();
     }
@@ -930,18 +937,6 @@
       TS.error("_initialDataFetchesComplete expected to receive rtm.start data; we cannot continue.");
     }
     return null;
-  };
-  var _client_load_watchdog_tim = null;
-  var _client_load_watchdog_ms = 1e4;
-  var _setClientLoadWatchdogTimer = function() {
-    if (!TS.client) return;
-    if (_client_load_watchdog_tim !== null) {
-      _logDataToServer("www-load-watchdog-v2", _client_load_watchdog_ms);
-      _client_load_watchdog_ms *= 2;
-    }
-    if (_client_load_watchdog_ms < 3e5) {
-      _client_load_watchdog_tim = window.setTimeout(_setClientLoadWatchdogTimer, _client_load_watchdog_ms);
-    }
   };
   var _logSessionLoadCount = function() {
     if (!window.sessionStorage) return;
@@ -968,22 +963,6 @@
   var _delayed_module_loads = {};
   var _components = {};
   var _delayed_component_loads = {};
-  var _reportLoadTiming = function(key) {
-    window.clearTimeout(_client_load_watchdog_tim);
-    if (!window.performance) return;
-    if (!performance.timing) return;
-    _logDataToServer(key, Date.now() - window.performance.timing.navigationStart);
-  };
-  var _logDataToServer = function(key, value) {
-    var team = "";
-    if (TS && TS.model && TS.model.team) {
-      team = TS.model.team.id;
-    }
-    var xhr = new XMLHttpRequest;
-    var url = "/log204?k=" + key + "&v=" + value + "&t=" + team;
-    xhr.open("GET", url, true);
-    xhr.send();
-  };
   var _onDOMReady = function() {
     TS.info("_onDOMReady");
     _logSessionLoadCount();
@@ -1087,7 +1066,7 @@
       attempts++;
       return new Promise(function(resolve) {
         if (window.TS && TS.raw_templates && Object.keys(TS.raw_templates).length > 0) {
-          _onTemplatesLoaded(resolve);
+          resolve();
           return;
         }
         TS.utility.getCachedScript(templates_url).done(function() {
@@ -1095,7 +1074,7 @@
             TS.error(templates_url + " returned no templates D:");
             return;
           }
-          _onTemplatesLoaded(resolve);
+          resolve();
         }).fail(function() {
           var delay_ms = Math.min(1e3 * attempts, 1e4);
           TS.warn("loading " + templates_url + " failed (req.status:" + req.status + " attempts" + attempts + "), trying again in " + delay_ms + "ms");
@@ -1105,15 +1084,16 @@
     }
     return loadTemplates();
   };
-  var _onTemplatesLoaded = function(parallel_callback) {
-    TS.log(Date() - TS.boot_data.start_ms + "ms from first html to calling onStarts()");
+  var _registerDelayedComponentsAndModules = function() {
     _.sortBy(Object.keys(_delayed_module_loads), "length").forEach(function(name) {
       TS.registerModule(name, _delayed_module_loads[name], true);
     });
     _.sortBy(Object.keys(_delayed_component_loads), "length").forEach(function(name) {
       TS.registerComponent(name, _delayed_component_loads[name], true);
     });
-    var should_init_sockets = true;
+  };
+  var _callOnStarts = function() {
+    TS.log(Date() - TS.boot_data.start_ms + "ms from first html to calling onStarts()");
     if (TS.boot_data.app == "client") {
       TS.client.onStart();
       TS.client.onStart = _.noop;
@@ -1122,21 +1102,10 @@
       TS.web.onStart = _.noop;
     } else if (TS.boot_data.app == "test") {
       return;
-    } else if (TS.boot_data.app == "api" || TS.boot_data.app == "oauth") {
-      should_init_sockets = false;
-    } else {
+    } else if (TS.boot_data.app == "api" || TS.boot_data.app == "oauth") {} else {
       TS.error("WTF app? " + TS.boot_data.app);
       return;
     }
-    if (should_init_sockets) {
-      TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
-      TS.ms.disconnected_sig.add(_socketDisconnectedMS);
-    }
-    _callOnStarts();
-    _dom_is_ready = true;
-    parallel_callback();
-  };
-  var _callOnStarts = function() {
     var module;
     var name;
     var delete_after_calling = !TS.qs_args["keep_onstart"];
@@ -1534,18 +1503,11 @@
   };
   var _initSleepWake = function() {
     var is_asleep = false;
-    var SLEEP_TIMEOUT_MS = 6e4;
-    var sleep_timeout_tim;
     var _onSleep = function() {
       TS.info("sleep event!");
       is_asleep = true;
       if (TS.client) TS.ms.sleep();
       if (TS.web && TS.web.space) TS.ds.sleep();
-      sleep_timeout_tim = setTimeout(function() {
-        TS.warn("It's been " + SLEEP_TIMEOUT_MS + " ms since our sleep event and we haven't gotten a wake event; waking up just to be safe");
-        TS.metrics.count("synthetic_wake_event");
-        _onWake();
-      }, SLEEP_TIMEOUT_MS);
     };
     var _onWake = function() {
       if (!is_asleep) return;
@@ -1553,10 +1515,6 @@
       TS.info("wake event! version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms);
       if (TS.client) TS.ms.wake();
       if (TS.web && TS.web.space) TS.ds.wake();
-      if (sleep_timeout_tim) {
-        clearTimeout(sleep_timeout_tim);
-        sleep_timeout_tim = undefined;
-      }
     };
     window.addEventListener("sleep", _onSleep, false);
     window.addEventListener("wake", _onWake, false);
@@ -2225,7 +2183,7 @@
         if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) {
           translations[key] = new MessageFormat(TS.i18n.locale, key).format;
         } else {
-          if (!_is_pseudo) {
+          if (!_is_pseudo && TS.warn) {
             TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
           }
           translations[key] = new MessageFormat(TS.i18n.locale, _getPseudoTranslation(key)).format;
@@ -3366,10 +3324,6 @@
       TS.prefs.jumbomoji_changed_sig.add(_toggleJumbomoji);
       var always_wait = true;
       _resetUpEmojiThrottled = TS.utility.throttleFunc(_resetUpEmojiThrottled, 3e3, always_wait);
-      _maybeInitEmojiUsageStats();
-    },
-    maybeCommitDeferredEmojiUsage: function() {
-      _maybeCommitDeferredEmojiUsage();
     },
     onLogin: function() {
       _toggleJumbomoji();
@@ -3575,9 +3529,7 @@
           name = names[i];
           TS.model.emoji_names.push(name);
           cat_map[name] = {
-            html: TS.emoji.graphicReplace(":" + name + ":", {
-              defer_usage_stat: true
-            }),
+            html: TS.emoji.graphicReplace(":" + name + ":"),
             name: ":" + name + ":",
             names: ":" + names.join(": :") + ":"
           };
@@ -3604,9 +3556,7 @@
               cat_map[name_with_skin] = {
                 is_skin: true,
                 skin_tone_id: skin_name.substr(-1, 1),
-                html: TS.emoji.graphicReplace(colon_name_with_skin, {
-                  defer_usage_stat: true
-                }),
+                html: TS.emoji.graphicReplace(colon_name_with_skin),
                 name: colon_name_with_skin,
                 names: ":" + colon_names_with_skins.join(": :") + ":"
               };
@@ -3745,11 +3695,6 @@
     graphicReplace: function(str, options) {
       if (!str) return "";
       options = options || {};
-      if (options.defer_usage_stat) {
-        _maybeRecordDeferredEmojiUsage(str);
-      } else {
-        _maybeRecordEmojiUsage(str);
-      }
       _emoji.init_env();
       var was_text_mode = _emoji.text_mode;
       var was_include_title = _emoji.include_title;
@@ -4070,35 +4015,6 @@
     _customEmojiWillChange();
     TS.emoji.ingestCustoms(ls_emoji.data);
     _customEmojiDidChange();
-  };
-  var _emoji_usage;
-  var _emoji_usage_deferred;
-  var _maybeCommitDeferredEmojiUsage = function() {
-    if (!_emoji_usage_deferred) return;
-    Object.keys(_emoji_usage_deferred).forEach(function(emoji) {
-      _maybeRecordEmojiUsage(emoji);
-    });
-    _emoji_usage_deferred = undefined;
-  };
-  var _maybeRecordDeferredEmojiUsage = function(str) {
-    if (!_emoji_usage_deferred) return;
-    _emoji_usage_deferred[str] = true;
-  };
-  var _maybeRecordEmojiUsage = function(str) {
-    if (!_emoji_usage) return;
-    str.replace(emoji.rx_colons, function(emoji_name) {
-      _emoji_usage[emoji_name] = true;
-    });
-  };
-  var _maybeInitEmojiUsageStats = function() {
-    if (!TS.boot_data.feature_emoji_usage_stats) return;
-    _emoji_usage = {};
-    _emoji_usage_deferred = {};
-    setTimeout(function() {
-      TS.metrics.count("distinct_emoji_used_1hr", Object.keys(_emoji_usage).length);
-      _emoji_usage = undefined;
-      _emoji_usage_deferred = undefined;
-    }, 60 * 60 * 1e3);
   };
 })();
 (function() {

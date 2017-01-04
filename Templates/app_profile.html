@@ -1,9 +1,9 @@
 {{i18n_ns "app_profile"}}
-<div class="app_profile">
+<div class="app_profile" data-qa="app_profile_container">
   {{> menu_app_card_header this app_profile=true large=true}}
   <div class="lato charcoal_grey large_bottom_margin">
     {{#if custom_integration_type}}
-      <section>
+      <section data-qa="app_profile_about">
         <div class="app_profile_section_header">
           {{#if_equal custom_integration_type compare="incoming-webhook"}}
             {{#t}}About this Incoming Webhook{{/t}}
@@ -28,7 +28,7 @@
       </section>
     {{else}}
       {{#if long_description}}
-        <section>
+        <section data-qa="app_profile_how_to_use">
           <div class="app_profile_section_header">{{#t}}How to use this app{{/t}}</div>
           <div class="app_profile_section_text app_profile_desc app_desc_expand_showing" data-js="app_profile_desc">
             {{#if hide_expand_button}}
@@ -52,7 +52,7 @@
       {{/if}}
     {{/if}}
     {{#if commands}}
-      <section>
+      <section data-qa="app_profile_commands">
         <div class="app_profile_section_header">{{#t note="Refers to slash commands the app responds to."}}Responds to&hellip;{{/t}}</div>
         {{#each commands}}
           <div class="app_profile_slash_command" data-slash-command-autofill="{{name}}">
@@ -66,7 +66,7 @@
       </section>
     {{/if}}
     {{#if show_settings_section}}
-      <section>
+      <section data-qa="app_profile_settings">
         <div class="app_profile_section_header">{{#t}}Settings{{/t}}</div>
         <div class="app_profile_section_text">
           <div data-js="app_auth_settings" class="bottom_margin">
@@ -85,7 +85,7 @@
       </section>
     {{/if}}
     {{#unless is_directory_published}}
-      <section>
+      <section data-qa="app_profile_meta">
         <p><i class="subtle_silver">{{#t}}This app has not been reviewed by Slack.{{/t}}</i></p>
       </section>
     {{/unless}}

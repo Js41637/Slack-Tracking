@@ -104,35 +104,13 @@
 
         {{! Text }}
         {{#if attachment.text}}
-          {{#feature flag="feature_more_field_in_message_attachments"}}
-            <div class="attachment_text">
-              {{#if has_more}}
-                {{#if is_text_collapsed}}
-                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-                {{else}}
-                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-                {{/if}}
-                <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"{{#if attachment.more_hidetext}} data-hide-text="{{attachment.more_hidetext}}"{{/if}}> <a><br /><span>{{#if attachment.more_showtext}}{{attachment.more_showtext}}{{else}}{{#t}}Show more{{/t}}{{/if}}</span>{{#if attachment.more_hidetext}} <i class="attachment_caret ts_icon ts_icon_caret_right"></i>{{else}}&hellip;{{/if}}</a></span>
-                <span class="more_text hidden"><br />{{formatMessageAttachmentPart attachment.more msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-              {{else}}
-                {{#if is_text_collapsed}}
-                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-                  <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>{{#t}}Show more&hellip;{{/t}}</a></span>
-                {{else}}
-                  {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
-                {{/if}}
-              {{/if}}
-              {{#if_equal caret_location compare='text'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}
-            </div>
+          {{#if is_text_collapsed}}
+            <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
+            <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>{{#t}}Show more&hellip;{{/t}}</a></span>
           {{else}}
-            {{#if is_text_collapsed}}
-              <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-              <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>{{#t}}Show more&hellip;{{/t}}</a></span>
-            {{else}}
-              {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
-            {{/if}}
-            {{#if_equal caret_location compare='text'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}
-          {{/feature}}
+            {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
+          {{/if}}
+          {{#if_equal caret_location compare='text'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}
         {{/if}}
       </div>
     {{/if}}

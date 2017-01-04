@@ -8,9 +8,5 @@
 <li><a class="sidebar_menu_list_item" data-section="search">{{#t}}Search{{/t}}</a></li>
 <li><a class="sidebar_menu_list_item" data-section="read_state_tracking">{{#t}}Mark as Read{{/t}}</a></li>
 {{#if show_a11y_prefs}}<li><a class="sidebar_menu_list_item" data-section="a11y">{{#t}}Accessibility{{/t}}</a></li>{{/if}}
-{{#feature flag="feature_unread_view"}}
-  <li><a class="sidebar_menu_list_item" data-section="advanced">{{#t}}Advanced{{/t}}</a></li>
-{{else}}
-  <li><a class="sidebar_menu_list_item" data-section="advanced">{{#t}}Advanced Options{{/t}}</a></li>
-{{/feature}}
+<li><a class="sidebar_menu_list_item" data-section="advanced">{{#t}}Advanced{{/t}}</a></li>
 {{#if show_labs_prefs}}<li><a class="sidebar_menu_list_item" data-section="labs">{{#t}}Labs (TS Only){{/t}}</a></li>{{/if}}

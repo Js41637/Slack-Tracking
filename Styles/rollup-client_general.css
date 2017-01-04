@@ -2858,6 +2858,14 @@ span.emoji {
   margin-top: 0
 }
 
+.current_status .emoji-sizer,
+.current_status_suggestion_option .emoji-sizer,
+.current_user_current_status .emoji-sizer,
+.message_current_status .emoji-sizer {
+  width: 1rem;
+  height: 1rem
+}
+
 span.emoji-outer {
   background-size: 4100%!important;
   display: inline-block;
@@ -4335,6 +4343,19 @@ only screen and (min-resolution:2dppx) {
   .btn_windows:hover {
     background-image: url(/97d7c/img/windows_store_badge@2x.png)
   }
+}
+
+.link_btn {
+  color: currentColor
+}
+
+.link_btn,
+a.link_btn {
+  text-decoration: underline
+}
+
+.link_btn:hover {
+  filter: brightness(75%)
 }
 
 @font-face {

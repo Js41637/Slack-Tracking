@@ -4,7 +4,7 @@
   {{#if is_im_menu}}
 
     {{#feature flag="feature_browse_date"}}
-      <li id="member_jump_item" role="menuitem">    
+      <li id="member_jump_item" role="menuitem">
         <a class="date_picker" target="{{newWindowName}}">
           {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
         </a>
@@ -35,9 +35,9 @@
       <li id="member_profile_item" role="menuitem"><a href="/account/profile" target="{{newWindowName}}">{{#t}}Edit your profile{{/t}}</a></li>
     {{/unless}}
     <li class="divider"></li>
-    
-    
-    {{#if member._has_files_or_we_dont_know}}<li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}">View your files</a></li>{{/if}}
+
+
+    <li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}">View your files</a></li>
     <li id="member_presence" role="menuitem">
       <a>
         <span class="menu_item_label">
@@ -55,7 +55,7 @@
     {{/if}}
 
     <li class="divider"></li>
-    
+
     {{#if other_accounts}}
       {{#each other_accounts}}
         <li class="switch_team" data-team-id="{{this.team_id}}" role="menuitem">
@@ -70,13 +70,13 @@
       </li>
     {{/if}}
   {{/if}}
-    
+
 {{else}}
 
   {{#if is_im_menu}}
 
       {{#feature flag="feature_browse_date"}}
-        <li id="member_jump_item" role="menuitem">    
+        <li id="member_jump_item" role="menuitem">
           <a class="date_picker" target="{{newWindowName}}">
             {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
           </a>
@@ -135,7 +135,7 @@
       {{/unless}}
     {{/if}}
 
-    {{#if member._has_files_or_we_dont_know}}<li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}"> {{#t}}View files{{/t}}</a></li>{{/if}}
+    <li id="member_files_item" role="menuitem"><a href="/files/{{member.name}}" target="{{newWindowName}}"> {{#t}}View files{{/t}}</a></li>
     {{#if show_call_action}}
       {{#unless member.deleted}}
         <li id="member_call_item" role="menuitem"><a>{{#t note="Start a call with an individual member"}}Call{{/t}}</a></li>
@@ -159,6 +159,6 @@
         {{#t}}Open profile in new window{{/t}}&nbsp;
       </a></li>{{!-- Add &nbsp; or w becomes ... on non-retina screen --}}
     {{/if}}
-    
+
   {{/if}}
 {{/if}}

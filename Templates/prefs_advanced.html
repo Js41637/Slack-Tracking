@@ -63,15 +63,10 @@
 <p>
   <label for="separate_private_channels_cb" class="checkbox no_margin">
     <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
-    {{#feature flag="feature_unread_view"}}
-      <span>{{#t}}List private channels separately{{/t}}</span>
-    {{else}}
-      <span class="normal">{{#t}}List private channels separately{{/t}}</span>
-    {{/feature}}
+    <span>{{#t}}List private channels separately{{/t}}</span>
   </label>
 </p>
 
-{{#feature flag="feature_unread_view"}}
 <p>
   <label class="checkbox nor_margin">
     <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">
@@ -79,8 +74,6 @@
     <span class="normal greigh">This collects all the messages you\u2019ve missed in one handy place.</span>{{/t}}
   </label>
 </p>
-{{/feature}}
-
 
 <hr>
 

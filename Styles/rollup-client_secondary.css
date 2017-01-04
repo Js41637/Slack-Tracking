@@ -209,74 +209,86 @@ html.is_electron_mac {
   top: 69px
 }
 
-#client-ui.flex_pane_showing #col_flex {
-  width: 37%
-}
-
-.slim_scrollbar #client-ui.flex_pane_showing #col_flex {
-  border-left: 1px solid #e8e8e8
-}
-
-#client-ui.flex_pane_showing:not(.flexbox_client) #col_flex {
+#client-ui:not(.flexbox_client).flex_pane_showing #col_flex {
   width: 392px
 }
 
-@media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing:not(.flexbox_client) #col_flex {
-    width: 442px
-  }
-}
-
-@media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing:not(.flexbox_client) #col_flex {
-    width: 492px
-  }
-}
-
-#client-ui.flex_pane_showing.details_showing #col_flex {
-  width: 30%
-}
-
-#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #col_flex {
+#client-ui:not(.flexbox_client).flex_pane_showing.details_showing #col_flex {
   width: 315px
 }
 
 @media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #col_flex {
+  #client-ui:not(.flexbox_client).flex_pane_showing #col_flex {
+    width: 365px
+  }
+  #client-ui:not(.flexbox_client).flex_pane_showing.details_showing #col_flex {
     width: 365px
   }
 }
 
 @media screen and (min-width:1441px) {
-  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #col_flex {
+  #client-ui:not(.flexbox_client).flex_pane_showing.details_showing #col_flex {
     width: 415px
+  }
+  #client-ui:not(.flexbox_client).flex_pane_showing #col_flex {
+    width: 492px
+  }
+}
+
+#client-ui.flexbox_client.flex_pane_showing #col_flex {
+  width: 492px
+}
+
+.slim_scrollbar #client-ui.flexbox_client.flex_pane_showing #col_flex {
+  border-left: 1px solid #e8e8e8
+}
+
+#client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
+  width: 415px
+}
+
+@media screen and (max-width:1440px) {
+  #client-ui.flexbox_client.flex_pane_showing #col_flex {
+    width: 442px
+  }
+  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
+    width: 365px
+  }
+}
+
+@media screen and (max-width:1366px) {
+  #client-ui.flexbox_client.flex_pane_showing #col_flex {
+    width: 392px
+  }
+  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
+    width: 315px
   }
 }
 
 @media screen and (max-width:1279px) {
-  #client-ui.flex_pane_showing.flexbox_client #col_flex {
-    width: 39%
+  #client-ui.flexbox_client.flex_pane_showing #col_flex {
+    width: 367px
   }
-  #client-ui.flex_pane_showing.details_showing.flexbox_client #col_flex {
-    width: 32%
+  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
+    width: 300px
   }
 }
 
 @media screen and (max-width:1070px) {
-  #client-ui.flex_pane_showing.flexbox_client #col_flex {
-    width: 42%
+  #client-ui.flexbox_client.flex_pane_showing #col_flex {
+    width: 337px
   }
-  #client-ui.flex_pane_showing.details_showing.flexbox_client #col_flex {
-    width: 35%
+  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
+    width: 280px
   }
 }
 
 @media screen and (max-width:860px) {
-  #client-ui.flex_pane_showing.flexbox_client #col_flex {
-    width: 46%
+  #client-ui.flexbox_client.flex_pane_showing #col_flex {
+    width: 312px
   }
-  #client-ui.flex_pane_showing.details_showing.flexbox_client #col_flex {
-    width: 40%
+  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
+    width: 250px
   }
 }
 
@@ -3972,41 +3984,6 @@ body.sorting_mode .channels_list_holder ul {
   flex-direction: column
 }
 
-.flex_pane_showing.flexbox_client #col_messages {
-  width: 63%
-}
-
-.flex_pane_showing.details_showing.flexbox_client #col_messages {
-  width: 70%
-}
-
-@media screen and (max-width:1279px) {
-  .flex_pane_showing.flexbox_client #col_messages {
-    width: 61%
-  }
-  .flex_pane_showing.details_showing.flexbox_client #col_messages {
-    width: 68%
-  }
-}
-
-@media screen and (max-width:1070px) {
-  .flex_pane_showing.flexbox_client #col_messages {
-    width: 58%
-  }
-  .flex_pane_showing.details_showing.flexbox_client #col_messages {
-    width: 65%
-  }
-}
-
-@media screen and (max-width:860px) {
-  .flex_pane_showing.flexbox_client #col_messages {
-    width: 54%
-  }
-  .flex_pane_showing.details_showing.flexbox_client #col_messages {
-    width: 60%
-  }
-}
-
 #messages_container {
   margin-left: 220px
 }
@@ -4047,9 +4024,16 @@ body.sorting_mode .channels_list_holder ul {
   margin-right: 392px
 }
 
+#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
+  margin-right: 315px
+}
+
 @media screen and (min-width:1367px) {
   #client-ui.flex_pane_showing:not(.flexbox_client) #messages_container {
     margin-right: 442px
+  }
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
+    margin-right: 365px
   }
 }
 
@@ -4057,19 +4041,6 @@ body.sorting_mode .channels_list_holder ul {
   #client-ui.flex_pane_showing:not(.flexbox_client) #messages_container {
     margin-right: 492px
   }
-}
-
-#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
-  margin-right: 315px
-}
-
-@media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
-    margin-right: 365px
-  }
-}
-
-@media screen and (min-width:1441px) {
   #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #messages_container {
     margin-right: 415px
   }
@@ -4408,9 +4379,16 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
   margin-right: 392px
 }
 
+#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
+  margin-right: 315px
+}
+
 @media screen and (min-width:1367px) {
   #client-ui.flex_pane_showing:not(.flexbox_client) #msgs_overlay_div {
     margin-right: 442px
+  }
+  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
+    margin-right: 365px
   }
 }
 
@@ -4418,19 +4396,6 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
   #client-ui.flex_pane_showing:not(.flexbox_client) #msgs_overlay_div {
     margin-right: 492px
   }
-}
-
-#client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
-  margin-right: 315px
-}
-
-@media screen and (min-width:1367px) {
-  #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
-    margin-right: 365px
-  }
-}
-
-@media screen and (min-width:1441px) {
   #client-ui.flex_pane_showing.details_showing:not(.flexbox_client) #msgs_overlay_div {
     margin-right: 415px
   }
@@ -16609,7 +16574,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_sort_container:after {
-  content: 'Sort by';
+  content: attr(data-prefix-text);
   color: #717274;
   font-size: 1rem;
   position: absolute;
@@ -19031,7 +18996,6 @@ ts-message .emoji-sizer .mention {
 }
 
 #convo_container ts-conversation ts-message.selected {
-  background: #fff;
   border-top: 1px solid #e0e0e0;
   padding-top: .9375rem!important;
   padding-bottom: 0!important
@@ -19523,11 +19487,6 @@ ts-message .emoji-sizer .mention {
   white-space: nowrap
 }
 
-.light_theme ts-message .message_content .message_current_status .emoji-sizer {
-  width: 1rem;
-  height: 1rem
-}
-
 .light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
   margin-right: .25rem
 }
@@ -19842,11 +19801,6 @@ ts-message .emoji-sizer .mention {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap
-}
-
-.dense_theme ts-message .message_content .message_current_status .emoji-sizer {
-  width: 1rem;
-  height: 1rem
 }
 
 .dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
@@ -24276,91 +24230,109 @@ ts-jumper ts-jumper-results:empty {
   height: 2.125rem;
   margin: 2px 0 0;
   padding: 0 10px 0 2px;
-  width: 19.6875rem;
+  width: 315px;
   -webkit-transition: width .15s ease-out 0s;
   -moz-transition: width .15s ease-out 0s;
   transition: width .15s ease-out 0s
 }
 
-.flexbox_client .flex_header {
-  padding: 0 10px 0 0;
-  width: 30%;
-  max-width: 500px
-}
-
-.flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
-.flexbox_client.search_focused .flex_header {
-  width: 37%
-}
-
-@media screen and (max-width:1279px) {
-  .flexbox_client .flex_header {
-    width: 32%
-  }
-  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
-  .flexbox_client.search_focused .flex_header {
-    width: 39%
-  }
-}
-
-@media screen and (max-width:1070px) {
-  .flexbox_client .flex_header {
-    width: 35%
-  }
-  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
-  .flexbox_client.search_focused .flex_header {
-    width: 42%
-  }
-}
-
-@media screen and (max-width:860px) {
-  .flexbox_client .flex_header {
-    width: 40%
-  }
-  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
-  .flexbox_client.search_focused .flex_header {
-    width: 46%
-  }
-}
-
 .whats_new_showing .flex_header {
-  width: 21.5625rem;
+  width: 345px;
   padding-right: 0
 }
 
 .flex_pane_showing:not(.details_showing) .flex_header,
 .search_focused .flex_header {
-  width: 24.5rem
+  width: 392px
 }
 
-.whats_new_showing.flex_pane_showing:not(.details_showing) .flex_header,
-.whats_new_showing.search_focused .flex_header {
-  width: 24.5rem
+.whats_new_showing .flex_pane_showing:not(.details_showing) .flex_header,
+.whats_new_showing .search_focused .flex_header {
+  width: 392px
 }
 
 @media screen and (min-width:1367px) {
-  .flex_header {
-    width: 22.8125rem
+  #client-ui:not(.flexbox_client) .flex_header {
+    width: 365px
   }
-  .whats_new_showing .flex_header {
-    width: 24.6875rem
+  .whats_new_showing #client-ui:not(.flexbox_client) .flex_header {
+    width: 395px
   }
-  .flex_pane_showing:not(.details_showing) .flex_header,
-  .search_focused .flex_header {
-    width: 27.625rem
+  #client-ui:not(.flexbox_client) .flex_pane_showing:not(.details_showing) .flex_header,
+  #client-ui:not(.flexbox_client) .search_focused .flex_header {
+    width: 442px
   }
 }
 
 @media screen and (min-width:1441px) {
-  .flex_header {
-    width: 25.9375rem
+  #client-ui:not(.flexbox_client) .flex_header {
+    width: 415px
   }
-  .whats_new_showing .flex_header {
-    width: 27.8125rem
+  .whats_new_showing #client-ui:not(.flexbox_client) .flex_header {
+    width: 445px
   }
-  .flex_pane_showing:not(.details_showing) .flex_header,
-  .search_focused .flex_header {
-    width: 30.75rem
+  #client-ui:not(.flexbox_client) .flex_pane_showing:not(.details_showing) .flex_header,
+  #client-ui:not(.flexbox_client) .search_focused .flex_header {
+    width: 492px
+  }
+}
+
+.flexbox_client .flex_header {
+  width: 415px
+}
+
+.flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+.flexbox_client.search_focused .flex_header {
+  width: 492px
+}
+
+@media screen and (max-width:1440px) {
+  .flexbox_client .flex_header {
+    width: 365px
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 442px
+  }
+}
+
+@media screen and (max-width:1366px) {
+  .flexbox_client .flex_header {
+    width: 315px
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 392px
+  }
+}
+
+@media screen and (max-width:1279px) {
+  .flexbox_client .flex_header {
+    width: 300px
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 367px
+  }
+}
+
+@media screen and (max-width:1070px) {
+  .flexbox_client .flex_header {
+    width: 280px
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 337px
+  }
+}
+
+@media screen and (max-width:860px) {
+  .flexbox_client .flex_header {
+    width: 250px
+  }
+  .flexbox_client.flex_pane_showing:not(.details_showing) .flex_header,
+  .flexbox_client.search_focused .flex_header {
+    width: 312px
   }
 }
 
@@ -25141,6 +25113,85 @@ html:not(.supports_sticky_position):not(.font_size_adjusted) .unread_group:first
 
 html:not(.supports_sticky_position).font_size_adjusted .currently_sticky .unread_group_header {
   left: 260px
+}
+
+html:not(.supports_sticky_position) #client-ui.flex_pane_showing .currently_sticky .unread_group_header {
+  right: 392px
+}
+
+html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+  right: 315px
+}
+
+@media screen and (min-width:1367px) {
+  html:not(.supports_sticky_position) #client-ui:not(.flexbox_client).flex_pane_showing .currently_sticky .unread_group_header {
+    right: 442px
+  }
+  html:not(.supports_sticky_position) #client-ui:not(.flexbox_client).flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+    right: 365px
+  }
+}
+
+@media screen and (min-width:1441px) {
+  html:not(.supports_sticky_position) #client-ui:not(.flexbox_client).flex_pane_showing .currently_sticky .unread_group_header {
+    right: 492px
+  }
+  html:not(.supports_sticky_position) #client-ui:not(.flexbox_client).flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+    right: 415px
+  }
+}
+
+html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing .currently_sticky .unread_group_header {
+  right: 492px
+}
+
+html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+  right: 415px
+}
+
+@media screen and (max-width:1440px) {
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing .currently_sticky .unread_group_header {
+    right: 442px
+  }
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+    right: 365px
+  }
+}
+
+@media screen and (max-width:1366px) {
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing .currently_sticky .unread_group_header {
+    right: 392px
+  }
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+    right: 315px
+  }
+}
+
+@media screen and (max-width:1279px) {
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing .currently_sticky .unread_group_header {
+    right: 367px
+  }
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+    right: 300px
+  }
+}
+
+@media screen and (max-width:1070px) {
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing .currently_sticky .unread_group_header {
+    right: 337px
+  }
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+    right: 280px
+  }
+}
+
+@media screen and (max-width:860px) {
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing .currently_sticky .unread_group_header {
+    right: 312px
+  }
+  html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing.details_showing .currently_sticky .unread_group_header {
+    right: 250px
+  }
 }
 
 .bottom_mark_all_read {

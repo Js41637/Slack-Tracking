@@ -84,53 +84,23 @@
         {{/if}}
 
         {{#if attachment.text}}
-          {{#feature flag="feature_more_field_in_message_attachments"}}
-            <div class="attachment_contents">
-              {{#if has_more}}
-                {{#if is_text_collapsed}}
-                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-                {{else}}
-                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
-                {{/if}}
-                <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"{{#if attachment.more_hidetext}} data-hide-text="{{attachment.more_hidetext}}"{{/if}}> <a><br /><span>{{#if attachment.more_showtext}}{{attachment.more_showtext}}{{else}}Show more{{/if}}</span>{{#if attachment.more_hidetext}} <i class="attachment_caret ts_icon ts_icon_caret_right"></i>{{else}}...{{/if}}</a></span>
-                <span class="more_text hidden"><br />{{formatMessageAttachmentPart attachment.more msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-              {{else}}
-                {{#if is_text_collapsed}}
-                  <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-                  <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>{{#t}}Show more&hellip;{{/t}}</a></span>
-                {{else}}
-                  {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
-                {{/if}}
-              {{/if}}
-              {{#unless attachment.fields}}{{media_caret_html}}{{/unless}}
-            </div>
-            {{#if attachment.footer}}<div class="attachment_footer">
-              {{formatMessageAttachmentPart attachment.footer msg true attachment.mrkdwn_in_hash.footer enable_slack_action_links}}
-            </div>{{/if}}
-            {{#if attachment.ts}}<div class="attachment_ts">
-              {{#if ts_link}}<a {{makeRefererSafeLink url=ts_link}} target="{{ts_link}}">{{/if}}
-              {{#t date=(toCalendarDateOrNamedDayShort attachment.ts) time=(toTime attachment.ts)}}{date} at {time}{{/t}}
-              {{#if ts_link}}</a>{{/if}}
-            </div>{{/if}}
-          {{else}}
-            <div class="attachment_contents">
-              {{#if is_text_collapsed}}
-                <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
-                <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>{{#t}}Show more&hellip;{{/t}}</a></span>
-              {{else}}
-                {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
-              {{/if}}
-              {{#unless attachment.fields}}{{media_caret_html}}{{/unless}}
-            </div>
-            {{#if attachment.footer}}<div class="attachment_footer">
-              {{formatMessageAttachmentPart attachment.footer msg true attachment.mrkdwn_in_hash.footer enable_slack_action_links}}
-            </div>{{/if}}
-            {{#if attachment.ts}}<div class="attachment_ts">
-              {{#if ts_link}}<a {{makeRefererSafeLink url=ts_link}} target="{{ts_link}}">{{/if}}
-              {{#t date=(toCalendarDateOrNamedDayShort attachment.ts) time=(toTime attachment.ts)}}{date} at {time}{{/t}}
-              {{#if ts_link}}</a>{{/if}}
-            </div>{{/if}}
-          {{/feature}}
+          <div class="attachment_contents">
+            {{#if is_text_collapsed}}
+              <span class="short_text" data-all-text="{{formatMessageAttachmentPartEscaped attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}">{{formatMessageAttachmentPart attachment._short_text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}</span>
+              <span id="{{makeMsgAttachmentTextExpanderDomId msg.ts attachment._index}}" class="rest_text_expander"> <a>{{#t}}Show more&hellip;{{/t}}</a></span>
+            {{else}}
+              {{formatMessageAttachmentPart attachment.text msg true attachment.mrkdwn_in_hash.text enable_slack_action_links}}
+            {{/if}}
+            {{#unless attachment.fields}}{{media_caret_html}}{{/unless}}
+          </div>
+          {{#if attachment.footer}}<div class="attachment_footer">
+            {{formatMessageAttachmentPart attachment.footer msg true attachment.mrkdwn_in_hash.footer enable_slack_action_links}}
+          </div>{{/if}}
+          {{#if attachment.ts}}<div class="attachment_ts">
+            {{#if ts_link}}<a {{makeRefererSafeLink url=ts_link}} target="{{ts_link}}">{{/if}}
+            {{#t date=(toCalendarDateOrNamedDayShort attachment.ts) time=(toTime attachment.ts)}}{date} at {time}{{/t}}
+            {{#if ts_link}}</a>{{/if}}
+          </div>{{/if}}
         {{/if}}
 
         {{#if attachment.fields}}

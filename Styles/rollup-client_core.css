@@ -6256,9 +6256,16 @@ only screen and (min-resolution:2dppx) {
   right: 392px
 }
 
+.flex_pane_showing.details_showing:not(.flexbox_client) #footer {
+  right: 315px
+}
+
 @media screen and (min-width:1367px) {
   .flex_pane_showing:not(.flexbox_client) #footer {
     right: 442px
+  }
+  .flex_pane_showing.details_showing:not(.flexbox_client) #footer {
+    right: 365px
   }
 }
 
@@ -6266,19 +6273,6 @@ only screen and (min-resolution:2dppx) {
   .flex_pane_showing:not(.flexbox_client) #footer {
     right: 492px
   }
-}
-
-.flex_pane_showing.details_showing:not(.flexbox_client) #footer {
-  right: 315px
-}
-
-@media screen and (min-width:1367px) {
-  .flex_pane_showing.details_showing:not(.flexbox_client) #footer {
-    right: 365px
-  }
-}
-
-@media screen and (min-width:1441px) {
   .flex_pane_showing.details_showing:not(.flexbox_client) #footer {
     right: 415px
   }

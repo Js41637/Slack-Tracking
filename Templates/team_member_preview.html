@@ -158,15 +158,15 @@
       {{#feature flag="feature_user_custom_status"}}
         {{#if member.profile.current_status}}
           <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="Preferred name">Status</span></td>
-            <td>{{getMemberCurrentStatus member}}</td>
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Status{{/t}}">{{#t}}Status{{/t}}</span></td>
+            <td class="current_status">{{getMemberCurrentStatus member}}</td>
           </tr>
         {{/if}}
       {{/feature}}
       {{#feature flag="feature_name_tagging_client"}}
         {{#if member.profile.preferred_name}}
           <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="Preferred name">{{#t}}Preferred name{{/t}}</span></td>
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Preferred name{{/t}}">{{#t}}Preferred name{{/t}}</span></td>
             {{#if member.deleted}}
               {{#memberHasIm member=member}}
                 <td><a href="/archives/{{member.id}}" target="{{newWindowName}}">{{getMemberPreferredName member}}</a></td>
@@ -189,7 +189,7 @@
       {{else}}
         {{#if member.profile.real_name}}
           <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="Username">{{#t}}Username{{/t}}</span></td>
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Username{{/t}}">{{#t}}Username{{/t}}</span></td>
             {{#if member.deleted}}
               {{#memberHasIm member=member}}
                 <td><a href="/archives/{{member.name}}" target="{{newWindowName}}">@{{member.name}}</a></td>
