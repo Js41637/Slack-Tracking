@@ -1,14 +1,21 @@
 import classNames from 'classnames';
 import React from 'react';
-import {getTextColor, getSidebarColor} from './color-utils';
+import {getTextColor, getSidebarColor} from '../../utils/color';
 
-import AppActions from '../../actions/app-actions';
+import {appTeamsActions} from '../../actions/app-teams-actions';
+import {teamActions} from '../../actions/team-actions';
 import Component from '../../lib/component';
-import TeamIcon from '../../components/team-icon';
+import {TeamIcon} from '../../components/team-icon';
+import {getContainsInvalid} from '../../utils/utf-safety';
 
 const isDarwin = process.platform === 'darwin';
 
 export default class TeamSelectorItem extends Component {
+  constructor(props) {
+    super(props);
+    this.ensureValidInitials();
+  }
+
   static defaultProps = {
     iconSize: 36,
     selectorLeftOffset: -14
@@ -24,7 +31,7 @@ export default class TeamSelectorItem extends Component {
   };
 
   handleClick() {
-    AppActions.selectTeam(this.props.team.team_id);
+    appTeamsActions.selectTeam(this.props.team.team_id);
   }
 
   computeShortcutText(index) {
@@ -38,6 +45,23 @@ export default class TeamSelectorItem extends Component {
     }
 
     return shortcut;
+  }
+
+  /**
+   * If a team was added before Slack 2.3, our initials might
+   * be incorrect (if they use any non-ASCII characters, like
+   * emojii or other composite chars found in many non-latin
+   * languages).
+   *
+   * We can probably remove this method in one or two releases
+   * after 2.4.
+   */
+  ensureValidInitials() {
+    const t = this.props.team;
+
+    if (t && t.initials && t.id && t.team_name && getContainsInvalid(t.initials)) {
+      teamActions.updateTeamName(t.team_name, t.id);
+    }
   }
 
   render() {

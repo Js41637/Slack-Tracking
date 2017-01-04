@@ -7,7 +7,7 @@ import {ContextMenuListener, ContextMenuBuilder} from 'electron-spellchecker';
 
 import Component from '../../lib/component';
 import DependenciesView from './dependencies-view';
-import SettingStore from '../../stores/setting-store';
+import {settingStore} from '../../stores/setting-store';
 
 const ABOUT_BOX_WIDTH = 320;
 const ABOUT_BOX_EXPANDED_HEIGHT = 428;
@@ -19,14 +19,14 @@ export default class AboutBox extends Component {
 
   syncState() {
     return {
-      appVersion: SettingStore.getSetting('appVersion'),
-      versionName: SettingStore.getSetting('versionName'),
+      appVersion: settingStore.getSetting('appVersion'),
+      versionName: settingStore.getSetting('versionName'),
       copyright: packageJson.copyright,
-      releaseChannel: SettingStore.getSetting('releaseChannel'),
-      isStoreBuild: SettingStore.getSetting('isWindowsStore') ||
-        SettingStore.getSetting('isMacAppStore'),
-      isMac: SettingStore.isMac(),
-      isWindows: SettingStore.isWindows()
+      releaseChannel: settingStore.getSetting('releaseChannel'),
+      isStoreBuild: settingStore.getSetting('isWindowsStore') ||
+        settingStore.getSetting('isMacAppStore'),
+      isMac: settingStore.isMac(),
+      isWindows: settingStore.isWindows()
     };
   }
 

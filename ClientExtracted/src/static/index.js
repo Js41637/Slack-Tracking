@@ -1,4 +1,7 @@
 require('../stat-cache');
+const profiler = require('../utils/profiler');
+
+if (profiler.shouldProfile()) profiler.startProfiling();
 
 var startup = function() {
   var url = require('url');

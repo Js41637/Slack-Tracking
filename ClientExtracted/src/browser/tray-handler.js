@@ -1,20 +1,25 @@
-import {app, dialog, Menu, MenuItem, Tray} from 'electron';
+import {app, Menu, MenuItem, Tray} from 'electron';
 import {Observable} from 'rxjs/Observable';
 
-import AppActions from '../actions/app-actions';
+import {appTeamsActions} from '../actions/app-teams-actions';
 import AppStore from '../stores/app-store';
-import EventActions from '../actions/event-actions';
+import AppTeamsStore from '../stores/app-teams-store';
+import {dialogStore} from '../stores/dialog-store';
+import {eventActions} from '../actions/event-actions';
+import NotificationActions from '../actions/notification-actions';
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 import TeamStore from '../stores/team-store';
 
-import logger from '../logger';
-import isEqualArrays from '../utils/array-is-equal';
-import resolveImage from '../utils/resolve-image';
+import {logger} from '../logger';
+import {isEqualArrays} from '../utils/array-is-equal';
+import {resolveImage} from '../utils/resolve-image';
 import {getMenuItemForUpdateStatus} from './updater-utils';
 
 import {requireTaskPool} from 'electron-remote';
 const {repairTrayRegistryKey} = requireTaskPool(require.resolve('../csx/tray-repair'));
+import {nativeInterop} from '../native-interop';
+const {isWindows10OrHigher} = nativeInterop;
 
 const darwinTrayImageMapping = {
   'slack-taskbar-highlight.png': 'slack-menubar-highlight.png',
@@ -32,21 +37,22 @@ export default class TrayHandler extends ReduxComponent {
 
   syncState() {
     let unreadInfo = TeamStore.getCombinedUnreadInfo();
-    let devEnv = SettingStore.getSetting('devEnv');
+    let devEnv = settingStore.getSetting('devEnv');
     let {icon, tooltip, badge} = this.getTrayStateFromUnreadInfo(unreadInfo, devEnv);
 
     return {
       icon, tooltip, badge, devEnv,
-      lastBalloon: AppStore.getLastBalloon(),
-      hasRunApp: SettingStore.getSetting('hasRunApp'),
-      isMac: SettingStore.isMac(),
-      isLinux: SettingStore.isLinux(),
-      isWindows: SettingStore.isWindows(),
+      lastBalloon: dialogStore.getLastBalloon(),
+      hasRunApp: settingStore.getSetting('hasRunApp'),
+      isMac: settingStore.isMac(),
+      isLinux: settingStore.isLinux(),
+      isWindows: settingStore.isWindows(),
       teams: TeamStore.getTeams(),
-      teamsByIndex: AppStore.getTeamsByIndex(),
+      teamsByIndex: AppTeamsStore.getTeamsByIndex(),
       updateStatus: AppStore.getUpdateStatus(),
-      releaseChannel: SettingStore.getSetting('releaseChannel'),
-      isDevMode: SettingStore.getSetting('isDevMode')
+      releaseChannel: settingStore.getSetting('releaseChannel'),
+      isDevMode: settingStore.getSetting('isDevMode'),
+      disableUpdateCheck: !!(process.windowsStore || process.mas)
     };
   }
 
@@ -78,20 +84,23 @@ export default class TrayHandler extends ReduxComponent {
 
     if (prevState.releaseChannel && releaseChannel !== prevState.releaseChannel) {
       let message = releaseChannel === 'beta' ?
-        "You have been added to the Beta Release Channel! Contact Slack Support at https://my.slack.com/help if you have any issues." :
-        'You have been removed from the Beta Release Channel. Back to your regularly scheduled program…';
+        "You’ve been added to the beta! 🎉 Your app will receive beta updates as they’re available." :
+        "You’ve been removed from the beta. Back to your regularly scheduled program…";
 
       if (isWindows) {
+        if (!isWindows10OrHigher()) {
+          message = message.replace(' 🎉 ', ' ');
+        }
+
         this.showBalloon({
           title: 'Slack for Windows Beta',
           content: message
         });
-      } else if (this.state.isDevMode) {
-        dialog.showMessageBox({
+      } else {
+        setImmediate(() => NotificationActions.newNotification({
           title: 'Slack Beta',
-          buttons: ['OK'],
-          message: message
-        });
+          content: message
+        }));
       }
     }
 
@@ -199,7 +208,7 @@ export default class TrayHandler extends ReduxComponent {
 
     this.createTrayMenu();
 
-    setTimeout(async function() {
+    setTimeout(async () => {
       try {
         await repairTrayRegistryKey();
       } catch (e) {
@@ -208,7 +217,7 @@ export default class TrayHandler extends ReduxComponent {
     }, 2*1000);
 
     this.disposables.add(Observable.fromEvent(this.tray, 'click')
-      .subscribe(() => EventActions.foregroundApp()));
+      .subscribe(() => eventActions.foregroundApp()));
 
     this.disposables.add(() => {
       if (!this.tray) return;
@@ -227,8 +236,8 @@ export default class TrayHandler extends ReduxComponent {
       return {
         label: this.state.teams[teamId].team_name,
         click: () => {
-          AppActions.selectTeam(teamId);
-          EventActions.foregroundApp();
+          appTeamsActions.selectTeam(teamId);
+          eventActions.foregroundApp();
         }
       };
     });
@@ -239,14 +248,14 @@ export default class TrayHandler extends ReduxComponent {
 
     teamMenuItems.forEach((x) => menu.append(new MenuItem(x)));
 
-    if (!this.state.isLinux) {
+    if (!this.state.isLinux && !this.state.disableUpdateCheck) {
       let menuArgs = getMenuItemForUpdateStatus(this.state.updateStatus);
       menu.append(new MenuItem(menuArgs));
     }
 
     menu.append(new MenuItem({
       label: '&Preferences',
-      click: () => EventActions.showWebappDialog('prefs'),
+      click: () => eventActions.showWebappDialog('prefs'),
       accelerator: 'CommandOrControl+,'
     }));
 
@@ -254,7 +263,7 @@ export default class TrayHandler extends ReduxComponent {
 
     menu.append(new MenuItem({
       label: '&Quit',
-      click: () => EventActions.quitApp(),
+      click: () => eventActions.quitApp(),
       accelerator: 'CommandOrControl+Q'
     }));
 

@@ -1,14 +1,13 @@
-import omit from '../utils/omit';
+import {omit} from '../utils/omit';
 
-import {APP, EVENTS, NOTIFICATIONS} from '../actions';
+import {DIALOG, EVENTS, NOTIFICATIONS, TEAMS} from '../actions';
 
 const eventSignatures = {};
 
 // Simple events, no additional data
-eventSignatures[EVENTS.FOCUS_PRIMARY_TEAM] = {name: 'focusPrimaryTeam'};
+eventSignatures[EVENTS.MAIN_WINDOW_FOCUSED] = {name: 'mainWindowFocused'};
 eventSignatures[EVENTS.FOREGROUND_APP] = {name: 'foregroundApp'};
 eventSignatures[EVENTS.TOGGLE_FULL_SCREEN] = {name: 'toggleFullScreen'};
-eventSignatures[EVENTS.RUN_SPECS] = {name: 'runSpecs'};
 eventSignatures[EVENTS.SHOW_ABOUT] = {name: 'showAbout'};
 eventSignatures[EVENTS.SHOW_RELEASE_NOTES] = {name: 'showReleaseNotes'};
 eventSignatures[EVENTS.QUIT_APP] = {name: 'quitApp'};
@@ -19,14 +18,15 @@ eventSignatures[EVENTS.SIDEBAR_CLICKED] = {name: 'sidebarClicked'};
 eventSignatures[EVENTS.CLOSE_ALL_UPDATE_BANNERS] = {name: 'closeAllUpdateBanners'};
 
 // Aliased events
-eventSignatures[APP.SHOW_AUTH_DIALOG] = {name: 'foregroundApp'};
+eventSignatures[DIALOG.SHOW_AUTH_DIALOG] = {name: 'foregroundApp'};
 
 // Events which require additional arguments
 eventSignatures[NOTIFICATIONS.CLICK_NOTIFICATION] = {
   name: 'clickNotification',
   notificationId: null,
   channel: null,
-  teamId: null
+  teamId: null,
+  messageId: null
 };
 eventSignatures[NOTIFICATIONS.REPLY_TO_NOTIFICATION] = {
   name: 'replyToNotification',
@@ -62,6 +62,10 @@ eventSignatures[EVENTS.REFRESH_TEAM] = {
   name: 'refreshTeam',
   teamId: null
 };
+eventSignatures[EVENTS.REFRESH_TEAMS] = {
+  name: 'refreshTeams',
+  teamIds: null
+};
 eventSignatures[EVENTS.SHOW_WEBAPP_DIALOG] = {
   name: 'showWebappDialog',
   dialogType: null
@@ -69,6 +73,28 @@ eventSignatures[EVENTS.SHOW_WEBAPP_DIALOG] = {
 eventSignatures[EVENTS.RELOAD] = {
   name: 'reload',
   everything: null
+};
+eventSignatures[EVENTS.POPUP_APP_MENU] = {
+  name: 'popupAppMenu',
+  invokedViaKeyboard: null
+};
+
+// NB: When a session ends, the webapp calls `didSignIn` again for that team,
+// which maps to an ADD_NEW_TEAM(S) action. But in this case we don't want to
+// do anything besides refresh the existing team.
+eventSignatures[TEAMS.ADD_NEW_TEAM] = {
+  name: 'refreshTeam',
+  teamId: null,
+  actionMapper: (team) => {
+    return {teamId: team.team_id};
+  }
+};
+eventSignatures[TEAMS.ADD_NEW_TEAMS] = {
+  name: 'refreshTeams',
+  teamIds: null,
+  actionMapper: (teams) => {
+    return {teamIds: teams.map((team) => team.team_id)};
+  }
 };
 
 const initialState = Object.keys(eventSignatures).reduce((result, key) => {
@@ -86,9 +112,17 @@ const initialState = Object.keys(eventSignatures).reduce((result, key) => {
 export default function reduce(state = initialState, action) {
   let evt = eventSignatures[action.type];
   if (evt) {
-    let update = {};
-    update[evt.name] = {timestamp: Date.now(), ...action.data};
-    return {...state, ...update};
+    let actionData = evt.actionMapper ?
+      evt.actionMapper(action.data) :
+      action.data;
+
+    return {
+      ...state,
+      [evt.name]: {
+        timestamp: Date.now(),
+        ...actionData
+      }
+    };
   } else {
     return state;
   }

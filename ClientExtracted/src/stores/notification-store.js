@@ -1,4 +1,4 @@
-import Store from '../lib/store';
+import {Store} from '../lib/store';
 
 class NotificationStore {
   getNotifications() {

@@ -1,8 +1,13 @@
-import {getIsQuietHours} from 'windows-quiet-hours';
-
-import logger from '../logger';
-import nativeInterop from '../native-interop';
+import {logger} from '../logger';
+import {nativeInterop} from '../native-interop';
 import NotificationActions from '../actions/notification-actions';
+
+let getIsQuietHours = () => false;
+try {
+  getIsQuietHours = require('windows-quiet-hours').getIsQuietHours;
+} catch (e) {
+  logger.error(`Failed to load windows-quiet-hours: ${e.message}`);
+}
 
 export default class NotificationIntegration {
 

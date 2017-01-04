@@ -1,11 +1,11 @@
 import difference from 'lodash.difference';
-import logger from '../logger';
+import {logger} from '../logger';
 import getUserAgent from '../ssb-user-agent';
 import {ipcRenderer, remote, screen as Screen} from 'electron';
 import {getSenderIdentifier, remoteEval} from 'electron-remote';
 
 import ReduxComponent from '../lib/redux-component';
-import WindowHelpers from '../components/helpers/window-helpers';
+import {WindowHelpers} from '../components/helpers/window-helpers';
 import WindowStore from '../stores/window-store';
 
 import {WINDOW_TYPES} from '../utils/shared-constants';

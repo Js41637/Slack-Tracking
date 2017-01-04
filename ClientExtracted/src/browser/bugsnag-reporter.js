@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 import bugsnag from './bugsnag/bugsnag';
-import logger from '../logger';
+import {logger} from '../logger';
 import restartApp from './restart-app';
 
 export default class BugsnagReporter {
@@ -72,7 +72,7 @@ export default class BugsnagReporter {
     try {
       let button = await this.showDialogOfShame();
       if (button === 2) {
-        let SettingActions = require('../actions/setting-actions').default;
+        let SettingActions = require('../actions/setting-actions').settingActions;
         SettingActions.updateSettings({reportIssueOnStartup: true});
       }
 

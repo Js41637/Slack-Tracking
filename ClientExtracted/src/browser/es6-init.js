@@ -3,6 +3,9 @@
 // NB: This file is intentionally written using ES5 because at this time,
 // electron-compile is not yet initialized
 
+const profiler = require('../utils/profiler.js');
+if (profiler.shouldProfile()) profiler.startProfiling();
+
 require('../stat-cache');
 
 var path = require('path');

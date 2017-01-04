@@ -110,7 +110,7 @@ export default class Reporter {
   // Returns an {Observable} Promise which provides a user ID
   createUserId() {
     let ret = new AsyncSubject();
-    ret.next(require('node-uuid').v4());
+    ret.next(1);
     ret.complete();
     /*
 
@@ -118,7 +118,7 @@ export default class Reporter {
       let username = process.env.USER || process.env.USERNAME || 'dunnolol';
 
       if (error) {
-        ret.next(require('node-uuid').v4());
+        ret.next(require('../utils/unique-id').uniqueId());
       } else {
         // NB: If we don't include another piece of information, the MAC address
         // could be extracted from this SHA1 simply by generating all SHA1s from

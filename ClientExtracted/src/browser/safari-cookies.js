@@ -7,34 +7,33 @@ var Cookies = function() {
   this._init();
 };
 
-Cookies.prototype.parse = function(cookiePath) {
+Cookies.prototype.parse = function(cookiePath, cb) {
   this._init();
   this.cookiePath = cookiePath;
-
-  this._open();
-  this._getNumPages();
-  this._getPageSizes();
-  this._getPages();
-
-  this.pages.forEach((page, i) => {
-    try {
-      this._getNumCookies(i);
-      this._getCookieOffsets(i);
-      this._getCookieData(i);
-    } catch (e) {
-      return;
-    }
-
-    this.pages[i].cookies.forEach((cookie, j) => {
+  this._open((err) => {
+    if (err) return cb(err);
+    this._getNumPages();
+    this._getPageSizes();
+    this._getPages();
+    this.pages.forEach((page, i) => {
       try {
-        this.cookies.push(this._parseCookieData(i, j));
+        this._getNumCookies(i);
+        this._getCookieOffsets(i);
+        this._getCookieData(i);
       } catch (e) {
         return;
       }
-    });
-  });
 
-  return this.cookies;
+      this.pages[i].cookies.forEach((cookie, j) => {
+        try {
+          this.cookies.push(this._parseCookieData(i, j));
+        } catch (e) {
+          return;
+        }
+      });
+    });
+    cb(null, this.cookies);
+  });
 };
 
 Cookies.prototype._init = function() {
@@ -48,23 +47,29 @@ Cookies.prototype._init = function() {
   this.cookies = [];
 };
 
-Cookies.prototype._open = function() {
-  let fileDescriptor = fs.openSync(this.cookiePath, 'r');
-  let fileStats = fs.statSync(this.cookiePath);
-  this.data = new Buffer(fileStats.size);
+Cookies.prototype._open = function(cb) {
+  fs.open(this.cookiePath, 'r', (err, fd) => {
+    if (err) return cb(err);
+    fs.stat(this.cookiePath, (err, stats) => {
+      if (err) return cb(err);
+      this.data = new Buffer(stats.size);
+      fs.read(fd, this.data, 0, stats.size, 0, (err, num) => {
+        this.bufSize = stats.size;
+        if (err) return cb(err);
 
-  let bytesRead = fs.readSync(fileDescriptor, this.data, 0, fileStats.size, 0);
-  this.bufSize = fileStats.size;
-
-  if (bytesRead !== fileStats.size) {
-    throw new Error('File size did not match');
-  }
-
-  let header = this._readSlice(4).toString();
-
-  if (header !== 'cook') {
-    throw new Error(`This file did not appear to be in the valid format for binary cookies (missed 'cook' header)`);
-  }
+        if (num !== stats.size) return cb(new Error("File size did not match"));
+        var header = this._readSlice(4).toString();
+        if (header === "cook") {
+          cb();
+          return;
+        } else {
+          cb(new Error("This file did not appear to be in the valid format for " +
+                      "binary cookies (missed 'cook' header)"));
+          return;
+        }
+      });
+    });
+  });
 };
 
 Cookies.prototype._readSlice = function(len) {

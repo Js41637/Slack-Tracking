@@ -1,10 +1,10 @@
-import logger from '../logger';
+import {logger} from '../logger';
 import {BrowserWindow} from 'electron';
 import {Observable} from 'rxjs/Observable';
 import {executeJavaScriptMethod} from 'electron-remote';
 
-import AppActions from '../actions/app-actions';
-import TeamActions from '../actions/team-actions';
+import {dialogActions} from '../actions/dialog-actions';
+import {teamActions} from '../actions/team-actions';
 
 /** @function processMagicLoginLink
   * Handles a magic login link in the format: slack://{teamId}/magic-login/{token}, e.g.,
@@ -39,8 +39,8 @@ export function processMagicLoginLink({teamId, token}) {
     .map((response) => teamFromLoginMagicResponse(response))
     .subscribe(
       (team) => {
-        TeamActions.addTeam(team);
-        AppActions.hideLoginDialog();
+        teamActions.addTeam(team);
+        dialogActions.hideLoginDialog();
       },
       (err) => {
         logger.error(`Unable to add team: ${err.message}`);

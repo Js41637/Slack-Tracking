@@ -1,21 +1,21 @@
 import {shell} from 'electron';
-import uuid from 'node-uuid';
+import {uniqueId} from '../utils/unique-id';
 
-import DownloadActions from '../actions/download-actions';
+import {downloadActions} from '../actions/download-actions';
 
 export default class DownloadIntegration {
   startDownload(url) {
-    let token = uuid.v4();
-    DownloadActions.startDownload({token: token, url: url, teamId: window.teamId});
+    let token = uniqueId();
+    downloadActions.startDownload({token: token, url: url, teamId: window.teamId});
     return token;
   }
 
   cancelDownloadWithToken(token) {
-    DownloadActions.cancelDownload(token);
+    downloadActions.cancelDownload(token);
   }
 
   retryDownloadWithToken(token) {
-    DownloadActions.retryDownload(token);
+    downloadActions.retryDownload(token);
   }
 
   metadataForDownloads() {
@@ -23,7 +23,7 @@ export default class DownloadIntegration {
   }
 
   pruneTokensFromHistory(tokens) {
-    DownloadActions.clearDownloads(JSON.parse(tokens));
+    downloadActions.clearDownloads(JSON.parse(tokens));
   }
 
   clearHistory() {
@@ -33,7 +33,7 @@ export default class DownloadIntegration {
   }
 
   revealDownloadWithToken(token) {
-    DownloadActions.revealDownload(token);
+    downloadActions.revealDownload(token);
   }
 
   revealFileAtPath(filePath) {

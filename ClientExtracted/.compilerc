@@ -2,16 +2,72 @@
   "env": {
     "development": {
       "application/javascript": {
-        "presets": ["es2015", "stage-2", "react"],
-        "plugins": ["transform-runtime", "rewire"],
+        "presets": ["es2017-node7", "react"],
+        "plugins": ["transform-async-to-generator", "rewire"],
         "sourceMaps": "inline"
+      },
+      "text/jade": {
+        "isProduction": false
+      },
+      "text/typescript": {
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "declaration": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noImplicitThis": true,
+        "noUnusedParameters": true,
+        "sourceMap": true,
+        "target": "es2015",
+        "jsx": "react",
+        "types": [
+          "node",
+          "electron",
+          "lodash",
+          "graceful-fs",
+          "react",
+          "react-dom",
+          "winston"
+        ],
+        "doSemanticChecks": false
       }
     },
     "production": {
       "application/javascript": {
-        "presets": ["es2015", "stage-2", "react"],
-        "plugins": ["transform-runtime"],
+        "presets": ["es2017-node7", "react"],
+        "plugins": ["transform-async-to-generator", "rewire"],
         "sourceMaps": false
+      },
+      "text/jade": {
+        "isProduction": true
+      },
+      "text/typescript": {
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "declaration": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noImplicitThis": true,
+        "noUnusedParameters": true,
+        "sourceMap": false,
+        "target": "es2015",
+        "jsx": "react",
+        "types": [
+          "node",
+          "electron",
+          "lodash",
+          "graceful-fs",
+          "react",
+          "react-dom",
+          "winston"
+        ],
+        "doSemanticChecks": false
       }
     }
   }

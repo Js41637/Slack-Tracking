@@ -2,17 +2,18 @@ import assignIn from 'lodash.assignin';
 import fs from 'fs';
 import temp from 'temp';
 
+import {logger} from '../logger';
 import runScript from '../edge-loader';
-import nativeInterop from '../native-interop';
+import {nativeInterop} from '../native-interop';
 import {requireTaskPool} from 'electron-remote';
 
 const {downloadFileOrUrl} = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
-const logger = require('../logger').default;
 const isWindows10OrHigher = nativeInterop.isWindows10OrHigher();
 
 temp.track();
 
 let notifier;
+let tileNotifier;
 
 export default class WindowsNativeNotification {
   /**
@@ -47,7 +48,10 @@ export default class WindowsNativeNotification {
     for (let key of keys) {
       if (options[key]) {
         let target = await this.downloadImage(options[key]);
-        if (target) options[key] = `file:///${target.replace(/\\/g, '/')}`;
+        if (target) {
+          options[`${key}Web`] = options[key];
+          options[key] = `file:///${target.replace(/\\/g, '/')}`;
+        }
       }
     }
     return options;
@@ -63,7 +67,17 @@ export default class WindowsNativeNotification {
     let result;
 
     if (isWindows10OrHigher) {
-      notifier = notifier || require('../renderer/components/node-rt-notification').default;
+      notifier = notifier || require('../renderer/components/node-rt-toast-notification').default;
+
+      if (process.windowsStore) {
+        try {
+          tileNotifier = tileNotifier || require('../renderer/components/node-rt-tile-notification').default;
+          tileNotifier(options);
+        } catch (e) {
+          logger.warn(`Sending tile notification failed with error: ${e.message || e}`);
+        }
+      }
+
       result = await notifier(options);
     } else {
       notifier = notifier || await runScript({

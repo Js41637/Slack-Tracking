@@ -5,7 +5,7 @@ import {remote} from 'electron';
 
 const {app} = remote;
 
-import TeamActions from '../actions/team-actions';
+import {teamActions} from '../actions/team-actions';
 
 class FakeDock{
   getBadge() {}
@@ -47,7 +47,7 @@ export default class DockIntegration {
 
   setBadgeCount(unreadHighlights, unread, showBullet) {
     if (window.teamId) {
-      TeamActions.updateUnreadsInfo(unread, unreadHighlights, showBullet, window.teamId);
+      teamActions.updateUnreadsInfo(unread, unreadHighlights, showBullet, window.teamId);
     }
   }
 }

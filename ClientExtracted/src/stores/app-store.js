@@ -1,4 +1,4 @@
-import Store from '../lib/store';
+import {Store} from '../lib/store';
 
 /*
   Handles all data related to the current state of the user's app, for example
@@ -9,22 +9,6 @@ import Store from '../lib/store';
 class AppStore {
   getApp() {
     return Store.getState().app;
-  }
-
-  isShowingLoginDialog() {
-    return this.getApp().isShowingLoginDialog;
-  }
-
-  getInfoForAuthDialog() {
-    return this.getApp().authInfo;
-  }
-
-  getAuthCredentials() {
-    return this.getApp().credentials;
-  }
-
-  getLastBalloon() {
-    return this.getApp().lastBalloon;
   }
 
   getNetworkStatus() {
@@ -42,57 +26,6 @@ class AppStore {
   getSuspendStatus() {
     return this.getApp().isMachineAwake;
   }
-
-  getSelectedTeamId() {
-    return this.getApp().selectedTeamId;
-  }
-
-  getSelectedChannelId() {
-    return this.getApp().selectedChannelId;
-  }
-
-  isShowingDevTools() {
-    return this.getApp().isShowingDevTools;
-  }
-
-  getUrlSchemeModal() {
-    return this.getApp().urlSchemeModal;
-  }
-
-  getTeamsByIndex() {
-    let {teams, app} = Store.getState();
-    let teamsByIndex = app.teamsByIndex;
-
-    // NB: If ever in a case where teamsByIndex is corrupted, get the state
-    // from the teams themselves. It will remain this way until the user
-    // rearranges their team icons.
-    return isTeamsByIndexValid(teams, teamsByIndex) ?
-      teamsByIndex :
-      Object.keys(teams);
-  }
-
-  getTeamsToLoad() {
-    return this.getApp().teamsToLoad;
-  }
-
-  getWindowSettings() {
-    return this.getApp().windowSettings;
-  }
-
-  getNoDragRegions() {
-    return this.getApp().noDragRegions;
-  }
-
-  isFullScreen() {
-    return this.getApp().isFullScreen;
-  }
 }
 
 export default new AppStore();
-
-export function isTeamsByIndexValid(teams, teamsByIndex) {
-  let teamIds = Object.keys(teams);
-
-  return teamIds.length === teamsByIndex.length &&
-    teamIds.includes(...teamsByIndex);
-}

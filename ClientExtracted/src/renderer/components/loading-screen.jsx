@@ -4,7 +4,7 @@ import {shell} from 'electron';
 
 import AppStore from '../../stores/app-store';
 import Component from '../../lib/component';
-import EventActions from '../../actions/event-actions';
+import {eventActions} from '../../actions/event-actions';
 
 export default class LoadingScreen extends Component {
 
@@ -22,7 +22,7 @@ export default class LoadingScreen extends Component {
   }
 
   retryConnection() {
-    EventActions.reload(true);
+    eventActions.reload(true);
   }
 
   openStatusPage() {

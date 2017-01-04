@@ -1,12 +1,13 @@
 import semver from 'semver';
-import {Observable} from 'rxjs/Observable';
-import {requireTaskPool} from 'electron-remote';
+import { Observable } from 'rxjs/Observable';
 
-import logger from '../logger';
-import {autoUpdaterFinished} from './updater-utils';
-import {is64BitOperatingSystem} from '../native-interop';
+import { logger } from '../logger';
+import { fetchURL } from './fetch-url';
+import { autoUpdaterFinished } from './updater-utils';
+import { nativeInterop } from '../native-interop';
 
-const {fetchFileOrUrl} = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
+const { is64BitOperatingSystem } = nativeInterop;
+const UPDATE_URL_PREFIX = 'https://downloads.slack-edge.com/releases';
 
 export default class WindowsSquirrelUpdater {
 
@@ -22,7 +23,7 @@ export default class WindowsSquirrelUpdater {
     this.version = options.version.split('-')[0];
     this.autoUpdater = require('electron').autoUpdater;
 
-    let updateUrl = 'https://slack-ssb-updates.global.ssl.fastly.net/releases';
+    let updateUrl = UPDATE_URL_PREFIX;
     if (options.useBetaChannel) updateUrl += '_beta';
     if (is64BitOperatingSystem()) updateUrl += '_x64';
 
@@ -58,7 +59,7 @@ export default class WindowsSquirrelUpdater {
    * version is >= than the latest available one, and true otherwise.
    */
   async isUpdateAvailable() {
-    let body = await fetchFileOrUrl(`${this.ssbUpdateUrl}/RELEASES`);
+    let body = await fetchURL(`${this.ssbUpdateUrl}/RELEASES`);
 
     // A single line from the body looks like:
     // 81D4BED4FD0FC59C3995D0CC8D8B35301D38851D slack-1.8.1-full.nupkg 60556480

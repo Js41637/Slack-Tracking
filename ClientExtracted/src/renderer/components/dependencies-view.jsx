@@ -1,4 +1,4 @@
-import logger from '../../logger';
+import {logger} from '../../logger';
 import path from 'path';
 import {parseLicenses} from '../../parse-licenses';
 import {VirtualScroll} from 'react-virtualized';
@@ -7,7 +7,7 @@ import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import ReactHeight from 'react-height';
 import Component from '../../lib/component';
-import SettingStore from '../../stores/setting-store';
+import {settingStore} from '../../stores/setting-store';
 
 const DEFAULT_ROW_HEIGHT = 60;
 const HORIZONTAL_PADDING = 24;
@@ -30,9 +30,9 @@ export default class DependenciesView extends Component {
 
   syncState() {
     return {
-      resourcePath: SettingStore.getSetting('resourcePath'),
-      isDevMode: SettingStore.getSetting('isDevMode'),
-      isMac: SettingStore.isMac()
+      resourcePath: settingStore.getSetting('resourcePath'),
+      isDevMode: settingStore.getSetting('isDevMode'),
+      isMac: settingStore.isMac()
     };
   }
 

@@ -1,5 +1,5 @@
 import fs from 'graceful-fs';
-import logger from '../logger';
+import {logger} from '../logger';
 
 /**
  * Oh my god, why would you want to do this 😢 ?

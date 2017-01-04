@@ -1,11 +1,11 @@
 import {BrowserWindow, powerMonitor, screen} from 'electron';
 
-import logger from '../logger';
+import {logger} from '../logger';
 import {Observable} from 'rxjs/Observable';
 import '../custom-operators';
 
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 import WindowCreator from './window-creator';
 import WindowStore from '../stores/window-store';
 
@@ -34,7 +34,7 @@ export default class NotificationWindowManager extends ReduxComponent {
   syncState() {
     return {
       notificationsWindow: WindowStore.getNotificationsWindow(),
-      isShowingHtmlNotifications: SettingStore.isShowingHtmlNotifications()
+      isShowingHtmlNotifications: settingStore.isShowingHtmlNotifications()
     };
   }
 

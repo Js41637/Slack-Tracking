@@ -1,10 +1,10 @@
-import logger from '../logger';
+import {logger} from '../logger';
 import {createCompilerHostFromProjectRootSync} from 'electron-compile';
 import path from 'path';
 import {protocol} from 'electron';
 
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 
 const PROTOCOL_SCHEME_NAME = 'slack-webapp-dev';
 
@@ -54,7 +54,7 @@ export default class SlackWebappDevHandler extends ReduxComponent {
 
   syncState() {
     return {
-      webappSrcPath: SettingStore.getSetting('webappSrcPath')
+      webappSrcPath: settingStore.getSetting('webappSrcPath')
     };
   }
 

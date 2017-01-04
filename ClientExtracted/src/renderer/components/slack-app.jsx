@@ -1,58 +1,80 @@
-import {executeJavaScriptMethod} from 'electron-remote';
-import {getMemoryUsage} from '../../memory-usage';
-import objectSum from '../../utils/object-sum';
+import {ipcRenderer, shell, remote, webFrame} from 'electron';
+import {executeJavaScriptMethod, getSenderIdentifier} from 'electron-remote';
+import classNames from 'classnames';
 import {Observable} from 'rxjs/Observable';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import {remote, webFrame} from 'electron';
-import {isPrebuilt} from '../../utils/process-helpers';
-import zoomlevelToFactor from '../../utils/zoomlevel-to-factor';
 
-import AppActions from '../../actions/app-actions';
+import getUserAgent from '../../ssb-user-agent';
+import {isPrebuilt} from '../../utils/process-helpers';
+import {zoomLevelToFactor} from '../../utils/zoomlevel-to-factor';
+import {objectSum} from '../../utils/object-sum';
+
+import {getMemoryUsage} from '../../memory-usage';
+import {appActions} from '../../actions/app-actions';
 import AppStore from '../../stores/app-store';
+import AppTeamsStore from '../../stores/app-teams-store';
 import BasicAuthView from './basic-auth-view';
 import Component from '../../lib/component';
 import DraggableRegion from './draggable-region';
+import {dialogStore} from '../../stores/dialog-store';
+import {dialogActions} from '../../actions/dialog-actions';
+import {eventActions} from '../../actions/event-actions';
+import EventStore from '../../stores/event-store';
 import LoadingScreen from './loading-screen';
 import LoginView from './login-view';
 import NativeNotificationManager from './native-notification-manager';
 import NetworkStatus from '../../network-status';
 import NonDraggableRegion from './non-draggable-region';
 import OverlayManager from './overlay-manager';
-import SettingActions from '../../actions/setting-actions';
-import SettingStore from '../../stores/setting-store';
-import Store from '../../lib/store';
+import {settingActions} from '../../actions/setting-actions';
+import {settingStore} from '../../stores/setting-store';
+import {Store} from '../../lib/store';
 import TeamsDisplay from './teams-display';
 import TeamStore from '../../stores/team-store';
 import UrlSchemeModal from './url-scheme-modal';
+import {windowFrameStore} from '../../stores/window-frame-store';
+import {WindowHelpers} from '../../components/helpers/window-helpers';
+import WindowStore from '../../stores/window-store';
+import {WinTitlebar} from './win-titlebar';
 
 const ESCAPE_KEYCODE = 27;
 const EQUALS_KEYCODE = 187;
 const V_KEYCODE = 86;
 
 import {SIDEBAR_WIDTH, SIDEBAR_WIDTH_NO_TITLE_BAR,
-  CHANNEL_HEADER_HEIGHT} from '../../utils/shared-constants';
+  CHANNEL_HEADER_HEIGHT, REPORT_ISSUE_WINDOW_TYPE} from '../../utils/shared-constants';
 
 export default class SlackApp extends Component {
 
   syncState() {
+    let selectedTeamId = AppTeamsStore.getSelectedTeamId();
+    let selectedTeam = TeamStore.getTeam(selectedTeamId) || null;
+
     return {
       networkStatus: AppStore.getNetworkStatus(),
-      isShowingLoginDialog: AppStore.isShowingLoginDialog(),
-      isTitleBarHidden: SettingStore.getSetting('isTitleBarHidden'),
-      noDragRegions: AppStore.getNoDragRegions(),
+      isShowingLoginDialog: dialogStore.isShowingLoginDialog(),
+      isTitleBarHidden: settingStore.getSetting('isTitleBarHidden'),
+      noDragRegions: windowFrameStore.getNoDragRegions(),
 
-      authInfo: AppStore.getInfoForAuthDialog(),
-      urlSchemeModal: AppStore.getUrlSchemeModal(),
+      authInfo: dialogStore.getInfoForAuthDialog(),
+      urlSchemeModal: dialogStore.getUrlSchemeModal(),
 
+      selectedTeam,
+      selectedTeamId,
       numTeams: TeamStore.getNumTeams(),
-      selectedTeamId: AppStore.getSelectedTeamId(),
 
-      isDevMode: SettingStore.getSetting('isDevMode'),
-      isShowingDevTools: AppStore.isShowingDevTools(),
-      isShowingHtmlNotifications: SettingStore.isShowingHtmlNotifications(),
-      isMac: SettingStore.isMac(),
-      zoomLevel: SettingStore.getSetting('zoomLevel')
+      isDevMode: settingStore.getSetting('isDevMode'),
+      isShowingDevTools: dialogStore.isShowingDevTools(),
+      isShowingHtmlNotifications: settingStore.isShowingHtmlNotifications(),
+      isMac: settingStore.isMac(),
+      zoomLevel: settingStore.getSetting('zoomLevel'),
+
+      reportIssueWindow: WindowStore.getWindowOfSubType(REPORT_ISSUE_WINDOW_TYPE),
+      reportIssueEvent: EventStore.getEvent('reportIssue'),
+      reportIssueOnStartup: settingStore.getSetting('reportIssueOnStartup'),
+
+      isWin10: settingStore.getSetting('isWin10')
     };
   }
 
@@ -64,20 +86,53 @@ export default class SlackApp extends Component {
     this.disposables.add(this.setupKeyDownHandlers());
 
     // Otherwise we'll use {HtmlNotificationManager} in the browser process
-    if (!SettingStore.isShowingHtmlNotifications()) {
+    if (!settingStore.isShowingHtmlNotifications()) {
       this.notificationManager = new NativeNotificationManager();
     }
 
-    if (SettingStore.isWindows()) {
+    if (settingStore.isWindows()) {
       this.overlayManager = new OverlayManager();
     }
+
+    if (this.state.reportIssueOnStartup) {
+      eventActions.reportIssue();
+    }
+
+    this.setupWindowWatcher();
+  }
+
+  /**
+   * Observes window maximize and full-screen events and sets some state
+   * accordingly. We need to track this for rendering the window frame.
+   *
+   * @return {Subscription}  Manages the event subscription
+   */
+  setupWindowWatcher() {
+    const browserWindow = remote.getCurrentWindow();
+
+    if (browserWindow.isMaximized()) {
+      this.setState({ isMaximized: true });
+    }
+
+    const maximizedEvents = Observable.merge(
+      Observable.fromEvent(browserWindow, 'enter-full-screen'),
+      Observable.fromEvent(browserWindow, 'maximize')
+    ).map(() => true);
+
+    const minimizedEvents = Observable.merge(
+      Observable.fromEvent(browserWindow, 'leave-full-screen'),
+      Observable.fromEvent(browserWindow, 'unmaximize')
+    ).map(() => false);
+
+    return Observable.merge(maximizedEvents, minimizedEvents)
+      .subscribe((isMaximized) => this.setState({ isMaximized }));
   }
 
   /**
    * Observes network status until we're online, at which point we'll stop
    * monitoring changes and let the webapp handle reconnects.
    *
-   * @return {Subscription}  A Subscription that will clean up this subscription
+   * @return {Subscription}  Manages the event subscription
    */
   setupNetwork() {
     this.networkStatus = new NetworkStatus();
@@ -85,12 +140,12 @@ export default class SlackApp extends Component {
     return this.networkStatus.statusObservable()
       .subscribe((online) => {
         if (online) {
-          AppActions.setNetworkStatus('online');
+          appActions.setNetworkStatus('online');
           this.setState({wasConnected: true});
         } else if (this.networkStatus.browserIsOnline() && this.networkStatus.reason === 'slackDown') {
-          AppActions.setNetworkStatus('slackDown');
+          appActions.setNetworkStatus('slackDown');
         } else {
-          AppActions.setNetworkStatus('offline');
+          appActions.setNetworkStatus('offline');
         }
       });
   }
@@ -106,7 +161,7 @@ export default class SlackApp extends Component {
 
       if (e.keyCode === EQUALS_KEYCODE && !e.shiftKey && !e.altKey && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
-        SettingActions.zoomIn();
+        settingActions.zoomIn();
       }
 
       if (e.keyCode === V_KEYCODE && e.shiftKey && e.metaKey && this.state.isMac) {
@@ -142,6 +197,40 @@ export default class SlackApp extends Component {
   }
 
   /**
+   * Focuses the existing Report Issue window or creates a new one.
+   */
+  reportIssueEvent() {
+    let {selectedTeam, reportIssueWindow} = this.state;
+
+    if (reportIssueWindow) {
+      let browserWindow = remote.BrowserWindow.fromId(reportIssueWindow.id);
+      WindowHelpers.bringToForeground(browserWindow);
+    } else if (selectedTeam) {
+      let helpUrl = require('url').resolve(selectedTeam.team_url, 'help/requests/new');
+      this.createReportIssueWindow(helpUrl);
+    } else {
+      shell.openExternal(`https://slack.com/help/requests/new`);
+    }
+  }
+
+  /**
+   * Delegate to the main process to create a popup window pointed at our Help
+   * request URL.
+   */
+  createReportIssueWindow(url) {
+    ipcRenderer.send('create-webapp-window', {
+      url,
+      userAgent: getUserAgent(),
+      parentInfo: getSenderIdentifier(),
+      windowType: REPORT_ISSUE_WINDOW_TYPE,
+      fullscreenable: false,
+      isPopupWindow: true,
+      width: 800,
+      height: 900
+    });
+  }
+
+  /**
    * Renders a draggable region that overlaps the channel header, if the
    * title-bar is hidden. There can be non-draggable regions within the header,
    * such as the search box or the topic field, unless a full-screen modal is
@@ -152,7 +241,7 @@ export default class SlackApp extends Component {
    */
   renderDraggableRegion(hasLoginContent) {
     let {isTitleBarHidden, numTeams, noDragRegions} = this.state;
-    let zoomFactor = zoomlevelToFactor(this.state.zoomLevel);
+    let zoomFactor = zoomLevelToFactor(this.state.zoomLevel);
 
     if (!isTitleBarHidden) return null;
 
@@ -187,9 +276,11 @@ export default class SlackApp extends Component {
   }
 
   render() {
-    let {numTeams, networkStatus, authInfo, isShowingLoginDialog, isShowingDevTools, urlSchemeModal} = this.state;
+    let {numTeams, networkStatus, authInfo, isShowingLoginDialog,
+      isShowingDevTools, urlSchemeModal, isWin10, isMaximized} = this.state;
     let hasTeams = numTeams > 0;
     let isOnline = networkStatus === 'online';
+    let className = classNames('SlackApp', { 'fancy-frame': isWin10 }, {isMaximized});
 
     let teamContent = <LoadingScreen />;
     let loginContent = null;
@@ -206,7 +297,7 @@ export default class SlackApp extends Component {
         loginContent =
           <LoginView ref="loginView"
             cancelable={hasTeams}
-            onCancel={() => AppActions.hideLoginDialog()}/>;
+            onCancel={() => dialogActions.hideLoginDialog()}/>;
       }
     }
 
@@ -232,7 +323,8 @@ export default class SlackApp extends Component {
     }
 
     return (
-      <div ref="main" className="SlackApp">
+      <div ref="main" className={className}>
+        {isWin10 ? <WinTitlebar /> : ''}
         {this.renderDraggableRegion(loginContent !== null)}
         {teamContent}
         {loginContent}

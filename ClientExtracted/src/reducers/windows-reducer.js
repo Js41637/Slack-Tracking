@@ -1,4 +1,4 @@
-import omit from '../utils/omit';
+import {omit} from '../utils/omit';
 
 import {WINDOWS} from '../actions';
 

@@ -1,14 +1,14 @@
 import React from 'react';
-import logger from '../../logger';
+import {logger} from '../../logger';
 import {shell} from 'electron';
 import {Observable} from 'rxjs/Observable';
 import url from 'url';
 
-import AppActions from '../../actions/app-actions';
-import SettingStore from '../../stores/setting-store';
-import SettingActions from '../../actions/setting-actions';
+import {dialogActions} from '../../actions/dialog-actions';
+import {settingStore} from '../../stores/setting-store';
+import {settingActions} from '../../actions/setting-actions';
 import Component from '../../lib/component';
-import Modal from '../../components/modal';
+import {Modal} from '../../components/modal';
 
 export default class UrlSchemeModal extends Component {
   static propTypes = {
@@ -23,7 +23,7 @@ export default class UrlSchemeModal extends Component {
 
   syncState() {
     return {
-      whitelistedUrlSchemes: SettingStore.getSetting('whitelistedUrlSchemes')
+      whitelistedUrlSchemes: settingStore.getSetting('whitelistedUrlSchemes')
     };
   }
 
@@ -54,11 +54,11 @@ export default class UrlSchemeModal extends Component {
     }
 
     if (this.refs.whitelist.checked) this.whitelistProtocol();
-    AppActions.hideUrlSchemeModal();
+    dialogActions.hideUrlSchemeModal();
   }
 
   handleCancel() {
-    AppActions.hideUrlSchemeModal();
+    dialogActions.hideUrlSchemeModal();
   }
 
   /**
@@ -74,7 +74,7 @@ export default class UrlSchemeModal extends Component {
 
     if (whitelistedUrlSchemes.indexOf(this.protocol) < 0) {
       whitelistedUrlSchemes.push(this.protocol);
-      SettingActions.updateSettings({whitelistedUrlSchemes});
+      settingActions.updateSettings({whitelistedUrlSchemes});
     }
   }
 

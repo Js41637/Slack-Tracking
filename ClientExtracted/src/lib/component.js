@@ -1,12 +1,11 @@
 import clone from 'lodash.clone';
-import logger from '../logger';
+import {logger} from '../logger';
 import React from 'react';
 import {Subscription} from 'rxjs/Subscription';
-import shallowEqual from '../utils/shallow-equal';
-import stateEventHandler from './state-events';
-
-import Store from './store';
-import SettingStore from '../stores/setting-store';
+import {shallowEqual} from '../utils/shallow-equal';
+import {stateEventHandler} from './state-events';
+import {Store} from './store';
+import {settingStore} from '../stores/setting-store';
 
 export default class Component extends React.Component {
 
@@ -18,7 +17,7 @@ export default class Component extends React.Component {
     let unsubscribe = Store.subscribe(this._update.bind(this));
     this.disposables = new Subscription(unsubscribe);
 
-    this.isDevMode = SettingStore.getSetting('isDevMode') === true;
+    this.isDevMode = settingStore.getSetting('isDevMode') === true;
   }
 
   _update() {

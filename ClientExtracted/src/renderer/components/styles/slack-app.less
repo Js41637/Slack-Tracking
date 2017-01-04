@@ -5,6 +5,7 @@
   padding: 0;
   font-family: Slack-Lato, Lucida Grande, sans-serif;
   overflow: hidden;
+  box-sizing: border-box;
 
   .LoginView {
     position: absolute;
@@ -19,5 +20,13 @@
   .anim-leave.anim-leave-active {
     opacity: 0;
     transition: opacity 0.2s ease-out;
+  }
+
+  &.fancy-frame {
+    border: 1px solid #444444;
+  }
+
+  &.fancy-frame.isMaximized {
+    border: 0px;
   }
 }

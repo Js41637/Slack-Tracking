@@ -1,4 +1,4 @@
-import logger from './logger';
+import {logger} from './logger';
 import {Observable} from 'rxjs/Observable';
 import {async} from 'rxjs/scheduler/async';
 

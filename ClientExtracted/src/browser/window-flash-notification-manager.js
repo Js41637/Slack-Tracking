@@ -1,10 +1,12 @@
 import {BrowserWindow} from 'electron';
-import {getIdleTimeInMs} from '../native-interop';
+import {nativeInterop} from '../native-interop';
 
 import NotificationStore from '../stores/notification-store';
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 import WindowStore from '../stores/window-store';
+
+const {getIdleTimeInMs} = nativeInterop;
 
 // The amount of time (in milliseconds) that a user must be inactive before
 // we'll flash their taskbar icon.
@@ -15,8 +17,8 @@ export default class WindowFlashNotificationManager extends ReduxComponent {
   syncState() {
     return {
       newNotificationEvent: NotificationStore.getNewNotificationEvent(),
-      windowFlashBehavior: SettingStore.getSetting('windowFlashBehavior'),
-      isWindows: SettingStore.isWindows(),
+      windowFlashBehavior: settingStore.getSetting('windowFlashBehavior'),
+      isWindows: settingStore.isWindows(),
       mainWindow: BrowserWindow.fromId(WindowStore.getMainWindow().id)
     };
   }

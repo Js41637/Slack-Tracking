@@ -1,10 +1,10 @@
 import assignIn from 'lodash.assignin';
 import {Subscription} from 'rxjs/Subscription';
-import shallowEqual from '../utils/shallow-equal';
-import stateEventHandler from './state-events';
+import {shallowEqual} from '../utils/shallow-equal';
+import {stateEventHandler} from './state-events';
 
-import Store from './store';
-import SettingStore from '../stores/setting-store';
+import {Store} from './store';
+import {settingStore} from '../stores/setting-store';
 
 /**
   * This is our way of extending the goodness of React Components to the Browser
@@ -36,7 +36,7 @@ export default class ReduxComponent {
     assignIn(this, args);
     this.state = this.syncState() || {};
 
-    if (SettingStore.getSetting('isDevMode') === true) {
+    if (settingStore.getSetting('isDevMode') === true) {
       Object.keys(this.state).forEach((key) => {
         let value = this.state[key];
         if (value === undefined) {

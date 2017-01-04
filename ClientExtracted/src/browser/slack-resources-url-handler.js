@@ -1,11 +1,11 @@
 import {protocol} from 'electron';
-import logger from '../logger';
+import {logger} from '../logger';
 import path from 'path';
 import LRU from 'lru-cache';
 import {requestGC} from '../run-gc';
 
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 
 /** @class SlackResourcesUrlHandler
   * Sets up a protocol handler for 'slack-resources', which is used by
@@ -81,7 +81,7 @@ export default class SlackResourcesUrlHandler extends ReduxComponent {
 
   syncState() {
     return {
-      resourcePath: SettingStore.getSetting('resourcePath')
+      resourcePath: settingStore.getSetting('resourcePath')
     };
   }
 }

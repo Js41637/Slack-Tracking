@@ -1,5 +1,5 @@
-import sum from '../utils/sum';
-import Store from '../lib/store';
+import {sum} from '../utils/sum';
+import {Store} from '../lib/store';
 
 class TeamStore {
   getTeams() {

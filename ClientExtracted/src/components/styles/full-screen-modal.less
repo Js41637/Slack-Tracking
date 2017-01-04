@@ -11,6 +11,17 @@
 @import "../../static/plastic/plastic_typography";
 @import "../../static/plastic/plastic_utilities";
 
+
+// Custom for electron
+.fancy-frame .full-screen-modal-container {
+	transform: translateZ(0); // Black magic: reset coordinate system
+    height: ~"calc(100% - 31px)";
+    width: 100%;
+    position: absolute;
+    top: 31px;
+}
+// End custom
+
 html.fs_modal_active {
 	overflow: hidden;
 }

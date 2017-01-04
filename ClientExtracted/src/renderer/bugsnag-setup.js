@@ -3,7 +3,7 @@ const apiKey = 'acaff8df67924f677747922423057034';
 
 import sanitizeStacks from '../sanitize-stacks';
 import nslog from 'nslog';
-import logger from '../logger';
+import {logger} from '../logger';
 
 export default function setupBugsnag(shouldSuppressErrors, version) {
   window.Bugsnag.apiKey = apiKey;

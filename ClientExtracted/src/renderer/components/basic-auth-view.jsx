@@ -1,14 +1,14 @@
 import React from 'react';
 
-import AppActions from '../../actions/app-actions';
-import AppStore from '../../stores/app-store';
+import {dialogActions} from '../../actions/dialog-actions';
+import {dialogStore} from '../../stores/dialog-store';
 import Component from '../../lib/component';
-import Modal from '../../components/modal';
+import {Modal} from '../../components/modal';
 
 export default class BasicAuthView extends Component {
   constructor() {
     super();
-    this.state = Object.assign({}, this.state, AppStore.getAuthCredentials() || {
+    this.state = Object.assign({}, this.state, dialogStore.getAuthCredentials() || {
       username: null,
       password: null
     });
@@ -19,7 +19,7 @@ export default class BasicAuthView extends Component {
   };
 
   handleSubmit() {
-    AppActions.submitCredentials({
+    dialogActions.submitCredentials({
       username: this.state.username,
       password: this.state.password
     });

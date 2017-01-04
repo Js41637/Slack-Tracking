@@ -3,12 +3,12 @@ import path from 'path';
 import {requireTaskPool} from 'electron-remote';
 import {Observable} from 'rxjs/Observable';
 
-import logger from '../../logger';
-import AppStore from '../../stores/app-store';
+import {logger} from '../../logger';
+import AppTeamsStore from '../../stores/app-teams-store';
 import NotificationActions from '../../actions/notification-actions';
 import NotificationStore from '../../stores/notification-store';
 import ReduxComponent from '../../lib/redux-component';
-import SettingStore from '../../stores/setting-store';
+import {settingStore} from '../../stores/setting-store';
 import TeamStore from '../../stores/team-store';
 
 const {clearNotificationsForChannel} = requireTaskPool(require.resolve('../../csx/clear-notifications'));
@@ -23,20 +23,22 @@ export default class NativeNotificationManager extends ReduxComponent {
   constructor() {
     super();
     this.update();
+    this.enableNotificationQueue();
   }
 
   syncState() {
     let state = {
       newNotificationEvent: NotificationStore.getNewNotificationEvent(),
-      selectedChannelId: AppStore.getSelectedChannelId(),
-      isWindows: SettingStore.isWindows(),
-      isMac: SettingStore.isMac()
+      selectedChannelId: AppTeamsStore.getSelectedChannelId(),
+      isWindows: settingStore.isWindows(),
+      isWindowsStore: settingStore.getSetting('isWindowsStore'),
+      isMac: settingStore.isMac()
     };
 
     // Notification position is only used on Windows 7 / 8.
-    if (state.isWindows && SettingStore.getSetting('isBeforeWin10')) {
+    if (state.isWindows && settingStore.getSetting('isBeforeWin10')) {
       assignIn(state, {
-        notifyPosition: SettingStore.getSetting('notifyPosition')
+        notifyPosition: settingStore.getSetting('notifyPosition')
       });
     }
 
@@ -71,27 +73,32 @@ export default class NativeNotificationManager extends ReduxComponent {
       NativeNotification = NativeNotification || window.Notification;
     }
 
-    let team = TeamStore.getTeam(notification.teamId);
-    let userId = team.id;
-    let teamId = team.team_id;
+    let team = undefined, userId = undefined, teamId = undefined;
+    if (notification.teamId) {
+      team = TeamStore.getTeam(notification.teamId);
+      if (team) {
+        userId = team.id;
+        teamId = team.team_id;
+      }
+    }
 
     let options = this.getNotificationOptionsForPlatform(notification, team);
     let element = new NativeNotification(notification.title, options);
 
     this.disposables.add(Observable.fromEvent(element, 'click').take(1)
       .subscribe(() => {
-        let {id, channel} = notification;
+        let {id, channel, msg} = notification;
 
         if (this.state.isMac) element.close();
-        NotificationActions.clickNotification(id, channel, teamId);
+        NotificationActions.clickNotification(id, channel, teamId, msg);
       }));
 
     this.disposables.add(Observable.fromEvent(element, 'reply').take(1)
       .subscribe(({response}) => {
-        let {channel, msg} = notification;
+        let {channel, msg, thread_ts} = notification;
 
         if (this.state.isMac) element.close();
-        NotificationActions.replyToNotification(response, channel, userId, teamId, msg);
+        NotificationActions.replyToNotification(response, channel, userId, teamId, msg, thread_ts);
       }));
 
     // When we close the window, we unload all notifications. This should be improved
@@ -113,12 +120,10 @@ export default class NativeNotificationManager extends ReduxComponent {
    */
   getNotificationOptionsForPlatform(args, team) {
     let icons = team ? team.icons : args.icons;
+    let icon = icons ? (icons.image_512 || icons.image_132 || icons.image_102 || icons.image_68) : undefined;
+    let teamId = team ? team.team_id : undefined;
 
-    let options = {
-      body: args.content,
-      teamId: team.team_id,
-      icon: icons.image_512 || icons.image_132 || icons.image_102 || icons.image_68
-    };
+    let options = { teamId, icon, body: args.content };
 
     if (this.state.isWindows) {
       assignIn(options, {
@@ -141,5 +146,20 @@ export default class NativeNotificationManager extends ReduxComponent {
     }
 
     return options;
+  }
+
+  /**
+   * Windows Store packages get to have up to five notifications rotating
+   * on their tile. If we're such a package, we're enabling that feature
+   * here.
+   */
+  enableNotificationQueue() {
+    if (this.state.isWindows && this.state.isWindowsStore) {
+      const {TileUpdater} = require('electron-windows-notifications');
+      const tileUpdater = new TileUpdater();
+
+      tileUpdater.enableNotificationQueue();
+      this.disposables.add(() => tileUpdater.clear());
+    }
   }
 }

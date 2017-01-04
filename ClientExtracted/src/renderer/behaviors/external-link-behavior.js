@@ -2,9 +2,9 @@ import url from 'url';
 import {shell} from 'electron';
 import {Observable} from 'rxjs/Observable';
 
-import logger from '../../logger';
-import AppActions from '../../actions/app-actions';
-import SettingStore from '../../stores/setting-store';
+import {logger} from '../../logger';
+import {dialogActions} from '../../actions/dialog-actions';
+import {settingStore} from '../../stores/setting-store';
 
 class ExternalLinkBehavior {
 
@@ -28,7 +28,7 @@ class ExternalLinkBehavior {
         const parsedUrl = url.parse(urlString);
         const formattedUrl = (/^https?:\/\//.test(urlString)) ? this.escapeUrlWhenNeeded(parsedUrl) : urlString;
 
-        if (SettingStore.getSetting('whitelistedUrlSchemes').includes(parsedUrl.protocol)) {
+        if (settingStore.getSetting('whitelistedUrlSchemes').includes(parsedUrl.protocol)) {
           try {
             logger.debug(`Opening external window to ${formattedUrl}`);
             shell.openExternal(formattedUrl, {activate: disposition !== 'background-tab'});
@@ -36,7 +36,7 @@ class ExternalLinkBehavior {
             logger.warn(`Failed to open external window: ${error.message}`);
           }
         } else {
-          AppActions.showUrlSchemeModal({
+          dialogActions.showUrlSchemeModal({
             url: formattedUrl,
             disposition: disposition
           });

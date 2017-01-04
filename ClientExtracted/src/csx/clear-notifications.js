@@ -1,4 +1,4 @@
-import nativeInterop from '../native-interop';
+import {nativeInterop} from '../native-interop';
 import {history} from 'electron-windows-notifications';
 import {getAppId} from '../utils/app-id';
 import {logger} from '../logger';

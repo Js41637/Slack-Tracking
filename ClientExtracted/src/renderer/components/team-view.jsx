@@ -1,106 +1,116 @@
 import * as theURL from 'url';
 import assignIn from 'lodash.assignin';
-import {clipboard, ipcRenderer, remote} from 'electron';
-import {getSenderIdentifier} from 'electron-remote';
-import omit from '../../utils/omit';
-import getUserAgent from '../../ssb-user-agent';
-import logger from '../../logger';
+import {clipboard, remote} from 'electron';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
 import {AsyncSubject} from 'rxjs/AsyncSubject';
-import {Subject} from 'rxjs/Subject';
-import SerialSubscription from 'rxjs-serial-subscription';
+
+import profiler from '../../utils/profiler';
+import {logger} from '../../logger';
+import {omit} from '../../utils/omit';
 import '../../custom-operators';
 
-import AppStore from '../../stores/app-store';
+import {appTeamsActions} from '../../actions/app-teams-actions';
+import AppTeamsStore from '../../stores/app-teams-store';
 import Component from '../../lib/component';
 import DownloadManager from './download-manager';
-import EventActions from '../../actions/event-actions';
+import {dialogStore} from '../../stores/dialog-store';
+import {eventActions} from '../../actions/event-actions';
 import EventStore from '../../stores/event-store';
 import LoadingScreen from './loading-screen';
-import SettingStore from '../../stores/setting-store';
-import TeamActions from '../../actions/team-actions';
+import {settingStore} from '../../stores/setting-store';
+import {teamActions} from '../../actions/team-actions';
 import TeamStore from '../../stores/team-store';
 import WebViewContext from './web-view-ctx';
-import WindowHelpers from '../../components/helpers/window-helpers';
-import WindowStore from '../../stores/window-store';
+import {WindowHelpers} from '../../components/helpers/window-helpers';
 
-import {FIND_PASTEBOARD_NAME} from '../../ssb/clipboard';
-import {TEAM_IDLE_TIMEOUT, DEFAULT_TEAM_IDLE_TIMEOUT} from '../../utils/shared-constants';
-
-const REPORT_ISSUE_WINDOW_TYPE = 'report-issue';
 const LOCAL_WEBAPP_ASSETS_PARAM = 'local_assets';
+let hasStoppedProfiling = !profiler.shouldProfile();
 
 export default class TeamView extends Component {
   static propTypes = {
     teamId: React.PropTypes.string.isRequired,
-    loadWebView: React.PropTypes.bool
+    loadWebView: React.PropTypes.bool,
+    loadMinWeb: React.PropTypes.bool
   };
 
   constructor(props) {
     super(props);
     this.state = assignIn({
-      isWebViewLoaded: false
+      isWebViewLoaded: false,
+      isTeamUnloaded: props.loadMinWeb
     }, this.state);
 
-    this.teamSelected = new Subject();
     this.webAppHasLoaded = new AsyncSubject();
   }
 
   syncState() {
     return {
       team: TeamStore.getTeam(this.props.teamId),
-      selectedTeamId: AppStore.getSelectedTeamId(),
-      isShowingDevTools: AppStore.isShowingDevTools(),
-      isShowingLoginDialog: AppStore.isShowingLoginDialog(),
-      isDevMode: SettingStore.getSetting('isDevMode'),
-      webappSrcPath: SettingStore.getSetting('webappSrcPath'),
+      selectedTeamId: AppTeamsStore.getSelectedTeamId(),
+      isShowingDevTools: dialogStore.isShowingDevTools(),
+      isShowingLoginDialog: dialogStore.isShowingLoginDialog(),
+      isDevMode: settingStore.getSetting('isDevMode'),
+      webappSrcPath: settingStore.getSetting('webappSrcPath'),
 
       showWebappDialogEvent: EventStore.getEvent('showWebappDialog'),
       clickNotificationEvent: EventStore.getEvent('clickNotification'),
       replyToNotificationEvent: EventStore.getEvent('replyToNotification'),
-      focusPrimaryTeamEvent: EventStore.getEvent('focusPrimaryTeam'),
+      mainWindowFocusedEvent: EventStore.getEvent('mainWindowFocused'),
       appCommandEvent: EventStore.getEvent('appCommand'),
       editingCommandEvent: EventStore.getEvent('editingCommand'),
       refreshTeamEvent: EventStore.getEvent('refreshTeam'),
-      reloadEvent: EventStore.getEvent('reload'),
-
-      reportIssueWindow: WindowStore.getWindowOfSubType(REPORT_ISSUE_WINDOW_TYPE),
-      reportIssueEvent: EventStore.getEvent('reportIssue'),
-      reportIssueOnStartup: SettingStore.getSetting('reportIssueOnStartup')
+      refreshTeamsEvent: EventStore.getEvent('refreshTeams'),
+      reloadEvent: EventStore.getEvent('reload')
     };
   }
 
-  componentDidMount() {
-    if (this.state.reportIssueOnStartup &&
-      this.state.selectedTeamId === this.props.teamId) {
-      EventActions.reportIssue();
-    }
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    let {selectedTeamId, team} = this.state;
-
-    this.teamSelected.next(selectedTeamId);
+    let {selectedTeamId, team, isShowingLoginDialog} = this.state;
 
     if (selectedTeamId === this.props.teamId) {
       this.setBugsnagMetadata(team);
       WindowHelpers.updateDevTools(this.refs.webViewContext, prevState, this.state);
 
-      // If the selected team has changed and a team view was in focus
-      // before, focus this one instead to appear as if its the same
-      // element thats in focus (if unfocused, keyboard shortcuts don't work)
-      if (prevState.selectedTeamId !== selectedTeamId &&
-        this.constructor.focusedTeamView !== null) {
-        this.refs.webViewContext.focus();
+      // Make sure we focus the newly visible WebView
+      if (prevState.selectedTeamId !== selectedTeamId ||
+        (prevState.isShowingLoginDialog && !isShowingLoginDialog)) {
+        this.focus();
       }
     }
   }
 
   getWebView() {
     return this.refs.webViewContext.getWebView();
+  }
+
+  /**
+   * Executes some JavaScript code inside the team's {WebViewContext}.
+   *
+   * @param  {string} code  The code to execute
+   * @return {Promise<any>} The result of the code
+   */
+  executeJavaScript(code) {
+    return this.webAppHasLoaded
+      .flatMap(() => this.refs.webViewContext.executeJavaScript(code))
+      .toPromise();
+  }
+
+  /**
+   * Executes an interop method on the appropriate webapp global, given the
+   * current state of the team. If unloaded, use min-web, otherwise use the
+   * full TSSSB object.
+   *
+   * @returns {Observable}
+   */
+  executeInteropMethod(method, ...args) {
+    const interopGlobal = this.isTeamUnloaded() ? 'MW' : 'TSSSB';
+    const pathToObject = `${interopGlobal}.${method}`;
+
+    return this.webAppHasLoaded
+      .flatMap(() => this.refs.webViewContext.executeJavaScriptMethod(pathToObject, ...args));
   }
 
   /**
@@ -130,14 +140,19 @@ export default class TeamView extends Component {
   }
 
   shouldPatchTeamURL(url) {
-    return this.state.webappSrcPath && !url.includes(`${LOCAL_WEBAPP_ASSETS_PARAM}=1`) && url.includes(this.state.team.team_url);
+    return this.state.webappSrcPath &&
+      !url.includes(`${LOCAL_WEBAPP_ASSETS_PARAM}=1`) &&
+      url.includes(this.state.team.team_url);
   }
 
   getTeamURL(url) {
     if (this.shouldPatchTeamURL(url)) {
       return `${url}?${LOCAL_WEBAPP_ASSETS_PARAM}=1`;
     }
-    return url;
+
+    return this.props.loadMinWeb ?
+      theURL.resolve(url, 'min') :
+      theURL.resolve(url, 'messages');
   }
 
   isSigninURL(url = '') {
@@ -161,17 +176,11 @@ export default class TeamView extends Component {
   onWebViewLoaded() {
     this.setState({isWebViewLoaded: true});
 
-    let teamUnloadingDisposable = new SerialSubscription();
-    teamUnloadingDisposable.add(this.setupTeamUnloading());
-
     if (!this.state.team.id) this.patchUserIdFromWebapp();
 
     const sub = new Subscription();
     sub.add(this.assignTeamIdInWebapp());
     sub.add(this.setupLoadTimeout());
-    sub.add(teamUnloadingDisposable);
-    sub.add(this.handleTeamIdleTimeoutChanged(teamUnloadingDisposable));
-
     this.disposables.add(sub);
   }
 
@@ -182,10 +191,12 @@ export default class TeamView extends Component {
     this.webAppHasLoaded.next(true);
     this.webAppHasLoaded.complete();
 
-    this.focusPrimaryTeamEvent();
-
     if (this.downloadManager) this.downloadManager.dispose();
     this.downloadManager = new DownloadManager({teamView: this});
+
+    if (hasStoppedProfiling) return;
+    hasStoppedProfiling = true;
+    if (profiler.shouldProfile()) profiler.stopProfiling('renderer');
   }
 
   onRedirect(e) {
@@ -202,24 +213,34 @@ export default class TeamView extends Component {
    * @param  {String} validatedURL}    The URL where the error occurred
    */
   onWebViewError({errorCode, errorDescription, validatedURL}) {
-    logger.error(`WebView failed to load ${validatedURL} with ${errorCode}: ${errorDescription}`);
-
     if (validatedURL.startsWith(this.state.team.team_url)) {
-      logger.warn('Team failed to load, issuing refresh');
-      this.refs.webViewContext.reload();
+      this.issueReloadWithReason(`WebView failed to load ${validatedURL} with ${errorCode}: ${errorDescription}`);
     }
   }
 
   onWebViewEmpty(webViewURL) {
-    if (!this.isSigninURL(webViewURL)) {
-      logger.error(`No elements in document.body after did-stop-loading, issuing refresh`);
-      this.refs.webViewContext.reload();
+    let isTeamUnloading = webViewURL.startsWith(theURL.resolve(this.state.team.team_url, 'min'));
+
+    if (!this.isSigninURL(webViewURL) && !isTeamUnloading) {
+      this.issueReloadWithReason(`WebView was empty after did-stop-loading; issuing refresh`);
     }
   }
 
+  issueReloadWithReason(reason) {
+    logger.error(reason);
+    this.refs.webViewContext.reload();
+  }
+
+  focus() {
+    this.refs.webViewContext.focus();
+  }
+
   refreshTeamEvent({teamId}) {
-    if (teamId !== this.props.teamId) return;
-    this.loadTeamURL();
+    if (teamId === this.props.teamId) this.loadTeamURL();
+  }
+
+  refreshTeamsEvent({teamIds}) {
+    if (teamIds.includes(this.props.teamId)) this.loadTeamURL();
   }
 
   reloadEvent({everything}) {
@@ -236,10 +257,10 @@ export default class TeamView extends Component {
     }
   }
 
-  focusPrimaryTeamEvent() {
+  mainWindowFocusedEvent() {
     if (!this.state.isShowingLoginDialog &&
       this.state.selectedTeamId === this.props.teamId) {
-      this.refs.webViewContext.focus();
+      this.focus();
     }
   }
 
@@ -256,16 +277,21 @@ export default class TeamView extends Component {
     }
   }
 
+  /**
+   * Handles the Find and Use Selection for Find commands.
+   *
+   * @param  {String} {command}   The type of command being handled
+   */
   editingCommandEvent({command}) {
     if (this.state.selectedTeamId === this.props.teamId) {
       switch (command) {
       case 'find':
-        this.executeJavaScriptMethod('TSSSB.searchForTxt', clipboard.readText(FIND_PASTEBOARD_NAME))
+        this.executeJavaScriptMethod('TSSSB.searchForTxt', clipboard.readFindText())
           .catch((err) => logger.warn(`searchForTxt failed: ${err.message}`));
         break;
       case 'use-selection-for-find':
         this.executeJavaScriptMethod('TSSSB.getSelectedInputTxt')
-          .then((text) => clipboard.writeText(text, FIND_PASTEBOARD_NAME))
+          .then((text) => clipboard.writeFindText(text))
           .catch((err) => logger.warn(`getSelectedInputTxt failed: ${err.message}`));
         break;
       }
@@ -276,59 +302,45 @@ export default class TeamView extends Component {
    * When a notification is clicked, check if its `teamId` matches this team
    * and if so, tell the webapp to switch to the appropriate channel.
    *
-   * @param  {type} {teamId  Identifies the team for this event
-   * @param  {type} channel} Identifies the channel of the notification
+   * @param  {String} {teamId     Identifies the team for this event
+   * @param  {String} channel     Identifies the channel of the notification
+   * @param  {String} messageId}  The ID of the message that triggered the notification
    */
-  clickNotificationEvent({teamId, channel}) {
+  async clickNotificationEvent({teamId, channel, messageId}) {
     if (teamId === this.props.teamId) {
-      return this.executeJavaScriptMethod('TSSSB.focusTabAndSwitchToChannel', channel);
+      const method = this.isTeamUnloaded() ?
+        'MW.setClientPathByModelObId' :
+        'TSSSB.focusTabAndSwitchToChannel';
+
+      try {
+        await this.executeJavaScriptMethod(method, channel, messageId);
+      } catch (err) {
+        logger.warn(`${method}(${channel}) failed: ${err.message}`);
+      }
+
+      appTeamsActions.selectTeam(teamId);
     }
   }
 
   /**
-   * Occurs when the user replies to a notification.
+   * Occurs when the user replies to a notification. We need to use a different
+   * method if the team is currently unloaded.
    *
-   * @param  {String} {teamId       Identifies the team for this event
-   * @param  {String} channel       Identifies the channel for the reply
-   * @param  {String} response      The text the user replied with
-   * @param  {String} inReplyToId}  The ID of the message being replied to
+   * @param  {String} {teamId           Identifies the team for this event
+   * @param  {String} channel           Identifies the channel for the reply
+   * @param  {String} response          The text the user replied with
+   * @param  {String} inReplyToId       The ID of the message being replied to
+   * @param  {String} threadTimestamp}  Identifies the thread this message belongs to, if any
    */
-  replyToNotificationEvent({teamId, channel, response, inReplyToId}) {
+  async replyToNotificationEvent({teamId, channel, response, inReplyToId, threadTimestamp}) {
     if (teamId === this.props.teamId) {
-      return this.executeJavaScriptMethod('TSSSB.sendMsgFromUser', channel, response, inReplyToId);
+      try {
+        await this.executeInteropMethod('sendMsgFromUser', channel, response, inReplyToId, threadTimestamp)
+          .toPromise();
+      } catch (err) {
+        logger.warn(`sendMsgFromUser failed: ${err.message}`);
+      }
     }
-  }
-
-  /**
-   * Focuses the existing Report Issue window or creates a new one.
-   */
-  reportIssueEvent() {
-    let {selectedTeamId, team, reportIssueWindow} = this.state;
-    if (selectedTeamId !== this.props.teamId) return;
-
-    if (reportIssueWindow) {
-      let browserWindow = remote.BrowserWindow.fromId(reportIssueWindow.id);
-      WindowHelpers.bringToForeground(browserWindow);
-    } else {
-      this.createReportIssueWindow(team.team_url);
-    }
-  }
-
-  /**
-   * Delegate to the main process to create a popup window pointed at our Help
-   * request URL.
-   */
-  createReportIssueWindow(teamUrl) {
-    ipcRenderer.send('create-webapp-window', {
-      url: theURL.resolve(teamUrl, 'help/requests/new'),
-      userAgent: getUserAgent(),
-      parentInfo: getSenderIdentifier(),
-      windowType: REPORT_ISSUE_WINDOW_TYPE,
-      fullscreenable: false,
-      isPopupWindow: true,
-      width: 800,
-      height: 900
-    });
   }
 
   /**
@@ -377,7 +389,7 @@ export default class TeamView extends Component {
   async patchUserIdFromWebapp() {
     try {
       let userId = await this.executeJavaScriptMethod('TS.model.user.id');
-      if (userId) TeamActions.updateUserId(userId, this.props.teamId);
+      if (userId) teamActions.updateUserId(userId, this.props.teamId);
     } catch (e) {
       logger.error(`Unable to patch userId: ${e.message}`);
     }
@@ -388,7 +400,7 @@ export default class TeamView extends Component {
    * reload if it doesn't make it.
    *
    * @param  {Number} waitTime  The amount of time, in seconds, to wait
-   * @return {Subscription}       A Subscription that will disconnect this event
+   * @return {Subscription}     A Subscription that will disconnect this listener
    */
   setupLoadTimeout(waitTime = 80) {
     return this.webAppHasLoaded.mapTo(true)
@@ -396,115 +408,33 @@ export default class TeamView extends Component {
       .catch(() => Observable.of(false))
       .filter((x) => x === false)
       .do(() => logger.warn(`Took over ${waitTime} seconds to load, refreshing`))
-      .subscribe(EventActions.reloadMainWindow);
+      .subscribe(eventActions.reloadMainWindow);
   }
 
   /**
-   * Handles loading and unloading of teams that remain inactive for some
-   * duration.
+   * Returns true if this team was loaded directly into /min or if it was
+   * unloaded due to inactivity.
    *
-   * @param  {Number} timeout   Number of seconds before a team is considered inactive
-   * @return {Subscription}       A Subscription that will clean up this subscription
+   * @return {Boolean}  True if the team is unloaded, false otherwise
    */
-  setupTeamUnloading(timeout = DEFAULT_TEAM_IDLE_TIMEOUT) {
-    let distinctTeam = this.teamSelected.distinctUntilChanged();
-    let teamSelected = distinctTeam.filter((teamId) => teamId === this.props.teamId);
-    let teamUnselected = distinctTeam.filter((teamId) => teamId !== this.props.teamId);
-
-    const ret = new Subscription();
-    ret.add(this.unloadTeamWhenInactive(teamSelected, teamUnselected, timeout));
-    ret.add(this.restoreTeamOn(teamSelected));
-
-    return ret;
+  isTeamUnloaded() {
+    return this.state.isTeamUnloaded;
   }
 
   /**
-   * When a team is unselected, start a timer that will unload the team unless
-   * it is selected within that duration.
+   * Once the team has been unloaded, reset the loaded signal and take note of
+   * it in our state.
    *
-   * @param  {Observable} teamSelected    Fires when this team is selected
-   * @param  {Observable} teamUnselected  Fires when this team is unselected
-   * @param  {Number}     timeout         Number of seconds before a team is considered inactive
-   * @return {Subscription}               A Subscription that will clean up this subscription
+   * @param  {Boolean} isTeamUnloaded True if the team is unloaded, false otherwise
    */
-  unloadTeamWhenInactive(teamSelected, teamUnselected, timeout) {
-    return teamUnselected.map(() => Observable.timer(timeout * 1000))
-      .switch()
-      .takeUntil(teamSelected)
-      .repeat()
-      .filter(() => !this.state.isUnloaded)
-      .flatMap(() => this.executeJavaScriptMethod('TSSSB.unloadTeam'))
-      .catch((error) => {
-        logger.warn(`TSSSB.unloadTeam failed: ${error.message}`);
-        return Observable.of(false);
-      })
-      .filter((wasUnloaded) => {
-        if (wasUnloaded) logger.info(`Unloaded team ${this.state.team.team_name}`);
-        else logger.info(`${this.state.team.team_name} does not support unloading`);
-        return wasUnloaded;
-      })
-      .subscribe(() => {
-        // NB: Reset `didFinishLoading`, as subsequent JavaScript executions
-        // will need to wait for the webapp to load again.
-        this.webAppHasLoaded = new AsyncSubject();
-        this.setState({isUnloaded: true});
-      });
-  }
-
-  /**
-   * When an unloaded team is selected, reload the full webapp.
-   *
-   * @param  {Observable} shouldRestore An Observable that fires when the team should be restored
-   * @return {Subscription}               A Subscription that will clean up this subscription
-   */
-  restoreTeamOn(shouldRestore) {
-    return shouldRestore.filter(() => this.state.isUnloaded)
-      .do(() => logger.info(`Restoring team ${this.state.team.team_name}`))
-      .flatMap(() => this.executeJavaScriptMethod('MW.loadTeam'))
-      .catch((error) => {
-        logger.error(`MW.loadTeam failed: ${error.message}`);
-        return Observable.of(false);
-      })
-      .subscribe(() => this.setState({isUnloaded: false}));
-  }
-
-  /**
-   * The team idle timeout is configurable by the webapp. When it changes, we
-   * swap the old subscription out with a new one.
-   *
-   * @param  {SerialSubscription} disp  Holds the existing subscription
-   * @return {Subscription}             A Subscription that will clean up this subscription
-   */
-  handleTeamIdleTimeoutChanged(disp) {
-    return Observable.fromEvent(this.getWebView(), 'ipc-message')
-      .filter(({channel}) => channel === TEAM_IDLE_TIMEOUT)
-      .subscribe(({args}) => {
-        let [timeout] = args;
-        disp.add(this.setupTeamUnloading(timeout));
-      });
-  }
-
-  /**
-   * Track whether a team view is in focus or not, since we need to track this
-   * when we switch teams, to maintain the focus on the new team rather than
-   * the old focused team.
-   */
-  static focusedTeamView = null;
-
-  onFocus() {
-    this.constructor.focusedTeamView = this.props.teamId;
-  }
-
-  onBlur() {
-    if (this.constructor.focusedTeamView === this.props.teamId)
-      this.constructor.focusedTeamView = null;
+  setTeamUnloaded(isTeamUnloaded) {
+    this.webAppHasLoaded = new AsyncSubject();
+    this.setState({ isTeamUnloaded });
   }
 
   render() {
     let webViewOptions = {
-      src: this.getTeamURL(this.state.team.team_url),
-      onFocus: this.onFocus.bind(this),
-      onBlur: this.onBlur.bind(this)
+      src: this.getTeamURL(this.state.team.team_url)
     };
 
     let webViewContext = null;
@@ -515,6 +445,7 @@ export default class TeamView extends Component {
       webViewContext = (
         <WebViewContext
           options={webViewOptions}
+          id={this.props.teamId}
           onPageLoad={this.onWebViewLoaded.bind(this)}
           onWebappLoad={this.onWebappLoaded.bind(this)}
           onPageError={this.onWebViewError.bind(this)}

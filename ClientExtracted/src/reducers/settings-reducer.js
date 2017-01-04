@@ -1,8 +1,8 @@
 import cloneDeep from 'lodash.clonedeep';
-import nativeInterop from '../native-interop';
-import handlePersistenceForKey from './helpers';
+import {nativeInterop} from '../native-interop';
+import {objectMerge} from '../utils/object-merge';
 
-import {SETTINGS, APP, EVENTS} from '../actions';
+import {SETTINGS, EVENTS, MIGRATIONS} from '../actions';
 
 // The default settings differ between OS's so we specify it here and return
 // the actual default settings in a getDefaultSettings() method
@@ -42,17 +42,16 @@ const defaultSettings = {
     hasRunFromTray: false,
     reportIssueOnStartup: false,
     hasMigratedData:  {
-      browser: false,
-      renderer: false,
-      macgap: false
+      macgap: false,
+      redux: false
     },
-    hasCleanedLogFilesForSpellcheckBug: false,
 
     // User configurable settings
     runFromTray: true,
     launchOnStartup: false,
     zoomLevel: 0,
-    whitelistedUrlSchemes: ['http:', 'https:', 'mailto:', 'skype:', 'spotify:', 'live:', 'callto:', 'tel:', 'im:', 'sip:', 'sips:'],
+    whitelistedUrlSchemes: ['http:', 'https:', 'mailto:', 'skype:',
+      'spotify:', 'live:', 'callto:', 'tel:', 'im:', 'sip:', 'sips:'],
 
     // Preferences needed for the webapp
     PrefSSBFileDownloadPath: null
@@ -61,6 +60,7 @@ const defaultSettings = {
   // Settings specific to Windows 10
   win10: {
     isWin10: true,
+    isAeroGlassEnabled: true,
     windowFlashBehavior: 'idle',
     hasExplainedWindowFlash: false
   },
@@ -69,6 +69,7 @@ const defaultSettings = {
   winBefore10: {
     isBeforeWin10: true,
     useHwAcceleration: true,
+    isAeroGlassEnabled: true,
     windowFlashBehavior: 'idle',
     hasExplainedWindowFlash: false,
     notifyPosition: {corner: 'bottom_right', display: 'same_as_app'},
@@ -98,10 +99,11 @@ export default function reduce(settings = initialSettings, action) {
     return {...settings, reportIssueOnStartup: false};
   case EVENTS.HANDLE_DEEP_LINK:
     return {...settings, launchedWithLink: null};
-  case APP.RESET_STORE:
-    return {...initialSettings, releaseChannel: 'prod', pretendNotReallyWindows10: false};
+
+  case MIGRATIONS.REDUX_STATE:
+    return objectMerge(settings, action.data.settings);
   default:
-    return handlePersistenceForKey(settings, action, 'settings');
+    return settings;
   }
 }
 
@@ -137,8 +139,8 @@ function updateSettings(settings, update) {
 }
 
 function changeWindowZoom(settings, change) {
-  // clamp the zoom to be between [-6, 7]
-  let zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -6), 7);
+  // clamp the zoom to be between [-2, 3]
+  let zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -2), 3);
   return {
     ...settings,
     zoomLevel

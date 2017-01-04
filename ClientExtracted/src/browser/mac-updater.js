@@ -1,21 +1,23 @@
-import { Observable } from 'rxjs/Observable';
 import connect from 'connect';
 import semver from 'semver';
 import fs from 'fs';
 import http from 'http';
 import temp from 'temp';
-import uuid from 'node-uuid';
+import { Observable } from 'rxjs/Observable';
+import { requireTaskPool } from 'electron-remote';
 
-import logger from '../logger';
+import { channel } from '../../package.json';
+import { fetchURL } from './fetch-url';
+import { logger } from '../logger';
+import { uniqueId } from '../utils/unique-id';
+import { autoUpdaterFinished } from './updater-utils';
+import { nativeInterop } from '../native-interop';
 import ReduxComponent from '../lib/redux-component';
 
-import { autoUpdaterFinished } from './updater-utils';
-import { channel } from '../../package.json';
-import { requireTaskPool } from 'electron-remote';
-import { getOSVersion } from '../native-interop';
-
-const { fetchFileOrUrl, downloadFileOrUrl } = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
+const { getOSVersion } = nativeInterop;
+const { downloadFileOrUrl } = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
 const isAppStore = channel === 'mas';
+const UPDATE_URL_PREFIX = 'https://downloads.slack-edge.com/mac_releases';
 
 /**
  * This class handles updates via Squirrel for Mac (aka the 'auto-updater'
@@ -40,9 +42,11 @@ export default class MacSquirrelUpdater extends ReduxComponent {
     super();
     if (isAppStore) return;
 
-    let updateUrl = 'https://slack-ssb-updates.global.ssl.fastly.net/mac_releases';
+    let updateUrl = UPDATE_URL_PREFIX;
 
-    if (options.useBetaChannel) updateUrl += '_beta';
+    // NB: Everyone is on the beta channel right now
+    const useBetaChannel = options.useBetaChannel || true;
+    if (useBetaChannel) updateUrl += '_beta';
 
     this.version = options.version;
     this.port = options.port || 10203 + Math.floor(Math.random() * 100);
@@ -78,29 +82,23 @@ export default class MacSquirrelUpdater extends ReduxComponent {
     // NB: Bust the cache on this update file one time, to get the latest
     if (this.bustUpdateCache) {
       this.bustUpdateCache = false;
-      releases += `?v=${uuid.v4()}`;
+      releases += `?v=${uniqueId()}`;
     }
 
     logger.info(`Checking for update against ${releases}`);
 
     // 1. Fetch the update file
-    let versionJson;
-    try {
-      let versionText = await fetchFileOrUrl(releases);
-      versionJson = JSON.parse(versionText);
-    } catch (error) {
-      logger.warn(`Unable to download ${releases}: ${error.message}`);
-      return false;
-    }
+    let versionJson = await fetchURL(releases);
+    let versions = JSON.parse(versionJson);
 
     // The shape of versionJson is doc'd at http://is.gd/27TbWK, with an extra 'version'
     // field that we can use to find the latest version
-    if (versionJson.length < 1) {
+    if (versions.length < 1) {
       logger.warn('Remote version info has no entries?!');
       return false;
     }
 
-    let newestRemoteUpdate = this.getNewestRemoteUpdate(versionJson);
+    let newestRemoteUpdate = this.getNewestRemoteUpdate(versions);
     if (!(await this.isUpdateValid(newestRemoteUpdate))) return false;
 
     let jsonToServe = {
@@ -215,7 +213,7 @@ export default class MacSquirrelUpdater extends ReduxComponent {
     let listening = new Promise((resolve, reject) => {
       try {
         let app = connect();
-        app.use('/download', async function(req, res) {
+        app.use('/download', async (req, res) => {
           logger.info(`Serving up download: ${fileOrUrlToServe}`);
 
           let {path} = temp.openSync('update');

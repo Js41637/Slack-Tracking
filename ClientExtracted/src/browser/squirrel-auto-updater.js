@@ -1,12 +1,12 @@
 import {BrowserWindow, dialog, shell} from 'electron';
 import {Observable} from 'rxjs/Observable';
 import SerialSubscription from 'rxjs-serial-subscription';
-import logger from '../logger';
+import {logger} from '../logger';
 
-import AppActions from '../actions/app-actions';
+import {appActions} from '../actions/app-actions';
 import AppStore from '../stores/app-store';
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 import WindowStore from '../stores/window-store';
 
 import {getReleaseNotesUrl} from './updater-utils';
@@ -29,18 +29,18 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       this.autoUpdater = require('electron').autoUpdater;
 
       Observable.fromEvent(this.autoUpdater, 'update-available').subscribe(() => {
-        AppActions.setUpdateStatus(UPDATE_STATUS.DOWNLOADING_UPDATE);
+        appActions.setUpdateStatus(UPDATE_STATUS.DOWNLOADING_UPDATE);
       });
     }
   }
 
   syncState() {
     return {
-      appVersion: SettingStore.getSetting('appVersion'),
-      isDevMode: SettingStore.getSetting('isDevMode'),
-      disableUpdatesCheck: SettingStore.getSetting('isWindowsStore') ||
-        SettingStore.getSetting('isMacAppStore'),
-      releaseChannel: SettingStore.getSetting('releaseChannel'),
+      appVersion: settingStore.getSetting('appVersion'),
+      isDevMode: settingStore.getSetting('isDevMode'),
+      disableUpdatesCheck: settingStore.getSetting('isWindowsStore') ||
+        settingStore.getSetting('isMacAppStore'),
+      releaseChannel: settingStore.getSetting('releaseChannel'),
       updateStatus: AppStore.getUpdateStatus(),
       mainWindow: WindowStore.getMainWindow()
     };
@@ -55,19 +55,19 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
     return Observable.timer(0, UPDATE_CHECK_INTERVAL)
       .filter(() => this.isUpdateSupported())
       .map(() => this.getUpdaterForCurrentPlatform())
-      .do(() => AppActions.setUpdateStatus(UPDATE_STATUS.CHECKING_FOR_UPDATE))
+      .do(() => appActions.setUpdateStatus(UPDATE_STATUS.CHECKING_FOR_UPDATE))
       .flatMap((updater) => updater.checkForUpdates())
       .subscribe((updateInfo) => {
         if (updateInfo) {
           logger.info(`Got an update: ${JSON.stringify(updateInfo)}`);
-          AppActions.updateDownloaded(updateInfo);
+          appActions.updateDownloaded(updateInfo);
         } else {
-          AppActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
+          appActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
         }
       },
       (e) => {
         logger.error(`Failed to check for updates: ${e.message}`);
-        AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
+        appActions.setUpdateStatus(UPDATE_STATUS.ERROR);
       });
   }
 
@@ -79,7 +79,7 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
   manualCheckForUpdate() {
     if (!this.isUpdateSupported()) {
       logger.warn('Updates are not supported on this build.');
-      AppActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
+      appActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
       return;
     }
 
@@ -89,7 +89,7 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
 
     let hasAnUpdate = (updateInfo) => {
       logger.info(`Got an update: ${JSON.stringify(updateInfo)}`);
-      AppActions.updateDownloaded(updateInfo);
+      appActions.updateDownloaded(updateInfo);
 
       let options = {
         title: 'An update is available',
@@ -99,11 +99,11 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
 
       dialog.showMessageBox(browserWindow, options, (response) => {
         if (response === 0) {
-          AppActions.setUpdateStatus(UPDATE_STATUS.NONE);
+          appActions.setUpdateStatus(UPDATE_STATUS.NONE);
         }
 
         if (response === 1) {
-          AppActions.setUpdateStatus(UPDATE_STATUS.NONE);
+          appActions.setUpdateStatus(UPDATE_STATUS.NONE);
           shell.openExternal(updateInformation);
         }
 
@@ -114,7 +114,7 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
     };
 
     let alreadyUpToDate = () => {
-      AppActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
+      appActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
 
       dialog.showMessageBox(browserWindow, {
         title: "You're all good",
@@ -124,7 +124,7 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
     };
 
     let somethingBadHappened = (errorMessage) => {
-      AppActions.setUpdateStatus(UPDATE_STATUS.ERROR);
+      appActions.setUpdateStatus(UPDATE_STATUS.ERROR);
 
       dialog.showMessageBox(browserWindow, {
         title: "We couldn't check for updates",

@@ -1,13 +1,15 @@
 import {nativeImage, BrowserWindow} from 'electron';
 import ipc from '../ipc-rx';
-import logger from '../logger';
+import {logger} from '../logger';
 
 import AppStore from '../stores/app-store';
+import AppTeamsStore from '../stores/app-teams-store';
+import {dialogStore} from '../stores/dialog-store';
 import EventStore from '../stores/event-store';
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 import TeamStore from '../stores/team-store';
-import WindowHelpers from '../components/helpers/window-helpers';
+import {WindowHelpers} from '../components/helpers/window-helpers';
 import WindowStore from '../stores/window-store';
 
 import {WINDOW_TYPES, UPDATE_STATUS} from '../utils/shared-constants';
@@ -33,15 +35,15 @@ export default class BrowserWindowManager extends ReduxComponent {
   }
 
   syncState() {
-    let selectedTeamId = AppStore.getSelectedTeamId();
+    let selectedTeamId = AppTeamsStore.getSelectedTeamId();
     return {
       mainWindow: WindowStore.getMainWindow(),
       childWindows: WindowStore.getWindows(CHILD_WINDOWS),
       selectedTeam: TeamStore.getTeam(selectedTeamId) || null,
-      autoHideMenuBar: SettingStore.getSetting('autoHideMenuBar'),
-      isShowingDevTools: AppStore.isShowingDevTools(),
-      isMac: SettingStore.isMac(),
-      isShowingLoginDialog: AppStore.isShowingLoginDialog(),
+      autoHideMenuBar: settingStore.getSetting('autoHideMenuBar'),
+      isShowingDevTools: dialogStore.isShowingDevTools(),
+      isMac: settingStore.isMac(),
+      isShowingLoginDialog: dialogStore.isShowingLoginDialog(),
 
       quitAppEvent: EventStore.getEvent('quitApp'),
       signOutTeamEvent: EventStore.getEvent('signOutTeam'),
@@ -207,6 +209,9 @@ export default class BrowserWindowManager extends ReduxComponent {
 
   toggleFullScreenEvent() {
     let focusedWindow = BrowserWindow.getFocusedWindow();
+
+    if (!focusedWindow) return;
+
     let focusedWindowType = WindowStore.typeOfWindow(focusedWindow.id);
 
     if (focusedWindowType === WINDOW_TYPES.WEBAPP && !WindowStore.isCallsWindow(focusedWindow)) {

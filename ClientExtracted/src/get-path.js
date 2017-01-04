@@ -81,7 +81,17 @@ export function getPath(key) {
 export function p(strings, ...values) {
   let newVals = values.map((x) => getPath(x) || x);
   let newPath = String.raw(strings, ...newVals);
-  let parts = newPath.split(/[\\\/]/).map((x) => x || '/');
+  let prefixHandled = false;
+  let parts = newPath.split(/[\\\/]/).map((x) => {
+    // Allow a '/' prefix through, but do not allow
+    // any following '/', since they reset the path
+    if (!x && !prefixHandled) {
+      prefixHandled = true;
+      return '/';
+    }
+
+    return x ? x : '';
+  });
 
   // Handle Windows edge case: If the execution host is cmd.exe, path.resolve() will not understand
   // what `C:` is (it needs to be `C:\`)

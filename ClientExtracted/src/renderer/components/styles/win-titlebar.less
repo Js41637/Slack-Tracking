@@ -1,0 +1,90 @@
+.Windows-Titlebar {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-app-region: drag;
+    app-region: drag;
+    cursor: default;
+    display: flex;
+    align-items: center;
+    align-content: center;
+    width: ~"calc(100vw - 2px)";
+    height: 31px;
+    display: flex;
+    z-index: 5000;
+    position: fixed;
+
+    &-title {
+      line-height: 22px;
+      font-size: 12px;
+      font-family: "Segoe UI";
+      flex: 0 1 auto;
+      margin-bottom: 2px;
+      margin-left: 5px;
+    }
+
+    &-icon {
+      width: 10px;
+      height: 10px;
+    }
+
+    .button-reset {
+      background-color: inherit;
+      border: inherit;
+      outline: none;
+    }
+
+    &-spacer {
+      flex: 1 1 auto;
+    }
+
+    &-button {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-app-region: no-drag;
+      cursor: default;
+      width: 46px;
+      height: 100%;
+      line-height: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .button-reset;
+
+      &:hover {
+        .button-reset;
+        transition: background-color 0.1s;
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+
+      &:active {
+        .button-reset;
+        transition: background-color 0.1s;
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      &:focus {
+        .button-reset;
+      }
+
+    }
+
+    &-controls {
+      display: flex;
+      justify-content: flex-end;
+      height: 100%;
+    }
+
+    &-hamburger {
+      display: flex;
+      justify-content: flex-start;
+      height: 100%;
+
+      Titlebar-button {
+        width: 40px;
+      }
+    }
+}
+
+.isMaximized .Windows-Titlebar {
+  width: 100%;
+}

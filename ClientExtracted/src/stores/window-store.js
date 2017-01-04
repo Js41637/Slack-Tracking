@@ -1,5 +1,5 @@
-import pickBy from '../utils/pick-by';
-import Store from '../lib/store';
+import {pickBy} from '../utils/pick-by';
+import {Store} from '../lib/store';
 
 import {WINDOW_TYPES, CALLS_WINDOW_TYPES} from '../utils/shared-constants';
 

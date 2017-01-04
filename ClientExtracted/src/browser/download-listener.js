@@ -5,13 +5,13 @@ import {Observable} from 'rxjs/Observable';
 import {p} from '../get-path';
 import path from 'path';
 
-import DownloadActions from '../actions/download-actions';
+import {downloadActions} from '../actions/download-actions';
 import DownloadStore from '../stores/download-store';
 import ReduxComponent from '../lib/redux-component';
-import SettingActions from '../actions/setting-actions';
-import SettingStore from '../stores/setting-store';
+import {settingActions} from '../actions/setting-actions';
+import {settingStore} from '../stores/setting-store';
 
-const d = require('debug-electron')('downloads:listener');
+const d = require('debug')('downloads:listener');
 
 /**
  * Listens for the `will-download` event of the main window's `Session` and
@@ -48,9 +48,9 @@ export default class DownloadListener extends ReduxComponent {
 
   syncState() {
     return {
-      platform: SettingStore.getSetting('platform'),
+      platform: settingStore.getSetting('platform'),
       cancelDownloadEvent: DownloadStore.getEvent('cancelDownload'),
-      downloadsDirectory: SettingStore.getSetting('PrefSSBFileDownloadPath')
+      downloadsDirectory: settingStore.getSetting('PrefSSBFileDownloadPath')
     };
   }
 
@@ -97,7 +97,7 @@ export default class DownloadListener extends ReduxComponent {
     d(`Monitoring download at: ${filePath}`);
     this.downloadItems[token] = item;
 
-    DownloadActions.downloadStarted({token, filePath});
+    downloadActions.downloadStarted({token, filePath});
 
     let progressListener = () => {
       this.updateMainWindowProgress();
@@ -112,7 +112,7 @@ export default class DownloadListener extends ReduxComponent {
       item.removeListener('done', finishedListener);
 
       d(`Download finished: ${state}`);
-      DownloadActions.downloadFinished({token, state});
+      downloadActions.downloadFinished({token, state});
 
       delete this.downloadItems[token];
       this.updateMainWindowProgress();
@@ -153,7 +153,7 @@ export default class DownloadListener extends ReduxComponent {
       break;
     }
 
-    SettingActions.updateSettings({
+    settingActions.updateSettings({
       'PrefSSBFileDownloadPath': downloadDir
     });
 
@@ -178,7 +178,7 @@ export default class DownloadListener extends ReduxComponent {
         d(`Falling back to ${directory}`);
         mkdirp.sync(directory);
 
-        SettingActions.updateSettings({
+        settingActions.updateSettings({
           'PrefSSBFileDownloadPath': directory
         });
 

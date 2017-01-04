@@ -1,23 +1,14 @@
 import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
 import {electronEnhancer} from 'redux-electron-store';
-import * as reducers from '../reducers';
 import {isPrebuilt} from '../utils/process-helpers';
+import * as reducers from '../reducers';
+import {BaseStore} from './base-store';
 
-import BaseStore from './base-store';
-import MigrationManager from '../browser/migration-manager';
-
-import {BASE} from '../actions';
 import {WINDOW_TYPES} from '../utils/shared-constants';
 
 /**
  * This store is used by any renderer process. It receives data from the
- * `BrowserStore` in the signature: {
- *    type: action_type,
- *    data: {
- *      updated: updatedData,
- *      deleted: deleteShape
- *    }
- * }
+ * main process via redux-electron-store.
  */
 export default class RendererStore extends BaseStore {
   constructor() {
@@ -49,11 +40,6 @@ export default class RendererStore extends BaseStore {
       combineReducers(reducers.default),
       compose(...toCompose)
     );
-
-    let settings = this.getState().settings;
-    if (!settings.hasMigratedData.renderer) {
-      this.loadLegacyData(settings);
-    }
   }
 
   /**
@@ -67,18 +53,23 @@ export default class RendererStore extends BaseStore {
     case WINDOW_TYPES.MAIN:
       return {
         app: true,
+        appTeams: true,
         notifications: true,
         settings: true,
         events: true,
         teams: true,
+        dialog: true,
         downloads: true,
         tray: true,
-        windows: true
+        windows: true,
+        windowFrame: true
       };
     case WINDOW_TYPES.NOTIFICATIONS:
       return {
+        appTeams: true,
         notifications: true,
         windows: true,
+        windowFrame: true,
         teams: true,
         settings: {
           zoomLevel: true,
@@ -89,18 +80,12 @@ export default class RendererStore extends BaseStore {
       };
     case WINDOW_TYPES.WEBAPP:
       return this.getWebViewShape();
+    case WINDOW_TYPES.OTHER:
+      return {
+        settings: true
+      };
     }
-  }
 
-  loadLegacyData(settings) {
-    let updated = MigrationManager.getRendererData(settings);
-    updated.settings = updated.settings || { hasMigratedData: { renderer: true }};
-    updated.settings.hasMigratedData = updated.settings.hasMigratedData || { renderer: true };
-    updated.settings.hasMigratedData.renderer = true;
-
-    this.dispatch({
-      type: BASE.LOAD_LEGACY,
-      data: {updated}
-    });
+    throw new Error(`unsupported window type ${type} is specified`);
   }
 }

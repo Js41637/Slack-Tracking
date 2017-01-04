@@ -1,7 +1,7 @@
 import {app, BrowserWindow} from 'electron';
 
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 import WindowStore from '../stores/window-store';
 
 import {WINDOW_TYPES} from '../utils/shared-constants';
@@ -22,7 +22,7 @@ export default class WebContentsMediator extends ReduxComponent {
 
   syncState() {
     return {
-      zoomLevel: SettingStore.getSetting('zoomLevel'),
+      zoomLevel: settingStore.getSetting('zoomLevel'),
       childWindows: WindowStore.getWindows([WINDOW_TYPES.WEBAPP])
     };
   }

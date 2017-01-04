@@ -2,8 +2,8 @@
 
 import {Observable} from 'rxjs/Observable';
 
-import logger from '../logger';
-import AppActions from '../actions/app-actions';
+import {logger} from '../logger';
+import {appActions} from '../actions/app-actions';
 import {UPDATE_STATUS} from '../utils/shared-constants';
 
 /**
@@ -63,7 +63,7 @@ export function getMenuItemForUpdateStatus(updateStatus) {
     return {
       label: 'Restart to Apply Update',
       enabled: true,
-      click: () => AppActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY)
+      click: () => appActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY)
     };
   case UPDATE_STATUS.NONE:
   case UPDATE_STATUS.UP_TO_DATE:
@@ -72,7 +72,7 @@ export function getMenuItemForUpdateStatus(updateStatus) {
     return {
       label: 'Check for Updates…',
       enabled: true,
-      click: () => AppActions.checkForUpdate()
+      click: () => appActions.checkForUpdate()
     };
   }
 }

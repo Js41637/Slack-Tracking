@@ -1,10 +1,10 @@
-import logger from '../logger';
 import traverse from 'traverse';
+import {logger} from '../logger';
 
 /**
  * Provides some basic functionality for every store.
  */
-export default class BaseStore {
+export class BaseStore {
 
   constructor() {
     this.postDispatchListeners = new Set();
@@ -24,7 +24,7 @@ export default class BaseStore {
   }
 
   dispatch(action) {
-    this.store.dispatch(action);
+    return this.store.dispatch(action);
   }
 
   getStore() {
@@ -52,14 +52,17 @@ export default class BaseStore {
   getWebViewShape() {
     return {
       app: true,
+      appTeams: true,
       settings: true,
+      dialog: true,
       teams: true,
       events: {
         reload: true,
         editingCommand: true,
         sidebarClicked: true
       },
-      windows: true
+      windows: true,
+      windowFrame: true,
     };
   }
 

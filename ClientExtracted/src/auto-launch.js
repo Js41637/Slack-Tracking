@@ -4,7 +4,7 @@ import {spawn} from 'spawn-rx';
 
 import {p} from './get-path';
 import mkdirp from 'mkdirp';
-import logger from './logger';
+import {logger} from './logger';
 
 // NB: Save this off so that we can use this in SSB Interop context
 const globalProcess = process;

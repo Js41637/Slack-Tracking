@@ -11,7 +11,6 @@ import SlackApp from './components/slack-app.jsx';
 import Reporter from './metrics-reporter';
 import WebappSharedMainModule from '../webapp-shared/main';
 
-
 initializeEvalHandler();
 
 if (global.loadSettings.liveReload) {

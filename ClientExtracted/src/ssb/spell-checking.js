@@ -1,6 +1,6 @@
 import {ContextMenuBuilder, ContextMenuListener, SpellCheckHandler, setGlobalLogger} from 'electron-spellchecker';
 import ipcRenderer from '../ipc-rx';
-import logger from '../logger';
+import {logger} from '../logger';
 
 setGlobalLogger(logger.info.bind(logger));
 
@@ -23,7 +23,7 @@ export default class SpellCheckingHelper {
       }, null, contextMenuIpc);
     } else {
       let contextMenuBuilder = new ContextMenuBuilder(this.spellCheckHandler);
-        
+
       this.contextMenuListener = new ContextMenuListener(async function(info) {
         await contextMenuBuilder.showPopupMenu(info);
       }, null, contextMenuIpc);

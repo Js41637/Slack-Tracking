@@ -2,8 +2,8 @@ import {remote} from 'electron';
 import {RecursiveProxyHandler} from 'electron-remote';
 import Hammer from 'hammerjs';
 
-import logger from '../logger';
-import AppActions from '../actions/app-actions';
+import {logger} from '../logger';
+import {appTeamsActions} from '../actions/app-teams-actions';
 
 const {systemPreferences} = remote;
 const invalidEventTargetHeader = ['#search_container', '#topic_inline_edit'];
@@ -21,8 +21,8 @@ function setupTouchscreenEvents() {
 
   let threeSwipe = new Hammer.Manager(document.body);
   threeSwipe.add(new Hammer.Swipe({ pointers: 3 }));
-  threeSwipe.on('swipeleft', () => AppActions.selectPreviousTeam());
-  threeSwipe.on('swiperight', () => AppActions.selectNextTeam());
+  threeSwipe.on('swipeleft', () => appTeamsActions.selectPreviousTeam());
+  threeSwipe.on('swiperight', () => appTeamsActions.selectNextTeam());
 }
 
 function isEventInvalid(elements, event) {
@@ -70,14 +70,11 @@ function setupDoubleClickHandler(mainWindow) {
 }
 
 /**
- * Sets up an alias to the standard LocalStorage API, while excluding a few URIs.
+ * Even touching localStorage in a data URI will throw errors.
  */
-function setupLocalStorageAlias() {
-  // NB: Even touching localStorage in some URIs will cause errors to be thrown
-  if (window.location.protocol !== 'data:' &&
-    window.location.protocol !== 'about:') {
-    window.winssb.ls = window.localStorage;
-  }
+function canAccessLocalStorage() {
+  return window.location.protocol !== 'data:' &&
+    window.location.protocol !== 'about:';
 }
 
 /**
@@ -100,6 +97,6 @@ function disableDesktopIntegration() {
 export {
   setupTouchscreenEvents,
   setupDoubleClickHandler,
-  setupLocalStorageAlias,
+  canAccessLocalStorage,
   disableDesktopIntegration
 };

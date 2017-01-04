@@ -2,8 +2,8 @@ import {Observable} from 'rxjs/Observable';
 import {ContextMenuBuilder, setGlobalLogger} from 'electron-spellchecker';
 import {createProxyForRemote} from 'electron-remote';
 
-import SettingStore from '../../stores/setting-store';
-import logger from '../../logger';
+import {settingStore} from '../../stores/setting-store';
+import {logger} from '../../logger';
 
 setGlobalLogger(logger.info.bind(logger));
 
@@ -21,7 +21,7 @@ class ContextMenuBehavior {
 
     let remoteSpellcheckHandler = createProxyForRemote(webView).winssb.spellCheckingHelper.spellCheckHandler;
 
-    let showDevMenu = SettingStore.getSetting('isDevMode') || // Running from source
+    let showDevMenu = settingStore.getSetting('isDevMode') || // Running from source
       process.env.SLACK_DEVELOPER_MENU;                       // Production build that has previously signed into Slack Corp
 
     let contextMenuBuilder = new ContextMenuBuilder(

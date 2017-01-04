@@ -1,17 +1,19 @@
 import assignIn from 'lodash.assignin';
-import getUserAgent from '../../ssb-user-agent';
-import logger from '../../logger';
 import path from 'path';
 import React from 'react';
-import {Observable} from 'rxjs/Observable';
 import url from 'url';
+import {Observable} from 'rxjs/Observable';
 import {executeJavaScriptMethod, remoteEval, setParentInformation} from 'electron-remote';
 
-import SettingStore from '../../stores/setting-store';
+import getUserAgent from '../../ssb-user-agent';
+import {releaseDocumentFocus} from '../../utils/document-focus';
+import {logger, Logger} from '../../logger';
+
 import Component from '../../lib/component';
 import ContextMenuBehavior from '../behaviors/context-menu-behavior';
-import EventActions from '../../actions/event-actions';
+import {eventActions} from '../../actions/event-actions';
 import ExternalLinkBehavior from '../behaviors/external-link-behavior';
+import {settingStore} from '../../stores/setting-store';
 
 /**
  * Webview `did-fail-load` happens in many cases we don't care about. See
@@ -25,24 +27,30 @@ const ERROR_CODES_TO_IGNORE = [
   -111  // Behind a proxy
 ];
 
-let numberOfWebViews = 0;
+ /**
+   * Sometimes when network changes we end up navigating to a blank page with
+   * this URL. We'll filter these out and reload automatically, like Chrome.
+   */
+const CHROMIUM_BLANK_PAGE_URL = 'data:text/html,chromewebdata';
 
 export default class WebViewContext extends Component {
+  static numberOfWebViews = 0;
 
   static defaultProps = {
-    id: `webView${numberOfWebViews++}`,
-    onPageLoad: () => {},
-    onWebappLoad: () => {},
-    onRedirect: () => {},
-    onPageError: () => {},
-    onPageEmptyAfterLoad: () => {},
-    onRequestClose: () => {}
+    id: null,
+    onPageLoad: () => { },
+    onWebappLoad: () => { },
+    onRedirect: () => { },
+    onPageError: () => { },
+    onPageEmptyAfterLoad: () => { },
+    onRequestClose: () => { }
   };
 
   // View a complete list of webview options at
   // https://github.com/atom/electron/blob/master/docs/api/web-view-tag.md
   static propTypes = {
     options: React.PropTypes.object.isRequired,
+    login: React.PropTypes.bool,
     id: React.PropTypes.string,
     onPageLoad: React.PropTypes.func,
     onWebappLoad: React.PropTypes.func,
@@ -52,15 +60,22 @@ export default class WebViewContext extends Component {
     onRequestClose: React.PropTypes.func
   };
 
+  currentViewId = 0;
+
   constructor(props) {
     super(props);
     this.behaviors = [ContextMenuBehavior, ExternalLinkBehavior];
+    this.currentViewId = WebViewContext.numberOfWebViews++;
+
+    this.consoleLogger = new Logger({
+      identifierOverride: `webapp-${props.id}`,
+      showTimestamp: false
+    });
   }
 
   syncState() {
     return {
-      isWindows: SettingStore.isWindows(),
-      zoomLevel: SettingStore.getSetting('zoomLevel')
+      zoomLevel: settingStore.getSetting('zoomLevel')
     };
   }
 
@@ -75,6 +90,8 @@ export default class WebViewContext extends Component {
         .subscribe(this.props.onWebappLoad)
     );
 
+    this.disposables.add(this.logConsoleMessages(webView));
+
     this.disposables.add(Observable.fromEvent(webView, 'dom-ready').subscribe(() => {
       setParentInformation(webView);
       this.setZoomLevelAndLimits(webView);
@@ -82,7 +99,7 @@ export default class WebViewContext extends Component {
       // NB: For whatever reason, we sometimes cannot intercept the drag-drop event
       // and attempt to navigate to the dropped file. Prevent it!
       let preventNavigation = (e, navUrl) => {
-        if (navUrl.match(/^https?:\/\//i))  return;
+        if (navUrl.match(/^https?:\/\//i)) return;
 
         logger.info(`Preventing WebView navigation to: ${navUrl}`);
         e.preventDefault();
@@ -96,24 +113,11 @@ export default class WebViewContext extends Component {
       .filter(({errorCode}) => !ERROR_CODES_TO_IGNORE.includes(errorCode))
       .subscribe((e) => this.props.onPageError(e)));
 
-    // We stopped loading - ensure that we actually received anything.
-    // This protects against a loss of internet right when we think
-    // that the WebView loaded successfully. ERR_NETWORK_CHANGED does
-    // not always bubble up appropriately.
-    this.disposables.add(Observable.fromEvent(webView, 'did-stop-loading')
-      .debounceTime(1000)
-      .flatMap(() => this.executeJavaScript('document.body.childElementCount'))
-      .catch((err) => {
-        if (err.name !== 'TimeoutError') logger.warn(`Could not check webview's body child count: ${err.message}`);
-        return Observable.of(null);
-      })
-      .filter((count) => count === 0)
-      .subscribe(() => this.props.onPageEmptyAfterLoad(webView.getURL())));
-
     this.disposables.add(Observable.fromEvent(webView, 'close').subscribe(() => {
       this.props.onRequestClose();
     }));
 
+    this.disposables.add(this.setupLoadChecks(webView));
     this.disposables.add(this.setupErrorHandling(webView));
 
     this.disposables.add(Observable.fromEvent(webView, 'did-get-redirect-request')
@@ -152,7 +156,7 @@ export default class WebViewContext extends Component {
    * Listen for any crash events from the webView and reload in response.
    *
    * @param  {WebView} webView  The webview tag
-   * @return {Subscription}     A Subscription that will clean up this subscription
+   * @return {Subscription}     A Subscription that will clean up this listener
    */
   setupErrorHandling(webView) {
     return Observable.merge(
@@ -165,7 +169,65 @@ export default class WebViewContext extends Component {
 
         // NB: Reload the entire window. We can't reload the webView in this
         // case because we can't even access it.
-        EventActions.reload(true);
+        eventActions.reload(true);
+      });
+  }
+
+
+  /**
+   * Listen for the `did-stop-loading` event and ensure that we loaded correctly.
+   *
+   * We stopped loading - ensure that we actually received anything.
+   * This protects against a loss of internet right when we think
+   * that the WebView loaded successfully. ERR_NETWORK_CHANGED does
+   * not always bubble up appropriately.
+   *
+   * Likewise, ensure that we loaded CSS stylesheets. The number of
+   * stylesheets loaded should _always_ be greater or equal to the
+   * number of stylesheets references in <head>.
+   *
+   * @param {WebView} webView
+   * @returns {Subscription}
+   */
+  setupLoadChecks(webView) {
+    const checkBlankPage = `document.location.href !== '${CHROMIUM_BLANK_PAGE_URL}'`;
+    const checkForChildren = `document.body && document.body.childElementCount && document.body.childElementCount > 0`;
+    const checkForLoadedCSS = `document.styleSheets.length >= [...document.head.children].filter(c => c.type === 'text/css').length`;
+    const fullyLoadedCheck = `${checkBlankPage} && ${checkForChildren} && ${checkForLoadedCSS}`;
+
+    return Observable.fromEvent(webView, 'did-stop-loading')
+      .debounceTime(1000)
+      .flatMap(() => this.executeJavaScript(fullyLoadedCheck))
+      .catch((err) => {
+        if (err.name !== 'TimeoutError') logger.warn(`Could not check document within webview: ${err.message}`);
+        return Observable.of(null);
+      })
+      .filter((isFullyLoaded) => isFullyLoaded === false)
+      .do(() => logger.error(`${webView.getURL()} failed the load check`))
+      .subscribe(() => this.props.onPageEmptyAfterLoad(webView.getURL()));
+  }
+
+  /**
+   * Write out any console messages from the guest content to a custom logger
+   * instance.
+   *
+   * @param  {WebView} webView  The webview tag
+   * @return {Subscription}     A Subscription that will clean up this listener
+   */
+  logConsoleMessages(webView) {
+    return Observable.fromEvent(webView, 'console-message')
+      .subscribe(({level, message}) => {
+        switch (level) {
+        case 0:
+          this.consoleLogger.info(message);
+          break;
+        case 1:
+          this.consoleLogger.warn(message);
+          break;
+        case 2:
+          this.consoleLogger.error(message);
+          break;
+        }
       });
   }
 
@@ -187,7 +249,7 @@ export default class WebViewContext extends Component {
    */
   executeJavaScriptMethodWhenBooted(pathToObject, ...args) {
     let webView = this.refs.webView;
-    let cmd = `!!(typeof TSSSB !== 'undefined' && process && TS && TS._did_full_boot)`;
+    let cmd = `!!(typeof TSSSB !== 'undefined' && TS && TS._did_full_boot)`;
 
     return Observable.of(true)
       .flatMap(() => remoteEval(webView, cmd))
@@ -212,7 +274,7 @@ export default class WebViewContext extends Component {
   }
 
   executeJavaScript(str) {
-    return remoteEval(this.refs.webView, str);
+    return new Promise((resolve) => this.refs.webView.executeJavaScript(str, false, resolve));
   }
 
   downloadURL(theUrl) {
@@ -227,10 +289,17 @@ export default class WebViewContext extends Component {
     this.refs.webView.reload();
   }
 
+  /**
+   * Focus is a tricky beast with `webview` tags, as we have to dodge a bunch
+   * of Chromium bugs. We don't focus the `webview` itself to avoid an
+   * apparently unstylable focus rectangle. In addition, we need the host page
+   * to release document focus in order for focus to propagate to any of its
+   * `webview` children. Refer to
+   * https://github.com/javan/electron-webview-ime-fix for details.
+   */
   focus() {
-    // NB: We do this instead of focusing the webView, because otherwise the
-    // webView's frame will get a focus rectangle around it which is Odd
     this.refs.webView.shadowRoot.querySelector('object').focus();
+    releaseDocumentFocus();
   }
 
   replaceMisspelling(correction) {
@@ -262,11 +331,14 @@ export default class WebViewContext extends Component {
   }
 
   render() {
-    let options = assignIn({
-      id: this.props.id,
+    const id = `webview${this.currentViewId}${this.props.id ? `:${this.props.id}` : ''}`;
+
+    const options = assignIn({
+      id: id,
       preload: url.format({
         protocol: 'file',
-        pathname: path.resolve(__dirname, '..', '..', 'static', 'ssb-interop'),
+        pathname: path.resolve(__dirname, '..', '..', 'static',
+          this.props.login ? 'ssb-interop-lite' : 'ssb-interop'),
         slashes: true
       })
     }, this.props.options);

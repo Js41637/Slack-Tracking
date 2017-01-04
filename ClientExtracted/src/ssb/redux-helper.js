@@ -1,10 +1,13 @@
 import AppStore from '../stores/app-store';
+import AppTeamsStore from '../stores/app-teams-store';
 import EventStore from '../stores/event-store';
 import ReduxComponent from '../lib/redux-component';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 
 import {getReleaseNotesUrl} from '../browser/updater-utils';
 import {UPDATE_STATUS} from '../utils/shared-constants';
+
+import {logger} from '../logger';
 
 // NB: This is a Do Everything Component solely because having too many Redux
 // Components in the webapp layer is expensive on IPC dispatch, so we want to
@@ -19,14 +22,14 @@ export default class ReduxHelper extends ReduxComponent {
   syncState() {
     return {
       isMachineAwake: AppStore.getSuspendStatus(),
-      currentTeamId: AppStore.getSelectedTeamId(),
+      currentTeamId: AppTeamsStore.getSelectedTeamId(),
       sidebarClickedEvent: EventStore.getEvent('sidebarClicked'),
       updateStatus: AppStore.getUpdateStatus(),
       updateInfo: AppStore.getUpdateInfo(),
-      releaseChannel: SettingStore.getSetting('releaseChannel'),
-      canUpdate: !SettingStore.isLinux() &&
-        !SettingStore.getSetting('isWindowsStore') &&
-        !SettingStore.getSetting('isMacAppStore')
+      releaseChannel: settingStore.getSetting('releaseChannel'),
+      canUpdate: !settingStore.isLinux() &&
+        !settingStore.getSetting('isWindowsStore') &&
+        !settingStore.getSetting('isMacAppStore')
     };
   }
 
@@ -49,6 +52,7 @@ export default class ReduxHelper extends ReduxComponent {
   updateSuspendResume(prevState) {
     if (this.state.isMachineAwake === prevState.isMachineAwake) return;
 
+    logger.info(`updateSuspendResume: ${this.state.isMachineAwake}`);
     let eventName = this.state.isMachineAwake ? 'wake' : 'sleep';
     window.dispatchEvent(new Event(eventName));
   }

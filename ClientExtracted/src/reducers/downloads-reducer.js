@@ -1,4 +1,4 @@
-import {DOWNLOADS, APP} from '../actions';
+import {DOWNLOADS} from '../actions';
 
 const initialState = {
   startDownload: {timestamp: 0, token: null, url: null, teamId: null},
@@ -28,9 +28,6 @@ export default function reduce(state = initialState, action) {
     return downloadEvent(state, 'downloadStarted', action.data);
   case DOWNLOADS.DOWNLOAD_FINISHED:
     return downloadEvent(state, 'downloadFinished', action.data);
-
-  case APP.RESET_STORE:
-    return {...initialState};
   default:
     return state;
   }

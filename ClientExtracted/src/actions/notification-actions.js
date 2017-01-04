@@ -1,5 +1,5 @@
-import uuid from 'node-uuid';
-import Store from '../lib/store';
+import {uniqueId} from '../utils/unique-id';
+import {Store} from '../lib/store';
 import {NOTIFICATIONS} from './';
 
 // NB: Don't log personally-identifying information
@@ -7,7 +7,7 @@ const keysToOmit = ['content', 'title', 'onclick', 'onclick_arg'];
 
 class NotificationActions {
   newNotification(notification) {
-    notification = {id: uuid.v4(), ...notification};
+    notification = {id: uniqueId(), ...notification};
 
     Store.dispatch({
       type: NOTIFICATIONS.NEW_NOTIFICATION,
@@ -23,18 +23,30 @@ class NotificationActions {
     });
   }
 
-  clickNotification(notificationId, channel, teamId) {
+  clickNotification(notificationId, channel, teamId, messageId) {
     Store.dispatch({
       type: NOTIFICATIONS.CLICK_NOTIFICATION,
-      data: {notificationId, channel, teamId}
+      data: {
+        notificationId,
+        channel,
+        teamId,
+        messageId
+      }
     });
   }
 
-  replyToNotification(response, channel, userId, teamId, inReplyToId) {
+  replyToNotification(response, channel, userId, teamId, inReplyToId, threadTimestamp) {
     Store.dispatch({
       type: NOTIFICATIONS.REPLY_TO_NOTIFICATION,
-      data: {response, channel, userId, teamId, inReplyToId},
-      omitKeysFromLog: ['response']
+      omitKeysFromLog: ['response'],
+      data: {
+        response,
+        channel,
+        userId,
+        teamId,
+        inReplyToId,
+        threadTimestamp
+      }
     });
   }
 }

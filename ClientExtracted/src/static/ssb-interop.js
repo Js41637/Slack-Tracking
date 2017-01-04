@@ -1,5 +1,8 @@
 require('../stat-cache');
 
+const profiler = require('../utils/profiler.js');
+if (profiler.shouldProfile()) profiler.startProfiling();
+
 var assignIn = require('lodash.assignin');
 var path = require('path');
 var isPrebuilt = require('../utils/process-helpers').isPrebuilt;

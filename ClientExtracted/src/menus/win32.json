@@ -1,0 +1,212 @@
+{
+  "menu": [
+    {
+      "label": "&File",
+      "submenu": [
+        {
+          "label": "&Preferences…",
+          "command": "application:show-settings",
+          "accelerator": "Control+,"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "&Quit",
+          "command": "application:quit",
+          "accelerator": "Control+Q"
+        }
+      ]
+    },
+    {
+      "label": "&Edit",
+      "submenu": [
+        {
+          "label": "&Undo",
+          "command": "core:undo",
+          "accelerator": "Control+Z"
+        },
+        {
+          "label": "&Redo",
+          "command": "core:redo",
+          "accelerator": "Control+Y"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "&Cut",
+          "command": "core:cut",
+          "accelerator": "Control+X"
+        },
+        {
+          "label": "C&opy",
+          "command": "core:copy",
+          "accelerator": "Control+C"
+        },
+        {
+          "label": "&Paste",
+          "command": "core:paste",
+          "accelerator": "Control+V"
+        },
+        {
+          "label": "Select &All",
+          "command": "core:select-all",
+          "accelerator": "Control+A"
+        },
+        {
+          "label": "Delete",
+          "command": "core:delete",
+          "accelerator": "Delete"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "Find…",
+          "command": "core:find",
+          "accelerator": "Control+F"
+        }
+      ]
+    },
+    {
+      "label": "&View",
+      "submenu": [
+        {
+          "label": "&Reload",
+          "command": "window:reload",
+          "accelerator": "Control+R"
+        },
+        {
+          "label": "Toggle &Full Screen",
+          "command": "window:toggle-full-screen",
+          "accelerator": "Control+Shift+F"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "&Actual Size",
+          "command": "window:actual-size",
+          "accelerator": "Control+0"
+        },
+        {
+          "label": "Zoom &In",
+          "command": "window:zoom-in",
+          "accelerator": "Control+Plus"
+        },
+        {
+          "label": "Zoom &Out",
+          "command": "window:zoom-out",
+          "accelerator": "Control+-"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "&Developer",
+          "submenu": [
+            {
+              "label": "Toggle Developer &Tools",
+              "command": "window:toggle-dev-tools",
+              "accelerator": "Alt+Control+I"
+            },
+            {
+              "label": "&Reload Everything",
+              "command": "window:reload-everything",
+              "accelerator": "Control+Shift+R"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "H&istory",
+      "submenu": [
+        {
+          "label": "&Back",
+          "command": "history:back",
+          "accelerator": "Alt+Left"
+        },
+        {
+          "label": "&Forward",
+          "command": "history:forward",
+          "accelerator": "Alt+Right"
+        }
+      ]
+    },
+    {
+      "label": "&Window",
+      "submenu": [
+        {
+          "label": "Always Show &Menu Bar",
+          "command": "window:auto-hide-menu-bar",
+          "type": "checkbox",
+          "checked": true
+        },
+        {
+          "type": "separator",
+          "id": "team-list"
+        },
+        {
+          "label": "Select &Next Team",
+          "command": "window:select-next-team",
+          "accelerator": "Control+Tab"
+        },
+        {
+          "label": "Select &Previous Team",
+          "command": "window:select-previous-team",
+          "accelerator": "Control+Shift+Tab"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "&Sign in to Another Team…",
+          "command": "window:signin"
+        }
+      ]
+    },
+    {
+      "label": "&Help",
+      "submenu": [
+        {
+          "label": "Keyboard Shortcuts",
+          "command": "application:keyboard-shortcuts",
+          "accelerator": "Control+/"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "Check for Updates…",
+          "command": "application:check-for-update",
+          "id": "update-status"
+        },
+        {
+          "label": "Report Issue…",
+          "command": "application:report-issue"
+        },
+        {
+          "label": "Show &Logs in Explorer",
+          "command": "application:prepare-and-reveal-logs"
+        },
+        {
+          "label": "Reset App Data…",
+          "command": "application:reset-app-data"
+        },
+        {
+          "type": "separator"
+        },
+        {
+          "label": "What's New…",
+          "command": "application:release-notes"
+        },
+        {
+          "label": "About Slack…",
+          "command": "application:about"
+        }
+      ]
+    }
+  ]
+}

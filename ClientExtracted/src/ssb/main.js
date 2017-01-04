@@ -1,21 +1,22 @@
 import {webFrame, remote} from 'electron';
-import {initializeEvalHandler, createProxyForRemote} from 'electron-remote';
-import logger from '../logger';
+import {initializeEvalHandler} from 'electron-remote';
+import {logger} from '../logger';
 import overrideWindowOpen from './override-window-open';
 import overrideDropbox from './override-dropbox';
 import setupCrashReporter from '../setup-crash-reporter';
 
 import AppIntegration from './app';
 import Calls from './calls';
-import ClipboardIntegration from './clipboard';
+import {ClipboardIntegration} from './clipboard';
 import DeviceStorage from './device-storage';
 import DockIntegration from './dock';
 import DownloadIntegration from './downloads';
 import NotificationIntegration from './notify';
-import {setupTouchscreenEvents, setupDoubleClickHandler, setupLocalStorageAlias, disableDesktopIntegration} from './post-dom-tasks';
+import {setupTouchscreenEvents, setupDoubleClickHandler,
+  canAccessLocalStorage, disableDesktopIntegration} from './post-dom-tasks';
 import SpellCheckingHelper from './spell-checking';
 import StatsIntegration from './stats';
-import Store from '../lib/store';
+import {Store} from '../lib/store';
 import ReduxHelper from './redux-helper';
 import TeamIntegration from './team';
 import WebappWindowManager from './webapp-window-manager';
@@ -48,7 +49,14 @@ let postDOMSetup = () => {
     return;
   }
 
-  setupLocalStorageAlias();
+  if (canAccessLocalStorage()) {
+    window.winssb.ls = window.localStorage;
+
+    if (window.localStorage.getItem('SLACK_TIMER_COP_ENABLED')) {
+      require('./timer-cop');
+    }
+  }
+
   window.winssb.spellCheckingHelper.setupInputEventListener();
 
   if (isDarwin) {
@@ -60,7 +68,13 @@ let postDOMSetup = () => {
   // Disable calls to WinSSB as the window itself is collapsing
   window.addEventListener('beforeunload', disableDesktopIntegration, true /*useCapture*/);
 
-  window.slackCore = createProxyForRemote(currentWindow).__webappShared;
+  // NB: Until we can fix electron-remote, using createProxyForRemote here
+  // is unsafe
+  //window.slackCore = createProxyForRemote(currentWindow).__webappShared;
+  window.slackCore = {
+    getLinuxDistro: () => Promise.resolve(null)
+  };
+
   currentWindow = null;
 };
 

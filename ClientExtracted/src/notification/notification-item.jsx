@@ -1,12 +1,12 @@
 import Color from 'color';
-import logger from '../logger';
+import {logger} from '../logger';
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
 import React from 'react';
 
 import Component from '../lib/component';
 import NotificationActions from '../actions/notification-actions';
-import TeamIcon from '../components/team-icon.jsx';
+import {TeamIcon} from '../components/team-icon';
 import TeamStore from '../stores/team-store';
 
 // Save the Aubergine theme in case we run into trouble.
@@ -35,7 +35,8 @@ export default class NotificationItem extends Component {
       id: React.PropTypes.string,
       title: React.PropTypes.string,
       content: React.PropTypes.string,
-      teamId: React.PropTypes.string
+      teamId: React.PropTypes.string,
+      msg: React.PropTypes.string
     }).isRequired,
     timeout: React.PropTypes.number,
     afterHoverTimeout: React.PropTypes.number
@@ -86,8 +87,8 @@ export default class NotificationItem extends Component {
   select(e) {
     // stopPropagation wasn't working so check the target
     if (e.target != this.refs.closeButton) {
-      let {id, channel, teamId} = this.props.notification;
-      NotificationActions.clickNotification(id, channel, teamId);
+      let {id, channel, teamId, msg} = this.props.notification;
+      NotificationActions.clickNotification(id, channel, teamId, msg);
     }
   }
 

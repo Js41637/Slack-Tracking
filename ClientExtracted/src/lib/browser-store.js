@@ -1,188 +1,215 @@
-import logger from '../logger';
+import assignIn from 'lodash.assignin';
 import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
+import {persistStore, autoRehydrate} from 'redux-persist';
+import {AsyncNodeStorage} from 'redux-persist-node-storage';
 import {electronEnhancer} from 'redux-electron-store';
-import {p} from '../get-path';
-import * as reducers from '../reducers';
-import fillShape from '../utils/fill-shape';
-import {isPrebuilt} from '../utils/process-helpers';
+import createFilter from 'redux-persist-transform-filter';
+import createEncryptor from 'redux-persist-transform-encrypt';
+import fs from 'graceful-fs';
+import promisify from '../promisify';
 
-import BaseStore from './base-store';
-import KeychainStorage from '../browser/keychain-storage';
-import LocalStorage from '../browser/local-storage';
+import {logger} from '../logger';
+import {p} from '../get-path';
+import {isPrebuilt} from '../utils/process-helpers';
+import {shallowEqual} from '../utils/shallow-equal';
+import * as reducers from '../reducers';
+
+import {BaseStore} from './base-store';
+import {LocalStorage} from '../browser/local-storage';
 import MigrationManager from '../browser/migration-manager';
 
-import {BASE, TEAMS, SETTINGS} from '../actions';
+import {TEAMS, SETTINGS, MIGRATIONS} from '../actions';
 
-// The shape of the data to persist in local storage
-const persistShape = {
-  app: {
-    selectedTeamId: true,
-    teamsByIndex: true,
-    windowSettings: true
-  },
-  settings: true,
-  teams: true
+const pfs = promisify(fs);
+
+// The keys to persist in local storage.
+const persistWhitelist = [
+  'appTeams',
+  'dialog',
+  'settings',
+  'teams',
+  'windowFrame'
+];
+
+// Controls the subkeys that are persisted. If a filter isn't defined, all of
+// the state is persisted.
+const filterByReducer = {
+  appTeams: ['selectedTeamId', 'teamsByIndex'],
+  dialog: ['credentials'],
+  windowFrame: ['windowSettings']
 };
 
-// The shape of the data to persist in the OS keychain
-const keychainShape = {
-  app: {
-    credentials: true
-  }
-};
+// We're more interested in obfuscating the user's proxy credentials than
+// encrypting them, so we just keep this key here.
+const encryptor = createEncryptor({
+  secretKey: '7c5f5fc4-eae8-4edf-89b6-abd01cfd0f10',
+  whitelist: ['dialog']
+});
+
+// The prefix to use for our storage filenames.
+const keyPrefix = 'slack-';
 
 /**
- * This store is for the browser / main process which loads data from
- * `localStorage` and handles all updates through the reducers.
+ * This store is for the browser / main process which persists state using
+ * redux-persist.
  */
 export default class BrowserStore extends BaseStore {
-  constructor() {
+
+  /**
+   * Creates a new BrowserStore instance.
+   *
+   * @param  {Object} options
+   * @param  {String} options.storagePath     The path to persist data files to
+   * @param  {String} options.reduxStatePath  The path to the legacy Redux state file
+   */
+  constructor({storagePath, reduxStatePath} = {}) {
     super();
+    this.storagePath = storagePath || p`${'userData'}/storage`;
+    this.reduxStatePath = reduxStatePath || p`${'userData'}/redux-state.json`;
 
     let toCompose = [
       applyMiddleware(this.logDispatches),
       electronEnhancer({
         postDispatchCallback: this.postDispatchCallback.bind(this)
-      })
+      }),
+      autoRehydrate()
     ];
 
     this.store = createStore(
       combineReducers(reducers.default),
       compose(...toCompose)
     );
+  }
 
-    // Specify what data is to be saved to and loaded from localStorage
-    this.persistShape = persistShape;
-    this.keychainShape = keychainShape;
+  /**
+   * Returns the store to its default state.
+   */
+  async resetStore() {
+    if (this.persistor) await this.persistor.purge();
+  }
 
-    this.subscribePostDispatch((action) => {
-      if (action.shouldSave) {
-        logger.info(`Saving store due to ${action.type}`);
-        this.saveSync();
-      }
+  /**
+   * Causes the store to persist certain keys to local files and hydrates the
+   * store from the given storage directory.
+   *
+   * @return {Promise}  A Promise indicating completion
+   */
+  async loadPersistentState() {
+    let filters = Object.keys(filterByReducer).map((reducer) => {
+      return createFilter(reducer, filterByReducer[reducer]);
     });
 
-    this.localStorage = new LocalStorage(p`${'userData'}/redux-state.json`);
-    this.keychainStorage = new KeychainStorage(this.localStorage);
-    this.loadPersistentStores();
-    this.loadKeychainStores();
-
-    let isDev = global.loadSettings.devMode && isPrebuilt();
-    let hasDevEnv = global.loadSettings.devEnv && global.loadSettings.devEnv.length > 1;
-
-    let settings = this.getState().settings;
-
-    if (process.platform === 'darwin' && !settings.hasMigratedData.macgap && !hasDevEnv) {
-      this.loadMacGapData(isDev);
-    } else if (process.platform !== 'darwin' && !settings.hasMigratedData.browser) {
-      this.loadLegacyData();
-    }
-  }
-
-  dispatch(action) {
-    super.dispatch(action);
-    this.throttledSave();
-  }
-
-  loadPersistentStores() {
-    let storedData = this.load() || {};
-    let updatePayload = {updated: fillShape(storedData, this.persistShape)};
-
-    this.dispatch({
-      type: BASE.LOAD_PERSISTENT,
-      data: updatePayload
-    });
-  }
-
-  loadKeychainStores() {
-    let storedData = this.loadFromKeychain() || {};
-    let updatePayload = {updated: fillShape(storedData, this.keychainShape)};
-
-    this.dispatch({
-      type: BASE.LOAD_PERSISTENT,
-      data: updatePayload,
-      omitKeysFromLog: ['password']
-    });
-  }
-
-  loadLegacyData() {
-    let updated = MigrationManager.getBrowserData();
-    updated.settings = updated.settings || { hasMigratedData: { browser: true }};
-    updated.settings.hasMigratedData = updated.settings.hasMigratedData || { browser: true};
-    updated.settings.hasMigratedData.browser = true;
-
-    if (updated) {
-      this.dispatch({
-        type: BASE.LOAD_LEGACY,
-        data: {updated}
-      });
-    }
-  }
-
-  loadMacGapData(isDevMode) {
-    let newTeams = MigrationManager.getMacGapData(isDevMode);
-    if (newTeams) {
-      this.dispatch({
-        type: TEAMS.ADD_NEW_TEAMS,
-        data: newTeams
-      });
-    }
-
-    this.dispatch({
-      type: SETTINGS.UPDATE_SETTINGS,
-      data: {
-        hasMigratedData: {
-          macgap: true
+    await new Promise((res, rej) => {
+      this.persistor = persistStore(this.store, {
+        whitelist: persistWhitelist,
+        storage: new AsyncNodeStorage(this.storagePath),
+        transforms: [...filters, encryptor],
+        keyPrefix
+      }, (err, restoredState) => {
+        if (err) {
+          rej(err);
+        } else {
+          res(restoredState);
         }
-      }
+      });
     });
   }
 
-  load() {
-    let data = null;
-    try {
-      data = JSON.parse(this.localStorage.getItem('state'));
-    } catch (e) {
-      logger.info('No state in localStorage, starting from scratch');
-    }
-    return data;
-  }
+  /**
+   * Migrates state from older versions of the app, specifically the MacGap app
+   * and versions that relied on our redux-state JSON file.
+   *
+   * @return {Promise}  A Promise indicating completion
+   */
+  async migrateLegacyState() {
+    let {devMode, devEnv} = global.loadSettings;
+    if (devEnv && devEnv.length > 1) return;
 
-  loadFromKeychain() {
-    let data = null;
-    try {
-      data = this.keychainStorage.load();
-    } catch (e) {
-      logger.info('No state in keychain, starting from scratch');
-    }
-    return data;
-  }
+    let {hasMigratedData} = this.getState().settings;
+    let didMigrateData = {...hasMigratedData};
 
-  throttledSave() {
-    try {
-      let dataToSave = fillShape(this.getState(), this.persistShape);
-      this.localStorage.setItem('state', JSON.stringify(dataToSave));
-    } catch (e) {
-      logger.error(`Couldn't save storage: ${e}`);
+    if (!hasMigratedData.redux) {
+      hasMigratedData = this.populateStoreFromReduxState(hasMigratedData);
+      assignIn(didMigrateData, {redux: true});
+    }
+
+    if (!hasMigratedData.macgap && process.platform === 'darwin') {
+      await this.populateStoreFromMacGap(devMode && isPrebuilt());
+      assignIn(didMigrateData, {macgap: true});
+    }
+
+    if (!shallowEqual(hasMigratedData, didMigrateData)) {
+      this.dispatch({
+        type: SETTINGS.UPDATE_SETTINGS,
+        data: {hasMigratedData: didMigrateData}
+      });
     }
   }
 
   /**
-   * Saves the store synchronously. This is necessary when, for example, we
-   * are exiting the app.
+   * Performs one-time migration from our legacy redux-state JSON file.
+   *
+   * @param  {Object} hasMigratedData An object that specifies which migrations are done
+   * @return {Object}                 An object that specifies which migrations are done,
+   *                                  taking into account the legacy state
    */
-  saveSync() {
-    let dataToSave = fillShape(this.getState(), this.persistShape);
-    this.localStorage.setItemSync('state', JSON.stringify(dataToSave));
-    this.saveToKeychainSync();
+  populateStoreFromReduxState(hasMigratedData) {
+    let localStorage = new LocalStorage(this.reduxStatePath);
+    let stateBlob = localStorage.getItem('state');
+
+    if (stateBlob) {
+      try {
+        let data = JSON.parse(stateBlob);
+        this.dispatch({type: MIGRATIONS.REDUX_STATE, data});
+
+        // So, we have state to migrate. That means its notion of what
+        // migrations have already run is accurate, rather than our current.
+        hasMigratedData = data.settings.hasMigratedData;
+
+        // These are from old migrations that we no longer need to do.
+        delete hasMigratedData['browser'];
+        delete hasMigratedData['renderer'];
+
+        // Delete old redux state file
+        this.pruneOldReduxStore();
+      } catch (err) {
+        logger.warn(`Migrating Redux state failed: ${err.message}`);
+      }
+    }
+
+    return hasMigratedData;
   }
 
-  saveToKeychainSync() {
-    try {
-      let dataToSave = fillShape(this.getState(), this.keychainShape);
-      this.keychainStorage.save(dataToSave);
-    } catch (e) {
-      logger.error(`Couldn't save to keychain: ${e}`);
+  /**
+   * Performs one-time migration from the legacy Mac app (built on MacGap).
+   *
+   * @param  {Boolean} isDevMode  True if running in developer mode
+   * @return {Promise}            A Promise indicating completion
+   */
+  async populateStoreFromMacGap(isDevMode) {
+    let newTeams = await MigrationManager.getMacGapData(isDevMode);
+
+    if (newTeams) {
+      this.dispatch({
+        type: TEAMS.ADD_NEW_TEAMS,
+        data: newTeams,
+        selectTeam: true
+      });
+    }
+  }
+
+  /**
+   * Performs a one-time deletion of a no longer needed redux-store.json
+   */
+  async pruneOldReduxStore() {
+    const hasOldFile = !!fs.statSyncNoException(this.reduxStatePath);
+
+    if (hasOldFile) {
+      try {
+        await pfs.unlink(this.reduxStatePath);
+      } catch (err) {
+        logger.warn(`Could not remove old redux-state file: ${err ? err.message : '(no error)'}`);
+      }
     }
   }
 }

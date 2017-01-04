@@ -8,13 +8,13 @@ import {parseCommandLine} from '../parse-command-line';
 import {parseProtocolUrl} from '../parse-protocol-url';
 import {p} from '../get-path';
 import {spawn} from 'spawn-rx';
-import {createShortcuts, removeShortcuts, updateShortcuts} from './squirrel-shortcuts';
+import {createShortcuts, removeShortcuts, removeStartMenuFolder, updateShortcuts} from './squirrel-shortcuts';
 import {Observable} from 'rxjs/Observable';
 
 import assignIn from 'lodash.assignin';
 import BugsnagReporter from './bugsnag-reporter';
 import fs from 'fs';
-import logger from '../logger';
+import {logger} from '../logger';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import setupCrashReporter from '../setup-crash-reporter';
@@ -61,6 +61,7 @@ async function handleSquirrelEvents() {
   if (m[1] === 'uninstall') {
     app.removeAsDefaultProtocolClient('slack');
     await removeShortcuts(defaultLocations);
+    removeStartMenuFolder();
 
     let taskKill = p`${'SYSTEMROOT'}/system32/taskkill.exe`;
     let args = ['/F', '/IM', 'slack.exe', '/T'];
@@ -81,7 +82,7 @@ async function handleSquirrelEvents() {
 function handleDisableGpuOnLinux(shouldRun) {
   if (!shouldRun || process.platform !== 'linux') return shouldRun;
 
-  let LocalStorage = require('./local-storage');
+  let LocalStorage = require('./local-storage').LocalStorage;
   let localStorage = new LocalStorage();
 
   let disableGpu = localStorage.getItem('useHwAcceleration') === false;
@@ -124,7 +125,7 @@ function handleDeepLinkWhenReady(url = '') {
       .retryAtIntervals(20)
       .delay(50)
       .subscribe(() => {
-        let {updateSettings} = require('../actions/setting-actions').default;
+        let {updateSettings} = require('../actions/setting-actions').settingActions;
         updateSettings({launchedWithLink: url});
       });
   }
@@ -174,14 +175,18 @@ function handleSingleInstance(shouldRun) {
  * Override our temp directory and wait for the app ready event.
  *
  * @param  {Object} args Contains the command-line arguments
+ * @return {Promise}  A Promise indicating completion
  */
-function startTheAppOnReady(args) {
+async function waitForAppReady(args) {
   app.commandLine.appendSwitch('disable-pinch');
 
-  // NB: We need to have our own directory in PATH in order to affect DLL
-  // search order so that Calls can find the UCRT that's in the same
-  // directory as slack.exe
   if (process.platform === 'win32') {
+    // Refer to https://github.com/electron/electron/issues/7655 for more info
+    app.commandLine.appendSwitch('enable-use-zoom-for-dsf', 'false');
+
+    // NB: We need to have our own directory in PATH in order to affect DLL
+    // search order so that Calls can find the UCRT that's in the same
+    // directory as slack.exe
     let ourDir = path.dirname(process.execPath);
     process.env.PATH = `${ourDir};${process.env.PATH}`;
   }
@@ -207,7 +212,22 @@ function startTheAppOnReady(args) {
     process.env.TMP = newTemp;
   }
 
-  app.on('ready', () => createSlackApplication(args));
+  global.loadSettings = args;
+  global.reporter = new BugsnagReporter(args.resourcePath, args.devMode);
+  global.getMemoryUsage = getMemoryUsage;
+
+  await new Promise((res) => app.on('ready', res));
+}
+
+/**
+ * Before we create any components that access the store, hydrate the store.
+ *
+ * @return {Promise}  A Promise indicating completion
+ */
+async function createBrowserStore() {
+  const {Store} = require('../lib/store');
+  await Store.loadPersistentState();
+  await Store.migrateLegacyState();
 }
 
 /**
@@ -217,10 +237,6 @@ function startTheAppOnReady(args) {
  * @param  {Object} args Contains the command-line arguments
  */
 function createSlackApplication(args) {
-  global.loadSettings = args;
-  global.reporter = new BugsnagReporter(args.resourcePath, args.devMode);
-  global.getMemoryUsage = getMemoryUsage;
-
   // Set our AppUserModelId based on the Squirrel shortcut
   if (!process.windowsStore && !args.devMode) app.setAsDefaultProtocolClient('slack');
   if (!process.windowsStore) app.setAppUserModelId(getAppId());
@@ -236,6 +252,7 @@ function createSlackApplication(args) {
       Application = require(path.join(args.resourcePath, 'src', 'browser', 'application')).default;
     } else {
       Application = require('../browser/application').default;
+      process.env.NODE_ENV = 'production';
     }
 
     global.application = new Application(args);
@@ -253,14 +270,35 @@ function createSlackApplication(args) {
 async function main() {
   try {
     let shouldRun = await handleSquirrelEvents();
-    shouldRun = await handleDisableGpuOnLinux(shouldRun);
-    let commandLineArgs = await handleSingleInstance(shouldRun);
-    await startTheAppOnReady(commandLineArgs);
+    shouldRun = handleDisableGpuOnLinux(shouldRun);
+    let commandLineArgs = handleSingleInstance(shouldRun);
+
+    await waitForAppReady(commandLineArgs);
+    await createBrowserStore();
+    createSlackApplication(commandLineArgs);
   } catch (e) {
     console.error(e);
     app.quit(0);
     process.exit(0);
   }
+
+
+  // Open up DevTools and type:
+  //
+  // browser = require('electron-remote').createProxyForRemote(null)
+  // browser.debugProfiler.startProfiling();
+  // browser.debugProfiler.stopProfiling('some-tag');
+  let profiler = null;
+  global.debugProfiler = {
+    startProfiling: (...args) => {
+      if (!profiler) profiler = require('../utils/profiler');
+      profiler.startProfiling(...args);
+    },
+    stopProfiling: (...args) => {
+      if (!profiler) profiler = require('../utils/profiler');
+      profiler.stopProfiling(...args);
+    },
+  };
 }
 
 // NB: This will be overwritten by SlackApplication once we start up for reals

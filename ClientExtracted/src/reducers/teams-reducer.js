@@ -1,15 +1,15 @@
-import pick from '../utils/pick';
-import pickBy from '../utils/pick-by';
 import fs from 'fs';
 import url from 'url';
+
 import {p} from '../get-path';
-import handlePersistenceForKey from './helpers';
+import {pick} from '../utils/pick';
+import {pickBy} from '../utils/pick-by';
+import {objectMerge} from '../utils/object-merge';
 
-import {TEAMS, SETTINGS, APP} from '../actions';
+import {TEAMS, SETTINGS, MIGRATIONS} from '../actions';
+import {SLACK_CORP_TEAM_ID} from '../utils/shared-constants';
 
-const SLACK_CORP_TEAM_ID = 'T024BE7LD';
-
-let EventActions, savedTsDevMenu = false;
+let savedTsDevMenu = false;
 
 export default function reduce(teams = {}, action) {
   switch(action.type) {
@@ -23,9 +23,9 @@ export default function reduce(teams = {}, action) {
     return removeTeamsWithIds(teams, action.data);
 
   case TEAMS.UPDATE_TEAM_THEME:
-    return updateTheme(teams, action.data.theme, action.data.teamId);
+    return updateFieldOnTeam(teams, action.data.teamId, 'theme', action.data.theme);
   case TEAMS.UPDATE_TEAM_ICONS:
-    return updateTeamIcons(teams, action.data.icons, action.data.teamId);
+    return updateFieldOnTeam(teams, action.data.teamId, 'icons', action.data.icons);
   case TEAMS.UPDATE_UNREADS_INFO:
     return updateUnreadsInfo(teams, action.data);
   case TEAMS.UPDATE_TEAM_USAGE:
@@ -33,16 +33,17 @@ export default function reduce(teams = {}, action) {
   case TEAMS.UPDATE_TEAM_NAME:
     return updateTeamName(teams, action.data.name, action.data.teamId);
   case TEAMS.UPDATE_TEAM_URL:
-    return updateTeamUrl(teams, action.data.url, action.data.teamId);
+    return updateFieldOnTeam(teams, action.data.teamId, 'team_url', action.data.url);
   case TEAMS.UPDATE_USER_ID:
-    return updateUserId(teams, action.data.userId, action.data.teamId);
-
+    return updateFieldOnTeam(teams, action.data.teamId, 'id', action.data.userId);
+  case TEAMS.SET_TEAM_IDLE_TIMEOUT:
+    return setTeamIdleTimeout(teams, action.data.teamId, action.data.timeout);
   case SETTINGS.INITIALIZE_SETTINGS:
     return updateTeamsForDevEnvironment(teams, action.data);
-  case APP.RESET_STORE:
-    return {};
+  case MIGRATIONS.REDUX_STATE:
+    return objectMerge(teams, action.data.teams);
   default:
-    return handlePersistenceForKey(teams, action, 'teams');
+    return teams;
   }
 }
 
@@ -97,24 +98,17 @@ function parseTeamFromSsb(ssbTeam) {
 }
 
 function addTeam(teamList, team) {
-  team = parseTeamFromSsb(team);
+  if (teamList[team.team_id]) return teamList;
 
-  // NB: When a session ends, we'll go through `didSignIn` again and try to
-  // add the same team. This breaks Redux rules, but issue a refresh action.
-  if (teamList[team.team_id]) {
-    EventActions = EventActions || require('../actions/event-actions').default;
-    setTimeout(() => EventActions.refreshTeam(team.team_id), 50);
-    return teamList;
-  }
-
-  let update = {};
-  update[team.team_id] = team;
-  return Object.assign({}, teamList, update);
+  return {
+    ...teamList,
+    [team.team_id]: parseTeamFromSsb(team)
+  };
 }
 
 function addTeams(teamList, newTeams) {
-  let update = newTeams.reduce((acc, x) => {
-    acc[x.team_id] = parseTeamFromSsb(x);
+  let update = newTeams.reduce((acc, team) => {
+    acc[team.team_id] = parseTeamFromSsb(team);
     return acc;
   }, {});
 
@@ -127,30 +121,6 @@ function removeTeamWithId(teamList, teamId) {
 
 function removeTeamsWithIds(teamList, teamIds) {
   return pickBy(teamList, (team) => !teamIds.includes(team.team_id));
-}
-
-function updateTheme(teams, theme, teamId) {
-  let team = teams[teamId];
-  if (!team) return teams;
-  return {
-    ...teams,
-    [teamId]: {
-      ...team,
-      theme
-    }
-  };
-}
-
-function updateTeamIcons(teams, icons, teamId) {
-  let team = teams[teamId];
-  if (!team) return teams;
-  return {
-    ...teams,
-    [teamId]: {
-      ...team,
-      icons
-    }
-  };
 }
 
 function updateTeamName(teams, team_name, teamId) {
@@ -166,26 +136,14 @@ function updateTeamName(teams, team_name, teamId) {
   };
 }
 
-function updateTeamUrl(teams, team_url, teamId) {
+function updateFieldOnTeam(teams, teamId, key, value) {
   let team = teams[teamId];
   if (!team) return teams;
   return {
     ...teams,
     [teamId]: {
       ...team,
-      team_url
-    }
-  };
-}
-
-function updateUserId(teams, id, teamId) {
-  let team = teams[teamId];
-  if (!team) return teams;
-  return {
-    ...teams,
-    [teamId]: {
-      ...team,
-      id
+      [key]: value
     }
   };
 }
@@ -213,6 +171,16 @@ function updateTeamUsage(teams, usagePerTeam) {
     update[teamId] = {...teams[teamId], usage};
   }
   return {...teams, ...update};
+}
+
+function setTeamIdleTimeout(teams, singleTeamId, timeout) {
+  if (singleTeamId) {
+    return updateFieldOnTeam(teams, singleTeamId, 'idle_timeout', timeout);
+  } else {
+    return Object.keys(teams).reduce((acc, teamId) => {
+      return updateFieldOnTeam(acc, teamId, 'idle_timeout', timeout);
+    }, teams);
+  }
 }
 
 function updateTeamsForDevEnvironment(teams, {devEnv}) {

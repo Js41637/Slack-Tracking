@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import logger from '../../logger';
+import {logger} from '../../logger';
 
 let component = React.createElement(getComponent());
 let host = global.document.createElement('span');

@@ -1,5 +1,6 @@
 import {version} from '../package.json';
-import {isWindows10OrHigher, getOSVersion} from './native-interop';
+import {nativeInterop} from './native-interop';
+const {isWindows10OrHigher, getOSVersion} = nativeInterop;
 
 export default function returnSSBUserAgent(inputUserAgent=null) {
   let agent = inputUserAgent || global.navigator.userAgent;

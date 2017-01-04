@@ -1,13 +1,11 @@
 import transform from 'lodash.transform';
-import pick from '../utils/pick';
-import mapValues from '../utils/map-values';
+import {pick} from '../utils/pick';
 import path from 'path';
 import fs from 'fs';
 import {session} from 'electron';
 
 import {getInitialsOfName} from '../reducers/teams-reducer';
-import LocalStorage from './local-storage';
-import logger from '../logger';
+import {logger} from '../logger';
 import {p} from '../get-path';
 import CookieParser from './safari-cookies';
 
@@ -23,7 +21,7 @@ class MigrationManager {
    * @param  {Boolean}  isDevMode  True if running in devMode, false if production
    * @return {Array}               An array of team objects
    */
-  getMacGapData(isDevMode) {
+  async getMacGapData(isDevMode) {
     if (process.platform !== 'darwin') {
       logger.error('Should only be used on Mac');
       return null;
@@ -73,7 +71,7 @@ class MigrationManager {
         return list;
       }, null);
 
-      this.migrateMacGapCookiesToSession(tokenFiles);
+      await this.migrateMacGapCookiesToSession(tokenFiles);
 
       if (!teamList) {
         logger.error("Found MacGap files, but none were parsable");
@@ -91,6 +89,16 @@ class MigrationManager {
     }
   }
 
+  parseTeamList(teamList) {
+    return transform(teamList, (teams, teamEntry) => {
+      let team = pick(teamEntry, 'name', 'id', 'team_id', 'team_name', 'team_url', 'theme', 'icons');
+      team.initials = getInitialsOfName(team.team_name);
+
+      teams[team.team_id] = team;
+      return teams;
+    }, {});
+  }
+
   /**
    * migrateMacGapCookiesToSession moves cookies from the MacGap cookie files
    * (i.e. either the sandboxed or non-sandboxed location) to our local
@@ -104,7 +112,7 @@ class MigrationManager {
    *
    * @return {Promise}                    Completion.
    */
-  migrateMacGapCookiesToSession(tokenFiles) {
+  async migrateMacGapCookiesToSession(tokenFiles) {
     let cookiesToMigrate = [];
     for (let x of tokenFiles) {
       let filePath = p`${path.dirname(x)}/../../Cookies/com.tinyspeck.slackmacgap.binarycookies`;
@@ -125,7 +133,7 @@ class MigrationManager {
     let cookiesSeen = {};
     for (let file of cookiesToMigrate) {
       logger.info(`Attempting to migrate cookie: ${file}`);
-      this.migrateCookieFile(file, cookiesSeen);
+      await this.migrateCookieFile(file, cookiesSeen);
     }
   }
 
@@ -139,12 +147,16 @@ class MigrationManager {
    *
    * @return {Promise}            Completion.
    */
-  migrateCookieFile (file, cookiesSeen) {
+  async migrateCookieFile(file, cookiesSeen) {
     const cookieParser = new CookieParser();
     let cookies = null;
 
     try {
-      cookies = cookieParser.parse(file);
+      cookies = await new Promise((res,rej) => {
+        cookieParser.parse(file, (err, val) => {
+          if (err) { rej(err); } else { res(val); }
+        });
+      });
     } catch (e) {
       logger.error(`Couldn't open cookie file ${file}: ${e.message}`);
       return;
@@ -154,130 +166,32 @@ class MigrationManager {
       let key = `${cookie.url}:${cookie.name}`;
       if (cookiesSeen[key]) continue;
 
-      logger.info(`Setting ${key}`);
+      try {
+        await new Promise((res,rej) => {
+          logger.info(`Setting ${key}`);
 
-      let chromiumCookie = {
-        url: `https://${cookie.url}`,
-        name: cookie.name,
-        value: cookie.value,
-        path: cookie.path,
-        secure: true,
-        session: false,
-        expirationDate: cookie.expiration.getTime() / 1000,
-      };
+          let chromiumCookie = {
+            url: `https://${cookie.url}`,
+            name: cookie.name,
+            value: cookie.value,
+            path: cookie.path,
+            secure: true,
+            session: false,
+            expirationDate: cookie.expiration.getTime() / 1000,
+          };
 
-      session.defaultSession.cookies.set(chromiumCookie, (e) => {
-        if (e) {
-          logger.info(e);
-          logger.error(`Failed to set cookie for ${cookie.url}: ${e.message}`);
-        }
-      });
+          logger.debug(JSON.stringify(chromiumCookie));
 
-      cookiesSeen[key] = true;
+          session.defaultSession.cookies.set(chromiumCookie, (e) => {
+            if (e) { logger.info(e); rej(e); } else { res(true); }
+          });
+        });
+
+        cookiesSeen[key] = true;
+      } catch (e) {
+        logger.error(`Failed to set cookie for ${cookie.url}: ${e.message}`);
+      }
     }
-  }
-
-  /**
-   * Retrieves some legacy settings that were stored in the browser process.
-   *
-   * @return {Object}  An object to push to the store
-   */
-  getBrowserData() {
-    // Defaults to the same location the storage used to be
-    let localStorage = new LocalStorage();
-
-    let dataMap = {
-      'hasRunApp': 'hasShownWelcomeBalloon',
-      'hasRunFromTray': 'hasRunFromTray',
-      'autoHideMenuBar': 'autoHideMenuBar'
-    };
-
-    let settings = {};
-
-    Object.keys(dataMap).forEach((oldKey) => {
-      let newKey = dataMap[oldKey];
-      // Old values have dank memes / undefined rather than true / false
-      settings[newKey] = localStorage.getItem(oldKey) !== undefined ? true : false;
-    });
-
-    return { settings };
-  }
-
-  /**
-   * Retrieves teams and preferences that were stored in the main renderer's
-   * `localStorage`.
-   *
-   * @param  {Object} defaultSettings Current default settings
-   * @return {Object}                 An object to push to the store
-   */
-  getRendererData(defaultSettings) {
-    return {
-      ...this.getRendererTeams(),
-      ...this.getRendererSettings(defaultSettings)
-    };
-  }
-
-  getRendererTeams() {
-    let teamList = JSON.parse(window.localStorage.getItem('teamList'));
-    if (!teamList) {
-      logger.info('No teams found to migrate');
-      return {};
-    }
-
-    let teams = this.parseTeamList(teamList);
-    let themeAndIcons = JSON.parse(window.localStorage.getItem('theme-cache'));
-
-    if (themeAndIcons) {
-      themeAndIcons = themeAndIcons.themeInfo;
-      Object.keys(teams).forEach((key) => {
-        let team = teams[key];
-        team.theme = themeAndIcons[team.team_id].theme;
-        team.icons = themeAndIcons[team.team_id].icons;
-      });
-    }
-
-    let app = {};
-    app.teamsByIndex = teamList.map((team) => team.team_id);
-    app.selectedTeamId = app.teamsByIndex[0];
-    return { teams, app };
-  }
-
-  parseTeamList(teamList) {
-    return transform(teamList, (teams, teamEntry) => {
-      let team = pick(teamEntry, 'name', 'id', 'team_id', 'team_name', 'team_url', 'theme', 'icons');
-      team.initials = getInitialsOfName(team.team_name);
-
-      teams[team.team_id] = team;
-      return teams;
-    }, {});
-  }
-
-  /**
-   * Pre-2.0, preferences were stored in {PreferencesHandler}, a class in the
-   * renderer that used `localStorage` for persistence.
-   */
-  getRendererSettings({useHwAcceleration, notifyPosition}) {
-    let toMigrate = [
-      'runFromTray',
-      'launchOnStartup',
-      'windowFlashBehavior',
-      'useHwAcceleration',
-      'notifyPosition',
-      'zoomLevel'
-    ];
-
-    // Don't migrate settings that aren't defined by the store, otherwise the
-    // webapp will display them in the Preferences dialog
-    if (useHwAcceleration === undefined)
-      toMigrate = toMigrate.filter((setting) => setting !== 'useHwAcceleration');
-    if (notifyPosition === undefined)
-      toMigrate = toMigrate.filter((setting) => setting !== 'notifyPosition');
-
-    let settings = pick(window.localStorage, toMigrate);
-    settings = mapValues(settings, (pref) => JSON.parse(pref));
-    logger.info(`Found legacy settings: ${JSON.stringify(settings)}`);
-
-    return { settings };
   }
 
   /**

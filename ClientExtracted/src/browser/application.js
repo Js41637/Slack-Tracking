@@ -1,14 +1,18 @@
 import assignIn from 'lodash.assignin';
 import '../rx-operators';
-import {dialog, shell, session, powerMonitor} from 'electron';
+import {dialog, shell, session, systemPreferences, powerMonitor} from 'electron';
 import {requireTaskPool} from 'electron-remote';
 import ipc from '../ipc-rx';
-import logger from '../logger';
+import {logger} from '../logger';
+import fs from 'fs';
 import os from 'os';
+import path from 'path';
+import rimraf from 'rimraf';
+import mkdirp from 'mkdirp';
 import packageJson from '../../package.json';
 import restartApp from './restart-app';
-import semver from 'semver';
 import temp from 'temp';
+import promisify from '../promisify';
 import {getReleaseNotesUrl} from './updater-utils';
 import {processMagicLoginLink} from '../magic-login/process-link';
 import {parseProtocolUrl} from '../parse-protocol-url';
@@ -17,25 +21,28 @@ import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 import SerialSubscription from 'rxjs-serial-subscription';
 import {p} from '../get-path';
-import {createZipArchive} from '../utils/file-helpers';
+import {createZipArchive, createZipArchiveWithPowershell, copySmallFileSync} from '../utils/file-helpers';
 
-import AppActions from '../actions/app-actions';
+import {appActions} from '../actions/app-actions';
 import AppMenu from '../components/app-menu';
 import AutoLaunch from '../auto-launch';
 import BasicAuthHandler from './basic-auth-handler';
-import EventActions from '../actions/event-actions';
+import {eventActions} from '../actions/event-actions';
 import EventStore from '../stores/event-store';
 import ReduxComponent from '../lib/redux-component';
-import SettingActions from '../actions/setting-actions';
-import SettingStore from '../stores/setting-store';
+import {settingActions} from '../actions/setting-actions';
+import {settingStore} from '../stores/setting-store';
 import SlackResourcesUrlHandler from './slack-resources-url-handler';
 import SlackWebappDevHandler from './slack-webapp-dev-handler';
 import SquirrelAutoUpdater from './squirrel-auto-updater';
+import {Store} from '../lib/store';
 import TeamStore from '../stores/team-store';
 import TrayHandler from './tray-handler';
 import WebContentsMediator from './web-contents-mediator';
 import WindowCreator from './window-creator';
 
+const pmkdirp = promisify(mkdirp);
+const primraf = promisify(rimraf);
 const {repairTrayRegistryKey} = requireTaskPool(require.resolve('../csx/tray-repair'));
 
 export default class Application extends ReduxComponent {
@@ -89,16 +96,6 @@ export default class Application extends ReduxComponent {
       this.handleFirstExecution();
     }
 
-    /**
-     * So, in 2.1.1 we accidentally logged message text when spell-checking. We
-     * don't want that to stick around in a user's logs, so we're going to do a
-     * one time clean up. We can remove this code sometime after 2.1.2.
-     */
-    if (semver.gte(this.state.appVersion, '2.1.2') && !this.state.hasCleanedLogFilesForSpellcheckBug) {
-      logger.pruneLogs(true);
-      SettingActions.updateSettings({hasCleanedLogFilesForSpellcheckBug: true});
-    }
-
     this.mainWindow = WindowCreator.createMainWindow(options);
     this.basicAuthHandler = new BasicAuthHandler();
 
@@ -109,28 +106,26 @@ export default class Application extends ReduxComponent {
     Observable.merge(
       Observable.fromEvent(powerMonitor, 'suspend').mapTo(false),
       Observable.fromEvent(powerMonitor, 'resume').mapTo(true)
-    ).subscribe((isAwake) => AppActions.setSuspendStatus(isAwake));
+    ).subscribe((isAwake) => appActions.setSuspendStatus(isAwake));
 
     logger.info(`Welcome to Slack ${this.state.appVersion} ${process.arch}`);
   }
 
   syncState() {
     return {
-      appVersion: SettingStore.getSetting('appVersion'),
-      releaseChannel: SettingStore.getSetting('releaseChannel'),
-      resourcePath: SettingStore.getSetting('resourcePath'),
-      versionName: SettingStore.getSetting('versionName'),
+      appVersion: settingStore.getSetting('appVersion'),
+      releaseChannel: settingStore.getSetting('releaseChannel'),
+      resourcePath: settingStore.getSetting('resourcePath'),
+      versionName: settingStore.getSetting('versionName'),
       numTeams: TeamStore.getNumTeams(),
-      hasRunApp: SettingStore.getSetting('hasRunApp'),
-      isWindows: SettingStore.isWindows(),
-      isMac: SettingStore.isMac(),
-      isBeforeWin10: SettingStore.getSetting('isBeforeWin10'),
-      launchOnStartup: SettingStore.getSetting('launchOnStartup'),
-      pretendNotReallyWindows10: SettingStore.getSetting('pretendNotReallyWindows10'),
-      hasCleanedLogFilesForSpellcheckBug: SettingStore.getSetting('hasCleanedLogFilesForSpellcheckBug'),
+      hasRunApp: settingStore.getSetting('hasRunApp'),
+      isWindows: settingStore.isWindows(),
+      isMac: settingStore.isMac(),
+      isBeforeWin10: settingStore.getSetting('isBeforeWin10'),
+      launchOnStartup: settingStore.getSetting('launchOnStartup'),
+      pretendNotReallyWindows10: settingStore.getSetting('pretendNotReallyWindows10'),
 
       handleDeepLinkEvent: EventStore.getEvent('handleDeepLink'),
-      runSpecsEvent: EventStore.getEvent('runSpecs'),
       showAboutEvent: EventStore.getEvent('showAbout'),
       showReleaseNotesEvent: EventStore.getEvent('showReleaseNotes'),
       confirmAndResetAppEvent: EventStore.getEvent('confirmAndResetApp'),
@@ -150,21 +145,17 @@ export default class Application extends ReduxComponent {
   }
 
   handleDeepLink({url}) {
-    EventActions.handleDeepLink(url);
+    eventActions.handleDeepLink(url);
   }
 
   handleDeepLinkEvent({url}) {
     let args = parseProtocolUrl(url);
 
-    if (args.releaseChannel && SettingStore.getSetting('releaseChannel') !== args.releaseChannel) {
-      SettingActions.updateSettings({releaseChannel: args.releaseChannel});
+    if (args.releaseChannel && settingStore.getSetting('releaseChannel') !== args.releaseChannel) {
+      settingActions.updateSettings({releaseChannel: args.releaseChannel});
     } else if (args.magicLogin) {
       processMagicLoginLink(args.magicLogin);
     }
-  }
-
-  runSpecsEvent() {
-    WindowCreator.createSpecsWindow();
   }
 
   initializeSettings(options) {
@@ -192,11 +183,12 @@ export default class Application extends ReduxComponent {
       openDevToolsOnStart: !!options.openDevToolsOnStart,
       logFile: options.logFile || null,
       pretendNotReallyWindows10: options.pretendNotReallyWindows10 || this.state.pretendNotReallyWindows10,
+      isAeroGlassEnabled: process.platform === 'win32' && systemPreferences.isAeroGlassEnabled(),
       platformVersion,
       isTitleBarHidden
     };
 
-    SettingActions.initializeSettings(payload);
+    settingActions.initializeSettings(payload);
     assignIn(global.loadSettings, payload);
   }
 
@@ -220,7 +212,7 @@ export default class Application extends ReduxComponent {
   }
 
   handleFirstExecution() {
-    SettingActions.updateSettings({hasRunApp: true});
+    settingActions.updateSettings({hasRunApp: true});
   }
 
   /**
@@ -238,8 +230,8 @@ export default class Application extends ReduxComponent {
       .subscribe((cmd) => {
         let re = /^slack:/i;
         let protoUrl = cmd.find((x) => x.match(re));
-        if (protoUrl) EventActions.handleDeepLink(protoUrl);
-        else EventActions.foregroundApp();
+        if (protoUrl) eventActions.handleDeepLink(protoUrl);
+        else eventActions.foregroundApp();
       });
   }
 
@@ -262,16 +254,77 @@ export default class Application extends ReduxComponent {
 
   async prepareAndRevealLogsEvent() {
     try {
+      let storagePath = p`${'userData'}/storage`;
+      let storageFiles = fs.readdirSync(storagePath)
+        .map((file) => p`${storagePath}/${file}`);
       let logFiles = await logger.getMostRecentLogFiles();
+
       let filesToArchive = [
         ...logFiles,
-        p`${'userData'}/redux-state.json`
+        ...storageFiles
       ];
+
+      // Bail out here if we're in Windows Store, we need a
+      // custom method
+      if (process.windowsStore) {
+        return this.revealLogsInAppx(filesToArchive);
+      }
+
       let zipPath = p`${'temp'}/logs.zip`;
       await createZipArchive(filesToArchive, zipPath);
       shell.showItemInFolder(zipPath);
     } catch(e) {
       logger.error(`Couldn't zip up log files: ${e}`);
+    }
+  }
+
+  /**
+   * Reveals the logs when running in a Windows Store container (appx),
+   * which virtualizes the file system. We therefore need to "download"
+   * the files before we can reveal them.
+   *
+   * You might also be wondering why we don't zip using Yazl - Yazl has
+   * trouble with the virtual file systems and the various bytes all
+   * around.
+   *
+   * @param {string[]} filesToArchive
+   */
+  async revealLogsInAppx(filesToArchive) {
+    const downloadDir = p`${'downloads'}` || p`${'HOME'}/Downloads`;
+    const desktopDir = p`${'userDesktop'}`;
+    let outputFolder = downloadDir;
+
+    // If the download dir doesn't exist, try to recover by using the desktop.
+    // If that fails too, don't crash.
+    if (!fs.statSyncNoException(downloadDir)) {
+      try {
+        logger.info(`No download directory at ${downloadDir}, creating one`);
+        mkdirp.sync(downloadDir);
+      } catch (err) {
+        outputFolder = fs.statSyncNoException(desktopDir) ? desktopDir : null;
+      }
+    }
+
+    if (outputFolder) {
+      const time = Date.now();
+      const targetDirectory = path.join(outputFolder, `slack-logs-${time}`);
+      const zipPath = path.join(outputFolder, `slack-logs-${time}.zip`);
+
+      try {
+        await pmkdirp(targetDirectory);
+
+        filesToArchive.forEach((file) => {
+          copySmallFileSync(file, path.join(targetDirectory, path.basename(file)));
+        });
+
+        await createZipArchiveWithPowershell(targetDirectory, zipPath);
+        await primraf(targetDirectory);
+        shell.showItemInFolder(zipPath);
+      } catch (e) {
+        logger.info(`Tried to zip up and reveal log files, but failed: ${e}`);
+      }
+    } else {
+      logger.info(`Tried to reveal logs, but could not get hold of target location ${outputFolder}`);
     }
   }
 
@@ -304,7 +357,7 @@ export default class Application extends ReduxComponent {
       await new Promise((resolve) => mainSession.clearCache(resolve));
       await new Promise((resolve) => mainSession.clearStorageData(resolve));
 
-      AppActions.resetStore();
+      Store.resetStore();
       restartApp();
     }
   }

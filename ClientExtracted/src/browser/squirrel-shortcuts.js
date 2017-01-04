@@ -3,9 +3,10 @@ import path from 'path';
 
 import {p} from '../get-path';
 import {spawn} from 'spawn-rx';
-import {isWindows10OrHigher} from '../native-interop';
-import {copySmallFileSync} from '../utils/file-helpers';
 
+import {nativeInterop} from '../native-interop';
+import {copySmallFileSync} from '../utils/file-helpers';
+const {isWindows10OrHigher} = nativeInterop;
 /**
  * Forks to Squirrel in order to install or update our app shortcuts.
  *
@@ -63,6 +64,23 @@ export async function removeShortcuts(locations) {
   let args = ['--removeShortcut', target, '-l', locations];
 
   await spawn(updateDotExe, args).toPromise();
+}
+
+/**
+ * Checks if the start menu contains an empty "Slack Technologies" folder. If so, it removes it.
+ */
+export function removeStartMenuFolder() {
+  const folderLocation = p`${'appData'}/Microsoft/Windows/Start Menu/Programs/Slack Technologies/`;
+  const hasFolderLocation = fs.statSyncNoException(folderLocation);
+
+  if (hasFolderLocation) {
+    try {
+      const contents = fs.readdirSync(folderLocation) || [];
+      if (contents.length === 0) fs.rmdirSync(folderLocation);
+    } catch (e) {
+      console.log(`Failed to check "Slack Technologies" folder for contents, did not remove it: ${e.message}`);
+    }
+  }
 }
 
 /**

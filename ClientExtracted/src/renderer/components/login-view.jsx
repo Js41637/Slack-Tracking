@@ -1,13 +1,13 @@
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import AppStore from '../../stores/app-store';
+import {dialogStore} from '../../stores/dialog-store';
 import Component from '../../lib/component';
 import EventStore from '../../stores/event-store';
-import FullScreenModal from '../../components/full-screen-modal';
-import SettingStore from '../../stores/setting-store';
+import {FullScreenModal} from '../../components/full-screen-modal';
+import {settingStore} from '../../stores/setting-store';
 import WebViewContext from './web-view-ctx';
-import WindowHelpers from '../../components/helpers/window-helpers';
+import {WindowHelpers} from '../../components/helpers/window-helpers';
 
 export default class LoginView extends Component {
 
@@ -30,9 +30,9 @@ export default class LoginView extends Component {
 
   syncState() {
     return {
-      slackUrl: SettingStore.getSignInUrl(),
-      isShowingDevTools: AppStore.isShowingDevTools(),
-      focusPrimaryTeamEvent: EventStore.getEvent('focusPrimaryTeam')
+      slackUrl: settingStore.getSignInUrl(),
+      isShowingDevTools: dialogStore.isShowingDevTools(),
+      mainWindowFocusedEvent: EventStore.getEvent('mainWindowFocused')
     };
   }
 
@@ -48,7 +48,7 @@ export default class LoginView extends Component {
     this.refs.modal.cancel();
   }
 
-  focusPrimaryTeamEvent() {
+  mainWindowFocusedEvent() {
     this.refs.webView.focus();
   }
 
@@ -79,10 +79,11 @@ export default class LoginView extends Component {
           </ReactCSSTransitionGroup>
 
           <WebViewContext className="webView"
+            login={true}
             options={{src: this.state.slackUrl}}
             onPageLoad={() => this.handlePageLoad()}
             onRequestClose={() => this.cancel()}
-            ref="webView"/>
+            ref="webView" id="login"/>
         </div>
       </FullScreenModal>
     );

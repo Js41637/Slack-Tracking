@@ -1,5 +1,5 @@
 import {Subscription} from 'rxjs/Subscription';
-import logger from '../logger';
+import {logger} from '../logger';
 
 export default class ObservableStorage {
   // Public: Constructs a new Observable Storage object.

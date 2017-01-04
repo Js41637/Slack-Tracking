@@ -1,14 +1,12 @@
 import {app} from 'electron';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
-import {requireTaskPool} from 'electron-remote';
-import logger from '../logger';
+import {logger} from '../logger';
 
-import AppActions from '../actions/app-actions';
+import {dialogActions} from '../actions/dialog-actions';
 import AppStore from '../stores/app-store';
+import {dialogStore} from '../stores/dialog-store';
 import ReduxComponent from '../lib/redux-component';
-
-const {getJSON} = requireTaskPool(require.resolve('electron-remote/remote-ajax'));
 
 /**
  * When the browser wants to show a basic auth dialog (e.g., when a proxy
@@ -42,8 +40,8 @@ export default class BasicAuthHandler extends ReduxComponent {
 
   syncState() {
     return {
-      authInfo: AppStore.getInfoForAuthDialog(),
-      credentials: AppStore.getAuthCredentials(),
+      authInfo: dialogStore.getInfoForAuthDialog(),
+      credentials: dialogStore.getAuthCredentials(),
       networkStatus: AppStore.getNetworkStatus()
     };
   }
@@ -58,7 +56,7 @@ export default class BasicAuthHandler extends ReduxComponent {
   showAuthDialog(e, authInfo) {
     e.preventDefault();
     logger.info(`Got login event for ${JSON.stringify(authInfo)}`);
-    AppActions.showAuthenticationDialog(authInfo);
+    dialogActions.showAuthenticationDialog(authInfo);
   }
 
   /**
@@ -79,30 +77,6 @@ export default class BasicAuthHandler extends ReduxComponent {
       })
       .take(1)
       .publish();
-
-    ret.connect();
-    return ret;
-  }
-
-  /**
-   * Makes a single request to Slack's API to verify that the network is up.
-   *
-   * @param  {Observable} networkCheckOverride  Override the network check for testing
-   * @return {Observable} An Observable that emits true when network is available,
-   *                      or throws an error if not
-   */
-  checkForNetworkOrError(networkCheckOverride) {
-    logger.info('Waiting for network to come back');
-
-    let networkCheck = networkCheckOverride ||
-      Observable.fromPromise(getJSON('https://slack.com/api/api.test?error='));
-
-    let ret = networkCheck
-      .catch(() => Observable.throw(new Error('No Network')))
-      .flatMap(({ok}) => ok ?
-        Observable.of(true) :
-        Observable.throw('Bad Response'))
-      .publishLast();
 
     ret.connect();
     return ret;

@@ -1,4 +1,4 @@
-import logger from '../logger';
+import {logger} from '../logger';
 import {remote} from 'electron';
 
 const {BrowserWindow} = remote;

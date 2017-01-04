@@ -1,39 +1,40 @@
 import {ipcMain, BrowserWindow} from 'electron';
+import profiler from '../utils/profiler';
+
 const {app} = require('electron');
-import omit from '../utils/omit';
+import {omit} from '../utils/omit';
 import assignIn from 'lodash.assignin';
 import kebabCase from 'lodash.kebabcase';
-import logger from '../logger';
+import {logger} from '../logger';
 import {executeJavaScriptMethod, remoteEval} from 'electron-remote';
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
 
-import AppActions from '../actions/app-actions';
 import AppMenu from '../components/app-menu';
 import BrowserWindowManager from './browser-window-manager';
+import {dialogActions} from '../actions/dialog-actions';
 import DownloadListener from './download-listener';
-import EventActions from '../actions/event-actions';
-import DarwinSwipeBehavior from './behaviors/darwin-swipe-behavior';
+import {eventActions} from '../actions/event-actions';
+import {DarwinSwipeBehavior} from './behaviors/darwin-swipe-behavior';
 import ExternalLinkBehavior from '../renderer/behaviors/external-link-behavior';
-import MainWindowCloseBehavior from './behaviors/main-window-close-behavior';
-import MetricsReporter from './metrics-reporter';
+import {MainWindowCloseBehavior} from './behaviors/main-window-close-behavior';
+import {MetricsReporter} from './metrics-reporter';
 import NotificationWindowManager from './notification-window-manager';
-import PersistSettingsWindowBehavior from './behaviors/persist-settings-window-behavior';
+import {PersistSettingsWindowBehavior} from './behaviors/persist-settings-window-behavior';
 import ReduxComponent from '../lib/redux-component';
-import RepositionWindowBehavior from './behaviors/reposition-window-behavior';
-import SettingStore from '../stores/setting-store';
-import Store from '../lib/store';
-import WindowActions from '../actions/window-actions';
+import {RepositionWindowBehavior} from './behaviors/reposition-window-behavior';
+import {settingStore} from '../stores/setting-store';
+import {windowActions} from '../actions/window-actions';
+import {windowFrameActions} from '../actions/window-frame-actions';
 import WindowFlashNotificationManager from './window-flash-notification-manager';
-import WindowHelpers from '../components/helpers/window-helpers';
+import {WindowHelpers} from '../components/helpers/window-helpers';
 import WindowStore from '../stores/window-store';
+import {resolveImage} from '../utils/resolve-image';
 
-import {SLACK_PROTOCOL} from '../reducers/app-reducer';
+import {SLACK_PROTOCOL} from '../reducers/app-teams-reducer';
 import {WINDOW_TYPES, SIDEBAR_WIDTH_NO_TITLE_BAR} from '../utils/shared-constants';
 
 const {reportRendererCrashes, reportWindowMetrics, loadWindowFileUrl} = WindowHelpers;
-
-let electronScreen;
 
 /**
  * Singleton that creates windows. Handles some basic Slack window behaviors.
@@ -74,16 +75,16 @@ class WindowCreator extends ReduxComponent {
   syncState() {
     return {
       title: 'Slack',
-      isMac: SettingStore.isMac(),
-      isWindows: SettingStore.isWindows(),
-      isWin10: SettingStore.getSetting('isWin10'),
-      appVersion: SettingStore.getSetting('appVersion'),
-      resourcePath: SettingStore.getSetting('resourcePath'),
-      autoHideMenuBar: SettingStore.getSetting('autoHideMenuBar'),
-      isTitleBarHidden: SettingStore.getSetting('isTitleBarHidden'),
-      useHwAcceleration: SettingStore.isUsingHardwareAcceleration(),
-      isShowingHtmlNotifications: SettingStore.isShowingHtmlNotifications(),
-      isDevMode: SettingStore.getSetting('isDevMode')
+      isMac: settingStore.isMac(),
+      isWindows: settingStore.isWindows(),
+      isWin10: settingStore.getSetting('isWin10'),
+      appVersion: settingStore.getSetting('appVersion'),
+      resourcePath: settingStore.getSetting('resourcePath'),
+      autoHideMenuBar: settingStore.getSetting('autoHideMenuBar'),
+      isTitleBarHidden: settingStore.getSetting('isTitleBarHidden'),
+      useHwAcceleration: settingStore.isUsingHardwareAcceleration(),
+      isShowingHtmlNotifications: settingStore.isShowingHtmlNotifications(),
+      isDevMode: settingStore.getSetting('isDevMode')
     };
   }
 
@@ -98,11 +99,17 @@ class WindowCreator extends ReduxComponent {
     options.windowType = WINDOW_TYPES.MAIN;
     options.bootstrapScript = require.resolve('../renderer/main');
 
+    if (this.state.isWin10) {
+      options.frame = false;
+    }
+
     if (this.state.isMac) {
-      options.minWidth = 768 + SIDEBAR_WIDTH_NO_TITLE_BAR; // Minimum webapp size + sidebar width
+      // Minimum webapp size + the sidebar width, if it is visible
+      options.minWidth = 600 + (this.state.isTitleBarHidden ? SIDEBAR_WIDTH_NO_TITLE_BAR : 0);
       options.minHeight = 400;
     } else {
-      options.minWidth = 400; // Windows'ers care about this
+      // Windows'ers tend to have lower resolutions and care about this
+      options.minWidth = 400;
       options.minHeight = 300;
     }
 
@@ -110,12 +117,10 @@ class WindowCreator extends ReduxComponent {
       options.titleBarStyle = 'hidden';
     }
 
-    let setEmptyWindowIcon = this.actionToClearWindowIcon(options);
-
     let browserWindow = new BrowserWindow(options);
     let disposable = new Subscription();
 
-    WindowActions.addWindow(browserWindow.id, WINDOW_TYPES.MAIN);
+    windowActions.addWindow({windowId: browserWindow.id, windowType: WINDOW_TYPES.MAIN});
 
     let windowCloseBehavior = new MainWindowCloseBehavior();
     let behaviors = [
@@ -133,20 +138,20 @@ class WindowCreator extends ReduxComponent {
     });
 
     browserWindow.on('enter-full-screen', () => {
-      AppActions.setFullScreen(true);
+      windowFrameActions.setFullScreen(true);
     });
 
     browserWindow.on('leave-full-screen', () => {
-      AppActions.setFullScreen(false);
+      windowFrameActions.setFullScreen(false);
     });
 
-    browserWindow.on('focus', EventActions.focusPrimaryTeam);
+    browserWindow.on('focus', eventActions.mainWindowFocused);
     browserWindow.on('app-command', (e, cmd) => {
-      if (cmd !== 'unknown') EventActions.appCommand(cmd);
+      if (cmd !== 'unknown') eventActions.appCommand(cmd);
     });
 
     this.windowReadyEvent(browserWindow).subscribe(() => {
-      this.onMainWindowReady(browserWindow, options, setEmptyWindowIcon);
+      this.onMainWindowReady(browserWindow, options);
     });
 
     browserWindow.on('close', (e) => {
@@ -166,14 +171,7 @@ class WindowCreator extends ReduxComponent {
       }
     });
 
-    browserWindow.once('closed', () => {
-      // Save the store after the main window is closed, because settings can
-      // change as a result of React components unmounting or window behaviors
-      // being disposed.
-      Store.saveSync();
-
-      app.quit();
-    });
+    browserWindow.once('closed', app.quit);
 
     loadWindowFileUrl(browserWindow, options);
     this.preventWindowNavigation(browserWindow);
@@ -182,7 +180,7 @@ class WindowCreator extends ReduxComponent {
 
     disposable.add(() => {
       global.application.dispose();
-      WindowActions.removeWindow(browserWindow.id);
+      windowActions.removeWindow(browserWindow.id);
     });
 
     return browserWindow;
@@ -205,11 +203,9 @@ class WindowCreator extends ReduxComponent {
    *
    * @param  {BrowserWindow} mainWindow The main window
    * @param  {Object} options An object containing BrowserWindow arguments
-   * @param  {Function} setEmptyWindowIcon A method used to clear the icon
    */
-  onMainWindowReady(mainWindow, options, setEmptyWindowIcon) {
+  onMainWindowReady(mainWindow, options) {
     logger.info(`Main window finished load. Launched on login: ${options.invokedOnStartup}`);
-    setTimeout(setEmptyWindowIcon, 5 * 1000);
 
     // NB: We have to wait for the window to finish load before minimizing,
     // otherwise the app never loads.
@@ -220,8 +216,10 @@ class WindowCreator extends ReduxComponent {
     }
 
     if (options.openDevToolsOnStart) {
-      AppActions.toggleDevTools();
+      dialogActions.toggleDevTools();
     }
+
+    if (profiler.shouldProfile()) profiler.stopProfiling('main');
   }
 
   /**
@@ -277,8 +275,8 @@ class WindowCreator extends ReduxComponent {
     loadWindowFileUrl(browserWindow, options);
     this.preventWindowNavigation(browserWindow);
 
-    WindowActions.addWindow(windowId, WINDOW_TYPES.NOTIFICATIONS);
-    disposable.add(() => WindowActions.removeWindow(windowId));
+    windowActions.addWindow({windowId: windowId, windowType: WINDOW_TYPES.NOTIFICATIONS});
+    disposable.add(() => windowActions.removeWindow(windowId));
 
     browserWindow.once('close', () => {
       logger.info('Notifications window closed, disposing');
@@ -327,6 +325,11 @@ class WindowCreator extends ReduxComponent {
       hideMenuBar: 'autoHideMenuBar'
     };
 
+    // Ensure that the new window pops up on the same screen as the app
+    let rect = {x: params.x, y: params.y, width: params.width, height: params.height};
+    let senderWindow = BrowserWindow.fromWebContents(sender) || BrowserWindow.getFocusedWindow();
+    Object.assign(params, RepositionWindowBehavior.moveRectToDisplay(rect, senderWindow));
+
     Object.keys(params).forEach((key) => {
       let value = params[key];
       let option = customParamsMap[key] === undefined ? key : customParamsMap[key];
@@ -343,9 +346,7 @@ class WindowCreator extends ReduxComponent {
     let windowId = browserWindow.id;
     let disposable = new Subscription();
 
-    let repositionWindow = new RepositionWindowBehavior({
-      recalculateWindowPositionFunc: browserWindow.center
-    });
+    let repositionWindow = new RepositionWindowBehavior(browserWindow.center);
     disposable.add(repositionWindow.setup(browserWindow));
     disposable.add(ExternalLinkBehavior.setup(browserWindow.webContents));
 
@@ -364,7 +365,7 @@ class WindowCreator extends ReduxComponent {
       disposable.add(this.relayWindowEvents(browserWindow, sender));
     }
 
-    disposable.add(() => WindowActions.removeWindow(windowId));
+    disposable.add(() => windowActions.removeWindow(windowId));
 
     browserWindow.once('close', () => {
       browserWindow.hide();
@@ -373,7 +374,14 @@ class WindowCreator extends ReduxComponent {
       disposable.unsubscribe();
     });
 
-    WindowActions.addWindow(windowId, WINDOW_TYPES.WEBAPP, params.windowType, params.teamId);
+    const windowCreationOptions = {
+      windowId: windowId,
+      windowType: WINDOW_TYPES.WEBAPP,
+      subType: params.windowType,
+      teamId: params.teamId
+    };
+
+    windowActions.addWindow(windowCreationOptions);
     return browserWindow;
   }
 
@@ -436,7 +444,9 @@ class WindowCreator extends ReduxComponent {
       width: 320,
       height: 304,
       name: 'aboutBox',
-      parent: null
+      parent: null,
+      windowType: WINDOW_TYPES.OTHER,
+      title: 'About Slack'
     });
   }
 
@@ -472,6 +482,7 @@ class WindowCreator extends ReduxComponent {
         preload: require.resolve('../static/index.js')
       },
       show: false,
+      icon: this.state.isWin10 ? resolveImage('app-win10.ico') : undefined,
       resourcePath: this.state.resourcePath,
       title: this.state.title,
       version: this.state.appVersion,
@@ -517,8 +528,6 @@ class WindowCreator extends ReduxComponent {
   }
 
   getSpecsWindowSize() {
-    electronScreen = electronScreen || require('electron').screen;
-
     const minWidth = 700;
     const minHeight = 700;
     const displayFillPercentage = {
@@ -526,7 +535,7 @@ class WindowCreator extends ReduxComponent {
       y: 0.65
     };
 
-    let {size: [width, height]} = RepositionWindowBehavior.calculateDefaultPosition(electronScreen, null, displayFillPercentage);
+    let {size: [width, height]} = RepositionWindowBehavior.calculateDefaultPosition(null, displayFillPercentage);
 
     return {
       width: width < minWidth ? minWidth : width,
@@ -632,28 +641,6 @@ class WindowCreator extends ReduxComponent {
     return disp;
   }
 
-  /**
-   * Windows 10 apps don't display window icons, so replace the icon with an
-   * empty one.
-   *
-   * @param  {Object} options Options to pass to the BrowserWindow
-   * @return {function}       A method that will clear the icon
-   */
-  actionToClearWindowIcon(options) {
-    if (this.state.isWin10 && !this.state.isDevMode) {
-      options.icon = require.resolve('../static/spaceball.png')
-        .replace('app.asar', 'app.asar.unpacked');
-
-      return () => {
-        let iconPath = require.resolve('../static/app-win10.ico')
-          .replace('app.asar', 'app.asar.unpacked');
-        require('../csx/set-window-icon').default(iconPath);
-      };
-    } else {
-      return () => {};
-    }
-  }
-
   preventWindowNavigation(browserWindow) {
     browserWindow.webContents.on('will-navigate', (e, url) => {
       // NB: Let page reloads through.
@@ -662,7 +649,7 @@ class WindowCreator extends ReduxComponent {
       e.preventDefault();
 
       if (url.startsWith(SLACK_PROTOCOL)) {
-        EventActions.handleDeepLink(url);
+        eventActions.handleDeepLink(url);
       } else {
         logger.info(`Preventing navigation to: ${url}`);
       }

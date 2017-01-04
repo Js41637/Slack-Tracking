@@ -1,4 +1,4 @@
-import {NOTIFICATIONS, APP} from '../actions';
+import {NOTIFICATIONS} from '../actions';
 
 // Here we store an array of all notifications as well as an event that
 // includes the most recent. Why both? Because our cornucopia of notification
@@ -19,9 +19,6 @@ export default function reduce(state = initialState, action) {
     return removeNotification(state, action.data);
   case NOTIFICATIONS.CLICK_NOTIFICATION:
     return removeNotification(state, action.data.notificationId);
-
-  case APP.RESET_STORE:
-    return Object.assign({}, initialState);
   default:
     return state;
   }

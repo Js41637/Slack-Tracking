@@ -1,4 +1,4 @@
-import union from '../utils/union';
+import {union} from '../utils/union';
 import {remote, webFrame} from 'electron';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
@@ -9,9 +9,8 @@ import Component from '../lib/component';
 import NotificationItem from './notification-item.jsx';
 import NotificationStore from '../stores/notification-store';
 import NotificationWindowHelpers from '../components/helpers/notification-window-helpers';
-import SettingStore from '../stores/setting-store';
+import {settingStore} from '../stores/setting-store';
 import WindowStore from '../stores/window-store';
-import zoomLevelToFactor from '../utils/zoomlevel-to-factor';
 
 const {BrowserWindow} = remote;
 const {showPositionedNotificationWindow} = NotificationWindowHelpers;
@@ -66,8 +65,8 @@ export default class NotificationHost extends Component {
       notifications: NotificationStore.getNotifications(),
       notificationsWindow: WindowStore.getNotificationsWindow(),
       mainWindow: WindowStore.getMainWindow(),
-      zoomLevel: SettingStore.getSetting('zoomLevel'),
-      notifyPosition: SettingStore.getSetting('notifyPosition')
+      zoomLevel: settingStore.getSetting('zoomLevel'),
+      notifyPosition: settingStore.getSetting('notifyPosition')
     };
   }
 

@@ -1,27 +1,30 @@
 import fs from 'fs';
-import logger from '../logger';
-import path from 'path';
-
 import {ipcRenderer, remote} from 'electron';
-import {channel} from '../../package.json';
-import {domFileFromPath} from '../utils/file-helpers';
-import '../rx-operators';
+import path from 'path';
 import {Observable} from 'rxjs/Observable';
-import {requestGC} from '../run-gc';
+
+import profiler from '../utils/profiler';
+import {logger} from '../logger';
+import {p} from '../get-path';
+import {channel} from '../../package.json';
+import {domFileFromPath, createZipArchive} from '../utils/file-helpers';
+import '../rx-operators';
 
 import AutoLaunch from '../auto-launch';
-import AppActions from '../actions/app-actions';
-import EventActions from '../actions/event-actions';
-import SettingActions from '../actions/setting-actions';
-import SettingStore from '../stores/setting-store';
+import {appActions} from '../actions/app-actions';
+import {dialogActions} from '../actions/dialog-actions';
+import {eventActions} from '../actions/event-actions';
+import {settingActions} from '../actions/setting-actions';
+import {settingStore} from '../stores/setting-store';
+import {windowFrameActions} from '../actions/window-frame-actions';
 
 const globalProcess = window.process;
 const isDarwin = globalProcess.platform === 'darwin';
 const isWin32 = globalProcess.platform === 'win32';
 
-import {TEAM_IDLE_TIMEOUT, UPDATE_STATUS} from '../utils/shared-constants';
+import {UPDATE_STATUS} from '../utils/shared-constants';
 
-let systemPreferences, dialog;
+let dialog;
 
 const safeProcessKeys = ["title", "version", "versions", "arch", "platform",
   "release", "env", "pid", "features", "execPath", "cwd", "hrtime", "uptime",
@@ -39,16 +42,24 @@ const safeProcess = safeProcessKeys.reduce((acc, k) => {
 }, {});
 
 export default class AppIntegration {
+  constructor(lite=false) {
+    this.lite = lite;
+    if (lite) return;
 
-  constructor() {
     this.wnd = remote.getCurrentWindow();
     this.autoLaunch = new AutoLaunch();
     this.listenForModifierKeys();
 
     // This will after a throttled 10sec delay, run a V8 GC
-    Observable.fromEvent(window, 'blur')
-      .throttleTime(10 * 1000)
+    try {
+      const {requestGC} = require('../run-gc');
+
+      Observable.fromEvent(window, 'blur')
+        .throttleTime(10 * 1000)
       .subscribe(() => requestGC());
+    } catch (e) {
+      logger.info("Failed to set up GC timer");
+    }
   }
 
   /**
@@ -63,12 +74,15 @@ export default class AppIntegration {
    */
   didFinishLoading() {
     ipcRenderer.sendToHost('didFinishLoading');
+    if (profiler.shouldProfile()) profiler.stopProfiling('webapp');
 
     try {
       // NB: Unfortunately, Electron's setImmediate assumes that global.process
       // still exists in Chrome 43, so we have to patch a modified version back
       // in
       window.process = safeProcess;
+      if (this.lite) return;
+
       window.winssb.teams.fetchContentForChannel(5/*retries to fetch content*/);
     } catch (error) {
       logger.error(`Spellchecking is busted, continuing: ${error.message}\n${error.stack}`);
@@ -82,7 +96,7 @@ export default class AppIntegration {
    * @return {Boolean}      True if the preference is supported
    */
   hasPreference(name) {
-    return SettingStore.getSettings()[name] !== undefined;
+    return settingStore.getSettings()[name] !== undefined;
   }
 
   /**
@@ -92,7 +106,7 @@ export default class AppIntegration {
    * @return {Object}       The value
    */
   getPreference(name) {
-    return SettingStore.getSettings()[name];
+    return settingStore.getSettings()[name];
   }
 
   /**
@@ -105,7 +119,7 @@ export default class AppIntegration {
   setPreference(pref) {
     let update = {};
     update[pref.name] = pref.value;
-    SettingActions.updateSettings(update);
+    settingActions.updateSettings(update);
   }
 
   /**
@@ -165,7 +179,7 @@ export default class AppIntegration {
    * Quits the app, applies an available update, and restarts.
    */
   quitAndInstallUpdate() {
-    AppActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY);
+    appActions.setUpdateStatus(UPDATE_STATUS.RESTART_TO_APPLY);
   }
 
   /**
@@ -186,21 +200,13 @@ export default class AppIntegration {
   }
 
   /**
-   * Even touching localStorage in a data URI will throw errors.
-   */
-  canAccessLocalStorage() {
-    return window.location.protocol !== 'data:' &&
-      window.location.protocol !== 'about:';
-  }
-
-  /**
    * Called by the webapp to determine whether or not HTML should be rendered
    * in notifications.
    *
    * @return {Boolean}  True if HTML notifications are being used, false otherwise
    */
   canShowHtmlNotifications() {
-    return SettingStore.isShowingHtmlNotifications();
+    return settingStore.isShowingHtmlNotifications();
   }
 
   /**
@@ -225,16 +231,6 @@ export default class AppIntegration {
   }
 
   /**
-   * Changes the duration that a team must remain unselected before it will be
-   * unloaded.
-   *
-   * @param  {Number} timeout The timeout duration, in seconds
-   */
-  setTeamIdleTimeout(timeout) {
-    ipcRenderer.sendToHost(TEAM_IDLE_TIMEOUT, timeout);
-  }
-
-  /**
    * Use this method to determine if you should create a transparent window or
    * not (transparent windows won't work correctly when DWM composition is
    * disabled).
@@ -243,25 +239,45 @@ export default class AppIntegration {
    */
   areTransparentWindowsSupported() {
     if (isWin32) {
-      systemPreferences = systemPreferences || remote.systemPreferences;
-      return systemPreferences.isAeroGlassEnabled();
+      return settingStore.getSetting('isAeroGlassEnabled');
     } else {
       return true;
     }
   }
 
   /**
-   * Returns our app log files as DOM File elements. The logs will be sorted by
-   * modification time, so we'll only grab the most recent `n` files.
+   * Allows the webapp to open devTools.
+   */
+  toggleDevTools() {
+    dialogActions.toggleDevTools();
+  }
+
+  /**
+   * Returns our app log files zipped and as a DOM file element (or un-zipped if zipping fails
+   * for some reason). The logs will be sorted by modification time, so we'll only grab the most
+   * recent `n` files.
    *
    * @param  {Number} maxFiles      The maximum number of log files to retrieve
    * @return {Promise<Array<File>>} A Promise that resolves with an array of Files
    */
-  getAppLogFiles(maxFiles = 5) {
-    return logger.getMostRecentLogFiles(maxFiles, (observable) => {
-      return observable.flatMap((logFile) => domFileFromPath(logFile)
-        .catch((err) => logger.warn(`Unable to get file: ${err.message}`)));
-    });
+  async getAppLogFiles(maxFiles = 8) {
+    try {
+      const logFiles = await logger.getMostRecentLogFiles(maxFiles);
+      const zipPath = p`${'temp'}/logs.zip`;
+
+      await createZipArchive(logFiles, zipPath);
+
+      return [
+        await domFileFromPath(zipPath)
+      ];
+    } catch(error) {
+      logger.warn(`Couldn't zip log files: ${error}`);
+
+      return logger.getMostRecentLogFiles(maxFiles, (observable) => {
+        return observable.flatMap((logFile) => domFileFromPath(logFile)
+          .catch((err) => logger.warn(`Unable to get file: ${err.message}`)));
+      });
+    }
   }
 
   /**
@@ -298,14 +314,14 @@ export default class AppIntegration {
   }
 
   updateNoDragRegion(region) {
-    AppActions.updateNoDragRegion(region);
+    windowFrameActions.updateNoDragRegion(region);
   }
 
   isMainWindowFrameless() {
-    return SettingStore.getSetting('isTitleBarHidden');
+    return settingStore.getSetting('isTitleBarHidden');
   }
 
   closeAllUpdateBanners() {
-    EventActions.closeAllUpdateBanners();
+    eventActions.closeAllUpdateBanners();
   }
 }

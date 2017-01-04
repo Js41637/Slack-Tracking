@@ -1,7 +1,7 @@
 /*eslint no-unused-vars:0*/
 
 import {remote} from 'electron';
-import logger from '../logger';
+import {logger} from '../logger';
 
 let WebRTC = null;
 const path = require('path');
@@ -104,7 +104,7 @@ export default class Calls {
       this.session.waitForAsyncShutdown();
     }
   }
-  
+
   shutdown() {
     remote.powerSaveBlocker.stop(this.appSleepId);
     if (this.session) {

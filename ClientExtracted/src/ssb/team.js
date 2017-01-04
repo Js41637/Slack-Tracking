@@ -1,10 +1,11 @@
 import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
-import logger from '../logger';
-import isObject from '../utils/is-object';
+import {logger} from '../logger';
+import {isObject} from '../utils/is-object';
 
-import AppActions from '../actions/app-actions';
-import TeamActions from '../actions/team-actions';
+import {appTeamsActions} from '../actions/app-teams-actions';
+import {dialogActions} from '../actions/dialog-actions';
+import {teamActions} from '../actions/team-actions';
 import TeamStore from '../stores/team-store';
 
 function fetchRecentMessages() {
@@ -29,40 +30,42 @@ function fetchRecentMessages() {
 
 export default class TeamIntegration {
   displayTeam(userId) {
-    AppActions.selectTeamByUserId(userId);
+    appTeamsActions.selectTeamByUserId(userId);
   }
 
   signInTeam() {
-    AppActions.showLoginDialog();
+    dialogActions.showLoginDialog();
   }
 
   /**
    * Called from the webapp when the user finishes the sign-in flow.
    *
-   * @param  {Array} teams  An array of team objects in the Enterprise world,
-   * or a single team object pre-Enterprise
+   * @param  {Array} teams        An array of team objects in the Enterprise
+   *                              world, or a single team object pre-Enterprise
+   * @param  {Boolean} selectTeam True to make the new team the selected team,
+   *                              false to leave selection unchanged
    */
-  didSignIn(teams) {
+  didSignIn(teams, selectTeam = true) {
     if (Array.isArray(teams)) {
-      TeamActions.addTeams(teams);
+      teamActions.addTeams(teams, selectTeam);
     } else if (isObject(teams)) {
-      TeamActions.addTeam(teams);
+      teamActions.addTeam(teams, selectTeam);
     }
 
-    AppActions.hideLoginDialog();
+    dialogActions.hideLoginDialog();
   }
 
   didSignOut(teamIds) {
     if (Array.isArray(teamIds)) {
-      TeamActions.removeTeams(teamIds);
+      teamActions.removeTeams(teamIds);
     } else {
-      TeamActions.removeTeam(teamIds);
+      teamActions.removeTeam(teamIds);
     }
   }
 
   refreshTileColors() {
     if (window.teamId) {
-      TeamActions.updateTheme(window.TSSSB.getThemeValues(), window.teamId);
+      teamActions.updateTheme(window.TSSSB.getThemeValues(), window.teamId);
     } else {
       setTimeout(() => this.refreshTileColors(), 500);
     }
@@ -70,7 +73,7 @@ export default class TeamIntegration {
 
   setImage(imageUrl) {
     if (window.teamId) {
-      TeamActions.updateIcons(imageUrl, window.teamId);
+      teamActions.updateIcons(imageUrl, window.teamId);
     } else {
       setTimeout(() => this.setImage(imageUrl), 500);
     }
@@ -115,7 +118,7 @@ export default class TeamIntegration {
 
   displayChannel(channelId) {
     this.fetchContentForChannel(2);
-    AppActions.selectChannel(channelId);
+    appTeamsActions.selectChannel(channelId);
   }
 
   invalidateAuth() {
@@ -123,11 +126,21 @@ export default class TeamIntegration {
   }
 
   teamNameChanged(name) {
-    TeamActions.updateTeamName(name, window.teamId);
+    teamActions.updateTeamName(name, window.teamId);
   }
 
   teamDomainChanged(url) {
-    TeamActions.updateTeamUrl(url, window.teamId);
+    teamActions.updateTeamUrl(url, window.teamId);
+  }
+
+  /**
+   * Changes the duration that a team must remain unselected before it will be
+   * unloaded.
+   *
+   * @param  {Number} timeout The timeout duration, in seconds
+   */
+  setTeamIdleTimeout(timeout) {
+    teamActions.setTeamIdleTimeout(timeout, window.teamId);
   }
 
   // We now handle team updates through `didSignIn` / `didSignOut`, so this
