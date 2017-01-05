@@ -1,0 +1,12 @@
+{{i18n_ns "searchable_list"}}
+
+<div id="searchable_list">
+  {{#unless no_search}}
+  <div class="searchable_list_search_wrapper">
+    {{> ts_icon class="searchable_list_icon searchable_list_search_icon ts_icon_search"}}
+    <button id="searchable_list_clear_btn" class="btn_unstyle searchable_list_icon searchable_list_clear_icon hidden" aria-label="{{#t}}Clear search text{{/t}}">{{> ts_icon class="ts_icon_times"}}</button>
+    <input id="searchable_list_search_input" class="searchable_list_search_input" placeholder="{{#t}}Search contacts or add by email address{{/t}}" type="text">
+  </div>
+  {{/unless}}
+  <div id="searchable_list_rows" class="searchable_list_rows"></div>
+</div>

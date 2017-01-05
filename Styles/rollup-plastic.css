@@ -5444,6 +5444,10 @@ moscow_red_bg {
   color: #2d9ee0
 }
 
+.blue_fill_bg {
+  background-color: #2d9ee0!important
+}
+
 .show_on_mobile {
   display: none!important
 }
@@ -11380,6 +11384,10 @@ body.winssb #emoji_menu {
   height: 100%
 }
 
+.menu.keep_menu_open_if_target_clicked_again .popover_mask {
+  display: none
+}
+
 .react_popover_mask {
   z-index: 1053
 }
@@ -12411,13 +12419,13 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
-  right: .4375rem;
+  right: .5rem;
   top: 50%;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
-  line-height: 1.5rem
+  height: 1.125rem
 }
 
 .current_status_input_wrap .status_clear_icon .ts_icon_times_circle {

@@ -4,6 +4,61 @@
   unicode-range: U+F8FF
 }
 
+.banner {
+  position: relative;
+  z-index: 1;
+  padding: .75rem 3rem .875rem;
+  color: #fff;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: pointer;
+  text-align: center;
+  -webkit-transition: .1s;
+  -moz-transition: .1s;
+  transition: .1s
+}
+
+.banner_emoji {
+  display: inline-block;
+  margin-top: -.4em;
+  width: 1.5em;
+  height: 1.5em
+}
+
+.banner a {
+  color: inherit;
+  text-decoration: underline
+}
+
+.banner a:hover,
+.banner a:link,
+.banner a:visited {
+  color: inherit
+}
+
+.banner_dismiss {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: .85rem;
+  margin-top: -.0625rem;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%)
+}
+
+.banner_dismiss.ts_icon {
+  font-size: 1.25rem
+}
+
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
 #msg_form {
   position: relative;
   margin: 0 1.25rem 1.375rem
@@ -588,6 +643,31 @@ input.search_input {
 
 #client-ui:not(.flexpane_redesign) #flex_contents .local_only_sub_heading {
   width: 99%
+}
+
+.flexpane_redesign #details_tab_header {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.flexpane_redesign #details_tab_header .channel_name {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: .375rem
+}
+
+.flexpane_redesign #details_tab_header .ts_icon_lock {
+  -webkit-transform: translateY(-1px);
+  -moz-transform: translateY(-1px);
+  -ms-transform: translateY(-1px);
+  transform: translateY(-1px);
+  margin-left: -.1875rem
 }
 
 .flexpane_redesign #file_list_container .heading_text .btn_link {
@@ -1713,6 +1793,11 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
 #details_tab .conversation_details .slackbot_info {
   line-height: 1.2rem;
   margin-bottom: 1.5rem
+}
+
+.flexpane_redesign #details_tab .conversation_details .member_info,
+.flexpane_redesign #details_tab .conversation_details .slackbot_info {
+  margin-bottom: .75rem
 }
 
 #details_tab .conversation_details .member_name:hover {
@@ -6328,13 +6413,13 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
-  right: .4375rem;
+  right: .5rem;
   top: 50%;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
-  line-height: 1.5rem
+  height: 1.125rem
 }
 
 .current_status_input_wrap .status_clear_icon .ts_icon_times_circle {
@@ -21250,7 +21335,7 @@ ts-thread ts-message.selected .action_hover_container {
 }
 
 #sci_container .channel_browser_sort_container:after {
-  content: 'Sort by';
+  content: attr(data-prefix-text);
   color: #9e9ea6;
   font-size: 1rem;
   position: absolute;

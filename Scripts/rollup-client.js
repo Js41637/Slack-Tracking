@@ -4806,21 +4806,12 @@
     TS.metrics.store("inline_style_nodes", style_nodes.length, {
       is_count: true
     });
-    if (TS.boot_data.feature_no_rollups) {
-      TS.metrics.store("external_script_nodes_no_rollups", external_script_nodes.length, {
-        is_count: true
-      });
-      TS.metrics.store("external_link_nodes_no_rollups", link_nodes.length, {
-        is_count: true
-      });
-    } else {
-      TS.metrics.store("external_script_nodes", external_script_nodes.length, {
-        is_count: true
-      });
-      TS.metrics.store("external_link_nodes", link_nodes.length, {
-        is_count: true
-      });
-    }
+    TS.metrics.store("external_script_nodes", external_script_nodes.length, {
+      is_count: true
+    });
+    TS.metrics.store("external_link_nodes", link_nodes.length, {
+      is_count: true
+    });
   };
   var RECONNECT_BANNER_DELAY_MS = 1e4;
   var _reconnect_banner_delay_tim;
@@ -7168,11 +7159,13 @@
       $("#team_list_container").unhideWithRememberedScrollTop();
       TS.view.resizeManually("TS.client.ui._displayTeamList");
       if (TS.useSearchableMemberList()) {
-        var searchable_member_list = new TS.SearchableMemberList({
-          $container: $("#team_list_container"),
-          id: "team_list_scroller"
-        });
-        searchable_member_list.showInitial();
+        if (!TS.SearchableMemberList.get("team_list_scroller")) {
+          var searchable_member_list = new TS.SearchableMemberList({
+            $container: $("#team_list_container"),
+            id: "team_list_scroller"
+          });
+          searchable_member_list.showInitial();
+        }
       } else {
         TS.view.triggerInitialTeamListLazyLoad();
       }
@@ -7946,17 +7939,6 @@
     TS.model.previewed_member_id = member.id;
     TS.info("TS.model.previewed_member_name:" + TS.model.previewed_member_name);
     var html;
-    var can_invite_to_group = !member.is_slackbot;
-    if (member.is_ultra_restricted || TS.model.user.is_ultra_restricted) {
-      can_invite_to_group = false;
-    }
-    var can_invite_to_channel = !member.is_slackbot;
-    if (member.is_ultra_restricted || TS.model.user.is_ultra_restricted) {
-      can_invite_to_channel = false;
-    } else if (!TS.model.user.is_admin && member.is_restricted) {
-      can_invite_to_channel = false;
-    }
-    var im = TS.ims.getImByMemberId(member.id);
     var show_bot_configuration = member.is_bot && TS.model.user.is_admin;
     var bot_configure_url;
     if (show_bot_configuration) {
@@ -7966,7 +7948,7 @@
     var template_args = {
       member: member,
       show_bot_configuration: show_bot_configuration,
-      hide_more_menu: !im && !member._has_files_or_we_dont_know && !can_invite_to_channel && !can_invite_to_group && !can_invite_to_group,
+      hide_more_menu: false,
       bot_configure_url: bot_configure_url,
       show_call_action: TS.boot_data.feature_calls && TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT"
     };
@@ -14801,17 +14783,16 @@
         TS.search.view.renderResults();
       }
     },
-    renderTopResults: function() {
-      _cached_msgs_scroll_position = null;
-      TS.search.view.renderResults();
-    },
     waiting_on_page: -1,
     waiting_on_messages_page: -1,
     waiting_on_files_page: -1,
     current_messages_page: 1,
     current_files_page: 1,
-    renderResults: function() {
+    renderResults: function(scroll_to_top) {
       if (_already_rendering) return;
+      if (scroll_to_top) {
+        _cached_msgs_scroll_position = null;
+      }
       TS.search.view.updateOptions();
       if (!TS.search.results[TS.search.query_string]) return;
       var results = TS.search.results[TS.search.query_string];
@@ -15315,7 +15296,8 @@
         click_channel_id: match.channel.id,
         click_timestamp: match.ts,
         click_module_name: module_name,
-        click_module_position: module_order
+        click_module_position: module_order,
+        click_sort: TS.search.sort
       };
       var $message = $target.closest("ts-message");
       if ($message.length) {
@@ -22181,7 +22163,7 @@
       $banner.removeClass("hidden");
       $("body").addClass("banner_showing");
       $banner.css("display", "block");
-      $banner.children(".banner_content").addClass("hidden");
+      $banner.children(".banner").addClass("hidden");
       TS.ui.banner.show_hide_sig.dispatch("show");
       if (which == "notifications_dismiss") {
         $("#notifications_dismiss_banner").removeClass("hidden");
@@ -22307,13 +22289,9 @@
           TS.ui.banner.close();
         });
       } else if (which == "ssb_new_version_available") {
-        var $generic_banner = $banner.find("#" + which + "_banner");
-        if (!$generic_banner.length) {
-          TS.error("Tried to show a banner called " + which + ", but can't find an element with that as its ID");
-          return;
-        }
-        $generic_banner.removeClass("hidden");
-        $generic_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function(e) {
+        var $which_banner = $("#ssb_new_version_available_banner");
+        $which_banner.removeClass("hidden");
+        $which_banner.find('a[data-action="dismiss_banner"]').unbind("click").bind("click", function(e) {
           TS.ui.banner.close();
           TSSSB.call("closeAllUpdateBanners");
         });

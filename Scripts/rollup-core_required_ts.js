@@ -9,6 +9,9 @@
       if (!TS.console.shouldLog(pri)) return;
       args.splice(0, 1);
     }
+    args = _.map(args, function(arg) {
+      return _maybeRedactFields(arg);
+    });
     var all_strings = true;
     var i = args.length;
     while (all_strings && i--) all_strings = typeof args[i] === "string";
@@ -89,6 +92,7 @@
       if (!window.console || !console.dir) return;
       if (pri && !TS.shouldLog(pri)) return;
       txt = txt || "";
+      ob = _maybeRedactFields(ob);
       var dir_json = parseInt(TS.qs_args["dir_json"]);
       if (dir_json) {
         var limit = dir_json == 1 ? "2000" : dir_json;
@@ -146,8 +150,7 @@
     },
     test: function() {
       return {
-        _console: _console,
-        _beaconError: _beaconError
+        _maybeRedactFields: _maybeRedactFields
       };
     }
   };
@@ -167,6 +170,39 @@
       return key;
     }).value();
   };
+  var _redactable_names = {
+    name: 1,
+    real_name: 1,
+    src: 1,
+    text: 1,
+    msgs: 1
+  };
+  var _maybeRedactFields = function(obj) {
+    if (!TS.boot_data || !TS.boot_data.feature_console_log_redactor) return obj;
+    if (!obj || !_.isObject(obj)) return obj;
+    var redacted_obj;
+    if (_.isArray(obj)) {
+      redacted_obj = [];
+    } else {
+      redacted_obj = {};
+    }
+    _.each(obj, function(value, name) {
+      if (_redactable_names[name]) {
+        redacted_obj[name] = "[redacted " + _type(value) + "]";
+      } else {
+        redacted_obj[name] = _maybeRedactFields(value);
+      }
+    });
+    return redacted_obj;
+  };
+  var _type = function(global) {
+    var cache = {};
+    return function(obj) {
+      var key;
+      var result = obj === null ? "null" : obj === global ? "global" : (key = typeof obj) !== "object" ? key : obj.nodeType ? "DOM node" : cache[key = {}.toString.call(obj)] || (cache[key] = key.slice(8, -1).toLowerCase());
+      return result;
+    };
+  }(this);
 })();
 (function() {
   "use strict";
@@ -550,11 +586,9 @@
   var _getMSLoginArgs = function() {
     var login_args = {
       agent: "webapp_" + TS.boot_data.version_uid,
-      simple_latest: true
+      simple_latest: true,
+      no_unreads: true
     };
-    if (TS.boot_data.feature_no_unread_counts) {
-      login_args.no_unreads = true;
-    }
     if (TS.pri && (!login_args.cache_ts || parseInt(login_args.cache_ts, 10) == 0 || isNaN(login_args.cache_ts))) {
       TS.log(488, "_getMSLoginArgs(): login_args.cache_ts is 0/undefined?", login_args);
     }

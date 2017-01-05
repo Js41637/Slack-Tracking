@@ -60,6 +60,28 @@
     </div>
   </div>
 
+  {{#feature flag="feature_slash_command_link_names"}}
+  <div class="app_slack_commands_form_section display_flex justify_content_between align_items_baseline top_border top_padding bottom_padding">
+    <div class="app_slack_commands_form_input_label_container">
+      <label for="parse_full" class="no_bottom_margin no_wrap right_margin">{{#t note="Whether to parse and mark up user, channel, and link references"}}Escape channels, users, and links sent to your app{{/t}}</label>
+
+      <p id="unescaped_parse_hint" class="no_bottom_margin small_top_margin plastic_grey no_wrap {{#if parse_full}}hidden{{/if}}">
+        {{#t note="Example of unescaped text"}}<b>Unescaped:</b> @user #general{{/t}}
+      </p>
+      <p id="escaped_parse_hint" class="no_bottom_margin small_top_margin plastic_grey no_wrap {{#unless parse_full}}hidden{{/unless}}">
+        {{#t note="Example of escaped text"}}<b>Escaped:</b> <@U1234|user> <#C1234|general>{{/t}}
+      </p>
+    </div>
+
+    <div>
+      <input type="checkbox" name="parse_full" data-style="toggle"
+        {{#if parse_full}}checked{{/if}}
+      >
+    </div>
+
+  </div>
+  {{/feature}}
+
   <div class="app_slack_commands_form_section top_border top_padding bottom_padding">
     <p class="small bold">{{#t note="This is a title of a screenshot for how the slash command will look in the message bar of the slack client. The autocomplete entry refers to a box that shows up as they type in the slash command"}}Preview of Autocomplete Entry{{/t}}</p>
     <div class="preview_container small_padding bordered">
