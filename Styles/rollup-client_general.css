@@ -230,11 +230,15 @@ html.no_touch .alert_page a:hover {
   font-weight: 400
 }
 
-.alert_page.toast .dismiss_toast {
+.alert_page.toast .toast_actions {
   position: absolute;
-  top: 0;
-  right: 0;
-  padding: .625rem;
+  top: .625rem;
+  right: .625rem
+}
+
+.alert_page.toast .toast_actions .dismiss_toast,
+.alert_page.toast .toast_actions .retry_toast {
+  padding-left: .625rem;
   cursor: pointer
 }
 

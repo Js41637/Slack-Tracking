@@ -91,7 +91,7 @@ Used in billing_history_list_item_col.hbs
 {{else if_equal type compare="expire"}}
   {{#t}}Paid plan expired{{/t}}
 {{else if_equal type compare="comp_gift"}}
-  {{#t}}Given the <strong>{product.typ} plan</strong>{{/t}}
+  {{#t}}Given the <strong>{product.type} plan</strong>{{/t}}
 {{else if_equal type compare="trial_start"}}
   {{#t}}Started a free trial{{/t}}
 {{else if_equal type compare="charge_high_balance"}}
@@ -100,11 +100,17 @@ Used in billing_history_list_item_col.hbs
   {{#t}}Monthly accrued balance for annual teams{{/t}}
 {{!-- Types with no billing statment associated, will not link --}}
 {{else if_equal type compare="staff_gift"}}
-  {{#if_gt charges.delta compare=0}}
-    {{#t}}Gift from Slack{{/t}}
+  {{#if_equal this.details.gift_type compare="surprise"}}
+    {{#if_gt this.delta compare=0}}
+      {{#t}}Gift from Slack{{/t}}
+    {{else}}
+      {{#t}}Credit Adjustment{{/t}}
+    {{/if_gt}}
+  {{else if_gt this.delta compare=0}}
+    {{#t}}Account Credit{{/t}}
   {{else}}
-    {{#t}}Credit adjustment{{/t}}
-  {{/if_gt}}
+    {{#t}}Credit Adustment{{/t}}
+  {{/if_equal}}
 {{else if_equal type compare="referral_purchase_credit"}}
   {{#t}}Credit for referring a new team{{/t}}
 {{else if_equal type compare="referral_credit"}}

@@ -29,7 +29,7 @@
       <div class="message_icon">
         {{> message_member_image}}
       </div>
-      <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if show_user}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts false}}}{{/if}}</span><span class="dense_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+      <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if show_user}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}{{#if comment}}{{#if is_file_convo_continuation}}{{{toTime msg.ts false}}}{{else}}{{{toTime msg.ts}}}{{/if}}{{else}}<span class="light_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts false}}}{{/if}}</span><span class="dense_only">{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}</span>{{/if}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
       {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
     </div>
   {{/unless}}
@@ -70,7 +70,7 @@
           {{/if}}
         {{/if}}
         {{#unless for_top_results_search_display}}
-        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{toCalendarDateOrNamedDayShort msg.ts}} at {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
         {{/unless}}
         {{#unless standalone}}
           {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}
@@ -80,12 +80,7 @@
         {{#if is_tombstone}}
           <div class="deleted_message">{{#t}}This message was deleted{{/t}}</div>
         {{else}}
-          {{#feature flag="feature_sli_recaps"}}
-            {{#if is_recap}}
-              {{#if recap_threshold}}
-                <span class="recap_highlight"><a>{{#t note="link to highlight message for sli recap"}}Highlight{{/t}} </a></span>
-              {{/if}}
-              {{#if recap_debug_info}}
+          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}{{#if recap_threshold}}<span class="recap_highlight"><a data-pseudo-content="{{#t note="link to highlight message for sli recap"}}Highlight{{/t}}"></a></span>{{/if}}{{#if recap_debug_info}}
                 <button class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
                   <span class="ts_tip_tip ts_tip_multiline_inner">
                     {{#t note="stat for clicks message has received"}}Clicks:{{/t}} {{msg.recap.clicks}}<br />
@@ -93,10 +88,7 @@
                     {{#t note="stat for weight message has received"}}Total score:{{/t}} {{msg.recap.weight}} <br />
                     {{#t note="debug content"}}Debug:{{/t}} {{{ nl2br (prettyJson msg.recap.debug) }}}
                   </span>
-                </button>
-              {{/if}}
-            {{/if}}
-          {{/feature}}
+                </button>{{/if}}{{/if}}{{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
           {{#if for_top_results_search_display}}
@@ -119,7 +111,7 @@
     {{#if for_top_results_search_display}}
     <div class="message_content_header">
       <div class="message_content_header_left">
-        <span class="timestamp">{{toCalendarDateOrNamedDayShort msg.ts}} at {{{toTime msg.ts}}} in&nbsp;</span>
+        <span class="timestamp">{{#t note="when and where message originally appeared" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time} in{{/t}}&nbsp;</span>
         <span class="channel">
           {{#if_equal msg.type compare='im'}}
             {{makeIMLinkById msg.channel.id}}
@@ -176,18 +168,7 @@
             {{#if file_title_only}}
               <span class="file_preview_link no_jumbomoji file_force_flexpane bold msg_inline_file_preview_title">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</span>
             {{else}}
-              {{share_verb}}
-
-              {{#and uploader is_not_welcome_post}}
-                </a>
-                {{makeMemberPreviewLink uploader false}}
-                {{~possessiveForMember uploader~}}
-                <a href="{{file.permalink}}" {{#isClient}}target="{{file.permalink}}"{{/isClient}} data-file-id="{{file.id}}">
-              {{else}}
-                {{share_determiner}}
-              {{/and}}
-
-              {{share_noun}}{{#if title_hider}}<span class="msg_inline_file_title_hider">:{{else}}:{{/if}}
+              {{file_share_html}}{{#if title_hider}}<span class="msg_inline_file_title_hider">:{{else}}:{{/if}}
                 <span class="file_preview_link no_jumbomoji file_force_flexpane bold msg_inline_file_preview_title">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</span>
               {{#if title_hider}}</span>{{/if}}
 
@@ -203,7 +184,7 @@
       <span class="message_body">{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}{{!
         }}{{{formatMessageByType msg do_inline_imgs enable_slack_action_links model_ob starred_items_list}}}{{!
         }}{{#unless no_attachments}}{{{formatAttachments msg model_ob enable_slack_action_links msg_dom_id}}}{{/unless}}{{!
-        }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{toCalendarDateOrNamedDayShort msg.edited.ts}} at {{{toTime msg.edited.ts true true}}}"> {{#t note="indication a message was edited"}}(edited){{/t}}</span>{{/if}}{{!
+        }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{#t note="when message was last edited" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time}{{/t}}"> {{#t note="indication a message was edited"}}(edited){{/t}}</span>{{/if}}{{!
         }}{{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}{{!
       }}{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}</span>
 

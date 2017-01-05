@@ -106,7 +106,7 @@
   var _GDRIVE_MIMETYPE_PREFIX = "application/vnd.google-apps";
   var _GDRIVE_WINDOW_HEIGHT = 675;
   var _promise_picker_has_been_promised = false;
-  var _FALLBACK_EPHEMERAL_MESSAGE = TS.i18n.t("Darn, that didn’t work. Try again or <http://my.slack.com/help.requests/new|contact us> if it’s still not working.", "files")();
+  var _FALLBACK_EPHEMERAL_MESSAGE = TS.i18n.t("Darn, that didn’t work. Try again or <https://my.slack.com/help/requests/new|contact us> if it’s still not working.", "files")();
   var _FILENAME_TOO_LONG_ERROR_MESSAGE = TS.i18n.t("Sorry! The name of that file is too long for us to handle. Please try importing a file with a shorter filename.", "files")();
   var _getMessageListenerForPicker = function(resolve, reject) {
     return _getMessageListener({

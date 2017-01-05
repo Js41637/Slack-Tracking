@@ -562,10 +562,10 @@ input.search_input {
   margin: 0;
   padding-top: 0;
   padding-bottom: 0;
-  -webkit-transform: translateY(2px);
-  -moz-transform: translateY(2px);
-  -ms-transform: translateY(2px);
-  transform: translateY(2px)
+  -webkit-transform: translateY(-1px);
+  -moz-transform: translateY(-1px);
+  -ms-transform: translateY(-1px);
+  transform: translateY(-1px)
 }
 
 #flex_contents .heading .menu_icon:hover {
@@ -588,6 +588,22 @@ input.search_input {
 
 #client-ui:not(.flexpane_redesign) #flex_contents .local_only_sub_heading {
   width: 99%
+}
+
+.flexpane_redesign #file_list_container .heading_text .btn_link {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  vertical-align: inherit
+}
+
+.flexpane_redesign #file_list_container .heading_text .ts_icon_caret_down {
+  -webkit-transform: translateX(3px) translateY(-1px);
+  -moz-transform: translateX(3px) translateY(-1px);
+  -ms-transform: translateX(3px) translateY(-1px);
+  transform: translateX(3px) translateY(-1px)
 }
 
 .flex_content_scroller {
@@ -1677,6 +1693,12 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
 #details_tab .conversation_details {
   display: none;
   z-index: 50
+}
+
+.flexpane_redesign #details_tab .conversation_details {
+  margin-top: .75rem;
+  margin-left: .4375rem;
+  margin-right: .625rem
 }
 
 #details_tab .conversation_details .member_image {
@@ -4155,8 +4177,8 @@ body.sorting_mode .channels_list_holder ul {
   display: inline
 }
 
-.dense_theme .feature_user_custom_status:not(.format_for_thread_root) .message_content_header,
-.dense_theme .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
+.dense_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_content_header,
+.dense_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
   display: -webkit-inline-box;
   display: -webkit-inline-flex;
   display: -moz-inline-flex;
@@ -4169,7 +4191,7 @@ body.sorting_mode .channels_list_holder ul {
   align-items: baseline
 }
 
-.dense_theme .feature_user_custom_status:not(.format_for_thread_root) .message_current_status {
+.dense_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_current_status {
   cursor: pointer
 }
 
@@ -4193,7 +4215,7 @@ body.sorting_mode .channels_list_holder ul {
   flex: 1 1 auto
 }
 
-.light_theme .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
+.light_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -4206,7 +4228,7 @@ body.sorting_mode .channels_list_holder ul {
   align-items: baseline
 }
 
-.light_theme .feature_user_custom_status:not(.format_for_thread_root) .message_current_status {
+.light_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_current_status {
   cursor: pointer
 }
 
@@ -8251,14 +8273,14 @@ screen and (max-width:640px) {
 
 #edit_member_profile_container .member_image_wrapper.active:before,
 #edit_member_profile_container .member_image_wrapper:hover:before {
-  content: "Change your profile photo";
+  content: attr(data-instructions-text);
+  position: absolute;
   box-sizing: border-box;
   padding: 5.5rem 2rem 0;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 700;
   text-align: center;
   color: #fff;
-  position: absolute;
   background-color: rgba(0, 0, 0, .7);
   border: .25rem solid #2d9ee0;
   border-radius: .2rem;
@@ -8280,7 +8302,7 @@ screen and (max-width:640px) {
 #edit_member_profile_container .member_image_wrapped_no_photo:after {
   box-sizing: border-box;
   position: absolute;
-  content: "Drag & drop your photo here";
+  content: attr(data-instructions-text);
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 1rem;
   text-align: center;
@@ -8308,7 +8330,7 @@ screen and (max-width:640px) {
 #edit_member_profile_container .member_image_upload:after {
   box-sizing: border-box;
   position: absolute;
-  content: "Drop to upload";
+  content: attr(data-instructions-text);
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #007ab8;
   font-size: .9rem;
@@ -9587,6 +9609,10 @@ body.winssb .file_list_item {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text
+}
+
+.flexpane_redesign #file_preview_scroller {
+  padding-right: .375rem
 }
 
 #file_preview_scroller h3 {
@@ -18688,6 +18714,10 @@ ts-message .recap_highlight a {
   color: #295a42
 }
 
+ts-message .recap_highlight a::before {
+  content: attr(data-pseudo-content)
+}
+
 ts-message .comment {
   padding-left: 0;
   margin-bottom: 0
@@ -23635,7 +23665,7 @@ ts-jumper ts-jumper-results:empty {
   font-size: .8333em;
   font-family: Slack-Lato, appleLogo, sans-serif;
   text-align: right;
-  content: 'Enter to submit, Esc to cancel'
+  content: attr(data-instructions-text)
 }
 
 .inline_edit.inline_edit_updating .inline_edit_inner:after {

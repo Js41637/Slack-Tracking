@@ -5,24 +5,31 @@
       _has_started = true;
       if (_sub_list.length) _sendSubList();
       if (_query_list.length) _sendQueryList();
+      TS.ms.disconnected_sig.add(_handleDisconnect);
     },
     addPresenceList: function(presence_list) {
-      presence_list.added_sig.add(_addMembers);
-      presence_list.removed_sig.add(_removeMembers);
+      if (_lists.indexOf(presence_list) === -1) {
+        _lists.push(presence_list);
+        presence_list.added_sig.add(_addMembers);
+        presence_list.removed_sig.add(_removeMembers);
+      }
     },
     removePresenceList: function(presence_list) {
-      presence_list.added_sig.remove(_addMembers);
-      presence_list.removed_sig.remove(_removeMembers);
+      if (_lists.indexOf(presence_list) > -1) {
+        _lists.splice(_lists.indexOf(presence_list), 1);
+        presence_list.added_sig.remove(_addMembers);
+        presence_list.removed_sig.remove(_removeMembers);
+      }
     },
-    createList: function(members) {
-      var list = new TS.PresenceList(members);
-      TS.presence_manager.addPresenceList(list);
-      return list;
-    },
-    queryMemberPresence: function(member) {
-      if (_sub_list.indexOf(member) > -1) return;
-      if (_query_list.indexOf(member)) return;
-      _query_list.push(member);
+    queryMemberPresence: function(members) {
+      if (!TS.boot_data.feature_presence_sub) return;
+      if (_.isArray(members)) {
+        members.forEach(function(member) {
+          _addMemberToQueryList(member);
+        });
+      } else {
+        _addMemberToQueryList(members);
+      }
       _sendQueryList();
     },
     test: {
@@ -49,11 +56,17 @@
   });
   var _SLACKBOT_ID = "USLACKBOT";
   var _has_started = false;
+  var _lists = [];
   var _members = {};
   var _sub_list = [];
   var _query_list = [];
   var _is_sub_waiting = false;
   var _is_query_waiting = false;
+  var _addMemberToQueryList = function(member) {
+    if (_sub_list.indexOf(member) > -1) return;
+    if (_query_list.indexOf(member) > -1) return;
+    _query_list.push(member);
+  };
   var _addMembers = function(members) {
     if (!_.isArray(members)) members = [members];
     members.forEach(function(member) {
@@ -113,7 +126,15 @@
         type: "presence_query",
         ids: _query_list
       });
+      _query_list = [];
       _is_query_waiting = false;
+      return null;
+    });
+  };
+  var _handleDisconnect = function() {
+    TS.ms.promiseToHaveOpenWebSocket().then(function() {
+      _sendSubList();
+      _sendQueryList();
       return null;
     });
   };
@@ -125,6 +146,7 @@
       this._list = [];
       this.added_sig = new signals.Signal;
       this.removed_sig = new signals.Signal;
+      TS.presence_manager.addPresenceList(this);
       if (!TS.boot_data.feature_presence_sub) {
         this.add = _.noop;
         this.remove = _.noop;
@@ -1545,7 +1567,7 @@
       canonical_avatars: true
     }
   };
-  var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list"];
+  var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list", "subteams.users.list", "subteams.list"];
   var _timing_methodsA = ["rtm.start", "rtm.leanStart", "files.list"];
   var _progress_check_methodsA = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"];
   var _one_at_a_time_methodsA = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto", "signup.createTeam"];
@@ -5153,8 +5175,6 @@ TS.registerModule("constants", {
         membersA.push(member);
       }
       membersA.sort(function compare(a, b) {
-        if (a.id == TS.ui.group_create_dialog.start_member_id) return -1;
-        if (b.id == TS.ui.group_create_dialog.start_member_id) return 1;
         var a_srt = a._name_lc;
         var b_srt = b._name_lc;
         if (a_srt < b_srt) return -1;
@@ -8782,6 +8802,9 @@ TS.registerModule("constants", {
       var err_txt;
       if (TS.model.everyone_regex.test(clean_text) && !is_reply) {
         if (!TS.permissions.members.canAtMentionEveryone()) {
+          err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <strong>{everyone}</strong> messages.", "shared")({
+            everyone: TS.templates.builders.atLabel("everyone")
+          }) + "</p>";
           if (TS.permissions.members.canAtChannelOrGroup()) {
             err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this {conversation_or_channel}, use <strong>{at_label}</strong> instead.", "shared")({
               conversation_or_channel: model_label,
@@ -8791,23 +8814,18 @@ TS.registerModule("constants", {
             err_txt = "<p>" + TS.i18n.t("Your account is restricted, and you cannot send <strong>{everyone}</strong> messages.", "shared")({
               everyone: TS.templates.builders.atLabel("everyone")
             }) + "</p>";
-          } else {
-            err_txt = "<p>" + TS.i18n.t("A Team Owner has restricted the use of <strong>{everyone}</strong> messages.", "shared")({
-              everyone: TS.templates.builders.atLabel("everyone")
-            }) + "</p>";
           }
           errorOut(err_txt);
           return false;
         }
         if (!general || !general.is_member) {
+          err_txt = "<p>" + TS.i18n.t("You cannot send <strong>{everyone}</strong> messages.", "shared")({
+            everyone: TS.templates.builders.atLabel("everyone")
+          }) + "</p>";
           if (TS.permissions.members.canAtChannelOrGroup()) {
             err_txt += '<p class="no_bottom_margin">' + TS.i18n.t("If you just want to address everyone in this {conversation_or_channel}, use <strong>{at_label}</strong> instead.", "shared")({
               conversation_or_channel: model_label,
               at_label: TS.templates.builders.atLabel(model_label_untranslated)
-            }) + "</p>";
-          } else {
-            err_txt = "<p>" + TS.i18n.t("You cannot send <strong>{everyone}</strong> messages.", "shared")({
-              everyone: TS.templates.builders.atLabel("everyone")
             }) + "</p>";
           }
           errorOut(err_txt);
@@ -14860,6 +14878,7 @@ TS.registerModule("constants", {
       });
     }
   });
+  var _did_deprecate_socket_sig = new signals.Signal;
   var _open_websocket_p;
   var _open_websocket_p_resolve;
   var _log_next_pong;
@@ -15129,7 +15148,9 @@ TS.registerModule("constants", {
       } catch (err) {
         TS.info("Problem while deprecating current socket: " + err);
       }
+      var _prev_websocket = _websocket;
       _websocket = undefined;
+      _did_deprecate_socket_sig.dispatch(_prev_websocket);
     }
     _did_make_provisional_connection = false;
     _cancelProvisionalConnectionTimeout();
@@ -15375,38 +15396,41 @@ TS.registerModule("constants", {
   var _initSocketHandlersProvisionalRtmStart = function() {
     TS.info("Initializing provisional MS connection and fetching rtm.start over the socket");
     _did_make_provisional_connection = true;
-    var rtm_start_p = new Promise(function(resolve, reject) {
-      var abortRtmStartAttempt = function(err) {
+    var current_websocket = _websocket;
+    return new Promise(function(resolve, reject) {
+      var _abortRtmStartAttempt = function(err) {
         TS.warn("Giving up on rtm.start-over-MS attempt");
         clearTimeout(rtm_start_timeout);
         rtm_start_timeout = undefined;
-        if (rtm_start_p && !rtm_start_p.isPending()) {
-          TS.warn("Timeout fired after promise has been rejected; this is a programming error.");
-          return;
-        }
         reject(err);
-        TS.info("Deprecating current socket due to rtm.start-over-MS failure");
-        _deprecateCurrentSocket();
+        _did_deprecate_socket_sig.remove(_socketWasDeprecated);
+        if (_websocket && _websocket == current_websocket) {
+          _deprecateCurrentSocket();
+        }
       };
-      _startProvisionalConnectionTimeout(abortRtmStartAttempt);
+      var _socketWasDeprecated = function(recently_deprecated_websocket) {
+        if (recently_deprecated_websocket == current_websocket) {
+          _abortRtmStartAttempt(new Error("Socket was deprecated"));
+        } else {
+          TS.warn("Received a call to abort RTM start attempt for a websocket that is not the current websocket, this should not be happening!");
+        }
+      };
+      _did_deprecate_socket_sig.addOnce(_socketWasDeprecated);
+      _startProvisionalConnectionTimeout();
       var rtm_start_timeout = setTimeout(function() {
         TS.warn("Provisional WebSocket timed out");
-        abortRtmStartAttempt(new Error("Waited " + _rtm_start_timeout_tim_ms + " ms for rtm.start response but didn't get one"));
+        _abortRtmStartAttempt(new Error("Waited " + _rtm_start_timeout_tim_ms + " ms for rtm.start response but didn't get one"));
       }, _rtm_start_timeout_tim_ms);
       _onConnectProvisional = _makeBufferHandler(_maybeResolveOpenWebSocketPromise);
       _onDisconnectProvisional = _makeBufferHandler(function() {
         TS.warn("Provisional WebSocket got disconnected");
-        if (rtm_start_p && rtm_start_p.isPending()) {
-          abortRtmStartAttempt(new Error("WebSocket got disconnected"));
-        }
+        _abortRtmStartAttempt(new Error("WebSocket got disconnected"));
       });
       _onErrorProvisional = _makeBufferHandler(function(e) {
         TS.warn("Provisional WebSocket encountered an error");
-        if (rtm_start_p && rtm_start_p.isPending()) {
-          var err = new Error("WebSocket got error");
-          err.event = e;
-          abortRtmStartAttempt(err);
-        }
+        var err = new Error("WebSocket got error");
+        err.event = e;
+        _abortRtmStartAttempt(err);
       });
       _onMsgProvisional = _makeBufferHandler(function(e) {
         var imsg = JSON.parse(e.data);
@@ -15425,16 +15449,14 @@ TS.registerModule("constants", {
           return false;
         }
         TS.info("Provisional WebSocket received a message of type " + imsg.type);
-        if (rtm_start_p && rtm_start_p.isPending()) {
-          if (imsg.type == "hello") {
-            clearTimeout(rtm_start_timeout);
-            rtm_start_timeout = undefined;
-            if (imsg.flannel && imsg.start) {
-              var rtm_start_data = imsg.start;
-              resolve(rtm_start_data);
-            } else {
-              abortRtmStartAttempt(new Error("`hello` imsg did not include rtm.start data"));
-            }
+        if (imsg.type == "hello") {
+          clearTimeout(rtm_start_timeout);
+          rtm_start_timeout = undefined;
+          if (imsg.flannel && imsg.start) {
+            var rtm_start_data = imsg.start;
+            resolve(rtm_start_data);
+          } else {
+            _abortRtmStartAttempt(new Error("`hello` imsg did not include rtm.start data"));
           }
         }
       });
@@ -15444,16 +15466,13 @@ TS.registerModule("constants", {
       _websocket.onopen = _onConnectProvisional;
       setTimeout(function() {
         if (_websocket && _websocket.readyState == WebSocket.CLOSED) {
-          if (rtm_start_p && rtm_start_p.isPending()) {
-            abortRtmStartAttempt(new Error("WebSocket already closed; maybe internet is offline?"));
-          }
+          _abortRtmStartAttempt(new Error("WebSocket already closed; maybe internet is offline?"));
         }
       }, 100);
     }).catch(function(err) {
       TS.logError(err, "rtm-start-over-MS error", "Flannel error");
       throw err;
     });
-    return rtm_start_p;
   };
   var _initSocketHandlersImmediate = function() {
     _websocket.onopen = _onConnect;
@@ -15517,16 +15536,12 @@ TS.registerModule("constants", {
     _open_websocket_p_resolve = undefined;
   };
   var _provisional_connection_timeout;
-  var _startProvisionalConnectionTimeout = function(onFailure) {
+  var _startProvisionalConnectionTimeout = function() {
     _cancelProvisionalConnectionTimeout();
     _provisional_connection_timeout = setTimeout(function() {
       if (_did_make_provisional_connection) {
         TS.warn("Giving up on provisional connection because no one ever finalized it");
-        if (onFailure && _.isFunction(onFailure)) {
-          onFailure();
-        }
         _deprecateCurrentSocket();
-        TS.ms.reconnect_requested_sig.dispatch();
       } else {
         TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
       }
@@ -17749,6 +17764,7 @@ TS.registerModule("constants", {
       return aria_label;
     },
     makeMemberPresenceIcon: function(member) {
+      TS.presence_manager.queryMemberPresence(member.id);
       var presence_class = TS.templates.makeMemberPresenceDomClass(member.id);
       var presence_icon_class = "ts_icon_presence";
       if (member.is_ultra_restricted) {
@@ -19006,53 +19022,14 @@ TS.registerModule("constants", {
       if (!_.isObject(star_components)) {
         return {};
       }
-      if (TS.boot_data.feature_refactored_message_template) {
-        return TS.templates.star(star_components);
-      }
-      var attributes = star_components.attributes;
-      var class_names = star_components.class_names;
-      return "<span " + attributes.join(" ") + ' class="' + class_names.join(" ") + '"></span>';
+      return TS.templates.star(star_components);
     },
     buildStarWithTip: function(type, ob, parent_ob) {
       var star_components = _buildStarComponents(type, ob, parent_ob);
       if (!_.isObject(star_components)) {
         return {};
       }
-      if (TS.boot_data.feature_refactored_message_template) {
-        return TS.templates.star_with_tip(star_components);
-      }
-      var attributes = star_components.attributes;
-      var class_names = star_components.class_names;
-      var tip_class_names = ["ts_tip", "ts_tip_float", "ts_tip_hidden"];
-      var position_class = TS.boot_data.feature_move_star_in_channel_header ? "ts_tip_bottom" : "ts_tip_top";
-      tip_class_names.push(position_class);
-      class_names = class_names.concat(tip_class_names);
-      var star_tip_text;
-      var star_toggle_tip;
-      if (type === "file_comment") {
-        star_tip_text = TS.i18n.t("Star this file comment", "star")();
-        star_toggle_tip = TS.i18n.t("Unstar this file comment", "star")();
-      } else if (type === "im" || type === "mpim") {
-        star_tip_text = TS.i18n.t("Star this direct message", "star")();
-        star_toggle_tip = TS.i18n.t("Unstar this direct message", "star")();
-      } else if (type === "group" || ob.is_private) {
-        star_tip_text = TS.i18n.t("Star this private channel", "star")();
-        star_toggle_tip = TS.i18n.t("Unstar this private channel", "star")();
-      } else {
-        star_tip_text = TS.i18n.t("Star this {type}", "star")({
-          type: type
-        });
-        star_toggle_tip = TS.i18n.t("Unstar this {type}", "star")({
-          type: type
-        });
-      }
-      if (ob.is_starred) {
-        var tmp = star_tip_text;
-        star_tip_text = star_toggle_tip;
-        star_toggle_tip = tmp;
-      }
-      var star_tip = '<span class="ts_tip_tip" data-tip-toggle-auto="' + star_toggle_tip + '">' + star_tip_text + "</span>";
-      return "<button " + attributes.join(" ") + ' class="' + class_names.join(" ") + ' btn_unstyle">' + star_tip + "</button>";
+      return TS.templates.star_with_tip(star_components);
     },
     buildMentionHTML: function(mention) {
       var msg = mention.message;
@@ -20891,40 +20868,6 @@ TS.registerModule("constants", {
       }
       return html;
     },
-    raLabel: function(old_label) {
-      var new_label = old_label;
-      switch (old_label) {
-        case "Restricted Account":
-          new_label = TS.i18n.t("Multi-Channel Guest", "restricted_labels")();
-          break;
-        case "restricted account":
-          new_label = TS.i18n.t("multi-channel guest", "restricted_labels")();
-          break;
-        case "Restricted account":
-          new_label = TS.i18n.t("Multi-channel guest", "restricted_labels")();
-          break;
-        case "Restricted Accounts":
-          new_label = TS.i18n.t("Multi-Channel Guests", "restricted_labels")();
-          break;
-        case "restricted accounts":
-          new_label = TS.i18n.t("multi-channel guests", "restricted_labels")();
-          break;
-        case "Restricted accounts":
-          new_label = TS.i18n.t("Multi-channel guests", "restricted_labels")();
-          break;
-        case "guest and restricted accounts":
-          new_label = TS.i18n.t("guest accounts", "restricted_labels")();
-          break;
-        case "Restricted Accounts & Single-Channel Guests":
-        case "Guest or Restricted Accounts":
-          new_label = TS.i18n.t("guest accounts", "restricted_labels")();
-          break;
-        case "Restricted & Guest Accounts":
-          new_label = TS.i18n.t("Guest Accounts", "restricted_labels")();
-          break;
-      }
-      return new_label;
-    },
     atLabel: function(type) {
       var at_label = type;
       switch (type) {
@@ -21000,7 +20943,7 @@ TS.registerModule("constants", {
         return TS.templates.member_type_icon(args);
       } else if (member.is_restricted) {
         args.icon_class = "ts_icon_restricted_user";
-        args.tooltip.member_type = TS.templates.builders.raLabel("Restricted Accounts");
+        args.tooltip.member_type = TS.i18n.t("Multi-Channel Guests", "templates_builders")();
         args.tooltip.type_description = TS.i18n.t("see only a partial {directory_name} and can only access messages and files from selected channels.", "templates_builders")({
           directory_name: directory_name
         });
@@ -21102,9 +21045,7 @@ TS.registerModule("constants", {
     var html_attrs = {};
     var attributes = [];
     var class_names = [];
-    class_names = ["star", "ts_icon", "ts_icon_star_o", "ts_icon_inherit"];
-    var position_class = TS.boot_data.feature_move_star_in_channel_header ? "ts_tip_bottom" : "ts_tip_top";
-    class_names.push(position_class);
+    var position_class_name = "ts_tip_top";
     var id = ob.id || ob.ts;
     var parent_id = parent_ob ? parent_ob.id : null;
     if (type === "message") {
@@ -21114,7 +21055,7 @@ TS.registerModule("constants", {
       html_attrs["data-msg-id"] = id;
       html_attrs["data-c-id"] = parent_id;
       if (TS.utility.msgs.isTempMsg(ob)) {
-        class_names.push("hidden");
+        class_names.push("invisible");
       }
     } else if (type === "file") {
       html_attrs["data-file-id"] = id;
@@ -21123,17 +21064,22 @@ TS.registerModule("constants", {
       html_attrs["data-file-id"] = parent_id;
       class_names.push("star_comment");
     } else if (type === "channel") {
+      position_class_name = "ts_tip_bottom";
       html_attrs["data-channel-id"] = id;
     } else if (type === "group") {
+      position_class_name = "ts_tip_bottom";
       html_attrs["data-group-id"] = id;
     } else if (type === "im") {
+      position_class_name = "ts_tip_bottom";
       html_attrs["data-im-id"] = id;
     } else if (type === "mpim") {
+      position_class_name = "ts_tip_bottom";
       html_attrs["data-mpim-id"] = id;
     } else {
       TS.error("buildStar needs to handle star item type:" + type);
       return {};
     }
+    class_names = ["star", "ts_icon", "ts_icon_star_o", "ts_icon_inherit", position_class_name];
     if (ob.is_starred) {
       class_names.push("starred", "ts_icon_star");
       class_names.splice(class_names.indexOf("ts_icon_star_o"), 1);
@@ -21372,9 +21318,11 @@ TS.registerModule("constants", {
           if ((is_root_msg || !msg.thread_ts) && is_in_conversation && TS.client) {
             template_args.format_for_thread_root = true;
             if (model_ob.is_im || model_ob.is_mpim) {
-              template_args.model_ob_name = "Direct message";
+              template_args.model_ob_name = TS.i18n.t("Direct message", "messages")();
             } else {
-              template_args.model_ob_name = "in " + TS.shared.getDisplayNameForModelOb(model_ob);
+              template_args.model_ob_name = TS.i18n.t("in {channel_display_name}", "messages")({
+                channel_display_name: TS.shared.getDisplayNameForModelOb(model_ob)
+              });
             }
           }
           if (is_root_msg && msg.reply_count && !is_in_conversation && !standalone && !args.for_search_display && !args.for_top_results_search_display && !args.is_threads_view) {
@@ -21429,6 +21377,9 @@ TS.registerModule("constants", {
         }
         if (msg.subtype == "file_share" || msg.subtype == "file_mention" || msg.subtype == "file_reaction") {
           if (msg.file) {
+            var get_file_share_html;
+            var is_not_welcome_post;
+            var file_display_name;
             template_args.file = msg.file;
             template_args.edit = TS.files.getFileActions(msg.file).edit;
             template_args.download = !(msg.file.mode === "snippet" || (msg.file.mode === "post" || msg.file.mode === "space") || msg.file.is_external);
@@ -21450,40 +21401,82 @@ TS.registerModule("constants", {
               template_args.icon_class = TS.utility.getImageIconClass(msg.file, "thumb_80");
             } else if (msg.file.user != msg.user) {
               template_args.uploader = TS.utility.members.getEntityFromFile(msg.file);
-              template_args.is_not_welcome_post = !_isWelcomePostToTeamOwner(msg);
+              is_not_welcome_post = !_isWelcomePostToTeamOwner(msg);
             }
-            if (msg.subtype == "file_mention") {
-              template_args.share_verb = "mentioned";
-            } else if (msg.subtype == "file_share" && msg.upload) {
-              template_args.share_verb = "uploaded";
-              if (/(snippet)/.test(msg.file.mode)) template_args.share_verb = "added";
-              if (msg.file.initial_comment) {
-                template_args.share_verb += " and commented on";
-                template_args.show_initial_comment = true;
-              }
-            } else {
-              template_args.share_verb = "shared";
-            }
-            template_args.share_determiner = "a";
-            template_args.share_noun = "file";
             if (/(snippet)/.test(msg.file.mode)) {
-              template_args.share_noun = msg.file.pretty_type + " snippet";
-              var needs_an = ["A", "E", "O", "X"];
-              var snowflakes = ["HTML snippet", "R snippet"];
-              if (needs_an.indexOf(template_args.share_noun.charAt(0)) > -1 || snowflakes.indexOf(template_args.share_noun) > -1) {
-                template_args.share_determiner = "an";
+              file_display_name = TS.i18n.t("{file_pretty_name} snippet", "message")({
+                file_pretty_name: msg.file.pretty_type
+              });
+            } else if (/(email)/.test(msg.file.mode)) {
+              file_display_name = TS.i18n.t("email", "message")();
+            } else if (/(post|space)/.test(msg.file.mode)) {
+              file_display_name = TS.i18n.t("post", "message")();
+            } else if ((msg.file.thumb_360 || msg.file.thumb_360_gif) && !(msg.file.external_type === "gdrive" && msg.file.mimetype.indexOf("image/") < 0)) {
+              file_display_name = TS.i18n.t("image", "message")();
+            } else {
+              file_display_name = TS.i18n.t("file", "message")();
+            }
+            if (template_args.uploader && is_not_welcome_post) {
+              if (msg.file.initial_comment) {
+                template_args.show_initial_comment = true;
+                if (msg.subtype == "file_mention") {
+                  get_file_share_html = TS.i18n.t("mentioned and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
+                  get_file_share_html = TS.i18n.t("added and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload) {
+                  get_file_share_html = TS.i18n.t("uploaded and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+                } else {
+                  get_file_share_html = TS.i18n.t("shared and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+                }
+              } else {
+                if (msg.subtype == "file_mention") {
+                  get_file_share_html = TS.i18n.t("mentioned {uploader_name_possessive_html} {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
+                  get_file_share_html = TS.i18n.t("added {uploader_name_possessive_html} {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload) {
+                  get_file_share_html = TS.i18n.t("uploaded {uploader_name_possessive_html} {file_display_name}", "message");
+                } else {
+                  get_file_share_html = TS.i18n.t("shared {uploader_name_possessive_html} {file_display_name}", "message");
+                }
               }
-            }
-            if (/(email)/.test(msg.file.mode)) {
-              template_args.share_determiner = "an";
-              template_args.share_noun = "email";
-            }
-            if (/(post|space)/.test(msg.file.mode)) template_args.share_noun = "post";
-            if ((msg.file.thumb_360 || msg.file.thumb_360_gif) && !(msg.file.external_type === "gdrive" && msg.file.mimetype.indexOf("image/") < 0)) {
-              template_args.share_determiner = "an";
-              template_args.share_noun = "image";
+              var uploader_name = TS.templates.builders.makeMemberPreviewLink(template_args.uploader, false);
+              var uploader_name_possessive = TS.i18n.possessive(TS.members.getMemberDisplayName(template_args.uploader));
+              var target_attribute = TS.boot_data.app === "client" ? 'target="' + msg.file.permalink + '" ' : "";
+              var permalink_anchor_tag = '<a href="' + msg.file.permalink + '" ' + target_attribute + 'data-file-id="' + msg.file.id + '">';
+              var uploader_name_possessive_html = "</a> " + uploader_name + uploader_name_possessive + permalink_anchor_tag;
+              template_args.file_share_html = get_file_share_html({
+                file_display_name: file_display_name,
+                uploader_name_possessive_html: uploader_name_possessive_html
+              });
+            } else {
+              if (msg.file.initial_comment) {
+                template_args.show_initial_comment = true;
+                if (msg.subtype == "file_mention") {
+                  get_file_share_html = TS.i18n.t("mentioned and commented on this {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
+                  get_file_share_html = TS.i18n.t("added and commented on this {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload) {
+                  get_file_share_html = TS.i18n.t("uploaded and commented on this {file_display_name}", "message");
+                } else {
+                  get_file_share_html = TS.i18n.t("shared and commented on this {file_display_name}", "message");
+                }
+              } else {
+                if (msg.subtype == "file_mention") {
+                  get_file_share_html = TS.i18n.t("mentioned this {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
+                  get_file_share_html = TS.i18n.t("added this {file_display_name}", "message");
+                } else if (msg.subtype == "file_share" && msg.upload) {
+                  get_file_share_html = TS.i18n.t("uploaded this {file_display_name}", "message");
+                } else {
+                  get_file_share_html = TS.i18n.t("shared this {file_display_name}", "message");
+                }
+              }
+              template_args.file_share_html = get_file_share_html({
+                file_display_name: file_display_name
+              });
             }
           }
+          template_args.file_share_html = new Handlebars.SafeString(template_args.file_share_html);
         } else if (msg.subtype == "file_comment") {
           if (prev_msg && !prev_msg.no_display && prev_msg.file && msg.file && msg.file.id == prev_msg.file.id) {
             if (!new_day) template_args["is_file_convo_continuation"] = true;
@@ -22724,6 +22717,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getMemberCurrentStatus", function(member) {
         return new Handlebars.SafeString(TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(member), undefined, {
           no_jumbomoji: true,
+          no_specials: true,
           no_highlights: true
         }));
       });
@@ -22731,6 +22725,7 @@ TS.registerModule("constants", {
         return _.map(TS.team.getTeamCustomStatusSuggestions(), function(suggestion) {
           return new Handlebars.SafeString(TS.format.formatWithOptions(suggestion, undefined, {
             no_jumbomoji: true,
+            no_specials: true,
             no_highlights: true
           }));
         });
@@ -23313,9 +23308,6 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("makeSHRoomParticipantList", TS.templates.builders.makeSHRoomParticipantList);
       Handlebars.registerHelper("makeSHRoomSharedList", TS.templates.builders.makeSHRoomSharedList);
-      Handlebars.registerHelper("raLabel", function(old_label) {
-        return TS.templates.builders.raLabel(old_label);
-      });
       Handlebars.registerHelper("atLabel", function(type) {
         return TS.templates.builders.atLabel(type);
       });
@@ -27626,6 +27618,7 @@ TS.registerModule("constants", {
         if (name == "user") return true;
         if (name == "inviter") return true;
         if (name == "accepted_user") return true;
+        if (name == "created_by") return true;
         return false;
       };
       var worker = function(ob, parent_name) {
@@ -31071,6 +31064,7 @@ TS.registerModule("constants", {
       TS.kb_nav.setSubmitItemHandler(TS.menu.onTeamAndUserItemClick);
       if (TS.boot_data.page_needs_enterprise) {
         TS.menu.has_submenu = true;
+        $menu_content.on("mouseenter", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
         TS.menu.submenu_template_args["administration"] = {};
         TS.menu.submenu_template_args["switch_teams"] = template_args;
       }
@@ -31088,8 +31082,6 @@ TS.registerModule("constants", {
         TS.menu.submenu_template_args["member_current_status_item"] = {
           member: TS.model.user
         };
-      }
-      if (TS.menu.has_submenu) {
         $menu_content.on("highlighted", "li:not(.divider)", function(e) {
           if (!$(this).hasClass("has_submenu") || $(this).attr("id") === "member_current_status_item") {
             if (TS.menu._current_status_input && TS.menu._current_status_input.isEdited()) return;
@@ -31324,7 +31316,8 @@ TS.registerModule("constants", {
       TS.menu.$menu_items.html(TS.templates.menu_flexpane_items({
         special_flex_panes: TS.boot_data.special_flex_panes,
         show_downloads: TS.model.supports_downloads,
-        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
+        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise,
+        show_user_groups: TS.useSearchableMemberList()
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onFlexMenuItemClick);
       TS.menu.start(e);
@@ -31356,7 +31349,7 @@ TS.registerModule("constants", {
             TS.client.ui.files.filterFileList("all");
           } else if (flex_name == "team") {
             TS.client.ui.showTeamList();
-          } else if (flex_name == "groups" && TS.boot_data.feature_searchable_member_list) {
+          } else if (flex_name == "groups" && TS.useSearchableMemberList()) {
             TS.client.ui.showGroupsList();
           } else {
             if (flex_name == "whats_new" && TS.boot_data.feature_clog_whats_new) {
@@ -31729,6 +31722,10 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_message_replies) {
         TS.menu.$menu.removeAttr("data-model-ob-id");
         TS.menu.$menu.removeAttr("data-thread-ts");
+      }
+      if (TS.menu.$menu.find(".member_item")) {
+        TS.menu.$menu.find(".member_item").remove();
+        TS.menu.$menu.find(".list_items").css("height", 0);
       }
       _on_esc = null;
     },
@@ -33452,7 +33449,7 @@ var _on_esc;
   "use strict";
   TS.registerModule("menu.member", {
     onStart: function() {
-      _member_presence_list = TS.presence_manager.createList();
+      _member_presence_list = new TS.PresenceList;
     },
     member: null,
     member_item_click_sig: new signals.Signal,
@@ -37410,7 +37407,7 @@ var _on_esc;
       msg_el.after(html);
       var form = $("#message_edit_form");
       var input = form.find("#msg_text");
-      TS.msg_edit.checkLengthOK(input);
+      TS.msg_edit.checkLengthAndUpdateMessage(input);
       TS.info("message_edit_form added");
       TS.msg_edit.editing = true;
       TS.msg_edit.edit_started_sig.dispatch();
@@ -37498,7 +37495,7 @@ var _on_esc;
         TS.msg_edit.onConfirmEdit(edited_text);
       });
       input.bind("textchange", function(e, prev_txt) {
-        TS.msg_edit.checkLengthOK(input);
+        TS.msg_edit.checkLengthAndUpdateMessage(input);
       }).bind("keyup", function(e) {
         var selection;
         var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
@@ -37583,21 +37580,24 @@ var _on_esc;
       TS.msg_edit.onCountDownInterval();
       TS.msg_edit.edit_interv = setInterval(TS.msg_edit.onCountDownInterval, 1e3);
     },
-    checkLengthOK: function(input) {
-      var too_long = TS.format.cleanMsg(TS.utility.contenteditable.value(input)).length > TS.model.input_maxlength;
+    isMessageTooLong: function(input) {
+      return TS.format.cleanMsg(TS.utility.contenteditable.value(input)).length > TS.model.input_maxlength;
+    },
+    updateTooLongWarning: function(input, too_long) {
       if (too_long) {
-        $("#edit_warning").removeClass("hidden");
-        $("#edit_saver").addClass("hidden");
-        return false;
+        $(input).parent().find(".edit_warning").removeClass("hidden");
       } else {
-        $("#edit_warning").addClass("hidden");
-        $("#edit_saver").removeClass("hidden");
-        return true;
+        $(input).parent().find(".edit_warning").addClass("hidden");
       }
+    },
+    checkLengthAndUpdateMessage: function(input) {
+      var too_long = TS.msg_edit.isMessageTooLong(input);
+      TS.msg_edit.updateTooLongWarning(input, too_long);
+      return !too_long;
     },
     checkAndSubmit: function(input, form) {
       if (TS.boot_data.feature_tinyspeck) console.log("13921 checkAndSubmit");
-      if (TS.msg_edit.checkLengthOK(input)) {
+      if (TS.msg_edit.checkLengthAndUpdateMessage(input)) {
         form.submit();
       }
     },
@@ -44239,10 +44239,10 @@ $.fn.togglify = function(settings) {
         if (data.error == "name_taken") {
           _showNameTakenAlert();
         } else if (data.error == "restricted_action") {
-          _showError("Sorry! An admin on your team has restricted who can create private channels.");
+          _showError(TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "new_channel")());
         } else {
           TS.error("Failed to create private channel: " + data.error);
-          _showError("Sorry! Something went wrong.");
+          _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
         }
         return;
       }
@@ -44295,6 +44295,8 @@ $.fn.togglify = function(settings) {
       if (["success", "warning", "error"].indexOf(instance.type) < 0) instance.type = _DEFAULT_SETTINGS.type;
       if (["top", "bottom"].indexOf(instance.position) < 0) instance.position = _DEFAULT_SETTINGS.position;
       instance.message = new Handlebars.SafeString(instance.message);
+      instance.retry_message = new Handlebars.SafeString(instance.retry_message);
+      if (settings.retry_action) instance._retryable = true;
       _maybeShowToast(instance);
       return instance;
     }
@@ -44303,16 +44305,22 @@ $.fn.togglify = function(settings) {
     dismissable: false,
     message: TS.i18n.t("Success", "toast")(),
     position: "bottom",
-    type: "success"
+    retry_action: _.noop,
+    retry_message: TS.i18n.t("Something went wrong. Try again?", "toast")(),
+    type: "success",
+    _retryable: false
   };
   var _DISMISS_SELECTOR = ".dismiss_toast";
+  var _RETRY_SELECTOR = ".retry_toast";
   var _queue = [];
   var _is_currently_visible = false;
   var _$toast_parent;
   var _toast_timeout;
   var _toast_timeout_time = 3e3;
+  var _current_instance;
   var _bindEvents = function() {
     _$toast_parent.on("click", _DISMISS_SELECTOR, _dismissToast);
+    _$toast_parent.on("click", _RETRY_SELECTOR, _retryAction);
   };
   var _dismissToast = function(event) {
     if (_toast_timeout) clearTimeout(_toast_timeout);
@@ -44356,6 +44364,7 @@ $.fn.togglify = function(settings) {
     if (_is_currently_visible && !should_show) {
       _queue.push(instance);
     } else {
+      _current_instance = instance;
       var html = TS.templates.toast({
         instance: instance,
         already_exists: !!should_show
@@ -44366,6 +44375,11 @@ $.fn.togglify = function(settings) {
   };
   var _needToShowNextToast = function() {
     return _queue.length > 0;
+  };
+  var _retryAction = function() {
+    if (!_current_instance._retryable || _current_instance.type !== "error") return;
+    _current_instance.retry_action();
+    _dismissToast();
   };
   var _unhideToast = function() {
     if (!_is_currently_visible) {
@@ -46842,9 +46856,8 @@ $.fn.togglify = function(settings) {
       var file = file_id ? TS.files.getFileById(file_id) : null;
       if (is_image || file && TS.files.fileIsImage(file)) {
         TS.clog.track("MSG_PHOTO_EXPAND", payload);
-      } else {
-        TS.clog.track("MSG_LINK_CLICKED", payload);
       }
+      TS.clog.track("MSG_LINK_CLICKED", payload);
     });
     TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_play_button", function(e, $el) {
       if (TS.boot_data.feature_platform_metrics) {
@@ -54277,12 +54290,11 @@ $.fn.togglify = function(settings) {
   });
   var _uniq_id = 0;
   var _checkAndSubmit = function($input, $form) {
-    var too_long = TS.format.cleanMsg(TS.utility.contenteditable.value($input)).length > TS.model.input_maxlength;
-    if (!too_long) {
-      $form.submit();
-    }
+    var is_too_long = TS.msg_edit.isMessageTooLong($input);
+    if (!is_too_long) $form.submit();
   };
   var _initTabComplete = function($input, opts) {
+    if (TS.boot_data.feature_texty_takes_over) return;
     var complete_member_specials = true;
     if (false === opts.complete_member_specials) complete_member_specials = false;
     if (TS.boot_data.feature_you_autocomplete_me) {
@@ -54340,7 +54352,7 @@ $.fn.togglify = function(settings) {
       submit_fn(e, $form, text);
     });
     $input.bind("textchange", function(e, prev_txt) {
-      TS.msg_edit.checkLengthOK($input);
+      TS.msg_edit.checkLengthAndUpdateMessage($input);
     }).bind("keyup", function(e) {
       var selection;
       if (window.getSelection) {

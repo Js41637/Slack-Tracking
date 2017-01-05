@@ -47,5 +47,10 @@
   <span class="inline_positive">{{#t note="label if a user's account is credited"}}Credited <strong>{formatted_charges.delta}{{/t}}</strong></span><br />
 {{/if_equal}}
 {{#if_equal charge_type compare="is_removed_credits"}}
-  {{#t note="label is credits are removed"}}Removed <strong>{formatted_charges.credits_charge}</strong> credits{{/t}}<br />
+  {{#if credits_charge}}
+    {{#t note="label is credits are removed"}}Removed <strong>{formatted_charges.credits_charge}</strong> credits{{/t}}<br />
+  {{else}}
+    {{!-- credit adjustment --}}
+    {{#t note="label is credits are removed"}}Removed <strong>{formatted_charges.delta}</strong> credits{{/t}}<br />
+  {{/if}}
 {{/if_equal}}

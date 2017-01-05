@@ -7,6 +7,9 @@
 {{#if members_filter_selected}}
 {{#t note='A filter option for a list of members' count=members_count}}Members ({count}){{/t}}
 {{/if}}
+{{#if admins_filter_selected}}
+{{#t note='A filter option for a list of members' count=admins_count}}Admin accounts ({count}){{/t}}
+{{/if}}
 {{#if restricted_filter_selected}}
 {{#t note='A filter option for a list of members' count=guests_count}}Guest accounts ({count}){{/t}}
 {{/if}}

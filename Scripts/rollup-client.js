@@ -1995,13 +1995,14 @@
     },
     actuallyCheckIfInputShouldBeDisabledAndPopulate: function() {
       var active_model_ob = TS.shared.getActiveModelOb();
+      var $el;
       if (active_model_ob && active_model_ob.is_general && !TS.members.canUserPostInGeneral()) {
         TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
         if (!TS.boot_data.feature_texty) {
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
-        var $el = $("#msg_input_message span");
+        $el = $("#msg_input_message span");
         $el.html(TS.i18n.t("Your Team Owners have limited who can post to {channel_or_group}", "view")({
           channel_or_group: "#<strong>" + TS.channels.getGeneralChannel().name + "</strong>"
         }));
@@ -2012,8 +2013,7 @@
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
-        var $el = $("#message-input-message span");
-        var $el = $("#msg_input_message span");
+        $el = $("#msg_input_message span");
         if (active_model_ob.is_group) {
           $el.html(TS.i18n.t("Your Team Owners have limited who can post to {channel_or_group}", "view")({
             channel_or_group: '<ts-icon class="ts_icon_lock prefix"></ts-icon>' + active_model_ob.name + '<ts-icon class="ts_icon_shared_channel"></ts-icon>'
@@ -2520,7 +2520,7 @@
         TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
       }
       TS.view.focusMessageInput();
-      TS.presence_manager.createList(TS.model.user.id);
+      new TS.PresenceList(TS.model.user.id);
       _updateUserPresenceIcon();
       TS.view.buildTeamList();
       if (!TS.boot_data.feature_texty) {
@@ -3160,9 +3160,7 @@
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
         return;
       }
-      if (model_ob && !model_ob.is_general && TS.members.canUserPostInGeneral()) {
-        TS.utility.contenteditable.enable(TS.client.ui.$msg_input);
-      }
+      if (TS.utility.contenteditable.isDisabled(TS.client.ui.$msg_input)) return;
       if (TS.model.is_iOS) {
         return;
       }
@@ -4434,8 +4432,13 @@
     memberChangedProfile: function(member) {
       var bg_img_urls = [];
       if (!TS.members.is_in_bulk_upsert_mode) {
+        var skip_rebuilding_channel_header = false;
         var make_sure_active_channel_is_in_view = false;
-        TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
+        var model_ob = TS.shared.getActiveModelOb();
+        if (model_ob.is_im && model_ob.user === member.id || model_ob.is_mpim && model_ob.members.indexOf(member.id) > -1) {
+          skip_rebuilding_channel_header = true;
+        }
+        TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header);
         TS.view.rebuildMsgsIncludingMember(member);
       }
       if (member.id == TS.model.user.id) {
@@ -4489,6 +4492,7 @@
       if (!TS.boot_data.feature_user_custom_status) return;
       var current_status = TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(TS.model.user), undefined, {
         no_jumbomoji: true,
+        no_specials: true,
         no_highlights: true
       });
       $("#current_user_name_and_current_status").toggleClass("ts_tip", !!current_status);
@@ -4822,14 +4826,11 @@
   var _reconnect_banner_delay_tim;
   var _reconnect_banner_timeout_secs;
   var _showReconnectingBannerAfterDelay = function(secs) {
-    TS.info("Will show reconnection banner after delay");
     _reconnect_banner_timeout_secs = secs;
     if (_reconnect_banner_delay_tim) return;
     _reconnect_banner_delay_tim = setTimeout(function() {
       _reconnect_banner_delay_tim = undefined;
-      if (TS.model.ms_connected) {
-        TS.info("Would have show reconnection banner after delay, but we got connected in the meantime");
-      } else {
+      if (!TS.model.ms_connected) {
         _showReconnectingBannerImmediately(_reconnect_banner_timeout_secs);
       }
     }, RECONNECT_BANNER_DELAY_MS);
@@ -4840,7 +4841,6 @@
       TS.info("Not showing reconnecting banner because API is paused and showing its own banner");
       return;
     }
-    TS.info("Showing reconnection banner immediately");
     var txt = TS.i18n.t("Reconnecting...", "ms")();
     if (secs) {
       txt = TS.i18n.t("Reconnecting in {num_secs, plural, =1 {# second} other {# seconds...}}", "ms")({
@@ -4853,7 +4853,6 @@
   };
   var _cancelDelayedReconnectingBanner = function() {
     if (!_reconnect_banner_delay_tim) {
-      TS.info("Would cancel pending reconnection banner, but there is none");
       return;
     }
     clearTimeout(_reconnect_banner_delay_tim);
@@ -5704,10 +5703,10 @@
         _setMemoryInstrumentInterval();
       }
     },
-    rebuildAllButMsgs: function(make_sure_active_channel_is_in_view) {
+    rebuildAllButMsgs: function(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header) {
       TS.client.channel_pane.rebuild("channels", "ims", "starred");
       TS.client.msg_pane.rebuildChannelMembersList();
-      TS.client.msg_pane.displayTitle();
+      if (!skip_rebuilding_channel_header) TS.client.msg_pane.displayTitle();
       if (make_sure_active_channel_is_in_view) {
         TS.client.channel_pane.makeSureActiveChannelIsInView();
       }
@@ -6995,12 +6994,12 @@
         }
         var $member_count = $("#channel_members_toggle_count");
         TS.utility.queueRAF(function rebuildMemberListToggleRAF() {
-          $member_count.html('<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon> ' + display_member_count);
+          $member_count.html('<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon> ' + TS.i18n.number(display_member_count));
           var tooltip_text;
           if (TS.lazyLoadMembersAndBots()) {
             tooltip_text = "View member list";
           } else {
-            tooltip_text = "View member list (" + online_count + "/" + display_member_count + " online)";
+            tooltip_text = "View member list (" + TS.i18n.number(online_count) + "/" + TS.i18n.number(display_member_count) + " online)";
           }
           $member_count.append('<span class="ts_tip_tip">' + tooltip_text + "</span>");
           $member_count.removeClass("hidden");
@@ -9421,17 +9420,22 @@
       });
     },
     _fetchPage: function() {
-      var this_searchable_member_list = this;
       if (this._fetch_page_p) return this._fetch_page_p;
-      this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery({
-        query: this._current_query_for_match,
-        limit: this._current_query_for_match ? FETCH_PAGE_SIZE_SEARCH : FETCH_PAGE_SIZE,
-        marker: this._next_marker
-      }).then(function(response) {
+      var this_searchable_member_list = this;
+      var query_params = {
+        count: this._current_query_for_match ? FETCH_PAGE_SIZE_SEARCH : FETCH_PAGE_SIZE,
+        filter: this._current_filter
+      };
+      if (this._current_query_for_match) {
+        query_params.query = this._current_query_for_match;
+      } else {
+        query_params.marker = this._next_marker;
+      }
+      this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
         this_searchable_member_list._fetch_page_p = null;
         this_searchable_member_list._next_marker = response.next_marker;
         if (!response.next_marker) this_searchable_member_list._have_all_members = true;
-        return response.objects;
+        return response.objects || response;
       });
       return this._fetch_page_p;
     },
@@ -9444,6 +9448,7 @@
       return this._fetchPage().then(function(members) {
         this_searchable_member_list._processPage(members);
         if (this_searchable_member_list._members.length > 0) {
+          this_searchable_member_list._maybeHideNoResultsState();
           this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
           TS.utility.rAF(function() {
             this_searchable_member_list._resize_sig_handler();
@@ -9540,6 +9545,8 @@
       this.$_clear_icon.addClass("hidden");
       this._maybeHideNoResultsState();
       this.$_long_list_view.scrollTop(0);
+      this.$_filter_input.replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
+      this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
       this.$_long_list_view.height(this._long_list_view_initial_height);
       this._fetchProcessAndDisplayPage();
     },
@@ -9565,15 +9572,17 @@
     },
     _showNoResultsState: function() {
       var $no_results = this.$_container.find(".no_results");
-      if ($no_results.length != 0) return;
+      if ($no_results.length > 0) {
+        $no_results.remove();
+      }
       var this_searchable_member_list = this;
       var no_results = TS.templates.team_searchable_no_results({
         query: this._current_query_for_display,
         everyone_filter_selected: this._current_filter == "everyone",
-        members_filter_selected: this._current_filter.match(/active_members/),
-        admins_filter_selected: this._current_filter.match(/admin_members/),
-        restricted_filter_selected: this._current_filter.match(/restricted_members/),
-        deactivated_filter_selected: this._current_filter == "disabled_members"
+        members_filter_selected: this._current_filter.match(/members/),
+        admins_filter_selected: this._current_filter.match(/admins/),
+        restricted_filter_selected: this._current_filter.match(/guests/),
+        deactivated_filter_selected: this._current_filter == "deactivated"
       });
       this.$_long_list_view.hide().before(no_results);
       this.$_container.delegate(".clear_members_filter", "click", function() {
@@ -9605,7 +9614,7 @@
       TS.menu.startWithSearchableMemberListFilter(evt, function(e) {
         var $action = $(e.target).closest("[data-filter]");
         if (!$action.length) return;
-        this._presence_list.clear();
+        this_searchable_member_list._presence_list.clear();
         this_searchable_member_list._members = [];
         this_searchable_member_list._next_marker = "";
         this_searchable_member_list._current_filter = $action.data("filter");
@@ -9630,7 +9639,7 @@
         show_search: true,
         show_filters: true,
         everyone_filter_selected: this._current_filter == "everyone",
-        deactivated_filter_selected: this._current_filter == "disabled_members"
+        deactivated_filter_selected: this._current_filter == "deactivated"
       };
       if (TS.boot_data.page_needs_enterprise) {
         _.merge(template_args, {
@@ -9643,18 +9652,18 @@
           team_members_count: 70,
           team_admins_count: 30,
           team_guests_count: 20,
-          org_members_filter_selected: this._current_filter == "org_active_members",
-          org_admins_filter_selected: this._current_filter == "org_admin_members",
-          org_restricted_filter_selected: this._current_filter == "org_restricted_members",
-          team_members_filter_selected: this._current_filter == "team_active_members",
-          team_admins_filter_selected: this._current_filter == "team_admin_members",
-          team_restricted_filter_selected: this._current_filter == "team_restricted_members"
+          org_members_filter_selected: this._current_filter == "org_members",
+          org_admins_filter_selected: this._current_filter == "org_admins",
+          org_restricted_filter_selected: this._current_filter == "org_guests",
+          team_members_filter_selected: this._current_filter == "members",
+          team_admins_filter_selected: this._current_filter == "admins",
+          team_restricted_filter_selected: this._current_filter == "guests"
         });
       } else {
         _.merge(template_args, {
-          members_filter_selected: this._current_filter == "active_members",
-          admins_filter_selected: this._current_filter == "admin_members",
-          restricted_filter_selected: this._current_filter == "restricted_members"
+          members_filter_selected: this._current_filter == "members",
+          admins_filter_selected: this._current_filter == "admins",
+          restricted_filter_selected: this._current_filter == "guests"
         });
       }
       if (this._channel_member_ids) {
@@ -9949,6 +9958,7 @@
       TS.chat_history.resetPosition("populateChatInputWithLast");
       if (TS.boot_data.feature_texty) {
         TS.utility.contenteditable.deserialize(TS.client.msg_input.$input, model_ob.last_msg_input);
+        _maybeResize();
       } else {
         if (TS.boot_data.feature_you_autocomplete_me) {
           TS.client.ui.$msg_input.TS_tabCompleteNew("suspend");
@@ -10295,8 +10305,8 @@
     $unread_nav: $(".channels_nav_unread"),
     $threads_nav: $("#col_channels .all_threads"),
     onStart: function() {
-      _dm_members = TS.presence_manager.createList();
-      _starred_members = TS.presence_manager.createList();
+      _dm_members = new TS.PresenceList;
+      _starred_members = new TS.PresenceList;
       _rebuildCustomListThrottled = TS.utility.throttleFunc(_rebuildCustomListThrottled, 10);
       TS.client.login_sig.add(_onLogin);
       TS.prefs.hotness_changed_sig.add(_toggleHotness);
@@ -10536,14 +10546,14 @@
     return true;
   };
   var _rebuildDmHeaderCount = function() {
-    $("#dm_header_count").text(_open_im_mpims + _openable_im_mpims);
+    $("#dm_header_count").text(TS.i18n.number(_open_im_mpims + _openable_im_mpims));
   };
   var _rebuildChannelHeaderCount = function() {
     var channel_count = TS.channels.getUnarchivedChannelsForUser().length;
     var group_count = TS.groups.getUnarchivedGroups().length;
     var total_count = channel_count + group_count;
     var $channel_list_header_label = $(".channel_list_header_label");
-    $("#channel_header_count").text(total_count);
+    $("#channel_header_count").text(TS.i18n.number(total_count));
     if ($channel_list_header_label.length) {
       var channel_list_aria_label = $channel_list_header_label.attr("aria-label") || "";
       $channel_list_header_label.attr("aria-label", channel_list_aria_label.replace("[0]", total_count));
@@ -11368,7 +11378,7 @@
   "use strict";
   TS.registerModule("client.channel_header", {
     onStart: function() {
-      _member_presence_list = TS.presence_manager.createList();
+      _member_presence_list = new TS.PresenceList;
       TS.members.presence_changed_sig.add(_memberChanged);
       TS.members.changed_deleted_sig.add(_memberChanged);
       TS.dnd.dnd_statuses_changed_sig.add(_dndStatusesChanged);
@@ -12097,7 +12107,7 @@
     date_change_timer: null,
     new_msgs_bar_showing: false,
     onStart: function() {
-      _member_presence_list = TS.presence_manager.createList();
+      _member_presence_list = new TS.PresenceList;
       TS.team.team_email_domain_changed_sig.add(_updateGeneralChannelMetaInviteAction, TS.client.msg_pane);
       TS.team.team_domain_changed_sig.add(_updateGeneralChannelMetaInviteAction, TS.client.msg_pane);
       TS.team.team_name_changed_sig.add(_updateGeneralChannelMetaInviteAction, TS.client.msg_pane);
@@ -18809,205 +18819,6 @@
 })();
 (function() {
   "use strict";
-  TS.registerModule("ui.group_create_dialog", {
-    div: null,
-    showing: false,
-    auto_name: false,
-    auto_name_str: null,
-    start_member_id: null,
-    onStart: function() {},
-    onKeydown: function(e) {
-      if (e.which == TS.utility.keymap.enter) {
-        if (TS.utility.getActiveElementProp("NODENAME") == "BODY") {
-          TS.ui.group_create_dialog.go();
-          e.preventDefault();
-        }
-      } else if (e.which == TS.utility.keymap.esc) {
-        if (TS.utility.getActiveElementProp("NODENAME") == "BODY") {
-          TS.ui.group_create_dialog.cancel();
-        }
-      }
-    },
-    start: function(group_title, preselected_member_idsA, auto_name) {
-      if (TS.client.ui.checkForEditing()) return;
-      if (!TS.permissions.members.canCreateGroups()) return;
-      group_title = TS.utility.cleanChannelName(group_title || "");
-      preselected_member_idsA = preselected_member_idsA || [];
-      TS.ui.group_create_dialog.auto_name = !!auto_name;
-      if (!TS.ui.group_create_dialog.div) TS.ui.group_create_dialog.build();
-      var div = TS.ui.group_create_dialog.div;
-      var members_an_admin_could_invite;
-      var members_you_can_invite;
-      if (TS.model.user.is_admin) {
-        members_you_can_invite = members_an_admin_could_invite = TS.groups.getActiveMembersForInviting();
-      } else {
-        members_an_admin_could_invite = TS.groups.getActiveMembersForInviting(true);
-        members_you_can_invite = TS.groups.getActiveMembersForInviting();
-      }
-      var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(members_you_can_invite, preselected_member_idsA);
-      var html = TS.templates.generic_dialog({
-        title: TS.i18n.t("Create a private group", "group_create")(),
-        body: TS.templates.group_create({
-          title: group_title,
-          invite_members: invite_members,
-          show_ra_tip: members_you_can_invite.length != members_an_admin_could_invite.length,
-          compliance_exports_enabled_for_team: !!TS.model.team.prefs.compliance_export_start
-        })
-      });
-      div.empty();
-      div.html(html);
-      div.find(".dialog_cancel").html("Cancel").removeClass("hidden").click(TS.ui.group_create_dialog.cancel);
-      div.find(".dialog_go").html("Create Group").click(TS.ui.group_create_dialog.go);
-      TS.ui.group_create_dialog.bindCreateInvite();
-      div.modal("show");
-    },
-    bindCreateInvite: function() {
-      $("#select_create_invite_group_members").hide().lazyFilterSelect();
-      if (TS.ui.group_create_dialog.auto_name) {
-        TS.ui.group_create_dialog.auto_name_str = $("#group_create_title").val();
-        $("#select_create_invite_group_members").bind("change.auto_name", function() {
-          if (TS.ui.group_create_dialog.auto_name_str != $("#group_create_title").val()) {
-            $(this).unbind("change.auto_name");
-            return;
-          }
-          var member_idsA = $(this).val() || [];
-          $("#group_create_title").val(TS.groups.createSuggestedName(member_idsA));
-          TS.ui.group_create_dialog.auto_name_str = $("#group_create_title").val();
-        });
-      }
-      $("#select_create_invite_group_members_holder").css("min-height", 145);
-      $(".modal-body").css("overflow-y", "visible");
-    },
-    showNameTakenAlert: function() {
-      var div = TS.ui.group_create_dialog.div;
-      div.find(".modal_input_note").addClass("hidden");
-      div.find(".name_taken_warning").removeClass("hidden");
-      $("#group_create_title").select();
-    },
-    showExistingGroupsAlert: function(existing_groups_with_same_membersA) {
-      $(".modal-body").css("overflow-y", "");
-      var div = TS.ui.group_create_dialog.div;
-      var existing_groups_html = TS.templates.existing_groups({
-        existing_groups: existing_groups_with_same_membersA
-      });
-      div.find(".modal_input_note").addClass("hidden");
-      div.find(".existing_groups_warning").html(existing_groups_html).removeClass("hidden").data("has-been-shown", true);
-    },
-    showNoInvitesAlert: function() {
-      var div = TS.ui.group_create_dialog.div;
-      div.find(".modal_input_note").addClass("hidden");
-      div.find(".no_invites_warning").removeClass("hidden");
-    },
-    showNoTitleAlert: function() {
-      var div = TS.ui.group_create_dialog.div;
-      div.find(".modal_input_note").addClass("hidden");
-      div.find(".name_missing_warning").removeClass("hidden");
-    },
-    go: function() {
-      if (!TS.ui.group_create_dialog.showing) {
-        TS.error("not showing?");
-        return;
-      }
-      if (TS.ui.group_create_dialog.validateAndSubmit()) {
-        TS.ui.group_create_dialog.div.modal("hide");
-      }
-    },
-    useExistingGroup: function(group_id) {
-      var group = TS.groups.getGroupById(group_id);
-      if (!group) return;
-      if (group.is_archived) {
-        TS.api.call("groups.unarchive", {
-          channel: group_id
-        });
-      }
-      TS.groups.displayGroup(group_id);
-      TS.ui.group_create_dialog.div.modal("hide");
-    },
-    validateAndSubmit: function() {
-      var div = TS.ui.group_create_dialog.div;
-      var title = $("#group_create_title").val();
-      var purpose = $.trim($("#group_purpose_input").val());
-      var clean_title = TS.utility.cleanChannelName(title);
-      while (title.substr(0, 1) == "#") title = title.substr(1);
-      if (!title) {
-        TS.ui.group_create_dialog.showNoTitleAlert();
-        return false;
-      }
-      $("#group_create_title").val(clean_title);
-      if (clean_title != title) {
-        alert(TS.i18n.t("You entered some disallowed characters in the group name, which we’ve fixed. Make sure it looks good to you, and try again!", "group_create")());
-        return false;
-      }
-      if (TS.channels.getChannelByName(title) || TS.groups.getGroupByName(title) || TS.members.getMemberByName(title)) {
-        TS.ui.group_create_dialog.showNameTakenAlert();
-        return false;
-      }
-      var and_invite_members_idsA = $("#select_create_invite_group_members").val() || [];
-      if (!div.find(".existing_groups_warning").data("has-been-shown")) {
-        $("#create_invite_group_members_holder").addClass("hidden");
-        var existing_groups_with_same_membersA = TS.groups.getGroupsWithTheseActiveMembers(and_invite_members_idsA.concat(TS.model.user.id));
-        if (existing_groups_with_same_membersA.length) {
-          TS.ui.group_create_dialog.showExistingGroupsAlert(existing_groups_with_same_membersA);
-          return false;
-        }
-      }
-      if (TS.model.created_groups[title]) {
-        return false;
-      }
-      TS.groups.create(title, and_invite_members_idsA, function(ok, data, args) {
-        if (!ok) {
-          if (data.error == "name_taken") {
-            TS.ui.group_create_dialog.showNameTakenAlert();
-          } else if (data.error == "restricted_action") {
-            TS.generic_dialog.alert(TS.i18n.t("<p>You don’t have permission to create new groups.</p><p>Talk to your Team Owner.</p>", "group_create")());
-          } else {
-            alert("failed! " + data.error);
-          }
-          return;
-        }
-        if (purpose) TS.groups.setPurpose(data.group.id, purpose);
-        div.modal("hide");
-      });
-      return false;
-    },
-    reset: function() {
-      TS.ui.group_create_dialog.auto_name = false;
-      TS.ui.group_create_dialog.auto_name_str = null;
-      TS.ui.group_create_dialog.start_member_id = null;
-    },
-    cancel: function() {
-      TS.ui.group_create_dialog.reset();
-      TS.ui.group_create_dialog.div.modal("hide");
-    },
-    end: function() {
-      TS.ui.group_create_dialog.div.empty();
-      TS.ui.group_create_dialog.showing = TS.model.dialog_is_showing = false;
-      TS.ui.group_create_dialog.reset();
-      $(window.document).unbind("keydown", TS.ui.group_create_dialog.onKeydown);
-    },
-    build: function() {
-      $("body").append('<div id="group_create_dialog" class="modal hide fade"></div>');
-      var div = TS.ui.group_create_dialog.div = $("#group_create_dialog");
-      div.on("hide", function(e) {
-        if (e.target != this) return;
-        TS.ui.group_create_dialog.end();
-      });
-      div.on("show", function(e) {
-        if (e.target != this) return;
-        TS.ui.group_create_dialog.showing = TS.model.dialog_is_showing = true;
-      });
-      div.on("shown", function(e) {
-        if (e.target != this) return;
-        setTimeout(function() {
-          $("#group_create_title").select();
-          $(window.document).bind("keydown", TS.ui.group_create_dialog.onKeydown);
-        }, 100);
-      });
-    }
-  });
-})();
-(function() {
-  "use strict";
   TS.registerModule("ui.channel_create_dialog", {
     div: null,
     showing: false,
@@ -19048,13 +18859,6 @@
       div.find(".dialog_cancel").click(TS.ui.channel_create_dialog.cancel);
       div.find(".dialog_go").click(TS.ui.channel_create_dialog.go);
       div.modal("show");
-    },
-    switchToGroup: function() {
-      var title = TS.ui.channel_create_dialog.div.find(".title_input").val();
-      TS.ui.channel_create_dialog.cancel();
-      setTimeout(function() {
-        TS.ui.group_create_dialog.start(title);
-      }, 350);
     },
     showNameTakenAlert: function() {
       var div = TS.ui.channel_create_dialog.div;
@@ -27038,7 +26842,7 @@
   "use strict";
   TS.registerModule("client.channel_page", {
     onStart: function() {
-      _member_presence_list = TS.presence_manager.createList();
+      _member_presence_list = new TS.PresenceList;
       TS.client.login_sig.add(_loggedIn);
       TS.client.flexpane_display_switched_sig.add(_flexpaneDisplaySwitched);
       TS.ms.connected_sig.add(_socketConnected);
@@ -28893,7 +28697,7 @@
   "use strict";
   TS.registerModule("ui.im_browser", {
     onStart: function() {
-      _member_presence_list = TS.presence_manager.createList();
+      _member_presence_list = new TS.PresenceList;
     },
     start: function(preselected_ids) {
       if (TS.client.ui.checkForEditing()) return;

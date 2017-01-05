@@ -576,6 +576,9 @@
       login_args.no_bots = true;
       login_args.no_subteams = true;
     }
+    if (TS.boot_data.feature_presence_sub) {
+      login_args.presence_sub = true;
+    }
     login_args.mpim_aware = true;
     if (TS.boot_data.feature_elide_closed_dms && !TS.boot_data.page_needs_all_ims) {
       login_args.only_relevant_ims = true;
@@ -768,6 +771,7 @@
     }).catch(function(err) {
       TS.error("_setUpModel failed with err: " + (err ? err.message : "no err provided"));
       TS.dir(err);
+      TS.info(err.stack);
       TS._last_boot_error = err;
     });
   };
@@ -1468,9 +1472,6 @@
     TS.storage.cleanOutCacheTsStorage();
     TS.model.had_bad_user_cache = true;
     TS.ms.onFailure("_onBadUserCache problem: " + problem);
-    if (TS.lazyLoadMembersAndBots() && problem === "no TS.model.user") {
-      TS.logError("no TS.model.user with flannel enabled", details);
-    }
   };
   var _extractAndDeleteTestProps = function(ob) {
     var may_export_test = typeof window.jasmine !== "undefined" || TS.boot_data.version_ts == "dev" && TS.qs_args["export_test"];

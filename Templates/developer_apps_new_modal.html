@@ -30,12 +30,7 @@
     </span>
   {{/feature}}
   <aside>
-    {{#feature flag="feature_multiple_app_ownership"}}
-      {{#t note="helper text letting the third party developer know what happens to the app they're creating if they leave their team"}}Your app belongs to this team\u2014leaving this team will remove your ability to manage this app. Unfortunately, this can\u2019t be changed later.{{/t}}
-    {{else}}
-      {{#t note="helper text letting the third party developer know what happens to the app they're creating if they leave their team"}}This team owns your Slack app (and if you lose access to the team, you won't be able to administer the app).
-      You can't change this later.{{/t}}
-    {{/feature}}
+    {{#t note="helper text letting the third party developer know what happens to the app they're creating if they leave their team"}}Your app belongs to this team\u2014leaving this team will remove your ability to manage this app. Unfortunately, this can\u2019t be changed later.{{/t}}
   </aside>
 
   {{#feature flag="feature_single_team_apps"}}

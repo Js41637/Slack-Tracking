@@ -1,4 +1,8 @@
 <div class="toast {{#if already_exists}}no_slide{{/if}} alert_page alert_{{instance.type}} alert_{{instance.position}}">
   {{instance.message}}
-  <span class="dismiss_toast {{#if instance.dismissable}}{{else}}hidden{{/if}}"><ts-icon class="ts_icon_times_circle"></ts-icon></span>
+
+  <span class="toast_actions">
+    <span class="retry_toast {{#unless instance._retryable}}hidden{{/unless}}"><ts-icon class="ts_icon_repeat"></ts-icon></span>
+    <span class="dismiss_toast {{#unless instance.dismissable}}hidden{{/unless}}"><ts-icon class="ts_icon_times_circle"></ts-icon></span>
+  </span>
 </div>
