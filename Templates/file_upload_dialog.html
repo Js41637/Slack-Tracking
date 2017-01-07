@@ -5,18 +5,18 @@
     <h3>{{#t note="Dialog title" }}Upload a file? <span class="file_count"></span>{{/t}}</h3>
   </div>
   <div class="modal-body">
-    
+
     {{#if over_storage_limit}}
       <p class="alert alert_warning">
       <i class="ts_icon ts_icon_info_circle"></i>
-      {{#t note="Inline error message indicating the team's storage limit has been exceeded."}}Your team is over its storage limit.<br /> Please <a href="/pricing" target="{{newWindowName}}" class="bold underline">upgrade to a paid tier</a> or <a href="/files" target="{{newWindowName}}" class="bold underline">delete some larger files</a>.{{/t}}
+      {{#t note="Inline error message indicating the team's storage limit has been exceeded."}}Your team is over its storage limit.<br /> Please <a href="/pricing" target="{newWindowName}" class="bold underline">upgrade to a paid plan</a> or <a href="/files" target="{newWindowName}" class="bold underline">delete the files you don\u2019t need</a>.{{/t}}
       </p>
     {{/if}}
-    
+
     <div id="upload_image_preview" class="hidden bottom_margin">
-      <img src="" alt="{{#t note="Text description of the image preview for the file for users who are visually impaired"}}Preview of {{filename}}{{/t}}" />
+      <img src="" alt="{{#t note="Text description of the image preview for the file for users who are visually impaired"}}Preview of {filename}{{/t}}" />
     </div>
-    
+
     <p>
       <label for="upload_file_title" class="inline_block">{{#t note="Label for the title used to describe the file"}}Title{{/t}}</label>
       <input id="upload_file_title" name="upload_file_title" type="text" class="small title_input" value="{{title}}" aria-describedby="upload_file_title_instructions" />
@@ -26,7 +26,7 @@
       <input id="upload_file_name" name="upload_file_name" type="hidden" {{#if has_name}}disabled="disabled"{{else}}{{/if}} class="filename_input" value="{{filename}}" />
     </p>
 
-    {{{sharing_html}}}    
+    {{{sharing_html}}}
   </div>
   <div class="modal-footer">
     <div class="upload_actions">
@@ -43,5 +43,5 @@
       <p class="confirm-text">{{#t note="Inline confirmation message displayed if the dialog is dismissed"}}Closing the window will discard your comment.{{/t}}</p>
       <button type="button" class="btn btn_outline dialog_go">{{#t note="Label for the cancel button accompanying the inline confirmation message. Cancels the request to close the dialog."}}Cancel{{/t}}</button>
       <button type="button" class="btn btn_danger dialog_cancel">{{#t note="Label for a button accompanying the inline confirmation message. Closes the dialog without saving changes."}}Close Window{{/t}}</button>
-    </div>    
+    </div>
   </div>

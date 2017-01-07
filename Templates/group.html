@@ -25,7 +25,7 @@
           {{model_ob.name}}
         </span>
 
-        {{#pageNeedsEnterprise}}{{#if model_ob.is_shared}}<ts-icon class="ts_icon_shared_channel"></ts-icon>{{/if}}{{/pageNeedsEnterprise}}
+        {{#sharedChannelsEnabled}}{{#if model_ob.is_shared}}{{> shared_channel_icon}}{{/if}}{{/sharedChannelsEnabled}}
       </span>
     </a>
   </li>

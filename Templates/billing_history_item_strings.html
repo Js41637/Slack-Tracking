@@ -80,9 +80,9 @@ Used in billing_history_list_item_col.hbs
   {{#t}}Switch to the <strong>Free plan</strong> at renewal time{{/t}}
 {{else if_equal type compare="future_switch"}}
   {{#if_equal product.termly compare="yearly"}}
-    {{#t}}Switch to the <strong>{product.level_nice} plan</strong>at renewal time, paying Annually{{/t}}
+    {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Annually{{/t}}
   {{else}}
-    {{#t}}Switch to the <strong>{product.level_nice} plan</strong>at renewal time, paying Monthly{{/t}}
+    {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Monthly{{/t}}
   {{/if_equal}}
 {{else if_equal type compare="users_change"}}
   {{#t}}Switched from <strong>{num_users_from} to {num_users_to}</strong> {num_users_to, plural, =1 {user} other {users}}{{/t}}

@@ -1,6 +1,6 @@
 {{i18n_ns "channel_pages"}}
 
-{{#pageNeedsEnterprise}}
+{{#sharedChannelsEnabled}}
   {{#if model_ob.shares}}
     <div class="channel_shared_teams_section">
     <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
@@ -36,10 +36,10 @@
     </div>
     {{/if}}
   {{/if}}
-{{/pageNeedsEnterprise}}
+{{/sharedChannelsEnabled}}
 
 <div class="channel_purpose_section">
-  <div class="bold greigh purpose_label mini{{#pageNeedsEnterprise}}{{#if model_ob.shares}} top_margin{{/if}}{{/pageNeedsEnterprise}}">{{#t}}Purpose{{/t}}</div>
+  <div class="bold greigh purpose_label mini{{#sharedChannelsEnabled}}{{#if model_ob.shares}} top_margin{{/if}}{{/sharedChannelsEnabled}}">{{#t}}Purpose{{/t}}</div>
   <div class="bold greigh edit_purpose_label hidden mini tiny_bottom_margin">{{#t}}Set a new purpose{{/t}}</div>
 
   <div class="channel_purpose_text no_jumbomoji">

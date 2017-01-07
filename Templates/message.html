@@ -55,6 +55,9 @@
                 </span>
               {{/if}}
             {{/feature}}
+            {{#if member_is_bot}}
+              <span class="message_sender"> <span class="bot_label">BOT</span></span>
+            {{/if}}
             {{~#if is_slackbot_response~}}
             <span class="ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_delay_300"><span class="bot_label">{{#t note="label that a message is a custom response from a bot"}}Custom Response{{/t}}</span>
             <span class="ts_tip_tip">{{#t note="tip on a custom response message from a bot"}}Added by your team{{/t}}</span>
@@ -70,7 +73,7 @@
           {{/if}}
         {{/if}}
         {{#unless for_top_results_search_display}}
-        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
+        <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="timestamp ts_tip ts_tip_top ts_tip_float ts_tip_hidden ts_tip_multiline ts_tip_delay_300{{#if full_date}} no_wrap{{/if}}"><i class="copy_only">[</i>{{#if full_date}}{{#t note="when message was posted" date=(toCalendarDateOrNamedDayShort msg.ts)}}{date} at{{/t}} {{/if}}{{#if relative_ts}}{{toTimeAgoShort msg.ts}}{{else}}{{{toTime msg.ts}}}{{/if}}<i class="copy_only">]</i><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{{msgTsTitle msg msg_dom_id permalink}}}</span></span></{{#if permalink}}a{{else}}span{{/if}}>
         {{/unless}}
         {{#unless standalone}}
           {{#unless show_reply_bar}}{{#unless is_threads_view}}{{> show_conversation_link link_class="light_only"}}{{/unless}}{{/unless}}

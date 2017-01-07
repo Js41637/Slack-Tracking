@@ -48,7 +48,11 @@
         {{#if attachment._source.icon}}
           <span class="attachment_source_icon">{{!
             }}{{#if attachment._source.link}}{{!
-              }}<a {{makeRefererSafeLink url=attachment._source.link}} target="_blank"{{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}>{{!
+              }}<a {{makeRefererSafeLink url=attachment._source.link}}
+                 target="_blank"
+                 {{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}
+                 {{#if attachment._slack_bot_id}} class="app_preview_link" data-bot-id="{{attachment._slack_bot_id}}"{{/if}}
+                >{{!
             }}{{/if}}{{!
             }}<img class="attachment_source_icon" src="{{attachment._source.icon}}" alt="">{{!
             }}{{#if attachment._source.link}}</a>{{/if}}{{!
@@ -59,7 +63,11 @@
         {{#if attachment._source.name}}
           <span class="attachment_source_name">{{!
             }}{{#if attachment._source.link}}{{!
-              }}<a {{makeRefererSafeLink url=attachment._source.link}} target="_blank"{{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}>{{!
+              }}<a {{makeRefererSafeLink url=attachment._source.link}}
+                   target="_blank"
+                   {{#if attachment._slack_author_id}} class="member_preview_link" data-member-id="{{attachment._slack_author_id}}"{{/if}}
+                 {{#if attachment._slack_bot_id}} class="app_preview_link" data-bot-id="{{attachment._slack_bot_id}}"{{/if}}
+                >{{!
             }}{{/if}}{{!
             }}{{formatMessageAttachmentPart attachment._source.name msg}}{{!
             }}{{#if attachment._source.link}}</a>{{/if}}{{!

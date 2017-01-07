@@ -42,8 +42,20 @@
         </span>
       </div>
     </div>
-    <div class="screenshare_control">
-      <span>{{#t}}You are screen sharing{{/t}}</span>
+    <div id="screenshare_control">
+      <span class="state pending">{{#t}}Starting screen share...{{/t}}
+        <div class="infinite_spinner infinite_spinner_medium">
+          <svg class="infinite_spinner_spinner" viewBox="0 0 100 100">
+            <circle class="infinite_spinner_bg" cx="50%" cy="50%" r="35" />
+            <circle class="infinite_spinner_path infinite_spinner_white" cx="50%" cy="50%" r="35"/>
+          </svg>
+          <svg class="infinite_spinner_spinner infinite_spinner_tail" viewBox="0 0 100 100">
+            <circle class="infinite_spinner_path infinite_spinner_white" cx="50%" cy="50%" r="35"/>
+          </svg>
+        </div>
+      </span>
+      <span class="state complete">{{#t}}You are screen sharing{{/t}}</span>
+      <span class="state failed">{{#t}}Screen share issue...{{/t}}</span>
       <span class="stop_button">{{#t}}Stop{{/t}}</span>
     </div>
   </div>

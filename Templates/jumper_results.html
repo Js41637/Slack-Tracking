@@ -79,7 +79,7 @@
         {{#if this.model_ob.is_shared}}
           {{#unless this.model_ob.is_mpim}}
             <span class="channel_shared float_left">
-              <ts-icon class="ts_icon_shared_channel"></ts-icon>
+              {{> shared_channel_icon}}
             </span>
           {{/unless}}
         {{/if}}

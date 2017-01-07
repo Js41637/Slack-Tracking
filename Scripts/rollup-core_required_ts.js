@@ -4603,7 +4603,7 @@
       var match_names_only = true;
       var only_channels = false;
       var only_dms = false;
-      if (TS.boot_data.page_needs_enterprise || TS.lazyLoadMembersAndBots()) {
+      if (TS.boot_data.page_needs_enterprise || TS.model.shared_channels_enabled || TS.lazyLoadMembersAndBots()) {
         _file_share_options = {
           append: true,
           single: true,

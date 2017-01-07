@@ -31,8 +31,13 @@
       if (TS.boot_data.feature_texty) {
         $("body").addClass("feature_texty");
       }
-      if (TS.boot_data.feature_min_web && TS.boot_data.version_ts === "dev") {
-        var timeout_s = 5;
+      if (TS.boot_data.feature_min_web) {
+        var timeout_s;
+        if (TS.boot_data.version_ts === "dev") {
+          timeout_s = 5;
+        } else {
+          timeout_s = 14400;
+        }
         TSSSB.call("setTeamIdleTimeout", timeout_s);
       }
       TS.client.user_added_to_team_sig.add(TS.client.userAddedToTeam);
@@ -2514,7 +2519,7 @@
       TS.ui.setThemeClasses(true);
       var model_ob = TS.shared.getActiveModelOb();
       var make_sure_active_channel_is_in_view = true;
-      if (!TS.isPartiallyBooted() && TS.boot_data.feature_prevent_msg_rebuild && model_ob.is_group) {
+      if (!TS.isPartiallyBooted() && model_ob.is_group) {
         TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
       } else {
         TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
@@ -4495,7 +4500,7 @@
         no_specials: true,
         no_highlights: true
       });
-      $("#current_user_name_and_current_status").toggleClass("ts_tip", !!current_status);
+      $("#team_menu_user_tip").toggleClass("ts_tip", !!current_status);
       $(".current_user_current_status").toggleClass("hidden", !current_status).html(current_status);
     },
     getUserPresenceStr: function() {
@@ -4558,7 +4563,7 @@
     },
     mpimSwitched: function() {
       TS.view._maybeUpdateOnboarding();
-      var skip_rebuild_msgs = TS.boot_data.feature_prevent_msg_rebuild && !TS.model.ms_logged_in_once;
+      var skip_rebuild_msgs = !TS.model.ms_logged_in_once;
       TS.view.switchedHelper(skip_rebuild_msgs);
       if (!TS.newxp.inOnboarding()) TS.view.unAdjustForWelcomeSlideShow();
       TS.view.updateTitleWithContext();
@@ -9413,6 +9418,9 @@
       } else {
         query_params.marker = this._next_marker;
       }
+      if (this._channel_member_ids) {
+        query_params.limit_to_ids = this._channel_member_ids;
+      }
       this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
         this_searchable_member_list._fetch_page_p = null;
         this_searchable_member_list._next_marker = response.next_marker;
@@ -11447,7 +11455,7 @@
           show_topic = true;
           if (TS.model.user.is_restricted && (!_model_ob.topic || !_model_ob.topic.value)) show_topic = false;
         }
-        is_shared = TS.boot_data.page_needs_enterprise && _model_ob.is_shared;
+        is_shared = TS.model.shared_channels_enabled && _model_ob.is_shared;
         name = _model_ob.name;
       }
       var recap_group = TS.experiment.getGroup("sli_recaps_preview");
@@ -11473,8 +11481,7 @@
           sort_order: TS.client.unread.getSortOrder()
         },
         threads: {
-          is_showing: TS.model.threads_view_is_showing,
-          reply_count: TS.boot_data.feature_message_replies && TS.client.threads.getCurrentReplyCount()
+          is_showing: TS.model.threads_view_is_showing
         }
       };
       _$header.html(TS.templates.channel_header(template_args));
@@ -11814,7 +11821,8 @@
     $threads_header_info.text(text);
   };
   var _HIDDEN_CHANNEL_JOIN_ALERT_DURATION = 5e3;
-  var _HIDDEN_CHANNEL_JOIN_EXTRA_CLASSNAMES = "ts_tip_multiline ts_tip_multiline_bottom ts_tip_multiline_leftish";
+  var _HIDDEN_CHANNEL_JOIN_TOGGLE_EXTRA_CLASSNAME = "ts_tip_multiline";
+  var _HIDDEN_CHANNEL_JOIN_TOOLTIP_EXTRA_CLASSNAME = "ts_tip_multiline_inner";
   var _hidden_channel_join_member_names = {};
   var _hidden_channel_join_alert_timeout_id;
   var _queueHiddenChannelJoinAlert = function(channel, member, is_msg_hidden) {
@@ -11832,15 +11840,18 @@
     var has_no_queued_members = active_channel_queued_member_names.length === 0;
     var is_only_current_user = _.isEqual(active_channel_queued_member_names, [TS.model.user.name]);
     if (has_no_queued_members || is_only_current_user) return;
-    $tooltip.text(_getHiddenChannelJoinAlertMessage(active_channel_queued_member_names));
+    var tip_message = _getHiddenChannelJoinAlertMessage(active_channel_queued_member_names);
+    TS.tips.updateTipTitle($toggle, tip_message);
     if (_hidden_channel_join_alert_timeout_id) {
       clearTimeout(_hidden_channel_join_alert_timeout_id);
     } else {
-      $toggle.addClass(_HIDDEN_CHANNEL_JOIN_EXTRA_CLASSNAMES);
+      $toggle.addClass(_HIDDEN_CHANNEL_JOIN_TOGGLE_EXTRA_CLASSNAME);
+      $tooltip.addClass(_HIDDEN_CHANNEL_JOIN_TOOLTIP_EXTRA_CLASSNAME);
       _toggleChannelMemberIconFill();
     }
     _hidden_channel_join_alert_timeout_id = setTimeout(function() {
-      $toggle.removeClass(_HIDDEN_CHANNEL_JOIN_EXTRA_CLASSNAMES);
+      $tooltip.removeClass(_HIDDEN_CHANNEL_JOIN_TOOLTIP_EXTRA_CLASSNAME);
+      $toggle.removeClass(_HIDDEN_CHANNEL_JOIN_TOGGLE_EXTRA_CLASSNAME);
       _toggleChannelMemberIconFill();
       TS.client.ui.rebuildMemberListToggle();
       _hidden_channel_join_member_names = {};
@@ -13424,22 +13435,6 @@
             TS.utility.calls.startCallInModelOb(call_info);
           }
         });
-        var user_is_older_than_7_days = Date.now() - new Date(TS.model.user.created * 1e3) > 1e3 * 60 * 60 * 24 * 7;
-        if (user_is_older_than_7_days && TS.model.seen_welcome_2 && TS.model.supports_video_calls) {
-          TS.experiment.loadUserAssignments().then(function() {
-            var group = TS.experiment.getGroup("video_calls");
-            if (group === "video_enabled_ss_disabled") {
-              if (!TS.model.prefs.seen_calls_video_ga_coachmark) {
-                TS.coachmark.start(TS.coachmarks.coachmarks.calls_video_ga);
-                TS.model.prefs.seen_calls_video_ga_coachmark = true;
-                TS.prefs.setPrefByAPI({
-                  name: "seen_calls_video_ga_coachmark",
-                  value: true
-                });
-              }
-            }
-          });
-        }
       }
     }
   };
@@ -14660,6 +14655,92 @@
       }
     }
   });
+})();
+(function() {
+  "use strict";
+  TS.registerModule("magic_login", {
+    onStart: function() {},
+    make: function($magic_login, options) {
+      _make($magic_login, options);
+    },
+    execute: function(options) {
+      _execute(options);
+    }
+  });
+  var _app_uri;
+  var _browser_uri;
+  var _fall_back_to_browser;
+  var _make = function($magic_login, options) {
+    _app_uri = options.app_uri;
+    _browser_uri = options.browser_uri;
+    _fall_back_to_browser = options.fall_back_to_browser;
+    if (_app_uri) {
+      $magic_login.attr("href", _app_uri);
+    } else {
+      _app_uri = $magic_login.attr("href");
+    }
+    if (_fall_back_to_browser && _browser_uri) {
+      _bindBrowserRedirect($magic_login);
+    }
+  };
+  var _execute = function(options) {
+    _app_uri = options.app_uri;
+    _browser_uri = options.browser_uri;
+    _fall_back_to_browser = options.fall_back_to_browser;
+    _launch();
+  };
+  var _bindBrowserRedirect = function($magic_login) {
+    $magic_login.on("click", function(e) {
+      _launch(e);
+    });
+  };
+  var _launchWithFallbackFirefoxSafari = function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    var iframe_load_timeout;
+    var iframe = document.createElement("iframe");
+    iframe.className = "hidden";
+    iframe.src = _app_uri;
+    iframe.onerror = function() {
+      window.location.href = _browser_uri;
+    };
+    iframe_load_timeout = window.setTimeout(function() {
+      document.body.removeChild(iframe);
+      window.location.href = _browser_uri;
+    }, 1e3);
+    iframe.onload = function() {
+      clearTimeout(iframe_load_timeout);
+    };
+    document.body.appendChild(iframe);
+  };
+  var _launchWithFallbackEdge = function(e) {
+    window.navigator.msLaunchUri(_app_uri, function(onsuccess) {}, function(onerror) {
+      window.location.href = _browser_uri;
+      return;
+    });
+  };
+  var _launchWithFallbackChrome = function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    var blur_timeout = window.setTimeout(function() {
+      window.location.href = _browser_uri;
+    }, 1e3);
+    window.addEventListener("blur", function(e) {
+      clearTimeout(blur_timeout);
+    });
+    window.location.href = _app_uri;
+  };
+  var _launch = function(e) {
+    if (bowser && (bowser.firefox || bowser.safari)) {
+      _launchWithFallbackFirefoxSafari(e);
+    } else if (bowser && (bowser.msie || bowser.msedge) && typeof window.navigator.msLaunchUri !== "undefined" && _app_uri.indexOf("://") > 0) {
+      _launchWithFallbackEdge(e);
+    } else {
+      _launchWithFallbackChrome(e);
+    }
+  };
 })();
 (function() {
   "use strict";
@@ -19316,6 +19397,9 @@
       if (qualifies_as_mention) {
         display = true;
       }
+      if (TS.boot_data.feature_message_replies && is_hidden_reply && thread_subscribed && TS.model.prefs.threads_everything) {
+        display = true;
+      }
       if (setting == "everything") display = true;
       if (display && (is_in_active_channel || is_in_active_thread) && TS.model.ui.is_window_focused && !contains_cmd) {
         display = false;
@@ -21927,7 +22011,7 @@
           data: invite_channels,
           template: function(channel) {
             var html = "#" + TS.utility.htmlEntities(channel.name);
-            if (TS.boot_data.page_needs_enterprise && channel.is_shared) html += ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>';
+            if (TS.model.shared_channels_enabled && channel.is_shared) html += TS.templates.shared_channel_icon();
             return new Handlebars.SafeString(html);
           }
         });
@@ -22811,7 +22895,19 @@
         },
         content: function() {
           return TS.templates.calls_video_beta_coachmark();
-        }
+        },
+        ui_click: true
+      },
+      calls_ss_window: {
+        id: "calls_ss_window_coachmark",
+        coachmark_el_id: "calls_ss_window_coachmark_div",
+        place: function() {
+          TS.coachmark.placeAboveOf($("#screen"), 15, -64, 19);
+        },
+        content: function() {
+          return TS.templates.calls_ss_window_coachmark();
+        },
+        ui_click: true
       },
       calls_video_ga: {
         id: "calls_video_ga_coachmark",
@@ -23992,14 +24088,14 @@
   };
   var _createChannelNameMarkup = function(model_ob) {
     var channel_name;
-    if (model_ob.is_channel) {
-      channel_name = "#" + TS.utility.htmlEntities(model_ob.name);
-    } else if (model_ob.is_group) {
-      channel_name = '<ts-icon class="ts_icon_inherit ts_icon_lock"></ts-icon>' + TS.utility.htmlEntities(model_ob.name);
+    if (model_ob.is_channel || model_ob.is_group) {
+      channel_name = TS.templates.builders.makeChannelPrefix(model_ob) + TS.utility.htmlEntities(model_ob.name);
     } else {
       return "";
     }
-    var shared = TS.boot_data.page_needs_enterprise && model_ob.is_shared ? ' <ts-icon class="ts_icon_org_shared_channel"></ts-icon>' : "";
+    var shared = TS.model.shared_channels_enabled && model_ob.is_shared ? TS.templates.shared_channel_icon({
+      org: true
+    }) : "";
     return "<strong>" + channel_name + shared + "</strong>";
   };
   var _maybeCreateLadda = function() {
@@ -25518,7 +25614,8 @@
       TS.ims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.groups.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.mpims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
-      TS.prefs.a11y_font_size_changed_sig.add(TS.ui.a11y.adjustFontSize);
+      var handler = TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api ? TS.ui.a11y.setZoomLevel : TS.ui.a11y.adjustFontSize;
+      TS.prefs.a11y_font_size_changed_sig.add(handler);
       TS.prefs.a11y_animations_changed_sig.add(TS.ui.a11y.replaceAnimatedImages);
     },
     focusOnNextMessage: function() {
@@ -25668,6 +25765,19 @@
       var size = TS.model.prefs.a11y_font_size;
       var value = (sizes[size] || sizes["normal"]) + "px";
       document.documentElement.style.fontSize = value;
+    },
+    setZoomLevel: function() {
+      var zoom_levels = {
+        80: "-2",
+        90: "-1",
+        normal: "0",
+        110: "1",
+        125: "2",
+        150: "3"
+      };
+      var user_pref = TS.model.prefs.a11y_font_size;
+      var zoom_level = zoom_levels[user_pref] || zoom_levels["normal"];
+      TSSSB.call("setZoom", zoom_level);
     },
     resetMessageInput: function() {
       TS.client.msg_input.reset();
@@ -26200,7 +26310,7 @@
       }
       TS.view.resizeManually("TS.client.archives started");
     },
-    maybeHandleArchiveLink: function($el) {
+    maybeHandleArchiveLink: function($el, origin) {
       if (!TS.client) return false;
       if (!$el || !$el.length) return false;
       if (!$el.is("a")) return false;
@@ -26261,17 +26371,14 @@
         }
         var thread_ts;
         if (query && query.thread_ts) {
+          if (!isNaN(query.thread_ts) && query.thread_ts.indexOf(".") === -1 && query.thread_ts.length > 10) {
+            query.thread_ts = query.thread_ts.substr(0, 10) + "." + query.thread_ts.substr(10, 6);
+          }
           if (/^\d+\.\d+$/.test(query.thread_ts)) thread_ts = query.thread_ts;
         }
-        if (TS.boot_data.feature_message_replies) {
-          if (thread_ts && thread_ts === TS.ui.replies.activeConvoThreadTs() && model_ob.id === TS.ui.replies.activeConvoModelId()) {
-            if ($el.hasClass("timestamp") && $el.closest("ts-conversation").length) {
-              container_id = TS.templates.makeMsgDomIdInConversation(actual_ts);
-              if ($el.closest("#" + container_id).length) {
-                return false;
-              }
-            }
-          }
+        if (TS.boot_data.feature_message_replies && thread_ts && thread_ts !== actual_ts) {
+          TS.ui.replies.openConversation(model_ob, thread_ts, actual_ts, origin);
+          return true;
         }
         return TS.client.ui.tryToJump(model_ob.id, actual_ts, thread_ts);
       }
@@ -27002,17 +27109,8 @@
         rebuildPinnedItems: _rebuildPinnedItems,
         rebuildMembersTabs: _rebuildMembersTabs,
         rebuildMemberLists: _rebuildMemberLists,
-        rebuildMember: _rebuildMember,
-        getChannelMemberCounts: _getChannelMemberCounts
+        rebuildMember: _rebuildMember
       };
-      Object.defineProperty(test_ob, "_channel_member_counts_info", {
-        get: function() {
-          return _channel_member_counts_info;
-        },
-        set: function(v) {
-          _channel_member_counts_info = v;
-        }
-      });
       return test_ob;
     }
   });
@@ -27291,13 +27389,7 @@
   };
   var _modelObSwitched = function() {
     if (!_logged_in) return;
-    if (_members_tabs_last_rendered_for_model_ob) {
-      var last_model_ob = TS.shared.getModelObById(_members_tabs_last_rendered_for_model_ob);
-      if (last_model_ob && last_model_ob.is_channel && !last_model_ob.is_member) {
-        TS.log(1989, "Channel member counts (" + last_model_ob.id + "): removing local counts because we switched away and we are not a member");
-        delete _channel_member_counts_info[last_model_ob.id];
-      }
-    }
+    _will_rebuild_members_tabs_after_promise_resolves = false;
     var model_ob = TS.shared.getActiveModelOb();
     if (!model_ob) return;
     _cached_scroll_top = null;
@@ -27348,10 +27440,6 @@
     _rebuildChannelDetails(model_ob);
   };
   var _groupMemberAdded = function(changed_model_ob, member) {
-    if (TS.lazyLoadMembersAndBots()) {
-      var member_count_delta = 1;
-      _maybeRefetchChannelMembersInfoAfterMembershipChange(changed_model_ob, member_count_delta, member.is_restricted);
-    }
     if (!_isChannelPageVisible()) return;
     if (!_isChangeForThisChannelPage(changed_model_ob)) return;
     var model_ob = TS.shared.getActiveModelOb();
@@ -27360,10 +27448,6 @@
     if (_expanded_sections.members) _rebuildMember(member);
   };
   var _groupMemberRemoved = function(changed_model_ob, member) {
-    if (TS.lazyLoadMembersAndBots()) {
-      var member_count_delta = -1;
-      _maybeRefetchChannelMembersInfoAfterMembershipChange(changed_model_ob, member_count_delta, member.is_restricted);
-    }
     if (!_isChannelPageVisible()) return;
     if (!_isChangeForThisChannelPage(changed_model_ob)) return;
     var model_ob = TS.shared.getActiveModelOb();
@@ -27372,10 +27456,6 @@
     if (_expanded_sections.members) _removeMemberItem(member);
   };
   var _channelMemberAdded = function(changed_model_ob, member) {
-    if (TS.lazyLoadMembersAndBots()) {
-      var member_count_delta = 1;
-      _maybeRefetchChannelMembersInfoAfterMembershipChange(changed_model_ob, member_count_delta, member.is_restricted);
-    }
     if (!_isChannelPageVisible()) return;
     if (!_isChangeForThisChannelPage(changed_model_ob)) return;
     var model_ob = TS.shared.getActiveModelOb();
@@ -27383,10 +27463,6 @@
     if (_expanded_sections.members) _rebuildMember(member);
   };
   var _channelMemberRemoved = function(changed_model_ob, member) {
-    if (TS.lazyLoadMembersAndBots()) {
-      var member_count_delta = -1;
-      _maybeRefetchChannelMembersInfoAfterMembershipChange(changed_model_ob, member_count_delta, member.is_restricted);
-    }
     if (!_isChannelPageVisible()) return;
     if (!_isChangeForThisChannelPage(changed_model_ob)) return;
     var model_ob = TS.shared.getActiveModelOb();
@@ -27445,10 +27521,6 @@
   };
   var _leftChannelOrGroup = function(model_ob) {
     delete _channels_with_files_loaded[model_ob.id];
-    if (TS.lazyLoadMembersAndBots()) {
-      TS.log(1989, "Channel member counts (" + model_ob.id + "): removing local counts because we left the channel");
-      delete _channel_member_counts_info[model_ob.id];
-    }
     if (_isChannelPageVisible() && TS.model.user.is_restricted) {
       _rebuildChannelDetails(TS.shared.getActiveModelOb());
     }
@@ -27711,69 +27783,7 @@
   var _cleanPinnedItems = function() {
     _$pinned_items.empty();
   };
-  var _channel_member_counts_info = {};
-  var _members_tabs_last_rendered_for_model_ob;
-  var _getChannelMemberCounts = function(model_ob) {
-    _channel_member_counts_info[model_ob.id] = _channel_member_counts_info[model_ob.id] || {};
-    var channel_member_counts = _channel_member_counts_info[model_ob.id];
-    var should_fetch = !channel_member_counts.counts || !channel_member_counts.promise && channel_member_counts.should_refetch;
-    if (should_fetch) {
-      channel_member_counts.should_refetch = false;
-      channel_member_counts.promise = _promiseToGetChannelMemberCountsFromAPI(model_ob, channel_member_counts.last_fetched_ts || 0).then(function(counts) {
-        channel_member_counts.counts = counts;
-        delete channel_member_counts.promise;
-        if (channel_member_counts.should_refetch) {
-          _getChannelMemberCounts(model_ob);
-        }
-        channel_member_counts.last_fetched_ts = Date.now();
-        return null;
-      });
-    }
-    return channel_member_counts;
-  };
-  var _promiseToGetChannelMemberCountsFromAPI = function(model_ob, last_fetched_ts) {
-    var MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS = 1e4;
-    var time_since_last_fetch = Date.now() - last_fetched_ts;
-    var rate_limit_p;
-    if (time_since_last_fetch < MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS) {
-      rate_limit_p = new Promise(function(resolve) {
-        TS.log(1989, "Channel member counts (" + model_ob.id + "): it's only been " + time_since_last_fetch + "ms since last fetch; waiting " + (MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch) + " ms before fetching");
-        setTimeout(resolve, MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch);
-      });
-    } else {
-      rate_limit_p = Promise.resolve();
-    }
-    var api_endpoint = model_ob.is_group ? "groups.info" : "channels.info";
-    return rate_limit_p.then(function() {
-      TS.log(1989, "Channel member counts (" + model_ob.id + "): fetching counts from API");
-      return TS.api.call(api_endpoint, {
-        channel: model_ob.id,
-        display_counts: true
-      }).then(function(resp) {
-        var counts;
-        if (model_ob.is_group) {
-          counts = resp.data.group.display_counts;
-        } else {
-          counts = resp.data.channel.display_counts;
-        }
-        TS.log(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
-        return {
-          member_count: counts.display_counts,
-          restricted_member_count: counts.guest_counts
-        };
-      });
-    });
-  };
-  var _maybeRefetchChannelMembersInfoAfterMembershipChange = function(model_ob, member_count_delta, changed_member_is_restricted) {
-    if (!TS.lazyLoadMembersAndBots()) return;
-    var channel_member_counts = _channel_member_counts_info[model_ob.id];
-    if (!channel_member_counts) return;
-    channel_member_counts.should_refetch = true;
-    if (channel_member_counts.counts) {
-      channel_member_counts.counts.member_count += member_count_delta;
-      if (changed_member_is_restricted) channel_member_counts.counts.restricted_count += member_count_delta;
-    }
-  };
+  var _will_rebuild_members_tabs_after_promise_resolves;
   var _rebuildMembersTabs = function(model_ob) {
     if (model_ob.is_im) return;
     if (!TS.lazyLoadMembersAndBots()) {
@@ -27793,12 +27803,11 @@
       _rebuildMembersTabsInner(model_ob, is_loading_members, member_count, online_count, restricted_count);
       return;
     }
-    _members_tabs_last_rendered_for_model_ob = model_ob.id;
-    var channel_member_counts = _getChannelMemberCounts(model_ob);
+    var channel_member_counts = TS.membership.getMembershipCounts(model_ob);
     if (channel_member_counts.promise) {
-      if (!channel_member_counts.will_rebuild_after_resolved) {
+      if (!_will_rebuild_members_tabs_after_promise_resolves) {
         TS.log(1989, "Channel member counts (" + model_ob.id + "): Will rebuild member tabs after we get counts from API");
-        channel_member_counts.will_rebuild_after_resolved = true;
+        _will_rebuild_members_tabs_after_promise_resolves = true;
         channel_member_counts.promise.then(function() {
           if (model_ob == TS.shared.getActiveModelOb()) {
             TS.log(1989, "Channel member counts (" + model_ob.id + "): Got counts from API, rebuilding member tabs now");
@@ -27806,7 +27815,7 @@
           } else {
             TS.log(1989, "Channel member counts (" + model_ob.id + "): Got counts from API, but active model object has changed, so not rebuilding member tabs");
           }
-          channel_member_counts.will_rebuild_after_resolved = false;
+          _will_rebuild_members_tabs_after_promise_resolves = false;
         });
       }
     }
@@ -29683,7 +29692,8 @@
       }
       var template_args = {
         channel_name: channel.name,
-        is_private: !!channel.is_group
+        is_private: !!channel.is_group,
+        is_shared: channel.is_shared
       };
       if (TS.boot_data.page_needs_enterprise) template_args.preselected = _selected_members;
       var html = TS.templates.channel_invite_modal(template_args);
@@ -30676,6 +30686,17 @@
       });
       _updateNotificationControls();
     });
+    if (TS.boot_data.feature_message_replies) {
+      $("#threads_everything_cb").prop("checked", TS.model.prefs.threads_everything === true);
+      $("#threads_everything_cb").on("change", function() {
+        var val = !!$(this).prop("checked");
+        TS.model.prefs.threads_everything = val;
+        TS.prefs.setPrefByAPI({
+          name: "threads_everything",
+          value: val
+        });
+      });
+    }
     _$div.find("#highlight_words_input").on("input", TS.utility.debounce(_saveHighlightWords, 250));
     if (TS.model.win_ssb_version || TS.model.lin_ssb_version) {
       var highlight_words_placeholder = $("#highlight_words_input").attr("placeholder");
@@ -30940,14 +30961,46 @@
     });
   };
   var _bindA11yPrefs = function() {
+    var zoom_percent_to_level = {
+      80: "-2",
+      90: "-1",
+      normal: "0",
+      110: "1",
+      125: "2",
+      150: "3"
+    };
+    var zoom_level_to_percent = Object.keys(zoom_percent_to_level).reduce(function(obj, val, i, arr) {
+      obj[zoom_percent_to_level[val]] = val;
+      return obj;
+    }, {});
+    var current_zoom = TSSSB.call("getZoom");
     var $a11y_font_size_select_input = $('input:radio[name="a11y_font_size_select"]');
-    $a11y_font_size_select_input.filter('[value="' + TS.model.prefs.a11y_font_size + '"]').prop("checked", true);
+    var setChecked = function(value) {
+      $a11y_font_size_select_input.filter('[value="' + value + '"]').prop("checked", true);
+    };
+    var checked_value = TS.boot_data.feature_a11y_ui_zoom ? zoom_level_to_percent[current_zoom] : TS.model.prefs.a11y_font_size;
+    setChecked(checked_value);
     $a11y_font_size_select_input.on("change", function() {
-      TS.prefs.setPrefByAPI({
-        name: "a11y_font_size",
-        value: $(this).val()
-      });
+      var next_zoom = $(this).val();
+      if (TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api) {
+        current_zoom = zoom_percent_to_level[next_zoom];
+      }
+      if (!TS.boot_data.feature_a11y_ui_zoom) {
+        TS.prefs.setPrefByAPI({
+          name: "a11y_font_size",
+          value: next_zoom
+        });
+      }
     });
+    if (TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api) {
+      $(window).on("resize", function() {
+        var ssb_zoom_level = TSSSB.call("getZoom");
+        if (current_zoom != ssb_zoom_level) {
+          current_zoom = ssb_zoom_level;
+          setChecked(zoom_level_to_percent[current_zoom]);
+        }
+      });
+    }
   };
   var _bindAdvancedPrefs = function() {
     $("#webapp_spellcheck_cb").prop("checked", TS.model.prefs.webapp_spellcheck === true).removeClass("hidden");
@@ -37592,6 +37645,9 @@ function timezones_guess() {
     }, function(old_msg, new_msg) {
       var old_edited = old_msg.edited;
       var new_edited = new_msg.edited;
+      if (TS.boot_data.feature_message_replies) {
+        return !_.isEqual(old_edited, new_edited) || !_.isEqual(old_msg.reply_count, new_msg.reply_count);
+      }
       return !_.isEqual(old_edited, new_edited);
     });
   };

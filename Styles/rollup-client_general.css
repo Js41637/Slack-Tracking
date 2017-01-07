@@ -3071,6 +3071,36 @@ a.delete_link:hover {
   color: #870000
 }
 
+@keyframes bouncy_slide {
+  60%,
+  80%,
+  to {
+    opacity: 1
+  }
+  60% {
+    transform: translate(0, 2px)
+  }
+  80% {
+    transform: translate(0, -1px)
+  }
+  to {
+    transform: translate(0, 0)
+  }
+}
+
+.slide_n_fade {
+  transform: translate(0, -20px);
+  opacity: 0
+}
+
+.slide_n_fade.in {
+  animation-name: bouncy_slide;
+  animation-duration: .3s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-out
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -3105,6 +3135,9 @@ a.delete_link:hover {
   background: #FEA45B
 }
 
+#coachmark.calls_ss_window_coachmark_div,
+#coachmark.calls_ss_window_coachmark_div #coachmark_callout,
+#coachmark.calls_ss_window_coachmark_div #coachmark_interior,
 #coachmark.calls_video_beta_coachmark_div,
 #coachmark.calls_video_beta_coachmark_div #coachmark_callout,
 #coachmark.calls_video_beta_coachmark_div #coachmark_interior,

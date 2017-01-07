@@ -208,12 +208,15 @@
   </section>
 {{/pageNeedsEnterprise}}
 
-{{#isOurApp}}{{else}}
+{{#unlessOurApp}}
   <section class="slack_menu_download slack_menu_section" aria-label="{{#t}}download apps{{/t}}">
     <ul class="menu_list">
       <li id="team_apps" role="menuitem">
-        <a href="/downloads" class="download_link bold" target="{{newWindowName}}">{{#t}}Download the Slack app&hellip;{{/t}}</a>
+          <a href="/ssb/open" class="download_link bold deep_login_url" target="{{newWindowName}}">
+            {{#t}}Open the Slack App{{/t}}
+            <ts-icon class="ts_icon_arrow_ne_medium submenu_caret"></ts-icon>
+          </a>
       </li>
     </ul>
   </section>
-{{/isOurApp}}
+{{/unlessOurApp}}

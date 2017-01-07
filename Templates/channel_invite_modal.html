@@ -3,9 +3,9 @@
 <div id="channel_invite_modal" class="channel_modal_with_list channel_modal">
   <h1 class="large_bottom_margin channel_modal_header">
     {{#if is_private}}
-    {{#t icon="ts_icon_lock"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}}
+      {{#t icon="ts_icon_lock"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_shared}}<i class="ts_icon ts_icon_org_shared_channel"></i>{{/if}}
     {{else}}
-    {{#t icon="ts_icon_channel"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}}
+      {{#t icon="ts_icon_channel"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_shared}}<i class="ts_icon ts_icon_org_shared_channel"></i>{{/if}}
     {{/if}}
   </h1>
 

@@ -10,7 +10,7 @@
     </div>
   {{else if threads.is_showing}}
     <h2 id="channel_name_container" class="channel_name_container">
-      <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}Threads{{/t}}</span>
+      <span id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}All Threads{{/t}}</span>
     </h2>
     <div id="channel_header_info" class="threads_channel_header_info"></div>
   {{else}}
@@ -26,7 +26,7 @@
         {{/if}}
       {{/if}}
       {{#if is_shared}}
-        {{#if is_dm_or_mpdm}}{{else}}<ts-icon class="ts_icon_shared_channel"></ts-icon>{{/if}}
+        {{#if is_dm_or_mpdm}}{{else}}{{> shared_channel_icon}}{{/if}}
       {{/if}}</span>{{!--
       --}}<div class="channel_actions_container"><a id="mute_container" class="mute_container ts_tip ts_tip_bottom"></a>{{#if move_star_in_channel_header}}{{else}}<div id="star_container" class="star_container"></div>{{/if}}</div>
     </h2>
@@ -60,7 +60,7 @@
       {{> ts_icon class="ts_icon_sync"}}
     </button>
 
-    {{#feature flag="feature_slim_scrollbar"}}{{else}}
+    {{#feature flag="feature_flexpane_redesign"}}{{else}}
       <div class="divider_bar channel_header_unread_view_divider_bar"></div>
     {{/feature}}
   {{else if threads.is_showing}}
@@ -103,7 +103,7 @@
       {{/if}}
       {{> ts_icon class="ts_icon_side_panel"}}
     </button>
-    {{#feature flag="feature_slim_scrollbar"}}{{else}}
+    {{#feature flag="feature_flexpane_redesign"}}{{else}}
       <div class="divider_bar"></div>
     {{/feature}}
   {{/if}}

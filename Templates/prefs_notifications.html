@@ -44,6 +44,17 @@
       <p class="non_default subtle_silver">{{#t new_win_name=(newWindowName)}}Some of your channels have <strong id="non_default_tip_link" class="cursor_pointer">different notification settings</strong>. You can also <a href="/account/notifications" target="{new_win_name}">set preferences for email and mobile notifications</a>.{{/t}}</p>
     </div>
 
+    {{!-- The position and copy of this checkbox is still TBD
+    {{#feature flag="feature_message_replies"}}
+      <p>
+        <label class="checkbox">
+          <input id="threads_everything_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_threads_everything_label">
+          <span id="prefs_threads_everything_label">{{#t}}Send notifications for all messages in threads you are subscribed to{{/t}}</span>
+        </label>
+      </p>
+    {{/feature}}
+    --}}
+
     <h4 class="large_top_margin inline_block" id="prefs_sounds">{{#t}}Sounds{{/t}}</h4>
     <p class="clearfix">
       {{#foreach notification_sounds}}

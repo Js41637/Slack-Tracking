@@ -250,6 +250,10 @@
   margin-top: .5rem
 }
 
+.flexbox_client.flexpane_redesign.flex_pane_showing #col_flex {
+  border-left: 1px solid #e8e8e8
+}
+
 .flexbox_client #flex_contents {
   width: 100%
 }
@@ -292,10 +296,6 @@ html.is_electron_mac {
 
 #client-ui.flexbox_client.flex_pane_showing #col_flex {
   width: 492px
-}
-
-.slim_scrollbar #client-ui.flexbox_client.flex_pane_showing #col_flex {
-  border-left: 1px solid #e8e8e8
 }
 
 #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
@@ -2896,7 +2896,8 @@ body.incremental_boot #col_channels .header_count {
 
 .channels_list_holder ul li.all_threads ts-icon:before {
   font-size: 1.25rem;
-  position: relative
+  position: relative;
+  margin-left: -.0625rem
 }
 
 .channels_list_holder ul li.all_threads.unread ts-icon:before {
@@ -19268,6 +19269,15 @@ ts-message .emoji-sizer .mention {
   margin-right: .25rem
 }
 
+#message_edit_container form .message_input,
+.inline_message_input_container form .message_input {
+  margin: 0 0 .5rem;
+  font-size: .9375rem;
+  line-height: 1.2rem;
+  height: 2.125rem;
+  color: #3d3c40
+}
+
 #message_edit_container .message_input.has_scrollbar~.emo_menu,
 .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
   right: 2rem;
@@ -20441,17 +20451,24 @@ ts-thread ts-message.selected .action_hover_container {
   margin-top: .25rem
 }
 
+#reply_container .inline_message_input_container .message_input div,
 #reply_container .inline_message_input_container textarea,
+.reply_input_container .inline_message_input_container .message_input div,
 .reply_input_container .inline_message_input_container textarea {
   margin-bottom: 0;
   max-height: 10rem;
   border: 1px solid #e0e0e0;
   padding-top: .4375rem;
-  padding-bottom: .4375rem
+  padding-bottom: .4375rem;
+  border-radius: .25rem
 }
 
+#reply_container .inline_message_input_container .message_input div:active,
+#reply_container .inline_message_input_container .message_input div:focus,
 #reply_container .inline_message_input_container textarea:active,
 #reply_container .inline_message_input_container textarea:focus,
+.reply_input_container .inline_message_input_container .message_input div:active,
+.reply_input_container .inline_message_input_container .message_input div:focus,
 .reply_input_container .inline_message_input_container textarea:active,
 .reply_input_container .inline_message_input_container textarea:focus {
   border-color: #bbbdbf
@@ -23533,25 +23550,42 @@ ts-jumper ts-jumper-results:empty {
   padding-top: .8125rem
 }
 
+.slack_menu_download {
+  background-color: #f7f7f7
+}
+
+.slack_menu_download ts-icon {
+  color: #a0a0a2;
+  position: absolute;
+  right: 0
+}
+
 .slack_menu_download .download_link {
-  padding-left: 2.375rem
+  position: relative;
+  padding-left: 3.275rem;
+  line-height: 2.525rem;
+  height: 2.6875rem
 }
 
 .slack_menu_download .download_link:before {
   position: absolute;
-  top: 1.3125rem;
-  left: 1.375rem;
-  width: 1.1875rem;
-  height: 1.1875rem;
+  top: .375rem;
+  left: .375rem;
+  width: 2.1875rem;
+  height: 2.1875rem;
   content: "";
-  background-image: url(/66f9/img/icons/ios-64.png);
+  background-image: url(/66f9/img/icons/ios-256.png);
   background-repeat: no-repeat;
-  background-size: 1.1875rem;
+  background-size: 2.1875rem;
   display: inline-block;
   -webkit-transform: translateY(-2px);
   -moz-transform: translateY(-2px);
   -ms-transform: translateY(-2px);
   transform: translateY(-2px)
+}
+
+.slack_menu_download .download_link:hover ts-icon {
+  color: #fff
 }
 
 .team_menu.slack_menu {
@@ -24096,7 +24130,7 @@ ts-jumper ts-jumper-results:empty {
   -webkit-box-align: center;
   -moz-align-items: center;
   align-items: center;
-  margin-top: 4px;
+  margin-top: 5px;
   padding-left: 1.3rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .8125rem;
@@ -24104,14 +24138,15 @@ ts-jumper ts-jumper-results:empty {
   line-height: 1.16
 }
 
+#channel_header_info .ts_icon,
 #channel_header_info ts-icon {
-  line-height: 0;
+  line-height: .9;
   display: inline-block
 }
 
-.feature_user_custom_status #channel_header_info {
-  margin-top: 0;
-  line-height: 1.5rem
+#channel_header_info .ts_icon:before,
+#channel_header_info ts-icon:before {
+  position: relative
 }
 
 #channel_header_info .channel_members_icon,
@@ -24349,6 +24384,10 @@ ts-jumper ts-jumper-results:empty {
   -webkit-transition: width .15s ease-out 0s;
   -moz-transition: width .15s ease-out 0s;
   transition: width .15s ease-out 0s
+}
+
+.flexpane_redesign .flex_header {
+  padding-left: 0
 }
 
 .whats_new_showing .flex_header {
