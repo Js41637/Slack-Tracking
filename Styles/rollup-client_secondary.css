@@ -2233,7 +2233,7 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, rgba(255, 255, 255, 0)));
   background: -moz-linear-gradient(center bottom, #fff 0, rgba(255, 255, 255, 0) 100%);
   background: -ms-linear-gradient(bottom, #fff, rgba(255, 255, 255, 0));
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='#ffffff', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='#ffffff', GradientType=0);
   pointer-events: none;
   z-index: 1
 }
@@ -14096,7 +14096,7 @@ body.winssb .search_result_with_extract {
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, rgba(255, 255, 255, 0)));
   background: -moz-linear-gradient(center bottom, #fff 0, rgba(255, 255, 255, 0) 100%);
   background: -ms-linear-gradient(bottom, #fff, rgba(255, 255, 255, 0));
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='#ffffff', GradientType=0)
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='rgba(255, 255, 255, 0)', endColorstr='#ffffff', GradientType=0)
 }
 
 .extracts_expanded .search_result_for_context {
@@ -14642,7 +14642,7 @@ only screen and (min-resolution:2dppx) {
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ccecdf), color-stop(1, #e9f6f1));
   background: -moz-linear-gradient(center bottom, #ccecdf 0, #e9f6f1 100%);
   background: -ms-linear-gradient(bottom, #ccecdf, #e9f6f1);
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e9f6f1', endColorstr='#ccecdf', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e9f6f1', endColorstr='#ccecdf', GradientType=0);
   border: 1px solid #8cd5b7
 }
 
@@ -14651,7 +14651,7 @@ only screen and (min-resolution:2dppx) {
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ffebaa), color-stop(1, #fff9dc));
   background: -moz-linear-gradient(center bottom, #ffebaa 0, #fff9dc 100%);
   background: -ms-linear-gradient(bottom, #ffebaa, #fff9dc);
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#fff9dc', endColorstr='#ffebaa', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff9dc', endColorstr='#ffebaa', GradientType=0);
   border: 1px solid #ffdcb2
 }
 
@@ -15227,7 +15227,7 @@ only screen and (min-resolution:2dppx) {
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ccecdf), color-stop(1, #e9f6f1));
   background: -moz-linear-gradient(center bottom, #ccecdf 0, #e9f6f1 100%);
   background: -ms-linear-gradient(bottom, #ccecdf, #e9f6f1);
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e9f6f1', endColorstr='#ccecdf', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e9f6f1', endColorstr='#ccecdf', GradientType=0);
   border: 1px solid #8cd5b7
 }
 
@@ -15236,7 +15236,7 @@ only screen and (min-resolution:2dppx) {
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ffebaa), color-stop(1, #fff9dc));
   background: -moz-linear-gradient(center bottom, #ffebaa 0, #fff9dc 100%);
   background: -ms-linear-gradient(bottom, #ffebaa, #fff9dc);
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#fff9dc', endColorstr='#ffebaa', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff9dc', endColorstr='#ffebaa', GradientType=0);
   border: 1px solid #ffdcb2
 }
 
