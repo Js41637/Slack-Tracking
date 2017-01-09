@@ -3572,7 +3572,7 @@ label.select.small:after {
 
 @media only screen and (max-width:410px) {
   label.select.small:after {
-    bottom: 1.6875rem
+    bottom: 1rem
   }
 }
 

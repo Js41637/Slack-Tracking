@@ -1,24 +1,26 @@
-  <p class="no_results">
-    {{#if_equal filter compare='files'}}
-      {{#if_equal filetype compare="all"}}
-        {{#t}}No files found matching:<br><strong>{query_string}</strong>.{{/t}}
-      {{else}}
-        {{#t}}No {filetype_label} found matching:<br><strong>{query_string}</strong>.{{/t}}
-      {{/if_equal}}
+{{i18n_ns 'search'}}
+
+<p class="no_results">
+  {{#if_equal filter compare='files'}}
+    {{#if_equal filetype compare="all"}}
+      {{#t}}No files found matching:<br><strong>{query_string}</strong>.{{/t}}
     {{else}}
-      {{#t}}No {filter} found matching:<br><strong>{query_string}</strong>.{{/t}}
+      {{#t}}No {filetype_label} found matching:<br><strong>{query_string}</strong>.{{/t}}
+    {{/if_equal}}
+  {{else}}
+    {{#t}}No {filter} found matching:<br><strong>{query_string}</strong>.{{/t}}
+  {{/if_equal}}
+</p>
+
+{{#if error}}
+  <p class="alert alert_info">
+    <i class="ts_icon ts_icon_warning"></i> <strong>{{#t note="Error message"}}Our sincere apologies!{{/t}}</strong><br />
+    {{#if_equal error compare="temporarily_disabled"}}
+      {{#t}}Search has been temporarily disabled while we deal with some issues. You can check <a href="http://status.slack.com" class="bold underline" target="{newWindowName}">our status site</a> for updates if it does not become available shortly.{{/t}}
+    {{else}}
+      {{#t}}Search failed with an error. This incident has been logged and is being investigated. You can check <a href="http://status.slack.com" class="bold underline" target="{newWindowName}">our status site</a> for updates if this problem persists.{{/t}}
+      <span class="subtle_silver">{{#t note="An error message to help debug search issues."}}(error: "{error}"){{/t}}</span>
     {{/if_equal}}
   </p>
-
-  {{#if error}}
-    <p class="alert alert_info">
-      <i class="ts_icon ts_icon_warning"></i> <strong>{{#t note="Error message"}}Our sincere apologies!{{/t}}</strong><br />
-      {{#if_equal error compare="temporarily_disabled"}}
-        {{#t}}Search has been temporarily disabled while we deal with some issues. You can check <a href="http://status.slack.com" class="bold underline" target="{newWindowName}">our status site</a> for updates if it does not become available shortly.{{/t}}
-      {{else}}
-        {{#t}}Search failed with an error. This incident has been logged and is being investigated. You can check <a href="http://status.slack.com" class="bold underline" target="{newWindowName}">our status site</a> for updates if this problem persists.{{/t}}
-        <span class="subtle_silver">{{#t note="An error message to help debug search issues."}}(error: "{error}"){{/t}}</span>
-      {{/if_equal}}
-    </p>
-  {{/if}}
+{{/if}}
 

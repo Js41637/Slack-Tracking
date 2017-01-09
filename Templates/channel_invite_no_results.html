@@ -1,3 +1,5 @@
+{{i18n_ns 'channels'}}
+
 {{~#if teams~}}
     {{#t query=(truncate query 50) teams=(listify teams conjunction='or' strong=true)}}We found <strong>{query}</strong>, but they aren't in a team that can join this channel ({teams}){{/t}}
 {{~else~}}

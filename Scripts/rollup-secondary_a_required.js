@@ -110,6 +110,10 @@
     if (!_has_started || _is_sub_waiting) return;
     _is_sub_waiting = true;
     _getWaitPromise().then(function() {
+      if (!TS.ms.hasOpenWebSocket()) {
+        _sendSubList();
+        return null;
+      }
       TS.metrics.count("presence_manager", _sub_list.length);
       TS.ms.send({
         type: "presence_sub",
@@ -123,6 +127,10 @@
     if (!_has_started || _is_query_waiting) return;
     _is_query_waiting = true;
     _getWaitPromise().then(function() {
+      if (!TS.ms.hasOpenWebSocket()) {
+        _sendQueryList();
+        return null;
+      }
       TS.ms.send({
         type: "presence_query",
         ids: _query_list
@@ -4182,6 +4190,17 @@
     },
     lazyLoadChannelMembership: function() {
       return TS.boot_data.feature_thin_channel_membership;
+    },
+    getUserChannelMembershipStatus: function(user_id, channel) {
+      if (!TS.membership.lazyLoadChannelMembership()) {
+        var is_member = user_id != "USLACKBOT" && _.includes(channel.members, user_id);
+        return {
+          is_member: is_member
+        };
+      }
+      return {
+        promise: Promise.reject(new Error("Not implemented"))
+      };
     },
     setUserChannelMembership: function(user_id, channel, is_member, should_display_join_message) {
       if (!_.isString(user_id)) throw new Error("Expected user to be a string");
@@ -8289,10 +8308,30 @@ TS.registerModule("constants", {
   });
   var _id_map = {};
   var _name_map = {};
+  var _did_show_mpim_debug_alert = false;
   var _makeNameForMpim = function(mpim) {
     var members = TS.mpims.getMembersInDisplayOrder(mpim);
     if (members.length < 2) {
       return mpim._internal_name;
+    }
+    if (TS.boot_data.user_id == "W1H63D57F") {
+      if (_.compact(members).length < members.length) {
+        var members_we_have = _(members).compact().map("id").value();
+        var members_we_are_missing = _.without(mpim.members, members_we_have);
+        TS.warn("Missing some members in MPIM " + mpim.id + ":" + members_we_are_missing.join(","));
+        var still_missing_members = _.reject(members_we_are_missing, TS.members.getMemberById);
+        if (still_missing_members.length > 0) {
+          TS.warn("Some members (" + still_missing_members.join(",") + ") were still unavailable when we tried again; unable to recover");
+        } else {
+          TS.info("All members were available when we tried again; recovering");
+          delete mpim._members;
+          members = TS.mpims.getMembersInDisplayOrder();
+        }
+        if (!_did_show_mpim_debug_alert) {
+          _did_show_mpim_debug_alert = true;
+          alert("Hi, Karine! That weird MPIM bug happened again; please send logs to Mark.");
+        }
+      }
     }
     return "@" + members.map(function(member) {
       if (!member._is_local) return member.name + "_" + member.team_id;
@@ -11665,6 +11704,7 @@ TS.registerModule("constants", {
         name: app.name,
         desc: app.desc,
         app_icons: app.icons,
+        app_id: app.id,
         bot_id: bot_id,
         is_slack_integration: app.is_slack_integration,
         is_directory_published: app.is_directory_published,
@@ -11735,7 +11775,7 @@ TS.registerModule("constants", {
         }
         var model_ob = TS.shared.getActiveModelOb();
         if (TS.model.active_channel_id || TS.model.active_group_id) {
-          if (!model_ob.is_general && model_ob.members && model_ob.members.indexOf(app.bot_user.id) != -1) {
+          if (model_ob.members && model_ob.members.indexOf(app.bot_user.id) != -1) {
             if (model_ob.is_group && TS.permissions.members.canKickFromGroups() || model_ob.is_channel && TS.permissions.members.canKickFromChannels()) {
               template_args.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + model_ob.name;
             }
@@ -19217,14 +19257,18 @@ TS.registerModule("constants", {
         }).slice(0, max_rxns_to_display).map(function(rxn) {
           return new Handlebars.SafeString(TS.emoji.graphicReplace(":" + rxn.name + ":"));
         });
-        html = TS.templates.mentions_rxn({
+        var template_args = {
           ts: msg.ts,
           rxns_to_display: rxns_to_display,
           msg_html: new Handlebars.SafeString(msg_html),
           rxn_members: new Handlebars.SafeString(rxn_members),
           jump_link_html: new Handlebars.SafeString(jump_link),
           is_file_reaction: msg.subtype === "file_reaction"
-        });
+        };
+        if (TS.boot_data.feature_message_replies) {
+          if (msg.thread_ts) template_args.thread_ts = msg.thread_ts;
+        }
+        html = TS.templates.mentions_rxn(template_args);
       }
       return html;
     },
@@ -21269,7 +21313,6 @@ TS.registerModule("constants", {
         var app_id;
         var bot_id;
         var is_app_data_enabled;
-        var member_is_bot = member && !!msg.bot_id;
         msg_dom_id = args.msg_dom_id || msg_dom_id;
         var replies_enabled = TS.replies && TS.replies.isEnabledForModelOb(model_ob);
         var is_in_conversation = replies_enabled && !!args.is_in_conversation;
@@ -21386,7 +21429,6 @@ TS.registerModule("constants", {
           msg: msg,
           model_ob: model_ob,
           member: member,
-          member_is_bot: member_is_bot,
           actions: actions,
           show_user: show_user,
           unprocessed: unprocessed,
@@ -22140,9 +22182,10 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("toTimeAgo", function(ts) {
         return TS.utility.date.toTimeAgo(ts);
       });
-      Handlebars.registerHelper("toTimeAgoShort", function(ts) {
-        var time = TS.utility.date.toTimeAgoShort(ts);
-        var html = '<span class="relative_ts" data-ts="' + TS.utility.htmlEntities(ts) + '">' + TS.utility.htmlEntities(time) + "</span>";
+      Handlebars.registerHelper("toTimeAgoShort", function(ts, really_short) {
+        really_short = _.isBoolean(really_short) ? really_short : false;
+        var time = TS.utility.date.toTimeAgoShort(ts, really_short);
+        var html = '<span class="relative_ts" data-ts="' + TS.utility.htmlEntities(ts) + '" data-really-short="' + !!really_short + '">' + TS.utility.htmlEntities(time) + "</span>";
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("toTimeDuration", function(ts) {
@@ -23933,7 +23976,7 @@ TS.registerModule("constants", {
       is_future ? prefix = "in " : suffix = " ago";
       return prefix + output + suffix;
     },
-    toTimeAgoShort: function(ts) {
+    toTimeAgoShort: function(ts, really_short) {
       var date = TS.utility.date.toDateObject(ts);
       var today = new Date;
       var raw_seconds = TS.utility.date.distanceInSeconds(today, date);
@@ -23943,24 +23986,51 @@ TS.registerModule("constants", {
       var days = hours / 24;
       var years = days / 365;
       var output = "";
-      if (seconds < 45) {
-        output = "<1m";
-      } else if (seconds < 90) {
-        output = "1m";
-      } else if (minutes < 45) {
-        output = Math.round(minutes) + "m";
-      } else if (minutes < 90) {
-        output = "1h";
-      } else if (hours < 24) {
-        output = Math.round(hours) + "h";
-      } else if (days < 7) {
-        output = Math.round(days) + "d";
-      } else if (days < 365) {
-        output = TS.utility.date.toCalendarDate(ts, true, true, true);
-      } else if (years < 1.5) {
-        output = "1y";
+      if (really_short) {
+        if (seconds < 45) {
+          output = "<1m";
+        } else if (seconds < 90) {
+          output = "1m";
+        } else if (minutes < 45) {
+          output = Math.round(minutes) + "m";
+        } else if (minutes < 90) {
+          output = "1h";
+        } else if (hours < 24) {
+          output = Math.round(hours) + "h";
+        } else if (days < 7) {
+          output = Math.round(days) + "d";
+        } else if (days < 365) {
+          output = TS.utility.date.toCalendarDate(ts, true, true, true);
+        } else if (years < 1.5) {
+          output = "1y";
+        } else {
+          output = Math.round(years) + "y";
+        }
       } else {
-        output = Math.round(years) + "y";
+        if (seconds < 45) {
+          output = "< 1 minute ago";
+        } else if (seconds < 90) {
+          output = "1 minute ago";
+        } else if (minutes < 45) {
+          output = Math.round(minutes) + " minutes ago";
+        } else if (minutes < 90) {
+          output = "1 hour ago";
+        } else if (hours < 24) {
+          output = Math.round(hours) + " hours ago";
+        } else if (days < 7) {
+          days = Math.round(days);
+          if (days === 1) {
+            output = "1 day ago";
+          } else {
+            output = Math.round(days) + " days ago";
+          }
+        } else if (days < 365) {
+          output = TS.utility.date.toCalendarDate(ts, true, true, true);
+        } else if (years < 1.5) {
+          output = "1 year ago";
+        } else {
+          output = Math.round(years) + " years ago";
+        }
       }
       return output;
     },
@@ -26277,7 +26347,8 @@ TS.registerModule("constants", {
       _.forEach(root_selectors, function(selector) {
         $(selector).find(".relative_ts").each(function() {
           var ts = $(this).attr("data-ts");
-          var relative_ts = TS.utility.date.toTimeAgoShort(ts);
+          var really_short = $(this).data("really-short");
+          var relative_ts = TS.utility.date.toTimeAgoShort(ts, really_short);
           if (relative_ts !== $(this).text()) {
             $(this).text(relative_ts);
           }
@@ -29488,7 +29559,7 @@ TS.registerModule("constants", {
       TS.prefs.channel_handy_rxns_changed_sig.add(_buildDefaultRxns);
     },
     start: function(args) {
-      if (TS.boot_data.feature_react_emoji_picker && TS.model.prefs.enable_react_emoji_picker) {
+      if (TS.client && TS.boot_data.feature_react_emoji_picker && TS.model.prefs.enable_react_emoji_picker) {
         TS.ui.react_emoji_menu.start(args);
       } else {
         _start(args);
@@ -30902,6 +30973,18 @@ TS.registerModule("constants", {
         }
       } else if (id === "copy_link") {
         TS.clipboard.writeText($(this).data("permalink"));
+        if (TS.boot_data.feature_platform_metrics) {
+          var $message = TS.menu.$secondary_target_element;
+          var payload = {
+            message_timestamp: msg_ts,
+            channel_id: model_ob_id,
+            channel_type: model_ob_id[0] || "",
+            member_id: $message.data("member-id"),
+            app_id: $message.data("app-id"),
+            bot_id: $message.data("bot-id")
+          };
+          TS.clog.track("MSG_LINK_COPY", payload);
+        }
       } else if (id === "open_original_link") {} else if ($(e.target).data("msg-action") === "remind") {
         TS.api.call("reminders.addFromMessage", {
           time: $(e.target).data("remind-length"),
@@ -33194,6 +33277,17 @@ var _on_esc;
       } else if (id === "copy_file_link") {
         e.preventDefault();
         TS.clipboard.writeText(file.permalink);
+        if (TS.boot_data.feature_platform_metrics) {
+          var user = TS.members.getMemberById(file.user);
+          var payload = {};
+          if (user && user.is_bot) {
+            var bot_id = user.profile.bot_id;
+            var bot = TS.bots.getBotById(bot_id);
+            payload.app_id = bot ? bot.app_id : "";
+            payload.bot_id = bot_id;
+          }
+          TS.clog.track("MSG_LINK_COPY", payload);
+        }
       } else if (id === "star_file") {
         e.preventDefault();
         TS.stars.checkForStarClick(e);
@@ -33826,6 +33920,9 @@ var _on_esc;
         e.preventDefault();
         TS.warn("not sure what to do with clicked element id:" + id);
         return;
+      }
+      if (TS.boot_data.feature_platform_metrics) {
+        TS.clog.track("USER_PROFILE_CLICK");
       }
       TS.menu.member.end();
       TS.menu.member.member_item_click_sig.dispatch(id);
@@ -40175,6 +40272,9 @@ var _on_esc;
       $("body").on("click", '[data-action="edit_member_profile_modal"]', function(e) {
         e.preventDefault();
         TS.ui.edit_member_profile.start();
+        if (TS.boot_data.feature_platform_metrics) {
+          TS.clog.track("USER_PROFILE_CLICK");
+        }
       });
     },
     start: function() {
@@ -42036,11 +42136,10 @@ var _on_esc;
         TS.ui.leave_team_dialog.start(team_id);
       });
     }
-    var $cards = $container.find(".enterprise_team_card");
-    $cards.on("click", "a", function(e) {
+    $container.on("click", ".enterprise_team_card a", function(e) {
       e.stopPropagation();
     });
-    $cards.on("click", ".enterprise_team_menu", function(e) {
+    $container.on("click", ".enterprise_team_card .enterprise_team_menu", function(e) {
       e.stopPropagation();
       var team_site_url = $(this).val();
       var team_id = $(this).data("id");
@@ -42051,12 +42150,12 @@ var _on_esc;
         should_show_leave_team: TS.permissions.enterprise.canUserLeaveTeam(TS.model.user, team)
       });
     });
-    $cards.on("click", ".enterprise_team_join", function(e) {
+    $container.on("click", ".enterprise_team_card .enterprise_team_join", function(e) {
       e.stopPropagation();
       var team_id = $(this).data("id");
       _joinTeamHandler(team_id);
     });
-    $cards.on("click", ".enterprise_team_request", function(e) {
+    $container.on("click", ".enterprise_team_card .enterprise_team_request", function(e) {
       e.stopPropagation();
       var team_id = $(this).data("id");
       TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
@@ -45221,8 +45320,13 @@ $.fn.togglify = function(settings) {
     instance.$input.prop("disabled", true);
   };
   var _doAllTheThingsRequiredWithNewData = function(instance, data) {
+    var should_rebuild_list = false;
+    if (instance._list_built && !instance.data || instance.data.length === 0) {
+      should_rebuild_list = true;
+    }
     _prepItems(instance, data);
     _populate(instance, data);
+    if (should_rebuild_list) _showList(instance, true);
     _adjustInput(instance);
   };
   var _enable = function(instance) {
@@ -45406,6 +45510,9 @@ $.fn.togglify = function(settings) {
     instance.$list_container.removeClass("empty");
     instance.$list_container.removeClass("error");
     if (!instance._list_built) {
+      if (!instance.data || instance.data.length === 0) {
+        instance.data = data;
+      }
       _startListView(instance);
     } else {
       var temp_data = _preLongListViewPrep(data);
@@ -47142,6 +47249,20 @@ $.fn.togglify = function(settings) {
         TS.warn("hmmm, no data-member-id?");
       }
     });
+    if (TS.boot_data.feature_platform_metrics) {
+      TS.click.addClientHandler(".app_profile a, .app_profile_slash_command", function(e, $el) {
+        var $app_profile = $el.closest(".app_profile");
+        TS.clog.track("USER_PROFILE_CLICK", {
+          app_id: $app_profile.data("app_id"),
+          bot_id: $app_profile.data("bot_id")
+        });
+      });
+      TS.click.addClientHandler(".member_details a", function(e, $el) {
+        if (!$el.hasClass("member_preview_menu_target")) {
+          TS.clog.track("USER_PROFILE_CLICK");
+        }
+      });
+    }
     TS.click.addClientHandler(".member", function(e, $el) {
       e.preventDefault();
       var member_id = $el.data("member-id");
@@ -47656,8 +47777,7 @@ $.fn.togglify = function(settings) {
       TS.click.addClientHandler("#sli_recap_toggle", function(e) {
         e.preventDefault();
         if ($("#sli_recap_toggle").hasClass("active")) {
-          $("#msg_form").addClass("show_recap_nav");
-          $("#recap_nav").removeClass("hidden");
+          TS.recaps_signal.logToggleClick(true);
           if (TS.client && !TS.model.prefs.seen_highlights_coachmark) {
             setTimeout(function() {
               TS.coachmark.start(TS.coachmarks.coachmarks.highlights);
@@ -47671,11 +47791,12 @@ $.fn.togglify = function(settings) {
               });
             }, 500);
           }
+          TS.recaps_signal.displayRecapNavigation();
           TS.recaps_signal.handleUpdateScrollbar();
         } else {
+          TS.recaps_signal.logToggleClick(false);
+          TS.recaps_signal.hideRecapNavigation();
           TS.recaps_signal.remove();
-          $("#msg_form").removeClass("show_recap_nav");
-          $("#recap_nav").addClass("hidden");
         }
       });
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
@@ -51133,6 +51254,7 @@ $.fn.togglify = function(settings) {
           existing_enterprise_team[k] = team[k];
         }
         team = existing_enterprise_team;
+        _maybeSetCanLeaveTeam(team);
         if (is_current_team) team = _.merge({}, existing_enterprise_team, TS.model.team);
       } else {
         _processNewTeamForUpserting(team);
@@ -51283,6 +51405,13 @@ $.fn.togglify = function(settings) {
       team.user_counts.active_members = 0;
     }
     if (typeof team.joined_date === "undefined") team.joined_date = 0;
+    _maybeSetCanLeaveTeam(team);
+  };
+  var _maybeSetCanLeaveTeam = function(team) {
+    if (team.can_leave === false && (team.cannot_leave_reasons && team.cannot_leave_reasons.length === 1 && team.cannot_leave_reasons[0] === "not_team_member")) {
+      team.can_leave = true;
+      team.cannot_leave_reasons = [];
+    }
   };
 })();
 (function() {

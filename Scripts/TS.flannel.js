@@ -82,13 +82,16 @@
           return ob.members || [ob.user];
         }).flatten().concat(_.get(data, "self.id")).uniq().compact().value();
         if (!required_member_ids.length) {
-          TS.log(1989, "Got rtm.start data and don't need to fetch any members");
+          TS.info("Got rtm.start data and don't need to fetch any members");
           data.users = [];
           return data;
         }
-        TS.log(1989, "Got rtm.start data but need to fetch members: " + required_member_ids.join(", "));
+        TS.info("Got rtm.start data but need to fetch " + required_member_ids.length + " members");
+        if (TS.shouldLog(1989) || TS.boot_data.feature_tinyspeck) {
+          TS.info(required_member_ids.join(", "));
+        }
         return TS.flannel.fetchRawObjectsByIds(required_member_ids).then(function(users) {
-          TS.log(1989, "Got members for rtm.start :tada:");
+          TS.info("Got " + users.length + " members for rtm.start :tada:");
           data.users = users;
           if (required_member_ids.length !== users.length) {
             TS.error("TS.flannel.connectAndFetchRtmStart problem: Requested " + required_member_ids.length + " members but received " + users.length + ". Missing members: " + _.difference(required_member_ids, _.map(users, "id")).join(","));

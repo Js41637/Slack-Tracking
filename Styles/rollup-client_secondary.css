@@ -980,6 +980,25 @@ input.search_input {
   font-size: 1rem
 }
 
+#flex_contents .flexpane_tab_toolbar #user_group_edit.user_group_edit--flexpane {
+  background-color: unset;
+  padding: 0 1rem
+}
+
+#flex_contents .flexpane_tab_toolbar #user_group_edit.user_group_edit--flexpane .tab_action_button {
+  color: #007ab8;
+  margin: .25rem 1.6875rem .25rem 0;
+  font-size: .9375rem
+}
+
+#flex_contents .flexpane_tab_toolbar #user_group_edit.user_group_edit--flexpane .tab_action_button:first-of-type {
+  padding-left: 0
+}
+
+#flex_contents .flexpane_tab_toolbar #user_group_edit.user_group_edit--flexpane .tab_action_button:last-of-type {
+  padding-right: 0
+}
+
 #flex_contents .flexpane_tab_toolbar .tab_action_button {
   color: #9e9ea6;
   font-size: .85rem;
@@ -19117,6 +19136,11 @@ ts-message .emoji-sizer .mention {
   padding-bottom: 0!important
 }
 
+.flexpane_redesign #convo_container ts-conversation ts-message.selected {
+  border-top: 0;
+  padding-right: .625rem
+}
+
 #convo_container ts-conversation ts-message.selected .message_content {
   margin-left: .625rem;
   line-height: 1rem
@@ -24138,20 +24162,15 @@ ts-jumper ts-jumper-results:empty {
   line-height: 1.16
 }
 
-#channel_header_info .ts_icon,
-#channel_header_info ts-icon {
+.channel_header_info .ts_icon,
+.channel_header_info ts-icon {
   line-height: .9;
   display: inline-block
 }
 
-#channel_header_info .ts_icon:before,
-#channel_header_info ts-icon:before {
+.channel_header_info .ts_icon:before,
+.channel_header_info ts-icon:before {
   position: relative
-}
-
-#channel_header_info .channel_members_icon,
-#channel_header_info .pinned_count_icon {
-  line-height: 1
 }
 
 #channel_header_info .star {

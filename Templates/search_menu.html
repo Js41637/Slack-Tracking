@@ -281,7 +281,12 @@
   <ol class="results profiles">
     {{#each profiles}}
       {{#feature flag="feature_name_tagging_client"}}
-        <li class="clear_both" data-member-id="{{this.id}}">
+        <li class="clear_both"
+          data-member-id="{{this.id}}"
+          {{#if this.profile.bot_id}}
+            data-bot-id={{this.profile.bot_id}}
+          {{/if}}
+        >
           <button class="result_item_btn btn_unstyle" type="button">
             <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
             <div class="search_mini overflow_ellipsis">
@@ -303,7 +308,12 @@
           </button>
         </li>
       {{else}}
-        <li class="clear_both" data-member-id="{{this.id}}">
+        <li class="clear_both"
+          data-member-id="{{this.id}}"
+          {{#if this.profile.bot_id}}
+            data-bot-id={{this.profile.bot_id}}
+          {{/if}}
+        >
           <button class="result_item_btn btn_unstyle" type="button">
             <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
             <div class="search_mini overflow_ellipsis">

@@ -25,8 +25,12 @@
   </span>
 
   {{#if show_channel_membership}}
-    {{#if member_does_not_belong_to_channel}}
-      <span class="not_in_channel">{{#t}}(not in channel){{/t}}</span>
+    {{#if membership_status_is_known}}
+      {{#if member_does_not_belong_to_channel}}
+        <span class="not_in_channel">{{#t}}(not in channel){{/t}}</span>
+      {{/if}}
+    {{else}}
+      {{! TBD - we might display some sort of marker here to indicate that the user's membership status is not known yet}}
     {{/if}}
   {{/if}}
 

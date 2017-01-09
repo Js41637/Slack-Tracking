@@ -3387,6 +3387,14 @@
       }
       return false;
     },
+    emojiMatchesTerm: function(emoji, term) {
+      if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(emoji.name), term)) return true;
+      var aliases = emoji.names.split(" ");
+      for (var i = 0; i < aliases.length; i++) {
+        if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(aliases[i]), term)) return true;
+      }
+      return false;
+    },
     nameToBaseName: function(name) {
       if (!_.isString(name)) return "";
       name = name.replace(/(\:skin-tone-[2-6])/, "");
@@ -3636,7 +3644,7 @@
         });
       }
       var sheet_url = TS.emoji.getCurrentSheetUrl();
-      if (TS.model.prefs.ss_emojis && sheet_url) {
+      if (_.get(TS, "model.prefs.ss_emojis") && sheet_url) {
         var img = new Image;
         img.onload = function() {
           img.onload = null;
@@ -3735,7 +3743,6 @@
       var was_include_title = _emoji.include_title;
       var was_include_text = _emoji.include_text;
       var was_supports_css = _emoji.supports_css;
-      var was_emoji_mode_pref = TS.model.prefs.emoji_mode;
       var was_allow_skin_tone_squares = _emoji.allow_skin_tone_squares;
       if (options.force_img && options.obey_emoji_mode_pref) {
         options.obey_emoji_mode_pref = false;
@@ -3745,10 +3752,9 @@
         options.obey_emoji_mode_pref = false;
         TS.error("obey_emoji_mode_pref now set to FALSE because options.force_style is " + options.force_style);
       }
-      _emoji.text_mode = options.obey_emoji_mode_pref && TS.model.prefs.emoji_mode == "as_text";
+      _emoji.text_mode = options.obey_emoji_mode_pref && _.get(TS, "model.prefs.emoji_mode") === "as_text";
       if (options.force_style) {
-        TS.model.prefs.emoji_mode = options.force_style;
-        TS.emoji.setEmojiMode();
+        TS.emoji.setEmojiMode(options.force_style);
         _emoji.use_sheet = false;
       }
       _emoji.include_title = !!options.include_title;
@@ -3760,7 +3766,6 @@
         html = html.replace("emoji-sizer", "emoji-sizer emoji-only");
       }
       if (options.force_style) {
-        TS.model.prefs.emoji_mode = was_emoji_mode_pref;
         TS.emoji.setEmojiMode();
       }
       _emoji.text_mode = was_text_mode;
@@ -3781,7 +3786,7 @@
       return _emoji.replace_emoticons_with_colons(str);
     },
     getChosenSkinTone: function() {
-      var pref = parseInt(TS.model.prefs.preferred_skin_tone);
+      var pref = parseInt(_.get(TS, "model.prefs.preferred_skin_tone"));
       if (!pref || pref == "1" || !_.includes([2, 3, 4, 5, 6], pref)) return "";
       return "skin-tone-" + pref;
     },
@@ -3790,23 +3795,21 @@
       if (!tone) return "";
       return ":" + tone + ":";
     },
-    setEmojiMode: function() {
-      _emoji.text_mode = TS.model.prefs.emoji_mode == "as_text";
-      _emoji.do_emoticons = !!TS.model.prefs.graphic_emoticons;
+    setEmojiMode: function(mode) {
+      var VALID_MODES = ["google", "emojione", "twitter", "apple"];
+      mode = mode || _.get(TS, "model.prefs.emoji_mode");
+      _emoji.text_mode = mode === "as_text";
+      _emoji.do_emoticons = !!_.get(TS, "model.prefs.graphic_emoticons");
       _emoji.allow_native = false;
       _emoji.use_sheet = function() {
-        if (!TS.model.prefs.ss_emojis) return false;
+        if (!_.get(TS, "model.prefs.ss_emojis")) return false;
         return !!TS.boot_data.page_needs_custom_emoji;
       }();
-      if (TS.model.prefs.emoji_mode == "google" || TS.model.prefs.emoji_mode == "emojione" || TS.model.prefs.emoji_mode == "twitter") {
-        _emoji.img_set = TS.model.prefs.emoji_mode;
-      } else {
-        _emoji.img_set = "apple";
-      }
+      _emoji.img_set = _.includes(VALID_MODES, mode) ? mode : "apple";
       if (!TS.model.emoji_complex_customs) return;
       for (var idx in TS.model.emoji_complex_customs) {
         if (!_emoji.data[idx]) continue;
-        _emoji.data[idx][7] = TS.model.emoji_complex_customs[idx][TS.model.prefs.emoji_mode] || TS.model.emoji_complex_customs[idx]["apple"];
+        _emoji.data[idx][7] = TS.model.emoji_complex_customs[idx][_emoji.img_set];
       }
     },
     getColonsRx: function() {
@@ -3847,7 +3850,7 @@
           value = [px, py];
         } else if (url) {
           value = url;
-          if (TS.boot_data.feature_a11y_pref_no_animation && TS.model.prefs.a11y_animations === false) {
+          if (TS.boot_data.feature_a11y_pref_no_animation && _.get(TS, "model.prefs.a11y_animations") === false) {
             value = TS.utility.getImgProxyURLWithOptions(url, {
               emoji: true
             });

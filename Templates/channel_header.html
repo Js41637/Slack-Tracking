@@ -31,8 +31,8 @@
       --}}<div class="channel_actions_container"><a id="mute_container" class="mute_container ts_tip ts_tip_bottom"></a>{{#if move_star_in_channel_header}}{{else}}<div id="star_container" class="star_container"></div>{{/if}}</div>
     </h2>
 
-    <!-- channel members -->
-    <div id="channel_header_info">
+    {{!-- line of misc meta below channel name (star, members, pins, topic, member name, presence, etc) --}}
+    <div id="channel_header_info" class="channel_header_info">
       {{#if move_star_in_channel_header}}<div id="star_container" class="star_container"></div><span class="topic_divider">|</span>{{/if}}
       {{#if member}}<span class="header_user_status overflow_ellipsis{{#feature flag="feature_user_custom_status"}} feature_user_custom_status{{/feature}}">{{{makeMemberPresenceIcon member}}}<span id="header_status_message"></span>{{#feature flag="feature_user_custom_status"}}{{#if member.profile.current_status}}<span class="current_status_bullet">&nbsp;\u2022&nbsp;</span><span class="current_status overflow_ellipsis ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline ts_tip_delay_600">{{getMemberCurrentStatus member}}<span class="ts_tip_tip">
         <span class="ts_tip_multiline_inner current_user_current_status">
