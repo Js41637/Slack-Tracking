@@ -15611,11 +15611,11 @@ TS.registerModule("constants", {
         }
       };
       var _socketWasDeprecated = function(recently_deprecated_websocket) {
-        if (recently_deprecated_websocket == current_websocket) {
-          _abortRtmStartAttempt(new Error("Socket was deprecated"));
-        } else {
+        if (recently_deprecated_websocket !== current_websocket) {
           TS.warn("Received a call to abort RTM start attempt for a websocket that is not the current websocket, this should not be happening!");
+          TS.info("current_websocket defined?", !!current_websocket, "recently_deprecated_socket defined?", !!recently_deprecated_websocket);
         }
+        _abortRtmStartAttempt(new Error("Socket was deprecated"));
       };
       _did_deprecate_socket_sig.addOnce(_socketWasDeprecated);
       _startProvisionalConnectionTimeout();
@@ -32122,7 +32122,7 @@ TS.registerModule("constants", {
     onMouseDown: function(e) {
       var $target = $(e.target);
       if (TS.menu.$menu && TS.menu.$menu.hasClass("keep_menu_open_if_target_clicked_again") && $target.is(TS.menu.$target_element)) return;
-      if ($target.closest("#menu, .submenu").length === 0 || $target.hasClass("popover_mask")) {
+      if ($target.closest("#menu, .submenu, .trap_menu_clicks").length === 0 || $target.hasClass("popover_mask")) {
         TS.menu.end();
       }
     },
