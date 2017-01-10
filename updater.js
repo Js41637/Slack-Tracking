@@ -111,7 +111,7 @@ function getTerms(scripts) {
       let html = $('#page_contents > div')
       if (!html) return reject("Can't find da terms")
       html.find('style').remove() // striptags pls
-      let terms = toMarkdown(striptags(html.html(), '<p><b><h1><h2><h3><h4>'))
+      let terms = toMarkdown(striptags(html.html(), '<p><b><strong><h1><h2><h3><h4>'))
       scripts.push({ name: 'TOS.md', body: terms, type: 'md'})
       return resolve(scripts)
     })
