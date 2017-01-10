@@ -80,7 +80,7 @@ export default class AppMenu extends ReduxComponent {
       fs.readFileSync(
         require.resolve(`../menus/${this.state.platform}.json`),
         'utf8')).menu;
-    
+
     let removed;
 
     if (!this.state.isDevMode && !process.env.SLACK_DEVELOPER_MENU) {
@@ -111,7 +111,7 @@ export default class AppMenu extends ReduxComponent {
   syncState() {
     return {
       teams: TeamStore.getTeams(),
-      teamsByIndex: AppTeamsStore.getTeamsByIndex(),
+      teamsByIndex: AppTeamsStore.getTeamsByIndex({visibleTeamsOnly: true}),
       isMac: settingStore.isMac(),
       isWin10: settingStore.getSetting('isWin10'),
       platform: settingStore.getSetting('platform'),
@@ -305,7 +305,7 @@ export default class AppMenu extends ReduxComponent {
 
   /**
    * Removes a seperator at the given index, optionally by hiding it
-   * 
+   *
    * @param {number} menuIndex
    * @param {number} itemIndex
    * @param {boolean} [options={ hide: false }]

@@ -14,7 +14,11 @@ class AppTeamsStore {
     return this.getAppTeams().selectedChannelId;
   }
 
-  getTeamsByIndex() {
+  getTeamsByIndex({visibleTeamsOnly} = {visibleTeamsOnly: false}) {
+    if (visibleTeamsOnly) {
+      return this.getAppTeams().teamsByIndex.filter((team) => !this.getHiddenTeams().includes(team));
+    }
+
     return this.getAppTeams().teamsByIndex;
   }
 

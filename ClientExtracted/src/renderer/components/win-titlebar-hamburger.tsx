@@ -30,7 +30,8 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
 
   public componentWillMount() {
     const keyboardListener = this.listenToAltPress()
-                                 .subscribe(() => eventActions.popupAppMenu(true));
+      .subscribe(() => eventActions.popupAppMenu(true));
+
     this.disposables.add(keyboardListener);
   }
 
@@ -59,6 +60,7 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
     const keyDown = Observable.fromEvent(document, 'keydown', (e) => e.keyCode);
     const keyUp = Observable.fromEvent(document, 'keyup', (e) => e.keyCode);
     const altDown = keyDown.filter(x => x === 18);
+    const shiftDown = keyDown.filter(x => x === 16);
     const altUp = keyUp.filter(x => x === 18);
 
     // Only fires once per alt-down, ignores key repeat
@@ -70,6 +72,7 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
 
     const keyUpOrMouseClick = Observable.merge(
       keyUp,
+      shiftDown,
       Observable.fromEvent(document, 'mousedown', {capture: true},  () => 0)
     );
 

@@ -66,6 +66,7 @@ export default class BrowserStore extends BaseStore {
     super();
     this.storagePath = storagePath || p`${'userData'}/storage`;
     this.reduxStatePath = reduxStatePath || p`${'userData'}/redux-state.json`;
+    this.isTestMode = !!reduxStatePath;
 
     let toCompose = [
       applyMiddleware(this.logDispatches),
@@ -130,7 +131,13 @@ export default class BrowserStore extends BaseStore {
 
     if (!hasMigratedData.redux) {
       hasMigratedData = this.populateStoreFromReduxState(hasMigratedData);
-      assignIn(didMigrateData, {redux: true});
+
+      // Because the legacy state file also kept track of migrations, we need
+      // to copy that forward into `didMigrateData`.
+      assignIn(didMigrateData, {
+        redux: true,
+        macgap: hasMigratedData.macgap
+      });
     }
 
     if (!hasMigratedData.macgap && process.platform === 'darwin') {
@@ -202,6 +209,7 @@ export default class BrowserStore extends BaseStore {
    * Performs a one-time deletion of a no longer needed redux-store.json
    */
   async pruneOldReduxStore() {
+    if (this.isTestMode) return;
     const hasOldFile = !!fs.statSyncNoException(this.reduxStatePath);
 
     if (hasOldFile) {

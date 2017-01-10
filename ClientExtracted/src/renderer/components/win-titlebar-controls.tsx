@@ -42,19 +42,15 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
         this.state = { isMaximized: true };
       }
 
-      const closeEventObservable = Observable.fromEvent(this.window, 'close');
-
-      Observable.merge(
+      this.disposables.add(Observable.merge(
         Observable.fromEvent(this.window, 'enter-full-screen'),
-        Observable.fromEvent(this.window, 'maximize')
-        ).takeUntil(closeEventObservable)
-        .subscribe(() => this.setState({ isMaximized: true }));
+        Observable.fromEvent(this.window, 'maximize'))
+      .subscribe(() => this.setState({ isMaximized: true })));
 
-      Observable.merge(
+      this.disposables.add(Observable.merge(
         Observable.fromEvent(this.window, 'leave-full-screen'),
-        Observable.fromEvent(this.window, 'unmaximize')
-        ).takeUntil(closeEventObservable)
-        .subscribe(() => this.setState({ isMaximized: false }));
+        Observable.fromEvent(this.window, 'unmaximize'))
+      .subscribe(() => this.setState({ isMaximized: false })));
     } else {
       logger.warn('Titlebar could not find window object');
     }

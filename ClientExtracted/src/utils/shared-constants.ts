@@ -26,7 +26,7 @@ export const CALLS_WINDOW_TYPES = [
 export const REPORT_ISSUE_WINDOW_TYPE = 'report-issue';
 
 export const TEAM_UNLOADING_DISABLED = -1;
-export const DEFAULT_TEAM_IDLE_TIMEOUT = 5 * 60;
+export const DEFAULT_TEAM_IDLE_TIMEOUT = 4 * 60 * 60;
 
 export type updateStatusType =  'none' |
                                 'checking-for-update' |

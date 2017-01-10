@@ -1,6 +1,9 @@
-let currentId = 1;
+const Hashids = require('hashids');
+const hashIds = new Hashids();
 const pid = process.pid;
 
-export function uniqueId(): Number {
-  return pid << 32 | (++currentId);
+let currentId = 1;
+
+export function uniqueId(): string {
+  return hashIds.encode(pid, ++currentId, Date.now());
 }

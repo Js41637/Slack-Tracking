@@ -71,10 +71,13 @@ function handleRemoveTeam(state, removedTeamId) {
 }
 
 function handleNewTeam(state, selectedTeamId, selectTeam = true) {
+  const hiddenTeams = state.hiddenTeams.filter((team) => team !== selectedTeamId);
+
   return {
     ...state,
     selectedTeamId: selectTeam ? selectedTeamId : state.selectedTeamId,
-    teamsByIndex: union(state.teamsByIndex, [selectedTeamId])
+    teamsByIndex: union(state.teamsByIndex, [selectedTeamId]),
+    hiddenTeams
   };
 }
 

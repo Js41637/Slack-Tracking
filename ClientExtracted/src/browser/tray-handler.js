@@ -48,7 +48,7 @@ export default class TrayHandler extends ReduxComponent {
       isLinux: settingStore.isLinux(),
       isWindows: settingStore.isWindows(),
       teams: TeamStore.getTeams(),
-      teamsByIndex: AppTeamsStore.getTeamsByIndex(),
+      teamsByIndex: AppTeamsStore.getTeamsByIndex({visibleTeamsOnly: true}),
       updateStatus: AppStore.getUpdateStatus(),
       releaseChannel: settingStore.getSetting('releaseChannel'),
       isDevMode: settingStore.getSetting('isDevMode'),

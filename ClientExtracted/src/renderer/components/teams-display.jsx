@@ -326,7 +326,7 @@ export default class TeamsDisplay extends Component {
       .flatMap((teamId) => {
         let teamView = this.refs[teamId];
         return teamView.executeJavaScript(
-          `if (winssb) return winssb.stats.getMemoryUsage()`
+          `window.winssb ? winssb.stats.getMemoryUsage() : null`
         );
       })
       .reduce(objectSum, {})

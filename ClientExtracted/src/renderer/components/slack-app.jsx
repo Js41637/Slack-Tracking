@@ -98,7 +98,7 @@ export default class SlackApp extends Component {
       eventActions.reportIssue();
     }
 
-    this.setupWindowWatcher();
+    this.disposables.add(this.setupWindowWatcher());
   }
 
   /**
