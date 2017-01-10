@@ -1,6 +1,6 @@
 {{i18n_ns "groups"}}
 
-<div class="user_group_item channel_item normal_padding clearfix">
+<div class="user_group_item channel_item normal_padding bottom_border clearfix">
   <div class="col span_6_of_6 no_bottom_margin">
     <a target="/messages/{{this.id}}" {{#if this.is_channel}}data-channel-id="{{this.id}}" class="internal_channel_link"{{else}}data-group-id="{{this.id}}" class="internal_group_link"{{/if}}>
       <h4 class="tiny_bottom_margin lato_bold">{{#if this.is_channel}}<span class="lato subtle_silver">#</span>{{/if}}{{this.name}} {{#if this.is_member}}<span class="mini subtle_silver lato">{{#t note="Logged in member has joined this channel"}}JOINED{{/t}}</span>{{/if}}</h4>

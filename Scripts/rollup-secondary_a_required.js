@@ -2543,8 +2543,12 @@
         $tipped_el.attr("title", tip);
       }
       if (_$tipped_el && _$tipped_el[0] == $tipped_el[0]) {
-        _$floater_tip_el.html(tip);
-        _positionFloater();
+        if (!tip) {
+          _hideFloater();
+        } else {
+          _$floater_tip_el.html(tip);
+          _positionFloater();
+        }
       }
     },
     updateFloater: function(args) {
@@ -2622,7 +2626,7 @@
     if (_$floater) {
       _$floater.addClass("ts_tip_hidden");
     }
-    if (_$tipped_el) {
+    if (_$tipped_el && _$tipped_el.length) {
       _$tipped_el.off("click.ts_tip_removal");
       _$tipped_el.off("destroyed.ts_tip_removal");
     }
@@ -10700,6 +10704,11 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(id);
       return member && member._is_external && member.team_id;
     },
+    isMemberExternal: function(member) {
+      if (!TS.model.shared_channels_enabled) return false;
+      if (member.team_id != TS.model.team.id) return true;
+      return false;
+    },
     isMemberInDnd: function(member) {
       return !!member._is_in_dnd;
     },
@@ -11276,6 +11285,9 @@ TS.registerModule("constants", {
     member.stars = [];
     member.mentions = [];
     _setPresenceForNewMember(member);
+    if (TS.boot_data.feature_external_shared_channels_ui) {
+      member.is_external = TS.members.isMemberExternal(member);
+    }
     _setImAndMpimNames(member);
   };
   var _setLowerCaseNamesForMember = function(member) {
@@ -17929,14 +17941,30 @@ TS.registerModule("constants", {
       TS.presence_manager.queryMemberPresence(member.id);
       var presence_class = TS.templates.makeMemberPresenceDomClass(member.id);
       var presence_icon_class = "ts_icon_presence";
-      if (member.is_ultra_restricted) {
-        presence_class += " ura";
-        presence_icon_class = "ts_icon_presence_ura";
-      } else if (member.is_restricted) {
-        presence_class += " ra";
-        presence_icon_class = "ts_icon_presence_ra";
-      } else if (member.is_slackbot) {
-        presence_icon_class = "ts_icon_heart";
+      var external_member = TS.members.isMemberExternal(member);
+      if (TS.boot_data.feature_external_shared_channels_ui) {
+        if (external_member) {
+          presence_class += " external";
+          presence_icon_class = "ts_icon_presence_ra";
+        } else if (member.is_ultra_restricted) {
+          presence_class += " ura";
+          presence_icon_class = "ts_icon_presence_ra";
+        } else if (member.is_restricted) {
+          presence_class += " ra";
+          presence_icon_class = "ts_icon_presence_ra";
+        } else if (member.is_slackbot) {
+          presence_icon_class = "ts_icon_heart";
+        }
+      } else {
+        if (member.is_ultra_restricted) {
+          presence_class += " ura";
+          presence_icon_class = "ts_icon_presence_ura";
+        } else if (member.is_restricted) {
+          presence_class += " ra";
+          presence_icon_class = "ts_icon_presence_ra";
+        } else if (member.is_slackbot) {
+          presence_icon_class = "ts_icon_heart";
+        }
       }
       var presence_icon = '<i aria-hidden="true" class="ts_icon ' + presence_icon_class + ' presence_icon"></i>';
       var presence = TS.templates.makeMemberPresenceStateClass(member);
@@ -24637,8 +24665,8 @@ TS.registerModule("constants", {
       return msg && TS.utility.msgs.file_subtypes.indexOf(msg.subtype) >= 0;
     },
     isMsgFromOtherTeam: function(msg) {
-      if (!msg.source_team_id) return false;
-      if (msg.source_team_id && TS.model.team.id != msg.source_team_id) {
+      if (!msg.user_team_id) return false;
+      if (msg.user_team_id && TS.model.team.id != msg.user_team_id) {
         return true;
       }
       return false;
@@ -25333,8 +25361,8 @@ TS.registerModule("constants", {
         type: "message",
         ts: imsg.ts
       };
-      if (imsg.source_team) {
-        new_msg.source_team_id = imsg.source_team;
+      if (imsg.user_team) {
+        new_msg.user_team_id = imsg.user_team;
       }
       if (imsg.user === "USLACKBOT" && imsg.slackbot_feels) {
         new_msg.slackbot_feels = imsg.slackbot_feels;
@@ -47774,31 +47802,6 @@ $.fn.togglify = function(settings) {
       });
     }
     if (TS.boot_data.feature_sli_recaps) {
-      TS.click.addClientHandler("#sli_recap_toggle", function(e) {
-        e.preventDefault();
-        if ($("#sli_recap_toggle").hasClass("active")) {
-          TS.recaps_signal.logToggleClick(true);
-          if (TS.client && !TS.model.prefs.seen_highlights_coachmark) {
-            setTimeout(function() {
-              TS.coachmark.start(TS.coachmarks.coachmarks.highlights);
-              var coachmark_footer = $("#highlights_coachmark_div").next();
-              coachmark_footer.children(".coachmark_got_it").removeClass("hidden");
-              coachmark_footer.children(".coachmark_next_tip").addClass("hidden");
-              TS.model.prefs.seen_highlights_coachmark = true;
-              TS.prefs.setPrefByAPI({
-                name: "seen_highlights_coachmark",
-                value: true
-              });
-            }, 500);
-          }
-          TS.recaps_signal.displayRecapNavigation();
-          TS.recaps_signal.handleUpdateScrollbar();
-        } else {
-          TS.recaps_signal.logToggleClick(false);
-          TS.recaps_signal.hideRecapNavigation();
-          TS.recaps_signal.remove();
-        }
-      });
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
         e.preventDefault();
         TS.recaps_signal.logMarkerClick($(e.target));
@@ -54131,7 +54134,7 @@ $.fn.togglify = function(settings) {
       }
       return false;
     },
-    value: function(input, value) {
+    value: function(input, value, is_silent) {
       input = _normalizeInput(input);
       if (!input) return "";
       if (_isFormElement(input)) {
@@ -54139,7 +54142,9 @@ $.fn.togglify = function(settings) {
         return input.value;
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (_.isString(value)) texty.setText(value);
+        if (_.isString(value)) texty.setText(value, {
+          is_silent: !!is_silent
+        });
         return texty.getText();
       }
       return "";
@@ -54178,7 +54183,7 @@ $.fn.togglify = function(settings) {
       }
       return "";
     },
-    clear: function(input, silent) {
+    clear: function(input, is_silent) {
       input = _normalizeInput(input);
       if (!input) return;
       if (_isFormElement(input)) {
@@ -54186,7 +54191,7 @@ $.fn.togglify = function(settings) {
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
         texty.clear({
-          silent: !!silent
+          is_silent: !!is_silent
         });
       }
     },

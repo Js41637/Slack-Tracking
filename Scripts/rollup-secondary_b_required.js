@@ -106,6 +106,9 @@
       if (current_setting.$body) {
         $div.find(".modal-body").empty().append(current_setting.$body);
       }
+      if (current_setting.body_cls) {
+        $div.find(".modal-body").addClass(current_setting.body_cls);
+      }
       $div.find(".close").bind("click", function() {
         if (current_setting.show_cancel_button) {
           TS.generic_dialog.cancel();
@@ -281,6 +284,7 @@
     title: "",
     body: "BODY",
     body_template: null,
+    body_cls: null,
     $body: null,
     show_go_button: true,
     show_secondary_go_button: false,
