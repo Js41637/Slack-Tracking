@@ -35,7 +35,15 @@
             {{#if_equal this.model_ob.id compare="Vall_threads"}}
               <ts-icon class="ts_icon_small_reply"></ts-icon>
             {{/if_equal}}
-            <span class="view_name">{{this.model_ob.name}}</span>
+            {{#if_equal this.model_ob.id compare="Vall_threads"}}
+              {{#if ../threads_has_unreads}}
+                <span class="view_name">New Threads</span>
+              {{else}}
+                <span class="view_name">All Threads</span>
+              {{/if}}
+            {{else}}
+              <span class="view_name">{{this.model_ob.name}}</span>
+            {{/if_equal}}
           {{else}}
             {{#if this.model_ob.is_mpim}}
               {{! remove disambiguate_mpims after feature_name_tagging_client }}

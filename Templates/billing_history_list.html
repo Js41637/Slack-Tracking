@@ -9,13 +9,23 @@
     </tr>
     {{#each history}}
     <tr data-qa="{{this.id}}" >
-      <td data-qa="billing_item_date" class=" billing_list_cell cell_date hide_on_mobile">
-        {{#if this.has_billing_statement}}
-          <a data-qa="billing_item_link" href="/admin/billing/{{this.id}}">{{#t date_create=(convertTimestampToMilliseconds this.date_create)}}{date_create, date, short}{{/t}}</a>
-        {{else}}
-          {{#t date_create=(convertTimestampToMilliseconds this.date_create)}}{date_create, date, short}{{/t}}
-        {{/if}}
-      </td>
+      {{#if_equal this.type compare="monthly_statement"}}
+        <td data-qa="billing_item_date" class=" billing_list_cell cell_date hide_on_mobile">
+          {{#if this.has_billing_statement}}
+            <a data-qa="billing_item_link" href="/admin/billing/{{this.id}}">{{#t note="convert to MMMM y format (ex: January 2017)" month_year=(toMonthYearFormat this.month_start)}}{month_year}{{/t}}</a>
+          {{else}}
+            {{#t  note="convert to MMMM y format (ex: January 2017)" month_year=(toMonthYearFormat this.month_start)}}{month_year}{{/t}}
+          {{/if}}
+        </td>
+      {{else}}
+        <td data-qa="billing_item_date" class=" billing_list_cell cell_date hide_on_mobile">
+          {{#if this.has_billing_statement}}
+            <a data-qa="billing_item_link" href="/admin/billing/{{this.id}}">{{#t date_create=(convertTimestampToMilliseconds this.date_create)}}{date_create, date, short}{{/t}}</a>
+          {{else}}
+            {{#t date_create=(convertTimestampToMilliseconds this.date_create)}}{date_create, date, short}{{/t}}
+          {{/if}}
+        </td>
+      {{/if_equal}}
       <td data-qa="billing_item_description" class="billing_list_cell">
         {{> billing_history_list_item_cell this}}
       </td>

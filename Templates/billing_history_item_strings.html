@@ -91,7 +91,7 @@ Used in billing_history_list_item_col.hbs
 {{else if_equal type compare="expire"}}
   {{#t}}Paid plan expired{{/t}}
 {{else if_equal type compare="comp_gift"}}
-  {{#t}}Given the <strong>{product.type} plan</strong>{{/t}}
+  {{#t}}Given the <strong>{product.level_nice} plan</strong>{{/t}}
 {{else if_equal type compare="trial_start"}}
   {{#t}}Started a free trial{{/t}}
 {{else if_equal type compare="charge_high_balance"}}

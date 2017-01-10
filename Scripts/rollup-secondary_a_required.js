@@ -35,23 +35,17 @@
     },
     test: {
       getSubObject: function() {
-        return _members;
+        var members_with_names = {};
+        var member;
+        for (member in _members) {
+          if (_members[member]) {
+            members_with_names[member + " " + TS.members.getMemberById(member).name] = _members[member];
+          }
+        }
+        return members_with_names;
       },
       getSubList: function() {
         return _sub_list;
-      },
-      getSubNames: function() {
-        return _sub_list.map(function(id) {
-          return _.get(TS.members.getMemberById(id), "name", null);
-        });
-      },
-      getQueryList: function() {
-        return _sub_list;
-      },
-      getQueryNames: function() {
-        return _query_list.map(function(id) {
-          return _.get(TS.members.getMemberById(id), "name", null);
-        });
       }
     }
   });
@@ -107,7 +101,7 @@
     return TS.api.connection.waitForMSToReconnect();
   };
   var _sendSubList = function() {
-    if (!_has_started || _is_sub_waiting) return;
+    if (!_has_started || _sub_list.length === 0 || _is_sub_waiting) return;
     _is_sub_waiting = true;
     _getWaitPromise().then(function() {
       if (!TS.ms.hasOpenWebSocket()) {
@@ -124,7 +118,7 @@
     });
   };
   var _sendQueryList = function() {
-    if (!_has_started || _is_query_waiting) return;
+    if (!_has_started || _query_list.length === 0 || _is_query_waiting) return;
     _is_query_waiting = true;
     _getWaitPromise().then(function() {
       if (!TS.ms.hasOpenWebSocket()) {
@@ -4243,6 +4237,12 @@
           channel_member_counts.last_fetched_ts = Date.now();
           return null;
         });
+      }
+      if (TS.isPartiallyBooted() && !channel_member_counts.counts && model_ob._incremental_boot_counts) {
+        channel_member_counts.counts = {
+          member_count: _.get(model_ob, "_incremental_boot_counts.member_count_display"),
+          restricted_member_count: 0
+        };
       }
       return channel_member_counts;
     }
@@ -10775,7 +10775,7 @@ TS.registerModule("constants", {
       };
     },
     promiseToSearchMembers: function(maybe_searcher_p) {
-      if (!TS.boot_data.page_needs_enterprise && !TS.lazyLoadMembersAndBots()) return Promise.reject(new Error("API search not yet enabled"));
+      if (!TS.model.shared_channels_enabled && !TS.lazyLoadMembersAndBots()) return Promise.reject(new Error("API search not yet enabled"));
       return Promise.resolve(maybe_searcher_p).then(function(searcher) {
         if (!searcher) return Promise.reject(new Error("No search parameters provided"));
         searcher.query = searcher.query && searcher.query.trim() || "";
@@ -17938,7 +17938,6 @@ TS.registerModule("constants", {
       return aria_label;
     },
     makeMemberPresenceIcon: function(member) {
-      TS.presence_manager.queryMemberPresence(member.id);
       var presence_class = TS.templates.makeMemberPresenceDomClass(member.id);
       var presence_icon_class = "ts_icon_presence";
       var external_member = TS.members.isMemberExternal(member);
@@ -18605,8 +18604,8 @@ TS.registerModule("constants", {
         var bot = TS.bots.getBotById(bot_id);
         author = {
           author_subname: msg.username || bot.name,
-          author_icon: bot.icons.image_48,
-          author_link: "/services/" + bot.id
+          author_icon: bot && bot.icons.image_48,
+          author_link: "/services/" + bot_id
         };
         if (msg.icons && msg.icons.emoji && msg.icons.image_64) author.author_icon = msg.icons.image_64;
       }
@@ -22258,6 +22257,9 @@ TS.registerModule("constants", {
         if (TS.utility.date.isToday(TS.utility.date.toDateObject(member))) return options.fn(this);
         return options.inverse(this);
       });
+      Handlebars.registerHelper("toMonthYearFormat", function(ts) {
+        return TS.utility.date.toMonthYearFormat(ts);
+      });
       Handlebars.registerHelper("if_equal", function(context, options) {
         options = _optionsFnInverseBooleanHelper(options);
         if (context == options.hash.compare) return options.fn(this);
@@ -23640,14 +23642,14 @@ TS.registerModule("constants", {
 (function() {
   "use strict";
   TS.registerModule("utility.date", {
-    month_names: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    short_month_names: ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"],
-    really_short_month_names: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    day_names: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    short_day_names: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    ones_digit_names: ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"],
-    tens_digit_names: ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"],
-    ones_digit_ordinal_names: ["zeroth", "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelveth"],
+    month_names: [TS.i18n.t("January", "date_utilities")(), TS.i18n.t("February", "date_utilities")(), TS.i18n.t("March", "date_utilities")(), TS.i18n.t("April", "date_utilities")(), TS.i18n.t("May", "date_utilities")(), TS.i18n.t("June", "date_utilities")(), TS.i18n.t("July", "date_utilities")(), TS.i18n.t("August", "date_utilities")(), TS.i18n.t("September", "date_utilities")(), TS.i18n.t("October", "date_utilities")(), TS.i18n.t("November", "date_utilities")(), TS.i18n.t("December", "date_utilities")()],
+    short_month_names: [TS.i18n.t("Jan", "date_utilities")(), TS.i18n.t("Feb", "date_utilities")(), TS.i18n.t("March", "date_utilities")(), TS.i18n.t("April", "date_utilities")(), TS.i18n.t("May", "date_utilities")(), TS.i18n.t("June", "date_utilities")(), TS.i18n.t("July", "date_utilities")(), TS.i18n.t("Aug", "date_utilities")(), TS.i18n.t("Sept", "date_utilities")(), TS.i18n.t("Oct", "date_utilities")(), TS.i18n.t("Nov", "date_utilities")(), TS.i18n.t("Dec", "date_utilities")()],
+    really_short_month_names: [TS.i18n.t("Jan", "date_utilities")(), TS.i18n.t("Feb", "date_utilities")(), TS.i18n.t("Mar", "date_utilities")(), TS.i18n.t("Apr", "date_utilities")(), TS.i18n.t("May", "date_utilities")(), TS.i18n.t("Jun", "date_utilities")(), TS.i18n.t("Jul", "date_utilities")(), TS.i18n.t("Aug", "date_utilities")(), TS.i18n.t("Sep", "date_utilities")(), TS.i18n.t("Oct", "date_utilities")(), TS.i18n.t("Nov", "date_utilities")(), TS.i18n.t("Dec", "date_utilities")()],
+    day_names: [TS.i18n.t("Sunday", "date_utilities")(), TS.i18n.t("Monday", "date_utilities")(), TS.i18n.t("Tuesday", "date_utilities")(), TS.i18n.t("Wednesday", "date_utilities")(), TS.i18n.t("Thursday", "date_utilities")(), TS.i18n.t("Friday", "date_utilities")(), TS.i18n.t("Saturday", "date_utilities")()],
+    short_day_names: [TS.i18n.t("Sun", "date_utilities")(), TS.i18n.t("Mon", "date_utilities")(), TS.i18n.t("Tue", "date_utilities")(), TS.i18n.t("Wed", "date_utilities")(), TS.i18n.t("Thu", "date_utilities")(), TS.i18n.t("Fri", "date_utilities")(), TS.i18n.t("Sat", "date_utilities")()],
+    ones_digit_names: [TS.i18n.t("zero", "date_utilities")(), TS.i18n.t("one", "date_utilities")(), TS.i18n.t("two", "date_utilities")(), TS.i18n.t("three", "date_utilities")(), TS.i18n.t("four", "date_utilities")(), TS.i18n.t("five", "date_utilities")(), TS.i18n.t("six", "date_utilities")(), TS.i18n.t("seven", "date_utilities")(), TS.i18n.t("eight", "date_utilities")(), TS.i18n.t("nine", "date_utilities")(), TS.i18n.t("ten", "date_utilities")(), TS.i18n.t("eleven", "date_utilities")(), TS.i18n.t("twelve", "date_utilities")(), TS.i18n.t("thirteen", "date_utilities")(), TS.i18n.t("fourteen", "date_utilities")(), TS.i18n.t("fifteen", "date_utilities")(), TS.i18n.t("sixteen", "date_utilities")(), TS.i18n.t("seventeen", "date_utilities")(), TS.i18n.t("eighteen", "date_utilities")(), TS.i18n.t("nineteen", "date_utilities")()],
+    tens_digit_names: [TS.i18n.t("twenty", "date_utilities")(), TS.i18n.t("thirty", "date_utilities")(), TS.i18n.t("forty", "date_utilities")(), TS.i18n.t("fifty", "date_utilities")(), TS.i18n.t("sixty", "date_utilities")(), TS.i18n.t("seventy", "date_utilities")(), TS.i18n.t("eighty", "date_utilities")(), TS.i18n.t("ninety", "date_utilities")()],
+    ones_digit_ordinal_names: [TS.i18n.t("zeroth", "date_utilities")(), TS.i18n.t("first", "date_utilities")(), TS.i18n.t("second", "date_utilities")(), TS.i18n.t("third", "date_utilities")(), TS.i18n.t("fourth", "date_utilities")(), TS.i18n.t("fifth", "date_utilities")(), TS.i18n.t("sixth", "date_utilities")(), TS.i18n.t("seventh", "date_utilities")(), TS.i18n.t("eighth", "date_utilities")(), TS.i18n.t("ninth", "date_utilities")(), TS.i18n.t("tenth", "date_utilities")(), TS.i18n.t("eleventh", "date_utilities")(), TS.i18n.t("twelveth", "date_utilities")()],
     toDateObject: function(ts) {
       var date;
       if (ts && typeof ts == "string" && ts.indexOf("-") > -1) {
@@ -23809,6 +23811,20 @@ TS.registerModule("constants", {
         });
       }
       return utc_string;
+    },
+    toMonthYearFormat: function(ts) {
+      var month_year_string_builder = TS.i18n.t("{month} {year}", "date_utilities");
+      var month_year_string;
+      if (!isNaN(ts)) {
+        var date = TS.utility.date.toDateObject(ts);
+        var month = TS.utility.date.month_names[date.getUTCMonth()];
+        var year = date.getUTCFullYear();
+        month_year_string = month_year_string_builder({
+          month: month,
+          year: year
+        });
+      }
+      return month_year_string;
     },
     shouldExcludeYear: function(ts) {
       var date = TS.utility.date.toDateObject(ts);
@@ -37563,7 +37579,7 @@ var _on_esc;
     onStart: function() {},
     onCountDownInterval: function() {
       if (!TS.msg_edit.current_msg) return;
-      if (TS.model.team.prefs.msg_edit_window_mins == -1) {
+      if (TS.model.team.prefs.msg_edit_window_mins == -1 || _.get(TS.msg_edit.current_model_ob, "is_self_im")) {
         $("#edit_countdown").empty();
         return;
       }
@@ -37686,6 +37702,7 @@ var _on_esc;
       });
       msg_el.after(html);
       var form = $("#message_edit_form");
+      var $form = form;
       var input = form.find("#msg_text");
       TS.msg_edit.checkLengthAndUpdateMessage(input);
       TS.info("message_edit_form added");
@@ -37783,7 +37800,7 @@ var _on_esc;
           selection = window.getSelection();
           if (selection && selection.toString && !selection.toString()) {
             if (!TS.client || form.outerHeight() < msgs_scroller_dimensions.height) {
-              $("#edit_controls").scrollintoview({
+              $form.find(".edit_controls").scrollintoview({
                 px_offset: -50
               });
             }
@@ -37842,7 +37859,7 @@ var _on_esc;
       }
       var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
       if (!TS.client || form.outerHeight() < msgs_scroller_dimensions.height) {
-        $("#edit_controls").scrollintoview({
+        $form.find(".edit_controls").scrollintoview({
           duration: 500,
           px_offset: -50,
           complete: function() {
@@ -37851,7 +37868,7 @@ var _on_esc;
         });
       } else {
         TS.msg_edit.focusAndSetCursorPosition(input, edit_state);
-        $("#edit_controls").scrollintoview({
+        $form.find(".edit_controls").scrollintoview({
           duration: 500,
           px_offset: -50
         });
@@ -45547,6 +45564,9 @@ $.fn.togglify = function(settings) {
       instance.$list.longListView("setItems", temp_data, true);
       instance._current_data = data;
       _updateMonkeyScroll(instance);
+      TS.utility.rAF(function() {
+        _sizeAndPostionItemsList(instance);
+      });
     }
   };
   var _preLongListViewPrep = function(data) {
@@ -48453,6 +48473,11 @@ $.fn.togglify = function(settings) {
       matchesView: function(v) {
         if (only_channels || only_emoji) return false;
         var score = fuzzy.score(v.name.toLocaleLowerCase());
+        if (Infinity === score && v.alt_names) {
+          score = _.reduce(v.alt_names, function(score, name) {
+            return Math.min(score, fuzzy.score(name.toLocaleLowerCase()));
+          }, score);
+        }
         v._jumper_score = score;
         return score <= fuzzy_limit;
       }
@@ -48731,54 +48756,31 @@ $.fn.togglify = function(settings) {
     }
     _.forEach(filtered_matches, function(f_match) {
       var model_ob;
-      if (TS.boot_data.page_needs_enterprise) {
-        if (TS.utility.strLooksLikeAMemberId(f_match.id)) {
-          var member_model_ob = TS.members.getMemberById(f_match.id);
-          if (member_model_ob) {
-            matches_for_render.push({
-              model_ob: member_model_ob,
-              score: f_match.score
-            });
-            return;
-          }
-        }
-        var team_match = _.find(TS.boot_data.other_accounts, function(account) {
-          return account.id === f_match.id && account.team_id != TS.model.team.id;
-        });
-        var bk_match = f_match.id.indexOf("BK") === 0;
-        var view_match = f_match.id.indexOf("V") === 0;
-        if (team_match) {
-          model_ob = team_match;
-        } else if (bk_match) {
-          model_ob = TS.model.getBroadcastKeywordById(f_match.id);
-        } else if (view_match) {
-          model_ob = TS.model.getViewById(f_match.id);
-        } else {
-          model_ob = TS.shared.getModelObById(f_match.id);
-        }
-        if (model_ob) {
+      if (TS.utility.strLooksLikeAMemberId(f_match.id)) {
+        var member_model_ob = TS.members.getMemberById(f_match.id);
+        if (member_model_ob) {
           matches_for_render.push({
-            model_ob: model_ob,
+            model_ob: member_model_ob,
             score: f_match.score
           });
+          return;
         }
+      }
+      var team_match = _.find(TS.boot_data.other_accounts, function(account) {
+        return account.id === f_match.id && account.team_id != TS.model.team.id;
+      });
+      var bk_match = f_match.id.indexOf("BK") === 0;
+      var view_match = f_match.id.indexOf("V") === 0;
+      if (team_match) {
+        model_ob = team_match;
+      } else if (bk_match) {
+        model_ob = TS.model.getBroadcastKeywordById(f_match.id);
+      } else if (view_match) {
+        model_ob = TS.model.getViewById(f_match.id);
       } else {
-        var team_match = _.find(TS.boot_data.other_accounts, function(account) {
-          return account.id === f_match.id && account.team_id != TS.model.team.id;
-        });
-        var bk_match = f_match.id.indexOf("BK") === 0;
-        var view_match = f_match.id.indexOf("V") === 0;
-        if (team_match) {
-          model_ob = team_match;
-        } else if (bk_match) {
-          model_ob = TS.model.getBroadcastKeywordById(f_match.id);
-        } else if (view_match) {
-          model_ob = TS.model.getViewById(f_match.id);
-        } else if (TS.utility.strLooksLikeAMemberId(f_match.id)) {
-          model_ob = TS.members.getMemberById(f_match.id);
-        } else {
-          model_ob = TS.shared.getModelObById(f_match.id);
-        }
+        model_ob = TS.shared.getModelObById(f_match.id);
+      }
+      if (model_ob) {
         matches_for_render.push({
           model_ob: model_ob,
           score: f_match.score
@@ -51312,6 +51314,7 @@ $.fn.togglify = function(settings) {
         include_user_counts: true,
         include_leave_team: true
       };
+      if (TS.boot_data.feature_discoverable_teams_client_v2) calling_args.include_join_request = true;
       if (exclude_discoverable) calling_args.exclude_discoverable = exclude_discoverable;
       return TS.api.call("enterprise.teams.list", calling_args).reflect().then(function(response) {
         if (!response.isFulfilled()) return Promise.reject(new Error("The API failed:\n" + response.reason()));
@@ -51331,6 +51334,7 @@ $.fn.togglify = function(settings) {
         include_leave_team: true,
         team: team_id
       };
+      if (TS.boot_data.feature_discoverable_teams_client_v2) calling_args.include_join_request = true;
       if (TS.model.enterprise_api_token) calling_args.enterprise_token = TS.model.enterprise_api_token;
       if (additional_options) calling_args = _.merge({}, calling_args, additional_options);
       return TS.api.callImmediately("enterprise.teams.info", calling_args).then(function(response) {
@@ -51824,7 +51828,8 @@ $.fn.togglify = function(settings) {
       _method("signup.checkEmail", api_args, function(ok, data, args) {
         if (ok) {
           return resolve({
-            is_ok: true
+            is_ok: true,
+            api_response: data
           });
         } else {
           var error_message;

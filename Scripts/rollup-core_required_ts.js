@@ -177,9 +177,15 @@
     text: 1,
     msgs: 1
   };
-  var _maybeRedactFields = function(obj) {
+  var _maybeRedactFields = function(obj, iteration_count) {
     if (!TS.boot_data || !TS.boot_data.feature_console_log_redactor) return obj;
     if (!obj || !_.isObject(obj)) return obj;
+    if (iteration_count) {
+      iteration_count++;
+    } else {
+      iteration_count = 1;
+    }
+    if (iteration_count >= 10) return obj;
     var redacted_obj;
     if (_.isArray(obj)) {
       redacted_obj = [];
@@ -190,7 +196,7 @@
       if (_redactable_names[name]) {
         redacted_obj[name] = "[redacted " + _type(value) + "]";
       } else {
-        redacted_obj[name] = _maybeRedactFields(value);
+        redacted_obj[name] = _maybeRedactFields(value, iteration_count);
       }
     });
     return redacted_obj;

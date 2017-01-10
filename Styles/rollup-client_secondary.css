@@ -905,6 +905,11 @@ input.search_input {
   max-width: 150px
 }
 
+.flexpane_redesign #flex_contents .flexpane_tab_bar li a {
+  display: inline-block;
+  max-width: 95px
+}
+
 #flex_contents .flexpane_tab_bar li:hover {
   border-bottom: 4px solid #b2d5c9
 }
@@ -2373,6 +2378,14 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
   padding-right: .9375rem;
   margin-right: .9375rem;
   border-right: 1px solid #e0e0e0
+}
+
+.flexpane_redesign #convo_tab #convo_tab_back_container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
 }
 
 #convo_tab #convo_tab_back {
@@ -18716,6 +18729,11 @@ ts-message .action_hover_container a.ts_icon_small_reaction:before {
   left: 1px
 }
 
+ts-message .action_hover_container a.ts_icon_jump:before {
+  position: relative;
+  top: -.0625rem
+}
+
 ts-message .action_hover_container a.ts_icon_comment_alt:before,
 ts-message .action_hover_container a.ts_icon_share_action:before,
 ts-message .action_hover_container a.ts_icon_small_ellipsis:before {
@@ -24126,7 +24144,8 @@ ts-jumper ts-jumper-results:empty {
 
 .channel_title .ts_icon_shared_channel {
   font-size: 1.4375rem;
-  line-height: .75
+  line-height: .75;
+  margin-left: 5px
 }
 
 .channel_title .ts_icon_shared_channel.away {

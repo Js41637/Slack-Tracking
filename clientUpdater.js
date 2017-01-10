@@ -72,6 +72,12 @@ function cleanUp(name, version) {
     console.log("Cleaning up files")
     const files = ['.cache', 'node_modules', 'temp', name]
     files.forEach(file => rf(`./ClientExtracted/${file}`, err => err ? reject(err) : void 0))
+    try { // Fix minified package.json
+      var packageJSON = JSON.parse(fs.readFileSync('./ClientExtracted/package.json'))
+      fs.writeFileSync('./ClientExtracted/package.json', JSON.stringify(packageJSON, null, 2))
+    } catch (e) {
+      console.warn("Error parsing package JSON")
+    }
 
     fs.writeFile('./ClientExtracted/VERSION', version, resolve)
   })
