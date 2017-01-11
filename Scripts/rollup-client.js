@@ -9594,8 +9594,8 @@
           this_searchable_member_list._fetchProcessAndDisplayPage();
         }
       }, SCROLL_DEBOUNCE_MS));
-      TS.view.resizeManually("TS.SearchableMemberList.showInitial");
       TS.utility.rAF(function() {
+        TS.view.resizeManually("TS.SearchableMemberList.showInitial");
         this_searchable_member_list._recursivelyFillLongListViewToHeight();
       });
     },

@@ -23685,20 +23685,26 @@ TS.registerModule("constants", {
       }
       return date;
     },
-    toTime: function(ts, ampm, seconds) {
+    toTime: function(ts, add_ampm, add_seconds) {
       var date = TS.utility.date.toDateObject(ts);
       var hours = date.getHours();
       var minutes = date.getMinutes();
-      var secs = date.getSeconds();
-      var pm = false;
+      var seconds = date.getSeconds();
+      var is_pm = false;
+      var seconds_string = "";
+      var str_builder = TS.i18n.t("{hours}:{minutes}{add_seconds, select, true{:{seconds}}other{}}{add_ampm, select, true{{is_pm, select, true{ PM}other{ AM}}}other{}}", "date_utilities");
+      var formatted_time;
+      add_ampm = add_ampm && !TS.utility.date.do24hrTime();
       if (TS.utility.date.do24hrTime()) {
         if (hours < 10) {
           hours = "0" + hours;
         }
       } else {
         if (hours >= 12) {
-          if (hours > 12) hours = hours - 12;
-          pm = true;
+          if (hours > 12) {
+            hours -= 12;
+          }
+          is_pm = true;
         } else if (hours === 0) {
           hours = 12;
         }
@@ -23706,22 +23712,21 @@ TS.registerModule("constants", {
       if (minutes < 10) {
         minutes = "0" + minutes;
       }
-      var secs_string = "";
-      if (seconds) {
-        if (secs < 10) {
-          secs_string = ":0" + secs;
+      if (add_seconds) {
+        if (seconds < 10) {
+          seconds_string = "0" + seconds;
         } else {
-          secs_string = ":" + secs;
+          seconds_string = seconds;
         }
       }
-      var formatted_time = hours + ":" + minutes + secs_string;
-      if (ampm && !TS.utility.date.do24hrTime()) {
-        if (pm) {
-          formatted_time += " PM";
-        } else {
-          formatted_time += " AM";
-        }
-      }
+      formatted_time = str_builder({
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds_string,
+        add_seconds: add_seconds,
+        add_ampm: add_ampm,
+        is_pm: is_pm
+      });
       return formatted_time;
     },
     toTimeDuration: function(seconds) {
@@ -47531,6 +47536,22 @@ $.fn.togglify = function(settings) {
         } else {
           TS.metrics.count("pdf_viewer_download_outside_file_viewer");
         }
+      }
+      if (TS.boot_data.feature_platform_metrics) {
+        var payload = {
+          is_successful: false
+        };
+        if (file) {
+          payload.is_successful = true;
+          var user = TS.members.getMemberById(file.user);
+          if (user && user.is_bot) {
+            var bot_id = user.profile.bot_id;
+            var bot = TS.bots.getBotById(bot_id);
+            payload.app_id = bot ? bot.app_id : "";
+            payload.bot_id = bot_id;
+          }
+        }
+        TS.clog.track("FILE_DOWNLOAD", payload);
       }
       if (file && TS.client.downloads.startDownload(file, open_flexpane)) {
         e.preventDefault();

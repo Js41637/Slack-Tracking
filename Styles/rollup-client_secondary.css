@@ -1187,7 +1187,16 @@ input.search_input {
   content: "\E271";
   font-family: Slack;
   position: absolute;
-  pointer-events: none
+  pointer-events: none;
+  display: block
+}
+
+.searchable_member_list_filter.loading {
+  height: 38px
+}
+
+.searchable_member_list_filter.loading:after {
+  display: none
 }
 
 .searchable_member_list_filter_menu {
@@ -4377,7 +4386,6 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .light_theme .message_content_header_left {
-  margin-right: 3.375rem;
   -ms-flex: 1 1 auto;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto
@@ -13580,6 +13588,10 @@ only screen and (min-resolution:2dppx) {
   margin-left: 2.875rem
 }
 
+.light_theme .search_message_result ts-message .message_content_header_left {
+  margin-right: 3.375rem
+}
+
 .dense_theme .search_message_result ts-message .message_gutter {
   width: 3.75rem
 }
@@ -13731,6 +13743,14 @@ span.match {
   right: 2px;
   top: 10px;
   color: #439fe0
+}
+
+.flexpane_redesign .top_search_results {
+  margin: 0 .5rem
+}
+
+.flexpane_redesign .top_search_results .search_module_footer {
+  margin-right: 0
 }
 
 .top_results_search_message_result {

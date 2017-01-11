@@ -11101,6 +11101,54 @@ body.winssb #emoji_menu {
   background: #e0dfff
 }
 
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="0"]:hover {
+  background: 0 0
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="0"].key_selection {
+  background: #b7e887
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="1"]:hover {
+  background: 0 0
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="1"].key_selection {
+  background: #b5e0fe
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="2"]:hover {
+  background: 0 0
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="2"].key_selection {
+  background: #f9ef67
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="3"]:hover {
+  background: 0 0
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="3"].key_selection {
+  background: #f3c1fd
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="4"]:hover {
+  background: 0 0
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="4"].key_selection {
+  background: #ffe1ae
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="5"]:hover {
+  background: 0 0
+}
+
+#emoji_menu[data-using-keyboard=true] .emoji_li[data-color-index="5"].key_selection {
+  background: #e0dfff
+}
+
 .popover_menu {
   background-color: #fff;
   border-top: 1px solid #e0e0e0;
