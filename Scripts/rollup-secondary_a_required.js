@@ -47295,6 +47295,23 @@ $.fn.togglify = function(settings) {
             TS.client.ui.previewMember(member_id, preview_origin || "team_list");
           }
         }
+        if (TS.boot_data.feature_platform_metrics) {
+          var $message = $el.closest("ts-message");
+          var message_ts = $message.data("ts") + "";
+          var message_c_id = $message.data("model-ob-id");
+          var member_id = $message.data("member-id");
+          var app_id = $message.data("app-id");
+          var bot_id = $message.data("bot-id");
+          var payload = {
+            message_timestamp: message_ts,
+            channel_id: message_c_id,
+            channel_type: message_c_id ? message_c_id.charAt(0) : "",
+            member_id: member_id,
+            app_id: app_id,
+            bot_id: bot_id
+          };
+          TS.clog.track("USERNAME_CLICK", payload);
+        }
       } else {
         TS.warn("hmmm, no data-member-id?");
       }
@@ -47797,6 +47814,21 @@ $.fn.togglify = function(settings) {
         }
         e.preventDefault();
         var bot_id = $closest_ts_message.data("bot-id");
+        if (TS.boot_data.feature_platform_metrics) {
+          var message_ts = $closest_ts_message.data("ts") + "";
+          var message_c_id = $closest_ts_message.data("model-ob-id");
+          var member_id = $closest_ts_message.data("member-id");
+          var app_id = $closest_ts_message.data("app-id");
+          var payload = {
+            message_timestamp: message_ts,
+            channel_id: message_c_id,
+            channel_type: message_c_id ? message_c_id.charAt(0) : "",
+            member_id: member_id,
+            app_id: app_id,
+            bot_id: bot_id
+          };
+          TS.clog.track("USERNAME_CLICK", payload);
+        }
         if (bot_id) {
           TS.menu.app.startWithApp(e, bot_id);
         } else {
