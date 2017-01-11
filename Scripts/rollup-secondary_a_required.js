@@ -10127,6 +10127,7 @@ TS.registerModule("constants", {
     ds_presence_changed_sig: new signals.Signal,
     user_color_changed_sig: new signals.Signal,
     joined_team_sig: new signals.Signal,
+    changed_current_status_sig: new signals.Signal,
     changed_name_sig: new signals.Signal,
     changed_real_name_sig: new signals.Signal,
     changed_deleted_sig: new signals.Signal,
@@ -10205,6 +10206,9 @@ TS.registerModule("constants", {
       if (upsert.status == "ADDED" && TS.lazyLoadMembersAndBots()) {
         TS.members.lazily_added_sig.dispatch(upsert.member);
       } else if (upsert.status == "CHANGED") {
+        if (upsert.what_changed.indexOf("current_status") != -1) {
+          TS.members.changed_current_status_sig.dispatch(upsert.member);
+        }
         if (upsert.what_changed.indexOf("profile") != -1) {
           TS.members.changed_profile_sig.dispatch(upsert.member);
         }
@@ -11187,24 +11191,33 @@ TS.registerModule("constants", {
       if (k == "profile") {
         var old_profile = _omitImagesFromProfile(existing_member.profile);
         var new_profile = _omitImagesFromProfile(member.profile);
-        if (_.isObject(new_profile) && !_.isEqual(old_profile, new_profile)) {
-          var name_changed = _.some(["real_name", "full_name", "preferred_name"], function(name_type) {
-            return new_profile[name_type] != old_profile[name_type];
-          });
-          if (!_.isUndefined(old_profile["fields"]) && _.isUndefined(new_profile["fields"])) {
-            if (!TS.calls) {
-              TS.warn("So uh, yeah, we just tried to overwrite the `fields` value. Keeping what we have instead. User: " + member["id"]);
+        if (_.isObject(new_profile)) {
+          if (old_profile.current_status !== new_profile.current_status) {
+            status = "CHANGED";
+            what_changed.push("current_status");
+            existing_member.profile.current_status = new_profile.current_status;
+          }
+          old_profile = _.omit(old_profile, ["current_status"]);
+          new_profile = _.omit(new_profile, ["current_status"]);
+          if (!_.isEqual(old_profile, new_profile)) {
+            var name_changed = _.some(["real_name", "full_name", "preferred_name"], function(name_type) {
+              return new_profile[name_type] != old_profile[name_type];
+            });
+            if (!_.isUndefined(old_profile["fields"]) && _.isUndefined(new_profile["fields"])) {
+              if (!TS.calls) {
+                TS.warn("So uh, yeah, we just tried to overwrite the `fields` value. Keeping what we have instead. User: " + member["id"]);
+              }
+              new_profile["fields"] = old_profile["fields"];
             }
-            new_profile["fields"] = old_profile["fields"];
+            existing_member["profile"] = _.assign(existing_member["profile"], new_profile);
+            if (name_changed) {
+              _setLowerCaseNamesForMember(existing_member);
+            }
+            var image_changed = old_profile["avatar_hash"] != new_profile["avatar_hash"];
+            if (image_changed) _setImagesForMember(existing_member);
+            status = "CHANGED";
+            what_changed.push(k);
           }
-          existing_member["profile"] = _.assign(existing_member["profile"], new_profile);
-          if (name_changed) {
-            _setLowerCaseNamesForMember(existing_member);
-          }
-          var image_changed = old_profile["avatar_hash"] != new_profile["avatar_hash"];
-          if (image_changed) _setImagesForMember(existing_member);
-          status = "CHANGED";
-          what_changed.push(k);
         }
       } else if (k == "enterprise_user") {
         if (existing_member[k]) {
@@ -22927,7 +22940,8 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(member), undefined, {
           no_jumbomoji: true,
           no_specials: true,
-          no_highlights: true
+          no_highlights: true,
+          stop_animations: true
         }));
       });
       Handlebars.registerHelper("getTeamCustomStatusSuggestions", function() {
@@ -22935,7 +22949,8 @@ TS.registerModule("constants", {
           return new Handlebars.SafeString(TS.format.formatWithOptions(suggestion, undefined, {
             no_jumbomoji: true,
             no_specials: true,
-            no_highlights: true
+            no_highlights: true,
+            stop_animations: true
           }));
         });
       });
@@ -27439,9 +27454,9 @@ TS.registerModule("constants", {
         test_url = url.replace(/^https:\/\//, "");
         for (i = 0, j = whitelist.length; i < j; i++) {
           if (test_url.indexOf(whitelist[i] + "/") === 0) {
-            if (TS.boot_data.feature_a11y_pref_no_animation && whitelist[i] === "slack-imgs.com") {
+            if ((opts.stop_animations || TS.boot_data.feature_a11y_pref_no_animation) && whitelist[i] === "slack-imgs.com") {
               var o1 = TS.utility.url.urlQueryStringParse(test_url).o1;
-              var value = TS.model.prefs.a11y_animations === false ? o1 ? o1 + ".gu" : "gu" : o1 && o1.replace(/\.gu|gu/, "");
+              var value = opts.stop_animations || TS.model.prefs.a11y_animations === false ? o1 ? o1 + ".gu" : "gu" : o1 && o1.replace(/\.gu|gu/, "");
               return TS.utility.url.setUrlQueryStringValue(url, "o1", value);
             }
             return url;
@@ -27471,7 +27486,7 @@ TS.registerModule("constants", {
       if (opts.convert_ico) {
         optparts.push("ip");
       }
-      if (TS.boot_data.feature_a11y_pref_no_animation && TS.model.prefs.a11y_animations == false) {
+      if (opts.stop_animations || TS.boot_data.feature_a11y_pref_no_animation && TS.model.prefs.a11y_animations == false) {
         optparts.push("gu");
       }
       if (optparts.length > 0) {
@@ -28881,6 +28896,7 @@ TS.registerModule("constants", {
     var no_jumbomoji = !!opts.no_jumbomoji || undefined;
     var no_preformatted = !!opts.no_preformatted || undefined;
     var custom_linebreak = opts.custom_linebreak || undefined;
+    var stop_animations = !!opts.stop_animations || undefined;
     if (no_jumbomoji !== true) {
       no_jumbomoji = !TS.model.prefs.jumbomoji;
     }
@@ -28913,7 +28929,8 @@ TS.registerModule("constants", {
       do_theme_install_buttons: do_theme_install_buttons,
       no_jumbomoji: no_jumbomoji,
       no_preformatted: no_preformatted,
-      custom_linebreak: custom_linebreak
+      custom_linebreak: custom_linebreak,
+      stop_animations: stop_animations
     };
   };
   var _format = function(txt, msg, opts) {
@@ -28927,6 +28944,7 @@ TS.registerModule("constants", {
     var no_jumbomoji = opts.no_jumbomoji;
     var no_preformatted = opts.no_preformatted;
     var custom_linebreak = opts.custom_linebreak;
+    var stop_animations = opts.stop_animations;
     var map = _TSF_token_map;
     if (custom_linebreak) {
       map = _.extend({}, map, {
@@ -28994,7 +29012,8 @@ TS.registerModule("constants", {
             if (TS.utility.platformSupportsHtmlNotifications()) {
               if (TS.utility.platformSupportsImgEmojiInHtmlNotifications()) {
                 str += TS.emoji.graphicReplace(item, {
-                  force_img: true
+                  force_img: true,
+                  stop_animations: stop_animations
                 });
               }
             } else {
@@ -29098,9 +29117,9 @@ TS.registerModule("constants", {
               }
             }
           } else if (item.indexOf(TSF.JUMBOMOJI_COLONS.split(" ")[0]) === 0) {
-            str += _parseEmojiToken(tsf_mode, item, no_emoji, !no_jumbomoji);
+            str += _parseEmojiToken(tsf_mode, item, no_emoji, !no_jumbomoji, stop_animations);
           } else if (item.indexOf(TSF.EMOJI_COLONS.split(" ")[0]) === 0) {
-            str += _parseEmojiToken(tsf_mode, item, no_emoji, false);
+            str += _parseEmojiToken(tsf_mode, item, no_emoji, false, stop_animations);
           } else if (item.indexOf(TSF.HEX_BLOCK.split(" ")[0]) === 0) {
             str += _parseHexToken(tsf_mode, item, no_hex_colors);
           } else {
@@ -29159,7 +29178,7 @@ TS.registerModule("constants", {
       return "#deleted-channel";
     }
   };
-  var _parseEmojiToken = function(tsf_mode, item, no_emoji, do_jumbomoji) {
+  var _parseEmojiToken = function(tsf_mode, item, no_emoji, do_jumbomoji, stop_animations) {
     var colons = item.split(" ")[1].replace(">", "");
     if (no_emoji) {
       return colons;
@@ -29168,7 +29187,8 @@ TS.registerModule("constants", {
       obey_emoji_mode_pref: true,
       include_title: true,
       include_text: true,
-      jumbomoji: do_jumbomoji
+      jumbomoji: do_jumbomoji,
+      stop_animations: stop_animations
     });
     if (replaced && replaced.indexOf(">>") !== -1) {
       TS.warn("TS.emoji.graphicReplace may be malformed: " + replaced);
@@ -31830,18 +31850,16 @@ TS.registerModule("constants", {
       TS.client.unread.reload();
       TS.menu.end();
     },
-    startWithSearchableMemberListFilter: function(e, selectCallback) {
+    startWithSearchableMemberListFilter: function(e, counts, selectCallback) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
-      var members_for_user = TS.members.allocateTeamListMembers(TS.members.getMembersForUser());
       var template_args = {
-        everyone_count: TS.lazyLoadMembersAndBots() ? 120 : TS.members.getMembersForUser().length,
-        members_count: TS.lazyLoadMembersAndBots() ? 70 : members_for_user.members.length,
-        admins_count: TS.lazyLoadMembersAndBots() ? 30 : _.filter(members_for_user.members, "is_admin").length,
-        guests_count: TS.lazyLoadMembersAndBots() ? 20 : _.concat(members_for_user.restricted_members, members_for_user.ultra_restricted_users).length,
+        everyone_count: 0,
+        admins_count: 0,
+        guests_count: 0,
         extra_filter_options: TS.boot_data.page_needs_enterprise,
         is_flannel: TS.lazyLoadMembersAndBots()
       };
@@ -31850,15 +31868,15 @@ TS.registerModule("constants", {
           is_enterprise: true,
           org_name: TS.model.team.enterprise_name,
           team_name: TS.model.team.name,
-          everyone_count: 500,
-          org_members_count: 200,
-          org_admins_count: 20,
-          org_guests_count: 80,
-          team_members_count: 160,
-          team_admins_count: 20,
-          team_guests_count: 20
+          everyone_count: 0,
+          org_members_count: 0,
+          org_admins_count: 0,
+          org_guests_count: 0
         });
       }
+      _.each(counts, function(count) {
+        template_args[count["name"] + "_count"] = count["count"];
+      });
       TS.menu.$menu.addClass("searchable_member_list_filter_menu");
       TS.menu.$menu_items.html(TS.templates.searchable_member_list_filter_items(template_args));
       TS.menu.$menu_items.on("click.menu", "li", function(e) {
@@ -32322,6 +32340,12 @@ var _on_esc;
           TS.menu.$menu_header.on("click", function(e) {
             TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
             TS.menu.$menu_header.off();
+            if (TS.boot_data.feature_platform_metrics) {
+              TS.clog.track("USER_CARD_CLICK", {
+                app_id: TS.menu.app.active_app ? TS.menu.app.active_app.id : "",
+                bot_id: TS.menu.app.active_app_bot_id
+              });
+            }
             TS.menu.app.end();
           });
         } else {
@@ -32354,6 +32378,12 @@ var _on_esc;
       } else if (action === "invite_to_channel") {
         e.preventDefault();
         TS.ui.invite.showInviteMemberToChannelDialog(TS.menu.app.active_app.bot_user.id);
+      }
+      if (TS.boot_data.feature_platform_metrics) {
+        TS.clog.track("USER_CARD_CLICK", {
+          app_id: TS.menu.app.active_app.id,
+          bot_id: TS.menu.app.active_app_bot_id
+        });
       }
       TS.menu.app.end();
     },
@@ -33880,6 +33910,9 @@ var _on_esc;
     onMemberHeaderClick: function(e) {
       e.preventDefault();
       TS.client.ui.previewMember(TS.menu.member.member.id, "menu_member_header");
+      if (TS.boot_data.feature_platform_metrics) {
+        TS.clog.track("USER_CARD_CLICK");
+      }
       TS.menu.member.end();
     },
     onMemberItemClick: function(e) {
@@ -33967,7 +34000,11 @@ var _on_esc;
         return;
       }
       if (TS.boot_data.feature_platform_metrics) {
-        TS.clog.track("USER_PROFILE_CLICK");
+        if (e.data && e.data.is_member_preview) {
+          TS.clog.track("USER_PROFILE_CLICK");
+        } else {
+          TS.clog.track("USER_CARD_CLICK");
+        }
       }
       TS.menu.member.end();
       TS.menu.member.member_item_click_sig.dispatch(id);
@@ -34007,7 +34044,9 @@ var _on_esc;
         TS.menu.$menu_items.html(TS.templates.menu_member_items_short(template_args));
       } else {
         TS.menu.$menu_items.html(TS.templates.menu_member_items(template_args));
-        TS.menu.$menu_items.on("click.menu", "li", TS.menu.member.onMemberItemClick);
+        TS.menu.$menu_items.on("click.menu", "li", {
+          is_member_preview: is_member_preview
+        }, TS.menu.member.onMemberItemClick);
       }
       TS.menu.start(e);
       TS.kb_nav.setSubmitItemHandler(TS.menu.member.onMemberItemClick);

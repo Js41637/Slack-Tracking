@@ -2329,6 +2329,24 @@
         }
       });
     },
+    rebuildMsgCurrentStatusIncludingMember: function(member) {
+      var current_model_ob = TS.shared.getActiveModelOb();
+      var current_status = TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(member), undefined, {
+        no_jumbomoji: true,
+        no_specials: true,
+        no_highlights: true,
+        stop_animations: true
+      });
+      _.each(current_model_ob.msgs, function(msg, offset) {
+        if (TS.utility.msgs.messageIncludesMember(member, msg)) {
+          if (TS.pri) TS.log(888, "memberChangedCurrentStatus: Rebuilding msg header " + msg.ts + " because it includes member " + member.id);
+          var $current_status_container = TS.client.msg_pane.getCanonicalDivForMsg(msg.ts).find(".message_current_status");
+          $current_status_container.html(current_status);
+          $current_status_container.toggleClass("hidden", !current_status);
+          TS.tips.updateTipTitle($current_status_container, current_status);
+        }
+      });
+    },
     rebuildMsgFile: function(msg, file, rebuild_archives) {
       if (!msg || !file) return;
       var $msg = rebuild_archives ? TS.client.msg_pane.getDivForArchiveMsg(msg.ts) : TS.client.msg_pane.getCanonicalDivForMsg(msg.ts);
@@ -4360,6 +4378,7 @@
       TS.members.changed_self_sig.add(TS.view.members.somethingChangedOnUser, TS.view.members);
       TS.members.changed_deleted_sig.add(TS.view.members.memberChangedDeleted, TS.view.members);
       TS.members.changed_profile_sig.add(TS.view.members.memberChangedProfile, TS.view.members);
+      TS.members.changed_current_status_sig.add(TS.view.members.memberChangedCurrentStatus, TS.view.members);
       TS.members.changed_tz_sig.add(TS.view.members.memberChangedTZ, TS.view.members);
       TS.members.changed_account_type_sig.add(TS.view.members.memberAccountTypeChanged, TS.view.members);
       TS.members.changed_admin_perms_sig.add(TS.view.members.memberAdminPermsChanged, TS.view.members);
@@ -4454,7 +4473,6 @@
       }
       if (member.id == TS.model.user.id) {
         TS.view.members.updateUserDisplayName();
-        if (TS.boot_data.feature_user_custom_status) TS.view.members.updateUserCurrentStatus();
         if (member.is_restricted) {
           if (TS.environment.is_retina) {
             bg_img_urls.push("url(" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + ")");
@@ -4465,6 +4483,25 @@
         bg_img_urls.push("url(" + member.profile.image_72 + ")");
         $('a[data-member-id="' + TS.model.user.id + '"] .member_image, a[data-member-id="' + TS.model.user.id + '"].member_image').attr("style", "background-image: " + bg_img_urls.join(","));
         $('#menu a[data-member-id="' + TS.model.user.id + '"].member_image').attr("style", "background-image: " + TS.templates.builders.makeMemberPreviewCardLinkImageBackground(TS.model.user.id));
+      }
+      TS.view.rebuildTeamMember(member);
+      if (member.id != TS.model.previewed_member_id) return;
+      TS.client.ui.previewMember(member.id);
+    },
+    memberChangedCurrentStatus: function(member) {
+      if (!TS.boot_data.feature_user_custom_status) return;
+      if (!TS.members.is_in_bulk_upsert_mode) {
+        var skip_rebuilding_channel_header = true;
+        var make_sure_active_channel_is_in_view = false;
+        var model_ob = TS.shared.getActiveModelOb();
+        if (model_ob.is_im && model_ob.user === member.id || model_ob.is_mpim && model_ob.members.indexOf(member.id) > -1) {
+          skip_rebuilding_channel_header = false;
+        }
+        TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header);
+        TS.view.rebuildMsgCurrentStatusIncludingMember(member);
+      }
+      if (member.id == TS.model.user.id) {
+        TS.view.members.updateUserCurrentStatus();
       }
       TS.view.rebuildTeamMember(member);
       if (member.id != TS.model.previewed_member_id) return;
@@ -4504,7 +4541,8 @@
       var current_status = TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(TS.model.user), undefined, {
         no_jumbomoji: true,
         no_specials: true,
-        no_highlights: true
+        no_highlights: true,
+        stop_animations: true
       });
       var $team_menu_user_tip = $("#team_menu_user_tip");
       $team_menu_user_tip.toggleClass("ts_tip_hide", !current_status);
@@ -9409,6 +9447,7 @@
       this._have_all_members = false;
       this._members = [];
       this._channel_member_ids = options.channel_member_ids;
+      this._filter_counts = [];
       this._long_list_view_height = 0;
       this._long_list_view_items_height = 0;
       this._long_list_view_initial_height = null;
@@ -9492,7 +9531,6 @@
         this.$_search_bar = this.$_container.find(".searchable_member_list_search_bar");
         this.$_search_input = this.$_container.find(".searchable_member_list_input");
         this.$_clear_icon = this.$_container.find(".icon_close");
-        this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
         this.$_search_input.bind("keyup.searchable_member_list", this._handleSearchKeyUp.bind(this));
         this.$_container.delegate(".searchable_member_list_filter", "click", this._handleFilterSelect.bind(this));
         this.$_clear_icon.bind("click", function() {
@@ -9501,6 +9539,15 @@
             this_searchable_member_list.$_search_input.focus();
           });
         });
+        if (!this._channel_member_ids) {
+          TS.ms.flannel.call("query_request", {
+            counts: true
+          }).then(function(response) {
+            this_searchable_member_list._filter_counts = response.results;
+            this_searchable_member_list.$_search_bar.find(".searchable_member_list_filter.loading").replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
+            this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
+          });
+        }
       }
     },
     _setupLongListView: function() {
@@ -9639,7 +9686,7 @@
     _handleFilterSelect: function(evt) {
       evt.preventDefault();
       var this_searchable_member_list = this;
-      TS.menu.startWithSearchableMemberListFilter(evt, function(e) {
+      TS.menu.startWithSearchableMemberListFilter(evt, this._filter_counts, function(e) {
         var $action = $(e.target).closest("[data-filter]");
         if (!$action.length) return;
         this_searchable_member_list._presence_list.clear();
@@ -9660,10 +9707,10 @@
     },
     _generateFilterSearchBarTemplateArgs: function() {
       var template_args = {
-        everyone_count: 120,
-        members_count: 70,
-        admins_count: 30,
-        guests_count: 20,
+        everyone_count: 0,
+        members_count: 0,
+        admins_count: 0,
+        guests_count: 0,
         show_search: true,
         show_filters: true,
         everyone_filter_selected: this._current_filter == "everyone",
@@ -9673,13 +9720,9 @@
         _.merge(template_args, {
           org_name: TS.model.team.enterprise_name,
           team_name: TS.model.team.name,
-          everyone_count: 500,
-          org_members_count: 200,
-          org_admins_count: 20,
-          org_guests_count: 80,
-          team_members_count: 70,
-          team_admins_count: 30,
-          team_guests_count: 20,
+          org_members_count: 0,
+          org_admins_count: 0,
+          org_guests_count: 0,
           org_members_filter_selected: this._current_filter == "org_members",
           org_admins_filter_selected: this._current_filter == "org_admins",
           org_restricted_filter_selected: this._current_filter == "org_guests",
@@ -9694,6 +9737,9 @@
           restricted_filter_selected: this._current_filter == "guests"
         });
       }
+      _.each(this._filter_counts, function(count) {
+        template_args[count["name"] + "_count"] = count["count"];
+      });
       if (this._channel_member_ids) {
         template_args.show_filters = false;
       }
@@ -25969,7 +26015,7 @@
     },
     replaceEmoji: function() {
       var _emoji = emoji;
-      var emoji_list = $(".emoji");
+      var emoji_list = $(".emoji:not(.stop_animations)");
       var new_emoji_url;
       for (var j = 0; j < emoji_list.length; j++) {
         var new_emoji = _emoji.replace_colons(emoji_list[j].innerText);
@@ -27083,6 +27129,7 @@
       TS.members.presence_changed_sig.add(_memberChangedPresence);
       TS.members.changed_name_sig.add(_memberChanged);
       TS.members.changed_profile_sig.add(_memberChanged);
+      TS.members.changed_current_status_sig.add(_memberChanged);
       TS.members.changed_account_type_sig.add(_memberChanged);
       TS.members.changed_deleted_sig.add(_memberChangedDeleted);
       TS.prefs.display_real_names_override_changed_sig.add(_displayNamePrefChanged);

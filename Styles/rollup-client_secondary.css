@@ -6802,29 +6802,28 @@ only screen and (min-resolution:2dppx) {
   margin-top: 1rem
 }
 
-#member_preview_scroller .member_details .member_action_bar a.btn,
-#member_preview_web_container .member_details .member_action_bar a.btn,
-.menu_member_header .member_details .member_action_bar a.btn {
+#member_preview_scroller .member_details .member_action_bar .btn,
+#member_preview_web_container .member_details .member_action_bar .btn,
+.menu_member_header .member_details .member_action_bar .btn {
   width: auto
 }
 
-#member_preview_scroller .member_details .member_action_bar a.btn+.btn,
-#member_preview_web_container .member_details .member_action_bar a.btn+.btn,
-.menu_member_header .member_details .member_action_bar a.btn+.btn {
+#member_preview_scroller .member_details .member_action_bar .btn+.btn,
+#member_preview_web_container .member_details .member_action_bar .btn+.btn,
+.menu_member_header .member_details .member_action_bar .btn+.btn {
   margin-left: .25rem
 }
 
-#member_preview_scroller .member_details .member_action_bar a.btn i.ts_icon_chevron_large_down,
-#member_preview_web_container .member_details .member_action_bar a.btn i.ts_icon_chevron_large_down,
-.menu_member_header .member_details .member_action_bar a.btn i.ts_icon_chevron_large_down {
+#member_preview_scroller .member_details .member_action_bar .btn i.ts_icon_chevron_large_down,
+#member_preview_web_container .member_details .member_action_bar .btn i.ts_icon_chevron_large_down,
+.menu_member_header .member_details .member_action_bar .btn i.ts_icon_chevron_large_down {
   padding-left: .0625rem;
   margin: 0
 }
 
-#member_preview_scroller .member_details .member_action_bar a.btn i.ts_icon_chevron_large_down:before,
-#member_preview_web_container .member_details .member_action_bar a.btn i.ts_icon_chevron_large_down:before,
-.menu_member_header .member_details .member_action_bar a.btn i.ts_icon_chevron_large_down:before {
-  font-weight: 700;
+#member_preview_scroller .member_details .member_action_bar .btn i.ts_icon_chevron_large_down:before,
+#member_preview_web_container .member_details .member_action_bar .btn i.ts_icon_chevron_large_down:before,
+.menu_member_header .member_details .member_action_bar .btn i.ts_icon_chevron_large_down:before {
   position: relative;
   top: .125rem
 }
@@ -7112,6 +7111,29 @@ only screen and (min-resolution:2dppx) {
   background-position-x: 50%
 }
 
+.flexbox_client #team_tab #member_preview_container .member_action_bar {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+.flexbox_client #team_tab #member_preview_container .member_action_bar .btn {
+  padding-top: 0;
+  padding-bottom: 0
+}
+
+.flexbox_client #team_tab #member_preview_container .account_settings_link .ts_icon_cog_o,
+.flexbox_client #team_tab #member_preview_container .member_preview_menu_target .ts_icon_chevron_large_down {
+  font-size: 20px;
+  margin-right: 0
+}
+
+.flexbox_client #team_tab #member_preview_container .account_settings_link .ts_icon_cog_o {
+  line-height: 1.8
+}
+
 @media only screen and (-webkit-min-device-pixel-ratio:2),
 only screen and (min-resolution:2dppx),
 only screen and (min-resolution:192dpi) {
@@ -7347,6 +7369,10 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 #client-ui .searchable_member_list_input {
   padding-left: 1.8rem
+}
+
+#client-ui .searchable_member_list .team_list_item {
+  width: 100%
 }
 
 #client-ui #team_list_container .searchable_member_list_search {

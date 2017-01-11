@@ -1609,6 +1609,12 @@
       });
       return Promise.join(channels_view_p, users_counts_p, function(channels_view_resp, users_counts_resp) {
         TS._incremental_boot = true;
+        if (TS.boot_data.user_id == "W1H63D57F") {
+          TS.info("Karine-only incremental boot debugging!");
+          TS.info("channels.view arguments: " + JSON.stringify(channels_view_args));
+          TS.info("channels.view response: " + JSON.stringify(channels_view_resp));
+          TS.info("users.counts response: " + JSON.stringify(users_counts_resp));
+        }
         var has_mpims = _.get(users_counts_resp, "data.mpims.length", 0) > 0 && !TS.qs_args["ignore_mpims"];
         if (!call_users_counts || has_mpims) {
           $("#col_channels").addClass("placeholder");
@@ -2232,6 +2238,17 @@
       } else if (typeof translation !== "function") {
         translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
       }
+      if (_is_dev || TS.qs_args.local_assets || TS.qs_args.js_path) {
+        translations[key].toString = function() {
+          var dev_warning_key = ns + "." + key;
+          if (_dev_warned_translations.indexOf(dev_warning_key) >= 0) return;
+          _dev_warned_translations.push(dev_warning_key);
+          var example_invocation = "TS.i18n.t(" + JSON.stringify(key) + ", " + JSON.stringify(ns) + ")";
+          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + example_invocation + " when you meant to do " + example_invocation + "()");
+          alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + ns + "\nKey: " + key);
+          return "";
+        };
+      }
       return translations[key];
     },
     number: function(num) {
@@ -2275,6 +2292,7 @@
   var _translations;
   var _is_dev;
   var _is_pseudo;
+  var _dev_warned_translations = [];
   var _setup = function() {
     _is_dev = location.host.match(/(dev[0-9]*)\.slack.com/);
     if (_is_dev) {
@@ -3767,7 +3785,9 @@
       _emoji.include_text = !!options.include_text;
       _emoji.supports_css = !options.force_img;
       _emoji.allow_skin_tone_squares = !options.no_skin_tone_squares;
-      var html = _emoji.replace_colons(str);
+      var html = _emoji.replace_colons(str, {
+        stop_animations: options.stop_animations
+      });
       if (options.jumbomoji) {
         html = html.replace("emoji-sizer", "emoji-sizer emoji-only");
       }

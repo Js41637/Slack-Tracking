@@ -115,8 +115,8 @@
       <a id="member_deleted_view_archives_btn" href="/archives/{{member.name}}" target="{{newWindowName}}" class="btn btn_outline {{#memberHasIm member=member}}{{else}}hidden{{/memberHasIm}}">{{#t}}View Archives{{/t}}</a>
     {{else}}
       {{#if member.is_self}}
-        <a data-action="edit_member_profile_modal" class="btn btn_outline">{{#t}}Edit Profile{{/t}}</a>
-        <a href="/account/settings" target="{{newWindowName}}" class="btn btn_outline">{{#t}}Account Settings{{/t}}</a>
+        <button type="button" data-action="edit_member_profile_modal" class="btn btn_outline">{{#t}}Edit Profile{{/t}}</button>
+        <a href="/account/settings" target="{{newWindowName}}" class="btn btn_outline account_settings_link ts_tip ts_tip_bottom ts_tip_float" aria-label="{{#t}}Account Settings{{/t}}" title="{{#t}}Account Settings{{/t}}"><ts-icon class="ts_icon_cog_o"></ts-icon></a>
       {{else}}
         {{!-- Show "configure" link to the creator of the bot (Web ONLY) and team admins (everywhere) --}}
         {{#if show_bot_configuration}}
@@ -140,7 +140,7 @@
     {{/if}}
 
     {{#unless hide_more_menu}}
-      <a class="member_preview_menu_target btn btn_outline"><i class="ts_icon ts_icon_chevron_large_down"></i></a>
+      <button type="button" class="member_preview_menu_target btn btn_outline ts_tip ts_tip_bottom ts_tip_float" title="{{#t}}More actions{{/t}}"><ts-icon class="ts_icon_chevron_large_down"></ts-icon></button>
     {{/unless}}
 
   </div>
