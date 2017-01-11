@@ -23652,16 +23652,17 @@ TS.registerModule("constants", {
     ones_digit_ordinal_names: [TS.i18n.t("zeroth", "date_utilities")(), TS.i18n.t("first", "date_utilities")(), TS.i18n.t("second", "date_utilities")(), TS.i18n.t("third", "date_utilities")(), TS.i18n.t("fourth", "date_utilities")(), TS.i18n.t("fifth", "date_utilities")(), TS.i18n.t("sixth", "date_utilities")(), TS.i18n.t("seventh", "date_utilities")(), TS.i18n.t("eighth", "date_utilities")(), TS.i18n.t("ninth", "date_utilities")(), TS.i18n.t("tenth", "date_utilities")(), TS.i18n.t("eleventh", "date_utilities")(), TS.i18n.t("twelveth", "date_utilities")()],
     toDateObject: function(ts) {
       var date;
-      if (ts && typeof ts == "string" && ts.indexOf("-") > -1) {
+      if (ts && typeof ts === "string" && ts.indexOf("-") > -1) {
         var A = ts.split("-");
         if (A.length >= 3) {
           date = new Date(A[0], A[1] - 1, A[2]);
         } else {
+          TS.warn("toDateObject() requires a date string in the format of YYYY-MM-DD");
           date = new Date(0);
         }
       } else {
         var ts_string = (ts || "0").toString();
-        if (ts_string.indexOf(".") != -1) {
+        if (ts_string.indexOf(".") !== -1) {
           date = new Date(ts_string.split(".")[0] * 1e3);
         } else {
           date = new Date(ts * 1e3);

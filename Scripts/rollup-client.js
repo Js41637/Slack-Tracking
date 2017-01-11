@@ -8969,6 +8969,7 @@
       if (TS.boot_data.feature_sli_recaps) {
         $header.delegate("#sli_recap_toggle", "click", function(e) {
           e.preventDefault();
+          var user_action = true;
           if ($(this).hasClass("active")) {
             TS.recaps_signal.logToggleClick(false);
             if (TS.client && !TS.model.prefs.seen_highlights_coachmark) {
@@ -8984,10 +8985,10 @@
                 });
               }, 500);
             }
-            TS.recaps_signal.toggleOffHighlights();
+            TS.recaps_signal.toggleOffHighlights(user_action);
           } else {
             TS.recaps_signal.logToggleClick(true);
-            TS.recaps_signal.toggleOnHighlights();
+            TS.recaps_signal.toggleOnHighlights(user_action);
             TS.recaps_signal.handleUpdateScrollbar();
           }
         });
@@ -9370,7 +9371,7 @@
     $("#client-ui").removeClass("details_showing");
     $(".channel_header_icon.active").removeClass("active");
     if (TS.boot_data.feature_sli_recaps) {
-      TS.recaps_signal.toggleOnHighlights();
+      TS.recaps_signal.toggleOffHighlights();
     }
     if (model_ob) {
       if (model_ob.is_im || model_ob.is_mpim) {
@@ -9508,6 +9509,9 @@
         items: this._members,
         approx_item_height: this._approx_item_height,
         approx_divider_height: this._approx_divider_height,
+        calcItemHeight: function($el, item, data) {
+          return $el.outerHeight();
+        },
         makeElement: function(data) {
           return $(TS.templates.team_list_item({
             is_channel_membership: this_searchable_member_list._channel_member_ids,
@@ -27924,10 +27928,28 @@
       var member;
       for (var i = 0; i < model_ob.members.length; i++) {
         member = TS.members.getMemberById(model_ob.members[i]);
-        if (member && !member.deleted) {
-          member_count++;
-          if (member.presence === "active") online_count++;
-          if (member.is_restricted) restricted_count++;
+        if (member) {
+          if (TS.boot_data.page_needs_enterprise) {
+            if (model_ob.is_shared) {
+              if (!member.deleted) {
+                member_count++;
+                if (member.presence === "active") online_count++;
+                if (member.is_restricted) restricted_count++;
+              }
+            } else {
+              if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
+                member_count++;
+                if (member.presence === "active") online_count++;
+                if (member.is_restricted) restricted_count++;
+              }
+            }
+          } else {
+            if (!member.deleted) {
+              member_count++;
+              if (member.presence === "active") online_count++;
+              if (member.is_restricted) restricted_count++;
+            }
+          }
         }
       }
       var is_loading_members = false;
@@ -28027,8 +28049,22 @@
       var member;
       for (var i = 0; i < model_ob.members.length; i++) {
         member = TS.members.getMemberById(model_ob.members[i]);
-        if (member && !member.deleted) {
-          members.push(member);
+        if (member) {
+          if (TS.boot_data.page_needs_enterprise) {
+            if (model_ob.is_shared) {
+              if (!member.deleted) {
+                members.push(member);
+              }
+            } else {
+              if (member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1) {
+                members.push(member);
+              }
+            }
+          } else {
+            if (!member.deleted) {
+              members.push(member);
+            }
+          }
         }
       }
       members.sort(TS.members.memberSorterByActiveWithBotsLast);
