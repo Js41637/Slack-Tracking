@@ -15947,6 +15947,45 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   border: 1px solid transparent
 }
 
+.lazy_filter_select.single.message_menu_style {
+  max-width: 15.625rem;
+  min-width: 9.375rem
+}
+
+.lazy_filter_select.single.message_menu_style .lfs_input_container {
+  padding: 0
+}
+
+.lazy_filter_select.single.message_menu_style .lfs_input_container .lfs_input,
+.lazy_filter_select.single.message_menu_style .lfs_input_container .lfs_value {
+  font-size: .8125rem;
+  padding-left: .625rem;
+  padding-top: .375rem;
+  padding-right: 1.6875rem;
+  padding-bottom: .375rem
+}
+
+.lazy_filter_select.single.message_menu_style .lfs_input_container::after {
+  color: #555459;
+  font-size: 1.125rem;
+  line-height: 1;
+  right: .3125rem;
+  top: .3125rem
+}
+
+.lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_group {
+  color: #9e9ea6;
+  font-size: .875rem
+}
+
+.lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_item {
+  font-size: .8125rem
+}
+
+.lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_item.group_item {
+  padding-left: .75rem
+}
+
 label.select[data-lazy-filter-select]:after,
 label[data-lazy-filter-select] select,
 select[data-lazy-filter-select] {

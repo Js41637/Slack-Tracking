@@ -42,9 +42,14 @@
         failed_verification
       {{/if}}
     "
-    placeholder="https://my.app.com/slack/action-endpoint"
+    placeholder="{{#t note="example url endpoint"}}https://my.app.com/slack/action-endpoint{{/t}}"
     {{#or unverified first_verification}}
-      data-validation="isurl=https" data-validation-success=" " data-validation-error="{{#t}}Valid HTTPS URLs only, please and thanks!{{/t}}"
+      data-validation="isurl{{#unless allow_non_https}}=https{{/unless}}" data-validation-success=" "
+      {{#if allow_non_https}}
+        data-validation-error="{{#t}}Valid URLs only, please and thanks!{{/t}}"
+      {{else}}
+        data-validation-error="{{#t}}Valid HTTPS URLs only, please and thanks!{{/t}}"
+      {{/if}}
     {{else}}
       disabled
     {{/or}}
@@ -95,7 +100,17 @@
       </span>
     </label>
     {{!-- Input Field for New Request URL --}}
-    <input type="text" name="new_request_url" id="request_url" class="small no_bottom_margin new_request_url request_url verified" placeholder="https://my.app.com/slack/action-endpoint" data-validation="isurl=https" data-validation-success=" " data-validation-warning="Valid HTTPS URLs only, please and thanks!"value="{{new_url}}"><br>
+    <input type="text" name="new_request_url" id="request_url" class="small no_bottom_margin new_request_url request_url verified"
+      placeholder="{{#t note="example url endpoint"}}https://my.app.com/slack/action-endpoint{{/t}}"
+      data-validation="isurl{{#unless allow_non_https}}=https{{/unless}}"
+      data-validation-success=" "
+      {{#if allow_non_https}}
+        data-validation-warning="{{#t}}Valid URLs only, please and thanks!{{/t}}"
+      {{else}}
+        data-validation-warning="{{#t}}Valid HTTPS URLs only, please and thanks!{{/t}}"
+      {{/if}}
+      value="{{new_url}}">
+    <br>
     <div class="inline_textfield_button">
   \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0<button id="cancel_change_url" class="btn btn_small btn_outline small_top_margin" for="request_url">{{#t note="cancel button"}}Cancel{{/t}}</button>
     {{#if failed_verification}}

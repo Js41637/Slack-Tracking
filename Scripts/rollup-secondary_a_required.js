@@ -16159,7 +16159,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.id + " changed topic for channel " + imsg.channel + " to " + imsg.topic);
+      TS.info(member.id + " changed topic for channel " + imsg.channel);
       TS.channels.topicChanged(channel, member.id, imsg.ts, imsg.topic);
     },
     subtype__channel_purpose: function(imsg) {
@@ -16174,7 +16174,7 @@ TS.registerModule("constants", {
         TS.error('unknown member: "' + user_id + '"');
         return;
       }
-      TS.info(member.id + " changed purpose for channel " + imsg.channel + " to " + imsg.purpose);
+      TS.info(member.id + " changed purpose for channel " + imsg.channel);
       TS.channels.purposeChanged(channel, member.id, imsg.ts, imsg.purpose);
     },
     channel_history_changed: function(imsg) {
@@ -45267,7 +45267,8 @@ $.fn.togglify = function(settings) {
       disabled: disabled,
       lfs_token: token,
       selected: selected,
-      single: instance.single
+      single: instance.single,
+      group_item: $item.hasClass("group_item")
     };
     if (_.isFunction(instance.tokenClass)) {
       class_map[instance.tokenClass(item)] = true;
@@ -45888,7 +45889,8 @@ $.fn.togglify = function(settings) {
         var applied_classes = TS.utility.getAppliedClasses({
           disabled: item.disabled || item.lfs_disabled,
           selected: _isAlreadySelected(instance, item),
-          single: instance.single
+          single: instance.single,
+          group_item: $item.hasClass("group_item")
         });
         $el.attr("data-lfs-id", item.lfs_id).removeClass(remove_classes).addClass(applied_classes).html(instance.template(item).string);
         $el.attr("data-qa", instance.data_qa + "-item-" + item.lfs_id);
@@ -55716,7 +55718,7 @@ $.fn.togglify = function(settings) {
           var has_selected_options = _.some($el.find("option"), "attributes.selected");
           var lfs_options = {
             allow_list_position_above: true,
-            classes: "select_attachment",
+            classes: "select_attachment message_menu_style",
             disabled: $el.attr("disabled"),
             filter: _filter,
             no_default_selection: !has_selected_options,

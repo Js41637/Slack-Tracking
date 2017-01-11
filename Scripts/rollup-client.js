@@ -31886,8 +31886,10 @@
     });
     if (send_notifications_for == "never") {
       $("#no_text_in_notifications_cb").prop("disabled", true).prop("checked", false).closest("label").addClass("disabled");
+      $("#threads_everything_cb").prop("disabled", true).prop("checked", false).closest("label").addClass("disabled");
     } else {
       $("#no_text_in_notifications_cb").prop("disabled", false).prop("checked", TS.model.prefs.no_text_in_notifications !== true).closest("label").removeClass("disabled");
+      $("#threads_everything_cb").prop("disabled", false).prop("checked", !!TS.model.prefs.threads_everything).closest("label").removeClass("disabled");
     }
     $('input:radio[name="sound_option_rd"]').each(function() {
       if ($(this).val() == TS.model.prefs.new_msg_snd) {

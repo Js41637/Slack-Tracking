@@ -20607,11 +20607,12 @@ ts-thread ts-message.selected .action_hover_container {
 .reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container label {
   font-weight: inherit;
   font-size: inherit;
-  max-width: 100%;
+  max-width: calc(80%);
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  display: inline-block
+  display: inline-block;
+  margin-bottom: 0
 }
 
 #reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container input[type=checkbox],
@@ -20621,8 +20622,18 @@ ts-thread ts-message.selected .action_hover_container {
 
 #reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon,
 .reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon {
-  font-size: 1.125rem;
+  font-size: 1.125rem
+}
+
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_lock,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_lock {
   margin-right: -.0625rem
+}
+
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle {
+  top: -.25rem;
+  color: #a0a0a2
 }
 
 #reply_container .reply_broadcast_buttons_container .reply_send,
