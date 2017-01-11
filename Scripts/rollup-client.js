@@ -287,6 +287,9 @@
         TS.model.active_group_id = model_ob_id;
       }
       TS.model.active_cid = TS.model.active_channel_id || TS.model.active_im_id || TS.model.active_group_id || TS.model.active_mpim_id;
+      if (TS.boot_data.feature_sli_recaps) {
+        TS.recaps_signal.maybeMarkChannelAsDirty();
+      }
       TSSSB.call("displayChannel", TS.model.active_cid);
       TS.view.updateTitleWithContext();
       model_ob.last_made_active = Date.now();
@@ -24897,7 +24900,7 @@
       var lfs_values = [];
       if (val === "multi") {
         lfs_values = _$current_option.find("#lfs_channel_posting").lazyFilterSelect("value");
-        if (lfs_values.lenth) {
+        if (lfs_values.length) {
           val = "owner";
         } else {
           val = "admin";
