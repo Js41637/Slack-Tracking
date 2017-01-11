@@ -33,25 +33,69 @@
 
     {{!-- line of misc meta below channel name (star, members, pins, topic, member name, presence, etc) --}}
     <div id="channel_header_info" class="channel_header_info">
-      {{#if move_star_in_channel_header}}<div id="star_container" class="star_container"></div><span class="topic_divider">|</span>{{/if}}
-      {{#if member}}<span class="header_user_status overflow_ellipsis{{#feature flag="feature_user_custom_status"}} feature_user_custom_status{{/feature}}">{{{makeMemberPresenceIcon member}}}<span id="header_status_message"></span>{{#feature flag="feature_user_custom_status"}}{{#if member.profile.current_status}}<span class="current_status_bullet">&nbsp;\u2022&nbsp;</span><span class="current_status overflow_ellipsis ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline ts_tip_delay_600">{{getMemberCurrentStatus member}}<span class="ts_tip_tip">
-        <span class="ts_tip_multiline_inner current_user_current_status">
-          {{getMemberCurrentStatus member}}
-        </span>
-      </span></span>{{/if}}{{/feature}}{{#feature flag="feature_name_tagging_client"}}{{#if member.profile.preferred_name}}<span class="topic_divider">|</span><span class="member_alt_name_header">{{getMemberPreferredName member}}</span>{{/if}}{{/feature}}</span>
-      {{else}}<span id="channel_members_toggle_count" class="hidden blue_on_hover ts_tip ts_tip_float ts_tip_bottom ts_tip_leftish"></span>{{/if}}
 
-      <!-- pinned item count -->
-      <span id="pinned_count_divider" class="topic_divider">|</span><span id="pinned_item_count" class="blue_on_hover ts_tip ts_tip_bottom ts_tip_multiline"><ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon "></ts-icon><span id="pinned_item_count_count"></span><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t}}View Pinned Items{{/t}}<br/><span class="subtle_silver pin_count_new_pin_message"></span></span></span></span>
+      {{~#if move_star_in_channel_header~}}
+        <div id="star_container" class="channel_header_info_item star_container"></div>
+      {{~/if~}}
 
-      {{#if show_topic}}<span class="topic_divider">|</span><span id="topic_inline_edit" class="channel_topic inline_edit">
-        <span class="inline_edit_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">
-          <span id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>
+      {{~#if member~}}
+
+        <span class="channel_header_info_item channel_header_member_status">
+          {{{makeMemberPresenceIcon member}}}
+          <span id="header_status_message"></span>
         </span>
-      </span>{{/if}}
-    </div>
+
+        {{#feature flag="feature_user_custom_status"}}
+          {{#if member.profile.current_status}}
+            <span class="channel_header_info_item channel_header_member_current_status current_status overflow_ellipsis ts_tip ts_tip_bottom ts_tip_multiline ts_tip_float ts_tip_delay_600">
+              {{getMemberCurrentStatus member}}
+              <span class="ts_tip_tip"><span class="ts_tip_multiline_inner current_user_current_status">
+                {{getMemberCurrentStatus member}}
+              </span></span>
+            </span>
+          {{/if}}
+        {{/feature}}
+
+        {{#feature flag="feature_name_tagging_client"}}
+          {{#if member.profile.preferred_name}}
+            <span class="channel_header_info_item channel_header_member_alt_name">{{getMemberPreferredName member}}</span>
+          {{/if}}
+        {{else}}
+          <span class="channel_header_info_item channel_header_member_alt_name"></span>
+        {{/feature}}
+
+      {{~else~}}
+
+        <span id="channel_members_toggle_count" class="channel_header_info_item hidden blue_on_hover ts_tip ts_tip_bottom ts_tip_multiline">{{!--
+          --}}<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon>
+          <span id="channel_members_toggle_count_count"></span>{{!--
+          --}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">
+            {{#t}}View member list{{/t}}
+          </span></span>{{!--
+        --}}</span>
+
+      {{~/if~}}
+
+      <span id="pinned_item_count" class="channel_header_info_item blue_on_hover ts_tip ts_tip_bottom ts_tip_multiline">{{!--
+        --}}<ts-icon class="ts_icon_thumb_tack ts_icon_inherit ts_icon_align_bottom pinned_count_icon"></ts-icon>{{!--
+        --}}<span id="pinned_item_count_count"></span>{{!--
+        --}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">
+          {{#t}}View Pinned Items{{/t}}<br /><span class="subtle_silver pin_count_new_pin_message"></span>
+        </span></span>{{!--
+      --}}</span>
+
+      {{~#if show_topic~}}
+        <span class="channel_header_info_item" role="presentation"></span>{{!-- this needs to be a separate element because inline_edit is finicky
+        --}}<span id="topic_inline_edit" class="channel_topic inline_edit">{{!--
+          --}}<span class="inline_edit_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
+            --}}<span id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
+          --}}</span>{{!--
+        --}}</span>
+      {{~/if~}}
+
+    </div>{{!--/channel_header_info--}}
   {{/if}}
-</div>
+</div>{{!--/channel_title--}}
 
 <div class="channel_title_info">
   {{#if all_unreads.is_showing}}

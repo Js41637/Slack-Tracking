@@ -8058,10 +8058,9 @@
   };
   var _rebuildMemberCount = function(has_count, count) {
     var en_dash = "–";
-    var display_count = has_count ? TS.i18n.number(count) : en_dash;
-    var $member_count = $("#channel_members_toggle_count");
-    $member_count.html('<ts-icon class="ts_icon_user ts_icon_inherit channel_members_icon"></ts-icon> ' + display_count + '<span class="ts_tip_tip">' + TS.i18n.t("View member list", "client")() + "</span>");
-    $member_count.removeClass("hidden");
+    var display_count = has_count ? TS.i18n.number(count, "client") : en_dash;
+    $("#channel_members_toggle_count_count").text(display_count);
+    $("#channel_members_toggle_count").removeClass("hidden");
   };
 })();
 (function() {
@@ -11633,24 +11632,21 @@
   var _buildPinnedItemsLink = function() {
     if (!_model_ob) return;
     var $pinned_count = $("#pinned_item_count");
-    var $pinned_count_divider = $("#pinned_count_divider");
     var $pinned_count_number = $("#pinned_item_count_count");
     var pins = _model_ob.pinned_items;
     _markUnreadPinIcon(_model_ob);
     if (!_model_ob.has_pins) {
       if (_model_ob.is_channel) {
-        $pinned_count_number.html(TS.i18n.number(0, "client"));
+        $pinned_count_number.text(TS.i18n.number(0, "client"));
       } else {
-        $pinned_count.hide();
-        $pinned_count_divider.hide();
+        $pinned_count.addClass("hidden");
       }
     } else if (!pins) {
-      $pinned_count_number.html(" ");
+      $pinned_count_number.text("");
     } else {
       $pinned_count_number.html(TS.i18n.number(pins.length, "client"));
       if (!_model_ob.is_channel) {
-        $pinned_count.show();
-        $pinned_count_divider.show();
+        $pinned_count.removeClass("hidden");
       }
     }
   };
@@ -11703,24 +11699,18 @@
   };
   var _dealWithDMNames = function(member) {
     var display_name = TS.members.getMemberDisplayName(member);
-    var $status_display = $("#channel_header_info .header_user_status");
-    var alt_name_container = '<span class="topic_divider">|</span><span class="member_alt_name_header"></span>';
-    var alt_name;
+    var $alt_name = $("#channel_header_info .channel_header_member_alt_name");
     if (display_name !== member.profile.real_name) {
       $("#im_title").prepend("@");
     }
     if (display_name !== member.profile.real_name && member.profile.real_name) {
-      alt_name = member.profile.real_name;
-      $status_display.append(alt_name_container);
-      $("#channel_header_info .member_alt_name_header").text(alt_name);
+      $alt_name.text(member.profile.real_name);
     } else if (display_name === member.profile.real_name) {
-      alt_name = "@" + member.name;
-      $status_display.append(alt_name_container);
-      $("#channel_header_info .member_alt_name_header").text(alt_name);
+      $alt_name.text("@" + member.name);
     }
   };
   var _makeDMHeaderInfo = function() {
-    var $user_status = $("#channel_header_info .header_user_status");
+    var $user_status = $("#channel_header_info .channel_header_member_status");
     var im = TS.ims.getImById(TS.model.active_im_id);
     var member = TS.members.getMemberById(im.user);
     var presence_state = TS.templates.makeMemberPresenceStateClass(member);
@@ -11793,7 +11783,7 @@
     } else if (TS.model.active_mpim_id) {
       star = TS.templates.builders.buildStarWithTip("mpim", _model_ob);
     }
-    $("#star_container").html(star);
+    $("#star_container").html(_.trim(star));
   };
   var _setMutedDisplay = function() {
     if (!_model_ob) return;
@@ -11929,8 +11919,6 @@
     $threads_header_info.text(text);
   };
   var _HIDDEN_CHANNEL_JOIN_ALERT_DURATION = 5e3;
-  var _HIDDEN_CHANNEL_JOIN_TOGGLE_EXTRA_CLASSNAME = "ts_tip_multiline";
-  var _HIDDEN_CHANNEL_JOIN_TOOLTIP_EXTRA_CLASSNAME = "ts_tip_multiline_inner";
   var _hidden_channel_join_member_names = {};
   var _hidden_channel_join_alert_timeout_id;
   var _queueHiddenChannelJoinAlert = function(channel, member, is_msg_hidden) {
@@ -11942,7 +11930,6 @@
   };
   var _alertHiddenChannelJoins = function() {
     var $toggle = $("#channel_members_toggle_count");
-    var $tooltip = $toggle.find(".ts_tip_tip");
     var active_channel_id = TS.model.active_channel_id;
     var active_channel_queued_member_names = _hidden_channel_join_member_names[active_channel_id] || [];
     var has_no_queued_members = active_channel_queued_member_names.length === 0;
@@ -11953,13 +11940,9 @@
     if (_hidden_channel_join_alert_timeout_id) {
       clearTimeout(_hidden_channel_join_alert_timeout_id);
     } else {
-      $toggle.addClass(_HIDDEN_CHANNEL_JOIN_TOGGLE_EXTRA_CLASSNAME);
-      $tooltip.addClass(_HIDDEN_CHANNEL_JOIN_TOOLTIP_EXTRA_CLASSNAME);
       _toggleChannelMemberIconFill();
     }
     _hidden_channel_join_alert_timeout_id = setTimeout(function() {
-      $tooltip.removeClass(_HIDDEN_CHANNEL_JOIN_TOOLTIP_EXTRA_CLASSNAME);
-      $toggle.removeClass(_HIDDEN_CHANNEL_JOIN_TOGGLE_EXTRA_CLASSNAME);
       _toggleChannelMemberIconFill();
       TS.client.ui.rebuildMemberListToggle();
       _hidden_channel_join_member_names = {};

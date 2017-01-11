@@ -12466,6 +12466,10 @@ only screen and (min-resolution:2dppx) {
   text-decoration: none
 }
 
+.current_status_input_container {
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
 .current_status_input_container label.countdown:after {
   margin-right: 1.125rem;
   z-index: 1
