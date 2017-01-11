@@ -7196,7 +7196,7 @@ only screen and (min-resolution:2dppx) {
   visibility: hidden
 }
 
-#search_container.onboarding .highlighter_wrapper {
+#search_container.onboarding .search_input_wrapper {
   cursor: default;
   background: #f7f7f7;
   border: 1px solid #f7f7f7;
@@ -7205,11 +7205,11 @@ only screen and (min-resolution:2dppx) {
   height: 30px
 }
 
-#search_container.onboarding .highlighter_wrapper>#search_terms,
-#search_container.onboarding .highlighter_wrapper>.highlight_underlay,
-#search_container.onboarding .highlighter_wrapper~#search_autocomplete_popover,
-#search_container.onboarding .highlighter_wrapper~.icon_loading~#search_clear,
-#search_container.onboarding .highlighter_wrapper~.icon_search {
+#search_container.onboarding .search_input_wrapper>#search_terms,
+#search_container.onboarding .search_input_wrapper>.highlight_underlay,
+#search_container.onboarding .search_input_wrapper~#search_autocomplete_popover,
+#search_container.onboarding .search_input_wrapper~.icon_loading~#search_clear,
+#search_container.onboarding .search_input_wrapper~.icon_search {
   display: none!important;
   visibility: hidden!important
 }

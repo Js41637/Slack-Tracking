@@ -9814,7 +9814,13 @@ body.winssb .file_list_item {
 }
 
 .flexpane_redesign #file_preview_scroller {
+  padding-left: .625rem;
   padding-right: .375rem
+}
+
+.flexpane_redesign .monkey_scroll_wrapper #file_preview_scroller {
+  padding-left: 1.125rem;
+  padding-right: 1.125rem
 }
 
 #file_preview_scroller h3 {
@@ -9824,6 +9830,14 @@ body.winssb .file_list_item {
 #file_preview_head_section {
   position: relative;
   margin: 1rem 0 2rem
+}
+
+.flexpane_redesign #file_preview_head_section {
+  margin-top: .625rem
+}
+
+.flexpane_redesign .monkey_scroll_wrapper #file_preview_head_section {
+  margin-top: 1.125rem
 }
 
 a.gsheet img,
@@ -19252,6 +19266,7 @@ ts-message .emoji-sizer .mention {
 
 .flexpane_redesign #convo_container ts-conversation ts-message.selected {
   border-top: 0;
+  padding-top: .4375rem!important;
   padding-right: .625rem
 }
 
@@ -24319,7 +24334,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .channel_header_member_status .presence {
-  width: 14px;
+  width: 11px;
   height: auto;
   position: static;
   margin: auto
@@ -24649,9 +24664,6 @@ ts-jumper ts-jumper-results:empty {
 }
 
 #search_container .search_input {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1;
   font-size: 15px;
   height: auto;
   padding-left: 0!important;
@@ -24668,8 +24680,8 @@ ts-jumper ts-jumper-results:empty {
   box-shadow: none
 }
 
-.icon_search_wrap,
-.search_clear_icon_wrap {
+.icon_search_wrapper,
+.search_clear_icon_wrapper {
   width: 30px
 }
 
@@ -24740,7 +24752,7 @@ ts-jumper ts-jumper-results:empty {
   display: block
 }
 
-.highlighter_wrapper {
+.search_input_wrapper {
   font-size: 15px;
   display: -webkit-box;
   display: -webkit-flex;

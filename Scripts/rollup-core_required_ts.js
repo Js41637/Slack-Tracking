@@ -2238,7 +2238,7 @@
       } else if (typeof translation !== "function") {
         translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
       }
-      if (_is_dev || TS.qs_args.local_assets || TS.qs_args.js_path) {
+      if (_is_dev && (TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path)) {
         translations[key].toString = function() {
           var dev_warning_key = ns + "." + key;
           if (_dev_warned_translations.indexOf(dev_warning_key) >= 0) return;

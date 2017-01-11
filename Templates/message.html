@@ -182,7 +182,7 @@
       <span class="message_body">{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}{{!
         }}{{{formatMessageByType msg do_inline_imgs enable_slack_action_links model_ob starred_items_list}}}{{!
         }}{{#unless no_attachments}}{{{formatAttachments msg model_ob enable_slack_action_links msg_dom_id}}}{{/unless}}{{!
-        }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{#t note="when message was last edited" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time}{{/t}}"> {{#t note="indication a message was edited"}}(edited){{/t}}</span>{{/if}}{{!
+        }}{{#if msg.edited}}<span class="edited ts_tip ts_tip_top ts_tip_float ts_tip_delay_300" title="{{#t note="when message was last edited" date=(toCalendarDateOrNamedDayShort msg.edited.ts) time=(toTime msg.edited.ts)}}{date} at {time}{{/t}}"> {{#t note="indication a message was edited"}}(edited){{/t}}</span>{{/if}}{{!
         }}{{#if show_user}}{{#if is_ephemeral}}<span class="only_visible_to_user">{{#t note="indication on an ephemeral message that it is not visible to anyone else in the channel"}}Only visible to you{{/t}}</span>{{/if}}{{/if}}{{!
       }}{{#feature flag="feature_better_msg_copying"}}<span class="constrain_triple_clicks"></span>{{/feature}}</span>
 

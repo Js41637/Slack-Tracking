@@ -4,32 +4,18 @@
 
   {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
 
-  <form class="fs_split_flex_wrapper">
+  <div class="fs_split_flex_wrapper">
 
     <div class="fs_split_body">
-      <h1>{{#t}}Use your Google account to create a Slack team{{/t}}</h1>
-      {{#t}}<p class="desc">Your email, <span class="bold flat_grey">{email}</span>, looks like it\u2019s hosted by Google Apps. You can skip a handful of steps by signing up using Google.</p>
-      <p class="desc">Anyone with an @{email_domain} email address will be able to join this team without an invitation.</p>{{/t}}
-      
-      <div class="align_center very_large_top_margin">
-        {{> create_inc_email_misc this}}
-      </div>
+      <h1>{{#t}}Use your Google account to sign up for Slack{{/t}}</h1>
+      {{#t}}<p class="desc">Connect your <span class="bold">{email_domain}</span> Google account to quickly invite teammates.{{/t}}
 
-      <div class="button_container medium_bottom_margin">
-        <a href="{{auth_url}}" class="btn btn_large google_signin_button full_width">
-          <span class="ladda-label">{{> ts_icon class="ts_icon_google"}} {{#t}}Sign in to Google{{/t}}</span>
+      <div class="google_signin_button_container">
+        <a id="skip_button" class="btn btn_large btn_outline">Skip for now</a>
+        <a href="{{auth_url}}" target="_blank" class="btn btn_large google_signin_button">
+          <span class="ladda-label">{{> ts_icon class="ts_icon_google"}} {{#t note="Button text for prompting the user to sign in to their Google account."}}Connect{{/t}}</span>
         </a>
       </div>
-
-      <div class="align_center">
-        <p id="google_signin_create_team" class="subtle_silver">{{#t}}or <a class="subtle_silver underline" href="#teamname">create team manually</a></p>{{/t}}
-      </div>
     </div>
-
-
-    <div id="submit" class="fs_split_footer"></div>
-
-    {{> create_inc_legalese_mobile}}
-  </form>
-
+  </div>
 </div>

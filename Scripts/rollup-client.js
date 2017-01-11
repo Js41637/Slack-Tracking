@@ -16816,12 +16816,8 @@
     },
     _renderUI: function() {
       var widget_prefix = this.widgetName + "_";
-      var wrapper_class = widget_prefix + "wrapper";
-      var wrapper_selector = "." + wrapper_class;
-      var wrapper = $('<div class="' + wrapper_class + '"/>');
       this._$underlay = $('<div class="' + widget_prefix + UNDERLAY_CLASS + '"/>');
-      this.element.wrap(wrapper);
-      this._$wrapper = this.element.closest(wrapper_selector);
+      this._$wrapper = this.element.parent();
       this._$wrapper.append(this._$underlay);
       this.element.addClass("search_input_highlighted");
       this._updateSizing();
