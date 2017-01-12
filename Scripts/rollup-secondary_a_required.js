@@ -19928,7 +19928,6 @@ TS.registerModule("constants", {
       var user_group;
       var user_groups = [];
       var disabled_user_groups = [];
-      var show_delete = TS.boot_data.feature_subteams_hard_delete;
       var show_toggle = TS.permissions.members.canCreateAndDeleteUserGroups();
       for (var i = 0; i < all_user_groups.length; i++) {
         user_group = all_user_groups[i];
@@ -19943,7 +19942,6 @@ TS.registerModule("constants", {
       return TS.templates.user_group_list({
         user_groups: user_groups,
         disabled_user_groups: disabled_user_groups,
-        show_delete: show_delete,
         show_toggle: show_toggle,
         is_flexpane: is_flexpane,
         show_user_groups_help: show_user_groups_help
@@ -31697,13 +31695,11 @@ TS.registerModule("constants", {
       TS.menu.$menu.addClass("no_min_width");
       var show_user_groups_disable = TS.permissions.members.canCreateAndDeleteUserGroups() && !TS.menu.user_group.date_delete;
       var show_user_groups_enable = TS.permissions.members.canCreateAndDeleteUserGroups() && TS.menu.user_group.date_delete;
-      var show_user_group_delete = TS.boot_data.feature_subteams_hard_delete && !TS.menu.user_group.auto_type && !TS.menu.user_group.is_external;
       TS.menu.$menu_header.addClass("hidden").empty();
       TS.menu.$menu_items.html(TS.templates.user_group_items({
         show_user_groups_edit: TS.permissions.members.canEditUserGroups(),
         show_user_groups_disable: show_user_groups_disable,
-        show_user_groups_enable: show_user_groups_enable,
-        show_user_group_delete: show_user_group_delete
+        show_user_groups_enable: show_user_groups_enable
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onUserGroupMenuItemClick);
       TS.menu.start(e);
@@ -50861,8 +50857,7 @@ $.fn.togglify = function(settings) {
     }
     _$user_groups_toggle_div.html(TS.templates.user_group_toggle({
       action: action,
-      user_group: user_group,
-      show_delete: TS.boot_data.feature_subteams_hard_delete && !user_group.auto_type && !user_group.is_external
+      user_group: user_group
     }));
     _$user_groups_toggle_div.find('[data-action="cancel"]').on("click", _onReset);
     _$user_groups_toggle_div.find(".user_group_toggle_btn").on("click", function(e) {
@@ -51172,19 +51167,11 @@ $.fn.togglify = function(settings) {
     _$user_groups_form_div.find(".user_group_members_form").on("reset", function(e) {
       e.preventDefault();
       if (is_new) {
-        if (TS.boot_data.feature_subteams_hard_delete) {
-          TS.user_groups.deleteUserGroup(user_group.id, function(ok, data) {
-            if (_alertIfNotOk(ok, data)) return;
-            _temp_user_group = null;
-            _onReset(e);
-          });
-        } else {
-          TS.user_groups.disableUserGroup(user_group.id, function(ok, data) {
-            if (_alertIfNotOk(ok, data)) return;
-            _temp_user_group = null;
-            _onReset(e);
-          });
-        }
+        TS.user_groups.disableUserGroup(user_group.id, function(ok, data) {
+          if (_alertIfNotOk(ok, data)) return;
+          _temp_user_group = null;
+          _onReset(e);
+        });
       } else {
         _onReset(e);
       }
