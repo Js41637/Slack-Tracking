@@ -143,10 +143,10 @@
     return TS.ms.flannel.call("query_request", query).then(function(resp) {
       if (_.get(resp, "results.length")) {
         objects = objects.concat(process_fn(resp.results));
-        if (query.count && (objects.length >= query.count || !resp.next_marker)) {
+        if (query.limit && (objects.length >= query.limit || !resp.next_marker)) {
           return new Promise.resolve({
-            objects: objects.slice(0, query.count),
-            next_marker: objects.length > query.count ? objects[query.count].id : resp.next_marker
+            objects: objects.slice(0, query.limit),
+            next_marker: objects.length > query.limit ? objects[query.limit].id : resp.next_marker
           });
         }
       }
