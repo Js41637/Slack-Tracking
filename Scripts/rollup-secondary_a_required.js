@@ -14060,13 +14060,12 @@ TS.registerModule("constants", {
       TS.search.view.renderResults(true);
     },
     topResultsFeedback: function(source, feedback_value) {
-      var emoji;
+      var emoji_list = [":bow:"];
       if (feedback_value == "top_results_useful") {
-        var emoji_list = [":tada:", ":raised_hands::skin-tone-4:"];
-        emoji = emoji_list[Math.floor(Math.random() * emoji_list.length)];
-      } else {
-        emoji = ":bow::skin-tone-5:";
+        var random_tone = Math.floor(Math.random() * 5) + 2;
+        emoji_list = [":tada:", ":raised_hands::skin-tone-" + random_tone + ":"];
       }
+      var emoji = emoji_list[Math.floor(Math.random() * emoji_list.length)];
       $(source).closest(".top_results_feedback").html("Thanks for your feedback! " + TS.emoji.graphicReplace(emoji));
       TS.clog.track("SEARCH_FEEDBACK", {
         search_feedback_value: feedback_value,
@@ -54388,6 +54387,16 @@ $.fn.togglify = function(settings) {
         return texty.isCursorInPreBlock();
       }
       return false;
+    },
+    deleteSelection: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return false;
+      if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.deleteSelection();
+      } else {
+        window.getSelection().deleteFromDocument();
+      }
     },
     test: function() {
       var test = {

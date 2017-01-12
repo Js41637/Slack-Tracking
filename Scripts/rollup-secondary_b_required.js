@@ -1449,7 +1449,11 @@
       if (!copy_err) {
         e.preventDefault();
         if (e.type === "cut" && TS.utility.isFocusOnInput()) {
-          window.getSelection().deleteFromDocument();
+          if (TS.boot_data.feature_texty) {
+            TS.utility.contenteditable.deleteSelection(document.activeElement);
+          } else {
+            window.getSelection().deleteFromDocument();
+          }
         }
       } else {
         TS.error("TS.clipboard.writeTextFromEvent: " + copy_err);

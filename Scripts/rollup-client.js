@@ -5695,7 +5695,7 @@
                 "public.utf8-plain-text": selection_text,
                 Text: selection_text
               };
-              if (TS.boot_data.feature_texty && selection_html) {
+              if (TS.boot_data.feature_texty_takes_over && selection_html) {
                 mime_types["text/html"] = selection_html;
               }
               TS.clipboard.writeTextFromEvent(e, mime_types);
