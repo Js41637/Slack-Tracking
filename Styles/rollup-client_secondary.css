@@ -18222,6 +18222,42 @@ img.jcrop-preview {
   display: none
 }
 
+#fs_modal.prefs_modal .a11y_pref_zoom {
+  position: relative
+}
+
+#fs_modal.prefs_modal .a11y_pref_zoom .preview_zoom {
+  position: absolute;
+  top: 48px;
+  left: 250px;
+  width: 350px
+}
+
+#fs_modal.prefs_modal .a11y_pref_zoom .preview_label {
+  margin-bottom: 4px
+}
+
+#fs_modal.prefs_modal .a11y_pref_zoom ts-message {
+  padding-top: 12px;
+  padding-bottom: 14px;
+  padding-right: 16px;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd
+}
+
+#fs_modal.prefs_modal .a11y_pref_zoom ts-message:hover {
+  background: 0 0
+}
+
+#fs_modal.prefs_modal .a11y_pref_zoom .message_gutter {
+  top: 12px;
+  width: auto
+}
+
+#fs_modal.prefs_modal .a11y_pref_zoom .message_content {
+  margin-left: 46px
+}
+
 #fs_modal.prefs_modal #surprise {
   position: fixed;
   background: #fff;

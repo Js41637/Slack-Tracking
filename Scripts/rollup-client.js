@@ -25766,8 +25766,7 @@
       TS.ims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.groups.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.mpims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
-      var handler = TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api ? TS.ui.a11y.setZoomLevel : TS.ui.a11y.adjustFontSize;
-      TS.prefs.a11y_font_size_changed_sig.add(handler);
+      TS.prefs.a11y_font_size_changed_sig.add(TS.ui.a11y.adjustFontSize);
       TS.prefs.a11y_animations_changed_sig.add(TS.ui.a11y.replaceAnimatedImages);
     },
     focusOnNextMessage: function() {
@@ -25917,19 +25916,6 @@
       var size = TS.model.prefs.a11y_font_size;
       var value = (sizes[size] || sizes["normal"]) + "px";
       document.documentElement.style.fontSize = value;
-    },
-    setZoomLevel: function() {
-      var zoom_levels = {
-        80: "-2",
-        90: "-1",
-        normal: "0",
-        110: "1",
-        125: "2",
-        150: "3"
-      };
-      var user_pref = TS.model.prefs.a11y_font_size;
-      var zoom_level = zoom_levels[user_pref] || zoom_levels["normal"];
-      TSSSB.call("setZoom", zoom_level);
     },
     resetMessageInput: function() {
       TS.client.msg_input.reset();
@@ -30521,7 +30507,7 @@
         show_win_ssb_prefs: _show_win_ssb_prefs,
         show_lin_ssb_prefs: _show_lin_ssb_prefs,
         show_labs_prefs: TS.boot_data.feature_tinyspeck,
-        show_a11y_prefs: TS.boot_data.feature_a11y_pref_text_size
+        show_a11y_prefs: TS.boot_data.feature_a11y_pref
       });
     }
     _is_open = true;
@@ -30660,7 +30646,15 @@
         });
         break;
       case "a11y":
-        html = TS.templates.prefs_a11y();
+        html = function() {
+          var pref_text_size_enabled = TS.boot_data.feature_a11y_pref_text_size;
+          var zoom_enabled = TS.boot_data.feature_a11y_ui_zoom;
+          template_args = {
+            font_size_pref_enabled: pref_text_size_enabled && !zoom_enabled,
+            zoom_pref_enabled: !pref_text_size_enabled && zoom_enabled && TSSSB.supports_zoom_api
+          };
+          return TS.templates.prefs_a11y(template_args);
+        }();
         break;
       case "advanced":
         var show_app_download_path = false;
@@ -31167,7 +31161,7 @@
       obj[zoom_percent_to_level[val]] = val;
       return obj;
     }, {});
-    var current_zoom = TSSSB.call("getZoom");
+    var current_zoom = TSSSB.call("getZoom") || "0";
     var $a11y_font_size_select_input = $('input:radio[name="a11y_font_size_select"]');
     var setChecked = function(value) {
       $a11y_font_size_select_input.filter('[value="' + value + '"]').prop("checked", true);
@@ -31176,10 +31170,10 @@
     setChecked(checked_value);
     $a11y_font_size_select_input.on("change", function() {
       var next_zoom = $(this).val();
-      if (TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api) {
+      if (TS.boot_data.feature_a11y_ui_zoom) {
         current_zoom = zoom_percent_to_level[next_zoom];
-      }
-      if (!TS.boot_data.feature_a11y_ui_zoom) {
+        TSSSB.call("setZoom", current_zoom);
+      } else {
         TS.prefs.setPrefByAPI({
           name: "a11y_font_size",
           value: next_zoom
