@@ -1737,11 +1737,13 @@
         var undo = '<a class="api_unrestrict_account undo_link" data-member-id="' + member.id + '">' + TS.i18n.t("Undo", "web_admin")() + "</a>";
         success_msg_html += undo;
       }
-      TS.web.admin.showSuccessMessageForMember(member, success_msg_html, true);
-      TS.web.admin.rowFadeSuccess(member);
-      $("#restrict_account").addClass("hidden");
-      $("#admin_list").removeClass("hidden");
-      TS.web.admin.showRestrictedMembersTab();
+      setTimeout(function() {
+        TS.web.admin.showSuccessMessageForMember(member, success_msg_html, true);
+        TS.web.admin.rowFadeSuccess(member);
+        $("#restrict_account").addClass("hidden");
+        $("#admin_list").removeClass("hidden");
+        TS.web.admin.showRestrictedMembersTab();
+      }, 0);
     },
     onMemberSetUltraRestricted: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
@@ -1779,17 +1781,19 @@
       _moveMemberTo(member, TS.web.admin.ultra_restricted_members);
       TS.web.admin.rebuildMember(member);
       TS.web.admin.updateRowLocations();
-      var $row = TS.web.admin.selectRow(member);
       var success_message = TS.i18n.t('<strong>{member_name}</strong> is now a Single-Channel Guest. <a class="api_unrestrict_account undo_link" data-member-id="{member_id}">Undo</a>', "web_admin")({
         member_name: TS.utility.htmlEntities(member.name),
         member_id: member.id
       });
-      TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
-      TS.web.admin.bindActions(member);
-      TS.web.admin.rowFadeSuccess(member);
-      $("#restrict_account").addClass("hidden");
-      $("#admin_list").removeClass("hidden");
-      TS.web.admin.showRestrictedMembersTab();
+      setTimeout(function() {
+        var $row = TS.web.admin.selectRow(member);
+        TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
+        TS.web.admin.bindActions(member);
+        TS.web.admin.rowFadeSuccess(member);
+        $("#restrict_account").addClass("hidden");
+        $("#admin_list").removeClass("hidden");
+        TS.web.admin.showRestrictedMembersTab();
+      }, 0);
     },
     onMemberUnrestricted: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
@@ -1809,15 +1813,17 @@
     },
     memberUnrestricted: function(member) {
       TS.web.admin.rebuildMember(member);
-      var $row = TS.web.admin.selectRow(member);
       var success_message = TS.i18n.t("<strong>{member_name}</strong> is now a full team member.", "web_admin")({
         member_name: TS.utility.htmlEntities(member.name)
       });
-      TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
-      TS.web.admin.bindActions(member);
-      TS.web.admin.rowFadeSuccess(member);
-      _moveMemberTo(member, TS.web.admin.active_members);
-      TS.web.admin.updateTabCounts();
+      setTimeout(function() {
+        var $row = TS.web.admin.selectRow(member);
+        TS.web.admin.showSuccessMessageOnRow($row, success_message, true);
+        TS.web.admin.bindActions(member);
+        TS.web.admin.rowFadeSuccess(member);
+        _moveMemberTo(member, TS.web.admin.active_members);
+        TS.web.admin.updateTabCounts();
+      }, 0);
     },
     onMemberInviteChannel: function(ok, data, args) {
       var member = TS.members.getMemberById(args.user);
