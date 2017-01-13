@@ -78,7 +78,7 @@
         {{#if is_tombstone}}
           <div class="deleted_message">{{#t}}This message was deleted{{/t}}</div>
         {{else}}
-          {{#feature flag="feature_sli_recaps"}}{{#if is_recap}}{{#if recap_threshold}}<span class="recap_highlight"><a data-pseudo-content="{{#t note="link to highlight message for sli recap"}}Highlight{{/t}}"></a></span>{{/if}}{{#if recap_debug_info}}
+          {{#feature flag="feature_sli_recaps"}}<span class="recap_highlight" style="display: none"><a data-pseudo-content="{{#t note="link to highlight message for sli recap"}}Highlight{{/t}}"></a></span>
                 <button class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
                   <span class="ts_tip_tip ts_tip_multiline_inner">
                     {{#t note="stat for clicks message has received"}}Clicks:{{/t}} {{msg.recap.clicks}}<br />
@@ -86,7 +86,7 @@
                     {{#t note="stat for weight message has received"}}Total score:{{/t}} {{msg.recap.weight}} <br />
                     {{#t note="debug content"}}Debug:{{/t}} {{{ nl2br (prettyJson msg.recap.debug) }}}
                   </span>
-                </button>{{/if}}{{/if}}{{/feature}}
+                </button>{{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
           {{#if for_top_results_search_display}}

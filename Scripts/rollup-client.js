@@ -9622,8 +9622,10 @@
       this.$_clear_icon.addClass("hidden");
       this._maybeHideNoResultsState();
       this.$_long_list_view.scrollTop(0);
-      this.$_filter_input.replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
-      this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
+      if (this.$_filter_input) {
+        this.$_filter_input.replaceWith(TS.templates.team_filter_bar(this._generateFilterSearchBarTemplateArgs()));
+        this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
+      }
       this.$_long_list_view.height(this._long_list_view_initial_height);
       this._fetchProcessAndDisplayPage();
     },
@@ -12497,7 +12499,7 @@
       msgs = null;
       model_ob = null;
       if (TS.boot_data.feature_sli_recaps) {
-        TS.recaps_signal.handleUpdateScrollbar();
+        TS.recaps_signal.retrieveHighlights();
       }
       TS.client.msg_pane.is_rebuilding = false;
     },

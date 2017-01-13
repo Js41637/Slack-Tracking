@@ -18976,6 +18976,7 @@ ts-message .recap_highlight {
   text-align: left;
   background: #c8fad9;
   border-radius: .1875rem;
+  display: none;
   padding: 0 5px
 }
 
@@ -18985,6 +18986,26 @@ ts-message .recap_highlight a {
 
 ts-message .recap_highlight a::before {
   content: attr(data-pseudo-content)
+}
+
+ts-message.is_recap .recap_highlight {
+  display: inline-block
+}
+
+ts-message .recap_highlight_debug {
+  display: none
+}
+
+ts-message.show_recap_debug .recap_highlight_debug {
+  display: inline;
+  color: #717274;
+  position: relative;
+  top: .125rem;
+  padding-right: .125rem
+}
+
+ts-message.show_recap_debug .recap_highlight_debug:before {
+  font-size: 16px
 }
 
 ts-message .comment {
@@ -19817,14 +19838,6 @@ ts-message .emoji-sizer .mention {
 
 .light_theme ts-message .message_content .timestamp {
   display: none
-}
-
-.light_theme ts-message .message_content.feature_message_replies .recap_highlight_debug {
-  color: #717274
-}
-
-.light_theme ts-message .message_content.feature_message_replies .recap_highlight_debug:before {
-  font-size: 16px
 }
 
 .light_theme ts-message .message_content.feature_message_replies .meta {

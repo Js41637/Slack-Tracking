@@ -11885,6 +11885,12 @@ TS.registerModule("constants", {
         app_id: app_id
       };
     },
+    getBotNameById: function(id) {
+      var bot = TS.bots.getBotById(id);
+      if (bot && bot.name) {
+        return bot.name;
+      }
+    },
     upsertAndSignal: function(bot) {
       var upsert = TS.bots.upsertBot(bot);
       if (upsert.status == "CHANGED") {
@@ -21557,17 +21563,9 @@ TS.registerModule("constants", {
           template_args.pin_html = "";
         }
         if (TS.boot_data.feature_sli_recaps) {
-          var recap_item = msg;
-          if (recap_item && recap_item.recap) {
-            template_args.is_recap = recap_item.recap;
-            if (recap_item.recap.show_recap) {
-              template_args.recap_threshold = true;
-            }
-            var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
-            template_args.recap_debug_info = recap_debug_group === "sli_debug_info";
-          } else {
-            template_args.is_recap = false;
-          }
+          template_args.is_recap = msg.recap && msg.recap.show_recap;
+          var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
+          template_args.show_recap_debug = recap_debug_group === "sli_debug_info";
         }
         if (!msg.subtype && (args.for_search_display || args.for_top_results_search_display) && msg.file) {
           if (msg.comment) {
@@ -21808,7 +21806,7 @@ TS.registerModule("constants", {
     }
     if (TS.boot_data.feature_sli_recaps) {
       if (template_args.is_recap) msg_classes.push("is_recap");
-      if (template_args.recap_threshold) msg_classes.push("recap_marker_threshold");
+      if (template_args.show_recap_debug) msg_classes.push("show_recap_debug");
     }
     return msg_classes;
   }
