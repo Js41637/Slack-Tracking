@@ -7026,8 +7026,16 @@
           } else if (TS.lazyLoadMembersAndBots()) {
             count = TS.flannel.getMemberCountForModelOb(model_ob);
           } else {
-            count = _(model_ob.members).map(TS.members.getMemberById).compact().reject({
-              deleted: true
+            count = _(model_ob.members).map(TS.members.getMemberById).compact().reject(function(member) {
+              if (TS.boot_data.page_needs_enterprise) {
+                if (model_ob.is_shared) {
+                  return member.deleted;
+                } else {
+                  return !(member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1);
+                }
+              } else {
+                return member.deleted;
+              }
             }).value().length;
           }
           _rebuildMemberCount(has_count, count);

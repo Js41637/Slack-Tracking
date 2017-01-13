@@ -42155,10 +42155,18 @@ var _on_esc;
         var sort_by = $(this).val();
         var teams = TS.enterprise.workspaces.getList(list, sort_by);
         var html = "";
-        teams.forEach(function(team) {
-          html += TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url, true);
-        });
-        $container.html(html);
+        if (teams.length) {
+          teams.forEach(function(team) {
+            html += TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url, true);
+          });
+        } else {
+          if (list === "teams_on") {
+            html += TS.templates.not_on_any_workspaces();
+          } else {
+            html += TS.templates.no_workspaces_to_join();
+          }
+        }
+        $container.html(html).attr("data-list", list);
       };
       var $sort_container = $(".sort_by_container");
       var $sort_by_your = $sort_container.find('select[data-qa="sort-by-your"]');
