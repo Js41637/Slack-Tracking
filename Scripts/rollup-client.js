@@ -8783,10 +8783,6 @@
         }
         var files;
         var shift_key = e && e.shiftKey;
-        if (window.winssb && window.winssb.app.getModifierKeys) {
-          var modifiers = window.winssb.app.getModifierKeys();
-          shift_key = modifiers && modifiers.shift;
-        }
         var model_ob = TS.shared.getActiveModelOb();
         if (model_ob && model_ob.is_general && !TS.members.canUserPostInGeneral()) {
           TS.generic_dialog.start({
