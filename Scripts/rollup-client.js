@@ -5872,10 +5872,8 @@
       } else if (TS.client.ui.keyPressIsValidForGotoNextOpenChannelOrIM(e)) {
         var went = false;
         if (e.which == keymap.up) {
-          if (TS.boot_data.feature_tinyspeck) TS.info("onWindowKeyDown: going UP -> next channel/IM", e);
           went = TS.client.ui.gotoNextOpenChannelOrIM(e.shiftKey, true);
         } else if (e.which == keymap.down) {
-          if (TS.boot_data.feature_tinyspeck) TS.info("onWindowKeyDown: going DOWN -> next channel/IM", e);
           went = TS.client.ui.gotoNextOpenChannelOrIM(e.shiftKey, false);
         }
         if (went) {
@@ -10601,9 +10599,6 @@
       }
       if (TS.client.ui.checkForEditing(e)) return TS.sounds.play("beep");
       var $el = $(e.target);
-      if (TS.model && TS.model.team && TS.boot_data.feature_tinyspeck) {
-        TS.info("Channel switch clicked", $el, $el[0] ? $el[0].outerHTML : "");
-      }
       var member_el = $el.closest(".member").find(".im_name");
       var member_id = member_el.data("member-id");
       var group_el = $el.closest(".group_name");
@@ -31052,16 +31047,14 @@
         value: !!$(this).prop("checked")
       });
     });
-    if (TS.boot_data.feature_hex_swatch_pref) {
-      $("#hide_hex_swatch_cb").prop("checked", TS.model.prefs.hide_hex_swatch === false);
-      $("#hide_hex_swatch_cb").on("change", function() {
-        var checked = !!$(this).prop("checked");
-        TS.prefs.setPrefByAPI({
-          name: "hide_hex_swatch",
-          value: !checked
-        });
+    $("#hide_hex_swatch_cb").prop("checked", TS.model.prefs.hide_hex_swatch === false);
+    $("#hide_hex_swatch_cb").on("change", function() {
+      var checked = !!$(this).prop("checked");
+      TS.prefs.setPrefByAPI({
+        name: "hide_hex_swatch",
+        value: !checked
       });
-    }
+    });
     $("#load_lato_2_cb").prop("checked", TS.model.prefs.load_lato_2 === true);
     $("#load_lato_2_cb").on("change", function() {
       var val = !!$(this).prop("checked");

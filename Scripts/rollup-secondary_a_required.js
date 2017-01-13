@@ -3429,7 +3429,6 @@
       TS.shared.onSendMsg(success, imsg, channel, TS.channels);
     },
     displayChannel: function(channel_id, and_send_txt, from_history, replace_history_state) {
-      if (TS.boot_data.feature_tinyspeck) TS.console.logStackTrace("Channel switch -> " + channel_id);
       if (TS.isPartiallyBooted() && channel_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
         TS.sounds.play("beep");
@@ -9105,7 +9104,7 @@ TS.registerModule("constants", {
         }
         if (TS.pri) TS.log(58, 'got history for "' + model_ob.id + '", added ' + new_msgs.length + " new messages out of " + data.messages.length + " total.");
       }
-      if (TS.boot_data.feature_updated_history_fetch_and_merge && model_ob._msgs_to_merge_on_history && model_ob._msgs_to_merge_on_history.length) {
+      if (TS.boot_data.feature_tinyspeck && model_ob._msgs_to_merge_on_history && model_ob._msgs_to_merge_on_history.length) {
         var did_add_merged_messages;
         _.each(model_ob._msgs_to_merge_on_history, function(item, offset) {
           if (new_msgs_tses.indexOf(item.ts) === -1 && !TS.utility.msgs.getMsg(item.ts, msgs) && !TS.utility.msgs.isTempMsg(item)) {
@@ -15617,6 +15616,7 @@ TS.registerModule("constants", {
         clearTimeout(rtm_start_timeout);
         rtm_start_timeout = undefined;
         reject(err);
+        TS.ms.disconnected_sig.dispatch();
         _did_deprecate_socket_sig.remove(_socketWasDeprecated);
         if (_websocket && _websocket == current_websocket) {
           _deprecateCurrentSocket();
@@ -45338,7 +45338,9 @@ $.fn.togglify = function(settings) {
     var container_height = instance.$list_container.height();
     var padding = instance.$list_container.outerHeight() - container_height;
     var max_height = parseInt(instance.$list_container.css("max-height"), 10);
-    var window_height = $(window).height() - $("#footer").height();
+    var window_height = $(window).height();
+    instance.$error.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
+    instance.$empty.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     var available_height = Math.floor(window_height - instance.$list.offset().top);
     if (instance.allow_list_position_above) {
@@ -45348,6 +45350,8 @@ $.fn.togglify = function(settings) {
       if (!can_fit_below && can_fit_above) {
         available_height = available_height_above;
         instance.$list_container.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
+        instance.$error.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
+        instance.$empty.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
       }
     }
     if (isNaN(max_height)) max_height = container_height;
@@ -45356,21 +45360,6 @@ $.fn.togglify = function(settings) {
     instance.$list.css({
       "max-height": Math.min(list_height, max_height)
     });
-  };
-  var _sizeAndPostionMessageContainer = function(instance, messageContainer) {
-    var message_container_height = messageContainer.outerHeight();
-    var window_height = $(window).height() - $("#footer").height();
-    messageContainer.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
-    var available_height = Math.floor(window_height - messageContainer.offset().top);
-    if (instance.allow_list_position_above) {
-      var available_height_above = window_height - available_height;
-      var can_fit_above = message_container_height <= available_height_above;
-      var can_fit_below = message_container_height <= available_height;
-      if (!can_fit_below && can_fit_above) {
-        available_height = available_height_above;
-        messageContainer.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
-      }
-    }
   };
   var _callScrollCallback = function(instance, query, page_number) {
     if (instance._running_promise) instance._running_promise.cancel("Scrolling happened");
@@ -45895,7 +45884,6 @@ $.fn.togglify = function(settings) {
       instance.$list_container.addClass("empty");
       instance.$empty.html(instance.noResultsTemplate(instance.$input.val()));
       instance.$empty.removeClass("hidden");
-      _sizeAndPostionMessageContainer(instance, instance.$empty);
       instance._$active = null;
     }
   };
@@ -45908,7 +45896,6 @@ $.fn.togglify = function(settings) {
     instance.$list_container.addClass("error");
     instance.$error.html(instance.errorTemplate());
     instance.$error.removeClass("hidden");
-    _sizeAndPostionMessageContainer(instance, instance.$error);
     instance._$active = null;
   };
   var _startListView = function(instance) {

@@ -3411,13 +3411,14 @@
       }
       return false;
     },
-    emojiMatchesTerm: function(emoji, term) {
-      if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(emoji.name), term)) return true;
+    emojiMatchesTerm: function(emoji, term, keywords) {
+      var emoji_base_name = TS.emoji.nameToBaseName(emoji.name);
+      if (TS.emoji.substringMatchesName(emoji_base_name, term)) return true;
       var aliases = emoji.names.split(" ");
       for (var i = 0; i < aliases.length; i++) {
         if (TS.emoji.substringMatchesName(TS.emoji.nameToBaseName(aliases[i]), term)) return true;
       }
-      return false;
+      return _.indexOf(keywords, emoji_base_name) !== -1;
     },
     nameToBaseName: function(name) {
       if (!_.isString(name)) return "";

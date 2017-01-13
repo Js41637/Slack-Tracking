@@ -81,6 +81,10 @@
         var required_member_ids = _([data.mpims, data.ims]).flatten().map(function(ob) {
           return ob.members || [ob.user];
         }).flatten().concat(_.get(data, "self.id")).uniq().compact().value();
+        if (TS.model.ms_logged_in_once && !TS.isPartiallyBooted()) {
+          var known_member_ids = _.map(TS.model.members, "id");
+          required_member_ids = _.difference(required_member_ids, known_member_ids);
+        }
         if (!required_member_ids.length) {
           TS.info("Got rtm.start data and don't need to fetch any members");
           data.users = [];
@@ -97,6 +101,9 @@
             TS.error("TS.flannel.connectAndFetchRtmStart problem: Requested " + required_member_ids.length + " members but received " + users.length + ". Missing members: " + _.difference(required_member_ids, _.map(users, "id")).join(","));
           }
           return data;
+        }).catch(function(err) {
+          TS.error("Got error while trying to fetch " + required_member_ids.length + "members for rtm.start :(", err);
+          throw err;
         });
       });
     },
@@ -199,7 +206,7 @@
     TS.log(1989, "Flannel: pre-fetching " + ids.length + " most frequently accessed members...");
     TS.flannel.fetchAndUpsertObjectsByIds(ids).then(function(members) {
       TS.log(1989, "Flannel: pre-fetched " + members.length + " most frequently accessed members 👍");
-    });
+    }).catch(_.noop);
   };
   var _fetchAndProcessObjectsByIds = function(ids, process_fn) {
     var object_chunks_p = _.chunk(ids, _MAX_IDS_PER_QUERY).map(function(chunk_ids) {
@@ -242,7 +249,10 @@
     if (!!TS.ms.num_times_connected && !last_connect_was_fast) {
       var member_ids_needing_update = _.map(TS.model.members, "id");
       var bot_ids_needing_update = _.map(TS.model.bots, "id");
-      TS.flannel.fetchAndUpsertObjectsByIds(member_ids_needing_update.concat(bot_ids_needing_update));
+      TS.flannel.fetchAndUpsertObjectsByIds(member_ids_needing_update.concat(bot_ids_needing_update)).catch(function(err) {
+        TS.err("Updating presence after slow reconnect failed for some users", err);
+        throw err;
+      });
     }
   };
 })();
