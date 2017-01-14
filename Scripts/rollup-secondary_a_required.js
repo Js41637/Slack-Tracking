@@ -10102,15 +10102,28 @@ TS.registerModule("constants", {
     var active_model_ob = TS.shared.getActiveModelOb();
     if (active_model_ob && active_model_ob.id) {
       var id = active_model_ob.id;
+      var channel_type = id.charAt(0);
       var payload = {
         channel_id: id,
-        channel_type: id.charAt(0),
+        channel_type: channel_type,
         is_boot: !!is_boot
       };
       if (!is_boot) {
         payload["num_unreads"] = active_model_ob.unread_cnt;
       }
       TS.clog.track("CHANNEL_SWITCHED", payload);
+      if (TS.boot_data.feature_platform_metrics && channel_type == "D") {
+        var payload = {};
+        var im = TS.ims.getImById(id);
+        var user = im ? TS.members.getMemberById(im.user) : null;
+        if (user && user.is_bot) {
+          var bot_id = user.profile.bot_id;
+          var bot = TS.bots.getBotById(bot_id);
+          payload.app_id = bot ? bot.app_id : "";
+          payload.bot_id = bot_id;
+        }
+        TS.clog.track("DM_OPEN", payload);
+      }
     }
   };
   var _logBootChannelSwitch = function() {
@@ -17960,14 +17973,8 @@ TS.registerModule("constants", {
       var presence_icon_class = "ts_icon_presence";
       var external_member = TS.members.isMemberExternal(member);
       if (TS.boot_data.feature_external_shared_channels_ui) {
-        if (external_member) {
-          presence_class += " external";
-          presence_icon_class = "ts_icon_presence_ra";
-        } else if (member.is_ultra_restricted) {
-          presence_class += " ura";
-          presence_icon_class = "ts_icon_presence_ra";
-        } else if (member.is_restricted) {
-          presence_class += " ra";
+        if (external_member || member.is_ultra_restricted || member.is_restricted) {
+          presence_class += " guest";
           presence_icon_class = "ts_icon_presence_ra";
         } else if (member.is_slackbot) {
           presence_icon_class = "ts_icon_heart";
@@ -18073,6 +18080,7 @@ TS.registerModule("constants", {
     });
     $el = null;
   };
+  var REGEX_I18N_NS = /{{\s*i18n_ns\s*('|")[a-zA-Z0-9]+('|")\s*}}/;
   var _load = function() {
     Object.keys(TS.raw_templates).forEach(function(template_name) {
       TS.templates[template_name] = _compile(template_name, TS.raw_templates[template_name]);
@@ -18085,7 +18093,12 @@ TS.registerModule("constants", {
       TS.warn(name + " was passed no html");
       return null;
     }
-    return Handlebars.compile(html);
+    if (REGEX_I18N_NS.test(html)) html += " {{_i18n_ns_end}}";
+    var template = Handlebars.compile(html);
+    return function(context) {
+      context = context || {};
+      return template(context);
+    };
   };
 })();
 (function() {
@@ -21827,7 +21840,19 @@ TS.registerModule("constants", {
           TS.warn("Cannot set i18n namespace. Chances are you‘ve inadvertently changed the context in a Handlebars partial to something that‘s not an object.");
           return;
         }
+        if (this._i18n_ns) {
+          if (this._i18n_ns_history) {
+            this._i18n_ns_history.push(this._i18n_ns);
+          } else {
+            this._i18n_ns_history = [this._i18n_ns];
+          }
+        }
         this._i18n_ns = namespace;
+      });
+      Handlebars.registerHelper("_i18n_ns_end", function() {
+        if (this._i18n_ns_history && this._i18n_ns_history.length) {
+          this._i18n_ns = this._i18n_ns_history.pop();
+        }
       });
       Handlebars.registerHelper("t", function(options) {
         var key;
@@ -23726,24 +23751,34 @@ TS.registerModule("constants", {
     },
     toTimeDuration: function(seconds) {
       var time = TS.utility.date.toTimeAmount(Math.floor(seconds / 60));
+      var time_segments = [];
       time.s = seconds % 60;
-      var str = "";
       if (time.w) {
-        var week_str = time.w === 1 ? " week " : " weeks ";
-        str += time.w + week_str;
+        time_segments.push(TS.i18n.t("{weeks, plural, =1{# week}other{# weeks}}", "date_utilities")({
+          weeks: time.w
+        }));
       }
       if (time.d) {
-        var day_str = time.d === 1 ? " day " : " days ";
-        str += time.d + day_str;
+        time_segments.push(TS.i18n.t("{days, plural, =1{# day}other{# days}}", "date_utilities")({
+          days: time.d
+        }));
       }
       if (time.h) {
-        var hour_str = time.h === 1 ? " hour " : " hours ";
-        str += time.h + hour_str;
+        time_segments.push(TS.i18n.t("{hours, plural, =1{# hour}other{# hours}}", "date_utilities")({
+          hours: time.h
+        }));
       }
-      if (time.mi) str += time.mi + " min ";
-      if (time.s || str.length === 0) str += time.s + " sec ";
-      str = str.trim();
-      return str;
+      if (time.mi) {
+        time_segments.push(TS.i18n.t("{minutes, plural, other{# min}}", "date_utilties")({
+          minutes: time.mi
+        }));
+      }
+      if (time.s || !time_segments.length) {
+        time_segments.push(TS.i18n.t("{seconds, plural, other{# sec}}", "date_utilities")({
+          seconds: time.s
+        }));
+      }
+      return time_segments.join(" ").trim();
     },
     toTimeAmount: function(minutes) {
       var time = {
@@ -24697,8 +24732,8 @@ TS.registerModule("constants", {
       return msg && TS.utility.msgs.file_subtypes.indexOf(msg.subtype) >= 0;
     },
     isMsgFromOtherTeam: function(msg) {
-      if (!msg.user_team_id) return false;
-      if (msg.user_team_id && TS.model.team.id != msg.user_team_id) {
+      if (!msg.source_team_id) return false;
+      if (msg.source_team_id && TS.model.team.id != msg.source_team_id) {
         return true;
       }
       return false;
@@ -25393,8 +25428,8 @@ TS.registerModule("constants", {
         type: "message",
         ts: imsg.ts
       };
-      if (imsg.user_team) {
-        new_msg.user_team_id = imsg.user_team;
+      if (imsg.source_team) {
+        new_msg.source_team_id = imsg.source_team;
       }
       if (imsg.user === "USLACKBOT" && imsg.slackbot_feels) {
         new_msg.slackbot_feels = imsg.slackbot_feels;
@@ -26053,7 +26088,7 @@ TS.registerModule("constants", {
       }
       return A;
     },
-    removeAllEphemeralMsgsByType: function(ephemeral_type, c_id) {
+    removeAllEphemeralMsgsByType: function(ephemeral_type, c_id, thread_ts) {
       var model_ob;
       var ob;
       var msg;
@@ -26061,6 +26096,9 @@ TS.registerModule("constants", {
         ob = TS.utility.msgs.ephemeral_msgs_map[ts];
         if (ob.ephemeral_type == ephemeral_type) {
           if (c_id && c_id != ob.c_id) continue;
+          if (TS.boot_data.feature_message_replies) {
+            if (thread_ts && thread_ts != ob.thread_ts) continue;
+          }
           model_ob = TS.shared.getModelObById(ob.c_id);
           if (!model_ob) continue;
           msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
@@ -42165,6 +42203,7 @@ var _on_esc;
           }
         }
         $container.html(html).attr("data-list", list);
+        _bindEvents($container, list);
       };
       var $sort_container = $(".sort_by_container");
       var $sort_by_your = $sort_container.find('select[data-qa="sort-by-your"]');
@@ -47731,7 +47770,6 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".thread_error_state_refresh_button", function(e, $el) {
       if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
-      $(".threads_error_state_wrapper").remove();
       TS.client.threads.maybeReloadThreadsView();
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
@@ -47817,6 +47855,10 @@ $.fn.togglify = function(settings) {
     });
     TS.click.addClientHandler("#threads_view_banner", function(e, $el) {
       e.preventDefault();
+      if (TS.client.ui.threads.isAlternativeThreadsViewShowing()) {
+        TS.client.threads.maybeReloadThreadsView();
+        return;
+      }
       TS.client.ui.threads.jumpToTop();
     });
     TS.click.addClientHandler("ts-thread .reveal_new_replies", function(e, $el) {
@@ -54143,7 +54185,11 @@ $.fn.togglify = function(settings) {
         return document.activeElement === input;
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        return texty.hasFocus();
+        if (texty.hasFocus()) {
+          return true;
+        } else {
+          return document.activeElement && document.activeElement.className.indexOf("ql-clipboard") != -1 && document.activeElement.parentNode === input;
+        }
       }
       return false;
     },

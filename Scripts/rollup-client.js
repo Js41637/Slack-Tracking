@@ -1597,7 +1597,7 @@
     default_col_flex_top: -1,
     triggering_resize: false,
     resizeManually: function(why, no_scroll_to_bottom) {
-      if (TS.boot_data.feature_defer_client_bind_ui && !TS.model.ms_logged_in_once) return;
+      if (!TS.model.ms_logged_in_once) return;
       why = why || "unspecified";
       TS.log(389, "======================================resizeManually (" + why + ") starting");
       var start = Date.now();
@@ -7631,6 +7631,9 @@
       if (ob.slackbot_feels) {
         msg.slackbot_feels = ob.slackbot_feels;
       }
+      if (TS.boot_data.feature_message_replies && ob.thread_ts) {
+        msg.thread_ts = ob.thread_ts;
+      }
       var ts = _addEphemeralMsg(c_id, msg, ob.ephemeral_type);
       TS.info(ts);
     },
@@ -7638,6 +7641,13 @@
       var c_id = ob.channel || TS.shared.getActiveModelOb().id;
       var ephemeral_type = ob.ephemeral_type;
       var msgs = ephemeral_type ? TS.utility.msgs.getEphemeralMsgsByCidAndType(c_id, ephemeral_type) : null;
+      if (TS.boot_data.feature_message_replies) {
+        if (ob.thread_ts) {
+          msgs = _.filter(msgs, function(msg) {
+            return msg.thread_ts === ob.thread_ts;
+          });
+        }
+      }
       if (msgs && msgs.length) {
         var model_ob = TS.shared.getActiveModelOb();
         var existing_msg = msgs[0];
@@ -7816,10 +7826,14 @@
     } else if (model_ob && model_ob.is_im) {
       TS.ims.addMsg(c_id, imsg);
     }
-    TS.utility.msgs.ephemeral_msgs_map[msg.ts] = {
+    var ephemeral_msg_ob = {
       c_id: c_id,
       ephemeral_type: ephemeral_type
     };
+    if (TS.boot_data.feature_message_replies) {
+      if (msg.thread_ts) ephemeral_msg_ob.thread_ts = msg.thread_ts;
+    }
+    TS.utility.msgs.ephemeral_msgs_map[msg.ts] = ephemeral_msg_ob;
     return msg.ts;
   };
   var _handleHistoryNavigationOnDesktop = function(e) {
@@ -9458,6 +9472,8 @@
     },
     destroy: function() {
       if (this._resize_sig_handler) TS.view.resize_sig.remove(this._resize_sig_handler);
+      TS.members.joined_team_sig.remove(this._maybeRenderFilterBar, this);
+      TS.members.changed_deleted_sig.remove(this._maybeRenderFilterBar, this);
       TS.utility.cancelRAF(this._animation_frame_callback);
       this.$_container.off();
       if (this.$_long_list_view) this.$_long_list_view.off();
@@ -9540,16 +9556,21 @@
             this_searchable_member_list.$_search_input.focus();
           });
         });
-        if (!this._channel_member_ids) {
-          TS.ms.flannel.call("query_request", {
-            counts: true
-          }).then(function(response) {
-            this_searchable_member_list._filter_counts = response.results;
-            this_searchable_member_list.$_search_bar.find(".searchable_member_list_filter.loading").replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
-            this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
-          });
-        }
+        this._maybeRenderFilterBar();
       }
+    },
+    _maybeRenderFilterBar: function() {
+      if (this._channel_member_ids) return;
+      var this_searchable_member_list = this;
+      TS.ms.flannel.call("query_request", {
+        counts: true
+      }).then(function(response) {
+        this_searchable_member_list._filter_counts = response.results;
+        this_searchable_member_list.$_search_bar.find(".searchable_member_list_filter").replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
+        this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
+        TS.members.joined_team_sig.add(this_searchable_member_list._maybeRenderFilterBar, this_searchable_member_list);
+        TS.members.changed_deleted_sig.add(this_searchable_member_list._maybeRenderFilterBar, this_searchable_member_list);
+      });
     },
     _setupLongListView: function() {
       var this_searchable_member_list = this;
@@ -11167,6 +11188,10 @@
       im = ims[i];
       if (!im.is_starred) continue;
       member = TS.members.getMemberById(im.user);
+      if (!member) {
+        TS.warn('Expected member "' + im.user + '" to exist, but it does not!');
+        continue;
+      }
       if (member.deleted) continue;
       if (!im.is_open && !im.unread_cnt) continue;
       A.push(im);
@@ -11496,12 +11521,6 @@
       }).bind("mouseout", function(e) {
         _$header.removeClass("hover_topic");
       });
-      TS.experiment.loadUserAssignments().then(function() {
-        var group = TS.experiment.getGroup("channel_starring");
-        _star_below_channel_name = group === "star_below_channel_name";
-        TS.client.channel_header.start();
-        return null;
-      });
     },
     test: function() {
       var test_ob = {
@@ -11568,7 +11587,6 @@
         member: member,
         is_dm_or_mpdm: is_im || is_mpim,
         show_topic: show_topic,
-        move_star_in_channel_header: _star_below_channel_name,
         mpim: mpim,
         details_showing: $("#client-ui").hasClass("details_showing"),
         sli_preview: recap_highlight,
@@ -11610,7 +11628,6 @@
   var _model_ob;
   var _$header;
   var _member_presence_list;
-  var _star_below_channel_name = false;
   var _buildChannelMemberList = function() {
     TS.client.ui.rebuildMemberListToggle();
   };
@@ -20058,8 +20075,14 @@
     },
     okToGo: function() {
       if (!TS.client.ui.$msg_input) return false;
-      if (!TS.utility.isFocusOnInput() || document.activeElement == TS.client.ui.$msg_input[0]) {
-        return true;
+      if (TS.boot_data.feature_texty) {
+        if (!TS.utility.isFocusOnInput() || TS.utility.contenteditable.isActiveElement(TS.client.ui.$msg_input)) {
+          return true;
+        }
+      } else {
+        if (!TS.utility.isFocusOnInput() || document.activeElement == TS.client.ui.$msg_input[0]) {
+          return true;
+        }
       }
       return false;
     },

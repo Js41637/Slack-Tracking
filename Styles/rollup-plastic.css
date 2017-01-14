@@ -13121,18 +13121,18 @@ only screen and (min-resolution:2dppx) {
 }
 
 .flexbox_client #team_tab #member_preview_container .member_action_bar .btn {
-  padding-top: 0;
-  padding-bottom: 0
+  line-height: 1.2
 }
 
 .flexbox_client #team_tab #member_preview_container .account_settings_link .ts_icon_cog_o,
 .flexbox_client #team_tab #member_preview_container .member_preview_menu_target .ts_icon_chevron_large_down {
+  margin-right: 0;
   font-size: 20px;
-  margin-right: 0
+  line-height: .6
 }
 
-.flexbox_client #team_tab #member_preview_container .account_settings_link .ts_icon_cog_o {
-  line-height: 1.8
+.flexbox_client #team_tab #member_preview_container .account_settings_link .ts_icon_cog_o:before {
+  line-height: 1
 }
 
 @media only screen and (-webkit-min-device-pixel-ratio:2),
@@ -13372,6 +13372,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   padding-left: 1.8rem
 }
 
+#client-ui .searchable_member_list .member_item,
 #client-ui .searchable_member_list .team_list_item {
   width: 100%
 }

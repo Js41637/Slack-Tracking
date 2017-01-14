@@ -1011,23 +1011,17 @@
     TS.info("_onDOMReady");
     _logSessionLoadCount();
     if (!TS.boot_data.feature_no_tokenless_ms_connections) _maybeOpenTokenlessConnection();
-    if (TS.boot_data.feature_web_lean_all_users && !TS.boot_data.feature_web_lean) {
-      TS.warn("feature_web_lean flipped to TRUE because feature_web_lean_all_users is TRUE");
-      TS.boot_data.feature_web_lean = true;
-    }
-    if (!TS.boot_data.feature_web_lean || TS.boot_data.feature_web_lean_all_users) {
-      if ((TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression) {
+    if ((TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression) {
+      TS.model.supports_user_bot_caching = true;
+    } else if (TS.model.win_ssb_version || TS.model.lin_ssb_version) {
+      TS.model.supports_user_bot_caching = true;
+    } else if (TS.model.mac_ssb_version) {
+      if (TS.model.mac_ssb_version == 1.1 && TS.model.mac_ssb_version_minor >= 4) {
         TS.model.supports_user_bot_caching = true;
-      } else if (TS.model.win_ssb_version || TS.model.lin_ssb_version) {
+      } else if (TS.model.mac_ssb_version >= 2 && (TS.model.mac_ssb_version_minor > 0 || TS.model.mac_ssb_build >= 7398)) {
         TS.model.supports_user_bot_caching = true;
-      } else if (TS.model.mac_ssb_version) {
-        if (TS.model.mac_ssb_version == 1.1 && TS.model.mac_ssb_version_minor >= 4) {
-          TS.model.supports_user_bot_caching = true;
-        } else if (TS.model.mac_ssb_version >= 2 && (TS.model.mac_ssb_version_minor > 0 || TS.model.mac_ssb_build >= 7398)) {
-          TS.model.supports_user_bot_caching = true;
-        } else if (TS.model.is_electron) {
-          TS.model.supports_user_bot_caching = true;
-        }
+      } else if (TS.model.is_electron) {
+        TS.model.supports_user_bot_caching = true;
       }
     }
     if (TS.model.supports_user_bot_caching && TS.boot_data.feature_name_tagging_client) {
@@ -1170,12 +1164,6 @@
     }
   };
   var _setUpModel = function(data, args) {
-    if (TS.boot_data.feature_web_lean) {
-      data.bots = data.bots || [];
-      data.channels.forEach(function(channel) {
-        channel.is_member = true;
-      });
-    }
     if (TS.lazyLoadMembersAndBots()) {
       data.bots = data.bots || [];
     }
@@ -1249,7 +1237,7 @@
         TS.model.user = m;
         TS.model.user.is_self = true;
       };
-      var log_data = ["TS.model.supports_user_bot_caching:" + TS.model.supports_user_bot_caching, "TS.storage.isUsingMemberBotCache():" + TS.storage.isUsingMemberBotCache(), "TS.boot_data.feature_web_lean:" + TS.boot_data.feature_web_lean, "TS.boot_data.feature_web_lean_all_users:" + TS.boot_data.feature_web_lean_all_users, "args.cache_ts:" + args.cache_ts];
+      var log_data = ["TS.model.supports_user_bot_caching:" + TS.model.supports_user_bot_caching, "TS.storage.isUsingMemberBotCache():" + TS.storage.isUsingMemberBotCache(), "args.cache_ts:" + args.cache_ts];
       var args_for_log = _.clone(args);
       if (args_for_log.token) args_for_log.token = "REDACTED";
       try {
@@ -1306,13 +1294,8 @@
       for (i = 0; i < data_bot_list.length; i++) {
         TS.bots.upsertAndSignal(data_bot_list[i]);
       }
-      if (TS.boot_data.feature_web_lean) {
-        log_data.push("members from LS:" + users_cache.length + ", from users in rtm.leanStart:" + data_user_list.length + " (slackbot will always be here)");
-        log_data.push("bots from LS:" + bots_cache.length + ", from bots in rtm.leanStart:" + data_bot_list.length);
-      } else {
-        log_data.push("members from LS:" + users_cache.length + ", from updated_users in rtm.start:" + data_user_list.length + " (slackbot will always be here)");
-        log_data.push("bots from LS:" + bots_cache.length + ", from updated_bots in rtm.start:" + data_bot_list.length);
-      }
+      log_data.push("members from LS:" + users_cache.length + ", from updated_users in rtm.start:" + data_user_list.length + " (slackbot will always be here)");
+      log_data.push("bots from LS:" + bots_cache.length + ", from updated_bots in rtm.start:" + data_bot_list.length);
       if (data_user_list.length < TS.model.members.length / 20) {
         TS.model.did_we_load_with_user_cache = true;
       }
@@ -1380,11 +1363,6 @@
       var is_initial_partial_boot = TS.isPartiallyBooted() && !is_first_full_boot;
       if (TS.storage.isUsingMemberBotCache() && !is_initial_partial_boot) {
         var cache_ts = data.cache_ts;
-        if (TS.boot_data.feature_web_lean) {
-          if (cache_ts == 0 || !cache_ts) {
-            cache_ts = args.cache_ts;
-          }
-        }
         TS.storage.rememberLastCacheTS(cache_ts);
         TS.members.maybeStoreMembers(true);
         TS.bots.maybeStoreBots(true);
@@ -2231,7 +2209,7 @@
           translations[key] = new MessageFormat(TS.i18n.locale, key).format;
         } else {
           if (!_is_pseudo && TS.warn) {
-            TS.warn('"' + key + '"', "has not yet been translated into", TS.i18n.locale);
+            TS.warn("i18n:", ns, '"' + key + '"', "has not yet been translated into", TS.i18n.locale);
           }
           translations[key] = new MessageFormat(TS.i18n.locale, _getPseudoTranslation(key)).format;
         }
@@ -2239,15 +2217,7 @@
         translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
       }
       if (_is_dev && (TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path)) {
-        translations[key].toString = function() {
-          var dev_warning_key = ns + "." + key;
-          if (_dev_warned_translations.indexOf(dev_warning_key) >= 0) return;
-          _dev_warned_translations.push(dev_warning_key);
-          var example_invocation = "TS.i18n.t(" + JSON.stringify(key) + ", " + JSON.stringify(ns) + ")";
-          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + example_invocation + " when you meant to do " + example_invocation + "()");
-          alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + ns + "\nKey: " + key);
-          return "";
-        };
+        translations[key].toString = _devWarningForImproperUse(key, ns);
       }
       return translations[key];
     },
@@ -2312,7 +2282,7 @@
     } else {
       TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
     }
-    _translations = _TRANSLATIONS[TS.i18n.locale] || {};
+    _translations = _is_dev ? window.ts_translations || {} : {};
     _is_setup = true;
   };
   var _namespaced = function(namespace) {
@@ -2328,6 +2298,17 @@
       return translations;
     }
     return _translations[namespace] || {};
+  };
+  var _devWarningForImproperUse = function(key, ns) {
+    return function() {
+      var dev_warning_key = ns + "." + key;
+      if (_dev_warned_translations.indexOf(dev_warning_key) >= 0) return;
+      _dev_warned_translations.push(dev_warning_key);
+      var example_invocation = "TS.i18n.t(" + JSON.stringify(key) + ", " + JSON.stringify(ns) + ")";
+      TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + example_invocation + " when you meant to do " + example_invocation + "()");
+      alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + ns + "\nKey: " + key);
+      return "";
+    };
   };
   var _getPseudoTranslation = function(str) {
     var regex = /(<[^>]+>)|(&\w+;)/gi;
@@ -2390,40 +2371,6 @@
     S: [/S/g, "§"],
     U: [/U/g, "Û"],
     Y: [/Y/g, "Ý"]
-  };
-  var _TRANSLATIONS = {
-    en_US: {
-      menu: {
-        "Profile &amp; account": "Profile &amp; account",
-        Preferences: "Preferences",
-        "Version info (TS only)": "Version info (TS only)",
-        "Sign out of": "Sign out of",
-        "Set yourself to <strong>away</strong>": "Set yourself to <strong>away</strong>",
-        "[Away] Set yourself to <strong>active</strong>": "[Away] Set yourself to <strong>active</strong>"
-      },
-      channel: {
-        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} member}other{{member_count} members}}"
-      }
-    },
-    es: {
-      menu: {
-        "Profile &amp; account": "Perfil y cuenta",
-        Preferences: "Preferencias"
-      },
-      channel: {
-        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} miembro}other{{member_count} miembros}}"
-      }
-    },
-    fr: {
-      menu: {
-        "Profile &amp; account": "Profil et gestion du compte",
-        Preferences: "Préférences",
-        "Version info (TS only)": "Version info (TS uniquement)"
-      },
-      channel: {
-        "{member_count,plural,=1{{member_count} member}other{{member_count} members}}": "{member_count,plural,=1{{member_count} membre}other{{member_count} membres}}"
-      }
-    }
   };
 })();
 (function() {
