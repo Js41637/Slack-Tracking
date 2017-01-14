@@ -23847,7 +23847,7 @@ TS.registerModule("constants", {
       return TS.utility.date.toCalendarDateOrNamedDayShort(ts);
     },
     convertISOtoUTCReadableDate: function(iso_date_string) {
-      var utc_string_builder = TS.i18n.t("{month} {day, selectordinal, one{#st}two{#nd}few{#rd}other{#th}}{comma, select, true{, {year}}other{}}", "edit_profile");
+      var utc_string_builder = TS.i18n.t("{month} {day, selectordinal, one{#st}two{#nd}few{#rd}other{#th}}{comma, select, true{, {year}}other{}}", "date_utilities");
       var utc_string;
       var ms = Date.parse(iso_date_string);
       if (!isNaN(ms)) {
@@ -30969,6 +30969,7 @@ TS.registerModule("constants", {
         sli_recap_preview: recap_highlight,
         recappable_message: recappable_message
       };
+      var $el = $(e.target);
       template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
       if (msg.subtype == "file_share" || msg.subtype == "file_mention") {
         if (msg.file) {
@@ -30980,6 +30981,7 @@ TS.registerModule("constants", {
         if (TS.replies.canReplyToMsg(model_ob, msg)) {
           template_args.can_subscribe = true;
           template_args.subscription = TS.replies.getSubscriptionState(model_ob.id, msg.ts);
+          template_args.context = TS.ui.thread.getContextForEl($el);
           if (!template_args.subscription) {
             TS.replies.promiseToGetSubscriptionState(model_ob.id, msg.ts).then(function(subscription) {
               _maybeUpdateSubscriptionMenuItem(model_ob.id, msg.ts, subscription);
@@ -31058,6 +31060,12 @@ TS.registerModule("constants", {
         }
         $target.addClass("disabled");
         TS.replies.setSubscriptionState(model_ob_id, msg_ts, !is_subscribed, last_read);
+        var clog_key = is_subscribed ? "THREAD_UNFOLLOW" : "THREAD_FOLLOW";
+        var context = $target.data("context");
+        var reply_count = root_msg && root_msg.reply_count ? root_msg.reply_count : 0;
+        TS.ui.thread.trackEvent(model_ob_id, msg_ts, context, clog_key, {
+          number_of_replies: reply_count
+        });
       } else if (id === "pin_link") {
         TS.pins.startPinMessage(msg_ts, model_ob);
       } else if (id === "unpin_link") {
@@ -36354,6 +36362,8 @@ var _on_esc;
     if (model_ob) {
       msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
     }
+    var selector = '.star_message[data-msg-id="' + ts + '"][data-c-id="' + c_id + '"]';
+    var $el = $(selector);
     if (should_log) {
       var payload = {};
       var clog_key = starred ? "STAR_ADD_CLICKED" : "STAR_REMOVE_CLICKED";
@@ -36361,10 +36371,13 @@ var _on_esc;
         _.merge(payload, TS.client.ui.unread.getTrackingData(ts));
         TS.client.ui.unread.incrementTrackingSeqId();
       }
+      if (TS.boot_data.feature_message_replies) {
+        _.merge(payload, TS.ui.thread.getTrackingPayloadForEl($el));
+        if (TS.ui.thread.getContextForEl($el) === "threads_view") TS.client.ui.threads.incrementTrackingSeqId();
+      }
       TS.clog.track(clog_key, payload);
     }
-    var selector = '.star_message[data-msg-id="' + ts + '"][data-c-id="' + c_id + '"]';
-    _updateStar($(selector), starred, msg, selector);
+    _updateStar($el, starred, msg, selector);
   };
   var _updateFileCommentStar = function(comment_id, file_id, starred) {
     var file = TS.files.getFileById(file_id);
@@ -42023,7 +42036,7 @@ var _on_esc;
         }
       }
       $container.html(html).attr("data-list", list);
-      _bindEvents($container, list);
+      _bindEvents($container, list, base_url);
       return Promise.resolve(!!teams.length);
     },
     getList: function(list, sort_by) {
@@ -42165,7 +42178,7 @@ var _on_esc;
       TS.clog.track("ENTERPRISE_DISCOVER_WORKSPACES", payload);
     }
   });
-  var _bindEvents = function($container, list) {
+  var _bindEvents = function($container, list, base_url) {
     $container.off();
     var _joinTeamHandler = function(team_id) {
       return TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
@@ -42193,7 +42206,7 @@ var _on_esc;
         var html = "";
         if (teams.length) {
           teams.forEach(function(team) {
-            html += TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url, true);
+            html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
           });
         } else {
           if (list === "teams_on") {
@@ -42203,7 +42216,7 @@ var _on_esc;
           }
         }
         $container.html(html).attr("data-list", list);
-        _bindEvents($container, list);
+        _bindEvents($container, list, base_url);
       };
       var $sort_container = $(".sort_by_container");
       var $sort_by_your = $sort_container.find('select[data-qa="sort-by-your"]');
@@ -43967,12 +43980,13 @@ $.fn.togglify = function(settings) {
       var api_args = _getApiArgsFromKey(rxn_key, {
         name: name
       });
+      var $el = $('[data-rxn-key="' + rxn_key + '"]');
+      var payload = {};
       if (TS.boot_data.feature_platform_metrics) {
-        var $el = $('[data-rxn-key="' + rxn_key + '"]');
         var $message = $el.closest("ts-message");
         var message_ts = $message.data("ts") + "";
         var message_c_id = $message.data("model-ob-id");
-        var payload = {
+        payload = {
           message_timestamp: message_ts,
           channel_id: message_c_id,
           channel_type: message_c_id ? message_c_id.charAt(0) : "",
@@ -43980,13 +43994,15 @@ $.fn.togglify = function(settings) {
           app_id: $message.data("app-id"),
           bot_id: $message.data("bot-id")
         };
-      } else {
-        var payload = {};
       }
       var clog_key = adding ? "REACTION_ADDED" : "REACTION_REMOVED";
       if (TS.model.unread_view_is_showing && api_args.timestamp) {
         _.merge(payload, TS.client.ui.unread.getTrackingData(api_args.timestamp));
         TS.client.ui.unread.incrementTrackingSeqId();
+      }
+      if (TS.boot_data.feature_message_replies) {
+        _.merge(payload, TS.ui.thread.getTrackingPayloadForEl($el));
+        if (TS.ui.thread.getContextForEl($el) === "threads_view") TS.client.ui.threads.incrementTrackingSeqId();
       }
       TS.clog.track(clog_key, payload);
       _incrementPendingCnt(rxn_key);
@@ -47009,6 +47025,7 @@ $.fn.togglify = function(settings) {
           break;
         case "open_in_channel":
           if (!TS.boot_data.feature_message_replies) return;
+          if (TS.model.threads_view_is_showing) TS.client.ui.threads.trackThreadsViewClosed("OPEN_IN_CHANNEL");
           var thread_ts = msg.thread_ts || msg.ts;
           TS.client.ui.tryToJump(model_ob.id, thread_ts);
           break;
@@ -47771,6 +47788,16 @@ $.fn.togglify = function(settings) {
       if (!TS.boot_data.feature_message_replies) return;
       e.preventDefault();
       TS.client.threads.maybeReloadThreadsView();
+    });
+    TS.click.addClientHandler("#threads_msgs .thread_channel_name", function(e, $el) {
+      if (!TS.boot_data.feature_message_replies) return;
+      e.preventDefault();
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      TS.client.ui.threads.trackThreadsViewClosed("CLICK_CHANNEL_NAME");
+      TS.client.ui.tryToJump(model_ob_id, thread_ts);
     });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {
@@ -55575,6 +55602,7 @@ $.fn.togglify = function(settings) {
     var text = TS.format.cleanMsg(original_text);
     text = _.trim(text);
     if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return false;
+    _clogMsgSharedClickEvent(src_model_ob.id, msg_ts);
     var args = {
       channel: src_model_ob.id,
       timestamp: msg_ts,
@@ -55629,6 +55657,20 @@ $.fn.togglify = function(settings) {
   };
   var _canShareToOtherChannels = function() {
     return _model_ob.is_channel;
+  };
+  var _clogMsgSharedClickEvent = function(model_ob_id, msg_ts) {
+    if (!model_ob_id || !msg_ts) return;
+    var payload = {
+      channel_id: model_ob_id,
+      message_id: msg_ts
+    };
+    var clog_key = "MSG_SHARED_CLICKED";
+    if (TS.boot_data.feature_message_replies) {
+      var $el = $("ts-message[data-model-ob-id='" + model_ob_id + "'][data-ts='" + msg_ts + "']");
+      _.merge(payload, TS.ui.thread.getTrackingPayloadForEl($el));
+      if (TS.ui.thread.getContextForEl($el) === "threads_view") TS.client.ui.threads.incrementTrackingSeqId();
+      TS.clog.track(clog_key, payload);
+    }
   };
 })();
 (function() {

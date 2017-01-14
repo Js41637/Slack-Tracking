@@ -58,6 +58,9 @@
           {{#if can_show_unread_view}}
             <li>{{#t}}Open All Unreads:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">a</span></li>
           {{/if}}
+          {{#feature flag="feature_message_replies"}}{{#isOurApp}}
+            <li>{{#t}}Open All Threads:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">t</span></li>
+          {{/isOurApp}}{{/feature}}
           <li>{{#t}}Toggle Flexpane:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">.</span></li>
             <ul>
               {{#isOurApp}}<li>{{#t}}Channel Info:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">i</span></li>{{/isOurApp}}

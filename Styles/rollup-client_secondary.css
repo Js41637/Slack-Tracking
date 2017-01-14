@@ -19253,6 +19253,17 @@ ts-message .emoji-sizer .mention {
   }
 }
 
+#thread_load_error_wrapper .emoji-outer {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 1.25rem
+}
+
+#thread_load_error_wrapper .error_header {
+  font-size: 1.5625rem;
+  font-weight: 700
+}
+
 #convo_container.should_animate {
   -webkit-transition: background-color .5s;
   -moz-transition: background-color .5s;

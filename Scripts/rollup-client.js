@@ -5685,7 +5685,7 @@
                 }
               }
             });
-            if (TS.boot_data.feature_texty) {
+            if (TS.boot_data.feature_texty_copy_paste) {
               selection_html = TS.format.formatSelectionAsHTML(selection);
             }
             if (selection_text) {
@@ -5695,7 +5695,7 @@
                 "public.utf8-plain-text": selection_text,
                 Text: selection_text
               };
-              if (TS.boot_data.feature_texty_takes_over && selection_html) {
+              if (TS.boot_data.feature_texty_copy_paste && selection_html) {
                 mime_types["text/html"] = selection_html;
               }
               TS.clipboard.writeTextFromEvent(e, mime_types);
@@ -5904,7 +5904,11 @@
         if (TS.ui.fs_modal.is_showing) {
           TS.ui.fs_modal.close();
         } else {
-          TS.ui.im_browser.start();
+          if (TS.boot_data.feature_message_replies && e.which == 84) {
+            TS.client.threads.showThreadsView();
+          } else {
+            TS.ui.im_browser.start();
+          }
           e.preventDefault();
         }
       } else {
