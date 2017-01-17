@@ -1,9 +1,7 @@
 <label class="contact_list_row" for="{{id}}">
   <input class="contact_list_checkbox" type="checkbox" value="{{email}}" id="{{id}}" name="check" {{#if checked}}checked="true"{{/if}} />
-  {{#if name}}
+  {{#if photo}}
   <img class="contact_list_photo" src="{{photo}}" alt="Contact profile photo" aria-hidden="true">
-  {{else}}
-  <div class="contact_list_photo sky_blue align_center">{{> ts_icon class="ts_icon_envelope_o"}}</div>
   {{/if}}
   <div class="contact_list_details">
     {{#if name}}

@@ -9708,7 +9708,6 @@
     _handleSearchKeyUp: function(e) {
       var new_query = $(e.target).val();
       if (new_query.trim().toLocaleLowerCase() !== this._current_query_for_match) {
-        this._maybeHideNoResultsState();
         this._presence_list.clear();
         this._members = [];
         this._next_marker = "";
@@ -19484,15 +19483,19 @@
         var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
         thread_subscribed = subscription && subscription.subscribed;
       }
+      var ignore_highlight_words = false;
+      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+        ignore_highlight_words = !thread_subscribed;
+      }
       if (channel_mentions_can_growl) {
         var ignore_at_here_mentions = TS.model.user.presence == "away";
         if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
           ignore_at_here_mentions = ignore_at_here_mentions || !thread_subscribed;
         }
-        contains_mention = TS.utility.msgs.msgContainsMention(msg, ignore_at_here_mentions);
+        contains_mention = TS.utility.msgs.msgContainsMention(msg, ignore_at_here_mentions, ignore_highlight_words);
         if (contains_mention) TS.mentions.maybeUpdateMentions();
       } else {
-        mentions_data = TS.utility.msgs.getMsgMentionData(msg);
+        mentions_data = TS.utility.msgs.getMsgMentionData(msg, ignore_highlight_words);
         contains_mention = mentions_data.non_channel_mentions;
         if (mentions_data.mentions) TS.mentions.maybeUpdateMentions();
       }

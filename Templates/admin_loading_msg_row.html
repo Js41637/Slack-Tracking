@@ -4,13 +4,13 @@
   <td class="message_cell">
     {{message}}
     <a href="/team/{{user.name}}" class="break_word bold show_on_mobile small_top_margin">
-      <span class="float_left small_right_margin">{{{makeMemberImage user.id 24}}}</span>
+      <span class="float_left small_right_margin">{{makeProfileImage user size="24"}}</span>
       {{#feature flag="feature_name_tagging_client"}}{{getMemberFullName user}}{{else}}{{getMemberDisplayName user}}{{/feature}}
     </a>
   </td>
   <td class="author_cell hide_on_mobile">
     <a href="/team/{{user.name}}" class="break_word bold">
-      <span class="float_left small_right_margin">{{{makeMemberImage user.id 24}}}</span>
+      <span class="float_left small_right_margin">{{makeProfileImage user size="24"}}</span>
       {{#feature flag="feature_name_tagging_client"}}{{getMemberFullName user}}{{else}}{{getMemberDisplayName user}}{{/feature}}
     </a>
   </td>

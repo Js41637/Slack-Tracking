@@ -19480,6 +19480,11 @@ TS.registerModule("constants", {
       var html = TS.templates.pinned_message_info(template_args);
       return new Handlebars.SafeString(html);
     },
+    buildHighlightsInfoHtml: function(msg) {
+      var template_args = {};
+      var html = TS.templates.highlights_message_info(template_args);
+      return new Handlebars.SafeString(html);
+    },
     buildInlineImgTogglerAndDiv: function(key, container_id, args) {
       var inline_img = TS.model.inline_imgs[key];
       if (!inline_img) return "";
@@ -19681,59 +19686,6 @@ TS.registerModule("constants", {
       var expand_it = TS.inline_room_previews.shouldExpand(room_id);
       var hide_title_when_expanded = true;
       return " " + '<i class="msg_inline_room_preview_collapser ts_icon ts_icon_caret_down' + (expand_it ? "" : " hidden") + (hide_title_when_expanded ? " title_hidden" : "") + '"></i>' + '<i class="msg_inline_room_preview_expander ts_icon ts_icon_caret_right' + (expand_it ? " hidden" : "") + '"></i>';
-    },
-    makeMemberImage: function(id, size, lazy, with_title) {
-      var member = TS.members.getMemberById(id);
-      if (!member || !member.profile) return "";
-      lazy = lazy === true;
-      with_title = with_title === true;
-      var img_src, img_class;
-      switch (size) {
-        case 16:
-          img_src = member.profile.image_24;
-          img_class = "thumb_16";
-          break;
-        case 20:
-          img_src = member.profile.image_24;
-          img_class = "thumb_20";
-          break;
-        case 24:
-          img_src = member.profile.image_24;
-          img_class = "thumb_24";
-          break;
-        case 32:
-          img_src = member.profile.image_32;
-          img_class = "thumb_32";
-          break;
-        case 36:
-          img_src = member.profile.image_48;
-          img_class = "thumb_36";
-          break;
-        case 48:
-          img_src = member.profile.image_48;
-          img_class = "thumb_48";
-          break;
-        case 72:
-          img_src = member.profile.image_72;
-          img_class = "thumb_72";
-          break;
-        case 192:
-          img_src = member.profile.image_192;
-          img_class = "thumb_192";
-          break;
-        default:
-          img_src = member.profile.image_48;
-          img_class = "thumb_48";
-          break;
-      }
-      var title = with_title ? 'title="' + TS.members.getMemberDisplayName(member, true) + '"' : "";
-      var html;
-      if (lazy) {
-        html = '<img data-original="' + img_src + '" class="lazy member_image ' + img_class + ' member_preview_image" data-member-id="' + member.id + '" ' + title + " />";
-      } else {
-        html = '<img src="' + img_src + '" class="member_image ' + img_class + ' member_preview_image" data-member-id="' + member.id + '" ' + title + " />";
-      }
-      return html;
     },
     buildInlineAudioToggler: function(key, container_id) {
       var inline_audio = TS.model.inline_audios[key];
@@ -20138,11 +20090,18 @@ TS.registerModule("constants", {
       }
     },
     makeProfileImage: function(entity, options) {
-      if (!entity) {
-        return false;
+      if (_.isString(entity)) {
+        var member = TS.members.getMemberById(entity);
+        if (member) {
+          entity = member;
+        } else {
+          entity = TS.bots.getBotById(entity);
+        }
       }
+      if (!entity) return false;
       var is_lazy = options.hash.is_lazy || false;
       var image_set = entity.profile || entity.icons || {};
+      var title = options.hash.title || false;
       var default_size;
       if (image_set.emoji) {
         default_size = "64";
@@ -20163,7 +20122,8 @@ TS.registerModule("constants", {
         css_classes: _getClasses(entity, desired_size),
         image: _formatImageURI(entity, _getImage(image_set, size)),
         is_lazy: is_lazy,
-        is_targettable: TS.utility.shouldLinksHaveTargets()
+        is_targettable: TS.utility.shouldLinksHaveTargets(),
+        title: title
       };
 
       function _formatImageURI(entity, image) {
@@ -21596,6 +21556,7 @@ TS.registerModule("constants", {
           template_args.is_recap = msg.recap && msg.recap.show_recap;
           var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
           template_args.show_recap_debug = recap_debug_group === "sli_debug_info";
+          template_args.highlights_html = TS.templates.builders.buildHighlightsInfoHtml(msg);
         }
         if (!msg.subtype && (args.for_search_display || args.for_top_results_search_display) && msg.file) {
           if (msg.comment) {
@@ -22851,7 +22812,6 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("emojiGraphicReplaceByName", function(name) {
         return TS.emoji.graphicReplace(":" + name + ":");
       });
-      Handlebars.registerHelper("makeMemberImage", TS.templates.builders.makeMemberImage);
       Handlebars.registerHelper("makeUsernameImage", function(msg, size) {
         var img_src, size_class, emoji_str, default_img_src;
         var bot_icons;
@@ -23822,15 +23782,18 @@ TS.registerModule("constants", {
       var day = date.getDate();
       var hours = date.getHours();
       var minutes = date.getMinutes();
-      var pm = false;
+      var date_str_builder = TS.i18n.t("{year}-{month}-{day}{exclude_time, select, true{}other{, {hours}:{minutes}{add_ampm, select, true{{is_pm, select, true{ PM}other{ AM}}}other{}}}}", "date_utilities");
+      var is_pm = false;
       if (TS.utility.date.do24hrTime()) {
         if (hours < 10) {
           hours = "0" + hours;
         }
       } else {
         if (hours >= 12) {
-          if (hours > 12) hours = hours - 12;
-          pm = true;
+          if (hours > 12) {
+            hours -= 12;
+          }
+          is_pm = true;
         } else if (hours === 0) {
           hours = 12;
         }
@@ -23842,17 +23805,24 @@ TS.registerModule("constants", {
         minutes = "0" + minutes;
       }
       month = ("0" + (month + 1)).slice(-2);
-      var formatted_time = year + "-" + month + "-" + day;
-      if (exclude_time) return formatted_time;
-      formatted_time += ", " + hours + ":" + minutes;
-      if (!TS.utility.date.do24hrTime()) {
-        if (pm) {
-          formatted_time += " PM";
-        } else {
-          formatted_time += " AM";
-        }
+      if (exclude_time) {
+        return date_str_builder({
+          year: year,
+          month: month,
+          day: day,
+          exclude_time: true
+        });
       }
-      return formatted_time;
+      return date_str_builder({
+        year: year,
+        month: month,
+        day: day,
+        exclude_time: false,
+        hours: hours,
+        minutes: minutes,
+        add_ampm: !TS.utility.date.do24hrTime(),
+        is_pm: is_pm
+      });
     },
     toHumanReadableDateAndTime: function(ts, options) {
       var relative_day = TS.utility.date.maybeGetRelativeDay(ts, options);
@@ -24779,7 +24749,9 @@ TS.registerModule("constants", {
           }
         }
       } else {
-        if (msg_from_other_team) {
+        if (msg.subtype === "tombstone") {
+          actions.delete_msg = false;
+        } else if (msg_from_other_team) {
           actions.delete_msg = false;
         } else if (TS.model.active_im_id) {
           if (!msg_belongs_to_user && msg.user != "USLACKBOT" && msg.subtype != "bot_message") {
@@ -24807,17 +24779,26 @@ TS.registerModule("constants", {
               actions.pin_msg = true;
             }
           }
+          if (TS.boot_data.feature_message_replies && msg.subtype === "tombstone") {
+            actions.unpin_msg = false;
+            actions.pin_msg = false;
+          }
         }
         if (msg.subtype == "file_comment") {
           actions.add_file_comment_rxn = true;
         } else if (TS.utility.msgs.isFileMsg(msg)) {
           actions.add_file_rxn = true;
+        } else if (TS.boot_data.feature_message_replies && msg.subtype === "tombstone") {
+          actions.add_rxn = false;
         } else {
           var handy_rxns_dd = TS.rxns.getHandyRxnsDisplayDataByRxnKey(msg._rxn_key);
           actions.add_rxn = !handy_rxns_dd.restrict;
         }
         if (TS.clipboard.canWriteText()) {
           actions.copy_link = true;
+          if (TS.boot_data.feature_message_replies && msg.subtype === "tombstone") {
+            actions.copy_link = false;
+          }
         }
       }
       if (TS.client) actions.mark_unread = true;
@@ -24843,6 +24824,8 @@ TS.registerModule("constants", {
       if (!msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg)) {
         if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
           actions.share_file = true;
+        } else if (TS.boot_data.feature_message_replies && msg.subtype === "tombstone") {
+          actions.share_message = false;
         } else {
           actions.share_message = !model_ob.is_archived || model_ob.is_channel;
         }
@@ -25042,7 +25025,7 @@ TS.registerModule("constants", {
       }
       TS.model.highlight_words_regex = new RegExp("(\\b|_|\\s|^)(" + words.join("|") + ")(\\b|_|\\s|$)", "i");
     },
-    msgContainsMention: function(msg, ignore_at_here_mentions) {
+    msgContainsMention: function(msg, ignore_at_here_mentions, ignore_highlight_words) {
       var highlight_rx = TS.utility.msgs.getHighlightWordsRegex();
       var dont_check_highlight_words = msg.subtype == "bot_message";
       var is_reply = TS.utility.msgs.isMsgReply(msg);
@@ -25062,7 +25045,7 @@ TS.registerModule("constants", {
         if (dont_check_highlight_words) return false;
         txt = txt.replace(/<\!subteam\^(\w+\d+)\|@(.+)>/g, "");
         txt = TS.format.swapOutAts(txt);
-        if (highlight_rx.test(txt)) return true;
+        if (highlight_rx.test(txt) && !ignore_highlight_words) return true;
         return false;
       }
       if (msg.subtype == "pinned_item") return false;
@@ -25086,7 +25069,7 @@ TS.registerModule("constants", {
       }
       return false;
     },
-    getMsgMentionData: function(msg) {
+    getMsgMentionData: function(msg, ignore_highlight_words) {
       var ret = {
         mentions: false,
         non_channel_mentions: false
@@ -25112,7 +25095,7 @@ TS.registerModule("constants", {
         if (TS.model.you_regex.test(txt)) return true;
         if (dont_check_highlight_words) return false;
         txt = TS.format.swapOutAts(txt);
-        if (highlight_rx.test(txt)) return true;
+        if (highlight_rx.test(txt) && !ignore_highlight_words) return true;
         return false;
       }
 
@@ -31012,6 +30995,9 @@ TS.registerModule("constants", {
         var is_in_threads_view = $el.closest("#threads_msgs").length > 0;
         var is_in_thread = template_args.is_in_conversation || is_in_threads_view;
         actions.mark_unread = actions.mark_unread && !is_in_thread;
+        if (is_in_thread && msg.subtype === "tombstone") {
+          actions.has_private_actions = false;
+        }
       }
       TS.menu.$menu_header.addClass("hidden").empty();
       TS.menu.$menu_items.html(TS.templates.menu_message_action_items(template_args));
@@ -48028,7 +48014,7 @@ $.fn.togglify = function(settings) {
         TS.recaps_signal.logMarkerClick($(e.target));
         TS.recaps_signal.scrollRecapMessageIntoView(e.target);
       });
-      TS.click.addClientHandler(".recap_highlight a", function(e) {
+      TS.click.addClientHandler(".highlights_feedback_trigger", function(e) {
         e.preventDefault();
         var $ts = $(e.target).closest("ts-message");
         var msg_ts = $ts.data("ts");

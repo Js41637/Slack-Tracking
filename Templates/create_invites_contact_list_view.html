@@ -1,8 +1,10 @@
 {{i18n_ns "team_creation"}}
 
 <div id="signup_wrapper" class="fs_split_pane fs_split_pane_full_width">
+
+  {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
+  
   <div class="fs_split_flex_wrapper">
-    {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
 
     {{> create_inc_rate_limit}}
     <div id="invite_failed_alert" class="header_error_message hidden no_bottom_margin">
@@ -10,15 +12,10 @@
       {{#t}}Some of your invites didn\u2019t go through. You\u2019ll be able to try again later.{{/t}}
     </div>
 
-    <div id="invite_contacts_body" class="fs_split_body">
-      <div>
-        {{#t}}
-        <h1 class="small_bottom_margin">Invite your team</h1>
-        <p class="desc">Slack is better with teammates!</p>
-        {{/t}}
-      </div>
+    <div class="fs_split_body invite_contacts_body">
+      <h1 class="medium_bottom_margin">{{#t}}Invite your teammates{{/t}}</h1>
       <div class="invite_contact_list_wrapper">
-        {{> contact_list}}
+        {{> contact_list placeholder=placeholder}}
       </div>
     </div>
 
@@ -27,9 +24,8 @@
         <a id="secondary_btn" class="col span_1_of_2 btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button">
           <span class="ladda-label">{{#t}}Skip for now{{/t}}</span>
         </a>
-
         <button id="submit_btn" type="submit" class="col span_1_of_2 btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button" disabled="true" aria-disabled="true">
-            <span class="ladda-label">{{#t}}Send Invitations{{/t}}</span>
+          <span class="ladda-label">{{#t}}Send Invitations{{/t}}</span>
         </button>
       </div>
     </div>

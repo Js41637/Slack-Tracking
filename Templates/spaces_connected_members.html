@@ -11,11 +11,11 @@
     }}
 
     {{#if editing_member}}
-        <li>{{{makeMemberImage editing_member 72 false true}}}</li>
+        <li>{{makeProfileImage editing_member size="72" title="true"}}</li>
     {{/if}}
 
   {{#each members}}
-        <li>{{{makeMemberImage this.id 72 false true}}}</li>
+        <li>{{makeProfileImage this size="72" title="true"}}</li>
     {{/each}}
 
     {{#has_more_count}}

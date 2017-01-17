@@ -1066,7 +1066,9 @@ input.search_input {
   background: 0 0
 }
 
+#flex_contents .inline_attachment.is_pinned .is_highlight_holder,
 #flex_contents .inline_attachment.is_pinned .is_pinned_holder,
+#flex_contents ts-message.is_pinned .is_highlight_holder,
 #flex_contents ts-message.is_pinned .is_pinned_holder {
   display: none
 }
@@ -18611,6 +18613,11 @@ ts-thread ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlig
   background: #f9f9f9
 }
 
+ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).show_recap,
+ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).show_recap {
+  background: #f3faf6
+}
+
 ts-message:hover .rxn_hover_container.feature_thanks {
   visibility: visible;
   opacity: 1
@@ -18972,6 +18979,44 @@ ts-message .pinned_item_message_header .ts_icon_thumb_tack:before {
   font-size: 1.0625rem
 }
 
+ts-message.show_recap,
+ts-message.show_recap:hover {
+  background: #f3faf6
+}
+
+ts-message.show_recap .is_highlights_holder {
+  display: block
+}
+
+ts-message.show_recap .message_gutter {
+  top: auto
+}
+
+ts-message.show_recap.standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_icon {
+  margin-top: .25rem
+}
+
+ts-message .is_highlights_holder {
+  color: #2ab27b;
+  font-size: .75rem;
+  line-height: .75rem;
+  margin-left: 4.5rem;
+  position: relative;
+  display: none;
+  padding-top: .4375rem;
+  min-height: 1.0625rem
+}
+
+ts-message .is_highlights_holder ts-icon {
+  position: absolute;
+  left: -1.25rem;
+  color: #2ab27b
+}
+
+ts-message .is_highlights_holder a {
+  color: #2ab27b
+}
+
 ts-message .recap_highlight {
   height: 16px;
   font-size: .8125rem;
@@ -19140,7 +19185,7 @@ ts-message.deleted .message_gutter .message_icon {
 ts-message.deleted .deleted_message {
   color: #9e9ea6;
   font-style: italic;
-  line-height: 2.25rem
+  line-height: 2.625rem
 }
 
 ts-message:hover .view_conv_hover {
@@ -21163,6 +21208,7 @@ ts-thread ts-message.selected .action_hover_container {
   margin-top: 4px
 }
 
+.attachment_group .inline_attachment .is_highlights_holder,
 .attachment_group .inline_attachment .is_pinned_holder {
   display: none;
   color: #9e9ea6;
@@ -21173,6 +21219,7 @@ ts-thread ts-message.selected .action_hover_container {
   font-size: .75rem
 }
 
+.attachment_group .inline_attachment .is_highlights_holder ts-icon,
 .attachment_group .inline_attachment .is_pinned_holder ts-icon {
   color: inherit;
   left: -.125rem;

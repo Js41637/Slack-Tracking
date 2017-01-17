@@ -24,6 +24,8 @@
 
   <span class="is_pinned_holder">{{pin_html}}</span>
 
+  {{#feature flag="feature_sli_recaps"}}{{#unless is_pinned}}<span class="is_highlights_holder">{{highlights_html}}</span>{{/unless}}{{/feature}}
+
   {{#unless format_for_thread_root}}
     <div class="message_gutter">
       <div class="message_icon">
@@ -78,8 +80,7 @@
         {{#if is_tombstone}}
           <div class="deleted_message">{{#t}}This message was deleted.{{/t}}</div>
         {{else}}
-          {{#feature flag="feature_sli_recaps"}}<span class="recap_highlight" style="display: none"><a data-pseudo-content="{{#t note="link to highlight message for sli recap"}}Highlight{{/t}}"></a></span>
-                <button class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
+          {{#feature flag="feature_sli_recaps"}}<button class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
                   <span class="ts_tip_tip ts_tip_multiline_inner">
                     {{#t note="stat for clicks message has received"}}Clicks:{{/t}} {{msg.recap.clicks}}<br />
                     {{#t note="stat for reactions on message"}}Reactions:{{/t}} {{msg.recap.reactions}} <br />
@@ -240,7 +241,9 @@
     {{#if standalone}}
 
       {{#or has_rxns for_mention_display}}
-        {{rxnPanel msg._rxn_key}}
+        {{#unless is_tombstone}}
+          {{rxnPanel msg._rxn_key}}
+        {{/unless}}
       {{/or}}
 
       {{#if show_initial_comment}}
@@ -279,8 +282,11 @@
 
       {{#unless is_ephemeral}}
         {{#unless file}}
-          {{rxnPanel msg._rxn_key}}
-          {{#if show_reply_bar}}{{buildReplyBarHTML msg model_ob}}{{/if}}
+          {{#unless is_tombstone}}
+            {{rxnPanel msg._rxn_key}}
+          {{/unless}}
+            {{#if show_reply_bar}}{{buildReplyBarHTML msg model_ob}}{{/if}}
+
         {{/unless}}
       {{/unless}}
 
