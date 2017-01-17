@@ -5908,6 +5908,7 @@
             TS.client.threads.showThreadsView();
           } else {
             TS.ui.im_browser.start();
+            if (e.which == 84) TS.metrics.count("threads_existing_cmd_shift_t_usage");
           }
           e.preventDefault();
         }
@@ -14243,7 +14244,7 @@
           page_url: $(this).attr("href")
         });
       });
-      _$whats_new_updates.find("p.whats_new_content").find("a").on("click", function(e) {
+      _$whats_new_updates.find("div.whats_new_description").find("a").on("click", function(e) {
         TS.clog.track("WHATSNEW_ACTION", {
           action: "view_update",
           trigger: "description_link",
@@ -14351,7 +14352,8 @@
         }
       });
       TS.clog.track("WHATSNEW_ACTION", {
-        action: "do_badge"
+        action: "do_badge",
+        trigger: _newest_id
       });
     }
   };

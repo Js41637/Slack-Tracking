@@ -51898,6 +51898,7 @@ $.fn.togglify = function(settings) {
               signin_url: data.url,
               user_id: data.user_id,
               team_id: data.team_id,
+              team_id_raw: data.team_id_raw,
               api_token: data.api_token,
               valid_signup_domain: data.valid_signup_domain
             });
