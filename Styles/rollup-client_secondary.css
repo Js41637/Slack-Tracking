@@ -678,11 +678,7 @@ input.search_input {
 }
 
 .flexpane_redesign #file_list_container .heading_text .btn_link {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
+  display: inline-block;
   vertical-align: inherit
 }
 
@@ -19035,7 +19031,7 @@ ts-message .rxn_panel:empty+.reply_bar {
 
 ts-message .reply_bar {
   height: 2rem;
-  padding: .2rem;
+  padding: .1875rem;
   margin-top: .1875rem;
   margin-bottom: .1875rem;
   line-height: 1;

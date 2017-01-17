@@ -4545,7 +4545,7 @@
         stop_animations: true
       });
       var $team_menu_user_tip = $("#team_menu_user_tip");
-      $team_menu_user_tip.toggleClass("ts_tip_hide", !current_status);
+      $team_menu_user_tip.toggleClass("ts_tip_hidden", !current_status);
       $team_menu_user_tip.find(".current_user_current_status").html(current_status);
       TS.tips.updateTipTitle($team_menu_user_tip, current_status);
     },
@@ -9639,6 +9639,7 @@
       }
     },
     _reset: function() {
+      var this_searchable_member_list = this;
       this._members = [];
       this._current_query_for_match = "";
       this._current_query_for_display = "";
@@ -9646,6 +9647,7 @@
       this._next_marker = "";
       this.$_search_input.val("");
       this.$_clear_icon.addClass("hidden");
+      this._have_all_members = false;
       this._maybeHideNoResultsState();
       this.$_long_list_view.scrollTop(0);
       if (this.$_filter_input) {
@@ -9653,7 +9655,11 @@
         this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
       }
       this.$_long_list_view.height(this._long_list_view_initial_height);
-      this._fetchProcessAndDisplayPage();
+      this._fetchProcessAndDisplayPage().then(function() {
+        TS.utility.rAF(function() {
+          this_searchable_member_list._recursivelyFillLongListViewToHeight();
+        });
+      });
     },
     _matchHeightToContents: function() {
       var this_searchable_member_list = this;
@@ -9722,7 +9728,11 @@
         this_searchable_member_list._members = [];
         this_searchable_member_list._next_marker = "";
         this_searchable_member_list._current_filter = $action.data("filter");
-        this_searchable_member_list._fetchProcessAndDisplayPage();
+        this_searchable_member_list._fetchProcessAndDisplayPage().then(function() {
+          TS.utility.rAF(function() {
+            this_searchable_member_list._recursivelyFillLongListViewToHeight();
+          });
+        });
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
       });
@@ -19286,6 +19296,7 @@
       var ssb_filename = TS.sounds.filenameForSoundName(options.sound_name || "new_message");
       var image_uri = options.imageUri;
       var avatar_image = options.avatarImage;
+      if (TS.utility.calls.isScreenSharing() && !options.is_call_notification) return;
       if (!TS.ui.growls.checkPermission()) return;
       var args;
       if (window.winssb) {

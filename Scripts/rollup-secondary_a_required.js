@@ -8851,7 +8851,8 @@ TS.registerModule("constants", {
               TS.client.ui.addEphemeralBotMsg({
                 channel: model_ob.id,
                 ts: ts,
-                text: bot_text
+                text: bot_text,
+                thread_ts: new_msg.thread_ts
               });
               ts = TS.utility.date.makeTsStamp();
             });
@@ -21550,7 +21551,8 @@ TS.registerModule("constants", {
           if (TS.utility.msgs.isMsgReply(msg)) {
             template_args.show_reply_action = false;
           } else {
-            template_args.show_reply_action = TS.replies.canReplyToMsg(model_ob, msg) && !args.is_root_msg;
+            var ignore_membership = true;
+            template_args.show_reply_action = TS.replies.canReplyToMsg(model_ob, msg, ignore_membership) && !args.is_root_msg;
             if (!template_args.show_reply_action && TS.utility.msgs.isFileMsg(msg) && msg.file) template_args.show_comment_action = true;
           }
           var is_root_msg = msg.ts == msg.thread_ts;
@@ -47040,7 +47042,8 @@ $.fn.togglify = function(settings) {
           TS.client.msg_pane.setUnreadPoint(msg_ts);
           break;
         case "reply":
-          if ($msg_el.length && TS.replies && TS.replies.canReplyToMsg(model_ob, msg)) {
+          var ignore_membership = true;
+          if ($msg_el.length && TS.replies && TS.replies.canReplyToMsg(model_ob, msg, ignore_membership)) {
             if (TS.model.unread_view_is_showing && TS.client.unread.shouldRecordMetrics()) {
               TS.metrics.count("unread_view_reply");
             }
@@ -52804,6 +52807,7 @@ $.fn.togglify = function(settings) {
       set_call_window_loaded: "set_call_window_loaded",
       set_call_window_busy: "set_call_window_busy",
       show_growl_notification: "show_growl_notification",
+      set_is_publisher_screensharing: "set_is_publisher_screensharing",
       pong: "pong",
       close: "close",
       get_calls_status: "get_calls_status",
@@ -53180,6 +53184,9 @@ $.fn.togglify = function(settings) {
     clearServerPromise: function(id) {
       delete _server_p[id];
     },
+    isScreenSharing: function() {
+      return _utility_call_state.is_publisher_screensharing;
+    },
     isSupportedMessage: function(type) {
       var calls_supported_message_types = ["user_change", "pref_change", "team_join", "channel_created", "channel_deleted", "channel_archive", "channel_unarchive", "channel_rename", "channel_joined", "channel_left", "group_deleted", "group_archive", "group_unarchive", "group_rename", "group_joined", "group_left", "im_open", "mpim_joined", "mpim_open", "mpim_close"];
       return calls_supported_message_types.indexOf(type) !== -1;
@@ -53288,6 +53295,7 @@ $.fn.togglify = function(settings) {
       send_msg_no_mini_panel: "SendMsgNoMiniPanel",
       call_window_loaded: "CallWindowLoaded",
       call_window_busy: "CallWindowBusy",
+      call_window_orphaned: "CallWindowOrphaned",
       invalid_msg_from_child_window: "InvalidMsgFromChildWindow",
       call_window_pong: "CallWindowPong",
       unknown_msg_from_call_window: "UnknownMsgFromCallWindow",
@@ -53538,6 +53546,22 @@ $.fn.togglify = function(settings) {
       no_spinner: true,
       hides_on_close: false
     };
+    clearInterval(_utility_call_state.ping_pong_timer);
+    _utility_call_state.ping_pong_timer = setInterval(function() {
+      var was_called = false;
+      _utility_call_state.pongCallback = function() {
+        was_called = true;
+      };
+      setTimeout(function() {
+        if (!was_called) {
+          _handleOrphanedWindow();
+          clearInterval(_utility_call_state.ping_pong_timer);
+        }
+      }, 2 * 1e3);
+      _sendMessageToCallWindow({
+        message_type: TS.utility.calls.messages_to_call_window_types.ping
+      });
+    }, 50 * 1e3);
     if (TS.model.is_our_app) {
       if (TS.model.is_mac) args["titleBarStyle"] = "hidden";
     }
@@ -53557,6 +53581,12 @@ $.fn.togglify = function(settings) {
     var call_window_token = _utility_call_state.call_window_token;
     delete _utility_call_state.call_window_token;
     TSSSB.call("closeWindow", call_window_token);
+  };
+  var _handleOrphanedWindow = function() {
+    _forceCloseWindow();
+    TS.utility.calls_log.logEvent({
+      event: _utility_calls_config.log_events.call_window_orphaned
+    });
   };
   var _openMiniPanel = function() {
     if (!window.winssb || _utility_call_state.mini_panel_token) return;
@@ -53651,6 +53681,7 @@ $.fn.togglify = function(settings) {
   var _callWindowGoingAway = function() {
     _setCallWindowLoaded(false);
     _setCallWindowBusy(false);
+    clearInterval(_utility_call_state.ping_pong_timer);
   };
   var _handleIncomingCall = function(call_window_busy, incoming_call_window_busy, imsg) {
     if (!TS.utility.calls.isEnabled()) return;
@@ -53882,6 +53913,7 @@ $.fn.togglify = function(settings) {
     } else {
       _notifySSBsCallWindowAvailable();
       _utility_call_state.call_channel = undefined;
+      _utility_call_state.is_publisher_screensharing = false;
     }
     if (_utility_call_state.accepted_caller_id) delete _utility_call_state.accepted_caller_id;
     if (_utility_call_state.cached_invite_cancel) delete _utility_call_state.cached_invite_cancel;
@@ -54114,13 +54146,18 @@ $.fn.togglify = function(settings) {
           TS.ui.growls.show(evt.data.title, evt.data.txt, null, {
             subtitle: evt.data.subtitle,
             sound_name: "none",
-            channelId: evt.data.channel
+            channelId: evt.data.channel,
+            is_call_notification: true
           });
+          break;
+        case TS.utility.calls.messages_from_call_window_types.set_is_publisher_screensharing:
+          _utility_call_state.is_publisher_screensharing = evt.data.is_enabled;
           break;
         case TS.utility.calls.messages_from_call_window_types.pong:
           TS.utility.calls_log.logEvent({
             event: _utility_calls_config.log_events.call_window_pong
           });
+          if (_utility_call_state.pongCallback) _utility_call_state.pongCallback();
           break;
         case TS.utility.calls.messages_from_call_window_types.close:
           _closeCallWindow();
@@ -54932,10 +54969,6 @@ $.fn.togglify = function(settings) {
     }
   });
   var _uniq_id = 0;
-  var _checkAndSubmit = function($input, $form) {
-    var is_too_long = TS.msg_edit.isMessageTooLong($input);
-    if (!is_too_long) $form.submit();
-  };
   var _initTabComplete = function($input, opts) {
     if (TS.boot_data.feature_texty_takes_over) return;
     var complete_member_specials = true;
@@ -55005,7 +55038,8 @@ $.fn.togglify = function(settings) {
         },
         placeholder: opts.placeholder,
         onEnter: function(args) {
-          if (!TS.client.ui.cal_key_checker.prevent_enter) _checkAndSubmit($input, $form);
+          var e = new Event("fake_event");
+          if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit(e, $input, $form, submit_fn);
           return false;
         },
         onTextChange: function() {
@@ -55015,18 +55049,15 @@ $.fn.togglify = function(settings) {
         }
       });
       TS.utility.contenteditable.enable($input);
-      return;
     }
     $form.bind("destroyed", function() {
       cancel_fn($form);
       TSSSB.call("inputFieldRemoved", $input.get(0));
     });
     $form.bind("submit", function(e) {
-      e.preventDefault();
-      var text = TS.utility.contenteditable.value($input);
-      if (!$.trim(text)) return;
-      submit_fn(e, $form, text);
+      _tryToSubmit(e, $input, $form, submit_fn);
     });
+    if (TS.boot_data.feature_texty_takes_over) return;
     $input.bind("textchange", function(e, prev_txt) {
       TS.msg_edit.checkLengthAndUpdateMessage($input);
     }).bind("keyup", function(e) {
@@ -55054,15 +55085,13 @@ $.fn.togglify = function(settings) {
         if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey) {
           return;
         } else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && e.shiftKey) {
-          e.preventDefault();
-          _checkAndSubmit($input, $form);
+          _tryToSubmit(e, $input, $form, submit_fn);
           return;
         } else if ($input.tab_complete_ui("isShowing")) {
           e.preventDefault();
           return;
         } else if (!e.shiftKey && !e.altKey) {
-          e.preventDefault();
-          _checkAndSubmit($input, $form);
+          _tryToSubmit(e, $input, $form, submit_fn);
           return;
         }
       } else if (TS.client && TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) {
@@ -55113,6 +55142,19 @@ $.fn.togglify = function(settings) {
       }
     }
     return null;
+  };
+  var _shouldSubmit = function($input, text) {
+    var is_too_long = TS.msg_edit.isMessageTooLong($input);
+    if (is_too_long) return false;
+    if (!$.trim(text)) return false;
+    return true;
+  };
+  var _tryToSubmit = function(e, $input, $form, submit_fn) {
+    e.preventDefault();
+    var text = TS.utility.contenteditable.value($input);
+    if (_shouldSubmit($input, text)) {
+      submit_fn(e, $form, text);
+    }
   };
 })();
 (function() {
