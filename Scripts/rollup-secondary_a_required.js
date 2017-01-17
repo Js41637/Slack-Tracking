@@ -42055,7 +42055,7 @@ var _on_esc;
         if (TS.model.user.enterprise_user.teams.indexOf(team.id) > -1) {
           teams.teams_on.push(team);
         } else {
-          if (team.is_open || team.closed) teams.teams_not_on.push(team);
+          if (team.is_open || team.is_closed) teams.teams_not_on.push(team);
         }
       });
       return teams[list].sort(function(a, b) {
@@ -42115,9 +42115,19 @@ var _on_esc;
         }
       });
     },
-    requestToJoinTeam: function() {
-      return new Promise(function(resolve, reject) {
-        resolve("true");
+    requestToJoinTeam: function(team_id) {
+      if (!TS.boot_data.feature_discoverable_teams_client_v2) return false;
+      var calling_args = {
+        team: team_id
+      };
+      if (TS.boot_data.app === "client") calling_args.enterprise_token = TS.model.enterprise_api_token;
+      return TS.api.call("enterprise.teams.joinrequests.create", calling_args, function(ok, data, args) {
+        var team = TS.enterprise.getTeamById(args.team);
+        var updated_team = _.merge({}, team, {
+          has_join_request: true
+        });
+        TS.enterprise.upsertEnterpriseTeam(updated_team);
+        return ok;
       });
     },
     createLogoutURL: function(team_id, base_url) {
@@ -42191,7 +42201,7 @@ var _on_esc;
             TS.members.upsertMember(updated_member);
           }
           var team = TS.enterprise.getTeamById(team_id);
-          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.signout_url));
+          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
         }
         return result;
       });
@@ -42298,15 +42308,16 @@ var _on_esc;
       var team_id = $(this).data("id");
       _joinTeamHandler(team_id);
     });
-    $container.on("click", ".enterprise_team_card .enterprise_team_request", function(e) {
-      e.stopPropagation();
-      var team_id = $(this).data("id");
-      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
-        console.log("here");
-      }).catch(function() {
-        console.log("nope");
+    if (TS.boot_data.feature_discoverable_teams_client_v2) {
+      $container.on("click", ".enterprise_team_card .enterprise_team_request", function(e) {
+        e.stopPropagation();
+        var team_id = $(this).data("id");
+        TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
+          var team = TS.enterprise.getTeamById(team_id);
+          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+        }).catch(function() {});
       });
-    });
+    }
     $container.find(".not_on_any_workspaces").on("click", ".find_teams", function(e) {
       e.preventDefault();
       TS.enterprise.member_header.setPage("teams_not_on");
@@ -47157,6 +47168,9 @@ $.fn.togglify = function(settings) {
     });
     TS.click.addClientHandler(".top_results_search_message_result", function(e, $el, origin) {
       var $target = $(e.target);
+      var $search_result = $target.closest(".search_message_result");
+      var module_name = $search_result.data("module-name") || "";
+      var module_order = $search_result.data("module-order") || 0;
       if ($target.attr("href")) return;
       if ($target.parents(".rxn").length) return;
       var href_found = false;
@@ -47181,6 +47195,20 @@ $.fn.togglify = function(settings) {
           return;
         }
       }
+      var payload = {
+        click_target_type: "top_results_jump_body",
+        click_position: match_with_index.index,
+        click_user_id: match.user,
+        click_channel_id: match.channel.id,
+        click_timestamp: match.ts,
+        click_module_name: module_name,
+        click_module_position: module_order,
+        click_sort: TS.search.sort
+      };
+      if (TS.search.last_request_id) {
+        payload["request_id"] = TS.search.last_request_id;
+      }
+      TS.clog.track("SEARCH_CLICK", payload);
       TS.client.ui.tryToJump(c_id, match.ts);
     });
     TS.click.addClientHandler(".search_message_result a, .search_message_result button", function(e, $el) {
