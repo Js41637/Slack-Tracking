@@ -11869,6 +11869,21 @@ TS.registerModule("constants", {
       }
       return null;
     },
+    getBotByMsg: function(msg) {
+      var member = TS.members.getMemberById(msg.user);
+      var bot_id = msg.bot_id || _.get(member, "profile.bot_id");
+      if (!bot_id) return null;
+      var bot = TS.bots.getBotById(bot_id);
+      if (bot) {
+        bot.id = bot_id;
+        return bot;
+      }
+      if (msg.bot_profile) {
+        msg.bot_profile.id = bot_id;
+        return msg.bot_profile;
+      }
+      return null;
+    },
     getBotByName: function(name) {
       var bots = TS.model.bots;
       var bot;
@@ -11883,8 +11898,8 @@ TS.registerModule("constants", {
     },
     getBotInfoByMsg: function(msg) {
       var member = TS.members.getMemberById(msg.user);
-      var bot_id = msg.bot_id || _.get(member, "profile.bot_id");
-      var bot = TS.bots.getBotById(bot_id);
+      var bot = TS.bots.getBotByMsg(msg);
+      var bot_id = _.get(bot, "id") || _.get(member, "profile.bot_id");
       if (bot_id && !bot && TS.lazyLoadMembersAndBots()) {
         TS.info(1989, "Flannel: failed to find a bot (" + bot_id + ") whilst lazy loading bots");
       }
@@ -18632,7 +18647,7 @@ TS.registerModule("constants", {
           author_link: TS.boot_data.feature_name_tagging_client ? "/team/" + user_id : "/team/" + TS.utility.htmlEntities(member.name)
         };
       } else if (bot_id) {
-        var bot = TS.bots.getBotById(bot_id);
+        var bot = TS.bots.getBotByMsg(msg);
         author = {
           author_subname: msg.username || bot.name,
           author_icon: bot && bot.icons.image_48,
@@ -20432,7 +20447,7 @@ TS.registerModule("constants", {
     },
     getBotIdentifier: function(msg) {
       if (!msg.bot_id && !msg.username) return null;
-      var bot = msg.bot_id ? TS.bots.getBotById(msg.bot_id) : null;
+      var bot = TS.bots.getBotByMsg(msg);
       var name = !msg.username && bot && bot.name ? bot.name : msg.username;
       var id = bot ? bot.id : "NOBOTID";
       return id + "_" + name;
@@ -20440,7 +20455,7 @@ TS.registerModule("constants", {
     getBotName: function(msg) {
       var username = msg.username;
       if (!username) {
-        var bot = msg.bot_id ? TS.bots.getBotById(msg.bot_id) : null;
+        var bot = TS.bots.getBotByMsg(msg);
         if (bot && bot.name) {
           username = bot.name;
         }
@@ -20449,7 +20464,7 @@ TS.registerModule("constants", {
     },
     getBotNameWithLink: function(msg) {
       var username = msg.username;
-      var bot = msg.bot_id ? TS.bots.getBotById(msg.bot_id) : null;
+      var bot = TS.bots.getBotByMsg(msg);
       var bot_link = TS.templates.builders.makeBotLink(bot, msg.username);
       if (!username) {
         if (bot && bot.name) {
@@ -22838,7 +22853,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeUsernameImage", function(msg, size) {
         var img_src, size_class, emoji_str, default_img_src;
         var bot_icons;
-        var bot = msg.bot_id ? TS.bots.getBotById(msg.bot_id) : null;
+        var bot = TS.bots.getBotByMsg(msg);
         if (msg.icons) {
           bot_icons = msg.icons;
         } else if (bot && bot.icons) {
@@ -23047,7 +23062,7 @@ TS.registerModule("constants", {
       function getBotNameAndIcon(msg) {
         var username = TS.utility.htmlEntities(msg.username);
         var bot_icons;
-        var bot = msg.bot_id ? TS.bots.getBotById(msg.bot_id) : null;
+        var bot = TS.bots.getBotByMsg(msg);
         if (msg.icons) {
           bot_icons = msg.icons;
         } else {
@@ -25497,6 +25512,9 @@ TS.registerModule("constants", {
       }
       if (imsg.img_vids) {
         new_msg.img_vids = imsg.img_vids;
+      }
+      if (imsg.bot_profile) {
+        new_msg.bot_profile = imsg.bot_profile;
       }
       var url;
       if (imsg.imgs) {
@@ -52467,7 +52485,8 @@ $.fn.togglify = function(settings) {
             count: max_count
           });
         }
-        return results_p.then(function(members) {
+        return results_p.then(function(response) {
+          var members = response.objects;
           if (!args.include_bots) {
             var deleted_bots = _.remove(members, {
               is_bot: true

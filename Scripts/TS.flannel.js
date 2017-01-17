@@ -34,9 +34,6 @@
     fetchAndUpsertObjectsByIds: function(ids) {
       return _fetchAndProcessObjectsByIds(ids, _batchUpsertObjects);
     },
-    fetchRawObjectsByIds: function(ids) {
-      return _fetchAndProcessObjectsByIds(ids, _.identity);
-    },
     fetchAndUpsertObjectsWithQuery: function(query) {
       return _fetchAndProcessObjectsWithQuery(query, _batchUpsertObjects);
     },
@@ -60,7 +57,8 @@
     },
     fetchAndUpsertAllMembersOnTeam: function() {
       var args = {
-        count: _MAX_IDS_PER_QUERY
+        count: _MAX_IDS_PER_QUERY,
+        limit: Infinity
       };
       return TS.flannel.fetchAndUpsertObjectsWithQuery(args);
     },
@@ -94,7 +92,7 @@
         if (TS.shouldLog(1989) || TS.boot_data.feature_tinyspeck) {
           TS.info(required_member_ids.join(", "));
         }
-        return TS.flannel.fetchRawObjectsByIds(required_member_ids).then(function(users) {
+        return _fetchRawObjectsByIds(required_member_ids).then(function(users) {
           TS.info("Got " + users.length + " members for rtm.start :tada:");
           data.users = users;
           if (required_member_ids.length !== users.length) {
@@ -144,10 +142,11 @@
   var _MAX_IDS_PER_QUERY = 500;
   var _model_ob_member_fetch_promises = {};
   var _fetchAndProcessObjects = function(query, objects, process_fn, marker) {
-    query = _.assign({}, query, {
+    var flannel_query = _.assign({}, query, {
       marker: marker
     });
-    return TS.ms.flannel.call("query_request", query).then(function(resp) {
+    if (flannel_query.limit) delete flannel_query.limit;
+    return TS.ms.flannel.call("query_request", flannel_query).then(function(resp) {
       if (_.get(resp, "results.length")) {
         objects = objects.concat(process_fn(resp.results));
         if (query.limit && (objects.length >= query.limit || !resp.next_marker)) {
@@ -157,9 +156,16 @@
           });
         }
       }
-      if (!resp.next_marker) {
+      if (!resp.next_marker || objects.length >= query.count && !query.limit) {
         TS.log(1989, "Flannel: finished fetching results for query", query);
-        return objects;
+        if (query.count) {
+          return {
+            objects: objects.slice(0, query.count),
+            next_marker: objects.length > query.count ? objects[query.count].id : resp.next_marker
+          };
+        } else {
+          return objects;
+        }
       }
       TS.log(1989, "Flannel: fetching next page for query", query);
       return _fetchAndProcessObjects(query, objects, process_fn, resp.next_marker);
@@ -254,5 +260,8 @@
         throw err;
       });
     }
+  };
+  var _fetchRawObjectsByIds = function(ids) {
+    return _fetchAndProcessObjectsByIds(ids, _.identity);
   };
 })();

@@ -15875,6 +15875,7 @@
     date: new Date,
     flat: false,
     first_day: 1,
+    default_date: true,
     prev: "&#9664;",
     next: "&#9654;",
     mode: "single",
@@ -16577,7 +16578,7 @@
     if (options.mode != "single") {
       if (options.date.constructor != Array) {
         options.date = [options.date.valueOf()];
-        if (options.mode == "range") {
+        if (options.mode == "range" && options.default_date) {
           options.date.push(new Date(options.date[0]).setHours(0, 0, 0, 0).valueOf());
         }
       } else {
@@ -16699,7 +16700,7 @@
       if (options.mode != "single") {
         if (options.date.constructor != Array) {
           options.date = [options.date.valueOf()];
-          if (options.mode == "range") {
+          if (options.mode == "range" && options.default_date) {
             options.date.push(new Date(options.date[0]).setHours(0, 0, 0, 0).valueOf());
           }
         } else {
@@ -20016,7 +20017,7 @@
       if (!TS.model.input_history.length) return;
       var txt;
       if (TS.boot_data.feature_texty) {
-        txt = TS.utility.contenteditable.value(input);
+        txt = TS.utility.contenteditable.serialize(input);
       } else {
         txt = input.val();
       }
@@ -20041,7 +20042,11 @@
       }
       var hist_txt = TS.model.input_history[TS.model.input_history_index];
       e.preventDefault();
-      TS.utility.populateInput(TS.client.ui.$msg_input, hist_txt);
+      if (TS.boot_data.feature_texty) {
+        TS.utility.contenteditable.deserialize(TS.client.ui.$msg_input, hist_txt);
+      } else {
+        TS.utility.populateInput(TS.client.ui.$msg_input, hist_txt);
+      }
       if (e.which == TS.utility.keymap.up) {
         if (TS.boot_data.feature_texty) {
           TS.utility.contenteditable.cursorPosition(input, 0);

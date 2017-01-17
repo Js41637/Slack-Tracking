@@ -3369,7 +3369,7 @@
     },
     nameToBaseName: function(name) {
       if (!_.isString(name)) return "";
-      name = name.replace(/(\:skin-tone-[2-6])/, "");
+      name = name.replace(/(\:skin-tone-[2-6]:)/, "");
       name = TS.emoji.stripWrappingColons(name);
       return name;
     },
