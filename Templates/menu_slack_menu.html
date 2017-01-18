@@ -139,14 +139,11 @@
     {{else}}
       {{#if enterprise_logout_url}}
         <li class="divider subdivider"></li>
-        {{#feature flag="feature_discoverable_teams_client"}}
-          {{#if this.user.is_restricted}}
-          {{else}}
-            <li id="workspaces" role="menuitem">
-              <a>{{#t}}Find more teams{{/t}}</a>
-            </li>
-          {{/if}}
-        {{/feature}}
+        {{#unless this.user.is_restricted}}
+          <li id="workspaces" role="menuitem">
+            <a>{{#t}}Find more teams{{/t}}</a>
+          </li>
+        {{/unless}}
         <li id="enterprise_logout" role="menuitem" class="enterprise_logout_url"><a href="{{enterprise_logout_url}}" target="_self">{{#t team_name=(currentEnterpriseName)}}Sign out of <strong>{team_name}</strong>{{/t}}</a></li>
       {{/if}}
     {{/if}}

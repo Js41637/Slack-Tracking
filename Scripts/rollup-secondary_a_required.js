@@ -4046,6 +4046,13 @@
     var members;
     delete channel.unread_count;
     if (TS.boot_data.feature_tinyspeck && channel.id === "C00") TS.warn("_upsertChannel() got a bad channel id of C00", channel);
+    if (TS.boot_data.feature_tinyspeck) {
+      var general_id = "C024BE7LR";
+      if (channel.id === general_id && !channel.is_general) {
+        TS.console.warn("TS only: The general channel is marked `is_general: false` which is wrong. Applying a temp patch to correct that.");
+        channel.is_general = true;
+      }
+    }
     if (existing_channel) {
       if (TS.pri) TS.log(5, 'updating existing channel "' + channel.id + '"');
       for (var k in channel) {
@@ -32480,9 +32487,12 @@ var _on_esc;
       if (TS.notifs.isCorGMuted(channel.id)) template_args.channel_is_muted = true;
       if (channel.is_member && (!channel.is_general || TS.members.canUserPostInGeneral())) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise && channel.is_shared) {
-        if (TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
         if (template_args.show_advanced_item) {
-          if (!TS.permissions.members.canManageSharedChannels()) template_args.show_advanced_item = false;
+          if (TS.permissions.members.canManageSharedChannels()) {
+            template_args.show_manage_teams = true;
+          } else {
+            template_args.show_advanced_item = false;
+          }
         }
         template_args.is_not_allowed_integrations = true;
       }
@@ -33721,9 +33731,11 @@ var _on_esc;
       if (TS.notifs.isCorGMuted(group.id)) template_args.group_is_muted = true;
       template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise && group.is_shared) {
-        if (TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) template_args.show_manage_teams = true;
         if (group.creator !== TS.model.user.id) template_args.show_advanced_item = false;
-        if (TS.permissions.members.canManageSharedChannels()) template_args.show_advanced_item = true;
+        if (TS.permissions.members.canManageSharedChannels()) {
+          template_args.show_advanced_item = true;
+          template_args.show_manage_teams = true;
+        }
         template_args.is_not_allowed_integrations = true;
       }
       TS.menu.$menu_items.html(TS.templates.menu_group_items(template_args));
@@ -51557,21 +51569,19 @@ $.fn.togglify = function(settings) {
     TS.model.enterprise_teams = _.merge([], TS.model.enterprise_teams);
   };
   var _processNewTeamForUpserting = function(team) {
-    if (TS.boot_data.feature_discoverable_teams_client) {
-      switch (team.discoverable) {
-        case "public":
-        case "open":
-          team.is_open = true;
-          break;
-        case "private":
-        case "closed":
-          team.is_closed = true;
-          break;
-        case "unlisted":
-        default:
-          team.is_unlisted = true;
-          break;
-      }
+    switch (team.discoverable) {
+      case "public":
+      case "open":
+        team.is_open = true;
+        break;
+      case "private":
+      case "closed":
+        team.is_closed = true;
+        break;
+      case "unlisted":
+      default:
+        team.is_unlisted = true;
+        break;
     }
     if (!team.user_counts) {
       team.user_counts = {};
