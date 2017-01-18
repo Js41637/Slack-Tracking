@@ -3174,10 +3174,10 @@
       $("#footer").css("visibility", "visible");
       return true;
     },
-    submit: function(e) {
+    submit: function() {
       var text = TS.utility.contenteditable.value(TS.client.ui.$msg_input);
       if (!TS.model.ms_connected && text != "/wakewake") return false;
-      TS.client.ui.onSubmit(text, e);
+      TS.client.ui.onSubmit(text);
       return true;
     },
     focusMessageInput: function() {
@@ -6320,7 +6320,7 @@
         }
         TS.view.clearMessageInput();
         if (txt.substr(0, 1) == "/" && txt.substr(0, 2) != "//") {
-          TS.client.ui.sendSlashCommand(model_ob, txt, e);
+          TS.client.ui.sendSlashCommand(model_ob, txt);
         } else {
           TS.client.ui.sendMessage(model_ob, txt);
         }
@@ -6328,13 +6328,13 @@
         TS.error(err);
       }
     },
-    sendSlashCommand: function(model_ob, txt, e, in_reply_to_msg) {
+    sendSlashCommand: function(model_ob, txt, in_reply_to_msg) {
       TS.chat_history.add(txt);
       var args = TS.cmd_handlers.parseArgs(txt);
       var edit_last_shortcut;
       if (TS.cmd_handlers[args.cmd] && TS.cmd_handlers[args.cmd].type == "client") {
         setTimeout(function() {
-          TS.cmd_handlers.runCommand(args.cmd, args.rest, args.words, e, in_reply_to_msg, model_ob);
+          TS.cmd_handlers.runCommand(args.cmd, args.rest, args.words, in_reply_to_msg, model_ob);
         }, 10);
       } else if (edit_last_shortcut = TS.utility.msgs.getEditLastShortcutCmd(txt)) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", model_ob.id);
@@ -9493,6 +9493,7 @@
     },
     showInitial: function() {
       var this_searchable_member_list = this;
+      this.$_container.delegate(".team_list_item", "click", TS.members.view.onTeamDirectoryItemClick);
       this.$_long_list_view = this.$_container.find(".searchable_member_list_scroller");
       this._showLoadingState();
       this._fetchPage().then(function(members) {
@@ -9907,7 +9908,7 @@
             } else {
               if (args.shiftKey) return true;
             }
-            if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit(new Event("fakeEvent"), $input);
+            if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input);
             return false;
           },
           onTextChange: function() {
@@ -9979,7 +9980,7 @@
             if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input)) {
               return;
             }
-            _tryToSubmit(e, $input);
+            _tryToSubmit($input, e);
           }
           e.preventDefault();
           if (TS.model.profiling_keys) TS.model.addProfilingKeyTime("input keydown", Date.now() - start);
@@ -9995,7 +9996,7 @@
               $input.setCursorPosition(p + 1);
             }
           } else if (TS.model.prefs && TS.model.prefs.enter_is_special_in_tbt && e.which == _keymap.enter && e.shiftKey && TS.utility.isCursorWithinTBTs($input)) {
-            _tryToSubmit(e, $input);
+            _tryToSubmit($input, e);
           }
           if (_$chat_input_tab_ui.length && !_$chat_input_tab_ui.hasClass("hidden")) {
             if (TS.model.is_our_app && TS.model.is_electron) {
@@ -10392,15 +10393,15 @@
     }
     return placeholder;
   };
-  var _tryToSubmit = function(e, $input) {
+  var _tryToSubmit = function($input, e) {
     var val = TS.format.cleanMsg(TS.utility.contenteditable.value($input));
     if (val.length > TS.model.input_maxlength) {
       _$snippet_prompt.highlight(600, "", null, 0);
-      e.preventDefault();
+      if (e) e.preventDefault();
       return;
     }
     var submitter = function() {
-      if (TS.view.submit(e)) {
+      if (TS.view.submit()) {
         if (!TS.ui.at_channel_warning_dialog.showing) TS.client.msg_input.reset();
         TS.chat_history.resetPosition("enter key");
       } else if (!TS.model.is_msg_rate_limited) {

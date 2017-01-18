@@ -2379,7 +2379,8 @@ html.is_electron_mac #rxn_toast_div {
 }
 
 #convo_tab #convo_tab_header .thread_participants {
-  line-height: .9375rem
+  line-height: .9375rem;
+  font-weight: 400
 }
 
 html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
@@ -5239,23 +5240,22 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 .screenhero_attachment {
-  border-radius: .5rem;
-  padding-top: .875rem;
-  padding-bottom: .875rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  border: 1px solid #efefef;
   margin-top: .35rem;
   margin-bottom: .1rem;
-  cursor: pointer;
-  max-width: 600px
+  max-width: 600px;
+  padding: 14px 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer
 }
 
 .screenhero_attachment:hover {
-  border-right-color: rgba(0, 0, 0, .09);
-  border-left-color: rgba(0, 0, 0, .09);
-  border-bottom-color: rgba(0, 0, 0, .1);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .06)
+  border-right-color: rgba(0, 0, 0, .14);
+  border-left-color: rgba(0, 0, 0, .14);
+  border-bottom-color: rgba(0, 0, 0, .15);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .06);
+  text-decoration: none
 }
 
 .screenhero_attachment:hover a {
@@ -5264,7 +5264,7 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 .sh_call_ended .screenhero_attachment:hover {
-  border-color: #efefef;
+  border-color: #e8e8e8;
   box-shadow: none;
   cursor: default
 }
@@ -21127,6 +21127,7 @@ ts-thread ts-message.selected .action_hover_container {
 .attachment_group.has_container {
   border: 1px solid #e8e8e8;
   border-radius: 6px;
+  background: #fff;
   overflow: hidden;
   position: relative;
   z-index: 1

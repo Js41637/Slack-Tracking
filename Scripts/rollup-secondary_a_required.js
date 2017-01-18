@@ -21815,7 +21815,7 @@ TS.registerModule("constants", {
     register: function() {
       Handlebars.registerHelper("i18n_ns", function(namespace, options) {
         if (!_.isObject(this)) {
-          TS.warn("Cannot set i18n namespace. Chances are you‘ve inadvertently changed the context in a Handlebars partial to something that‘s not an object.");
+          TS.warn('Cannot set i18n namespace "' + namespace + '". Chances are you‘ve inadvertently changed the context in a Handlebars partial to something that‘s not an object.');
           return;
         }
         if (this._i18n_ns) {
@@ -23758,13 +23758,12 @@ TS.registerModule("constants", {
       return time_segments.join(" ").trim();
     },
     toTimeAmount: function(minutes) {
-      var time = {
+      return {
         w: TS.utility.date.toWeekAmount(minutes),
         d: TS.utility.date.toDayAmount(minutes) - TS.utility.date.toWeekAmount(minutes) * 7,
         h: TS.utility.date.toHourAmount(minutes) - TS.utility.date.toDayAmount(minutes) * 24,
         mi: minutes % 60
       };
-      return time;
     },
     toWeekAmount: function(minutes) {
       return Math.floor(minutes / 10080);
@@ -23828,8 +23827,12 @@ TS.registerModule("constants", {
       var relative_day = TS.utility.date.maybeGetRelativeDay(ts, options);
       if (relative_day) {
         var include_ampm = true;
-        var time = TS.utility.date.toTime(ts, include_ampm);
-        return relative_day + " at " + time;
+        var time = TS.utility.date.toTime(ts, include_ampm, false);
+        var str_builder = TS.i18n.t("{relative_day} at {time}", "date_utilities");
+        return str_builder({
+          relative_day: relative_day,
+          time: time
+        });
       }
       return TS.utility.date.toCalendarDateOrNamedDayShort(ts);
     },
@@ -34543,12 +34546,12 @@ var _on_esc;
       }
       TS.client.ui.addEphemeralBotMsg(ephemeral_msg);
     },
-    runCommand: function(cmd, rest, words, e, in_reply_to_msg, model_ob) {
+    runCommand: function(cmd, rest, words, in_reply_to_msg, model_ob) {
       if (!TS.cmd_handlers[cmd]) return;
       if (TS.model.last_active_cid) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.last_active_cid);
       }
-      TS.cmd_handlers[cmd].func(cmd, rest, words, e, in_reply_to_msg, model_ob);
+      TS.cmd_handlers[cmd].func(cmd, rest, words, in_reply_to_msg, model_ob);
     },
     "/away": {
       type: "client",
@@ -34556,7 +34559,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t('Toggle your "away" status', "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.members.toggleUserPresence().then(function(res) {
           var presence = res.args.presence || TS.model.user.presence;
           TS.cmd_handlers.addEphemeralFeedback(":white_check_mark: " + TS.i18n.t("You are now marked as *{presence}*.", "cmd_handlers")({
@@ -34572,7 +34575,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Open the preferences dialog", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ui.prefs_dialog.start();
       }
     },
@@ -34582,7 +34585,7 @@ var _on_esc;
       alias_of: null,
       aliases: ["/keys"],
       desc: TS.i18n.t("Open the keyboard shortcuts dialog", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ui.shortcuts_dialog.start();
       }
     },
@@ -34592,8 +34595,8 @@ var _on_esc;
       alias_of: "/shortcuts",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/shortcuts"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/shortcuts"].func(cmd, rest, words);
       }
     },
     "/open": {
@@ -34606,7 +34609,7 @@ var _on_esc;
         name: TS.i18n.t("channel", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (words.length == 1) {
           TS.ui.channel_browser.start();
         } else {
@@ -34641,8 +34644,8 @@ var _on_esc;
       alias_of: "/open",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/open"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/open"].func(cmd, rest, words);
       }
     },
     "/msg": {
@@ -34658,7 +34661,7 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var name = words.length > 1 ? words[1] : "";
         var c_or_g;
         var m;
@@ -34717,7 +34720,7 @@ var _on_esc;
         name: TS.i18n.t("channel", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var name = words.length > 1 ? words[1] : "";
         var ug;
         var m;
@@ -34868,14 +34871,7 @@ var _on_esc;
                 });
               }
             } else {
-              if (e && e.which == TS.utility.keymap.enter) {
-                $(window.document).bind("keyup.wait_for_invite", function(e) {
-                  TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_channel_id);
-                  $(window.document).unbind("keyup.wait_for_invite");
-                });
-              } else {
-                TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_channel_id);
-              }
+              TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_channel_id);
             }
           } else if (TS.model.active_group_id) {
             if (m) {
@@ -34906,14 +34902,7 @@ var _on_esc;
                 TS.ui.invite.showInviteMembersPreSelected(TS.model.active_group_id, users_to_invite);
               }
             } else {
-              if (e && e.which == TS.utility.keymap.enter) {
-                $(window.document).bind("keyup.wait_for_invite", function(e) {
-                  TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_group_id);
-                  $(window.document).unbind("keyup.wait_for_invite");
-                });
-              } else {
-                TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_group_id);
-              }
+              TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_group_id);
             }
           } else if (TS.model.active_mpim_id) {
             var mpim = TS.mpims.getMpimById(TS.model.active_mpim_id);
@@ -34945,7 +34934,7 @@ var _on_esc;
         name: "name@domain.com, ...",
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (TS.ui.admin_invites.canInvite()) {
           rest = rest && rest.trim();
           if (rest) {
@@ -34967,8 +34956,8 @@ var _on_esc;
       alias_of: "/msg",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/msg"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/msg"].func(cmd, rest, words);
       }
     },
     "/archive": {
@@ -34977,7 +34966,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Archive the current channel", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var model_ob = TS.shared.getActiveModelOb();
         if (model_ob.is_archived || model_ob.is_general) return;
         if (TS.model.active_channel_id) {
@@ -34997,7 +34986,7 @@ var _on_esc;
       alias_of: null,
       aliases: ["/close", "/part"],
       desc: TS.i18n.t("Leave a channel", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (words.length == 1) {
           var model_ob = TS.shared.getActiveModelOb();
           if (TS.model.active_channel_id) {
@@ -35034,7 +35023,7 @@ var _on_esc;
       autocomplete: true,
       alias_of: null,
       desc: TS.i18n.t("Stars the current channel or conversation", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.stars.toggleStarOnActiveModelObject(function(model_ob) {
           if (model_ob.is_starred) {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Ok, I starred {channel}", "cmd_handlers")({
@@ -35054,8 +35043,8 @@ var _on_esc;
       alias_of: "/leave",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/leave"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/leave"].func(cmd, rest, words);
       }
     },
     "/part": {
@@ -35064,8 +35053,8 @@ var _on_esc;
       alias_of: "/leave",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/leave"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/leave"].func(cmd, rest, words);
       }
     },
     "/topic": {
@@ -35078,7 +35067,7 @@ var _on_esc;
         name: TS.i18n.t("new topic", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (TS.model.user.is_restricted || TS.shared.getActiveModelOb().is_general && !TS.members.canUserPostInGeneral()) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Setting the topic is a restricted action.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
           return;
@@ -35112,7 +35101,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.prefs.setPrefByAPI({
           name: "messages_theme",
           value: TS.model.prefs.messages_theme == "light_with_avatars" ? "dense" : "light_with_avatars"
@@ -35129,7 +35118,7 @@ var _on_esc;
         name: TS.i18n.t("your text", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.client.ui.flex.openFlexTab("search");
         TS.view.resizeManually("TS.search.view.showResults");
         TS.search.autocomplete.search(rest, true);
@@ -35144,8 +35133,8 @@ var _on_esc;
       alias_of: "/search",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/search"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/search"].func(cmd, rest, words);
       }
     },
     "/rename": {
@@ -35158,7 +35147,7 @@ var _on_esc;
         name: TS.i18n.t("new name", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (TS.model.user.is_restricted) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You don’t have permission to rename.", "cmd_handlers")(), "", "sad_surprise");
           return;
@@ -35183,7 +35172,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.sounds.play("new_message");
       }
     },
@@ -35193,7 +35182,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var blob = TS.utility.base64StrtoBlob(rest);
         TS.client.ui.file_pasted_sig.dispatch(blob);
       }
@@ -35204,7 +35193,7 @@ var _on_esc;
       alias_of: null,
       aliases: ["/colours"],
       desc: TS.i18n.t("View any custom colors you have set for other members", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var members = TS.members.getMembersForUser();
         var member;
         var str = "";
@@ -35223,8 +35212,8 @@ var _on_esc;
       alias_of: "/colors",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/colors"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/colors"].func(cmd, rest, words);
       }
     },
     "/color": {
@@ -35233,7 +35222,7 @@ var _on_esc;
       alias_of: null,
       aliases: ["/colour"],
       desc: TS.i18n.t("Set a custom color for another member", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var name = words.length > 1 ? words[1] : "";
         var color = words.length > 2 ? words[2].replace(/\#/g, "") : "";
         var m;
@@ -35282,8 +35271,8 @@ var _on_esc;
       alias_of: "/color",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/color"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/color"].func(cmd, rest, words);
       }
     },
     "/colortest": {
@@ -35292,7 +35281,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var colors = null;
         if (rest) {
           try {
@@ -35321,7 +35310,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ms.disconnect();
       }
     },
@@ -35331,7 +35320,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ms.sleep();
       }
     },
@@ -35341,7 +35330,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ms.sleep();
         TS.ms.setReconnectUrl("");
       }
@@ -35352,7 +35341,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ms.wake();
       }
     },
@@ -35362,7 +35351,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.model.break_token = true;
         TS.ms.disconnect();
       }
@@ -35373,7 +35362,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.model.break_reconnections = true;
         TS.ms.disconnect();
       }
@@ -35384,7 +35373,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ms.setReconnectUrl("");
         TS.ms.disconnect();
       }
@@ -35395,7 +35384,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (!TS.boot_data.feature_message_replies) return;
         var msg_replies = TS.utility.parseJSONOrElse(TS.model.prefs.msg_replies, {});
         var accepted_options_msg = TS.i18n.t("Accepted options are: flexpane.", "cmd_handlers")();
@@ -35461,7 +35450,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Edit the last message you posted", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var model_ob = TS.shared.getActiveModelOb();
         if (!model_ob) {
           return;
@@ -35485,7 +35474,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Delete the last message you posted", "cmd_handlers")(),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var model_ob = TS.shared.getActiveModelOb();
         if (!model_ob) {
           return;
@@ -35506,7 +35495,7 @@ var _on_esc;
       desc: TS.i18n.t("Collapse all files in the current channel (opposite of {slash_expand})", "cmd_handlers")({
         slash_expand: "/expand"
       }),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.inline_imgs.collapseAllInCurrent();
         TS.inline_videos.collapseAllInCurrent();
         TS.inline_attachments.collapseAllInCurrent();
@@ -35524,7 +35513,7 @@ var _on_esc;
       desc: TS.i18n.t("Expand all files in the current channel (opposite of {collapse_command})", "cmd_handlers")({
         collapse_command: "/collapse"
       }),
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.inline_imgs.expandAllInCurrent();
         TS.inline_videos.expandAllInCurrent();
         TS.inline_attachments.expandAllInCurrent();
@@ -35540,7 +35529,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         $("body").toggleClass("attachments_flush_with_avatar");
       }
     },
@@ -35550,7 +35539,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         window.attach_thumb_align_title = !window.attach_thumb_align_title;
         TS.client.msg_pane.rebuildMsgs();
       }
@@ -35565,7 +35554,7 @@ var _on_esc;
         name: "@user",
         optional: false
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (TS.model.active_channel_id && !TS.permissions.members.canKickFromChannels()) {
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Removing from channels is a restricted action.", "cmd_handlers")(), "", "sad_surprise");
           return;
@@ -35634,8 +35623,8 @@ var _on_esc;
       alias_of: "/remove",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
-        TS.cmd_handlers["/remove"].func(cmd, rest, words, e);
+      func: function(cmd, rest, words, in_reply_to_msg) {
+        TS.cmd_handlers["/remove"].func(cmd, rest, words);
       }
     },
     "/feedback": {
@@ -35648,7 +35637,7 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (!rest) {
           TS.utility.openInNewTab("/help/requests/new", "_blank");
           return;
@@ -35684,7 +35673,7 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, e, in_reply_to_msg, model_ob) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         var txt = rest || "";
         if (txt && txt.substr(txt.length - 1) != " ") {
           txt += " ";
@@ -35708,7 +35697,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.model.show_attachment_fallback = !TS.model.show_attachment_fallback;
         TS.client.msg_pane.rebuildMsgs();
       }
@@ -35719,7 +35708,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         if (window.macgap && window.macgap.app && window.macgap.app.enableDeveloperTools) {
           macgap.app.enableDeveloperTools();
         }
@@ -35731,7 +35720,7 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         TS.ui.prefs_dialog.start("advanced", "#prefs_debug");
       }
     },
@@ -35782,7 +35771,7 @@ var _on_esc;
         optional: true
       }],
       can_be_overridden_by_server_cmd: true,
-      func: function(cmd, rest, words, e, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg) {
         var model_ob = TS.shared.getActiveModelOb();
         var member = TS.members.getMemberById(model_ob.user);
         if (TS.boot_data.page_needs_enterprise) {
@@ -55024,8 +55013,7 @@ $.fn.togglify = function(settings) {
         },
         placeholder: opts.placeholder,
         onEnter: function(args) {
-          var e = new Event("fake_event");
-          if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit(e, $input, $form, submit_fn);
+          if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input, $form, submit_fn);
           return false;
         },
         onTextChange: function() {
@@ -55041,7 +55029,8 @@ $.fn.togglify = function(settings) {
       TSSSB.call("inputFieldRemoved", $input.get(0));
     });
     $form.bind("submit", function(e) {
-      _tryToSubmit(e, $input, $form, submit_fn);
+      e.preventDefault();
+      _tryToSubmit($input, $form, submit_fn);
     });
     if (TS.boot_data.feature_texty_takes_over) return;
     $input.bind("textchange", function(e, prev_txt) {
@@ -55071,13 +55060,15 @@ $.fn.togglify = function(settings) {
         if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey) {
           return;
         } else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && e.shiftKey) {
-          _tryToSubmit(e, $input, $form, submit_fn);
+          e.preventDefault();
+          _tryToSubmit($input, $form, submit_fn);
           return;
         } else if ($input.tab_complete_ui("isShowing")) {
           e.preventDefault();
           return;
         } else if (!e.shiftKey && !e.altKey) {
-          _tryToSubmit(e, $input, $form, submit_fn);
+          e.preventDefault();
+          _tryToSubmit($input, $form, submit_fn);
           return;
         }
       } else if (TS.client && TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) {
@@ -55135,11 +55126,10 @@ $.fn.togglify = function(settings) {
     if (!$.trim(text)) return false;
     return true;
   };
-  var _tryToSubmit = function(e, $input, $form, submit_fn) {
-    e.preventDefault();
+  var _tryToSubmit = function($input, $form, submit_fn) {
     var text = TS.utility.contenteditable.value($input);
     if (_shouldSubmit($input, text)) {
-      submit_fn(e, $form, text);
+      submit_fn($form, text);
     }
   };
 })();
