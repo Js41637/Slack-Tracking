@@ -19294,15 +19294,21 @@ ts-message .emoji-sizer .mention {
   }
 }
 
-#thread_load_error_wrapper .emoji-outer {
-  width: 70px;
-  height: 70px;
-  margin-bottom: 1.25rem
+#thread_load_error_wrapper .error_emoji {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px
 }
 
 #thread_load_error_wrapper .error_header {
-  font-size: 1.5625rem;
+  font-size: 1.25rem;
   font-weight: 700
+}
+
+.threads_alternative_view_wrapper .threads_empty_state_message_header {
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 2rem
 }
 
 #convo_container.should_animate {
@@ -26528,18 +26534,6 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
   unicode-range: U+F8FF
 }
 
-.tiny {
-  font-size: .7rem
-}
-
-.small {
-  font-size: .9rem
-}
-
-.no_pointer_events {
-  pointer-events: none
-}
-
 .menu.app_card {
   width: 20rem;
   overflow: hidden
@@ -26916,4 +26910,253 @@ ul li.highlighted a .app_slash_command_desc {
   left: 0;
   width: 100%;
   height: 100%
+}
+
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
+.tiny {
+  font-size: .7rem
+}
+
+.small {
+  font-size: .9rem
+}
+
+.no_pointer_events {
+  pointer-events: none
+}
+
+#threads_msgs_scroller_div {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .9375rem;
+  background: #f2f2f5;
+  height: calc(100% - 16px);
+  margin-top: 8px;
+  overflow-y: scroll
+}
+
+#threads_msgs_scroller_div.monkey_scroller {
+  padding-right: .9375rem
+}
+
+html:not(.supports_sticky_position) #threads_msgs_scroller_div {
+  margin-top: 8px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div {
+  border-right: .25rem solid transparent
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 8px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-track {
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #f2f2f5
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-track {
+  background: #f2f2f5;
+  box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-thumb {
+  background: #d9d9de;
+  box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-corner {
+  background: #f2f2f5
+}
+
+.supports_custom_scrollbar.slim_scrollbar #threads_msgs_scroller_div {
+  margin-right: 2px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #threads_msgs_scroller_div::-webkit-scrollbar {
+  position: absolute;
+  -webkit-appearance: none;
+  width: 6px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #threads_msgs_scroller_div::-webkit-scrollbar-thumb {
+  background-color: rgba(113, 114, 116, .5);
+  background-clip: padding-box!important;
+  border-radius: 3px;
+  color: #717274;
+  min-height: 36px
+}
+
+.supports_custom_scrollbar.slim_scrollbar #threads_msgs_scroller_div::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(113, 114, 116, .8)
+}
+
+#threads_msgs_scroller_div:not(.loading):before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: .125rem;
+  height: 100%;
+  background: #f2f2f5
+}
+
+#threads_msgs_scroller_div.loading {
+  background: url(/d5d4a/img/unread/uv-loader@2x.gif) center center no-repeat;
+  background-size: 200px 200px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center
+}
+
+#threads_msgs_scroller_div.loading:before {
+  content: attr(data-loading-text);
+  display: block;
+  margin-top: -220px;
+  color: #aaacb1;
+  text-align: center;
+  font-size: 1rem;
+  font-style: italic;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-weight: 700
+}
+
+#threads_msgs_scroller_div.loading.slow_loading:before {
+  content: attr(data-slow-loading-text)
+}
+
+#threads_msgs_scroller_div .threads_caught_up_divider {
+  position: relative;
+  text-align: center;
+  margin-top: 1.5rem
+}
+
+#threads_msgs_scroller_div .threads_caught_up_divider .divider_line {
+  height: 0;
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  border-top: 1px solid #e8e8e8
+}
+
+#threads_msgs_scroller_div .threads_caught_up_divider .divider_label {
+  background: #fff;
+  padding: .25rem .75rem;
+  display: inline-block;
+  position: relative;
+  border-radius: 1rem;
+  font-weight: 700;
+  color: #2c2d30
+}
+
+#threads_view_banner.messages_banner {
+  height: 1.5625rem;
+  line-height: normal;
+  background: #29B2EE;
+  border-radius: .375rem;
+  font-size: .8rem;
+  opacity: 1;
+  cursor: pointer;
+  -webkit-transition: opacity .15s ease-out 0s;
+  -moz-transition: opacity .15s ease-out 0s;
+  transition: opacity .15s ease-out 0s
+}
+
+#threads_view_banner.messages_banner.no_opacity {
+  opacity: 0;
+  -ms-pointer-events: none;
+  -webkit-pointer-events: none;
+  pointer-events: none
+}
+
+#threads_view_banner.messages_banner #new_replies_info {
+  margin: 0 6.5rem 0 2.5rem
+}
+
+#threads_view_banner.messages_banner .tooltip {
+  font-weight: 500;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif
+}
+
+#threads_view_banner.messages_banner:hover {
+  background: #3D9CD4
+}
+
+#threads_view_banner.messages_banner:hover .clear_unread_messages {
+  background: #57B2E7
+}
+
+#threads_msgs.new_banner_is_showing:before {
+  content: '';
+  position: absolute;
+  z-index: 98;
+  top: 8px;
+  left: 0;
+  right: 13px;
+  height: 26px;
+  background: #f2f2f5
+}
+
+.threads_section.partial_start .threads_section_divider {
+  display: none
+}
+
+.threads_alternative_view_wrapper {
+  text-align: center;
+  height: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center
+}
+
+.threads_alternative_view_wrapper .emoji-only {
+  height: 3.125rem;
+  width: 3.125rem
+}
+
+.threads_alternative_view_wrapper .threads_alternative_view_message {
+  margin: 2rem auto;
+  max-width: 27.1875rem;
+  line-height: 1.40625rem
+}
+
+#convo_tab .thread_participants,
+ts-thread .thread_participants {
+  font-size: .8125rem;
+  color: #717274;
+  margin-top: .1875rem
 }

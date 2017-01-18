@@ -24814,7 +24814,7 @@ TS.registerModule("constants", {
         actions.jump_to_original = is_root;
         if (actions.mark_unread && !is_root) actions.mark_unread = false;
       }
-      var allowed_subtypes = ["bot_message", "file_share", "file_mention", "file_comment", "me_message"];
+      var allowed_subtypes = ["bot_message", "file_share", "file_mention", "file_comment", "me_message", "reply_broadcast"];
       if (!msg.is_ephemeral && (!msg.subtype || allowed_subtypes.indexOf(msg.subtype) !== -1)) {
         actions.remind_me = true;
       }
@@ -46919,10 +46919,10 @@ $.fn.togglify = function(settings) {
           }
         }
       }
-      var is_in_thread, is_root_msg;
+      var is_in_thread, is_root_msg, is_in_threads_view;
       if (TS.boot_data.feature_message_replies) {
         var is_in_conversation = $msg.closest("ts-conversation").length > 0;
-        var is_in_threads_view = $msg.closest("#threads_msgs").length > 0;
+        is_in_threads_view = $msg.closest("#threads_msgs").length > 0;
         is_in_thread = is_in_conversation || is_in_threads_view;
         is_root_msg = !msg.thread_ts || msg.thread_ts === msg.ts;
       }
@@ -46931,6 +46931,7 @@ $.fn.togglify = function(settings) {
         actions: TS.utility.msgs.getMsgActions(msg, model_ob),
         ts_tip_delay_class: "ts_tip_delay_60",
         handy_rxns: handy_rxns_to_show,
+        is_in_threads_view: is_in_threads_view,
         is_in_thread: is_in_thread,
         is_root_msg: is_root_msg,
         show_rxn_action: !!$ahc.data("show_rxn_action") && (!handy_rxns_dd || !handy_rxns_dd.restrict),
@@ -56623,4 +56624,356 @@ $.fn.togglify = function(settings) {
       return null;
     }
   });
+})();
+(function() {
+  "use strict";
+  TS.registerModule("replies", {
+    thread_marked_sig: new signals.Signal,
+    thread_subscription_changed_sig: new signals.Signal,
+    sanity_check_failed_sig: new signals.Signal,
+    reply_changed_sig: new signals.Signal,
+    reply_deleted_sig: new signals.Signal,
+    onStart: function() {
+      if (!TS.boot_data.feature_message_replies) return;
+      TS.channels.message_received_sig.add(_messageReceived);
+      TS.groups.message_received_sig.add(_messageReceived);
+      TS.ims.message_received_sig.add(_messageReceived);
+      TS.mpims.message_received_sig.add(_messageReceived);
+      TS.channels.message_removed_sig.add(_messageRemoved);
+      TS.groups.message_removed_sig.add(_messageRemoved);
+      TS.ims.message_removed_sig.add(_messageRemoved);
+      TS.mpims.message_removed_sig.add(_messageRemoved);
+      TS.channels.message_changed_sig.add(_messageChanged);
+      TS.groups.message_changed_sig.add(_messageChanged);
+      TS.ims.message_changed_sig.add(_messageChanged);
+      TS.mpims.message_changed_sig.add(_messageChanged);
+      TS.model.NAMED_VIEWS.push({
+        id: "Vall_threads",
+        name: TS.i18n.t("Threads", "threads")(),
+        alt_names: [TS.i18n.t("All Threads", "threads")(), TS.i18n.t("New Threads", "threads")()],
+        is_view: true
+      });
+    },
+    canReplyToMsg: function(model_ob, msg, ignore_membership) {
+      if (!TS.client) return false;
+      if (!TS.replies.isEnabledForModelOb(model_ob)) return false;
+      if (!msg) return false;
+      if (TS.utility.msgs.isAutomatedMsg(msg)) return false;
+      if (TS.utility.msgs.isFileMsg(msg)) return false;
+      if (TS.utility.msgs.isTempMsg(msg) || msg.is_ephemeral) return false;
+      if (TS.utility.msgs.isMsgReply(msg)) return false;
+      if (!ignore_membership) {
+        if (model_ob.is_channel && !model_ob.is_member) return false;
+      }
+      return true;
+    },
+    getMessage: function(model_ob, ts) {
+      if (!TS.replies.isEnabledForModelOb(model_ob)) return;
+      var msg = TS.utility.msgs.getMsg(ts, model_ob.msgs) || TS.utility.msgs.getMsg(ts, model_ob._archive_msgs);
+      if (msg) {
+        return msg;
+      }
+      if (TS.ui.replies) return TS.ui.replies.getActiveMessage(model_ob, ts);
+      return null;
+    },
+    getThread: function(c_id, thread_ts, always_make_api_call) {
+      var model_ob = TS.shared.getModelObById(c_id);
+      if (!TS.replies.isEnabledForModelOb(model_ob)) return Promise.reject(new Error("wtf: not enabled"));
+      if (!always_make_api_call) {
+        var messages_from_model_ob = _getThreadFromModelOb(c_id, thread_ts);
+        if (messages_from_model_ob) {
+          if (_shouldSanityCheck()) _sanityCheck(c_id, thread_ts, messages_from_model_ob);
+          return Promise.resolve(messages_from_model_ob);
+        }
+      }
+      var params = {
+        channel: c_id,
+        thread_ts: thread_ts
+      };
+      var api_endpoints_by_model_ob_type = {
+        D: "im.replies",
+        C: "channels.replies",
+        G: "groups.replies"
+      };
+      var ob_type = c_id[0];
+      var api_endpoint = api_endpoints_by_model_ob_type[ob_type];
+      if (!api_endpoint) {
+        TS.error("Unable to get thread for message in unsupported model object type with ID" + c_id);
+        return Promise.reject(new Error("missing api endpoint"));
+      }
+      var key = _keyForThread(c_id, thread_ts);
+      if (_threads_being_loaded[key]) return _threads_being_loaded[key];
+      if (always_make_api_call) {
+        TS.info("Calling " + api_endpoint + " for " + thread_ts + " because always_make_api_call");
+      } else {
+        TS.info("Calling " + api_endpoint + " for " + thread_ts + " because local history is incomplete");
+      }
+      _threads_being_loaded[key] = TS.api.call(api_endpoint, params).then(function(resp) {
+        var messages = resp.data.messages.map(function(imsg) {
+          return TS.utility.msgs.processImsgFromHistory(imsg, c_id);
+        });
+        _maybeSlurpSubscriptionState(c_id, messages);
+        return messages;
+      }).finally(function() {
+        delete _threads_being_loaded[key];
+      });
+      return _threads_being_loaded[key];
+    },
+    isEnabled: function() {
+      return !!TS.boot_data.feature_message_replies;
+    },
+    isEnabledForModelOb: function(model_ob) {
+      return !!TS.boot_data.feature_message_replies;
+    },
+    isAllThreadsViewEnabled: function() {
+      return !!TS.boot_data.feature_message_replies;
+    },
+    getSubscriptionState: function(model_ob_id, thread_ts) {
+      var key = _keyForThread(model_ob_id, thread_ts);
+      var subscription = _subscriptions[key];
+      return subscription;
+    },
+    promiseToGetSubscriptionState: function(model_ob_id, thread_ts) {
+      var key = _keyForThread(model_ob_id, thread_ts);
+      var subscription = _subscriptions[key];
+      if (subscription) return Promise.resolve(subscription);
+      var key = _keyForThread(model_ob_id, thread_ts);
+      if (_threads_being_loaded[key]) {
+        return _threads_being_loaded[key].then(function() {
+          return TS.replies.getSubscriptionState(model_ob_id, thread_ts);
+        });
+      }
+      if (_subscriptions_being_loaded[key]) return _subscriptions_being_loaded[key];
+      _subscriptions_being_loaded[key] = TS.api.call("subscriptions.thread.get", {
+        channel: model_ob_id,
+        thread_ts: thread_ts
+      }).then(function(response) {
+        var subscriptions = response.data.subscriptions;
+        var subscribed = _.includes(subscriptions, thread_ts);
+        var subscription = {
+          model_ob_id: model_ob_id,
+          thread_ts: thread_ts,
+          subscribed: subscribed
+        };
+        _subscriptions[key] = subscription;
+        return subscription;
+      }).finally(function() {
+        delete _subscriptions_being_loaded[key];
+      });
+      return _subscriptions_being_loaded[key];
+    },
+    markThread: function(model_ob_id, thread_ts, ts) {
+      var key = _keyForThread(model_ob_id, thread_ts);
+      var subscription = _subscriptions[key];
+      if (subscription && subscription.last_read === ts) return Promise.resolve();
+      if (subscription) {
+        if (!subscription._pending) subscription._pending = {};
+        subscription._pending[ts] = true;
+      }
+      return TS.api.call("subscriptions.thread.mark", {
+        channel: model_ob_id,
+        thread_ts: thread_ts,
+        ts: ts
+      }).finally(function() {
+        if (subscription && subscription._pending) {
+          delete subscription._pending[ts];
+        }
+      });
+    },
+    markAllThreads: function(max_ts) {
+      var params = {};
+      if (max_ts) params.max_ts = max_ts;
+      return TS.api.call("subscriptions.thread.clearAll", params);
+    },
+    threadMarked: function(model_ob_id, thread_ts, last_read, unread_count) {
+      var key = _keyForThread(model_ob_id, thread_ts);
+      var subscription = _subscriptions[key];
+      if (subscription) {
+        subscription.last_read = last_read;
+        subscription.unread_count = unread_count;
+      }
+      TS.replies.thread_marked_sig.dispatch(model_ob_id, thread_ts, subscription);
+    },
+    threadSubscribed: function(model_ob_id, thread_ts, data) {
+      var subscription = _updateThreadSubscription(model_ob_id, thread_ts, true, data);
+      TS.replies.thread_subscription_changed_sig.dispatch(model_ob_id, thread_ts, subscription);
+    },
+    threadUnsubscribed: function(model_ob_id, thread_ts, data) {
+      var subscription = _updateThreadSubscription(model_ob_id, thread_ts, false, data);
+      TS.replies.thread_subscription_changed_sig.dispatch(model_ob_id, thread_ts, subscription);
+    },
+    setSubscriptionState: function(model_ob_id, thread_ts, subscribed, last_read) {
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) return;
+      var key = _keyForThread(model_ob_id, thread_ts);
+      var subscription = _subscriptions[key];
+      if (subscription) {
+        subscription.subscribed = subscribed;
+      }
+      var params = {
+        channel: model_ob_id,
+        thread_ts: thread_ts
+      };
+      if (last_read) {
+        params.last_read = last_read;
+      }
+      if (subscribed) {
+        return TS.api.call("subscriptions.thread.add", params);
+      } else {
+        var msg = TS.replies.getMessage(model_ob, thread_ts);
+        if (msg && !msg.thread_ts) {
+          params.preemptive_remove = true;
+          TS.replies.thread_subscription_changed_sig.dispatch(model_ob_id, thread_ts, subscription);
+        }
+        return TS.api.call("subscriptions.thread.remove", params);
+      }
+    },
+    maybeSlurpSubscriptionState: function(model_ob_id, msgs) {
+      return _maybeSlurpSubscriptionState(model_ob_id, msgs);
+    }
+  });
+  var _threads_being_loaded = {};
+  var _subscriptions_being_loaded = {};
+  var _subscriptions = {};
+  var _messageChanged = function(model_ob, message) {
+    if (!TS.replies.isEnabledForModelOb(model_ob)) return;
+    if (message.rsp_id) return;
+    TS.replies.reply_changed_sig.dispatch(model_ob, message);
+  };
+  var _messageRemoved = function(model_ob, message) {
+    if (!TS.replies.isEnabledForModelOb(model_ob)) return;
+    TS.replies.reply_deleted_sig.dispatch(model_ob, message);
+  };
+  var _messageReceived = function(model_ob, message) {
+    _messageChanged(model_ob, message);
+  };
+  var _getThreadFromModelOb = function(c_id, thread_ts) {
+    var model_ob = TS.shared.getModelObById(c_id);
+    if (!model_ob) return;
+    if (model_ob.is_channel && !model_ob.is_member) {
+      return;
+    }
+    var msgs, thread_msg;
+    if (!thread_msg) {
+      msgs = model_ob.msgs;
+      thread_msg = TS.utility.msgs.getMsg(thread_ts, msgs);
+    }
+    if (!thread_msg) {
+      msgs = model_ob._archive_msgs;
+      thread_msg = TS.utility.msgs.getMsg(thread_ts, msgs);
+    }
+    if (!thread_msg) {
+      return;
+    }
+    var thread_msgs = msgs.filter(function(msg) {
+      return msg.ts == thread_ts || msg.thread_ts == thread_ts;
+    });
+    var without_ephemerals = thread_msgs.filter(function(msg) {
+      return !msg.is_ephemeral;
+    });
+    var reply_count = thread_msg.reply_count || 0;
+    if (without_ephemerals.length < reply_count + 1) {
+      return;
+    }
+    return _.sortBy(thread_msgs, "ts");
+  };
+  var _shouldSanityCheck = function() {
+    return true;
+  };
+  var _sanityCheck = function(c_id, thread_ts, messages_from_model_ob) {
+    messages_from_model_ob = messages_from_model_ob.filter(function(msg) {
+      return !msg.is_ephemeral;
+    });
+    var always_make_api_call = true;
+    TS.replies.getThread(c_id, thread_ts, always_make_api_call).then(function(messages_from_api) {
+      var model_timestamps = _.map(messages_from_model_ob, "ts");
+      var api_timestamps = _.map(messages_from_api, "ts");
+      var model_texts = _.map(messages_from_model_ob, "text");
+      var api_texts = _.map(messages_from_model_ob, "text");
+      if (_.isEqual(model_timestamps, api_timestamps) && _.isEqual(model_texts, api_texts)) {
+        TS.info("Replies sanity check passed for " + thread_ts);
+        return;
+      }
+      var common_timestamps = _.intersection(model_timestamps, api_timestamps);
+      var api_only_timestamps = _.difference(api_timestamps, common_timestamps);
+      var model_only_timestamps = _.difference(model_timestamps, common_timestamps);
+      if (model_only_timestamps.length == 0 && api_only_timestamps.length > 0) {
+        var all_tombstone_timestamps = _(messages_from_api).filter(function(msg) {
+          return msg.subtype == "tombstone";
+        }).map("ts").value();
+        var is_only_missing_tombstones = _.isEqual(api_only_timestamps.sort(), all_tombstone_timestamps.sort());
+        if (is_only_missing_tombstones) {
+          TS.info("Replies sanity check passed (except tombstones) for " + thread_ts);
+          TS.metrics.count("replies_sanity_check_passed_except_tombstones");
+          return;
+        }
+      }
+      if (model_only_timestamps.length > 0 && api_only_timestamps.length == 0) {
+        var last_api_timestamp = _.max(api_timestamps);
+        var all_after_api = _.every(model_only_timestamps, function(ts) {
+          return ts > last_api_timestamp;
+        });
+        if (all_after_api) {
+          TS.info("Replies sanity check passed (except newer local msgs) for " + thread_ts);
+          TS.metrics.count("replies_sanity_check_passed_except_newer_local_msgs");
+          return;
+        }
+      }
+      var debug_info = {
+        version_ts: TS.boot_data.version_ts,
+        channel_id: c_id,
+        thread_ts: thread_ts,
+        messages_from_api: api_timestamps,
+        messages_from_model_ob: model_timestamps
+      };
+      TS.warn("Replies sanity check failed. Here's the debug info: " + JSON.stringify(debug_info));
+      TS.metrics.count("replies_sanity_check_failed");
+      var model_ob = TS.shared.getModelObById(c_id);
+      if (!model_ob) return;
+      var root_msg = TS.replies.getMessage(model_ob, thread_ts);
+      if (!root_msg) return;
+      TS.replies.sanity_check_failed_sig.dispatch(model_ob, root_msg, messages_from_api);
+      return null;
+    });
+    return null;
+  };
+  var _keyForThread = function(model_ob_id, thread_ts) {
+    return model_ob_id + "_" + thread_ts;
+  };
+  var _maybeSlurpSubscriptionState = function(model_ob_id, msgs) {
+    msgs.forEach(function(msg) {
+      if (!msg.hasOwnProperty("_subscribed")) return;
+      var key = _keyForThread(model_ob_id, msg.ts);
+      if (_subscriptions[key] && _subscriptions[key].last_read) {
+        if (msg._last_read && msg._last_read > _subscriptions[key].last_read) {
+          _subscriptions[key].last_read = msg._last_read;
+        }
+      } else {
+        _subscriptions[key] = {
+          model_ob_id: model_ob_id,
+          thread_ts: msg.ts,
+          subscribed: msg._subscribed,
+          last_read: msg._last_read,
+          unread_count: msg._unread_count
+        };
+      }
+    });
+  };
+  var _updateThreadSubscription = function(model_ob_id, thread_ts, subscribed, data) {
+    var key = _keyForThread(model_ob_id, thread_ts);
+    var subscription = _subscriptions[key];
+    if (subscription) {
+      subscription.subscribed = subscribed;
+    } else {
+      subscription = {
+        subscribed: subscribed,
+        model_ob_id: model_ob_id,
+        thread_ts: thread_ts
+      };
+      _subscriptions[key] = subscription;
+    }
+    if (data.last_read) subscription.last_read = data.last_read;
+    if (data.unread_count) subscription.unread_count = data.unread_count;
+    return subscription;
+  };
 })();

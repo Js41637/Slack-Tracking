@@ -7225,12 +7225,15 @@
       $("#team_list_container").unhideWithRememberedScrollTop();
       TS.view.resizeManually("TS.client.ui._displayTeamList");
       if (TS.useSearchableMemberList()) {
-        if (!TS.SearchableMemberList.get("team_list_scroller")) {
+        var searchableMemberList = TS.SearchableMemberList.get("team_list_scroller");
+        if (!searchableMemberList) {
           var searchable_member_list = new TS.SearchableMemberList({
             $container: $("#team_list_container"),
             id: "team_list_scroller"
           });
           searchable_member_list.showInitial();
+        } else {
+          searchableMemberList.maybeRerenderLongListView();
         }
       } else {
         TS.view.triggerInitialTeamListLazyLoad();
@@ -9502,6 +9505,11 @@
         this_searchable_member_list._setupLongListView();
         this_searchable_member_list._maybeSetupSearchBar();
       });
+    },
+    maybeRerenderLongListView: function() {
+      if (this.$_long_list_view && this._members) {
+        this.$_long_list_view.longListView("setItems", this._members, true, true);
+      }
     },
     _fetchPage: function() {
       if (this._fetch_page_p) return this._fetch_page_p;
@@ -38311,4 +38319,2657 @@ function timezones_guess() {
   });
   var _profile_template_args;
   var _$app_profile_desc;
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.date_picker", {
+    onStart: function() {},
+    start: function($element, date_picker_args) {
+      $element.pickmeup(date_picker_args);
+    },
+    startJumpToDatePicker: function($element) {
+      var oldest_msg_ts = $("#channel_actions_toggle").attr("data-oldest-ts");
+      if (oldest_msg_ts) {
+        var min_date = TS.utility.date.toDateObject(oldest_msg_ts);
+        _initPickmeUpForJumpToDate($element, min_date);
+      } else {
+        var model_ob = TS.shared.getActiveModelOb();
+        var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
+        TS.api.callImmediately(api_method, {
+          channel: model_ob.id,
+          oldest: 283996800,
+          count: 1,
+          inclusive: 1
+        }).then(function(response) {
+          var min_ts;
+          if (response.data.messages.length < 1) {
+            min_ts = TS.shared.getActiveModelOb().created;
+          }
+          min_ts = response.data.messages[0].ts;
+          var min_date = TS.utility.date.toDateObject(min_ts);
+          _initPickmeUpForJumpToDate($element, min_date);
+          return true;
+        }).catch(function(err) {
+          _initPickmeUpForJumpToDate($element);
+          return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
+        });
+      }
+    },
+    startArchiveDatePicker: function($element) {
+      var model_ob = TS.shared.getActiveModelOb();
+      var min_date = TS.utility.date.toDateObject(model_ob.created);
+      var today = Date.now();
+      var selected_date = today;
+      if (boot_data.calendar_start) selected_date = TS.utility.date.toDateObject(boot_data.calendar_start);
+      if (boot_data.calendar_oldest) min_date = TS.utility.date.toDateObject(boot_data.calendar_oldest);
+      TS.ui.date_picker.start($element, {
+        first_day: 0,
+        hide_on_select: true,
+        select_year: true,
+        date: selected_date,
+        min: min_date,
+        max: today,
+        change: function() {
+          selected_date = $(this).pickmeup("get_date");
+          var timestamp = Date.parse(selected_date) * 1e3;
+          var path = model_ob.is_mpim ? TS.mpims.getMpimArchivesPath(model_ob) : "/archives/" + model_ob.name;
+          window.location = path + "/s" + timestamp;
+        }
+      });
+    },
+    getOldestMsgTs: function() {
+      var oldest_msg_ts = $("#channel_actions_toggle").attr("data-oldest-ts");
+      if (oldest_msg_ts) return;
+      var model_ob = TS.shared.getActiveModelOb();
+      var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
+      TS.api.callImmediately(api_method, {
+        channel: model_ob.id,
+        oldest: 283996800,
+        count: 1,
+        inclusive: 1
+      }).then(function(response) {
+        var min_ts;
+        if (response.data.messages.length < 1) {
+          return;
+        }
+        min_ts = response.data.messages[0].ts;
+        $("#channel_actions_toggle").attr("data-oldest-ts", min_ts);
+        return true;
+      }).catch(function(err) {
+        return TS.warn("couldn’t find messages in this channel :" + model_ob.id);
+      });
+    }
+  });
+  var _jumpToDateJumper = function(selected_date) {
+    var model_ob = TS.shared.getActiveModelOb();
+    if (model_ob.is_channel && !model_ob.is_member) {
+      if (model_ob.id == TS.client.archives.current_model_ob.id) {
+        _jumpIntoArchives(model_ob, selected_date);
+      }
+    } else {
+      if (model_ob.msgs.length < 1) {
+        TS.warn("no messages in this channel: " + model_ob.id);
+        return;
+      }
+      var timestamp = Date.parse(selected_date) / 1e3;
+      var last_visible = model_ob.msgs[model_ob.msgs.length - 1];
+      var last_visible_ts = parseFloat(last_visible.ts);
+      if (last_visible_ts < timestamp) {
+        if (TS.model.archive_view_is_showing) {
+          TS.client.archives.cancel();
+        }
+        var msg = TS.utility.msgs.getDisplayedMsgAfterTS(timestamp, model_ob.msgs);
+        if (msg) {
+          TS.client.ui.scrollMsgsSoMsgIsInView(msg.ts, false, true);
+        } else if (!msg && model_ob.msgs.length > 0) {
+          msg = TS.utility.msgs.getDisplayedMsgBeforeTS(timestamp, model_ob.msgs);
+          TS.client.ui.scrollMsgsSoMsgIsInView(msg.ts, false, true);
+        }
+      } else {
+        _jumpIntoArchives(model_ob, selected_date);
+      }
+    }
+  };
+  var _jumpIntoArchives = function(model_ob, selected_date) {
+    var timestamp = Date.parse(selected_date) / 1e3;
+    timestamp = timestamp.toString() + ".000000";
+    _getVisibleMsgInArchives(model_ob, timestamp).then(function(msg_id) {
+      if (TS.utility.msgs.getMsg(msg_id, model_ob.msgs)) {
+        if (TS.model.archive_view_is_showing) {
+          TS.client.archives.cancel();
+        }
+        TS.client.ui.scrollMsgsSoMsgIsInView(msg_id, false, true);
+      } else {
+        TS.client.archives.start(msg_id);
+      }
+      return true;
+    }).catch(function(err) {
+      return TS.warn("couldn’t find message for date: " + timestamp + " in channel: " + model_ob.id);
+    });
+  };
+  var _getVisibleMsgInArchives = function(model_ob, timestamp, fetch_count) {
+    fetch_count = fetch_count || 1;
+    if (fetch_count > 100) {
+      if (model_ob._archive_msgs && model_ob._archive_msgs.length > 0) {
+        return model_ob._archive_msgs[0];
+      } else {
+        throw new Error("no_visible_message_found");
+      }
+    }
+    var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
+    return new Promise(function(resolve, reject) {
+      TS.api.call(api_method, {
+        channel: model_ob.id,
+        oldest: timestamp,
+        count: fetch_count,
+        inclusive: 1
+      }).then(function(response) {
+        if (!response || !response.data || response.data.messages.length === 0) {
+          if (model_ob._archive_msgs && model_ob._archive_msgs.length > 0) {
+            resolve(model_ob._archive_msgs[0]);
+          } else {
+            reject(new Error("api_call_failed"));
+          }
+        } else {
+          var msgs = response.data.messages;
+          for (var i = msgs.length - 1; i >= 0; i--) {
+            var msg = msgs[i];
+            if (!TS.utility.msgs.isMsgReply(msg) && !(msg.subtype === "pinned_item")) {
+              resolve(msg.ts);
+            }
+          }
+          reject(new Error("no_visible_message_found"));
+        }
+      });
+    }).then(function(msg_id) {
+      return msg_id;
+    }, function(err) {
+      if (err.message === "no_visible_message_found") {
+        return _getVisibleMsgInArchives(model_ob, timestamp, fetch_count * 10);
+      } else {
+        throw err;
+      }
+    });
+  };
+  var _initPickmeUpForJumpToDate = function($element, min_date) {
+    if (!min_date) {
+      min_date = TS.utility.date.toDateObject(TS.shared.getActiveModelOb().created);
+    }
+    var today = Date.now();
+    var selected_date = today;
+    TS.ui.date_picker.start($element, {
+      first_day: 0,
+      hide_on_select: true,
+      select_year: false,
+      flat: true,
+      date: selected_date,
+      min: min_date,
+      max: today,
+      change: function() {
+        selected_date = $(this).pickmeup("get_date");
+        _jumpToDateJumper(selected_date);
+        TS.menu.$menu.css("opacity", 0);
+        TS.menu.end();
+      },
+      hide: function() {
+        window.setTimeout(function() {
+          if ($(this).pickmeup) {
+            $(this).pickmeup("destroy");
+          }
+        }.bind(this), 0);
+      }
+    });
+    $element.pickmeup("show");
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("channels_suggestions", {
+    onStart: function() {
+      if (!TS.client) return;
+      TS.client.login_sig.addOnce(function() {
+        window.setTimeout(function() {
+          TS.api.call("channels.suggestions", {}).then(_.noop);
+        }, 30 * 1e3);
+      });
+    }
+  });
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.replies", {
+    onStart: function() {
+      if (!TS.boot_data.feature_message_replies) return;
+      if (!TS.client) {
+        TS.warn("TS.ui.replies only works in the client");
+        return;
+      }
+      TS.prefs.team_perms_pref_changed_sig.add(_teamPermsPrefChanged);
+      TS.client.flexpane_display_switched_sig.add(_flexpaneDisplaySwitched);
+      TS.ui.window_focus_changed_sig.add(_windowFocusChanged);
+      TS.replies.sanity_check_failed_sig.add(_sanityCheckFailed);
+      TS.replies.reply_changed_sig.add(_replyChanged);
+      TS.replies.reply_deleted_sig.add(_replyDeleted);
+      TS.channels.joined_sig.add(_joinedChannel);
+      TS.channels.left_sig.add(_leftChannel);
+      TS.groups.left_sig.add(_leftGroup);
+      TS.channels.history_fetched_sig.add(_historyFetched);
+      TS.groups.history_fetched_sig.add(_historyFetched);
+      TS.ims.history_fetched_sig.add(_historyFetched);
+      TS.mpims.history_fetched_sig.add(_historyFetched);
+      if (TS.boot_data.feature_a11y_pref_text_size) {
+        TS.prefs.a11y_font_size_changed_sig.add(_adjustFontSize);
+      }
+      TS.ms.connected_sig.add(_onConnected);
+      _onScrollThrottled = TS.utility.throttleFunc(_onScrollThrottled, 250, true);
+      _bindUI();
+    },
+    openConversation: function(model_ob, thread_ts, highlight_ts, origin) {
+      try {
+        if (!thread_ts) {
+          TS.error("openConversation called with bogus data; this is a programming error.");
+          _maybeShowErrorInFlexpane();
+          return;
+        }
+        if (!TS.client) {
+          var convo_path = TS.utility.msgs.constructConversationPermalink(model_ob, thread_ts);
+          window.location = convo_path;
+          return;
+        }
+        TS.info("Opening conversation " + thread_ts + " in " + model_ob.id);
+        var was_showing_convo_flexpane = !!_active_convo_thread_ts;
+        _emptyFlexpane();
+        _ignore_flexpane_display_switches = true;
+        TS.client.ui.flex.openConversationFlex(model_ob, thread_ts);
+        TS.ui.replies.maybeRenderReplies(model_ob, thread_ts, highlight_ts, origin);
+        TS.utility.msgs.startUpdatingRelativeTimestamps("#convo_container");
+        if (was_showing_convo_flexpane) {
+          _resizeReplyInput();
+          _ready_to_focus = true;
+        } else {
+          $("#reply_container textarea").addClass("hidden");
+          _ready_to_focus = false;
+          TS.view.resize_sig.addOnce(function() {
+            $("#reply_container textarea").removeClass("hidden");
+            _resizeReplyInput();
+            _ready_to_focus = true;
+            _focus_ready_sig.dispatch();
+          });
+        }
+      } catch (err) {
+        TS.error("Something went wrong when trying to open conversation " + thread_ts + " in " + _.get(model_ob, "id") + ": " + err);
+        _maybeShowErrorInFlexpane();
+      } finally {
+        _ignore_flexpane_display_switches = false;
+      }
+    },
+    maybeRenderReplies: function(model_ob, thread_ts, highlight_ts, origin) {
+      var ignore_membership = true;
+      var root_msg = TS.replies.getMessage(model_ob, thread_ts);
+      if (root_msg && !TS.replies.canReplyToMsg(model_ob, root_msg, ignore_membership)) {
+        _maybeShowErrorInFlexpane();
+        return Promise.reject(new Error("This message cannot be replied to"));
+      }
+      var $convo = $("ts-conversation");
+      if ($convo.length) {
+        if ($convo.find("ts-message.selected").attr("data-ts") != thread_ts) {
+          TS.warn("maybeRenderReplies called when same convo is already open");
+          return Promise.resolve();
+        }
+        return Promise.reject(new Error("There is already a conversation open; only one can be open at a time"));
+      }
+      $convo = $(TS.templates.message_conversation({
+        model_ob_id: model_ob.id,
+        thread_ts: thread_ts
+      }));
+      _active_convo_model_id = model_ob.id;
+      _active_convo_thread_ts = thread_ts;
+      _active_convo_can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob);
+      _active_convo_messages = [];
+      if (origin && _.includes(_SUPPORTED_ORIGINS, origin)) {
+        _active_convo_origin = origin;
+      } else {
+        _active_convo_origin = null;
+      }
+      _initFlexpane(model_ob, thread_ts, $convo);
+      _setIsLoading(true);
+      _setConvoHasDescendants($convo, false);
+      if (root_msg) {
+        _renderRootMsgIntoConversation(model_ob, root_msg, $convo);
+      }
+      return TS.replies.getThread(model_ob.id, thread_ts).then(function(messages) {
+        TS.ui.replies.finishRenderingReplies(model_ob, thread_ts, root_msg, messages, highlight_ts);
+        if (TS.client && !TS.newxp.inOnboarding() && (!TS.model.prefs.seen_replies_coachmark || TS.qs_args.show_replies_coachmark)) {
+          setTimeout(function() {
+            if (!_active_convo_thread_ts) return;
+            TS.coachmark.start(TS.coachmarks.coachmarks.replies);
+            TS.model.prefs.seen_replies_coachmark = true;
+            TS.prefs.setPrefByAPI({
+              name: "seen_replies_coachmark",
+              value: true
+            });
+          }, 500);
+        }
+        return null;
+      }).catch(function(err) {
+        TS.error("Unable to get conversation around message thread_ts=" + thread_ts + " with error: " + err);
+        _maybeShowErrorInFlexpane();
+      }).finally(function() {
+        if ($convo.closest(".monkey_scroller").width() === 0) {
+          TS.ui.utility.updateClosestMonkeyScroller($("#convo_scroller"), true);
+        }
+        _setIsLoading(false);
+      });
+    },
+    finishRenderingReplies: function(model_ob, thread_ts, root_msg, messages, highlight_ts) {
+      if (_active_convo_model_id != model_ob.id) return;
+      if (_active_convo_thread_ts != thread_ts) return;
+      TS.info("Rendering thread " + thread_ts + ", " + messages.length + " messages");
+      _active_convo_messages = messages;
+      if (_isActiveThreadDeleted()) {
+        TS.client.ui.flex.hideFlex();
+        return;
+      }
+      if (!root_msg) {
+        var ignore_membership = true;
+        root_msg = TS.utility.msgs.getMsg(thread_ts, messages);
+        if (!TS.replies.canReplyToMsg(model_ob, root_msg, ignore_membership)) {
+          return Promise.reject(new Error("This message cannot be replied to"));
+        }
+      }
+      var $convo = $("#convo_tab ts-conversation");
+      if ($convo.find("ts-message.placeholder").length > 0) {
+        _renderRootMsgIntoConversation(model_ob, root_msg, $convo);
+      }
+      _renderThreadIntoConversation(model_ob, root_msg, messages, $convo);
+      root_msg = _reconcileBotUsers(root_msg, messages);
+      _updateHeaderData(root_msg);
+      _doLazyImageLoading();
+      TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
+      if (highlight_ts) {
+        var highlight_id = TS.templates.makeMsgDomIdInConversation(highlight_ts);
+        $("#" + highlight_id).scrollintoview({
+          offset: "bottom",
+          px_offset: -50
+        }).highlight(2500, "msg_highlighter");
+      } else {
+        _focusInputWhenReady();
+      }
+      TS.replies.promiseToGetSubscriptionState(model_ob.id, thread_ts).then(function(subscription) {
+        if (_active_convo_model_id != model_ob.id) return;
+        if (_active_convo_thread_ts != thread_ts) return;
+        if (!subscription) return;
+        TS.ui.replies.checkUnreads();
+        return null;
+      });
+      return null;
+    },
+    maybeRemoveMessageFromConversation: function(model_ob, msg) {
+      if (!TS.replies.isEnabledForModelOb(model_ob)) return;
+      if (model_ob.id !== _active_convo_model_id) return;
+      if (msg.thread_ts != _active_convo_thread_ts && msg.ts != _active_convo_thread_ts) return;
+      var convo_msg = _active_convo_messages && _.find(_active_convo_messages, {
+        ts: msg.ts
+      });
+      if (convo_msg) {
+        convo_msg.subtype = "tombstone";
+      }
+      if (_isActiveThreadDeleted()) {
+        TS.client.ui.flex.hideFlex();
+        return;
+      }
+      var $selected_msg = _getSelectedMsgEl();
+      if ($selected_msg.length && msg.ts == _active_convo_thread_ts) {
+        TS.ui.replies.maybeUpdateConversationWithMessage(model_ob, msg);
+        return;
+      }
+      var $convo = $('ts-conversation[data-thread-ts="' + msg.thread_ts + '"]');
+      if (!$convo.length) return;
+      var $deleted_relative_msg = $convo.find('ts-relatives ts-message[data-ts="' + msg.ts + '"]');
+      if ($deleted_relative_msg.length) {
+        var $deleted_relative_msg_container = $deleted_relative_msg.closest("ts-relatives");
+        $deleted_relative_msg.addClass("delete_mode").slideUp(200, function() {
+          $deleted_relative_msg.remove();
+          if ($deleted_relative_msg_container.children().length === 0) {
+            _setConvoHasDescendants($convo, false);
+          } else {
+            _setConvoHasDescendants($convo, true);
+          }
+          _doLazyImageLoading();
+        });
+      }
+      _updateHeaderData(_.find(_active_convo_messages, {
+        ts: msg.thread_ts || msg.ts
+      }));
+    },
+    maybeUpdateConversationWithMessage: function(model_ob, msg) {
+      if (!TS.replies.isEnabledForModelOb(model_ob)) return;
+      if (msg.rsp_id) return;
+      if (model_ob.id !== _active_convo_model_id) return;
+      if (msg.thread_ts != _active_convo_thread_ts && msg.ts != _active_convo_thread_ts) return;
+      var convo_msg_index = _active_convo_messages && _.findIndex(_active_convo_messages, {
+        ts: msg.ts
+      });
+      if (-1 !== convo_msg_index) {
+        _active_convo_messages[convo_msg_index] = msg;
+      } else {
+        _active_convo_messages.push(msg);
+      }
+      if (_isActiveThreadDeleted()) {
+        TS.client.ui.flex.hideFlex();
+        return;
+      }
+      var scroller = $("#convo_scroller")[0];
+      var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
+      var was_scrolled_to_bottom = from_bottom < 50;
+      var $convo = $('ts-conversation[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
+      if (!$convo.length) return;
+      var $existing_msg = $convo.find('ts-message[data-ts="' + msg.ts + '"]');
+      var html;
+      if ($existing_msg.hasClass("selected")) {
+        html = _buildRootMsgHTML(model_ob, msg);
+      } else {
+        var prev_msg_ts = $convo.find("ts-message").last().attr("data-ts");
+        var prev_msg = TS.replies.getMessage(model_ob, prev_msg_ts);
+        html = _buildRelativeMsgHTML(model_ob, msg, prev_msg, $existing_msg.length == 0);
+      }
+      var $new_msg = $(html);
+      if ($existing_msg.length) {
+        if ($existing_msg.hasClass("hidden")) $new_msg.addClass("hidden");
+        $existing_msg.replaceWith($new_msg);
+      } else {
+        $new_msg.addClass("should_animate");
+        $convo.find("ts-relatives.descendants").append($new_msg);
+        _setConvoHasDescendants($convo, true);
+        _highlightNewMessages($convo);
+      }
+      _doLazyImageLoading();
+      _updateHeaderData(_.find(_active_convo_messages, {
+        ts: msg.thread_ts || msg.ts
+      }));
+      if (!$existing_msg.length) TS.ui.replies.checkUnreads();
+      if (was_scrolled_to_bottom) {
+        scroller.scrollTop = scroller.scrollHeight - scroller.offsetHeight;
+      }
+      if (msg.ts === msg.thread_ts) {
+        if (msg.reply_count + 1 > _active_convo_messages.length) {
+          TS.ui.replies.openConversation(model_ob, msg.thread_ts);
+        }
+      }
+    },
+    updateMessageActions: function(model_ob, root_msg) {
+      if (!TS.replies.canReplyToMsg(model_ob, root_msg)) {
+        if (model_ob.is_channel && !model_ob.is_member) _renderJoinChannelButton(model_ob, root_msg);
+        return;
+      }
+      var thread_ts = root_msg.thread_ts || root_msg.ts;
+      var $reply_container = $("#reply_container");
+      $reply_container.empty();
+      var size = 36;
+      var lazy = false;
+      var omit_link = true;
+      $reply_container.append(TS.templates.builders.makeMemberPreviewLinkImage(TS.model.user.id, size, lazy, omit_link));
+      TS.ui.inline_msg_input.make($reply_container, {
+        placeholder: "Reply...",
+        complete_member_specials: false,
+        model_ob: model_ob,
+        onSubmit: function($elem, text) {
+          if (!TS.model.ms_connected) return;
+          if (model_ob.is_archived) {
+            TS.generic_dialog.alert(TS.i18n.t("This channel has been archived; you cannot send messages to it.", "threads")());
+            return;
+          }
+          var thread_messages = _.reject(_active_convo_messages, _isMessageDeleted);
+          if (!thread_messages.length) {
+            return;
+          }
+          var last_msg = _.last(thread_messages);
+          var handled_reaction = TS.client.ui.maybeHandleReactionCmd(last_msg, text, function() {
+            TS.ui.replies.clearReplyInput(model_ob, thread_ts);
+          });
+          if (handled_reaction) return;
+          var should_broadcast_reply = $("#reply_container .reply_broadcast_toggle").prop("checked");
+          TS.ui.replies.clearReplyInput(model_ob, thread_ts);
+          if (text.substr(0, 1) == "/" && text.substr(0, 2) != "//") {
+            if (text.indexOf("/shrug") === 0) {
+              TS.client.ui.sendSlashCommand(model_ob, text, root_msg);
+            } else {
+              TS.client.ui.addOrFlashEphemeralBotMsg({
+                text: TS.i18n.t("You cannot use slash commands in threads. Sorry!", "threads")(),
+                ephemeral_type: "threads_temp_slash_cmd_feedback",
+                slackbot_feels: "sad_surprise",
+                channel: model_ob.id,
+                thread_ts: thread_ts
+              });
+              return;
+            }
+          } else {
+            TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
+            var clog_event = should_broadcast_reply ? "MSG_THREAD_REPLY_BROADCAST" : "MSG_THREAD_REPLY";
+            TS.ui.thread.trackEvent(model_ob.id, root_msg.ts, "convo", clog_event);
+            TS.client.ui.sendMessage(model_ob, text, root_msg, should_broadcast_reply);
+          }
+        },
+        getMsgDivForEditing: function() {
+          if (!_active_convo_messages) return null;
+          var msgs = _.reject(_active_convo_messages, _isMessageDeleted);
+          _.reverse(msgs);
+          var last_msg_from_current_user = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, msgs);
+          if (!last_msg_from_current_user) return null;
+          return $('#convo_container ts-message[data-ts="' + last_msg_from_current_user.ts + '"]');
+        }
+      });
+      var prev_val = TS.storage.fetchReplyInput(model_ob.id, thread_ts);
+      if (prev_val) {
+        TS.ui.replies.populateReplyInput(prev_val);
+      } else if (!root_msg.reply_count) {
+        var user = root_msg.user && TS.members.getMemberById(root_msg.user);
+        if (user && !user.is_self && !user.is_bot && !user.is_slackbot) {
+          if (TS.model.team.prefs.require_at_for_mention) {
+            TS.ui.replies.populateReplyInput("@" + user.name + " ");
+          } else {
+            TS.ui.replies.populateReplyInput(user.name + ": ");
+          }
+        }
+      }
+      var $input = $reply_container.find(".message_input");
+      $input.on("focusin", function() {
+        $reply_container.addClass("has_focus");
+      }).on("focusout", function() {
+        var is_input_empty = !TS.utility.contenteditable.value($input).trim();
+        if (is_input_empty) $reply_container.removeClass("has_focus");
+      }).on("input", function(e, prev_txt) {
+        var input_value = TS.utility.contenteditable.value($input);
+        var is_input_empty = !input_value.trim();
+        var val = is_input_empty ? "" : input_value;
+        TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
+      });
+      _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
+    },
+    submitReply: function(e, $el) {
+      if (!$el || $el.length === 0) return;
+      var $reply_form = $el.closest("#reply_container").find("form");
+      if ($reply_form.length === 0) return;
+      $reply_form.submit();
+    },
+    activeConvoModelId: function() {
+      return _active_convo_model_id;
+    },
+    activeConvoThreadTs: function() {
+      return _active_convo_thread_ts;
+    },
+    populateReplyInput: function(text) {
+      var $input = $("#reply_container .message_input");
+      TS.utility.populateInput($input, text, text.length);
+    },
+    clearReplyInput: function(model_ob, thread_ts) {
+      TS.ui.replies.populateReplyInput("");
+      TS.storage.storeReplyInput(model_ob.id, thread_ts, "");
+      $("#reply_container .reply_broadcast_toggle").attr("checked", false);
+    },
+    focusReplyInput: function() {
+      $("#reply_container textarea").focus();
+    },
+    getActiveMessage: function(model_ob, ts) {
+      if (model_ob.id != _active_convo_model_id) return null;
+      return TS.utility.msgs.getMsg(ts, _active_convo_messages);
+    },
+    getActiveMessages: function() {
+      return _active_convo_messages;
+    },
+    joinChannelFromThread: function() {
+      if (!_active_convo_model_id || !_active_convo_thread_ts) return;
+      var model_ob = TS.shared.getModelObById(_active_convo_model_id);
+      if (!model_ob) return;
+      var root_msg = _.find(_active_convo_messages, function(msg) {
+        return msg.ts === msg.thread_ts;
+      });
+      if (!root_msg) return;
+      TS.channels.join(model_ob.name, function() {
+        _renderReplyContainer(model_ob, root_msg);
+      }, true);
+      $("#reply_container .join_channel_from_thread").addClass("disabled");
+    },
+    buildParticipantsList: function(root_msg) {
+      var user_ids = _.map(root_msg.replies, "user");
+      var bot_ids = _.map(root_msg.replies, "bot_id");
+      user_ids = user_ids.concat(bot_ids);
+      user_ids = _.without(user_ids, "U00", undefined);
+      if (!_isMessageDeleted(root_msg) && root_msg.user) user_ids.unshift(root_msg.user);
+      user_ids = _.uniq(user_ids);
+      if (_.includes(user_ids, TS.model.user.id)) {
+        user_ids = _.without(user_ids, TS.model.user.id);
+        user_ids.push(TS.model.user.id);
+      }
+      var participant_names = _.map(user_ids, function(id) {
+        var participant_name;
+        if (id.charAt(0) == "B") {
+          participant_name = TS.bots.getBotNameById(id);
+        } else {
+          participant_name = TS.members.getMemberDisplayNameById(id);
+        }
+        return participant_name;
+      });
+      var participants = "";
+      if (user_ids.length === 1) {
+        if (user_ids[0] === TS.model.user.id) {
+          participants = TS.i18n.t("Just you", "threads")();
+        } else {
+          participants = participant_names[0];
+        }
+      } else if (user_ids.length === 2) {
+        if (user_ids[1] === TS.model.user.id) {
+          participants = TS.i18n.t("{user_name} and you", "threads")({
+            user_name: participant_names[0]
+          });
+        } else {
+          participants = TS.i18n.t("{user_name1} and {user_name2}", "threads")({
+            user_name1: participant_names[0],
+            user_name2: participant_names[1]
+          });
+        }
+      } else if (user_ids.length > 2) {
+        var num_others = user_ids.length - 2;
+        participants = TS.i18n.t("{user_name1}, {user_name2}, and {num_others,plural,=1{{num_others} other}other{{num_others} others}}", "threads")({
+          num_others: num_others,
+          user_name1: participant_names[0],
+          user_name2: participant_names[1]
+        });
+      }
+      return participants;
+    },
+    checkUnreads: function() {
+      if (!TS.client.ui.isUserAttentionOnChat()) return;
+      if (!_active_convo_model_id || !_active_convo_thread_ts) return;
+      if (!_active_convo_messages || _active_convo_messages.length < 2) return;
+      var subscription = TS.replies.getSubscriptionState(_active_convo_model_id, _active_convo_thread_ts);
+      if (!subscription || !subscription.subscribed) return;
+      var last_ts = _.chain(_active_convo_messages).filter(function(msg) {
+        return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg) && !_isMessageDeleted(msg);
+      }).map("ts").max().value();
+      if (!last_ts) return;
+      if (!subscription.last_read || last_ts > subscription.last_read) {
+        TS.replies.markThread(_active_convo_model_id, _active_convo_thread_ts, last_ts);
+      }
+      return null;
+    }
+  });
+  var _active_convo_model_id;
+  var _active_convo_thread_ts;
+  var _active_convo_can_reply;
+  var _active_convo_messages;
+  var _active_convo_origin;
+  var _SUPPORTED_ORIGINS = ["mentions", "search_results", "starred_items"];
+  var _ready_to_focus;
+  var _focus_ready_sig = new signals.Signal;
+  var _onConnected = function(was_fast_reconnect) {
+    if (was_fast_reconnect) return;
+    if (!_active_convo_model_id || !_active_convo_thread_ts) return;
+    var model_ob = TS.shared.getModelObById(_active_convo_model_id);
+    if (!model_ob) return;
+    TS.ui.replies.openConversation(model_ob, _active_convo_thread_ts);
+  };
+  var _bindUI = function() {
+    $("#convo_scroller").scroll(function() {
+      _onScrollThrottled();
+    });
+    $("#convo_scroller").click(function() {
+      TS.ui.replies.checkUnreads();
+    });
+    $("#convo_tab").on("click", "#convo_tab_back", function() {
+      if (_active_convo_origin === "mentions") {
+        TS.client.ui.flex.openFlexTab("mentions");
+      } else if (_active_convo_origin === "search_results") {
+        TS.search.view.showResults();
+        TS.search.view.maybeRebuildResults();
+      } else if (_active_convo_origin === "starred_items") {
+        TS.client.ui.flex.openFlexTab("stars");
+      }
+    });
+  };
+  var _getSelectedMsgEl = function() {
+    return $("ts-conversation ts-message.selected");
+  };
+  var NEW_MESSAGE_HIGHLIGHT_DURATION_MS = 1e3;
+  var _highlightNewMessages = function($convo) {
+    var $new_messages = $convo.find("ts-message.new");
+    if (!$new_messages.length) return;
+    setTimeout(function() {
+      $new_messages.removeClass("new");
+      TS.utility.rAF(function() {
+        $new_messages.removeClass("should_animate");
+      });
+    }, NEW_MESSAGE_HIGHLIGHT_DURATION_MS);
+  };
+  var _getDescendants = function(root_msg, messages) {
+    return messages.filter(function(message) {
+      return message.ts > root_msg.ts;
+    });
+  };
+  var _isMessageDeleted = function(message) {
+    return message.subtype == "tombstone";
+  };
+  var _isActiveThreadDeleted = function() {
+    var non_deleted_messages = _.reject(_active_convo_messages, _isMessageDeleted);
+    return non_deleted_messages.length === 0;
+  };
+  var _buildRelativeMsgHTML = function(model_ob, msg, prev_msg, highlight_as_new) {
+    if (_isMessageDeleted(msg)) {
+      return;
+    }
+    return TS.templates.builders.msgs.buildHTML({
+      msg: msg,
+      prev_msg: prev_msg,
+      model_ob: model_ob,
+      is_in_conversation: true,
+      highlight_as_new: highlight_as_new,
+      relative_ts: true,
+      enable_slack_action_links: true
+    });
+  };
+  var _buildRootMsgHTML = function(model_ob, msg) {
+    return TS.templates.builders.msgs.buildHTML({
+      model_ob: model_ob,
+      msg: msg,
+      is_root_msg: true,
+      is_in_conversation: true,
+      full_date: true,
+      enable_slack_action_links: true
+    });
+  };
+  var _reconcileBotUsers = function(root_msg, messages) {
+    if (!root_msg.replies) return root_msg;
+    for (var i = 0; i < root_msg.replies.length; i++) {
+      var reply = root_msg.replies[i];
+      if (reply && reply.user == "U00") {
+        var matched_msg = _.find(messages, {
+          ts: reply.ts
+        });
+        if (matched_msg && matched_msg["bot_id"]) {
+          reply["bot_id"] = matched_msg["bot_id"];
+        }
+        root_msg.replies[i] = reply;
+      }
+    }
+    return root_msg;
+  };
+  var _renderThreadIntoConversation = function(model_ob, root_msg, messages, $convo) {
+    var $descendants = $convo.find("ts-relatives.descendants").empty();
+    var descendants = _getDescendants(root_msg, messages);
+    var prev_msg = root_msg;
+    descendants.forEach(function(message) {
+      var html = _buildRelativeMsgHTML(model_ob, message, prev_msg);
+      if (!html) return;
+      prev_msg = message;
+      $descendants.append(html);
+    });
+    _setConvoHasDescendants($convo, descendants.length > 0);
+  };
+  var _initFlexpane = function(model_ob, thread_ts, $convo) {
+    var $flexpane = $("#convo_tab");
+    _emptyFlexpane();
+    $flexpane.find("#convo_container").append($convo);
+  };
+  var _emptyFlexpane = function() {
+    $("#convo_tab #convo_container, #convo_tab #reply_container").empty();
+    $("#thread_load_error_wrapper").remove();
+    $("#convo_tab .thread_participants").empty();
+  };
+  var _ignore_flexpane_display_switches = false;
+  var _flexpaneDisplaySwitched = function(prev_flex_name, prev_flex_extra) {
+    if (_ignore_flexpane_display_switches) return;
+    if (!TS.model.ui_state) {
+      TS.warn("TS.model.ui_state not available; ignoring this flexpane switch");
+      return;
+    }
+    var flex_name = TS.model.ui_state.flex_name;
+    var flex_extra = TS.model.ui_state.flex_extra;
+    if (flex_name == "convo" && prev_flex_name == "convo" && flex_extra == prev_flex_extra) {
+      var is_convo_loaded = !$("#flex_contents #convo_container").is(":empty");
+      if (is_convo_loaded) {
+        return;
+      }
+    }
+    if (prev_flex_name == "convo") {
+      _emptyFlexpane();
+      _active_convo_model_id = undefined;
+      _active_convo_thread_ts = undefined;
+      _active_convo_can_reply = undefined;
+      _active_convo_messages = undefined;
+      _active_convo_origin = undefined;
+      TS.utility.msgs.stopUpdatingRelativeTimestamps("#convo_container");
+    }
+    if (flex_name != "convo") {
+      return;
+    }
+    var model_ob_id, thread_ts;
+    var chunks = (flex_extra || "").split("-");
+    if (chunks.length == 1) {
+      model_ob_id = TS.shared.getActiveModelOb().id;
+      thread_ts = chunks[0];
+    } else {
+      model_ob_id = chunks[0];
+      thread_ts = chunks[1];
+    }
+    if (!model_ob_id || !thread_ts) {
+      TS.error("convo flex pane opened without thread_ts; ignoring");
+      try {
+        _ignore_flexpane_display_switches = true;
+        TS.client.ui.flex.hideFlex();
+      } catch (err) {} finally {
+        _ignore_flexpane_display_switches = false;
+      }
+      return;
+    }
+    var model_ob = TS.shared.getModelObById(model_ob_id);
+    if (!model_ob && TS._incremental_boot) {
+      TS.ms.connected_sig.addOnce(function() {
+        model_ob = TS.shared.getModelObById(model_ob_id);
+        TS.ui.replies.openConversation(model_ob, thread_ts);
+      });
+      return;
+    }
+    return TS.ui.replies.openConversation(model_ob, thread_ts);
+  };
+  var _maybeShowErrorInFlexpane = function() {
+    if (TS.model.ui_state.flex_name != "convo") return;
+    _emptyFlexpane();
+    _clearHeaderData();
+    $("#reply_container").addClass("hidden");
+    var emoji_set = {
+      "default": cdn_url + "/f5d6f/img/emoji_2016_06_08/apple/1f50d.png",
+      as_text: cdn_url + "/f5d6f/img/emoji_2016_06_08/apple/1f50d.png",
+      google: cdn_url + "/b7f24/img/emoji_2016_06_08/google/1f50d.png",
+      twitter: cdn_url + "/6c9e5/img/emoji_2016_06_08/twitter/1f50d.png",
+      emojione: cdn_url + "/5499/img/emoji_2016_06_08/emojione/1f50d.png"
+    };
+    $("#convo_scroller").prepend(TS.templates.thread_flexpane_error({
+      emoji: emoji_set[TS.model.prefs.emoji_mode]
+    }));
+  };
+  var _setConvoHasDescendants = function($convo, has_descendants) {
+    $convo.find("ts-relatives.descendants").toggleClass("empty", !has_descendants);
+    $convo.toggleClass("has_replies", has_descendants);
+    var $divider = $convo.find(".convo_flexpane_divider");
+    if (has_descendants) {
+      $divider.removeClass("hidden");
+      var $count = $divider.find(".reply_count");
+      var num_descendants = $convo.find("ts-relatives.descendants ts-message:not(.ephemeral)").length;
+      $count.text(TS.i18n.t("{count, plural, =1 {# reply} other {# replies}}", "threads")({
+        count: num_descendants
+      }));
+    } else {
+      $divider.addClass("hidden");
+    }
+  };
+  var _renderRootMsgIntoConversation = function(model_ob, root_msg, $convo) {
+    var $root_msg_el = $(_buildRootMsgHTML(model_ob, root_msg));
+    $convo.find("ts-message.placeholder").replaceWith($root_msg_el);
+    _renderReplyContainer(model_ob, root_msg);
+    if (_active_convo_origin) {
+      $("#convo_tab_back_container").removeClass("hidden");
+    } else {
+      $("#convo_tab_back_container").addClass("hidden");
+    }
+  };
+  var _renderReplyContainer = function(model_ob, root_msg) {
+    if (_active_convo_can_reply) {
+      TS.ui.replies.updateMessageActions(model_ob, root_msg);
+    } else {
+      $("#reply_container").html(TS.templates.reply_limited_in_general({
+        channel_name: TS.shared.getDisplayNameForModelOb(model_ob)
+      }));
+    }
+    $("#reply_container").removeClass("hidden");
+  };
+  var _renderBroadcastButtons = function(model_ob, thread_ts, $reply_container) {
+    if (!model_ob || !$reply_container || $reply_container.length === 0) return;
+    $reply_container.append(TS.templates.reply_broadcast_buttons({
+      model_ob: model_ob,
+      thread_ts: thread_ts,
+      view: "convo"
+    }));
+    var $reply_broadcast_buttons = $reply_container.find(".reply_broadcast_label_container, .reply_send");
+    $reply_broadcast_buttons.mousedown(function(e) {
+      e.preventDefault();
+      TS.ui.replies.focusReplyInput();
+    }).click(function(e) {
+      TS.ui.replies.focusReplyInput();
+    });
+  };
+  var _updateHeaderData = function(root_msg) {
+    if (!root_msg) return;
+    $("#convo_tab .thread_participants").text(TS.ui.replies.buildParticipantsList(root_msg));
+  };
+  var _clearHeaderData = function() {
+    $("#convo_tab .thread_participants").text("");
+  };
+  var _teamPermsPrefChanged = function(pref_name) {
+    if (!_active_convo_model_id) return;
+    var model_ob = TS.shared.getModelObById(_active_convo_model_id);
+    if (!model_ob) return;
+    var can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob);
+    if (can_reply !== _active_convo_can_reply) {
+      var root_msg = TS.replies.getMessage(model_ob, _active_convo_thread_ts);
+      _active_convo_can_reply = can_reply;
+      $("#reply_container").empty();
+      _renderReplyContainer(model_ob, root_msg);
+    }
+  };
+  var _resizeReplyInput = function() {
+    $("#reply_container textarea").trigger("autosize-resize");
+  };
+  var _focusInputWhenReady = function() {
+    if (_ready_to_focus) {
+      TS.ui.replies.focusReplyInput();
+    } else {
+      _focus_ready_sig.addOnce(TS.ui.replies.focusReplyInput);
+    }
+  };
+  var _setIsLoading = function(loading) {
+    $("#convo_loading_indicator").toggleClass("hidden", !loading);
+  };
+  var _doLazyImageLoading = function() {
+    TS.client.ui.checkInlineImgsAndIframes("replies");
+  };
+  var _onScrollThrottled = function() {
+    _doLazyImageLoading();
+    TS.ui.replies.checkUnreads();
+  };
+  var _renderJoinChannelButton = function(model_ob, root_msg) {
+    var $reply_container = $("#reply_container");
+    $reply_container.html(TS.templates.join_channel_from_thread({
+      model_ob_name: model_ob.name,
+      is_convo: true,
+      has_replies: !!root_msg.reply_count
+    }));
+  };
+  var _sanityCheckFailed = function(model_ob, root_msg, msgs) {
+    if (_active_convo_model_id != model_ob.id) return;
+    if (_active_convo_thread_ts != root_msg.ts) return;
+    TS.ui.replies.finishRenderingReplies(model_ob, root_msg.thread_ts, root_msg, msgs);
+  };
+  var _joinedChannel = function(channel) {
+    if (_active_convo_model_id !== channel.id) return;
+    TS.ui.replies.openConversation(channel, _active_convo_thread_ts);
+  };
+  var _leftChannel = function(channel) {
+    if (_active_convo_model_id !== channel.id) return;
+    TS.ui.replies.openConversation(channel, _active_convo_thread_ts);
+  };
+  var _leftGroup = function(group) {
+    if (_active_convo_model_id !== group.id) return;
+    TS.client.ui.flex.hideFlex();
+  };
+  var _adjustFontSize = function() {
+    $("#reply_container textarea").trigger("autosize-resizeIncludeStyle");
+  };
+  var _historyFetched = function(model_ob) {
+    if (model_ob.id !== _active_convo_model_id) return;
+    if (!_active_convo_messages || !_active_convo_messages.length) return;
+    var msg_indexes = {};
+    _.forEach(_active_convo_messages, function(msg, i) {
+      msg_indexes[msg.ts] = i;
+    });
+    _.forEach(model_ob.msgs, function(msg) {
+      if (msg_indexes.hasOwnProperty(msg.ts)) {
+        var index = msg_indexes[msg.ts];
+        _active_convo_messages[index] = msg;
+      }
+    });
+  };
+  var _replyChanged = function(model_ob, message) {
+    TS.ui.replies.maybeUpdateConversationWithMessage(model_ob, message);
+  };
+  var _replyDeleted = function(model_ob, message) {
+    TS.ui.replies.maybeRemoveMessageFromConversation(model_ob, message);
+  };
+  var _windowFocusChanged = function(has_focus) {
+    TS.ui.replies.checkUnreads();
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("client.threads", {
+    switched_sig: new signals.Signal,
+    reply_count_changed: new signals.Signal,
+    new_thread_reply_count_changed: new signals.Signal,
+    threads_unread_changed: new signals.Signal,
+    onStart: function() {
+      if (!TS.boot_data.feature_message_replies) return;
+      TS.ms.connected_sig.add(_onConnected);
+      TS.channels.message_received_sig.add(_messageReceived);
+      TS.groups.message_received_sig.add(_messageReceived);
+      TS.ims.message_received_sig.add(_messageReceived);
+      TS.mpims.message_received_sig.add(_messageReceived);
+      TS.channels.message_removed_sig.add(_messageRemoved);
+      TS.groups.message_removed_sig.add(_messageRemoved);
+      TS.ims.message_removed_sig.add(_messageRemoved);
+      TS.mpims.message_removed_sig.add(_messageRemoved);
+      TS.channels.message_changed_sig.add(_messageChanged);
+      TS.groups.message_changed_sig.add(_messageChanged);
+      TS.ims.message_changed_sig.add(_messageChanged);
+      TS.mpims.message_changed_sig.add(_messageChanged);
+      TS.replies.sanity_check_failed_sig.add(_sanityCheckFailed);
+      TS.replies.thread_subscription_changed_sig.add(_handleSubscriptionChange);
+      TS.channels.joined_sig.add(_joinedModelOb);
+      TS.groups.joined_sig.add(_joinedModelOb);
+      TS.groups.left_sig.add(_leftGroup);
+      _should_record_metrics = TS.boot_data.feature_tinyspeck || TS.utility.enableFeatureForUser(10);
+      _q = new TS.PromiseQueue;
+    },
+    showThreadsView: function(from_history, replace_history_state) {
+      if (TS.model.sorting_mode_is_showing) return false;
+      from_history = !!from_history;
+      replace_history_state = !!replace_history_state;
+      var no_history_add = replace_history_state ? false : from_history;
+      var switched = TS.client.threadsViewActivated(replace_history_state, no_history_add);
+      if (switched) {
+        TS.client.threads.switched_sig.dispatch();
+      } else {
+        return false;
+      }
+      TS.client.ui.threads.showThreadsView();
+      if (_threads_data) {
+        _current_ts = Math.floor(Date.now() / 1e3);
+        _resetThreadsData();
+        TS.client.ui.threads.startWithData(_threads_data, _has_more);
+        _setTotalUnreadRepliesCount(_total_unread_replies);
+        _markAllThreadsAfterLoading(_current_ts);
+      } else {
+        _q.addToQ(_loadData);
+      }
+      return true;
+    },
+    destroyThreadsView: function() {
+      if (!$("#client-ui").hasClass("threads_view_is_showing")) return;
+      TS.client.ui.threads.destroyThreadsView();
+      if (_data_loading_p && _data_loading_p.isPending()) {
+        _data_loading_p.cancel();
+      }
+      _data_loading_p = null;
+      _total_unread_replies = 0;
+      _current_ts = null;
+      clearTimeout(_slow_loading_timeout);
+      if (_invalidate_on_exit || !_threads_data || !_threads_data.length) {
+        _invalidate_on_exit = false;
+        _clearData();
+      }
+    },
+    maybeReloadThreadsView: function() {
+      if (!TS.model.threads_view_is_showing) return;
+      TS.client.ui.threads.resetUI();
+      _q.addToQ(_loadData);
+    },
+    getMessage: function(model_ob, msg_ts) {
+      if (!_threads_data) return null;
+      var msg = null;
+      _.find(_threads_data, function(thread) {
+        if (thread.model_ob.id != model_ob.id) return false;
+        if (msg_ts == thread.root_msg.ts) {
+          msg = thread.root_msg;
+          return true;
+        }
+        msg = _.find(thread.replies, {
+          ts: msg_ts.toString()
+        });
+        return !!msg;
+      });
+      return msg;
+    },
+    getThread: function(model_ob, thread_ts) {
+      if (!_threads_data) return;
+      return _.find(_threads_data, function(thread) {
+        return thread.model_ob.id === model_ob.id && thread.root_msg.ts === thread_ts;
+      });
+    },
+    getCurrentReplyCount: function() {
+      return _total_unread_replies || 0;
+    },
+    getNewThreadReplyCount: function() {
+      var new_threads = _.takeWhile(_threads_data, function(thread) {
+        return _isThreadNew(thread);
+      });
+      if (!new_threads || !new_threads.length) return 0;
+      var new_reply_count_total = _.reduce(new_threads, function(sum, thread) {
+        var new_reply_count = _.reduce(thread.replies, function(sum, reply) {
+          return reply.ts >= _current_ts ? sum + 1 : sum;
+        }, 0);
+        return sum + new_reply_count;
+      }, 0);
+      return new_reply_count_total;
+    },
+    updateThreadState: function(has_unreads, mention_count, timestamp) {
+      var num_at_heres = _countAtHeres();
+      TS.client.threads.setThreadsUnreadData(has_unreads, mention_count + num_at_heres, timestamp);
+      TS.client.threads.logThreadState("update_thread_state: " + !!has_unreads + " " + (mention_count + num_at_heres) + " " + timestamp);
+    },
+    setThreadsUnreadData: function(has_unreads, mention_count, timestamp) {
+      if (!TS.replies.isAllThreadsViewEnabled()) return;
+      TS.model.threads_has_unreads = has_unreads;
+      TS.model.threads_mention_count = mention_count ? mention_count : 0;
+      TS.utility.msgs.countAllUnreads();
+      if (timestamp) _update_thread_state_ts = timestamp;
+      TS.client.ui.threads.updateChannelPaneUnreadState(TS.model.threads_has_unreads, TS.model.threads_mention_count);
+      if (!TS.client.threads.hasUnreadThreads() && TS.model.threads_view_is_showing) {
+        TS.client.ui.threads.maybeRemoveNewRepliesBanner();
+      }
+      TS.client.threads.threads_unread_changed.dispatch();
+    },
+    markAllNewThreads: function() {
+      _.forEach(_threads_data, function(thread) {
+        var sub = TS.replies.getSubscriptionState(thread.model_ob.id, thread.root_msg.thread_ts);
+        if (!sub || !sub.subscribed) return;
+        var last_read = sub.last_read;
+        if (!last_read || last_read < thread.ts) {
+          TS.replies.markThread(thread.model_ob.id, thread.root_msg.thread_ts, thread.ts);
+        }
+      });
+      if (!TS.client.threads.hasUnreadThreads() && TS.model.threads_view_is_showing) {
+        TS.client.ui.threads.maybeRemoveNewRepliesBanner();
+      }
+    },
+    hasUnreadThreads: function() {
+      return _.some(_threads_data, function(thread) {
+        var sub = TS.replies.getSubscriptionState(thread.model_ob.id, thread.root_msg.thread_ts);
+        if (!sub || !sub.subscribed) return;
+        var last_read = sub.last_read;
+        if (!last_read || last_read < thread.ts) {
+          return true;
+        }
+      });
+    },
+    showNewRepliesAndMarkThread: function(model_ob_id, thread_ts) {
+      if (!_threads_data) return;
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) return;
+      var thread = TS.client.threads.getThread(model_ob, thread_ts);
+      if (!thread) return;
+      _q.addToQ(function() {
+        if (!TS.model.threads_view_is_showing) return;
+        thread.max_visible_ts = _.last(thread.replies).ts;
+        TS.client.ui.threads.revealNewReplies(thread);
+        var last_ts = _.maxBy(thread.replies, "ts").ts;
+        TS.replies.markThread(model_ob_id, thread_ts, last_ts);
+        return null;
+      });
+    },
+    showPreviousReplies: function(model_ob_id, thread_ts) {
+      if (!_threads_data) return;
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) return;
+      var thread = TS.client.threads.getThread(model_ob, thread_ts);
+      if (!thread) return;
+      var messages_p = TS.replies.getThread(model_ob_id, thread_ts);
+      _q.addToQ(function() {
+        if (!TS.model.threads_view_is_showing) return;
+        messages_p.then(function(messages) {
+          if (!TS.model.threads_view_is_showing) return;
+          var min_visible_ts = Infinity;
+          if (thread.replies && thread.replies.length) min_visible_ts = _.first(thread.replies).ts;
+          thread.min_visible_ts = min_visible_ts;
+          thread.replies = thread.replies.concat(_.reject(messages, {
+            ts: thread.root_msg.ts
+          }));
+          thread.replies = _.uniqBy(thread.replies, "ts");
+          thread.replies = _.sortBy(thread.replies, "ts");
+        });
+        TS.client.ui.threads.revealPreviousReplies(thread, messages_p);
+        return messages_p;
+      });
+    },
+    loadMoreThreads: function() {
+      return _q.addToQ(_loadMoreData);
+    },
+    threadCompare: function(a, b) {
+      if (a.grouping === "new" && b.grouping === "old") return -1;
+      if (a.grouping === "old" && b.grouping === "new") return 1;
+      if (a.ts < b.ts) return 1;
+      if (a.ts > b.ts) return -1;
+      return 0;
+    },
+    debugUnthreads: function() {
+      var logs = "\n" + _thread_state_debug_logs.join("\n");
+      TS.info(logs);
+    },
+    logThreadState: function(str) {
+      TS.log(2004, "unread thread state change: " + str);
+      var time = TS.utility.date.toTime(Date.now() / 1e3, false, true);
+      _thread_state_debug_logs.unshift(time + " " + str);
+      _thread_state_debug_logs = _.take(_thread_state_debug_logs, 15);
+    },
+    getThreadsLoadedCount: function() {
+      return _threads_data ? _threads_data.length : 0;
+    }
+  });
+  var _q;
+  var _data_loading_p;
+  var _threads_data;
+  var _has_more = false;
+  var _total_unread_replies = 0;
+  var _current_ts;
+  var _api_limit = 8;
+  var _update_thread_state_ts = "0000000000.000000";
+  var _unread_at_heres = [];
+  var _should_record_metrics;
+  var _invalidate_on_exit = false;
+  var _slow_loading_timeout;
+  var _thread_state_debug_logs = [];
+  var _onConnected = function(was_fast_reconnect) {
+    if (was_fast_reconnect) return;
+    _clearData();
+    TS.client.threads.maybeReloadThreadsView();
+  };
+  var _clearData = function() {
+    _q.clear();
+    _threads_data = null;
+  };
+  var _markAllThreadsAfterLoading = function(current_ts) {
+    if (TS.client.threads.hasUnreadThreads()) {
+      TS.replies.markAllThreads(current_ts);
+      if (!TS.model.threads_has_unreads) {
+        TS.metrics.count("threads_unread_inconsistency_no_local_unreads");
+      }
+    } else {
+      if (TS.model.threads_has_unreads) {
+        TS.metrics.count("threads_unread_inconsistency_has_local_unreads");
+        TS.warn("Correcting threads_has_unreads: was true but threads view has no new replies");
+        TS.client.threads.setThreadsUnreadData(false, 0);
+        TS.client.threads.logThreadState("_markAllThreadsAfterLoading: false 0");
+      }
+    }
+  };
+  var _loadData = function() {
+    if (_should_record_metrics) TS.metrics.mark("threads_view_time_to_fetch_and_display");
+    _current_ts = Math.floor(Date.now() / 1e3);
+    clearTimeout(_slow_loading_timeout);
+    _slow_loading_timeout = setTimeout(function() {
+      TS.client.ui.threads.displaySlowLoadingMessage();
+    }, 5e3);
+    _data_loading_p = TS.api.call("subscriptions.thread.getView", {
+      current_ts: _current_ts,
+      limit: _api_limit
+    });
+    return _data_loading_p.then(_handleData).then(function(data) {
+      var total_unread_replies = data.total_unread_replies;
+      var has_more = data.has_more;
+      if (TS.model.threads_view_is_showing) TS.client.ui.threads.startWithData(_threads_data, has_more);
+      _setTotalUnreadRepliesCount(total_unread_replies);
+      if (TS.model.threads_view_is_showing) _markAllThreadsAfterLoading(_current_ts);
+      if (_should_record_metrics) TS.metrics.measureAndClear("threads_view_time_to_fetch_and_display", "threads_view_time_to_fetch_and_display");
+      return data;
+    }).catch(_handleError);
+  };
+  var _loadMoreData = function() {
+    if (_data_loading_p && _data_loading_p.isPending()) _data_loading_p.cancel();
+    var last_ts = _.last(_threads_data).ts;
+    clearTimeout(_slow_loading_timeout);
+    _slow_loading_timeout = setTimeout(function() {
+      TS.client.ui.threads.displaySlowLoadingMessage();
+    }, 5e3);
+    _data_loading_p = TS.api.call("subscriptions.thread.getView", {
+      current_ts: last_ts,
+      limit: _api_limit
+    });
+    return _data_loading_p.then(_handleData).catch(_handleError);
+  };
+  var _handleData = function(resp) {
+    clearTimeout(_slow_loading_timeout);
+    var data = resp.data;
+    var threads = data.threads;
+    var total_unread_replies = data.total_unread_replies || 0;
+    var has_more = data.has_more;
+    _has_more = has_more;
+    if (has_more && threads.length < _api_limit) {
+      TS.error("subscriptions.thread.getView returned fewer threads than the limit but has_more is true");
+    }
+    threads = _.filter(threads, function(thread) {
+      if (!thread.root_msg) {
+        TS.error("Missing root_msg in subscriptions.thread.getView response");
+        return false;
+      }
+      if (!thread.root_msg.thread_ts) {
+        TS.error("root_msg has no thread_ts in subscriptions.thread.getView response");
+        return false;
+      }
+      var c_id = thread.root_msg.channel;
+      if (!c_id) {
+        TS.error("No c_id in subscriptions.thread.getView response");
+        return false;
+      }
+      thread.model_ob = TS.shared.getModelObById(c_id);
+      if (!thread.model_ob) {
+        TS.error("No channel with c_id " + c_id + " in subscriptions.thread.getView response");
+        return false;
+      }
+      thread.root_msg = TS.utility.msgs.processImsg(thread.root_msg, c_id);
+      if (thread.root_msg._subscribed === false) {
+        TS.error("Got a thread that is not subscribed to in subscriptions.thread.getView response: " + thread.root_msg.thread_ts);
+        return false;
+      }
+      thread.replies = [];
+      if (thread.latest_replies) {
+        thread.latest_replies = _.map(thread.latest_replies, function(reply) {
+          return TS.utility.msgs.processImsg(reply, c_id);
+        });
+        thread.latest_replies = _.sortBy(thread.latest_replies, "ts");
+        thread.replies = thread.replies.concat(thread.latest_replies);
+      }
+      if (thread.unread_replies) {
+        thread.unread_replies = _.map(thread.unread_replies, function(reply) {
+          return TS.utility.msgs.processImsg(reply, c_id);
+        });
+        thread.unread_replies = _.sortBy(thread.unread_replies, "ts");
+        thread.replies = thread.replies.concat(thread.unread_replies);
+      }
+      if (thread.replies.length) {
+        thread.ts = _.last(thread.replies).ts;
+        if (thread.unread_replies) {
+          thread.grouping = "new";
+        } else {
+          thread.ts = thread.ts;
+          thread.grouping = "old";
+        }
+      } else {
+        thread.ts = thread.root_msg.ts;
+        thread.grouping = "old";
+      }
+      thread.initial_last_read = thread.root_msg._last_read || 0;
+      TS.replies.maybeSlurpSubscriptionState(thread.model_ob.id, [thread.root_msg]);
+      return true;
+    });
+    if (!_threads_data) _threads_data = [];
+    _threads_data = _threads_data.concat(threads);
+    var no_dupes = _.uniqBy(_threads_data, function(thread) {
+      return thread.model_ob.id + thread.root_msg.ts;
+    });
+    if (no_dupes.length !== _threads_data.length) {
+      TS.error("Removing duplicate threads in subscriptions.thread.getView response");
+      _threads_data = no_dupes;
+    }
+    _ensureThreadOrder(_threads_data);
+    return {
+      total_unread_replies: total_unread_replies,
+      has_more: has_more,
+      threads: _threads_data
+    };
+  };
+  var _handleError = function(err) {
+    TS.error(err);
+    clearTimeout(_slow_loading_timeout);
+    _clearData();
+    TS.client.ui.threads.displayFatalError();
+  };
+  var _makeInternalThreadObject = function(model_ob, root_msg, replies) {
+    var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.ts);
+    var unread_replies = _.filter(replies, function(msg) {
+      return !subscription.last_read || msg.ts > subscription.last_read;
+    });
+    var read_replies = _.filter(replies, function(msg) {
+      return subscription.last_read && msg.ts <= subscription.last_read;
+    });
+    var thread = {
+      model_ob: model_ob,
+      root_msg: root_msg,
+      replies: []
+    };
+    if (read_replies.length && !unread_replies.length) {
+      thread.replies = _.takeRight(read_replies, 2);
+    } else if (read_replies.length) {
+      thread.replies.push(_.last(read_replies));
+    }
+    if (unread_replies.length) {
+      thread.replies = thread.replies.concat(unread_replies);
+    }
+    if (thread.replies.length) {
+      thread.ts = _.last(thread.replies).ts;
+      if (unread_replies.length) {
+        thread.grouping = "new";
+      } else {
+        thread.grouping = "old";
+      }
+    } else {
+      thread.ts = root_msg.ts;
+      thread.grouping = "old";
+    }
+    thread.initial_last_read = subscription.last_read || 0;
+    return thread;
+  };
+  var _resetThreadsData = function() {
+    if (!_threads_data) return;
+    _threads_data = _(_threads_data).map(function(thread) {
+      var sub = TS.replies.getSubscriptionState(thread.model_ob.id, thread.root_msg.thread_ts);
+      if (!sub || !sub.subscribed) return null;
+      if (thread.model_ob.is_channel && !thread.model_ob.is_member) return null;
+      var new_thread = _makeInternalThreadObject(thread.model_ob, thread.root_msg, thread.replies);
+      return new_thread;
+    }).compact().value();
+    _threads_data.sort(TS.client.threads.threadCompare);
+    _threads_data = _.take(_threads_data, _api_limit);
+    _recalcTotalUnreadReplyCount();
+  };
+  var _ensureThreadOrder = function(threads) {
+    var initial_order = _.map(threads, "ts");
+    threads.sort(TS.client.threads.threadCompare);
+    if (!_.isEqual(initial_order, _.map(threads, "ts"))) {
+      TS.warn("Threads out of order; fixed in client");
+    }
+  };
+  var _messageChanged = function(model_ob, message) {
+    if (!_threads_data || !model_ob || !message) return;
+    if (!message.thread_ts) return;
+    _q.addToQ(function() {
+      var thread = TS.client.threads.getThread(model_ob, message.thread_ts);
+      if (!thread) return;
+      return _handleInlineChange(thread, message);
+    });
+  };
+  var _messageRemoved = function(model_ob, message) {
+    if (!_threads_data || !model_ob || !message) return;
+    if (!message.thread_ts) return;
+    _q.addToQ(function() {
+      var is_message_removed = _maybeRemoveMessage(model_ob, message);
+      if (TS.model.threads_view_is_showing && is_message_removed) TS.client.ui.threads.maybeRemoveMessageFromThread(model_ob, message);
+    });
+  };
+  var _messageReceived = function(model_ob, message) {
+    if (!model_ob || !message) return;
+    if (!message.thread_ts) return;
+    if (message.rsp_id) return;
+    if (!TS.utility.msgs.isMsgReply(message)) return;
+    _q.addToQ(function() {
+      return TS.replies.promiseToGetSubscriptionState(model_ob.id, message.thread_ts).then(function(subscription) {
+        if (!subscription || !subscription.subscribed) return;
+        _maybeSetThreadUnreadData(model_ob, message, subscription);
+        var thread = TS.client.threads.getThread(model_ob, message.thread_ts);
+        if (thread) {
+          return _handleNewReply(thread, message);
+        } else {
+          return _handleNewThread(model_ob, message.thread_ts);
+        }
+      });
+    });
+  };
+  var _maybeSetThreadUnreadData = function(model_ob, message, subscription) {
+    if (message.ts <= _update_thread_state_ts) return;
+    var is_convo_open = model_ob.id === TS.ui.replies.activeConvoModelId() && message.thread_ts === TS.ui.replies.activeConvoThreadTs() && TS.client.ui.isUserAttentionOnChat();
+    if (is_convo_open) return;
+    if (!_msgCanCountAsUnread(message)) return;
+    var has_unreads = true;
+    var msg_time_ms = parseFloat(message.ts) * 1e3;
+    var user_is_away = TS.model.user.presence == "away";
+    var ignore_at_here_mentions = user_is_away || msg_time_ms < TS.model.user._presence_last_changed;
+    var has_at_here = TS.model.here_regex.test(message.text) && !ignore_at_here_mentions;
+    var has_mention = TS.utility.msgs.getMsgMentionData(message).non_channel_mentions;
+    var mention_count = has_mention || has_at_here ? TS.model.threads_mention_count + 1 : TS.model.threads_mention_count;
+    if (TS.model.threads_has_unreads === has_unreads && TS.model.threads_mention_count === mention_count) return;
+    TS.client.threads.setThreadsUnreadData(has_unreads, mention_count);
+    if (has_at_here && !has_mention) {
+      _storeAtHereMsg(model_ob.id, message.thread_ts, message.ts);
+    }
+    TS.client.threads.logThreadState("message_received: " + !!has_unreads + " " + mention_count + " " + model_ob.id + " " + message.thread_ts + " " + message.ts);
+  };
+  var _maybeRemoveMessage = function(model_ob, message) {
+    if (!_threads_data || !model_ob || !message) return;
+    var thread = TS.client.threads.getThread(model_ob, message.thread_ts);
+    if (!thread) return false;
+    if (message.ts === message.thread_ts) {
+      TS.error("Attempting to remove remove root msg from thread instead of converting it to tombstone");
+      return false;
+    }
+    var is_message_removed = false;
+    var thread_msg_index = _.findIndex(thread.replies, {
+      ts: message.ts
+    });
+    if (thread_msg_index !== -1) {
+      thread.replies.splice(thread_msg_index, 1);
+      is_message_removed = true;
+    }
+    var root_msg_reply_index = _.findIndex(thread.root_msg.replies, {
+      ts: message.ts
+    });
+    if (root_msg_reply_index !== -1) {
+      thread.root_msg.replies.splice(thread_msg_index, 1);
+      is_message_removed = true;
+    }
+    if (parseFloat(message.ts) > _current_ts) {
+      _setTotalUnreadRepliesCount(_total_unread_replies - 1);
+      _maybeUpdateNewThreadReplyCount();
+    }
+    if (!thread.replies.length && !thread.root_msg.replies.length) {
+      _removeThread(model_ob, thread);
+      return is_message_removed;
+    }
+    var unread_msg_index = _.findIndex(thread.unread_replies, {
+      ts: message.ts
+    });
+    if (unread_msg_index !== -1) {
+      thread.unread_replies.splice(unread_msg_index, 1);
+    }
+    var latest_msg_index = _.findIndex(thread.latest_replies, {
+      ts: message.ts
+    });
+    if (latest_msg_index !== -1) {
+      thread.latest_replies.splice(latest_msg_index, 1);
+    }
+    return is_message_removed;
+  };
+  var _removeThread = function(model_ob, thread) {
+    if (!_threads_data || !thread) return;
+    _threads_data = _.without(_threads_data, thread);
+    if (TS.model.threads_view_is_showing) TS.client.ui.threads.maybeRemoveThread(model_ob, thread);
+  };
+  var _handleNewReply = function(thread, message) {
+    if (!_threads_data || !thread || !message) return;
+    var thread_msg_index = _.findIndex(thread.replies, {
+      ts: message.ts
+    });
+    if (thread_msg_index !== -1) return;
+    if (!thread.max_visible_ts && _msgCanCountAsUnread(message)) {
+      thread.max_visible_ts = thread.replies.length ? _.last(thread.replies).ts : thread.root_msg.ts;
+    }
+    thread.replies.push(message);
+    thread.replies = _.sortBy(thread.replies, "ts");
+    var show_immediately = false;
+    if (!_msgCanCountAsUnread(message)) {
+      show_immediately = true;
+      thread.max_visible_ts = _.last(thread.replies).ts;
+    }
+    if (TS.model.threads_view_is_showing) TS.client.ui.threads.maybeUpdateThreadWithMessage(thread, message, show_immediately);
+    _setTotalUnreadRepliesCount(_total_unread_replies + 1);
+    _maybeUpdateNewThreadReplyCount();
+    return null;
+  };
+  var _handleInlineChange = function(thread, message) {
+    if (!_threads_data || !thread || !message) return;
+    var is_thread_updated = false;
+    if (message.ts === message.thread_ts) {
+      thread.root_msg = message;
+      is_thread_updated = true;
+    }
+    var thread_msg_index = _.findIndex(thread.replies, {
+      ts: message.ts
+    });
+    if (thread_msg_index !== -1) {
+      thread.replies.splice(thread_msg_index, 1, message);
+      is_thread_updated = true;
+    }
+    if (TS.model.threads_view_is_showing && is_thread_updated) TS.client.ui.threads.maybeUpdateThreadWithMessage(thread, message);
+  };
+  var _handleNewThread = function(model_ob, thread_ts) {
+    if (!_threads_data || !model_ob || !thread_ts) return;
+    var thread = TS.client.threads.getThread(model_ob, thread_ts);
+    if (thread) return;
+    return TS.replies.getThread(model_ob.id, thread_ts).then(function(messages) {
+      var root_msg = _.find(messages, {
+        ts: thread_ts
+      });
+      var replies = _.filter(messages, TS.utility.msgs.isMsgReply);
+      var thread = _makeInternalThreadObject(model_ob, root_msg, replies);
+      var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.ts);
+      var num_unread = thread.replies.filter(function(msg) {
+        return !subscription.last_read || msg.ts > subscription.last_read;
+      }).length;
+      _threads_data.unshift(thread);
+      _threads_data.sort(TS.client.threads.threadCompare);
+      if (TS.model.threads_view_is_showing) TS.client.ui.threads.insertNewThread(thread);
+      _setTotalUnreadRepliesCount(_total_unread_replies + num_unread);
+      _maybeUpdateNewThreadReplyCount();
+      return null;
+    });
+  };
+  var _handleSubscriptionChange = function(model_ob_id, thread_ts, subscription) {
+    if (!_threads_data || !model_ob_id || !thread_ts) return;
+    if (!subscription.subscribed) return;
+    var model_ob = TS.shared.getModelObById(model_ob_id);
+    if (!model_ob) return;
+    _q.addToQ(function() {
+      var thread = TS.client.threads.getThread(model_ob, thread_ts);
+      if (thread) return;
+      _handleNewThread(model_ob, thread_ts);
+    });
+  };
+  var _msgCanCountAsUnread = function(msg) {
+    return !(msg.user === TS.model.user.id || msg.is_ephemeral);
+  };
+  var _recalcTotalUnreadReplyCount = function() {
+    _total_unread_replies = 0;
+    _.each(_threads_data, function(thread) {
+      var subscription = TS.replies.getSubscriptionState(thread.model_ob.id, thread.root_msg.ts);
+      var unread_replies = _.filter(thread.replies, function(msg) {
+        return !subscription.last_read || msg.ts > subscription.last_read;
+      });
+      _total_unread_replies += unread_replies.length;
+    });
+    _setTotalUnreadRepliesCount(_total_unread_replies);
+  };
+  var _setTotalUnreadRepliesCount = function(count) {
+    _total_unread_replies = count;
+    TS.client.threads.reply_count_changed.dispatch(_total_unread_replies);
+  };
+  var _maybeUpdateNewThreadReplyCount = function() {
+    if (!TS.model.threads_view_is_showing) return;
+    var new_thread_reply_count = TS.client.threads.getNewThreadReplyCount();
+    if (new_thread_reply_count) {
+      TS.client.threads.new_thread_reply_count_changed.dispatch(new_thread_reply_count);
+    }
+  };
+  var _isThreadNew = function(thread) {
+    var sub = TS.replies.getSubscriptionState(thread.model_ob.id, thread.root_msg.thread_ts);
+    if (!sub) return true;
+    return !sub.last_read || thread.ts > sub.last_read;
+  };
+  var _sanityCheckFailed = function(model_ob, root_msg, messages_from_api) {
+    _q.addToQ(function() {
+      var thread = TS.client.threads.getThread(model_ob, root_msg.ts);
+      if (!thread) return;
+      thread.replies = _.reject(messages_from_api, {
+        ts: thread.root_msg.ts
+      });
+      if (TS.model.threads_view_is_showing) TS.client.ui.threads.maybeRedrawThread(thread);
+    });
+  };
+  var _storeAtHereMsg = function(model_ob_id, thread_ts, msg_ts) {
+    var subscription = TS.replies.getSubscriptionState(model_ob_id, thread_ts);
+    if (!subscription || !subscription.subscribed) return;
+    if (subscription.last_read && subscription.last_read >= msg_ts) return;
+    _unread_at_heres.push({
+      model_ob_id: model_ob_id,
+      thread_ts: thread_ts,
+      msg_ts: msg_ts
+    });
+  };
+  var _countAtHeres = function() {
+    _.remove(_unread_at_heres, function(item) {
+      var model_ob = TS.shared.getModelObById(item.model_ob_id);
+      if (!model_ob) return true;
+      if (model_ob.is_channel && !model_ob.is_member) return true;
+      var subscription = TS.replies.getSubscriptionState(item.model_ob_id, item.thread_ts);
+      if (!subscription || !subscription.subscribed) return true;
+      if (subscription.last_read && subscription.last_read >= item.msg_ts) return true;
+      return false;
+    });
+    return _unread_at_heres.length;
+  };
+  var _leftGroup = function(model_ob) {
+    if (!_threads_data) return;
+    var to_remove = _.filter(_threads_data, function(thread) {
+      return thread.model_ob.id === model_ob.id;
+    });
+    _.forEach(to_remove, function(thread) {
+      _removeThread(model_ob, thread);
+    });
+  };
+  var _joinedModelOb = function(model_ob) {
+    if (!_threads_data) return;
+    if (TS.model.threads_view_is_showing) {
+      _invalidate_on_exit = true;
+    } else {
+      _clearData();
+    }
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("client.ui.threads", {
+    $channel_pane_item: $("#channels_scroller .all_threads"),
+    $scroller: $("#threads_msgs_scroller_div"),
+    $container: null,
+    onStart: function() {
+      if (!TS.boot_data.feature_message_replies) return;
+      TS.prefs.team_perms_pref_changed_sig.add(_handleTeamPermsPrefChanged);
+      TS.prefs.emoji_mode_changed_sig.add(_emojiModeChanged);
+      TS.channels.joined_sig.add(_handleMembershipChange);
+      TS.channels.left_sig.add(_handleMembershipChange);
+      TS.groups.left_sig.add(_handleMembershipChange);
+      TS.client.threads.new_thread_reply_count_changed.add(_showNewThreadsBanner);
+      _q = new TS.PromiseQueue;
+    },
+    showThreadsView: function() {
+      $("#client-ui").addClass("threads_view_is_showing");
+      TS.client.ui.threads.$scroller.addClass("loading");
+      TS.client.ui.threads.$scroller.addClass("emojimode_" + TS.model.prefs.emoji_mode);
+      $("#footer").addClass("invisible");
+      TS.client.archives.cancel(true);
+      var make_sure_active_channel_is_in_view = true;
+      TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
+      if (TS.model.ui_state.flex_name === "details") TS.client.ui.flex.hideFlex(true);
+      var skip_mark_msgs_read_immediate_check = true;
+      TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);
+      if (TS.boot_data.feature_sli_recaps) TS.recaps_signal.remove();
+      TS.client.ui.threads.$container = $('<div id="threads_msgs"></div>');
+      TS.client.ui.threads.$container.appendTo(TS.client.ui.threads.$scroller);
+      TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback");
+      if (!TS.environment.supports_custom_scrollbar) {
+        TS.client.ui.threads.$scroller.monkeyScroll();
+      }
+      _onResize();
+      TS.view.resize_sig.add(_onResize);
+      $("#threads_view_banner").removeClass("hidden");
+      TS.utility.msgs.startUpdatingRelativeTimestamps("#threads_msgs");
+      _initializeTrackingData();
+      TS.clog.track("THREADS_VIEW_OPEN", {
+        view_session_index: _threads_event_seq_id
+      });
+      TS.client.ui.threads.incrementTrackingSeqId();
+    },
+    destroyThreadsView: function() {
+      TS.client.ui.threads.resetUI();
+      TS.client.ui.threads.$scroller.off("scroll.threads_view_scroll");
+      TS.client.ui.threads.$scroller.empty();
+      $("#client-ui").removeClass("threads_view_is_showing");
+      _removeEmojiModeClass();
+      $("#footer").removeClass("invisible");
+      TS.client.ui.threads.$container = null;
+      TS.view.resize_sig.remove(_onResize);
+      TS.utility.msgs.stopUpdatingRelativeTimestamps("#threads_msgs");
+      if (!_has_tracked_threads_closed) TS.client.ui.threads.trackThreadsViewClosed("OTHER");
+    },
+    resetUI: function() {
+      _q.clear();
+      _hideNewRepliesBanner();
+      if (_config) {
+        TS.ui.message_container.cleanup(_config);
+        _config = null;
+      }
+      TS.client.ui.threads.$container.empty();
+      $(".threads_alternative_view_wrapper").remove();
+      TS.client.ui.threads.$scroller.addClass("loading");
+    },
+    displayEmptyState: function() {
+      if (!TS.model.threads_view_is_showing) return;
+      var template_args = {
+        emoji: new Handlebars.SafeString(TS.emoji.graphicReplace(":seedling:", {
+          jumbomoji: true
+        })),
+        is_empty: true
+      };
+      TS.client.ui.threads.displayAlternativeThreadsView(template_args);
+    },
+    displayFatalError: function() {
+      if (!TS.model.threads_view_is_showing) return;
+      var template_args = {
+        emoji: new Handlebars.SafeString(TS.emoji.graphicReplace(":tropical_fish:", {
+          jumbomoji: true
+        })),
+        is_error: true
+      };
+      TS.client.ui.threads.displayAlternativeThreadsView(template_args);
+    },
+    displayAlternativeThreadsView: function(template_args) {
+      TS.client.ui.threads.$scroller.find(".threads_alternative_view_wrapper").remove();
+      TS.client.ui.threads.$scroller.removeClass("loading");
+      TS.client.ui.threads.$scroller.removeClass("slow_loading");
+      TS.client.ui.threads.$scroller.find("#threads_msgs").empty();
+      TS.client.ui.threads.$scroller.append(TS.templates.threads_alternative_view(template_args));
+    },
+    isAlternativeThreadsViewShowing: function() {
+      return TS.client.ui.threads.$scroller.find(".threads_alternative_view_wrapper").length > 0;
+    },
+    displaySlowLoadingMessage: function() {
+      if (TS.client.ui.threads.$scroller.hasClass("loading")) {
+        TS.client.ui.threads.$scroller.addClass("slow_loading");
+      }
+      var $loading_more_messages = $("#threads_msgs .and_more_end, #threads_msgs .and_more_beginning");
+      if ($loading_more_messages.length) {
+        var slow_loading_text = TS.i18n.t("Still loading... sorry for the long wait!", "threads")();
+        $loading_more_messages.text(slow_loading_text);
+      }
+    },
+    updateChannelPaneUnreadState: function(is_unread, mention_count) {
+      TS.client.ui.threads.$channel_pane_item.toggleClass("unread", is_unread);
+      TS.client.ui.threads.$channel_pane_item.toggleClass("mention", !!mention_count);
+      var $threads_mentions = TS.client.ui.threads.$channel_pane_item.find(".unread_highlights");
+      if (!mention_count) {
+        $threads_mentions.empty();
+      } else {
+        if (mention_count > 9) mention_count = "9+";
+        $threads_mentions.text(mention_count);
+      }
+      $threads_mentions.toggleClass("hidden", !mention_count);
+      var $link = TS.client.ui.threads.$channel_pane_item.find(".channel_name");
+      if (is_unread) {
+        $link.attr("aria-label", TS.i18n.t("New Threads", "threads"));
+      } else {
+        $link.attr("aria-label", TS.i18n.t("Threads", "threads"));
+      }
+    },
+    updateChannelPaneActiveState: function() {
+      TS.client.ui.threads.$channel_pane_item.toggleClass("active", !!TS.model.threads_view_is_showing);
+    },
+    startWithData: function(threads_data, has_more) {
+      TS.client.ui.threads.$scroller.removeClass("loading");
+      TS.client.ui.threads.$scroller.removeClass("slow_loading");
+      if (threads_data.length < 1) {
+        TS.client.ui.threads.displayEmptyState();
+        return;
+      }
+      _config = {
+        name: "threads",
+        container: TS.client.ui.threads.$container,
+        scroller: TS.client.ui.threads.$scroller,
+        page_size: 8,
+        msg_order: "desc",
+        skip_day_groupings: true,
+        has_more_beginning: false,
+        has_more_end: !!has_more,
+        buildSection: function(section) {
+          return TS.templates.thread_view_section();
+        },
+        buildMsgHTML: function(msg, prev_msg, section) {
+          return _renderThread(msg, prev_msg);
+        },
+        updateCallback: function() {
+          _renderAllReplyInputs();
+        },
+        promiseToLoadMoreAtEnd: function() {
+          return TS.client.threads.loadMoreThreads().then(_handleMoreThreads);
+        }
+      };
+      _config.sections = [];
+      var new_threads = _.filter(threads_data, {
+        grouping: "new"
+      });
+      var old_threads = _.filter(threads_data, {
+        grouping: "old"
+      });
+      if (new_threads.length) {
+        var new_section = _getNewSection();
+        new_section.msgs = new_threads;
+      }
+      if (old_threads.length) {
+        var old_section = _getOldSection();
+        old_section.msgs = old_threads;
+      }
+      if (!TS.environment.supports_custom_scrollbar) {
+        var monkey_data = TS.client.ui.threads.$scroller.data("monkeyScroll");
+        if (monkey_data) monkey_data.updateFunc();
+      }
+      TS.ui.message_container.register(_config);
+      _renderAllReplyInputs();
+      _bindScrollHandler();
+    },
+    buildThreadMsgHTML: function(msg, model_ob, thread) {
+      return TS.templates.builders.buildThreadMsgHTML(msg, model_ob, thread);
+    },
+    maybeUpdateThreadWithMessage: function(thread, msg, show_immediately) {
+      if (msg.rsp_id) return;
+      _q.addToQ(function() {
+        var $thread = TS.client.ui.threads.$container.find('ts-thread[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
+        if (!$thread.length) return;
+        TS.ui.thread.updateThreadWithMessage($thread, thread, msg, show_immediately);
+        _doLazyImageLoading();
+      });
+    },
+    maybeRemoveNewRepliesBanner: function() {
+      _q.addToQ(function() {
+        if (_new_replies_banner_showing) _hideNewRepliesBanner();
+      });
+    },
+    maybeRemoveMessageFromThread: function(model_ob, msg) {
+      if (!model_ob || !msg) return;
+      if (msg.ts === msg.thread_ts) {
+        TS.error("Attempting to remove remove root msg from DOM instead of converting it to tombstone or deleting entire <ts-thread>");
+        return;
+      }
+      var thread = TS.client.threads.getThread(model_ob, msg.thread_ts);
+      if (!thread) return;
+      _q.addToQ(function() {
+        var $thread = TS.client.ui.threads.$container.find('ts-thread[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
+        if (!$thread.length) return;
+        var remove_p = TS.ui.thread.removeMessageFromThread($thread, thread, msg);
+        return remove_p;
+      });
+    },
+    maybeRemoveThread: function(model_ob, thread_to_remove) {
+      if (!model_ob || !thread_to_remove) return;
+      _q.addToQ(function() {
+        _.forEach(_config.sections, function(section) {
+          section.msgs = _.without(section.msgs, _.find(section.msgs, function(thread) {
+            return model_ob.id === thread.model_ob.id && thread_to_remove.root_msg.thread_ts === thread.root_msg.thread_ts;
+          }));
+        });
+        TS.ui.message_container.update(_config);
+      });
+    },
+    insertNewThread: function(thread) {
+      _q.addToQ(function() {
+        TS.client.ui.threads.$scroller.removeClass("loading");
+        TS.client.ui.threads.$scroller.removeClass("slow_loading");
+        var sections = _.get(_config, "sections");
+        if (!sections) return;
+        var section;
+        if (thread.grouping === "new") {
+          section = _getNewSection();
+        } else {
+          section = _getOldSection();
+        }
+        section.msgs.push(thread);
+        section.msgs.sort(TS.client.threads.threadCompare);
+        var $first = TS.client.ui.threads.$container.find("ts-thread:first");
+        TS.ui.message_container.updateWithFocus(_config, $first);
+      });
+    },
+    jumpToTop: function() {
+      if (!TS.model.threads_view_is_showing) return;
+      TS.ui.message_container.jumpToTop(_config);
+    },
+    revealNewReplies: function(thread) {
+      _q.addToQ(function() {
+        var $thread = _getElFromThread(thread);
+        if (!$thread.length) return;
+        return TS.ui.thread.revealNewReplies($thread, thread);
+      });
+    },
+    revealPreviousReplies: function(thread, messages_p) {
+      var $thread = _getElFromThread(thread);
+      if (messages_p.isPending()) TS.ui.thread.showThreadLoadingSpinner($thread);
+      _q.addToQ(function() {
+        if (!$thread.length) return;
+        return TS.ui.thread.revealPreviousReplies($thread, thread, messages_p);
+      });
+    },
+    maybeRedrawThread: function(thread) {
+      _q.addToQ(function() {
+        thread.edited = Date.now();
+        TS.ui.message_container.update(_config);
+      });
+    },
+    getThreadFromEl: function($e) {
+      if (!$e || !$e.length) return;
+      var $thread = $e.closest("ts-thread");
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      if (!model_ob_id || !thread_ts) return;
+      var thread_model_ob = TS.shared.getModelObById(model_ob_id);
+      return TS.client.threads.getThread(thread_model_ob, thread_ts);
+    },
+    incrementTrackingSeqId: function() {
+      _threads_event_seq_id++;
+    },
+    trackThreadsViewClosed: function(event_trigger) {
+      var payload = _.merge(TS.client.ui.threads.getTrackingData(), {
+        num_threads_loaded: TS.client.threads.getThreadsLoadedCount(),
+        view_exit_event: event_trigger
+      });
+      TS.clog.track("THREADS_VIEW_CLOSE", payload);
+      _has_tracked_threads_closed = true;
+    },
+    getTrackingData: function() {
+      return {
+        view_session_elapsed_time: Date.now() - _initialized_time,
+        view_session_index: _threads_event_seq_id
+      };
+    }
+  });
+  var _config;
+  var _new_replies_banner_showing = false;
+  var _q;
+  var _initialized_time;
+  var _threads_event_seq_id;
+  var _has_tracked_threads_closed;
+  var _getNewSection = function() {
+    if (!_config || !_config.sections) return;
+    var new_section = _.find(_config.sections, {
+      id: "new_threads"
+    });
+    if (!new_section) {
+      new_section = {
+        id: "new_threads",
+        order: 0,
+        msgs: []
+      };
+      _config.sections.unshift(new_section);
+    }
+    return new_section;
+  };
+  var _getOldSection = function() {
+    if (!_config || !_config.sections) return;
+    var old_section = _.find(_config.sections, {
+      id: "old_threads"
+    });
+    if (!old_section) {
+      old_section = {
+        id: "old_threads",
+        order: 1,
+        msgs: []
+      };
+      _config.sections.push(old_section);
+    }
+    return old_section;
+  };
+  var _handleMoreThreads = function(data) {
+    var has_more = data.has_more;
+    var threads = data.threads;
+    var sections = _.get(_config, "sections");
+    if (!sections) return;
+    var new_threads = _.filter(threads, {
+      grouping: "new"
+    });
+    var old_threads = _.filter(threads, {
+      grouping: "old"
+    });
+    if (new_threads.length) {
+      var new_section = _getNewSection();
+      new_section.msgs = new_threads;
+    }
+    if (old_threads.length) {
+      var old_section = _getOldSection();
+      old_section.msgs = old_threads;
+    }
+    _config.has_more_end = !!has_more;
+  };
+  var _onResize = function() {
+    TS.client.ui.threads.$scroller.height(TS.view.cached_wh - $("#client_header").outerHeight() - TS.client.ui.CLIENT_HEADER_OVERHANG);
+    if (!TS.environment.supports_custom_scrollbar) TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.threads.$scroller);
+  };
+  var _renderThread = function(thread) {
+    return TS.ui.thread.buildThreadHTML(thread);
+  };
+  var _renderAllReplyInputs = function() {
+    var $threads = TS.client.ui.threads.$container.find("ts-thread");
+    _.forEach($threads, function(thread) {
+      _renderReplyInput($(thread));
+    });
+  };
+  var _renderReplyInputForModelOb = function(model_ob) {
+    var $threads = TS.client.ui.threads.$container.find("ts-thread[data-model-ob-id=" + model_ob.id + "]");
+    $threads.data("input_rendered", false);
+    _.forEach($threads, function(thread) {
+      _renderReplyInput($(thread));
+    });
+  };
+  var _renderReplyInput = function($thread) {
+    if (!$thread || !$thread.length) return;
+    if ($thread.data("input_rendered")) return;
+    var model_ob_id = $thread.attr("data-model-ob-id");
+    var thread_ts = $thread.attr("data-thread-ts");
+    if (!model_ob_id || !thread_ts) return;
+    var model_ob = TS.shared.getModelObById(model_ob_id);
+    if (!model_ob) return;
+    var thread = TS.client.threads.getThread(model_ob, thread_ts);
+    if (!thread) {
+      TS.error("Thread not found in TS.client.threads _thread_data");
+      return;
+    }
+    TS.ui.thread.renderReplyInput($thread, thread);
+    $thread.data("input_rendered", true);
+  };
+  var _bindScrollHandler = function() {
+    var $scroller = TS.client.ui.threads.$scroller;
+    $scroller.on("scroll.threads_view_scroll", _.debounce(function() {
+      if (!TS.model.threads_view_is_showing) return;
+      if (_new_replies_banner_showing && $scroller.scrollTop() === 0) {
+        var range = TS.ui.message_container.getRange(_config);
+        var start = _.get(range, "start");
+        if (!start) return;
+        if (start.msg_ts === -1) {
+          TS.client.threads.markAllNewThreads();
+          return;
+        }
+        var first = _config.sections[0].msgs[0];
+        if (!first || start.msg_ts === first.ts) TS.client.threads.markAllNewThreads();
+      }
+    }, 150));
+  };
+  var _doLazyImageLoading = function() {
+    TS.client.ui.checkInlineImgsAndIframes("threads");
+  };
+  var _showNewThreadsBanner = function(new_thread_reply_count) {
+    var $threads_view_banner = $("#threads_view_banner");
+    var text = TS.i18n.t("{new_thread_reply_count,plural,=1{{new_thread_reply_count} new reply}other{{new_thread_reply_count} new replies}}", "threads")({
+      new_thread_reply_count: new_thread_reply_count
+    });
+    $threads_view_banner.find("#new_replies_info").text(text);
+    $threads_view_banner.removeClass("no_opacity");
+    TS.client.ui.threads.$container.addClass("new_banner_is_showing");
+    _new_replies_banner_showing = true;
+  };
+  var _hideNewRepliesBanner = function(immediately) {
+    _new_replies_banner_showing = false;
+    if (immediately) $("#threads_view_banner").addClass("hidden");
+    $("#threads_view_banner").addClass("no_opacity");
+    TS.client.ui.threads.$container.removeClass("new_banner_is_showing");
+  };
+  var _emojiModeChanged = function() {
+    if (!TS.model.threads_view_is_showing) return;
+    _removeEmojiModeClass();
+    TS.client.ui.threads.$scroller.addClass("emojimode_" + TS.model.prefs.emoji_mode);
+  };
+  var _removeEmojiModeClass = function() {
+    TS.client.ui.threads.$scroller.removeClass(function(index, class_name) {
+      return (class_name.match(/(^|\s)emojimode_\S+/g) || []).join(" ");
+    });
+  };
+  var _getElFromThread = function(thread) {
+    var thread_ts = thread.root_msg.ts;
+    var model_ob_id = thread.model_ob.id;
+    var $thread = TS.client.ui.threads.$container.find('ts-thread[data-thread-ts="' + thread_ts + '"][data-model-ob-id="' + model_ob_id + '"]');
+    return $thread;
+  };
+  var _handleMembershipChange = function(model_ob) {
+    if (!TS.model.threads_view_is_showing) return;
+    _q.addToQ(function() {
+      _renderReplyInputForModelOb(model_ob);
+    });
+  };
+  var _handleTeamPermsPrefChanged = function(pref_name) {
+    if (!TS.model.threads_view_is_showing) return;
+    if (!pref_name) return;
+    if (pref_name === "who_can_post_general") {
+      _q.addToQ(function() {
+        var general_channel = TS.channels.getGeneralChannel();
+        _renderReplyInputForModelOb(general_channel);
+      });
+    }
+  };
+  var _initializeTrackingData = function() {
+    _initialized_time = Date.now();
+    _threads_event_seq_id = 0;
+    _has_tracked_threads_closed = false;
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ui.thread", {
+    expanded_threads: {},
+    buildThreadHTML: function(thread, options) {
+      var model_ob = thread.model_ob;
+      var root_msg = thread.root_msg;
+      var replies = thread.replies;
+      var new_replies = [];
+      if (thread.max_visible_ts) {
+        var initial_replies = _.takeWhile(replies, function(msg) {
+          return msg.ts <= thread.max_visible_ts;
+        });
+        new_replies = _.drop(replies, initial_replies.length);
+        replies = initial_replies;
+      }
+      var id = "thread_" + model_ob.id + "_" + thread.ts.replace(".", "_");
+      var im_user;
+      if (model_ob.is_im) {
+        im_user = TS.members.getMemberById(model_ob.user);
+      }
+      var participants = TS.ui.replies.buildParticipantsList(thread.root_msg);
+      var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.thread_ts);
+      var is_subscribed = subscription && subscription.subscribed;
+      var view_previous_count = root_msg.reply_count;
+      if (replies && replies.length) view_previous_count = root_msg.reply_count - replies.length;
+      var thread_html = TS.templates.thread({
+        id: id,
+        ts: thread.ts,
+        model_ob: model_ob,
+        thread: thread,
+        root_msg: root_msg,
+        conversation_permalink: TS.utility.msgs.constructConversationPermalink(model_ob, root_msg.ts),
+        view_previous_count: view_previous_count,
+        replies: replies,
+        new_replies: new_replies,
+        new_replies_count: _newRepliesText(new_replies.length),
+        im_user: im_user,
+        participants: participants,
+        is_subscribed: is_subscribed,
+        options: options || {}
+      });
+      return thread_html;
+    },
+    updateThreadWithMessage: function($thread, thread, msg, show_immediately) {
+      var $existing_msg = $thread.find('ts-message[data-ts="' + msg.ts + '"]');
+      var html;
+      var options = {};
+      var context = $thread.attr("data-context");
+      if (context === "inline") {
+        options.inline = true;
+      }
+      html = TS.templates.builders.buildThreadMsgHTML(msg, thread.model_ob, thread, options);
+      var $new_msg = $(html);
+      if ($existing_msg.length) {
+        if ($existing_msg.hasClass("hidden")) $new_msg.addClass("hidden");
+        $existing_msg.replaceWith($new_msg);
+      } else {
+        if (show_immediately) {
+          var $replies_container = $thread.find(".thread_replies_container");
+          var $new_threads = $thread.find(".new_replies_container ts-message");
+          $replies_container.append($new_threads).append($new_msg);
+          _toggleNewReplyIndicatorVisibility($thread, false);
+        } else {
+          $thread.find(".new_replies_container").append($new_msg);
+          _updateRevealNewRepliesCount($thread, thread);
+        }
+      }
+      if (!TS.utility.msgs.isMsgReply(msg)) {
+        _updateViewAllRepliesCount(thread, $thread, msg);
+      }
+      _updateParticipantsList($thread, thread);
+    },
+    removeMessageFromThread: function($thread, thread, msg) {
+      var $reply = $("#" + TS.templates.makeMsgDomIdInThreadsView(msg.ts));
+      if (!$reply.length) return;
+      $reply.addClass("delete_mode").slideUp(200, function() {
+        $reply.remove();
+      });
+      _updateRevealNewRepliesCount($thread, thread);
+      _updateParticipantsList($thread, thread);
+    },
+    revealNewReplies: function($thread, thread) {
+      return new Promise(function(resolve, reject) {
+        var $indicator = $thread.find(".new_reply_indicator");
+        var $old_replies_container = $thread.find(".thread_replies_container");
+        var $new_replies_container = $thread.find(".new_replies_container");
+        $indicator.animate({
+          height: 0
+        }, 150, function() {
+          _toggleNewReplyIndicatorVisibility($thread, false);
+          $indicator.css("height", "");
+          var prev_height = $old_replies_container.height();
+          $old_replies_container.height(prev_height);
+          $old_replies_container.css("overflow", "hidden");
+          var $new_msgs = $new_replies_container.find("ts-message");
+          $new_msgs.appendTo($old_replies_container);
+          $old_replies_container.css("height", "auto");
+          var new_height = $old_replies_container.height();
+          $old_replies_container.height(prev_height).animate({
+            height: new_height
+          }, 300, function() {
+            $new_replies_container.css("height", "");
+            $old_replies_container.css("height", "");
+            $old_replies_container.css("overflow", "");
+            resolve();
+          });
+        });
+        _updateViewAllRepliesCount(thread, $thread, thread.root_msg);
+      });
+    },
+    revealPreviousReplies: function($thread, thread, messages_p) {
+      var options = {};
+      var context = $thread.attr("data-context");
+      if (context === "inline") {
+        options.inline = true;
+      }
+      return new Promise(function(resolve, reject) {
+        messages_p.then(function() {
+          var $link = $thread.find(".view_all_replies_container");
+          var doReveal = function() {
+            $link.remove();
+            var $replies_container = $thread.find(".thread_replies_container");
+            var $first_existing_msg = $replies_container.find("ts-message:first");
+            var $prev_container = $("<div></div>");
+            if ($first_existing_msg.length) {
+              $first_existing_msg.before($prev_container);
+            } else {
+              $replies_container.append($prev_container);
+            }
+            var previous_replies = _.takeWhile(thread.replies, function(msg) {
+              return msg.ts < thread.min_visible_ts;
+            });
+            _.forEach(previous_replies, function(msg) {
+              $prev_container.append(TS.templates.builders.buildThreadMsgHTML(msg, thread.model_ob, thread, options));
+            });
+            var full_height = $prev_container.height();
+            $prev_container.height(0).animate({
+              height: full_height
+            }, 300, function() {
+              var $new_msgs = $prev_container.find("ts-message");
+              if ($first_existing_msg.length) {
+                $new_msgs.insertBefore($first_existing_msg);
+              } else {
+                $new_msgs.appendTo($replies_container);
+              }
+              $prev_container.remove();
+              resolve();
+            });
+          };
+          if ($link.length) {
+            $link.animate({
+              height: 0
+            }, 150, doReveal);
+          } else {
+            doReveal();
+          }
+        }, function() {
+          _showThreadLoadingError($thread);
+          reject();
+        });
+      });
+    },
+    renderReplyInput: function($thread, thread) {
+      var model_ob = thread.model_ob;
+      var thread_ts = thread.root_msg.ts;
+      var $reply_container = $thread.find(".reply_input_container");
+      $reply_container.empty();
+      if (!TS.permissions.members.canPostInModelOb(TS.model.user, model_ob)) {
+        _renderRestrictedReply(model_ob, $reply_container);
+        return;
+      }
+      if (!TS.replies.canReplyToMsg(model_ob, thread.root_msg)) {
+        if (model_ob.is_channel && !model_ob.is_member) _renderJoinChannelButton(model_ob, $reply_container);
+        return;
+      }
+      var $input;
+      TS.ui.inline_msg_input.make($reply_container, {
+        placeholder: "Reply...",
+        complete_member_specials: false,
+        model_ob: model_ob,
+        onSubmit: function($elem, text) {
+          if (!TS.model.ms_connected) return;
+          if (model_ob.is_archived) {
+            TS.generic_dialog.alert(TS.i18n.t("This channel has been archived; you cannot send messages to it.", "threads")());
+            return;
+          }
+          var should_broadcast_reply = $reply_container.find(".reply_broadcast_toggle").prop("checked");
+          _clearInput($reply_container, model_ob, thread_ts);
+          var last_reply = _.last(thread.replies);
+          if (thread.max_visible_ts) {
+            last_reply = _.findLast(thread.replies, function(msg) {
+              return msg.ts <= thread.max_visible_ts;
+            });
+          }
+          var handled_reaction = TS.client.ui.maybeHandleReactionCmd(last_reply, text);
+          if (handled_reaction) return;
+          if (text.substr(0, 1) == "/" && text.substr(0, 2) != "//") {
+            if (text.indexOf("/shrug") === 0) {
+              TS.client.ui.sendSlashCommand(model_ob, text, thread.root_msg);
+            } else {
+              TS.client.ui.addOrFlashEphemeralBotMsg({
+                text: TS.i18n.t("You cannot use slash commands in threads. Sorry!", "threads")(),
+                ephemeral_type: "threads_temp_slash_cmd_feedback",
+                slackbot_feels: "sad_surprise",
+                channel: model_ob.id,
+                thread_ts: thread_ts
+              });
+              return;
+            }
+          } else {
+            TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
+            var context = TS.ui.thread.getContextForEl($thread);
+            var clog_event = should_broadcast_reply ? "MSG_THREAD_REPLY_BROADCAST" : "MSG_THREAD_REPLY";
+            TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event);
+            TS.client.ui.sendMessage(model_ob, text, thread.root_msg, should_broadcast_reply);
+          }
+          return null;
+        },
+        getMsgDivForEditing: function() {
+          var $ts_thread = $thread.closest("ts-thread");
+          var replies = $ts_thread.find("ts-message").get();
+          _.reverse(replies);
+          var last_reply_from_current_user = _.find(replies, function(reply) {
+            var reply_member_id = $(reply).data("member-id");
+            return reply_member_id === TS.model.user.id;
+          });
+          if (last_reply_from_current_user) {
+            var $div = $(last_reply_from_current_user);
+            return $div;
+          }
+          return null;
+        }
+      });
+      $input = $reply_container.find(".message_input");
+      $input.on("focusin", function() {
+        $reply_container.addClass("has_focus");
+      }).on("focusout", function(e) {
+        var is_input_empty = !TS.utility.contenteditable.value($input).trim();
+        if (is_input_empty) $reply_container.removeClass("has_focus");
+      }).on("input", function(e, prev_txt) {
+        var input_value = TS.utility.contenteditable.value($input);
+        var is_input_empty = !input_value.trim();
+        var val = is_input_empty ? "" : input_value;
+        TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
+      });
+      var prev_val = TS.storage.fetchReplyInput(model_ob.id, thread_ts);
+      if (prev_val) {
+        TS.utility.populateInput($input, prev_val);
+        $reply_container.addClass("has_focus");
+      }
+      _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
+    },
+    joinChannelFromThread: function(e, $el) {
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      var model_ob_id = $thread.data("model-ob-id");
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) return;
+      TS.channels.join(model_ob.name, null, true);
+      $thread.find(".join_channel_from_thread").addClass("disabled");
+    },
+    submitReply: function(e, $el) {
+      if (!$el || $el.length === 0) return;
+      var $reply_form = $el.closest(".reply_input_container").find("form");
+      if ($reply_form.length === 0) return;
+      $reply_form.submit();
+    },
+    showThreadLoadingSpinner: function($thread) {
+      if (!TS.model.threads_view_is_showing) return;
+      if (!$thread || !$thread.length) return;
+      var $thread_loading_container = $thread.find(".view_all_loading_container");
+      $thread_loading_container.html(TS.templates.infinite_spinner({
+        size: "small"
+      }));
+    },
+    startInlineThread: function(model_ob, msg, $msg) {
+      _setExpanded(model_ob.id, msg.ts, true);
+      TS.view.rebuildMsg(msg);
+    },
+    expandInlineThread: function($thread) {
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) return;
+      var root_msg = TS.utility.msgs.getMsg(thread_ts, model_ob.msgs);
+      if (!root_msg) return;
+      var thread = {
+        model_ob: model_ob,
+        root_msg: root_msg,
+        replies: [],
+        ts: root_msg.ts
+      };
+      TS.ui.utility.preventElementFromScrolling($thread.find(".message_content"), function() {
+        $thread.addClass("expanded");
+      });
+      TS.ui.thread.renderReplyInput($thread, thread);
+      var messages_p = TS.replies.getThread(model_ob_id, thread_ts).then(function(messages) {
+        var min_visible_ts = Infinity;
+        if (thread.replies && thread.replies.length) min_visible_ts = _.first(thread.replies).ts;
+        thread.min_visible_ts = min_visible_ts;
+        var replies = _.filter(messages, function(msg) {
+          return msg.ts !== root_msg.ts;
+        });
+        thread.replies = replies;
+      });
+      TS.ui.thread.revealPreviousReplies($thread, thread, messages_p);
+      _setExpanded(model_ob_id, thread_ts, true);
+      return null;
+    },
+    collapseInlineThread: function($thread) {
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) return;
+      var root_msg = TS.utility.msgs.getMsg(thread_ts, model_ob.msgs);
+      if (!root_msg) return;
+      if (!TS.utility.msgs.msgHasReplies(root_msg)) {
+        _setExpanded(model_ob_id, thread_ts, false);
+        TS.view.rebuildMsg(root_msg);
+        return;
+      }
+      var $replies_container = $thread.find(".thread_replies_container");
+      $replies_container.animate({
+        height: 0
+      }, 300, function() {
+        $replies_container.css("height", "");
+        $replies_container.find("ts-message").remove();
+        TS.ui.utility.preventElementFromScrolling($thread.find(".message_content"), function() {
+          $thread.removeClass("expanded");
+        });
+      });
+      $thread.find(".reply_input_container").html(TS.templates.thread_inline_input_placeholder({
+        model_ob: model_ob,
+        root_msg: root_msg,
+        conversation_permalink: TS.utility.msgs.constructConversationPermalink(model_ob, root_msg.ts),
+        num_total_threads: root_msg.reply_count
+      }));
+      _setExpanded(model_ob_id, thread_ts, false);
+    },
+    isThreadExpanded: function(model_ob_id, thread_ts) {
+      return !!TS.ui.thread.expanded_threads[model_ob_id + thread_ts];
+    },
+    isMessageBeingConvertedToThread: function(model_ob_id, msg) {
+      return !TS.utility.msgs.msgHasReplies(msg) && !TS.utility.msgs.isMsgReply(msg) && TS.ui.thread.isThreadExpanded(model_ob_id, msg.ts);
+    },
+    makeInlineThread: function(model_ob_id, thread_ts) {
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      if (!model_ob) return null;
+      var root_msg = TS.utility.msgs.getMsg(thread_ts, model_ob.msgs);
+      if (!root_msg) return null;
+      var thread = {
+        model_ob: model_ob,
+        root_msg: root_msg,
+        replies: [],
+        ts: root_msg.ts
+      };
+      if (TS.ui.thread.isThreadExpanded(model_ob_id, thread_ts)) {
+        var replies = _.filter(model_ob.msgs, function(msg) {
+          return msg.ts !== thread_ts && msg.thread_ts === thread_ts;
+        });
+        thread.replies = replies;
+      }
+      return thread;
+    },
+    trackEvent: function(model_ob_id, thread_ts, context, event, metadata) {
+      if (!model_ob_id || !thread_ts || !context) {
+        TS.error("error collecting clog data for threads");
+        return;
+      }
+      var payload = _getTrackingPayload(model_ob_id, thread_ts, context, metadata);
+      if (context === "threads_view") TS.client.ui.threads.incrementTrackingSeqId();
+      TS.clog.track(event, payload);
+    },
+    getTrackingPayloadForEl: function($el, metadata) {
+      var payload = {};
+      var context = TS.ui.thread.getContextForEl($el);
+      if (context !== "threads_view" && context !== "convo") return payload;
+      var $thread = $el.closest("ts-thread, ts-conversation");
+      if (!$thread.length) return payload;
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      if (!model_ob_id || !thread_ts) return payload;
+      return _getTrackingPayload(model_ob_id, thread_ts, context, metadata);
+    },
+    getContextForEl: function($el) {
+      if ($el.closest("#threads_msgs").length > 0) {
+        return "threads_view";
+      } else if ($el.closest("ts-conversation").length > 0) {
+        return "convo";
+      }
+      return null;
+    }
+  });
+  var _setExpanded = function(model_ob_id, thread_ts, expanded) {
+    TS.ui.thread.expanded_threads[model_ob_id + thread_ts] = expanded;
+  };
+  var _newRepliesText = function(count) {
+    return TS.i18n.t("{reply_count,plural,=1{{reply_count} new reply}other{{reply_count} new replies}}", "threads")({
+      reply_count: count
+    });
+  };
+  var _toggleNewReplyIndicatorVisibility = function($thread, is_visible) {
+    var $replies = $thread.find(".thread_messages");
+    var visibility_class = "show_new_reply_indicator";
+    is_visible ? $replies.addClass(visibility_class) : $replies.removeClass(visibility_class);
+  };
+  var _updateRevealNewRepliesCount = function($thread, thread) {
+    if (!thread || !$thread || !$thread.length) return;
+    var hidden_replies = _.reduce(thread.replies, function(count, reply) {
+      if (reply.ts > thread.max_visible_ts) count++;
+      return count;
+    }, 0);
+    var $new_reply_indicator = $thread.find(".new_reply_indicator");
+    var $new_reply_indicator_count = $new_reply_indicator.find(".reveal_new_replies");
+    if (hidden_replies <= 0) {
+      _toggleNewReplyIndicatorVisibility($thread, false);
+      $new_reply_indicator_count.empty();
+      return;
+    }
+    var text = _newRepliesText(hidden_replies);
+    $new_reply_indicator_count.text(text);
+    _toggleNewReplyIndicatorVisibility($thread, true);
+  };
+  var _updateViewAllRepliesCount = function(thread, $thread, root_msg) {
+    if (!$thread || !$thread.length || !root_msg || !root_msg.replies) return;
+    var $view_all_replies_container = $thread.find(".view_all_replies_container");
+    if (!$view_all_replies_container.length) return;
+    var $link = $view_all_replies_container.find(".view_all_replies");
+    var previous_reply_count = root_msg.reply_count - thread.replies.length;
+    if (!previous_reply_count) {
+      $view_all_replies_container.addClass("hidden");
+      return;
+    }
+    var link_text = TS.i18n.t("View {reply_count,plural,=1{{reply_count} previous reply}other{{reply_count} previous replies}}", "threads")({
+      reply_count: previous_reply_count
+    });
+    $link.text(link_text);
+  };
+  var _clearInput = function($reply_container, model_ob, thread_ts) {
+    var $input = $reply_container.find(".message_input");
+    TS.utility.populateInput($input, "", 0);
+    TS.storage.storeReplyInput(model_ob.id, thread_ts, "");
+    $reply_container.find(".reply_broadcast_toggle").attr("checked", false);
+  };
+  var _renderBroadcastButtons = function(model_ob, thread_ts, $reply_container) {
+    if (!model_ob || !thread_ts || !$reply_container || $reply_container.length === 0) return;
+    $reply_container.append(TS.templates.reply_broadcast_buttons({
+      model_ob: model_ob,
+      thread_ts: thread_ts,
+      view: "threads"
+    }));
+    var $reply_broadcast_buttons = $reply_container.find(".reply_broadcast_label_container, .reply_send");
+    var $input = $reply_container.find(".message_input");
+    $reply_broadcast_buttons.mousedown(function(e) {
+      e.preventDefault();
+      TS.utility.contenteditable.focus($input);
+    }).click(function(e) {
+      TS.utility.contenteditable.focus($input);
+    });
+  };
+  var _renderRestrictedReply = function(model_ob, $reply_container) {
+    $reply_container.html(TS.templates.reply_limited_in_general({
+      channel_name: TS.shared.getDisplayNameForModelOb(model_ob)
+    }));
+  };
+  var _renderJoinChannelButton = function(model_ob, $reply_container) {
+    $reply_container.html(TS.templates.join_channel_from_thread({
+      model_ob_name: model_ob.name,
+      is_threads_view: true
+    }));
+  };
+  var _showThreadLoadingError = function($thread) {
+    if (!TS.model.threads_view_is_showing) return;
+    if (!$thread || !$thread.length) return;
+    var $view_all_replies_container = $thread.find(".view_all_replies_container");
+    var $view_all_loading_container = $view_all_replies_container.find(".view_all_loading_container");
+    var $view_all_error_msg = $view_all_replies_container.find(".view_all_error_msg");
+    var $view_all_link = $view_all_replies_container.find(".view_all_replies");
+    $view_all_loading_container.empty();
+    $view_all_error_msg.removeClass("hidden");
+    var try_again_text = TS.i18n.t("Try Again", "threads")();
+    $view_all_link.removeClass("active").text(try_again_text);
+  };
+  var _getTrackingPayload = function(model_ob_id, thread_ts, context, metadata) {
+    if (!model_ob_id || !thread_ts || !context) {
+      TS.error("error collecting clog data for threads");
+      return;
+    }
+    var payload = {
+      parent_message_id: thread_ts,
+      channel_id: model_ob_id,
+      is_threads_view: context === "threads_view" ? 1 : 0,
+      is_flexpane: context === "convo" ? 1 : 0
+    };
+    if (context === "threads_view") _.merge(payload, TS.client.ui.threads.getTrackingData());
+    if (metadata) payload = _.merge(payload, metadata);
+    return payload;
+  };
+  var _updateParticipantsList = function($thread, thread) {
+    var participants = TS.ui.replies.buildParticipantsList(thread.root_msg);
+    $thread.find(".thread_participants").text(participants);
+  };
 })();
