@@ -32488,6 +32488,13 @@ var _on_esc;
         template_args.disable_invite = true;
       }
       if (TS.notifs.isCorGMuted(channel.id)) template_args.channel_is_muted = true;
+      if (TS.boot_data.feature_sli_recaps) {
+        var recap_group = TS.experiment.getGroup("sli_recaps_preview");
+        if (recap_group === "sli_sneak_preview") {
+          template_args.can_see_highlights = true;
+          template_args.highlights_on = TS.recaps_signal.isHighlightsOn();
+        }
+      }
       if (channel.is_member && (!channel.is_general || TS.members.canUserPostInGeneral())) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise && channel.is_shared) {
         if (template_args.show_advanced_item) {
@@ -32608,7 +32615,15 @@ var _on_esc;
       } else if (id == "channel_prefs") {
         e.preventDefault();
         TS.ui.channel_prefs_dialog.start(TS.menu.channel.channel.id);
-      } else if (id == "channel_add_service_item") {} else {
+      } else if (id == "channel_add_service_item") {} else if (id == "channel_highlight_toggle") {
+        e.preventDefault();
+        if (TS.boot_data.feature_sli_recaps) {
+          var recap_group = TS.experiment.getGroup("sli_recaps_preview");
+          if (recap_group === "sli_sneak_preview") {
+            TS.recaps_signal.toggleChannelOverflowPref();
+          }
+        }
+      } else {
         TS.warn("not sure what to do with clicked element id:" + id);
         return;
       }
@@ -37004,6 +37019,7 @@ var _on_esc;
     },
     shouldShow: function(attachment, msg) {
       if (attachment.is_share) return true;
+      if (msg && msg.subtype === "reply_broadcast") return true;
       if (attachment.service_name == "twitter" && msg.subtype == "bot_message") return true;
       if (!attachment.from_url) return true;
       if (msg.standalone_attachment) return true;
@@ -44965,6 +44981,7 @@ $.fn.togglify = function(settings) {
         instance.run();
         _bindUI(instance);
       }
+      instance.current_items_in_view_signal = new signals.Signal;
       return instance;
     }
   });
@@ -46022,7 +46039,15 @@ $.fn.togglify = function(settings) {
         instance.$list.monkeyScroll();
       }
       instance.$list.longListView("resizeImmediately");
+      TS.utility.rAF(function() {
+        instance.current_items_in_view_signal.dispatch(instance.$list.longListView("getCurrentItemsInView") || []);
+      });
     });
+    if (instance.$list.longListView("getCurrentItemsInViewSignal")) {
+      instance.$list.longListView("getCurrentItemsInViewSignal").add(function(data) {
+        instance.current_items_in_view_signal.dispatch(data);
+      });
+    }
   };
   var _stopThePresses = function(e) {
     e.stopPropagation();

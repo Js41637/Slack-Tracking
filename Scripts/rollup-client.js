@@ -9447,9 +9447,6 @@
     var $details_toggle_ts_tip_tip = $("#details_toggle .ts_tip_tip");
     $("#client-ui").removeClass("details_showing");
     $(".channel_header_icon.active").removeClass("active");
-    if (TS.boot_data.feature_sli_recaps) {
-      TS.recaps_signal.toggleOffHighlights();
-    }
     if (model_ob) {
       if (model_ob.is_im || model_ob.is_mpim) {
         $details_toggle_ts_tip_tip.text(TS.i18n.t("Show Conversation Details", "flexpane")());
@@ -29201,7 +29198,6 @@
         } else if (item.member && item.member.is_self) {
           template_args.is_self = true;
         }
-        if (item.member) _member_presence_list.add(item.member.id);
         template_args.secondary_name = null;
         if (model_ob && model_ob.is_mpim) {
           template_args.display_name = TS.mpims.getDisplayName(model_ob);
@@ -29259,6 +29255,17 @@
         $el.html(TS.templates.im_browser_row(template_args));
       }
     });
+    if (_$list_container.longListView("getCurrentItemsInView")) {
+      TS.utility.rAF(function() {
+        var data = _$list_container.longListView("getCurrentItemsInView");
+        _member_presence_list.clear();
+        _member_presence_list.add(_.map(data, "id"));
+      });
+      _$list_container.longListView("getCurrentItemsInViewSignal").add(function(data) {
+        _member_presence_list.clear();
+        _member_presence_list.add(_.map(data, "id"));
+      });
+    }
     if (!TS.environment.supports_custom_scrollbar) {
       _$list_container.monkeyScroll();
     }

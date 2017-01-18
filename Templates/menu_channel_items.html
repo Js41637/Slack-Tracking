@@ -113,6 +113,17 @@
           {{#t}}Manage teams in this channel &hellip;{{/t}}
         </a></li>
       {{/if}}
+      {{#if can_see_highlights}}
+        <li id="channel_highlight_toggle" role="menuitem">
+          <a>
+            {{#if highlights_on}}
+              {{#t}}Hide all message highlights{{/t}}
+            {{else}}
+              {{#t}}Turn on message highlights{{/t}}
+            {{/if}}
+          </a>
+        </li>
+      {{/if}}
       {{#if show_advanced_item}}
         <li id="channel_advanced_item" role="menuitem"><a>
           {{#t note="Additional options for individual channels"}}Additional options &hellip;{{/t}}
