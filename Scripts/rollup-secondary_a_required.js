@@ -4053,6 +4053,12 @@
         channel.is_general = true;
       }
     }
+    if (TS.membership.lazyLoadChannelMembership()) {
+      if (channel.members) {
+        TS.flannel.__temp__setChannelMembers(channel.id, channel.members);
+        channel.members = [];
+      }
+    }
     if (existing_channel) {
       if (TS.pri) TS.log(5, 'updating existing channel "' + channel.id + '"');
       for (var k in channel) {
@@ -4170,6 +4176,9 @@
         TS.channels.joined_sig.add(_modelObJoined);
         TS.channels.left_sig.add(_modelObLeft);
         TS.groups.left_sig.add(_modelObLeft);
+        var handler_priority = Infinity;
+        TS.members.changed_deleted_sig.add(_markMembershipCountsAsStale, this, handler_priority);
+        TS.members.non_loaded_changed_deleted_sig.add(_markMembershipCountsAsStale, this, handler_priority);
       }
     },
     test: function() {
@@ -4324,6 +4333,11 @@
     if (!TS.lazyLoadMembersAndBots()) return;
     TS.log(1989, "Channel member counts (" + model_ob.id + "): removing local counts because we left the channel");
     delete _channel_member_counts_info[model_ob.id];
+  };
+  var _markMembershipCountsAsStale = function() {
+    _.forEach(_channel_member_counts_info, function(counts_info) {
+      counts_info.should_refetch = true;
+    });
   };
 })();
 (function() {
@@ -10159,6 +10173,7 @@ TS.registerModule("constants", {
     changed_self_sig: new signals.Signal,
     lazily_added_sig: new signals.Signal,
     batch_upserted_sig: new signals.Signal,
+    non_loaded_changed_deleted_sig: new signals.Signal,
     is_in_bulk_upsert_mode: false,
     members_for_user_changed_sig: new signals.Signal,
     onStart: function() {
@@ -16775,17 +16790,8 @@ TS.registerModule("constants", {
             is_deleted = false;
           }
           var did_change_deleted_status = TS.flannel.setMemberDeletedStatus(imsg.user.id, is_deleted);
-          if (did_change_deleted_status && TS.client) {
-            var model_ob = TS.shared.getActiveModelOb();
-            if (!member && model_ob && _.includes(model_ob.members, imsg.user.id)) {
-              if (!_did_queue_rebuild_member_list_toggle) {
-                _did_queue_rebuild_member_list_toggle = true;
-                TS.utility.rAF(function() {
-                  _did_queue_rebuild_member_list_toggle = false;
-                  TS.client.ui.rebuildMemberListToggle();
-                });
-              }
-            }
+          if (did_change_deleted_status && !member) {
+            TS.members.non_loaded_changed_deleted_sig.dispatch(imsg.user.id);
           }
         }
         if (!member) {
@@ -17176,7 +17182,6 @@ TS.registerModule("constants", {
       TS.client.threads.updateThreadState(imsg.has_unreads, imsg.mention_count, imsg.timestamp);
     }
   });
-  var _did_queue_rebuild_member_list_toggle = false;
   var _isFileMsgRelevant = function(imsg, file_id) {
     if (!file_id) return false;
     if (TS.web && TS.web.space && !TS.web.space.isFileRelevant(file_id)) return false;
@@ -21370,7 +21375,7 @@ TS.registerModule("constants", {
           is_app_data_enabled = true;
         }
         if (prev_msg) {
-          prev_speaker = prev_msg.subtype == "file_comment" && prev_msg.comment ? prev_msg.comment.user : prev_msg.user;
+          prev_speaker = prev_msg.subtype === "file_comment" && prev_msg.comment ? prev_msg.comment.user : prev_msg.user;
           if (!prev_speaker) {
             prev_speaker = TS.templates.builders.getBotIdentifier(prev_msg);
           }
@@ -21378,13 +21383,13 @@ TS.registerModule("constants", {
         if (!msg.no_display && !standalone) {
           if (prev_msg) {
             var last_rendered_msg_date = TS.utility.date.toDateObject(prev_msg.ts);
-            if (msg.subtype && msg.subtype == "file_comment" && msg.comment) {
+            if (msg.subtype && msg.subtype === "file_comment" && msg.comment) {
               current_speaker = msg.comment.user;
             }
             if (TS.utility.msgs.automated_subtypes.indexOf(msg.subtype) != -1) {
               show_user = true;
             } else if (prev_speaker == current_speaker && TS.utility.msgs.automated_subtypes.indexOf(prev_msg.subtype) === -1) {
-              if (!msg.subtype && prev_msg.subtype && prev_msg.subtype == "file_comment") {
+              if (!msg.subtype && prev_msg.subtype && prev_msg.subtype === "file_comment") {
                 show_user = true;
               } else {
                 if (!prev_msg.subtype || TS.templates.builders.getBotIdentifier(prev_msg)) {
@@ -21401,7 +21406,7 @@ TS.registerModule("constants", {
                     if (msg.recap && msg.recap.show_recap) show_user = true;
                   }
                 }
-                if (TS.utility.msgs.isTempMsg(msg) && (msg.type == "bot_message" || msg.user == "USLACKBOT")) {
+                if (TS.utility.msgs.isTempMsg(msg) && (msg.type === "bot_message" || msg.user === "USLACKBOT")) {
                   show_user = true;
                 }
               }
@@ -21456,7 +21461,7 @@ TS.registerModule("constants", {
           show_user = true;
         }
         if (msg.type != "message") show_user = true;
-        if (msg.subtype == "me_message" || prev_msg && prev_msg.subtype == "me_message") {
+        if (msg.subtype === "me_message" || prev_msg && prev_msg.subtype === "me_message") {
           show_user = true;
         }
         var do_inline_imgs = true;
@@ -21580,10 +21585,10 @@ TS.registerModule("constants", {
           }
           template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
         }
-        if (msg.subtype == "file_share" || msg.subtype == "file_mention" || msg.subtype == "file_reaction") {
+        if (msg.subtype === "file_share" || msg.subtype === "file_mention" || msg.subtype === "file_reaction") {
           if (msg.file) {
             var get_file_share_html;
-            var is_not_welcome_post;
+            var is_not_welcome_post = true;
             var file_display_name;
             template_args.file = msg.file;
             template_args.edit = TS.files.getFileActions(msg.file).edit;
@@ -21601,14 +21606,14 @@ TS.registerModule("constants", {
             template_args.is_message = true;
             template_args.image_lazyload = !!TS.client;
             template_args.lightbox = true;
-            if (msg.subtype == "file_share" && msg.upload) {
-              if (msg.file.mode == "email") template_args.is_added = true;
+            if (msg.subtype === "file_share" && msg.upload) {
+              if (msg.file.mode === "email") template_args.is_added = true;
               template_args.icon_class = TS.utility.getImageIconClass(msg.file, "thumb_80");
             } else if (msg.file.user != msg.user) {
               template_args.uploader = TS.utility.members.getEntityFromFile(msg.file);
               is_not_welcome_post = !_isWelcomePostToTeamOwner(msg);
             }
-            if (/(snippet)/.test(msg.file.mode)) {
+            if (_SNIPPET_REGEX.test(msg.file.mode)) {
               file_display_name = TS.i18n.t("{file_pretty_name} snippet", "message")({
                 file_pretty_name: msg.file.pretty_type
               });
@@ -21622,27 +21627,25 @@ TS.registerModule("constants", {
               file_display_name = TS.i18n.t("file", "message")();
             }
             if (template_args.uploader && is_not_welcome_post) {
-              if (msg.file.initial_comment) {
-                template_args.show_initial_comment = true;
-                if (msg.subtype == "file_mention") {
-                  get_file_share_html = TS.i18n.t("mentioned and commented on {uploader_name_possessive_html} {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
-                  get_file_share_html = TS.i18n.t("added and commented on {uploader_name_possessive_html} {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload) {
-                  get_file_share_html = TS.i18n.t("uploaded and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+              if (msg.subtype === "file_share" && msg.upload) {
+                if (msg.file.initial_comment) {
+                  template_args.show_initial_comment = true;
+                  if (_SNIPPET_REGEX.test(msg.file.mode)) {
+                    get_file_share_html = TS.i18n.t("added and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+                  } else {
+                    get_file_share_html = TS.i18n.t("uploaded and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+                  }
                 } else {
-                  get_file_share_html = TS.i18n.t("shared and commented on {uploader_name_possessive_html} {file_display_name}", "message");
+                  if (_SNIPPET_REGEX.test(msg.file.mode)) {
+                    get_file_share_html = TS.i18n.t("added {uploader_name_possessive_html} {file_display_name}", "message");
+                  } else {
+                    get_file_share_html = TS.i18n.t("uploaded {uploader_name_possessive_html} {file_display_name}", "message");
+                  }
                 }
+              } else if (msg.subtype === "file_mention") {
+                get_file_share_html = TS.i18n.t("mentioned {uploader_name_possessive_html} {file_display_name}", "message");
               } else {
-                if (msg.subtype == "file_mention") {
-                  get_file_share_html = TS.i18n.t("mentioned {uploader_name_possessive_html} {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
-                  get_file_share_html = TS.i18n.t("added {uploader_name_possessive_html} {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload) {
-                  get_file_share_html = TS.i18n.t("uploaded {uploader_name_possessive_html} {file_display_name}", "message");
-                } else {
-                  get_file_share_html = TS.i18n.t("shared {uploader_name_possessive_html} {file_display_name}", "message");
-                }
+                get_file_share_html = TS.i18n.t("shared {uploader_name_possessive_html} {file_display_name}", "message");
               }
               var uploader_name = TS.templates.builders.makeMemberPreviewLink(template_args.uploader, false);
               var uploader_name_possessive = TS.i18n.possessive(TS.members.getMemberDisplayName(template_args.uploader));
@@ -21654,27 +21657,25 @@ TS.registerModule("constants", {
                 uploader_name_possessive_html: uploader_name_possessive_html
               });
             } else {
-              if (msg.file.initial_comment) {
-                template_args.show_initial_comment = true;
-                if (msg.subtype == "file_mention") {
-                  get_file_share_html = TS.i18n.t("mentioned and commented on this {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
-                  get_file_share_html = TS.i18n.t("added and commented on this {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload) {
-                  get_file_share_html = TS.i18n.t("uploaded and commented on this {file_display_name}", "message");
+              if (msg.subtype === "file_share" && msg.upload) {
+                if (msg.file.initial_comment) {
+                  template_args.show_initial_comment = true;
+                  if (_SNIPPET_REGEX.test(msg.file.mode)) {
+                    get_file_share_html = TS.i18n.t("added and commented on this {file_display_name}", "message");
+                  } else {
+                    get_file_share_html = TS.i18n.t("uploaded and commented on this {file_display_name}", "message");
+                  }
                 } else {
-                  get_file_share_html = TS.i18n.t("shared and commented on this {file_display_name}", "message");
+                  if (_SNIPPET_REGEX.test(msg.file.mode)) {
+                    get_file_share_html = TS.i18n.t("added this {file_display_name}", "message");
+                  } else {
+                    get_file_share_html = TS.i18n.t("uploaded this {file_display_name}", "message");
+                  }
                 }
+              } else if (msg.subtype === "file_mention") {
+                get_file_share_html = TS.i18n.t("mentioned this {file_display_name}", "message");
               } else {
-                if (msg.subtype == "file_mention") {
-                  get_file_share_html = TS.i18n.t("mentioned this {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload && /(snippet)/.test(msg.file.mode)) {
-                  get_file_share_html = TS.i18n.t("added this {file_display_name}", "message");
-                } else if (msg.subtype == "file_share" && msg.upload) {
-                  get_file_share_html = TS.i18n.t("uploaded this {file_display_name}", "message");
-                } else {
-                  get_file_share_html = TS.i18n.t("shared this {file_display_name}", "message");
-                }
+                get_file_share_html = TS.i18n.t("shared this {file_display_name}", "message");
               }
               template_args.file_share_html = get_file_share_html({
                 file_display_name: file_display_name
@@ -21682,16 +21683,16 @@ TS.registerModule("constants", {
             }
           }
           template_args.file_share_html = new Handlebars.SafeString(template_args.file_share_html);
-        } else if (msg.subtype == "file_comment") {
+        } else if (msg.subtype === "file_comment") {
           if (prev_msg && !prev_msg.no_display && prev_msg.file && msg.file && msg.file.id == prev_msg.file.id) {
             if (!new_day) template_args["is_file_convo_continuation"] = true;
           }
           template_args["show_comment_quote_icon"] = true;
           if (prev_msg && !prev_msg.no_display && prev_msg.file && msg.file && msg.file.id == prev_msg.file.id) {
-            if (prev_msg.subtype == "file_share" && prev_msg.upload && prev_msg.file.initial_comment) {
+            if (prev_msg.subtype === "file_share" && prev_msg.upload && prev_msg.file.initial_comment) {
               if (!new_day) template_args["show_comment_quote_icon"] = false;
             }
-            if (prev_msg.subtype == "file_comment") {
+            if (prev_msg.subtype === "file_comment") {
               if (!new_day) template_args["show_comment_quote_icon"] = false;
             }
           }
@@ -21733,21 +21734,21 @@ TS.registerModule("constants", {
   function _assignMsgClasses(msg, template_args) {
     var msg_classes = ["message"];
     if (msg.subtype) {
-      if (msg.subtype == "channel_join" || msg.subtype == "group_join") {
+      if (msg.subtype === "channel_join" || msg.subtype === "group_join") {
         msg_classes.push("joined", "automated");
-      } else if (msg.subtype == "channel_leave" || msg.subtype == "group_leave") {
+      } else if (msg.subtype === "channel_leave" || msg.subtype === "group_leave") {
         msg_classes.push("left", "automated");
-      } else if (msg.subtype == "channel_topic" || msg.subtype == "group_topic") {
+      } else if (msg.subtype === "channel_topic" || msg.subtype === "group_topic") {
         msg_classes.push("topic", "automated");
-      } else if (msg.subtype == "channel_name" || msg.subtype == "group_name") {
+      } else if (msg.subtype === "channel_name" || msg.subtype === "group_name") {
         msg_classes.push("rename", "automated");
-      } else if (msg.subtype == "channel_purpose" || msg.subtype == "group_purpose") {
+      } else if (msg.subtype === "channel_purpose" || msg.subtype === "group_purpose") {
         msg_classes.push("purpose", "automated");
-      } else if (msg.subtype == "channel_archive" || msg.subtype == "group_archive") {
+      } else if (msg.subtype === "channel_archive" || msg.subtype === "group_archive") {
         msg_classes.push("archived", "automated");
-      } else if (msg.subtype == "channel_unarchive" || msg.subtype == "group_unarchive") {
+      } else if (msg.subtype === "channel_unarchive" || msg.subtype === "group_unarchive") {
         msg_classes.push("unarchived", "automated");
-      } else if (msg.subtype == "bot_message") {
+      } else if (msg.subtype === "bot_message") {
         msg_classes.push("bot_message");
       } else if (msg.subtype === "sh_room_shared") {
         msg_classes.push("sh_shared", "automated");
@@ -21813,6 +21814,7 @@ TS.registerModule("constants", {
   function _isWelcomePostToTeamOwner(msg) {
     return msg.file.name === TS.utility.welcome_post.WELCOME_POST_NAME && msg.user === "USLACKBOT" && msg.file.user === TS.model.user.id;
   }
+  var _SNIPPET_REGEX = /(snippet)/;
 })();
 (function() {
   "use strict";
@@ -23895,11 +23897,14 @@ TS.registerModule("constants", {
       var day = date.getDate();
       var hours = date.getHours();
       var minutes = date.getMinutes();
-      var pm = false;
+      var date_str_builder = TS.i18n.t("{year}_{month}_{day} {hours}_{minutes}{add_ampm, select, true{{is_pm, select, true{ PM}other{ AM}}}other{}}", "date_utilities");
+      var is_pm = false;
       if (!TS.utility.date.do24hrTime()) {
         if (hours >= 12) {
-          if (hours > 12) hours = hours - 12;
-          pm = true;
+          if (hours > 12) {
+            hours -= 12;
+          }
+          is_pm = true;
         } else if (hours === 0) {
           hours = 12;
         }
@@ -23914,15 +23919,15 @@ TS.registerModule("constants", {
         minutes = "0" + minutes;
       }
       month = ("0" + (month + 1)).slice(-2);
-      var formatted_time = year + "_" + month + "_" + day + " " + hours + "_" + minutes;
-      if (!TS.utility.date.do24hrTime()) {
-        if (pm) {
-          formatted_time += " PM";
-        } else {
-          formatted_time += " AM";
-        }
-      }
-      return formatted_time;
+      return date_str_builder({
+        year: year,
+        month: month,
+        day: day,
+        hours: hours,
+        minutes: minutes,
+        add_ampm: !TS.utility.date.do24hrTime(),
+        is_pm: is_pm
+      });
     },
     toCalendarDate: function(ts, min, exclude_year, very_min, exclude_day) {
       var date = TS.utility.date.toDateObject(ts);

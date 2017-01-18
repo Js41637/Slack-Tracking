@@ -4376,7 +4376,8 @@
       TS.members.changed_name_sig.add(TS.view.members.memberChangedName, TS.view.members);
       TS.members.changed_real_name_sig.add(TS.view.members.memberChangedRealName, TS.view.members);
       TS.members.changed_self_sig.add(TS.view.members.somethingChangedOnUser, TS.view.members);
-      TS.members.changed_deleted_sig.add(TS.view.members.memberChangedDeleted, TS.view.members);
+      TS.members.changed_deleted_sig.add(_memberWasDeletedOrUndeleted, TS.view.members);
+      TS.members.non_loaded_changed_deleted_sig.add(_memberWasDeletedOrUndeleted, TS.view.members);
       TS.members.changed_profile_sig.add(TS.view.members.memberChangedProfile, TS.view.members);
       TS.members.changed_current_status_sig.add(TS.view.members.memberChangedCurrentStatus, TS.view.members);
       TS.members.changed_tz_sig.add(TS.view.members.memberChangedTZ, TS.view.members);
@@ -4453,11 +4454,6 @@
     },
     somethingChangedOnUser: function(member) {
       TS.view.showProperTeamPaneFiller();
-    },
-    memberChangedDeleted: function(member) {
-      TS.client.channel_pane.rebuild("ims", "starred");
-      TS.client.msg_pane.rebuildChannelMembersList();
-      TS.view.rebuildTeamList(true);
     },
     memberChangedProfile: function(member) {
       var bg_img_urls = [];
@@ -4588,6 +4584,25 @@
       TS.view.rebuildStars();
     }
   });
+  var _did_queue_members_rebuild = false;
+  var _memberWasDeletedOrUndeleted = function(member_object_or_user_id) {
+    if (_did_queue_members_rebuild) return;
+    var model_ob = TS.shared.getActiveModelOb();
+    if (!model_ob) return;
+    if (!TS.membership.lazyLoadChannelMembership()) {
+      var user_id = member_object_or_user_id.id || member_object_or_user_id;
+      if (!TS.membership.getUserChannelMembershipStatus(user_id, model_ob).is_member) {
+        return;
+      }
+    }
+    _did_queue_members_rebuild = true;
+    TS.utility.rAF(function() {
+      _did_queue_members_rebuild = false;
+      TS.client.channel_pane.rebuild("ims", "starred");
+      TS.client.msg_pane.rebuildChannelMembersList();
+      TS.view.rebuildTeamList(true);
+    });
+  };
 })();
 (function() {
   "use strict";
@@ -9483,7 +9498,6 @@
       if (this._resize_sig_handler) TS.view.resize_sig.remove(this._resize_sig_handler);
       TS.members.joined_team_sig.remove(this._maybeRenderFilterBar, this);
       TS.members.changed_deleted_sig.remove(this._maybeRenderFilterBar, this);
-      TS.utility.cancelRAF(this._animation_frame_callback);
       this.$_container.off();
       if (this.$_long_list_view) this.$_long_list_view.off();
       if (this.$_search_input) this.$_search_input.off();
@@ -9546,13 +9560,16 @@
         if (this_searchable_member_list._members.length > 0) {
           this_searchable_member_list._maybeHideNoResultsState();
           this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
-          TS.utility.rAF(function() {
-            this_searchable_member_list._resize_sig_handler();
-          });
-          this_searchable_member_list._matchHeightToContents();
         } else {
           this_searchable_member_list._showNoResultsState();
         }
+      }).then(function() {
+        TS.utility.rAF(function() {
+          this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
+          this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
+          this_searchable_member_list._matchHeightToContents();
+          this_searchable_member_list._recursivelyFillLongListViewToHeight();
+        });
       });
     },
     _maybeSetupSearchBar: function() {
@@ -9622,7 +9639,9 @@
         this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
         this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
         if (!this_searchable_member_list._long_list_view_initial_height) this_searchable_member_list._long_list_view_initial_height = this_searchable_member_list._long_list_view_height;
-        this_searchable_member_list._matchHeightToContents();
+        TS.utility.rAF(function() {
+          this_searchable_member_list._matchHeightToContents();
+        });
       }, RESIZE_THROTTLE_MS);
       TS.view.resize_sig.add(this._resize_sig_handler);
       this.$_long_list_view.on("scroll", _.debounce(function(e) {
@@ -9649,7 +9668,6 @@
       }
     },
     _reset: function() {
-      var this_searchable_member_list = this;
       this._members = [];
       this._current_query_for_match = "";
       this._current_query_for_display = "";
@@ -9665,21 +9683,17 @@
         this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
       }
       this.$_long_list_view.height(this._long_list_view_initial_height);
-      this._fetchProcessAndDisplayPage().then(function() {
-        TS.utility.rAF(function() {
-          this_searchable_member_list._recursivelyFillLongListViewToHeight();
-        });
-      });
+      this._fetchProcessAndDisplayPage();
     },
     _matchHeightToContents: function() {
       var this_searchable_member_list = this;
-      this._animation_frame_callback = TS.utility.rAF(function() {
-        if (this_searchable_member_list._long_list_view_items_height < this_searchable_member_list._long_list_view_initial_height) {
-          this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_items_height);
-        } else {
-          this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_initial_height);
-        }
-      });
+      if (this_searchable_member_list._long_list_view_items_height < this_searchable_member_list._long_list_view_initial_height && this_searchable_member_list._have_all_members) {
+        this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_items_height);
+        this_searchable_member_list._long_list_view_height = this_searchable_member_list._long_list_view_items_height;
+      } else {
+        this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_initial_height);
+        this_searchable_member_list._long_list_view_height = this_searchable_member_list._long_list_view_initial_height;
+      }
     },
     _showLoadingState: function() {
       this.$_long_list_view.before(TS.templates.infinite_spinner({
@@ -9721,6 +9735,7 @@
         this._presence_list.clear();
         this._members = [];
         this._next_marker = "";
+        this._have_all_members = false;
         this._current_query_for_display = new_query;
         this._current_query_for_match = new_query.trim().toLocaleLowerCase();
         this._fetchProcessAndDisplayPage();
@@ -9737,11 +9752,7 @@
         this_searchable_member_list._members = [];
         this_searchable_member_list._next_marker = "";
         this_searchable_member_list._current_filter = $action.data("filter");
-        this_searchable_member_list._fetchProcessAndDisplayPage().then(function() {
-          TS.utility.rAF(function() {
-            this_searchable_member_list._recursivelyFillLongListViewToHeight();
-          });
-        });
+        this_searchable_member_list._fetchProcessAndDisplayPage();
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_filter_bar(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
       });
@@ -14355,6 +14366,7 @@
     if (_readEverythingAlready() || !_showBadges()) {
       TS.experiment.loadUserAssignments().then(function() {
         var group = TS.experiment.getGroup("whats_new_header_icon");
+        if (TS.boot_data.feature_message_replies) group = "treatment";
         if (group === "treatment") {
           $("#client-ui").removeClass("whats_new_showing");
         } else {
@@ -14364,6 +14376,7 @@
     } else {
       TS.experiment.loadUserAssignments().then(function() {
         var group = TS.experiment.getGroup("whats_new_header_icon");
+        if (TS.boot_data.feature_message_replies) group = "treatment";
         if (group === "treatment") {
           $("#client-ui").addClass("whats_new_showing");
         } else {
@@ -38792,11 +38805,6 @@ function timezones_guess() {
       if (was_scrolled_to_bottom) {
         scroller.scrollTop = scroller.scrollHeight - scroller.offsetHeight;
       }
-      if (msg.ts === msg.thread_ts) {
-        if (msg.reply_count + 1 > _active_convo_messages.length) {
-          TS.ui.replies.openConversation(model_ob, msg.thread_ts);
-        }
-      }
     },
     updateMessageActions: function(model_ob, root_msg) {
       if (!TS.replies.canReplyToMsg(model_ob, root_msg)) {
@@ -39008,7 +39016,19 @@ function timezones_guess() {
     if (!_active_convo_model_id || !_active_convo_thread_ts) return;
     var model_ob = TS.shared.getModelObById(_active_convo_model_id);
     if (!model_ob) return;
-    TS.ui.replies.openConversation(model_ob, _active_convo_thread_ts);
+    var thread_ts = _active_convo_thread_ts;
+    var always_make_api_call = true;
+    TS.replies.getThread(model_ob.id, thread_ts, always_make_api_call).then(function(messages) {
+      if (_active_convo_model_id !== model_ob.id) return;
+      if (_active_convo_thread_ts !== thread_ts) return;
+      var root_msg = _.find(_active_convo_messages, {
+        ts: thread_ts
+      });
+      if (!root_msg) return;
+      _active_convo_messages = messages;
+      var $convo = $("ts-conversation");
+      _renderThreadIntoConversation(model_ob, root_msg, messages, $convo);
+    });
   };
   var _bindUI = function() {
     $("#convo_scroller").scroll(function() {
@@ -39261,6 +39281,8 @@ function timezones_guess() {
     $("#reply_container textarea").trigger("autosize-resize");
   };
   var _focusInputWhenReady = function() {
+    var $reply_input = $("#reply_container textarea");
+    if (TS.utility.isFocusOnInput() && document.activeElement !== $reply_input[0]) return;
     if (_ready_to_focus) {
       TS.ui.replies.focusReplyInput();
     } else {

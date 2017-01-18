@@ -136,8 +136,31 @@
     },
     batchUpsertObjects: function(objects) {
       return _batchUpsertObjects(objects);
+    },
+    __temp__setChannelMembers: function(channel_id, user_ids) {
+      __temp__channel_members[channel_id] = user_ids;
+    },
+    fetchChannelMembershipForUsers: function(channel_id, user_ids) {
+      var membership_info = {};
+      var channel_members = __temp__channel_members[channel_id];
+      user_ids.forEach(function(user_id) {
+        membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
+      });
+      return Promise.resolve(membership_info);
+    },
+    fetchMembershipCountsForChannel: function(channel_id) {
+      var model_ob = TS.shared.getModelObById(channel_id);
+      var resp = TS.members.getMembershipCounts(model_ob);
+      if (resp.promise) {
+        return resp.promise.then(function() {
+          return resp.counts;
+        });
+      } else {
+        return Promise.resolve(resp.counts);
+      }
     }
   });
+  var __temp__channel_members = {};
   var _deleted_user_ids = [];
   var _MAX_IDS_PER_QUERY = 500;
   var _model_ob_member_fetch_promises = {};
