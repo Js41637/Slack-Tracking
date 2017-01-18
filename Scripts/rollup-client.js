@@ -40078,20 +40078,30 @@ function timezones_guess() {
     },
     displayEmptyState: function() {
       if (!TS.model.threads_view_is_showing) return;
+      var emoji_set = {
+        "default": cdn_url + "/f5d6f/img/emoji_2016_06_08/apple/1f331.png",
+        as_text: cdn_url + "/f5d6f/img/emoji_2016_06_08/apple/1f331.png",
+        google: cdn_url + "/b7f24/img/emoji_2016_06_08/google/1f331.png",
+        twitter: cdn_url + "/6c9e5/img/emoji_2016_06_08/twitter/1f331.png",
+        emojione: cdn_url + "/5499/img/emoji_2016_06_08/emojione/1f331.png"
+      };
       var template_args = {
-        emoji: new Handlebars.SafeString(TS.emoji.graphicReplace(":seedling:", {
-          jumbomoji: true
-        })),
+        emoji: emoji_set[TS.model.prefs.emoji_mode],
         is_empty: true
       };
       TS.client.ui.threads.displayAlternativeThreadsView(template_args);
     },
     displayFatalError: function() {
       if (!TS.model.threads_view_is_showing) return;
+      var emoji_set = {
+        "default": cdn_url + "/f5d6f/img/emoji_2016_06_08/apple/1f420.png",
+        as_text: cdn_url + "/f5d6f/img/emoji_2016_06_08/apple/1f420.png",
+        google: cdn_url + "/b7f24/img/emoji_2016_06_08/google/1f420.png",
+        twitter: cdn_url + "/6c9e5/img/emoji_2016_06_08/twitter/1f420.png",
+        emojione: cdn_url + "/5499/img/emoji_2016_06_08/emojione/1f420.png"
+      };
       var template_args = {
-        emoji: new Handlebars.SafeString(TS.emoji.graphicReplace(":tropical_fish:", {
-          jumbomoji: true
-        })),
+        emoji: emoji_set[TS.model.prefs.emoji_mode],
         is_error: true
       };
       TS.client.ui.threads.displayAlternativeThreadsView(template_args);

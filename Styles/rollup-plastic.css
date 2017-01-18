@@ -13374,6 +13374,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 #client-ui .searchable_member_list .member_item,
 #client-ui .searchable_member_list .team_list_item {
+  cursor: pointer;
   width: 100%
 }
 

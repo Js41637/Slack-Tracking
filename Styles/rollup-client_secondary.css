@@ -7382,6 +7382,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 #client-ui .searchable_member_list .member_item,
 #client-ui .searchable_member_list .team_list_item {
+  cursor: pointer;
   width: 100%
 }
 
@@ -27143,9 +27144,9 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
   justify-content: center
 }
 
-.threads_alternative_view_wrapper .emoji-only {
-  height: 3.125rem;
-  width: 3.125rem
+.threads_alternative_view_wrapper .threads_alternative_view_emoji {
+  height: 4rem;
+  width: 4rem
 }
 
 .threads_alternative_view_wrapper .threads_alternative_view_message {
