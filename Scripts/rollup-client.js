@@ -7710,7 +7710,8 @@
         ts: TS.utility.date.makeTsStamp(),
         text: TS.i18n.t("Hey! Looks like you just posted an emoji response. Did you know you can also react to messages directly with emojis? Click *Add reaction ...* on any message to try it. You can also type `+:emoji_name:` or `{cmd_key}+shift+\\` to react without leaving the comfort of your keyboard. Enjoy! :sparkles:", "client")({
           cmd_key: cmd_key
-        })
+        }),
+        thread_ts: msg.thread_ts
       });
       TS.model.prefs.seen_single_emoji_msg = true;
       TS.prefs.setPrefByAPI({
@@ -12664,7 +12665,7 @@
         }
       }
       if (!skip_red_line && (model_ob.unread_cnt && last_read < TS.client.msg_pane.last_in_stream_msg.ts || last_read < TS.client.msg_pane.last_in_stream_msg.ts)) {
-        var divider_html = TS.templates.messages_unread_divider(last_read);
+        var divider_html = TS.templates.messages_unread_divider();
         if (_$last_read_msg_div && _$last_read_msg_div.length) {
           _$last_read_msg_div.after(divider_html);
         } else {
@@ -38845,7 +38846,7 @@ function timezones_guess() {
             }
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
-            var clog_event = should_broadcast_reply ? "MSG_THREAD_REPLY_BROADCAST" : "MSG_THREAD_REPLY";
+            var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, root_msg.ts, "convo", clog_event);
             TS.client.ui.sendMessage(model_ob, text, root_msg, should_broadcast_reply);
           }
@@ -40692,7 +40693,7 @@ function timezones_guess() {
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
             var context = TS.ui.thread.getContextForEl($thread);
-            var clog_event = should_broadcast_reply ? "MSG_THREAD_REPLY_BROADCAST" : "MSG_THREAD_REPLY";
+            var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event);
             TS.client.ui.sendMessage(model_ob, text, thread.root_msg, should_broadcast_reply);
           }

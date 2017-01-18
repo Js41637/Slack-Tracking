@@ -8915,7 +8915,8 @@ TS.registerModule("constants", {
       TS.client.ui.addEphemeralBotMsg({
         channel: model_ob.id,
         ts: ts,
-        text: bot_text
+        text: bot_text,
+        thread_ts: new_msg.thread_ts
       });
     },
     sendMsg: function(c_id, text, controller, in_reply_to_msg, should_broadcast_reply) {
@@ -23878,17 +23879,14 @@ TS.registerModule("constants", {
       var date = TS.utility.date.toDateObject(ts);
       var now = new Date;
       var a_month = 31 * 24 * 60 * 60 * 1e3;
-      return date.getFullYear() == now.getFullYear() || now - date <= a_month;
+      return date.getFullYear() === now.getFullYear() || now - date <= a_month;
     },
     toCalendarDateOrNamedDayShort: function(ts) {
       var exclude_year = TS.utility.date.shouldExcludeYear(ts);
       return TS.utility.date.toCalendarDateOrNamedDay(ts, true, exclude_year);
     },
     do24hrTime: function() {
-      if (TS.model.user && TS.model.prefs && TS.model.prefs.time24) {
-        return true;
-      }
-      return false;
+      return TS.model.user && TS.model.prefs && TS.model.prefs.time24;
     },
     toFilenameFriendlyDate: function(ts) {
       var date = TS.utility.date.toDateObject(ts);
@@ -31076,7 +31074,7 @@ TS.registerModule("constants", {
         }
         $target.addClass("disabled");
         TS.replies.setSubscriptionState(model_ob_id, msg_ts, !is_subscribed, last_read);
-        var clog_key = is_subscribed ? "THREAD_UNFOLLOW" : "THREAD_FOLLOW";
+        var clog_key = is_subscribed ? "THREADS_UNFOLLOW_CLICKED" : "THREADS_FOLLOW_CLICKED";
         var context = $target.data("context");
         var reply_count = root_msg && root_msg.reply_count ? root_msg.reply_count : 0;
         TS.ui.thread.trackEvent(model_ob_id, msg_ts, context, clog_key, {
