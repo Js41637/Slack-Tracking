@@ -1037,159 +1037,6 @@
 })();
 (function() {
   "use strict";
-  TS.registerModule("api.connection", {
-    onStart: function() {
-      _should_send_timing_data = TS.qs_args["api_timings"] || TS.utility.enableFeatureForUser(_timing_percentage);
-    },
-    test: function() {
-      var test_ob = {};
-      Object.defineProperty(test_ob, "_should_send_timing_data", {
-        get: function() {
-          return _should_send_timing_data;
-        },
-        set: function(v) {
-          _should_send_timing_data = v;
-        }
-      });
-      Object.defineProperty(test_ob, "_internet_connected_p", {
-        get: function() {
-          return _internet_connected_p;
-        },
-        set: function(v) {
-          _internet_connected_p = v;
-        }
-      });
-      Object.defineProperty(test_ob, "_ms_reconnected_p", {
-        get: function() {
-          return _ms_reconnected_p;
-        },
-        set: function(v) {
-          _ms_reconnected_p = v;
-        }
-      });
-      return test_ob;
-    },
-    waitForAPIConnection: function() {
-      if (_internet_connected_p) return _internet_connected_p;
-      var retry_interval = arguments.length <= 0 || arguments[0] === undefined ? 1e3 : arguments[0];
-      var max_retries = arguments[1];
-      var retry_attempts = 0;
-      var retry_interval_value = typeof retry_interval == "function" ? retry_interval() : retry_interval;
-      var retry_interval_ms = retry_interval_value;
-      var _retryLater = function() {
-        if (typeof max_retries == "number" && retry_attempts > max_retries) {
-          var error_msg = "Unable to reconnect to the API after " + retry_attempts + " retry attempts";
-          TS.warn(error_msg);
-          failure_sig.dispatch(new Error(error_msg));
-          return;
-        }
-        if (retry_attempts > 0) {
-          var info = retry_attempts ? "Internet connection still offline after " + retry_attempts + " retry attempts" : "Internet connection still offline";
-          TS.warn(info);
-        }
-        retry_attempts++;
-        setTimeout(_testConnection, retry_interval_ms);
-      };
-      var _onSuccess = function() {
-        if (retry_attempts > 0) {
-          if (_should_send_timing_data) var offline_duration_ms = TS.metrics.measureAndClear("api_offline_duration", "api_connectivity_lost");
-          var offline_duration_s = _.round(offline_duration_ms / 1e3, 2);
-          var message = retry_attempts ? "Internet connection has been re-established after " + retry_attempts + " retry attempts;" : "Internet connection has been re-established";
-          var info = [message, "offline for " + offline_duration_s + " seconds"];
-          TS.info(info.join(" "));
-        }
-        success_sig.dispatch();
-      };
-      var _testConnection = function() {
-        _testAPIConnection(function(is_online) {
-          if (is_online) {
-            _onSuccess();
-          } else {
-            _retryLater();
-          }
-        });
-      };
-      var success_sig = new signals.Signal;
-      var failure_sig = new signals.Signal;
-      if (_should_send_timing_data) TS.metrics.mark("api_connectivity_lost");
-      _internet_connected_p = new Promise(function(resolve, reject) {
-        success_sig.addOnce(function() {
-          _internet_connected_p = undefined;
-          resolve();
-        });
-        failure_sig.addOnce(function(err) {
-          reject(err);
-        });
-        _testConnection();
-      });
-      return _internet_connected_p;
-    },
-    promiseToTestAPIConnection: function() {
-      return new Promise(function(resolve) {
-        _testAPIConnection(function(is_online) {
-          resolve(is_online);
-        });
-      });
-    },
-    waitForMSToReconnect: function() {
-      if (_ms_reconnected_p) {
-        return _ms_reconnected_p;
-      }
-      if (TS.model.ms_connected) {
-        return Promise.resolve();
-      }
-      _ms_reconnected_p = new Promise(function(resolve, reject) {
-        var ms_asleep = TS.model.ms_asleep;
-        var calling_rtm_start = TS.model.calling_rtm_start;
-        var calling_test_fast_reconnect = TS.model.calling_test_fast_reconnect;
-        var info = ["API paused? " + TS.api.isPaused(), "MS asleep? " + ms_asleep, "Starting RTM? " + calling_rtm_start, "Attempting fast reconnect? " + calling_test_fast_reconnect];
-        TS.info("Waiting for the MS to be reconnected. Current state: " + info.join(", "));
-        if (calling_rtm_start) {
-          TS.info("MS not connected, proceeding with rtm.start");
-          _ms_reconnected_p = undefined;
-          resolve();
-          return;
-        }
-        if (calling_test_fast_reconnect) {
-          TS.info("MS not connected, proceeding with a fast reconnect");
-          _ms_reconnected_p = undefined;
-          resolve();
-          return;
-        }
-        TS.info("Listening for the MS connected signal");
-        TS.ms.connected_sig.addOnce(function() {
-          _ms_reconnected_p = undefined;
-          resolve();
-        });
-        if (ms_asleep) {
-          TS.info("MS is not connected, but it is asleep so not trying to wake it up");
-        } else {
-          TS.info("MS is not connected, but it is not asleep, so requesting a reconnect");
-          TS.ms.reconnect_requested_sig.dispatch();
-        }
-      });
-      return _ms_reconnected_p;
-    }
-  });
-  var _internet_connected_p;
-  var _ms_reconnected_p;
-  var _timing_percentage = 1;
-  var _should_send_timing_data;
-  var _testAPIConnection = function(callback) {
-    var connection_timeout_ms = 6e4;
-    $.ajax({
-      url: TS.model.api_url + "api.test",
-      timeout: connection_timeout_ms
-    }).then(function(data, status, resp) {
-      var is_online = !!(data && data.ok);
-      callback(is_online);
-    }).fail(function() {
-      callback(false);
-    });
-  };
-})();
-(function() {
-  "use strict";
   TS.registerModule("api", {
     paused_sig: new signals.Signal,
     unpaused_sig: new signals.Signal,
@@ -2349,6 +2196,159 @@
       return null;
     }).finally(function() {
       _is_checking_to_see_if_service_is_up = false;
+    });
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("api.connection", {
+    onStart: function() {
+      _should_send_timing_data = TS.qs_args["api_timings"] || TS.utility.enableFeatureForUser(_timing_percentage);
+    },
+    test: function() {
+      var test_ob = {};
+      Object.defineProperty(test_ob, "_should_send_timing_data", {
+        get: function() {
+          return _should_send_timing_data;
+        },
+        set: function(v) {
+          _should_send_timing_data = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_internet_connected_p", {
+        get: function() {
+          return _internet_connected_p;
+        },
+        set: function(v) {
+          _internet_connected_p = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_ms_reconnected_p", {
+        get: function() {
+          return _ms_reconnected_p;
+        },
+        set: function(v) {
+          _ms_reconnected_p = v;
+        }
+      });
+      return test_ob;
+    },
+    waitForAPIConnection: function() {
+      if (_internet_connected_p) return _internet_connected_p;
+      var retry_interval = arguments.length <= 0 || arguments[0] === undefined ? 1e3 : arguments[0];
+      var max_retries = arguments[1];
+      var retry_attempts = 0;
+      var retry_interval_value = typeof retry_interval == "function" ? retry_interval() : retry_interval;
+      var retry_interval_ms = retry_interval_value;
+      var _retryLater = function() {
+        if (typeof max_retries == "number" && retry_attempts > max_retries) {
+          var error_msg = "Unable to reconnect to the API after " + retry_attempts + " retry attempts";
+          TS.warn(error_msg);
+          failure_sig.dispatch(new Error(error_msg));
+          return;
+        }
+        if (retry_attempts > 0) {
+          var info = retry_attempts ? "Internet connection still offline after " + retry_attempts + " retry attempts" : "Internet connection still offline";
+          TS.warn(info);
+        }
+        retry_attempts++;
+        setTimeout(_testConnection, retry_interval_ms);
+      };
+      var _onSuccess = function() {
+        if (retry_attempts > 0) {
+          if (_should_send_timing_data) var offline_duration_ms = TS.metrics.measureAndClear("api_offline_duration", "api_connectivity_lost");
+          var offline_duration_s = _.round(offline_duration_ms / 1e3, 2);
+          var message = retry_attempts ? "Internet connection has been re-established after " + retry_attempts + " retry attempts;" : "Internet connection has been re-established";
+          var info = [message, "offline for " + offline_duration_s + " seconds"];
+          TS.info(info.join(" "));
+        }
+        success_sig.dispatch();
+      };
+      var _testConnection = function() {
+        _testAPIConnection(function(is_online) {
+          if (is_online) {
+            _onSuccess();
+          } else {
+            _retryLater();
+          }
+        });
+      };
+      var success_sig = new signals.Signal;
+      var failure_sig = new signals.Signal;
+      if (_should_send_timing_data) TS.metrics.mark("api_connectivity_lost");
+      _internet_connected_p = new Promise(function(resolve, reject) {
+        success_sig.addOnce(function() {
+          _internet_connected_p = undefined;
+          resolve();
+        });
+        failure_sig.addOnce(function(err) {
+          reject(err);
+        });
+        _testConnection();
+      });
+      return _internet_connected_p;
+    },
+    promiseToTestAPIConnection: function() {
+      return new Promise(function(resolve) {
+        _testAPIConnection(function(is_online) {
+          resolve(is_online);
+        });
+      });
+    },
+    waitForMSToReconnect: function() {
+      if (_ms_reconnected_p) {
+        return _ms_reconnected_p;
+      }
+      if (TS.model.ms_connected) {
+        return Promise.resolve();
+      }
+      _ms_reconnected_p = new Promise(function(resolve, reject) {
+        var ms_asleep = TS.model.ms_asleep;
+        var calling_rtm_start = TS.model.calling_rtm_start;
+        var calling_test_fast_reconnect = TS.model.calling_test_fast_reconnect;
+        var info = ["API paused? " + TS.api.isPaused(), "MS asleep? " + ms_asleep, "Starting RTM? " + calling_rtm_start, "Attempting fast reconnect? " + calling_test_fast_reconnect];
+        TS.info("Waiting for the MS to be reconnected. Current state: " + info.join(", "));
+        if (calling_rtm_start) {
+          TS.info("MS not connected, proceeding with rtm.start");
+          _ms_reconnected_p = undefined;
+          resolve();
+          return;
+        }
+        if (calling_test_fast_reconnect) {
+          TS.info("MS not connected, proceeding with a fast reconnect");
+          _ms_reconnected_p = undefined;
+          resolve();
+          return;
+        }
+        TS.info("Listening for the MS connected signal");
+        TS.ms.connected_sig.addOnce(function() {
+          _ms_reconnected_p = undefined;
+          resolve();
+        });
+        if (ms_asleep) {
+          TS.info("MS is not connected, but it is asleep so not trying to wake it up");
+        } else {
+          TS.info("MS is not connected, but it is not asleep, so requesting a reconnect");
+          TS.ms.reconnect_requested_sig.dispatch();
+        }
+      });
+      return _ms_reconnected_p;
+    }
+  });
+  var _internet_connected_p;
+  var _ms_reconnected_p;
+  var _timing_percentage = 1;
+  var _should_send_timing_data;
+  var _testAPIConnection = function(callback) {
+    var connection_timeout_ms = 6e4;
+    $.ajax({
+      url: TS.model.api_url + "api.test",
+      timeout: connection_timeout_ms
+    }).then(function(data, status, resp) {
+      var is_online = !!(data && data.ok);
+      callback(is_online);
+    }).fail(function() {
+      callback(false);
     });
   };
 })();
@@ -51648,10 +51648,13 @@ $.fn.togglify = function(settings) {
     addTeamsToSharedForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (!channel.is_shared) return;
-      var shares = channel.shares;
       if (TS.boot_data.feature_thin_shares) {
-        shares = _(shares).concat(teams_ids).uniq().value();
+        if (channel.is_global_shared) return;
+        var shared_team_ids = channel.shared_team_ids;
+        shared_team_ids = _(shared_team_ids).concat(teams_ids).uniq().value();
+        channel.shared_team_ids = shared_team_ids;
       } else {
+        var shares = channel.shares;
         teams_ids.forEach(function(team_id) {
           var team = TS.enterprise.getTeamById(team_id);
           if (!team) return;
@@ -51660,14 +51663,14 @@ $.fn.togglify = function(settings) {
             team: team
           });
         });
+        channel.shares = shares;
       }
-      channel.shares = shares;
     },
     updateSharesForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (!channel.is_shared) return;
       if (TS.boot_data.feature_thin_shares) {
-        channel.shares = _.uniq(teams_ids);
+        channel.shared_team_ids = _.uniq(teams_ids);
       } else {
         var shares = [];
         teams_ids.forEach(function(team_id) {
@@ -52425,14 +52428,14 @@ $.fn.togglify = function(settings) {
     cmo: "com",
     ocm: "com",
     con: "com",
-    om: "com",
     "com.com": "com",
     vom: "com",
     cim: "com",
     cpm: "com",
     ccom: "com",
     coom: "com",
-    comm: "com"
+    comm: "com",
+    cmm: "com"
   };
   var _DOMAIN_TYPO = {
     gmai: "gmail",

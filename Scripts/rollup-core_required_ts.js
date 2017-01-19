@@ -964,7 +964,6 @@
     if (TS.client) {
       TSSSB.call("didStartLoading", 6e4);
     }
-    _registerDelayedComponentsAndModules();
     if (_shouldConnectToMS()) {
       TS.ms.reconnect_requested_sig.add(_reconnectRequestedMS);
       TS.ms.disconnected_sig.add(_socketDisconnectedMS);
@@ -1080,6 +1079,7 @@
       debugMode: false
     });
     TS.storage.onStart();
+    _registerDelayedComponentsAndModules();
     var initial_rtm_start_p = TS.boot_data.no_login ? Promise.resolve() : _callRTMStart();
     var promises = [_promiseToLoadTemplates(), initial_rtm_start_p];
     if (TS.boot_data.page_needs_enterprise && !TS.boot_data.no_login) {

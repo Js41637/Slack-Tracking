@@ -38979,8 +38979,8 @@ function timezones_guess() {
             }
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
-            TS.ui.replies.clearReplyInput(model_ob, thread_ts);
             var should_broadcast_reply = $("#reply_container .reply_broadcast_toggle").prop("checked");
+            TS.ui.replies.clearReplyInput(model_ob, thread_ts);
             var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, root_msg.ts, "convo", clog_event);
             TS.client.ui.sendMessage(model_ob, text, root_msg, should_broadcast_reply);
@@ -40842,8 +40842,8 @@ function timezones_guess() {
             }
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
-            _clearInput($reply_container, model_ob, thread_ts);
             var should_broadcast_reply = $reply_container.find(".reply_broadcast_toggle").prop("checked");
+            _clearInput($reply_container, model_ob, thread_ts);
             var context = TS.ui.thread.getContextForEl($thread);
             var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event);
