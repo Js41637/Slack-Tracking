@@ -9880,12 +9880,17 @@
       TS.client.msg_input.$input = $input;
       if (TS.boot_data.feature_texty) {
         var eventuallyOnTextChange = _.throttle(function() {
-          var serialized_contents = TS.utility.contenteditable.serialize($input);
-          TS.client.msg_input.storeLastMsgForActiveModelOb(serialized_contents);
-          var plain_text = TS.utility.contenteditable.value($input);
-          _maybePromptForSnippet(plain_text);
-          _maybeToggleSpecialFormatting(plain_text);
-          _maybeUserTyping(plain_text);
+          var value = TS.utility.contenteditable.value($input);
+          if (value.trim()) {
+            var serialized_contents = TS.utility.contenteditable.serialize($input);
+            TS.client.msg_input.storeLastMsgForActiveModelOb(serialized_contents);
+          } else {
+            TS.client.msg_input.storeLastMsgForActiveModelOb("");
+          }
+          _maybePromptForSnippet(value);
+          _maybeToggleSpecialFormatting(value);
+          _maybeUserTyping(value);
+          if (TS.model.prefs.msg_preview) _updateMsgPreview(value);
         }, 100);
         TS.utility.contenteditable.create($input, {
           modules: {
@@ -18102,7 +18107,10 @@
         results.channels = this._getChannelsForQuery(current_word_up_to_caret, is_hash ? null : CHANNEL_RESULT_LIMIT);
         results.groups = this._getGroupsForQuery(current_word_up_to_caret, GROUP_RESULT_LIMIT);
       }
-      if (!is_at) results.profiles = this._getUsersForQuery(query_obj.query, PROFILE_RESULT_LIMIT);
+      if (!is_at) {
+        results.profiles = this._getUsersForQuery(query_obj.query, PROFILE_RESULT_LIMIT);
+        TS.presence_manager.queryMemberPresence(_.map(results.profiles, "id"));
+      }
       if (!is_at && !is_hash) results.history = this._getHistoryForQuery(query_obj.query);
       return results;
     },
@@ -22444,10 +22452,8 @@
         $("#macelectron1_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
           if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
-            var $dismiss_link = $(this).find('[data-action="dismiss_banner"]');
             $("#macelectron1_banner").addClass("hidden");
             TS.ui.banner.close();
-            $dismiss_link.click();
           } else {
             if (!$(e.target).hasClass("mac_downloads_page_link")) {
               var $downloads_page_link = $(this).find(".mac_downloads_page_link");
@@ -22464,10 +22470,8 @@
         $("#macelectron2_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
           if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
-            var $dismiss_link = $(this).find('[data-action="dismiss_banner"]');
             $("#macelectron2_banner").addClass("hidden");
             TS.ui.banner.close();
-            $dismiss_link.click();
           } else {
             if (!$(e.target).hasClass("update_link")) {
               var $update_link = $(this).find(".update_link");
@@ -24143,7 +24147,18 @@
       $div.on("shown", function(e) {
         if (e.target != this) return;
         $(window.document).bind("keydown", TS.ui.shortcuts_dialog.onKeydown);
+        TS.ui.shortcuts_dialog.height = $div.outerHeight() + $div.offset().top;
+        TS.ui.shortcuts_dialog.width = $div.outerWidth();
+        TS.ui.shortcuts_dialog.toggleScrollbars();
+        $(window).on("resize", TS.ui.shortcuts_dialog.toggleScrollbars);
       });
+    },
+    toggleScrollbars: function() {
+      if (!TS.ui.shortcuts_dialog.showing) return;
+      var toggle_single_column = TS.ui.shortcuts_dialog.width > $(window).width();
+      var toggle_scroll = TS.ui.shortcuts_dialog.height > $(window).height() || toggle_single_column;
+      TS.ui.shortcuts_dialog.$div.toggleClass("single_column", toggle_single_column);
+      TS.ui.shortcuts_dialog.$div.toggleClass("scroll_content", toggle_scroll);
     }
   });
 })();
@@ -25829,8 +25844,17 @@
     focus_stack: [],
     unread_message_strings: {},
     $aria_live_div: null,
+    zoom_level_changed_sig: new signals.Signal,
+    zoomPercentToLevel: function(percentage) {
+      return _zoom_percent_to_level[percentage];
+    },
+    zoomLevelToPercent: function(level) {
+      return _zoom_level_to_percent[level];
+    },
     onStart: function() {
       _createAriaLiveElement();
+      _bindResizeListener();
+      _createZoomLevelIndicatorUI();
       TS.channels.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.ims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.groups.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
@@ -26075,6 +26099,18 @@
       };
     }
   });
+  var _zoom_percent_to_level = {
+    80: "-2",
+    90: "-1",
+    normal: "0",
+    110: "1",
+    125: "2",
+    150: "3"
+  };
+  var _zoom_level_to_percent = Object.keys(_zoom_percent_to_level).reduce(function(obj, val, i, arr) {
+    obj[_zoom_percent_to_level[val]] = val;
+    return obj;
+  }, {});
   var _message_element_selectors = ".message, .day_divider, .unread_divider";
   var _is_space = TS.web && TS.web.space;
   var _createAriaLiveElement = function() {
@@ -26125,6 +26161,62 @@
     var $msg_inline_img = $gif.closest(".msg_inline_img");
     $msg_inline_img.attr("data-real-background-image", img_to_replace);
     $msg_inline_img.css("backgroundImage", "url(" + img_to_replace + ")");
+  };
+  var _current_zoom_level;
+  var _bindResizeListener = function() {
+    if (!(TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api)) {
+      return;
+    }
+    _current_zoom_level = TSSSB.call("getZoom");
+    $(window).on("resize", _onResize);
+  };
+  var _onResize = function() {
+    var zoom_level = TSSSB.call("getZoom");
+    if (_current_zoom_level != zoom_level) {
+      _current_zoom_level = zoom_level;
+      TS.ui.a11y.zoom_level_changed_sig.dispatch({
+        zoom_level: zoom_level
+      });
+    }
+  };
+  var _createZoomLevelIndicatorUI = function() {
+    if (!(TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api)) {
+      return;
+    }
+    $("body").append('<div class="zoom_level_indicator hidden"></div>');
+    TS.ui.a11y.zoom_level_changed_sig.add(_showZoomLevel);
+  };
+  var _updateZoomLevel = function(zoom_level) {
+    var value = _zoom_level_to_percent[zoom_level] || "100";
+    var percentage = value == "normal" ? "100" : value;
+    var html = TS.i18n.t("zoom: <strong>{zoom_percentage}%</strong>", "a11y")({
+      zoom_percentage: percentage
+    });
+    $(".zoom_level_indicator").html(html);
+  };
+  var _zoom_indicator_timer;
+  var _showZoomLevel = function(info) {
+    if (TS._incremental_boot || $("body").hasClass("loading")) {
+      return;
+    }
+    var $prefs_modal = $(".prefs_modal.active");
+    if ($prefs_modal.length && $prefs_modal.find(".a11y_pref_zoom").length) {
+      return;
+    }
+    if (_zoom_indicator_timer) {
+      clearTimeout(_zoom_indicator_timer);
+      _zoom_indicator_timer = null;
+    }
+    _updateZoomLevel(info.zoom_level);
+    var $zoom_level_indicator = $(".zoom_level_indicator");
+    $zoom_level_indicator.insertAfter(document.body.lastElementChild);
+    $zoom_level_indicator.removeClass("hidden").show(0);
+    var width = $zoom_level_indicator.outerWidth() / 2;
+    var left = "calc(50vw - " + width + "px)";
+    $zoom_level_indicator.css("left", left);
+    _zoom_indicator_timer = setTimeout(function() {
+      $zoom_level_indicator.fadeOut(100);
+    }, 1e3);
   };
 })();
 (function() {
@@ -31226,30 +31318,18 @@
     });
   };
   var _bindA11yPrefs = function() {
-    var zoom_percent_to_level = {
-      80: "-2",
-      90: "-1",
-      normal: "0",
-      110: "1",
-      125: "2",
-      150: "3"
-    };
-    var zoom_level_to_percent = Object.keys(zoom_percent_to_level).reduce(function(obj, val, i, arr) {
-      obj[zoom_percent_to_level[val]] = val;
-      return obj;
-    }, {});
-    var current_zoom = TSSSB.call("getZoom") || "0";
+    var current_zoom_level = TSSSB.call("getZoom");
     var $a11y_font_size_select_input = $('input:radio[name="a11y_font_size_select"]');
     var setChecked = function(value) {
       $a11y_font_size_select_input.filter('[value="' + value + '"]').prop("checked", true);
     };
-    var checked_value = TS.boot_data.feature_a11y_ui_zoom ? zoom_level_to_percent[current_zoom] : TS.model.prefs.a11y_font_size;
+    var checked_value = TS.boot_data.feature_a11y_ui_zoom ? TS.ui.a11y.zoomLevelToPercent(current_zoom_level) : TS.model.prefs.a11y_font_size;
     setChecked(checked_value);
     $a11y_font_size_select_input.on("change", function() {
       var next_zoom = $(this).val();
       if (TS.boot_data.feature_a11y_ui_zoom) {
-        current_zoom = zoom_percent_to_level[next_zoom];
-        TSSSB.call("setZoom", current_zoom);
+        current_zoom_level = TS.ui.a11y.zoomPercentToLevel(next_zoom);
+        TSSSB.call("setZoom", current_zoom_level);
       } else {
         TS.prefs.setPrefByAPI({
           name: "a11y_font_size",
@@ -31258,11 +31338,11 @@
       }
     });
     if (TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api) {
-      $(window).on("resize", function() {
-        var ssb_zoom_level = TSSSB.call("getZoom");
-        if (current_zoom != ssb_zoom_level) {
-          current_zoom = ssb_zoom_level;
-          setChecked(zoom_level_to_percent[current_zoom]);
+      TS.ui.a11y.zoom_level_changed_sig.add(function(info) {
+        var ssb_zoom_level = info.zoom_level;
+        if (current_zoom_level != ssb_zoom_level) {
+          current_zoom_level = ssb_zoom_level;
+          setChecked(TS.ui.a11y.zoomLevelToPercent(current_zoom_level));
         }
       });
     }

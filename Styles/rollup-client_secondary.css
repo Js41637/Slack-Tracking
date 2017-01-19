@@ -18614,8 +18614,8 @@ ts-thread ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlig
   background: #f9f9f9
 }
 
-ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).show_recap,
-ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).show_recap {
+ts-message.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).show_recap:not(.is_pinned),
+ts-message:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply).show_recap:not(.is_pinned) {
   background: #f3faf6
 }
 
@@ -18980,20 +18980,23 @@ ts-message .pinned_item_message_header .ts_icon_thumb_tack:before {
   font-size: 1.0625rem
 }
 
-ts-message.show_recap,
-ts-message.show_recap:hover {
+ts-message.show_recap:not(.is_pinned) {
   background: #f3faf6
 }
 
-ts-message.show_recap .is_highlights_holder {
+ts-message.show_recap:not(.is_pinned):hover {
+  background: #f3faf6
+}
+
+ts-message.show_recap:not(.is_pinned) .is_highlights_holder {
   display: block
 }
 
-ts-message.show_recap .message_gutter {
+ts-message.show_recap:not(.is_pinned) .message_gutter {
   top: auto
 }
 
-ts-message.show_recap.standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_icon {
+ts-message.show_recap:not(.is_pinned).standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_icon {
   margin-top: .25rem
 }
 

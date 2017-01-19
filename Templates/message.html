@@ -91,7 +91,16 @@
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
           {{#if for_top_results_search_display}}
-            <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">{{#t note="link to scroll back to this message in its original context"}}Jump{{/t}}</a></span>
+            {{#if archive_link}}
+              <span><a class="jump" href="{{archive_link}}" target="{{newWindowName}}">
+                {{#t note="link to view this message in its original context"}}View in Archive{{/t}}</a>
+              </span>
+            {{else}}
+              <span><a class="jump" href="{{permalink}}" target="{{newWindowName}}">
+                {{#t note="link to scroll back to this message in its original context"}}Jump{{/t}}</a>
+              </span>
+            {{/if}}
+
           {{/if}}
         {{/if}}
       </div>
@@ -122,7 +131,11 @@
                 {{makeGroupLink msg.channel}}
               {{/if}}
             {{else}}
-              {{makeChannelLink msg.channel}}
+              {{#if archive_link}}
+                {{msg.channel.name}}
+              {{else}}
+                {{makeChannelLink msg.channel}}
+              {{/if}}
             {{/if_equal}}
           {{/if_equal}}
         </span>

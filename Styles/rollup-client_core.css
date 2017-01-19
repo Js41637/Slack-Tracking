@@ -6672,7 +6672,6 @@ only screen and (min-resolution:2dppx) {
   flex-direction: column;
   background: rgba(0, 0, 0, .9);
   padding: 1rem;
-  height: 550px;
   width: auto;
   -webkit-transform: translateX(-50%);
   -moz-transform: translateX(-50%);
@@ -6697,7 +6696,6 @@ only screen and (min-resolution:2dppx) {
   -moz-flex-direction: column;
   -webkit-flex-direction: column;
   flex-direction: column;
-  height: 100%;
   color: #fff;
   overflow-y: visible;
   max-height: none
@@ -6740,11 +6738,7 @@ only screen and (min-resolution:2dppx) {
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-basis: 80%;
-  -moz-flex-basis: 80%;
-  -ms-flex-preferred-size: 80%;
-  flex-basis: 80%
+  display: flex
 }
 
 #shortcuts_dialog .shortcut_category:nth-child(2) {
@@ -6765,31 +6759,6 @@ only screen and (min-resolution:2dppx) {
 
 #shortcuts_dialog .shortcut_category li li {
   line-height: 2
-}
-
-@media only screen and (max-width:850px) {
-  #shortcuts_dialog .shortcut_categories {
-    display: block
-  }
-}
-
-@media only screen and (max-width:850px),
-only screen and (max-height:650px) {
-  #shortcuts_dialog {
-    height: 80%
-  }
-  #shortcuts_dialog .shortcut_categories {
-    overflow-y: scroll;
-    padding-right: 18px
-  }
-  #shortcuts_dialog .shortcut_categories::-webkit-scrollbar {
-    width: 8px
-  }
-  #shortcuts_dialog .shortcut_categories::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, .9);
-    -webkit-box-shadow: inset 0 0 1px rgba(255, 255, 255, .9)
-  }
 }
 
 #shortcuts_dialog .info_block {
@@ -6828,6 +6797,33 @@ only screen and (max-height:650px) {
   opacity: 1;
   -moz-opacity: 1;
   -khtml-opacity: 1
+}
+
+#shortcuts_dialog.scroll_content {
+  height: 80vh
+}
+
+#shortcuts_dialog.scroll_content .modal-body {
+  height: 100%
+}
+
+#shortcuts_dialog.scroll_content .shortcut_categories {
+  overflow-y: scroll;
+  padding-right: 18px
+}
+
+#shortcuts_dialog.scroll_content .shortcut_categories::-webkit-scrollbar {
+  width: 8px
+}
+
+#shortcuts_dialog.scroll_content .shortcut_categories::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .9);
+  -webkit-box-shadow: inset 0 0 1px rgba(255, 255, 255, .9)
+}
+
+#shortcuts_dialog.single_column .shortcut_categories {
+  display: block
 }
 
 .keyboard {
@@ -7686,4 +7682,16 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
 #recap_nav button ts-icon {
   margin-right: 0rem;
   margin-top: .1875rem
+}
+
+.zoom_level_indicator {
+  position: fixed;
+  top: calc(50vh - 26px);
+  line-height: 2;
+  z-index: 1000000;
+  font-size: 26px;
+  padding: 5px 20px;
+  color: #fff;
+  background: #2c2d30;
+  border-radius: 5px
 }

@@ -21585,6 +21585,12 @@ TS.registerModule("constants", {
           }
           template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
         }
+        if (args.for_top_results_search_display && TS.boot_data.page_needs_enterprise) {
+          if (msg.team && TS.model.team.id != msg.team && !msg.channel.is_shared) {
+            template_args.abs_permalink = msg.permalink;
+            template_args.archive_link = msg.permalink;
+          }
+        }
         if (msg.subtype === "file_share" || msg.subtype === "file_mention" || msg.subtype === "file_reaction") {
           if (msg.file) {
             var get_file_share_html;
@@ -23847,7 +23853,7 @@ TS.registerModule("constants", {
       return TS.utility.date.toCalendarDateOrNamedDayShort(ts);
     },
     convertISOtoUTCReadableDate: function(iso_date_string) {
-      var utc_string_builder = TS.i18n.t("{month} {day, selectordinal, one{#st}two{#nd}few{#rd}other{#th}}{comma, select, true{, {year}}other{}}", "date_utilities");
+      var utc_string_builder = TS.i18n.t("{month} {day}{add_year, select, true{, {year}}other{}}", "date_utilities");
       var utc_string;
       var ms = Date.parse(iso_date_string);
       if (!isNaN(ms)) {
@@ -23856,8 +23862,8 @@ TS.registerModule("constants", {
         var day = date.getUTCDate();
         utc_string = utc_string_builder({
           month: month,
-          day: day,
-          comma: !!date.getUTCFullYear(),
+          day: TS.utility.ordinalNumber(day),
+          add_year: !!date.getUTCFullYear(),
           year: date.getUTCFullYear() ? date.getUTCFullYear() : ""
         });
       }
@@ -23929,34 +23935,56 @@ TS.registerModule("constants", {
         is_pm: is_pm
       });
     },
-    toCalendarDate: function(ts, min, exclude_year, very_min, exclude_day) {
+    toCalendarDate: function(ts, shorten_month, exclude_year, date_short, exclude_day) {
       var date = TS.utility.date.toDateObject(ts);
       var year = date.getFullYear();
       var month = date.getMonth();
       var day = date.getDate();
-      var formatted_time;
-      if (very_min) {
+      var date_str;
+      var date_str_so_far;
+      if (date_short) {
         if (exclude_day) {
-          formatted_time = TS.utility.date.really_short_month_names[month];
+          date_str = TS.utility.date.really_short_month_names[month];
         } else {
-          formatted_time = TS.utility.date.really_short_month_names[month] + " " + day;
+          date_str = TS.i18n.t("{month} {day}", "date_utilities")({
+            month: TS.utility.date.really_short_month_names[month],
+            day: day
+          });
         }
-      } else if (min) {
+      } else if (shorten_month) {
         if (exclude_day) {
-          formatted_time = TS.utility.date.short_month_names[month];
+          date_str = TS.utility.date.short_month_names[month];
         } else {
-          formatted_time = TS.utility.date.short_month_names[month] + " " + TS.utility.ordinalNumber(day);
+          date_str = TS.i18n.t("{month} {day}", "date_utilities")({
+            month: TS.utility.date.short_month_names[month],
+            day: TS.utility.ordinalNumber(day)
+          });
         }
       } else {
         if (exclude_day) {
-          formatted_time = TS.utility.date.month_names[month];
+          date_str = TS.utility.date.month_names[month];
         } else {
-          formatted_time = TS.utility.date.month_names[month] + " " + TS.utility.ordinalNumber(day);
+          date_str = TS.i18n.t("{month} {day}", "date_utilities")({
+            month: TS.utility.date.month_names[month],
+            day: TS.utility.ordinalNumber(day)
+          });
         }
       }
-      if (!exclude_year && !exclude_day) formatted_time += ", " + year;
-      if (!exclude_year && exclude_day) formatted_time += " " + year;
-      return formatted_time;
+      if (!exclude_year && !exclude_day) {
+        date_str_so_far = date_str;
+        date_str = TS.i18n.t("{date}, {year}", "date_utilities")({
+          date: date_str_so_far,
+          year: year
+        });
+      }
+      if (!exclude_year && exclude_day) {
+        date_str_so_far = date_str;
+        date_str = TS.i18n.t("{date} {year}", "date_utilities")({
+          date: date_str_so_far,
+          year: year
+        });
+      }
+      return date_str;
     },
     maybeGetRelativeDay: function(ts, options) {
       var date = TS.utility.date.toDateObject(ts);
@@ -26677,9 +26705,9 @@ TS.registerModule("constants", {
       }
     },
     ordinalNumber: function(number) {
-      number = number.toString();
-      var suffix = number.substr(-Math.min(number.length, 2)) > 3 && number.substr(-Math.min(number.length, 2)) < 21 ? "th" : ["th", "st", "nd", "rd", "th"][Math.min(Number(number) % 10, 4)];
-      return number + suffix;
+      return TS.i18n.t("{number_str, selectordinal, one{#st}two{#nd}few{#rd}other{#th}}", "utilities")({
+        number_str: number.toString()
+      });
     },
     getChannelNameFromUrl: function(url) {
       if (/.com\/+unreads/.test(url)) return "";
@@ -43998,7 +44026,7 @@ $.fn.togglify = function(settings) {
         if (emoji_cnt >= 50 && !TS.rxns.doesRxnsHaveRxn(existing_rxns, name)) {
           _displayTooManyError(TOO_MANY_EMOJI);
           return;
-        } else if (rxns_cnt >= 20) {
+        } else if (rxns_cnt >= 23) {
           _displayTooManyError(TOO_MANY_REACTIONS);
           return;
         }
@@ -44454,7 +44482,7 @@ $.fn.togglify = function(settings) {
   };
   var _displayTooManyError = function(error) {
     var reaction_limit_reached_title = TS.i18n.t("Reaction Limit Reached", "rxns")();
-    var too_many_reactions = TS.i18n.t("A message can contain up to 20 different emojis from a single person. Sorry, you can’t add any more than this!", "rxns")();
+    var too_many_reactions = TS.i18n.t("A message can contain up to 23 different emojis from a single person. Sorry, you can’t add any more than this!", "rxns")();
     var too_many_emoji = TS.i18n.t("A message can contain up to 50 different emojis in its reactions. Sorry, you can’t add any more than this!", "rxns")();
     if (error == TOO_MANY_REACTIONS) {
       TS.generic_dialog.alert(too_many_reactions, reaction_limit_reached_title);
@@ -47223,6 +47251,11 @@ $.fn.togglify = function(settings) {
       if (!match_with_index) return;
       var match = match_with_index.match;
       e.preventDefault();
+      if (TS.boot_data.page_needs_enterprise) {
+        if (match.team && TS.model.team.id != match.team && !match.channel.is_shared && match.permalink) {
+          TS.utility.openInNewTab(match.permalink, "_blank");
+        }
+      }
       var c_id = match.channel && match.channel.id ? match.channel.id : match.channel;
       if (TS.boot_data.feature_message_replies) {
         var model_ob = TS.shared.getModelObById(c_id);
@@ -56121,7 +56154,7 @@ $.fn.togglify = function(settings) {
       return new Promise(function(resolve, reject) {
         var context = TS.attachment_actions.getActionContext($select);
         var payload = {
-          name: TS.model.user.name,
+          name: context.action.name,
           value: query,
           attachment_id: context.attachment.id,
           callback_id: context.attachment.callback_id,
