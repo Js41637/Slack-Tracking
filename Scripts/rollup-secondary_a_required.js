@@ -83,6 +83,7 @@
       _sub_list.push(member);
       _sendSubList();
     }
+    return null;
   };
   var _removeMember = function(member) {
     if (_members[member]) {
@@ -93,6 +94,7 @@
         _sendSubList();
       }
     }
+    return null;
   };
   var _getWaitPromise = function() {
     if (!TS.ms.hasOpenWebSocket()) {
@@ -101,7 +103,7 @@
     return TS.api.connection.waitForMSToReconnect();
   };
   var _sendSubList = function() {
-    if (!_has_started || _sub_list.length === 0 || _is_sub_waiting) return;
+    if (!_has_started || _sub_list.length === 0 || _is_sub_waiting) return null;
     _is_sub_waiting = true;
     _getWaitPromise().then(function() {
       if (!TS.ms.hasOpenWebSocket()) {
@@ -118,7 +120,7 @@
     });
   };
   var _sendQueryList = function() {
-    if (!_has_started || _query_list.length === 0 || _is_query_waiting) return;
+    if (!_has_started || _query_list.length === 0 || _is_query_waiting) return null;
     _is_query_waiting = true;
     _getWaitPromise().then(function() {
       if (!TS.ms.hasOpenWebSocket()) {
@@ -2365,7 +2367,7 @@
       if (channel_model_ob.is_shared && !member_model_ob._is_local) {
         var allowed_teams;
         if (TS.boot_data.feature_thin_shares) {
-          allowed_teams = channel_model_ob.shares;
+          allowed_teams = channel_model_ob.shared_team_ids;
         } else {
           allowed_teams = channel_model_ob.shares.map(function(team) {
             return team.id;
@@ -9810,22 +9812,26 @@ TS.registerModule("constants", {
       var enterprise_team_ids;
       var ncc = 1701;
       if (TS.pri) TS.log(ncc, "isRelevantTeamForSharedModelOb(): " + model_ob.id);
-      if (model_ob.shares) {
-        if (TS.boot_data.feature_thin_shares) {
-          enterprise_team_ids = model_ob.shares;
+      if (TS.boot_data.feature_thin_shares) {
+        if (model_ob.is_global_shared) {
+          enterprise_team_ids = _.map(TS.model.enterprise_teams, "id");
         } else {
+          enterprise_team_ids = model_ob.shared_team_ids;
+        }
+      } else {
+        if (model_ob.shares) {
           enterprise_team_ids = _.map(model_ob.shares, function(item) {
             return item.id;
           });
+          if (enterprise_team_ids.indexOf(TS.model.team.id) === -1) {
+            TS.console.warn('error, TS.model.team.id of "' + TS.model.team.id + '" is not in enterprise_team_ids from model_ob.shares on ' + model_ob.id + "?", model_ob.shares);
+          }
+        } else {
+          if (TS.pri) TS.log(ncc, "no model_ob.shares on " + model_ob.id + ", model ob is " + (!model_ob.is_org_shared ? "NOT " : "") + "org_shared");
+          enterprise_team_ids = _.map(TS.model.enterprise_teams, function(item) {
+            return item.id;
+          });
         }
-        if (enterprise_team_ids.indexOf(TS.model.team.id) === -1) {
-          TS.console.warn('error, TS.model.team.id of "' + TS.model.team.id + '" is not in enterprise_team_ids from model_ob.shares on ' + model_ob.id + "?", model_ob.shares);
-        }
-      } else {
-        if (TS.pri) TS.log(ncc, "no model_ob.shares on " + model_ob.id + ", model ob is " + (!model_ob.is_org_shared ? "NOT " : "") + "org_shared");
-        enterprise_team_ids = _.map(TS.model.enterprise_teams, function(item) {
-          return item.id;
-        });
       }
       if (!enterprise_team_ids) {
         if (TS.pri) TS.log(ncc, "Could not find shared team IDs for " + model_ob.id + "? Exiting.");
@@ -20000,18 +20006,22 @@ TS.registerModule("constants", {
       var aria_label = name + ", " + active_or_regular_channel + (unread_message ? ", " + unread_message : "") + (draft_message ? ", " + draft_message : "");
       return new Handlebars.SafeString(aria_label);
     },
-    makeTeamsThatHaveComplianceExportsBlurb: function(teams) {
-      if (!teams || !teams.length) {
-        return "";
-      }
-      var exports_teams = teams.filter(function(team) {
-        if (TS.boot_data.feature_thin_shares) {
-          var team_ob = TS.enterprise.getTeamById(team);
-          return team_ob.has_compliance_export;
+    makeTeamsThatHaveComplianceExportsBlurb: function(model_ob) {
+      if (!model_ob || !model_ob.is_shared) return "";
+      var exports_teams;
+      if (TS.boot_data.feature_thin_shares) {
+        if (model_ob.is_global_shared) {
+          exports_teams = _.filter(TS.model.enterprise_teams, "has_compliance_export");
         } else {
-          return team.team.has_compliance_export;
+          exports_teams = _(model_ob.shared_team_ids).map(function(id) {
+            return TS.enterprise.getTeamById(id);
+          }).filter("has_compliance_export").value();
         }
-      });
+      } else {
+        exports_teams = model_ob.shares.filter(function(team) {
+          return team.team.has_compliance_export;
+        });
+      }
       var teams = TS.i18n.listify(_.map(exports_teams, "name")).join("");
       var blurb = TS.i18n.t('{team_or_teams} {teams_count, plural, =1 {has} other {have}} <a href="https://get.slack.help/hc/en-us/articles/204897248-Understanding-Slack-data-exports" target="_blank">Compliance Exports</a> enabled which allows their Team Owners to export communication history.', "templates_builders")({
         team_or_teams: teams,
@@ -22639,14 +22649,28 @@ TS.registerModule("constants", {
         if (!TS.boot_data.page_needs_enterprise) return options.inverse(this);
         var does_a_team = false;
         if (channel.is_shared) {
-          does_a_team = channel.shares.some(function(team) {
-            if (TS.boot_data.feature_thin_shares) {
-              var team_ob = TS.enterprise.getTeamById(team);
-              return team_ob.has_compliance_export;
+          if (TS.boot_data.feature_thin_shares) {
+            var teams;
+            if (channel.is_global_shared) {
+              teams = TS.model.enterprise_teams;
             } else {
-              return team.team.has_compliance_export;
+              teams = _.map(channel.shared_team_ids, function(id) {
+                return TS.enterprise.getTeamById(id);
+              });
             }
-          });
+            does_a_team = teams.some(function(team) {
+              return team.has_compliance_export;
+            });
+          } else {
+            does_a_team = channel.shares.some(function(team) {
+              if (TS.boot_data.feature_thin_shares) {
+                var team_ob = TS.enterprise.getTeamById(team);
+                return team_ob.has_compliance_export;
+              } else {
+                return team.team.has_compliance_export;
+              }
+            });
+          }
         }
         return does_a_team ? options.fn(this) : options.inverse(this);
       });
@@ -50163,22 +50187,38 @@ $.fn.togglify = function(settings) {
           $el.removeClass("group_link").removeAttr("data-group-id");
           $el.addClass("channel_link").attr("data-channel-id", item.id);
         }
-        if (item.shares) {
+        if (item.is_shared) {
           var team_icons_html = "";
           var additional_teams = 0;
           var shared_teams = [];
-          item.shares.forEach(function(team, index) {
-            if (index > 9) {
-              additional_teams++;
-              return;
-            }
-            if (TS.boot_data.feature_thin_shares) {
-              var team_ob = TS.enterprise.getTeamById(team);
-              shared_teams.push(team_ob);
+          if (TS.boot_data.feature_thin_shares) {
+            if (item.is_global_shared) {
+              TS.model.enterprise_teams.forEach(function(team, index) {
+                if (index > 9) {
+                  additional_teams++;
+                  return;
+                }
+                shared_teams.push(team);
+              });
             } else {
-              shared_teams.push(team);
+              item.shared_team_ids.forEach(function(id, index) {
+                if (index > 9) {
+                  additional_teams++;
+                  return;
+                }
+                var team_ob = TS.enterprise.getTeamById(id);
+                shared_teams.push(team_ob);
+              });
             }
-          });
+          } else {
+            item.shares.forEach(function(team, index) {
+              if (index > 9) {
+                additional_teams++;
+                return;
+              }
+              shared_teams.push(team);
+            });
+          }
           team_icons_html += TS.templates.shared_channel_list_team_icon({
             teams: shared_teams,
             show_additional_teams: additional_teams > 0,

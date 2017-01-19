@@ -5619,6 +5619,7 @@
         TS.client.msg_pane.checkUnreads();
       });
       var $mouse_down_el = null;
+      _member_presence_list = new TS.PresenceList;
       $("html").bind("mousedown", function(e) {
         TS.model.ui.is_mouse_down = true;
         TS.client.ui.maybeTickleMS();
@@ -7803,6 +7804,7 @@
       return false;
     }
   });
+  var _member_presence_list;
   var _will_rebuild_member_list_toggle_after_promise_resolves = false;
   var _afterSendMsg = function(model_ob) {
     if (model_ob !== TS.model.active_cid) return;
@@ -8048,6 +8050,8 @@
       bot_configure_url: bot_configure_url,
       show_call_action: TS.boot_data.feature_calls && TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT"
     };
+    _member_presence_list.clear();
+    _member_presence_list.add(member.id);
     if (TS.boot_data.page_needs_enterprise) {
       var team = TS.model.team;
       if (team && team.id !== member.team_id) template_args.show_call_action = false;
@@ -9512,6 +9516,7 @@
         this_searchable_member_list._processPage(members);
         this_searchable_member_list._setupLongListView();
         this_searchable_member_list._maybeSetupSearchBar();
+        return null;
       });
     },
     maybeRerenderLongListView: function() {
@@ -9556,6 +9561,7 @@
         } else {
           this_searchable_member_list._showNoResultsState();
         }
+        return null;
       }).then(function() {
         TS.utility.rAF(function() {
           this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
@@ -9563,6 +9569,7 @@
           this_searchable_member_list._matchHeightToContents();
           this_searchable_member_list._recursivelyFillLongListViewToHeight();
         });
+        return null;
       });
     },
     _maybeSetupSearchBar: function() {
@@ -9579,6 +9586,7 @@
           this_searchable_member_list._reset();
           Promise.resolve().then(function() {
             this_searchable_member_list.$_search_input.focus();
+            return null;
           });
         });
         this._maybeRenderFilterBar();
@@ -9595,6 +9603,7 @@
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
         TS.members.joined_team_sig.add(this_searchable_member_list._maybeRenderFilterBar, this_searchable_member_list);
         TS.members.changed_deleted_sig.add(this_searchable_member_list._maybeRenderFilterBar, this_searchable_member_list);
+        return null;
       });
     },
     _setupLongListView: function() {
@@ -9933,6 +9942,12 @@
             _maybeResize();
             _maybeStopPretendingToBeOnline();
             eventuallyOnTextChange();
+          },
+          attributes: {
+            role: "textarea",
+            tabindex: 0,
+            "aria-multiline": true,
+            "aria-haspopup": true
           }
         });
       }
@@ -12797,16 +12812,23 @@
                 var shared_meta_template_args = {
                   model_ob: model_ob
                 };
-                if (!model_ob.shares || TS.model.enterprise_teams.length === model_ob.shares.length) {
-                  shared_meta_template_args.all_teams = true;
-                } else {
-                  var number_of_teams_to_show_in_shared_with_meta = 3;
-                  shared_meta_template_args.and_more_number = model_ob.shares.length - number_of_teams_to_show_in_shared_with_meta;
-                  shared_meta_template_args.more_teams = model_ob.shares.slice(3);
-                  if (TS.boot_data.feature_thin_shares) {
-                    shared_meta_template_args.teams_shared_with = _.map(model_ob.shares, function(id) {
+                var number_of_teams_to_show_in_shared_with_meta = 3;
+                if (TS.boot_data.feature_thin_shares) {
+                  if (model_ob.is_global_shared) {
+                    shared_meta_template_args.all_teams = true;
+                  } else {
+                    shared_meta_template_args.and_more_number = model_ob.shared_team_ids.length - number_of_teams_to_show_in_shared_with_meta;
+                    shared_meta_template_args.more_teams = model_ob.shared_team_ids.slice(number_of_teams_to_show_in_shared_with_meta);
+                    shared_meta_template_args.teams_shared_with = _.map(model_ob.shared_team_ids, function(id) {
                       return TS.enterprise.getTeamById(id);
                     });
+                  }
+                } else {
+                  if (!model_ob.shares || TS.model.enterprise_teams.length === model_ob.shares.length) {
+                    shared_meta_template_args.all_teams = true;
+                  } else {
+                    shared_meta_template_args.and_more_number = model_ob.shares.length - number_of_teams_to_show_in_shared_with_meta;
+                    shared_meta_template_args.more_teams = model_ob.shares.slice(number_of_teams_to_show_in_shared_with_meta);
                   }
                 }
                 var shared_meta_string = TS.templates.shared_channels_channel_meta_info(shared_meta_template_args);
@@ -12859,12 +12881,15 @@
                   shared_meta_template_args.all_teams = true;
                 } else {
                   var number_of_teams_to_show_in_shared_with_meta = 3;
-                  shared_meta_template_args.and_more_number = model_ob.shares.length - number_of_teams_to_show_in_shared_with_meta;
-                  shared_meta_template_args.more_teams = model_ob.shares.slice(3);
                   if (TS.boot_data.feature_thin_shares) {
-                    shared_meta_template_args.teams_shared_with = _.map(model_ob.shares, function(id) {
+                    shared_meta_template_args.and_more_number = model_ob.shared_team_ids.length - number_of_teams_to_show_in_shared_with_meta;
+                    shared_meta_template_args.more_teams = model_ob.shared_team_ids.slice(number_of_teams_to_show_in_shared_with_meta);
+                    shared_meta_template_args.teams_shared_with = _.map(model_ob.shared_team_ids, function(id) {
                       return TS.enterprise.getTeamById(id);
                     });
+                  } else {
+                    shared_meta_template_args.and_more_number = model_ob.shares.length - number_of_teams_to_show_in_shared_with_meta;
+                    shared_meta_template_args.more_teams = model_ob.shares.slice(number_of_teams_to_show_in_shared_with_meta);
                   }
                 }
                 var shared_meta_string = TS.templates.shared_channels_channel_meta_info(shared_meta_template_args);
@@ -21920,9 +21945,13 @@
         channel: channel
       };
       if (TS.boot_data.page_needs_enterprise && channel.is_shared && TS.boot_data.feature_thin_shares) {
-        template_args.teams_shared_with = _.map(channel.shares, function(id) {
-          return TS.enterprise.getTeamById(id);
-        });
+        if (channel.is_global_shared) {
+          template_args.teams_shared_with = TS.model.enterprise_teams;
+        } else {
+          template_args.teams_shared_with = _.map(channel.shared_team_ids, function(id) {
+            return TS.enterprise.getTeamById(id);
+          });
+        }
       }
       _$msgs_overlay.html(TS.templates.channel_join_overlay(template_args));
       _performCancel = function(e) {
@@ -21939,9 +21968,13 @@
         channel: channel
       };
       if (TS.boot_data.page_needs_enterprise && channel.is_shared && TS.boot_data.feature_thin_shares) {
-        template_args.teams_shared_with = _.map(channel.shares, function(id) {
-          return TS.enterprise.getTeamById(id);
-        });
+        if (channel.is_global_shared) {
+          template_args.teams_shared_with = TS.model.enterprise_teams;
+        } else {
+          template_args.teams_shared_with = _.map(channel.shared_team_ids, function(id) {
+            return TS.enterprise.getTeamById(id);
+          });
+        }
       }
       _$msgs_overlay.html(TS.templates.channel_create_overlay(template_args));
       _performCancel = function(e) {
@@ -25280,9 +25313,15 @@
       });
       var preselected_ids;
       if (TS.boot_data.feature_thin_shares) {
-        preselected_ids = model_ob.shares.filter(function(id) {
-          return id !== TS.model.team.id;
-        });
+        if (model_ob.is_global_shared) {
+          preselected_ids = _(TS.model.enterprise_teams).map("id").filter(function(id) {
+            return id !== TS.model.team.id;
+          }).value();
+        } else {
+          preselected_ids = model_ob.shared_team_ids.filter(function(id) {
+            return id !== TS.model.team.id;
+          });
+        }
       } else {
         preselected_ids = _.map(model_ob.shares, function(team) {
           return team.id;
@@ -27968,10 +28007,12 @@
       template_args.days_since_creation = 1;
     }
     template_args.creation_date = model_ob.created * 1e3;
-    if (TS.boot_data.page_needs_enterprise && model_ob.shares && TS.boot_data.feature_thin_shares) {
-      template_args.teams_shared_with = _.map(model_ob.shares, function(id) {
-        return TS.enterprise.getTeamById(id);
-      });
+    if (TS.boot_data.feature_thin_shares) {
+      if (TS.boot_data.page_needs_enterprise && model_ob.shared_team_ids) {
+        template_args.teams_shared_with = _.map(model_ob.shared_team_ids, function(id) {
+          return TS.enterprise.getTeamById(id);
+        });
+      }
     }
     _$details.html(TS.templates.channel_page_details(template_args)).removeClass("hidden");
   };
@@ -29770,8 +29811,10 @@
       if (_ladda) _ladda.start();
       TS.ims.promiseToStartImByMemberId(_selected_members[0].id).then(function() {
         TS.ui.fs_modal.close();
+        return null;
       }).finally(function() {
         if (_ladda) _ladda.stop();
+        return null;
       });
       return;
     }
@@ -30315,7 +30358,11 @@
       if (_channel.is_shared) {
         var org_team_ids;
         if (TS.boot_data.feature_thin_shares) {
-          org_team_ids = _channel.shares || [];
+          if (_channel.is_global_shared) {
+            org_team_ids = _.map(TS.model.enterprise_teams, "id");
+          } else {
+            org_team_ids = _channel.shared_team_ids || [];
+          }
         } else {
           org_team_ids = _.map(_channel.shares || [], "team.id");
         }
@@ -30458,10 +30505,16 @@
         };
         if (_channel.is_shared && other_org_members_exist) {
           if (TS.boot_data.feature_thin_shares) {
-            template_args.teams = [TS.model.team.name].concat(_.map(_channel.shares, function(id) {
-              var team = TS.enterprise.getTeamById(id);
-              return team.name;
-            }));
+            var shared_teams;
+            if (_channel.is_global_shared) {
+              shared_teams = _.map(TS.model.enterprise_teams, "name");
+            } else {
+              shared_teams = _.map(_channel.shared_team_ids, function(id) {
+                var team = TS.enterprise.getTeamById(id);
+                return team.name;
+              });
+            }
+            template_args.teams = [TS.model.team.name].concat(shared_teams);
           } else {
             template_args.teams = [TS.model.team.name].concat(_.map(_channel.shares, "team.name"));
           }

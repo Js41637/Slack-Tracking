@@ -5113,6 +5113,22 @@ only screen and (min-resolution:2dppx) {
   height: 173px
 }
 
+@media only screen and (max-height:600px) {
+  #snippet_dialog .modal-body {
+    max-height: 350px;
+    overflow-y: scroll;
+    padding-right: 1.5rem
+  }
+}
+
+@media only screen and (max-height:550px) {
+  #snippet_dialog .modal-body {
+    max-height: 300px;
+    overflow-y: scroll;
+    padding-right: 1.5rem
+  }
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
