@@ -18,7 +18,8 @@
       {{/if}}
     {{else}}
       {{#if relative_ts}}
-        {{toTimeAgoShort msg.ts}}
+        <span class="light_only">{{toTimeAgoShort msg.ts false}}</span>
+        <span class="dense_only">{{toTimeAgoShort msg.ts true}}</span>
       {{else}}
         {{{toTime msg.ts}}}
       {{/if}}

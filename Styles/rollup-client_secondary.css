@@ -1212,6 +1212,10 @@ input.search_input {
   color: #babbbf
 }
 
+.searchable_member_list_filter_menu ul li:hover a span {
+  color: #fff
+}
+
 #flannel_team_dir_loading {
   display: inline-block;
   vertical-align: top;
@@ -16915,7 +16919,6 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   margin: 0 auto;
   padding-left: 1.875rem;
   padding-right: 1.875rem;
-  padding-bottom: 1.875rem;
   width: 43.75rem
 }
 

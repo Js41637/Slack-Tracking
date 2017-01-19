@@ -2,32 +2,6 @@
 
 <h2>{{#t note="heading for accessibility preferences"}}Accessibility{{/t}}</h2>
 
-{{#if font_size_pref_enabled}}
-  <fieldset class="large_bottom_margin">
-    <legend id="prefs_a11y_font_size">{{#t}}Font Size{{/t}}</legend>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="normal" datainlinesaver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Default</strong> size at 100%{{/t}}
-    </label>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="110" datainlinesaver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Medium</strong> size at 110%{{/t}}
-    </label>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="125" datainlinesaver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Larger</strong> size at 125%{{/t}}
-    </label>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="150" datainlinesaver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Largest</strong> size at 150%{{/t}}
-    </label>
-  </fieldset>
-{{/if}}
-
 {{#if zoom_pref_enabled}}
   <div class="a11y_pref_zoom">
     <fieldset class="large_bottom_margin">
@@ -92,3 +66,37 @@
     </div>
   </div>
 {{/if}}
+
+{{#if font_size_pref_enabled}}
+  <fieldset class="large_bottom_margin">
+    <legend id="prefs_a11y_font_size">{{#t}}Font Size{{/t}}</legend>
+
+    <label class="radio normal">
+      <input name="a11y_font_size_select" type="radio" value="normal" data-inline-saver="#prefs_a11y_font_size">
+      {{#t note="setting for text size"}}<strong>Default</strong> size at 100%{{/t}}
+    </label>
+
+    <label class="radio normal">
+      <input name="a11y_font_size_select" type="radio" value="110" data-inline-saver="#prefs_a11y_font_size">
+      {{#t note="setting for text size"}}<strong>Medium</strong> size at 110%{{/t}}
+    </label>
+
+    <label class="radio normal">
+      <input name="a11y_font_size_select" type="radio" value="125" data-inline-saver="#prefs_a11y_font_size">
+      {{#t note="setting for text size"}}<strong>Larger</strong> size at 125%{{/t}}
+    </label>
+
+    <label class="radio normal">
+      <input name="a11y_font_size_select" type="radio" value="150" data-inline-saver="#prefs_a11y_font_size">
+      {{#t note="setting for text size"}}<strong>Largest</strong> size at 150%{{/t}}
+    </label>
+  </fieldset>
+{{/if}}
+
+<fieldset>
+  <legend><span id="prefs_a11y_animations">{{#t}}Animation{{/t}}</span></legend>
+  <label class="checkbox">
+    <input id="a11y_animations" type="checkbox" data-inline-saver="#prefs_a11y_animations">
+    {{#t}}Allow animated images and emoji{{/t}}
+  </label>
+</fieldset>

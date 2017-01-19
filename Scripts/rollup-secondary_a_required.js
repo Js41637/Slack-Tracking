@@ -6034,7 +6034,7 @@ TS.registerModule("constants", {
       if (!file.thumb_360 && !file.thumb_360_gif) return false;
       if (!options) options = {};
       if (!options.max_size) options.max_size = 480;
-      if (TS.boot_data.feature_a11y_pref_no_animation && TS.model.prefs.a11y_animations === false && file.filetype === "gif") {
+      if (TS.model.prefs.a11y_animations === false && file.filetype === "gif") {
         if (file.deanimate_gif) {
           return file.deanimate_gif;
         } else {
@@ -7116,7 +7116,7 @@ TS.registerModule("constants", {
       link_url: file.url_private,
       internal_file_id: file.id
     };
-    if (TS.boot_data.feature_a11y_pref_no_animation && file.filetype === "gif") {
+    if (file.filetype === "gif") {
       if (file.deanimate_gif) {
         TS.inline_imgs.makeInternalInlineImg(file.deanimate_gif, inline_img);
       } else if (file.thumb_160) {
@@ -19647,9 +19647,7 @@ TS.registerModule("constants", {
         html += 'style="width: ' + Math.round(reserved_width) + "px; height: " + Math.round(reserved_height) + 'px;"';
       }
       html += ">";
-      if (TS.boot_data.feature_a11y_pref_no_animation) {
-        inline_img.proxied_src = TS.utility.getImgProxyURLWithOptions(inline_img.src, {});
-      }
+      inline_img.proxied_src = TS.utility.getImgProxyURLWithOptions(inline_img.src, {});
       var src = TS.utility.htmlEntities(inline_img.proxied_src || inline_img.src);
       var figure_class = hide_by_default ? "msg_inline_img msg_inline_child hidden" : "msg_inline_img msg_inline_child";
       var figure_attr = hide_by_default ? 'data-real-background-image="' + src + '"' : 'style="background-image:url(' + src + ');"';
@@ -27536,7 +27534,7 @@ TS.registerModule("constants", {
         test_url = url.replace(/^https:\/\//, "");
         for (i = 0, j = whitelist.length; i < j; i++) {
           if (test_url.indexOf(whitelist[i] + "/") === 0) {
-            if ((opts.stop_animations || TS.boot_data.feature_a11y_pref_no_animation) && whitelist[i] === "slack-imgs.com") {
+            if (opts.stop_animations && whitelist[i] === "slack-imgs.com") {
               var o1 = TS.utility.url.urlQueryStringParse(test_url).o1;
               var value = opts.stop_animations || TS.model.prefs.a11y_animations === false ? o1 ? o1 + ".gu" : "gu" : o1 && o1.replace(/\.gu|gu/, "");
               return TS.utility.url.setUrlQueryStringValue(url, "o1", value);
@@ -27568,7 +27566,7 @@ TS.registerModule("constants", {
       if (opts.convert_ico) {
         optparts.push("ip");
       }
-      if (opts.stop_animations || TS.boot_data.feature_a11y_pref_no_animation && TS.model.prefs.a11y_animations == false) {
+      if (opts.stop_animations || TS.model.prefs.a11y_animations == false) {
         optparts.push("gu");
       }
       if (optparts.length > 0) {
@@ -44989,6 +44987,9 @@ $.fn.togglify = function(settings) {
       instance._page_number = 1;
       instance._slug_id_counter = 1;
       instance.run = _run;
+      if (!_.isUndefined(instance.input_debounce_wait_time)) {
+        _onInputInput = _.debounce(_onInputInput, instance.input_debounce_wait_time);
+      }
       if (instance.data_promise) {
         if (instance._running_promise) instance._running_promise.cancel("Uhhh...");
         instance._running_promise = instance.data_promise("").then(function(response) {
@@ -45034,6 +45035,7 @@ $.fn.togglify = function(settings) {
       }
       return text.toLowerCase().indexOf(query) > -1;
     },
+    input_debounce_wait_time: undefined,
     max_selected_items: Infinity,
     monkey_scroll: true,
     no_default_selection: false,
@@ -45238,17 +45240,7 @@ $.fn.togglify = function(settings) {
     }
   };
   var _bindUI = function(instance) {
-    instance.$input.on("input", function() {
-      var query = $(this).val();
-      if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
-        var slugs = query.split(instance.sluggify.delimiter);
-        slugs.forEach(function(slug) {
-          if (slug.length) _addUserCreatedSlugFromString(instance, slug);
-        });
-      } else {
-        _runQuery(instance, query, true);
-      }
-    });
+    instance.$input.on("input", _onInputInput.bind(null, instance));
     instance.$input.on("keydown", function(e) {
       if (instance.disabled) return;
       switch (e.keyCode) {
@@ -45841,6 +45833,17 @@ $.fn.togglify = function(settings) {
       if (!TS.environment.supports_custom_scrollbar) {
         this.$input_container.monkeyScroll();
       }
+    }
+  };
+  var _onInputInput = function(instance) {
+    var query = instance.$input.val();
+    if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
+      var slugs = query.split(instance.sluggify.delimiter);
+      slugs.forEach(function(slug) {
+        if (slug.length) _addUserCreatedSlugFromString(instance, slug);
+      });
+    } else {
+      _runQuery(instance, query, true);
     }
   };
   var _runQuery = function(instance, query, keep_value) {
@@ -47095,7 +47098,9 @@ $.fn.togglify = function(settings) {
             if (TS.boot_data.feature_message_replies_inline) {
               TS.ui.thread.startInlineThread(model_ob, msg, $msg_el);
             } else {
-              TS.ui.replies.openConversation(model_ob, thread_ts);
+              TS.ui.utility.preventElementFromScrolling($msg_el, function() {
+                TS.ui.replies.openConversation(model_ob, thread_ts);
+              });
             }
           }
           break;
@@ -47831,7 +47836,9 @@ $.fn.togglify = function(settings) {
       var model_ob_id = $msg_el.attr("data-model-ob-id");
       var model_ob = TS.shared.getModelObById(model_ob_id);
       if (!model_ob) return;
-      TS.ui.replies.openConversation(model_ob, thread_ts, null, origin);
+      TS.ui.utility.preventElementFromScrolling($msg_el, function() {
+        TS.ui.replies.openConversation(model_ob, thread_ts, null, origin);
+      });
       return;
     });
     TS.click.addWebHandler(".reply_bar", function(e, $el, origin) {
@@ -56029,6 +56036,7 @@ $.fn.togglify = function(settings) {
             classes: "select_attachment message_menu_style",
             disabled: $el.attr("disabled"),
             filter: _filter,
+            input_debounce_wait_time: 250,
             no_default_selection: !has_selected_options,
             onItemAdded: _onItemAdded,
             onListHidden: _onListHidden,

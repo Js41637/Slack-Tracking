@@ -150,11 +150,11 @@
           <span class="meta meta_feature_fix_files message_body no_jumbomoji">
             {{#if uploader}}
               {{#if_equal file.mode compare="snippet"}}
-                {{#t note="[sender] commented on joe's snippet" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive uploader.name)}}
+                {{#t note="[sender] commented on joe's snippet" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive (getMemberDisplayNameById uploader.id))}}
                   commented on {uploader_link}{uploader_possessive} snippet
                 {{/t}}
               {{else}}
-                {{#t note="[sender] commented on joe's file" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive uploader.name)}}
+                {{#t note="[sender] commented on joe's file" uploader_link=(makeMemberPreviewLinkById uploader.id false) uploader_possessive=(possessive (getMemberDisplayNameById uploader.id))}}
                   commented on {uploader_link}{uploader_possessive} file
                 {{/t}}
               {{/if_equal}}

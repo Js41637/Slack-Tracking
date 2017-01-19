@@ -7177,12 +7177,8 @@
               var attachment = resp.data.attachments[url];
               var $el = $("#" + id);
               if (!$el.length) return;
-              if (TS.boot_data.feature_a11y_pref_no_animation) {
-                if (TS.model.prefs.a11y_animations === false) {
-                  if (attachment["file_type"] === "gif") {
-                    return;
-                  }
-                }
+              if (TS.model.prefs.a11y_animations === false && attachment["file_type"] === "gif") {
+                return;
               }
               var unfurled_html = TS.inline_attachments.renderStandaloneAttachment(attachment);
               var was_at_bottom = TS.client.ui.areMsgsScrolledToBottom();
@@ -30677,8 +30673,7 @@
         show_mac_ssb_prefs: _show_mac_ssb_prefs,
         show_win_ssb_prefs: _show_win_ssb_prefs,
         show_lin_ssb_prefs: _show_lin_ssb_prefs,
-        show_labs_prefs: TS.boot_data.feature_tinyspeck,
-        show_a11y_prefs: TS.boot_data.feature_a11y_pref
+        show_labs_prefs: TS.boot_data.feature_tinyspeck
       });
     }
     _is_open = true;
@@ -31318,6 +31313,15 @@
     });
   };
   var _bindA11yPrefs = function() {
+    var $a11y_animations = $("#a11y_animations");
+    $a11y_animations.prop("checked", TS.model.prefs.a11y_animations === true);
+    $a11y_animations.on("change", function() {
+      var val = !!$(this).prop("checked");
+      TS.prefs.setPrefByAPI({
+        name: "a11y_animations",
+        value: val
+      });
+    });
     var current_zoom_level = TSSSB.call("getZoom");
     var $a11y_font_size_select_input = $('input:radio[name="a11y_font_size_select"]');
     var setChecked = function(value) {
@@ -31456,17 +31460,6 @@
         value: val
       });
     });
-    if (TS.boot_data.feature_a11y_pref_no_animation) {
-      var $a11y_animations = $("#a11y_animations");
-      $a11y_animations.prop("checked", TS.model.prefs.a11y_animations === true);
-      $a11y_animations.on("change", function() {
-        var val = !!$(this).prop("checked");
-        TS.prefs.setPrefByAPI({
-          name: "a11y_animations",
-          value: val
-        });
-      });
-    }
     $("#ls_disabled_cb").prop("checked", TS.model.prefs.ls_disabled === true);
     $("#ls_disabled_cb").bind("change", function() {
       var val = !!$(this).prop("checked");
@@ -33869,18 +33862,10 @@ function timezones_guess() {
   };
   var _getImageSrc = function(config) {
     var scaled_src = config.file.url_private;
-    if (TS.boot_data.feature_a11y_pref_no_animation) {
-      if (TS.model.prefs.a11y_animations === false) {
-        if (config.file.filetype === "gif") {
-          if (config.file.deanimate_gif) {
-            scaled_src = config.file.deanimate_gif;
-          } else {
-            scaled_src = TS.files.getThumbSrcForFile(config.file, {
-              max_size: 1024
-            });
-          }
-        }
-      }
+    if (TS.model.prefs.a11y_animations === false && config.file.filetype === "gif") {
+      scaled_src = config.file.deanimate_gif || TS.files.getThumbSrcForFile(config.file, {
+        max_size: 1024
+      });
     }
     if (config.file.mode === "external") scaled_src = TS.files.getThumbSrcForFile(config.file, {
       max_size: 1024

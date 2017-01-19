@@ -798,7 +798,10 @@
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Finding initial channel");
       _ensureInitialChannelIsKnown();
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji and shared channels");
-      return Promise.join(TS.emoji.setUpEmoji().catch(_.noop), _maybeFetchInitialSharedChannelInfo());
+      return Promise.join(TS.emoji.setUpEmoji().catch(function() {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji failed, trying to move forward anyway...");
+        return;
+      }), _maybeFetchInitialSharedChannelInfo());
     }).then(function() {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Nearly there! Finalizing...");
       if (!TS.model.ms_logged_in_once) _finalizeFirstBoot(resp.data);
@@ -839,9 +842,13 @@
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra enterprise data; completing login");
       return;
     }
-    if (TS.model.ms_logged_in_once) return;
+    if (TS.model.ms_logged_in_once) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: we have previously connected to the MS, no need to set up shared channels");
+      return;
+    }
     var model_ob = TS.shared.getModelObById(TS.model.initial_cid);
     if (!model_ob) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: error setting up shared channels");
       throw new Error("TS.model.initial_cid (" + TS.model.initial_cid + ") referred to a channel that does not exist, which should be impossible");
     }
     if (model_ob.is_shared && model_ob.is_channel) {
@@ -856,6 +863,7 @@
         if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got groups.info, completing login");
       });
     }
+    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: no work needed to set up shared channels, moving on");
   };
   var _finalizeFirstBoot = function(rtm_start_data) {
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _finalizeFirstBoot");
@@ -3466,9 +3474,13 @@
     },
     setUpEmoji: function() {
       return new Promise(function(resolve) {
-        if (!_emoji) return resolve();
+        if (!_emoji) {
+          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Done setting up emoji, there was nothing to do");
+          return resolve();
+        }
         var complete = function() {
           _customEmojiDidChange();
+          if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Done setting up emoji");
           resolve();
         };
         _customEmojiWillChange();
@@ -3483,6 +3495,7 @@
             return complete();
           }
         }
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Fetching emoji list before setting up emoji");
         TS.api.call("emoji.list", {
           include_complex_values: 1
         }, function(ok, data, args) {
@@ -3823,12 +3836,9 @@
         if (px !== null && py !== null) {
           value = [px, py];
         } else if (url) {
-          value = url;
-          if (TS.boot_data.feature_a11y_pref_no_animation && _.get(TS, "model.prefs.a11y_animations") === false) {
-            value = TS.utility.getImgProxyURLWithOptions(url, {
-              emoji: true
-            });
-          }
+          value = _.get(TS, "model.prefs.a11y_animations") === false ? TS.utility.getImgProxyURLWithOptions(url, {
+            emoji: true
+          }) : url;
         } else {
           TS.error('WTF, _emoji "' + idx + '" is missing coords or and a url, or something!');
           continue;
