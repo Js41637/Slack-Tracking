@@ -9884,18 +9884,19 @@
     bind: function($input) {
       TS.client.msg_input.$input = $input;
       if (TS.boot_data.feature_texty) {
-        var eventuallyOnTextChange = _.throttle(function() {
+        var eventuallyOnTextChange = _.throttle(function(source) {
           var value = TS.utility.contenteditable.value($input);
+          _maybePromptForSnippet(value);
+          _maybeToggleSpecialFormatting(value);
+          _maybeUserTyping(value);
+          if (TS.model.prefs.msg_preview) _updateMsgPreview(value);
+          if (source === "silent") return;
           if (value.trim()) {
             var serialized_contents = TS.utility.contenteditable.serialize($input);
             TS.client.msg_input.storeLastMsgForActiveModelOb(serialized_contents);
           } else {
             TS.client.msg_input.storeLastMsgForActiveModelOb("");
           }
-          _maybePromptForSnippet(value);
-          _maybeToggleSpecialFormatting(value);
-          _maybeUserTyping(value);
-          if (TS.model.prefs.msg_preview) _updateMsgPreview(value);
         }, 100);
         TS.utility.contenteditable.create($input, {
           modules: {
@@ -9938,10 +9939,10 @@
             if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input);
             return false;
           },
-          onTextChange: function() {
+          onTextChange: function(source) {
             _maybeResize();
             _maybeStopPretendingToBeOnline();
-            eventuallyOnTextChange();
+            eventuallyOnTextChange(source);
           },
           attributes: {
             role: "textarea",
@@ -38962,10 +38963,9 @@ function timezones_guess() {
             TS.ui.replies.clearReplyInput(model_ob, thread_ts);
           });
           if (handled_reaction) return;
-          var should_broadcast_reply = $("#reply_container .reply_broadcast_toggle").prop("checked");
-          TS.ui.replies.clearReplyInput(model_ob, thread_ts);
           if (text.substr(0, 1) == "/" && text.substr(0, 2) != "//") {
             if (text.indexOf("/shrug") === 0) {
+              TS.ui.replies.clearReplyInput(model_ob, thread_ts);
               TS.client.ui.sendSlashCommand(model_ob, text, root_msg);
             } else {
               TS.client.ui.addOrFlashEphemeralBotMsg({
@@ -38979,6 +38979,8 @@ function timezones_guess() {
             }
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
+            TS.ui.replies.clearReplyInput(model_ob, thread_ts);
+            var should_broadcast_reply = $("#reply_container .reply_broadcast_toggle").prop("checked");
             var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, root_msg.ts, "convo", clog_event);
             TS.client.ui.sendMessage(model_ob, text, root_msg, should_broadcast_reply);
@@ -40814,18 +40816,19 @@ function timezones_guess() {
             TS.generic_dialog.alert(TS.i18n.t("This channel has been archived; you cannot send messages to it.", "threads")());
             return;
           }
-          var should_broadcast_reply = $reply_container.find(".reply_broadcast_toggle").prop("checked");
-          _clearInput($reply_container, model_ob, thread_ts);
           var last_reply = _.last(thread.replies);
           if (thread.max_visible_ts) {
             last_reply = _.findLast(thread.replies, function(msg) {
               return msg.ts <= thread.max_visible_ts;
             });
           }
-          var handled_reaction = TS.client.ui.maybeHandleReactionCmd(last_reply, text);
+          var handled_reaction = TS.client.ui.maybeHandleReactionCmd(last_reply, text, function() {
+            _clearInput($reply_container, model_ob, thread_ts);
+          });
           if (handled_reaction) return;
           if (text.substr(0, 1) == "/" && text.substr(0, 2) != "//") {
             if (text.indexOf("/shrug") === 0) {
+              _clearInput($reply_container, model_ob, thread_ts);
               TS.client.ui.sendSlashCommand(model_ob, text, thread.root_msg);
             } else {
               TS.client.ui.addOrFlashEphemeralBotMsg({
@@ -40839,6 +40842,8 @@ function timezones_guess() {
             }
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
+            _clearInput($reply_container, model_ob, thread_ts);
+            var should_broadcast_reply = $reply_container.find(".reply_broadcast_toggle").prop("checked");
             var context = TS.ui.thread.getContextForEl($thread);
             var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event);

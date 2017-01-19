@@ -10162,6 +10162,33 @@ TS.registerModule("constants", {
 })();
 (function() {
   "use strict";
+  TS.registerModule("teams", {});
+})();
+(function() {
+  "use strict";
+  TS.registerModule("utility.teams", {
+    isMemberExternal: function(member) {
+      if (!TS.model.shared_channels_enabled) return false;
+      if (!_.isObject(member)) return false;
+      return member.team_id ? member.team_id != TS.model.team.id : false;
+    },
+    isMemberGuest: function(member) {
+      if (!_.isObject(member)) return false;
+      if (member.is_external || member.is_restricted) return true;
+      return false;
+    },
+    isMsgFromOtherTeam: function(msg) {
+      if (!_.isObject(msg)) return false;
+      if (!msg.source_team_id) return false;
+      if (msg.source_team_id && TS.model.team.id != msg.source_team_id) {
+        return true;
+      }
+      return false;
+    }
+  });
+})();
+(function() {
+  "use strict";
   TS.registerModule("members", {
     status_changed_sig: new signals.Signal,
     presence_changed_sig: new signals.Signal,
@@ -10750,11 +10777,6 @@ TS.registerModule("constants", {
       var member = TS.members.getMemberById(id);
       return member && member._is_external && member.team_id;
     },
-    isMemberExternal: function(member) {
-      if (!TS.model.shared_channels_enabled) return false;
-      if (member.team_id != TS.model.team.id) return true;
-      return false;
-    },
     isMemberInDnd: function(member) {
       return !!member._is_in_dnd;
     },
@@ -11341,7 +11363,7 @@ TS.registerModule("constants", {
     member.mentions = [];
     _setPresenceForNewMember(member);
     if (TS.boot_data.feature_external_shared_channels_ui) {
-      member.is_external = TS.members.isMemberExternal(member);
+      member.is_external = TS.utility.teams.isMemberExternal(member);
     }
     _setImAndMpimNames(member);
   };
@@ -18006,9 +18028,9 @@ TS.registerModule("constants", {
     makeMemberPresenceIcon: function(member) {
       var presence_class = TS.templates.makeMemberPresenceDomClass(member.id);
       var presence_icon_class = "ts_icon_presence";
-      var external_member = TS.members.isMemberExternal(member);
+      var guest_member = TS.utility.teams.isMemberGuest(member);
       if (TS.boot_data.feature_external_shared_channels_ui) {
-        if (external_member || member.is_ultra_restricted || member.is_restricted) {
+        if (guest_member) {
           presence_class += " guest";
           presence_icon_class = "ts_icon_presence_ra";
         } else if (member.is_slackbot) {
@@ -24781,13 +24803,6 @@ TS.registerModule("constants", {
     isFileMsg: function(msg) {
       return msg && TS.utility.msgs.file_subtypes.indexOf(msg.subtype) >= 0;
     },
-    isMsgFromOtherTeam: function(msg) {
-      if (!msg.source_team_id) return false;
-      if (msg.source_team_id && TS.model.team.id != msg.source_team_id) {
-        return true;
-      }
-      return false;
-    },
     getMsgActions: function(msg, model_ob) {
       if (!msg) return;
       model_ob = model_ob || TS.shared.getActiveModelOb();
@@ -24797,7 +24812,7 @@ TS.registerModule("constants", {
       };
       var msg_belongs_to_user = false;
       if (msg.user == TS.model.user.id) msg_belongs_to_user = true;
-      var msg_from_other_team = TS.utility.msgs.isMsgFromOtherTeam(msg);
+      var msg_from_other_team = TS.utility.teams.isMsgFromOtherTeam(msg);
       if (msg.file && msg.file.mode === "email") {
         actions.open_original = true;
       }
@@ -48545,7 +48560,7 @@ $.fn.togglify = function(settings) {
       usergroup_or_keyword: -25,
       fuzzy_match: 50,
       exact_match: 100,
-      matches_previous_name: -10
+      matches_previous_name: -25
     }
   });
   var _frecency;
