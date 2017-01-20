@@ -1435,6 +1435,20 @@
           });
         }
         TS.metrics.mark("upsert_groups_start");
+        if (!TS.isPartiallyBooted()) {
+          var existing_group_ids = _.map(TS.model.groups, "id");
+          var group_ids = _.map(data.groups, "id");
+          var should_invalidate_members_user_can_see_array_caches = false;
+          _.difference(existing_group_ids, group_ids).forEach(function(group_id) {
+            var group = TS.groups.getGroupById(group_id);
+            TS.groups.removeGroup(group);
+            TS.groups.left_sig.dispatch(group);
+            should_invalidate_members_user_can_see_array_caches = true;
+          });
+          if (should_invalidate_members_user_can_see_array_caches) {
+            TS.members.invalidateMembersUserCanSeeArrayCaches();
+          }
+        }
         data.groups.forEach(function(group) {
           if (just_general) return;
           group.all_read_this_session_once = false;

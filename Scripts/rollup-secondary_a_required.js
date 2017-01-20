@@ -19253,7 +19253,7 @@ TS.registerModule("constants", {
       if (msg.subtype !== "bot_message") {
         msg.subtype = null;
       }
-      var show_attachments = msg.extracts.length == 0 && msg.attachments;
+      var show_attachments = (!msg.extracts || msg.extracts.length == 0) && msg.attachments;
       var html = TS.templates.builders.msgs.buildHTML({
         msg: msg,
         msg_dom_id: TS.templates.makeMsgDomIdInSearchTopResults(msg.ts, msg, "sort_top_results"),
@@ -32014,7 +32014,7 @@ TS.registerModule("constants", {
         selectCallback(e);
       });
       TS.menu.start(e);
-      TS.menu.positionAt($(".searchable_member_list_filter"), 0, 40);
+      TS.menu.positionAt($(".searchable_member_list_filter"), 12, 56);
     },
     positionAt: function($el, x_plus, y_plus) {
       x_plus = x_plus || 0;
@@ -32573,6 +32573,7 @@ var _on_esc;
         }
         template_args.is_not_allowed_integrations = true;
       }
+      template_args.is_moved = channel.is_moved;
       TS.menu.$menu_items.html(TS.templates.menu_channel_items(template_args));
       TS.menu.$menu_header.bind("click.menu", TS.menu.channel.onChannelHeaderClick);
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.channel.onChannelItemClick);

@@ -88,14 +88,15 @@
           {{/unless}}
         </a></li>{{/unless}}
       {{/if}}
-      <li id="channel_unarchive_item" role="menuitem"><a>
-        {{#unless channel.is_private}}
-          {{#t}}Un-archive #{channel.name}{{/t}}
-        {{else}}
-          {{#t}}Un-archive {channel.name}{{/t}}
-        {{/unless}}
-
-      </a></li>
+      {{#unless channel.is_moved}}
+        <li id="channel_unarchive_item" role="menuitem"><a>
+          {{#unless channel.is_private}}
+            {{#t}}Un-archive #{channel.name}{{/t}}
+          {{else}}
+            {{#t}}Un-archive {channel.name}{{/t}}
+          {{/unless}}
+        </a></li>
+      {{/unless}}
     {{else}}
       {{#unless hide_invite}}<li id="channel_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>
         {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}

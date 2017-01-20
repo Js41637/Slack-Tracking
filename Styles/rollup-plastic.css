@@ -13360,10 +13360,6 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   margin-top: 1rem
 }
 
-#client-ui .searchable_member_list_search_bar {
-  margin-bottom: 1rem
-}
-
 #client-ui .searchable_member_list_search_bar a.icon_close {
   top: .3rem
 }
@@ -13375,7 +13371,17 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #client-ui .searchable_member_list .member_item,
 #client-ui .searchable_member_list .team_list_item {
   cursor: pointer;
-  width: 100%
+  width: 100%;
+  border: none
+}
+
+#client-ui .searchable_member_list .team_list_item {
+  padding: 0 .8rem .8rem
+}
+
+#client-ui .searchable_member_list .searchable_member_list_scroller {
+  margin-top: 0;
+  padding-top: .85rem
 }
 
 #client-ui #team_list_container .searchable_member_list_search {
@@ -13384,7 +13390,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 #client-ui #team_list_container .searchable_member_list_search .icon_search {
   top: .8rem;
-  left: .8rem
+  left: .7rem
 }
 
 #client-ui #team_list_container .searchable_member_list_search .icon_close {
@@ -13394,7 +13400,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 #client-ui #team_list_container .searchable_member_list_input {
   border: none;
-  padding: .7rem .75rem .7rem 2.3rem
+  padding: .7rem .75rem .7rem 2.2rem
 }
 
 #team_filter .icon_search,

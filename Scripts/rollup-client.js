@@ -9469,7 +9469,7 @@
   TS.registerComponent("SearchableMemberList", {
     _constructor: function(options) {
       this.id = options.id;
-      this._approx_item_height = options.channel_member_ids ? 30 : 92;
+      this._approx_item_height = options.channel_member_ids ? 30 : 72;
       this.$_container = options.$container;
       this.$_long_list_view;
       this.$_search_bar;
