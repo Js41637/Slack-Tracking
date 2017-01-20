@@ -14942,7 +14942,10 @@
             TS.search.view.maybeLogSearchInteraction("files");
           }
         });
-        $("#search_tabs").html(TS.templates.search_tabs());
+        $("#search_tabs").html(TS.templates.search_tabs({
+          messages_count: 0,
+          files_count: 0
+        }));
         $("#search_clear").bind("click.switch_to_files", function() {
           if (TS.search.filter == "files" && TS.model.ui_state.flex_visible) {
             setTimeout(function() {
@@ -15616,18 +15619,20 @@
       }
     }
   };
-  var _searchSortChanged = function() {
+  var _searchSortChanged = function(fromTopResults) {
     if (TS.search.sort === "timestamp") {
       $("#search_sort_timestamp").addClass("active");
       $("#search_sort_score").removeClass("active");
+      $("#search_sort_score").removeClass("flash");
       $("#search_sort_model").removeClass("active");
     } else if (TS.search.sort === "model" && TS.experiment.getGroup("search_ranking") === "model") {
       $("#search_sort_timestamp").removeClass("active");
       $("#search_sort_score").removeClass("active");
+      $("#search_sort_score").removeClass("flash");
       $("#search_sort_model").addClass("active");
     } else {
       $("#search_sort_timestamp").removeClass("active");
-      $("#search_sort_score").addClass("active");
+      $("#search_sort_score").addClass(fromTopResults ? "active flash" : "active");
       $("#search_sort_model").removeClass("active");
     }
   };

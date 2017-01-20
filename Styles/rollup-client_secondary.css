@@ -14182,8 +14182,23 @@ ts-icon.sli_feedback::before {
   background: #fff
 }
 
+.search_segmented_control.active.flash {
+  animation: highlight 2s linear
+}
+
 .search_segmented_control.short {
   min-width: 50px
+}
+
+@keyframes highlight {
+  0% {
+    color: #154F35;
+    background: #5DBB91
+  }
+  100% {
+    color: #5DBB91;
+    background: #FFF
+  }
 }
 
 .search_result_with_extract {

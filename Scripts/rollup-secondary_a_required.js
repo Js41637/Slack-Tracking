@@ -14118,7 +14118,7 @@ TS.registerModule("constants", {
     },
     moreTopResults: function() {
       TS.search.sort = "score";
-      TS.search.switchToRelevant();
+      TS.search.switchToRelevant(true);
       TS.clog.track("SEARCH_OPEN", {
         open_method: "top_results_see_more",
         click_module_position: 0,
@@ -14132,12 +14132,12 @@ TS.registerModule("constants", {
     hasCachedRecentResults: function() {
       return _.has(TS.search.results[TS.search.query].messages, "timestamp_messages");
     },
-    switchToRelevant: function() {
+    switchToRelevant: function(fromTopResults) {
       var timestamp_messages = TS.search.results[TS.search.query].messages;
       TS.search.results[TS.search.query].messages = timestamp_messages.modules.score;
       TS.search.results[TS.search.query].messages.timestamp_messages = timestamp_messages;
       TS.search.results[TS.search.query].messages.order = 0;
-      TS.search.search_sort_set_sig.dispatch();
+      TS.search.search_sort_set_sig.dispatch(fromTopResults);
       TS.search.view.renderResults(true);
     },
     switchToRecent: function() {
@@ -14667,7 +14667,8 @@ TS.registerModule("constants", {
       extra_message_data: 1,
       max_extract_len: 150,
       highlight_attachments: 1,
-      active_cid: TS.model.active_cid
+      active_cid: TS.model.active_cid,
+      top_results: 1
     };
     if (method === "search.all") args.no_posts = 1;
     if (method !== "search.files") args.more_matches = true;
@@ -56623,6 +56624,41 @@ $.fn.togglify = function(settings) {
           s: possesive
         })
       };
+    },
+    formatChannelsData: function(data) {
+      var channels = [];
+      if (data.channels) {
+        channels = _.map(data.channels, function(channel) {
+          var creator = TS.members.getMemberById(channel.creator);
+          return {
+            creator_display: creator.real_name ? creator.real_name : creator.name,
+            creator_id: channel.creator,
+            creator_username: creator.name,
+            date_created: channel.created,
+            id: channel.id,
+            member_count: channel.members.length,
+            name: channel.name,
+            purpose: channel.purpose.value,
+            topic: channel.topic.value,
+            "private": false
+          };
+        });
+      }
+      if (data.private_channels) {
+        data.private_channels = _.isArray(data.private_channels) ? data.private_channels : [data.private_channels];
+        channels = channels.concat(_.map(data.private_channels, function(private_channel) {
+          return {
+            date_created: private_channel.created,
+            id: private_channel.id,
+            member_count: private_channel.members.length,
+            name: private_channel.name,
+            purpose: private_channel.purpose.value,
+            topic: private_channel.topic.value,
+            "private": true
+          };
+        }));
+      }
+      return channels;
     }
   });
 })();

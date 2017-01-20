@@ -44,7 +44,7 @@
                 {{/if}}
             </p>
             <p>
-                <a href="/sso/saml/start?action=invite&redir=%2Finvite%2F{{invite_code}}" class="btn btn_info btn_large btn_with_icon full_width">
+                <a href="{{invite_sso_url}}?action=invite&redir=%2Finvite%2F{{invite_code}}" class="btn btn_info btn_large btn_with_icon full_width">
                     <i class="ts_icon ts_icon_key"></i>
                     {{#t}}Sign in with {saml_provider_label}{{/t}}
                 </a>
