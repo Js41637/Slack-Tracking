@@ -71,9 +71,9 @@
 
         <p class="small">
           {{#if enterprise.org_contact_email}}
-            {{#t}}Your organization has restricted the creation of workspaces by accounts using {email_domain} email addresses. If you need help getting access or creating a workspace, <a href="mailto:{enterprise.org_contact_email}">contact an organization administrator</a>.{{/t}}
+            {{#t}}Your organization has restricted the creation of workspaces by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a workspace, <a href="mailto:{enterprise.org_contact_email}">contact an organization administrator</a>.{{/t}}
           {{else}}
-            {{#t}}Your organization has restricted the creation of workspaces by accounts using {email_domain} email addresses. If you need help getting access or creating a workspace, contact an organization administrator.{{/t}}
+            {{#t}}Your organization has restricted the creation of workspaces by accounts using <strong>@{email_domain}</strong> email addresses. If you need help getting access or creating a workspace, contact an organization administrator.{{/t}}
           {{/if}}
         </p>
 

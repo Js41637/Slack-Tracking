@@ -24793,6 +24793,7 @@ TS.registerModule("constants", {
       if (TS.utility.msgs.isAutomatedMsg(msg)) return false;
       if (TS.utility.msgs.isFileMsg(msg)) return false;
       if (msg && msg.subtype === "reply_broadcast") return false;
+      if (msg && msg.subtype === "tombstone") return false;
       if (model_ob && model_ob.is_self_im) return true;
       if (TS.model.team.prefs.msg_edit_window_mins > -1 && (Date.now() - TS.utility.date.toDateObject(msg.ts)) / 6e4 > TS.model.team.prefs.msg_edit_window_mins) {
         return false;
@@ -54563,7 +54564,7 @@ $.fn.togglify = function(settings) {
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
         if (_.isString(value)) {
-          if (TS.boot_data.feature_tinyspeck) value += " (with texty!)";
+          if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over) value += " (with texty!)";
           texty.setPlaceholder(value);
         }
         next_value = texty.getPlaceholder();
