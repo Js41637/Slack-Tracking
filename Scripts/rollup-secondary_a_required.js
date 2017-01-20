@@ -15664,7 +15664,8 @@ TS.registerModule("constants", {
       TS.log(1989, "Connecting to Flannel..." + url);
     }
     TS.ms.logConnectionFlow("connect");
-    TS.info("Connecting to: " + url);
+    var log_url = url.replace(TS.boot_data.api_token, "REDACTED");
+    TS.info("Connecting to: " + log_url);
     clearTimeout(_connect_timeout_tim);
     TS.ms.last_url = url;
     TS.ms.last_start_ms = Date.now();
