@@ -8963,9 +8963,10 @@ TS.registerModule("constants", {
       TS.ui.handy_rxns.decorateMsg(placeholder_msg, placeholder_msg.text);
       if (params.thread_ts) {
         placeholder_msg.thread_ts = params.thread_ts;
+        placeholder_msg._hidden_reply = true;
       }
       var add_placeholder = true;
-      if (in_reply_to_msg && TS.boot_data.feature_message_replies) add_placeholder = false;
+      if (in_reply_to_msg && TS.boot_data.feature_message_replies && !TS.replies.areTempMsgsEnabled()) add_placeholder = false;
       if (add_placeholder) controller.addMsg(c_id, placeholder_msg);
       TS.shared.msg_sent_sig.dispatch(model_ob, rsp_id);
       return true;
@@ -26259,18 +26260,22 @@ TS.registerModule("constants", {
     handleFailedMsgSend: function(msg_id, model_ob, resend) {
       var temp_msg = TS.utility.msgs.getMsg(msg_id, model_ob.msgs);
       if (temp_msg) {
+        var in_reply_to_msg;
+        if (resend && TS.boot_data.feature_message_replies && temp_msg.thread_ts) {
+          in_reply_to_msg = TS.utility.msgs.findMsg(temp_msg.thread_ts, model_ob.id);
+        }
         if (model_ob.is_channel) {
           TS.channels.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.channels.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg));
+          if (resend) TS.channels.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
         } else if (model_ob.is_mpim) {
           TS.mpims.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.mpims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg));
+          if (resend) TS.mpims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
         } else if (model_ob.is_group) {
           TS.groups.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.groups.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg));
+          if (resend) TS.groups.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
         } else {
           TS.ims.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.ims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg));
+          if (resend) TS.ims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
         }
         delete TS.model.unsent_msgs[temp_msg.ts];
         delete TS.model.display_unsent_msgs[temp_msg.ts];
@@ -47256,11 +47261,13 @@ $.fn.togglify = function(settings) {
       if (msg_id) msg_id = msg_id.toString();
       var model_ob = TS.shared.getActiveModelOb();
       if (!msg_id) return;
-      if ($el.hasClass("resend_temp_msg") || $el.hasClass("remove_temp_msg")) {
-        e.preventDefault();
-        var resend = $el.hasClass("resend_temp_msg");
-        TS.utility.msgs.handleFailedMsgSend(msg_id, model_ob, resend);
-        return;
+      if (!TS.boot_data.feature_message_replies) {
+        if ($el.hasClass("resend_temp_msg") || $el.hasClass("remove_temp_msg")) {
+          e.preventDefault();
+          var resend = $el.hasClass("resend_temp_msg");
+          TS.utility.msgs.handleFailedMsgSend(msg_id, model_ob, resend);
+          return;
+        }
       }
       if (e.altKey) {
         e.preventDefault();
@@ -47279,6 +47286,19 @@ $.fn.togglify = function(settings) {
         }
       }
     });
+    if (TS.boot_data.feature_message_replies) {
+      TS.click.addClientHandler("ts-message .resend_temp_msg, ts-message .remove_temp_msg", function(e, $el) {
+        var $msg = $el.closest("ts-message");
+        var ts = $msg.attr("data-ts");
+        if (!ts) return;
+        var model_ob_id = $msg.attr("data-model-ob-id");
+        var model_ob = TS.shared.getModelObById(model_ob_id);
+        if (!model_ob) return;
+        e.preventDefault();
+        var resend = $el.hasClass("resend_temp_msg");
+        TS.utility.msgs.handleFailedMsgSend(ts, model_ob, resend);
+      });
+    }
     TS.click.addClientHandler(".top_results_search_message_result", function(e, $el, origin) {
       var $target = $(e.target);
       var $search_result = $target.closest(".search_message_result");
@@ -56643,7 +56663,9 @@ $.fn.togglify = function(settings) {
             name: channel.name,
             purpose: channel.purpose.value,
             topic: channel.topic.value,
-            "private": false
+            "private": false,
+            is_general: channel.is_general,
+            is_shared: channel.is_shared
           };
         });
       }
@@ -56657,7 +56679,8 @@ $.fn.togglify = function(settings) {
             name: private_channel.name,
             purpose: private_channel.purpose.value,
             topic: private_channel.topic.value,
-            "private": true
+            "private": true,
+            is_shared: private_channel.is_shared
           };
         }));
       }
@@ -56904,6 +56927,9 @@ $.fn.togglify = function(settings) {
     isAllThreadsViewEnabled: function() {
       return !!TS.boot_data.feature_message_replies;
     },
+    areTempMsgsEnabled: function() {
+      return !!TS.boot_data.feature_message_replies_temp_msgs;
+    },
     getSubscriptionState: function(model_ob_id, thread_ts) {
       var key = _keyForThread(model_ob_id, thread_ts);
       var subscription = _subscriptions[key];
@@ -57013,7 +57039,6 @@ $.fn.togglify = function(settings) {
   var _subscriptions = {};
   var _messageChanged = function(model_ob, message) {
     if (!TS.replies.isEnabledForModelOb(model_ob)) return;
-    if (message.rsp_id) return;
     TS.replies.reply_changed_sig.dispatch(model_ob, message);
   };
   var _messageRemoved = function(model_ob, message) {
@@ -57045,7 +57070,7 @@ $.fn.togglify = function(settings) {
       return msg.ts == thread_ts || msg.thread_ts == thread_ts;
     });
     var without_ephemerals = thread_msgs.filter(function(msg) {
-      return !msg.is_ephemeral;
+      return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg);
     });
     var reply_count = thread_msg.reply_count || 0;
     if (without_ephemerals.length < reply_count + 1) {
@@ -57058,7 +57083,7 @@ $.fn.togglify = function(settings) {
   };
   var _sanityCheck = function(c_id, thread_ts, messages_from_model_ob) {
     messages_from_model_ob = messages_from_model_ob.filter(function(msg) {
-      return !msg.is_ephemeral;
+      return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg);
     });
     var always_make_api_call = true;
     TS.replies.getThread(c_id, thread_ts, always_make_api_call).then(function(messages_from_api) {

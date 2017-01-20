@@ -2175,7 +2175,12 @@
       }
       setTimeout(function() {
         TS.model.display_unsent_msgs[msg.ts] = true;
-        TS.view.rebuildMsg(msg);
+        if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg) && TS.replies.areTempMsgsEnabled()) {
+          TS.ui.replies.maybeUpdateConversationWithMessage(model_ob, msg);
+          TS.client.threads.maybeRerenderMessage(model_ob, msg);
+        } else {
+          TS.view.rebuildMsg(msg);
+        }
       }, 5e3);
     },
     scroll_down_when_msg_from_user_is_added: false,
@@ -31553,19 +31558,7 @@
         TS.reload();
       });
     });
-    $("#flannel_lazy_members").prop("checked", TS.model.prefs.flannel_lazy_members === true);
-    $("#flannel_lazy_members").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "flannel_lazy_members",
-        value: val
-      }, function() {
-        TS.log(1989, "Flannel: pref toggled! Reloading ... see you on the other side");
-        TS.reload();
-      });
-    });
     $("#flannel_server_pool").val(TS.model.prefs.flannel_server_pool);
-    $("#flannel_server_pool").attr("disabled", !TS.model.prefs.flannel_lazy_members);
     $("#flannel_server_pool").on("change", function() {
       var val = $(this).val();
       var prev_val = TS.model.prefs.flannel_server_pool;
@@ -38871,6 +38864,7 @@ function timezones_guess() {
       var $convo = $('ts-conversation[data-thread-ts="' + msg.thread_ts + '"]');
       if (!$convo.length) return;
       var $deleted_relative_msg = $convo.find('ts-relatives ts-message[data-ts="' + msg.ts + '"]');
+      if (msg.rsp_id) $deleted_relative_msg.remove();
       if ($deleted_relative_msg.length) {
         var $deleted_relative_msg_container = $deleted_relative_msg.closest("ts-relatives");
         $deleted_relative_msg.addClass("delete_mode").slideUp(200, function() {
@@ -38889,7 +38883,6 @@ function timezones_guess() {
     },
     maybeUpdateConversationWithMessage: function(model_ob, msg) {
       if (!TS.replies.isEnabledForModelOb(model_ob)) return;
-      if (msg.rsp_id) return;
       if (model_ob.id !== _active_convo_model_id) return;
       if (msg.thread_ts != _active_convo_thread_ts && msg.ts != _active_convo_thread_ts) return;
       var convo_msg_index = _active_convo_messages && _.findIndex(_active_convo_messages, {
@@ -39683,6 +39676,15 @@ function timezones_guess() {
       if (a.ts > b.ts) return -1;
       return 0;
     },
+    maybeRerenderMessage: function(model_ob, msg) {
+      if (!TS.model.threads_view_is_showing) return;
+      if (!model_ob || !msg.thread_ts) return;
+      _q.addToQ(function() {
+        var thread = TS.client.threads.getThread(model_ob, msg.thread_ts);
+        if (!thread) return;
+        _handleInlineChange(thread, msg);
+      });
+    },
     debugUnthreads: function() {
       var logs = "\n" + _thread_state_debug_logs.join("\n");
       TS.info(logs);
@@ -39930,7 +39932,6 @@ function timezones_guess() {
   var _messageReceived = function(model_ob, message) {
     if (!model_ob || !message) return;
     if (!message.thread_ts) return;
-    if (message.rsp_id) return;
     if (!TS.utility.msgs.isMsgReply(message)) return;
     _q.addToQ(function() {
       return TS.replies.promiseToGetSubscriptionState(model_ob.id, message.thread_ts).then(function(subscription) {
@@ -40358,7 +40359,6 @@ function timezones_guess() {
       return TS.templates.builders.buildThreadMsgHTML(msg, model_ob, thread);
     },
     maybeUpdateThreadWithMessage: function(thread, msg, show_immediately) {
-      if (msg.rsp_id) return;
       _q.addToQ(function() {
         var $thread = TS.client.ui.threads.$container.find('ts-thread[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
         if (!$thread.length) return;
@@ -40710,9 +40710,13 @@ function timezones_guess() {
     removeMessageFromThread: function($thread, thread, msg) {
       var $reply = $("#" + TS.templates.makeMsgDomIdInThreadsView(msg.ts));
       if (!$reply.length) return;
-      $reply.addClass("delete_mode").slideUp(200, function() {
+      if (msg.rsp_id) {
         $reply.remove();
-      });
+      } else {
+        $reply.addClass("delete_mode").slideUp(200, function() {
+          $reply.remove();
+        });
+      }
       _updateRevealNewRepliesCount($thread, thread);
       _updateParticipantsList($thread, thread);
     },

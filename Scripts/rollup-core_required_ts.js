@@ -2634,6 +2634,7 @@
     supports_voice_calls: false,
     supports_video_calls: false,
     supports_screen_sharing: false,
+    supports_screenhero: false,
     supports_mmap_minipanel_calls: false,
     supports_user_bot_caching: false,
     active_file_list_filter: "all",
@@ -2771,6 +2772,7 @@
       }
       TS.model.supports_video_calls = false;
       TS.model.supports_screen_sharing = false;
+      TS.model.supports_screenhero = false;
       TS.model.supports_mmap_minipanel_calls = false;
       if (TS.boot_data.feature_calls) {
         if (window.winssb && !TS.model.is_lin) {
@@ -2779,6 +2781,7 @@
             if (capabilities) {
               if (capabilities.supports_video) TS.model.supports_video_calls = true;
               if (capabilities.supports_screen_sharing && winssb.stats && winssb.stats.getDisplayInformation) TS.model.supports_screen_sharing = true;
+              if (capabilities.supports_screenhero) TS.model.supports_screenhero = true;
               if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true;
             }
           }

@@ -174,20 +174,13 @@
     {{/t}}
   </label>
   {{#if show_flannel_pref}}
-    <label class="checkbox bottom_margin">
-      <input id="flannel_lazy_members" checked="" type="checkbox" data-inline-saver="#prefs_debug">
-      {{#t}}
-      Lazily load members via Flannel<br>
-      <span class="normal">Turn this off to use Slack without Flannel.</span>
-      {{/t}}
-      <label class="select small bottom_margin no_left_margin half_width">
-        {{#t}}Server pool{{/t}}<br>
-        <select id="flannel_server_pool" class="small" data-inline-saver="#prefs_debug">
-          <option value="production">{{#t}}Production{{/t}}</option>
-          <option value="canary">{{#t}}Canary{{/t}}</option>
-          <option value="random">{{#t}}Production / canary at random{{/t}}</option>
-        </select>
-      </label>
+    <label class="select bottom_margin no_left_margin half_width">
+      {{#t}}Flannel server pool{{/t}}<br>
+      <select id="flannel_server_pool" data-inline-saver="#prefs_debug">
+        <option value="production">{{#t}}Production{{/t}}</option>
+        <option value="canary">{{#t}}Canary{{/t}}</option>
+        <option value="random">{{#t}}Production / canary at random{{/t}}</option>
+      </select>
     </label>
   {{/if}}
 </p>
