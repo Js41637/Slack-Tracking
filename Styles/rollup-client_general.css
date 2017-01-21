@@ -5108,9 +5108,13 @@ only screen and (min-resolution:2dppx) {
   text-align: center
 }
 
+#fs_modal.focus_mode_overlay .contents_container .contents p {
+  width: 260px
+}
+
 #fs_modal.focus_mode_overlay .contents_container .contents img {
-  width: 179px;
-  height: 173px
+  width: 150px;
+  height: 160px
 }
 
 @media only screen and (max-height:600px) {

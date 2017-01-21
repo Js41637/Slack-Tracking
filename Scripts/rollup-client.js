@@ -206,7 +206,7 @@
     },
     flexDisplaySwitched: function(flex_name, flex_extra, replace_history_state, no_history_add) {
       flex_extra = _cleanFlexExtra(flex_extra);
-      if (TS.model.prefs.no_flex_in_history) replace_history_state = true;
+      replace_history_state = true;
       if (!no_history_add && (TS.model.c_name_in_url || TS.client.activeChannelIsHidden())) {
         var new_url;
         if (TS.model.unread_view_is_showing) {
@@ -862,14 +862,12 @@
     var is_threads_view = TS.boot_data.feature_message_replies && TS.utility.isThreadsViewPath(loc.pathname);
     var flex_name = TS.utility.getFlexNameFromUrl(loc.href);
     var flex_extra = TS.utility.getFlexExtraFromUrl(loc.href);
-    if (TS.model.prefs.no_flex_in_history) {
-      if (!is_unread_view && !is_threads_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
-        flex_name = "details";
-        flex_extra = "";
-      } else {
-        flex_name = TS.model.ui_state.flex_name;
-        flex_extra = TS.model.ui_state.flex_extra;
-      }
+    if (!is_unread_view && !is_threads_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
+      flex_name = "details";
+      flex_extra = "";
+    } else {
+      flex_name = TS.model.ui_state.flex_name;
+      flex_extra = TS.model.ui_state.flex_extra;
     }
     if ((is_unread_view || is_threads_view) && flex_name === "details") {
       flex_name = "";
@@ -963,18 +961,16 @@
       TS.error("WTF DONT KNOW WHAT TO DO");
     }
     if (TS.boot_data.feature_message_replies) TS.client.ui.flex.setFlexStateFromHistory(flex_name, flex_extra);
-    if (TS.model.prefs.no_flex_in_history) {
-      var new_url;
-      if (is_unread_view) {
-        new_url = TS.utility.refashionUrlForUnreadView(window.location.href, flex_name, flex_extra);
-      } else if (is_threads_view) {
-        new_url = TS.utility.refashionUrlForThreadsView(window.location.href, flex_name, flex_extra);
-      } else {
-        new_url = TS.utility.refashionUrl(window.location.href, c_name, flex_name, flex_extra);
-      }
-      var replace_history_state = true;
-      _putURLInHistory(new_url, replace_history_state);
+    var new_url;
+    if (is_unread_view) {
+      new_url = TS.utility.refashionUrlForUnreadView(window.location.href, flex_name, flex_extra);
+    } else if (is_threads_view) {
+      new_url = TS.utility.refashionUrlForThreadsView(window.location.href, flex_name, flex_extra);
+    } else {
+      new_url = TS.utility.refashionUrl(window.location.href, c_name, flex_name, flex_extra);
     }
+    var replace_history_state = true;
+    _putURLInHistory(new_url, replace_history_state);
   };
   var _switchToInititalModelOb = function() {
     if (!TS.model.initial_cid) {
@@ -9125,9 +9121,6 @@
       }
       var done = function() {
         TS.model.ui.last_flex_extra = TS.model.flex_extra_in_url;
-        if (TS.model.ui_state.flex_visible && TS.model.prefs.flex_resize_window && TS.model.is_our_app) {
-          TS.client.ui.flex.adjustWindowSizeForFlexPane("hide");
-        }
         $("#client-ui").removeClass("flex_pane_showing");
         TS.model.ui_state.flex_visible = false;
         if (!TS.boot_data.feature_message_replies) {
@@ -9159,35 +9152,9 @@
     },
     last_window_width_diff: 392,
     last_window_width_diff_default: 392,
-    adjustWindowSizeForFlexPane: function(which) {
-      var ww = window.outerWidth;
-      var wh = window.outerHeight;
-      if (which == "show") {
-        var diff = TS.client.ui.flex.last_window_width_diff;
-        if (ww + diff >= 1441) {
-          diff += 100;
-        } else if (ww + diff >= 1367) {
-          diff += 50;
-        }
-        window.resizeTo(ww + diff, wh);
-        var actual_diff = window.outerWidth - ww;
-        TS.client.ui.flex.last_window_width_diff = actual_diff;
-        if (window.outerWidth == ww) {
-          return false;
-        }
-        return true;
-      } else if (which == "hide") {
-        window.resizeTo(ww - TS.client.ui.flex.last_window_width_diff, wh);
-        TS.client.ui.flex.last_window_width_diff = TS.client.ui.flex.last_window_width_diff_default;
-        return true;
-      }
-    },
     showFlex: function(fade_in, no_resize) {
       var was_at_bottom = TS.client.ui.areMsgsScrolledToBottom();
       $("#client-ui").addClass("flex_pane_showing");
-      if (!TS.model.ui_state.flex_visible && TS.model.prefs.flex_resize_window && TS.model.is_our_app) {
-        TS.client.ui.flex.adjustWindowSizeForFlexPane("show");
-      }
       TS.model.ui_state.flex_visible = true;
       TS.storage.storeUIState(TS.model.ui_state);
       if (!no_resize) TS.view.resizeManually("TS.client.ui.flex.showFlex");
@@ -10012,7 +9979,7 @@
           if (e.which == _keymap.enter && e.metaKey) {
             TS.client.msg_input.startSnippet();
           } else if (val_trimmed !== "" && !TS.client.ui.cal_key_checker.prevent_enter) {
-            if (_$chat_input_tab_ui.length && !_$chat_input_tab_ui.hasClass("hidden") && TS.model.prefs.tab_ui_return_selects) {
+            if (_$chat_input_tab_ui.length && !_$chat_input_tab_ui.hasClass("hidden")) {
               e.preventDefault();
               return;
             }
@@ -14578,13 +14545,6 @@
           }
         }
       }
-      if (TS.boot_data.feature_focus_mode) {
-        TS.key_triggers["70"].no_shift = false;
-        TS.key_triggers["70"].shift_optional = true;
-      } else {
-        TS.key_triggers["70"].no_shift = true;
-        TS.key_triggers["70"].shift_optional = false;
-      }
     },
     220: {
       isDisabled: function(e) {
@@ -14724,12 +14684,11 @@
     },
     70: {
       isDisabled: function(e) {
-        return !(TS.model.is_our_app || TS.model && TS.model.prefs && TS.model.prefs.f_key_search || TS.boot_data.feature_focus_mode && e.shiftKey);
+        return !(TS.model.is_our_app || TS.model && TS.model.prefs && TS.model.prefs.f_key_search || TS.boot_data.feature_focus_mode && e.altKey);
       },
-      shift_optional: true,
+      no_shift: true,
       func: function(e) {
-        if (e.shiftKey) {
-          if (!TS.boot_data.feature_focus_mode) return;
+        if (TS.boot_data.feature_focus_mode && e.altKey) {
           TS.ui.focus_mode.start();
         } else {
           TS.clog.track("SEARCH_OPEN", {
@@ -14811,23 +14770,14 @@
         if (!TS.model) true;
         if (!TS.model.prefs) true;
         if (!TS.model.is_mac) return true;
-        if (e.shiftKey) {
-          if (TS.model.active_im_id) {
-            return true;
-          } else {
-            return false;
-          }
+        if (!TS.model.active_im_id) {
+          return false;
         }
-        if (TS.model.mac_ssb_version) return true;
-        if (!TS.model.prefs.comma_key_prefs) return true;
+        return true;
       },
-      shift_optional: true,
+      shift_optional: false,
       func: function(e) {
-        if (e.shiftKey) {
-          TS.ui.channel_prefs_dialog.start(TS.model.active_cid);
-        } else {
-          TS.ui.prefs_dialog.start();
-        }
+        TS.ui.channel_prefs_dialog.start(TS.model.active_cid);
       }
     }
   });
@@ -30928,7 +30878,6 @@
         break;
       case "labs":
         template_args = {
-          show_cmd_comma_pref: TS.model.is_mac && TS.model.is_our_app,
           show_speech_settings: _show_speech_settings,
           show_electron_prefs: TS.model.is_electron
         };
@@ -31822,22 +31771,6 @@
     });
   };
   var _bindLabsPrefs = function() {
-    $("#tab_ui_return_selects_cb").prop("checked", TS.model.prefs.tab_ui_return_selects === true);
-    $("#tab_ui_return_selects_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "tab_ui_return_selects",
-        value: val
-      });
-    });
-    $("#comma_key_prefs_cb").prop("checked", TS.model.prefs.comma_key_prefs === true);
-    $("#comma_key_prefs_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "comma_key_prefs",
-        value: val
-      });
-    });
     $("#full_text_extracts_cb").prop("checked", TS.model.prefs.full_text_extracts === true);
     $("#full_text_extracts_cb").on("change", function() {
       var val = !!$(this).prop("checked");
@@ -31873,15 +31806,6 @@
         value: val
       });
     });
-    $("#flex_resize_window_cb").prop("checked", TS.model.prefs.flex_resize_window === true);
-    $("#flex_resize_window_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.model.prefs.flex_resize_window = val;
-      TS.prefs.setPrefByAPI({
-        name: "flex_resize_window",
-        value: val
-      });
-    });
     $("#hotness_cb").prop("checked", TS.model.prefs.hotness === true);
     $("#hotness_cb").on("change", function() {
       var val = !!$(this).prop("checked");
@@ -31891,20 +31815,6 @@
       });
       TS.prefs.onPrefChanged({
         name: "hotness",
-        value: val
-      });
-    });
-    $("#no_flex_in_history_cb").prop("checked", TS.model.prefs.no_flex_in_history === true);
-    $("#no_flex_in_history_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "no_flex_in_history",
-        value: val
-      }, function() {
-        TS.reload();
-      });
-      TS.prefs.onPrefChanged({
-        name: "no_flex_in_history",
         value: val
       });
     });

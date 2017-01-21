@@ -23537,8 +23537,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("versioned_file_drop_blue", function() {
         return cdn_url + "/c3881/img/file-drop-blue@2x.png";
       });
-      Handlebars.registerHelper("versioned_bonsai", function() {
-        return cdn_url + "/d1496/img/bonsai-0.png";
+      Handlebars.registerHelper("versioned_focus_rocks", function() {
+        return cdn_url + "/883cf/img/focus-rocks-0.png";
       });
       Handlebars.registerHelper("pinToLabel", function(model_ob) {
         var text = "";
@@ -31687,7 +31687,8 @@ TS.registerModule("constants", {
         in_dnd: status.in_dnd,
         is_snoozing: status.snoozed,
         readable_end_time: status.readable_end_time,
-        cmd_key: TS.model.is_mac ? "⌘" : "ctrl"
+        cmd_key: TS.model.is_mac ? "⌘" : "ctrl",
+        meta_key: TS.model.is_mac ? "opt" : "alt"
       };
       TS.menu.has_submenu = true;
       TS.menu.$menu.addClass("notifications_menu");
