@@ -19725,7 +19725,7 @@ ts-message .emoji-sizer .mention {
 }
 
 .threads_view_is_showing #messages_container.has_top_messages_banner:before {
-  background: #f2f2f5
+  background: #f7f7f7
 }
 
 #messages_container>.monkey_scroll_wrapper:not(#monkey_scroll_wrapper_for_unread_msgs_scroller_div)>.monkey_scroll_bar {
@@ -20442,7 +20442,7 @@ ts-thread {
   display: block;
   position: relative;
   margin-top: 1rem;
-  background: #f2f2f5
+  background: #f7f7f7
 }
 
 ts-thread:last-child {
@@ -20513,29 +20513,30 @@ ts-thread .reply_input_container .inline_message_input_container .message_input.
 
 ts-thread .reply_input_container .collapsed_input_placeholder,
 ts-thread .reply_input_container .join_channel_from_thread_container,
-ts-thread .reply_input_container .reply_limited_in_general {
+ts-thread .reply_input_container .reply_limited {
   border: 1px solid #e0e0e0;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  background: #fff;
   padding: 0;
-  font-size: .8125rem;
   width: 100%;
   min-height: 2.75rem;
-  line-height: 2.75rem
+  line-height: 2.75rem;
+  border-radius: 0 0 10px 10px
 }
 
 ts-thread .reply_input_container .collapsed_input_placeholder button,
 ts-thread .reply_input_container .join_channel_from_thread_container button,
-ts-thread .reply_input_container .reply_limited_in_general button {
+ts-thread .reply_input_container .reply_limited button {
   margin: 0
 }
 
 .dense_theme ts-thread .reply_input_container .collapsed_input_placeholder,
 .dense_theme ts-thread .reply_input_container .join_channel_from_thread_container,
-.dense_theme ts-thread .reply_input_container .reply_limited_in_general {
+.dense_theme ts-thread .reply_input_container .reply_limited {
   min-height: 2.25rem;
   line-height: 2.25rem
+}
+
+ts-thread .reply_input_container .join_channel_from_thread_container {
+  padding: 6px 0
 }
 
 ts-thread .thread_messages {
@@ -20562,6 +20563,10 @@ ts-thread .thread_messages>ts-message:first-child .message_gutter {
 ts-thread .thread_messages>ts-message:first-child.active:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply),
 ts-thread .thread_messages>ts-message:first-child:hover:not(.standalone):not(.multi_delete_mode):not(.highlight):not(.new_reply) {
   border-radius: 10px 10px 0 0
+}
+
+ts-thread .thread_messages .thread_replies_container ts-message:last-child {
+  margin-bottom: 0
 }
 
 ts-thread .thread_messages .is_pinned_holder {
@@ -20852,7 +20857,8 @@ ts-thread ts-message.selected .action_hover_container {
 #reply_container .join_channel_from_thread_container,
 .reply_input_container .join_channel_from_thread_container {
   text-align: center;
-  font-size: .8125rem
+  font-size: .8125rem;
+  background-color: #fff
 }
 
 #reply_container .join_channel_from_thread_container span,
@@ -20867,12 +20873,12 @@ ts-thread ts-message.selected .action_hover_container {
   vertical-align: baseline
 }
 
-#reply_container .reply_limited_in_general,
-.reply_input_container .reply_limited_in_general {
+#reply_container .reply_limited,
+.reply_input_container .reply_limited {
+  font-size: .8125rem;
   background: #f7f7f7;
-  color: #a4a4a4;
+  color: #717274;
   text-align: center;
-  font-size: .9375rem;
   border-radius: .25rem;
   padding: .8125rem .625rem
 }
@@ -26966,7 +26972,7 @@ ul li.highlighted a .app_slash_command_desc {
 #threads_msgs_scroller_div {
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .9375rem;
-  background: #f2f2f5;
+  background: #f7f7f7;
   height: calc(100% - 16px);
   margin-top: 8px;
   overflow-y: scroll
@@ -26994,11 +27000,11 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 .supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #f2f2f5
+  color: #f7f7f7
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-track {
-  background: #f2f2f5;
+  background: #f7f7f7;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
@@ -27009,7 +27015,7 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #threads_msgs_scroller_div::-webkit-scrollbar-corner {
-  background: #f2f2f5
+  background: #f7f7f7
 }
 
 .supports_custom_scrollbar.slim_scrollbar #threads_msgs_scroller_div {
@@ -27041,7 +27047,7 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
   right: 0;
   width: .125rem;
   height: 100%;
-  background: #f2f2f5
+  background: #f7f7f7
 }
 
 #threads_msgs_scroller_div.loading {
@@ -27149,7 +27155,7 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
   left: 0;
   right: 13px;
   height: 26px;
-  background: #f2f2f5
+  background: #f7f7f7
 }
 
 .threads_section.partial_start .threads_section_divider {

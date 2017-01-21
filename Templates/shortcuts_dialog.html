@@ -61,7 +61,7 @@
           {{#feature flag="feature_message_replies"}}{{#isOurApp}}
             <li>{{#t}}Open All Threads:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">t</span></li>
           {{/isOurApp}}{{/feature}}
-          <li>{{#t}}Toggle Flexpane:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">.</span></li>
+          <li>{{#t}}Toggle Right Sidebar:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">.</span></li>
             <ul>
               {{#isOurApp}}<li>{{#t}}Channel Info:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">i</span></li>{{/isOurApp}}
               {{#isChrome}}{{else}}<li>{{#feature flag="feature_message_replies"}}Activity{{else}}Mentions{{/feature}}: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">m</span></li>{{/isChrome}}
@@ -85,4 +85,4 @@
     </p>
   </div>
 
-  <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="ts_icon ts_icon_times"></i></button>  
+  <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="ts_icon ts_icon_times"></i></button>

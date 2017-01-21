@@ -38691,6 +38691,10 @@ function timezones_guess() {
       TS.channels.joined_sig.add(_joinedChannel);
       TS.channels.left_sig.add(_leftChannel);
       TS.groups.left_sig.add(_leftGroup);
+      TS.channels.archived_sig.add(_handleArchiveEvent);
+      TS.groups.archived_sig.add(_handleArchiveEvent);
+      TS.channels.unarchived_sig.add(_handleArchiveEvent);
+      TS.groups.unarchived_sig.add(_handleArchiveEvent);
       TS.channels.history_fetched_sig.add(_historyFetched);
       TS.groups.history_fetched_sig.add(_historyFetched);
       TS.ims.history_fetched_sig.add(_historyFetched);
@@ -38762,7 +38766,7 @@ function timezones_guess() {
       }));
       _active_convo_model_id = model_ob.id;
       _active_convo_thread_ts = thread_ts;
-      _active_convo_can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob);
+      _active_convo_can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) && !model_ob.is_archived;
       _active_convo_messages = [];
       if (origin && _.includes(_SUPPORTED_ORIGINS, origin)) {
         _active_convo_origin = origin;
@@ -39362,8 +39366,9 @@ function timezones_guess() {
     if (_active_convo_can_reply) {
       TS.ui.replies.updateMessageActions(model_ob, root_msg);
     } else {
-      $("#reply_container").html(TS.templates.reply_limited_in_general({
-        channel_name: TS.shared.getDisplayNameForModelOb(model_ob)
+      $("#reply_container").html(TS.templates.reply_limited({
+        channel_name: TS.shared.getDisplayNameForModelOb(model_ob),
+        is_archived: model_ob.is_archived
       }));
     }
     $("#reply_container").removeClass("hidden");
@@ -39394,7 +39399,7 @@ function timezones_guess() {
     if (!_active_convo_model_id) return;
     var model_ob = TS.shared.getModelObById(_active_convo_model_id);
     if (!model_ob) return;
-    var can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob);
+    var can_reply = TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) && !model_ob.is_archived;
     if (can_reply !== _active_convo_can_reply) {
       var root_msg = TS.replies.getMessage(model_ob, _active_convo_thread_ts);
       _active_convo_can_reply = can_reply;
@@ -39448,6 +39453,10 @@ function timezones_guess() {
   var _leftGroup = function(group) {
     if (_active_convo_model_id !== group.id) return;
     TS.client.ui.flex.hideFlex();
+  };
+  var _handleArchiveEvent = function(model_ob) {
+    if (_active_convo_model_id !== model_ob.id) return;
+    TS.ui.replies.openConversation(model_ob, _active_convo_thread_ts);
   };
   var _adjustFontSize = function() {
     $("#reply_container textarea").trigger("autosize-resizeIncludeStyle");
@@ -40178,6 +40187,10 @@ function timezones_guess() {
       TS.channels.joined_sig.add(_handleMembershipChange);
       TS.channels.left_sig.add(_handleMembershipChange);
       TS.groups.left_sig.add(_handleMembershipChange);
+      TS.channels.archived_sig.add(_handleMembershipChange);
+      TS.groups.archived_sig.add(_handleMembershipChange);
+      TS.channels.unarchived_sig.add(_handleMembershipChange);
+      TS.groups.unarchived_sig.add(_handleMembershipChange);
       TS.client.threads.new_thread_reply_count_changed.add(_showNewThreadsBanner);
       _q = new TS.PromiseQueue;
     },
@@ -40806,7 +40819,7 @@ function timezones_guess() {
       var thread_ts = thread.root_msg.ts;
       var $reply_container = $thread.find(".reply_input_container");
       $reply_container.empty();
-      if (!TS.permissions.members.canPostInModelOb(TS.model.user, model_ob)) {
+      if (!TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) || model_ob.is_archived) {
         _renderRestrictedReply(model_ob, $reply_container);
         return;
       }
@@ -41103,8 +41116,9 @@ function timezones_guess() {
     });
   };
   var _renderRestrictedReply = function(model_ob, $reply_container) {
-    $reply_container.html(TS.templates.reply_limited_in_general({
-      channel_name: TS.shared.getDisplayNameForModelOb(model_ob)
+    $reply_container.html(TS.templates.reply_limited({
+      channel_name: TS.shared.getDisplayNameForModelOb(model_ob),
+      is_archived: model_ob.is_archived
     }));
   };
   var _renderJoinChannelButton = function(model_ob, $reply_container) {

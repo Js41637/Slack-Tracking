@@ -45502,6 +45502,9 @@ $.fn.togglify = function(settings) {
     instance.$empty.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     var available_height = Math.floor(window_height - instance.$list.offset().top);
+    if (_isInMessage(instance)) {
+      available_height -= $("#footer").height() || 0;
+    }
     if (instance.allow_list_position_above) {
       var available_height_above = window_height - available_height;
       var can_fit_above = list_height <= available_height_above;
@@ -46184,6 +46187,12 @@ $.fn.togglify = function(settings) {
       if (item instanceof HTMLOptionElement) return $(item).val();
     });
     instance.$select.val(values).trigger("change");
+  };
+  var _isInMessage = function(instance) {
+    if (_.isUndefined(instance._is_in_message)) {
+      instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container);
+    }
+    return instance._is_in_message;
   };
 })();
 (function() {
@@ -56118,7 +56127,6 @@ $.fn.togglify = function(settings) {
             classes: "select_attachment message_menu_style",
             disabled: $el.attr("disabled"),
             filter: _filter,
-            input_debounce_wait_time: 250,
             no_default_selection: !has_selected_options,
             onItemAdded: _onItemAdded,
             onListHidden: _onListHidden,
@@ -56128,6 +56136,7 @@ $.fn.togglify = function(settings) {
           };
           if (data_source === _DATA_SOURCES.external) {
             lfs_options.data_promise = _getExternalDataPromise($el);
+            lfs_options.input_debounce_wait_time = 250;
           }
           $el.lazyFilterSelect(lfs_options).addClass("hidden");
         });
@@ -56222,7 +56231,7 @@ $.fn.togglify = function(settings) {
 
   function _getOptionsForUsers() {
     var sorted_members = TS.sorter.search("@", {
-      members: TS.members.getActiveMembersWithSelfAndNotBots()
+      members: TS.members.getActiveMembersWithSelfAndSlackbot()
     }, {
       frecency: true
     });
