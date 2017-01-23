@@ -5905,7 +5905,10 @@ TS.registerModule("constants", {
         actions.delete_file = true;
       }
       if (TS.model.user.is_admin) {
-        actions.delete_file = true;
+        if (TS.boot_data.feature_external_shared_channels_ui) {
+          var file_is_from_other_team = TS.utility.teams.isMemberExternalById(file.user);
+        }
+        actions.delete_file = file_is_from_other_team == true ? false : true;
       }
       if (TS.clipboard.canWriteText()) {
         actions.copy_file_link = true;
@@ -10156,6 +10159,14 @@ TS.registerModule("constants", {
       if (!_.isObject(member)) return false;
       return member.team_id ? member.team_id != TS.model.team.id : false;
     },
+    isMemberExternalById: function(id) {
+      var member = TS.members.getMemberById(id);
+      if (!member) {
+        TS.console.warn("Trying to check for external team membership by id (" + id + ") but member is not present in the model.");
+        return false;
+      }
+      return TS.utility.teams.isMemberExternal(member);
+    },
     isMemberGuest: function(member) {
       if (!_.isObject(member)) return false;
       if (member.is_external || member.is_restricted) return true;
@@ -10998,7 +11009,8 @@ TS.registerModule("constants", {
   var _getMembersByIdFromFlannel = function(m_ids) {
     if (!Array.isArray(m_ids)) return Promise.reject(new Error("m_ids is not an array"));
     TS.log(1989, "Flannel: fetching members", m_ids);
-    return TS.flannel.fetchAndUpsertObjectsByIds(m_ids).then(function(members) {
+    return TS.flannel.fetchAndUpsertObjectsByIds(m_ids).then(function(response) {
+      var members = response.objects;
       if (members.length !== _.uniq(m_ids).length) {
         var e = new Error("Did not receive all of the members we asked for");
         e.requested_ids = m_ids;
@@ -12068,7 +12080,9 @@ TS.registerModule("constants", {
     ensureBotsArePresent: function(bot_ids) {
       var missing_bot_ids = _.reject(bot_ids, TS.bots.getBotById);
       if (!missing_bot_ids.length) return Promise.resolve();
-      return TS.flannel.fetchAndUpsertObjectsByIds(missing_bot_ids);
+      return TS.flannel.fetchAndUpsertObjectsByIds(missing_bot_ids).then(function(response) {
+        return response.objects;
+      });
     }
   });
   var _bots_changed_during_bulk_upsert;

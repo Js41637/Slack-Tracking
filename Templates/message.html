@@ -206,10 +206,11 @@
     {{/if}}
     {{/unless}}
 
-    {{#if starred_items_list}}
-    <span class="message_location_label overflow_ellipsis">
+
+    {{#or starred_items_list for_mention_display}}
+      <span class="message_location_label overflow_ellipsis">
       {{#if msg.parent_user_id}}
-        <a href="{{conversation_permalink}}" class="show_replies"><span class="normal">
+        <a href="{{permalink}}" target="{{newWindowName}}" title="{{#t}}Open thread{{/t}}"><span class="normal">
         {{#if model_ob.is_im}}
           {{#t note="description of the message's original context"}}from a thread with</span> @{model_ob.name}{{/t}}
         {{else if model_ob.is_mpim}}
@@ -220,7 +221,7 @@
           {{#t note="description of the message's original context"}}from a thread in</span> <ts_icon class="ts_icon ts_icon_lock ts_icon_inherit"></ts_icon>{model_ob.name}{{/t}}
         {{/if}}
         </a>
-      {{else}}
+      {{else if starred_items_list}}
         {{#if model_ob.is_im}}
           <a href="{{permalink}}" target="{{newWindowName}}">{{#t}}Direct Message{{/t}}</a>
         {{else}}
@@ -248,8 +249,8 @@
           {{/if}}
         {{/if}}
       {{/if}}
-    </span>
-    {{/if}}
+      </span>
+    {{/or}}
 
     {{#if standalone}}
 

@@ -15563,6 +15563,37 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   background-color: rgba(113, 114, 116, .8)
 }
 
+#channel_membership_dialog_container #channel_membership_dialog_scroller {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: .8rem
+}
+
+#channel_membership_dialog_container #channel_membership_dialog_scroller .member_item {
+  width: 100%
+}
+
+#channel_membership_dialog_container .searchable_member_list_search input {
+  width: 100%;
+  border: none;
+  border-radius: none;
+  border-bottom: 1px solid #e8e8e8;
+  padding-left: 2.8rem;
+  padding-top: .8rem;
+  padding-bottom: .8rem
+}
+
+#channel_membership_dialog_container .ts_icon_search {
+  top: .85rem;
+  left: 1rem;
+  color: #555459
+}
+
+#channel_membership_dialog_container .icon_close {
+  top: .6rem;
+  right: .6rem
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");

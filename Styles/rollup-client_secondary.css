@@ -17897,6 +17897,37 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   background-color: rgba(113, 114, 116, .8)
 }
 
+#channel_membership_dialog_container #channel_membership_dialog_scroller {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: .8rem
+}
+
+#channel_membership_dialog_container #channel_membership_dialog_scroller .member_item {
+  width: 100%
+}
+
+#channel_membership_dialog_container .searchable_member_list_search input {
+  width: 100%;
+  border: none;
+  border-radius: none;
+  border-bottom: 1px solid #e8e8e8;
+  padding-left: 2.8rem;
+  padding-top: .8rem;
+  padding-bottom: .8rem
+}
+
+#channel_membership_dialog_container .ts_icon_search {
+  top: .85rem;
+  left: 1rem;
+  color: #555459
+}
+
+#channel_membership_dialog_container .icon_close {
+  top: .6rem;
+  right: .6rem
+}
+
 .jcrop-holder {
   direction: ltr;
   text-align: left;
@@ -27189,7 +27220,7 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 
 .threads_alternative_view_wrapper .threads_alternative_view_message {
   margin: 2rem auto;
-  max-width: 27.1875rem;
+  max-width: 33.4375rem;
   line-height: 1.40625rem
 }
 

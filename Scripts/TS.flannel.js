@@ -34,8 +34,8 @@
     fetchAndUpsertObjectsByIds: function(ids) {
       return _fetchAndProcessObjectsByIds(ids, _batchUpsertObjects);
     },
-    fetchAndUpsertObjectsWithQuery: function(query) {
-      return _fetchAndProcessObjectsWithQuery(query, _batchUpsertObjects);
+    fetchAndUpsertObjectsWithQuery: function(query, limit) {
+      return _fetchAndProcessObjectsWithQuery(query, _batchUpsertObjects, limit);
     },
     fetchAndUpsertAllMembersForModelOb: function(model_ob) {
       if (_.isUndefined(model_ob.members)) {
@@ -57,10 +57,9 @@
     },
     fetchAndUpsertAllMembersOnTeam: function() {
       var args = {
-        count: _MAX_IDS_PER_QUERY,
-        limit: Infinity
+        count: _MAX_IDS_PER_QUERY
       };
-      return TS.flannel.fetchAndUpsertObjectsWithQuery(args);
+      return TS.flannel.fetchAndUpsertObjectsWithQuery(args, Infinity);
     },
     connectAndFetchRtmStart: function(rtm_start_args) {
       TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
@@ -92,11 +91,11 @@
         if (TS.shouldLog(1989) || TS.boot_data.feature_tinyspeck) {
           TS.info(required_member_ids.join(", "));
         }
-        return _fetchRawObjectsByIds(required_member_ids).then(function(users) {
-          TS.info("Got " + users.length + " members for rtm.start :tada:");
-          data.users = users;
-          if (required_member_ids.length !== users.length) {
-            TS.error("TS.flannel.connectAndFetchRtmStart problem: Requested " + required_member_ids.length + " members but received " + users.length + ". Missing members: " + _.difference(required_member_ids, _.map(users, "id")).join(","));
+        return _fetchRawObjectsByIds(required_member_ids).then(function(members) {
+          TS.info("Got " + members.length + " members for rtm.start :tada:");
+          data.users = members;
+          if (required_member_ids.length !== members.length) {
+            TS.error("TS.flannel.connectAndFetchRtmStart problem: Requested " + required_member_ids.length + " members but received " + members.length + ". Missing members: " + _.difference(required_member_ids, _.map(members, "id")).join(","));
           }
           return data;
         }).catch(function(err) {
@@ -164,34 +163,27 @@
   var _deleted_user_ids = [];
   var _MAX_IDS_PER_QUERY = 500;
   var _model_ob_member_fetch_promises = {};
-  var _fetchAndProcessObjects = function(query, objects, process_fn, marker) {
-    var flannel_query = _.assign({}, query, {
-      marker: marker
-    });
-    if (flannel_query.limit) delete flannel_query.limit;
-    return TS.ms.flannel.call("query_request", flannel_query).then(function(resp) {
+  var _fetchAndProcessObjects = function(query, objects, process_fn, limit) {
+    return TS.ms.flannel.call("query_request", query).then(function(resp) {
       if (_.get(resp, "results.length")) {
         objects = objects.concat(process_fn(resp.results));
-        if (query.limit && (objects.length >= query.limit || !resp.next_marker)) {
-          return new Promise.resolve({
-            objects: objects.slice(0, query.limit),
-            next_marker: objects.length > query.limit ? objects[query.limit].id : resp.next_marker
-          });
-        }
-      }
-      if (!resp.next_marker || objects.length >= query.count && !query.limit) {
-        TS.log(1989, "Flannel: finished fetching results for query", query);
-        if (query.count) {
+        if (limit && (objects.length >= limit || !resp.next_marker)) {
           return {
-            objects: objects.slice(0, query.count),
-            next_marker: objects.length > query.count ? objects[query.count].id : resp.next_marker
+            objects: objects.slice(0, limit),
+            next_marker: objects.length > limit ? objects[limit].id : resp.next_marker
           };
-        } else {
-          return objects;
         }
       }
+      if (!resp.next_marker || objects.length >= query.count && !limit) {
+        TS.log(1989, "Flannel: finished fetching results for query", query);
+        return {
+          objects: objects.slice(0, query.count),
+          next_marker: objects.length > query.count ? objects[query.count].id : resp.next_marker
+        };
+      }
+      query.marker = resp.next_marker;
       TS.log(1989, "Flannel: fetching next page for query", query);
-      return _fetchAndProcessObjects(query, objects, process_fn, resp.next_marker);
+      return _fetchAndProcessObjects(query, objects, process_fn, limit);
     });
   };
   var _batchUpsertObjects = function(objects) {
@@ -233,8 +225,8 @@
     var ids = _(TS.ui.frecency.getMostCommonWithPrefix(member_id_prefix, MAX_FRECENCY_PREFETCH_MEMBERS)).map("id").difference(known_ids).value();
     if (!ids.length) return;
     TS.log(1989, "Flannel: pre-fetching " + ids.length + " most frequently accessed members...");
-    TS.flannel.fetchAndUpsertObjectsByIds(ids).then(function(members) {
-      TS.log(1989, "Flannel: pre-fetched " + members.length + " most frequently accessed members 👍");
+    TS.flannel.fetchAndUpsertObjectsByIds(ids).then(function(response) {
+      TS.log(1989, "Flannel: pre-fetched " + response.objects.length + " most frequently accessed members 👍");
     }).catch(_.noop);
   };
   var _fetchAndProcessObjectsByIds = function(ids, process_fn) {
@@ -255,20 +247,19 @@
         return Promise.reject(e);
       }
       var members = _(results).map(function(p) {
-        return p.value();
+        return p.value().objects;
       }).flatten().value();
       return Promise.resolve(members);
     });
   };
-  var _fetchAndProcessObjectsWithQuery = function(query, process_fn) {
+  var _fetchAndProcessObjectsWithQuery = function(query, process_fn, limit) {
     if (_.isString(query)) {
       query = {
         query: query
       };
     }
     var objects = [];
-    var marker = query.marker || "";
-    return _fetchAndProcessObjects(query, objects, process_fn, marker);
+    return _fetchAndProcessObjects(query, objects, process_fn, limit);
   };
   var _getFlannelConnectionUrl = function(rtm_start_args) {
     return TS.utility.url.setUrlQueryStringValue(TS.boot_data.ms_connect_url, "start_args", TS.utility.url.queryStringEncode(rtm_start_args));

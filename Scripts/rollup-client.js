@@ -761,6 +761,8 @@
       TS.ui.prefs_dialog.start("notifications");
     } else if (modal_to_open == "help") {
       TS.help_modal.start();
+    } else if (modal_to_open == "channel_membership") {
+      TS.client.channel_page.members_dialog.show(TS.shared.getActiveModelOb());
     }
     _putURLInHistory(TS.utility.url.removeUrlQueryStringValue(location.href, "open"), true);
   };
@@ -9142,6 +9144,36 @@
           TS.client.ui.$msg_input.trigger("autosize").trigger("autosize-resize");
         }
       };
+      if (TS.model.less_jumpy_message_pane) {
+        var do_hide_flex = done;
+        done = function() {
+          var $msgs;
+          var $scroller;
+          if (TS.model.archive_view_is_showing) {
+            $scroller = TS.client.archives.$scroller;
+          } else if (TS.model.unread_view_is_showing) {
+            $scroller = TS.client.ui.unread.$scroller;
+          } else if (TS.model.threads_view_is_showing) {
+            $scroller = TS.client.ui.threads.$scroller;
+          } else {
+            $scroller = TS.client.ui.$msgs_scroller_div;
+          }
+          $msgs = $scroller.find("ts-message");
+          var scroll_top = $scroller.scrollTop();
+          if (scroll_top !== -1) {
+            var scroller_offset_top = $scroller.offset().top;
+            var first_msg_el = _.find($msgs.toArray(), function(el) {
+              var top = $(el).offset().top;
+              return top - scroller_offset_top >= 0;
+            });
+            TS.ui.utility.preventElementFromScrolling($(first_msg_el), function() {
+              do_hide_flex();
+            });
+          } else {
+            do_hide_flex();
+          }
+        };
+      }
       if (TS.model.ui.active_tab_id == "list") {
         $("#flex_contents").transition({
           opacity: 0
@@ -9633,7 +9665,7 @@
     _recursivelyFillLongListViewToHeight: function() {
       var this_searchable_member_list = this;
       if (this._current_query_for_match) return;
-      if (this._long_list_view_items_height < this._long_list_view_height && !this._have_all_members) {
+      if (this._long_list_view_items_height <= this._long_list_view_height && !this._have_all_members) {
         this._fetchProcessAndDisplayPage().then(function() {
           this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
           this_searchable_member_list._recursivelyFillLongListViewToHeight();
@@ -9706,6 +9738,10 @@
     _handleSearchKeyUp: function(e) {
       var new_query = $(e.target).val();
       if (new_query.trim().toLocaleLowerCase() !== this._current_query_for_match) {
+        if (this._fetch_page_p) {
+          this._fetch_page_p.cancel();
+          this._fetch_page_p = null;
+        }
         this._presence_list.clear();
         this._members = [];
         this._next_marker = "";
@@ -9722,6 +9758,10 @@
       TS.menu.startWithSearchableMemberListFilter(evt, this._filter_counts, function(e) {
         var $action = $(e.target).closest("[data-filter]");
         if (!$action.length) return;
+        if (this_searchable_member_list._fetch_page_p) {
+          this_searchable_member_list._fetch_page_p.cancel();
+          this_searchable_member_list._fetch_page_p = null;
+        }
         this_searchable_member_list._presence_list.clear();
         this_searchable_member_list._members = [];
         this_searchable_member_list._next_marker = "";
@@ -28463,6 +28503,15 @@
   var DIALOG_CLASS = "all_members_dialog";
 
   function _initDialogUI() {
+    if (TS.useSearchableMemberList()) {
+      var searchable_member_list = new TS.SearchableMemberList({
+        $container: $("#channel_membership_dialog_container"),
+        id: "channel_membership_dialog_scroller",
+        channel_member_ids: TS.shared.getActiveModelOb().members
+      });
+      searchable_member_list.showInitial();
+      return;
+    }
     var $list_container = TS.generic_dialog.div.find("#all_members_container");
     var $filter_input = TS.generic_dialog.div.find("#all_members_filter input");
     $filter_input.focus();
@@ -28514,6 +28563,9 @@
   };
 
   function _showMembersDialog(model_ob, members) {
+    if (TS.useSearchableMemberList()) {
+      var members = model_ob.members;
+    }
     var body_html = TS.templates.channel_page_all_members_dialog();
     var title = TS.i18n.t("{member_count, number} members in {channel_name}", "channel_pages")({
       member_count: members.length,
