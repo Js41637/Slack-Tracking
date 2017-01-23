@@ -56039,9 +56039,11 @@ $.fn.togglify = function(settings) {
     if (pending_attachment) {
       TS.attachment_actions.render(pending_attachment, data.message.ts);
     }
+    var action = _.clone(data.action);
+    delete action.options;
     var api_args = {
       payload: JSON.stringify({
-        actions: [data.action],
+        actions: [action],
         attachment_id: data.attachment.id,
         callback_id: data.attachment.callback_id,
         channel_id: data.channel_id,
@@ -56179,7 +56181,6 @@ $.fn.togglify = function(settings) {
     var $select = this.$select;
     var context = TS.attachment_actions.handleActionEventAndGetContext($select);
     var onGo = function() {
-      delete context.action.options;
       context.action.selected_options = [{
         value: item.value
       }];
@@ -56213,16 +56214,30 @@ $.fn.togglify = function(settings) {
   }
 
   function _getOptionsForModel(model) {
+    var options;
     switch (model.data_source) {
       case _DATA_SOURCES.channels:
-        return _getOptionsForChannels();
+        options = _getOptionsForChannels();
+        break;
       case _DATA_SOURCES.users:
-        return _getOptionsForUsers();
+        options = _getOptionsForUsers();
+        break;
       case _DATA_SOURCES.external:
-        return;
+        break;
       default:
-        return model.options;
+        options = model.options;
+        break;
     }
+    if (model.selected_options && options) {
+      for (var i = 0; i < options.length; i++) {
+        if (model.selected_options.some(function(selected_option) {
+            return selected_option.value == options[i].value;
+          })) {
+          options[i].selected = true;
+        }
+      }
+    }
+    return options;
   }
 
   function _getOptionsForChannels() {

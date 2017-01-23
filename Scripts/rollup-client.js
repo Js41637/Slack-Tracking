@@ -15192,7 +15192,6 @@
     },
     showResults: function() {
       var previous_active_tab_id = TS.model.ui.active_tab_id;
-      var previous_active_tab_ts = TS.model.ui.active_tab_ts;
       var previous_file_id = TS.model.previewed_file_id;
       if (!TS.model.ui_state.flex_visible || TS.model.ui_state.flex_name !== "search") {
         TS.client.ui.flex.openFlexTab("search");
@@ -15201,7 +15200,6 @@
         });
       }
       $("#header_search_form").addClass("active");
-      if (previous_active_tab_id == "files" && TS.model.ui.active_tab_ts - TS.search.view.filter_delay_ms < previous_active_tab_ts) TS.search.setFilter("files");
       if (TS.search.filter == "messages") {
         $("#search_tabs").show();
       } else if (TS.search.filter == "files") {

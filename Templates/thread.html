@@ -13,15 +13,15 @@
         <span class="inline_thread_title">{{#t}}Thread{{/t}}</span>
       {{else}}
         <a>
-          {{#if model_ob.is_channel}}
-            <ts-icon class="ts_icon_channel_pane_hash"></ts-icon> {{model_ob.name}}
-          {{else if model_ob.is_im}}
-            {{makeMemberPresenceIcon im_user}} {{model_ob.name}}
-          {{else if model_ob.is_mpim}}
-            <ts-icon class="mpim_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}}"></ts-icon> {{mpimDisplayName model_ob}}
-          {{else if model_ob.is_group}}
-            <ts-icon class="ts_icon_lock"></ts-icon> {{model_ob.name}}
-          {{/if}}
+          {{~#if model_ob.is_channel~}}
+            <ts-icon class="ts_icon_channel_pane_hash"></ts-icon>{{model_ob.name}}
+          {{~else if model_ob.is_im~}}
+            {{makeMemberPresenceIcon im_user}}{{model_ob.name}}
+          {{~else if model_ob.is_mpim~}}
+            <ts-icon class="mpim_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}}"></ts-icon>{{mpimDisplayName model_ob}}
+          {{~else if model_ob.is_group~}}
+            <ts-icon class="ts_icon_lock"></ts-icon>{{model_ob.name}}
+          {{~/if~}}
         </a>
       {{/if}}
       <br>
