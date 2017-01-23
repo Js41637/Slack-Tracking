@@ -2,14 +2,14 @@
 
 {{#if user.is_ultra_restricted}}
   {{#feature flag="feature_browse_date"}}
-    <li id="channel_jump_item" role="menuitem">    
+    <li id="channel_jump_item" role="menuitem">
       <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
     </li>
   {{/feature}}
   <li id="channel_details_item">
     <a>{{#t}}View channel details{{/t}}</a>
   </li>
-  <li class="divider"></li> 
+  <li class="divider"></li>
   <li id="channel_prefs" role="menuitem">
     <a>{{#t}}Notification preferences &hellip;{{/t}}</a>
   </li>
@@ -35,7 +35,7 @@
   {{#if user.is_restricted}}
     {{#if channel.is_member}}
       {{#feature flag="feature_browse_date"}}
-        <li id="channel_jump_item" role="menuitem">    
+        <li id="channel_jump_item" role="menuitem">
           <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
         </li>
       {{/feature}}
@@ -45,7 +45,7 @@
       <li id="channel_details_item">
         <a>{{#t}}View channel details{{/t}}</a>
       </li>
-      <li class="divider"></li> 
+      <li class="divider"></li>
       <li id="channel_prefs" role="menuitem">
         <a>{{#t note="Individual channel notification preferences"}}Notification preferences &hellip;{{/t}}</a>
       </li>
@@ -70,7 +70,7 @@
     <li class="divider"></li>
   {{else}}
     {{#feature flag="feature_browse_date"}}
-      <li id="channel_jump_item" role="menuitem">    
+      <li id="channel_jump_item" role="menuitem">
         <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
       </li>
     {{/feature}}
@@ -107,14 +107,14 @@
       {{#if show_handy_rxns}}
         <li id="channel_handy_rxns_item" role="menuitem"><a>
           {{#t}}Edit Handy Reactions &hellip;{{/t}}
-        </a></li>  
+        </a></li>
       {{/if}}
       {{#if show_manage_teams}}
         <li id="channel_manage_teams_item" role="menuitem"><a>
           {{#t}}Manage teams in this channel &hellip;{{/t}}
         </a></li>
       {{/if}}
-      {{#if can_see_highlights}}
+      {{#if highlights_toggle}}
         <li id="channel_highlight_toggle" role="menuitem">
           <a>
             {{#if highlights_on}}
@@ -192,7 +192,7 @@
           {{#t}}Join #{channel.name}{{/t}}
         </a></li>
       {{/if}}
-      
+
     {{/if}}
   {{/if}}
 {{/if}}
