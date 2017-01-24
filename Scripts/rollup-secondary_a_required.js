@@ -46415,12 +46415,17 @@ $.fn.togglify = function(settings) {
   TS.registerModule("ui.utility", {
     onStart: _.noop,
     preventElementFromScrolling: function($el, callback, find_new_el) {
-      if (!$el.length) {
+      if (!$el.length || _preventing_element_from_scrolling) {
         callback();
         return;
       }
       var initial_offset = $el.offset();
-      callback();
+      try {
+        _preventing_element_from_scrolling = true;
+        callback();
+      } finally {
+        _preventing_element_from_scrolling = false;
+      }
       if (_.isFunction(find_new_el)) {
         $el = find_new_el();
         if (!$el.length) return;
@@ -46452,6 +46457,7 @@ $.fn.togglify = function(settings) {
       }
     }
   });
+  var _preventing_element_from_scrolling = false;
 })();
 (function() {
   "use strict";
@@ -56963,7 +56969,7 @@ $.fn.togglify = function(settings) {
       return !!TS.boot_data.feature_message_replies;
     },
     areTempMsgsEnabled: function() {
-      return !!TS.boot_data.feature_message_replies_temp_msgs;
+      return !!TS.boot_data.feature_message_replies_post_release;
     },
     getSubscriptionState: function(model_ob_id, thread_ts) {
       var key = _keyForThread(model_ob_id, thread_ts);

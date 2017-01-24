@@ -5631,8 +5631,8 @@ only screen and (min-resolution:2dppx) {
 
 #emoji_menu {
   position: absolute;
-  min-width: 22.4375rem;
-  max-width: 22.4375rem;
+  min-width: 22.5rem;
+  max-width: 22.5rem;
   color: #555459;
   z-index: 1053;
   font-size: .95rem;
@@ -5711,11 +5711,11 @@ body.winssb #emoji_menu {
 #emoji_menu #emoji_menu_items_scroller {
   max-height: 270px;
   overflow-y: auto;
-  overflow-x: hidden
+  overflow-x: hidden;
+  background: #fff
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #emoji_menu #emoji_menu_items_scroller {
-  background: #fff;
   border-right: .25rem solid transparent
 }
 
@@ -5748,7 +5748,6 @@ body.winssb #emoji_menu {
 }
 
 .supports_custom_scrollbar.slim_scrollbar #emoji_menu #emoji_menu_items_scroller {
-  background: #fff;
   margin-right: 2px
 }
 
@@ -7422,6 +7421,7 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_item {
+  color: #2c2d30;
   font-size: .8125rem
 }
 
