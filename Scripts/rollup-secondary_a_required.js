@@ -19617,7 +19617,7 @@ TS.registerModule("constants", {
           show_file_viewer_link = may_show_file_viewer;
           if (file.external_type == "dropbox" || file.external_type == "gdrive" || file.external_type == "box" || file.external_type == "onedrive") {
             var file_to_show = file.thumb_720 ? file.thumb_720 : file.thumb_360;
-            html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + open_new_tab_str + '" class="file_viewer_external_link" data-src="' + TS.utility.htmlEntities(file_to_show) + '"data-link-url="' + link_url + '">';
+            html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + open_new_tab_str + '" class="file_viewer_external_link" data-src="' + TS.utility.htmlEntities(file_to_show) + '"data-link-url="' + TS.utility.htmlEntities(link_url) + '">';
           } else {
             if (show_file_viewer_link) {
               html += '<a href="' + link_url + '" target="_blank" class="file_viewer_channel_link file_viewer_link" data-file-id="' + inline_img.internal_file_id + '">';
@@ -19636,7 +19636,7 @@ TS.registerModule("constants", {
         } else {
           img_title = TS.i18n.t("Click to open original in new tab", "templates_builders")();
         }
-        html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + img_title + '" class="' + img_class + '" data-src="' + TS.utility.htmlEntities(inline_img.src) + '" data-link-url="' + inline_img.link_url + '"';
+        html += "<a " + TS.utility.makeRefererSafeLink(link_url) + ' target="_blank" title="' + img_title + '" class="' + img_class + '" data-src="' + TS.utility.htmlEntities(inline_img.src) + '" data-link-url="' + TS.utility.htmlEntities(inline_img.link_url) + '"';
         if (inline_img.width) html += ' data-width="' + TS.utility.htmlEntities(inline_img.width) + '"';
         if (inline_img.height) html += ' data-height="' + TS.utility.htmlEntities(inline_img.height) + '"';
         if (inline_img.rotation) html += ' data-rotation="' + TS.utility.htmlEntities(inline_img.rotation) + '"';
@@ -36129,6 +36129,8 @@ var _on_esc;
   TS.registerModule("stars", {
     member_stars_fetched_sig: new signals.Signal,
     member_stars_being_fetched_sig: new signals.Signal,
+    channel_starred_sig: new signals.Signal,
+    channel_unstarred_sig: new signals.Signal,
     has_more: false,
     fetched_once: false,
     onStart: function() {
@@ -36505,6 +36507,9 @@ var _on_esc;
     _updateStar($(selector), starred, channel, selector);
     if (TS.client) {
       TS.client.channel_pane.rebuild("channels", "starred");
+      var model_ob = TS.shared.getModelObById(channel_id);
+      if (!model_ob) return;
+      starred ? TS.stars.channel_starred_sig.dispatch(model_ob) : TS.stars.channel_unstarred_sig.dispatch(model_ob);
     }
   };
   var _updateGroupStar = function(group_id, starred) {
@@ -47783,13 +47788,6 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".file_ssb_download_link", function(e, $el) {
       var open_flexpane = !(TS.ui.fs_modal_file_viewer && TS.ui.fs_modal_file_viewer.is_showing);
       var file = TS.files.getFileById($el.data("file-id"));
-      if (TS.model.pdf_viewer_enabled && file && TS.files.fileIsPDF(file)) {
-        if (TS.ui.fs_modal_file_viewer.is_showing) {
-          TS.metrics.count("pdf_viewer_download_in_file_viewer");
-        } else {
-          TS.metrics.count("pdf_viewer_download_outside_file_viewer");
-        }
-      }
       if (TS.boot_data.feature_platform_metrics) {
         var payload = {
           is_successful: false

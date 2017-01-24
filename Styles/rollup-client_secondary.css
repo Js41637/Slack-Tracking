@@ -10792,6 +10792,20 @@ img.orientation_8 {
   margin-top: .25rem
 }
 
+.broken_image {
+  background-image: url(/0a044/img/files/broken_image.png);
+  background-repeat: no-repeat;
+  background-position: center
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio:2),
+only screen and (min-resolution:192dpi),
+only screen and (min-resolution:2dppx) {
+  .broken_image {
+    background-image: url(/0a044/img/files/broken_image@2x.png)
+  }
+}
+
 .file_container {
   display: block;
   overflow: hidden;
@@ -20984,6 +20998,16 @@ ts-thread ts-message.selected .action_hover_container {
   background: #fff!important
 }
 
+.recap_hover .recap_hover_message_preview ts-message::before {
+  position: absolute;
+  content: '';
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, transparent 0, transparent 325px, #fff 378px, #fff 100%);
+  pointer-events: none;
+  z-index: 20
+}
+
 .recap_hover .recap_hover_message_preview .message_gutter {
   width: 3rem
 }
@@ -21023,7 +21047,7 @@ ts-thread ts-message.selected .action_hover_container {
 }
 
 .dense_theme .recap_hover .recap_hover_message_preview .message_content .message_content_header {
-  display: block
+  display: block!important
 }
 
 .dense_theme .recap_hover .recap_hover_message_preview .message_content .message_content_header .message_sender {
@@ -22802,20 +22826,6 @@ only screen and (min-resolution:2dppx) {
   display: inline-block
 }
 
-.fs_modal_file_viewer_content .viewer .broken_image {
-  background-image: url(/bfaba/img/files/file_viewer_broken_image.png);
-  background-repeat: no-repeat;
-  background-position: center
-}
-
-@media only screen and (-webkit-min-device-pixel-ratio:2),
-only screen and (min-resolution:192dpi),
-only screen and (min-resolution:2dppx) {
-  .fs_modal_file_viewer_content .viewer .broken_image {
-    background-image: url(/bfaba/img/files/file_viewer_broken_image@2x.png)
-  }
-}
-
 .fs_modal_file_viewer_content .viewer .broken_image .scaled_image {
   visibility: hidden
 }
@@ -24473,7 +24483,7 @@ ts-jumper ts-jumper-results:empty {
   margin-right: .4rem
 }
 
-.channel_header_info_item:not(:first-child):before {
+.channel_header_info_item:not(:empty)~.channel_header_info_item:before {
   padding-right: .4rem;
   color: rgba(113, 114, 116, .5);
   content: '|'

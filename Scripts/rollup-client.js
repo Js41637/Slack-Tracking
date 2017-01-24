@@ -4464,7 +4464,7 @@
         var skip_rebuilding_channel_header = true;
         var make_sure_active_channel_is_in_view = false;
         var model_ob = TS.shared.getActiveModelOb();
-        if (model_ob.is_im && model_ob.user === member.id || model_ob.is_mpim && model_ob.members.indexOf(member.id) > -1) {
+        if (model_ob && (model_ob.is_im && model_ob.user === member.id || model_ob.is_mpim && model_ob.members.indexOf(member.id) > -1)) {
           skip_rebuilding_channel_header = false;
         }
         TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header);
@@ -5927,7 +5927,6 @@
             TS.client.threads.showThreadsView();
           } else {
             TS.ui.im_browser.start();
-            if (e.which == 84) TS.metrics.count("threads_existing_cmd_shift_t_usage");
           }
           e.preventDefault();
         }
@@ -6595,7 +6594,7 @@
           }
           $img.attr("src", $img.data("real-src"));
           $img.error(function() {
-            $(this).closest(".msg_inline_holder, .image_container").addClass("hidden");
+            $(this).closest(".msg_inline_holder, .image_body").addClass("broken_image");
           });
           $holder.data(loaded_data, true);
         } else {
@@ -8277,6 +8276,11 @@
         $file_preview_scroller.html(preview_head_html);
       }
       TS.utility.makeSureAllLinksHaveTargets($file_preview_scroller);
+      if (file.mode == "image") {
+        $file_preview_scroller.find("img").error(function() {
+          $(this).closest(".image_body").addClass("broken_image");
+        });
+      }
       if (file.mode == "space") TS.client.ui.unfurlPlaceholders($file_preview_scroller);
       template_args = {
         file: file
@@ -11581,6 +11585,9 @@
       TS.groups.marked_sig.add(_markUnreadPinIcon);
       TS.mpims.marked_sig.add(_markUnreadPinIcon);
       TS.ims.marked_sig.add(_markUnreadPinIcon);
+      TS.channels.joined_sig.add(_buildStars);
+      TS.channels.left_sig.add(_buildStars);
+      TS.stars.channel_unstarred_sig.add(_handleUnstarredSig);
       if (TS.boot_data.feature_message_replies) {
         TS.client.threads.reply_count_changed.add(_replyCountChanged);
       }
@@ -11866,13 +11873,18 @@
         star = TS.templates.builders.buildStarWithTip("im", im);
       }
     } else if (TS.model.active_channel_id) {
-      star = TS.templates.builders.buildStarWithTip("channel", _model_ob);
+      var should_show_star = _model_ob.is_member || _model_ob.is_archived && _model_ob.is_starred;
+      if (should_show_star) star = TS.templates.builders.buildStarWithTip("channel", _model_ob);
     } else if (TS.model.active_group_id) {
       star = TS.templates.builders.buildStarWithTip("group", _model_ob);
     } else if (TS.model.active_mpim_id) {
       star = TS.templates.builders.buildStarWithTip("mpim", _model_ob);
     }
     $("#star_container").html(_.trim(star));
+  };
+  var _handleUnstarredSig = function(changed_model_ob) {
+    if (!_model_ob || !changed_model_ob || _model_ob.id !== changed_model_ob.id) return;
+    if (_model_ob.is_archived) _buildStars();
   };
   var _setMutedDisplay = function() {
     if (!_model_ob) return;
