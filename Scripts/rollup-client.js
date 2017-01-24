@@ -9143,13 +9143,7 @@
         if (TS.model.ui_state.flex_name === "details") {
           if (!no_history) TS.model.ui_state.details_tab_active = false;
         } else if (TS.model.ui_state.details_tab_active && !TS.client.activeChannelIsHidden()) {
-          if (TS.boot_data.feature_message_replies_post_release) {
-            TS.client.ui.maintainMessagePanePosition(function() {
-              TS.client.ui.flex.openFlexTab("details", TS.boot_data.feature_message_replies && replace_state);
-            });
-          } else {
-            TS.client.ui.flex.openFlexTab("details", TS.boot_data.feature_message_replies && replace_state);
-          }
+          TS.client.ui.flex.openFlexTab("details", TS.boot_data.feature_message_replies && replace_state);
           return;
         }
       }
@@ -9194,7 +9188,7 @@
     last_window_width_diff_default: 392,
     showFlex: function(fade_in, no_resize) {
       var was_at_bottom = TS.client.ui.areMsgsScrolledToBottom();
-      if (TS.boot_data.feature_message_replies_post_release && !was_at_bottom) {
+      if (TS.boot_data.feature_message_replies_post_release && (TS.client.activeChannelIsHidden() || !was_at_bottom)) {
         TS.client.ui.maintainMessagePanePosition(function() {
           $("#client-ui").addClass("flex_pane_showing");
         });
@@ -9452,7 +9446,15 @@
       } else if (model_ob.is_group || model_ob.is_channel) {
         $details_toggle_ts_tip_tip.text(TS.i18n.t("Hide Channel Details", "flexpane")());
       }
-      $("#client-ui").addClass("details_showing");
+      if (!$("#client-ui").hasClass("details_showing")) {
+        if (TS.boot_data.feature_message_replies_post_release) {
+          TS.client.ui.maintainMessagePanePosition(function() {
+            $("#client-ui").addClass("details_showing");
+          });
+        } else {
+          $("#client-ui").addClass("details_showing");
+        }
+      }
     } else if (name === "mentions") {
       $recent_mentions_toggle.addClass("active");
       $recent_mentions_toggle.find(".ts_tip_tip").text(TS.i18n.t("Hide Activity", "flexpane")());
@@ -9463,7 +9465,15 @@
   };
   var _resetFlexpaneToggles = function(model_ob) {
     var $details_toggle_ts_tip_tip = $("#details_toggle .ts_tip_tip");
-    $("#client-ui").removeClass("details_showing");
+    if ($("#client-ui").hasClass("details_showing")) {
+      if (TS.boot_data.feature_message_replies_post_release) {
+        TS.client.ui.maintainMessagePanePosition(function() {
+          $("#client-ui").removeClass("details_showing");
+        });
+      } else {
+        $("#client-ui").removeClass("details_showing");
+      }
+    }
     $(".channel_header_icon.active").removeClass("active");
     if (model_ob) {
       if (model_ob.is_im || model_ob.is_mpim) {

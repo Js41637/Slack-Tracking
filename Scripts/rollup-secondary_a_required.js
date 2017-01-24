@@ -54564,10 +54564,7 @@ $.fn.togglify = function(settings) {
         }
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (_.isString(value)) {
-          if (focus_after_insert) TS.utility.contenteditable.focus(input);
-          texty.insertTextAtCursor(value);
-        }
+        if (_.isString(value)) texty.insertTextAtCursor(value, focus_after_insert);
       }
       return "";
     },
