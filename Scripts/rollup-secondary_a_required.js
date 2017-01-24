@@ -33013,6 +33013,8 @@ var _on_esc;
         TS.ui.fs_modal.close();
         return;
       } else if (option === "confirm_leave_team") {
+        var ladda = Ladda.create(this);
+        ladda.start();
         var calling_args = {
           team: TS.ui.leave_team_dialog.team_id
         };
@@ -33021,7 +33023,7 @@ var _on_esc;
           var team = TS.enterprise.getTeamById(args.team);
           var success_message = emoji.replace_colons(":sparkles:");
           success_message += TS.i18n.t(" You’ve successfully left <strong>{team_name}</strong>", "enterprise_workspaces")({
-            team_name: team.name
+            team_name: TS.utility.htmlEntities(team.name)
           });
           if (ok) {
             _updateTeamsList(args.team);
@@ -42189,7 +42191,7 @@ var _on_esc;
       return TS.api.call("enterprise.teams.join", calling_args, function(ok, data, args) {
         var team = TS.enterprise.getTeamById(args.team);
         var message = new Handlebars.SafeString(emoji.replace_colons(":sparkles:") + TS.i18n.t(" You‘ve successfully joined <strong>{team_name}</strong>", "enterprise_dashboard")({
-          team_name: team.name
+          team_name: TS.utility.htmlEntities(team.name)
         }));
         if (ok) {
           var team = _.merge({}, TS.enterprise.getTeamById(args.team));
@@ -42368,9 +42370,12 @@ var _on_esc;
         $workspace_info.addClass("hidden").attr("data-team-id", "");
       });
       $workspace_info.on("click", 'button[data-qa="join-btn"]', function(e) {
+        var ladda = Ladda.create(this);
+        ladda.start();
         var team_id = $(this).data("id");
         var team = TS.enterprise.getTeamById(team_id);
         _joinTeamHandler(team_id).then(function(result) {
+          ladda.stop();
           if (result) {
             $workspace_info.html(TS.templates.team_info({
               list: list,
@@ -42388,16 +42393,21 @@ var _on_esc;
       });
       $workspace_info.on("click", 'button[data-qa="request-to-join-btn"]', function(e) {
         e.preventDefault();
+        var ladda = Ladda.create(this);
+        ladda.start();
         var team_id = $(this).data("id");
         TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
           var team = TS.enterprise.getTeamById(team_id);
           $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+          ladda.stop();
           $workspace_info.html(TS.templates.team_info({
             list: list,
             team: team,
             user: TS.model.user
           }));
-        }).catch(function() {});
+        }).catch(function() {
+          ladda.stop();
+        });
       });
     }
     $container.on("click", ".enterprise_team_card a", function(e) {
@@ -42416,17 +42426,26 @@ var _on_esc;
     });
     $container.on("click", ".enterprise_team_card .enterprise_team_join", function(e) {
       e.stopPropagation();
+      var ladda = Ladda.create(this);
+      ladda.start();
       var team_id = $(this).data("id");
-      _joinTeamHandler(team_id);
+      _joinTeamHandler(team_id).then(function() {
+        ladda.stop();
+      });
     });
     if (TS.boot_data.feature_discoverable_teams_client_v2) {
       $container.on("click", ".enterprise_team_card .enterprise_team_request", function(e) {
         e.stopPropagation();
+        var ladda = Ladda.create(this);
+        ladda.start();
         var team_id = $(this).data("id");
         TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
           var team = TS.enterprise.getTeamById(team_id);
+          ladda.stop();
           $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
-        }).catch(function() {});
+        }).catch(function() {
+          ladda.stop();
+        });
       });
     }
     $container.find(".not_on_any_workspaces").on("click", ".find_teams", function(e) {

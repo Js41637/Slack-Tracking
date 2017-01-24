@@ -19057,7 +19057,7 @@ ts-message.show_recap:not(.is_pinned).standalone:not(.for_mention_display):not(.
 }
 
 ts-message .is_highlights_holder {
-  color: #2ab27b;
+  color: #217d4b;
   font-size: .75rem;
   line-height: .75rem;
   margin-left: 4.5rem;
@@ -19070,11 +19070,11 @@ ts-message .is_highlights_holder {
 ts-message .is_highlights_holder ts-icon {
   position: absolute;
   left: -1.25rem;
-  color: #2ab27b
+  color: #217d4b
 }
 
 ts-message .is_highlights_holder a {
-  color: #2ab27b
+  color: #217d4b
 }
 
 ts-message .recap_highlight {
