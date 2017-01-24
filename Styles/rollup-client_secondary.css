@@ -2334,25 +2334,6 @@ html.is_electron_mac #rxn_toast_div {
   vertical-align: bottom
 }
 
-#whats_new_burst {
-  position: absolute;
-  top: -.3125rem;
-  right: -.0625rem;
-  cursor: pointer;
-  background: #eb4d5c;
-  z-index: 1;
-  border-radius: 100%;
-  border: .1875rem solid #fff;
-  transition: opacity .3s ease-out 0s;
-  width: .75rem;
-  height: .75rem
-}
-
-#whats_new_burst.all_read {
-  opacity: 0;
-  pointer-events: none
-}
-
 #client-ui:not(.flexpane_redesign) #convo_tab .heading {
   display: -webkit-box;
   display: -webkit-flex;
@@ -4369,18 +4350,8 @@ body.sorting_mode .channels_list_holder ul {
   display: inline
 }
 
-.dense_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_content_header,
-.dense_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
-  display: -webkit-inline-box;
-  display: -webkit-inline-flex;
-  display: -moz-inline-flex;
-  display: -ms-inline-flexbox;
-  display: inline-flex;
-  -ms-flex-align: baseline;
-  -webkit-align-items: baseline;
-  -webkit-box-align: baseline;
-  -moz-align-items: baseline;
-  align-items: baseline
+.dense_theme .msg_right_link {
+  margin-top: .125rem
 }
 
 .light_theme .message_content_header {
@@ -4402,17 +4373,12 @@ body.sorting_mode .channels_list_holder ul {
   flex: 1 1 auto
 }
 
-.light_theme ts-message.first .feature_user_custom_status:not(.format_for_thread_root) .message_content_header_left {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-align: baseline;
-  -webkit-align-items: baseline;
-  -webkit-box-align: baseline;
-  -moz-align-items: baseline;
-  align-items: baseline
+.light_theme .msg_right_link {
+  float: none;
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto;
+  text-align: right
 }
 
 .light_theme .top_results_search_message_result .message_content_header_left {
@@ -4427,14 +4393,6 @@ body.sorting_mode .channels_list_holder ul {
   font-size: .75rem;
   line-height: 1.2rem;
   float: right
-}
-
-.light_theme .msg_right_link {
-  float: none;
-  -ms-flex: 0 0 auto;
-  -webkit-flex: 0 0 auto;
-  flex: 0 0 auto;
-  text-align: right
 }
 
 .message_content .message_content_header>.msg_right_link {
@@ -19278,7 +19236,7 @@ ts-message .theme_installer_btn {
 
 @keyframes recap_flash {
   0% {
-    background: #CFEBDB
+    background: #ddf0e5
   }
   100% {
     background: #f3faf6
@@ -19287,7 +19245,7 @@ ts-message .theme_installer_btn {
 
 @keyframes recap_flash_pinned {
   0% {
-    background: #CFEBDB
+    background: #ddf0e5
   }
   100% {
     background: rgba(255, 243, 184, .3)

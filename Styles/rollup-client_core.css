@@ -5999,21 +5999,29 @@ only screen and (min-resolution:2dppx) {
 
 #flex_menu_toggle #help_icon_circle_count {
   position: absolute;
+  top: 0;
   left: -.1875rem;
-  -webkit-transform: translateX(17px) translateY(-7px);
-  -moz-transform: translateX(17px) translateY(-7px);
-  -ms-transform: translateX(17px) translateY(-7px);
-  transform: translateX(17px) translateY(-7px);
+  -webkit-transform: translateX(16px) translateY(-5px);
+  -moz-transform: translateX(16px) translateY(-5px);
+  -ms-transform: translateX(16px) translateY(-5px);
+  transform: translateX(16px) translateY(-5px);
   font-size: .7rem;
   min-width: 1rem;
+  min-height: 1rem;
   width: auto
 }
 
 #flex_menu_toggle.unread #help_icon_circle_count {
   display: inline-block;
   background-color: #eb4d5c;
+  line-height: 1rem;
   color: #fff;
   z-index: 2
+}
+
+.whats_new_showing #flex_menu_toggle.unread #help_icon_circle_count {
+  background-color: #e8e8e8;
+  color: #717274
 }
 
 #flex_menu_toggle.open #help_icon_circle_count {
@@ -7186,8 +7194,7 @@ only screen and (min-resolution:2dppx) {
   visibility: hidden!important
 }
 
-#rxn_toast_div.onboarding,
-#whats_new_burst.onboarding {
+#rxn_toast_div.onboarding {
   display: none;
   visibility: hidden
 }
@@ -7644,44 +7651,56 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
 }
 
 #msg_form.show_recap_nav {
-  width: calc(100% - 60px)
+  width: calc(100% - 52px)
 }
 
 #recap_nav {
   position: absolute;
   top: 0rem;
-  right: -2.5rem;
-  height: 2.6875rem;
-  width: 2.5rem
+  right: -1.5rem;
+  height: 2.625rem;
+  width: 1.5rem
 }
 
 #recap_nav button {
   position: absolute;
-  height: 1.34375rem;
-  margin-left: .3125rem
+  height: 1.3125rem;
+  width: 1.5rem;
+  margin-left: .3125rem;
+  background: #f3f3f3;
+  color: #717274
+}
+
+#recap_nav button:after {
+  display: none
+}
+
+#recap_nav button:hover {
+  color: #007ab8
+}
+
+#recap_nav button.disabled {
+  opacity: 1!important;
+  color: #e8e8e8;
+  background: #f3f3f3!important;
+  text-shadow: none
 }
 
 #recap_nav button.prev {
-  top: 0
-}
-
-#recap_nav button.prev:after {
+  top: 0;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0
 }
 
 #recap_nav button.next {
-  top: 1.3125rem
-}
-
-#recap_nav button.next:after {
+  top: 1.3125rem;
   border-top-right-radius: 0;
   border-top-left-radius: 0
 }
 
 #recap_nav button ts-icon {
   margin-right: 0rem;
-  margin-top: .1875rem
+  margin-top: .125rem
 }
 
 .zoom_level_indicator {

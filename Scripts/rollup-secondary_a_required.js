@@ -21429,11 +21429,9 @@ TS.registerModule("constants", {
                     var neither_are_part_of_convo = !msg.thread_ts && !prev_msg.thread_ts;
                     if (is_part_of_same_convo || neither_are_part_of_convo) {
                       show_user = false;
-                      if (msg.recap && msg.recap.show_recap) show_user = true;
                     }
                   } else {
                     show_user = false;
-                    if (msg.recap && msg.recap.show_recap) show_user = true;
                   }
                 }
                 if (TS.utility.msgs.isTempMsg(msg) && (msg.type === "bot_message" || msg.user === "USLACKBOT")) {
@@ -29748,7 +29746,7 @@ TS.registerModule("constants", {
       TS.prefs.channel_handy_rxns_changed_sig.add(_buildDefaultRxns);
     },
     start: function(args) {
-      if (TS.client && TS.boot_data.feature_react_emoji_picker && TS.model.prefs.enable_react_emoji_picker) {
+      if (TS.client && TS.boot_data.feature_react_emoji_picker) {
         TS.ui.react_emoji_menu.start(args);
       } else {
         _start(args);

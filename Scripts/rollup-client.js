@@ -14291,7 +14291,6 @@
   });
   var _$whats_new_updates = $("#whats_new_updates");
   var _$what_new_read_cb = $("#what_new_read_cb");
-  var _$burst;
   var _newest_id = -1;
   var _unread_count = 0;
   var _timer;
@@ -14405,30 +14404,10 @@
     _$what_new_read_cb.prop("checked", TS.model.prefs.whats_new_read !== -1);
   };
   var _updateBurst = function() {
-    if (!_$burst) {
-      _$burst = $("#whats_new_burst");
-    }
-    if (!_$burst) return;
     if (_readEverythingAlready() || !_showBadges()) {
-      TS.experiment.loadUserAssignments().then(function() {
-        var group = TS.experiment.getGroup("whats_new_header_icon");
-        if (TS.boot_data.feature_message_replies) group = "treatment";
-        if (group === "treatment") {
-          $("#client-ui").removeClass("whats_new_showing");
-        } else {
-          _$burst.addClass("all_read");
-        }
-      });
+      $("#client-ui").removeClass("whats_new_showing");
     } else {
-      TS.experiment.loadUserAssignments().then(function() {
-        var group = TS.experiment.getGroup("whats_new_header_icon");
-        if (TS.boot_data.feature_message_replies) group = "treatment";
-        if (group === "treatment") {
-          $("#client-ui").addClass("whats_new_showing");
-        } else {
-          _$burst.removeClass("all_read");
-        }
-      });
+      $("#client-ui").addClass("whats_new_showing");
       TS.clog.track("WHATSNEW_ACTION", {
         action: "do_badge",
         trigger: _newest_id
@@ -23205,7 +23184,7 @@
         pref_name: "onboarding_cancelled",
         show: "#unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
         hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #in_skip_messaging, #onboarding_video",
-        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #col_channels_footer, #groups_header",
+        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
         promiseTo: function() {
           return new Promise(function() {
             $("#end_display_onboarding").on("click.cancel_onboarding", ".skip_tutorial_link", _deferredCancel);
@@ -23228,7 +23207,7 @@
         pref_name: "",
         show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container, #pre_skip_messaging",
         hide: "#banner, #in_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header, #onboarding_video",
-        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #col_channels_footer, #groups_header",
+        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
         promiseTo: function() {
           return new Promise(function(resolve) {
             TS.view.adjustForWelcomeSlideShow();
@@ -23242,7 +23221,7 @@
         pref_name: "seen_onboarding_start",
         show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging",
         hide: "#in_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header, #onboarding_video",
-        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #col_channels_footer, #groups_header",
+        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
         promiseTo: function() {
           return new Promise(function(resolve) {
             TS.view.adjustForWelcomeSlideShow();
@@ -23275,7 +23254,7 @@
         pref_name: "seen_onboarding_start",
         show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #onboarding_video",
         hide: "#in_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
-        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #col_channels_footer, #groups_header",
+        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
         promiseTo: function() {
           return new Promise(function(resolve) {
             TS.view.adjustForWelcomeSlideShow();
@@ -23326,7 +23305,7 @@
         show: "#mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
         hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #in_skip_messaging, #unskip_messaging, .coachmark_done",
         hide_admin: ".coachmark_invite_people",
-        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #col_channels_footer, #groups_header",
+        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
         promiseTo: function() {
           return (new Promise.resolve).then(function() {
             _goToStep(TS.newxp.onboarding.complete);
@@ -23347,7 +23326,7 @@
         pref_name: "seen_onboarding_slackbot_conversation",
         show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #in_skip_messaging",
         hide: "#explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header, #onboarding_video",
-        style: "#client_header .channel_header, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #col_channels_footer, #groups_header",
+        style: "#client_header .channel_header, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
         unstyle: "#client_body",
         promiseTo: function() {
           var onSlackbotRebound = null;
@@ -23489,7 +23468,7 @@
         pref_name: "seen_onboarding_channels",
         show: "#active_channel_name_overlay, #in_skip_messaging, .coachmark_next_tip",
         hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #groups_header",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #direct_messages, #channel_list_invites_link");
@@ -23521,7 +23500,7 @@
         hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_invite_people",
         hide_member: ".coachmark_next_tip",
         hide_admin: ".coachmark_done",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #groups_header",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #channel_list_invites_link");
@@ -23549,7 +23528,7 @@
         show: "#active_channel_name_overlay, #in_skip_messaging",
         show_admin: ".coachmark_invite_people, .coachmark_close",
         hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip, .coachmark_done",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #whats_new_burst, #groups_header",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #groups_header",
         unstyle: "#quick_switcher_btn",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #direct_messages");
@@ -31970,18 +31949,6 @@
       });
       TS.prefs.onPrefChanged({
         name: "measure_css_usage",
-        value: val
-      });
-    });
-    $("#react_emoji_picker_cb").prop("checked", TS.model.prefs.enable_react_emoji_picker === true);
-    $("#react_emoji_picker_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "enable_react_emoji_picker",
-        value: val
-      });
-      TS.prefs.onPrefChanged({
-        name: "enable_react_emoji_picker",
         value: val
       });
     });
