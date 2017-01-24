@@ -401,7 +401,7 @@ html.is_electron_mac {
 
 .flex_menu #list_groups .ts_icon:before,
 .flex_menu #list_groups.highlighted .ts_icon:before {
-  color: #edb431
+  color: #2d9cf5
 }
 
 .flex_menu #help .ts_icon:before,
@@ -1168,7 +1168,7 @@ input.search_input {
 }
 
 .searchable_member_list_filter {
-  padding: .8rem;
+  padding: 1rem;
   position: relative;
   border-bottom: 1px solid #e8e8e8
 }
@@ -1187,8 +1187,8 @@ input.search_input {
 }
 
 .searchable_member_list_filter:after {
-  right: 1.4rem;
-  top: 1.4rem;
+  right: 1.6rem;
+  top: 1.6rem;
   font-size: 1.25rem;
   content: "\E271";
   font-family: Slack;
@@ -7384,17 +7384,22 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #client-ui .searchable_member_list .member_item,
 #client-ui .searchable_member_list .team_list_item {
   cursor: pointer;
-  width: 100%;
-  border: none
+  width: 342px
 }
 
 #client-ui .searchable_member_list .team_list_item {
-  padding: 0 .8rem .8rem
+  padding: .5rem;
+  margin: .5rem;
+  border-radius: 5px;
+  border: 1px solid transparent
+}
+
+#client-ui .searchable_member_list .team_list_item:hover {
+  border-color: #e0e0e0
 }
 
 #client-ui .searchable_member_list .searchable_member_list_scroller {
-  margin-top: 0;
-  padding-top: .85rem
+  margin-top: 0
 }
 
 #client-ui #team_list_container .searchable_member_list_search {
@@ -7403,7 +7408,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 #client-ui #team_list_container .searchable_member_list_search .icon_search {
   top: .8rem;
-  left: .7rem
+  left: .9rem
 }
 
 #client-ui #team_list_container .searchable_member_list_search .icon_close {
@@ -7413,7 +7418,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 #client-ui #team_list_container .searchable_member_list_input {
   border: none;
-  padding: .7rem .75rem .7rem 2.2rem
+  padding: .7rem .75rem .7rem 2.4rem
 }
 
 #team_filter .icon_search,
@@ -17900,7 +17905,8 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 #channel_membership_dialog_container #channel_membership_dialog_scroller {
   overflow-y: auto;
   overflow-x: hidden;
-  padding: .8rem
+  padding: .8rem;
+  height: 392px
 }
 
 #channel_membership_dialog_container #channel_membership_dialog_scroller .member_item {
@@ -17924,8 +17930,8 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_membership_dialog_container .icon_close {
-  top: .6rem;
-  right: .6rem
+  top: .9rem;
+  right: .9rem
 }
 
 .jcrop-holder {
@@ -19056,6 +19062,16 @@ ts-message.show_recap:not(.is_pinned).standalone:not(.for_mention_display):not(.
   margin-top: .25rem
 }
 
+ts-message.show_recap.show_recap_flash:not(.is_pinned) {
+  animation: recap_flash 2.5s linear;
+  -webkit-animation: recap_flash 2.5s linear
+}
+
+ts-message.show_recap.show_recap_flash {
+  animation: recap_flash_pinned 2.5s linear;
+  -webkit-animation: recap_flash_pinned 2.5s linear
+}
+
 ts-message .is_highlights_holder {
   color: #217d4b;
   font-size: .75rem;
@@ -19258,6 +19274,24 @@ ts-message .reply_broadcast_preamble a {
 
 ts-message .theme_installer_btn {
   vertical-align: baseline
+}
+
+@keyframes recap_flash {
+  0% {
+    background: #CFEBDB
+  }
+  100% {
+    background: #f3faf6
+  }
+}
+
+@keyframes recap_flash_pinned {
+  0% {
+    background: #CFEBDB
+  }
+  100% {
+    background: rgba(255, 243, 184, .3)
+  }
 }
 
 .feature_name_tagging_client .internal_member_link,

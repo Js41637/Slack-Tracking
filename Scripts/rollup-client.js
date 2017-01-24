@@ -9497,7 +9497,7 @@
   TS.registerComponent("SearchableMemberList", {
     _constructor: function(options) {
       this.id = options.id;
-      this._approx_item_height = options.channel_member_ids ? 30 : 72;
+      this._approx_item_height = options.channel_member_ids ? 30 : 89;
       this.$_container = options.$container;
       this.$_long_list_view;
       this.$_search_bar;
@@ -9594,7 +9594,6 @@
         TS.utility.rAF(function() {
           this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
           this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-          this_searchable_member_list._matchHeightToContents();
           this_searchable_member_list._recursivelyFillLongListViewToHeight();
         });
         return null;
@@ -9669,9 +9668,6 @@
         this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
         this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
         if (!this_searchable_member_list._long_list_view_initial_height) this_searchable_member_list._long_list_view_initial_height = this_searchable_member_list._long_list_view_height;
-        TS.utility.rAF(function() {
-          this_searchable_member_list._matchHeightToContents();
-        });
       }, RESIZE_THROTTLE_MS);
       TS.view.resize_sig.add(this._resize_sig_handler);
       this.$_long_list_view.on("scroll", _.debounce(function(e) {
@@ -9714,16 +9710,6 @@
       }
       this.$_long_list_view.height(this._long_list_view_initial_height);
       this._fetchProcessAndDisplayPage();
-    },
-    _matchHeightToContents: function() {
-      var this_searchable_member_list = this;
-      if (this_searchable_member_list._long_list_view_items_height < this_searchable_member_list._long_list_view_initial_height && this_searchable_member_list._have_all_members) {
-        this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_items_height);
-        this_searchable_member_list._long_list_view_height = this_searchable_member_list._long_list_view_items_height;
-      } else {
-        this_searchable_member_list.$_long_list_view.height(this_searchable_member_list._long_list_view_initial_height);
-        this_searchable_member_list._long_list_view_height = this_searchable_member_list._long_list_view_initial_height;
-      }
     },
     _showLoadingState: function() {
       this.$_long_list_view.before(TS.templates.infinite_spinner({
@@ -39070,7 +39056,8 @@ function timezones_guess() {
         $reply_container.addClass("has_focus");
       }).on("focusout", function() {
         var is_input_empty = !TS.utility.contenteditable.value($input).trim();
-        if (is_input_empty) $reply_container.removeClass("has_focus");
+        var is_still_focused_actually = document.activeElement === this;
+        if (is_input_empty && !is_still_focused_actually) $reply_container.removeClass("has_focus");
       }).on("input", function(e, prev_txt) {
         var input_value = TS.utility.contenteditable.value($input);
         var is_input_empty = !input_value.trim();
@@ -39916,7 +39903,12 @@ function timezones_guess() {
     };
   };
   var _handleError = function(err) {
-    TS.error(err);
+    var err_msg = _.get(err, "data.error");
+    if (err_msg) {
+      TS.error(err_msg);
+    } else {
+      TS.error(err);
+    }
     clearTimeout(_slow_loading_timeout);
     _clearData();
     TS.client.ui.threads.displayFatalError();

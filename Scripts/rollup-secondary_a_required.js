@@ -56960,9 +56960,9 @@ $.fn.togglify = function(settings) {
       var key = _keyForThread(c_id, thread_ts);
       if (_threads_being_loaded[key]) return _threads_being_loaded[key];
       if (always_make_api_call) {
-        TS.info("Calling " + api_endpoint + " for " + thread_ts + " because always_make_api_call");
+        TS.log(2004, "Calling " + api_endpoint + " for " + thread_ts + " because always_make_api_call");
       } else {
-        TS.info("Calling " + api_endpoint + " for " + thread_ts + " because local history is incomplete");
+        TS.log(2004, "Calling " + api_endpoint + " for " + thread_ts + " because local history is incomplete");
       }
       _threads_being_loaded[key] = TS.api.call(api_endpoint, params).then(function(resp) {
         var messages = resp.data.messages.map(function(imsg) {
@@ -57149,7 +57149,7 @@ $.fn.togglify = function(settings) {
       var model_texts = _.map(messages_from_model_ob, "text");
       var api_texts = _.map(messages_from_model_ob, "text");
       if (_.isEqual(model_timestamps, api_timestamps) && _.isEqual(model_texts, api_texts)) {
-        TS.info("Replies sanity check passed for " + thread_ts);
+        TS.log(2004, "Replies sanity check passed for " + thread_ts);
         return;
       }
       var common_timestamps = _.intersection(model_timestamps, api_timestamps);
@@ -57161,7 +57161,7 @@ $.fn.togglify = function(settings) {
         }).map("ts").value();
         var is_only_missing_tombstones = _.isEqual(api_only_timestamps.sort(), all_tombstone_timestamps.sort());
         if (is_only_missing_tombstones) {
-          TS.info("Replies sanity check passed (except tombstones) for " + thread_ts);
+          TS.log(2004, "Replies sanity check passed (except tombstones) for " + thread_ts);
           TS.metrics.count("replies_sanity_check_passed_except_tombstones");
           return;
         }
@@ -57172,7 +57172,7 @@ $.fn.togglify = function(settings) {
           return ts > last_api_timestamp;
         });
         if (all_after_api) {
-          TS.info("Replies sanity check passed (except newer local msgs) for " + thread_ts);
+          TS.log(2004, "Replies sanity check passed (except newer local msgs) for " + thread_ts);
           TS.metrics.count("replies_sanity_check_passed_except_newer_local_msgs");
           return;
         }
@@ -57481,7 +57481,8 @@ $.fn.togglify = function(settings) {
         $reply_container.addClass("has_focus");
       }).on("focusout", function(e) {
         var is_input_empty = !TS.utility.contenteditable.value($input).trim();
-        if (is_input_empty) $reply_container.removeClass("has_focus");
+        var is_still_focused_actually = document.activeElement === this;
+        if (is_input_empty && !is_still_focused_actually) $reply_container.removeClass("has_focus");
       }).on("input", function(e, prev_txt) {
         var input_value = TS.utility.contenteditable.value($input);
         var is_input_empty = !input_value.trim();
