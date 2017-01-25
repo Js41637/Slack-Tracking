@@ -40288,6 +40288,8 @@ function timezones_guess() {
       var skip_mark_msgs_read_immediate_check = true;
       TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);
       if (TS.boot_data.feature_sli_recaps) TS.recaps_signal.remove();
+      $("#msgs_scroller_div").addClass("hidden");
+      $("#archives_return").addClass("hidden");
       TS.client.ui.threads.$container = $('<div id="threads_msgs"></div>');
       TS.client.ui.threads.$container.appendTo(TS.client.ui.threads.$scroller);
       TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback");
@@ -40311,6 +40313,7 @@ function timezones_guess() {
       $("#client-ui").removeClass("threads_view_is_showing");
       _removeEmojiModeClass();
       $("#footer").removeClass("invisible");
+      $("#msgs_scroller_div").removeClass("hidden");
       TS.client.ui.threads.$container = null;
       TS.view.resize_sig.remove(_onResize);
       TS.utility.msgs.stopUpdatingRelativeTimestamps("#threads_msgs");
