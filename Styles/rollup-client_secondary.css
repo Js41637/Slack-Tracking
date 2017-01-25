@@ -3204,10 +3204,18 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   visibility: visible
 }
 
+.channels_list_holder ul li:hover .current_status {
+  margin-right: .3rem
+}
+
 .channels_list_holder ul li.mention:hover .group_close,
 .channels_list_holder ul li.mention:hover .im_close,
 .channels_list_holder ul li.mention:hover .mpim_close {
   visibility: hidden
+}
+
+.channels_list_holder ul li.mention:hover .current_status {
+  margin-right: 0
 }
 
 #channels_scroller.show_which_channel_is_active ul li.active .group_close,
@@ -3633,9 +3641,9 @@ ul.member_list li a.nuc {
 }
 
 .channels_list_holder ul li .feature_user_custom_status.im_name .current_status {
-  -ms-flex: 0 9999 auto;
-  -webkit-flex: 0 9999 auto;
-  flex: 0 9999 auto
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto
 }
 
 @-webkit-keyframes typing-sprite {
@@ -13569,10 +13577,6 @@ only screen and (min-resolution:2dppx) {
   display: none!important
 }
 
-.dense_theme .search_message_result .message_star_holder {
-  display: none
-}
-
 .dense_theme .search_message_result .message,
 .light_theme .search_message_result .message {
   padding-right: 0
@@ -13811,7 +13815,11 @@ span.match {
   right: 0
 }
 
-.top_results_search_message_result .dense_theme .jump {
+.dense_theme .top_results_search_message_result .extract_content {
+  display: block
+}
+
+.dense_theme .top_results_search_message_result .jump {
   display: none
 }
 
@@ -19945,13 +19953,16 @@ ts-message .emoji-sizer .mention {
 .light_theme ts-message .message_content .message_current_status {
   margin-left: .1rem;
   margin-right: .3rem;
-  color: #717274;
-  font-weight: 500;
-  font-size: .8125rem;
-  max-width: 11.25rem;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
+  -webkit-transition: transform .1s ease 0s;
+  -moz-transition: transform .1s ease 0s;
+  transition: transform .1s ease 0s
+}
+
+.light_theme ts-message .message_content .message_current_status:hover {
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  transform: scale(1.5)
 }
 
 .light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
@@ -20254,12 +20265,20 @@ ts-message .emoji-sizer .mention {
 .dense_theme ts-message .message_content .message_current_status {
   margin-left: .1rem;
   margin-right: .3rem;
-  font-weight: 400;
-  font-size: .8125rem;
-  max-width: 11.25rem;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
+  min-width: 1.375rem;
+  -webkit-transition: transform .1s ease 0s;
+  -moz-transition: transform .1s ease 0s;
+  transition: transform .1s ease 0s;
+  border: 1px solid #e8e8e8;
+  border-radius: 5px;
+  text-align: center
+}
+
+.dense_theme ts-message .message_content .message_current_status:hover {
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  transform: scale(1.5)
 }
 
 .dense_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {

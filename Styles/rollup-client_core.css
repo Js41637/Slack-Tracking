@@ -5821,16 +5821,13 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
   flex: 0 1 auto
 }
 
-#team_menu_user_tip #team_menu_current_status {
-  -ms-flex: 0 9999 auto;
-  -webkit-flex: 0 9999 auto;
-  flex: 0 9999 auto
+#team_menu_user_tip .current_user_current_status {
+  -ms-flex: 0 0 auto;
+  -webkit-flex: 0 0 auto;
+  flex: 0 0 auto
 }
 
-#team_menu_current_status {
-  opacity: .5;
-  -moz-opacity: .5;
-  -khtml-opacity: .5;
+.current_user_current_status {
   margin-left: .2rem
 }
 

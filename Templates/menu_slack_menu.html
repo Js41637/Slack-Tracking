@@ -8,7 +8,7 @@
     {{#feature flag="feature_user_custom_status"}}
       <li id="member_current_status_item" class="has_submenu" data-qa="member_current_status_link" role="menuitem">
         <a>
-          {{#if user.profile.current_status}}
+          {{#if user.profile.status_text}}
             {{#t note="Menu option for a user with a current status set to change that status"}}Edit status{{/t}}
           {{else}}
             {{#t note="Menu option for a user with no current status set to set one"}}Set a status{{/t}}

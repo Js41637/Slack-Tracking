@@ -5,21 +5,17 @@
     {{makeMemberPreviewCardLinkImage member.id}}
 
     <p class="member_timezone_value">
-      {{#or member._is_external (or member.is_restricted member.is_bot)}}
+      {{#or member.is_restricted member.is_bot}}
         <span class="float_right left_margin">
       {{/or}}
       <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
       {{#if member.is_self}}
         (<a href='/account/settings' target="{{newWindowName}}" data-action="edit_member_profile_modal">{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
       {{/if}}
-      {{#or member._is_external (or member.is_restricted member.is_bot)}}
+      {{#or member.is_restricted member.is_bot}}
         </span>
       {{/or}}
-      {{#if member._is_external}}
-        <span class="lato">
-          <span class="overflow_ellipsis"><span class="very_small_right_margin">{{makeMemberTypeBadge member 16 true false}}</span> External Guest</span>
-        </span>
-      {{else if member.is_restricted}}
+      {{#if member.is_restricted}}
         <span class="lato">
           <span class="overflow_ellipsis">
             {{#if member.is_ultra_restricted}}

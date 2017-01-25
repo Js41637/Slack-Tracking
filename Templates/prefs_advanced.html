@@ -173,14 +173,23 @@
     <span class="normal">This will help our engineers track down performance issues with Slack.</span>
     {{/t}}
   </label>
-  {{#if show_flannel_pref}}
-    <label class="select bottom_margin no_left_margin half_width">
-      {{#t}}Flannel server pool{{/t}}<br>
-      <select id="flannel_server_pool" data-inline-saver="#prefs_debug">
-        <option value="production">{{#t}}Production{{/t}}</option>
-        <option value="canary">{{#t}}Canary{{/t}}</option>
-        <option value="random">{{#t}}Production / canary at random{{/t}}</option>
-      </select>
-    </label>
-  {{/if}}
+  {{#feature flag="feature_tinyspeck"}}
+    {{#feature flag="feature_thin_channel_membership"}}
+      <label class="checkbox bottom_margin">
+        <input id="thin_channel_membership" checked="" type="checkbox" data-inline-saver="#prefs_debug">
+        {{#t}}Lazily load channel membership<br>
+        <span class="normal">Don't fetch full channel membership lists. (Still in development)</span>{{/t}}
+      </label>
+    {{/feature}}
+    {{#feature flag="feature_flannel_fe"}}
+      <label class="select bottom_margin no_left_margin half_width">
+        {{#t}}Flannel server pool{{/t}}<br>
+        <select id="flannel_server_pool" data-inline-saver="#prefs_debug">
+          <option value="production">{{#t}}Production{{/t}}</option>
+          <option value="canary">{{#t}}Canary{{/t}}</option>
+          <option value="random">{{#t}}Production / canary at random{{/t}}</option>
+        </select>
+      </label>
+    {{/feature}}
+  {{/feature}}
 </p>

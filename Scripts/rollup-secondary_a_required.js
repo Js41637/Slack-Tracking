@@ -4187,7 +4187,7 @@
       return test_ob;
     },
     lazyLoadChannelMembership: function() {
-      return TS.boot_data.feature_thin_channel_membership;
+      return !!(TS.boot_data.feature_thin_channel_membership && TS.model.prefs.thin_channel_membership_fe);
     },
     getUserChannelMembershipStatus: function(user_id, channel) {
       if (!TS.membership.lazyLoadChannelMembership()) {
@@ -4196,8 +4196,17 @@
           is_member: is_member
         };
       }
+      var promise = TS.flannel.fetchChannelMembershipForUsers(channel.id, [user_id]).then(function(memberships) {
+        if (!_.isBoolean(memberships[user_id])) {
+          TS.warn("Asked whether " + user_id + " was a mebmer of " + channel.id + " but user is not included in response");
+          throw new Error("Expected response to include membership for user " + user_id);
+        }
+        return {
+          is_member: memberships[user_id]
+        };
+      });
       return {
-        promise: Promise.reject(new Error("Not implemented"))
+        promise: promise
       };
     },
     setUserChannelMembership: function(user_id, channel, is_member, should_display_join_message) {
@@ -8950,6 +8959,7 @@ TS.registerModule("constants", {
       if (params.thread_ts) {
         placeholder_msg.thread_ts = params.thread_ts;
         placeholder_msg._hidden_reply = true;
+        placeholder_msg._was_reply_broadcast = params.reply_broadcast;
       }
       var add_placeholder = true;
       if (in_reply_to_msg && TS.boot_data.feature_message_replies && !TS.replies.areTempMsgsEnabled()) add_placeholder = false;
@@ -10567,10 +10577,15 @@ TS.registerModule("constants", {
       }
       return name_data;
     },
-    getMemberCurrentStatus: function(member_or_id) {
+    getMemberCurrentStatusText: function(member_or_id) {
       if (!TS.boot_data.feature_user_custom_status) return "";
       var member = _ensureMember(member_or_id);
-      return member && member.profile && member.profile.current_status ? member.profile.current_status : "";
+      return member && member.profile && member.profile.status_text ? member.profile.status_text : "";
+    },
+    getMemberCurrentStatusEmoji: function(member_or_id) {
+      if (!TS.boot_data.feature_user_custom_status) return "";
+      var member = _ensureMember(member_or_id);
+      return member && member.profile && member.profile.status_emoji ? member.profile.status_emoji : "";
     },
     invalidateMembersUserCanSeeArrayCaches: function(no_signal) {
       if (!TS.model.user || !TS.model.user.is_restricted) return;
@@ -11252,13 +11267,14 @@ TS.registerModule("constants", {
         var old_profile = _omitImagesFromProfile(existing_member.profile);
         var new_profile = _omitImagesFromProfile(member.profile);
         if (_.isObject(new_profile)) {
-          if (old_profile.current_status !== new_profile.current_status) {
+          if (old_profile.status_text !== new_profile.status_text || old_profile.status_emoji !== new_profile.status_emoji) {
             status = "CHANGED";
             what_changed.push("current_status");
-            existing_member.profile.current_status = new_profile.current_status;
+            existing_member.profile.status_text = new_profile.status_text;
+            existing_member.profile.status_emoji = new_profile.status_emoji;
           }
-          old_profile = _.omit(old_profile, ["current_status"]);
-          new_profile = _.omit(new_profile, ["current_status"]);
+          old_profile = _.omit(old_profile, ["status_text", "status_emoji"]);
+          new_profile = _.omit(new_profile, ["status_text", "status_emoji"]);
           if (!_.isEqual(old_profile, new_profile)) {
             var name_changed = _.some(["real_name", "full_name", "preferred_name"], function(name_type) {
               return new_profile[name_type] != old_profile[name_type];
@@ -11565,7 +11581,12 @@ TS.registerModule("constants", {
     },
     getTeamCustomStatusSuggestions: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
-      return TS.model.team.prefs.custom_status_suggestions;
+      return _.map(TS.model.team.prefs.custom_status_suggestions, function(suggestion) {
+        return {
+          text: suggestion[1],
+          emoji: suggestion[0]
+        };
+      });
     },
     sortTeamProfileFieldsByOrdering: function() {
       if (!TS.model.team.profile.fields.length) return void TS.warn("Ensure profile fields exist before calling sortTeamProfileFieldsByOrdering");
@@ -11603,7 +11624,7 @@ TS.registerModule("constants", {
       return _entire_team_loaded;
     },
     getBestEffortTotalTeamSize: function() {
-      if (TS.lazyLoadMembersAndBots()) {
+      if (TS.lazyLoadMembersAndBots() && !TS.membership.lazyLoadChannelMembership()) {
         var general = TS.channels.getGeneralChannel();
         if (general) {
           return general.members.length;
@@ -20103,6 +20124,7 @@ TS.registerModule("constants", {
       return html;
     },
     showDraftIcon: function(model_ob) {
+      if (!_.isObject(model_ob)) return false;
       var last_msg_input;
       var model_id = model_ob.id;
       if (TS.boot_data.feature_show_drafts) {
@@ -20112,9 +20134,12 @@ TS.registerModule("constants", {
           last_msg_input = im && im.last_msg_input;
           model_id = im && im.id;
         }
-        var active_id = TS.shared.getActiveModelOb().id;
-        if (active_id && active_id == model_id && !TS.client.activeChannelIsHidden()) {
-          last_msg_input = null;
+        var active_model_ob = TS.shared.getActiveModelOb();
+        if (active_model_ob) {
+          var active_id = active_model_ob.id;
+          if (active_id && active_id == model_id && !TS.client.activeChannelIsHidden()) {
+            last_msg_input = null;
+          }
         }
         if (model_ob.is_channel) {
           if (model_ob.is_archived || !model_ob.is_member) last_msg_input = null;
@@ -20648,7 +20673,7 @@ TS.registerModule("constants", {
       return new Handlebars.SafeString(html);
     },
     makeMessageLinkLabelSafe: function(url) {
-      var html = TS.i18n.t("From URL:", "templates_builders")() + " " + "<a " + TS.utility.makeRefererSafeLink(url) + ' class="external_link"' + 'title="' + url + '"' + 'target="_blank">' + TS.utility.htmlEntities(url) + "</a>";
+      var html = TS.i18n.t("From URL:", "templates_builders")() + " " + "<a " + TS.utility.makeRefererSafeLink(url) + ' class="external_link"' + 'title="' + TS.utility.htmlEntities(url) + '"' + 'target="_blank">' + TS.utility.htmlEntities(url) + "</a>";
       return new Handlebars.SafeString(html);
     },
     makeSHRoomParticipantList: function(room) {
@@ -21139,14 +21164,14 @@ TS.registerModule("constants", {
         is_standalone: is_standalone,
         with_tooltip: with_tooltip
       };
-      if (member._is_external) return TS.templates.member_type_external_badge(args);
+      if (member.is_external) return "";
       if (member.is_ultra_restricted) return TS.templates.member_type_guest_badge(args);
       if (member.is_restricted) return TS.templates.member_type_restricted_badge(args);
       return "";
     },
     makeMemberTypeBadgeClass: function(member) {
       if (!TS.boot_data.page_needs_enterprise) return "";
-      if (!member._is_external && !member.is_restricted) return "";
+      if (!member.is_restricted) return "";
       return "has_member_type_badge";
     },
     makeMemberColorClass: function(member) {
@@ -21170,13 +21195,8 @@ TS.registerModule("constants", {
         }
       };
       var directory_name = TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? TS.i18n.t("organization directory", "templates_builders")() : TS.i18n.t("team directory", "templates_builders")();
-      if (member._is_external) {
-        args.icon_class = "ts_icon_external_channel";
-        args.tooltip.member_type = TS.i18n.t("External Guests", "templates_builders")();
-        args.tooltip.type_description = TS.i18n.t("are not on your team and can only see a partial {directory_name}, messages, and files of the shared channels they are in.", "templates_builders")({
-          directory_name: directory_name
-        });
-        return TS.templates.member_type_icon(args);
+      if (member.is_external) {
+        return "";
       } else if (member.is_ultra_restricted) {
         args.icon_class = "ts_icon_single_channel_guest";
         args.tooltip.member_type = TS.i18n.t("Single-Channel Guests", "templates_builders")();
@@ -21198,7 +21218,7 @@ TS.registerModule("constants", {
     getMemberTypeClass: function(member) {
       var type_class = "";
       if (TS.boot_data.page_needs_enterprise) type_class = "page_needs_enterprise";
-      if (member._is_external) type_class += " ext";
+      if (member.is_external) type_class += "";
       if (member.is_restricted) type_class += " ra";
       return type_class;
     },
@@ -21617,6 +21637,7 @@ TS.registerModule("constants", {
           if (msg.team && TS.model.team.id != msg.team && !msg.channel.is_shared) {
             template_args.abs_permalink = msg.permalink;
             template_args.archive_link = msg.permalink;
+            template_args.permalink = msg.permalink;
           }
         }
         if (msg.subtype === "file_share" || msg.subtype === "file_mention" || msg.subtype === "file_reaction") {
@@ -22405,6 +22426,14 @@ TS.registerModule("constants", {
         text = TS.utility.msgs.handleSearchHighlights(text);
         return text;
       });
+      Handlebars.registerHelper("formatCurrentStatus", function(text) {
+        return new Handlebars.SafeString(TS.format.formatWithOptions(text, undefined, {
+          no_jumbomoji: true,
+          no_specials: true,
+          no_highlights: true,
+          stop_animations: true
+        }));
+      });
       Handlebars.registerHelper("rxnPanel", function(rxn_key) {
         var panel_html = TS.templates.builders.rxnPanel(rxn_key);
         if (!panel_html) {
@@ -22991,23 +23020,14 @@ TS.registerModule("constants", {
         }
         return new Handlebars.SafeString(full_name_and_preferred_name_html);
       });
-      Handlebars.registerHelper("getMemberCurrentStatus", function(member) {
-        return new Handlebars.SafeString(TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(member), undefined, {
-          no_jumbomoji: true,
-          no_specials: true,
-          no_highlights: true,
-          stop_animations: true
-        }));
+      Handlebars.registerHelper("getMemberCurrentStatusEmoji", function(member) {
+        return Handlebars.helpers.formatCurrentStatus(TS.members.getMemberCurrentStatusEmoji(member));
+      });
+      Handlebars.registerHelper("getMemberCurrentStatusText", function(member) {
+        return Handlebars.helpers.formatCurrentStatus(TS.members.getMemberCurrentStatusText(member));
       });
       Handlebars.registerHelper("getTeamCustomStatusSuggestions", function() {
-        return _.map(TS.team.getTeamCustomStatusSuggestions(), function(suggestion) {
-          return new Handlebars.SafeString(TS.format.formatWithOptions(suggestion, undefined, {
-            no_jumbomoji: true,
-            no_specials: true,
-            no_highlights: true,
-            stop_animations: true
-          }));
-        });
+        return TS.team.getTeamCustomStatusSuggestions();
       });
       Handlebars.registerHelper("getDisplayNameOfUserForIm", function(im) {
         if (!im) return "MISSING_IM";
@@ -26255,22 +26275,23 @@ TS.registerModule("constants", {
     handleFailedMsgSend: function(msg_id, model_ob, resend) {
       var temp_msg = TS.utility.msgs.getMsg(msg_id, model_ob.msgs);
       if (temp_msg) {
-        var in_reply_to_msg;
+        var in_reply_to_msg, should_broadcast_reply;
         if (resend && TS.boot_data.feature_message_replies && temp_msg.thread_ts) {
           in_reply_to_msg = TS.utility.msgs.findMsg(temp_msg.thread_ts, model_ob.id);
+          should_broadcast_reply = temp_msg._was_reply_broadcast;
         }
         if (model_ob.is_channel) {
           TS.channels.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.channels.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
+          if (resend) TS.channels.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg, should_broadcast_reply);
         } else if (model_ob.is_mpim) {
           TS.mpims.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.mpims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
+          if (resend) TS.mpims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg, should_broadcast_reply);
         } else if (model_ob.is_group) {
           TS.groups.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.groups.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
+          if (resend) TS.groups.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg, should_broadcast_reply);
         } else {
           TS.ims.removeMsg(model_ob.id, temp_msg);
-          if (resend) TS.ims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg);
+          if (resend) TS.ims.sendMsg(model_ob.id, TS.format.unFormatMsg(temp_msg.text, temp_msg), in_reply_to_msg, should_broadcast_reply);
         }
         delete TS.model.unsent_msgs[temp_msg.ts];
         delete TS.model.display_unsent_msgs[temp_msg.ts];
@@ -42546,8 +42567,11 @@ var _on_esc;
     });
     $container.on("click", ".enterprise_team_join", function(e) {
       e.stopPropagation();
+      var ladda = Ladda.create(this);
+      ladda.start();
       var team_id = $(this).data("id");
       TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
+        ladda.stop();
         if (result) {
           var updated_member = _.merge({}, TS.model.user);
           updated_member.enterprise_user.teams = _.uniq(updated_member.enterprise_user.teams.concat(team_id));
@@ -42558,15 +42582,21 @@ var _on_esc;
         return null;
       });
     });
-    $container.on("click", ".enterprise_team_request", function(e) {
-      e.stopPropagation();
-      var team_id = $(this).data("id");
-      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
-        console.log("here");
-      }).catch(function() {
-        console.log("nope");
+    if (TS.boot_data.feature_discoverable_teams_client_v2) {
+      $container.on("click", ".enterprise_team_request", function(e) {
+        e.stopPropagation();
+        var ladda = Ladda.create(this);
+        ladda.start();
+        var team_id = $(this).data("id");
+        TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
+          var team = TS.enterprise.getTeamById(team_id);
+          ladda.stop();
+          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
+        }).catch(function() {
+          ladda.stop();
+        });
       });
-    });
+    }
   };
 })();
 (function() {
@@ -54456,6 +54486,9 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("utility.contenteditable", {
+    onStart: function() {
+      TS.utility.contenteditable.refreshTextPreferences();
+    },
     create: function(input, options) {
       if (!options) options = {};
       input = _normalizeInput(input);
@@ -54723,6 +54756,19 @@ $.fn.togglify = function(settings) {
         window.getSelection().deleteFromDocument();
       }
     },
+    getTextPreferences: function() {
+      if (!_text_preferences) return false;
+      var substitutions = _.mapValues(_.keyBy(_text_preferences.substitutions, "replace"), "with");
+      if (!substitutions["--"] && _text_preferences.useSmartQuotes) substitutions["--"] = "—";
+      return {
+        substitutions: substitutions,
+        useSmartDashes: _text_preferences.useSmartDashes,
+        useSmartQuotes: _text_preferences.useSmartQuotes
+      };
+    },
+    refreshTextPreferences: function() {
+      _text_preferences = TSSSB.call("readSystemTextPreferences");
+    },
     test: function() {
       var test = {
         _normalizeInput: _normalizeInput,
@@ -54731,6 +54777,7 @@ $.fn.togglify = function(settings) {
       return test;
     }
   });
+  var _text_preferences = false;
   var _normalizeInput = function(input) {
     if (!input) return false;
     if (input instanceof jQuery && input[0]) input = input[0];

@@ -102,6 +102,7 @@
     #channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix,
     #channels_scroller.show_which_channel_is_active ul li.active a.group_name .prefix,
     #team_menu_user_name,
+    #team_menu_user_tip,
     #channels_nav ul li button,
     .channels_list_holder ul li.unread .prefix,
     .channels_list_holder ul li.member .im_close,
@@ -116,6 +117,9 @@
     #quick_switcher_btn > i {
       color: {{theme.text_color}} !important;
       opacity: 0.6;
+    }
+    #team_menu_user_tip #team_menu_user_name {
+      opacity: 1;
     }
     #team_menu_user {
       color: {{theme.text_color}};
@@ -139,6 +143,7 @@
     .channels_list_holder h2.hoverable:hover,
     #team_menu:hover .team_name_caret,
     #team_menu.active .team_name_caret,
+    #team_menu_user_tip:hover,
     .invite_widget_link:hover {
       opacity: 1;
     }

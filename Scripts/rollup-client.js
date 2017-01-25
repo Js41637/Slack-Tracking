@@ -2334,19 +2334,15 @@
     },
     rebuildMsgCurrentStatusIncludingMember: function(member) {
       var current_model_ob = TS.shared.getActiveModelOb();
-      var current_status = TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(member), undefined, {
-        no_jumbomoji: true,
-        no_specials: true,
-        no_highlights: true,
-        stop_animations: true
-      });
+      var template_args = {
+        member: member,
+        for_message: true
+      };
       _.each(current_model_ob.msgs, function(msg, offset) {
         if (TS.utility.msgs.messageIncludesMember(member, msg)) {
           if (TS.pri) TS.log(888, "memberChangedCurrentStatus: Rebuilding msg header " + msg.ts + " because it includes member " + member.id);
           var $current_status_container = TS.client.msg_pane.getCanonicalDivForMsg(msg.ts).find(".message_current_status");
-          $current_status_container.html(current_status);
-          $current_status_container.toggleClass("hidden", !current_status);
-          TS.tips.updateTipTitle($current_status_container, current_status);
+          $current_status_container.replaceWith(TS.templates.current_status(template_args));
         }
       });
     },
@@ -4537,16 +4533,11 @@
     },
     updateUserCurrentStatus: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
-      var current_status = TS.format.formatWithOptions(TS.members.getMemberCurrentStatus(TS.model.user), undefined, {
-        no_jumbomoji: true,
-        no_specials: true,
-        no_highlights: true,
-        stop_animations: true
-      });
-      var $team_menu_user_tip = $("#team_menu_user_tip");
-      $team_menu_user_tip.toggleClass("ts_tip_hidden", !current_status);
-      $team_menu_user_tip.find(".current_user_current_status").html(current_status);
-      TS.tips.updateTipTitle($team_menu_user_tip, current_status);
+      $(".current_user_current_status").replaceWith(TS.templates.current_status({
+        member: TS.model.user,
+        tip_direction: "bottom",
+        classes: "current_user_current_status"
+      }));
     },
     getUserPresenceStr: function() {
       var user = TS.model.user;
@@ -5648,7 +5639,9 @@
       TS.client.channel_pane.$scroller.scroll(TS.client.ui.onChannelsScroll);
       TS.client.login_sig.add(TS.client.ui.loggedIn, TS.ui);
       TS.client.msg_input.bind(TS.client.ui.$msg_input);
-      TSSSB.call("inputFieldCreated", TS.client.ui.$msg_input.get(0));
+      if (!(TS.boot_data.feature_texty && TSSSB.call("readSystemTextPreferences"))) {
+        TSSSB.call("inputFieldCreated", TS.client.ui.$msg_input.get(0));
+      }
 
       function _bindUI() {
         TS.client.ui.enhanceComponents();
@@ -8276,12 +8269,20 @@
         $file_preview_scroller.html(preview_head_html);
       }
       TS.utility.makeSureAllLinksHaveTargets($file_preview_scroller);
-      if (file.mode == "image") {
-        $file_preview_scroller.find("img").error(function() {
+      if (TS.files.fileIsImage(file)) {
+        $file_preview_scroller.find(".image_container .image_bg img").error(function() {
           $(this).closest(".image_body").addClass("broken_image");
         });
+      } else if (TS.files.fileIsSupportedVideo(file)) {
+        TS.files.media.bindVideoElements({
+          container: $file_preview_scroller,
+          onError: function($el) {
+            $el.addClass("hidden");
+          }
+        });
+      } else if (file.mode == "space") {
+        TS.client.ui.unfurlPlaceholders($file_preview_scroller);
       }
-      if (file.mode == "space") TS.client.ui.unfurlPlaceholders($file_preview_scroller);
       template_args = {
         file: file
       };
@@ -9501,7 +9502,7 @@
   TS.registerComponent("SearchableMemberList", {
     _constructor: function(options) {
       this.id = options.id;
-      this._approx_item_height = options.channel_member_ids ? 30 : 89;
+      this._approx_item_height = options.model_ob_id ? 30 : 89;
       this.$_container = options.$container;
       this.$_long_list_view;
       this.$_search_bar;
@@ -9514,7 +9515,7 @@
       this._next_marker = "";
       this._have_all_members = false;
       this._members = [];
-      this._channel_member_ids = options.channel_member_ids;
+      this._model_ob_id = options.model_ob_id;
       this._filter_counts = [];
       this._long_list_view_height = 0;
       this._long_list_view_items_height = 0;
@@ -9568,8 +9569,12 @@
       } else {
         query_params.marker = this._next_marker;
       }
-      if (this._channel_member_ids) {
-        query_params.limit_to_ids = this._channel_member_ids;
+      if (this._model_ob_id) {
+        if (TS.membership.lazyLoadChannelMembership()) {
+          query_params.limit_to_ids = TS.flannel.__temp_getChannelMembers(this._model_ob_id);
+        } else {
+          query_params.limit_to_ids = TS.shared.getModelObById(this._model_ob_id).members;
+        }
       }
       this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
         this_searchable_member_list._fetch_page_p = null;
@@ -9606,7 +9611,8 @@
     _maybeSetupSearchBar: function() {
       var this_searchable_member_list = this;
       if (this.$_search_bar) return;
-      if (this._getBestEffortNumMembers() >= MINIMUM_MEMBERS_FOR_SEARCH) {
+      this._getBestEffortNumMembers().then(function(best_effort_num_members) {
+        if (best_effort_num_members < MINIMUM_MEMBERS_FOR_SEARCH) return;
         this.$_long_list_view.before(TS.templates.team_search_bar(this._generateFilterSearchBarTemplateArgs()));
         this.$_search_bar = this.$_container.find(".searchable_member_list_search_bar");
         this.$_search_input = this.$_container.find(".searchable_member_list_input");
@@ -9621,10 +9627,10 @@
           });
         });
         this._maybeRenderFilterBar();
-      }
+      }.bind(this));
     },
     _maybeRenderFilterBar: function() {
-      if (this._channel_member_ids) return;
+      if (this._model_ob_id) return;
       var this_searchable_member_list = this;
       TS.ms.flannel.call("query_request", {
         counts: true
@@ -9648,13 +9654,13 @@
         },
         makeElement: function(data) {
           return $(TS.templates.team_list_item({
-            is_channel_membership: this_searchable_member_list._channel_member_ids,
+            is_channel_membership: this_searchable_member_list._model_ob_id,
             is_long_list_view: true
           }));
         },
         renderItem: function($el, item, data) {
           $el.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item", item);
-          if (this_searchable_member_list._channel_member_ids) {
+          if (this_searchable_member_list._model_ob_id) {
             $el.html(TS.templates.channel_page_member_row({
               member: item,
               lazy: false
@@ -9786,10 +9792,17 @@
       });
     },
     _getBestEffortNumMembers: function() {
-      if (this._channel_member_ids) {
-        return this._channel_member_ids.length;
+      if (this._model_ob_id) {
+        if (!TS.membership.lazyLoadChannelMembership()) {
+          return Promise.resolve(TS.shared.getModelObById(this._model_ob_id).members.length);
+        }
+        var model_ob = TS.shared.getModelObById(this._model_ob_id);
+        return _getMembershipCountsForModelOb(model_ob);
+      } else if (TS.membership.lazyLoadChannelMembership() && TS.channels.getGeneralChannel()) {
+        var general_channel = TS.channels.getGeneralChannel();
+        return _getMembershipCountsForModelOb(general_channel);
       } else {
-        return TS.team.getBestEffortTotalTeamSize();
+        return Promise.resolve(TS.team.getBestEffortTotalTeamSize());
       }
     },
     _generateFilterSearchBarTemplateArgs: function() {
@@ -9827,12 +9840,21 @@
       _.each(this._filter_counts, function(count) {
         template_args[count["name"] + "_count"] = count["count"];
       });
-      if (this._channel_member_ids) {
+      if (this._model_ob_id) {
         template_args.show_filters = false;
       }
       return template_args;
     }
   });
+  var _getMembershipCountsForModelOb = function(model_ob) {
+    var count_info = TS.membership.getMembershipCounts(model_ob);
+    if (count_info.promise) {
+      return count_info.promise.then(function() {
+        return count_info.counts.member_count;
+      });
+    }
+    return Promise.resolve(count_info.counts.member_count);
+  };
 })();
 (function() {
   "use strict";
@@ -9956,6 +9978,7 @@
             }
           },
           placeholder: $input.data("placeholder"),
+          getTextPreferences: TS.utility.contenteditable.getTextPreferences,
           onEnter: function(args) {
             if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock($input)) {
               if (!args.shiftKey) return true;
@@ -28310,10 +28333,11 @@
         size: "medium"
       }));
       _fetching_members = true;
-      var fetch_all_members = model_ob.members.length <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD;
+      var fetch_all_members = !TS.membership.lazyLoadChannelMembership() && model_ob.members.length <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD;
+      var member_ids = TS.membership.lazyLoadChannelMembership() ? TS.flannel.__temp_getChannelMembers(model_ob.id) : model_ob.members;
       var query = {
-        count: fetch_all_members ? model_ob.members.length : MAX_SIDEBAR_MEMBERS_COUNT,
-        limit_to_ids: model_ob.members
+        count: fetch_all_members ? member_ids.length : MAX_SIDEBAR_MEMBERS_COUNT,
+        limit_to_ids: member_ids
       };
       var promises = [TS.flannel.fetchAndUpsertObjectsWithQuery(query)];
       var channel_member_counts = TS.membership.getMembershipCounts(model_ob);
@@ -28333,7 +28357,7 @@
         TS.log(1989, "Flannel error: failed to fetch all members for channel " + model_ob.id);
         TS.logError("failed to fetch all members for channel " + model_ob.id, "Flannel error");
         _$member_lists.removeClass("loading");
-        _$member_lists.html('<div class="align_center subtle_silver">' + TS.i18n.t("Oops, failed to fetch users.", "client")() + '<a href="#">' + TS.i18n.t("Try again", "client")() + "</a></div>");
+        _$member_lists.html('<div class="align_center subtle_silver">' + TS.i18n.t("Oops, failed to fetch users.", "client")() + ' <a href="#">' + TS.i18n.t("Try again", "client")() + "</a></div>");
         _$member_lists.find("a").click(function(e) {
           e.preventDefault();
           _rebuildMemberLists(model_ob);
@@ -28551,12 +28575,12 @@
   var _members;
   var DIALOG_CLASS = "all_members_dialog";
 
-  function _initDialogUI() {
+  function _initDialogUI(model_ob) {
     if (TS.useSearchableMemberList()) {
       var searchable_member_list = new TS.SearchableMemberList({
         $container: $("#channel_membership_dialog_container"),
         id: "channel_membership_dialog_scroller",
-        channel_member_ids: TS.shared.getActiveModelOb().members
+        model_ob_id: model_ob.id
       });
       searchable_member_list.showInitial();
       return;
@@ -28630,7 +28654,9 @@
       show_cancel_button: true,
       show_go_button: false,
       backdrop_click_to_dismiss: true,
-      onShow: _initDialogUI,
+      onShow: function() {
+        _initDialogUI(model_ob);
+      },
       onEnd: function() {
         TS.generic_dialog.div.remove();
         TS.generic_dialog.div = undefined;
@@ -30952,7 +30978,6 @@
         }
         template_args.show_app_download_path = show_app_download_path;
         template_args.app_download_path = app_download_path;
-        if (TS.boot_data.feature_flannel_fe && TS.boot_data.feature_tinyspeck) template_args.show_flannel_pref = true;
         template_args.show_console_whitelist = true;
         var preselected = _.get(TS.model.prefs, "client_logs_pri", "");
         template_args.whitelisted_pris = _(Object.keys(TS.boot_data.client_logs)).filter(function(key) {
@@ -31635,6 +31660,16 @@
       }, function() {
         TS.log(1989, "Flannel: canary pref changed from " + prev_val + " to " + val);
         TS.ms.disconnect();
+      });
+    });
+    $("#thin_channel_membership").prop("checked", TS.model.prefs.thin_channel_membership_fe === true);
+    $("#thin_channel_membership").on("change", function() {
+      var val = !!$(this).prop("checked");
+      TS.prefs.setPrefByAPI({
+        name: "thin_channel_membership_fe",
+        value: val
+      }, function() {
+        TS.reload();
       });
     });
     $("#enable_unread_view").prop("checked", TS.model.prefs.enable_unread_view === true);

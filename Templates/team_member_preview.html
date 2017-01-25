@@ -45,11 +45,7 @@
   {{/if}}
 
   {{#pageNeedsEnterprise}}
-    {{#if member._is_external}}
-      <div class="member_type_and_description old_petunia_grey lato">
-        <span class="overflow_ellipsis">{{#t}}External Guest{{/t}}</span>
-      </div>
-    {{else if member.is_restricted}}
+    {{#if member.is_restricted}}
       <div class="member_type_and_description old_petunia_grey lato">
         <span class="overflow_ellipsis">
           {{#if member.deleted}}
@@ -158,10 +154,10 @@
 
     <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
       {{#feature flag="feature_user_custom_status"}}
-        {{#if member.profile.current_status}}
+        {{#if member.profile.status_text}}
           <tr>
             <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Status{{/t}}">{{#t}}Status{{/t}}</span></td>
-            <td class="current_status">{{getMemberCurrentStatus member}}</td>
+            <td class="current_status">{{getMemberCurrentStatusEmoji member}} {{getMemberCurrentStatusText member}}</td>
           </tr>
         {{/if}}
       {{/feature}}

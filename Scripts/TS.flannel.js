@@ -139,6 +139,9 @@
     __temp__setChannelMembers: function(channel_id, user_ids) {
       __temp__channel_members[channel_id] = user_ids;
     },
+    __temp_getChannelMembers: function(channel_id) {
+      return __temp__channel_members[channel_id];
+    },
     fetchChannelMembershipForUsers: function(channel_id, user_ids) {
       var membership_info = {};
       var channel_members = __temp__channel_members[channel_id];

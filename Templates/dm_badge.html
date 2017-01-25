@@ -35,12 +35,7 @@
         {{#if member.profile.title}}
           <br />
         {{/if}}
-        {{#if member._is_external}}
-          <span class="member_type_and_description float_left old_petunia_grey lato">
-            <span class="overflow_ellipsis">
-              <span class="very_small_right_margin">{{makeMemberTypeBadge member 16 true true}}</span> {{#t}}External Guest{{/t}}</span>
-          </span>
-        {{else if member.is_restricted}}
+        {{#if member.is_restricted}}
           <span class="member_type_and_description float_left old_petunia_grey lato">
             <span class="overflow_ellipsis">
               {{#if member.is_ultra_restricted}}
