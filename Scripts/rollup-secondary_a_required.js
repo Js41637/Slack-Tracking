@@ -31057,8 +31057,8 @@ TS.registerModule("constants", {
       actions.mark_unread = !!allow_mark_unread;
       var recap_highlight = false;
       var recappable_message = false;
-      var recap_group = TS.experiment.getGroup("sli_recaps_preview");
-      if (recap_group === "sli_sneak_preview") {
+      var recap_group = TS.experiment.getGroup("sli_recaps_debug");
+      if (recap_group === "sli_debug_info") {
         recap_highlight = true;
         if (!model_ob.is_mpim && !model_ob.is_im && msg.recap) {
           if (!msg.recap.show_recap) {
