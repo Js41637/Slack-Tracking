@@ -4130,61 +4130,11 @@ body.sorting_mode .channels_list_holder ul {
   -ms-flex-direction: column;
   -moz-flex-direction: column;
   -webkit-flex-direction: column;
-  flex-direction: column;
-  max-width: 100%
+  flex-direction: column
 }
 
 #client-ui.flexbox_client.flex_pane_showing #col_messages {
-  max-width: calc(100vw - 220px - 492px)
-}
-
-#client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-  max-width: calc(100vw - 220px - 415px)
-}
-
-@media screen and (max-width:1440px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 442px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 365px)
-  }
-}
-
-@media screen and (max-width:1366px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 392px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 315px)
-  }
-}
-
-@media screen and (max-width:1279px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 367px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 300px)
-  }
-}
-
-@media screen and (max-width:1070px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 337px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 280px)
-  }
-}
-
-@media screen and (max-width:860px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 312px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 250px)
-  }
+  overflow-x: hidden
 }
 
 #messages_container {

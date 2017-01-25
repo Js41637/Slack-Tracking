@@ -1952,7 +1952,7 @@
         is_count: true
       });
     }
-    if (TS.boot_data.feature_electron_memory_logging) {
+    if (TS.boot_data.feature_electron_memory_logging && TS.model.is_electron) {
       var combined_stats = _getMemoryUsage();
       var combined_stats_all_p = _getCombinedMemoryUsage();
       if (combined_stats) {
