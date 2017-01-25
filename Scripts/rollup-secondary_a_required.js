@@ -22297,22 +22297,34 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("msgTsTitle", function(msg, msg_dom_id, is_archive_link) {
         var title;
+        var action_text;
         var ephemeral_or_temp = msg.is_ephemeral || TS.utility.msgs.isTempMsg(msg);
-        if (TS.model.unread_view_is_showing && _.isString(msg_dom_id) && msg_dom_id === TS.templates.makeMsgDomIdInUnreadView(msg.ts)) {
-          title = TS.i18n.t('Jump to conversation<br><span class="subtle_silver no_wrap">{date} at {time}</span>', "templates_helpers");
+        var is_unread_view = TS.model.unread_view_is_showing && _.isString(msg_dom_id) && msg_dom_id === TS.templates.makeMsgDomIdInUnreadView(msg.ts);
+        var is_threads_view = TS.model.threads_view_is_showing && _.isString(msg_dom_id) && msg_dom_id === TS.templates.makeMsgDomIdInThreadsView(msg.ts);
+        var is_convo = TS.client && TS.ui.replies.activeConvoThreadTs() === msg.thread_ts && _.isString(msg_dom_id) && TS.templates.makeMsgDomIdInConversation(msg.ts) === msg_dom_id;
+        if (is_unread_view) {
+          action_text = TS.i18n.t("Jump to conversation", "templates_helpers")();
+        } else if (is_threads_view) {
+          if (msg.ts === msg.thread_ts) {
+            action_text = TS.i18n.t("Open in channel", "templates_helpers")();
+          } else {
+            action_text = TS.i18n.t("Open in sidebar", "templates_helpers")();
+          }
+        } else if (is_convo) {
+          if (msg.ts === msg.thread_ts) action_text = TS.i18n.t("Open in channel", "templates_helpers")();
         } else if (TS.client && !ephemeral_or_temp && is_archive_link) {
-          title = TS.i18n.t('Open in archives<br><span class="subtle_silver no_wrap">{date} at {time}</span>', "templates_helpers");
-        } else {
-          title = TS.i18n.t("{date} at {time}", "templates_helpers")({
-            date: TS.utility.date.toCalendarDateOrNamedDayShort(msg.ts),
-            time: TS.utility.date.toTime(msg.ts, true, true)
-          }).replace(/\s/g, "&nbsp;");
-          return new Handlebars.SafeString(title);
+          action_text = TS.i18n.t("Open in archives", "templates_helpers")();
         }
-        return new Handlebars.SafeString(title({
+        var date_at_time = TS.i18n.t("{date} at {time}", "templates_helpers")({
           date: TS.utility.date.toCalendarDateOrNamedDayShort(msg.ts),
           time: TS.utility.date.toTime(msg.ts, true, true)
-        }));
+        }).replace(/\s/g, "&nbsp;");
+        if (action_text) {
+          title = action_text + '<br><span class="subtle_silver no_wrap">' + date_at_time + "</span>";
+        } else {
+          title = date_at_time;
+        }
+        return new Handlebars.SafeString(title);
       });
       Handlebars.registerHelper("toHour", function(ts) {
         return TS.utility.date.toHour(ts);
@@ -25878,6 +25890,7 @@ TS.registerModule("constants", {
       }
     },
     constructMsgPermalink: function(model_ob, ts, thread_ts) {
+      if (!model_ob) return "";
       var permalink;
       if (model_ob.is_im || model_ob.is_mpim) {
         permalink = "/archives/" + model_ob.id + "/p" + ts.replace(".", "");

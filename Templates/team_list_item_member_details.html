@@ -14,7 +14,7 @@
         <a href="/team/{{member.id}}" {{#isClient}}target="/team/{{member.id}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{getMemberFullName member}}</a>
       </div>
       <div class="inline_block">
-        {{#unless member.deleted}}{{makeMemberPresenceIcon member}}{{/unless}}
+        {{#isClient}}{{#unless member.deleted}}{{makeMemberPresenceIcon member}}{{/unless}}{{/isClient}}
         {{getMemberPreferredName member}}
       </div>
       {{#if member.profile}}
@@ -45,7 +45,7 @@
         {{else}}
           <a href="/team/{{member.name}}" {{#isClient}}target="/team/{{member.name}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{member.name}}</a>
         {{/if}}
-        {{#unless member.deleted}}{{makeMemberPresenceIcon member}}{{/unless}}
+        {{#isClient}}{{#unless member.deleted}}{{makeMemberPresenceIcon member}}{{/unless}}{{/isClient}}
 
         {{#isClient}}
           {{#unless member.is_bot}}
