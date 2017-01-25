@@ -16816,6 +16816,7 @@ TS.registerModule("constants", {
     hello: function(imsg) {},
     goodbye: function(imsg) {
       if (!TS.boot_data.feature_flannel_fe) return;
+      TS.info("Got a goodbye message, so disconnecting from the MS");
       TS.ms.disconnect();
     },
     team_join: function(imsg) {

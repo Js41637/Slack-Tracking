@@ -7219,10 +7219,11 @@
       });
     },
     showTeamList: function() {
-      if (!TS.client.ui._displayTeamList()) return;
+      var triggered_by_user_action = true;
+      if (!TS.client.ui._displayTeamList(triggered_by_user_action)) return;
       TS.client.flexDisplaySwitched("team");
     },
-    _displayTeamList: function() {
+    _displayTeamList: function(triggered_by_user_action) {
       if (!TS.client.ui.flex._displayFlexTab("team")) return false;
       TS.model.previewed_member_name = "";
       TS.model.previewed_member_id = "";
@@ -7236,7 +7237,8 @@
         if (!searchableMemberList) {
           var searchable_member_list = new TS.SearchableMemberList({
             $container: $("#team_list_container"),
-            id: "team_list_scroller"
+            id: "team_list_scroller",
+            triggered_by_user_action: triggered_by_user_action
           });
           searchable_member_list.showInitial();
         } else {
@@ -9503,6 +9505,7 @@
     _constructor: function(options) {
       this.id = options.id;
       this._approx_item_height = options.model_ob_id ? 30 : 89;
+      this.triggered_by_user_action = options.triggered_by_user_action;
       this.$_container = options.$container;
       this.$_long_list_view;
       this.$_search_bar;
@@ -9626,6 +9629,9 @@
             return null;
           });
         });
+        if (this.triggered_by_user_action) {
+          this.$_search_input.focus();
+        }
         this._maybeRenderFilterBar();
       }.bind(this));
     },
@@ -27467,7 +27473,10 @@
         rebuildPinnedItems: _rebuildPinnedItems,
         rebuildMembersTabs: _rebuildMembersTabs,
         rebuildMemberLists: _rebuildMemberLists,
-        rebuildMember: _rebuildMember
+        rebuildMember: _rebuildMember,
+        generateMemberListTemplateArgs: _generateMemberListTemplateArgs,
+        SEE_ALL_MEMBERS_DIALOG_THRESHOLD: SEE_ALL_MEMBERS_DIALOG_THRESHOLD,
+        MAX_SIDEBAR_MEMBERS_COUNT: MAX_SIDEBAR_MEMBERS_COUNT
       };
       Object.defineProperty(test_ob, "_will_rebuild_members_tabs_after_promise_resolves", {
         get: function() {
@@ -27475,6 +27484,22 @@
         },
         set: function(v) {
           _will_rebuild_members_tabs_after_promise_resolves = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_expanded_sections", {
+        get: function() {
+          return _expanded_sections;
+        },
+        set: function(v) {
+          _expanded_sections = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_legacyRebuildMemberLists", {
+        get: function() {
+          return _legacyRebuildMemberLists;
+        },
+        set: function(v) {
+          _legacyRebuildMemberLists = v;
         }
       });
       return test_ob;
@@ -27497,7 +27522,6 @@
   var _state;
   var _expanded_sections;
   var _members = [];
-  var _fetching_members = false;
   var _current_files = [];
   var _channels_with_files_loaded = {};
   var _channels_currently_loading_files = {};
@@ -28251,8 +28275,7 @@
       _rebuildMembersTabs(model_ob);
       return null;
     }).catch(function(err) {
-      TS.log(1989, "Flannel error: failed to fetch all members for channel " + model_ob.id);
-      TS.logError(err, "failed to fetch all members for channel " + model_ob.id, "Flannel error");
+      TS.error("Flannel error: failed to fetch all members for channel " + model_ob.id);
       _$member_lists.removeClass("loading");
       _$member_lists.html('<div class="align_center subtle_silver">' + TS.i18n.t("Oops, failed to fetch users.", "client")() + '<a href="#">' + TS.i18n.t("Try again", "client")() + "</a></div>");
       _$member_lists.find("a").click(function(e) {
@@ -28262,7 +28285,7 @@
     });
     return;
   };
-  var _renderMemberList = function(model_ob, member_ids) {
+  var _generateMemberListTemplateArgs = function(model_ob, member_ids) {
     var member;
     var members = [];
     var ids = member_ids || model_ob.members;
@@ -28293,7 +28316,7 @@
     } else {
       num_members_in_channel = members.length;
     }
-    if (!TS.useSearchableMemberList() || num_members_in_channel < SEE_ALL_MEMBERS_DIALOG_THRESHOLD) {
+    if (!TS.useSearchableMemberList() || num_members_in_channel <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD) {
       members.sort(TS.members.memberSorterByActiveWithBotsLast);
     }
     _members = members;
@@ -28307,11 +28330,16 @@
     } else {
       template_args.members = members;
     }
+    template_args.all_members = members;
+    return template_args;
+  };
+  var _renderMemberList = function(model_ob, member_ids) {
+    var template_args = _generateMemberListTemplateArgs(model_ob, member_ids);
     _member_presence_list.add(_.map(template_args.members, "id"));
     _$member_lists.html(TS.templates.channel_page_member_lists(template_args));
     _$member_lists.find("#see_all_members").on("click", function(e) {
       e.preventDefault();
-      TS.client.channel_page.members_dialog.show(model_ob, members, num_members_in_channel);
+      TS.client.channel_page.members_dialog.show(model_ob, template_args.all_members, template_args.total_member_count);
     });
     _resetLazyLoad();
   };
@@ -28325,14 +28353,10 @@
     if (!_expanded_sections.members) return;
     _member_presence_list.clear();
     if (TS.useSearchableMemberList()) {
-      if (_fetching_members) {
-        return;
-      }
       _$member_lists.addClass("loading").html(TS.templates.infinite_spinner({
         color: "white",
         size: "medium"
       }));
-      _fetching_members = true;
       var fetch_all_members = !TS.membership.lazyLoadChannelMembership() && model_ob.members.length <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD;
       var member_ids = TS.membership.lazyLoadChannelMembership() ? TS.flannel.__temp_getChannelMembers(model_ob.id) : model_ob.members;
       var query = {
@@ -28345,7 +28369,6 @@
         promises.push(channel_member_counts.promise);
       }
       Promise.all(promises).then(function(responses) {
-        _fetching_members = false;
         var flannel_response = responses[0];
         if (TS.shared.getActiveModelOb().id !== model_ob.id) {
           return;
@@ -28362,8 +28385,6 @@
           e.preventDefault();
           _rebuildMemberLists(model_ob);
         });
-      }).finally(function() {
-        _fetching_members = false;
       });
     } else {
       _renderMemberList(model_ob);
@@ -28422,7 +28443,6 @@
     _$member_lists.empty();
     _members = [];
     if (TS.useSearchableMemberList()) {
-      _fetching_members = false;
       _searchable_member_list = TS.SearchableMemberList.get("channel_member_list_scroller");
       if (_searchable_member_list) {
         _searchable_member_list.destroy();
@@ -28580,7 +28600,8 @@
       var searchable_member_list = new TS.SearchableMemberList({
         $container: $("#channel_membership_dialog_container"),
         id: "channel_membership_dialog_scroller",
-        model_ob_id: model_ob.id
+        model_ob_id: model_ob.id,
+        triggered_by_user_action: true
       });
       searchable_member_list.showInitial();
       return;
@@ -28637,7 +28658,7 @@
 
   function _showMembersDialog(model_ob, members, member_count) {
     if (TS.useSearchableMemberList()) {
-      var members = model_ob.members;
+      members = model_ob.members;
     }
     var body_html = TS.templates.channel_page_all_members_dialog();
     var title = TS.i18n.t("{member_count, number} members in {channel_name}", "channel_pages")({
