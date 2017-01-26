@@ -42399,7 +42399,18 @@ var _on_esc;
           top_combined_channels: 5,
           include_admins: true
         };
-        return TS.enterprise.ensureTeamInModel(team_id, additional_options).then(function(team) {
+        var promises = [];
+        if (!TS.client) {
+          promises.push(TS.api.call("users.info", {
+            user: TS.boot_data.user_id
+          }).then(function(response) {
+            TS.model.user = response.data.user;
+          }));
+        }
+        promises.push(TS.enterprise.ensureTeamInModel(team_id, additional_options));
+        return Promise.all(promises).then(function() {
+          return TS.enterprise.getTeamById(team_id);
+        }).then(function(team) {
           if (!team) {
             $workspace_info.attr("data-team-id", "");
             return;
@@ -42409,6 +42420,7 @@ var _on_esc;
             team: team,
             user: TS.model.user
           })).attr("data-team-id", team_id);
+          $container.find('[data-id="' + team.id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
         });
       });
       $workspace_info.off();

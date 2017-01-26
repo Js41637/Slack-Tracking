@@ -77,9 +77,9 @@
           <label class="checkbox no_margin normal" id="single_suppressed_label">
             <input id="single_suppressed_cb" checked="checked" type="checkbox" class="small_right_margin" />
                         {{#if model_ob.is_general}}
-                            {{#t at_label=(atLabel 'everyone') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong><span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+                            {{#t at_label=(atLabel 'everyone') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
                         {{else}}
-                            {{#t at_label=(atLabel 'channel') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong><span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
+                            {{#t at_label=(atLabel 'channel') at_here=(atLabel 'here')}}Mute notifications for <strong>{at_label}</strong> and <strong>{at_here}</strong> <span id="single_suppressed_mobile_qualifier">(on mobile)</span><span id="single_suppressed_desktop_qualifier">(on desktop)</span><br><span id="single_suppressed_disabled_explain" class="subtle_silver">Disabled by <strong id="single_suppressed_disabled_explain_tip_link" class="cursor_pointer">admin</strong></span>{{/t}}
                         {{/if}}
           </label>
         </p>
