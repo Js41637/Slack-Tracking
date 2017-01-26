@@ -7135,11 +7135,21 @@
       TS.client.ui.startUnreadCheckingTimer();
       TS.client.ui.rebuildMemberListToggle();
       TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb());
-      if (TS.model.ui_state.flex_name === "files" && TS.model.ui_state.flex_extra) {
-        var $back = $("#back_from_file_preview");
-        var origin = $back.data("origin");
-        if (origin === "channel_page" || origin === "group_page") {
-          TS.client.ui.files._rebuildBackFromFilePreview("");
+      if (TS.model.ui_state.flex_name === "files" || TS.model.ui_state.flex_name === "convo") {
+        if (!TS.model.ui_state.flex_extra) return;
+        var origin;
+        if (TS.model.ui_state.flex_name === "files") {
+          var $back = $("#back_from_file_preview");
+          origin = $back.data("origin");
+          if (origin === "channel_page" || origin === "group_page" || origin === "im_page") {
+            TS.client.ui.files._rebuildBackFromFilePreview("");
+          }
+        } else if (TS.model.ui_state.flex_name === "convo") {
+          origin = TS.ui.replies.activeConvoOrigin();
+          if (origin === "channel_page" || origin === "group_page" || origin === "im_page") {
+            var show_back_button = false;
+            TS.ui.replies.toggleBackButton(show_back_button);
+          }
         }
       }
     },
@@ -9348,7 +9358,7 @@
       TS.client.ui.flex._unregisterCurrentStatusInput();
       TS.client.ui.flex._current_status_input = new TS.client.ui.CurrentStatusInput({
         $parent: $("#member_preview_container"),
-        has_suggestions_menu: true
+        has_presets_menu: true
       });
     },
     _unregisterCurrentStatusInput: function() {
@@ -27680,19 +27690,19 @@
       var ts = $(this).data("ts");
       var file_id = $(this).data("file-id");
       var thread_ts = $(this).data("thread-ts");
+      var origin = "channel_page";
+      if (model_ob.is_im || model_ob.is_mpim) {
+        origin = "im_page";
+      } else if (model_ob.is_group) {
+        origin = "group_page";
+      }
       if (type === "message") {
         if (TS.boot_data.feature_message_replies && thread_ts && thread_ts != ts) {
-          TS.ui.replies.openConversation(model_ob, thread_ts, ts);
+          TS.ui.replies.openConversation(model_ob, thread_ts, ts, origin);
         } else {
           TS.client.ui.tryToJump(model_ob.id, ts.toString());
         }
       } else if (type === "file" || type === "file_comment") {
-        var origin = "channel_page";
-        if (model_ob.is_im || model_ob.is_mpim) {
-          origin = "im_page";
-        } else if (model_ob.is_group) {
-          origin = "group_page";
-        }
         TS.client.ui.files.previewFile(file_id, origin);
       }
     });
@@ -28649,6 +28659,7 @@
   var DIALOG_CLASS = "all_members_dialog";
 
   function _initDialogUI(model_ob) {
+    $(window.document).bind("keydown", _onKeydown);
     if (TS.useSearchableMemberList()) {
       var searchable_member_list = new TS.SearchableMemberList({
         $container: $("#channel_membership_dialog_container"),
@@ -28701,6 +28712,13 @@
     });
     TS.menu.member.member_item_click_sig.addOnce(_memberMenuItemClicked);
   }
+  var _onKeydown = function(e) {
+    if (e.which == TS.utility.keymap.esc) {
+      if (TS.generic_dialog.div.find("input").val() === "") {
+        TS.generic_dialog.cancel();
+      }
+    }
+  };
   var _isShowing = function() {
     if (!TS.generic_dialog.is_showing) return false;
     return TS.generic_dialog.current_setting.dialog_class == DIALOG_CLASS;
@@ -28744,6 +28762,7 @@
         _filtered_members = undefined;
         _members = undefined;
         TS.menu.member.member_item_click_sig.remove(_memberMenuItemClicked);
+        $(window.document).unbind("keydown", _onKeydown);
       }
     });
   }
@@ -39191,6 +39210,9 @@ function timezones_guess() {
     activeConvoThreadTs: function() {
       return _active_convo_thread_ts;
     },
+    activeConvoOrigin: function() {
+      return _active_convo_origin;
+    },
     populateReplyInput: function(text) {
       var $input = $("#reply_container .message_input");
       TS.utility.populateInput($input, text, text.length);
@@ -39209,6 +39231,9 @@ function timezones_guess() {
     },
     getActiveMessages: function() {
       return _active_convo_messages;
+    },
+    toggleBackButton: function(show_back_button) {
+      $("#convo_tab_back_container").toggleClass("hidden", !show_back_button);
     },
     joinChannelFromThread: function() {
       if (!_active_convo_model_id || !_active_convo_thread_ts) return;
@@ -39302,7 +39327,7 @@ function timezones_guess() {
   var _active_convo_can_reply;
   var _active_convo_messages;
   var _active_convo_origin;
-  var _SUPPORTED_ORIGINS = ["mentions", "search_results", "starred_items"];
+  var _SUPPORTED_ORIGINS = ["mentions", "search_results", "starred_items", "channel_page", "group_page", "im_page"];
   var _ready_to_focus;
   var _focus_ready_sig = new signals.Signal;
   var _onConnected = function(was_fast_reconnect) {
@@ -39339,6 +39364,8 @@ function timezones_guess() {
         TS.search.view.maybeRebuildResults();
       } else if (_active_convo_origin === "starred_items") {
         TS.client.ui.flex.openFlexTab("stars");
+      } else if (_active_convo_origin === "channel_page" || _active_convo_origin === "group_page" || _active_convo_origin === "im_page") {
+        TS.client.ui.flex.openFlexTab("details");
       }
     });
   };
@@ -39521,11 +39548,8 @@ function timezones_guess() {
     var $root_msg_el = $(_buildRootMsgHTML(model_ob, root_msg));
     $convo.find("ts-message.placeholder").replaceWith($root_msg_el);
     _renderReplyContainer(model_ob, root_msg);
-    if (_active_convo_origin) {
-      $("#convo_tab_back_container").removeClass("hidden");
-    } else {
-      $("#convo_tab_back_container").addClass("hidden");
-    }
+    var show_back_button = !!_active_convo_origin;
+    TS.ui.replies.toggleBackButton(show_back_button);
   };
   var _renderReplyContainer = function(model_ob, root_msg) {
     var ignore_membership = true;

@@ -15,8 +15,8 @@
     {{#if can_remove}}<a class="remove_pin ts_icon ts_icon_times_small" title="Click to un-pin this item"></a>{{/if}}
 
     {{#if is_message}}
-      {{#if item.message.parent_user_id}}
-        <div class="pin_metadata tiny_bottom_margin">{{#t user=(getMemberDisplayNameById item.message.parent_user_id)}}in reply to {user}{{/t}}</div>
+      {{#if is_reply}}
+        <div class="pin_metadata tiny_bottom_margin">from a thread</div>
       {{/if}}
       <p class="no_bottom_margin">
         {{#if member}}

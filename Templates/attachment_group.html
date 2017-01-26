@@ -1,9 +1,9 @@
-{{#if first_attachment.pretext}}
-  <div class="attachment_pretext for_attachment_group">{{formatMessageAttachmentPart first_attachment.pretext msg true first_attachment.mrkdwn_in_hash.pretext}}</div>
-{{/if}}
-
 {{#if preamble}}
   <span class="attachment_preamble for_attachment_group">{{preamble}}</span>
+{{/if}}
+
+{{#if first_attachment.pretext}}
+  <div class="attachment_pretext for_attachment_group">{{formatMessageAttachmentPart first_attachment.pretext msg true first_attachment.mrkdwn_in_hash.pretext}}</div>
 {{/if}}
 
 {{#if attachments_html}}

@@ -11577,12 +11577,12 @@ TS.registerModule("constants", {
         return field.is_hidden;
       });
     },
-    getTeamCustomStatusSuggestions: function() {
+    getTeamCustomStatusPresets: function() {
       if (!TS.boot_data.feature_user_custom_status) return;
-      return _.map(TS.model.team.prefs.custom_status_suggestions, function(suggestion) {
+      return _.map(TS.model.team.prefs.custom_status_presets, function(preset) {
         return {
-          text: suggestion[1],
-          emoji: suggestion[0]
+          text: preset[1],
+          emoji: preset[0]
         };
       });
     },
@@ -23039,8 +23039,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getMemberCurrentStatusText", function(member) {
         return Handlebars.helpers.formatCurrentStatus(TS.members.getMemberCurrentStatusText(member));
       });
-      Handlebars.registerHelper("getTeamCustomStatusSuggestions", function() {
-        return TS.team.getTeamCustomStatusSuggestions();
+      Handlebars.registerHelper("getTeamCustomStatusPresets", function() {
+        return TS.team.getTeamCustomStatusPresets();
       });
       Handlebars.registerHelper("getDisplayNameOfUserForIm", function(im) {
         if (!im) return "MISSING_IM";
@@ -43205,11 +43205,7 @@ var _on_esc;
     },
     startPinMessage: function(msg_ts, model_ob) {
       msg_ts = msg_ts.toString();
-      var msg = TS.utility.msgs.getMsg(msg_ts, model_ob.msgs);
-      if (!msg && model_ob._archive_msgs) msg = TS.utility.msgs.getMsg(msg_ts, model_ob._archive_msgs);
-      if (!msg && TS.model.unread_view_is_showing) {
-        msg = TS.client.unread.getMessage(model_ob, msg_ts);
-      }
+      var msg = TS.utility.msgs.findMsg(msg_ts, model_ob.id);
       if (msg) {
         if (msg.subtype === "file_comment") {
           TS.pins.startPinFileComment(msg.comment.id, msg.file.id, model_ob);
@@ -43255,9 +43251,8 @@ var _on_esc;
     pinStatusHasChanged: function(pinned, item, type, model_ob) {
       var msg, file, comment;
       var item_changed, model_ob_changed, file_changes;
-      if (type === "message" && (model_ob.msgs || model_ob._archive_msgs)) {
-        msg = TS.utility.msgs.getMsg(item.message.ts, model_ob.msgs);
-        if (!msg && model_ob._archive_msgs) msg = TS.utility.msgs.getMsg(item.message.ts, model_ob._archive_msgs);
+      if (type === "message" && model_ob) {
+        msg = TS.utility.msgs.findMsg(item.message.ts, model_ob.id);
         if (msg) {
           item.message = msg;
           item_changed = _updatePinnedStatus(pinned, msg, model_ob);
@@ -43423,8 +43418,7 @@ var _on_esc;
         if (item.type === "message" && item.message.ts === msg_ts) return item.message;
       }
     }
-    var msg = TS.utility.msgs.getMsg(msg_ts, model_ob.msgs);
-    if (!msg && model_ob._archive_msgs) msg = TS.utility.msgs.getMsg(msg_ts, model_ob._archive_msgs);
+    var msg = TS.utility.msgs.findMsg(msg_ts, model_ob.id);
     if (!msg) return null;
     if (msg.subtype === "file_comment") {
       if (_getPinnedComment(msg.comment.id, msg.file.id, model_ob)) return msg;

@@ -6147,13 +6147,13 @@ h3 .presence {
   border-bottom-color: transparent
 }
 
-#member_preview_scroller a:not(.member_name):not(.current_status_suggestion_option),
-.team_list_item a:not(.member_name):not(.current_status_suggestion_option) {
+#member_preview_scroller a:not(.member_name):not(.current_status_preset_option),
+.team_list_item a:not(.member_name):not(.current_status_preset_option) {
   color: #555459
 }
 
-#member_preview_scroller a:not(.member_name):not(.current_status_suggestion_option):hover,
-.team_list_item a:not(.member_name):not(.current_status_suggestion_option):hover {
+#member_preview_scroller a:not(.member_name):not(.current_status_preset_option):hover,
+.team_list_item a:not(.member_name):not(.current_status_preset_option):hover {
   color: #005e99;
   text-decoration: underline
 }
@@ -6539,18 +6539,18 @@ only screen and (min-resolution:2dppx) {
   padding-bottom: .125rem
 }
 
-.current_status_input_container #menu_items li .current_status_suggestion_option {
+.current_status_input_container #menu_items li .current_status_preset_option {
   text-decoration: none
 }
 
 .current_status_input_container .current_status_clear,
-.current_status_input_container .current_status_suggestions {
+.current_status_input_container .current_status_presets {
   list-style-type: none;
   margin: 0
 }
 
 .current_status_input_container .current_status_clear li,
-.current_status_input_container .current_status_suggestions li {
+.current_status_input_container .current_status_presets li {
   padding-top: .125rem;
   padding-bottom: .125rem
 }
@@ -19007,6 +19007,10 @@ ts-message.is_pinned.standalone:not(.for_mention_display):not(.for_search_displa
   margin-top: .25rem
 }
 
+ts-thread ts-message.is_pinned {
+  background: 0 0
+}
+
 ts-message .is_pinned_holder {
   color: #717274;
   font-size: .75rem;
@@ -23918,7 +23922,7 @@ ts-jumper ts-jumper-results:empty {
   margin-bottom: .875rem
 }
 
-.current_status_input_for_team_menu .current_status_suggestions {
+.current_status_input_for_team_menu .current_status_presets {
   margin-top: .375rem;
   padding-top: .8125rem;
   padding-bottom: .8125rem;
@@ -23926,7 +23930,7 @@ ts-jumper ts-jumper-results:empty {
   border-bottom: 1px solid #e8e8e8
 }
 
-.current_status_input_for_team_menu .current_status_suggestions:last-of-type {
+.current_status_input_for_team_menu .current_status_presets:last-of-type {
   border-bottom: none;
   padding-bottom: 0
 }
