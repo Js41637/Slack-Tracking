@@ -19069,7 +19069,7 @@ ts-message .is_highlights_holder ts-icon {
   color: #217d4b
 }
 
-ts-message .is_highlights_holder a {
+ts-message .is_highlights_holder .highlights_feedback_trigger {
   color: #217d4b
 }
 

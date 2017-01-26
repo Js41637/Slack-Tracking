@@ -4465,6 +4465,9 @@
         }
         TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header);
         TS.view.rebuildMsgsIncludingMember(member);
+        if (TS.boot_data.feature_message_replies) TS.client.ui.threads.rebuildMsgsIncludingMember(member);
+        if (TS.boot_data.feature_message_replies) TS.ui.replies.rebuildMsgsIncludingMember(member);
+        if (TS.client.unread.isEnabled()) TS.client.ui.unread.rebuildMsgsIncludingMember(member);
       }
       if (member.id == TS.model.user.id) {
         TS.view.members.updateUserDisplayName();
@@ -9079,33 +9082,6 @@
         $("#client-ui").removeClass("whats_new_showing");
         _toggleFlexTab("whats_new");
       });
-      if (TS.boot_data.feature_sli_recaps) {
-        $header.delegate("#sli_recap_toggle", "click", function(e) {
-          e.preventDefault();
-          var user_action = true;
-          if ($(this).hasClass("active")) {
-            TS.recaps_signal.logToggleClick(false);
-            if (TS.client && !TS.model.prefs.seen_highlights_coachmark) {
-              setTimeout(function() {
-                TS.coachmark.start(TS.coachmarks.coachmarks.highlights);
-                var coachmark_footer = $("#highlights_coachmark_div").next();
-                coachmark_footer.children(".coachmark_got_it").removeClass("hidden");
-                coachmark_footer.children(".coachmark_next_tip").addClass("hidden");
-                TS.model.prefs.seen_highlights_coachmark = true;
-                TS.prefs.setPrefByAPI({
-                  name: "seen_highlights_coachmark",
-                  value: true
-                });
-              }, 500);
-            }
-            TS.recaps_signal.toggleOffHighlights(user_action);
-          } else {
-            TS.recaps_signal.logToggleClick(true);
-            TS.recaps_signal.toggleOnHighlights(user_action);
-            TS.recaps_signal.handleUpdateScrollbar();
-          }
-        });
-      }
     },
     cleanupFlexExcluding: function(exclude) {
       if (exclude !== "files") {
@@ -9573,11 +9549,7 @@
         query_params.marker = this._next_marker;
       }
       if (this._model_ob_id) {
-        if (TS.membership.lazyLoadChannelMembership()) {
-          query_params.limit_to_ids = TS.flannel.__temp_getChannelMembers(this._model_ob_id);
-        } else {
-          query_params.limit_to_ids = TS.shared.getModelObById(this._model_ob_id).members;
-        }
+        query_params.limit_to_channel_id = this._model_ob_id;
       }
       this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
         this_searchable_member_list._fetch_page_p = null;
@@ -22729,10 +22701,10 @@
     is_showing: false,
     is_small: false,
     onStart: function() {},
-    start: function(context) {
+    start: function(context, inline) {
       if (!context) return;
       if (TS.coachmark.is_showing) TS.coachmark.end();
-      if (!TS.coachmark.$coachmark) _createCoachmark();
+      if (!TS.coachmark.$coachmark) _createCoachmark(context, inline);
       _populateCoachmark(context);
       var $coachmark = TS.coachmark.$coachmark;
       if (!$("#" + context.coachmark_el_id).length) {
@@ -22766,7 +22738,7 @@
       }
       if (!TS.coachmark.context.no_bg_on_small) $("#coachmark_bg").removeClass("hidden");
     },
-    placeRightOf: function($placement_el, top_offset, left_offset, callout_top_offset) {
+    placeRightOf: function($placement_el, top_offset, left_offset, callout_top_offset, inline) {
       if (!TS.coachmark.context || !TS.coachmark.$coachmark) return;
       top_offset = top_offset || 0;
       left_offset = left_offset || 0;
@@ -22774,14 +22746,28 @@
       var $coachmark = TS.coachmark.$coachmark;
       var coachmark_callout_h = 30;
       var coachmark_callout_edge_allow = 18;
-      var offset = $placement_el.offset();
+      var offset;
+      if (inline) {
+        offset = {
+          top: 0,
+          left: 0
+        };
+      } else {
+        offset = $placement_el.offset();
+      }
       $coachmark.css("top", offset.top + top_offset);
       $coachmark.css("left", offset.left + $placement_el.width() + left_offset);
-      TS.coachmark.keepInBounds();
+      if (!inline) {
+        TS.coachmark.keepInBounds();
+      }
       var rect = $coachmark.dimensions_rect();
-      $("#coachmark_callout").css("top", Math.round(_.clamp(offset.top - rect.top + ($placement_el.height() - coachmark_callout_h) / 2 + callout_top_offset, coachmark_callout_edge_allow, rect.height - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("left", -10);
+      if (inline) {
+        $("#coachmark_callout").css("top", coachmark_callout_edge_allow + callout_top_offset).css("left", -10);
+      } else {
+        $("#coachmark_callout").css("top", Math.round(_.clamp(offset.top - rect.top + ($placement_el.height() - coachmark_callout_h) / 2 + callout_top_offset, coachmark_callout_edge_allow, rect.height - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("left", -10);
+      }
     },
-    placeBelowOf: function($placement_el, top_offset, left_offset, callout_left_offset) {
+    placeBelowOf: function($placement_el, top_offset, left_offset, callout_left_offset, inline) {
       if (!TS.coachmark.context || !TS.coachmark.$coachmark) return;
       top_offset = top_offset || 0;
       left_offset = left_offset || 0;
@@ -22789,14 +22775,28 @@
       var $coachmark = TS.coachmark.$coachmark;
       var coachmark_callout_h = 30;
       var coachmark_callout_edge_allow = 18;
-      var offset = $placement_el.offset();
+      var offset;
+      if (inline) {
+        offset = {
+          top: 0,
+          left: 0
+        };
+      } else {
+        offset = $placement_el.offset();
+      }
       $coachmark.css("top", offset.top + $placement_el.height() + top_offset);
       $coachmark.css("left", offset.left + left_offset);
-      TS.coachmark.keepInBounds();
+      if (!inline) {
+        TS.coachmark.keepInBounds();
+      }
       var rect = $coachmark.dimensions_rect();
-      $("#coachmark_callout").css("left", Math.round(_.clamp(offset.left - rect.left + ($placement_el.width() - coachmark_callout_h) / 2 + callout_left_offset, coachmark_callout_edge_allow, rect.width - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("top", -10);
+      if (inline) {
+        $("#coachmark_callout").css("left", coachmark_callout_edge_allow + callout_left_offset).css("top", -10);
+      } else {
+        $("#coachmark_callout").css("left", Math.round(_.clamp(offset.left - rect.left + ($placement_el.width() - coachmark_callout_h) / 2 + callout_left_offset, coachmark_callout_edge_allow, rect.width - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("top", -10);
+      }
     },
-    placeAboveOf: function($placement_el, top_offset, left_offset, callout_left_offset) {
+    placeAboveOf: function($placement_el, top_offset, left_offset, callout_left_offset, inline) {
       if (!TS.coachmark.context || !TS.coachmark.$coachmark) return;
       top_offset = top_offset || 0;
       left_offset = left_offset || 0;
@@ -22804,14 +22804,28 @@
       var $coachmark = TS.coachmark.$coachmark;
       var coachmark_callout_h = 30;
       var coachmark_callout_edge_allow = 18;
-      var offset = $placement_el.offset();
+      var offset;
+      if (inline) {
+        offset = {
+          top: 0,
+          left: 0
+        };
+      } else {
+        offset = $placement_el.offset();
+      }
       $coachmark.css("top", offset.top - coachmark_callout_h - $coachmark.height() + top_offset);
       $coachmark.css("left", offset.left + left_offset);
-      TS.coachmark.keepInBounds();
+      if (!inline) {
+        TS.coachmark.keepInBounds();
+      }
       var rect = $coachmark.dimensions_rect();
-      $("#coachmark_callout").css("left", Math.round(_.clamp(offset.left - rect.left + ($placement_el.width() - coachmark_callout_h) / 2 + callout_left_offset, coachmark_callout_edge_allow, rect.width - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("bottom", -10);
+      if (inline) {
+        $("#coachmark_callout").css("left", coachmark_callout_edge_allow + callout_left_offset).css("bottom", -10);
+      } else {
+        $("#coachmark_callout").css("left", Math.round(_.clamp(offset.left - rect.left + ($placement_el.width() - coachmark_callout_h) / 2 + callout_left_offset, coachmark_callout_edge_allow, rect.width - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("bottom", -10);
+      }
     },
-    placeLeftOf: function($placement_el, top_offset, left_offset, callout_top_offset) {
+    placeLeftOf: function($placement_el, top_offset, left_offset, callout_top_offset, inline) {
       if (!TS.coachmark.context || !TS.coachmark.$coachmark) return;
       top_offset = top_offset || 0;
       left_offset = left_offset || 0;
@@ -22819,12 +22833,26 @@
       var $coachmark = TS.coachmark.$coachmark;
       var coachmark_callout_h = 30;
       var coachmark_callout_edge_allow = 18;
-      var offset = $placement_el.offset();
+      var offset;
+      if (inline) {
+        offset = {
+          top: 0,
+          left: 0
+        };
+      } else {
+        offset = $placement_el.offset();
+      }
       $coachmark.css("top", offset.top + top_offset);
       $coachmark.css("left", offset.left - $coachmark.width() + left_offset);
-      TS.coachmark.keepInBounds();
+      if (!inline) {
+        TS.coachmark.keepInBounds();
+      }
       var rect = $coachmark.dimensions_rect();
-      $("#coachmark_callout").css("top", Math.round(_.clamp(offset.top - rect.top + ($placement_el.height() - coachmark_callout_h) / 2 + callout_top_offset, coachmark_callout_edge_allow, rect.height - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("right", -10);
+      if (inline) {
+        $("#coachmark_callout").css("top", coachmark_callout_edge_allow + callout_top_offset).css("right", -10);
+      } else {
+        $("#coachmark_callout").css("top", Math.round(_.clamp(offset.top - rect.top + ($placement_el.height() - coachmark_callout_h) / 2 + callout_top_offset, coachmark_callout_edge_allow, rect.height - (coachmark_callout_edge_allow + coachmark_callout_h)))).css("right", -10);
+      }
     },
     keepInBounds: function() {
       if (!TS.coachmark.context || !TS.coachmark.$coachmark) return;
@@ -22888,7 +22916,7 @@
       }
       if (e) e.stopPropagation();
     },
-    end: function() {
+    end: function(hard) {
       TS.coachmark.is_showing = TS.model.coachmark_is_showing = false;
       var $coachmark = TS.coachmark.$coachmark;
       $coachmark.css("opacity", 0);
@@ -22896,6 +22924,10 @@
       TS.coachmark.clean();
       $coachmark.addClass("hidden");
       $("#coachmark_bg").addClass("hidden");
+      if (hard) {
+        TS.coachmark.$coachmark.remove();
+        TS.coachmark.$coachmark = null;
+      }
       $(window.document).off("keydown", TS.coachmark.onKeyDown);
       $("html").off("mousedown", TS.coachmark.onMouseDown);
       $(window).off("resize.coachmark_placement");
@@ -22934,8 +22966,13 @@
       TS.coachmark.keepInBounds();
     }
   };
-  var _createCoachmark = function() {
-    var $ui_wrapper = $("#client-ui");
+  var _createCoachmark = function(context, inline) {
+    var $ui_wrapper;
+    if (inline) {
+      $ui_wrapper = $("." + context.inline_wrapper_el_class);
+    } else {
+      $ui_wrapper = $("#client-ui");
+    }
     if (!$ui_wrapper.length && TS.calls) {
       $ui_wrapper = $("#calls_conference_content");
     }
@@ -23011,14 +23048,35 @@
           return TS.templates.direct_messages_coachmark(template_args);
         }
       },
-      highlights: {
-        id: "highlights_coachmark",
-        coachmark_el_id: "highlights_coachmark_div",
+      highlights_arrows: {
+        id: "highlights_arrows_coachmark",
+        coachmark_el_id: "highlights_arrows_coachmark_div",
         place: function() {
-          TS.coachmark.placeBelowOf($("#sli_recap_toggle"), 13, -110, 5);
+          TS.coachmark.placeLeftOf($("#recap_nav"), 13, -10, 2);
         },
         content: function() {
-          return TS.templates.highlights_coachmark();
+          return TS.templates.highlights_arrows_coachmark();
+        },
+        resolve: function() {
+          _.defer(function() {
+            TS.recaps_signal.arrowsCoachmarkResolved();
+          });
+        }
+      },
+      highlights_message: {
+        id: "highlights_message_coachmark",
+        coachmark_el_id: "highlights_message_coachmark_div",
+        inline_wrapper_el_class: "highlights_message_to_coach",
+        place: function() {
+          TS.coachmark.placeRightOf($(".highlights_message_to_coach"), -30, 20, 14, true);
+        },
+        content: function() {
+          return TS.templates.highlights_message_coachmark();
+        },
+        resolve: function() {
+          _.defer(function() {
+            TS.recaps_signal.messageCoachmarkResolved();
+          });
         }
       },
       search: {
@@ -27528,9 +27586,8 @@
   var _max_num_files_to_preview = 10;
   var _member_presence_list;
   var _cached_scroll_top;
-  var _searchable_member_list;
   var SEE_ALL_MEMBERS_DIALOG_THRESHOLD = TS.useSearchableMemberList() ? 50 : 100;
-  var MAX_SIDEBAR_MEMBERS_COUNT = TS.useSearchableMemberList() ? SEE_ALL_MEMBERS_DIALOG_THRESHOLD : 10;
+  var MAX_SIDEBAR_MEMBERS_COUNT = TS.useSearchableMemberList() ? 20 : 10;
   var _initEvents = function() {
     _$container.on("click", ".invite_link", function() {
       var model_ob = TS.shared.getActiveModelOb();
@@ -28442,15 +28499,8 @@
     _detachLazyLoad();
     _$member_lists.empty();
     _members = [];
-    if (TS.useSearchableMemberList()) {
-      _searchable_member_list = TS.SearchableMemberList.get("channel_member_list_scroller");
-      if (_searchable_member_list) {
-        _searchable_member_list.destroy();
-      }
-    } else {
-      if (TS.lazyLoadMembersAndBots()) {
-        _$member_lists.removeClass("loading");
-      }
+    if (TS.lazyLoadMembersAndBots() && !TS.useSearchableMemberList()) {
+      _$member_lists.removeClass("loading");
     }
   };
   var _rebuildSharedFiles = function(model_ob) {
@@ -28679,6 +28729,12 @@
         _initDialogUI(model_ob);
       },
       onEnd: function() {
+        if (TS.useSearchableMemberList()) {
+          var searchable_member_list = TS.SearchableMemberList.get("channel_membership_dialog_scroller");
+          if (searchable_member_list) {
+            searchable_member_list.destroy();
+          }
+        }
         TS.generic_dialog.div.remove();
         TS.generic_dialog.div = undefined;
         _current_filter = undefined;
@@ -36956,6 +37012,12 @@ function timezones_guess() {
     },
     incrementTrackingSeqId: function() {
       _tracking_data.unreads_event_seq_id++;
+    },
+    rebuildMsgsIncludingMember: function(member) {
+      if (!TS.model.unread_view_is_showing || !_msgs_config) return;
+      TS.ui.message_container.maybeUpdateMessages(_msgs_config, function(msg) {
+        return TS.utility.msgs.messageIncludesMember(member, msg);
+      });
     }
   });
   var _msgs_config;
@@ -37722,6 +37784,25 @@ function timezones_guess() {
       });
       return changes;
     },
+    maybeUpdateMessages: function(config, msg_test_fn) {
+      var $container = $(config.container);
+      var sections = config._state;
+      _.forEach(sections, function(section) {
+        var $section = $container.children('[data-section-id="' + section.id + '"]');
+        var days = _groupMsgsIntoDays(config, section.msgs);
+        var $days = $section.find(".day_container");
+        _.forEach(days, function(msgs) {
+          var day_ts = msgs.length > 0 ? msgs[0].ts : null;
+          if (!day_ts) return;
+          var $day = $days.filter(function() {
+            return $(this).attr("data-ts") === day_ts;
+          });
+          if (!$day.length) return;
+          var msgs_resolution = _resolveMsgs(msgs, msgs, config.msg_order, msg_test_fn);
+          _updateMsgs(config, section, $day, msgs, msgs_resolution);
+        });
+      });
+    },
     jumpToTop: function(config) {
       delete config._range;
       var $first = $(config.container).find(".message_container_item").first();
@@ -38099,18 +38180,21 @@ function timezones_guess() {
       return _compareTs(order, a.ts, b.ts);
     });
   };
-  var _resolveMsgs = function(msgs_current, msgs_new, order) {
+  var _resolveMsgs = function(msgs_current, msgs_new, order, edit_test_fn) {
+    if (!edit_test_fn) {
+      edit_test_fn = function(old_msg, new_msg) {
+        var old_edited = old_msg.edited;
+        var new_edited = new_msg.edited;
+        if (TS.boot_data.feature_message_replies) {
+          return !_.isEqual(old_edited, new_edited) || !_.isEqual(old_msg.reply_count, new_msg.reply_count);
+        }
+        return !_.isEqual(old_edited, new_edited);
+      };
+    }
     return _resolveOrderedLists(msgs_current, msgs_new, function(a, b) {
       if (a.ts === b.ts) return 0;
       return _compareTs(order, a.ts, b.ts);
-    }, function(old_msg, new_msg) {
-      var old_edited = old_msg.edited;
-      var new_edited = new_msg.edited;
-      if (TS.boot_data.feature_message_replies) {
-        return !_.isEqual(old_edited, new_edited) || !_.isEqual(old_msg.reply_count, new_msg.reply_count);
-      }
-      return !_.isEqual(old_edited, new_edited);
-    });
+    }, edit_test_fn);
   };
   var _resolutionIterator = function(steps, cb) {
     while (steps) {
@@ -39207,6 +39291,16 @@ function timezones_guess() {
         TS.replies.markThread(_active_convo_model_id, _active_convo_thread_ts, last_ts);
       }
       return null;
+    },
+    rebuildMsgsIncludingMember: function(member) {
+      if (!_active_convo_model_id || !_active_convo_thread_ts) return;
+      var model_ob = TS.shared.getModelObById(_active_convo_model_id);
+      if (!model_ob) return;
+      _.each(_active_convo_messages, function(msg) {
+        if (TS.utility.msgs.messageIncludesMember(member, msg)) {
+          TS.ui.replies.maybeUpdateConversationWithMessage(model_ob, msg);
+        }
+      });
     }
   });
   var _active_convo_model_id;
@@ -40563,6 +40657,23 @@ function timezones_guess() {
         view_session_elapsed_time: Date.now() - _initialized_time,
         view_session_index: _threads_event_seq_id
       };
+    },
+    rebuildMsgsIncludingMember: function(member) {
+      if (!TS.model.threads_view_is_showing) return;
+      var sections = _.get(_config, "sections");
+      if (!sections) return;
+      _.each(sections, function(section) {
+        _.each(section.msgs, function(thread) {
+          if (TS.utility.msgs.messageIncludesMember(member, thread.root_msg)) {
+            TS.client.ui.threads.maybeUpdateThreadWithMessage(thread, thread.root_msg);
+          }
+          _.each(thread.replies, function(reply) {
+            if (TS.utility.msgs.messageIncludesMember(member, reply)) {
+              TS.client.ui.threads.maybeUpdateThreadWithMessage(thread, reply);
+            }
+          });
+        });
+      });
     }
   });
   var _config;

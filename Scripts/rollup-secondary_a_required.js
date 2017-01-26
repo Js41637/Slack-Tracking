@@ -16006,6 +16006,7 @@ TS.registerModule("constants", {
         return;
       }
       var model_ob = im || channel || mpim || group;
+      if (model_ob) TS.utility.msgs.maybeRemoveFromMergeOnHistoryQueue(model_ob, imsg);
       if (TS.pins) {
         TS.pins.removeMsg(imsg.deleted_ts, model_ob);
       }
@@ -17293,11 +17294,6 @@ TS.registerModule("constants", {
   };
   var _ensureModelObsAndMembersAndProceed = function(imsg) {
     TS.log(2, imsg.type + " is now being handled");
-    var full_type = "type:" + imsg.type + (imsg.subtype ? " subtype:" + imsg.subtype : "");
-    var c_ids = TS.utility.extractAllModelObIds(imsg, full_type);
-    var m_ids = TS.utility.extractAllMemberIds(imsg, full_type);
-    var missing_c_ids = TS.shared.getModelObIdsNotPresent(c_ids);
-    var missing_m_ids = TS.members.getMemberIdsNotPresent(m_ids.m_ids, m_ids.c_ids, m_ids.t_ids);
     var ensureModelObs = function() {
       return TS.shared.ensureModelObsArePresent(missing_c_ids).then(function() {
         return ensureMembers();
@@ -17339,6 +17335,12 @@ TS.registerModule("constants", {
       }
       return _afterMsgHandled();
     };
+    if (imsg.type === "presence_change" && TS.lazyLoadMembersAndBots()) return proceedWithImsg(imsg);
+    var full_type = "type:" + imsg.type + (imsg.subtype ? " subtype:" + imsg.subtype : "");
+    var c_ids = TS.utility.extractAllModelObIds(imsg, full_type);
+    var m_ids = TS.utility.extractAllMemberIds(imsg, full_type);
+    var missing_c_ids = TS.shared.getModelObIdsNotPresent(c_ids);
+    var missing_m_ids = TS.members.getMemberIdsNotPresent(m_ids.m_ids, m_ids.c_ids, m_ids.t_ids);
     if (missing_c_ids.length) {
       ensureModelObs();
     } else if (missing_m_ids.m_ids.length) {
@@ -26534,6 +26536,16 @@ TS.registerModule("constants", {
         }
       }
       return false;
+    },
+    maybeRemoveFromMergeOnHistoryQueue: function(model_ob, imsg) {
+      if (!TS.boot_data.feature_tinyspeck) return;
+      if (!model_ob || !imsg) return;
+      if (!imsg || !imsg.deleted_ts) return;
+      if (!model_ob._msgs_to_merge_on_history || !model_ob._msgs_to_merge_on_history.length) return;
+      model_ob._msgs_to_merge_on_history = _.filter(model_ob._msgs_to_merge_on_history, function(msg) {
+        if (msg.ts === imsg.deleted_ts) TS.warn("imsg with deleted_ts = " + imsg.deleted_ts + " matched message in merge_on_history queue for " + model_ob.id + " - removing from queue.");
+        return msg.ts !== imsg.deleted_ts;
+      });
     }
   });
   var _is_in_bulk_unread_calc_mode = false;
@@ -54595,7 +54607,7 @@ $.fn.togglify = function(settings) {
       }
       return false;
     },
-    value: function(input, value, is_silent) {
+    value: function(input, value) {
       input = _normalizeInput(input);
       if (!input) return "";
       if (_isFormElement(input)) {
@@ -54603,9 +54615,7 @@ $.fn.togglify = function(settings) {
         return input.value;
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (_.isString(value)) texty.setText(value, {
-          is_silent: !!is_silent
-        });
+        if (_.isString(value)) texty.setText(value);
         return texty.getText();
       }
       return "";
