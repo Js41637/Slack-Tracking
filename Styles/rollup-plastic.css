@@ -15627,11 +15627,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 .lazy_filter_select.default_style input.lfs_input {
   border: none;
-  font: 400 1rem Slack-Lato, appleLogo, sans-serif;
+  font-size: 1rem;
   outline: 0;
   display: inline-block;
   width: auto;
-  padding: .5rem .75rem .5rem .4rem;
+  padding: .45rem .75rem .55rem;
   box-shadow: none!important;
   margin: 0;
   vertical-align: middle
@@ -15641,7 +15641,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   border: 1px solid #c5c5c5;
   font: 400 1rem Slack-Lato, appleLogo, sans-serif;
   position: relative;
-  border-radius: 3px;
+  border-radius: .25rem;
   display: block;
   width: 100%;
   cursor: text;

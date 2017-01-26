@@ -38906,12 +38906,7 @@ function timezones_guess() {
       }
     },
     maybeRenderReplies: function(model_ob, thread_ts, highlight_ts, origin) {
-      var ignore_membership = true;
       var root_msg = TS.replies.getMessage(model_ob, thread_ts);
-      if (root_msg && !TS.replies.canReplyToMsg(model_ob, root_msg, ignore_membership)) {
-        _maybeShowErrorInFlexpane();
-        return Promise.reject(new Error("This message cannot be replied to"));
-      }
       var $convo = $("ts-conversation");
       if ($convo.length) {
         if ($convo.find("ts-message.selected").attr("data-ts") != thread_ts) {
@@ -38973,11 +38968,7 @@ function timezones_guess() {
         return;
       }
       if (!root_msg) {
-        var ignore_membership = true;
         root_msg = TS.utility.msgs.getMsg(thread_ts, messages);
-        if (!TS.replies.canReplyToMsg(model_ob, root_msg, ignore_membership)) {
-          return Promise.reject(new Error("This message cannot be replied to"));
-        }
       }
       var $convo = $("#convo_tab ts-conversation");
       if ($convo.find("ts-message.placeholder").length > 0) {
@@ -39534,6 +39525,8 @@ function timezones_guess() {
     }
   };
   var _renderReplyContainer = function(model_ob, root_msg) {
+    var ignore_membership = true;
+    if (!TS.replies.canReplyToMsg(model_ob, root_msg, ignore_membership)) return;
     if (_active_convo_can_reply) {
       TS.ui.replies.updateMessageActions(model_ob, root_msg);
     } else {

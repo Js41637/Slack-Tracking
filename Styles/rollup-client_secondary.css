@@ -20041,12 +20041,15 @@ ts-message .emoji-sizer .mention {
 }
 
 .light_theme ts-message.first .message_content .bot_label,
-.light_theme ts-message.first .message_content .message_current_status,
 .light_theme ts-message.first .message_content .message_sender,
 .light_theme ts-message.selected .message_content .bot_label,
-.light_theme ts-message.selected .message_content .message_current_status,
 .light_theme ts-message.selected .message_content .message_sender {
   display: inline
+}
+
+.light_theme ts-message.first .message_content .message_current_status,
+.light_theme ts-message.selected .message_content .message_current_status {
+  display: inline-block
 }
 
 .light_theme ts-message.first .message_content .timestamp,
@@ -20329,12 +20332,15 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message.first .message_content .bot_label,
-.dense_theme ts-message.first .message_content .message_current_status,
 .dense_theme ts-message.first .message_content .message_sender,
 .dense_theme ts-message.selected .message_content .bot_label,
-.dense_theme ts-message.selected .message_content .message_current_status,
 .dense_theme ts-message.selected .message_content .message_sender {
   display: inline
+}
+
+.dense_theme ts-message.first .message_content .message_current_status,
+.dense_theme ts-message.selected .message_content .message_current_status {
+  display: inline-block
 }
 
 .dense_theme ts-message.selected .action_hover_container {
@@ -20627,6 +20633,11 @@ ts-thread .thread_messages .thread_replies_container ts-message:last-child {
 
 ts-thread .thread_messages .is_pinned_holder {
   display: none
+}
+
+ts-thread.no_reply_container .thread_messages {
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 10px
 }
 
 ts-thread .thread_messages:not(.show_new_reply_indicator) .thread_replies_container>ts-message:last-child {

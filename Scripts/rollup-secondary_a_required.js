@@ -57479,7 +57479,11 @@ $.fn.togglify = function(settings) {
         return;
       }
       if (!TS.replies.canReplyToMsg(model_ob, thread.root_msg)) {
-        if (model_ob.is_channel && !model_ob.is_member) _renderJoinChannelButton(model_ob, $reply_container);
+        if (model_ob.is_channel && !model_ob.is_member) {
+          _renderJoinChannelButton(model_ob, $reply_container);
+        } else {
+          $thread.addClass("no_reply_container");
+        }
         return;
       }
       var $input;
