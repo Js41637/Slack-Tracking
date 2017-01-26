@@ -27,15 +27,22 @@
         </span>
       {{/feature}}
 
-      <br />
       {{#if member.profile.title}}
+        <br />
+
         {{member.profile.title}}
       {{/if}}
-      {{#pageNeedsEnterprise}}
-        {{#if member.profile.title}}
+      {{#feature flag="feature_user_custom_status"}}
+        {{#if member.profile.status_text}}
           <br />
+
+          {{getMemberCurrentStatusEmoji member}} {{getMemberCurrentStatusText member}}
         {{/if}}
+      {{/feature}}
+      {{#pageNeedsEnterprise}}
         {{#if member.is_restricted}}
+          <br />
+
           <span class="member_type_and_description float_left old_petunia_grey lato">
             <span class="overflow_ellipsis">
               {{#if member.is_ultra_restricted}}
@@ -50,11 +57,14 @@
             </span>
           </span>
         {{else if member.is_bot}}
+          <br />
+
           <span class="member_type_and_description float_left old_petunia_grey lato">
             <span class="overflow_ellipsis">{{#t note="Description for bots"}}Non-sentient Bot{{/t}}</span>
           </span>
         {{/if}}
       {{/pageNeedsEnterprise}}
+      <br />
     </p>
   {{/if}}
 </div>

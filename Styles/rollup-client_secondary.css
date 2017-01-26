@@ -19341,7 +19341,7 @@ ts-message .emoji-sizer .mention {
 }
 
 #reply_container {
-  height: 4.875rem;
+  min-height: 4.875rem;
   margin-left: .625rem;
   margin-top: .625rem;
   margin-bottom: 1.5625rem

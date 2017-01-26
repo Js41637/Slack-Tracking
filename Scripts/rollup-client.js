@@ -5763,7 +5763,10 @@
     rebuildAllButMsgs: function(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header) {
       TS.client.channel_pane.rebuild("channels", "ims", "starred");
       TS.client.msg_pane.rebuildChannelMembersList();
-      if (!skip_rebuilding_channel_header) TS.client.msg_pane.displayTitle();
+      if (!skip_rebuilding_channel_header) {
+        TS.client.msg_pane.displayTitle();
+        TS.client.msg_pane.updateEndMarker();
+      }
       if (make_sure_active_channel_is_in_view) {
         TS.client.channel_pane.makeSureActiveChannelIsInView();
       }
@@ -6823,9 +6826,9 @@
       var controller = TS.shared.getControllerForModelOb(model_ob);
       if (_.isFunction(controller.maybeLoadScrollBackHistory)) controller.maybeLoadScrollBackHistory(model_ob.id, force);
     },
-    areMsgsScrolledToBottom: function(allowance) {
+    areMsgsScrolledToBottom: function(allowance, skip_cache) {
       var cache = TS.model.archive_view_is_showing ? TS.model.ui.cached_archive_scroll_result : TS.model.ui.cached_msgs_scroll_result;
-      if (cache !== null) {
+      if (cache !== null && !skip_cache) {
         return cache;
       }
       allowance = !isNaN(allowance) ? allowance : 50;
@@ -9549,8 +9552,16 @@
     _fetchPage: function() {
       if (this._fetch_page_p) return this._fetch_page_p;
       var this_searchable_member_list = this;
+      var query_count;
+      if (this._current_query_for_match) {
+        query_count = FETCH_PAGE_SIZE_SEARCH;
+      } else if (TS.model.user.is_restricted) {
+        query_count = 100;
+      } else {
+        query_count = FETCH_PAGE_SIZE;
+      }
       var query_params = {
-        count: this._current_query_for_match ? FETCH_PAGE_SIZE_SEARCH : FETCH_PAGE_SIZE,
+        count: query_count,
         filter: this._current_filter
       };
       if (this._current_query_for_match) {
@@ -9570,6 +9581,14 @@
       return this._fetch_page_p;
     },
     _processPage: function(members) {
+      if (TS.model.user.is_restricted) {
+        var valid_member_ids = _(TS.shared.getAllModelObsForUser()).map(function(ob) {
+          return ob.members || ob.user;
+        }).flatten().uniq().value();
+        members = _.filter(members, function(member) {
+          return _.includes(valid_member_ids, member.id);
+        });
+      }
       this._members = _.union(this._members, members);
       this._presence_list.add(_.map(this._members, "id"));
     },
@@ -9581,7 +9600,9 @@
           this_searchable_member_list._maybeHideNoResultsState();
           this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
         } else {
-          this_searchable_member_list._showNoResultsState();
+          if (TS.model.user.is_restricted && !this_searchable_member_list._current_query_for_match && !this_searchable_member_list._have_all_members) {} else {
+            this_searchable_member_list._showNoResultsState();
+          }
         }
         return null;
       }).then(function() {
@@ -9686,7 +9707,6 @@
       if (this._long_list_view_items_height <= this._long_list_view_height && !this._have_all_members) {
         this._fetchProcessAndDisplayPage().then(function() {
           this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-          this_searchable_member_list._recursivelyFillLongListViewToHeight();
           return null;
         });
       }

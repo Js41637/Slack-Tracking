@@ -5804,10 +5804,11 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
   color: #ab9ba9;
   font-size: .875rem;
   font-weight: 400;
-  line-height: 1.5
+  line-height: 1.5;
+  z-index: 1
 }
 
-#team_menu_user_tip {
+#team_menu_user_details {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -5815,13 +5816,13 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
   display: flex
 }
 
-#team_menu_user_tip #team_menu_user_name {
+#team_menu_user_details #team_menu_user_name {
   -ms-flex: 0 1 auto;
   -webkit-flex: 0 1 auto;
   flex: 0 1 auto
 }
 
-#team_menu_user_tip .current_user_current_status {
+#team_menu_user_details .current_user_current_status {
   -ms-flex: 0 0 auto;
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto

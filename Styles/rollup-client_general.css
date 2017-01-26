@@ -7198,16 +7198,17 @@ ts-inline-saver.failed .failed {
   border-radius: 2px;
   background-position: center center;
   background-repeat: no-repeat;
+  background-size: 16px 16px;
   display: inline-block;
-  height: 24px;
-  margin-right: 5px;
+  height: 16px;
+  margin-right: 3px;
   vertical-align: middle;
-  width: 24px
+  width: 16px
 }
 
 .lazy_filter_select.default_style .lfs_item_desc {
   color: #9e9ea6;
-  margin-left: 5px
+  margin-left: 2px
 }
 
 .lazy_filter_select.default_style .lfs_token {
@@ -7442,6 +7443,14 @@ ts-inline-saver.failed .failed {
   padding-bottom: .375rem
 }
 
+.lazy_filter_select.single.message_menu_style .lfs_input_container:hover:not(.active) {
+  border-color: #9e9ea6
+}
+
+.lazy_filter_select.single.message_menu_style .lfs_input_container:hover:not(.active)::after {
+  color: #555459
+}
+
 .lazy_filter_select.single.message_menu_style .lfs_input_container::after {
   color: #555459;
   font-size: 1.125rem;
@@ -7462,6 +7471,14 @@ ts-inline-saver.failed .failed {
 
 .lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_item.group_item {
   padding-left: .75rem
+}
+
+.lazy_filter_select.single.message_menu_style.disabled .lfs_input_container .lfs_item {
+  color: #9e9ea6
+}
+
+.lazy_filter_select.single.message_menu_style.disabled .lfs_input_container .lfs_item_desc {
+  color: #babbbf
 }
 
 label.select[data-lazy-filter-select]:after,

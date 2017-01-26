@@ -45759,6 +45759,7 @@ $.fn.togglify = function(settings) {
     if (instance._list_built) {
       instance.$list.longListView("setHidden", true);
     }
+    instance._$active = null;
     instance.onListHidden();
   };
   var _hideNoResults = function(instance) {
