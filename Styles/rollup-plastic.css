@@ -11477,6 +11477,38 @@ body.winssb #emoji_menu {
   padding-right: .625rem
 }
 
+#recap_menu_items .recap_description {
+  display: block;
+  text-decoration: none;
+  padding: 0 1rem 0 .5rem;
+  margin: 0 .9375rem;
+  border-radius: .25rem;
+  white-space: nowrap;
+  outline: 0;
+  font-size: .9375rem;
+  line-height: 1.5625rem;
+  background: 0 0;
+  color: #2c2d30
+}
+
+#recap_menu_items .recap_learn_more {
+  display: block;
+  text-decoration: none;
+  padding: 0 1rem 0 .5rem;
+  margin: 0 .9375rem;
+  border-radius: .25rem;
+  white-space: nowrap;
+  outline: 0;
+  font-size: .9375rem;
+  line-height: 1.5625rem;
+  background: 0 0;
+  color: #007ab8
+}
+
+#recap_menu_items .recap_learn_more:hover {
+  text-decoration: underline
+}
+
 .member_file_filter_menu #menu_items_scroller {
   display: none
 }
