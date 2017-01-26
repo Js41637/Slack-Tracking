@@ -29976,6 +29976,7 @@ TS.registerModule("constants", {
       _callback = args.callback;
       _$trigger.closest("a.emo_menu").addClass("active");
       _$trigger.closest(".handy_rxns_row").addClass("active");
+      _$trigger.closest(".current_status_emoji_picker").addClass("active");
     }
     if (!_is_built) {
       _build();
@@ -30734,6 +30735,7 @@ TS.registerModule("constants", {
     _callback = null;
     _$trigger.closest("a.emo_menu").removeClass("active");
     _$trigger.closest(".handy_rxns_row").removeClass("active");
+    _$trigger.closest(".current_status_emoji_picker").removeClass("active");
     _$trigger.closest(".menu_rxn").removeClass("active");
     _$trigger.closest(".rxn_panel").removeClass("active");
     _$trigger.closest("ts-message").removeClass("active");
@@ -32203,6 +32205,7 @@ TS.registerModule("constants", {
       _on_esc = null;
     },
     end: function() {
+      if (TS.menu.emoji.is_showing) return;
       if (TS.menu.$submenu && TS.menu.$submenu_parent) TS.menu.$submenu_parent.submenu("destroy");
       TS.menu.$menu.width("");
       TS.model.menu_is_showing = false;

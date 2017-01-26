@@ -6470,7 +6470,23 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_wrap .current_status_input {
-  padding-right: 1.5625rem
+  padding-right: 1.5625rem;
+  padding-left: 3.125rem
+}
+
+.current_status_input_wrap .current_status_emoji_picker {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  width: 2.75rem;
+  border-right: 1px solid #C5C5C5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-clip: padding-box;
+  border-radius: 4px 0 0 4px
 }
 
 .current_status_input_wrap .status_clear_icon_wrap {
@@ -23881,8 +23897,8 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .current_status_input_for_team_menu .current_status_input_wrap {
-  padding-left: 1.25rem;
-  padding-right: 1.25rem
+  margin-left: 1.25rem;
+  margin-right: 1.25rem
 }
 
 .current_status_input_for_team_menu .current_status_input_wrap .current_status_input {

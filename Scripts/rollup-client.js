@@ -18516,6 +18516,7 @@
     },
     bindUI: function() {
       _$form = $("#header_search_form");
+      _$container = $("#search_container");
       _$input = $("#search_terms");
       _$input.one("focus", _ensureInputSetup);
       TS.search.autocomplete.bindForm();
@@ -18557,7 +18558,7 @@
           return;
         }
       });
-      $input.on("transitionend", function() {
+      $client_ui.on("transitionend", function() {
         if (input_focused || input_blurred || TS.model.ui_state.flex_visible) {
           _updateSearchNoDragRegion();
         }
@@ -18632,6 +18633,7 @@
   });
   var _$input;
   var _$form;
+  var _$container;
   var _spinner;
   var _start_spinner_timer;
   var _history_fetched_callback;
@@ -18659,13 +18661,13 @@
     clearTimeout(TS.search.autocomplete.key_tim);
   };
   var _updateSearchNoDragRegion = function() {
-    if (!_$input) return;
+    if (!_$container) return;
     TSSSB.call("updateNoDragRegion", {
       id: "search",
-      width: _$input.outerWidth(),
-      height: _$input.outerHeight(),
-      top: _$input.offset().top,
-      left: _$input.offset().left
+      width: _$container.outerWidth(),
+      height: _$container.outerHeight(),
+      top: _$container.offset().top,
+      left: _$container.offset().left
     });
   };
   var _historyFetched = function(data, args) {
@@ -28418,7 +28420,8 @@
       var member_ids = TS.membership.lazyLoadChannelMembership() ? TS.flannel.__temp_getChannelMembers(model_ob.id) : model_ob.members;
       var query = {
         count: fetch_all_members ? member_ids.length : MAX_SIDEBAR_MEMBERS_COUNT,
-        limit_to_ids: member_ids
+        limit_to_channel_id: model_ob.id,
+        filter: "everyone"
       };
       var promises = [TS.flannel.fetchAndUpsertObjectsWithQuery(query)];
       var channel_member_counts = TS.membership.getMembershipCounts(model_ob);

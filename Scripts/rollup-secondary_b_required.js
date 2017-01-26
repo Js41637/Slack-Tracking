@@ -1811,6 +1811,7 @@
       _submit_item_handler = cb;
     },
     onKeyDown: function(e) {
+      if (TS.menu.emoji.is_showing) return;
       var keymap = TS.utility.keymap;
       var key = e.which;
       var modifier_pressed = e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;

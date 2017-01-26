@@ -6218,8 +6218,13 @@ only screen and (min-resolution:2dppx) {
   background-clip: padding-box
 }
 
+#message_edit_form .current_status_empty_emoji,
 #message_edit_form .emo_menu,
+#msg_form .current_status_empty_emoji,
 #msg_form .emo_menu,
+.current_status_input_container .current_status_empty_emoji,
+.current_status_input_container .emo_menu,
+.inline_message_input_container .current_status_empty_emoji,
 .inline_message_input_container .emo_menu {
   position: absolute;
   z-index: 1;
@@ -6240,8 +6245,13 @@ only screen and (min-resolution:2dppx) {
   transition: all 50ms ease-out 0s
 }
 
+#message_edit_form .current_status_empty_emoji .ts_icon,
 #message_edit_form .emo_menu .ts_icon,
+#msg_form .current_status_empty_emoji .ts_icon,
 #msg_form .emo_menu .ts_icon,
+.current_status_input_container .current_status_empty_emoji .ts_icon,
+.current_status_input_container .emo_menu .ts_icon,
+.inline_message_input_container .current_status_empty_emoji .ts_icon,
 .inline_message_input_container .emo_menu .ts_icon {
   position: absolute;
   top: -.0625rem;
@@ -6249,13 +6259,39 @@ only screen and (min-resolution:2dppx) {
   display: block
 }
 
+#message_edit_form .current_status_empty_emoji .ts_icon_circle_fill,
+#message_edit_form .current_status_empty_emoji .ts_icon_happy_smile,
 #message_edit_form .emo_menu .ts_icon_circle_fill,
 #message_edit_form .emo_menu .ts_icon_happy_smile,
+#msg_form .current_status_empty_emoji .ts_icon_circle_fill,
+#msg_form .current_status_empty_emoji .ts_icon_happy_smile,
 #msg_form .emo_menu .ts_icon_circle_fill,
 #msg_form .emo_menu .ts_icon_happy_smile,
+.current_status_input_container .current_status_empty_emoji .ts_icon_circle_fill,
+.current_status_input_container .current_status_empty_emoji .ts_icon_happy_smile,
+.current_status_input_container .emo_menu .ts_icon_circle_fill,
+.current_status_input_container .emo_menu .ts_icon_happy_smile,
+.inline_message_input_container .current_status_empty_emoji .ts_icon_circle_fill,
+.inline_message_input_container .current_status_empty_emoji .ts_icon_happy_smile,
 .inline_message_input_container .emo_menu .ts_icon_circle_fill,
 .inline_message_input_container .emo_menu .ts_icon_happy_smile {
   opacity: 0
+}
+
+#message_edit_form .current_status_empty_emoji,
+#msg_form .current_status_empty_emoji,
+.current_status_input_container .current_status_empty_emoji,
+.inline_message_input_container .current_status_empty_emoji {
+  width: 100%;
+  height: 37px
+}
+
+#message_edit_form .current_status_empty_emoji .ts_icon,
+#msg_form .current_status_empty_emoji .ts_icon,
+.current_status_input_container .current_status_empty_emoji .ts_icon,
+.inline_message_input_container .current_status_empty_emoji .ts_icon {
+  top: -.1875rem;
+  height: 100%
 }
 
 #message_edit_form #msg_input:focus~#primary_file_button:not(:hover):not(.active),
@@ -6270,6 +6306,12 @@ only screen and (min-resolution:2dppx) {
 #msg_form .message_input:focus~.emo_menu,
 #msg_form.focus~#primary_file_button:not(:hover):not(.active),
 #msg_form.focus~.emo_menu,
+.current_status_input_container #msg_input:focus~#primary_file_button:not(:hover):not(.active),
+.current_status_input_container #msg_input:focus~.emo_menu,
+.current_status_input_container .message_input:focus~#primary_file_button:not(:hover):not(.active),
+.current_status_input_container .message_input:focus~.emo_menu,
+.current_status_input_container.focus~#primary_file_button:not(:hover):not(.active),
+.current_status_input_container.focus~.emo_menu,
 .inline_message_input_container #msg_input:focus~#primary_file_button:not(:hover):not(.active),
 .inline_message_input_container #msg_input:focus~.emo_menu,
 .inline_message_input_container .message_input:focus~#primary_file_button:not(:hover):not(.active),
@@ -6281,15 +6323,26 @@ only screen and (min-resolution:2dppx) {
 
 #message_edit_form .with-emoji-menu.has_scrollbar~.emo_menu,
 #msg_form .with-emoji-menu.has_scrollbar~.emo_menu,
+.current_status_input_container .with-emoji-menu.has_scrollbar~.emo_menu,
 .inline_message_input_container .with-emoji-menu.has_scrollbar~.emo_menu {
   right: 1.125rem;
   width: 1.875rem
 }
 
+#message_edit_form .current_status_emoji_picker.active .current_status_empty_emoji,
+#message_edit_form .current_status_emoji_picker:hover .current_status_empty_emoji,
 #message_edit_form .emo_menu.active,
 #message_edit_form .emo_menu:hover,
+#msg_form .current_status_emoji_picker.active .current_status_empty_emoji,
+#msg_form .current_status_emoji_picker:hover .current_status_empty_emoji,
 #msg_form .emo_menu.active,
 #msg_form .emo_menu:hover,
+.current_status_input_container .current_status_emoji_picker.active .current_status_empty_emoji,
+.current_status_input_container .current_status_emoji_picker:hover .current_status_empty_emoji,
+.current_status_input_container .emo_menu.active,
+.current_status_input_container .emo_menu:hover,
+.inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji,
+.inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji,
 .inline_message_input_container .emo_menu.active,
 .inline_message_input_container .emo_menu:hover {
   -webkit-transform: scale(1.25);
@@ -6298,29 +6351,59 @@ only screen and (min-resolution:2dppx) {
   transform: scale(1.25)
 }
 
+#message_edit_form .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_circle_fill,
+#message_edit_form .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_circle_fill,
 #message_edit_form .emo_menu.active .ts_icon_circle_fill,
 #message_edit_form .emo_menu:hover .ts_icon_circle_fill,
+#msg_form .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_circle_fill,
+#msg_form .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_circle_fill,
 #msg_form .emo_menu.active .ts_icon_circle_fill,
 #msg_form .emo_menu:hover .ts_icon_circle_fill,
+.current_status_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_circle_fill,
+.current_status_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_circle_fill,
+.current_status_input_container .emo_menu.active .ts_icon_circle_fill,
+.current_status_input_container .emo_menu:hover .ts_icon_circle_fill,
+.inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_circle_fill,
+.inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_circle_fill,
 .inline_message_input_container .emo_menu.active .ts_icon_circle_fill,
 .inline_message_input_container .emo_menu:hover .ts_icon_circle_fill {
   opacity: 1;
   color: #FFD06D
 }
 
+#message_edit_form .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_smile_o,
+#message_edit_form .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_smile_o,
 #message_edit_form .emo_menu.active .ts_icon_smile_o,
 #message_edit_form .emo_menu:hover .ts_icon_smile_o,
+#msg_form .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_smile_o,
+#msg_form .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_smile_o,
 #msg_form .emo_menu.active .ts_icon_smile_o,
 #msg_form .emo_menu:hover .ts_icon_smile_o,
+.current_status_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_smile_o,
+.current_status_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_smile_o,
+.current_status_input_container .emo_menu.active .ts_icon_smile_o,
+.current_status_input_container .emo_menu:hover .ts_icon_smile_o,
+.inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_smile_o,
+.inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_smile_o,
 .inline_message_input_container .emo_menu.active .ts_icon_smile_o,
 .inline_message_input_container .emo_menu:hover .ts_icon_smile_o {
   opacity: 0
 }
 
+#message_edit_form .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_happy_smile,
+#message_edit_form .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_happy_smile,
 #message_edit_form .emo_menu.active .ts_icon_happy_smile,
 #message_edit_form .emo_menu:hover .ts_icon_happy_smile,
+#msg_form .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_happy_smile,
+#msg_form .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_happy_smile,
 #msg_form .emo_menu.active .ts_icon_happy_smile,
 #msg_form .emo_menu:hover .ts_icon_happy_smile,
+.current_status_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_happy_smile,
+.current_status_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_happy_smile,
+.current_status_input_container .emo_menu.active .ts_icon_happy_smile,
+.current_status_input_container .emo_menu:hover .ts_icon_happy_smile,
+.inline_message_input_container .current_status_emoji_picker.active .current_status_empty_emoji .ts_icon_happy_smile,
+.inline_message_input_container .current_status_emoji_picker:hover .current_status_empty_emoji .ts_icon_happy_smile,
 .inline_message_input_container .emo_menu.active .ts_icon_happy_smile,
 .inline_message_input_container .emo_menu:hover .ts_icon_happy_smile {
   opacity: 1;
