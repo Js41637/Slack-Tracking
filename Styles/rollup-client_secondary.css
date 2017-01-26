@@ -909,8 +909,7 @@ input.search_input {
 }
 
 .flexpane_redesign #flex_contents .flexpane_tab_bar li a {
-  display: inline-block;
-  max-width: 95px
+  display: inline-block
 }
 
 #flex_contents .flexpane_tab_bar li:hover {

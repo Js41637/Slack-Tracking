@@ -3819,6 +3819,12 @@
     getColonsRx: function() {
       return _emoji.rx_colons;
     },
+    getEmojiByName: function(name) {
+      if (!name) return;
+      return _.find(TS.model.emoji_map, {
+        name: name
+      });
+    },
     getEmojiById: function(id) {
       var emoji_ob = _.find(TS.model.emoji_map, {
         id: id

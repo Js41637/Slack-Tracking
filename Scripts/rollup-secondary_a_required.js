@@ -8849,7 +8849,7 @@ TS.registerModule("constants", {
               TS.client.msg_pane.addMaybeClick(message, TS.client.ui.sendChannelMsgThroughSlackBot.bind(Object.create(null), model_ob.id, imsg.ts, member_idsA.join(","), ts));
               TS.client.msg_pane.addMaybeClick(nothing, TS.utility.msgs.removeEphemeralMsg.bind(Object.create(null), model_ob.id, ts));
               var bot_text = "";
-              bot_text = TS.i18n.t("You mentioned the {name} User Group, but {member_count, plural, =1 {one member} other {# members}} of that User Group {member_count, plural, =1 {is} other {are}} not in this {channel}", "shared")({
+              bot_text = TS.i18n.t("{member_count, plural, =1 {One member} =2 {Two members} =3 {Three members} =4 {Four members} =5 {Five members} =6 {Six members} =7 {Seven members} =8 {Eight members} =9 {Nine members} =10 {Ten members} other {# members}} of the {name} group {member_count, plural, =1 {isn’t} other {aren’t}} in this {channel}. ", "shared")({
                 name: name,
                 member_count: count,
                 channel: channel_type
@@ -8860,10 +8860,8 @@ TS.registerModule("constants", {
                   nothing: nothing
                 });
               } else {
-                bot_text += TS.i18n.t("If you’d like I can <javascript:{message}|send them a link to this message>? Or, <javascript:{nothing}|do nothing>.", "shared")({
-                  message: message,
-                  prompt: prompt,
-                  nothing: nothing
+                bot_text += TS.i18n.t("If you’d like Slack can <javascript:{message}|notify them about your message>.", "shared")({
+                  message: message
                 });
               }
               TS.client.ui.addEphemeralBotMsg({
@@ -19555,13 +19553,13 @@ TS.registerModule("constants", {
       if (!inline_img) return "";
       return TS.templates.builders.buildInlineImgToggler(key, container_id) + " " + TS.templates.builders.buildInlineImgDiv(key, container_id, args);
     },
-    buildInlineImgToggler: function(key, container_id, no_bytes) {
+    buildInlineImgToggler: function(key, container_id, no_bytes, args) {
       var inline_img = TS.model.inline_imgs[key];
       if (!inline_img) {
         console.warn("buildInlineImgToggler did not find anything in TS.model.inline_imgs for key:" + key);
         return "";
       }
-      var expand_it = TS.inline_imgs.shouldExpand(container_id, inline_img);
+      var expand_it = TS.inline_imgs.shouldExpand(container_id, inline_img, args);
       var link_url = inline_img.link_url || key;
       var too_many_b = inline_img.bytes && inline_img.bytes > TS.model.inline_img_byte_limit;
       var too_many_px = inline_img.width && inline_img.height && inline_img.width * inline_img.height > TS.model.inline_img_pixel_limit;
@@ -19602,7 +19600,7 @@ TS.registerModule("constants", {
       args = args || {};
       var inline_img = TS.model.inline_imgs[key];
       if (!inline_img) return "";
-      var expand_it = TS.inline_imgs.shouldExpand(container_id, inline_img);
+      var expand_it = TS.inline_imgs.shouldExpand(container_id, inline_img, args);
       var link_url = inline_img.link_url || key;
       var preserve_aspect_ratio = !args.flush_with_attachment && inline_img.width > 0 && inline_img.height > 0;
       var file;
@@ -21617,7 +21615,7 @@ TS.registerModule("constants", {
           template_args.pin_html = "";
         }
         if (TS.boot_data.feature_sli_recaps) {
-          template_args.is_recap = msg.recap && msg.recap.show_recap;
+          template_args.is_recap = msg.recap && TS.recaps_signal && TS.recaps_signal.isMessageHighlight(msg);
           var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
           template_args.show_recap_debug = recap_debug_group === "sli_debug_info";
           template_args.highlights_html = TS.templates.builders.buildHighlightsInfoHtml(msg);
@@ -23648,6 +23646,7 @@ TS.registerModule("constants", {
               var url = attachment.from_url || attachment.image_url;
               var args = {};
               args.flush_with_attachment = true;
+              args.is_giphy_shuffle = attachment.fallback && attachment.fallback.indexOf("giphy") >= 0 && attachment.actions && attachment.actions[1] && attachment.actions[1].name == "shuffle";
               html = TS.templates.builders.buildInlineImgDiv(url, msg_dom_id, args);
             }
             break;
@@ -23689,7 +23688,9 @@ TS.registerModule("constants", {
             break;
           case "image":
             var src = attachment.from_url || attachment.image_url;
-            caret_html = TS.templates.builders.buildInlineImgToggler(src, msg_dom_id, false);
+            var args = {};
+            args.is_giphy_shuffle = attachment.fallback && attachment.fallback.indexOf("giphy") >= 0 && attachment.actions && attachment.actions[1] && attachment.actions[1].name == "shuffle";
+            caret_html = TS.templates.builders.buildInlineImgToggler(src, msg_dom_id, false, args);
             break;
           default:
             caret_html = TS.templates.builders.buildInlineAttachmentToggler(attachment.from_url, msg_dom_id);
@@ -31083,12 +31084,14 @@ TS.registerModule("constants", {
       actions.mark_unread = !!allow_mark_unread;
       var recap_highlight = false;
       var recappable_message = false;
-      var recap_group = TS.experiment.getGroup("sli_recaps_debug");
-      if (recap_group === "sli_debug_info") {
-        recap_highlight = true;
-        if (!model_ob.is_mpim && !model_ob.is_im && msg.recap) {
-          if (!msg.recap.show_recap) {
-            recappable_message = true;
+      if (TS.boot_data.feature_sli_recaps) {
+        var recap_group = TS.experiment.getGroup("sli_recaps_debug");
+        if (recap_group === "sli_debug_info") {
+          recap_highlight = true;
+          if (!model_ob.is_mpim && !model_ob.is_im && msg.recap) {
+            if (TS.recaps_signal && !TS.recaps_signal.isMessageHighlight(msg)) {
+              recappable_message = true;
+            }
           }
         }
       }
@@ -42205,7 +42208,7 @@ var _on_esc;
         if (TS.model.user.enterprise_user.teams.indexOf(team.id) > -1) {
           teams.teams_on.push(team);
         } else {
-          if (team.is_open || team.is_closed) teams.teams_not_on.push(team);
+          if (team.is_open || team.is_closed || team.is_assigned) teams.teams_not_on.push(team);
         }
       });
       return teams[list].sort(function(a, b) {
@@ -42231,7 +42234,7 @@ var _on_esc;
       if (!team) {
         return TS.generic_dialog.alert(TS.i18n.t("Invalid workspace", "enterprise_dashboard")(), TS.i18n.t("Oops! Something went wrong.", "enterprise_dashboard")());
       }
-      if (!team.is_open) {
+      if (!team.is_open && !team.is_assigned) {
         return TS.generic_dialog.alert(TS.i18n.t("This workspace is not available to join.", "enterprise_dashboard")(), TS.i18n.t("Oops! Something went wrong.", "enterprise_dashboard")());
       }
       var calling_args = {
@@ -44344,6 +44347,17 @@ $.fn.togglify = function(settings) {
         };
       });
       return _handy_rxns_dd[scope];
+    },
+    getMemberRxnsFromMessage: function(message, member_id) {
+      if (!message || !member_id) return;
+      var rxn_key = TS.rxns.getRxnKeyByMsgType(message);
+      if (!rxn_key) return;
+      var rxns = TS.rxns.getExistingRxnsByKey(rxn_key);
+      if (!rxns) return;
+      var user_rxns = rxns.filter(function(rxn) {
+        return _.includes(rxn.users, member_id);
+      });
+      return user_rxns;
     },
     getHandyRxnsDisplayDataByRxnKey: function(rxn_key) {
       rxn_key = rxn_key || "";

@@ -75,10 +75,10 @@
         {{else}}
           {{#feature flag="feature_sli_recaps"}}<button class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
                   <span class="ts_tip_tip ts_tip_multiline_inner">
-                    {{#t note="stat for clicks message has received"}}Clicks:{{/t}} {{msg.recap.clicks}}<br />
-                    {{#t note="stat for reactions on message"}}Reactions:{{/t}} {{msg.recap.reactions}} <br />
-                    {{#t note="stat for weight message has received"}}Total score:{{/t}} {{msg.recap.weight}} <br />
-                    {{#t note="debug content"}}Debug:{{/t}} {{{ nl2br (prettyJson msg.recap.debug) }}}
+                    {{#t note="stat for clicks message has received"}}Clicks:{{/t}} {{msg.recap.data.clicks}}<br />
+                    {{#t note="stat for reactions on message"}}Reactions:{{/t}} {{msg.recap.data.reactions}} <br />
+                    {{#t note="stat for weight message has received"}}Total score:{{/t}} {{msg.recap.data.weight}} <br />
+                    {{#t note="debug content"}}Debug:{{/t}} {{{ nl2br (prettyJson msg.recap.data.debug) }}}
                   </span>
                 </button>{{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}

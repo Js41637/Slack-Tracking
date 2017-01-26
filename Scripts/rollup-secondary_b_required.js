@@ -1561,7 +1561,7 @@
     expand_sig: new signals.Signal,
     collapse_sig: new signals.Signal,
     onStart: function() {},
-    shouldExpand: function(container_id, inline_img) {
+    shouldExpand: function(container_id, inline_img, args) {
       if (!inline_img || !inline_img.src) return false;
       if (TS.model.expandable_state["img_" + container_id + inline_img.src]) return true;
       if (TS.model.expandable_state["img_" + container_id + inline_img.src] === false) return false;
@@ -1576,6 +1576,12 @@
         var inline_file_state = TS.inline_file_previews.expandableState(container_id, inline_img.internal_file_id);
         if (typeof inline_file_state === "boolean") return inline_file_state;
         return TS.model.prefs.expand_internal_inline_imgs;
+      }
+      if (args && args.is_giphy_shuffle && !TS.model.prefs.expand_inline_imgs) {
+        var previous_match = _.pickBy(TS.model.expandable_state, function(value, key) {
+          return _.startsWith(key, "img_" + container_id);
+        });
+        if (previous_match) return _.values(previous_match)[0];
       }
       return TS.model.prefs.expand_inline_imgs;
     },
