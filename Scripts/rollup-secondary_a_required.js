@@ -33,6 +33,20 @@
       }
       _sendQueryList();
     },
+    periodicallyCheckPresenceConsistency: function(interval_ms) {
+      if (_.isUndefined(interval_ms)) {
+        interval_ms = 1e3;
+      }
+      if (_consistency_check_interval) {
+        clearInterval(_consistency_check_interval);
+        _consistency_check_interval = null;
+      }
+      _consistency_check_interval = setInterval(_sanityCheckSubscriptionList, interval_ms);
+    },
+    stopCheckingPresenceConsistency: function() {
+      _consistency_check_interval && clearInterval(_consistency_check_interval);
+      _consistency_check_interval = null;
+    },
     test: {
       getSubObject: function() {
         var members_with_names = {};
@@ -57,6 +71,7 @@
   var _query_list = [];
   var _is_sub_waiting = false;
   var _is_query_waiting = false;
+  var _consistency_check_interval;
   var _addMemberToQueryList = function(member) {
     if (_sub_list.indexOf(member) > -1) return;
     if (_query_list.indexOf(member) > -1) return;
@@ -142,6 +157,36 @@
       _sendQueryList();
       return null;
     });
+  };
+  var _sanityCheckSubscriptionList = function() {
+    var id;
+    var members = [];
+    var visible_members = [];
+    var hidden_members = [];
+    var icons = Array.prototype.slice.call(document.querySelectorAll("[data-member-presence]"));
+    icons.forEach(function(icon) {
+      id = icon.getAttribute("data-member-presence");
+      if ($(icon).is(":visible")) {
+        visible_members.push(id);
+      } else {
+        hidden_members.push(id);
+      }
+    });
+    visible_members = _.uniq(visible_members);
+    if (_.difference(visible_members, _sub_list).length) {
+      var missing_members = _.map(_.difference(visible_members, _sub_list), TS.members.getMemberById);
+      TS.warn("There are members needing presence updates in the DOM that are not in the presence subscription list");
+      TS.warn("Missing Names:", _.map(missing_members, "name"));
+      TS.warn("Missing Ids:", _.map(missing_members, "id"));
+    }
+    members = _.uniq(visible_members.concat(hidden_members));
+    if (_.difference(_sub_list, members).length) {
+      var extra_members = _.map(_.difference(_sub_list, members), TS.members.getMemberById);
+      TS.warn("There are members in the presence subscription list that are no longer in the DOM.");
+      TS.warn("This might be fine if a longListView of members is showing, but once that list is removed these errors should go away.");
+      TS.warn("Extra Names:", _.map(extra_members, "name"));
+      TS.warn("Extra Ids:", _.map(extra_members, "id"));
+    }
   };
 })();
 (function() {

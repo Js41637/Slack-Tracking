@@ -9543,9 +9543,7 @@
         this_searchable_member_list._maybeSetupSearchBar();
         return null;
       });
-      if (TS.utility.enableFeatureForUser(10)) {
-        TS.metrics.count("TS.SearchableMemberList shown: " + this.id);
-      }
+      TS.metrics.count("TS.SearchableMemberList:" + this.id);
     },
     maybeRerenderLongListView: function() {
       if (this.$_long_list_view && this._members) {
