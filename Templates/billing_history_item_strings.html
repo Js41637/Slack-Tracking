@@ -26,76 +26,64 @@ Used in billing_history_list_item_col.hbs
   {{#if_equal is_discounted compare=true}}
     {{#if_equal is_simple_discount compare=true}}
       {{#if_equal product.termly compare="yearly"}}
-        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Annually{{/t}}
+        {{#t}}Purchased the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Annually{{/t}}
       {{else}}
-        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Monthly{{/t}}
+        {{#t}}Purchased the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Monthly{{/t}}
       {{/if_equal}}
 
     {{else}}
       {{#if_equal this.product.termly compare="yearly"}}
-        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Annually{{/t}}
+        {{#t}}Purchased the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Annually{{/t}}
       {{else}}
-        {{#t}}Purchased the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Monthly{{/t}}
+        {{#t}}Purchased the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Monthly{{/t}}
       {{/if_equal}}
     {{/if_equal}}
   {{else}}
     {{#if_equal product.termly compare="yearly"}}
-      {{#t}}Purchased the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
+      {{#t}}Purchased the <strong>{formatted_product_level} plan</strong>, paying Annually{{/t}}
     {{else}}
-      {{#t}}Purchased the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
+      {{#t}}Purchased the <strong>{formatted_product_level} plan</strong>, paying Monthly{{/t}}
     {{/if_equal}}
   {{/if_equal}}
 {{else if_equal type compare="renewal"}}
   {{#if_equal is_discounted compare=true}}
     {{#if_equal is_simple_discount compare=true}}
       {{#if_equal product.termly compare="yearly"}}
-        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Annually{{/t}}
+        {{#t}}Renewed the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Annually{{/t}}
       {{else}}
-        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Monthly{{/t}}
+        {{#t}}Renewed the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted {discount_plan.0.percentage}%)</span>, paying Monthly{{/t}}
       {{/if_equal}}
 
     {{else}}
       {{#if_equal this.product.termly compare="yearly"}}
-        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Annually{{/t}}
+        {{#t}}Renewed the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Annually{{/t}}
       {{else}}
-        {{#t}}Renewed the <strong>{product.level_nice} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Monthly{{/t}}
+        {{#t}}Renewed the <strong>{formatted_product_level} plan</strong><span class="inline_discount"> (Discounted)</span>, paying Monthly{{/t}}
       {{/if_equal}}
     {{/if_equal}}
   {{else}}
-    {{#if this.product.termly}}
-      {{#if_equal this.product.termly compare="yearly"}}
-        {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
-      {{else}}
-        {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
-      {{/if_equal}}
+    {{#if_equal this.product.termly compare="yearly"}}
+      {{#t}}Renewed the <strong>{formatted_product_level} plan</strong>, paying Annually{{/t}}
     {{else}}
-      {{!-- should not happen in prod, but may happen in dev if debug options are being used
-      TODO: fix this in MC so a 'null' product cannot be renewed --}}
-      {{#t}}Renewed the <strong>{product} plan</strong>{{/t}}
-    {{/if}}
+      {{#t}}Renewed the <strong>{formatted_product_level} plan</strong>, paying Monthly{{/t}}
+    {{/if_equal}}
   {{/if_equal}}
 {{else if_equal type compare="cancel"}}
   {{#t}}Switched to the <strong>Free plan</strong>{{/t}}
 {{else if_equal type compare="switch"}}
   {{#if_equal product.termly compare="yearly"}}
-    {{#t}}Switched to the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
+    {{#t}}Switched to the <strong>{formatted_product_level} plan</strong>, paying Annually{{/t}}
   {{else}}
-    {{#t}}Switched to the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
+    {{#t}}Switched to the <strong>{formatted_product_level} plan</strong>, paying Monthly{{/t}}
   {{/if_equal}}
 {{else if_equal type compare="future_cancel"}}
   {{#t}}Switch to the <strong>Free plan</strong> at renewal time{{/t}}
 {{else if_equal type compare="future_switch"}}
-  {{#if this.product.termly}}
-    {{#if_equal product.termly compare="yearly"}}
-      {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Annually{{/t}}
-    {{else}}
-      {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Monthly{{/t}}
-    {{/if_equal}}
+  {{#if_equal product.termly compare="yearly"}}
+    {{#t}}Switch to the <strong>{formatted_product_level} plan</strong> at renewal time, paying Annually{{/t}}
   {{else}}
-    {{!-- should not happen in prod, but may happen in dev if debug options are being used
-    TODO: fix this in MC so a 'null' product cannot be renewed --}}
-    {{#t}}Switch to the <strong>{product} plan</strong>{{/t}}
-  {{/if}}
+    {{#t}}Switch to the <strong>{formatted_product_level} plan</strong> at renewal time, paying Monthly{{/t}}
+  {{/if_equal}}
 {{else if_equal type compare="users_change"}}
   {{#t}}Switched from <strong>{num_users_from} to {num_users_to}</strong> {num_users_to, plural, =1 {user} other {users}}{{/t}}
 {{else if_equal type compare="late"}}
@@ -103,7 +91,7 @@ Used in billing_history_list_item_col.hbs
 {{else if_equal type compare="expire"}}
   {{#t}}Paid plan expired{{/t}}
 {{else if_equal type compare="comp_gift"}}
-  {{#t}}Given the <strong>{product.level_nice} plan</strong>{{/t}}
+  {{#t}}Given the <strong>{formatted_product_level} plan</strong>{{/t}}
 {{else if_equal type compare="trial_start"}}
   {{#t}}Started a free trial{{/t}}
 {{else if_equal type compare="charge_high_balance"}}
@@ -149,6 +137,8 @@ Used in billing_history_list_item_col.hbs
   {{else}}
     {{#t}}Enterprise plan transfer{{/t}}
   {{/if}}
+{{else if_equal type compare="event_billing_linked_to_enterprise"}}
+  {{#t}}Team linked to Enterprise{{/t}}
 {{else if_equal type compare="transfer"}}
   {{#if_gt delta compare=0}}
     {{#t}}Transferred {formatted_charges.delta} to team{{/t}}

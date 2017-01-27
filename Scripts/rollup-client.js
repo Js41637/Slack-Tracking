@@ -9637,6 +9637,7 @@
           this.$_search_input.focus();
         }
         this._maybeRenderFilterBar();
+        return null;
       }.bind(this));
     },
     _maybeRenderFilterBar: function() {
@@ -28376,6 +28377,10 @@
       size: "medium"
     }));
     TS.flannel.fetchAndUpsertAllMembersForModelOb(model_ob).then(function() {
+      if (!TS.members.haveAllMembersForModelOb(model_ob)) {
+        TS.log(1989, "Flannel: error fetching missing members for channel " + model_ob.id);
+        throw new Error("Tried to fetch members for channel but failed to get some");
+      }
       TS.log(1989, "Flannel: finished fetching missing members for channel " + model_ob.id + "; rebuilding channel page");
       _rebuildMemberLists(model_ob);
       _rebuildMembersTabs(model_ob);

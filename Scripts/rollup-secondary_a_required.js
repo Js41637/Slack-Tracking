@@ -4232,7 +4232,7 @@
       return test_ob;
     },
     lazyLoadChannelMembership: function() {
-      return !!(TS.boot_data.feature_thin_channel_membership && TS.model.prefs.thin_channel_membership_fe);
+      return !!(TS.boot_data.feature_thin_channel_membership && _.get(TS, "model.prefs.thin_channel_membership_fe"));
     },
     getUserChannelMembershipStatus: function(user_id, channel) {
       if (!TS.membership.lazyLoadChannelMembership()) {
@@ -10261,8 +10261,16 @@ TS.registerModule("constants", {
       _storeMembersThrottled = TS.utility.throttleFunc(_storeMembersThrottled, 20);
       if (TS.client) TS.client.user_added_to_team_sig.add(TS.members.userAddedToTeam);
       if (TS.client) TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam);
-      TS.channels.member_joined_sig.add(TS.members.invalidateMembersUserCanSeeArrayCaches);
-      TS.channels.member_left_sig.add(TS.members.invalidateMembersUserCanSeeArrayCaches);
+      TS.channels.member_joined_sig.add(_maybeUpdateMembersUserCanSee);
+      TS.channels.member_left_sig.add(_maybeUpdateMembersUserCanSee);
+      if (TS.client) {
+        TS.client.login_sig.addOnce(function() {
+          if (TS.membership.lazyLoadChannelMembership()) {
+            TS.members.non_loaded_changed_deleted_sig.add(_maybeUpdateMembersUserCanSee);
+            TS.members.changed_deleted_sig.add(_maybeUpdateMembersUserCanSee);
+          }
+        });
+      }
     },
     getMemberById: function(id) {
       if (!_.isString(id)) return null;
@@ -10508,31 +10516,42 @@ TS.registerModule("constants", {
       if (!TS.model.user.is_restricted) return TS.model.members;
       if (_members_for_user.length) return _members_for_user;
       var user_id_map = {};
-      TS.shared.getAllModelObsForUser().forEach(function(model_ob) {
-        if (model_ob.is_group && !model_ob.is_archived) {
-          model_ob.members.forEach(function(user_id) {
-            user_id_map[user_id] = true;
-          });
-        } else if (model_ob.is_channel && model_ob.is_member) {
-          model_ob.members.forEach(function(user_id) {
-            user_id_map[user_id] = true;
-          });
-        } else if (model_ob.is_im) {
-          user_id_map[model_ob.user] = true;
-        }
-      });
+      if (TS.membership.lazyLoadChannelMembership()) {
+        (TS.model.guest_accessible_user_ids || []).forEach(function(user_id) {
+          user_id_map[user_id] = true;
+        });
+      } else {
+        TS.shared.getAllModelObsForUser().forEach(function(model_ob) {
+          if (model_ob.is_group && !model_ob.is_archived) {
+            model_ob.members.forEach(function(user_id) {
+              user_id_map[user_id] = true;
+            });
+          } else if (model_ob.is_channel && model_ob.is_member) {
+            model_ob.members.forEach(function(user_id) {
+              user_id_map[user_id] = true;
+            });
+          } else if (model_ob.is_im) {
+            user_id_map[model_ob.user] = true;
+          }
+        });
+      }
       var is_partially_booted = TS.isPartiallyBooted();
-      _members_for_user = Object.keys(user_id_map).map(TS.members.getMemberById).filter(function(user) {
+      _members_for_user = Object.keys(user_id_map).map(function(user_id) {
+        return {
+          id: user_id,
+          user: TS.members.getMemberById(user_id)
+        };
+      }).filter(function(id_and_user) {
+        var user = id_and_user.user;
         if (!user && is_partially_booted) {
           return false;
         }
         if (!user) {
-          if (TS.boot_data.feature_tinyspeck) TS.warn("getMembersForUser: Could not find a user - returning false.");
           return false;
         }
         return !user.deleted;
       });
-      return _members_for_user;
+      return _.map(_members_for_user, "user");
     },
     shouldDisplayRealNames: function() {
       var override = TS.model.prefs.display_real_names_override;
@@ -10944,6 +10963,38 @@ TS.registerModule("constants", {
     },
     test: function() {
       var test = {};
+      Object.defineProperty(test, "_maybeRefetchAccessibleUserIds", {
+        get: function() {
+          return _maybeRefetchAccessibleUserIds;
+        },
+        set: function(v) {
+          _maybeRefetchAccessibleUserIds = v;
+        }
+      });
+      Object.defineProperty(test, "_is_refetching_accessible_user_ids", {
+        get: function() {
+          return _is_refetching_accessible_user_ids;
+        },
+        set: function(v) {
+          _is_refetching_accessible_user_ids = v;
+        }
+      });
+      Object.defineProperty(test, "_did_receive_multiple_calls_to_refetch_accessible_user_ids", {
+        get: function() {
+          return _did_receive_multiple_calls_to_refetch_accessible_user_ids;
+        },
+        set: function(v) {
+          _did_receive_multiple_calls_to_refetch_accessible_user_ids = v;
+        }
+      });
+      Object.defineProperty(test, "_accessible_user_ids_last_fetched_ts", {
+        get: function() {
+          return _accessible_user_ids_last_fetched_ts;
+        },
+        set: function(v) {
+          _accessible_user_ids_last_fetched_ts = v;
+        }
+      });
       Object.defineProperty(test, "_maybeSetDeletedStatus", {
         get: function() {
           return _maybeSetDeletedStatus;
@@ -11067,8 +11118,7 @@ TS.registerModule("constants", {
   var _getMembersByIdFromFlannel = function(m_ids) {
     if (!Array.isArray(m_ids)) return Promise.reject(new Error("m_ids is not an array"));
     TS.log(1989, "Flannel: fetching members", m_ids);
-    return TS.flannel.fetchAndUpsertObjectsByIds(m_ids).then(function(response) {
-      var members = response.objects;
+    return TS.flannel.fetchAndUpsertObjectsByIds(m_ids).then(function(members) {
       if (members.length !== _.uniq(m_ids).length) {
         var e = new Error("Did not receive all of the members we asked for");
         e.requested_ids = m_ids;
@@ -11462,6 +11512,49 @@ TS.registerModule("constants", {
     if (_.get(member, "profile.always_active")) {
       member.presence = "active";
     }
+  };
+  var _is_refetching_accessible_user_ids = false;
+  var _did_receive_multiple_calls_to_refetch_accessible_user_ids = false;
+  var _accessible_user_ids_last_fetched_ts = 0;
+  var _maybeRefetchAccessibleUserIds = function() {
+    if (!TS.model.user.is_restricted) return;
+    if (!TS.membership.lazyLoadChannelMembership()) return;
+    if (_is_refetching_accessible_user_ids) {
+      _did_receive_multiple_calls_to_refetch_accessible_user_ids = true;
+      return;
+    }
+    _is_refetching_accessible_user_ids = true;
+    var MIN_FETCH_INTERVAL_MS = 1e4;
+    var time_since_last_fetch = Date.now() - _accessible_user_ids_last_fetched_ts;
+    var rate_limit_p;
+    if (time_since_last_fetch < MIN_FETCH_INTERVAL_MS) {
+      rate_limit_p = new Promise(function(resolve) {
+        setTimeout(resolve, MIN_FETCH_INTERVAL_MS - time_since_last_fetch);
+      });
+    } else {
+      rate_limit_p = Promise.resolve();
+    }
+    rate_limit_p.then(function() {
+      _did_receive_multiple_calls_to_refetch_accessible_user_ids = false;
+      return TS.flannel.fetchAccessibleUserIdsForGuests();
+    }).then(function(accessible_user_ids) {
+      if (!_.isEqual(_.sortBy(accessible_user_ids), _.sortBy(TS.model.guest_accessible_user_ids))) {
+        TS.model.guest_accessible_user_ids = accessible_user_ids;
+        _members_for_user.length = 0;
+      }
+      return null;
+    }).finally(function() {
+      _is_refetching_accessible_user_ids = false;
+      _accessible_user_ids_last_fetched_ts = Date.now();
+      if (_did_receive_multiple_calls_to_refetch_accessible_user_ids) {
+        _did_receive_multiple_calls_to_refetch_accessible_user_ids = false;
+        _maybeRefetchAccessibleUserIds();
+      }
+    });
+  };
+  var _maybeUpdateMembersUserCanSee = function() {
+    TS.members.invalidateMembersUserCanSeeArrayCaches();
+    _maybeRefetchAccessibleUserIds();
   };
 })();
 (function() {
@@ -14230,6 +14323,10 @@ TS.registerModule("constants", {
       TS.prefs.setPrefByAPI({
         name: "search_sort",
         value: sort
+      });
+      TS.clog.track("SEARCH_OPEN", {
+        open_method: "set_sort_" + sort,
+        request_id: TS.search.last_request_id
       });
       if (sort === "timestamp" && TS.search.hasCachedRecentResults()) {
         TS.search.switchToRecent();

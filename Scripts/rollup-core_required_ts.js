@@ -801,7 +801,7 @@
       return Promise.join(TS.emoji.setUpEmoji().catch(function() {
         if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji failed, trying to move forward anyway...");
         return;
-      }), _maybeFetchInitialSharedChannelInfo());
+      }), _maybeFetchInitialSharedChannelInfo(), _maybeFetchAccessibleUserIds());
     }).then(function() {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Nearly there! Finalizing...");
       if (!TS.model.ms_logged_in_once) _finalizeFirstBoot(resp.data);
@@ -816,6 +816,13 @@
       TS.dir(err);
       TS.info(err.stack);
       TS._last_boot_error = err;
+    });
+  };
+  var _maybeFetchAccessibleUserIds = function() {
+    if (!TS.model.user.is_restricted) return Promise.resolve();
+    if (!TS.membership.lazyLoadChannelMembership()) return Promise.resolve();
+    return TS.flannel.fetchAccessibleUserIdsForGuests().then(function(accessible_user_ids) {
+      TS.model.guest_accessible_user_ids = accessible_user_ids;
     });
   };
   var _setUpUserInterface = function() {

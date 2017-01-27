@@ -142,6 +142,15 @@
     __temp_getChannelMembers: function(channel_id) {
       return __temp__channel_members[channel_id];
     },
+    fetchAccessibleUserIdsForGuests: function() {
+      if (!TS.model.user.is_restricted) throw new Error("This method is only intended for guests");
+      var channel_member_ids = _(TS.model.channels).map("id").map(TS.flannel.__temp_getChannelMembers).flatten().value();
+      var other_member_ids = _([TS.model.groups, TS.model.ims, TS.model.mpims]).flatten().map(function(ob) {
+        return ob.members || ob.user;
+      }).flatten().value();
+      var all_accessible_member_ids = _(channel_member_ids).concat(other_member_ids).uniq().without("USLACKBOT").value();
+      return Promise.resolve(all_accessible_member_ids);
+    },
     fetchChannelMembershipForUsers: function(channel_id, user_ids) {
       var membership_info = {};
       var channel_members = __temp__channel_members[channel_id];
