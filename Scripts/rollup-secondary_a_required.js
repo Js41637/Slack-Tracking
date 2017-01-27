@@ -48245,21 +48245,20 @@ $.fn.togglify = function(settings) {
       TS.click.addHandler("[data-slash-command-autofill]", function(e, $el) {
         var $input = TS.client.msg_input.$input;
         var value = TS.utility.contenteditable.value($input);
-        var command = $el.data("slash-command-autofill") + " ";
-        var new_value = value ? command + value : command;
-        TS.utility.contenteditable.value($input, new_value);
+        var command = $el.data("slash-command-autofill");
+        if (!value) {
+          TS.utility.contenteditable.clear($input);
+          TS.utility.contenteditable.insertTextAtCursor($input, command);
+          if (!TS.boot_data.feature_texty && TS.boot_data.feature_you_autocomplete_me) {
+            $input.TS_tabCompleteNew("promiseToChoose", undefined, true);
+          } else if (!TS.boot_data.feature_texty) {
+            $input.TS_tabComplete("promiseToChoose", undefined, true);
+          }
+        }
+        TS.utility.contenteditable.value($input, command + " " + value);
+        TS.utility.contenteditable.cursorPosition($input, command.length + 1, value.length);
         TS.utility.contenteditable.focus($input);
         if (!TS.boot_data.feature_texty) $input.trigger("textchange");
-        if (value) {
-          TS.utility.contenteditable.cursorPosition($input, command.length, value.length);
-        } else {
-          TS.utility.contenteditable.cursorPosition($input, command.length);
-        }
-        if (TS.boot_data.feature_you_autocomplete_me) {
-          $input.TS_tabCompleteNew("promiseToChoose", undefined, true);
-        } else {
-          $input.TS_tabComplete("promiseToChoose", undefined, true);
-        }
       });
     }
     if (TS.boot_data.feature_sli_recaps) {
