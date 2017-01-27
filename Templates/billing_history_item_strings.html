@@ -62,11 +62,17 @@ Used in billing_history_list_item_col.hbs
       {{/if_equal}}
     {{/if_equal}}
   {{else}}
-    {{#if_equal this.product.termly compare="yearly"}}
-      {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
+    {{#if this.product.termly}}
+      {{#if_equal this.product.termly compare="yearly"}}
+        {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Annually{{/t}}
+      {{else}}
+        {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
+      {{/if_equal}}
     {{else}}
-      {{#t}}Renewed the <strong>{product.level_nice} plan</strong>, paying Monthly{{/t}}
-    {{/if_equal}}
+      {{!-- should not happen in prod, but may happen in dev if debug options are being used
+      TODO: fix this in MC so a 'null' product cannot be renewed --}}
+      {{#t}}Renewed the <strong>{product} plan</strong>{{/t}}
+    {{/if}}
   {{/if_equal}}
 {{else if_equal type compare="cancel"}}
   {{#t}}Switched to the <strong>Free plan</strong>{{/t}}
@@ -79,11 +85,17 @@ Used in billing_history_list_item_col.hbs
 {{else if_equal type compare="future_cancel"}}
   {{#t}}Switch to the <strong>Free plan</strong> at renewal time{{/t}}
 {{else if_equal type compare="future_switch"}}
-  {{#if_equal product.termly compare="yearly"}}
-    {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Annually{{/t}}
+  {{#if this.product.termly}}
+    {{#if_equal product.termly compare="yearly"}}
+      {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Annually{{/t}}
+    {{else}}
+      {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Monthly{{/t}}
+    {{/if_equal}}
   {{else}}
-    {{#t}}Switch to the <strong>{product.level_nice} plan</strong> at renewal time, paying Monthly{{/t}}
-  {{/if_equal}}
+    {{!-- should not happen in prod, but may happen in dev if debug options are being used
+    TODO: fix this in MC so a 'null' product cannot be renewed --}}
+    {{#t}}Switch to the <strong>{product} plan</strong>{{/t}}
+  {{/if}}
 {{else if_equal type compare="users_change"}}
   {{#t}}Switched from <strong>{num_users_from} to {num_users_to}</strong> {num_users_to, plural, =1 {user} other {users}}{{/t}}
 {{else if_equal type compare="late"}}

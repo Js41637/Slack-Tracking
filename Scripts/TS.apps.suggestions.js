@@ -4,8 +4,10 @@
     onStart: function() {
       if (!TS.client) return;
       TS.client.login_sig.addOnce(function() {
-        if (!_.get(TS, "model.user.is_admin") || _.get(TS, "model.prefs.intro_to_apps_message_seen")) return;
         window.setTimeout(function() {
+          if (_.get(TS, "model.user.is_restricted") || _.get(TS, "model.user.is_ultra_restricted") || _.get(TS, "model.prefs.intro_to_apps_message_seen")) {
+            return;
+          }
           TS.api.call("apps.suggestions", {}).then(_.noop);
         }, 60 * 1e3);
       });

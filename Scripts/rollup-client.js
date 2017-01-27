@@ -9543,7 +9543,7 @@
         this_searchable_member_list._maybeSetupSearchBar();
         return null;
       });
-      TS.metrics.count("TS.SearchableMemberList:" + this.id);
+      TS.metrics.count(this.id + "_initialized");
     },
     maybeRerenderLongListView: function() {
       if (this.$_long_list_view && this._members) {
@@ -13064,6 +13064,9 @@
         }
         end_div.height(allowed_h);
       }
+      if (TS.boot_data.feature_sli_recaps) {
+        TS.recaps_signal.redrawMarkersOnly();
+      }
     },
     padOutMsgsScroller: function() {
       $("#end_div").css("height", "");
@@ -15570,6 +15573,8 @@
       var $search_result = $target.closest(".search_message_result");
       var module_name = $search_result.data("module-name") || "";
       var module_order = $search_result.data("module-order") || 0;
+      var $ts_message = $target.closest("ts-message");
+      var message_iid = $ts_message.data("iid") || "";
       var payload = {
         click_target_type: match.extracts_expanded ? "collapse" : "expand",
         click_position: match_with_index.index,
@@ -15587,6 +15592,9 @@
       }
       if (TS.search.last_request_id) {
         payload["request_id"] = TS.search.last_request_id;
+      }
+      if (message_iid) {
+        payload["click_iid"] = message_iid;
       }
       TS.clog.track("SEARCH_CLICK", payload);
       if (match.extracts_expanded) {
@@ -18691,7 +18699,7 @@
   var _cancelDelayedSearch = function() {
     clearTimeout(TS.search.autocomplete.key_tim);
   };
-  var _updateSearchNoDragRegion = function() {
+  var _updateSearchNoDragRegion = _.throttle(function() {
     if (!_$container) return;
     TSSSB.call("updateNoDragRegion", {
       id: "search",
@@ -18700,7 +18708,7 @@
       top: _$container.offset().top,
       left: _$container.offset().left
     });
-  };
+  }, 250);
   var _historyFetched = function(data, args) {
     var query = args.query;
     var suggestions = data.suggestions;
@@ -27591,6 +27599,14 @@
         },
         set: function(v) {
           _legacyRebuildMemberLists = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_renderMemberList", {
+        get: function() {
+          return _renderMemberList;
+        },
+        set: function(v) {
+          _renderMemberList = v;
         }
       });
       return test_ob;

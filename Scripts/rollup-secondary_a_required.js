@@ -21662,7 +21662,8 @@ TS.registerModule("constants", {
         if (TS.boot_data.feature_sli_recaps) {
           template_args.is_recap = msg.recap && TS.recaps_signal && TS.recaps_signal.isMessageHighlight(msg);
           var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
-          template_args.show_recap_debug = recap_debug_group === "sli_debug_info";
+          var is_in_debug_group = recap_debug_group === "sli_debug_info";
+          template_args.show_recap_debug = msg.recap && is_in_debug_group;
           template_args.highlights_html = TS.templates.builders.buildHighlightsInfoHtml(msg);
         }
         if (!msg.subtype && (args.for_search_display || args.for_top_results_search_display) && msg.file) {
@@ -47477,6 +47478,8 @@ $.fn.togglify = function(settings) {
       var $search_result = $target.closest(".search_message_result");
       var module_name = $search_result.data("module-name") || "";
       var module_order = $search_result.data("module-order") || 0;
+      var $ts_message = $target.closest("ts-message");
+      var message_iid = $ts_message.data("iid") || "";
       if ($target.attr("href")) return;
       if ($target.parents(".rxn").length) return;
       var href_found = false;
@@ -47519,6 +47522,9 @@ $.fn.togglify = function(settings) {
       if (TS.search.last_request_id) {
         payload["request_id"] = TS.search.last_request_id;
       }
+      if (message_iid) {
+        payload["click_iid"] = message_iid;
+      }
       TS.clog.track("SEARCH_CLICK", payload);
       TS.client.ui.tryToJump(c_id, match.ts);
     });
@@ -47533,6 +47539,9 @@ $.fn.togglify = function(settings) {
       var $search_result = $target.closest(".search_message_result");
       var module_name = $search_result.data("module-name") || "";
       var module_order = $search_result.data("module-order") || 0;
+      var result_iid = $search_result.data("iid") || "";
+      var $ts_message = $target.closest("ts-message");
+      var message_iid = $ts_message.data("iid") || result_iid;
       if ($target.hasClass("jump")) {
         target_type = "top_results_jump";
       } else if ($target.hasClass("search_jump")) {
@@ -47574,6 +47583,9 @@ $.fn.togglify = function(settings) {
         };
         if (TS.search.last_request_id) {
           payload["request_id"] = TS.search.last_request_id;
+        }
+        if (message_iid) {
+          payload["click_iid"] = message_iid;
         }
         TS.clog.track("SEARCH_CLICK", payload);
       }
@@ -54182,6 +54194,7 @@ $.fn.togglify = function(settings) {
     }, skip_analytics);
     _utility_call_state.call_window_loaded = is_loaded;
     _updateCallIcon(is_call_window_ready_prev);
+    TSSSB.call("focusWindow", _utility_call_state.call_window_token);
     _notifyReachability();
   };
   var _setCallWindowBusy = function(is_busy) {
@@ -54215,6 +54228,7 @@ $.fn.togglify = function(settings) {
       _notifySSBsCallWindowAvailable();
       _utility_call_state.call_channel = undefined;
       _utility_call_state.is_publisher_screensharing = false;
+      _utility_call_state.is_publisher_screenhero = false;
     }
     if (_utility_call_state.accepted_caller_id) delete _utility_call_state.accepted_caller_id;
     if (_utility_call_state.cached_invite_cancel) delete _utility_call_state.cached_invite_cancel;
@@ -54453,6 +54467,7 @@ $.fn.togglify = function(settings) {
           break;
         case TS.utility.calls.messages_from_call_window_types.set_is_publisher_screensharing:
           _utility_call_state.is_publisher_screensharing = evt.data.is_enabled;
+          _utility_call_state.is_publisher_screenhero = evt.data.is_screenhero;
           break;
         case TS.utility.calls.messages_from_call_window_types.pong:
           TS.utility.calls_log.logEvent({

@@ -20984,7 +20984,7 @@ ts-thread ts-message.selected .action_hover_container {
   width: .625rem;
   border-radius: .1875rem;
   z-index: 99;
-  background-color: #78c896;
+  background-color: #217d4b;
   cursor: pointer;
   pointer-events: auto
 }
@@ -21025,7 +21025,7 @@ ts-thread ts-message.selected .action_hover_container {
   padding-left: .625rem;
   padding-right: .625rem;
   background: #fff;
-  border-radius: 10px;
+  border-radius: .375rem;
   border: 1px solid #e0e0e0;
   box-shadow: 0 0 1px 1px rgba(0, 0, 0, .01)
 }
