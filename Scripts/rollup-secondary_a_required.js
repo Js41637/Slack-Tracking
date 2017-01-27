@@ -8615,8 +8615,13 @@ TS.registerModule("constants", {
       }
     },
     getLatestMsgTs: function(model_ob) {
-      if (model_ob.latest && model_ob.latest.ts) return model_ob.latest.ts;
-      return model_ob.latest || model_ob._latest_via_users_counts;
+      if (model_ob.latest && model_ob.latest.ts) {
+        if (TS.pri) TS.console.log(58, "getLatestMsgTs (" + model_ob.id + "): returning model_ob.latest.ts of " + model_ob.latest.ts);
+        return model_ob.latest.ts;
+      }
+      var result = model_ob.latest || model_ob._latest_via_users_counts;
+      if (TS.pri) TS.console.log(58, "getLatestMsgTs (" + model_ob.id + "): no model_ob.latest.ts, returning model_ob.latest || model_ob._latest_via_users_counts (" + model_ob.latest + " || " + model_ob._latest_via_users_counts + ") -> " + result);
+      return result;
     },
     queueConsistencyCheckAfterHistory: function(model_ob) {
       if (!model_ob) {
@@ -10550,8 +10555,10 @@ TS.registerModule("constants", {
           return false;
         }
         return !user.deleted;
+      }).map(function(id_and_user) {
+        return id_and_user.user;
       });
-      return _.map(_members_for_user, "user");
+      return _members_for_user;
     },
     shouldDisplayRealNames: function() {
       var override = TS.model.prefs.display_real_names_override;
@@ -21661,6 +21668,7 @@ TS.registerModule("constants", {
         var rxns = TS.rxns.getExistingRxnsByKey(msg._rxn_key);
         if (rxns) has_rxns = true;
         if (args.for_mention_rxn_display) show_user = false;
+        var show_channel_highlight = TS.recaps_signal && TS.recaps_signal.msgShouldBeHighlighted(msg);
         var template_args = {
           msg: msg,
           model_ob: model_ob,
@@ -21698,7 +21706,8 @@ TS.registerModule("constants", {
           is_in_conversation: is_in_conversation,
           is_threads_view: is_threads_view,
           file_title_only: msg.subtype === "file_reaction",
-          is_slackbot_response: msg.subtype === "slackbot_response"
+          is_slackbot_response: msg.subtype === "slackbot_response",
+          show_channel_highlight: show_channel_highlight
         };
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
@@ -21925,7 +21934,9 @@ TS.registerModule("constants", {
         if (!err.message) err.message = "";
         err.message += " " + extra;
         TS.warn("Problem in TS.templates.builders.msgs.buildHTML with args: " + JSON.stringify(err.message));
-        return "";
+        return TS.boot_data.feature_tinyspeck ? TS.templates.message_failed({
+          msg_ts: msg ? msg.ts : ""
+        }) : "";
       }
     }
   });
@@ -21972,6 +21983,7 @@ TS.registerModule("constants", {
     if (template_args.highlight_as_new) msg_classes.push("new");
     if (template_args.app_id) msg_classes.push("is_app");
     if (template_args.is_pinned) msg_classes.push("is_pinned");
+    if (template_args.show_channel_highlight) msg_classes.push("show_recap");
     if (template_args.standalone) {
       msg_classes.push("standalone");
     } else {
@@ -22982,6 +22994,9 @@ TS.registerModule("constants", {
         return TS.templates.makeMemberPresenceDomClass(member.id);
       });
       Handlebars.registerHelper("makeMemberPresenceIcon", function(member) {
+        if (!TS.client) {
+          TS.warn("Presence icons should not be used outside of the client application, because they rely on a WS connection to keep presence up to date. Rendering anyway, but be careful out there!");
+        }
         return new Handlebars.SafeString(TS.templates.makeMemberPresenceIcon(member));
       });
       Handlebars.registerHelper("makeMemberTypeBadge", function() {
@@ -25584,14 +25599,16 @@ TS.registerModule("constants", {
       TS.utility.msgs.setOldestMsgsTs(model_ob);
     },
     setOldestMsgsTs: function(model_ob) {
-      var oldest_valid_ts = TS.utility.msgs.getOldestValidTs(model_ob.msgs);
+      var oldest_valid_ts = TS.utility.msgs.getOldestValidTs(model_ob);
       if (oldest_valid_ts) {
+        if (TS.pri) TS.console.log(58, "setOldestMsgsTs (" + model_ob.id + '): setting oldest_msg_ts from "' + model_ob.oldest_msg_ts + '" -> ' + oldest_valid_ts);
         model_ob.oldest_msg_ts = oldest_valid_ts;
         TS.storage.storeOldestTs(model_ob.id, model_ob.oldest_msg_ts);
         if (model_ob._latest_via_users_counts) delete model_ob._latest_via_users_counts;
       }
     },
     resetOldestMsgsTs: function(model_ob) {
+      if (TS.pri) TS.console.log(58, "resetOldestMsgsTs (" + model_ob.id + '): setting oldest_msg_ts from "' + model_ob.oldest_msg_ts + '" -> null');
       model_ob.oldest_msg_ts = null;
       TS.storage.storeOldestTs(model_ob.id, null);
     },
@@ -25644,18 +25661,26 @@ TS.registerModule("constants", {
       var msgs = model_ob.msgs || [];
       for (var i = 0; i < msgs.length; i++) {
         msg = msgs[i];
-        if (!TS.utility.msgs.isTempMsg(msg)) return msg.ts;
-      }
-      return TS.shared.getLatestMsgTs(model_ob) || null;
-    },
-    getOldestValidTs: function(msgs) {
-      var msg;
-      for (var i = msgs.length - 1; i > -1; i--) {
-        msg = msgs[i];
         if (!TS.utility.msgs.isTempMsg(msg)) {
+          if (TS.pri) TS.console.log(58, "getMostRecentValidTs (" + model_ob.id + "): " + msg.ts + " at msgs[" + i + "] of " + msgs.length);
           return msg.ts;
         }
       }
+      var result = TS.shared.getLatestMsgTs(model_ob) || null;
+      if (TS.pri) TS.console.log(58, "getMostRecentValidTs (" + model_ob.id + "): did not find most recent valid ts. getLatestMsgTs() returned " + result);
+      return result;
+    },
+    getOldestValidTs: function(model_ob) {
+      var msg;
+      if (!model_ob || !model_ob.msgs) return null;
+      for (var i = model_ob.msgs.length - 1; i > -1; i--) {
+        msg = model_ob.msgs[i];
+        if (!TS.utility.msgs.isTempMsg(msg)) {
+          if (TS.pri) TS.console.log(58, "getOldestValidTs(" + model_ob.id + "): " + msg.ts + " at msgs[" + i + "] of " + model_ob.msgs.length);
+          return msg.ts;
+        }
+      }
+      if (TS.pri) TS.console.warn(58, "getOldestValidTs(" + model_ob.id + "): none found. msgs.length = " + model_ob.msgs.length);
       return null;
     },
     getHistoryFetchJobKey: function(latest, oldest) {
@@ -26063,13 +26088,12 @@ TS.registerModule("constants", {
     },
     shouldMarkUnreadsOnMessageFetch: function(model_ob) {
       if (TS.qs_args["no_unread_marking_on_msgs_fetch"] == "1") return false;
+      var active_model_ob;
       if (model_ob) {
-        var active_model_ob = TS.shared.getActiveModelOb();
-        if (!active_model_ob || active_model_ob.id !== model_ob.id) {
-          if (TS.pri && active_model_ob) TS.log(58, "shouldMarkUnreadsOnMessageFetch: returning FALSE because model_ob is " + model_ob.id + " and not active of " + active_model_ob.id);
-          return false;
-        }
+        active_model_ob = TS.shared.getActiveModelOb();
+        if (!active_model_ob || active_model_ob.id !== model_ob.id) return false;
       }
+      if (TS.pri && active_model_ob) TS.console.log(58, "shouldMarkUnreadsOnMessageFetch: returning TRUE for active model_ob of " + active_model_ob.id);
       return true;
     },
     ipsum: function() {
@@ -26506,7 +26530,7 @@ TS.registerModule("constants", {
       if (model_ob.history_is_being_fetched) return;
       if (model_ob._consistency_has_been_checked) return;
       if (model_ob._consistency_is_being_checked) return;
-      var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob.msgs);
+      var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob);
       if (!oldest_ts_we_have) return;
       var newest_ts_we_have = TS.utility.msgs.getMostRecentValidTs(model_ob);
       var log_prefix = "checkConsistencyViaApi for: " + c_id;

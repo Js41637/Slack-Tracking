@@ -13807,13 +13807,13 @@ span.match {
 }
 
 .top_results_search_message_result .timestamp {
-  font-size: 11px;
+  font-size: 12px;
   color: #9B9B9B;
   margin-right: 0!important
 }
 
 .top_results_search_message_result .channel {
-  font-size: 11px;
+  font-size: 12px;
   color: #9B9B9B;
   font-weight: 700
 }
@@ -20417,6 +20417,18 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message.is_pinned.standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_gutter {
+  top: auto
+}
+
+.dense_theme ts-message.show_recap .is_highlights_holder {
+  margin-left: 4.875rem
+}
+
+.dense_theme ts-message.show_recap .is_highlights_holder ts-icon {
+  left: -1.1875rem
+}
+
+.dense_theme ts-message.show_recap.standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_gutter {
   top: auto
 }
 

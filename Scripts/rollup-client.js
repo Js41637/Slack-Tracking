@@ -9793,6 +9793,7 @@
           this_searchable_member_list._fetch_page_p = null;
         }
         this_searchable_member_list._presence_list.clear();
+        this_searchable_member_list._have_all_members = false;
         this_searchable_member_list._members = [];
         this_searchable_member_list._next_marker = "";
         this_searchable_member_list._current_filter = $action.data("filter");
@@ -12682,7 +12683,7 @@
         _$last_read_msg_div = TS.client.msg_pane.getCanonicalDivForMsg(last_read);
         return;
       }
-      var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob.msgs);
+      var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob);
       if (last_read > oldest_ts_we_have) {
         msg = TS.utility.msgs.getDisplayedMsgBeforeTS(last_read, model_ob.msgs);
         if (msg) {
@@ -12761,7 +12762,7 @@
         if (_$last_read_msg_div && _$last_read_msg_div.length) {
           _$last_read_msg_div.after(divider_html);
         } else {
-          var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob.msgs);
+          var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob);
           if (last_read > oldest_ts_we_have) {
             var msg_after_last_read = TS.utility.msgs.getDisplayedMsgAfterTS(last_read, model_ob.msgs);
             var $first_unread_msg_div;
@@ -13442,7 +13443,7 @@
     var unread_cnt = model_ob._temp_unread_cnt || model_ob.unread_cnt;
     var last_read = model_ob._temp_last_read || model_ob.last_read;
     if (unread_cnt) {
-      var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob.msgs);
+      var oldest_ts_we_have = TS.utility.msgs.getOldestValidTs(model_ob);
       var unread_cnt_output = unread_cnt;
       var plus = "";
       if (last_read < oldest_ts_we_have && unread_cnt_output > 10) {

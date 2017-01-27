@@ -113,7 +113,7 @@
     {{#if for_top_results_search_display}}
     <div class="message_content_header">
       <div class="message_content_header_left">
-        <span class="timestamp">{{#t note="when and where message originally appeared" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time} in{{/t}}&nbsp;</span>
+        <span class="timestamp">{{#t note="when and where message originally appeared" date=(toCalendarDateOrNamedDayShort msg.ts) time=(toTime msg.ts)}}{date} at {time} in{{/t}} </span>
         <span class="channel">
           {{#if_equal msg.type compare='im'}}
             {{makeIMLinkById msg.channel.id}}
