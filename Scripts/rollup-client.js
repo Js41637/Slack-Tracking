@@ -5642,7 +5642,7 @@
       TS.client.channel_pane.$scroller.scroll(TS.client.ui.onChannelsScroll);
       TS.client.login_sig.add(TS.client.ui.loggedIn, TS.ui);
       TS.client.msg_input.bind(TS.client.ui.$msg_input);
-      if (!(TS.boot_data.feature_texty && TSSSB.call("readSystemTextPreferences"))) {
+      if (!(TS.boot_data.feature_texty && (TS.boot_data.feature_texty_browser_substitutions || TSSSB.call("readSystemTextPreferences")))) {
         TSSSB.call("inputFieldCreated", TS.client.ui.$msg_input.get(0));
       }
 
@@ -38901,6 +38901,7 @@ function timezones_guess() {
 (function() {
   "use strict";
   TS.registerModule("ui.replies", {
+    $scroller: $("#convo_scroller"),
     onStart: function() {
       if (!TS.boot_data.feature_message_replies) return;
       if (!TS.client) {
@@ -39018,7 +39019,7 @@ function timezones_guess() {
         _maybeShowErrorInFlexpane();
       }).finally(function() {
         if ($convo.closest(".monkey_scroller").width() === 0) {
-          TS.ui.utility.updateClosestMonkeyScroller($("#convo_scroller"), true);
+          TS.ui.utility.updateClosestMonkeyScroller(TS.ui.replies.$scroller, true);
         }
         _setIsLoading(false);
       });
@@ -39117,7 +39118,7 @@ function timezones_guess() {
         TS.client.ui.flex.hideFlex();
         return;
       }
-      var scroller = $("#convo_scroller")[0];
+      var scroller = TS.ui.replies.$scroller[0];
       var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
       var was_scrolled_to_bottom = from_bottom < 50;
       var $convo = $('ts-conversation[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
@@ -39238,6 +39239,12 @@ function timezones_guess() {
         var is_input_empty = !input_value.trim();
         var val = is_input_empty ? "" : input_value;
         TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
+        var scroller = TS.ui.replies.$scroller[0];
+        var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
+        var is_close_to_bottom = from_bottom < 50;
+        if (is_close_to_bottom) {
+          scroller.scrollTop = scroller.scrollHeight - scroller.offsetHeight;
+        }
       });
       _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
     },
@@ -39393,10 +39400,10 @@ function timezones_guess() {
     });
   };
   var _bindUI = function() {
-    $("#convo_scroller").scroll(function() {
+    TS.ui.replies.$scroller.scroll(function() {
       _onScrollThrottled();
     });
-    $("#convo_scroller").click(function() {
+    TS.ui.replies.$scroller.click(function() {
       TS.ui.replies.checkUnreads();
     });
     $("#convo_tab").on("click", "#convo_tab_back", function() {
@@ -39568,7 +39575,7 @@ function timezones_guess() {
       twitter: cdn_url + "/6c9e5/img/emoji_2016_06_08/twitter/1f50d.png",
       emojione: cdn_url + "/5499/img/emoji_2016_06_08/emojione/1f50d.png"
     };
-    $("#convo_scroller").prepend(TS.templates.thread_flexpane_error({
+    TS.ui.replies.$scroller.prepend(TS.templates.thread_flexpane_error({
       emoji: emoji_set[TS.model.prefs.emoji_mode]
     }));
   };

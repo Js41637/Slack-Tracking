@@ -19325,12 +19325,12 @@ TS.registerModule("constants", {
           if (TS.model.archive_view_is_showing) {
             html = TS.i18n.t('archived {channel_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
               channel_name: channel_name,
-              name_for_url: channel.name
+              name_for_url: model_ob.name
             });
           } else {
             html = TS.i18n.t('archived {channel_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
               channel_name: channel_name,
-              name_for_url: channel.name,
+              name_for_url: model_ob.name,
               channel_id: "'" + channel.id + "'"
             });
           }
@@ -21668,7 +21668,8 @@ TS.registerModule("constants", {
         var rxns = TS.rxns.getExistingRxnsByKey(msg._rxn_key);
         if (rxns) has_rxns = true;
         if (args.for_mention_rxn_display) show_user = false;
-        var show_channel_highlight = TS.recaps_signal && TS.recaps_signal.msgShouldBeHighlighted(msg);
+        var in_main_message_container = container_id_with_hash === "#msgs_div";
+        var show_channel_highlight = in_main_message_container && TS.recaps_signal && TS.recaps_signal.msgShouldBeHighlighted(msg);
         var template_args = {
           msg: msg,
           model_ob: model_ob,
@@ -48441,9 +48442,11 @@ $.fn.togglify = function(settings) {
     }
     if (TS.boot_data.feature_sli_recaps) {
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
-        e.preventDefault();
-        TS.recaps_signal.logMarkerClick($(e.target));
-        TS.recaps_signal.scrollRecapMessageIntoView(e.target);
+        if ($(e.target).hasClass("recap_highlight_marker")) {
+          e.preventDefault();
+          TS.recaps_signal.logMarkerClick($(e.target));
+          TS.recaps_signal.scrollRecapMessageIntoView(e.target);
+        }
       });
       TS.click.addClientHandler(".highlights_feedback_trigger", function(e) {
         e.preventDefault();
@@ -54985,17 +54988,32 @@ $.fn.togglify = function(settings) {
       }
     },
     getTextPreferences: function() {
-      if (!_text_preferences) return false;
-      var substitutions = _.mapValues(_.keyBy(_text_preferences.substitutions, "replace"), "with");
-      if (!substitutions["--"] && _text_preferences.useSmartQuotes) substitutions["--"] = "—";
-      return {
-        substitutions: substitutions,
-        useSmartDashes: _text_preferences.useSmartDashes,
-        useSmartQuotes: _text_preferences.useSmartQuotes
-      };
+      return _text_preferences;
     },
     refreshTextPreferences: function() {
-      _text_preferences = TSSSB.call("readSystemTextPreferences");
+      if (!TS.model.is_our_app && !TS.boot_data.feature_texty_browser_substitutions) {
+        _text_preferences = false;
+        return;
+      }
+      _text_preferences = {
+        substitutions: {},
+        useSmartDashes: true,
+        useSmartQuotes: true
+      };
+      if (TS.model.is_our_app) {
+        var raw_preferences = TSSSB.call("readSystemTextPreferences");
+        if (raw_preferences) {
+          _text_preferences["substitutions"] = _.mapValues(_.keyBy(raw_preferences["substitutions"], "replace"), "with");
+          _text_preferences["useSmartDashes"] = raw_preferences["useSmartDashes"];
+          _text_preferences["useSmartQuotes"] = raw_preferences["useSmartQuotes"];
+        } else {
+          if (!TS.boot_data.feature_texty_browser_substitutions) {
+            _text_preferences = false;
+            return;
+          }
+        }
+      }
+      if (!_text_preferences["substitutions"]["--"] && _text_preferences["useSmartQuotes"]) _text_preferences["substitutions"]["--"] = "—";
     },
     test: function() {
       var test = {
@@ -57531,7 +57549,12 @@ $.fn.togglify = function(settings) {
       var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.thread_ts);
       var is_subscribed = subscription && subscription.subscribed;
       var view_previous_count = root_msg.reply_count;
-      if (replies && replies.length) view_previous_count = root_msg.reply_count - replies.length;
+      if (replies && replies.length) {
+        var non_ephemeral_or_temp_count = _.filter(replies, function(msg) {
+          return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg);
+        }).length;
+        view_previous_count = root_msg.reply_count - non_ephemeral_or_temp_count;
+      }
       var thread_html = TS.templates.thread({
         id: id,
         ts: thread.ts,

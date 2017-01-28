@@ -20904,7 +20904,17 @@ ts-thread ts-message.selected .action_hover_container {
   margin-bottom: 0;
   font-size: .8125rem;
   font-weight: 400;
-  color: #555459
+  color: #555459;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center
 }
 
 #reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container label,
@@ -20936,8 +20946,14 @@ ts-thread ts-message.selected .action_hover_container {
 
 #reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle,
 .reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle {
-  top: -.25rem;
+  top: -.0625rem;
+  margin-left: .125rem;
   color: #a0a0a2
+}
+
+#reply_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle:before,
+.reply_input_container .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle:before {
+  vertical-align: middle
 }
 
 #reply_container .reply_broadcast_buttons_container .reply_send,
