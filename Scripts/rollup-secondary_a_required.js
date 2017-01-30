@@ -9009,9 +9009,7 @@ TS.registerModule("constants", {
         placeholder_msg._hidden_reply = true;
         placeholder_msg._was_reply_broadcast = params.reply_broadcast;
       }
-      var add_placeholder = true;
-      if (in_reply_to_msg && TS.boot_data.feature_message_replies && !TS.replies.areTempMsgsEnabled()) add_placeholder = false;
-      if (add_placeholder) controller.addMsg(c_id, placeholder_msg);
+      controller.addMsg(c_id, placeholder_msg);
       TS.shared.msg_sent_sig.dispatch(model_ob, rsp_id);
       return true;
     },
@@ -57272,9 +57270,6 @@ $.fn.togglify = function(settings) {
     },
     isAllThreadsViewEnabled: function() {
       return !!TS.boot_data.feature_message_replies;
-    },
-    areTempMsgsEnabled: function() {
-      return !!TS.boot_data.feature_message_replies_post_release;
     },
     getSubscriptionState: function(model_ob_id, thread_ts) {
       var key = _keyForThread(model_ob_id, thread_ts);
