@@ -32909,8 +32909,8 @@ var _on_esc;
       } else if (id == "channel_add_service_item") {} else if (id == "channel_highlight_toggle") {
         e.preventDefault();
         if (TS.boot_data.feature_sli_recaps) {
-          var recap_group = TS.experiment.getGroup("sli_recaps_preview");
-          if (recap_group === "sli_sneak_preview") {
+          var recap_group = TS.experiment.getGroup("sli_recaps_debug");
+          if (recap_group === "sli_debug_info") {
             TS.recaps_signal.toggleChannelOverflowPref();
           }
         }

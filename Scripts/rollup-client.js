@@ -11662,8 +11662,6 @@
       var member;
       var mpim;
       var name;
-      var recap_highlight = false;
-      var is_recap = false;
       _member_presence_list.clear();
       if (_model_ob) {
         if (TS.model.active_im_id) {
@@ -11684,15 +11682,6 @@
         is_shared = TS.model.shared_channels_enabled && _model_ob.is_shared;
         name = _model_ob.name;
       }
-      var recap_group = TS.experiment.getGroup("sli_recaps_preview");
-      if (recap_group === "sli_sneak_preview") {
-        recap_highlight = true;
-      }
-      if (TS.boot_data.feature_sli_recaps) {
-        if ($("#sli_recap_toggle").hasClass("active")) {
-          is_recap = true;
-        }
-      }
       var template_args = {
         is_shared: is_shared,
         name: name,
@@ -11701,8 +11690,6 @@
         show_topic: show_topic,
         mpim: mpim,
         details_showing: $("#client-ui").hasClass("details_showing"),
-        sli_preview: recap_highlight,
-        is_recap: is_recap,
         all_unreads: {
           is_showing: TS.model.unread_view_is_showing,
           has_new_messages: TS.model.unread_view_is_showing && TS.client.unread.new_messages_in_channels.length,
@@ -28774,7 +28761,9 @@
     if (TS.useSearchableMemberList()) {
       members = model_ob.members;
     }
-    var body_html = TS.templates.channel_page_all_members_dialog();
+    var body_html = TS.templates.channel_page_all_members_dialog({
+      searchable_member_list: TS.useSearchableMemberList()
+    });
     var title = TS.i18n.t("{member_count, number} members in {channel_name}", "channel_pages")({
       member_count: _.isUndefined(member_count) ? members.length : member_count,
       channel_name: TS.shared.getDisplayNameForModelOb(model_ob)

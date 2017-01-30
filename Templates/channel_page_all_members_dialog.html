@@ -1,6 +1,6 @@
 {{i18n_ns "channel_pages"}}
 
-{{#feature flag="feature_searchable_member_list"}}
+{{#if searchable_member_list}}
 
   <div id="channel_membership_dialog_container" class="searchable_member_list">
     <div id="channel_membership_dialog_scroller" class="searchable_member_list_scroller"></div>
@@ -14,4 +14,4 @@
   <div id="all_members_no_matches" class="hidden align_center full_width position_absolute greigh">{{#t}}Sorry, there\u2019s no one here by that name.{{/t}}</div>
   <div id="all_members_container"></div>
 
-{{/feature}}
+{{/if}}
