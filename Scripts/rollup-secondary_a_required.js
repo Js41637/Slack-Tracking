@@ -21557,9 +21557,8 @@ TS.registerModule("constants", {
         var bot_id;
         var is_app_data_enabled;
         msg_dom_id = args.msg_dom_id || msg_dom_id;
-        var replies_enabled = TS.replies && TS.replies.isEnabledForModelOb(model_ob);
-        var is_in_conversation = replies_enabled && !!args.is_in_conversation;
-        var is_threads_view = replies_enabled && !!args.is_threads_view;
+        var is_in_conversation = !!args.is_in_conversation;
+        var is_threads_view = !!args.is_threads_view;
         if (false && msg.text) {
           msg = _.cloneDeep(msg);
           msg.text += " <slack-action://BSLACKBOT/help/files/D026MK7NF|testing>";
@@ -21591,14 +21590,10 @@ TS.registerModule("constants", {
                 show_user = true;
               } else {
                 if (!prev_msg.subtype || TS.templates.builders.getBotIdentifier(prev_msg)) {
-                  if (replies_enabled) {
-                    var prev_thread_ts = prev_msg.thread_ts || prev_msg.ts;
-                    var is_part_of_same_convo = msg.thread_ts == prev_thread_ts;
-                    var neither_are_part_of_convo = !msg.thread_ts && !prev_msg.thread_ts;
-                    if (is_part_of_same_convo || neither_are_part_of_convo) {
-                      show_user = false;
-                    }
-                  } else {
+                  var prev_thread_ts = prev_msg.thread_ts || prev_msg.ts;
+                  var is_part_of_same_convo = msg.thread_ts == prev_thread_ts;
+                  var neither_are_part_of_convo = !msg.thread_ts && !prev_msg.thread_ts;
+                  if (is_part_of_same_convo || neither_are_part_of_convo) {
                     show_user = false;
                   }
                 }
@@ -25072,7 +25067,7 @@ TS.registerModule("constants", {
         }
       }
       if (TS.client) actions.mark_unread = true;
-      if (TS.boot_data.feature_message_replies && TS.replies && TS.replies.isEnabled()) {
+      if (TS.boot_data.feature_message_replies) {
         var is_root = !msg.thread_ts || msg.thread_ts == msg.ts;
         actions.jump_to_original = true;
         if (TS.replies.canReplyToMsg(model_ob, msg)) {
@@ -29545,10 +29540,12 @@ TS.registerModule("constants", {
     };
     if (TS.boot_data.feature_app_cards_and_profs_frontend && m.is_bot && m.profile) {
       var bot_id = _.get(m.profile, "bot_id");
-      var bot_info = TS.bots.getBotById(bot_id);
-      if (bot_info) {
-        data_tags_object["app-id"] = bot_info.app_id;
-        data_tags_object["bot-id"] = bot_info.id;
+      if (bot_id) {
+        data_tags_object["bot-id"] = bot_id;
+        var bot_info = TS.bots.getBotById(bot_id);
+        if (_.get(bot_info, "app_id")) {
+          data_tags_object["app-id"] = bot_info.app_id;
+        }
       }
       classes = _.pull(classes, "internal_member_link");
       classes.push("app_preview_link");
@@ -30151,8 +30148,7 @@ TS.registerModule("constants", {
     }
     _input_to_fill = !_rxn_key && (args.input_to_fill || _input_to_fill);
     if (TS.client && TS.utility.contenteditable.isDisabled(TS.client.ui.$msg_input) && _input_to_fill) {
-      var replies_enabled = TS.replies && TS.replies.isEnabled();
-      var triggered_from_inline_reply = replies_enabled && $(_input_to_fill).closest("ts-conversation").length > 0;
+      var triggered_from_inline_reply = $(_input_to_fill).closest("ts-conversation").length > 0;
       if (!triggered_from_inline_reply) {
         return;
       }
@@ -31237,7 +31233,7 @@ TS.registerModule("constants", {
       TS.menu.clean();
       var msg = TS.utility.msgs.getMsg(msg_ts, msgs);
       model_ob = model_ob || TS.shared.getActiveModelOb();
-      if (!msg && TS.boot_data.feature_message_replies && TS.replies.isEnabledForModelOb(model_ob)) {
+      if (!msg && TS.boot_data.feature_message_replies) {
         msg = TS.ui.replies.getActiveMessage(model_ob, msg_ts);
       }
       if (!msg && TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
@@ -31279,7 +31275,7 @@ TS.registerModule("constants", {
         }
       }
       var $el = $(e.target);
-      if (TS.boot_data.feature_message_replies && TS.replies && TS.replies.isEnabled()) {
+      if (TS.boot_data.feature_message_replies) {
         if (TS.replies.canReplyToMsg(model_ob, msg)) {
           template_args.can_subscribe = true;
           template_args.subscription = TS.replies.getSubscriptionState(model_ob.id, msg.ts);
@@ -38377,11 +38373,7 @@ var _on_esc;
     },
     getAllDivsForMsg: function(ts) {
       var $msg_pane_div = TS.msg_edit.getDivForMsgInMsgPane(ts);
-      if (TS.replies && TS.replies.isEnabled()) {
-        return $msg_pane_div.add(TS.msg_edit.getDivForMsgInConvoPane(ts));
-      } else {
-        return $msg_pane_div;
-      }
+      return $msg_pane_div.add(TS.msg_edit.getDivForMsgInConvoPane(ts));
     },
     commitEditInternal: function(edited_text) {
       TS.msg_edit.commitEdit(TS.msg_edit.current_msg, TS.msg_edit.current_model_ob, edited_text);
@@ -42345,17 +42337,25 @@ var _on_esc;
   TS.registerModule("enterprise.workspaces", {
     showList: function($container, list, base_url, sort_by) {
       var teams = TS.enterprise.workspaces.getList(list, sort_by);
+      var $more_teams_available = $(".more_teams_available");
       var html = "";
       if (teams.length) {
         teams.forEach(function(team) {
           html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
         });
+        var teams_not_on_teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by);
+        if (list === "teams_on" && teams_not_on_teams.length) {
+          $more_teams_available.attr("data-has-more", "yes").removeClass("hidden");
+        } else {
+          $more_teams_available.attr("data-has-more", "").addClass("hidden");
+        }
       } else {
         if (list === "teams_on") {
           html += TS.templates.not_on_any_workspaces();
         } else {
           html += TS.templates.no_workspaces_to_join();
         }
+        $more_teams_available.attr("data-has-more", "").addClass("hidden");
       }
       $container.html(html).attr("data-list", list);
       _bindEvents($container, list, base_url);
@@ -42377,7 +42377,7 @@ var _on_esc;
         if (TS.model.user.enterprise_user.teams.indexOf(team.id) > -1) {
           teams.teams_on.push(team);
         } else {
-          if (team.is_open || team.is_closed || team.is_assigned) teams.teams_not_on.push(team);
+          if (team.is_open || team.is_assigned) teams.teams_not_on.push(team);
         }
       });
       return teams[list].sort(function(a, b) {
@@ -42531,6 +42531,7 @@ var _on_esc;
     if (TS.boot_data.feature_discoverable_teams_client_v1) {
       var $parents = $container.parents();
       var $workspace_info = $parents.find(".workspace_info");
+      var $more_teams_available_message = $parents.find(".more_teams_available");
       var $title_bar = $parents.find(".title_bar");
       var sortChangeHandler = function(e) {
         var sort_by = $(this).val();
@@ -42561,6 +42562,7 @@ var _on_esc;
         var team_id = $(this).data("id");
         $container.addClass("hidden");
         $title_bar.addClass("hidden");
+        $more_teams_available_message.addClass("hidden");
         $workspace_info.html(TS.templates.team_info({
           list: list
         })).removeClass("hidden").attr("data-team-id", team_id);
@@ -42602,6 +42604,7 @@ var _on_esc;
         $container.removeClass("hidden");
         $title_bar.removeClass("hidden");
         $workspace_info.addClass("hidden").attr("data-team-id", "");
+        if ($more_teams_available_message.attr("data-has-more") === "yes") $more_teams_available_message.removeClass("hidden");
       });
       $workspace_info.on("click", 'button[data-qa="join-btn"]', function(e) {
         var ladda = Ladda.create(this);
@@ -48189,7 +48192,6 @@ $.fn.togglify = function(settings) {
       }
     });
     TS.click.addClientHandler("a.show_parent_replies, a.show_replies, .reply_bar", function(e, $el, origin) {
-      if (!TS.replies || !TS.replies.isEnabled()) return;
       e.preventDefault();
       var $msg_el = $el.closest("ts-message");
       var thread_ts = $msg_el.attr("data-thread-ts");
@@ -48203,7 +48205,6 @@ $.fn.togglify = function(settings) {
       return;
     });
     TS.click.addWebHandler(".reply_bar", function(e, $el, origin) {
-      if (!TS.replies || !TS.replies.isEnabled()) return;
       var target = $(e.target);
       if (!target.is("a")) {
         var $msg_el = $el.closest("ts-message");
@@ -55410,9 +55411,11 @@ $.fn.togglify = function(settings) {
     make: function($container, opts) {
       var was_at_bottom = TS.client && TS.client.ui.areMsgsScrolledToBottom();
       var include_emo = !!(TS.client && !opts.no_emo);
+      var should_spellcheck = !!(TS.client && TS.model.prefs.webapp_spellcheck);
       var html = TS.templates.inline_message_input({
         include_emo: include_emo,
-        is_texty: TS.boot_data.feature_texty_takes_over
+        is_texty: TS.boot_data.feature_texty_takes_over,
+        should_spellcheck: should_spellcheck
       });
       var $form = $(html);
       $form.appendTo($container);
@@ -57199,7 +57202,6 @@ $.fn.togglify = function(settings) {
     },
     canReplyToMsg: function(model_ob, msg, ignore_membership) {
       if (!TS.client) return false;
-      if (!TS.replies.isEnabledForModelOb(model_ob)) return false;
       if (!msg) return false;
       if (TS.utility.msgs.isAutomatedMsg(msg)) return false;
       if (TS.utility.msgs.isFileMsg(msg)) return false;
@@ -57211,7 +57213,6 @@ $.fn.togglify = function(settings) {
       return true;
     },
     getMessage: function(model_ob, ts) {
-      if (!TS.replies.isEnabledForModelOb(model_ob)) return;
       var msg = TS.utility.msgs.getMsg(ts, model_ob.msgs) || TS.utility.msgs.getMsg(ts, model_ob._archive_msgs);
       if (msg) {
         return msg;
@@ -57220,8 +57221,6 @@ $.fn.togglify = function(settings) {
       return null;
     },
     getThread: function(c_id, thread_ts, always_make_api_call) {
-      var model_ob = TS.shared.getModelObById(c_id);
-      if (!TS.replies.isEnabledForModelOb(model_ob)) return Promise.reject(new Error("wtf: not enabled"));
       if (!always_make_api_call) {
         var messages_from_model_ob = _getThreadFromModelOb(c_id, thread_ts);
         if (messages_from_model_ob) {
@@ -57261,15 +57260,6 @@ $.fn.togglify = function(settings) {
         delete _threads_being_loaded[key];
       });
       return _threads_being_loaded[key];
-    },
-    isEnabled: function() {
-      return !!TS.boot_data.feature_message_replies;
-    },
-    isEnabledForModelOb: function(model_ob) {
-      return !!TS.boot_data.feature_message_replies;
-    },
-    isAllThreadsViewEnabled: function() {
-      return !!TS.boot_data.feature_message_replies;
     },
     getSubscriptionState: function(model_ob_id, thread_ts) {
       var key = _keyForThread(model_ob_id, thread_ts);
@@ -57379,11 +57369,9 @@ $.fn.togglify = function(settings) {
   var _subscriptions_being_loaded = {};
   var _subscriptions = {};
   var _messageChanged = function(model_ob, message) {
-    if (!TS.replies.isEnabledForModelOb(model_ob)) return;
     TS.replies.reply_changed_sig.dispatch(model_ob, message);
   };
   var _messageRemoved = function(model_ob, message) {
-    if (!TS.replies.isEnabledForModelOb(model_ob)) return;
     TS.replies.reply_deleted_sig.dispatch(model_ob, message);
   };
   var _messageReceived = function(model_ob, message) {

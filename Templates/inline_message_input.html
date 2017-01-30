@@ -5,7 +5,7 @@
     {{#if is_texty}}
       <div class="message_input"></div>
     {{else}}
-      <textarea class="message_input"></textarea>
+      <textarea class="message_input" spellcheck="{{should_spellcheck}}"></textarea>
     {{/if}}
 
     {{#if include_emo}}<a class="emo_menu hidden"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></a>{{/if}}

@@ -11,8 +11,8 @@
       {{#t}}<p class="desc">Connect your <span class="bold">{email_domain}</span> Google account to easily invite people to join your new team.{{/t}}
 
       <div class="google_signin_button_container">
-        <a id="skip_button" class="btn btn_large btn_outline">Skip For Now</a>
-        <a id="submit_btn" class="btn btn_large google_signin_button">
+        <a id="skip_button" class="btn btn_large btn_outline" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_connect_google,trigger=skip_button,step=googlesignin">Skip For Now</a>
+        <a id="submit_btn" class="btn btn_large google_signin_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=connect_google,trigger=connect_button,step=googlesignin">
           <span class="ladda-label">{{#t note="Button text for prompting the user to sign in to their Google account."}}Connect{{/t}}</span>
         </a>
       </div>

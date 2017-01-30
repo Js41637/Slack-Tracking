@@ -32,8 +32,7 @@
     }
     _input_to_fill = !_rxn_key && (args.input_to_fill || _input_to_fill);
     if (TS.client && TS.utility.contenteditable.isDisabled(TS.client.ui.$msg_input) && _input_to_fill) {
-      var replies_enabled = TS.replies && TS.replies.isEnabled();
-      var triggered_from_inline_reply = replies_enabled && $(_input_to_fill).closest("ts-conversation").length > 0;
+      var triggered_from_inline_reply = $(_input_to_fill).closest("ts-conversation").length > 0;
       if (!triggered_from_inline_reply) {
         return;
       }

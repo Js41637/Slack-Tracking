@@ -9341,8 +9341,6 @@
       }
     },
     openConversationFlex: function(model_ob, thread_ts) {
-      var replies_enabled = TS.replies && TS.replies.isEnabled();
-      if (!replies_enabled) return;
       var flex_extra = model_ob.id + "-" + thread_ts;
       var should_change_flexpane = !TS.model.ui_state.flex_visible || TS.model.ui_state.flex_name != "convo" || TS.model.ui_state.flex_extra != flex_extra;
       if (!should_change_flexpane) return;
@@ -9542,16 +9540,8 @@
     _fetchPage: function() {
       if (this._fetch_page_p) return this._fetch_page_p;
       var this_searchable_member_list = this;
-      var query_count;
-      if (this._current_query_for_match) {
-        query_count = FETCH_PAGE_SIZE_SEARCH;
-      } else if (TS.model.user.is_restricted) {
-        query_count = 100;
-      } else {
-        query_count = FETCH_PAGE_SIZE;
-      }
       var query_params = {
-        count: query_count,
+        count: this._current_query_for_match ? FETCH_PAGE_SIZE_SEARCH : FETCH_PAGE_SIZE,
         filter: this._current_filter
       };
       if (this._current_query_for_match) {
@@ -9560,7 +9550,11 @@
         query_params.marker = this._next_marker;
       }
       if (this._model_ob_id) {
-        query_params.limit_to_channel_id = this._model_ob_id;
+        query_params.channels = [this._model_ob_id];
+      } else if (TS.model.user.is_restricted) {
+        query_params.channels = _.map(TS.shared.getAllModelObsForUser(), function(ob) {
+          return ob.is_im ? ob.user : ob.id;
+        });
       }
       this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
         this_searchable_member_list._fetch_page_p = null;
@@ -9571,14 +9565,6 @@
       return this._fetch_page_p;
     },
     _processPage: function(members) {
-      if (TS.model.user.is_restricted) {
-        var valid_member_ids = _(TS.shared.getAllModelObsForUser()).map(function(ob) {
-          return ob.members || ob.user;
-        }).flatten().uniq().value();
-        members = _.filter(members, function(member) {
-          return _.includes(valid_member_ids, member.id);
-        });
-      }
       this._members = _.union(this._members, members);
       this._presence_list.add(_.map(this._members, "id"));
     },
@@ -9590,9 +9576,7 @@
           this_searchable_member_list._maybeHideNoResultsState();
           this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
         } else {
-          if (TS.model.user.is_restricted && !this_searchable_member_list._current_query_for_match && !this_searchable_member_list._have_all_members) {} else {
-            this_searchable_member_list._showNoResultsState();
-          }
+          this_searchable_member_list._showNoResultsState();
         }
         return null;
       }).then(function() {
@@ -28426,7 +28410,7 @@
       var member_ids = TS.membership.lazyLoadChannelMembership() ? TS.flannel.__temp_getChannelMembers(model_ob.id) : model_ob.members;
       var query = {
         count: fetch_all_members ? member_ids.length : MAX_SIDEBAR_MEMBERS_COUNT,
-        limit_to_channel_id: model_ob.id,
+        channels: [model_ob.id],
         filter: "everyone"
       };
       var promises = [TS.flannel.fetchAndUpsertObjectsWithQuery(query)];
@@ -39019,7 +39003,6 @@ function timezones_guess() {
       return null;
     },
     maybeRemoveMessageFromConversation: function(model_ob, msg) {
-      if (!TS.replies.isEnabledForModelOb(model_ob)) return;
       if (model_ob.id !== _active_convo_model_id) return;
       if (msg.thread_ts != _active_convo_thread_ts && msg.ts != _active_convo_thread_ts) return;
       var convo_msg = _active_convo_messages && _.find(_active_convo_messages, {
@@ -39058,7 +39041,6 @@ function timezones_guess() {
       }));
     },
     maybeUpdateConversationWithMessage: function(model_ob, msg) {
-      if (!TS.replies.isEnabledForModelOb(model_ob)) return;
       if (model_ob.id !== _active_convo_model_id) return;
       if (msg.thread_ts != _active_convo_thread_ts && msg.ts != _active_convo_thread_ts) return;
       var convo_msg_index = _active_convo_messages && _.findIndex(_active_convo_messages, {
@@ -39798,7 +39780,6 @@ function timezones_guess() {
       TS.client.threads.logThreadState("update_thread_state: " + !!has_unreads + " " + (mention_count + num_at_heres) + " " + timestamp);
     },
     setThreadsUnreadData: function(has_unreads, mention_count, timestamp) {
-      if (!TS.replies.isAllThreadsViewEnabled()) return;
       TS.model.threads_has_unreads = has_unreads;
       TS.model.threads_mention_count = mention_count ? mention_count : 0;
       TS.utility.msgs.countAllUnreads();

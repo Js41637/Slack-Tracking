@@ -4,7 +4,7 @@
 
   {{#unlessOurApp}}<a data-clog-event="WEBSITE_CLICK" data-clog-params="action=nav_logo,trigger=create_team" class="logo_link" href="/">{{/unlessOurApp}}<img id="slack_logo" src="{{versioned_slack_logo_240}}" width="120" height="137" title="Slack">{{#unlessOurApp}}</a>{{/unlessOurApp}}
   
-  <div class="fs_split_flex_wrapper">
+  <div class="fs_split_flex_wrapper invite_contacts_wrapper">
 
     {{> create_inc_rate_limit}}
     <div id="invite_failed_alert" class="header_error_message hidden no_bottom_margin">
@@ -14,9 +14,7 @@
 
     <div class="fs_split_body invite_contacts_body">
       <h1 class="medium_bottom_margin">{{#t}}Invite your teammates{{/t}}</h1>
-      <div class="invite_contact_list_wrapper">
-        {{> contact_list placeholder=placeholder}}
-      </div>
+      {{> contact_list placeholder=placeholder}}
     </div>
 
     <div id="submit" class="fs_split_footer">
@@ -30,10 +28,10 @@
       {{/if}}
 
       <div class="send_invitations_button_container">
-        <a id="secondary_btn" class="col span_1_of_2 btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button">
+        <a id="secondary_btn" class="col span_1_of_2 btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_google_invites,trigger=create_team,step=google_invites">
           <span class="ladda-label">{{#t}}Skip For Now{{/t}}</span>
         </a>
-        <button id="submit_btn" type="submit" class="col span_1_of_2 btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button">
+        <button id="submit_btn" type="submit" class="col span_1_of_2 btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=send_google_invites,trigger=create_team,step=google_invites">
           <span class="ladda-label" data-label="invites_btn_label">{{#t}}Send Invitations{{/t}}</span>
         </button>
       </div>
