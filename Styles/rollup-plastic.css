@@ -12932,6 +12932,30 @@ only screen and (min-resolution:2dppx) {
   transition: background-position 150ms ease
 }
 
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status {
+  line-height: 1.875rem
+}
+
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_restriction {
+  padding-top: 1rem
+}
+
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_restriction+.member_timezone_value {
+  padding-bottom: 1rem
+}
+
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_restriction+.member_timezone_value+.member_details_over_image {
+  bottom: 6.875rem
+}
+
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_timezone_value {
+  line-height: 1.875rem
+}
+
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_timezone_value+.member_details_over_image {
+  bottom: 4.75rem
+}
+
 .menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_restriction {
   padding-top: 1rem
 }
@@ -12996,6 +13020,7 @@ only screen and (min-resolution:2dppx) {
   margin: 0
 }
 
+.menu_member_header .member_details .member_current_status,
 .menu_member_header .member_details .member_restriction,
 .menu_member_header .member_details .member_timezone_value {
   color: #2c2d30;
@@ -13005,14 +13030,27 @@ only screen and (min-resolution:2dppx) {
   margin: 0
 }
 
+.menu_member_header .member_details .member_current_status a,
 .menu_member_header .member_details .member_restriction a,
 .menu_member_header .member_details .member_timezone_value a {
   color: #2c2d30
 }
 
+.menu_member_header .member_details .member_current_status a:hover,
 .menu_member_header .member_details .member_restriction a:hover,
 .menu_member_header .member_details .member_timezone_value a:hover {
   color: #005e99
+}
+
+.menu_member_header .member_details .member_current_status {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  display: inline-block
+}
+
+.menu_member_header .member_details .member_current_status .current_status {
+  margin-left: 2px
 }
 
 .menu_member_header .member_details_divider {

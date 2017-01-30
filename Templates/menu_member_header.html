@@ -4,6 +4,16 @@
   <div class="member_details display_flex flex_direction_column align_items_flex_start cropped_preview">
     {{makeMemberPreviewCardLinkImage member.id}}
 
+    {{#feature flag="feature_user_custom_status"}}
+      {{#if member.profile.status_text}}
+        <p class="member_current_status">
+          <span class="member_current_status_label">{{#t}}Status{{/t}}</span>
+          <span class="current_status">{{getMemberCurrentStatusEmoji member}} {{getMemberCurrentStatusText member}}</span>
+        </p>
+        <hr class="member_details_divider">
+      {{/if}}
+    {{/feature}}
+
     <p class="member_timezone_value">
       {{#or member.is_restricted member.is_bot}}
         <span class="float_right left_margin">

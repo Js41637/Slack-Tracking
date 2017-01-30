@@ -18,7 +18,7 @@
         {{else}}
           <a href="/messages/{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link">{{getMemberFullName member}}</a>
         {{/if}}
-        {{makeMemberPresenceIcon member}}
+        {{#isClient}}{{makeMemberPresenceIcon member}}{{/isClient}}
       {{/if}}
     {{else}}
       {{#if member.deleted}}
@@ -33,7 +33,7 @@
         {{else}}
           <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="member_name internal_im_link">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
         {{/if}}
-        {{makeMemberPresenceIcon member}}
+        {{#isClient}}{{makeMemberPresenceIcon member}}{{/isClient}}
       {{/if}}
     {{/feature}}
   </div>
