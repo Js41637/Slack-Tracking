@@ -3,7 +3,13 @@
 <span class="small_bottom_margin display_flex justify_content_start">
   <p class="seafoam_green small_right_margin large">&#x2714;</p>
   <p class="large">
-    {{#if product_is_upgrade}}
+    {{#if_equal product_is_trial compare=true}}
+      {{#if_not_equal product_level compare='plus'}}
+        {{#t}}You are upgrading to the <strong>Standard plan</strong>{{/t}}
+      {{else}}
+        {{#t}}You are upgrading to the <strong>Plus plan</strong>{{/t}}
+      {{/if_not_equal}}
+    {{else if product_is_upgrade}}
       {{#if_not_equal product_level compare='plus'}}
         {{#t}}You are upgrading to the <strong>Standard plan</strong>{{/t}}
       {{else}}
@@ -15,7 +21,7 @@
       {{else}}
         {{#t}}You are buying the <strong>Plus plan</strong>{{/t}}
       {{/if_not_equal}}
-    {{/if}}
+    {{/if_equal}}
   </p>
 </span>
 <span class="small_bottom_margin display_flex justify_content_start">
@@ -40,11 +46,21 @@
   <p class="seafoam_green small_right_margin large">&#x2714;</p>
   <p class="large">
     {{#if use_credit}}
-      {{#t pay_total=(cash value=pay_total all_digits=true) pay_total_after_credit=(cash value=pay_total_after_credit all_digits=true)}}
-        You will pay <strong><s>{pay_total}</s></strong> {pay_total_after_credit} now (after credit)
-      {{/t}}
+      {{#if_equal product_is_trial compare=true}}
+        {{#t pay_total=(cash value=pay_total all_digits=true) pay_total_after_credit=(cash value=pay_total_after_credit all_digits=true)}}
+          You will pay <strong><s>{pay_total}</s></strong> {pay_total_after_credit} (after credit) when your trial expires
+        {{/t}}
+      {{else}}
+        {{#t pay_total=(cash value=pay_total all_digits=true) pay_total_after_credit=(cash value=pay_total_after_credit all_digits=true)}}
+          You will pay <strong><s>{pay_total}</s></strong> {pay_total_after_credit} now (after credit)
+          {{/t}}
+      {{/if_equal}}
     {{else}}
-      {{#t pay_total=(cash value=pay_total all_digits=true)}}You will pay <strong>{pay_total}</strong> now{{/t}}
+      {{#if_equal product_is_trial compare=true}}
+        {{#t pay_total=(cash value=pay_total all_digits=true)}}You will pay <strong>{pay_total}</strong> when your trial expires{{/t}}
+      {{else}}
+        {{#t pay_total=(cash value=pay_total all_digits=true)}}You will pay <strong>{pay_total}</strong> now{{/t}}
+      {{/if_equal}}
     {{/if}}
   </p>
 </span>

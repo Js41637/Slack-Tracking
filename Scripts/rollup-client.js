@@ -10123,7 +10123,10 @@
       if (!should_populate) return;
       TS.chat_history.resetPosition("populateChatInputWithLast");
       if (TS.boot_data.feature_texty) {
-        TS.utility.contenteditable.deserialize(TS.client.msg_input.$input, model_ob.last_msg_input);
+        var $input = TS.client.msg_input.$input;
+        TS.utility.contenteditable.deserialize($input, model_ob.last_msg_input);
+        var val = TS.utility.contenteditable.displayValue($input);
+        TS.utility.contenteditable.cursorPosition($input, val.length);
         _maybeResize();
       } else {
         if (TS.boot_data.feature_you_autocomplete_me) {
@@ -22964,9 +22967,7 @@
     $coachmark.on("click", ".coachmark_skip_link", TS.coachmark.reject);
     $coachmark.on("click", ".coachmark_got_it", TS.coachmark.resolve);
     if (TS.boot_data.feature_update_coachmarks_copy) {
-      $coachmark.on("click", ".coachmark_close", TS.coachmark.reject);
       $coachmark.on("click", ".coachmark_next_tip", TS.coachmark.resolve);
-      $coachmark.on("click", ".coachmark_done", TS.coachmark.resolve);
       $coachmark.on("click", ".coachmark_ok", TS.coachmark.resolve);
     }
   };
@@ -23059,48 +23060,6 @@
           });
         }
       },
-      search: {
-        id: "search_coachmark",
-        coachmark_el_id: "search_coachmark_div",
-        no_bg_on_small: true,
-        place: function() {
-          var $placement_el = $("#search_container .highlighter_wrapper");
-          var current_width = $placement_el.outerWidth(true);
-          if (current_width > 280) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -125, -126);
-          } else if (current_width > 250) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -100, -110);
-          } else if (current_width > 230) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -100, -101);
-          } else if (current_width > 200) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -100, -86);
-          } else if (current_width > 180) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -100, -76);
-          } else if (current_width > 160) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -100, -66);
-          }
-        },
-        placeSmall: function() {
-          var $placement_el = $("#search_container .highlighter_wrapper");
-          var current_width = $placement_el.outerWidth(true);
-          if (current_width > 280) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -55, -126);
-          } else if (current_width > 250) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -30, -110);
-          } else if (current_width > 230) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -30, -101);
-          } else if (current_width > 200) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -30, -86);
-          } else if (current_width > 180) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -30, -76);
-          } else if (current_width > 160) {
-            TS.coachmark.placeBelowOf($placement_el, 23, -30, -66);
-          }
-        },
-        content: function() {
-          return TS.templates.search_coachmark();
-        }
-      },
       recent_mentions: {
         id: "recent_mentions_coachmark",
         coachmark_el_id: "recent_mentions_coachmark_div",
@@ -23127,24 +23086,6 @@
         },
         content: function() {
           return TS.templates.starred_items_coachmark();
-        }
-      },
-      private_groups: {
-        id: "private_groups_coachmark",
-        coachmark_el_id: "private_groups_coachmark_div",
-        no_bg_on_small: true,
-        place: function() {
-          TS.coachmark.placeRightOf($("#groups_header"), -26, 10, 5);
-        },
-        placeSmall: function() {
-          TS.coachmark.placeRightOf($("#groups_header"), -18, 10, 7, 0);
-        },
-        content: function() {
-          var template_args = {
-            channels_count: TS.channels.getChannelsForUser().length,
-            groups_count: TS.groups.getUnarchivedGroups().length
-          };
-          return TS.templates.private_groups_coachmark(template_args);
         }
       },
       replies: {
@@ -23261,9 +23202,9 @@
       cancel: {
         step_name: "onboarding_cancelled",
         pref_name: "onboarding_cancelled",
-        show: "#unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #in_skip_messaging, #onboarding_video",
-        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
+        show: "#unskip_messaging, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
+        hide: "#team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #in_skip_messaging",
+        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer",
         promiseTo: function() {
           return new Promise(function() {
             $("#end_display_onboarding").on("click.cancel_onboarding", ".skip_tutorial_link", _deferredCancel);
@@ -23284,9 +23225,9 @@
       loading: {
         step_name: "onboarding_loading",
         pref_name: "",
-        show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container, #pre_skip_messaging",
-        hide: "#banner, #in_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header, #onboarding_video",
-        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
+        show: "#team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container, #pre_skip_messaging",
+        hide: "#banner, #in_skip_messaging, #unskip_messaging, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
+        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer",
         promiseTo: function() {
           return new Promise(function(resolve) {
             TS.view.adjustForWelcomeSlideShow();
@@ -23298,9 +23239,9 @@
       start: {
         step_name: "onboarding_start",
         pref_name: "seen_onboarding_start",
-        show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging",
-        hide: "#in_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header, #onboarding_video",
-        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
+        show: "#team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging",
+        hide: "#in_skip_messaging, #unskip_messaging, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
+        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer",
         promiseTo: function() {
           return new Promise(function(resolve) {
             TS.view.adjustForWelcomeSlideShow();
@@ -23328,63 +23269,13 @@
           });
         }
       },
-      video_start: {
-        step_name: "onboarding_start_with_video",
-        pref_name: "seen_onboarding_start",
-        show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #onboarding_video",
-        hide: "#in_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
-        style: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
-        promiseTo: function() {
-          return new Promise(function(resolve) {
-            TS.view.adjustForWelcomeSlideShow();
-            TS.client.msg_pane.padOutMsgsScroller();
-            _goToStep(TS.newxp.onboarding.video_start);
-            TS.clog.track("GROWTH_ONBOARDING", {
-              action: "onboarding_video_shown",
-              step: _current_step_name
-            });
-            $("#onboarding_video_play, #onboarding_video").on("click", function() {
-              TS.ui.fs_modal.start({
-                body: '<iframe width="1000" height="563" src="https://www.youtube.com/embed/9RJZMSsH7-g?rel=0&amp;controls=0&amp;showinfo=0;autoplay=1" frameborder="0" allowfullscreen></iframe>',
-                show_go_button: false,
-                show_cancel_button: false,
-                modal_class: "newxp_video_fs_modal",
-                clog_name: "GROWTH_ONBOARDING"
-              });
-              TS.clog.track("GROWTH_ONBOARDING", {
-                action: "onboarding_video_pressed_play",
-                step: _current_step_name
-              });
-            });
-            $("#explore_btn_container > .btn").on("click", function() {
-              TS.metrics.mark("onboarding_btn_click");
-              TS.clog.track("GROWTH_ONBOARDING", {
-                action: "onboarding_btn_click",
-                step: _current_step_name
-              });
-            });
-            $("#explore_btn_container > .btn").on("click.start_onboarding", resolve);
-          }).then(function() {
-            return TS.prefs.setPrefByAPI({
-              name: "seen_onboarding_start",
-              value: true
-            });
-          }).finally(function() {
-            $("#explore_btn_container > .btn").off("click.start_onboarding");
-            return TS.prefs.setPrefByAPI({
-              name: "seen_welcome_2",
-              value: true
-            });
-          });
-        }
-      },
       complete: {
         step_name: "onboarding_complete",
         pref_name: "seen_onboarding_complete",
-        show: "#mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #in_skip_messaging, #unskip_messaging, .coachmark_done",
+        show: "#star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
+        hide: "#team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #in_skip_messaging, #unskip_messaging",
         hide_admin: ".coachmark_invite_people",
-        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
+        unstyle: "#client_header .channel_header, #client_body, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer",
         promiseTo: function() {
           return (new Promise.resolve).then(function() {
             _goToStep(TS.newxp.onboarding.complete);
@@ -23403,9 +23294,9 @@
       slackbot: {
         step_name: "onboarding_slackbot_conversation",
         pref_name: "seen_onboarding_slackbot_conversation",
-        show: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #in_skip_messaging",
-        hide: "#explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, #mute_container, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header, #onboarding_video",
-        style: "#client_header .channel_header, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer, #groups_header",
+        show: "#team_menu_overlay, #col_channels_overlay, #active_channel_name_overlay, #in_skip_messaging",
+        hide: "#explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, #star_container, #channel_header_info, #client_header .channel_title_info, #client_header .flex_header",
+        style: "#client_header .channel_header, #details_toggle, #channel_actions_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #col_channels_footer",
         unstyle: "#client_body",
         promiseTo: function() {
           var onSlackbotRebound = null;
@@ -23546,8 +23437,8 @@
         step_name: "onboarding_channels",
         pref_name: "seen_onboarding_channels",
         show: "#active_channel_name_overlay, #in_skip_messaging, .coachmark_next_tip",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #groups_header",
+        hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #direct_messages, #channel_list_invites_link");
@@ -23576,10 +23467,9 @@
         show: "#active_channel_name_overlay, #in_skip_messaging",
         show_member: ".coachmark_got_it",
         show_admin: ".coachmark_next_tip",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_invite_people",
+        hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_invite_people",
         hide_member: ".coachmark_next_tip",
-        hide_admin: ".coachmark_done",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #groups_header",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #channel_list_invites_link");
@@ -23605,9 +23495,9 @@
         step_name: "onboarding_invites",
         pref_name: "seen_onboarding_invites",
         show: "#active_channel_name_overlay, #in_skip_messaging",
-        show_admin: ".coachmark_invite_people, .coachmark_close",
-        hide: "#footer_overlay, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip, .coachmark_done",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div, #groups_header",
+        show_admin: ".coachmark_invite_people",
+        hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip",
+        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#quick_switcher_btn",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #direct_messages");
@@ -23626,33 +23516,6 @@
             return null;
           }).finally(function() {
             $siblings.removeClass("translucent");
-          });
-        }
-      },
-      search: {
-        step_name: "onboarding_search",
-        pref_name: "seen_onboarding_search",
-        promiseTo: function() {
-          var $target, $starburst, $wrapper, $parent;
-          return new Promise(function(resolve, reject) {
-            $target = $("#search_container .highlighter_wrapper");
-            _addClickTickStarburst($target);
-            $starburst = $target.find(".starburst");
-            $wrapper = $target.find(".starburst_wrapper");
-            $parent = $("#search_container");
-            _addClickTickInteractions(TS.coachmark.start.bind(null, $.extend({}, TS.coachmarks.coachmarks.search, {
-              resolve: resolve,
-              reject: reject.bind(null, new Error("Click-tick onboarding cancelled"))
-            })), $target, $starburst, $wrapper, $parent);
-          }).then(function() {
-            TS.prefs.setPrefByAPI({
-              name: "seen_onboarding_search",
-              value: true
-            });
-            return null;
-          }).finally(function() {
-            _removeClickTickInteractions($target, null, $wrapper);
-            _removeClickTickStarburst($target);
           });
         }
       },
@@ -23705,30 +23568,6 @@
             _removeClickTickStarburst($target);
           });
         }
-      },
-      private_groups: {
-        step_name: "onboarding_private_groups",
-        pref_name: "seen_onboarding_private_groups",
-        promiseTo: function() {
-          var $target, $wrapper;
-          return new Promise(function(resolve, reject) {
-            $target = $("#groups_header");
-            $wrapper = $target.find(".starburst_wrapper");
-            _addClickTickInteractions(TS.coachmark.start.bind(null, $.extend({}, TS.coachmarks.coachmarks.private_groups, {
-              resolve: resolve,
-              reject: reject.bind(null, new Error("Click-tick onboarding cancelled"))
-            })), $target, null, $wrapper);
-          }).then(function() {
-            TS.prefs.setPrefByAPI({
-              name: "seen_onboarding_private_groups",
-              value: true
-            });
-            return null;
-          }).finally(function() {
-            _removeClickTickInteractions($target, null, $wrapper);
-            _removeClickTickStarburst($target);
-          });
-        }
       }
     },
     onStart: function() {
@@ -23767,27 +23606,6 @@
       if (TS.model.seen_welcome_2) return;
       if (_shouldDirectToSlackbotForOnboarding()) TS.ims.startImByMemberName("slackbot");
       TS.experiment.loadUserAssignments().then(function() {
-        var group = TS.experiment.getGroup("portal_onboarding_v1");
-        if (group === "treatment") {
-          TS.model.seen_onboarding_this_session = true;
-          TS.newxp.cancelOnboarding();
-          _goToStep(TS.newxp.onboarding.cancel, group);
-          $("#unskip_messaging > .take_tutorial_link").off("click.take_onboarding").on("click.take_onboarding", _startOnboarding);
-          $("#onboarding_welcome_text").remove();
-          $("#onboarding_welcome_message").remove();
-          $("#unskip_messaging").remove();
-          _in_onboarding = false;
-          if (_banner_was_visible) {
-            TS.ui.banner.show();
-            TS.client.ui.$banner.removeClass("hidden");
-          }
-          TS.model.seen_welcome_2 = true;
-          $("#end_display_onboarding").addClass("hidden");
-          TS.client.msg_pane.updateEndMarker();
-          TS.client.msg_pane.padOutMsgsScroller();
-          _disableScrollFadeOut();
-          return;
-        }
         _setupCoachmarkExperiment();
       });
       if (TS.model.prefs.onboarding_cancelled) {
@@ -23895,13 +23713,7 @@
     }
   };
   var _getBaseSteps = function() {
-    var group = TS.experiment.getGroup("onboarding_video");
-    var user_steps;
-    if (group === "treatment") {
-      user_steps = ["video_start", "slackbot", "channels", "direct_messages", "complete"];
-    } else {
-      user_steps = ["start", "slackbot", "channels", "direct_messages", "complete"];
-    }
+    var user_steps = ["start", "slackbot", "channels", "direct_messages", "complete"];
     if (TS.ui.admin_invites.canInvite() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length < 26) user_steps.splice(4, 0, "invites");
     return user_steps;
   };
@@ -23943,7 +23755,7 @@
     return TS.newxp.onboarding.cancel.promiseTo();
   };
   var _composeClickTickOnboarding = function() {
-    var promises = ["search", "recent_mentions", "starred_items"].filter(function(step_name) {
+    var promises = ["recent_mentions", "starred_items"].filter(function(step_name) {
       return !TS.model.prefs[TS.newxp.onboarding[step_name].pref_name];
     }).map(function(step_name) {
       return TS.newxp.onboarding[step_name].promiseTo();
@@ -26732,6 +26544,7 @@
         href = B[0];
         query = TS.utility.url.queryStringParse(B[1]);
       }
+      if (_.get(query, "force-browser") === "1") return false;
       if (href.indexOf("archives/") === 0) {
         var A = href.split("/");
         if (A.length < 2) return false;

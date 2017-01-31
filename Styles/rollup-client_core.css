@@ -7351,17 +7351,6 @@ only screen and (min-resolution:2dppx) {
   -khtml-opacity: .25
 }
 
-#footer_overlay {
-  background: #fff;
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1;
-  -webkit-transition: opacity ease-in .35s 0s;
-  -moz-transition: opacity ease-in .35s 0s;
-  transition: opacity ease-in .35s 0s;
-  height: 4rem
-}
-
 #team_menu_overlay {
   background: #4d394b;
   border-bottom: 2px solid #4d394b;
@@ -7567,13 +7556,11 @@ only screen and (min-resolution:2dppx) {
 
 #client-ui.threads_view_is_showing #footer_archives,
 #client-ui.threads_view_is_showing #footer_msgs,
-#client-ui.threads_view_is_showing #footer_overlay,
 #client-ui.threads_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
 #client-ui.threads_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
 #client-ui.threads_view_is_showing #msgs_scroller_div,
 #client-ui.unread_view_is_showing #footer_archives,
 #client-ui.unread_view_is_showing #footer_msgs,
-#client-ui.unread_view_is_showing #footer_overlay,
 #client-ui.unread_view_is_showing #monkey_scroll_wrapper_for_archive_msgs_scroller_div,
 #client-ui.unread_view_is_showing #monkey_scroll_wrapper_for_msgs_scroller_div,
 #client-ui.unread_view_is_showing #msgs_scroller_div {

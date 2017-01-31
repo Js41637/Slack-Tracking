@@ -15664,6 +15664,12 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   width: 100%
 }
 
+@media only screen and (max-height:650px) {
+  #channel_membership_dialog_container #channel_membership_dialog_scroller {
+    height: 354px
+  }
+}
+
 #channel_membership_dialog_container .searchable_member_list_search input {
   width: 100%;
   border: none;

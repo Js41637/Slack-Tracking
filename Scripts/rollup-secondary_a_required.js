@@ -31704,7 +31704,11 @@ TS.registerModule("constants", {
         menu_offset_y += 7;
       }
       if (TS.boot_data.page_needs_enterprise && typeof e === "string") _no_reposition = true;
-      TS.menu.start(e);
+      TS.menu.start(e, undefined, {
+        needs_to_remain_open: function() {
+          return TS.menu.emoji.is_showing;
+        }
+      });
       TS.menu.positionAt($("#team_menu"), 10, menu_offset_y);
       TS.view.members.updateUserDisplayName();
       if (TS.boot_data.feature_user_custom_status) {
@@ -32267,6 +32271,9 @@ TS.registerModule("constants", {
           y = e.pageY + 10;
         }
       }
+      if (_.isFunction(options.needs_to_remain_open)) {
+        TS.menu.needs_to_remain_open = options.needs_to_remain_open;
+      }
       $(".tooltip").hide();
       TS.tips.hideAll();
       $(e.currentTarget).addClass("active");
@@ -32348,6 +32355,7 @@ TS.registerModule("constants", {
       TS.menu.$menu_items.off("mouseenter.section_header");
       TS.menu.$menu.removeClass("narrow_menu");
       TS.menu.$menu_body.off("mouseenter.section_header");
+      TS.menu.needs_to_remain_open = undefined;
       if (TS.boot_data.feature_browse_date) {
         TS.menu.$menu.removeClass("date_picker");
       }
@@ -32367,7 +32375,7 @@ TS.registerModule("constants", {
       _on_esc = null;
     },
     end: function() {
-      if (TS.menu.emoji.is_showing) return;
+      if (_.isFunction(TS.menu.needs_to_remain_open) && TS.menu.needs_to_remain_open()) return;
       if (TS.menu.$submenu && TS.menu.$submenu_parent) TS.menu.$submenu_parent.submenu("destroy");
       TS.menu.$menu.width("");
       TS.model.menu_is_showing = false;
