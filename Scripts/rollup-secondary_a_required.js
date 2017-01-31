@@ -42541,6 +42541,11 @@ var _on_esc;
       var $workspace_info = $parents.find(".workspace_info");
       var $more_teams_available_message = $parents.find(".more_teams_available");
       var $title_bar = $parents.find(".title_bar");
+      $more_teams_available_message.off();
+      $more_teams_available_message.on("click", '[data-qa="find-more-teams"]', function(e) {
+        e.preventDefault();
+        $('.enterprise_memberdash_header .menu_item_teams[data-qa="find-teams"]').click();
+      });
       var sortChangeHandler = function(e) {
         var sort_by = $(this).val();
         var teams = TS.enterprise.workspaces.getList(list, sort_by);
