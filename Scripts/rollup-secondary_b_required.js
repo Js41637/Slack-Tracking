@@ -2067,6 +2067,7 @@
       if (window.Audio) {
         soundManager.onready(function() {
           $.each(_sounds, function(key, object) {
+            object.url = [object.url, object.url.replace(".mp3", ".ogg")];
             _sounds[key] = soundManager.createSound(object);
           });
         });
