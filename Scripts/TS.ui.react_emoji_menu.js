@@ -16,7 +16,6 @@
   var _rxn_key;
   var _callback;
   var _coords;
-  var _skin_tone_choice_names = [":hand:", ":hand::skin-tone-2:", ":hand::skin-tone-3:", ":hand::skin-tone-4:", ":hand::skin-tone-5:", ":hand::skin-tone-6:"];
   var _handy_rxns;
   var _start = function(args) {
     _rxn_key = args.rxn_key;
@@ -85,6 +84,10 @@
       return rxn.name;
     });
   };
+  var _getSkinToneChoices = function() {
+    if (TS.model.prefs.emoji_mode === "google") return [];
+    return [":hand:", ":hand::skin-tone-2:", ":hand::skin-tone-3:", ":hand::skin-tone-4:", ":hand::skin-tone-5:", ":hand::skin-tone-6:"];
+  };
   var _fillInput = function(e, emoji) {
     var $input_to_fill = $(_input_to_fill);
     var should_focus = !(e && e.shiftKey);
@@ -104,7 +107,7 @@
     var props = {
       onSkinToneChanged: _onSkinToneChanged,
       groups: TS.model.emoji_groups,
-      skinToneChoiceNames: _skin_tone_choice_names,
+      skinToneChoiceNames: _getSkinToneChoices(),
       activeSkinToneId: args.skin_tone_id || TS.model.prefs.preferred_skin_tone,
       numBackgroundColors: TS.model.emoji_menu_colors,
       onSelected: _onSelect,

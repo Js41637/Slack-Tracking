@@ -71,16 +71,14 @@
       </label>
     </p>
 
-    {{#feature flag="feature_message_replies"}}
-      <h4 class="large_top_margin">{{#t}}Threads{{/t}}</h4>
-      <p>
-        <label class="checkbox">
-          <input id="threads_everything_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_threads_everything_label">
-          {{#t}}<span id="prefs_threads_everything_label">Notify me about every reply to threads I follow</span><br>
-          <span class="normal subtle_silver">Otherwise, threads will reflect your regular notification settings</span>{{/t}}
-        </label>
-      </p>
-    {{/feature}}
+    <h4 class="large_top_margin">{{#t}}Threads{{/t}}</h4>
+    <p>
+      <label class="checkbox">
+        <input id="threads_everything_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_threads_everything_label">
+        {{#t}}<span id="prefs_threads_everything_label">Notify me about every reply to threads I follow</span><br>
+        <span class="normal subtle_silver">Otherwise, threads will reflect your regular notification settings</span>{{/t}}
+      </label>
+    </p>
 
     {{#if show_mac_ssb_prefs}}
       <h4 id="prefs_dock_icon" class="large_top_margin inline_block">{{#t}}Dock App Icon{{/t}}</h4>

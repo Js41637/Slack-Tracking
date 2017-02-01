@@ -1,5 +1,4 @@
-{{#feature flag="feature_message_replies"}}{{else}}<hr class="spacer">{{/feature}}
-<h3 class="{{#feature flag="feature_message_replies"}}{{else}}small_bottom_margin{{/feature}}">
+<h3>
   {{#if model_ob.is_channel}}
     {{{makeChannelLink model_ob}}}
   {{/if}}
