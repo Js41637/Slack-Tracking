@@ -7139,7 +7139,8 @@ only screen and (min-resolution:2dppx) {
   float: left;
   height: 4rem;
   width: 100%;
-  padding: 1.4rem 1rem 0
+  padding-left: 1rem;
+  padding-right: 1rem
 }
 
 #quick_switcher_btn>i {
@@ -7613,20 +7614,6 @@ ts-memory-instrument {
   color: #3d3c40;
   font-family: Helvetica;
   border-radius: .25rem 0 0
-}
-
-#mentions_clear_notifications_container {
-  float: right;
-  display: inline-block;
-  padding-right: 1rem;
-  margin-right: 1rem;
-  border-right: 1px solid #e0e0e0;
-  font-size: 1rem
-}
-
-#mentions_clear_notifications_container button {
-  color: #555459;
-  vertical-align: baseline
 }
 
 html.is_electron_mac #client_header {

@@ -508,10 +508,10 @@ input.search_input {
   position: relative;
   font-size: .8rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  background: #f7f7f7;
+  background: #fff;
   color: #555459;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: none;
+  border-top: 0;
+  border-bottom: 1px solid #e0e0e0;
   z-index: 9;
   min-height: 41px;
   min-height: 0;
@@ -2495,10 +2495,10 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   padding-right: .5rem
 }
 
-#member_mentions.feature_message_replies_simple .day_divider,
-#member_mentions.feature_message_replies_simple .mention_rxn,
-#member_mentions.feature_message_replies_simple .mentions_reply,
-#member_mentions.feature_message_replies_simple ts-message {
+#member_mentions .day_divider,
+#member_mentions .mention_rxn,
+#member_mentions .mentions_reply,
+#member_mentions ts-message {
   margin-bottom: 1rem
 }
 
@@ -2511,12 +2511,6 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1
-}
-
-#mentions_options.subheading.feature_message_replies_simple {
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  border-top: 0
 }
 
 #member_mentions .message_content,
@@ -2907,10 +2901,10 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul li.all_unreads {
   margin-bottom: 9px;
   margin-top: 5px;
-  text-transform: uppercase;
-  font-size: .8rem;
+  text-transform: capitalize;
   color: #ab9ba9;
-  font-weight: 700
+  font-size: 1rem;
+  font-weight: 500
 }
 
 .channels_list_holder ul li.all_threads ts-icon,
@@ -2936,11 +2930,11 @@ body.incremental_boot #col_channels .header_count {
   content: '\E554'
 }
 
-.channels_list_holder.feature_message_replies_threads_view ul li.all_threads,
-.channels_list_holder.feature_message_replies_threads_view ul li.all_unreads {
-  text-transform: capitalize;
-  font-size: 1rem;
-  font-weight: 500
+#all-unreads-list .channel_name,
+#all_threads_nav .channel_name {
+  text-transform: inherit;
+  width: 100%;
+  text-align: left
 }
 
 #all_threads_nav {
@@ -3143,7 +3137,7 @@ body.winssb .channels_list_new_btn {
   border-bottom: 1px solid #fff
 }
 
-#channels_scroller.show_which_channel_is_active ul li.active a.channel_name,
+#channels_scroller.show_which_channel_is_active ul li.active .channel_name,
 #channels_scroller.show_which_channel_is_active ul li.active a.group_name,
 #channels_scroller.show_which_channel_is_active ul li.active a.im_name,
 #channels_scroller.show_which_channel_is_active ul li.active a.mpim_name,
@@ -4519,17 +4513,13 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 #member_mentions h3 {
-  font-size: 1.1rem;
-  line-height: 1.1rem
-}
-
-#member_mentions.feature_message_replies_simple h3 {
+  line-height: 1.1rem;
   font-size: .9375rem;
   margin-top: .625rem;
   margin-bottom: 1rem
 }
 
-#member_mentions.feature_message_replies_simple h3 a {
+#member_mentions h3 a {
   color: #555459
 }
 
@@ -9160,14 +9150,10 @@ html.no_touch a.filetype_button_web:hover .file_title {
 }
 
 .file_name {
-  font-weight: 900;
+  font-weight: 700;
   font-size: .9375rem;
   word-wrap: break-word;
   font-family: Slack-Lato, appleLogo, sans-serif
-}
-
-.message_content.feature_message_replies .file_name {
-  font-weight: 700
 }
 
 .file_inline_icon {
@@ -19591,51 +19577,6 @@ ts-message .emoji-sizer .mention {
   max-width: 318px
 }
 
-#msg_input_overlay {
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, .85);
-  z-index: 2
-}
-
-#msg_input_overlay #close_conversation {
-  background-color: rgba(0, 0, 0, .75);
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-  border: 0;
-  bottom: 0;
-  color: #b5b5b5;
-  height: 100%;
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  margin-left: 10%;
-  padding: .5em;
-  position: absolute;
-  width: 80%;
-  min-width: 7.5rem;
-  -webkit-transition: background-color .1s;
-  -moz-transition: background-color .1s;
-  transition: background-color .1s
-}
-
-#msg_input_overlay #close_conversation:hover {
-  background-color: #000
-}
-
-#msg_input_overlay #close_conversation:focus {
-  outline: 0
-}
-
-#msg_input_overlay #close_conversation ts-icon {
-  line-height: 1.25rem
-}
-
-#msg_input_overlay #close_conversation ts-icon:before {
-  vertical-align: bottom
-}
-
 #message_edit_container {
   padding-right: 1rem
 }
@@ -20046,16 +19987,16 @@ ts-message .emoji-sizer .mention {
   display: none
 }
 
-.light_theme ts-message .message_content.feature_message_replies .meta {
+.light_theme ts-message .message_content .meta {
   margin-top: -.125rem
 }
 
-.light_theme ts-message .message_content.feature_message_replies .meta .member {
+.light_theme ts-message .message_content .meta .member {
   font-weight: inherit;
   color: inherit!important
 }
 
-.light_theme ts-message .message_content.feature_message_replies .meta .member:hover {
+.light_theme ts-message .message_content .meta .member:hover {
   color: #555459!important
 }
 
@@ -25124,14 +25065,6 @@ ts-jumper ts-jumper-results:empty {
 
 #recent_mentions_toggle.ts_tip_rightish .ts_tip_tip {
   right: -1.875rem
-}
-
-#recent_mentions_toggle .ts_tip_tip.not_feature_message_replies_simple {
-  margin-left: -.75rem
-}
-
-#recent_mentions_toggle .ts_tip_tip.not_feature_message_replies_simple:after {
-  margin-left: .375rem
 }
 
 #stars_toggle {

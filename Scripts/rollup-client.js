@@ -18453,10 +18453,14 @@
       var $client_ui = $("#client-ui");
       var input_focused = false;
       var input_blurred = false;
+      var has_input;
       if (TS.client) {
         $form.bind("submit", function(e) {
-          _performSearch(true);
-          $input.trigger("change");
+          has_input = $.trim($input.val());
+          if (has_input) {
+            _performSearch(true);
+            $input.trigger("change");
+          }
           return false;
         });
         $input.bind("focus", function() {
@@ -40207,12 +40211,6 @@ function timezones_guess() {
         $threads_mentions.text(mention_count);
       }
       $threads_mentions.toggleClass("hidden", !mention_count);
-      var $link = TS.client.ui.threads.$channel_pane_item.find(".channel_name");
-      if (is_unread) {
-        $link.attr("aria-label", TS.i18n.t("New Threads", "threads"));
-      } else {
-        $link.attr("aria-label", TS.i18n.t("Threads", "threads"));
-      }
     },
     updateChannelPaneActiveState: function() {
       TS.client.ui.threads.$channel_pane_item.toggleClass("active", !!TS.model.threads_view_is_showing);

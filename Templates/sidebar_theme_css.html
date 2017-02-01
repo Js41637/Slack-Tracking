@@ -26,6 +26,7 @@
     body:not(.loading) #team_menu:hover,
     body:not(.loading) #team_menu.active,
     #quick_switcher_btn:hover,
+    #quick_switcher_btn:focus,
     #quick_switcher_btn:active {
       background: {{theme.menu_bg}};
       border-color: {{theme.menu_bg}};
@@ -33,7 +34,7 @@
 
     /* Active Item */
     #channels_scroller.show_which_channel_is_active ul li.active > a,
-    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name,
+    #channels_scroller.show_which_channel_is_active ul li.active .channel_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.group_name,
     #channels_scroller.show_which_channel_is_active ul li.active a.im_name,
     #channels_scroller.show_which_channel_is_active ul li.active span.im_name,
@@ -65,7 +66,7 @@
     body:not(.sorting_mode) .channels_list_holder ul li span.im_name:hover,
     body:not(.sorting_mode) .channels_list_holder ul li a.mpim_name:hover,
     body:not(.sorting_mode) .channels_list_holder ul li a.group_name:hover,
-    body:not(.sorting_mode) .channels_list_holder ul li a.channel_name:hover,
+    body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover,
     #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
       background: {{theme.hover_item}};
     }
@@ -93,7 +94,7 @@
     .channels_list_holder ul li span.im_name,
     .channels_list_holder ul li a.mpim_name,
     .channels_list_holder ul li a.group_name,
-    .channels_list_holder ul li a.channel_name,
+    .channels_list_holder ul li .channel_name,
     .channels_list_holder h2,
     .list_more,
     #team_menu:before,
@@ -126,7 +127,8 @@
     }
     #quick_switcher_label,
     #quick_switcher_shortcut,
-    #quick_switcher_btn:hover #quick_switcher_shortcut {
+    #quick_switcher_btn:hover #quick_switcher_shortcut,
+    #quick_switcher_btn:focus #quick_switcher_shortcut {
       color: {{theme.text_color}} !important;
     }
     .channel_list_add_link {

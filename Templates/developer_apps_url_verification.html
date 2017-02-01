@@ -24,14 +24,16 @@
         </svg>
       </div>
     {{else}}
-      {{#t note="Verified means the developer's server responded properly"}}Verified{{/t}}
-      <ts-icon class="ts_icon_check_small verified"></ts-icon>
+      {{#unless skip_verification_notification}}
+        {{#t note="Verified means the developer's server responded properly"}}Verified{{/t}}
+        <ts-icon class="ts_icon_check_small verified"></ts-icon>
+      {{/unless}}
     {{/or}}
     </span>
   </label>
 
   {{!-- Request URL Input Field(s) --}}
-  <input type="text" name="request_url" id="request_url"
+  <input type="text" name="{{#if changing_url}}previous_{{/if}}request_url" id="{{#if changing_url}}previous_{{/if}}request_url"
     class="small no_bottom_margin
       {{#unless changing_url}}
         request_url
@@ -54,6 +56,7 @@
       disabled
     {{/or}}
     value="{{#if prev_url}}{{prev_url}}{{else if url}}{{url}}{{/if}}"
+    data-js="first-url-field"
   >
 
   {{#or failed_verification verified}}

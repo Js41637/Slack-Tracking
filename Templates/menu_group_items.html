@@ -64,9 +64,11 @@
       </a>
       </li>
       <li class="divider"></li>
-      <li id="group_unarchive_item" role="menuitem"><a>
-        {{#t note="Un-achive a private channel"}}Un-archive channel{{/t}}
-      </a></li>
+      {{#unless group.is_moved}}
+        <li id="group_unarchive_item" role="menuitem"><a>
+          {{#t note="Un-achive a private channel"}}Un-archive channel{{/t}}
+        </a></li>
+      {{/unless}}
       <li id="group_leave_item" role="menuitem"><a>
         {{#t note="Leave an archived private channel"}}Leave {{group.name}}{{/t}}
       </a></li>
