@@ -42263,7 +42263,7 @@ var _on_esc;
         if (TS.model.user.enterprise_user.teams.indexOf(team.id) > -1) {
           teams.teams_on.push(team);
         } else {
-          if (team.is_open || team.is_assigned) teams.teams_not_on.push(team);
+          if (team.is_open || team.is_closed || team.is_assigned) teams.teams_not_on.push(team);
         }
       });
       return teams[list].sort(function(a, b) {
@@ -42604,21 +42604,23 @@ var _on_esc;
     start: function() {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (TS.model.user.is_restricted) return;
-      var teams = TS.enterprise.workspaces.getList("teams_not_on");
-      var template_args = {
-        teams: teams,
-        user: TS.model.user
-      };
-      var settings = {
-        title: TS.i18n.t("Join {enterprise_name} Teams", "enterprise_workspaces")({
-          enterprise_name: TS.model.enterprise.name
-        }),
-        body_template_html: TS.templates.workspaces_dialog(template_args),
-        onShow: _onShowWorkspaces,
-        onCancel: _onCancelWorkspaces,
-        modal_class: "fs_modal_header workspaces_modal"
-      };
-      TS.ui.fs_modal.start(settings);
+      return TS.enterprise.promiseToGetTeams().then(function() {
+        var teams = TS.enterprise.workspaces.getList("teams_not_on");
+        var template_args = {
+          teams: teams,
+          user: TS.model.user
+        };
+        var settings = {
+          title: TS.i18n.t("Join {enterprise_name} Teams", "enterprise_workspaces")({
+            enterprise_name: TS.model.enterprise.name
+          }),
+          body_template_html: TS.templates.workspaces_dialog(template_args),
+          onShow: _onShowWorkspaces,
+          onCancel: _onCancelWorkspaces,
+          modal_class: "fs_modal_header workspaces_modal"
+        };
+        TS.ui.fs_modal.start(settings);
+      });
     }
   });
   var _onShowWorkspaces = function() {
