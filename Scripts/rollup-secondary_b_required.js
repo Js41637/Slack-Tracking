@@ -1225,19 +1225,9 @@
       if (!e.target) return;
       var $el = $(e.target);
       var container_id;
-      if (TS.boot_data.feature_message_replies) {
-        var $message = $el.closest(".message");
-        container_id = $message.attr("id");
-        if (!container_id) return;
-      } else {
-        var msg_id = $el.closest(".message").data("ts");
-        container_id = TS.templates.makeMsgDomId(msg_id);
-        if (!msg_id && match) {
-          msg_id = $el.closest(".search_message_result").data("ts");
-          container_id = TS.templates.makeMSRDomId(match);
-        }
-        if (!msg_id) return;
-      }
+      var $message = $el.closest(".message");
+      container_id = $message.attr("id");
+      if (!container_id) return;
       var $msg_inline_media_toggler = $el.closest(".msg_inline_media_toggler[data-media-type=audio]");
       if ($msg_inline_media_toggler.length) {
         e.preventDefault();

@@ -33,11 +33,9 @@
       </div>
       {{/if}}
 
-      {{#if show_back_link}}
       <div class="shared_invite_link_back_container">
         <span>{{#t}}Or, you can <a data-action="shared_invite_link_back"  data-clog-params="action=back_to_shared_invite_link,trigger=click_back_to_shared_invite_link,step=invites">get an invite link</a> to share with your teammates.{{/t}}<span>
-      </div>  
-      {{/if}}
+      </div>
 
       <div class="send_invitations_button_container">
         <a id="secondary_btn" class="btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_invites,trigger=create_team,step=invites" >

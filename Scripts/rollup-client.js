@@ -276,7 +276,7 @@
       TS.model.active_group_id = null;
       TS.model.active_mpim_id = null;
       TS.model.unread_view_is_showing = false;
-      if (TS.boot_data.feature_message_replies) TS.model.threads_view_is_showing = false;
+      TS.model.threads_view_is_showing = false;
       if (model_ob.is_channel) {
         TS.model.active_channel_id = model_ob_id;
       } else if (model_ob.is_im) {
@@ -321,10 +321,8 @@
         TS.warn("not switching, unread view is already active");
         return false;
       }
-      if (TS.boot_data.feature_message_replies) {
-        TS.client.threads.destroyThreadsView();
-        TS.model.threads_view_is_showing = false;
-      }
+      TS.client.threads.destroyThreadsView();
+      TS.model.threads_view_is_showing = false;
       TS.model.unread_view_is_showing = true;
       TS.view.updateTitleWithContext();
       return true;
@@ -861,7 +859,7 @@
     var loc = history.location || document.location;
     TS.qs_args = TS.utility.url.queryStringParse(loc.search.substring(1));
     var is_unread_view = TS.utility.isUnreadViewPath(loc.pathname);
-    var is_threads_view = TS.boot_data.feature_message_replies && TS.utility.isThreadsViewPath(loc.pathname);
+    var is_threads_view = TS.utility.isThreadsViewPath(loc.pathname);
     var flex_name = TS.utility.getFlexNameFromUrl(loc.href);
     var flex_extra = TS.utility.getFlexExtraFromUrl(loc.href);
     if (!is_unread_view && !is_threads_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
@@ -880,7 +878,6 @@
     c_name = cA[0];
     var c_extra = cA.length > 1 ? cA[1] : "";
     TS.info("_onPopState" + "\nc_name from new url:" + c_name + "\nc_extra from new url:" + c_extra + "\nflex_name from new url:" + flex_name + "\nflex_extra from new url:" + flex_extra);
-    if (!TS.boot_data.feature_message_replies) TS.client.ui.flex.setFlexStateFromHistory(flex_name, flex_extra);
     if (!TS.model.channels) return;
     var c_id;
     var im;
@@ -962,7 +959,7 @@
     } else {
       TS.error("WTF DONT KNOW WHAT TO DO");
     }
-    if (TS.boot_data.feature_message_replies) TS.client.ui.flex.setFlexStateFromHistory(flex_name, flex_extra);
+    TS.client.ui.flex.setFlexStateFromHistory(flex_name, flex_extra);
     var new_url;
     if (is_unread_view) {
       new_url = TS.utility.refashionUrlForUnreadView(window.location.href, flex_name, flex_extra);
@@ -1077,7 +1074,7 @@
     }
     var c_name = TS.model.c_name_in_url = TS.utility.getChannelNameFromUrl(location.href);
     var unread_view = TS.utility.isUnreadViewPath(location.pathname);
-    var threads_view = TS.boot_data.feature_message_replies && TS.utility.isThreadsViewPath(location.pathname);
+    var threads_view = TS.utility.isThreadsViewPath(location.pathname);
     if (unread_view) TS.model.initial_unread_view = true;
     if (threads_view) TS.model.initial_threads_view = true;
     var getInitialChannelId = function() {
@@ -1243,9 +1240,9 @@
     var args = {
       mpim_aware: true,
       only_relevant_ims: true,
-      simple_unreads: true
+      simple_unreads: true,
+      include_threads: true
     };
-    if (TS.boot_data.feature_message_replies) args.include_threads = true;
     TS.api.callImmediately("users.counts", args).then(_updateUnreadsWithUsersCountsResponse);
   };
   var _updateUnreadsWithUsersCountsResponse = function(resp) {
@@ -1268,12 +1265,10 @@
         return TS.mpims.getMpimById(count_info.id);
       }
     });
-    if (TS.boot_data.feature_message_replies) {
-      var threads = resp.data.threads;
-      if (threads) {
-        TS.client.threads.setThreadsUnreadData(threads.has_unreads, threads.mention_count);
-        TS.client.threads.logThreadState("users.counts: " + !!threads.has_unreads + " " + threads.mention_count);
-      }
+    var threads = resp.data.threads;
+    if (threads) {
+      TS.client.threads.setThreadsUnreadData(threads.has_unreads, threads.mention_count);
+      TS.client.threads.logThreadState("users.counts: " + !!threads.has_unreads + " " + threads.mention_count);
     }
     if (TS.client.history_prefetch) TS.client.history_prefetch.processHistoryFetchQueue();
     return null;
@@ -1876,11 +1871,9 @@
       if (TS.client.unread.isEnabled()) {
         TS.client.unread.destroyUnreadView();
       }
-      if (TS.boot_data.feature_message_replies) {
-        TS.client.threads.destroyThreadsView();
-        if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
-          TS.client.ui.flex.openFlexTab("details", true);
-        }
+      TS.client.threads.destroyThreadsView();
+      if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
+        TS.client.ui.flex.openFlexTab("details", true);
       }
       if (model_ob.is_channel && (!model_ob.is_member || model_ob.is_archived)) {
         TS.client.archives.start();
@@ -2173,7 +2166,7 @@
       }
       setTimeout(function() {
         TS.model.display_unsent_msgs[msg.ts] = true;
-        if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
           TS.ui.replies.maybeUpdateConversationWithMessage(model_ob, msg);
           TS.client.threads.maybeRerenderMessage(model_ob, msg);
         } else {
@@ -3417,12 +3410,9 @@
           return;
         }
       }
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
-      var msgs = channel.msgs;
-      if (TS.boot_data.feature_message_replies) {
-        var visible_msgs = _.reject(channel.msgs, TS.utility.msgs.isMsgHidden);
-        msgs = visible_msgs;
-      }
+      if (TS.utility.msgs.isMsgHidden(msg)) return;
+      var visible_msgs = _.reject(channel.msgs, TS.utility.msgs.isMsgHidden);
+      var msgs = visible_msgs;
       var will_be_rolled_up = msgs.length > 1 && TS.utility.msgs.msgMightBeRolledUp(msg) && TS.utility.msgs.msgMightBeRolledUp(msgs[1]);
       if (will_be_rolled_up || msgs.length == 1 || msgs[0] != msg) {
         TS.client.msg_pane.rebuildMsgsWithReason("channelMessageReceived");
@@ -4109,12 +4099,9 @@
           return;
         }
       }
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
-      var msgs = group.msgs;
-      if (TS.boot_data.feature_message_replies) {
-        var visible_msgs = _.reject(group.msgs, TS.utility.msgs.isMsgHidden);
-        msgs = visible_msgs;
-      }
+      if (TS.utility.msgs.isMsgHidden(msg)) return;
+      var visible_msgs = _.reject(group.msgs, TS.utility.msgs.isMsgHidden);
+      var msgs = visible_msgs;
       var will_be_rolled_up = msgs.length > 1 && TS.utility.msgs.msgMightBeRolledUp(msg) && TS.utility.msgs.msgMightBeRolledUp(msgs[1]);
       if (will_be_rolled_up || msgs.length == 1 || msgs[0] != msg) {
         TS.client.msg_pane.rebuildMsgsWithReason("groupMessageReceived");
@@ -4294,7 +4281,7 @@
           return;
         }
       }
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
+      if (TS.utility.msgs.isMsgHidden(msg)) return;
       if (im.msgs.length === 1 || im.msgs[0] !== msg) {
         TS.client.msg_pane.rebuildMsgsWithReason("imMessageReceived");
       } else {
@@ -4465,8 +4452,8 @@
         }
         TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header);
         TS.view.rebuildMsgsIncludingMember(member);
-        if (TS.boot_data.feature_message_replies) TS.client.ui.threads.rebuildMsgsIncludingMember(member);
-        if (TS.boot_data.feature_message_replies) TS.ui.replies.rebuildMsgsIncludingMember(member);
+        TS.client.ui.threads.rebuildMsgsIncludingMember(member);
+        TS.ui.replies.rebuildMsgsIncludingMember(member);
         if (TS.client.unread.isEnabled()) TS.client.ui.unread.rebuildMsgsIncludingMember(member);
       }
       if (member.id == TS.model.user.id) {
@@ -4663,7 +4650,7 @@
           return;
         }
       }
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) return;
+      if (TS.utility.msgs.isMsgHidden(msg)) return;
       if (mpim.msgs.length === 1 || mpim.msgs[0] !== msg) {
         TS.client.msg_pane.rebuildMsgsWithReason("mpimMessageReceived");
       } else {
@@ -5773,9 +5760,7 @@
       if (TS.client.unread.isEnabled()) {
         TS.client.ui.unread.updateSidebarLink();
       }
-      if (TS.boot_data.feature_message_replies) {
-        TS.client.ui.threads.updateChannelPaneActiveState();
-      }
+      TS.client.ui.threads.updateChannelPaneActiveState();
     },
     rebuildAll: function(make_sure_active_channel_is_in_view) {
       TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
@@ -5882,10 +5867,6 @@
       } else if (TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isFocusOnInput() && TS.utility.cmdKey(e) && !e.altKey && e.which == keymap.up) {
         TS.client.ui.maybeEditLast(e);
       } else if (TS.client.ui.isUserAttentionOnChat() && (e.which == keymap.left_square_bracket || e.which == keymap.right_square_bracket || e.which == keymap.left || e.which == keymap.right)) {
-        if (!TS.boot_data.feature_message_replies && TS.model.unread_view_is_showing && (e.which == keymap.left || e.which == keymap.right) && (TS.model.is_mac && e.metaKey || !TS.model.mac && e.ctrlKey)) {
-          e.preventDefault();
-          e.stopPropagation();
-        }
         _handleHistoryNavigationOnDesktop(e);
       } else if (TS.client.ui.keyPressIsValidForGotoNextOpenChannelOrIM(e)) {
         var went = false;
@@ -5922,7 +5903,7 @@
         if (TS.ui.fs_modal.is_showing) {
           TS.ui.fs_modal.close();
         } else {
-          if (TS.boot_data.feature_message_replies && e.which == 84) {
+          if (e.which == 84) {
             TS.client.threads.showThreadsView();
           } else {
             TS.ui.im_browser.start();
@@ -6109,9 +6090,7 @@
             TS.groups.markMostRecentReadMsg(groups[i], TS.model.marked_reasons.muted, include_users_counts_latest);
             TS.groups.unread_changed_sig.dispatch(groups[i], true);
           }
-          if (TS.boot_data.feature_message_replies) {
-            TS.replies.markAllThreads();
-          }
+          TS.replies.markAllThreads();
         };
         if (TS.model.prefs.confirm_clear_all_unreads === false || TS.model.all_unread_cnt === 0) {
           clearAll();
@@ -6137,7 +6116,7 @@
         }
       } else if (!TS.client.activeChannelIsHidden()) {
         TS.client.ui.forceMarkAllRead(TS.model.marked_reasons.esc, all_channels);
-      } else if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
+      } else if (TS.model.threads_view_is_showing) {
         TS.client.threads.markAllNewThreads();
       }
     },
@@ -6255,9 +6234,7 @@
       var msg, msgs;
       if (model_ob) {
         msgs = model_ob.msgs;
-        if (TS.boot_data.feature_message_replies) {
-          msgs = TS.utility.msgs.getDisplayedMsgs(msgs);
-        }
+        msgs = TS.utility.msgs.getDisplayedMsgs(msgs);
         msg = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, msgs);
         if (msg) {
           TS.msg_edit.startEdit(msg.ts, TS.shared.getActiveModelOb());
@@ -6505,8 +6482,8 @@
         TS.client.ui.checkInlineImgsAndIframes("archives", log);
         TS.client.ui.checkInlineImgsAndIframes("file_preview", log);
         TS.client.ui.checkInlineImgsAndIframes("file_list", log);
-        if (TS.boot_data.feature_message_replies) TS.client.ui.checkInlineImgsAndIframes("replies", log);
-        if (TS.boot_data.feature_message_replies) TS.client.ui.checkInlineImgsAndIframes("threads", log);
+        TS.client.ui.checkInlineImgsAndIframes("replies", log);
+        TS.client.ui.checkInlineImgsAndIframes("threads", log);
         TS.client.ui.checkInlineImgsAndIframes("unread", log);
       });
     },
@@ -6558,7 +6535,7 @@
       } else if (which == "unread") {
         $container = TS.client.ui.unread.$scroller;
         scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_unread_scroller_rect", $container);
-      } else if (which == "threads" && TS.boot_data.feature_message_replies) {
+      } else if (which == "threads") {
         $container = TS.client.ui.threads.$scroller;
         scroller_rect = TS.client.ui.getCachedDimensionsRect("cached_threads_scroller_rect", $container);
       } else {
@@ -6726,7 +6703,7 @@
         var $li = $(this);
         if (!TS.client.ui.isElInView($li, 10, TS.model.ui.cached_channels_scroller_rect)) {
           var top;
-          if (TS.boot_data.feature_message_replies && $li.hasClass("all_threads")) {
+          if ($li.hasClass("all_threads")) {
             top = $li.closest("#channels_scroller").position().top + $li.position().top;
           } else {
             top = $li.closest(".section_holder").position().top + $li.position().top;
@@ -7547,13 +7524,11 @@
       }
       if (TS.ims.isImWithDeletedMember(model_ob)) return false;
       var existing_msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
-      if (TS.boot_data.feature_message_replies) {
-        if (existing_msg && TS.utility.msgs.isMsgReply(existing_msg)) {
-          TS.ui.replies.openConversation(model_ob, existing_msg.thread_ts, existing_msg.ts);
-          return true;
-        }
+      if (existing_msg && TS.utility.msgs.isMsgReply(existing_msg)) {
+        TS.ui.replies.openConversation(model_ob, existing_msg.thread_ts, existing_msg.ts);
+        return true;
       }
-      if (TS.boot_data.feature_message_replies && !existing_msg && thread_ts) {
+      if (!existing_msg && thread_ts) {
         TS.ui.replies.openConversation(model_ob, thread_ts, ts);
         return true;
       }
@@ -7664,7 +7639,7 @@
       if (ob.slackbot_feels) {
         msg.slackbot_feels = ob.slackbot_feels;
       }
-      if (TS.boot_data.feature_message_replies && ob.thread_ts) {
+      if (ob.thread_ts) {
         msg.thread_ts = ob.thread_ts;
       }
       var ts = _addEphemeralMsg(c_id, msg, ob.ephemeral_type);
@@ -7674,12 +7649,10 @@
       var c_id = ob.channel || TS.shared.getActiveModelOb().id;
       var ephemeral_type = ob.ephemeral_type;
       var msgs = ephemeral_type ? TS.utility.msgs.getEphemeralMsgsByCidAndType(c_id, ephemeral_type) : null;
-      if (TS.boot_data.feature_message_replies) {
-        if (ob.thread_ts) {
-          msgs = _.filter(msgs, function(msg) {
-            return msg.thread_ts === ob.thread_ts;
-          });
-        }
+      if (ob.thread_ts) {
+        msgs = _.filter(msgs, function(msg) {
+          return msg.thread_ts === ob.thread_ts;
+        });
       }
       if (msgs && msgs.length) {
         var model_ob = TS.shared.getActiveModelOb();
@@ -7789,7 +7762,7 @@
       var model_ob = TS.shared.getModelObById(c_id);
       var in_reply_to_msg = model_ob && TS.utility.msgs.getMsg(in_reply_to_msg_ts, model_ob.msgs);
       if (in_reply_to_msg && TS.client.ui.maybeHandleReactionCmd(in_reply_to_msg, text)) return true;
-      if (TS.boot_data.feature_message_replies && in_reply_to_msg && !in_reply_to_msg.thread_ts) {
+      if (in_reply_to_msg && !in_reply_to_msg.thread_ts) {
         in_reply_to_msg = null;
       }
       if (c_id.indexOf("C") == 0 && TS.channels.getChannelById(c_id)) {
@@ -7891,9 +7864,7 @@
       c_id: c_id,
       ephemeral_type: ephemeral_type
     };
-    if (TS.boot_data.feature_message_replies) {
-      if (msg.thread_ts) ephemeral_msg_ob.thread_ts = msg.thread_ts;
-    }
+    if (msg.thread_ts) ephemeral_msg_ob.thread_ts = msg.thread_ts;
     TS.utility.msgs.ephemeral_msgs_map[msg.ts] = ephemeral_msg_ob;
     return msg.ts;
   };
@@ -7937,7 +7908,7 @@
       } else if (pressed_key === forward_key) {
         window.history.go(1);
       }
-      if (TS.boot_data.feature_message_replies && event) {
+      if (event) {
         event.preventDefault();
       }
     }
@@ -9139,7 +9110,7 @@
         if (TS.model.ui_state.flex_name === "details") {
           if (!no_history) TS.model.ui_state.details_tab_active = false;
         } else if (TS.model.ui_state.details_tab_active && !TS.client.activeChannelIsHidden()) {
-          TS.client.ui.flex.openFlexTab("details", TS.boot_data.feature_message_replies && replace_state);
+          TS.client.ui.flex.openFlexTab("details", replace_state);
           return;
         }
       }
@@ -9149,11 +9120,6 @@
           $("#client-ui").removeClass("flex_pane_showing");
         });
         TS.model.ui_state.flex_visible = false;
-        if (!TS.boot_data.feature_message_replies) {
-          TS.model.ui_state.flex_name = "";
-          TS.model.ui_state.flex_extra = "";
-          TS.storage.storeUIState(TS.model.ui_state);
-        }
         TS.view.resizeManually("TS.client.ui.flex.hideFlex");
         if (TS.model.ui.scrolled_to_msg_ts) {
           TS.client.ui.scrollMsgsSoMsgIsInView(TS.model.ui.scrolled_to_msg_ts, false, true, 200);
@@ -9334,7 +9300,7 @@
         TS.client.ui.showTeamFromHistory(flex_extra);
       } else if (flex_name == "search") {
         TS.client.ui.showSearchFromHistory(flex_extra);
-      } else if (flex_name == "convo" && TS.replies && TS.boot_data.feature_message_replies && flex_extra) {
+      } else if (flex_name == "convo" && flex_extra) {
         TS.client.ui.showRepliesFromHistory(flex_extra);
       } else {
         TS.client.flexDisplaySwitched(flex_name, null, false, true);
@@ -9929,7 +9895,7 @@
             tabcomplete: {
               completeMemberSpecials: true,
               menuTemplate: TS.templates.tabcomplete_menu,
-              completers: [TS.tabcomplete.members, TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji],
+              completers: [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members],
               appendMenu: function(menu) {
                 document.querySelector("#msg_form").appendChild(menu);
               },
@@ -10347,12 +10313,7 @@
   var _maybeHandleReactionCmdInMsgInput = function(val) {
     var msg;
     var model_ob = TS.shared.getActiveModelOb();
-    var potential_msgs = [];
-    if (TS.boot_data.feature_message_replies) {
-      potential_msgs = TS.utility.msgs.getDisplayedMsgs(model_ob.msgs);
-    } else {
-      potential_msgs = model_ob.msgs;
-    }
+    var potential_msgs = TS.utility.msgs.getDisplayedMsgs(model_ob.msgs);
     if (potential_msgs.length) {
       msg = _(potential_msgs).take(5).find(function(msg) {
         return !msg.is_ephemeral && !msg.no_display;
@@ -10667,13 +10628,11 @@
       if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
       TS.client.unread.showUnreadView();
     });
-    if (TS.boot_data.feature_message_replies) {
-      TS.client.channel_pane.$threads_nav.on("click", function(e) {
-        e.preventDefault();
-        if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
-        TS.client.threads.showThreadsView();
-      });
-    }
+    TS.client.channel_pane.$threads_nav.on("click", function(e) {
+      e.preventDefault();
+      if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
+      TS.client.threads.showThreadsView();
+    });
     TS.client.channel_pane.$scroller.find(".section_holder ul").on("click", function(e) {
       if (TS.view.maybeFollowLink(e)) return;
       e.preventDefault();
@@ -11141,7 +11100,7 @@
   };
   var _actuallyMakeSureActiveChannelIsInView = function() {
     var $active;
-    if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
+    if (TS.model.threads_view_is_showing) {
       $active = TS.client.channel_pane.$scroller.find(".all_threads");
     } else {
       $active = TS.client.channel_pane.$scroller.find(".section_holder ul li.active");
@@ -11478,9 +11437,7 @@
       _left_square_bracket = TS.utility.keymap.left_square_bracket;
       _right_square_bracket = TS.utility.keymap.right_square_bracket;
       TS.client.unread.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      if (TS.boot_data.feature_message_replies) {
-        TS.client.threads.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      }
+      TS.client.threads.switched_sig.add(TS.client.nav_history.updateNavHistory);
       TS.channels.switched_sig.add(TS.client.nav_history.updateNavHistory);
       TS.ims.switched_sig.add(TS.client.nav_history.updateNavHistory);
       TS.groups.switched_sig.add(TS.client.nav_history.updateNavHistory);
@@ -11513,7 +11470,7 @@
             TS.model.nav_history.push({
               id: "All Unreads"
             });
-          } else if (TS.boot_data.feature_message_replies && (TS.model.initial_threads_view && _is_initial_setup || TS.model.threads_view_is_showing)) {
+          } else if (TS.model.initial_threads_view && _is_initial_setup || TS.model.threads_view_is_showing) {
             TS.model.nav_history.push({
               id: "Threads"
             });
@@ -11577,9 +11534,7 @@
       TS.channels.joined_sig.add(_buildStars);
       TS.channels.left_sig.add(_buildStars);
       TS.stars.channel_unstarred_sig.add(_handleUnstarredSig);
-      if (TS.boot_data.feature_message_replies) {
-        TS.client.threads.reply_count_changed.add(_replyCountChanged);
-      }
+      TS.client.threads.reply_count_changed.add(_replyCountChanged);
       TS.prefs.a11y_font_size_changed_sig.add(_updateChannelHeader);
       _$header = $("#client_header .channel_header .messages_header");
       _$header.bind("mouseover mouseenter", function(e) {
@@ -12219,9 +12174,7 @@
         top: rxn_toast_div_top
       }, _fade_in_ms);
       _startHideTimer();
-      if (TS.boot_data.feature_message_replies) {
-        $("#client-ui").addClass("rxn_toasting");
-      }
+      $("#client-ui").addClass("rxn_toasting");
       $("html").bind("mousemove.rxn_toast", _startHideTimer);
     };
     var _startHideTimer = function() {
@@ -12240,9 +12193,7 @@
       $("html").unbind("mousemove.rxn_toast");
       _hide_timer = setTimeout(function() {
         _$rxn_toast_div.addClass("hidden");
-        if (TS.boot_data.feature_message_replies) {
-          $("#client-ui").removeClass("rxn_toasting");
-        }
+        $("#client-ui").removeClass("rxn_toasting");
         _after();
       }, _fade_out_ms + 1);
     };
@@ -12367,10 +12318,7 @@
         }
         var jl_rolled_up_msgs = [];
         var count = 0;
-        var visible_msgs = msgs;
-        if (TS.boot_data.feature_message_replies) {
-          visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
-        }
+        var visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
         for (var i = visible_msgs.length - 1; i > -1; i--) {
           if (!msg || !TS.utility.msgs.isMsgHidden(msg)) prev_msg = msg;
           msg = visible_msgs[i];
@@ -13173,7 +13121,7 @@
       _updateNewMsgsDisplay();
     },
     getCanonicalDivForMsg: function(ts) {
-      if (TS.boot_data.feature_message_replies && TS.client.ui.$msgs_div.find("ts-conversation").length) {
+      if (TS.client.ui.$msgs_div.find("ts-conversation").length) {
         var $non_relatives_msg_el = TS.client.ui.$msgs_div.find('ts-message[data-ts="' + ts + '"]').not("ts-relatives ts-message");
         if ($non_relatives_msg_el.length == 1) {
           return $non_relatives_msg_el;
@@ -13183,7 +13131,7 @@
       return TS.client.ui.$msgs_div.find("#" + TS.templates.makeMsgDomId(ts));
     },
     getDivsForMsg: function(ts) {
-      if (TS.boot_data.feature_message_replies && TS.client.ui.$msgs_div.find("ts-conversation").length) {
+      if (TS.client.ui.$msgs_div.find("ts-conversation").length) {
         return TS.client.ui.$msgs_div.find('ts-message[data-ts="' + ts + '"]');
       }
       return TS.client.msg_pane.getCanonicalDivForMsg(ts);
@@ -14568,20 +14516,17 @@
     },
     220: {
       isDisabled: function(e) {
-        if (TS.boot_data.feature_message_replies) {
-          var in_convo = $(e.target).closest("#reply_container").length > 0;
-          var in_threads_view = $(e.target).closest(".reply_input_container").length > 0;
-          var in_thread = in_convo || in_threads_view;
-          return !in_thread && TS.client.activeChannelIsHidden();
-        }
-        return TS.client.activeChannelIsHidden();
+        var in_convo = $(e.target).closest("#reply_container").length > 0;
+        var in_threads_view = $(e.target).closest(".reply_input_container").length > 0;
+        var in_thread = in_convo || in_threads_view;
+        return !in_thread && TS.client.activeChannelIsHidden();
       },
       shift_optional: false,
       func: function(e) {
         var model_ob = TS.shared.getActiveModelOb();
         if (!model_ob) return;
-        var in_convo = TS.boot_data.feature_message_replies && $(e.target).closest("#reply_container.has_focus").length > 0;
-        var in_threads_view = TS.boot_data.feature_message_replies && $(e.target).closest(".reply_input_container.has_focus").length > 0;
+        var in_convo = $(e.target).closest("#reply_container.has_focus").length > 0;
+        var in_threads_view = $(e.target).closest(".reply_input_container.has_focus").length > 0;
         var msgs;
         if (in_convo) {
           var msgs_arr = _.clone(TS.ui.replies.getActiveMessages());
@@ -15618,13 +15563,13 @@
     if (!results.messages) return;
     var messages = [];
     results.messages.matches.forEach(function(match) {
-      match._dom_id = TS.boot_data.feature_message_replies ? TS.templates.makeMsgDomIdInSearch(match.ts, match) : TS.templates.makeMsgDomId(match.ts);
+      match._dom_id = TS.templates.makeMsgDomIdInSearch(match.ts, match);
       messages.push(match);
       ["previous_2", "previous", "next", "next_2"].forEach(function(context) {
         if (match[context]) {
           match[context].channel = match.channel;
           match[context]._main = match;
-          match[context]._dom_id = TS.boot_data.feature_message_replies ? TS.templates.makeMsgDomIdInSearch(match[context].ts, match) : TS.templates.makeMsgDomId(match[context].ts);
+          match[context]._dom_id = TS.templates.makeMsgDomIdInSearch(match[context].ts, match);
           messages.push(match[context]);
         }
       });
@@ -19259,9 +19204,7 @@
       TS.mpims.unread_highlight_changed_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       TS.ms.connected_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       TS.prefs.mac_ssb_bullet_changed_sig.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
-      if (TS.boot_data.feature_message_replies) {
-        TS.client.threads.threads_unread_changed.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
-      }
+      TS.client.threads.threads_unread_changed.add(TS.ui.growls.updateTotalUnreadDisplays, TS.ui.growls);
       TS.ui.window_focus_changed_sig.add(TS.ui.growls.windowFocusChanged, TS.ui.growls);
       if (window.macgap) {} else if (window.Notification || window.webkitNotifications) {} else if (window.winssb) {} else {
         TS.ui.growls.no_notifications = true;
@@ -19343,7 +19286,7 @@
           avatarImage: avatar_image,
           ssbFilename: ssb_filename
         };
-        if (TS.boot_data.feature_message_replies && msg && msg.thread_ts) args.thread_ts = msg.thread_ts;
+        if (msg && msg.thread_ts) args.thread_ts = msg.thread_ts;
         TSSSB.call("notify", args);
         _maybeSaveMsgDetailsForOldElectron(c_id, msg);
       } else if (window.macgap) {
@@ -19488,13 +19431,9 @@
         TS.error("no channel/group?");
         return;
       }
-      if (TS.boot_data.feature_message_replies) {
-        _ensureSubscriptionsForReplies(model_ob, msg).then(function() {
-          TS.ui.growls.growlchannelOrGroupMessage(model_ob, msg, true);
-        });
-      } else {
+      _ensureSubscriptionsForReplies(model_ob, msg).then(function() {
         TS.ui.growls.growlchannelOrGroupMessage(model_ob, msg, true);
-      }
+      });
     },
     growlchannelOrGroupMessage: function(model_ob, msg, change_title, force) {
       if (!msg) {
@@ -19512,17 +19451,15 @@
       var contains_mention;
       var mentions_data;
       var thread_subscribed = true;
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+      var ignore_highlight_words = false;
+      if (TS.utility.msgs.isMsgReply(msg)) {
         var subscription = TS.replies.getSubscriptionState(model_ob.id, msg.thread_ts);
         thread_subscribed = subscription && subscription.subscribed;
-      }
-      var ignore_highlight_words = false;
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
         ignore_highlight_words = !thread_subscribed;
       }
       if (channel_mentions_can_growl) {
         var ignore_at_here_mentions = TS.model.user.presence == "away";
-        if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
           ignore_at_here_mentions = ignore_at_here_mentions || !thread_subscribed;
         }
         contains_mention = TS.utility.msgs.msgContainsMention(msg, ignore_at_here_mentions, ignore_highlight_words);
@@ -19537,7 +19474,7 @@
       }
       var is_muted = TS.notifs.isCorGMuted(model_ob.id);
       var can_be_unread = TS.utility.msgs.msgCanCountAsUnread(msg);
-      var is_hidden_reply = TS.boot_data.feature_message_replies && msg._hidden_reply;
+      var is_hidden_reply = msg._hidden_reply;
       var qualifies_as_mention = (can_be_unread || is_hidden_reply) && contains_mention;
       var contains_cmd = TS.ui.growls.containsCmd(msg.text);
       TS.log(66, "qualifies_as_mention:" + qualifies_as_mention);
@@ -19556,17 +19493,17 @@
         }
       }
       if (!force && setting == "nothing") return;
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg) && !force && setting == "everything" && !thread_subscribed) {
+      if (TS.utility.msgs.isMsgReply(msg) && !force && setting == "everything" && !thread_subscribed) {
         setting = "mentions";
       }
       if (!TS.ui.growls.checkPermission()) return;
       var is_in_active_channel = (model_ob.id == TS.model.active_channel_id || model_ob.id == TS.model.active_group_id || model_ob.id == TS.model.active_mpim_id) && !is_hidden_reply && !TS.client.activeChannelIsHidden();
-      var is_in_active_thread = TS.boot_data.feature_message_replies && msg.thread_ts && model_ob.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
+      var is_in_active_thread = msg.thread_ts && model_ob.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
       var display = false;
       if (qualifies_as_mention) {
         display = true;
       }
-      if (TS.boot_data.feature_message_replies && is_hidden_reply && thread_subscribed && TS.model.prefs.threads_everything && setting !== "nothing") {
+      if (is_hidden_reply && thread_subscribed && TS.model.prefs.threads_everything && setting !== "nothing") {
         display = true;
       }
       if (setting == "everything") display = true;
@@ -19583,7 +19520,7 @@
         display = false;
       }
       if (display && is_muted) {
-        if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgReply(msg)) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
           if (!thread_subscribed) display = false;
         } else {
           display = false;
@@ -19604,11 +19541,9 @@
       if (!display && !force) return;
       var from_name = TS.ui.growls.extractFromNameFromCorGMessage(msg);
       var onclick = function() {
-        if (TS.boot_data.feature_message_replies) {
-          if (msg.thread_ts && msg.ts != msg.thread_ts) {
-            TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
-            return;
-          }
+        if (msg.thread_ts && msg.ts != msg.thread_ts) {
+          TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
+          return;
         }
         if (TS.boot_data.feature_focus_mode) {
           if (TS.ui.focus_mode.is_in_focus_mode) TS.ui.focus_mode.end();
@@ -19779,13 +19714,9 @@
       if (msg.no_display) {
         return;
       }
-      if (TS.boot_data.feature_message_replies) {
-        _ensureSubscriptionsForReplies(model_ob, msg).then(function() {
-          TS.ui.growls.growlImMessage(model_ob, msg, true);
-        });
-      } else {
+      _ensureSubscriptionsForReplies(model_ob, msg).then(function() {
         TS.ui.growls.growlImMessage(model_ob, msg, true);
-      }
+      });
     },
     growlImMessage: function(im, msg, change_title, force) {
       if (!msg) {
@@ -19801,24 +19732,18 @@
       if (!force && !TS.model.prefs.growls_enabled) return;
       if (!TS.ui.growls.checkPermission()) return;
       var display = false;
-      if (TS.boot_data.feature_message_replies) {
-        var is_in_active_im = im.id === TS.model.active_im_id && !TS.client.activeChannelIsHidden();
-        var is_reply = TS.utility.msgs.isMsgReply(msg);
-        var is_in_active_thread = is_reply && im.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
-        var thread_subscribed = true;
-        if (is_reply) {
-          var subscription = TS.replies.getSubscriptionState(im.id, msg.thread_ts);
-          thread_subscribed = subscription && subscription.subscribed;
-        }
-        if (!TS.model.ui.is_window_focused) display = true;
-        if (!display && !is_in_active_im && !is_in_active_thread) display = true;
-        if (!display && is_in_active_im && is_reply && !is_in_active_thread) display = true;
-        if (display && is_reply && !thread_subscribed) display = false;
-      } else {
-        if (im.id != TS.model.active_im_id || !TS.model.ui.is_window_focused) {
-          display = true;
-        }
+      var is_in_active_im = im.id === TS.model.active_im_id && !TS.client.activeChannelIsHidden();
+      var is_reply = TS.utility.msgs.isMsgReply(msg);
+      var is_in_active_thread = is_reply && im.id === TS.ui.replies.activeConvoModelId() && msg.thread_ts === TS.ui.replies.activeConvoThreadTs();
+      var thread_subscribed = true;
+      if (is_reply) {
+        var subscription = TS.replies.getSubscriptionState(im.id, msg.thread_ts);
+        thread_subscribed = subscription && subscription.subscribed;
       }
+      if (!TS.model.ui.is_window_focused) display = true;
+      if (!display && !is_in_active_im && !is_in_active_thread) display = true;
+      if (!display && is_in_active_im && is_reply && !is_in_active_thread) display = true;
+      if (display && is_reply && !thread_subscribed) display = false;
       if (msg.user == TS.model.user.id || msg.comment && msg.comment.user == TS.model.user.id) {
         display = false;
       }
@@ -19840,11 +19765,9 @@
       }
       if (!display && !force) return;
       var onclick = function() {
-        if (TS.boot_data.feature_message_replies) {
-          if (msg.thread_ts && msg.ts != msg.thread_ts) {
-            TS.ui.replies.openConversation(im, msg.thread_ts);
-            return;
-          }
+        if (msg.thread_ts && msg.ts != msg.thread_ts) {
+          TS.ui.replies.openConversation(im, msg.thread_ts);
+          return;
         }
         if (TS.boot_data.feature_focus_mode) {
           if (TS.ui.focus_mode.is_in_focus_mode) TS.ui.focus_mode.end();
@@ -20014,7 +19937,6 @@
   };
   var _last_notification_details = null;
   var _isElectronBeforeTwoPointFour = function() {
-    if (!TS.boot_data.feature_message_replies) return false;
     if (!TS.model.is_our_app || !TS.model.is_electron) return false;
     var version = TS.model.mac_ssb_version || TS.model.win_ssb_version;
     if (!version || version >= 2.4) return false;
@@ -23438,7 +23360,7 @@
         pref_name: "seen_onboarding_channels",
         show: "#active_channel_name_overlay, #in_skip_messaging, .coachmark_next_tip",
         hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
+        style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #direct_messages, #channel_list_invites_link");
@@ -23469,7 +23391,7 @@
         show_admin: ".coachmark_next_tip",
         hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_invite_people",
         hide_member: ".coachmark_next_tip",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
+        style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #channel_list_invites_link");
@@ -23497,7 +23419,7 @@
         show: "#active_channel_name_overlay, #in_skip_messaging",
         show_admin: ".coachmark_invite_people",
         hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip",
-        style: "#details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
+        style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#quick_switcher_btn",
         promiseTo: function() {
           var $siblings = $("#starred_div, #channels, #direct_messages");
@@ -25860,7 +25782,7 @@
       var name = "";
       if (TS.model.unread_view_is_showing) {
         name = TS.i18n.t("All unreads", "a11y")();
-      } else if (TS.boot_data.feature_message_replies && TS.model.threads_view_is_showing) {
+      } else if (TS.model.threads_view_is_showing) {
         name = TS.i18n.t("Threads", "a11y")();
       } else if (model_ob.is_channel) {
         name = TS.i18n.t("Channel #{model_name}", "a11y")({
@@ -26438,14 +26360,12 @@
         }
         if (!_onHistory(ok, data, args)) return;
         if (_received_api_rsps != _expected_api_rsps) return;
-        if (TS.boot_data.feature_message_replies) {
-          var msg = TS.utility.msgs.getMsg(_msg_id, model_ob._archive_msgs);
-          if (msg && TS.utility.msgs.isMsgReply(msg)) {
-            TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
-            if (!model_ob.is_channel || model_ob.is_member) {
-              _end();
-              return;
-            }
+        var msg = TS.utility.msgs.getMsg(_msg_id, model_ob._archive_msgs);
+        if (msg && TS.utility.msgs.isMsgReply(msg)) {
+          TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
+          if (!model_ob.is_channel || model_ob.is_member) {
+            _end();
+            return;
           }
         }
         _displayMsgs(model_ob, model_ob._archive_msgs);
@@ -26459,9 +26379,10 @@
         onDone();
         if (_all_loaded_top) return;
         if (TS.client.archives.$archives_msgs_div.find(".message").length >= 20) return;
+        var no_scroll = true;
         _loadMoreTop(function() {
           onDone();
-        });
+        }, no_scroll);
       };
       if (_msg_id) {
         var oldest_api_args = {
@@ -26539,7 +26460,7 @@
         href = href.substr(1);
       }
       var query;
-      if (TS.boot_data.feature_message_replies && href.indexOf("?") !== -1) {
+      if (href.indexOf("?") !== -1) {
         var B = href.split("?");
         href = B[0];
         query = TS.utility.url.queryStringParse(B[1]);
@@ -26590,7 +26511,7 @@
           }
           if (/^\d+\.\d+$/.test(query.thread_ts)) thread_ts = query.thread_ts;
         }
-        if (TS.boot_data.feature_message_replies && thread_ts && thread_ts !== actual_ts) {
+        if (thread_ts && thread_ts !== actual_ts) {
           TS.ui.replies.openConversation(model_ob, thread_ts, actual_ts, origin);
           return true;
         }
@@ -26691,14 +26612,11 @@
     var msg;
     var prev_msg;
     var html = "";
-    var visible_msgs = msgs;
-    if (TS.boot_data.feature_message_replies) {
-      visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
-    }
+    var visible_msgs = _.reject(msgs, TS.utility.msgs.isMsgHidden);
     for (var i = visible_msgs.length - 1; i > -1; i--) {
       if (!msg || !TS.utility.msgs.isMsgHidden(msg)) prev_msg = msg;
       msg = visible_msgs[i];
-      if (TS.boot_data.feature_message_replies && TS.utility.msgs.isMsgHidden(msg)) continue;
+      if (TS.utility.msgs.isMsgHidden(msg)) continue;
       var rollup = TS.utility.msgs.msgRollUpWorker(i, msg, visible_msgs, jl_rolled_up_msgs);
       if (rollup == "continue") {
         msg = prev_msg;
@@ -26743,7 +26661,7 @@
     }
     _updateDateDisplayed();
   };
-  var _loadMoreTop = function(callback) {
+  var _loadMoreTop = function(callback, no_scroll) {
     _loading_top = true;
     _updateTop();
     var model_ob = TS.client.archives.current_model_ob;
@@ -26759,7 +26677,7 @@
       _loading_top = false;
       _updateTop();
       _displayMsgs(model_ob, model_ob._archive_msgs);
-      if (latest_ts) {
+      if (latest_ts && !no_scroll) {
         TS.client.ui.scrollMsgsSoMsgIsInView(latest_ts, true, false);
       }
       if (callback) callback();
@@ -26835,12 +26753,10 @@
       if (msg_to_keep_in_place_if_overlap) {
         TS.client.ui.$msgs_scroller_div.scrollTop(scrolltop);
       } else if (msg_id_to_highlight) {
-        if (TS.boot_data.feature_message_replies) {
-          var msg = TS.utility.msgs.getMsg(msg_id_to_highlight, model_ob.msgs);
-          if (msg && TS.utility.msgs.isMsgReply(msg)) {
-            TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
-            return false;
-          }
+        var msg = TS.utility.msgs.getMsg(msg_id_to_highlight, model_ob.msgs);
+        if (msg && TS.utility.msgs.isMsgReply(msg)) {
+          TS.ui.replies.openConversation(model_ob, msg.thread_ts, msg.ts);
+          return false;
         }
         TS.client.ui.scrollMsgsSoMsgIsInView(msg_id_to_highlight, false, true);
       }
@@ -27071,7 +26987,7 @@
     } else {}
   };
   var _scrollToMsgOrOpenConversation = function(ts) {
-    if (TS.boot_data.feature_message_replies && TS.client.archives.current_model_ob) {
+    if (TS.client.archives.current_model_ob) {
       var model_ob = TS.client.archives.current_model_ob;
       var msg = TS.utility.msgs.getMsg(ts, model_ob._archive_msgs);
       if (msg && TS.utility.msgs.isMsgReply(msg)) {
@@ -27291,7 +27207,7 @@
           template_args.member = member;
           template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, pinned_item.message.ts, pinned_item.message.thread_ts);
           template_args.is_bot = is_bot;
-          template_args.is_reply = TS.boot_data.feature_message_replies && msg.thread_ts && msg.thread_ts != msg.ts;
+          template_args.is_reply = msg.thread_ts && msg.thread_ts != msg.ts;
           template_args.app_id = app_id;
           template_args.bot_id = bot_id;
         } else if (pinned_item.type === "file") {
@@ -27486,7 +27402,7 @@
         origin = "group_page";
       }
       if (type === "message") {
-        if (TS.boot_data.feature_message_replies && thread_ts && thread_ts != ts) {
+        if (thread_ts && thread_ts != ts) {
           TS.ui.replies.openConversation(model_ob, thread_ts, ts, origin);
         } else {
           TS.client.ui.tryToJump(model_ob.id, ts.toString());
@@ -31074,17 +30990,15 @@
       });
       _updateNotificationControls();
     });
-    if (TS.boot_data.feature_message_replies) {
-      $("#threads_everything_cb").prop("checked", TS.model.prefs.threads_everything === true);
-      $("#threads_everything_cb").on("change", function() {
-        var val = !!$(this).prop("checked");
-        TS.model.prefs.threads_everything = val;
-        TS.prefs.setPrefByAPI({
-          name: "threads_everything",
-          value: val
-        });
+    $("#threads_everything_cb").prop("checked", TS.model.prefs.threads_everything === true);
+    $("#threads_everything_cb").on("change", function() {
+      var val = !!$(this).prop("checked");
+      TS.model.prefs.threads_everything = val;
+      TS.prefs.setPrefByAPI({
+        name: "threads_everything",
+        value: val
       });
-    }
+    });
     _$div.find("#highlight_words_input").on("input", TS.utility.debounce(_saveHighlightWords, 250));
     if (TS.model.win_ssb_version || TS.model.lin_ssb_version) {
       var highlight_words_placeholder = $("#highlight_words_input").attr("placeholder");
@@ -32453,6 +32367,8 @@
       });
     },
     go: function() {
+      var validated = TS.ui.validation.validate(_$modal_container.find(".title_input"), {});
+      if (!validated) return;
       var validated = TS.channels.ui.channelCreateDialogValidateInput(_$modal_container);
       if (!validated) return;
       if (_ladda) _ladda.start();
@@ -32465,6 +32381,8 @@
         var error = data && data.error;
         if (error === "name_taken") {
           TS.channels.ui.channelCreateDialogShowNameTakenAlert(_$modal_container);
+        } else if (error === "invalid_name") {
+          TS.channels.ui.channelCreateDialogShowDisallowedCharsAlert(_$modal_container);
         } else if (error === "restricted_action") {
           TS.channels.ui.channelCreateDialogShowOtherErrorAlert(_$modal_container, TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "mpim_conversion_modal")());
         } else {
@@ -34602,11 +34520,9 @@ function timezones_guess() {
         id: "Vall_unreads"
       }));
     }
-    if (TS.boot_data.feature_message_replies) {
-      views.push(_.find(TS.model.NAMED_VIEWS, {
-        id: "Vall_threads"
-      }));
-    }
+    views.push(_.find(TS.model.NAMED_VIEWS, {
+      id: "Vall_threads"
+    }));
     if (views.length) _data.views = views;
   };
   var _cleanupData = function() {
@@ -34748,21 +34664,19 @@ function timezones_guess() {
         });
       }
     });
-    if (TS.boot_data.feature_message_replies) {
-      var threads_view = _.find(TS.model.NAMED_VIEWS, {
-        id: "Vall_threads"
+    var threads_view = _.find(TS.model.NAMED_VIEWS, {
+      id: "Vall_threads"
+    });
+    if (TS.model.threads_mention_count && threads_view) {
+      highlights.push({
+        model_ob: threads_view,
+        score: 0
       });
-      if (TS.model.threads_mention_count && threads_view) {
-        highlights.push({
-          model_ob: threads_view,
-          score: 0
-        });
-      } else if (TS.model.threads_has_unreads && threads_view) {
-        unreads.push({
-          model_ob: threads_view,
-          score: 0
-        });
-      }
+    } else if (TS.model.threads_has_unreads && threads_view) {
+      unreads.push({
+        model_ob: threads_view,
+        score: 0
+      });
     }
     if (TS.boot_data.feature_show_drafts) {
       list = highlights.concat(unreads, drafts);
@@ -36576,11 +36490,6 @@ function timezones_guess() {
       TS.groups.renamed_sig.remove(_onRename);
       TS.client.ui.unread.unread_groups = null;
       $_currently_sticky = null;
-      if (!TS.boot_data.feature_message_replies) {
-        if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
-          TS.client.ui.flex.openFlexTab("details", true);
-        }
-      }
       var payload = TS.client.ui.unread.getTrackingData();
       TS.clog.track("UNREADS_CLOSE", payload);
       _initialized_time = 0;
@@ -38002,10 +37911,7 @@ function timezones_guess() {
       edit_test_fn = function(old_msg, new_msg) {
         var old_edited = old_msg.edited;
         var new_edited = new_msg.edited;
-        if (TS.boot_data.feature_message_replies) {
-          return !_.isEqual(old_edited, new_edited) || !_.isEqual(old_msg.reply_count, new_msg.reply_count);
-        }
-        return !_.isEqual(old_edited, new_edited);
+        return !_.isEqual(old_edited, new_edited) || !_.isEqual(old_msg.reply_count, new_msg.reply_count);
       };
     }
     return _resolveOrderedLists(msgs_current, msgs_new, function(a, b) {
@@ -38655,7 +38561,6 @@ function timezones_guess() {
   TS.registerModule("ui.replies", {
     $scroller: $("#convo_scroller"),
     onStart: function() {
-      if (!TS.boot_data.feature_message_replies) return;
       if (!TS.client) {
         TS.warn("TS.ui.replies only works in the client");
         return;
@@ -39484,7 +39389,6 @@ function timezones_guess() {
     new_thread_reply_count_changed: new signals.Signal,
     threads_unread_changed: new signals.Signal,
     onStart: function() {
-      if (!TS.boot_data.feature_message_replies) return;
       TS.ms.connected_sig.add(_onConnected);
       TS.channels.message_received_sig.add(_messageReceived);
       TS.groups.message_received_sig.add(_messageReceived);
@@ -40176,7 +40080,6 @@ function timezones_guess() {
     $scroller: $("#threads_msgs_scroller_div"),
     $container: null,
     onStart: function() {
-      if (!TS.boot_data.feature_message_replies) return;
       TS.prefs.team_perms_pref_changed_sig.add(_handleTeamPermsPrefChanged);
       TS.prefs.emoji_mode_changed_sig.add(_emojiModeChanged);
       TS.channels.joined_sig.add(_handleMembershipChange);

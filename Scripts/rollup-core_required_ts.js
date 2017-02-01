@@ -1049,9 +1049,6 @@
       TS.model.supports_downloads = true;
       TS.model.flex_names.push("downloads");
     }
-    if (TS.boot_data.feature_message_replies) {
-      TS.model.flex_names.push("convo");
-    }
     if (TS.client && window.WEB_SOCKET_USING_FLASH_BUT_NO_FLASH) {
       TS.info("WEB_SOCKET_USING_FLASH_BUT_NO_FLASH");
       $("#loading_animation").addClass("hidden");
@@ -1677,7 +1674,7 @@
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
-      if (TS.boot_data.feature_message_replies && TS.utility.isThreadsViewPath(loc.pathname)) {
+      if (TS.utility.isThreadsViewPath(loc.pathname)) {
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
@@ -2466,6 +2463,11 @@
       id: "Vall_unreads",
       name: TS.i18n.t("All Unreads", "model")(),
       is_view: true
+    }, {
+      id: "Vall_threads",
+      name: TS.i18n.t("Threads", "threads")(),
+      alt_names: [TS.i18n.t("All Threads", "threads")(), TS.i18n.t("New Threads", "threads")()],
+      is_view: true
     }],
     unsent_msgs: {},
     display_unsent_msgs: {},
@@ -2589,7 +2591,7 @@
     c_name_in_url: "",
     flex_name_in_url: "",
     flex_extra_in_url: "",
-    flex_names: ["files", "team", "search", "stars", "mentions", "details", "whats_new"],
+    flex_names: ["files", "team", "search", "stars", "mentions", "details", "whats_new", "convo"],
     default_flex_name: "files",
     prefs: null,
     ui_state: null,
