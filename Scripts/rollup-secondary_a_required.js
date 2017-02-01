@@ -42480,6 +42480,9 @@ var _on_esc;
             $workspace_info.attr("data-team-id", "");
             return;
           }
+          var url = TS.enterprise.workspaces.createURL(team, base_url);
+          team.launch_url = url + "messages";
+          team.site_url = url + "home";
           $workspace_info.html(TS.templates.team_info({
             list: list,
             team: team,
@@ -42505,6 +42508,9 @@ var _on_esc;
         _joinTeamHandler(team_id).then(function(result) {
           ladda.stop();
           if (result) {
+            var url = TS.enterprise.workspaces.createURL(team, base_url);
+            team.launch_url = url + "messages";
+            team.site_url = url + "home";
             $workspace_info.html(TS.templates.team_info({
               list: list,
               team: team,
@@ -42514,7 +42520,7 @@ var _on_esc;
           return result;
         });
       });
-      $workspace_info.on("click", 'button[data-qa="leave-btn"]', function(e) {
+      $workspace_info.on("click", '[data-qa="leave-btn"]', function(e) {
         e.preventDefault();
         var team_id = $(this).data("id");
         TS.ui.leave_team_dialog.start(team_id);
@@ -42528,6 +42534,9 @@ var _on_esc;
           var team = TS.enterprise.getTeamById(team_id);
           $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
           ladda.stop();
+          var url = TS.enterprise.workspaces.createURL(team, base_url);
+          team.launch_url = url + "messages";
+          team.site_url = url + "home";
           $workspace_info.html(TS.templates.team_info({
             list: list,
             team: team,
