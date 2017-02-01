@@ -51915,7 +51915,7 @@ $.fn.togglify = function(settings) {
     _maybeSetCanLeaveTeam(team);
   };
   var _maybeSetCanLeaveTeam = function(team) {
-    if (team.can_leave === false && (team.cannot_leave_reasons && team.cannot_leave_reasons.length === 1 && team.cannot_leave_reasons[0] === "not_team_member")) {
+    if (team.can_leave === false && (team.cannot_leave_reasons && team.cannot_leave_reasons.length === 1 && team.cannot_leave_reasons[0] === "not_team_member") && !team.is_assigned) {
       team.can_leave = true;
       team.cannot_leave_reasons = [];
     }
@@ -57062,6 +57062,7 @@ $.fn.togglify = function(settings) {
       TS.groups.message_changed_sig.add(_messageChanged);
       TS.ims.message_changed_sig.add(_messageChanged);
       TS.mpims.message_changed_sig.add(_messageChanged);
+      TS.ms.connected_sig.add(_socketConnected);
     },
     canReplyToMsg: function(model_ob, msg, ignore_membership) {
       if (!TS.client) return false;
@@ -57087,7 +57088,7 @@ $.fn.togglify = function(settings) {
       if (!always_make_api_call) {
         var messages_from_model_ob = _getThreadFromModelOb(c_id, thread_ts);
         if (messages_from_model_ob) {
-          if (_shouldSanityCheck()) _sanityCheck(c_id, thread_ts, messages_from_model_ob);
+          if (_shouldSanityCheck(c_id, thread_ts)) _sanityCheck(c_id, thread_ts, messages_from_model_ob);
           return Promise.resolve(messages_from_model_ob);
         }
       }
@@ -57231,7 +57232,21 @@ $.fn.togglify = function(settings) {
   var _threads_being_loaded = {};
   var _subscriptions_being_loaded = {};
   var _subscriptions = {};
+  var _socketConnected = function(was_fast_reconnect) {
+    if (was_fast_reconnect) return;
+    if (_subscriptions) {
+      _(_subscriptions).values().forEach(function(sub) {
+        delete sub.sanity_check_status;
+      });
+    }
+  };
   var _messageChanged = function(model_ob, message) {
+    var subscription = TS.replies.getSubscriptionState(model_ob.id, message.ts);
+    var previously_failed = _.get(subscription, "sanity_check_status") === false;
+    if (previously_failed) {
+      TS.log(2004, "Clearing previous sanity check failure for " + message.ts);
+      delete subscription.sanity_check_status;
+    }
     TS.replies.reply_changed_sig.dispatch(model_ob, message);
   };
   var _messageRemoved = function(model_ob, message) {
@@ -57244,6 +57259,12 @@ $.fn.togglify = function(settings) {
     var model_ob = TS.shared.getModelObById(c_id);
     if (!model_ob) return;
     if (model_ob.is_channel && !model_ob.is_member) {
+      return;
+    }
+    var subscription = TS.replies.getSubscriptionState(c_id, thread_ts);
+    var previously_failed = _.get(subscription, "sanity_check_status") === false;
+    if (previously_failed) {
+      TS.log(2004, "Sanity check for " + thread_ts + " failed earlier, not using local messages");
       return;
     }
     var msgs, thread_msg;
@@ -57270,7 +57291,14 @@ $.fn.togglify = function(settings) {
     }
     return _.sortBy(thread_msgs, "ts");
   };
-  var _shouldSanityCheck = function() {
+  var _shouldSanityCheck = function(c_id, thread_ts) {
+    if (!TS.model.ms_connected || TS.api.isPaused()) return false;
+    var subscription = TS.replies.getSubscriptionState(c_id, thread_ts);
+    var previously_passed = _.get(subscription, "sanity_check_status", false);
+    if (previously_passed) {
+      TS.log(2004, "Skipping sanity check for " + thread_ts + " because it passed previously");
+      return false;
+    }
     return true;
   };
   var _sanityCheck = function(c_id, thread_ts, messages_from_model_ob) {
@@ -57283,8 +57311,10 @@ $.fn.togglify = function(settings) {
       var api_timestamps = _.map(messages_from_api, "ts");
       var model_texts = _.map(messages_from_model_ob, "text");
       var api_texts = _.map(messages_from_model_ob, "text");
+      var subscription = TS.replies.getSubscriptionState(c_id, thread_ts);
       if (_.isEqual(model_timestamps, api_timestamps) && _.isEqual(model_texts, api_texts)) {
         TS.log(2004, "Replies sanity check passed for " + thread_ts);
+        if (subscription) subscription.sanity_check_status = true;
         return;
       }
       var common_timestamps = _.intersection(model_timestamps, api_timestamps);
@@ -57321,6 +57351,7 @@ $.fn.togglify = function(settings) {
       };
       TS.warn("Replies sanity check failed. Here's the debug info: " + JSON.stringify(debug_info));
       TS.metrics.count("replies_sanity_check_failed");
+      if (subscription) subscription.sanity_check_status = false;
       var model_ob = TS.shared.getModelObById(c_id);
       if (!model_ob) return;
       var root_msg = TS.replies.getMessage(model_ob, thread_ts);
