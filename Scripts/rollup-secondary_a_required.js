@@ -16424,6 +16424,9 @@ TS.registerModule("constants", {
       channel.members.length = 0;
       TS.channels.calcActiveMembersForChannel(channel);
       channel.is_archived = true;
+      if (imsg.is_moved) {
+        channel.is_moved = true;
+      }
       if (!TS.model.user.is_restricted) {
         if (channel.is_member) {
           channel.was_archived_this_session = true;
@@ -16680,6 +16683,9 @@ TS.registerModule("constants", {
       }
       TS.info("archived group " + imsg.channel);
       group.is_archived = true;
+      if (imsg.is_moved) {
+        group.is_moved = true;
+      }
       if (group.is_open) {
         group.was_archived_this_session = true;
       }
@@ -57699,7 +57705,7 @@ $.fn.togglify = function(settings) {
       }
       var $input;
       TS.ui.inline_msg_input.make($reply_container, {
-        placeholder: "Reply...",
+        placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
         model_ob: model_ob,
         onSubmit: function($elem, text) {

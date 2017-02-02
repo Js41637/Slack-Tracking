@@ -38758,7 +38758,7 @@ function timezones_guess() {
       var omit_link = true;
       $reply_container.append(TS.templates.builders.makeMemberPreviewLinkImage(TS.model.user.id, size, lazy, omit_link));
       TS.ui.inline_msg_input.make($reply_container, {
-        placeholder: "Reply...",
+        placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
         model_ob: model_ob,
         onSubmit: function($elem, text) {
@@ -39362,7 +39362,7 @@ function timezones_guess() {
       }
       TS.client.ui.threads.showThreadsView();
       if (_threads_data) {
-        _current_ts = Math.floor(Date.now() / 1e3);
+        _current_ts = _getInitialMaxTs();
         _resetThreadsData();
         TS.client.ui.threads.startWithData(_threads_data, _has_more);
         _setTotalUnreadRepliesCount(_total_unread_replies);
@@ -39547,6 +39547,7 @@ function timezones_guess() {
   var _has_more = false;
   var _total_unread_replies = 0;
   var _current_ts;
+  var _max_ts;
   var _api_limit = 8;
   var _update_thread_state_ts = "0000000000.000000";
   var _unread_at_heres = [];
@@ -39580,7 +39581,7 @@ function timezones_guess() {
   };
   var _loadData = function() {
     if (_should_record_metrics) TS.metrics.mark("threads_view_time_to_fetch_and_display");
-    _current_ts = Math.floor(Date.now() / 1e3);
+    _current_ts = _getInitialMaxTs();
     clearTimeout(_slow_loading_timeout);
     _slow_loading_timeout = setTimeout(function() {
       TS.client.ui.threads.displaySlowLoadingMessage();
@@ -39778,6 +39779,9 @@ function timezones_guess() {
   };
   var _messageReceived = function(model_ob, message) {
     if (!model_ob || !message) return;
+    if (!message.is_ephemeral && !TS.utility.msgs.isTempMsg(message)) {
+      if (!_max_ts || message.ts > _max_ts) _max_ts = message.ts;
+    }
     if (!message.thread_ts) return;
     if (!TS.utility.msgs.isMsgReply(message)) return;
     _q.addToQ(function() {
@@ -40010,6 +40014,22 @@ function timezones_guess() {
     } else {
       _clearData();
     }
+  };
+  var _getInitialMaxTs = function() {
+    var max_ts;
+    if (_max_ts) max_ts = parseFloat(_max_ts);
+    var current_time = Math.floor(Date.now() / 1e3);
+    if (!max_ts) {
+      TS.log(2004, "Starting threads view with current time because !_max_ts");
+      return current_time;
+    }
+    if (current_time > _max_ts) {
+      TS.log(2004, "Starting threads view with current time because it is greater than _max_ts");
+      return current_time;
+    }
+    max_ts += 1;
+    TS.log(2004, "Starting threads view with " + max_ts + " because it is greater than the current time");
+    return max_ts;
   };
 })();
 (function() {

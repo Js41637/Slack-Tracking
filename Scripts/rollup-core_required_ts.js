@@ -2790,7 +2790,7 @@
             if (capabilities) {
               if (capabilities.supports_video) TS.model.supports_video_calls = true;
               if (capabilities.supports_screen_sharing && winssb.stats && winssb.stats.getDisplayInformation) TS.model.supports_screen_sharing = true;
-              if (capabilities.supports_screenhero) TS.model.supports_screenhero = true;
+              if (capabilities.supports_screenhero && !capabilities.is_mas && !capabilities.is_ws) TS.model.supports_screenhero = true;
               if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true;
             }
           }

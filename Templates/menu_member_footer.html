@@ -4,6 +4,10 @@
   {{#if member.deleted}}
     <p class="no_bottom_margin">{{#t note="For members popup card"}}This account was deactivated.{{/t}}</p>
   {{else}}
-    <input type="text" id="menu_member_dm_input" class="small" placeholder="Message {{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member false true}}{{/feature}}" />
+    {{#feature flag="feature_name_tagging_client"}}
+      <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberFullName member)}}Message {name}{{/t}}">
+    {{else}}
+      <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberDisplayName member false true)}}Message {name}{{/t}}">
+    {{/feature}}
   {{/if}}
 </div>
