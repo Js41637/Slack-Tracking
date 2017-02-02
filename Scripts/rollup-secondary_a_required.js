@@ -51847,6 +51847,7 @@ $.fn.togglify = function(settings) {
           existing_enterprise_team[k] = team[k];
         }
         team = existing_enterprise_team;
+        _maybeSetTopChannels(team);
         _maybeSetCanLeaveTeam(team);
         if (is_current_team) team = _.merge({}, existing_enterprise_team, TS.model.team);
       } else {
@@ -51994,12 +51995,9 @@ $.fn.togglify = function(settings) {
         team.is_unlisted = true;
         break;
     }
-    if (!team.user_counts) {
-      team.user_counts = {};
-    }
-    if (team.user_counts && !team.user_counts.active_members) {
-      team.user_counts.active_members = 0;
-    }
+    if (!team.user_counts) team.user_counts = {};
+    if (team.user_counts && !team.user_counts.active_members) team.user_counts.active_members = 0;
+    _maybeSetTopChannels(team);
     if (typeof team.joined_date === "undefined") team.joined_date = 0;
     _maybeSetCanLeaveTeam(team);
   };
@@ -52007,6 +52005,21 @@ $.fn.togglify = function(settings) {
     if (team.can_leave === false && (team.cannot_leave_reasons && team.cannot_leave_reasons.length === 1 && team.cannot_leave_reasons[0] === "not_team_member") && !team.is_assigned) {
       team.can_leave = true;
       team.cannot_leave_reasons = [];
+    }
+  };
+  var _maybeSetTopChannels = function(team) {
+    if (!team.top_combined_channels) team.top_combined_channels = [];
+    if (team.your_channels || team.your_groups) {
+      var top_combined_channels = [];
+      if (team.your_channels) top_combined_channels = top_combined_channels.concat(team.your_channels);
+      if (team.your_groups) top_combined_channels = top_combined_channels.concat(team.your_groups);
+      team.top_combined_channels = _.uniqBy(team.top_combined_channels.concat(top_combined_channels), "id").sort(function(a, b) {
+        var name_a = a.name.toLowerCase();
+        var name_b = b.name.toLowerCase();
+        if (name_a < name_b) return -1;
+        if (name_a > name_b) return 1;
+        return 0;
+      });
     }
   };
 })();
