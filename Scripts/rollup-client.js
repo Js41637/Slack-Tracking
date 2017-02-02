@@ -379,27 +379,15 @@
       if (TS.model.team.prefs.compliance_export_start) {
         _complianceExportStartChanged();
       }
-      if (window.macgap && !TS.model.prefs.no_macssb1_banner) {
+      if (TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner) {
         TS.prefs.setPrefByAPI({
           name: "no_macssb1_banner",
-          value: true
-        });
-      }
-      if (window.macgap && TS.model.mac_ssb_version && TS.model.mac_ssb_version >= 2 && !TS.model.prefs.no_macssb2_banner) {
-        TS.prefs.setPrefByAPI({
-          name: "no_macssb2_banner",
           value: true
         });
       }
       if (window.winssb && !TS.model.prefs.no_winssb1_banner) {
         TS.prefs.setPrefByAPI({
           name: "no_winssb1_banner",
-          value: true
-        });
-      }
-      if (window.winssb && TS.model.is_mac && !TS.model.prefs.no_macssb1_banner) {
-        TS.prefs.setPrefByAPI({
-          name: "no_macssb1_banner",
           value: true
         });
       }
@@ -21596,7 +21584,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/8df80/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/aa6d/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
@@ -22291,17 +22279,11 @@
       var deprecated_osx_versions = [10.6, 10.7, 10.8];
       var show_macssb_osx_deprecated_banner = TS.model.is_our_app && TS.model.is_mac && deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0;
       var is_app_store = _isLegacyAppStoreBuild();
-      var show_macelectron1_banner = TS.model.is_mac && !deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0 && !TS.model.is_electron && !("macgap" in window) && !TS.model.prefs.no_macelectron_banner;
       var show_macelectron2_banner = TS.model.is_mac && "macgap" in window && !is_app_store && !TS.model.prefs.no_macelectron_banner;
-      var show_macssb1_banner = TS.model.is_mac && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
-      var show_macssb2_banner = TS.model.is_mac && TS.model.mac_ssb_version && TS.model.mac_ssb_version < 2 && !TS.model.prefs.no_macssb2_banner;
+      var show_macssb1_banner = TS.model.is_mac && !(deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0) && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
       var show_winssb1_banner = TS.model.is_win_7_plus && !TS.model.win_ssb_version && !TS.model.prefs.no_winssb1_banner;
       if (show_macssb_osx_deprecated_banner) {
         TS.ui.banner.show("macssb_osx_deprecated");
-        return;
-      }
-      if (show_macelectron1_banner) {
-        TS.ui.banner.show("macelectron1");
         return;
       }
       if (show_macelectron2_banner) {
@@ -22310,10 +22292,6 @@
       }
       if (show_macssb1_banner) {
         TS.ui.banner.show("macssb1");
-        return;
-      }
-      if (show_macssb2_banner) {
-        TS.ui.banner.show("macssb2");
         return;
       }
       if (show_winssb1_banner) {
@@ -22387,24 +22365,6 @@
           }
           TS.ui.banner.close();
         });
-      } else if (which == "macelectron1") {
-        $("#macelectron1_banner").removeClass("hidden");
-        $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
-            $("#macelectron1_banner").addClass("hidden");
-            TS.ui.banner.close();
-          } else {
-            if (!$(e.target).hasClass("mac_downloads_page_link")) {
-              var $downloads_page_link = $(this).find(".mac_downloads_page_link");
-              TS.utility.openInNewTab($downloads_page_link.attr("href"), $downloads_page_link.attr("target"));
-              $downloads_page_link.click();
-            }
-          }
-        });
-        TS.prefs.setPrefByAPI({
-          name: "no_macelectron_banner",
-          value: true
-        });
       } else if (which == "macelectron2") {
         $("#macelectron2_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
@@ -22444,24 +22404,6 @@
           }
         });
         $("#macssb1_dismiss_banner").removeClass("hidden");
-      } else if (which == "macssb2") {
-        $("#macssb2_banner").removeClass("hidden");
-        $banner.unbind("click").bind("click", function(e) {
-          if ($(e.target).closest('[data-action="dismiss_banner"]').length) {
-            $("#macssb2_banner").addClass("hidden");
-            TS.ui.banner.close();
-            TS.prefs.setPrefByAPI({
-              name: "no_macssb2_banner",
-              value: true
-            });
-          } else {
-            if (!$(e.target).hasClass("apps_page_link")) {
-              var $apps_page_link = $(this).find(".apps_page_link");
-              TS.utility.openInNewTab($apps_page_link.attr("href"), $apps_page_link.attr("target"));
-              $apps_page_link.click();
-            }
-          }
-        });
       } else if (which == "winssb1") {
         $("#winssb1_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
@@ -22559,13 +22501,6 @@
           action: "banner_click"
         });
       }
-    },
-    onClickedMacSSB2Link: function(close) {
-      if (close) TS.ui.banner.close();
-      TS.prefs.setPrefByAPI({
-        name: "no_macssb2_banner",
-        value: true
-      });
     },
     closeNagAndSetCookie: function() {
       TS.ui.banner.close();

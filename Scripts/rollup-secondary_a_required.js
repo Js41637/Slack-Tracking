@@ -29263,12 +29263,12 @@ TS.registerModule("constants", {
       no_jumbomoji = !TS.model.prefs.jumbomoji;
     }
     no_highlights = msg && "no_highlights" in msg ? !!msg.no_highlights : !!no_highlights;
-    if (no_specials === true || no_specials === false) {
-      no_specials = no_specials;
-    } else if (msg && "mrkdwn" in msg) {
-      no_specials = msg.mrkdwn === false;
-    } else {
-      no_specials = false;
+    if (!_.isBoolean(no_specials)) {
+      if (msg && "mrkdwn" in msg) {
+        no_specials = msg.mrkdwn === false;
+      } else {
+        no_specials = false;
+      }
     }
     if (for_edit) no_specials = true;
     var no_emoji = msg && msg.no_emoji;
@@ -30719,8 +30719,6 @@ TS.registerModule("constants", {
       preview_names = preview_emoji = _default_emo;
     } else if (visible_items.length === 1) {
       _one_search_result = preview_emoji;
-      preview_emoji = preview_emoji;
-      preview_names = preview_names;
     } else {
       preview_emoji = ":cry:";
       preview_names = false;
