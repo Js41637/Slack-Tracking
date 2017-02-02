@@ -10726,10 +10726,15 @@ TS.registerModule("constants", {
     },
     getMemberCurrentStatus: function(member_or_id) {
       var member = _ensureMember(member_or_id);
-      if (!TS.boot_data.feature_user_custom_status || !(member && member.profile)) return {};
+      if (!TS.boot_data.feature_user_custom_status || !(member && member.profile)) {
+        return {
+          emoji: "",
+          text: ""
+        };
+      }
       return {
-        emoji: member.profile.status_emoji,
-        text: member.profile.status_text
+        emoji: member.profile.status_emoji || "",
+        text: member.profile.status_text || ""
       };
     },
     invalidateMembersUserCanSeeArrayCaches: function(no_signal) {

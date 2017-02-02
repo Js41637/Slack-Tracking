@@ -12575,7 +12575,7 @@ only screen and (min-resolution:2dppx) {
   font-size: .9rem
 }
 
-.current_status_input_container .input_note {
+.current_status_input_container .current_status_action_buttons {
   margin-top: .375rem;
   -webkit-transition: opacity .15s ease, margin-bottom .15s ease, max-height .15s ease;
   -moz-transition: opacity .15s ease, margin-bottom .15s ease, max-height .15s ease;
@@ -12583,7 +12583,7 @@ only screen and (min-resolution:2dppx) {
   opacity: 1
 }
 
-.current_status_input_container .input_note.invisible {
+.current_status_input_container .current_status_action_buttons.invisible {
   opacity: 0
 }
 

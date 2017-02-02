@@ -15268,7 +15268,7 @@
           TS.search.view.clearFiletypeFilter();
         });
       } else {
-        $("#search_heading").html("Search Results");
+        $("#search_heading").html(TS.i18n.t("Search Results", "search")());
       }
       $(".search_filter_menu_target").click(TS.menu.startWithSearchFilter);
     },
