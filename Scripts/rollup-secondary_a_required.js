@@ -22610,7 +22610,10 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("formatFileTitle", function(file) {
         if (!file || !file.title) return "";
-        return TS.format.formatWithOptions(file.title, null, {
+        var file_title = file.title;
+        file_title = TS.utility.unHtmlEntities(file_title);
+        file_title = TS.utility.htmlEntities(file_title);
+        return TS.format.formatWithOptions(file_title, null, {
           no_specials: true
         });
       });
@@ -23621,6 +23624,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("highlightSearchMatchesInFileTitle", function(text) {
         if (!text) return;
         text = TS.emoji.graphicReplace(text);
+        text = TS.utility.unHtmlEntities(text);
+        text = TS.utility.htmlEntities(text);
         return new Handlebars.SafeString(TS.utility.msgs.handleSearchHighlights(text));
       });
       Handlebars.registerHelper("searchFilter", function() {
