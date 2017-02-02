@@ -4074,12 +4074,12 @@ a.btn {
 }
 
 .btn.btn_success {
-  background-color: #56B68B
+  background-color: #56b68b
 }
 
 .btn.btn_success.disabled,
 .btn.btn_success:disabled {
-  background-color: #56B68B!important
+  background-color: #56b68b!important
 }
 
 .btn .ts_icon,
@@ -4764,7 +4764,7 @@ a.link_btn {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  border-bottom: 1px solid #E0E0E0
+  border-bottom: 1px solid #e0e0e0
 }
 
 .dialog_tabs a {
@@ -4782,7 +4782,7 @@ a.link_btn {
   -moz-transition: .1s;
   transition: .1s;
   border: 1px solid transparent;
-  border-bottom-color: #E0E0E0;
+  border-bottom-color: #e0e0e0;
   border-top-right-radius: .2rem;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
@@ -4808,7 +4808,7 @@ a.link_btn {
 .dialog_tabs a.active {
   background: #fff;
   color: #555459;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #e0e0e0;
   border-bottom-color: #fff;
   padding: .4rem 1rem .2rem
 }
@@ -7209,9 +7209,9 @@ ts-inline-saver.failed .failed {
   display: inline-block;
   margin: .2rem 0 .2rem .4rem;
   padding: .1875rem 1.5rem .1875rem .3125rem;
-  border: 1px solid #439FE0;
+  border: 1px solid #439fe0;
   border-radius: 3px;
-  background: #439FE0;
+  background: #439fe0;
   color: #FFF;
   cursor: pointer;
   font-size: .85rem;

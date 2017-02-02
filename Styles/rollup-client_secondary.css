@@ -493,7 +493,7 @@ input.search_input {
   padding-bottom: 1.1875rem;
   padding-left: .75rem;
   padding-right: .75rem;
-  border-bottom: .0625rem solid #E8E8E8
+  border-bottom: .0625rem solid #e8e8e8
 }
 
 #flex_contents .heading:focus {
@@ -638,7 +638,7 @@ input.search_input {
   padding: .5rem .75rem .5rem 2rem;
   margin: 0;
   background: #f7f7f7;
-  border-top: 1px solid #E0E0E0
+  border-top: 1px solid #e0e0e0
 }
 
 #client-ui:not(.flexpane_redesign) #flex_contents .local_only_sub_heading {
@@ -1698,7 +1698,7 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
 
 #downloads_tab.supports_open_file #downloads_shift_hint .key {
   display: inline-block;
-  border: 1px solid #E0E0E0;
+  border: 1px solid #e0e0e0;
   line-height: 1rem;
   padding: .2rem .4rem;
   margin: 0 .2rem;
@@ -2212,7 +2212,7 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
   font-size: .9375rem;
   line-height: 1.125rem;
   margin-bottom: .625rem;
-  color: #3D3C40
+  color: #3d3c40
 }
 
 .pinned_item.unread_pin {
@@ -9964,7 +9964,7 @@ a.pdf img {
 }
 
 html.no_touch #snippet_expand_toggle:hover {
-  color: #439FE0;
+  color: #439fe0;
   text-decoration: none
 }
 
@@ -13564,7 +13564,7 @@ only screen and (min-resolution:2dppx) {
   font-size: .9375rem;
   width: 100%;
   border-radius: .35rem;
-  background: #FFF;
+  background: #fff;
   border: 1px solid rgba(214, 214, 214, .61)
 }
 
@@ -14228,7 +14228,7 @@ ts-icon.sli_feedback::before {
   }
   100% {
     color: #5DBB91;
-    background: #FFF
+    background: #fff
   }
 }
 
@@ -14243,7 +14243,7 @@ ts-icon.sli_feedback::before {
   padding-right: .5rem;
   padding-bottom: .25rem;
   border-radius: .375rem;
-  background: #FFF;
+  background: #fff;
   border: 1px solid #e3e3e3;
   -moz-transition: border-color .1s;
   -webkit-transition: border-color .1s;
@@ -15177,7 +15177,7 @@ only screen and (min-resolution:2dppx) {
   transform: translateY(-50%);
   width: 100%;
   height: 1px;
-  background-color: #E8E8E8
+  background-color: #e8e8e8
 }
 
 #autocomplete_menu.search_menu header {
@@ -23904,7 +23904,7 @@ ts-jumper ts-jumper-results:empty {
 .slack_menu_header_secondary {
   font-size: .9375rem;
   line-height: 1.125rem;
-  color: #A0A0A2;
+  color: #a0a0a2;
   font-weight: 500;
   -webkit-user-select: text;
   -moz-user-select: text;
@@ -25720,7 +25720,7 @@ html:not(.supports_sticky_position) #client-ui.flexbox_client.flex_pane_showing.
 
 .bottom_mark_all_read {
   display: none;
-  border-top: 1px solid #E0E0E0
+  border-top: 1px solid #e0e0e0
 }
 
 .unread_group:not(.partial_end).at_bottom .bottom_mark_all_read {

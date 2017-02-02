@@ -6553,7 +6553,7 @@ code,
 pre {
   font-size: .875rem;
   font-family: Consolas, monaco, "Ubuntu Mono", courier, monospace!important;
-  border: 1px solid #E8E8E8;
+  border: 1px solid #e8e8e8;
   padding: .1rem .4rem;
   border-radius: .2rem;
   -webkit-font-variant-ligatures: none;
@@ -6632,7 +6632,7 @@ pre.special_formatting a {
 
 hr {
   border: none;
-  border-top: 1px solid #E8E8E8;
+  border-top: 1px solid #e8e8e8;
   margin: 2rem auto;
   clear: both
 }
@@ -8548,12 +8548,12 @@ a.btn {
 }
 
 .btn.btn_success {
-  background-color: #56B68B
+  background-color: #56b68b
 }
 
 .btn.btn_success.disabled,
 .btn.btn_success:disabled {
-  background-color: #56B68B!important
+  background-color: #56b68b!important
 }
 
 .btn .ts_icon,
@@ -15951,9 +15951,9 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   display: inline-block;
   margin: .2rem 0 .2rem .4rem;
   padding: .1875rem 1.5rem .1875rem .3125rem;
-  border: 1px solid #439FE0;
+  border: 1px solid #439fe0;
   border-radius: 3px;
-  background: #439FE0;
+  background: #439fe0;
   color: #FFF;
   cursor: pointer;
   font-size: .85rem;

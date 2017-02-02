@@ -4223,6 +4223,38 @@
           _promiseToGetChannelMemberCountsFromAPI = v;
         }
       });
+      Object.defineProperty(test_ob, "_isChannelMembershipKnownForUser", {
+        get: function() {
+          return _isChannelMembershipKnownForUser;
+        },
+        set: function(v) {
+          _isChannelMembershipKnownForUser = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_getChannelMembershipForUser", {
+        get: function() {
+          return _getChannelMembershipForUser;
+        },
+        set: function(v) {
+          _getChannelMembershipForUser = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_setChannelKnownMembership", {
+        get: function() {
+          return _setChannelKnownMembership;
+        },
+        set: function(v) {
+          _setChannelKnownMembership = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_channel_known_member_statuses", {
+        get: function() {
+          return _channel_known_member_statuses;
+        },
+        set: function(v) {
+          _channel_known_member_statuses = v;
+        }
+      });
       return test_ob;
     },
     lazyLoadChannelMembership: function() {
@@ -4235,11 +4267,17 @@
           is_member: is_member
         };
       }
+      if (_isChannelMembershipKnownForUser(channel.id, user_id)) {
+        return {
+          is_member: _getChannelMembershipForUser(channel.id, user_id)
+        };
+      }
       var promise = TS.flannel.fetchChannelMembershipForUsers(channel.id, [user_id]).then(function(memberships) {
         if (!_.isBoolean(memberships[user_id])) {
           TS.warn("Asked whether " + user_id + " was a mebmer of " + channel.id + " but user is not included in response");
           throw new Error("Expected response to include membership for user " + user_id);
         }
+        _setChannelKnownMembership(channel.id, user_id, memberships[user_id]);
         return {
           is_member: memberships[user_id]
         };
@@ -4250,12 +4288,17 @@
     },
     setUserChannelMembership: function(user_id, channel, is_member, should_display_join_message) {
       if (!_.isString(user_id)) throw new Error("Expected user to be a string");
-      var was_already_member = _.includes(channel.members, user_id);
-      if (was_already_member == is_member) return;
-      if (is_member) {
-        channel.members.push(user_id);
+      if (TS.membership.lazyLoadChannelMembership()) {
+        var is_member_did_change = _setChannelKnownMembership(channel.id, user_id, is_member);
+        if (!is_member_did_change) return false;
       } else {
-        _.pull(channel.members, user_id);
+        var was_already_member = _.includes(channel.members, user_id);
+        if (was_already_member == is_member) return;
+        if (is_member) {
+          channel.members.push(user_id);
+        } else {
+          _.pull(channel.members, user_id);
+        }
       }
       TS.channels.calcActiveMembersForChannel(channel);
       var member = TS.members.getMemberById(user_id);
@@ -4296,6 +4339,43 @@
     }
   });
   var _channel_member_counts_info = {};
+  var _channel_known_member_statuses = {};
+  var _isChannelMembershipKnownForUser = function(model_ob_id, user_id) {
+    if (!_channel_known_member_statuses[model_ob_id]) return false;
+    return _.includes(_channel_known_member_statuses[model_ob_id].known_members, user_id) || _.includes(_channel_known_member_statuses[model_ob_id].known_non_members, user_id);
+  };
+  var _getChannelMembershipForUser = function(model_ob_id, user_id) {
+    if (_channel_known_member_statuses[model_ob_id] && _.includes(_channel_known_member_statuses[model_ob_id].known_members, user_id)) {
+      return true;
+    } else if (_channel_known_member_statuses[model_ob_id] && _.includes(_channel_known_member_statuses[model_ob_id].known_non_members, user_id)) {
+      return false;
+    } else {
+      throw new Error("Channel membership not known for the given user; this is a programming error");
+    }
+  };
+  var _setChannelKnownMembership = function(model_ob_id, user_id, is_member) {
+    if (!TS.membership.lazyLoadChannelMembership()) return;
+    if (!_.isString(model_ob_id)) throw new Error("model_ob_id should be a string");
+    if (!_.isString(user_id)) throw new Error("user_id should be a string");
+    if (!_.isBoolean(is_member)) throw new Error("is_member should be a boolean");
+    if (!_channel_known_member_statuses[model_ob_id]) {
+      _channel_known_member_statuses[model_ob_id] = {
+        known_members: [],
+        known_non_members: []
+      };
+    }
+    if (_isChannelMembershipKnownForUser(model_ob_id, user_id) && _getChannelMembershipForUser(model_ob_id, user_id) == is_member) {
+      return false;
+    }
+    if (is_member) {
+      _channel_known_member_statuses[model_ob_id].known_members.push(user_id);
+      _.pull(_channel_known_member_statuses[model_ob_id].known_non_members, user_id);
+    } else {
+      _channel_known_member_statuses[model_ob_id].known_non_members.push(user_id);
+      _.pull(_channel_known_member_statuses[model_ob_id].known_members, user_id);
+    }
+    return true;
+  };
   var _promiseToGetChannelMemberCountsFromAPI = function(model_ob, last_fetched_ts) {
     var MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS = 1e4;
     var time_since_last_fetch = Date.now() - last_fetched_ts;
@@ -4342,10 +4422,16 @@
   var _modelObMemberAdded = function(changed_model_ob, member) {
     var member_count_delta = 1;
     _maybeRefetchChannelMembersInfoAfterMembershipChange(changed_model_ob, member_count_delta, member.is_restricted);
+    if (TS.membership.lazyLoadChannelMembership()) {
+      _setChannelKnownMembership(changed_model_ob.id, member.id, true);
+    }
   };
   var _modelObMemberRemoved = function(changed_model_ob, member) {
     var member_count_delta = -1;
     _maybeRefetchChannelMembersInfoAfterMembershipChange(changed_model_ob, member_count_delta, member.is_restricted);
+    if (TS.membership.lazyLoadChannelMembership()) {
+      _setChannelKnownMembership(changed_model_ob.id, member.id, false);
+    }
   };
   var _prev_active_model_ob_id;
   var _modelObSwitched = function() {

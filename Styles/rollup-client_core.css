@@ -6455,9 +6455,9 @@ only screen and (min-resolution:2dppx) {
 
 #primary_file_button.active,
 #primary_file_button:hover {
-  background: #56B68B;
+  background: #56b68b;
   color: #fff;
-  border-color: #56B68B
+  border-color: #56b68b
 }
 
 #primary_file_button .starburst {
