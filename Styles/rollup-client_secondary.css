@@ -5412,6 +5412,10 @@ body.attachments_flush_with_avatar .inline_attachment {
   background: #e3e4e6
 }
 
+ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
+  background-color: rgba(0, 0, 0, .1)
+}
+
 .inline_attachment .attachment_bar .shim,
 .quote_bar .shim {
   width: 4px
@@ -20406,7 +20410,8 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message.show_recap .is_highlights_holder {
-  margin-left: 4.875rem
+  margin-left: 4.875rem;
+  margin-bottom: .125rem
 }
 
 .dense_theme ts-message.show_recap .is_highlights_holder ts-icon {
@@ -21151,6 +21156,10 @@ ts-thread ts-message.selected .action_hover_container {
 
 .has_container .msg_inline_attachment_column.column_border.break_border {
   bottom: 1px
+}
+
+ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
+  background-color: rgba(0, 0, 0, .1)
 }
 
 .msg_inline_attachment_column.column_thumb {

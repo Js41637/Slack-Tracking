@@ -4929,12 +4929,16 @@
       TS.prefs.hide_hex_swatch_changed_sig.add(TS.view.prefs.hideHexSwatchPrefChanged, TS.view.prefs);
     },
     toggleSpellcheck: function() {
-      $("textarea").attr("autocorrect", "off");
-      $("textarea").attr("autocomplete", "off");
+      var selector = "textarea";
+      if (TS.boot_data.feature_texty) {
+        selector += ', [contenteditable="true"]';
+      }
+      $(selector).attr("autocorrect", "off");
+      $(selector).attr("autocomplete", "off");
       if (TS.model.prefs.webapp_spellcheck) {
-        $("textarea").attr("spellcheck", true);
+        $(selector).attr("spellcheck", true);
       } else {
-        $("textarea").attr("spellcheck", false);
+        $(selector).attr("spellcheck", false);
       }
     },
     farReachingDisplayPrefChanged: function() {
@@ -9214,7 +9218,9 @@
       TS.client.ui.flex.cleanupFlexExcluding(flex_name);
       $("#flex_contents > .panel").removeClass("active");
       $t.addClass("active");
-      $t.find(".heading").focus();
+      if (!TS.utility.contenteditable.isActiveElement(TS.search.input)) {
+        $t.find(".heading").focus();
+      }
       TS.model.ui.active_tab_id = flex_name;
       TS.model.ui.active_tab_ts = Date.now();
       if (flex_name === "search") {
@@ -10079,6 +10085,8 @@
       if (TS.boot_data.feature_texty) {
         var $input = TS.client.msg_input.$input;
         TS.utility.contenteditable.deserialize($input, model_ob.last_msg_input);
+        TS.view.prefs.toggleSpellcheck();
+        TS.utility.contenteditable.focus($input);
         var val = TS.utility.contenteditable.displayValue($input);
         TS.utility.contenteditable.cursorPosition($input, val.length);
         _maybeResize();
@@ -14647,7 +14655,8 @@
           TS.clog.track("SEARCH_OPEN", {
             open_method: "key"
           });
-          var txt = "in:" + TS.shared.getActiveModelOb().name + " ";
+          var txt;
+          if (!TS.client.activeChannelIsHidden()) txt = "in:" + TS.shared.getActiveModelOb().name + " ";
           TS.search.setInputVal(txt);
         }
       }
@@ -40080,6 +40089,9 @@ function timezones_guess() {
         view_session_index: _threads_event_seq_id
       });
       TS.client.ui.threads.incrementTrackingSeqId();
+    },
+    isThreadsViewDOMShowing: function() {
+      return $("#client-ui").hasClass("threads_view_is_showing");
     },
     destroyThreadsView: function() {
       TS.client.ui.threads.resetUI();

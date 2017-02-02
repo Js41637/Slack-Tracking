@@ -10285,7 +10285,139 @@ TS.registerModule("constants", {
 })();
 (function() {
   "use strict";
-  TS.registerModule("teams", {});
+  TS.registerModule("teams", {
+    added_sig: new signals.Signal,
+    changed_name_sig: new signals.Signal,
+    changed_sig: new signals.Signal,
+    unlinked_sig: new signals.Signal,
+    changed_icon_sig: new signals.Signal,
+    onStart: function() {},
+    getTeamById: function(id) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      if (!_.isString(id)) return null;
+      if (_id_map[id]) return _id_map[id];
+      var teams = TS.model.teams;
+      if (!teams) {
+        TS.console.warn("Trying to look up team by id (" + id + ") but TS.model.teams is not present.");
+        return null;
+      }
+      var team;
+      for (var i = 0; i < teams.length; i++) {
+        team = teams[i];
+        if (team.id == id) {
+          _id_map[id] = team;
+          return team;
+        }
+      }
+      TS.console.warn("team " + id + " not in local model");
+      return null;
+    },
+    getTeamByMsg: function(msg) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      if (!_.isObject(msg)) return null;
+      var team_id = msg.source_team_id;
+      if (!team_id) return null;
+      var team = TS.teams.getTeamById(team_id);
+      if (team) return team;
+      return null;
+    },
+    upsertAndSignal: function(team) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      var upsert = TS.teams.upsertTeam(team);
+      if (upsert.status == "CHANGED") {
+        if (upsert.what_changed.indexOf("icon") != -1) {
+          TS.teams.changed_icon_sig.dispatch(upsert.team);
+        }
+        if (upsert.what_changed.indexOf("name") != -1) {
+          TS.teams.changed_name_sig.dispatch(upsert.team);
+        }
+        if (upsert.what_changed.indexOf("unlinked") != -1) {
+          TS.teams.unlinked_sig.dispatch(upsert.team);
+        }
+      } else if (upsert.status == "ADDED") {
+        TS.teams.added_sig.dispatch(upsert.team);
+      }
+    },
+    upsertTeam: function(team, log) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      var teams = TS.model.teams;
+      var existing_team = TS.teams.getTeamById(team.id);
+      var status = "NOOP";
+      var what_changed = [];
+      if (existing_team) {
+        for (var k in team) {
+          if (k == "icon") {
+            if (team[k] && !TS.utility.areSimpleObjectsEqual(team[k], existing_team[k])) {
+              existing_team["icon"] = team["icon"];
+              status = "CHANGED";
+              what_changed.push(k);
+            }
+          } else if (existing_team[k] != team[k]) {
+            if (typeof team[k] != "boolean" || !team[k] != !existing_team[k]) {
+              what_changed.push(k);
+              existing_team[k] = team[k];
+              status = "CHANGED";
+            }
+          }
+        }
+        team = existing_team;
+      } else {
+        status = "ADDED";
+        if (TS.pri) TS.log(4, 'adding team "' + team.id + '"');
+        TS.teams.processNewTeamForUpserting(team);
+        teams.push(team);
+        _id_map[team.id] = team;
+      }
+      return {
+        status: status,
+        team: team,
+        what_changed: what_changed
+      };
+    },
+    processNewTeamForUpserting: function(team) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+    },
+    ensureTeamsArePresent: function(t_ids) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      var missing_team_ids = _.reject(t_ids, TS.teams.getTeamById);
+      if (!missing_team_ids.length) return Promise.resolve();
+      _getTeamsByIdFromModelOrApi(missing_team_ids);
+    },
+    ensureTeamIsPresent: function(t_id) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      if (!t_id) return Promise.resolve();
+      if (typeof t_id !== "string") return Promise.resolve();
+      return _getTeamByIdFromModelOrApi(t_id);
+    }
+  });
+  var _id_map = {};
+  var _getTeamByIdFromModelOrApi = function(t_id) {
+    return;
+  };
+  var _getTeamsByIdFromModelOrApi = function(t_ids) {
+    return;
+  };
 })();
 (function() {
   "use strict";
