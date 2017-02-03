@@ -32157,7 +32157,7 @@ TS.registerModule("constants", {
         special_flex_panes: TS.boot_data.special_flex_panes,
         show_downloads: TS.model.supports_downloads,
         is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise,
-        show_user_groups: TS.useSearchableMemberList()
+        show_user_groups: TS.useSearchableMemberList() && TS.model.team.plan !== "" && !TS.model.user.is_restricted
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onFlexMenuItemClick);
       TS.menu.start(e);

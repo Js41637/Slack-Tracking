@@ -9901,6 +9901,7 @@
               }
             }
           },
+          insertFormattingWhenPasting: TS.boot_data.feature_tinyspeck,
           placeholder: $input.data("placeholder"),
           getTextPreferences: TS.utility.contenteditable.getTextPreferences,
           onEnter: function(args) {
@@ -12143,7 +12144,7 @@
       var rxn_source_ob = TS.shared.getModelObById(oldest_who_when.rxn_source);
       var rxn_source_info;
       if (rxn_source_ob.is_im) {
-        rxn_source_info = "Direct Message";
+        rxn_source_info = TS.i18n.t("Direct Message", "flex_pane")();
       } else if (rxn_source_ob.is_group && rxn_source_ob.is_mpim) {
         rxn_source_info = TS.mpims.getDisplayName(rxn_source_ob, false);
       } else if (rxn_source_ob.is_group || rxn_source_ob.is_private) {
