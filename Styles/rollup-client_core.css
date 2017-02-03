@@ -6096,10 +6096,6 @@ only screen and (min-resolution:2dppx) {
   z-index: 200
 }
 
-#client-ui:not(.flex_pane_showing) .client_container #footer {
-  margin-right: 1rem
-}
-
 .feature_texty #footer {
   z-index: 201
 }

@@ -23771,9 +23771,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("highlightSearchMatchesInFileTitle", function(text) {
         if (!text) return;
-        text = TS.emoji.graphicReplace(text);
         text = TS.utility.unHtmlEntities(text);
         text = TS.utility.htmlEntities(text);
+        text = TS.emoji.graphicReplace(text);
         return new Handlebars.SafeString(TS.utility.msgs.handleSearchHighlights(text));
       });
       Handlebars.registerHelper("searchFilter", function() {
@@ -35049,7 +35049,7 @@ var _on_esc;
       }
       TS.client.ui.addOrFlashEphemeralBotMsg(ephemeral_msg);
     },
-    addEphemeralFeedback: function(text, input_txt, slackbot_feels) {
+    addEphemeralFeedback: function(text, input_txt, slackbot_feels, thread_ts) {
       if (input_txt) {
         if (TS.boot_data.feature_name_tagging_client_extras) {
           TS.utility.populateInput(TS.client.ui.$msg_input, input_txt);
@@ -35064,10 +35064,17 @@ var _on_esc;
       if (slackbot_feels) {
         ephemeral_msg.slackbot_feels = slackbot_feels;
       }
+      if (TS.boot_data.feature_threads_slash_cmds && thread_ts) {
+        ephemeral_msg.thread_ts = thread_ts;
+      }
       TS.client.ui.addEphemeralBotMsg(ephemeral_msg);
     },
     runCommand: function(cmd, rest, words, in_reply_to_msg, model_ob) {
       if (!TS.cmd_handlers[cmd]) return;
+      if (TS.boot_data.feature_threads_slash_cmds && in_reply_to_msg) {
+        var is_cmd_supported_in_threads = cmd && _.includes(_SUPPORTED_THREAD_CMDS, cmd);
+        if (!is_cmd_supported_in_threads) return;
+      }
       if (TS.model.last_active_cid) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.last_active_cid);
       }
@@ -35082,9 +35089,15 @@ var _on_esc;
       func: function(cmd, rest, words, in_reply_to_msg) {
         TS.members.toggleUserPresence().then(function(res) {
           var presence = res.args.presence || TS.model.user.presence;
-          TS.cmd_handlers.addEphemeralFeedback(":white_check_mark: " + TS.i18n.t("You are now marked as *{presence}*.", "cmd_handlers")({
+          var feedback_text = ":white_check_mark: " + TS.i18n.t("You are now marked as *{presence}*.", "cmd_handlers")({
             presence: presence
-          }));
+          });
+          if (TS.boot_data.feature_threads_slash_cmds && in_reply_to_msg) {
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, null, null, in_reply_to_msg.ts);
+          } else {
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text);
+          }
+          return null;
         }).catch(_.noop);
         if (rest) TS.members.setUserStatus(rest);
       }
@@ -36224,6 +36237,7 @@ var _on_esc;
       }
     }
   });
+  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/away"];
   var _setCommands = function(commands, cache_ts) {
     TS.model.commands_cache_ts = cache_ts;
     TS.storage.storeCmds({
@@ -57135,8 +57149,23 @@ $.fn.togglify = function(settings) {
     },
     formatChannelsData: function(data) {
       var channels = [];
+      if (data.private_channels) {
+        data.private_channels = _.isArray(data.private_channels) ? data.private_channels : [data.private_channels];
+        channels = _.map(data.private_channels, function(private_channel) {
+          return {
+            date_created: private_channel.created,
+            id: private_channel.id,
+            member_count: private_channel.members.length,
+            name: private_channel.name,
+            purpose: private_channel.purpose.value,
+            topic: private_channel.topic.value,
+            "private": true,
+            is_shared: private_channel.is_shared
+          };
+        });
+      }
       if (data.channels) {
-        channels = _.map(data.channels, function(channel) {
+        channels = channels.concat(_.map(data.channels, function(channel) {
           var creator = TS.members.getMemberById(channel.creator) || {};
           return {
             creator_display: creator.real_name ? creator.real_name : creator.name,
@@ -57151,21 +57180,6 @@ $.fn.togglify = function(settings) {
             "private": false,
             is_general: channel.is_general,
             is_shared: channel.is_shared
-          };
-        });
-      }
-      if (data.private_channels) {
-        data.private_channels = _.isArray(data.private_channels) ? data.private_channels : [data.private_channels];
-        channels = channels.concat(_.map(data.private_channels, function(private_channel) {
-          return {
-            date_created: private_channel.created,
-            id: private_channel.id,
-            member_count: private_channel.members.length,
-            name: private_channel.name,
-            purpose: private_channel.purpose.value,
-            topic: private_channel.topic.value,
-            "private": true,
-            is_shared: private_channel.is_shared
           };
         }));
       }
@@ -57880,18 +57894,23 @@ $.fn.togglify = function(settings) {
           });
           if (handled_reaction) return;
           if (text.substr(0, 1) == "/" && text.substr(0, 2) != "//") {
-            if (text.indexOf("/shrug") === 0) {
+            if (TS.boot_data.feature_threads_slash_cmds) {
               _clearInput($reply_container, model_ob, thread_ts);
               TS.client.ui.sendSlashCommand(model_ob, text, thread.root_msg);
             } else {
-              TS.client.ui.addOrFlashEphemeralBotMsg({
-                text: TS.i18n.t("You cannot use slash commands in threads. Sorry!", "threads")(),
-                ephemeral_type: "threads_temp_slash_cmd_feedback",
-                slackbot_feels: "sad_surprise",
-                channel: model_ob.id,
-                thread_ts: thread_ts
-              });
-              return;
+              if (text.indexOf("/shrug") === 0) {
+                _clearInput($reply_container, model_ob, thread_ts);
+                TS.client.ui.sendSlashCommand(model_ob, text, thread.root_msg);
+              } else {
+                TS.client.ui.addOrFlashEphemeralBotMsg({
+                  text: TS.i18n.t("You cannot use slash commands in threads. Sorry!", "threads")(),
+                  ephemeral_type: "threads_temp_slash_cmd_feedback",
+                  slackbot_feels: "sad_surprise",
+                  channel: model_ob.id,
+                  thread_ts: thread_ts
+                });
+                return;
+              }
             }
           } else {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
