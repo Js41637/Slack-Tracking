@@ -9502,6 +9502,7 @@
       var this_searchable_member_list = this;
       var query_params = {
         count: this._current_query_for_match ? FETCH_PAGE_SIZE_SEARCH : FETCH_PAGE_SIZE,
+        index: TS.members.shouldDisplayRealNames() ? "users_by_realname" : "users_by_name",
         filter: this._current_filter
       };
       if (this._current_query_for_match) {
@@ -23605,7 +23606,6 @@
         promise.finally(function() {
           _in_onboarding = false;
           if (_banner_was_visible) {
-            TS.ui.banner.show();
             TS.client.ui.$banner.removeClass("hidden");
           }
           if (promise.isCancelled()) return;
@@ -26290,6 +26290,9 @@
         count: 50,
         _showing_id: _showing_id
       };
+      if (TS.boot_data.feature_message_replies_ignore_on_history) {
+        latest_api_args.ignore_replies = true;
+      }
       _scrolled_to_bottom = false;
       _scrolled_to_top = false;
       _expected_api_rsps = 0;
@@ -26340,6 +26343,9 @@
           inclusive: true,
           _showing_id: _showing_id
         };
+        if (TS.boot_data.feature_message_replies_ignore_on_history) {
+          oldest_api_args.ignore_replies = true;
+        }
         latest_api_args.latest = _msg_id;
         latest_api_args.count = 25;
         _expected_api_rsps = 2;
@@ -26615,12 +26621,16 @@
     var model_ob = TS.client.archives.current_model_ob;
     var latest_ts = model_ob._archive_msgs[model_ob._archive_msgs.length - 1].ts;
     _expected_api_rsps++;
-    TS.api.callImmediately(_current_history_api_method, {
+    var api_args = {
       channel: model_ob.id,
       latest: latest_ts,
       count: parseInt(TS.model.subsequent_msgs_cnt / 2),
       _showing_id: _showing_id
-    }, function(ok, data, args) {
+    };
+    if (TS.boot_data.feature_message_replies_ignore_on_history) {
+      api_args.ignore_replies = true;
+    }
+    TS.api.callImmediately(_current_history_api_method, api_args, function(ok, data, args) {
       if (!_onHistory(ok, data, args)) return;
       _loading_top = false;
       _updateTop();
@@ -26637,12 +26647,16 @@
     var model_ob = TS.client.archives.current_model_ob;
     var oldest_ts = model_ob._archive_msgs[0].ts;
     _expected_api_rsps++;
-    TS.api.callImmediately(_current_history_api_method, {
+    var api_args = {
       channel: model_ob.id,
       oldest: oldest_ts,
       count: parseInt(TS.model.subsequent_msgs_cnt / 2),
       _showing_id: _showing_id
-    }, function(ok, data, args) {
+    };
+    if (TS.boot_data.feature_message_replies_ignore_on_history) {
+      api_args.ignore_replies = true;
+    }
+    TS.api.callImmediately(_current_history_api_method, api_args, function(ok, data, args) {
       if (!_onHistory(ok, data, args)) return;
       _loading_bottom = false;
       _updateBottom();
@@ -27144,7 +27158,7 @@
           var is_bot = TS.utility.msgs.shouldHaveBotLabel(msg, member);
           var app_id;
           var bot_id;
-          if (TS.boot_data.feature_app_cards_and_profs_frontend && is_bot) {
+          if (is_bot) {
             var bot_info = TS.bots.getBotInfoByMsg(msg);
             if (bot_info) {
               app_id = bot_info.app_id;
@@ -27251,8 +27265,11 @@
   var _max_num_files_to_preview = 10;
   var _member_presence_list;
   var _cached_scroll_top;
+  var _refresh_member_list_interval;
   var SEE_ALL_MEMBERS_DIALOG_THRESHOLD = TS.useSearchableMemberList() ? 50 : 100;
   var MAX_SIDEBAR_MEMBERS_COUNT = TS.useSearchableMemberList() ? 20 : 10;
+  var MEMBER_LIST_REFRESH_CADENCE_MS = 6e4;
+  var MEMBER_LIST_REFRESH_THROTTLE_MS = 2e4;
   var _initEvents = function() {
     _$container.on("click", ".invite_link", function() {
       var model_ob = TS.shared.getActiveModelOb();
@@ -27480,6 +27497,17 @@
   var _loggedIn = function() {
     _logged_in = true;
   };
+  var _clear_refresh_member_list_interval = function() {
+    if (_refresh_member_list_interval) {
+      clearInterval(_refresh_member_list_interval);
+    }
+  };
+  var _start_refresh_member_list_interval = function() {
+    _clear_refresh_member_list_interval();
+    if (TS.useSearchableMemberList()) {
+      _refresh_member_list_interval = setInterval(_throttledSilentlyRebuildMemberLists, MEMBER_LIST_REFRESH_CADENCE_MS);
+    }
+  };
   var _flexpaneDisplaySwitched = function(prev_flex_name) {
     var flex_name = TS.model.ui_state.flex_name;
     if (!flex_name || prev_flex_name === "details" && flex_name !== "details") {
@@ -27680,6 +27708,7 @@
     _rebuildMemberLists(model_ob);
     _rebuildSharedFiles(model_ob);
     _rebuildNotifPrefs(model_ob);
+    _start_refresh_member_list_interval();
     if (!TS.environment.supports_custom_scrollbar) {
       var monkeyScroll = _$scroller.data("monkeyScroll");
       if (monkeyScroll) {
@@ -27701,6 +27730,7 @@
     _cleanConversationDetails();
     _cleanSharedFiles();
     _cleanNotifPrefs();
+    _clear_refresh_member_list_interval();
   };
   var _setTitle = function(model_ob) {
     var html;
@@ -28059,8 +28089,14 @@
     template_args.all_members = members;
     return template_args;
   };
-  var _renderMemberList = function(model_ob, member_ids) {
+  var _renderMemberList = function(model_ob, member_ids, silent_refresh) {
+    if (silent_refresh && !TS.useSearchableMemberList()) {
+      TS.warn("_renderMemberList: silent_refresh parameter is only supported if searchable member list is enabled!");
+    }
     var template_args = _generateMemberListTemplateArgs(model_ob, member_ids);
+    if (silent_refresh) {
+      _cleanMemberLists();
+    }
     _member_presence_list.add(_.map(template_args.members, "id"));
     _$member_lists.html(TS.templates.channel_page_member_lists(template_args));
     _$member_lists.find("#see_all_members").on("click", function(e) {
@@ -28069,25 +28105,32 @@
     });
     _resetLazyLoad();
   };
-  var _rebuildMemberLists = function(model_ob) {
+  var _rebuildMemberLists = function(model_ob, silent_refresh) {
+    if (silent_refresh && !TS.useSearchableMemberList()) {
+      TS.warn("_rebuildMemberLists: silent_refresh parameter is only supported if searchable member list is enabled!");
+    }
     if (model_ob.is_im) return;
-    _cleanMemberLists();
+    if (!silent_refresh) {
+      _cleanMemberLists();
+    }
     if (!TS.useSearchableMemberList() && TS.lazyLoadMembersAndBots() && !TS.members.haveAllMembersForModelOb(model_ob)) {
       _legacyRebuildMemberLists(model_ob);
       return;
     }
     if (!_expanded_sections.members) return;
-    _member_presence_list.clear();
     if (TS.useSearchableMemberList()) {
-      _$member_lists.addClass("loading").html(TS.templates.infinite_spinner({
-        color: "white",
-        size: "medium"
-      }));
+      if (!silent_refresh) {
+        _$member_lists.addClass("loading").html(TS.templates.infinite_spinner({
+          color: "white",
+          size: "medium"
+        }));
+      }
       var fetch_all_members = !TS.membership.lazyLoadChannelMembership() && model_ob.members.length <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD;
-      var member_ids = TS.membership.lazyLoadChannelMembership() ? TS.flannel.__temp_getChannelMembers(model_ob.id) : model_ob.members;
       var query = {
-        count: fetch_all_members ? member_ids.length : MAX_SIDEBAR_MEMBERS_COUNT,
+        count: fetch_all_members ? SEE_ALL_MEMBERS_DIALOG_THRESHOLD : MAX_SIDEBAR_MEMBERS_COUNT,
         channels: [model_ob.id],
+        present_first: true,
+        index: TS.members.shouldDisplayRealNames() ? "users_by_realname" : "users_by_name",
         filter: "everyone"
       };
       var promises = [TS.flannel.fetchAndUpsertObjectsWithQuery(query)];
@@ -28101,7 +28144,7 @@
           return;
         }
         var member_ids = _.map(flannel_response.objects, "id");
-        _renderMemberList(model_ob, member_ids);
+        _renderMemberList(model_ob, member_ids, silent_refresh);
         return null;
       }).catch(function(errors) {
         TS.log(1989, "Flannel error: failed to fetch all members for channel " + model_ob.id);
@@ -28117,8 +28160,19 @@
       _renderMemberList(model_ob);
     }
   };
+  var _silentlyRebuildMemberLists = function() {
+    if (TS.useSearchableMemberList()) {
+      var model_ob = TS.shared.getActiveModelOb();
+      var silent_refresh = true;
+      _rebuildMemberLists(model_ob, silent_refresh);
+    }
+  };
+  var _throttledSilentlyRebuildMemberLists = _.throttle(_silentlyRebuildMemberLists, MEMBER_LIST_REFRESH_THROTTLE_MS);
   var _removeMemberItem = function(member) {
-    if (TS.useSearchableMemberList()) return;
+    if (TS.useSearchableMemberList()) {
+      _throttledSilentlyRebuildMemberLists();
+      return;
+    }
     var $row = $("#channel_page_all_members #" + _memberRowId(member));
     $row.remove();
     var i;
@@ -28133,7 +28187,10 @@
     _triggerInitialLazyLoad();
   };
   var _addMemberItem = function(member) {
-    if (TS.useSearchableMemberList()) return;
+    if (TS.useSearchableMemberList()) {
+      _throttledSilentlyRebuildMemberLists();
+      return;
+    }
     var i;
     for (i = 0; i < _members.length; i++) {
       var compare = TS.members.memberSorterByActiveWithBotsLast(member, _members[i]);
@@ -28157,7 +28214,10 @@
     TS.client.channel_page.members_dialog.updateMembers(_members);
   };
   var _rebuildMember = function(member) {
-    if (TS.useSearchableMemberList()) return;
+    if (TS.useSearchableMemberList()) {
+      _throttledSilentlyRebuildMemberLists();
+      return;
+    }
     _removeMemberItem(member);
     _addMemberItem(member);
   };
@@ -35277,6 +35337,9 @@ function timezones_guess() {
               latest: _init_timestamp,
               always_asc: true
             };
+            if (TS.boot_data.feature_message_replies_ignore_on_history) {
+              api_args.ignore_replies = true;
+            }
             TS.client.unread.debug("Backfilling using api_args: ", _.clone(api_args));
             TS.api.call(TS.shared.getHistoryApiMethodForModelOb(_backfilling_for_group.model_ob), api_args).then(function(resp) {
               clearTimeout(_slow_loading_timeout);

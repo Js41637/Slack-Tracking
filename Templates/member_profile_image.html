@@ -1,6 +1,6 @@
 <a  {{#if is_targettable}}
     {{#if entity.is_service}}
-      href="/services/{{entity.id}}" target="/services/{{entity.id}}" class="service_link member_image thumb_36 {{#feature flag="feature_app_cards_and_profs_frontend"}}app_preview_link{{/feature}}"
+      href="/services/{{entity.id}}" target="/services/{{entity.id}}" class="service_link member_image thumb_36 app_preview_link"
     {{else}}
       href="/team/{{entity.name}}" target="/team/{{entity.name}}"
     {{/if}}

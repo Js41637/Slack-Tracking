@@ -4466,7 +4466,7 @@
         if (success) {
           var original_text = $(btn).find(".ladda-label").text();
           $(btn).data("original_text", original_text);
-          $(btn).removeClass("").addClass("btn_success").find(".ladda-label").html('<i class="ts_icon ts_icon_check_circle_o small_right_margin"></i>Saved');
+          $(btn).removeClass("").addClass("btn_success").find(".ladda-label").html('<i class="ts_icon ts_icon_check_circle_o small_right_margin"></i>' + TS.i18n.t("Saved", "ui")());
         }
       }
     },

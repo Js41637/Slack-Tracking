@@ -8888,6 +8888,9 @@ TS.registerModule("constants", {
         latest: model_ob.msgs[model_ob.msgs.length - 1].ts,
         count: count || TS.model.subsequent_msgs_cnt
       };
+      if (TS.boot_data.feature_message_replies_ignore_on_history) {
+        api_args.ignore_replies = true;
+      }
       controller.fetchHistory(model_ob, api_args);
     },
     checkForMoreMsgs: function(model_ob) {
@@ -11557,6 +11560,9 @@ TS.registerModule("constants", {
         if (member.is_self && !searcher.include_self || member.is_slackbot && !searcher.include_slackbot) {
           searcher.num_found--;
           return false;
+        }
+        if (searcher.limit_by_model_relevancy) {
+          return TS.utility.members.isMemberRelevantToModel(member, searcher.limit_by_model_relevancy);
         }
         return true;
       });
@@ -20443,11 +20449,11 @@ TS.registerModule("constants", {
       var target;
       if (member.is_service) {
         target = TS.utility.shouldLinksHaveTargets() ? 'target="/services/' + member.id + '"' : "";
-        if (TS.boot_data.feature_app_cards_and_profs_frontend) class_extras += " app_preview_link";
+        class_extras += " app_preview_link";
         html = '<a href="/services/' + member.id + '" ' + target + ' class="message_sender service_link ' + class_extras + '">';
       } else {
         target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + safe_name + '"' : "";
-        class_extras += TS.boot_data.feature_app_cards_and_profs_frontend && member.is_bot ? " app_preview_link" : " member member_preview_link";
+        class_extras += member.is_bot ? " app_preview_link" : " member member_preview_link";
         class_extras += " " + TS.templates.builders.makeMemberTypeBadgeClass(member);
         html = '<a href="/team/' + safe_name + '" ' + target + ' class="message_sender ' + class_extras + '" data-member-id="' + member.id + '">';
       }
@@ -20573,7 +20579,7 @@ TS.registerModule("constants", {
         classes.push("thumb_" + size);
         if (entity.is_bot) {
           classes.push("is_bot");
-          classes.push(TS.boot_data.feature_app_cards_and_profs_frontend ? "app_preview_link" : "member_preview_link");
+          classes.push("app_preview_link");
         } else {
           classes.push("member_preview_link");
         }
@@ -20853,12 +20859,11 @@ TS.registerModule("constants", {
     makeBotLink: function(bot, username) {
       var start_a = "";
       var end_a = "";
-      var app_class_extras = TS.boot_data.feature_app_cards_and_profs_frontend ? "app_preview_link " : "";
       if (bot && !bot.deleted) {
-        start_a = '<a class="' + app_class_extras + '" target="/services/' + bot.id + '" href="/services/' + bot.id + '">';
+        start_a = '<a class="app_preview_link" target="/services/' + bot.id + '" href="/services/' + bot.id + '">';
         end_a = "</a>";
-      } else if (TS.boot_data.feature_app_cards_and_profs_frontend) {
-        start_a = '<a class="' + app_class_extras + '">';
+      } else {
+        start_a = '<a class="app_preview_link">';
         end_a = "</a>";
       }
       return {
@@ -21763,7 +21768,7 @@ TS.registerModule("constants", {
           msg = _.cloneDeep(msg);
           msg.text += " <slack-action://BSLACKBOT/help/files/D026MK7NF|testing>";
         }
-        if ((TS.boot_data.feature_app_cards_and_profs_frontend || TS.boot_data.feature_platform_metrics) && is_bot) {
+        if (TS.boot_data.feature_platform_metrics && is_bot) {
           var bot_info = TS.bots.getBotInfoByMsg(msg);
           if (bot_info) {
             app_id = bot_info.app_id;
@@ -26710,6 +26715,9 @@ TS.registerModule("constants", {
         count: 1e3,
         inclusive: true
       };
+      if (TS.boot_data.feature_message_replies_ignore_on_history) {
+        options.ignore_replies = true;
+      }
       if (newest_ts_we_have) options.latest = newest_ts_we_have;
       TS.log(773, log_prefix + ", range = " + options.oldest + " -> " + (options.latest || "now"));
       TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), options).then(function(res) {
@@ -26970,6 +26978,22 @@ TS.registerModule("constants", {
         return;
       }
       return model_ob.members && model_ob.members.indexOf(member_id) != -1;
+    },
+    isMemberRelevantToModel: function(member, model_ob) {
+      if (!_.isObject(member)) member = TS.members.getMemberById(member);
+      if (!member) {
+        return false;
+      }
+      if (member.deleted) {
+        return false;
+      }
+      if (!_.isObject(model_ob)) {
+        model_ob = TS.shared.getModelObById(model_ob) || TS.shared.getActiveModelOb();
+      }
+      if (TS.boot_data.page_needs_enterprise && model_ob && !model_ob.is_shared) {
+        return member._is_local;
+      }
+      return true;
     },
     isMemberElement: function(el) {
       if (el.hasAttribute("data-member-id")) return true;
@@ -29572,10 +29596,8 @@ TS.registerModule("constants", {
               display_name = no_highlights ? bot.name : _doHighlighting(bot.name);
               if (A[i + 1] && A[i + 1] == url) display_name = url;
               display_name = display_name.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-              if (TS.boot_data.feature_app_cards_and_profs_frontend) {
-                if (bot.app_id) {
-                  app_id = bot.app_id;
-                }
+              if (bot.app_id) {
+                app_id = bot.app_id;
               }
               str += '<a href="' + url + '" ' + target + 'data-bot-id="' + bot_id + '" data-app-id="' + app_id + '" class="internal_bot_link app_preview_link">' + display_name;
             } else if (url.indexOf(TS.utility.msgs.api_url_prefix + "chat.help") === 0) {
@@ -29717,7 +29739,7 @@ TS.registerModule("constants", {
       "member-name": m.name,
       "stringify-text": "@" + m.id
     };
-    if (TS.boot_data.feature_app_cards_and_profs_frontend && m.is_bot && m.profile) {
+    if (m.is_bot && m.profile) {
       var bot_id = _.get(m.profile, "bot_id");
       if (bot_id) {
         data_tags_object["bot-id"] = bot_id;
@@ -34339,7 +34361,7 @@ var _on_esc;
       var member = TS.menu.member.member = TS.members.getMemberById(member_id);
       if (!member) return;
       if (!TS.permissions.members.canUserSeeMember(member)) return;
-      if (TS.boot_data.feature_app_cards_and_profs_frontend && member.is_bot && _.get(member.profile, "bot_id")) {
+      if (member.is_bot && _.get(member.profile, "bot_id")) {
         return TS.menu.app.startWithApp(e, _.get(member.profile, "bot_id"));
       }
       var show_email_item = TS.model.team.prefs.allow_email_ingestion;
@@ -44235,12 +44257,15 @@ $.fn.togglify = function(settings) {
     delete _expanded_content_state[state_id];
     $msg.find(".inline_file_preview_container, .file_container").removeClass("inline_expanded").addClass("inline_collapsed");
     if (!_no_scrolling) {
-      $msg.scrollintoview({
-        duration: 0,
-        offset: "top",
-        px_offset: 0,
-        direction: "y"
-      });
+      var boundingRect = $msg[0].getBoundingClientRect();
+      if (boundingRect.top < 0) {
+        $msg.scrollintoview({
+          duration: 0,
+          offset: "top",
+          px_offset: 0,
+          direction: "y"
+        });
+      }
     }
     TS.inline_file_previews.collapse_sig.dispatch($msg);
     if (TS.client) TS.ui.utility.updateClosestMonkeyScroller($msg);
@@ -48489,60 +48514,58 @@ $.fn.togglify = function(settings) {
       if (!$thread.length) return;
       TS.ui.thread.collapseInlineThread($thread);
     });
-    if (TS.boot_data.feature_app_cards_and_profs_frontend) {
-      TS.click.addClientHandler(".app_preview_link", function(e, $el) {
-        var $closest_ts_message = $el.closest("[data-bot-id]");
-        if (TS.model.user.is_restricted || TS.model.user.is_ultra_restricted) {
-          var member_name = $el.data("member-name");
-          if (member_name) {
-            e.preventDefault();
-            return TS.view.onMemberReferenceClick(e, member_name);
-          } else {
-            return;
-          }
-        }
-        e.preventDefault();
-        var bot_id = $closest_ts_message.data("bot-id");
-        if (TS.boot_data.feature_platform_metrics) {
-          var message_ts = $closest_ts_message.data("ts") + "";
-          var message_c_id = $closest_ts_message.data("model-ob-id");
-          var member_id = $closest_ts_message.data("member-id");
-          var app_id = $closest_ts_message.data("app-id");
-          var payload = {
-            message_timestamp: message_ts,
-            channel_id: message_c_id,
-            channel_type: message_c_id ? message_c_id.charAt(0) : "",
-            member_id: member_id,
-            app_id: app_id,
-            bot_id: bot_id
-          };
-          TS.clog.track("USERNAME_CLICK", payload);
-        }
-        if (bot_id) {
-          TS.menu.app.startWithApp(e, bot_id);
+    TS.click.addClientHandler(".app_preview_link", function(e, $el) {
+      var $closest_ts_message = $el.closest("[data-bot-id]");
+      if (TS.model.user.is_restricted || TS.model.user.is_ultra_restricted) {
+        var member_name = $el.data("member-name");
+        if (member_name) {
+          e.preventDefault();
+          return TS.view.onMemberReferenceClick(e, member_name);
         } else {
-          TS.warn("hmm, no data-bot-id?");
+          return;
         }
-      });
-      TS.click.addHandler("[data-slash-command-autofill]", function(e, $el) {
-        var $input = TS.client.msg_input.$input;
-        var value = TS.utility.contenteditable.value($input);
-        var command = $el.data("slash-command-autofill");
-        if (!value) {
-          TS.utility.contenteditable.clear($input);
-          TS.utility.contenteditable.insertTextAtCursor($input, command);
-          if (!TS.boot_data.feature_texty && TS.boot_data.feature_you_autocomplete_me) {
-            $input.TS_tabCompleteNew("promiseToChoose", undefined, true);
-          } else if (!TS.boot_data.feature_texty) {
-            $input.TS_tabComplete("promiseToChoose", undefined, true);
-          }
+      }
+      e.preventDefault();
+      var bot_id = $closest_ts_message.data("bot-id");
+      if (TS.boot_data.feature_platform_metrics) {
+        var message_ts = $closest_ts_message.data("ts") + "";
+        var message_c_id = $closest_ts_message.data("model-ob-id");
+        var member_id = $closest_ts_message.data("member-id");
+        var app_id = $closest_ts_message.data("app-id");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: member_id,
+          app_id: app_id,
+          bot_id: bot_id
+        };
+        TS.clog.track("USERNAME_CLICK", payload);
+      }
+      if (bot_id) {
+        TS.menu.app.startWithApp(e, bot_id);
+      } else {
+        TS.warn("hmm, no data-bot-id?");
+      }
+    });
+    TS.click.addHandler("[data-slash-command-autofill]", function(e, $el) {
+      var $input = TS.client.msg_input.$input;
+      var value = TS.utility.contenteditable.value($input);
+      var command = $el.data("slash-command-autofill");
+      if (!value) {
+        TS.utility.contenteditable.clear($input);
+        TS.utility.contenteditable.insertTextAtCursor($input, command);
+        if (!TS.boot_data.feature_texty && TS.boot_data.feature_you_autocomplete_me) {
+          $input.TS_tabCompleteNew("promiseToChoose", undefined, true);
+        } else if (!TS.boot_data.feature_texty) {
+          $input.TS_tabComplete("promiseToChoose", undefined, true);
         }
-        TS.utility.contenteditable.value($input, command + " " + value);
-        TS.utility.contenteditable.cursorPosition($input, command.length + 1, value.length);
-        TS.utility.contenteditable.focus($input);
-        if (!TS.boot_data.feature_texty) $input.trigger("textchange");
-      });
-    }
+      }
+      TS.utility.contenteditable.value($input, command + " " + value);
+      TS.utility.contenteditable.cursorPosition($input, command.length + 1, value.length);
+      TS.utility.contenteditable.focus($input);
+      if (!TS.boot_data.feature_texty) $input.trigger("textchange");
+    });
     if (TS.boot_data.feature_sli_recaps) {
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
         if ($(e.target).hasClass("recap_highlight_marker")) {
