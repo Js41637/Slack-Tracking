@@ -104,17 +104,6 @@
         });
       });
     },
-    getMemberCountForModelOb: function(model_ob) {
-      var model_ob_members;
-      if (_.get(model_ob, "members")) {
-        model_ob_members = model_ob.members;
-      } else if (_.get(model_ob, "user")) {
-        model_ob_members = [model_ob.user];
-      } else {
-        throw new Error("model_ob must have a members array or user string");
-      }
-      return _.difference(model_ob_members, _deleted_user_ids).length;
-    },
     setMemberDeletedStatus: function(user_id, is_deleted) {
       if (!_.isString(user_id)) {
         throw new Error("Expected user_id to be a string");

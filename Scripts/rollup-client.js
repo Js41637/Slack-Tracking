@@ -7009,13 +7009,11 @@
     rebuildMemberListToggle: function() {
       if (TS.model.active_channel_id || TS.model.active_group_id || TS.model.active_mpim_id) {
         var model_ob = TS.shared.getActiveModelOb();
-        if (!TS.membership.lazyLoadChannelMembership()) {
+        if (!TS.lazyLoadMembersAndBots()) {
           var has_count = true;
           var count;
           if (TS.isPartiallyBooted()) {
             count = _.get(model_ob, "_incremental_boot_counts.member_count_display", 0);
-          } else if (TS.lazyLoadMembersAndBots()) {
-            count = TS.flannel.getMemberCountForModelOb(model_ob);
           } else {
             count = _(model_ob.members).map(TS.members.getMemberById).compact().reject(function(member) {
               if (TS.boot_data.page_needs_enterprise) {
@@ -35370,7 +35368,7 @@ function timezones_guess() {
                 reject(new Error("channels.history rejected because we are no longer backfilling or we are backfilling a different group"));
               }
             }).catch(function(err) {
-              TS.error(err);
+              TS.console.logError(err, "all_unreads_fatal_error");
               clearTimeout(_slow_loading_timeout);
               TS.client.ui.unread.displayFatalError();
             });

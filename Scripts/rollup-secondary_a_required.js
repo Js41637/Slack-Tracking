@@ -21704,19 +21704,20 @@ TS.registerModule("constants", {
     $.each(html_attrs, function(key, value) {
       attributes.push(key + '="' + value + '"');
     });
-    var readable_type = type;
-    if (type === "file_comment") {
-      readable_type = TS.i18n.t("file comment", "templates_builders")();
-    } else if (type === "im" || type === "mpim") {
-      readable_type = TS.i18n.t("direct message", "templates_builders")();
-    } else if (type === "group") {
-      readable_type = TS.i18n.t("channel", "templates_builders")();
-    }
+    var readable_types = {
+      message: TS.i18n.t("message", "templates_builders")(),
+      file: TS.i18n.t("file", "templates_builders")(),
+      file_comment: TS.i18n.t("file comment", "templates_builders")(),
+      channel: TS.i18n.t("channel", "templates_builders")(),
+      group: TS.i18n.t("channel", "templates_builders")(),
+      im: TS.i18n.t("direct message", "templates_builders")(),
+      mpim: TS.i18n.t("direct message", "templates_builders")()
+    };
     return {
       attributes: attributes,
       class_names: class_names,
       html_attrs: html_attrs,
-      readable_type: readable_type,
+      readable_type: readable_types[type],
       is_starred: ob.is_starred
     };
   }
