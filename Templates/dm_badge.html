@@ -35,8 +35,9 @@
       {{#feature flag="feature_user_custom_status"}}
         {{#if member.profile.status_text}}
           <br />
-
-          {{getMemberCurrentStatusEmoji member}} {{getMemberCurrentStatusText member}}
+          <span class="current_status">
+            {{getMemberCurrentStatusEmoji member}} {{getMemberCurrentStatusText member}}
+          </span>
         {{/if}}
       {{/feature}}
       {{#pageNeedsEnterprise}}

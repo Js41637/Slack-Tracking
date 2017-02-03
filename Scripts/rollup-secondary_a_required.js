@@ -40717,7 +40717,7 @@ var _on_esc;
     if (!lazy_filter_select.length) return;
     var options = {
       append: true,
-      classes: "normal_style disabled",
+      classes: "disabled",
       preselected_ids: [TS.members.getMemberByName("slackbot").id]
     };
     TS.ui.people_picker.make(lazy_filter_select, options);
@@ -45430,6 +45430,12 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("ui.lazy_filter_select", {
+    STYLES: {
+      "default": "default",
+      filter_in_list: "filter_in_list",
+      normal: "normal",
+      small: "small"
+    },
     onStart: function() {
       $("select[data-lazy-filter-select], label[data-lazy-filter-select] select").addClass("hidden").lazyFilterSelect({
         use_data_attributes: true
@@ -45462,6 +45468,7 @@ $.fn.togglify = function(settings) {
       if (instance.classes) $container.addClass(instance.classes);
       if ($select.prop("disabled")) instance.disabled = true;
       if (instance.disabled) $container.addClass("disabled");
+      instance.style = _.get(TS.ui.lazy_filter_select.STYLES, instance.style, TS.ui.lazy_filter_select.STYLES.default);
       var html = TS.templates.lazy_filter_select_container({
         instance: instance,
         aria_labelledby: $select.attr("aria-labelledby")
@@ -45472,7 +45479,7 @@ $.fn.togglify = function(settings) {
       } else {
         $container.insertAfter($select);
       }
-      if (instance.default_style) $container.addClass("default_style");
+      $container.addClass(instance.style + "_style");
       if (instance.single) $container.addClass("single");
       if (instance.width) $container.css("width", instance.width);
       if (instance.css) $container.css(instance.css);
@@ -45524,7 +45531,6 @@ $.fn.togglify = function(settings) {
     approx_item_height: 30,
     data_promise: null,
     data_qa: "lfs",
-    default_style: true,
     disabled: false,
     filter: function(item, query) {
       var text = item.toString();
@@ -45573,6 +45579,7 @@ $.fn.togglify = function(settings) {
       key_name: null,
       validator: null
     },
+    style: TS.ui.lazy_filter_select.STYLES.default,
     template: function(item) {
       var text = item.toString();
       var addl_text;
@@ -46652,6 +46659,10 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("ui.people_picker", {
+    STYLES: {
+      normal: "normal",
+      small: "small"
+    },
     onStart: function() {},
     preload: function(options) {
       _createFilterFunction(options)("");
@@ -46660,6 +46671,7 @@ $.fn.togglify = function(settings) {
     make: function($el, options) {
       options = options || {};
       if (!options.append) $el.addClass("hidden");
+      options.style = _.get(TS.ui.people_picker.STYLES, options.style, TS.ui.people_picker.STYLES.normal);
       if (TS.boot_data.page_needs_enterprise || options.force_lazy_filter_select) {
         $el.lazyFilterSelect({
           append: !!options.append,
@@ -46667,9 +46679,10 @@ $.fn.togglify = function(settings) {
           approx_item_height: options.approx_item_height || 50,
           data_promise: _createFilterFunction(options),
           placeholder_text: options.placeholder_text || TS.i18n.t("Search by name", "people_picker")(),
-          classes: options.classes || "normal_style",
+          classes: "people_picker",
           scroll_threshold: 2500,
           single: !!options.single,
+          style: options.style,
           template: options.template || function(item) {
             var html = TS.templates.member_small({
               member: item.member
@@ -46706,8 +46719,9 @@ $.fn.togglify = function(settings) {
           per_page: 50,
           approx_item_height: options.approx_item_height || 50,
           placeholder_text: options.placeholder_text || TS.i18n.t("Search by name", "people_picker")(),
-          classes: options.classes || "normal_style",
+          classes: "people_picker",
           single: !!options.single,
+          style: options.style,
           template: options.template || function(item) {
             var html = TS.templates.member_small({
               member: item.member
@@ -50282,8 +50296,7 @@ $.fn.togglify = function(settings) {
     $container.find('[name="domains"]').each(function(index, el) {
       var $el = $(el);
       TS.ui.team_picker.make($el, {
-        teams: _getEnterpriseTeamsFromModelLessOwn(),
-        classes: "normal_style team_picker"
+        teams: _getEnterpriseTeamsFromModelLessOwn()
       });
       $el.on("change", function() {
         var value = TS.ui.team_picker.value($el).map(function(item) {
@@ -50876,6 +50889,10 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("ui.team_picker", {
+    STYLES: {
+      normal: "normal",
+      small: "small"
+    },
     onStart: function() {},
     make: function($el, options) {
       options = options || {};
@@ -50883,15 +50900,17 @@ $.fn.togglify = function(settings) {
       var start_regex;
       var suffix_regex;
       if (!options.append) $el.addClass("hidden");
+      options.style = _.get(TS.ui.team_picker.STYLES, options.style, TS.ui.team_picker.STYLES.normal);
       var filter_select_options = {
         append: !!options.append,
         data: _makeTeamsWithPreselectsForTemplate(options.teams || [], options.preselected_ids || []),
         approx_item_height: 38,
         per_page: 50,
         placeholder_text: TS.i18n.t("Add teams", "team_picker")(),
-        classes: options.classes || "normal_style",
+        classes: "team_picker",
         restrict_preselected_item_removal: options.restrict_preselected_item_removal || false,
         single: !!options.single,
+        style: options.style,
         template: function(item) {
           var html = TS.templates.invite_team_small({
             team: item.team
@@ -56602,7 +56621,7 @@ $.fn.togglify = function(settings) {
           var has_selected_options = _.some($el.find("option"), "attributes.selected");
           var lfs_options = {
             allow_list_position_above: true,
-            classes: "select_attachment message_menu_style",
+            classes: "select_attachment",
             disabled: $el.attr("disabled"),
             filter: _filter,
             no_default_selection: !has_selected_options,
@@ -56610,7 +56629,8 @@ $.fn.togglify = function(settings) {
             onListHidden: _onListHidden,
             onListShown: _getOnListShownCallback(data_source, service_id),
             placeholder_text: $el.attr("placeholder") || _PLACEHOLDER_TEXT.default,
-            should_graphic_replace_emoji: true
+            should_graphic_replace_emoji: true,
+            style: TS.ui.lazy_filter_select.STYLES.filter_in_list
           };
           if (data_source === _DATA_SOURCES.external) {
             lfs_options.data_promise = _getExternalDataPromise($el);

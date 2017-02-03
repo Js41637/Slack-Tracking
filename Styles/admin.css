@@ -541,12 +541,12 @@
   }
 }
 
-.lazy_filter_select.default_style .lfs_token.lfs_token_default_group {
+.lazy_filter_select .lfs_token.lfs_token_default_group {
   background-color: #9e9ea6;
   border-color: #9e9ea6
 }
 
-.lazy_filter_select.default_style .lfs_token.lfs_token_user_group {
+.lazy_filter_select .lfs_token.lfs_token_user_group {
   background-color: #2ab27b;
   border-color: #2ab27b
 }

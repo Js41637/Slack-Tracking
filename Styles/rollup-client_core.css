@@ -7606,10 +7606,42 @@ ts-memory-instrument {
   z-index: 10000;
   background: #fff;
   font-size: 12px;
-  padding: .15rem .25rem .1rem;
+  padding: 0;
   color: #3d3c40;
   font-family: Helvetica;
-  border-radius: .25rem 0 0
+  border-radius: .25rem 0 0;
+  border: 1px solid #e0e0e0;
+  cursor: zoom-in
+}
+
+ts-memory-instrument table {
+  margin: 0
+}
+
+ts-memory-instrument table tr {
+  display: none
+}
+
+ts-memory-instrument table tr:last-child {
+  display: table-row
+}
+
+ts-memory-instrument table tr td:first-child,
+ts-memory-instrument table tr th:first-child {
+  padding-left: .5rem
+}
+
+ts-memory-instrument table td,
+ts-memory-instrument table th {
+  padding: .15rem .25rem .15rem 0
+}
+
+ts-memory-instrument.expanded {
+  cursor: zoom-out
+}
+
+ts-memory-instrument.expanded tr {
+  display: table-row
 }
 
 html.is_electron_mac #client_header {

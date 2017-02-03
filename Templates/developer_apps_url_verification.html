@@ -113,7 +113,6 @@
         data-validation-warning="{{#t}}Valid HTTPS URLs only, please and thanks!{{/t}}"
       {{/if}}
       value="{{new_url}}">
-    <br>
     <div class="inline_textfield_button">
   \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0<button id="cancel_change_url" class="btn btn_small btn_outline small_top_margin" for="request_url">{{#t note="cancel button"}}Cancel{{/t}}</button>
     {{#if failed_verification}}
@@ -122,12 +121,11 @@
     </div>
   {{/if}}
   {{#if response}}
-    <br><br>
     <div class="failed_url_verification_challenge">
     <pre><code><span class="bold">{{#t note="Title of a block of code showing our request data"}}Our Request:{{/t}}</span><br>POST<br>"body": { <br>&#09 "type": <span class="code_string request">"url_verification"</span>,<br>&#09 "token": <span class="code_string request">"{{response.token}}"</span>,<br>&#09 "challenge": <span class="code_string request">"{{response.challenge}}"</span><br>}<br><span class="bold">{{#t note="Title of a block of code showing the developer's response"}}Your Response:{{/t}}</span><br>"code": <span class="code_string response">{{response.code}}</span><br>"error": <span class="code_string response">"{{response.error}}"</span><br>"body": {<br> <span class="code_string response">{{response.body}}</span> <br>}</code></pre>
     </div>
   {{/if}}
   {{#t}}
-  <aside class="small subtle_silver bottom_margin">We\u2019ll send an HTTP POST requests to this URL when events occur. As soon as you enter a URL, we\u2019ll send a request with a <code>challenge</code> parameter, and your endpoint must respond with the challenge value.<a href="/events/url_verification"> Learn more.</a></aside><br><br>
+  <aside class="small subtle_silver top_margin bottom_margin">{{#t}}We\u2019ll send an HTTP POST requests to this URL when events occur. As soon as you enter a URL, we\u2019ll send a request with a <code>challenge</code> parameter, and your endpoint must respond with the challenge value.<a href="/events/url_verification"> Learn more.</a>{{/t}}</aside>
   {{/t}}
 </div>

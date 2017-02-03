@@ -5587,7 +5587,6 @@
       TS.rooms.changed_date_end_sig.add(_roomEndedChanged);
       TS.rooms.changed_channels_sig.add(_roomChannelsChanged);
       if (TS.boot_data.feature_hide_email_pref) TS.prefs.team_display_email_addresses_changed_sig.add(_onDisplayEmailAddressesPrefChanged);
-      if (TS.boot_data.feature_electron_memory_logging) TS.prefs.show_memory_instrument_changed_sig.add(_onMemoryInstrumentPrefChanged);
       if (boot_data.feature_calls) {
         TS.prefs.team_allow_calls_changed_sig.add(_maybeUpdateCallAction);
       }
@@ -5735,9 +5734,6 @@
       });
       if (window.extraCmds) window.extraCmds();
       TS.shared.checkDisplayEmailAddressPref();
-      if (TS.boot_data.feature_electron_memory_logging && TS.model.prefs.show_memory_instrument && TS.model.is_electron) {
-        _setMemoryInstrumentInterval();
-      }
     },
     rebuildAllButMsgs: function(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header) {
       TS.client.channel_pane.rebuild("channels", "ims", "starred");
@@ -6114,7 +6110,7 @@
     },
     checkForEditing: function(e) {
       if (!TS.msg_edit.editing) return false;
-      if (!e || !e.target || $(e.target).closest("#message_edit_form").length === 0) {
+      if (!e || !e.target || $(e.target).closest("#message_edit_form, #emoji_menu").length === 0) {
         if (!TS.msg_edit.editing_in_msg_pane) return false;
         if (TS.msg_edit.cancelEditingINothingHasChanged()) {
           return false;
@@ -7977,50 +7973,7 @@
   }, 150);
   var _pending_unfurl_id = 0;
   var _displayUserGroupInFlight;
-  var _previous_memory_usage_team_mb = 0;
-  var _memory_instrument_interval = null;
   var _scrolled_to_msg_timeout = null;
-  var _rebuildMemoryInstrument = function() {
-    var combined_stats = TS.metrics.getMemoryUsage();
-    if (!combined_stats || !combined_stats.memory) {
-      TS.warn("_rebuildMemoryInstrument: Unable to get memory stats. Clearing interval and exiting.");
-      return _removeMemoryInstrument();
-    }
-    var memory_usage_team_mb = Math.floor(TS.utility.convertKilobytesToMegabytes(combined_stats.memory.privateBytes + combined_stats.memory.sharedBytes));
-    var delta = 0;
-    if (_previous_memory_usage_team_mb > 0) {
-      delta = Math.floor(memory_usage_team_mb - _previous_memory_usage_team_mb);
-    }
-    var html = TS.templates.memory_instrument({
-      memory_usage_team_mb: memory_usage_team_mb,
-      delta: delta
-    });
-    if (!$("ts-memory-instrument").length) {
-      $("body").append(html);
-    } else {
-      $("ts-memory-instrument").replaceWith(html);
-    }
-    _previous_memory_usage_team_mb = memory_usage_team_mb;
-  };
-  var _setMemoryInstrumentInterval = function() {
-    if (!TS.model.is_electron) return;
-    _memory_instrument_interval = setInterval(function() {
-      _rebuildMemoryInstrument();
-    }, 5e3);
-  };
-  var _removeMemoryInstrument = function() {
-    clearInterval(_memory_instrument_interval);
-    $("ts-memory-instrument").remove();
-  };
-  var _onMemoryInstrumentPrefChanged = function() {
-    if (!TS.model.is_electron) return;
-    if (TS.model.prefs.show_memory_instrument) {
-      _setMemoryInstrumentInterval();
-      _rebuildMemoryInstrument();
-    } else {
-      _removeMemoryInstrument();
-    }
-  };
   var _onDisplayEmailAddressesPrefChanged = function() {
     TS.shared.onDisplayEmailAddressesPrefChanged();
   };
@@ -9500,6 +9453,16 @@
     _fetchPage: function() {
       if (this._fetch_page_p) return this._fetch_page_p;
       var this_searchable_member_list = this;
+      var query_params = this._buildQueryParams();
+      this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
+        this_searchable_member_list._fetch_page_p = null;
+        this_searchable_member_list._next_marker = response.next_marker;
+        if (!response.next_marker) this_searchable_member_list._have_all_members = true;
+        return response.objects || response;
+      });
+      return this._fetch_page_p;
+    },
+    _buildQueryParams: function() {
       var query_params = {
         count: this._current_query_for_match ? FETCH_PAGE_SIZE_SEARCH : FETCH_PAGE_SIZE,
         index: TS.members.shouldDisplayRealNames() ? "users_by_realname" : "users_by_name",
@@ -9517,13 +9480,7 @@
           return ob.is_im ? ob.user : ob.id;
         });
       }
-      this._fetch_page_p = TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
-        this_searchable_member_list._fetch_page_p = null;
-        this_searchable_member_list._next_marker = response.next_marker;
-        if (!response.next_marker) this_searchable_member_list._have_all_members = true;
-        return response.objects || response;
-      });
-      return this._fetch_page_p;
+      return query_params;
     },
     _processPage: function(members) {
       this._members = _.union(this._members, members);
@@ -24400,8 +24357,7 @@
         return team.id !== TS.model.team.id;
       }) : [];
       TS.ui.team_picker.make($el, {
-        teams: teams,
-        classes: "normal_style team_picker"
+        teams: teams
       });
       $el.on("change", function() {
         var value = TS.ui.team_picker.value($el).map(function(item) {
@@ -25083,7 +25039,6 @@
       TS.ui.team_picker.make($el, {
         teams: all_teams,
         preselected_ids: preselected_ids,
-        classes: "normal_style team_picker",
         restrict_preselected_item_removal: true
       });
       $el.on("change", function() {

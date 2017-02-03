@@ -6528,12 +6528,12 @@ only screen and (min-resolution:2dppx) {
   opacity: 0
 }
 
-.current_status_input_container #menu_items li {
+.current_status_input_container #menu_items li a {
   padding-top: .125rem;
   padding-bottom: .125rem
 }
 
-.current_status_input_container #menu_items li .current_status_preset_option {
+.current_status_input_container #menu_items li a.current_status_preset_option {
   text-decoration: none
 }
 
@@ -6543,8 +6543,8 @@ only screen and (min-resolution:2dppx) {
   margin: 0
 }
 
-.current_status_input_container .current_status_clear li,
-.current_status_input_container .current_status_presets li {
+.current_status_input_container .current_status_clear li a,
+.current_status_input_container .current_status_presets li a {
   padding-top: .125rem;
   padding-bottom: .125rem
 }
@@ -23374,22 +23374,22 @@ only screen and (min-resolution:2dppx) {
   padding: .75rem
 }
 
-.user_group_settings_form .lazy_filter_select.default_style .lfs_input_container {
+.user_group_settings_form .lazy_filter_select .lfs_input_container {
   padding: .4rem .4rem .4rem 2.5rem
 }
 
-.user_group_settings_form .lazy_filter_select.default_style .lfs_input_container .lfs_input {
+.user_group_settings_form .lazy_filter_select .lfs_input_container .lfs_input {
   padding: 6px 0 6px 5px!important
 }
 
-.user_group_settings_form .lazy_filter_select.default_style .lfs_input_container .search_icon {
+.user_group_settings_form .lazy_filter_select .lfs_input_container .search_icon {
   display: inline;
   position: absolute;
   top: .625rem;
   left: 15px
 }
 
-.user_group_settings_form .lazy_filter_select.default_style .lfs_input_container input {
+.user_group_settings_form .lazy_filter_select .lfs_input_container input {
   font-size: 1.25rem;
   padding: .3rem
 }

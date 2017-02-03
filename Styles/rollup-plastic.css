@@ -12587,12 +12587,12 @@ only screen and (min-resolution:2dppx) {
   opacity: 0
 }
 
-.current_status_input_container #menu_items li {
+.current_status_input_container #menu_items li a {
   padding-top: .125rem;
   padding-bottom: .125rem
 }
 
-.current_status_input_container #menu_items li .current_status_preset_option {
+.current_status_input_container #menu_items li a.current_status_preset_option {
   text-decoration: none
 }
 
@@ -12602,8 +12602,8 @@ only screen and (min-resolution:2dppx) {
   margin: 0
 }
 
-.current_status_input_container .current_status_clear li,
-.current_status_input_container .current_status_presets li {
+.current_status_input_container .current_status_clear li a,
+.current_status_input_container .current_status_presets li a {
   padding-top: .125rem;
   padding-bottom: .125rem
 }
@@ -15697,27 +15697,27 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   unicode-range: U+F8FF
 }
 
-.lazy_filter_select.default_style {
+.lazy_filter_select {
   position: relative;
   display: block;
   font-weight: 400
 }
 
-.lazy_filter_select.default_style.disabled,
-.lazy_filter_select.default_style.disabled input.lfs_input {
+.lazy_filter_select.disabled,
+.lazy_filter_select.disabled input.lfs_input {
   background: #f9f9f9
 }
 
-.lazy_filter_select.default_style.disabled .lfs_input_container {
+.lazy_filter_select.disabled .lfs_input_container {
   color: #c5c5c5
 }
 
-.lazy_filter_select.default_style.disabled .lfs_input_container:active,
-.lazy_filter_select.default_style.disabled .lfs_input_container:hover {
+.lazy_filter_select.disabled .lfs_input_container:active,
+.lazy_filter_select.disabled .lfs_input_container:hover {
   border-color: #c5c5c5
 }
 
-.lazy_filter_select.default_style input.lfs_input {
+.lazy_filter_select input.lfs_input {
   border: none;
   font-size: 1rem;
   outline: 0;
@@ -15729,7 +15729,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   vertical-align: middle
 }
 
-.lazy_filter_select.default_style .lfs_input_container {
+.lazy_filter_select .lfs_input_container {
   border: 1px solid #c5c5c5;
   font: 400 1rem Slack-Lato, appleLogo, sans-serif;
   position: relative;
@@ -15742,28 +15742,28 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   overflow-y: auto
 }
 
-.lazy_filter_select.default_style .lfs_input_container.active,
-.lazy_filter_select.default_style .lfs_input_container:hover {
+.lazy_filter_select .lfs_input_container.active,
+.lazy_filter_select .lfs_input_container:hover {
   border-color: #2780f8
 }
 
-.lazy_filter_select.default_style .lfs_input_container.active {
+.lazy_filter_select .lfs_input_container.active {
   box-shadow: 0 0 7px rgba(39, 128, 248, .15)
 }
 
-.lazy_filter_select.default_style .lfs_input_container.empty .lfs_input {
+.lazy_filter_select .lfs_input_container.empty .lfs_input {
   width: 100%
 }
 
-.lazy_filter_select.default_style .lfs_input_container.monkey_scroller {
+.lazy_filter_select .lfs_input_container.monkey_scroller {
   max-height: 150px
 }
 
-.lazy_filter_select.default_style .lfs_input_container .search_icon {
+.lazy_filter_select .lfs_input_container .search_icon {
   display: none
 }
 
-.lazy_filter_select.default_style .lfs_list_container {
+.lazy_filter_select .lfs_list_container {
   display: none;
   position: absolute;
   z-index: 100;
@@ -15784,67 +15784,67 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   padding-right: .1875rem
 }
 
-.lazy_filter_select.default_style .lfs_list_container.visible {
+.lazy_filter_select .lfs_list_container.visible {
   display: block
 }
 
-.lazy_filter_select.default_style .lfs_list_container.position_above {
+.lazy_filter_select .lfs_list_container.position_above {
   top: auto;
   bottom: 100%
 }
 
-.lazy_filter_select.default_style .lfs_list_container .monkey_scroll_bar:not(.hidden)+.monkey_scroll_hider>.lfs_list {
+.lazy_filter_select .lfs_list_container .monkey_scroll_bar:not(.hidden)+.monkey_scroll_hider>.lfs_list {
   padding-right: 1.0625rem
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select.default_style .lfs_list_container .lfs_list {
+.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list {
   overflow-y: auto;
   border-right: .25rem solid transparent;
   border-right: none
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar {
+.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 12px
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   color: #fff;
   border-left: 4px solid #fff;
   border-radius: 8px 4px 4px 8px/4px
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-track {
+.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-track {
   background: #f3f3f3;
   box-shadow: inset 0 -4px 0 0, inset 0 4px 0 0
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-thumb {
   background: #d9d9de;
   box-shadow: inset 0 -2px, inset 0 -3px, inset 0 2px, inset 0 3px;
   min-height: 36px
 }
 
-.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-corner {
+.supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-corner {
   background: #fff
 }
 
-.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select.default_style .lfs_list_container .lfs_list {
+.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list {
   overflow-y: auto;
   margin-right: 2px;
   border-right: none
 }
 
-.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar {
+.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar {
   position: absolute;
   -webkit-appearance: none;
   width: 12px
 }
 
-.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-thumb {
+.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-thumb {
   background-color: rgba(217, 217, 222, .5);
   background-clip: padding-box!important;
   border-radius: 3px;
@@ -15852,18 +15852,18 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   min-height: 36px
 }
 
-.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-thumb:hover {
+.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-thumb:hover {
   background-color: rgba(217, 217, 222, .8)
 }
 
-.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-thumb,
-.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select.default_style .lfs_list_container .lfs_list::-webkit-scrollbar-track {
+.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-thumb,
+.supports_custom_scrollbar.slim_scrollbar .lazy_filter_select .lfs_list_container .lfs_list::-webkit-scrollbar-track {
   border-left: 4px solid transparent;
   border-radius: 8px 4px 4px 8px/4px
 }
 
-.lazy_filter_select.default_style .lfs_empty,
-.lazy_filter_select.default_style .lfs_error {
+.lazy_filter_select .lfs_empty,
+.lazy_filter_select .lfs_error {
   position: absolute;
   z-index: 100;
   width: 100%;
@@ -15885,32 +15885,32 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   font-size: .85rem
 }
 
-.lazy_filter_select.default_style .lfs_empty.position_above,
-.lazy_filter_select.default_style .lfs_error.position_above {
+.lazy_filter_select .lfs_empty.position_above,
+.lazy_filter_select .lfs_error.position_above {
   top: auto;
   bottom: 100%
 }
 
-.lazy_filter_select.default_style .lfs_list {
+.lazy_filter_select .lfs_list {
   max-height: 15.625rem;
   overflow: auto;
   margin-right: .0625rem;
   width: 100%
 }
 
-.lazy_filter_select.default_style .lfs_list .lfs_group,
-.lazy_filter_select.default_style .lfs_list .lfs_item {
+.lazy_filter_select .lfs_list .lfs_group,
+.lazy_filter_select .lfs_list .lfs_item {
   padding: .375rem;
   font-size: .85rem;
   line-height: 1rem
 }
 
-.lazy_filter_select.default_style .lfs_list .lfs_group {
+.lazy_filter_select .lfs_list .lfs_group {
   font-weight: 700;
   width: 100%
 }
 
-.lazy_filter_select.default_style .lfs_list .lfs_item {
+.lazy_filter_select .lfs_list .lfs_item {
   cursor: pointer;
   border: 1px solid transparent;
   border-radius: .125rem;
@@ -15921,16 +15921,16 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   white-space: nowrap
 }
 
-.lazy_filter_select.default_style .lfs_list .lfs_item.selected {
+.lazy_filter_select .lfs_list .lfs_item.selected {
   color: #2780f8
 }
 
-.lazy_filter_select.default_style .lfs_list .lfs_item.active {
+.lazy_filter_select .lfs_list .lfs_item.active {
   background-color: #edf7fd;
   border-color: #d3ecfa
 }
 
-.lazy_filter_select.default_style .lfs_item_icon {
+.lazy_filter_select .lfs_item_icon {
   border-radius: 2px;
   background-position: center center;
   background-repeat: no-repeat;
@@ -15942,12 +15942,12 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   width: 16px
 }
 
-.lazy_filter_select.default_style .lfs_item_desc {
+.lazy_filter_select .lfs_item_desc {
   color: #9e9ea6;
   margin-left: 2px
 }
 
-.lazy_filter_select.default_style .lfs_token {
+.lazy_filter_select .lfs_token {
   display: inline-block;
   margin: .2rem 0 .2rem .4rem;
   padding: .1875rem 1.5rem .1875rem .3125rem;
@@ -15962,7 +15962,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   vertical-align: middle
 }
 
-.lazy_filter_select.default_style .lfs_token:not(.disabled):after {
+.lazy_filter_select .lfs_token:not(.disabled):after {
   content: '\00D7';
   font-weight: 400;
   line-height: 0;
@@ -15976,38 +15976,38 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   transform: translateY(-50%)
 }
 
-.lazy_filter_select.default_style .lfs_token.lfs_token_user_groups {
+.lazy_filter_select .lfs_token.lfs_token_user_groups {
   background: #56b68b;
   border: 1px solid #56b68b
 }
 
-.lazy_filter_select.default_style .lfs_token.lfs_token_members {
+.lazy_filter_select .lfs_token.lfs_token_members {
   border: 1px solid #e8e8e8;
   color: #232323;
   background: #e8e8e8
 }
 
-.lazy_filter_select.default_style .lfs_token.lfs_token_members:after {
+.lazy_filter_select .lfs_token.lfs_token_members:after {
   color: #232323
 }
 
-.lazy_filter_select.default_style .lfs_token.lfs_invalid_slug {
+.lazy_filter_select .lfs_token.lfs_invalid_slug {
   background: #eb4d5c;
   border-color: #eb4d5c
 }
 
-.lazy_filter_select.default_style .lfs_token.disabled {
+.lazy_filter_select .lfs_token.disabled {
   background: #a0a0a2;
   border-color: #a0a0a2;
   padding-right: .5rem
 }
 
-.lazy_filter_select.default_style .lfs_token.lfs_token_pending_user {
+.lazy_filter_select .lfs_token.lfs_token_pending_user {
   background: #a0a0a2;
   border-color: #a0a0a2
 }
 
-.lazy_filter_select.default_style .group_token_sizer {
+.lazy_filter_select .group_token_sizer {
   height: 1.25rem;
   display: block;
   line-height: 1.5rem;
@@ -16016,7 +16016,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   margin-bottom: .1875rem
 }
 
-.lazy_filter_select.default_style.single .lfs_input_container:after {
+.lazy_filter_select.single .lfs_input_container:after {
   content: "\E271";
   font-family: Slack;
   position: absolute;
@@ -16026,17 +16026,17 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   pointer-events: none
 }
 
-.lazy_filter_select.default_style.single .lfs_input_container.active:after,
-.lazy_filter_select.default_style.single .lfs_input_container:hover:after {
+.lazy_filter_select.single .lfs_input_container.active:after,
+.lazy_filter_select.single .lfs_input_container:hover:after {
   color: #2780f8
 }
 
-.lazy_filter_select.default_style.single.disabled .lfs_input_container.active:after,
-.lazy_filter_select.default_style.single.disabled .lfs_input_container:hover:after {
+.lazy_filter_select.single.disabled .lfs_input_container.active:after,
+.lazy_filter_select.single.disabled .lfs_input_container:hover:after {
   color: currentColor
 }
 
-.lazy_filter_select.default_style.single .lfs_item {
+.lazy_filter_select.single .lfs_item {
   line-height: 1rem;
   display: block;
   text-overflow: ellipsis;
@@ -16044,38 +16044,38 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   white-space: nowrap
 }
 
-.lazy_filter_select.default_style.single .lfs_input,
-.lazy_filter_select.default_style.single .lfs_input_container {
+.lazy_filter_select.single .lfs_input,
+.lazy_filter_select.single .lfs_input_container {
   cursor: default
 }
 
-.lazy_filter_select.default_style.single .lfs_input {
+.lazy_filter_select.single .lfs_input {
   padding-left: .75rem
 }
 
-.lazy_filter_select.default_style.single.value .active .lfs_value,
-.lazy_filter_select.default_style.single.value .lfs_input {
+.lazy_filter_select.single.value .active .lfs_value,
+.lazy_filter_select.single.value .lfs_input {
   display: none
 }
 
-.lazy_filter_select.default_style.single.value .active .lfs_input {
+.lazy_filter_select.single.value .active .lfs_input {
   display: block
 }
 
-.lazy_filter_select.default_style.single:not(.value) .lfs_value {
+.lazy_filter_select.single:not(.value) .lfs_value {
   display: none
 }
 
-.lazy_filter_select.default_style .lfs_value {
+.lazy_filter_select .lfs_value {
   padding: .45rem 2.5rem .55rem 8px
 }
 
-.lazy_filter_select.default_style .lfs_token .addl_text,
-.lazy_filter_select.default_style .lfs_value .addl_text {
+.lazy_filter_select .lfs_token .addl_text,
+.lazy_filter_select .lfs_value .addl_text {
   display: none
 }
 
-.lazy_filter_select.default_style .addl_icon {
+.lazy_filter_select .addl_icon {
   line-height: .5rem
 }
 
@@ -16161,17 +16161,17 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   border: 1px solid transparent
 }
 
-.lazy_filter_select.single.message_menu_style {
+.lazy_filter_select.single.filter_in_list_style {
   max-width: 15.625rem;
   min-width: 9.375rem
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_input_container {
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container {
   padding: 0
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_input_container .lfs_input,
-.lazy_filter_select.single.message_menu_style .lfs_input_container .lfs_value {
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_input,
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_value {
   font-size: .8125rem;
   padding-left: .625rem;
   padding-top: .375rem;
@@ -16179,15 +16179,15 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   padding-bottom: .375rem
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_input_container:hover:not(.active) {
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container:hover:not(.active) {
   border-color: #9e9ea6
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_input_container:hover:not(.active)::after {
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container:hover:not(.active)::after {
   color: #555459
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_input_container::after {
+.lazy_filter_select.single.filter_in_list_style .lfs_input_container::after {
   color: #555459;
   font-size: 1.125rem;
   line-height: 1;
@@ -16195,25 +16195,25 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   top: .3125rem
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_group {
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_group {
   color: #9e9ea6;
   font-size: .875rem
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_item {
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item {
   color: #2c2d30;
   font-size: .8125rem
 }
 
-.lazy_filter_select.single.message_menu_style .lfs_list_container .lfs_item.group_item {
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item.group_item {
   padding-left: .75rem
 }
 
-.lazy_filter_select.single.message_menu_style.disabled .lfs_input_container .lfs_item {
+.lazy_filter_select.single.filter_in_list_style.disabled .lfs_input_container .lfs_item {
   color: #9e9ea6
 }
 
-.lazy_filter_select.single.message_menu_style.disabled .lfs_input_container .lfs_item_desc {
+.lazy_filter_select.single.filter_in_list_style.disabled .lfs_input_container .lfs_item_desc {
   color: #babbbf
 }
 
