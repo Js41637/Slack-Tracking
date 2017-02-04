@@ -27601,6 +27601,14 @@ TS.registerModule("constants", {
         });
       }
     },
+    populateThreadInputs: function(input_txt, c_id, thread_ts) {
+      if (TS.ui.replies.activeConvoModelId() === c_id && TS.ui.replies.activeConvoThreadTs() === thread_ts) {
+        TS.ui.replies.populateReplyInput(input_txt);
+      }
+      if (TS.model.threads_view_is_showing) {
+        TS.ui.thread.findAndPopulateInput(input_txt, c_id, thread_ts);
+      }
+    },
     urlNeedsRefererHiding: function(url) {
       if (!url) return false;
       url = url.toLowerCase();
@@ -35033,8 +35041,11 @@ var _on_esc;
         service_name: cmd.service_name || ""
       };
     },
-    addTempEphemeralFeedback: function(text, input_txt, slackbot_feels) {
+    addTempEphemeralFeedback: function(text, input_txt, slackbot_feels, c_id, thread_ts) {
       if (input_txt) {
+        if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
+          TS.utility.populateThreadInputs(input_txt, c_id, thread_ts);
+        }
         if (TS.boot_data.feature_name_tagging_client_extras) {
           TS.utility.populateInput(TS.client.ui.$msg_input, input_txt);
         } else {
@@ -35048,24 +35059,36 @@ var _on_esc;
       if (slackbot_feels) {
         ephemeral_msg.slackbot_feels = slackbot_feels;
       }
+      if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
+        ephemeral_msg.channel = c_id;
+        ephemeral_msg.thread_ts = thread_ts;
+        ephemeral_msg.ephemeral_type = "threads_temp_slash_cmd_feedback";
+      }
       TS.client.ui.addOrFlashEphemeralBotMsg(ephemeral_msg);
     },
-    addEphemeralFeedback: function(text, input_txt, slackbot_feels, thread_ts) {
+    addEphemeralFeedback: function(text, input_txt, slackbot_feels, c_id, thread_ts) {
       if (input_txt) {
-        if (TS.boot_data.feature_name_tagging_client_extras) {
+        if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
+          TS.utility.populateThreadInputs(input_txt, c_id, thread_ts);
+        } else if (TS.boot_data.feature_name_tagging_client_extras) {
           TS.utility.populateInput(TS.client.ui.$msg_input, input_txt);
         } else {
           TS.utility.contenteditable.value(TS.client.ui.$msg_input, input_txt);
         }
       }
-      TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
+      if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
+        TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", TS.model.active_cid);
+      } else {
+        TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
+      }
       var ephemeral_msg = {
         text: text
       };
       if (slackbot_feels) {
         ephemeral_msg.slackbot_feels = slackbot_feels;
       }
-      if (TS.boot_data.feature_threads_slash_cmds && thread_ts) {
+      if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
+        ephemeral_msg.channel = c_id;
         ephemeral_msg.thread_ts = thread_ts;
       }
       TS.client.ui.addEphemeralBotMsg(ephemeral_msg);
@@ -35074,7 +35097,15 @@ var _on_esc;
       if (!TS.cmd_handlers[cmd]) return;
       if (TS.boot_data.feature_threads_slash_cmds && in_reply_to_msg) {
         var is_cmd_supported_in_threads = cmd && _.includes(_SUPPORTED_THREAD_CMDS, cmd);
-        if (!is_cmd_supported_in_threads) return;
+        if (!is_cmd_supported_in_threads) {
+          var error_text = TS.i18n.t("*{cmd}* is not supported in threads. Sorry!", "threads")({
+            cmd: cmd
+          });
+          var input_text = cmd + " " + rest;
+          var slackbot_feels = "sad_surprise";
+          TS.cmd_handlers.addTempEphemeralFeedback(error_text, input_text, slackbot_feels, model_ob.id, in_reply_to_msg.ts);
+          return;
+        }
       }
       if (TS.model.last_active_cid) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.last_active_cid);
@@ -35087,14 +35118,14 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t('Toggle your "away" status', "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         TS.members.toggleUserPresence().then(function(res) {
           var presence = res.args.presence || TS.model.user.presence;
           var feedback_text = ":white_check_mark: " + TS.i18n.t("You are now marked as *{presence}*.", "cmd_handlers")({
             presence: presence
           });
-          if (TS.boot_data.feature_threads_slash_cmds && in_reply_to_msg) {
-            TS.cmd_handlers.addEphemeralFeedback(feedback_text, null, null, in_reply_to_msg.ts);
+          if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+            TS.cmd_handlers.addEphemeralFeedback(feedback_text, null, null, model_ob.id, in_reply_to_msg.ts);
           } else {
             TS.cmd_handlers.addEphemeralFeedback(feedback_text);
           }
@@ -46263,7 +46294,7 @@ $.fn.togglify = function(settings) {
           var subitem = item.children[j];
           subitem.lfs_id = subitem.lfs_id || k + "." + j;
           if ((subitem.selected || subitem.preselected) && instance.no_default_selection === false) {
-            if (_isAlreadySelected(instance, subitem)) continue;
+            if (instance.single && instance._selected.length > 0 || _isAlreadySelected(instance, subitem)) continue;
             instance._selected.push(subitem);
             html += _buildItem(instance, subitem, token);
           }
@@ -46271,7 +46302,7 @@ $.fn.togglify = function(settings) {
       } else {
         item.lfs_id = item.lfs_id || String(i);
         if ((item.selected || item.preselected) && instance.no_default_selection === false) {
-          if (instance.single && html.length > 0 || _isAlreadySelected(instance, item)) {
+          if (instance.single && instance._selected.length > 0 || _isAlreadySelected(instance, item)) {
             i++;
             continue;
           }
@@ -57993,6 +58024,13 @@ $.fn.togglify = function(settings) {
       var $reply_form = $el.closest(".reply_input_container").find("form");
       if ($reply_form.length === 0) return;
       $reply_form.submit();
+    },
+    findAndPopulateInput: function(text, c_id, thread_ts) {
+      if (!c_id || !thread_ts) return;
+      var selector = 'ts-thread[data-model-ob-id="' + c_id + '"][data-thread-ts="' + thread_ts + '"]';
+      var $input = $(selector).find("textarea");
+      TS.utility.populateInput($input, text);
+      TS.storage.storeReplyInput(c_id, thread_ts, text);
     },
     showThreadLoadingSpinner: function($thread) {
       if (!TS.model.threads_view_is_showing) return;
