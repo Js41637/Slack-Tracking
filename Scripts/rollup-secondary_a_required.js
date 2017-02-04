@@ -30194,8 +30194,8 @@ TS.registerModule("constants", {
     }
   });
   var _default_emoji_group = "grinning";
-  var _input_to_fill = "#message-input";
-  var _input_to_fill_default = "#message-input";
+  var _input_to_fill = "#msg_input";
+  var _input_to_fill_default = "#msg_input";
   var _first_load = true;
   var _in_search_mode = false;
   var _in_key_mode = false;
@@ -57174,6 +57174,15 @@ $.fn.togglify = function(settings) {
       placeholder = _.get(org_data, "saml_provider") || fallback;
       if (placeholder.toLowerCase() === "saml") placeholder = fallback;
       return TS.utility.enterprise.getSSOProviderLabel(_.get(org_data, "sso_provider"), placeholder);
+    },
+    getGroupsTitle: function(org_data) {
+      var provider_label = TS.utility.enterprise.getProviderLabel(org_data);
+      if (provider_label === "IDP") {
+        return TS.i18n.t("IDP Groups", "enterprise_dashboard")();
+      }
+      return TS.i18n.t("{provider_label} Groups", "enterprise_dashboard")({
+        provider_label: provider_label
+      });
     },
     wrapWithStrongTags: _.wrap(_.escape, function(esc, text) {
       return "<strong>" + esc(text) + "</strong>";

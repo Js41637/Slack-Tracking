@@ -12,7 +12,7 @@
     }
   });
   var _$trigger;
-  var _input_to_fill = "#message-input";
+  var _input_to_fill = "#msg_input";
   var _rxn_key;
   var _callback;
   var _coords;
@@ -52,7 +52,7 @@
       is_rxn: !!_rxn_key
     });
     _$trigger = null;
-    _input_to_fill = "#message-input";
+    _input_to_fill = "#msg_input";
     _rxn_key = null;
     _callback = null;
     _handy_rxns = null;
