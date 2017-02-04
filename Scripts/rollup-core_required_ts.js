@@ -2350,7 +2350,10 @@
         for (key in _PSEUDO_MAP) {
           substr = substr.replace(_PSEUDO_MAP[key][0], _PSEUDO_MAP[key][1]);
         }
-        return substr;
+        return substr.split(" ").map(function(word) {
+          word += new Array(Math.round(word.length * 1.3) - word.length + 1).join("~");
+          return word;
+        }).join(" ");
       }
       return t[1];
     }).join("");
