@@ -2054,12 +2054,12 @@
       TS.log(37, "adding all_sounds: " + all_sounds.length);
       all_sounds.forEach(function(sound) {
         if (!sound.url) return;
-        if (sound.url.indexOf("http") !== 0) {
-          sound.url = root_url + sound.url.replace("/", "");
-        }
+        if (sound.url.indexOf("http") !== 0) sound.url = root_url + sound.url.replace("/", "");
+        if (sound.url_ogg && sound.url_ogg.indexOf("http") !== 0) sound.url_ogg = root_url + sound.url_ogg.replace("/", "");
         TS.log(37, "adding sound: " + sound.value);
         _sounds[sound.value] = {
-          url: sound.url
+          url: sound.url,
+          url_ogg: sound.url_ogg
         };
         TS.log(37, "_sounds[" + sound.value + "] = " + _sounds[sound.value]);
         preloadA.push(sound.url);
@@ -2067,7 +2067,7 @@
       if (window.Audio) {
         soundManager.onready(function() {
           $.each(_sounds, function(key, object) {
-            object.url = [object.url, object.url.replace(".mp3", ".ogg")];
+            if (object.url_ogg) object.url = [object.url, object.url_ogg];
             _sounds[key] = soundManager.createSound(object);
           });
         });

@@ -11,11 +11,11 @@
     <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" class="hidden">
       {{#each channels}}
         {{#unless this.is_general}}
-          <option value="{{this.id}}" {{#if this.is_default}}selected{{/if}} {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+          <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}" {{#if this.is_default}}selected{{/if}} {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
         {{/unless}}
       {{/each}}
       {{#each groups}}
-        <option value="{{this.id}}">{{this.name}}</option>
+        <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}">{{this.name}}</option>
       {{/each}}
     </select>
     <span class="small align_center">
@@ -29,10 +29,10 @@
   <p id="restricted_channel_picker_container">
     <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" data-placeholder="{{#t}}Choose one or more channels ...{{/t}}">
       {{#each channels}}
-        <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+        <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
       {{/each}}
       {{#each groups}}
-        <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
+        <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
       {{/each}}
     </select>
   </p>
@@ -46,14 +46,14 @@
       {{#if channels}}
         <optgroup label="{{#t}}Channels{{/t}}">
           {{#each channels}}
-            <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+            <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
           {{/each}}
         </optgroup>
       {{/if}}
       {{#if groups}}
         <optgroup label="{{#t}}Private Channels{{/t}}">
           {{#each groups}}
-            <option value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
+            <option {{#if this.is_shared}}data-ts-icon="ts_icon_shared_channel"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
           {{/each}}
         </optgroup>
       {{/if}}
