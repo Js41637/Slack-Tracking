@@ -9518,7 +9518,7 @@
     _maybeSetupSearchBar: function() {
       var this_searchable_member_list = this;
       if (this.$_search_bar) return;
-      TS.ms.flannel.call("query_request", {
+      return TS.ms.flannel.call("query_request", {
         counts: true
       }).then(function(response) {
         if (response.results[0].count >= MINIMUM_MEMBERS_FOR_SEARCH) {
@@ -9558,7 +9558,7 @@
         this_searchable_member_list.$_filter_input = null;
         return;
       }
-      TS.ms.flannel.call("query_request", {
+      return TS.ms.flannel.call("query_request", {
         counts: true
       }).then(function(response) {
         this_searchable_member_list._filter_counts = response.results;
@@ -9806,6 +9806,7 @@
       _$chat_input_tab_ui = $("#chat_input_tab_ui");
       TS.channels.renamed_sig.add(TS.client.msg_input.setPlaceholder);
       TS.groups.renamed_sig.add(TS.client.msg_input.setPlaceholder);
+      TS.members.changed_current_status_sig.add(TS.client.msg_input.setPlaceholder);
       TS.members.changed_name_sig.add(TS.client.msg_input.setPlaceholder);
       TS.members.changed_real_name_sig.add(TS.client.msg_input.setPlaceholder);
       TS.prefs.display_preferred_names_changed_sig.add(TS.client.msg_input.setPlaceholder);
@@ -10353,6 +10354,10 @@
     var placeholder;
     if (model_ob.is_self_im) {
       placeholder = TS.i18n.t("Message yourself", "msg_input")();
+      if (TS.boot_data.feature_user_custom_status) {
+        var current_status = TS.members.getMemberCurrentStatus(model_ob.user);
+        if (current_status.text) placeholder += " " + TS.format.formatCurrentStatus(current_status.emoji) + " " + TS.format.formatCurrentStatus(current_status.text);
+      }
     } else {
       var msg;
       if (model_ob.is_im) {
@@ -10360,6 +10365,10 @@
           msg = TS.members.getMemberFullName(model_ob.user);
         } else {
           msg = TS.members.getMemberDisplayNameById(model_ob.user, false, true);
+        }
+        if (TS.boot_data.feature_user_custom_status) {
+          var current_status = TS.members.getMemberCurrentStatus(model_ob.user);
+          if (current_status.text) msg += " " + TS.format.formatCurrentStatus(current_status.emoji) + " " + TS.format.formatCurrentStatus(current_status.text);
         }
       } else if (model_ob.is_mpim) {
         msg = TS.mpims.getDisplayName(model_ob, false, false, 3);

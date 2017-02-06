@@ -302,6 +302,11 @@
       var Component = function() {
         if (this._constructor) this._constructor.apply(this, arguments);
         this.id = this.id || name + "_auto_guid_" + _guid++;
+        if (this["test"] && _shouldSuppressTestExport()) {
+          this.test = undefined;
+        } else if (typeof this["test"] === "function") {
+          this.test = this.test();
+        }
         Component._add(this.id, this);
       };
       var namespace = _registerInNamespace(name, Component, "component");
@@ -550,6 +555,9 @@
     TS.raw_templates = _raw_templates;
     _raw_templates = null;
   }
+  var _shouldSuppressTestExport = function() {
+    return !(typeof window.jasmine !== "undefined" || TS.boot_data.version_ts == "dev" && TS.qs_args["export_test"]);
+  };
   var _reconnectRequestedMS = function() {
     TS.console.logStackTrace("MS reconnection requested");
     if (TS.model.ms_asleep) {
@@ -1519,8 +1527,7 @@
     TS.ms.onFailure("_onBadUserCache problem: " + problem);
   };
   var _extractAndDeleteTestProps = function(ob) {
-    var may_export_test = typeof window.jasmine !== "undefined" || TS.boot_data.version_ts == "dev" && TS.qs_args["export_test"];
-    if (ob["test"] && !may_export_test) {
+    if (ob["test"] && _shouldSuppressTestExport()) {
       delete ob["test"];
     } else if (typeof ob["test"] === "function") {
       var test_getter = ob["test"];

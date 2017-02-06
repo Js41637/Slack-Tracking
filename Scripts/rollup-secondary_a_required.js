@@ -2426,10 +2426,7 @@
       if (!TS.boot_data.page_needs_enterprise) return false;
       if (user.is_restricted) return false;
       if (!TS.enterprise.isUserOnTeam(user, team)) return false;
-      if (TS.boot_data.feature_discoverable_teams_client_v1) {
-        return !!team.can_leave;
-      }
-      return false;
+      return !!team.can_leave;
     }
   });
 })();
@@ -42656,7 +42653,6 @@ var _on_esc;
       });
     },
     requestToJoinTeam: function(team_id) {
-      if (!TS.boot_data.feature_discoverable_teams_client_v2) return false;
       var calling_args = {
         team: team_id
       };
@@ -42729,7 +42725,13 @@ var _on_esc;
     }
   });
   var _bindEvents = function($container, list, base_url) {
+    var $parents = $container.parents();
+    var $workspace_info = $parents.find(".workspace_info");
+    var $more_teams_available_message = $parents.find(".more_teams_available");
+    var $title_bar = $parents.find(".title_bar");
     $container.off();
+    $workspace_info.off();
+    $more_teams_available_message.off();
     var _joinTeamHandler = function(team_id) {
       return TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
         if (result) {
@@ -42746,139 +42748,131 @@ var _on_esc;
         return result;
       });
     };
-    if (TS.boot_data.feature_discoverable_teams_client_v1) {
-      var $parents = $container.parents();
-      var $workspace_info = $parents.find(".workspace_info");
-      var $more_teams_available_message = $parents.find(".more_teams_available");
-      var $title_bar = $parents.find(".title_bar");
-      $more_teams_available_message.off();
-      $more_teams_available_message.on("click", '[data-qa="find-more-teams"]', function(e) {
-        e.preventDefault();
-        $('.enterprise_memberdash_header .menu_item_teams[data-qa="find-teams"]').click();
-      });
-      var sortChangeHandler = function(e) {
-        var sort_by = $(this).val();
-        var teams = TS.enterprise.workspaces.getList(list, sort_by);
-        var html = "";
-        if (teams.length) {
-          teams.forEach(function(team) {
-            html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
-          });
+    $more_teams_available_message.on("click", '[data-qa="find-more-teams"]', function(e) {
+      e.preventDefault();
+      $('.enterprise_memberdash_header .menu_item_teams[data-qa="find-teams"]').click();
+    });
+    var sortChangeHandler = function(e) {
+      var sort_by = $(this).val();
+      var teams = TS.enterprise.workspaces.getList(list, sort_by);
+      var html = "";
+      if (teams.length) {
+        teams.forEach(function(team) {
+          html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
+        });
+      } else {
+        if (list === "teams_on") {
+          html += TS.templates.not_on_any_workspaces();
         } else {
-          if (list === "teams_on") {
-            html += TS.templates.not_on_any_workspaces();
-          } else {
-            html += TS.templates.no_workspaces_to_join();
-          }
+          html += TS.templates.no_workspaces_to_join();
         }
-        $container.html(html).attr("data-list", list);
-        _bindEvents($container, list, base_url);
+      }
+      $container.html(html).attr("data-list", list);
+      _bindEvents($container, list, base_url);
+    };
+    var $sort_container = $(".sort_by_container");
+    var $sort_by_your = $sort_container.find('select[data-qa="sort-by-your"]');
+    $sort_by_your.off();
+    $sort_by_your.on("change", sortChangeHandler);
+    var $sort_by_find = $sort_container.find('select[data-qa="sort-by-find"]');
+    $sort_by_find.off();
+    $sort_by_find.on("change", sortChangeHandler);
+    $container.on("click", ".enterprise_team_card", function(e) {
+      var team_id = $(this).data("id");
+      $container.addClass("hidden");
+      $title_bar.addClass("hidden");
+      $more_teams_available_message.addClass("hidden");
+      $workspace_info.html(TS.templates.team_info({
+        list: list
+      })).removeClass("hidden").attr("data-team-id", team_id);
+      var title = $("title").text();
+      var which = list === "teams_not_on" ? "find-teams" : "your-teams";
+      window.history.pushState(team_id, title, "/signin/" + which + "/" + team_id);
+      var additional_options = {
+        top_combined_channels: 5,
+        include_admins: true
       };
-      var $sort_container = $(".sort_by_container");
-      var $sort_by_your = $sort_container.find('select[data-qa="sort-by-your"]');
-      $sort_by_your.off();
-      $sort_by_your.on("change", sortChangeHandler);
-      var $sort_by_find = $sort_container.find('select[data-qa="sort-by-find"]');
-      $sort_by_find.off();
-      $sort_by_find.on("change", sortChangeHandler);
-      $container.on("click", ".enterprise_team_card", function(e) {
-        var team_id = $(this).data("id");
-        $container.addClass("hidden");
-        $title_bar.addClass("hidden");
-        $more_teams_available_message.addClass("hidden");
+      var promises = [];
+      if (!TS.client) {
+        promises.push(TS.api.call("users.info", {
+          user: TS.boot_data.user_id
+        }).then(function(response) {
+          TS.model.user = response.data.user;
+        }));
+      }
+      promises.push(TS.enterprise.ensureTeamInModel(team_id, additional_options));
+      return Promise.all(promises).then(function() {
+        return TS.enterprise.getTeamById(team_id);
+      }).then(function(team) {
+        if (!team) {
+          $workspace_info.attr("data-team-id", "");
+          return;
+        }
+        var url = TS.enterprise.workspaces.createURL(team, base_url);
+        team.launch_url = url + "messages";
+        team.site_url = url + "home";
         $workspace_info.html(TS.templates.team_info({
-          list: list
-        })).removeClass("hidden").attr("data-team-id", team_id);
-        var title = $("title").text();
-        var which = list === "teams_not_on" ? "find-teams" : "your-teams";
-        window.history.pushState(team_id, title, "/signin/" + which + "/" + team_id);
-        var additional_options = {
-          top_combined_channels: 5,
-          include_admins: true
-        };
-        var promises = [];
-        if (!TS.client) {
-          promises.push(TS.api.call("users.info", {
-            user: TS.boot_data.user_id
-          }).then(function(response) {
-            TS.model.user = response.data.user;
+          list: list,
+          team: team,
+          user: TS.model.user
+        })).attr("data-team-id", team_id);
+        $container.find('[data-id="' + team.id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+      });
+    });
+    $workspace_info.on("click", ".back_to_teams", function(e) {
+      e.preventDefault();
+      window.history.back();
+      $container.removeClass("hidden");
+      $title_bar.removeClass("hidden");
+      $workspace_info.addClass("hidden").attr("data-team-id", "");
+      if ($more_teams_available_message.attr("data-has-more") === "yes") $more_teams_available_message.removeClass("hidden");
+    });
+    $workspace_info.on("click", 'button[data-qa="join-btn"]', function(e) {
+      var ladda = Ladda.create(this);
+      ladda.start();
+      var team_id = $(this).data("id");
+      var team = TS.enterprise.getTeamById(team_id);
+      _joinTeamHandler(team_id).then(function(result) {
+        ladda.stop();
+        if (result) {
+          var url = TS.enterprise.workspaces.createURL(team, base_url);
+          team.launch_url = url + "messages";
+          team.site_url = url + "home";
+          $workspace_info.html(TS.templates.team_info({
+            list: list,
+            team: team,
+            user: TS.model.user
           }));
         }
-        promises.push(TS.enterprise.ensureTeamInModel(team_id, additional_options));
-        return Promise.all(promises).then(function() {
-          return TS.enterprise.getTeamById(team_id);
-        }).then(function(team) {
-          if (!team) {
-            $workspace_info.attr("data-team-id", "");
-            return;
-          }
-          var url = TS.enterprise.workspaces.createURL(team, base_url);
-          team.launch_url = url + "messages";
-          team.site_url = url + "home";
-          $workspace_info.html(TS.templates.team_info({
-            list: list,
-            team: team,
-            user: TS.model.user
-          })).attr("data-team-id", team_id);
-          $container.find('[data-id="' + team.id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
-        });
+        return result;
       });
-      $workspace_info.off();
-      $workspace_info.on("click", ".back_to_teams", function(e) {
-        e.preventDefault();
-        window.history.back();
-        $container.removeClass("hidden");
-        $title_bar.removeClass("hidden");
-        $workspace_info.addClass("hidden").attr("data-team-id", "");
-        if ($more_teams_available_message.attr("data-has-more") === "yes") $more_teams_available_message.removeClass("hidden");
-      });
-      $workspace_info.on("click", 'button[data-qa="join-btn"]', function(e) {
-        var ladda = Ladda.create(this);
-        ladda.start();
-        var team_id = $(this).data("id");
+    });
+    $workspace_info.on("click", '[data-qa="leave-btn"]', function(e) {
+      e.preventDefault();
+      var team_id = $(this).data("id");
+      TS.ui.leave_team_dialog.start(team_id);
+    });
+    $workspace_info.on("click", 'button[data-qa="request-to-join-btn"]', function(e) {
+      e.preventDefault();
+      var ladda = Ladda.create(this);
+      ladda.start();
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
         var team = TS.enterprise.getTeamById(team_id);
-        _joinTeamHandler(team_id).then(function(result) {
-          ladda.stop();
-          if (result) {
-            var url = TS.enterprise.workspaces.createURL(team, base_url);
-            team.launch_url = url + "messages";
-            team.site_url = url + "home";
-            $workspace_info.html(TS.templates.team_info({
-              list: list,
-              team: team,
-              user: TS.model.user
-            }));
-          }
-          return result;
-        });
+        $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+        ladda.stop();
+        var url = TS.enterprise.workspaces.createURL(team, base_url);
+        team.launch_url = url + "messages";
+        team.site_url = url + "home";
+        $workspace_info.html(TS.templates.team_info({
+          list: list,
+          team: team,
+          user: TS.model.user
+        }));
+      }).catch(function() {
+        ladda.stop();
       });
-      $workspace_info.on("click", '[data-qa="leave-btn"]', function(e) {
-        e.preventDefault();
-        var team_id = $(this).data("id");
-        TS.ui.leave_team_dialog.start(team_id);
-      });
-      $workspace_info.on("click", 'button[data-qa="request-to-join-btn"]', function(e) {
-        e.preventDefault();
-        var ladda = Ladda.create(this);
-        ladda.start();
-        var team_id = $(this).data("id");
-        TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
-          var team = TS.enterprise.getTeamById(team_id);
-          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
-          ladda.stop();
-          var url = TS.enterprise.workspaces.createURL(team, base_url);
-          team.launch_url = url + "messages";
-          team.site_url = url + "home";
-          $workspace_info.html(TS.templates.team_info({
-            list: list,
-            team: team,
-            user: TS.model.user
-          }));
-        }).catch(function() {
-          ladda.stop();
-        });
-      });
-    }
+    });
     $container.on("click", ".enterprise_team_card a", function(e) {
       e.stopPropagation();
     });
@@ -42902,21 +42896,19 @@ var _on_esc;
         ladda.stop();
       });
     });
-    if (TS.boot_data.feature_discoverable_teams_client_v2) {
-      $container.on("click", ".enterprise_team_card .enterprise_team_request", function(e) {
-        e.stopPropagation();
-        var ladda = Ladda.create(this);
-        ladda.start();
-        var team_id = $(this).data("id");
-        TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
-          var team = TS.enterprise.getTeamById(team_id);
-          ladda.stop();
-          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
-        }).catch(function() {
-          ladda.stop();
-        });
+    $container.on("click", ".enterprise_team_card .enterprise_team_request", function(e) {
+      e.stopPropagation();
+      var ladda = Ladda.create(this);
+      ladda.start();
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
+        var team = TS.enterprise.getTeamById(team_id);
+        ladda.stop();
+        $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+      }).catch(function() {
+        ladda.stop();
       });
-    }
+    });
     $container.find(".not_on_any_workspaces").on("click", ".find_teams", function(e) {
       e.preventDefault();
       TS.enterprise.member_header.setPage("teams_not_on");
@@ -42961,47 +42953,45 @@ var _on_esc;
   var _onCancelWorkspaces = function() {};
   var _bindEvents = function() {
     var $container = $(".workspaces_modal");
-    if (TS.boot_data.feature_discoverable_teams_client_v1) {
-      var $workspaces = $container.find(".workspaces");
-      var $workspace_info = $container.find(".workspace_info");
-      var $title_bar = $container.find(".title_bar");
-      $container.find(".sort_by_container select").on("change", function(e) {
-        var sort_by = $(this).val();
-        var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by);
-        var html = "";
-        teams.forEach(function(team) {
-          html += TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url, true);
-        });
-        $workspaces.html(html);
+    var $workspaces = $container.find(".workspaces");
+    var $workspace_info = $container.find(".workspace_info");
+    var $title_bar = $container.find(".title_bar");
+    $container.find(".sort_by_container select").on("change", function(e) {
+      var sort_by = $(this).val();
+      var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by);
+      var html = "";
+      teams.forEach(function(team) {
+        html += TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url, true);
       });
-      $container.on("click", ".enterprise_team_card", function(e) {
-        var team_id = $(this).data("id");
-        $workspaces.addClass("hidden");
-        $title_bar.addClass("hidden");
+      $workspaces.html(html);
+    });
+    $container.on("click", ".enterprise_team_card", function(e) {
+      var team_id = $(this).data("id");
+      $workspaces.addClass("hidden");
+      $title_bar.addClass("hidden");
+      $workspace_info.html(TS.templates.team_info({
+        list: "teams_not_on"
+      })).removeClass("hidden");
+      var additional_options = {
+        top_combined_channels: 5,
+        include_admins: true
+      };
+      return TS.enterprise.ensureTeamInModel(team_id, additional_options).then(function(team) {
+        if (!team) {
+          return;
+        }
         $workspace_info.html(TS.templates.team_info({
-          list: "teams_not_on"
-        })).removeClass("hidden");
-        var additional_options = {
-          top_combined_channels: 5,
-          include_admins: true
-        };
-        return TS.enterprise.ensureTeamInModel(team_id, additional_options).then(function(team) {
-          if (!team) {
-            return;
-          }
-          $workspace_info.html(TS.templates.team_info({
-            list: "teams_not_on",
-            team: team
-          }));
-        });
+          list: "teams_not_on",
+          team: team
+        }));
       });
-      $workspace_info.on("click", ".back_to_teams", function(e) {
-        e.preventDefault();
-        $workspaces.removeClass("hidden");
-        $title_bar.removeClass("hidden");
-        $workspace_info.addClass("hidden");
-      });
-    }
+    });
+    $workspace_info.on("click", ".back_to_teams", function(e) {
+      e.preventDefault();
+      $workspaces.removeClass("hidden");
+      $title_bar.removeClass("hidden");
+      $workspace_info.addClass("hidden");
+    });
     $container.on("click", ".enterprise_team_menu", function(e) {
       e.stopPropagation();
       var team_site_url = $(this).val();
@@ -43029,21 +43019,19 @@ var _on_esc;
         return null;
       });
     });
-    if (TS.boot_data.feature_discoverable_teams_client_v2) {
-      $container.on("click", ".enterprise_team_request", function(e) {
-        e.stopPropagation();
-        var ladda = Ladda.create(this);
-        ladda.start();
-        var team_id = $(this).data("id");
-        TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
-          var team = TS.enterprise.getTeamById(team_id);
-          ladda.stop();
-          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
-        }).catch(function() {
-          ladda.stop();
-        });
+    $container.on("click", ".enterprise_team_request", function(e) {
+      e.stopPropagation();
+      var ladda = Ladda.create(this);
+      ladda.start();
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
+        var team = TS.enterprise.getTeamById(team_id);
+        ladda.stop();
+        $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
+      }).catch(function() {
+        ladda.stop();
       });
-    }
+    });
   };
 })();
 (function() {
@@ -52164,9 +52152,9 @@ $.fn.togglify = function(settings) {
         include_archived: false,
         include_deleted: false,
         include_user_counts: true,
-        include_leave_team: true
+        include_leave_team: true,
+        include_join_request: true
       };
-      if (TS.boot_data.feature_discoverable_teams_client_v2) calling_args.include_join_request = true;
       if (exclude_discoverable) calling_args.exclude_discoverable = exclude_discoverable;
       return TS.api.call("enterprise.teams.list", calling_args).reflect().then(function(response) {
         if (!response.isFulfilled()) return Promise.reject(new Error("The API failed:\n" + response.reason()));
@@ -52184,9 +52172,9 @@ $.fn.togglify = function(settings) {
       var calling_args = {
         include_user_counts: true,
         include_leave_team: true,
-        team: team_id
+        team: team_id,
+        include_join_request: true
       };
-      if (TS.boot_data.feature_discoverable_teams_client_v2) calling_args.include_join_request = true;
       if (TS.model.enterprise_api_token) calling_args.enterprise_token = TS.model.enterprise_api_token;
       if (additional_options) calling_args = _.merge({}, calling_args, additional_options);
       return TS.api.callImmediately("enterprise.teams.info", calling_args).then(function(response) {
@@ -55151,10 +55139,16 @@ $.fn.togglify = function(settings) {
         next_value = input.getAttribute("placeholder");
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (_.isString(value)) {
+        var value_as_html;
+        if (value instanceof jQuery) {
+          value_as_html = value.get(0);
+        } else if (value instanceof HTMLElement) {
+          value_as_html = value;
+        } else if (_.isString(value)) {
           if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over) value += " (with texty!)";
-          texty.setPlaceholder(value);
+          value_as_html = $("<span>" + value + "<span>").get(0);
         }
+        texty.setPlaceholder(value_as_html);
         next_value = texty.getPlaceholder();
       }
       return next_value || "";
