@@ -26,6 +26,6 @@
     <span class="small_left_margin help-inline invalid-email {{#if_equal user.email_state compare="invalid"}}{{else}}hidden{{/if_equal}}">
       <i class="ts_icon ts_icon_warning moscow_red"></i> {{#t note="error messages related to email validation"}}This address is invalid.{{/t}}
     </span>
-    <input type="email" name="email_{{user.id}}" value="{{#if_equal user.email_state compare="empty"}}{{else}}{{user.email}}{{/if_equal}}" placeholder="email@domain.com" class="small {{#unless user.show_input}}hidden{{/unless}}">
+    <input type="email" name="email_{{user.id}}" value="{{#if_equal user.email_state compare="empty"}}{{else}}{{user.email}}{{/if_equal}}" placeholder="name@example.com" class="small {{#unless user.show_input}}hidden{{/unless}}">
   </div>
 </div>

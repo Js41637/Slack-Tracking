@@ -10122,6 +10122,10 @@ TS.registerModule("constants", {
     if (c_id.charAt(0) === "C") {
       return _getModelObByIdFromApi(c_id);
     } else if (c_id.charAt(0) === "G") {
+      if (TS.boot_data.feature_tinyspeck) {
+        TS.maybeWarn(528, "Group ID " + c_id + " not known, getting from API.");
+        return _getModelObByIdFromApi(c_id);
+      }
       return TS.shared.promiseToHaveAllRelevantGroupIds().then(function() {
         if (TS.model.all_group_ids.indexOf(c_id) == -1) {
           TS.maybeWarn(528, "c_id:" + c_id + " is not in TS.model.all_group_ids, not calling the API");
@@ -29748,7 +29752,12 @@ TS.registerModule("constants", {
     var m = TS.utility.msgs.getMemberFromMemberMarkup(guts);
     if (!m) {
       if (tsf_mode == "GROWL") return item;
-      return "`...`";
+      var username_parts = guts.split("|");
+      if (username_parts.length > 1 && username_parts[1]) {
+        return "@" + username_parts[1];
+      } else {
+        return "`...`";
+      }
     }
     var classes = ["internal_member_link"];
     var data_tags_object = {
@@ -29954,6 +29963,8 @@ TS.registerModule("constants", {
         var member_identifier;
         if (options.human_readable) {
           member_identifier = "@" + valid.model_ob.name;
+        } else if (TS.boot_data.feature_external_shared_channels_ui && _.get(TS.shared.getActiveModelOb(), "is_shared")) {
+          member_identifier = "<@" + valid.model_ob.id + "|" + valid.model_ob.name + ">";
         } else {
           member_identifier = "<@" + valid.model_ob.id + ">";
         }
@@ -35517,7 +35528,7 @@ var _on_esc;
       aliases: null,
       desc: TS.i18n.t("Invite people to your Slack team", "cmd_handlers")(),
       args: [{
-        name: "name@domain.com, ...",
+        name: "name@example.com, ...",
         optional: true
       }],
       func: function(cmd, rest, words, in_reply_to_msg) {
@@ -39453,7 +39464,7 @@ var _on_esc;
   var _success_invites = [];
   var _error_invites = [];
   var _unprocessed_invites = [];
-  var _placeholder_email_address_default = TS.i18n.t("name@domain.com", "invite")();
+  var _placeholder_email_address_default = TS.i18n.t("name@example.com", "invite")();
   var _placeholder_email_address = _placeholder_email_address_default;
   var _new_email_domains = "";
   var _custom_message = "";
@@ -39673,7 +39684,7 @@ var _on_esc;
       approx_item_height: 50,
       data: _google_contacts_data,
       single: true,
-      placeholder_text: TS.i18n.t("name@domain.com", "invite")(),
+      placeholder_text: TS.i18n.t("name@example.com", "invite")(),
       onReady: function() {
         _upsertEmailContactsData(this);
       },
@@ -41989,7 +42000,7 @@ var _on_esc;
       };
     }
   });
-  var OPTIONAL_PROTOCOL_URL_REGEXP = /^(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
+  var OPTIONAL_PROTOCOL_URL_REGEXP = new RegExp("^" + "(?:(?:https?|ftp)://)?" + "(?:\\S+(?::\\S*)?@)?" + "(?:" + "(?!(?:10|127)(?:\\.\\d{1,3}){3})" + "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" + "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" + "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" + "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" + "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" + "|" + "(?:localhost)" + "|" + "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" + "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" + "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" + "\\.?" + ")" + "(?::\\d{2,5})?" + "(?:[/?#]\\S*)?" + "$", "i");
   var ALL_SCHEMES_LINK_REGEXP = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/gi;
   var _validator_map = {
     dateandformat: _validateDateAndFormat,

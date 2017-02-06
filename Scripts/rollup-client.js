@@ -9867,7 +9867,6 @@
               }
             }
           },
-          insertFormattingWhenPasting: TS.boot_data.feature_tinyspeck,
           placeholder: $input.data("placeholder"),
           getTextPreferences: TS.utility.contenteditable.getTextPreferences,
           onEnter: function(args) {
@@ -9887,6 +9886,10 @@
             _maybeResize();
             _maybeStopPretendingToBeOnline();
             eventuallyOnTextChange(source);
+          },
+          onPaste: function(delta) {
+            if (!TS.boot_data.feature_tinyspeck) return delta;
+            return TS.format.texty.getFormattedDelta(delta);
           },
           attributes: {
             role: "textarea",
