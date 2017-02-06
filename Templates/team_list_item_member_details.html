@@ -23,7 +23,10 @@
       {{#isClient}}
         {{#unless member.is_bot}}
           {{#isInDifferentTimeZone member}}
+            {{!-- hbslint-disable syntax --}}
+            {{!-- TODO: Enable syntax linter and refactor to use a safeString --}}
             <div class="mini timezone_label" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</div>
+            {{!-- hbslint-enable syntax --}}
           {{/isInDifferentTimeZone}}
         {{/unless}}
       {{else}}

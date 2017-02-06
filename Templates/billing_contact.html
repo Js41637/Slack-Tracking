@@ -1,4 +1,6 @@
-  {{i18n_ns "pages_admin"}}  
+  {{i18n_ns "pages_admin"}}
+  {{!-- hbslint-disable syntax --}}
+  {{!-- Todo: enable syntax linter and refactor with safeString --}}
   <div class="billing_contact {{#if member.is_primary_owner}}primary_owner{{/if}} {{#if member.deleted}}inactive{{/if}}" data-contact-id="{{contact.id}}">
     {{#if member}}
       {{{makeMemberPreviewLinkImage member.id 48}}}

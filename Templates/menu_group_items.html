@@ -97,6 +97,11 @@
         </a></li>
       {{/if}}
       <li class="divider"></li>
+      {{#if show_convert_item}}
+        <li id="group_convert_item" role="menuitem"><a>
+          {{#t}}Convert to a shared channel{{/t}}
+        </a></li>
+      {{/if}}
       <li id="group_prefs" role="menuitem"><a>
         {{#t note="Open menu of notification preferences for private channels"}}Notification preferences &hellip;{{/t}}
       </a></li>

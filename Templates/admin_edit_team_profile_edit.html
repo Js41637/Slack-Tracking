@@ -17,7 +17,10 @@
             </label>
           {{/if_equal}}
           {{#if_equal type compare="date"}}
+            {{!-- hbslint-disable unwrapped --}}
+            {{!-- We don't need to wrap this. --}}
             <input type="text" class="no_bottom_margin ts_icon_placeholder" placeholder="&#xe023;" disabled>
+            {{!-- hbslint-enable unwrapped --}}
           {{/if_equal}}
           {{#if_equal type compare="link"}}
             <input type="text" class="no_bottom_margin" disabled>

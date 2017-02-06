@@ -3,8 +3,8 @@
 <div id="contact_list_search_wrapper" class="searchable_list_search_wrapper">
   {{> ts_icon class="searchable_list_icon searchable_list_search_icon ts_icon_envelope_o is_add_email_show"}}
   {{> ts_icon class="searchable_list_icon searchable_list_search_icon ts_icon_search is_add_email_hide"}}
-  <button id="contact_list_add_btn" class="btn_unstyle contact_list_add_btn sky_blue is_add_email_show" aria-label="{{#t}}Add contact{{/t}}">{{> ts_icon class="ts_icon_enter"}} <span class="align_top bold">Add</span></button>
+  <button id="contact_list_add_btn" class="btn_unstyle contact_list_add_btn sky_blue is_add_email_show" aria-label="{{#t}}Add contact{{/t}}">{{> ts_icon class="ts_icon_enter"}} <span class="align_top bold">{{#t}}Add{{/t}}</span></button>
   <input id="searchable_list_search_input" class="contact_list_search_input searchable_list_search_input" placeholder="{{placeholder}}" data-email-healing="true" type="text">
-  <button id="searchable_list_clear_btn" class="btn_unstyle searchable_list_icon searchable_list_clear_icon hidden" aria-label="Clear search text">{{> ts_icon class="ts_icon_times"}}</button>
+  <button id="searchable_list_clear_btn" class="btn_unstyle searchable_list_icon searchable_list_clear_icon hidden" aria-label="{{#t}}Clear search text{{/t}}">{{> ts_icon class="ts_icon_times"}}</button>
 </div>
 {{> searchable_list no_search='true'}}

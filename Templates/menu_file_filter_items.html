@@ -8,9 +8,12 @@
 </li>
 
 {{#feature flag="feature_multnomah"}}
+  {{!-- hbslint-disable unwrapped --}}
+  {{!-- We don't need to translate this --}}
   <li data-filetype="multnomah" {{#if_equal active_type compare='multnomah'}}class="active"{{/if_equal}} role="menuitem">
     <a><i class="ts_icon ts_icon_create_post"></i> Multnomah</a>
   </li>
+  {{!-- hbslint-enable unwrapped --}}
 {{/feature}}
 
 <li data-filetype="snippets" {{#if_equal active_type compare='snippets'}}class="active"{{/if_equal}} role="menuitem">

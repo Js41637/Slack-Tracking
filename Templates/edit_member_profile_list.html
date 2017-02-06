@@ -21,7 +21,7 @@
       <ts-icon class="member_upload ts_icon_cloud_upload" data-action="edit_member_profile_upload_image"><a>{{#t note="For your profile avatar"}}Upload a photo{{/t}}</a></ts-icon>
       <ts-icon class="show_delete ts_icon_trash" data-action="edit_member_profile_to_delete"><a>{{#t note="Remove your profile avatar photo"}}Remove photo{{/t}}</a></ts-icon>
     {{else}}
-      <div class="member_image_wrapper" data-instructions-text="{{#t}}Change your profile photo{{/t}}" data-action="edit_member_profile_photo_menu"><ts-icon class="upload_camera_icon ts_icon_camera" aria-label="upload a photo">{{makeMemberPreviewLinkImage member.id 192 false true}}</ts-icon></div>
+      <div class="member_image_wrapper" data-instructions-text="{{#t}}Change your profile photo{{/t}}" data-action="edit_member_profile_photo_menu"><ts-icon class="upload_camera_icon ts_icon_camera" aria-label="{{#t}}upload a photo{{/t}}">{{makeMemberPreviewLinkImage member.id 192 false true}}</ts-icon></div>
     {{/feature}}
   </div>
 </div>

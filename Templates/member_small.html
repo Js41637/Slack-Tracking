@@ -1,5 +1,8 @@
 <div class="member_small clearfix display_flex align_items_center">
+  {{!-- hbslint-disable syntax --}}
+  {{!-- TODO: Enable syntax linter and refactor to use a safeString --}}
   {{{makeMemberPreviewLinkImage member.id 36 false true}}}
+  {{!-- hbslint-enable syntax --}}
   <div class="name_container overflow_ellipsis small_left_padding">
     {{#if member.profile.real_name}}
       <div class="bold">{{member.profile.real_name}}</div>

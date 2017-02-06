@@ -1,3 +1,5 @@
+{{!-- hbslint-disable syntax --}}
+{{!-- Todo: enable syntax linter and refactor with safeString --}}
 <div class="channel_invite_member_token clearfix">
   {{{makeMemberPreviewLinkImage member.id 24 false true true}}}
   <div class="name_container overflow_ellipsis">{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}}</div>

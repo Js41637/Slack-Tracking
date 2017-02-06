@@ -131,6 +131,11 @@
         </a></li>
       {{/if}}
       <li class="divider"></li>
+      {{#if show_convert_item}}
+        <li id="channel_convert_item" role="menuitem"><a>
+          {{#t}}Convert to a shared channel{{/t}}
+        </a></li>
+      {{/if}}
       {{#if channel.is_member}}
         <li id="channel_prefs" role="menuitem">
           <a>{{#t note="Notification preferences for individual channels"}}Notification preferences &hellip;{{/t}}</a>

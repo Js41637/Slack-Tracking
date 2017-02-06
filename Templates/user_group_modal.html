@@ -31,7 +31,10 @@
       {{/if}}
     {{/ifClient}}
     <div id="user_groups_list_scroller">
+      {{!-- hbslint-disable syntax --}}
+      {{!-- TODO: Enable syntax linter and refactor to use a safeString --}}
       <div id="user_groups_list_div">{{{loadingHTML}}}</div>
+      {{!-- hbslint-enable syntax --}}
     </div>
   </div>
 

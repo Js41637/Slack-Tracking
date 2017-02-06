@@ -1203,6 +1203,7 @@
         TS.model.ims = [];
         TS.model.groups = [];
         TS.model.mpims = [];
+        TS.model.teams = [];
         TS.model.user_groups = [];
         TS.model.read_only_channels = [];
         TS.model.online_users = [];
@@ -2423,6 +2424,7 @@
     groups: null,
     mpims: null,
     members: null,
+    teams: null,
     rooms: null,
     bots: null,
     user_groups: null,

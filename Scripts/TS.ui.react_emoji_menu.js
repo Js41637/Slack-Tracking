@@ -92,7 +92,7 @@
     var $input_to_fill = $(_input_to_fill);
     var should_focus = !(e && e.shiftKey);
     if (TS.boot_data.feature_texty && TS.utility.contenteditable.isContenteditable($input_to_fill)) {
-      setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, _input_to_fill, emoji.name, should_focus);
+      setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, $input_to_fill, emoji.name, should_focus);
     } else {
       var current_pos = TS.utility.getCursorPosition($input_to_fill).start;
       var new_pos = current_pos + emoji.name.length;

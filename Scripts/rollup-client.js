@@ -23919,12 +23919,14 @@
     showing: false,
     c_id: null,
     ladda: null,
+    preselected_section: null,
     onKeydown: function(e) {
       if (!TS.ui.channel_options_dialog.showing) return;
       if (e.which === TS.utility.keymap.esc) TS.ui.channel_options_dialog.cancel();
     },
-    start: function(c_id) {
+    start: function(c_id, section) {
       TS.ui.channel_options_dialog.c_id = c_id;
+      TS.ui.channel_options_dialog.preselected_section = section;
       _start();
     },
     go: function() {
@@ -24071,6 +24073,37 @@
     });
     TS.ui.channel_options_dialog.div.find(".option_cancel").on("click", _showAllOptions);
     TS.ui.channel_options_dialog.div.find(".option_go").on("click", _optionGo);
+    if (TS.ui.channel_options_dialog.preselected_section) {
+      switch (TS.ui.channel_options_dialog.preselected_section) {
+        case "archive":
+          if (model_ob.is_group) {
+            _$all_options.find('[data-action="group_archive_btn"]').click();
+          } else {
+            _$all_options.find('[data-action="channel_archive_btn"]').click();
+          }
+          break;
+        case "convert_private":
+          _$all_options.find('[data-action="channel_convert_btn"]').click();
+          break;
+        case "convert_shared":
+          _$all_options.find('[data-action="shared_channel_convert_btn"]').click();
+          break;
+        case "rename":
+          _$all_options.find('[data-action="channel_rename_btn"]').click();
+          break;
+        case "purpose":
+          _$all_options.find('[data-action="channel_purpose_btn"]').click();
+          break;
+        case "retention":
+          _$all_options.find('[data-action="data_retention_btn"]').click();
+          break;
+        case "posting_privilege":
+          _$all_options.find('[data-action="posting_privilege_btn"]').click();
+          break;
+        default:
+          break;
+      }
+    }
   };
   var _createChannelNameMarkup = function(model_ob) {
     var channel_name;
@@ -28511,7 +28544,7 @@
       } else {
         var channel_count = TS.channels.getUnarchivedChannelsForUser().length;
         var group_count = TS.groups.getUnarchivedGroups().length;
-        title = TS.i18n.t("Browse all {channel_count} channels", "channel_browser")({
+        title = TS.i18n.t("Browse all {channel_count, number} channels", "channel_browser")({
           channel_count: channel_count + group_count
         });
       }

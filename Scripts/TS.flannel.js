@@ -140,14 +140,6 @@
       var all_accessible_member_ids = _(channel_member_ids).concat(other_member_ids).uniq().without("USLACKBOT").value();
       return Promise.resolve(all_accessible_member_ids);
     },
-    fetchChannelMembershipForUsers: function(channel_id, user_ids) {
-      var membership_info = {};
-      var channel_members = __temp__channel_members[channel_id];
-      user_ids.forEach(function(user_id) {
-        membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
-      });
-      return Promise.resolve(membership_info);
-    },
     fetchMembershipCountsForChannel: function(channel_id) {
       var model_ob = TS.shared.getModelObById(channel_id);
       var resp = TS.members.getMembershipCounts(model_ob);
@@ -226,8 +218,8 @@
     var ids = _(TS.ui.frecency.getMostCommonWithPrefix(member_id_prefix, MAX_FRECENCY_PREFETCH_MEMBERS)).map("id").difference(known_ids).value();
     if (!ids.length) return;
     TS.log(1989, "Flannel: pre-fetching " + ids.length + " most frequently accessed members...");
-    TS.flannel.fetchAndUpsertObjectsByIds(ids).then(function(response) {
-      TS.log(1989, "Flannel: pre-fetched " + response.objects.length + " most frequently accessed members 👍");
+    TS.flannel.fetchAndUpsertObjectsByIds(ids).then(function(members) {
+      TS.log(1989, "Flannel: pre-fetched " + members.length + " most frequently accessed members 👍");
     }).catch(_.noop);
   };
   var _fetchAndProcessObjectsByIds = function(ids, process_fn) {

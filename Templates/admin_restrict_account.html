@@ -107,14 +107,14 @@
                 <label class="select small">
                     <select id="restricted_channel_picker" class="small">
                         {{#if channels}}
-                            <optgroup label="Channels">
+                            <optgroup label="{{#t}}Channels{{/t}}">
                                 {{#each channels}}
                                     <option value="{{this.id}}">#{{this.name}}</option>
                                 {{/each}}
                             </optgroup>
                         {{/if}}
                         {{#if groups}}
-                            <optgroup label="Private Channels">
+                            <optgroup label="{{#t}}Private Channels{{/t}}">
                                 {{#each groups}}
                                     <option value="{{this.id}}"><i class="ts_icon ts_icon_lock_o"></i> {{this.name}}</option>
                                 {{/each}}
@@ -159,14 +159,14 @@
             <label class="select small">
                 <select id="ultra_restricted_channel_picker" class="small">
                     {{#if channels}}
-                        <optgroup label="Channels">
+                        <optgroup label="{{#t}}Channels{{/t}}">
                             {{#each channels}}
                                 <option value="{{this.id}}">#{{this.name}}</option>
                             {{/each}}
                         </optgroup>
                     {{/if}}
                     {{#if groups}}
-                        <optgroup label="Private Channels">
+                        <optgroup label="{{#t}}Private Channels{{/t}}">
                             {{#each groups}}
                                 <option value="{{this.id}}"><i class="ts_icon ts_icon_lock_o"></i> {{this.name}}</option>
                             {{/each}}
