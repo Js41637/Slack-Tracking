@@ -390,31 +390,6 @@
       }
       return _qs_url_args_cache;
     },
-    getAllTeams: function() {
-      if (!TS.boot_data) return null;
-      if (!TS.model) return null;
-      if (!TS.model.team) return null;
-      if (!TS.model.user) return null;
-      var A = [];
-      var ob = {
-        id: TS.model.user.id,
-        name: TS.model.user.name,
-        team_id: TS.model.team.id,
-        team_name: TS.model.team.name.replace(/ +/g, " "),
-        team_url: TS.boot_data.team_url
-      };
-      if (TS.model.user.enterprise_user) ob.enterprise_id = TS.model.user.enterprise_user.enterprise_id;
-      A.push(ob);
-      if (TS.boot_data.other_accounts && typeof TS.boot_data.other_accounts == "object" && !TS.boot_data.other_accounts.length) {
-        for (var k in TS.boot_data.other_accounts) {
-          var team = _.cloneDeep(TS.boot_data.other_accounts[k]);
-          team.id = k;
-          team.team_name = team.team_name.replace(/ +/g, " ");
-          A.push(team);
-        }
-      }
-      return A;
-    },
     getOtherAccountsCount: function() {
       var c = 0;
       if (!TS.boot_data.other_accounts) return c;
@@ -434,9 +409,6 @@
           if (k == TS.model.user.id) continue;
           TS.boot_data.other_accounts[k] = data.accounts[k];
           c++;
-        }
-        if (TSSSB.call("teamsUpdate", TS.getAllTeams())) {
-          TS.info("called TSSSB.call('teamsUpdate')");
         }
         if (TS.view && !c) {
           TS.view.updateTitleBarColor();

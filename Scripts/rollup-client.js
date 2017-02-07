@@ -5620,7 +5620,7 @@
       TS.client.channel_pane.$scroller.scroll(TS.client.ui.onChannelsScroll);
       TS.client.login_sig.add(TS.client.ui.loggedIn, TS.ui);
       TS.client.msg_input.bind(TS.client.ui.$msg_input);
-      if (!(TS.boot_data.feature_texty && (TS.boot_data.feature_texty_browser_substitutions || TSSSB.call("readSystemTextPreferences")))) {
+      if (!(TS.boot_data.feature_texty && (TS.model.is_our_app || TS.boot_data.feature_texty_browser_substitutions))) {
         TSSSB.call("inputFieldCreated", TS.client.ui.$msg_input.get(0));
       }
 
@@ -9743,6 +9743,34 @@
         template_args[count["name"] + "_count"] = count["count"];
       });
       return template_args;
+    },
+    test: function() {
+      var test_ob = {};
+      Object.defineProperty(test_ob, "MINIMUM_MEMBERS_FOR_SEARCH", {
+        get: function() {
+          return MINIMUM_MEMBERS_FOR_SEARCH;
+        },
+        set: function(v) {
+          MINIMUM_MEMBERS_FOR_SEARCH = v;
+        }
+      });
+      Object.defineProperty(test_ob, "FETCH_PAGE_SIZE", {
+        get: function() {
+          return FETCH_PAGE_SIZE;
+        },
+        set: function(v) {
+          FETCH_PAGE_SIZE = v;
+        }
+      });
+      Object.defineProperty(test_ob, "FETCH_PAGE_SIZE_SEARCH", {
+        get: function() {
+          return FETCH_PAGE_SIZE_SEARCH;
+        },
+        set: function(v) {
+          FETCH_PAGE_SIZE_SEARCH = v;
+        }
+      });
+      return test_ob;
     }
   });
 })();
@@ -39092,7 +39120,7 @@ function timezones_guess() {
       var model_ob = TS.shared.getModelObById(_active_convo_model_id);
       if (!model_ob) return;
       var root_msg = _.find(_active_convo_messages, function(msg) {
-        return msg.ts === msg.thread_ts;
+        return msg.ts === _active_convo_thread_ts;
       });
       if (!root_msg) return;
       TS.channels.join(model_ob.name, function() {

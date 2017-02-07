@@ -8891,11 +8891,15 @@ TS.registerModule("constants", {
       controller.fetchHistory(model_ob, api_args);
     },
     checkForMoreMsgs: function(model_ob) {
-      return TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), {
+      var api_args = {
         channel: model_ob.id,
         latest: model_ob.msgs[model_ob.msgs.length - 1].ts,
         count: 1
-      }).then(function(res) {
+      };
+      if (TS.boot_data.feature_message_replies_ignore_on_history) {
+        api_args.ignore_replies = true;
+      }
+      return TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), api_args).then(function(res) {
         if (res.data.messages && res.data.messages.length > 0) {
           return Promise.resolve(res);
         } else {
@@ -55266,11 +55270,6 @@ $.fn.togglify = function(settings) {
           _text_preferences["substitutions"] = _.mapValues(_.keyBy(raw_preferences["substitutions"], "replace"), "with");
           _text_preferences["useSmartDashes"] = raw_preferences["useSmartDashes"];
           _text_preferences["useSmartQuotes"] = raw_preferences["useSmartQuotes"];
-        } else {
-          if (!TS.boot_data.feature_texty_browser_substitutions) {
-            _text_preferences = false;
-            return;
-          }
         }
       }
       if (!_text_preferences["substitutions"]["--"] && _text_preferences["useSmartQuotes"]) _text_preferences["substitutions"]["--"] = "—";
@@ -57518,6 +57517,16 @@ $.fn.togglify = function(settings) {
           return TS.utility.msgs.processImsgFromHistory(imsg, c_id);
         });
         _maybeSlurpSubscriptionState(c_id, messages);
+        var model_ob = TS.shared.getModelObById(c_id);
+        if (model_ob && model_ob.msgs && model_ob.msgs.length) {
+          var temp_msgs = _.filter(model_ob.msgs, function(msg) {
+            return msg.thread_ts === thread_ts && TS.utility.msgs.isTempMsg(msg);
+          });
+          if (temp_msgs.length) messages = _.sortBy(messages.concat(temp_msgs), "ts");
+        }
+        if (TS.boot_data.feature_message_replies_ignore_on_history) {
+          _maybeAddFetchedMsgsToModel(model_ob, messages);
+        }
         return messages;
       }).finally(function() {
         delete _threads_being_loaded[key];
@@ -57781,6 +57790,18 @@ $.fn.togglify = function(settings) {
         };
       }
     });
+  };
+  var _maybeAddFetchedMsgsToModel = function(model_ob, thread_msgs) {
+    if (!model_ob || !model_ob.msgs || !model_ob.msgs.length || !thread_msgs || !thread_msgs.length) return;
+    var root_msg = _.find(thread_msgs, TS.utility.msgs.msgHasReplies);
+    if (!root_msg && root_msg.ts !== root_msg.thread_ts) return;
+    if (!TS.utility.msgs.getMsg(root_msg.ts, model_ob.msgs)) {
+      return;
+    }
+    var diff = _.differenceBy(thread_msgs, model_ob.msgs, "ts");
+    if (!diff.length) return;
+    var all_msgs = model_ob.msgs.concat(diff);
+    TS.utility.msgs.setMsgs(model_ob, all_msgs);
   };
   var _updateThreadSubscription = function(model_ob_id, thread_ts, subscribed, data) {
     var key = _keyForThread(model_ob_id, thread_ts);
