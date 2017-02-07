@@ -24457,16 +24457,14 @@ TS.registerModule("constants", {
         return options && options.uncapitalized ? yesterday_str.toLocaleLowerCase() : yesterday_str;
       }
     },
-    toCalendarDateOrNamedDay: function(ts, min, exclude_year) {
-      var formatted_time;
-      var relative_day = TS.utility.date.maybeGetRelativeDay(ts);
+    toCalendarDateOrNamedDay: function(ts, shorten_month, exclude_year) {
+      var relative_day = TS.utility.date.maybeGetRelativeDay(ts, {});
       exclude_year = exclude_year || TS.utility.date.shouldExcludeYear(ts);
       if (relative_day) {
-        formatted_time = relative_day;
+        return relative_day;
       } else {
-        formatted_time = TS.utility.date.toCalendarDate(ts, min, exclude_year);
+        return TS.utility.date.toCalendarDate(ts, shorten_month, exclude_year, false, false);
       }
-      return formatted_time;
     },
     toCalendarDateIfYesterdayOrToday: function(ts, min) {
       var date = TS.utility.date.toDateObject(ts);
@@ -42731,6 +42729,7 @@ var _on_esc;
         tracking_code: from_where,
         target_team_id: 0
       };
+      if (has_teams_to_show) {} else {}
       switch (list) {
         case "teams_on":
           payload.anchor_page = "your_workspaces";
@@ -42743,7 +42742,7 @@ var _on_esc;
         default:
           break;
       }
-      TS.clog.track("ENTERPRISE_DISCOVER_WORKSPACES", payload);
+      TS.clog.track(_CLOG_NAMESPACE, payload);
     },
     recordTeamView: function(team_id, anchor_page, from_where) {
       if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
@@ -42753,9 +42752,43 @@ var _on_esc;
         target_team_id: team_id,
         tracking_code: from_where
       };
-      TS.clog.track("ENTERPRISE_DISCOVER_WORKSPACES", payload);
+      TS.clog.track(_CLOG_NAMESPACE, payload);
+    },
+    recordTeamJoin: function(team_id, anchor_page, from_where) {
+      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
+      if (!from_where) from_where = "";
+      var payload = {
+        anchor_page: anchor_page,
+        entity_key: "join_workspace",
+        target_team_id: team_id,
+        tracking_code: from_where
+      };
+      TS.clog.track(_CLOG_NAMESPACE, payload);
+    },
+    recordTeamLeave: function(team_id, anchor_page, from_where) {
+      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
+      if (!from_where) from_where = "";
+      var payload = {
+        anchor_page: anchor_page,
+        entity_key: "leave_workspace",
+        target_team_id: team_id,
+        tracking_code: from_where
+      };
+      TS.clog.track(_CLOG_NAMESPACE, payload);
+    },
+    recordTeamRequestToJoin: function(team_id, anchor_page, from_where) {
+      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
+      if (!from_where) from_where = "";
+      var payload = {
+        anchor_page: anchor_page,
+        entity_key: "request_to_join_workspace",
+        target_team_id: team_id,
+        tracking_code: from_where
+      };
+      TS.clog.track(_CLOG_NAMESPACE, payload);
     }
   });
+  var _CLOG_NAMESPACE = "ENTERPRISE_DISCOVER_WORKSPACES";
   var _bindEvents = function($container, list, base_url) {
     var $parents = $container.parents();
     var $workspace_info = $parents.find(".workspace_info");
@@ -42849,6 +42882,16 @@ var _on_esc;
           user: TS.model.user
         })).attr("data-team-id", team_id);
         $container.find('[data-id="' + team.id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+        var anchor_page;
+        var from_where;
+        if (list === "teams_on") {
+          anchor_page = "your_workspaces";
+          from_where = "your_workspaces_list";
+        } else {
+          anchor_page = "find_workspaces";
+          from_where = "workspaces_you_can_join_list";
+        }
+        TS.enterprise.workspaces.recordTeamView(team.id, anchor_page, from_where);
       });
     });
     $workspace_info.on("click", ".back_to_teams", function(e) {
@@ -42875,6 +42918,14 @@ var _on_esc;
             team: team,
             user: TS.model.user
           }));
+          var anchor_page;
+          var from_where = "workspace_detail";
+          if (list === "teams_on") {
+            anchor_page = "your_workspaces";
+          } else {
+            anchor_page = "find_workspaces";
+          }
+          TS.enterprise.workspaces.recordTeamJoin(team.id, anchor_page, from_where);
         }
         return result;
       });
@@ -42901,6 +42952,14 @@ var _on_esc;
           team: team,
           user: TS.model.user
         }));
+        var anchor_page;
+        var from_where = "workspace_detail";
+        if (list === "teams_on") {
+          anchor_page = "your_workspaces";
+        } else {
+          anchor_page = "find_workspaces";
+        }
+        TS.enterprise.workspaces.recordTeamRequestToJoin(team.id, anchor_page, from_where);
       }).catch(function() {
         ladda.stop();
       });
@@ -42924,8 +42983,20 @@ var _on_esc;
       var ladda = Ladda.create(this);
       ladda.start();
       var team_id = $(this).data("id");
-      _joinTeamHandler(team_id).then(function() {
+      _joinTeamHandler(team_id).then(function(result) {
         ladda.stop();
+        if (result) {
+          var anchor_page;
+          var from_where;
+          if (list === "teams_on") {
+            anchor_page = "your_workspaces";
+            from_where = "your_workspaces_list";
+          } else {
+            anchor_page = "find_workspaces";
+            from_where = "workspaces_you_can_join_list";
+          }
+          TS.enterprise.workspaces.recordTeamJoin(team_id, anchor_page, from_where);
+        }
       });
     });
     $container.on("click", ".enterprise_team_card .enterprise_team_request", function(e) {
@@ -56639,18 +56710,24 @@ $.fn.togglify = function(settings) {
     }
     var action = _.clone(data.action);
     delete action.options;
-    var api_args = {
-      payload: JSON.stringify({
-        actions: [action],
-        attachment_id: data.attachment.id,
-        callback_id: data.attachment.callback_id,
-        channel_id: data.channel_id,
-        is_ephemeral: data.message.is_ephemeral,
-        message_ts: data.message.ts
-      })
+    var api_args = {};
+    var payload = {
+      actions: [action],
+      attachment_id: data.attachment.id,
+      callback_id: data.attachment.callback_id,
+      channel_id: data.channel_id,
+      from_url: data.attachment.from_url,
+      is_ephemeral: data.message.is_ephemeral,
+      message_ts: data.message.ts
     };
-    if (data.message.bot_id) api_args.service_id = data.message.bot_id;
-    if (data.message.user) api_args.bot_user_id = data.message.user;
+    if (TS.boot_data.feature_auth_unfurls && data.attachment.is_app_unfurl) {
+      payload.is_app_unfurl = true;
+      api_args.service_id = data.attachment.bot_id;
+    } else {
+      if (data.message.bot_id) api_args.service_id = data.message.bot_id;
+      if (data.message.user) api_args.bot_user_id = data.message.user;
+    }
+    api_args.payload = JSON.stringify(payload);
     TS.api.call("chat.attachmentAction", api_args).then(function(res) {
       TS.attachment_actions.action_completed_sig.dispatch({
         attachment: data.attachment,
@@ -57223,6 +57300,9 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("utility.enterprise", {
+    getSelf: function() {
+      return _.get(TS.enterprise.model.get(), "org.user");
+    },
     splitQueryIntoTerms: function(query, terms) {
       var results = terms;
       var query_terms;
@@ -57296,7 +57376,9 @@ $.fn.togglify = function(settings) {
       if (data.private_channels) {
         data.private_channels = _.isArray(data.private_channels) ? data.private_channels : [data.private_channels];
         channels = _.map(data.private_channels, function(private_channel) {
+          var creator = TS.utility.members.isMemberOfChannel(_.get(TS.utility.enterprise.getSelf(), "id"), private_channel) && TS.members.getMemberById(private_channel.creator) || {};
           return {
+            creator_display: creator.real_name ? creator.real_name : creator.name,
             date_created: private_channel.created,
             id: private_channel.id,
             member_count: private_channel.members.length,

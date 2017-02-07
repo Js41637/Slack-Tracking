@@ -12390,7 +12390,15 @@
           }
         }
         var min_count = 20;
-        if (!TS.isPartiallyBooted() && msgs.length && count < min_count) {
+        var can_load_more = true;
+        if (TS.boot_data.page_needs_enterprise) {
+          if (count && count < min_count) {
+            if (TS.pri) TS.log(888, "rebuildMsgs(): Enterprise case: Not loading scrollback despite count of " + count + " < min_count of " + min_count + ", to prevent annoying scroll bug.");
+            can_load_more = false;
+          }
+        }
+        if (TS.pri) TS.log(888, "rebuildMsgs(): " + msgs.length + " msgs, of which " + count + " were counted as visible.");
+        if (!TS.isPartiallyBooted() && msgs.length && count < min_count && can_load_more) {
           if (_did_fetch_extra_history && _last_rebuild_model_ob_id == model_ob.id) {} else {
             _did_fetch_extra_history = true;
             var _clearDidFetchExtraHistoryFlag = function() {
