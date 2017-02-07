@@ -8479,6 +8479,7 @@ TS.registerModule("constants", {
       if (!_did_log_mpim_debug_msg) {
         _did_log_mpim_debug_msg = true;
         if (TS.boot_data.feature_tinyspeck) {
+          TS.console.logStackTrace("Someone is upserting members too early. Hopefully this stack trace helps us figure it out!");
           TS.generic_dialog.alert("TS Only: You experienced a weird bug that we at #bug-reconnecting would LOVE to know about. Please send us your logs!", "TS Only: Log Request");
         } else {
           TS.metrics.count("mpim_missing_members_bug");
@@ -15226,7 +15227,6 @@ TS.registerModule("constants", {
     on_msg_sig: new signals.Signal,
     reconnect_requested_sig: new signals.Signal,
     num_times_connected: 0,
-    is_flannel: false,
     errors: {
       BAD_TOKEN: 1,
       CONNECTION_TROUBLE: 1006,
@@ -15414,7 +15414,6 @@ TS.registerModule("constants", {
         TS.model.ms_connected = false;
         TS.ms.disconnected_sig.dispatch();
       }
-      delete TS.ms.is_flannel;
       if (TS.model.ms_asleep) {
         TS.warn("NOT doing startReconnection(), we are asleep");
         return;
@@ -15942,7 +15941,6 @@ TS.registerModule("constants", {
   };
   var _onHello = function(imsg) {
     clearTimeout(_hello_timeout_tim);
-    TS.ms.is_flannel = !!imsg.flannel;
     var since_last_pong_ms = Date.now() - TS.ms.last_pong_time;
     TS.info("Hello msg recvd, since_last_pong_ms:" + since_last_pong_ms);
     TS.ms.logConnectionFlow("on_hello");
@@ -24234,7 +24232,7 @@ TS.registerModule("constants", {
         }));
       }
       if (time.mi) {
-        time_segments.push(TS.i18n.t("{minutes, plural, other{# min}}", "date_utilties")({
+        time_segments.push(TS.i18n.t("{minutes, plural, other{# min}}", "date_utilities")({
           minutes: time.mi
         }));
       }
@@ -24480,18 +24478,16 @@ TS.registerModule("constants", {
         return TS.utility.date.toCalendarDate(ts, shorten_month, exclude_year, false, false);
       }
     },
-    toCalendarDateIfYesterdayOrToday: function(ts, min) {
+    toCalendarDateIfYesterdayOrToday: function(ts, shorten_month) {
       var date = TS.utility.date.toDateObject(ts);
       var today = new Date;
       var yesterday = new Date;
       yesterday.setDate(today.getDate() - 1);
-      var formatted_time = "";
-      if (TS.utility.date.sameDay(date, today)) {
-        formatted_time = TS.utility.date.toCalendarDate(ts, min);
-      } else if (TS.utility.date.sameDay(date, yesterday)) {
-        formatted_time = TS.utility.date.toCalendarDate(ts, min);
+      if (TS.utility.date.sameDay(date, today) || TS.utility.date.sameDay(date, yesterday)) {
+        return TS.utility.date.toCalendarDate(ts, shorten_month, false, false, false);
+      } else {
+        return "";
       }
-      return formatted_time;
     },
     toHour: function(ts) {
       var date = TS.utility.date.toDateObject(ts);
@@ -25090,7 +25086,7 @@ TS.registerModule("constants", {
       return null;
     },
     getEditableMsgByProp: function(name, value, msgs) {
-      if (!value && value !== 0) return null;
+      if (!value && value !== 0 || !msgs) return null;
       var msg;
       for (var i = 0; i < msgs.length; i++) {
         msg = msgs[i];
@@ -25098,6 +25094,22 @@ TS.registerModule("constants", {
         if (msg[name] == value) return msg;
       }
       return null;
+    },
+    getEditableReplyByProp: function(name, value, model_ob, thread_ts) {
+      if (!value && value !== 0 || !model_ob || !thread_ts) return null;
+      var msgs;
+      if (TS.ui.replies.activeConvoModelId() === model_ob.id && TS.ui.replies.activeConvoThreadTs() === thread_ts) {
+        msgs = TS.ui.replies.getActiveMessages();
+      } else if (TS.model.threads_view_is_showing) {
+        var thread = TS.client.threads.getThread(model_ob, thread_ts);
+        msgs = thread && thread.replies ? thread.replies : [];
+      }
+      var msg = _.findLast(msgs, function(msg) {
+        var is_regular_msg = !(msg.subtype && msg.subtype != "me_message");
+        var has_matching_prop = msg[name] === value;
+        return is_regular_msg && has_matching_prop;
+      });
+      return msg;
     },
     sortMsgs: function(msgs) {
       function compare(a, b) {
@@ -35142,8 +35154,7 @@ var _on_esc;
       if (input_txt) {
         if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
           TS.utility.populateThreadInputs(input_txt, c_id, thread_ts);
-        }
-        if (TS.boot_data.feature_name_tagging_client_extras) {
+        } else if (TS.boot_data.feature_name_tagging_client_extras) {
           TS.utility.populateInput(TS.client.ui.$msg_input, input_txt);
         } else {
           TS.utility.contenteditable.value(TS.client.ui.$msg_input, input_txt);
@@ -35174,7 +35185,7 @@ var _on_esc;
         }
       }
       if (TS.boot_data.feature_threads_slash_cmds && c_id && thread_ts) {
-        TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", TS.model.active_cid);
+        TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", c_id);
       } else {
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
       }
@@ -35271,7 +35282,7 @@ var _on_esc;
         name: TS.i18n.t("channel", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         if (words.length == 1) {
           TS.ui.channel_browser.start();
         } else {
@@ -35292,9 +35303,14 @@ var _on_esc;
             if (TS.permissions.members.canCreateChannels()) {
               TS.ui.new_channel_modal.start(channel_name);
             } else {
-              TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t('I couldn’t find a channel named "{channel_name}", sorry', "cmd_handlers")({
+              var feedback_text = TS.i18n.t('I couldn’t find a channel named "{channel_name}", sorry!', "cmd_handlers")({
                 channel_name: channel_name
-              }), "", "sad_surprise");
+              });
+              if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+                TS.cmd_handlers.addEphemeralFeedback(feedback_text, "", "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+              } else {
+                TS.cmd_handlers.addEphemeralFeedback(feedback_text, "", "sad_surprise");
+              }
             }
           }
         }
@@ -35323,9 +35339,11 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         var name = words.length > 1 ? words[1] : "";
         var c_or_g;
+        var feedback_text;
+        var input_text = cmd + " " + rest;
         var m;
         if (TS.boot_data.feature_name_tagging_client_extras) {
           m = TS.members.getMemberById(name);
@@ -35338,7 +35356,12 @@ var _on_esc;
             c_or_g = TS.channels.getChannelByName(c_name);
             if (!c_or_g) c_or_g = TS.groups.getGroupByName(c_name);
             if (!c_or_g) {
-              TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid team member name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+              feedback_text = TS.i18n.t("A valid team member name is required.", "cmd_handlers")();
+              if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+                TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+              } else {
+                TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+              }
               return;
             }
           } else {
@@ -35350,15 +35373,25 @@ var _on_esc;
         var text_to_send = rest.replace(name, "");
         if (m) {
           if (m.deleted) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("That user has been deactivated", "cmd_handlers")() + " :disappointed:", cmd + " " + rest);
+            feedback_text = TS.i18n.t("That user has been deactivated", "cmd_handlers")() + " :disappointed:";
+            if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+            } else {
+              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+            }
             return;
           }
           TS.ims.startImByMemberId(m.id, false, text_to_send);
         } else if (c_or_g) {
           if (c_or_g.is_archived) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("That {channel} has been archived", "cmd_handlers")({
+            feedback_text = TS.i18n.t("That {channel} has been archived", "cmd_handlers")({
               channel: c_or_g.is_channel ? TS.i18n.t("channel", "cmd_handlers")() : TS.i18n.t("private channel", "cmd_handlers")()
-            }), "", "sad_surprise");
+            });
+            if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+            } else {
+              TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+            }
             return;
           }
           if (c_or_g.is_channel) {
@@ -35618,8 +35651,8 @@ var _on_esc;
       alias_of: "/msg",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, in_reply_to_msg) {
-        TS.cmd_handlers["/msg"].func(cmd, rest, words);
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+        TS.cmd_handlers["/msg"].func(cmd, rest, words, in_reply_to_msg, model_ob);
       }
     },
     "/archive": {
@@ -36081,22 +36114,40 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Edit the last message you posted", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg) {
-        var model_ob = TS.shared.getActiveModelOb();
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob_arg) {
+        var model_ob = model_ob_arg ? model_ob_arg : TS.shared.getActiveModelOb();
+        var feedback_text;
+        var input_text = cmd + " " + rest;
         if (!model_ob) {
           return;
         }
         rest = $.trim(rest);
         if (!rest) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("You must enter some text!", "cmd_handlers")(), cmd + " " + rest);
+          feedback_text = TS.i18n.t("You must enter some text!", "cmd_handlers")();
+          if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, null, model_ob.id, in_reply_to_msg.ts);
+          } else {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text);
+          }
           return;
         }
-        var msg = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, model_ob.msgs);
+        var msg;
+        if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+          msg = TS.utility.msgs.getEditableReplyByProp("user", TS.model.user.id, model_ob, in_reply_to_msg.ts);
+        } else {
+          var msgs = _.reject(model_ob.msgs, TS.utility.msgs.isMsgReply);
+          msg = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, msgs);
+        }
         if (!msg) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Found no recent messages from you to edit.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+          feedback_text = TS.i18n.t("Found no recent messages from you to edit.", "cmd_handlers")();
+          if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+          } else {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+          }
           return;
         }
-        TS.msg_edit.commitEdit(msg, TS.shared.getActiveModelOb(), rest);
+        TS.msg_edit.commitEdit(msg, model_ob, rest);
       }
     },
     "/deletelast": {
@@ -36105,17 +36156,28 @@ var _on_esc;
       alias_of: null,
       aliases: null,
       desc: TS.i18n.t("Delete the last message you posted", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg) {
-        var model_ob = TS.shared.getActiveModelOb();
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob_arg) {
+        var model_ob = model_ob_arg ? model_ob_arg : TS.shared.getActiveModelOb();
         if (!model_ob) {
           return;
         }
-        var msg = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, model_ob.msgs);
+        var msg;
+        if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+          msg = TS.utility.msgs.getEditableReplyByProp("user", TS.model.user.id, model_ob, in_reply_to_msg.ts);
+        } else {
+          var msgs = _.reject(model_ob.msgs, TS.utility.msgs.isMsgReply);
+          msg = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, msgs);
+        }
         if (!msg) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Found no recent messages from you to delete.", "cmd_handlers")(), "", "sad_surprise");
+          var feedback_text = TS.i18n.t("Found no recent messages from you to delete.", "cmd_handlers")();
+          if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, "", "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+          } else {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, "", "sad_surprise");
+          }
           return;
         }
-        TS.msg_edit.startDelete(msg.ts);
+        TS.msg_edit.startDelete(msg.ts, model_ob);
       }
     },
     "/collapse": {
@@ -36268,7 +36330,7 @@ var _on_esc;
         name: TS.i18n.t("your message", "cmd_handlers")(),
         optional: true
       }],
-      func: function(cmd, rest, words, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         if (!rest) {
           TS.utility.openInNewTab("/help/requests/new", "_blank");
           return;
@@ -36280,16 +36342,26 @@ var _on_esc;
           show_go_button: true,
           go_button_text: TS.i18n.t("Yes, send it", "cmd_handlers")(),
           onGo: function() {
-            TS.api.call("chat.command", {
+            var api_args = {
               command: cmd,
               text: TS.format.cleanCommandText(rest),
               channel: TS.model.active_cid
-            }, function(ok, data, api_args) {
+            };
+            if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+              api_args.channel = model_ob.id;
+              api_args.thread_ts = in_reply_to_msg.ts;
+            }
+            TS.api.call("chat.command", api_args, function(ok, data, api_args) {
               TS.client.ui.onAPICommand(ok, data, api_args, rest);
             });
           },
           onCancel: function() {
-            TS.utility.populateInput(TS.client.ui.$msg_input, cmd + " " + rest);
+            var input_txt = cmd + " " + rest;
+            if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+              TS.utility.populateThreadInputs(input_txt, model_ob.id, in_reply_to_msg.ts);
+            } else {
+              TS.utility.populateInput(TS.client.ui.$msg_input, input_txt);
+            }
           }
         });
       }
@@ -36366,7 +36438,7 @@ var _on_esc;
       }
     }
   });
-  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/away"];
+  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/open", "/toggle_debugging_prefs", "/away", "/search", "/togglethemes", "/feedback", "/slack_diagnostic_report", "/dnd", "/remind", "/msg", "/dm", "/s", "/editlast", "/deletelast"];
   var _setCommands = function(commands, cache_ts) {
     TS.model.commands_cache_ts = cache_ts;
     TS.storage.storeCmds({
@@ -58055,7 +58127,7 @@ $.fn.togglify = function(settings) {
   var _maybeAddFetchedMsgsToModel = function(model_ob, thread_msgs) {
     if (!model_ob || !model_ob.msgs || !model_ob.msgs.length || !thread_msgs || !thread_msgs.length) return;
     var root_msg = _.find(thread_msgs, TS.utility.msgs.msgHasReplies);
-    if (!root_msg && root_msg.ts !== root_msg.thread_ts) return;
+    if (!root_msg || root_msg.ts !== root_msg.thread_ts) return;
     if (!TS.utility.msgs.getMsg(root_msg.ts, model_ob.msgs)) {
       return;
     }

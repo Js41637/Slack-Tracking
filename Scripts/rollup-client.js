@@ -6380,6 +6380,7 @@
     },
     onAPICommand: function(ok, data, args, display_text) {
       var active_cid = TS.model.active_cid;
+      var ephemeral_msg;
       if (!ok) {
         if (TS.boot_data.feature_threads_slash_cmds && args.channel && args.thread_ts) {
           TS.utility.populateThreadInputs(args.disp + " " + display_text, args.channel, args.thread_ts);
@@ -6406,7 +6407,7 @@
             cmd_txt: cmd_txt
           });
         }
-        var ephemeral_msg = {
+        ephemeral_msg = {
           text: err_txt,
           ephemeral_type: "temp_slash_cmd_feedback",
           channel: active_cid,
@@ -6426,8 +6427,11 @@
           TS.utility.openInNewTab(data.open_url, target);
         }
         if (data.keep_input) {
-          if (!TS.utility.contenteditable.value(TS.client.ui.$msg_input)) {
-            TS.utility.populateInput(TS.client.ui.$msg_input, args.command + " " + display_text);
+          var input_txt = args.command + " " + display_text;
+          if (TS.boot_data.feature_threads_slash_cmds && args.channel && args.thread_ts) {
+            TS.utility.populateThreadInputs(input_txt, args.channel, args.thread_ts);
+          } else if (!TS.utility.contenteditable.value(TS.client.ui.$msg_input)) {
+            TS.utility.populateInput(TS.client.ui.$msg_input, input_txt);
           }
         }
         var c_id = active_cid;
@@ -6441,20 +6445,38 @@
           }
         }
         if (data.is_temp) {
-          TS.client.ui.addOrFlashEphemeralBotMsg({
+          ephemeral_msg = {
             text: data.response,
             ephemeral_type: "temp_slash_cmd_feedback",
             channel: c_id
-          });
+          };
+          if (TS.boot_data.feature_threads_slash_cmds && args.thread_ts) {
+            ephemeral_msg.thread_ts = args.thread_ts;
+            ephemeral_msg.ephemeral_type = "threads_temp_slash_cmd_feedback";
+          }
+          TS.client.ui.addOrFlashEphemeralBotMsg(ephemeral_msg);
         } else {
           TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
-          TS.client.ui.addEphemeralBotMsg({
+          if (TS.boot_data.feature_threads_slash_cmds && args.channel && args.thread_ts) {
+            TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", args.channel);
+          } else {
+            TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
+          }
+          ephemeral_msg = {
             text: data.response,
             channel: c_id
-          });
+          };
+          if (TS.boot_data.feature_threads_slash_cmds) {
+            ephemeral_msg.thread_ts = args.thread_ts;
+          }
+          TS.client.ui.addEphemeralBotMsg(ephemeral_msg);
         }
       } else if (ok) {
-        TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
+        if (TS.boot_data.feature_threads_slash_cmds && args.channel && args.thread_ts) {
+          TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", args.channel);
+        } else {
+          TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.active_cid);
+        }
       }
     },
     is_limited_div_tim: 0,
@@ -37654,9 +37676,9 @@ function timezones_guess() {
     var $scroller_holder;
     if (TS.boot_data.feature_threads_paging_flexpane) {
       if (config.scroller) $scroller = $(config.scroller);
-      var $scroller_holder = $scroller.parent();
+      $scroller_holder = $scroller.parent();
     } else {
-      var $scroller_holder = $scroller.parent();
+      $scroller_holder = $scroller.parent();
       if (config.scroller) $scroller = $(config.scroller);
     }
     var scroll_handler = _.debounce(function(scroller) {
@@ -38237,16 +38259,21 @@ function timezones_guess() {
   var _findLastMessage = function(config) {
     var last;
     _.findLast(config.sections, function(section) {
-      if (!section.msgs) return false;
+      if (!section.msgs || !section.msgs.length) return false;
+      var msg, ts;
       if (config.msg_order === "asc") {
+        msg = _.first(section.msgs);
+        ts = msg ? msg.ts : null;
         last = {
           section_id: section.id,
-          msg_ts: _.first(section.msgs).ts
+          msg_ts: ts
         };
       } else {
+        msg = _.last(section.msgs);
+        ts = msg ? msg.ts : null;
         last = {
           section_id: section.id,
-          msg_ts: _.last(section.msgs).ts
+          msg_ts: ts
         };
       }
       return true;
