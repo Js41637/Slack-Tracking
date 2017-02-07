@@ -37583,7 +37583,10 @@ function timezones_guess() {
           var day_ts = msgs.length > 0 ? msgs[0].ts : null;
           if (!day_ts) return;
           var $day = $days.filter(function() {
-            return $(this).attr("data-ts") === day_ts;
+            var this_ts = $(this).attr("data-ts");
+            var date_a = TS.utility.date.toDateObject(day_ts);
+            var date_b = TS.utility.date.toDateObject(this_ts);
+            return config.skip_day_groupings || TS.utility.date.sameDay(date_a, date_b);
           });
           if (!$day.length) return;
           var msgs_resolution = _resolveMsgs(msgs, msgs, config.msg_order, msg_test_fn);
@@ -37600,6 +37603,15 @@ function timezones_guess() {
         offset: "top",
         px_offset: 50
       });
+      return ret;
+    },
+    jumpToEnd: function(config) {
+      var last = _findLastMessage(config);
+      _setVisibleRange(config, last);
+      var ret = TS.ui.message_container.updateWithFocus(config);
+      var $scroller = $(config.container);
+      if (config.scroller) $scroller = $(config.scroller);
+      $scroller.scrollTop($scroller.prop("scrollHeight"));
       return ret;
     },
     getRange: function(config) {
@@ -37639,8 +37651,14 @@ function timezones_guess() {
     if (!config.page_size) return;
     var $container = $(config.container);
     var $scroller = $container;
-    var $scroller_holder = $scroller.parent();
-    if (config.scroller) $scroller = $(config.scroller);
+    var $scroller_holder;
+    if (TS.boot_data.feature_threads_paging_flexpane) {
+      if (config.scroller) $scroller = $(config.scroller);
+      var $scroller_holder = $scroller.parent();
+    } else {
+      var $scroller_holder = $scroller.parent();
+      if (config.scroller) $scroller = $(config.scroller);
+    }
     var scroll_handler = _.debounce(function(scroller) {
       if (scroller.scrollTop + $scroller_holder.height() > scroller.scrollHeight * .25) {
         _loadMoreMessages(config);
@@ -38216,6 +38234,25 @@ function timezones_guess() {
     });
     return all;
   };
+  var _findLastMessage = function(config) {
+    var last;
+    _.findLast(config.sections, function(section) {
+      if (!section.msgs) return false;
+      if (config.msg_order === "asc") {
+        last = {
+          section_id: section.id,
+          msg_ts: _.first(section.msgs).ts
+        };
+      } else {
+        last = {
+          section_id: section.id,
+          msg_ts: _.last(section.msgs).ts
+        };
+      }
+      return true;
+    });
+    return last;
+  };
   var _groupMsgsIntoDays = function(config, msgs) {
     if (!msgs) return [];
     var order = config.msg_order;
@@ -38756,10 +38793,13 @@ function timezones_guess() {
             } else {
               return _buildRelativeMsgHTML(model_ob, msg);
             }
+          },
+          updateCallback: function() {
+            _updateDescendentState($convo);
           }
         };
-        _updateDescendentState($convo);
         TS.ui.message_container.register(_msg_container_config);
+        _updateDescendentState($convo);
         if (root_msg) _renderReplyContainer(model_ob, root_msg);
         var show_back_button = !!_active_convo_origin;
         TS.ui.replies.toggleBackButton(show_back_button);
@@ -38810,6 +38850,7 @@ function timezones_guess() {
       }
       if (TS.boot_data.feature_threads_paging_flexpane) {
         _replaceMessagesAndUpdateMessageContainer(messages);
+        TS.ui.message_container.jumpToEnd(_msg_container_config);
       } else {
         var $convo = $("#convo_tab ts-conversation");
         if ($convo.find("ts-message.placeholder").length > 0) {
@@ -38911,6 +38952,7 @@ function timezones_guess() {
       } else {
         _active_convo_messages.push(msg);
       }
+      var is_new_msg = false;
       if (TS.boot_data.feature_threads_paging_flexpane) {
         if (TS.utility.msgs.isMsgReply(msg)) {
           var reply_index = _.findIndex(_replies_section.msgs, {
@@ -38919,6 +38961,7 @@ function timezones_guess() {
           if (-1 !== reply_index) {
             _replies_section.msgs[reply_index] = msg;
           } else {
+            is_new_msg = true;
             var insert_at = _.findIndex(_replies_section.msgs, function(reply) {
               return reply.ts < msg.ts;
             });
@@ -38942,13 +38985,17 @@ function timezones_guess() {
       }
       var scroller = TS.ui.replies.$scroller[0];
       var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
-      var was_scrolled_to_bottom = from_bottom < 50;
+      var bottom_offset = TS.ui.replies.$scroller.find("#reply_container").outerHeight(true);
+      var was_scrolled_to_bottom = from_bottom < bottom_offset;
       var $convo = $('ts-conversation[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
       if (!$convo.length) return;
       var $existing_msg = $convo.find('ts-message[data-ts="' + msg.ts + '"]');
       var $new_msg;
       if (TS.boot_data.feature_threads_paging_flexpane) {
         _updateMessageContainer();
+        if (is_new_msg && was_scrolled_to_bottom) {
+          TS.ui.message_container.jumpToEnd(_msg_container_config);
+        }
         $new_msg = $convo.find('ts-message[data-ts="' + msg.ts + '"]');
         if ($existing_msg.length) {
           if ($existing_msg.hasClass("hidden")) {
@@ -39633,7 +39680,6 @@ function timezones_guess() {
   };
   var _updateMessageContainer = function() {
     TS.ui.message_container.update(_msg_container_config);
-    _updateDescendentState(_msg_container_config.container);
   };
 })();
 (function() {

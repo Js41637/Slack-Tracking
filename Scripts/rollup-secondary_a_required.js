@@ -8458,35 +8458,37 @@ TS.registerModule("constants", {
   });
   var _id_map = {};
   var _name_map = {};
-  var _did_show_mpim_debug_alert = false;
+  var _did_log_mpim_debug_msg = false;
   var _makeNameForMpim = function(mpim) {
     var members = TS.mpims.getMembersInDisplayOrder(mpim);
     if (members.length < 2) {
       return mpim._internal_name;
     }
-    if (TS.boot_data.user_id == "W1H63D57F") {
-      if (_.compact(members).length < members.length) {
-        var members_we_have = _(members).compact().map("id").value();
-        var members_we_are_missing = _.without(mpim.members, members_we_have);
-        TS.warn("Missing some members in MPIM " + mpim.id + ":" + members_we_are_missing.join(","));
-        var still_missing_members = _.reject(members_we_are_missing, TS.members.getMemberById);
-        if (still_missing_members.length > 0) {
-          TS.warn("Some members (" + still_missing_members.join(",") + ") were still unavailable when we tried again; unable to recover");
+    if (_.compact(members).length < members.length) {
+      var members_we_have = _(members).compact().map("id").value();
+      var members_we_are_missing = _.without(mpim.members, members_we_have);
+      TS.warn("Missing some members in MPIM " + mpim.id + ":" + members_we_are_missing.join(","));
+      var still_missing_members = _.reject(members_we_are_missing, TS.members.getMemberById);
+      if (still_missing_members.length > 0) {
+        TS.warn("Some members (" + still_missing_members.join(",") + ") were still unavailable when we tried again; unable to recover");
+      } else {
+        TS.info("All members were available when we tried again; recovering");
+        delete mpim._members;
+        members = TS.mpims.getMembersInDisplayOrder();
+      }
+      if (!_did_log_mpim_debug_msg) {
+        _did_log_mpim_debug_msg = true;
+        if (TS.boot_data.feature_tinyspeck) {
+          TS.generic_dialog.alert("TS Only: You experienced a weird bug that we at #bug-reconnecting would LOVE to know about. Please send us your logs!", "TS Only: Log Request");
         } else {
-          TS.info("All members were available when we tried again; recovering");
-          delete mpim._members;
-          members = TS.mpims.getMembersInDisplayOrder();
-        }
-        if (!_did_show_mpim_debug_alert) {
-          _did_show_mpim_debug_alert = true;
-          alert("Hi, Karine! That weird MPIM bug happened again; please send logs to Mark.");
+          TS.metrics.count("mpim_missing_members_bug");
         }
       }
     }
-    return "@" + members.map(function(member) {
+    return "@" + _(members).compact().map(function(member) {
       if (!member._is_local) return member.name + "_" + member.team_id;
       return member.name;
-    }).join(",");
+    }).value().join(",");
   };
   var _updateMpimName = function(mpim) {
     if (mpim._name_lc) delete _name_map[mpim._name_lc];
@@ -10306,7 +10308,6 @@ TS.registerModule("constants", {
     changed_sig: new signals.Signal,
     unlinked_sig: new signals.Signal,
     changed_icon_sig: new signals.Signal,
-    onStart: function() {},
     getTeamById: function(id) {
       if (!TS.boot_data.feature_external_shared_channels_ui) {
         TS.console.warn("external shared channels must be on to use this");
@@ -10320,9 +10321,9 @@ TS.registerModule("constants", {
         return null;
       }
       var team;
-      for (var i = 0; i < teams.length; i++) {
+      for (var i = 0; i < teams.length; i += 1) {
         team = teams[i];
-        if (team.id == id) {
+        if (team.id === id) {
           _id_map[id] = team;
           return team;
         }
@@ -10348,7 +10349,7 @@ TS.registerModule("constants", {
         return;
       }
       var upsert = TS.teams.upsertTeam(team);
-      if (upsert.status == "CHANGED") {
+      if (upsert.status === "CHANGED") {
         if (upsert.what_changed.indexOf("icon") != -1) {
           TS.teams.changed_icon_sig.dispatch(upsert.team);
         }
@@ -10358,7 +10359,7 @@ TS.registerModule("constants", {
         if (upsert.what_changed.indexOf("unlinked") != -1) {
           TS.teams.unlinked_sig.dispatch(upsert.team);
         }
-      } else if (upsert.status == "ADDED") {
+      } else if (upsert.status === "ADDED") {
         TS.teams.added_sig.dispatch(upsert.team);
       }
       return upsert;
@@ -10373,17 +10374,17 @@ TS.registerModule("constants", {
       var status = "NOOP";
       var what_changed = [];
       if (existing_team) {
-        for (var k in team) {
-          if (k == "icon") {
-            if (team[k] && !TS.utility.areSimpleObjectsEqual(team[k], existing_team[k])) {
+        for (var key in team) {
+          if (key === "icon") {
+            if (team[key] && !TS.utility.areSimpleObjectsEqual(team[key], existing_team[key])) {
               existing_team["icon"] = team["icon"];
               status = "CHANGED";
-              what_changed.push(k);
+              what_changed.push(key);
             }
-          } else if (existing_team[k] != team[k]) {
-            if (typeof team[k] != "boolean" || !team[k] != !existing_team[k]) {
-              what_changed.push(k);
-              existing_team[k] = team[k];
+          } else if (existing_team[key] != team[key]) {
+            if (typeof team[key] != "boolean" || !team[key] != !existing_team[key]) {
+              what_changed.push(key);
+              existing_team[key] = team[key];
               status = "CHANGED";
             }
           }
@@ -11387,7 +11388,7 @@ TS.registerModule("constants", {
     });
   };
   var _getMembersByIdFromModelOrApi = function(m_ids, always_use_api) {
-    if (TS.ms.is_flannel && !always_use_api) {
+    if (TS.lazyLoadMembersAndBots() && !always_use_api) {
       return _getMembersByIdFromFlannel(m_ids);
     }
     if (!Array.isArray(m_ids)) return Promise.reject(Error("m_ids is not an array"));
@@ -11664,6 +11665,10 @@ TS.registerModule("constants", {
             what_changed.push(k);
           }
         }
+      } else if (k == "teams") {
+        existing_member[k] = member[k];
+        status = "CHANGED";
+        what_changed.push(k);
       } else if (existing_member[k] != member[k]) {
         if (member[k] && !TS.utility.isScalar(member[k])) {
           existing_member[k] = member[k];
@@ -16154,7 +16159,7 @@ TS.registerModule("constants", {
           return false;
         }
         TS.info("Provisional WebSocket received a message of type " + imsg.type);
-        if (imsg.type == "hello") {
+        if (imsg.type === "hello") {
           clearTimeout(rtm_start_timeout);
           rtm_start_timeout = undefined;
           if (imsg.flannel && imsg.start) {
@@ -16163,6 +16168,12 @@ TS.registerModule("constants", {
           } else {
             _abortRtmStartAttempt(new Error("`hello` imsg did not include rtm.start data"));
           }
+        } else if (imsg.type === "error") {
+          _abortRtmStartAttempt({
+            data: {
+              error: _.get(imsg, "error.msg")
+            }
+          });
         }
       });
       _websocket.onclose = _onDisconnectProvisional;
@@ -22465,6 +22476,9 @@ TS.registerModule("constants", {
         } else {
           return "";
         }
+      });
+      Handlebars.registerHelper("versioned_x_icon", function() {
+        return cdn_url + "/52b9/img/enterprise/icon_times_in_circle.svg";
       });
       Handlebars.registerHelper("pageNeedsEnterpriseOrIsLazyLoadMembersAndBots", function(options) {
         if (TS.boot_data.page_needs_enterprise || TS.lazyLoadMembersAndBots()) {
@@ -33421,6 +33435,7 @@ var _on_esc;
       if (TS.model.menu_is_showing) return;
       options = _.merge({}, options);
       _team_id = options.team_id;
+      _list = options.list;
       TS.menu.buildIfNeeded();
       TS.menu.enterprise_team_signin.clean();
       TS.menu.$menu.addClass("enterprise_team_signin_menu");
@@ -33457,8 +33472,19 @@ var _on_esc;
     }
   });
   var _team_id;
+  var _list;
   var _leaveTeamConfirm = function() {
-    TS.ui.leave_team_dialog.start(_team_id);
+    TS.ui.leave_team_dialog.start(_team_id, _list);
+    var anchor_page;
+    var from_where;
+    if (_list === "teams_on") {
+      anchor_page = "your_workspaces";
+      from_where = "your_workspaces_list";
+    } else {
+      anchor_page = "find_workspaces";
+      from_where = "workspaces_you_can_join_list";
+    }
+    TS.enterprise.workspaces.recordTeamLeave(_team_id, anchor_page, from_where);
   };
 })();
 (function() {
@@ -33466,8 +33492,10 @@ var _on_esc;
   TS.registerModule("ui.leave_team_dialog", {
     team_id: null,
     ladda: null,
-    start: function(team_id) {
+    list: null,
+    start: function(team_id, list) {
       TS.ui.leave_team_dialog.team_id = team_id;
+      TS.ui.leave_team_dialog.list = list;
       var team = TS.enterprise.getTeamById(TS.ui.leave_team_dialog.team_id);
       var template_args = {
         team: team
@@ -33530,6 +33558,16 @@ var _on_esc;
           }
           return;
         });
+        var anchor_page;
+        var from_where;
+        if (TS.ui.leave_team_dialog.list === "teams_on") {
+          anchor_page = "your_workspaces";
+          from_where = "your_workspaces_list";
+        } else {
+          anchor_page = "find_workspaces";
+          from_where = "workspaces_you_can_join_list";
+        }
+        TS.enterprise.workspaces.recordTeamLeaveConfirm(TS.ui.leave_team_dialog.team_id, anchor_page, from_where);
       }
     });
   };
@@ -42606,7 +42644,7 @@ var _on_esc;
       _bindEvents($container, list, base_url);
       return Promise.resolve(!!teams.length);
     },
-    getList: function(list, sort_by) {
+    getList: function(list, sort_by, filter_by) {
       if (!sort_by) {
         if (list === "teams_not_on") {
           sort_by = "members";
@@ -42614,6 +42652,7 @@ var _on_esc;
           sort_by = "join";
         }
       }
+      if (!filter_by) filter_by = "";
       var teams = {
         teams_on: [],
         teams_not_on: []
@@ -42625,7 +42664,9 @@ var _on_esc;
           if (team.is_open || team.is_closed || team.is_assigned) teams.teams_not_on.push(team);
         }
       });
-      return teams[list].sort(function(a, b) {
+      return teams[list].filter(function(team) {
+        return team.name.indexOf(filter_by) > -1 || team.description && team.description.indexOf(filter_by) > -1;
+      }).sort(function(a, b) {
         if (sort_by === "name") {
           var a_name = a.name.toLowerCase();
           var b_name = b.name.toLowerCase();
@@ -42776,6 +42817,17 @@ var _on_esc;
       };
       TS.clog.track(_CLOG_NAMESPACE, payload);
     },
+    recordTeamLeaveConfirm: function(team_id, anchor_page, from_where) {
+      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
+      if (!from_where) from_where = "";
+      var payload = {
+        anchor_page: anchor_page,
+        entity_key: "leave_workspace_confirm",
+        target_team_id: team_id,
+        tracking_code: from_where
+      };
+      TS.clog.track(_CLOG_NAMESPACE, payload);
+    },
     recordTeamRequestToJoin: function(team_id, anchor_page, from_where) {
       if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
       if (!from_where) from_where = "";
@@ -42791,12 +42843,19 @@ var _on_esc;
   var _CLOG_NAMESPACE = "ENTERPRISE_DISCOVER_WORKSPACES";
   var _bindEvents = function($container, list, base_url) {
     var $parents = $container.parents();
+    var $search_input = $parents.find('[data-qa="teams_search"]');
     var $workspace_info = $parents.find(".workspace_info");
     var $more_teams_available_message = $parents.find(".more_teams_available");
     var $title_bar = $parents.find(".title_bar");
+    var $sort_container = $(".sort_by_container");
+    var $sort_by_your = $sort_container.find('select[data-qa="sort-by-your"]');
+    var $sort_by_find = $sort_container.find('select[data-qa="sort-by-find"]');
     $container.off();
+    $search_input.off();
     $workspace_info.off();
     $more_teams_available_message.off();
+    $sort_by_your.off();
+    $sort_by_find.off();
     var _joinTeamHandler = function(team_id) {
       return TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
         if (result) {
@@ -42813,6 +42872,28 @@ var _on_esc;
         return result;
       });
     };
+    if (TS.boot_data.feature_discoverable_teams_client_polish) {
+      $search_input.on("input", function(e) {
+        var filter_by = $(this).val();
+        var sort_by;
+        if (list === "teams_on") {
+          sort_by = $sort_by_your.val();
+        } else {
+          sort_by = $sort_by_find.val();
+        }
+        var teams = TS.enterprise.workspaces.getList(list, sort_by, filter_by);
+        var html = "";
+        if (teams.length) {
+          teams.forEach(function(team) {
+            html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
+          });
+        } else {
+          html += TS.templates.no_workspace_results();
+        }
+        $container.html(html).attr("data-list", list);
+        _bindEvents($container, list, base_url);
+      });
+    }
     $more_teams_available_message.on("click", '[data-qa="find-more-teams"]', function(e) {
       e.preventDefault();
       $('.enterprise_memberdash_header .menu_item_teams[data-qa="find-teams"]').click();
@@ -42835,12 +42916,7 @@ var _on_esc;
       $container.html(html).attr("data-list", list);
       _bindEvents($container, list, base_url);
     };
-    var $sort_container = $(".sort_by_container");
-    var $sort_by_your = $sort_container.find('select[data-qa="sort-by-your"]');
-    $sort_by_your.off();
     $sort_by_your.on("change", sortChangeHandler);
-    var $sort_by_find = $sort_container.find('select[data-qa="sort-by-find"]');
-    $sort_by_find.off();
     $sort_by_find.on("change", sortChangeHandler);
     $container.on("click", ".enterprise_team_card", function(e) {
       var team_id = $(this).data("id");
@@ -42973,6 +43049,7 @@ var _on_esc;
       var team_id = $(this).data("id");
       var team = TS.enterprise.getTeamById(team_id);
       TS.menu.enterprise_team_signin.start(e, $(this), {
+        list: list,
         team_id: team_id,
         team_site_url: team_site_url,
         should_show_leave_team: TS.permissions.enterprise.canUserLeaveTeam(TS.model.user, team)
@@ -43059,14 +43136,33 @@ var _on_esc;
     var $workspaces = $container.find(".workspaces");
     var $workspace_info = $container.find(".workspace_info");
     var $title_bar = $container.find(".title_bar");
+    var base_url = TS.boot_data.logout_url;
+    $container.off();
+    $workspace_info.off();
+    var _joinTeamHandler = function(team_id) {
+      return TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
+        if (result) {
+          var updated_member = _.merge({}, TS.model.user);
+          updated_member.enterprise_user.teams = _.uniq(updated_member.enterprise_user.teams.concat(team_id));
+          TS.members.upsertMember(updated_member);
+          var team = TS.enterprise.getTeamById(team_id);
+          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+          var from_where = "workspace_detail";
+          var anchor_page = "find_workspaces";
+          TS.enterprise.workspaces.recordTeamJoin(team.id, anchor_page, from_where);
+        }
+        return result;
+      });
+    };
     $container.find(".sort_by_container select").on("change", function(e) {
       var sort_by = $(this).val();
       var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by);
       var html = "";
       teams.forEach(function(team) {
-        html += TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url, true);
+        html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
       });
       $workspaces.html(html);
+      _bindEvents();
     });
     $container.on("click", ".enterprise_team_card", function(e) {
       var team_id = $(this).data("id");
@@ -43083,10 +43179,17 @@ var _on_esc;
         if (!team) {
           return;
         }
+        var url = TS.enterprise.workspaces.createURL(team, base_url);
+        team.launch_url = url + "messages";
+        team.site_url = url + "home";
         $workspace_info.html(TS.templates.team_info({
           list: "teams_not_on",
-          team: team
+          team: team,
+          user: TS.model.user
         }));
+        var anchor_page = "find_workspaces";
+        var from_where = "workspaces_you_can_join_list";
+        TS.enterprise.workspaces.recordTeamView(team.id, anchor_page, from_where);
       });
     });
     $workspace_info.on("click", ".back_to_teams", function(e) {
@@ -43095,11 +43198,64 @@ var _on_esc;
       $title_bar.removeClass("hidden");
       $workspace_info.addClass("hidden");
     });
+    $workspace_info.on("click", 'button[data-qa="join-btn"]', function(e) {
+      var ladda = Ladda.create(this);
+      ladda.start();
+      var team_id = $(this).data("id");
+      var team = TS.enterprise.getTeamById(team_id);
+      _joinTeamHandler(team_id).then(function(result) {
+        ladda.stop();
+        if (result) {
+          var url = TS.enterprise.workspaces.createURL(team, base_url);
+          team.launch_url = url + "messages";
+          team.site_url = url + "home";
+          $workspace_info.html(TS.templates.team_info({
+            list: "teams_not_on",
+            team: team,
+            user: TS.model.user
+          }));
+          var anchor_page = "find_workspaces";
+          var from_where = "workspace_detail";
+          TS.enterprise.workspaces.recordTeamJoin(team.id, anchor_page, from_where);
+        }
+        return result;
+      });
+    });
+    $workspace_info.on("click", '[data-qa="leave-btn"]', function(e) {
+      e.preventDefault();
+      var team_id = $(this).data("id");
+      TS.ui.leave_team_dialog.start(team_id);
+    });
+    $workspace_info.on("click", 'button[data-qa="request-to-join-btn"]', function(e) {
+      e.preventDefault();
+      var ladda = Ladda.create(this);
+      ladda.start();
+      var team_id = $(this).data("id");
+      TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
+        var team = TS.enterprise.getTeamById(team_id);
+        $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+        ladda.stop();
+        var url = TS.enterprise.workspaces.createURL(team, base_url);
+        team.launch_url = url + "messages";
+        team.site_url = url + "home";
+        $workspace_info.html(TS.templates.team_info({
+          list: "teams_not_on",
+          team: team,
+          user: TS.model.user
+        }));
+        var anchor_page = "find_workspaces";
+        var from_where = "workspace_detail";
+        TS.enterprise.workspaces.recordTeamRequestToJoin(team.id, anchor_page, from_where);
+      }).catch(function() {
+        ladda.stop();
+      });
+    });
     $container.on("click", ".enterprise_team_menu", function(e) {
       e.stopPropagation();
       var team_site_url = $(this).val();
       var team_id = $(this).data("id");
       TS.menu.enterprise_team_signin.start(e, $(this), {
+        list: "teams_not_on",
         team_id: team_id,
         team_site_url: team_site_url,
         should_show_leave_team: false
@@ -43110,16 +43266,8 @@ var _on_esc;
       var ladda = Ladda.create(this);
       ladda.start();
       var team_id = $(this).data("id");
-      TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
+      _joinTeamHandler(team_id).then(function(result) {
         ladda.stop();
-        if (result) {
-          var updated_member = _.merge({}, TS.model.user);
-          updated_member.enterprise_user.teams = _.uniq(updated_member.enterprise_user.teams.concat(team_id));
-          TS.members.upsertMember(updated_member);
-          var team = TS.enterprise.getTeamById(team_id);
-          $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
-        }
-        return null;
       });
     });
     $container.on("click", ".enterprise_team_request", function(e) {
@@ -43130,7 +43278,10 @@ var _on_esc;
       TS.enterprise.workspaces.requestToJoinTeam(team_id).then(function() {
         var team = TS.enterprise.getTeamById(team_id);
         ladda.stop();
-        $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, TS.boot_data.logout_url));
+        $container.find('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team, base_url));
+        var anchor_page = "find_workspaces";
+        var from_where = "workspaces_you_can_join_list";
+        TS.enterprise.workspaces.recordTeamJoin(team_id, anchor_page, from_where);
       }).catch(function() {
         ladda.stop();
       });

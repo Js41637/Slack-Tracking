@@ -57,19 +57,19 @@
               <span class="channel_name">{{#if ../disambiguate_mpims}}{{mpimDisplayName this.model_ob false true}}{{else}}{{mpimDisplayName this.model_ob}}{{/if}}</span>
             {{else}}
               {{#if this.model_ob.team_url}}
-                <span class="channel_name">{{this.model_ob.team_name}}</span> <span class="team_username">Signed in as {{this.model_ob.name}}</span>
+                <span class="channel_name">{{this.model_ob.team_name}}</span> <span class="team_username">{{#t note='When switching to another team in jumper, Signed in as myusername' username=this.model_ob.name}}Signed in as {username}{{/t}}</span>
               {{else}}
                 <span class="channel_name">{{this.model_ob.name}}</span>
               {{/if}}
             {{/if}}
             {{#if this.model_ob.is_archived}}
-              <span class="channel_archived">(archived)</span>
+              <span class="channel_archived">{{#t note='Displayed after archived channel name in jumper results, such as #old-channel (archived)'}}(archived){{/t}}</span>
             {{else}}
-              {{#if this.model_ob.is_channel}}{{#unless this.model_ob.is_member}}<span class="channel_not_member">(not a member)</span>{{/unless}}{{/if}}
+              {{#if this.model_ob.is_channel}}{{#unless this.model_ob.is_member}}<span class="channel_not_member">{{#t note='Displayed after channels you are not in in jumper results, #some-channel (not a member)'}}(not a member){{/t}}</span>{{/unless}}{{/if}}
             {{/if}}
             {{#feature flag="feature_reveal_channel_renames"}}
               {{#if this.model_ob._jumper_previous_name_match}}
-                <span class="channel_not_member">(formerly #{{this.model_ob._jumper_previous_name_match}})</span>
+                <span class="channel_not_member">{{#t note='Indicates renamed channels, #new-name (formerly #old-name)' previous_name=this.model_ob._jumper_previous_name_match}}(formerly #{previous_name}){{/t}}</span>
               {{/if}}
             {{/feature}}
           {{/if}}

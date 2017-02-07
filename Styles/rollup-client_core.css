@@ -6180,7 +6180,7 @@ only screen and (min-resolution:2dppx) {
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, #f4f4f4));
   background: -moz-linear-gradient(center bottom, #fff 0, #f4f4f4 100%);
   background: -ms-linear-gradient(bottom, #fff, #f4f4f4);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f4f4f4', endColorstr='#ffffff', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f4f4f4', endColorstr='white', GradientType=0);
   border-top: 1px solid #D9D9DE;
   left: 0;
   right: -1rem;
@@ -6659,7 +6659,7 @@ only screen and (min-resolution:2dppx) {
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
   text-align: right;
-  margin-right: 2.5rem;
+  margin-right: 2rem;
   margin-left: .3125rem
 }
 

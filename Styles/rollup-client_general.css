@@ -7034,7 +7034,7 @@ ts-inline-saver.failed .failed {
   margin-bottom: .1875rem;
   border: 1px solid #d8d8d8;
   border-radius: .25rem;
-  background: #FFF;
+  background: #fff;
   box-shadow: 0 0 3px rgba(0, 0, 0, .1);
   padding-top: .25rem;
   padding-bottom: .25rem;
@@ -7133,7 +7133,7 @@ ts-inline-saver.failed .failed {
   margin-bottom: .1875rem;
   border: 1px solid #d8d8d8;
   border-radius: .25rem;
-  background: #FFF;
+  background: #fff;
   box-shadow: 0 0 3px rgba(0, 0, 0, .1);
   padding-top: .25rem;
   padding-bottom: .25rem;
@@ -7212,7 +7212,7 @@ ts-inline-saver.failed .failed {
   border: 1px solid #439fe0;
   border-radius: 3px;
   background: #439fe0;
-  color: #FFF;
+  color: #fff;
   cursor: pointer;
   font-size: .85rem;
   font-weight: 700;
@@ -7224,7 +7224,7 @@ ts-inline-saver.failed .failed {
   content: '\00D7';
   font-weight: 400;
   line-height: 0;
-  color: #FFF;
+  color: #fff;
   display: inline-block;
   margin-left: 8px;
   font-size: 1.3rem;
