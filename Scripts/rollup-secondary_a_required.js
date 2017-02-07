@@ -2009,7 +2009,7 @@
     if (_ensure_model_methodsA.indexOf(method) == -1) return proceed();
     var ensureBots = function() {
       if (!TS.lazyLoadMembersAndBots()) return Promise.resolve();
-      TS.log(528, 'running api data from "' + method + '" through TS.members.ensureMembersInDataArePresent()');
+      TS.log(528, 'running api data from "' + method + '" through TS.bots.ensureBotsInDataArePresent()');
       return TS.bots.ensureBotsInDataArePresent(data, method, args.channel || undefined).catch(function(err) {
         TS.error(err);
       });
@@ -2026,8 +2026,15 @@
         TS.error(err);
       });
     };
+    var ensureTeams = function() {
+      if (!TS.boot_data.feature_external_shared_channels_ui) return;
+      TS.console.log(528, 'running api data from "' + method + '" through TS.teams.ensureTeamsInDataArePresent()');
+      return TS.teams.ensureTeamsInDataArePresent(data).catch(function(err) {
+        TS.console.error(err);
+      });
+    };
     ensureModelObs().then(function() {
-      return Promise.join(ensureBots(), ensureMembers());
+      return Promise.join(ensureBots(), ensureMembers(), ensureTeams());
     }).then(proceed);
   };
   var _reQueue = function(method, args, p, dont_set_active, progressHandler) {
@@ -10404,6 +10411,14 @@ TS.registerModule("constants", {
       var missing_team_ids = _.reject(t_ids, TS.teams.getTeamById);
       if (!missing_team_ids.length) return Promise.resolve();
       return _getTeamsByIdFromModelOrApi(missing_team_ids);
+    },
+    ensureTeamsInDataArePresent: function(data) {
+      if (!TS.boot_data.feature_external_shared_channels_ui) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      var team_ids = TS.utility.extractAllTeamIds(data);
+      return TS.teams.ensureTeamsArePresent(team_ids);
     }
   });
   var _id_map = {};
@@ -24431,21 +24446,15 @@ TS.registerModule("constants", {
     },
     maybeGetRelativeDay: function(ts, options) {
       var date = TS.utility.date.toDateObject(ts);
+      var today_str = TS.i18n.t("Today", "date_utilities")();
+      var yesterday_str = TS.i18n.t("Yesterday", "date_utilities")();
       var today = new Date;
       var yesterday = new Date;
       yesterday.setDate(today.getDate() - 1);
       if (TS.utility.date.sameDay(date, today)) {
-        if (options && options.uncapitalized) {
-          return "today";
-        } else {
-          return "Today";
-        }
+        return options && options.uncapitalized ? today_str.toLocaleLowerCase() : today_str;
       } else if (TS.utility.date.sameDay(date, yesterday)) {
-        if (options && options.uncapitalized) {
-          return "yesterday";
-        } else {
-          return "Yesterday";
-        }
+        return options && options.uncapitalized ? yesterday_str.toLocaleLowerCase() : yesterday_str;
       }
     },
     toCalendarDateOrNamedDay: function(ts, min, exclude_year) {
@@ -28419,6 +28428,20 @@ TS.registerModule("constants", {
       }
       return c_ids;
     },
+    extractAllTeamIds: function(ob) {
+      var t_ids = [];
+      _.values(ob).forEach(function(val) {
+        if (_.isObject(val)) {
+          var new_team_ids = TS.utility.extractAllTeamIds(val);
+          t_ids.push(new_team_ids);
+        } else if (_.isString(val)) {
+          if (TS.utility.strLooksLikeATeamId(val)) {
+            t_ids.push(val);
+          }
+        }
+      });
+      return _(t_ids).flatten().uniq().value();
+    },
     extractAllMemberIds: function(ob, source, channel_id) {
       source = source && String(source) || "";
       var m_ids = [];
@@ -28507,6 +28530,11 @@ TS.registerModule("constants", {
     strLooksLikeAMemberId: function(str) {
       if (typeof str !== "string" || str.length < 9) return false;
       if (str && (str.charAt(0) == "U" || str.charAt(0) == "W")) return true;
+      return false;
+    },
+    strLooksLikeATeamId: function(str) {
+      if (!_.isString(str) || str.length < 9) return false;
+      if (str && str.charAt(0) == "T") return true;
       return false;
     },
     truncateToNearestWordBoundary: function(str, len) {
