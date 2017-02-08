@@ -13668,6 +13668,7 @@ TS.registerModule("constants", {
       return true;
     },
     mergeEmojiUse: function(emoji_use) {
+      TS.emoji.makeMenuLists();
       if (!emoji_use || typeof emoji_use !== "object") {
         emoji_use = TS.utility.parseJSONOrElse(emoji_use || null) || {};
         emoji_use = _.pickBy(emoji_use, function(count, name) {
@@ -24485,35 +24486,34 @@ TS.registerModule("constants", {
       yesterday.setDate(today.getDate() - 1);
       if (TS.utility.date.sameDay(date, today) || TS.utility.date.sameDay(date, yesterday)) {
         return TS.utility.date.toCalendarDate(ts, shorten_month, false, false, false);
-      } else {
-        return "";
       }
+      return "";
     },
     toHour: function(ts) {
       var date = TS.utility.date.toDateObject(ts);
       var hours = date.getHours();
-      var pm = false;
-      if (TS.utility.date.do24hrTime()) {
+      var is_pm = false;
+      var str_builder = TS.i18n.t("{hours}{use_am_pm, select, true{{is_pm, select, true{ PM}other{ AM}}}other{}}", "date_utilities");
+      var is_24_time = TS.utility.date.do24hrTime();
+      if (is_24_time) {
         if (hours < 10) {
           hours = "0" + hours;
         }
       } else {
         if (hours >= 12) {
-          if (hours > 12) hours = hours - 12;
-          pm = true;
+          if (hours > 12) {
+            hours -= 12;
+          }
+          is_pm = true;
         } else if (hours === 0) {
           hours = 12;
         }
       }
-      var formatted_time = hours;
-      if (!TS.utility.date.do24hrTime()) {
-        if (pm) {
-          formatted_time += " PM";
-        } else {
-          formatted_time += " AM";
-        }
-      }
-      return "" + formatted_time;
+      return str_builder({
+        hours: hours,
+        use_am_pm: !is_24_time,
+        is_pm: is_pm
+      });
     },
     toDayOfTheWeek: function(ts) {
       var date = TS.utility.date.toDateObject(ts);

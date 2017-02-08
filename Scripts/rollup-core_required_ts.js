@@ -178,7 +178,7 @@
     msgs: 1
   };
   var _maybeRedactFields = function(obj, iteration_count) {
-    if (!TS.boot_data || !TS.boot_data.feature_console_log_redactor) return obj;
+    if (!TS.boot_data || TS.boot_data.feature_tinyspeck) return obj;
     if (!obj || !_.isObject(obj)) return obj;
     if (iteration_count) {
       iteration_count++;

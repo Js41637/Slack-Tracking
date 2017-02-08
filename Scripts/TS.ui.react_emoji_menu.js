@@ -104,7 +104,6 @@
   };
   var _buildEmojiPickerProps = function(args) {
     args = args || {};
-    TS.emoji.makeMenuLists();
     var props = {
       onSkinToneChanged: _onSkinToneChanged,
       groups: TS.model.emoji_groups,
