@@ -7,6 +7,7 @@
       if (_sub_list.length) _sendSubList();
       if (_query_list.length) _sendQueryList();
       TS.ms.disconnected_sig.add(_handleDisconnect);
+      TS.ms.connected_sig.add(_handleConnect);
     },
     addPresenceList: function(presence_list) {
       if (_lists.indexOf(presence_list) === -1) {
@@ -111,45 +112,43 @@
     }
     return null;
   };
-  var _getWaitPromise = function() {
-    if (!TS.ms.hasOpenWebSocket()) {
-      return Promise.all([TS.ms.promiseToHaveOpenWebSocket(), TS.api.connection.waitForAPIConnection()]);
-    }
-    return TS.api.connection.waitForMSToReconnect();
-  };
   var _sendSubList = function() {
     if (!_has_started || _sub_list.length === 0 || _is_sub_waiting) return null;
+    if (!_.get(TS, "model.ms_connected")) {
+      return;
+    }
     _is_sub_waiting = true;
-    _getWaitPromise().then(function() {
-      if (!TS.ms.hasOpenWebSocket()) {
-        _sendSubList();
-        return null;
-      }
+    Promise.resolve().then(function() {
+      _is_sub_waiting = false;
       TS.metrics.count("presence_manager", _sub_list.length);
       TS.ms.send({
         type: "presence_sub",
         ids: _sub_list
       });
-      _is_sub_waiting = false;
       return null;
     });
+    return;
   };
   var _sendQueryList = function() {
     if (!_has_started || _query_list.length === 0 || _is_query_waiting) return null;
+    if (!_.get(TS, "model.ms_connected")) {
+      return;
+    }
     _is_query_waiting = true;
-    _getWaitPromise().then(function() {
-      if (!TS.ms.hasOpenWebSocket()) {
-        _sendQueryList();
-        return null;
-      }
+    Promise.resolve().then(function() {
+      _is_query_waiting = false;
       TS.ms.send({
         type: "presence_query",
         ids: _query_list
       });
       _query_list = [];
-      _is_query_waiting = false;
       return null;
     });
+    return;
+  };
+  var _handleConnect = function() {
+    _sendSubList();
+    _sendQueryList();
   };
   var _handleDisconnect = function() {
     TS.ms.promiseToHaveOpenWebSocket().then(function() {
@@ -8253,14 +8252,14 @@ TS.registerModule("constants", {
           }
           if (for_header) {
             name = TS.utility.htmlEntities($.trim(name));
-            name = '<li class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + "</li>";
+            name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + "</span>";
           }
           return name;
         } else {
           var user_name = $.trim(member.name);
           if (for_header) {
             user_name = TS.utility.htmlEntities(user_name);
-            user_name = '<li class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + user_name + "</li>";
+            user_name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + user_name + "</span>";
           }
           return user_name;
         }
@@ -31978,7 +31977,7 @@ TS.registerModule("constants", {
                   template_args.current_team_gets_logout_url = false;
                 }
                 template_args.enterprise_logout_url = TS.boot_data.enterprise_logout_url;
-                template_args.enterprise_domain = TS.boot_data.enterprise_url;
+                template_args.enterprise_domain = TS.boot_data.enterprise_url + "/manage";
                 if (item[0].team_id !== TS.model.team.id) {}
               } else {
                 ob.needs_other_enterprise_logout = true;
@@ -32009,7 +32008,7 @@ TS.registerModule("constants", {
       if (template_args.current_team_is_in_enterprise) {
         template_args.current_team_gets_logout_url = false;
         template_args.enterprise_logout_url = TS.boot_data.enterprise_logout_url;
-        template_args.enterprise_domain = TS.boot_data.enterprise_url;
+        template_args.enterprise_domain = TS.boot_data.enterprise_url + "/manage";
       }
       if (TS.boot_data.page_needs_enterprise) {
         if ((signed_into_enterprise || template_args.current_team_is_in_enterprise) && (template_args.other_enterprise_accounts && Object.keys(template_args.other_enterprise_accounts).length || template_args.other_accounts && Object.keys(template_args.other_accounts).length)) template_args.show_switch_teams_submenu = true;
@@ -32073,7 +32072,7 @@ TS.registerModule("constants", {
           case "administration":
             if (TS.model.user.enterprise_user && (TS.model.user.enterprise_user.is_admin || TS.model.user.enterprise_user.is_owner)) {
               template_args.show_org_settings = true;
-              template_args.enterprise_domain = TS.boot_data.enterprise_url;
+              template_args.enterprise_domain = TS.boot_data.enterprise_url + "/manage";
             }
             TS.menu.$submenu_parent = $menu_content.find("#administration");
             TS.menu.$submenu_parent.submenu({

@@ -6461,6 +6461,11 @@ only screen and (min-resolution:2dppx) {
   left: -1px
 }
 
+#main_emo_menu:focus,
+#primary_file_button:focus {
+  outline: 0
+}
+
 #file_upload.offscreen {
   position: absolute;
   overflow: hidden;
@@ -6651,6 +6656,20 @@ only screen and (min-resolution:2dppx) {
   line-height: 1rem;
   height: 1rem;
   white-space: nowrap
+}
+
+.btn_convert_to_snippet {
+  vertical-align: baseline;
+  color: #007ab8
+}
+
+.btn_convert_to_snippet:focus,
+.btn_convert_to_snippet:hover {
+  text-decoration: underline
+}
+
+.btn_convert_to_snippet:focus {
+  outline: 0
 }
 
 #snippet_prompt,

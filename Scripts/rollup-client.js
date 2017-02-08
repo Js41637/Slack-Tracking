@@ -11569,9 +11569,6 @@
       _$header = $("#client_header .channel_header .messages_header");
       _$header.bind("mouseover mouseenter", function(e) {
         $("#topic_inline_edit").toggleClass("inline_edit_hover", !!$(e.target).is("#topic_inline_edit"));
-        _$header.toggleClass("hover_topic", !!$(e.target).closest(".inline_edit_inner").length);
-      }).bind("mouseout", function(e) {
-        _$header.removeClass("hover_topic");
       });
     },
     test: function() {
@@ -11689,6 +11686,7 @@
   var _buildPinnedItemsLink = function() {
     if (!_model_ob) return;
     var $pinned_count = $("#pinned_item_count");
+    var $container = $pinned_count.closest(".channel_header_info_item");
     var $pinned_count_number = $("#pinned_item_count_count");
     var pins = _model_ob.pinned_items;
     _markUnreadPinIcon(_model_ob);
@@ -11696,14 +11694,14 @@
       if (_model_ob.is_channel) {
         $pinned_count_number.text(TS.i18n.number(0, "client"));
       } else {
-        $pinned_count.addClass("hidden");
+        $container.addClass("hidden");
       }
     } else if (!pins) {
       $pinned_count_number.text("");
     } else {
-      $pinned_count_number.html(TS.i18n.number(pins.length, "client"));
+      $pinned_count_number.text(TS.i18n.number(pins.length, "client"));
       if (!_model_ob.is_channel) {
-        $pinned_count.removeClass("hidden");
+        $container.removeClass("hidden");
       }
     }
   };
@@ -11757,13 +11755,17 @@
   var _dealWithDMNames = function(member) {
     var display_name = TS.members.getMemberDisplayName(member);
     var $alt_name = $("#channel_header_info .channel_header_member_alt_name");
+    var $container = $alt_name.closest(".channel_header_info_item");
     if (display_name !== member.profile.real_name) {
       $("#im_title").prepend("@");
+      $container.addClass("hidden");
+      return;
     }
-    if (display_name !== member.profile.real_name && member.profile.real_name) {
-      $alt_name.text(member.profile.real_name);
-    } else if (display_name === member.profile.real_name) {
-      $alt_name.text("@" + member.name);
+    var real_name = display_name !== member.profile.real_name && member.profile.real_name;
+    var alt_name = real_name || member.name && "@" + member.name;
+    if (alt_name) {
+      $alt_name.text(alt_name);
+      $container.removeClass("hidden");
     }
   };
   var _makeDMHeaderInfo = function() {
@@ -39012,7 +39014,9 @@ function timezones_guess() {
       }
       var scroller = TS.ui.replies.$scroller[0];
       var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
-      var bottom_offset = TS.ui.replies.$scroller.find("#reply_container").outerHeight(true);
+      var bottom_offset = 50;
+      var $input_container = TS.ui.replies.$scroller.find("#reply_container");
+      if ($input_container.length) bottom_offset = $input_container.outerHeight(true);
       var was_scrolled_to_bottom = from_bottom < bottom_offset;
       var $convo = $('ts-conversation[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
       if (!$convo.length) return;
@@ -39248,7 +39252,20 @@ function timezones_guess() {
             user_name2: participant_names[1]
           });
         }
-      } else if (user_ids.length > 2) {
+      } else if (user_ids.length === 3) {
+        if (user_ids[2] === TS.model.user.id) {
+          participants = TS.i18n.t("{user_name1}, {user_name2}, and you", "threads")({
+            user_name1: participant_names[0],
+            user_name2: participant_names[1]
+          });
+        } else {
+          participants = TS.i18n.t("{user_name1}, {user_name2}, and {user_name3}", "threads")({
+            user_name1: participant_names[0],
+            user_name2: participant_names[1],
+            user_name3: participant_names[2]
+          });
+        }
+      } else if (user_ids.length > 3) {
         var num_others = user_ids.length - 2;
         participants = TS.i18n.t("{user_name1}, {user_name2}, and {num_others,plural,=1{{num_others} other}other{{num_others} others}}", "threads")({
           num_others: num_others,
@@ -40112,6 +40129,12 @@ function timezones_guess() {
     } else if (read_replies.length) {
       thread.replies.push(_.last(read_replies));
     }
+    if (read_replies.length) {
+      var num_left = read_replies.length - thread.replies.length;
+      if (num_left > 0 && num_left < 3) {
+        thread.replies = read_replies.slice(0);
+      }
+    }
     if (unread_replies.length) {
       thread.replies = thread.replies.concat(unread_replies);
     }
@@ -40139,7 +40162,9 @@ function timezones_guess() {
       return new_thread;
     }).compact().value();
     _threads_data.sort(TS.client.threads.threadCompare);
+    var prev_size = _threads_data.length;
     _threads_data = _.take(_threads_data, _api_limit);
+    if (prev_size > _threads_data.length) _has_more = true;
     _recalcTotalUnreadReplyCount();
   };
   var _ensureThreadOrder = function(threads) {

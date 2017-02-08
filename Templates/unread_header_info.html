@@ -1,33 +1,36 @@
 {{i18n_ns 'unread'}}
 
 {{#if messages_loaded}}
-  <span class="channel_header_info_item channel_header_info_count">
-    {{~#if total_unread_count~}}
-      {{~#if_gt total_unread_count compare=50~}}
-        {{#t}}50+ messages{{/t}}
+  <div class="channel_header_info_item">
+    <button type="button" class="btn_unstyle channel_header_info_count">
+      {{~#if total_unread_count~}}
+        {{~#if_gt total_unread_count compare=50~}}
+          {{#t}}50+ messages{{/t}}
+        {{~else~}}
+          {{#t}}{total_unread_count, plural, =1 {# new message} other {# new messages}}{{/t}}
+        {{~/if_gt~}}
       {{~else~}}
-        {{#t}}{total_unread_count, plural, =1 {# new message} other {# new messages}}{{/t}}
-      {{~/if_gt~}}
-    {{~else~}}
-      {{#t}}No unread messages{{/t}}
-    {{~/if~}}
-  </span>
-
-  <span class="channel_header_info_item channel_header_info_sort_order">
-    {{~#if_equal sort_order compare="alphabetical"~}}
-      {{#t}}Sorted alphabetically{{/t}}
-    {{~/if_equal~}}
-    {{~#if_equal sort_order compare="priority"~}}
-      {{#t}}Sorted scientifically{{/t}}
-    {{~/if_equal~}}
-    {{~#if_equal sort_order compare="oldest"~}}
-      {{#t}}Sorted by oldest channel{{/t}}
-    {{~/if_equal~}}
-    {{~#if_equal sort_order compare="newest"~}}
-      {{#t}}Sorted by newest channel{{/t}}
-    {{~/if_equal~}}
-    <ts-icon class="ts_icon_chevron_down"></ts-icon>
-  </span>
+        {{#t}}No unread messages{{/t}}
+      {{~/if~}}
+    </button>
+  </div>
+  <div class="channel_header_info_item">
+    <button type="button" class="btn_unstyle channel_header_info_sort_order">
+      {{~#if_equal sort_order compare="alphabetical"~}}
+        {{#t}}Sorted alphabetically{{/t}}
+      {{~/if_equal~}}
+      {{~#if_equal sort_order compare="priority"~}}
+        {{#t}}Sorted scientifically{{/t}}
+      {{~/if_equal~}}
+      {{~#if_equal sort_order compare="oldest"~}}
+        {{#t}}Sorted by oldest channel{{/t}}
+      {{~/if_equal~}}
+      {{~#if_equal sort_order compare="newest"~}}
+        {{#t}}Sorted by newest channel{{/t}}
+      {{~/if_equal~}}
+      <ts-icon class="ts_icon_chevron_down"></ts-icon>
+    </button>
+  </div>
 {{else}}
   {{#t}}Loading messages{{/t}}
 {{/if}}
