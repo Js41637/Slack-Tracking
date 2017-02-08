@@ -40101,7 +40101,7 @@ var _on_esc;
     var default_channels = [];
     var channels = TS.channels.getUnarchivedChannelsForUser();
     channels.forEach(function(channel) {
-      if (TS.model.team.prefs.default_channels.indexOf(channel.id) !== -1) {
+      if (TS.model.team.prefs && TS.model.team.prefs.default_channels && TS.model.team.prefs.default_channels.indexOf(channel.id) !== -1) {
         channel.is_default = true;
         default_channels.push(channel);
       }
