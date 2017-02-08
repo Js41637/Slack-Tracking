@@ -590,7 +590,6 @@
       TS.model.is_msg_rate_limited = false;
     },
     userAddedToTeam: function(team_id) {
-      if (!TS.boot_data.feature_user_added_to_team) return;
       TS.info("You have been added to a team with the ID of " + team_id + ".");
       if (!TS.model.is_our_app || !TS.model.is_electron) return;
       var signin_params = {
@@ -641,7 +640,6 @@
       });
     },
     userRemovedFromTeam: function(team_id) {
-      if (!TS.boot_data.feature_user_removed_from_team) return;
       if (team_id !== TS.model.team.id) {
         TS.info("You have been removed from the team with ID = " + team_id + ".");
         return;
@@ -1980,10 +1978,12 @@
       }
     },
     start_time: new Date,
-    checkIfInputShouldBeDisabledAndPopulate: function() {
-      TS.utility.queueRAF(TS.view.actuallyCheckIfInputShouldBeDisabledAndPopulate);
+    checkIfInputShouldBeDisabledAndPopulate: function(is_reconnect) {
+      TS.utility.queueRAF(function() {
+        TS.view.actuallyCheckIfInputShouldBeDisabledAndPopulate(is_reconnect);
+      });
     },
-    actuallyCheckIfInputShouldBeDisabledAndPopulate: function() {
+    actuallyCheckIfInputShouldBeDisabledAndPopulate: function(is_reconnect) {
       var active_model_ob = TS.shared.getActiveModelOb();
       var $el;
       if (active_model_ob && active_model_ob.is_general && !TS.members.canUserPostInGeneral()) {
@@ -2019,9 +2019,11 @@
         TS.utility.contenteditable.placeholder(TS.client.ui.$msg_input, TS.i18n.t("Sending...", "view")());
         TS.utility.contenteditable.disable(TS.client.ui.$msg_input);
       } else {
-        TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
         TS.utility.contenteditable.enable(TS.client.ui.$msg_input);
-        TS.client.msg_input.populateWithLast();
+        if (!is_reconnect) {
+          TS.utility.contenteditable.clear(TS.client.ui.$msg_input, true);
+          TS.client.msg_input.populateWithLast();
+        }
         TS.client.msg_input.setPlaceholder();
       }
     },
@@ -4705,6 +4707,7 @@
     },
     ever_connected: false,
     socketConnected: function(was_fast_reconnect) {
+      var is_reconnect = !!TS.view.ms.ever_connected;
       if (TS.view.ms.ever_connected) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("disconnected_feedback");
         var make_sure_active_channel_is_in_view = true;
@@ -4747,7 +4750,7 @@
       TS.client.msg_pane.topMessagesBannerHidden();
       TS.view.ms.changeConnectionStatus("online");
       TS.view.prefs.toggleSpellcheck();
-      TS.view.checkIfInputShouldBeDisabledAndPopulate();
+      TS.view.checkIfInputShouldBeDisabledAndPopulate(is_reconnect);
       TS.ui.a11y.annouceCurrentChannelOrImOrGroup();
     },
     socketTroubled: function() {
@@ -7962,7 +7965,7 @@
         TS.client.ui.showGroupsList();
       });
     } else {
-      $back.html(TS.templates.builders.filePreviewBackIcon() + (TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? TS.i18n.t("Organization Directory", "client")() : TS.i18n.t("Team Directory", "client")())).bind("click.back", function() {
+      $back.html(TS.templates.builders.filePreviewBackIcon() + (TS.boot_data.page_needs_enterprise ? TS.i18n.t("Organization Directory", "client")() : TS.i18n.t("Team Directory", "client")())).bind("click.back", function() {
         TS.client.ui.showTeamList();
       });
     }
@@ -10405,8 +10408,8 @@
     if (model_ob.is_self_im) {
       placeholder = TS.i18n.t("Message yourself", "msg_input")();
       if (TS.boot_data.feature_user_custom_status) {
-        var current_status = TS.members.getMemberCurrentStatus(model_ob.user);
-        if (current_status.text) placeholder += " " + TS.format.formatCurrentStatus(current_status.emoji) + " " + TS.format.formatCurrentStatus(current_status.text);
+        var current_status = TS.members.getMemberCurrentStatusForDisplay(model_ob.user);
+        if (current_status) placeholder += " " + current_status;
       }
     } else {
       var msg;
@@ -10417,8 +10420,8 @@
           msg = TS.members.getMemberDisplayNameById(model_ob.user, false, true);
         }
         if (TS.boot_data.feature_user_custom_status) {
-          var current_status = TS.members.getMemberCurrentStatus(model_ob.user);
-          if (current_status.text) msg += " " + TS.format.formatCurrentStatus(current_status.emoji) + " " + TS.format.formatCurrentStatus(current_status.text);
+          var current_status = TS.members.getMemberCurrentStatusForDisplay(model_ob.user);
+          if (current_status) msg += " " + current_status;
         }
       } else if (model_ob.is_mpim) {
         msg = TS.mpims.getDisplayName(model_ob, false, false, 3);
@@ -12996,7 +12999,7 @@
         }
         end_div.height(allowed_h);
       }
-      if (TS.boot_data.feature_sli_recaps) {
+      if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
         TS.recaps_signal.redrawMarkersOnly();
       }
     },
@@ -26685,7 +26688,7 @@
     _onMsgsScrollThrottled();
     TS.client.archives.msgs_are_auto_scrolling = false;
     TS.ui.utility.updateClosestMonkeyScroller(TS.client.archives.$scroller);
-    if (TS.boot_data.feature_sli_recaps) {
+    if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
       TS.recaps_signal.handleUpdateScrollbar();
     }
     _updateDateDisplayed();

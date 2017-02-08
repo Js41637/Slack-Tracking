@@ -48,11 +48,11 @@
 
 
         {{#feature flag="feature_user_custom_status"}}
-          {{#if member.profile.status_text}}
+          {{#or member.profile.status_emoji member.profile.status_text}}
             <div class="channel_header_info_item">
-              {{> current_status tip_direction="bottom" classes="channel_header_member_current_status ts_tip_float"}}  
+              {{> current_status tip_direction="bottom" classes="channel_header_member_current_status ts_tip_float"}}
             </div>
-          {{/if}}
+          {{/or}}
         {{/feature}}
 
         <div class="channel_header_info_item channel_header_member_alt_name">
@@ -72,7 +72,7 @@
             --}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">
               {{#t}}View member list{{/t}}
             </span></span>{{!--
-          --}}</button>          
+          --}}</button>
         </div>
 
       {{~/if~}}
@@ -84,7 +84,7 @@
           --}}<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">
             {{#t}}View Pinned Items{{/t}}<br /><span class="subtle_silver pin_count_new_pin_message"></span>
           </span></span>{{!--
-        --}}</button>        
+        --}}</button>
       </div>
 
       {{~#if show_topic~}}
@@ -93,7 +93,7 @@
             --}}<span class="inline_edit_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
               --}}<span tabindex="0" id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
             --}}</span>{{!--
-          --}}</span>          
+          --}}</span>
         </div>
       {{~/if~}}
 

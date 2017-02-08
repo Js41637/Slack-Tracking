@@ -33,12 +33,12 @@
         {{member.profile.title}}
       {{/if}}
       {{#feature flag="feature_user_custom_status"}}
-        {{#if member.profile.status_text}}
+        {{#or member.profile.status_emoji member.profile.status_text}}
           <br />
           <span class="current_status">
-            {{getMemberCurrentStatusEmoji member}} {{getMemberCurrentStatusText member}}
+            {{getMemberCurrentStatusForDisplay member}}
           </span>
-        {{/if}}
+        {{/or}}
       {{/feature}}
       {{#pageNeedsEnterprise}}
         {{#if member.is_restricted}}

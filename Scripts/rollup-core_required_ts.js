@@ -715,7 +715,7 @@
   };
   var _rtmStartErrorHandler = function(resp) {
     var error = resp.data && resp.data.error;
-    if (error == "user_removed_from_team" && TS.boot_data.feature_user_removed_from_team) {
+    if (error == "user_removed_from_team") {
       TS.warn("You have been removed from the " + TS.model.team.name + " team.");
       if (TS.client) TS.client.userRemovedFromTeam(TS.model.team.id);
     }

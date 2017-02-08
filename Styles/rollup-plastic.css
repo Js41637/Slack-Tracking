@@ -13493,6 +13493,14 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   padding: .7rem .75rem .7rem 2.4rem
 }
 
+#client-ui #team_list_container .searchable_member_list_input:focus {
+  box-shadow: none
+}
+
+#client-ui #team_list_container .searchable_member_list_input:focus~.icon_search {
+  color: #a0a0a2
+}
+
 #team_filter .icon_search,
 #team_filter .ts_icon_spinner,
 #user_group_filter .icon_search,

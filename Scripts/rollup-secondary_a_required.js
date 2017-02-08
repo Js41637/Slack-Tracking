@@ -4121,7 +4121,13 @@
     } else {
       if (TS.pri) TS.log(5, 'adding channel "' + channel.id + '"');
       channels.push(channel);
-      _processNewChannelForUpserting(channel);
+      try {
+        _processNewChannelForUpserting(channel);
+      } catch (err) {
+        TS.console.logStackTrace("Error processing channel for upserting, id: " + channel.id);
+        TS.error(err);
+        throw err;
+      }
       _id_map[channel.id] = channel;
       _name_map[channel._name_lc] = channel;
       _name_map["#" + channel._name_lc] = channel;
@@ -10897,6 +10903,11 @@ TS.registerModule("constants", {
         text: member.profile.status_text || ""
       };
     },
+    getMemberCurrentStatusForDisplay: function(member_or_id) {
+      var current_status = TS.members.getMemberCurrentStatus(member_or_id);
+      var current_status_text = current_status.text ? " " + TS.format.formatCurrentStatus(current_status.text) : "";
+      return TS.format.formatCurrentStatus(current_status.emoji) + current_status_text;
+    },
     invalidateMembersUserCanSeeArrayCaches: function(no_signal) {
       if (!TS.model.user || !TS.model.user.is_restricted) return;
       var was_length = _members_for_user.length;
@@ -17614,12 +17625,10 @@ TS.registerModule("constants", {
       TS.replies.threadMarked(subscription.channel, subscription.thread_ts, subscription.last_read, subscription.unread_count);
     },
     user_added_to_team: function(imsg) {
-      if (!TS.boot_data.feature_user_added_to_team) return;
       TS.info("TS.ms.msg_handlers.user_added_to_team, team_id = " + imsg.team_id);
       if (TS.client) TS.client.user_added_to_team_sig.dispatch(imsg.team_id);
     },
     user_removed_from_team: function(imsg) {
-      if (!TS.boot_data.feature_user_removed_from_team) return;
       TS.info("TS.ms.msg_handlers.user_removed_from_team, team_id = " + imsg.team_id);
       if (TS.client) TS.client.user_removed_from_team_sig.dispatch(imsg.team_id);
     },
@@ -20293,7 +20302,7 @@ TS.registerModule("constants", {
         user_groups: user_groups,
         show_user_groups_edit: show_user_groups_edit,
         show_user_groups_add: show_user_groups_add,
-        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
+        is_enterprise: TS.boot_data.page_needs_enterprise
       }));
       var include_bots = true;
       var include_deleted = false;
@@ -21583,7 +21592,7 @@ TS.registerModule("constants", {
           type_description: ""
         }
       };
-      var directory_name = TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise ? TS.i18n.t("organization directory", "templates_builders")() : TS.i18n.t("team directory", "templates_builders")();
+      var directory_name = TS.boot_data.page_needs_enterprise ? TS.i18n.t("organization directory", "templates_builders")() : TS.i18n.t("team directory", "templates_builders")();
       if (member.is_external) {
         return "";
       } else if (member.is_ultra_restricted) {
@@ -22001,10 +22010,12 @@ TS.registerModule("constants", {
         }
         if (TS.boot_data.feature_sli_recaps) {
           template_args.is_recap = msg.recap && TS.recaps_signal && TS.recaps_signal.isMessageHighlight(msg);
+          if (TS.boot_data.feature_sli_recaps_interface) {
+            template_args.highlights_html = TS.templates.builders.buildHighlightsInfoHtml(msg);
+          }
           var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
           var is_in_debug_group = recap_debug_group === "sli_debug_info";
           template_args.show_recap_debug = msg.recap && is_in_debug_group;
-          template_args.highlights_html = TS.templates.builders.buildHighlightsInfoHtml(msg);
         }
         if (!msg.subtype && (args.for_search_display || args.for_top_results_search_display) && msg.file) {
           if (msg.comment) {
@@ -22217,7 +22228,7 @@ TS.registerModule("constants", {
     if (template_args.highlight_as_new) msg_classes.push("new");
     if (template_args.app_id) msg_classes.push("is_app");
     if (template_args.is_pinned) msg_classes.push("is_pinned");
-    if (template_args.show_channel_highlight) msg_classes.push("show_recap");
+    if (template_args.show_channel_highlight && TS.boot_data.feature_sli_recaps_interface) msg_classes.push("show_recap");
     if (template_args.standalone) {
       msg_classes.push("standalone");
     } else {
@@ -22248,7 +22259,10 @@ TS.registerModule("constants", {
     if (template_args.is_new_reply) msg_classes.push("new_reply");
     if (template_args.is_tombstone) msg_classes.push("deleted");
     if (TS.boot_data.feature_sli_recaps) {
-      if (template_args.is_recap) msg_classes.push("is_recap");
+      if (template_args.is_recap) {
+        msg_classes.push("is_recap");
+        if (TS.boot_data.feature_sli_recaps_interface) msg_classes.push("show_recap_highlight");
+      }
       if (template_args.show_recap_debug) msg_classes.push("show_recap_debug");
     }
     return msg_classes;
@@ -23429,6 +23443,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getMemberCurrentStatusText", function(member) {
         return Handlebars.helpers.formatCurrentStatus(TS.members.getMemberCurrentStatus(member).text);
+      });
+      Handlebars.registerHelper("getMemberCurrentStatusForDisplay", function(member) {
+        return new Handlebars.SafeString(TS.members.getMemberCurrentStatusForDisplay(member));
       });
       Handlebars.registerHelper("getTeamCustomStatusPresets", function() {
         return TS.team.getTeamCustomStatusPresets();
@@ -24626,54 +24643,62 @@ TS.registerModule("constants", {
       var hours = minutes / 60;
       var days = hours / 24;
       var years = days / 365;
-      var output = "";
       if (really_short) {
         if (seconds < 45) {
-          output = "<1m";
+          return TS.i18n.t("<1m", "date_utilities")();
         } else if (seconds < 90) {
-          output = "1m";
+          return TS.i18n.t("1m", "date_utilities")();
         } else if (minutes < 45) {
-          output = Math.round(minutes) + "m";
+          return TS.i18n.t("{number_of_minutes, number}m", "date_utilities")({
+            number_of_minutes: Math.round(minutes)
+          });
         } else if (minutes < 90) {
-          output = "1h";
+          return TS.i18n.t("1h", "date_utilities")();
         } else if (hours < 24) {
-          output = Math.round(hours) + "h";
+          return TS.i18n.t("{number_of_hours, number}h", "date_utilities")({
+            number_of_hours: Math.round(hours)
+          });
         } else if (days < 7) {
-          output = Math.round(days) + "d";
+          return TS.i18n.t("{number_of_days, number}d", "date_utilities")({
+            number_of_days: Math.round(days)
+          });
         } else if (days < 365) {
-          output = TS.utility.date.toCalendarDate(ts, true, true, true);
+          return TS.utility.date.toCalendarDate(ts, true, true, true, false);
         } else if (years < 1.5) {
-          output = "1y";
+          return TS.i18n.t("1y", "date_utilities")();
         } else {
-          output = Math.round(years) + "y";
-        }
-      } else {
-        if (seconds < 45) {
-          output = "< 1 minute ago";
-        } else if (seconds < 90) {
-          output = "1 minute ago";
-        } else if (minutes < 45) {
-          output = Math.round(minutes) + " minutes ago";
-        } else if (minutes < 90) {
-          output = "1 hour ago";
-        } else if (hours < 24) {
-          output = Math.round(hours) + " hours ago";
-        } else if (days < 7) {
-          days = Math.round(days);
-          if (days === 1) {
-            output = "1 day ago";
-          } else {
-            output = Math.round(days) + " days ago";
-          }
-        } else if (days < 365) {
-          output = TS.utility.date.toCalendarDate(ts, true, true, true);
-        } else if (years < 1.5) {
-          output = "1 year ago";
-        } else {
-          output = Math.round(years) + " years ago";
+          return TS.i18n.t("{number_of_years, number}y", "date_utilities")({
+            number_of_years: Math.round(years)
+          });
         }
       }
-      return output;
+      if (seconds < 45) {
+        return TS.i18n.t("< 1 minute ago", "date_utilities")();
+      } else if (seconds < 90) {
+        return TS.i18n.t("1 minute ago", "date_utilities")();
+      } else if (minutes < 45) {
+        return TS.i18n.t("{number_of_minutes, number} minutes ago", "date_utilities")({
+          number_of_minutes: Math.round(minutes)
+        });
+      } else if (minutes < 90) {
+        return TS.i18n.t("1 hour ago", "date_utilities")();
+      } else if (hours < 24) {
+        return TS.i18n.t("{number_of_hours, number} hours ago", "date_utilities")({
+          number_of_hours: Math.round(hours)
+        });
+      } else if (days < 7) {
+        return TS.i18n.t("{number_of_days, plural, =1{# day ago}other{# days ago}}", "date_utilities")({
+          number_of_days: Math.round(days)
+        });
+      } else if (days < 365) {
+        return TS.utility.date.toCalendarDate(ts, true, true, true, false);
+      } else if (years < 1.5) {
+        return TS.i18n.t("1 year ago", "date_utilities")();
+      } else {
+        return TS.i18n.t("{number_of_years, number} years ago", "date_utilities")({
+          number_of_years: Math.round(years)
+        });
+      }
     },
     timezoneLabel: function(member, include_local_time) {
       var tz_label = "Pacific Standard Time";
@@ -32293,7 +32318,7 @@ TS.registerModule("constants", {
       TS.menu.$menu_items.html(TS.templates.menu_flexpane_items({
         special_flex_panes: TS.boot_data.special_flex_panes,
         show_downloads: TS.model.supports_downloads,
-        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise,
+        is_enterprise: TS.boot_data.page_needs_enterprise,
         show_user_groups: TS.useSearchableMemberList() && TS.model.team.plan !== "" && !TS.model.user.is_restricted
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onFlexMenuItemClick);
@@ -32415,7 +32440,7 @@ TS.registerModule("constants", {
         search_only_my_channels: TS.model.prefs.search_only_my_channels,
         search_only_current_team: TS.model.prefs.search_only_current_team,
         result_type: TS.search.filter === "messages" ? "messages" : "files",
-        is_enterprise: TS.boot_data.feature_team_to_org_directory && TS.boot_data.page_needs_enterprise
+        is_enterprise: TS.boot_data.page_needs_enterprise
       };
       TS.menu.clean();
       TS.menu.$menu_header.addClass("hidden").empty();
@@ -32569,7 +32594,7 @@ TS.registerModule("constants", {
         selectCallback(e);
       });
       TS.menu.start(e);
-      TS.menu.positionAt($(".searchable_member_list_filter"), 12, 56);
+      TS.menu.positionAt($(".searchable_member_list_filter"), 16, 56);
     },
     positionAt: function($el, x_plus, y_plus) {
       x_plus = x_plus || 0;
@@ -40158,12 +40183,14 @@ var _on_esc;
   var _switchAccountType = function(invite_type) {
     var default_channels = [];
     var channels = TS.channels.getUnarchivedChannelsForUser();
-    channels.forEach(function(channel) {
-      if (TS.model.team.prefs && TS.model.team.prefs.default_channels && TS.model.team.prefs.default_channels.indexOf(channel.id) !== -1) {
-        channel.is_default = true;
-        default_channels.push(channel);
-      }
-    });
+    if (_.isArray(TS.model.team.prefs.default_channels)) {
+      channels.forEach(function(channel) {
+        if (TS.model.team.prefs.default_channels.indexOf(channel.id) !== -1) {
+          channel.is_default = true;
+          default_channels.push(channel);
+        }
+      });
+    }
     var general_channel = TS.channels.getGeneralChannel();
     var general_channel_name = "";
     if (general_channel) {
@@ -49031,7 +49058,7 @@ $.fn.togglify = function(settings) {
       TS.utility.contenteditable.focus($input);
       if (!TS.boot_data.feature_texty) $input.trigger("textchange");
     });
-    if (TS.boot_data.feature_sli_recaps) {
+    if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
         if ($(e.target).hasClass("recap_highlight_marker")) {
           e.preventDefault();

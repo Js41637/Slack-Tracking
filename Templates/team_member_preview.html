@@ -154,12 +154,12 @@
 
     <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
       {{#feature flag="feature_user_custom_status"}}
-        {{#if member.profile.status_text}}
+        {{#or member.profile.status_emoji member.profile.status_text}}
           <tr>
             <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Status{{/t}}">{{#t}}Status{{/t}}</span></td>
-            <td class="current_status">{{getMemberCurrentStatusEmoji member}} {{getMemberCurrentStatusText member}}</td>
+            <td class="current_status">{{getMemberCurrentStatusForDisplay member}}</td>
           </tr>
-        {{/if}}
+        {{/or}}
       {{/feature}}
       {{#feature flag="feature_name_tagging_client"}}
         {{#if member.profile.preferred_name}}

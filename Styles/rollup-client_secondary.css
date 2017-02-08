@@ -508,14 +508,20 @@ input.search_input {
   position: relative;
   font-size: .8rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  background: #fff;
+  background: #f7f7f7;
   color: #555459;
-  border-top: 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: none;
   z-index: 9;
   min-height: 41px;
   min-height: 0;
   text-decoration: none
+}
+
+#flex_contents .subheading#mentions_options {
+  background: #fff;
+  border-top: 0;
+  border-bottom: 1px solid #e0e0e0
 }
 
 #client-ui:not(.flexpane_redesign) #flex_contents .subheading {
@@ -1205,7 +1211,7 @@ input.search_input {
 }
 
 .searchable_member_list_filter_menu {
-  width: 340px
+  width: 335px
 }
 
 .searchable_member_list_filter_menu ul li a span {
@@ -7433,6 +7439,14 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #client-ui #team_list_container .searchable_member_list_input {
   border: none;
   padding: .7rem .75rem .7rem 2.4rem
+}
+
+#client-ui #team_list_container .searchable_member_list_input:focus {
+  box-shadow: none
+}
+
+#client-ui #team_list_container .searchable_member_list_input:focus~.icon_search {
+  color: #a0a0a2
 }
 
 #team_filter .icon_search,
@@ -19151,7 +19165,7 @@ ts-message .recap_highlight a::before {
   content: attr(data-pseudo-content)
 }
 
-ts-message.is_recap .recap_highlight {
+ts-message.show_recap_highlight .recap_highlight {
   display: inline-block
 }
 
@@ -19964,8 +19978,8 @@ ts-message .emoji-sizer .mention {
 }
 
 .light_theme ts-message .message_content .message_current_status {
-  margin-left: .1rem;
-  margin-right: .3rem
+  margin-left: -.2rem;
+  margin-right: .15rem
 }
 
 .light_theme ts-message .message_content>.message_content_header>.message_content_header_left>.message_sender {
@@ -20269,8 +20283,8 @@ ts-message .emoji-sizer .mention {
 }
 
 .dense_theme ts-message .message_content .message_current_status {
-  margin-left: .1rem;
-  margin-right: .3rem;
+  margin-left: -.2rem;
+  margin-right: .15rem;
   min-width: 1.375rem;
   border: 1px solid #e8e8e8;
   border-radius: 5px;
