@@ -616,7 +616,9 @@
     _addFooterItems();
     _updateTicketStatus();
     _bindUI();
-    TS.api.call("helpdesk.get", {}, _articlesFetched);
+    TS.api.call("helpdesk.get", {
+      locale: "en-us"
+    }, _articlesFetched);
   };
   var _onEnd = function() {
     _is_open = false;

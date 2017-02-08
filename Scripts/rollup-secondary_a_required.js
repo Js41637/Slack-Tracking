@@ -40098,13 +40098,13 @@ var _on_esc;
     }
   };
   var _switchAccountType = function(invite_type) {
+    var default_channels = [];
     var channels = TS.channels.getUnarchivedChannelsForUser();
-    TS.boot_data.default_channels.forEach(function(default_channel) {
-      channels.forEach(function(channel) {
-        if (channel.id == default_channel.id) {
-          channel.is_default = true;
-        }
-      });
+    channels.forEach(function(channel) {
+      if (TS.model.team.prefs.default_channels.indexOf(channel.id) !== -1) {
+        channel.is_default = true;
+        default_channels.push(channel);
+      }
     });
     var general_channel = TS.channels.getGeneralChannel();
     var general_channel_name = "";
@@ -40114,7 +40114,7 @@ var _on_esc;
     var template_args = {
       invite_type: invite_type,
       channels: channels,
-      default_channels: TS.boot_data.default_channels,
+      default_channels: default_channels,
       general_name: general_channel_name,
       groups: TS.groups.getUnarchivedGroups(),
       email_domains: TS.model.team.email_domain.split(","),
