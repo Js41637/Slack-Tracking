@@ -1004,7 +1004,7 @@
   var _onDOMReady = function() {
     TS.info("_onDOMReady");
     _logSessionLoadCount();
-    if (!TS.boot_data.feature_no_tokenless_ms_connections) _maybeOpenTokenlessConnection();
+    _maybeOpenTokenlessConnection();
     if ((TS.model.is_chrome_desktop || TS.model.is_FF || TS.model.is_safari_desktop) && TS.storage.do_compression) {
       TS.model.supports_user_bot_caching = true;
     } else if (TS.model.win_ssb_version || TS.model.lin_ssb_version) {

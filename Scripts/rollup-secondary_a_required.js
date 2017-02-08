@@ -10575,7 +10575,7 @@ TS.registerModule("constants", {
       if (upsert.status == "ADDED" && TS.lazyLoadMembersAndBots()) {
         TS.members.lazily_added_sig.dispatch(upsert.member);
       } else if (upsert.status == "CHANGED") {
-        if (upsert.what_changed.indexOf("current_status") != -1) {
+        if (TS.boot_data.feature_user_custom_status && upsert.what_changed.indexOf("current_status") != -1) {
           TS.members.changed_current_status_sig.dispatch(upsert.member);
         }
         if (upsert.what_changed.indexOf("profile") != -1) {
@@ -24530,34 +24530,93 @@ TS.registerModule("constants", {
       var days = hours / 24;
       var months = days / (365 / 12);
       var years = days / 365;
-      var output = "",
-        prefix = "",
-        suffix = "";
       if (seconds < 45) {
-        output = "less than a minute";
+        if (is_future) {
+          return TS.i18n.t("in less than a minute", "date_utilities")();
+        } else {
+          return TS.i18n.t("less than a minute ago", "date_utilities")();
+        }
       } else if (seconds < 90) {
-        output = "about a minute";
+        if (is_future) {
+          return TS.i18n.t("in about a minute", "date_utilities")();
+        } else {
+          return TS.i18n.t("about a minute ago", "date_utilities")();
+        }
       } else if (minutes < 45) {
-        output = Math.round(minutes) + " minutes";
+        if (is_future) {
+          return TS.i18n.t("in {number_of_minutes, number} minutes", "date_utilities")({
+            number_of_minutes: Math.round(minutes)
+          });
+        } else {
+          return TS.i18n.t("{number_of_minutes, number} minutes ago", "date_utilities")({
+            number_of_minutes: Math.round(minutes)
+          });
+        }
       } else if (minutes < 90) {
-        output = "about an hour";
+        if (is_future) {
+          return TS.i18n.t("in about an hour", "date_utilities")();
+        } else {
+          return TS.i18n.t("about an hour ago", "date_utilities")();
+        }
       } else if (hours < 24) {
-        output = "about " + Math.round(hours) + " hours";
+        if (is_future) {
+          return TS.i18n.t("in about {number_of_hours, number} hours", "date_utilities")({
+            number_of_hours: Math.round(hours)
+          });
+        } else {
+          return TS.i18n.t("about {number_of_hours, number} hours ago", "date_utilities")({
+            number_of_hours: Math.round(hours)
+          });
+        }
       } else if (hours < 42) {
-        output = "a day";
+        if (is_future) {
+          return TS.i18n.t("in a day", "date_utilities")();
+        } else {
+          return TS.i18n.t("a day ago", "date_utilities")();
+        }
       } else if (days < 30) {
-        output = Math.round(days) + " days";
+        if (is_future) {
+          return TS.i18n.t("in {number_of_days, number} days", "date_utilities")({
+            number_of_days: Math.round(days)
+          });
+        } else {
+          return TS.i18n.t("{number_of_days, number} days ago", "date_utilities")({
+            number_of_days: Math.round(days)
+          });
+        }
       } else if (days < 45) {
-        output = "about a month";
+        if (is_future) {
+          return TS.i18n.t("in about a month", "date_utilities")();
+        } else {
+          return TS.i18n.t("about a month ago", "date_utilities")();
+        }
       } else if (days < 365) {
-        output = Math.round(months) + " months";
+        if (is_future) {
+          return TS.i18n.t("in {number_of_months, number} months", "date_utilities")({
+            number_of_months: Math.round(months)
+          });
+        } else {
+          return TS.i18n.t("{number_of_months, number} months ago", "date_utilities")({
+            number_of_months: Math.round(months)
+          });
+        }
       } else if (years < 1.5) {
-        output = "about a year";
+        if (is_future) {
+          return TS.i18n.t("in about a year", "date_utilities")();
+        } else {
+          return TS.i18n.t("about a year ago", "date_utilities")();
+        }
       } else {
-        output = Math.round(years) + " years";
+        if (is_future) {
+          return TS.i18n.t("in {number_of_years, number} years", "date_utilities")({
+            number_of_years: Math.round(years)
+          });
+        } else {
+          return TS.i18n.t("{number_of_years, number} years ago", "date_utilities")({
+            number_of_years: Math.round(years)
+          });
+        }
       }
-      is_future ? prefix = "in " : suffix = " ago";
-      return prefix + output + suffix;
     },
     toTimeAgoShort: function(ts, really_short) {
       var date = TS.utility.date.toDateObject(ts);
@@ -40110,6 +40169,7 @@ var _on_esc;
     var general_channel_name = "";
     if (general_channel) {
       general_channel_name = general_channel.name;
+      if (!default_channels.length) default_channels.push(general_channel);
     }
     var template_args = {
       invite_type: invite_type,
