@@ -6772,6 +6772,19 @@ body.winssb #emoji_menu {
   color: #9e9ea6
 }
 
+.feature_texty .tab_complete_ui ul.type_members .broadcast,
+.feature_texty .tab_complete_ui ul.type_members .bullet,
+.feature_texty .tab_complete_ui ul.type_members .display_name,
+.feature_texty .tab_complete_ui ul.type_members .presence,
+.feature_texty .tab_complete_ui ul.type_members .secondary_name,
+.feature_texty .tab_complete_ui ul.type_members .username {
+  margin-right: 6px
+}
+
+.feature_texty .tab_complete_ui ul.type_members .bullet {
+  margin-left: 6px
+}
+
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_group {
   display: -webkit-box;
   display: -webkit-flex;

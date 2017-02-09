@@ -1166,7 +1166,7 @@
       if (TS.boot_data.page_needs_enterprise && data.can_manage_shared_channels !== undefined) {
         TS.model.team.prefs.can_user_manage_shared_channels = data.can_manage_shared_channels;
       }
-      TS.model.shared_channels_enabled = TS.boot_data.page_needs_enterprise || TS.boot_data.feature_external_shared_channels_ui;
+      TS.model.shared_channels_enabled = TS.boot_data.page_needs_enterprise || TS.boot_data.feature_shared_channels_client;
       if (!TS.model.last_team_name) {
         TS.model.last_team_name = TS.model.team.name;
         TS.model.last_team_domain = TS.model.team.domain;

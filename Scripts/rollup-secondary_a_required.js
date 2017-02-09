@@ -2026,7 +2026,7 @@
       });
     };
     var ensureTeams = function() {
-      if (!TS.boot_data.feature_external_shared_channels_ui) return;
+      if (!TS.boot_data.feature_shared_channels_client) return;
       TS.console.log(528, 'running api data from "' + method + '" through TS.teams.ensureTeamsInDataArePresent()');
       return TS.teams.ensureTeamsInDataArePresent(data).catch(function(err) {
         TS.console.error(err);
@@ -6048,7 +6048,7 @@ TS.registerModule("constants", {
         actions.delete_file = true;
       }
       if (TS.model.user.is_admin) {
-        if (TS.boot_data.feature_external_shared_channels_ui) {
+        if (TS.boot_data.feature_shared_channels_client) {
           var file_is_from_other_team = TS.utility.teams.isMemberExternalById(file.user);
         }
         actions.delete_file = file_is_from_other_team == true ? false : true;
@@ -10318,7 +10318,7 @@ TS.registerModule("constants", {
     unlinked_sig: new signals.Signal,
     changed_icon_sig: new signals.Signal,
     getTeamById: function(id) {
-      if (!TS.boot_data.feature_external_shared_channels_ui) {
+      if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
         return;
       }
@@ -10341,7 +10341,7 @@ TS.registerModule("constants", {
       return null;
     },
     getTeamByMsg: function(msg) {
-      if (!TS.boot_data.feature_external_shared_channels_ui) {
+      if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
         return;
       }
@@ -10353,7 +10353,7 @@ TS.registerModule("constants", {
       return null;
     },
     upsertAndSignal: function(team) {
-      if (!TS.boot_data.feature_external_shared_channels_ui) {
+      if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
         return;
       }
@@ -10374,7 +10374,7 @@ TS.registerModule("constants", {
       return upsert;
     },
     upsertTeam: function(team, log) {
-      if (!TS.boot_data.feature_external_shared_channels_ui) {
+      if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
         return;
       }
@@ -10413,7 +10413,7 @@ TS.registerModule("constants", {
       };
     },
     ensureTeamsArePresent: function(t_ids) {
-      if (!TS.boot_data.feature_external_shared_channels_ui) {
+      if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
         return;
       }
@@ -10423,7 +10423,7 @@ TS.registerModule("constants", {
       return _getTeamsByIdFromModelOrApi(missing_team_ids);
     },
     ensureTeamsInDataArePresent: function(data) {
-      if (!TS.boot_data.feature_external_shared_channels_ui) {
+      if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
         return;
       }
@@ -10433,7 +10433,7 @@ TS.registerModule("constants", {
   });
   var _id_map = {};
   var _processNewTeamForUpserting = function(team) {
-    if (!TS.boot_data.feature_external_shared_channels_ui) {
+    if (!TS.boot_data.feature_shared_channels_client) {
       TS.console.warn("external shared channels must be on to use this");
       return;
     }
@@ -11737,7 +11737,7 @@ TS.registerModule("constants", {
     member.stars = [];
     member.mentions = [];
     _setPresenceForNewMember(member);
-    if (TS.boot_data.feature_external_shared_channels_ui) {
+    if (TS.boot_data.feature_shared_channels_client) {
       member.is_external = TS.utility.teams.isMemberExternal(member);
     }
     _setImAndMpimNames(member);
@@ -18460,7 +18460,7 @@ TS.registerModule("constants", {
       var presence_class = TS.templates.makeMemberPresenceDomClass(member.id);
       var presence_icon_class = "ts_icon_presence";
       var guest_member = TS.utility.teams.isMemberGuest(member);
-      if (TS.boot_data.feature_external_shared_channels_ui) {
+      if (TS.boot_data.feature_shared_channels_client) {
         if (guest_member) {
           presence_class += " guest";
           presence_icon_class = "ts_icon_presence_ra";
@@ -22736,9 +22736,6 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("toHour", function(ts) {
         return TS.utility.date.toHour(ts);
       });
-      Handlebars.registerHelper("timezoneLabel", function(member, include_local_time) {
-        return TS.utility.date.timezoneLabel(member, include_local_time);
-      });
       Handlebars.registerHelper("memberLocalTime", function(member) {
         return new Handlebars.SafeString(TS.utility.date.memberLocalTime(member));
       });
@@ -24700,44 +24697,10 @@ TS.registerModule("constants", {
         });
       }
     },
-    timezoneLabel: function(member, include_local_time) {
-      var tz_label = "Pacific Standard Time";
-      var tz_offset = -28800;
-      if (typeof member.tz_label != "undefined") tz_label = member.tz_label;
-      if (typeof member.tz_offset != "undefined") tz_offset = member.tz_offset;
-      var tz_label_html = "<span title='" + tz_label + "'><i class='ts_icon ts_icon_clock_o'></i> ";
-      if (member.id == TS.model.user.id) {
-        if (TS.client) {
-          tz_label_html += tz_label + " (<a href='/account/settings' target='new'>change</a>)";
-        } else {
-          tz_label_html += tz_label + " (<a href='/account/settings'>change</a>)";
-        }
-      } else {
-        var hours_offset_from_user = (TS.model.user.tz_offset - tz_offset) / 60 / 60;
-        if (include_local_time) {
-          tz_label_html += TS.utility.date.memberLocalTime(member) + " / ";
-        }
-        if (hours_offset_from_user === 0) {
-          tz_label_html += "in your timezone";
-        } else {
-          tz_label_html += Math.abs(hours_offset_from_user) + " hour";
-          if (Math.abs(hours_offset_from_user) != 1) tz_label_html += "s";
-        }
-        if (hours_offset_from_user > 0) {
-          tz_label_html += " behind you";
-        } else if (hours_offset_from_user < 0) {
-          tz_label_html += " ahead of you";
-        }
-        tz_label_html += " " + TS.utility.date.memberUTCOffset(member);
-      }
-      tz_label_html += "</span>";
-      return tz_label_html;
-    },
     memberLocalTime: function(member, as_text) {
       var date = new Date;
       var local_time;
       var tz_offset;
-      var local_time_str;
       if (_has_Intl) {
         var now = Date.now();
         try {
@@ -24769,11 +24732,11 @@ TS.registerModule("constants", {
         local_time = _calculateLocalTime(date, tz_offset);
       }
       if (as_text) {
-        local_time_str = local_time;
-      } else {
-        local_time_str = '<span class="timezone_value">' + local_time + "</span> local time";
+        return local_time;
       }
-      return local_time_str;
+      return TS.i18n.t('<span class="timezone_value">{local_time}</span> local time', "date_utilities")({
+        local_time: local_time
+      });
     },
     memberUTCOffset: function(member) {
       var tz_offset = _memberTzOffset(member);
@@ -25073,7 +25036,7 @@ TS.registerModule("constants", {
   var _calculateLocalTime = function(date, tz_offset) {
     var utc = date.getTime() + date.getTimezoneOffset() * 6e4;
     var member_date = new Date(utc + 36e5 * (tz_offset / 3600));
-    return TS.utility.date.toTime(member_date / 1e3, !TS.utility.date.do24hrTime());
+    return TS.utility.date.toTime(member_date / 1e3, !TS.utility.date.do24hrTime(), false);
   };
 })();
 (function() {
@@ -30099,7 +30062,7 @@ TS.registerModule("constants", {
         var member_identifier;
         if (options.human_readable) {
           member_identifier = "@" + valid.model_ob.name;
-        } else if (TS.boot_data.feature_external_shared_channels_ui && _.get(TS.shared.getActiveModelOb(), "is_shared")) {
+        } else if (TS.boot_data.feature_shared_channels_client && _.get(TS.shared.getActiveModelOb(), "is_shared")) {
           member_identifier = "<@" + valid.model_ob.id + "|" + valid.model_ob.name + ">";
         } else {
           member_identifier = "<@" + valid.model_ob.id + ">";
@@ -46209,6 +46172,7 @@ $.fn.togglify = function(settings) {
       return this.instance._selected;
     }
   });
+  var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _addUserCreatedSlugFromString = function(instance, str) {
     if (!_instanceCanSluggify(instance)) return;
     if (!str.trim()) return;
@@ -46268,23 +46232,174 @@ $.fn.togglify = function(settings) {
     }
   };
   var _bindUI = function(instance) {
-    instance.$container.on("mouseleave", _onContainerMouseleave.bind(null, instance));
-    instance.$container.on("click", _onContainerClick.bind(null, instance));
-    instance.$container.parents("label").on("click", _onContainerParentsLabelClick.bind(null, instance));
-    instance.$input_container.on("focus", _onInputContainerFocus.bind(null, instance));
     instance.$input.on("input", _onInputInput.bind(null, instance));
-    instance.$input.on("keydown", _onInputKeydown.bind(null, instance));
-    instance.$input.on("blur", _onInputBlur.bind(null, instance));
-    instance.$input.on("focus", _onInputFocus.bind(null, instance));
-    instance.$input.on("blur", _onInputBlur.bind(null, instance));
-    instance.$lfs_value.on("click", _onValueClick.bind(null, instance));
-    instance.$lfs_value.on("mousedown", _onValueMousedown.bind(null, instance));
-    instance.$input_container.on("click", ".lfs_token", _onTokenClick.bind(null, instance));
-    instance.$input_container.on("mousedown", ".lfs_token", _onTokenMousedown.bind(null, instance));
-    instance.$list_container.on("mousedown", _onListContainerMousedown.bind(null, instance));
-    instance.$list_container.on("mousemove", ".lfs_item", _onItemMousemove.bind(null, instance));
-    instance.$list_container.on("mouseleave", ".lfs_item.active", _onActiveItemMouseleave.bind(null, instance));
-    instance.$list_container.on("click", ".lfs_item", _onItemClick.bind(null, instance));
+    instance.$input.on("keydown", function(e) {
+      if (instance.disabled) return;
+      switch (e.keyCode) {
+        case TS.utility.keymap.down:
+          _stopThePresses(e);
+          _selectDown(instance);
+          break;
+        case TS.utility.keymap.up:
+          _stopThePresses(e);
+          _selectUp(instance);
+          break;
+        case TS.utility.keymap.enter:
+          if (instance._$active && instance._$active.length && instance._list_visible) {
+            _stopThePresses(e);
+            var $current_active = instance._$active;
+            if (!instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active))) {
+              _unselectItem(instance, $current_active);
+            } else {
+              if (!_canAddNewItem(instance)) return;
+              _selectListItem(instance);
+              if ($(this).val() !== "") {
+                $(this).val("");
+                instance._previous_val = "";
+                _populate(instance);
+              }
+              if (instance.single) {
+                _hideList(instance);
+                _hideError(instance);
+              }
+            }
+          }
+          break;
+        case TS.utility.keymap.del:
+          if (instance.$input.val() === "") {
+            _stopThePresses(e);
+            var $last_item = instance.$input_container.find(".lfs_token").last();
+            if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
+              _unsluggifySlug(instance, $last_item);
+            } else {
+              _removeLastSelected(instance);
+            }
+          }
+          break;
+        case TS.utility.keymap.tab:
+          if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+            _stopThePresses(e);
+            _addUserCreatedSlugFromString(instance, instance.$input.val());
+          } else if (instance.tab_to_nav) {
+            _stopThePresses(e);
+            if (e.shiftKey) {
+              _selectUp(instance);
+            } else {
+              _selectDown(instance);
+            }
+          }
+          break;
+        case TS.utility.keymap.esc:
+          _stopThePresses(e);
+          _hideList(instance);
+          _hideNoResults(instance);
+          _hideError(instance);
+          instance.$input.blur();
+          break;
+      }
+      instance.onKeyDown(e, e.isDefaultPrevented());
+    });
+    instance.$input.on("blur", function() {
+      if (!instance._prevent_blur) {
+        _hideList(instance);
+        _hideNoResults(instance);
+        _hideError(instance);
+      }
+      if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+        _addUserCreatedSlugFromString(instance, instance.$input.val());
+      }
+    });
+    instance.$lfs_value.on("click", function(e) {
+      if (instance.disabled) return;
+      e.stopPropagation();
+      _showList(instance);
+      instance._prevent_blur = false;
+    });
+    instance.$lfs_value.on("mousedown", function(e) {
+      if (e.which === 1) instance._prevent_blur = true;
+    });
+    instance.$list_container.on("mousemove", ".lfs_item", function(e) {
+      if (instance.disabled) return;
+      if (e.clientX == instance._mouse.lastX && e.clientY == instance._mouse.lastY) return;
+      if (instance._$active) instance._$active.removeClass("active");
+      if (!$(this).hasClass("active") && _selectable($(this))) {
+        $(this).addClass("active");
+        instance._$active = $(this);
+      }
+      instance._mouse.lastX = e.clientX;
+      instance._mouse.lastY = e.clientY;
+    });
+    instance.$list_container.on("mouseleave", ".lfs_item.active", function(e) {
+      $(this).removeClass("active");
+      instance._$active = null;
+    });
+    instance.$list_container.on("click", ".lfs_item", function(e) {
+      if (instance.disabled) return;
+      e.preventDefault();
+      instance._$active = $(this);
+      if (!instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $(this)))) {
+        _unselectItem(instance, $(this));
+      } else {
+        var selectable = _selectable($(this));
+        if (!selectable && !instance.single) return;
+        if (!_canAddNewItem(instance)) return;
+        if (!selectable && instance.single) {
+          _hideList(instance);
+          e.stopPropagation();
+          return;
+        }
+        _selectListItem(instance);
+        if (instance.$input.val() !== "") {
+          instance.$input.val("");
+          instance._previous_val = "";
+          _populate(instance);
+        }
+        if (instance.single) {
+          _hideList(instance);
+          e.stopPropagation();
+        }
+      }
+      instance._prevent_blur = false;
+    });
+    instance.$list_container.on("mousedown", function(e) {
+      if (e.which === 1) instance._prevent_blur = true;
+    });
+    instance.$input.on("focus", function() {
+      if (!instance._input_is_focused) {
+        instance._input_is_focused = true;
+        instance.$input_container.click();
+        instance.onInputFocus();
+      }
+      if (!instance.single) instance.$input_container.addClass("active");
+    });
+    instance.$input.on("blur", function() {
+      instance._input_is_focused = false;
+      instance.onInputBlur();
+    });
+    instance.$input_container.on("focus", function() {
+      instance.$input_container.click();
+      instance.$input.focus();
+    });
+    instance.$input_container.on("click", ".lfs_token", function(e) {
+      if (instance.disabled) return;
+      _removeSelected(instance, $(this));
+      instance._prevent_blur = false;
+    });
+    instance.$input_container.on("mousedown", ".lfs_token", function(e) {
+      if (e.which === 1) instance._prevent_blur = true;
+    });
+    instance.$container.on("mouseleave", function(e) {
+      instance._prevent_blur = false;
+    });
+    instance.$container.on("click", function(e) {
+      if (instance.disabled) return;
+      _showList(instance);
+    });
+    instance.$container.parents("label").on("click", function(e) {
+      if (instance.disabled) return;
+      e.preventDefault();
+      _showList(instance);
+    });
     instance.onReady();
   };
   var _buildItem = function(instance, item, token) {
@@ -46318,7 +46433,6 @@ $.fn.togglify = function(settings) {
       data_qa: instance.data_qa
     }).replace(/(\r\n|\n|\r)/gm, "");
   };
-  var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _sizeAndPostionItemsList = function(instance) {
     if (!instance._list_built) return;
     var list_height = instance.$list.css({
@@ -46717,6 +46831,17 @@ $.fn.togglify = function(settings) {
       }
     }
   };
+  var _onInputInput = function(instance) {
+    var query = instance.$input.val();
+    if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
+      var slugs = query.split(instance.sluggify.delimiter);
+      slugs.forEach(function(slug) {
+        if (slug.length) _addUserCreatedSlugFromString(instance, slug);
+      });
+    } else {
+      _runQuery(instance, query, true);
+    }
+  };
   var _runQuery = function(instance, query, keep_value) {
     if (instance.disabled) return;
     if (query === instance._previous_val) return;
@@ -47013,187 +47138,6 @@ $.fn.togglify = function(settings) {
       instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container);
     }
     return instance._is_in_message;
-  };
-  var _onContainerMouseleave = function(instance) {
-    instance._prevent_blur = false;
-  };
-  var _onContainerClick = function(instance) {
-    if (instance.disabled) return;
-    _showList(instance);
-  };
-  var _onContainerParentsLabelClick = function(instance, e) {
-    if (instance.disabled) return;
-    e.preventDefault();
-    _showList(instance);
-  };
-  var _onInputContainerFocus = function(instance) {
-    instance.$input_container.click();
-    instance.$input.focus();
-  };
-  var _onInputInput = function(instance) {
-    var query = instance.$input.val();
-    if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
-      var slugs = query.split(instance.sluggify.delimiter);
-      slugs.forEach(function(slug) {
-        if (slug.length) _addUserCreatedSlugFromString(instance, slug);
-      });
-    } else {
-      _runQuery(instance, query, true);
-    }
-  };
-  var _onInputKeydown = function(instance, e) {
-    if (instance.disabled) return;
-    switch (e.keyCode) {
-      case TS.utility.keymap.down:
-        _stopThePresses(e);
-        _selectDown(instance);
-        break;
-      case TS.utility.keymap.up:
-        _stopThePresses(e);
-        _selectUp(instance);
-        break;
-      case TS.utility.keymap.enter:
-        if (instance._$active && instance._$active.length && instance._list_visible) {
-          _stopThePresses(e);
-          var $current_active = instance._$active;
-          var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active));
-          if (should_unselect_item) {
-            _unselectItem(instance, $current_active);
-          } else {
-            if (!_canAddNewItem(instance)) return;
-            _selectListItem(instance);
-            var $el = $(e.curentTarget);
-            if ($el.val() !== "") {
-              $el.val("");
-              instance._previous_val = "";
-              _populate(instance);
-            }
-            if (instance.single) {
-              _hideList(instance);
-              _hideError(instance);
-            }
-          }
-        }
-        break;
-      case TS.utility.keymap.del:
-        if (instance.$input.val() === "") {
-          _stopThePresses(e);
-          var $last_item = instance.$input_container.find(".lfs_token").last();
-          if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
-            _unsluggifySlug(instance, $last_item);
-          } else {
-            _removeLastSelected(instance);
-          }
-        }
-        break;
-      case TS.utility.keymap.tab:
-        if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-          _stopThePresses(e);
-          _addUserCreatedSlugFromString(instance, instance.$input.val());
-        } else if (instance.tab_to_nav) {
-          _stopThePresses(e);
-          if (e.shiftKey) {
-            _selectUp(instance);
-          } else {
-            _selectDown(instance);
-          }
-        }
-        break;
-      case TS.utility.keymap.esc:
-        _stopThePresses(e);
-        _hideList(instance);
-        _hideNoResults(instance);
-        _hideError(instance);
-        instance.$input.blur();
-        break;
-    }
-    instance.onKeyDown(e, e.isDefaultPrevented());
-  };
-  var _onInputFocus = function(instance) {
-    if (!instance._input_is_focused) {
-      instance._input_is_focused = true;
-      instance.$input_container.click();
-      instance.onInputFocus();
-    }
-    if (!instance.single) instance.$input_container.addClass("active");
-  };
-  var _onInputBlur = function(instance) {
-    if (!instance._prevent_blur) {
-      _hideList(instance);
-      _hideNoResults(instance);
-      _hideError(instance);
-    }
-    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-      _addUserCreatedSlugFromString(instance, instance.$input.val());
-    }
-    instance._input_is_focused = false;
-    instance.onInputBlur();
-  };
-  var _onValueClick = function(instance, e) {
-    if (instance.disabled) return;
-    e.stopPropagation();
-    _showList(instance);
-    instance._prevent_blur = false;
-  };
-  var _onValueMousedown = function(instance, e) {
-    if (e.which === 1) instance._prevent_blur = true;
-  };
-  var _onTokenClick = function(instance, e) {
-    if (instance.disabled) return;
-    _removeSelected(instance, $(e.currentTarget));
-    instance._prevent_blur = false;
-  };
-  var _onTokenMousedown = function(instance, e) {
-    if (e.which === 1) instance._prevent_blur = true;
-  };
-  var _onListContainerMousedown = function(instance, e) {
-    if (e.which === 1) instance._prevent_blur = true;
-  };
-  var _onItemMousemove = function(instance, e) {
-    if (instance.disabled) return;
-    if (e.clientX == instance._mouse.lastX && e.clientY == instance._mouse.lastY) return;
-    var $el = $(e.currentTarget);
-    if (instance._$active) instance._$active.removeClass("active");
-    if (!$el.hasClass("active") && _selectable($el)) {
-      $el.addClass("active");
-      instance._$active = $el;
-    }
-    instance._mouse.lastX = e.clientX;
-    instance._mouse.lastY = e.clientY;
-  };
-  var _onActiveItemMouseleave = function(instance, e) {
-    $(e.currentTarget).removeClass("active");
-    instance._$active = null;
-  };
-  var _onItemClick = function(instance, e) {
-    if (instance.disabled) return;
-    e.preventDefault();
-    var $el = $(e.currentTarget);
-    instance._$active = $el;
-    var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $el));
-    if (should_unselect_item) {
-      _unselectItem(instance, $el);
-    } else {
-      var selectable = _selectable($el);
-      if (!selectable && !instance.single) return;
-      if (!_canAddNewItem(instance)) return;
-      if (!selectable && instance.single) {
-        _hideList(instance);
-        e.stopPropagation();
-        return;
-      }
-      _selectListItem(instance);
-      if (instance.$input.val() !== "") {
-        instance.$input.val("");
-        instance._previous_val = "";
-        _populate(instance);
-      }
-      if (instance.single) {
-        _hideList(instance);
-        e.stopPropagation();
-      }
-    }
-    instance._prevent_blur = false;
   };
 })();
 (function() {
@@ -50932,7 +50876,7 @@ $.fn.togglify = function(settings) {
   };
   var _promiseToGetData = function() {
     var promises = [_promiseToCallListShared().reflect(), _promiseToCallListShared(true).reflect()];
-    if (TS.boot_data.feature_external_shared_channels_ui) {
+    if (TS.boot_data.feature_shared_channels_invite) {
       promises.push(_promiseToCallListSharedInvites().reflect());
       promises.push(_promiseToCallListSharedInvites(true).reflect());
     }
@@ -50947,7 +50891,7 @@ $.fn.togglify = function(settings) {
       } else {
         _setSharedChannelsIntoModel(responses[0].value().data.channels);
         _setSharedChannelsIntoModel(responses[1].value().data.channels, true);
-        if (TS.boot_data.feature_external_shared_channels_ui) {
+        if (TS.boot_data.feature_shared_channels_invite) {
           _setSharedInvitesIntoModel(responses[2].value().data.invites);
           _setSharedInvitesIntoModel(responses[3].value().data.invites, true);
         }
