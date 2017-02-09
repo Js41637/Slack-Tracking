@@ -47,11 +47,11 @@
 
   <div class="channel_purpose_text no_jumbomoji">
     {{#if model_ob.purpose.value}}
-      {{{formatTopicOrPurpose model_ob.purpose.value}}}
-      {{#if show_edit_purpose_or_topic}}<a class="edit_purpose mini">{{#t}}edit{{/t}}</a>{{/if}}
+      {{formatTopicOrPurpose model_ob.purpose.value}}
+      {{#if show_edit_purpose_or_topic}}<button class="edit_purpose btn_link" type="button">{{#t}}edit{{/t}}</button>{{/if}}
     {{else}}
       {{#if show_edit_purpose_or_topic}}
-        <a class="edit_purpose mini block">{{#t}}Set a channel purpose{{/t}}</a>
+        <button class="edit_purpose btn_link block" type="button">{{#t}}Set a channel purpose{{/t}}</button>
       {{else}}
         {{#if model_ob.is_channel}}
         <span class="italic">{{#t}}A purpose has not been set for #{model_ob.name}.{{/t}}</span>
@@ -69,5 +69,5 @@
 </div>
 
 <div class="creator italic greigh top_margin">
-  <a class="creator_link greigh"> {{#t}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
+  <a class="creator_link greigh" href="{{permalink}}"> {{#t}}Created by {creator_name} {days_since_creation, select, 0 {today} 1 {yesterday} other {on {creation_date, date, long}}}{{/t}} </a>
 </div>

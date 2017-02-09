@@ -27879,6 +27879,8 @@
     } else {
       template_args.creator_name = TS.i18n.t("unknown", "channel_pages")();
     }
+    var first_msg_ts = model_ob.msgs && model_ob.msgs.length && _.get(model_ob, ["msgs", model_ob.msgs.length - 1, "ts"], "");
+    template_args.permalink = first_msg_ts && TS.utility.msgs.constructMsgPermalink(model_ob, first_msg_ts) || "javascript:void(0)";
     var date = TS.utility.date.toDateObject(model_ob.created);
     if (TS.utility.date.isToday(date)) {
       template_args.days_since_creation = 0;

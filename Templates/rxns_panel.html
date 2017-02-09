@@ -4,11 +4,11 @@
   {{~rxns_html~}}
   {{~#if has_hovers~}}
   <span class="rxn_hover_container{{#feature flag="feature_thanks"}} feature_thanks{{/feature}}">
-    <span class="{{#unless show_adder}}hidden {{/unless}}rxn menu_rxn ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_300" title="{{#t}}Add reaction...{{/t}}">
+    <button type="button" class="btn_unstyle {{#unless show_adder}}hidden {{/unless}}rxn menu_rxn ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_300" title="{{#t}}Add reaction...{{/t}}">
       <span class="emoji-outer emoji-sizer">
       <i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_add_reaction"></i>
       </span>
-    </span>
+    </button>
     {{~handy_rxns_html~}}
   </span>
   {{~/if~}}

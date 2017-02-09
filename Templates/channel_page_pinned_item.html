@@ -15,7 +15,7 @@
       {{#if bot_id}}data-bot-id="{{bot_id}}"{{/if}}
          >
 
-    {{#if can_remove}}<a class="remove_pin ts_icon ts_icon_times_small" title="{{#t}}Click to un-pin this item{{/t}}"></a>{{/if}}
+    {{#if can_remove}}<button class="remove_pin ts_icon ts_icon_times_small btn_basic" title="{{#t}}Click to un-pin this item{{/t}}" aria-label="{{#t}}Click to un-pin this item{{/t}}" type="button"></button>{{/if}}
 
     {{#if is_message}}
       {{#if is_reply}}
@@ -23,9 +23,9 @@
       {{/if}}
       <p class="no_bottom_margin">
         {{#if member}}
-          <span class="pin_member_name tiny_right_margin">{{{makeMemberPreviewLinkById item.message.user}}}</span>
+          <span class="pin_member_name tiny_right_margin">{{makeMemberPreviewLinkById item.message.user}}</span>
         {{else}}
-          <span class="pin_member_name tiny_right_margin">{{{getBotNameWithLink item.message}}}</span>
+          <span class="pin_member_name tiny_right_margin">{{getBotNameWithLink item.message}}</span>
           {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_cards_app_label"}}{{#t}}APP{{/t}}{{else}}{{#t}}BOT{{/t}}{{/feature}}</span>{{/if}}
         {{/if}}
         {{#if is_reply}}
@@ -43,8 +43,8 @@
         {{/if}}
       </p>
       <div class="tiny_top_margin pinned_message_text">
-        {{{formatMessageByType item.message true false model_ob}}}
-        {{{formatAttachments item.message model_ob}}}
+        {{formatMessageByType item.message true false model_ob}}
+        {{formatAttachments item.message model_ob}}
         <span class="pin_truncate_fade hidden"></span>
       </div>
       {{#if item.message.reply_count}}
@@ -55,10 +55,10 @@
     {{/if}}
 
     {{#if is_file}}
-      <p class="no_wrap overflow_ellipsis no_bottom_margin pin_file_title no_jumbomoji">{{{formatFileTitle item.file}}}</p>
+      <p class="no_wrap overflow_ellipsis no_bottom_margin pin_file_title no_jumbomoji">{{formatFileTitle item.file}}</p>
       <p class="no_wrap overflow_ellipsis no_bottom_margin pin_metadata tiny_top_margin">
         {{#if item.file.is_external}}
-          {{{makeExternalFiletypeHTML item.file}}}
+          {{makeExternalFiletypeHTML item.file}}
         {{else}}
           {{#if_equal item.file.filetype compare="space"}}
             {{#t}}Post{{/t}}
@@ -70,8 +70,8 @@
     {{/if}}
 
     {{#if is_comment}}
-      <p class="no_bottom_margin"><span class="pin_member_name tiny_right_margin">{{{makeMemberPreviewLinkById item.comment.user}}}</span> <span class="pin_metadata">{{toCalendarDateOrNamedDayShort item.comment.timestamp}}{{#isToday item.comment.timestamp}} at {{toTime item.comment.timestamp}}{{/isToday}}</span></p>
-      <p class="no_bottom_margin tiny_top_margin pinned_message_text">{{{formatMessage item.comment.comment}}}<span class="pin_truncate_fade"></span></p>
+      <p class="no_bottom_margin"><span class="pin_member_name tiny_right_margin">{{makeMemberPreviewLinkById item.comment.user}}</span> <span class="pin_metadata">{{toCalendarDateOrNamedDayShort item.comment.timestamp}}{{#isToday item.comment.timestamp}} at {{toTime item.comment.timestamp}}{{/isToday}}</span></p>
+      <p class="no_bottom_margin tiny_top_margin pinned_message_text">{{formatMessage item.comment.comment}}<span class="pin_truncate_fade"></span></p>
     {{/if}}
 
   </div>

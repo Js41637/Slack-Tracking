@@ -31,7 +31,11 @@
   </div>
   <form id="message_edit_form" data-msg-ts="{{msg.ts}}">
     {{#if include_emo}}<a class="emo_menu hidden"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></a>{{/if}}
-    <textarea id="msg_text" name="msg_text">{{edit_text}}</textarea>
+    {{#feature flag="feature_texty_takes_over"}}
+      <div id="msg_text" class="message_input">{{edit_text}}</div>
+    {{else}}
+      <textarea id="msg_text" name="msg_text">{{edit_text}}</textarea>
+    {{/feature}}
     <a id="cancel_edit" role="button" class="btn btn_small btn_outline">{{#t}}Cancel{{/t}}</a>
     <a id="commit_edit" role="button" class="btn btn_small"><i class="ts_icon ts_icon_enter ts_icon_inherit small_right_margin"></i>{{#t}}Save Changes{{/t}}</a>
     <span id="message_editing_info" class="mini" style="display: none;">{{#t}}Finish editing this message first! Or press <strong>escape</strong> if you've changed your mind.{{/t}}</span>

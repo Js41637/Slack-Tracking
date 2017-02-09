@@ -3964,6 +3964,27 @@ a.btn {
   line-height: inherit
 }
 
+.btn_basic {
+  -webkit-font-smoothing: antialiased;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  background: 0 0;
+  border: none;
+  padding: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  outline: 0;
+  color: inherit
+}
+
+.btn_basic:focus,
+.btn_basic:hover {
+  color: #005e99
+}
+
 .btn_link {
   -webkit-font-smoothing: antialiased;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -3976,12 +3997,14 @@ a.btn {
   font-size: inherit;
   font-weight: inherit;
   line-height: inherit;
-  outline: 0
+  outline: 0;
+  color: #007ab8
 }
 
 .btn_link:focus,
 .btn_link:hover {
-  color: #005e99
+  color: #005e99;
+  text-decoration: underline
 }
 
 .btn.btn_border {

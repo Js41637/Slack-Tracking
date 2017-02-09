@@ -7268,7 +7268,7 @@ header .header_btn {
   margin: 1.4rem 1.4rem 1.4rem 0
 }
 
-header .header_btns .btn_link,
+header .header_btns .btn_basic,
 header .header_btns a {
   text-align: center;
   font-size: .8rem;
@@ -7281,19 +7281,19 @@ header .header_btns a {
   line-height: 1.25rem
 }
 
-header .header_btns .btn_link i,
+header .header_btns .btn_basic i,
 header .header_btns a i {
   font-size: 1.75rem;
   width: 28px
 }
 
-header .header_btns .btn_link .label,
+header .header_btns .btn_basic .label,
 header .header_btns a .label {
   color: #717274;
   margin-left: -1px
 }
 
-header .header_btns .btn_link img,
+header .header_btns .btn_basic img,
 header .header_btns a img {
   margin: -4px .5rem 2px;
   width: 30px;
@@ -7380,13 +7380,13 @@ html.no_touch header #header_team_nav li a:hover {
   text-decoration: none
 }
 
-html.no_touch header .header_btns .btn_link:hover,
+html.no_touch header .header_btns .btn_basic:hover,
 html.no_touch header .header_btns a:hover {
   text-decoration: none;
   color: #3aa3e3
 }
 
-html.no_touch header .header_btns .btn_link:hover .label,
+html.no_touch header .header_btns .btn_basic:hover .label,
 html.no_touch header .header_btns a:hover .label {
   color: #3aa3e3
 }
@@ -7815,16 +7815,16 @@ screen and (max-width:640px) {
   header .header_btn {
     margin: .9rem .9rem .9rem .7rem
   }
-  header .header_btns .btn_link,
+  header .header_btns .btn_basic,
   header .header_btns a {
     line-height: 1.2rem;
     padding: .9rem 1rem .4rem
   }
-  header .header_btns .btn_link i,
+  header .header_btns .btn_basic i,
   header .header_btns a i {
     font-size: 1.5rem
   }
-  header .header_btns .btn_link img,
+  header .header_btns .btn_basic img,
   header .header_btns a img {
     margin-top: -3px;
     margin-bottom: 3px;
@@ -7939,7 +7939,7 @@ screen and (max-width:640px) {
   .tab_pane {
     padding: 2rem 1rem 1rem
   }
-  header .header_btns .btn_link img,
+  header .header_btns .btn_basic img,
   header .header_btns a img {
     float: none
   }
@@ -8009,15 +8009,15 @@ screen and (max-width:640px) {
   header .menu_label {
     display: none
   }
-  header .header_btns .btn_link,
+  header .header_btns .btn_basic,
   header .header_btns a {
     padding: 1.4rem .5rem 1.1rem
   }
-  header .header_btns .btn_link .label,
+  header .header_btns .btn_basic .label,
   header .header_btns a .label {
     display: none!important
   }
-  header .header_btns .btn_link img,
+  header .header_btns .btn_basic img,
   header .header_btns a img {
     margin-right: .25rem;
     margin-left: 0
@@ -8438,6 +8438,27 @@ a.btn {
   line-height: inherit
 }
 
+.btn_basic {
+  -webkit-font-smoothing: antialiased;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  background: 0 0;
+  border: none;
+  padding: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  outline: 0;
+  color: inherit
+}
+
+.btn_basic:focus,
+.btn_basic:hover {
+  color: #005e99
+}
+
 .btn_link {
   -webkit-font-smoothing: antialiased;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -8450,12 +8471,14 @@ a.btn {
   font-size: inherit;
   font-weight: inherit;
   line-height: inherit;
-  outline: 0
+  outline: 0;
+  color: #007ab8
 }
 
 .btn_link:focus,
 .btn_link:hover {
-  color: #005e99
+  color: #005e99;
+  text-decoration: underline
 }
 
 .btn.btn_border {
@@ -16315,7 +16338,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   user-select: none;
   cursor: pointer;
   height: 1.4rem;
-  line-height: 1.4375rem
+  line-height: 1.4375rem;
+  vertical-align: baseline
 }
 
 .rxn.active,
@@ -16413,6 +16437,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .rxn.menu_rxn:hover .ts_icon_add_reaction {
   opacity: 1;
   color: #C39A48
+}
+
+.rxn:focus {
+  outline: 0
 }
 
 #files_tab .rxn_panel .rxn {

@@ -1,7 +1,7 @@
 {{i18n_ns "channel_pages"}}
 
   <i class="ts_icon ts_icon_user icon_member_header small_right_margin"></i>
-  <a id="member_count_title" title="{{#t}}Click to expand or collapse{{/t}}" class="flex_one">{{~#if is_loading_members~}}
+  <span id="member_count_title" title="{{#t}}Click to expand or collapse{{/t}}" class="section_title flex_one">{{~#if is_loading_members~}}
     {{#t}}Members{{/t}}
   {{else}}
     {{~#if lazy_load_members_and_bots~}}
@@ -9,7 +9,7 @@
     {{else}}
       {{#t}}{online_count, number}<span class="dull_grey">/{member_count, number}</span>  {member_count, plural, =1 {Member} other {Members}}{{/t}}
     {{/if}}
-  {{/if}}</a>
+  {{/if}}</span>
 
   {{#if show_restricted_members}}
     <div class="restricted_members_count ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_300" title="{{#t}}{restricted_count, plural, =1 {# Guest} other {# Guests}}{{/t}}">

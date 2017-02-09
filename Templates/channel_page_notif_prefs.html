@@ -10,7 +10,7 @@
     {{else}}
       <p class="highlight_yellow_bg">
         {{#if notifications_not_yet_allowed}}
-          <span>{{#t}}You have not yet allowed desktop notifications. Open the <a onclick="TS.ui.prefs_dialog.start('notifications')" class="cursor_pointer bold">Preferences Dialog</a> and follow the instructions to set them up.{{/t}}</span>
+          <span>{{#t}}You have not yet allowed desktop notifications. Open the <button onclick="TS.ui.prefs_dialog.start('notifications')" class="preference_dialog_btn cursor_pointer bold btn_link" type="button">Preferences Dialog</button> and follow the instructions to set them up.{{/t}}</span>
         {{/if}}
         {{#if notifications_not_allowed}}
           <span>{{#t}}You\u2019ve disallowed notifications in your browser. You\u2019ll need to open your browser preferences to change that.{{/t}}</span>

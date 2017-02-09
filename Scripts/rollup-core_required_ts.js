@@ -3161,8 +3161,8 @@
   var _team_id;
   var _user_id;
   var _detectClogEndpoint = function(host) {
-    var is_dev = host.match(/^([^.]+\.)?(dev[0-9]*)\.slack.com/);
-    var is_qa = host.match(/^([^.]+\.)?(qa[0-9]*)\.slack.com/);
+    var is_dev = host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack.com/);
+    var is_qa = host.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack.com/);
     if (is_dev) {
       _CLOG_ENDPOINT_URL = "https://" + is_dev[2] + ".slack.com/clog/track/";
     } else if (is_qa) {

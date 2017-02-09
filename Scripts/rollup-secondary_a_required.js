@@ -20899,7 +20899,7 @@ TS.registerModule("constants", {
           username = bot.name;
         }
       }
-      return bot_link.start_a + TS.utility.htmlEntities(username) + bot_link.end_a;
+      return new Handlebars.SafeString(bot_link.start_a + TS.utility.htmlEntities(username) + bot_link.end_a);
     },
     makeBotLink: function(bot, username) {
       var start_a = "";
@@ -22815,14 +22815,18 @@ TS.registerModule("constants", {
         var file_title = file.title;
         file_title = TS.utility.unHtmlEntities(file_title);
         file_title = TS.utility.htmlEntities(file_title);
-        return TS.format.formatWithOptions(file_title, null, {
+        return new Handlebars.SafeString(TS.format.formatWithOptions(file_title, null, {
           no_specials: true
-        });
+        }));
       });
-      Handlebars.registerHelper("formatMessageByType", TS.templates.builders.formatMessageByType);
-      Handlebars.registerHelper("formatAttachments", TS.templates.builders.formatAttachments);
+      Handlebars.registerHelper("formatMessageByType", function(msg, do_inline_imgs, enable_slack_action_links, model_ob, starred_items_list) {
+        return new Handlebars.SafeString(TS.templates.builders.formatMessageByType(msg, do_inline_imgs, enable_slack_action_links, model_ob, starred_items_list));
+      });
+      Handlebars.registerHelper("formatAttachments", function(msg, model_ob, enable_slack_action_links, msg_dom_id) {
+        return new Handlebars.SafeString(TS.templates.builders.formatAttachments(msg, model_ob, enable_slack_action_links, msg_dom_id));
+      });
       Handlebars.registerHelper("formatMessage", function(text, msg) {
-        return TS.format.formatDefault(text, msg);
+        return new Handlebars.SafeString(TS.format.formatDefault(text, msg));
       });
       Handlebars.registerHelper("formatNoHighlightsNoSpecials", function(text, msg) {
         return TS.format.formatNoHighlightsNoSpecials(text, msg);
@@ -23101,13 +23105,6 @@ TS.registerModule("constants", {
           text = "#" + channel.name;
           return "<a href=" + url + ">" + text + "</a>";
         }
-      });
-      Handlebars.registerHelper("isTeamInOrg", function(team, options) {
-        if (!TS.boot_data.external_shared_channels_ui || !TS.boot_data.page_needs_enterprise) return options.inverse(this);
-        var is_in_org = TS.model.enterprise_teams.some(function(enterprise_team) {
-          return enterprise_team.id === team.id;
-        });
-        return is_in_org ? options.fn(this) : options.inverse(this);
       });
       Handlebars.registerHelper("isThereComplianceExportsTeam", function(channel, options) {
         if (!TS.boot_data.page_needs_enterprise) return options.inverse(this);
@@ -23780,7 +23777,7 @@ TS.registerModule("constants", {
         return label;
       });
       Handlebars.registerHelper("makeExternalFiletypeHTML", function(file) {
-        return TS.templates.builders.makeExternalFiletypeHTML(file);
+        return new Handlebars.SafeString(TS.templates.builders.makeExternalFiletypeHTML(file));
       });
       Handlebars.registerHelper("makeFileShareLabel", function(file) {
         return new Handlebars.SafeString(TS.templates.builders.makeFileShareLabel(file));
@@ -32587,6 +32584,7 @@ TS.registerModule("constants", {
       _.each(counts, function(count) {
         template_args[count["name"] + "_count"] = count["count"];
       });
+      TS.menu.$menu.width($(e.target).outerWidth());
       TS.menu.$menu.addClass("searchable_member_list_filter_menu");
       TS.menu.$menu_items.html(TS.templates.searchable_member_list_filter_items(template_args));
       TS.menu.$menu_items.on("click.menu", "li", function(e) {
@@ -38443,9 +38441,8 @@ var _on_esc;
     cancelEditingINothingHasChanged: function() {
       if (!TS.msg_edit.editing) return true;
       var original_msg_text = TS.format.unFormatMsg(TS.msg_edit.current_msg.text);
-      var edited_text = $("#message_edit_form").find("#msg_text").val();
+      var edited_text = TS.utility.contenteditable.value($("#message_edit_form").find("#msg_text"));
       if (edited_text === original_msg_text) {
-        if (TS.boot_data.feature_tinyspeck) console.log("13921 cancelEditingINothingHasChanged: text has not changed, cancelling");
         TS.msg_edit.onCancelEdit();
         return true;
       }
@@ -38549,23 +38546,81 @@ var _on_esc;
       var form = $("#message_edit_form");
       var $form = form;
       var input = form.find("#msg_text");
+      if (TS.boot_data.feature_texty_takes_over) {
+        TS.utility.contenteditable.create(input, {
+          modules: {
+            tabcomplete: {
+              completeMemberSpecials: true,
+              menuTemplate: TS.templates.tabcomplete_menu,
+              completers: [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members],
+              appendMenu: function(menu) {
+                document.querySelector("#message_edit_form").appendChild(menu);
+              },
+              positionMenu: function(menu) {
+                menu.style.bottom = "100%";
+                menu.style.left = "4.5rem";
+                menu.style.width = "80%";
+              }
+            }
+          },
+          placeholder: "",
+          getTextPreferences: TS.utility.contenteditable.getTextPreferences,
+          onEnter: function(args) {
+            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock(input)) {
+              if (!args.shiftKey) return true;
+            } else {
+              if (args.shiftKey) return true;
+            }
+            if (!TS.client.ui.cal_key_checker.prevent_enter) TS.msg_edit.checkAndSubmit(input, form);
+            return false;
+          },
+          onTextChange: function(source) {
+            TS.msg_edit.checkLengthAndUpdateMessage(input);
+          },
+          onPaste: function(delta) {
+            if (!TS.boot_data.feature_tinyspeck) return delta;
+            return TS.format.texty.getFormattedDelta(delta);
+          },
+          attributes: {
+            role: "textarea",
+            tabindex: 0,
+            "aria-multiline": true,
+            "aria-haspopup": true
+          }
+        });
+        TS.utility.contenteditable.enable(input);
+        input.on("focusin", function() {
+          input.addClass("focus");
+        }).on("focusout", function() {
+          input.removeClass("focus");
+        }).on("keyup", function() {
+          var cursor_position = TS.utility.contenteditable.cursorPosition(input);
+          if (!cursor_position.length) {
+            var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
+            if (!TS.client || form.outerHeight() < msgs_scroller_dimensions.height) {
+              $form.find(".edit_controls").scrollintoview({
+                px_offset: -50
+              });
+            }
+          }
+        });
+      }
       TS.msg_edit.checkLengthAndUpdateMessage(input);
       TS.info("message_edit_form added");
       TS.msg_edit.editing = true;
       TS.msg_edit.edit_started_sig.dispatch();
       form.bind("destroyed", function() {
-        if (TS.boot_data.feature_tinyspeck) console.log("13921 message_edit_form removed");
         TS.info("message_edit_form removed");
         TS.msg_edit.editing = false;
         TS.msg_edit.editing_in_msg_pane = false;
         TS.msg_edit.editing_in_convo_pane = false;
         TS.msg_edit.edit_ended_sig.dispatch();
-        TSSSB.call("inputFieldRemoved", input.get(0));
+        if (!TS.boot_data.feature_texty_takes_over) TSSSB.call("inputFieldRemoved", input.get(0));
         form = null;
         input = null;
         TS.msg_edit.resetEditUI();
       });
-      if (TS.boot_data.feature_you_autocomplete_me) {
+      if (!TS.boot_data.feature_texty_takes_over && TS.boot_data.feature_you_autocomplete_me) {
         input.TS_tabCompleteNew({
           complete_cmds: false,
           complete_channels: true,
@@ -38580,7 +38635,7 @@ var _on_esc;
           include_self: !!TS.boot_data.feature_name_tagging_client,
           model_ob: model_ob
         });
-      } else {
+      } else if (!TS.boot_data.feature_texty_takes_over) {
         input.TS_tabComplete({
           complete_cmds: false,
           complete_channels: true,
@@ -38607,13 +38662,11 @@ var _on_esc;
         tab_complete_ui_props.narrow = !!TS.client;
       }
       input.tab_complete_ui(tab_complete_ui_props);
-      TSSSB.call("inputFieldCreated", input.get(0));
+      if (!TS.boot_data.feature_texty_takes_over) TSSSB.call("inputFieldCreated", input.get(0));
       form.bind("submit", function(e) {
-        if (TS.boot_data.feature_tinyspeck) console.log("13921 message_edit_form submit");
         e.preventDefault();
-        var edited_text = input.val();
+        var edited_text = TS.utility.contenteditable.value(input);
         if (edited_text === original_msg_text) {
-          if (TS.boot_data.feature_tinyspeck) console.log("13921 message_edit_form submit no changes");
           TS.msg_edit.onCancelEdit();
           return;
         }
@@ -38636,49 +38689,51 @@ var _on_esc;
         if (!$.trim(edited_text)) return;
         TS.msg_edit.onConfirmEdit(edited_text);
       });
-      input.bind("textchange", function(e, prev_txt) {
-        TS.msg_edit.checkLengthAndUpdateMessage(input);
-      }).bind("keyup", function(e) {
-        var selection;
-        var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
-        if (window.getSelection) {
-          selection = window.getSelection();
-          if (selection && selection.toString && !selection.toString()) {
-            if (!TS.client || form.outerHeight() < msgs_scroller_dimensions.height) {
-              $form.find(".edit_controls").scrollintoview({
-                px_offset: -50
-              });
+      if (!TS.boot_data.feature_texty_takes_over) {
+        input.bind("textchange", function(e, prev_txt) {
+          TS.msg_edit.checkLengthAndUpdateMessage(input);
+        }).bind("keyup", function(e) {
+          var selection;
+          var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
+          if (window.getSelection) {
+            selection = window.getSelection();
+            if (selection && selection.toString && !selection.toString()) {
+              if (!TS.client || form.outerHeight() < msgs_scroller_dimensions.height) {
+                $form.find(".edit_controls").scrollintoview({
+                  px_offset: -50
+                });
+              }
             }
           }
-        }
-      }).bind("keydown", function(e) {
-        if (e.which == TS.utility.keymap.enter && (e.ctrlKey || e.altKey)) {
-          if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
-            var p = input.getCursorPosition();
-            var val = input.val();
-            input.val(val.substr(0, p) + "\n" + val.substr(p));
-            input.trigger("autosize").trigger("autosize-resize");
-            input.setCursorPosition(p + 1);
+        }).bind("keydown", function(e) {
+          if (e.which == TS.utility.keymap.enter && (e.ctrlKey || e.altKey)) {
+            if (!TS.model.is_mac || (TS.model.is_FF || TS.model.is_electron || TS.model.is_chrome_desktop)) {
+              var p = input.getCursorPosition();
+              var val = input.val();
+              input.val(val.substr(0, p) + "\n" + val.substr(p));
+              input.trigger("autosize").trigger("autosize-resize");
+              input.setCursorPosition(p + 1);
+            }
+          } else if (e.which == TS.utility.keymap.enter) {
+            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey) {
+              return;
+            } else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && e.shiftKey) {
+              e.preventDefault();
+              TS.msg_edit.checkAndSubmit(input, form);
+              return;
+            } else if (input.tab_complete_ui("isShowing")) {
+              e.preventDefault();
+              return;
+            } else if (!e.shiftKey && !e.altKey) {
+              e.preventDefault();
+              TS.msg_edit.checkAndSubmit(input, form);
+              return;
+            }
           }
-        } else if (e.which == TS.utility.keymap.enter) {
-          if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey) {
-            return;
-          } else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && e.shiftKey) {
-            e.preventDefault();
-            TS.msg_edit.checkAndSubmit(input, form);
-            return;
-          } else if (input.tab_complete_ui("isShowing")) {
-            e.preventDefault();
-            return;
-          } else if (!e.shiftKey && !e.altKey) {
-            e.preventDefault();
-            TS.msg_edit.checkAndSubmit(input, form);
-            return;
-          }
-        }
-      }).autosize({
-        boxOffset: 18
-      });
+        }).autosize({
+          boxOffset: 18
+        });
+      }
       $("body").bind("keydown.close_message_edit_form", function(e) {
         if (e.which == TS.utility.keymap.esc) {
           if (input.tab_complete_ui("isShowing") || input.tab_complete_ui("wasJustHidden")) return;
@@ -38718,7 +38773,11 @@ var _on_esc;
           px_offset: -50
         });
       }
-      $("#msg_text").attr("spellcheck", !!TS.model.prefs.webapp_spellcheck);
+      if (TS.boot_data.feature_texty_takes_over) {
+        $("#message_edit_form [contenteditable=true]").attr("spellcheck", !!TS.model.prefs.webapp_spellcheck);
+      } else {
+        $("#msg_text").attr("spellcheck", !!TS.model.prefs.webapp_spellcheck);
+      }
       TS.msg_edit.onCountDownInterval();
       TS.msg_edit.edit_interv = setInterval(TS.msg_edit.onCountDownInterval, 1e3);
     },
@@ -38738,7 +38797,6 @@ var _on_esc;
       return !too_long;
     },
     checkAndSubmit: function(input, form) {
-      if (TS.boot_data.feature_tinyspeck) console.log("13921 checkAndSubmit");
       if (TS.msg_edit.checkLengthAndUpdateMessage(input)) {
         form.submit();
       }
@@ -38764,7 +38822,6 @@ var _on_esc;
       }
     },
     onCancelEdit: function() {
-      if (TS.boot_data.feature_tinyspeck) console.log("13921 onCancelEdit");
       if (!TS.msg_edit.current_msg) {
         TS.error("no TS.msg_edit.current_msg?");
         return null;
@@ -38780,7 +38837,6 @@ var _on_esc;
       }
     },
     resetEditUI: function() {
-      if (TS.boot_data.feature_tinyspeck) console.log("13921 resetEditUI");
       clearInterval(TS.msg_edit.edit_interv);
       if (!TS.msg_edit.current_msg) {
         TS.error("no TS.msg_edit.current_msg?");
@@ -38994,7 +39050,7 @@ var _on_esc;
       var $msg_el = TS.msg_edit.getAllDivsForMsg(TS.msg_edit.current_msg.ts);
       $msg_el.removeClass("delete_mode");
       if (TS.msg_edit.deleting_from_editing) {
-        $("#msg_text").focus();
+        TS.utility.contenteditable.focus($("#msg_text"));
       }
     },
     commitDeleteInternal: function(onSuccessFunc) {
@@ -39257,15 +39313,14 @@ var _on_esc;
     pauseEditing: function() {
       if (!TS.msg_edit.editing) return;
       var $input = $("#msg_text");
-      var text = $input.val();
-      var cursor_start = $input.textrange("get", "start");
-      var cursor_length = $input.textrange("get", "length");
+      var text = TS.utility.contenteditable.value($input);
+      var cursor_position = TS.utility.contenteditable.cursorPosition($input);
       var edit_state = {
         msg_ts: TS.msg_edit.current_msg.ts,
         model_ob: TS.msg_edit.current_model_ob,
         text: text,
-        cursor_start: cursor_start,
-        cursor_length: cursor_length
+        cursor_start: cursor_position.start,
+        cursor_length: cursor_position.length
       };
       TS.msg_edit.resetEditUI();
       return edit_state;
@@ -39277,12 +39332,12 @@ var _on_esc;
       TS.msg_edit.startEdit(edit_state.msg_ts, edit_state.model_ob, edit_state);
     },
     focusAndSetCursorPosition: function(input, edit_state) {
-      input.focus();
+      TS.utility.contenteditable.focus(input);
       TS.utility.rAF(function() {
         if (edit_state && _.isFinite(edit_state.cursor_start) && _.isFinite(edit_state.cursor_length)) {
-          TS.utility.setCursorPosition("#msg_text", edit_state.cursor_start, edit_state.cursor_length);
+          TS.utility.contenteditable.cursorPosition(input, edit_state.cursor_start, edit_state.cursor_length);
         } else {
-          TS.utility.setCursorPosition("#msg_text", 1e8);
+          TS.utility.contenteditable.cursorPosition(input, 1e8, 0);
         }
       });
     }
@@ -46151,7 +46206,6 @@ $.fn.togglify = function(settings) {
       return this.instance._selected;
     }
   });
-  var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _addUserCreatedSlugFromString = function(instance, str) {
     if (!_instanceCanSluggify(instance)) return;
     if (!str.trim()) return;
@@ -46211,174 +46265,23 @@ $.fn.togglify = function(settings) {
     }
   };
   var _bindUI = function(instance) {
+    instance.$container.on("mouseleave", _onContainerMouseleave.bind(null, instance));
+    instance.$container.on("click", _onContainerClick.bind(null, instance));
+    instance.$container.parents("label").on("click", _onContainerParentsLabelClick.bind(null, instance));
+    instance.$input_container.on("focus", _onInputContainerFocus.bind(null, instance));
     instance.$input.on("input", _onInputInput.bind(null, instance));
-    instance.$input.on("keydown", function(e) {
-      if (instance.disabled) return;
-      switch (e.keyCode) {
-        case TS.utility.keymap.down:
-          _stopThePresses(e);
-          _selectDown(instance);
-          break;
-        case TS.utility.keymap.up:
-          _stopThePresses(e);
-          _selectUp(instance);
-          break;
-        case TS.utility.keymap.enter:
-          if (instance._$active && instance._$active.length && instance._list_visible) {
-            _stopThePresses(e);
-            var $current_active = instance._$active;
-            if (!instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active))) {
-              _unselectItem(instance, $current_active);
-            } else {
-              if (!_canAddNewItem(instance)) return;
-              _selectListItem(instance);
-              if ($(this).val() !== "") {
-                $(this).val("");
-                instance._previous_val = "";
-                _populate(instance);
-              }
-              if (instance.single) {
-                _hideList(instance);
-                _hideError(instance);
-              }
-            }
-          }
-          break;
-        case TS.utility.keymap.del:
-          if (instance.$input.val() === "") {
-            _stopThePresses(e);
-            var $last_item = instance.$input_container.find(".lfs_token").last();
-            if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
-              _unsluggifySlug(instance, $last_item);
-            } else {
-              _removeLastSelected(instance);
-            }
-          }
-          break;
-        case TS.utility.keymap.tab:
-          if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-            _stopThePresses(e);
-            _addUserCreatedSlugFromString(instance, instance.$input.val());
-          } else if (instance.tab_to_nav) {
-            _stopThePresses(e);
-            if (e.shiftKey) {
-              _selectUp(instance);
-            } else {
-              _selectDown(instance);
-            }
-          }
-          break;
-        case TS.utility.keymap.esc:
-          _stopThePresses(e);
-          _hideList(instance);
-          _hideNoResults(instance);
-          _hideError(instance);
-          instance.$input.blur();
-          break;
-      }
-      instance.onKeyDown(e, e.isDefaultPrevented());
-    });
-    instance.$input.on("blur", function() {
-      if (!instance._prevent_blur) {
-        _hideList(instance);
-        _hideNoResults(instance);
-        _hideError(instance);
-      }
-      if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-        _addUserCreatedSlugFromString(instance, instance.$input.val());
-      }
-    });
-    instance.$lfs_value.on("click", function(e) {
-      if (instance.disabled) return;
-      e.stopPropagation();
-      _showList(instance);
-      instance._prevent_blur = false;
-    });
-    instance.$lfs_value.on("mousedown", function(e) {
-      if (e.which === 1) instance._prevent_blur = true;
-    });
-    instance.$list_container.on("mousemove", ".lfs_item", function(e) {
-      if (instance.disabled) return;
-      if (e.clientX == instance._mouse.lastX && e.clientY == instance._mouse.lastY) return;
-      if (instance._$active) instance._$active.removeClass("active");
-      if (!$(this).hasClass("active") && _selectable($(this))) {
-        $(this).addClass("active");
-        instance._$active = $(this);
-      }
-      instance._mouse.lastX = e.clientX;
-      instance._mouse.lastY = e.clientY;
-    });
-    instance.$list_container.on("mouseleave", ".lfs_item.active", function(e) {
-      $(this).removeClass("active");
-      instance._$active = null;
-    });
-    instance.$list_container.on("click", ".lfs_item", function(e) {
-      if (instance.disabled) return;
-      e.preventDefault();
-      instance._$active = $(this);
-      if (!instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $(this)))) {
-        _unselectItem(instance, $(this));
-      } else {
-        var selectable = _selectable($(this));
-        if (!selectable && !instance.single) return;
-        if (!_canAddNewItem(instance)) return;
-        if (!selectable && instance.single) {
-          _hideList(instance);
-          e.stopPropagation();
-          return;
-        }
-        _selectListItem(instance);
-        if (instance.$input.val() !== "") {
-          instance.$input.val("");
-          instance._previous_val = "";
-          _populate(instance);
-        }
-        if (instance.single) {
-          _hideList(instance);
-          e.stopPropagation();
-        }
-      }
-      instance._prevent_blur = false;
-    });
-    instance.$list_container.on("mousedown", function(e) {
-      if (e.which === 1) instance._prevent_blur = true;
-    });
-    instance.$input.on("focus", function() {
-      if (!instance._input_is_focused) {
-        instance._input_is_focused = true;
-        instance.$input_container.click();
-        instance.onInputFocus();
-      }
-      if (!instance.single) instance.$input_container.addClass("active");
-    });
-    instance.$input.on("blur", function() {
-      instance._input_is_focused = false;
-      instance.onInputBlur();
-    });
-    instance.$input_container.on("focus", function() {
-      instance.$input_container.click();
-      instance.$input.focus();
-    });
-    instance.$input_container.on("click", ".lfs_token", function(e) {
-      if (instance.disabled) return;
-      _removeSelected(instance, $(this));
-      instance._prevent_blur = false;
-    });
-    instance.$input_container.on("mousedown", ".lfs_token", function(e) {
-      if (e.which === 1) instance._prevent_blur = true;
-    });
-    instance.$container.on("mouseleave", function(e) {
-      instance._prevent_blur = false;
-    });
-    instance.$container.on("click", function(e) {
-      if (instance.disabled) return;
-      _showList(instance);
-    });
-    instance.$container.parents("label").on("click", function(e) {
-      if (instance.disabled) return;
-      e.preventDefault();
-      _showList(instance);
-    });
+    instance.$input.on("keydown", _onInputKeydown.bind(null, instance));
+    instance.$input.on("blur", _onInputBlur.bind(null, instance));
+    instance.$input.on("focus", _onInputFocus.bind(null, instance));
+    instance.$input.on("blur", _onInputBlur.bind(null, instance));
+    instance.$lfs_value.on("click", _onValueClick.bind(null, instance));
+    instance.$lfs_value.on("mousedown", _onValueMousedown.bind(null, instance));
+    instance.$input_container.on("click", ".lfs_token", _onTokenClick.bind(null, instance));
+    instance.$input_container.on("mousedown", ".lfs_token", _onTokenMousedown.bind(null, instance));
+    instance.$list_container.on("mousedown", _onListContainerMousedown.bind(null, instance));
+    instance.$list_container.on("mousemove", ".lfs_item", _onItemMousemove.bind(null, instance));
+    instance.$list_container.on("mouseleave", ".lfs_item.active", _onActiveItemMouseleave.bind(null, instance));
+    instance.$list_container.on("click", ".lfs_item", _onItemClick.bind(null, instance));
     instance.onReady();
   };
   var _buildItem = function(instance, item, token) {
@@ -46412,6 +46315,7 @@ $.fn.togglify = function(settings) {
       data_qa: instance.data_qa
     }).replace(/(\r\n|\n|\r)/gm, "");
   };
+  var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _sizeAndPostionItemsList = function(instance) {
     if (!instance._list_built) return;
     var list_height = instance.$list.css({
@@ -46810,17 +46714,6 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onInputInput = function(instance) {
-    var query = instance.$input.val();
-    if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
-      var slugs = query.split(instance.sluggify.delimiter);
-      slugs.forEach(function(slug) {
-        if (slug.length) _addUserCreatedSlugFromString(instance, slug);
-      });
-    } else {
-      _runQuery(instance, query, true);
-    }
-  };
   var _runQuery = function(instance, query, keep_value) {
     if (instance.disabled) return;
     if (query === instance._previous_val) return;
@@ -47117,6 +47010,187 @@ $.fn.togglify = function(settings) {
       instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container);
     }
     return instance._is_in_message;
+  };
+  var _onContainerMouseleave = function(instance) {
+    instance._prevent_blur = false;
+  };
+  var _onContainerClick = function(instance) {
+    if (instance.disabled) return;
+    _showList(instance);
+  };
+  var _onContainerParentsLabelClick = function(instance, e) {
+    if (instance.disabled) return;
+    e.preventDefault();
+    _showList(instance);
+  };
+  var _onInputContainerFocus = function(instance) {
+    instance.$input_container.click();
+    instance.$input.focus();
+  };
+  var _onInputInput = function(instance) {
+    var query = instance.$input.val();
+    if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
+      var slugs = query.split(instance.sluggify.delimiter);
+      slugs.forEach(function(slug) {
+        if (slug.length) _addUserCreatedSlugFromString(instance, slug);
+      });
+    } else {
+      _runQuery(instance, query, true);
+    }
+  };
+  var _onInputKeydown = function(instance, e) {
+    if (instance.disabled) return;
+    switch (e.keyCode) {
+      case TS.utility.keymap.down:
+        _stopThePresses(e);
+        _selectDown(instance);
+        break;
+      case TS.utility.keymap.up:
+        _stopThePresses(e);
+        _selectUp(instance);
+        break;
+      case TS.utility.keymap.enter:
+        if (instance._$active && instance._$active.length && instance._list_visible) {
+          _stopThePresses(e);
+          var $current_active = instance._$active;
+          var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active));
+          if (should_unselect_item) {
+            _unselectItem(instance, $current_active);
+          } else {
+            if (!_canAddNewItem(instance)) return;
+            _selectListItem(instance);
+            var $el = $(e.curentTarget);
+            if ($el.val() !== "") {
+              $el.val("");
+              instance._previous_val = "";
+              _populate(instance);
+            }
+            if (instance.single) {
+              _hideList(instance);
+              _hideError(instance);
+            }
+          }
+        }
+        break;
+      case TS.utility.keymap.del:
+        if (instance.$input.val() === "") {
+          _stopThePresses(e);
+          var $last_item = instance.$input_container.find(".lfs_token").last();
+          if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
+            _unsluggifySlug(instance, $last_item);
+          } else {
+            _removeLastSelected(instance);
+          }
+        }
+        break;
+      case TS.utility.keymap.tab:
+        if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+          _stopThePresses(e);
+          _addUserCreatedSlugFromString(instance, instance.$input.val());
+        } else if (instance.tab_to_nav) {
+          _stopThePresses(e);
+          if (e.shiftKey) {
+            _selectUp(instance);
+          } else {
+            _selectDown(instance);
+          }
+        }
+        break;
+      case TS.utility.keymap.esc:
+        _stopThePresses(e);
+        _hideList(instance);
+        _hideNoResults(instance);
+        _hideError(instance);
+        instance.$input.blur();
+        break;
+    }
+    instance.onKeyDown(e, e.isDefaultPrevented());
+  };
+  var _onInputFocus = function(instance) {
+    if (!instance._input_is_focused) {
+      instance._input_is_focused = true;
+      instance.$input_container.click();
+      instance.onInputFocus();
+    }
+    if (!instance.single) instance.$input_container.addClass("active");
+  };
+  var _onInputBlur = function(instance) {
+    if (!instance._prevent_blur) {
+      _hideList(instance);
+      _hideNoResults(instance);
+      _hideError(instance);
+    }
+    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+      _addUserCreatedSlugFromString(instance, instance.$input.val());
+    }
+    instance._input_is_focused = false;
+    instance.onInputBlur();
+  };
+  var _onValueClick = function(instance, e) {
+    if (instance.disabled) return;
+    e.stopPropagation();
+    _showList(instance);
+    instance._prevent_blur = false;
+  };
+  var _onValueMousedown = function(instance, e) {
+    if (e.which === 1) instance._prevent_blur = true;
+  };
+  var _onTokenClick = function(instance, e) {
+    if (instance.disabled) return;
+    _removeSelected(instance, $(e.currentTarget));
+    instance._prevent_blur = false;
+  };
+  var _onTokenMousedown = function(instance, e) {
+    if (e.which === 1) instance._prevent_blur = true;
+  };
+  var _onListContainerMousedown = function(instance, e) {
+    if (e.which === 1) instance._prevent_blur = true;
+  };
+  var _onItemMousemove = function(instance, e) {
+    if (instance.disabled) return;
+    if (e.clientX == instance._mouse.lastX && e.clientY == instance._mouse.lastY) return;
+    var $el = $(e.currentTarget);
+    if (instance._$active) instance._$active.removeClass("active");
+    if (!$el.hasClass("active") && _selectable($el)) {
+      $el.addClass("active");
+      instance._$active = $el;
+    }
+    instance._mouse.lastX = e.clientX;
+    instance._mouse.lastY = e.clientY;
+  };
+  var _onActiveItemMouseleave = function(instance, e) {
+    $(e.currentTarget).removeClass("active");
+    instance._$active = null;
+  };
+  var _onItemClick = function(instance, e) {
+    if (instance.disabled) return;
+    e.preventDefault();
+    var $el = $(e.currentTarget);
+    instance._$active = $el;
+    var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $el));
+    if (should_unselect_item) {
+      _unselectItem(instance, $el);
+    } else {
+      var selectable = _selectable($el);
+      if (!selectable && !instance.single) return;
+      if (!_canAddNewItem(instance)) return;
+      if (!selectable && instance.single) {
+        _hideList(instance);
+        e.stopPropagation();
+        return;
+      }
+      _selectListItem(instance);
+      if (instance.$input.val() !== "") {
+        instance.$input.val("");
+        instance._previous_val = "";
+        _populate(instance);
+      }
+      if (instance.single) {
+        _hideList(instance);
+        e.stopPropagation();
+      }
+    }
+    instance._prevent_blur = false;
   };
 })();
 (function() {

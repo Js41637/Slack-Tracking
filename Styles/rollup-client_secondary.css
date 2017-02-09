@@ -683,7 +683,7 @@ input.search_input {
   transform: translateX(5px)
 }
 
-.flexpane_redesign #file_list_container .heading_text .btn_link {
+.flexpane_redesign #file_list_container .heading_text .btn_basic {
   display: inline-block;
   vertical-align: inherit
 }
@@ -1208,10 +1208,6 @@ input.search_input {
 
 .searchable_member_list_filter.loading:after {
   display: none
-}
-
-.searchable_member_list_filter_menu {
-  width: 335px
 }
 
 .searchable_member_list_filter_menu ul li a span {
@@ -1887,7 +1883,10 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select: none
+  user-select: none;
+  width: 100%;
+  text-align: left;
+  outline: 0
 }
 
 #details_tab .channel_page_section .section_header:hover {
@@ -1898,19 +1897,15 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
   color: #555459
 }
 
-#details_tab .channel_page_section .section_header a {
+#details_tab .channel_page_section .section_title {
   color: #555459;
-  position: relative;
-  top: -1px
-}
-
-#details_tab .channel_page_section .section_header a:focus,
-#details_tab .channel_page_section .section_header a:hover {
-  text-decoration: none
+  -webkit-transform: translateY(-1px);
+  -moz-transform: translateY(-1px);
+  -ms-transform: translateY(-1px);
+  transform: translateY(-1px)
 }
 
 #details_tab .channel_page_section .disclosure_triangle {
-  cursor: pointer;
   margin-right: -.3rem;
   text-align: right;
   color: #babbbf
@@ -2012,7 +2007,9 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
 
 #details_tab .edit_purpose {
   display: none;
-  vertical-align: bottom
+  vertical-align: bottom;
+  font-size: .8rem;
+  line-height: 1.5
 }
 
 #details_tab .channel_purpose_section:hover .edit_purpose {
@@ -2029,6 +2026,10 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
 
 .font_size_adjusted #details_tab .edit_notif_prefs_btn {
   white-space: normal
+}
+
+#details_tab .preference_dialog_btn {
+  vertical-align: bottom
 }
 
 #details_tab .restricted_members_count {
@@ -3208,6 +3209,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   margin-right: .3rem
 }
 
+.channels_list_holder ul li:hover .current_status:hover {
+  opacity: 1
+}
+
 .channels_list_holder ul li.mention:hover .group_close,
 .channels_list_holder ul li.mention:hover .im_close,
 .channels_list_holder ul li.mention:hover .mpim_close {
@@ -3216,6 +3221,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 
 .channels_list_holder ul li.mention:hover .current_status {
   margin-right: 0
+}
+
+.channels_list_holder ul li.mention:hover .current_status:hover {
+  opacity: 1
 }
 
 #channels_scroller.show_which_channel_is_active ul li.active .group_close,
@@ -13086,7 +13095,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   user-select: none;
   cursor: pointer;
   height: 1.4rem;
-  line-height: 1.4375rem
+  line-height: 1.4375rem;
+  vertical-align: baseline
 }
 
 .rxn.active,
@@ -13184,6 +13194,10 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 .rxn.menu_rxn:hover .ts_icon_add_reaction {
   opacity: 1;
   color: #C39A48
+}
+
+.rxn:focus {
+  outline: 0
 }
 
 #files_tab .rxn_panel .rxn {
@@ -19617,7 +19631,12 @@ ts-message .emoji-sizer .mention {
   -webkit-appearance: none;
   box-shadow: none;
   outline: 0;
-  resize: none!important
+  resize: none!important;
+  margin: 0 0 .5rem;
+  font-size: .9375rem;
+  line-height: 1.2rem;
+  height: 2.125rem;
+  color: #3d3c40
 }
 
 #message_edit_container form,
@@ -19646,15 +19665,6 @@ ts-message .emoji-sizer .mention {
   margin-right: .25rem
 }
 
-#message_edit_container form .message_input,
-.inline_message_input_container form .message_input {
-  margin: 0 0 .5rem;
-  font-size: .9375rem;
-  line-height: 1.2rem;
-  height: 2.125rem;
-  color: #3d3c40
-}
-
 #message_edit_container .message_input.has_scrollbar~.emo_menu,
 .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
   right: 2rem;
@@ -19675,6 +19685,36 @@ ts-message .emoji-sizer .mention {
 
 .dense_theme #message_edit_container form {
   margin-left: 5.5rem
+}
+
+#message_edit_container .message_input {
+  overflow: auto;
+  min-height: 2.5rem;
+  height: auto;
+  background: #fff;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  width: 100%;
+  border: 1px solid #d4d4d9;
+  border-radius: .25rem;
+  -webkit-appearance: none;
+  box-shadow: none;
+  outline: 0;
+  resize: none!important;
+  margin: 0 0 .5rem;
+  font-size: .9375rem;
+  line-height: 1.2rem;
+  color: #3d3c40
+}
+
+#message_edit_container .message_input.focus {
+  border-color: #2780f8;
+  box-shadow: 0 0 7px rgba(39, 128, 248, .15);
+  outline-offset: 0;
+  outline: 0
 }
 
 .inline_message_input_container {
