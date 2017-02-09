@@ -3,13 +3,13 @@
 {{#if collapse}}
   <div class="preview_show preview_show_more">
     <div class="preview_show_center">
-      <button class="preview_show_btn" data-file-id="{{file.id}}">
+      <button type="button" class="preview_show_btn" data-file-id="{{file.id}}">
         <i class="ts_icon ts_icon_plus_small"></i>{{#t}}Click to expand inline{{/t}}
         {{#if file.lines}}<span class="line_count">{{#t}}{file.lines, plural, =1 {# line} other {# lines}}{{/t}}</span>{{/if}}
       </button>
     </div>
   </div>
   <div class="preview_show preview_show_less">
-    <button class="preview_show_btn">{{#t}}Collapse<i class="ts_icon ts_icon_arrow_up_medium"></i>{{/t}}</button>
+    <button type="button" class="preview_show_btn">{{#t}}Collapse<i class="ts_icon ts_icon_arrow_up_medium"></i>{{/t}}</button>
   </div>
 {{/if}}

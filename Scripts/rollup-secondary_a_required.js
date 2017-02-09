@@ -319,7 +319,7 @@
     onStart: function() {
       TS.storage.onStart = function() {};
       if (TS.boot_data.page_has_incomplete_user_model) {
-        if (TS.boot_data.feature_flannel_fe) TS.log(1989, "Flannel: disabling member bot cache");
+        if (TS.lazyLoadMembersAndBots()) TS.log(1989, "Flannel: disabling member bot cache");
         TS.storage.disableMemberBotCache();
       }
       if (!TS.storage.do_compression && !TS.boot_data.feature_disable_ls_compression && TS.boot_data.feature_force_ls_compression) {
@@ -8311,6 +8311,9 @@ TS.registerModule("constants", {
       return Math.min(Math.max(mpim.members.length - 1, 2), 9);
     },
     upsertMpim: function(mpim_group) {
+      if (TS.boot_data.feature_tinyspeck && TS.isPartiallyBooted()) {
+        TS.console.logStackTrace("An mpim is being upserted during incremental boot, this could be a mistake!");
+      }
       var mpims = TS.model.mpims;
       var existing_mpim = TS.mpims.getMpimById(mpim_group.id);
       delete mpim_group.unread_count;
@@ -17228,7 +17231,7 @@ TS.registerModule("constants", {
     },
     hello: function(imsg) {},
     goodbye: function(imsg) {
-      if (!TS.boot_data.feature_flannel_fe) return;
+      if (!TS.lazyLoadMembersAndBots()) return;
       TS.info("Got a goodbye message, so disconnecting from the MS");
       TS.ms.disconnect();
     },

@@ -14679,6 +14679,7 @@
       isDisabled: function(e) {
         if (!TS.model.is_our_app) return true;
         if (window.loadSettings && window.loadSettings.devMode) return true;
+        if (e.altKey) return true;
         if (TS.client.activeChannelIsHidden()) return true;
         return false;
       },
@@ -23580,6 +23581,7 @@
   var _banner_was_visible = false;
   var _current_step_name = "";
   var _can_include_invite_cta = false;
+  var notifications_banner_seen = false;
   var _deferredCancel = function() {
     if (_user_onboarding) {
       _user_onboarding.finally(function() {
@@ -23652,8 +23654,14 @@
         promise.finally(function() {
           _in_onboarding = false;
           if (_banner_was_visible) {
-            TS.ui.banner.show();
             TS.client.ui.$banner.removeClass("hidden");
+            if (notifications_banner_seen === false) {
+              var banner_height = TS.client.ui.$banner.height();
+              var msgs_scroller_height = $("#msgs_scroller_div").height();
+              msgs_scroller_height = msgs_scroller_height - banner_height;
+              TS.client.ui.$msgs_scroller_div.css("height", msgs_scroller_height);
+              notifications_banner_seen = true;
+            }
           }
           if (promise.isCancelled()) return;
           TS.model.seen_welcome_2 = true;

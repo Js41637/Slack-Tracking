@@ -1593,12 +1593,6 @@
       });
       return Promise.join(channels_view_p, users_counts_p, function(channels_view_resp, users_counts_resp) {
         TS._incremental_boot = true;
-        if (TS.boot_data.user_id == "W1H63D57F") {
-          TS.info("Karine-only incremental boot debugging!");
-          TS.info("channels.view arguments: " + JSON.stringify(channels_view_args));
-          TS.info("channels.view response: " + JSON.stringify(channels_view_resp));
-          TS.info("users.counts response: " + JSON.stringify(users_counts_resp));
-        }
         var has_mpims = _.get(users_counts_resp, "data.mpims.length", 0) > 0 && !TS.qs_args["ignore_mpims"];
         if (!call_users_counts || has_mpims) {
           $("#col_channels").addClass("placeholder");
@@ -1606,6 +1600,13 @@
         var data = _assembleBootData(incremental_boot_data, channels_view_resp.data, has_mpims ? {} : users_counts_resp.data);
         if (call_users_counts) {
           data._incremental_boot_users_counts_resp = users_counts_resp;
+        }
+        if (TS.boot_data.feature_tinyspeck && _.get(data, "mpims.length") > 0) {
+          TS.info("Somehow we have mpims during increment boot, this should not happen!");
+          TS.info("channels.view arguments: " + JSON.stringify(channels_view_args));
+          TS.info("channels.view response: " + JSON.stringify(channels_view_resp));
+          TS.info("users.counts response: " + JSON.stringify(users_counts_resp));
+          TS.info("data.mpims " + JSON.stringify(data.mpims));
         }
         return {
           ok: true,

@@ -3738,6 +3738,16 @@ only screen and (min-resolution:2dppx) {
   font-size: 1.25rem
 }
 
+#col_channels ul li a.channel_name .ts_icon_angle_arrow_up_left,
+#col_channels ul li a.group_name .ts_icon_angle_arrow_up_left {
+  margin: 1px 2px 0 -2px
+}
+
+#col_channels ul li a.channel_name .ts_icon_angle_arrow_up_left:before,
+#col_channels ul li a.group_name .ts_icon_angle_arrow_up_left:before {
+  font-size: 1rem
+}
+
 #col_channels.prefs_open ul li .priority_icon {
   opacity: 1
 }
