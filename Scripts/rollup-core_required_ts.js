@@ -238,6 +238,7 @@
   var _console_module = window.TS && TS.console;
   var _features_module = window.TS && TS.features;
   var _guid = 0;
+  var _fully_booted_p;
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -478,6 +479,16 @@
     },
     isPartiallyBooted: function() {
       return !!(TS._incremental_boot || TS._did_incremental_boot && !TS._did_full_boot);
+    },
+    ensureFullyBooted: function() {
+      if (TS.model.ms_logged_in_once) {
+        return Promise.resolve();
+      }
+      if (_fully_booted_p) return _fully_booted_p;
+      _fully_booted_p = new Promise(function(resolve) {
+        TS.client.login_sig.addOnce(resolve);
+      });
+      return _fully_booted_p;
     },
     test: function() {
       return {

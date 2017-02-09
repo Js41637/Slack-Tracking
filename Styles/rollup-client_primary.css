@@ -2565,15 +2565,18 @@ svg.ts_icon_spinner svg {
   content: '\E508'
 }
 
+.ts_icon_presence_external_online:before,
 .ts_icon_presence_ra_online:before,
 .ts_icon_restricted_user:before {
   content: '\E509'
 }
 
+.ts_icon_presence_external_offline:before,
 .ts_icon_presence_ra_offline:before {
   content: '\E510'
 }
 
+.ts_icon_presence_external_dnd:before,
 .ts_icon_presence_ra_dnd:before {
   content: '\E511'
 }
@@ -2675,6 +2678,7 @@ svg.ts_icon_spinner svg {
   content: '\E535'
 }
 
+.ts_icon_presence_external_dnd_offline:before,
 .ts_icon_presence_ra_dnd_offline:before {
   content: '\E536'
 }
@@ -3973,18 +3977,22 @@ svg.ts_icon_spinner svg {
   content: '\E535'
 }
 
+.ts_icon_presence_external:before,
 .ts_icon_presence_ra:before {
   content: '\E509'
 }
 
+.away>.ts_icon_presence_external:before,
 .away>.ts_icon_presence_ra:before {
   content: '\E510'
 }
 
+.dnd>.ts_icon_presence_external:before,
 .dnd>.ts_icon_presence_ra:before {
   content: '\E511'
 }
 
+.dnd.away>.ts_icon_presence_external:before,
 .dnd.away>.ts_icon_presence_ra:before {
   content: '\E536'
 }

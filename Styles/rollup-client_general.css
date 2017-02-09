@@ -3961,7 +3961,8 @@ a.btn {
   appearance: none;
   font-size: inherit;
   font-weight: inherit;
-  line-height: inherit
+  line-height: inherit;
+  outline: 0
 }
 
 .btn_basic {
@@ -5286,9 +5287,11 @@ only screen and (min-resolution:2dppx) {
 
 .menu ul li.highlighted a .prefix,
 .menu ul li.highlighted a i,
+.menu ul li.highlighted a ts-icon,
 .menu ul li.highlighted a.delete_link,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a .prefix,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a i,
+.menu:not(.keyboard_active) ul li:hover:not(.disabled) a ts-icon,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a.delete_link {
   color: #fff
 }

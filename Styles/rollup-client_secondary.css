@@ -19509,6 +19509,10 @@ ts-message .emoji-sizer .mention {
   padding-right: .625rem
 }
 
+#convo_container ts-message {
+  padding-right: .625rem
+}
+
 .light_theme #convo_container ts-message .message_gutter {
   width: 3.5rem
 }
@@ -21360,11 +21364,16 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 .attachment_group .media_caret {
   color: #555459;
   font-size: .875rem;
-  font-weight: 400
+  font-weight: 400;
+  vertical-align: baseline
 }
 
 .star_item .attachment_group .media_caret {
   display: none
+}
+
+.attachment_group .media_caret:focus {
+  outline: 0
 }
 
 #message_preview_panel .attachment_group {
@@ -24063,6 +24072,14 @@ ts-jumper ts-jumper-results:empty {
 
 .team_menu.slack_menu .menu_list {
   margin: 0
+}
+
+.team_menu.slack_menu .menu_list .switch_team_link {
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: .5rem
 }
 
 .supports_custom_scrollbar .team_menu.slack_menu .menu_content {

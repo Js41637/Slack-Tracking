@@ -73,7 +73,7 @@
       _$trigger.closest("ts-message").toggleClass("active", args.open);
       _$trigger.toggleClass("active", args.open);
     } else {
-      _$trigger.closest("a.emo_menu").toggleClass("active", args.open);
+      _$trigger.closest(".emo_menu").toggleClass("active", args.open);
       _$trigger.closest(".handy_rxns_row").toggleClass("active", args.open);
       _$trigger.closest(".current_status_emoji_picker").toggleClass("active", args.open);
     }

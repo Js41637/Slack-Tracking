@@ -2021,9 +2021,17 @@
     };
     var ensureModelObs = function() {
       TS.log(528, 'running api data from "' + method + '" through TS.shared.ensureModelObsInDataArePresent()');
-      return TS.shared.ensureModelObsInDataArePresent(data, method).catch(function(err) {
-        TS.error(err);
-      });
+      if (TS.boot_data.feature_tinyspeck) {
+        return TS.ensureFullyBooted().then(function() {
+          return TS.shared.ensureModelObsInDataArePresent(data, method).catch(function(err) {
+            TS.error(err);
+          });
+        });
+      } else {
+        return TS.shared.ensureModelObsInDataArePresent(data, method).catch(function(err) {
+          TS.error(err);
+        });
+      }
     };
     var ensureTeams = function() {
       if (!TS.boot_data.feature_shared_channels_client) return;
@@ -10337,7 +10345,6 @@ TS.registerModule("constants", {
           return team;
         }
       }
-      TS.console.warn("team " + id + " not in local model");
       return null;
     },
     getTeamByMsg: function(msg) {
@@ -18459,24 +18466,17 @@ TS.registerModule("constants", {
     makeMemberPresenceIcon: function(member) {
       var presence_class = TS.templates.makeMemberPresenceDomClass(member.id);
       var presence_icon_class = "ts_icon_presence";
-      var guest_member = TS.utility.teams.isMemberGuest(member);
-      if (TS.boot_data.feature_shared_channels_client) {
-        if (guest_member) {
-          presence_class += " guest";
-          presence_icon_class = "ts_icon_presence_ra";
-        } else if (member.is_slackbot) {
-          presence_icon_class = "ts_icon_heart";
-        }
-      } else {
-        if (member.is_ultra_restricted) {
-          presence_class += " ura";
-          presence_icon_class = "ts_icon_presence_ura";
-        } else if (member.is_restricted) {
-          presence_class += " ra";
-          presence_icon_class = "ts_icon_presence_ra";
-        } else if (member.is_slackbot) {
-          presence_icon_class = "ts_icon_heart";
-        }
+      if (member.is_ultra_restricted) {
+        presence_class += " ura";
+        presence_icon_class = "ts_icon_presence_ura";
+      } else if (member.is_restricted) {
+        presence_class += " ra";
+        presence_icon_class = "ts_icon_presence_ra";
+      } else if (TS.utility.teams.isMemberExternal(member)) {
+        presence_class += " external";
+        presence_icon_class = "ts_icon_presence_external";
+      } else if (member.is_slackbot) {
+        presence_icon_class = "ts_icon_heart";
       }
       var presence_icon = '<i aria-hidden="true" class="ts_icon ' + presence_icon_class + ' presence_icon"></i>';
       var presence = TS.templates.makeMemberPresenceStateClass(member);
@@ -19257,7 +19257,7 @@ TS.registerModule("constants", {
       }
       do_inline_imgs = do_inline_imgs === true;
       enable_slack_action_links = enable_slack_action_links === true;
-      var channel, group, inviter, room;
+      var group, inviter, room;
       if ((msg._jl_rollup_hash || msg._jl_rolled_up_in) && _jl_rollup_limit_reached && (!msg._jl_rolled_up_in || msg._jl_rolled_up_in !== msg.ts)) {
         return html;
       } else {
@@ -19440,10 +19440,11 @@ TS.registerModule("constants", {
         } else {
           channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
+        var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
         if (inviter) {
           txt = TS.i18n.t("joined {channel_name} from an invitation by {inviter}", "templates_builders")({
             channel_name: channel_name,
-            inviter: "<@" + inviter.id + "|" + inviter.name + ">"
+            inviter: inviter_name_formatted
           });
           html = TS.format.formatNoHighlightsNoSpecials(txt, msg);
         } else {
@@ -19494,10 +19495,11 @@ TS.registerModule("constants", {
         group = model_ob;
         var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         inviter = TS.members.getMemberById(msg.inviter);
+        var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
         if (inviter) {
           txt = TS.i18n.t("joined {group_name} from an invitation by {inviter}", "templates_builders")({
             group_name: group_name,
-            inviter: "<@" + inviter.id + "|" + inviter.name + ">"
+            inviter: inviter_name_formatted
           });
           html = TS.format.formatNoHighlightsNoSpecials(txt, msg);
         } else {
@@ -19550,11 +19552,12 @@ TS.registerModule("constants", {
             });
           } else {
             var method = "TS.shared.closeArchivedChannel";
+            var group_id_quoted = "'" + group.id + "'";
             html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
               group_name: group_name,
               name_for_url: group.name,
               method: method,
-              group_id: "'" + group.id + "'"
+              group_id: group_id_quoted
             });
           }
         } else {
@@ -19570,6 +19573,9 @@ TS.registerModule("constants", {
         });
       } else if (msg.subtype == "channel_archive") {
         var channel_name;
+        var channel_id;
+        channel_id = model_ob.id;
+        var channel_id_quoted = "'" + channel_id + "'";
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
         } else if (model_ob) {
@@ -19577,17 +19583,45 @@ TS.registerModule("constants", {
         } else {
           channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        if (TS.client && model_ob && model_ob.is_archived) {
+        var name_for_url = model_ob.name;
+        if (TS.client && model_ob && model_ob.is_moved) {
+          var enterprise_name;
+          if (TS.model.enterprise) {
+            enterprise_name = TS.model.enterprise.name;
+          }
+          var mover;
+          var mover_name;
+          if (msg.user) {
+            mover = TS.members.getMemberById(msg.user);
+            mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
+          }
+          if (TS.model.archive_view_is_showing) {
+            html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+              channel_name: channel_name,
+              enterprise_name: enterprise_name,
+              mover_name: mover_name,
+              name_for_url: name_for_url
+            });
+          } else {
+            html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						If you need access to this channel going forward, please contact {mover_name}. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
+              channel_name: channel_name,
+              enterprise_name: enterprise_name,
+              mover_name: mover_name,
+              name_for_url: name_for_url,
+              channel_id: channel_id_quoted
+            });
+          }
+        } else if (TS.client && model_ob && model_ob.is_archived) {
           if (TS.model.archive_view_is_showing) {
             html = TS.i18n.t('archived {channel_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
               channel_name: channel_name,
-              name_for_url: model_ob.name
+              name_for_url: name_for_url
             });
           } else {
             html = TS.i18n.t('archived {channel_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
               channel_name: channel_name,
-              name_for_url: model_ob.name,
-              channel_id: "'" + channel.id + "'"
+              name_for_url: name_for_url,
+              channel_id: channel_id_quoted
             });
           }
         } else {
@@ -19786,10 +19820,11 @@ TS.registerModule("constants", {
           var tooltip_names = all_rxners_but_newest.map(function(member_id) {
             return TS.members.getMemberDisplayNameById(member_id, should_escape, include_at_sign);
           });
+          var final_count = total_count - 1;
           rxn_members = TS.i18n.t('{user} & <span class="ts_tip ts_tip_multiline ts_tip_lazy ts_tip_top" title="{names}">{count, plural, =1 {# other} other {# others}}</span>', "rxn")({
             user: TS.templates.builders.makeMemberPreviewLink(newest_member, true),
             names: TS.i18n.listify(tooltip_names).join(""),
-            count: total_count - 1
+            count: final_count
           });
         } else {
           rxn_members = TS.templates.builders.makeMemberPreviewLink(newest_member, true);
@@ -20978,8 +21013,9 @@ TS.registerModule("constants", {
       return external_filetype_html;
     },
     makeUnshareLink: function(channel_or_group, file) {
+      var channel_formatted = (channel_or_group.is_channel ? "#" : "") + channel_or_group.name;
       var title = TS.i18n.t("Unshare from {channel}", "templates_builders")({
-        channel: (channel_or_group.is_channel ? "#" : "") + channel_or_group.name
+        channel: channel_formatted
       });
       return '<a class="unshare_link ts_tip ts_tip_top ts_tip_float ts_tip_unshare_link" onclick="TS.files.promptForFileUnshare(\'' + file.id + "', '" + channel_or_group.id + '\')"><span class="ts_tip_tip">' + title + '</span><i class="ts_icon ts_icon_minus_circle_small"></i></a>';
     },
@@ -21218,8 +21254,9 @@ TS.registerModule("constants", {
       if (args.is_handy || args.is_poll && !args.count) {
         if (args.is_poll) return "Vote for “" + TS.utility.htmlEntities(handy_title || args.name) + "”";
         if (handy_title) return "Say “" + TS.utility.htmlEntities(handy_title) + "”";
+        var emoji_formatted = ":" + TS.utility.htmlEntities(args.name) + ":";
         return TS.i18n.t("Add reaction {emoji}", "rxn")({
-          emoji: ":" + TS.utility.htmlEntities(args.name) + ":"
+          emoji: emoji_formatted
         });
       }
       var should_escape = false;
@@ -21230,8 +21267,9 @@ TS.registerModule("constants", {
       } else if (handy_title) {
         subtitle = "said “" + TS.utility.htmlEntities(handy_title) + "”";
       } else {
+        var emoji_formatted = ":" + TS.utility.htmlEntities(args.name) + ":";
         subtitle = TS.i18n.t("reacted with {emoji}", "rxn")({
-          emoji: ":" + TS.utility.htmlEntities(args.name) + ":"
+          emoji: emoji_formatted
         });
       }
       if (!TS.emoji.isValidName(args.name)) subtitle += " " + TS.i18n.t("(emoji has been removed)", "rxn")();
@@ -24103,7 +24141,7 @@ TS.registerModule("constants", {
             caret_html = TS.templates.builders.buildInlineAttachmentToggler(attachment.from_url, msg_dom_id);
             break;
         }
-        caret_html = '<span class="media_caret">' + caret_html + "</span>";
+        caret_html = '<button type="button" class="btn_unstyle media_caret">' + caret_html + "</button>";
         return new Handlebars.SafeString(caret_html);
       });
       Handlebars.registerHelper("isMsgReply", function(options) {
@@ -30464,7 +30502,7 @@ TS.registerModule("constants", {
       _$trigger.addClass("active");
     } else {
       _callback = args.callback;
-      _$trigger.closest("a.emo_menu").addClass("active");
+      _$trigger.closest(".emo_menu").addClass("active");
       _$trigger.closest(".handy_rxns_row").addClass("active");
       _$trigger.closest(".current_status_emoji_picker").addClass("active");
     }
@@ -31220,7 +31258,7 @@ TS.registerModule("constants", {
     _$input.blur();
     _disabled_names.length = 0;
     _callback = null;
-    _$trigger.closest("a.emo_menu").removeClass("active");
+    _$trigger.closest(".emo_menu").removeClass("active");
     _$trigger.closest(".handy_rxns_row").removeClass("active");
     _$trigger.closest(".current_status_emoji_picker").removeClass("active");
     _$trigger.closest(".menu_rxn").removeClass("active");
@@ -43960,22 +43998,30 @@ var _on_esc;
       TS.channels.left_sig.add(_handleLeftChannelOrGroup);
       TS.groups.left_sig.add(_handleLeftChannelOrGroup);
     },
-    fetchPins: function(model_ob, callback) {
+    fetchPins: function(model_ob) {
       if (!model_ob) return;
       _are_pins_currently_being_fetched[model_ob.id] = true;
-      TS.api.call("pins.list", {
+      if (TS.isPartiallyBooted()) {
+        return new Promise(function(resolve) {
+          TS.ms.connected_sig.addOnce(function() {
+            resolve(TS.pins.fetchPins(model_ob));
+          });
+        });
+      }
+      return TS.api.call("pins.list", {
         channel: model_ob.id
-      }, function(ok, data, args) {
-        if (ok) {
-          var pinned_items = data.items;
-          TS.pins.upsertPinnedItems(pinned_items);
-          model_ob.pinned_items = pinned_items;
-          model_ob.has_pins = pinned_items.length > 0;
-          if (!model_ob.is_channel || model_ob.is_member) _have_pins_been_fetched[model_ob.id] = true;
-          TS.pins.pins_fetched_sig.dispatch(model_ob, pinned_items);
-        }
+      }).then(function(resp) {
+        var pinned_items = resp.data.items;
+        TS.pins.upsertPinnedItems(pinned_items);
+        model_ob.pinned_items = pinned_items;
+        model_ob.has_pins = pinned_items.length > 0;
+        if (!model_ob.is_channel || model_ob.is_member) _have_pins_been_fetched[model_ob.id] = true;
+        TS.pins.pins_fetched_sig.dispatch(model_ob, pinned_items);
+        return null;
+      }).catch(function(e) {
+        TS.logError("Failed to fetch pins for model ob: " + model_ob.id, e);
+      }).finally(function() {
         delete _are_pins_currently_being_fetched[model_ob.id];
-        if (callback) callback(ok, data, args);
       });
     },
     arePinsCurrentlyBeingFetched: function(model_ob) {

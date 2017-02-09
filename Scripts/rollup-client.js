@@ -9554,6 +9554,7 @@
           this_searchable_member_list._setupSearchInput();
           this_searchable_member_list._maybeSetupFilterInput();
         }
+        return null;
       });
     },
     _setupSearchInput: function() {
@@ -9942,7 +9943,7 @@
             eventuallyOnTextChange(source);
           },
           onPaste: function(delta) {
-            if (!TS.boot_data.feature_tinyspeck) return delta;
+            if (!TS.boot_data.feature_texty_rewrite_on_paste) return delta;
             return TS.format.texty.getFormattedDelta(delta);
           },
           attributes: {
@@ -35161,6 +35162,7 @@ function timezones_guess() {
   "use strict";
   TS.registerModule("client.unread", {
     switched_sig: new signals.Signal,
+    fetched_unreads_sig: new signals.Signal,
     new_messages_in_channels: [],
     messages_loaded: false,
     onStart: function() {
@@ -35924,6 +35926,7 @@ function timezones_guess() {
       TS.client.unread.debug("DONE FETCHING: Last group has no more messages");
       _channelConsistencyCheck();
     }
+    TS.client.unread.fetched_unreads_sig.dispatch(data);
     return processed_data;
   };
   var _sortAndDedupe = function(group, collection_key) {
@@ -36180,6 +36183,7 @@ function timezones_guess() {
     $unread_msgs_div: null,
     $container: null,
     unread_groups: [],
+    msgs_rendered_sig: new signals.Signal,
     showUnreadView: function() {
       TS.channels.renamed_sig.add(_onRename);
       TS.groups.renamed_sig.add(_onRename);
@@ -36330,6 +36334,7 @@ function timezones_guess() {
               _setUnreadPoint(msg_id, model_ob_id, $added_msg);
             }
           });
+          TS.client.ui.unread.msgs_rendered_sig.dispatch(changes);
         }
       };
       TS.ui.message_container.register(_msgs_config);
@@ -40713,7 +40718,9 @@ function timezones_guess() {
       _q.addToQ(function() {
         var $thread = _getElFromThread(thread);
         if (!$thread.length) return;
-        return TS.ui.thread.revealNewReplies($thread, thread);
+        return TS.ui.thread.revealNewReplies($thread, thread).then(function() {
+          TS.client.ui.checkInlineImgsAndIframes("threads");
+        });
       });
     },
     revealPreviousReplies: function(thread, messages_p) {
@@ -40721,7 +40728,9 @@ function timezones_guess() {
       if (messages_p.isPending()) TS.ui.thread.showThreadLoadingSpinner($thread);
       _q.addToQ(function() {
         if (!$thread.length) return;
-        return TS.ui.thread.revealPreviousReplies($thread, thread, messages_p);
+        return TS.ui.thread.revealPreviousReplies($thread, thread, messages_p).then(function() {
+          TS.client.ui.checkInlineImgsAndIframes("threads");
+        });
       });
     },
     maybeRedrawThread: function(thread) {
