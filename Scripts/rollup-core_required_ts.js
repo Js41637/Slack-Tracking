@@ -1591,6 +1591,9 @@
           channels_view_args.channel = last_active_model_ob;
         }
       }
+      if (TS.boot_data.feature_message_replies_ignore_on_history) {
+        channels_view_args.ignore_replies = true;
+      }
       _setIncrementalBootUIState(true);
       TS.model.change_channels_when_offline = false;
       var channels_view_p = TS.api.call("channels.view", channels_view_args);

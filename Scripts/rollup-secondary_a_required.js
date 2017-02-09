@@ -8815,6 +8815,9 @@ TS.registerModule("constants", {
           count: initial_count,
           inclusive: typeof model_ob.latest == "string"
         };
+        if (TS.boot_data.feature_message_replies_ignore_on_history) {
+          api_args.ignore_replies = true;
+        }
         if (latest_ts) {
           api_args.latest = latest_ts;
         }
@@ -14474,16 +14477,7 @@ TS.registerModule("constants", {
       TSSSB.call("inputFieldCreated", TS.search.input.get(0));
     },
     loggedIn: function() {
-      var experiment_group = _.get(TS.boot_data.experiment_assignments, "search_best_matches.group");
-      if (experiment_group == "sli_best_matches" || experiment_group == "best_matches") {
-        TS.search.sort = "timestamp";
-      } else {
-        var pref = TS.model.prefs.search_sort;
-        if (pref === "model" && !$("#search_sort_model").length) {
-          pref = "score";
-        }
-        TS.search.sort = pref == "score" || pref == "timestamp" || pref == "model" ? pref : TS.search.sort;
-      }
+      TS.search.sort = "timestamp";
     },
     startSearchTimer: function(query, count, callback) {
       clearTimeout(TS.search.submit_tim);
@@ -15058,12 +15052,7 @@ TS.registerModule("constants", {
       TS.search.input.closest("form").trigger("submit");
     },
     searchSessionExpired: function() {
-      var experiment_group = _.get(TS.boot_data.experiment_assignments, "search_best_matches.group");
-      if (experiment_group == "sli_best_matches" || experiment_group == "best_matches") {
-        return _last_search_time && Date.now() - _last_search_time > _max_session_time;
-      } else {
-        return false;
-      }
+      return _last_search_time && Date.now() - _last_search_time > _max_session_time;
     },
     debugQuery: function(team_id, user_id) {
       var uri = "/mc/search_eval_query.php" + "?team_id=" + team_id + "&user_id=" + user_id + "&query=" + encodeURIComponent(TS.search.query_string);
@@ -19548,14 +19537,14 @@ TS.registerModule("constants", {
           if (TS.model.archive_view_is_showing) {
             html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
               group_name: group_name,
-              name_for_url: group.name
+              name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
             });
           } else {
             var method = "TS.shared.closeArchivedChannel";
             var group_id_quoted = "'" + group.id + "'";
             html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
               group_name: group_name,
-              name_for_url: group.name,
+              name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name,
               method: method,
               group_id: group_id_quoted
             });
@@ -19573,9 +19562,7 @@ TS.registerModule("constants", {
         });
       } else if (msg.subtype == "channel_archive") {
         var channel_name;
-        var channel_id;
-        channel_id = model_ob.id;
-        var channel_id_quoted = "'" + channel_id + "'";
+        var channel_id_quoted = "'" + model_ob.id + "'";
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
         } else if (model_ob) {
@@ -19583,7 +19570,7 @@ TS.registerModule("constants", {
         } else {
           channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        var name_for_url = model_ob.name;
+        var name_for_url = TS.boot_data.feature_intl_channel_names ? model_ob.id : model_ob.name;
         if (TS.client && model_ob && model_ob.is_moved) {
           var enterprise_name;
           if (TS.model.enterprise) {
@@ -20445,9 +20432,10 @@ TS.registerModule("constants", {
       if (TS.model.shared_channels_enabled && channel.is_shared) {
         shared_icon = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
       }
-      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + channel.name + '"' : "";
+      var name_for_url = TS.boot_data.feature_intl_channel_names ? channel.id : channel.name;
+      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
       var prefix = TS.templates.builders.makeChannelPrefix(channel);
-      return '<a href="/archives/' + channel.name + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
+      return '<a href="/archives/' + name_for_url + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
     },
     makeChannelLinkAriaLabelSafe: function(channel) {
       if (!channel) TS.warn("No valid channel to make channel link aria label");
@@ -20466,11 +20454,12 @@ TS.registerModule("constants", {
     makeGroupLink: function(group, omit_prefix) {
       if (!group) return "ERROR: MISSING GROUP";
       var shared_icon = "";
+      var name_for_url = TS.boot_data.feature_intl_channel_names ? group.id : group.name;
       if (TS.model.shared_channels_enabled && group.is_shared) {
         shared_icon = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
       }
-      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + group.name + '"' : "";
-      return '<a href="/archives/' + group.name + '" ' + target + ' class="group_link" data-group-id="' + group.id + '">' + (omit_prefix ? "" : TS.model.group_prefix) + group.name + shared_icon + "</a>";
+      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
+      return '<a href="/archives/' + name_for_url + '" ' + target + ' class="group_link" data-group-id="' + group.id + '">' + (omit_prefix ? "" : TS.model.group_prefix) + group.name + shared_icon + "</a>";
     },
     makeGroupLinkAriaLabelSafe: function(group) {
       if (!group) TS.warn("No valid group to make private channel link aria label");
@@ -24200,6 +24189,7 @@ TS.registerModule("constants", {
     ones_digit_names: [TS.i18n.t("zero", "date_utilities")(), TS.i18n.t("one", "date_utilities")(), TS.i18n.t("two", "date_utilities")(), TS.i18n.t("three", "date_utilities")(), TS.i18n.t("four", "date_utilities")(), TS.i18n.t("five", "date_utilities")(), TS.i18n.t("six", "date_utilities")(), TS.i18n.t("seven", "date_utilities")(), TS.i18n.t("eight", "date_utilities")(), TS.i18n.t("nine", "date_utilities")(), TS.i18n.t("ten", "date_utilities")(), TS.i18n.t("eleven", "date_utilities")(), TS.i18n.t("twelve", "date_utilities")(), TS.i18n.t("thirteen", "date_utilities")(), TS.i18n.t("fourteen", "date_utilities")(), TS.i18n.t("fifteen", "date_utilities")(), TS.i18n.t("sixteen", "date_utilities")(), TS.i18n.t("seventeen", "date_utilities")(), TS.i18n.t("eighteen", "date_utilities")(), TS.i18n.t("nineteen", "date_utilities")()],
     tens_digit_names: [TS.i18n.t("twenty", "date_utilities")(), TS.i18n.t("thirty", "date_utilities")(), TS.i18n.t("forty", "date_utilities")(), TS.i18n.t("fifty", "date_utilities")(), TS.i18n.t("sixty", "date_utilities")(), TS.i18n.t("seventy", "date_utilities")(), TS.i18n.t("eighty", "date_utilities")(), TS.i18n.t("ninety", "date_utilities")()],
     ones_digit_ordinal_names: [TS.i18n.t("zeroth", "date_utilities")(), TS.i18n.t("first", "date_utilities")(), TS.i18n.t("second", "date_utilities")(), TS.i18n.t("third", "date_utilities")(), TS.i18n.t("fourth", "date_utilities")(), TS.i18n.t("fifth", "date_utilities")(), TS.i18n.t("sixth", "date_utilities")(), TS.i18n.t("seventh", "date_utilities")(), TS.i18n.t("eighth", "date_utilities")(), TS.i18n.t("ninth", "date_utilities")(), TS.i18n.t("tenth", "date_utilities")(), TS.i18n.t("eleventh", "date_utilities")(), TS.i18n.t("twelveth", "date_utilities")()],
+    fake_ts_unique_padder: "x",
     toDateObject: function(ts) {
       var date;
       if (ts && typeof ts === "string" && ts.indexOf("-") > -1) {
@@ -24779,38 +24769,34 @@ TS.registerModule("constants", {
     memberUTCOffset: function(member) {
       var tz_offset = _memberTzOffset(member);
       var hours_offset_from_utc = tz_offset / 60 / 60;
-      var html = "";
-      if (hours_offset_from_utc === 0) {
-        html += "(UTC)";
-      } else if (hours_offset_from_utc < 0) {
-        html += "(UTC" + hours_offset_from_utc + ")";
+      if (hours_offset_from_utc < 0) {
+        return "(UTC" + hours_offset_from_utc + ")";
       } else if (hours_offset_from_utc > 0) {
-        html += "(UTC+" + hours_offset_from_utc + ")";
+        return "(UTC+" + hours_offset_from_utc + ")";
       }
-      return html;
+      return "(UTC)";
     },
-    fake_ts_unique_padder: "x",
-    makeTsStamp: function(d, padder, unique_num) {
-      d = d || Date.now();
+    makeTsStamp: function(date, padder, unique_num) {
+      var unix_time;
+      var unique_str;
+      date = date || Date.now();
       padder = padder || TS.utility.date.fake_ts_unique_padder;
       unique_num = unique_num === undefined || unique_num === null ? _getNewFakeTsUniquePart() : unique_num;
-      var unixtime = Math.floor(d / 1e3).toString();
-      var unique_str = _.padStart(unique_num, 6, padder);
-      return unixtime + "." + unique_str;
+      unix_time = Math.floor(date / 1e3).toString();
+      unique_str = _.padStart(unique_num, 6, padder);
+      return unix_time + "." + unique_str;
     },
     sameDay: function(date_a, date_b) {
-      return date_a.getFullYear() == date_b.getFullYear() && date_a.getMonth() == date_b.getMonth() && date_a.getDate() == date_b.getDate();
+      return date_a.getFullYear() === date_b.getFullYear() && date_a.getMonth() === date_b.getMonth() && date_a.getDate() === date_b.getDate();
     },
     sameHour: function(date_a, date_b) {
-      return date_a.getFullYear() == date_b.getFullYear() && date_a.getMonth() == date_b.getMonth() && date_a.getDate() == date_b.getDate() && date_a.getHours() == date_b.getHours();
+      return date_a.getFullYear() === date_b.getFullYear() && date_a.getMonth() === date_b.getMonth() && date_a.getDate() === date_b.getDate() && date_a.getHours() === date_b.getHours();
     },
     distanceInSeconds: function(date_a, date_b) {
-      var diff_in_seconds = Math.round(date_a.getTime() / 1e3) - Math.round(date_b.getTime() / 1e3);
-      return diff_in_seconds;
+      return Math.round(date_a.getTime() / 1e3) - Math.round(date_b.getTime() / 1e3);
     },
     distanceInMinutes: function(date_a, date_b) {
-      var diff_in_mins = TS.utility.date.distanceInSeconds(date_a, date_b) / 60;
-      return diff_in_mins;
+      return TS.utility.date.distanceInSeconds(date_a, date_b) / 60;
     },
     isToday: function(date_a) {
       var today = new Date;
@@ -24825,14 +24811,12 @@ TS.registerModule("constants", {
     getNextActivityDayStamp: function(day_stamp) {
       var date = TS.utility.date.toDateObject(day_stamp);
       var next_date = new Date(date.getTime() + 864e5);
-      var new_stamp = next_date.getFullYear() + "-" + _.padStart(next_date.getMonth() + 1, 2, "0") + "-" + _.padStart(next_date.getDate(), 2, "0");
-      return new_stamp;
+      return next_date.getFullYear() + "-" + _.padStart(next_date.getMonth() + 1, 2, "0") + "-" + _.padStart(next_date.getDate(), 2, "0");
     },
     getPrevActivityDayStamp: function(day_stamp) {
       var date = TS.utility.date.toDateObject(day_stamp);
       var next_date = new Date(date.getTime() - 864e5);
-      var new_stamp = next_date.getFullYear() + "-" + _.padStart(next_date.getMonth() + 1, 2, "0") + "-" + _.padStart(next_date.getDate(), 2, "0");
-      return new_stamp;
+      return next_date.getFullYear() + "-" + _.padStart(next_date.getMonth() + 1, 2, "0") + "-" + _.padStart(next_date.getDate(), 2, "0");
     },
     toTimeWords: function(ts, ampm, seconds) {
       var date = TS.utility.date.toDateObject(ts);
@@ -25068,7 +25052,9 @@ TS.registerModule("constants", {
   };
   var _getNewFakeTsUniquePart = function() {
     _fake_ts_unique_incrementer++;
-    if (_fake_ts_unique_incrementer >= 1e5) _fake_ts_unique_incrementer = 1;
+    if (_fake_ts_unique_incrementer >= 1e5) {
+      _fake_ts_unique_incrementer = 1;
+    }
     return _fake_ts_unique_incrementer;
   };
   var _calculateLocalTime = function(date, tz_offset) {
@@ -26370,6 +26356,8 @@ TS.registerModule("constants", {
       if (!model_ob) return "";
       var permalink;
       if (model_ob.is_im || model_ob.is_mpim) {
+        permalink = "/archives/" + model_ob.id + "/p" + ts.replace(".", "");
+      } else if (TS.boot_data.feature_intl_channel_names && (model_ob.is_channel || model_ob.is_group)) {
         permalink = "/archives/" + model_ob.id + "/p" + ts.replace(".", "");
       } else {
         permalink = "/archives/" + model_ob.name + "/p" + ts.replace(".", "");
@@ -29852,11 +29840,12 @@ TS.registerModule("constants", {
     var id = partsA[0];
     var channel = TS.channels.getChannelById(id);
     if (channel) {
+      var name_for_url = TS.boot_data.feature_intl_channel_names ? channel.id : channel.name;
       if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
         return "#" + channel.name;
       } else {
-        var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + channel.name + '"' : "";
-        return '<a href="/archives/' + channel.name + '" ' + target + ' data-channel-name="' + channel.name + '" data-channel-id="' + channel.id + '" class="internal_channel_link">#' + channel.name + "</a>";
+        var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
+        return '<a href="/archives/' + name_for_url + '" ' + target + ' data-channel-name="' + channel.name + '" data-channel-id="' + channel.id + '" class="internal_channel_link">#' + channel.name + "</a>";
       }
     }
     if (partsA.length > 1 && partsA[1]) {
@@ -35289,14 +35278,8 @@ var _on_esc;
     runCommand: function(cmd, rest, words, in_reply_to_msg, model_ob) {
       if (!TS.cmd_handlers[cmd]) return;
       if (TS.boot_data.feature_threads_slash_cmds && in_reply_to_msg) {
-        var is_cmd_supported_in_threads = cmd && _.includes(_SUPPORTED_THREAD_CMDS, cmd);
-        if (!is_cmd_supported_in_threads) {
-          var error_text = TS.i18n.t("*{cmd}* is not supported in threads. Sorry!", "threads")({
-            cmd: cmd
-          });
-          var input_text = cmd + " " + rest;
-          var slackbot_feels = "sad_surprise";
-          TS.cmd_handlers.addTempEphemeralFeedback(error_text, input_text, slackbot_feels, model_ob.id, in_reply_to_msg.ts);
+        if (!TS.cmd_handlers.isCmdSupportedInThreads(cmd)) {
+          TS.cmd_handlers.sendCmdNotSupportedInThreadsMsg(cmd, rest, in_reply_to_msg, model_ob);
           return;
         }
       }
@@ -35304,6 +35287,24 @@ var _on_esc;
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", TS.model.last_active_cid);
       }
       TS.cmd_handlers[cmd].func(cmd, rest, words, in_reply_to_msg, model_ob);
+    },
+    isCmdSupportedInThreads: function(cmd) {
+      return cmd && _.includes(_SUPPORTED_THREAD_CMDS, cmd);
+    },
+    sendCmdNotSupportedInThreadsMsg: function(cmd, rest, in_reply_to_msg, model_ob) {
+      var error_text;
+      if (TS.cmd_handlers[cmd]) {
+        error_text = TS.i18n.t("*{cmd}* is not supported in threads. Sorry!", "threads")({
+          cmd: cmd
+        });
+      } else {
+        error_text = TS.i18n.t("*{cmd}* is not a valid command.", "threads")({
+          cmd: cmd
+        });
+      }
+      var input_text = cmd + " " + rest;
+      var slackbot_feels = "sad_surprise";
+      TS.cmd_handlers.addTempEphemeralFeedback(error_text, input_text, slackbot_feels, model_ob.id, in_reply_to_msg.ts);
     },
     "/away": {
       type: "client",
@@ -35803,18 +35804,25 @@ var _on_esc;
       autocomplete: true,
       alias_of: null,
       desc: TS.i18n.t("Stars the current channel or conversation", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg) {
-        TS.stars.toggleStarOnActiveModelObject(function(model_ob) {
-          if (model_ob.is_starred) {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Ok, I starred {channel}", "cmd_handlers")({
-              channel: model_ob.name
-            }));
-          } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Ok, {channel} is unstarred", "cmd_handlers")({
-              channel: model_ob.name
-            }));
-          }
-        });
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+        if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+          TS.stars.toggleStarOnMsg(in_reply_to_msg.ts, model_ob, function() {
+            var feedback = in_reply_to_msg.is_starred ? TS.i18n.t("Ok, I starred this thread", "cmd_handlers")() : TS.i18n.t("Ok, I unstarred this thread", "cmd_handlers")();
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback, null, null, model_ob.id, in_reply_to_msg.ts);
+          });
+        } else {
+          TS.stars.toggleStarOnActiveModelObject(function(model_ob) {
+            if (model_ob.is_starred) {
+              TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Ok, I starred {channel}", "cmd_handlers")({
+                channel: model_ob.name
+              }));
+            } else {
+              TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Ok, {channel} is unstarred", "cmd_handlers")({
+                channel: model_ob.name
+              }));
+            }
+          });
+        }
       }
     },
     "/close": {
@@ -35973,7 +35981,7 @@ var _on_esc;
       alias_of: null,
       aliases: ["/colours"],
       desc: TS.i18n.t("View any custom colors you have set for other members", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         var members = TS.members.getMembersForUser();
         var member;
         var str = "";
@@ -35983,7 +35991,12 @@ var _on_esc;
             str += member.name + ": " + member.member_color + "\n";
           }
         }
-        TS.cmd_handlers.addEphemeralFeedback(str ? TS.i18n.t("You have overridden colors as follows:", "cmd_handlers")() + "\n" + str : TS.i18n.t("No user color overrides have been set.", "cmd_handlers")());
+        var feedback_text = str ? TS.i18n.t("You have overridden colors as follows:", "cmd_handlers")() + "\n" + str : TS.i18n.t("No user color overrides have been set.", "cmd_handlers")();
+        if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+          TS.cmd_handlers.addEphemeralFeedback(feedback_text, null, null, model_ob.id, in_reply_to_msg.ts);
+        } else {
+          TS.cmd_handlers.addEphemeralFeedback(feedback_text);
+        }
       }
     },
     "/colours": {
@@ -35992,8 +36005,8 @@ var _on_esc;
       alias_of: "/colors",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, in_reply_to_msg) {
-        TS.cmd_handlers["/colors"].func(cmd, rest, words);
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
+        TS.cmd_handlers["/colors"].func(cmd, rest, words, in_reply_to_msg, model_ob);
       }
     },
     "/color": {
@@ -36002,9 +36015,11 @@ var _on_esc;
       alias_of: null,
       aliases: ["/colour"],
       desc: TS.i18n.t("Set a custom color for another member", "cmd_handlers")(),
-      func: function(cmd, rest, words, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         var name = words.length > 1 ? words[1] : "";
         var color = words.length > 2 ? words[2].replace(/\#/g, "") : "";
+        var feedback_text;
+        var input_text = cmd + " " + rest;
         var m;
         if (TS.boot_data.feature_name_tagging_client_extras) {
           m = TS.members.getMemberById(name);
@@ -36012,7 +36027,12 @@ var _on_esc;
           m = TS.members.getMemberByName(name);
         }
         if (!m) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid team member name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
+          feedback_text = TS.i18n.t("A valid team member name is required.", "cmd_handlers")();
+          if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise", model_ob.id, in_reply_to_msg.ts);
+          } else {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, "sad_surprise");
+          }
           return;
         }
         var member_identifier;
@@ -36024,7 +36044,12 @@ var _on_esc;
           }
         }
         if (color && (color.length != 6 || !("#" + color).match(TS.format.hex_rx))) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid 6 character hex code is required, like `FF0000`.", "cmd_handlers")(), cmd + " " + rest);
+          feedback_text = TS.i18n.t("A valid 6 character hex code is required, like `FF0000`.", "cmd_handlers")();
+          if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, null, model_ob.id, in_reply_to_msg.ts);
+          } else {
+            TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text);
+          }
           return;
         }
         TS.members.setMemberUserColor(m, color);
@@ -36034,14 +36059,19 @@ var _on_esc;
           value: TS.model.prefs.user_colors
         });
         if (color) {
-          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You’ve set your custom color for {user} to {color}", "cmd_handlers")({
+          feedback_text = TS.i18n.t("You’ve set your custom color for {user} to {color}", "cmd_handlers")({
             user: member_identifier,
             color: "#" + color
-          }));
+          });
         } else {
-          TS.cmd_handlers.addEphemeralFeedback(TS.i18n.t("You’ve removed your custom color for {user}.", "cmd_handlers")({
+          feedback_text = TS.i18n.t("You’ve removed your custom color for {user}.", "cmd_handlers")({
             user: member_identifier
-          }));
+          });
+        }
+        if (TS.boot_data.feature_threads_slash_cmds && model_ob && in_reply_to_msg) {
+          TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text, null, model_ob.id, in_reply_to_msg.ts);
+        } else {
+          TS.cmd_handlers.addTempEphemeralFeedback(feedback_text, input_text);
         }
       }
     },
@@ -36051,7 +36081,7 @@ var _on_esc;
       alias_of: "/color",
       aliases: null,
       desc: "",
-      func: function(cmd, rest, words, in_reply_to_msg) {
+      func: function(cmd, rest, words, in_reply_to_msg, model_ob) {
         TS.cmd_handlers["/color"].func(cmd, rest, words);
       }
     },
@@ -36523,7 +36553,7 @@ var _on_esc;
       }
     }
   });
-  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/open", "/toggle_debugging_prefs", "/away", "/search", "/togglethemes", "/feedback", "/slack_diagnostic_report", "/dnd", "/remind", "/msg", "/dm", "/s", "/editlast", "/deletelast"];
+  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/open", "/toggle_debugging_prefs", "/away", "/search", "/togglethemes", "/feedback", "/slack_diagnostic_report", "/msg", "/dm", "/s", "/editlast", "/deletelast", "/star", "/beep", "/colors", "/colours", "/color", "/colour", "/active"];
   var _setCommands = function(commands, cache_ts) {
     TS.model.commands_cache_ts = cache_ts;
     TS.storage.storeCmds({
@@ -37025,6 +37055,24 @@ var _on_esc;
     updateFileStar: function(file_id, starred) {
       _updateFileStar(file_id, starred);
     },
+    toggleStarOnMsg: function(ts, model_ob, callback) {
+      if (!ts || !model_ob) return;
+      var msg = TS.utility.msgs.findMsg(ts, model_ob.id);
+      if (!msg) return;
+      var api_args = {
+        channel: model_ob.id,
+        timestamp: ts
+      };
+      var api_method = msg.is_starred ? "stars.remove" : "stars.add";
+      TS.api.call(api_method, api_args, function(ok, data, args) {
+        if (ok) {
+          if (callback) callback(model_ob);
+          return;
+        } else if (data.error) {
+          TS.error(data.error);
+        }
+      });
+    },
     toggleStarOnActiveModelObject: function(callback) {
       var model_ob = TS.shared.getActiveModelOb();
       if (!model_ob || TS.client.activeChannelIsHidden()) return;
@@ -37146,7 +37194,11 @@ var _on_esc;
     var model_ob = TS.shared.getModelObById(c_id);
     var msg;
     if (model_ob) {
-      msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
+      if (TS.boot_data.feature_threads_slash_cmds) {
+        msg = TS.utility.msgs.findMsg(ts, c_id);
+      } else {
+        msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
+      }
     }
     var selector = '.star_message[data-msg-id="' + ts + '"][data-c-id="' + c_id + '"]';
     var $el = $(selector);

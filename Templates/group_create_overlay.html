@@ -15,7 +15,7 @@
       {{#if group.is_shared}}
         <span class="channel_overlay_title_prefix">{{groupPrefix}}</span><strong>{{group.name}}</strong>
       {{else}}
-        {{#t}}<span class="channel_overlay_title_opener">You just created</span><br /> <span class="channel_overlay_title_prefix">{groupPrefix}</span><strong>{group.name}</strong>{{/t}}
+        {{#t group_prefix=(groupPrefix)}}<span class="channel_overlay_title_opener">You just created</span><br /> <span class="channel_overlay_title_prefix">{group_prefix}</span><strong>{group.name}</strong>{{/t}}
       {{/if}}
     </p>
   </div>
@@ -26,7 +26,7 @@
       <li>{{#t}}You are currently the only person in this private channel.{{/t}}</li>
     {{/if_gt}}
     <li>{{#t}}You can invite other people from the channel menu, which you'll find at the top of this column.{{/t}}</li>
-    <li>{{#t}}You can review messages from this channel in the <a href="/archives/{group.name}" class="bold" target={newWindowName}>Channel Archive</a>.{{/t}}</li>
+    <li>{{#t new_win_name=(newWindowName)}}You can review messages from this channel in the <a href="/archives/{name_for_url}" class="bold" target={new_win_name}>Channel Archive</a>.{{/t}}</li>
   </ul>
   {{#if group.purpose.value}}
     <p class="channel_overlay_purpose">{{#t purpose=(formatTopicOrPurpose group.purpose.value)}}The purpose of this channel is:<br /><em>{purpose}{{/t}}</em></p>

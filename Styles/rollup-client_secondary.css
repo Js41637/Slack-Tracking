@@ -21365,7 +21365,8 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   color: #555459;
   font-size: .875rem;
   font-weight: 400;
-  vertical-align: baseline
+  vertical-align: baseline;
+  text-align: left
 }
 
 .star_item .attachment_group .media_caret {

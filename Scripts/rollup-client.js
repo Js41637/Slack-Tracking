@@ -240,6 +240,8 @@
       }
       if (TS.boot_data.feature_name_tagging_client && (model_ob.is_im || model_ob.is_mpim)) {
         c_name = model_ob.id;
+      } else if (TS.boot_data.feature_intl_channel_names && (model_ob.is_channel || model_ob.is_group)) {
+        c_name = model_ob.id;
       } else if (model_ob.is_im) {
         c_name = "@" + model_ob.name;
       } else {
@@ -6325,6 +6327,12 @@
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", model_ob.id);
         TS.utility.msgs.tryToEditLastMsgFromShortcut(edit_last_shortcut);
       } else {
+        if (TS.boot_data.feature_threads_slash_cmds && in_reply_to_msg) {
+          if (!TS.cmd_handlers.isCmdSupportedInThreads(args.cmd)) {
+            TS.cmd_handlers.sendCmdNotSupportedInThreadsMsg(args.cmd, args.rest, in_reply_to_msg, model_ob);
+            return;
+          }
+        }
         if (args.cmd == "/me" && TS.model.prefs.convert_emoticons && TS.model.prefs.emoji_mode != "as_text") {
           args.rest = TS.format.doEmoticonConversion(args.rest);
         }
@@ -7678,6 +7686,9 @@
       }
       if (msgs && msgs.length) {
         var model_ob = TS.shared.getActiveModelOb();
+        if (TS.boot_data.feature_threads_slash_cmds) {
+          model_ob = TS.shared.getModelObById(c_id);
+        }
         var existing_msg = msgs[0];
         if (TS.boot_data.feature_texty) {
           existing_msg.text = TS.format.cleanInternalMsg(ob.text);
@@ -12913,7 +12924,11 @@
               var parent_group = TS.groups.getGroupById(model_ob.parent_group);
               if (parent_group) {
                 $("#group_meta_archived_parent").removeClass("hidden");
-                $("#group_meta_archived_parent_link").attr("href", "/archives/" + parent_group.name).text(parent_group.name);
+                if (TS.boot_data.feature_intl_channel_names) {
+                  $("#group_meta_archived_parent_link").attr("href", "/archives/" + parent_group.id).text(parent_group.name);
+                } else {
+                  $("#group_meta_archived_parent_link").attr("href", "/archives/" + parent_group.name).text(parent_group.name);
+                }
               }
             }
             $("#group_create_date").html(on_date);
@@ -15033,8 +15048,7 @@
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
         }
-        var top_results_group = TS.experiment.getGroup("search_best_matches");
-        show_top_results = (top_results_group == "best_matches" || top_results_group == "sli_best_matches") && TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
+        show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
         if (show_top_results) {
           var debug = results.messages.modules.score.debug || {};
           html += TS.templates.search_top_results_message_results({
@@ -21921,7 +21935,8 @@
       _start();
       _show_another_interstitial_after = true;
       var template_args = {
-        channel: channel
+        channel: channel,
+        name_for_url: TS.boot_data.feature_intl_channel_names ? channel.id : channel.name
       };
       if (TS.boot_data.page_needs_enterprise && channel.is_shared && TS.boot_data.feature_thin_shares) {
         if (channel.is_global_shared) {
@@ -21962,7 +21977,8 @@
       _start();
       _show_another_interstitial_after = true;
       _$msgs_overlay.html(TS.templates.group_create_overlay({
-        group: group
+        group: group,
+        name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
       }));
       $(window).trigger("resize");
       _performCancel = function(e) {
@@ -27496,12 +27512,16 @@
   };
   var _scrollToHistoryMsg = function(min_ts, model_ob) {
     var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
-    TS.api.call(api_method, {
+    var api_args = {
       channel: model_ob.id,
       oldest: min_ts,
       count: 1,
       inclusive: 1
-    }).then(function(response) {
+    };
+    if (TS.boot_data.feature_message_replies_ignore_on_history) {
+      api_args.ignore_replies = true;
+    }
+    TS.api.call(api_method, api_args).then(function(response) {
       var msg_id;
       if (response.data.messages.length < 1) {
         msg_id = model_ob._archive_msgs[0].ts;
@@ -38027,6 +38047,9 @@ function timezones_guess() {
         if (new_msg.ts in TS.model.display_unsent_msgs) return true;
         var old_edited = old_msg.edited;
         var new_edited = new_msg.edited;
+        if (TS.boot_data.feature_threads_slash_cmds) {
+          if (old_msg.is_ephemeral && old_msg.text !== new_msg.text) return true;
+        }
         return !_.isEqual(old_edited, new_edited) || !_.isEqual(old_msg.reply_count, new_msg.reply_count);
       };
     }
@@ -38534,7 +38557,8 @@ function timezones_guess() {
         change: function() {
           selected_date = $(this).pickmeup("get_date");
           var timestamp = Date.parse(selected_date) * 1e3;
-          var path = model_ob.is_mpim ? TS.mpims.getMpimArchivesPath(model_ob) : "/archives/" + model_ob.name;
+          var name_for_url = TS.boot_data.feature_intl_channel_names ? model_ob.id : model_ob.name;
+          var path = model_ob.is_mpim ? TS.mpims.getMpimArchivesPath(model_ob) : "/archives/" + name_for_url;
           window.location = path + "/s" + timestamp;
         }
       });
@@ -38620,12 +38644,16 @@ function timezones_guess() {
     }
     var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
     return new Promise(function(resolve, reject) {
-      TS.api.call(api_method, {
+      var api_args = {
         channel: model_ob.id,
         oldest: timestamp,
         count: fetch_count,
         inclusive: 1
-      }).then(function(response) {
+      };
+      if (TS.boot_data.feature_message_replies_ignore_on_history) {
+        api_args.ignore_replies = true;
+      }
+      TS.api.call(api_method, api_args).then(function(response) {
         if (!response || !response.data || response.data.messages.length === 0) {
           if (model_ob._archive_msgs && model_ob._archive_msgs.length > 0) {
             resolve(model_ob._archive_msgs[0]);
