@@ -30,9 +30,9 @@
             {{/feature}}
             {{#feature flag="feature_user_custom_status"}}
               {{#if this.model_ob.profile}}
-                {{#if this.model_ob.profile.status_text}}
-                  <span class="current_status">{{getMemberCurrentStatusEmoji this.model_ob}} {{ getMemberCurrentStatusText this.model_ob}}</span>
-                {{/if}}
+                {{#or this.model_ob.profile.status_emoji this.model_ob.profile.status_text}}
+                  <span class="current_status">{{getMemberCurrentStatusForDisplay this.model_ob}}</span>
+                {{/or}}
               {{/if}}
             {{/feature}}
           {{else if this.model_ob.is_view}}
