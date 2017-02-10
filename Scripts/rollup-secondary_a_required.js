@@ -10015,24 +10015,20 @@ TS.registerModule("constants", {
       var ncc = 1701;
       if (TS.pri) TS.log(ncc, "isRelevantTeamForSharedModelOb(): " + model_ob.id);
       if (TS.boot_data.feature_thin_shares) {
-        if (model_ob.is_global_shared) {
+        if (model_ob.is_im || model_ob.is_global_shared) {
           enterprise_team_ids = _.map(TS.model.enterprise_teams, "id");
         } else {
           enterprise_team_ids = model_ob.shared_team_ids;
         }
       } else {
         if (model_ob.shares) {
-          enterprise_team_ids = _.map(model_ob.shares, function(item) {
-            return item.id;
-          });
+          enterprise_team_ids = _.map(model_ob.shares, "id");
           if (enterprise_team_ids.indexOf(TS.model.team.id) === -1) {
             TS.console.warn('error, TS.model.team.id of "' + TS.model.team.id + '" is not in enterprise_team_ids from model_ob.shares on ' + model_ob.id + "?", model_ob.shares);
           }
         } else {
           if (TS.pri) TS.log(ncc, "no model_ob.shares on " + model_ob.id + ", model ob is " + (!model_ob.is_org_shared ? "NOT " : "") + "org_shared");
-          enterprise_team_ids = _.map(TS.model.enterprise_teams, function(item) {
-            return item.id;
-          });
+          enterprise_team_ids = _.map(TS.model.enterprise_teams, "id");
         }
       }
       if (!enterprise_team_ids) {
@@ -10046,7 +10042,6 @@ TS.registerModule("constants", {
         most_relevant_team_id = relevant_team_ids[0];
         if (TS.pri) TS.log(ncc, "Array case - taking the first relevant team id", most_relevant_team_id, relevant_team_ids);
       } else {
-        if (TS.pri) TS.log(ncc, "WTF relevant_team_ids is not an array, OR, is empty?", relevant_team_ids);
         if (TS.pri) TS.log(ncc, "relevant_team_ids is not an array, OR, is empty?", relevant_team_ids);
         if (enterprise_team_ids && enterprise_team_ids.length) {
           if (TS.pri) TS.log(ncc, "we have enterprise_team_ids, looking there and taking the first item.", enterprise_team_ids);
@@ -38670,8 +38665,11 @@ var _on_esc;
             } else {
               if (args.shiftKey) return true;
             }
-            if (!TS.client.ui.cal_key_checker.prevent_enter) TS.msg_edit.checkAndSubmit(input, form);
+            TS.msg_edit.checkAndSubmit(input, form);
             return false;
+          },
+          onEscape: function() {
+            if (!TS.model.menu_is_showing && !TS.model.dialog_is_showing) setTimeout(TS.msg_edit.onCancelEdit, 0);
           },
           onTextChange: function(source) {
             TS.msg_edit.checkLengthAndUpdateMessage(input);
@@ -38818,13 +38816,13 @@ var _on_esc;
         }).autosize({
           boxOffset: 18
         });
+        $("body").bind("keydown.close_message_edit_form", function(e) {
+          if (e.which == TS.utility.keymap.esc) {
+            if (input.tab_complete_ui("isShowing") || input.tab_complete_ui("wasJustHidden")) return;
+            if (!TS.model.menu_is_showing && !TS.model.dialog_is_showing) setTimeout(TS.msg_edit.onCancelEdit, 0);
+          }
+        });
       }
-      $("body").bind("keydown.close_message_edit_form", function(e) {
-        if (e.which == TS.utility.keymap.esc) {
-          if (input.tab_complete_ui("isShowing") || input.tab_complete_ui("wasJustHidden")) return;
-          if (!TS.model.menu_is_showing && !TS.model.dialog_is_showing) setTimeout(TS.msg_edit.onCancelEdit, 0);
-        }
-      });
       form.find("#commit_edit").bind("click", function() {
         TS.msg_edit.checkAndSubmit(input, form);
       });
@@ -38929,7 +38927,9 @@ var _on_esc;
       }
       TS.msg_edit.getDivBeingEdited().removeClass("hidden");
       $("#message_edit_container").remove();
-      $("body").unbind("keydown.close_message_edit_form");
+      if (!TS.boot_data.feature_texty_takes_over) {
+        $("body").unbind("keydown.close_message_edit_form");
+      }
     },
     getDivBeingEdited: function() {
       if (TS.msg_edit.editing_in_msg_pane) return TS.msg_edit.getDivForMsgInMsgPane(TS.msg_edit.current_msg.ts);
@@ -53470,7 +53470,7 @@ $.fn.togglify = function(settings) {
   });
   var _ERROR_MESSAGES = {
     empty: TS.i18n.t("Please fill in your email.", "email_utility"),
-    invalid: TS.i18n.t("Sorry, but your email is invalid.", "email_utility"),
+    invalid: TS.i18n.t("Sorry, but that email is invalid.", "email_utility"),
     too_many: TS.i18n.t("Please make your list shorter — we can check up to {max_addresses} addresses at a time.", "email_utility"),
     invalid_domain: TS.i18n.t("Sorry, but that isn’t a valid email domain.", "email_utility")
   };
@@ -57837,7 +57837,7 @@ $.fn.togglify = function(settings) {
             creator_display: creator.real_name ? creator.real_name : creator.name,
             date_created: private_channel.created,
             id: private_channel.id,
-            member_count: private_channel.members.length,
+            member_count: private_channel.member_count,
             name: private_channel.name,
             purpose: private_channel.purpose.value,
             topic: private_channel.topic.value,

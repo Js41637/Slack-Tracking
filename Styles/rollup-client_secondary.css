@@ -2054,31 +2054,8 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
   font-size: 1.125rem
 }
 
-#details_tab .channel_page_member_tabs {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-align: baseline;
-  -webkit-align-items: baseline;
-  -webkit-box-align: baseline;
-  -moz-align-items: baseline;
-  align-items: baseline;
-  -ms-flex-wrap: wrap;
-  -webkit-flex-wrap: wrap;
-  -moz-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -ms-flex-pack: justify;
-  -webkit-box-pack: justify;
-  -webkit-justify-content: space-between;
-  -moz-justify-content: space-between;
-  justify-content: space-between
-}
-
 #details_tab .channel_page_member_tabs .icon_member_header {
-  margin-top: -5px;
-  vertical-align: middle;
+  margin-top: -2px;
   color: #8BCD99
 }
 
@@ -21617,14 +21594,14 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   margin-bottom: -8px
 }
 
-.attachment_group .attachment_actions_buttons .btn_attachment:last-of-type,
-.attachment_group .attachment_actions_buttons .select_attachment:last-of-type {
+.attachment_group .attachment_actions_buttons .attachment_actions_buttons_inner_wrapper>:last-child {
   margin-right: 32px
 }
 
 .attachment_group .attachment_actions_buttons .select_attachment {
   display: inline-block;
   margin-bottom: 8px;
+  margin-right: 8px;
   vertical-align: middle;
   width: calc(100% - 32px)
 }

@@ -22398,10 +22398,14 @@
       $banner.css("display", "block");
       $banner.children(".banner").addClass("hidden");
       TS.ui.banner.show_hide_sig.dispatch("show");
-      if (which == "notifications_dismiss") {
+      if (which == "no_banner") {
+        $("#notifications_banner").addClass("hidden");
+        $("#notifications_dismiss_banner").addClass("hidden");
+      } else if (which == "notifications_dismiss") {
         $("#notifications_dismiss_banner").removeClass("hidden");
         $banner.unbind("click").bind("click", function(e) {
           TS.ui.banner.close();
+          TS.ui.banner.show("no_banner");
         });
       } else if (which == "notifications") {
         $("#notifications_banner").removeClass("hidden");
@@ -28119,7 +28123,7 @@
     });
     return;
   };
-  var _generateMemberListTemplateArgs = function(model_ob, member_ids) {
+  var _generateMemberListTemplateArgs = function(model_ob, member_ids, display_all_members_in_list) {
     var member;
     var members = [];
     var ids = member_ids || model_ob.members;
@@ -28157,21 +28161,24 @@
     var template_args = {
       model_ob: model_ob
     };
-    if (num_members_in_channel > SEE_ALL_MEMBERS_DIALOG_THRESHOLD) {
+    if (_.isUndefined(display_all_members_in_list)) {
+      display_all_members_in_list = num_members_in_channel <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD;
+    }
+    if (display_all_members_in_list) {
+      template_args.members = members;
+    } else {
       template_args.members = members.slice(0, MAX_SIDEBAR_MEMBERS_COUNT);
       template_args.show_more_members_link = true;
       template_args.total_member_count = num_members_in_channel;
-    } else {
-      template_args.members = members;
     }
     template_args.all_members = members;
     return template_args;
   };
-  var _renderMemberList = function(model_ob, member_ids, silent_refresh) {
+  var _renderMemberList = function(model_ob, member_ids, silent_refresh, display_all_members_in_list) {
     if (silent_refresh && !TS.useSearchableMemberList()) {
       TS.warn("_renderMemberList: silent_refresh parameter is only supported if searchable member list is enabled!");
     }
-    var template_args = _generateMemberListTemplateArgs(model_ob, member_ids);
+    var template_args = _generateMemberListTemplateArgs(model_ob, member_ids, display_all_members_in_list);
     if (silent_refresh) {
       _cleanMemberLists();
     }
@@ -28222,7 +28229,8 @@
           return;
         }
         var member_ids = _.map(flannel_response.objects, "id");
-        _renderMemberList(model_ob, member_ids, silent_refresh);
+        var display_all_members_in_list = fetch_all_members;
+        _renderMemberList(model_ob, member_ids, silent_refresh, display_all_members_in_list);
         return null;
       }).catch(function(errors) {
         TS.log(1989, "Flannel error: failed to fetch all members for channel " + model_ob.id);

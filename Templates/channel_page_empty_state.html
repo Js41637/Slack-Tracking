@@ -8,13 +8,15 @@
 
       <div class="channel_page_about channel_page_section {{#if state.expanded_sections.about}}expanded{{/if}}" data-section-name="about">
 
-        <button class="section_header no_bottom_margin display_flex align_items_center btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
-          <i class="ts_icon ts_icon_info channel_page_blue small_right_margin"></i>
-          <span id="channel_page_title" class="section_title flex_one"></span>
+        <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
+          <div class="display_flex align_items_center">
+            <i class="ts_icon ts_icon_info channel_page_blue small_right_margin"></i>
+            <span id="channel_page_title" class="section_title flex_one"></span>
 
-          <div class="disclosure_triangle inline_block left_margin">
-            <i class="ts_icon ts_icon_caret_right"></i>
-            <i class="ts_icon ts_icon_caret_down"></i>
+            <div class="disclosure_triangle inline_block left_margin">
+              <i class="ts_icon ts_icon_caret_right"></i>
+              <i class="ts_icon ts_icon_caret_down"></i>
+            </div>
           </div>
         </button>
 
@@ -24,13 +26,15 @@
 
       <div class="channel_page_pinned_items channel_page_section {{#if state.expanded_sections.pinned_items}}expanded{{/if}}" data-section-name="pinned_items">
 
-        <button class="section_header no_bottom_margin display_flex align_items_center btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
-          <i class="ts_icon ts_icon_thumb_tack pin_orange small_right_margin" ></i>
-          <span class="section_title flex_one" id="pinned_items_title"></span>
+        <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
+          <div class="display_flex align_items_center">
+            <i class="ts_icon ts_icon_thumb_tack pin_orange small_right_margin" ></i>
+            <span class="section_title flex_one" id="pinned_items_title"></span>
 
-          <div class="disclosure_triangle inline_block left_margin">
-            <i class="ts_icon ts_icon_caret_right"></i>
-            <i class="ts_icon ts_icon_caret_down"></i>
+            <div class="disclosure_triangle inline_block left_margin">
+              <i class="ts_icon ts_icon_caret_right"></i>
+              <i class="ts_icon ts_icon_caret_down"></i>
+            </div>
           </div>
         </button>
 
@@ -45,13 +49,15 @@
 
       <div class="channel_page_shared_files channel_page_section {{#if state.expanded_sections.shared_files}}expanded{{/if}}" data-section-name="shared_files">
 
-      <button class="section_header no_bottom_margin display_flex align_items_center btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
-        <i class="ts_icon ts_icon_all_files mustard_yellow small_right_margin"></i>
-        <span class="section_title flex_one" id="channel_files_title">{{#t}}Shared Files{{/t}}</span>
+      <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
+        <div class="display_flex align_items_center">
+          <i class="ts_icon ts_icon_all_files mustard_yellow small_right_margin"></i>
+          <span class="section_title flex_one" id="channel_files_title">{{#t}}Shared Files{{/t}}</span>
 
-        <div class="disclosure_triangle inline-block left_margin">
-          <i class="ts_icon ts_icon_caret_right"></i>
-          <i class="ts_icon ts_icon_caret_down"></i>
+          <div class="disclosure_triangle inline-block left_margin">
+            <i class="ts_icon ts_icon_caret_right"></i>
+            <i class="ts_icon ts_icon_caret_down"></i>
+          </div>
         </div>
       </button>
 
@@ -61,15 +67,17 @@
 
       <div class="channel_page_notif_prefs channel_page_section {{#if state.expanded_sections.notif_prefs}}expanded{{/if}}" data-section-name="notif_prefs">
 
-        <button class="section_header no_bottom_margin display_flex align_items_center btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
-          <span class="channel_page_notif_prefs_mute_state">
-            <i class="ts_icon ts_icon_bell_o moscow_red small_right_margin"></i>
-          </span>
-          <span id="channel_notif_prefs_title" class="section_title flex_one">{{#t}}Notification Preferences{{/t}}</span>
+        <button class="section_header no_bottom_margin btn_unstyle" title="{{#t}}Click to expand or collapse{{/t}}" type="button">
+          <div class="display_flex align_items_center">
+            <span class="channel_page_notif_prefs_mute_state">
+              <i class="ts_icon ts_icon_bell_o moscow_red small_right_margin"></i>
+            </span>
+            <span id="channel_notif_prefs_title" class="section_title flex_one">{{#t}}Notification Preferences{{/t}}</span>
 
-          <div class="disclosure_triangle inline_block left_margin">
-            <i class="ts_icon ts_icon_caret_right"></i>
-            <i class="ts_icon ts_icon_caret_down"></i>
+            <div class="disclosure_triangle inline_block left_margin">
+              <i class="ts_icon ts_icon_caret_right"></i>
+              <i class="ts_icon ts_icon_caret_down"></i>
+            </div>
           </div>
         </button>
 
