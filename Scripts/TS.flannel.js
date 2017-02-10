@@ -140,6 +140,14 @@
       var all_accessible_member_ids = _(channel_member_ids).concat(other_member_ids).uniq().without("USLACKBOT").value();
       return Promise.resolve(all_accessible_member_ids);
     },
+    fetchChannelMembershipForUsers: function(channel_id, user_ids) {
+      var membership_info = {};
+      var channel_members = __temp__channel_members[channel_id];
+      user_ids.forEach(function(user_id) {
+        membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
+      });
+      return Promise.resolve(membership_info);
+    },
     fetchMembershipCountsForChannel: function(channel_id) {
       var model_ob = TS.shared.getModelObById(channel_id);
       var resp = TS.members.getMembershipCounts(model_ob);
@@ -183,7 +191,7 @@
     TS.log(1989, "Flannel: upserting batch of " + objects.length + " objects");
     var is_upserting_bots = _.some(objects, _isBot);
     if (is_upserting_bots) TS.bots.startBatchUpsert();
-    var is_upserting_members = _.some(objects, _isMember);
+    var is_upserting_members = _.some(objects, TS.utility.members.isMember);
     if (is_upserting_members) TS.members.startBatchUpsert();
     var upserted_objects;
     try {
@@ -198,7 +206,7 @@
     if (_isBot(ob)) {
       TS.log(1989, "Flannel: upserting bot " + ob.id + " from query results");
       return TS.bots.upsertAndSignal(ob).bot;
-    } else if (_isMember(ob)) {
+    } else if (TS.utility.members.isMember(ob)) {
       TS.log(1989, "Flannel: upserting user " + ob.id + " from query results");
       return TS.members.upsertAndSignal(ob).member;
     }
@@ -206,10 +214,6 @@
   var _isBot = function(ob) {
     var ob_type = _.get(ob, "id[0]");
     return ob_type == "B";
-  };
-  var _isMember = function(ob) {
-    var ob_type = _.get(ob, "id[0]");
-    return ob_type == "U" || ob_type == "W";
   };
   var _prefetchFrequentlyUsedMembers = function() {
     var MAX_FRECENCY_PREFETCH_MEMBERS = 100;

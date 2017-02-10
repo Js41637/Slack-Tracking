@@ -8,7 +8,11 @@
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
     <a href="/archives/{{#feature flag='feature_intl_channel_names'}}{{model_ob.id}}{{else}}{{model_ob.name}}{{/feature}}" target="{{newWindowName}}" class="group_name" data-group-id="{{model_ob.id}}" aria-label="{{{makeGroupLinkAriaLabelSafe model_ob}}}">
       {{#if model_ob.is_archived}}
-        {{> ts_icon class="ts_icon_archived_channel prefix"}}
+        {{#if model_ob.is_moved}}
+          {{> ts_icon class="ts_icon_angle_arrow_up_left prefix"}}
+        {{else}}
+          {{> ts_icon class="ts_icon_archived_channel prefix"}}
+        {{/if}}
       {{else}}
         {{#showDraftIcon model_ob}}
           {{> ts_icon class="ts_icon_pencil prefix"}}

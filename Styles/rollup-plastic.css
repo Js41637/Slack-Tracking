@@ -9089,7 +9089,8 @@ textarea.small {
   padding: .5rem
 }
 
-.plastic_contenteditable {
+.plastic_contenteditable,
+.plastic_pre_wrap {
   white-space: pre-wrap;
   word-wrap: break-word
 }

@@ -2420,7 +2420,11 @@
       if (channel_model_ob.is_shared && !member_model_ob._is_local) {
         var allowed_teams;
         if (TS.boot_data.feature_thin_shares) {
-          allowed_teams = channel_model_ob.shared_team_ids;
+          if (channel_model_ob.is_global_shared) {
+            allowed_teams = _.map(TS.model.enterprise_teams, "id");
+          } else {
+            allowed_teams = channel_model_ob.shared_team_ids;
+          }
         } else {
           allowed_teams = channel_model_ob.shares.map(function(team) {
             return team.id;
@@ -4302,7 +4306,7 @@
       return empty_response;
     },
     setUserChannelMembership: function(user_id, channel, is_member) {
-      if (!_.isString(user_id)) throw new Error("Expected user to be a string");
+      if (!_.isString(user_id)) throw new Error("Expected user_id to be a string");
       if (TS.membership.lazyLoadChannelMembership()) {
         return _setChannelKnownMembership(channel.id, user_id, is_member);
       }
@@ -4314,6 +4318,21 @@
         _.pull(channel.members, user_id);
       }
       return true;
+    },
+    ensureChannelMembershipIsKnownForUsers: function(channel_id, user_ids) {
+      if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
+      if (user_ids.length > 0 && !_.isString(user_ids[0])) throw new Error("Expected user_ids to be strings");
+      if (!TS.membership.lazyLoadChannelMembership()) return Promise.resolve(false);
+      var user_ids_without_known_membership = user_ids.filter(function(user_id) {
+        return !_isChannelMembershipKnownForUser(channel_id, user_id);
+      });
+      if (!user_ids_without_known_membership.length) return Promise.resolve(false);
+      return TS.flannel.fetchChannelMembershipForUsers(channel_id, user_ids_without_known_membership).then(function(membership_info) {
+        _.forEach(membership_info, function(is_member, user_id) {
+          _setChannelKnownMembership(channel_id, user_id, is_member);
+        });
+        return true;
+      });
     },
     notifyChannelMembershipChanged: function(user_id, channel, is_member, should_display_join_message) {
       TS.channels.calcActiveMembersForChannel(channel);
@@ -8496,6 +8515,7 @@ TS.registerModule("constants", {
         _did_log_mpim_debug_msg = true;
         if (TS.boot_data.feature_tinyspeck) {
           TS.console.logStackTrace("Someone is upserting members too early. Hopefully this stack trace helps us figure it out!");
+          TS.metrics.count("mpim_missing_members_bug_ts_only");
           TS.generic_dialog.alert("TS Only: You experienced a weird bug that we at #bug-reconnecting would LOVE to know about. Please send us your logs!", "TS Only: Log Request");
         } else {
           TS.metrics.count("mpim_missing_members_bug");
@@ -27096,6 +27116,10 @@ TS.registerModule("constants", {
         return;
       }
       return model_ob.members && model_ob.members.indexOf(member_id) != -1;
+    },
+    isMember: function(ob) {
+      var ob_type = _.get(ob, "id[0]");
+      return ob_type == "U" || ob_type == "W";
     },
     isMemberRelevantToModel: function(member, model_ob) {
       if (!_.isObject(member)) member = TS.members.getMemberById(member);
@@ -57138,24 +57162,18 @@ $.fn.togglify = function(settings) {
     }
     var action = _.clone(data.action);
     delete action.options;
-    var api_args = {};
-    var payload = {
-      actions: [action],
-      attachment_id: data.attachment.id,
-      callback_id: data.attachment.callback_id,
-      channel_id: data.channel_id,
-      from_url: data.attachment.from_url,
-      is_ephemeral: data.message.is_ephemeral,
-      message_ts: data.message.ts
+    var api_args = {
+      payload: JSON.stringify({
+        actions: [action],
+        attachment_id: data.attachment.id,
+        callback_id: data.attachment.callback_id,
+        channel_id: data.channel_id,
+        is_ephemeral: data.message.is_ephemeral,
+        message_ts: data.message.ts
+      })
     };
-    if (TS.boot_data.feature_auth_unfurls && data.attachment.is_app_unfurl) {
-      payload.is_app_unfurl = true;
-      api_args.service_id = data.attachment.bot_id;
-    } else {
-      if (data.message.bot_id) api_args.service_id = data.message.bot_id;
-      if (data.message.user) api_args.bot_user_id = data.message.user;
-    }
-    api_args.payload = JSON.stringify(payload);
+    if (data.message.bot_id) api_args.service_id = data.message.bot_id;
+    if (data.message.user) api_args.bot_user_id = data.message.user;
     TS.api.call("chat.attachmentAction", api_args).then(function(res) {
       TS.attachment_actions.action_completed_sig.dispatch({
         attachment: data.attachment,

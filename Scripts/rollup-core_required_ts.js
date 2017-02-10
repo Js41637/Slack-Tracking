@@ -238,7 +238,10 @@
   var _console_module = window.TS && TS.console;
   var _features_module = window.TS && TS.features;
   var _guid = 0;
-  var _fully_booted_p;
+  var _fully_booted_p_resolve;
+  var _fully_booted_p = new Promise(function(resolve) {
+    _fully_booted_p_resolve = resolve;
+  });
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -481,13 +484,6 @@
       return !!(TS._incremental_boot || TS._did_incremental_boot && !TS._did_full_boot);
     },
     ensureFullyBooted: function() {
-      if (TS.model.ms_logged_in_once) {
-        return Promise.resolve();
-      }
-      if (_fully_booted_p) return _fully_booted_p;
-      _fully_booted_p = new Promise(function(resolve) {
-        TS.client.login_sig.addOnce(resolve);
-      });
       return _fully_booted_p;
     },
     test: function() {
@@ -799,6 +795,17 @@
       if (TS.client) TS.client.onEveryLoginMS(resp.data);
       if (TS.web) TS.web.onEveryLoginMS(resp.data);
       _maybeFinalizeOrOpenConnectionToMS();
+      var is_finalizing_first_full_boot;
+      if (TS._did_incremental_boot) {
+        is_finalizing_first_full_boot = TS.model.ms_logged_in_once;
+      } else {
+        is_finalizing_first_full_boot = !TS.model.ms_logged_in_once;
+      }
+      if (is_finalizing_first_full_boot && _fully_booted_p_resolve) {
+        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Divine clementine, we are finalizing a full boot!");
+        _fully_booted_p_resolve();
+        _fully_booted_p_resolve = null;
+      }
       TS.model.ms_logged_in_once = true;
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Holy guacamole, we're all done!");
       return null;

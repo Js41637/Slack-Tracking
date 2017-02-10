@@ -1178,17 +1178,21 @@ input.search_input {
   border-bottom: 1px solid #e8e8e8
 }
 
-.searchable_member_list_filter input {
-  margin: 0
+.searchable_member_list_filter .faux_input {
+  font-size: 1rem;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  padding: .55rem .75rem .65rem;
+  border: 1px solid #C5C5C5;
+  border-radius: .25rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: 0;
+  color: #555459
 }
 
-.searchable_member_list_filter input:hover {
+.searchable_member_list_filter .faux_input:hover {
   cursor: pointer
-}
-
-.searchable_member_list_filter input:disabled {
-  color: #555459;
-  background: #fff
 }
 
 .searchable_member_list_filter:after {
@@ -24576,7 +24580,9 @@ ts-jumper ts-jumper-results:empty {
 .channel_title .muted_icon {
   margin-left: 4px;
   font-size: .85rem;
-  color: #717274
+  color: #717274;
+  position: relative;
+  top: 1px
 }
 
 .channel_title .muted_icon:hover {
