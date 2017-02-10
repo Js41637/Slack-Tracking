@@ -142,7 +142,7 @@
     },
     fetchChannelMembershipForUsers: function(channel_id, user_ids) {
       var membership_info = {};
-      var channel_members = __temp__channel_members[channel_id];
+      var channel_members = __temp__channel_members[channel_id] || TS.shared.getModelObById(channel_id).members;
       user_ids.forEach(function(user_id) {
         membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
       });

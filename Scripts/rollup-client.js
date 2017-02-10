@@ -1881,6 +1881,7 @@
       }
       window.setTimeout(TS.view.focusMessageInput, 0);
       TS.view.checkIfInputShouldBeDisabledAndPopulate();
+      TS.utility.contenteditable.clearHistory(TS.client.ui.$msg_input);
       TS.view.showInterstitialAfterChannelOrImShown();
       var start_mark = "start_channel_change_" + TS.model.active_cid;
       TS.metrics.measureAndClear("channel_change", start_mark);
@@ -12796,7 +12797,7 @@
             if (TS.boot_data.page_needs_enterprise) {
               var $channel_meta_shared_info = $channel_meta.find(".channel_meta_shared_info");
               var $action_integration_li = $channel_meta.find(".end_action_integration").parent();
-              if (model_ob.is_shared) {
+              if (model_ob.is_org_shared) {
                 var shared_meta_template_args = {
                   model_ob: model_ob
                 };
@@ -12861,7 +12862,7 @@
             if (TS.boot_data.page_needs_enterprise) {
               var $group_meta_shared_info = $group_meta.find(".group_meta_shared_info");
               var $action_integration_li = $group_meta.find(".end_action_integration").parent();
-              if (model_ob.is_shared) {
+              if (model_ob.is_org_shared) {
                 var shared_meta_template_args = {
                   model_ob: model_ob
                 };

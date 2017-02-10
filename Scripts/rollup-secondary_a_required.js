@@ -4134,13 +4134,7 @@
     } else {
       if (TS.pri) TS.log(5, 'adding channel "' + channel.id + '"');
       channels.push(channel);
-      try {
-        _processNewChannelForUpserting(channel);
-      } catch (err) {
-        TS.console.logStackTrace("Error processing channel for upserting, id: " + channel.id);
-        TS.error(err);
-        throw err;
-      }
+      _processNewChannelForUpserting(channel);
       _id_map[channel.id] = channel;
       _name_map[channel._name_lc] = channel;
       _name_map["#" + channel._name_lc] = channel;
@@ -10524,6 +10518,7 @@ TS.registerModule("constants", {
     isMemberExternal: function(member) {
       if (!TS.model.shared_channels_enabled) return false;
       if (!_.isObject(member)) return false;
+      if (_.isObject(member.enterprise_user)) return false;
       return member.team_id ? member.team_id != TS.model.team.id : false;
     },
     isMemberExternalById: function(id) {
@@ -27137,17 +27132,6 @@ TS.registerModule("constants", {
         });
       }
       return everyone_keywords.concat(channel_keywords);
-    },
-    isMemberOfChannel: function(member_id, model_ob) {
-      if (!member_id) {
-        TS.warn("TS.utility.members.isMemberOfChannel() requires a member_id arg");
-        return;
-      }
-      if (!model_ob) {
-        TS.warn("TS.utility.members.isMemberOfChannel() requires a model_ob arg");
-        return;
-      }
-      return model_ob.members && model_ob.members.indexOf(member_id) != -1;
     },
     isMember: function(ob) {
       var ob_type = _.get(ob, "id[0]");
@@ -50239,7 +50223,7 @@ $.fn.togglify = function(settings) {
     if (item.is_mpim) return 0;
     var score = _calculateFuzzyBonusPoints(item);
     if (options.prefer_channel_members && item.presence) {
-      if (options.model_ob && TS.utility.members.isMemberOfChannel(item.id, options.model_ob)) {
+      if (options.model_ob && _isUserIdKnownToBeMemberOfChannel(item.id, options.model_ob)) {
         score += 100;
       }
     }
@@ -50256,7 +50240,7 @@ $.fn.togglify = function(settings) {
         score -= 100;
       }
       if (options.prefer_channels_user_belongs_to) {
-        if (!item.is_archived && !TS.utility.members.isMemberOfChannel(TS.model.user.id, TS.shared.getModelObById(item.id))) {
+        if (!item.is_archived && !_isUserIdKnownToBeMemberOfChannel(TS.model.user.id, TS.shared.getModelObById(item.id))) {
           score -= 100;
         }
       }
@@ -50280,7 +50264,7 @@ $.fn.togglify = function(settings) {
       }
     }
     if (options.prefer_channel_members && item.presence) {
-      if (options.model_ob && TS.utility.members.isMemberOfChannel(item.id, options.model_ob)) {
+      if (options.model_ob && _isUserIdKnownToBeMemberOfChannel(item.id, options.model_ob)) {
         score += TS.ui.frecency.bonus_points.member_of_this_channel;
       }
     }
@@ -50297,7 +50281,7 @@ $.fn.togglify = function(settings) {
         score += TS.ui.frecency.bonus_points.archived_channel_or_group;
       }
       if (options.prefer_channels_user_belongs_to) {
-        if (!item.is_archived && !TS.utility.members.isMemberOfChannel(TS.model.user.id, TS.shared.getModelObById(item.id))) {
+        if (!item.is_archived && !_isUserIdKnownToBeMemberOfChannel(TS.model.user.id, TS.shared.getModelObById(item.id))) {
           score += TS.ui.frecency.bonus_points.not_in_channel;
         }
       }
@@ -50319,6 +50303,10 @@ $.fn.togglify = function(settings) {
     if (!_.isFinite(fuzziness)) return 0;
     var scaler = Math.pow(.5, fuzziness);
     return Math.round(TS.ui.frecency.bonus_points.fuzzy_match * scaler);
+  };
+  var _isUserIdKnownToBeMemberOfChannel = function(user_id, model_ob) {
+    var membership_status = TS.membership.getUserChannelMembershipStatus(user_id, model_ob);
+    return membership_status.is_known && membership_status.is_member;
   };
 })();
 (function() {
@@ -55851,6 +55839,13 @@ $.fn.togglify = function(settings) {
       }
       if (!_text_preferences["substitutions"]["--"] && _text_preferences["useSmartQuotes"]) _text_preferences["substitutions"]["--"] = "—";
     },
+    clearHistory: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return false;
+      var texty = _getTextyInstance(input);
+      if (!texty) return;
+      texty.clearHistory();
+    },
     test: function() {
       var test = {
         _normalizeInput: _normalizeInput,
@@ -57833,7 +57828,10 @@ $.fn.togglify = function(settings) {
       if (data.private_channels) {
         data.private_channels = _.isArray(data.private_channels) ? data.private_channels : [data.private_channels];
         channels = _.map(data.private_channels, function(private_channel) {
-          var creator = TS.utility.members.isMemberOfChannel(_.get(TS.utility.enterprise.getSelf(), "id"), private_channel) && TS.members.getMemberById(private_channel.creator) || {};
+          var self_user_id = _.get(TS.utility.enterprise.getSelf(), "id");
+          var membership_status = TS.membership.getUserChannelMembershipStatus(self_user_id, private_channel);
+          var is_known_to_be_member = membership_status.is_known && membership_status.is_member;
+          var creator = is_known_to_be_member && TS.members.getMemberById(private_channel.creator) || {};
           return {
             creator_display: creator.real_name ? creator.real_name : creator.name,
             date_created: private_channel.created,
