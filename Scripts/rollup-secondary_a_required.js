@@ -38703,6 +38703,7 @@ var _on_esc;
             }
           }
         });
+        TS.utility.contenteditable.value(input, edit_text);
       }
       TS.msg_edit.checkLengthAndUpdateMessage(input);
       TS.info("message_edit_form added");
