@@ -132,7 +132,7 @@
     {{! 2. Currently veiwing an org team but not logged into any other teams of that same org}}
     {{#if current_team_gets_logout_url}}
       {{#if logout_url}}
-        <li id="logout" role="menuitem" class="logout_url"><a href="{{logout_url}}" target="_self">{{#t}}Sign out of <strong>{team_name}</strong>{{/t}}</a></li>
+        <li id="logout" role="menuitem" class="logout_url"><a class="menu_list_link" href="{{logout_url}}" target="_self">{{#t}}Sign out of <strong>{team_name}</strong>{{/t}}</a></li>
       {{/if}}
     {{else}}
       {{#if enterprise_logout_url}}
@@ -171,7 +171,7 @@
           {{#if other_accounts}}
             {{#each other_accounts}}
               <li class="switch_team" data-team-id="{{this.team_id}}" data-user-id="{{this.id}}" role="menuitem">
-                <a class="switch_team_link" href="{{this.team_url}}messages" target="_self">{{#t}}Switch to <strong>{team_name}</strong>{{/t}}</a>
+                <a class="menu_list_link" href="{{this.team_url}}messages" target="_self">{{#t}}Switch to <strong>{team_name}</strong>{{/t}}</a>
               </li>
             {{/each}}
           {{/if}}
@@ -190,7 +190,7 @@
         {{#if other_accounts}}
           {{#each other_accounts}}
             <li class="switch_team" data-team-id="{{this.team_id}}" data-user-id="{{this.id}}" role="menuitem">
-              <a class="switch_team_link" href="{{this.team_url}}messages" target="_self">{{#t}}Switch to <strong>{team_name}</strong>{{/t}}</a>
+              <a class="menu_list_link" href="{{this.team_url}}messages" target="_self">{{#t}}Switch to <strong>{team_name}</strong>{{/t}}</a>
             </li>
           {{/each}}
         {{/if}}

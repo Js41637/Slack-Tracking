@@ -49221,7 +49221,11 @@ $.fn.togglify = function(settings) {
         var $el = $(e.target).closest("#recap_menu_items");
         var msg_ts = $el.data("msg-ts") + "";
         TS.menu.recaps_feedback.end();
-        TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 1);
+        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
+          TS.client.ui.sli_highlight_all_unreads.sendFeedback($el.data("model-ob-id"), msg_ts, true);
+        } else {
+          TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 1);
+        }
         return;
       });
       TS.click.addClientHandler("#recap_negative", function(e) {
@@ -49229,7 +49233,11 @@ $.fn.togglify = function(settings) {
         var $el = $(e.target).closest("#recap_menu_items");
         var msg_ts = $el.data("msg-ts") + "";
         TS.menu.recaps_feedback.end();
-        TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 0);
+        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
+          TS.client.ui.sli_highlight_all_unreads.sendFeedback($el.data("model-ob-id"), msg_ts, false);
+        } else {
+          TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 0);
+        }
         return;
       });
       TS.click.addClientHandler("#recap_nav .next", function(e) {
@@ -56252,9 +56260,11 @@ $.fn.togglify = function(settings) {
     if (TS.boot_data.feature_texty_takes_over) return;
     var complete_member_specials = true;
     if (false === opts.complete_member_specials) complete_member_specials = false;
+    var complete_cmds = false;
+    if (TS.boot_data.feature_threads_slash_cmds) complete_cmds = !!opts.complete_cmds;
     if (TS.boot_data.feature_you_autocomplete_me) {
       $input.TS_tabCompleteNew({
-        complete_cmds: false,
+        complete_cmds: complete_cmds,
         complete_channels: true,
         complete_emoji: true,
         complete_member_specials: complete_member_specials,
@@ -56269,7 +56279,7 @@ $.fn.togglify = function(settings) {
       });
     } else {
       $input.TS_tabComplete({
-        complete_cmds: false,
+        complete_cmds: complete_cmds,
         complete_channels: true,
         complete_emoji: true,
         complete_member_specials: complete_member_specials,
@@ -58570,6 +58580,7 @@ $.fn.togglify = function(settings) {
       TS.ui.inline_msg_input.make($reply_container, {
         placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
+        complete_cmds: !!TS.boot_data.feature_threads_slash_cmds,
         model_ob: model_ob,
         onSubmit: function($elem, text) {
           if (!TS.model.ms_connected) return;
@@ -58794,7 +58805,7 @@ $.fn.togglify = function(settings) {
     getContextForEl: function($el) {
       if ($el.closest("#threads_msgs").length > 0) {
         return "threads_view";
-      } else if ($el.closest("ts-conversation").length > 0) {
+      } else if ($el.closest("#convo_tab").length > 0) {
         return "convo";
       }
       return null;

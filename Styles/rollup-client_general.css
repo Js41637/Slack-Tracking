@@ -6075,8 +6075,13 @@ body.winssb #emoji_menu {
   clear: both;
   font-weight: 400;
   font-size: .8rem;
-  padding: 10px 0 10px 30px;
+  padding: 10px 0;
+  text-align: center;
   color: #696969
+}
+
+#emoji_menu div#emoji_tip .ts_icon_plus {
+  vertical-align: middle
 }
 
 #emoji_menu div#emoji_zero_results {
@@ -6719,7 +6724,8 @@ body.winssb #emoji_menu {
 }
 
 .tab_complete_ui.narrow .header_help,
-.tab_complete_ui.narrow .not_in_channel {
+.tab_complete_ui.narrow .not_in_channel,
+.tab_complete_ui.narrow .type_cmds .tab_complete_ui_item .cmd-right-td {
   display: none
 }
 

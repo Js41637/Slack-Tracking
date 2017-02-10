@@ -17206,6 +17206,7 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 }
 
 #im_browser .create_private_channel_container,
+#im_browser.reached_maximum #im_list_container,
 #im_browser.reached_maximum #monkey_scroll_wrapper_for_im_list_container,
 #im_browser.reached_maximum .recent_label {
   display: none
@@ -24079,7 +24080,7 @@ ts-jumper ts-jumper-results:empty {
   margin: 0
 }
 
-.team_menu.slack_menu .menu_list .switch_team_link {
+.team_menu.slack_menu .menu_list .menu_list_link {
   display: block;
   text-overflow: ellipsis;
   overflow: hidden;

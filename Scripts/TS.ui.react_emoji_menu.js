@@ -111,7 +111,8 @@
       activeSkinToneId: args.skin_tone_id || TS.model.prefs.preferred_skin_tone,
       numBackgroundColors: TS.model.emoji_menu_colors,
       onSelected: _onSelect,
-      onClosed: _onClose
+      onClosed: _onClose,
+      canAddEmoji: !TS.model.user.is_restricted && (!TS.model.team.prefs.emoji_only_admins || TS.model.user.is_admin)
     };
     if (_rxn_key) props.handyRxnNames = _handy_rxns;
     return props;

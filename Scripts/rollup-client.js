@@ -2310,6 +2310,7 @@
     },
     rebuildMsgsIncludingMember: function(member) {
       var current_model_ob = TS.shared.getActiveModelOb();
+      if (!current_model_ob) return;
       _.each(current_model_ob.msgs, function(msg, offset) {
         if (TS.utility.msgs.messageIncludesMember(member, msg)) {
           if (TS.pri) TS.log(888, "memberChangedProfile: Rebuilding msg " + msg.ts + " because it includes member " + member.id);
@@ -18508,8 +18509,9 @@
       var $form = _$form;
       var $client_ui = $("#client-ui");
       var input_focused = false;
-      var input_blurred = false;
       var has_input;
+      var last_focus_state = false;
+      var last_flex_state = false;
       if (TS.client) {
         $form.bind("submit", function(e) {
           has_input = $.trim($input.val());
@@ -18545,7 +18547,9 @@
         }
       });
       $client_ui.on("transitionend", function() {
-        if (input_focused || input_blurred || TS.model.ui_state.flex_visible) {
+        if (input_focused !== last_focus_state || TS.model.ui_state.flex_visible !== last_flex_state) {
+          last_focus_state = input_focused;
+          last_flex_state = TS.model.ui_state.flex_visible;
           _updateSearchNoDragRegion();
         }
       });
@@ -18568,11 +18572,9 @@
       $input.bind("focus", function() {
         $client_ui.addClass("search_focused");
         input_focused = true;
-        input_blurred = !input_focused;
       }).bind("blur", function() {
         $client_ui.removeClass("search_focused");
-        input_blurred = true;
-        input_focused = !input_blurred;
+        input_focused = false;
       });
       $input.hover(function() {
         $client_ui.addClass("search_hover");
@@ -39112,6 +39114,7 @@ function timezones_guess() {
       TS.ui.inline_msg_input.make($reply_container, {
         placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
+        complete_cmds: !!TS.boot_data.feature_threads_slash_cmds,
         model_ob: model_ob,
         onSubmit: function($elem, text) {
           if (!TS.model.ms_connected) return;
