@@ -9963,24 +9963,7 @@
         });
       }
       TS.utility.contenteditable.enable($input);
-      if (!TS.boot_data.feature_texty && TS.boot_data.feature_you_autocomplete_me) {
-        $input.TS_tabCompleteNew({
-          complete_cmds: true,
-          complete_channels: true,
-          complete_user_groups: true,
-          complete_emoji: true,
-          complete_member_specials: true,
-          no_tab_out: true,
-          onComplete: function(txt, new_cp) {
-            TS.utility.populateInput($input, txt, new_cp);
-            TS.client.msg_input.storeLastMsgForActiveModelOb(TS.utility.contenteditable.value($input));
-          },
-          ui_initer: TS.ui.msg_tab_complete.start,
-          suspended: true,
-          sort_by_membership: true,
-          include_self: !!TS.boot_data.feature_name_tagging_client
-        });
-      } else if (!TS.boot_data.feature_texty) {
+      if (!TS.boot_data.feature_texty) {
         $input.TS_tabComplete({
           complete_cmds: true,
           complete_channels: true,
@@ -10129,19 +10112,10 @@
         TS.utility.contenteditable.cursorPosition($input, val.length);
         _maybeResize();
       } else {
-        if (TS.boot_data.feature_you_autocomplete_me) {
-          TS.client.ui.$msg_input.TS_tabCompleteNew("suspend");
-        } else {
-          TS.client.ui.$msg_input.TS_tabComplete("suspend");
-        }
+        TS.client.ui.$msg_input.TS_tabComplete("suspend");
         TS.client.msg_input.populate(model_ob.last_msg_input);
-        if (TS.boot_data.feature_you_autocomplete_me) {
-          TS.client.ui.$msg_input.TS_tabCompleteNew("unsuspend");
-          TS.client.ui.$msg_input.TS_tabCompleteNew("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
-        } else {
-          TS.client.ui.$msg_input.TS_tabComplete("unsuspend");
-          TS.client.ui.$msg_input.TS_tabComplete("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
-        }
+        TS.client.ui.$msg_input.TS_tabComplete("unsuspend");
+        TS.client.ui.$msg_input.TS_tabComplete("changeoption", "member_prefix_required", model_ob.is_slackbot_im);
       }
     },
     startSnippet: function() {

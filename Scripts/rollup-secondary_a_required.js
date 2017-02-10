@@ -38700,22 +38700,7 @@ var _on_esc;
         input = null;
         TS.msg_edit.resetEditUI();
       });
-      if (!TS.boot_data.feature_texty_takes_over && TS.boot_data.feature_you_autocomplete_me) {
-        input.TS_tabCompleteNew({
-          complete_cmds: false,
-          complete_channels: true,
-          complete_user_groups: true,
-          complete_emoji: true,
-          complete_member_specials: true,
-          no_tab_out: true,
-          onComplete: function(txt, new_cp) {
-            TS.utility.populateInput(input, txt, new_cp);
-          },
-          sort_by_membership: true,
-          include_self: !!TS.boot_data.feature_name_tagging_client,
-          model_ob: model_ob
-        });
-      } else if (!TS.boot_data.feature_texty_takes_over) {
+      if (!TS.boot_data.feature_texty_takes_over) {
         input.TS_tabComplete({
           complete_cmds: false,
           complete_channels: true,
@@ -49190,9 +49175,7 @@ $.fn.togglify = function(settings) {
       if (!value) {
         TS.utility.contenteditable.clear($input);
         TS.utility.contenteditable.insertTextAtCursor($input, command);
-        if (!TS.boot_data.feature_texty && TS.boot_data.feature_you_autocomplete_me) {
-          $input.TS_tabCompleteNew("promiseToChoose", undefined, true);
-        } else if (!TS.boot_data.feature_texty) {
+        if (!TS.boot_data.feature_texty) {
           $input.TS_tabComplete("promiseToChoose", undefined, true);
         }
       }
@@ -56262,37 +56245,20 @@ $.fn.togglify = function(settings) {
     if (false === opts.complete_member_specials) complete_member_specials = false;
     var complete_cmds = false;
     if (TS.boot_data.feature_threads_slash_cmds) complete_cmds = !!opts.complete_cmds;
-    if (TS.boot_data.feature_you_autocomplete_me) {
-      $input.TS_tabCompleteNew({
-        complete_cmds: complete_cmds,
-        complete_channels: true,
-        complete_emoji: true,
-        complete_member_specials: complete_member_specials,
-        complete_user_groups: true,
-        no_tab_out: true,
-        onComplete: function(txt, new_cp) {
-          TS.utility.populateInput($input, txt, new_cp);
-        },
-        sort_by_membership: true,
-        include_self: !!TS.boot_data.feature_name_tagging_client,
-        model_ob: opts.model_ob
-      });
-    } else {
-      $input.TS_tabComplete({
-        complete_cmds: complete_cmds,
-        complete_channels: true,
-        complete_emoji: true,
-        complete_member_specials: complete_member_specials,
-        complete_user_groups: true,
-        no_tab_out: true,
-        onComplete: function(txt, new_cp) {
-          TS.utility.populateInput($input, txt, new_cp);
-        },
-        sort_by_membership: true,
-        include_self: !!TS.boot_data.feature_name_tagging_client,
-        model_ob: opts.model_ob
-      });
-    }
+    $input.TS_tabComplete({
+      complete_cmds: complete_cmds,
+      complete_channels: true,
+      complete_emoji: true,
+      complete_member_specials: complete_member_specials,
+      complete_user_groups: true,
+      no_tab_out: true,
+      onComplete: function(txt, new_cp) {
+        TS.utility.populateInput($input, txt, new_cp);
+      },
+      sort_by_membership: true,
+      include_self: !!TS.boot_data.feature_name_tagging_client,
+      model_ob: opts.model_ob
+    });
     var props = {
       id: "inline_msg_input_tab_ui_" + _uniq_id++,
       scroll_with_element: !!TS.client,

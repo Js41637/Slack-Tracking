@@ -863,31 +863,17 @@
       });
     },
     bindInput: function(input, callback) {
-      if (TS.boot_data.feature_you_autocomplete_me) {
-        input.TS_tabCompleteNew({
-          complete_cmds: false,
-          complete_channels: true,
-          complete_emoji: true,
-          complete_member_specials: false,
-          complete_user_groups: true,
-          onComplete: function(txt, new_cp) {
-            TS.utility.populateInput(input, txt, new_cp);
-          },
-          include_self: !!TS.boot_data.feature_name_tagging_client
-        });
-      } else {
-        input.TS_tabComplete({
-          complete_cmds: false,
-          complete_channels: true,
-          complete_emoji: true,
-          complete_member_specials: false,
-          complete_user_groups: true,
-          onComplete: function(txt, new_cp) {
-            TS.utility.populateInput(input, txt, new_cp);
-          },
-          include_self: !!TS.boot_data.feature_name_tagging_client
-        });
-      }
+      input.TS_tabComplete({
+        complete_cmds: false,
+        complete_channels: true,
+        complete_emoji: true,
+        complete_member_specials: false,
+        complete_user_groups: true,
+        onComplete: function(txt, new_cp) {
+          TS.utility.populateInput(input, txt, new_cp);
+        },
+        include_self: !!TS.boot_data.feature_name_tagging_client
+      });
       input.bind("keydown.cmd_submit", function(e) {
         if (e.which === TS.utility.keymap.enter) {
           if (input.tab_complete_ui("isShowing")) {
