@@ -9928,10 +9928,13 @@
                 menu.style.left = "42px";
                 menu.style.width = "90%";
               }
+            },
+            textsubstitutions: {
+              getTextPreferences: TS.utility.contenteditable.getTextPreferences,
+              replaceSmartQuotes: TS.format.texty.replaceSmartQuotes
             }
           },
           placeholder: $input.data("placeholder"),
-          getTextPreferences: TS.utility.contenteditable.getTextPreferences,
           onEnter: function(args) {
             if (TS.model.is_mac && !args.shiftKey && args.shortKey) {
               TS.client.msg_input.startSnippet();

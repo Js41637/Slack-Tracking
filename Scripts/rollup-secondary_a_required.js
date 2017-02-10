@@ -3974,7 +3974,7 @@
         if (member.is_ultra_restricted) continue;
         if (!is_admin && member.is_restricted) continue;
         if (channel.members.indexOf(member.id) == -1) {
-          A.push(member);
+          if (TS.permissions.channels.canMemberJoinChannel(channel, member)) A.push(member);
         }
       }
       return A;
@@ -4121,6 +4121,7 @@
           existing_channel[k] = channel[k];
         }
       }
+      _maybeSetSharedTeams(existing_channel);
       channel = existing_channel;
       if (TS.isPartiallyBooted() && channel.oldest_msg_ts === null) {
         channel.oldest_msg_ts = TS.storage.fetchOldestTs(channel.id);
@@ -4160,6 +4161,20 @@
     }
     TS.channels.calcActiveMembersForChannel(channel);
     return channel;
+  };
+  var _maybeSetSharedTeams = function(channel) {
+    if (!channel.is_shared) return;
+    if (!TS.boot_data.page_needs_enterprise) return;
+    if (channel.is_global_shared) {
+      if (channel.shares) delete channel.shares;
+      if (channel.shared_team_ids) delete channel.shared_team_ids;
+      return;
+    }
+    if (channel.shares) {
+      channel.shared_team_ids = _(channel.shared_team_ids || []).concat(_.map(channel.shares, "id")).value();
+      if (channel.shares) delete channel.shares;
+    }
+    channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
   };
   var _processNewChannelForUpserting = function(channel) {
     channel._hotness = 0;
@@ -4203,6 +4218,7 @@
       channel.needs_created_message = true;
       delete TS.model.created_channels[channel.name];
     }
+    _maybeSetSharedTeams(channel);
   };
 })();
 (function() {
@@ -5628,7 +5644,7 @@ TS.registerModule("constants", {
       if (member.is_self) continue;
       if (member.is_ultra_restricted) continue;
       if (!group || group.members.indexOf(member.id) == -1) {
-        A.push(member);
+        if (TS.permissions.channels.canMemberJoinChannel(group, member)) A.push(member);
       }
     }
     return A;
@@ -5656,6 +5672,7 @@ TS.registerModule("constants", {
           existing_group[k] = group[k];
         }
       }
+      _maybeSetSharedTeams(existing_group);
       group = existing_group;
       if (TS.isPartiallyBooted() && group.oldest_msg_ts === null) {
         group.oldest_msg_ts = TS.storage.fetchOldestTs(group.id);
@@ -5685,6 +5702,20 @@ TS.registerModule("constants", {
     }
     TS.groups.calcActiveMembersForGroup(group);
     return group;
+  };
+  var _maybeSetSharedTeams = function(channel) {
+    if (!channel.is_shared) return;
+    if (!TS.boot_data.page_needs_enterprise) return;
+    if (channel.is_global_shared) {
+      if (channel.shares) delete channel.shares;
+      if (channel.shared_team_ids) delete channel.shared_team_ids;
+      return;
+    }
+    if (channel.shares) {
+      channel.shared_team_ids = _(channel.shared_team_ids || []).concat(_.map(channel.shares, "id")).value();
+      if (channel.shares) delete channel.shares;
+    }
+    channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
   };
   var _processNewGroupForUpserting = function(group) {
     group._hotness = 0;
@@ -5722,6 +5753,7 @@ TS.registerModule("constants", {
     if (TS.model.created_groups[group.name]) {
       delete TS.model.created_groups[group.name];
     }
+    _maybeSetSharedTeams(group);
   };
 })();
 (function() {
@@ -38641,10 +38673,13 @@ var _on_esc;
                 menu.style.left = "4.5rem";
                 menu.style.width = "80%";
               }
+            },
+            textsubstitutions: {
+              getTextPreferences: TS.utility.contenteditable.getTextPreferences,
+              replaceSmartQuotes: TS.format.texty.replaceSmartQuotes
             }
           },
           placeholder: "",
-          getTextPreferences: TS.utility.contenteditable.getTextPreferences,
           onEnter: function(args) {
             if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock(input)) {
               if (!args.shiftKey) return true;
