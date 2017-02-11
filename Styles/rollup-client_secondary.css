@@ -1172,6 +1172,14 @@ input.search_input {
   margin: 50% auto
 }
 
+.searchable_member_list .other_matches {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  margin-bottom: .25rem;
+  margin-left: 1rem
+}
+
 .searchable_member_list_filter {
   padding: 1rem;
   position: relative;
@@ -11780,6 +11788,10 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   color: #d62d17
 }
 
+#file_preview_container .file_comment_tip {
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
 #client-ui .file_comment_item .actions,
 #client-ui .file_list_item .actions,
 #client-ui .message .actions,
@@ -13687,7 +13699,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 .search_message_result .search_message_result_meta .date_links a {
-  color: #8b898f
+  color: #8b898f;
+  font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .search_message_result_meta strong {

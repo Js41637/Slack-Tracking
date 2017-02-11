@@ -16219,11 +16219,11 @@ TS.registerModule("constants", {
             _abortRtmStartAttempt(new Error("`hello` imsg did not include rtm.start data"));
           }
         } else if (imsg.type === "error") {
-          _abortRtmStartAttempt({
-            data: {
-              error: _.get(imsg, "error.msg")
-            }
-          });
+          var err = new Error("WebSocket returned an error");
+          err.data = {
+            error: _.get(imsg, "error.msg")
+          };
+          _abortRtmStartAttempt(err);
         }
       });
       _websocket.onclose = _onDisconnectProvisional;
@@ -19471,8 +19471,8 @@ TS.registerModule("constants", {
         } else {
           channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
         if (inviter) {
+          var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
           txt = TS.i18n.t("joined {channel_name} from an invitation by {inviter}", "templates_builders")({
             channel_name: channel_name,
             inviter: inviter_name_formatted
@@ -19526,8 +19526,8 @@ TS.registerModule("constants", {
         group = model_ob;
         var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         inviter = TS.members.getMemberById(msg.inviter);
-        var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
         if (inviter) {
+          var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
           txt = TS.i18n.t("joined {group_name} from an invitation by {inviter}", "templates_builders")({
             group_name: group_name,
             inviter: inviter_name_formatted
@@ -19577,19 +19577,35 @@ TS.registerModule("constants", {
         var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         if (TS.client && group && group.is_archived) {
           if (TS.model.archive_view_is_showing) {
-            html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
-              group_name: group_name,
-              name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
-            });
+            if (group.is_moved) {
+              html = TS.i18n.t('moved {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
+                group_name: group_name,
+                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
+              });
+            } else {
+              html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
+                group_name: group_name,
+                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
+              });
+            }
           } else {
             var method = "TS.shared.closeArchivedChannel";
             var group_id_quoted = "'" + group.id + "'";
-            html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
-              group_name: group_name,
-              name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name,
-              method: method,
-              group_id: group_id_quoted
-            });
+            if (group.is_moved) {
+              html = TS.i18n.t('moved {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
+                group_name: group_name,
+                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name,
+                method: method,
+                group_id: group_id_quoted
+              });
+            } else {
+              html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
+                group_name: group_name,
+                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name,
+                method: method,
+                group_id: group_id_quoted
+              });
+            }
           }
         } else {
           html = TS.i18n.t("archived {group_name}", "templates_builders")({
@@ -22251,6 +22267,7 @@ TS.registerModule("constants", {
         if (!err.message) err.message = "";
         err.message += " " + extra;
         TS.warn("Problem in TS.templates.builders.msgs.buildHTML with args: " + JSON.stringify(err.message));
+        TS.console.logStackTrace();
         return TS.boot_data.feature_tinyspeck ? TS.templates.message_failed({
           msg_ts: msg ? msg.ts : ""
         }) : "";

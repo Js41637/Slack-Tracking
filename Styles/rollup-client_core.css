@@ -7494,13 +7494,13 @@ only screen and (min-resolution:2dppx) {
 #stars_toggle .starburst {
   background-image: url(/9e91b/img/starburstBlue.png);
   top: -6px;
-  left: -6px
+  left: -5px
 }
 
 #recent_mentions_toggle .starburst {
   background-image: url(/9e91b/img/starburstYellow.png);
   top: -6px;
-  left: -6px
+  left: -5px
 }
 
 #search_container .starburst {

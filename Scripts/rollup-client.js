@@ -9576,6 +9576,7 @@
       this.$_search_input = this.$_search_bar.find(".searchable_member_list_input");
       this.$_clear_icon = this.$_container.find(".icon_close");
       this.$_search_input.bind("keyup.searchable_member_list", this._handleSearchKeyUp.bind(this));
+      this.$_container.delegate(".searchable_member_list_filter", "click", this._handleFilterSelect.bind(this));
       this.$_clear_icon.bind("click", function() {
         this_searchable_member_list._reset();
         Promise.resolve().then(function() {
@@ -9602,7 +9603,6 @@
         this_searchable_member_list._filter_counts = response.results;
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_search_bar_filter(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_search_bar.find(".searchable_member_list_filter");
-        this_searchable_member_list.$_filter_input.on("click", this_searchable_member_list._handleFilterSelect.bind(this_searchable_member_list));
         TS.members.joined_team_sig.add(this_searchable_member_list._maybeSetupFilterInput, this_searchable_member_list);
         TS.members.changed_deleted_sig.add(this_searchable_member_list._maybeSetupFilterInput, this_searchable_member_list);
       });
@@ -9677,7 +9677,10 @@
       this._have_all_members = false;
       this._maybeHideNoResultsState();
       this.$_long_list_view.scrollTop(0);
-      this._maybeSetupFilterInput();
+      if (this.$_filter_input) {
+        this.$_filter_input.replaceWith(TS.templates.team_search_bar_filter(this._generateFilterSearchBarTemplateArgs()));
+        this.$_filter_input = this.$_container.find(".searchable_member_list_filter");
+      }
       this.$_long_list_view.height(this._long_list_view_initial_height);
       this._fetchProcessAndDisplayPage();
     },
@@ -9708,10 +9711,31 @@
       this.$_container.delegate(".clear_members_filter", "click", function() {
         this_searchable_member_list._reset();
       });
+      if (this._current_filter !== "everyone" && this._current_query_for_match !== "" && TS.boot_data.feature_team_directory_search_other_members) {
+        this._current_filter = "everyone";
+        this._fetchPage().then(function(members) {
+          this_searchable_member_list._processPage(members);
+          if (this_searchable_member_list._members.length > 0) {
+            this_searchable_member_list.$_container.find(".no_results").after(TS.templates.team_other_matches_heading({
+              query: this_searchable_member_list._current_query_for_display
+            }));
+            this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
+            this_searchable_member_list.$_long_list_view.show();
+            TS.utility.rAF(function() {
+              this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
+              this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
+              this_searchable_member_list._recursivelyFillLongListViewToHeight();
+            });
+          }
+          return null;
+        });
+      }
     },
     _maybeHideNoResultsState: function() {
       var $no_results = this.$_container.find(".no_results");
       if ($no_results.length == 0) return;
+      var $other_matches = this.$_container.find(".other_matches");
+      if ($other_matches) $other_matches.remove();
       $no_results.remove();
       this.$_long_list_view.show();
     },
@@ -9748,7 +9772,8 @@
         this_searchable_member_list._next_marker = "";
         this_searchable_member_list._current_filter = $action.data("filter");
         this_searchable_member_list._fetchProcessAndDisplayPage();
-        this_searchable_member_list._maybeSetupFilterInput();
+        this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_search_bar_filter(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
+        this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
       });
     },
     _generateFilterSearchBarTemplateArgs: function() {
@@ -15159,7 +15184,6 @@
           open_method: "search_box"
         });
       }
-      $("#header_search_form").addClass("active");
       if (TS.search.filter == "messages") {
         $("#search_tabs").show();
       } else if (TS.search.filter == "files") {
@@ -26837,11 +26861,19 @@
       $("#footer").css("height", "auto");
       $("#footer_archives").removeClass("hidden");
       if (model_ob.is_archived) {
-        archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, an archived channel", "archives")({
-          hash: hash,
-          channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
-          shared: shared
-        });
+        if (model_ob.is_moved) {
+          archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, a moved channel", "archives")({
+            hash: hash,
+            channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
+            shared: shared
+          });
+        } else {
+          archive_html = TS.i18n.t("You are viewing <strong>{hash}{channel_name}{shared}</strong>, an archived channel", "archives")({
+            hash: hash,
+            channel_name: TS.utility.htmlEntities(TS.utility.ellipsize(model_ob.name, 25)),
+            shared: shared
+          });
+        }
         action_tip_html = TS.i18n.t('<strong aria-label="return">Esc</strong> to close', "archives")();
         $("#footer_archives_text").html(archive_html);
         $("#footer_archives_action_button").text(TS.i18n.t("Close Channel", "archives")());
