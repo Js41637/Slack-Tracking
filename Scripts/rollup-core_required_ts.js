@@ -843,6 +843,10 @@
     }
   };
   var _maybeFetchInitialSharedChannelInfo = function() {
+    if (TS.boot_data.feature_shared_channels_client || TS.boot_data.feature_shared_channels_boot) {
+      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra shared channels data, moving on");
+      return;
+    }
     if (!TS.client || !TS.boot_data.page_needs_enterprise || !TS.model.initial_cid) {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra enterprise data; completing login");
       return;

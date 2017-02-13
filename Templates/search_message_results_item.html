@@ -7,15 +7,31 @@
           {{#if_equal this.type compare='im'}}
             {{makeIMLinkById this.channel.id}}
           {{else}}
-            {{#if_equal this.type compare='group'}}
-              {{#if this.channel.is_mpim}}
-                {{makeMpimLink this.channel true}}
+            {{#if is_enterprise}}
+              {{#or (isLocalTeam this.team) (if_equal this.channel.is_shared compare=true)}}
+                {{#if_equal this.type compare='group'}}
+                  {{#if this.channel.is_mpim}}
+                    {{makeMpimLink this.channel true}}
+                  {{else}}
+                    {{makeGroupLink this.channel}}
+                  {{/if}}
+                {{else}}
+                  {{makeChannelLink this.channel}}
+                {{/if_equal}}
               {{else}}
-                {{makeGroupLink this.channel}}
-              {{/if}}
+                {{makeChannelLinkEnterpriseSearchResult this}}
+              {{/or}}
             {{else}}
-              {{makeChannelLink this.channel}}
-            {{/if_equal}}
+              {{#if_equal this.type compare='group'}}
+                {{#if this.channel.is_mpim}}
+                  {{makeMpimLink this.channel true}}
+                {{else}}
+                  {{makeGroupLink this.channel}}
+                {{/if}}
+              {{else}}
+                {{makeChannelLink this.channel}}
+              {{/if_equal}}
+            {{/if}}
           {{/if_equal}}
         </strong>
 

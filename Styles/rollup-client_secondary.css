@@ -24636,14 +24636,18 @@ ts-jumper ts-jumper-results:empty {
   margin-right: .4rem
 }
 
-.channel_header_info_item:not(:first-child):before {
+.channel_header_info_item:empty,
+.channel_header_info_item:last-child {
+  margin-right: 0
+}
+
+.channel_header_info_item:not(:empty)~.channel_header_info_item:not(:first-child):before {
   padding-right: .4rem;
   color: rgba(113, 114, 116, .5);
   content: '|'
 }
 
 .channel_header_info_item:last-child {
-  margin-right: 0;
   padding-right: 0
 }
 

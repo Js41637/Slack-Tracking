@@ -2021,17 +2021,11 @@
     };
     var ensureModelObs = function() {
       TS.log(528, 'running api data from "' + method + '" through TS.shared.ensureModelObsInDataArePresent()');
-      if (TS.boot_data.feature_tinyspeck) {
-        return TS.ensureFullyBooted().then(function() {
-          return TS.shared.ensureModelObsInDataArePresent(data, method).catch(function(err) {
-            TS.error(err);
-          });
-        });
-      } else {
+      return TS.ensureFullyBooted().then(function() {
         return TS.shared.ensureModelObsInDataArePresent(data, method).catch(function(err) {
           TS.error(err);
         });
-      }
+      });
     };
     var ensureTeams = function() {
       if (!TS.boot_data.feature_shared_channels_client) return;
@@ -15327,6 +15321,16 @@ TS.registerModule("constants", {
         TS.log(2, "sending " + msg.type);
         TS.dir(2, msg);
       }
+      if (!_websocket) {
+        var err = new Error("TS.ms.sendMsg called when we have no _websocket! This is a programming error.");
+        TS.error(err);
+        TS.info("Some context for debugging:");
+        TS.info("TS.model.calling_rtm_start=" + TS.model.calling_rtm_start);
+        TS.info("TS.model.ms_connected=" + TS.model.ms_connected);
+        TS.info("TS.model.ms_connecting=" + TS.model.ms_connecting);
+        TS.console.logStackTrace("TS.ms.sendMsg(...)");
+        throw err;
+      }
       _websocket.send(JSON.stringify(msg));
       return msg.id;
     },
@@ -20497,6 +20501,11 @@ TS.registerModule("constants", {
       var prefix = TS.templates.builders.makeChannelPrefix(channel);
       return '<a href="/archives/' + name_for_url + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
     },
+    makeChannelLinkEnterpriseSearchResult: function(result) {
+      var href = result.permalink;
+      var target = 'target="' + TS.templates.builders.newWindowName() + '"';
+      return '<a href="' + href + '"' + target + ' data-channel-id="' + result.channel.id + '">#' + result.channel.name + "</a>";
+    },
     makeChannelLinkAriaLabelSafe: function(channel) {
       if (!channel) TS.warn("No valid channel to make channel link aria label");
       var name = TS.utility.htmlEntities(channel.name);
@@ -22666,21 +22675,31 @@ TS.registerModule("constants", {
         return str.replace(/\s+/g, "");
       });
       Handlebars.registerHelper("cash", function(options) {
-        var all_digits = options.hash.all_digits || false;
-        var neg = false;
-        var val = parseInt(options.hash.value);
-        if (val < 0) {
-          neg = true;
-          val = 0 - val;
+        if (TS.boot_data.feature_i18n_currencies) {
+          var include_all_digits = options.hash.all_digits || false;
+          var currency_code = options.hash.currency_code || "USD";
+          var amount = parseInt(options.hash.value);
+          var out = TS.utility.money.formatMoney(amount, currency_code, {
+            all_digits: include_all_digits
+          });
+          return out;
+        } else {
+          var all_digits = options.hash.all_digits || false;
+          var neg = false;
+          var val = parseInt(options.hash.value);
+          if (val < 0) {
+            neg = true;
+            val = 0 - val;
+          }
+          var dollars = (val / 100).toString();
+          var out = (neg ? "-" : "") + "$" + dollars;
+          if (!all_digits && out.substring(-3) === ".00") {
+            out = out.substring(0, -3);
+          } else if (_REGEX_CASH_DECIMAL_FORMATTING.test(dollars)) {
+            out = out + "0";
+          }
+          return out;
         }
-        var dollars = (val / 100).toString();
-        var out = (neg ? "-" : "") + "$" + dollars;
-        if (!all_digits && out.substring(-3) === ".00") {
-          out = out.substring(0, -3);
-        } else if (_REGEX_CASH_DECIMAL_FORMATTING.test(dollars)) {
-          out = out + "0";
-        }
-        return out;
       });
       Handlebars.registerHelper("possessive", function(str) {
         return TS.i18n.possessive(str);
@@ -23149,6 +23168,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("makeChannelLink", function(channel) {
         return new Handlebars.SafeString(TS.templates.builders.makeChannelLink(channel));
+      });
+      Handlebars.registerHelper("makeChannelLinkEnterpriseSearchResult", function(result) {
+        return new Handlebars.SafeString(TS.templates.builders.makeChannelLinkEnterpriseSearchResult(result));
       });
       Handlebars.registerHelper("makeChannelLinkById", function(id) {
         var channel = TS.channels.getChannelById(id);
@@ -55885,7 +55907,7 @@ $.fn.togglify = function(settings) {
       return _text_preferences;
     },
     refreshTextPreferences: function() {
-      if (!TS.model.is_our_app && !TS.boot_data.feature_texty_browser_substitutions) {
+      if (!TS.model.is_our_app && !TS.boot_data.feature_texty_browser_substitutions || TS.model.is_our_app && !TS.model.is_mac) {
         _text_preferences = false;
         return;
       }
@@ -58984,5 +59006,239 @@ $.fn.togglify = function(settings) {
   var _updateParticipantsList = function($thread, thread) {
     var participants = TS.ui.replies.buildParticipantsList(thread.root_msg);
     $thread.find(".thread_participants").text(participants);
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("utility.money", {
+    formatMoney: function(amount, currency_code, formatting_options) {
+      var default_formatting_options = {
+        all_digits: false
+      };
+      formatting_options = _.defaults(formatting_options, default_formatting_options);
+      var all_digits = formatting_options.all_digits;
+      if (!currency_code) {
+        TS.error("cannot format money: no currency_code specified");
+        return "";
+      }
+      amount = !!amount ? parseInt(amount) : 0;
+      var dollar_value;
+      if (_has_Intl) {
+        if (currency_code === "JPY") {
+          dollar_value = amount;
+        } else {
+          dollar_value = amount / 100;
+        }
+        var has_cents = amount % 100 !== 0;
+        var exclude_cents_in_output = !all_digits && !has_cents;
+        var number_format_key = _getNumFormatKey(_locale, currency_code, exclude_cents_in_output);
+        var number_format_obj;
+        if (_number_format_cache[number_format_key]) {
+          number_format_obj = _number_format_cache[number_format_key];
+        } else if (exclude_cents_in_output) {
+          number_format_obj = new Intl.NumberFormat(_locale, {
+            style: "currency",
+            currency: currency_code,
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0
+          });
+          _number_format_cache[number_format_key] = number_format_obj;
+        } else {
+          number_format_obj = new Intl.NumberFormat(_locale, {
+            style: "currency",
+            currency: currency_code
+          });
+          _number_format_cache[number_format_key] = number_format_obj;
+        }
+        return number_format_obj.format(dollar_value);
+      } else {
+        return TS.utility.money.formatMoneyWithoutIntl(amount, currency_code, formatting_options);
+      }
+    },
+    formatMoneyWithoutIntl: function(amount, currency_code, formatting_options) {
+      var NUMBER_FORMAT_ONLY = /^[-]*[0-9]+\.?[0-9]*$/;
+      var THOUSANDS_SEPARATOR_REGEX = /\B(?=(\d{3})+(?!\d))/g;
+      var default_formatting_options = {
+        all_digits: false
+      };
+      formatting_options = _.defaults(formatting_options, default_formatting_options);
+      var all_digits = formatting_options.all_digits;
+      if (!currency_code) {
+        TS.error("cannot format money: no currency_code specified");
+        return "";
+      }
+      amount = !!amount ? parseInt(amount) : 0;
+      var default_locale_options = _locales_number_formatting["default"];
+      var decimal_symbol = _locales_number_formatting[_locale] ? _locales_number_formatting[_locale]["decimal_symbol"] : default_locale_options.decimal_symbol;
+      var thousands_separator = _locales_number_formatting[currency_code] ? _locales_number_formatting[_locale]["thousands_separator"] : default_locale_options.thousands_separator;
+      var currency_symbol = _currencies[currency_code] ? _currencies[currency_code]["currency_symbol"] : currency_code;
+      if (!NUMBER_FORMAT_ONLY.test(amount)) {
+        TS.warn("Incorrect input passed as parameter: amount should only contain numbers");
+        return amount;
+      }
+      var sign_symbol = "";
+      var dollar_value = "";
+      var has_cents;
+      var ret_val = "";
+      var is_negative = amount < 0;
+      if (is_negative) {
+        sign_symbol = "-";
+        amount = Math.abs(amount);
+      }
+      if (currency_code === "JPY") {
+        dollar_value = amount.toString();
+      } else {
+        has_cents = amount % 100 !== 0;
+        dollar_value = amount / 100;
+        if (!all_digits) {
+          dollar_value = has_cents ? dollar_value.toFixed(2).replace(".", decimal_symbol) : dollar_value.toFixed(0);
+        } else {
+          dollar_value = dollar_value.toFixed(2).replace(".", decimal_symbol);
+        }
+      }
+      dollar_value = dollar_value.replace(THOUSANDS_SEPARATOR_REGEX, thousands_separator);
+      switch (_locale) {
+        case "en-US":
+          ret_val = sign_symbol + currency_symbol + dollar_value;
+          break;
+        case "es":
+          ret_val = sign_symbol + dollar_value + " " + currency_symbol;
+          break;
+        case "fr":
+          ret_val = sign_symbol + dollar_value + " " + currency_symbol;
+          break;
+        case "de":
+          ret_val = sign_symbol + dollar_value + " " + currency_symbol;
+          break;
+        case "jp":
+          ret_val = sign_symbol + currency_symbol + dollar_value;
+          break;
+        default:
+          ret_val = sign_symbol + currency_symbol + dollar_value;
+      }
+      return ret_val;
+    },
+    test: function() {
+      var test_ob = {
+        isInString: _isInString,
+        currencies: _currencies,
+        locales_number_formatting: _locales_number_formatting,
+        locale: _locale,
+        number_format_cache: _number_format_cache,
+        getNumFormatKey: _getNumFormatKey,
+        has_Intl: _has_Intl
+      };
+      Object.defineProperty(test_ob, "isInString", {
+        get: function() {
+          return _isInString;
+        },
+        set: function(v) {
+          _isInString = v;
+        }
+      });
+      Object.defineProperty(test_ob, "currencies", {
+        get: function() {
+          return _currencies;
+        },
+        set: function(v) {
+          _currencies = v;
+        }
+      });
+      Object.defineProperty(test_ob, "locales_number_formatting", {
+        get: function() {
+          return _locales_number_formatting;
+        },
+        set: function(v) {
+          _locales_number_formatting = v;
+        }
+      });
+      Object.defineProperty(test_ob, "locale", {
+        get: function() {
+          return "_locale";
+        },
+        set: function(v) {
+          _locale = v;
+        }
+      });
+      Object.defineProperty(test_ob, "number_format_cache", {
+        get: function() {
+          return _number_format_cache;
+        },
+        set: function(v) {
+          _number_format_cache = v;
+        }
+      });
+      Object.defineProperty(test_ob, "getNumFormatKey", {
+        get: function() {
+          return _getNumFormatKey;
+        },
+        set: function(v) {
+          _getNumFormatKey = v;
+        }
+      });
+      Object.defineProperty(test_ob, "has_Intl", {
+        get: function() {
+          return _has_Intl;
+        },
+        set: function(v) {
+          _has_Intl = v;
+        }
+      });
+      return test_ob;
+    }
+  });
+  var _currencies = {
+    "default": {
+      currency_symbol: "$"
+    },
+    USD: {
+      currency_symbol: "$"
+    },
+    GBP: {
+      currency_symbol: "£"
+    },
+    EUR: {
+      currency_symbol: "€"
+    },
+    JPY: {
+      currency_symbol: "¥"
+    }
+  };
+  var _locales_number_formatting = {
+    "default": {
+      decimal_symbol: ".",
+      thousands_separator: ","
+    },
+    "en-US": {
+      decimal_symbol: ".",
+      thousands_separator: ","
+    },
+    es: {
+      decimal_symbol: ",",
+      thousands_separator: " "
+    },
+    fr: {
+      decimal_symbol: ",",
+      thousands_separator: " "
+    },
+    jp: {
+      decimal_symbol: ".",
+      thousands_separator: ","
+    },
+    de: {
+      decimal_symbol: ",",
+      thousands_separator: "."
+    }
+  };
+  var _has_Intl = window.Intl && typeof window.Intl === "object";
+  var _locale = TS.i18n.locale || "en_US";
+  var _number_format_cache = {};
+  var _isInString = function(search_string, substr) {
+    if (_.isEmpty(search_string) || _.isEmpty(substr)) return false;
+    return search_string.indexOf(substr) >= 0;
+  };
+  var _getNumFormatKey = function(locale, currency_code, should_exclude_cents) {
+    var cents_fmt = should_exclude_cents ? "cents" : "nocents";
+    return locale + "_" + currency_code + "_" + cents_fmt;
   };
 })();
