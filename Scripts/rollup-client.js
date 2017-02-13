@@ -30389,8 +30389,8 @@
           }
         } else {
           org_team_ids = _.map(_channel.shares || [], "team.id");
+          org_team_ids.push(TS.model.user.team_id);
         }
-        org_team_ids.push(TS.model.user.team_id);
         _member_searcher.org_team_ids = org_team_ids;
       }
       _member_searcher.scroll_mark = 0;
@@ -30538,7 +30538,7 @@
                 return team.name;
               });
             }
-            template_args.teams = [TS.model.team.name].concat(shared_teams);
+            template_args.teams = shared_teams;
           } else {
             template_args.teams = [TS.model.team.name].concat(_.map(_channel.shares, "team.name"));
           }

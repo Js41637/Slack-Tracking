@@ -24997,35 +24997,52 @@ TS.registerModule("constants", {
       var day = date.getDate();
       var day_words = TS.utility.date.numberToWords(day, true);
       var month_words = TS.utility.date.month_names[month];
-      var year_words = "";
       if (!exclude_year) {
-        year_words = ", ";
         if (year % 1e3 === 0) {
-          year_words += TS.utility.date.numberToWords(year / 1e3) + "-thousand";
+          return TS.i18n.t("{month_words} {day_words}, {year_words}-thousand", "date_utilities")({
+            day_words: day_words,
+            month_words: month_words,
+            year_words: TS.utility.date.numberToWords(year / 1e3)
+          });
         } else if (year % 100 === 0) {
-          year_words += TS.utility.date.numberToWords(year / 100) + " hundred";
+          return TS.i18n.t("{month_words} {day_words}, {year_words} hundred", "date_utilities")({
+            day_words: day_words,
+            month_words: month_words,
+            year_words: TS.utility.date.numberToWords(year / 100)
+          });
         } else if (year % 1e3 < 10) {
-          year_words += TS.utility.date.numberToWords((year - year % 1e3) / 1e3) + "-thousand and " + TS.utility.date.numberToWords(year % 1e3);
+          return TS.i18n.t("{month_words} {day_words}, {year_words}-thousand and {modulus_year_word}", "date_utilities")({
+            day_words: day_words,
+            month_words: month_words,
+            year_words: TS.utility.date.numberToWords((year - year % 1e3) / 1e3),
+            modulus_year_word: TS.utility.date.numberToWords(year % 1e3)
+          });
         } else {
-          year_words += TS.utility.date.numberToWords((year - year % 100) / 100) + " " + (year % 100 < 10 ? "oh-" : "") + TS.utility.date.numberToWords(year % 100);
+          return TS.i18n.t("{month_words} {day_words}, {year_words} {use_year_prefix, select, true{oh-{modulus_year_word}}other{{modulus_year_word}}}", "date_utilities")({
+            day_words: day_words,
+            month_words: month_words,
+            year_words: TS.utility.date.numberToWords((year - year % 100) / 100),
+            modulus_year_word: TS.utility.date.numberToWords(year % 100),
+            use_year_prefix: year % 100 < 10
+          });
         }
       }
-      return month_words + " " + day_words + year_words;
+      return TS.i18n.t("{month_words} {day_words}", "date_utilities")({
+        month_words: month_words,
+        day_words: day_words
+      });
     },
     toCalendarDateOrNamedDayWords: function(ts, exclude_year) {
       var date = TS.utility.date.toDateObject(ts);
       var today = new Date;
       var yesterday = new Date;
       yesterday.setDate(today.getDate() - 1);
-      var formatted_time;
       if (TS.utility.date.sameDay(date, today)) {
-        formatted_time = "Today";
+        return TS.i18n.t("Today", "date_utilities")();
       } else if (TS.utility.date.sameDay(date, yesterday)) {
-        formatted_time = "Yesterday";
-      } else {
-        formatted_time = TS.utility.date.toCalendarDateWords(ts, exclude_year);
+        return TS.i18n.t("Yesterday", "date_utilities")();
       }
-      return formatted_time;
+      return TS.utility.date.toCalendarDateWords(ts, exclude_year);
     },
     numberToWords: function(num, ordinal) {
       var tens, ones, result = "";
@@ -46384,7 +46401,6 @@ $.fn.togglify = function(settings) {
       return this.instance._selected;
     }
   });
-  var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _addUserCreatedSlugFromString = function(instance, str) {
     if (!_instanceCanSluggify(instance)) return;
     if (!str.trim()) return;
@@ -46444,174 +46460,23 @@ $.fn.togglify = function(settings) {
     }
   };
   var _bindUI = function(instance) {
+    instance.$container.on("mouseleave", _onContainerMouseleave.bind(null, instance));
+    instance.$container.on("click", _onContainerClick.bind(null, instance));
+    instance.$container.parents("label").on("click", _onContainerParentsLabelClick.bind(null, instance));
+    instance.$input_container.on("focus", _onInputContainerFocus.bind(null, instance));
     instance.$input.on("input", _onInputInput.bind(null, instance));
-    instance.$input.on("keydown", function(e) {
-      if (instance.disabled) return;
-      switch (e.keyCode) {
-        case TS.utility.keymap.down:
-          _stopThePresses(e);
-          _selectDown(instance);
-          break;
-        case TS.utility.keymap.up:
-          _stopThePresses(e);
-          _selectUp(instance);
-          break;
-        case TS.utility.keymap.enter:
-          if (instance._$active && instance._$active.length && instance._list_visible) {
-            _stopThePresses(e);
-            var $current_active = instance._$active;
-            if (!instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active))) {
-              _unselectItem(instance, $current_active);
-            } else {
-              if (!_canAddNewItem(instance)) return;
-              _selectListItem(instance);
-              if ($(this).val() !== "") {
-                $(this).val("");
-                instance._previous_val = "";
-                _populate(instance);
-              }
-              if (instance.single) {
-                _hideList(instance);
-                _hideError(instance);
-              }
-            }
-          }
-          break;
-        case TS.utility.keymap.del:
-          if (instance.$input.val() === "") {
-            _stopThePresses(e);
-            var $last_item = instance.$input_container.find(".lfs_token").last();
-            if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
-              _unsluggifySlug(instance, $last_item);
-            } else {
-              _removeLastSelected(instance);
-            }
-          }
-          break;
-        case TS.utility.keymap.tab:
-          if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-            _stopThePresses(e);
-            _addUserCreatedSlugFromString(instance, instance.$input.val());
-          } else if (instance.tab_to_nav) {
-            _stopThePresses(e);
-            if (e.shiftKey) {
-              _selectUp(instance);
-            } else {
-              _selectDown(instance);
-            }
-          }
-          break;
-        case TS.utility.keymap.esc:
-          _stopThePresses(e);
-          _hideList(instance);
-          _hideNoResults(instance);
-          _hideError(instance);
-          instance.$input.blur();
-          break;
-      }
-      instance.onKeyDown(e, e.isDefaultPrevented());
-    });
-    instance.$input.on("blur", function() {
-      if (!instance._prevent_blur) {
-        _hideList(instance);
-        _hideNoResults(instance);
-        _hideError(instance);
-      }
-      if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-        _addUserCreatedSlugFromString(instance, instance.$input.val());
-      }
-    });
-    instance.$lfs_value.on("click", function(e) {
-      if (instance.disabled) return;
-      e.stopPropagation();
-      _showList(instance);
-      instance._prevent_blur = false;
-    });
-    instance.$lfs_value.on("mousedown", function(e) {
-      if (e.which === 1) instance._prevent_blur = true;
-    });
-    instance.$list_container.on("mousemove", ".lfs_item", function(e) {
-      if (instance.disabled) return;
-      if (e.clientX == instance._mouse.lastX && e.clientY == instance._mouse.lastY) return;
-      if (instance._$active) instance._$active.removeClass("active");
-      if (!$(this).hasClass("active") && _selectable($(this))) {
-        $(this).addClass("active");
-        instance._$active = $(this);
-      }
-      instance._mouse.lastX = e.clientX;
-      instance._mouse.lastY = e.clientY;
-    });
-    instance.$list_container.on("mouseleave", ".lfs_item.active", function(e) {
-      $(this).removeClass("active");
-      instance._$active = null;
-    });
-    instance.$list_container.on("click", ".lfs_item", function(e) {
-      if (instance.disabled) return;
-      e.preventDefault();
-      instance._$active = $(this);
-      if (!instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $(this)))) {
-        _unselectItem(instance, $(this));
-      } else {
-        var selectable = _selectable($(this));
-        if (!selectable && !instance.single) return;
-        if (!_canAddNewItem(instance)) return;
-        if (!selectable && instance.single) {
-          _hideList(instance);
-          e.stopPropagation();
-          return;
-        }
-        _selectListItem(instance);
-        if (instance.$input.val() !== "") {
-          instance.$input.val("");
-          instance._previous_val = "";
-          _populate(instance);
-        }
-        if (instance.single) {
-          _hideList(instance);
-          e.stopPropagation();
-        }
-      }
-      instance._prevent_blur = false;
-    });
-    instance.$list_container.on("mousedown", function(e) {
-      if (e.which === 1) instance._prevent_blur = true;
-    });
-    instance.$input.on("focus", function() {
-      if (!instance._input_is_focused) {
-        instance._input_is_focused = true;
-        instance.$input_container.click();
-        instance.onInputFocus();
-      }
-      if (!instance.single) instance.$input_container.addClass("active");
-    });
-    instance.$input.on("blur", function() {
-      instance._input_is_focused = false;
-      instance.onInputBlur();
-    });
-    instance.$input_container.on("focus", function() {
-      instance.$input_container.click();
-      instance.$input.focus();
-    });
-    instance.$input_container.on("click", ".lfs_token", function(e) {
-      if (instance.disabled) return;
-      _removeSelected(instance, $(this));
-      instance._prevent_blur = false;
-    });
-    instance.$input_container.on("mousedown", ".lfs_token", function(e) {
-      if (e.which === 1) instance._prevent_blur = true;
-    });
-    instance.$container.on("mouseleave", function(e) {
-      instance._prevent_blur = false;
-    });
-    instance.$container.on("click", function(e) {
-      if (instance.disabled) return;
-      _showList(instance);
-    });
-    instance.$container.parents("label").on("click", function(e) {
-      if (instance.disabled) return;
-      e.preventDefault();
-      _showList(instance);
-    });
+    instance.$input.on("keydown", _onInputKeydown.bind(null, instance));
+    instance.$input.on("blur", _onInputBlur.bind(null, instance));
+    instance.$input.on("focus", _onInputFocus.bind(null, instance));
+    instance.$input.on("blur", _onInputBlur.bind(null, instance));
+    instance.$lfs_value.on("click", _onValueClick.bind(null, instance));
+    instance.$lfs_value.on("mousedown", _onValueMousedown.bind(null, instance));
+    instance.$input_container.on("click", ".lfs_token", _onTokenClick.bind(null, instance));
+    instance.$input_container.on("mousedown", ".lfs_token", _onTokenMousedown.bind(null, instance));
+    instance.$list_container.on("mousedown", _onListContainerMousedown.bind(null, instance));
+    instance.$list_container.on("mousemove", ".lfs_item", _onItemMousemove.bind(null, instance));
+    instance.$list_container.on("mouseleave", ".lfs_item.active", _onActiveItemMouseleave.bind(null, instance));
+    instance.$list_container.on("click", ".lfs_item", _onItemClick.bind(null, instance));
     instance.onReady();
   };
   var _buildItem = function(instance, item, token) {
@@ -46645,6 +46510,7 @@ $.fn.togglify = function(settings) {
       data_qa: instance.data_qa
     }).replace(/(\r\n|\n|\r)/gm, "");
   };
+  var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
   var _sizeAndPostionItemsList = function(instance) {
     if (!instance._list_built) return;
     var list_height = instance.$list.css({
@@ -47043,17 +46909,6 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onInputInput = function(instance) {
-    var query = instance.$input.val();
-    if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
-      var slugs = query.split(instance.sluggify.delimiter);
-      slugs.forEach(function(slug) {
-        if (slug.length) _addUserCreatedSlugFromString(instance, slug);
-      });
-    } else {
-      _runQuery(instance, query, true);
-    }
-  };
   var _runQuery = function(instance, query, keep_value) {
     if (instance.disabled) return;
     if (query === instance._previous_val) return;
@@ -47350,6 +47205,187 @@ $.fn.togglify = function(settings) {
       instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container);
     }
     return instance._is_in_message;
+  };
+  var _onContainerMouseleave = function(instance) {
+    instance._prevent_blur = false;
+  };
+  var _onContainerClick = function(instance) {
+    if (instance.disabled) return;
+    _showList(instance);
+  };
+  var _onContainerParentsLabelClick = function(instance, e) {
+    if (instance.disabled) return;
+    e.preventDefault();
+    _showList(instance);
+  };
+  var _onInputContainerFocus = function(instance) {
+    instance.$input_container.click();
+    instance.$input.focus();
+  };
+  var _onInputInput = function(instance) {
+    var query = instance.$input.val();
+    if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
+      var slugs = query.split(instance.sluggify.delimiter);
+      slugs.forEach(function(slug) {
+        if (slug.length) _addUserCreatedSlugFromString(instance, slug);
+      });
+    } else {
+      _runQuery(instance, query, true);
+    }
+  };
+  var _onInputKeydown = function(instance, e) {
+    if (instance.disabled) return;
+    switch (e.keyCode) {
+      case TS.utility.keymap.down:
+        _stopThePresses(e);
+        _selectDown(instance);
+        break;
+      case TS.utility.keymap.up:
+        _stopThePresses(e);
+        _selectUp(instance);
+        break;
+      case TS.utility.keymap.enter:
+        if (instance._$active && instance._$active.length && instance._list_visible) {
+          _stopThePresses(e);
+          var $current_active = instance._$active;
+          var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active));
+          if (should_unselect_item) {
+            _unselectItem(instance, $current_active);
+          } else {
+            if (!_canAddNewItem(instance)) return;
+            _selectListItem(instance);
+            var $el = $(e.currentTarget);
+            if ($el.val() !== "") {
+              $el.val("");
+              instance._previous_val = "";
+              _populate(instance);
+            }
+            if (instance.single) {
+              _hideList(instance);
+              _hideError(instance);
+            }
+          }
+        }
+        break;
+      case TS.utility.keymap.del:
+        if (instance.$input.val() === "") {
+          _stopThePresses(e);
+          var $last_item = instance.$input_container.find(".lfs_token").last();
+          if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
+            _unsluggifySlug(instance, $last_item);
+          } else {
+            _removeLastSelected(instance);
+          }
+        }
+        break;
+      case TS.utility.keymap.tab:
+        if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+          _stopThePresses(e);
+          _addUserCreatedSlugFromString(instance, instance.$input.val());
+        } else if (instance.tab_to_nav) {
+          _stopThePresses(e);
+          if (e.shiftKey) {
+            _selectUp(instance);
+          } else {
+            _selectDown(instance);
+          }
+        }
+        break;
+      case TS.utility.keymap.esc:
+        _stopThePresses(e);
+        _hideList(instance);
+        _hideNoResults(instance);
+        _hideError(instance);
+        instance.$input.blur();
+        break;
+    }
+    instance.onKeyDown(e, e.isDefaultPrevented());
+  };
+  var _onInputFocus = function(instance) {
+    if (!instance._input_is_focused) {
+      instance._input_is_focused = true;
+      instance.$input_container.click();
+      instance.onInputFocus();
+    }
+    if (!instance.single) instance.$input_container.addClass("active");
+  };
+  var _onInputBlur = function(instance) {
+    if (!instance._prevent_blur) {
+      _hideList(instance);
+      _hideNoResults(instance);
+      _hideError(instance);
+    }
+    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+      _addUserCreatedSlugFromString(instance, instance.$input.val());
+    }
+    instance._input_is_focused = false;
+    instance.onInputBlur();
+  };
+  var _onValueClick = function(instance, e) {
+    if (instance.disabled) return;
+    e.stopPropagation();
+    _showList(instance);
+    instance._prevent_blur = false;
+  };
+  var _onValueMousedown = function(instance, e) {
+    if (e.which === 1) instance._prevent_blur = true;
+  };
+  var _onTokenClick = function(instance, e) {
+    if (instance.disabled) return;
+    _removeSelected(instance, $(e.currentTarget));
+    instance._prevent_blur = false;
+  };
+  var _onTokenMousedown = function(instance, e) {
+    if (e.which === 1) instance._prevent_blur = true;
+  };
+  var _onListContainerMousedown = function(instance, e) {
+    if (e.which === 1) instance._prevent_blur = true;
+  };
+  var _onItemMousemove = function(instance, e) {
+    if (instance.disabled) return;
+    if (e.clientX == instance._mouse.lastX && e.clientY == instance._mouse.lastY) return;
+    var $el = $(e.currentTarget);
+    if (instance._$active) instance._$active.removeClass("active");
+    if (!$el.hasClass("active") && _selectable($el)) {
+      $el.addClass("active");
+      instance._$active = $el;
+    }
+    instance._mouse.lastX = e.clientX;
+    instance._mouse.lastY = e.clientY;
+  };
+  var _onActiveItemMouseleave = function(instance, e) {
+    $(e.currentTarget).removeClass("active");
+    instance._$active = null;
+  };
+  var _onItemClick = function(instance, e) {
+    if (instance.disabled) return;
+    e.preventDefault();
+    var $el = $(e.currentTarget);
+    instance._$active = $el;
+    var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $el));
+    if (should_unselect_item) {
+      _unselectItem(instance, $el);
+    } else {
+      var selectable = _selectable($el);
+      if (!selectable && !instance.single) return;
+      if (!_canAddNewItem(instance)) return;
+      if (!selectable && instance.single) {
+        _hideList(instance);
+        e.stopPropagation();
+        return;
+      }
+      _selectListItem(instance);
+      if (instance.$input.val() !== "") {
+        instance.$input.val("");
+        instance._previous_val = "";
+        _populate(instance);
+      }
+      if (instance.single) {
+        _hideList(instance);
+        e.stopPropagation();
+      }
+    }
+    instance._prevent_blur = false;
   };
 })();
 (function() {

@@ -5836,8 +5836,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
   display: inline-block;
   position: relative;
   width: 9px;
-  height: 9px;
-  top: -1px
+  height: 9px
 }
 
 #presence:before {

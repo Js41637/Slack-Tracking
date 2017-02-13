@@ -3333,6 +3333,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   opacity: .5
 }
 
+.channels_list_holder .member_name .presence_icon {
+  top: -11px
+}
+
 .channels_list_holder:not(.no_unread_msgs_badges) li:not(.member):not(.mpim) .unread_highlights {
   right: 31px
 }
