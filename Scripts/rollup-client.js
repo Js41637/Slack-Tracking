@@ -34983,7 +34983,8 @@ function timezones_guess() {
     _$wrapper.off(".ui_" + BASE_CLASS_NAME).on("blur.ui_" + BASE_CLASS_NAME, "." + BASE_CLASS_NAME + "_input", _onBlur).on(ANIMATION_END_EVENT_STR, _onAnimationEnd);
     _$input.off(".ui_" + BASE_CLASS_NAME).on("paste.ui_" + BASE_CLASS_NAME, _onPaste);
     _unformatted_value = _$input.data("inline-edit-unformatted") || _$input.text();
-    _$input.text(TS.utility.unHtmlEntities(_unformatted_value));
+    _unformatted_value = TS.format.unFormatMsg(_unformatted_value);
+    _$input.text(_unformatted_value);
     _$wrapper.addClass(BASE_CLASS_NAME + "_editing");
     _$input.attr("contenteditable", true);
     _$input.focus();

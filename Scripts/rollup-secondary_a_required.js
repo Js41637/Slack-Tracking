@@ -5637,7 +5637,9 @@ TS.registerModule("constants", {
       if (member.is_slackbot) continue;
       if (member.is_self) continue;
       if (member.is_ultra_restricted) continue;
-      if (!group || group.members.indexOf(member.id) == -1) {
+      if (!group) {
+        A.push(member);
+      } else if (group.members.indexOf(member.id) == -1) {
         if (TS.permissions.channels.canMemberJoinChannel(group, member)) A.push(member);
       }
     }
@@ -24877,50 +24879,94 @@ TS.registerModule("constants", {
       var next_date = new Date(date.getTime() - 864e5);
       return next_date.getFullYear() + "-" + _.padStart(next_date.getMonth() + 1, 2, "0") + "-" + _.padStart(next_date.getDate(), 2, "0");
     },
-    toTimeWords: function(ts, ampm, seconds) {
+    toTimeWords: function(ts, include_ampm, include_seconds) {
       var date = TS.utility.date.toDateObject(ts);
       var hours = date.getHours();
       var minutes = date.getMinutes();
       var secs = date.getSeconds();
-      var pm = hours >= 12;
-      var oclock = minutes === 0;
-      var hours_words = "";
-      var minutes_words = "";
-      var minutes_prefix = "";
-      var seconds_words = "";
-      var ampm_words = "";
-      if (oclock && (secs === 0 || !seconds)) {
-        if (hours === 0) return "midnight";
-        if (hours === 12) return "noon";
+      var is_pm = false;
+      var is_24_time = TS.utility.date.do24hrTime();
+      var use_oclock = minutes === 0;
+      var use_seconds = include_seconds && secs !== 0;
+      var use_ampm = include_ampm && !is_24_time;
+      var no_hour_str = is_24_time && hours === 0;
+      var hours_str_builder;
+      var built_hours_str;
+      var minutes_str_builder;
+      var built_minutes_str;
+      var seconds_str_builder;
+      var built_seconds_str;
+      var ampm_str_builder;
+      var built_ampm_str;
+      var hours_words;
+      var minutes_words;
+      var seconds_words;
+      if (use_oclock && !use_seconds) {
+        if (hours === 0) {
+          return TS.i18n.t("midnight", "date_utilities")();
+        }
+        if (hours === 12) {
+          return TS.i18n.t("noon", "date_utilities")();
+        }
       }
-      if (!TS.utility.date.do24hrTime()) {
+      if (!is_24_time) {
         if (hours >= 12) {
-          hours = hours - 12;
+          if (hours > 12) {
+            hours = hours - 12;
+          }
+          is_pm = true;
         } else if (hours === 0) {
           hours = 12;
         }
       }
-      hours_words = TS.utility.date.numberToWords(hours);
-      if (oclock) {
-        if (hours > 12 && TS.utility.date.do24hrTime()) {
-          hours_words += " hundred";
+      if (!use_oclock) {
+        minutes_str_builder = TS.i18n.t("{use_minutes_prefix, select, true{ oh-{minutes_words}}other{ {minutes_words}}}", "date_utilities");
+        minutes_words = TS.utility.date.numberToWords(minutes);
+        built_minutes_str = minutes_str_builder({
+          use_minutes_prefix: minutes < 10,
+          minutes_words: minutes_words
+        });
+      } else {
+        built_minutes_str = "";
+      }
+      if (use_seconds) {
+        seconds_str_builder = TS.i18n.t("{seconds, plural, =1{ and {seconds_words} second}other{ and {seconds_words} seconds}}", "date_utilities");
+        seconds_words = TS.utility.date.numberToWords(secs);
+        built_seconds_str = seconds_str_builder({
+          seconds_words: seconds_words,
+          seconds: secs
+        });
+      } else {
+        built_seconds_str = "";
+      }
+      if (use_ampm) {
+        ampm_str_builder = TS.i18n.t("{is_pm, select, true{ PM}other{ AM}}", "date_utilities");
+        built_ampm_str = ampm_str_builder({
+          is_pm: is_pm
+        });
+      } else {
+        built_ampm_str = "";
+      }
+      if (no_hour_str) {
+        minutes_str_builder = TS.i18n.t("{minutes, plural, =1{{minutes_words} minute past midnight}other{{minutes_words} minutes past midnight}}", "date_utilities");
+        built_minutes_str = minutes_str_builder({
+          minutes_words: minutes_words,
+          minutes: minutes
+        });
+        built_hours_str = "";
+      } else {
+        hours_words = TS.utility.date.numberToWords(hours);
+        if (use_oclock) {
+          hours_str_builder = TS.i18n.t("{hours_words} {use_24_time, select, true{hundred}other{o’clock}}", "date_utilities");
+          built_hours_str = hours_str_builder({
+            hours_words: hours_words,
+            use_24_time: is_24_time && hours > 12
+          });
         } else {
-          hours_words += " o'clock";
+          built_hours_str = hours_words;
         }
       }
-      if (minutes !== 0) {
-        minutes_prefix = " ";
-        if (minutes < 10) minutes_prefix += "oh-";
-        minutes_words = TS.utility.date.numberToWords(minutes);
-      }
-      if (seconds && secs !== 0) seconds_words = " and " + TS.utility.date.numberToWords(secs) + " second" + (secs === 1 ? "" : "s");
-      if (ampm && !TS.utility.date.do24hrTime()) {
-        ampm_words = pm ? " PM" : " AM";
-      }
-      if (TS.utility.date.do24hrTime() && hours === 0) {
-        return minutes_words + " minute" + (minutes === 1 ? "" : "s") + seconds_words + " past midnight";
-      }
-      return hours_words + minutes_prefix + minutes_words + seconds_words + ampm_words;
+      return built_hours_str + built_minutes_str + built_seconds_str + built_ampm_str;
     },
     toCalendarDateWords: function(ts, exclude_year) {
       var date = TS.utility.date.toDateObject(ts);
@@ -52482,12 +52528,13 @@ $.fn.togglify = function(settings) {
         } else {
           items = response.items;
         }
-        response.items = items.map(function(item) {
+        response.items = _(items).map(function(item) {
+          if (item.is_restricted) return;
           return {
             member: item,
             lfs_id: String(item.id)
           };
-        });
+        }).compact().value();
         return response;
       });
     });
