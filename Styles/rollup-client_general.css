@@ -6722,6 +6722,10 @@ body.winssb #emoji_menu {
   margin-left: 1rem
 }
 
+.tab_complete_ui.narrow {
+  min-width: 0
+}
+
 .tab_complete_ui.narrow .header_help,
 .tab_complete_ui.narrow .not_in_channel,
 .tab_complete_ui.narrow .type_cmds .tab_complete_ui_item .cmd-right-td {

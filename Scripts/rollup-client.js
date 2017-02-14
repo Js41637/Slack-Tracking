@@ -9953,7 +9953,7 @@
             TS.client.msg_input.storeLastMsgForActiveModelOb("");
           }
         }, 100);
-        TS.utility.contenteditable.create($input, {
+        var texty_config = {
           modules: {
             msginput: {
               onLeftWhenEmpty: function() {
@@ -10007,17 +10007,19 @@
             _maybeStopPretendingToBeOnline();
             eventuallyOnTextChange(source);
           },
-          onPaste: function(delta) {
-            if (!TS.boot_data.feature_texty_rewrite_on_paste) return delta;
-            return TS.format.texty.getFormattedDelta(delta);
-          },
           attributes: {
             role: "textarea",
             tabindex: 0,
             "aria-multiline": true,
             "aria-haspopup": true
           }
-        });
+        };
+        if (TS.boot_data.feature_texty_rewrite_on_paste) {
+          texty_config.onPaste = function(delta) {
+            return TS.format.texty.getFormattedDelta(delta);
+          };
+        }
+        TS.utility.contenteditable.create($input, texty_config);
       }
       TS.utility.contenteditable.enable($input);
       if (!TS.boot_data.feature_texty) {
@@ -39187,6 +39189,7 @@ function timezones_guess() {
         placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
         complete_cmds: !!TS.boot_data.feature_threads_slash_cmds,
+        in_thread: !!TS.boot_data.feature_threads_slash_cmds,
         model_ob: model_ob,
         onSubmit: function($elem, text) {
           if (!TS.model.ms_connected) return;

@@ -1,0 +1,5 @@
+  <div id="markers_container">
+    {{#foreach markers}}
+      <div class="recap_highlight_marker {{#if this.value.no_before}}no_before{{/if}} {{#if this.value.no_after}}no_after{{/if}}" style="top: {{this.value.position}}%" data-ts="{{this.value.ts}}" data-hover-position-top="{{this.value.hover_position_top}}"></div>
+    {{/foreach}}
+  </div>

@@ -8380,9 +8380,6 @@ TS.registerModule("constants", {
       return Math.min(Math.max(mpim.members.length - 1, 2), 9);
     },
     upsertMpim: function(mpim_group) {
-      if (TS.boot_data.feature_tinyspeck && TS.isPartiallyBooted()) {
-        TS.console.logStackTrace("An mpim is being upserted during incremental boot, this could be a mistake!");
-      }
       var mpims = TS.model.mpims;
       var existing_mpim = TS.mpims.getMpimById(mpim_group.id);
       delete mpim_group.unread_count;
@@ -8555,10 +8552,9 @@ TS.registerModule("constants", {
       }
       if (!_did_log_mpim_debug_msg) {
         _did_log_mpim_debug_msg = true;
+        TS.console.logStackTrace("We are somehow trying to generate a name for an mpim without having all members locally. Here's a stack trace");
         if (TS.boot_data.feature_tinyspeck) {
-          TS.console.logStackTrace("Someone is upserting members too early. Hopefully this stack trace helps us figure it out!");
           TS.metrics.count("mpim_missing_members_bug_ts_only");
-          TS.generic_dialog.alert("TS Only: You experienced a weird bug that we at #bug-reconnecting would LOVE to know about. Please send us your logs!", "TS Only: Log Request");
         } else {
           TS.metrics.count("mpim_missing_members_bug");
         }
@@ -8671,6 +8667,8 @@ TS.registerModule("constants", {
       TS.ims.switched_sig.add(_logChannelSwitch);
       TS.groups.switched_sig.add(_logChannelSwitch);
       TS.mpims.switched_sig.add(_logChannelSwitch);
+      if (TS.client && TS.client.unread) TS.client.unread.switched_sig.add(_logChannelSwitch);
+      if (TS.client && TS.client.threads) TS.client.threads.switched_sig.add(_logChannelSwitch);
     },
     calcUnreadCnts: function(model_ob, controller, and_mark) {
       if (TS._incremental_boot) {
@@ -10344,33 +10342,56 @@ TS.registerModule("constants", {
     }
     if (!c_id) TS.metrics.measureAndClear("updated_hotness_all", mark_label);
   };
+  var _prev_model_ob = null;
   var _logChannelSwitch = function(is_boot) {
-    var active_model_ob = TS.shared.getActiveModelOb();
-    if (active_model_ob && active_model_ob.id) {
-      var id = active_model_ob.id;
-      var channel_type = id.charAt(0);
-      var payload = {
-        channel_id: id,
-        channel_type: channel_type,
-        is_boot: !!is_boot
-      };
-      if (!is_boot) {
-        payload["num_unreads"] = active_model_ob.unread_cnt;
-      }
-      TS.clog.track("CHANNEL_SWITCHED", payload);
-      if (TS.boot_data.feature_platform_metrics && channel_type == "D") {
-        var payload = {};
-        var im = TS.ims.getImById(id);
-        var user = im ? TS.members.getMemberById(im.user) : null;
-        if (user && user.is_bot) {
-          var bot_id = user.profile.bot_id;
-          var bot = TS.bots.getBotById(bot_id);
-          payload.app_id = bot ? bot.app_id : "";
-          payload.bot_id = bot_id;
-        }
-        TS.clog.track("DM_OPEN", payload);
+    var curr_model_ob = TS.client.activeChannelIsHidden() ? null : TS.shared.getActiveModelOb();
+    var prev_model_ob = _prev_model_ob;
+    if (prev_model_ob && prev_model_ob.id) {
+      _logChannelSwitchedOutEvent(prev_model_ob);
+    }
+    if (curr_model_ob && curr_model_ob.id) {
+      _logChannelSwitchedEvent(curr_model_ob, is_boot);
+      var curr_channel_type = curr_model_ob.id.charAt(0);
+      if (TS.boot_data.feature_platform_metrics && curr_channel_type == "D") {
+        _logDmOpenEvent(curr_model_ob);
       }
     }
+    _prev_model_ob = curr_model_ob;
+  };
+  var _logChannelSwitchedEvent = function(model_ob, is_boot) {
+    var id = model_ob.id;
+    var channel_type = id.charAt(0);
+    var payload = {
+      channel_id: id,
+      channel_type: channel_type,
+      is_boot: !!is_boot
+    };
+    if (!is_boot) {
+      payload["num_unreads"] = model_ob.unread_cnt;
+    }
+    TS.clog.track("CHANNEL_SWITCHED", payload);
+  };
+  var _logChannelSwitchedOutEvent = function(model_ob) {
+    var id = model_ob.id;
+    var channel_type = id.charAt(0);
+    var payload = {
+      channel_id: id,
+      channel_type: channel_type
+    };
+    TS.clog.track("CHANNEL_SWITCHED_OUT", payload);
+  };
+  var _logDmOpenEvent = function(model_ob) {
+    var id = model_ob.id;
+    var payload = {};
+    var im = TS.ims.getImById(id);
+    var user = im ? TS.members.getMemberById(im.user) : null;
+    if (user && user.is_bot) {
+      var bot_id = user.profile.bot_id;
+      var bot = TS.bots.getBotById(bot_id);
+      payload.app_id = bot ? bot.app_id : "";
+      payload.bot_id = bot_id;
+    }
+    TS.clog.track("DM_OPEN", payload);
   };
   var _logBootChannelSwitch = function() {
     var is_boot = true;
@@ -38844,10 +38865,6 @@ var _on_esc;
           onTextChange: function(source) {
             TS.msg_edit.checkLengthAndUpdateMessage(input);
           },
-          onPaste: function(delta) {
-            if (!TS.boot_data.feature_tinyspeck) return delta;
-            return TS.format.texty.getFormattedDelta(delta);
-          },
           attributes: {
             role: "textarea",
             tabindex: 0,
@@ -56472,6 +56489,8 @@ $.fn.togglify = function(settings) {
     if (false === opts.complete_member_specials) complete_member_specials = false;
     var complete_cmds = false;
     if (TS.boot_data.feature_threads_slash_cmds) complete_cmds = !!opts.complete_cmds;
+    var in_thread = false;
+    if (TS.boot_data.feature_threads_slash_cmds) in_thread = !!opts.in_thread;
     $input.TS_tabComplete({
       complete_cmds: complete_cmds,
       complete_channels: true,
@@ -56484,7 +56503,8 @@ $.fn.togglify = function(settings) {
       },
       sort_by_membership: true,
       include_self: !!TS.boot_data.feature_name_tagging_client,
-      model_ob: opts.model_ob
+      model_ob: opts.model_ob,
+      in_thread: in_thread
     });
     var props = {
       id: "inline_msg_input_tab_ui_" + _uniq_id++,
@@ -58777,6 +58797,7 @@ $.fn.togglify = function(settings) {
         placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
         complete_cmds: !!TS.boot_data.feature_threads_slash_cmds,
+        in_thread: !!TS.boot_data.feature_threads_slash_cmds,
         model_ob: model_ob,
         onSubmit: function($elem, text) {
           if (!TS.model.ms_connected) return;
