@@ -9562,8 +9562,8 @@
       var this_searchable_member_list = this;
       return this._fetchPage().then(function(members) {
         this_searchable_member_list._processPage(members);
+        this_searchable_member_list._maybeHideNoResultsState();
         if (this_searchable_member_list._members.length > 0) {
-          this_searchable_member_list._maybeHideNoResultsState();
           this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
         } else {
           this_searchable_member_list._showNoResultsState();
@@ -9737,19 +9737,19 @@
         this_searchable_member_list._reset();
       });
       if (this._current_filter !== "everyone" && this._current_query_for_match !== "" && TS.boot_data.feature_team_directory_search_other_members) {
+        var selected_filter = this._current_filter;
         this._current_filter = "everyone";
         this._fetchPage().then(function(members) {
-          this_searchable_member_list._processPage(members);
-          if (this_searchable_member_list._members.length > 0) {
+          this_searchable_member_list._current_filter = selected_filter;
+          if (members.length > 0) {
             this_searchable_member_list.$_container.find(".no_results").after(TS.templates.team_other_matches_heading({
               query: this_searchable_member_list._current_query_for_display
             }));
-            this_searchable_member_list.$_long_list_view.longListView("setItems", this_searchable_member_list._members, true, true);
+            this_searchable_member_list.$_long_list_view.longListView("setItems", members, true, true);
             this_searchable_member_list.$_long_list_view.show();
             TS.utility.rAF(function() {
               this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
               this_searchable_member_list._long_list_view_items_height = this_searchable_member_list.$_long_list_view.find(".list_items").height();
-              this_searchable_member_list._recursivelyFillLongListViewToHeight();
             });
           }
           return null;

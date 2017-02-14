@@ -2411,7 +2411,8 @@
       if (!TS.boot_data.page_needs_enterprise) return true;
       if (channel_model_ob.is_im || channel_model_ob.is_mpim) return true;
       if (!channel_model_ob.is_shared && !member_model_ob._is_local) return false;
-      if (channel_model_ob.is_shared && !member_model_ob._is_local) {
+      var teams = _.get(member_model_ob, "enterprise_user.teams");
+      if (channel_model_ob.is_shared && !member_model_ob._is_local && _.isArray(teams)) {
         var allowed_teams;
         if (TS.boot_data.feature_thin_shares) {
           if (channel_model_ob.is_global_shared) {
@@ -2424,7 +2425,7 @@
             return team.id;
           });
         }
-        var matches = _.intersection(member_model_ob.enterprise_user.teams, allowed_teams);
+        var matches = _.intersection(teams, allowed_teams);
         if (!matches.length) return false;
       }
       return true;
