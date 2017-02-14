@@ -10,9 +10,17 @@
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
     {{! NOTE: we add user_colored and nuc classes to disallow/allow the color to be applied via the css rule (with :not(.nuc)), and easily toggle that on and off}}
     {{#feature flag="feature_user_custom_status"}}
-      <span class="im_name feature_user_custom_status {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
+      <span class="im_name feature_user_custom_status {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}"
+        {{#feature flag="feature_multnomah"}}
+          draggable="true"
+          data-drag-meta='{{makeChannelDragData model_ob}}'
+        {{/feature}}>
     {{else}}
-      <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}">
+      <a href="/team/{{member.name}}" target="{{newWindowName}}" class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}"
+        {{#feature flag="feature_multnomah"}}
+          draggable="true"
+          data-drag-meta='{{makeChannelDragData model_ob}}'
+        {{/feature}}>
     {{/feature}}
         <span class="{{makeUnreadHighlightDomId member}} unread_highlights {{#if_equal model_ob.unread_cnt compare=0}}hidden{{/if_equal}}{{#if_equal model_ob.unread_cnt compare=undefined}}hidden{{/if_equal}}">{{numberWithMax model_ob.unread_cnt 10}}</span>
         <span class="typing_indicator"></span>

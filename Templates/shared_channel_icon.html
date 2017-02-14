@@ -1,1 +1,7 @@
-<ts-icon class="ts_icon{{#if org}}_org{{/if}}_shared_channel"></ts-icon>
+{{i18n_ns "enterprise"}}
+
+<ts-icon class="ts_icon{{#if org}}_org{{/if}}_shared_channel {{#if tooltip}}ts_tip ts_tip_{{#if tooltip_position}}{{tooltip_position}}{{else}}top{{/if}}{{/if}}">
+  {{#if tooltip}}
+    <span class="ts_tip_tip">{{#t}}Shared Channel{{/t}}</span>
+  {{/if}}
+</ts-icon>

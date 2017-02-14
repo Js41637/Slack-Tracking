@@ -1,4 +1,13 @@
+{{!-- hbslint-disable unwrapped namespace --}}
+{{!-- this is an internal-only template for message render errors. It doesn't need to be translated --}}
 <div class="highlight_red_bg normal_padding lato">
-  <strong>{{#if msg_ts}}Message with ID {{msg_ts}}{{else}}An unknown message{{/if}} failed to render.</strong><br>
-  Check the console or report in #triage-webapp. This message is TS only.
+  <strong>
+    Message
+    {{#if subtype}}of subtype {{subtype}}{{/if}}
+    {{#if msg_ts}}with ID {{msg_ts}}{{/if}}
+    {{#if model_ob_id}}from {{model_ob_id}}{{/if}}
+    failed to render.
+  </strong><br>
+  Check the console or report in #triage-webapp with a link to the message before this one, if in a public channel. This message is TS only.
 </div>
+{{!-- hbslint-enable unwrapped namespace --}}

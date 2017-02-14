@@ -29,7 +29,7 @@
         {{/if}}
       {{/if}}
       {{#if is_shared}}
-        {{#if is_dm_or_mpdm}}{{else}}{{> shared_channel_icon}}{{/if}}
+        {{#if is_dm_or_mpdm}}{{else}}{{> shared_channel_icon tooltip=true tooltip_position='bottom'}}{{/if}}
       {{/if}}</span>{{!--
       --}}<div class="channel_actions_container"><button type="button" id="mute_container" class="btn_unstyle mute_container ts_tip ts_tip_bottom"></button></div>
     </div>

@@ -24646,7 +24646,8 @@ ts-jumper ts-jumper-results:empty {
 .channel_title .ts_icon_shared_channel {
   font-size: 1.4375rem;
   line-height: .75;
-  margin-left: 5px
+  margin-left: 5px;
+  z-index: 3
 }
 
 .channel_title .ts_icon_shared_channel.away {

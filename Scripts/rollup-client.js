@@ -10537,9 +10537,10 @@
       TS.prefs.hotness_changed_sig.add(_toggleHotness);
       TS.shared.model_ob_hotness_changed_sig.add(_updateHotnessDisplay);
       TS.prefs.channel_sort_changed_sig.add(_toggleCustomSort);
-      TS.client.channel_pane.$scroller.delegate("li a", "dragstart", function(e) {
-        e.preventDefault();
-      });
+      TS.client.channel_pane.$scroller.delegate("li a", "dragstart", _onChannelListItemDragStart);
+      if (TS.boot_data.feature_user_custom_status) {
+        TS.client.channel_pane.$scroller.delegate("li span", "dragstart", _onChannelListItemDragStart);
+      }
     },
     rebuild: function() {
       $("#col_channels").toggleClass("no_unread_msgs_badges", !TS.model.channel_sort.is_custom_sorted || !_sortingByUnreadMessagesCount());
@@ -10660,6 +10661,20 @@
     _toggleHotness();
     TS.log(82, "UI bind on login_sig");
     TS.utility.queueRAF(_bindUI);
+  };
+  var _onChannelListItemDragStart = function(event) {
+    var handled = false;
+    if (TS.boot_data.feature_multnomah) {
+      var drag_meta = event.target.dataset ? event.target.dataset.dragMeta : null;
+      if (event && event.originalEvent.dataTransfer && drag_meta) {
+        event.originalEvent.dataTransfer.effectAllowed = "link";
+        event.originalEvent.dataTransfer.setData("x-slack/channel-drag-json", drag_meta);
+        handled = true;
+      }
+    }
+    if (!handled) {
+      event.preventDefault();
+    }
   };
   var _bindUI = function() {
     var canDoAnything = function() {
@@ -12844,7 +12859,9 @@
             $group_meta.addClass("hidden");
             $("#im_meta").addClass("hidden");
             $("#slackbot_meta").addClass("hidden");
-            $(".channel_meta_name").html(TS.templates.builders.makeChannelLink(model_ob));
+            var omit_prefix = false;
+            var show_tooltip = true;
+            $(".channel_meta_name").html(TS.templates.builders.makeChannelLink(model_ob, omit_prefix, show_tooltip));
             $(".channel_meta_name").find("a").bind("click", function(e) {
               e.preventDefault();
               TS.menu.channel.startWithChannel(e, $(e.target).data("channel-id"));
@@ -12909,7 +12926,9 @@
             $group_meta.removeClass("hidden");
             $("#im_meta").addClass("hidden");
             $("#slackbot_meta").addClass("hidden");
-            $(".group_meta_name").html(TS.templates.builders.makeGroupLink(model_ob));
+            var omit_prefix = false;
+            var show_tooltip = true;
+            $(".group_meta_name").html(TS.templates.builders.makeGroupLink(model_ob, omit_prefix, show_tooltip));
             $(".group_meta_name").find("a").addClass("ocean_teal").bind("click", function(e) {
               e.preventDefault();
               TS.menu.group.startWithGroup(e, $(e.target).data("group-id"));

@@ -4337,6 +4337,9 @@
       if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
       if (user_ids.length > 0 && !_.isString(user_ids[0])) throw new Error("Expected user_ids to be strings");
       if (!TS.membership.lazyLoadChannelMembership()) return Promise.resolve(false);
+      if (channel_id[0] == "D") {
+        return Promise.resolve(false);
+      }
       var user_ids_without_known_membership = user_ids.filter(function(user_id) {
         return !_isChannelMembershipKnownForUser(channel_id, user_id);
       });
@@ -18440,6 +18443,20 @@ TS.registerModule("constants", {
     makeChannelDomId: function(channel) {
       return "channel_" + channel.id;
     },
+    makeChannelDragData: function(model_ob) {
+      return JSON.stringify({
+        id: model_ob.id,
+        name: model_ob.name,
+        is_channel: model_ob.is_channel || false,
+        is_group: model_ob.is_group || false,
+        is_im: model_ob.is_im || false,
+        is_mpim: model_ob.is_mpim || false,
+        is_self_im: model_ob.is_self_im || false,
+        is_slackbot_im: model_ob.is_slackbot_im || false,
+        purpose: model_ob.purpose ? model_ob.purpose["value"] : "",
+        topic: model_ob.topic ? model_ob.topic["value"] : ""
+      });
+    },
     makeDayDividerDomId: function(ts) {
       return TS.utility.makeSafeForDomId("day_divider_" + ts);
     },
@@ -20512,11 +20529,14 @@ TS.registerModule("constants", {
       }
       return "";
     },
-    makeChannelLink: function(channel, omit_prefix) {
+    makeChannelLink: function(channel, omit_prefix, show_tooltip, tooltip_position) {
       if (!channel) return "ERROR: MISSING CHANNEL";
       var shared_icon = "";
       if (TS.model.shared_channels_enabled && channel.is_shared) {
-        shared_icon = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
+        shared_icon = TS.templates.shared_channel_icon({
+          tooltip: show_tooltip,
+          tooltip_position: tooltip_position
+        });
       }
       var name_for_url = TS.boot_data.feature_intl_channel_names ? channel.id : channel.name;
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
@@ -20542,12 +20562,15 @@ TS.registerModule("constants", {
       var aria_label = name + ", " + active_or_regular_channel + (unread_message ? ", " + unread_message : "") + (draft_message ? ", " + draft_message : "");
       return new Handlebars.SafeString(aria_label);
     },
-    makeGroupLink: function(group, omit_prefix) {
+    makeGroupLink: function(group, omit_prefix, show_tooltip, tooltip_position) {
       if (!group) return "ERROR: MISSING GROUP";
       var shared_icon = "";
       var name_for_url = TS.boot_data.feature_intl_channel_names ? group.id : group.name;
       if (TS.model.shared_channels_enabled && group.is_shared) {
-        shared_icon = '<ts-icon class="ts_icon_shared_channel"></ts-icon>';
+        shared_icon = TS.templates.shared_channel_icon({
+          tooltip: show_tooltip,
+          tooltip_position: tooltip_position
+        });
       }
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
       return '<a href="/archives/' + name_for_url + '" ' + target + ' class="group_link" data-group-id="' + group.id + '">' + (omit_prefix ? "" : TS.model.group_prefix) + group.name + shared_icon + "</a>";
@@ -22301,9 +22324,15 @@ TS.registerModule("constants", {
         err.message += " " + extra;
         TS.warn("Problem in TS.templates.builders.msgs.buildHTML with args: " + JSON.stringify(err.message));
         TS.console.logStackTrace();
-        return TS.boot_data.feature_tinyspeck ? TS.templates.message_failed({
-          msg_ts: msg ? msg.ts : ""
-        }) : "";
+        if (TS.boot_data.feature_tinyspeck) {
+          return TS.templates.message_failed({
+            subtype: msg && msg.subtype ? msg.subtype : "",
+            msg_ts: msg ? msg.ts : "",
+            model_ob_id: model_ob ? model_ob.id : ""
+          });
+        } else {
+          return "";
+        }
       }
     }
   });
@@ -23150,6 +23179,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("makeChannelDomId", function(channel) {
         return TS.templates.makeChannelDomId(channel);
+      });
+      Handlebars.registerHelper("makeChannelDragData", function(channel) {
+        return TS.templates.makeChannelDragData(channel);
       });
       Handlebars.registerHelper("firstListedChannel", function() {
         var channel = TS.channels.getChannelsForUser()[0];
@@ -24235,7 +24267,9 @@ TS.registerModule("constants", {
             caret_html = TS.templates.builders.buildInlineAttachmentToggler(attachment.from_url, msg_dom_id);
             break;
         }
-        caret_html = '<button type="button" class="btn_unstyle media_caret">' + caret_html + "</button>";
+        if (caret_html) {
+          caret_html = '<button type="button" class="btn_unstyle media_caret">' + caret_html + "</button>";
+        }
         return new Handlebars.SafeString(caret_html);
       });
       Handlebars.registerHelper("isMsgReply", function(options) {
@@ -27616,7 +27650,7 @@ TS.registerModule("constants", {
       name = name.toLowerCase();
       while (name.substr(0, 1) == "#") name = name.substr(1);
       name = name.replace(/ /g, "-");
-      name = name.replace(/[^a-z0-9-_]/g, "_");
+      if (!TS.boot_data.feature_intl_channel_names) name = name.replace(/[^a-z0-9-_]/g, "_");
       name = name.replace(/\-+/g, "-");
       name = name.replace(/\_+/g, "_");
       return name;
@@ -43087,6 +43121,7 @@ var _on_esc;
         }
       }
       if (!filter_by) filter_by = "";
+      filter_by = filter_by.toLowerCase();
       var teams = {
         teams_on: [],
         teams_not_on: []
@@ -43099,7 +43134,7 @@ var _on_esc;
         }
       });
       return teams[list].filter(function(team) {
-        return team.name.indexOf(filter_by) > -1 || team.description && team.description.indexOf(filter_by) > -1;
+        return team.name.toLowerCase().indexOf(filter_by) > -1 || team.description && team.description.toLowerCase().indexOf(filter_by) > -1;
       }).sort(function(a, b) {
         if (sort_by === "name") {
           var a_name = a.name.toLowerCase();
@@ -46332,13 +46367,10 @@ $.fn.togglify = function(settings) {
       var ts_icon;
       if (item instanceof jQuery || item instanceof HTMLElement) {
         text = $(item).text();
-        addl_text = TS.utility.htmlEntities($(item).attr("data-additional-search-field"));
-        ts_icon = TS.utility.htmlEntities($(item).attr("data-ts-icon"));
+        addl_text = _formatTextForDisplay($(item).attr("data-additional-search-field"), this);
+        ts_icon = _formatTextForDisplay($(item).attr("data-ts-icon"), this);
       }
-      text = TS.utility.htmlEntities(text);
-      if (this.should_graphic_replace_emoji) {
-        text = TS.emoji.graphicReplace(text);
-      }
+      text = _formatTextForDisplay(text, this);
       if (addl_text) text += ' <span class="addl_text">' + addl_text + "</span>";
       if (ts_icon) text += ' <ts-icon class="addl_icon ' + ts_icon + '"></ts-icon>';
       return new Handlebars.SafeString(text);
@@ -47134,7 +47166,7 @@ $.fn.togglify = function(settings) {
       },
       renderDivider: function($el, item, data) {
         if (instance.render_divider_func) return instance.render_divider_func($el, item, data);
-        $el.html(TS.utility.htmlEntities(item.label));
+        $el.html(_formatTextForDisplay(item.label, instance));
       },
       renderItem: function($el, item, data) {
         if (instance.render_item_func) return instance.render_item_func($el, item, data);
@@ -47154,7 +47186,8 @@ $.fn.togglify = function(settings) {
           $el.prepend($icon);
         }
         if ($item.data("lfs-item-desc")) {
-          var $desc = $('<span class="lfs_item_desc">').text($item.data("lfs-item-desc"));
+          var text = _formatTextForDisplay($item.data("lfs-item-desc"), instance);
+          var $desc = $('<span class="lfs_item_desc">').html(text);
           $el.append($desc);
         }
       }
@@ -47239,6 +47272,13 @@ $.fn.togglify = function(settings) {
       instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container);
     }
     return instance._is_in_message;
+  };
+  var _formatTextForDisplay = function(text, instance) {
+    text = TS.utility.htmlEntities(text);
+    if (_.get(instance, "should_graphic_replace_emoji")) {
+      text = TS.emoji.graphicReplace(text);
+    }
+    return text;
   };
   var _onContainerMouseleave = function(instance) {
     instance._prevent_blur = false;
@@ -50787,14 +50827,14 @@ $.fn.togglify = function(settings) {
     if (to_join.length > 0) {
       channels.push({
         is_divider: true,
-        name: TS.i18n.t("Channels you can join", "shared")
+        name: TS.i18n.t("Channels you can join", "shared")()
       });
       channels = channels.concat(to_join);
     }
     if (joined.length > 0) {
       channels.push({
         is_divider: true,
-        name: TS.i18n.t("Channels you belong to", "shared")
+        name: TS.i18n.t("Channels you belong to", "shared")()
       });
       channels = channels.concat(joined);
     }
@@ -50981,7 +51021,7 @@ $.fn.togglify = function(settings) {
     return is_private ? _private_shared_invites : _shared_invites;
   };
   var _getToggleInputLabel = function() {
-    var label = TS.i18n.t("Anyone on your team can join", "shared");
+    var label = TS.i18n.t("Anyone on your team can join", "shared")();
     if (_isEnterprise()) {
       var name = TS.utility.htmlEntities(TS.model.enterprise.name);
       switch (_$div.find('[name^="share_with"]:checked').val()) {
@@ -51000,7 +51040,7 @@ $.fn.togglify = function(settings) {
     return label;
   };
   var _getToggleInputOffLabel = function() {
-    var label = TS.i18n.t("Restricted to invited members", "shared");
+    var label = TS.i18n.t("Restricted to invited members", "shared")();
     if (_isEnterprise()) {
       var name = TS.utility.htmlEntities(TS.model.enterprise.name);
       switch (_$div.find('[name^="share_with"]:checked').val()) {
@@ -51022,19 +51062,19 @@ $.fn.togglify = function(settings) {
     var body;
     switch (error.data.error) {
       case "invalid_target_domain":
-        body = TS.i18n.t("Darn&mdash;we couldn’t find a team with that domain. Try again?", "shared");
+        body = TS.i18n.t("Darn&mdash;we couldn’t find a team with that domain. Try again?", "shared")();
         break;
       case "name_taken":
-        body = TS.i18n.t("Darn&mdash;that channel name is already taken. Try another?", "shared");
+        body = TS.i18n.t("Darn&mdash;that channel name is already taken. Try another?", "shared")();
         break;
       case "invite_exists":
-        body = TS.i18n.t("An invitation already exists for that team and channel.", "shared");
+        body = TS.i18n.t("An invitation already exists for that team and channel.", "shared")();
         break;
       case "shared_channel_exists":
-        body = TS.i18n.t("Good news! That team has already joined the shared channel.", "shared");
+        body = TS.i18n.t("Good news! That team has already joined the shared channel.", "shared")();
         break;
       case "not_paid":
-        body = TS.i18n.t("Darn&mdash;that team has to upgrade to a paid Slack plan to join a shared channel.", "shared");
+        body = TS.i18n.t("Darn&mdash;that team has to upgrade to a paid Slack plan to join a shared channel.", "shared")();
         break;
       default:
         return _handleUnexpectedError(error);
@@ -51045,7 +51085,7 @@ $.fn.togglify = function(settings) {
     var message = error.message || "";
     if (error.data && error.data.error) message += ": " + error.data.error;
     TS.error(message);
-    var alert_str = TS.i18n.t("Sorry! Something went wrong. Please try again.", "shared");
+    var alert_str = TS.i18n.t("Sorry! Something went wrong. Please try again.", "shared")();
     return TS.generic_dialog.alert(alert_str);
   };
   var _hideAllSectionsBut = function(id) {
@@ -51288,8 +51328,8 @@ $.fn.togglify = function(settings) {
   };
   var _setupToggleInput = function() {
     _$div.find('#sci_channels_create [name="access"]').togglify({
-      on_text: TS.i18n.t("Public", "shared"),
-      off_text: TS.i18n.t("Private", "shared"),
+      on_text: TS.i18n.t("Public", "shared")(),
+      off_text: TS.i18n.t("Private", "shared")(),
       label: _getToggleInputLabel(),
       off_label: _getToggleInputOffLabel(),
       off_class: "ts_toggle_orange",
@@ -51617,7 +51657,7 @@ $.fn.togglify = function(settings) {
   var _updateNoChannelsMessage = function(query) {
     var _$empty_state = _$div.find("#sci_no_shared_channels");
     var _$msg = _$empty_state.find(".sci_no_shared_note");
-    var default_message = TS.i18n.t("You don’t have any shared channels yet.", "shared");
+    var default_message = TS.i18n.t("You don’t have any shared channels yet.", "shared")();
     if (query) {
       var no_match_warning = TS.i18n.t("No matches found for <strong> {escaped_query_string} </strong>", "shared")({
         escaped_query_string: TS.utility.truncateAndEscape(query, 50)
@@ -51644,7 +51684,7 @@ $.fn.togglify = function(settings) {
     channel = channel.trim();
     if (_findSharedInviteByTeamDomainAndChannelName(domain, channel)) {
       if (!options.quiet) $el.addClass("invalid_invite");
-      var warning = TS.i18n.t("This invite already exists. Try a different team or channel!", "shared");
+      var warning = TS.i18n.t("This invite already exists. Try a different team or channel!", "shared")();
       return void TS.ui.validation.showWarning($el, warning, options);
     }
     if ($domain_el === $el) {
