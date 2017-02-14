@@ -10509,7 +10509,7 @@ TS.registerModule("constants", {
     isMemberExternal: function(member) {
       if (!TS.model.shared_channels_enabled) return false;
       if (!_.isObject(member)) return false;
-      if (_.isObject(member.enterprise_user)) return false;
+      if (member._is_from_org) return false;
       return member.team_id ? member.team_id != TS.model.team.id : false;
     },
     isMemberExternalById: function(id) {
@@ -43323,6 +43323,7 @@ var _on_esc;
       $container.addClass("hidden");
       $title_bar.addClass("hidden");
       $more_teams_available_message.addClass("hidden");
+      $search_input.addClass("hidden");
       $workspace_info.html(TS.templates.team_info({
         list: list
       })).removeClass("hidden").attr("data-team-id", team_id);
@@ -43375,6 +43376,7 @@ var _on_esc;
       window.history.back();
       $container.removeClass("hidden");
       $title_bar.removeClass("hidden");
+      $search_input.removeClass("hidden");
       $workspace_info.addClass("hidden").attr("data-team-id", "");
       if ($more_teams_available_message.attr("data-has-more") === "yes") $more_teams_available_message.removeClass("hidden");
     });
@@ -46208,9 +46210,6 @@ $.fn.togglify = function(settings) {
       instance._page_number = 1;
       instance._slug_id_counter = 1;
       instance.run = _run;
-      if (!_.isUndefined(instance.input_debounce_wait_time)) {
-        _onInputInput = _.debounce(_onInputInput, instance.input_debounce_wait_time);
-      }
       if (instance.data_promise) {
         if (instance._running_promise) instance._running_promise.cancel("Uhhh...");
         instance._running_promise = instance.data_promise("").then(function(response) {
@@ -46464,7 +46463,8 @@ $.fn.togglify = function(settings) {
     instance.$container.on("click", _onContainerClick.bind(null, instance));
     instance.$container.parents("label").on("click", _onContainerParentsLabelClick.bind(null, instance));
     instance.$input_container.on("focus", _onInputContainerFocus.bind(null, instance));
-    instance.$input.on("input", _onInputInput.bind(null, instance));
+    var on_input_input = _.isUndefined(instance.input_debounce_wait_time) ? _onInputInput : _.debounce(_onInputInput, instance.input_debounce_wait_time);
+    instance.$input.on("input", on_input_input.bind(null, instance));
     instance.$input.on("keydown", _onInputKeydown.bind(null, instance));
     instance.$input.on("blur", _onInputBlur.bind(null, instance));
     instance.$input.on("focus", _onInputFocus.bind(null, instance));

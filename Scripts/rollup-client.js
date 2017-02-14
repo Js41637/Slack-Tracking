@@ -9315,7 +9315,17 @@
       TS.client.ui.flex._unregisterCurrentStatusInput();
       TS.client.ui.flex._current_status_input = new TS.client.ui.CurrentStatusInput({
         $parent: $("#member_preview_container"),
-        has_presets_menu: true
+        has_presets_menu: true,
+        onEscape: _makeCurrentStatusContainerInactive,
+        onSave: _makeCurrentStatusContainerInactive,
+        onError: _makeCurrentStatusContainerInactive
+      });
+      $(".current_status_cover").on("click.current_status", _makeCurrentStatusContainerActive);
+      $(".current_status_clear_icon_cover").on("click.current_status", function(e) {
+        e.stopPropagation();
+        if (TS.client.ui.flex._current_status_input) {
+          TS.client.ui.flex._current_status_input.clearCurrentStatus();
+        }
       });
     },
     _unregisterCurrentStatusInput: function() {
@@ -9323,6 +9333,8 @@
         TS.client.ui.flex._current_status_input.destroy();
         TS.client.ui.flex._current_status_input = null;
       }
+      $(".current_status_cover").off(".current_status");
+      $(".current_status_clear_icon_cover").off(".current_status");
     }
   });
   var _deferred_flex_name;
@@ -9426,6 +9438,19 @@
     }
     $("#recent_mentions_toggle .ts_tip_tip").text(TS.i18n.t("Show Activity", "flexpane")());
     $("#stars_toggle .ts_tip_tip").text(TS.i18n.t("Show Starred Items", "flexpane")());
+  };
+  var _makeCurrentStatusContainerActive = function() {
+    $(".current_status_container").addClass("active");
+    if (TS.client.ui.flex._current_status_input) TS.client.ui.flex._current_status_input.focus();
+  };
+  var _makeCurrentStatusContainerInactive = function(status) {
+    var has_status = status && (status.text || status.emoji);
+    if (has_status) {
+      $(".current_status_cover .current_status").html(TS.format.formatCurrentStatus(status.text));
+      $(".current_status_cover .current_status_emoji_cover").html(TS.format.formatCurrentStatus(status.emoji));
+    }
+    $(".current_status_container").toggleClass("with_status_set", !!has_status);
+    $(".current_status_container").removeClass("active");
   };
 })();
 (function() {

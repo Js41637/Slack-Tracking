@@ -2,7 +2,7 @@
 <div class="apps_typeahead">
   {{#if data.suggestions}}
     {{#each data.suggestions}}
-      <a href="/apps/{{encoded_id}}" class="plastic_typeahead_item" data-app-id="{{encoded_id}} data-app-name="{{name}}" data-app-is-slack-owned="{{is_slack_owned}}">
+      <a href="/apps/{{encoded_id}}" class="plastic_typeahead_item" data-app-id="{{encoded_id}}" data-app-name="{{name}}" data-app-is-slack-owned="{{is_slack_owned}}" data-position={{math @index '+' 1}}>
         {{#if payload.icons.image_48}}
           <img src="{{payload.icons.image_48}}" class="apps_typeahead_item_media" />
         {{else}}

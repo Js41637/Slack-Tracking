@@ -2867,7 +2867,6 @@ span.emoji {
 }
 
 .current_status .emoji-sizer,
-.current_status_preset_option .emoji-sizer,
 .current_user_current_status .emoji-sizer,
 .message_current_status .emoji-sizer {
   width: 1rem;
