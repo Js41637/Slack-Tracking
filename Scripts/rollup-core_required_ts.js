@@ -135,7 +135,8 @@
       return details;
     },
     logStackTrace: function(message) {
-      TS.console.info(message + "\nStacktrace: ↴\n", TS.console.getStackTrace());
+      var prefix = _.isUndefined(message) ? "" : message + "\n";
+      TS.console.info(prefix + "Stacktrace: ↴\n", TS.console.getStackTrace());
     },
     replaceConsoleFunction: function(fn) {
       var prev_console = _console;

@@ -3957,18 +3957,21 @@
       return ret;
     },
     getActiveMembersNotInThisChannelForInviting: function(id, act_like_an_admin, members_subset) {
+      if (TS.membership.lazyLoadChannelMembership()) {}
       var A = [];
       var is_admin = act_like_an_admin || TS.model.user.is_admin;
       if (TS.model.user.is_ultra_restricted) return A;
       var channel = TS.channels.getChannelById(id);
       if (!channel) return A;
       var member;
+      var membership_status;
       var active_members = members_subset || TS.members.getActiveMembersExceptSelfAndSlackbot();
       for (var m = 0; m < active_members.length; m++) {
         member = active_members[m];
         if (member.is_ultra_restricted) continue;
         if (!is_admin && member.is_restricted) continue;
-        if (channel.members.indexOf(member.id) == -1) {
+        membership_status = TS.membership.getUserChannelMembershipStatus(member.id, channel);
+        if (membership_status.is_known && !membership_status.is_member) {
           if (TS.permissions.channels.canMemberJoinChannel(channel, member)) A.push(member);
         }
       }
@@ -4287,6 +4290,12 @@
       return !!(TS.boot_data.feature_thin_channel_membership && _.get(TS, "model.prefs.thin_channel_membership_fe"));
     },
     getUserChannelMembershipStatus: function(user_id, channel) {
+      if (channel.is_im) {
+        return {
+          is_known: true,
+          is_member: user_id == TS.boot_data.user_id || user_id == channel.user
+        };
+      }
       if (!TS.membership.lazyLoadChannelMembership()) {
         var is_member = user_id != "USLACKBOT" && _.includes(channel.members, user_id);
         return {
@@ -5622,10 +5631,13 @@ TS.registerModule("constants", {
   var _unarchived_closed_groups = [];
   var _unarchived_groups = [];
   var _getActiveMembersForInvitingWorker = function(act_like_an_admin, group, members_subset) {
+    if (TS.membership.lazyLoadChannelMembership()) {}
     var A = [];
     if (TS.model.user.is_ultra_restricted && !act_like_an_admin) return A;
     var members_for_user = members_subset || TS.members.getActiveMembersExceptSelfAndSlackbot();
     var member;
+    var membership_status;
+    var user_is_definitely_not_member_of_group;
     for (var m = 0; m < members_for_user.length; m++) {
       member = members_for_user[m];
       if (member.deleted) continue;
@@ -5634,8 +5646,12 @@ TS.registerModule("constants", {
       if (member.is_ultra_restricted) continue;
       if (!group) {
         A.push(member);
-      } else if (group.members.indexOf(member.id) == -1) {
-        if (TS.permissions.channels.canMemberJoinChannel(group, member)) A.push(member);
+      } else {
+        membership_status = TS.membership.getUserChannelMembershipStatus(member.id, group);
+        user_is_definitely_not_member_of_group = membership_status.is_known && !membership_status.is_member;
+        if (user_is_definitely_not_member_of_group) {
+          if (TS.permissions.channels.canMemberJoinChannel(group, member)) A.push(member);
+        }
       }
     }
     return A;
@@ -12336,7 +12352,12 @@ TS.registerModule("constants", {
         }
         var model_ob = TS.shared.getActiveModelOb();
         if (TS.model.active_channel_id || TS.model.active_group_id) {
-          if (model_ob.members && model_ob.members.indexOf(app.bot_user.id) != -1) {
+          var membership_status = TS.membership.getUserChannelMembershipStatus(app.bot_user.id, model_ob);
+          var is_bot_member_of_channel = membership_status.is_known && membership_status.is_member;
+          if (!membership_status.is_known) {
+            TS.warn("Not sure whether bot user " + app.bot_user.id + " is a member of " + model_ob.id + "; assuming not just to be sure");
+          }
+          if (is_bot_member_of_channel) {
             if (model_ob.is_group && TS.permissions.members.canKickFromGroups() || model_ob.is_channel && TS.permissions.members.canKickFromChannels()) {
               template_args.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + model_ob.name;
             }
@@ -24272,7 +24293,8 @@ TS.registerModule("constants", {
     short_day_names: [TS.i18n.t("Sun", "date_utilities")(), TS.i18n.t("Mon", "date_utilities")(), TS.i18n.t("Tue", "date_utilities")(), TS.i18n.t("Wed", "date_utilities")(), TS.i18n.t("Thu", "date_utilities")(), TS.i18n.t("Fri", "date_utilities")(), TS.i18n.t("Sat", "date_utilities")()],
     ones_digit_names: [TS.i18n.t("zero", "date_utilities")(), TS.i18n.t("one", "date_utilities")(), TS.i18n.t("two", "date_utilities")(), TS.i18n.t("three", "date_utilities")(), TS.i18n.t("four", "date_utilities")(), TS.i18n.t("five", "date_utilities")(), TS.i18n.t("six", "date_utilities")(), TS.i18n.t("seven", "date_utilities")(), TS.i18n.t("eight", "date_utilities")(), TS.i18n.t("nine", "date_utilities")(), TS.i18n.t("ten", "date_utilities")(), TS.i18n.t("eleven", "date_utilities")(), TS.i18n.t("twelve", "date_utilities")(), TS.i18n.t("thirteen", "date_utilities")(), TS.i18n.t("fourteen", "date_utilities")(), TS.i18n.t("fifteen", "date_utilities")(), TS.i18n.t("sixteen", "date_utilities")(), TS.i18n.t("seventeen", "date_utilities")(), TS.i18n.t("eighteen", "date_utilities")(), TS.i18n.t("nineteen", "date_utilities")()],
     tens_digit_names: [TS.i18n.t("twenty", "date_utilities")(), TS.i18n.t("thirty", "date_utilities")(), TS.i18n.t("forty", "date_utilities")(), TS.i18n.t("fifty", "date_utilities")(), TS.i18n.t("sixty", "date_utilities")(), TS.i18n.t("seventy", "date_utilities")(), TS.i18n.t("eighty", "date_utilities")(), TS.i18n.t("ninety", "date_utilities")()],
-    ones_digit_ordinal_names: [TS.i18n.t("zeroth", "date_utilities")(), TS.i18n.t("first", "date_utilities")(), TS.i18n.t("second", "date_utilities")(), TS.i18n.t("third", "date_utilities")(), TS.i18n.t("fourth", "date_utilities")(), TS.i18n.t("fifth", "date_utilities")(), TS.i18n.t("sixth", "date_utilities")(), TS.i18n.t("seventh", "date_utilities")(), TS.i18n.t("eighth", "date_utilities")(), TS.i18n.t("ninth", "date_utilities")(), TS.i18n.t("tenth", "date_utilities")(), TS.i18n.t("eleventh", "date_utilities")(), TS.i18n.t("twelveth", "date_utilities")()],
+    ones_digit_ordinal_names: [TS.i18n.t("zeroth", "date_utilities")(), TS.i18n.t("first", "date_utilities")(), TS.i18n.t("second", "date_utilities")(), TS.i18n.t("third", "date_utilities")(), TS.i18n.t("fourth", "date_utilities")(), TS.i18n.t("fifth", "date_utilities")(), TS.i18n.t("sixth", "date_utilities")(), TS.i18n.t("seventh", "date_utilities")(), TS.i18n.t("eighth", "date_utilities")(), TS.i18n.t("ninth", "date_utilities")(), TS.i18n.t("tenth", "date_utilities")(), TS.i18n.t("eleventh", "date_utilities")(), TS.i18n.t("twelfth", "date_utilities")(), TS.i18n.t("thirteenth", "date_utilities")(), TS.i18n.t("fourteenth", "date_utilities")(), TS.i18n.t("fifteenth", "date_utilities")(), TS.i18n.t("sixteenth", "date_utilities")(), TS.i18n.t("seventeenth", "date_utilities")(), TS.i18n.t("eighteenth", "date_utilities")(), TS.i18n.t("nineteenth", "date_utilities")()],
+    tens_digit_ordinal_names: [TS.i18n.t("twentieth", "date_utilities")(), TS.i18n.t("thirtieth", "date_utilities")(), TS.i18n.t("fortieth", "date_utilities")(), TS.i18n.t("fiftieth", "date_utilities")(), TS.i18n.t("sixtieth", "date_utilities")(), TS.i18n.t("seventieth", "date_utilities")(), TS.i18n.t("eightieth", "date_utilities")(), TS.i18n.t("ninetieth", "date_utilities")()],
     fake_ts_unique_padder: "x",
     toDateObject: function(ts) {
       var date;
@@ -25046,39 +25068,31 @@ TS.registerModule("constants", {
       return TS.utility.date.toCalendarDateWords(ts, exclude_year);
     },
     numberToWords: function(num, ordinal) {
-      var tens, ones, result = "";
+      var tens = Math.floor(num / 10);
+      var ones = num % 10;
+      var tens_number = tens - 2;
       if (ordinal) {
         if (num < TS.utility.date.ones_digit_ordinal_names.length) {
-          result = TS.utility.date.ones_digit_ordinal_names[num];
+          return TS.utility.date.ones_digit_ordinal_names[num];
         } else {
-          tens = Math.floor(num / 10);
-          ones = num % 10;
-          if (num < TS.utility.date.ones_digit_names.length) {
-            result = TS.utility.date.ones_digit_names[num] + "th";
-          } else if (tens <= 9) {
-            if (ones === 0) {
-              result = TS.utility.date.tens_digit_names[tens - 2].replace(/y$/, "ieth");
-            } else {
-              result = TS.utility.date.tens_digit_names[tens - 2];
-              result += "-" + TS.utility.date.ones_digit_ordinal_names[ones];
-            }
-          }
-        }
-      } else {
-        if (num < TS.utility.date.ones_digit_names.length) {
-          result = TS.utility.date.ones_digit_names[num];
-        } else {
-          tens = Math.floor(num / 10);
-          ones = num % 10;
           if (tens <= 9) {
-            result = TS.utility.date.tens_digit_names[tens - 2];
             if (ones > 0) {
-              result += "-" + TS.utility.date.ones_digit_names[ones];
+              return TS.utility.date.tens_digit_names[tens_number] + "-" + TS.utility.date.ones_digit_ordinal_names[ones];
             }
+            return TS.utility.date.tens_digit_ordinal_names[tens_number];
           }
         }
       }
-      return result;
+      if (num < TS.utility.date.ones_digit_names.length) {
+        return TS.utility.date.ones_digit_names[num];
+      } else {
+        if (tens <= 9) {
+          if (ones > 0) {
+            return TS.utility.date.tens_digit_names[tens_number] + "-" + TS.utility.date.ones_digit_names[ones];
+          }
+          return TS.utility.date.tens_digit_names[tens_number];
+        }
+      }
     },
     formatDate: function(string, unix_time, fallback_string) {
       var date_obj = new Date(unix_time * 1e3);
@@ -25478,7 +25492,11 @@ TS.registerModule("constants", {
         if (msg.subtype === "tombstone") {
           actions.delete_msg = false;
         } else if (msg_from_other_team) {
-          actions.delete_msg = false;
+          if (TS.boot_data.page_needs_enterprise && msg_belongs_to_user) {
+            actions.delete_msg = true;
+          } else {
+            actions.delete_msg = false;
+          }
         } else if (TS.model.active_im_id) {
           if (!msg_belongs_to_user && msg.user != "USLACKBOT" && msg.subtype != "bot_message") {
             actions.delete_msg = false;
@@ -34728,7 +34746,22 @@ var _on_esc;
       }
       var model_ob = TS.shared.getActiveModelOb();
       if (TS.model.active_channel_id || TS.model.active_group_id) {
-        if ((!model_ob.is_general || member.is_restricted) && member_id != TS.model.user.id && model_ob.members && model_ob.members.indexOf(member_id) != -1) {
+        var membership_status = TS.membership.getUserChannelMembershipStatus(member_id, model_ob);
+        var is_eligible_for_kicking;
+        if (membership_status.is_known) {
+          is_eligible_for_kicking = membership_status.is_member;
+        } else {
+          is_eligible_for_kicking = true;
+          template_args.fetching_membership_status = true;
+          TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [member_id]).then(function() {
+            if (!TS.model.menu_is_showing) return;
+            if (TS.menu.last_e !== e) return;
+            if (TS.membership.getUserChannelMembershipStatus(member_id, model_ob).is_member) {
+              TS.menu.$menu_items.find("#member_kick_channel_item").removeClass("hidden");
+            }
+          });
+        }
+        if ((!model_ob.is_general || member.is_restricted) && member_id != TS.model.user.id && is_eligible_for_kicking) {
           if (!member.is_ultra_restricted) {
             if (model_ob.is_group && TS.permissions.members.canKickFromGroups() || model_ob.is_channel && TS.permissions.members.canKickFromChannels()) {
               template_args.channel_kick_name = (TS.model.active_channel_id ? "#" : "") + model_ob.name;

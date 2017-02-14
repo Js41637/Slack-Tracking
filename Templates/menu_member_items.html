@@ -141,7 +141,7 @@
         <li id="member_call_item" role="menuitem"><a>{{#t note="Start a call with an individual member"}}Call{{/t}}</a></li>
       {{/unless}}
     {{/if}}
-    {{#if channel_kick_name}}<li id="member_kick_channel_item" role="menuitem"><a>
+    {{#if channel_kick_name}}<li id="member_kick_channel_item" role="menuitem" {{#if fetching_membership_status}}class="hidden"{{/if}}><a>
       {{#t}}Remove from <b>{channel_kick_name}</b>{{/t}}
     </a></li>{{/if}}
     {{#if show_channel_invite}}<li id="member_invite_channel_item" role="menuitem"><a>

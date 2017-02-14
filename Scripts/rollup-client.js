@@ -717,7 +717,10 @@
       TS.client.channelDisplaySwitched(member_im.id, true);
     } else if (TS.model.active_mpim_id) {
       var mpim = TS.mpims.getMpimById(TS.model.active_mpim_id);
-      if (!mpim || mpim.members.indexOf(member.id) === 0) return;
+      if (!mpim) return;
+      var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, mpim);
+      var user_is_definitely_not_member_of_mpim = membership_status.is_known && !membership_status.is_member;
+      if (user_is_definitely_not_member_of_mpim) return;
       TS.client.channelDisplaySwitched(mpim.id, true);
     }
   };
@@ -11710,7 +11713,9 @@
   var _memberDeletedOrPresenceChanged = function(member, maybe_rebuild_channel_member_list) {
     if (!TS.model.ms_connected) return;
     if (!member) return;
-    if (maybe_rebuild_channel_member_list && _model_ob && _model_ob.members && _model_ob.members.indexOf(member.id) > -1) {
+    var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, _model_ob);
+    var user_is_definitely_not_member_of_channel = membership_status.is_known && !membership_status.is_member;
+    if (maybe_rebuild_channel_member_list && !user_is_definitely_not_member_of_channel) {
       _buildChannelMemberList();
     }
     _updateDMMemberStatus(member);
@@ -27757,10 +27762,14 @@
     if (!member) return;
     if (!_isChannelPageVisible()) return;
     var model_ob = TS.shared.getActiveModelOb();
-    if (model_ob && model_ob.members && model_ob.members.indexOf(member.id) > -1) {
-      var should_rebuild_tabs = !TS.lazyLoadMembersAndBots() || !is_presence_change;
-      if (should_rebuild_tabs) _rebuildMembersTabs(model_ob);
-      if (_expanded_sections.members) _rebuildMember(member);
+    if (model_ob) {
+      var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, model_ob);
+      var user_is_definitely_not_member_of_channel = membership_status.is_known && !membership_status.is_member;
+      if (!user_is_definitely_not_member_of_channel) {
+        var should_rebuild_tabs = !TS.lazyLoadMembersAndBots() || !is_presence_change;
+        if (should_rebuild_tabs) _rebuildMembersTabs(model_ob);
+        if (_expanded_sections.members) _rebuildMember(member);
+      }
     }
   };
   var _memberChangedDeleted = function(member) {
