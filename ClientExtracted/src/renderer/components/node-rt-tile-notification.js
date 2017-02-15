@@ -1,4 +1,5 @@
 import {TileNotification} from 'electron-windows-notifications';
+import {logger} from '../../logger';
 
 function getTemplate(image, base) {
   return `<tile>
@@ -47,7 +48,7 @@ export default function showNotification(options) {
 
   // Decode image URLs, we'll use the raw URLs
   if (avatar && avatar.includes('?s=')) {
-    avatar = decodeURI(avatar.slice(avatar.indexof('?s=')));
+    avatar = decodeURI(avatar.slice(avatar.indexOf('?s=')));
   }
 
   if (parts && parts.length === 6) {
@@ -64,6 +65,7 @@ export default function showNotification(options) {
     strings = [title, body, title, body, title, body];
   }
 
+  logger.debug('Sending tile notification', {template, strings});
   const tile = new TileNotification({template, strings});
 
   tile.show();

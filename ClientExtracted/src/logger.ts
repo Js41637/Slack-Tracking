@@ -2,6 +2,7 @@ import * as fs from 'graceful-fs';
 import * as path from 'path';
 import * as winston from 'winston';
 import {p} from './get-path';
+import {noop} from './utils/noop';
 import promisify from './promisify';
 import {LoggerConfiguration} from './logger-configuration';
 import {Observable} from 'rxjs/Observable';
@@ -30,8 +31,8 @@ export interface LoggerOptions {
 }
 
 export class Logger {
+  public readonly logLocation: string;
   private readonly logApi: winston.LoggerInstance;
-  private readonly logLocation: string;
   private readonly sub: Subscription;
 
   /**
@@ -47,7 +48,7 @@ export class Logger {
     const {identifierOverride, showTimestamp, dontSetUpWinston} = options;
     const loggerConfig = this.getLoggerConfiguration();
     const {devMode, logFile} = loggerConfig;
-    const logLevel = loggerConfig.logLevel || (devMode ? 'debug' : 'info');
+    const logLevel = loggerConfig.logLevel || process.env.SLACK_DEBUG_LEVEL || (devMode ? 'debug' : 'info');
 
     if (devMode) {
       d = require('debug')(`logger:${identifier}`);
@@ -56,9 +57,7 @@ export class Logger {
       d.useColors = () => false;
     } else {
       // In production we only rely on the log files; wipe out `debug`
-      d = (() => {
-        //noop
-      }) as any;
+      d = noop as any;
     }
 
     /**
@@ -106,24 +105,24 @@ export class Logger {
     }
   }
 
-  public debug(message: string): void {
-    if (isBrowser) d(message);
-    this.logApi.debug(message);
+  public debug(message: string, ...meta: Array<any>): void {
+    if (isBrowser) d(message, ...meta);
+    this.logApi.debug(message, meta);
   }
 
-  public info(message: string): void {
-    if (isBrowser) d(message);
-    this.logApi.info(message);
+  public info(message: string, ...meta: Array<any>): void {
+    if (isBrowser) d(message, ...meta);
+    this.logApi.info(message, meta);
   }
 
-  public warn(message: string): void {
-    if (isBrowser) d(message);
-    this.logApi.warn(message);
+  public warn(message: string, ...meta: Array<any>): void {
+    if (isBrowser) d(message, ...meta);
+    this.logApi.warn(message, meta);
   }
 
-  public error(message: string): void {
-    d(message);
-    this.logApi.error(message);
+  public error(message: string, ...meta: Array<any>): void {
+    d(message, ...meta);
+    this.logApi.error(message, meta);
   }
 
   public fatal(message: string): void {
@@ -147,7 +146,7 @@ export class Logger {
    * @param  {Function} [transform=null]  An optional function to apply to the Observable
    * @return {Promise<Array<File>>}       A Promise that resolves with an array of Files
    */
-  public getMostRecentLogFiles(maxFiles: number = 8, transform: Function | null = null): Promise<Array<File>> {
+  public getMostRecentLogFiles(maxFiles: number = 8, transform: Function | null = null): Promise<Array<string>> {
     const sortedLogs = this.getLogFiles().sort((a, b) =>
       (+fs.statSyncNoException(b).mtime) - (+fs.statSyncNoException(a).mtime));
 
@@ -157,7 +156,7 @@ export class Logger {
       .filter((files) => files.length > 0)
       .take(maxFiles))
       .catch(() => Observable.of(null))
-      .reduce((acc: Array<File>, file: File) => {
+      .reduce((acc: Array<string>, file: string) => {
         if (file) acc.push(file);
         return acc;
       }, [])

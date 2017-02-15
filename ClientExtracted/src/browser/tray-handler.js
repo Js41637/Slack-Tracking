@@ -1,24 +1,26 @@
 import {app, Menu, MenuItem, Tray} from 'electron';
+import {requireTaskPool} from 'electron-remote';
 import {Observable} from 'rxjs/Observable';
 
+import {appStore} from '../stores/app-store';
 import {appTeamsActions} from '../actions/app-teams-actions';
-import AppStore from '../stores/app-store';
-import AppTeamsStore from '../stores/app-teams-store';
+import {appTeamsStore} from '../stores/app-teams-store';
 import {dialogStore} from '../stores/dialog-store';
 import {eventActions} from '../actions/event-actions';
-import NotificationActions from '../actions/notification-actions';
-import ReduxComponent from '../lib/redux-component';
-import {settingStore} from '../stores/setting-store';
-import TeamStore from '../stores/team-store';
-
-import {logger} from '../logger';
-import {isEqualArrays} from '../utils/array-is-equal';
-import {resolveImage} from '../utils/resolve-image';
 import {getMenuItemForUpdateStatus} from './updater-utils';
+import {isEqualArrays} from '../utils/array-is-equal';
+import {logger} from '../logger';
+import {notificationActions} from '../actions/notification-actions';
+import {ReduxComponent} from '../lib/redux-component';
+import {resolveImage} from '../utils/resolve-image';
+import {settingStore} from '../stores/setting-store';
+import {teamStore} from '../stores/team-store';
 
-import {requireTaskPool} from 'electron-remote';
 const {repairTrayRegistryKey} = requireTaskPool(require.resolve('../csx/tray-repair'));
 import {nativeInterop} from '../native-interop';
+
+import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
+
 const {isWindows10OrHigher} = nativeInterop;
 
 const darwinTrayImageMapping = {
@@ -36,9 +38,9 @@ export default class TrayHandler extends ReduxComponent {
   }
 
   syncState() {
-    let unreadInfo = TeamStore.getCombinedUnreadInfo();
-    let devEnv = settingStore.getSetting('devEnv');
-    let {icon, tooltip, badge} = this.getTrayStateFromUnreadInfo(unreadInfo, devEnv);
+    const unreadInfo = teamStore.getCombinedUnreadInfo();
+    const devEnv = settingStore.getSetting('devEnv');
+    const {icon, tooltip, badge} = this.getTrayStateFromUnreadInfo(unreadInfo, devEnv);
 
     return {
       icon, tooltip, badge, devEnv,
@@ -47,9 +49,9 @@ export default class TrayHandler extends ReduxComponent {
       isMac: settingStore.isMac(),
       isLinux: settingStore.isLinux(),
       isWindows: settingStore.isWindows(),
-      teams: TeamStore.getTeams(),
-      teamsByIndex: AppTeamsStore.getTeamsByIndex({visibleTeamsOnly: true}),
-      updateStatus: AppStore.getUpdateStatus(),
+      teams: teamStore.teams,
+      teamsByIndex: appTeamsStore.getTeamsByIndex({visibleTeamsOnly: true}),
+      updateStatus: appStore.getUpdateStatus(),
       releaseChannel: settingStore.getSetting('releaseChannel'),
       isDevMode: settingStore.getSetting('isDevMode'),
       disableUpdateCheck: !!(process.windowsStore || process.mas)
@@ -57,8 +59,8 @@ export default class TrayHandler extends ReduxComponent {
   }
 
   update(prevState={}) {
-    let {icon, tooltip, badge, lastBalloon, hasRunApp, isMac, isWindows,
-      teamsByIndex, updateStatus, releaseChannel} = this.state;
+    const {icon, tooltip, badge, lastBalloon, hasRunApp, isMac, teamsByIndex,
+      updateStatus, releaseChannel} = this.state;
 
     if (!isMac && icon !== prevState.icon) {
       this.setTrayIcon(icon, tooltip);
@@ -77,38 +79,63 @@ export default class TrayHandler extends ReduxComponent {
     }
 
     if (this.tray) {
-      let didTeamsChange = !isEqualArrays(prevState.teamsByIndex, teamsByIndex);
-      let didUpdateStatusChange = updateStatus !== prevState.updateStatus;
+      const didTeamsChange = !isEqualArrays(prevState.teamsByIndex, teamsByIndex);
+      const didUpdateStatusChange = updateStatus !== prevState.updateStatus;
       if (didTeamsChange || didUpdateStatusChange) this.createTrayMenu();
     }
 
     if (prevState.releaseChannel && releaseChannel !== prevState.releaseChannel) {
-      let message = releaseChannel === 'beta' ?
-        "You’ve been added to the beta! 🎉 Your app will receive beta updates as they’re available." :
-        "You’ve been removed from the beta. Back to your regularly scheduled program…";
-
-      if (isWindows) {
-        if (!isWindows10OrHigher()) {
-          message = message.replace(' 🎉 ', ' ');
-        }
-
-        this.showBalloon({
-          title: 'Slack for Windows Beta',
-          content: message
-        });
-      } else {
-        setImmediate(() => NotificationActions.newNotification({
-          title: 'Slack Beta',
-          content: message
-        }));
-      }
+      this.showReleaseChannelNotification();
     }
 
     if (hasRunApp !== prevState.hasRunApp && !hasRunApp && !isMac) {
       this.showBalloon({
-        title: 'Welcome to Slack!',
-        content: "This icon will show a blue dot for unread messages, and a red one for notifications. If you'd like Slack to appear here all the time, drag the icon out of the overflow area."
+        title: $intl.t(`Welcome to Slack!`, LOCALE_NAMESPACE.BROWSER)(),
+        content: $intl.t(`This icon will show a blue dot for unread messages, and a red one for notifications. ` +
+          `If you'd like Slack to appear here all the time, drag the icon out of the overflow area.`, LOCALE_NAMESPACE.BROWSER)()
       });
+    }
+  }
+
+  /**
+   * Indicates to the user whether or not joining a certain release channel
+   * has worked.
+   */
+  showReleaseChannelNotification() {
+    let message;
+    const {releaseChannel, isMac} = this.state;
+
+    if ((process.mas || process.windowsStore) && releaseChannel === 'beta') {
+      message = $intl.t(`😔 To join the beta, please install Slack directly from slack.com/download.`, LOCALE_NAMESPACE.BROWSER)();
+    } else {
+      message = releaseChannel === 'beta' ?
+        $intl.t(`You’ve been added to the beta! 🎉 Your app will receive beta updates as they’re available.`, LOCALE_NAMESPACE.BROWSER)() :
+        $intl.t(`You’ve been removed from the beta. Back to your regularly scheduled program…`, LOCALE_NAMESPACE.BROWSER)();
+    }
+
+    if (!isMac && !isWindows10OrHigher()) {
+      message = message.replace(' 🎉 ', ' ');
+    }
+
+    this.showBetaNotification(message);
+  }
+
+  alreadyOnBetaChannelNotification() {
+    const message = $intl.t(`You’re already in the beta! Your app will receive updates as they’re available.`, LOCALE_NAMESPACE.BROWSER)();
+    this.showBetaNotification(message);
+  }
+
+  showBetaNotification(message) {
+    if (this.state.isWindows) {
+      this.showBalloon({
+        title: $intl.t(`Slack for Windows Beta`, LOCALE_NAMESPACE.BROWSER)(),
+        content: message
+      });
+    } else {
+      setImmediate(() => notificationActions.newNotification({
+        title: $intl.t(`Slack Beta`, LOCALE_NAMESPACE.BROWSER)(),
+        content: message
+      }));
     }
   }
 
@@ -128,16 +155,20 @@ export default class TrayHandler extends ReduxComponent {
    */
   getTrayStateFromUnreadInfo({unreads, unreadHighlights, showBullet}, devEnv) {
     let icon = 'rest';
-    let tooltip = 'No unread messages';
+    let tooltip = $intl.t(`No unread messages`, LOCALE_NAMESPACE.BROWSER)();
     let badge = '';
+
+    $intl.t(`{unreadHighlights,plural,=1{{unreadHighlights} unread mention}other{{unreadHighlights} unread mentions}}`, LOCALE_NAMESPACE.BROWSER)({
+      unreadHighlights: unreadHighlights
+    });
 
     if (unreadHighlights > 0) {
       icon = 'highlight';
-      tooltip = `${unreadHighlights} unread mention${unreadHighlights > 1 ? 's' : ''}`;
+      tooltip = $intl.t(`{unreadHighlights,plural,=1{# unread mention}other{# unread mentions}}`, LOCALE_NAMESPACE.BROWSER)({unreadHighlights});
       badge = String(unreadHighlights);
     } else if (unreads > 0) {
       icon = 'unread';
-      tooltip = `${unreads} unread message${unreads > 1 ? 's' : ''}`;
+      tooltip = $intl.t(`{unreads,plural,=1{# unread message}other{# unread messages}}`, LOCALE_NAMESPACE.BROWSER)({unreads});
       badge = showBullet ? '•' : '';
     }
 
@@ -254,7 +285,7 @@ export default class TrayHandler extends ReduxComponent {
     }
 
     menu.append(new MenuItem({
-      label: '&Preferences',
+      label: $intl.t(`&Preferences`, LOCALE_NAMESPACE.MENU)(),
       click: () => eventActions.showWebappDialog('prefs'),
       accelerator: 'CommandOrControl+,'
     }));
@@ -262,7 +293,7 @@ export default class TrayHandler extends ReduxComponent {
     menu.append(new MenuItem({type: 'separator'}));
 
     menu.append(new MenuItem({
-      label: '&Quit',
+      label: $intl.t(`&Quit`, LOCALE_NAMESPACE.MENU)(),
       click: () => eventActions.quitApp(),
       accelerator: 'CommandOrControl+Q'
     }));

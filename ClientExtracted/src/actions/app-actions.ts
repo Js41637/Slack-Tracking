@@ -1,14 +1,7 @@
+import {Region} from '../region';
 import {Store} from '../lib/store';
 import {APP} from './';
-import {UPDATE_STATUS, updateStatusType} from '../utils/shared-constants';
-
-export type networkStatusType = 'online' | 'slackDown' | 'offline';
-
-export interface UpdateInformation {
-  releaseNotes: string;
-  releaseName: string;
-  releaseDate: string;
-}
+import {UPDATE_STATUS, updateStatusType, networkStatusType, UpdateInformation} from '../utils/shared-constants';
 
 export class AppActions {
   public setNetworkStatus(status: networkStatusType): void {
@@ -36,6 +29,18 @@ export class AppActions {
 
   public setSuspendStatus(isAwake: boolean): void {
     Store.dispatch({type: APP.SET_SUSPEND_STATUS, data: isAwake});
+  }
+
+  public markDevToolsOpened(): void {
+    Store.dispatch({type: APP.MARK_DEVTOOLS_STATE, data: true});
+  }
+
+  public markDevToolsClosed(): void {
+    Store.dispatch({type: APP.MARK_DEVTOOLS_STATE, data: false});
+  }
+
+  public updateNoDragRegion(region: Region): void {
+    Store.dispatch({type: APP.UPDATE_NO_DRAG_REGION, data: {region}});
   }
 }
 

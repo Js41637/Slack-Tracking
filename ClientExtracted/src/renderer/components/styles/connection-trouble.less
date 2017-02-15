@@ -1,0 +1,73 @@
+#trouble_loading {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 100%;
+	max-width: 35rem;
+	/* on-screen positioning */
+	height: 85%;
+	min-height: 15rem;
+	/* may need fiddling to natural max-height of content. */
+	max-height: 19rem;
+	overflow: auto;
+	background: #fff;
+	padding: 1.5rem;
+	padding-bottom: 0;
+	background-clip: padding-box;
+	z-index: 9999;
+	/* restore the default */
+	user-select: auto;
+	/* and look nice */
+	-webkit-font-smoothing: antialiased;
+	/* just to be safe */
+	pointer-events: auto;
+	border: 1px solid rgba(0,0,0,0.05);
+	border-radius: 8px;
+	font-family: 'Slack-Lato', "Helvetica Neue", helvetica, "Segoe UI", tahoma, verdana, arial, sans-serif;
+	font-size: 1rem;
+	transform: translateX(-50%) translateY(-50%);
+	box-shadow: 0px 0px 16px 8px rgba(0,0,0,0.05);
+}
+
+#trouble_loading a {
+	text-decoration: none;
+	color: #0073C6;
+}
+
+#trouble_loading a:hover {
+	text-decoration: underline;
+}
+
+#trouble_loading code {
+	font-family: Consolas, monaco, "Ubuntu Mono", courier, monospace !important;
+	font-size: 0.75rem;
+	white-space: normal;
+	padding: 0 2px;
+	font-variant-ligatures: none;
+	background-color: #f7f7f9;
+	border: 1px solid #e1e1e8;
+	color: #CC2255;
+}
+
+#trouble_loading h1 {
+	font-size: 1.5rem;
+  margin: 0 0 0.25rem 0;
+}
+
+#trouble_loading h3 {
+	font-size: 1.2rem;
+}
+
+#trouble_loading .trouble_loading_content li {
+	margin-bottom: 0.5rem;
+}
+
+#trouble_loading,
+#trouble_loading .trouble_loading_content li {
+	line-height: 1.275rem;
+}
+
+#trouble_loading p {
+	line-height: 1.5rem;
+	margin: 0.75rem 0;
+}

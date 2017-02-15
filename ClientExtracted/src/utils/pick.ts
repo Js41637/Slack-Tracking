@@ -1,5 +1,4 @@
 import {pickBy} from './pick-by';
-import * as includes from 'lodash.includes';
 
 /**
  * A more lightweight implementation of `_.pick` without support for individual
@@ -11,6 +10,6 @@ import * as includes from 'lodash.includes';
  * @returns {Object} Returns the new object.
  */
 export function pick<TResult extends {}, T extends {}>(object: T = {} as T, ...props: Array<string | Array<string>>) {
-  const _props = (props.length === 1 && Array.isArray(props[0])) ? props[0] : props;
-  return pickBy<TResult, T>(object, (_v: any, key: string) => includes(_props, key));
+  const _props = (props.length === 1 && Array.isArray(props[0])) ? props[0] as Array<string> : props;
+  return pickBy<TResult, T>(object, (_v: any, key: string) => _props.includes(key));
 }

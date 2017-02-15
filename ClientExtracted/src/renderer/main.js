@@ -1,4 +1,3 @@
-import path from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import '../rx-operators';
@@ -12,15 +11,6 @@ import Reporter from './metrics-reporter';
 import WebappSharedMainModule from '../webapp-shared/main';
 
 initializeEvalHandler();
-
-if (global.loadSettings.liveReload) {
-  const LiveReload = require('./livereload');
-  let paths = ['src', 'spec'];
-  let realPaths = paths.map((x) => path.resolve(global.loadSettings.resourcePath, x));
-
-  let liveReload = new LiveReload(realPaths);
-  global.attachLiveReload = liveReload.attach();
-}
 
 global.metricsReporter = new Reporter();
 if (!global.loadSettings.devMode) {

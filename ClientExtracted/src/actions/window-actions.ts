@@ -3,7 +3,7 @@ import {WINDOWS} from './';
 import {windowType} from '../utils/shared-constants';
 
 export interface WindowCreationOptions {
-  windowId: string;
+  windowId: number;
   windowType: windowType;
   subType?: string;
   teamId?: string;
@@ -17,7 +17,7 @@ export class WindowActions {
     });
   }
 
-  public removeWindow(windowId: string): void {
+  public removeWindow(windowId: number): void {
     Store.dispatch({
       type: WINDOWS.REMOVE_WINDOW,
       data: windowId

@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from 'graceful-fs';
 import * as sortBy from 'lodash.sortby';
 
 const lineBreak = '\r\n';

@@ -3,7 +3,7 @@ import {createCompilerHostFromProjectRootSync} from 'electron-compile';
 import path from 'path';
 import {protocol} from 'electron';
 
-import ReduxComponent from '../lib/redux-component';
+import {ReduxComponent} from '../lib/redux-component';
 import {settingStore} from '../stores/setting-store';
 
 const PROTOCOL_SCHEME_NAME = 'slack-webapp-dev';
@@ -18,7 +18,7 @@ export default class SlackWebappDevHandler extends ReduxComponent {
 
     let {sanitizeUrl, compilerHost} = this;
 
-    protocol.registerBufferProtocol(PROTOCOL_SCHEME_NAME, async function(request, completion) {
+    protocol.registerBufferProtocol(PROTOCOL_SCHEME_NAME, async (request, completion) => {
       let relativeFilePath = sanitizeUrl(request.url);
 
       logger.debug(`[${PROTOCOL_SCHEME_NAME}] Want to load: ${relativeFilePath}`);

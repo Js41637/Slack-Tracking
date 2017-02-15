@@ -1,10 +1,13 @@
 export type appType = 'SET_SUSPEND_STATUS' | 'SET_NETWORK_STATUS' |
-                      'SET_UPDATE_STATUS';
+                      'SET_UPDATE_STATUS' | 'MARK_DEVTOOLS_STATE' |
+                      'UPDATE_NO_DRAG_REGION';
 
 export const APP = {
   SET_SUSPEND_STATUS: 'SET_SUSPEND_STATUS' as appType,
   SET_NETWORK_STATUS: 'SET_NETWORK_STATUS' as appType,
-  SET_UPDATE_STATUS: 'SET_UPDATE_STATUS' as appType
+  SET_UPDATE_STATUS: 'SET_UPDATE_STATUS' as appType,
+  MARK_DEVTOOLS_STATE: 'MARK_DEVTOOLS_STATE' as appType,
+  UPDATE_NO_DRAG_REGION: 'UPDATE_NO_DRAG_REGION' as appType
 };
 
 export type appTeamsType = 'SELECT_TEAM' | 'SELECT_TEAM_BY_USER_ID' |
@@ -34,8 +37,7 @@ export const DIALOG = {
   SHOW_AUTH_DIALOG: 'SHOW_AUTH_DIALOG' as dialogType,
   SHOW_URL_SCHEME_MODAL: 'SHOW_URL_SCHEME_MODAL' as dialogType,
   SUBMIT_CREDENTIALS: 'SUBMIT_CREDENTIALS' as dialogType,
-  SHOW_TRAY_BALLOON: 'SHOW_TRAY_BALLOON' as dialogType,
-  TOGGLE_DEV_TOOLS: 'TOGGLE_DEV_TOOLS' as dialogType
+  SHOW_TRAY_BALLOON: 'SHOW_TRAY_BALLOON' as dialogType
 };
 
 export type downloadsType = 'START_DOWNLOAD' | 'CANCEL_DOWNLOAD' |
@@ -56,13 +58,14 @@ export const DOWNLOADS = {
 export type eventsType = 'EDITING_COMMAND' | 'APP_COMMAND' |
                          'MAIN_WINDOW_FOCUSED' | 'FOREGROUND_APP' |
                          'HANDLE_DEEP_LINK' | 'HANDLE_EXTERNAL_LINK' |
-                         'QUIT_APP' | 'RELOAD' | 'TOGGLE_FULL_SCREEN' |
-                         'SHOW_ABOUT' | 'SHOW_RELEASE_NOTES' |
-                         'SHOW_WEBAPP_DIALOG' | 'SIGN_OUT_TEAM' |
-                         'REFRESH_TEAM' | 'CONFIRM_AND_RESET_APP' |
-                         'REPORT_ISSUE' | 'PREPARE_AND_REVEAL_LOGS' |
-                         'SIDEBAR_CLICKED' | 'CLOSE_ALL_UPDATE_BANNERS' |
-                         'POPUP_APP_MENU';
+                         'HANDLE_REPLY_LINK' | 'QUIT_APP' | 'RELOAD' |
+                         'TOGGLE_FULL_SCREEN' | 'SHOW_ABOUT' |
+                         'SHOW_RELEASE_NOTES' | 'SHOW_WEBAPP_DIALOG' |
+                         'SIGN_OUT_TEAM' | 'REFRESH_TEAM' |
+                         'CONFIRM_AND_RESET_APP' | 'REPORT_ISSUE' |
+                         'PREPARE_AND_REVEAL_LOGS' | 'CLOSE_ALL_UPDATE_BANNERS' |
+                         'POPUP_APP_MENU' | 'TOGGLE_DEV_TOOLS' |
+                         'SYSTEM_TEXT_SETTINGS_CHANGED';
 
 export const EVENTS = {
   EDITING_COMMAND: 'EDITING_COMMAND' as eventsType,
@@ -70,6 +73,7 @@ export const EVENTS = {
   MAIN_WINDOW_FOCUSED: 'MAIN_WINDOW_FOCUSED' as eventsType,
   FOREGROUND_APP: 'FOREGROUND_APP' as eventsType,
   HANDLE_DEEP_LINK: 'HANDLE_DEEP_LINK' as eventsType,
+  HANDLE_REPLY_LINK: 'HANDLE_REPLY_LINK' as eventsType,
   HANDLE_EXTERNAL_LINK: 'HANDLE_EXTERNAL_LINK' as eventsType,
   QUIT_APP: 'QUIT_APP' as eventsType,
   RELOAD: 'RELOAD' as eventsType,
@@ -82,9 +86,10 @@ export const EVENTS = {
   CONFIRM_AND_RESET_APP: 'CONFIRM_AND_RESET_APP' as eventsType,
   REPORT_ISSUE: 'REPORT_ISSUE' as eventsType,
   PREPARE_AND_REVEAL_LOGS: 'PREPARE_AND_REVEAL_LOGS' as eventsType,
-  SIDEBAR_CLICKED: 'SIDEBAR_CLICKED' as eventsType,
   CLOSE_ALL_UPDATE_BANNERS: 'CLOSE_ALL_UPDATE_BANNERS' as eventsType,
-  POPUP_APP_MENU: 'POPUP_APP_MENU' as eventsType
+  POPUP_APP_MENU: 'POPUP_APP_MENU' as eventsType,
+  TOGGLE_DEV_TOOLS: 'TOGGLE_DEV_TOOLS' as eventsType,
+  SYSTEM_TEXT_SETTINGS_CHANGED: 'SYSTEM_TEXT_SETTINGS_CHANGED' as eventsType
 };
 
 export type notificationsType = 'NEW_NOTIFICATION' | 'REMOVE_NOTIFICATION' |
@@ -96,13 +101,11 @@ export const NOTIFICATIONS = {
   REPLY_TO_NOTIFICATION: 'REPLY_TO_NOTIFICATION' as notificationsType
 };
 
-export type settingsType = 'INITIALIZE_SETTINGS' | 'UPDATE_SETTINGS' |
-                           'SET_DEV_MODE' | 'SET_DEV_ENVIRONMENT' |
-                           'SET_TITLE_BAR_HIDDEN' | 'ZOOM_IN' |
-                           'ZOOM_OUT' | 'RESET_ZOOM';
+export type settingsType = 'UPDATE_SETTINGS' | 'SET_DEV_MODE' |
+                           'SET_DEV_ENVIRONMENT' | 'SET_TITLE_BAR_HIDDEN' |
+                           'ZOOM_IN' | 'ZOOM_OUT' | 'RESET_ZOOM';
 
 export const SETTINGS = {
-  INITIALIZE_SETTINGS: 'INITIALIZE_SETTINGS' as settingsType,
   UPDATE_SETTINGS: 'UPDATE_SETTINGS' as settingsType,
   SET_DEV_MODE: 'SET_DEV_MODE' as settingsType,
   SET_DEV_ENVIRONMENT: 'SET_DEV_ENVIRONMENT' as settingsType,
@@ -134,12 +137,11 @@ export const TEAMS = {
   SET_TEAM_IDLE_TIMEOUT: 'SET_TEAM_IDLE_TIMEOUT' as teamsType
 };
 
-export type windowFrameType = 'SET_FULL_SCREEN' | 'SAVE_WINDOW_SETTINGS' | 'UPDATE_NO_DRAG_REGION';
+export type windowFrameType = 'SET_FULL_SCREEN' | 'SAVE_WINDOW_SETTINGS';
 
 export const WINDOW_FRAME = {
   SAVE_WINDOW_SETTINGS: 'SAVE_WINDOW_SETTINGS' as windowFrameType,
   SET_FULL_SCREEN: 'SET_FULL_SCREEN' as windowFrameType,
-  UPDATE_NO_DRAG_REGION: 'UPDATE_NO_DRAG_REGION' as windowFrameType
 };
 
 export type windowsType = 'ADD_WINDOW' | 'REMOVE_WINDOW';

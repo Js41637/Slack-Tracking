@@ -1,44 +1,58 @@
 import {Store} from '../lib/store';
 import {TEAMS} from './';
+import {StringMap} from '../utils/string-map';
 
-import {TEAM_UNLOADING_DISABLED, DEFAULT_TEAM_IDLE_TIMEOUT} from '../utils/shared-constants';
+export interface TeamBase {
+  id?: string;
+  name: string;
+  team_id: string;
+  team_name: string;
+  team_url: string;
+  unreads: number;
+  unreadHighlights: number;
+  showBullet: boolean;
+  initials: string;
+  user_id: string;
+  theme: StringMap<string>;
+  icons: StringMap<string>;
+  usage: number;
+  idle_timeout: number;
+}
+
+export type Team = Readonly<TeamBase>;
 
 export class TeamActions {
-  public addTeam(team: any, selectTeam: boolean): void {
+  public addTeam(team: Team, selectTeam: boolean): void {
     Store.dispatch({
       type: TEAMS.ADD_NEW_TEAM,
       data: team,
-      selectTeam,
-      shouldSave: true
+      selectTeam
     });
   }
 
-  public addTeams(teams: any, selectTeam: boolean): void {
+  public addTeams(teams: Array<Team>, selectTeam: boolean): void {
     Store.dispatch({
       type: TEAMS.ADD_NEW_TEAMS,
       data: teams,
-      selectTeam,
-      shouldSave: true
+      selectTeam
     });
   }
 
   public removeTeam(teamId: string): void {
     Store.dispatch({
       type: TEAMS.REMOVE_TEAM,
-      data: teamId,
-      shouldSave: true
+      data: teamId
     });
   }
 
   public removeTeams(teamIds: Array<string>): void {
     Store.dispatch({
       type: TEAMS.REMOVE_TEAMS,
-      data: teamIds,
-      shouldSave: true
+      data: teamIds
     });
   }
 
-  public updateTheme(theme: any, teamId: string): void {
+  public updateTheme(theme: StringMap<string>, teamId: string): void {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_THEME,
       data: {theme, teamId}
@@ -59,7 +73,7 @@ export class TeamActions {
     });
   }
 
-  public updateTeamUsage(usagePerTeam: any): void {
+  public updateTeamUsage(usagePerTeam: StringMap<any>): void {
     Store.dispatch({
       type: TEAMS.UPDATE_TEAM_USAGE,
       data: usagePerTeam
@@ -87,17 +101,10 @@ export class TeamActions {
     });
   }
 
-  public setTeamIdleTimeout(timeout: number = DEFAULT_TEAM_IDLE_TIMEOUT, teamId: string): void {
+  public setTeamIdleTimeout(timeout: number, teamId: string): void {
     Store.dispatch({
       type: TEAMS.SET_TEAM_IDLE_TIMEOUT,
       data: {timeout, teamId}
-    });
-  }
-
-  public clearTeamIdleTimeout() {
-    Store.dispatch({
-      type: TEAMS.SET_TEAM_IDLE_TIMEOUT,
-      data: {timeout: TEAM_UNLOADING_DISABLED}
     });
   }
 }

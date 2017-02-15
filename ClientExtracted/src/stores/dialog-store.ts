@@ -28,10 +28,6 @@ export class DialogStore {
   public getUrlSchemeModal(): UrlScheme {
     return this.dialog.urlSchemeModal;
   }
-
-  public isShowingDevTools(): boolean {
-    return this.dialog.isShowingDevTools;
-  }
 }
 
 const dialogStore = new DialogStore();

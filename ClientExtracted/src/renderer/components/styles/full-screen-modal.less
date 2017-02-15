@@ -1,0 +1,212 @@
+/*
+ * This style is imported from webapp/style/plastic_fs_modal.source.less.
+ * Some of the imports have been inlined as electron-compile doesn't yet
+ * support LESS imports.
+ *
+ * Naming conventions have been left in place to ease replacement or porting
+ * modifications.
+ */
+
+@import "../../../static/plastic/plastic_colors";
+@import "../../../static/plastic/plastic_typography";
+@import "../../../static/plastic/plastic_utilities";
+
+
+// Custom for electron
+.fancy-frame .full-screen-modal-container {
+	transform: translateZ(0); // Black magic: reset coordinate system
+    height: ~"calc(100% - 31px)";
+    width: 100%;
+    position: absolute;
+    top: 31px;
+}
+// End custom
+
+html.fs_modal_active {
+	overflow: hidden;
+}
+
+@transition_duration: 250ms; // should match TRANSITION_DURATION in full-screen-modal.jsx
+@contents_transition_duration: 150ms;
+@translate_delay: @transition_duration - @contents_transition_duration;
+@fs_modal_header_height: 3.75rem;
+@fs_modal_footer_height: 4.5rem;
+@fs_modal_z_index: 1041;
+
+#fs_modal_bg,
+.fs_modal_bg {
+	position: fixed;
+	top: 100%;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: white;
+	z-index: @fs_modal_z_index - 1;
+	opacity: 0;
+	transition: opacity @transition_duration cubic-bezier(0.2, 0.8, 0.5, 1) @translate_delay, top 0ms linear @transition_duration;
+
+	&.active {
+		top: 0;
+		opacity: 1;
+		transition: opacity @transition_duration cubic-bezier(0.2, 0.8, 0.5, 1), top 0ms linear 0ms;
+	}
+}
+
+#fs_modal {
+	position: fixed;
+	top: 100%;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: @fs_modal_z_index;
+	font-size: 18px;
+	line-height: 1.5rem;
+	overflow-y: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	opacity: 0;
+	transform: translateY(5px); // just a little upward move on show
+	transition: opacity @contents_transition_duration cubic-bezier(0.2, 0.8, 0.5, 1) @translate_delay, transform @contents_transition_duration cubic-bezier(0.2, 0.8, 0.5, 1) @translate_delay, top 0ms linear @transition_duration; // hide
+
+	&.active {
+		top: 0;
+		opacity: 1;
+		transform: translateY(0);
+		transition: opacity @contents_transition_duration cubic-bezier(0.2, 0.8, 0.5, 1) @translate_delay, transform @contents_transition_duration cubic-bezier(0.2, 0.8, 0.5, 1) @translate_delay; // show
+	}
+
+	// Headings
+	h1, h2, h3, h4, h5 {
+		color: @charcoal_grey;
+	}
+
+	.fs_modal_btn {
+		position: absolute;
+		top: 3rem;
+		width: 4rem;
+		height: 4rem;
+		z-index: 1;
+		text-align: center;
+		cursor: pointer;
+		color: @subtle_silver;
+		font-size: 0.8rem;
+		line-height: 1.5rem;
+		border-radius: 100%;
+		user-select: none;
+
+		/* Close Button */
+		&#fs_modal_close_btn {
+			right: 10px;
+			top: 10px;
+		}
+
+		/* Back Button */
+		&#fs_modal_back_btn {
+			left: 3rem;
+		}
+
+		.ts_icon {
+			position: absolute;
+			top: 1rem;
+			left: 0;
+			width: 100%;
+			display: block;
+
+			&:before {
+				font-size: 2rem;
+			}
+		}
+
+		.key_label {
+			position: absolute;
+			top: 2.25rem;
+			left: 0;
+			width: 100%;
+			display: block;
+			-webkit-user-select: none;
+		}
+
+		&:hover {
+			color: @indifferent_grey;
+			background: @soft_grey;
+		}
+
+		&:active {
+			color: white;
+			background: @seafoam_green;
+		}
+	}
+
+	#fs_modal_header {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: @fs_modal_header_height;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+
+		// title
+		h3 {
+			margin: 0;
+			font-weight: 900;
+			font-size: 1.4rem;
+			white-space: nowrap;
+		}
+	}
+
+	&.fs_modal_header {
+
+		.fs_modal_btn {
+
+			.px_to_rem(top, 6px);
+			width: 3rem;
+			height: 3rem;
+			line-height: 1.2rem;
+
+			// The buttons are moved closer to the edges of the header
+			&#fs_modal_close_btn {
+				right: 1rem;
+			}
+
+			&#fs_modal_back_btn {
+				left: 1rem;
+			}
+
+			&:hover {
+				background: none;
+			}
+
+			&:active {
+				color: @seafoam_green;
+				background: none;
+			}
+
+			// We don't show the labels at the bottom of the buttons
+			.key_label {
+				display: none;
+			}
+		}
+	}
+
+	.contents_container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		overflow-x: hidden;
+		overflow-y: auto;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+
+		.contents {
+			.px_to_rem(width, 640px);
+			max-width: 100%;
+			padding-bottom: 2rem;
+		}
+	}
+}

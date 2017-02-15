@@ -39,13 +39,13 @@ function parseCommandLine() {
   options.alias('l', 'log-file').string('l').describe('l', 'Log all output to file.');
   options.alias('g', 'log-level').string('g').describe('g', "Set the minimum log level, e.g., 'info', 'debug', etc.");
   options.alias('r', 'resource-path').string('r').describe('r', 'Set the path to the Atom source directory and enable dev-mode.');
-  options.alias('e', 'livereload')
-    .boolean('e')
-    .describe('e', 'Automatically reload the app if the source files are changed in dev-mode.');
   options.alias('u', 'startup')
     .boolean('u')
     .describe('u', 'The app is being started via a Startup shortcut. Hide the window on Win32');
   options.alias('v', 'version').boolean('v').describe('v', 'Print the version.');
+
+  //TODO: This command line arg option should be removed after wrap string validation completes, before next release
+  options.alias('i', 'i18n').string('i').describe('i', 'Set application locale manually. for now it supports psuedo locale only');
 
   let args = options.argv;
 
@@ -62,11 +62,11 @@ function parseCommandLine() {
   let devMode = args.dev;
   let webappSrcPath = args['webapp-src-path'] || process.env.SLACK_WEBAPP_SRC;
   webappSrcPath = webappSrcPath ? path.normalize(webappSrcPath) : webappSrcPath;
-  let liveReload = args.livereload;
   let logFile = args['log-file'];
   let logLevel = args['log-level'];
   let invokedOnStartup = args.startup;
   let chromeDriver = !!process.argv.slice(1).find((x) => x.match(/--test-type=webdriver/));
+  let i18nOverride = args['i18n'];
 
   let resourcePath = path.join(process.resourcesPath, 'app.asar');
   if (args['resource-path']) {
@@ -88,8 +88,8 @@ function parseCommandLine() {
 
   return {
     resourcePath, version, devMode, logFile,
-    logLevel, liveReload, protoUrl, invokedOnStartup, chromeDriver,
-    webappSrcPath
+    logLevel, protoUrl, invokedOnStartup, chromeDriver,
+    webappSrcPath, i18nOverride
   };
 }
 

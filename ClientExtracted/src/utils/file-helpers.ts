@@ -1,9 +1,11 @@
-import * as fs from 'fs';
+import * as fs from 'graceful-fs';
 import * as path from 'path';
-import {ZipFile} from 'yazl';
+
+import * as jszip from 'jszip';
 import {logger} from '../logger';
 import promisify from '../promisify';
-import {spawn} from 'spawn-rx';
+import {spawnPromise} from 'spawn-rx';
+import {Observable} from 'rxjs/Observable';
 
 const pfs = promisify(fs);
 
@@ -35,35 +37,27 @@ export function copySmallFileSync(from: string, to: string): void {
 }
 
 /**
- * Creates a Zip archive and saves it to a path.
+ * Creates a jsZip archiver instance by reading given files
  *
- * @param  {String[]} files         The files to add to the Zip archive
- * @param  {String} destination     The file path to save the Zip archive to
+ * @param  {String[]} files         The files to add to the Zip archive, should be plain text
  */
-export function createZipArchive(files: Array<string>, destination: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    const writeStream = fs.createWriteStream(destination);
-    const fileArchive = new ZipFile();
+export function createZipArchiver(files: Array<string>): Observable<jszip> {
+  //bindNodeCallback has type issue with reafile (supplying 'utf-8' for secondary option), cast to any
+  const readFileAsObservable = Observable.bindNodeCallback(fs.readFile) as any;
+  const archiver = new jszip();
 
-    fileArchive.outputStream
-      .on('error', reject)
-      .pipe(writeStream)
-        .on('error', reject)
-        .on('finish', () => {
-          resolve(true);
-        });
-
-    for (const file of files) {
-      try {
-        fs.statSync(file);
-        fileArchive.addFile(file, path.basename(file));
-      } catch (e) {
-        logger.error(`Couldn't find ${file} to include in Zip archive: ${e}`);
-      }
-    }
-
-    fileArchive.end();
-  });
+  return Observable.from(files)
+    .filter((file) => !!fs.statSyncNoException(file))
+    .mergeMap((file) => {
+      return (readFileAsObservable(file, 'utf-8') as Observable<string>).catch((err: Error) => {
+        const message = `could not read log file ${file}, ${err}`;
+        logger.error(message);
+        return Observable.of(message);
+      }).map((content: string) => ({ file, content }));
+    }).reduce((acc: jszip, value: { file: string, content: string }) => {
+      acc.file(path.basename(value.file), value.content);
+      return acc;
+    }, archiver);
 }
 
 /**
@@ -85,6 +79,10 @@ export function createZipArchiveWithPowershell(sourceDirectory: string, destinat
   ];
 
   logger.info(`Creating zip archive using PowerShell with args: ${JSON.stringify(args)}`);
+  return spawnPromise('powershell.exe', args);
+}
 
-  return spawn('powershell.exe', args).toPromise();
+export async function getCurrentUser(): Promise<{uid: number, gid: number}> {
+  const { uid, gid } = await pfs.stat(process.env.HOME);
+  return { uid, gid };
 }

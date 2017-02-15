@@ -1,13 +1,11 @@
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import {dialogStore} from '../../stores/dialog-store';
-import Component from '../../lib/component';
-import EventStore from '../../stores/event-store';
-import {FullScreenModal} from '../../components/full-screen-modal';
+import {Component} from '../../lib/component';
+import {eventStore} from '../../stores/event-store';
+import {FullScreenModal} from './full-screen-modal';
 import {settingStore} from '../../stores/setting-store';
-import WebViewContext from './web-view-ctx';
-import {WindowHelpers} from '../../components/helpers/window-helpers';
+import {WebViewContext} from './web-view-ctx';
 
 export default class LoginView extends Component {
 
@@ -31,17 +29,12 @@ export default class LoginView extends Component {
   syncState() {
     return {
       slackUrl: settingStore.getSignInUrl(),
-      isShowingDevTools: dialogStore.isShowingDevTools(),
-      mainWindowFocusedEvent: EventStore.getEvent('mainWindowFocused')
+      mainWindowFocusedEvent: eventStore.getEvent('mainWindowFocused')
     };
   }
 
   componentDidMount() {
     this.setState({spinnerOpacity: 1});
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    WindowHelpers.updateDevTools(this.refs.webView, prevState, this.state);
   }
 
   cancel() {

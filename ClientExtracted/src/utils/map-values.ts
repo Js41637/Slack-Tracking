@@ -22,8 +22,7 @@
  * // => { 'fred': 40, 'pebbles': 1 } (iteration order is not guaranteed)
  */
 
-export function mapValues<T, R>(object: T, iteratee: string): T;
-export function mapValues<T, R>(object: T, iteratee: (element: R) => any): T;
+export function mapValues<T, R>(object: T, iteratee: string | ((element: R) => any)): T;
 export function mapValues<T, R, TMapped>(object: T, iteratee: string | ((element: R) => any)): T | TMapped {
   const result = {} as T | TMapped;
   const _iteratee = (typeof iteratee === 'string') ? (v: any) => v[iteratee] : iteratee;

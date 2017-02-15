@@ -144,7 +144,7 @@ export class RepositionWindowBehavior extends WindowBehavior {
       return rect;
     }
 
-    let ret = (Object.assign as any)(...Object.keys(rect).map(key => ({[key]: Math.round(rect[key])})));
+    let ret = (Object.assign as any)(...Object.keys(rect).map((key) => ({[key]: Math.round(rect[key])})));
 
     const senderDisplay = screen.getDisplayMatching(browserWindow.getBounds());
     const paramsDisplay = screen.getDisplayMatching(ret);

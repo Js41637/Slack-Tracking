@@ -2,15 +2,15 @@ import assignIn from 'lodash.assignin';
 import '../rx-operators';
 import {dialog, shell, session, systemPreferences, powerMonitor} from 'electron';
 import {requireTaskPool} from 'electron-remote';
-import ipc from '../ipc-rx';
+import {ipc} from '../ipc-rx';
 import {logger} from '../logger';
-import fs from 'fs';
+import fs from 'graceful-fs';
 import os from 'os';
 import path from 'path';
 import rimraf from 'rimraf';
 import mkdirp from 'mkdirp';
 import packageJson from '../../package.json';
-import restartApp from './restart-app';
+import {restartApp} from './restart-app';
 import temp from 'temp';
 import promisify from '../promisify';
 import {getReleaseNotesUrl} from './updater-utils';
@@ -21,25 +21,27 @@ import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 import SerialSubscription from 'rxjs-serial-subscription';
 import {p} from '../get-path';
-import {createZipArchive, createZipArchiveWithPowershell, copySmallFileSync} from '../utils/file-helpers';
+import {createZipArchiver, createZipArchiveWithPowershell, copySmallFileSync} from '../utils/file-helpers';
 
 import {appActions} from '../actions/app-actions';
-import AppMenu from '../components/app-menu';
-import AutoLaunch from '../auto-launch';
-import BasicAuthHandler from './basic-auth-handler';
+import {AppMenu} from './app-menu';
+import {AutoLaunch} from '../auto-launch';
+import {BasicAuthHandler} from './basic-auth-handler';
 import {eventActions} from '../actions/event-actions';
-import EventStore from '../stores/event-store';
-import ReduxComponent from '../lib/redux-component';
+import {eventStore} from '../stores/event-store';
+import {ReduxComponent} from '../lib/redux-component';
 import {settingActions} from '../actions/setting-actions';
 import {settingStore} from '../stores/setting-store';
 import SlackResourcesUrlHandler from './slack-resources-url-handler';
 import SlackWebappDevHandler from './slack-webapp-dev-handler';
 import SquirrelAutoUpdater from './squirrel-auto-updater';
 import {Store} from '../lib/store';
-import TeamStore from '../stores/team-store';
+import {teamStore} from '../stores/team-store';
 import TrayHandler from './tray-handler';
-import WebContentsMediator from './web-contents-mediator';
-import WindowCreator from './window-creator';
+import {WebContentsMediator} from './web-contents-mediator';
+import {windowCreator} from './window-creator';
+
+import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
 
 const pmkdirp = promisify(mkdirp);
 const primraf = promisify(rimraf);
@@ -79,7 +81,8 @@ export default class Application extends ReduxComponent {
 
     if (this.state.isMac) {
       this.appMenu = new AppMenu();
-      require('electron-text-substitutions').listenForPreferenceChanges();
+      require('electron-text-substitutions/preference-helpers')
+        .onPreferenceChanged(eventActions.systemTextSettingsChanged);
     }
 
     repairTrayRegistryKey()
@@ -88,7 +91,7 @@ export default class Application extends ReduxComponent {
       });
 
     if (options.chromeDriver) {
-      this.mainWindow = WindowCreator.createChromeDriverWindow(options);
+      this.mainWindow = windowCreator.createChromeDriverWindow(options);
       return;
     }
 
@@ -96,7 +99,7 @@ export default class Application extends ReduxComponent {
       this.handleFirstExecution();
     }
 
-    this.mainWindow = WindowCreator.createMainWindow(options);
+    this.mainWindow = windowCreator.createMainWindow(options);
     this.basicAuthHandler = new BasicAuthHandler();
 
     if (options.magicLogin) {
@@ -117,19 +120,20 @@ export default class Application extends ReduxComponent {
       releaseChannel: settingStore.getSetting('releaseChannel'),
       resourcePath: settingStore.getSetting('resourcePath'),
       versionName: settingStore.getSetting('versionName'),
-      numTeams: TeamStore.getNumTeams(),
+      numTeams: teamStore.getNumTeams(),
       hasRunApp: settingStore.getSetting('hasRunApp'),
       isWindows: settingStore.isWindows(),
       isMac: settingStore.isMac(),
       isBeforeWin10: settingStore.getSetting('isBeforeWin10'),
       launchOnStartup: settingStore.getSetting('launchOnStartup'),
+      hasMigratedData: settingStore.getSetting('hasMigratedData'),
       pretendNotReallyWindows10: settingStore.getSetting('pretendNotReallyWindows10'),
 
-      handleDeepLinkEvent: EventStore.getEvent('handleDeepLink'),
-      showAboutEvent: EventStore.getEvent('showAbout'),
-      showReleaseNotesEvent: EventStore.getEvent('showReleaseNotes'),
-      confirmAndResetAppEvent: EventStore.getEvent('confirmAndResetApp'),
-      prepareAndRevealLogsEvent: EventStore.getEvent('prepareAndRevealLogs')
+      handleDeepLinkEvent: eventStore.getEvent('handleDeepLink'),
+      showAboutEvent: eventStore.getEvent('showAbout'),
+      showReleaseNotesEvent: eventStore.getEvent('showReleaseNotes'),
+      confirmAndResetAppEvent: eventStore.getEvent('confirmAndResetApp'),
+      prepareAndRevealLogsEvent: eventStore.getEvent('prepareAndRevealLogs')
     };
   }
 
@@ -151,8 +155,12 @@ export default class Application extends ReduxComponent {
   handleDeepLinkEvent({url}) {
     let args = parseProtocolUrl(url);
 
-    if (args.releaseChannel && settingStore.getSetting('releaseChannel') !== args.releaseChannel) {
-      settingActions.updateSettings({releaseChannel: args.releaseChannel});
+    if (args.releaseChannel) {
+      if (this.state.releaseChannel !== args.releaseChannel) {
+        settingActions.updateSettings({releaseChannel: args.releaseChannel});
+      } else if (this.state.releaseChannel === 'beta') {
+        this.trayHandler.alreadyOnBetaChannelNotification(args.releaseChannel);
+      }
     } else if (args.magicLogin) {
       processMagicLoginLink(args.magicLogin);
     }
@@ -188,7 +196,7 @@ export default class Application extends ReduxComponent {
       isTitleBarHidden
     };
 
-    settingActions.initializeSettings(payload);
+    settingActions.updateSettings(payload);
     assignIn(global.loadSettings, payload);
   }
 
@@ -228,10 +236,23 @@ export default class Application extends ReduxComponent {
 
     otherAppSignaledUs.startWith(...global.secondaryParamsReceived)
       .subscribe((cmd) => {
-        let re = /^slack:/i;
-        let protoUrl = cmd.find((x) => x.match(re));
-        if (protoUrl) eventActions.handleDeepLink(protoUrl);
-        else eventActions.foregroundApp();
+        const re = /^slack:/i;
+        const rs = /^slack:\/\/reply/i;
+        const protoUrl = cmd.find((x) => x.match(re));
+        const replyUrl = cmd.find((x) => x.match(rs));
+
+        if (replyUrl) {
+          logger.info('Application received reply link protocol activation.');
+          logger.debug('Link was:', protoUrl);
+          eventActions.handleReplyLink(protoUrl);
+        } else if (protoUrl) {
+          logger.info('Application received deep link protocol activation.');
+          logger.debug('Link was:', protoUrl);
+          eventActions.handleDeepLink(protoUrl);
+        } else {
+          logger.info('Application otherwise signaled, foregrounding.');
+          eventActions.foregroundApp();
+        }
       });
   }
 
@@ -242,7 +263,7 @@ export default class Application extends ReduxComponent {
     if (this.aboutBox) {
       this.aboutBox.show();
     } else {
-      this.aboutBox = WindowCreator.createAboutWindow();
+      this.aboutBox = windowCreator.createAboutWindow();
       this.aboutBox.on('closed', () => this.aboutBox = null);
     }
   }
@@ -268,13 +289,23 @@ export default class Application extends ReduxComponent {
       // custom method
       if (process.windowsStore) {
         return this.revealLogsInAppx(filesToArchive);
+      } else if (process.platform === 'win32') {
+        filesToArchive.push(`${process.execPath}/../SquirrelSetup.log`);
       }
 
-      let zipPath = p`${'temp'}/logs.zip`;
-      await createZipArchive(filesToArchive, zipPath);
-      shell.showItemInFolder(zipPath);
+      const zipPath = p`${'temp'}/logs.zip`;
+      createZipArchiver(filesToArchive, zipPath).mergeMap((archiver) =>
+        Observable.fromEvent(archiver
+          .generateNodeStream({type: 'nodebuffer', streamFiles: true})
+          .pipe(fs.createWriteStream(zipPath)), 'finish').mapTo(true).catch((err) => {
+            logger.error(`could not write zip archive into destination ${err}`);
+            return Observable.of(false);
+          })
+      ).subscribe(() => shell.showItemInFolder(zipPath), (err) => {
+        logger.error(`could not write zip archive into destination ${err.message}`);
+      });
     } catch(e) {
-      logger.error(`Couldn't zip up log files: ${e}`);
+      logger.error(`Couldn't prepare log files to zip: ${e.message}`);
     }
   }
 
@@ -336,15 +367,15 @@ export default class Application extends ReduxComponent {
    * @return {Promise}  A Promise that represents completion
    */
   async confirmAndResetAppEvent() {
-    let options = {
-      title: 'Reset Slack?',
-      buttons: ['Cancel', 'Yes'],
-      message: 'Are you sure?',
-      detail: 'This will sign you out from all of your teams, reset the app to its original state, and restart it.',
+    const options = {
+      title: $intl.t(`Reset Slack?`, LOCALE_NAMESPACE.MESSAGEBOX)(),
+      buttons: [$intl.t(`Cancel`, LOCALE_NAMESPACE.GENERAL)(), $intl.t(`Yes`, LOCALE_NAMESPACE.GENERAL)()],
+      message: $intl.t(`Are you sure?`, LOCALE_NAMESPACE.MESSAGEBOX)(),
+      detail: $intl.t(`This will sign you out from all of your teams, reset the app to its original state, and restart it.`, LOCALE_NAMESPACE.MESSAGEBOX)(),
       noLink: true
     };
 
-    let confirmation = new Promise((resolve) => {
+    const confirmation = new Promise((resolve) => {
       dialog.showMessageBox(this.mainWindow, options, (response) => {
         resolve(response === 1);
       });
@@ -353,11 +384,16 @@ export default class Application extends ReduxComponent {
     if (await confirmation) {
       logger.warn('User chose to clear all app data, say goodbye!');
 
-      let mainSession = this.mainWindow.webContents.session;
+      const mainSession = this.mainWindow.webContents.session;
       await new Promise((resolve) => mainSession.clearCache(resolve));
       await new Promise((resolve) => mainSession.clearStorageData(resolve));
 
-      Store.resetStore();
+      const hasMigratedData = this.state.hasMigratedData;
+
+      await Store.resetStore();
+
+      // NB: Don't migrate folks more than once.
+      settingActions.updateSettings({hasMigratedData});
       restartApp();
     }
   }

@@ -13,7 +13,7 @@ export function shallowEqual(objA: any, objB: any): boolean {
 
   // Test for A's keys different from B.
   const hasOwn = Object.prototype.hasOwnProperty;
-  for (let i = 0; i < keysA.length; i++) {
+  for (let i = 0; i < keysA.length; i++) { //tslint:disable-line:prefer-for-of
     if (!hasOwn.call(objB, keysA[i]) ||
         objA[keysA[i]] !== objB[keysA[i]]) {
       return false;

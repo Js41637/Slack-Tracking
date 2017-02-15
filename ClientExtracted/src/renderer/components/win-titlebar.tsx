@@ -1,11 +1,14 @@
 import * as Color from 'color';
-import * as React from 'react'; // tslint:disable-line
 import {WinWindowControls} from './win-titlebar-controls';
 import {WinHamburger} from './win-titlebar-hamburger';
-import Component from '../../lib/component';
-import AppTeamsStore from '../../stores/app-teams-store';
-import TeamStore from '../../stores/team-store';
+import {Component} from '../../lib/component';
+import {appTeamsStore} from '../../stores/app-teams-store';
+import {teamStore} from '../../stores/team-store';
 import {getSidebarColor, getTextColor} from '../../utils/color';
+
+import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+
+import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
 export interface WinTitlebarProps {
   defaultTitle?: string;
@@ -29,11 +32,11 @@ export class WinTitlebar extends Component<WinTitlebarProps, WinTitlebarState> {
   };
 
   public syncState(): WinTitlebarState {
-    const selectedTeamId = AppTeamsStore.getSelectedTeamId();
+    const selectedTeamId = appTeamsStore.getSelectedTeamId();
 
     return {
       selectedTeamId,
-      selectedTeam: selectedTeamId && TeamStore.getTeam(selectedTeamId)
+      selectedTeam: selectedTeamId && teamStore.getTeam(selectedTeamId)
     };
   }
 
@@ -47,7 +50,7 @@ export class WinTitlebar extends Component<WinTitlebarProps, WinTitlebarState> {
       const sidebarColor = getSidebarColor(this.state.selectedTeam);
       backgroundColor = Color(sidebarColor).darken(0.15).rgbaString();
       textColor = getTextColor(this.state.selectedTeam);
-      title = `Slack - ${this.state.selectedTeam.team_name}`;
+      title = $intl.t(`Slack - {teamName}`, LOCALE_NAMESPACE.GENERAL)({teamName: this.state.selectedTeam.team_name});
     }
 
     const style = { backgroundColor, color: textColor };

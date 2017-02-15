@@ -10,24 +10,24 @@ const {BrowserWindow} = remote;
 import {logger} from '../../logger';
 import {nativeInterop} from '../../native-interop';
 import {objectSum} from '../../utils/object-sum';
-import getMostUsedTeams from '../most-used-teams';
+import {getMostUsedTeams} from '../most-used-teams';
 
+import {appTeamsStore} from '../../stores/app-teams-store';
 import {appTeamsActions} from '../../actions/app-teams-actions';
-import AppTeamsStore from '../../stores/app-teams-store';
-import Component from '../../lib/component';
+import {Component} from '../../lib/component';
 import {eventActions} from '../../actions/event-actions';
-import EventStore from '../../stores/event-store';
+import {eventStore} from '../../stores/event-store';
 import {settingActions} from '../../actions/setting-actions';
 import {settingStore} from '../../stores/setting-store';
 import {teamActions} from '../../actions/team-actions';
-import TeamSelector from './team-selector';
-import TeamStore from '../../stores/team-store';
-import TeamUnloadingBehavior from './team-unloading-behavior';
-import TeamView from './team-view';
-import WindowStore from '../../stores/window-store';
+import {TeamSidebar} from './team-sidebar';
+import {teamStore} from '../../stores/team-store';
+import {TeamUnloadingBehavior} from './team-unloading-behavior';
+import {TeamView} from './team-view';
+import {windowStore} from '../../stores/window-store';
 
-import {SLACK_PROTOCOL} from '../../reducers/app-teams-reducer';
-import {WINDOW_TYPES, TEAM_UNLOADING_DISABLED, TEAM_SIGNOUT_TIMEOUT} from '../../utils/shared-constants';
+import {SLACK_PROTOCOL, WINDOW_TYPES, TEAM_UNLOADING_DISABLED,
+  TEAM_SIGNOUT_TIMEOUT, IS_BOOTED_EVAL} from '../../utils/shared-constants';
 
 export default class TeamsDisplay extends Component {
 
@@ -37,44 +37,36 @@ export default class TeamsDisplay extends Component {
   }
 
   syncState() {
-    let teams = TeamStore.getTeams();
-    let selectedTeamId = AppTeamsStore.getSelectedTeamId();
+    let teams = teamStore.teams;
+    let selectedTeamId = appTeamsStore.getSelectedTeamId();
 
     let teamsToLoad = this.state ? this.state.teamsToLoad : getMostUsedTeams(teams);
     let leastUsedTeams = this.state ? this.state.leastUsedTeams :
       difference(Object.keys(teams), teamsToLoad)
         .filter((teamId) => teamId !== selectedTeamId);
 
-    let supportsTeamUnloading = Object.keys(teams)
-      .map((teamId) => teams[teamId])
-      .some((team) => team.idle_timeout && team.idle_timeout !== TEAM_UNLOADING_DISABLED);
-
     return {
       teams,
       teamsToLoad,
       leastUsedTeams,
       selectedTeamId,
-      supportsTeamUnloading,
-      numTeams: TeamStore.getNumTeams(),
+      numTeams: teamStore.getNumTeams(),
 
-      childWindows: WindowStore.getWindows([WINDOW_TYPES.WEBAPP]),
+      childWindows: windowStore.getWindows([WINDOW_TYPES.WEBAPP]),
       isTitleBarHidden: settingStore.getSetting('isTitleBarHidden'),
       releaseChannel: settingStore.getSetting('releaseChannel'),
       launchedWithLink: settingStore.getSetting('launchedWithLink'),
       devEnv: settingStore.getSetting('devEnv'),
-      isWin10: settingStore.getSetting('isWin10'),
 
-      handleDeepLinkEvent: EventStore.getEvent('handleDeepLink'),
-      signOutTeamEvent: EventStore.getEvent('signOutTeam'),
-      closeAllUpdateBannersEvent: EventStore.getEvent('closeAllUpdateBanners')
+      handleDeepLinkEvent: eventStore.getEvent('handleDeepLink'),
+      signOutTeamEvent: eventStore.getEvent('signOutTeam'),
+      closeAllUpdateBannersEvent: eventStore.getEvent('closeAllUpdateBanners')
     };
   }
 
   componentDidMount() {
     this.disposables.add(this.loadTeamsByUsage());
-
     this.checkForBetaReleaseChannel();
-    this.setupTeamUnloading();
 
     this.disposables.add(this.trackTeamUsage());
     this.disposables.add(this.setupIdleTickle());
@@ -82,6 +74,7 @@ export default class TeamsDisplay extends Component {
     this.disposables.add(this.redirectFocusOnClick());
 
     if (this.state.launchedWithLink) {
+      logger.info('TeamsDisplay: App launched with link, now immediately handling (mount phase).');
       eventActions.handleDeepLink(this.state.launchedWithLink);
     }
   }
@@ -89,7 +82,6 @@ export default class TeamsDisplay extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (this.didTeamsChange(prevState)) {
       this.checkForBetaReleaseChannel();
-      this.setupTeamUnloading();
     }
 
     if (prevState.selectedTeamId !== this.state.selectedTeamId) {
@@ -97,6 +89,7 @@ export default class TeamsDisplay extends Component {
     }
 
     if (!prevState.launchedWithLink && this.state.launchedWithLink) {
+      logger.info('TeamsDisplay: App launched with link, now immediately handling (update phase).');
       eventActions.handleDeepLink(this.state.launchedWithLink);
     }
   }
@@ -226,26 +219,8 @@ export default class TeamsDisplay extends Component {
   async checkForBetaReleaseChannel() {
     if (this.state.releaseChannel === 'beta') return Promise.resolve(true);
 
-    let result = await this.forAnyTeam('TSSSB && TSSSB.isOnBetaReleaseChannel()');
+    let result = await this.forAnyTeam('window.TSSSB && TSSSB.isOnBetaReleaseChannel()');
     if (result) settingActions.updateSettings({releaseChannel: 'beta'});
-    return result;
-  }
-
-  /**
-   * Check for a feature flag on any team that tells us whether or not they
-   * support team unloading (aka "min_web") and save that state.
-   *
-   * @return {Promise<Boolean>} A Promise with the result
-   */
-  async setupTeamUnloading() {
-    let result = await this.forAnyTeam('TSSSB && TSSSB.isTeamUnloadingSupported()');
-
-    if (result && !this.state.supportsTeamUnloading) {
-      teamActions.setTeamIdleTimeout();
-    } else if (!result && this.state.supportsTeamUnloading) {
-      teamActions.clearTeamIdleTimeout();
-    }
-
     return result;
   }
 
@@ -257,12 +232,16 @@ export default class TeamsDisplay extends Component {
     this.refs[teamId].setTeamUnloaded(isUnloaded);
   }
 
+  canUnloadTeam(teamId) {
+    return !this.isTeamUnloaded(teamId) && !this.refs[teamId].isCallActiveForTeam();
+  }
+
   unloadTeam(teamId) {
-    return this.refs[teamId].executeJavaScript('TSSSB && TSSSB.unloadTeam()');
+    return this.refs[teamId].executeJavaScriptIfBooted('TSSSB.unloadTeam');
   }
 
   reloadTeam(teamId) {
-    return this.refs[teamId].executeJavaScript('MW && MW.loadTeam()');
+    return this.refs[teamId].executeJavaScript('window.MW && MW.loadTeam()');
   }
 
   /**
@@ -277,7 +256,7 @@ export default class TeamsDisplay extends Component {
     teamView.focus();
 
     if (sidebarClicked && !teamView.isTeamUnloaded()) {
-      teamView.executeJavaScript('TSSSB && TSSSB.ssbChromeClicked()');
+      teamView.executeJavaScriptIfBooted('TSSSB.ssbChromeClicked');
     }
   }
 
@@ -307,11 +286,11 @@ export default class TeamsDisplay extends Component {
   }
 
   didTeamsChange(prevState) {
-    let newTeams = Object.keys(this.state.teams);
-    let oldTeams = Object.keys(prevState.teams);
+    const newTeams = Object.keys(this.state.teams);
+    const oldTeams = Object.keys(prevState.teams);
 
-    let addedTeams = difference(newTeams, oldTeams).length > 0;
-    let removedTeams = difference(oldTeams, newTeams).length > 0;
+    const addedTeams = difference(newTeams, oldTeams).length > 0;
+    const removedTeams = difference(oldTeams, newTeams).length > 0;
 
     return addedTeams || removedTeams;
   }
@@ -319,18 +298,63 @@ export default class TeamsDisplay extends Component {
   /**
    * Returns memory stats aggregated across all teams.
    *
+   * DEPRECATED in favor of getTeamsMemoryUsage.
+   * Remove this once the webapp is no longer using it.
+   *
    * @return {Promise<CombinedStats>} A Promise to the stats Object
    */
   getCombinedMemoryUsage() {
     return Observable.from(Object.keys(this.state.teams))
       .flatMap((teamId) => {
-        let teamView = this.refs[teamId];
+        const teamView = this.refs[teamId];
         return teamView.executeJavaScript(
-          `window.winssb ? winssb.stats.getMemoryUsage() : null`
+          `window.desktop ? desktop.stats.getMemoryUsage() : null`
         );
       })
       .reduce(objectSum, {})
       .toPromise();
+  }
+
+  /**
+   * Returns memory stats for individual teams, and their current state (min vs
+   * full client).
+   *
+   * @return {Promise<StringMap<TeamMemoryStats>>}  A map of teams to their stats
+   */
+  getTeamsMemoryUsage() {
+    return Observable.from(Object.keys(this.state.teams))
+      .flatMap((teamId) => this.collectMemoryAndLoadedState(teamId)
+        .catch((err) => ({ teamId, memory: null, state: 'error', reason: err.message })))
+      .reduce((acc, x) => {
+        acc[x.teamId] = x;
+        return acc;
+      }, {})
+      .toPromise();
+  }
+
+  /**
+   * Returns memory stats for a single team, along with its client state.
+   *
+   * @return {Promise<TeamMemoryStats>}  The stats object
+   */
+  async collectMemoryAndLoadedState(teamId) {
+    const teamView = this.refs[teamId];
+    const teamName = teamView.getTeamName();
+
+    const memory = await teamView.executeJavaScriptMethod('process.getProcessMemoryInfo');
+    const isBooted = await teamView.executeJavaScript(IS_BOOTED_EVAL);
+    const isUnloaded = this.isTeamUnloaded(teamId);
+
+    let state;
+    if (isBooted && !isUnloaded) {
+      state = 'full_client';
+    } else if (!isBooted && isUnloaded) {
+      state = 'unloaded';
+    } else {
+      state = 'signed_out';
+    }
+
+    return { memory, teamId, teamName, state, isBooted, isUnloaded };
   }
 
   /**
@@ -341,6 +365,8 @@ export default class TeamsDisplay extends Component {
   handleDeepLinkEvent(evt) {
     let urlString = evt.url;
     if (!(typeof urlString === 'string')) return;
+
+    logger.debug('TeamsDisplay: Handling deep link', evt.url);
 
     let theUrl = url.parse(urlString, true);
     if (theUrl.protocol !== SLACK_PROTOCOL) {
@@ -363,13 +389,14 @@ export default class TeamsDisplay extends Component {
       teamId = args.team;
     }
 
+    logger.info(`TeamsDisplay: Instructing team ${teamId} to handle the deep link ${urlString}`);
     let teamView = this.refs[teamId];
     return teamView.executeJavaScriptMethodWhenBooted('TSSSB.handleDeepLinkWithArgs', JSON.stringify(args));
   }
 
   /**
    * Calls a method in the webapp context that signs the team out. The team
-   * selector will hide the team right away, and we'll give the team a minute
+   * sidebar will hide the team right away, and we'll give the team a minute
    * to sign out and remove it if something goes wrong (say, if the team was
    * already signed out by 2FA being activated).
    *
@@ -407,20 +434,18 @@ export default class TeamsDisplay extends Component {
   }
 
   render() {
-    const {numTeams, teams, selectedTeamId, teamsToLoad, leastUsedTeams,
-      supportsTeamUnloading, isTitleBarHidden, isWin10} = this.state;
-    const className = isWin10 ? 'TeamsDisplay fancy-frame' : 'TeamsDisplay';
+    const {numTeams, teams, selectedTeamId, teamsToLoad, leastUsedTeams, isTitleBarHidden} = this.state;
 
     const teamSelector = isTitleBarHidden || numTeams > 1 ?
-      <TeamSelector sidebarClicked={() => this.focusSelectedTeam(true)}/> :
+      <TeamSidebar sidebarClicked={() => this.focusSelectedTeam(true)}/> :
       <span/>;
 
     // All webviews are displayed on top of each other but only the selected one
     // is displayed, since we cannot let the webviews be unmounted
     let teamViews = Object.keys(teams).map((key) => {
       let team = teams[key];
-      let teamSupportsUnloading = supportsTeamUnloading &&
-        team.idle_timeout && team.idle_timeout !== TEAM_UNLOADING_DISABLED;
+      let teamSupportsUnloading = team.idle_timeout &&
+        team.idle_timeout !== TEAM_UNLOADING_DISABLED;
 
       let teamView = (
         <TeamView teamId={team.team_id}
@@ -433,6 +458,7 @@ export default class TeamsDisplay extends Component {
         <TeamUnloadingBehavior teamId={team.team_id}
           isTeamUnloaded={() => this.isTeamUnloaded(team.team_id)}
           setTeamUnloaded={(isUnloaded) => this.setTeamUnloaded(team.team_id, isUnloaded)}
+          canUnloadTeam={() => this.canUnloadTeam(team.team_id)}
           unloadTeam={() => this.unloadTeam(team.team_id)}
           reloadTeam={() => this.reloadTeam(team.team_id)}>
           {teamView}
@@ -449,7 +475,7 @@ export default class TeamsDisplay extends Component {
     });
 
     return (
-      <div className={className}>
+      <div className="TeamsDisplay">
         {teamSelector}
         <div className="TeamsDisplay-teamDisplay">
           {teamViews}

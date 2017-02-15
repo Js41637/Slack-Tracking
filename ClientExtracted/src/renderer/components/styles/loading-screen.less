@@ -7,11 +7,11 @@
     height: 100%;
     width: 100%;
     background-color: white;
-    -webkit-user-select: none;
+    user-select: none;
     cursor: default;
   }
 
-  div {
+  &-connecting, &-noService, &-offline {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -43,11 +43,11 @@
     -webkit-font-smoothing: antialiased;
     line-height: 1.2rem;
     font-weight: 900;
-    -webkit-user-select: none;
+    user-select: none;
     text-decoration: none;
     border: 0;
     border-radius: .25rem;
-    -webkit-box-shadow: none;
+    box-shadow: none;
     vertical-align: bottom;
     padding: 5px 12px 6px;
     font-size: 15px;

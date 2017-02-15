@@ -1,5 +1,3 @@
-declare const global: any, process: any;
-
 import {WINDOW_TYPES} from '../utils/shared-constants';
 import {BaseStore} from '../lib/base-store';
 
@@ -9,11 +7,11 @@ const isWebapp = process.guestInstanceId || global.loadSettings.windowType === W
 let StoreForProcess: any;
 
 if (isBrowser) {
-  StoreForProcess = require('./browser-store').default;
+  StoreForProcess = require('./browser-store').BrowserStore;
 } else if (isWebapp) {
   StoreForProcess = require('./webapp-store').WebappStore;
 } else {
-  StoreForProcess = require('./renderer-store').default;
+  StoreForProcess = require('./renderer-store').RendererStore;
 }
 
 /**

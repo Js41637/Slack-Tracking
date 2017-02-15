@@ -6,8 +6,11 @@ import {Observable} from 'rxjs/Observable';
 export class MetricsReporter {
   public commandCount: Object;
   public reporterStartTime: number;
+  private readonly mainWindow: Electron.WebContents;
 
-  constructor(public readonly mainWindow: Electron.WebContents) {}
+  constructor(mainWindow: Electron.BrowserWindow) {
+    this.mainWindow = mainWindow.webContents;
+  }
 
   // Public: Sends an event to GA. An event is a single instance of something
   // happening with an associated optional integer value with it
@@ -20,7 +23,6 @@ export class MetricsReporter {
   // Returns an {Observable} that signals completion
   public sendEvent(category: string, action: string, label: string | number | null | undefined, value: number = 0): Observable<boolean> {
     if (!this.mainWindow) return Observable.of(false);
-
     this.mainWindow.send('reporter:sendEvent', {category, action, label, value});
     return Observable.of(true);
   }

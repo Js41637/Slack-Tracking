@@ -4,13 +4,15 @@ import SerialSubscription from 'rxjs-serial-subscription';
 import {logger} from '../logger';
 
 import {appActions} from '../actions/app-actions';
-import AppStore from '../stores/app-store';
-import ReduxComponent from '../lib/redux-component';
+import {appStore} from '../stores/app-store';
+import {ReduxComponent} from '../lib/redux-component';
 import {settingStore} from '../stores/setting-store';
-import WindowStore from '../stores/window-store';
+import {windowStore} from '../stores/window-store';
 
 import {getReleaseNotesUrl} from './updater-utils';
-import {UPDATE_STATUS} from '../utils/shared-constants';
+import {UPDATE_STATUS, IS_STORE_BUILD} from '../utils/shared-constants';
+
+import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
 
 /**
  * Check for updates every six hours
@@ -38,11 +40,9 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
     return {
       appVersion: settingStore.getSetting('appVersion'),
       isDevMode: settingStore.getSetting('isDevMode'),
-      disableUpdatesCheck: settingStore.getSetting('isWindowsStore') ||
-        settingStore.getSetting('isMacAppStore'),
       releaseChannel: settingStore.getSetting('releaseChannel'),
-      updateStatus: AppStore.getUpdateStatus(),
-      mainWindow: WindowStore.getMainWindow()
+      updateStatus: appStore.getUpdateStatus(),
+      mainWindow: windowStore.getMainWindow()
     };
   }
 
@@ -92,9 +92,11 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       appActions.updateDownloaded(updateInfo);
 
       let options = {
-        title: 'An update is available',
-        buttons: ['Close', "What's New", "Update Now"],
-        message: 'A new version of Slack is available!'
+        title: $intl.t(`An update is available`, LOCALE_NAMESPACE.MESSAGEBOX)(),
+        buttons: [$intl.t(`Close`, LOCALE_NAMESPACE.GENERAL)(),
+          $intl.t(`What's New`, LOCALE_NAMESPACE.MESSAGEBOX)(),
+          $intl.t(`Update Now`, LOCALE_NAMESPACE.MESSAGEBOX)()],
+        message: $intl.t(`A new version of Slack is available!`, LOCALE_NAMESPACE.MESSAGEBOX)()
       };
 
       dialog.showMessageBox(browserWindow, options, (response) => {
@@ -117,9 +119,9 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       appActions.setUpdateStatus(UPDATE_STATUS.UP_TO_DATE);
 
       dialog.showMessageBox(browserWindow, {
-        title: "You're all good",
-        buttons: ['OK'],
-        message: "You've got the latest version of Slack; thanks for staying on the ball."
+        title: $intl.t(`You're all good`, LOCALE_NAMESPACE.MESSAGEBOX)(),
+        buttons: [$intl.t(`OK`, LOCALE_NAMESPACE.GENERAL)()],
+        message: $intl.t(`You've got the latest version of Slack; thanks for staying on the ball.`, LOCALE_NAMESPACE.MESSAGEBOX)()
       });
     };
 
@@ -127,9 +129,9 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       appActions.setUpdateStatus(UPDATE_STATUS.ERROR);
 
       dialog.showMessageBox(browserWindow, {
-        title: "We couldn't check for updates",
-        buttons: ['OK'],
-        message: "Check your Internet connection, and contact support if this issue persists.",
+        title: $intl.t(`We couldn't check for updates`, LOCALE_NAMESPACE.MESSAGEBOX)(),
+        buttons: [$intl.t(`OK`, LOCALE_NAMESPACE.GENERAL)()],
+        message: $intl.t(`Check your Internet connection, and contact support if this issue persists.`, LOCALE_NAMESPACE.MESSAGEBOX)(),
         detail: process.platform === 'darwin' ? errorMessage : undefined
       });
     };
@@ -155,7 +157,9 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
    * @return {WindowsSquirrelUpdater|MacSquirrelUpdater}
    */
   getUpdaterForCurrentPlatform() {
-    let SquirrelUpdater = null;
+    if (this.squirrelUpdater) return this.squirrelUpdater;
+
+    let SquirrelUpdater;
     switch (process.platform) {
     case 'linux':
       return null;
@@ -163,14 +167,16 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
       SquirrelUpdater = require('./windows-updater').default;
       break;
     case 'darwin':
-      SquirrelUpdater = require('./mac-updater').default;
+      SquirrelUpdater = require('./mac-updater').MacSquirrelUpdater;
       break;
     }
 
-    return new SquirrelUpdater({
+    this.squirrelUpdater = new SquirrelUpdater({
       version: this.state.appVersion,
       useBetaChannel: this.state.releaseChannel === 'beta'
     });
+
+    return this.squirrelUpdater;
   }
 
   /**
@@ -186,7 +192,7 @@ export default class SquirrelAutoUpdater extends ReduxComponent {
    */
   isUpdateSupported() {
     if (this.state.isDevMode) return false;
-    if (this.state.disableUpdatesCheck) return false;
+    if (IS_STORE_BUILD) return false;
     if (process.platform === 'linux') return false;
     if (process.env.SLACK_NO_AUTO_UPDATES) return false;
 

@@ -10,11 +10,6 @@ import {windowFrameStore} from '../../stores/window-frame-store';
 import {WindowBehavior, WindowSetting} from './window-behavior';
 import {RepositionWindowBehavior} from './reposition-window-behavior';
 
-/**
- * Save every eight hours.
- */
-const SAVE_INTERVAL_MS = 8 * 60 * 60 * 1000;
-
 export interface PersistSettingsWindowBehaviorState {
   windowSettings: WindowSetting;
 }
@@ -34,7 +29,7 @@ export class PersistSettingsWindowBehavior extends WindowBehavior {
    * values from a local file if they exist.
    *
    * @param  {BrowserWindow} browserWindow  The window to attach the behavior to
-   * @return {Subscription}                   A Subscription that will write these settings
+   * @return {Subscription}                 A Subscription that manages any event listeners
    */
   public setup(browserWindow: Electron.BrowserWindow): Subscription {
     this.window = browserWindow;
@@ -59,10 +54,7 @@ export class PersistSettingsWindowBehavior extends WindowBehavior {
       async.schedule(() => browserWindow.maximize(), 200);
     }
 
-    const ret = new Subscription();
-    ret.add(() => this.saveSettings());
-    ret.add(this.saveSettingsOccasionally());
-    return ret;
+    return this.saveSettingsOnWindowChange(browserWindow);
   }
 
   /**
@@ -74,12 +66,6 @@ export class PersistSettingsWindowBehavior extends WindowBehavior {
   private loadSettings() {
     let settings: WindowSetting | null = this.state.windowSettings;
     logger.info(`Loading windowMetrics: ${JSON.stringify(settings)}`);
-
-    // Beta releases of 2.0 had window settings divided between windows.
-    // TODO: Remove this once everyone's on 2.0.
-    if (settings && settings.hasOwnProperty('MAIN')) {
-      settings = (settings as any).MAIN;
-    }
 
     // If this is the first time the app was run or the window was out of
     // bounds, clear out the settings object (we'll use a default position).
@@ -119,15 +105,23 @@ export class PersistSettingsWindowBehavior extends WindowBehavior {
   }
 
   /**
-   * Save window settings once in a while because, even though we're supposed
-   * to save on exit, if the user logs out of Windows or shuts the app down in
-   * an obscene manner, they'd never be saved.
+   * Save settings when the window size or position changes.
    *
-   * @return {Subscription}  A Subscription that will end this timer
+   * @param  {BrowserWindow} browserWindow  The window being monitored
+   * @return {Subscription}                 A Subscription that manages any event listeners
    */
-  private saveSettingsOccasionally(): Subscription {
-    return Observable
-      .timer(SAVE_INTERVAL_MS, SAVE_INTERVAL_MS)
+  private saveSettingsOnWindowChange(browserWindow: Electron.BrowserWindow): Subscription {
+    const eventsThatMatter = [
+      'maximize',
+      'unmaximize',
+      'restore',
+      'resize',
+      'move'
+    ];
+
+    return Observable.from(eventsThatMatter)
+      .mergeMap((eventName) => Observable.fromEvent(browserWindow, eventName))
+      .debounceTime(1000)
       .subscribe(() => this.saveSettings());
   }
 }

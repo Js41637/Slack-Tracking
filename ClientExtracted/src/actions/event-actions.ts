@@ -2,7 +2,7 @@ import {Store} from '../lib/store';
 import {EVENTS} from './';
 
 export class EventActions {
-  public editingCommand(command: string, windowId: string): void {
+  public editingCommand(command: string, windowId?: number): void {
     Store.dispatch({
       type: EVENTS.EDITING_COMMAND,
       data: {windowId, command}
@@ -25,6 +25,13 @@ export class EventActions {
 
   public foregroundApp(): void {
     Store.dispatch({type: EVENTS.FOREGROUND_APP} as any);
+  }
+
+  public handleReplyLink(url: string): void {
+    Store.dispatch({
+      type: EVENTS.HANDLE_REPLY_LINK,
+      data: {url}
+    });
   }
 
   public handleDeepLink(url: string): void {
@@ -54,6 +61,13 @@ export class EventActions {
 
   public toggleFullScreen(): void {
     Store.dispatch({type: EVENTS.TOGGLE_FULL_SCREEN} as any);
+  }
+
+  public toggleDevTools(electronDevTools: boolean = false): void {
+    Store.dispatch({
+      type: EVENTS.TOGGLE_DEV_TOOLS,
+      data: electronDevTools
+    });
   }
 
   public showAbout(): void {
@@ -97,19 +111,16 @@ export class EventActions {
     Store.dispatch({type: EVENTS.PREPARE_AND_REVEAL_LOGS} as any);
   }
 
-  public sidebarClicked(): void {
-    Store.dispatch({
-      type: EVENTS.SIDEBAR_CLICKED,
-      omitFromLog: true
-    } as any);
-  }
-
   public closeAllUpdateBanners(): void {
     Store.dispatch({type: EVENTS.CLOSE_ALL_UPDATE_BANNERS} as any);
   }
 
   public popupAppMenu(invokedViaKeyboard: boolean): void {
     Store.dispatch({type: EVENTS.POPUP_APP_MENU, data: {invokedViaKeyboard}});
+  }
+
+  public systemTextSettingsChanged(): void {
+    Store.dispatch({type: EVENTS.SYSTEM_TEXT_SETTINGS_CHANGED});
   }
 }
 

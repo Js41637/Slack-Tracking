@@ -1,0 +1,34 @@
+.ScrollableArea {
+  &-container {
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+  }
+
+  &-scrollbar {
+    &-none::-webkit-scrollbar {
+      transition: all 2s ease-out;
+      display: none;
+    }
+
+    &-custom::-webkit-scrollbar {
+      transition: all 2s ease-out;
+      width: 8px;
+      height: 8px;
+      border-radius: 5px;
+
+      &-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+        width: 6px;
+        height: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+      }
+
+      &-track {
+        background-color: transparent;
+      }
+    }
+  }
+}

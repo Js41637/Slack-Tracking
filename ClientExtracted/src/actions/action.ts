@@ -4,6 +4,6 @@ import {Action as ReduxAction} from 'redux';
 export interface Action extends ReduxAction {
   omitFromLog?: boolean;
   omitKeysFromLog?: Array<string>;
-  data: any;
+  data?: any;
   type: string;
 }

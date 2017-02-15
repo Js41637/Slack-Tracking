@@ -4,7 +4,7 @@ import path from 'path';
 import LRU from 'lru-cache';
 import {requestGC} from '../run-gc';
 
-import ReduxComponent from '../lib/redux-component';
+import {ReduxComponent} from '../lib/redux-component';
 import {settingStore} from '../stores/setting-store';
 
 /** @class SlackResourcesUrlHandler
@@ -19,7 +19,7 @@ export default class SlackResourcesUrlHandler extends ReduxComponent {
     let {resourcePath} = this.state;
     let resourceCache = new LRU({max: 32});
 
-    protocol.registerBufferProtocol('slack-resources', async function(rq, completion) {
+    protocol.registerBufferProtocol('slack-resources', async (rq, completion) => {
       let relativeFilePath = decodeURIComponent(rq.url)
         .replace(/^slack-resources:(\/\/)?/i, '')
         // Handle trailing slashes

@@ -7,7 +7,9 @@ import {WindowBehavior} from './window-behavior';
 import {dialogActions, BalloonContent} from '../../actions/dialog-actions';
 import {settingActions} from '../../actions/setting-actions';
 import {settingStore} from '../../stores/setting-store';
-import {WindowHelpers} from '../../components/helpers/window-helpers';
+import {WindowHelpers} from '../../utils/window-helpers';
+
+import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
 
 export type windowFlashBehaviorType = 'idle' | 'always';
 
@@ -22,10 +24,10 @@ export interface MainWindowCloseBehaviorState {
 export class MainWindowCloseBehavior extends WindowBehavior {
   public readonly state: MainWindowCloseBehaviorState;
 
-  public syncState(): MainWindowCloseBehaviorState{
+  public syncState(): MainWindowCloseBehaviorState {
     const state = {
-      runFromTray: settingStore.getSetting('runFromTray'),
-      hasRunFromTray: settingStore.getSetting('hasRunFromTray'),
+      runFromTray: settingStore.getSetting<boolean>('runFromTray'),
+      hasRunFromTray: settingStore.getSetting<boolean>('hasRunFromTray'),
       isWindows: settingStore.isWindows()
     };
 
@@ -92,6 +94,7 @@ export class MainWindowCloseBehavior extends WindowBehavior {
     }
 
     this.maybeShowTrayBalloons(keepAppInTaskbar);
+
     return false;
   }
 
@@ -105,14 +108,20 @@ export class MainWindowCloseBehavior extends WindowBehavior {
     if (keepAppInTaskbar && !this.state.hasExplainedWindowFlash) {
       settingActions.updateSettings({hasExplainedWindowFlash: true});
       args = {
-        title: "Why didn't Slack quit?",
-        content: 'Slack’s set to always flash when you get notifications. To change this, visit Preferences > Notifications.'
+        title: $intl.t(`Why didn't Slack quit?`, LOCALE_NAMESPACE.BROWSER)(),
+        content: $intl.t(`Slack’s set to always flash when you get notifications. To change this, visit Preferences > Notifications.`,
+                          LOCALE_NAMESPACE.BROWSER)()
       };
     } else if (!keepAppInTaskbar && !this.state.hasRunFromTray) {
       settingActions.updateSettings({hasRunFromTray: true});
       args = {
-        title: "Why didn't Slack quit?",
-        content: `Slack's set to stay running in the notification area. To change this, visit Preferences > ${this.state.isWindows ? 'Windows' : 'Linux'} App.` // tslint:disable-line
+        title: $intl.t(`Why didn't Slack quit?`, LOCALE_NAMESPACE.BROWSER)(),
+        content: $intl.t(`Slack's set to stay running in the notification area. To change this, visit Preferences > {platform} App.`, // tslint:disable-line:max-line-length
+                          LOCALE_NAMESPACE.BROWSER)({
+                            platform: this.state.isWindows ?
+                                      $intl.t(`Windows`, LOCALE_NAMESPACE.GENERAL)() :
+                                      $intl.t(`Linux`, LOCALE_NAMESPACE.GENERAL)()
+                          })
       };
     }
 

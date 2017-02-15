@@ -1,5 +1,3 @@
-import * as includes from 'lodash.includes';
-
 /**
  * A lightweight implementation of `_.union`, creating an array of unique values,
  * in order, from all of the provided arrays.
@@ -16,7 +14,7 @@ export function union(...arrays: Array<Array<any>>): Array<any> {
   const result: Array<any> = [];
 
   arrays.forEach((v = []) => v.forEach((av) => {
-    if (!includes(result, av)) result.push(av);
+    if (!result.includes(av)) result.push(av);
   }));
 
   return result;

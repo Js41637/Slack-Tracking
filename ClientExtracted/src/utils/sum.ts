@@ -41,8 +41,7 @@ export interface Dictionary<T> {
  */
 export function sum(): number;
 export function sum<T>(collection?: Array<T> | Dictionary<T> | any): number;
-export function sum<T>(collection?: Array<T> | Dictionary<T>, iteratee?: string): number;
-export function sum<T>(collection?: Array<T> | Dictionary<T>, iteratee?: (value: T) => T | any): number;
+export function sum<T>(collection?: Array<T> | Dictionary<T>, iteratee?: string | ((value: T) => T | any)): number;
 export function sum<T, R>(collection?: Array<T> | Dictionary<T>, iteratee?: ((value: T) => T | R) | string): number {
   return (Array.isArray(collection)) ? sumArray(collection as Array<T>, iteratee) : sumObject(collection, iteratee);
 }

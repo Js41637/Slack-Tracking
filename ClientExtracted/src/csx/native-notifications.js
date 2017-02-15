@@ -1,5 +1,5 @@
 import assignIn from 'lodash.assignin';
-import fs from 'fs';
+import fs from 'graceful-fs';
 import temp from 'temp';
 
 import {logger} from '../logger';
@@ -31,6 +31,8 @@ export default class WindowsNativeNotification {
       title
     };
 
+    logger.debug('Constructing new WindowsNativeNotification', {...options, body: '[redacted]'});
+
     this.downloadImages(toSend, ['imageUri', 'avatarImage'])
       .then((opts) => this.createNotification(opts))
       .catch((e) => this.dispatchError(e));
@@ -47,6 +49,8 @@ export default class WindowsNativeNotification {
   async downloadImages(options, keys) {
     for (let key of keys) {
       if (options[key]) {
+        logger.debug('NativeNotification: Downloading image', options[key]);
+
         let target = await this.downloadImage(options[key]);
         if (target) {
           options[`${key}Web`] = options[key];
@@ -71,15 +75,18 @@ export default class WindowsNativeNotification {
 
       if (process.windowsStore) {
         try {
+          logger.debug('NativeNotification: Creating new NodeRT tile notification.');
           tileNotifier = tileNotifier || require('../renderer/components/node-rt-tile-notification').default;
           tileNotifier(options);
         } catch (e) {
-          logger.warn(`Sending tile notification failed with error: ${e.message || e}`);
+          logger.warn('Sending tile notification failed with error.', e);
         }
       }
 
+      logger.info('NativeNotification: Creating new NodeRT toast notification.');
       result = await notifier(options);
     } else {
+      logger.info('NativeNotification: Creating new CSX toast notification.');
       notifier = notifier || await runScript({
         absolutePath: require.resolve('./native-notifications.csx'),
         args: false
@@ -105,9 +112,9 @@ export default class WindowsNativeNotification {
   dispatchError(error) {
     // WinRT only returns an errorCode, so that's what we get from NodeRT
     if (isWindows10OrHigher) {
-      logger.warn(`Error while showing notification: WinRT error code ${error.errorCode || error}`);
+      logger.warn('Error while showing notification: WinRT error.', error);
     } else {
-      logger.warn(`Error while showing notification: ${error.message || error}`);
+      logger.warn('Error while showing notification:', error);
     }
 
     this.dispatchEventWithReplay('error', {
@@ -126,18 +133,20 @@ export default class WindowsNativeNotification {
     try {
       let { path } = temp.openSync('notif');
       target = path;
+      logger.debug('Created new temporary image path:', path);
     } catch (e) {
-      logger.error(`Failed to set up notification image: ${e.message}`);
+      logger.error('Failed to set up notification image:', e);
       return null;
     }
 
     setTimeout(() => {
       try {
+        logger.debug('Attempting to remove temporary image path:', target);
         fs.unlinkSync(target);
       } catch(e) {
-        logger.info(`Couldn't clean up temp notification image: ${e.message}`);
+        logger.info(`Couldn't clean up temp notification image:`, e);
       }
-    }, 15*1000);
+    }, 15 * 1000);
 
     if (await downloadFileOrUrl(uri, target) < 10) {
       return null;

@@ -23,7 +23,7 @@ export interface AuthenticationInfo {
 export interface UrlScheme {
   url: string;
   disposition: Electron.NewWindowDisposition;
-  isShowing: boolean;
+  isShowing?: boolean;
 }
 
 export class DialogActions {
@@ -65,10 +65,6 @@ export class DialogActions {
 
   public showBalloon(balloon: BalloonContent): void {
     Store.dispatch({type: DIALOG.SHOW_TRAY_BALLOON, data: balloon});
-  }
-
-  public toggleDevTools(): void {
-    Store.dispatch({type: DIALOG.TOGGLE_DEV_TOOLS} as any);
   }
 }
 

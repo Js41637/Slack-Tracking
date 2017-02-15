@@ -5,73 +5,76 @@ import {Observable} from 'rxjs/Observable';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import getUserAgent from '../../ssb-user-agent';
 import {isPrebuilt} from '../../utils/process-helpers';
-import {zoomLevelToFactor} from '../../utils/zoomlevel-to-factor';
+import {getUserAgent} from '../../ssb-user-agent';
+import {zoomLevelToFactor} from '../../utils/zoomlevels';
 import {objectSum} from '../../utils/object-sum';
 
 import {getMemoryUsage} from '../../memory-usage';
 import {appActions} from '../../actions/app-actions';
-import AppStore from '../../stores/app-store';
-import AppTeamsStore from '../../stores/app-teams-store';
-import BasicAuthView from './basic-auth-view';
-import Component from '../../lib/component';
-import DraggableRegion from './draggable-region';
+import {appStore} from '../../stores/app-store';
+import {appTeamsStore} from '../../stores/app-teams-store';
+import {BasicAuthView} from './basic-auth-view';
+import {Component} from '../../lib/component';
+import {DraggableRegion} from './draggable-region';
 import {dialogStore} from '../../stores/dialog-store';
 import {dialogActions} from '../../actions/dialog-actions';
 import {eventActions} from '../../actions/event-actions';
-import EventStore from '../../stores/event-store';
-import LoadingScreen from './loading-screen';
+import {eventStore} from '../../stores/event-store';
+import {LoadingScreen} from './loading-screen';
 import LoginView from './login-view';
-import NativeNotificationManager from './native-notification-manager';
-import NetworkStatus from '../../network-status';
-import NonDraggableRegion from './non-draggable-region';
-import OverlayManager from './overlay-manager';
+import {NativeNotificationManager} from './native-notification-manager';
+import {NetworkStatus} from '../../network-status';
+import {NonDraggableRegion} from './non-draggable-region';
+import {OverlayManager} from './overlay-manager';
 import {settingActions} from '../../actions/setting-actions';
 import {settingStore} from '../../stores/setting-store';
 import {Store} from '../../lib/store';
 import TeamsDisplay from './teams-display';
-import TeamStore from '../../stores/team-store';
-import UrlSchemeModal from './url-scheme-modal';
+import {teamStore} from '../../stores/team-store';
+import {UrlSchemeModal} from './url-scheme-modal';
 import {windowFrameStore} from '../../stores/window-frame-store';
-import {WindowHelpers} from '../../components/helpers/window-helpers';
-import WindowStore from '../../stores/window-store';
+import {WindowHelpers} from '../../utils/window-helpers';
+import {windowStore} from '../../stores/window-store';
 import {WinTitlebar} from './win-titlebar';
 
 const ESCAPE_KEYCODE = 27;
 const EQUALS_KEYCODE = 187;
+const DASH_KEYCODE = 189;
+const ZERO_KEYCODE = 48;
 const V_KEYCODE = 86;
 
-import {SIDEBAR_WIDTH, SIDEBAR_WIDTH_NO_TITLE_BAR,
-  CHANNEL_HEADER_HEIGHT, REPORT_ISSUE_WINDOW_TYPE} from '../../utils/shared-constants';
+import {SIDEBAR_WIDTH, CHANNEL_HEADER_HEIGHT, SIDEBAR_ICON_SIZE,
+  SIDEBAR_ITEM_MARGIN_TOP_NO_TITLE_BAR, REPORT_ISSUE_WINDOW_TYPE} from '../../utils/shared-constants';
 
 export default class SlackApp extends Component {
 
   syncState() {
-    let selectedTeamId = AppTeamsStore.getSelectedTeamId();
-    let selectedTeam = TeamStore.getTeam(selectedTeamId) || null;
+    let selectedTeamId = appTeamsStore.getSelectedTeamId();
+    let selectedTeam = teamStore.getTeam(selectedTeamId) || null;
 
     return {
-      networkStatus: AppStore.getNetworkStatus(),
+      networkStatus: appStore.getNetworkStatus(),
       isShowingLoginDialog: dialogStore.isShowingLoginDialog(),
       isTitleBarHidden: settingStore.getSetting('isTitleBarHidden'),
-      noDragRegions: windowFrameStore.getNoDragRegions(),
+      noDragRegions: appStore.getNoDragRegions(),
 
       authInfo: dialogStore.getInfoForAuthDialog(),
       urlSchemeModal: dialogStore.getUrlSchemeModal(),
 
       selectedTeam,
       selectedTeamId,
-      numTeams: TeamStore.getNumTeams(),
+      numTeams: teamStore.getNumTeams(),
 
       isDevMode: settingStore.getSetting('isDevMode'),
-      isShowingDevTools: dialogStore.isShowingDevTools(),
+      areDevToolsOpen: appStore.areDevToolsOpen(),
       isShowingHtmlNotifications: settingStore.isShowingHtmlNotifications(),
       isMac: settingStore.isMac(),
+      isFullScreen: windowFrameStore.isFullScreen(),
       zoomLevel: settingStore.getSetting('zoomLevel'),
 
-      reportIssueWindow: WindowStore.getWindowOfSubType(REPORT_ISSUE_WINDOW_TYPE),
-      reportIssueEvent: EventStore.getEvent('reportIssue'),
+      reportIssueWindow: windowStore.getWindowOfSubType(REPORT_ISSUE_WINDOW_TYPE),
+      reportIssueEvent: eventStore.getEvent('reportIssue'),
       reportIssueOnStartup: settingStore.getSetting('reportIssueOnStartup'),
 
       isWin10: settingStore.getSetting('isWin10')
@@ -142,7 +145,7 @@ export default class SlackApp extends Component {
         if (online) {
           appActions.setNetworkStatus('online');
           this.setState({wasConnected: true});
-        } else if (this.networkStatus.browserIsOnline() && this.networkStatus.reason === 'slackDown') {
+        } else if (this.networkStatus.isBrowserOnline && this.networkStatus.reason === 'slackDown') {
           appActions.setNetworkStatus('slackDown');
         } else {
           appActions.setNetworkStatus('offline');
@@ -159,9 +162,19 @@ export default class SlackApp extends Component {
         this.refs.loginView.cancel();
       }
 
+      if (e.keyCode === DASH_KEYCODE && !e.shiftKey && !e.altKey && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        settingActions.zoomOut();
+      }
+
       if (e.keyCode === EQUALS_KEYCODE && !e.shiftKey && !e.altKey && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         settingActions.zoomIn();
+      }
+
+      if (e.keyCode === ZERO_KEYCODE && !e.shiftKey && !e.altKey && e.ctrlKey && this.state.isMac) {
+        e.preventDefault();
+        settingActions.resetZoom();
       }
 
       if (e.keyCode === V_KEYCODE && e.shiftKey && e.metaKey && this.state.isMac) {
@@ -174,18 +187,32 @@ export default class SlackApp extends Component {
   /**
    * Returns memory stats aggregated across all teams, the main renderer, and
    * the browser process.
+   *
+   * NB: This method must be defined on `global.application` to be called from
+   * the webapp process.
    */
   async getCombinedMemoryUsage() {
-    let rendererMemory = getMemoryUsage();
-    let browserMemory = await executeJavaScriptMethod(null, 'getMemoryUsage');
-    let allTeamsMemory = this.refs.teamsDisplay ?
+    const rendererMemory = getMemoryUsage();
+    const browserMemory = await executeJavaScriptMethod(null, 'getMemoryUsage');
+    const allTeamsMemory = this.refs.teamsDisplay ?
       await this.refs.teamsDisplay.getCombinedMemoryUsage() : null;
 
-    let combinedMemory = [rendererMemory, browserMemory, allTeamsMemory].reduce(objectSum);
+    const combinedMemory = [rendererMemory, browserMemory, allTeamsMemory].reduce(objectSum);
 
     return Object.assign(combinedMemory, {
       numTeams: this.state.numTeams
     });
+  }
+
+  /**
+   * Returns memory stats for the current teams. Does not include stats on
+   * resource usage.
+   *
+   * NB: This method must be defined on `global.application` to be called from
+   * the webapp process.
+   */
+  getTeamsMemoryUsage() {
+    return this.refs.teamsDisplay.getTeamsMemoryUsage();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -225,9 +252,30 @@ export default class SlackApp extends Component {
       windowType: REPORT_ISSUE_WINDOW_TYPE,
       fullscreenable: false,
       isPopupWindow: true,
-      width: 800,
-      height: 900
+      width: 925,
+      height: 800
     });
+  }
+
+  /**
+   * Render the Redux DevTools on developer builds only.
+   *
+   * @return {HTMLElement}  The Redux devTools element, or null
+   */
+  renderReduxDevTools() {
+    if (isPrebuilt() &&
+      this.state.areDevToolsOpen &&
+      global.loadSettings.devMode) {
+      const DevTools = require('./dev-tools').DevTools;
+      const { Provider } = require('react-redux');
+      return (
+        <Provider store={Store.getStore()}>
+          <DevTools/>
+        </Provider>
+      );
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -240,32 +288,37 @@ export default class SlackApp extends Component {
    * @return {HTMLElement}          A draggable region, or null if unnecessary
    */
   renderDraggableRegion(hasLoginContent) {
-    let {isTitleBarHidden, numTeams, noDragRegions} = this.state;
-    let zoomFactor = zoomLevelToFactor(this.state.zoomLevel);
+    const {isTitleBarHidden, noDragRegions} = this.state;
+    const zoomFactor = zoomLevelToFactor(this.state.zoomLevel);
 
     if (!isTitleBarHidden) return null;
 
     let noDragElements = null;
     if (!hasLoginContent) {
-      let offset = isTitleBarHidden ?
-        SIDEBAR_WIDTH_NO_TITLE_BAR :
-        SIDEBAR_WIDTH;
-
       // All drag regions will be offset by the width of the sidebar
       noDragElements = noDragRegions.map((region) => {
-        let left = isTitleBarHidden || numTeams > 1 ?
-          region.left + offset :
-          region.left;
-
         return (
           <NonDraggableRegion
             key={region.id}
-            left={left * zoomFactor}
+            left={region.left * zoomFactor + SIDEBAR_WIDTH}
             top={region.top * zoomFactor}
             width={region.width * zoomFactor}
-            height={region.height * zoomFactor} />
+            height={region.height * zoomFactor}
+          />
         );
       });
+
+      // NB: Add a non-drag region covering the first item in the sidebar, so
+      // you don't move the window when you intended to rearrange a team.
+      noDragElements.push(
+        <NonDraggableRegion
+          key={"sidebarNoDragRegion"}
+          left={0}
+          top={SIDEBAR_ITEM_MARGIN_TOP_NO_TITLE_BAR}
+          width={SIDEBAR_WIDTH}
+          height={SIDEBAR_ICON_SIZE}
+        />
+      );
     }
 
     return (
@@ -277,10 +330,12 @@ export default class SlackApp extends Component {
 
   render() {
     let {numTeams, networkStatus, authInfo, isShowingLoginDialog,
-      isShowingDevTools, urlSchemeModal, isWin10, isMaximized} = this.state;
+      urlSchemeModal, isWin10, isMaximized, isFullScreen} = this.state;
     let hasTeams = numTeams > 0;
     let isOnline = networkStatus === 'online';
-    let className = classNames('SlackApp', { 'fancy-frame': isWin10 }, {isMaximized});
+    let className = classNames('SlackApp', {
+      'fancy-frame': isWin10 && !isFullScreen
+    }, { isMaximized });
 
     let teamContent = <LoadingScreen />;
     let loginContent = null;
@@ -310,21 +365,9 @@ export default class SlackApp extends Component {
         <UrlSchemeModal url={urlSchemeModal.url} disposition={urlSchemeModal.disposition} />;
     }
 
-    let debugPanel = null;
-
-    if (isShowingDevTools && global.loadSettings.devMode && isPrebuilt()) {
-      let DevTools = require('./dev-tools').default;
-      let { Provider } = require('react-redux');
-      debugPanel = (
-        <Provider store={Store.getStore()}>
-          <DevTools/>
-        </Provider>
-      );
-    }
-
     return (
       <div ref="main" className={className}>
-        {isWin10 ? <WinTitlebar /> : ''}
+        {isWin10 && !isFullScreen ? <WinTitlebar /> : ''}
         {this.renderDraggableRegion(loginContent !== null)}
         {teamContent}
         {loginContent}
@@ -334,7 +377,7 @@ export default class SlackApp extends Component {
           {urlSchemeContent}
           {authContent}
         </ReactCSSTransitionGroup>
-        {debugPanel}
+        {this.renderReduxDevTools()}
       </div>
     );
   }

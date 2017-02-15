@@ -6,7 +6,8 @@
         {
           "label": "&Preferences…",
           "command": "application:show-settings",
-          "accelerator": "Control+,"
+          "accelerator": "Control+,",
+          "id": "menuitem-preferences"
         },
         {
           "type": "separator"
@@ -14,12 +15,14 @@
         {
           "label": "&Close",
           "role": "close",
-          "accelerator": "Control+W"
+          "accelerator": "Control+W",
+          "id": "menuitem-file-close"
         },
         {
           "label": "&Quit",
           "command": "application:quit",
-          "accelerator": "Control+Q"
+          "accelerator": "Control+Q",
+          "id": "menuitem-quit"
         }
       ]
     },
@@ -29,12 +32,14 @@
         {
           "label": "&Undo",
           "command": "core:undo",
-          "accelerator": "Control+Z"
+          "accelerator": "Control+Z",
+          "id": "menuitem-undo"
         },
         {
           "label": "&Redo",
           "command": "core:redo",
-          "accelerator": "Control+Y"
+          "accelerator": "Control+Y",
+          "id": "menuitem-redo"
         },
         {
           "type": "separator"
@@ -42,27 +47,38 @@
         {
           "label": "&Cut",
           "command": "core:cut",
-          "accelerator": "Control+X"
+          "accelerator": "Control+X",
+          "id": "menuitem-cut"
         },
         {
           "label": "C&opy",
           "command": "core:copy",
-          "accelerator": "Control+C"
+          "accelerator": "Control+C",
+          "id": "menuitem-copy"
         },
         {
           "label": "&Paste",
           "command": "core:paste",
-          "accelerator": "Control+V"
+          "accelerator": "Control+V",
+          "id": "menuitem-paste"
+        },
+        {
+          "label": "&Paste as Plain Text",
+          "command": "core:paste-and-match-style",
+          "accelerator": "Control+Shift+V",
+          "id": "menuitem-paste-as"
         },
         {
           "label": "Select &All",
           "command": "core:select-all",
-          "accelerator": "Control+A"
+          "accelerator": "Control+A",
+          "id": "menuitem-select-all"
         },
         {
           "label": "Delete",
           "command": "core:delete",
-          "accelerator": "Delete"
+          "accelerator": "Delete",
+          "id": "menuitem-delete"
         },
         {
           "type": "separator"
@@ -70,22 +86,26 @@
         {
           "label": "Find…",
           "command": "core:find",
-          "accelerator": "Control+F"
+          "accelerator": "Control+F",
+          "id": "menuitem-find"
         }
       ]
     },
     {
       "label": "&View",
+      "id": "menuitem-view",
       "submenu": [
         {
           "label": "&Reload",
           "command": "window:reload",
-          "accelerator": "Control+R"
+          "accelerator": "Control+R",
+          "id": "menuitem-reload-current"
         },
         {
           "label": "Toggle &Full Screen",
           "command": "window:toggle-full-screen",
-          "accelerator": "Control+Shift+F"
+          "accelerator": "Control+Shift+F",
+          "id": "menuitem-toggle-fullscreen"
         },
         {
           "type": "separator"
@@ -93,33 +113,45 @@
         {
           "label": "&Actual Size",
           "command": "window:actual-size",
-          "accelerator": "Control+0"
+          "accelerator": "Control+0",
+          "id": "menuitem-zoom-reset"
         },
         {
           "label": "Zoom &In",
           "command": "window:zoom-in",
-          "accelerator": "Control+Plus"
+          "accelerator": "Control+Plus",
+          "id": "menuitem-zoom-in"
         },
         {
           "label": "Zoom &Out",
           "command": "window:zoom-out",
-          "accelerator": "Control+-"
+          "accelerator": "Control+-",
+          "id": "menuitem-zoom-out"
         },
         {
           "type": "separator"
         },
         {
           "label": "&Developer",
+          "id": "menuitem-developer",
           "submenu": [
             {
-              "label": "Toggle Developer &Tools",
+              "label": "Toggle &Webapp DevTools",
               "command": "window:toggle-dev-tools",
-              "accelerator": "Alt+Control+I"
+              "accelerator": "Control+Alt+I",
+              "id": "menuitem-toggle-webapp-devtools"
+            },
+            {
+              "label": "Toggle &Electron DevTools",
+              "command": "window:toggle-all-dev-tools",
+              "accelerator": "Control+Shift+Alt+I",
+              "id": "menuitem-toggle-electron-devtools"
             },
             {
               "label": "&Reload Everything",
               "command": "window:reload-everything",
-              "accelerator": "Control+Shift+R"
+              "accelerator": "Control+Shift+R",
+              "id": "menuitem-reload-all"
             }
           ]
         }
@@ -131,80 +163,99 @@
         {
           "label": "&Back",
           "command": "history:back",
-          "accelerator": "Alt+Left"
+          "accelerator": "Alt+Left",
+          "id": "menuitem-navigate-back"
         },
         {
           "label": "&Forward",
           "command": "history:forward",
-          "accelerator": "Alt+Right"
+          "accelerator": "Alt+Right",
+          "id": "menuitem-navigate-forward"
         }
       ]
     },
     {
       "label": "&Window",
+      "id": "menuitem-window",
       "submenu": [
         {
           "label": "Always Show &Menu Bar",
           "command": "window:auto-hide-menu-bar",
+          "id": "menuitem-auto-hide-menu-bar",
           "type": "checkbox",
           "checked": true
         },
         {
           "type": "separator",
-          "id": "team-list"
+          "id": "team-list-start-separator"
         },
         {
           "label": "Select &Next Team",
           "command": "window:select-next-team",
-          "accelerator": "Control+Tab"
+          "accelerator": "Control+Tab",
+          "id": "menuitem-select-next-team"
         },
         {
           "label": "Select &Previous Team",
           "command": "window:select-previous-team",
-          "accelerator": "Control+Shift+Tab"
+          "accelerator": "Control+Shift+Tab",
+          "id": "menuitem-select-previous-team"
         },
         {
           "type": "separator"
         },
         {
           "label": "&Sign in to Another Team…",
-          "command": "window:signin"
+          "command": "window:signin",
+          "id": "menuitem-sign-in"
         }
       ]
     },
     {
       "label": "&Help",
+      "id": "menuitem-help",
       "submenu": [
         {
           "label": "Keyboard Shortcuts",
           "command": "application:keyboard-shortcuts",
-          "accelerator": "Control+/"
+          "accelerator": "Control+/",
+          "id": "menuitem-keyboard-shortcut"
+        },
+        {
+          "label": "Open Help Center",
+          "command": "application:help-center",
+          "id": "menuitem-open-help-center"
         },
         {
           "type": "separator"
         },
         {
           "label": "Report Issue…",
-          "command": "application:report-issue"
+          "command": "application:report-issue",
+          "id": "menuitem-report-issue"
         },
         {
           "label": "Show &Logs in File Manager",
-          "command": "application:prepare-and-reveal-logs"
+          "command": "application:prepare-and-reveal-logs",
+          "id": "menuitem-reveal-logs"
         },
         {
           "label": "Reset App Data…",
-          "command": "application:reset-app-data"
+          "command": "application:reset-app-data",
+          "id": "menuitem-reset-app-data"
         },
         {
           "type": "separator"
         },
         {
           "label": "What's New…",
-          "command": "application:release-notes"
+          "command": "application:release-notes",
+          "id": "menuitem-release-notes"
         },
         {
           "label": "About Slack…",
-          "command": "application:about"
+          "command": "application:about",
+          "id": "menuitem-about-slack"
         }
       ]
     }

@@ -1,5 +1,5 @@
 import {logger} from '../logger';
-import {BaseComponent} from './base-component';
+import {ComponentBase} from './component-base';
 
 export interface State {
   timestamp?: number;
@@ -15,7 +15,7 @@ export interface State {
  * @param  {Object} prevState The previous state
  * @return {Function}         The handler for the event, or null if none was found
  */
-export function stateEventHandler(component: BaseComponent,
+export function stateEventHandler(component: ComponentBase,
                                   event: State,
                                   eventName: string,
                                   prevState: State): Function | null {

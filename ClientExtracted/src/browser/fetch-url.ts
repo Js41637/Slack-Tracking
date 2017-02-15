@@ -13,7 +13,7 @@ import {Credentials, AuthenticationInfo} from '../actions/dialog-actions';
  *
  * @return {Promise<String>}          A Promise to the JSON string
  */
-export function fetchURL(options: string|{}, credentials: Credentials): Promise<string> {
+export function fetchURL(options: string|{}, credentials?: Credentials): Promise<string> {
   const request = net.request(options);
 
   return new Promise((resolve, reject) => {

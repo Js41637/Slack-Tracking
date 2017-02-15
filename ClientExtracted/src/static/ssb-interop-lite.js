@@ -14,7 +14,7 @@ process.on('uncaughtException', (e) => console.error(e));
 var start = function(loadSettings) {
   window.loadSettings = loadSettings;
 
-  var mainModule = path.join(loadSettings.resourcePath, 'src', 'ssb', 'main-lite.js');
+  var mainModule = path.join(loadSettings.resourcePath, 'src', 'ssb', 'main-lite.ts');
   var isDevMode = loadSettings.devMode && isPrebuilt();
   require('electron-compile').init(loadSettings.resourcePath, mainModule, !isDevMode);
 };

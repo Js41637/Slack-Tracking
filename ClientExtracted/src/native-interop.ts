@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from 'graceful-fs';
 import * as path from 'path';
 import {spawn} from 'spawn-rx';
 import {logger} from './logger';
@@ -35,7 +35,7 @@ export interface NativeInterop {
     build: string
   };
   is64BitOperatingSystem: () => boolean;
-  isWindows10OrHigher: () => boolean;
+  isWindows10OrHigher: (dontLieToMe?: boolean) => boolean;
 }
 
 const setupWindowsLibs = () => {
@@ -159,7 +159,7 @@ const interop = {
       return getIdleTime!();
     },
 
-    getOSVersion: async function () {
+    getOSVersion: async function() {
       let macOSVersion: string;
       try {
         macOSVersion = await spawn('sw_vers', ['-productVersion']).toPromise();

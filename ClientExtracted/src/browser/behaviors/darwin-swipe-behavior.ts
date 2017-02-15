@@ -3,6 +3,9 @@ import {WindowBehavior} from './window-behavior';
 import {appTeamsActions} from '../../actions/app-teams-actions';
 
 export class DarwinSwipeBehavior extends WindowBehavior {
+  public static isSupported(platform: string): boolean {
+    return platform === 'darwin';
+  }
   /**
    * Attaches this behavior to the given window, which watches the Swipe gesture
    * on OS X. Note that you must configure Trackpad in System Preferences to "Swipe

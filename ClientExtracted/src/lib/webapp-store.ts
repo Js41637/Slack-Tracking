@@ -1,6 +1,6 @@
 import {applyMiddleware, createStore, combineReducers, compose} from 'redux';
 import {electronEnhancer} from 'redux-electron-store';
-import * as reducers from '../reducers';
+import {reducers} from '../reducers';
 
 import {BaseStore} from './base-store';
 
@@ -17,7 +17,7 @@ export class WebappStore<T> extends BaseStore<T> {
     ];
 
     this.store = createStore(
-      combineReducers(reducers.default),
+      combineReducers(reducers),
       (compose as any)(...toCompose)
     ) as any;
   }

@@ -5,12 +5,12 @@ import {Subject} from 'rxjs/Subject';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import Component from '../lib/component';
+import {Component} from '../lib/component';
 import NotificationItem from './notification-item.jsx';
-import NotificationStore from '../stores/notification-store';
-import NotificationWindowHelpers from '../components/helpers/notification-window-helpers';
+import {notificationStore} from '../stores/notification-store';
+import {NotificationWindowHelpers} from './notification-window-helpers';
 import {settingStore} from '../stores/setting-store';
-import WindowStore from '../stores/window-store';
+import {windowStore} from '../stores/window-store';
 
 const {BrowserWindow} = remote;
 const {showPositionedNotificationWindow} = NotificationWindowHelpers;
@@ -62,9 +62,9 @@ export default class NotificationHost extends Component {
 
   syncState() {
     return {
-      notifications: NotificationStore.getNotifications(),
-      notificationsWindow: WindowStore.getNotificationsWindow(),
-      mainWindow: WindowStore.getMainWindow(),
+      notifications: notificationStore.getNotifications(),
+      notificationsWindow: windowStore.getNotificationsWindow(),
+      mainWindow: windowStore.getMainWindow(),
       zoomLevel: settingStore.getSetting('zoomLevel'),
       notifyPosition: settingStore.getSetting('notifyPosition')
     };

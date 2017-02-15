@@ -1,0 +1,42 @@
+@team-sidebar-transition: background-color 0.1s ease-out;
+
+.TeamSidebar {
+  height: 100%;
+  position: relative;
+  flex-direction: column;
+  -webkit-user-select: none;
+  outline: none;
+
+  transition: @team-sidebar-transition;
+
+  &-item {
+    position: absolute;
+  }
+
+  &-addArea {
+    position: absolute;
+    width: 100%;
+    transition: @team-sidebar-transition, opacity 0.25s ease-out;
+  }
+
+  &-addButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 36px;
+    width: 36px;
+    cursor: pointer;
+    opacity: 0.25;
+
+    transition: all 0.05s ease-out;
+
+    &:hover {
+      opacity: 0.45;
+    }
+
+    &:active {
+      opacity: 0.35;
+    }
+  }
+}

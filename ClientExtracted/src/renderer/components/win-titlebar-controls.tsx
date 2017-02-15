@@ -1,11 +1,14 @@
-import * as React from 'react'; // tslint:disable-line
-import Component from '../../lib/component';
+import {Component} from '../../lib/component';
 import {remote} from 'electron';
 import {logger} from '../../logger';
 import {Observable} from 'rxjs';
 import 'rxjs/add/operator/merge';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/takeUntil';
+
+import {intl as $intl, LOCALE_NAMESPACE} from '../../i18n/intl';
+
+import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
 export interface WinWindowControlsProps {
   fillColor?: string;
@@ -63,7 +66,7 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       <div className='Windows-Titlebar-controls'>
         <button
           ref={this.refHandlers.minimize}
-          title='Minimize'
+          title={$intl.t(`Minimize`, LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
           onClick={this.minimize.bind(this)}
@@ -75,7 +78,7 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
         {this.renderMaximize()}
         <button
           ref={this.refHandlers.close}
-          title='Close'
+          title={$intl.t(`Close`, LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
           onClick={this.close.bind(this)}
@@ -99,7 +102,7 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       return (
         <button
           ref={this.refHandlers.unmaximize}
-          title='Unmaximize'
+          title={$intl.t(`Unmaximize`, LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
           onClick={this.unmaximize.bind(this)}
@@ -116,7 +119,7 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       return (
         <button
           ref={this.refHandlers.maximize}
-          title='Maximize'
+          title={$intl.t(`Maximize`, LOCALE_NAMESPACE.GENERAL)()}
           className='Windows-Titlebar-button'
           onMouseDown={this.handleMouseDown}
           onClick={this.maximize.bind(this)}

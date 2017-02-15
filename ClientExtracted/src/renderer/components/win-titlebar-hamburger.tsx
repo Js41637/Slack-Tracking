@@ -1,9 +1,8 @@
-import * as React from 'react'; // tslint:disable-line
 import {Observable} from 'rxjs';
-
-import Component from '../../lib/component';
-import {remote} from 'electron';
+import {Component} from '../../lib/component';
 import {eventActions} from '../../actions/event-actions';
+
+import * as React from 'react'; // tslint:disable-line:no-unused-variable
 
 export interface WinHamburgerProps {
   fillColor?: string;
@@ -16,17 +15,10 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
    fillColor: '#fff'
   };
 
-  private readonly window: Electron.BrowserWindow;
   private hamburgerBtn: HTMLElement;
   private readonly refHandlers = {
     hamburger: (ref: HTMLElement) => this.hamburgerBtn = ref,
   };
-
-  constructor(props: WinHamburgerProps) {
-    super(props);
-
-    this.window = remote.getCurrentWindow();
-  }
 
   public componentWillMount() {
     const keyboardListener = this.listenToAltPress()
@@ -59,9 +51,9 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
   private listenToAltPress() {
     const keyDown = Observable.fromEvent(document, 'keydown', (e) => e.keyCode);
     const keyUp = Observable.fromEvent(document, 'keyup', (e) => e.keyCode);
-    const altDown = keyDown.filter(x => x === 18);
-    const shiftDown = keyDown.filter(x => x === 16);
-    const altUp = keyUp.filter(x => x === 18);
+    const altDown = keyDown.filter((x) => x === 18);
+    const shiftDown = keyDown.filter((x) => x === 16);
+    const altUp = keyUp.filter((x) => x === 18);
 
     // Only fires once per alt-down, ignores key repeat
     const debouncedAltDown = altDown
@@ -78,10 +70,10 @@ export class WinHamburger extends Component<WinHamburgerProps, WinHamburgerState
 
     return debouncedAltDown
       .switchMap(() => keyUpOrMouseClick
-        .filter(x => x !== 18)
+        .filter((x) => x !== 18)
         .takeUntil(altUp)
         .reduce((acc: Array<any>, x: any) => { acc.push(x); return acc; }, []))
-      .filter(x => x.length === 0)
+      .filter((x) => x.length === 0)
       .map(() => true);
   }
 }

@@ -3,7 +3,7 @@
     "development": {
       "application/javascript": {
         "presets": ["es2017-node7", "react"],
-        "plugins": ["transform-async-to-generator", "rewire"],
+        "plugins": ["transform-async-to-generator"],
         "sourceMaps": "inline"
       },
       "text/jade": {
@@ -20,25 +20,23 @@
         "noUnusedLocals": true,
         "noImplicitThis": true,
         "noUnusedParameters": true,
-        "sourceMap": true,
-        "target": "es2015",
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "importHelpers": true,
+        "noEmitHelpers": true,
+        "module": "commonjs",
+        "target": "es2016",
         "jsx": "react",
-        "types": [
-          "node",
-          "electron",
-          "lodash",
-          "graceful-fs",
-          "react",
-          "react-dom",
-          "winston"
-        ],
-        "doSemanticChecks": false
+        "lib": [
+          "es2016",
+          "dom"
+        ]
       }
     },
     "production": {
       "application/javascript": {
         "presets": ["es2017-node7", "react"],
-        "plugins": ["transform-async-to-generator", "rewire"],
+        "plugins": ["transform-async-to-generator"],
         "sourceMaps": false
       },
       "text/jade": {
@@ -56,18 +54,15 @@
         "noImplicitThis": true,
         "noUnusedParameters": true,
         "sourceMap": false,
-        "target": "es2015",
+        "importHelpers": true,
+        "noEmitHelpers": true,
+        "module": "commonjs",
+        "target": "es2016",
         "jsx": "react",
-        "types": [
-          "node",
-          "electron",
-          "lodash",
-          "graceful-fs",
-          "react",
-          "react-dom",
-          "winston"
-        ],
-        "doSemanticChecks": false
+        "lib": [
+          "es2016",
+          "dom"
+        ]
       }
     }
   }

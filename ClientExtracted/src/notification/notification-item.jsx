@@ -4,10 +4,10 @@ import {Subscription} from 'rxjs/Subscription';
 import {Observable} from 'rxjs/Observable';
 import React from 'react';
 
-import Component from '../lib/component';
-import NotificationActions from '../actions/notification-actions';
-import {TeamIcon} from '../components/team-icon';
-import TeamStore from '../stores/team-store';
+import {Component} from '../lib/component';
+import {notificationActions} from '../actions/notification-actions';
+import {TeamIcon} from '../renderer/components/team-icon';
+import {teamStore} from '../stores/team-store';
 
 // Save the Aubergine theme in case we run into trouble.
 const defaultTheme = {
@@ -49,13 +49,13 @@ export default class NotificationItem extends Component {
 
   syncState() {
     let state = {
-      team: TeamStore.getTeam(this.props.notification.teamId)
+      team: teamStore.getTeam(this.props.notification.teamId)
     };
 
     if (!state.team) {
       logger.warn(`No team in notification ${this.props.notification.id}!`);
       logger.warn(`Requested teamId was: ${this.props.notification.teamId}`);
-      logger.warn(`Available teams: ${TeamStore.getTeamIds()}`);
+      logger.warn(`Available teams: ${teamStore.getTeamIds()}`);
     }
 
     return state;
@@ -81,14 +81,14 @@ export default class NotificationItem extends Component {
   }
 
   remove() {
-    NotificationActions.removeNotification(this.props.notification.id);
+    notificationActions.removeNotification(this.props.notification.id);
   }
 
   select(e) {
     // stopPropagation wasn't working so check the target
     if (e.target != this.refs.closeButton) {
-      let {id, channel, teamId, msg} = this.props.notification;
-      NotificationActions.clickNotification(id, channel, teamId, msg);
+      const {id, channel, teamId, msg, thread_ts} = this.props.notification;
+      notificationActions.clickNotification(id, channel, teamId, msg, thread_ts);
     }
   }
 

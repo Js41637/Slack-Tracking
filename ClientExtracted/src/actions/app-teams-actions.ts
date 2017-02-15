@@ -1,4 +1,5 @@
 import {Store} from '../lib/store';
+import {teamStore} from '../stores/team-store';
 import {APP_TEAMS} from './';
 
 export class AppTeamsActions {
@@ -7,7 +8,7 @@ export class AppTeamsActions {
   }
 
   public selectTeamByUserId(userId: string): void {
-    Store.dispatch({type: APP_TEAMS.SELECT_TEAM_BY_USER_ID, data: userId});
+    Store.dispatch({type: APP_TEAMS.SELECT_TEAM_BY_USER_ID, data: {userId, teamList: teamStore.teams}});
   }
 
   public hideTeam(teamId: string): void {

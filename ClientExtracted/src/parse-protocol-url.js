@@ -19,8 +19,9 @@ function parseProtocolUrl(protoUrl) {
   if (theUrl.protocol !== 'slack:') return {};
 
   let ret = {};
+  let m;
 
-  let m = protoUrl.match(/devEnv=(dev\d*|staging)/);
+  m = protoUrl.match(/devEnv=(dev\d*|staging)/);
   if (m) {
     ret.devMode = true;
     ret.devEnv = m[1];

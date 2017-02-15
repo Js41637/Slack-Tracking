@@ -1,5 +1,4 @@
 import {pickBy} from './pick-by';
-import * as includes from 'lodash.includes';
 
 /**
  * The opposite of `pick`; this method creates an object composed of the
@@ -18,5 +17,5 @@ import * as includes from 'lodash.includes';
  */
 export function omit<TResult extends {}, T extends {}>(object: T, ...props: Array<string | number | Array<string>>): TResult {
   const keys = props.map(String);
-  return pickBy<TResult, T>(object, (_v: any, key: string) => !includes(keys, key));
+  return pickBy<TResult, T>(object, (_v: any, key: string) => !keys.includes(key));
 }

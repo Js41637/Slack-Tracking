@@ -6,7 +6,7 @@ export class SettingStore {
     return Store.getState().settings;
   }
 
-  public getSetting(setting: string) {
+  public getSetting<T>(setting: string): T {
     const settings = this.getSettings();
 
     if (settings[setting] === undefined) {
@@ -37,7 +37,7 @@ export class SettingStore {
   // and Linux) but defaults to true, so handle that case here
   public isUsingHardwareAcceleration(): boolean {
     const isAvailable = this.getSetting('isBeforeWin10') || this.isLinux();
-    return isAvailable ? this.getSetting('useHwAcceleration') : true;
+    return isAvailable ? this.getSetting<boolean>('useHwAcceleration') : true;
   }
 
   public isShowingHtmlNotifications(): boolean {
