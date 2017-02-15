@@ -24804,6 +24804,20 @@ ts-jumper ts-jumper-results:empty {
   margin-left: 4px
 }
 
+.channel_header_info_item.channel_header_member_status {
+  overflow: hidden
+}
+
+.channel_header_info_item.channel_header_member_status #header_status_message {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis
+}
+
+.channel_header_info_item.pin {
+  white-space: nowrap
+}
+
 #channel_members_toggle_count .channel_members_icon.is_filled:before {
   content: '\E555';
   color: #007ab8

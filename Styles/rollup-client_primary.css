@@ -591,7 +591,7 @@ span.CodeMirror-selectedtext {
 }
 
 .CodeMirror pre {
-  font-family: inherit!important
+  font-family: inherit
 }
 
 .CodeMirror .CodeMirror-sizer {

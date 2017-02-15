@@ -10504,7 +10504,7 @@ TS.registerModule("constants", {
     ensureTeamsArePresent: function(t_ids) {
       if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
-        return;
+        return Promise.resolve();
       }
       if (!_.isArray(t_ids)) return Promise.reject(Error("t_ids is not an array"));
       var missing_team_ids = _.reject(t_ids, TS.teams.getTeamById);
@@ -10514,7 +10514,7 @@ TS.registerModule("constants", {
     ensureTeamsInDataArePresent: function(data) {
       if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
-        return;
+        return Promise.resolve();
       }
       var team_ids = TS.utility.extractAllTeamIds(data);
       return TS.teams.ensureTeamsArePresent(team_ids);
@@ -10553,7 +10553,7 @@ TS.registerModule("constants", {
       if (!_.isObject(member)) return false;
       if (!member.team_id) return false;
       if (!member._is_local && member._is_from_org) return false;
-      return member._is_external;
+      return !member._is_local && !member._is_from_org;
     },
     isMemberExternalById: function(id) {
       var member = TS.members.getMemberById(id);
@@ -11444,9 +11444,7 @@ TS.registerModule("constants", {
         member._is_local = member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.indexOf(TS.model.team.id) > -1;
       }
       member._is_from_org = !member._is_local && !!member.enterprise_user && TS.model.enterprise && TS.model.enterprise.id === member.enterprise_user.enterprise_id;
-      member._is_external = !member._is_local && !member._is_from_org;
     }
-    member._is_external = !member._is_local && !member._is_from_org;
     if (TS.boot_data.feature_shared_channels_client) {
       member.is_external = TS.utility.teams.isMemberExternal(member);
     }
@@ -16724,6 +16722,9 @@ TS.registerModule("constants", {
         var in_background = true;
         TS.channels.join(channel.name, null, in_background);
       }
+      if (imsg.is_moved) {
+        channel.is_moved = true;
+      }
       channel.is_archived = false;
       channel.was_archived_this_session = false;
       TS.channels.unarchived_sig.dispatch(channel);
@@ -16973,6 +16974,9 @@ TS.registerModule("constants", {
       if (!group) {
         TS.error('unknown group: "' + imsg.channel);
         return;
+      }
+      if (imsg.is_moved) {
+        group.is_moved = true;
       }
       if (!group.is_archived) {
         return;
@@ -28778,7 +28782,7 @@ TS.registerModule("constants", {
         var key = pair[0];
         var val = pair[1];
         if (_.isArray(val)) {
-          if (key == "messages" || key == "teams" || key == "users") {
+          if (key === "messages" || key === "teams" || key === "users") {
             _.forEach(val, function(message) {
               var new_team_ids = TS.utility.extractAllTeamIds(message);
               t_ids.push(new_team_ids);
@@ -28788,7 +28792,7 @@ TS.registerModule("constants", {
           var new_team_ids = TS.utility.extractAllTeamIds(val);
           t_ids.push(new_team_ids);
         } else if (_.isString(val)) {
-          if (key == "team" || key == "source_team" || key == "user_team" || key == "team_id") {
+          if (key === "team" || key === "source_team" || key === "user_team" || key === "team_id") {
             if (TS.utility.strLooksLikeATeamId(val)) {
               t_ids.push(val);
             }
@@ -42610,6 +42614,7 @@ var _on_esc;
     isurl: _validateIsUrl,
     islink: _validateIsLink,
     lowercase: _validateLowercase,
+    transform_lowercase: _transformLowercase,
     maxcsv: _validateMaxCSV,
     maxlength: _validateMaxLength,
     mincsv: _validateMinCSV,
@@ -42920,6 +42925,14 @@ var _on_esc;
       TS.ui.validation.showWarning($el, msgs.single_punctuation, options);
       return true;
     }
+  }
+
+  function _transformLowercase($el) {
+    if (!$el.is("input") && !$el.is("textarea")) return true;
+    var value = $el.val();
+    if (!/[A-Z]/.test(value)) return true;
+    $el.val(value.toLowerCase());
+    return true;
   }
 
   function _validateChannelName($el, options) {
