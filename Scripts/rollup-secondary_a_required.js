@@ -1530,9 +1530,6 @@
       throw new Error("Invalid API call");
     }
     args = _.defaults(args || {}, _getDefaultArgsByMethodName(method));
-    if (method == "im.open" && !args.team) {
-      args.team = TS.members.getExternalTeamIdForMemberById(args.user) || "";
-    }
     var p = _promisify(method, handler);
     var use_Q;
     if (_one_at_a_time_methodsA.indexOf(method) != -1) {
@@ -10554,8 +10551,9 @@ TS.registerModule("constants", {
     isMemberExternal: function(member) {
       if (!TS.model.shared_channels_enabled) return false;
       if (!_.isObject(member)) return false;
-      if (member._is_from_org) return false;
-      return member.team_id ? member.team_id != TS.model.team.id : false;
+      if (!member.team_id) return false;
+      if (!member._is_local && member._is_from_org) return false;
+      return member._is_external;
     },
     isMemberExternalById: function(id) {
       var member = TS.members.getMemberById(id);
@@ -11200,10 +11198,6 @@ TS.registerModule("constants", {
       if (!m_ids.length) return Promise.resolve();
       return TS.members.ensureMembersArePresent(m_ids, c_ids);
     },
-    getExternalTeamIdForMemberById: function(id) {
-      var member = TS.members.getMemberById(id);
-      return member && member._is_external && member.team_id;
-    },
     isMemberInDnd: function(member) {
       return !!member._is_in_dnd;
     },
@@ -11451,6 +11445,10 @@ TS.registerModule("constants", {
       }
       member._is_from_org = !member._is_local && !!member.enterprise_user && TS.model.enterprise && TS.model.enterprise.id === member.enterprise_user.enterprise_id;
       member._is_external = !member._is_local && !member._is_from_org;
+    }
+    member._is_external = !member._is_local && !member._is_from_org;
+    if (TS.boot_data.feature_shared_channels_client) {
+      member.is_external = TS.utility.teams.isMemberExternal(member);
     }
   };
   var _setImAndMpimNames = function(member) {
@@ -11830,9 +11828,6 @@ TS.registerModule("constants", {
     member.stars = [];
     member.mentions = [];
     _setPresenceForNewMember(member);
-    if (TS.boot_data.feature_shared_channels_client) {
-      member.is_external = TS.utility.teams.isMemberExternal(member);
-    }
     _setImAndMpimNames(member);
   };
   var _setLowerCaseNamesForMember = function(member) {
@@ -19645,15 +19640,15 @@ TS.registerModule("constants", {
       } else if (msg.subtype == "group_archive") {
         group = model_ob;
         var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
+        var enterprise_name = TS.model.enterprise ? TS.model.enterprise.name : "";
+        var mover_name = TS.i18n.t("your team admin", "templates_builders")();
+        if (msg.user) {
+          var mover = TS.members.getMemberById(msg.user);
+          mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
+        }
         if (TS.client && group && group.is_archived) {
           if (TS.model.archive_view_is_showing) {
             if (group.is_moved) {
-              var enterprise_name = TS.model.enterprise ? TS.model.enterprise.name : "";
-              var mover_name = TS.i18n.t("your team admin", "templates_builders")();
-              if (msg.user) {
-                var mover = TS.members.getMemberById(msg.user);
-                mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
-              }
               html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
                 enterprise_name: enterprise_name,
                 mover_name: mover_name,
@@ -19669,11 +19664,10 @@ TS.registerModule("constants", {
             var method = "TS.shared.closeArchivedChannel";
             var group_id_quoted = "'" + group.id + "'";
             if (group.is_moved) {
-              html = TS.i18n.t('moved {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
-                group_name: group_name,
-                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name,
-                method: method,
-                group_id: group_id_quoted
+              html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+                enterprise_name: enterprise_name,
+                mover_name: mover_name,
+                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
               });
             } else {
               html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
@@ -25243,22 +25237,26 @@ TS.registerModule("constants", {
       return fallback_date_string;
     },
     millisecondsToPrettifiedTime: function(milliseconds) {
-      var s = Math.floor(milliseconds / 1e3);
-      var hours = Math.floor(s / 3600);
-      var minutes = Math.floor((s - hours * 3600) / 60);
-      var seconds = s - hours * 3600 - minutes * 60;
-      var time = "";
-      if (hours !== 0) time = hours + ":";
-      time += minutes < 10 ? "0" + minutes : String(minutes);
-      time += ":";
-      time += seconds < 10 ? "0" + seconds : String(seconds);
-      return time;
+      var time_in_seconds = Math.floor(milliseconds / 1e3);
+      var hours = Math.floor(time_in_seconds / 3600);
+      var minutes = Math.floor((time_in_seconds - hours * 3600) / 60);
+      var seconds = time_in_seconds - hours * 3600 - minutes * 60;
+      var separator;
+      minutes = minutes < 10 ? "0" + minutes : minutes.toString();
+      seconds = seconds < 10 ? "0" + seconds : seconds.toString();
+      switch (TS.i18n.locale) {
+        default: separator = ":";
+      }
+      if (hours !== 0) {
+        return hours + separator + minutes + separator + seconds;
+      } else {
+        return minutes + separator + seconds;
+      }
     },
     daysToYearsPretty: function(d) {
       var days = parseInt(d);
-      if (days < 365 && days > 1 || days === 0) return days + " days";
-      if (days === 1) return "1 day";
-      var years, output = "";
+      var years = 0;
+      var str_builder;
       if (days % 365 === 0) {
         years = days / 365;
         days = 0;
@@ -25266,13 +25264,19 @@ TS.registerModule("constants", {
         years = Math.floor(days / 365);
         days = days % 365;
       }
-      output = years > 1 ? years + " years" : years + " year";
-      if (days > 1) {
-        output += ", " + days + " days";
-      } else if (days === 1) {
-        output += ", 1 day";
+      if (years > 0) {
+        if (days > 0) {
+          str_builder = TS.i18n.t("{years, plural, =1{# year}other{# years}}, {days, plural, =1{# day}other{# days}}", "date_utilities");
+        } else {
+          str_builder = TS.i18n.t("{years, plural, =1{# year}other{# years}}", "date_utilities");
+        }
+      } else {
+        str_builder = TS.i18n.t("{days, plural, =1{# day}other{# days}}", "date_utilities");
       }
-      return output;
+      return str_builder({
+        years: years,
+        days: days
+      });
     },
     test: function() {
       return {
@@ -40176,6 +40180,7 @@ var _on_esc;
     });
     $custom_message_container = _$div.find(".admin_invites_custom_message_container");
     _setupGoogleContactsButton();
+    _setupInviteSingleChannelGuestsButton();
     _$div.find('a[data-action="admin_invites_show_custom_message"]').on("click", function() {
       _showCustomMessage();
     });
@@ -40208,6 +40213,22 @@ var _on_esc;
   };
   var _setPlaceholderEmailAddress = function() {
     _placeholder_email_address = _placeholder_email_address_default;
+  };
+  var _setupInviteSingleChannelGuestsButton = function() {
+    TS.api.callImmediately("users.admin.canAddUltraRestricted").then(function(resp) {
+      _updateInviteSingleChannelGuestsButton(resp.data.ok);
+    }, function(error) {
+      _updateInviteSingleChannelGuestsButton(false);
+    });
+  };
+  var _updateInviteSingleChannelGuestsButton = function(can_add_ura) {
+    TS.model.can_add_ura = can_add_ura;
+    var btn_ultra_restricted = $('.admin_invites_account_type_option[data-account-type="ultra_restricted"]');
+    btn_ultra_restricted.toggleClass("disabled", !TS.model.can_add_ura);
+    if (!TS.model.can_add_ura) {
+      var ultra_restricted_hover = $(".account_type_disabled_hover", btn_ultra_restricted);
+      ultra_restricted_hover.removeClass("hidden");
+    }
   };
   var _setupGoogleContactsButton = function() {
     _btn_connect_contacts = document.getElementById("btn_connect_contacts");
@@ -49734,7 +49755,7 @@ $.fn.togglify = function(settings) {
       var new_cache = {};
       var new_list = [];
       _traverseCache(false, function(item) {
-        if (item.id[0] !== prefix) return;
+        if (_.get(item, "id[0]") !== prefix) return;
         if (!new_cache[item.id]) {
           new_cache[item.id] = {
             id: item.id,

@@ -24,12 +24,10 @@
 <div class="admin_invites_account_type_option {{#unless can_add_ura}}disabled{{/unless}}" data-action="switch_type" data-account-type="ultra_restricted">
   <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">{{#t note="guests who will only be able to access one channel"}}Single-Channel Guests{{/t}}</{{#isClient}}h2{{else}}h3{{/isClient}}>
   <p>{{#t}}Single-Channel Guests can only access messages and files in a single channel. This account type is free.{{/t}} <a href="https://slack.zendesk.com/hc/en-us/articles/202518103-Restricted-account-and-single-channel-guest-FAQ" target="zendesk" class="subtle_silver underline">{{#t}}Learn more{{/t}}</a></p>
-  {{#unless can_add_ura}}
-    <div class="account_type_disabled_hover">
-      <p class="bottom_margin">{{#t}}You've reached your team limit for <strong>Single-Channel Guests</strong>.{{/t}}</p>
-      <a href="https://slack.zendesk.com/hc/en-us/articles/202518103-Restricted-account-and-single-channel-guest-FAQ" target="zendesk" class="btn btn_outline">{{#t}}Learn More{{/t}}</a>
-    </div>
-  {{/unless}}
+  <div class="account_type_disabled_hover hidden">
+    <p class="bottom_margin">{{#t}}You've reached your team limit for <strong>Single-Channel Guests</strong>.{{/t}}</p>
+    <a href="https://slack.zendesk.com/hc/en-us/articles/202518103-Restricted-account-and-single-channel-guest-FAQ" target="zendesk" class="btn btn_outline">{{#t}}Learn More{{/t}}</a>
+  </div>
   <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
 </div>
 {{#currentUserIsAdmin}}

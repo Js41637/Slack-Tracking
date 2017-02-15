@@ -1887,7 +1887,19 @@
       TS.utility.contenteditable.clearHistory(TS.client.ui.$msg_input);
       TS.view.showInterstitialAfterChannelOrImShown();
       var start_mark = "start_channel_change_" + TS.model.active_cid;
-      TS.metrics.measureAndClear("channel_change", start_mark);
+      var label = "channel_change";
+      if (model_ob.is_channel && TS.model.shared_channels_enabled && model_ob.is_shared) {
+        label += "_shared";
+      } else if (model_ob.is_group) {
+        if (model_ob.is_mpim) {
+          label += "_mpim";
+        } else {
+          label += "_group";
+        }
+      } else {
+        label += "_im";
+      }
+      TS.metrics.measureAndClear(label, start_mark);
     },
     removeMsg: function(model_ob, msg) {
       TS.view.removeMessageDiv(msg);
@@ -24508,7 +24520,7 @@
         } else if (data.error === "last_ra_channel") {
           err_str = TS.i18n.t("<p>Sorry, you can’t convert this channel because it is the only channel one of the guest account members belongs to. If you first disable the guest account, you will then be able to convert the channel.</p>", "channel_options")();
         } else {
-          err_str = TS.i18n.t("Converting to private channel failed with error: {error}", "channel_options")({
+          err_str = TS.i18n.t("Converting to a shared channel failed with error: {error}", "channel_options")({
             error: data.error
           });
         }
@@ -24786,6 +24798,9 @@
     var full_query = [{
       type: "is",
       value: "group"
+    }, {
+      type: "is",
+      value: "group_local"
     }];
     var query_terms = query.split(" ");
     query_terms.forEach(function(term) {

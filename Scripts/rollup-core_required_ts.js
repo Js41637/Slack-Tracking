@@ -270,7 +270,6 @@
       TS.model.api_token = TS.boot_data.api_token;
       TS.model.webhook_url = TS.boot_data.webhook_url;
       if (TS.boot_data.page_needs_enterprise) TS.model.enterprise_api_token = TS.boot_data.enterprise_api_token;
-      TS.model.can_add_ura = TS.boot_data.can_add_ura;
       TS.info("booted! pri:" + TS.pri + " version:" + TS.boot_data.version_ts + " start_ms:" + TS.boot_data.start_ms + " (" + (Date.now() - TS.boot_data.start_ms + "ms ago)"));
       if (TS.web && TS.web.space) {
         TS.web.space.showFastPreview();
