@@ -8662,13 +8662,15 @@ TS.registerModule("constants", {
     model_ob_hotness_changed_sig: new signals.Signal,
     onStart: function() {
       TS.shared.updateHotnessByIdThrottled = TS.utility.throttleFunc(TS.shared.updateHotnessByIdThrottled, 1e3);
-      TS.ms.connected_sig.addOnce(_logBootChannelSwitch);
-      TS.channels.switched_sig.add(_logChannelSwitch);
-      TS.ims.switched_sig.add(_logChannelSwitch);
-      TS.groups.switched_sig.add(_logChannelSwitch);
-      TS.mpims.switched_sig.add(_logChannelSwitch);
-      if (TS.client && TS.client.unread) TS.client.unread.switched_sig.add(_logChannelSwitch);
-      if (TS.client && TS.client.threads) TS.client.threads.switched_sig.add(_logChannelSwitch);
+      if (TS.client) {
+        TS.ms.connected_sig.addOnce(_logBootChannelSwitch);
+        TS.channels.switched_sig.add(_logChannelSwitch);
+        TS.ims.switched_sig.add(_logChannelSwitch);
+        TS.groups.switched_sig.add(_logChannelSwitch);
+        TS.mpims.switched_sig.add(_logChannelSwitch);
+        if (TS.client && TS.client.unread) TS.client.unread.switched_sig.add(_logChannelSwitch);
+        if (TS.client && TS.client.threads) TS.client.threads.switched_sig.add(_logChannelSwitch);
+      }
     },
     calcUnreadCnts: function(model_ob, controller, and_mark) {
       if (TS._incremental_boot) {
@@ -19644,8 +19646,15 @@ TS.registerModule("constants", {
         if (TS.client && group && group.is_archived) {
           if (TS.model.archive_view_is_showing) {
             if (group.is_moved) {
-              html = TS.i18n.t('moved {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
-                group_name: group_name,
+              var enterprise_name = TS.model.enterprise ? TS.model.enterprise.name : "";
+              var mover_name = TS.i18n.t("your team admin", "templates_builders")();
+              if (msg.user) {
+                var mover = TS.members.getMemberById(msg.user);
+                mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
+              }
+              html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+                enterprise_name: enterprise_name,
+                mover_name: mover_name,
                 name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
               });
             } else {
@@ -20091,8 +20100,7 @@ TS.registerModule("constants", {
       return new Handlebars.SafeString(html);
     },
     buildHighlightsInfoHtml: function(msg) {
-      var template_args = {};
-      var html = TS.templates.highlights_message_info(template_args);
+      var html = TS.templates.highlights_message_info(msg);
       return new Handlebars.SafeString(html);
     },
     buildInlineImgTogglerAndDiv: function(key, container_id, args) {
@@ -25149,64 +25157,87 @@ TS.registerModule("constants", {
         }
       }
     },
-    formatDate: function(string, unix_time, fallback_string) {
+    formatDate: function(token_string, unix_time, fallback_string) {
       var date_obj = new Date(unix_time * 1e3);
       var today = new Date;
       var ts = TS.utility.date.makeTsStamp(date_obj);
       var distance_in_minutes = TS.utility.date.distanceInMinutes(date_obj, today);
-      var exclude_year = distance_in_minutes > -182 * 24 * 60 && distance_in_minutes < 182 * 24 * 60;
-      var capitalize = false,
-        invalid_token_found = false;
-      if (!fallback_string) fallback_string = string;
-      if (isNaN(date_obj.getTime())) return fallback_string;
-      string = string.replace(/{(.*?)}/g, function(match, token) {
-        var replacement;
+      var minute_distance_max = 182 * 24 * 60;
+      var exclude_year = distance_in_minutes > -minute_distance_max && distance_in_minutes < minute_distance_max;
+      var capitalize = false;
+      var invalid_token_found = false;
+      if (!fallback_string) {
+        fallback_string = token_string;
+      }
+      if (isNaN(date_obj.getTime())) {
+        return fallback_string;
+      }
+      token_string = token_string.replace(/{(.*?)}/g, function(match, token, offset) {
+        var date_string;
         switch (token) {
           case "date_num":
             return TS.utility.date.toDate(ts, true);
           case "date_long":
-            return TS.utility.date.toDayOfTheWeek(ts) + ", " + TS.utility.date.toCalendarDate(ts, false, exclude_year);
+            switch (TS.i18n.locale) {
+              default: return TS.utility.date.toDayOfTheWeek(ts) + ", " + TS.utility.date.toCalendarDate(ts, false, exclude_year);
+            }
           case "date_long_pretty":
-            replacement = TS.utility.date.prettifyDateString(ts, TS.utility.date.toDayOfTheWeek(ts) + ", " + TS.utility.date.toCalendarDate(ts, false, exclude_year));
-            if (!capitalize && string.indexOf("{date_long_pretty}") === 0 && ["today", "yesterday", "tomorrow"].indexOf(replacement) !== -1) capitalize = true;
-            return replacement;
+            capitalize = !capitalize && token_string.indexOf("{date_long_pretty}") === 0 && offset === 0;
+            switch (TS.i18n.locale) {
+              default: date_string = TS.utility.date.toDayOfTheWeek(ts) + ", " + TS.utility.date.toCalendarDate(ts, false, exclude_year);
+              return TS.utility.date.prettifyDateString(ts, date_string, capitalize);
+            }
           case "date":
             return TS.utility.date.toCalendarDate(ts, false, exclude_year);
           case "date_pretty":
-            replacement = TS.utility.date.prettifyDateString(ts, TS.utility.date.toCalendarDate(ts, false, exclude_year));
-            if (!capitalize && string.indexOf("{date_pretty}") === 0 && ["today", "yesterday", "tomorrow"].indexOf(replacement) !== -1) capitalize = true;
-            return replacement;
+            capitalize = !capitalize && token_string.indexOf("{date_pretty}") === 0 && offset === 0;
+            date_string = TS.utility.date.toCalendarDate(ts, false, exclude_year);
+            return TS.utility.date.prettifyDateString(ts, date_string, capitalize);
           case "date_short":
             return TS.utility.date.toCalendarDate(ts, true, exclude_year, true);
           case "date_short_pretty":
-            replacement = TS.utility.date.prettifyDateString(ts, TS.utility.date.toCalendarDate(ts, true, exclude_year, true));
-            if (!capitalize && string.indexOf("{date_short_pretty}") === 0 && ["today", "yesterday", "tomorrow"].indexOf(replacement) !== -1) capitalize = true;
-            return replacement;
+            capitalize = !capitalize && token_string.indexOf("{date_short_pretty}") === 0 && offset === 0;
+            date_string = TS.utility.date.toCalendarDate(ts, true, exclude_year, true);
+            return TS.utility.date.prettifyDateString(ts, date_string, capitalize);
           case "time":
-            return TS.utility.date.toTime(ts, true);
+            return TS.utility.date.toTime(ts, true, false);
           case "time_secs":
             return TS.utility.date.toTime(ts, true, true);
           case "ago":
-            replacement = TS.utility.date.toTimeAgo(ts);
-            if (!capitalize && string.indexOf("{ago}") === 0) capitalize = true;
-            return replacement;
+            capitalize = !capitalize && token_string.indexOf("{ago}") === 0 && offset === 0;
+            date_string = TS.utility.date.toTimeAgo(ts);
+            if (capitalize) {
+              return date_string.charAt(0).toLocaleUpperCase() + date_string.slice(1);
+            }
+            return date_string;
           default:
             invalid_token_found = true;
             return "";
         }
       });
-      if (invalid_token_found) return fallback_string;
-      if (capitalize) string = string.charAt(0).toUpperCase() + string.slice(1);
-      return string;
+      if (invalid_token_found) {
+        return fallback_string;
+      }
+      return token_string;
     },
-    prettifyDateString: function(ts, fallback_date_string) {
+    prettifyDateString: function(ts, fallback_date_string, capitalize) {
       var date = TS.utility.date.toDateObject(ts);
       var today = new Date;
-      var yesterday = new Date((new Date).valueOf() - 1e3 * 60 * 60 * 24);
-      var tomorrow = new Date((new Date).valueOf() + 1e3 * 60 * 60 * 24);
-      if (TS.utility.date.sameDay(date, today)) return "today";
-      if (TS.utility.date.sameDay(date, yesterday)) return "yesterday";
-      if (TS.utility.date.sameDay(date, tomorrow)) return "tomorrow";
+      var day_of_time = 1e3 * 60 * 60 * 24;
+      var yesterday = new Date((new Date).valueOf() - day_of_time);
+      var tomorrow = new Date((new Date).valueOf() + day_of_time);
+      var today_str = TS.i18n.t("Today", "date_utilities")();
+      var yesterday_str = TS.i18n.t("Yesterday", "date_utilities")();
+      var tomorrow_str = TS.i18n.t("Tomorrow", "date_utilities")();
+      if (TS.utility.date.sameDay(date, today)) {
+        return capitalize ? today_str : today_str.toLocaleLowerCase();
+      }
+      if (TS.utility.date.sameDay(date, yesterday)) {
+        return capitalize ? yesterday_str : yesterday_str.toLocaleLowerCase();
+      }
+      if (TS.utility.date.sameDay(date, tomorrow)) {
+        return capitalize ? tomorrow_str : tomorrow_str.toLocaleLowerCase();
+      }
       return fallback_date_string;
     },
     millisecondsToPrettifiedTime: function(milliseconds) {
@@ -49417,43 +49448,32 @@ $.fn.togglify = function(settings) {
       if (!TS.boot_data.feature_texty) $input.trigger("textchange");
     });
     if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
+      TS.click.addClientHandler(".highlights_feedback_positive", function(e) {
+        var msg_ts = $(e.target).parents("ts-message").data("ts");
+        var model_ob_id = $(e.target).parents("ts-message").data("model-ob-id");
+        $(e.target).parent().html(TS.i18n.t("You marked this message as <strong>helpful</strong>.", "messages")());
+        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
+          if (TS.boot_data.feature_sli_highlight_unreads) TS.client.ui.sli_highlight_all_unreads.markFeedbackForMessage(model_ob_id, msg_ts, true);
+        } else {
+          TS.recaps_signal.markFeedbackForMessage(msg_ts, true);
+        }
+      });
+      TS.click.addClientHandler(".highlights_feedback_negative", function(e) {
+        var msg_ts = $(e.target).parents("ts-message").data("ts");
+        var model_ob_id = $(e.target).parents("ts-message").data("model-ob-id");
+        $(e.target).parent().html(TS.i18n.t("You marked this message as <strong>not helpful</strong>.", "messages")());
+        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
+          if (TS.boot_data.feature_sli_highlight_unreads) TS.client.ui.sli_highlight_all_unreads.markFeedbackForMessage(model_ob_id, msg_ts, false);
+        } else {
+          TS.recaps_signal.markFeedbackForMessage(msg_ts, false);
+        }
+      });
       TS.click.addClientHandler(".recap_highlight_marker", function(e) {
         if ($(e.target).hasClass("recap_highlight_marker")) {
           e.preventDefault();
           TS.recaps_signal.logMarkerClick($(e.target));
           TS.recaps_signal.scrollRecapMessageIntoView(e.target);
         }
-      });
-      TS.click.addClientHandler(".highlights_feedback_trigger", function(e) {
-        e.preventDefault();
-        var $ts = $(e.target).closest("ts-message");
-        var msg_ts = $ts.data("ts");
-        var model_ob_id = $ts.data("model-ob-id");
-        TS.menu.recaps_feedback.startWithMember(e, msg_ts, model_ob_id);
-      });
-      TS.click.addClientHandler("#recap_positive", function(e) {
-        e.preventDefault();
-        var $el = $(e.target).closest("#recap_menu_items");
-        var msg_ts = $el.data("msg-ts") + "";
-        TS.menu.recaps_feedback.end();
-        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
-          TS.client.ui.sli_highlight_all_unreads.sendFeedback($el.data("model-ob-id"), msg_ts, true);
-        } else {
-          TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 1);
-        }
-        return;
-      });
-      TS.click.addClientHandler("#recap_negative", function(e) {
-        e.preventDefault();
-        var $el = $(e.target).closest("#recap_menu_items");
-        var msg_ts = $el.data("msg-ts") + "";
-        TS.menu.recaps_feedback.end();
-        if (TS.client.ui.unread.isUnreadViewDOMShowing()) {
-          TS.client.ui.sli_highlight_all_unreads.sendFeedback($el.data("model-ob-id"), msg_ts, false);
-        } else {
-          TS.recaps_signal.sendFeedback($el.data("model-ob-id"), msg_ts, 0);
-        }
-        return;
       });
       TS.click.addClientHandler("#recap_nav .next", function(e) {
         e.preventDefault();
@@ -58045,10 +58065,7 @@ $.fn.togglify = function(settings) {
       if (data.private_channels) {
         data.private_channels = _.isArray(data.private_channels) ? data.private_channels : [data.private_channels];
         channels = _.map(data.private_channels, function(private_channel) {
-          var self_user_id = _.get(TS.utility.enterprise.getSelf(), "id");
-          var membership_status = TS.membership.getUserChannelMembershipStatus(self_user_id, private_channel);
-          var is_known_to_be_member = membership_status.is_known && membership_status.is_member;
-          var creator = is_known_to_be_member && TS.members.getMemberById(private_channel.creator) || {};
+          var creator = TS.members.getMemberById(private_channel.creator) || {};
           return {
             creator_display: creator.real_name ? creator.real_name : creator.name,
             date_created: private_channel.created,

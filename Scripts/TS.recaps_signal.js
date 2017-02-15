@@ -272,15 +272,13 @@
       });
       TS.coachmark.end(true);
     },
-    sendFeedback: function(channel, ts, feedback) {
+    sendFeedback: function(channel_ob, msg, feedback) {
       if (!TS.recaps_signal.canHaveHighlights()) return;
-      var model_ob = TS.shared.getActiveModelOb();
-      var msg = _getMsgObjFromModelOb(model_ob, ts);
       var clog_args = {
         request_id: _last_request_id,
-        channel_id: channel,
-        message_timestamp: ts,
-        channel_type: channel[0] || "",
+        channel_id: channel_ob.id,
+        message_timestamp: msg.ts,
+        channel_type: channel_ob.id[0] || "",
         message_request_id: msg.recap.data.request_id
       };
       if (feedback) {
@@ -392,6 +390,13 @@
     isMessageHighlight: function(msg) {
       if (!TS.recaps_signal.canHaveHighlights()) return false;
       return msg.recap && msg.recap.data && msg.recap.data.show_recap;
+    },
+    markFeedbackForMessage: function(msg_ts, positive) {
+      var model_ob = TS.shared.getActiveModelOb();
+      var msg = _getMsgObjFromModelOb(model_ob, msg_ts);
+      msg._sli_received_feedback = true;
+      msg._sli_feedback_value = positive;
+      TS.recaps_signal.sendFeedback(model_ob, msg, positive);
     }
   });
   var _MESSAGE_SCROLL_DURATION = 350;

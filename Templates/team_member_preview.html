@@ -150,39 +150,41 @@
           <td><span class="small_right_padding old_petunia_grey{{#isClient}}{{#if member.is_self}} current_status_status_label{{/if}}{{/isClient}}" title="{{#t}}Status{{/t}}">{{#t}}Status{{/t}}</span></td>
           {{#isClient}}
             {{#if member.is_self}}
-              <td class="current_status_container{{#or member.profile.status_emoji member.profile.status_text}} with_status_set{{/or}}">
-                <span class="current_status_cover with_status_set">
-                  <span class="current_status_emoji_picker_cover">
-                    <div class="current_status_emoji_cover">
-                      {{getMemberCurrentStatusEmoji member}}
-                    </div>
-                  </span>
-                  <div class="current_status_cover_content">
-                    <span class="current_status">
-                      {{getMemberCurrentStatusText member}}
+              <td class="current_status_cell">
+                <div class="current_status_container{{#or member.profile.status_emoji member.profile.status_text}} with_status_set{{/or}}">
+                  <span class="current_status_cover with_status_set">
+                    <span class="current_status_emoji_picker_cover">
+                      <div class="current_status_emoji_cover">
+                        {{getMemberCurrentStatusEmoji member}}
+                      </div>
                     </span>
-                  </div>
-                  <span class="current_status_clear_icon_cover ts_tip ts_tip_top ts_tip_float" title="{{#t}}Clear status{{/t}}">
-                    <ts-icon class="ts_icon_close_filled" aria-hidden="true"></ts-icon>
-                  </span>
-                </span>
-
-                <span class="current_status_cover without_status_set">
-                  <div class="current_status_cover_content">
-                    <span class="current_status_placeholder">
-                      {{#t}}What's your status?{{/t}}
-                    </span>
-                  </div>
-                  <span class="current_status_emoji_picker_cover">
-                    <div class="current_status_empty_emoji_cover">
-                      <i class="ts_icon ts_icon_circle_fill"></i>
-                      <i class="ts_icon ts_icon_smile_o"></i>
-                      <i class="ts_icon ts_icon_happy_smile"></i>
+                    <div class="current_status_cover_content">
+                      <span class="current_status">
+                        {{getMemberCurrentStatusText member}}
+                      </span>
                     </div>
+                    <span class="current_status_clear_icon_cover ts_tip ts_tip_top ts_tip_float" title="{{#t}}Clear status{{/t}}">
+                      <ts-icon class="ts_icon_close_filled" aria-hidden="true"></ts-icon>
+                    </span>
                   </span>
-                </span>
 
-                {{> current_status_input}}
+                  <span class="current_status_cover without_status_set">
+                    <div class="current_status_cover_content">
+                      <span class="current_status_placeholder">
+                        {{#t}}What's your status?{{/t}}
+                      </span>
+                    </div>
+                    <span class="current_status_emoji_picker_cover">
+                      <div class="current_status_empty_emoji_cover">
+                        <i class="ts_icon ts_icon_circle_fill"></i>
+                        <i class="ts_icon ts_icon_smile_o"></i>
+                        <i class="ts_icon ts_icon_happy_smile"></i>
+                      </div>
+                    </span>
+                  </span>
+
+                  {{> current_status_input}}
+                </div>
               </td>
             {{else}}
               <td class="current_status">{{getMemberCurrentStatusForDisplay member}}</td>

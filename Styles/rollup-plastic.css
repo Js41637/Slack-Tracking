@@ -12575,14 +12575,17 @@ only screen and (min-resolution:2dppx) {
   top: 7px
 }
 
-#member_preview_scroller .member_data_table .current_status_container {
-  position: relative;
-  left: -10px;
-  width: calc(100% + 10px);
+#member_preview_scroller .member_data_table .current_status_cell {
   padding: 0
 }
 
-#member_preview_scroller .member_data_table .current_status_container .current_status_cover {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container {
+  position: relative;
+  left: -10px;
+  width: calc(100% + 10px)
+}
+
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover {
   position: relative;
   padding: .45rem .75rem .55rem;
   background-clip: padding-box;
@@ -12594,27 +12597,24 @@ only screen and (min-resolution:2dppx) {
   border-radius: 4px
 }
 
-#member_preview_scroller .member_data_table .current_status_container .current_status_cover .current_status_cover_content {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_cover_content {
   padding-right: .9375rem;
   padding-left: 1.6875rem;
   line-height: normal
 }
 
-#member_preview_scroller .member_data_table .current_status_container .current_status_cover .current_status_clear_icon_cover {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_clear_icon_cover {
   position: absolute;
-  right: .4375rem;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%)
+  right: 7px;
+  top: 1px;
+  line-height: normal
 }
 
-#member_preview_scroller .member_data_table .current_status_container .current_status_cover:hover {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover:hover {
   border-color: #C5C5C5
 }
 
-#member_preview_scroller .member_data_table .current_status_container .current_status_input_container {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_input_container {
   opacity: 0;
   display: none;
   -webkit-transition: opacity .15s ease;
@@ -12622,36 +12622,36 @@ only screen and (min-resolution:2dppx) {
   transition: opacity .15s ease
 }
 
-#member_preview_scroller .member_data_table .current_status_container:not(.active) .current_status_cover.without_status_set {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set {
   display: block
 }
 
-#member_preview_scroller .member_data_table .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder {
   color: rgba(0, 0, 0, .35)!important
 }
 
-#member_preview_scroller .member_data_table .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder .current_status_empty_emoji_cover .ts_icon {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.without_status_set .current_status_placeholder .current_status_empty_emoji_cover .ts_icon {
   top: -2px
 }
 
-#member_preview_scroller .member_data_table .current_status_container:not(.active) .current_status_cover.with_status_set {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.with_status_set {
   display: none
 }
 
-#member_preview_scroller .member_data_table .current_status_container:not(.active).with_status_set .current_status_cover.without_status_set {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.without_status_set {
   display: none
 }
 
-#member_preview_scroller .member_data_table .current_status_container:not(.active).with_status_set .current_status_cover.with_status_set {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.with_status_set {
   display: block
 }
 
-#member_preview_scroller .member_data_table .current_status_container.active .current_status_input_container {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container.active .current_status_input_container {
   display: block;
   opacity: 1
 }
 
-#member_preview_scroller .member_data_table .current_status_container.active .current_status_cover {
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container.active .current_status_cover {
   display: none
 }
 
@@ -12668,17 +12668,12 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
   right: .5rem;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%)
+  top: 6px
 }
 
 .current_status_emoji_picker,
 .current_status_emoji_picker_cover {
   position: absolute;
-  bottom: 0;
   top: 0;
   left: 0;
   width: 2.75rem;
@@ -12695,11 +12690,14 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_emoji_picker {
+  bottom: 0;
   border-right-color: #C5C5C5
 }
 
 .current_status_emoji_picker_cover {
-  border-right-color: transparent
+  border-right-color: transparent;
+  height: 36px;
+  line-height: normal
 }
 
 .current_status_emoji_picker_cover .current_status_emoji_cover .emoji-sizer {
@@ -12718,7 +12716,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container {
-  font-family: Slack-Lato, appleLogo, sans-serif
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  min-height: 36px
 }
 
 .current_status_input_container label.countdown:after {
@@ -12746,13 +12745,17 @@ only screen and (min-resolution:2dppx) {
   margin-top: 0
 }
 
-.current_status_input_container #menu_items li a {
-  padding-top: .125rem;
-  padding-bottom: .125rem
+.current_status_input_container #menu_items {
+  margin: 6px 0
 }
 
 .current_status_input_container #menu_items li a.current_status_preset_option {
-  text-decoration: none
+  text-decoration: none;
+  margin: 0 2px
+}
+
+.current_status_input_container #menu_items li a.current_status_preset_option .current_status {
+  margin-left: 15px
 }
 
 .current_status_input_container .current_status_presets {

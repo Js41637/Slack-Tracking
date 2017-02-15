@@ -1,4 +1,20 @@
 {{i18n_ns "messages"}}
 
 <ts-icon class="ts_icon_highlight ts_icon_inherit ts_icon_align_bottom"></ts-icon>
-  <a class="highlights_feedback_trigger">{{#t}}Highlighted message{{/t}}</a>
+<span class="highlights_feedback subtle_silver">
+  <span class="ts_tip ts_tip_multiline ts_tip_top">
+    <a class="highlights_feedback_link">{{#t}}Highlighted message{{/t}}</a>
+    <span class="ts_tip_tip">
+      <span class="ts_tip_multiline_inner">{{#t}}Highlights are the messages most likely to interest you.{{/t}}</span>
+    </span>
+  </span>
+  {{#if _sli_received_feedback}}
+    {{#if _sli_feedback_value}}
+      \u2014 {{#t}}You marked this as <strong>helpful</strong>.{{/t}}
+    {{else}}
+      \u2014 {{#t}}You marked this as <strong>not helpful</strong>.{{/t}}
+    {{/if}}
+  {{else}}
+    \u2014 <span data-js="highlights_feedback" class="subtle_silver">{{#t}}Is this <a class="highlights_feedback_positive">helpful</a> or <a class="highlights_feedback_negative">not helpful</a>?{{/t}}</span>
+  {{/if}}
+</span>
