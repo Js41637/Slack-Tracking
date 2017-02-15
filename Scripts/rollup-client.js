@@ -1896,7 +1896,7 @@
         } else {
           label += "_group";
         }
-      } else {
+      } else if (model_ob.is_im) {
         label += "_im";
       }
       TS.metrics.measureAndClear(label, start_mark);

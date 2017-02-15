@@ -2217,41 +2217,31 @@
 (function() {
   "use strict";
   TS.registerModule("i18n", {
-    DE: "de",
-    ES: "es",
-    FR: "fr",
-    JP: "jp",
-    US: "en-US",
     onStart: function() {
       if (!_is_setup) _setup();
     },
-    t: function(key, ns) {
+    t: function(str, ns, locale) {
       if (!_is_setup) _setup();
-      if (typeof ns !== "string") {
+      if (!ns && _is_dev) {
         var log = TS.error ? TS.error : console.error;
         log.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + ns + ".");
         return function() {
           return "";
         };
       }
-      var translations = _namespaced(ns);
-      var translation = translations[key];
-      if (translation === undefined) {
-        if (!_is_dev || !_is_pseudo && TS.i18n.locale === _DEFAULT_LOCALE) {
-          translations[key] = new MessageFormat(TS.i18n.locale, key).format;
+      locale = locale || TS.i18n.locale;
+      var key = locale + ":" + ns + ":" + str;
+      if (_translations[key] === undefined) {
+        if (_is_dev && _is_pseudo) {
+          _translations[key] = new MessageFormat(locale, _getPseudoTranslation(str)).format;
         } else {
-          if (!_is_pseudo && TS.warn) {
-            TS.warn("i18n:", ns, '"' + key + '"', "has not yet been translated into", TS.i18n.locale);
-          }
-          translations[key] = new MessageFormat(TS.i18n.locale, _getPseudoTranslation(key)).format;
+          _translations[key] = new MessageFormat(locale, str).format;
         }
-      } else if (typeof translation !== "function") {
-        translations[key] = new MessageFormat(TS.i18n.locale, translation).format;
+        if (_is_dev && (TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path)) {
+          _translations[key].toString = _devWarningForImproperUse(key, ns);
+        }
       }
-      if (_is_dev && (TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path)) {
-        translations[key].toString = _devWarningForImproperUse(key, ns);
-      }
-      return translations[key];
+      return _translations[key];
     },
     number: function(num) {
       return new Intl.NumberFormat(TS.i18n.locale).format(num);
@@ -2272,7 +2262,7 @@
       var wrap_end = options && options.strong ? "</strong>" : "";
       var no_escape = options && options.no_escape;
       switch (TS.i18n.locale) {
-        case TS.i18n.JP:
+        case "ja-JP":
           and = ", ";
           break;
         default:
@@ -2291,9 +2281,9 @@
     }
   });
   var _is_setup;
-  var _translations;
   var _is_dev;
   var _is_pseudo;
+  var _translations = {};
   var _dev_warned_translations = [];
   var _setup = function() {
     _is_dev = location.host.match(/(dev[0-9]*)\.slack.com/);
@@ -2310,35 +2300,20 @@
     }
     if (TS.i18n.locale === _PSEUDO_LOCALE) {
       _is_pseudo = true;
-      TS.i18n.locale = _DEFAULT_LOCALE;
+      TS.i18n.locale = "fr-FR";
     } else {
       TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
     }
-    _translations = _is_dev ? window.ts_translations || {} : {};
     _is_setup = true;
   };
-  var _namespaced = function(namespace) {
-    var parts = namespace.split(".");
-    if (parts.length > 1) {
-      var i = 0;
-      var l = parts.length;
-      var translations = _translations;
-      for (i; i < l; i++) {
-        translations = translations[parts[i]];
-        if (translations === undefined) return {};
-      }
-      return translations;
-    }
-    return _translations[namespace] || {};
-  };
-  var _devWarningForImproperUse = function(key, ns) {
+  var _devWarningForImproperUse = function(str, ns) {
     return function() {
-      var dev_warning_key = ns + "." + key;
+      var dev_warning_key = ns + "." + str;
       if (_dev_warned_translations.indexOf(dev_warning_key) >= 0) return;
       _dev_warned_translations.push(dev_warning_key);
-      var example_invocation = "TS.i18n.t(" + JSON.stringify(key) + ", " + JSON.stringify(ns) + ")";
+      var example_invocation = "TS.i18n.t(" + JSON.stringify(str) + ", " + JSON.stringify(ns) + ")";
       TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + example_invocation + " when you meant to do " + example_invocation + "()");
-      alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + ns + "\nKey: " + key);
+      alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + ns + "\nString: " + str);
       return "";
     };
   };

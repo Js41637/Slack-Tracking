@@ -22476,12 +22476,12 @@ TS.registerModule("constants", {
         }
       });
       Handlebars.registerHelper("t", function(options) {
-        var key;
+        var str;
         if (typeof options === "string") {
-          key = options;
+          str = options;
           options = arguments[1];
         } else {
-          key = options.fn();
+          str = options.fn();
         }
         var ns;
         if (options.hash.ns !== undefined) {
@@ -22503,7 +22503,7 @@ TS.registerModule("constants", {
           modified_items[item] = data[item];
           data[item] = Handlebars.Utils.escapeExpression(options.hash[item]);
         }
-        var tokens = key.match(/{[^\s\}]+}/g);
+        var tokens = str.match(/{[^\s\}]+}/g);
         if (tokens && tokens.length) {
           var getValue = function(namespace) {
             var parts = namespace.split(".");
@@ -22537,7 +22537,7 @@ TS.registerModule("constants", {
           TS.info("debug handlerbars t helper");
           TS.info(this);
         }
-        var str = TS.i18n.t(key, ns)(data);
+        var str = TS.i18n.t(str, ns)(data);
         for (item in modified_items) {
           data[item] = modified_items[item];
         }
@@ -43437,7 +43437,8 @@ var _on_esc;
     });
     var sortChangeHandler = function(e) {
       var sort_by = $(this).val();
-      var teams = TS.enterprise.workspaces.getList(list, sort_by);
+      var filter_by = $search_input.val();
+      var teams = TS.enterprise.workspaces.getList(list, sort_by, filter_by);
       var html = "";
       if (teams.length) {
         teams.forEach(function(team) {
@@ -49904,7 +49905,7 @@ $.fn.togglify = function(settings) {
     bonus_points: {
       starred_channel: 10,
       member_of_this_channel: 10,
-      archived_channel_or_group: -25,
+      archived_channel_or_group: -50,
       not_in_channel: -25,
       usergroup_or_keyword: -25,
       fuzzy_match: 50,
