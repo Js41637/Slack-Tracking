@@ -9971,9 +9971,6 @@
               }
             },
             tabcomplete: {
-              completeMemberSpecials: true,
-              menuTemplate: TS.templates.tabcomplete_menu,
-              completers: [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members],
               appendMenu: function(menu) {
                 document.querySelector("#msg_form").appendChild(menu);
               },
@@ -9982,10 +9979,6 @@
                 menu.style.left = "42px";
                 menu.style.width = "90%";
               }
-            },
-            textsubstitutions: {
-              getTextPreferences: TS.utility.contenteditable.getTextPreferences,
-              replaceSmartQuotes: TS.format.texty.replaceSmartQuotes
             }
           },
           placeholder: $input.data("placeholder"),
@@ -10006,12 +9999,6 @@
             _maybeResize();
             _maybeStopPretendingToBeOnline();
             eventuallyOnTextChange(source);
-          },
-          attributes: {
-            role: "textarea",
-            tabindex: 0,
-            "aria-multiline": true,
-            "aria-haspopup": true
           }
         };
         if (TS.boot_data.feature_texty_rewrite_on_paste) {

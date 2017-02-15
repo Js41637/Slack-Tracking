@@ -22,7 +22,13 @@
           <td class="submission_modal_cell">{{desc}}</td>
         </tr>
       {{/if}}
-      {{#feature flag="feature_app_cards_and_profs_set_card_color"}}
+      {{#if long_desc_formatted}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Long Description{{/t}}</td>
+          <td class="submission_modal_cell">{{dangerouslyRenderHTML long_desc_formatted}}</td>
+        </tr>
+      {{/if}}
+      {{#feature flag="feature_better_app_info"}}
       {{#if app_card_color}}
         <tr>
           <td class="submission_modal_row_title">{{#t}}Background Color{{/t}}</td>
@@ -32,14 +38,6 @@
           </td>
         </tr>
       {{/if}}
-      {{/feature}}
-      {{#if long_desc_formatted}}
-        <tr>
-          <td class="submission_modal_row_title">{{#t}}Long Description{{/t}}</td>
-          <td class="submission_modal_cell">{{dangerouslyRenderHTML long_desc_formatted}}</td>
-        </tr>
-      {{/if}}
-      {{#feature flag="feature_app_info_youtube_url"}}
       {{#if youtube_url}}
         <tr>
           <td class="submission_modal_row_title">{{#t}}YouTube URL{{/t}}</td>

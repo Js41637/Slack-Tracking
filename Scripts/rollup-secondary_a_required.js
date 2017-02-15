@@ -2028,7 +2028,7 @@
       });
     };
     var ensureTeams = function() {
-      if (!TS.boot_data.feature_shared_channels_client) return;
+      if (!TS.boot_data.feature_shared_channels_client) return Promise.resolve();
       TS.console.log(528, 'running api data from "' + method + '" through TS.teams.ensureTeamsInDataArePresent()');
       return TS.teams.ensureTeamsInDataArePresent(data).catch(function(err) {
         TS.console.error(err);
@@ -10414,6 +10414,7 @@ TS.registerModule("constants", {
         return;
       }
       if (!_.isString(id)) return null;
+      if (TS.model.team.id === id) return TS.model.team;
       if (_id_map[id]) return _id_map[id];
       var teams = TS.model.teams;
       if (!teams) {
@@ -10428,6 +10429,7 @@ TS.registerModule("constants", {
           return team;
         }
       }
+      TS.console.warn("team " + id + " not in local model");
       return null;
     },
     getTeamByMsg: function(msg) {
@@ -28768,13 +28770,24 @@ TS.registerModule("constants", {
     },
     extractAllTeamIds: function(ob) {
       var t_ids = [];
-      _.values(ob).forEach(function(val) {
-        if (_.isObject(val)) {
+      _.toPairs(ob).forEach(function(pair) {
+        var key = pair[0];
+        var val = pair[1];
+        if (_.isArray(val)) {
+          if (key == "messages" || key == "teams" || key == "users") {
+            _.forEach(val, function(message) {
+              var new_team_ids = TS.utility.extractAllTeamIds(message);
+              t_ids.push(new_team_ids);
+            });
+          }
+        } else if (_.isObject(val)) {
           var new_team_ids = TS.utility.extractAllTeamIds(val);
           t_ids.push(new_team_ids);
         } else if (_.isString(val)) {
-          if (TS.utility.strLooksLikeATeamId(val)) {
-            t_ids.push(val);
+          if (key == "team" || key == "source_team" || key == "user_team" || key == "team_id") {
+            if (TS.utility.strLooksLikeATeamId(val)) {
+              t_ids.push(val);
+            }
           }
         }
       });
@@ -38863,9 +38876,6 @@ var _on_esc;
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
-              completeMemberSpecials: true,
-              menuTemplate: TS.templates.tabcomplete_menu,
-              completers: [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members],
               appendMenu: function(menu) {
                 document.querySelector("#message_edit_form").appendChild(menu);
               },
@@ -38874,13 +38884,8 @@ var _on_esc;
                 menu.style.left = "4.5rem";
                 menu.style.width = "80%";
               }
-            },
-            textsubstitutions: {
-              getTextPreferences: TS.utility.contenteditable.getTextPreferences,
-              replaceSmartQuotes: TS.format.texty.replaceSmartQuotes
             }
           },
-          placeholder: "",
           onEnter: function(args) {
             if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock(input)) {
               if (!args.shiftKey) return true;
@@ -38895,12 +38900,6 @@ var _on_esc;
           },
           onTextChange: function(source) {
             TS.msg_edit.checkLengthAndUpdateMessage(input);
-          },
-          attributes: {
-            role: "textarea",
-            tabindex: 0,
-            "aria-multiline": true,
-            "aria-haspopup": true
           }
         });
         TS.utility.contenteditable.enable(input);
@@ -55785,8 +55784,33 @@ $.fn.togglify = function(settings) {
       if (!input) return;
       if (_isFormElement(input)) return;
       if (_getTextyInstance(input)) return;
-      options.log = _.partial(TS.log, 116);
-      options.logError = TS.error;
+      var default_options = {
+        modules: {
+          tabcomplete: {
+            completeMemberSpecials: true,
+            menuTemplate: TS.templates.tabcomplete_menu,
+            completers: [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members]
+          },
+          textsubstitutions: {
+            getTextPreferences: TS.utility.contenteditable.getTextPreferences,
+            replaceSmartQuotes: TS.format.texty.replaceSmartQuotes
+          }
+        },
+        placeholder: "",
+        onEnter: function(args) {
+          return true;
+        },
+        onTextChange: _.noop,
+        attributes: {
+          role: "textarea",
+          tabindex: 0,
+          "aria-multiline": true,
+          "aria-haspopup": true
+        },
+        log: _.partial(TS.log, 116),
+        logError: TS.error
+      };
+      _.defaultsDeep(options, default_options);
       var texty = new Texty(input, options);
       _setTextyInstance(input, texty);
     },
@@ -56546,8 +56570,6 @@ $.fn.togglify = function(settings) {
       TS.utility.contenteditable.create($input, {
         modules: {
           tabcomplete: {
-            menuTemplate: TS.templates.tabcomplete_menu,
-            completers: [TS.tabcomplete.members, TS.tabcomplete.channels, TS.tabcomplete.emoji],
             appendMenu: function(menu) {
               document.querySelector($form).appendChild(menu);
             },
@@ -56560,6 +56582,11 @@ $.fn.togglify = function(settings) {
         },
         placeholder: opts.placeholder,
         onEnter: function(args) {
+          if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock($input)) {
+            if (!args.shiftKey) return true;
+          } else {
+            if (args.shiftKey) return true;
+          }
           if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input, $form, submit_fn);
           return false;
         },
