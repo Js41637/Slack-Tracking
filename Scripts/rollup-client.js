@@ -1038,10 +1038,14 @@
         TS.model.welcome_model_ob = slackbot;
       } else {
         TS.error("Tried to lookup Slackbot but failed");
-        var alert_msg = TS.i18n.t("Slack has encountered a problem and needs to reload.", "client")();
-        var alert_title = TS.i18n.t("Reload required", "client")();
-        var alert_btn = TS.i18n.t("Reload", "client")();
-        TS.generic_dialog.alert(alert_msg, alert_title, alert_btn).then(TS.reload);
+        TS.api.callImmediately("im.open", {
+          user: "USLACKBOT"
+        }).finally(function() {
+          var alert_msg = TS.i18n.t("Slack has encountered a problem and needs to reload.", "client")();
+          var alert_title = TS.i18n.t("Reload required", "client")();
+          var alert_btn = TS.i18n.t("Reload", "client")();
+          return TS.generic_dialog.alert(alert_msg, alert_title, alert_btn);
+        }).then(TS.reload);
       }
     };
     if (!window.location.pathname.match(/^\/(message|unreads|threads)/) && window.history) {
@@ -11915,24 +11919,22 @@
   var _setMutedDisplay = function() {
     if (!_model_ob) return;
     if (TS.client.activeChannelIsHidden()) return;
-    var is_muted = TS.notifs.isCorGMuted(_model_ob.id);
-    var bell = '<i class="ts_icon ts_icon_bell_slash ts_icon_inherit muted_icon"></i>';
-    var mute_tip = '<span class="ts_tip_tip">' + TS.i18n.t("Unmute", "client")() + "</span>";
-    var $mute_icon = $("#mute_container");
-    var muted_class = "muted";
-    var $channel_name = $("#channel_name");
     if (TS.model.active_im_id) {
       return;
     }
+    var mute_button_html = ['<button type="button" class="btn_unstyle mute_btn ts_tip ts_tip_bottom ts_tip_lazy"', ' title="' + TS.i18n.t("Unmute", "client")() + '"', ">", '<i class="ts_icon ts_icon_bell_slash ts_icon_inherit muted_icon"></i>', "</button>"].join("");
+    var $mute_container = $("#mute_container");
+    var muted_class = "muted";
+    var $channel_name = $("#channel_name");
+    var is_muted = TS.notifs.isCorGMuted(_model_ob.id);
     if (is_muted) {
-      $mute_icon.html(mute_tip + bell);
+      $mute_container.html(mute_button_html);
       $channel_name.addClass(muted_class);
-      $("#mute_container .muted_icon").bind("click", function(e) {
-        e.stopPropagation();
+      $(".mute_btn").bind("click", function(e) {
         TS.notifs.muteOrUnmuteCorG(_model_ob.id);
       });
     } else {
-      $mute_icon.empty();
+      $mute_container.empty();
       $channel_name.removeClass(muted_class);
     }
   };
@@ -34997,12 +34999,18 @@ function timezones_guess() {
   "use strict";
   TS.registerModule("ui.inline_edit", {
     onStart: function() {
-      $(document).on("click.ui_" + BASE_CLASS_NAME + "_start", "." + BASE_CLASS_NAME + "_inner", function(e) {
-        var $target = $(e.target);
-        var $wrapper = $target.closest("." + BASE_CLASS_NAME);
-        if (!$wrapper || !$wrapper.length) return;
-        var $link = $target.closest("a[href]");
-        if ($link && $link.length) return;
+      var delegation_selector = "." + BASE_CLASS_NAME + "_inner";
+      var event_namespace = ".ui_" + BASE_CLASS_NAME + "_start";
+      $(document).on("keydown" + event_namespace, delegation_selector, function(e) {
+        if (!(e.keyCode == 32 && !_editing)) {
+          return;
+        }
+        e.preventDefault();
+        var $wrapper = _getWrapperFromEventTarget(e);
+        TS.ui.inline_edit.start($wrapper);
+      });
+      $(document).on("click" + event_namespace, delegation_selector, function(e) {
+        var $wrapper = _getWrapperFromEventTarget(e);
         e.stopPropagation();
         TS.ui.inline_edit.start($wrapper);
       });
@@ -35078,6 +35086,14 @@ function timezones_guess() {
   var _unformatted_value;
   var _should_cancel_on_blur = true;
   var _editing = false;
+  var _getWrapperFromEventTarget = function(e) {
+    var $target = $(e.target);
+    var $wrapper = $target.closest("." + BASE_CLASS_NAME);
+    if (!$wrapper || !$wrapper.length) return;
+    var $link = $target.closest("a[href]");
+    if ($link && $link.length) return;
+    return $wrapper;
+  };
   var _start = function() {
     if (_editing) return;
     $(document).off(".ui_" + BASE_CLASS_NAME).on("keydown.ui_" + BASE_CLASS_NAME, _onKeyDown).on("mousedown.ui_" + BASE_CLASS_NAME, _onMouseDown);

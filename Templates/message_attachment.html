@@ -172,7 +172,13 @@
             }}{{#t date=(toCalendarDateOrNamedDayShort attachment.ts) time=(toTime attachment.ts)}}{date} at {time}{{/t}}{{!
             }}{{#if attachment._unfurl_type_message}}</a>{{/if}}{{!
           }}</span>
-        {{/if}}
+        {{/if}}{{!
+        }}{{#if attachment._attribution}}{{!
+          }}{{#t}}Added by{{/t}}
+          <a {{makeRefererSafeLink url=attachment._attribution_url}} class="attachment_attribution" data-attribution-bot-id="{{attachment.bot_id}}">{{!
+            }}{{attachment._attribution}}{{!
+          }}</a>{{!
+        }}{{/if}}
         {{#if_equal caret_location compare='footer'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}
         {{#if_equal caret_location compare='ts'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}
       </div>

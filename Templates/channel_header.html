@@ -31,7 +31,7 @@
       {{#if is_shared}}
         {{#if is_dm_or_mpdm}}{{else}}{{> shared_channel_icon tooltip=true tooltip_position='bottom'}}{{/if}}
       {{/if}}</span>{{!--
-      --}}<div class="channel_actions_container"><button type="button" id="mute_container" class="btn_unstyle mute_container ts_tip ts_tip_bottom"></button></div>
+      --}}<div class="channel_actions_container"><div id="mute_container"></div></div>
     </div>
 
     {{!-- line of misc meta below channel name (star, members, pins, topic, member name, presence, etc) --}}
@@ -90,8 +90,8 @@
       {{~#if show_topic~}}
         <div class="channel_header_info_item channel_topic_container">
           <span id="topic_inline_edit" class="channel_topic inline_edit">{{!--
-            --}}<span class="inline_edit_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
-              --}}<span tabindex="0" id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
+            --}}<span tabindex="0" class="inline_edit_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
+              --}}<span id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
             --}}</span>{{!--
           --}}</span>
         </div>

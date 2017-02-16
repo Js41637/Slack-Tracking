@@ -21740,7 +21740,9 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   top: -2px
 }
 
-.attachment_group .attachment_footer_text+.attachment_ts::before {
+.attachment_group .attachment_footer_text+.attachment_attribution::before,
+.attachment_group .attachment_footer_text+.attachment_ts::before,
+.attachment_group .attachment_ts+.attachment_attribution::before {
   content: '|';
   color: #e8e8e8;
   margin: 0 .25rem
@@ -24726,7 +24728,7 @@ ts-jumper ts-jumper-results:empty {
   font-style: italic
 }
 
-.channel_title .mute_container {
+.channel_title .mute_btn {
   z-index: auto
 }
 
@@ -24889,6 +24891,10 @@ ts-jumper ts-jumper-results:empty {
 #pinned_item_count .pinned_count_icon.is_filled:before {
   content: '\E547';
   color: #ff876d
+}
+
+.pin_count_new_pin_message {
+  display: block
 }
 
 .channel_topic,
