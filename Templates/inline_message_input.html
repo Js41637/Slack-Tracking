@@ -3,9 +3,9 @@
 <div class="inline_message_input_container">
   <form>
     {{#if is_texty}}
-      <div class="message_input"></div>
+      <div id="{{input_id}}" class="message_input"></div>
     {{else}}
-      <textarea class="message_input" spellcheck="{{should_spellcheck}}"></textarea>
+      <textarea id="{{input_id}}" class="message_input" spellcheck="{{should_spellcheck}}"></textarea>
     {{/if}}
 
     {{#if include_emo}}<button class="emo_menu btn_unstyle hidden" aria-label="{{#t}}emoji menu{{/t}}" type="button"><i class="ts_icon ts_icon_circle_fill"></i><i class="ts_icon ts_icon_smile_o"></i><i class="ts_icon ts_icon_happy_smile"></i></button>{{/if}}

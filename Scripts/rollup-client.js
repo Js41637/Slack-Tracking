@@ -25310,14 +25310,16 @@
         height: 156
       },
       fillRGBFields = function(hsb, cal) {
-        var rgb = hsbToRgb(hsb);
-        $(cal).data("colpick").fields.eq(1).val(rgb.r).end().eq(2).val(rgb.g).end().eq(3).val(rgb.b).end();
+        var rgb = hsbToRgb(hsb),
+          fieldIndex = TS.boot_data.feature_better_app_info ? 0 : 1;
+        $(cal).data("colpick").fields.eq(fieldIndex).val(rgb.r).end().eq(fieldIndex + 1).val(rgb.g).end().eq(fieldIndex + 2).val(rgb.b).end();
       },
       fillHSBFields = function(hsb, cal) {
-        $(cal).data("colpick").fields.eq(4).val(Math.round(hsb.h)).end().eq(5).val(Math.round(hsb.s)).end().eq(6).val(Math.round(hsb.b)).end();
+        var fieldIndex = TS.boot_data.feature_better_app_info ? 3 : 4;
+        $(cal).data("colpick").fields.eq(fieldIndex).val(Math.round(hsb.h)).end().eq(fieldIndex + 1).val(Math.round(hsb.s)).end().eq(fieldIndex + 2).val(Math.round(hsb.b)).end();
       },
       fillHexFields = function(hsb, cal) {
-        $(cal).data("colpick").fields.eq(0).val(hsbToHex(hsb));
+        $(cal).data("colpick").fields.eq(TS.boot_data.feature_better_app_info ? 6 : 0).val(hsbToHex(hsb));
       },
       setSelector = function(hsb, cal) {
         $(cal).data("colpick").selector.css("backgroundColor", "#" + hsbToHex({
@@ -25340,25 +25342,36 @@
         $(cal).data("colpick").newColor.css("backgroundColor", "#" + hsbToHex(hsb));
       },
       change = function(ev) {
-        var cal = $(this).parent().parent(),
-          col;
-        if (this.parentNode.className.indexOf("_hex") > 0) {
+        var cal, col, fieldIndex;
+        if (TS.boot_data.feature_better_app_info) {
+          cal = $(this).parents(".colpick");
+          fieldIndex = 0;
+        } else {
+          cal = $(this).parent().parent();
+          fieldIndex = 1;
+        }
+        if (TS.boot_data.feature_better_app_info && this.parentNode.className.indexOf("_swatches") > 0) {
+          col = hexToHsb($(ev.target).data("swatch-color"));
+          fillHexFields(col, cal.get(0));
+          fillRGBFields(col, cal.get(0));
+          fillHSBFields(col, cal.get(0));
+        } else if (this.parentNode.className.indexOf("_hex") > 0) {
           cal.data("colpick").color = col = hexToHsb(fixHex(this.value));
           fillRGBFields(col, cal.get(0));
           fillHSBFields(col, cal.get(0));
         } else if (this.parentNode.className.indexOf("_hsb") > 0) {
           cal.data("colpick").color = col = fixHSB({
-            h: parseInt(cal.data("colpick").fields.eq(4).val(), 10),
-            s: parseInt(cal.data("colpick").fields.eq(5).val(), 10),
-            b: parseInt(cal.data("colpick").fields.eq(6).val(), 10)
+            h: parseInt(cal.data("colpick").fields.eq(fieldIndex + 3).val(), 10),
+            s: parseInt(cal.data("colpick").fields.eq(fieldIndex + 4).val(), 10),
+            b: parseInt(cal.data("colpick").fields.eq(fieldIndex + 5).val(), 10)
           });
           fillRGBFields(col, cal.get(0));
           fillHexFields(col, cal.get(0));
         } else {
           cal.data("colpick").color = col = rgbToHsb(fixRGB({
-            r: parseInt(cal.data("colpick").fields.eq(1).val(), 10),
-            g: parseInt(cal.data("colpick").fields.eq(2).val(), 10),
-            b: parseInt(cal.data("colpick").fields.eq(3).val(), 10)
+            r: parseInt(cal.data("colpick").fields.eq(fieldIndex).val(), 10),
+            g: parseInt(cal.data("colpick").fields.eq(fieldIndex + 1).val(), 10),
+            b: parseInt(cal.data("colpick").fields.eq(fieldIndex + 2).val(), 10)
           }));
           fillHexFields(col, cal.get(0));
           fillHSBFields(col, cal.get(0));
@@ -25372,20 +25385,22 @@
         $(this).parent().removeClass("colpick_focus");
       },
       focus = function() {
-        $(this).parent().parent().data("colpick").fields.parent().removeClass("colpick_focus");
+        var cal = TS.boot_data.feature_better_app_info ? $(this).parents(".colpick") : $(this).parent().parent();
+        cal.data("colpick").fields.parent().removeClass("colpick_focus");
         $(this).parent().addClass("colpick_focus");
       },
       downIncrement = function(ev) {
         ev.preventDefault ? ev.preventDefault() : ev.returnValue = false;
-        var field = $(this).parent().find("input").focus();
-        var current = {
-          el: $(this).parent().addClass("colpick_slider"),
-          max: this.parentNode.className.indexOf("_hsb_h") > 0 ? 360 : this.parentNode.className.indexOf("_hsb") > 0 ? 100 : 255,
-          y: ev.pageY,
-          field: field,
-          val: parseInt(field.val(), 10),
-          preview: $(this).parent().parent().data("colpick").livePreview
-        };
+        var field = $(this).parent().find("input").focus(),
+          cal = TS.boot_data.feature_better_app_info ? $(this).parents(".colpick") : $(this).parent().parent(),
+          current = {
+            el: $(this).parent().addClass("colpick_slider"),
+            max: this.parentNode.className.indexOf("_hsb_h") > 0 ? 360 : this.parentNode.className.indexOf("_hsb") > 0 ? 100 : 255,
+            y: ev.pageY,
+            field: field,
+            val: parseInt(field.val(), 10),
+            preview: cal.data("colpick").livePreview
+          };
         $(document).mouseup(current, upIncrement);
         $(document).mousemove(current, moveIncrement);
       },
@@ -25412,12 +25427,12 @@
         $(document).on("mouseup touchend", current, upHue);
         $(document).on("mousemove touchmove", current, moveHue);
         var pageY = ev.type == "touchstart" ? ev.originalEvent.changedTouches[0].pageY : ev.pageY;
-        change.apply(current.cal.data("colpick").fields.eq(4).val(parseInt(360 * (current.cal.data("colpick").height - (pageY - current.y)) / current.cal.data("colpick").height, 10)).get(0), [current.cal.data("colpick").livePreview]);
+        change.apply(current.cal.data("colpick").fields.eq(TS.boot_data.feature_better_app_info ? 3 : 4).val(parseInt(360 * (current.cal.data("colpick").height - (pageY - current.y)) / current.cal.data("colpick").height, 10)).get(0), [current.cal.data("colpick").livePreview]);
         return false;
       },
       moveHue = function(ev) {
         var pageY = ev.type == "touchmove" ? ev.originalEvent.changedTouches[0].pageY : ev.pageY;
-        change.apply(ev.data.cal.data("colpick").fields.eq(4).val(parseInt(360 * (ev.data.cal.data("colpick").height - Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageY - ev.data.y))) / ev.data.cal.data("colpick").height, 10)).get(0), [ev.data.preview]);
+        change.apply(ev.data.cal.data("colpick").fields.eq(TS.boot_data.feature_better_app_info ? 3 : 4).val(parseInt(360 * (ev.data.cal.data("colpick").height - Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageY - ev.data.y))) / ev.data.cal.data("colpick").height, 10)).get(0), [ev.data.preview]);
         return false;
       },
       upHue = function(ev) {
@@ -25443,7 +25458,8 @@
           pageX = ev.pageX;
           pageY = ev.pageY;
         }
-        change.apply(current.cal.data("colpick").fields.eq(6).val(parseInt(100 * (current.cal.data("colpick").height - (pageY - current.pos.top)) / current.cal.data("colpick").height, 10)).end().eq(5).val(parseInt(100 * (pageX - current.pos.left) / current.cal.data("colpick").height, 10)).get(0), [current.preview]);
+        var fieldIndex = TS.boot_data.feature_better_app_info ? 4 : 5;
+        change.apply(current.cal.data("colpick").fields.eq(fieldIndex + 1).val(parseInt(100 * (current.cal.data("colpick").height - (pageY - current.pos.top)) / current.cal.data("colpick").height, 10)).end().eq(fieldIndex).val(parseInt(100 * (pageX - current.pos.left) / current.cal.data("colpick").height, 10)).get(0), [current.preview]);
         return false;
       },
       moveSelector = function(ev) {
@@ -25454,7 +25470,8 @@
           pageX = ev.pageX;
           pageY = ev.pageY;
         }
-        change.apply(ev.data.cal.data("colpick").fields.eq(6).val(parseInt(100 * (ev.data.cal.data("colpick").height - Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageY - ev.data.pos.top))) / ev.data.cal.data("colpick").height, 10)).end().eq(5).val(parseInt(100 * Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageX - ev.data.pos.left)) / ev.data.cal.data("colpick").height, 10)).get(0), [ev.data.preview]);
+        var fieldIndex = TS.boot_data.feature_better_app_info ? 4 : 5;
+        change.apply(ev.data.cal.data("colpick").fields.eq(fieldIndex + 1).val(parseInt(100 * (ev.data.cal.data("colpick").height - Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageY - ev.data.pos.top))) / ev.data.cal.data("colpick").height, 10)).end().eq(fieldIndex).val(parseInt(100 * Math.max(0, Math.min(ev.data.cal.data("colpick").height, pageX - ev.data.pos.left)) / ev.data.cal.data("colpick").height, 10)).get(0), [ev.data.preview]);
         return false;
       },
       upSelector = function(ev) {
@@ -25465,7 +25482,7 @@
         return false;
       },
       clickSubmit = function(ev) {
-        var cal = $(this).parent();
+        var cal = TS.boot_data.feature_better_app_info ? $(this).parents(".colpick") : $(this).parent();
         var col = cal.data("colpick").color;
         cal.data("colpick").origColor = col;
         setCurrentColor(col, cal.get(0));
@@ -25561,6 +25578,24 @@
         } else {
           return this;
         }
+        if (TS.boot_data.feature_better_app_info) {
+          tpl = '<div class="colpick feature_better_app_info"><div class="colpick_color"><div class="colpick_color_overlay1"><div class="colpick_color_overlay2"><div class="colpick_selector_outer"></div></div></div></div><div class="colpick_hue"><div class="colpick_hue_arrs"><div class="colpick_hue_larr"></div><div class="colpick_hue_rarr"></div></div></div><div class="colpick_controls"><div class="colpick_color_state"><div class="colpick_new_color"></div><div class="colpick_current_color"></div></div><div class="colpick_color_fields"><div class="colpick_rgb_hsb"><div class="colpick_rgb"><div class="colpick_rgb_r colpick_field"><div class="colpick_field_letter">R</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_g colpick_field"><div class="colpick_field_letter">G</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_rgb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div></div><div class="colpick_hsb"><div class="colpick_hsb_h colpick_field"><div class="colpick_field_letter">H</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_s colpick_field"><div class="colpick_field_letter">S</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div><div class="colpick_hsb_b colpick_field"><div class="colpick_field_letter">B</div><input type="text" maxlength="3" size="3" /><div class="colpick_field_arrs"><div class="colpick_field_uarr"></div><div class="colpick_field_darr"></div></div></div></div></div><div class="colpick_hex_submit"><div class="colpick_hex_field"><div class="colpick_field_letter">#</div><input type="text" maxlength="6" size="6" /></div><div class="colpick_submit"></div></div></div></div>';
+          if (opt.swatches && Array.isArray(opt.swatches)) {
+            var swatchesTpl = "",
+              swatchColor;
+            for (i = 0; i < opt.swatches.length; i++) {
+              swatchColor = opt.swatches[i];
+              if (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(swatchColor)) {
+                swatchesTpl += '<div class="colpick_swatch" style="background-color: ' + swatchColor + ';" data-swatch-color="' + swatchColor + '"></div>';
+              }
+            }
+            if (swatchesTpl) {
+              swatchesTpl = '<div class="colpick_swatches">' + swatchesTpl + "</div>";
+              tpl += swatchesTpl;
+            }
+          }
+          tpl += "</div>";
+        }
         return this.each(function() {
           if (!$(this).data("colpickId")) {
             var options = $.extend({}, opt);
@@ -25575,6 +25610,7 @@
             cal.find("div.colpick_submit").html(options.submitText).click(clickSubmit);
             options.fields = cal.find("input").change(change).blur(blur).focus(focus);
             cal.find("div.colpick_field_arrs").mousedown(downIncrement).end().find("div.colpick_current_color").click(restoreOriginal);
+            if (TS.boot_data.feature_better_app_info) options.swatches = cal.find(".colpick_swatch").click(change);
             options.selector = cal.find("div.colpick_color").on("mousedown touchstart", downSelector);
             options.selectorIndic = options.selector.find("div.colpick_selector_outer");
             options.el = this;
@@ -25608,10 +25644,11 @@
             setNewColor(options.color, cal.get(0));
             if (options.flat) {
               cal.appendTo(this).show();
-              cal.css({
-                position: "relative",
-                display: "block"
-              });
+              var css = {
+                position: "relative"
+              };
+              if (!TS.boot_data.feature_better_app_info) css.display = "block";
+              cal.css(css);
             } else {
               cal.appendTo(document.body);
               $(this).on(options.showEvent, show);
@@ -30132,7 +30169,9 @@
 (function() {
   "use strict";
   TS.registerModule("ui.channel_invite_modal", {
-    onStart: function() {},
+    onStart: function() {
+      _needs_async_data = TS.boot_data.page_needs_enterprise || TS.lazyLoadMembersAndBots();
+    },
     startInviteToChannelModal: function(channel_id, preselected_ids) {
       if (TS.isPartiallyBooted()) {
         return;
@@ -30146,7 +30185,7 @@
       preselected_ids = preselected_ids || [];
       var members_an_admin_could_invite;
       var members_you_can_invite;
-      if (TS.boot_data.page_needs_enterprise) {
+      if (_needs_async_data) {
         _selected_members = preselected_ids.map(function(id) {
           _selected_ids_map[id] = true;
           return TS.model.getMemberById(id);
@@ -30166,9 +30205,10 @@
       var template_args = {
         channel_name: channel.name,
         is_private: !!channel.is_group,
-        is_shared: channel.is_shared
+        is_shared: channel.is_shared,
+        async_data: _needs_async_data
       };
-      if (TS.boot_data.page_needs_enterprise) template_args.preselected = _selected_members;
+      if (_needs_async_data) template_args.preselected = _selected_members;
       var html = TS.templates.channel_invite_modal(template_args);
       TS.ui.fs_modal.start({
         body_template_html: html,
@@ -30191,7 +30231,7 @@
   var _has_invitable_members = true;
   var _keep_group_history = true;
   var _show_ra_tip = false;
-  var _lfs_instance;
+  var _$lfs_instance;
   var _$input;
   var _ladda;
   var _$list_container;
@@ -30201,6 +30241,7 @@
   var _selected_ids_map = {};
   var _member_searcher = {};
   var _APPROXIMATE_ITEM_HEIGHT = 64;
+  var _needs_async_data;
   var _onShow = function() {
     _$container = $("#channel_invite_modal");
     _$container.on("click", ".no_create_channel", function() {
@@ -30231,7 +30272,7 @@
     _has_invitable_members = true;
     _keep_group_history = true;
     _show_ra_tip = false;
-    _lfs_instance = null;
+    _$lfs_instance = null;
     _$input = null;
     _ladda = null;
     _$list_container = null;
@@ -30241,12 +30282,12 @@
     _selected_ids_map = {};
     if (_member_searcher._searcher_p) _member_searcher._searcher_p.cancel();
     _member_searcher = {};
-    if (TS.boot_data.page_needs_enterprise) TS.kb_nav.end();
+    if (_needs_async_data) TS.kb_nav.end();
     $(window).off("resize", _recomputeHeight);
   };
   var _go = function() {
     var $selected;
-    if (TS.boot_data.page_needs_enterprise) {
+    if (_needs_async_data) {
       if (!_selected_members.length) return;
     } else {
       $selected = $("#channel_invite_container").lazyFilterSelect("value");
@@ -30254,7 +30295,7 @@
     }
     if (_keep_group_history || _channel.is_channel) {
       var method = _channel.is_group ? "groups.invite" : "channels.invite";
-      if (TS.boot_data.page_needs_enterprise) {
+      if (_needs_async_data) {
         _.chunk(Object.keys(_selected_ids_map), 30).forEach(function(members) {
           TS.api.call(method, {
             channel: _channel.id,
@@ -30274,7 +30315,7 @@
     } else {
       if (_ladda) _ladda.start();
       var invited_members;
-      if (TS.boot_data.page_needs_enterprise) {
+      if (_needs_async_data) {
         invited_members = Object.keys(_selected_ids_map);
       } else {
         invited_members = $selected.map(function(item) {
@@ -30300,11 +30341,11 @@
   var _advanceToStepTwo = function() {
     $("#private_channel_invite_step_one").addClass("hidden");
     $("#channel_invite_container").removeClass("hidden");
-    if (TS.boot_data.page_needs_enterprise) _$container.find(".channel_invite_filter_container").removeClass("hidden");
+    if (_needs_async_data) _$container.find(".channel_invite_filter_container").removeClass("hidden");
     _bindUI();
   };
   var _bindUI = function() {
-    if (TS.boot_data.page_needs_enterprise) {
+    if (_needs_async_data) {
       _startLongListView();
     } else {
       _bindFilterSelect();
@@ -30533,10 +30574,11 @@
     var $el = $("#channel_invite_filter");
     var query = $el.val();
     $("#channel_invite_tokens").replaceWith(TS.templates.channel_invite_tokens({
-      members: _selected_members
+      members: _selected_members,
+      async_data: _needs_async_data
     }));
     $el = $("#channel_invite_filter");
-    if (!query && TS.boot_data.page_needs_enterprise) {
+    if (!query && _needs_async_data) {
       $el.focus();
     } else {
       $el.val("").trigger("input").focus();
@@ -30694,8 +30736,8 @@
         }
       }
     };
-    _lfs_instance = $container.lazyFilterSelect(opts);
-    _$input = _lfs_instance.find(".lfs_input");
+    _$lfs_instance = $container.lazyFilterSelect(opts);
+    _$input = _$lfs_instance.find(".lfs_input");
     $container.find(".lfs_list_container").on("mouseleave", function() {
       $(this).find(".lfs_item.active").removeClass("active");
     });
@@ -30715,7 +30757,7 @@
   };
   var _bindInviteButton = function() {
     var $container = $("#channel_invite_container");
-    if (_lfs_instance) {
+    if (_$lfs_instance) {
       var $input_container = $container.find(".lfs_input_container");
       $input_container.wrap("<div></div>");
       $input_container.attr("style", "max-width: 85%").addClass("inline_block").addClass("no_padding");
@@ -30734,8 +30776,8 @@
   };
   var _toggleEnterToGoLabel = function() {
     var $container = $("#channel_invite_container");
-    if (_lfs_instance) {
-      var $lazy_filter_select_value = _lfs_instance.lazyFilterSelect("value");
+    if (_$lfs_instance) {
+      var $lazy_filter_select_value = _$lfs_instance.lazyFilterSelect("value");
       var $enter_to_go_label = $container.find(".enter_to_go_label");
       if (_$input.val()) {
         $enter_to_go_label.addClass("hidden");
@@ -30744,7 +30786,7 @@
       } else {
         $enter_to_go_label.addClass("hidden");
       }
-    } else if (TS.boot_data.page_needs_enterprise) {
+    } else if (_needs_async_data) {
       var $return_hint = _$container.find(".return_hint");
       if ($("#channel_invite_filter").val()) {
         $return_hint.addClass("hidden");

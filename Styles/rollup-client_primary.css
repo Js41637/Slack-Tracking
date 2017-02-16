@@ -1475,6 +1475,271 @@ html.is_mac .CodeMirror .CodeMirror-sizer {
   border-color: #444
 }
 
+.feature_better_app_info.colpick {
+  width: 348px;
+  height: auto;
+  padding: 7px;
+  box-shadow: 0 0 16px rgba(0, 0, 0, .2);
+  display: flex;
+  flex-wrap: wrap
+}
+
+.feature_better_app_info .colpick_color {
+  position: static;
+  outline: 0;
+  border: 1px solid #aaa;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px
+}
+
+.feature_better_app_info .colpick_color_overlay1,
+.feature_better_app_info .colpick_color_overlay2 {
+  position: static
+}
+
+.feature_better_app_info .colpick_selector_outer {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #fff;
+  margin: 0
+}
+
+.feature_better_app_info .colpick_hue {
+  position: static;
+  cursor: ns-resize;
+  margin: 0 16px 0 14px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px
+}
+
+.feature_better_app_info .colpick_hue_arrs {
+  position: relative
+}
+
+.feature_better_app_info .colpick_controls {
+  display: flex;
+  flex-direction: column
+}
+
+.feature_better_app_info .colpick_color_state {
+  display: flex;
+  margin-bottom: 13px
+}
+
+.feature_better_app_info .colpick_new_color {
+  position: static;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px
+}
+
+.feature_better_app_info .colpick_current_color {
+  position: static;
+  margin-left: 7px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px
+}
+
+.feature_better_app_info .colpick_color_fields {
+  display: flex;
+  flex-direction: column
+}
+
+.feature_better_app_info .colpick_hex_submit,
+.feature_better_app_info .colpick_rgb_hsb {
+  display: flex
+}
+
+.feature_better_app_info .colpick_field,
+.feature_better_app_info .colpick_hex_field {
+  position: relative;
+  margin-bottom: 12px;
+  top: 0;
+  left: 0
+}
+
+.feature_better_app_info .colpick_hex_field,
+.feature_better_app_info .colpick_rgb {
+  margin-right: 7px;
+  width: 60px
+}
+
+.feature_better_app_info .colpick_field_letter {
+  position: static;
+  width: 14px;
+  padding-left: 0;
+  line-height: 19px;
+  text-align: center
+}
+
+.feature_better_app_info .colpick_field input,
+.feature_better_app_info .colpick_hex_field input {
+  position: relative;
+  margin: 0 1px 0 0;
+  top: -23px
+}
+
+.feature_better_app_info .colpick_hex_field input {
+  right: 1px
+}
+
+.feature_better_app_info .colpick_field_arrs {
+  height: 20px;
+  cursor: ns-resize
+}
+
+.feature_better_app_info .colpick_field_uarr {
+  position: relative;
+  top: 3px
+}
+
+.feature_better_app_info .colpick_field_darr {
+  position: relative;
+  bottom: -6px
+}
+
+.feature_better_app_info .colpick_submit {
+  position: static;
+  height: 20px;
+  width: 60px;
+  line-height: 20px
+}
+
+.feature_better_app_info .colpick_swatches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: calc(100% + 4px);
+  margin: 3px -4px 0 0
+}
+
+.feature_better_app_info .colpick_swatch {
+  width: 24px;
+  height: 24px;
+  background-color: red;
+  margin-top: 4px;
+  margin-right: 4px;
+  border-radius: 3px;
+  cursor: pointer
+}
+
+.feature_better_app_info.colpick_full .colpick_hex_field,
+.feature_better_app_info.colpick_full .colpick_submit {
+  margin-bottom: 0
+}
+
+.feature_better_app_info.colpick_full_ns .colpick_new_color {
+  width: 100%
+}
+
+.feature_better_app_info.colpick_full_ns .colpick_hex_field {
+  width: 100%;
+  margin-right: 0
+}
+
+.feature_better_app_info.colpick_full_ns .colpick_hex_field input {
+  width: 100%
+}
+
+.feature_better_app_info.colpick_rgbhex {
+  width: 296px
+}
+
+.feature_better_app_info.colpick_rgbhex .colpick_rgb {
+  margin-right: 0
+}
+
+.feature_better_app_info.colpick_rgbhex .colpick_hex_submit {
+  flex-direction: column
+}
+
+.feature_better_app_info.colpick_rgbhex .colpick_field,
+.feature_better_app_info.colpick_rgbhex .colpick_hex_field {
+  margin-bottom: 6px
+}
+
+.feature_better_app_info.colpick_rgbhex .colpick_field,
+.feature_better_app_info.colpick_rgbhex .colpick_hex_field,
+.feature_better_app_info.colpick_rgbhex .colpick_submit {
+  width: 75px;
+  margin-right: 0
+}
+
+.feature_better_app_info.colpick_rgbhex .colpick_color_state {
+  margin-bottom: 5px
+}
+
+.feature_better_app_info.colpick_rgbhex_ns .colpick_new_color {
+  width: 100%
+}
+
+.feature_better_app_info.colpick_rgbhex_ns .colpick_hex_field {
+  margin-bottom: 0
+}
+
+.feature_better_app_info.colpick_rgbhex_ns .colpick_color_state {
+  margin-bottom: 13px
+}
+
+.feature_better_app_info.colpick_rgbhex_ns .colpick_field {
+  margin-bottom: 12px
+}
+
+.feature_better_app_info.colpick_hex {
+  width: 214px;
+  height: auto
+}
+
+.feature_better_app_info.colpick_hex .colpick_controls {
+  flex-direction: row;
+  margin-bottom: 0;
+  margin-top: 7px
+}
+
+.feature_better_app_info.colpick_hex .colpick_color_state {
+  margin-bottom: 0
+}
+
+.feature_better_app_info.colpick_hex .colpick_hue {
+  margin-right: 7px
+}
+
+.feature_better_app_info.colpick_hex .colpick_hex_field {
+  width: 81px;
+  height: 27px;
+  margin: 0 7px
+}
+
+.feature_better_app_info.colpick_hex .colpick_hex_field input {
+  height: 28px;
+  line-height: 26px;
+  top: -26px;
+  right: -29px;
+  width: 49px
+}
+
+.feature_better_app_info.colpick_hex .colpick_submit {
+  width: 36px;
+  height: 27px;
+  line-height: 28px
+}
+
+.feature_better_app_info.colpick_hex_ns .colpick_new_color {
+  width: 81px
+}
+
+.feature_better_app_info.colpick_hex_ns .colpick_hex_field {
+  width: 110px
+}
+
+.feature_better_app_info.colpick_hex_ns .colpick_hex_field input {
+  width: 107px;
+  right: 0
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");

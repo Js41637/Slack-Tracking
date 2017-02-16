@@ -40067,6 +40067,8 @@ var _on_esc;
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
+  var _NUM_INVITES = 3;
+  var _modal_3_fields_group;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
     invalid_email: TS.i18n.t("That doesn’t look like a valid email address!", "invite")(),
@@ -40133,6 +40135,7 @@ var _on_esc;
   };
   var _start = function(options) {
     var account_type;
+    _modal_3_fields_group = TS.experiment.getGroup("modal_3_fields");
     if (_shouldSeeAccountTypeOptions()) {
       if (options && options.account_type) {
         account_type = options.account_type;
@@ -40209,6 +40212,13 @@ var _on_esc;
       TS.ui.admin_invites.populateInvites(_unprocessed_invites);
     } else {
       _addRow();
+    }
+    if (_modal_3_fields_group === "modal_3_fields") {
+      var current_num_of_invite_rows = _$div.find(".admin_invite_row").length;
+      if (current_num_of_invite_rows < _NUM_INVITES) {
+        var num_of_rows_to_add = _NUM_INVITES - current_num_of_invite_rows;
+        _.times(num_of_rows_to_add, _addRow);
+      }
     }
   };
   var _onCancel = function() {
@@ -40333,7 +40343,14 @@ var _on_esc;
     if (contact_data.items !== undefined) {
       var tooltip_text = TS.i18n.t("Type here to search your Google contacts", "invite")();
       var tooltip = '<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">' + tooltip_text + "</span></span>";
-      $("input.email_field:last").lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
+      if (_modal_3_fields_group === "modal_3_fields") {
+        var $first_empty_row = $("input.email_field").filter(function() {
+          return !this.value;
+        }).first();
+        $first_empty_row.lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
+      } else {
+        $("input.email_field:last").lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
+      }
     }
   };
   var _upsertEmailContactsData = function(elem, item) {
@@ -40385,7 +40402,9 @@ var _on_esc;
         $row.find('[name="last_name"]').val(email.last_name);
       }
     }
-    _updateSendButtonLabel();
+    if (_modal_3_fields_group !== "modal_3_fields") {
+      _updateSendButtonLabel();
+    }
     if (TS.google_auth.isAuthed(_google_auth_instance_id) && _google_contacts_data) {
       _startFilterSelectForEmailAddresses(_google_contacts_data);
     }
@@ -40423,7 +40442,9 @@ var _on_esc;
       } else if (row_count === 1) {
         _$div.find(".admin_invite_row").first().find(".delete_row").addClass("hidden");
       }
-      _updateSendButtonLabel();
+      if (_modal_3_fields_group !== "modal_3_fields") {
+        _updateSendButtonLabel();
+      }
     });
   };
   var _updateSendButtonLabel = function() {
@@ -40431,23 +40452,35 @@ var _on_esc;
     var account_type = $("#account_type").val();
     var label;
     if (account_type == "full") {
-      label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Person}other{Invite {invite_count} People}}", "invite")({
-        invite_count: invite_count
-      });
-    } else if (account_type == "restricted") {
-      label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Multi-Channel Guest}other{Invite {invite_count} Multi-Channel Guests}}", "invite")({
-        invite_count: invite_count
-      });
-    } else if (account_type == "ultra_restricted") {
-      label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest}other{Invite {invite_count} Single-Channel Guests}}", "invite")({
-        invite_count: invite_count
-      });
-      if ($("#ultra_restricted_channel_picker").val()) {
-        var ultra_restricted_channel = $("#ultra_restricted_channel_picker")[0].options[$("#ultra_restricted_channel_picker")[0].selectedIndex].text;
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest to {ultra_restricted_channel}}other{Invite {invite_count} Single-Channel Guests to {ultra_restricted_channel}}}", "invite")({
-          invite_count: invite_count,
-          ultra_restricted_channel: ultra_restricted_channel
+      if (_modal_3_fields_group === "modal_3_fields") {
+        label = TS.i18n.t("Send Invitations", "invite")();
+      } else {
+        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Person}other{Invite {invite_count} People}}", "invite")({
+          invite_count: invite_count
         });
+      }
+    } else if (account_type == "restricted") {
+      if (_modal_3_fields_group === "modal_3_fields") {
+        label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
+      } else {
+        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Multi-Channel Guest}other{Invite {invite_count} Multi-Channel Guests}}", "invite")({
+          invite_count: invite_count
+        });
+      }
+    } else if (account_type == "ultra_restricted") {
+      if (_modal_3_fields_group === "modal_3_fields") {
+        label = TS.i18n.t("Invite Single-Channel Guests", "invite")();
+      } else {
+        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest}other{Invite {invite_count} Single-Channel Guests}}", "invite")({
+          invite_count: invite_count
+        });
+        if ($("#ultra_restricted_channel_picker").val()) {
+          var ultra_restricted_channel = $("#ultra_restricted_channel_picker")[0].options[$("#ultra_restricted_channel_picker")[0].selectedIndex].text;
+          label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest to {ultra_restricted_channel}}other{Invite {invite_count} Single-Channel Guests to {ultra_restricted_channel}}}", "invite")({
+            invite_count: invite_count,
+            ultra_restricted_channel: ultra_restricted_channel
+          });
+        }
       }
     }
     _$div.find('button[data-action="api_send_invites"]').find(".ladda-label").text(label);
@@ -40522,7 +40555,11 @@ var _on_esc;
       _success_invites = [];
       _error_invites = [];
       _updateSendButtonLabel();
-      _addRow();
+      if (_modal_3_fields_group === "modal_3_fields") {
+        _.times(_NUM_INVITES, _addRow);
+      } else {
+        _addRow();
+      }
     }, 0);
   };
   var _resetBulkForm = function() {
@@ -43501,7 +43538,7 @@ var _on_esc;
       $container.addClass("hidden");
       $title_bar.addClass("hidden");
       $more_teams_available_message.addClass("hidden");
-      $search_input.addClass("hidden");
+      $search_input.addClass("hidden").attr("disabled", "disabled");
       $workspace_info.html(TS.templates.team_info({
         list: list
       })).removeClass("hidden").attr("data-team-id", team_id);
@@ -43554,7 +43591,7 @@ var _on_esc;
       window.history.back();
       $container.removeClass("hidden");
       $title_bar.removeClass("hidden");
-      $search_input.removeClass("hidden");
+      $search_input.removeClass("hidden").removeAttr("disabled");
       $workspace_info.addClass("hidden").attr("data-team-id", "");
       if ($more_teams_available_message.attr("data-has-more") === "yes") $more_teams_available_message.removeClass("hidden");
     });
@@ -43716,8 +43753,12 @@ var _on_esc;
     var $workspaces = $container.find(".workspaces");
     var $workspace_info = $container.find(".workspace_info");
     var $title_bar = $container.find(".title_bar");
+    var $sort_by = $container.find(".sort_by_container select");
+    var $search_input = $container.find('[data-qa="teams_search"]');
     var base_url = TS.boot_data.logout_url;
     $container.off();
+    $search_input.off();
+    $sort_by.off();
     $workspace_info.off();
     var _joinTeamHandler = function(team_id) {
       return TS.enterprise.workspaces.joinTeam(team_id).then(function(result) {
@@ -43734,9 +43775,25 @@ var _on_esc;
         return result;
       });
     };
-    $container.find(".sort_by_container select").on("change", function(e) {
+    $search_input.on("input", function(e) {
+      var filter_by = $(this).val();
+      var sort_by = $sort_by.val();
+      var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by, filter_by);
+      var html = "";
+      if (teams.length) {
+        teams.forEach(function(team) {
+          html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
+        });
+      } else {
+        html += TS.templates.no_workspace_results();
+      }
+      $workspaces.html(html);
+      _bindEvents();
+    });
+    $sort_by.on("change", function(e) {
       var sort_by = $(this).val();
-      var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by);
+      var filter_by = $search_input.val();
+      var teams = TS.enterprise.workspaces.getList("teams_not_on", sort_by, filter_by);
       var html = "";
       teams.forEach(function(team) {
         html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
@@ -43748,6 +43805,7 @@ var _on_esc;
       var team_id = $(this).data("id");
       $workspaces.addClass("hidden");
       $title_bar.addClass("hidden");
+      $search_input.addClass("hidden").attr("disabled", "disabled");
       $workspace_info.html(TS.templates.team_info({
         list: "teams_not_on"
       })).removeClass("hidden");
@@ -43776,6 +43834,7 @@ var _on_esc;
       e.preventDefault();
       $workspaces.removeClass("hidden");
       $title_bar.removeClass("hidden");
+      $search_input.removeClass("hidden").removeAttr("disabled");
       $workspace_info.addClass("hidden");
     });
     $workspace_info.on("click", 'button[data-qa="join-btn"]', function(e) {
@@ -50047,7 +50106,7 @@ $.fn.togglify = function(settings) {
       usergroup_or_keyword: -25,
       fuzzy_match: 50,
       exact_match: 100,
-      matches_previous_name: -25
+      matches_previous_name: -50
     }
   });
   var _frecency;
@@ -56662,6 +56721,7 @@ $.fn.togglify = function(settings) {
       var include_emo = !!(TS.client && !opts.no_emo);
       var should_spellcheck = !!(TS.client && TS.model.prefs.webapp_spellcheck);
       var html = TS.templates.inline_message_input({
+        input_id: _.uniqueId("inline_message_input_"),
         include_emo: include_emo,
         is_texty: TS.boot_data.feature_texty_takes_over,
         should_spellcheck: should_spellcheck
@@ -59577,16 +59637,16 @@ $.fn.togglify = function(settings) {
         case "en-US":
           ret_val = sign_symbol + currency_symbol + dollar_value;
           break;
-        case "es":
+        case "es-ES":
           ret_val = sign_symbol + dollar_value + " " + currency_symbol;
           break;
-        case "fr":
+        case "fr-FR":
           ret_val = sign_symbol + dollar_value + " " + currency_symbol;
           break;
-        case "de":
+        case "de-DE":
           ret_val = sign_symbol + dollar_value + " " + currency_symbol;
           break;
-        case "jp":
+        case "ja-JP":
           ret_val = sign_symbol + currency_symbol + dollar_value;
           break;
         default:
@@ -59689,25 +59749,25 @@ $.fn.togglify = function(settings) {
       decimal_symbol: ".",
       thousands_separator: ","
     },
-    es: {
+    "es-ES": {
       decimal_symbol: ",",
       thousands_separator: " "
     },
-    fr: {
+    "fr-FR": {
       decimal_symbol: ",",
       thousands_separator: " "
     },
-    jp: {
+    "ja-JP": {
       decimal_symbol: ".",
       thousands_separator: ","
     },
-    de: {
+    "de-DE": {
       decimal_symbol: ",",
       thousands_separator: "."
     }
   };
   var _has_Intl = window.Intl && typeof window.Intl === "object";
-  var _locale = TS.i18n.locale || "en_US";
+  var _locale = TS.i18n.locale || "en-US";
   var _number_format_cache = {};
   var _isInString = function(search_string, substr) {
     if (_.isEmpty(search_string) || _.isEmpty(substr)) return false;
@@ -60625,7 +60685,8 @@ $.fn.togglify = function(settings) {
         }
 
         function a(e, t) {
-          return e.add(t), e;
+          return e.add(t),
+            e;
         }
 
         function u(e, t, n) {
@@ -64771,8 +64832,8 @@ $.fn.togglify = function(settings) {
               _p = oi(function(e, t) {
                 return e - t;
               }, 0);
-            return n.after = Ru, n.ary = Ou, n.assign = Md, n.assignIn = Id, n.assignInWith = Ad, n.assignWith = jd, n.at = Nd, n.before = Pu, n.bind = cd, n.bindAll = np, n.bindKey = fd, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = la, n.concat = sa, n.cond = Ps, n.conforms = Ms, n.constant = Is, n.countBy = td, n.create = Il, n.curry = Mu, n.curryRight = Iu, n.debounce = Au, n.defaults = Ld, n.defaultsDeep = Dd, n.defer = dd, n.delay = pd, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = da, n.dropWhile = pa, n.fill = ha, n.filter = fu, n.flatMap = du, n.flatMapDeep = pu, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = ju, n.flow = rp, n.flowRight = op, n.fromPairs = ba, n.functions = Ul, n.functionsIn = Wl, n.groupBy = od, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zd, n.invertBy = Ud, n.invokeMap = id, n.iteratee = Ns, n.keyBy = ad, n.keys = Gl, n.keysIn = Vl, n.map = _u, n.mapKeys = Kl, n.mapValues = ql, n.matches = Ls, n.matchesProperty = Ds, n.memoize = Nu, n.merge = Fd, n.mergeWith = Hd, n.method = ip, n.methodOf = ap, n.mixin = zs, n.negate = Lu, n.nthArg = Fs, n.omit = Bd, n.omitBy = Yl, n.once = Du, n.orderBy = yu, n.over = up, n.overArgs = hd, n.overEvery = lp, n.overSome = sp, n.partial = vd, n.partialRight = md, n.partition = ud, n.pick = Gd, n.pickBy = $l, n.property = Hs, n.propertyOf = Bs, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Oa, n.pullAllWith = Pa, n.pullAt = Gf, n.range = cp, n.rangeRight = fp, n.rearg = gd, n.reject = wu, n.remove = Ma, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Ql, n.setWith = Zl, n.shuffle = Tu, n.slice = Aa, n.sortBy = ld, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = ys, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = Ka, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xl, n.toPairs = Vd, n.toPairsIn = Kd, n.toPath = Xs, n.toPlainObject = Ol, n.transform = Jl, n.unary = Fu, n.union = Vf, n.unionBy = Kf, n.unionWith = qf, n.uniq = qa, n.uniqBy = Ya, n.uniqWith = $a, n.unset = es, n.unzip = Xa, n.unzipWith = Qa, n.update = ts, n.updateWith = ns, n.values = rs, n.valuesIn = os, n.without = Yf, n.words = Os, n.wrap = Hu, n.xor = $f, n.xorBy = Xf, n.xorWith = Qf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vd, n.entriesIn = Kd, n.extend = Id, n.extendWith = Ad, zs(n, n), n.add = dp, n.attempt = tp, n.camelCase = qd, n.capitalize = ls, n.ceil = pp, n.clamp = is, n.clone = Gu,
-              n.cloneDeep = Ku, n.cloneDeepWith = qu, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ss, n.defaultTo = As, n.divide = hp, n.endsWith = cs, n.eq = $u, n.escape = fs, n.escapeRegExp = ds, n.every = cu, n.find = nd, n.findIndex = va, n.findKey = Al, n.findLast = rd, n.findLastIndex = ma, n.findLastKey = jl, n.floor = vp, n.forEach = vu, n.forEachRight = mu, n.forIn = Nl, n.forInRight = Ll, n.forOwn = Dl, n.forOwnRight = zl, n.get = Fl, n.gt = _d, n.gte = yd, n.has = Hl, n.hasIn = Bl, n.head = Ca, n.identity = js, n.includes = gu, n.indexOf = wa, n.inRange = as, n.invoke = Wd, n.isArguments = bd, n.isArray = Cd, n.isArrayBuffer = wd, n.isArrayLike = Xu, n.isArrayLikeObject = Qu, n.isBoolean = Zu, n.isBuffer = Sd, n.isDate = xd, n.isElement = Ju, n.isEmpty = el, n.isEqual = tl, n.isEqualWith = nl, n.isError = rl, n.isFinite = ol, n.isFunction = il, n.isInteger = al, n.isLength = ul, n.isMap = Td, n.isMatch = cl, n.isMatchWith = fl, n.isNaN = dl, n.isNative = pl, n.isNil = vl, n.isNull = hl, n.isNumber = ml, n.isObject = ll, n.isObjectLike = sl, n.isPlainObject = gl, n.isRegExp = kd, n.isSafeInteger = _l, n.isSet = Ed, n.isString = yl, n.isSymbol = bl, n.isTypedArray = Rd, n.isUndefined = Cl, n.isWeakMap = wl, n.isWeakSet = Sl, n.join = xa, n.kebabCase = Yd, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = $d, n.lowerFirst = Xd, n.lt = Od, n.lte = Pd, n.max = Zs, n.maxBy = Js, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gs, n.stubFalse = Vs, n.stubObject = Ks, n.stubString = qs, n.stubTrue = Ys, n.multiply = mp, n.nth = Ea, n.noConflict = Us, n.noop = Ws, n.now = sd, n.pad = ps, n.padEnd = hs, n.padStart = vs, n.parseInt = ms, n.random = us, n.reduce = bu, n.reduceRight = Cu, n.repeat = gs, n.replace = _s, n.result = Xl, n.round = gp, n.runInContext = e, n.sample = Su, n.size = ku, n.snakeCase = Qd, n.some = Eu, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zd, n.startsWith = bs, n.subtract = _p, n.sum = oc, n.sumBy = ic, n.template = Cs, n.times = $s, n.toFinite = Tl, n.toInteger = kl, n.toLength = El, n.toLower = ws, n.toNumber = Rl, n.toSafeInteger = Pl, n.toString = Ml, n.toUpper = Ss, n.trim = xs, n.trimEnd = Ts, n.trimStart = ks, n.truncate = Es, n.unescape = Rs, n.uniqueId = Qs, n.upperCase = Jd, n.upperFirst = ep, n.each = vu, n.eachRight = mu, n.first = Ca, zs(n, function() {
+            return n.after = Ru, n.ary = Ou, n.assign = Md, n.assignIn = Id, n.assignInWith = Ad, n.assignWith = jd, n.at = Nd, n.before = Pu, n.bind = cd, n.bindAll = np, n.bindKey = fd, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = la, n.concat = sa, n.cond = Ps, n.conforms = Ms, n.constant = Is, n.countBy = td, n.create = Il, n.curry = Mu,
+              n.curryRight = Iu, n.debounce = Au, n.defaults = Ld, n.defaultsDeep = Dd, n.defer = dd, n.delay = pd, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = da, n.dropWhile = pa, n.fill = ha, n.filter = fu, n.flatMap = du, n.flatMapDeep = pu, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = ju, n.flow = rp, n.flowRight = op, n.fromPairs = ba, n.functions = Ul, n.functionsIn = Wl, n.groupBy = od, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zd, n.invertBy = Ud, n.invokeMap = id, n.iteratee = Ns, n.keyBy = ad, n.keys = Gl, n.keysIn = Vl, n.map = _u, n.mapKeys = Kl, n.mapValues = ql, n.matches = Ls, n.matchesProperty = Ds, n.memoize = Nu, n.merge = Fd, n.mergeWith = Hd, n.method = ip, n.methodOf = ap, n.mixin = zs, n.negate = Lu, n.nthArg = Fs, n.omit = Bd, n.omitBy = Yl, n.once = Du, n.orderBy = yu, n.over = up, n.overArgs = hd, n.overEvery = lp, n.overSome = sp, n.partial = vd, n.partialRight = md, n.partition = ud, n.pick = Gd, n.pickBy = $l, n.property = Hs, n.propertyOf = Bs, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Oa, n.pullAllWith = Pa, n.pullAt = Gf, n.range = cp, n.rangeRight = fp, n.rearg = gd, n.reject = wu, n.remove = Ma, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Ql, n.setWith = Zl, n.shuffle = Tu, n.slice = Aa, n.sortBy = ld, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = ys, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = Ka, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xl, n.toPairs = Vd, n.toPairsIn = Kd, n.toPath = Xs, n.toPlainObject = Ol, n.transform = Jl, n.unary = Fu, n.union = Vf, n.unionBy = Kf, n.unionWith = qf, n.uniq = qa, n.uniqBy = Ya, n.uniqWith = $a, n.unset = es, n.unzip = Xa, n.unzipWith = Qa, n.update = ts, n.updateWith = ns, n.values = rs, n.valuesIn = os, n.without = Yf, n.words = Os, n.wrap = Hu, n.xor = $f, n.xorBy = Xf, n.xorWith = Qf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vd, n.entriesIn = Kd, n.extend = Id, n.extendWith = Ad, zs(n, n), n.add = dp, n.attempt = tp, n.camelCase = qd, n.capitalize = ls, n.ceil = pp, n.clamp = is, n.clone = Gu, n.cloneDeep = Ku, n.cloneDeepWith = qu, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ss, n.defaultTo = As, n.divide = hp, n.endsWith = cs, n.eq = $u, n.escape = fs, n.escapeRegExp = ds, n.every = cu, n.find = nd, n.findIndex = va, n.findKey = Al, n.findLast = rd, n.findLastIndex = ma, n.findLastKey = jl, n.floor = vp, n.forEach = vu, n.forEachRight = mu, n.forIn = Nl, n.forInRight = Ll, n.forOwn = Dl, n.forOwnRight = zl, n.get = Fl, n.gt = _d, n.gte = yd, n.has = Hl, n.hasIn = Bl, n.head = Ca, n.identity = js, n.includes = gu, n.indexOf = wa, n.inRange = as, n.invoke = Wd, n.isArguments = bd, n.isArray = Cd, n.isArrayBuffer = wd, n.isArrayLike = Xu, n.isArrayLikeObject = Qu, n.isBoolean = Zu, n.isBuffer = Sd, n.isDate = xd, n.isElement = Ju, n.isEmpty = el, n.isEqual = tl, n.isEqualWith = nl, n.isError = rl, n.isFinite = ol, n.isFunction = il, n.isInteger = al, n.isLength = ul, n.isMap = Td, n.isMatch = cl, n.isMatchWith = fl, n.isNaN = dl, n.isNative = pl, n.isNil = vl, n.isNull = hl, n.isNumber = ml, n.isObject = ll, n.isObjectLike = sl, n.isPlainObject = gl, n.isRegExp = kd, n.isSafeInteger = _l, n.isSet = Ed, n.isString = yl, n.isSymbol = bl, n.isTypedArray = Rd, n.isUndefined = Cl, n.isWeakMap = wl, n.isWeakSet = Sl, n.join = xa, n.kebabCase = Yd, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = $d, n.lowerFirst = Xd, n.lt = Od, n.lte = Pd, n.max = Zs, n.maxBy = Js, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gs, n.stubFalse = Vs, n.stubObject = Ks, n.stubString = qs, n.stubTrue = Ys, n.multiply = mp, n.nth = Ea, n.noConflict = Us, n.noop = Ws, n.now = sd, n.pad = ps, n.padEnd = hs, n.padStart = vs, n.parseInt = ms, n.random = us, n.reduce = bu, n.reduceRight = Cu, n.repeat = gs, n.replace = _s, n.result = Xl, n.round = gp, n.runInContext = e, n.sample = Su, n.size = ku, n.snakeCase = Qd, n.some = Eu, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zd, n.startsWith = bs, n.subtract = _p, n.sum = oc, n.sumBy = ic, n.template = Cs, n.times = $s, n.toFinite = Tl, n.toInteger = kl, n.toLength = El, n.toLower = ws, n.toNumber = Rl, n.toSafeInteger = Pl, n.toString = Ml, n.toUpper = Ss, n.trim = xs, n.trimEnd = Ts, n.trimStart = ks, n.truncate = Es, n.unescape = Rs, n.uniqueId = Qs, n.upperCase = Jd, n.upperFirst = ep, n.each = vu, n.eachRight = mu, n.first = Ca, zs(n, function() {
                 var e = {};
                 return nr(n, function(t, r) {
                   bc.call(n.prototype, r) || (e[r] = t);
@@ -74156,7 +74217,8 @@ $.fn.togglify = function(settings) {
                 cellSizeAndPositionGetter: n,
                 sectionSize: r
               });
-            this._cellMetadata = o.cellMetadata, this._sectionManager = o.sectionManager, this._height = o.height, this._width = o.width;
+            this._cellMetadata = o.cellMetadata, this._sectionManager = o.sectionManager,
+              this._height = o.height, this._width = o.width;
           }
         }, {
           key: "getLastRenderedIndices",
