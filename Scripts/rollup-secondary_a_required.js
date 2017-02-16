@@ -15506,11 +15506,13 @@ TS.registerModule("constants", {
         }
         TS.model.ms_reconnect_ms = Math.min(TS.model.ms_reconnect_ms, 3e5);
       }
-      if (TS.model.rtm_start_throttler > 5) {
-        var min_ms = 2e3 * TS.model.rtm_start_throttler;
-        if (TS.model.ms_reconnect_ms < min_ms) {
-          TS.info("because TS.model.rtm_start_throttler:" + TS.model.rtm_start_throttler + " we are increasing time until next login call");
-          TS.model.ms_reconnect_ms = min_ms;
+      if (!_isReconnectUrlValid()) {
+        if (TS.model.rtm_start_throttler > 5) {
+          var min_ms = 2e3 * TS.model.rtm_start_throttler;
+          if (TS.model.ms_reconnect_ms < min_ms) {
+            TS.info("because TS.model.rtm_start_throttler:" + TS.model.rtm_start_throttler + " we are increasing time until next login call");
+            TS.model.ms_reconnect_ms = min_ms;
+          }
         }
       }
       if (TS.model.ms_connected) {
@@ -15925,15 +15927,16 @@ TS.registerModule("constants", {
     _cancelProvisionalConnectionTimeout();
     if (e) {
       TS.info("_onDisconnect event.code:" + e.code);
-      if (e.code == TS.ms.errors.CONNECTION_TROUBLE && false) {
-        TS.generic_dialog.start({
-          title: TS.i18n.t("Connection trouble error #1006", "ms")(),
-          body: TS.i18n.t("Apologies, we’re having some trouble with your connection. The particular error code indicates that restarting the application might fix it.", "ms")(),
-          show_cancel_button: false,
-          show_go_button: true,
-          go_button_text: TS.i18n.t("OK", "ms")(),
-          esc_for_ok: true
-        });
+      if (e.code == TS.ms.errors.CONNECTION_TROUBLE) {
+        TS.info("TS.ms: This was an unexpected WebSocket disconnection");
+        if (TS.model.ms_reconnect_ms) {
+          TS.info("TS.ms: resetting ms_reconnect delay");
+          TS.model.ms_reconnect_ms = 0;
+        }
+        if (TS.model.rtm_start_throttler) {
+          TS.info("TS.ms: resetting rtm.start throttler");
+          TS.model.rtm_start_throttler = 0;
+        }
       }
     } else {
       TS.info("no event");
@@ -45924,11 +45927,6 @@ $.fn.togglify = function(settings) {
       var can_toggle_private = TS.permissions.members.canCreateChannels() && TS.permissions.members.canCreateGroups();
       title = TS.utility.cleanChannelName(title || "").substr(0, TS.model.channel_name_max_length);
       preselected_ids = preselected_ids || [];
-      var members_you_can_invite = TS.groups.getActiveMembersForInviting(TS.model.user.is_admin);
-      members_you_can_invite = members_you_can_invite.filter(function(member) {
-        return member._is_local;
-      });
-      var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(members_you_can_invite, preselected_ids);
       _$modal_container.html(TS.templates.channel_new_modal({
         title: title,
         is_public: _is_public,
@@ -45937,24 +45935,7 @@ $.fn.togglify = function(settings) {
         is_ra: TS.model.user.is_restricted
       }));
       _ladda = Ladda.create(_$modal_container.find(".new_channel_go")[0]);
-      invite_members.sort(function(a, b) {
-        return TS.members.memberSorterByName(a.member, b.member);
-      });
-      _bindUI(invite_members);
-      if (TS.model.user.is_admin) {
-        TS.api.call("users.admin.invited").then(function(resp) {
-          var pending_invites = TS.pending_users.filterOutURAs(resp.data.pending);
-          if (_$modal_container && pending_invites.length) {
-            pending_invites.forEach(function(invitee) {
-              TS.pending_users.sanitizeNameFields(invitee);
-            });
-            invite_members = invite_members.concat(pending_invites).sort(function(a, b) {
-              return TS.pending_users.usersSorterByName(a, b);
-            });
-            _updateFilterSelect(invite_members);
-          }
-        });
-      }
+      _bindUI(preselected_ids);
       return new Promise(function(resolve, reject) {
         _deferred = {
           resolve: resolve,
@@ -46030,13 +46011,113 @@ $.fn.togglify = function(settings) {
       }
     });
   };
-  var _bindFilterSelect = function(members) {
+  var _legacyDetermineInviteMembers = function(preselected_ids) {
+    if (TS.lazyLoadMembersAndBots()) {
+      throw new Error("_legacyDetermineInviteMembers should not be called if flannel is enabled!");
+    }
+    var members_you_can_invite = TS.groups.getActiveMembersForInviting(TS.model.user.is_admin);
+    members_you_can_invite = members_you_can_invite.filter(function(member) {
+      return member._is_local;
+    });
+    var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(members_you_can_invite, preselected_ids);
+    invite_members.sort(function(a, b) {
+      return TS.members.memberSorterByName(a.member, b.member);
+    });
+    return invite_members;
+  };
+  var _maybeFetchEligiblePendingMembers = function() {
+    return new Promise(function(resolve, reject) {
+      if (TS.model.user.is_admin) {
+        TS.api.call("users.admin.invited").then(function(resp) {
+          var pending_invites = TS.pending_users.filterOutURAs(resp.data.pending);
+          if (pending_invites.length) {
+            pending_invites.forEach(function(invitee) {
+              TS.pending_users.sanitizeNameFields(invitee);
+            });
+            resolve(pending_invites);
+          } else {
+            resolve([]);
+          }
+        });
+      } else {
+        resolve([]);
+      }
+    });
+  };
+  var _buildMembersSelectDataPromise = function(preselected_ids) {
+    var first_call = true;
+    var invited_members_p = _maybeFetchEligiblePendingMembers();
+    return function(query, pageNumber) {
+      if (query.charAt(0) === "@") query = query.substring(1);
+      var load_promise;
+      var should_prepopulate_users = false;
+      if (first_call) {
+        first_call = false;
+        if (_.get(preselected_ids, "length")) {
+          should_prepopulate_users = true;
+        }
+      }
+      if (should_prepopulate_users) {
+        var selected_members = _.compact(preselected_ids.map(TS.members.getMemberById));
+        var items = selected_members.map(function(member) {
+          return {
+            member: member,
+            lfs_id: String(member.id),
+            preselected: true
+          };
+        });
+        return Promise.resolve({
+          items: items
+        });
+      } else if (pageNumber > 0) {
+        return Promise.resolve({
+          items: []
+        });
+      } else {
+        load_promise = _getSearchPromise(query);
+      }
+      return Promise.all([load_promise, invited_members_p]).then(function(responses) {
+        var members = responses[0];
+        var invited_members = responses[1];
+        if (_.isUndefined(invited_members) || invited_members.length === 0) {
+          return members;
+        }
+        var start_regex = new RegExp("^" + TS.utility.regexpEscape(query), "i");
+        var suffix_regex = new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(query), "i");
+        invited_members = invited_members.filter(function(item) {
+          return TS.pending_users.checkUserMatch(item, start_regex) || TS.pending_users.checkUserMatch(item, suffix_regex);
+        });
+        var members = members.concat(invited_members).sort(function(a, b) {
+          return TS.pending_users.usersSorterByName(a, b);
+        });
+        return members;
+      });
+    };
+  };
+  var _getSearchPromise = function(query) {
+    return TS.flannel.fetchAndUpsertObjectsWithQuery(query).then(function(response) {
+      var items = [];
+      if (query === "") {
+        items = TS.members.getMembersForUser();
+      } else {
+        items = response.objects;
+      }
+      items = _(items).map(function(item) {
+        if (item.is_ultra_restricted) return;
+        return {
+          member: item,
+          lfs_id: String(item.id)
+        };
+      }).compact().value();
+      return items;
+    });
+  };
+  var _bindFilterSelect = function(preselected_ids) {
     var prev_query;
     var start_regex;
     var suffix_regex;
-    $("#invite_members_container").lazyFilterSelect({
+    var lazy_filter_select_opts = {
       append: true,
-      data: members,
       per_page: 50,
       approx_item_height: 50 * TS.utility.getA11yFontSizeMultiplier(),
       placeholder_text: TS.i18n.t("Search by name", "new_channel")(),
@@ -46096,10 +46177,26 @@ $.fn.togglify = function(settings) {
           });
         }
       }
-    });
+    };
+    if (TS.lazyLoadMembersAndBots()) {
+      lazy_filter_select_opts.data_promise = _buildMembersSelectDataPromise(preselected_ids);
+    } else {
+      var members = _legacyDetermineInviteMembers(preselected_ids);
+      lazy_filter_select_opts.data = members;
+      _maybeFetchEligiblePendingMembers().then(function(pending_invites) {
+        if (!pending_invites || !pending_invites.length) return;
+        var invite_members = members.concat(pending_invites).sort(function(a, b) {
+          return TS.pending_users.usersSorterByName(a, b);
+        });
+        if (_$modal_container) {
+          _updateFilterSelect(invite_members);
+        }
+      });
+    }
+    $("#invite_members_container").lazyFilterSelect(lazy_filter_select_opts);
   };
-  var _bindUI = function(members) {
-    _bindFilterSelect(members);
+  var _bindUI = function(preselected_ids) {
+    _bindFilterSelect(preselected_ids);
     _$modal_container.find(".lfs_input").attr("id", "invite_members_input");
     _$modal_container.find(".new_channel_go").click(TS.ui.new_channel_modal.go);
     _bindKeyboardShortcuts();
@@ -46184,6 +46281,9 @@ $.fn.togglify = function(settings) {
     });
   };
   var _updateFilterSelect = function(members) {
+    if (TS.lazyLoadMembersAndBots()) {
+      return;
+    }
     var lfs_id_count = 0;
     members.forEach(function(member) {
       member.lfs_id = lfs_id_count;
@@ -64671,125 +64771,126 @@ $.fn.togglify = function(settings) {
               _p = oi(function(e, t) {
                 return e - t;
               }, 0);
-            return n.after = Ru, n.ary = Ou, n.assign = Md, n.assignIn = Id, n.assignInWith = Ad, n.assignWith = jd, n.at = Nd, n.before = Pu, n.bind = cd, n.bindAll = np, n.bindKey = fd, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = la, n.concat = sa, n.cond = Ps, n.conforms = Ms, n.constant = Is, n.countBy = td, n.create = Il, n.curry = Mu, n.curryRight = Iu, n.debounce = Au, n.defaults = Ld, n.defaultsDeep = Dd, n.defer = dd, n.delay = pd, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = da, n.dropWhile = pa, n.fill = ha, n.filter = fu, n.flatMap = du, n.flatMapDeep = pu, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = ju, n.flow = rp, n.flowRight = op, n.fromPairs = ba, n.functions = Ul, n.functionsIn = Wl, n.groupBy = od, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zd, n.invertBy = Ud, n.invokeMap = id, n.iteratee = Ns, n.keyBy = ad, n.keys = Gl, n.keysIn = Vl, n.map = _u, n.mapKeys = Kl, n.mapValues = ql, n.matches = Ls, n.matchesProperty = Ds, n.memoize = Nu, n.merge = Fd, n.mergeWith = Hd, n.method = ip, n.methodOf = ap, n.mixin = zs, n.negate = Lu, n.nthArg = Fs, n.omit = Bd, n.omitBy = Yl, n.once = Du, n.orderBy = yu, n.over = up, n.overArgs = hd, n.overEvery = lp, n.overSome = sp, n.partial = vd, n.partialRight = md, n.partition = ud, n.pick = Gd, n.pickBy = $l, n.property = Hs, n.propertyOf = Bs, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Oa, n.pullAllWith = Pa, n.pullAt = Gf, n.range = cp, n.rangeRight = fp, n.rearg = gd, n.reject = wu, n.remove = Ma, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Ql, n.setWith = Zl, n.shuffle = Tu, n.slice = Aa, n.sortBy = ld, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = ys, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = Ka, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xl, n.toPairs = Vd, n.toPairsIn = Kd, n.toPath = Xs, n.toPlainObject = Ol, n.transform = Jl, n.unary = Fu, n.union = Vf, n.unionBy = Kf, n.unionWith = qf, n.uniq = qa, n.uniqBy = Ya, n.uniqWith = $a, n.unset = es, n.unzip = Xa, n.unzipWith = Qa, n.update = ts, n.updateWith = ns, n.values = rs, n.valuesIn = os, n.without = Yf, n.words = Os, n.wrap = Hu, n.xor = $f, n.xorBy = Xf, n.xorWith = Qf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vd, n.entriesIn = Kd, n.extend = Id, n.extendWith = Ad, zs(n, n), n.add = dp, n.attempt = tp, n.camelCase = qd, n.capitalize = ls, n.ceil = pp, n.clamp = is, n.clone = Gu, n.cloneDeep = Ku, n.cloneDeepWith = qu, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ss, n.defaultTo = As, n.divide = hp, n.endsWith = cs, n.eq = $u, n.escape = fs, n.escapeRegExp = ds, n.every = cu, n.find = nd, n.findIndex = va, n.findKey = Al, n.findLast = rd, n.findLastIndex = ma, n.findLastKey = jl, n.floor = vp, n.forEach = vu, n.forEachRight = mu, n.forIn = Nl, n.forInRight = Ll, n.forOwn = Dl, n.forOwnRight = zl, n.get = Fl, n.gt = _d, n.gte = yd, n.has = Hl, n.hasIn = Bl, n.head = Ca, n.identity = js, n.includes = gu, n.indexOf = wa, n.inRange = as, n.invoke = Wd, n.isArguments = bd, n.isArray = Cd, n.isArrayBuffer = wd, n.isArrayLike = Xu, n.isArrayLikeObject = Qu, n.isBoolean = Zu, n.isBuffer = Sd, n.isDate = xd, n.isElement = Ju, n.isEmpty = el, n.isEqual = tl, n.isEqualWith = nl, n.isError = rl, n.isFinite = ol, n.isFunction = il, n.isInteger = al, n.isLength = ul, n.isMap = Td, n.isMatch = cl, n.isMatchWith = fl, n.isNaN = dl, n.isNative = pl, n.isNil = vl, n.isNull = hl, n.isNumber = ml, n.isObject = ll, n.isObjectLike = sl, n.isPlainObject = gl, n.isRegExp = kd, n.isSafeInteger = _l, n.isSet = Ed, n.isString = yl, n.isSymbol = bl, n.isTypedArray = Rd, n.isUndefined = Cl, n.isWeakMap = wl, n.isWeakSet = Sl, n.join = xa, n.kebabCase = Yd, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = $d, n.lowerFirst = Xd, n.lt = Od, n.lte = Pd, n.max = Zs, n.maxBy = Js, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gs, n.stubFalse = Vs, n.stubObject = Ks, n.stubString = qs, n.stubTrue = Ys, n.multiply = mp, n.nth = Ea, n.noConflict = Us, n.noop = Ws, n.now = sd, n.pad = ps, n.padEnd = hs, n.padStart = vs, n.parseInt = ms, n.random = us, n.reduce = bu, n.reduceRight = Cu, n.repeat = gs, n.replace = _s, n.result = Xl, n.round = gp, n.runInContext = e, n.sample = Su, n.size = ku, n.snakeCase = Qd, n.some = Eu, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zd, n.startsWith = bs, n.subtract = _p, n.sum = oc, n.sumBy = ic, n.template = Cs, n.times = $s, n.toFinite = Tl, n.toInteger = kl, n.toLength = El, n.toLower = ws, n.toNumber = Rl, n.toSafeInteger = Pl, n.toString = Ml, n.toUpper = Ss, n.trim = xs, n.trimEnd = Ts, n.trimStart = ks, n.truncate = Es, n.unescape = Rs, n.uniqueId = Qs, n.upperCase = Jd, n.upperFirst = ep, n.each = vu, n.eachRight = mu, n.first = Ca, zs(n, function() {
-              var e = {};
-              return nr(n, function(t, r) {
-                bc.call(n.prototype, r) || (e[r] = t);
-              }), e;
-            }(), {
-              chain: !1
-            }), n.VERSION = ie, s(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
-              n[e].placeholder = n;
-            }), s(["drop", "take"], function(e, t) {
-              b.prototype[e] = function(n) {
-                n = n === oe ? 1 : $c(kl(n), 0);
-                var r = this.__filtered__ && !t ? new b(this) : this.clone();
-                return r.__filtered__ ? r.__takeCount__ = Xc(n, r.__takeCount__) : r.__views__.push({
-                  size: Xc(n, ze),
-                  type: e + (r.__dir__ < 0 ? "Right" : "")
-                }), r;
-              }, b.prototype[e + "Right"] = function(t) {
-                return this.reverse()[e](t).reverse();
-              };
-            }), s(["filter", "map", "takeWhile"], function(e, t) {
-              var n = t + 1,
-                r = n == Me || n == Ae;
-              b.prototype[e] = function(e) {
-                var t = this.clone();
-                return t.__iteratees__.push({
-                  iteratee: Ti(e, 3),
-                  type: n
-                }), t.__filtered__ = t.__filtered__ || r, t;
-              };
-            }), s(["head", "last"], function(e, t) {
-              var n = "take" + (t ? "Right" : "");
-              b.prototype[e] = function() {
-                return this[n](1).value()[0];
-              };
-            }), s(["initial", "tail"], function(e, t) {
-              var n = "drop" + (t ? "" : "Right");
-              b.prototype[e] = function() {
-                return this.__filtered__ ? new b(this) : this[n](1);
-              };
-            }), b.prototype.compact = function() {
-              return this.filter(js);
-            }, b.prototype.find = function(e) {
-              return this.filter(e).head();
-            }, b.prototype.findLast = function(e) {
-              return this.reverse().find(e);
-            }, b.prototype.invokeMap = io(function(e, t) {
-              return "function" == typeof e ? new b(this) : this.map(function(n) {
-                return Rr(n, e, t);
-              });
-            }), b.prototype.reject = function(e) {
-              return this.filter(Lu(Ti(e)));
-            }, b.prototype.slice = function(e, t) {
-              e = kl(e);
-              var n = this;
-              return n.__filtered__ && (e > 0 || t < 0) ? new b(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== oe && (t = kl(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
-            }, b.prototype.takeRightWhile = function(e) {
-              return this.reverse().takeWhile(e).reverse();
-            }, b.prototype.toArray = function() {
-              return this.take(ze);
-            }, nr(b.prototype, function(e, t) {
-              var r = /^(?:filter|find|map|reject)|While$/.test(t),
-                i = /^(?:head|last)$/.test(t),
-                a = n[i ? "take" + ("last" == t ? "Right" : "") : t],
-                u = i || /^find/.test(t);
-              a && (n.prototype[t] = function() {
-                var t = this.__wrapped__,
-                  l = i ? [1] : arguments,
-                  s = t instanceof b,
-                  c = l[0],
-                  f = s || Cd(t),
-                  d = function(e) {
-                    var t = a.apply(n, m([e], l));
-                    return i && p ? t[0] : t;
-                  };
-                f && r && "function" == typeof c && 1 != c.length && (s = f = !1);
-                var p = this.__chain__,
-                  h = !!this.__actions__.length,
-                  v = u && !p,
-                  g = s && !h;
-                if (!u && f) {
-                  t = g ? t : new b(this);
-                  var _ = e.apply(t, l);
-                  return _.__actions__.push({
-                    func: nu,
-                    args: [d],
-                    thisArg: oe
-                  }), new o(_, p);
-                }
-                return v && g ? e.apply(this, l) : (_ = this.thru(d), v ? i ? _.value()[0] : _.value() : _);
-              });
-            }), s(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
-              var t = vc[e],
-                r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
-                o = /^(?:pop|shift)$/.test(e);
-              n.prototype[e] = function() {
-                var e = arguments;
-                if (o && !this.__chain__) {
-                  var n = this.value();
-                  return t.apply(Cd(n) ? n : [], e);
-                }
-                return this[r](function(n) {
-                  return t.apply(Cd(n) ? n : [], e);
+            return n.after = Ru, n.ary = Ou, n.assign = Md, n.assignIn = Id, n.assignInWith = Ad, n.assignWith = jd, n.at = Nd, n.before = Pu, n.bind = cd, n.bindAll = np, n.bindKey = fd, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = la, n.concat = sa, n.cond = Ps, n.conforms = Ms, n.constant = Is, n.countBy = td, n.create = Il, n.curry = Mu, n.curryRight = Iu, n.debounce = Au, n.defaults = Ld, n.defaultsDeep = Dd, n.defer = dd, n.delay = pd, n.difference = Df, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = da, n.dropWhile = pa, n.fill = ha, n.filter = fu, n.flatMap = du, n.flatMapDeep = pu, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = ju, n.flow = rp, n.flowRight = op, n.fromPairs = ba, n.functions = Ul, n.functionsIn = Wl, n.groupBy = od, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zd, n.invertBy = Ud, n.invokeMap = id, n.iteratee = Ns, n.keyBy = ad, n.keys = Gl, n.keysIn = Vl, n.map = _u, n.mapKeys = Kl, n.mapValues = ql, n.matches = Ls, n.matchesProperty = Ds, n.memoize = Nu, n.merge = Fd, n.mergeWith = Hd, n.method = ip, n.methodOf = ap, n.mixin = zs, n.negate = Lu, n.nthArg = Fs, n.omit = Bd, n.omitBy = Yl, n.once = Du, n.orderBy = yu, n.over = up, n.overArgs = hd, n.overEvery = lp, n.overSome = sp, n.partial = vd, n.partialRight = md, n.partition = ud, n.pick = Gd, n.pickBy = $l, n.property = Hs, n.propertyOf = Bs, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Oa, n.pullAllWith = Pa, n.pullAt = Gf, n.range = cp, n.rangeRight = fp, n.rearg = gd, n.reject = wu, n.remove = Ma, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Ql, n.setWith = Zl, n.shuffle = Tu, n.slice = Aa, n.sortBy = ld, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = ys, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = Ka, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xl, n.toPairs = Vd, n.toPairsIn = Kd, n.toPath = Xs, n.toPlainObject = Ol, n.transform = Jl, n.unary = Fu, n.union = Vf, n.unionBy = Kf, n.unionWith = qf, n.uniq = qa, n.uniqBy = Ya, n.uniqWith = $a, n.unset = es, n.unzip = Xa, n.unzipWith = Qa, n.update = ts, n.updateWith = ns, n.values = rs, n.valuesIn = os, n.without = Yf, n.words = Os, n.wrap = Hu, n.xor = $f, n.xorBy = Xf, n.xorWith = Qf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vd, n.entriesIn = Kd, n.extend = Id, n.extendWith = Ad, zs(n, n), n.add = dp, n.attempt = tp, n.camelCase = qd, n.capitalize = ls, n.ceil = pp, n.clamp = is, n.clone = Gu,
+              n.cloneDeep = Ku, n.cloneDeepWith = qu, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ss, n.defaultTo = As, n.divide = hp, n.endsWith = cs, n.eq = $u, n.escape = fs, n.escapeRegExp = ds, n.every = cu, n.find = nd, n.findIndex = va, n.findKey = Al, n.findLast = rd, n.findLastIndex = ma, n.findLastKey = jl, n.floor = vp, n.forEach = vu, n.forEachRight = mu, n.forIn = Nl, n.forInRight = Ll, n.forOwn = Dl, n.forOwnRight = zl, n.get = Fl, n.gt = _d, n.gte = yd, n.has = Hl, n.hasIn = Bl, n.head = Ca, n.identity = js, n.includes = gu, n.indexOf = wa, n.inRange = as, n.invoke = Wd, n.isArguments = bd, n.isArray = Cd, n.isArrayBuffer = wd, n.isArrayLike = Xu, n.isArrayLikeObject = Qu, n.isBoolean = Zu, n.isBuffer = Sd, n.isDate = xd, n.isElement = Ju, n.isEmpty = el, n.isEqual = tl, n.isEqualWith = nl, n.isError = rl, n.isFinite = ol, n.isFunction = il, n.isInteger = al, n.isLength = ul, n.isMap = Td, n.isMatch = cl, n.isMatchWith = fl, n.isNaN = dl, n.isNative = pl, n.isNil = vl, n.isNull = hl, n.isNumber = ml, n.isObject = ll, n.isObjectLike = sl, n.isPlainObject = gl, n.isRegExp = kd, n.isSafeInteger = _l, n.isSet = Ed, n.isString = yl, n.isSymbol = bl, n.isTypedArray = Rd, n.isUndefined = Cl, n.isWeakMap = wl, n.isWeakSet = Sl, n.join = xa, n.kebabCase = Yd, n.last = Ta, n.lastIndexOf = ka, n.lowerCase = $d, n.lowerFirst = Xd, n.lt = Od, n.lte = Pd, n.max = Zs, n.maxBy = Js, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gs, n.stubFalse = Vs, n.stubObject = Ks, n.stubString = qs, n.stubTrue = Ys, n.multiply = mp, n.nth = Ea, n.noConflict = Us, n.noop = Ws, n.now = sd, n.pad = ps, n.padEnd = hs, n.padStart = vs, n.parseInt = ms, n.random = us, n.reduce = bu, n.reduceRight = Cu, n.repeat = gs, n.replace = _s, n.result = Xl, n.round = gp, n.runInContext = e, n.sample = Su, n.size = ku, n.snakeCase = Qd, n.some = Eu, n.sortedIndex = ja, n.sortedIndexBy = Na, n.sortedIndexOf = La, n.sortedLastIndex = Da, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zd, n.startsWith = bs, n.subtract = _p, n.sum = oc, n.sumBy = ic, n.template = Cs, n.times = $s, n.toFinite = Tl, n.toInteger = kl, n.toLength = El, n.toLower = ws, n.toNumber = Rl, n.toSafeInteger = Pl, n.toString = Ml, n.toUpper = Ss, n.trim = xs, n.trimEnd = Ts, n.trimStart = ks, n.truncate = Es, n.unescape = Rs, n.uniqueId = Qs, n.upperCase = Jd, n.upperFirst = ep, n.each = vu, n.eachRight = mu, n.first = Ca, zs(n, function() {
+                var e = {};
+                return nr(n, function(t, r) {
+                  bc.call(n.prototype, r) || (e[r] = t);
+                }), e;
+              }(), {
+                chain: !1
+              }), n.VERSION = ie, s(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
+                n[e].placeholder = n;
+              }), s(["drop", "take"], function(e, t) {
+                b.prototype[e] = function(n) {
+                  n = n === oe ? 1 : $c(kl(n), 0);
+                  var r = this.__filtered__ && !t ? new b(this) : this.clone();
+                  return r.__filtered__ ? r.__takeCount__ = Xc(n, r.__takeCount__) : r.__views__.push({
+                    size: Xc(n, ze),
+                    type: e + (r.__dir__ < 0 ? "Right" : "")
+                  }), r;
+                }, b.prototype[e + "Right"] = function(t) {
+                  return this.reverse()[e](t).reverse();
+                };
+              }), s(["filter", "map", "takeWhile"], function(e, t) {
+                var n = t + 1,
+                  r = n == Me || n == Ae;
+                b.prototype[e] = function(e) {
+                  var t = this.clone();
+                  return t.__iteratees__.push({
+                    iteratee: Ti(e, 3),
+                    type: n
+                  }), t.__filtered__ = t.__filtered__ || r, t;
+                };
+              }), s(["head", "last"], function(e, t) {
+                var n = "take" + (t ? "Right" : "");
+                b.prototype[e] = function() {
+                  return this[n](1).value()[0];
+                };
+              }), s(["initial", "tail"], function(e, t) {
+                var n = "drop" + (t ? "" : "Right");
+                b.prototype[e] = function() {
+                  return this.__filtered__ ? new b(this) : this[n](1);
+                };
+              }), b.prototype.compact = function() {
+                return this.filter(js);
+              }, b.prototype.find = function(e) {
+                return this.filter(e).head();
+              }, b.prototype.findLast = function(e) {
+                return this.reverse().find(e);
+              }, b.prototype.invokeMap = io(function(e, t) {
+                return "function" == typeof e ? new b(this) : this.map(function(n) {
+                  return Rr(n, e, t);
                 });
-              };
-            }), nr(b.prototype, function(e, t) {
-              var r = n[t];
-              if (r) {
-                var o = r.name + "",
-                  i = sf[o] || (sf[o] = []);
-                i.push({
-                  name: t,
-                  func: r
+              }), b.prototype.reject = function(e) {
+                return this.filter(Lu(Ti(e)));
+              }, b.prototype.slice = function(e, t) {
+                e = kl(e);
+                var n = this;
+                return n.__filtered__ && (e > 0 || t < 0) ? new b(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== oe && (t = kl(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
+              }, b.prototype.takeRightWhile = function(e) {
+                return this.reverse().takeWhile(e).reverse();
+              }, b.prototype.toArray = function() {
+                return this.take(ze);
+              }, nr(b.prototype, function(e, t) {
+                var r = /^(?:filter|find|map|reject)|While$/.test(t),
+                  i = /^(?:head|last)$/.test(t),
+                  a = n[i ? "take" + ("last" == t ? "Right" : "") : t],
+                  u = i || /^find/.test(t);
+                a && (n.prototype[t] = function() {
+                  var t = this.__wrapped__,
+                    l = i ? [1] : arguments,
+                    s = t instanceof b,
+                    c = l[0],
+                    f = s || Cd(t),
+                    d = function(e) {
+                      var t = a.apply(n, m([e], l));
+                      return i && p ? t[0] : t;
+                    };
+                  f && r && "function" == typeof c && 1 != c.length && (s = f = !1);
+                  var p = this.__chain__,
+                    h = !!this.__actions__.length,
+                    v = u && !p,
+                    g = s && !h;
+                  if (!u && f) {
+                    t = g ? t : new b(this);
+                    var _ = e.apply(t, l);
+                    return _.__actions__.push({
+                      func: nu,
+                      args: [d],
+                      thisArg: oe
+                    }), new o(_, p);
+                  }
+                  return v && g ? e.apply(this, l) : (_ = this.thru(d), v ? i ? _.value()[0] : _.value() : _);
                 });
-              }
-            }), sf[ni(oe, _e).name] = [{
-              name: "wrapper",
-              func: oe
-            }], b.prototype.clone = O, b.prototype.reverse = Q, b.prototype.value = te, n.prototype.at = ed, n.prototype.chain = ru, n.prototype.commit = ou, n.prototype.next = iu, n.prototype.plant = uu, n.prototype.reverse = lu, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = su, n.prototype.first = n.prototype.head, Lc && (n.prototype[Lc] = au), n;
+              }), s(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
+                var t = vc[e],
+                  r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
+                  o = /^(?:pop|shift)$/.test(e);
+                n.prototype[e] = function() {
+                  var e = arguments;
+                  if (o && !this.__chain__) {
+                    var n = this.value();
+                    return t.apply(Cd(n) ? n : [], e);
+                  }
+                  return this[r](function(n) {
+                    return t.apply(Cd(n) ? n : [], e);
+                  });
+                };
+              }), nr(b.prototype, function(e, t) {
+                var r = n[t];
+                if (r) {
+                  var o = r.name + "",
+                    i = sf[o] || (sf[o] = []);
+                  i.push({
+                    name: t,
+                    func: r
+                  });
+                }
+              }), sf[ni(oe, _e).name] = [{
+                name: "wrapper",
+                func: oe
+              }], b.prototype.clone = O, b.prototype.reverse = Q, b.prototype.value = te, n.prototype.at = ed, n.prototype.chain = ru, n.prototype.commit = ou, n.prototype.next = iu, n.prototype.plant = uu, n.prototype.reverse = lu, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = su, n.prototype.first = n.prototype.head, Lc && (n.prototype[Lc] = au), n;
           },
           xr = Sr();
         ur._ = xr, r = function() {
@@ -69677,8 +69778,7 @@ $.fn.togglify = function(settings) {
             if (u = m._callbacks[e][a], (r || !u.seq || b[u.seq] == u.level) && c == u.action && ("keypress" == c && !n.metaKey && !n.ctrlKey || s(t, u.modifiers))) {
               var f = !r && u.combo == o,
                 d = r && u.seq == r && u.level == i;
-              (f || d) && m._callbacks[e].splice(a, 1),
-                l.push(u);
+              (f || d) && m._callbacks[e].splice(a, 1), l.push(u);
             }
           return l;
         }
@@ -77574,10 +77674,9 @@ $.fn.togglify = function(settings) {
             if (!(e.target.className.indexOf("contract-trigger") < 0 && e.target.className.indexOf("expand-trigger") < 0)) {
               var t = this;
               o(this), this.__resizeRAF__ && r(this.__resizeRAF__), this.__resizeRAF__ = n(function() {
-                i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight,
-                  t.__resizeListeners__.forEach(function(n) {
-                    n.call(t, e);
-                  }));
+                i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
+                  n.call(t, e);
+                }));
               });
             }
           },

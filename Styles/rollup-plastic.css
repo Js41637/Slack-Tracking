@@ -12664,7 +12664,7 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
   right: 8px;
-  top: 5.5px
+  top: 9.5px
 }
 
 #member_preview_scroller .current_status_input_wrap .status_clear_icon_wrap {
