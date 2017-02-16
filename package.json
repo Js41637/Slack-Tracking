@@ -9,15 +9,15 @@
   "author": "Js41637",
   "license": "Beerware",
   "dependencies": {
-    "asar": "^0.12.3",
+    "asar": "^0.13.0",
     "cheerio": "^0.22.0",
     "eslint": "^3.8.1",
-    "js-beautify": "^1.6.4",
+    "js-beautify": "^1.6.9",
     "lodash": "^4.16.4",
     "moment": "^2.15.1",
     "request": "^2.75.0",
     "rimraf": "^2.5.4",
-    "striptags": "^2.1.1",
+    "striptags": "^3.0.1",
     "to-markdown": "^3.0.3",
     "unzip": "^0.1.11",
     "walk": "^2.3.9"

@@ -6,6 +6,7 @@ const fs = require('fs')
 const { exec } = require('child_process')
 const { CLIEngine } = require('eslint')
 const striptags = require('striptags');
+const rf = require('rimraf');
 const toMarkdown = require('to-markdown');
 const emojis = require('./emojis')
 const config = require('./config')
@@ -144,7 +145,7 @@ function lintCode() {
 function getChanges(client) {
   console.log("Getting changes")
   return new Promise((resolve, reject) => {
-    exec(client ? 'git reset ./ && git add ClientExtracted/' : 'git add ./ && git reset ClientExtracted/', err => {
+    exec(client ? 'git reset ./ && git add ClientExtracted/' : 'git add ./ && git reset -- ClientExtracted/ && git reset -- ClientTemp/', err => {
       if (err) return reject(err)
       exec(`git diff --cached --name-status`, (error, stdout) => {
         if (error) return reject(error)
@@ -190,7 +191,7 @@ function checkClientVersion() {
     let latestRelease = last(releases)
     fs.readFile('./ClientExtracted/VERSION', 'utf8', (err, data) => {
       let currentVersion = err ? null : data
-      if (currentVersion == latestRelease.version) return console.log("Slack Client hasn't updated")
+      if ((currentVersion == latestRelease.version) && !config.ignoreClientVersion) return console.log("Slack Client hasn't updated")
       else clientUpdater.update(latestRelease).then(() => pushToGit(true)).catch(console.error)
     })
   })
@@ -213,10 +214,41 @@ function pullLatestChanges() {
     })
   })
 }
+const dirs = ['Scripts', 'Styles', 'Templates', 'Random']
+function cleanDaSlate() {
+  return new Promise((resolve, reject) => {
+    console.log("Removing all files for clean slate")
+    Promise.all(dirs.map(dir => {
+      return new Promise((res, rej) => {
+        rf(`./${dir}`, err => {
+          if (err) return rej(`Error removing dir ${dir}`)
+          res()
+        })
+      })
+    })).then(resolve, reject)
+  })
+}
+
+// Create directories if they don't exist
+function checkDirectories() {
+  return new Promise(resolve => {
+    console.log("Checking Directories")
+    Promise.all(dirs.map(dir => {
+      return new Promise(res => {
+        fs.stat(`./${dir}`, err => {
+          if (err) fs.mkdirSync(`./${dir}`)
+          res()
+        })
+      })
+    })).then(resolve)
+  })
+}
 
 // Start The Magic
 function startTheMagic() {
   pullLatestChanges()
+    .then(cleanDaSlate)
+    .then(checkDirectories)
     .then(getPageScripts)
     .then(getIndividualScripts)
     .then(processTemplates)
@@ -230,16 +262,6 @@ function startTheMagic() {
       exec(`git reset --hard`, () => process.exit())
     })
 }
-
-// Create directories if they don't exist
-function checkDirectories() {
-  fs.stat('./Scripts', err => err ? fs.mkdir('./Scripts') : void 0)
-  fs.stat('./Styles', err => err ? fs.mkdir('./Styles') : void 0)
-  fs.stat('./Templates', err => err ? fs.mkdir('./Templates') : void 0)
-  fs.stat('./ClientExtracted', err => err ? fs.mkdir('./ClientExtracted') : void 0)
-  fs.stat('./Random', err => err ? fs.mkdir('./Random') : void 0)
-}
-
 // Check scripts and client for updates every x mins
 setInterval(() => {
   console.log("Checking for updates")
@@ -250,7 +272,6 @@ setInterval(() => {
 console.log("Starting up")
 
 // Init
-checkDirectories()
 if (!config.onlyClient) {
   startTheMagic()
 }
