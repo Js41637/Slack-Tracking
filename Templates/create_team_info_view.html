@@ -59,14 +59,27 @@
         <label class="bold select" for="company_size">
           <span data-label="company_size"></span>
           <select id="team_info_company_size_select" class="team_info_select unanswered hidden" name="company_size" aria-hidden="true">
-            {{#t note="A question about the size of the user's Slack team."}}
-            <option value="1-9">1-9 people</option>
-            <option value="10-49">10-49 people</option>
-            <option value="50-99">50-99 people</option>
-            <option value="100-499">100-499 people</option>
-            <option value="500-999">500-999 people</option>
-            <option value="1000+">1000 or more people</option>
-            {{/t}}
+            {{#if show_granular_choices}}
+              {{#t note="A question about the size of the user's Slack team."}}
+              <option value="1-10">1-10 people</option>
+              <option value="11-50">11-50 people</option>
+              <option value="51-100">51-100 people</option>
+              <option value="101-250">101-250 people</option>
+              <option value="251-500">251-500 people</option>
+              <option value="501-1000">501-1000 people</option>
+              <option value="1001-4000">1001-4000 people</option>
+              <option value="4000+">4000 or more people</option>
+              {{/t}}
+            {{else}}
+              {{#t note="A question about the size of the user's Slack team."}}
+              <option value="1-9">1-9 people</option>
+              <option value="10-49">10-49 people</option>
+              <option value="50-99">50-99 people</option>
+              <option value="100-499">100-499 people</option>
+              <option value="500-999">500-999 people</option>
+              <option value="1000+">1000 or more people</option>
+              {{/t}}
+            {{/if}}
           </select>
         </label>
       </div>

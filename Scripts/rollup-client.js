@@ -11729,10 +11729,12 @@
   var _memberDeletedOrPresenceChanged = function(member, maybe_rebuild_channel_member_list) {
     if (!TS.model.ms_connected) return;
     if (!member) return;
-    var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, _model_ob);
-    var user_is_definitely_not_member_of_channel = membership_status.is_known && !membership_status.is_member;
-    if (maybe_rebuild_channel_member_list && !user_is_definitely_not_member_of_channel) {
-      _buildChannelMemberList();
+    if (_model_ob) {
+      var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, _model_ob);
+      var user_is_definitely_not_member_of_channel = membership_status.is_known && !membership_status.is_member;
+      if (maybe_rebuild_channel_member_list && !user_is_definitely_not_member_of_channel) {
+        _buildChannelMemberList();
+      }
     }
     _updateDMMemberStatus(member);
   };
@@ -27787,8 +27789,8 @@
     var model_ob = TS.shared.getActiveModelOb();
     if (model_ob) {
       var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, model_ob);
-      var user_is_definitely_not_member_of_channel = membership_status.is_known && !membership_status.is_member;
-      if (!user_is_definitely_not_member_of_channel) {
+      var user_might_be_member_of_channel = membership_status.is_known ? membership_status.is_member : true;
+      if (user_might_be_member_of_channel) {
         var should_rebuild_tabs = !TS.lazyLoadMembersAndBots() || !is_presence_change;
         if (should_rebuild_tabs) _rebuildMembersTabs(model_ob);
         if (_expanded_sections.members) _rebuildMember(member);

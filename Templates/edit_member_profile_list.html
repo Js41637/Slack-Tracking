@@ -47,6 +47,16 @@
   </p>
 </div>
 
+{{#feature flag="feature_user_custom_status"}}
+  {{#isClient}}
+    <div class="clearfix">
+      <div class="col span_2_of_3">
+        {{> current_status_input for_edit_profile=true}}
+      </div>
+    </div>
+  {{/isClient}}
+{{/feature}}
+
 <div class="clearfix">
   <p class="col span_2_of_3">
     <label for="phone_profile_field">{{#t note="Label for a members profile field"}}Phone number{{/t}}</label>

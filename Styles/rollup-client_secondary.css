@@ -6636,22 +6636,12 @@ only screen and (min-resolution:2dppx) {
   opacity: 1
 }
 
-.current_status_input_container {
+.current_status_input_container:not(.current_status_input_for_edit_profile) {
   font-family: Slack-Lato, appleLogo, sans-serif;
   min-height: 36px
 }
 
-.current_status_input_container label.countdown:after {
-  margin-right: 1.125rem;
-  z-index: 1
-}
-
-.current_status_input_container ts-inline-saver {
-  margin-left: .25rem;
-  font-size: .9rem
-}
-
-.current_status_input_container .current_status_action_buttons {
+.current_status_input_container:not(.current_status_input_for_edit_profile) .current_status_action_buttons {
   margin-top: .375rem;
   -webkit-transition: opacity .15s ease, max-height .15s ease;
   -moz-transition: opacity .15s ease, max-height .15s ease;
@@ -6660,10 +6650,36 @@ only screen and (min-resolution:2dppx) {
   margin-bottom: 0
 }
 
-.current_status_input_container .current_status_action_buttons.invisible {
+.current_status_input_container:not(.current_status_input_for_edit_profile) .current_status_action_buttons.invisible {
   max-height: 0;
   opacity: 0;
   margin-top: 0
+}
+
+.current_status_input_container:not(.current_status_input_for_edit_profile) .current_status_input_label_content,
+.current_status_input_container:not(.current_status_input_for_edit_profile) .validation_message {
+  display: none!important
+}
+
+.current_status_input_container:not(.current_status_input_for_edit_profile) ts-inline-saver {
+  display: none;
+  margin-left: .25rem;
+  font-size: .9rem
+}
+
+.current_status_input_container:not(.current_status_input_for_edit_profile) label[for=current_status],
+.current_status_input_container:not(.current_status_input_for_edit_profile) label[for=current_status_for_team_menu] {
+  margin: 0!important
+}
+
+.current_status_input_container:not(.current_status_input_for_edit_profile) label[for=current_status].countdown:after,
+.current_status_input_container:not(.current_status_input_for_edit_profile) label[for=current_status_for_team_menu].countdown:after {
+  bottom: -30px
+}
+
+.current_status_input_container label.countdown:after {
+  margin-right: 1.125rem;
+  z-index: 1
 }
 
 .current_status_input_container #menu_items {
@@ -6682,11 +6698,6 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_container .current_status_presets {
   list-style-type: none;
   margin: 0
-}
-
-.current_status_input_container .current_status_input_label_content,
-.current_status_input_container .validation_message {
-  display: none!important
 }
 
 #member_preview_scroller .member_data_table,
@@ -8816,10 +8827,36 @@ screen and (max-width:640px) {
   flex-direction: column
 }
 
-#edit_member_profile_container .emoji-sizer {
-  line-height: 3rem;
-  font-size: 3rem;
-  margin-bottom: 2rem
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_input,
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_preset_option .current_status {
+  font-size: 1.25rem
+}
+
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_emoji_picker {
+  top: 0
+}
+
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_emoji_picker .current_status_empty_emoji {
+  line-height: 3.5rem
+}
+
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .status_clear_icon_wrap {
+  top: 14px
+}
+
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .status_clear_icon_wrap .status_clear_icon {
+  color: inherit
+}
+
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_emoji_picker,
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .emoji-sizer {
+  line-height: 3.5rem;
+  font-size: 1.5rem;
+  margin-bottom: 0
+}
+
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_action_buttons {
+  display: none
 }
 
 .edit_member_profile_photo__modal_container {
@@ -24117,7 +24154,7 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .current_status_input_for_team_menu .current_status_presets {
-  margin-top: 3px;
+  margin-top: 16px;
   padding-top: 13px;
   border-top: 1px solid #e8e8e8
 }
@@ -24221,6 +24258,10 @@ ts-jumper ts-jumper-results:empty {
 #slack_menu_current_status_submenu #slack_menu_current_status_input_container .current_status_input_label_content,
 #slack_menu_current_status_submenu #slack_menu_current_status_input_container .validation_message {
   display: none!important
+}
+
+#slack_menu_current_status_submenu #slack_menu_current_status_input_container label.countdown:after {
+  margin-right: 2.125rem
 }
 
 #slack_menu_current_status_submenu #slack_menu_current_status_input_container .status_clear_icon {

@@ -16,6 +16,10 @@
   pointer-events: none
 }
 
+body.ReactModal__Body--open {
+  position: relative
+}
+
 .supports_custom_scrollbar:not(.slim_scrollbar) .emoji_menu_ng .emoji_menu_items_scroller {
   border-right: .25rem solid transparent
 }
@@ -68,6 +72,11 @@
 
 .supports_custom_scrollbar.slim_scrollbar .emoji_menu_ng .emoji_menu_items_scroller::-webkit-scrollbar-thumb:hover {
   background-color: rgba(113, 114, 116, .8)
+}
+
+.react_popover_mask {
+  z-index: 1053;
+  position: absolute
 }
 
 .emoji_menu_ng {

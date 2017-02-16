@@ -14,6 +14,14 @@
     <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">{{#t}}Let others on your team know what you do.{{/t}}</p></div>
     <div class="col no_bottom_margin span_1_of_6"><em class="cloud_silver">{{#t}}default field{{/t}}</em></div>
   </div>
+  {{#feature flag="feature_user_custom_status"}}
+    {{#isClient}}
+      <div class="row clearfix default_row">
+        <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">{{#t}}Status{{/t}}</span></div>
+        <div class="col no_bottom_margin span_4_of_6"><em class="cloud_silver">{{#t}}default field{{/t}}</em></div>
+      </div>
+    {{/isClient}}
+  {{/feature}}
   <div class="row clearfix default_row">
     <div class="col no_bottom_margin span_2_of_6"><span class="no_margin">{{#t}}Phone Number{{/t}}</span></div>
     <div class="col no_bottom_margin span_3_of_6"><p class="subtle_silver no_bottom_margin">{{#t}}This will be displayed on your profile.{{/t}}</p></div>
