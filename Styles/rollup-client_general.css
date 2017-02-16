@@ -7508,6 +7508,11 @@ ts-inline-saver.failed .failed {
   font-size: .8125rem
 }
 
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon::before {
+  font-size: .8125rem;
+  margin-right: .25rem
+}
+
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item.group_item {
   padding-left: .75rem
 }

@@ -6527,7 +6527,7 @@ only screen and (min-resolution:2dppx) {
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_clear_icon_cover {
   position: absolute;
   right: 7px;
-  top: 1px;
+  top: 2.5px;
   line-height: normal
 }
 
@@ -6588,8 +6588,12 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
-  right: .5rem;
-  top: 6px
+  right: 8px;
+  top: 5.5px
+}
+
+#member_preview_scroller .current_status_input_wrap .status_clear_icon_wrap {
+  top: 7.5px
 }
 
 .current_status_emoji_picker,
@@ -8841,7 +8845,7 @@ screen and (max-width:640px) {
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .status_clear_icon_wrap {
-  top: 14px
+  top: 12.5px
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .status_clear_icon_wrap .status_clear_icon {

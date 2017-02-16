@@ -37647,14 +37647,19 @@ function timezones_guess() {
       }
       if (config.page_size) {
         var num_msgs = _.reduce(sections, function(sum, section) {
-          return sum + section.msgs.length;
+          if (TS.boot_data.feature_threads_paging_flexpane) {
+            var n = section.msgs.length || 1;
+            return sum + n;
+          } else {
+            return sum + section.msgs.length;
+          }
         }, 0);
-        if (num_msgs < 2 * config.page_size) {
+        if (!config._pending_op && num_msgs < 2 * config.page_size) {
           var loader;
           if (config.has_more_end && config.promiseToLoadMoreAtEnd) {
             loader = config.promiseToLoadMoreAtEnd;
           } else if (config.has_more_beginning && config.promiseToLoadMoreAtBeginning) {
-            loader = config.config.promiseToLoadMoreAtBeginning;
+            loader = config.promiseToLoadMoreAtBeginning;
           }
           if (loader) {
             config._pending_op = loader().then(function() {
@@ -37739,7 +37744,7 @@ function timezones_guess() {
     jumpToEnd: function(config) {
       var last = _findLastMessage(config);
       _setVisibleRange(config, last);
-      var ret = TS.ui.message_container.updateWithFocus(config);
+      var ret = TS.ui.message_container.update(config);
       var $scroller = $(config.container);
       if (config.scroller) $scroller = $(config.scroller);
       $scroller.scrollTop($scroller.prop("scrollHeight"));
@@ -37812,6 +37817,11 @@ function timezones_guess() {
     if (!all.length) return;
     var $first = $container.find(".message_container_item").first();
     var first_msg = _.first(all);
+    if (TS.boot_data.feature_threads_paging_flexpane) {
+      first_msg = _.find(all, function(item) {
+        return item.msg_ts !== "-1";
+      });
+    }
     if (_.isEqual(first_msg, config._range.start)) {
       if (config.has_more_beginning && config.promiseToLoadMoreAtBeginning) {
         config._pending_op = config.promiseToLoadMoreAtBeginning().then(function() {
@@ -37819,7 +37829,7 @@ function timezones_guess() {
         }).finally(function() {
           config._pending_op = null;
         });
-        return config._pending_op();
+        return config._pending_op;
       }
     } else {
       TS.ui.message_container.pageUp(config, $first);
@@ -38903,45 +38913,7 @@ function timezones_guess() {
       _initFlexpane(model_ob, thread_ts, $convo);
       _setIsLoading(true);
       if (TS.boot_data.feature_threads_paging_flexpane) {
-        _root_msg_section = {
-          id: "root",
-          order: 0,
-          msgs: []
-        };
-        if (root_msg) _root_msg_section.msgs.push(root_msg);
-        _replies_section = {
-          id: "replies",
-          order: 1,
-          msgs: []
-        };
-        _msg_container_config = {
-          name: "replies",
-          container: $convo,
-          scroller: TS.ui.replies.$scroller,
-          page_size: 25,
-          sections: [_root_msg_section, _replies_section],
-          has_more_beginning: false,
-          has_more_end: false,
-          skip_day_groupings: true,
-          show_hidden_replies: true,
-          buildSection: function(section) {
-            if (section.id === "root") {
-              return TS.templates.message_conversation_root();
-            } else {
-              return TS.templates.message_conversation_descendants();
-            }
-          },
-          buildMsgHTML: function(msg, prev_msg, section) {
-            if (section.id === "root") {
-              return _buildRootMsgHTML(model_ob, msg);
-            } else {
-              return _buildRelativeMsgHTML(model_ob, msg);
-            }
-          },
-          updateCallback: function() {
-            _updateDescendentState($convo);
-          }
-        };
+        _configMessageContainer(root_msg, model_ob, thread_ts, $convo);
         TS.ui.message_container.register(_msg_container_config);
         _updateDescendentState($convo);
         if (root_msg) _renderReplyContainer(model_ob, root_msg);
@@ -38953,8 +38925,19 @@ function timezones_guess() {
           _renderRootMsgIntoConversation(model_ob, root_msg, $convo);
         }
       }
-      return TS.replies.getThread(model_ob.id, thread_ts).then(function(messages) {
-        TS.ui.replies.finishRenderingReplies(model_ob, thread_ts, root_msg, messages, highlight_ts);
+      var thread_p;
+      if (TS.boot_data.feature_page_replies_methods) {
+        thread_p = TS.replies.getThreadLazy(model_ob.id, thread_ts);
+      } else {
+        thread_p = TS.replies.getThread(model_ob.id, thread_ts).then(function(messages_from_api) {
+          return {
+            messages: messages_from_api,
+            has_more: false
+          };
+        });
+      }
+      return thread_p.then(function(thread) {
+        TS.ui.replies.finishRenderingReplies(model_ob, thread_ts, root_msg, thread, highlight_ts);
         if (TS.client && !TS.newxp.inOnboarding() && (!TS.model.prefs.seen_replies_coachmark || TS.qs_args.show_replies_coachmark)) {
           setTimeout(function() {
             if (!_active_convo_thread_ts) return;
@@ -38979,10 +38962,12 @@ function timezones_guess() {
         _setIsLoading(false);
       });
     },
-    finishRenderingReplies: function(model_ob, thread_ts, root_msg, messages, highlight_ts) {
+    finishRenderingReplies: function(model_ob, thread_ts, root_msg, thread, highlight_ts) {
+      var messages = thread.messages;
+      var has_more = !!thread.has_more;
       if (_active_convo_model_id != model_ob.id) return;
       if (_active_convo_thread_ts != thread_ts) return;
-      TS.info("Rendering thread " + thread_ts + ", " + messages.length + " messages");
+      TS.info("Rendering thread " + thread_ts + ", " + messages.length + " messages" + "(has_more: " + has_more + ")");
       _active_convo_messages = messages;
       if (_isActiveThreadDeleted()) {
         TS.client.ui.flex.hideFlex();
@@ -38993,7 +38978,7 @@ function timezones_guess() {
         if (TS.boot_data.feature_threads_paging_flexpane) _renderReplyContainer(model_ob, root_msg);
       }
       if (TS.boot_data.feature_threads_paging_flexpane) {
-        _replaceMessagesAndUpdateMessageContainer(messages);
+        _replaceMessagesAndUpdateMessageContainer(messages, has_more);
         TS.ui.message_container.jumpToEnd(_msg_container_config);
       } else {
         var $convo = $("#convo_tab ts-conversation");
@@ -39780,7 +39765,10 @@ function timezones_guess() {
     if (TS.boot_data.feature_threads_paging_flexpane) {
       _replaceMessagesAndUpdateMessageContainer(msgs);
     } else {
-      TS.ui.replies.finishRenderingReplies(model_ob, root_msg.thread_ts, root_msg, msgs);
+      TS.ui.replies.finishRenderingReplies(model_ob, root_msg.thread_ts, root_msg, {
+        messages: msgs,
+        has_more: false
+      });
     }
   };
   var _joinedChannel = function(channel) {
@@ -39825,22 +39813,81 @@ function timezones_guess() {
   var _windowFocusChanged = function(has_focus) {
     TS.ui.replies.checkUnreads();
   };
-  var _replaceMessagesAndUpdateMessageContainer = function(messages) {
+  var _replaceMessagesAndUpdateMessageContainer = function(messages, has_more) {
     var root_msg = _.find(messages, {
       ts: _active_convo_thread_ts
     });
     var replies = _.without(messages, root_msg);
     _root_msg_section.msgs.length = 0;
     _replies_section.msgs.length = 0;
-    _root_msg_section.msgs.push(root_msg);
+    if (root_msg) _root_msg_section.msgs.push(root_msg);
     _.forEach(replies, function(reply) {
       _replies_section.msgs.unshift(reply);
     });
+    _msg_container_config.has_more_beginning = !!has_more;
     TS.utility.msgs.sortMsgs(_replies_section.msgs);
     _updateMessageContainer();
   };
   var _updateMessageContainer = function() {
     TS.ui.message_container.update(_msg_container_config);
+  };
+  var _configMessageContainer = function(root_msg, model_ob, thread_ts, $convo) {
+    _root_msg_section = {
+      id: "root",
+      order: 0,
+      msgs: []
+    };
+    if (root_msg) _root_msg_section.msgs.push(root_msg);
+    _replies_section = {
+      id: "replies",
+      order: 1,
+      msgs: []
+    };
+    _msg_container_config = {
+      name: "replies",
+      container: $convo,
+      scroller: TS.ui.replies.$scroller,
+      page_size: 25,
+      sections: [_root_msg_section, _replies_section],
+      has_more_beginning: false,
+      has_more_end: false,
+      skip_day_groupings: true,
+      show_hidden_replies: true,
+      buildSection: function(section) {
+        if (section.id === "root") {
+          return TS.templates.message_conversation_root();
+        } else {
+          return TS.templates.message_conversation_descendants();
+        }
+      },
+      buildMsgHTML: function(msg, prev_msg, section) {
+        if (section.id === "root") {
+          return _buildRootMsgHTML(model_ob, msg);
+        } else {
+          return _buildRelativeMsgHTML(model_ob, msg);
+        }
+      },
+      updateCallback: function() {
+        _updateDescendentState($convo);
+      },
+      promiseToLoadMoreAtBeginning: function() {
+        var replies = _replies_section.msgs;
+        var min_reply = _.minBy(replies, "ts");
+        var min_ts = _.get(min_reply, "ts");
+        return TS.replies.getThreadLazyMore(model_ob.id, thread_ts, min_ts).then(function(thread) {
+          var root_msg = thread.root_msg;
+          _.forEachRight(thread.messages, function(msg) {
+            if (msg.ts === thread_ts) return;
+            _replies_section.msgs.push(msg);
+          });
+          if (!thread.has_more) {
+            _msg_container_config.has_more_beginning = false;
+            _root_msg_section.msgs[0] = root_msg;
+          }
+          _active_convo_messages = _.flatten([_root_msg_section.msgs, _replies_section.msgs]);
+        });
+      }
+    };
   };
 })();
 (function() {

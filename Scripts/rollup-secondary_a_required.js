@@ -16724,6 +16724,9 @@ TS.registerModule("constants", {
         var in_background = true;
         TS.channels.join(channel.name, null, in_background);
       }
+      if (imsg.is_moved) {
+        channel.is_moved = true;
+      }
       channel.is_archived = false;
       channel.was_archived_this_session = false;
       TS.channels.unarchived_sig.dispatch(channel);
@@ -16973,6 +16976,9 @@ TS.registerModule("constants", {
       if (!group) {
         TS.error('unknown group: "' + imsg.channel);
         return;
+      }
+      if (imsg.is_moved) {
+        group.is_moved = true;
       }
       if (!group.is_archived) {
         return;
@@ -42187,7 +42193,7 @@ var _on_esc;
       template_args.member_tz = TS.model.user.tz || TS.boot_data.default_tz;
       var html = TS.templates.edit_member_profile_list(template_args);
       _$div.find("#edit_member_profile_list").html(html);
-      if (TS.client) TS.ui.edit_member_profile._registerCurrentStatusInput();
+      if (TS.boot_data.feature_user_custom_status && TS.client) TS.ui.edit_member_profile._registerCurrentStatusInput();
     }
     _hideAllSectionsBut("#edit_member_profile_list");
     TS.ui.fs_modal.showFooter();
@@ -57576,26 +57582,23 @@ $.fn.togglify = function(settings) {
         var $new_els = $container.find(".attachment_actions_buttons select:not(.hidden)");
         $new_els.each(function() {
           var $el = $(this);
-          var data_source = $el.data("data-source");
-          var service_id = $el.closest("ts-message").data("bot-id");
           var has_selected_options = _.some($el.find("option"), "attributes.selected");
           var lfs_options = {
             allow_list_position_above: true,
             classes: "select_attachment",
+            data_promise: _getDataPromise($el),
             disabled: $el.attr("disabled"),
             filter: _filter,
+            input_debounce_wait_time: _getInputDebounceWaitTime($el),
             no_default_selection: !has_selected_options,
             onItemAdded: _onItemAdded,
             onListHidden: _onListHidden,
-            onListShown: _getOnListShownCallback(data_source, service_id),
+            onListShown: _getOnListShownCallback($el),
             placeholder_text: $el.attr("placeholder") || _PLACEHOLDER_TEXT.default,
             should_graphic_replace_emoji: true,
-            style: TS.ui.lazy_filter_select.STYLES.filter_in_list
+            style: TS.ui.lazy_filter_select.STYLES.filter_in_list,
+            template: _getItemTemplate($el)
           };
-          if (data_source === _DATA_SOURCES.external) {
-            lfs_options.data_promise = _getExternalDataPromise($el);
-            lfs_options.input_debounce_wait_time = 250;
-          }
           $el.lazyFilterSelect(lfs_options).addClass("hidden");
         });
       }
@@ -57617,17 +57620,20 @@ $.fn.togglify = function(settings) {
   };
   var _DATA_SOURCES = {
     channels: "channels",
+    conversations: "conversations",
     "default": "default",
     external: "external",
     users: "users"
   };
+  var _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME = 250;
 
   function _onItemAdded(item) {
     var $select = this.$select;
     var context = TS.attachment_actions.handleActionEventAndGetContext($select);
+    var value = _.get(item, "model_ob.id", item.value);
     var onGo = function() {
       context.action.selected_options = [{
-        value: item.value
+        value: value
       }];
       _.defer(TS.attachment_actions.action_triggered_sig.dispatch, context);
     };
@@ -57651,7 +57657,9 @@ $.fn.togglify = function(settings) {
     $select.lazyFilterSelect("updatePlaceholder", placeholder_text);
   }
 
-  function _getOnListShownCallback(data_source, service_id) {
+  function _getOnListShownCallback($select) {
+    var data_source = $select.data("data-source");
+    var service_id = $select.closest("ts-message").data("bot-id");
     return function onListShown() {
       this.$select.lazyFilterSelect("updatePlaceholder", _PLACEHOLDER_TEXT.list_shown);
       _logMenuOpen(data_source, service_id);
@@ -57668,6 +57676,7 @@ $.fn.togglify = function(settings) {
         options = _getOptionsForUsers();
         break;
       case _DATA_SOURCES.external:
+      case _DATA_SOURCES.conversations:
         break;
       default:
         options = model.options;
@@ -57719,7 +57728,18 @@ $.fn.togglify = function(settings) {
     });
   }
 
-  function _getExternalDataPromise($select) {
+  function _getDataPromise($select) {
+    switch ($select.data("data-source")) {
+      case _DATA_SOURCES.conversations:
+        return TS.ui.file_share.promiseToGetFileShareSelectOptions;
+      case _DATA_SOURCES.external:
+        return _getDataPromiseForExternal($select);
+      default:
+        return;
+    }
+  }
+
+  function _getDataPromiseForExternal($select) {
     return function(query) {
       return new Promise(function(resolve, reject) {
         var context = TS.attachment_actions.getActionContext($select);
@@ -57746,6 +57766,26 @@ $.fn.togglify = function(settings) {
         });
       });
     };
+  }
+
+  function _getInputDebounceWaitTime($select) {
+    var data_source = $select.data("data-source");
+    if (data_source === _DATA_SOURCES.external || data_source === _DATA_SOURCES.conversations) {
+      return _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME;
+    }
+  }
+
+  function _getItemTemplate($select) {
+    if ($select.data("data-source") === _DATA_SOURCES.conversations) {
+      return _itemTemplateForConversations;
+    }
+  }
+
+  function _itemTemplateForConversations(item) {
+    var html = TS.templates.file_sharing_channel_row({
+      item: item.model_ob
+    });
+    return new Handlebars.SafeString(html);
   }
 
   function _formatAndMarkSafeString(str) {
@@ -58412,6 +58452,62 @@ $.fn.togglify = function(settings) {
       });
       return _threads_being_loaded[key];
     },
+    getThreadLazy: function(c_id, thread_ts, always_make_api_call) {
+      if (!always_make_api_call) {
+        var messages_from_model_ob = _getThreadFromModelOb(c_id, thread_ts);
+        if (messages_from_model_ob) {
+          if (_shouldSanityCheck(c_id, thread_ts)) _sanityCheck(c_id, thread_ts, messages_from_model_ob);
+          return Promise.resolve({
+            messages: messages_from_model_ob,
+            has_more: false
+          });
+        }
+      }
+      var params = {
+        channel: c_id,
+        thread_ts: thread_ts,
+        count: _REPLIES_HISTORY_API_LIMIT
+      };
+      var model_ob = TS.shared.getModelObById(c_id);
+      var api_endpoint = _repliesHistoryEndpoint(model_ob);
+      if (always_make_api_call) {
+        TS.log(2004, "Calling " + api_endpoint + " for " + thread_ts + " because always_make_api_call");
+      } else {
+        TS.log(2004, "Calling " + api_endpoint + " for " + thread_ts + " because local history is incomplete");
+      }
+      var key = _keyForThread(c_id, thread_ts);
+      if (_threads_being_loaded[key]) return _threads_being_loaded[key];
+      _threads_being_loaded[key] = TS.api.call(api_endpoint, params).then(function(resp) {
+        return _processRepliesHistoryResponse(model_ob, thread_ts, resp);
+      }).finally(function() {
+        delete _threads_being_loaded[key];
+      });
+      return _threads_being_loaded[key];
+    },
+    getThreadLazyMore: function(c_id, thread_ts, oldest_ts) {
+      var params = {
+        channel: c_id,
+        thread_ts: thread_ts,
+        latest: oldest_ts,
+        count: _REPLIES_HISTORY_API_LIMIT
+      };
+      var model_ob = TS.shared.getModelObById(c_id);
+      var api_endpoint = _repliesHistoryEndpoint(model_ob);
+      return TS.api.call(api_endpoint, params).then(function(resp) {
+        var ret = _processRepliesHistoryResponse(model_ob, thread_ts, resp);
+        if (ret.has_more) {
+          var root_msg = ret.root_msg;
+          var first_ts = root_msg.replies[0].ts;
+          if (_.find(ret.messages, {
+              ts: first_ts
+            })) {
+            ret.has_more = false;
+            ret.messages.unshift(root_msg);
+          }
+        }
+        return ret;
+      });
+    },
     getSubscriptionState: function(model_ob_id, thread_ts) {
       var key = _keyForThread(model_ob_id, thread_ts);
       var subscription = _subscriptions[key];
@@ -58519,6 +58615,43 @@ $.fn.togglify = function(settings) {
   var _threads_being_loaded = {};
   var _subscriptions_being_loaded = {};
   var _subscriptions = {};
+  var _REPLIES_HISTORY_API_LIMIT = 50;
+  var _repliesHistoryEndpoint = function(model_ob) {
+    if (model_ob.is_channel) {
+      return "channels.replies";
+    } else if (model_ob.is_im) {
+      return "im.replies";
+    } else {
+      return "groups.replies";
+    }
+  };
+  var _processRepliesHistoryResponse = function(model_ob, thread_ts, resp) {
+    var messages = resp.data.messages.map(function(imsg) {
+      return TS.utility.msgs.processImsgFromHistory(imsg, model_ob.id);
+    });
+    var has_more = !!resp.data.has_more;
+    _maybeSlurpSubscriptionState(model_ob.id, messages);
+    if (model_ob && model_ob.msgs && model_ob.msgs.length) {
+      var temp_msgs = _.filter(model_ob.msgs, function(msg) {
+        return msg.thread_ts === thread_ts && TS.utility.msgs.isTempMsg(msg);
+      });
+      if (temp_msgs.length) messages = _.sortBy(messages.concat(temp_msgs), "ts");
+    }
+    if (TS.boot_data.feature_message_replies_ignore_on_history) {
+      _maybeAddFetchedMsgsToModel(model_ob, messages);
+    }
+    var root_msg = _.find(messages, {
+      ts: thread_ts
+    });
+    if (root_msg && has_more) {
+      messages = _.without(messages, root_msg);
+    }
+    return {
+      messages: messages,
+      has_more: has_more,
+      root_msg: root_msg
+    };
+  };
   var _socketConnected = function(was_fast_reconnect) {
     if (was_fast_reconnect) return;
     if (_subscriptions) {
@@ -58593,7 +58726,22 @@ $.fn.togglify = function(settings) {
       return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg);
     });
     var always_make_api_call = true;
-    TS.replies.getThread(c_id, thread_ts, always_make_api_call).then(function(messages_from_api) {
+    var thread_p;
+    if (TS.boot_data.feature_page_replies_methods) {
+      thread_p = TS.replies.getThreadLazy(c_id, thread_ts, always_make_api_call);
+    } else {
+      thread_p = TS.replies.getThread(c_id, thread_ts, always_make_api_call).then(function(messages_from_api) {
+        return {
+          messages: messages_from_api,
+          has_more: false
+        };
+      });
+    }
+    thread_p.then(function(thread) {
+      var messages_from_api = thread.messages;
+      if (thread.has_more) {
+        messages_from_model_ob = _.takeRight(messages_from_model_ob, messages_from_api.length);
+      }
       var model_timestamps = _.map(messages_from_model_ob, "ts");
       var api_timestamps = _.map(messages_from_api, "ts");
       var model_texts = _.map(messages_from_model_ob, "text");
@@ -69529,7 +69677,8 @@ $.fn.togglify = function(settings) {
             if (u = m._callbacks[e][a], (r || !u.seq || b[u.seq] == u.level) && c == u.action && ("keypress" == c && !n.metaKey && !n.ctrlKey || s(t, u.modifiers))) {
               var f = !r && u.combo == o,
                 d = r && u.seq == r && u.level == i;
-              (f || d) && m._callbacks[e].splice(a, 1), l.push(u);
+              (f || d) && m._callbacks[e].splice(a, 1),
+                l.push(u);
             }
           return l;
         }
@@ -77425,9 +77574,10 @@ $.fn.togglify = function(settings) {
             if (!(e.target.className.indexOf("contract-trigger") < 0 && e.target.className.indexOf("expand-trigger") < 0)) {
               var t = this;
               o(this), this.__resizeRAF__ && r(this.__resizeRAF__), this.__resizeRAF__ = n(function() {
-                i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
-                  n.call(t, e);
-                }));
+                i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight,
+                  t.__resizeListeners__.forEach(function(n) {
+                    n.call(t, e);
+                  }));
               });
             }
           },

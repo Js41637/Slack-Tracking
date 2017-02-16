@@ -4611,7 +4611,7 @@
         _file_share_options = {
           append: true,
           single: true,
-          data_promise: _promiseToGetFileShareSelectOptions,
+          data_promise: TS.ui.file_share.promiseToGetFileShareSelectOptions,
           approx_item_height: 30 * TS.utility.getA11yFontSizeMultiplier(),
           tab_to_nav: true,
           template: function(item) {
@@ -4729,6 +4729,60 @@
           if (d.model_ob && "presence" in d.model_ob) return d.model_ob.id;
         }));
         TS.presence_manager.queryMemberPresence(members);
+      });
+    },
+    promiseToGetFileShareSelectOptions: function(query) {
+      if (query.charAt(0) === "@") query = query.substring(1);
+      if (_file_share_options.query !== query) {
+        _file_share_options.query = query;
+        _file_share_options.include_org = TS.boot_data.page_needs_enterprise;
+        _file_share_options.include_slackbot = true;
+        _file_share_options.include_self = true;
+        _file_share_options.full_profile_filter = false;
+        _file_share_options._current_model_ob_id = _getActiveChannelId();
+        _file_share_options._prefix_regexes = [];
+        _file_share_options._suffix_regexes = [];
+        var queries = query.split(/[,| ]/).filter(function(i) {
+          return !!i;
+        });
+        for (var i = 0; i < queries.length; i++) {
+          _file_share_options._prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(queries[i]), "i"));
+          _file_share_options._suffix_regexes.push(new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(queries[i]), "i"));
+        }
+        _file_share_options._prefix_regex = new RegExp("^" + TS.utility.regexpEscape(query), "i");
+        _file_share_options._suffix_regex = new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(query), "i");
+      }
+      var promises = [_promiseToGetMembersAndMPIMs(_file_share_options), _promiseToGetChannelsAndGroups(_file_share_options)];
+      return Promise.all(promises).then(function(responses) {
+        var response = {
+          _replace_all_items: true,
+          items: []
+        };
+        var all_dms = responses[0];
+        var all_channels = responses[1];
+        all_channels = all_channels.map(function(channel) {
+          channel.lfs_id = "0." + channel.model_ob.id;
+          return channel;
+        });
+        all_dms = all_dms.map(function(dm) {
+          dm.lfs_id = "1." + dm.model_ob.id;
+          return dm;
+        });
+        if (all_channels.length) {
+          response.items.push({
+            lfs_group: true,
+            label: TS.i18n.t("Channels", "files")(),
+            children: all_channels
+          });
+        }
+        if (all_dms.length) {
+          response.items.push({
+            lfs_group: true,
+            label: TS.i18n.t("Direct Messages", "files")(),
+            children: all_dms
+          });
+        }
+        return Promise.resolve(response);
       });
     },
     bindFileShareShareToggle: function() {
@@ -4942,60 +4996,6 @@
     }
     TS.ui.file_share.updateAtChannelWarningNote();
     TS.ui.file_share.updateAtChannelBlockedNote();
-  };
-  var _promiseToGetFileShareSelectOptions = function(query) {
-    if (query.charAt(0) === "@") query = query.substring(1);
-    if (_file_share_options.query !== query) {
-      _file_share_options.query = query;
-      _file_share_options.include_org = TS.boot_data.page_needs_enterprise;
-      _file_share_options.include_slackbot = true;
-      _file_share_options.include_self = true;
-      _file_share_options.full_profile_filter = false;
-      _file_share_options._current_model_ob_id = _getActiveChannelId();
-      _file_share_options._prefix_regexes = [];
-      _file_share_options._suffix_regexes = [];
-      var queries = query.split(/[,| ]/).filter(function(i) {
-        return !!i;
-      });
-      for (var i = 0; i < queries.length; i++) {
-        _file_share_options._prefix_regexes.push(new RegExp("^" + TS.utility.regexpEscape(queries[i]), "i"));
-        _file_share_options._suffix_regexes.push(new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(queries[i]), "i"));
-      }
-      _file_share_options._prefix_regex = new RegExp("^" + TS.utility.regexpEscape(query), "i");
-      _file_share_options._suffix_regex = new RegExp("(-|_|\\+|\\s|\\.|@)" + TS.utility.regexpEscape(query), "i");
-    }
-    var promises = [_promiseToGetMembersAndMPIMs(_file_share_options), _promiseToGetChannelsAndGroups(_file_share_options)];
-    return Promise.all(promises).then(function(responses) {
-      var response = {
-        _replace_all_items: true,
-        items: []
-      };
-      var all_dms = responses[0];
-      var all_channels = responses[1];
-      all_channels = all_channels.map(function(channel) {
-        channel.lfs_id = "0." + channel.model_ob.id;
-        return channel;
-      });
-      all_dms = all_dms.map(function(dm) {
-        dm.lfs_id = "1." + dm.model_ob.id;
-        return dm;
-      });
-      if (all_channels.length) {
-        response.items.push({
-          lfs_group: true,
-          label: TS.i18n.t("Channels", "files")(),
-          children: all_channels
-        });
-      }
-      if (all_dms.length) {
-        response.items.push({
-          lfs_group: true,
-          label: TS.i18n.t("Direct Messages", "files")(),
-          children: all_dms
-        });
-      }
-      return Promise.resolve(response);
-    });
   };
   var _promiseToGetMembersAndMPIMs = function(searcher) {
     return Promise.all([_promiseToGetMembers(searcher), _promiseToGetMPIMs(searcher)]).then(function(responses) {
