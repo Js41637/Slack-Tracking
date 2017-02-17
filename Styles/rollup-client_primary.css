@@ -3475,14 +3475,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_spaces:before {
   content: '\E402';
   font-size: 3.125rem;
-  color: #66c79e
+  color: #66C79E
 }
 
 .filetype_icon.space.s24:before,
 .ts_icon_file_spaces_small:before {
   content: '\E403';
   font-size: 2.5rem;
-  color: #66c79e
+  color: #66C79E
 }
 
 .filetype_icon.bmp.s30:before,
@@ -3823,7 +3823,7 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_text_post:before {
   content: '\E438';
   font-size: 3.125rem;
-  color: #66c79e
+  color: #66C79E
 }
 
 .filetype_icon.post.s24:before,
@@ -3833,7 +3833,7 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_text_post_small:before {
   content: '\E439';
   font-size: 2.5rem;
-  color: #66c79e
+  color: #66C79E
 }
 
 .filetype_icon.html.s30:before,
@@ -3943,14 +3943,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_snippet:before {
   content: '\E448';
   font-size: 3.125rem;
-  color: #4d394b
+  color: #4D394B
 }
 
 .filetype_icon.snippet.s24:before,
 .ts_icon_file_snippet_small:before {
   content: '\E449';
   font-size: 2.5rem;
-  color: #4d394b
+  color: #4D394B
 }
 
 .filetype_icon.doc.s30:before,
@@ -3960,7 +3960,7 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_word:before {
   content: '\E450';
   font-size: 3.125rem;
-  color: #2c4098
+  color: #2C4098
 }
 
 .filetype_icon.doc.s24:before,
@@ -3968,7 +3968,7 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_word_small:before {
   content: '\E451';
   font-size: 2.5rem;
-  color: #2c4098
+  color: #2C4098
 }
 
 .filetype_icon.xls.s30:before,
@@ -4002,7 +4002,7 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_powerpoint:before {
   content: '\E454';
   font-size: 3.125rem;
-  color: #e05a30
+  color: #E05A30
 }
 
 .filetype_icon.ppt.s24:before,
@@ -4010,7 +4010,7 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_powerpoint_small:before {
   content: '\E455';
   font-size: 2.5rem;
-  color: #e05a30
+  color: #E05A30
 }
 
 .filetype_icon.ai.s30:before,
@@ -4018,14 +4018,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_illustrator:before {
   content: '\E456';
   font-size: 3.125rem;
-  color: #f4993c
+  color: #F4993C
 }
 
 .filetype_icon.ai.s24:before,
 .ts_icon_file_illustrator_small:before {
   content: '\E457';
   font-size: 2.5rem;
-  color: #f4993c
+  color: #F4993C
 }
 
 .filetype_icon.psd.s30:before,
@@ -4033,14 +4033,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_photoshop:before {
   content: '\E458';
   font-size: 3.125rem;
-  color: #56b6de
+  color: #56B6DE
 }
 
 .filetype_icon.psd.s24:before,
 .ts_icon_file_photoshop_small:before {
   content: '\E459';
   font-size: 2.5rem;
-  color: #56b6de
+  color: #56B6DE
 }
 
 .filetype_icon.indd.s30:before,
@@ -4048,14 +4048,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_indesign:before {
   content: '\E460';
   font-size: 3.125rem;
-  color: #eb81ab
+  color: #EB81AB
 }
 
 .filetype_icon.indd.s24:before,
 .ts_icon_file_indesign_small:before {
   content: '\E461';
   font-size: 2.5rem;
-  color: #eb81ab
+  color: #EB81AB
 }
 
 .filetype_icon.fla.s30:before,
@@ -4063,14 +4063,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_adobe_flash:before {
   content: '\E462';
   font-size: 3.125rem;
-  color: #a72428
+  color: #A72428
 }
 
 .filetype_icon.fla.s24:before,
 .ts_icon_file_adobe_flash_small:before {
   content: '\E463';
   font-size: 2.5rem;
-  color: #a72428
+  color: #A72428
 }
 
 .filetype_icon.swf.s30:before,
@@ -4078,14 +4078,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_adobe_swf:before {
   content: '\E464';
   font-size: 3.125rem;
-  color: #a72428
+  color: #A72428
 }
 
 .filetype_icon.swf.s24:before,
 .ts_icon_file_adobe_swf_small:before {
   content: '\E465';
   font-size: 2.5rem;
-  color: #a72428
+  color: #A72428
 }
 
 .filetype_icon.ipa.s30:before,
@@ -4093,14 +4093,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_iphone_app:before {
   content: '\E466';
   font-size: 3.125rem;
-  color: #9ea0a7
+  color: #9EA0A7
 }
 
 .filetype_icon.ipa.s24:before,
 .ts_icon_file_iphone_app_small:before {
   content: '\E467';
   font-size: 2.5rem;
-  color: #9ea0a7
+  color: #9EA0A7
 }
 
 .filetype_icon.apk.s30:before,
@@ -4108,14 +4108,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_android_app:before {
   content: '\E468';
   font-size: 3.125rem;
-  color: #a4ca3a
+  color: #A4CA3A
 }
 
 .filetype_icon.apk.s24:before,
 .ts_icon_file_android_app_small:before {
   content: '\E469';
   font-size: 2.5rem;
-  color: #a4ca3a
+  color: #A4CA3A
 }
 
 .filetype_icon.dropbox.s30:before,
@@ -4216,14 +4216,14 @@ svg.ts_icon_spinner svg {
 .ts_icon_file_sketch:before {
   content: '\E476';
   font-size: 3.125rem;
-  color: #f4993c
+  color: #F4993C
 }
 
 .filetype_icon.sketch.s24:before,
 .ts_icon_file_sketch_small:before {
   content: '\E477';
   font-size: 2.5rem;
-  color: #f4993c
+  color: #F4993C
 }
 
 .ts_icon_presence:before {

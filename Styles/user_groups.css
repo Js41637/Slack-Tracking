@@ -17,12 +17,12 @@
 }
 
 #user_groups_pane .mention {
-  background-color: #fffce0
+  background-color: #FFFCE0
 }
 
 #user_groups_container .info_panel {
-  border: 1px solid #e8e8e8;
-  background: #f9f9f9;
+  border: 1px solid #E8E8E8;
+  background: #F9F9F9;
   padding: 1rem;
   border-radius: 6px;
   font-size: 1rem;
@@ -30,7 +30,7 @@
 }
 
 #user_groups_container .mention {
-  background-color: #fffce0!important
+  background-color: #FFFCE0!important
 }
 
 #user_groups_container p.user_groups_tip {
@@ -75,12 +75,12 @@
   position: absolute;
   right: 8px;
   top: 6px;
-  color: #babbbf;
+  color: #BABBBF;
   font-size: 1.25rem
 }
 
 #user_groups_header a.icon_close:hover {
-  color: #007ab8;
+  color: #007AB8;
   text-decoration: none
 }
 
@@ -151,11 +151,11 @@
 }
 
 #flex_contents .user_group_item:hover {
-  background-color: #f9f9f9
+  background-color: #F9F9F9
 }
 
 #flex_contents .user_group_item:hover h4 {
-  color: #005e99
+  color: #005E99
 }
 
 .search_icon_style .lfs_input {
@@ -215,7 +215,7 @@
 
 @-webkit-keyframes highlight_fade {
   from {
-    background-color: #fffce0
+    background-color: #FFFCE0
   }
   to {
     background-color: #fff
@@ -224,7 +224,7 @@
 
 @-moz-keyframes highlight_fade {
   from {
-    background-color: #fffce0
+    background-color: #FFFCE0
   }
   to {
     background-color: #fff
@@ -233,7 +233,7 @@
 
 @keyframes highlight_fade {
   from {
-    background-color: #fffce0
+    background-color: #FFFCE0
   }
   to {
     background-color: #fff
@@ -260,7 +260,7 @@
 .user_group_invite_member_small .add_icon {
   margin-top: .7rem;
   font-size: 2rem;
-  color: #005e99
+  color: #005E99
 }
 
 .user_group_invite_member_small .invite_member_avatar {
@@ -352,8 +352,8 @@
 }
 
 #user_group_member_invite_div .disabled .lfs_item.lfs_token {
-  background-color: #babbbf;
-  border-color: #babbbf
+  background-color: #BABBBF;
+  border-color: #BABBBF
 }
 
 #user_group_member_invite_div .lfs_input_container {

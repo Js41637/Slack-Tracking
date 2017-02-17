@@ -1171,6 +1171,7 @@
     } catch (e) {
       TS.error("TS." + name + ".onStart encountered an error:");
       TS.logError(e);
+      TS.metrics.count("call_onstarts_error");
       throw e;
     }
     if (delete_after_calling) {
@@ -1271,7 +1272,7 @@
           data_user_list_by_id[data_user_list[i].id] = true;
         }
       }
-      var should_check_if_local = TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members;
+      var should_check_if_local = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
       for (i = 0; i < users_cache.length; i++) {
         member = users_cache[i];
         if (should_check_if_local && !TS.members.isLocalTeamMember(member)) continue;
@@ -1323,7 +1324,7 @@
         if (TS._incremental_boot) return true;
         if (TS.lazyLoadMembersAndBots()) return true;
         if (TS.calls) return true;
-        if (TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members) return true;
+        if (TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members) return true;
         var ids = {};
         var addMembersToHash = function(model_ob) {
           if (model_ob.is_group && model_ob.is_shared && !with_shared) return;
@@ -1433,7 +1434,7 @@
           TS.channels.upsertChannel(channel);
         });
         TS.metrics.measureAndClear("upsert_channels", "upsert_channels_start");
-        var skip_ims_mpims = TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members;
+        var skip_ims_mpims = TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members;
         if (!skip_ims_mpims) {
           data.ims.forEach(function(im) {
             if (just_general && im.user != "USLACKBOT") return;
@@ -2278,6 +2279,9 @@
         }
       });
       return list;
+    },
+    start_of_the_week: {
+      "en-US": 0
     }
   });
   var _is_setup;
@@ -4542,7 +4546,7 @@
       var flat = !!$input.closest("#fs_modal").length || $(this).data("flat");
       $input.pickmeup({
         flat: flat,
-        first_day: 0,
+        first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
         hide_on_select: true,
         min: $(this).data("min") || null,
         max: $(this).data("max") || null,
@@ -4550,6 +4554,13 @@
         class_name: "plastic_date_picker",
         hide: function() {
           $input.trigger("input");
+        },
+        locale: {
+          days: TS.utility.date.day_names,
+          daysShort: TS.utility.date.short_day_names,
+          daysMin: TS.utility.date.really_short_day_names,
+          months: TS.utility.date.month_names,
+          monthsShort: TS.utility.date.short_month_names
         }
       }).pickmeup("show");
       if (flat) {

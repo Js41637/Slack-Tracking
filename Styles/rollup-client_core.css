@@ -5609,8 +5609,8 @@ hr {
   color: #fff;
   height: 61px;
   width: 220px;
-  background: #4d394b;
-  border-bottom: 1px solid #4d394b;
+  background: #4D394B;
+  border-bottom: 1px solid #4D394B;
   float: left;
   position: relative;
   z-index: 50
@@ -5801,7 +5801,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
 #team_menu_user {
   position: relative;
   margin-top: .125rem;
-  color: #ab9ba9;
+  color: #AB9BA9;
   font-size: .875rem;
   font-weight: 400;
   line-height: 1.5;
@@ -5857,7 +5857,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
 
 #presence.away:before,
 #presence.connecting:before {
-  color: #ab9ba9;
+  color: #AB9BA9;
   opacity: .6
 }
 
@@ -6017,13 +6017,13 @@ only screen and (min-resolution:2dppx) {
 }
 
 .whats_new_showing #flex_menu_toggle.unread #help_icon_circle_count {
-  background-color: #e8e8e8;
+  background-color: #E8E8E8;
   color: #717274
 }
 
 #flex_menu_toggle.open #help_icon_circle_count {
   display: inline-block;
-  background-color: #2d9ee0;
+  background-color: #2D9EE0;
   color: #fff;
   z-index: 2
 }
@@ -6055,7 +6055,7 @@ only screen and (min-resolution:2dppx) {
   left: 220px;
   right: 0;
   height: 8px;
-  border-bottom: 1px solid #e8e8e8;
+  border-bottom: 1px solid #E8E8E8;
   background: #fff;
   content: '';
   z-index: 200
@@ -6205,8 +6205,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 #footer.disabled #msg_input {
-  border: 2px solid #f7f7f7!important;
-  background: #f7f7f7!important;
+  border: 2px solid #F7F7F7!important;
+  background: #F7F7F7!important;
   border-top-right-radius: .2rem;
   border-bottom-right-radius: .2rem;
   border-bottom-left-radius: .2rem;
@@ -6498,7 +6498,7 @@ only screen and (min-resolution:2dppx) {
   left: 0;
   width: 2.75rem;
   padding: 0;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #E0E0E0;
   background: #fff;
   color: rgba(0, 0, 0, .35);
   line-height: 2.625rem;
@@ -6522,9 +6522,9 @@ only screen and (min-resolution:2dppx) {
 
 #primary_file_button.active,
 #primary_file_button:hover {
-  background: #56b68b;
+  background: #56B68B;
   color: #fff;
-  border-color: #56b68b
+  border-color: #56B68B
 }
 
 #primary_file_button .starburst {
@@ -6672,7 +6672,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #connection_div {
-  background: #dfa941
+  background: #DFA941
 }
 
 #connection_div a {
@@ -6693,7 +6693,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .secondary_file_button:hover {
-  color: #005e99!important;
+  color: #005E99!important;
   text-decoration: none
 }
 
@@ -6731,7 +6731,7 @@ only screen and (min-resolution:2dppx) {
 
 .btn_convert_to_snippet {
   vertical-align: baseline;
-  color: #007ab8
+  color: #007AB8
 }
 
 .btn_convert_to_snippet:focus,
@@ -6924,7 +6924,7 @@ only screen and (min-resolution:2dppx) {
   margin-left: 0;
   margin-bottom: .5rem;
   padding-left: .75rem;
-  border-left: 2px solid #3d3c40
+  border-left: 2px solid #3D3C40
 }
 
 #shortcuts_dialog .shortcut_category li {
@@ -6948,7 +6948,7 @@ only screen and (min-resolution:2dppx) {
   position: absolute;
   top: -.75rem;
   right: -.75rem;
-  background: #3d3c40;
+  background: #3D3C40;
   opacity: 0;
   -moz-opacity: 0;
   -khtml-opacity: 0;
@@ -7008,7 +7008,7 @@ only screen and (min-resolution:2dppx) {
   font-size: .8rem;
   margin: 0 2px;
   border-radius: .25rem;
-  color: #3d3c40;
+  color: #3D3C40;
   border-bottom: 2px solid #9e9ea6;
   box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
   text-shadow: none
@@ -7104,7 +7104,7 @@ only screen and (min-resolution:2dppx) {
   bottom: 0;
   left: 0;
   width: 220px;
-  background: #4d394b
+  background: #4D394B
 }
 
 .client_container #col_channels_footer {
@@ -7214,7 +7214,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #quick_switcher_btn {
-  border-top: 2px solid #4d394b;
+  border-top: 2px solid #4D394B;
   cursor: pointer;
   -webkit-font-smoothing: antialiased;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -7230,7 +7230,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #quick_switcher_btn>i {
-  color: #ab9ba9;
+  color: #AB9BA9;
   opacity: 1;
   -moz-opacity: 1;
   -khtml-opacity: 1;
@@ -7291,7 +7291,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #quick_switcher_shortcut {
-  color: #ab9ba9;
+  color: #AB9BA9;
   opacity: 0;
   -moz-opacity: 0;
   -khtml-opacity: 0;
@@ -7303,7 +7303,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #quick_switcher_label {
-  color: #ab9ba9;
+  color: #AB9BA9;
   opacity: 0;
   -moz-opacity: 0;
   -khtml-opacity: 0;
@@ -7333,8 +7333,8 @@ only screen and (min-resolution:2dppx) {
 #recent_mentions_toggle.onboarding,
 #stars_toggle.onboarding {
   cursor: default;
-  background: #f7f7f7;
-  border: 1px solid #f7f7f7;
+  background: #F7F7F7;
+  border: 1px solid #F7F7F7;
   border-radius: 15px;
   box-shadow: none;
   height: 30px
@@ -7369,8 +7369,8 @@ only screen and (min-resolution:2dppx) {
 
 #search_container.onboarding .search_input_wrapper {
   cursor: default;
-  background: #f7f7f7;
-  border: 1px solid #f7f7f7;
+  background: #F7F7F7;
+  border: 1px solid #F7F7F7;
   border-radius: 15px;
   box-shadow: none;
   height: 30px
@@ -7387,7 +7387,7 @@ only screen and (min-resolution:2dppx) {
 
 #message-input.onboarding,
 #primary_file_button.onboarding {
-  border-color: #2d9ee0!important;
+  border-color: #2D9EE0!important;
   -webkit-transition: border-color ease-in .75s 0s;
   -moz-transition: border-color ease-in .75s 0s;
   transition: border-color ease-in .75s 0s
@@ -7410,7 +7410,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .overlay_mock_text {
-  background: #ab9ba9;
+  background: #AB9BA9;
   opacity: .1;
   height: .5rem;
   margin-left: .75rem
@@ -7439,8 +7439,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 #team_menu_overlay {
-  background: #4d394b;
-  border-bottom: 2px solid #4d394b;
+  background: #4D394B;
+  border-bottom: 2px solid #4D394B;
   -ms-box-sizing: content-box;
   -moz-box-sizing: content-box;
   -webkit-box-sizing: content-box;
@@ -7454,7 +7454,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 #col_channels_overlay {
-  background: #4d394b;
+  background: #4D394B;
   width: 220px
 }
 
@@ -7697,10 +7697,10 @@ ts-memory-instrument {
   background: #fff;
   font-size: 12px;
   padding: 0;
-  color: #3d3c40;
+  color: #3D3C40;
   font-family: Helvetica;
   border-radius: .25rem 0 0;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #E0E0E0;
   cursor: zoom-in
 }
 
@@ -7849,12 +7849,12 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
 }
 
 #recap_nav button:hover {
-  color: #007ab8
+  color: #007AB8
 }
 
 #recap_nav button.disabled {
   opacity: 1!important;
-  color: #e8e8e8;
+  color: #E8E8E8;
   background: #f3f3f3!important;
   text-shadow: none
 }
@@ -7884,6 +7884,6 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
   font-size: 26px;
   padding: 5px 20px;
   color: #fff;
-  background: #2c2d30;
+  background: #2C2D30;
   border-radius: 5px
 }

@@ -17416,10 +17416,17 @@
       this._$calendar = $("<div/>").addClass(CALENDAR_CLASS).addClass(this.options.hidden_class).prependTo(this._$ac_menu);
       this._$calendar.pickmeup({
         flat: true,
-        first_day: 0,
+        first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
         format: CALENDAR_FORMAT,
         change: $.proxy(this._onCalendarChange, this),
-        max: Date.now()
+        max: Date.now(),
+        locale: {
+          days: TS.utility.date.day_names,
+          daysShort: TS.utility.date.short_day_names,
+          daysMin: TS.utility.date.really_short_day_names,
+          months: TS.utility.date.month_names,
+          monthsShort: TS.utility.date.short_month_names
+        }
       });
     },
     _setCalendarModifier: function(modifier) {
@@ -26660,6 +26667,14 @@
           if (/^\d+\.\d+$/.test(query.thread_ts)) thread_ts = query.thread_ts;
         }
         if (thread_ts && thread_ts !== actual_ts) {
+          if ($el.hasClass("timestamp")) {
+            if ($el.closest("#convo_container").length !== 0) {
+              container_id = TS.templates.makeMsgDomIdInConversation(actual_ts);
+              if ($el.closest("#" + container_id).length !== 0) {
+                return true;
+              }
+            }
+          }
           TS.ui.replies.openConversation(model_ob, thread_ts, actual_ts, origin);
           return true;
         }
@@ -38692,12 +38707,19 @@ function timezones_guess() {
       if (boot_data.calendar_start) selected_date = TS.utility.date.toDateObject(boot_data.calendar_start);
       if (boot_data.calendar_oldest) min_date = TS.utility.date.toDateObject(boot_data.calendar_oldest);
       TS.ui.date_picker.start($element, {
-        first_day: 0,
+        first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
         hide_on_select: true,
         select_year: true,
         date: selected_date,
         min: min_date,
         max: today,
+        locale: {
+          days: TS.utility.date.day_names,
+          daysShort: TS.utility.date.short_day_names,
+          daysMin: TS.utility.date.really_short_day_names,
+          months: TS.utility.date.month_names,
+          monthsShort: TS.utility.date.short_month_names
+        },
         change: function() {
           selected_date = $(this).pickmeup("get_date");
           var timestamp = Date.parse(selected_date) * 1e3;
@@ -38832,13 +38854,20 @@ function timezones_guess() {
     var today = Date.now();
     var selected_date = today;
     TS.ui.date_picker.start($element, {
-      first_day: 0,
+      first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
       hide_on_select: true,
       select_year: false,
       flat: true,
       date: selected_date,
       min: min_date,
       max: today,
+      locale: {
+        days: TS.utility.date.day_names,
+        daysShort: TS.utility.date.short_day_names,
+        daysMin: TS.utility.date.really_short_day_names,
+        months: TS.utility.date.month_names,
+        monthsShort: TS.utility.date.short_month_names
+      },
       change: function() {
         selected_date = $(this).pickmeup("get_date");
         _jumpToDateJumper(selected_date);

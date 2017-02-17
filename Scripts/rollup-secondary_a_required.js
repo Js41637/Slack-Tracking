@@ -11182,7 +11182,7 @@ TS.registerModule("constants", {
     ensureMembersArePresentInModelObs: function(model_obs) {
       var m_ids = [];
       var c_ids = [];
-      if (TS.boot_data.page_needs_enterprise && TS.boot_data.exlude_org_members) return Promise.resolve();
+      if (TS.boot_data.page_needs_enterprise && TS.boot_data.exclude_org_members) return Promise.resolve();
       model_obs.forEach(function(model_ob) {
         if (model_ob.is_im) {
           m_ids.push(model_ob.user);
@@ -22204,9 +22204,6 @@ TS.registerModule("constants", {
         }
         if (!TS.utility.msgs.isTempMsg(msg) && !msg.is_ephemeral) {
           template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
-          if (is_in_conversation && TS.utility.msgs.isMsgReply(msg)) {
-            delete template_args.permalink;
-          }
           template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
         }
         if (args.for_top_results_search_display && TS.boot_data.page_needs_enterprise) {
@@ -24359,6 +24356,7 @@ TS.registerModule("constants", {
     really_short_month_names: [TS.i18n.t("Jan", "date_utilities")(), TS.i18n.t("Feb", "date_utilities")(), TS.i18n.t("Mar", "date_utilities")(), TS.i18n.t("Apr", "date_utilities")(), TS.i18n.t("May", "date_utilities")(), TS.i18n.t("Jun", "date_utilities")(), TS.i18n.t("Jul", "date_utilities")(), TS.i18n.t("Aug", "date_utilities")(), TS.i18n.t("Sep", "date_utilities")(), TS.i18n.t("Oct", "date_utilities")(), TS.i18n.t("Nov", "date_utilities")(), TS.i18n.t("Dec", "date_utilities")()],
     day_names: [TS.i18n.t("Sunday", "date_utilities")(), TS.i18n.t("Monday", "date_utilities")(), TS.i18n.t("Tuesday", "date_utilities")(), TS.i18n.t("Wednesday", "date_utilities")(), TS.i18n.t("Thursday", "date_utilities")(), TS.i18n.t("Friday", "date_utilities")(), TS.i18n.t("Saturday", "date_utilities")()],
     short_day_names: [TS.i18n.t("Sun", "date_utilities")(), TS.i18n.t("Mon", "date_utilities")(), TS.i18n.t("Tue", "date_utilities")(), TS.i18n.t("Wed", "date_utilities")(), TS.i18n.t("Thu", "date_utilities")(), TS.i18n.t("Fri", "date_utilities")(), TS.i18n.t("Sat", "date_utilities")()],
+    really_short_day_names: [TS.i18n.t("Su", "date_utilities")(), TS.i18n.t("Mo", "date_utilities")(), TS.i18n.t("Tu", "date_utilities")(), TS.i18n.t("We", "date_utilities")(), TS.i18n.t("Th", "date_utilities")(), TS.i18n.t("Fr", "date_utilities")(), TS.i18n.t("Sa", "date_utilities")()],
     ones_digit_names: [TS.i18n.t("zero", "date_utilities")(), TS.i18n.t("one", "date_utilities")(), TS.i18n.t("two", "date_utilities")(), TS.i18n.t("three", "date_utilities")(), TS.i18n.t("four", "date_utilities")(), TS.i18n.t("five", "date_utilities")(), TS.i18n.t("six", "date_utilities")(), TS.i18n.t("seven", "date_utilities")(), TS.i18n.t("eight", "date_utilities")(), TS.i18n.t("nine", "date_utilities")(), TS.i18n.t("ten", "date_utilities")(), TS.i18n.t("eleven", "date_utilities")(), TS.i18n.t("twelve", "date_utilities")(), TS.i18n.t("thirteen", "date_utilities")(), TS.i18n.t("fourteen", "date_utilities")(), TS.i18n.t("fifteen", "date_utilities")(), TS.i18n.t("sixteen", "date_utilities")(), TS.i18n.t("seventeen", "date_utilities")(), TS.i18n.t("eighteen", "date_utilities")(), TS.i18n.t("nineteen", "date_utilities")()],
     tens_digit_names: [TS.i18n.t("twenty", "date_utilities")(), TS.i18n.t("thirty", "date_utilities")(), TS.i18n.t("forty", "date_utilities")(), TS.i18n.t("fifty", "date_utilities")(), TS.i18n.t("sixty", "date_utilities")(), TS.i18n.t("seventy", "date_utilities")(), TS.i18n.t("eighty", "date_utilities")(), TS.i18n.t("ninety", "date_utilities")()],
     ones_digit_ordinal_names: [TS.i18n.t("zeroth", "date_utilities")(), TS.i18n.t("first", "date_utilities")(), TS.i18n.t("second", "date_utilities")(), TS.i18n.t("third", "date_utilities")(), TS.i18n.t("fourth", "date_utilities")(), TS.i18n.t("fifth", "date_utilities")(), TS.i18n.t("sixth", "date_utilities")(), TS.i18n.t("seventh", "date_utilities")(), TS.i18n.t("eighth", "date_utilities")(), TS.i18n.t("ninth", "date_utilities")(), TS.i18n.t("tenth", "date_utilities")(), TS.i18n.t("eleventh", "date_utilities")(), TS.i18n.t("twelfth", "date_utilities")(), TS.i18n.t("thirteenth", "date_utilities")(), TS.i18n.t("fourteenth", "date_utilities")(), TS.i18n.t("fifteenth", "date_utilities")(), TS.i18n.t("sixteenth", "date_utilities")(), TS.i18n.t("seventeenth", "date_utilities")(), TS.i18n.t("eighteenth", "date_utilities")(), TS.i18n.t("nineteenth", "date_utilities")()],
@@ -28276,7 +28274,7 @@ TS.registerModule("constants", {
         return false;
       }
       var char = String.fromCharCode(e.keyCode);
-      if (/^(\w|[$-/:-?{-~!"^_`\[\]])$/i.test(char)) return true;
+      if (/^(\w|[$-\/:-?{-~!"^_`\[\]])$/i.test(char)) return true;
       return true;
     },
     isForwardDeleteKey: function(e) {
@@ -35943,13 +35941,13 @@ var _on_esc;
             if (m) {
               var group = TS.groups.getGroupById(TS.model.active_group_id);
               if (group && group.members.indexOf(m.id) !== -1) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
+                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this group.", "cmd_handlers")({
                   user: member_identifier
                 }), cmd + " " + rest);
                 return;
               }
               if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(group, m)) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This channel is not available to {user}", "cmd_handlers")({
+                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This group is not available to {user}", "cmd_handlers")({
                   user: member_identifier
                 }), cmd + " " + rest, "sad_surprise");
                 return;
@@ -39979,6 +39977,9 @@ var _on_esc;
         if ($(this).data("account-type")) options.account_type = $(this).data("account-type");
         _start(options);
       });
+      TS.experiment.loadUserAssignments().then(function() {
+        _assignments_loaded = true;
+      });
     },
     onLogin: function() {
       _setPlaceholderEmailAddress();
@@ -40067,6 +40068,7 @@ var _on_esc;
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
+  var _assignments_loaded = false;
   var _NUM_INVITES = 3;
   var _modal_3_fields_group;
   var _error_map = {
@@ -40134,6 +40136,7 @@ var _on_esc;
     }
   };
   var _start = function(options) {
+    if (!_assignments_loaded) return;
     var account_type;
     _modal_3_fields_group = TS.experiment.getGroup("modal_3_fields");
     if (_shouldSeeAccountTypeOptions()) {
@@ -42394,7 +42397,7 @@ var _on_esc;
     if (TS.boot_data.feature_name_tagging_client) {
       field_names = ["full_name", "preferred_name", "title", "phone"];
     }
-    if (TS.boot_data.feature_user_custom_status && TS.boot_data.app == "client") {
+    if (TS.boot_data.feature_user_custom_status && TS.client) {
       field_names = field_names.concat(["status_emoji", "status_text"]);
     }
     var profile = {};
@@ -42404,7 +42407,12 @@ var _on_esc;
       profile[name] = value && value.trim();
       $field.val("").val(value);
     });
-    (TS.model.team.profile.fields || []).filter(function(field) {
+    if (TS.boot_data.feature_user_custom_status && TS.client) {
+      var current_status_input = TS.ui.edit_member_profile._current_status_input;
+      if (current_status_input && current_status_input.isEdited()) {
+        current_status_input.clogStatusChange(profile.status_text, profile.status_emoji);
+      }
+    }(TS.model.team.profile.fields || []).filter(function(field) {
       return !field.is_hidden;
     }).forEach(function(field) {
       var $field = _$div.find('input[name="' + field.id + '"], select[name="' + field.id + '"]');
@@ -42440,7 +42448,7 @@ var _on_esc;
         TS.model.user.profile = response.data.profile;
         TS.members.upsertMember(TS.model.user);
       }
-      if (TS.client) TS.ui.edit_member_profile._unregisterCurrentStatusInput();
+      if (TS.boot_data.feature_user_custom_status && TS.client) TS.ui.edit_member_profile._unregisterCurrentStatusInput();
       TS.ui.fs_modal.close();
     }).catch(function(error) {
       $(".edit_member_profile_confirm_edit_btn").addClass("disabled");
@@ -46821,6 +46829,7 @@ $.fn.togglify = function(settings) {
     } else {
       content = instance.template(item);
     }
+    var description = _formatTextForDisplay($item.data("lfs-item-desc"), instance);
     var class_map = {
       active: instance._previous_val !== "" && !selected && !disabled,
       disabled: disabled,
@@ -46835,7 +46844,7 @@ $.fn.togglify = function(settings) {
     return TS.templates.lazy_filter_select_item({
       content: content,
       icon: $item.data("lfs-item-icon"),
-      desc: $item.data("lfs-item-desc"),
+      desc: new Handlebars.SafeString(description),
       applied_classes: TS.utility.getAppliedClasses(class_map),
       lfs_id: item.lfs_id,
       data_qa: instance.data_qa
@@ -47049,13 +47058,14 @@ $.fn.togglify = function(settings) {
     if (!_instanceCanSluggify(instance)) return;
     if (!_itemIsUserCreatedSlug(item)) return;
     var $item = $(item);
+    var description = _formatTextForDisplay($item.data("lfs-item-desc"), instance);
     instance._slug_id_counter = Math.max(item.lfs_slug_id, instance._slug_id_counter) + 1;
     instance._selected.push(item);
     var $slug;
     var slug_html = TS.templates.lazy_filter_select_item({
       content: instance.tokenTemplate(item),
       icon: $item.data("lfs-item-icon"),
-      desc: $item.data("lfs-item-desc"),
+      desc: new Handlebars.SafeString(description),
       applied_classes: "lfs_token",
       slug_id: item.lfs_slug_id,
       data_qa: instance.data_qa
@@ -60670,8 +60680,7 @@ $.fn.togglify = function(settings) {
         v = e._source,
         m = e._owner;
       if (null != t) {
-        r(t) && (p = t.ref, m = a.current),
-          o(t) && (d = "" + t.key);
+        r(t) && (p = t.ref, m = a.current), o(t) && (d = "" + t.key);
         var g;
         e.type && e.type.defaultProps && (g = e.type.defaultProps);
         for (l in t) u.call(t, l) && !s.hasOwnProperty(l) && (void 0 === t[l] && void 0 !== g ? f[l] = g[l] : f[l] = t[l]);
@@ -66228,8 +66237,7 @@ $.fn.togglify = function(settings) {
     n(1), n(2), r.prototype.isReactComponent = {}, r.prototype.setState = function(e, t) {
       "object" != typeof e && "function" != typeof e && null != e ? o("85") : void 0, this.updater.enqueueSetState(this, e), t && this.updater.enqueueCallback(this, t, "setState");
     }, r.prototype.forceUpdate = function(e) {
-      this.updater.enqueueForceUpdate(this),
-        e && this.updater.enqueueCallback(this, e, "forceUpdate");
+      this.updater.enqueueForceUpdate(this), e && this.updater.enqueueCallback(this, e, "forceUpdate");
     }, e.exports = r;
   },
   function(e, t, n) {
@@ -69412,7 +69420,8 @@ $.fn.togglify = function(settings) {
               n = this.getInitialPosition(e),
               r = n.left,
               o = n.top;
-            if (n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)), n.top < t.top) o = n.top + (t.top - n.top);
+            if (n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)),
+              n.top < t.top) o = n.top + (t.top - n.top);
             else if (n.bottom > t.bottom) {
               var i = n.bottom - Math.max(t.top, t.bottom - n.height);
               o = n.top - i;

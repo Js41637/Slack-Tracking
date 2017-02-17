@@ -39,7 +39,7 @@
 
 #menu.date_picker .pickmeup .pmu-instance .pmu-button:not(.pmu-disabled):hover,
 #menu.date_picker .pickmeup .pmu-instance .pmu-selected {
-  background: #2d9ee0
+  background: #2D9EE0
 }
 
 #menu.date_picker li.date_picker_item {
@@ -50,7 +50,7 @@
 #menu.date_picker li.date_picker_item a {
   font-weight: 600;
   font-size: .9rem;
-  color: #007ab8
+  color: #007AB8
 }
 
 #menu.date_picker li.date_picker_item a:hover,

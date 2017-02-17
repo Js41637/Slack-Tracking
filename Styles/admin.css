@@ -90,7 +90,7 @@
   position: absolute;
   right: .5rem;
   top: 1rem;
-  color: #007ab8
+  color: #007AB8
 }
 
 .admin_list_item .member_actions,
@@ -103,7 +103,7 @@
 }
 
 .admin_list_item .pill.group {
-  background: #4d394b
+  background: #4D394B
 }
 
 .admin_list_item .two_factor_auth_badge {
@@ -112,13 +112,13 @@
 }
 
 .admin_list_item .two_factor_auth_badge:hover {
-  background: #e8e8e8
+  background: #E8E8E8
 }
 
 .admin_list_item .inline_email:hover,
 .admin_list_item .inline_name:hover,
 .admin_list_item .inline_username:hover {
-  background: #fffce0!important;
+  background: #FFFCE0!important;
   cursor: pointer
 }
 
@@ -179,11 +179,11 @@
 }
 
 .admin_list_item.invite_item.bouncing {
-  background: #fffce0
+  background: #FFFCE0
 }
 
 .admin_list_item.invite_item.bouncing .email {
-  color: #cb5234
+  color: #CB5234
 }
 
 .restricted_header {
@@ -234,13 +234,13 @@
 }
 
 .admin_list_item.expanded .btn_outline {
-  color: #007ab8!important;
-  border-color: #007ab8
+  color: #007AB8!important;
+  border-color: #007AB8
 }
 
 .admin_list_item.expanded .btn_outline:hover {
-  color: #005e99!important;
-  border-color: #005e99
+  color: #005E99!important;
+  border-color: #005E99
 }
 
 .admin_list_item.expanded .sub_action {
@@ -250,7 +250,7 @@
 }
 
 .admin_list_item.expanded .sub_action:hover {
-  color: #005e99
+  color: #005E99
 }
 
 @media screen and (max-width:768px) {
@@ -307,11 +307,11 @@
   text-decoration: underline;
   text-shadow: none;
   margin-left: .25rem;
-  color: #3c4b5b
+  color: #3C4B5B
 }
 
 .notice_error {
-  background: #dfa941;
+  background: #DFA941;
   font-weight: 700
 }
 
@@ -329,7 +329,7 @@
 }
 
 .notice_error .btn_outline.notice_dismiss:hover {
-  color: #dfa941!important
+  color: #DFA941!important
 }
 
 .admin_list_item.error .notice_error,
@@ -381,12 +381,12 @@
 }
 
 .restriction_option:hover {
-  background: #f0f7fb;
+  background: #F0F7FB;
   text-decoration: none
 }
 
 .restriction_option:hover .ts_icon_arrow_right {
-  color: #005e99
+  color: #005E99
 }
 
 .restriction_option i {
@@ -409,7 +409,7 @@
 .restriction_option .ts_icon_arrow_right {
   float: right;
   line-height: 2rem;
-  color: #007ab8
+  color: #007AB8
 }
 
 @media only screen and (max-width:767px) {
@@ -569,11 +569,11 @@ label[for=enable_calls_checkbox] input[type=checkbox] {
 }
 
 .admin_pref:not(:first-of-type) {
-  border-top: 1px solid #e8e8e8
+  border-top: 1px solid #E8E8E8
 }
 
 .admin_pref.locked {
-  background-color: #f9f9f9;
+  background-color: #F9F9F9;
   padding-bottom: 1rem
 }
 

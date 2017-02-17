@@ -110,13 +110,13 @@ h1 a:visited {
 a,
 a:link,
 a:visited {
-  color: #007ab8
+  color: #007AB8
 }
 
 a:active,
 a:focus,
 a:hover {
-  color: #005e99
+  color: #005E99
 }
 
 li {
@@ -139,7 +139,7 @@ code {
   font-size: .75rem;
   line-height: .75rem;
   white-space: normal;
-  color: #c25;
+  color: #C25;
   padding: 1px 3px;
   -webkit-font-variant-ligatures: none;
   font-variant-ligatures: none;
