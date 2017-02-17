@@ -6,7 +6,7 @@
     {{makeModelObPriorityIconSafe model_ob}}
     {{#if show_starred}}{{makeModelObStarredIconSafe model_ob}}{{/if}}
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
-    <button class="channel_name btn_basic" data-channel-id="{{model_ob.id}}" aria-label="{{{makeChannelLinkAriaLabelSafe model_ob}}}"{{#feature flag="feature_multnomah"}} draggable="true" data-drag-meta="{{makeChannelDragData model_ob}}"{{/feature}} type="button">
+    <button class="channel_name btn_basic" data-channel-id="{{model_ob.id}}" aria-label="{{{makeChannelLinkAriaLabelSafe model_ob}}}"{{#feature flag="feature_arugula"}} draggable="true" data-drag-meta="{{makeChannelDragData model_ob}}"{{/feature}} type="button">
       {{#if model_ob.is_archived}}
         {{#if model_ob.is_moved}}
           {{> ts_icon class="ts_icon_angle_arrow_up_left prefix"}}

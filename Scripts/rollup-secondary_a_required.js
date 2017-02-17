@@ -5853,8 +5853,8 @@ TS.registerModule("constants", {
         }
       });
     },
-    createMultnomah: function(callback) {
-      TS.api.callSynchronously("files.createMultnomah", {}, function(ok, data, args) {
+    createArugula: function(callback) {
+      TS.api.callSynchronously("files.createArugula", {}, function(ok, data, args) {
         if (ok) {
           var file = TS.files.upsertAndSignal(data.file).file;
           if (TS.web) TS.ssb.upsertFileInSSBParentWin(file);
@@ -5865,8 +5865,8 @@ TS.registerModule("constants", {
         }
       });
     },
-    createAndOpenNewMultnomah: function(optional_callback, open_in_browser) {
-      TS.files.createMultnomah(function(file) {
+    createAndOpenNewArugula: function(optional_callback, open_in_browser) {
+      TS.files.createArugula(function(file) {
         if (file) {
           var qs = TS.model.active_cid ? "?origin_channel=" + TS.model.active_cid : "";
           var url = file.permalink + qs;
@@ -6095,19 +6095,19 @@ TS.registerModule("constants", {
         actions.open_original = true;
       }
       if (TS.web) {
-        if (file.mode == "post" || file.mode == "snippet" || file.mode == "space" || file.mode == "email" || file.mode == "multnomah") {
+        if (file.mode == "post" || file.mode == "snippet" || file.mode == "space" || file.mode == "email" || file.mode == "arugula") {
           actions.print = true;
         }
       }
       if (file.mode == "space" && !(file.user === "USLACKBOT" && file.name === "Getting_Started_with_Posts")) {
         actions.learn_more = true;
       }
-      if (file.mode == "space" || file.mode == "multnomah") {
+      if (file.mode == "space" || file.mode == "arugula") {
         actions.new_window = true;
       }
       if (file.mode == "space" && file.state != "locked") actions.edit = true;
       if (file_belongs_to_user) {
-        if (file.mode == "snippet" || file.mode == "post" || file.mode == "space" || file.mode == "multnomah") {
+        if (file.mode == "snippet" || file.mode == "post" || file.mode == "space" || file.mode == "arugula") {
           actions.edit = true;
         }
         if (file.mode == "hosted" || file.mode == "email") {
@@ -6292,7 +6292,7 @@ TS.registerModule("constants", {
       var args = {};
       args.current_user_id = TS.model.user.id;
       args.file_partial = "generic";
-      if (/(snippet|post|email|multnomah)/.test(file.mode)) args.file_partial = file.mode;
+      if (/(snippet|post|email|arugula)/.test(file.mode)) args.file_partial = file.mode;
       if (/(space)/.test(file.mode)) args.file_partial = "post";
       if (TS.files.fileIsImage(file)) {
         args.file_partial = "image";
@@ -6310,7 +6310,7 @@ TS.registerModule("constants", {
           args.preview_actions_class += " overflow_preview_actions_width";
         }
       }
-      if (/(post|space|email|multnomah|generic)/.test(args.file_partial)) args.title_hider = true;
+      if (/(post|space|email|arugula|generic)/.test(args.file_partial)) args.title_hider = true;
       if (file.mode == "snippet") args.title_hider = file.title === "Untitled";
       args.filesize = file.size > 2e4 && !/(gdoc|gpres|gsheet|gdraw)/.test(file.filetype);
       if (!/(space|post)/.test(file.filetype)) args.meta_filetype = new Handlebars.SafeString(TS.templates.builders.makeFiletypeHTML(file));
@@ -6352,7 +6352,7 @@ TS.registerModule("constants", {
       var is_post = file.mode === "post";
       var is_post_or_space = file.mode === "space" || file.mode === "post";
       var is_snippet = file.mode === "snippet";
-      var is_multnomah = file.mode == "multnomah";
+      var is_arugula = file.mode == "arugula";
       var template_args = {
         file: file,
         user: TS.model.user,
@@ -6362,7 +6362,7 @@ TS.registerModule("constants", {
         is_post: is_post,
         is_post_or_space: is_post_or_space,
         is_snippet: is_snippet,
-        is_multnomah: is_multnomah,
+        is_arugula: is_arugula,
         show_open_public_link: !TS.model.team.prefs.disallow_public_file_urls,
         show_revoke_public_link: !TS.model.team.prefs.disallow_public_file_urls && file_actions.revoke_public_link
       };
@@ -33980,7 +33980,7 @@ var _on_esc;
       var should_show_email = TS.boot_data.feature_email_ingestion && TS.model.team.prefs.allow_email_ingestion;
       var should_show_thanks = TS.boot_data.feature_thanks;
       var should_show_box = TS.utility.box.isBrowserSupported() && TS.model.prefs.box_enabled;
-      var should_show_multnomah = TS.boot_data.feature_multnomah;
+      var should_show_arugula = TS.boot_data.feature_arugula;
       var should_show_dropbox = window.Dropbox && Dropbox.isBrowserSupported() && TS.model.prefs.dropbox_enabled;
       var should_show_gdrive = TS.boot_data.feature_gdrive_1_dot_5 && TS.model.team.prefs.gdrive_enabled_team;
       var cloud_service_count = 0;
@@ -33995,7 +33995,7 @@ var _on_esc;
         should_show_box: should_show_box,
         should_show_dropbox: should_show_dropbox,
         should_show_gdrive: should_show_gdrive,
-        should_show_multnomah: should_show_multnomah,
+        should_show_arugula: should_show_arugula,
         file_type: file_type,
         upload_file_text: upload_file_text,
         use_cloud_submenu: use_cloud_submenu
@@ -34089,10 +34089,10 @@ var _on_esc;
         e.preventDefault();
         var open_in_browser = TS.utility.cmdKey(e);
         TS.files.createAndOpenNewSpace(null, open_in_browser);
-      } else if (which == "multnomah") {
+      } else if (which == "arugula") {
         e.preventDefault();
         var open_in_browser = TS.utility.cmdKey(e);
-        TS.files.createAndOpenNewMultnomah(null, open_in_browser);
+        TS.files.createAndOpenNewArugula(null, open_in_browser);
       } else {
         e.preventDefault();
         TS.warn("not sure what to do with clicked element:" + which);
@@ -34292,7 +34292,7 @@ var _on_esc;
         }
       } else if (id == "edit_file_post") {} else if (id == "edit_file_space" || id == "open_new_window") {
         if (TS.client.windows.openFileWindow(file.id)) e.preventDefault();
-      } else if (id == "edit_file_multnomah") {} else if (id == "edit_file_title") {
+      } else if (id == "edit_file_arugula") {} else if (id == "edit_file_title") {
         e.preventDefault();
         TS.client.ui.files.previewFile(file.id, "file_list");
         TS.files.editFileTitle(file.id);
@@ -40070,7 +40070,7 @@ var _on_esc;
   var _clog_name = _event_family_name + "_ACTION";
   var _assignments_loaded = false;
   var _NUM_INVITES = 3;
-  var _modal_3_fields_group;
+  var _in_modal_3_fields_group = false;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
     invalid_email: TS.i18n.t("That doesn’t look like a valid email address!", "invite")(),
@@ -40138,7 +40138,9 @@ var _on_esc;
   var _start = function(options) {
     if (!_assignments_loaded) return;
     var account_type;
-    _modal_3_fields_group = TS.experiment.getGroup("modal_3_fields");
+    if (TS.experiment.getGroup("modal_3_fields") === "modal_3_fields" || TS.experiment.getGroup("modal_3_fields_existing_teams") === "modal_3_fields") {
+      _in_modal_3_fields_group = true;
+    }
     if (_shouldSeeAccountTypeOptions()) {
       if (options && options.account_type) {
         account_type = options.account_type;
@@ -40216,7 +40218,7 @@ var _on_esc;
     } else {
       _addRow();
     }
-    if (_modal_3_fields_group === "modal_3_fields") {
+    if (_in_modal_3_fields_group) {
       var current_num_of_invite_rows = _$div.find(".admin_invite_row").length;
       if (current_num_of_invite_rows < _NUM_INVITES) {
         var num_of_rows_to_add = _NUM_INVITES - current_num_of_invite_rows;
@@ -40346,7 +40348,7 @@ var _on_esc;
     if (contact_data.items !== undefined) {
       var tooltip_text = TS.i18n.t("Type here to search your Google contacts", "invite")();
       var tooltip = '<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">' + tooltip_text + "</span></span>";
-      if (_modal_3_fields_group === "modal_3_fields") {
+      if (_in_modal_3_fields_group) {
         var $first_empty_row = $("input.email_field").filter(function() {
           return !this.value;
         }).first();
@@ -40405,7 +40407,7 @@ var _on_esc;
         $row.find('[name="last_name"]').val(email.last_name);
       }
     }
-    if (_modal_3_fields_group !== "modal_3_fields") {
+    if (!_in_modal_3_fields_group) {
       _updateSendButtonLabel();
     }
     if (TS.google_auth.isAuthed(_google_auth_instance_id) && _google_contacts_data) {
@@ -40445,7 +40447,7 @@ var _on_esc;
       } else if (row_count === 1) {
         _$div.find(".admin_invite_row").first().find(".delete_row").addClass("hidden");
       }
-      if (_modal_3_fields_group !== "modal_3_fields") {
+      if (!_in_modal_3_fields_group) {
         _updateSendButtonLabel();
       }
     });
@@ -40455,7 +40457,7 @@ var _on_esc;
     var account_type = $("#account_type").val();
     var label;
     if (account_type == "full") {
-      if (_modal_3_fields_group === "modal_3_fields") {
+      if (_in_modal_3_fields_group) {
         label = TS.i18n.t("Send Invitations", "invite")();
       } else {
         label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Person}other{Invite {invite_count} People}}", "invite")({
@@ -40463,7 +40465,7 @@ var _on_esc;
         });
       }
     } else if (account_type == "restricted") {
-      if (_modal_3_fields_group === "modal_3_fields") {
+      if (_in_modal_3_fields_group) {
         label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
       } else {
         label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Multi-Channel Guest}other{Invite {invite_count} Multi-Channel Guests}}", "invite")({
@@ -40471,7 +40473,7 @@ var _on_esc;
         });
       }
     } else if (account_type == "ultra_restricted") {
-      if (_modal_3_fields_group === "modal_3_fields") {
+      if (_in_modal_3_fields_group) {
         label = TS.i18n.t("Invite Single-Channel Guests", "invite")();
       } else {
         label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest}other{Invite {invite_count} Single-Channel Guests}}", "invite")({
@@ -40558,7 +40560,7 @@ var _on_esc;
       _success_invites = [];
       _error_invites = [];
       _updateSendButtonLabel();
-      if (_modal_3_fields_group === "modal_3_fields") {
+      if (_in_modal_3_fields_group) {
         _.times(_NUM_INVITES, _addRow);
       } else {
         _addRow();
@@ -44258,8 +44260,8 @@ var _on_esc;
         type = "file_space";
       } else if (item.mode == "snippet") {
         type = "file_snippet";
-      } else if (item.mode == "multnomah") {
-        type = "file_multnomah";
+      } else if (item.mode == "arugula") {
+        type = "file_arugula";
       }
       var sharing_html = TS.templates.builders.buildFileSharingControls(item, true, null, has_title);
       var file_html = hide_file_preview ? "" : TS.templates.builders.fileHTML(item, {
@@ -45040,7 +45042,7 @@ $.fn.togglify = function(settings) {
       file_id = $container.data("file-id");
       var file = TS.files.getFileById(file_id);
       if (!file) return false;
-      if (file.mode === "space" || file.mode === "post" || file.mode == "multnomah" || file.mode === "email" || file.mode === "snippet") {
+      if (file.mode === "space" || file.mode === "post" || file.mode == "arugula" || file.mode === "email" || file.mode === "snippet") {
         if ($container.hasClass("inline_collapsed")) {
           e.preventDefault();
           _expandContent(e, $msg, $container);
@@ -58664,13 +58666,17 @@ $.fn.togglify = function(settings) {
       var key = _keyForThread(c_id, thread_ts);
       if (_threads_being_loaded[key]) return _threads_being_loaded[key];
       _threads_being_loaded[key] = TS.api.call(api_endpoint, params).then(function(resp) {
-        return _processRepliesHistoryResponse(model_ob, thread_ts, resp);
+        var ret = _processRepliesHistoryResponse(model_ob, thread_ts, resp);
+        if (!ret.has_more) {
+          ret.messages.unshift(ret.root_msg);
+        }
+        return ret;
       }).finally(function() {
         delete _threads_being_loaded[key];
       });
       return _threads_being_loaded[key];
     },
-    getThreadLazyMore: function(c_id, thread_ts, oldest_ts) {
+    getThreadBefore: function(c_id, thread_ts, oldest_ts) {
       var params = {
         channel: c_id,
         thread_ts: thread_ts,
@@ -58681,17 +58687,23 @@ $.fn.togglify = function(settings) {
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
       return TS.api.call(api_endpoint, params).then(function(resp) {
         var ret = _processRepliesHistoryResponse(model_ob, thread_ts, resp);
-        if (ret.has_more) {
-          var root_msg = ret.root_msg;
-          var first_ts = root_msg.replies[0].ts;
-          if (_.find(ret.messages, {
-              ts: first_ts
-            })) {
-            ret.has_more = false;
-            ret.messages.unshift(root_msg);
-          }
+        if (!ret.has_more) {
+          ret.messages.unshift(ret.root_msg);
         }
         return ret;
+      });
+    },
+    getThreadAfter: function(c_id, thread_ts, newest_ts) {
+      var params = {
+        channel: c_id,
+        thread_ts: thread_ts,
+        oldest: newest_ts,
+        count: _REPLIES_HISTORY_API_LIMIT
+      };
+      var model_ob = TS.shared.getModelObById(c_id);
+      var api_endpoint = _repliesHistoryEndpoint(model_ob);
+      return TS.api.call(api_endpoint, params).then(function(resp) {
+        return _processRepliesHistoryResponse(model_ob, thread_ts, resp);
       });
     },
     getSubscriptionState: function(model_ob_id, thread_ts) {
@@ -58829,7 +58841,7 @@ $.fn.togglify = function(settings) {
     var root_msg = _.find(messages, {
       ts: thread_ts
     });
-    if (root_msg && has_more) {
+    if (root_msg) {
       messages = _.without(messages, root_msg);
     }
     return {
@@ -58913,7 +58925,7 @@ $.fn.togglify = function(settings) {
     });
     var always_make_api_call = true;
     var thread_p;
-    if (TS.boot_data.feature_page_replies_methods) {
+    if (TS.boot_data.feature_threads_paging_flexpane) {
       thread_p = TS.replies.getThreadLazy(c_id, thread_ts, always_make_api_call);
     } else {
       thread_p = TS.replies.getThread(c_id, thread_ts, always_make_api_call).then(function(messages_from_api) {
@@ -58977,7 +58989,7 @@ $.fn.togglify = function(settings) {
       if (!model_ob) return;
       var root_msg = TS.replies.getMessage(model_ob, thread_ts);
       if (!root_msg) return;
-      TS.replies.sanity_check_failed_sig.dispatch(model_ob, root_msg, messages_from_api);
+      TS.replies.sanity_check_failed_sig.dispatch(model_ob, root_msg, messages_from_api, thread.has_more);
       return null;
     });
     return null;
@@ -69420,8 +69432,7 @@ $.fn.togglify = function(settings) {
               n = this.getInitialPosition(e),
               r = n.left,
               o = n.top;
-            if (n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)),
-              n.top < t.top) o = n.top + (t.top - n.top);
+            if (n.left < t.left ? r = t.left : n.right > t.right && (r = Math.max(t.left, t.right - n.width)), n.top < t.top) o = n.top + (t.top - n.top);
             else if (n.bottom > t.bottom) {
               var i = n.bottom - Math.max(t.top, t.bottom - n.height);
               o = n.top - i;

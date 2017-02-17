@@ -2373,8 +2373,8 @@
         $file_container.replaceWith($snippet);
       } else if (file.mode === "email") {
         $file_container.replaceWith(TS.templates.file_email(data));
-      } else if (file.mode === "multnomah") {
-        $file_container.replaceWith(TS.templates.file_multnomah(data));
+      } else if (file.mode === "arugula") {
+        $file_container.replaceWith(TS.templates.file_arugula(data));
       } else {
         return TS.warn("Trying to rebuild message file, but cannot rebuild " + file.mode);
       }
@@ -3924,8 +3924,8 @@
       if (types.indexOf("snippets") > -1 && file.mode == "snippet") return true;
       if (types.indexOf("posts") > -1 && file.mode == "post") return true;
       if (types.indexOf("spaces") > -1 && file.mode == "space") return true;
-      if (TS.boot_data.feature_multnomah) {
-        if (types.indexOf("multnomah") > -1 && file.mode == "multnomah") return true;
+      if (TS.boot_data.feature_arugula) {
+        if (types.indexOf("arugula") > -1 && file.mode == "arugula") return true;
       }
       if (types.indexOf("emails") > -1 && file.mode == "email") return true;
       if (types.indexOf("zips") > -1 && file.filetype == "zip") return true;
@@ -5401,7 +5401,7 @@
   var _openFileWindow = function(file, qs) {
     if (!file && !file.id) return;
     var file_id = file.id;
-    if (file.mode != "space" && file.mode != "multnomah") return false;
+    if (file.mode != "space" && file.mode != "arugula") return false;
     var win = TS.client.windows.getWinByProp("file_id", file_id);
     if (win) {
       if (!TSSSB.call("focusWindow", win.token)) {
@@ -10669,7 +10669,7 @@
   };
   var _onChannelListItemDragStart = function(event) {
     var handled = false;
-    if (TS.boot_data.feature_multnomah) {
+    if (TS.boot_data.feature_arugula) {
       var drag_meta = event.target.dataset ? event.target.dataset.dragMeta : null;
       if (event && event.originalEvent.dataTransfer && drag_meta) {
         event.originalEvent.dataTransfer.effectAllowed = "link";
@@ -36963,8 +36963,8 @@ function timezones_guess() {
         $file_container.replaceWith(TS.templates.file_snippet(data));
       } else if (file.mode === "email") {
         $file_container.replaceWith(TS.templates.file_email(data));
-      } else if (file.mode === "multnomah") {
-        $file_container.replaceWith(TS.templates.file_multnomah(data));
+      } else if (file.mode === "arugula") {
+        $file_container.replaceWith(TS.templates.file_arugula(data));
       } else {
         return TS.warn("Trying to rebuild message file, but cannot rebuild " + file.mode);
       }
@@ -39013,7 +39013,7 @@ function timezones_guess() {
         }
       }
       var thread_p;
-      if (TS.boot_data.feature_page_replies_methods) {
+      if (TS.boot_data.feature_threads_paging_flexpane) {
         thread_p = TS.replies.getThreadLazy(model_ob.id, thread_ts);
       } else {
         thread_p = TS.replies.getThread(model_ob.id, thread_ts).then(function(messages_from_api) {
@@ -39521,22 +39521,37 @@ function timezones_guess() {
     if (!model_ob) return;
     var thread_ts = _active_convo_thread_ts;
     var always_make_api_call = true;
-    TS.replies.getThread(model_ob.id, thread_ts, always_make_api_call).then(function(messages) {
-      if (_active_convo_model_id !== model_ob.id) return;
-      if (_active_convo_thread_ts !== thread_ts) return;
-      var root_msg = _.find(_active_convo_messages, {
-        ts: thread_ts
-      });
-      if (!root_msg) return;
-      _active_convo_messages = messages;
-      var $convo = $("ts-conversation");
-      if (TS.boot_data.feature_threads_paging_flexpane) {
+    if (TS.boot_data.feature_threads_paging_flexpane) {
+      var newest_msg = _.maxBy(_active_convo_messages, "ts");
+      var newest_ts = _.get(newest_msg, "ts");
+      if (!newest_ts) return;
+      TS.replies.getThreadAfter(model_ob.id, thread_ts, newest_ts).then(function(thread) {
+        if (_active_convo_model_id !== model_ob.id) return;
+        if (_active_convo_thread_ts !== thread_ts) return;
+        if (!thread.messages.length) return;
         if (!_root_msg_section || !_replies_section) return;
-        _replaceMessagesAndUpdateMessageContainer(messages);
-      } else {
+        if (thread.has_more) {
+          _msg_container_config.has_more_end = true;
+        }
+        _.forEach(thread.messages, function(reply) {
+          _replies_section.msgs.unshift(reply);
+        });
+        _copyMessageContainerDataToLegacyArray();
+        _updateMessageContainer();
+      });
+    } else {
+      TS.replies.getThread(model_ob.id, thread_ts, always_make_api_call).then(function(messages) {
+        if (_active_convo_model_id !== model_ob.id) return;
+        if (_active_convo_thread_ts !== thread_ts) return;
+        var root_msg = _.find(_active_convo_messages, {
+          ts: thread_ts
+        });
+        if (!root_msg) return;
+        _active_convo_messages = messages;
+        var $convo = $("ts-conversation");
         _renderThreadIntoConversation(model_ob, root_msg, messages, $convo);
-      }
-    });
+      });
+    }
   };
   var _bindUI = function() {
     TS.ui.replies.$scroller.scroll(function() {
@@ -39846,11 +39861,11 @@ function timezones_guess() {
       has_replies: !!root_msg.reply_count
     }));
   };
-  var _sanityCheckFailed = function(model_ob, root_msg, msgs) {
+  var _sanityCheckFailed = function(model_ob, root_msg, msgs, has_more) {
     if (_active_convo_model_id != model_ob.id) return;
     if (_active_convo_thread_ts != root_msg.ts) return;
     if (TS.boot_data.feature_threads_paging_flexpane) {
-      _replaceMessagesAndUpdateMessageContainer(msgs);
+      _replaceMessagesAndUpdateMessageContainer(msgs, has_more);
     } else {
       TS.ui.replies.finishRenderingReplies(model_ob, root_msg.thread_ts, root_msg, {
         messages: msgs,
@@ -39889,6 +39904,11 @@ function timezones_guess() {
         var index = msg_indexes[msg.ts];
         _active_convo_messages[index] = msg;
       }
+      if (TS.boot_data.feature_threads_paging_flexpane && _.get(_root_msg_section, "msgs.length")) {
+        if (_root_msg_section.msgs[0].ts === msg.ts) {
+          _root_msg_section.msgs[0] = msg;
+        }
+      }
     });
   };
   var _replyChanged = function(model_ob, message) {
@@ -39913,6 +39933,7 @@ function timezones_guess() {
     });
     _msg_container_config.has_more_beginning = !!has_more;
     TS.utility.msgs.sortMsgs(_replies_section.msgs);
+    _copyMessageContainerDataToLegacyArray();
     _updateMessageContainer();
   };
   var _updateMessageContainer = function() {
@@ -39961,7 +39982,8 @@ function timezones_guess() {
         var replies = _replies_section.msgs;
         var min_reply = _.minBy(replies, "ts");
         var min_ts = _.get(min_reply, "ts");
-        return TS.replies.getThreadLazyMore(model_ob.id, thread_ts, min_ts).then(function(thread) {
+        if (!min_ts) return Promise.reject();
+        return TS.replies.getThreadBefore(model_ob.id, thread_ts, min_ts).then(function(thread) {
           var root_msg = thread.root_msg;
           _.forEachRight(thread.messages, function(msg) {
             if (msg.ts === thread_ts) return;
@@ -39971,10 +39993,29 @@ function timezones_guess() {
             _msg_container_config.has_more_beginning = false;
             _root_msg_section.msgs[0] = root_msg;
           }
-          _active_convo_messages = _.flatten([_root_msg_section.msgs, _replies_section.msgs]);
+          _copyMessageContainerDataToLegacyArray();
+        });
+      },
+      promiseToLoadMoreAtEnd: function() {
+        var replies = _replies_section.msgs;
+        var max_reply = _.maxBy(replies, "ts");
+        var max_ts = _.get(max_reply, "ts");
+        if (!max_ts) return Promise.reject();
+        return TS.replies.getThreadAfter(model_ob.id, thread_ts, max_ts).then(function(thread) {
+          _.forEach(thread.messages, function(msg) {
+            if (msg.ts === thread_ts) return;
+            _replies_section.msgs.unshift(msg);
+          });
+          if (!thread.has_more) {
+            _msg_container_config.has_more_end = false;
+          }
+          _copyMessageContainerDataToLegacyArray();
         });
       }
     };
+  };
+  var _copyMessageContainerDataToLegacyArray = function() {
+    _active_convo_messages = _.flatten([_root_msg_section.msgs, _replies_section.msgs]);
   };
 })();
 (function() {

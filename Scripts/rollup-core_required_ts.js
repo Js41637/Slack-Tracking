@@ -2646,7 +2646,7 @@
       all: TS.i18n.t("All File Types", "model")(),
       posts: TS.i18n.t("Posts", "model")(),
       spaces: TS.i18n.t("Posts", "model")(),
-      multnomah: "Multnomah",
+      arugula: "Arugula",
       snippets: TS.i18n.t("Snippets", "model")(),
       emails: TS.i18n.t("Emails", "model")(),
       images: TS.i18n.t("Images", "model")(),
