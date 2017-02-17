@@ -22621,8 +22621,8 @@
       if (!$elem.parent().hasClass("hidden")) {
         TS.clog.track("WEBSITE_CLICK", {
           click_target: "get_mac_ssb_banner",
-          target_url: $elem.attr("href"),
-          action: "banner_click"
+          page_url: $elem.attr("href"),
+          action: close ? "banner_dismiss" : "banner_click"
         });
       }
     },
@@ -22636,8 +22636,8 @@
       if (!$elem.parent().hasClass("hidden")) {
         TS.clog.track("WEBSITE_CLICK", {
           click_target: "get_win_ssb_banner",
-          target_url: $elem.attr("href"),
-          action: "banner_click"
+          page_url: $elem.attr("href"),
+          action: close ? "banner_dismiss" : "banner_click"
         });
       }
     },
