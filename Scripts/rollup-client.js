@@ -8825,6 +8825,7 @@
         return false;
       });
       TS.client.ui.files.$upload.bind("change", function() {
+        if (window.desktop && desktop.app && desktop.app.focusWebView) desktop.app.focusWebView();
         if (!$(this).val()) return;
         var files = $(this)[0].files;
         if (files) {
@@ -23437,7 +23438,7 @@
         step_name: "onboarding_channels",
         pref_name: "seen_onboarding_channels",
         show: "#active_channel_name_overlay, #in_skip_messaging, .coachmark_next_tip",
-        hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging",
+        hide: "#in_skip_messaging, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging",
         style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#col_channels_footer",
         promiseTo: function() {
@@ -23467,7 +23468,7 @@
         show: "#active_channel_name_overlay, #in_skip_messaging",
         show_member: ".coachmark_got_it",
         show_admin: ".coachmark_next_tip",
-        hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_invite_people",
+        hide: "#in_skip_messaging, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_invite_people",
         hide_member: ".coachmark_next_tip",
         style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#col_channels_footer",
@@ -23496,7 +23497,7 @@
         pref_name: "seen_onboarding_invites",
         show: "#active_channel_name_overlay, #in_skip_messaging",
         show_admin: ".coachmark_invite_people",
-        hide: "#team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip",
+        hide: "#in_skip_messaging, #team_menu_overlay, #col_channels_overlay, #explore_btn_container > .btn, #pre_skip_messaging, #unskip_messaging, .coachmark_next_tip",
         style: "#client_header .channel_header, #details_toggle, #recent_mentions_toggle, #stars_toggle, #flex_menu_toggle, #search_container, #channel_members_toggle, #rxn_toast_div",
         unstyle: "#quick_switcher_btn",
         promiseTo: function() {
@@ -26557,7 +26558,9 @@
         setTimeout(function() {
           if (!TS.model.archive_view_is_showing) return;
           if (_msg_id) return;
-          TS.api.callImmediately(_current_history_api_method, latest_api_args, onInitialHistoryApiCall);
+          TS.api.callImmediately(_current_history_api_method, latest_api_args, onInitialHistoryApiCall).then(function() {
+            _maybeLoadMoreBottom(latest_api_args);
+          });
         }, 20);
       }
       if (!_msg_id && model_ob.was_archived_this_session) {
@@ -26874,6 +26877,22 @@
         TS.client.ui.scrollMsgsSoMsgIsInView(oldest_ts, false, false, 0);
       }
     });
+  };
+  var _maybeLoadMoreBottom = function(args) {
+    var model_ob = TS.client.archives.current_model_ob;
+    if (!TS.model.archive_view_is_showing) return;
+    if (args._showing_id != _showing_id) return;
+    if (!model_ob.is_archived) return;
+    var local_ts = TS.utility.msgs.getMostRecentValidTs(model_ob);
+    var latest_ts = TS.utility.msgs.getMostRecentValidTs({
+      msgs: model_ob._archive_msgs
+    });
+    var incomplete = local_ts && latest_ts && local_ts > latest_ts;
+    if (incomplete) {
+      TS.info("Message history is not most recent; get more.");
+      _all_loaded_bottom = false;
+      _loadMoreBottom();
+    }
   };
   var _onHistory = function(ok, data, args) {
     if (!TS.model.archive_view_is_showing) return false;

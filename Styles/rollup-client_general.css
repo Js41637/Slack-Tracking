@@ -3620,12 +3620,14 @@ label.countdown.validation_count.small:after {
   bottom: -31px
 }
 
+[data-validation]+label.countdown:after,
 label.countdown.validation_error:after,
 label.countdown.validation_success:after,
 label.countdown.validation_warning:after {
   bottom: -41px
 }
 
+[data-validation]+label.countdown.small:after,
 label.countdown.validation_error.small:after,
 label.countdown.validation_success.small:after,
 label.countdown.validation_warning.small:after {
@@ -3654,6 +3656,7 @@ label.validation_count .validation_message:before {
   margin-left: 0
 }
 
+[data-validation]+label,
 label.validation_error,
 label.validation_success,
 label.validation_warning {
@@ -3665,6 +3668,7 @@ label.validation_warning {
   display: flex
 }
 
+[data-validation]+label.select,
 label.validation_error.select,
 label.validation_success.select,
 label.validation_warning.select {
@@ -3672,6 +3676,10 @@ label.validation_warning.select {
   -webkit-flex-wrap: wrap;
   -moz-flex-wrap: wrap;
   flex-wrap: wrap
+}
+
+[data-validation][disabled]+label {
+  display: none
 }
 
 label.validation_error .validation_message,

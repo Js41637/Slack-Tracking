@@ -19068,8 +19068,8 @@ TS.registerModule("constants", {
       var has_indent = _.some(attachments, "indent");
       var preamble = false;
       if (is_broadcast) {
-        var model_ob_id = msg.channel_id || attachments[0].channel_id || attachments[1].channel_id;
-        var thread_ts = msg.broadcast_thread_ts || attachments[0].ts;
+        var model_ob_id = msg.channel_id || _.get(attachments[1], "channel_id");
+        var thread_ts = msg.broadcast_thread_ts;
         if ((!model_ob_id || !/\d+\.\d+/.test(thread_ts)) && attachments[1] && attachments[1].from_url) {
           var from_url = attachments[1].from_url;
           var query = TS.utility.url.urlQueryStringParse(from_url);
@@ -46164,7 +46164,11 @@ $.fn.togglify = function(settings) {
     };
   };
   var _getSearchPromise = function(query) {
-    return TS.flannel.fetchAndUpsertObjectsWithQuery(query).then(function(response) {
+    var query_params = {
+      query: query,
+      filter: "everyone"
+    };
+    return TS.flannel.fetchAndUpsertObjectsWithQuery(query_params).then(function(response) {
       var items = [];
       if (query === "") {
         items = TS.members.getMembersForUser();
@@ -47596,61 +47600,73 @@ $.fn.togglify = function(settings) {
         _selectUp(instance);
         break;
       case TS.utility.keymap.enter:
-        if (instance._$active && instance._$active.length && instance._list_visible) {
-          _stopThePresses(e);
-          var $current_active = instance._$active;
-          var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active));
-          if (should_unselect_item) {
-            _unselectItem(instance, $current_active);
-          } else {
-            if (!_canAddNewItem(instance)) return;
-            _selectListItem(instance);
-            var $el = $(e.currentTarget);
-            if ($el.val() !== "") {
-              $el.val("");
-              instance._previous_val = "";
-              _populate(instance);
-            }
-            if (instance.single) {
-              _hideList(instance);
-              _hideError(instance);
-            }
-          }
-        }
+        _onInputKeydownEnter(instance, e);
         break;
       case TS.utility.keymap.del:
-        if (instance.$input.val() === "") {
-          _stopThePresses(e);
-          var $last_item = instance.$input_container.find(".lfs_token").last();
-          if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
-            _unsluggifySlug(instance, $last_item);
-          } else {
-            _removeLastSelected(instance);
-          }
-        }
+        _onInputKeydownDel(instance, e);
         break;
       case TS.utility.keymap.tab:
-        if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-          _stopThePresses(e);
-          _addUserCreatedSlugFromString(instance, instance.$input.val());
-        } else if (instance.tab_to_nav) {
-          _stopThePresses(e);
-          if (e.shiftKey) {
-            _selectUp(instance);
-          } else {
-            _selectDown(instance);
-          }
-        }
+        _onInputKeydownTab(instance, e);
         break;
       case TS.utility.keymap.esc:
-        _stopThePresses(e);
-        _hideList(instance);
-        _hideNoResults(instance);
-        _hideError(instance);
-        instance.$input.blur();
+        _onInputKeydownEsc(instance, e);
         break;
     }
     instance.onKeyDown(e, e.isDefaultPrevented());
+  };
+  var _onInputKeydownEnter = function(instance, e) {
+    if (instance._$active && instance._$active.length && instance._list_visible) {
+      _stopThePresses(e);
+      var $current_active = instance._$active;
+      var should_unselect_item = !instance.single && instance.allow_item_unselect && _isAlreadySelected(instance, _getData(instance, $current_active));
+      if (should_unselect_item) {
+        _unselectItem(instance, $current_active);
+      } else {
+        if (!_canAddNewItem(instance)) return;
+        _selectListItem(instance);
+        var $el = $(e.currentTarget);
+        if ($el.val() !== "") {
+          $el.val("");
+          instance._previous_val = "";
+          _populate(instance);
+        }
+        if (instance.single) {
+          _hideList(instance);
+          _hideError(instance);
+        }
+      }
+    }
+  };
+  var _onInputKeydownDel = function(instance, e) {
+    if (instance.$input.val() === "") {
+      _stopThePresses(e);
+      var $last_item = instance.$input_container.find(".lfs_token").last();
+      if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
+        _unsluggifySlug(instance, $last_item);
+      } else {
+        _removeLastSelected(instance);
+      }
+    }
+  };
+  var _onInputKeydownTab = function(instance, e) {
+    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+      _stopThePresses(e);
+      _addUserCreatedSlugFromString(instance, instance.$input.val());
+    } else if (instance.tab_to_nav) {
+      _stopThePresses(e);
+      if (e.shiftKey) {
+        _selectUp(instance);
+      } else {
+        _selectDown(instance);
+      }
+    }
+  };
+  var _onInputKeydownEsc = function(instance, e) {
+    _stopThePresses(e);
+    _hideList(instance);
+    _hideNoResults(instance);
+    _hideError(instance);
+    instance.$input.blur();
   };
   var _onInputFocus = function(instance) {
     if (!instance._input_is_focused) {
@@ -48504,7 +48520,8 @@ $.fn.togglify = function(settings) {
         clearTimeout($el.data("inline-saver-spin-timeout"));
       }
       var $inline_saver = $(TS.templates.inline_saver({
-        custom_text: settings.custom_text
+        custom_text: settings.custom_text,
+        hide_text: settings.hide_text
       }));
       $inline_saver.insertAfter($el);
       $el.data("inline-saver", $inline_saver);
@@ -70956,7 +70973,8 @@ $.fn.togglify = function(settings) {
               f.current = null;
             }
           } else e = this._renderValidatedComponentWithoutOwnerOrContext();
-          return null === e || e === !1 || s.isValidElement(e) ? void 0 : u("109", this.getName() || "ReactCompositeComponent"), e;
+          return null === e || e === !1 || s.isValidElement(e) ? void 0 : u("109", this.getName() || "ReactCompositeComponent"),
+            e;
         },
         attachRef: function(e, t) {
           var n = this.getPublicInstance();

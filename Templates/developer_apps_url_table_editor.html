@@ -5,12 +5,11 @@
     <ts-icon class="ts_icon_warning"></ts-icon>
     <span class="message">{{#t}}Oops, something went wrong{{/t}}</span>
   </div>
-
   <h2 data-js="url-table-editor-header" class="c-url_table_editor__title">{{ options.title }}</h2>
   <div data-js="url-table-editor-body" class="bottom_margin">
     {{#if model}}
       {{#each model}}
-        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text }}
+        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text validation=../options.validation}}
       {{/each}}
     {{/if}}
   </div>
