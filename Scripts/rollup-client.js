@@ -12100,6 +12100,7 @@
   TS.registerModule("client.flex_pane", {
     onStart: function() {
       _toaster.init();
+      $("#flex_contents").delegate("div.file_list_item", "dragstart", _onFileListItemDragStart);
     },
     startLocalTimeInterval: function() {
       clearInterval(_local_time_interval);
@@ -12135,6 +12136,20 @@
     }
   });
   var _file_fetch_records = {};
+  var _onFileListItemDragStart = function(event) {
+    var handled = false;
+    if (TS.boot_data.feature_arugula) {
+      var drag_meta = event.target.dataset ? event.target.dataset.dragMeta : null;
+      if (event && event.originalEvent.dataTransfer && drag_meta) {
+        event.originalEvent.dataTransfer.effectAllowed = "link";
+        event.originalEvent.dataTransfer.setData("x-slack/file-drag-json", drag_meta);
+        handled = true;
+      }
+    }
+    if (!handled) {
+      event.preventDefault();
+    }
+  };
   var _makeFileFetchKey = function(scope, type_str) {
     scope = scope || "team";
     type_str = type_str || "all";

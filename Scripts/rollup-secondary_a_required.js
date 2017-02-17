@@ -18486,6 +18486,16 @@ TS.registerModule("constants", {
         topic: model_ob.topic ? model_ob.topic["value"] : ""
       });
     },
+    makeFileDragData: function(file) {
+      return JSON.stringify({
+        id: file.id,
+        name: file.name,
+        title: file.title,
+        mimetype: file.mimetype,
+        filetype: file.filetype,
+        size: file.size
+      });
+    },
     makeDayDividerDomId: function(ts) {
       return TS.utility.makeSafeForDomId("day_divider_" + ts);
     },
@@ -20154,7 +20164,16 @@ TS.registerModule("constants", {
         }
       }
       var bytes = inline_img.bytes && no_bytes !== true ? '<span class="inline_img_bytes ' + (too_large_explain ? "hidden" : "") + '"> (' + TS.utility.convertFilesize(inline_img.bytes) + ")</span>" : "";
-      return bytes + too_large_explain + (show_expander ? '<i data-real-src="' + TS.utility.htmlEntities(inline_img.src) + '" class="msg_inline_img_collapser ts_icon ts_icon_caret_down ' + (expand_it ? "" : "hidden") + '"></i>' + '<i data-real-src="' + TS.utility.htmlEntities(inline_img.src) + '" class="msg_inline_img_expander ts_icon ts_icon_caret_right ' + (expand_it ? "hidden" : "") + '"></i>' : "");
+      var template_args = {
+        collapser_class: "msg_inline_img_collapser",
+        expander_class: "msg_inline_img_expander",
+        real_src: inline_img.src,
+        expand_it: expand_it
+      };
+      var toggler_html = TS.templates.inline_attachment_toggler({
+        inline_attachment: template_args
+      });
+      return bytes + too_large_explain + (show_expander ? toggler_html : "");
     },
     buildInlineImgDiv: function(key, container_id, args) {
       args = args || {};
@@ -20305,8 +20324,15 @@ TS.registerModule("constants", {
     },
     buildInlineRoomPreviewToggler: function(room_id) {
       var expand_it = TS.inline_room_previews.shouldExpand(room_id);
-      var hide_title_when_expanded = true;
-      return " " + '<i class="msg_inline_room_preview_collapser ts_icon ts_icon_caret_down' + (expand_it ? "" : " hidden") + (hide_title_when_expanded ? " title_hidden" : "") + '"></i>' + '<i class="msg_inline_room_preview_expander ts_icon ts_icon_caret_right' + (expand_it ? " hidden" : "") + '"></i>';
+      var template_args = {
+        collapser_class: "msg_inline_room_preview_collapser",
+        expander_class: "msg_inline_room_preview_expander",
+        expand_it: expand_it
+      };
+      var toggler_html = TS.templates.inline_attachment_toggler({
+        inline_attachment: template_args
+      });
+      return " " + toggler_html;
     },
     buildInlineAudioToggler: function(key, container_id) {
       var inline_audio = TS.model.inline_audios[key];
@@ -23214,6 +23240,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeChannelDragData", function(channel) {
         return TS.templates.makeChannelDragData(channel);
       });
+      Handlebars.registerHelper("makeFileDragData", function(file) {
+        return TS.templates.makeFileDragData(file);
+      });
       Handlebars.registerHelper("firstListedChannel", function() {
         var channel = TS.channels.getChannelsForUser()[0];
         if (channel) return "#" + channel.name;
@@ -24299,7 +24328,7 @@ TS.registerModule("constants", {
             break;
         }
         if (caret_html) {
-          caret_html = '<button type="button" class="btn_unstyle media_caret">' + caret_html + "</button>";
+          caret_html = '<span class="media_caret">' + caret_html + "</span>";
         }
         return new Handlebars.SafeString(caret_html);
       });
@@ -33967,7 +33996,7 @@ var _on_esc;
       TS.menu.$menu_header.addClass("hidden").empty();
       var should_show_upload_file = window.File && TS.model.team.prefs.disable_file_uploads !== "disable_all";
       if (should_show_upload_file) {
-        var file_type = TS.model.team.prefs.disable_file_uploads === "disable_all_except_images" ? "an image" : "a file";
+        var file_type = TS.model.team.prefs.disable_file_uploads === "disable_all_except_images" ? TS.i18n.t("an image", "menu_file")() : TS.i18n.t("a file", "menu_file")();
         var upload_file_text = "Upload " + file_type;
       } else {
         if (!TS.menu.file.reported_no_file_reader) {
@@ -54983,6 +55012,11 @@ $.fn.togglify = function(settings) {
       }
       return true;
     },
+    verifyOriginUrl: function(originHref) {
+      var a = document.createElement("a");
+      a.href = originHref;
+      return a.hostname == window.location.hostname;
+    },
     getUrlForRoom: function(room) {
       return TS.utility.calls.getUrlForRoomId(room.id);
     },
@@ -55878,6 +55912,9 @@ $.fn.togglify = function(settings) {
         event: _utility_calls_config.log_events.invalid_msg_from_child_window,
         value: evt
       });
+      return;
+    }
+    if (!TS.utility.calls.verifyOriginUrl(evt.origin)) {
       return;
     }
     if (evt.data.origin_window_type === TS.utility.calls.window_types.call_window) {
@@ -67865,7 +67902,8 @@ $.fn.togglify = function(settings) {
           for (var r = 0; r < t.length; r++) {
             var o = t[r],
               i = s(o);
-            i ? void 0 : v("140"), null == i.childIDs && "object" == typeof i.element && null != i.element ? v("141") : void 0, i.isMounted ? void 0 : v("71"), null == i.parentID && (i.parentID = e), i.parentID !== e ? v("142", o, i.parentID, e) : void 0;
+            i ? void 0 : v("140"), null == i.childIDs && "object" == typeof i.element && null != i.element ? v("141") : void 0,
+              i.isMounted ? void 0 : v("71"), null == i.parentID && (i.parentID = e), i.parentID !== e ? v("142", o, i.parentID, e) : void 0;
           }
         },
         onBeforeMountComponent: function(e, t, n) {
@@ -70973,8 +71011,7 @@ $.fn.togglify = function(settings) {
               f.current = null;
             }
           } else e = this._renderValidatedComponentWithoutOwnerOrContext();
-          return null === e || e === !1 || s.isValidElement(e) ? void 0 : u("109", this.getName() || "ReactCompositeComponent"),
-            e;
+          return null === e || e === !1 || s.isValidElement(e) ? void 0 : u("109", this.getName() || "ReactCompositeComponent"), e;
         },
         attachRef: function(e, t) {
           var n = this.getPublicInstance();

@@ -2233,7 +2233,7 @@
       locale = locale || TS.i18n.locale;
       var key = locale + ":" + ns + ":" + str;
       if (_translations[key] === undefined) {
-        if (_is_dev && _is_pseudo) {
+        if (_is_pseudo) {
           _translations[key] = new MessageFormat(locale, _getPseudoTranslation(str)).format;
         } else {
           _translations[key] = new MessageFormat(locale, str).format;
@@ -2291,10 +2291,8 @@
   var _dev_warned_translations = [];
   var _setup = function() {
     _is_dev = location.host.match(/(dev[0-9]*)\.slack.com/);
-    if (_is_dev) {
-      var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
-      if (locale) TS.i18n.locale = locale[1];
-    }
+    var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
+    if (locale) TS.i18n.locale = locale[1];
     if (!TS.i18n.locale) {
       if (TS.boot_data && TS.boot_data.locale) {
         TS.i18n.locale = TS.boot_data.locale;

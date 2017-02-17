@@ -1,6 +1,10 @@
 {{i18n_ns 'files'}}
 
-<div id="{{makeFileDomId file}}" class="file_list_item file_item {{file.mode}} {{#if is_hosted_or_external}}{{#if file.thumb_80}}has_image{{else}}has_icon{{/if}}{{else}}has_icon{{/if}}" data-file-id="{{file.id}}">
+<div id="{{makeFileDomId file}}" class="file_list_item file_item {{file.mode}} {{#if is_hosted_or_external}}{{#if file.thumb_80}}has_image{{else}}has_icon{{/if}}{{else}}has_icon{{/if}}" data-file-id="{{file.id}}"
+    {{#feature flag="feature_arugula"}}
+      draggable="true"
+      data-drag-meta='{{makeFileDragData file}}'
+    {{/feature}}>
 
   {{#if for_files_list}}
 

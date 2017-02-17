@@ -140,6 +140,27 @@
       </tr>
     {{/or}}
 
+    {{#if has_domains}}
+      <tr class="no_border">
+        <td colspan="2">
+          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Unfurl Domains{{/t}}</h4>
+        </td>
+      </tr>
+      {{#or unfurl_domains.length deleted.unfurl_domains.length}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}Domains{{/t}}</td>
+          <td class="submission_modal_cell">
+            {{#each unfurl_domains}}
+              <div>{{this}}</div>
+            {{/each}}
+            {{#each deleted.unfurl_domains}}
+              <div><strike>{{this}}</strike></div>
+            {{/each}}
+          </td>
+        </tr>
+      {{/or}}
+    {{/if}}
+
     {{#if has_commands}}
       <tr class="no_border">
         <td colspan="2">

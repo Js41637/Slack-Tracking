@@ -3064,7 +3064,7 @@ body:not(.sorting_mode) .channels_list_holder ul li>a:hover {
   .channels_list_holder ul li .group_close,
   .channels_list_holder ul li .im_close,
   .channels_list_holder ul li .mpim_close {
-    top: 5px
+    top: 0
   }
   .channels_list_holder ul li .prefix {
     margin-right: 2px
@@ -21535,16 +21535,18 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 .attachment_group .media_caret {
   color: #555459;
   font-size: .875rem;
-  font-weight: 400;
-  vertical-align: baseline;
-  text-align: left
+  font-weight: 400
 }
 
 .star_item .attachment_group .media_caret {
   display: none
 }
 
-.attachment_group .media_caret:focus {
+.attachment_group .media_caret .btn_basic {
+  vertical-align: baseline
+}
+
+.attachment_group .media_caret .btn_basic:focus {
   outline: 0
 }
 
