@@ -58376,6 +58376,8 @@ $.fn.togglify = function(settings) {
           var creator = TS.members.getMemberById(private_channel.creator) || {};
           return {
             creator_display: creator.real_name ? creator.real_name : creator.name,
+            creator_id: private_channel.creator,
+            creator_username: creator.name,
             date_created: private_channel.created,
             id: private_channel.id,
             member_count: private_channel.member_count,

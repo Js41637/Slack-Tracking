@@ -10744,7 +10744,7 @@
       var group_id = group_el.data("group-id");
       var channel_el = $el.closest(".channel_name");
       var channel_id = channel_el.data("channel-id");
-      var $mpim_el = $el.closest(".mpim_name");
+      var $mpim_el = $el.closest(".mpim").find(".mpim_name");
       var mpim_id = $mpim_el.data("mpim-id");
       if (member_id) {
         if ($el.hasClass("im_close")) {
