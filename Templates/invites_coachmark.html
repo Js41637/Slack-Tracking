@@ -2,18 +2,11 @@
 
 <div id="invites_coachmark_div" class="coachmark_div">
   <div class="coachmark_contents">
-    {{#feature flag="feature_update_coachmarks_copy"}}
-      <h2 class="black">{{#t}}You\u2019re set &mdash; just add teammates{{/t}}</h2>
-      {{~#currentUserIsAdmin~}}
-        <p>{{#t}}To get the most out of Slack, invite some coworkers and start messaging!{{/t}}</p>
-      {{~else~}}
-        <p>{{#t}}To get the most out of Slack, invite some more coworkers and start messaging!{{/t}}</p>
-      {{~/currentUserIsAdmin~}}
-    {{else}}
-      {{#t team_name=(currentTeamName)}}
-      <h2 class="black">Invite people to your team</h2>
-      <p>To invite coworkers to <strong>{team_name}</strong>, click the <strong>Invite People</strong> button.</p>
-      {{/t}}
-    {{/feature}}
+    <h2 class="black">{{#t}}You\u2019re set &mdash; just add teammates{{/t}}</h2>
+    {{~#currentUserIsAdmin~}}
+      <p>{{#t}}To get the most out of Slack, invite some coworkers and start messaging!{{/t}}</p>
+    {{~else~}}
+      <p>{{#t}}To get the most out of Slack, invite some more coworkers and start messaging!{{/t}}</p>
+    {{~/currentUserIsAdmin~}}
   </div>
 </div>

@@ -8,17 +8,13 @@
       <div class="coachmark_footer_text">
         {{#t}}<span>Done? </span><a class="coachmark_skip_link">Click here to skip</a>{{/t}}
       </div>
-      <a class="btn coachmark_got_it float_right {{#feature flag="feature_update_coachmarks_copy"}}hidden{{/feature}}">{{#t}}Got it!{{/t}}</a>
+      <a class="btn coachmark_got_it float_right hidden">{{#t}}Got it!{{/t}}</a>
 
-      {{#feature flag="feature_update_coachmarks_copy"}}
       <a class="btn coachmark_next_tip float_right">{{#t}}Next Tip{{/t}}</a>
-      {{/feature}}
 
-      {{#feature flag="feature_update_coachmarks_cta"}}
-        {{#if can_include_invite_cta}}
-        <a class="btn coachmark_invite_people float_right hidden">{{#t}}Invite People{{/t}}</a>
-        {{/if}}
-      {{/feature}}
+      {{#if can_include_invite_cta}}
+      <a class="btn coachmark_invite_people float_right hidden">{{#t}}Invite People{{/t}}</a>
+      {{/if}}
     </div>
   </div>
 </div>

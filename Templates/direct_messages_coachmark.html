@@ -4,42 +4,23 @@
   <div class="coachmark_contents">
     <h2 class="black">{{#t}}Send direct messages{{/t}}</h2>
     {{~#currentUserIsAdmin~}}
-      {{#feature flag="feature_update_coachmarks_copy"}}
-        <p>{{#t}}Need to send a quick note to just one person or a small group of people on your team? Direct messages are great for that!{{/t}}</p>
-      {{else}}
-        <p>{{#t}}Direct messages are private, <strong>1-to-1 messages</strong>. Once you invite people, you\u2019ll be able to chat with them here.{{/t}}</p>
-      {{/feature}}
+      <p>{{#t}}Need to send a quick note to just one person or a small group of people on your team? Direct messages are great for that!{{/t}}</p>
     {{~else~}}
-      {{#feature flag="feature_update_coachmarks_copy"}}
-        <p>{{#t}}Need to send a quick note to just one person or a small group of people on your team?{{/t}}
-        {{~#currentUserIsRA~}}
-          {{~#if_equal channels_count compare=0}} 
-            {{#t}}You can send direct messages to anyone in the same channel as you.{{/t}}
-          {{~else~}}
-            {{~#if_gt groups_count compare=0}}
-              {{#t}}You can directly message anyone in the same channels or groups as you.{{/t}}
-            {{~else}}
-              {{#t}}You can directly message anyone in the same {channels_count, plural, =1 {channel} other {channels}} as you.{{/t}}
-            {{~/if_gt~}}
-          {{~/if_equal~}}
-        {{~else}} 
-          {{#t}}Direct messages are great for that.{{/t}}
-        {{~/currentUserIsRA~}}
-        </p>
-      {{else}}
-        <p>{{#t}}Direct messages are private, <strong>1-to-1 messages</strong>.{{/t}}
-        {{~#currentUserIsRA~}}
-          {{~#if_equal channels_count compare=0}} {{#t}}You can directly message anyone in the same group as you.{{/t}}
-          {{~else~}}
-            {{~#if_gt groups_count compare=0}} {{#t}}You can directly message anyone in the same channels or groups as you.{{/t}}
-            {{~else}} {{#t}}You can directly message anyone in the same {channels_count, plural, =1 {channel} other {channels}} as you.{{/t}}
-            {{~/if_gt~}}
-          {{~/if_equal~}}
-        {{~else}} {{#t team_name=(currentTeamName)}}You can chat with any member of <strong>{team_name}</strong>.{{/t}}
-        {{~/currentUserIsRA~}}
-        </p>
-      {{/feature}}
-      
+      <p>{{#t}}Need to send a quick note to just one person or a small group of people on your team?{{/t}}
+      {{~#currentUserIsRA~}}
+        {{~#if_equal channels_count compare=0}}
+          {{#t}}You can send direct messages to anyone in the same channel as you.{{/t}}
+        {{~else~}}
+          {{~#if_gt groups_count compare=0}}
+            {{#t}}You can directly message anyone in the same channels or groups as you.{{/t}}
+          {{~else}}
+            {{#t}}You can directly message anyone in the same {channels_count, plural, =1 {channel} other {channels}} as you.{{/t}}
+          {{~/if_gt~}}
+        {{~/if_equal~}}
+      {{~else}}
+        {{#t}}Direct messages are great for that.{{/t}}
+      {{~/currentUserIsRA~}}
+      </p>
     {{~/currentUserIsAdmin~}}
   </div>
 </div>

@@ -9499,7 +9499,7 @@
       this._have_all_members = false;
       this._members = [];
       this._model_ob_id = options.model_ob_id;
-      this._filter_counts = [];
+      this._filter_counts = {};
       this._long_list_view_height = 0;
       this._long_list_view_items_height = 0;
       this._long_list_view_initial_height = null;
@@ -9601,10 +9601,8 @@
     _maybeSetupSearchBar: function() {
       var this_searchable_member_list = this;
       if (this.$_search_bar) return;
-      return TS.ms.flannel.call("query_request", {
-        counts: true
-      }).then(function(response) {
-        if (response.results[0].count >= MINIMUM_MEMBERS_FOR_SEARCH) {
+      return TS.ms.flannel.call("counts_request").then(function(response) {
+        if (_.get(response, "counts.everyone") >= MINIMUM_MEMBERS_FOR_SEARCH) {
           this_searchable_member_list.$_long_list_view.before(TS.templates.team_search_bar());
           this_searchable_member_list.$_search_bar = this_searchable_member_list.$_container.find(".searchable_member_list_search_bar");
           this_searchable_member_list.$_search_input = this_searchable_member_list.$_search_bar.find(".searchable_member_list_input");
@@ -9642,10 +9640,8 @@
         this_searchable_member_list.$_filter_input = null;
         return;
       }
-      return TS.ms.flannel.call("query_request", {
-        counts: true
-      }).then(function(response) {
-        this_searchable_member_list._filter_counts = response.results;
+      return TS.ms.flannel.call("counts_request").then(function(response) {
+        this_searchable_member_list._filter_counts = response.counts;
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_search_bar_filter(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_search_bar.find(".searchable_member_list_filter");
         TS.members.joined_team_sig.add(this_searchable_member_list._maybeSetupFilterInput, this_searchable_member_list);
@@ -9844,8 +9840,8 @@
           restricted_filter_selected: this._current_filter == "guests"
         });
       }
-      _.each(this._filter_counts, function(count) {
-        template_args[count["name"] + "_count"] = count["count"];
+      _.each(this._filter_counts, function(count, key) {
+        template_args[key + "_count"] = count;
       });
       return template_args;
     },
@@ -22729,11 +22725,9 @@
       }
       _place();
       $(window).on("resize.coachmark_placement", _place);
-      if (TS.boot_data.feature_update_coachmarks_copy) {
-        if (TS.coachmark.context.ui_click) {
-          $(".coachmark_got_it").removeClass("hidden");
-          $(".coachmark_next_tip").addClass("hidden");
-        }
+      if (TS.coachmark.context.ui_click) {
+        $(".coachmark_got_it").removeClass("hidden");
+        $(".coachmark_next_tip").addClass("hidden");
       }
       if (!TS.coachmark.context.no_bg_on_small) $("#coachmark_bg").removeClass("hidden");
     },
@@ -22982,10 +22976,8 @@
     $coachmark.css("opacity", 0);
     $coachmark.on("click", ".coachmark_skip_link", TS.coachmark.reject);
     $coachmark.on("click", ".coachmark_got_it", TS.coachmark.resolve);
-    if (TS.boot_data.feature_update_coachmarks_copy) {
-      $coachmark.on("click", ".coachmark_next_tip", TS.coachmark.resolve);
-      $coachmark.on("click", ".coachmark_ok", TS.coachmark.resolve);
-    }
+    $coachmark.on("click", ".coachmark_next_tip", TS.coachmark.resolve);
+    $coachmark.on("click", ".coachmark_ok", TS.coachmark.resolve);
   };
   var _populateCoachmark = function(context) {
     if (!TS.coachmark.$coachmark) return;
@@ -23712,14 +23704,12 @@
     $(step.hide).addClass("hidden");
     $(step.style).addClass("onboarding");
     $(step.unstyle).removeClass("onboarding");
-    if (TS.boot_data.feature_update_coachmarks_copy) {
-      if (TS.ui.admin_invites.canInvite() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length < 26) {
-        $(step.hide_admin).addClass("hidden");
-        $(step.show_admin).removeClass("hidden");
-      } else {
-        $(step.hide_member).addClass("hidden");
-        $(step.show_member).removeClass("hidden");
-      }
+    if (TS.ui.admin_invites.canInvite() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length < 26) {
+      $(step.hide_admin).addClass("hidden");
+      $(step.show_admin).removeClass("hidden");
+    } else {
+      $(step.hide_member).addClass("hidden");
+      $(step.show_member).removeClass("hidden");
     }
     if (group === "treatment") {
       TS.clog.track("GROWTH_ONBOARDING", {
@@ -23864,7 +23854,6 @@
     }
   };
   var _setupCoachmarkExperiment = function() {
-    if (!TS.boot_data.feature_update_coachmarks_copy) return;
     var additional_show_hide = {
       complete: {
         show: ".coachmark_got_it"
@@ -26090,6 +26079,21 @@
         emoji_list[j].style["backgroundImage"] = 'url("' + new_emoji_url + '")';
       }
       TS.emoji.makeMenuLists();
+    },
+    getContrastColor: function(hex_color) {
+      var contrast_result = false;
+      hex_color = hex_color.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
+      hex_color = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex_color);
+      if (hex_color) {
+        var r = parseInt(hex_color[1], 16),
+          g = parseInt(hex_color[2], 16),
+          b = parseInt(hex_color[3], 16),
+          yiq = (r * 299 + g * 587 + b * 114) / 1e3;
+        contrast_result = yiq >= 128 ? "#000000" : "#FFFFFF";
+      }
+      return contrast_result;
     },
     test: function() {
       return {
@@ -28911,13 +28915,9 @@
       e.preventDefault();
       TS.ui.fs_modal.close();
       setTimeout(function() {
-        if (TS.boot_data.feature_update_coachmarks_cta) {
-          TS.coachmark.start($.extend({}, TS.coachmarks.coachmarks.channels, {
-            ui_click: true
-          }));
-        } else {
-          TS.coachmark.start(TS.coachmarks.coachmarks.channels);
-        }
+        TS.coachmark.start($.extend({}, TS.coachmarks.coachmarks.channels, {
+          ui_click: true
+        }));
       }, 500);
     });
     _$channel_browser.on("click", ".new_channel", function(e) {
