@@ -14207,18 +14207,26 @@
         partial_size = dl.progress * size;
       }
     }
+    var file_path_parts = dl && dl.file_path && dl.file_path.split(/\/|\\/) && dl.file_path.split(/\/|\\/).reverse();
+    var file_path_name = file_path_parts && file_path_parts[0];
+    if (!file_path_name) {
+      TS.warn("_buildItem: no file_path found in dl.file_path" + dl.file_path);
+    }
     var template_args = {
       item: dl,
       img_src: img_src,
       filetype: filetype,
       pretty_type: pretty_type,
-      name: dl.file_path.split(/\/|\\/).reverse()[0] || file_name,
+      name: file_path_name || file_name,
       size: size,
       partial_size: partial_size,
       estimate: _getDlEstimate(dl),
       debug: JSON.stringify(_downloads_map, null, 2),
       perc: dl.state == "completed" ? 100 : Math.max(.02, dl.progress) * 100
     };
+    if (!template_args.name) {
+      TS.warn("_buildItem: file name is empty or undefined in template_args.name" + template_args.name);
+    }
     return TS.templates.download_item(template_args);
   };
   var _fileDownloadUrl = function(file) {

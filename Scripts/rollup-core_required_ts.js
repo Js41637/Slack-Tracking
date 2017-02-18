@@ -1171,7 +1171,7 @@
     } catch (e) {
       TS.error("TS." + name + ".onStart encountered an error:");
       TS.logError(e);
-      TS.metrics.count("call_onstarts_error");
+      if (window.TSBeacon) window.TSBeacon("call_onstarts_error", 1);
       throw e;
     }
     if (delete_after_calling) {
