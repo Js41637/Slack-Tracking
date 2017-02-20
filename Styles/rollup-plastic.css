@@ -14955,7 +14955,10 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 }
 
 #im_browser .im_browser_row .im_last_msg_time .ts_icon {
-  font-size: 1rem
+  font-size: 1rem;
+  position: relative;
+  top: .25rem;
+  left: -.125rem
 }
 
 #im_browser .im_browser_row .im_unread_cnt {
