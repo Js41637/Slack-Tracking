@@ -1938,9 +1938,6 @@
           _measures = {};
         }
       };
-    },
-    getMemoryUsage: function() {
-      return _getMemoryUsage();
     }
   });
   var _INTERVAL_DURATION_MS = 25 * 1e3;
@@ -1964,25 +1961,48 @@
       });
     }
     if (TS.boot_data.feature_electron_memory_logging && TS.model.is_electron) {
-      var combined_stats = _getMemoryUsage();
-      var combined_stats_all_p = _getCombinedMemoryUsage();
-      if (combined_stats) {
-        var memory_usage_team_mb = TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(combined_stats.memory.privateBytes + combined_stats.memory.sharedBytes));
-        TS.metrics.store("memory_usage_team_mb", memory_usage_team_mb);
-      }
-      if (combined_stats_all_p) {
-        combined_stats_all_p.then(function(result) {
-          if (result && result.memory) {
-            var memory_usage_all = result.memory.privateBytes + result.memory.sharedBytes;
-            var memory_usage_all_per_team = memory_usage_all / result.numTeams;
-            TS.metrics.store("memory_usage_all_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all)));
-            TS.metrics.store("memory_usage_all_per_team_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all_per_team)));
-          } else {
-            TS.warn("Unexpected results from call to _getCombinedMemoryUsage()", result);
-          }
+      if (desktop && desktop.stats && desktop.stats.getTeamsMemoryUsage && desktop.stats.getCombinedMemoryUsage) {
+        var memory_team_mb, memory_app_mb;
+        var teams_data, app_data;
+        var num_teams = 0;
+        var get_teams_p = TSSSB.call("getTeamsMemoryUsage");
+        var get_app_p = TSSSB.call("getCombinedMemoryUsage");
+        Promise.all([get_teams_p, get_app_p]).then(function(data) {
+          teams_data = data[0];
+          app_data = data[1];
+          if (!teams_data) throw teams_data;
+          _.forOwn(teams_data, function(team, id) {
+            memory_team_mb = Math.ceil(TS.utility.convertKilobytesToMegabytes(team.memory.privateBytes));
+            TS.metrics.store("memory_team_mb_" + team.state, memory_team_mb);
+            num_teams++;
+          });
+          if (!app_data || !app_data.memory) throw app_data;
+          memory_app_mb = Math.ceil(TS.utility.convertKilobytesToMegabytes(app_data.memory.privateBytes + app_data.memory.sharedBytes));
+          TS.metrics.store("memory_app_mb_" + num_teams + "_teams", memory_app_mb);
         }).catch(function(err) {
-          TS.warn("Error logging combined memory stats", err);
+          TS.warn("TS.metrics: Invalid data returned by desktop.stats", err);
         });
+      } else {
+        var combined_stats = TSSSB.call("getMemoryUsage");
+        var combined_stats_all_p = TSSSB.call("getCombinedMemoryUsage");
+        if (combined_stats) {
+          var memory_usage_team_mb = TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(combined_stats.memory.privateBytes + combined_stats.memory.sharedBytes));
+          TS.metrics.store("memory_usage_team_mb", memory_usage_team_mb);
+        }
+        if (combined_stats_all_p) {
+          combined_stats_all_p.then(function(result) {
+            if (result && result.memory) {
+              var memory_usage_all = result.memory.privateBytes + result.memory.sharedBytes;
+              var memory_usage_all_per_team = memory_usage_all / result.numTeams;
+              TS.metrics.store("memory_usage_all_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all)));
+              TS.metrics.store("memory_usage_all_per_team_mb", TS.utility.roundToThree(TS.utility.convertKilobytesToMegabytes(memory_usage_all_per_team)));
+            } else {
+              TS.warn("Unexpected results from call to _getCombinedMemoryUsage()", result);
+            }
+          }).catch(function(err) {
+            TS.warn("Error logging combined memory stats", err);
+          });
+        }
       }
     }
     var beacon_urls = _createBeaconURLs(_measures);
@@ -2056,18 +2076,6 @@
         var is_experiment_metric_variant = true;
         _recordLabelMeasurement("exp_" + experiment_name + "_" + bucket_name + "_" + label, value, is_experiment_metric_variant);
       });
-    }
-  };
-  var _getMemoryUsage = function() {
-    if (!TS.boot_data.feature_electron_memory_logging) return;
-    if (TSSSB.call("getMemoryUsage")) {
-      return TSSSB.call("getMemoryUsage");
-    }
-  };
-  var _getCombinedMemoryUsage = function() {
-    if (!TS.boot_data.feature_electron_memory_logging) return;
-    if (TSSSB.call("getCombinedMemoryUsage")) {
-      return TSSSB.call("getCombinedMemoryUsage");
     }
   };
   var _perf_timing_sections = [
