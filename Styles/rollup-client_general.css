@@ -4725,8 +4725,51 @@ a.link_btn {
   color: #9e9ea6
 }
 
+#file_sharing_div .lazy_filter_select .lfs_item.new_channel_item {
+  padding-left: 0
+}
+
+#file_sharing_div .lazy_filter_select .lfs_item.new_channel_item .ts_icon.ts_icon_channel {
+  vertical-align: middle;
+  line-height: 0
+}
+
+#file_sharing_div .lazy_filter_select .lfs_item.new_channel_item .ts_icon.ts_icon_channel:before {
+  position: static
+}
+
+#file_sharing_div .lazy_filter_select .lfs_item.new_channel_item .hash {
+  display: none;
+  visibility: hidden
+}
+
 #file_sharing_div .lazy_filter_select .lfs_group {
   color: #9e9ea6
+}
+
+#file_sharing_div .lazy_filter_select .new_channel_container {
+  padding: 0
+}
+
+#file_sharing_div .lazy_filter_select .new_channel_container .lfs_group,
+#file_sharing_div .lazy_filter_select .new_channel_container .lfs_item {
+  padding: .375rem;
+  padding-left: .375rem
+}
+
+#file_sharing_div .lazy_filter_select .new_channel_container .lfs_group {
+  font-weight: 400;
+  text-align: center;
+  border-bottom: 1px solid #E8E8E8
+}
+
+#file_sharing_div .lazy_filter_select .new_channel_container .lfs_item {
+  text-align: center
+}
+
+#file_sharing_div .lazy_filter_select .new_channel_container .lfs_item .ts_icon.ts_icon_channel {
+  display: none;
+  visibility: hidden
 }
 
 .basic_share_dialog #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item {
@@ -4754,6 +4797,10 @@ a.link_btn {
 .basic_share_dialog #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .presence .presence_icon {
   top: -16px;
   left: -9px
+}
+
+.basic_share_dialog #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item.new_channel_item {
+  font-weight: 400
 }
 
 .basic_share_dialog #file_sharing_div .lazy_filter_select .lfs_list_container .share_prefix {

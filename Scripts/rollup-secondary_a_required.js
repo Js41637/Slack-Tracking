@@ -4855,6 +4855,22 @@
     return '<div class="loading_hash_animation" style="margin: 2rem;"><img src="' + url + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
   };
 })();
+(function() {
+  "use strict";
+  TS.registerModule("utility.channels", {
+    getPermissibleChannelName: function(name) {
+      if (name.charAt(0) === "@" || name.charAt(0) === "#" && name.length === 1 || name.indexOf(",") > -1) {
+        return null;
+      }
+      if (!name || !/[a-zA-Z\d]/.test(name) || !TS.permissions.members.canCreateChannels()) {
+        return null;
+      }
+      var clean_name = TS.utility.cleanChannelName(name.substring(0, 21));
+      if (!clean_name || TS.channels.getChannelByName(clean_name) || TS.groups.getGroupByName(clean_name) || TS.members.getMemberByName(clean_name)) return null;
+      return clean_name;
+    }
+  });
+})();
 TS.registerModule("constants", {
   onStart: _.noop,
   avatar_size_map: {
@@ -44277,7 +44293,7 @@ var _on_esc;
         }
       }
     },
-    start: function(item_id, hide_file_preview, has_title, source_model_ob_id) {
+    start: function(item_id, hide_file_preview, has_title, source_model_ob_id, comment) {
       if (TS.client && TS.client.ui.checkForEditing()) return;
       _submitting = false;
       _item_id = item_id;
@@ -44312,13 +44328,14 @@ var _on_esc;
       var $file_comment_textarea = $("#file_comment_textarea");
       TS.ui.comments.bindInput($file_comment_textarea, TS.ui.share_dialog.go);
       $file_comment_textarea.autogrow();
+      if (comment) $file_comment_textarea.val(comment);
       $file_comment_textarea = null;
       div.modal("show");
       div.find(".dialog_cancel").click(TS.ui.share_dialog.cancel);
       div.find(".dialog_go").click(TS.ui.share_dialog.go);
       TS.ui.file_share.bindFileShareDropdowns(false, {
         id: source_model_ob_id
-      });
+      }, undefined, true);
       TS.ui.file_share.bindFileShareShareToggle();
       TS.ui.file_share.bindFileShareCommentField();
     },
@@ -44331,21 +44348,8 @@ var _on_esc;
         TS.error("not showing?");
         return;
       }
-      if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return;
-      var $div = $("#share_dialog");
-      var model_ob_id = $div.find("#share_model_ob_id").val();
-      if (!model_ob_id) {
-        var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
-        if (selected) {
-          model_ob_id = selected.model_ob.id;
-        }
-      }
-      if (!model_ob_id) {
-        TS.warn("model_ob_id is not set! " + $("#select_share_channels").val());
-        return;
-      }
-      var comment = TS.format.cleanMsg($("#file_comment_textarea").val());
-      if ($.trim(comment) === "") comment = "";
+      var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
+      var comment = _.trim(TS.format.cleanMsg($("#file_comment_textarea").val()));
       var share_fn = function() {
         TS.shared.getShareModelObId(model_ob_id, function(real_model_ob_id) {
           var shared_from_msg = false;
@@ -44363,6 +44367,32 @@ var _on_esc;
           });
         });
       };
+      if (selected && selected.model_ob && selected.model_ob.create_channel) {
+        var saved_item_id = _item_id;
+        TS.ui.new_channel_modal.start(selected.model_ob.name).then(function(data) {
+          _item_id = saved_item_id;
+          model_ob_id = data.id;
+          share_fn();
+          return null;
+        }).catch(function() {
+          TS.ui.share_dialog.start(saved_item_id, false, false, false, comment);
+          return null;
+        });
+        TS.ui.share_dialog.cancel();
+        return false;
+      }
+      if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return;
+      var $div = $("#share_dialog");
+      var model_ob_id = $div.find("#share_model_ob_id").val();
+      if (!model_ob_id) {
+        if (selected) {
+          model_ob_id = selected.model_ob.id;
+        }
+      }
+      if (!model_ob_id) {
+        TS.warn("model_ob_id is not set! " + $("#select_share_channels").val());
+        return;
+      }
       if (TS.ui.share_dialog.delegate && typeof TS.ui.share_dialog.delegate.submit == "function") {
         TS.ui.share_dialog.delegate.submit($div, share_fn);
       } else {
@@ -46310,6 +46340,8 @@ $.fn.togglify = function(settings) {
     });
     $("#channel_create_title").focus();
     _$modal_container.find(".new_channel_cancel_btn").on("click", function(e) {
+      var reject = _deferred && _deferred.reject;
+      if (reject) reject();
       TS.ui.fs_modal.close();
     });
     var $button = $("#save_channel");
@@ -46654,7 +46686,7 @@ $.fn.togglify = function(settings) {
     onListShown: _.noop,
     onListHidden: _.noop,
     placeholder_text: TS.i18n.t("Search", "lazy_filter_select")(),
-    render_divider_func: null,
+    renderDividerFunc: null,
     render_item_func: null,
     restrict_input_container_height: false,
     restrict_preselected_item_removal: false,
@@ -47475,7 +47507,7 @@ $.fn.togglify = function(settings) {
         return $(TS.templates.lazy_filter_select_item().replace(/(\r\n|\n|\r)/gm, ""));
       },
       renderDivider: function($el, item, data) {
-        if (instance.render_divider_func) return instance.render_divider_func($el, item, data);
+        if (instance.renderDividerFunc) return instance.renderDividerFunc($el, item, data);
         $el.html(_formatTextForDisplay(item.label, instance));
       },
       renderItem: function($el, item, data) {
@@ -57437,7 +57469,7 @@ $.fn.togglify = function(settings) {
     var $channel_picker = $dialog.find("#file_sharing_div");
     $channel_picker.prependTo($dialog.find(".modal-footer"));
     var show_share_prefix = true;
-    TS.ui.file_share.bindFileShareDropdowns(show_share_prefix, _options.src_model_ob);
+    TS.ui.file_share.bindFileShareDropdowns(show_share_prefix, _options.src_model_ob, undefined, true);
     $channel_picker.find("#select_share_channels").css({
       width: ""
     });
@@ -57542,19 +57574,36 @@ $.fn.togglify = function(settings) {
     var original_text = $(".basic_share_dialog .message_input").val();
     var text = TS.format.cleanMsg(original_text);
     text = _.trim(text);
+    var $select_share_channels = $(".basic_share_dialog #select_share_channels");
+    var destination = $select_share_channels.lazyFilterSelect("value")[0];
+    if (destination && destination.model_ob && destination.model_ob.create_channel) {
+      var saved_msg_ts = _msg_ts;
+      var saved_model_ob = _model_ob;
+      TS.ui.new_channel_modal.start(destination.model_ob.name).then(function(data) {
+        _model_ob = saved_model_ob;
+        _share(saved_msg_ts, text, saved_model_ob, data);
+        return null;
+      }).catch(function() {
+        TS.ui.share_message_dialog.start(saved_msg_ts, saved_model_ob, text);
+        return null;
+      });
+      TS.generic_dialog.cancel();
+      return false;
+    }
+    _share(msg_ts, text, src_model_ob, destination.model_ob);
+  };
+  var _share = function(msg_ts, text, src_model_ob, dest_model_ob) {
     if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return false;
+    var original_text = $(".basic_share_dialog .message_input").val();
+    var $select_share_channels = $(".basic_share_dialog #select_share_channels");
     _clogMsgSharedClickEvent(src_model_ob.id, msg_ts);
     var args = {
       channel: src_model_ob.id,
       timestamp: msg_ts,
       text: text
     };
-    var dest_model_ob;
     if (_canShareToOtherChannels()) {
-      var $select_share_channels = $(".basic_share_dialog #select_share_channels");
-      var destination = $select_share_channels.lazyFilterSelect("value");
-      if (destination && destination.length > 0) {
-        dest_model_ob = destination[0].model_ob;
+      if (dest_model_ob) {
         args.share_channel = dest_model_ob.presence ? "@" + dest_model_ob.name : dest_model_ob.id;
       } else if (src_model_ob.is_archived) {
         $("#select_share_pick_channel_note").removeClass("hidden");
@@ -75293,8 +75342,7 @@ $.fn.togglify = function(settings) {
               if (a.hasOwnProperty(s)) {
                 var m = r && r[s],
                   g = a[s];
-                m === g ? (c = u(c, this.moveChild(m, v, f, d)),
-                  d = Math.max(m._mountIndex, d), m._mountIndex = f) : (m && (d = Math.max(m._mountIndex, d)), c = u(c, this._mountChildAtIndex(g, i[h], v, f, t, n)), h++), f++, v = p.getHostNode(g);
+                m === g ? (c = u(c, this.moveChild(m, v, f, d)), d = Math.max(m._mountIndex, d), m._mountIndex = f) : (m && (d = Math.max(m._mountIndex, d)), c = u(c, this._mountChildAtIndex(g, i[h], v, f, t, n)), h++), f++, v = p.getHostNode(g);
               }
             for (s in o) o.hasOwnProperty(s) && (c = u(c, this._unmountChild(r[s], o[s])));
             c && l(this, c), this._renderedChildren = a;
@@ -76777,7 +76825,8 @@ $.fn.togglify = function(settings) {
             u = s.scrollLeft,
             l = s.scrollPositionChangeReason,
             c = s.scrollTop;
-          l === k.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u), c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)), r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
+          l === k.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u),
+            c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)), r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
         }
       }, {
         key: "componentWillMount",

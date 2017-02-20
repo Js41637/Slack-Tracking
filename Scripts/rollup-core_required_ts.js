@@ -4606,7 +4606,7 @@
       TS.client.ui.files.validateFiles(files, TS.model.shift_key_pressed);
     },
     preselected: [],
-    bindFileShareDropdowns: function(show_share_prefix, src_model_ob, preselected) {
+    bindFileShareDropdowns: function(show_share_prefix, src_model_ob, preselected, allow_create) {
       var $select_share_channels = $("#select_share_channels");
       var chosen_width = "60%";
       if (TS.web && TS.web.space) chosen_width = "100%";
@@ -4625,10 +4625,12 @@
       var only_channels = false;
       var only_dms = false;
       if (TS.boot_data.page_needs_enterprise || TS.model.shared_channels_enabled || TS.lazyLoadMembersAndBots()) {
+        var data_promise = TS.ui.file_share.promiseToGetFileShareSelectOptions;
+        if (allow_create) data_promise = _promiseToGetSelectOptionsWithCreate;
         _file_share_options = {
           append: true,
           single: true,
-          data_promise: TS.ui.file_share.promiseToGetFileShareSelectOptions,
+          data_promise: data_promise,
           approx_item_height: 30 * TS.utility.getA11yFontSizeMultiplier(),
           tab_to_nav: true,
           template: function(item) {
@@ -4638,6 +4640,17 @@
             }));
           },
           onItemAdded: _fileShareOnChange,
+          renderDividerFunc: function($el, item, data) {
+            if (item.create_channel) {
+              $el.html(TS.i18n.t('<span class="new">No items matched <strong>{query}</strong></span>', "files")({
+                query: TS.utility.htmlEntities(item.label)
+              }));
+              $("#select_share_channels .lfs_list_container").addClass("new_channel_container");
+              return;
+            }
+            $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
+            $el.html(TS.utility.htmlEntities(item.label)).removeClass("new_channel_not_found");
+          },
           setValue: function(val) {
             var i;
             var j;
@@ -4985,6 +4998,16 @@
     return false;
   };
   var _fileShareOnChange = function(item) {
+    if (item.model_ob.create_channel) {
+      $("#select_share_channels_note").removeClass("hidden");
+      $("#select_share_channels .lfs_value .lfs_item").addClass("new_channel_item");
+      $(".modal .dialog_go").text(TS.i18n.t("Next", "files")());
+      TS.metrics.count("share_picker_create_clicked");
+      return;
+    } else {
+      $("#select_share_channels .lfs_value .lfs_item").removeClass("new_channel_item");
+      $(".modal .dialog_go").text(TS.i18n.t("Share", "files")());
+    }
     var selected_val, type_prefix;
     selected_val = item.model_ob.id;
     if (!selected_val) {
@@ -5013,6 +5036,31 @@
     }
     TS.ui.file_share.updateAtChannelWarningNote();
     TS.ui.file_share.updateAtChannelBlockedNote();
+  };
+  var _promiseToGetSelectOptionsWithCreate = function(query) {
+    return TS.ui.file_share.promiseToGetFileShareSelectOptions(query).then(function(response) {
+      $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
+      if (TS.boot_data.feature_share_picker_create && response.items.length === 0) {
+        var clean_name = TS.utility.channels.getPermissibleChannelName(query);
+        if (clean_name) {
+          response.items.push({
+            lfs_group: true,
+            label: query,
+            create_channel: true,
+            children: [{
+              lfs_id: "c." + clean_name,
+              model_ob: {
+                create_channel: true,
+                name: clean_name
+              }
+            }]
+          });
+          $("#select_share_channels .lfs_list_container").addClass("new_channel_container");
+          TS.metrics.count("share_picker_create_shown");
+        }
+      }
+      return response;
+    });
   };
   var _promiseToGetMembersAndMPIMs = function(searcher) {
     return Promise.all([_promiseToGetMembers(searcher), _promiseToGetMPIMs(searcher)]).then(function(responses) {
