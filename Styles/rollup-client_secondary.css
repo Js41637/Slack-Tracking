@@ -12605,7 +12605,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   border-bottom-color: #000
 }
 
-#file_list.feature_fast_files_flexpane .file_list_item {
+#file_list .file_list_item {
   left: 0;
   right: 0;
   margin-top: .375rem;

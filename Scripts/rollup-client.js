@@ -3595,11 +3595,7 @@
     },
     teamChanged: function(file) {
       if (!file.is_deleted && TS.view.files.shouldAppearInlist(file)) {
-        if (TS.boot_data.feature_fast_files_flexpane) {
-          TS.view.files.singleListItemChanged(file);
-        } else {
-          TS.view.files.throttledRebuildList();
-        }
+        TS.view.files.singleListItemChanged(file);
       }
       var model_ob = TS.shared.getActiveModelOb();
       if (model_ob) TS.utility.msgs.updateFileMsgs(model_ob, file);
@@ -3688,95 +3684,6 @@
     },
     last_files_html: "",
     rebuildList: function() {
-      if (TS.boot_data.feature_fast_files_flexpane) {
-        TS.view.files.rebuildListFast();
-        return;
-      }
-      TS.metrics.mark("start_file_flexpane_rebuild");
-      var $file_list = $("#file_list");
-      var $help_block = $("#file_list_block");
-      var list_type = $file_list.data("list");
-      var files = TS.model.files;
-      var member;
-      var webapp_url = "/files";
-      if (list_type == "user") {
-        files = TS.model.user.files;
-        webapp_url += "/" + TS.model.user.name;
-      } else if (TS.utility.strLooksLikeAMemberId(list_type)) {
-        member = TS.members.getMemberById(list_type);
-        if (member) {
-          files = member.files;
-          webapp_url += "/" + member.name;
-        } else {
-          TS.error(list_type + " is not valid?");
-        }
-      }
-      var html = "";
-      var file;
-      for (var i = 0; i < files.length; i++) {
-        file = files[i];
-        if (!file.is_deleted && TS.view.files.shouldAppearInlist(file)) {
-          html += TS.templates.builders.fileHTML(file);
-        }
-      }
-      $("#file_list_heading").find(".heading_label").text(TS.view.file_list_heading);
-      $("#file_list_toggle").removeClass("hidden");
-      $("#file_search_cancel").addClass("hidden");
-      html = TS.format.replaceHighlightMarkers(html);
-      var types = TS.model.file_list_types;
-      var no_filter = !types || !types.length || types.indexOf("all") != -1;
-      $help_block.find(".subsection").addClass("hidden");
-      if (no_filter) {
-        $help_block.find('.subsection[data-filter="all"]').removeClass("hidden");
-      } else {
-        if (TS.model.active_file_list_member_filter == "all") webapp_url += "/all";
-        webapp_url += "/" + TS.model.active_file_list_filter;
-        $help_block.find('.subsection[data-filter="' + types[0] + '"]').removeClass("hidden");
-      }
-      if (!html) {
-        var html_str = TS.i18n.t("No files.", "files")();
-        if (no_filter) {
-          if (list_type == "user") {
-            html_str = TS.i18n.t("No files from you.", "files")();
-          } else if (member) {
-            html_str = TS.i18n.t("No files from {user}.", "files")({
-              user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
-            });
-          }
-        } else {
-          if (list_type == "user") {
-            html_str = TS.i18n.t("No {file_type} from you.", "files")({
-              file_type: TS.model.file_list_type_map[types[0]]
-            });
-          } else if (member) {
-            html_str = TS.i18n.t("No {file_type} from {user}.", "files")({
-              file_type: TS.model.file_list_type_map[types[0]],
-              user: "<strong>" + TS.members.getMemberDisplayName(member, true) + "</strong>"
-            });
-          }
-        }
-        html = '<p class="no_results">' + html_str + "</p>";
-      }
-      if (html != TS.view.files.last_files_html || !$file_list.children().length) {
-        if (TS.view.file_list_lazyload && TS.view.file_list_lazyload.detachEvents) TS.view.file_list_lazyload.detachEvents();
-        $file_list.html(html);
-        TS.utility.makeSureAllLinksHaveTargets($file_list);
-        TS.view.file_list_lazyload = $file_list.find(TS.boot_data.feature_files_list ? ".lazy" : "img.lazy").lazyload({
-          container: $("#file_list_scroller")
-        });
-        if (!!TS.client) TS.client.ui.checkInlineImgsAndIframes("file_list");
-        $("#file_list_scroller").trigger("resize-immediate");
-      }
-      TS.view.files.last_files_html = html;
-      if (TS.model.files.length === 0) {
-        $("#file_listing_bottom_button").addClass("hidden");
-      } else {
-        $("#file_listing_bottom_button").removeClass("hidden").attr("href", webapp_url);
-      }
-      TS.ui.utility.updateClosestMonkeyScroller($file_list);
-      TS.metrics.measureAndClear("file_flexpane_rebuild", "start_file_flexpane_rebuild");
-    },
-    rebuildListFast: function() {
       TS.metrics.mark("start_file_flexpane_rebuild");
       var $file_list = $("#file_list");
       var $help_block = $("#file_list_block");
@@ -3935,32 +3842,22 @@
       return false;
     },
     singleListItemChanged: function(file) {
-      if (!TS.boot_data.feature_fast_files_flexpane) return;
       if (!_file_list_initialized) return;
       if (TS.model.ui_state.flex_name !== "files") return;
       $("#file_list").longListView("itemUpdated", file);
     },
     cleanList: function() {
-      if (TS.boot_data.feature_fast_files_flexpane) {
-        if (_file_list_initialized) {
-          $("#file_list").longListView("destroy");
-          _file_list_initialized = false;
-        }
-      } else {
-        if (TS.view.file_list_lazyload && TS.view.file_list_lazyload.detachEvents) {
-          TS.view.file_list_lazyload.detachEvents();
-          TS.view.file_list_lazyload = null;
-        }
-        $("#file_list").empty();
+      if (_file_list_initialized) {
+        $("#file_list").longListView("destroy");
+        _file_list_initialized = false;
       }
     },
     hideList: function() {
-      if (!TS.boot_data.feature_fast_files_flexpane || !_file_list_initialized) return;
+      if (!_file_list_initialized) return;
       $("#file_list_scroller").data("disable-scroll", true);
       $("#file_list").longListView("setHidden", true);
     },
     unHideList: function() {
-      if (!TS.boot_data.feature_fast_files_flexpane) return;
       $("#file_list_scroller").data("disable-scroll", false);
       if (_file_list_initialized) {
         $("#file_list").longListView("setHidden", false);
@@ -8185,7 +8082,7 @@
       if (!TS.client.ui.flex._displayFlexTab("files")) return false;
       TS.client.ui.files._rebuildBackFromFilePreview(origin);
       TS.model.previewed_file_id = id;
-      if (TS.boot_data.feature_fast_files_flexpane) TS.view.files.hideList();
+      TS.view.files.hideList();
       $("#file_list_container").hideWithRememberedScrollTop();
       if (TS.boot_data.feature_share_mention_comment_cleanup) {
         if (channel_id) {
@@ -8207,7 +8104,7 @@
       TS.model.previewed_file_id = "";
       $("#file_preview_container").hideWithRememberedScrollTop();
       $("#file_list_container").unhideWithRememberedScrollTop();
-      if (TS.boot_data.feature_fast_files_flexpane) TS.view.files.unHideList();
+      TS.view.files.unHideList();
       TS.view.resizeManually("TS.client.ui.files._displayFileList");
       return true;
     },
@@ -9228,7 +9125,7 @@
           TS.view.rebuildMentionsImmediately(true);
         }
       } else if (flex_name === "files") {
-        if (TS.boot_data.feature_fast_files_flexpane) TS.view.files.unHideList();
+        TS.view.files.unHideList();
       } else if (flex_name === "team") {
         TS.client.flex_pane.startLocalTimeInterval();
       } else if (flex_name === "details") {
