@@ -10447,6 +10447,23 @@ TS.registerModule("constants", {
       TS.console.warn("team " + id + " not in local model");
       return null;
     },
+    getTeamByDomain: function(domain) {
+      if (!TS.boot_data.feature_shared_channels_client) {
+        TS.console.warn("external shared channels must be on to use this");
+        return;
+      }
+      if (!_.isString(domain)) return null;
+      if (TS.model.team.domain === domain) return TS.model.team;
+      if (!TS.model.teams) {
+        TS.console.warn("TS.teams.getTeamByDomain() → TS.model.teams is missing.");
+        return null;
+      }
+      var team = _.find(TS.model.teams, {
+        domain: domain
+      });
+      if (team) return team;
+      return null;
+    },
     getTeamByMsg: function(msg) {
       if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
@@ -58454,6 +58471,9 @@ $.fn.togglify = function(settings) {
     buildTeamUrl: function(domain) {
       return "https://" + domain + "." + TS.boot_data.abs_root_url.replace(/(http:\/\/|https:\/\/)/, "");
     },
+    buildOrgUrl: function(domain) {
+      return "https://" + domain + ".enterprise." + TS.boot_data.abs_root_url.replace(/(http:\/\/|https:\/\/)/, "");
+    },
     getSanitizedIdpLabel: function(provider_label) {
       var possesive;
       if (provider_label !== "IDP") {
@@ -76826,8 +76846,7 @@ $.fn.togglify = function(settings) {
             u = s.scrollLeft,
             l = s.scrollPositionChangeReason,
             c = s.scrollTop;
-          l === k.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u),
-            c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)), r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
+          l === k.REQUESTED && (u >= 0 && u !== t.scrollLeft && u !== this._scrollingContainer.scrollLeft && (this._scrollingContainer.scrollLeft = u), c >= 0 && c !== t.scrollTop && c !== this._scrollingContainer.scrollTop && (this._scrollingContainer.scrollTop = c)), r === e.height && o === e.scrollToAlignment && i === e.scrollToCell && a === e.width || this._updateScrollPositionForScrollToCell(), this._invokeOnSectionRenderedHelper();
         }
       }, {
         key: "componentWillMount",

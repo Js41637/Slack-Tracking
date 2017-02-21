@@ -1480,8 +1480,11 @@ html.is_mac .CodeMirror .CodeMirror-sizer {
   height: auto;
   padding: 7px;
   box-shadow: 0 0 16px rgba(0, 0, 0, .2);
-  display: flex;
   flex-wrap: wrap
+}
+
+.feature_better_app_info.colpick.visible {
+  display: flex
 }
 
 .feature_better_app_info .colpick_color {

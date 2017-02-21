@@ -25346,7 +25346,11 @@
           top: top + "px"
         });
         if (cal.data("colpick").onShow.apply(this, [cal.get(0)]) != false) {
-          cal.show();
+          if (TS.boot_data.feature_better_app_info) {
+            cal.addClass("visible");
+          } else {
+            cal.show();
+          }
         }
         $("html").mousedown({
           cal: cal
@@ -25357,7 +25361,11 @@
       },
       hide = function(ev) {
         if (ev.data.cal.data("colpick").onHide.apply(this, [ev.data.cal.get(0)]) != false) {
-          ev.data.cal.hide();
+          if (TS.boot_data.feature_better_app_info) {
+            ev.data.cal.removeClass("visible");
+          } else {
+            ev.data.cal.hide();
+          }
         }
         $("html").off("mousedown", hide);
       },
