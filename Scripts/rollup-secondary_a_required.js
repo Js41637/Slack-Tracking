@@ -29621,6 +29621,7 @@ TS.registerModule("constants", {
       if (!_.isObject(options)) options = {};
       if (selection.rangeCount !== 1) {
         TS.info("TS.format.formatSelection: found " + selection.rangeCount + " ranges");
+        return;
       }
       if (TS.boot_data.feature_better_msg_copying) {
         var range = selection.getRangeAt(0);
