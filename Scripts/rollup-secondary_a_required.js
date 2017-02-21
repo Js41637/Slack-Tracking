@@ -21891,6 +21891,79 @@ TS.registerModule("constants", {
         enable_slack_action_links: true
       });
     },
+    buildThreadParticipantListHTML: function(root_msg) {
+      var user_ids = _.map(root_msg.replies, "user");
+      var bot_ids = _.map(root_msg.replies, "bot_id");
+      user_ids = user_ids.concat(bot_ids);
+      user_ids = _.without(user_ids, "U00", undefined);
+      if (root_msg.subtype !== "tombstone" && root_msg.user) user_ids.unshift(root_msg.user);
+      user_ids = _.uniq(user_ids);
+      if (_.includes(user_ids, TS.model.user.id)) {
+        user_ids = _.without(user_ids, TS.model.user.id);
+        user_ids.push(TS.model.user.id);
+      }
+      var participant_names = _.map(user_ids, function(id) {
+        var participant_name;
+        if (id.charAt(0) == "B") {
+          participant_name = TS.bots.getBotNameById(id);
+        } else {
+          if (id === TS.model.user.id) {
+            participant_name = TS.i18n.t("you", "threads")();
+          } else {
+            participant_name = TS.members.getMemberDisplayNameById(id);
+          }
+        }
+        return participant_name;
+      });
+      if (user_ids.length === 1) {
+        if (user_ids[0] === TS.model.user.id) {
+          return TS.i18n.t("Just you", "threads")();
+        } else {
+          return TS.utility.htmlEntities(participant_names[0]);
+        }
+      } else if (user_ids.length === 2) {
+        if (user_ids[1] === TS.model.user.id) {
+          return TS.i18n.t("{user_name} and you", "threads")({
+            user_name: TS.utility.htmlEntities(participant_names[0])
+          });
+        } else {
+          return TS.i18n.t("{user_name1} and {user_name2}", "threads")({
+            user_name1: TS.utility.htmlEntities(participant_names[0]),
+            user_name2: TS.utility.htmlEntities(participant_names[1])
+          });
+        }
+      } else if (user_ids.length === 3) {
+        if (user_ids[2] === TS.model.user.id) {
+          return TS.i18n.t("{user_name1}, {user_name2}, and you", "threads")({
+            user_name1: TS.utility.htmlEntities(participant_names[0]),
+            user_name2: TS.utility.htmlEntities(participant_names[1])
+          });
+        } else {
+          return TS.i18n.t("{user_name1}, {user_name2}, and {user_name3}", "threads")({
+            user_name1: TS.utility.htmlEntities(participant_names[0]),
+            user_name2: TS.utility.htmlEntities(participant_names[1]),
+            user_name3: TS.utility.htmlEntities(participant_names[2])
+          });
+        }
+      } else if (user_ids.length > 3) {
+        var num_others = user_ids.length - 2;
+        var leftover_names = _.drop(participant_names, 2);
+        var limit = 25;
+        if (leftover_names.length > limit) {
+          leftover_names = _.take(leftover_names, limit);
+          leftover_names.push(TS.i18n.t("others", "threads")());
+        }
+        var other_names = TS.i18n.listify(leftover_names, {
+          no_escape: true
+        }).join("");
+        return TS.templates.thread_participants_with_overflow({
+          num_others: num_others,
+          user_name1: participant_names[0],
+          user_name2: participant_names[1],
+          other_names: other_names
+        });
+      }
+    },
     test: function() {
       var test_ob = {};
       Object.defineProperty(test_ob, "_buildStarComponents", {
@@ -23701,6 +23774,14 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getMemberCurrentStatusForDisplay", function(member) {
         return new Handlebars.SafeString(TS.members.getMemberCurrentStatusForDisplay(member));
       });
+      Handlebars.registerHelper("seesCurrentStatusInProfileView", function(member, options) {
+        options = _optionsFnInverseBooleanHelper(options);
+        if (member.profile.status_text || member.profile.status_text || TS.boot_data.app == "client" && member.is_self) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        }
+      });
       Handlebars.registerHelper("getTeamCustomStatusPresets", function() {
         return TS.team.getTeamCustomStatusPresets();
       });
@@ -24377,6 +24458,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob, thread, options) {
         var html = TS.templates.builders.buildThreadMsgHTML(msg, model_ob, thread, options);
         return new Handlebars.SafeString(html);
+      });
+      Handlebars.registerHelper("buildThreadParticipantListHTML", function(root_msg) {
+        return new Handlebars.SafeString(TS.templates.builders.buildThreadParticipantListHTML(root_msg));
       });
     },
     test: function() {
@@ -32357,7 +32441,7 @@ TS.registerModule("constants", {
         if ((signed_into_enterprise || template_args.current_team_is_in_enterprise) && (template_args.other_enterprise_accounts && Object.keys(template_args.other_enterprise_accounts).length || template_args.other_accounts && Object.keys(template_args.other_accounts).length)) template_args.show_switch_teams_submenu = true;
         template_args.can_show_leave_workspace = TS.permissions.enterprise.canUserLeaveTeam(TS.model.user, TS.model.team);
       }
-      template_args.show_shared_channels = TS.model.shared_channels_enabled;
+      template_args.show_shared_channels = TS.model.shared_channels_enabled && !TS.model.user.is_restricted;
       TS.menu.$menu.addClass("team_menu slack_menu");
       TS.menu.$menu.attr("data-qa", "team_menu");
       TS.menu.$menu_header.addClass("hidden").empty();
@@ -34045,7 +34129,7 @@ var _on_esc;
       var should_show_box = TS.utility.box.isBrowserSupported() && TS.model.prefs.box_enabled;
       var should_show_arugula = TS.boot_data.feature_arugula;
       var should_show_dropbox = window.Dropbox && Dropbox.isBrowserSupported() && TS.model.prefs.dropbox_enabled;
-      var should_show_gdrive = TS.boot_data.feature_gdrive_1_dot_5 && TS.model.team.prefs.gdrive_enabled_team;
+      var should_show_gdrive = TS.model.team.prefs.gdrive_enabled_team;
       var cloud_service_count = 0;
       if (should_show_box) cloud_service_count++;
       if (should_show_dropbox) cloud_service_count++;
@@ -46254,6 +46338,7 @@ $.fn.togglify = function(settings) {
       }
       items = _(items).map(function(item) {
         if (item.is_ultra_restricted) return;
+        if (TS.flannel.isMemberDeleted(item.id)) return;
         return {
           member: item,
           lfs_id: String(item.id)
@@ -59193,7 +59278,6 @@ $.fn.togglify = function(settings) {
       if (model_ob.is_im) {
         im_user = TS.members.getMemberById(model_ob.user);
       }
-      var participants = TS.ui.replies.buildParticipantsList(thread.root_msg);
       var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.thread_ts);
       var is_subscribed = subscription && subscription.subscribed;
       var view_previous_count = root_msg.reply_count;
@@ -59215,7 +59299,6 @@ $.fn.togglify = function(settings) {
         new_replies: new_replies,
         new_replies_count: _newRepliesText(new_replies.length),
         im_user: im_user,
-        participants: participants,
         is_subscribed: is_subscribed,
         options: options || {}
       });
@@ -59704,8 +59787,8 @@ $.fn.togglify = function(settings) {
     return payload;
   };
   var _updateParticipantsList = function($thread, thread) {
-    var participants = TS.ui.replies.buildParticipantsList(thread.root_msg);
-    $thread.find(".thread_participants").text(participants);
+    var participants = TS.templates.builders.buildThreadParticipantListHTML(thread.root_msg);
+    $thread.find(".thread_participants").html(participants);
   };
 })();
 (function() {
@@ -63962,7 +64045,8 @@ $.fn.togglify = function(settings) {
         }
 
         function Ga(e, t, n) {
-          return n = "function" == typeof n ? n : J, Zn(e, t, ho(t), n);
+          return n = "function" == typeof n ? n : J,
+            Zn(e, t, ho(t), n);
         }
 
         function Va(e) {
@@ -65535,7 +65619,8 @@ $.fn.togglify = function(settings) {
     },
     c = function(e) {
       function t() {
-        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+        return r(this, t),
+          o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
       return i(t, e), u(t, [{
         key: "render",

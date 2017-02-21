@@ -412,6 +412,25 @@
           _maybeOpenModals();
         });
       });
+      if (TS.boot_data.feature_deprecate_10_8_modal && TS.model.mac_version == 10.8) {
+        var title = TS.i18n.t("Please upgrade your operating system", "client")() + " " + TS.emoji.graphicReplace(":wave::skin-tone-5:", {
+          jumbomoji: true
+        }).replace("emoji-sizer", "");
+        title = new Handlebars.SafeString(title);
+        TS.ui.fs_modal.start({
+          title: title,
+          body: TS.i18n.t("<p>We've been working to make Slack faster and easier to use. Unfortunately, your computer's operating system (OS X 10.8 Mountain Lion) isn't compatible with these improvements.</p><p>To continue using Slack on your Mac computer, please upgrade your operating system soon! Feel free to <a href='mailto:feedback@slack.com'>contact us</a> with any questions.</p>", "client")(),
+          show_secondary_go_button: true,
+          secondary_go_button_text: TS.i18n.t("Learn How to Upgrade", "client")(),
+          show_cancel_button: false,
+          go_button_class: "btn_link",
+          go_button_text: TS.i18n.t("Skip for now", "client")(),
+          modal_class: "deprecate_10_8",
+          onSecondaryGo: function() {
+            TS.utility.openInNewTab("https://support.apple.com/en-us/HT201475", "_blank");
+          }
+        });
+      }
       var model_ob = TS.shared.getActiveModelOb();
       var has_content = model_ob && model_ob.msgs && (model_ob.msgs.length > 0 || model_ob.latest === null);
       if (TS.client.archives.current_model_ob) {} else if (has_content) {
@@ -25494,7 +25513,7 @@
               var css = {
                 position: "relative"
               };
-              if (!TS.boot_data.feature_better_app_info) css.display = "block";
+              css.display = TS.boot_data.feature_better_app_info ? "flex" : "block";
               cal.css(css);
             } else {
               cal.appendTo(document.body);
@@ -38864,67 +38883,6 @@ function timezones_guess() {
       }, true);
       $("#reply_container .join_channel_from_thread").addClass("disabled");
     },
-    buildParticipantsList: function(root_msg) {
-      var user_ids = _.map(root_msg.replies, "user");
-      var bot_ids = _.map(root_msg.replies, "bot_id");
-      user_ids = user_ids.concat(bot_ids);
-      user_ids = _.without(user_ids, "U00", undefined);
-      if (!_isMessageDeleted(root_msg) && root_msg.user) user_ids.unshift(root_msg.user);
-      user_ids = _.uniq(user_ids);
-      if (_.includes(user_ids, TS.model.user.id)) {
-        user_ids = _.without(user_ids, TS.model.user.id);
-        user_ids.push(TS.model.user.id);
-      }
-      var participant_names = _.map(user_ids, function(id) {
-        var participant_name;
-        if (id.charAt(0) == "B") {
-          participant_name = TS.bots.getBotNameById(id);
-        } else {
-          participant_name = TS.members.getMemberDisplayNameById(id);
-        }
-        return participant_name;
-      });
-      var participants = "";
-      if (user_ids.length === 1) {
-        if (user_ids[0] === TS.model.user.id) {
-          participants = TS.i18n.t("Just you", "threads")();
-        } else {
-          participants = participant_names[0];
-        }
-      } else if (user_ids.length === 2) {
-        if (user_ids[1] === TS.model.user.id) {
-          participants = TS.i18n.t("{user_name} and you", "threads")({
-            user_name: participant_names[0]
-          });
-        } else {
-          participants = TS.i18n.t("{user_name1} and {user_name2}", "threads")({
-            user_name1: participant_names[0],
-            user_name2: participant_names[1]
-          });
-        }
-      } else if (user_ids.length === 3) {
-        if (user_ids[2] === TS.model.user.id) {
-          participants = TS.i18n.t("{user_name1}, {user_name2}, and you", "threads")({
-            user_name1: participant_names[0],
-            user_name2: participant_names[1]
-          });
-        } else {
-          participants = TS.i18n.t("{user_name1}, {user_name2}, and {user_name3}", "threads")({
-            user_name1: participant_names[0],
-            user_name2: participant_names[1],
-            user_name3: participant_names[2]
-          });
-        }
-      } else if (user_ids.length > 3) {
-        var num_others = user_ids.length - 2;
-        participants = TS.i18n.t("{user_name1}, {user_name2}, and {num_others,plural,=1{{num_others} other}other{{num_others} others}}", "threads")({
-          num_others: num_others,
-          user_name1: participant_names[0],
-          user_name2: participant_names[1]
-        });
-      }
-      return participants;
-    },
     checkUnreads: function() {
       if (!TS.client.ui.isUserAttentionOnChat()) return;
       if (!_active_convo_model_id || !_active_convo_thread_ts) return;
@@ -39273,7 +39231,7 @@ function timezones_guess() {
   };
   var _updateHeaderData = function(root_msg) {
     if (!root_msg) return;
-    $("#convo_tab .thread_participants").text(TS.ui.replies.buildParticipantsList(root_msg));
+    $("#convo_tab .thread_participants").html(TS.templates.builders.buildThreadParticipantListHTML(root_msg));
   };
   var _clearHeaderData = function() {
     $("#convo_tab .thread_participants").text("");

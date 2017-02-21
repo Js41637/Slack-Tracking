@@ -4632,7 +4632,7 @@
       var match_names_only = true;
       var only_channels = false;
       var only_dms = false;
-      if (TS.boot_data.page_needs_enterprise || TS.model.shared_channels_enabled || TS.lazyLoadMembersAndBots()) {
+      if (TS.boot_data.page_needs_enterprise || TS.model.shared_channels_enabled || TS.lazyLoadMembersAndBots() || TS.boot_data.feature_share_picker) {
         var data_promise = TS.ui.file_share.promiseToGetFileShareSelectOptions;
         if (allow_create) data_promise = _promiseToGetSelectOptionsWithCreate;
         _file_share_options = {
@@ -4770,6 +4770,32 @@
       });
     },
     promiseToGetFileShareSelectOptions: function(query) {
+      if (TS.boot_data.feature_share_picker) {
+        var current_model_ob = _getActiveChannelId();
+        return TS.searcher.search(query, {
+          members: {
+            include_self: true
+          },
+          channels: {
+            include_archived: false,
+            can_post: true
+          },
+          groups: {
+            include_archived: false
+          },
+          mpims: true,
+          sort: {
+            allow_empty_query: true
+          }
+        }).then(function(data) {
+          data.all_items_fetched = true;
+          data.forEach(function(item) {
+            item.lfs_id = item.model_ob.id;
+            item.preselected = _isPreselected(item.model_ob.id, current_model_ob);
+          });
+          return data;
+        });
+      }
       if (query.charAt(0) === "@") query = query.substring(1);
       if (_file_share_options.query !== query) {
         _file_share_options.query = query;
@@ -5048,10 +5074,10 @@
   var _promiseToGetSelectOptionsWithCreate = function(query) {
     return TS.ui.file_share.promiseToGetFileShareSelectOptions(query).then(function(response) {
       $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
-      if (TS.boot_data.feature_share_picker_create && response.items.length === 0) {
+      if (TS.boot_data.feature_share_picker && response.length === 0) {
         var clean_name = TS.utility.channels.getPermissibleChannelName(query);
         if (clean_name) {
-          response.items.push({
+          response.push({
             lfs_group: true,
             label: query,
             create_channel: true,

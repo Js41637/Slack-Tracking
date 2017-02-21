@@ -10038,6 +10038,26 @@ html.fs_modal_active {
   margin-right: .25rem
 }
 
+.deprecate_10_8#fs_modal .actions .dialog_go.btn_link {
+  line-height: 1.2rem;
+  text-shadow: none
+}
+
+.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:after {
+  display: none
+}
+
+.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:active,
+.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:focus,
+.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:hover {
+  background: 0 0;
+  box-shadow: none
+}
+
+.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:hover {
+  text-decoration: underline
+}
+
 #fs_modal~.modal-backdrop {
   z-index: 1042
 }

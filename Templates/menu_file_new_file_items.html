@@ -1,89 +1,47 @@
 {{i18n_ns "menu"}}
 
-{{#feature flag="feature_gdrive_1_dot_5"}}
-
-  <div class="section_header"><hr><span class="header_label menu_mini">
+<div class="section_header"><hr><span class="header_label menu_mini">
     {{#t note="Heading for the create a new file menu"}}New&hellip;{{/t}}
-  </span></div>
+</span></div>
 
-  <li data-which="snippet" class="file_menu_item"><a target="_blank" href="/files/create/snippet"><i class="file_menu_icon ts_icon ts_icon_create_snippet"></i>
+<li data-which="snippet" class="file_menu_item"><a target="_blank" href="/files/create/snippet"><i class="file_menu_icon ts_icon ts_icon_create_snippet"></i>
     {{#t note="Create a new code or text snippet"}}Code or text snippet{{/t}}
-  </a></li>
+</a></li>
 
-  {{#if should_show_gdrive}}
+{{#if should_show_gdrive}}
     <li id="gdrive_create_submenu" data-which="gdrive_create_submenu" class="file_menu_item has_submenu"><a><i class="file_menu_icon ts_icon ts_icon_google_drive"></i>
-      {{#t note="Create a new Google Docs file"}}Google Docs file{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret">
+        {{#t note="Create a new Google Docs file"}}Google Docs file{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret">
     </a></li>
-  {{/if}}
+{{/if}}
 
-  {{#if should_show_arugula}}
+{{#if should_show_arugula}}
     <li data-which="arugula" class="file_menu_item"><a target="_blank" href="/files/create/arugula"><i class="file_menu_icon ts_icon ts_icon_create_post"></i> {{#t note="Create a new Arugula post"}}Arugula Post{{/t}}</a></li>
-  {{/if}}
+{{/if}}
 
-  {{#if should_show_thanks}}
+{{#if should_show_thanks}}
     <li data-which="reaction_poll" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_add_reaction"></i>
-      {{#t note="Create a new poll"}}Poll{{/t}}
+        {{#t note="Create a new poll"}}Poll{{/t}}
     </a></li>
-  {{/if}}
+{{/if}}
 
-  <li data-which="space" class="file_menu_item"><a target="_blank" href="/files/create/space"><i class="file_menu_icon ts_icon ts_icon_create_post"></i>
+<li data-which="space" class="file_menu_item"><a target="_blank" href="/files/create/space"><i class="file_menu_icon ts_icon ts_icon_create_post"></i>
     {{#t note="Create a new post"}}Post{{/t}}
-  </a></li>
+</a></li>
 
-  <div class="section_header"><hr><span class="header_label menu_mini">
+<div class="section_header"><hr><span class="header_label menu_mini">
     {{#t note="Add a new file menu section header"}}Add {file_type} from&hellip;{{/t}}
-  </span></div>
+</span></div>
 
-  {{#if use_cloud_submenu}}
+{{#if use_cloud_submenu}}
     <li id="cloud_submenu" data-which="cloud_submenu" class="file_menu_item has_submenu"><a><i class="file_menu_icon ts_icon ts_icon_cloud_download"></i>
-      {{#t note="Create a new file from a cloud service"}}A cloud service{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret">
+        {{#t note="Create a new file from a cloud service"}}A cloud service{{/t}} <ts-icon class="ts_icon_caret_right submenu_caret">
     </a></li>
-  {{else}}
-    {{> menu_file_cloud_service_items}}
-  {{/if}}
-
-  {{#if should_show_upload_file}}
-    <li data-which="choose" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_laptop"></i>
-      {{#t note="Upload a new file from your computer"}}Your computer{{/t}}
-    </a></li>
-  {{/if}}
-
 {{else}}
+    {{> menu_file_cloud_service_items}}
+{{/if}}
 
-  {{#if should_show_upload_file}}
-    <li data-which="choose" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_upload"></i>{{upload_file_text}}</a></li>
-  {{/if}}
-
-  {{#if should_show_email}}
-    <li data-which="email" class="file_menu_item"><a target="_blank" href="/account/settings"><i class="file_menu_icon ts_icon ts_icon_share_email"></i>
-      {{#t}}Import an email{{/t}}
+{{#if should_show_upload_file}}
+    <li data-which="choose" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_laptop"></i>
+        {{#t note="Upload a new file from your computer"}}Your computer{{/t}}
     </a></li>
-  {{/if}}
-
-  <li data-which="snippet" class="file_menu_item"><a target="_blank" href="/files/create/snippet"><i class="file_menu_icon ts_icon ts_icon_create_snippet"></i>
-    {{#t}}Create a snippet{{/t}}
-  </a></li>
-
-  <li data-which="space" class="file_menu_item"><a target="_blank" href="/files/create/space"><i class="file_menu_icon ts_icon ts_icon_create_post"></i>
-    {{#t}}Create a post{{/t}}
-  </a></li>
-
-  {{#if should_show_thanks}}
-    <li data-which="reaction_poll" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_add_reaction"></i>
-      {{#t}}Create a Poll{{/t}}
-    </a></li>
-  {{/if}}
-
-  {{#if should_show_box}}
-    <li data-which="box" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_box"></i>
-      {{#t}}Import from Box{{/t}}
-    </a></li>
-  {{/if}}
-
-  {{#if should_show_dropbox}}
-    <li data-which="dropbox" class="file_menu_item"><a><i class="file_menu_icon ts_icon ts_icon_dropbox"></i>
-      {{#t}}Import from Dropbox{{/t}}
-    </a></li>
-  {{/if}}
-
-{{/feature}}
+{{/if}}
