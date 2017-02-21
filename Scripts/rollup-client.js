@@ -11413,86 +11413,6 @@
 })();
 (function() {
   "use strict";
-  TS.registerModule("client.nav_history", {
-    onStart: function() {
-      if (!TS.boot_data.feature_prev_next_button) return;
-      TS.client.nav_history.setDirection(-1);
-      _is_initial_setup = false;
-      _done_inital_setup = false;
-      _left_arrow = TS.utility.keymap.left;
-      _right_arrow = TS.utility.keymap.right;
-      _left_square_bracket = TS.utility.keymap.left_square_bracket;
-      _right_square_bracket = TS.utility.keymap.right_square_bracket;
-      TS.client.unread.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      TS.client.threads.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      TS.channels.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      TS.ims.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      TS.groups.switched_sig.add(TS.client.nav_history.updateNavHistory);
-      TS.mpims.switched_sig.add(TS.client.nav_history.updateNavHistory);
-    },
-    setDirection: function(direction) {
-      _nav_direction = direction;
-    },
-    initialSetup: function() {
-      _is_initial_setup = true;
-    },
-    updateNavHistory: function() {
-      if (TS.model.nav_used) {
-        _updateNavCurrentIndex();
-      }
-      if (_is_initial_setup || _done_inital_setup) {
-        var model_ob;
-        if (_is_initial_setup) {
-          model_ob = TS.shared.getModelObById(TS.model.initial_cid);
-        } else {
-          model_ob = TS.shared.getModelObById(TS.model.active_cid);
-        }
-        if (!model_ob) {
-          TS.error("UpdateNavHistory missing model_ob!!!");
-        }
-        if (!TS.model.nav_used) {
-          var model_ob_id = model_ob.id;
-          TS.model.nav_history.splice(TS.model.nav_current_index + 1);
-          if (TS.model.initial_unread_view && TS.model.prefs.enable_unread_view && _is_initial_setup || TS.model.unread_view_is_showing) {
-            TS.model.nav_history.push({
-              id: "All Unreads"
-            });
-          } else if (TS.model.initial_threads_view && _is_initial_setup || TS.model.threads_view_is_showing) {
-            TS.model.nav_history.push({
-              id: "Threads"
-            });
-          } else {
-            TS.model.nav_history.push({
-              id: model_ob_id
-            });
-          }
-          TS.model.nav_current_index = TS.model.nav_current_index + 1;
-        }
-        _is_initial_setup = false;
-        _done_inital_setup = true;
-        TS.client.nav_history.setDirection(-1);
-        TS.model.nav_used = false;
-        TS.client.channel_pane.updateFooterUI();
-      }
-    }
-  });
-  var _nav_direction;
-  var _is_initial_setup;
-  var _done_inital_setup;
-  var _left_arrow;
-  var _right_arrow;
-  var _left_square_bracket;
-  var _right_square_bracket;
-  var _updateNavCurrentIndex = function() {
-    if ((_nav_direction === _left_arrow || _nav_direction === _left_square_bracket) && TS.model.nav_current_index > 0) {
-      TS.model.nav_current_index--;
-    } else if ((_nav_direction === _right_arrow || _nav_direction === _right_square_bracket) && TS.model.nav_current_index < TS.model.nav_history.length - 1) {
-      TS.model.nav_current_index++;
-    } else {}
-  };
-})();
-(function() {
-  "use strict";
   TS.registerModule("client.channel_header", {
     onStart: function() {
       _member_presence_list = new TS.PresenceList;
@@ -29922,11 +29842,11 @@
   };
   var _startSpinner = function() {
     var el = document.getElementById("channel_invite_spinner");
-    if (el) el.classList.remove("hidden");
+    if (el && el.classList) el.classList.remove("hidden");
   };
   var _stopSpinner = function() {
     var el = document.getElementById("channel_invite_spinner");
-    if (el) el.classList.add("hidden");
+    if (el && el.classList) el.classList.add("hidden");
   };
   var _obscureList = function() {
     if (!_$scroll_wrapper) {
