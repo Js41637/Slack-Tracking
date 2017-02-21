@@ -4,7 +4,6 @@
 {{!-- Todo: enable syntax linter and refactor with safeString --}}
 
   <li class='{{makeMemberDomId member}} member {{makeMemberDomClass member}} cursor_pointer'>
-    {{makeModelObHotnessIconSafe model_ob}}
     {{makeModelObPriorityIconSafe model_ob}}
     {{#if show_starred}}{{makeModelObStarredIconSafe model_ob}}{{/if}}
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}

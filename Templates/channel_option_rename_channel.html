@@ -2,7 +2,7 @@
 
 <p class="top_margin">
   <label for="channel_create_title" class="">{{#t}}Name{{/t}}</label>
-  <input id="channel_create_title" name="title_input" type="text" class="small title_input {{#isWeb}}no_bottom_margin{{/isWeb}}" value="{{title}}" maxlength="{{ChannelNameMaxLength}}" />
+  <input id="channel_create_title" name="title_input" type="text" class="lowercase small title_input {{#isWeb}}no_bottom_margin{{/isWeb}}" value="{{title}}" {{#feature flag="feature_intl_channel_names"}}{{else}}maxlength="{{ChannelNameMaxLength}}"{{/feature}} data-validation="transform_lowercase channel_name" data-validation-for="channel_create_title" data-validation-success="" autocapitalize="off" autocorrect="off" autocomplete="off"/>
   <span class="{{#isWeb}}input_note{{else}}modal_input_note{{/isWeb}}">
     {{#t}}Names should be lowercase, with no spaces.{{/t}}
   </span>

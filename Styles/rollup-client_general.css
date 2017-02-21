@@ -4715,6 +4715,10 @@ a.link_btn {
   font-size: .85rem
 }
 
+#file_sharing_div .lazy_filter_select .lfs_item .ts_icon_shared_channel {
+  line-height: 0
+}
+
 #file_sharing_div .lazy_filter_select .lfs_item .presence {
   position: absolute;
   top: .625rem;

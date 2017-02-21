@@ -47,25 +47,25 @@
   <p class="large">
     {{#if use_credit}}
       {{#if_equal product_is_trial compare=true}}
-        {{#t pay_total=(cash value=pay_total all_digits=true) pay_total_after_credit=(cash value=pay_total_after_credit all_digits=true)}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency) pay_total_after_credit=(cash value=pay_total_after_credit currency_code=currency)}}
           You will pay <strong><s>{pay_total}</s></strong> {pay_total_after_credit} (after credit) when your trial expires
         {{/t}}
       {{else}}
-        {{#t pay_total=(cash value=pay_total all_digits=true) pay_total_after_credit=(cash value=pay_total_after_credit all_digits=true)}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency) pay_total_after_credit=(cash value=pay_total_after_credit currency_code=currency)}}
           You will pay <strong><s>{pay_total}</s></strong> {pay_total_after_credit} now (after credit)
           {{/t}}
       {{/if_equal}}
     {{else}}
       {{#if_equal product_is_trial compare=true}}
-        {{#t pay_total=(cash value=pay_total all_digits=true)}}You will pay <strong>{pay_total}</strong> when your trial expires{{/t}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency)}}You will pay <strong>{pay_total}</strong> when your trial expires{{/t}}
       {{else}}
-        {{#t pay_total=(cash value=pay_total all_digits=true)}}You will pay <strong>{pay_total}</strong> now{{/t}}
+        {{#t pay_total=(cash value=pay_total currency_code=currency)}}You will pay <strong>{pay_total}</strong> now{{/t}}
       {{/if_equal}}
     {{/if}}
   </p>
 </span>
 {{#feature flag="feature_sales_tax"}}
   {{#if sales_tax_value}}<p class="left_margin small_left_padding"><span class="subtle_silver">
-    {{#t sales_tax=(cash value=sales_tax_value all_digits=true)}}(Including {sales_tax} sales tax).{{/t}}
+    {{#t sales_tax=(cash value=sales_tax_value currency_code=currency)}}(Including {sales_tax} sales tax).{{/t}}
   </span></p>{{/if}}
 {{/feature}}

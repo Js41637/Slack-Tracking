@@ -10452,8 +10452,6 @@
       _starred_members = new TS.PresenceList;
       _rebuildCustomListThrottled = TS.utility.throttleFunc(_rebuildCustomListThrottled, 10);
       TS.client.login_sig.add(_onLogin);
-      TS.prefs.hotness_changed_sig.add(_toggleHotness);
-      TS.shared.model_ob_hotness_changed_sig.add(_updateHotnessDisplay);
       TS.prefs.channel_sort_changed_sig.add(_toggleCustomSort);
       TS.client.channel_pane.$scroller.delegate("li a", "dragstart", _onChannelListItemDragStart);
       if (TS.boot_data.feature_user_custom_status) {
@@ -10570,13 +10568,11 @@
       });
     })
   });
-  var _hotness_interv;
   var _dm_members;
   var _starred_members;
   var _has_scrolled = false;
   var _onLogin = function() {
     _toggleCustomSort();
-    _toggleHotness();
     TS.log(82, "UI bind on login_sig");
     TS.utility.queueRAF(_bindUI);
   };
@@ -10792,16 +10788,6 @@
     TS.ui.new_channel_modal.start();
     $(".channels_list_new_btn").tooltip("hide");
   };
-  var _toggleHotness = function() {
-    if (TS.model.prefs.hotness) {
-      $(".hotness_icon").removeClass("hidden");
-      _hotness_interv = setInterval(TS.shared.updateHotnessForAll, 1e4);
-      TS.shared.updateHotnessForAll();
-    } else {
-      $(".hotness_icon").addClass("hidden");
-      clearInterval(_hotness_interv);
-    }
-  };
   var _toggleCustomSort = function() {
     TS.client.channel_pane.$scroller.find(".section_holder ul").empty();
     if (TS.model.channel_sort.is_custom_sorted) {
@@ -10818,11 +10804,6 @@
     }
     TS.view.resizeManually("TS.client.channel_pane _toggleCustomSort");
     TS.client.channel_pane.rebuild("ims", "channels", "starred");
-  };
-  var _updateHotnessDisplay = function(model_ob) {
-    if (!TS.model.prefs.hotness) return;
-    var selector = "#" + TS.templates.makeHotnessIconDomId(model_ob);
-    $(selector).attr("class", TS.templates.makeHotnessIconDomClasses(model_ob));
   };
   var _getSortStrForName = function(c) {
     if (c.is_im) return TS.ims.getDisplayNameOfUserForImLowerCase(c);
@@ -24511,7 +24492,11 @@
   var _showRenameChannel = function(model_ob) {
     if (TS.model.user.is_restricted) return;
     _setHeaderHtml(TS.i18n.t("Rename this channel", "channel_options")());
-    var title = TS.utility.cleanChannelName(model_ob.name || "").substr(0, TS.model.channel_name_max_length);
+    if (TS.boot_data.feature_intl_channel_names) {
+      var title = TS.utility.cleanChannelName(model_ob.name || "");
+    } else {
+      var title = TS.utility.cleanChannelName(model_ob.name || "").substr(0, TS.model.channel_name_max_length);
+    }
     _setOptionContentHtml(TS.templates.channel_option_rename_channel({
       title: title
     }));
@@ -24519,29 +24504,59 @@
     if (model_ob.is_group) go_text = TS.i18n.t("Rename private Channel", "channel_options")();
     _setOptionGoText(go_text);
     _current_option_go_callback = function() {
-      var validated = TS.channels.ui.channelCreateDialogValidateInput(_$current_option);
-      if (!validated) return;
-      if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
-      var new_title = _$current_option.find(".title_input").val();
-      var method = model_ob.is_channel ? "channels.rename" : "groups.rename";
-      TS.api.callImmediately(method, {
-        name: new_title,
-        channel: model_ob.id
-      }, function(ok, data, args) {
-        if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
-        if (!ok) {
-          if (data.error === "name_taken") {
-            TS.channels.ui.channelCreateDialogShowNameTakenAlert(TS.ui.channel_options_dialog.div);
-          } else {
-            var str = TS.i18n.t("Failed! {error}", "channel_options")({
-              error: data.error
+      if (TS.boot_data.feature_intl_channel_names) {
+        var new_title = _$current_option.find(".title_input").val();
+        TS.api.call("channels.validateName", {
+          token: TS.model.api_token,
+          name: new_title
+        }).then(function(res) {
+          if (res.data.ok) {
+            if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
+            new_title = res.data.channel_name;
+            var method = model_ob.is_channel ? "channels.rename" : "groups.rename";
+            TS.api.call(method, {
+              name: new_title,
+              channel: model_ob.id
+            }).then(function(res) {
+              if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
+              TS.ui.fs_modal.close();
             });
-            TS.generic_dialog.alert(str);
           }
-          return;
-        }
-        TS.ui.fs_modal.close();
-      });
+        }).catch(function(res) {
+          var error = res.data.error;
+          var msg = TS.ui.validation.getErrorMessage(error, {
+            maxlength: 22,
+            name: title
+          });
+          return TS.ui.validation.showWarning(TS.ui.channel_options_dialog.div.find(".title_input"), msg, {
+            custom_for: "channel_create_title"
+          });
+        });
+      } else {
+        var validated = TS.channels.ui.channelCreateDialogValidateInput(_$current_option);
+        if (!validated) return;
+        if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
+        var new_title = _$current_option.find(".title_input").val();
+        var method = model_ob.is_channel ? "channels.rename" : "groups.rename";
+        TS.api.callImmediately(method, {
+          name: new_title,
+          channel: model_ob.id
+        }, function(ok, data, args) {
+          if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
+          if (!ok) {
+            if (data.error === "name_taken") {
+              TS.channels.ui.channelCreateDialogShowNameTakenAlert(TS.ui.channel_options_dialog.div);
+            } else {
+              var str = TS.i18n.t("Failed! {error}", "channel_options")({
+                error: data.error
+              });
+              TS.generic_dialog.alert(str);
+            }
+            return;
+          }
+          TS.ui.fs_modal.close();
+        });
+      }
     };
     _showOptionSection(true);
   };
@@ -31462,14 +31477,6 @@
     });
   };
   var _bindLabsPrefs = function() {
-    $("#tab_ui_return_selects_cb").prop("checked", TS.model.prefs.tab_ui_return_selects === true);
-    $("#tab_ui_return_selects_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "tab_ui_return_selects",
-        value: val
-      });
-    });
     $("#full_text_extracts_cb").prop("checked", TS.model.prefs.full_text_extracts === true);
     $("#full_text_extracts_cb").on("change", function() {
       var val = !!$(this).prop("checked");
@@ -31502,18 +31509,6 @@
       });
       TS.prefs.onPrefChanged({
         name: "msg_preview_persistent",
-        value: val
-      });
-    });
-    $("#hotness_cb").prop("checked", TS.model.prefs.hotness === true);
-    $("#hotness_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "hotness",
-        value: val
-      });
-      TS.prefs.onPrefChanged({
-        name: "hotness",
         value: val
       });
     });
@@ -37303,6 +37298,24 @@ function timezones_guess() {
       $scroller.scrollTop($scroller.prop("scrollHeight"));
       return ret;
     },
+    jumpToTS: function(config, highlight_ts, num_before) {
+      var all = _flattenAllMsgs(config);
+      var start_ts = highlight_ts;
+      if (num_before) {
+        var index = _.findIndex(all, {
+          msg_ts: start_ts
+        });
+        if (index > 0) {
+          index = Math.max(0, index - num_before);
+          start_ts = all[index].msg_ts;
+        }
+      }
+      var start_at = _.find(all, {
+        msg_ts: start_ts
+      });
+      _setVisibleRange(config, start_at);
+      return TS.ui.message_container.update(config);
+    },
     getRange: function(config) {
       return config._range;
     },
@@ -37370,11 +37383,6 @@ function timezones_guess() {
     if (!all.length) return;
     var $first = $container.find(".message_container_item").first();
     var first_msg = _.first(all);
-    if (TS.boot_data.feature_threads_paging_flexpane) {
-      first_msg = _.find(all, function(item) {
-        return item.msg_ts !== "-1";
-      });
-    }
     if (_.isEqual(first_msg, config._range.start)) {
       if (config.has_more_beginning && config.promiseToLoadMoreAtBeginning) {
         config._pending_op = config.promiseToLoadMoreAtBeginning().then(function() {
@@ -38494,7 +38502,11 @@ function timezones_guess() {
       }
       var thread_p;
       if (TS.boot_data.feature_threads_paging_flexpane) {
-        thread_p = TS.replies.getThreadLazy(model_ob.id, thread_ts);
+        if (highlight_ts) {
+          thread_p = TS.replies.getThreadAround(model_ob.id, thread_ts, highlight_ts);
+        } else {
+          thread_p = TS.replies.getThreadLazy(model_ob.id, thread_ts);
+        }
       } else {
         thread_p = TS.replies.getThread(model_ob.id, thread_ts).then(function(messages_from_api) {
           return {
@@ -38531,7 +38543,7 @@ function timezones_guess() {
     },
     finishRenderingReplies: function(model_ob, thread_ts, root_msg, thread, highlight_ts) {
       var messages = thread.messages;
-      var has_more = !!thread.has_more;
+      var has_more = !!thread.has_more || !!thread.has_more_beginning;
       if (_active_convo_model_id != model_ob.id) return;
       if (_active_convo_thread_ts != thread_ts) return;
       TS.info("Rendering thread " + thread_ts + ", " + messages.length + " messages" + "(has_more: " + has_more + ")");
@@ -38542,11 +38554,18 @@ function timezones_guess() {
       }
       if (!root_msg) {
         root_msg = TS.utility.msgs.getMsg(thread_ts, messages);
-        if (TS.boot_data.feature_threads_paging_flexpane) _renderReplyContainer(model_ob, root_msg);
+        if (TS.boot_data.feature_threads_paging_flexpane) {
+          root_msg = thread.root_msg;
+          _renderReplyContainer(model_ob, root_msg);
+        }
       }
       if (TS.boot_data.feature_threads_paging_flexpane) {
-        _replaceMessagesAndUpdateMessageContainer(messages, has_more);
-        TS.ui.message_container.jumpToEnd(_msg_container_config);
+        _replaceMessagesAndUpdateMessageContainer(messages, has_more, thread.has_more_end);
+        if (highlight_ts) {
+          TS.ui.message_container.jumpToTS(_msg_container_config, highlight_ts, _MESSAGE_CONTAINER_PAGE_SIZE);
+        } else {
+          TS.ui.message_container.jumpToEnd(_msg_container_config);
+        }
       } else {
         var $convo = $("#convo_tab ts-conversation");
         if ($convo.find("ts-message.placeholder").length > 0) {
@@ -38927,6 +38946,7 @@ function timezones_guess() {
   var _ready_to_focus;
   var _focus_ready_sig = new signals.Signal;
   var _previously_connected = false;
+  var _MESSAGE_CONTAINER_PAGE_SIZE = 25;
   var _onConnected = function(was_fast_reconnect) {
     if (TS.boot_data.feature_threads_paging_flexpane) {
       if (!_previously_connected) {
@@ -39284,7 +39304,7 @@ function timezones_guess() {
     if (_active_convo_model_id != model_ob.id) return;
     if (_active_convo_thread_ts != root_msg.ts) return;
     if (TS.boot_data.feature_threads_paging_flexpane) {
-      _replaceMessagesAndUpdateMessageContainer(msgs, has_more);
+      _replaceMessagesAndUpdateMessageContainer(msgs, has_more, false);
     } else {
       TS.ui.replies.finishRenderingReplies(model_ob, root_msg.thread_ts, root_msg, {
         messages: msgs,
@@ -39339,7 +39359,7 @@ function timezones_guess() {
   var _windowFocusChanged = function(has_focus) {
     TS.ui.replies.checkUnreads();
   };
-  var _replaceMessagesAndUpdateMessageContainer = function(messages, has_more) {
+  var _replaceMessagesAndUpdateMessageContainer = function(messages, has_more_beginning, has_more_end) {
     var root_msg = _.find(messages, {
       ts: _active_convo_thread_ts
     });
@@ -39350,7 +39370,11 @@ function timezones_guess() {
     _.forEach(replies, function(reply) {
       _replies_section.msgs.unshift(reply);
     });
-    _msg_container_config.has_more_beginning = !!has_more;
+    _msg_container_config.sections.length = 0;
+    if (_root_msg_section.msgs.length) _msg_container_config.sections.push(_root_msg_section);
+    if (_replies_section.msgs.length) _msg_container_config.sections.push(_replies_section);
+    _msg_container_config.has_more_beginning = !!has_more_beginning;
+    _msg_container_config.has_more_end = !!has_more_end;
     TS.utility.msgs.sortMsgs(_replies_section.msgs);
     _copyMessageContainerDataToLegacyArray();
     _updateMessageContainer();
@@ -39374,7 +39398,7 @@ function timezones_guess() {
       name: "replies",
       container: $convo,
       scroller: TS.ui.replies.$scroller,
-      page_size: 25,
+      page_size: _MESSAGE_CONTAINER_PAGE_SIZE,
       sections: [_root_msg_section, _replies_section],
       has_more_beginning: false,
       has_more_end: false,
@@ -39411,6 +39435,9 @@ function timezones_guess() {
           if (!thread.has_more) {
             _msg_container_config.has_more_beginning = false;
             _root_msg_section.msgs[0] = root_msg;
+            if (_msg_container_config.sections[0] !== _root_msg_section) {
+              _msg_container_config.sections.unshift(_root_msg_section);
+            }
           }
           _copyMessageContainerDataToLegacyArray();
         });
@@ -39841,8 +39868,8 @@ function timezones_guess() {
       thread.replies.push(_.last(read_replies));
     }
     if (read_replies.length) {
-      var num_left = read_replies.length - thread.replies.length;
-      if (num_left > 0 && num_left < 3) {
+      var num_left = root_msg.reply_count - thread.replies.length;
+      if (num_left > 0 && num_left < 3 && read_replies.length === num_left) {
         thread.replies = read_replies.slice(0);
       }
     }

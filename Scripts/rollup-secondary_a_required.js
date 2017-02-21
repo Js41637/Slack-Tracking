@@ -4166,7 +4166,6 @@
     channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
   };
   var _processNewChannelForUpserting = function(channel) {
-    channel._hotness = 0;
     TS.shared.setPriorityForDev(channel);
     channel.is_channel = true;
     channel.is_general = !!channel.is_general;
@@ -5743,7 +5742,6 @@ TS.registerModule("constants", {
     channel.shared_team_ids = _(channel.shared_team_ids || []).uniq().value();
   };
   var _processNewGroupForUpserting = function(group) {
-    group._hotness = 0;
     TS.shared.setPriorityForDev(group);
     group.is_group = true;
     group._name_lc = _.toLower(group.name);
@@ -7974,7 +7972,6 @@ TS.registerModule("constants", {
     im._name_lc = _.toLower(im.name);
   };
   var _processNewImForUpserting = function(im, member) {
-    im._hotness = 0;
     TS.shared.setPriorityForDev(im);
     im.is_im = true;
     _setName(im, member);
@@ -8638,7 +8635,6 @@ TS.registerModule("constants", {
     mpim_group._internal_name = mpim_group.name;
     _name_map[mpim_group._internal_name] = mpim_group;
     _updateMpimName(mpim_group);
-    mpim_group._hotness = 0;
     TS.shared.setPriorityForDev(mpim_group);
     mpim_group.is_mpim = true;
     mpim_group.opened_this_session = false;
@@ -8674,9 +8670,7 @@ TS.registerModule("constants", {
   "use strict";
   TS.registerModule("shared", {
     msg_sent_sig: new signals.Signal,
-    model_ob_hotness_changed_sig: new signals.Signal,
     onStart: function() {
-      TS.shared.updateHotnessByIdThrottled = TS.utility.throttleFunc(TS.shared.updateHotnessByIdThrottled, 1e3);
       if (TS.client) {
         TS.ms.connected_sig.addOnce(_logBootChannelSwitch);
         TS.channels.switched_sig.add(_logChannelSwitch);
@@ -8766,9 +8760,6 @@ TS.registerModule("constants", {
       }
       if (was_highlight_cnt != model_ob.unread_highlight_cnt) {
         controller.unread_highlight_changed_sig.dispatch(model_ob);
-      }
-      if (TS.model.prefs.hotness) {
-        TS.shared.updateHotnessByIdThrottled(model_ob.id);
       }
       if (TS.client) {
         if (!model_ob._users_counts_info || !model_ob._users_counts_info.has_unreads) return;
@@ -9837,12 +9828,6 @@ TS.registerModule("constants", {
       var c_ids = TS.utility.extractAllModelObIds(data, source);
       return TS.shared.ensureModelObsArePresent(c_ids);
     },
-    updateHotnessForAll: function() {
-      return _updateHotness();
-    },
-    updateHotnessByIdThrottled: function(c_id) {
-      return _updateHotness(c_id);
-    },
     getHistoryApiMethodForModelOb: function(model_ob) {
       if (model_ob.is_mpim) return "mpim.history";
       if (model_ob.is_group && (!model_ob.is_private && !_.startsWith(model_ob.id, "C"))) return "groups.history";
@@ -10306,59 +10291,6 @@ TS.registerModule("constants", {
       }
     });
   };
-  var _isModelObRelevantToHotness = function(model_ob) {
-    if (model_ob.is_archived) return false;
-    if (!model_ob.msgs) return false;
-    if (!model_ob.msgs.length) return false;
-    return true;
-  };
-  var _isMsgRelevantToHotness = function(msg) {
-    if (msg.is_ephemeral) return false;
-    if (TS.utility.msgs.isTempMsg(msg)) return false;
-    return true;
-  };
-  var _setHotness = function(model_ob, hotness) {
-    if (model_ob._hotness == hotness) return;
-    model_ob._hotness = hotness;
-    TS.shared.model_ob_hotness_changed_sig.dispatch(model_ob);
-  };
-  var _updateHotness = function(c_id) {
-    if (!TS.model.prefs.hotness) return;
-    var hotness_secs = 60 * 2;
-    var model_obs = TS.shared.getAllModelObsForUser();
-    var model_ob = TS.shared.getModelObById(c_id);
-    if (model_ob && !_isModelObRelevantToHotness(model_ob)) return;
-    var mark_label = "start_updated_hotness_all";
-    TS.metrics.mark(mark_label);
-    (model_ob && [model_ob] || model_obs).forEach(function(model_ob) {
-      var hotness = 0;
-      var msg;
-      if (_isModelObRelevantToHotness(model_ob)) {
-        for (var i = 0; i < model_ob.msgs.length; i++) {
-          msg = model_ob.msgs[i];
-          if (parseInt(TS.utility.date.makeTsStamp()) - parseInt(msg.ts) > hotness_secs) break;
-          if (_isMsgRelevantToHotness(msg)) hotness += 1;
-        }
-      }
-      _setHotness(model_ob, hotness);
-    });
-    if (TS.shouldLog(752)) {
-      model_obs.sort(function compare(a, b) {
-        if (a._hotness < b._hotness) return 1;
-        if (a._hotness > b._hotness) return -1;
-        var a_srt = TS.shared.getDisplayNameForModelObNoSigns(a);
-        var b_srt = TS.shared.getDisplayNameForModelObNoSigns(b);
-        if (a_srt < b_srt) return -1;
-        if (a_srt > b_srt) return 1;
-        return 0;
-      });
-      model_obs.slice(0, 10).forEach(function(model_ob, i) {
-        if (!_isModelObRelevantToHotness(model_ob)) return;
-        TS.info(i + " " + model_ob._hotness + " " + TS.templates.makeHotnessIconDomClasses(model_ob) + " " + model_ob.id);
-      });
-    }
-    if (!c_id) TS.metrics.measureAndClear("updated_hotness_all", mark_label);
-  };
   var _prev_model_ob = null;
   var _logChannelSwitch = function(is_boot) {
     var curr_model_ob = TS.client.activeChannelIsHidden() ? null : TS.shared.getActiveModelOb();
@@ -10430,6 +10362,7 @@ TS.registerModule("constants", {
       }
       if (!_.isString(id)) return null;
       if (TS.model.team.id === id) return TS.model.team;
+      if (_hack_mapping[id]) return _hack_mapping[id];
       if (_id_map[id]) return _id_map[id];
       var teams = TS.model.teams;
       if (!teams) {
@@ -10454,11 +10387,15 @@ TS.registerModule("constants", {
       }
       if (!_.isString(domain)) return null;
       if (TS.model.team.domain === domain) return TS.model.team;
+      var team = _.find(_hack_mapping, {
+        domain: domain
+      });
+      if (team) return team;
       if (!TS.model.teams) {
         TS.console.warn("TS.teams.getTeamByDomain() → TS.model.teams is missing.");
         return null;
       }
-      var team = _.find(TS.model.teams, {
+      team = _.find(TS.model.teams, {
         domain: domain
       });
       if (team) return team;
@@ -10556,6 +10493,24 @@ TS.registerModule("constants", {
     }
   });
   var _id_map = {};
+  var _hack_mapping = {
+    T07QCRP7S: {
+      id: "T07QCRP7S",
+      domain: "ext-shared-a"
+    },
+    T07QCSJPJ: {
+      id: "T07QCSJPJ",
+      domain: "ext-shared-b"
+    },
+    T024BE9UG: {
+      id: "T024BE9UG",
+      domain: "rsquared"
+    },
+    T024BE7LD: {
+      id: "T024BE7LD",
+      domain: "tinyspeck"
+    }
+  };
   var _processNewTeamForUpserting = function(team) {
     if (!TS.boot_data.feature_shared_channels_client) {
       TS.console.warn("external shared channels must be on to use this");
@@ -10687,6 +10642,29 @@ TS.registerModule("constants", {
           TS.error(name + " not in _name_map?");
           _name_map[member._name_lc] = member;
           _name_map["@" + member._name_lc] = member;
+          return member;
+        }
+      }
+      return null;
+    },
+    getMemberByNameAndTeamDomain: function(name, domain) {
+      if (!TS.boot_data.feature_shared_channels_client) return TS.members.getMemberByName(name);
+      name = _.toLower(name);
+      var members = TS.model.members;
+      var members_with_name = [];
+      for (var i = 0; i < members.length; i += 1) {
+        var member = members[i];
+        if (member._name_lc === name || "@" + member._name_lc === name) {
+          members_with_name.push(member);
+          continue;
+        }
+      }
+      if (members_with_name.length === 0) return null;
+      if (members_with_name.length === 1) return members_with_name[0];
+      for (var i = 0; i < members_with_name.length; i += 1) {
+        member = members_with_name[i];
+        var team = TS.teams.getTeamByDomain(domain);
+        if (member.team_id === team.id) {
           return member;
         }
       }
@@ -13628,7 +13606,6 @@ TS.registerModule("constants", {
     team_calling_app_id_changed_sig: new signals.Signal,
     team_handy_rxns_changed_sig: new signals.Signal,
     channel_handy_rxns_changed_sig: new signals.Signal,
-    hotness_changed_sig: new signals.Signal,
     frecency_jumper_changed_sig: new signals.Signal,
     jumbomoji_changed_sig: new signals.Signal,
     hide_hex_swatch_changed_sig: new signals.Signal,
@@ -14299,12 +14276,6 @@ TS.registerModule("constants", {
           if (TS.model.prefs.tz != imsg.value) {
             TS.model.prefs.tz = imsg.value;
             TS.prefs.tz_changed_sig.dispatch();
-          }
-          break;
-        case "hotness":
-          if (TS.model.prefs.hotness != imsg.value) {
-            TS.model.prefs.hotness = imsg.value;
-            TS.prefs.hotness_changed_sig.dispatch();
           }
           break;
         case "frecency_jumper":
@@ -18543,22 +18514,6 @@ TS.registerModule("constants", {
     },
     makeMutedIconDomId: function(model_ob) {
       return "muted_" + model_ob.id;
-    },
-    makeHotnessIconDomId: function(model_ob) {
-      return "hotness_" + model_ob.id;
-    },
-    makeHotnessIconDomClasses: function(model_ob) {
-      var hotness_class = "";
-      if (TS.model.prefs.hotness) {
-        if (model_ob._hotness > 0) hotness_class = "warm";
-        if (model_ob._hotness > 2) hotness_class = "warmer";
-        if (model_ob._hotness > 4) hotness_class = "hot";
-        if (model_ob._hotness > 6) hotness_class = "hotter";
-        if (model_ob._hotness > 8) hotness_class = "hottest";
-      } else {
-        hotness_class = "hidden";
-      }
-      return "hotness_icon " + hotness_class;
     },
     makeMemberDomId: function(member) {
       if (!member) return;
@@ -24335,10 +24290,6 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("numberWithCommas", function(num) {
         return TS.utility.numberWithCommas(num);
       });
-      Handlebars.registerHelper("makeModelObHotnessIconSafe", function(model_ob) {
-        var html = '<div class="' + TS.templates.makeHotnessIconDomClasses(model_ob) + '" id="' + TS.templates.makeHotnessIconDomId(model_ob) + '">' + TS.emoji.graphicReplace(":fire:") + "</div>";
-        return new Handlebars.SafeString(html);
-      });
       Handlebars.registerHelper("makeModelObMutedIconSafe", function(model_ob) {
         if (!TS.boot_data.feature_sli_channel_priority) return "";
         if (model_ob.is_im) return "";
@@ -29040,8 +28991,8 @@ TS.registerModule("constants", {
       return false;
     },
     strLooksLikeATeamId: function(str) {
-      if (!_.isString(str) || str.length < 9) return false;
-      if (str && str.charAt(0) == "T") return true;
+      if (!_.isString(str) || str.length !== TS.model.member_id_length) return false;
+      if (str && str.charAt(0) === "T" && str.match(/^[A-Z0-9]+$/)) return true;
       return false;
     },
     truncateToNearestWordBoundary: function(str, len) {
@@ -29824,6 +29775,9 @@ TS.registerModule("constants", {
   if (TS.boot_data.feature_wrapped_mention_parsing) {
     _at_mention_rx = /(^|\s|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w|.|-]+))/g;
   }
+  if (TS.boot_data.feature_shared_channels_client) {
+    _at_mention_rx = /(^|\s|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w.\-+]+))/g;
+  }
   var _special_pre_rx = /(^|\s|[_*\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])```([\s\S]*?)?```(?=$|\s|[_*\?\.,\-!\^;:})\]%$#+=\u2000-\u206F\u2E00-\u2E7F…"])/g;
   var _special_code_rx = /(^|\s|[\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])\`([^`]*?\S *)?\`/g;
   var _special_quote_rx = /(^|\n)&gt;(?![\W_](?:&lt;|&gt;|[\|\/\\\[\]{}\(\)Dpb](?=\s|$)))(([^\n]*)(\n&gt;[^\n]*)*)/g;
@@ -30543,6 +30497,23 @@ TS.registerModule("constants", {
     return txt;
   }
 
+  function _sharedChannelsNonUniqueUsernames(str) {
+    if (!TS.boot_data.feature_shared_channels_client) return false;
+    var name_parts = str.split("+");
+    if (name_parts.length !== 2) return false;
+    var username = name_parts[0];
+    var team_id = name_parts[1];
+    if (!TS.utility.strLooksLikeATeamId(team_id)) {
+      var team = TS.teams.getTeamByDomain(team_id);
+      team_id = team ? team.id : false;
+    }
+    if (!team_id) return false;
+    return _.find(TS.model.members, {
+      name: username,
+      team_id: team_id
+    });
+  }
+
   function _validateModelObByIdOrName(lookupById, id, lookupByName, name) {
     var stripped;
     var extra = "";
@@ -30555,6 +30526,9 @@ TS.registerModule("constants", {
     if (!model_ob) {
       model_ob = lookupByName(name);
     }
+    if (!model_ob && _.isString(id)) {
+      model_ob = _sharedChannelsNonUniqueUsernames(id);
+    }
     var specials = [".", "..", "...", "....", "-", "--", "_"];
     var i = 0;
     while (!model_ob && i < specials.length) {
@@ -30562,6 +30536,7 @@ TS.registerModule("constants", {
       if (name && name.substr(name.length - special.length, special.length) == special) {
         stripped = name.substr(0, name.length - special.length);
         model_ob = lookupByName(stripped);
+        if (!model_ob) model_ob = _sharedChannelsNonUniqueUsernames(stripped.replace(/^@/, ""));
         if (model_ob) extra = special;
       }
       i++;
@@ -42811,6 +42786,26 @@ var _on_esc;
     showCustomValidation: function($el, message, options, hide_after_ms) {
       _showMessage($el, options.error_message || message, options.class, options, hide_after_ms);
     },
+    getErrorMessage: function(error_key, data) {
+      switch (error_key) {
+        case "invalid_name_required":
+          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.required();
+        case "invalid_name_single_punctuation":
+          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.single_punctuation();
+        case "invalid_name_maxlength":
+          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.maxlength({
+            maxlength: data.maxlength
+          });
+        case "invalid_name_specials":
+          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.specials();
+        case "invalid_name_taken":
+          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.taken({
+            name: data.name
+          });
+        default:
+          return TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "ui_validation");
+      }
+    },
     showError: function($el, message, options, hide_after_ms) {
       _showMessage($el, options.error_message || message, "validation_error", options, hide_after_ms);
     },
@@ -42828,6 +42823,21 @@ var _on_esc;
   });
   var OPTIONAL_PROTOCOL_URL_REGEXP = new RegExp("^" + "(?:(?:https?|ftp)://)?" + "(?:\\S+(?::\\S*)?@)?" + "(?:" + "(?!(?:10|127)(?:\\.\\d{1,3}){3})" + "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" + "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" + "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" + "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" + "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" + "|" + "(?:localhost)" + "|" + "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" + "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" + "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" + "\\.?" + ")" + "(?::\\d{2,5})?" + "(?:[/?#]\\S*)?" + "$", "i");
   var ALL_SCHEMES_LINK_REGEXP = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/gi;
+  var _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES = {
+    name_taken: TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation"),
+    lowercase: TS.i18n.t("Channel names must be all lowercase. Try again?", "ui_validation"),
+    maxlength: TS.i18n.t("Blerg, that‘s a bit too long! Channel names must be fewer than {maxlength} characters.", "ui_validation"),
+    required: TS.i18n.t("Please fill in a channel name.", "ui_validation"),
+    specials: TS.i18n.t("Channel names can‘t contain special characters, spaces, or periods. Try again?", "ui_validation"),
+    single_punctuation: TS.i18n.t("Names can‘t be a single hyphen or underscore. Please elaborate!", "ui_validation")
+  };
+  var _USERNAME_VALIDATION_ERROR_MESSAGES = {
+    firstalphanumeric: TS.i18n.t("Usernames must start with a letter or number. Sorry about that!", "ui_validation"),
+    lowercase: TS.i18n.t("Sorry, usernames must be lowercase!", "ui_validation"),
+    maxlength: TS.i18n.t("Sorry, that’s a bit too long! Usernames must be fewer than {maxlength} characters.", "ui_validation"),
+    required: TS.i18n.t("Please fill in a username.", "ui_validation"),
+    specials: TS.i18n.t("Usernames can’t contain special characters. Sorry about that!", "ui_validation")
+  };
   var _validator_map = {
     dateandformat: _validateDateAndFormat,
     firstalphanumeric: _validateFirstAlphanumeric,
@@ -43086,64 +43096,50 @@ var _on_esc;
 
   function _validateUsername($el, options) {
     var max_length = 21;
-    var msgs = {
-      firstalphanumeric: TS.i18n.t("Usernames must start with a letter or number. Sorry about that!", "ui_validation")(),
-      lowercase: TS.i18n.t("Sorry, usernames must be lowercase!", "ui_validation")(),
-      maxlength: TS.i18n.t("Sorry, that’s a bit too long! Usernames must be fewer than {maxlength} characters.", "ui_validation")({
-        maxlength: max_length
-      }),
-      required: TS.i18n.t("Please fill in a username.", "ui_validation")(),
-      specials: TS.i18n.t("Usernames can’t contain special characters. Sorry about that!", "ui_validation")()
-    };
     var quiet_options = $.extend({}, options, {
       quiet: true
     });
-    if (!_validateRequired($el, quiet_options)) return void TS.ui.validation.showWarning($el, msgs.required, options);
-    if (!_validateMaxLength($el, quiet_options, max_length, true)) return void TS.ui.validation.showWarning($el, msgs.maxlength, options);
-    if (!_validateNospace($el, quiet_options)) return void TS.ui.validation.showWarning($el, msgs.specials, options);
-    if (!_validatePattern($el, quiet_options, /^[\w\._-]+$/)) return void TS.ui.validation.showWarning($el, msgs.specials, options);
-    if (!_validateFirstAlphanumeric($el, quiet_options)) return void TS.ui.validation.showWarning($el, msgs.firstalphanumeric, options);
-    if (!_validateLowercase($el, quiet_options)) return void TS.ui.validation.showWarning($el, msgs.lowercase, options);
+    if (!_validateRequired($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.required(), options);
+    if (!_validateMaxLength($el, quiet_options, max_length, true)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.maxlength({
+      maxlength: max_length + 1
+    }), options);
+    if (!_validateNospace($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
+    if (!_validatePattern($el, quiet_options, /^[\w\._-]+$/)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.specials(), options);
+    if (!_validateFirstAlphanumeric($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.firstalphanumeric(), options);
+    if (!_validateLowercase($el, quiet_options)) return void TS.ui.validation.showWarning($el, _USERNAME_VALIDATION_ERROR_MESSAGES.lowercase(), options);
     if (!_validateReservedWords($el, options, TS.model.RESERVED_USERNAMES.join(","))) return false;
     return true;
   }
 
   function _channelNameValidation($el, options) {
     var max_length = 21;
-    var msgs = {
-      lowercase: TS.i18n.t("Channel names must be all lowercase. Try again?", "ui_validation")(),
-      maxlength: TS.i18n.t("Blerg, that‘s a bit too long! Channel names must be fewer than {maxlength} characters.", "ui_validation")({
-        maxlength: max_length + 1
-      }),
-      required: TS.i18n.t("Please fill in a channel name.", "ui_validation")(),
-      specials: TS.i18n.t("Channel names can‘t contain special characters, spaces, or periods. Try again?", "ui_validation")(),
-      single_punctuation: TS.i18n.t("Names can‘t be a single hyphen or underscore. Please elaborate!", "ui_validation")()
-    };
     var quiet_options = $.extend({}, options, {
       quiet: true
     });
     if (!_validateRequired($el, quiet_options)) {
-      TS.ui.validation.showWarning($el, msgs.required, options);
+      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.required(), options);
       return true;
     }
-    if (!_validateMaxLength($el, quiet_options, max_length, true)) {
-      TS.ui.validation.showWarning($el, msgs.maxlength, options);
+    if (!TS.boot_data.feature_intl_channel_names && !_validateMaxLength($el, quiet_options, max_length, true)) {
+      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.maxlength({
+        maxlength: max_length + 1
+      }), options);
       return true;
     }
-    if (!_validateLowercase($el, quiet_options)) {
-      TS.ui.validation.showWarning($el, msgs.lowercase, options);
+    if (!TS.boot_data.feature_intl_channel_names && !_validateLowercase($el, quiet_options)) {
+      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.lowercase(), options);
       return true;
     }
     if (!_validateNospace($el, quiet_options)) {
-      TS.ui.validation.showWarning($el, msgs.specials, options);
+      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.specials(), options);
       return true;
     }
-    if (!_validatePattern($el, quiet_options, /^[a-zA-Z0-9-_]+$/)) {
-      TS.ui.validation.showWarning($el, msgs.specials, options);
+    if (!TS.boot_data.feature_intl_channel_names && !_validatePattern($el, quiet_options, /^[a-zA-Z0-9-_]+$/)) {
+      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.specials(), options);
       return true;
     }
     if (_validatePattern($el, quiet_options, /^[-|_]$/)) {
-      TS.ui.validation.showWarning($el, msgs.single_punctuation, options);
+      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.single_punctuation(), options);
       return true;
     }
   }
@@ -46155,7 +46151,11 @@ $.fn.togglify = function(settings) {
       if (!TS.permissions.members.canCreateChannels()) _is_public = false;
       if (!TS.permissions.members.canCreateGroups()) _is_public = true;
       var can_toggle_private = TS.permissions.members.canCreateChannels() && TS.permissions.members.canCreateGroups();
-      title = TS.utility.cleanChannelName(title || "").substr(0, TS.model.channel_name_max_length);
+      if (TS.boot_data.feature_intl_channel_names) {
+        title = TS.utility.cleanChannelName(title || "");
+      } else {
+        title = TS.utility.cleanChannelName(title || "").substr(0, TS.model.channel_name_max_length);
+      }
       preselected_ids = preselected_ids || [];
       _$modal_container.html(TS.templates.channel_new_modal({
         title: title,
@@ -46174,29 +46174,69 @@ $.fn.togglify = function(settings) {
       });
     },
     go: function() {
-      var validated = TS.ui.validation.validate(_$modal_container.find(".title_input"), {});
-      if (!validated) return;
-      validated = TS.channels.ui.channelCreateDialogCleanName(_$modal_container);
-      if (!validated) return;
       var title = _$modal_container.find(".title_input").val();
-      var invited_members = $("#invite_members_container").lazyFilterSelect("value");
-      var invited_member_ids = [];
-      var pending_users = [];
-      if (invited_members) {
-        invited_members.forEach(function(item) {
-          if (item.member) {
-            invited_member_ids.push(item.member.id);
-          } else {
-            pending_users.push(item);
+      if (TS.boot_data.feature_intl_channel_names) {
+        TS.api.call("channels.validateName", {
+          token: TS.model.api_token,
+          name: title
+        }).then(function(res) {
+          if (res.data.ok) {
+            title = res.data.channel_name;
+            var invited_members = $("#invite_members_container").lazyFilterSelect("value");
+            var invited_member_ids = [];
+            var pending_users = [];
+            if (invited_members) {
+              invited_members.forEach(function(item) {
+                if (item.member) {
+                  invited_member_ids.push(item.member.id);
+                } else {
+                  pending_users.push(item);
+                }
+              });
+            }
+            var purpose = $.trim(_$modal_container.find("#channel_purpose_input").val());
+            if (_ladda) _ladda.start();
+            if (_is_public) {
+              _createPublicChannel(title, purpose, invited_member_ids, pending_users);
+            } else {
+              _createPrivateChannel(title, purpose, invited_member_ids, pending_users);
+            }
           }
+        }).catch(function(res) {
+          var error = res.data.error;
+          var msg = TS.ui.validation.getErrorMessage(error, {
+            maxlength: 22,
+            name: title
+          });
+          return TS.ui.validation.showWarning(_$modal_container.find(".title_input"), msg, {
+            custom_for: "channel_create_title"
+          });
         });
-      }
-      var purpose = $.trim(_$modal_container.find("#channel_purpose_input").val());
-      if (_ladda) _ladda.start();
-      if (_is_public) {
-        _createPublicChannel(title, purpose, invited_member_ids, pending_users);
       } else {
-        _createPrivateChannel(title, purpose, invited_member_ids, pending_users);
+        var validated = TS.ui.validation.validate(_$modal_container.find(".title_input"), {});
+        if (!validated) return;
+        validated = TS.channels.ui.channelCreateDialogCleanName(_$modal_container);
+        if (!validated) return;
+        var title = _$modal_container.find(".title_input").val();
+        var invited_members = $("#invite_members_container").lazyFilterSelect("value");
+        var invited_member_ids = [];
+        var pending_users = [];
+        if (invited_members) {
+          invited_members.forEach(function(item) {
+            if (item.member) {
+              invited_member_ids.push(item.member.id);
+            } else {
+              pending_users.push(item);
+            }
+          });
+        }
+        var purpose = $.trim(_$modal_container.find("#channel_purpose_input").val());
+        if (_ladda) _ladda.start();
+        if (_is_public) {
+          _createPublicChannel(title, purpose, invited_member_ids, pending_users);
+        } else {
+          _createPrivateChannel(title, purpose, invited_member_ids, pending_users);
+        }
       }
     },
     end: function() {
@@ -58856,7 +58896,11 @@ $.fn.togglify = function(settings) {
         var messages_from_model_ob = _getThreadFromModelOb(c_id, thread_ts);
         if (messages_from_model_ob) {
           if (_shouldSanityCheck(c_id, thread_ts)) _sanityCheck(c_id, thread_ts, messages_from_model_ob);
+          var root_msg = _.find(messages_from_model_ob, {
+            ts: thread_ts
+          });
           return Promise.resolve({
+            root_msg: root_msg,
             messages: messages_from_model_ob,
             has_more: false
           });
@@ -58904,17 +58948,36 @@ $.fn.togglify = function(settings) {
         return ret;
       });
     },
-    getThreadAfter: function(c_id, thread_ts, newest_ts) {
+    getThreadAfter: function(c_id, thread_ts, newest_ts, inclusive) {
       var params = {
         channel: c_id,
         thread_ts: thread_ts,
         oldest: newest_ts,
-        count: _REPLIES_HISTORY_API_LIMIT
+        count: _REPLIES_HISTORY_API_LIMIT,
+        inclusive: inclusive
       };
       var model_ob = TS.shared.getModelObById(c_id);
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
       return TS.api.call(api_endpoint, params).then(function(resp) {
         return _processRepliesHistoryResponse(model_ob, thread_ts, resp);
+      });
+    },
+    getThreadAround: function(c_id, thread_ts, highlight_ts) {
+      var before_p = TS.replies.getThreadBefore(c_id, thread_ts, highlight_ts);
+      var after_p = TS.replies.getThreadAfter(c_id, thread_ts, highlight_ts, true);
+      return Promise.join(before_p, after_p, function(before_data, after_data) {
+        var has_more_beginning = before_data.has_more;
+        var has_more_end = after_data.has_more;
+        var messages = before_data.messages.concat(after_data.messages);
+        if (!has_more_beginning) {
+          messages.unshift(before_data.root_msg);
+        }
+        return {
+          has_more_beginning: has_more_beginning,
+          has_more_end: has_more_end,
+          messages: messages,
+          root_msg: before_data.root_msg
+        };
       });
     },
     getSubscriptionState: function(model_ob_id, thread_ts) {
@@ -64045,8 +64108,7 @@ $.fn.togglify = function(settings) {
         }
 
         function Ga(e, t, n) {
-          return n = "function" == typeof n ? n : J,
-            Zn(e, t, ho(t), n);
+          return n = "function" == typeof n ? n : J, Zn(e, t, ho(t), n);
         }
 
         function Va(e) {
@@ -65619,8 +65681,7 @@ $.fn.togglify = function(settings) {
     },
     c = function(e) {
       function t() {
-        return r(this, t),
-          o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
+        return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
       return i(t, e), u(t, [{
         key: "render",

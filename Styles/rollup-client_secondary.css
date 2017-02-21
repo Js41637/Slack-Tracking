@@ -3822,50 +3822,6 @@ body:not(.sorting_mode) #col_channels ul>li {
   opacity: 1
 }
 
-#col_channels ul li .hotness_icon {
-  position: absolute;
-  top: -1px;
-  z-index: 1;
-  opacity: 0;
-  -webkit-transition: opacity 1s ease 0s;
-  -moz-transition: opacity 1s ease 0s;
-  transition: opacity 1s ease 0s
-}
-
-#col_channels ul li .hotness_icon.hottest {
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1
-}
-
-#col_channels ul li .hotness_icon.hotter {
-  opacity: .8;
-  -moz-opacity: .8;
-  -khtml-opacity: .8
-}
-
-#col_channels ul li .hotness_icon.hot {
-  opacity: .6;
-  -moz-opacity: .6;
-  -khtml-opacity: .6
-}
-
-#col_channels ul li .hotness_icon.warmer {
-  opacity: .4;
-  -moz-opacity: .4;
-  -khtml-opacity: .4
-}
-
-#col_channels ul li .hotness_icon.warm {
-  opacity: .2;
-  -moz-opacity: .2;
-  -khtml-opacity: .2
-}
-
-#col_channels ul li .hotness_icon .emoji-sizer {
-  font-size: 1.0625rem
-}
-
 .channel_list_add_link {
   font-weight: 900;
   margin: .25rem 0 0 1rem;
