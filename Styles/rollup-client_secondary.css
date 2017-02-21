@@ -3729,24 +3729,24 @@ only screen and (min-resolution:2dppx) {
   height: 100%
 }
 
-#col_channels ul li a.channel_name .ts_icon_archived_channel,
-#col_channels ul li a.group_name .ts_icon_archived_channel {
-  margin: -3px 0 0 -3px;
+#col_channels ul li .channel_name .ts_icon_archived_channel,
+#col_channels ul li .group_name .ts_icon_archived_channel {
+  margin: -3px -1px 0 -3px;
   opacity: 1
 }
 
-#col_channels ul li a.channel_name .ts_icon_archived_channel:before,
-#col_channels ul li a.group_name .ts_icon_archived_channel:before {
+#col_channels ul li .channel_name .ts_icon_archived_channel:before,
+#col_channels ul li .group_name .ts_icon_archived_channel:before {
   font-size: 1.25rem
 }
 
-#col_channels ul li a.channel_name .ts_icon_angle_arrow_up_left,
-#col_channels ul li a.group_name .ts_icon_angle_arrow_up_left {
+#col_channels ul li .channel_name .ts_icon_angle_arrow_up_left,
+#col_channels ul li .group_name .ts_icon_angle_arrow_up_left {
   margin: 1px 2px 0 -2px
 }
 
-#col_channels ul li a.channel_name .ts_icon_angle_arrow_up_left:before,
-#col_channels ul li a.group_name .ts_icon_angle_arrow_up_left:before {
+#col_channels ul li .channel_name .ts_icon_angle_arrow_up_left:before,
+#col_channels ul li .group_name .ts_icon_angle_arrow_up_left:before {
   font-size: 1rem
 }
 

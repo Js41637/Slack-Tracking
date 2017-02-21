@@ -9668,7 +9668,7 @@
       this.$_container.delegate(".clear_members_filter", "click", function() {
         this_searchable_member_list._reset();
       });
-      if (this._current_filter !== "everyone" && this._current_query_for_match !== "" && TS.boot_data.feature_team_directory_search_other_members) {
+      if (this._current_filter !== "everyone" && this._current_query_for_match !== "") {
         var selected_filter = this._current_filter;
         this._current_filter = "everyone";
         this._fetchPage().then(function(members) {
@@ -9901,12 +9901,17 @@
             },
             tabcomplete: {
               appendMenu: function(menu) {
-                document.querySelector("#msg_form").appendChild(menu);
+                document.querySelector("#messages_container").appendChild(menu);
               },
               positionMenu: function(menu) {
-                menu.style.bottom = "100%";
-                menu.style.left = "42px";
-                menu.style.width = "90%";
+                menu.style.bottom = 0;
+                menu.style.left = "62px";
+                menu.style.right = "20px";
+                menu.style.top = "auto";
+                TS.utility.rAF(function() {
+                  if (menu.offsetTop < 0) menu.style.top = 0;
+                  menu = null;
+                });
               }
             }
           },
@@ -19568,9 +19573,6 @@
         imageUri: TS.ui.growls.getAttachmentUri(msg),
         avatarImage: avatar_image
       });
-      if (TS.model.prefs.speak_growls) {
-        TS.ui.growls.speakchannelOrGroupMessage(model_ob, msg, msg_txt, from_name);
-      }
     },
     getLaunchUriForChannel: function(channel_id, msg_id) {
       return channel_id ? "slack://channel?id=" + channel_id + "&message=" + msg_id + "&team=" + TS.model.team.id : null;
@@ -19579,94 +19581,9 @@
       var has_attached_image = msg.attachments && msg.attachments.length > 0 && msg.attachments[0].image_url;
       return has_attached_image && TS.model.prefs.expand_inline_imgs ? msg.attachments[0].image_url : null;
     },
-    speakchannelOrGroupMessage: function(model_ob, msg, msg_txt, from_name) {
-      if (!TS.ui.growls.canSpeak()) return;
-      if (!msg) {
-        TS.error("no msg?");
-        return;
-      }
-      msg_txt = msg_txt || TS.ui.growls.extractTxtFromMsg(msg, true);
-      from_name = from_name || TS.ui.growls.extractFromNameFromCorGMessage(msg);
-      var title;
-      var model_type = TS.i18n.t("channel", "growl")();
-      if (model_ob.is_group) {
-        if (model_ob.is_mpim) {
-          model_type = TS.i18n.t("conversation", "growl")();
-        } else {
-          model_type = TS.i18n.t("private channel", "growl")();
-        }
-      }
-      if (TS.getOtherAccountsCount() > 0) {
-        title = TS.i18n.t('On team {team_name}, a message in {channel_or_conversation} "{channel_or_conversation_name}" from "{user_name}": ', "growl")({
-          team_name: TS.model.team.name,
-          channel_or_conversation: model_type,
-          channel_or_conversation_name: model_ob.name,
-          user_name: from_name
-        });
-      } else {
-        title = TS.i18n.t('message in {channel_or_conversation} "{channel_or_conversation_name}" from "{user_name}": ', "growl")({
-          channel_or_conversation: model_type,
-          channel_or_conversation_name: model_ob.name,
-          user_name: from_name
-        });
-      }
-      var spoken_txt = title + TS.format.formatNotification(msg_txt, msg);
-      TS.ui.growls.speak(spoken_txt);
-    },
-    voices: null,
-    speakQ: [],
-    getVoices: function(txt, asap, voice, speed) {
-      if (!TS.ui.growls.canSpeak()) return null;
-      if (TS.ui.growls.voices) return TS.ui.growls.voices;
-      TS.ui.growls.voices = [];
-      var v = macgap.app.availableVoices();
-      for (var i = 0; i < v.length; i++) {
-        TS.ui.growls.voices.push({
-          label: v[i].substr(v[i].lastIndexOf(".") + 1),
-          value: v[i]
-        });
-      }
-      return TS.ui.growls.voices;
-    },
     canSpeak: function() {
       if (window.macgap && macgap.app && macgap.app.speakStringWithVoiceAndRateAndCallback) return true;
       return false;
-    },
-    speak: function(txt, asap, voice, speed) {
-      if (!TS.ui.growls.canSpeak()) return;
-      var Q = TS.ui.growls.speakQ;
-      var ob = {
-        txt: txt || "no text??",
-        voice: voice,
-        speed: speed,
-        asap: asap || false
-      };
-      if (asap && Q.length) {
-        var eob;
-        for (var i = Q.length - 1; i > -1; i--) {
-          eob = Q[i];
-          if (eob.asap || i === 0) {
-            Q.splice(i + 1, 0, ob);
-            break;
-          }
-        }
-      } else {
-        Q.push(ob);
-      }
-      if (Q.length == 1) TS.ui.growls._speakNext();
-    },
-    _speakNext: function() {
-      if (!TS.ui.growls.speakQ.length) return;
-      var ob = TS.ui.growls.speakQ[0];
-      if (ob.speaking) return;
-      ob.speaking = true;
-      var voices = TS.ui.growls.getVoices();
-      macgap.app.speakStringWithVoiceAndRateAndCallback(ob.txt, ob.voice || TS.model.prefs.mac_speak_voice || _.sample(voices).value, ob.speed || TS.model.prefs.mac_speak_speed || _.random(100, 300), function() {
-        setTimeout(function() {
-          TS.ui.growls.speakQ.shift();
-          TS.ui.growls._speakNext();
-        }, 100);
-      });
     },
     imMessageReceived: function(model_ob, msg) {
       if (!msg) {
@@ -19796,32 +19713,6 @@
         imageUri: TS.ui.growls.getAttachmentUri(msg),
         avatarImage: avatar_image
       });
-      if (TS.model.prefs.speak_growls) {
-        TS.ui.growls.speakImMessage(im, msg, msg_txt);
-      }
-    },
-    speakImMessage: function(im, msg, msg_txt) {
-      if (!TS.ui.growls.canSpeak()) return;
-      if (!msg) {
-        TS.error("no msg?");
-        return;
-      }
-      var bot_name = TS.templates.builders.getBotName(msg);
-      msg_txt = msg_txt || TS.ui.growls.extractTxtFromMsg(msg, true);
-      var from_name = bot_name || TS.ims.getDisplayNameOfUserForIm(im);
-      var title;
-      if (TS.getOtherAccountsCount() > 0) {
-        title = TS.i18n.t('On team {team_name}, a direct message from "{name}": ', "growl")({
-          team_name: TS.model.team.name,
-          name: from_name
-        });
-      } else {
-        title = TS.i18n.t('DM message from "{name}": ', "growl")({
-          name: from_name
-        });
-      }
-      var spoken_txt = title + TS.format.formatNotification(msg_txt, msg);
-      TS.ui.growls.speak(spoken_txt);
     },
     extractFromNameFromCorGMessage: function(msg) {
       var member = TS.members.getMemberById(msg.user);
@@ -30334,7 +30225,6 @@
       if (TS.boot_data.feature_name_tagging_client) {
         TS.prefs.display_preferred_names_changed_sig.add(_updatePreferredNameControls);
       }
-      TS.prefs.mac_speak_changed_sig.add(_updateMacSpeakControls);
       TS.prefs.tz_changed_sig.add(_tzPrefChanged);
       TS.members.changed_tz_sig.add(_memberTzChanged);
       TS.prefs.channel_sort_changed_sig.add(_updateChannelSortControls);
@@ -30352,7 +30242,6 @@
   var _sidebar_html = null;
   var _theme_throttle_tim = 0;
   var _show_customization_ui = false;
-  var _show_speech_settings = false;
   var _show_mac_ssb_prefs = false;
   var _show_win_ssb_prefs = false;
   var _show_lin_ssb_prefs = false;
@@ -30360,7 +30249,6 @@
   var _expanded_rollups = [];
   var _sorting_tim;
   var _onLogin = function() {
-    _show_speech_settings = TS.boot_data.feature_tinyspeck && TS.ui.growls.canSpeak() && (TS.model.mac_ssb_version && TS.model.mac_ssb_version >= .32);
     _show_mac_ssb_prefs = TS.model.mac_ssb_version && TS.model.mac_ssb_version >= .32 || TS.model.win_ssb_version && TS.model.is_mac;
     _show_win_ssb_prefs = TS.model.win_ssb_version && TS.model.is_win;
     _show_lin_ssb_prefs = TS.model.lin_ssb_version && TS.model.is_lin;
@@ -30564,7 +30452,6 @@
         break;
       case "labs":
         template_args = {
-          show_speech_settings: _show_speech_settings,
           show_electron_prefs: TS.model.is_electron
         };
         html = TS.templates.prefs_labs(template_args);
@@ -30627,7 +30514,6 @@
         break;
       case "labs":
         _bindLabsPrefs();
-        if (_show_speech_settings) _updateMacSpeakControls();
         break;
       default:
         TS.error("This isn't the Prefs UI binding you're looking for: " + section);
@@ -31550,38 +31436,6 @@
         });
       });
     }
-    if (_show_speech_settings) {
-      $("#speak_growls_cb").on("change", function() {
-        var val = !!$(this).prop("checked");
-        TS.prefs.setPrefByAPI({
-          name: "speak_growls",
-          value: val
-        });
-      });
-      $("#mac_speak_voice_select").on("change", function() {
-        var val = $(this).val();
-        TS.model.prefs.mac_speak_voice = val;
-        TS.prefs.setPrefByAPI({
-          name: "mac_speak_voice",
-          value: val
-        });
-        $("#mac_speak_test").trigger("click");
-      });
-      $("#mac_speak_speed_select").on("change", function() {
-        var val = parseInt($(this).val());
-        TS.model.prefs.mac_speak_speed = val;
-        TS.prefs.setPrefByAPI({
-          name: "mac_speak_speed",
-          value: val
-        });
-        $("#mac_speak_test").trigger("click");
-      });
-      $("#mac_speak_test").on("click", function() {
-        if (!TS.ui.growls.speakQ.length) {
-          TS.ui.growls.speak("Time flies like an arrow, fruit flies like a banana.", true, TS.model.prefs.mac_speak_voice, TS.model.prefs.mac_speak_speed);
-        }
-      });
-    }
   };
   var _bindMacSSBPrefs = function() {
     $("#mac_ssb_bounce_cb").prop("checked", !!TS.model.prefs.mac_ssb_bounce);
@@ -31987,12 +31841,6 @@
     } else {
       $("#mac_ssb_bounce_short_cb").prop("disabled", true);
     }
-  };
-  var _updateMacSpeakControls = function() {
-    if (!_is_open) return;
-    $("#speak_growls_cb").prop("checked", TS.model.prefs.speak_growls === true);
-    $("#mac_speak_voice_select").val(TS.model.prefs.mac_speak_voice);
-    $("#mac_speak_speed_select").val(TS.model.prefs.mac_speak_speed);
   };
   var _memberTzChanged = function(member) {
     if (!member.is_self) return;
@@ -39864,13 +39712,15 @@ function timezones_guess() {
     };
     if (read_replies.length && !unread_replies.length) {
       thread.replies = _.takeRight(read_replies, 2);
+      read_replies = _.dropRight(read_replies, 2);
     } else if (read_replies.length) {
       thread.replies.push(_.last(read_replies));
+      read_replies = _.dropRight(read_replies, 1);
     }
     if (read_replies.length) {
       var num_left = root_msg.reply_count - thread.replies.length;
       if (num_left > 0 && num_left < 3 && read_replies.length === num_left) {
-        thread.replies = read_replies.slice(0);
+        thread.replies = read_replies.concat(thread.replies);
       }
     }
     if (unread_replies.length) {

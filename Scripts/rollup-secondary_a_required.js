@@ -2426,6 +2426,12 @@
         if (!matches.length) return false;
       }
       return true;
+    },
+    canMemberLeaveChannel: function(channel_model_ob, member_model_ob) {
+      if (!channel_model_ob || !member_model_ob) return false;
+      if (channel_model_ob.is_general || member_model_ob.is_restricted) return false;
+      if (!TS.boot_data.feature_mandatory_shared_channels) return true;
+      return true;
     }
   });
 })();
@@ -3670,8 +3676,17 @@
     leave: function(id) {
       var channel = TS.channels.getChannelById(id);
       if (!channel) return;
+      if (TS.boot_data.feature_mandatory_shared_channels) {
+        var can_leave = TS.permissions.channels.canMemberLeaveChannel(channel, TS.model.user);
+        if (!can_leave) {
+          TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <strong>#{channel_name}</strong>!", "channels")({
+            channel_name: channel.name
+          }));
+          return;
+        }
+      }
       if (channel.is_general || TS.model.user.is_restricted) {
-        TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <b>#{channel_name}</b>!", "channels")({
+        TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <strong>#{channel_name}</strong>!", "channels")({
           channel_name: channel.name
         }));
         return;
@@ -5230,6 +5245,15 @@ TS.registerModule("constants", {
       if (!group) {
         TS.error("WTF no group:" + id);
         return;
+      }
+      if (TS.boot_data.feature_mandatory_shared_channels) {
+        var can_leave = TS.permissions.channels.canMemberLeaveChannel(group, TS.model.user);
+        if (!can_leave) {
+          TS.generic_dialog.alert(TS.i18n.t("Sorry, you can’t leave <strong>{group_name}</strong>!", "channels")({
+            group_name: TS.model.group_prefix + group.name
+          }));
+          return;
+        }
       }
       var leave_action = TS.groups.getLeaveAction(id);
       if (leave_action === "close") {
@@ -13570,7 +13594,6 @@ TS.registerModule("constants", {
     sidebar_behavior_changed_sig: new signals.Signal,
     dtop_notif_changed_sig: new signals.Signal,
     muted_channels_changed_sig: new signals.Signal,
-    mac_speak_changed_sig: new signals.Signal,
     mac_ssb_bullet_changed_sig: new signals.Signal,
     team_hide_referers_changed_sig: new signals.Signal,
     team_require_at_for_mention_changed_sig: new signals.Signal,
@@ -14065,24 +14088,6 @@ TS.registerModule("constants", {
         case "search_exclude_bots":
           TS.model.prefs.search_exclude_bots = !!imsg.value;
           TS.prefs.search_exclude_bots_changed_sig.dispatch();
-          break;
-        case "mac_speak_voice":
-          if (TS.model.prefs.mac_speak_voice != imsg.value) {
-            TS.model.prefs.mac_speak_voice = imsg.value;
-            TS.prefs.mac_speak_changed_sig.dispatch();
-          }
-          break;
-        case "mac_speak_speed":
-          if (TS.model.prefs.mac_speak_speed != imsg.value) {
-            TS.model.prefs.mac_speak_speed = imsg.value;
-            TS.prefs.mac_speak_changed_sig.dispatch();
-          }
-          break;
-        case "speak_growls":
-          if (TS.model.prefs.speak_growls !== imsg.value) {
-            TS.model.prefs.speak_growls = imsg.value;
-            TS.prefs.mac_speak_changed_sig.dispatch();
-          }
           break;
         case "has_uploaded":
           TS.model.prefs.has_uploaded = !!imsg.value;
@@ -19647,7 +19652,7 @@ TS.registerModule("constants", {
       } else if (msg.subtype == "group_archive") {
         group = model_ob;
         var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
-        var enterprise_name = TS.model.enterprise ? TS.model.enterprise.name : "";
+        var enterprise_name = _.get(TS.model.enterprise, "name", "");
         var mover_name = TS.i18n.t("your team admin", "templates_builders")();
         if (msg.user) {
           var mover = TS.members.getMemberById(msg.user);
@@ -19656,7 +19661,8 @@ TS.registerModule("constants", {
         if (TS.client && group && group.is_archived) {
           if (TS.model.archive_view_is_showing) {
             if (group.is_moved) {
-              html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+              html = TS.i18n.t('moved {group_name} to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+                group_name: group_name,
                 enterprise_name: enterprise_name,
                 mover_name: mover_name,
                 name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
@@ -19671,13 +19677,14 @@ TS.registerModule("constants", {
             var method = "TS.shared.closeArchivedChannel";
             var group_id_quoted = "'" + group.id + "'";
             if (group.is_moved) {
-              html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+              html = TS.i18n.t('moved {group_name} to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+                group_name: group_name,
                 enterprise_name: enterprise_name,
                 mover_name: mover_name,
                 name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
               });
             } else {
-              html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
+              html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
                 group_name: group_name,
                 name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name,
                 method: method,
@@ -19686,9 +19693,16 @@ TS.registerModule("constants", {
             }
           }
         } else {
-          html = TS.i18n.t("archived {group_name}", "templates_builders")({
-            group_name: group_name
-          });
+          if (_.get(group, "is_moved")) {
+            html = TS.i18n.t("moved {group_name} to another {enterprise_name} team", "templates_builders")({
+              group_name: group_name,
+              enterprise_name: enterprise_name
+            });
+          } else {
+            html = TS.i18n.t("archived {group_name}", "templates_builders")({
+              group_name: group_name
+            });
+          }
         }
       } else if (msg.subtype == "group_unarchive") {
         group = model_ob;
@@ -19707,11 +19721,8 @@ TS.registerModule("constants", {
           channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
         var name_for_url = TS.boot_data.feature_intl_channel_names ? model_ob.id : model_ob.name;
+        var enterprise_name = _.get(TS.model.enterprise, "name", "");
         if (TS.client && model_ob && model_ob.is_moved) {
-          var enterprise_name;
-          if (TS.model.enterprise) {
-            enterprise_name = TS.model.enterprise.name;
-          }
           var mover;
           var mover_name;
           if (msg.user) {
@@ -19719,14 +19730,14 @@ TS.registerModule("constants", {
             mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
           }
           if (TS.model.archive_view_is_showing) {
-            html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
+            html = TS.i18n.t('moved {channel_name} to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
               channel_name: channel_name,
               enterprise_name: enterprise_name,
               mover_name: mover_name,
               name_for_url: name_for_url
             });
           } else {
-            html = TS.i18n.t('moved this channel to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						If you need access to this channel going forward, please contact {mover_name}. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
+            html = TS.i18n.t('moved {channel_name} to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 						If you need access to this channel going forward, please contact {mover_name}. To close it now, <a onclick="TS.channels.closeArchivedChannel({channel_id})">click here</a>.', "templates_builders")({
               channel_name: channel_name,
               enterprise_name: enterprise_name,
               mover_name: mover_name,
@@ -19748,9 +19759,16 @@ TS.registerModule("constants", {
             });
           }
         } else {
-          html = TS.i18n.t("archived {channel_name}", "templates_builders")({
-            channel_name: channel_name
-          });
+          if (_.get(model_ob, "is_moved")) {
+            html = TS.i18n.t("moved {channel_name} to another {enterprise_name} team", "templates_builders")({
+              channel_name: channel_name,
+              enterprise_name: enterprise_name
+            });
+          } else {
+            html = TS.i18n.t("archived {channel_name}", "templates_builders")({
+              channel_name: channel_name
+            });
+          }
         }
       } else if (msg.subtype == "channel_unarchive") {
         var channel_name;
@@ -22722,13 +22740,6 @@ TS.registerModule("constants", {
           inverse: options.fn,
           hash: options.hash
         });
-      });
-      Handlebars.registerHelper("supportsSpeech", function(options) {
-        if (TS.ui.growls.canSpeak()) {
-          return options.fn(this);
-        } else {
-          return options.inverse(this);
-        }
       });
       Handlebars.registerHelper("feature", function(options) {
         var flag = options.hash.flag;
@@ -65565,7 +65576,8 @@ $.fn.togglify = function(settings) {
     if (n && n.dispatchConfig.registrationName) {
       var r = n.dispatchConfig.registrationName,
         o = g(e, r);
-      o && (n._dispatchListeners = v(n._dispatchListeners, o), n._dispatchInstances = v(n._dispatchInstances, e));
+      o && (n._dispatchListeners = v(n._dispatchListeners, o),
+        n._dispatchInstances = v(n._dispatchInstances, e));
     }
   }
 
@@ -75064,7 +75076,8 @@ $.fn.togglify = function(settings) {
           }
           n = n.nextSibling;
         }
-      return e = [this._hostNode, this._closingComment], this._commentNodes = e, e;
+      return e = [this._hostNode, this._closingComment], this._commentNodes = e,
+        e;
     },
     unmountComponent: function() {
       this._closingComment = null, this._commentNodes = null, s.uncacheNode(this);
