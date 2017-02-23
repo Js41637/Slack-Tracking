@@ -14337,6 +14337,11 @@ screen and (max-width:640px) {
   color: #9e9ea6
 }
 
+.tab_complete_ui ul.type_members .current_status {
+  margin-left: 2px;
+  color: #9e9ea6
+}
+
 .tab_complete_ui ul.type_members .display_name {
   font-weight: 900;
   margin-right: .4rem

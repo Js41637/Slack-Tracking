@@ -3223,7 +3223,7 @@
         return;
       }
       TS.utility.queueRAF(function inputFocusRAF() {
-        TS.client.ui.$msg_input.focus();
+        TS.utility.contenteditable.focus(TS.client.ui.$msg_input);
         if (!TS.model.archive_view_is_showing) {
           var cursor_pos = TS.model.input_cursor_positions[model_ob.id];
           if (cursor_pos) {
@@ -14046,17 +14046,18 @@
       var matches = dl.href.match(rx);
       var team_and_file;
       var file_id;
+      var redacted_href = _.isString(dl.href) && dl.href.substr(0, dl.href.lastIndexOf("/") || dl.href.length) + "/[redacted]" || "[invalid]";
       if (matches) {
         team_and_file = matches[0];
         file_id = team_and_file.split("-")[1];
-        TS.warn("_buildItem: fetching file for dl.href: " + dl.href);
+        TS.warn("_buildItem: fetching file for dl.href: " + redacted_href);
         TS.files.fetchFileInfo(file_id, function(id, file) {
           dl = _downloads_map[dl.token];
           if (!dl) return;
           _updateDownload(dl);
         });
       } else {
-        TS.error("_buildItem: no file id found in dl.href: " + dl.href);
+        TS.error("_buildItem: no file id found in dl.href: " + redacted_href);
       }
     }
     var img_src = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -37234,6 +37235,18 @@ function timezones_guess() {
       _setVisibleRange(config, start_at);
       return TS.ui.message_container.update(config);
     },
+    scrollintoview: function(config, elem_id, options) {
+      if (config._scrolling_into_view) return;
+      config._scrolling_into_view = true;
+      options = options || {};
+      var orig_complete = options.complete;
+      var complete = function() {
+        config._scrolling_into_view = false;
+        if (orig_complete) orig_complete.call(this);
+      };
+      options.complete = complete;
+      $("#" + elem_id).scrollintoview(options);
+    },
     getRange: function(config) {
       return config._range;
     },
@@ -37280,6 +37293,7 @@ function timezones_guess() {
       if (config.scroller) $scroller = $(config.scroller);
     }
     var scroll_handler = _.debounce(function(scroller) {
+      if (config._scrolling_into_view) return;
       if (scroller.scrollTop + $scroller_holder.height() > scroller.scrollHeight * .25) {
         _loadMoreMessages(config);
       }
@@ -38497,10 +38511,18 @@ function timezones_guess() {
       TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
       if (highlight_ts) {
         var highlight_id = TS.templates.makeMsgDomIdInConversation(highlight_ts);
-        $("#" + highlight_id).scrollintoview({
-          offset: "bottom",
-          px_offset: -50
-        }).highlight(2500, "msg_highlighter");
+        if (TS.boot_data.feature_threads_paging_flexpane) {
+          TS.ui.message_container.scrollintoview(_msg_container_config, highlight_id, {
+            offset: "bottom",
+            px_offset: -50
+          });
+          $("#" + highlight_id).highlight(2500, "msg_highlighter");
+        } else {
+          $("#" + highlight_id).scrollintoview({
+            offset: "bottom",
+            px_offset: -50
+          }).highlight(2500, "msg_highlighter");
+        }
       } else {
         _focusInputWhenReady();
       }
@@ -38864,7 +38886,7 @@ function timezones_guess() {
   var _ready_to_focus;
   var _focus_ready_sig = new signals.Signal;
   var _previously_connected = false;
-  var _MESSAGE_CONTAINER_PAGE_SIZE = 25;
+  var _MESSAGE_CONTAINER_PAGE_SIZE = 50;
   var _onConnected = function(was_fast_reconnect) {
     if (TS.boot_data.feature_threads_paging_flexpane) {
       if (!_previously_connected) {
@@ -39936,7 +39958,7 @@ function timezones_guess() {
       _setTotalUnreadRepliesCount(_total_unread_replies - 1);
       _maybeUpdateNewThreadReplyCount();
     }
-    if (!thread.replies.length && !thread.root_msg.replies.length) {
+    if (!thread.replies.length && !_.get(thread.root_msg, "replies.length")) {
       _removeThread(model_ob, thread);
       return is_message_removed;
     }
@@ -39976,6 +39998,7 @@ function timezones_guess() {
       thread.max_visible_ts = _.last(thread.replies).ts;
     }
     if (TS.model.threads_view_is_showing) TS.client.ui.threads.maybeUpdateThreadWithMessage(thread, message, show_immediately);
+    if (thread.grouping === "old") TS.client.ui.threads.hideCaughtUpDivider();
     _setTotalUnreadRepliesCount(_total_unread_replies + 1);
     _maybeUpdateNewThreadReplyCount();
     return null;
@@ -40295,7 +40318,9 @@ function timezones_guess() {
         has_more_beginning: false,
         has_more_end: !!has_more,
         buildSection: function(section) {
-          return TS.templates.thread_view_section();
+          return TS.templates.thread_view_section({
+            is_old_section: section.id === "old_threads"
+          });
         },
         buildMsgHTML: function(msg, prev_msg, section) {
           return _renderThread(msg, prev_msg);
@@ -40418,6 +40443,10 @@ function timezones_guess() {
         thread.edited = Date.now();
         TS.ui.message_container.update(_config);
       });
+    },
+    hideCaughtUpDivider: function() {
+      if (!TS.model.threads_view_is_showing) return;
+      $("#threads_msgs .threads_caught_up_divider").addClass("hide_divider");
     },
     getThreadFromEl: function($e) {
       if (!$e || !$e.length) return;

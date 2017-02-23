@@ -607,7 +607,7 @@
       login_args.presence_sub = true;
     }
     login_args.mpim_aware = true;
-    if (TS.boot_data.feature_elide_closed_dms && !TS.boot_data.page_needs_all_ims) {
+    if (!TS.boot_data.page_needs_all_ims) {
       login_args.only_relevant_ims = true;
     }
     if (TS.boot_data.feature_name_tagging_client) {
@@ -3267,8 +3267,25 @@
       if (TS.warn) TS.warn("Logging clicks with data-clog-click requires a data-clog-event attribute");
       return;
     }
+    var args = {};
+    var ui_context_action = this.getAttribute("data-clog-ui-action");
+    if (ui_context_action) {
+      args = {
+        ui_element: this.getAttribute("data-clog-ui-element"),
+        action: this.getAttribute("data-clog-ui-action"),
+        step: this.getAttribute("data-clog-ui-step")
+      };
+    }
     var params = this.getAttribute("data-clog-params");
-    var args = TS.clog.parseParams(params);
+    params = TS.clog.parseParams(params);
+    if (ui_context_action) {
+      args = {
+        contexts: {
+          ui_context: args
+        }
+      };
+    }
+    args = _.assign(params, args);
     TS.clog.track(event, args);
   };
 })();

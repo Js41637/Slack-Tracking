@@ -1,3 +1,10 @@
+{{i18n_ns 'threads'}}
 <section class="threads_section">
+  {{#if is_old_section}}
+    <div class="threads_caught_up_divider">
+      <div class="divider_line"></div>
+      <div class="divider_label">{{#t note="divider between new and old threads"}}You&rsquo;re up-to-date{{/t}}</div>
+    </div>
+  {{/if}}
   <div class="msgs_holder"></div>
 </section>

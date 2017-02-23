@@ -3222,10 +3222,6 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   visibility: hidden
 }
 
-.channels_list_holder ul li.mention:hover .current_status {
-  margin-right: 0
-}
-
 .channels_list_holder ul li.mention:hover .current_status:hover {
   opacity: 1
 }
@@ -3249,6 +3245,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 .channels_list_holder ul li.unread .prefix {
   font-weight: 700;
   color: #fff
+}
+
+.channels_list_holder ul li.unread .current_status {
+  margin-right: .3rem
 }
 
 #channels_scroller ul li.muted_channel:not(.active) .channel_name,
@@ -27535,7 +27535,12 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 #threads_msgs_scroller_div .threads_caught_up_divider {
   position: relative;
   text-align: center;
-  margin-top: 1.5rem
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  height: 0;
+  -webkit-transition: all .3s ease 0s;
+  -moz-transition: all .3s ease 0s;
+  transition: all .3s ease 0s
 }
 
 #threads_msgs_scroller_div .threads_caught_up_divider .divider_line {
@@ -27547,13 +27552,26 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 }
 
 #threads_msgs_scroller_div .threads_caught_up_divider .divider_label {
-  background: #fff;
+  background: #F7F7F7;
+  color: #717274;
   padding: .25rem .75rem;
   display: inline-block;
   position: relative;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
   border-radius: 1rem;
-  font-weight: 700;
-  color: #2C2D30
+  font-weight: 700
+}
+
+#threads_msgs_scroller_div .threads_caught_up_divider.hide_divider {
+  margin: 0;
+  opacity: 0
+}
+
+#threads_msgs_scroller_div .threads_section.partial_start .threads_caught_up_divider {
+  display: none
 }
 
 #threads_view_banner.messages_banner {

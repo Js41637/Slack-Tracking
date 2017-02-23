@@ -4466,7 +4466,7 @@
     var api_endpoint = model_ob.is_group ? "groups.info" : "channels.info";
     _membership_counts_api_promises[model_ob.id] = rate_limit_p.then(function() {
       TS.log(1989, "Channel member counts (" + model_ob.id + "): fetching counts from API");
-      if (TS.boot_data.feature_flannel_channel_counts) {
+      if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_flannel_channel_counts) {
         return TS.flannel.fetchMembershipCountsForChannel(model_ob.id).then(function(counts) {
           TS.log(1989, "Channel member counts from flannel (" + model_ob.id + "): " + JSON.stringify(counts));
           return {
@@ -28060,8 +28060,7 @@ TS.registerModule("constants", {
       if (NODENAME == "INPUT") return true;
       if (NODENAME == "TEXTAREA") return true;
       if (NODENAME == "SELECT") return true;
-      var content_editable = document.activeElement.getAttribute("contenteditable");
-      if (content_editable == "true") return true;
+      if (TS.utility.contenteditable.isContenteditable(document.activeElement)) return true;
       return false;
     },
     formatTopicOrPurpose: function(txt, no_preformatted) {
@@ -30505,7 +30504,8 @@ TS.registerModule("constants", {
       }
       return boundry + at_member_id;
     });
-    txt = txt.replace(/(^|\s|\(|&gt;|\*|_|\/)(#([a-zA-Z0-9\-_]+))/g, function(match, boundry, hash_channel_id, channel_id, offset) {
+    var channel_name_regex = TS.boot_data.feature_intl_channel_names ? /(^|\s|\(|&gt;|\*|_|\/)(#([^~`!@#$%^&*()+=[\]{}\\|;:'",.<>\/? ]+))/g : /(^|\s|\(|&gt;|\*|_|\/)(#([a-zA-Z0-9\-_]+))/g;
+    txt = txt.replace(channel_name_regex, function(match, boundry, hash_channel_id, channel_id, offset) {
       if (boundry === "/" && _isPartOfUrl(txt, match, offset)) return match;
       var valid = _validateModelObByIdOrName(null, null, TS.channels.getChannelByName, hash_channel_id);
       if (valid.model_ob) {
@@ -35046,6 +35046,9 @@ var _on_esc;
         }
       }
       TS.menu.$menu_items.html(TS.templates.menu_member_items(template_args));
+      if (!is_im_menu && !member.deleted) {
+        TS.clog.track("USER_CARD_DISPLAY", {});
+      }
       if (member_id == TS.model.user.id) {
         var menu_user_footer_html = "";
         if (!is_im_menu) {
@@ -35072,6 +35075,7 @@ var _on_esc;
             TS.ims.startImByMemberId(member.id, false, input.val());
             TS.menu.member.end();
             starting_im = true;
+            TS.clog.track("USER_CARD_DM", {});
           }
         }
       });
@@ -56312,6 +56316,11 @@ $.fn.togglify = function(settings) {
     },
     isContenteditable: function(input) {
       input = _normalizeInput(input);
+      if (!input) return false;
+      if (input.tagName === "DIV") {
+        var contenteditable = input.getAttribute("contenteditable");
+        if (contenteditable === "true") return true;
+      }
       return _isTextyElement(input);
     },
     disable: function(input) {
@@ -58652,10 +58661,10 @@ $.fn.togglify = function(settings) {
             creator_username: creator.name,
             date_created: channel.created,
             id: channel.id,
-            member_count: channel.members.length,
+            member_count: _.get(channel, "members.length", 0),
             name: channel.name,
-            purpose: channel.purpose.value,
-            topic: channel.topic.value,
+            purpose: _.get(channel, "purpose.value", ""),
+            topic: _.get(channel, "topic.value", ""),
             "private": false,
             is_general: channel.is_general,
             is_shared: channel.is_shared
@@ -58810,7 +58819,7 @@ $.fn.togglify = function(settings) {
     sanity_check_failed_sig: new signals.Signal,
     reply_changed_sig: new signals.Signal,
     reply_deleted_sig: new signals.Signal,
-    DEFAULT_HISTORY_API_LIMIT: 50,
+    DEFAULT_HISTORY_API_LIMIT: 100,
     onStart: function() {
       TS.channels.message_received_sig.add(_messageReceived);
       TS.groups.message_received_sig.add(_messageReceived);
@@ -68769,506 +68778,506 @@ $.fn.togglify = function(settings) {
         u()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-          isScrolling: !1,
-          scrollDirectionHorizontal: C.a,
-          scrollDirectionVertical: C.a,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
-          cellCount: e.columnCount,
-          cellSizeGetter: function(e) {
-            return o._columnWidthGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedColumnSize(e)
-        }), o._rowSizeAndPositionManager = new b.a({
-          cellCount: e.rowCount,
-          cellSizeGetter: function(e) {
-            return o._rowHeightGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedRowSize(e)
-        }), o._cellCache = {}, o._styleCache = {}, o;
+            isScrolling: !1,
+            scrollDirectionHorizontal: C.a,
+            scrollDirectionVertical: C.a,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o),
+          o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+            cellCount: e.columnCount,
+            cellSizeGetter: function(e) {
+              return o._columnWidthGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedColumnSize(e)
+          }), o._rowSizeAndPositionManager = new b.a({
+            cellCount: e.rowCount,
+            cellSizeGetter: function(e) {
+              return o._rowHeightGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedRowSize(e)
+          }), o._cellCache = {}, o._styleCache = {}, o;
       }
-      return h()(t, e),
-        c()(t, [{
-          key: "measureAllCells",
-          value: function() {
-            var e = this.props,
-              t = e.columnCount,
-              n = e.rowCount;
-            this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1), this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
-          }
-        }, {
-          key: "recomputeGridSize",
-          value: function() {
-            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {},
-              t = e.columnIndex,
-              n = void 0 === t ? 0 : t,
-              r = e.rowIndex,
-              o = void 0 === r ? 0 : r;
-            this._columnSizeAndPositionManager.resetCell(n), this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
-          }
-        }, {
-          key: "scrollToCell",
-          value: function(e) {
-            var t = e.columnIndex,
-              n = e.rowIndex,
-              r = this.props;
-            this._updateScrollLeftForScrollToColumn(o()({}, r, {
-              scrollToColumn: t
-            })), this._updateScrollTopForScrollToRow(o()({}, r, {
-              scrollToRow: n
-            }));
-          }
-        }, {
-          key: "componentDidMount",
-          value: function() {
-            var e = this.props,
-              t = e.scrollLeft,
-              n = e.scrollToColumn,
-              r = e.scrollTop,
-              o = e.scrollToRow;
-            this._scrollbarSizeMeasured || (this._scrollbarSize = x()(), this._scrollbarSizeMeasured = !0, this.setState({})), (t >= 0 || r >= 0) && this._setScrollPosition({
-              scrollLeft: t,
-              scrollTop: r
-            }), (n >= 0 || o >= 0) && (this._updateScrollLeftForScrollToColumn(), this._updateScrollTopForScrollToRow()), this._invokeOnGridRenderedHelper(), this._invokeOnScrollMemoizer({
-              scrollLeft: t || 0,
-              scrollTop: r || 0,
-              totalColumnsWidth: this._columnSizeAndPositionManager.getTotalSize(),
-              totalRowsHeight: this._rowSizeAndPositionManager.getTotalSize()
+      return h()(t, e), c()(t, [{
+        key: "measureAllCells",
+        value: function() {
+          var e = this.props,
+            t = e.columnCount,
+            n = e.rowCount;
+          this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1), this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
+        }
+      }, {
+        key: "recomputeGridSize",
+        value: function() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {},
+            t = e.columnIndex,
+            n = void 0 === t ? 0 : t,
+            r = e.rowIndex,
+            o = void 0 === r ? 0 : r;
+          this._columnSizeAndPositionManager.resetCell(n), this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
+        }
+      }, {
+        key: "scrollToCell",
+        value: function(e) {
+          var t = e.columnIndex,
+            n = e.rowIndex,
+            r = this.props;
+          this._updateScrollLeftForScrollToColumn(o()({}, r, {
+            scrollToColumn: t
+          })), this._updateScrollTopForScrollToRow(o()({}, r, {
+            scrollToRow: n
+          }));
+        }
+      }, {
+        key: "componentDidMount",
+        value: function() {
+          var e = this.props,
+            t = e.scrollLeft,
+            n = e.scrollToColumn,
+            r = e.scrollTop,
+            o = e.scrollToRow;
+          this._scrollbarSizeMeasured || (this._scrollbarSize = x()(), this._scrollbarSizeMeasured = !0, this.setState({})), (t >= 0 || r >= 0) && this._setScrollPosition({
+            scrollLeft: t,
+            scrollTop: r
+          }), (n >= 0 || o >= 0) && (this._updateScrollLeftForScrollToColumn(), this._updateScrollTopForScrollToRow()), this._invokeOnGridRenderedHelper(), this._invokeOnScrollMemoizer({
+            scrollLeft: t || 0,
+            scrollTop: r || 0,
+            totalColumnsWidth: this._columnSizeAndPositionManager.getTotalSize(),
+            totalRowsHeight: this._rowSizeAndPositionManager.getTotalSize()
+          });
+        }
+      }, {
+        key: "componentDidUpdate",
+        value: function(e, t) {
+          var r = this,
+            i = this.props,
+            a = i.autoHeight,
+            s = i.columnCount,
+            u = i.height,
+            l = i.rowCount,
+            c = i.scrollToAlignment,
+            f = i.scrollToColumn,
+            p = i.scrollToRow,
+            d = i.width,
+            h = this.state,
+            v = h.scrollLeft,
+            m = h.scrollPositionChangeReason,
+            g = h.scrollTop,
+            _ = s > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
+          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)), n.i(E.a)({
+              cellSizeAndPositionManager: this._columnSizeAndPositionManager,
+              previousCellsCount: e.columnCount,
+              previousCellSize: e.columnWidth,
+              previousScrollToAlignment: e.scrollToAlignment,
+              previousScrollToIndex: e.scrollToColumn,
+              previousSize: e.width,
+              scrollOffset: v,
+              scrollToAlignment: c,
+              scrollToIndex: f,
+              size: d,
+              updateScrollIndexCallback: function(e) {
+                return r._updateScrollLeftForScrollToColumn(o()({}, r.props, {
+                  scrollToColumn: e
+                }));
+              }
+            }), n.i(E.a)({
+              cellSizeAndPositionManager: this._rowSizeAndPositionManager,
+              previousCellsCount: e.rowCount,
+              previousCellSize: e.rowHeight,
+              previousScrollToAlignment: e.scrollToAlignment,
+              previousScrollToIndex: e.scrollToRow,
+              previousSize: e.height,
+              scrollOffset: g,
+              scrollToAlignment: c,
+              scrollToIndex: p,
+              size: u,
+              updateScrollIndexCallback: function(e) {
+                return r._updateScrollTopForScrollToRow(o()({}, r.props, {
+                  scrollToRow: e
+                }));
+              }
+            }), this._invokeOnGridRenderedHelper(), v !== t.scrollLeft || g !== t.scrollTop) {
+            var y = this._rowSizeAndPositionManager.getTotalSize(),
+              b = this._columnSizeAndPositionManager.getTotalSize();
+            this._invokeOnScrollMemoizer({
+              scrollLeft: v,
+              scrollTop: g,
+              totalColumnsWidth: b,
+              totalRowsHeight: y
             });
           }
-        }, {
-          key: "componentDidUpdate",
-          value: function(e, t) {
-            var r = this,
-              i = this.props,
-              a = i.autoHeight,
-              s = i.columnCount,
-              u = i.height,
-              l = i.rowCount,
-              c = i.scrollToAlignment,
-              f = i.scrollToColumn,
-              p = i.scrollToRow,
-              d = i.width,
-              h = this.state,
-              v = h.scrollLeft,
-              m = h.scrollPositionChangeReason,
-              g = h.scrollTop,
-              _ = s > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
-            if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)), n.i(E.a)({
-                cellSizeAndPositionManager: this._columnSizeAndPositionManager,
-                previousCellsCount: e.columnCount,
-                previousCellSize: e.columnWidth,
-                previousScrollToAlignment: e.scrollToAlignment,
-                previousScrollToIndex: e.scrollToColumn,
-                previousSize: e.width,
-                scrollOffset: v,
-                scrollToAlignment: c,
-                scrollToIndex: f,
-                size: d,
-                updateScrollIndexCallback: function(e) {
-                  return r._updateScrollLeftForScrollToColumn(o()({}, r.props, {
-                    scrollToColumn: e
-                  }));
-                }
-              }), n.i(E.a)({
-                cellSizeAndPositionManager: this._rowSizeAndPositionManager,
-                previousCellsCount: e.rowCount,
-                previousCellSize: e.rowHeight,
-                previousScrollToAlignment: e.scrollToAlignment,
-                previousScrollToIndex: e.scrollToRow,
-                previousSize: e.height,
-                scrollOffset: g,
-                scrollToAlignment: c,
-                scrollToIndex: p,
-                size: u,
-                updateScrollIndexCallback: function(e) {
-                  return r._updateScrollTopForScrollToRow(o()({}, r.props, {
-                    scrollToRow: e
-                  }));
-                }
-              }), this._invokeOnGridRenderedHelper(), v !== t.scrollLeft || g !== t.scrollTop) {
-              var y = this._rowSizeAndPositionManager.getTotalSize(),
-                b = this._columnSizeAndPositionManager.getTotalSize();
-              this._invokeOnScrollMemoizer({
-                scrollLeft: v,
-                scrollTop: g,
-                totalColumnsWidth: b,
-                totalRowsHeight: y
+        }
+      }, {
+        key: "componentWillMount",
+        value: function() {
+          this._scrollbarSize = x()(), void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0, this._calculateChildrenToRender();
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId);
+        }
+      }, {
+        key: "componentWillUpdate",
+        value: function(e, t) {
+          var r = this;
+          if (0 === e.columnCount && 0 !== t.scrollLeft || 0 === e.rowCount && 0 !== t.scrollTop) this._setScrollPosition({
+            scrollLeft: 0,
+            scrollTop: 0
+          });
+          else if (e.scrollLeft !== this.props.scrollLeft || e.scrollTop !== this.props.scrollTop) {
+            var o = {};
+            null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
+          }
+          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
+            cellCount: e.columnCount,
+            estimatedCellSize: this._getEstimatedColumnSize(e)
+          }), this._rowSizeAndPositionManager.configure({
+            cellCount: e.rowCount,
+            estimatedCellSize: this._getEstimatedRowSize(e)
+          }), n.i(y.a)({
+            cellCount: this.props.columnCount,
+            cellSize: this.props.columnWidth,
+            computeMetadataCallback: function() {
+              return r._columnSizeAndPositionManager.resetCell(0);
+            },
+            computeMetadataCallbackProps: e,
+            nextCellsCount: e.columnCount,
+            nextCellSize: e.columnWidth,
+            nextScrollToIndex: e.scrollToColumn,
+            scrollToIndex: this.props.scrollToColumn,
+            updateScrollOffsetForScrollToIndex: function() {
+              return r._updateScrollLeftForScrollToColumn(e, t);
+            }
+          }), n.i(y.a)({
+            cellCount: this.props.rowCount,
+            cellSize: this.props.rowHeight,
+            computeMetadataCallback: function() {
+              return r._rowSizeAndPositionManager.resetCell(0);
+            },
+            computeMetadataCallbackProps: e,
+            nextCellsCount: e.rowCount,
+            nextCellSize: e.rowHeight,
+            nextScrollToIndex: e.scrollToRow,
+            scrollToIndex: this.props.scrollToRow,
+            updateScrollOffsetForScrollToIndex: function() {
+              return r._updateScrollTopForScrollToRow(e, t);
+            }
+          }), this._calculateChildrenToRender(e, t);
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this,
+            t = this.props,
+            n = t.autoContainerWidth,
+            r = t.autoHeight,
+            i = t.className,
+            a = t.containerStyle,
+            s = t.height,
+            u = t.id,
+            l = t.noContentRenderer,
+            c = t.style,
+            f = t.tabIndex,
+            p = t.width,
+            d = this.state.isScrolling,
+            h = {
+              boxSizing: "border-box",
+              direction: "ltr",
+              height: r ? "auto" : s,
+              position: "relative",
+              width: p,
+              WebkitOverflowScrolling: "touch",
+              willChange: "transform"
+            },
+            v = this._columnSizeAndPositionManager.getTotalSize(),
+            g = this._rowSizeAndPositionManager.getTotalSize(),
+            y = g > s ? this._scrollbarSize : 0,
+            b = v > p ? this._scrollbarSize : 0;
+          h.overflowX = v + y <= p ? "hidden" : "auto", h.overflowY = g + b <= s ? "hidden" : "auto";
+          var w = this._childrenToDisplay,
+            C = 0 === w.length && s > 0 && p > 0;
+          return m.a.createElement("div", {
+            ref: function(t) {
+              e._scrollingContainer = t;
+            },
+            "aria-label": this.props["aria-label"],
+            className: _()("ReactVirtualized__Grid", i),
+            id: u,
+            onScroll: this._onScroll,
+            role: "grid",
+            style: o()({}, h, c),
+            tabIndex: f
+          }, w.length > 0 && m.a.createElement("div", {
+            className: "ReactVirtualized__Grid__innerScrollContainer",
+            style: o()({
+              width: n ? "auto" : v,
+              height: g,
+              maxWidth: v,
+              maxHeight: g,
+              overflow: "hidden",
+              pointerEvents: d ? "none" : ""
+            }, a)
+          }, w), C && l());
+        }
+      }, {
+        key: "shouldComponentUpdate",
+        value: function(e, t) {
+          return T()(this, e, t);
+        }
+      }, {
+        key: "_calculateChildrenToRender",
+        value: function() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
+            t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
+            r = e.cellRenderer,
+            o = e.cellRangeRenderer,
+            i = e.columnCount,
+            a = e.height,
+            s = e.overscanColumnCount,
+            u = e.overscanRowCount,
+            l = e.rowCount,
+            c = e.width,
+            f = t.isScrolling,
+            p = t.scrollDirectionHorizontal,
+            d = t.scrollDirectionVertical,
+            h = t.scrollLeft,
+            v = t.scrollTop;
+          if (this._childrenToDisplay = [], a > 0 && c > 0) {
+            var m = this._columnSizeAndPositionManager.getVisibleCellRange({
+                containerSize: c,
+                offset: h
+              }),
+              g = this._rowSizeAndPositionManager.getVisibleCellRange({
+                containerSize: a,
+                offset: v
+              }),
+              _ = this._columnSizeAndPositionManager.getOffsetAdjustment({
+                containerSize: c,
+                offset: h
+              }),
+              y = this._rowSizeAndPositionManager.getOffsetAdjustment({
+                containerSize: a,
+                offset: v
               });
-            }
-          }
-        }, {
-          key: "componentWillMount",
-          value: function() {
-            this._scrollbarSize = x()(), void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0, this._calculateChildrenToRender();
-          }
-        }, {
-          key: "componentWillUnmount",
-          value: function() {
-            this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId);
-          }
-        }, {
-          key: "componentWillUpdate",
-          value: function(e, t) {
-            var r = this;
-            if (0 === e.columnCount && 0 !== t.scrollLeft || 0 === e.rowCount && 0 !== t.scrollTop) this._setScrollPosition({
-              scrollLeft: 0,
-              scrollTop: 0
-            });
-            else if (e.scrollLeft !== this.props.scrollLeft || e.scrollTop !== this.props.scrollTop) {
-              var o = {};
-              null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
-            }
-            e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
-              cellCount: e.columnCount,
-              estimatedCellSize: this._getEstimatedColumnSize(e)
-            }), this._rowSizeAndPositionManager.configure({
-              cellCount: e.rowCount,
-              estimatedCellSize: this._getEstimatedRowSize(e)
-            }), n.i(y.a)({
-              cellCount: this.props.columnCount,
-              cellSize: this.props.columnWidth,
-              computeMetadataCallback: function() {
-                return r._columnSizeAndPositionManager.resetCell(0);
-              },
-              computeMetadataCallbackProps: e,
-              nextCellsCount: e.columnCount,
-              nextCellSize: e.columnWidth,
-              nextScrollToIndex: e.scrollToColumn,
-              scrollToIndex: this.props.scrollToColumn,
-              updateScrollOffsetForScrollToIndex: function() {
-                return r._updateScrollLeftForScrollToColumn(e, t);
-              }
-            }), n.i(y.a)({
-              cellCount: this.props.rowCount,
-              cellSize: this.props.rowHeight,
-              computeMetadataCallback: function() {
-                return r._rowSizeAndPositionManager.resetCell(0);
-              },
-              computeMetadataCallbackProps: e,
-              nextCellsCount: e.rowCount,
-              nextCellSize: e.rowHeight,
-              nextScrollToIndex: e.scrollToRow,
-              scrollToIndex: this.props.scrollToRow,
-              updateScrollOffsetForScrollToIndex: function() {
-                return r._updateScrollTopForScrollToRow(e, t);
-              }
-            }), this._calculateChildrenToRender(e, t);
-          }
-        }, {
-          key: "render",
-          value: function() {
-            var e = this,
-              t = this.props,
-              n = t.autoContainerWidth,
-              r = t.autoHeight,
-              i = t.className,
-              a = t.containerStyle,
-              s = t.height,
-              u = t.id,
-              l = t.noContentRenderer,
-              c = t.style,
-              f = t.tabIndex,
-              p = t.width,
-              d = this.state.isScrolling,
-              h = {
-                boxSizing: "border-box",
-                direction: "ltr",
-                height: r ? "auto" : s,
-                position: "relative",
-                width: p,
-                WebkitOverflowScrolling: "touch",
-                willChange: "transform"
-              },
-              v = this._columnSizeAndPositionManager.getTotalSize(),
-              g = this._rowSizeAndPositionManager.getTotalSize(),
-              y = g > s ? this._scrollbarSize : 0,
-              b = v > p ? this._scrollbarSize : 0;
-            h.overflowX = v + y <= p ? "hidden" : "auto", h.overflowY = g + b <= s ? "hidden" : "auto";
-            var w = this._childrenToDisplay,
-              C = 0 === w.length && s > 0 && p > 0;
-            return m.a.createElement("div", {
-              ref: function(t) {
-                e._scrollingContainer = t;
-              },
-              "aria-label": this.props["aria-label"],
-              className: _()("ReactVirtualized__Grid", i),
-              id: u,
-              onScroll: this._onScroll,
-              role: "grid",
-              style: o()({}, h, c),
-              tabIndex: f
-            }, w.length > 0 && m.a.createElement("div", {
-              className: "ReactVirtualized__Grid__innerScrollContainer",
-              style: o()({
-                width: n ? "auto" : v,
-                height: g,
-                maxWidth: v,
-                maxHeight: g,
-                overflow: "hidden",
-                pointerEvents: d ? "none" : ""
-              }, a)
-            }, w), C && l());
-          }
-        }, {
-          key: "shouldComponentUpdate",
-          value: function(e, t) {
-            return T()(this, e, t);
-          }
-        }, {
-          key: "_calculateChildrenToRender",
-          value: function() {
-            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
-              t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
-              r = e.cellRenderer,
-              o = e.cellRangeRenderer,
-              i = e.columnCount,
-              a = e.height,
-              s = e.overscanColumnCount,
-              u = e.overscanRowCount,
-              l = e.rowCount,
-              c = e.width,
-              f = t.isScrolling,
-              p = t.scrollDirectionHorizontal,
-              d = t.scrollDirectionVertical,
-              h = t.scrollLeft,
-              v = t.scrollTop;
-            if (this._childrenToDisplay = [], a > 0 && c > 0) {
-              var m = this._columnSizeAndPositionManager.getVisibleCellRange({
-                  containerSize: c,
-                  offset: h
-                }),
-                g = this._rowSizeAndPositionManager.getVisibleCellRange({
-                  containerSize: a,
-                  offset: v
-                }),
-                _ = this._columnSizeAndPositionManager.getOffsetAdjustment({
-                  containerSize: c,
-                  offset: h
-                }),
-                y = this._rowSizeAndPositionManager.getOffsetAdjustment({
-                  containerSize: a,
-                  offset: v
-                });
-              this._renderedColumnStartIndex = m.start, this._renderedColumnStopIndex = m.stop, this._renderedRowStartIndex = g.start, this._renderedRowStopIndex = g.stop;
-              var b = n.i(C.b)({
-                  cellCount: i,
-                  overscanCellsCount: s,
-                  scrollDirection: p,
-                  startIndex: this._renderedColumnStartIndex,
-                  stopIndex: this._renderedColumnStopIndex
-                }),
-                w = n.i(C.b)({
-                  cellCount: l,
-                  overscanCellsCount: u,
-                  scrollDirection: d,
-                  startIndex: this._renderedRowStartIndex,
-                  stopIndex: this._renderedRowStopIndex
-                });
-              this._columnStartIndex = b.overscanStartIndex, this._columnStopIndex = b.overscanStopIndex, this._rowStartIndex = w.overscanStartIndex, this._rowStopIndex = w.overscanStopIndex, this._childrenToDisplay = o({
-                cellCache: this._cellCache,
-                cellRenderer: r,
-                columnSizeAndPositionManager: this._columnSizeAndPositionManager,
-                columnStartIndex: this._columnStartIndex,
-                columnStopIndex: this._columnStopIndex,
-                horizontalOffsetAdjustment: _,
-                isScrolling: f,
-                rowSizeAndPositionManager: this._rowSizeAndPositionManager,
-                rowStartIndex: this._rowStartIndex,
-                rowStopIndex: this._rowStopIndex,
-                scrollLeft: h,
-                scrollTop: v,
-                styleCache: this._styleCache,
-                verticalOffsetAdjustment: y,
-                visibleColumnIndices: m,
-                visibleRowIndices: g
+            this._renderedColumnStartIndex = m.start, this._renderedColumnStopIndex = m.stop, this._renderedRowStartIndex = g.start, this._renderedRowStopIndex = g.stop;
+            var b = n.i(C.b)({
+                cellCount: i,
+                overscanCellsCount: s,
+                scrollDirection: p,
+                startIndex: this._renderedColumnStartIndex,
+                stopIndex: this._renderedColumnStopIndex
+              }),
+              w = n.i(C.b)({
+                cellCount: l,
+                overscanCellsCount: u,
+                scrollDirection: d,
+                startIndex: this._renderedRowStartIndex,
+                stopIndex: this._renderedRowStopIndex
               });
+            this._columnStartIndex = b.overscanStartIndex, this._columnStopIndex = b.overscanStopIndex, this._rowStartIndex = w.overscanStartIndex, this._rowStopIndex = w.overscanStopIndex, this._childrenToDisplay = o({
+              cellCache: this._cellCache,
+              cellRenderer: r,
+              columnSizeAndPositionManager: this._columnSizeAndPositionManager,
+              columnStartIndex: this._columnStartIndex,
+              columnStopIndex: this._columnStopIndex,
+              horizontalOffsetAdjustment: _,
+              isScrolling: f,
+              rowSizeAndPositionManager: this._rowSizeAndPositionManager,
+              rowStartIndex: this._rowStartIndex,
+              rowStopIndex: this._rowStopIndex,
+              scrollLeft: h,
+              scrollTop: v,
+              styleCache: this._styleCache,
+              verticalOffsetAdjustment: y,
+              visibleColumnIndices: m,
+              visibleRowIndices: g
+            });
+          }
+        }
+      }, {
+        key: "_debounceScrollEnded",
+        value: function() {
+          var e = this.props.scrollingResetTimeInterval;
+          this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId), this._disablePointerEventsTimeoutId = setTimeout(this._debounceScrollEndedCallback, e);
+        }
+      }, {
+        key: "_debounceScrollEndedCallback",
+        value: function() {
+          this._disablePointerEventsTimeoutId = null;
+          var e = this._styleCache;
+          this._cellCache = {}, this._styleCache = {};
+          for (var t = this._rowStartIndex; t <= this._rowStopIndex; t++)
+            for (var n = this._columnStartIndex; n <= this._columnStopIndex; n++) {
+              var r = t + "-" + n;
+              this._styleCache[r] = e[r];
             }
-          }
-        }, {
-          key: "_debounceScrollEnded",
-          value: function() {
-            var e = this.props.scrollingResetTimeInterval;
-            this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId), this._disablePointerEventsTimeoutId = setTimeout(this._debounceScrollEndedCallback, e);
-          }
-        }, {
-          key: "_debounceScrollEndedCallback",
-          value: function() {
-            this._disablePointerEventsTimeoutId = null;
-            var e = this._styleCache;
-            this._cellCache = {}, this._styleCache = {};
-            for (var t = this._rowStartIndex; t <= this._rowStopIndex; t++)
-              for (var n = this._columnStartIndex; n <= this._columnStopIndex; n++) {
-                var r = t + "-" + n;
-                this._styleCache[r] = e[r];
-              }
-            this.setState({
-              isScrolling: !1
-            });
-          }
-        }, {
-          key: "_getEstimatedColumnSize",
-          value: function(e) {
-            return "number" == typeof e.columnWidth ? e.columnWidth : e.estimatedColumnSize;
-          }
-        }, {
-          key: "_getEstimatedRowSize",
-          value: function(e) {
-            return "number" == typeof e.rowHeight ? e.rowHeight : e.estimatedRowSize;
-          }
-        }, {
-          key: "_invokeOnGridRenderedHelper",
-          value: function() {
-            var e = this.props.onSectionRendered;
-            this._onGridRenderedMemoizer({
-              callback: e,
-              indices: {
-                columnOverscanStartIndex: this._columnStartIndex,
-                columnOverscanStopIndex: this._columnStopIndex,
-                columnStartIndex: this._renderedColumnStartIndex,
-                columnStopIndex: this._renderedColumnStopIndex,
-                rowOverscanStartIndex: this._rowStartIndex,
-                rowOverscanStopIndex: this._rowStopIndex,
-                rowStartIndex: this._renderedRowStartIndex,
-                rowStopIndex: this._renderedRowStopIndex
-              }
-            });
-          }
-        }, {
-          key: "_invokeOnScrollMemoizer",
-          value: function(e) {
-            var t = this,
-              n = e.scrollLeft,
-              r = e.scrollTop,
-              o = e.totalColumnsWidth,
-              i = e.totalRowsHeight;
-            this._onScrollMemoizer({
-              callback: function(e) {
-                var n = e.scrollLeft,
-                  r = e.scrollTop,
-                  a = t.props,
-                  s = a.height,
-                  u = a.onScroll,
-                  l = a.width;
-                u({
-                  clientHeight: s,
-                  clientWidth: l,
-                  scrollHeight: i,
-                  scrollLeft: n,
-                  scrollTop: r,
-                  scrollWidth: o
-                });
-              },
-              indices: {
+          this.setState({
+            isScrolling: !1
+          });
+        }
+      }, {
+        key: "_getEstimatedColumnSize",
+        value: function(e) {
+          return "number" == typeof e.columnWidth ? e.columnWidth : e.estimatedColumnSize;
+        }
+      }, {
+        key: "_getEstimatedRowSize",
+        value: function(e) {
+          return "number" == typeof e.rowHeight ? e.rowHeight : e.estimatedRowSize;
+        }
+      }, {
+        key: "_invokeOnGridRenderedHelper",
+        value: function() {
+          var e = this.props.onSectionRendered;
+          this._onGridRenderedMemoizer({
+            callback: e,
+            indices: {
+              columnOverscanStartIndex: this._columnStartIndex,
+              columnOverscanStopIndex: this._columnStopIndex,
+              columnStartIndex: this._renderedColumnStartIndex,
+              columnStopIndex: this._renderedColumnStopIndex,
+              rowOverscanStartIndex: this._rowStartIndex,
+              rowOverscanStopIndex: this._rowStopIndex,
+              rowStartIndex: this._renderedRowStartIndex,
+              rowStopIndex: this._renderedRowStopIndex
+            }
+          });
+        }
+      }, {
+        key: "_invokeOnScrollMemoizer",
+        value: function(e) {
+          var t = this,
+            n = e.scrollLeft,
+            r = e.scrollTop,
+            o = e.totalColumnsWidth,
+            i = e.totalRowsHeight;
+          this._onScrollMemoizer({
+            callback: function(e) {
+              var n = e.scrollLeft,
+                r = e.scrollTop,
+                a = t.props,
+                s = a.height,
+                u = a.onScroll,
+                l = a.width;
+              u({
+                clientHeight: s,
+                clientWidth: l,
+                scrollHeight: i,
                 scrollLeft: n,
-                scrollTop: r
-              }
+                scrollTop: r,
+                scrollWidth: o
+              });
+            },
+            indices: {
+              scrollLeft: n,
+              scrollTop: r
+            }
+          });
+        }
+      }, {
+        key: "_setScrollPosition",
+        value: function(e) {
+          var t = e.scrollLeft,
+            n = e.scrollTop,
+            r = {
+              scrollPositionChangeReason: M.REQUESTED
+            };
+          t >= 0 && (r.scrollDirectionHorizontal = t > this.state.scrollLeft ? C.a : C.c, r.scrollLeft = t), n >= 0 && (r.scrollDirectionVertical = n > this.state.scrollTop ? C.a : C.c, r.scrollTop = n), (t >= 0 && t !== this.state.scrollLeft || n >= 0 && n !== this.state.scrollTop) && this.setState(r);
+        }
+      }, {
+        key: "_wrapPropertyGetter",
+        value: function(e) {
+          return e instanceof Function ? e : function() {
+            return e;
+          };
+        }
+      }, {
+        key: "_wrapSizeGetter",
+        value: function(e) {
+          return this._wrapPropertyGetter(e);
+        }
+      }, {
+        key: "_updateScrollLeftForScrollToColumn",
+        value: function() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
+            t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
+            n = e.columnCount,
+            r = e.scrollToAlignment,
+            o = e.scrollToColumn,
+            i = e.width,
+            a = t.scrollLeft;
+          if (o >= 0 && n > 0) {
+            var s = Math.max(0, Math.min(n - 1, o)),
+              u = this._columnSizeAndPositionManager.getUpdatedOffsetForIndex({
+                align: r,
+                containerSize: i,
+                currentOffset: a,
+                targetIndex: s
+              });
+            a !== u && this._setScrollPosition({
+              scrollLeft: u
             });
           }
-        }, {
-          key: "_setScrollPosition",
-          value: function(e) {
-            var t = e.scrollLeft,
-              n = e.scrollTop,
-              r = {
-                scrollPositionChangeReason: M.REQUESTED
-              };
-            t >= 0 && (r.scrollDirectionHorizontal = t > this.state.scrollLeft ? C.a : C.c, r.scrollLeft = t), n >= 0 && (r.scrollDirectionVertical = n > this.state.scrollTop ? C.a : C.c, r.scrollTop = n), (t >= 0 && t !== this.state.scrollLeft || n >= 0 && n !== this.state.scrollTop) && this.setState(r);
-          }
-        }, {
-          key: "_wrapPropertyGetter",
-          value: function(e) {
-            return e instanceof Function ? e : function() {
-              return e;
-            };
-          }
-        }, {
-          key: "_wrapSizeGetter",
-          value: function(e) {
-            return this._wrapPropertyGetter(e);
-          }
-        }, {
-          key: "_updateScrollLeftForScrollToColumn",
-          value: function() {
-            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
-              t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
-              n = e.columnCount,
-              r = e.scrollToAlignment,
-              o = e.scrollToColumn,
-              i = e.width,
-              a = t.scrollLeft;
-            if (o >= 0 && n > 0) {
-              var s = Math.max(0, Math.min(n - 1, o)),
-                u = this._columnSizeAndPositionManager.getUpdatedOffsetForIndex({
-                  align: r,
-                  containerSize: i,
-                  currentOffset: a,
-                  targetIndex: s
-                });
-              a !== u && this._setScrollPosition({
-                scrollLeft: u
+        }
+      }, {
+        key: "_updateScrollTopForScrollToRow",
+        value: function() {
+          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
+            t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
+            n = e.height,
+            r = e.rowCount,
+            o = e.scrollToAlignment,
+            i = e.scrollToRow,
+            a = t.scrollTop;
+          if (i >= 0 && r > 0) {
+            var s = Math.max(0, Math.min(r - 1, i)),
+              u = this._rowSizeAndPositionManager.getUpdatedOffsetForIndex({
+                align: o,
+                containerSize: n,
+                currentOffset: a,
+                targetIndex: s
               });
-            }
+            a !== u && this._setScrollPosition({
+              scrollTop: u
+            });
           }
-        }, {
-          key: "_updateScrollTopForScrollToRow",
-          value: function() {
-            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
-              t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
-              n = e.height,
-              r = e.rowCount,
-              o = e.scrollToAlignment,
-              i = e.scrollToRow,
-              a = t.scrollTop;
-            if (i >= 0 && r > 0) {
-              var s = Math.max(0, Math.min(r - 1, i)),
-                u = this._rowSizeAndPositionManager.getUpdatedOffsetForIndex({
-                  align: o,
-                  containerSize: n,
-                  currentOffset: a,
-                  targetIndex: s
-                });
-              a !== u && this._setScrollPosition({
-                scrollTop: u
-              });
+        }
+      }, {
+        key: "_onScroll",
+        value: function(e) {
+          if (e.target === this._scrollingContainer) {
+            this._debounceScrollEnded();
+            var t = this.props,
+              n = t.autoHeight,
+              r = t.height,
+              o = t.width,
+              i = this._scrollbarSize,
+              a = this._rowSizeAndPositionManager.getTotalSize(),
+              s = this._columnSizeAndPositionManager.getTotalSize(),
+              u = Math.min(Math.max(0, s - o + i), e.target.scrollLeft),
+              l = Math.min(Math.max(0, a - r + i), e.target.scrollTop);
+            if (this.state.scrollLeft !== u || this.state.scrollTop !== l) {
+              var c = u > this.state.scrollLeft ? C.a : C.c,
+                f = l > this.state.scrollTop ? C.a : C.c,
+                p = {
+                  isScrolling: !0,
+                  scrollDirectionHorizontal: c,
+                  scrollDirectionVertical: f,
+                  scrollLeft: u,
+                  scrollPositionChangeReason: M.OBSERVED
+                };
+              n || (p.scrollTop = l), this.setState(p);
             }
+            this._invokeOnScrollMemoizer({
+              scrollLeft: u,
+              scrollTop: l,
+              totalColumnsWidth: s,
+              totalRowsHeight: a
+            });
           }
-        }, {
-          key: "_onScroll",
-          value: function(e) {
-            if (e.target === this._scrollingContainer) {
-              this._debounceScrollEnded();
-              var t = this.props,
-                n = t.autoHeight,
-                r = t.height,
-                o = t.width,
-                i = this._scrollbarSize,
-                a = this._rowSizeAndPositionManager.getTotalSize(),
-                s = this._columnSizeAndPositionManager.getTotalSize(),
-                u = Math.min(Math.max(0, s - o + i), e.target.scrollLeft),
-                l = Math.min(Math.max(0, a - r + i), e.target.scrollTop);
-              if (this.state.scrollLeft !== u || this.state.scrollTop !== l) {
-                var c = u > this.state.scrollLeft ? C.a : C.c,
-                  f = l > this.state.scrollTop ? C.a : C.c,
-                  p = {
-                    isScrolling: !0,
-                    scrollDirectionHorizontal: c,
-                    scrollDirectionVertical: f,
-                    scrollLeft: u,
-                    scrollPositionChangeReason: M.OBSERVED
-                  };
-                n || (p.scrollTop = l), this.setState(p);
-              }
-              this._invokeOnScrollMemoizer({
-                scrollLeft: u,
-                scrollTop: l,
-                totalColumnsWidth: s,
-                totalRowsHeight: a
-              });
-            }
-          }
-        }]), t;
+        }
+      }]), t;
     }(v.Component);
   O.defaultProps = {
     "aria-label": "grid",
@@ -70356,8 +70365,7 @@ $.fn.togglify = function(settings) {
               r = function(e) {
                 "Enter" !== e.key && " " !== e.key || n();
               };
-            S["aria-label"] = t.props["aria-label"] || v || p, S.role = "rowheader", S.tabIndex = 0,
-              S.onClick = n, S.onKeyDown = r;
+            S["aria-label"] = t.props["aria-label"] || v || p, S.role = "rowheader", S.tabIndex = 0, S.onClick = n, S.onKeyDown = r;
           }(), _.a.createElement("div", o()({}, S, {
             key: "Header-Col" + n,
             className: b,
