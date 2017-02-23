@@ -2352,20 +2352,12 @@
   };
   var _getRestrictedAccountInviteMessageHtml = function() {
     var paid_team = !!TS.boot_data.pay_prod_cur;
-    if (TS.boot_data.can_invite_ras) {
+    if (TS.boot_data.sso_required) {
+      return TS.templates.admin_restricted_info_sso(TS.model.team);
+    } else {
       return TS.templates.admin_restricted_info({
         paid_team: paid_team
       });
-    } else {
-      if (TS.boot_data.sso_required) {
-        return TS.templates.admin_restricted_info_sso(TS.model.team);
-      } else {
-        if (TS.boot_data.can_invite_ras) {
-          return '<p class="ra_invite_prompt subtle_silver top_margin align_center">' + TS.i18n.t('Your team does not have any guest accounts. <a href="/admin/invites/restricted">Invite a new Multi-Channel Guest</a>', "web_admin")() + "</p>";
-        } else {
-          return '<p class="ra_invite_prompt subtle_silver top_margin align_center">' + TS.i18n.t("Your team does not have any guest accounts.", "web_admin")() + "</p>";
-        }
-      }
     }
   };
   var _makeMemberLongListView = function($list, list_items) {

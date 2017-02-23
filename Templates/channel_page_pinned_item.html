@@ -26,7 +26,7 @@
           <span class="pin_member_name tiny_right_margin">{{makeMemberPreviewLinkById item.message.user}}</span>
         {{else}}
           <span class="pin_member_name tiny_right_margin">{{getBotNameWithLink item.message}}</span>
-          {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_cards_app_label"}}{{#t}}APP{{/t}}{{else}}{{#t}}BOT{{/t}}{{/feature}}</span>{{/if}}
+          {{#if is_bot}}<span class="bot_label">{{#t}}APP{{/t}}</span>{{/if}}
         {{/if}}
         {{#if is_reply}}
           {{#isToday item.message.ts}}

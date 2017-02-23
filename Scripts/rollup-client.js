@@ -3136,7 +3136,7 @@
       }
     },
     onMemberReferenceClick: function(e, member_name) {
-      if (TS.boot_data.feature_name_tagging_client) {
+      if (TS.utility.strLooksLikeAMemberId(member_name)) {
         var m = TS.members.getMemberById(member_name) || TS.members.getMemberByName(member_name);
       } else {
         var m = TS.members.getMemberByName(member_name);
@@ -3791,6 +3791,10 @@
               $el.attr("class", $file.attr("class"));
               $el.attr("data-file-id", item.id);
               $el.data("file-id", item.id);
+              if (TS.boot_data.feature_arugula) {
+                $el.attr("draggable", "true");
+                $el.attr("data-drag-meta", TS.templates.makeFileDragData(item));
+              }
               $el.empty();
               $file.children().each(function() {
                 $el.append(this);
@@ -5579,11 +5583,15 @@
           if ($(e.target).closest(".notifications_menu_btn").length) return false;
           TS.menu.startWithTeamAndUser(e);
         });
-        $("#file_preview_container").on("textchange", "#file_comment", function(e) {
-          TS.client.ui.files.storeLastCommentInputForPreviewedFile($(this).val());
-          TS.ui.utility.updateClosestMonkeyScroller($("#file_preview_scroller"));
-        });
-        $("#file_comment").css("overflow", "hidden").autogrow();
+        if (!TS.boot_data.feature_texty_takes_over) {
+          $("#file_preview_container").on("textchange", "#file_comment", function(e) {
+            TS.client.ui.files.storeLastCommentInputForPreviewedFile($(this).val());
+            TS.ui.utility.updateClosestMonkeyScroller($("#file_preview_scroller"));
+          });
+        }
+        if (!TS.boot_data.feature_texty_takes_over) {
+          $("#file_comment").css("overflow", "hidden").autogrow();
+        }
         $("#file_comment_form").bind("submit", function(e) {
           TS.client.ui.files.submitFileComment();
           return false;
@@ -5821,7 +5829,7 @@
         }
         e.preventDefault();
       } else if (TS.client.ui.isUserAttentionOnChat() && e.which == 190 && !e.altKey && TS.utility.cmdKey(e)) {
-        if (TS.boot_data.feature_clog_whats_new && TS.model.ui_state.flex_name == "whats_new") {
+        if (TS.model.ui_state.flex_name == "whats_new") {
           TS.clog.track("WHATSNEW_ACTION", {
             action: "close_pane",
             trigger: "keyboard_cmd_dot"
@@ -6175,11 +6183,19 @@
       return false;
     },
     bindCommentInput: function() {
-      $("#file_comment").bind("focus", function() {
-        var parent_scroller = $(this).closest(".flex_content_scroller");
-        var scroll_height = parent_scroller[0] && parent_scroller[0].scrollHeight;
-        parent_scroller.scrollTop(scroll_height);
-      });
+      if (TS.boot_data.feature_texty_takes_over) {
+        $("#file_comment").on("focusin", function() {
+          var parent_scroller = $(this).closest(".flex_content_scroller");
+          var scroll_height = parent_scroller[0] && parent_scroller[0].scrollHeight;
+          parent_scroller.scrollTop(scroll_height);
+        });
+      } else {
+        $("#file_comment").bind("focus", function() {
+          var parent_scroller = $(this).closest(".flex_content_scroller");
+          var scroll_height = parent_scroller[0] && parent_scroller[0].scrollHeight;
+          parent_scroller.scrollTop(scroll_height);
+        });
+      }
     },
     showRepliesFromHistory: function(flex_extra) {
       var replace_history_state = false;
@@ -8205,7 +8221,18 @@
       var file_preview_comments_section = $("#file_preview_scroller").find("#file_preview_comments_section");
       file_preview_comments_section.html(TS.templates.comments(template_args));
       TS.utility.makeSureAllLinksHaveTargets(file_preview_comments_section);
-      if (file.id != TS.model.last_previewed_file_id) $("#file_comment_form #file_comment").val(TS.storage.fetchLastCommentInput(file.id)).trigger("keyup");
+      if (file.id != TS.model.last_previewed_file_id) {
+        var stored_value = TS.storage.fetchLastCommentInput(file.id);
+        if (stored_value) {
+          TS.utility.contenteditable.value($("#file_comment_form #file_comment"), stored_value);
+        } else {
+          TS.utility.contenteditable.clear($("#file_comment_form #file_comment"));
+        }
+        TS.utility.contenteditable.clearHistory($("#file_comment_form #file_comment"));
+        if (!TS.boot_data.feature_texty_takes_over) {
+          $("#file_comment_form #file_comment").trigger("keyup");
+        }
+      }
       if (file.mode == "email") {}
       TS.model.last_previewed_file_id = file.id;
       if (file.content && file.mode == "snippet") {
@@ -8228,7 +8255,7 @@
       }
       TS.ui.utility.updateClosestMonkeyScroller($("#file_preview_scroller"));
       _displayFileCommentHelpText(file);
-      if ($("#file_comment").is(":focus") || TS.utility.getActiveElementProp("id") == "file_comment") {
+      if (TS.utility.contenteditable.hasFocus($("#file_comment")) || TS.utility.contenteditable.isActiveElement($("#file_comment"))) {
         $("#file_comment_submit_btn").scrollintoview({
           offset: "bottom",
           px_offset: -50,
@@ -8311,7 +8338,7 @@
       }
       if (!TS.client.ui.files._displayFile(id, origin, channel_id)) return;
       TS.client.flexDisplaySwitched("files", id);
-      if (focus_comment_input) $("#file_comment").focus();
+      if (focus_comment_input) TS.utility.contenteditable.focus($("#file_comment"));
       if (!no_refetch) TS.files.fetchFileInfo(id);
     },
     teamFileCommentAdded: function(file, comment) {
@@ -8429,7 +8456,7 @@
     },
     submitFileComment: function(bypass_at_warning_check) {
       var $file_comment = $("#file_comment_form #file_comment");
-      var comment_unclean = $file_comment.val();
+      var comment_unclean = TS.utility.contenteditable.value($file_comment);
       var comment = TS.format.cleanMsg(comment_unclean);
       if (!$.trim(comment)) {
         TS.sounds.play("beep");
@@ -8462,14 +8489,21 @@
           return;
         }
       }
-      $("#file_comment_form #file_comment").val("").trigger("keyup");
+      TS.utility.contenteditable.clear($("#file_comment_form #file_comment"));
+      TS.utility.contenteditable.clearHistory($("#file_comment_form #file_comment"));
+      if (!TS.boot_data.feature_texty_takes_over) {
+        $("#file_comment_form #file_comment").trigger("keyup");
+      }
       TS.files.addComment(file_id, comment, c_id, function(ok, data, args) {
         if (ok) {
           TS.storage.storeLastCommentInput(args.file, "");
         } else {
           alert("error: comment not added to file");
           if (args.file == TS.model.last_previewed_file_id) {
-            $("#file_comment_form #file_comment").val(TS.storage.fetchLastCommentInput(args.file)).trigger("keyup");
+            TS.utility.contenteditable.value($("#file_comment_form #file_comment"), TS.storage.fetchLastCommentInput(args.file));
+            if (!TS.boot_data.feature_texty_takes_over) {
+              $("#file_comment_form #file_comment").trigger("keyup");
+            }
           }
         }
       });
@@ -8949,7 +8983,7 @@
         if (TS.model.ui_state.flex_visible) {
           if (TS.model.ui_state.flex_name === "search") {
             TS.clog.track("SEARCH_CLOSE", {});
-          } else if (TS.boot_data.feature_clog_whats_new && TS.model.ui_state.flex_name === "whats_new") {
+          } else if (TS.model.ui_state.flex_name === "whats_new") {
             TS.clog.track("WHATSNEW_ACTION", {
               action: "close_pane",
               trigger: "close_flexpane"
@@ -8965,7 +8999,7 @@
       });
       $header.delegate("#details_toggle", "click", function(e) {
         if (TS.client.ui.shouldIgnoreClick(e)) return false;
-        if (TS.boot_data.feature_clog_whats_new && TS.model.ui_state.flex_name === "whats_new") {
+        if (TS.model.ui_state.flex_name === "whats_new") {
           TS.clog.track("WHATSNEW_ACTION", {
             action: "close_pane",
             trigger: "details_toggle"
@@ -8985,12 +9019,10 @@
       $header.delegate("#pinned_item_count", "click", _togglePinsList);
       $header.delegate("#whats_new_toggle", "click", function(e) {
         if (TS.client.ui.shouldIgnoreClick(e)) return false;
-        if (TS.boot_data.feature_clog_whats_new) {
-          TS.clog.track("WHATSNEW_ACTION", {
-            action: "open_pane_badged",
-            trigger: "whats_new_toggle"
-          });
-        }
+        TS.clog.track("WHATSNEW_ACTION", {
+          action: "open_pane_badged",
+          trigger: "whats_new_toggle"
+        });
         $("#client-ui").removeClass("whats_new_showing");
         _toggleFlexTab("whats_new");
       });
@@ -9400,7 +9432,6 @@
   TS.registerComponent("SearchableMemberList", {
     _constructor: function(options) {
       this.id = options.id;
-      this._approx_item_height = options.model_ob_id ? 30 : 89;
       this.triggered_by_user_action = options.triggered_by_user_action;
       this.$_container = options.$container;
       this.$_long_list_view;
@@ -9416,12 +9447,20 @@
       this._members = [];
       this._model_ob_id = options.model_ob_id;
       this._filter_counts = {};
+      this._suppress_presence = options.suppress_presence || false;
+      this._show_filter_bar = !_.isUndefined(options.show_filter_bar) ? options.show_filter_bar : !this._model_ob_id;
+      this._compact_results = !_.isUndefined(options.compact_results) ? options.compact_results : !!this._model_ob_id;
+      this._prevent_member_click_handler = options.prevent_member_click_handler || false;
+      this._approx_item_height = this._compact_results ? 30 : 89;
       this._long_list_view_height = 0;
       this._long_list_view_items_height = 0;
       this._long_list_view_initial_height = null;
       this._fetch_page_p = null;
-      this._presence_list = new TS.PresenceList;
+      if (!this._suppress_presence) {
+        this._presence_list = new TS.PresenceList;
+      }
       this._resize_sig_handler = null;
+      this.member_clicked_sig = new signals.Signal;
     },
     destroy: function() {
       if (this._resize_sig_handler) TS.view.resize_sig.remove(this._resize_sig_handler);
@@ -9436,11 +9475,13 @@
         this.$_long_list_view.longListView("destroy");
       }
       if (this.$_search_bar) this.$_search_bar.remove();
-      this._presence_list.clear();
+      if (!this._suppress_presence) this._presence_list.clear();
     },
     showInitial: function() {
       var this_searchable_member_list = this;
-      this.$_container.delegate(".team_list_item", "click", TS.members.view.onTeamDirectoryItemClick);
+      if (!this._prevent_member_click_handler) {
+        this.$_container.delegate(".team_list_item", "click", TS.members.view.onTeamDirectoryItemClick);
+      }
       this.$_long_list_view = this.$_container.find(".searchable_member_list_scroller");
       this._showLoadingState();
       this._fetchPage().then(function(members) {
@@ -9492,7 +9533,7 @@
     },
     _processPage: function(members) {
       this._members = _.union(this._members, members);
-      this._presence_list.add(_.map(this._members, "id"));
+      if (!this._suppress_presence) this._presence_list.add(_.map(this._members, "id"));
     },
     _fetchProcessAndDisplayPage: function() {
       var this_searchable_member_list = this;
@@ -9517,8 +9558,8 @@
     _maybeSetupSearchBar: function() {
       var this_searchable_member_list = this;
       if (this.$_search_bar) return;
-      return TS.ms.flannel.call("counts_request").then(function(response) {
-        if (_.get(response, "counts.everyone") >= MINIMUM_MEMBERS_FOR_SEARCH) {
+      return TS.flannel.fetchMemberCounts().then(function(counts) {
+        if (counts.everyone >= MINIMUM_MEMBERS_FOR_SEARCH) {
           this_searchable_member_list.$_long_list_view.before(TS.templates.team_search_bar());
           this_searchable_member_list.$_search_bar = this_searchable_member_list.$_container.find(".searchable_member_list_search_bar");
           this_searchable_member_list.$_search_input = this_searchable_member_list.$_search_bar.find(".searchable_member_list_input");
@@ -9551,13 +9592,13 @@
     _maybeSetupFilterInput: function() {
       var this_searchable_member_list = this;
       if (!this.$_filter_input) return;
-      if (this._model_ob_id) {
+      if (!this._show_filter_bar) {
         this_searchable_member_list.$_filter_input.remove();
         this_searchable_member_list.$_filter_input = null;
         return;
       }
-      return TS.ms.flannel.call("counts_request").then(function(response) {
-        this_searchable_member_list._filter_counts = response.counts;
+      return TS.flannel.fetchMemberCounts().then(function(counts) {
+        this_searchable_member_list._filter_counts = counts;
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_search_bar_filter(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_search_bar.find(".searchable_member_list_filter");
         TS.members.joined_team_sig.add(this_searchable_member_list._maybeSetupFilterInput, this_searchable_member_list);
@@ -9581,10 +9622,11 @@
         },
         renderItem: function($el, item, data) {
           $el.toggleClass("inactive", item.deleted).data("member-id", item.id).data("item", item);
-          if (this_searchable_member_list._model_ob_id) {
+          if (this_searchable_member_list._compact_results) {
             $el.html(TS.templates.channel_page_member_row({
               member: item,
-              lazy: false
+              lazy: false,
+              suppress_presence: this_searchable_member_list._suppress_presence
             }));
           } else {
             $el.html(TS.templates.team_list_item_member_details({
@@ -9594,6 +9636,10 @@
           }
           TS.utility.makeSureAllLinksHaveTargets($el);
         }
+      });
+      this.$_long_list_view.delegate("li").on("click", function(e) {
+        if (this_searchable_member_list._prevent_member_click_handler) e.preventDefault();
+        this_searchable_member_list.member_clicked_sig.dispatch(e, TS.members.getMemberById($(e.target).parents(".team_list_item").find("[data-member-id]").data("memberId")));
       });
       this._resize_sig_handler = _.throttle(function() {
         this_searchable_member_list._long_list_view_height = this_searchable_member_list.$_long_list_view.height();
@@ -9703,7 +9749,7 @@
           this._fetch_page_p.cancel();
           this._fetch_page_p = null;
         }
-        this._presence_list.clear();
+        if (!this._suppress_presence) this._presence_list.clear();
         this._members = [];
         this._next_marker = "";
         this._have_all_members = false;
@@ -9723,7 +9769,7 @@
           this_searchable_member_list._fetch_page_p.cancel();
           this_searchable_member_list._fetch_page_p = null;
         }
-        this_searchable_member_list._presence_list.clear();
+        if (!this_searchable_member_list._suppress_presence) this_searchable_member_list._presence_list.clear();
         this_searchable_member_list._have_all_members = false;
         this_searchable_member_list._members = [];
         this_searchable_member_list._next_marker = "";
@@ -10370,7 +10416,7 @@
     var placeholder;
     if (model_ob.is_self_im) {
       placeholder = TS.i18n.t("Message yourself", "msg_input")();
-      if (TS.boot_data.feature_user_custom_status) {
+      if (TS.boot_data.feature_user_custom_status && TS.boot_data.feature_texty) {
         var current_status = TS.members.getMemberCurrentStatusForDisplay(model_ob.user);
         if (current_status) placeholder += " " + current_status;
       }
@@ -10382,7 +10428,7 @@
         } else {
           msg = TS.members.getMemberDisplayNameById(model_ob.user, false, true);
         }
-        if (TS.boot_data.feature_user_custom_status) {
+        if (TS.boot_data.feature_user_custom_status && TS.boot_data.feature_texty) {
           var current_status = TS.members.getMemberCurrentStatusForDisplay(model_ob.user);
           if (current_status) msg += " " + current_status;
         }
@@ -14205,29 +14251,27 @@
     _bindUI();
   };
   var _bindUI = function() {
-    if (TS.boot_data.feature_clog_whats_new) {
-      _$whats_new_updates.find("a.whats_new_content").on("click", function(e) {
-        TS.clog.track("WHATSNEW_ACTION", {
-          action: "view_update",
-          trigger: "heading_link",
-          page_url: $(this).attr("href")
-        });
+    _$whats_new_updates.find("a.whats_new_content").on("click", function(e) {
+      TS.clog.track("WHATSNEW_ACTION", {
+        action: "view_update",
+        trigger: "heading_link",
+        page_url: $(this).attr("href")
       });
-      _$whats_new_updates.find("div.whats_new_description").find("a").on("click", function(e) {
-        TS.clog.track("WHATSNEW_ACTION", {
-          action: "view_update",
-          trigger: "description_link",
-          page_url: $(this).attr("href")
-        });
+    });
+    _$whats_new_updates.find("div.whats_new_description").find("a").on("click", function(e) {
+      TS.clog.track("WHATSNEW_ACTION", {
+        action: "view_update",
+        trigger: "description_link",
+        page_url: $(this).attr("href")
       });
-      _$whats_new_updates.find("a.whats_new_more").on("click", function(e) {
-        TS.clog.track("WHATSNEW_ACTION", {
-          action: "view_update",
-          trigger: "read_more_link",
-          page_url: $(this).attr("href")
-        });
+    });
+    _$whats_new_updates.find("a.whats_new_more").on("click", function(e) {
+      TS.clog.track("WHATSNEW_ACTION", {
+        action: "view_update",
+        trigger: "read_more_link",
+        page_url: $(this).attr("href")
       });
-    }
+    });
   };
   var _setUserBadgingPref = function(do_badge) {
     var val = -1;
@@ -17258,7 +17302,7 @@
       this._$calendar = $("<div/>").addClass(CALENDAR_CLASS).addClass(this.options.hidden_class).prependTo(this._$ac_menu);
       this._$calendar.pickmeup({
         flat: true,
-        first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
+        first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
         format: CALENDAR_FORMAT,
         change: $.proxy(this._onCalendarChange, this),
         max: Date.now(),
@@ -17948,6 +17992,7 @@
       var prefix_matches = [];
       var suffix_matches = [];
       if (query.charAt(0) === "#") query = query.substring(1);
+      query = _.deburr(query);
       var channel_name_regex = new RegExp("^#?" + _regexpEscape(query), "i");
       var suffix_regex = new RegExp("(_|-)" + _regexpEscape(query), "i");
       if (!limit) limit = LIMIT_DEFAULT;
@@ -17957,7 +18002,7 @@
       this.options.data.channels().some(function(channel) {
         if (just_archived && !channel.is_archived) return false;
         if (!just_archived && channel.is_archived) return false;
-        if (channel_name_regex.test(channel.name)) {
+        if (channel_name_regex.test(channel.name_normalized || channel.name)) {
           prefix_matches.push(channel);
           if (limit && prefix_matches.length >= limit) return true;
         } else if ((!limit || prefix_matches.length < limit) && suffix_regex.test(channel.name)) {
@@ -21101,7 +21146,7 @@
       }
     },
     shouldShowConfirmation: function() {
-      return !_confirmation_displayed && TS.ui.upload_dialog.div.find("#file_comment_textarea").val().length > 400;
+      return !_confirmation_displayed && TS.utility.contenteditable.value(TS.ui.upload_dialog.div.find("#file_comment_textarea")).length > 400;
     },
     showConfirmation: function() {
       var $div = TS.ui.upload_dialog.div;
@@ -21219,7 +21264,11 @@
       }
       var $file_comment_textarea = $("#file_comment_textarea");
       TS.ui.comments.bindInput($file_comment_textarea, TS.ui.upload_dialog.go);
-      $file_comment_textarea.autogrow();
+      if (TS.boot_data.feature_texty_takes_over) {
+        TS.utility.contenteditable.value($file_comment_textarea, _initialComment());
+      } else {
+        $file_comment_textarea.autogrow();
+      }
       $file_comment_textarea = null;
       var already_showing = TS.ui.upload_dialog.showing;
       $div.modal("show");
@@ -21243,14 +21292,16 @@
       TS.ui.file_share.bindFileShareCommentField();
       var data_key = "TS-lazyFilterSelect";
       $div.find(".lfs_input_container").attr("tabindex", "0");
-      $div.find("#file_comment_textarea").attr("tabindex", "0");
+      if (!TS.boot_data.feature_texty_takes_over) {
+        $div.find("#file_comment_textarea").attr("tabindex", "0");
+      }
       $div.find("#select_share_channels").data(data_key).instance.onKeyDown = function(e) {
         if (e.which == TS.utility.keymap.tab) {
           e.preventDefault();
           if (e.shiftKey) {
             $div.find("#share_cb").focus();
           } else {
-            $div.find("#file_comment_textarea").focus();
+            TS.utility.contenteditable.focus($div.find("#file_comment_textarea"));
           }
         }
       };
@@ -21277,7 +21328,7 @@
       TS.ui.upload_dialog.last_share_cb_checked = !!do_share;
       TS.ui.upload_dialog.selection = $("#share_model_ob_id").val();
       var share_channels = do_share ? TS.ui.upload_dialog.selection : null;
-      var initial_comment = TS.format.cleanMsg($("#file_comment_textarea").val());
+      var initial_comment = TS.format.cleanMsg(TS.utility.contenteditable.value($("#file_comment_textarea")));
       if ($.trim(initial_comment) === "") initial_comment = "";
       var filename = $div.find(".filename_input").val();
       var title = $div.find(".title_input").val();
@@ -21375,7 +21426,8 @@
   var _confirmation_displayed = false;
   var _setFocusOnInput = function($div) {
     if (_text_from_input && _text_from_input.length > _max_chars_to_pre_fill_title) {
-      $div.find("#file_comment_textarea").focus().select();
+      TS.utility.contenteditable.focus($div.find("#file_comment_textarea"));
+      TS.utility.contenteditable.cursorPosition($div.find("#file_comment_textarea"), 0, 1e5);
     } else {
       $div.find("#upload_file_title").focus().select();
     }
@@ -21515,7 +21567,9 @@
       }
       var $file_comment_textarea = $("#file_comment_textarea");
       TS.ui.comments.bindInput($file_comment_textarea, TS.ui.snippet_dialog.go);
-      $file_comment_textarea.autogrow();
+      if (!TS.boot_data.feature_texty_takes_over) {
+        $file_comment_textarea.autogrow();
+      }
       $("#client_file_snippet_select").val(filetype).trigger("change");
       setTimeout(function() {
         if (focus_title) {
@@ -21549,7 +21603,7 @@
       } else {
         var do_share = !!$("#share_cb").prop("checked");
         var share_channels = do_share ? $("#share_model_ob_id").val() : null;
-        var initial_comment = TS.format.cleanMsg($("#file_comment_textarea").val());
+        var initial_comment = TS.format.cleanMsg(TS.utility.contenteditable.value($("#file_comment_textarea")));
         var title = $("#client_file_snippet_title_input").val();
         var filetype = $("#client_file_snippet_select").val();
         if ($.trim(initial_comment) === "") initial_comment = "";
@@ -27402,11 +27456,6 @@
     var user = TS.model.user;
     if (!user.is_ultra_restricted && !model_ob.is_archived && (model_ob.is_member || model_ob.is_group)) {
       if (model_ob.is_channel) {
-        template_args.show_invite = TS.channels.makeMembersWithPreselectsForTemplate(TS.channels.getActiveMembersNotInThisChannelForInviting(model_ob.id)).length > 0;
-      } else if (model_ob.is_group) {
-        template_args.show_invite = TS.channels.makeMembersWithPreselectsForTemplate(TS.groups.getActiveMembersNotInThisGroupForInviting(model_ob.id)).length > 0;
-      }
-      if (model_ob.is_channel) {
         template_args.show_leave = !model_ob.is_general && !user.is_restricted;
       } else if (model_ob.is_group && !model_ob.is_mpim) {
         if (model_ob.active_members.length > 1) {
@@ -32931,6 +32980,11 @@ function timezones_guess() {
         }
       }, 500);
     },
+    storeLastCommentInput: function() {
+      if (!_$file_viewer) return;
+      if (!_current_file || !_current_file.file || !_current_file.file.id) return;
+      TS.storage.storeLastCommentInput(_current_file.file.id, TS.utility.contenteditable.value(_$file_viewer.find("#file_comment")));
+    },
     test: function() {
       return {
         _generateTemplateArguments: _generateTemplateArguments
@@ -33058,9 +33112,11 @@ function timezones_guess() {
     _$body.on("keydown", _keydownHandler);
     TS.view.resize_sig.add(_setIsImageWithinViewer);
     _$content.on("click.view", TS.view.onFilePreviewClick);
-    _$file_viewer.on("textchange", "#file_comment", function(e) {
-      TS.storage.storeLastCommentInput(_current_file.file.id, $(this).val());
-    });
+    if (!TS.boot_data.feature_texty_takes_over) {
+      _$file_viewer.on("textchange", "#file_comment", function(e) {
+        TS.storage.storeLastCommentInput(_current_file.file.id, $(this).val());
+      });
+    }
     _attachErrorHandler();
   };
   var _attachErrorHandler = function() {
@@ -33136,6 +33192,7 @@ function timezones_guess() {
     TS.ui.fs_modal.close();
   };
   var _escHandler = function(e) {
+    if (TS.boot_data.feature_texty_takes_over && TS.utility.isFocusOnInput()) return;
     if (!_canClose()) return;
     e.stopPropagation();
     e.preventDefault();
@@ -33656,7 +33713,13 @@ function timezones_guess() {
   var _attachCommentForm = function() {
     _$file_comment_form_container.append(_$file_comment_form);
     _$file_comment_form_container.append(_$file_edit_comment_form);
-    _$file_comment_input.val(TS.storage.fetchLastCommentInput(_current_file.file.id));
+    var stored_value = TS.storage.fetchLastCommentInput(_current_file.file.id);
+    if (stored_value) {
+      TS.utility.contenteditable.value(_$file_comment_input, stored_value);
+    } else {
+      TS.utility.contenteditable.clear(_$file_comment_input);
+    }
+    TS.utility.contenteditable.clearHistory(_$file_comment_input);
   };
   var _moveCommentFormBackToFlexpane = function() {
     TS.ui.comments.onEndEdit();
@@ -33671,7 +33734,16 @@ function timezones_guess() {
     $file_scroller.append($file_comment_form);
     $file_scroller.append($file_edit_comment_form);
     if (_current_file.file.id !== TS.model.last_previewed_file_id) {
-      $("#file_comment_form #file_comment").val(TS.storage.fetchLastCommentInput(TS.model.last_previewed_file_id)).trigger("keyup");
+      var stored_value = TS.storage.fetchLastCommentInput(TS.model.last_previewed_file_id);
+      if (stored_value) {
+        TS.utility.contenteditable.value($("#file_comment_form #file_comment"), stored_value);
+      } else {
+        TS.utility.contenteditable.clear($("#file_comment_form #file_comment"));
+      }
+      TS.utility.contenteditable.clearHistory($("#file_comment_form #file_comment"));
+      if (!TS.boot_data.feature_texty_takes_over) {
+        $("#file_comment_form #file_comment").trigger("keyup");
+      }
     }
   };
   var _showDownloadProgressUI = function() {
@@ -34102,7 +34174,7 @@ function timezones_guess() {
       frecency: true,
       limit: _RESULT_LIMIT,
       prefer_channels_user_belongs_to: true,
-      search_previous_channel_names: !!TS.boot_data.feature_reveal_channel_renames
+      search_previous_channel_names: true
     };
     return TS.sorter.search(query, _data, search_options);
   };
@@ -34245,11 +34317,7 @@ function timezones_guess() {
         score: 0
       });
     }
-    if (TS.boot_data.feature_show_drafts) {
-      list = highlights.concat(unreads, drafts);
-    } else {
-      list = highlights.concat(unreads);
-    }
+    list = highlights.concat(unreads, drafts);
     if (!list.length) {
       if (_data.channels.length + _data.groups.length < 10) {
         _data.channels.forEach(function(channel) {
@@ -34654,6 +34722,7 @@ function timezones_guess() {
   "use strict";
   TS.registerModule("client.unread", {
     switched_sig: new signals.Signal,
+    switched_away_sig: new signals.Signal,
     fetched_unreads_sig: new signals.Signal,
     new_messages_in_channels: [],
     messages_loaded: false,
@@ -34723,6 +34792,7 @@ function timezones_guess() {
       if (_should_record_metrics) TS.metrics.measureAndClear("unread_view_time_spent", "unread_view_time_spent");
       TS.client.ui.unread.destroyUnreadView();
       _resetData();
+      TS.client.unread.switched_away_sig.dispatch();
     },
     reloadIfPendingMessages: function() {
       if (TS.client.unread.getTotalNewUnreadCount() > 0 && TS.client.unread.new_messages_in_channels.length) {
@@ -38043,7 +38113,7 @@ function timezones_guess() {
       if (boot_data.calendar_start) selected_date = TS.utility.date.toDateObject(boot_data.calendar_start);
       if (boot_data.calendar_oldest) min_date = TS.utility.date.toDateObject(boot_data.calendar_oldest);
       TS.ui.date_picker.start($element, {
-        first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
+        first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
         hide_on_select: true,
         select_year: true,
         date: selected_date,
@@ -38190,7 +38260,7 @@ function timezones_guess() {
     var today = Date.now();
     var selected_date = today;
     TS.ui.date_picker.start($element, {
-      first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
+      first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
       hide_on_select: true,
       select_year: false,
       flat: true,
@@ -39220,7 +39290,7 @@ function timezones_guess() {
     });
     _msg_container_config.sections.length = 0;
     if (_root_msg_section.msgs.length) _msg_container_config.sections.push(_root_msg_section);
-    if (_replies_section.msgs.length) _msg_container_config.sections.push(_replies_section);
+    _msg_container_config.sections.push(_replies_section);
     _msg_container_config.has_more_beginning = !!has_more_beginning;
     _msg_container_config.has_more_end = !!has_more_end;
     TS.utility.msgs.sortMsgs(_replies_section.msgs);
@@ -39482,11 +39552,32 @@ function timezones_guess() {
       if (!model_ob) return;
       var thread = TS.client.threads.getThread(model_ob, thread_ts);
       if (!thread) return;
-      var messages_p = TS.replies.getThread(model_ob_id, thread_ts);
-      _q.addToQ(function() {
+      var messages_p;
+      if (TS.boot_data.feature_threads_paging_flexpane) {
+        var oldest_ts = _.get(thread, "replies.length") && _.first(thread.replies).ts;
+        var reply_count = _.get(thread, "root_msg.reply_count", 0);
+        if (oldest_ts && reply_count > TS.replies.DEFAULT_HISTORY_API_LIMIT) {
+          messages_p = TS.replies.getThreadBefore(model_ob_id, thread_ts, oldest_ts);
+        } else {
+          messages_p = TS.replies.getThreadLazy(model_ob_id, thread_ts);
+        }
+      } else {
+        messages_p = TS.replies.getThread(model_ob_id, thread_ts).then(function(messages) {
+          var root_msg = _.find(messages, {
+            ts: thread_ts
+          });
+          return {
+            has_more: false,
+            messages: messages,
+            root_msg: root_msg
+          };
+        });
+      }
+      return _q.addToQ(function() {
         if (!TS.model.threads_view_is_showing) return;
-        messages_p.then(function(messages) {
+        messages_p.then(function(thread_data) {
           if (!TS.model.threads_view_is_showing) return;
+          var messages = thread_data.messages;
           var min_visible_ts = Infinity;
           if (thread.replies && thread.replies.length) min_visible_ts = _.first(thread.replies).ts;
           thread.min_visible_ts = min_visible_ts;
@@ -39909,11 +40000,23 @@ function timezones_guess() {
     if (!_threads_data || !model_ob || !thread_ts) return;
     var thread = TS.client.threads.getThread(model_ob, thread_ts);
     if (thread) return;
-    return TS.replies.getThread(model_ob.id, thread_ts).then(function(messages) {
-      var root_msg = _.find(messages, {
-        ts: thread_ts
+    var messages_p;
+    if (TS.boot_data.feature_threads_paging_flexpane) {
+      messages_p = TS.replies.getThreadLazy(model_ob.id, thread_ts);
+    } else {
+      messages_p = TS.replies.getThread(model_ob.id, thread_ts).then(function(messages) {
+        return {
+          root_msg: _.find(messages, {
+            ts: thread_ts
+          }),
+          messages: messages,
+          has_more: false
+        };
       });
-      var replies = _.filter(messages, TS.utility.msgs.isMsgReply);
+    }
+    return messages_p.then(function(thread_data) {
+      var root_msg = thread_data.root_msg;
+      var replies = _.filter(thread_data.messages, TS.utility.msgs.isMsgReply);
       var thread = _makeInternalThreadObject(model_ob, root_msg, replies);
       var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.ts);
       var num_unread = thread.replies.filter(function(msg) {
@@ -40303,7 +40406,7 @@ function timezones_guess() {
     revealPreviousReplies: function(thread, messages_p) {
       var $thread = _getElFromThread(thread);
       if (messages_p.isPending()) TS.ui.thread.showThreadLoadingSpinner($thread);
-      _q.addToQ(function() {
+      return _q.addToQ(function() {
         if (!$thread.length) return;
         return TS.ui.thread.revealPreviousReplies($thread, thread, messages_p).then(function() {
           TS.client.ui.checkInlineImgsAndIframes("threads");

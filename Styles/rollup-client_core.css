@@ -5829,7 +5829,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
 }
 
 .current_user_current_status {
-  margin-left: .2rem
+  margin-left: .3rem
 }
 
 #presence {
@@ -7881,6 +7881,7 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
   top: calc(50vh - 26px);
   line-height: 2;
   z-index: 1000000;
+  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 26px;
   padding: 5px 20px;
   color: #fff;

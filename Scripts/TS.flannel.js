@@ -61,6 +61,11 @@
       };
       return TS.flannel.fetchAndUpsertObjectsWithQuery(args, Infinity);
     },
+    fetchMemberCounts: function() {
+      return TS.ms.flannel.call("counts_request").then(function(response) {
+        return response.counts;
+      });
+    },
     connectAndFetchRtmStart: function(rtm_start_args) {
       TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
       var flannel_url = _getFlannelConnectionUrl(rtm_start_args);
@@ -149,15 +154,12 @@
       return Promise.resolve(membership_info);
     },
     fetchMembershipCountsForChannel: function(channel_id) {
-      var model_ob = TS.shared.getModelObById(channel_id);
-      var resp = TS.members.getMembershipCounts(model_ob);
-      if (resp.promise) {
-        return resp.promise.then(function() {
-          return resp.counts;
-        });
-      } else {
-        return Promise.resolve(resp.counts);
-      }
+      if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
+      return TS.ms.flannel.call("counts_request", {
+        channel: channel_id
+      }).then(function(response) {
+        return response.counts;
+      });
     }
   });
   var __temp__channel_members = {};

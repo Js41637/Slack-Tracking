@@ -3876,9 +3876,7 @@
       var existing_channel = TS.channels.getChannelById(channel.id);
       delete _name_map[existing_channel._name_lc];
       delete _name_map["#" + existing_channel._name_lc];
-      if (TS.boot_data.feature_reveal_channel_renames) {
-        channel.previous_names = [existing_channel._name_lc].concat(existing_channel.previous_names || []);
-      }
+      channel.previous_names = [existing_channel._name_lc].concat(existing_channel.previous_names || []);
       var new_channel = TS.channels.upsertChannel(channel);
       new_channel._name_lc = _.toLower(new_channel.name);
       _name_map[new_channel._name_lc] = new_channel;
@@ -4298,6 +4296,9 @@
       return test_ob;
     },
     lazyLoadChannelMembership: function() {
+      if (!TS.lazyLoadMembersAndBots()) {
+        return false;
+      }
       return !!(TS.boot_data.feature_thin_channel_membership && _.get(TS, "model.prefs.thin_channel_membership_fe"));
     },
     getUserChannelMembershipStatus: function(user_id, channel) {
@@ -4405,6 +4406,7 @@
   });
   var _channel_member_counts_info = {};
   var _channel_known_member_statuses = {};
+  var _membership_counts_api_promises = {};
   var _isChannelMembershipKnownForUser = function(model_ob_id, user_id) {
     if (!_channel_known_member_statuses[model_ob_id]) return false;
     return _.includes(_channel_known_member_statuses[model_ob_id].known_members, user_id) || _.includes(_channel_known_member_statuses[model_ob_id].known_non_members, user_id);
@@ -4443,9 +4445,16 @@
     return true;
   };
   var _promiseToGetChannelMemberCountsFromAPI = function(model_ob, last_fetched_ts) {
+    if (!model_ob) {
+      TS.warn("_promiseToGetChannelMemberCountsFromAPI needs a model_ob!");
+      return;
+    }
     var MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS = 1e4;
     var time_since_last_fetch = Date.now() - last_fetched_ts;
-    var rate_limit_p;
+    var rate_limit_p = _membership_counts_api_promises[model_ob.id];
+    if (rate_limit_p) {
+      return rate_limit_p;
+    }
     if (time_since_last_fetch < MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS) {
       rate_limit_p = new Promise(function(resolve) {
         TS.log(1989, "Channel member counts (" + model_ob.id + "): it's only been " + time_since_last_fetch + "ms since last fetch; waiting " + (MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch) + " ms before fetching");
@@ -4455,25 +4464,40 @@
       rate_limit_p = Promise.resolve();
     }
     var api_endpoint = model_ob.is_group ? "groups.info" : "channels.info";
-    return rate_limit_p.then(function() {
+    _membership_counts_api_promises[model_ob.id] = rate_limit_p.then(function() {
       TS.log(1989, "Channel member counts (" + model_ob.id + "): fetching counts from API");
-      return TS.api.call(api_endpoint, {
-        channel: model_ob.id,
-        display_counts: true
-      }).then(function(resp) {
-        var counts;
-        if (model_ob.is_group) {
-          counts = resp.data.group.display_counts;
-        } else {
-          counts = resp.data.channel.display_counts;
-        }
-        TS.log(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
-        return {
-          member_count: counts.display_counts,
-          restricted_member_count: counts.guest_counts
-        };
-      });
+      if (TS.boot_data.feature_flannel_channel_counts) {
+        return TS.flannel.fetchMembershipCountsForChannel(model_ob.id).then(function(counts) {
+          TS.log(1989, "Channel member counts from flannel (" + model_ob.id + "): " + JSON.stringify(counts));
+          return {
+            member_count: counts.members,
+            restricted_member_count: counts.guests
+          };
+        }).finally(function() {
+          _membership_counts_api_promises[model_ob.id] = null;
+        });
+      } else {
+        return TS.api.call(api_endpoint, {
+          channel: model_ob.id,
+          display_counts: true
+        }).then(function(resp) {
+          var counts;
+          if (model_ob.is_group) {
+            counts = resp.data.group.display_counts;
+          } else {
+            counts = resp.data.channel.display_counts;
+          }
+          TS.log(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
+          return {
+            member_count: counts.display_counts,
+            restricted_member_count: counts.guest_counts
+          };
+        }).finally(function() {
+          _membership_counts_api_promises[model_ob.id] = null;
+        });
+      }
     });
+    return _membership_counts_api_promises[model_ob.id];
   };
   var _maybeRefetchChannelMembersInfoAfterMembershipChange = function(model_ob, member_count_delta, changed_member_is_restricted) {
     if (!TS.lazyLoadMembersAndBots()) return;
@@ -5829,7 +5853,7 @@ TS.registerModule("constants", {
     polling_handler: null,
     waiting_for_refresh: {},
     supported_audio_type_re: /^(mp3|wav)$/,
-    supported_video_type_re: /^(mp4|mov)$/,
+    supported_video_type_re: /^(mp4|mov|webm)$/,
     onStart: function() {
       TS.prefs.team_disable_file_editing_changed_sig.add(TS.files.getFileActions, TS.files.upsertAndSignal);
     },
@@ -9060,20 +9084,15 @@ TS.registerModule("constants", {
       }
       controller.addMsg(imsg.SENT_MSG.channel || model_ob.id, TS.utility.msgs.processImsg(new_msg, model_ob.id));
       TS.client.ui.maybeHandleSingleEmoji(imsg.text);
-      var not_present_membersA;
       var channel_type;
-      var ts = TS.utility.date.makeTsStamp();
       if (model_ob.is_channel) {
         channel_type = TS.i18n.t("channel", "shared")();
-        not_present_membersA = TS.channels.getActiveMembersNotInThisChannelForInviting(model_ob.id);
       } else if (model_ob.is_group && !model_ob.is_mpim) {
         channel_type = TS.i18n.t("private channel", "shared")();
-        not_present_membersA = TS.groups.getActiveMembersNotInThisGroupForInviting(model_ob.id);
       } else {
         return;
       }
-      if (!not_present_membersA.length) return;
-      var subteam_matches = imsg.text.match(/<!subteam\^(.*?)\|@.+>/g);
+      var subteam_matches = imsg.text.match(/<!subteam(.*?)>/g);
       if (subteam_matches) {
         for (var k = 0; k < subteam_matches.length; k++) {
           var cmd = subteam_matches[k].replace(">", "").replace("<", "");
@@ -9082,106 +9101,107 @@ TS.registerModule("constants", {
           if (!user_group_id) continue;
           (function(local_user_group_id) {
             TS.user_groups.getUserGroupMembers(local_user_group_id, function(updated_group) {
-              var members_not_in_channel = [];
-              var user_group_members = updated_group.users;
-              if (!user_group_members) return;
-              for (var j = 0; j < user_group_members.length; j++) {
-                var member = TS.members.getMemberById(user_group_members[j]);
-                if (not_present_membersA.indexOf(member) == -1) continue;
-                if (members_not_in_channel.indexOf(member) > -1) continue;
-                members_not_in_channel.push(member);
-              }
-              if (!members_not_in_channel.length) return;
-              var member_idsA = members_not_in_channel.map(function(member) {
-                return member.id;
-              });
-              var name = "<!subteam^" + local_user_group_id + ">";
-              var count = members_not_in_channel.length;
-              var prompt = "TS.client.ui.promptForGroupOrChannelInvite('" + model_ob.id + "', '" + member_idsA.join(",") + "', '" + ts + "')";
-              var message = "TS.client.ui.sendChannelMsgThroughSlackBot('" + model_ob.id + "', '" + imsg.ts + "', '" + member_idsA.join(",") + "', '" + ts + "')";
-              var nothing = "TS.utility.msgs.removeEphemeralMsg('" + model_ob.id + "', '" + ts + "')";
-              TS.client.msg_pane.addMaybeClick(prompt, TS.client.ui.promptForGroupOrChannelInvite.bind(Object.create(null), model_ob.id, member_idsA.join(","), ts));
-              TS.client.msg_pane.addMaybeClick(message, TS.client.ui.sendChannelMsgThroughSlackBot.bind(Object.create(null), model_ob.id, imsg.ts, member_idsA.join(","), ts));
-              TS.client.msg_pane.addMaybeClick(nothing, TS.utility.msgs.removeEphemeralMsg.bind(Object.create(null), model_ob.id, ts));
-              var bot_text = "";
-              bot_text = TS.i18n.t("{member_count, plural, =1 {One member} =2 {Two members} =3 {Three members} =4 {Four members} =5 {Five members} =6 {Six members} =7 {Seven members} =8 {Eight members} =9 {Nine members} =10 {Ten members} other {# members}} of the {name} group {member_count, plural, =1 {isn’t} other {aren’t}} in this {channel}. ", "shared")({
-                name: name,
-                member_count: count,
-                channel: channel_type
-              });
-              if (model_ob.id.charAt(0) === "G") {
-                bot_text += TS.i18n.t("If you’d like I can <javascript:{prompt}|invite them to join>, or, <javascript:{nothing}|do nothing>.", "shared")({
-                  prompt: prompt,
-                  nothing: nothing
+              var user_group_member_ids = _.uniq(updated_group.users);
+              if (!user_group_member_ids) return;
+              TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, user_group_member_ids).then(function() {
+                var member_ids_not_in_channel = [];
+                user_group_member_ids.forEach(function(member_id) {
+                  if (!TS.membership.getUserChannelMembershipStatus(member_id, model_ob).is_member) {
+                    member_ids_not_in_channel.push(member_id);
+                  }
                 });
-              } else {
-                bot_text += TS.i18n.t("If you’d like Slack can <javascript:{message}|notify them about your message>.", "shared")({
-                  message: message
+                if (!member_ids_not_in_channel.length) return null;
+                var ts = TS.utility.date.makeTsStamp();
+                var name = "<!subteam^" + local_user_group_id + ">";
+                var count = member_ids_not_in_channel.length;
+                var prompt = "TS.client.ui.promptForGroupOrChannelInvite('" + model_ob.id + "', '" + member_ids_not_in_channel.join(",") + "', '" + ts + "')";
+                var message = "TS.client.ui.sendChannelMsgThroughSlackBot('" + model_ob.id + "', '" + imsg.ts + "', '" + member_ids_not_in_channel.join(",") + "', '" + ts + "')";
+                var nothing = "TS.utility.msgs.removeEphemeralMsg('" + model_ob.id + "', '" + ts + "')";
+                TS.client.msg_pane.addMaybeClick(prompt, TS.client.ui.promptForGroupOrChannelInvite.bind(Object.create(null), model_ob.id, member_ids_not_in_channel.join(","), ts));
+                TS.client.msg_pane.addMaybeClick(message, TS.client.ui.sendChannelMsgThroughSlackBot.bind(Object.create(null), model_ob.id, imsg.ts, member_ids_not_in_channel.join(","), ts));
+                TS.client.msg_pane.addMaybeClick(nothing, TS.utility.msgs.removeEphemeralMsg.bind(Object.create(null), model_ob.id, ts));
+                var bot_text = "";
+                bot_text = TS.i18n.t("{member_count, plural, =1 {One member} =2 {Two members} =3 {Three members} =4 {Four members} =5 {Five members} =6 {Six members} =7 {Seven members} =8 {Eight members} =9 {Nine members} =10 {Ten members} other {# members}} of the {name} group {member_count, plural, =1 {isn’t} other {aren’t}} in this {channel}. ", "shared")({
+                  name: name,
+                  member_count: count,
+                  channel: channel_type
                 });
-              }
-              TS.client.ui.addEphemeralBotMsg({
-                channel: model_ob.id,
-                ts: ts,
-                text: bot_text,
-                thread_ts: new_msg.thread_ts
+                if (model_ob.id.charAt(0) === "G") {
+                  bot_text += TS.i18n.t("If you’d like I can <javascript:{prompt}|invite them to join>, or, <javascript:{nothing}|do nothing>.", "shared")({
+                    prompt: prompt,
+                    nothing: nothing
+                  });
+                } else {
+                  bot_text += TS.i18n.t("If you’d like Slack can <javascript:{message}|notify them about your message>.", "shared")({
+                    message: message
+                  });
+                }
+                TS.client.ui.addEphemeralBotMsg({
+                  channel: model_ob.id,
+                  ts: ts,
+                  text: bot_text,
+                  thread_ts: new_msg.thread_ts
+                });
+                return null;
               });
-              ts = TS.utility.date.makeTsStamp();
             });
           })(user_group_id);
         }
       }
       if (TS.boot_data.feature_mention_non_members) return;
       var mention_matches = imsg.text.match(/<@(.*?)>/g);
-      var bad_mention_membersA = [];
-      var member;
-      var i;
       if (mention_matches) {
-        for (i = 0; i < mention_matches.length; i++) {
-          member = TS.utility.msgs.getMemberFromMemberMarkup(mention_matches[i].replace(">", "").replace("<", ""));
-          if (not_present_membersA.indexOf(member) == -1) continue;
-          if (bad_mention_membersA.indexOf(member) > -1) continue;
-          bad_mention_membersA.push(member);
-        }
-      }
-      if (!bad_mention_membersA.length) return;
-      var names_text = "";
-      var names_text_arr = [];
-      var member_idsA = [];
-      for (i = 0; i < bad_mention_membersA.length; i++) {
-        names_text_arr.push("<@" + bad_mention_membersA[i].id + ">");
-        member_idsA.push(bad_mention_membersA[i].id);
-      }
-      names_text = TS.i18n.listify(names_text_arr).join("");
-      names_text = names_text.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-      var prompt = "TS.client.ui.promptForGroupOrChannelInvite('" + model_ob.id + "', '" + member_idsA.join(",") + "', '" + ts + "')";
-      var message = "TS.client.ui.sendChannelMsgThroughSlackBot('" + model_ob.id + "', '" + imsg.ts + "', '" + member_idsA.join(",") + "', '" + ts + "')";
-      var nothing = "TS.utility.msgs.removeEphemeralMsg('" + model_ob.id + "', '" + ts + "')";
-      TS.client.msg_pane.addMaybeClick(prompt, TS.client.ui.promptForGroupOrChannelInvite.bind(Object.create(null), model_ob.id, member_idsA.join(","), ts));
-      TS.client.msg_pane.addMaybeClick(message, TS.client.ui.sendChannelMsgThroughSlackBot.bind(Object.create(null), model_ob.id, imsg.ts, member_idsA.join(","), ts));
-      TS.client.msg_pane.addMaybeClick(nothing, TS.utility.msgs.removeEphemeralMsg.bind(Object.create(null), model_ob.id, ts));
-      var bot_text = "";
-      if (model_ob.is_group) {
-        bot_text = TS.i18n.t("You mentioned {names}, but they’re not in this {channel}. Would you like to <javascript:{prompt}|invite them to join>? Or, <javascript:{nothing}|do nothing>.", "shared")({
-          names: names_text,
-          channel: channel_type,
-          prompt: prompt,
-          nothing: nothing
+        var mentioned_member_ids = _(mention_matches).map(function(mention_match) {
+          return TS.utility.msgs.getMemberIdFromMemberMarkup(mention_match.replace(">", "").replace("<", ""));
+        }).uniq().compact().value();
+        TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, mentioned_member_ids).then(function() {
+          var mentioned_member_ids_not_in_channel = [];
+          mentioned_member_ids.forEach(function(member_id) {
+            if (!TS.membership.getUserChannelMembershipStatus(member_id, model_ob).is_member) {
+              mentioned_member_ids_not_in_channel.push(member_id);
+            }
+          });
+          if (!mentioned_member_ids_not_in_channel.length) return null;
+          var names_text = "";
+          var names_text_arr = [];
+          mentioned_member_ids_not_in_channel.forEach(function(member_id) {
+            names_text_arr.push("<@" + member_id + ">");
+          });
+          names_text = TS.i18n.listify(names_text_arr).join("");
+          names_text = names_text.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+          var ts = TS.utility.date.makeTsStamp();
+          var prompt = "TS.client.ui.promptForGroupOrChannelInvite('" + model_ob.id + "', '" + mentioned_member_ids_not_in_channel.join(",") + "', '" + ts + "')";
+          var message = "TS.client.ui.sendChannelMsgThroughSlackBot('" + model_ob.id + "', '" + imsg.ts + "', '" + mentioned_member_ids_not_in_channel.join(",") + "', '" + ts + "')";
+          var nothing = "TS.utility.msgs.removeEphemeralMsg('" + model_ob.id + "', '" + ts + "')";
+          TS.client.msg_pane.addMaybeClick(prompt, TS.client.ui.promptForGroupOrChannelInvite.bind(Object.create(null), model_ob.id, mentioned_member_ids_not_in_channel.join(","), ts));
+          TS.client.msg_pane.addMaybeClick(message, TS.client.ui.sendChannelMsgThroughSlackBot.bind(Object.create(null), model_ob.id, imsg.ts, mentioned_member_ids_not_in_channel.join(","), ts));
+          TS.client.msg_pane.addMaybeClick(nothing, TS.utility.msgs.removeEphemeralMsg.bind(Object.create(null), model_ob.id, ts));
+          var bot_text = "";
+          if (model_ob.is_group) {
+            bot_text = TS.i18n.t("You mentioned {names}, but they’re not in this {channel}. Would you like to <javascript:{prompt}|invite them to join>? Or, <javascript:{nothing}|do nothing>.", "shared")({
+              names: names_text,
+              channel: channel_type,
+              prompt: prompt,
+              nothing: nothing
+            });
+          } else {
+            bot_text = TS.i18n.t("You mentioned {names}, but they’re not in this {channel}. Would you like to <javascript:{prompt}|invite them to join> or have slackbot <javascript:{message}|send them a link to your message>? Or, <javascript:{nothing}|do nothing>.", "shared")({
+              names: names_text,
+              channel: channel_type,
+              prompt: prompt,
+              message: message,
+              nothing: nothing
+            });
+          }
+          TS.client.ui.addEphemeralBotMsg({
+            channel: model_ob.id,
+            ts: ts,
+            text: bot_text,
+            thread_ts: new_msg.thread_ts
+          });
+          return null;
         });
-      } else {
-        bot_text = TS.i18n.t("You mentioned {names}, but they’re not in this {channel}. Would you like to <javascript:{prompt}|invite them to join> or have slackbot <javascript:{message}|send them a link to your message>? Or, <javascript:{nothing}|do nothing>.", "shared")({
-          names: names_text,
-          channel: channel_type,
-          prompt: prompt,
-          message: message,
-          nothing: nothing
-        });
       }
-      TS.client.ui.addEphemeralBotMsg({
-        channel: model_ob.id,
-        ts: ts,
-        text: bot_text,
-        thread_ts: new_msg.thread_ts
-      });
     },
     sendMsg: function(c_id, text, controller, in_reply_to_msg, should_broadcast_reply) {
       if (!text) return false;
@@ -10673,25 +10693,35 @@ TS.registerModule("constants", {
     },
     getMemberByNameAndTeamDomain: function(name, domain) {
       if (!TS.boot_data.feature_shared_channels_client) return TS.members.getMemberByName(name);
-      name = _.toLower(name);
+      name = _.toLower(name).replace(/^@/, "");
       var members = TS.model.members;
-      var members_with_name = [];
-      for (var i = 0; i < members.length; i += 1) {
-        var member = members[i];
-        if (member._name_lc === name || "@" + member._name_lc === name) {
-          members_with_name.push(member);
-          continue;
-        }
-      }
+      var members_with_name = _.filter(members, {
+        _name_lc: name
+      });
       if (members_with_name.length === 0) return null;
       if (members_with_name.length === 1) return members_with_name[0];
-      for (var i = 0; i < members_with_name.length; i += 1) {
-        member = members_with_name[i];
-        var team = TS.teams.getTeamByDomain(domain);
-        if (member.team_id === team.id) {
-          return member;
-        }
+      var team = TS.teams.getTeamByDomain(domain);
+      if (team && team.id) {
+        var member = _.find(members_with_name, {
+          team_id: team.id
+        });
+        if (member) return member;
       }
+      return null;
+    },
+    getMemberByNameAndTeamId: function(name, t_id) {
+      if (!TS.boot_data.feature_shared_channels_client) return TS.members.getMemberByName(name);
+      name = _.toLower(name).replace(/^@/, "");
+      var members = TS.model.members;
+      var members_with_name = _.filter(members, {
+        _name_lc: name
+      });
+      if (members_with_name.length === 0) return null;
+      if (members_with_name.length === 1) return members_with_name[0];
+      var member = _.find(members_with_name, {
+        team_id: t_id
+      });
+      if (member) return member;
       return null;
     },
     getMemberByEmail: function(email) {
@@ -20620,10 +20650,8 @@ TS.registerModule("constants", {
       var active_or_regular_channel = TS.model.active_channel_id === channel.id ? TS.i18n.t("active channel", "templates_builders")() : TS.i18n.t("channel", "templates_builders")();
       var unread_message = _getUnreadMessageLabelText(channel);
       var draft_message = null;
-      if (TS.boot_data.feature_show_drafts) {
-        if (TS.templates.builders.showDraftIcon(channel)) {
-          draft_message = TS.i18n.t("draft", "messages")();
-        }
+      if (TS.templates.builders.showDraftIcon(channel)) {
+        draft_message = TS.i18n.t("draft", "messages")();
       }
       var aria_label = name + ", " + active_or_regular_channel + (unread_message ? ", " + unread_message : "") + (draft_message ? ", " + draft_message : "");
       return new Handlebars.SafeString(aria_label);
@@ -20647,10 +20675,8 @@ TS.registerModule("constants", {
       var active_or_regular_channel = TS.model.active_group_id === group.id ? TS.i18n.t("active channel", "templates_builders")() : TS.i18n.t("channel", "templates_builders")();
       var unread_message = _getUnreadMessageLabelText(group);
       var draft_message = null;
-      if (TS.boot_data.feature_show_drafts) {
-        if (TS.templates.builders.showDraftIcon(group)) {
-          draft_message = TS.i18n.t("draft", "messages")();
-        }
+      if (TS.templates.builders.showDraftIcon(group)) {
+        draft_message = TS.i18n.t("draft", "messages")();
       }
       var aria_label = name + ", " + active_or_regular_channel + (unread_message ? ", " + unread_message : "") + (draft_message ? ", " + draft_message : "");
       return new Handlebars.SafeString(aria_label);
@@ -20721,11 +20747,7 @@ TS.registerModule("constants", {
       html += TS.templates.builders.makeMemberTypeBadgeCompact(member, false);
       html += "</a>";
       if (member.is_bot || member.is_service) {
-        if (TS.boot_data.feature_app_cards_app_label) {
-          html += '<span class="bot_label">' + TS.i18n.t("APP", "templates_builders")() + "</span>";
-        } else {
-          html += '<span class="bot_label">' + TS.i18n.t("BOT", "templates_builders")() + "</span>";
-        }
+        html += '<span class="bot_label">' + TS.i18n.t("APP", "templates_builders")() + "</span>";
       }
       return html;
     },
@@ -20733,29 +20755,27 @@ TS.registerModule("constants", {
       if (!_.isObject(model_ob)) return false;
       var last_msg_input;
       var model_id = model_ob.id;
-      if (TS.boot_data.feature_show_drafts) {
-        last_msg_input = model_ob.last_msg_input;
-        if (!last_msg_input && model_ob.presence) {
-          var im = TS.ims.getImByMemberId(model_ob.id);
-          last_msg_input = im && im.last_msg_input;
-          model_id = im && im.id;
-        }
-        var active_model_ob = TS.shared.getActiveModelOb();
-        if (active_model_ob) {
-          var active_id = active_model_ob.id;
-          if (active_id && active_id == model_id && !TS.client.activeChannelIsHidden()) {
-            last_msg_input = null;
-          }
-        }
-        if (model_ob.is_channel) {
-          if (model_ob.is_archived || !model_ob.is_member) last_msg_input = null;
-        }
-        if (model_ob.is_group && !model_ob.is_mpim) {
-          if (model_ob.is_archived) last_msg_input = null;
-        }
-        if (!TS.permissions.members.canPostInChannel(model_ob)) {
+      last_msg_input = model_ob.last_msg_input;
+      if (!last_msg_input && model_ob.presence) {
+        var im = TS.ims.getImByMemberId(model_ob.id);
+        last_msg_input = im && im.last_msg_input;
+        model_id = im && im.id;
+      }
+      var active_model_ob = TS.shared.getActiveModelOb();
+      if (active_model_ob) {
+        var active_id = active_model_ob.id;
+        if (active_id && active_id == model_id && !TS.client.activeChannelIsHidden()) {
           last_msg_input = null;
         }
+      }
+      if (model_ob.is_channel) {
+        if (model_ob.is_archived || !model_ob.is_member) last_msg_input = null;
+      }
+      if (model_ob.is_group && !model_ob.is_mpim) {
+        if (model_ob.is_archived) last_msg_input = null;
+      }
+      if (!TS.permissions.members.canPostInChannel(model_ob)) {
+        last_msg_input = null;
       }
       if (_.trim(last_msg_input)) {
         return true;
@@ -21032,10 +21052,8 @@ TS.registerModule("constants", {
         var presence_state = TS.templates.makeMemberPresenceStateAriaLabel(member);
         var unread_message = _getUnreadMessageLabelText(im);
         var draft_message = null;
-        if (TS.boot_data.feature_show_drafts) {
-          if (TS.templates.builders.showDraftIcon(im)) {
-            draft_message = TS.i18n.t("draft", "messages")();
-          }
+        if (TS.templates.builders.showDraftIcon(im)) {
+          draft_message = TS.i18n.t("draft", "messages")();
         }
         aria_label = name + ", " + active_or_regular_direct_message + ", " + presence_state + (unread_message ? ", " + unread_message : "") + (draft_message ? ", " + draft_message : "");
       }
@@ -23373,7 +23391,7 @@ TS.registerModule("constants", {
         if (channel.unread_highlight_cnt > 0) dom_class += "mention ";
         if (channel.is_starred) dom_class += "is_starred ";
         if (TS.notifs.isCorGMuted(channel.id)) dom_class += "muted_channel ";
-        if (channel._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && _.trim(channel.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
+        if (channel._show_in_list_even_though_no_unreads || _.trim(channel.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("makeChannelOrGroupLinkById", function(id, omit_prefix) {
@@ -23478,7 +23496,7 @@ TS.registerModule("constants", {
         if (group.unread_highlight_cnt > 0) dom_class += "mention ";
         if (group.is_starred) dom_class += "is_starred ";
         if (TS.notifs.isCorGMuted(group.id)) dom_class += "muted_channel ";
-        if (group._show_in_list_even_though_no_unreads || TS.boot_data.feature_show_drafts && _.trim(group.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
+        if (group._show_in_list_even_though_no_unreads || _.trim(group.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("mpimMemberCount", function(mpim) {
@@ -23501,7 +23519,7 @@ TS.registerModule("constants", {
         if (mpim.unread_cnt > 0 || mpim.unread_highlight_cnt > 0) dom_class += "unread mention ";
         if (TS.notifs.isCorGMuted(mpim.id)) dom_class += "muted_channel ";
         if (mpim.is_starred) dom_class += "is_starred ";
-        if (TS.boot_data.feature_show_drafts && _.trim(mpim.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
+        if (_.trim(mpim.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         return dom_class;
       });
       Handlebars.registerHelper("makeMpimDomId", function(mpim) {
@@ -23562,7 +23580,7 @@ TS.registerModule("constants", {
         if (im) {
           if (im.unread_cnt > 0 || im.unread_highlight_cnt > 0) dom_class += "unread mention ";
           if (im.is_starred) dom_class += "is_starred ";
-          if (TS.boot_data.feature_show_drafts && _.trim(im.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
+          if (_.trim(im.last_msg_input)) dom_class += "show_in_list_even_though_no_unreads ";
         }
         return dom_class;
       });
@@ -25014,9 +25032,15 @@ TS.registerModule("constants", {
       var tz_offset;
       if (_has_Intl) {
         var now = Date.now();
+        if (!_cache_date[member.id]) {
+          _cache_date[member.id] = {
+            local_time: null,
+            milliseconds: null
+          };
+        }
         try {
-          if (_cache_date && _cache_date >= now - 3e4 && use_cache) {
-            local_time = _cache_local_time;
+          if (_cache_date[member.id]["millseconds"] && _cache_date[member.id]["millseconds"] >= now - 3e4 && _cache_date[member.id]["local_time"] && use_cache) {
+            local_time = _cache_date[member.id]["local_time"];
           } else {
             var tz = member && member.tz ? member.tz : "America/Los_Angeles";
             var date_options = {
@@ -25025,9 +25049,9 @@ TS.registerModule("constants", {
               minute: "numeric",
               hour12: !TS.utility.date.do24hrTime()
             };
-            local_time = Intl.DateTimeFormat.call(null, TS.i18n.locale, date_options).format(date);
-            _cache_local_time = local_time;
-            _cache_date = now;
+            local_time = Intl.DateTimeFormat.call(null, TS.i18n.locale(), date_options).format(date);
+            _cache_date[member.id]["local_time"] = local_time;
+            _cache_date[member.id]["milliseconds"] = now;
           }
         } catch (e) {
           tz_offset = _memberTzOffset(member);
@@ -25292,12 +25316,12 @@ TS.registerModule("constants", {
           case "date_num":
             return TS.utility.date.toDate(ts, true);
           case "date_long":
-            switch (TS.i18n.locale) {
+            switch (TS.i18n.locale()) {
               default: return TS.utility.date.toDayOfTheWeek(ts) + ", " + TS.utility.date.toCalendarDate(ts, false, exclude_year);
             }
           case "date_long_pretty":
             capitalize = !capitalize && token_string.indexOf("{date_long_pretty}") === 0 && offset === 0;
-            switch (TS.i18n.locale) {
+            switch (TS.i18n.locale()) {
               default: date_string = TS.utility.date.toDayOfTheWeek(ts) + ", " + TS.utility.date.toCalendarDate(ts, false, exclude_year);
               return TS.utility.date.prettifyDateString(ts, date_string, capitalize);
             }
@@ -25362,7 +25386,7 @@ TS.registerModule("constants", {
       var separator;
       minutes = minutes < 10 ? "0" + minutes : minutes.toString();
       seconds = seconds < 10 ? "0" + seconds : seconds.toString();
-      switch (TS.i18n.locale) {
+      switch (TS.i18n.locale()) {
         default: separator = ":";
       }
       if (hours !== 0) {
@@ -25403,8 +25427,7 @@ TS.registerModule("constants", {
     }
   });
   var _fake_ts_unique_incrementer = 1;
-  var _cache_date;
-  var _cache_local_time;
+  var _cache_date = {};
   var _has_Intl = TS.boot_data.feature_tinyspeck && window.Intl && typeof window.Intl === "object" && Intl.DateTimeFormat().resolvedOptions().timeZone !== undefined && Intl.DateTimeFormat().resolvedOptions().timeZone.length > 0;
   var _dst_offsets = TS.boot_data.dst_offsets || null;
   var _memberTzOffset = function(member) {
@@ -29482,16 +29505,6 @@ TS.registerModule("constants", {
       if (!_.isString(txt)) return true;
       return _.every(txt.match(_at_mention_rx), TS.members.getMemberById);
     },
-    hasMentions: function(txt) {
-      if (!_.isString(txt)) return false;
-      var txt_escaped = TS.utility.htmlEntities(txt);
-      var has_mention = false;
-      txt_escaped.replace(_at_mention_rx, function(match, boundry, at_member_id, member_id) {
-        var valid = _validateModelObByIdOrName(TS.members.getMemberById, member_id, TS.members.getMemberByName, at_member_id);
-        if (!has_mention && valid.model_ob) has_mention = true;
-      });
-      return has_mention;
-    },
     formatSlugs: function(txt, cursor_pos) {
       if (!_.isString(txt)) txt = "";
       if (!_.isInteger(cursor_pos)) cursor_pos = 0;
@@ -30264,6 +30277,7 @@ TS.registerModule("constants", {
     }
     var classes = ["internal_member_link"];
     var data_tags_object = {
+      "member-id": m.id,
       "member-name": m.name,
       "stringify-text": "@" + m.id
     };
@@ -30293,7 +30307,7 @@ TS.registerModule("constants", {
       }
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.id + '" ' : "";
       if (m.id == TS.model.user.id) classes.push("mention");
-      return '<a href="/team/' + m.id + '" ' + target + 'data-member-id="' + m.id + '" ' + data_tags + 'class="' + classes.join(" ") + '">@' + display_name + "</a>";
+      return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">@' + display_name + "</a>";
     } else {
       if (tsf_mode == "EDIT" || tsf_mode == "GROWL") {
         return "@" + m.name;
@@ -30461,7 +30475,13 @@ TS.registerModule("constants", {
       if (cmd) {
         return boundry + cmd + extra;
       }
-      var valid = _validateModelObByIdOrName(TS.members.getMemberById, member_id, TS.members.getMemberByName, at_member_id);
+      var lookupByName = TS.members.getMemberByName;
+      if (TS.boot_data.feature_shared_channels_client) {
+        lookupByName = function(member) {
+          return TS.members.getMemberByNameAndTeamId(member, TS.model.team.id);
+        };
+      }
+      var valid = _validateModelObByIdOrName(TS.members.getMemberById, member_id, lookupByName, at_member_id);
       if (valid.model_ob) {
         var member_identifier;
         if (options.human_readable) {
@@ -32742,7 +32762,7 @@ TS.registerModule("constants", {
           } else if (flex_name == "groups" && TS.useSearchableMemberList()) {
             TS.client.ui.showGroupsList();
           } else {
-            if (flex_name == "whats_new" && TS.boot_data.feature_clog_whats_new) {
+            if (flex_name == "whats_new") {
               var badged = !$tab.find("#whats_new_count").hasClass("hidden");
               if (badged) {
                 TS.clog.track("WHATSNEW_ACTION", {
@@ -33097,7 +33117,7 @@ TS.registerModule("constants", {
     clean: function() {
       TS.menu.$menu_footer.empty();
       TS.menu.$menu_header.removeClass("hidden");
-      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu searchable_member_list_filter_menu selectable member_file_filter_menu app_card keep_menu_open_if_target_clicked_again").css("max-height", "");
+      TS.menu.$menu.removeClass("no_min_width no_max_width profile_preview flex_menu search_filter_menu popover_menu no_icons team_menu file_menu notifications_menu all_unreads_sort_order_menu searchable_member_list_filter_menu selectable member_file_filter_menu app_card keep_menu_open_if_target_clicked_again member_file_filter_menu").css("max-height", "");
       TS.menu.$menu.removeAttr("data-qa");
       TS.menu.$menu.find("#menu_items_scroller").css("max-height", "");
       TS.menu.$menu.find(".arrow, .arrow_shadow").remove();
@@ -33115,6 +33135,10 @@ TS.registerModule("constants", {
       }
       TS.menu.$menu.removeAttr("data-model-ob-id");
       TS.menu.$menu.removeAttr("data-thread-ts");
+      if (TS.SearchableMemberList && TS.SearchableMemberList.get("member_file_filter_menu")) {
+        TS.menu.$menu.find(".searchable_member_list").remove();
+        TS.SearchableMemberList.get("member_file_filter_menu").destroy();
+      }
       if (TS.menu.$menu.find(".member_item")) {
         TS.menu.$menu.find(".member_item").remove();
         TS.menu.$menu.find(".list_items").css("height", 0);
@@ -33522,10 +33546,6 @@ var _on_esc;
       if (!channel.is_general || TS.members.canUserPostInGeneral()) {
         if (channel.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted && channel.is_member) template_args.show_purpose_item = true;
       }
-      var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(TS.channels.getActiveMembersNotInThisChannelForInviting(channel_id));
-      if (invite_members.length === 0) {
-        template_args.disable_invite = true;
-      }
       if (TS.notifs.isCorGMuted(channel.id)) template_args.channel_is_muted = true;
       if (TS.boot_data.feature_sli_recaps) {
         var recap_group = TS.experiment.getGroup("sli_recaps_debug");
@@ -33566,16 +33586,6 @@ var _on_esc;
       var y_plus = _use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
       var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
-      if (template_args.disable_invite) {
-        $("#channel_invite_item a").tooltip({
-          title: TS.i18n.t("Everyone on your team is already in this channel", "channel_menu"),
-          placement: "bottom",
-          delay: {
-            show: 500,
-            hide: 0
-          }
-        });
-      }
     },
     onChannelHeaderClick: function(e) {
       e.preventDefault();
@@ -34276,19 +34286,38 @@ var _on_esc;
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
       TS.menu.file.clean();
-      TS.menu.$menu_header.html(TS.templates.menu_file_member_header());
-      TS.menu.$menu.addClass("member_file_filter_menu");
-      TS.menu.start(e);
-      if (TS.boot_data.page_needs_enterprise) $("#menu_promise_spinner").removeClass("hidden");
-      if (search_filter) {
-        TS.menu.positionAt($("#search_results_container"), 102, 100);
+      if (TS.boot_data.feature_smb_file_member_filter) {
+        TS.menu.$menu.append(TS.templates.menu_file_member_filter());
+        TS.menu.$menu.addClass("member_file_filter_menu");
+        TS.menu.start(e);
+        TS.menu.positionAt($("#file_list_toggle_user"), 0, 35);
+        var searchable_member_list = new TS.SearchableMemberList({
+          $container: $(".member_file_filter_menu .searchable_member_list"),
+          id: "member_file_filter_menu",
+          show_filter_bar: false,
+          compact_results: true,
+          prevent_member_click_handler: true,
+          suppress_presence: true
+        });
+        searchable_member_list.showInitial();
+        searchable_member_list.member_clicked_sig.add(function(e, member) {
+          TS.client.ui.files.toggleFileList(member.id);
+          TS.menu.file.end();
+        });
       } else {
-        var $btn = $("#file_list_toggle_user");
-        TS.menu.positionAt($("#file_list_toggle_user"), 0, $btn.outerHeight());
+        TS.menu.$menu_header.html(TS.templates.menu_file_member_header());
+        TS.menu.start(e);
+        if (TS.boot_data.page_needs_enterprise) $("#menu_promise_spinner").removeClass("hidden");
+        if (search_filter) {
+          TS.menu.positionAt($("#search_results_container"), 102, 100);
+        } else {
+          var $btn = $("#file_list_toggle_user");
+          TS.menu.positionAt($("#file_list_toggle_user"), 0, $btn.outerHeight());
+        }
+        _promiseToFilterMembers("", e, search_filter).then(_maybeStartLongListView).then(function(response) {
+          _displayFilterMembersResults(response, "");
+        });
       }
-      _promiseToFilterMembers("", e, search_filter).then(_maybeStartLongListView).then(function(response) {
-        _displayFilterMembersResults(response, "");
-      });
     },
     startWithFileMemberFilter: function(e, search_filter) {
       if (TS.menu.isRedundantClick(e)) return;
@@ -34475,7 +34504,7 @@ var _on_esc;
         if (TS.model.previewed_file_id != file.id) {
           TS.client.ui.files.previewFile(file.id, "file_list", false, true);
         } else {
-          $("#file_comment").focus();
+          TS.utility.contenteditable.focus($("#file_comment"));
         }
       } else if (id == "save_to_dropbox") {
         return TS.api.callImmediately("files.getTempURL", {
@@ -34590,7 +34619,7 @@ var _on_esc;
         e.preventDefault();
       } else if (id == "open_original_file") {} else if (id == "comment_file") {
         e.preventDefault();
-        $("#file_comment").focus();
+        TS.utility.contenteditable.focus($("#file_comment"));
       } else if (id == "save_to_dropbox") {
         return TS.api.callImmediately("files.getTempURL", {
           file: file.id
@@ -34815,10 +34844,6 @@ var _on_esc;
         show_handy_rxns: TS.model.user.is_admin && TS.boot_data.feature_thanks
       };
       if (group.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted) template_args.show_purpose_item = true;
-      var invite_members = TS.channels.makeMembersWithPreselectsForTemplate(TS.groups.getActiveMembersNotInThisGroupForInviting(group_id));
-      if (invite_members.length === 0) {
-        template_args.disable_invite = true;
-      }
       if (TS.notifs.isCorGMuted(group.id)) template_args.group_is_muted = true;
       template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise) {
@@ -34849,16 +34874,6 @@ var _on_esc;
       var y_plus = _use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
       var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
-      if (template_args.disable_invite) {
-        var title = TS.i18n.t("Everyone on your team is already in this private channel", "menu_group")();
-        $("#group_invite_item a").tooltip({
-          title: title,
-          delay: {
-            show: 500,
-            hide: 0
-          }
-        });
-      }
     },
     onGroupHeaderClick: function(e) {
       e.preventDefault();
@@ -42810,7 +42825,7 @@ var _on_esc;
         case "invalid_name_specials":
           return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.specials();
         case "invalid_name_taken":
-          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.taken({
+          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.name_taken({
             name: data.name
           });
         default:
@@ -43668,6 +43683,14 @@ var _on_esc;
         } else {
           html += TS.templates.no_workspace_results();
         }
+        if (TS.boot_data.feature_workspace_request) {
+          var $ws_create = $("#ws_request_create_link");
+          if (filter_by.length) {
+            $ws_create.removeClass("hidden");
+          } else {
+            $ws_create.addClass("hidden");
+          }
+        }
         $container.html(html).attr("data-list", list);
         _bindEvents($container, list, base_url);
       });
@@ -44436,8 +44459,10 @@ var _on_esc;
       div.html(html);
       var $file_comment_textarea = $("#file_comment_textarea");
       TS.ui.comments.bindInput($file_comment_textarea, TS.ui.share_dialog.go);
-      $file_comment_textarea.autogrow();
-      if (comment) $file_comment_textarea.val(comment);
+      if (!TS.boot_data.feature_texty_takes_over) {
+        $file_comment_textarea.autogrow();
+      }
+      if (comment) TS.utility.contenteditable.value($file_comment_textarea, comment);
       $file_comment_textarea = null;
       div.modal("show");
       div.find(".dialog_cancel").click(TS.ui.share_dialog.cancel);
@@ -44458,7 +44483,7 @@ var _on_esc;
         return;
       }
       var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
-      var comment = _.trim(TS.format.cleanMsg($("#file_comment_textarea").val()));
+      var comment = _.trim(TS.format.cleanMsg(TS.utility.contenteditable.value($("#file_comment_textarea"))));
       var share_fn = function() {
         TS.shared.getShareModelObId(model_ob_id, function(real_model_ob_id) {
           var shared_from_msg = false;
@@ -44541,7 +44566,7 @@ var _on_esc;
         if (preselected.length < 1) {
           $("#select_share_channels").lazyFilterSelect("getInstance").$input.focus();
         } else {
-          $("#file_comment_textarea").focus();
+          TS.utility.contenteditable.focus($("#file_comment_textarea"));
         }
         $(window.document).bind("keydown", TS.ui.share_dialog.onKeydown);
         _thumbnail_lazy_load = TS.ui.share_dialog.div.find("img.lazy").lazyload();
@@ -49468,9 +49493,9 @@ $.fn.togglify = function(settings) {
     });
     TS.click.addClientHandler(".internal_member_link:not(.plastic_contenteditable_element)", function(e, $el) {
       e.preventDefault();
-      if (TS.boot_data.feature_name_tagging_client && $el.data("member-id")) {
+      if ($el.data("member-id")) {
         TS.view.onMemberReferenceClick(e, $el.data("member-id"));
-      } else {
+      } else if ($el.data("member-name")) {
         TS.view.onMemberReferenceClick(e, $el.data("member-name"));
       }
     });
@@ -49844,7 +49869,9 @@ $.fn.togglify = function(settings) {
       $el.addClass("active");
       var model_ob_id = $thread.attr("data-model-ob-id");
       var thread_ts = $thread.attr("data-thread-ts");
-      TS.client.threads.showPreviousReplies(model_ob_id, thread_ts);
+      TS.client.threads.showPreviousReplies(model_ob_id, thread_ts).finally(function() {
+        $el.removeClass("active");
+      });
     });
     TS.click.addClientHandler("#msgs_div ts-thread .expand_inline_thread", function(e, $el) {
       e.preventDefault();
@@ -50427,7 +50454,7 @@ $.fn.togglify = function(settings) {
     test: function() {
       return {
         sortFuzzy: _sortFuzzy,
-        frecencyBonusPoints: TS.boot_data.feature_frecency_normalization ? _frecencyBonusPointsNormalized : _frecencyBonusPoints,
+        frecencyBonusPoints: _frecencyBonusPointsNormalized,
         getFilteredMatchesForFrecency: _getFilteredMatchesForFrecency,
         scoreMember: _scoreMember,
         _scoreUserGroup: _scoreUserGroup,
@@ -50469,9 +50496,9 @@ $.fn.togglify = function(settings) {
           c._jumper_score = 0;
           return true;
         }
-        var score = fuzzy.score(_.deburr(c.name));
+        var score = fuzzy.score(c.name_normalized || c.name);
         c._jumper_score = score;
-        if (TS.boot_data.feature_reveal_channel_renames && options.search_previous_channel_names && c.previous_names && c.previous_names.length) {
+        if (options.search_previous_channel_names && c.previous_names && c.previous_names.length) {
           c._jumper_previous_name_scores = _.map(c.previous_names, function(name) {
             return {
               score: fuzzy.score(name),
@@ -50791,23 +50818,8 @@ $.fn.togglify = function(settings) {
       }
     }
     if (options.frecency) {
-      if (TS.boot_data.feature_frecency_normalization) {
-        options.normalize = true;
-        filtered_matches = TS.ui.frecency.query(filtered_matches, query, _frecencyBonusPointsNormalized, options);
-      } else {
-        filtered_matches = TS.ui.frecency.query(filtered_matches, query, _frecencyBonusPoints, options);
-      }
-      if (!TS.boot_data.feature_frecency_normalization) {
-        if (emoji_matches.length > 0 && options.prefer_exact_match && exact_matches.length > 0 && query.length > 2) {
-          var exact_match = [];
-          for (var i = 0; i < exact_matches.length; i++) {
-            exact_match = _.remove(filtered_matches, {
-              id: exact_matches[i].id
-            });
-            filtered_matches.unshift(exact_match[0]);
-          }
-        }
-      }
+      options.normalize = true;
+      filtered_matches = TS.ui.frecency.query(filtered_matches, query, _frecencyBonusPointsNormalized, options);
     }
     if (options.limit) {
       filtered_matches = _.take(filtered_matches, options.limit);
@@ -50922,37 +50934,6 @@ $.fn.togglify = function(settings) {
       return 0;
     }
   };
-  var _frecencyBonusPoints = function(item, options) {
-    if (item.is_mpim) return 0;
-    var score = _calculateFuzzyBonusPoints(item);
-    if (options.prefer_channel_members && item.presence) {
-      if (options.model_ob && _isUserIdKnownToBeMemberOfChannel(item.id, options.model_ob)) {
-        score += 100;
-      }
-    }
-    if (item.is_starred) {
-      score += 100;
-    }
-    if (item.is_emoji) {
-      if (item.name === "thumbsup" || item.name === "point_up") {
-        score += 1;
-      }
-    }
-    if (item.is_channel || item.is_group) {
-      if (item.is_archived) {
-        score -= 100;
-      }
-      if (options.prefer_channels_user_belongs_to) {
-        if (!item.is_archived && !_isUserIdKnownToBeMemberOfChannel(TS.model.user.id, TS.shared.getModelObById(item.id))) {
-          score -= 100;
-        }
-      }
-    }
-    if (item.is_usergroup || item.is_broadcast_keyword) {
-      score -= 100;
-    }
-    return score;
-  };
   var _frecencyBonusPointsNormalized = function(item, options) {
     if (item.is_mpim) return 0;
     var score = 0;
@@ -50961,10 +50942,8 @@ $.fn.togglify = function(settings) {
     } else {
       score += _calculateNormalizedFuzzyBonusPoints(item);
     }
-    if (TS.boot_data.feature_reveal_channel_renames) {
-      if (item._jumper_previous_name_scores) {
-        score += TS.ui.frecency.bonus_points.matches_previous_name;
-      }
+    if (item._jumper_previous_name_scores) {
+      score += TS.ui.frecency.bonus_points.matches_previous_name;
     }
     if (options.prefer_channel_members && item.presence) {
       if (options.model_ob && _isUserIdKnownToBeMemberOfChannel(item.id, options.model_ob)) {
@@ -50993,13 +50972,6 @@ $.fn.togglify = function(settings) {
       score += TS.ui.frecency.bonus_points.usergroup_or_keyword;
     }
     return score;
-  };
-  var _calculateFuzzyBonusPoints = function(item) {
-    var fuzziness = item._jumper_score;
-    if (!_.isFinite(fuzziness)) return 0;
-    var scaler = Math.pow(.5, fuzziness);
-    var exact_match_bonus = 500;
-    return Math.round(exact_match_bonus * scaler);
   };
   var _calculateNormalizedFuzzyBonusPoints = function(item) {
     var fuzziness = item._jumper_score;
@@ -56318,6 +56290,16 @@ $.fn.togglify = function(settings) {
         texty.focus();
       }
     },
+    hasFocus: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return;
+      if (_isFormElement(input)) {
+        return $(input).is(":focus");
+      } else if (_isTextyElement(input)) {
+        var texty = _getTextyInstance(input);
+        return texty.hasFocus();
+      }
+    },
     blur: function(input) {
       input = _normalizeInput(input);
       if (!input) return;
@@ -57052,10 +57034,17 @@ $.fn.togglify = function(settings) {
   var _initUI = function($form, $input, opts) {
     var submit_fn = opts.onSubmit || _.noop;
     var cancel_fn = opts.onCancel || _.noop;
-    var get_edit_msg_div_fn = opts.getMsgDivForEditing || _getMsgToEdit;
     if (TS.boot_data.feature_texty_takes_over) {
       TS.utility.contenteditable.create($input, {
         modules: {
+          msginput: {
+            onUpArrow: function() {
+              if (!TS.model.prefs.arrow_history) _editLastMessage($input, opts);
+            },
+            onUpArrowCmd: function() {
+              _editLastMessage($input, opts);
+            }
+          },
           tabcomplete: {
             appendMenu: function(menu) {
               document.querySelector($form).appendChild(menu);
@@ -57133,15 +57122,7 @@ $.fn.togglify = function(settings) {
           return;
         }
       } else if (TS.client && TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) {
-        var $msg = get_edit_msg_div_fn($input, model_ob);
-        if ($msg && $msg.length) {
-          var ts = $msg.data("ts");
-          var model_ob_id = $msg.data("model-ob-id");
-          var model_ob = TS.shared.getModelObById(model_ob_id);
-          var in_convo = $msg.closest("#convo_container").length > 0;
-          var edit_state = in_convo ? "convo" : null;
-          TS.msg_edit.startEdit(ts, model_ob, edit_state);
-        }
+        _editLastMessage($input, opts);
       }
     }).autosize({
       boxOffset: 18
@@ -57191,6 +57172,19 @@ $.fn.togglify = function(settings) {
     var text = TS.utility.contenteditable.value($input);
     if (_shouldSubmit($input, text)) {
       submit_fn($form, text);
+    }
+  };
+  var _editLastMessage = function($input, opts) {
+    var get_edit_msg_div_fn = opts.getMsgDivForEditing || _getMsgToEdit;
+    var model_ob = opts.model_ob;
+    var $msg = get_edit_msg_div_fn($input, model_ob);
+    if ($msg && $msg.length) {
+      var ts = $msg.data("ts");
+      var model_ob_id = $msg.data("model-ob-id");
+      var model_ob = TS.shared.getModelObById(model_ob_id);
+      var in_convo = $msg.closest("#convo_container").length > 0;
+      var edit_state = in_convo ? "convo" : null;
+      TS.msg_edit.startEdit(ts, model_ob, edit_state);
     }
   };
 })();
@@ -58816,6 +58810,7 @@ $.fn.togglify = function(settings) {
     sanity_check_failed_sig: new signals.Signal,
     reply_changed_sig: new signals.Signal,
     reply_deleted_sig: new signals.Signal,
+    DEFAULT_HISTORY_API_LIMIT: 50,
     onStart: function() {
       TS.channels.message_received_sig.add(_messageReceived);
       TS.groups.message_received_sig.add(_messageReceived);
@@ -58920,7 +58915,7 @@ $.fn.togglify = function(settings) {
       var params = {
         channel: c_id,
         thread_ts: thread_ts,
-        count: _REPLIES_HISTORY_API_LIMIT
+        count: TS.replies.DEFAULT_HISTORY_API_LIMIT
       };
       var model_ob = TS.shared.getModelObById(c_id);
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
@@ -58947,7 +58942,7 @@ $.fn.togglify = function(settings) {
         channel: c_id,
         thread_ts: thread_ts,
         latest: oldest_ts,
-        count: _REPLIES_HISTORY_API_LIMIT
+        count: TS.replies.DEFAULT_HISTORY_API_LIMIT
       };
       var model_ob = TS.shared.getModelObById(c_id);
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
@@ -58964,7 +58959,7 @@ $.fn.togglify = function(settings) {
         channel: c_id,
         thread_ts: thread_ts,
         oldest: newest_ts,
-        count: _REPLIES_HISTORY_API_LIMIT,
+        count: TS.replies.DEFAULT_HISTORY_API_LIMIT,
         inclusive: inclusive
       };
       var model_ob = TS.shared.getModelObById(c_id);
@@ -59098,7 +59093,6 @@ $.fn.togglify = function(settings) {
   var _threads_being_loaded = {};
   var _subscriptions_being_loaded = {};
   var _subscriptions = {};
-  var _REPLIES_HISTORY_API_LIMIT = 50;
   var _repliesHistoryEndpoint = function(model_ob) {
     if (model_ob.is_channel) {
       return "channels.replies";
@@ -59354,13 +59348,7 @@ $.fn.togglify = function(settings) {
       }
       var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.thread_ts);
       var is_subscribed = subscription && subscription.subscribed;
-      var view_previous_count = root_msg.reply_count;
-      if (replies && replies.length) {
-        var non_ephemeral_or_temp_count = _.filter(replies, function(msg) {
-          return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg);
-        }).length;
-        view_previous_count = root_msg.reply_count - non_ephemeral_or_temp_count;
-      }
+      var view_previous_count = _viewAllRepliesCount(thread);
       var thread_html = TS.templates.thread({
         id: id,
         ts: thread.ts,
@@ -59457,9 +59445,15 @@ $.fn.togglify = function(settings) {
       }
       return new Promise(function(resolve, reject) {
         messages_p.then(function() {
+          var num_remaining = TS.boot_data.feature_threads_paging_flexpane && _viewAllRepliesCount(thread);
           var $link = $thread.find(".view_all_replies_container");
           var doReveal = function() {
-            $link.remove();
+            if (num_remaining) {
+              TS.ui.thread.hideThreadLoadingSpinner($thread);
+              _updateViewAllRepliesCount(thread, $thread, thread.root_msg);
+            } else {
+              $link.remove();
+            }
             var $replies_container = $thread.find(".thread_replies_container");
             var $first_existing_msg = $replies_container.find("ts-message:first");
             var $prev_container = $("<div></div>");
@@ -59488,7 +59482,7 @@ $.fn.togglify = function(settings) {
               resolve();
             });
           };
-          if ($link.length) {
+          if ($link.length && !num_remaining) {
             $link.animate({
               height: 0
             }, 150, doReveal);
@@ -59635,6 +59629,12 @@ $.fn.togglify = function(settings) {
       $thread_loading_container.html(TS.templates.infinite_spinner({
         size: "small"
       }));
+    },
+    hideThreadLoadingSpinner: function($thread) {
+      if (!TS.model.threads_view_is_showing) return;
+      if (!$thread || !$thread.length) return;
+      var $thread_loading_container = $thread.find(".view_all_loading_container");
+      $thread_loading_container.empty();
     },
     startInlineThread: function(model_ob, msg, $msg) {
       _setExpanded(model_ob.id, msg.ts, true);
@@ -59789,7 +59789,7 @@ $.fn.togglify = function(settings) {
     var $view_all_replies_container = $thread.find(".view_all_replies_container");
     if (!$view_all_replies_container.length) return;
     var $link = $view_all_replies_container.find(".view_all_replies");
-    var previous_reply_count = root_msg.reply_count - thread.replies.length;
+    var previous_reply_count = _viewAllRepliesCount(thread);
     if (!previous_reply_count) {
       $view_all_replies_container.addClass("hidden");
       return;
@@ -59798,6 +59798,20 @@ $.fn.togglify = function(settings) {
       reply_count: previous_reply_count
     });
     $link.text(link_text);
+  };
+  var _viewAllRepliesCount = function(thread) {
+    var view_previous_count = thread.root_msg.reply_count;
+    var replies = thread.replies;
+    if (replies && replies.length) {
+      var non_ephemeral_or_temp_count = _.filter(replies, function(msg) {
+        return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg);
+      }).length;
+      view_previous_count = thread.root_msg.reply_count - non_ephemeral_or_temp_count;
+      if (TS.boot_data.feature_threads_paging_flexpane) {
+        view_previous_count = Math.min(TS.replies.DEFAULT_HISTORY_API_LIMIT, view_previous_count);
+      }
+    }
+    return view_previous_count;
   };
   var _clearInput = function($reply_container, model_ob, thread_ts) {
     var $input = $reply_container.find(".message_input");
@@ -60088,7 +60102,7 @@ $.fn.togglify = function(settings) {
     }
   };
   var _has_Intl = window.Intl && typeof window.Intl === "object";
-  var _locale = TS.i18n.locale || "en-US";
+  var _locale = TS.i18n.locale() || "en-US";
   var _number_format_cache = {};
   var _isInString = function(search_string, substr) {
     if (_.isEmpty(search_string) || _.isEmpty(substr)) return false;
@@ -60115,6 +60129,9 @@ $.fn.togglify = function(settings) {
     }
   });
   var _MIN_VIEWPORT_SPACING_PX = 15;
+  var _DEFAULT_OFFSET_X = 0;
+  var _DEFAULT_OFFSET_Y = -6;
+  var _DEFAULT_POSITION = "top-left";
   var _$trigger;
   var _input_to_fill = "#msg_input";
   var _rxn_key;
@@ -60140,6 +60157,12 @@ $.fn.togglify = function(settings) {
         return;
       }
     }
+    var position = args.position;
+    var is_message_input = TS.client && _input_to_fill === TS.client.ui.$msg_input;
+    var is_flexpane_open = _.get(TS, "model.ui_state.flex_visible");
+    if (is_message_input && is_flexpane_open) {
+      position = "top-right";
+    }
     _$trigger = $(args.e && args.e.target);
     _toggleTriggerStyle({
       open: true,
@@ -60151,7 +60174,13 @@ $.fn.togglify = function(settings) {
     _coords.top += scroll_offset;
     _coords.bottom += scroll_offset;
     TS.menu.emoji.is_showing = true;
-    _render();
+    var picker_args = {};
+    var popover_args = {
+      position: position,
+      offset_x: args.offset_x,
+      offset_y: args.offset_y
+    };
+    _render(picker_args, popover_args);
   };
   var _end = function() {
     _toggleTriggerStyle({
@@ -60227,12 +60256,14 @@ $.fn.togglify = function(settings) {
     return props;
   };
   var _buildPopoverProps = function(args) {
+    args = args || {};
     return {
       targetBounds: _coords,
       allowanceX: _MIN_VIEWPORT_SPACING_PX,
       allowanceY: _MIN_VIEWPORT_SPACING_PX,
-      position: "top-left",
-      offsetY: -6,
+      position: args.position || _DEFAULT_POSITION,
+      offsetX: !_.isUndefined(args.offset_x) ? args.offset_x : _DEFAULT_OFFSET_X,
+      offsetY: !_.isUndefined(args.offset_y) ? args.offset_y : _DEFAULT_OFFSET_Y,
       isOpen: TS.menu.emoji.is_showing,
       onClose: _onClose
     };
@@ -60709,7 +60740,7 @@ $.fn.togglify = function(settings) {
     prefer_exact_match: true,
     frecency: true,
     prefer_channels_user_belongs_to: true,
-    search_previous_channel_names: !!TS.boot_data.feature_reveal_channel_renames
+    search_previous_channel_names: true
   };
   var _DEFAULT_CHANNEL_OPTIONS = {
     include_archived: true
@@ -60732,8 +60763,7 @@ $.fn.togglify = function(settings) {
     if (options.usergroups) data.usergroups = _getLocalUserGroups(options.usergroups);
     if (options.views) data.views = _getLocalViews(options.views);
     if (options.sort) {
-      var sort_options = _mergeDefaults(options.sort, _DEFAULT_SORT_OPTIONS);
-      var sort_options = _mergeDefaults(options.sort, _limit_option);
+      var sort_options = _mergeDefaults(options.sort, _limit_option, _DEFAULT_SORT_OPTIONS);
       return TS.sorter.search(query, data, sort_options);
     } else {
       return data;
@@ -60806,14 +60836,13 @@ $.fn.togglify = function(settings) {
     });
   };
   var _promiseRemoteMembers = function(query, options) {
-    options = _mergeDefaults(options, _DEFAULT_MEMBER_OPTIONS);
-    options = _mergeDefaults(options, _limit_option);
+    options = _mergeDefaults(options, _limit_option, _DEFAULT_MEMBER_OPTIONS);
     options.query = query;
     return TS.members.promiseToSearchMembers(options);
   };
   var _mergeDefaults = function(options, defaults) {
     if (options === true) options = {};
-    return _.defaultsDeep(options, defaults);
+    return _.defaultsDeep.apply(null, arguments);
   };
   var _totalCount = function(results) {
     return _.size(_.flatten(_.values(results)));
@@ -65576,8 +65605,7 @@ $.fn.togglify = function(settings) {
     if (n && n.dispatchConfig.registrationName) {
       var r = n.dispatchConfig.registrationName,
         o = g(e, r);
-      o && (n._dispatchListeners = v(n._dispatchListeners, o),
-        n._dispatchInstances = v(n._dispatchInstances, e));
+      o && (n._dispatchListeners = v(n._dispatchListeners, o), n._dispatchInstances = v(n._dispatchInstances, e));
     }
   }
 
@@ -68760,486 +68788,487 @@ $.fn.togglify = function(settings) {
           estimatedCellSize: o._getEstimatedRowSize(e)
         }), o._cellCache = {}, o._styleCache = {}, o;
       }
-      return h()(t, e), c()(t, [{
-        key: "measureAllCells",
-        value: function() {
-          var e = this.props,
-            t = e.columnCount,
-            n = e.rowCount;
-          this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1), this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
-        }
-      }, {
-        key: "recomputeGridSize",
-        value: function() {
-          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {},
-            t = e.columnIndex,
-            n = void 0 === t ? 0 : t,
-            r = e.rowIndex,
-            o = void 0 === r ? 0 : r;
-          this._columnSizeAndPositionManager.resetCell(n), this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
-        }
-      }, {
-        key: "scrollToCell",
-        value: function(e) {
-          var t = e.columnIndex,
-            n = e.rowIndex,
-            r = this.props;
-          this._updateScrollLeftForScrollToColumn(o()({}, r, {
-            scrollToColumn: t
-          })), this._updateScrollTopForScrollToRow(o()({}, r, {
-            scrollToRow: n
-          }));
-        }
-      }, {
-        key: "componentDidMount",
-        value: function() {
-          var e = this.props,
-            t = e.scrollLeft,
-            n = e.scrollToColumn,
-            r = e.scrollTop,
-            o = e.scrollToRow;
-          this._scrollbarSizeMeasured || (this._scrollbarSize = x()(), this._scrollbarSizeMeasured = !0, this.setState({})), (t >= 0 || r >= 0) && this._setScrollPosition({
-            scrollLeft: t,
-            scrollTop: r
-          }), (n >= 0 || o >= 0) && (this._updateScrollLeftForScrollToColumn(), this._updateScrollTopForScrollToRow()), this._invokeOnGridRenderedHelper(), this._invokeOnScrollMemoizer({
-            scrollLeft: t || 0,
-            scrollTop: r || 0,
-            totalColumnsWidth: this._columnSizeAndPositionManager.getTotalSize(),
-            totalRowsHeight: this._rowSizeAndPositionManager.getTotalSize()
-          });
-        }
-      }, {
-        key: "componentDidUpdate",
-        value: function(e, t) {
-          var r = this,
-            i = this.props,
-            a = i.autoHeight,
-            s = i.columnCount,
-            u = i.height,
-            l = i.rowCount,
-            c = i.scrollToAlignment,
-            f = i.scrollToColumn,
-            p = i.scrollToRow,
-            d = i.width,
-            h = this.state,
-            v = h.scrollLeft,
-            m = h.scrollPositionChangeReason,
-            g = h.scrollTop,
-            _ = s > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
-          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)), n.i(E.a)({
-              cellSizeAndPositionManager: this._columnSizeAndPositionManager,
-              previousCellsCount: e.columnCount,
-              previousCellSize: e.columnWidth,
-              previousScrollToAlignment: e.scrollToAlignment,
-              previousScrollToIndex: e.scrollToColumn,
-              previousSize: e.width,
-              scrollOffset: v,
-              scrollToAlignment: c,
-              scrollToIndex: f,
-              size: d,
-              updateScrollIndexCallback: function(e) {
-                return r._updateScrollLeftForScrollToColumn(o()({}, r.props, {
-                  scrollToColumn: e
-                }));
-              }
-            }), n.i(E.a)({
-              cellSizeAndPositionManager: this._rowSizeAndPositionManager,
-              previousCellsCount: e.rowCount,
-              previousCellSize: e.rowHeight,
-              previousScrollToAlignment: e.scrollToAlignment,
-              previousScrollToIndex: e.scrollToRow,
-              previousSize: e.height,
-              scrollOffset: g,
-              scrollToAlignment: c,
-              scrollToIndex: p,
-              size: u,
-              updateScrollIndexCallback: function(e) {
-                return r._updateScrollTopForScrollToRow(o()({}, r.props, {
-                  scrollToRow: e
-                }));
-              }
-            }), this._invokeOnGridRenderedHelper(), v !== t.scrollLeft || g !== t.scrollTop) {
-            var y = this._rowSizeAndPositionManager.getTotalSize(),
-              b = this._columnSizeAndPositionManager.getTotalSize();
-            this._invokeOnScrollMemoizer({
-              scrollLeft: v,
-              scrollTop: g,
-              totalColumnsWidth: b,
-              totalRowsHeight: y
-            });
+      return h()(t, e),
+        c()(t, [{
+          key: "measureAllCells",
+          value: function() {
+            var e = this.props,
+              t = e.columnCount,
+              n = e.rowCount;
+            this._columnSizeAndPositionManager.getSizeAndPositionOfCell(t - 1), this._rowSizeAndPositionManager.getSizeAndPositionOfCell(n - 1);
           }
-        }
-      }, {
-        key: "componentWillMount",
-        value: function() {
-          this._scrollbarSize = x()(), void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0, this._calculateChildrenToRender();
-        }
-      }, {
-        key: "componentWillUnmount",
-        value: function() {
-          this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId);
-        }
-      }, {
-        key: "componentWillUpdate",
-        value: function(e, t) {
-          var r = this;
-          if (0 === e.columnCount && 0 !== t.scrollLeft || 0 === e.rowCount && 0 !== t.scrollTop) this._setScrollPosition({
-            scrollLeft: 0,
-            scrollTop: 0
-          });
-          else if (e.scrollLeft !== this.props.scrollLeft || e.scrollTop !== this.props.scrollTop) {
-            var o = {};
-            null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
+        }, {
+          key: "recomputeGridSize",
+          value: function() {
+            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {},
+              t = e.columnIndex,
+              n = void 0 === t ? 0 : t,
+              r = e.rowIndex,
+              o = void 0 === r ? 0 : r;
+            this._columnSizeAndPositionManager.resetCell(n), this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
           }
-          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
-            cellCount: e.columnCount,
-            estimatedCellSize: this._getEstimatedColumnSize(e)
-          }), this._rowSizeAndPositionManager.configure({
-            cellCount: e.rowCount,
-            estimatedCellSize: this._getEstimatedRowSize(e)
-          }), n.i(y.a)({
-            cellCount: this.props.columnCount,
-            cellSize: this.props.columnWidth,
-            computeMetadataCallback: function() {
-              return r._columnSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.columnCount,
-            nextCellSize: e.columnWidth,
-            nextScrollToIndex: e.scrollToColumn,
-            scrollToIndex: this.props.scrollToColumn,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollLeftForScrollToColumn(e, t);
-            }
-          }), n.i(y.a)({
-            cellCount: this.props.rowCount,
-            cellSize: this.props.rowHeight,
-            computeMetadataCallback: function() {
-              return r._rowSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.rowCount,
-            nextCellSize: e.rowHeight,
-            nextScrollToIndex: e.scrollToRow,
-            scrollToIndex: this.props.scrollToRow,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollTopForScrollToRow(e, t);
-            }
-          }), this._calculateChildrenToRender(e, t);
-        }
-      }, {
-        key: "render",
-        value: function() {
-          var e = this,
-            t = this.props,
-            n = t.autoContainerWidth,
-            r = t.autoHeight,
-            i = t.className,
-            a = t.containerStyle,
-            s = t.height,
-            u = t.id,
-            l = t.noContentRenderer,
-            c = t.style,
-            f = t.tabIndex,
-            p = t.width,
-            d = this.state.isScrolling,
-            h = {
-              boxSizing: "border-box",
-              direction: "ltr",
-              height: r ? "auto" : s,
-              position: "relative",
-              width: p,
-              WebkitOverflowScrolling: "touch",
-              willChange: "transform"
-            },
-            v = this._columnSizeAndPositionManager.getTotalSize(),
-            g = this._rowSizeAndPositionManager.getTotalSize(),
-            y = g > s ? this._scrollbarSize : 0,
-            b = v > p ? this._scrollbarSize : 0;
-          h.overflowX = v + y <= p ? "hidden" : "auto", h.overflowY = g + b <= s ? "hidden" : "auto";
-          var w = this._childrenToDisplay,
-            C = 0 === w.length && s > 0 && p > 0;
-          return m.a.createElement("div", {
-            ref: function(t) {
-              e._scrollingContainer = t;
-            },
-            "aria-label": this.props["aria-label"],
-            className: _()("ReactVirtualized__Grid", i),
-            id: u,
-            onScroll: this._onScroll,
-            role: "grid",
-            style: o()({}, h, c),
-            tabIndex: f
-          }, w.length > 0 && m.a.createElement("div", {
-            className: "ReactVirtualized__Grid__innerScrollContainer",
-            style: o()({
-              width: n ? "auto" : v,
-              height: g,
-              maxWidth: v,
-              maxHeight: g,
-              overflow: "hidden",
-              pointerEvents: d ? "none" : ""
-            }, a)
-          }, w), C && l());
-        }
-      }, {
-        key: "shouldComponentUpdate",
-        value: function(e, t) {
-          return T()(this, e, t);
-        }
-      }, {
-        key: "_calculateChildrenToRender",
-        value: function() {
-          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
-            t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
-            r = e.cellRenderer,
-            o = e.cellRangeRenderer,
-            i = e.columnCount,
-            a = e.height,
-            s = e.overscanColumnCount,
-            u = e.overscanRowCount,
-            l = e.rowCount,
-            c = e.width,
-            f = t.isScrolling,
-            p = t.scrollDirectionHorizontal,
-            d = t.scrollDirectionVertical,
-            h = t.scrollLeft,
-            v = t.scrollTop;
-          if (this._childrenToDisplay = [], a > 0 && c > 0) {
-            var m = this._columnSizeAndPositionManager.getVisibleCellRange({
-                containerSize: c,
-                offset: h
-              }),
-              g = this._rowSizeAndPositionManager.getVisibleCellRange({
-                containerSize: a,
-                offset: v
-              }),
-              _ = this._columnSizeAndPositionManager.getOffsetAdjustment({
-                containerSize: c,
-                offset: h
-              }),
-              y = this._rowSizeAndPositionManager.getOffsetAdjustment({
-                containerSize: a,
-                offset: v
-              });
-            this._renderedColumnStartIndex = m.start, this._renderedColumnStopIndex = m.stop, this._renderedRowStartIndex = g.start, this._renderedRowStopIndex = g.stop;
-            var b = n.i(C.b)({
-                cellCount: i,
-                overscanCellsCount: s,
-                scrollDirection: p,
-                startIndex: this._renderedColumnStartIndex,
-                stopIndex: this._renderedColumnStopIndex
-              }),
-              w = n.i(C.b)({
-                cellCount: l,
-                overscanCellsCount: u,
-                scrollDirection: d,
-                startIndex: this._renderedRowStartIndex,
-                stopIndex: this._renderedRowStopIndex
-              });
-            this._columnStartIndex = b.overscanStartIndex, this._columnStopIndex = b.overscanStopIndex, this._rowStartIndex = w.overscanStartIndex, this._rowStopIndex = w.overscanStopIndex, this._childrenToDisplay = o({
-              cellCache: this._cellCache,
-              cellRenderer: r,
-              columnSizeAndPositionManager: this._columnSizeAndPositionManager,
-              columnStartIndex: this._columnStartIndex,
-              columnStopIndex: this._columnStopIndex,
-              horizontalOffsetAdjustment: _,
-              isScrolling: f,
-              rowSizeAndPositionManager: this._rowSizeAndPositionManager,
-              rowStartIndex: this._rowStartIndex,
-              rowStopIndex: this._rowStopIndex,
-              scrollLeft: h,
-              scrollTop: v,
-              styleCache: this._styleCache,
-              verticalOffsetAdjustment: y,
-              visibleColumnIndices: m,
-              visibleRowIndices: g
-            });
+        }, {
+          key: "scrollToCell",
+          value: function(e) {
+            var t = e.columnIndex,
+              n = e.rowIndex,
+              r = this.props;
+            this._updateScrollLeftForScrollToColumn(o()({}, r, {
+              scrollToColumn: t
+            })), this._updateScrollTopForScrollToRow(o()({}, r, {
+              scrollToRow: n
+            }));
           }
-        }
-      }, {
-        key: "_debounceScrollEnded",
-        value: function() {
-          var e = this.props.scrollingResetTimeInterval;
-          this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId), this._disablePointerEventsTimeoutId = setTimeout(this._debounceScrollEndedCallback, e);
-        }
-      }, {
-        key: "_debounceScrollEndedCallback",
-        value: function() {
-          this._disablePointerEventsTimeoutId = null;
-          var e = this._styleCache;
-          this._cellCache = {}, this._styleCache = {};
-          for (var t = this._rowStartIndex; t <= this._rowStopIndex; t++)
-            for (var n = this._columnStartIndex; n <= this._columnStopIndex; n++) {
-              var r = t + "-" + n;
-              this._styleCache[r] = e[r];
-            }
-          this.setState({
-            isScrolling: !1
-          });
-        }
-      }, {
-        key: "_getEstimatedColumnSize",
-        value: function(e) {
-          return "number" == typeof e.columnWidth ? e.columnWidth : e.estimatedColumnSize;
-        }
-      }, {
-        key: "_getEstimatedRowSize",
-        value: function(e) {
-          return "number" == typeof e.rowHeight ? e.rowHeight : e.estimatedRowSize;
-        }
-      }, {
-        key: "_invokeOnGridRenderedHelper",
-        value: function() {
-          var e = this.props.onSectionRendered;
-          this._onGridRenderedMemoizer({
-            callback: e,
-            indices: {
-              columnOverscanStartIndex: this._columnStartIndex,
-              columnOverscanStopIndex: this._columnStopIndex,
-              columnStartIndex: this._renderedColumnStartIndex,
-              columnStopIndex: this._renderedColumnStopIndex,
-              rowOverscanStartIndex: this._rowStartIndex,
-              rowOverscanStopIndex: this._rowStopIndex,
-              rowStartIndex: this._renderedRowStartIndex,
-              rowStopIndex: this._renderedRowStopIndex
-            }
-          });
-        }
-      }, {
-        key: "_invokeOnScrollMemoizer",
-        value: function(e) {
-          var t = this,
-            n = e.scrollLeft,
-            r = e.scrollTop,
-            o = e.totalColumnsWidth,
-            i = e.totalRowsHeight;
-          this._onScrollMemoizer({
-            callback: function(e) {
-              var n = e.scrollLeft,
-                r = e.scrollTop,
-                a = t.props,
-                s = a.height,
-                u = a.onScroll,
-                l = a.width;
-              u({
-                clientHeight: s,
-                clientWidth: l,
-                scrollHeight: i,
-                scrollLeft: n,
-                scrollTop: r,
-                scrollWidth: o
-              });
-            },
-            indices: {
-              scrollLeft: n,
+        }, {
+          key: "componentDidMount",
+          value: function() {
+            var e = this.props,
+              t = e.scrollLeft,
+              n = e.scrollToColumn,
+              r = e.scrollTop,
+              o = e.scrollToRow;
+            this._scrollbarSizeMeasured || (this._scrollbarSize = x()(), this._scrollbarSizeMeasured = !0, this.setState({})), (t >= 0 || r >= 0) && this._setScrollPosition({
+              scrollLeft: t,
               scrollTop: r
+            }), (n >= 0 || o >= 0) && (this._updateScrollLeftForScrollToColumn(), this._updateScrollTopForScrollToRow()), this._invokeOnGridRenderedHelper(), this._invokeOnScrollMemoizer({
+              scrollLeft: t || 0,
+              scrollTop: r || 0,
+              totalColumnsWidth: this._columnSizeAndPositionManager.getTotalSize(),
+              totalRowsHeight: this._rowSizeAndPositionManager.getTotalSize()
+            });
+          }
+        }, {
+          key: "componentDidUpdate",
+          value: function(e, t) {
+            var r = this,
+              i = this.props,
+              a = i.autoHeight,
+              s = i.columnCount,
+              u = i.height,
+              l = i.rowCount,
+              c = i.scrollToAlignment,
+              f = i.scrollToColumn,
+              p = i.scrollToRow,
+              d = i.width,
+              h = this.state,
+              v = h.scrollLeft,
+              m = h.scrollPositionChangeReason,
+              g = h.scrollTop,
+              _ = s > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
+            if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)), n.i(E.a)({
+                cellSizeAndPositionManager: this._columnSizeAndPositionManager,
+                previousCellsCount: e.columnCount,
+                previousCellSize: e.columnWidth,
+                previousScrollToAlignment: e.scrollToAlignment,
+                previousScrollToIndex: e.scrollToColumn,
+                previousSize: e.width,
+                scrollOffset: v,
+                scrollToAlignment: c,
+                scrollToIndex: f,
+                size: d,
+                updateScrollIndexCallback: function(e) {
+                  return r._updateScrollLeftForScrollToColumn(o()({}, r.props, {
+                    scrollToColumn: e
+                  }));
+                }
+              }), n.i(E.a)({
+                cellSizeAndPositionManager: this._rowSizeAndPositionManager,
+                previousCellsCount: e.rowCount,
+                previousCellSize: e.rowHeight,
+                previousScrollToAlignment: e.scrollToAlignment,
+                previousScrollToIndex: e.scrollToRow,
+                previousSize: e.height,
+                scrollOffset: g,
+                scrollToAlignment: c,
+                scrollToIndex: p,
+                size: u,
+                updateScrollIndexCallback: function(e) {
+                  return r._updateScrollTopForScrollToRow(o()({}, r.props, {
+                    scrollToRow: e
+                  }));
+                }
+              }), this._invokeOnGridRenderedHelper(), v !== t.scrollLeft || g !== t.scrollTop) {
+              var y = this._rowSizeAndPositionManager.getTotalSize(),
+                b = this._columnSizeAndPositionManager.getTotalSize();
+              this._invokeOnScrollMemoizer({
+                scrollLeft: v,
+                scrollTop: g,
+                totalColumnsWidth: b,
+                totalRowsHeight: y
+              });
             }
-          });
-        }
-      }, {
-        key: "_setScrollPosition",
-        value: function(e) {
-          var t = e.scrollLeft,
-            n = e.scrollTop,
-            r = {
-              scrollPositionChangeReason: M.REQUESTED
+          }
+        }, {
+          key: "componentWillMount",
+          value: function() {
+            this._scrollbarSize = x()(), void 0 === this._scrollbarSize ? (this._scrollbarSizeMeasured = !1, this._scrollbarSize = 0) : this._scrollbarSizeMeasured = !0, this._calculateChildrenToRender();
+          }
+        }, {
+          key: "componentWillUnmount",
+          value: function() {
+            this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId);
+          }
+        }, {
+          key: "componentWillUpdate",
+          value: function(e, t) {
+            var r = this;
+            if (0 === e.columnCount && 0 !== t.scrollLeft || 0 === e.rowCount && 0 !== t.scrollTop) this._setScrollPosition({
+              scrollLeft: 0,
+              scrollTop: 0
+            });
+            else if (e.scrollLeft !== this.props.scrollLeft || e.scrollTop !== this.props.scrollTop) {
+              var o = {};
+              null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
+            }
+            e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
+              cellCount: e.columnCount,
+              estimatedCellSize: this._getEstimatedColumnSize(e)
+            }), this._rowSizeAndPositionManager.configure({
+              cellCount: e.rowCount,
+              estimatedCellSize: this._getEstimatedRowSize(e)
+            }), n.i(y.a)({
+              cellCount: this.props.columnCount,
+              cellSize: this.props.columnWidth,
+              computeMetadataCallback: function() {
+                return r._columnSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.columnCount,
+              nextCellSize: e.columnWidth,
+              nextScrollToIndex: e.scrollToColumn,
+              scrollToIndex: this.props.scrollToColumn,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollLeftForScrollToColumn(e, t);
+              }
+            }), n.i(y.a)({
+              cellCount: this.props.rowCount,
+              cellSize: this.props.rowHeight,
+              computeMetadataCallback: function() {
+                return r._rowSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.rowCount,
+              nextCellSize: e.rowHeight,
+              nextScrollToIndex: e.scrollToRow,
+              scrollToIndex: this.props.scrollToRow,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollTopForScrollToRow(e, t);
+              }
+            }), this._calculateChildrenToRender(e, t);
+          }
+        }, {
+          key: "render",
+          value: function() {
+            var e = this,
+              t = this.props,
+              n = t.autoContainerWidth,
+              r = t.autoHeight,
+              i = t.className,
+              a = t.containerStyle,
+              s = t.height,
+              u = t.id,
+              l = t.noContentRenderer,
+              c = t.style,
+              f = t.tabIndex,
+              p = t.width,
+              d = this.state.isScrolling,
+              h = {
+                boxSizing: "border-box",
+                direction: "ltr",
+                height: r ? "auto" : s,
+                position: "relative",
+                width: p,
+                WebkitOverflowScrolling: "touch",
+                willChange: "transform"
+              },
+              v = this._columnSizeAndPositionManager.getTotalSize(),
+              g = this._rowSizeAndPositionManager.getTotalSize(),
+              y = g > s ? this._scrollbarSize : 0,
+              b = v > p ? this._scrollbarSize : 0;
+            h.overflowX = v + y <= p ? "hidden" : "auto", h.overflowY = g + b <= s ? "hidden" : "auto";
+            var w = this._childrenToDisplay,
+              C = 0 === w.length && s > 0 && p > 0;
+            return m.a.createElement("div", {
+              ref: function(t) {
+                e._scrollingContainer = t;
+              },
+              "aria-label": this.props["aria-label"],
+              className: _()("ReactVirtualized__Grid", i),
+              id: u,
+              onScroll: this._onScroll,
+              role: "grid",
+              style: o()({}, h, c),
+              tabIndex: f
+            }, w.length > 0 && m.a.createElement("div", {
+              className: "ReactVirtualized__Grid__innerScrollContainer",
+              style: o()({
+                width: n ? "auto" : v,
+                height: g,
+                maxWidth: v,
+                maxHeight: g,
+                overflow: "hidden",
+                pointerEvents: d ? "none" : ""
+              }, a)
+            }, w), C && l());
+          }
+        }, {
+          key: "shouldComponentUpdate",
+          value: function(e, t) {
+            return T()(this, e, t);
+          }
+        }, {
+          key: "_calculateChildrenToRender",
+          value: function() {
+            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
+              t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
+              r = e.cellRenderer,
+              o = e.cellRangeRenderer,
+              i = e.columnCount,
+              a = e.height,
+              s = e.overscanColumnCount,
+              u = e.overscanRowCount,
+              l = e.rowCount,
+              c = e.width,
+              f = t.isScrolling,
+              p = t.scrollDirectionHorizontal,
+              d = t.scrollDirectionVertical,
+              h = t.scrollLeft,
+              v = t.scrollTop;
+            if (this._childrenToDisplay = [], a > 0 && c > 0) {
+              var m = this._columnSizeAndPositionManager.getVisibleCellRange({
+                  containerSize: c,
+                  offset: h
+                }),
+                g = this._rowSizeAndPositionManager.getVisibleCellRange({
+                  containerSize: a,
+                  offset: v
+                }),
+                _ = this._columnSizeAndPositionManager.getOffsetAdjustment({
+                  containerSize: c,
+                  offset: h
+                }),
+                y = this._rowSizeAndPositionManager.getOffsetAdjustment({
+                  containerSize: a,
+                  offset: v
+                });
+              this._renderedColumnStartIndex = m.start, this._renderedColumnStopIndex = m.stop, this._renderedRowStartIndex = g.start, this._renderedRowStopIndex = g.stop;
+              var b = n.i(C.b)({
+                  cellCount: i,
+                  overscanCellsCount: s,
+                  scrollDirection: p,
+                  startIndex: this._renderedColumnStartIndex,
+                  stopIndex: this._renderedColumnStopIndex
+                }),
+                w = n.i(C.b)({
+                  cellCount: l,
+                  overscanCellsCount: u,
+                  scrollDirection: d,
+                  startIndex: this._renderedRowStartIndex,
+                  stopIndex: this._renderedRowStopIndex
+                });
+              this._columnStartIndex = b.overscanStartIndex, this._columnStopIndex = b.overscanStopIndex, this._rowStartIndex = w.overscanStartIndex, this._rowStopIndex = w.overscanStopIndex, this._childrenToDisplay = o({
+                cellCache: this._cellCache,
+                cellRenderer: r,
+                columnSizeAndPositionManager: this._columnSizeAndPositionManager,
+                columnStartIndex: this._columnStartIndex,
+                columnStopIndex: this._columnStopIndex,
+                horizontalOffsetAdjustment: _,
+                isScrolling: f,
+                rowSizeAndPositionManager: this._rowSizeAndPositionManager,
+                rowStartIndex: this._rowStartIndex,
+                rowStopIndex: this._rowStopIndex,
+                scrollLeft: h,
+                scrollTop: v,
+                styleCache: this._styleCache,
+                verticalOffsetAdjustment: y,
+                visibleColumnIndices: m,
+                visibleRowIndices: g
+              });
+            }
+          }
+        }, {
+          key: "_debounceScrollEnded",
+          value: function() {
+            var e = this.props.scrollingResetTimeInterval;
+            this._disablePointerEventsTimeoutId && clearTimeout(this._disablePointerEventsTimeoutId), this._disablePointerEventsTimeoutId = setTimeout(this._debounceScrollEndedCallback, e);
+          }
+        }, {
+          key: "_debounceScrollEndedCallback",
+          value: function() {
+            this._disablePointerEventsTimeoutId = null;
+            var e = this._styleCache;
+            this._cellCache = {}, this._styleCache = {};
+            for (var t = this._rowStartIndex; t <= this._rowStopIndex; t++)
+              for (var n = this._columnStartIndex; n <= this._columnStopIndex; n++) {
+                var r = t + "-" + n;
+                this._styleCache[r] = e[r];
+              }
+            this.setState({
+              isScrolling: !1
+            });
+          }
+        }, {
+          key: "_getEstimatedColumnSize",
+          value: function(e) {
+            return "number" == typeof e.columnWidth ? e.columnWidth : e.estimatedColumnSize;
+          }
+        }, {
+          key: "_getEstimatedRowSize",
+          value: function(e) {
+            return "number" == typeof e.rowHeight ? e.rowHeight : e.estimatedRowSize;
+          }
+        }, {
+          key: "_invokeOnGridRenderedHelper",
+          value: function() {
+            var e = this.props.onSectionRendered;
+            this._onGridRenderedMemoizer({
+              callback: e,
+              indices: {
+                columnOverscanStartIndex: this._columnStartIndex,
+                columnOverscanStopIndex: this._columnStopIndex,
+                columnStartIndex: this._renderedColumnStartIndex,
+                columnStopIndex: this._renderedColumnStopIndex,
+                rowOverscanStartIndex: this._rowStartIndex,
+                rowOverscanStopIndex: this._rowStopIndex,
+                rowStartIndex: this._renderedRowStartIndex,
+                rowStopIndex: this._renderedRowStopIndex
+              }
+            });
+          }
+        }, {
+          key: "_invokeOnScrollMemoizer",
+          value: function(e) {
+            var t = this,
+              n = e.scrollLeft,
+              r = e.scrollTop,
+              o = e.totalColumnsWidth,
+              i = e.totalRowsHeight;
+            this._onScrollMemoizer({
+              callback: function(e) {
+                var n = e.scrollLeft,
+                  r = e.scrollTop,
+                  a = t.props,
+                  s = a.height,
+                  u = a.onScroll,
+                  l = a.width;
+                u({
+                  clientHeight: s,
+                  clientWidth: l,
+                  scrollHeight: i,
+                  scrollLeft: n,
+                  scrollTop: r,
+                  scrollWidth: o
+                });
+              },
+              indices: {
+                scrollLeft: n,
+                scrollTop: r
+              }
+            });
+          }
+        }, {
+          key: "_setScrollPosition",
+          value: function(e) {
+            var t = e.scrollLeft,
+              n = e.scrollTop,
+              r = {
+                scrollPositionChangeReason: M.REQUESTED
+              };
+            t >= 0 && (r.scrollDirectionHorizontal = t > this.state.scrollLeft ? C.a : C.c, r.scrollLeft = t), n >= 0 && (r.scrollDirectionVertical = n > this.state.scrollTop ? C.a : C.c, r.scrollTop = n), (t >= 0 && t !== this.state.scrollLeft || n >= 0 && n !== this.state.scrollTop) && this.setState(r);
+          }
+        }, {
+          key: "_wrapPropertyGetter",
+          value: function(e) {
+            return e instanceof Function ? e : function() {
+              return e;
             };
-          t >= 0 && (r.scrollDirectionHorizontal = t > this.state.scrollLeft ? C.a : C.c, r.scrollLeft = t), n >= 0 && (r.scrollDirectionVertical = n > this.state.scrollTop ? C.a : C.c, r.scrollTop = n), (t >= 0 && t !== this.state.scrollLeft || n >= 0 && n !== this.state.scrollTop) && this.setState(r);
-        }
-      }, {
-        key: "_wrapPropertyGetter",
-        value: function(e) {
-          return e instanceof Function ? e : function() {
-            return e;
-          };
-        }
-      }, {
-        key: "_wrapSizeGetter",
-        value: function(e) {
-          return this._wrapPropertyGetter(e);
-        }
-      }, {
-        key: "_updateScrollLeftForScrollToColumn",
-        value: function() {
-          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
-            t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
-            n = e.columnCount,
-            r = e.scrollToAlignment,
-            o = e.scrollToColumn,
-            i = e.width,
-            a = t.scrollLeft;
-          if (o >= 0 && n > 0) {
-            var s = Math.max(0, Math.min(n - 1, o)),
-              u = this._columnSizeAndPositionManager.getUpdatedOffsetForIndex({
-                align: r,
-                containerSize: i,
-                currentOffset: a,
-                targetIndex: s
-              });
-            a !== u && this._setScrollPosition({
-              scrollLeft: u
-            });
           }
-        }
-      }, {
-        key: "_updateScrollTopForScrollToRow",
-        value: function() {
-          var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
-            t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
-            n = e.height,
-            r = e.rowCount,
-            o = e.scrollToAlignment,
-            i = e.scrollToRow,
-            a = t.scrollTop;
-          if (i >= 0 && r > 0) {
-            var s = Math.max(0, Math.min(r - 1, i)),
-              u = this._rowSizeAndPositionManager.getUpdatedOffsetForIndex({
-                align: o,
-                containerSize: n,
-                currentOffset: a,
-                targetIndex: s
-              });
-            a !== u && this._setScrollPosition({
-              scrollTop: u
-            });
+        }, {
+          key: "_wrapSizeGetter",
+          value: function(e) {
+            return this._wrapPropertyGetter(e);
           }
-        }
-      }, {
-        key: "_onScroll",
-        value: function(e) {
-          if (e.target === this._scrollingContainer) {
-            this._debounceScrollEnded();
-            var t = this.props,
-              n = t.autoHeight,
-              r = t.height,
-              o = t.width,
-              i = this._scrollbarSize,
-              a = this._rowSizeAndPositionManager.getTotalSize(),
-              s = this._columnSizeAndPositionManager.getTotalSize(),
-              u = Math.min(Math.max(0, s - o + i), e.target.scrollLeft),
-              l = Math.min(Math.max(0, a - r + i), e.target.scrollTop);
-            if (this.state.scrollLeft !== u || this.state.scrollTop !== l) {
-              var c = u > this.state.scrollLeft ? C.a : C.c,
-                f = l > this.state.scrollTop ? C.a : C.c,
-                p = {
-                  isScrolling: !0,
-                  scrollDirectionHorizontal: c,
-                  scrollDirectionVertical: f,
-                  scrollLeft: u,
-                  scrollPositionChangeReason: M.OBSERVED
-                };
-              n || (p.scrollTop = l), this.setState(p);
+        }, {
+          key: "_updateScrollLeftForScrollToColumn",
+          value: function() {
+            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
+              t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
+              n = e.columnCount,
+              r = e.scrollToAlignment,
+              o = e.scrollToColumn,
+              i = e.width,
+              a = t.scrollLeft;
+            if (o >= 0 && n > 0) {
+              var s = Math.max(0, Math.min(n - 1, o)),
+                u = this._columnSizeAndPositionManager.getUpdatedOffsetForIndex({
+                  align: r,
+                  containerSize: i,
+                  currentOffset: a,
+                  targetIndex: s
+                });
+              a !== u && this._setScrollPosition({
+                scrollLeft: u
+              });
             }
-            this._invokeOnScrollMemoizer({
-              scrollLeft: u,
-              scrollTop: l,
-              totalColumnsWidth: s,
-              totalRowsHeight: a
-            });
           }
-        }
-      }]), t;
+        }, {
+          key: "_updateScrollTopForScrollToRow",
+          value: function() {
+            var e = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : this.props,
+              t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : this.state,
+              n = e.height,
+              r = e.rowCount,
+              o = e.scrollToAlignment,
+              i = e.scrollToRow,
+              a = t.scrollTop;
+            if (i >= 0 && r > 0) {
+              var s = Math.max(0, Math.min(r - 1, i)),
+                u = this._rowSizeAndPositionManager.getUpdatedOffsetForIndex({
+                  align: o,
+                  containerSize: n,
+                  currentOffset: a,
+                  targetIndex: s
+                });
+              a !== u && this._setScrollPosition({
+                scrollTop: u
+              });
+            }
+          }
+        }, {
+          key: "_onScroll",
+          value: function(e) {
+            if (e.target === this._scrollingContainer) {
+              this._debounceScrollEnded();
+              var t = this.props,
+                n = t.autoHeight,
+                r = t.height,
+                o = t.width,
+                i = this._scrollbarSize,
+                a = this._rowSizeAndPositionManager.getTotalSize(),
+                s = this._columnSizeAndPositionManager.getTotalSize(),
+                u = Math.min(Math.max(0, s - o + i), e.target.scrollLeft),
+                l = Math.min(Math.max(0, a - r + i), e.target.scrollTop);
+              if (this.state.scrollLeft !== u || this.state.scrollTop !== l) {
+                var c = u > this.state.scrollLeft ? C.a : C.c,
+                  f = l > this.state.scrollTop ? C.a : C.c,
+                  p = {
+                    isScrolling: !0,
+                    scrollDirectionHorizontal: c,
+                    scrollDirectionVertical: f,
+                    scrollLeft: u,
+                    scrollPositionChangeReason: M.OBSERVED
+                  };
+                n || (p.scrollTop = l), this.setState(p);
+              }
+              this._invokeOnScrollMemoizer({
+                scrollLeft: u,
+                scrollTop: l,
+                totalColumnsWidth: s,
+                totalRowsHeight: a
+              });
+            }
+          }
+        }]), t;
     }(v.Component);
   O.defaultProps = {
     "aria-label": "grid",
@@ -70327,7 +70356,8 @@ $.fn.togglify = function(settings) {
               r = function(e) {
                 "Enter" !== e.key && " " !== e.key || n();
               };
-            S["aria-label"] = t.props["aria-label"] || v || p, S.role = "rowheader", S.tabIndex = 0, S.onClick = n, S.onKeyDown = r;
+            S["aria-label"] = t.props["aria-label"] || v || p, S.role = "rowheader", S.tabIndex = 0,
+              S.onClick = n, S.onKeyDown = r;
           }(), _.a.createElement("div", o()({}, S, {
             key: "Header-Col" + n,
             className: b,
@@ -72185,10 +72215,6 @@ $.fn.togglify = function(settings) {
     }(),
     p = {
       children: a.PropTypes.node.isRequired,
-      target: a.PropTypes.shape({
-        x: a.PropTypes.number,
-        y: a.PropTypes.number
-      }),
       isOpen: a.PropTypes.bool,
       onOpen: a.PropTypes.func,
       onClose: a.PropTypes.func,
@@ -72207,10 +72233,6 @@ $.fn.togglify = function(settings) {
       })
     },
     d = {
-      target: {
-        x: 0,
-        y: 0
-      },
       allowanceX: 16,
       allowanceY: 10,
       offsetX: 0,
@@ -72218,7 +72240,12 @@ $.fn.togglify = function(settings) {
       isOpen: !1,
       onOpen: function() {},
       onClose: function() {},
-      targetBounds: {}
+      targetBounds: {
+        top: 0,
+        left: 0,
+        right: 20,
+        bottom: 20
+      }
     },
     h = function(e) {
       function t(e) {
@@ -72256,6 +72283,33 @@ $.fn.togglify = function(settings) {
                 right: r.left + e.width + o,
                 left: r.left + o
               };
+            case "top-right":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.top - e.height + i,
+                bottom: r.top + i,
+                right: r.right + o,
+                left: r.right - e.width + o
+              };
+            case "bottom-left":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.bottom + i,
+                bottom: r.bottom + e.height + i,
+                right: r.left + e.width + o,
+                left: r.left + o
+              };
+            case "bottom-right":
+              return {
+                width: e.width,
+                height: e.height,
+                top: r.bottom + i,
+                bottom: r.bottom + e.height + i,
+                right: r.right + o,
+                left: r.right - e.width + o
+              };
             default:
               return e;
           }
@@ -72263,7 +72317,7 @@ $.fn.togglify = function(settings) {
       }, {
         key: "onResize",
         value: function() {
-          this.measureContents();
+          this.props.isOpen && this.measureContents();
         }
       }, {
         key: "measureContents",
@@ -75076,8 +75130,7 @@ $.fn.togglify = function(settings) {
           }
           n = n.nextSibling;
         }
-      return e = [this._hostNode, this._closingComment], this._commentNodes = e,
-        e;
+      return e = [this._hostNode, this._closingComment], this._commentNodes = e, e;
     },
     unmountComponent: function() {
       this._closingComment = null, this._commentNodes = null, s.uncacheNode(this);

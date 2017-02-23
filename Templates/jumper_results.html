@@ -67,11 +67,9 @@
             {{else}}
               {{#if this.model_ob.is_channel}}{{#unless this.model_ob.is_member}}<span class="channel_not_member">{{#t note='Displayed after channels you are not in in jumper results, #some-channel (not a member)'}}(not a member){{/t}}</span>{{/unless}}{{/if}}
             {{/if}}
-            {{#feature flag="feature_reveal_channel_renames"}}
-              {{#if this.model_ob._jumper_previous_name_match}}
-                <span class="channel_not_member">{{#t note='Indicates renamed channels, #new-name (formerly #old-name)' previous_name=this.model_ob._jumper_previous_name_match}}(formerly #{previous_name}){{/t}}</span>
-              {{/if}}
-            {{/feature}}
+            {{#if this.model_ob._jumper_previous_name_match}}
+              <span class="channel_not_member">{{#t note='Indicates renamed channels, #new-name (formerly #old-name)' previous_name=this.model_ob._jumper_previous_name_match}}(formerly #{previous_name}){{/t}}</span>
+            {{/if}}
           {{/if}}
           {{#if this.model_ob.is_mpim}}
             {{#if this.model_ob.unread_cnt}}

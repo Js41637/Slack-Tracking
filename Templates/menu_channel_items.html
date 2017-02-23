@@ -39,7 +39,7 @@
           <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
         </li>
       {{/feature}}
-      {{#unless hide_invite}}<li id="channel_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>
+      {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
         {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
       </a></li>{{/unless}}
       <li id="channel_details_item">
@@ -98,7 +98,7 @@
         </a></li>
       {{/unless}}
     {{else}}
-      {{#unless hide_invite}}<li id="channel_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>
+      {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
         {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
       </a></li>{{/unless}}
       <li id="channel_details_item">

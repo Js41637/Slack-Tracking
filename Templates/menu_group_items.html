@@ -22,7 +22,7 @@
   </a></li>
 {{else}}
   {{#if user.is_restricted}}
-    <li id="group_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>
+    <li id="group_invite_item" role="menuitem"><a>
       {{#t note="Invite to a private channel"}}Invite others to {group.name} &hellip;{{/t}}
     </a></li>
     <li id="group_details_item"><a>
@@ -74,7 +74,7 @@
       </a></li>
     {{else}}
       {{#unless user.is_restricted}}
-        <li id="group_invite_item" {{#if disable_invite}}class="disabled"{{/if}} role="menuitem"><a>
+        <li id="group_invite_item" role="menuitem"><a>
           {{#t note="Invite to a private channel"}}Invite team members to join &hellip;{{/t}}
         </a></li>
       {{/unless}}

@@ -7,8 +7,6 @@
   {{else}}
     <span class="channelname"><ts-icon class="ts_icon_channel_pane_hash"></ts-icon>{{channel.name}}</span>
   {{/if}}
-  {{#feature flag="feature_reveal_channel_renames"}}
-    {{#if channel._jumper_previous_name_match}}<span class="small_left_margin">{{#t note="Shown when a user is typing the old name of a channel, e.g. '(formerly #cats)'"}}(formerly #{channel._jumper_previous_name_match}){{/t}}</span>{{/if}}
-  {{/feature}}
+  {{#if channel._jumper_previous_name_match}}<span class="small_left_margin">{{#t note="Shown when a user is typing the old name of a channel, e.g. '(formerly #cats)'"}}(formerly #{channel._jumper_previous_name_match}){{/t}}</span>{{/if}}
 
 </li>

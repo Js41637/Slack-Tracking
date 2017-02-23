@@ -179,7 +179,7 @@
     msgs: 1
   };
   var _maybeRedactFields = function(obj, iteration_count) {
-    if (!TS.boot_data || TS.boot_data.feature_tinyspeck) return obj;
+    if (!TS.boot_data || TS.boot_data.feature_tinyspeck || TS.boot_data.version_ts === "dev") return obj;
     if (!obj || !_.isObject(obj)) return obj;
     if (iteration_count) {
       iteration_count++;
@@ -1100,6 +1100,9 @@
     });
   };
   var _promiseToLoadTemplates = function() {
+    if (window.TS && TS.raw_templates && Object.keys(TS.raw_templates).length > 0) {
+      return Promise.resolve();
+    }
     var templates_cb;
     if (TS.boot_data.hbs_templates_version && TS.boot_data.version_ts !== "dev") {
       templates_cb = TS.boot_data.hbs_templates_version;
@@ -1111,7 +1114,13 @@
     var templates_url = "/templates.php?cb=" + templates_cb + TS.getQsArgsForUrl();
     if (TS.boot_data.template_groups) templates_url += "&template_groups=" + TS.boot_data.template_groups;
     if (TS.boot_data.template_exclude_feature_flagged) templates_url += "&template_exclude_feature_flagged=1";
-    var req = new XMLHttpRequest;
+    if (/&locale=[a-zA-Z-]/.test(templates_url)) {
+      templates_url = templates_url.replace(/\?locale=[a-zA-Z-]*&/, "?").replace(/[\?|&]locale=[a-zA-Z-]*/, "");
+      templates_url = templates_url.replace(/&locale=[a-zA-Z-]/, "");
+    }
+    if (TS.i18n.locale() && TS.i18n.locale() !== TS.i18n.DEFAULT_LOCALE) {
+      templates_url += "&locale=" + TS.i18n.locale();
+    }
     var attempts = 0;
 
     function loadTemplates() {
@@ -1127,9 +1136,9 @@
             return;
           }
           resolve();
-        }).fail(function() {
+        }).fail(function(jqXHR, textStatus, errorThrown) {
           var delay_ms = Math.min(1e3 * attempts, 1e4);
-          TS.warn("loading " + templates_url + " failed (req.status:" + req.status + " attempts" + attempts + "), trying again in " + delay_ms + "ms");
+          TS.warn("loading " + templates_url + " failed (textStatus:" + textStatus + " errorThrown:" + errorThrown + " attempts:" + attempts + "), trying again in " + delay_ms + "ms");
           setTimeout(loadTemplates, delay_ms);
         });
       });
@@ -2234,11 +2243,16 @@
 (function() {
   "use strict";
   TS.registerModule("i18n", {
+    DEFAULT_LOCALE: "en-US",
     onStart: function() {
-      if (!_is_setup) _setup();
+      _maybeSetup();
+    },
+    locale: function() {
+      _maybeSetup();
+      return _locale;
     },
     t: function(str, ns, locale) {
-      if (!_is_setup) _setup();
+      _maybeSetup();
       if (!ns && _is_dev) {
         var log = TS.error ? TS.error : console.error;
         log.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + ns + ".");
@@ -2246,7 +2260,7 @@
           return "";
         };
       }
-      locale = locale || TS.i18n.locale;
+      locale = locale || _locale;
       var key = locale + ":" + ns + ":" + str;
       if (_translations[key] === undefined) {
         if (_is_pseudo) {
@@ -2261,15 +2275,18 @@
       return _translations[key];
     },
     number: function(num) {
-      return new Intl.NumberFormat(TS.i18n.locale).format(num);
+      _maybeSetup();
+      return new Intl.NumberFormat(_locale).format(num);
     },
     possessive: function(str) {
+      _maybeSetup();
       if (_.endsWith(str, "s")) {
         return "’";
       }
       return "’s";
     },
     listify: function(arr, options) {
+      _maybeSetup();
       var and;
       var list = [];
       var l = arr.length;
@@ -2278,7 +2295,7 @@
       var wrap_start = options && options.strong ? "<strong>" : "";
       var wrap_end = options && options.strong ? "</strong>" : "";
       var no_escape = options && options.no_escape;
-      switch (TS.i18n.locale) {
+      switch (_locale) {
         case "ja-JP":
           and = ", ";
           break;
@@ -2303,24 +2320,24 @@
   var _is_setup;
   var _is_dev;
   var _is_pseudo;
+  var _locale;
   var _translations = {};
   var _dev_warned_translations = [];
-  var _setup = function() {
+  var _maybeSetup = function() {
+    if (_is_setup) return;
     _is_dev = location.host.match(/(dev[0-9]*)\.slack.com/);
     var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
-    if (locale) TS.i18n.locale = locale[1];
-    if (!TS.i18n.locale) {
+    if (locale) _locale = locale[1];
+    if (!_locale) {
       if (TS.boot_data && TS.boot_data.locale) {
-        TS.i18n.locale = TS.boot_data.locale;
+        _locale = TS.boot_data.locale;
       } else {
-        TS.i18n.locale = document.documentElement.getAttribute("data-locale") || _DEFAULT_LOCALE;
+        _locale = document.documentElement.getAttribute("data-locale") || TS.i18n.DEFAULT_LOCALE;
       }
     }
-    if (TS.i18n.locale === _PSEUDO_LOCALE) {
+    if (_locale === "pseudo") {
       _is_pseudo = true;
-      TS.i18n.locale = "fr-FR";
-    } else {
-      TS.i18n.locale = TS.i18n.locale.replace(/_/, "-");
+      _locale = "fr-FR";
     }
     _is_setup = true;
   };
@@ -2360,8 +2377,6 @@
       return w + (tags[i] || "");
     }).join("");
   };
-  var _DEFAULT_LOCALE = "en-US";
-  var _PSEUDO_LOCALE = "pseudo";
   var _PSEUDO_MAP = {
     a: [/a/g, "á"],
     b: [/b/g, "β"],
@@ -4560,7 +4575,7 @@
       var flat = !!$input.closest("#fs_modal").length || $(this).data("flat");
       $input.pickmeup({
         flat: flat,
-        first_day: TS.i18n.start_of_the_week[TS.i18n.locale] || 0,
+        first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
         hide_on_select: true,
         min: $(this).data("min") || null,
         max: $(this).data("max") || null,
@@ -4648,6 +4663,9 @@
             }));
           },
           onItemAdded: _fileShareOnChange,
+          onListHidden: function() {
+            $("#select_share_channels .lfs_list_container").removeClass("new_channel_container");
+          },
           renderDividerFunc: function($el, item, data) {
             if (item.create_channel) {
               $el.html(TS.i18n.t('<span class="new">No items matched <strong>{query}</strong></span>', "files")({
@@ -4788,11 +4806,23 @@
             allow_empty_query: true
           }
         }).then(function(data) {
+          var preselected = false;
           data.all_items_fetched = true;
           data.forEach(function(item) {
             item.lfs_id = item.model_ob.id;
             item.preselected = _isPreselected(item.model_ob.id, current_model_ob);
+            if (item.preselected) preselected = true;
           });
+          if (!query && !preselected && current_model_ob) {
+            var current_channel = TS.shared.getModelObById(current_model_ob);
+            if (current_channel) {
+              data.push({
+                preselected: true,
+                lfs_id: current_channel.id,
+                model_ob: current_channel
+              });
+            }
+          }
           return data;
         });
       }
@@ -4867,7 +4897,7 @@
       });
     },
     updateAtChannelWarningNote: function(did_fetch_all_members) {
-      var text = $("#file_comment_textarea").val();
+      var text = TS.utility.contenteditable.value($("#file_comment_textarea"));
       var c_id;
       var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
       if (selected) {
@@ -4918,7 +4948,7 @@
       $note.addClass("hidden");
     },
     updateAtChannelBlockedNote: function() {
-      var text = $("#file_comment_textarea").val();
+      var text = TS.utility.contenteditable.value($("#file_comment_textarea"));
       var c_id;
       var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
       var $share_cb = $("#share_cb");
@@ -4941,7 +4971,7 @@
       }
     },
     shouldBlockUploadDialogSubmission: function() {
-      var text = $("#file_comment_textarea").val();
+      var text = TS.utility.contenteditable.value($("#file_comment_textarea"));
       var c_id;
       var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
       var $share_cb = $("#share_cb");

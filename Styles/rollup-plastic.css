@@ -13239,8 +13239,16 @@ only screen and (min-resolution:2dppx) {
   display: inline-block
 }
 
+.menu_member_header .member_details .member_current_status .member_current_status_label {
+  color: #717274
+}
+
 .menu_member_header .member_details .member_current_status .current_status {
-  margin-left: 2px
+  margin-left: 5px
+}
+
+.menu_member_header .member_details .member_current_status .current_status .emoji-sizer:first-of-type {
+  margin-right: 2px
 }
 
 .menu_member_header .member_details_divider {
@@ -13592,6 +13600,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   padding-right: 1.9rem
 }
 
+#client-ui .member_file_filter_menu .searchable_member_list_input,
 #client-ui .member_filter {
   padding: .1rem 1.8rem 0;
   height: 1.75rem;
@@ -13599,7 +13608,68 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   font-size: .9rem;
   border-radius: 1rem;
   border: 1px solid #BABBBF;
-  outline: 0
+  outline: 0;
+  box-shadow: none
+}
+
+#client-ui .member_file_filter_menu {
+  width: 222px;
+  height: 334px
+}
+
+#client-ui .member_file_filter_menu #menu_list_container {
+  display: none
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_search_bar {
+  padding: .5rem
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_search_bar .icon_search {
+  top: .3rem
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_search_bar .icon_close {
+  top: .4rem;
+  right: .3rem
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_scroller {
+  height: 280px;
+  overflow-y: auto;
+  overflow-x: hidden
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item {
+  min-height: 0;
+  padding: 0 .3rem .2rem;
+  margin: 0;
+  border: none;
+  width: 100%
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item .channel_page_member_row {
+  margin: 0;
+  padding: .2rem;
+  border: 1px solid transparent;
+  border-radius: 5px
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item .member_image {
+  margin: 0 .3rem 0 0
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item:hover .channel_page_member_row {
+  background: #2D9EE0
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item:hover .member {
+  color: #fff;
+  text-decoration: none
+}
+
+#client-ui .member_file_filter_menu .searchable_member_list_scroller .channel_page_member_row {
+  height: auto
 }
 
 #client-ui #team_list_container #team_filter,

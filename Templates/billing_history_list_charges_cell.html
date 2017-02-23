@@ -42,7 +42,7 @@
 {{#if_equal charge_type compare="is_user_change_debit"}}
   {{#t note="label when a users balance is debited"}}Debited balance by <strong>{formatted_charges.total_charge}{{/t}}</strong>
 {{/if_equal}}
-{{!-- not billing items --}}
+{{!-- credit change events: non-billing events (one-time credit) or purchase/renewal event using only credits --}}
 {{#if_equal charge_type compare="is_credited"}}
   <span class="inline_positive">{{#t note="label if a user's account is credited"}}Credited <strong>{formatted_charges.delta}{{/t}}</strong></span><br />
 {{/if_equal}}

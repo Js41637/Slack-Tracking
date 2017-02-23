@@ -56,7 +56,7 @@
             </span>
             {{~/if~}}
           {{else}}
-            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#feature flag="feature_app_cards_app_label"}}{{#t note="short tag on a message that indicates the sender is an application"}}APP{{/t}}{{else}}{{#t note="short tag on a message that indicates the sender is a bot"}}BOT{{/t}}{{/feature}}</span>{{/if}}</span>
+            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#t note="short tag on a message that indicates the sender is an application"}}APP{{/t}}</span>{{/if}}</span>
           {{/if}}
         {{/unless}}
         {{#if comment}}

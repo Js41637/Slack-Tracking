@@ -344,7 +344,12 @@
 
 .account_type {
   margin: 0 auto 2rem;
-  width: 450px
+  max-width: 370px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
 }
 
 .guest_account_icon,
@@ -353,11 +358,19 @@
   width: 70px;
   height: 70px;
   margin: .15rem 1rem 1rem 0;
-  float: left
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none
 }
 
 .guest_account_icon {
   background-image: url(/66f9/img/icn_guest-single.png)
+}
+
+.account_type_copy {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
 }
 
 .admin_banner {

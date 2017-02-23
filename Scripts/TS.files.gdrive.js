@@ -189,12 +189,7 @@
         go_button_text: "Create",
         type: "overflow_visible",
         onGo: function() {
-          var gdrive_sharing_settings = {
-            title: _.trim($("#document_title").val()) || "Untitled",
-            comment: _.trim($("#file_comment_textarea").val()),
-            channel: $("#share_cb").is(":checked") ? $("#share_model_ob_id").val() : false
-          };
-          resolve(gdrive_sharing_settings);
+          resolve(_gDriveShareBuildSettings());
         },
         onCancel: reject
       });
@@ -202,7 +197,17 @@
       TS.ui.file_share.bindFileShareDropdowns();
       TS.ui.file_share.bindFileShareShareToggle();
       TS.ui.file_share.bindFileShareCommentField();
+      TS.ui.comments.bindInput($("#file_comment_textarea"), function() {
+        resolve(_gDriveShareBuildSettings);
+      });
     });
+  };
+  var _gDriveShareBuildSettings = function() {
+    return {
+      title: _.trim($("#document_title").val()) || "Untitled",
+      comment: _.trim(TS.utility.contenteditable.value($("#file_comment_textarea"))),
+      channel: $("#share_cb").is(":checked") ? $("#share_model_ob_id").val() : false
+    };
   };
   var _gdriveShareFileInChannel = function(fileUrl, channel_id, comment) {
     var is_IM = false;

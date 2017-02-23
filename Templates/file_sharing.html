@@ -77,7 +77,7 @@
     {{/if_equal}}
   {{/if}}
 
-  <p class="no_bottom_margin">
+  <div class="no_bottom_margin">
     <label class="{{#isClient}}inline_block{{/isClient}} align_top">
       {{#isClient}}
         {{#t}}Add Comment <br /><span class="input_note normal">(optional)</span>{{/t}}
@@ -86,9 +86,13 @@
       {{/isClient}}
 
     </label>
-    <textarea id="file_comment_textarea" class="comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual">{{comment}}</textarea>
+    {{#feature flag="feature_texty_takes_over"}}
+      <div id="file_comment_textarea" class="texty_comment_input comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual"></div>
+    {{else}}
+      <textarea id="file_comment_textarea" class="comment_input no_bottom_margin" name="comment" tabindex="1" wrap="virtual">{{comment}}</textarea>
+    {{/feature}}
     <span id="select_share_at_channel_blocked_note" class="modal_input_note indifferent_grey hidden"></span>
     <span id="select_share_at_channel_note" class="modal_input_note indifferent_grey hidden"></span>
     <span id="select_share_at_channel_list" class="modal_input_note indifferent_grey">{{makeFileCommentHelpText file}}</span>
-  </p>
+  </div>
 </div>

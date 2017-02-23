@@ -3,9 +3,9 @@
 {{!-- hbslint-disable syntax --}}
 {{!-- Todo: enable syntax linter and refactor with safeString --}}
 
-  <div id="channel_page_member_{{member.id}}" class="channel_page_member_row overflow_ellipsis {{member.presence}}">
+  <div id="channel_page_member_{{member.id}}" class="channel_page_member_row overflow_ellipsis {{#unless suppress_presence}}{{member.presence}}{{/unless}}">
     {{{makeMemberPreviewLinkImage member.id 20 lazy false true}}}
-    {{{makeMemberPresenceIcon member}}}
+    {{#unless suppress_presence}}{{{makeMemberPresenceIcon member}}}{{/unless}}
     {{#feature flag="feature_name_tagging_client"}}
       <a href="/team/{{member.id}}" data-member-id="{{member.id}}" class="member">{{getMemberFullName member}}{{#if member.is_self}} {{#t}}(you){{/t}}{{/if}}</a>
     {{else}}

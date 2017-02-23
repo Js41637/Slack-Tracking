@@ -6,23 +6,27 @@
 
     <div class="account_type">
         <div class="restricted_account_icon"></div>
-        <h3 class="no_bottom_margin">{{#t}}Multi-Channel Guests{{/t}}</h3>
-        <p class="no_bottom_margin">{{#t}}Can only access channels that they are invited to join.{{/t}}</p>
-        {{#if paid_team}}
-            <p>
-                <a data-action="admin_invites_modal" data-account-type="restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t}}Invite new multi-channel guests{{/t}}</a>
-            </p>
-        {{/if}}
+        <div class="account_type_copy">
+            <h3 class="no_bottom_margin">{{#t}}Multi-Channel Guests{{/t}}</h3>
+            <p class="no_bottom_margin">{{#t}}An account with access to the channels you specify.{{/t}}</p>
+            {{#if paid_team}}
+                <p>
+                    <a data-action="admin_invites_modal" data-account-type="restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t}}Invite new multi-channel guests{{/t}}</a>
+                </p>
+            {{/if}}
+        </div>
     </div>
     <div class="account_type">
         <div class="guest_account_icon"></div>
-        <h3 class="no_bottom_margin">{{#t}}Single-channel Guests{{/t}}</h3>
-        <p class="no_bottom_margin">{{#t}}A free account with access to a single channel.{{/t}}</p>
-        {{#if paid_team}}
-            <p>
-                <a data-action="admin_invites_modal" data-account-type="ultra_restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t}}Invite new single-channel guests{{/t}}</a>
-            </p>
-        {{/if}}
+        <div class="account_type_copy">
+            <h3 class="no_bottom_margin">{{#t}}Single-Channel Guests{{/t}}</h3>
+            <p class="no_bottom_margin">{{#t}}A free account with access to just one channel.{{/t}}</p>
+            {{#if paid_team}}
+                <p>
+                    <a data-action="admin_invites_modal" data-account-type="ultra_restricted"><i class="ts_icon ts_icon_share_email"></i> {{#t}}Invite new single-channel guests{{/t}}</a>
+                </p>
+            {{/if}}
+        </div>
     </div>
 
     {{#unless paid_team}}

@@ -6,10 +6,10 @@
     <span class="message">{{#t}}Oops, something went wrong{{/t}}</span>
   </div>
   <h2 data-js="url-table-editor-header" class="c-url_table_editor__title">{{ options.title }}</h2>
-  <div data-js="url-table-editor-body" class="bottom_margin">
+  <div data-js="url-table-editor-body" class="small_bottom_margin">
     {{#if model}}
       {{#each model}}
-        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text validation=../options.validation}}
+        {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text edit_button_text=../options.edit_button_text validation=../options.validation }}
       {{/each}}
     {{/if}}
   </div>
@@ -18,9 +18,10 @@
     {{#if options.footer}}
       <aside class="small subtle_silver bottom_margin">{{options.footer}}</aside>
     {{/if}}
-    <button data-js-url-editor="create" class="btn_outline btn">{{ options.add_button_text }}</button>
+    
+    <button data-js-url-editor="create" class="btn_outline btn block small_bottom_margin">{{ options.add_button_text }}</button>
     {{#if promise_to_save_button}}
-      <button data-js-url-editor="save-all" class="btn ladda-button" data-spinner-size="32" data-style="expand-right">{{ options.save_all_urls_text }}</button>
+      <button data-js-url-editor="save-all" class="btn ladda-button block small_bottom_margin" data-spinner-size="32" data-style="expand-right">{{ options.save_all_urls_text }}</button>
     {{/if}}
   </div>
 </div>
