@@ -51,7 +51,10 @@ function getPageScripts() {
   return getPageBodys([`${URL}/admin`, `${URL}/messages`]).then(([ page1, page2 ]) => {
     let $ = cheerio.load(page1 + page2) // lmao
     let js = chain($('script')).map(({ attribs: { src: url } }) => {
-      if (url && url.match(/^\/templates.php/)) return { url: `https://slack.com${url},billing,signup`, type: 'js' }
+      if (url && url.match(/^\/templates.php/)) {
+        const newUrl = url.split('&').length > 2 ? url.split('&').slice(0, -1).join('&') : url
+        return { url: `https://slack.com${newUrl},billing,signup`, type: 'js' }
+      }
       else if (url && !url.match(jsRegex) && url.match(/^https?/)) return { url, type: 'js' }
   }).compact().uniq().value()
     let css = chain($('link[type="text/css"]')).map(({ attribs: { href: url } }) => (url && !url.match(/lato/) && url.match(/^https?/)) ? { url, type: 'css' } : null).compact().uniq().value()
