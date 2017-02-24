@@ -8494,6 +8494,9 @@
       if (!TS.boot_data.feature_texty_takes_over) {
         $("#file_comment_form #file_comment").trigger("keyup");
       }
+      if (TS.ui.fs_modal_file_viewer.is_showing && $("#file_comment").closest("#fs_modal").length) {
+        TS.clog.track("FILE_FULLSCREEN_COMMENT_ADD", {});
+      }
       TS.files.addComment(file_id, comment, c_id, function(ok, data, args) {
         if (ok) {
           TS.storage.storeLastCommentInput(args.file, "");
@@ -14047,7 +14050,13 @@
       var team_and_file;
       var file_id;
       var redacted_href = _.isString(dl.href) && dl.href.substr(0, dl.href.lastIndexOf("/") || dl.href.length) + "/[redacted]" || "[invalid]";
-      if (matches) {
+      if ((!matches || !matches.length) && TS.boot_data.page_needs_enterprise) {
+        var enterprise_id_with_t = "T" + TS.model.enterprise.id.substr(1);
+        rx = new RegExp(TS.utility.regexpEscape(enterprise_id_with_t) + "-F[A-Z0-9]+");
+        matches = dl.href.match(rx);
+        if (matches && matches.length) TS.warn("_buildItem: no file found matching TS.model.team.id of " + TS.model.team.id + ", found with enterprise ID " + TS.model.enterprise.id + " + E->T (" + enterprise_id_with_t + ")");
+      }
+      if (matches && matches.length) {
         team_and_file = matches[0];
         file_id = team_and_file.split("-")[1];
         TS.warn("_buildItem: fetching file for dl.href: " + redacted_href);
@@ -14057,7 +14066,7 @@
           _updateDownload(dl);
         });
       } else {
-        TS.error("_buildItem: no file id found in dl.href: " + redacted_href);
+        TS.error("_buildItem: no file id found in dl.href: " + redacted_href + ". TS.model.team.id = " + TS.model.team.id + (TS.boot_data.page_needs_enterprise ? ", TS.model.enterprise.id = " + TS.model.enterprise.id : ", no enterprise ID."));
       }
     }
     var img_src = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
@@ -28521,15 +28530,17 @@
     TS.metrics.measureAndClear(measure_label, start_mark_label);
   };
   var _filterWorker = function(channels, query) {
-    query = TS.utility.regexpEscape(query);
+    query = _.deburr(TS.utility.regexpEscape(query)).toLocaleLowerCase();
     var match_regex = new RegExp(query, "i");
     var exact_match_index = -1;
+    var channel_name;
     var filtered = channels.filter(function(item, i) {
-      if (item.name.toLowerCase() === query.toLowerCase()) {
+      channel_name = item.name_normalized || item.name.toLocaleLowerCase();
+      if (channel_name === query) {
         exact_match_index = i;
         return false;
       } else {
-        return item.name.match(match_regex);
+        return channel_name.match(match_regex);
       }
     });
     if (exact_match_index !== -1) {

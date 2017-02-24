@@ -36,6 +36,7 @@
       if (!TS.recaps_signal.canHaveHighlights()) return;
       if (!TS.recaps_signal.canHaveHighlightsUI()) return;
       $("#markers_container").remove();
+      _last_message_in_frame = null;
       TS.recaps_signal.hideHighlightsPills();
     },
     maybeMarkChannelAsDirty: function() {
@@ -391,6 +392,10 @@
       if (!TS.recaps_signal.canHaveHighlights()) return false;
       return msg.recap && msg.recap.data && msg.recap.data.show_recap;
     },
+    isMessageHighlightedUnfurl: function(msg) {
+      if (!TS.recaps_signal.canHaveHighlights()) return false;
+      return _.get(msg, "recap.data.is_unfurl");
+    },
     markFeedbackForMessage: function(msg_ts, positive) {
       var model_ob = TS.shared.getActiveModelOb();
       var msg = _getMsgObjFromModelOb(model_ob, msg_ts);
@@ -739,19 +744,20 @@
   var _highlightChannelMsgs = function(msgs) {
     if (!TS.recaps_signal.canHaveHighlightsUI()) return;
     var highlights = {};
+    var unfurls = {};
     msgs.forEach(function(msg) {
-      if (TS.recaps_signal.isMessageHighlight(msg)) {
-        highlights[msg.ts] = true;
-      }
+      if (TS.recaps_signal.isMessageHighlight(msg)) highlights[msg.ts] = true;
+      if (TS.recaps_signal.isMessageHighlightedUnfurl(msg)) unfurls[msg.ts] = true;
     });
     var $msg_divs = _retrieveAllMsgs();
     var $selection = $("");
+    var $unfurls = $("");
     for (var i = 0; i < $msg_divs.length; i++) {
       var ts = $($msg_divs[i]).data("ts");
-      if (highlights[ts]) {
-        $selection = $selection.add($msg_divs[i]);
-      }
+      if (highlights[ts]) $selection = $selection.add($msg_divs[i]);
+      if (unfurls[ts]) $unfurls = $unfurls.add($msg_divs[i]);
     }
+    $unfurls.addClass("is_recap_unfurl");
     $selection.addClass("is_recap");
   };
   var _buildMarkers = function(messages) {

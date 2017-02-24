@@ -4007,7 +4007,8 @@ a.btn {
   font-weight: inherit;
   line-height: inherit;
   outline: 0;
-  color: #007AB8
+  color: #007AB8;
+  vertical-align: baseline
 }
 
 .btn_link:focus,
@@ -6827,12 +6828,15 @@ body.winssb #emoji_menu {
 .tab_complete_ui ul.type_members .broadcast_info,
 .tab_complete_ui ul.type_members .realname {
   margin-right: .4rem;
-  color: #9e9ea6
+  color: #717274
 }
 
 .tab_complete_ui ul.type_members .current_status {
-  margin-left: 2px;
-  color: #9e9ea6
+  margin-right: .4rem
+}
+
+.tab_complete_ui ul.type_members .current_status .emoji-sizer:first-of-type {
+  margin-right: 2px
 }
 
 .tab_complete_ui ul.type_members .display_name {
@@ -6842,7 +6846,7 @@ body.winssb #emoji_menu {
 
 .tab_complete_ui ul.type_members .secondary_name {
   margin-right: .4rem;
-  color: #9e9ea6
+  color: #717274
 }
 
 .feature_texty .tab_complete_ui ul.type_members .broadcast,
@@ -6871,7 +6875,7 @@ body.winssb #emoji_menu {
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_group .group_name {
   font-weight: 700;
   padding-right: .5rem;
-  color: #9e9ea6;
+  color: #717274;
   font-size: .8rem
 }
 
@@ -6890,7 +6894,7 @@ body.winssb #emoji_menu {
 
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-left-td,
 .tab_complete_ui ul.type_cmds li.tab_complete_ui_item .cmd-right-td {
-  color: #9e9ea6;
+  color: #717274;
   display: table-cell;
   padding-right: 15px
 }
@@ -6927,7 +6931,7 @@ body.winssb #emoji_menu {
 }
 
 .tab_complete_ui ul.type_channels .not_in_channel {
-  color: #BABBBF;
+  color: #717274;
   font-size: .7rem
 }
 
@@ -6973,7 +6977,7 @@ body.winssb #emoji_menu {
 }
 
 .tab_complete_ui .not_in_channel {
-  color: #BABBBF;
+  color: #717274;
   font-size: .7rem
 }
 
@@ -7133,7 +7137,7 @@ ts-inline-saver.failed .failed {
 .lazy_filter_select .lfs_list_container {
   display: none;
   position: absolute;
-  z-index: 100;
+  z-index: 200;
   width: 100%;
   max-height: 15.625rem;
   top: 100%;
@@ -7232,7 +7236,7 @@ ts-inline-saver.failed .failed {
 .lazy_filter_select .lfs_empty,
 .lazy_filter_select .lfs_error {
   position: absolute;
-  z-index: 100;
+  z-index: 200;
   width: 100%;
   max-height: 15.625rem;
   top: 100%;
@@ -7295,6 +7299,14 @@ ts-inline-saver.failed .failed {
 .lazy_filter_select .lfs_list .lfs_item.active {
   background-color: #edf7fd;
   border-color: #d3ecfa
+}
+
+.lazy_filter_select .lfs_list .lfs_item .current_status {
+  margin-left: 5px
+}
+
+.lazy_filter_select .lfs_list .lfs_item .current_status .emoji-sizer:first-of-type {
+  margin-right: 2px
 }
 
 .lazy_filter_select .lfs_item_icon {

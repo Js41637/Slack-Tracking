@@ -6,14 +6,21 @@
       <div class="bold {{#unless member.profile.preferred_name}}{{#unless member.profile.title}}vertically_center_full_name{{/unless}}{{/unless}}">
         {{getMemberFullName member}}
         <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
+        {{#feature flag="feature_user_custom_status"}}
+          {{#or member.profile.status_emoji member.profile.status_text}}
+            <span class="current_status greigh not_in_token normal">
+              {{getMemberCurrentStatusForDisplay member}}
+            </span>
+          {{/or}}
+        {{/feature}}
       </div>
       {{#if member.profile.preferred_name}}
-        <div class="subtle_silver not_in_token">
+        <div class="greigh not_in_token">
           {{getMemberPreferredName member}}
           {{~#if member.profile.title}}{{#if member.profile.preferred_name}},{{/if}} {{member.profile.title}}{{/if}}
         </div>
       {{else}}
-        <div class="subtle_silver not_in_token">
+        <div class="greigh not_in_token">
           {{#if member.profile.title}}
             {{#if member.profile.preferred_name}},{{/if}} {{member.profile.title}}
           {{/if}}
@@ -24,8 +31,15 @@
         <div class="bold">
           {{member.profile.real_name}}
           <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
+          {{#feature flag="feature_user_custom_status"}}
+            {{#or member.profile.status_emoji member.profile.status_text}}
+              <span class="current_status greigh not_in_token normal">
+                {{getMemberCurrentStatusForDisplay member}}
+              </span>
+            {{/or}}
+          {{/feature}}
         </div>
-        <div class="subtle_silver not_in_token">
+        <div class="greigh not_in_token">
           @{{member.name~}}
           {{~#if member.profile.title}}, {{member.profile.title}}{{/if}}
         </div>
@@ -33,9 +47,16 @@
         <div class="bold">
           {{member.name}}
           <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
+          {{#feature flag="feature_user_custom_status"}}
+            {{#or member.profile.status_emoji member.profile.status_text}}
+              <span class="current_status greigh not_in_token normal">
+                {{getMemberCurrentStatusForDisplay member}}
+              </span>
+            {{/or}}
+          {{/feature}}
         </div>
         {{#if member.profile.title}}
-          <div class="subtle_silver not_in_token">{{member.profile.title}}</div>
+          <div class="greigh not_in_token">{{member.profile.title}}</div>
         {{/if}}
       {{/if}}
     {{/feature}}

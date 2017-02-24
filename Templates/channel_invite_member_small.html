@@ -6,12 +6,30 @@
   {{{makeMemberPreviewLinkImage member.id 36 false true}}}
   <div class="name_container overflow_ellipsis">
     {{#feature flag="feature_name_tagging_client"}}
-      <div class="bold">{{getMemberFullName member}}</div>
-      <div class="subtle_silver not_in_token">{{getMemberPreferredName member}}</div>
+      <div class="bold">
+        {{getMemberFullName member}}
+        {{#feature flag="feature_user_custom_status"}}
+          {{#or member.profile.status_emoji member.profile.status_text}}
+            <span class="current_status greigh not_in_token normal">
+              {{getMemberCurrentStatusForDisplay member}}
+            </span>
+          {{/or}}
+        {{/feature}}
+      </div>
+      <div class="greigh not_in_token">{{getMemberPreferredName member}}</div>
     {{else}}
       {{#if member.profile.real_name}}
-        <div class="bold">{{member.profile.real_name}}</div>
-        <div class="subtle_silver not_in_token">{{member.name}}</div>
+        <div class="bold">
+          {{member.profile.real_name}}
+          {{#feature flag="feature_user_custom_status"}}
+            {{#or member.profile.status_emoji member.profile.status_text}}
+              <span class="current_status greigh not_in_token normal">
+                {{getMemberCurrentStatusForDisplay member}}
+              </span>
+            {{/or}}
+          {{/feature}}
+        </div>
+        <div class="greigh not_in_token">{{member.name}}</div>
       {{else}}
         <div class="bold">{{member.name}}</div>
       {{/if}}

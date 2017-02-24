@@ -18,7 +18,7 @@
   "></button>
 {{~/if~}}
 {{~#if show_comment_action~}}
-  <a data-action="comment" {{#isWeb}}href="{{msg.file.permalink}}" target="{{newWindowName}}"{{/isWeb}} class="btn_unstyle btn_msg_action ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Add comment &hellip;{{/t}}"></a>
+  <a data-action="comment" href="{{msg.file.permalink}}" target="{{newWindowName}}" class="btn_unstyle btn_msg_action ts_icon ts_icon_comment_alt ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Add comment &hellip;{{/t}}"></a>
 {{~/if~}}
 {{~#if is_in_thread~}}
   {{#if is_root_msg}}<button type="button" data-action="open_in_channel" class="btn_unstyle btn_msg_action ts_icon ts_icon_jump ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t}}Open in channel{{/t}}"></button>{{/if}}
@@ -35,4 +35,6 @@
     {{~/if~}}
   {{~/if~}}
 {{~/if~}}
-<button type="button" data-action="actions_menu" class="btn_unstyle btn_msg_action ts_icon ts_icon_small_ellipsis ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t note="Show a menu with a full list of available actions to take on this message"}}Show message actions{{/t}}"></button>
+{{~#unless hide_actions_menu~}}
+  <button type="button" data-action="actions_menu" class="btn_unstyle btn_msg_action ts_icon ts_icon_small_ellipsis ts_tip ts_tip_top ts_tip_float {{ts_tip_delay_class}}" title="{{#t note="Show a menu with a full list of available actions to take on this message"}}Show message actions{{/t}}"></button>
+{{~/unless~}}

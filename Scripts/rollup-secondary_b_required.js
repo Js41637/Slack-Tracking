@@ -929,7 +929,6 @@
             var $form = input.closest("form");
             var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
             if (!TS.client || $form.outerHeight() < msgs_scroller_dimensions.height) {
-              console.log("scrolling into view");
               $form.find("button[type=submit]").scrollintoview({
                 px_offset: -50
               });

@@ -12,7 +12,7 @@
       {{#if options.inline}}
         <span class="inline_thread_title">{{#t}}Thread{{/t}}</span>
       {{else}}
-        <a>
+        <a href="{{channel_msg_permalink}}">
           {{~#if model_ob.is_channel~}}
             <ts-icon class="ts_icon_channel_pane_hash"></ts-icon>{{model_ob.name}}
           {{~else if model_ob.is_im~}}
@@ -44,6 +44,9 @@
           <div class="view_all_replies_container">
             <span class="view_all_error_msg hidden">{{#t}}Couldn\u2019t load replies.{{/t}}</span>
             <a class="view_all_replies" data-model-ob-id="{{model_ob.id}}" data-thread-ts="{{root_msg.thread_ts}}" href="{{conversation_permalink}}" target="_blank">{{#t}}View {view_previous_count, plural, =1 {# previous reply} other {# previous replies}}{{/t}}</a><span class="view_all_loading_container"></span>
+            {{#if visible_reply_count}}
+              <span class="visible_reply_count float_right">{{#t note="thread visible reply count (ex. 12 of 102)"}}{visible_reply_count} of {total_reply_count}{{/t}}</span>
+            {{/if}}
           </div>
         {{/if}}
       {{/unless}}

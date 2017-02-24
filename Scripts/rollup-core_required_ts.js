@@ -2068,7 +2068,7 @@
   ];
   var _fetchAndStoreMemoryStats = function() {
     if (desktop && desktop.stats && desktop.stats.getTeamsMemoryUsage && desktop.stats.getCombinedMemoryUsage) {
-      var memory_team_mb, memory_app_mb;
+      var memory_team_mb, memory_app_mb, memory_app_shared_mb, memory_app_private_mb;
       var get_teams_p = TSSSB.call("getTeamsMemoryUsage");
       var get_app_p = TSSSB.call("getCombinedMemoryUsage");
       Promise.all([get_teams_p, get_app_p]).then(function(data) {
@@ -2080,8 +2080,12 @@
           TS.metrics.store("memory_team_mb_" + team.state, memory_team_mb);
         });
         if (!_app_memory_data || !_app_memory_data.memory) throw _app_memory_data;
-        memory_app_mb = Math.ceil(TS.utility.convertKilobytesToMegabytes(_app_memory_data.memory.privateBytes + _app_memory_data.memory.sharedBytes));
+        memory_app_shared_mb = Math.ceil(TS.utility.convertKilobytesToMegabytes(_app_memory_data.memory.sharedBytes));
+        memory_app_private_mb = Math.ceil(TS.utility.convertKilobytesToMegabytes(_app_memory_data.memory.privateBytes));
+        memory_app_mb = memory_app_shared_mb + memory_app_private_mb;
         TS.metrics.store("memory_app_mb_" + _app_memory_data.numTeams + "_teams", memory_app_mb);
+        TS.metrics.store("memory_app_shared_mb_" + _app_memory_data.numTeams + "_teams", memory_app_shared_mb);
+        TS.metrics.store("memory_app_private_mb_" + _app_memory_data.numTeams + "_teams", memory_app_private_mb);
       }).catch(function(err) {
         TS.warn("TS.metrics: Invalid data returned by desktop.stats", err);
       });
@@ -2276,7 +2280,23 @@
     },
     number: function(num) {
       _maybeSetup();
-      return new Intl.NumberFormat(_locale).format(num);
+      return Intl.NumberFormat(_locale).format(num);
+    },
+    sorter: function(a, b) {
+      _maybeSetup();
+      if (!a || !b) return !a ? -1 : 1;
+      if (Intl.Collator) {
+        return Intl.Collator(_locale).compare(a, b);
+      }
+      return a.localeCompare(b);
+    },
+    mappedSorter: function(map) {
+      return function(a, b) {
+        if (!a || !b) return !a ? -1 : 1;
+        a = _.map([a], map)[0];
+        b = _.map([b], map)[0];
+        return TS.i18n.sorter(a, b);
+      };
     },
     possessive: function(str) {
       _maybeSetup();
@@ -2993,6 +3013,7 @@
     slim_scrollbar: false,
     supports_flexbox: false,
     supports_line_clamp: false,
+    supports_intersection_observer: false,
     onStart: function() {
       _initialSetup();
       _decoratePageWithSupport();
@@ -3094,6 +3115,7 @@
     TS.environment.slim_scrollbar = TS.environment.supports_custom_scrollbar && TS.boot_data.feature_slim_scrollbar;
     TS.environment.supports_flexbox = _cssPropertySupported("flex-wrap");
     TS.environment.supports_line_clamp = TS.boot_data.feature_files_list && _cssPropertySupported("line-clamp");
+    TS.environment.supports_intersection_observer = typeof IntersectionObserver === "function";
   }
 
   function _bindEvents() {
@@ -3134,6 +3156,10 @@
       setInterval(_sendDataAndEmptyQueue, interval_duration_ms + noise_ms);
       $(window).on("beforeunload", _sendDataAndEmptyQueue);
       $("body").on("click", '[data-clog-click="true"]', _onClick);
+      if (_.get(TS, "model.user.id") && _.get(TS, "model.team.id")) {
+        TS.clog.setUser(TS.model.user.id);
+        TS.clog.setTeam(TS.model.team.id);
+      }
     },
     setUser: function(id) {
       _user_id = id;

@@ -21,6 +21,15 @@
   <span class="im_display_name">{{display_name}}{{#if is_self}} {{#t note="Part of self DM label (placed next to user's own name)"}}(you){{/t}}{{/if}}</span>
   {{#if item.member}}<span class="im_presence">{{{makeMemberPresenceIcon item.member}}}</span>{{/if}}
   {{#if secondary_name}}<span class="greigh normal">{{secondary_name}}</span>{{/if}}
+  {{#if item.member}}
+    {{#feature flag="feature_user_custom_status"}}
+      {{#or item.member.profile.status_emoji item.member.profile.status_text}}
+        <span class="current_status greigh normal">
+          {{getMemberCurrentStatusForDisplay item.member}}
+        </span>
+      {{/or}}
+    {{/feature}}
+  {{/if}}
 </div>
 {{#if unread_cnt}}
   <div class="im_unread_cnt float_right small_left_margin">{{unread_cnt}}</div>

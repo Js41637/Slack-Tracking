@@ -2024,7 +2024,6 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
 
 #details_tab .edit_purpose {
   display: none;
-  vertical-align: bottom;
   font-size: .8rem;
   line-height: 1.5
 }
@@ -2043,10 +2042,6 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
 
 .font_size_adjusted #details_tab .edit_notif_prefs_btn {
   white-space: normal
-}
-
-#details_tab .preference_dialog_btn {
-  vertical-align: bottom
 }
 
 #details_tab .restricted_members_count {
@@ -4404,7 +4399,7 @@ body.sorting_mode .channels_list_holder ul {
 #msgs_scroller_div #end_display_div #end_display_meta {
   padding: 0 1.1rem 0 0;
   font-size: 1.1rem;
-  color: #9e9ea6;
+  color: #717274;
   font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 1.5rem;
   max-width: 46.875rem
@@ -4696,13 +4691,13 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 .message_location_label {
-  color: #9e9ea6;
+  color: #717274;
   font-size: 13px;
   display: block
 }
 
 .message_location_label a {
-  color: #9e9ea6;
+  color: #717274;
   font-weight: 700
 }
 
@@ -4763,7 +4758,7 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 .calendar table.mini td.limited a,
 .calendar table.mini td.limited a:hover {
   background-color: #DDD;
-  color: #9e9ea6
+  color: #717274
 }
 
 .bot_message .message_sender,
@@ -5458,7 +5453,7 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
 
 .inline_attachment span.attachment_author_subname,
 .inline_attachment span.attachment_service_name {
-  color: #9e9ea6
+  color: #717274
 }
 
 .inline_attachment a span:active,
@@ -5474,7 +5469,7 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
 
 .inline_attachment .attachment_footer,
 .inline_attachment .attachment_ts {
-  color: #9e9ea6;
+  color: #717274;
   font-size: .75rem;
   line-height: .875rem;
   padding-top: .25rem
@@ -5482,7 +5477,7 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
 
 .inline_attachment .attachment_footer a,
 .inline_attachment .attachment_ts a {
-  color: #9e9ea6
+  color: #717274
 }
 
 .inline_attachment .attachment_footer a:active,
@@ -12304,7 +12299,8 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   padding-bottom: .375rem;
   padding-left: .625rem;
   padding-right: .625rem;
-  font-size: .8125rem
+  font-size: .8125rem;
+  font-weight: 700
 }
 
 .tab_container .star_item .message .message_sender,
@@ -17338,6 +17334,14 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   color: #2780F8
 }
 
+#im_browser .im_browser_row .current_status {
+  margin-left: 5px
+}
+
+#im_browser .im_browser_row .current_status .emoji-sizer:first-of-type {
+  margin-right: 2px
+}
+
 #im_browser .remaining_participant_hint {
   display: none;
   font-size: .8125rem;
@@ -19360,7 +19364,7 @@ ts-message.show_recap:not(.is_pinned):hover {
   background: #F3FAF6
 }
 
-ts-message.show_recap:not(.is_pinned) .is_highlights_holder {
+ts-message.show_recap:not(.is_pinned):not(.is_recap_unfurl) .is_highlights_holder {
   display: block
 }
 
@@ -20839,6 +20843,11 @@ ts-thread .view_all_replies_container .infinite_spinner {
   margin-left: .375rem;
   position: relative;
   top: .1875rem
+}
+
+ts-thread .collapse_inline_thread_container .visible_reply_count,
+ts-thread .view_all_replies_container .visible_reply_count {
+  color: #717274
 }
 
 html.supports_flexbox ts-thread .reply_input_container {

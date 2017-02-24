@@ -6729,16 +6729,6 @@ only screen and (min-resolution:2dppx) {
   white-space: nowrap
 }
 
-.btn_convert_to_snippet {
-  vertical-align: baseline;
-  color: #007AB8
-}
-
-.btn_convert_to_snippet:focus,
-.btn_convert_to_snippet:hover {
-  text-decoration: underline
-}
-
 .btn_convert_to_snippet:focus {
   outline: 0
 }

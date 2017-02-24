@@ -75,7 +75,7 @@
         {{#if is_tombstone}}
           <div class="deleted_message">{{#t}}This message was deleted.{{/t}}</div>
         {{else}}
-          {{#feature flag="feature_sli_recaps"}}{{#if show_recap_debug}}<button class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
+          {{#feature flag="feature_sli_recaps"}}{{#if show_recap_debug}}<button type="button" class="recap_highlight_debug ts_icon ts_icon_info_circle ts_tip ts_tip_top ts_tip_float ts_tip_multiline btn_unstyle very_small_left_padding">
                   <span class="ts_tip_tip ts_tip_multiline_inner">
                     {{#t note="stat for clicks message has received"}}Clicks:{{/t}} {{msg.recap.data.clicks}}<br />
                     {{#t note="stat for reactions on message"}}Reactions:{{/t}} {{msg.recap.data.reactions}} <br />
@@ -327,7 +327,7 @@
 
     <i class="copy_only"><br></i>
     {{#if unprocessed}}
-      <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><a class="resend_temp_msg">resend</a> \u2022 <a class="remove_temp_msg">remove</a>?)</nobr>{{/t}}</span>
+      <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link resend_temp_msg">resend</button> \u2022 <button type="button" class="btn_link remove_temp_msg">remove</button>?)</nobr>{{/t}}</span>
     {{/if}}
 
     {{#if standalone}}
