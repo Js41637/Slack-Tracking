@@ -1,3 +1,6 @@
+//we've injected custom flavored bugsnag setup, so only import type definition
+// tslint:disable-line:no-reference
+/// <reference path="../node_modules/@types/bugsnag/index.d.ts" />
 import {BaseStore} from './lib/base-store';
 import {WebappWindowManager} from './ssb/webapp-window-manager';
 import {AppIntegration} from './ssb/app';
@@ -84,6 +87,7 @@ declare global {
 
     teamId?: string;
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: any;
+    Bugsnag: BugsnagStatic;
   }
 
   namespace Electron {
@@ -115,13 +119,7 @@ declare global {
       document: Document;
       window: Window;
       debugProfiler: any;
-      Bugsnag: {
-        user: {
-          id: string;
-          name: string;
-        }
-        metaData: any;
-      };
+      Bugsnag: BugsnagStatic;
     }
 
     interface Process {

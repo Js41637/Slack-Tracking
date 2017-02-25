@@ -7,7 +7,7 @@ import {session} from 'electron';
 import {getInitialsOfName} from '../reducers/teams-reducer';
 import {logger} from '../logger';
 import {p} from '../get-path';
-import CookieParser from './safari-cookies';
+import * as CookieParser from './safari-cookies';
 
 /**
  * This class provides ways to parse data from pre-2.0 versions of the Electron
@@ -152,7 +152,7 @@ export class MigrationManager {
    * @return {Promise}            Completion.
    */
   private async migrateCookieFile(file: string, cookiesSeen: any) {
-    const cookieParser = new CookieParser();
+    const cookieParser = (CookieParser as any)();
     let cookies: {
       [Symbol.iterator](): any
     } | null = null;

@@ -85,7 +85,8 @@ export default class SlackApp extends Component {
     // Disable pinch-to-zoom (should still allow manual zooming via menu commands)
     webFrame.setVisualZoomLevelLimits(1, 1);
 
-    this.disposables.add(this.setupNetwork());
+    this.networkStatusObservable = this.setupNetworkStatus();
+    this.disposables.add(this.networkStatusObservable);
     this.disposables.add(this.setupKeyDownHandlers());
 
     // Otherwise we'll use {HtmlNotificationManager} in the browser process
@@ -137,20 +138,24 @@ export default class SlackApp extends Component {
    *
    * @return {Subscription}  Manages the event subscription
    */
-  setupNetwork() {
+  setupNetworkStatus() {
     this.networkStatus = new NetworkStatus();
 
-    return this.networkStatus.statusObservable()
+    const sub = this.networkStatus.firstSuccessfulNetworkCheck()
+      .subscribe(() => this.setState({ wasConnected: true }));
+
+    sub.add(this.networkStatus.statusObservable()
       .subscribe((online) => {
         if (online) {
           appActions.setNetworkStatus('online');
-          this.setState({wasConnected: true});
         } else if (this.networkStatus.isBrowserOnline && this.networkStatus.reason === 'slackDown') {
           appActions.setNetworkStatus('slackDown');
         } else {
           appActions.setNetworkStatus('offline');
         }
-      });
+      }));
+
+    return sub;
   }
 
   setupKeyDownHandlers() {
@@ -220,6 +225,14 @@ export default class SlackApp extends Component {
       this.notificationManager.dispose();
     } else if (!this.state.isShowingHtmlNotifications && prevState.isShowingHtmlNotifications) {
       this.notificationManager = new NativeNotificationManager();
+    }
+
+    // Don't thrash the network while we're waiting for the user to login.
+    if (this.state.authInfo && !prevState.authInfo) {
+      this.networkStatusObservable.unsubscribe();
+    } else if (!this.state.authInfo && prevState.authInfo) {
+      this.networkStatusObservable = this.setupNetworkStatus();
+      this.disposables.add(this.networkStatusObservable);
     }
   }
 

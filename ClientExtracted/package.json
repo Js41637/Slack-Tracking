@@ -1,8 +1,8 @@
 {
   "name": "slack",
   "productName": "Slack",
-  "version": "2.5.0",
-  "buildVersion": 4025,
+  "version": "2.5.1",
+  "buildVersion": 4030,
   "versionName": "Walking on a Dream",
   "description": "Slack Desktop",
   "copyright": "©2017 Slack Technologies Inc.",
@@ -83,6 +83,7 @@
     "fs-extra": "^2.0.0",
     "getmac": "^1.2.1",
     "getos": "^2.8.4",
+    "glibc-legal-notice": "^1.0.5",
     "graceful-fs": "^4.1.11",
     "hammerjs": "^2.0.8",
     "hashids": "^1.1.1",
@@ -164,14 +165,16 @@
   },
   "optionalDependencies": {
     "@slack/macgap-pref-reader": "^0.0.5",
-    "electron-text-substitutions": "^1.4.11",
+    "electron-text-substitutions": "^1.4.13",
     "node-mac-notifier": "^0.0.13",
     "electron-windows-interactive-notifications": "^0.7.5"
   },
   "devDependencies": {
     "@mikermcneil/kit": "^1.3.13",
     "@paulcbetts/electron-packager": "^5.3.0",
+    "@paulcbetts/legal-eagle": "^0.13.0-pr.11v5",
     "@paulcbetts/linux-distro": "^3.0.2",
+    "@types/bugsnag": "^2.5.28",
     "@types/chai": "^3.4.34",
     "@types/jest": "^16.0.4",
     "@types/lodash": "^4.14.50",
@@ -210,7 +213,6 @@
     "jest-teamcity-reporter": "^0.3.0",
     "json-stable-stringify": "^1.0.1",
     "lcov-summary": "^1.0.1",
-    "legal-eagle": "^0.13.0",
     "lint-staged": "^3.2.7",
     "lodash": "^4.17.4",
     "madge": "^1.5.0",
@@ -236,6 +238,6 @@
     "typescript": "^2.1.5",
     "yargs": "^3"
   },
-  "commit": "441e5a348d925ee6da73d29f4d1617ca0b1b6b29",
+  "commit": "3c0af3857fa3a25877555b8da5f22ee26c70b2f4",
   "channel": "beta"
 }

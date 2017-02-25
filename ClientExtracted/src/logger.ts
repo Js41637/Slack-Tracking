@@ -34,6 +34,7 @@ export class Logger {
   public readonly logLocation: string;
   private readonly logApi: winston.LoggerInstance;
   private readonly sub: Subscription;
+  private readonly consoleErrorExclusionList: Readonly<Array<string>> = ['Warning: Possible EventEmitter memory leak detected.'];
 
   /**
    * Creates a new logger instance.
@@ -88,6 +89,7 @@ export class Logger {
       uniqueId = `webview-${process.guestInstanceId}`;
     } else {
       uniqueId = `renderer-${process.pid}`;
+      this.hookConsoleError();
     }
 
     if (!dontSetUpWinston) {
@@ -107,22 +109,22 @@ export class Logger {
 
   public debug(message: string, ...meta: Array<any>): void {
     if (isBrowser) d(message, ...meta);
-    this.logApi.debug(message, meta);
+    this.logApi.debug(message, ...meta);
   }
 
   public info(message: string, ...meta: Array<any>): void {
     if (isBrowser) d(message, ...meta);
-    this.logApi.info(message, meta);
+    this.logApi.info(message, ...meta);
   }
 
   public warn(message: string, ...meta: Array<any>): void {
     if (isBrowser) d(message, ...meta);
-    this.logApi.warn(message, meta);
+    this.logApi.warn(message, ...meta);
   }
 
   public error(message: string, ...meta: Array<any>): void {
     d(message, ...meta);
-    this.logApi.error(message, meta);
+    this.logApi.error(message, ...meta);
   }
 
   public fatal(message: string): void {
@@ -142,20 +144,26 @@ export class Logger {
    * Returns our app log files. The logs will be sorted by
    * modification time, so we'll only grab the most recent `n` files.
    *
-   * @param  {Number} maxFiles            The maximum number of log files to retrieve
+   * @param  {Number} days                The oldest modified day to pick up logs.
    * @param  {Function} [transform=null]  An optional function to apply to the Observable
    * @return {Promise<Array<File>>}       A Promise that resolves with an array of Files
    */
-  public getMostRecentLogFiles(maxFiles: number = 8, transform: Function | null = null): Promise<Array<string>> {
-    const sortedLogs = this.getLogFiles().sort((a, b) =>
-      (+fs.statSyncNoException(b).mtime) - (+fs.statSyncNoException(a).mtime));
+  public getMostRecentLogFiles(days: number = 7, transform: Function | null = null): Promise<Array<string>> {
+    const transformFunction = transform || (<T>(observable: Observable<T>) => observable);
 
-    transform = transform || (<T>(observable: Observable<T>) => observable);
+    const recentLogs = this.getLogFiles().filter((file: string) => {
+      const stat = fs.statSyncNoException(file);
+      if (stat && stat.mtime) {
+        //we do not need accurate date calculation, take rough way to estimate it
+        const date = Math.floor((Date.now() - stat.mtime.getTime()) / 86400000);
+        return date < days;
+      }
+      return false;
+    });
 
-    return transform(Observable.from(sortedLogs)
-      .filter((files) => files.length > 0)
-      .take(maxFiles))
+    return transformFunction(Observable.from(recentLogs))
       .catch(() => Observable.of(null))
+      .filter((x: string) => !!x && x.length)
       .reduce((acc: Array<string>, file: string) => {
         if (file) acc.push(file);
         return acc;
@@ -223,6 +231,40 @@ export class Logger {
       this.logApi.warn(`Unable to retrieve logs: ${error.message}`);
       return [];
     }
+  }
+
+
+  /**
+   * Wire console.error messages to logger instance setup, as well as report to bugsnag.
+   *
+   */
+  private hookConsoleError(): void {
+    const originalError = console.error;
+
+    console.error = (message?: any, ...args: Array<any>) => {
+      try {
+        this.error(message, ...args);
+
+        let excludeNotify = false;
+        if (message && typeof message === 'string') {
+          excludeNotify = this.consoleErrorExclusionList.some((value: string) => (message as string).indexOf(value) !== -1);
+        }
+
+        const reporter = window.Bugsnag || global.Bugsnag;
+        if (!!reporter && !excludeNotify) {
+          const metaData = (!!args && args.length > 0) ?
+            args.reduce((acc: {}, value: any, index: number) => {
+              acc[index] = value;
+              return acc;
+            }, {}) : {};
+          reporter.notify(message, metaData);
+        }
+      } catch (e) {
+        originalError('could not log console error into logger', e);
+      }
+
+      originalError(message, ...args);
+    };
   }
 }
 

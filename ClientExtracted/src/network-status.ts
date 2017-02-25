@@ -1,6 +1,7 @@
 import {networkStatusType} from './utils/shared-constants';
 import {logger} from './logger';
 import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
 import {async} from 'rxjs/scheduler/async';
 
 import './custom-operators';
@@ -11,6 +12,7 @@ import './custom-operators';
 export class NetworkStatus {
   private readonly onlineEventObservable = Observable.fromEvent(window, 'online');
   private readonly offlineEventObservable = Observable.fromEvent(window, 'offline');
+  private readonly networkCheckSuccess = new Subject<boolean>();
   private readonly scheduler = async;
   private reason: networkStatusType;
   private currentStatus: boolean;
@@ -43,14 +45,25 @@ export class NetworkStatus {
   }
 
   /**
+   * `statusObservable` starts with `navigator.onLine`, which is not indicative
+   * of real online. So let's expose an Observable that is just the first
+   * successful network check.
+   *
+   * @return {Observable<boolean>}  An Observable that yields the first network check
+   */
+  public firstSuccessfulNetworkCheck(): Observable<boolean> {
+    return this.networkCheckSuccess.take(1);
+  }
+
+  /**
    * Gives you an ongoing update of the current state of the network. Yields
    * 'true' or 'false' as to whether the network is both connected, and
    * functional (i.e. Slack is online).
    *
-   * @return {Observable}  An Observable which keeps yielding values when the
-   * network goes online / offline
+   * @return {Observable<boolean>}  An Observable which keeps yielding values
+   * when the network goes online / offline
    */
-  public statusObservable(): Observable<networkStatusType> {
+  public statusObservable(): Observable<boolean> {
     // The status that the browser reports to us is generally believable if
     // they say we're *offline*, but not super trustworthy when they say we're
     // *online*. We're gonna try to debounce their nonsense a bit, so that code
@@ -126,6 +139,7 @@ export class NetworkStatus {
 
         return Observable.of(true);
       })
+      .do(() => this.networkCheckSuccess.next(true))
       .publishLast();
 
     ret.connect();

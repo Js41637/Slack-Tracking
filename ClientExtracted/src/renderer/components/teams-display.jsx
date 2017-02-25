@@ -229,6 +229,7 @@ export default class TeamsDisplay extends Component {
   }
 
   setTeamUnloaded(teamId, isUnloaded) {
+    logger.info(`Marking team ${teamId} as ${isUnloaded ? 'un' :''}loaded`);
     this.refs[teamId].setTeamUnloaded(isUnloaded);
   }
 
@@ -237,11 +238,17 @@ export default class TeamsDisplay extends Component {
   }
 
   unloadTeam(teamId) {
-    return this.refs[teamId].executeJavaScriptIfBooted('TSSSB.unloadTeam');
+    return this.refs[teamId].executeJavaScriptIfBooted('TSSSB.unloadTeam').catch((err) => {
+      logger.warn('Unable to unload team', teamId, err);
+      return false;
+    });
   }
 
   reloadTeam(teamId) {
-    return this.refs[teamId].executeJavaScript('window.MW && MW.loadTeam()');
+    return this.refs[teamId].executeJavaScript('window.MW && MW.loadTeam()').catch((err) => {
+      logger.warn('Unable to reload team', teamId, err);
+      return false;
+    });
   }
 
   /**

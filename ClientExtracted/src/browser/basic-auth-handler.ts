@@ -1,18 +1,28 @@
-import {app} from 'electron';
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
-import {logger} from '../logger';
+import { app } from 'electron';
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 
-import {AuthenticationInfo, Credentials, dialogActions} from '../actions/dialog-actions';
-import {networkStatusType} from '../utils/shared-constants';
-import {appStore} from '../stores/app-store';
-import {dialogStore} from '../stores/dialog-store';
-import {ReduxComponent} from '../lib/redux-component';
+import { Credentials, dialogActions } from '../actions/dialog-actions';
+import { dialogStore } from '../stores/dialog-store';
+import { logger } from '../logger';
+import { ReduxComponent } from '../lib/redux-component';
 
 export interface BasicAuthHandlerState {
-  authInfo: AuthenticationInfo;
+  authInfo: Electron.LoginAuthInfo;
   credentials: Credentials;
-  networkStatus: networkStatusType;
+}
+
+interface LoginEventArgs {
+  event: Electron.Event;
+  request: Electron.LoginRequest;
+  authInfo: Electron.LoginAuthInfo;
+  callback: (username: string, password: string) => void;
+}
+
+interface LoginCompletedArgs {
+  username: string;
+  password: string;
+  callback: (username: string, password: string) => void;
 }
 
 /**
@@ -31,7 +41,7 @@ export class BasicAuthHandler extends ReduxComponent<BasicAuthHandlerState> {
 
     // NB: Take the parameters we need from the event
     const loginEvent = options.loginObservable || Observable.fromEvent(app, 'login',
-      (e, _webContents, _request, authInfo, callback) => ({e, authInfo, callback}));
+      (e, _webContents, request, authInfo, callback) => ({ event: e, request, authInfo, callback }));
 
     /**
      * When we get a login event:
@@ -41,16 +51,15 @@ export class BasicAuthHandler extends ReduxComponent<BasicAuthHandlerState> {
      */
     this.disposables.add(loginEvent
       .filter(() => this.state.authInfo === null)
-      .do(({e, authInfo}: {e: Electron.Event, authInfo: AuthenticationInfo}) => this.showAuthDialog(e, authInfo))
-      .flatMap(({callback}: {callback: Function}) => this.credentialsFromDialog(callback))
-      .subscribe(({callback, username, password}: {callback: Function, username: string, password: string}) => callback(username, password)));
+      .do(({ event, authInfo, request }: LoginEventArgs) => this.showAuthDialog(event, authInfo, request))
+      .flatMap(({ callback }: { callback: Function }) => this.credentialsFromDialog(callback))
+      .subscribe(({ username, password, callback }: LoginCompletedArgs) => callback(username, password)));
   }
 
   public syncState(): Partial<BasicAuthHandlerState> {
     return {
       authInfo: dialogStore.getInfoForAuthDialog(),
-      credentials: dialogStore.getAuthCredentials(),
-      networkStatus: appStore.getNetworkStatus()
+      credentials: dialogStore.getAuthCredentials()
     };
   }
 
@@ -62,12 +71,13 @@ export class BasicAuthHandler extends ReduxComponent<BasicAuthHandlerState> {
    * Prevents the default event behavior (that is, to cancel the auth) and
    * shows our own auth dialog.
    *
-   * @param  {Object} e         The `login` event from Electron
-   * @param  {Object} authInfo  Contains info about the request
+   * @param  {Event}          event     The `login` event from Electron
+   * @param  {LoginAuthInfo}  authInfo  Contains info about the request
+   * @param  {LoginRequest}   request   The login request from Electron
    */
-  private showAuthDialog(e: Electron.Event, authInfo: AuthenticationInfo): void {
-    e.preventDefault();
-    logger.info(`Got login event for ${JSON.stringify(authInfo)}`);
+  private showAuthDialog(event: Electron.Event, authInfo: Electron.LoginAuthInfo, request: Electron.LoginRequest): void {
+    event.preventDefault();
+    logger.info('Got login event, now showing the authentication dialog', { authInfo, request });
     dialogActions.showAuthenticationDialog(authInfo);
   }
 
@@ -78,14 +88,15 @@ export class BasicAuthHandler extends ReduxComponent<BasicAuthHandlerState> {
    * @param  {Function} callback  The callback from the `login` event
    * @return {Observable}         An Observable that emits when credentials are submitted
    */
-  private credentialsFromDialog(callback: Function): Observable<{callback: Function, username: string, password: string}> {
+  private credentialsFromDialog(callback: Function): Observable<LoginCompletedArgs> {
     logger.info('Waiting for user credentials');
 
     const ret = this.authInfoObservable
       .filter((authInfo) => authInfo === null)
       .map(() => {
-        const {username, password} = this.state.credentials;
-        return {callback, username, password};
+        logger.info('Received user credentials, passing on.');
+        const { username, password } = this.state.credentials;
+        return { callback, username, password };
       })
       .take(1)
       .publish();

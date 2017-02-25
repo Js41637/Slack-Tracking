@@ -161,7 +161,8 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
 
         const renderTeamSidebarItem = ({y, scale, shadow}: MotionCallbackArgs) => {
           const itemStyle: React.CSSProperties = {
-            left, top,
+            left,
+            top,
             transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
             zIndex: teamId === lastMovedTeamId ? 1 : 0,
             color: textColor
@@ -267,9 +268,9 @@ export class TeamSidebar extends Component<TeamSidebarProps, Partial<TeamSidebar
   private handleMouseEventsOnWindow(): Subscription {
     const sub = Observable.fromEvent(window, 'mousemove')
       .subscribe(this.handleMouseMove.bind(this));
-
-    return sub.add(Observable.fromEvent(window, 'mouseup')
+    sub.add(Observable.fromEvent(window, 'mouseup')
       .subscribe(this.handleMouseUp.bind(this)));
+    return sub;
   }
 
   private handleMouseDown(teamId: string, pressY: number, e: MouseEvent): void {

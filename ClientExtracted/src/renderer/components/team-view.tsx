@@ -492,14 +492,19 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   }): void {
     if (validatedURL.startsWith(this.state.team.team_url)) {
       this.issueReloadWithReason(`WebView failed to load ${validatedURL} with ${errorCode}: ${errorDescription}`);
+    } else {
+      logger.info(`WebView ${validatedURL} encountered error, but not team url - not issuing refresh.`, {errorCode, errorDescription});
     }
   }
 
   private onWebViewEmpty(webViewURL: string) {
     const isTeamUnloading = webViewURL.startsWith(theURL.resolve(this.state.team.team_url, 'min'));
+    const isSigninURL = this.isSigninURL(webViewURL);
 
-    if (!this.isSigninURL(webViewURL) && !isTeamUnloading) {
-      this.issueReloadWithReason(`WebView was empty after did-stop-loading; issuing refresh`);
+    if (!isSigninURL && !isTeamUnloading) {
+      this.issueReloadWithReason('WebView was empty after did-stop-loading; issuing refresh.');
+    } else {
+      logger.info(`Determined that the webView ${webViewURL} is empty, but not issuing a refresh.`, {isSigninURL, isTeamUnloading});
     }
   }
 

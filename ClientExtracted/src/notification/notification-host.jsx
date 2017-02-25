@@ -2,6 +2,7 @@ import {union} from '../utils/union';
 import {remote, webFrame} from 'electron';
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
+import {animationFrame} from 'rxjs/scheduler/animationFrame';
 import React from 'react';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -58,6 +59,14 @@ export default class NotificationHost extends Component {
             this.state.zoomLevel, this.state.notifyPosition);
         })
     );
+
+    this.notificationStateObservable = new Subject();
+    this.componentUnmountedObservable = new Subject();
+
+    this.notificationStateObservable
+      .takeUntil(this.componentUnmountedObservable)
+      .observeOn(animationFrame)
+      .subscribe((state) => this.setState(state));
   }
 
   syncState() {
@@ -72,6 +81,10 @@ export default class NotificationHost extends Component {
 
   componentDidMount() {
     this.setZoomLevelAndLimits();
+  }
+
+  componentWillUnmount() {
+    this.componentUnmountedObservable.next(true);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -116,7 +129,8 @@ export default class NotificationHost extends Component {
       displayed = union(displayed, added);
       this.setState({displayedNotifs: displayed});
       displayed = union(remaining, added);
-      requestAnimationFrame(() => this.setState({displayedNotifs: displayed}));
+
+      this.notificationStateObservable.next({displayedNotifs: displayed});
     }
   }
 

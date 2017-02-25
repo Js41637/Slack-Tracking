@@ -8,7 +8,6 @@ export interface WindowOpenOptions {
 }
 
 export class WindowOpener {
-
   /**
    * This method is an API that we add solely to popup windows opened via
    * winssb.window.open, that allows the popup to eval JavaScript in the

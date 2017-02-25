@@ -157,7 +157,7 @@ export class WebappWindowManager extends ReduxComponent<WebappWindowManagerState
     const code = getPostMessageTemplate(data, document.location.origin, window.winssb.browserWindowId!);
     const opts = { code, window_token };
 
-    logger.info(`Signaling child from postMessage: ${opts.code}, ${window_token}`);
+    logger.info(`Signaling child from postMessage: ${window_token}`);
     this.executeJavaScriptInWindow(opts);
   }
 

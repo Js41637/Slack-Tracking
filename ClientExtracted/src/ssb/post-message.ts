@@ -9,7 +9,7 @@ export function getPostMessageTemplate(data: string | Object, origin: string, br
     `evt.source = {};` +
     `evt.source.postMessage = function (message) {` +
     `  if (!desktop || !desktop.window || !desktop.window.postMessage) throw 'desktop not ready';` +
-    `  return desktop.window.postMessage(message, '*', ${browserWindowId});` +
+    `  return desktop.window.postMessage(message, ${browserWindowId});` +
     `};` +
     `window.dispatchEvent(evt);` +
     `})();`;

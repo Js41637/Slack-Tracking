@@ -66,4 +66,4 @@ export interface UpdateInformation {
 }
 
 export const IS_STORE_BUILD = process.mas || process.windowsStore;
-export const IS_BOOTED_EVAL = `!!(typeof TSSSB !== 'undefined' && TS && TS._did_full_boot)`;
+export const IS_BOOTED_EVAL = `!!(typeof TSSSB !== 'undefined' && TS && TS.boot_data)`;

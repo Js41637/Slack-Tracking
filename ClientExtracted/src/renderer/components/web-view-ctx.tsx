@@ -247,15 +247,22 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    * https://github.com/javan/electron-webview-ime-fix for details.
    */
   public focus(): void {
+    const defaultFocusMethod = () => this.webViewElement.shadowRoot!.querySelector('object')!.focus();
+
     if (this.state.isMac) {
       //somehow direct focus to webview and its contents in mac os causes synchronous ipc blocking,
       //falls back to legacy focus instead
-      this.webViewElement.shadowRoot!.querySelector('object')!.focus();
+      defaultFocusMethod();
     } else {
-      const contents = this.webViewElement.getWebContents();
-      if (contents && !contents.isFocused()) {
-        this.webViewElement.focus();
-        (contents as any).focus();
+      try {
+        const contents = this.webViewElement.getWebContents();
+        if (!!contents && !contents.isFocused()) {
+          this.webViewElement.focus();
+          (contents as any).focus();
+        }
+      } catch (e) {
+        defaultFocusMethod();
+        logger.warn(e);
       }
     }
 
