@@ -1096,10 +1096,6 @@ input.search_input {
   }
 }
 
-#flex_contents .message_current_status {
-  display: none
-}
-
 #file_list_toggle_users {
   padding: 0 .5rem 0 0;
   float: right;

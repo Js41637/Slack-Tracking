@@ -2335,6 +2335,11 @@
     },
     start_of_the_week: {
       "en-US": 0
+    },
+    test: {
+      setLocale: function(locale) {
+        _locale = locale;
+      }
     }
   });
   var _is_setup;
@@ -3114,7 +3119,7 @@
     TS.environment.supports_custom_scrollbar = _cssPropertySupported("scrollbar");
     TS.environment.slim_scrollbar = TS.environment.supports_custom_scrollbar && TS.boot_data.feature_slim_scrollbar;
     TS.environment.supports_flexbox = _cssPropertySupported("flex-wrap");
-    TS.environment.supports_line_clamp = TS.boot_data.feature_files_list && _cssPropertySupported("line-clamp");
+    TS.environment.supports_line_clamp = _cssPropertySupported("line-clamp");
     TS.environment.supports_intersection_observer = typeof IntersectionObserver === "function";
   }
 
@@ -3156,7 +3161,7 @@
       setInterval(_sendDataAndEmptyQueue, interval_duration_ms + noise_ms);
       $(window).on("beforeunload", _sendDataAndEmptyQueue);
       $("body").on("click", '[data-clog-click="true"]', _onClick);
-      if (_.get(TS, "model.user.id") && _.get(TS, "model.team.id")) {
+      if (TS.model && TS.model.user && TS.model.team && TS.model.user.id && TS.model.team.id) {
         TS.clog.setUser(TS.model.user.id);
         TS.clog.setTeam(TS.model.team.id);
       }
@@ -3311,8 +3316,18 @@
         }
       };
     }
-    args = _.assign(params, args);
+    args = _mergeParams(params, args);
     TS.clog.track(event, args);
+  };
+  var _mergeParams = function(obj1, obj2) {
+    var obj3 = {};
+    for (var attrname in obj1) {
+      obj3[attrname] = obj1[attrname];
+    }
+    for (var property in obj2) {
+      obj3[property] = obj2[property];
+    }
+    return obj3;
   };
 })();
 (function() {

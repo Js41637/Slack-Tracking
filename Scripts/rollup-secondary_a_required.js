@@ -6587,7 +6587,7 @@ TS.registerModule("constants", {
           if (file.preview && /^\s*<document>/.test(file.preview)) {
             var $p = $(file.preview);
             if ($p.length) file.preview = $p.html();
-            if (TS.boot_data.feature_files_list && $p.length) {
+            if ($p.length) {
               var $first_fragment = $p.children().eq(0);
               if ($first_fragment.hasClass("list")) {
                 $first_fragment.find("li:not(:first)").remove();
@@ -6613,7 +6613,7 @@ TS.registerModule("constants", {
           if (TS.boot_data.feature_tinyspeck) TS.log(93, "(TS-ONLY log) file.content_html: " + file.content_html);
         }
       }
-      if (TS.boot_data.feature_files_list && file.mode === "post" && file.preview) {
+      if (file.mode === "post" && file.preview) {
         var preview = file.preview;
         var preview_list = preview.split("\n");
         var preview_list_length = preview_list.length;
@@ -10406,7 +10406,6 @@ TS.registerModule("constants", {
       }
       if (!_.isString(id)) return null;
       if (TS.model.team.id === id) return TS.model.team;
-      if (_hack_mapping[id]) return _hack_mapping[id];
       if (_id_map[id]) return _id_map[id];
       var teams = TS.model.teams;
       if (!teams) {
@@ -10421,6 +10420,7 @@ TS.registerModule("constants", {
           return team;
         }
       }
+      if (_hack_mapping[id]) return _hack_mapping[id];
       TS.console.warn("team " + id + " not in local model");
       return null;
     },
@@ -10538,21 +10538,15 @@ TS.registerModule("constants", {
   });
   var _id_map = {};
   var _hack_mapping = {
-    T07QCRP7S: {
-      id: "T07QCRP7S",
-      domain: "ext-shared-a"
-    },
-    T07QCSJPJ: {
-      id: "T07QCSJPJ",
-      domain: "ext-shared-b"
-    },
     T024BE9UG: {
       id: "T024BE9UG",
-      domain: "rsquared"
+      domain: "rsquared",
+      name: "Rsquared Communication"
     },
     T024BE7LD: {
       id: "T024BE7LD",
-      domain: "tinyspeck"
+      domain: "tinyspeck",
+      name: "Slack Corp"
     }
   };
   var _processNewTeamForUpserting = function(team) {
@@ -11574,6 +11568,9 @@ TS.registerModule("constants", {
         response.data.users.forEach(function(user) {
           members.push(TS.members.upsertAndSignal(user).member);
         });
+        if (TS.boot_data.feature_shared_channels_client) {
+          TS.teams.ensureTeamsInDataArePresent(members);
+        }
         resolve(members);
       }, function(ret) {
         reject(Error(ret.data && ret.data.error || "unknown error"));
@@ -11605,6 +11602,9 @@ TS.registerModule("constants", {
       if (c_id) calling_args.shared_channel = c_id;
       if (!c_id && t_id) calling_args.team = t_id;
       user_p = TS.api.callImmediately("users.info", calling_args).then(function(resp) {
+        if (TS.boot_data.feature_shared_channels_client) {
+          TS.teams.ensureTeamsInDataArePresent(resp.data.user);
+        }
         return TS.members.upsertAndSignal(resp.data.user).member;
       });
     }
@@ -16349,7 +16349,7 @@ TS.registerModule("constants", {
   };
   var _shouldUseFlannelCanary = function() {
     var canary_pref = _.get(TS, "model.prefs.flannel_server_pool", TS.boot_data.flannel_server_pool);
-    if (!TS.boot_data.feature_tinyspeck) {
+    if (!TS.boot_data.feature_tinyspeck && !TS.boot_data.feature_flannel_use_canary_sometimes) {
       canary_pref = "production";
     }
     switch (canary_pref) {
@@ -18745,7 +18745,7 @@ TS.registerModule("constants", {
         file: file,
         for_search: config.for_search,
         is_enterprise: config.is_enterprise,
-        for_files_list: TS.boot_data.feature_files_list && !config.for_share_dialog,
+        for_files_list: !config.for_share_dialog,
         icon_class: TS.utility.getImageIconClass(file, "thumb_80"),
         is_email: file.mode == "email",
         is_space: file.mode == "space",
@@ -20090,36 +20090,21 @@ TS.registerModule("constants", {
         }
         var jump_link = "";
         if (!im_with_disabled_user) {
-          if (TS.boot_data.feature_files_list) {
-            jump_link = TS.templates.builders.strBuilder('<button type="button" class="btn_unstyle star_jump msg_right_link btn btn_outline" data-cid="${cid}">' + TS.i18n.t("Jump", "templates_builders")() + "</button>", {
-              cid: model_ob.id
-            });
-          } else {
-            jump_link = TS.templates.builders.strBuilder('<button type="button" class="btn_unstyle star_jump msg_right_link" data-cid="' + model_ob.id + '">' + TS.i18n.t("Jump", "templates_builders")() + "</button>", {
-              cid: model_ob.id
-            });
-          }
-        }
-        if (!TS.boot_data.feature_files_list) {
-          var subtype = msg.subtype;
-          if (subtype === "file_share" || subtype === "file_mention" || subtype === "file_comment") {
-            html += TS.templates.builders.buildStar("message", msg, model_ob);
-          }
+          jump_link = TS.templates.builders.strBuilder('<button type="button" class="btn_unstyle star_jump msg_right_link btn btn_outline" data-cid="${cid}">' + TS.i18n.t("Jump", "templates_builders")() + "</button>", {
+            cid: model_ob.id
+          });
         }
         html += TS.templates.builders.msgs.buildHTML({
           msg: msg,
           model_ob: model_ob,
           standalone: true,
           starred_items_list: true,
-          starred_items_actions: TS.boot_data.feature_files_list,
+          starred_items_actions: true,
           jump_link: jump_link,
           no_attachments: !!msg.text,
           full_date: true
         });
       } else if (star.type == "file") {
-        if (!TS.boot_data.feature_files_list) {
-          html += TS.templates.builders.buildStar("file", star.file);
-        }
         html += TS.templates.builders.fileHTML(star.file);
       } else if (star.type == "channel" || star.type == "group") {
         model_ob = TS.shared.getModelObById(star.channel);
@@ -20130,7 +20115,7 @@ TS.registerModule("constants", {
         template_args["model_ob"] = model_ob;
         html += TS.templates.star_item(template_args);
       } else {
-        template_args.from_starred_item = TS.boot_data.feature_files_list;
+        template_args.from_starred_item = true;
         html += TS.templates.star_item(template_args);
       }
       html += "</div>";
@@ -28117,7 +28102,7 @@ TS.registerModule("constants", {
     urlNeedsRefererHiding: function(url) {
       if (!url) return false;
       url = url.toLowerCase();
-      if (url.indexOf("https://") !== 0 && url.indexOf("http://") !== 0) return false;
+      if (url.indexOf("https://") !== 0 && url.indexOf("http://") !== 0 && url.indexOf("ftp://") !== 0 && url.indexOf("sftp://") !== 0) return false;
       url = url.replace(/^https:\/\//, "").replace(/^http:\/\//, "");
       var wl = getRefererHidingWhiteList();
       for (var i = 0; i < wl.length; i++) {
@@ -34400,7 +34385,7 @@ var _on_esc;
       if ($actions.data("include-view-public-link")) actions.view_public_link = true;
       var in_file_list = $el.closest(".file_list_item").length > 0;
       if (in_file_list) {
-        if (TS.model.ui_state.flex_name !== "details" || !TS.boot_data.feature_files_list) actions.share = false;
+        if (TS.model.ui_state.flex_name !== "details") actions.share = false;
         TS.menu.file.file_list_menu_up = true;
       }
       var file_container = $el.closest(".inline_file_preview_container, .file_container");
@@ -35467,6 +35452,16 @@ var _on_esc;
       _resetUpCmdsThrottled = TS.utility.throttleFunc(_resetUpCmdsThrottled, 3e3, always_wait);
       TS.prefs.team_allow_calls_changed_sig.add(_maybeUpdateCallsCommand);
     },
+    test: function() {
+      return {
+        _maybeInviteUserToChannel: _maybeInviteUserToChannel,
+        _maybeInviteUserGroupToChannel: _maybeInviteUserGroupToChannel,
+        _maybeInviteUserToGroup: _maybeInviteUserToGroup,
+        _maybeInviteUserGroupToGroup: _maybeInviteUserGroupToGroup,
+        _maybeInviteUserToMPIM: _maybeInviteUserToMPIM,
+        _getUserIdentifier: _getUserIdentifier
+      };
+    },
     groupCmdsByType: function(cmds) {
       var groups = [_getCoreCmdsGroup(cmds), _getTeamCmdsGroup(cmds), _getAppCmdsGroups(cmds)];
       var groups_flattened = Array.prototype.concat.apply([], groups);
@@ -35960,14 +35955,6 @@ var _on_esc;
           TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("That user has been deactivated.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
           return;
         }
-        var member_identifier;
-        if (m) {
-          if (TS.boot_data.feature_name_tagging_client_extras) {
-            member_identifier = "@" + m.id;
-          } else {
-            member_identifier = "@" + m.name;
-          }
-        }
         if (m && m.is_ultra_restricted) {
           if (TS.model.user.is_admin) {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is a Single-Channel Guest, and can’t be added to a second channel. To invite {user} to this channel, you’ll need to <{team_url}admin#restricted|upgrade their membership> to a Multi-Channel Guest. ​Note: This will add a billable seat to your team.", "cmd_handlers")({
@@ -35991,63 +35978,15 @@ var _on_esc;
           var g = TS.groups.getGroupByName(channel_name);
           if (c) {
             if (m) {
-              if (c.members.indexOf(m.id) !== -1) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest);
-                return;
-              }
-              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(channel, m)) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This channel is not available to {user}", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest, "sad_surprise");
-                return;
-              }
-              TS.api.call("channels.invite", {
-                channel: c.id,
-                user: m.id
-              });
-            }
-            if (ug) {
-              var users_to_invite = ug.users.filter(function(member_id) {
-                if (TS.boot_data.page_needs_enterprise) {
-                  var mbr = TS.members.getMemberById(member_id);
-                  if (!TS.permissions.channels.canMemberJoinChannel(c, mbr)) return false;
-                }
-                return c.members.indexOf(member_id) === -1;
-              });
-              users_to_invite.forEach(function(member_id) {
-                TS.api.call("channels.invite", {
-                  channel: c.id,
-                  user: member_id
-                });
-              });
+              _maybeInviteUserToChannel(m, c, cmd + " " + rest);
+            } else if (ug) {
+              _maybeInviteUserGroupToChannel(ug, c);
             }
           } else if (g) {
             if (m) {
-              if (g.members.indexOf(m.id) !== -1) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this group.", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest);
-                return;
-              }
-              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(g, m)) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This channel is not available to {user}", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest, "sad_surprise");
-                return;
-              }
-              TS.ui.invite.showInviteMembersPreSelected(g.id, [m.id]);
-            }
-            if (ug) {
-              var users_to_invite = ug.users.filter(function(member_id) {
-                if (TS.boot_data.page_needs_enterprise) {
-                  var mbr = TS.members.getMemberById(member_id);
-                  if (!TS.permissions.channels.canMemberJoinChannel(g, mbr)) return false;
-                }
-                return g.members.indexOf(member_id) === -1;
-              });
-              TS.ui.invite.showInviteMembersPreSelected(g.id, users_to_invite);
+              _maybeInviteUserToGroup(m, g, cmd + " " + rest);
+            } else if (ug) {
+              _maybeInviteUserGroupToGroup(ug, g, cmd + " " + rest);
             }
           } else {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
@@ -36055,85 +35994,27 @@ var _on_esc;
           }
         } else {
           if (TS.model.active_channel_id) {
+            var channel = TS.channels.getChannelById(TS.model.active_channel_id);
             if (m) {
-              var channel = TS.channels.getChannelById(TS.model.active_channel_id);
-              if (channel && channel.members.indexOf(m.id) !== -1) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest);
-                return;
-              }
-              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(channel, m)) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This channel is not available to {user}", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest, "sad_surprise");
-                return;
-              }
-              TS.api.call("channels.invite", {
-                channel: TS.model.active_channel_id,
-                user: m.id
-              });
+              _maybeInviteUserToChannel(m, channel, cmd + " " + rest);
             } else if (ug) {
-              var channel = TS.channels.getChannelById(TS.model.active_channel_id);
-              if (channel) {
-                var users_to_invite = ug.users.filter(function(member_id) {
-                  if (TS.boot_data.page_needs_enterprise) {
-                    var mbr = TS.members.getMemberById(member_id);
-                    if (!TS.permissions.channels.canMemberJoinChannel(channel, mbr)) return false;
-                  }
-                  return channel.members.indexOf(member_id) === -1;
-                });
-                users_to_invite.forEach(function(member_id) {
-                  TS.api.call("channels.invite", {
-                    channel: TS.model.active_channel_id,
-                    user: member_id
-                  });
-                });
-              }
+              _maybeInviteUserGroupToChannel(ug, channel);
             } else {
               TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_channel_id);
             }
           } else if (TS.model.active_group_id) {
+            var group = TS.groups.getGroupById(TS.model.active_group_id);
             if (m) {
-              var group = TS.groups.getGroupById(TS.model.active_group_id);
-              if (group && group.members.indexOf(m.id) !== -1) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this group.", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest);
-                return;
-              }
-              if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(group, m)) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This group is not available to {user}", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest, "sad_surprise");
-                return;
-              }
-              TS.ui.invite.showInviteMembersPreSelected(TS.model.active_group_id, [m.id]);
+              _maybeInviteUserToGroup(m, group, cmd + " " + rest);
             } else if (ug) {
-              var group = TS.groups.getGroupById(TS.model.active_group_id);
-              if (group) {
-                var users_to_invite = ug.users.filter(function(member_id) {
-                  if (TS.boot_data.page_needs_enterprise) {
-                    var mbr = TS.members.getMemberById(member_id);
-                    if (!TS.permissions.channels.canMemberJoinChannel(c, mbr)) return false;
-                  }
-                  return group.members.indexOf(member_id) === -1;
-                });
-                TS.ui.invite.showInviteMembersPreSelected(TS.model.active_group_id, users_to_invite);
-              }
+              _maybeInviteUserGroupToGroup(ug, group, cmd + " " + rest);
             } else {
               TS.ui.channel_invite_modal.startInviteToChannelModal(TS.model.active_group_id);
             }
           } else if (TS.model.active_mpim_id) {
             var mpim = TS.mpims.getMpimById(TS.model.active_mpim_id);
-            if (m) {
-              if (mpim && mpim.members.indexOf(m.id) !== -1) {
-                TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this group message.", "cmd_handlers")({
-                  user: member_identifier
-                }), cmd + " " + rest);
-                return;
-              }
-              TS.ui.im_browser.startWithMpim(mpim, [m.id]);
+            if (m && mpim) {
+              _maybeInviteUserToMPIM(m, mpim, cmd + " " + rest);
             } else {
               TS.ui.im_browser.startWithMpim(mpim);
             }
@@ -36844,24 +36725,26 @@ var _on_esc;
           }));
           return;
         }
-        if (model_ob.members.indexOf(member.id) == -1) {
-          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("*{user}* is not a member of this {channel}.", "cmd_handlers")({
-            user: TS.utility.htmlEntities(rest),
-            channel: TS.model.active_channel_id ? TS.i18n.t("channel", "cmd_handlers")() : TS.i18n.t("private channel", "cmd_handlers")()
-          }), cmd + " " + rest, "sad_surprise");
-          return;
-        }
-        if (member.is_self) {
-          TS.client.ui.onSubmit("/leave");
-          return;
-        }
-        if (TS.model.active_channel_id) {
-          TS.channels.kickMember(TS.model.active_channel_id, member.id);
-        } else if (TS.model.active_group_id) {
-          TS.groups.kickMember(TS.model.active_group_id, member.id);
-        } else {
-          return;
-        }
+        TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [member.id]).then(function() {
+          var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, model_ob);
+          if (!membership_status.is_member) {
+            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("*{user}* is not a member of this {channel}.", "cmd_handlers")({
+              user: TS.utility.htmlEntities(rest),
+              channel: model_ob.is_channel ? TS.i18n.t("channel", "cmd_handlers")() : TS.i18n.t("private channel", "cmd_handlers")()
+            }), cmd + " " + rest, "sad_surprise");
+            return null;
+          }
+          if (member.is_self) {
+            TS.client.ui.onSubmit("/leave");
+            return null;
+          }
+          if (model_ob.is_channel) {
+            TS.channels.kickMember(model_ob.id, member.id);
+          } else if (model_ob.is_group) {
+            TS.groups.kickMember(model_ob.id, member.id);
+          }
+          return null;
+        });
       }
     },
     "/kick": {
@@ -37278,6 +37161,119 @@ var _on_esc;
       name: "Other"
     });
     return groups;
+  };
+  var _maybeInviteUserToChannel = function(user, channel, input_txt) {
+    if (!_.isObject(user)) throw new Error("Expected user to be an object");
+    if (!_.isObject(channel)) throw new Error("Expected channel to be an object");
+    if (!_.isString(input_txt)) throw new Error("Expected input_txt to be a string");
+    TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, [user.id]).then(function() {
+      var membership_status = TS.membership.getUserChannelMembershipStatus(user.id, channel);
+      if (membership_status.is_member) {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt);
+        return null;
+      }
+      if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(channel, user)) {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This channel is not available to {user}", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt, "sad_surprise");
+        return null;
+      }
+      TS.api.call("channels.invite", {
+        channel: channel.id,
+        user: user.id
+      });
+      return null;
+    });
+  };
+  var _maybeInviteUserGroupToChannel = function(ug, channel) {
+    if (!_.isObject(ug)) throw new Error("Expected ug to be an object");
+    if (!_.isObject(channel)) throw new Error("Expected channel to be an object");
+    TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, ug.users).then(function() {
+      var users_to_invite = ug.users.filter(function(user_id) {
+        if (TS.boot_data.page_needs_enterprise) {
+          var mbr = TS.members.getMemberById(user_id);
+          if (!TS.permissions.channels.canMemberJoinChannel(channel, mbr)) return false;
+        }
+        var membership_status = TS.membership.getUserChannelMembershipStatus(user_id, channel);
+        return !membership_status.is_member;
+      });
+      users_to_invite.forEach(function(user_id) {
+        TS.api.call("channels.invite", {
+          channel: channel.id,
+          user: user_id
+        });
+      });
+      return null;
+    });
+  };
+  var _maybeInviteUserToGroup = function(user, group, input_txt) {
+    if (!_.isObject(user)) throw new Error("Expected user to be an object");
+    if (!_.isObject(group)) throw new Error("Expected group to be an object");
+    if (!_.isString(input_txt)) throw new Error("Expected input_txt to be a string");
+    TS.membership.ensureChannelMembershipIsKnownForUsers(group.id, [user.id]).then(function() {
+      var membership_status = TS.membership.getUserChannelMembershipStatus(user.id, group);
+      if (membership_status.is_member) {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this channel.", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt);
+        return null;
+      }
+      if (TS.boot_data.page_needs_enterprise && !TS.permissions.channels.canMemberJoinChannel(group, user)) {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("This channel is not available to {user}", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt, "sad_surprise");
+        return null;
+      }
+      TS.ui.invite.showInviteMembersPreSelected(group.id, [user.id]);
+      return null;
+    });
+  };
+  var _maybeInviteUserGroupToGroup = function(ug, group, input_txt) {
+    if (!_.isObject(ug)) throw new Error("Expected ug to be an object");
+    if (!_.isObject(group)) throw new Error("Expected group to be an object");
+    if (!_.isString(input_txt)) throw new Error("Expected input_txt to be a string");
+    TS.membership.ensureChannelMembershipIsKnownForUsers(group.id, ug.users).then(function() {
+      var users_to_invite = ug.users.filter(function(user_id) {
+        if (TS.boot_data.page_needs_enterprise) {
+          var mbr = TS.members.getMemberById(user_id);
+          if (!TS.permissions.channels.canMemberJoinChannel(group, mbr)) return false;
+        }
+        var membership_status = TS.membership.getUserChannelMembershipStatus(user_id, group);
+        return !membership_status.is_member;
+      });
+      if (!users_to_invite.length) {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("All of the users in that user group are already in this channel.", "cmd_handlers")({}), input_txt);
+        return;
+      }
+      TS.ui.invite.showInviteMembersPreSelected(group.id, users_to_invite);
+      return null;
+    });
+  };
+  var _maybeInviteUserToMPIM = function(user, mpim, input_txt) {
+    if (!_.isObject(user)) throw new Error("Expected user to be an object");
+    if (!_.isObject(mpim)) throw new Error("Expected mpim to be an object");
+    if (!_.isString(input_txt)) throw new Error("Expected input_txt to be a string");
+    TS.membership.ensureChannelMembershipIsKnownForUsers(mpim.id, [user.id]).then(function() {
+      var membership_status = TS.membership.getUserChannelMembershipStatus(user.id, mpim);
+      if (membership_status.is_member) {
+        TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("{user} is already in this group message.", "cmd_handlers")({
+          user: _getUserIdentifier(user)
+        }), input_txt);
+        return null;
+      }
+      TS.ui.im_browser.startWithMpim(mpim, [user.id]);
+      return null;
+    });
+  };
+  var _getUserIdentifier = function(user) {
+    if (!_.isObject(user)) throw new Error("Expected user to be an object");
+    if (TS.boot_data.feature_name_tagging_client_extras) {
+      return "@" + user.id;
+    } else {
+      return "@" + user.name;
+    }
   };
 })();
 (function() {
@@ -42568,7 +42564,7 @@ var _on_esc;
     if (TS.boot_data.feature_user_custom_status && TS.client) {
       var current_status_input = TS.ui.edit_member_profile._current_status_input;
       if (current_status_input && current_status_input.isEdited()) {
-        current_status_input.clogStatusChange(profile.status_text, profile.status_emoji);
+        current_status_input.clogStatusChange(profile.status_text, profile.status_emoji, "EDIT_PROFILE");
       }
     }(TS.model.team.profile.fields || []).filter(function(field) {
       return !field.is_hidden;
@@ -49661,16 +49657,9 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".file_list_item", function(e, $el, preview_origin) {
       var can_click_through;
       var $target = $(e.target);
-      if (TS.boot_data.feature_files_list) {
-        can_click_through = !TS.menu.file.file_list_menu_up && !$target.is(".star") && (!$target.closest("a").length && !$target.closest("button").length);
-      } else {
-        can_click_through = !TS.menu.file.file_list_menu_up && !$target.is(".star") && !$target.closest("a").length && !$target.closest(".preview").length && !$target.closest(".snippet_preview").length;
-      }
+      can_click_through = !TS.menu.file.file_list_menu_up && !$target.is(".star") && (!$target.closest("a").length && !$target.closest("button").length);
       if (can_click_through) {
         e.preventDefault();
-        if (!TS.boot_data.feature_files_list) {
-          if (TS.client.windows.openFileWindow($el.data("file-id"))) return;
-        }
         var file_id = $el.data("file-id");
         if (TS.files.fileIsImage(file_id)) {
           TS.ui.fs_modal_file_viewer.start({
@@ -49772,6 +49761,38 @@ $.fn.togglify = function(settings) {
         $("#channel_page_scroller .channel_page_pinned_items").highlight(null, "channel_page_pinned_items_highlighter");
       }
     });
+    TS.click.addClientHandler("ts-thread .reveal_new_replies", function(e, $el) {
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      e.preventDefault();
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      TS.client.threads.showNewRepliesAndMarkThread(model_ob_id, thread_ts);
+    });
+    TS.click.addClientHandler("ts-thread .view_all_replies", function(e, $el) {
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      e.preventDefault();
+      if ($el.hasClass("active")) return;
+      $el.addClass("active");
+      var model_ob_id = $thread.attr("data-model-ob-id");
+      var thread_ts = $thread.attr("data-thread-ts");
+      TS.client.threads.showPreviousReplies(model_ob_id, thread_ts).finally(function() {
+        $el.removeClass("active");
+      });
+    });
+    TS.click.addClientHandler("#msgs_div ts-thread .expand_inline_thread", function(e, $el) {
+      e.preventDefault();
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      TS.ui.thread.expandInlineThread($thread);
+    });
+    TS.click.addClientHandler("#msgs_div ts-thread .collapse_inline_thread", function(e, $el) {
+      e.preventDefault();
+      var $thread = $el.closest("ts-thread");
+      if (!$thread.length) return;
+      TS.ui.thread.collapseInlineThread($thread);
+    });
     TS.click.addClientHandler("a[href]", function(e, $el, origin) {
       if (TS.client.archives.maybeHandleArchiveLink($el, origin)) {
         if (TS.ui.fs_modal_file_viewer && TS.ui.fs_modal_file_viewer.is_showing) {
@@ -49791,6 +49812,10 @@ $.fn.togglify = function(settings) {
       }
       var file_id = TS.utility.getFileIDFromURL($el.attr("href"));
       if (file_id && TS.client.windows.openFileWindow(file_id, "")) {
+        e.preventDefault();
+        return;
+      }
+      if (TS.ui.replies.maybeOpenConversationLink($el, origin)) {
         e.preventDefault();
         return;
       }
@@ -49852,38 +49877,6 @@ $.fn.togglify = function(settings) {
         return;
       }
       TS.client.ui.threads.jumpToTop();
-    });
-    TS.click.addClientHandler("ts-thread .reveal_new_replies", function(e, $el) {
-      var $thread = $el.closest("ts-thread");
-      if (!$thread.length) return;
-      e.preventDefault();
-      var model_ob_id = $thread.attr("data-model-ob-id");
-      var thread_ts = $thread.attr("data-thread-ts");
-      TS.client.threads.showNewRepliesAndMarkThread(model_ob_id, thread_ts);
-    });
-    TS.click.addClientHandler("ts-thread .view_all_replies", function(e, $el) {
-      var $thread = $el.closest("ts-thread");
-      if (!$thread.length) return;
-      e.preventDefault();
-      if ($el.hasClass("active")) return;
-      $el.addClass("active");
-      var model_ob_id = $thread.attr("data-model-ob-id");
-      var thread_ts = $thread.attr("data-thread-ts");
-      TS.client.threads.showPreviousReplies(model_ob_id, thread_ts).finally(function() {
-        $el.removeClass("active");
-      });
-    });
-    TS.click.addClientHandler("#msgs_div ts-thread .expand_inline_thread", function(e, $el) {
-      e.preventDefault();
-      var $thread = $el.closest("ts-thread");
-      if (!$thread.length) return;
-      TS.ui.thread.expandInlineThread($thread);
-    });
-    TS.click.addClientHandler("#msgs_div ts-thread .collapse_inline_thread", function(e, $el) {
-      e.preventDefault();
-      var $thread = $el.closest("ts-thread");
-      if (!$thread.length) return;
-      TS.ui.thread.collapseInlineThread($thread);
     });
     TS.click.addClientHandler(".app_preview_link", function(e, $el) {
       var $closest_ts_message = $el.closest("[data-bot-id]");
@@ -57047,13 +57040,15 @@ $.fn.togglify = function(settings) {
           },
           tabcomplete: {
             appendMenu: function(menu) {
-              document.querySelector($form).appendChild(menu);
+              var form = $form[0];
+              form.appendChild(menu);
             },
             positionMenu: function(menu) {
               menu.style.bottom = "100%";
               menu.style.left = "42px";
               menu.style.width = "90%";
-            }
+            },
+            completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members]
           }
         },
         placeholder: opts.placeholder,
@@ -61696,8 +61691,7 @@ $.fn.togglify = function(settings) {
     i = (n(15), n(1), {
       mountComponent: function(e, t, n, o, i, a) {
         var s = e.mountComponent(t, n, o, i, a);
-        return e._currentElement && null != e._currentElement.ref && t.getReactMountReady().enqueue(r, e),
-          s;
+        return e._currentElement && null != e._currentElement.ref && t.getReactMountReady().enqueue(r, e), s;
       },
       getHostNode: function(e) {
         return e.getHostNode();
@@ -65413,8 +65407,7 @@ $.fn.togglify = function(settings) {
         bn = ["Array", "Buffer", "Date", "Error", "Float32Array", "Float64Array", "Function", "Int8Array", "Int16Array", "Int32Array", "Map", "Math", "Object", "Reflect", "RegExp", "Set", "String", "Symbol", "TypeError", "Uint8Array", "Uint8ClampedArray", "Uint16Array", "Uint32Array", "WeakMap", "_", "clearTimeout", "isFinite", "parseInt", "setTimeout"],
         wn = -1,
         Cn = {};
-      Cn[Ye] = Cn[$e] = Cn[Xe] = Cn[Qe] = Cn[Ze] = Cn[Je] = Cn[et] = Cn[tt] = Cn[nt] = !0,
-        Cn[Oe] = Cn[Ie] = Cn[Ke] = Cn[Ae] = Cn[Ne] = Cn[je] = Cn[Le] = Cn[ze] = Cn[Ue] = Cn[We] = Cn[Fe] = Cn[He] = Cn[Be] = Cn[Ve] = !1;
+      Cn[Ye] = Cn[$e] = Cn[Xe] = Cn[Qe] = Cn[Ze] = Cn[Je] = Cn[et] = Cn[tt] = Cn[nt] = !0, Cn[Oe] = Cn[Ie] = Cn[Ke] = Cn[Ae] = Cn[Ne] = Cn[je] = Cn[Le] = Cn[ze] = Cn[Ue] = Cn[We] = Cn[Fe] = Cn[He] = Cn[Be] = Cn[Ve] = !1;
       var Sn = {};
       Sn[Oe] = Sn[Ie] = Sn[Ke] = Sn[Ae] = Sn[Ne] = Sn[Ye] = Sn[$e] = Sn[Xe] = Sn[Qe] = Sn[Ze] = Sn[ze] = Sn[Ue] = Sn[We] = Sn[Fe] = Sn[He] = Sn[Be] = Sn[Ge] = Sn[Je] = Sn[et] = Sn[tt] = Sn[nt] = !0, Sn[je] = Sn[Le] = Sn[Ve] = !1;
       var xn = {

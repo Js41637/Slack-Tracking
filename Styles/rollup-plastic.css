@@ -14333,7 +14333,8 @@ screen and (max-width:640px) {
 }
 
 .tab_complete_ui ul.type_members .broadcast_info,
-.tab_complete_ui ul.type_members .realname {
+.tab_complete_ui ul.type_members .realname,
+.tab_complete_ui ul.type_members .team_name {
   margin-right: .4rem;
   color: #717274
 }

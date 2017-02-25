@@ -2466,7 +2466,7 @@
       }
       if (html) {
         $member_stars_list.html(html);
-        TS.view.member_stars_list_lazyload = $member_stars_list.find(TS.boot_data.feature_files_list ? ".lazy" : "img.lazy").lazyload({
+        TS.view.member_stars_list_lazyload = $member_stars_list.find(".lazy").lazyload({
           container: $stars_scroller
         });
         TS.utility.makeSureAllLinksHaveTargets($member_stars_list);
@@ -4417,6 +4417,9 @@
         }
         TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view, skip_rebuilding_channel_header);
         TS.view.rebuildMsgCurrentStatusIncludingMember(member);
+        TS.client.ui.threads.rebuildMsgCurrentStatusIncludingMember(member);
+        TS.ui.replies.rebuildMsgCurrentStatusIncludingMember(member);
+        TS.client.ui.flex.rebuildMsgCurrentStatusIncludingMember(member);
       }
       if (member.id == TS.model.user.id) {
         TS.view.members.updateUserCurrentStatus();
@@ -9281,6 +9284,22 @@
     openAppProfileFlex: function() {
       TS.client.ui.flex._displayFlexTab("app_profile");
       TS.client.flexDisplaySwitched("");
+    },
+    rebuildMsgCurrentStatusIncludingMember: function(member) {
+      var flex_name = TS.model.ui_state.flex_name;
+      if (flex_name === "mentions" || flex_name === "stars") {
+        var $col_flex = $("#col_flex");
+        var template_args = {
+          member: member,
+          for_message: true
+        };
+        _.each(TS.model.user[flex_name], function(star_or_mention) {
+          if (TS.utility.msgs.messageIncludesMember(member, star_or_mention.message)) {
+            var $current_status_container = $col_flex.find('ts-message[data-ts="' + star_or_mention.message.ts + '"] .message_current_status');
+            $current_status_container.replaceWith(TS.templates.current_status(template_args));
+          }
+        });
+      }
     },
     registerCurrentStatusInput: function() {
       TS.client.ui.flex._unregisterCurrentStatusInput();
@@ -15110,7 +15129,7 @@
       if (TS.search.view.search_results_lazy_load && TS.search.view.search_results_lazy_load.detachEvents) {
         TS.search.view.search_results_lazy_load.detachEvents();
       }
-      $("#search_results_container").find(TS.boot_data.feature_files_list ? ".lazy" : "img.lazy").lazyload({
+      $("#search_results_container").find(".lazy").lazyload({
         container: $("#search_results"),
         throttle: 200
       });
@@ -38727,7 +38746,7 @@ function timezones_guess() {
           if (!thread_messages.length) {
             return;
           }
-          var last_msg = _.last(thread_messages);
+          var last_msg = _.maxBy(thread_messages, "ts");
           var handled_reaction = TS.client.ui.maybeHandleReactionCmd(last_msg, text, function() {
             TS.ui.replies.clearReplyInput(model_ob, thread_ts);
           });
@@ -38880,6 +38899,62 @@ function timezones_guess() {
         _.each(_active_convo_messages, function(msg) {
           if (TS.utility.msgs.messageIncludesMember(member, msg)) {
             TS.ui.replies.maybeUpdateConversationWithMessage(model_ob, msg);
+          }
+        });
+      }
+    },
+    maybeOpenConversationLink: function($el, origin) {
+      if (!$el || !$el.length) return false;
+      var hostname = $el.prop("hostname");
+      var pathname = $el.prop("pathname");
+      if (!hostname || !pathname) return false;
+      if (pathname.indexOf("/conversation/") !== 0) return false;
+      if (TS.utility.normalizeDevHost(hostname) !== TS.utility.normalizeDevHost(document.location.hostname)) return false;
+      var paths = pathname.split("/");
+      paths = _.drop(paths, 1);
+      if (paths.length !== 3) return false;
+      var identifier = paths[1];
+      if (!identifier) return false;
+      var model_ob = TS.ims.getImById(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimById(identifier) || TS.mpims.getMpimByName(identifier);
+      if (!model_ob) return false;
+      if (model_ob.is_im && TS.ims.isImWithDeletedMember(model_ob)) return false;
+      var url_ts = paths[2];
+      if (!url_ts) return false;
+      if (url_ts.indexOf("p") !== 0) return false;
+      if (url_ts.length !== 17) return false;
+      url_ts = url_ts.replace("p", "");
+      if (isNaN(url_ts)) return false;
+      var thread_ts = url_ts.substr(0, 10) + "." + url_ts.substr(10);
+      TS.ui.replies.openConversation(model_ob, thread_ts, null, origin);
+      return true;
+    },
+    rebuildMsgCurrentStatusIncludingMember: function(member) {
+      if (!_active_convo_model_id || !_active_convo_thread_ts) return;
+      var model_ob = TS.shared.getModelObById(_active_convo_model_id);
+      if (!model_ob) return;
+      var template_args = {
+        member: member,
+        for_message: true
+      };
+      if (TS.boot_data.feature_threads_paging_flexpane) {
+        var sections = _msg_container_config._state;
+        _.each(sections, function(section) {
+          _.each(section.msgs, function(msg) {
+            if (TS.utility.msgs.messageIncludesMember(member, msg)) {
+              var $convo = $('ts-conversation[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
+              if (!$convo.length) return;
+              var $current_status_container = $convo.find('ts-message[data-ts="' + msg.ts + '"] .message_current_status');
+              $current_status_container.replaceWith(TS.templates.current_status(template_args));
+            }
+          });
+        });
+      } else {
+        _.each(_active_convo_messages, function(msg) {
+          if (TS.utility.msgs.messageIncludesMember(member, msg)) {
+            var $convo = $('ts-conversation[data-thread-ts="' + (msg.thread_ts || msg.ts) + '"]');
+            if (!$convo.length) return;
+            var $current_status_container = $convo.find('ts-message[data-ts="' + msg.ts + '"] .message_current_status');
+            $current_status_container.replaceWith(TS.templates.current_status(template_args));
           }
         });
       }
@@ -39413,6 +39488,7 @@ function timezones_guess() {
   };
   var _copyMessageContainerDataToLegacyArray = function() {
     _active_convo_messages = _.flatten([_root_msg_section.msgs, _replies_section.msgs]);
+    _active_convo_messages = _.sortBy(_active_convo_messages, "ts");
   };
 })();
 (function() {
@@ -40497,6 +40573,29 @@ function timezones_guess() {
           _.each(thread.replies, function(reply) {
             if (TS.utility.msgs.messageIncludesMember(member, reply)) {
               TS.client.ui.threads.maybeUpdateThreadWithMessage(thread, reply);
+            }
+          });
+        });
+      });
+    },
+    rebuildMsgCurrentStatusIncludingMember: function(member) {
+      if (!TS.model.threads_view_is_showing) return;
+      var sections = _.get(_config, "sections");
+      if (!sections) return;
+      var template_args = {
+        member: member,
+        for_message: true
+      };
+      _.each(sections, function(section) {
+        _.each(section.msgs, function(thread) {
+          if (TS.utility.msgs.messageIncludesMember(member, thread.root_msg)) {
+            var $current_status_container = TS.client.ui.threads.$container.find('ts-message[data-ts="' + thread.root_msg.ts + '"] .message_current_status');
+            $current_status_container.replaceWith(TS.templates.current_status(template_args));
+          }
+          _.each(thread.replies, function(reply) {
+            if (TS.utility.msgs.messageIncludesMember(member, reply)) {
+              var $current_status_container = TS.client.ui.threads.$container.find('ts-message[data-ts="' + reply.ts + '"] .message_current_status');
+              $current_status_container.replaceWith(TS.templates.current_status(template_args));
             }
           });
         });
