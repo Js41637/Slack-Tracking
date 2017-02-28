@@ -62,8 +62,8 @@
 
     /* Hovered Item */
     body:not(.sorting_mode) .channels_list_holder ul li > a:hover,
-    body:not(.sorting_mode) .channels_list_holder ul li .im_name:hover,
-    body:not(.sorting_mode) .channels_list_holder ul li .im_name.feature_user_custom_status:hover > *:not(.unread_highlights),
+    body:not(.sorting_mode) .channels_list_holder ul li .im_name:not(.feature_user_custom_status):hover,
+    body:not(.sorting_mode) .channels_list_holder ul li .im_name.feature_user_custom_status:hover > .im_name_background,
     body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover,
     body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover,
     body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover,
@@ -100,8 +100,8 @@
     #team_menu:before,
     #team_menu .notifications_menu_btn,
     #team_menu .team_name_caret,
-    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix,
-    #channels_scroller.show_which_channel_is_active ul li.active a.group_name .prefix,
+    #channels_scroller.show_which_channel_is_active ul li.active .channel_name .prefix,
+    #channels_scroller.show_which_channel_is_active ul li.active .group_name .prefix,
     #team_menu_user_name,
     #team_menu_user_details,
     #channels_nav ul li button,
@@ -110,9 +110,8 @@
     .channels_list_holder .mpim_close,
     .channels_list_holder .group_close,
     #channels_nav ul li > a,
-    #channels_nav ul li a.im_name,
-    #channels_nav ul li span.im_name:not(.feature_user_custom_status),
-    #channels_nav ul li span.im_name.feature_user_custom_status > *:not(.unread_highlights),
+    #channels_nav ul li .im_name:not(.feature_user_custom_status),
+    #channels_nav ul li .im_name.feature_user_custom_status > *:not(.unread_highlights),
     #channels_nav ul li a.mpim_name,
     #channels_nav ul li a.group_name,
     #channels_nav ul li a.channel_name,
@@ -150,8 +149,8 @@
     .invite_widget_link:hover {
       opacity: 1;
     }
-    #channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix,
-    #channels_scroller.show_which_channel_is_active ul li.active a.group_name .prefix {
+    #channels_scroller.show_which_channel_is_active ul li.active .channel_name .prefix,
+    #channels_scroller.show_which_channel_is_active ul li.active .group_name .prefix {
       color: {{theme.active_item_text}} !important;
     }
     .list_more:hover {

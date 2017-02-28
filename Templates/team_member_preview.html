@@ -148,27 +148,30 @@
       {{#seesCurrentStatusInProfileView member}}
         <table class="member_data_table lato no_bottom_margin">
           <tr>
-            <td><span class="small_right_padding old_petunia_grey{{#isClient}}{{#if member.is_self}} current_status_status_label{{/if}}{{/isClient}}" title="{{#t}}Status{{/t}}">{{#t}}Status{{/t}}</span></td>
+            <td><span class="small_right_padding old_petunia_grey{{#isClient}} current_status_status_label{{/isClient}}" title="{{#t}}Status{{/t}}">{{#t}}Status{{/t}}</span></td>
             {{#isClient}}
-              {{#if member.is_self}}
-                <td class="current_status_cell">
-                  <div class="current_status_container{{#or member.profile.status_emoji member.profile.status_text}} with_status_set{{/or}}">
-                    <span class="current_status_cover with_status_set">
-                      <span class="current_status_emoji_picker_cover">
-                        <div class="current_status_emoji_cover">
-                          {{getMemberCurrentStatusEmoji member}}
-                        </div>
-                      </span>
-                      <div class="current_status_cover_content">
-                        <span class="current_status">
-                          {{getMemberCurrentStatusText member}}
-                        </span>
+              <td class="current_status_cell">
+                <div class="current_status_container{{#or member.profile.status_emoji member.profile.status_text}} with_status_set{{/or}}">
+                  <span class="current_status_cover with_status_set {{#unless member.is_self}} not_self{{/unless}}">
+                    <span class="current_status_emoji_picker_cover">
+                      <div class="current_status_emoji_cover">
+                        {{getMemberCurrentStatusEmoji member}}
                       </div>
+                    </span>
+                    <div class="current_status_cover_content">
+                      <span class="current_status">
+                        {{getMemberCurrentStatusText member}}
+                      </span>
+                    </div>
+
+                    {{#if member.is_self}}
                       <span class="current_status_clear_icon_cover ts_tip ts_tip_top ts_tip_float" title="{{#t}}Clear status{{/t}}">
                         <ts-icon class="ts_icon_close_filled" aria-hidden="true"></ts-icon>
                       </span>
-                    </span>
+                    {{/if}}
+                  </span>
 
+                  {{#if member.is_self}}
                     <span class="current_status_cover without_status_set">
                       <div class="current_status_cover_content">
                         <span class="current_status_placeholder">
@@ -185,11 +188,9 @@
                     </span>
 
                     {{> current_status_input}}
-                  </div>
-                </td>
-              {{else}}
-                <td class="current_status">{{getMemberCurrentStatusForDisplay member}}</td>
-              {{/if}}
+                  {{/if}}
+                </div>
+              </td>
             {{else}}
               <td class="current_status">{{getMemberCurrentStatusForDisplay member}}</td>
             {{/isClient}}

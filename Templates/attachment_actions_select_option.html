@@ -1,0 +1,18 @@
+<option
+  value="{{value}}"
+  {{#if is_group_item}}
+    class="group_item"
+  {{/if}}
+  {{#if selected}}
+    selected
+    aria-selected="true"
+  {{/if}}
+  {{#if icon}}
+    data-lfs-item-icon="{{icon}}"
+  {{/if}}
+  {{#if description}}
+    data-lfs-item-desc="{{description}}"
+  {{/if}}
+>
+  {{text}}
+</option>

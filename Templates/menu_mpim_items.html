@@ -1,10 +1,8 @@
 {{i18n_ns 'menu'}}
 
-{{#feature flag="feature_browse_date"}}
-  <li id="mpim_jump_item" role="menuitem">    
-    <a target="{{newWindowName}}">{{#t note="Jump to a date within a MPDM"}}Jump to date \u2026{{/t}}</a>
-  </li>
-{{/feature}}
+<li id="mpim_jump_item" role="menuitem">    
+  <a target="{{newWindowName}}">{{#t note="Jump to a date within a MPDM"}}Jump to date \u2026{{/t}}</a>
+</li>
 {{#if show_mpim_create}}<li id="mpim_create_mpim_item" role="menuitem"><a>{{#t note="Invite another team member to join an MPDM"}}Invite another team member \u2026{{/t}}</a></li>{{/if}}
 <li id="mpim_details_item">
   <a>{{#t note="View details of an MPDM"}}View conversation details{{/t}}</a>

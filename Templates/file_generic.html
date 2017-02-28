@@ -79,7 +79,6 @@
     {{/if_equal}}
   {{/if}}
 
-  {{#feature flag="feature_inline_media_playback"}}
     {{#if file_is_video}}
       <video class="inline_video" controls preload="{{video_preload}}" height="{{video_height}}" src="{{best_source}}">
         {{#t}}Your browser does not support HTML5 Video. Try <a href="http://browsehappy.com/">a modern browser</a>.{{/t}}
@@ -90,6 +89,5 @@
         {{#t}}Your browser does not support HTML5 Audio. Try <a href="http://browsehappy.com/">a modern browser</a>.{{/t}}
       </audio>
     {{/if}}
-  {{/feature}}
 
 </div>{{!--/file_container--}}

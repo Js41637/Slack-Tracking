@@ -873,20 +873,18 @@
               completeMemberSpecials: false,
               completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members],
               appendMenu: function(menu) {
-                if (input.is("#file_comment_textarea")) {
-                  input.append(menu);
-                } else {
-                  input.closest("form").append(menu);
-                }
+                $("body").append(menu);
               },
               positionMenu: function(menu) {
-                menu.style.bottom = "100%";
-                menu.style.width = "80%";
-                if (input.is("#file_comment_textarea")) {
-                  menu.style.left = "0";
+                var offset = input.offset();
+                if (TS.web && TS.web.space) {
+                  menu.style.width = Math.min(input.width(), 474) + "px";
                 } else {
-                  menu.style.left = "4.5rem";
+                  menu.style.width = Math.min(input.width(), 360) + "px";
                 }
+                menu.style.maxHeight = offset.top - 2 + "px";
+                menu.style.left = offset.left + "px";
+                menu.style.bottom = $(window).height() - offset.top + "px";
               }
             }
           },

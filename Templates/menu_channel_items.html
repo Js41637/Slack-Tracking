@@ -1,11 +1,9 @@
 {{i18n_ns 'menu'}}
 
 {{#if user.is_ultra_restricted}}
-  {{#feature flag="feature_browse_date"}}
-    <li id="channel_jump_item" role="menuitem">
-      <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
-    </li>
-  {{/feature}}
+  <li id="channel_jump_item" role="menuitem">
+    <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
+  </li>
   <li id="channel_details_item">
     <a>{{#t}}View channel details{{/t}}</a>
   </li>
@@ -34,11 +32,9 @@
 {{else}}
   {{#if user.is_restricted}}
     {{#if channel.is_member}}
-      {{#feature flag="feature_browse_date"}}
-        <li id="channel_jump_item" role="menuitem">
-          <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
-        </li>
-      {{/feature}}
+      <li id="channel_jump_item" role="menuitem">
+        <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
+      </li>
       {{#unless hide_invite}}<li id="channel_invite_item" role="menuitem"><a>
         {{#t note="Invite members to join a channel"}}Invite team members to join &hellip;{{/t}}
       </a></li>{{/unless}}
@@ -69,11 +65,9 @@
     {{/if}}
     <li class="divider"></li>
   {{else}}
-    {{#feature flag="feature_browse_date"}}
       <li id="channel_jump_item" role="menuitem">
         <a class="date_picker" target="{{newWindowName}}">{{#t note="Within a list of messages in a channel"}}Jump to date &hellip;{{/t}}</a>
       </li>
-    {{/feature}}
     {{#if channel.is_archived}}
       <li id="channel_details_item">
         <a>{{#t}}View channel details{{/t}}</a>

@@ -59,41 +59,15 @@
       if (!TS.recaps_signal.canHaveHighlights()) return;
       if (!TS.recaps_signal.channelAllowHighlights()) return;
       var model_ob = TS.shared.getActiveModelOb();
-      var min_number_of_members = 5;
-      if (model_ob.members.length < min_number_of_members) return;
-      var msgs = model_ob.msgs;
-      var msg_length = msgs.length;
-      var msgs_to_fetch = [];
-      var msgs_to_fetch_args = [];
-      for (var i = 0; i < msg_length; i++) {
-        if (msgs[i].recap) continue;
-        var is_unread = _tsIsUnread(msgs[i].ts);
-        if (is_unread || _highlights_mode === _HIGHLIGHTS_MODE_MANUAL) {
-          msgs_to_fetch_args.push({
-            ts: msgs[i].ts,
-            is_unread: is_unread
-          });
-          msgs_to_fetch.push(msgs[i]);
-        }
-      }
-      if (msgs_to_fetch.length) {
-        var promise = _callHighlightsList(model_ob.id, msgs_to_fetch_args);
-        var promises = [];
-        msgs_to_fetch.forEach(function(msg) {
-          promises.push(_addMsgRecap(model_ob, msg, promise));
-        });
-        Promise.all(promises).then(function(msgs) {
-          _highlightChannelMsgs(msgs);
-          var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
-          if (recap_debug_group === "sli_debug_info") {
-            TS.client.msg_pane.rebuildMsgs();
-          } else {
-            TS.recaps_signal.handleUpdateScrollbar();
-          }
-        }).catch(function(e) {});
-      } else {
-        TS.recaps_signal.handleUpdateScrollbar();
-      }
+      if (_is_checking_membership_count_for_model_ob[model_ob.id]) return;
+      _is_checking_membership_count_for_model_ob[model_ob.id] = true;
+      TS.membership.promiseToGetMembershipCounts(model_ob).then(function(counts) {
+        var min_number_of_members = 5;
+        if (counts.member_count < min_number_of_members) return;
+        _retrieveHighlights(model_ob);
+      }).finally(function() {
+        delete _is_checking_membership_count_for_model_ob[model_ob.id];
+      });
     },
     handleUpdateScrollbar: function() {
       if (!TS.recaps_signal.canHaveHighlights()) return;
@@ -404,6 +378,7 @@
       TS.recaps_signal.sendFeedback(model_ob, msg, positive);
     }
   });
+  var _is_checking_membership_count_for_model_ob = {};
   var _MESSAGE_SCROLL_DURATION = 350;
   var _MARKER_HEIGHT = 3;
   var _MESSAGE_PANE_BEFORE_HEIGHT = 8;
@@ -989,5 +964,40 @@
         $(this).removeClass("show_recap_flash");
       });
     });
+  };
+  var _retrieveHighlights = function(model_ob) {
+    var msgs = model_ob.msgs;
+    var msg_length = msgs.length;
+    var msgs_to_fetch = [];
+    var msgs_to_fetch_args = [];
+    for (var i = 0; i < msg_length; i++) {
+      if (msgs[i].recap) continue;
+      var is_unread = _tsIsUnread(msgs[i].ts);
+      if (is_unread || _highlights_mode === _HIGHLIGHTS_MODE_MANUAL) {
+        msgs_to_fetch_args.push({
+          ts: msgs[i].ts,
+          is_unread: is_unread
+        });
+        msgs_to_fetch.push(msgs[i]);
+      }
+    }
+    if (msgs_to_fetch.length) {
+      var promise = _callHighlightsList(model_ob.id, msgs_to_fetch_args);
+      var promises = [];
+      msgs_to_fetch.forEach(function(msg) {
+        promises.push(_addMsgRecap(model_ob, msg, promise));
+      });
+      Promise.all(promises).then(function(msgs) {
+        _highlightChannelMsgs(msgs);
+        var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
+        if (recap_debug_group === "sli_debug_info") {
+          TS.client.msg_pane.rebuildMsgs();
+        } else {
+          TS.recaps_signal.handleUpdateScrollbar();
+        }
+      }).catch(function(e) {});
+    } else {
+      TS.recaps_signal.handleUpdateScrollbar();
+    }
   };
 })();

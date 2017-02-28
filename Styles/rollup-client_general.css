@@ -4591,7 +4591,7 @@ a.link_btn {
   margin-left: .9375rem
 }
 
-.c-modal_body--new_gdrive {
+.c-modal_body--overflow_visible {
   overflow: visible
 }
 
@@ -4632,6 +4632,12 @@ a.link_btn {
 
 .modal input[type=text],
 .modal textarea {
+  width: 72%;
+  margin: 0
+}
+
+.modal #file_comment_textarea.texty_comment_input {
+  display: inline-block;
   width: 72%;
   margin: 0
 }
@@ -7131,10 +7137,6 @@ ts-inline-saver.failed .failed {
   max-height: 150px
 }
 
-.lazy_filter_select .lfs_input_container .search_icon {
-  display: none
-}
-
 .lazy_filter_select .lfs_list_container {
   display: none;
   position: absolute;
@@ -7234,33 +7236,28 @@ ts-inline-saver.failed .failed {
   border-radius: 8px 4px 4px 8px/4px
 }
 
-.lazy_filter_select .lfs_empty,
-.lazy_filter_select .lfs_error {
-  position: absolute;
-  z-index: 200;
-  width: 100%;
-  max-height: 15.625rem;
-  top: 100%;
-  left: 0;
-  overflow: auto;
-  margin-top: .1875rem;
-  margin-bottom: .1875rem;
-  border: 1px solid #D8D8D8;
-  border-radius: .25rem;
-  background: #fff;
-  box-shadow: 0 0 3px rgba(0, 0, 0, .1);
+.lazy_filter_select .lfs_list_container .lfs_empty,
+.lazy_filter_select .lfs_list_container .lfs_error {
+  display: none;
+  font-size: .85rem;
+  overflow: hidden;
   padding-top: .25rem;
   padding-bottom: .25rem;
   padding-left: .25rem;
-  padding-right: .1875rem;
+  padding-right: .25rem;
   text-align: center;
-  font-size: .85rem
+  text-overflow: ellipsis;
+  width: 100%
 }
 
-.lazy_filter_select .lfs_empty.position_above,
-.lazy_filter_select .lfs_error.position_above {
-  top: auto;
-  bottom: 100%
+.lazy_filter_select .lfs_list_container.empty .lfs_list,
+.lazy_filter_select .lfs_list_container.error .lfs_list {
+  display: none
+}
+
+.lazy_filter_select .lfs_list_container.empty .lfs_empty,
+.lazy_filter_select .lfs_list_container.error .lfs_error {
+  display: block
 }
 
 .lazy_filter_select .lfs_list {
@@ -7542,12 +7539,20 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  max-width: 15.625rem;
-  min-width: 9.375rem
+  max-width: 15.625rem
+}
+
+.lazy_filter_select.single.filter_in_list_style ._input_style {
+  font-size: .8125rem;
+  padding-left: .625rem;
+  padding-top: .375rem;
+  padding-right: 1.6875rem;
+  padding-bottom: .375rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container {
-  padding: 0
+  padding: 0;
+  width: 9.375rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_input,
@@ -7573,6 +7578,14 @@ ts-inline-saver.failed .failed {
   line-height: 1;
   right: .3125rem;
   top: .3125rem
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_filter_input {
+  font-size: .8125rem;
+  padding-left: .625rem;
+  padding-top: .375rem;
+  padding-right: 1.6875rem;
+  padding-bottom: .375rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_group {

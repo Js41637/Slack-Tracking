@@ -1,9 +1,9 @@
 <div data-row="{{ index }}" class="clearfix very_small_bottom_padding small_top_padding c-url_table_editor__container">
   <div class="float_left c-url_table_editor__fields">
     {{#if is_delete_mode}}
-      <input type="text" name="urls[{{ index }}]" class="c-url_table_editor__deleted_state small no_margin c-url_table_editor__input" value="{{ url }} was deleted" disabled>
+      <input type="url" name="urls[{{ index }}]" class="c-url_table_editor__deleted_state small no_margin c-url_table_editor__input" value="{{ url }} was deleted" disabled>
     {{else}}
-      <input type="text" name="urls[{{ index }}]" class="small no_margin c-url_table_editor__input" value="{{ url }}" {{#if is_read_mode}}disabled{{/if}} data-validation="{{ validation }}">
+      <input type="url" name="urls[{{ index }}]" class="small no_margin c-url_table_editor__input" value="{{ url }}" {{#if is_read_mode}}disabled{{/if}} data-validation="{{ validation }}">
       <label for="urls[{{ index }}]" class="no_margin"></label>
       <span class="validation_message"></span>
     {{/if}}

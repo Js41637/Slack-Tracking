@@ -5601,6 +5601,10 @@ hr {
   min-width: 0
 }
 
+.prevent_copy_paste:before {
+  content: attr(aria-label)
+}
+
 #team_menu {
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 1rem;
@@ -6308,7 +6312,8 @@ only screen and (min-resolution:2dppx) {
 .current_status_input_container .current_status_empty_emoji,
 .inline_message_input_container .current_status_empty_emoji {
   width: 100%;
-  height: 37px
+  height: 37px;
+  line-height: 35px
 }
 
 #message_edit_form .current_status_empty_emoji .ts_icon,
@@ -6316,7 +6321,7 @@ only screen and (min-resolution:2dppx) {
 .current_status_container .current_status_empty_emoji .ts_icon,
 .current_status_input_container .current_status_empty_emoji .ts_icon,
 .inline_message_input_container .current_status_empty_emoji .ts_icon {
-  top: -.25rem;
+  top: 0;
   height: 100%
 }
 
@@ -6339,37 +6344,47 @@ only screen and (min-resolution:2dppx) {
   height: 100%
 }
 
+#message_edit_form #msg_input.focus~#primary_file_button:not(:hover):not(.active),
+#message_edit_form #msg_input.focus~.emo_menu,
 #message_edit_form #msg_input:focus~#primary_file_button:not(:hover):not(.active),
 #message_edit_form #msg_input:focus~.emo_menu,
 #message_edit_form .message_input:focus~#primary_file_button:not(:hover):not(.active),
 #message_edit_form .message_input:focus~.emo_menu,
 #message_edit_form.focus~#primary_file_button:not(:hover):not(.active),
 #message_edit_form.focus~.emo_menu,
+#msg_form #msg_input.focus~#primary_file_button:not(:hover):not(.active),
+#msg_form #msg_input.focus~.emo_menu,
 #msg_form #msg_input:focus~#primary_file_button:not(:hover):not(.active),
 #msg_form #msg_input:focus~.emo_menu,
 #msg_form .message_input:focus~#primary_file_button:not(:hover):not(.active),
 #msg_form .message_input:focus~.emo_menu,
 #msg_form.focus~#primary_file_button:not(:hover):not(.active),
 #msg_form.focus~.emo_menu,
+.current_status_container #msg_input.focus~#primary_file_button:not(:hover):not(.active),
+.current_status_container #msg_input.focus~.emo_menu,
 .current_status_container #msg_input:focus~#primary_file_button:not(:hover):not(.active),
 .current_status_container #msg_input:focus~.emo_menu,
 .current_status_container .message_input:focus~#primary_file_button:not(:hover):not(.active),
 .current_status_container .message_input:focus~.emo_menu,
 .current_status_container.focus~#primary_file_button:not(:hover):not(.active),
 .current_status_container.focus~.emo_menu,
+.current_status_input_container #msg_input.focus~#primary_file_button:not(:hover):not(.active),
+.current_status_input_container #msg_input.focus~.emo_menu,
 .current_status_input_container #msg_input:focus~#primary_file_button:not(:hover):not(.active),
 .current_status_input_container #msg_input:focus~.emo_menu,
 .current_status_input_container .message_input:focus~#primary_file_button:not(:hover):not(.active),
 .current_status_input_container .message_input:focus~.emo_menu,
 .current_status_input_container.focus~#primary_file_button:not(:hover):not(.active),
 .current_status_input_container.focus~.emo_menu,
+.inline_message_input_container #msg_input.focus~#primary_file_button:not(:hover):not(.active),
+.inline_message_input_container #msg_input.focus~.emo_menu,
 .inline_message_input_container #msg_input:focus~#primary_file_button:not(:hover):not(.active),
 .inline_message_input_container #msg_input:focus~.emo_menu,
 .inline_message_input_container .message_input:focus~#primary_file_button:not(:hover):not(.active),
 .inline_message_input_container .message_input:focus~.emo_menu,
 .inline_message_input_container.focus~#primary_file_button:not(:hover):not(.active),
 .inline_message_input_container.focus~.emo_menu {
-  color: #717274
+  color: rgba(0, 0, 0, .35)
 }
 
 #message_edit_form .with-emoji-menu.has_scrollbar~.emo_menu,

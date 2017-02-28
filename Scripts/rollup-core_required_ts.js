@@ -589,6 +589,9 @@
       login_args.no_users = true;
       login_args.no_bots = true;
       login_args.cache_ts = 0;
+      if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+        login_args.no_members = 1;
+      }
     } else {
       login_args.cache_ts = _last_rtm_start_event_ts || TS.storage.fetchLastCacheTS();
     }
@@ -817,6 +820,9 @@
     });
   };
   var _maybeFetchAccessibleUserIds = function() {
+    if (TS.isPartiallyBooted() && !TS._did_full_boot) {
+      return;
+    }
     if (!TS.model.user.is_restricted) return Promise.resolve();
     if (!TS.membership.lazyLoadChannelMembership()) return Promise.resolve();
     return TS.flannel.fetchAccessibleUserIdsForGuests().then(function(accessible_user_ids) {
@@ -2653,7 +2659,7 @@
     channel_purpose_max_length: 250,
     channel_topic_max_length: 250,
     upload_file_size_limit_bytes: 1073741824,
-    member_id_length: 9,
+    model_ob_id_length: 9,
     msg_activity_interval: 5,
     msg_preview_showing: false,
     archive_view_is_showing: false,

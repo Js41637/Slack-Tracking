@@ -9,11 +9,8 @@
     {{#if show_muted}}{{makeModelObMutedIconSafe model_ob}}{{/if}}
     {{! NOTE: we add user_colored and nuc classes to disallow/allow the color to be applied via the css rule (with :not(.nuc)), and easily toggle that on and off}}
     {{#feature flag="feature_user_custom_status"}}
-      <span class="im_name feature_user_custom_status {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}"
-        {{#feature flag="feature_arugula"}}
-          draggable="true"
-          data-drag-meta='{{makeChannelDragData model_ob}}'
-        {{/feature}}>
+      <span class="im_name feature_user_custom_status {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}"{{#feature flag="feature_arugula"}} draggable="true" data-drag-meta="{{makeChannelDragData model_ob}}"{{/feature}}>
+        <div class="im_name_background {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}}"></div>
     {{else}}
       <button class="im_name {{#if color_names}}user_colored{{else}}nuc{{/if}} {{getMemberColorClassByImId model_ob.id}} btn_basic" data-member-id="{{member.id}}" aria-label="{{makeMemberLinkAriaLabelSafe this}}"{{#feature flag="feature_arugula"}} draggable="true" data-drag-meta="{{makeChannelDragData model_ob}}"{{/feature}} type="button">
     {{/feature}}

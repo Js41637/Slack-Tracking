@@ -161,12 +161,14 @@
   pointer-events: none
 }
 
+#msg_input.focus,
 #msg_input:focus {
   border-color: #bbbdbf;
   outline: 0;
   box-shadow: none
 }
 
+#msg_input.focus+#primary_file_button:not(:hover):not(.active),
 #msg_input:focus+#primary_file_button:not(:hover):not(.active) {
   border-color: #bbbdbf
 }
@@ -2943,6 +2945,24 @@ body.incremental_boot #col_channels .header_count {
   display: none
 }
 
+.im_name_background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border-top-right-radius: .25rem;
+  border-bottom-right-radius: .25rem;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  background-clip: padding-box
+}
+
+.im_name_background~* {
+  position: relative
+}
+
 .channels_list_holder ul li .channel_name,
 .channels_list_holder ul li .group_name,
 .channels_list_holder ul li .im_name,
@@ -2983,7 +3003,8 @@ body.incremental_boot #col_channels .header_count {
 
 body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover,
 body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover,
-body:not(.sorting_mode) .channels_list_holder ul li .im_name:hover,
+body:not(.sorting_mode) .channels_list_holder ul li .im_name.feature_user_custom_status:hover .im_name_background,
+body:not(.sorting_mode) .channels_list_holder ul li .im_name:not(.feature_user_custom_status):hover,
 body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover,
 body:not(.sorting_mode) .channels_list_holder ul li>a:hover {
   background: #3e313c
@@ -3140,12 +3161,20 @@ body.winssb .channels_list_new_btn {
   background: #4c9689
 }
 
+#channels_scroller.show_which_channel_is_active ul li.active .im_name.feature_user_custom_status {
+  background: 0 0
+}
+
+#channels_scroller.show_which_channel_is_active ul li.active .im_name.feature_user_custom_status .im_name_background {
+  background: #4c9689
+}
+
 #channels_scroller.show_which_channel_is_active ul li.active a:hover .overflow-ellipsis {
   text-decoration: none
 }
 
-#channels_scroller.show_which_channel_is_active ul li.active a.channel_name .prefix,
-#channels_scroller.show_which_channel_is_active ul li.active a.group_name .prefix {
+#channels_scroller.show_which_channel_is_active ul li.active .channel_name .prefix,
+#channels_scroller.show_which_channel_is_active ul li.active .group_name .prefix {
   color: #b2d5c9;
   font-weight: 500;
   opacity: 1;
@@ -3255,16 +3284,16 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   font-weight: 400!important
 }
 
-#channels_scroller ul li.muted_channel:not(.active) .channel_name>*,
-#channels_scroller ul li.muted_channel:not(.active) .group_name>*,
-#channels_scroller ul li.muted_channel:not(.active) .im_name>*,
-#channels_scroller ul li.muted_channel:not(.active) .mpim_name>*,
-#channels_scroller ul li.muted_channel:not(.active)>a>*,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name>*,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name>*,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name>*,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>*,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a>* {
+#channels_scroller ul li.muted_channel:not(.active) .channel_name>:not(.im_name_background),
+#channels_scroller ul li.muted_channel:not(.active) .group_name>:not(.im_name_background),
+#channels_scroller ul li.muted_channel:not(.active) .im_name>:not(.im_name_background),
+#channels_scroller ul li.muted_channel:not(.active) .mpim_name>:not(.im_name_background),
+#channels_scroller ul li.muted_channel:not(.active)>a>:not(.im_name_background),
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name>:not(.im_name_background),
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name>:not(.im_name_background),
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name>:not(.im_name_background),
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>:not(.im_name_background),
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a>:not(.im_name_background) {
   opacity: .35;
   -moz-opacity: .35;
   -khtml-opacity: .35
@@ -3424,7 +3453,7 @@ ul.member_list li {
   border-radius: .25rem
 }
 
-ul.member_list li a {
+ul.member_list li>* {
   font-size: .875rem;
   font-weight: 700
 }
@@ -3433,12 +3462,12 @@ ul.member_list li:hover {
   background: #2D9EE0
 }
 
-ul.member_list li:hover a {
+ul.member_list li:hover>* {
   text-decoration: none;
   color: #fff!important
 }
 
-ul.member_list li a.nuc {
+ul.member_list li .nuc {
   color: #9e9ea6
 }
 
@@ -5784,6 +5813,10 @@ body.sorting_mode #messages_container {
   position: relative
 }
 
+.member_image:focus {
+  outline: 0
+}
+
 .member_image.thumb_16 {
   width: 1rem;
   height: 1rem
@@ -6528,6 +6561,11 @@ only screen and (min-resolution:2dppx) {
   display: block
 }
 
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.not_self:hover {
+  cursor: default;
+  border-color: transparent
+}
+
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container.active .current_status_input_container {
   display: block;
   opacity: 1
@@ -6543,7 +6581,7 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .current_status_input {
   font-size: 15px;
-  padding-right: 1.5625rem;
+  padding-right: 2.0625rem;
   padding-left: 3.125rem
 }
 
@@ -6578,6 +6616,10 @@ only screen and (min-resolution:2dppx) {
 .current_status_emoji_picker {
   bottom: 0;
   border-right-color: #C5C5C5
+}
+
+.current_status_emoji_picker .current_status_emoji {
+  line-height: 36px
 }
 
 .current_status_emoji_picker_cover {
@@ -6653,7 +6695,8 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_container #menu_items li a.current_status_preset_option {
   text-decoration: none;
-  margin: 0 2px
+  margin: 0 2px;
+  line-height: 2rem
 }
 
 .current_status_input_container #menu_items li a.current_status_preset_option .current_status {
@@ -6731,6 +6774,17 @@ only screen and (min-resolution:2dppx) {
 #team_list .member_data_table i:not([data-stringify-prefix]):before,
 .menu_member_header .member_data_table i:not([data-stringify-prefix]):before {
   font-size: 1.125rem
+}
+
+#member_preview_scroller .member_data_table .current_status_empty_emoji i:not([data-stringify-prefix]),
+#member_preview_scroller .member_data_table .current_status_empty_emoji_cover i:not([data-stringify-prefix]),
+#member_preview_web_container .member_data_table .current_status_empty_emoji i:not([data-stringify-prefix]),
+#member_preview_web_container .member_data_table .current_status_empty_emoji_cover i:not([data-stringify-prefix]),
+#team_list .member_data_table .current_status_empty_emoji i:not([data-stringify-prefix]),
+#team_list .member_data_table .current_status_empty_emoji_cover i:not([data-stringify-prefix]),
+.menu_member_header .member_data_table .current_status_empty_emoji i:not([data-stringify-prefix]),
+.menu_member_header .member_data_table .current_status_empty_emoji_cover i:not([data-stringify-prefix]) {
+  margin: 0
 }
 
 #member_preview_scroller .member_data_table .bot_label,
@@ -8868,7 +8922,8 @@ screen and (max-width:640px) {
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_preset_option {
-  padding-left: 13px
+  padding-left: 13px;
+  line-height: 2rem
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_preset_option .current_status {
@@ -8876,7 +8931,12 @@ screen and (max-width:640px) {
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_input {
-  padding-left: 3.875rem
+  padding-left: 3.875rem;
+  padding-right: 2.5rem
+}
+
+#edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container #menu_items {
+  margin: 6px 0 8px
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_emoji_picker {
@@ -8885,11 +8945,13 @@ screen and (max-width:640px) {
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .current_status_emoji_picker .current_status_empty_emoji {
-  line-height: 3.5rem
+  line-height: 3rem;
+  height: 100%
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .status_clear_icon_wrap {
-  top: 12.5px
+  top: 12.5px;
+  right: 12.5px
 }
 
 #edit_member_profile_container .current_status_input_for_edit_profile.current_status_input_container .status_clear_icon_wrap .status_clear_icon {
@@ -21872,6 +21934,10 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   width: calc(100% - 32px)
 }
 
+.attachment_group .attachment_actions_buttons .select_attachment.disabled {
+  background: 0 0
+}
+
 .attachment_group .attachment_actions_buttons ts-inline-saver {
   color: #A0A0A2;
   width: 24px;
@@ -23464,7 +23530,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .fs_modal_file_viewer_content #file_comment_form {
-  margin-left: 2.875rem
+  padding-left: 2.875rem
 }
 
 .fs_modal_file_viewer_content #file_comment {
@@ -24256,7 +24322,8 @@ ts-jumper ts-jumper-results:empty {
 
 .current_status_input_for_team_menu .current_status_presets .current_status_preset_option {
   margin: 0 16px;
-  padding: 0 11px
+  padding: 0 11px;
+  line-height: 1.75rem
 }
 
 .current_status_input_for_team_menu .current_status_presets .current_status_preset_option .current_status {

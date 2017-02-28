@@ -3,13 +3,11 @@
 {{#if member.is_self}}
   {{#if is_im_menu}}
 
-    {{#feature flag="feature_browse_date"}}
       <li id="member_jump_item" role="menuitem">
         <a class="date_picker" target="{{newWindowName}}">
           {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
         </a>
       </li>
-    {{/feature}}
     {{#unless hide_view_profile}}
       <li id="member_profile_item" role="menuitem"><a href="/account/profile" target="{{newWindowName}}">
         {{#t}}Edit your profile{{/t}}
@@ -75,13 +73,11 @@
 
   {{#if is_im_menu}}
 
-      {{#feature flag="feature_browse_date"}}
-        <li id="member_jump_item" role="menuitem">
-          <a class="date_picker" target="{{newWindowName}}">
-            {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
-          </a>
-        </li>
-      {{/feature}}
+      <li id="member_jump_item" role="menuitem">
+        <a class="date_picker" target="{{newWindowName}}">
+          {{#t note="Jump to date in history in DM with yourself"}}Jump to date &hellip;{{/t}}
+        </a>
+      </li>
       {{#feature flag="feature_name_tagging_client"}}
         <li id="member_profile_item" role="menuitem"><a href="/team/{{member.id}}" target="{{newWindowName}}">
           {{#if member.profile.preferred_name}}

@@ -130,28 +130,25 @@
     batchUpsertObjects: function(objects) {
       return _batchUpsertObjects(objects);
     },
-    __temp__setChannelMembers: function(channel_id, user_ids) {
-      __temp__channel_members[channel_id] = user_ids;
-    },
-    __temp_getChannelMembers: function(channel_id) {
-      return __temp__channel_members[channel_id];
-    },
     fetchAccessibleUserIdsForGuests: function() {
       if (!TS.model.user.is_restricted) throw new Error("This method is only intended for guests");
-      var channel_member_ids = _(TS.model.channels).map("id").map(TS.flannel.__temp_getChannelMembers).flatten().value();
-      var other_member_ids = _([TS.model.groups, TS.model.ims, TS.model.mpims]).flatten().map(function(ob) {
-        return ob.members || ob.user;
-      }).flatten().value();
-      var all_accessible_member_ids = _(channel_member_ids).concat(other_member_ids).uniq().without("USLACKBOT").value();
-      return Promise.resolve(all_accessible_member_ids);
+      return TS.api.call("channels.guestVisibleMembers").then(function(resp) {
+        return resp.data.members;
+      });
     },
     fetchChannelMembershipForUsers: function(channel_id, user_ids) {
-      var membership_info = {};
-      var channel_members = __temp__channel_members[channel_id] || TS.shared.getModelObById(channel_id).members;
-      user_ids.forEach(function(user_id) {
-        membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
+      var api_endpoint = channel_id[0] == "G" ? "groups.info" : "channels.info";
+      return TS.api.call(api_endpoint, {
+        channel: channel_id
+      }).then(function(resp) {
+        var model_ob = resp.data.group || resp.data.channel;
+        var membership_info = {};
+        var channel_members = model_ob.members;
+        user_ids.forEach(function(user_id) {
+          membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
+        });
+        return membership_info;
       });
-      return Promise.resolve(membership_info);
     },
     fetchMembershipCountsForChannel: function(channel_id) {
       if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
@@ -162,7 +159,6 @@
       });
     }
   });
-  var __temp__channel_members = {};
   var _deleted_user_ids = [];
   var _MAX_IDS_PER_QUERY = 500;
   var _model_ob_member_fetch_promises = {};

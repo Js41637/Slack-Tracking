@@ -1,10 +1,8 @@
 {{i18n_ns "menu"}}
 
-{{#feature flag="feature_browse_date"}}
   <li id="group_jump_item" role="menuitem">
     <a target="{{newWindowName}}">{{#t note="Jump to date in private channel history"}}Jump to date &hellip;{{/t}}</a>
   </li>
-{{/feature}}
 {{#if user.is_ultra_restricted}}
   <li id="group_details_item">
     <a>{{#t}}View channel details{{/t}}</a>

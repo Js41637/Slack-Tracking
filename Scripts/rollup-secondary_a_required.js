@@ -3966,8 +3966,10 @@
       }
       return ret;
     },
-    getActiveMembersNotInThisChannelForInviting: function(id, act_like_an_admin, members_subset) {
-      if (TS.membership.lazyLoadChannelMembership()) {}
+    getActiveMembersNotInThisChannelForInviting: function(id, act_like_an_admin) {
+      if (TS.lazyLoadMembersAndBots()) {
+        throw new Error("getActiveMembersNotInThisChannelForInviting is incomplete when flannel is enabled. It should not be used.");
+      }
       var A = [];
       var is_admin = act_like_an_admin || TS.model.user.is_admin;
       if (TS.model.user.is_ultra_restricted) return A;
@@ -3975,7 +3977,7 @@
       if (!channel) return A;
       var member;
       var membership_status;
-      var active_members = members_subset || TS.members.getActiveMembersExceptSelfAndSlackbot();
+      var active_members = TS.members.getActiveMembersExceptSelfAndSlackbot();
       for (var m = 0; m < active_members.length; m++) {
         member = active_members[m];
         if (member.is_ultra_restricted) continue;
@@ -3989,6 +3991,7 @@
     },
     calcActiveMembersForChannel: function(channel) {
       channel.active_members.length = 0;
+      if (TS.membership.lazyLoadChannelMembership()) return;
       if (!channel.members) return;
       var member;
       for (var m = 0; m < channel.members.length; m++) {
@@ -4100,16 +4103,11 @@
     var members;
     delete channel.unread_count;
     if (TS.boot_data.feature_tinyspeck && channel.id === "C00") TS.warn("_upsertChannel() got a bad channel id of C00", channel);
-    if (TS.membership.lazyLoadChannelMembership()) {
-      if (channel.members) {
-        TS.flannel.__temp__setChannelMembers(channel.id, channel.members);
-        channel.members = [];
-      }
-    }
     if (existing_channel) {
       if (TS.pri) TS.log(5, 'updating existing channel "' + channel.id + '"');
       for (var k in channel) {
         if (k == "members") {
+          if (TS.membership.lazyLoadChannelMembership()) continue;
           members = channel["members"];
           if (channel["is_shared"]) {
             existing_channel.members = _.union(existing_channel.members, members);
@@ -4143,6 +4141,18 @@
       if (TS.pri) TS.log(5, 'adding channel "' + channel.id + '"');
       channels.push(channel);
       _processNewChannelForUpserting(channel);
+      if (TS.membership.lazyLoadChannelMembership()) {
+        Object.defineProperty(channel, "members", {
+          get: function() {
+            TS.warn("Thin channel membership is enabled, but someone tried to access .members on a channel object; returning empty array");
+            TS.console.logStackTrace();
+            return [];
+          },
+          set: function() {
+            throw new Error("Cannot set .members on a channel");
+          }
+        });
+      }
       _id_map[channel.id] = channel;
       _name_map[channel._name_lc] = channel;
       _name_map["#" + channel._name_lc] = channel;
@@ -4378,6 +4388,15 @@
       } else {
         TS.channels.member_left_sig.dispatch(channel, member);
       }
+    },
+    promiseToGetMembershipCounts: function(model_ob) {
+      var counts_info = TS.membership.getMembershipCounts(model_ob);
+      if (counts_info.promise) {
+        return counts_info.promise.then(function() {
+          return Promise.resolve(TS.membership.getMembershipCounts(model_ob).counts);
+        });
+      }
+      return Promise.resolve(counts_info.counts);
     },
     getMembershipCounts: function(model_ob) {
       _channel_member_counts_info[model_ob.id] = _channel_member_counts_info[model_ob.id] || {};
@@ -5696,7 +5715,9 @@ TS.registerModule("constants", {
   var _unarchived_closed_groups = [];
   var _unarchived_groups = [];
   var _getActiveMembersForInvitingWorker = function(act_like_an_admin, group, members_subset) {
-    if (TS.membership.lazyLoadChannelMembership()) {}
+    if (TS.lazyLoadMembersAndBots()) {
+      throw new Error("_getActiveMembersForInvitingWorker is incomplete when flannel is enabled. It should not be used.");
+    }
     var A = [];
     if (TS.model.user.is_ultra_restricted && !act_like_an_admin) return A;
     var members_for_user = members_subset || TS.members.getActiveMembersExceptSelfAndSlackbot();
@@ -11060,8 +11081,13 @@ TS.registerModule("constants", {
     },
     getMemberCurrentStatusForDisplay: function(member_or_id) {
       var current_status = TS.members.getMemberCurrentStatus(member_or_id);
-      var current_status_text = current_status.text ? " " + TS.format.formatCurrentStatus(current_status.text) : "";
-      return TS.format.formatCurrentStatus(current_status.emoji) + current_status_text;
+      var current_status_text = "";
+      if (current_status.text) {
+        current_status_text += '<span class="prevent_copy_paste" aria-label=" "></span>' + TS.format.formatCurrentStatus(current_status.text);
+      }
+      return TS.format.formatCurrentStatus(current_status.emoji, undefined, {
+        stop_animations: true
+      }) + current_status_text;
     },
     invalidateMembersUserCanSeeArrayCaches: function(no_signal) {
       if (!TS.model.user || !TS.model.user.is_restricted) return;
@@ -22592,6 +22618,17 @@ TS.registerModule("constants", {
           this._i18n_ns = this._i18n_ns_history.pop();
         }
       });
+      Handlebars.registerHelper("i18n_img", function(options) {
+        var url = options.fn(this);
+        var locales = options && options.hash && options.hash.locales ? options.hash.locales : null;
+        if (locales) {
+          locales = locales.replace(/\s/g, "");
+          if (locales.split(",").indexOf(TS.i18n.locale()) > -1) {
+            url = url.replace(/(\..+$)/, "." + TS.i18n.locale() + "$1");
+          }
+        }
+        return url;
+      });
       Handlebars.registerHelper("t", function(options) {
         var str;
         if (typeof options === "string") {
@@ -23145,6 +23182,11 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("formatCurrentStatus", function(text) {
         return new Handlebars.SafeString(TS.format.formatCurrentStatus(text));
+      });
+      Handlebars.registerHelper("formatCurrentStatusEmoji", function(text) {
+        return new Handlebars.SafeString(TS.format.formatCurrentStatus(text, undefined, {
+          stop_animations: true
+        }));
       });
       Handlebars.registerHelper("rxnPanel", function(rxn_key) {
         var panel_html = TS.templates.builders.rxnPanel(rxn_key);
@@ -23738,7 +23780,7 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(full_name_and_preferred_name_html);
       });
       Handlebars.registerHelper("getMemberCurrentStatusEmoji", function(member) {
-        return Handlebars.helpers.formatCurrentStatus(TS.members.getMemberCurrentStatus(member).emoji);
+        return Handlebars.helpers.formatCurrentStatusEmoji(TS.members.getMemberCurrentStatus(member).emoji);
       });
       Handlebars.registerHelper("getMemberCurrentStatusText", function(member) {
         return Handlebars.helpers.formatCurrentStatus(TS.members.getMemberCurrentStatus(member).text);
@@ -23748,7 +23790,7 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("seesCurrentStatusInProfileView", function(member, options) {
         options = _optionsFnInverseBooleanHelper(options);
-        if (member.profile.status_text || member.profile.status_text || TS.boot_data.app == "client" && member.is_self) {
+        if (member.profile.status_text || member.profile.status_emoji || TS.boot_data.app == "client" && member.is_self) {
           return options.fn(this);
         } else {
           return options.inverse(this);
@@ -24310,12 +24352,12 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeModelObMutedIconSafe", function(model_ob) {
         if (!TS.boot_data.feature_sli_channel_priority) return "";
         if (model_ob.is_im) return "";
-        var html = '<a class="muted_icon" data-c-id="' + model_ob.id + '" id="' + TS.templates.makeMutedIconDomId(model_ob) + '"><ts-icon class="ts_icon_bell_slash"></ts-icon></a>';
+        var html = '<button class="muted_icon btn_unstyle" data-c-id="' + model_ob.id + '" id="' + TS.templates.makeMutedIconDomId(model_ob) + '" type="button"><ts-icon class="ts_icon_bell_slash"></ts-icon></button>';
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("makeModelObStarredIconSafe", function(model_ob) {
         if (!TS.boot_data.feature_sli_channel_priority) return "";
-        var html = '<a class="starred_icon" data-c-id="' + model_ob.id + '" id="' + TS.templates.makeStarredIconDomId(model_ob) + '"><ts-icon class="ts_icon_star"></ts-icon></a>';
+        var html = '<button class="starred_icon btn_unstyle" data-c-id="' + model_ob.id + '" id="' + TS.templates.makeStarredIconDomId(model_ob) + '" type="button"><ts-icon class="ts_icon_star"></ts-icon></button>';
         return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("makeModelObPriorityIconSafe", function(model_ob) {
@@ -24338,6 +24380,13 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("renderAttachmentActions", function(attachment, disable_buttons) {
         return new Handlebars.SafeString(TS.templates.builders.buildAttachmentActions(attachment, disable_buttons));
+      });
+      Handlebars.registerHelper("renderAttachmentActionSelectOption", function(context, options) {
+        var option = _.merge({}, context, {
+          is_group_item: options.hash.is_group_item
+        });
+        var html = TS.templates.attachment_actions_select_option(option);
+        return new Handlebars.SafeString(html);
       });
       Handlebars.registerHelper("renderAttachmentMedia", function(attachment, msg_dom_id) {
         var html;
@@ -25456,7 +25505,7 @@ TS.registerModule("constants", {
         TS.warn("messageIncludesMember: WTF no msg?");
         return;
       }
-      if (msg.user && msg.user == member.id) return true;
+      if (TS.utility.msgs.memberSentMessage(member, msg)) return true;
       var txt = msg.text;
       var opts = TS.format.calculateOptions(msg, {});
       var tokens = TSF.getTokensArray($.trim(txt), opts.tsf_mode, {
@@ -25472,6 +25521,17 @@ TS.registerModule("constants", {
         }
       }
       return false;
+    },
+    memberSentMessage: function(member, msg) {
+      if (!member) {
+        TS.warn("messageIncludesMember: WTF no member?");
+        return;
+      }
+      if (!msg) {
+        TS.warn("messageIncludesMember: WTF no msg?");
+        return;
+      }
+      return msg.user && msg.user == member.id;
     },
     allUnknownUsersInMessage: function(msg) {
       var rtn = [];
@@ -27360,6 +27420,7 @@ TS.registerModule("constants", {
     },
     shouldHideChannelJoinOrLeaveMsg: function(imsg, channel_or_channel_id) {
       if (!TS.boot_data.feature_hide_join_leave) return false;
+      if (TS.membership.lazyLoadChannelMembership()) return false;
       var user = TS.members.getMemberById(imsg.user);
       var is_bot_user = _.get(user, "is_bot", false);
       if (imsg.subtype === "channel_join") {
@@ -28048,8 +28109,7 @@ TS.registerModule("constants", {
       if (NODENAME == "INPUT") return true;
       if (NODENAME == "TEXTAREA") return true;
       if (NODENAME == "SELECT") return true;
-      var content_editable = document.activeElement.getAttribute("contenteditable");
-      if (content_editable == "true") return true;
+      if (TS.utility.contenteditable.isContenteditable(document.activeElement)) return true;
       return false;
     },
     formatTopicOrPurpose: function(txt, no_preformatted) {
@@ -29013,7 +29073,7 @@ TS.registerModule("constants", {
       return false;
     },
     strLooksLikeATeamId: function(str) {
-      if (!_.isString(str) || str.length !== TS.model.member_id_length) return false;
+      if (!_.isString(str) || str.length !== TS.model.model_ob_id_length) return false;
       if (str && str.charAt(0) === "T" && str.match(/^[A-Z0-9]+$/)) return true;
       return false;
     },
@@ -29500,9 +29560,9 @@ TS.registerModule("constants", {
       var txt_escaped = TS.utility.htmlEntities(txt);
       var new_html = txt_escaped.replace(_at_mention_rx, function(match, boundry, at_member_id, member_id, offset, string) {
         var extra = "";
-        if (member_id.length > TS.model.member_id_length) {
-          extra = member_id.slice(TS.model.member_id_length);
-          member_id = member_id.slice(0, TS.model.member_id_length);
+        if (member_id.length > TS.model.model_ob_id_length) {
+          extra = member_id.slice(TS.model.model_ob_id_length);
+          member_id = member_id.slice(0, TS.model.model_ob_id_length);
           at_member_id = "@" + member_id;
         }
         var valid = _validateModelObByIdOrName(TS.members.getMemberById, member_id, TS.members.getMemberByName, at_member_id);
@@ -29611,13 +29671,15 @@ TS.registerModule("constants", {
         for_growl: true
       });
     },
-    formatCurrentStatus: function(txt, msg) {
-      return TS.format.formatWithOptions(txt, msg, {
+    formatCurrentStatus: function(txt, msg, opts) {
+      opts = opts || {};
+      return TS.format.formatWithOptions(txt, msg, _.assign({
         no_jumbomoji: true,
         no_specials: true,
         no_highlights: true,
-        stop_animations: true
-      });
+        no_emoji_text: true,
+        prevent_copy_paste: true
+      }, opts));
     },
     extractIds: function(txt) {
       var c_ids = [];
@@ -29954,6 +30016,8 @@ TS.registerModule("constants", {
     var no_preformatted = !!opts.no_preformatted || undefined;
     var custom_linebreak = opts.custom_linebreak || undefined;
     var stop_animations = !!opts.stop_animations || undefined;
+    var no_emoji_text = !!opts.no_emoji_text || undefined;
+    var prevent_copy_paste = !!opts.prevent_copy_paste || undefined;
     if (no_jumbomoji !== true) {
       no_jumbomoji = !TS.model.prefs.jumbomoji;
     }
@@ -29987,7 +30051,9 @@ TS.registerModule("constants", {
       no_jumbomoji: no_jumbomoji,
       no_preformatted: no_preformatted,
       custom_linebreak: custom_linebreak,
-      stop_animations: stop_animations
+      stop_animations: stop_animations,
+      no_emoji_text: no_emoji_text,
+      prevent_copy_paste: prevent_copy_paste
     };
   };
   var _format = function(txt, msg, opts) {
@@ -30002,6 +30068,8 @@ TS.registerModule("constants", {
     var no_preformatted = opts.no_preformatted;
     var custom_linebreak = opts.custom_linebreak;
     var stop_animations = opts.stop_animations;
+    var no_emoji_text = opts.no_emoji_text;
+    var prevent_copy_paste = opts.prevent_copy_paste;
     var map = _TSF_token_map;
     if (custom_linebreak) {
       map = _.extend({}, map, {
@@ -30172,23 +30240,30 @@ TS.registerModule("constants", {
               }
             }
           } else if (item.indexOf(TSF.JUMBOMOJI_COLONS.split(" ")[0]) === 0) {
-            str += _parseEmojiToken(tsf_mode, item, no_emoji, !no_jumbomoji, stop_animations);
+            str += _parseEmojiToken(tsf_mode, item, no_emoji, !no_jumbomoji, stop_animations, no_emoji_text);
           } else if (item.indexOf(TSF.EMOJI_COLONS.split(" ")[0]) === 0) {
-            str += _parseEmojiToken(tsf_mode, item, no_emoji, false, stop_animations);
+            str += _parseEmojiToken(tsf_mode, item, no_emoji, false, stop_animations, no_emoji_text);
           } else if (item.indexOf(TSF.HEX_BLOCK.split(" ")[0]) === 0) {
             str += _parseHexToken(tsf_mode, item, no_hex_colors);
           } else {
             TS.error("markup token not handled:" + item);
           }
-        } else if (item.indexOf("<") == -1) {
+        } else if (item.indexOf("<") === -1) {
           if (last_item_was_bot_url) {
             last_item_was_bot_url = false;
           } else {
-            if (no_highlights) {
-              str += item;
-            } else {
-              str += _doHighlighting(item);
+            if (!no_highlights) {
+              item = _doHighlighting(item);
             }
+            if (prevent_copy_paste) {
+              item = _.map($.parseHTML(item), function(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                  return '<span class="prevent_copy_paste" aria-label="' + TS.utility.htmlEntities(node.textContent) + '"></span>';
+                }
+                return node.outerHTML;
+              }).join("");
+            }
+            str += item;
           }
         } else {
           TS.error("token has a < in it but it is not the first character!\n" + item);
@@ -30234,7 +30309,7 @@ TS.registerModule("constants", {
       return "#deleted-channel";
     }
   };
-  var _parseEmojiToken = function(tsf_mode, item, no_emoji, do_jumbomoji, stop_animations) {
+  var _parseEmojiToken = function(tsf_mode, item, no_emoji, do_jumbomoji, stop_animations, no_emoji_text) {
     var colons = item.split(" ")[1].replace(">", "");
     if (no_emoji) {
       return colons;
@@ -30242,7 +30317,7 @@ TS.registerModule("constants", {
     var replaced = TS.emoji.graphicReplace(colons, {
       obey_emoji_mode_pref: true,
       include_title: true,
-      include_text: true,
+      include_text: !no_emoji_text,
       jumbomoji: do_jumbomoji,
       stop_animations: stop_animations
     });
@@ -30528,10 +30603,7 @@ TS.registerModule("constants", {
       team_id = team ? team.id : false;
     }
     if (!team_id) return false;
-    return _.find(TS.model.members, {
-      name: username,
-      team_id: team_id
-    });
+    return TS.members.getMemberByNameAndTeamId(username, team_id);
   }
 
   function _validateModelObByIdOrName(lookupById, id, lookupByName, name) {
@@ -30539,9 +30611,9 @@ TS.registerModule("constants", {
     var extra = "";
     var model_ob;
     if (TS.boot_data.feature_name_tagging_client_extras && _.isFunction(lookupById) && _.isString(id)) {
-      stripped = id.substring(0, TS.model.member_id_length);
+      stripped = id.substring(0, TS.model.model_ob_id_length);
       model_ob = lookupById(stripped);
-      if (model_ob) extra = id.substring(TS.model.member_id_length);
+      if (model_ob) extra = id.substring(TS.model.model_ob_id_length);
     }
     if (!model_ob) {
       model_ob = lookupByName(name);
@@ -33114,9 +33186,7 @@ TS.registerModule("constants", {
       TS.menu.$menu.removeClass("narrow_menu");
       TS.menu.$menu_body.off("mouseenter.section_header");
       TS.menu.needs_to_remain_open = undefined;
-      if (TS.boot_data.feature_browse_date) {
-        TS.menu.$menu.removeClass("date_picker");
-      }
+      TS.menu.$menu.removeClass("date_picker");
       if (TS.boot_data.page_needs_enterprise) {
         TS.menu.$menu_list_container.html('<div id="menu_list" role="menu"></div>').removeClass("populated");
         TS.menu.$menu_list = TS.menu.$menu.find("#menu_list");
@@ -33418,9 +33488,6 @@ var _on_esc;
     startWithApp: function(e, bot_id, position_by_click) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
-      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
-        return;
-      }
       TS.menu.buildIfNeeded();
       TS.menu.clean();
       TS.apps.promiseToGetFullAppProfile(bot_id).then(showAllAppInformation);
@@ -33516,9 +33583,6 @@ var _on_esc;
     startWithChannel: function(e, channel_id) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
-      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
-        return;
-      }
       if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
@@ -33565,10 +33629,8 @@ var _on_esc;
       TS.kb_nav.setSubmitItemHandler(TS.menu.channel.onChannelItemClick);
       TS.menu.start(e);
       TS.menu.$menu.attr("data-qa", "channel_menu");
-      if (TS.boot_data.feature_browse_date) {
-        TS.menu.$menu.addClass("narrow_menu");
-        TS.ui.date_picker.getOldestMsgTs();
-      }
+      TS.menu.$menu.addClass("narrow_menu");
+      TS.ui.date_picker.getOldestMsgTs();
       if (!_use_channel_name_toggle) _use_channel_name_toggle = $(e.target).closest("#channel_name").length;
       var $toggle_button = _use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
@@ -34816,9 +34878,6 @@ var _on_esc;
     startWithGroup: function(e, group_id) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
-      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
-        return;
-      }
       if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
@@ -34852,10 +34911,8 @@ var _on_esc;
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.group.onGroupItemClick);
       TS.menu.start(e);
       TS.menu.$menu.attr("data-qa", "group_menu");
-      if (TS.boot_data.feature_browse_date) {
-        TS.menu.$menu.addClass("narrow_menu");
-        TS.ui.date_picker.getOldestMsgTs();
-      }
+      TS.menu.$menu.addClass("narrow_menu");
+      TS.ui.date_picker.getOldestMsgTs();
       $("#menu_group_topic_input").bind("keydown", TS.menu.handleTopicKeydown);
       if (!_use_channel_name_toggle) _use_channel_name_toggle = $(e.target).closest("#channel_name").length;
       var $toggle_button = _use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
@@ -34947,9 +35004,6 @@ var _on_esc;
     startWithMember: function(e, member_id, position_by_click, is_header_menu, is_im_menu) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
-      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
-        return;
-      }
       if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       var member = TS.menu.member.member = TS.members.getMemberById(member_id);
@@ -35085,10 +35139,8 @@ var _on_esc;
         var x_plus = _use_channel_name_toggle ? 18 : 6;
         TS.menu.positionAt($toggle_button, x_plus, y_plus);
         TS.menu.$menu.attr("data-qa", "member_menu");
-        if (TS.boot_data.feature_browse_date) {
-          TS.menu.$menu.addClass("narrow_menu");
-          TS.ui.date_picker.getOldestMsgTs();
-        }
+        TS.menu.$menu.addClass("narrow_menu");
+        TS.ui.date_picker.getOldestMsgTs();
       }
       if (is_im_menu) {
         TS.view.setFlexMenuSize();
@@ -35338,9 +35390,6 @@ var _on_esc;
     startWithMpim: function(e, mpim_id) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
-      if (TS.model.menu_is_showing && !TS.boot_data.feature_browse_date) {
-        return;
-      }
       if (!TS.model.menu_is_showing) _use_channel_name_toggle = undefined;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
@@ -35364,10 +35413,8 @@ var _on_esc;
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.mpim.onMpimItemClick);
       TS.menu.start(e);
       TS.menu.$menu.attr("data-qa", "mpim_menu");
-      if (TS.boot_data.feature_browse_date) {
-        TS.menu.$menu.addClass("narrow_menu");
-        TS.ui.date_picker.getOldestMsgTs();
-      }
+      TS.menu.$menu.addClass("narrow_menu");
+      TS.ui.date_picker.getOldestMsgTs();
       if (!_use_channel_name_toggle) _use_channel_name_toggle = $(e.target).closest("#channel_name").length;
       var $toggle_button = _use_channel_name_toggle ? $("#channel_name") : $("#channel_actions_toggle");
       var toggle_button_height = $toggle_button.height();
@@ -36875,7 +36922,7 @@ var _on_esc;
       }
     }
   });
-  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/open", "/toggle_debugging_prefs", "/away", "/search", "/togglethemes", "/feedback", "/slack_diagnostic_report", "/msg", "/dm", "/s", "/editlast", "/deletelast", "/star", "/beep", "/colors", "/colours", "/color", "/colour", "/active"];
+  var _SUPPORTED_THREAD_CMDS = ["/shrug", "/prefs", "/shortcuts", "/keys", "/toggle_debugging_prefs", "/away", "/search", "/togglethemes", "/feedback", "/slack_diagnostic_report", "/msg", "/dm", "/s", "/editlast", "/deletelast", "/star", "/beep", "/colors", "/colours", "/color", "/colour", "/active"];
   var _setCommands = function(commands, cache_ts) {
     TS.model.commands_cache_ts = cache_ts;
     TS.storage.storeCmds({
@@ -42967,7 +43014,11 @@ var _on_esc;
         if (!protocols) return true;
         var allowed_protocols = protocols.split(",");
         for (var i = 0; i < allowed_protocols.length; i++) {
-          if (found[0].indexOf(allowed_protocols[i]) === 0) {
+          if (allowed_protocols[i] == "http") {
+            if (found[0].indexOf("http://") === 0 || found[0].indexOf("https://") === 0) {
+              return true;
+            }
+          } else if (found[0].indexOf(allowed_protocols[i] + "://") === 0) {
             return true;
           } else if (allowed_protocols[i] == "https") {
             error_message = TS.i18n.t("Please use https (for security).", "ui_validation")();
@@ -46776,9 +46827,14 @@ $.fn.togglify = function(settings) {
       if ($select.prop("disabled")) instance.disabled = true;
       if (instance.disabled) $container.addClass("disabled");
       instance.style = _.get(TS.ui.lazy_filter_select.STYLES, instance.style, TS.ui.lazy_filter_select.STYLES.default);
+      if (_isFilterInListStyle(instance) && !instance.single) {
+        TS.console.warn("Multi-select lazyFilterSelect instances can't use the 'filter_in_list' style. Using 'default' style instead.");
+        instance.style = TS.ui.lazy_filter_select.default;
+      }
       var html = TS.templates.lazy_filter_select_container({
         instance: instance,
-        aria_labelledby: $select.attr("aria-labelledby")
+        aria_labelledby: $select.attr("aria-labelledby"),
+        STYLES: TS.ui.lazy_filter_select.STYLES
       });
       $container.html(html);
       if (instance.append) {
@@ -46799,6 +46855,11 @@ $.fn.togglify = function(settings) {
       instance.$list = $container.find(".lfs_list");
       instance.$empty = $container.find(".lfs_empty");
       instance.$error = $container.find(".lfs_error");
+      if (_isFilterInListStyle(instance)) {
+        instance.$filter_input = $container.find(".lfs_filter_input");
+      } else {
+        instance.$filter_input = instance.$input;
+      }
       instance._page_number = 1;
       instance._slug_id_counter = 1;
       instance.run = _run;
@@ -46868,7 +46929,8 @@ $.fn.togglify = function(settings) {
     onMaxItemsSelected: function() {},
     onListShown: _.noop,
     onListHidden: _.noop,
-    placeholder_text: TS.i18n.t("Search", "lazy_filter_select")(),
+    placeholder_text: TS.i18n.t("Choose an option…", "lazy_filter_select")(),
+    filter_placeholder_text: TS.i18n.t("Search", "lazy_filter_select")(),
     renderDividerFunc: null,
     render_item_func: null,
     restrict_input_container_height: false,
@@ -46922,7 +46984,7 @@ $.fn.togglify = function(settings) {
       delete this.instance;
     },
     blur: function() {
-      this.instance.$input.blur();
+      this.instance.$filter_input.blur();
     },
     clearValue: function() {
       if (this.instance.single) {
@@ -46947,7 +47009,7 @@ $.fn.togglify = function(settings) {
       _enable(this.instance);
     },
     focus: function() {
-      this.instance.$input.focus();
+      this.instance.$filter_input.focus();
     },
     getInstance: function() {
       return this.instance;
@@ -46985,6 +47047,11 @@ $.fn.togglify = function(settings) {
       this.instance.placeholder_text = text;
       this.instance.$input.prop("placeholder", text);
     },
+    updateFilterPlaceholder: function(text) {
+      if (!_isFilterInListStyle(this.instance)) return;
+      this.instance.filter_placeholder_text = text;
+      this.instance.$filter_input.prop("placeholder", text);
+    },
     value: function() {
       return this.instance._selected;
     }
@@ -47012,7 +47079,7 @@ $.fn.togglify = function(settings) {
     }
     _populate(instance, instance.data);
     _showList(instance);
-    instance.$input.val("");
+    instance.$filter_input.val("");
     instance._previous_val = "";
     _adjustInput(instance);
     instance.onItemAdded(item);
@@ -47020,13 +47087,13 @@ $.fn.togglify = function(settings) {
   };
   var _adjustInput = function(instance) {
     if (!instance.single) {
-      instance.$input.prop("size", instance.$input.val().length + 1);
-      if (instance.$input.val().length + instance._selected.length === 0) {
+      instance.$input.prop("size", instance.$filter_input.val().length + 1);
+      if (instance.$filter_input.val().length + instance._selected.length === 0) {
         _showEmptyState(instance);
       } else {
         instance.$input_container.removeClass("empty");
         instance.$input_container.removeClass("error");
-        instance.$input.prop("placeholder", "");
+        _clearPlaceholderText(instance);
       }
     }
   };
@@ -47052,12 +47119,16 @@ $.fn.togglify = function(settings) {
     instance.$container.on("click", _onContainerClick.bind(null, instance));
     instance.$container.parents("label").on("click", _onContainerParentsLabelClick.bind(null, instance));
     instance.$input_container.on("focus", _onInputContainerFocus.bind(null, instance));
-    var on_input_input = _.isUndefined(instance.input_debounce_wait_time) ? _onInputInput : _.debounce(_onInputInput, instance.input_debounce_wait_time);
-    instance.$input.on("input", on_input_input.bind(null, instance));
-    instance.$input.on("keydown", _onInputKeydown.bind(null, instance));
-    instance.$input.on("blur", _onInputBlur.bind(null, instance));
     instance.$input.on("focus", _onInputFocus.bind(null, instance));
-    instance.$input.on("blur", _onInputBlur.bind(null, instance));
+    var on_filter_input_input;
+    if (_.isUndefined(instance.input_debounce_wait_time)) {
+      on_filter_input_input = _onFilterInputInput;
+    } else {
+      on_filter_input_input = _.debounce(_onFilterInputInput, instance.input_debounce_wait_time);
+    }
+    instance.$filter_input.on("input", on_filter_input_input.bind(null, instance));
+    instance.$filter_input.on("keydown", _onFilterInputKeydown.bind(null, instance));
+    instance.$filter_input.on("blur", _onFilterInputBlur.bind(null, instance));
     instance.$lfs_value.on("click", _onValueClick.bind(null, instance));
     instance.$lfs_value.on("mousedown", _onValueMousedown.bind(null, instance));
     instance.$input_container.on("click", ".lfs_token", _onTokenClick.bind(null, instance));
@@ -47175,6 +47246,7 @@ $.fn.togglify = function(settings) {
     instance.disabled = true;
     instance.$container.addClass("disabled");
     instance.$input.prop("disabled", true);
+    instance.$filter_input.prop("disabled", true);
   };
   var _doAllTheThingsRequiredWithNewData = function(instance, data) {
     var should_rebuild_list = false;
@@ -47191,6 +47263,7 @@ $.fn.togglify = function(settings) {
     instance.disabled = false;
     instance.$container.removeClass("disabled");
     instance.$input.prop("disabled", false);
+    instance.$filter_input.prop("disabled", false);
   };
   var _filterGroup = function(instance, query) {
     var data = instance.data;
@@ -47262,17 +47335,17 @@ $.fn.togglify = function(settings) {
     instance._$active = null;
     instance.onListHidden();
   };
-  var _hideNoResults = function(instance) {
-    instance.$empty.addClass("hidden");
-    instance.$input_container.removeClass("active");
-    instance.$container.removeClass("showing_no_results");
-  };
-  var _hideError = function(instance) {
-    if (instance.$error) {
-      instance.$error.addClass("hidden");
+  var _hideNoResults = function(instance, options) {
+    if (!_.get(options, "keep_input_active")) {
       instance.$input_container.removeClass("active");
-      instance.$container.removeClass("showing_error");
     }
+    instance.$list_container.removeClass("empty");
+  };
+  var _hideError = function(instance, options) {
+    if (!_.get(options, "keep_input_active")) {
+      instance.$input_container.removeClass("active");
+    }
+    instance.$list_container.removeClass("error");
   };
   var _instanceCanSluggify = function(instance) {
     if (!instance.sluggify.enabled) {
@@ -47365,9 +47438,12 @@ $.fn.togglify = function(settings) {
       _showNoResults(instance);
       return;
     }
-    instance.$empty.addClass("hidden");
-    instance.$list_container.removeClass("empty");
-    instance.$list_container.removeClass("error");
+    _hideNoResults(instance, {
+      keep_input_active: true
+    });
+    _hideError(instance, {
+      keep_input_active: true
+    });
     if (!instance._list_built) {
       if (!instance.data || instance.data.length === 0) {
         instance.data = data;
@@ -47442,7 +47518,7 @@ $.fn.togglify = function(settings) {
         $(html).insertBefore(instance.$input);
         instance.$input_container.removeClass("empty");
         instance.$input_container.removeClass("error");
-        instance.$input.prop("placeholder", "");
+        _clearPlaceholderText(instance);
       }
     }
   };
@@ -47470,7 +47546,7 @@ $.fn.togglify = function(settings) {
     $list_item.removeClass("selected");
     $item.remove();
     _updateVal(instance);
-    if (instance.$input.val().length + instance._selected.length === 0) {
+    if (instance.$filter_input.val().length + instance._selected.length === 0) {
       _showEmptyState(instance);
     }
     if (instance._selected.length === 0) instance.$container.removeClass("value");
@@ -47484,7 +47560,7 @@ $.fn.togglify = function(settings) {
     });
     $slug.remove();
     _updateVal(instance);
-    if (instance.$input.val().length + instance._selected.length === 0) {
+    if (instance.$filter_input.val().length + instance._selected.length === 0) {
       _showEmptyState(instance);
     }
     instance.onItemRemoved(data_item);
@@ -47576,12 +47652,12 @@ $.fn.togglify = function(settings) {
     if (!instance.single) {
       instance.$input_container.removeClass("empty");
       instance.$input_container.removeClass("error");
-      instance.$input.prop("placeholder", "");
+      _clearPlaceholderText(instance);
     }
     instance.$container.addClass("value");
     instance.onItemAdded(data_item);
     if (!_canAddNewItem(instance)) instance.onMaxItemsSelected();
-    instance.$input.focus();
+    instance.$filter_input.focus();
   };
   var _selectDown = function(instance) {
     return _select(instance, "nextAll");
@@ -47603,12 +47679,12 @@ $.fn.togglify = function(settings) {
   };
   var _showEmptyState = function(instance) {
     instance.$input_container.addClass("empty");
-    instance.$input.prop("placeholder", instance.placeholder_text);
+    _resetPlaceholderText(instance);
   };
   var _showList = function(instance, keep_value) {
     if (instance.disabled) return;
     TS.utility.rAF(function() {
-      instance.$input.focus();
+      instance.$filter_input.focus();
     });
     if (instance._list_visible) return;
     if (instance._initial_call_failed) {
@@ -47634,14 +47710,16 @@ $.fn.togglify = function(settings) {
     if (instance._list_built) {
       instance._list_visible = true;
       instance.$list_container.addClass("visible");
-      instance.$container.addClass("list_visible").removeClass("showing_no_results");
-      instance.$input_container.addClass("active");
+      instance.$container.addClass("list_visible");
+      if (!_isFilterInListStyle(instance)) {
+        instance.$input_container.addClass("active");
+      }
       instance.$list.longListView("setHidden", false);
     }
     if (instance.single && !keep_value) {
-      instance.$input.val("");
+      instance.$filter_input.val("");
       instance._previous_val = "";
-      instance.$input.focus();
+      instance.$filter_input.focus();
       _populate(instance);
     }
     if (instance.set_height) {
@@ -47654,24 +47732,23 @@ $.fn.togglify = function(settings) {
   };
   var _showNoResults = function(instance) {
     if (instance._list_built) {
-      instance.$container.addClass("showing_no_results");
-      _hideList(instance, true);
-      instance.$input_container.addClass("active");
+      if (!_isFilterInListStyle(instance)) {
+        instance.$input_container.addClass("active");
+      }
+      instance.$empty.html(instance.noResultsTemplate(instance.$filter_input.val()));
       instance.$list_container.addClass("empty");
-      instance.$empty.html(instance.noResultsTemplate(instance.$input.val()));
-      instance.$empty.removeClass("hidden");
       instance._$active = null;
     }
   };
   var _showError = function(instance, error_message) {
     TS.error(error_message || "Something failed while trying to return the promise for lazyFilterSelect.");
     instance.$container.addClass("showing_error");
-    _hideList(instance, true);
     _hideNoResults(instance);
-    instance.$input_container.addClass("active");
-    instance.$list_container.addClass("error");
+    if (!_isFilterInListStyle(instance)) {
+      instance.$input_container.addClass("active");
+    }
     instance.$error.html(instance.errorTemplate());
-    instance.$error.removeClass("hidden");
+    instance.$list_container.addClass("error");
     instance._$active = null;
   };
   var _startListView = function(instance) {
@@ -47748,7 +47825,7 @@ $.fn.togglify = function(settings) {
     });
     instance.$input_container.find('.lfs_item[data-lfs-id="' + data_item.lfs_id + '"]').remove();
     _updateVal(instance);
-    if (instance.$input.val().length + instance._selected.length === 0) {
+    if (instance.$filter_input.val().length + instance._selected.length === 0) {
       _showEmptyState(instance);
     }
     if (instance._selected.length === 0) instance.$container.removeClass("value");
@@ -47758,17 +47835,17 @@ $.fn.togglify = function(settings) {
     if (!_instanceCanSluggify(instance) || !_itemIsUserCreatedSlug($slug)) return;
     var slug_text = $slug.text().trim();
     if ($slug.length) _removeUserCreatedSlug(instance, $slug);
-    instance.$input.val(slug_text);
+    instance.$filter_input.val(slug_text);
     _adjustInput(instance);
-    instance.$input.select();
+    instance.$filter_input.select();
   };
   var _update = function(instance, data) {
     instance.data = data || _parseHTMLOptionData(instance.$select);
     if (instance.data) {
       instance._selected = [];
       _prepItems(instance);
-      if (instance.$input.val().length) {
-        var query = instance.$input.val();
+      if (instance.$filter_input.val().length) {
+        var query = instance.$filter_input.val();
         instance._previous_val = "";
         _runQuery(instance, query);
       }
@@ -47805,6 +47882,21 @@ $.fn.togglify = function(settings) {
     }
     return text;
   };
+  var _clearPlaceholderText = function(instance) {
+    instance.$input.attr("placeholder", "");
+    if (_isFilterInListStyle(instance)) {
+      instance.$filter_input.attr("placeholder", "");
+    }
+  };
+  var _resetPlaceholderText = function(instance) {
+    instance.$input.attr("placeholder", instance.placeholder_text);
+    if (_isFilterInListStyle(instance)) {
+      instance.$filter_input.attr("placeholder", instance.filter_placeholder_text);
+    }
+  };
+  var _isFilterInListStyle = function(instance) {
+    return instance.style === TS.ui.lazy_filter_select.STYLES.filter_in_list;
+  };
   var _onContainerMouseleave = function(instance) {
     instance._prevent_blur = false;
   };
@@ -47821,8 +47913,17 @@ $.fn.togglify = function(settings) {
     instance.$input_container.click();
     instance.$input.focus();
   };
-  var _onInputInput = function(instance) {
-    var query = instance.$input.val();
+  var _onInputFocus = function(instance) {
+    if (!instance._input_is_focused) {
+      instance._input_is_focused = true;
+      instance.onInputFocus();
+    }
+    if (!instance.single) {
+      instance.$input_container.addClass("active");
+    }
+  };
+  var _onFilterInputInput = function(instance) {
+    var query = instance.$filter_input.val();
     if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
       var slugs = query.split(instance.sluggify.delimiter);
       slugs.forEach(function(slug) {
@@ -47832,7 +47933,7 @@ $.fn.togglify = function(settings) {
       _runQuery(instance, query, true);
     }
   };
-  var _onInputKeydown = function(instance, e) {
+  var _onFilterInputKeydown = function(instance, e) {
     if (instance.disabled) return;
     switch (e.keyCode) {
       case TS.utility.keymap.down:
@@ -47844,21 +47945,33 @@ $.fn.togglify = function(settings) {
         _selectUp(instance);
         break;
       case TS.utility.keymap.enter:
-        _onInputKeydownEnter(instance, e);
+        _onFilterInputKeydownEnter(instance, e);
         break;
       case TS.utility.keymap.del:
-        _onInputKeydownDel(instance, e);
+        _onFilterInputKeydownDel(instance, e);
         break;
       case TS.utility.keymap.tab:
-        _onInputKeydownTab(instance, e);
+        _onFilterInputKeydownTab(instance, e);
         break;
       case TS.utility.keymap.esc:
-        _onInputKeydownEsc(instance, e);
+        _onFilterInputKeydownEsc(instance, e);
         break;
     }
     instance.onKeyDown(e, e.isDefaultPrevented());
   };
-  var _onInputKeydownEnter = function(instance, e) {
+  var _onFilterInputBlur = function(instance) {
+    if (!instance._prevent_blur) {
+      _hideList(instance);
+      _hideNoResults(instance);
+      _hideError(instance);
+    }
+    if (instance.$filter_input.val().trim() && _instanceCanSluggify(instance)) {
+      _addUserCreatedSlugFromString(instance, instance.$filter_input.val());
+    }
+    instance._input_is_focused = false;
+    instance.onInputBlur();
+  };
+  var _onFilterInputKeydownEnter = function(instance, e) {
     if (instance._$active && instance._$active.length && instance._list_visible) {
       _stopThePresses(e);
       var $current_active = instance._$active;
@@ -47881,8 +47994,8 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onInputKeydownDel = function(instance, e) {
-    if (instance.$input.val() === "") {
+  var _onFilterInputKeydownDel = function(instance, e) {
+    if (instance.$filter_input.val() === "") {
       _stopThePresses(e);
       var $last_item = instance.$input_container.find(".lfs_token").last();
       if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
@@ -47892,10 +48005,10 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onInputKeydownTab = function(instance, e) {
-    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+  var _onFilterInputKeydownTab = function(instance, e) {
+    if (instance.$filter_input.val().trim() && _instanceCanSluggify(instance)) {
       _stopThePresses(e);
-      _addUserCreatedSlugFromString(instance, instance.$input.val());
+      _addUserCreatedSlugFromString(instance, instance.$filter_input.val());
     } else if (instance.tab_to_nav) {
       _stopThePresses(e);
       if (e.shiftKey) {
@@ -47905,32 +48018,12 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onInputKeydownEsc = function(instance, e) {
+  var _onFilterInputKeydownEsc = function(instance, e) {
     _stopThePresses(e);
     _hideList(instance);
     _hideNoResults(instance);
     _hideError(instance);
-    instance.$input.blur();
-  };
-  var _onInputFocus = function(instance) {
-    if (!instance._input_is_focused) {
-      instance._input_is_focused = true;
-      instance.$input_container.click();
-      instance.onInputFocus();
-    }
-    if (!instance.single) instance.$input_container.addClass("active");
-  };
-  var _onInputBlur = function(instance) {
-    if (!instance._prevent_blur) {
-      _hideList(instance);
-      _hideNoResults(instance);
-      _hideError(instance);
-    }
-    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
-      _addUserCreatedSlugFromString(instance, instance.$input.val());
-    }
-    instance._input_is_focused = false;
-    instance.onInputBlur();
+    instance.$filter_input.blur();
   };
   var _onValueClick = function(instance, e) {
     if (instance.disabled) return;
@@ -47986,8 +48079,8 @@ $.fn.togglify = function(settings) {
         return;
       }
       _selectListItem(instance);
-      if (instance.$input.val() !== "") {
-        instance.$input.val("");
+      if (instance.$filter_input.val() !== "") {
+        instance.$filter_input.val("");
         instance._previous_val = "";
         _populate(instance);
       }
@@ -56305,7 +56398,9 @@ $.fn.togglify = function(settings) {
     },
     isContenteditable: function(input) {
       input = _normalizeInput(input);
-      return _isTextyElement(input);
+      if (input.isContentEditable) return true;
+      if (_isTextyElement(input)) return true;
+      return false;
     },
     disable: function(input) {
       input = _normalizeInput(input);
@@ -57040,13 +57135,16 @@ $.fn.togglify = function(settings) {
           },
           tabcomplete: {
             appendMenu: function(menu) {
-              var form = $form[0];
-              form.appendChild(menu);
+              $("body").append(menu);
             },
             positionMenu: function(menu) {
-              menu.style.bottom = "100%";
-              menu.style.left = "42px";
-              menu.style.width = "90%";
+              var offset = $input.offset();
+              var to_the_edge_width = $(window).width() - offset.left - 2;
+              menu.style.width = Math.min($input.width(), to_the_edge_width) + "px";
+              menu.style.minWidth = 0;
+              menu.style.maxHeight = offset.top - 2 + "px";
+              menu.style.left = offset.left + "px";
+              menu.style.bottom = $(window).height() - offset.top + "px";
             },
             completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members]
           }
@@ -57059,12 +57157,15 @@ $.fn.togglify = function(settings) {
             if (args.shiftKey) return true;
           }
           if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input, $form, submit_fn);
+          if (_isShareDialog($input)) TS.generic_dialog.go();
           return false;
         },
         onTextChange: function() {
-          var serialized_contents = TS.utility.contenteditable.serialize($input);
-          TS.client.msg_input.storeLastMsgForActiveModelOb(serialized_contents);
           TS.msg_edit.checkLengthAndUpdateMessage($input);
+          if (_isShareDialog($input)) {
+            TS.ui.file_share.updateAtChannelWarningNote();
+            TS.ui.file_share.updateAtChannelBlockedNote();
+          }
         }
       });
       TS.utility.contenteditable.enable($input);
@@ -57141,7 +57242,7 @@ $.fn.togglify = function(settings) {
       duration: 500,
       px_offset: 100,
       complete: function() {
-        $input.focus();
+        TS.utility.contenteditable.focus($input);
         TS.utility.setCursorPosition($input, 1e8);
       }
     });
@@ -57181,6 +57282,10 @@ $.fn.togglify = function(settings) {
       var edit_state = in_convo ? "convo" : null;
       TS.msg_edit.startEdit(ts, model_ob, edit_state);
     }
+  };
+  var _isShareDialog = function($input) {
+    if ($input.parents("#share_dialog_input_container").length) return true;
+    return false;
   };
 })();
 (function() {
@@ -57608,7 +57713,8 @@ $.fn.togglify = function(settings) {
     });
     var $input = $container.find(".message_input");
     $input.attr("id", "file_comment_textarea");
-    $input.val(_options.initial_message || "");
+    var val = _options.initial_message || "";
+    TS.utility.contenteditable.value($input, val);
     var $channel_picker = $dialog.find("#file_sharing_div");
     $channel_picker.prependTo($dialog.find(".modal-footer"));
     var show_share_prefix = true;
@@ -57632,9 +57738,11 @@ $.fn.togglify = function(settings) {
       $container.find(".message_input").select();
     });
     $dialog.find(".share_dialog_attachment_container").find("a[href]", "button").attr("tabindex", "-1");
+    if (_options.onShow) _options.onShow();
+    if (TS.boot_data.feature_texty_takes_over) return;
     $input.on("keydown", function(e) {
       if (e.which === TS.utility.keymap.esc) {
-        if (!$input.val()) {
+        if (!TS.utility.contenteditable.value($input)) {
           e.preventDefault();
           TS.generic_dialog.cancel();
         }
@@ -57651,7 +57759,6 @@ $.fn.togglify = function(settings) {
       TS.ui.file_share.updateAtChannelWarningNote();
       TS.ui.file_share.updateAtChannelBlockedNote();
     });
-    if (_options.onShow) _options.onShow();
   };
   var _onEnd = function() {
     if (_options.onEnd) _options.onEnd();
@@ -57714,7 +57821,7 @@ $.fn.togglify = function(settings) {
     if (_submitting) return;
     var msg_ts = _msg_ts;
     var src_model_ob = _model_ob;
-    var original_text = $(".basic_share_dialog .message_input").val();
+    var original_text = TS.utility.contenteditable.value($(".basic_share_dialog .message_input"));
     var text = TS.format.cleanMsg(original_text);
     text = _.trim(text);
     var $select_share_channels = $(".basic_share_dialog #select_share_channels");
@@ -57737,7 +57844,7 @@ $.fn.togglify = function(settings) {
   };
   var _share = function(msg_ts, text, src_model_ob, dest_model_ob) {
     if (TS.ui.file_share.shouldBlockUploadDialogSubmission()) return false;
-    var original_text = $(".basic_share_dialog .message_input").val();
+    var original_text = TS.utility.contenteditable.value($(".basic_share_dialog .message_input"));
     var $select_share_channels = $(".basic_share_dialog #select_share_channels");
     _clogMsgSharedClickEvent(src_model_ob.id, msg_ts);
     var args = {
@@ -58026,9 +58133,9 @@ $.fn.togglify = function(settings) {
             input_debounce_wait_time: _getInputDebounceWaitTime($el),
             no_default_selection: !has_selected_options,
             onItemAdded: _onItemAdded,
-            onListHidden: _onListHidden,
             onListShown: _getOnListShownCallback($el),
-            placeholder_text: $el.attr("placeholder") || _PLACEHOLDER_TEXT.default,
+            placeholder_text: _getPlaceholderText($el),
+            filter_placeholder_text: _getFilterPlaceholderText($el),
             should_graphic_replace_emoji: true,
             style: TS.ui.lazy_filter_select.STYLES.filter_in_list,
             template: _getItemTemplate($el)
@@ -58049,8 +58156,18 @@ $.fn.togglify = function(settings) {
     }
   });
   var _PLACEHOLDER_TEXT = {
+    channels: TS.i18n.t("Choose a channel…", "attachment_actions")(),
+    conversations: TS.i18n.t("Choose a conversation…", "attachment_actions")(),
     "default": TS.i18n.t("Choose an option…", "attachment_actions")(),
-    list_shown: TS.i18n.t("Search for options", "attachment_actions")()
+    external: TS.i18n.t("Choose an option…", "attachment_actions")(),
+    users: TS.i18n.t("Choose a person…", "attachment_actions")()
+  };
+  var _FILTER_PLACEHOLDER_TEXT = {
+    channels: TS.i18n.t("Search channels", "attachment_actions")(),
+    conversations: TS.i18n.t("Search conversations", "attachment_actions")(),
+    "default": TS.i18n.t("Search options", "attachment_actions")(),
+    external: TS.i18n.t("Search options", "attachment_actions")(),
+    users: TS.i18n.t("Search people", "attachment_actions")()
   };
   var _DATA_SOURCES = {
     channels: "channels",
@@ -58085,17 +58202,10 @@ $.fn.togglify = function(settings) {
     return _.isEmpty(query) || TS.fuzzy.score(item.text.toLowerCase(), query.toLowerCase()) < Infinity;
   }
 
-  function _onListHidden() {
-    var $select = this.$select;
-    var placeholder_text = $select.attr("placeholder") || _PLACEHOLDER_TEXT.default;
-    $select.lazyFilterSelect("updatePlaceholder", placeholder_text);
-  }
-
   function _getOnListShownCallback($select) {
     var data_source = $select.data("data-source");
     var service_id = $select.closest("ts-message").data("bot-id");
     return function onListShown() {
-      this.$select.lazyFilterSelect("updatePlaceholder", _PLACEHOLDER_TEXT.list_shown);
       _logMenuOpen(data_source, service_id);
     };
   }
@@ -58190,9 +58300,8 @@ $.fn.togglify = function(settings) {
           service_id: context.message.bot_id,
           payload: JSON.stringify(payload)
         }).then(function(response) {
-          var items = _.get(response, "data.options", []).map(_createOptionEl);
           resolve({
-            items: items,
+            items: _formatExternalResponseOptions(response),
             _replace_all_items: true
           });
         }).catch(function(error) {
@@ -58215,6 +58324,14 @@ $.fn.togglify = function(settings) {
     }
   }
 
+  function _getPlaceholderText($select) {
+    return $select.attr("placeholder") || _.get(_PLACEHOLDER_TEXT, $select.data("data-source"), _PLACEHOLDER_TEXT.default);
+  }
+
+  function _getFilterPlaceholderText($select) {
+    return _.get(_FILTER_PLACEHOLDER_TEXT, $select.data("data-source"), _FILTER_PLACEHOLDER_TEXT.default);
+  }
+
   function _itemTemplateForConversations(item) {
     var html = TS.templates.file_sharing_channel_row({
       item: item.model_ob
@@ -58228,12 +58345,33 @@ $.fn.togglify = function(settings) {
     return new Handlebars.SafeString(formatted_str);
   }
 
-  function _createOptionEl(optionObj) {
-    var el = document.createElement("option");
-    el.text = optionObj.text;
-    el.value = optionObj.value;
-    el.lfs_id = optionObj.value;
-    return el;
+  function _formatExternalResponseOptions(response) {
+    var option_groups = _.get(response, "data.option_groups");
+    if (_.isArray(option_groups)) {
+      return option_groups.map(function(group) {
+        var children_els = _.get(group, "options", []).map(function(option) {
+          return _createOptionEl(option, {
+            is_group_item: true
+          });
+        });
+        return {
+          lfs_group: true,
+          label: group.text,
+          children: children_els
+        };
+      });
+    } else {
+      return _.get(response, "data.options", []).map(_createOptionEl);
+    }
+  }
+
+  function _createOptionEl(option_obj, options) {
+    option_obj = _.merge({}, option_obj, {
+      is_group_item: _.get(options, "is_group_item")
+    });
+    var html = TS.templates.attachment_actions_select_option(option_obj);
+    var $container = $("<div>").html(html);
+    return $container.children()[0];
   }
 
   function _logMenuOpen(data_source, service_id) {
@@ -58954,9 +59092,9 @@ $.fn.togglify = function(settings) {
         channel: c_id,
         thread_ts: thread_ts,
         oldest: newest_ts,
-        count: TS.replies.DEFAULT_HISTORY_API_LIMIT,
-        inclusive: inclusive
+        count: TS.replies.DEFAULT_HISTORY_API_LIMIT
       };
+      if (inclusive) params.inclusive = inclusive;
       var model_ob = TS.shared.getModelObById(c_id);
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
       return TS.api.call(api_endpoint, params).then(function(resp) {
@@ -59631,7 +59769,7 @@ $.fn.togglify = function(settings) {
     findAndPopulateInput: function(text, c_id, thread_ts) {
       if (!c_id || !thread_ts) return;
       var selector = 'ts-thread[data-model-ob-id="' + c_id + '"][data-thread-ts="' + thread_ts + '"]';
-      var $input = $(selector).find("textarea");
+      var $input = $(selector).find(".message_input");
       TS.utility.populateInput($input, text);
       TS.storage.storeReplyInput(c_id, thread_ts, text);
     },
@@ -60183,7 +60321,7 @@ $.fn.togglify = function(settings) {
   var _input_to_fill = "#msg_input";
   var _rxn_key;
   var _callback;
-  var _coords;
+  var _target_bounds;
   var _handy_rxns;
   var _start = function(args) {
     _rxn_key = args.rxn_key;
@@ -60216,10 +60354,10 @@ $.fn.togglify = function(settings) {
       is_rxn: !!_rxn_key
     });
     TS.tips.hideAll();
-    _coords = _$trigger.dimensions_rect();
+    _target_bounds = args.target_bounds || _$trigger.dimensions_rect();
     var scroll_offset = window.pageYOffset;
-    _coords.top += scroll_offset;
-    _coords.bottom += scroll_offset;
+    _target_bounds.top += scroll_offset;
+    _target_bounds.bottom += scroll_offset;
     TS.menu.emoji.is_showing = true;
     var picker_args = {};
     var popover_args = {
@@ -60305,7 +60443,7 @@ $.fn.togglify = function(settings) {
   var _buildPopoverProps = function(args) {
     args = args || {};
     return {
-      targetBounds: _coords,
+      targetBounds: _target_bounds,
       allowanceX: _MIN_VIEWPORT_SPACING_PX,
       allowanceY: _MIN_VIEWPORT_SPACING_PX,
       position: args.position || _DEFAULT_POSITION,
@@ -60835,7 +60973,7 @@ $.fn.togglify = function(settings) {
     return members.slice();
   };
   var _getLocalChannels = function(options) {
-    _mergeDefaults(options, _DEFAULT_CHANNEL_OPTIONS);
+    options = _mergeDefaults(options, _DEFAULT_CHANNEL_OPTIONS);
     var channels;
     if (options.include_archived) {
       channels = TS.channels.getChannelsForUser().concat(TS.model.deferred_archived_channels);
@@ -60848,7 +60986,7 @@ $.fn.togglify = function(settings) {
     return channels;
   };
   var _getLocalGroups = function(options) {
-    _mergeDefaults(options, _DEFAULT_GROUP_OPTIONS);
+    options = _mergeDefaults(options, _DEFAULT_GROUP_OPTIONS);
     if (options.include_archived) {
       return TS.model.groups;
     }
@@ -60884,6 +61022,7 @@ $.fn.togglify = function(settings) {
   };
   var _promiseRemoteMembers = function(query, options) {
     options = _mergeDefaults(options, _limit_option, _DEFAULT_MEMBER_OPTIONS);
+    options.max_api_results = options.limit;
     options.query = query;
     return TS.members.promiseToSearchMembers(options);
   };
@@ -61382,7 +61521,8 @@ $.fn.togglify = function(settings) {
       r = function() {};
     r.prototype = n.prototype;
     var a = new r;
-    o(a, e.prototype), e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
+    o(a, e.prototype), e.prototype = a, e.prototype.constructor = e,
+      e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
   }, i.addPoolingTo(r, i.fourArgumentPooler), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -65157,125 +65297,126 @@ $.fn.togglify = function(settings) {
           uf = ao("ceil"),
           lf = ao("floor"),
           cf = ao("round");
-        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
-          var e = {};
-          return Wn(t, function(n, r) {
-            Yu.call(t.prototype, r) || (e[r] = n);
-          }), e;
-        }(), {
-          chain: !1
-        }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
-          t[e].placeholder = t;
-        }), c(["drop", "take"], function(e, t) {
-          o.prototype[e] = function(n) {
-            var r = this.__filtered__;
-            if (r && !t) return new o(this);
-            n = n === J ? 1 : _l(ls(n), 0);
-            var i = this.clone();
-            return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
-              size: yl(n, Re),
-              type: e + (i.__dir__ < 0 ? "Right" : "")
-            }), i;
-          }, o.prototype[e + "Right"] = function(t) {
-            return this.reverse()[e](t).reverse();
-          };
-        }), c(["filter", "map", "takeWhile"], function(e, t) {
-          var n = t + 1,
-            r = n == we || n == Se;
-          o.prototype[e] = function(e) {
-            var t = this.clone();
-            return t.__iteratees__.push({
-              iteratee: po(e, 3),
-              type: n
-            }), t.__filtered__ = t.__filtered__ || r, t;
-          };
-        }), c(["head", "last"], function(e, t) {
-          var n = "take" + (t ? "Right" : "");
-          o.prototype[e] = function() {
-            return this[n](1).value()[0];
-          };
-        }), c(["initial", "tail"], function(e, t) {
-          var n = "drop" + (t ? "" : "Right");
-          o.prototype[e] = function() {
-            return this.__filtered__ ? new o(this) : this[n](1);
-          };
-        }), o.prototype.compact = function() {
-          return this.filter(_u);
-        }, o.prototype.find = function(e) {
-          return this.filter(e).head();
-        }, o.prototype.findLast = function(e) {
-          return this.reverse().find(e);
-        }, o.prototype.invokeMap = pa(function(e, t) {
-          return "function" == typeof e ? new o(this) : this.map(function(n) {
-            return $n(n, e, t);
-          });
-        }), o.prototype.reject = function(e) {
-          return e = po(e, 3), this.filter(function(t) {
-            return !e(t);
-          });
-        }, o.prototype.slice = function(e, t) {
-          e = ls(e);
-          var n = this;
-          return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
-        }, o.prototype.takeRightWhile = function(e) {
-          return this.reverse().takeWhile(e).reverse();
-        }, o.prototype.toArray = function() {
-          return this.take(Re);
-        }, Wn(o.prototype, function(e, n) {
-          var i = /^(?:filter|find|map|reject)|While$/.test(n),
-            a = /^(?:head|last)$/.test(n),
-            s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
-            u = a || /^find/.test(n);
-          s && (t.prototype[n] = function() {
-            var n = this.__wrapped__,
-              l = a ? [1] : arguments,
-              c = n instanceof o,
-              f = l[0],
-              p = c || Tc(n),
-              d = function(e) {
-                var n = s.apply(t, g([e], l));
-                return a && h ? n[0] : n;
-              };
-            p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
-            var h = this.__chain__,
-              v = !!this.__actions__.length,
-              m = u && !h,
-              _ = c && !v;
-            if (!u && p) {
-              n = _ ? n : new o(this);
-              var y = e.apply(n, l);
-              return y.__actions__.push({
-                func: Pi,
-                args: [d],
-                thisArg: J
-              }), new r(y, h);
+        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu,
+          t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
+            var e = {};
+            return Wn(t, function(n, r) {
+              Yu.call(t.prototype, r) || (e[r] = n);
+            }), e;
+          }(), {
+            chain: !1
+          }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
+            t[e].placeholder = t;
+          }), c(["drop", "take"], function(e, t) {
+            o.prototype[e] = function(n) {
+              var r = this.__filtered__;
+              if (r && !t) return new o(this);
+              n = n === J ? 1 : _l(ls(n), 0);
+              var i = this.clone();
+              return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
+                size: yl(n, Re),
+                type: e + (i.__dir__ < 0 ? "Right" : "")
+              }), i;
+            }, o.prototype[e + "Right"] = function(t) {
+              return this.reverse()[e](t).reverse();
+            };
+          }), c(["filter", "map", "takeWhile"], function(e, t) {
+            var n = t + 1,
+              r = n == we || n == Se;
+            o.prototype[e] = function(e) {
+              var t = this.clone();
+              return t.__iteratees__.push({
+                iteratee: po(e, 3),
+                type: n
+              }), t.__filtered__ = t.__filtered__ || r, t;
+            };
+          }), c(["head", "last"], function(e, t) {
+            var n = "take" + (t ? "Right" : "");
+            o.prototype[e] = function() {
+              return this[n](1).value()[0];
+            };
+          }), c(["initial", "tail"], function(e, t) {
+            var n = "drop" + (t ? "" : "Right");
+            o.prototype[e] = function() {
+              return this.__filtered__ ? new o(this) : this[n](1);
+            };
+          }), o.prototype.compact = function() {
+            return this.filter(_u);
+          }, o.prototype.find = function(e) {
+            return this.filter(e).head();
+          }, o.prototype.findLast = function(e) {
+            return this.reverse().find(e);
+          }, o.prototype.invokeMap = pa(function(e, t) {
+            return "function" == typeof e ? new o(this) : this.map(function(n) {
+              return $n(n, e, t);
+            });
+          }), o.prototype.reject = function(e) {
+            return e = po(e, 3), this.filter(function(t) {
+              return !e(t);
+            });
+          }, o.prototype.slice = function(e, t) {
+            e = ls(e);
+            var n = this;
+            return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
+          }, o.prototype.takeRightWhile = function(e) {
+            return this.reverse().takeWhile(e).reverse();
+          }, o.prototype.toArray = function() {
+            return this.take(Re);
+          }, Wn(o.prototype, function(e, n) {
+            var i = /^(?:filter|find|map|reject)|While$/.test(n),
+              a = /^(?:head|last)$/.test(n),
+              s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
+              u = a || /^find/.test(n);
+            s && (t.prototype[n] = function() {
+              var n = this.__wrapped__,
+                l = a ? [1] : arguments,
+                c = n instanceof o,
+                f = l[0],
+                p = c || Tc(n),
+                d = function(e) {
+                  var n = s.apply(t, g([e], l));
+                  return a && h ? n[0] : n;
+                };
+              p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
+              var h = this.__chain__,
+                v = !!this.__actions__.length,
+                m = u && !h,
+                _ = c && !v;
+              if (!u && p) {
+                n = _ ? n : new o(this);
+                var y = e.apply(n, l);
+                return y.__actions__.push({
+                  func: Pi,
+                  args: [d],
+                  thisArg: J
+                }), new r(y, h);
+              }
+              return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
+            });
+          }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
+            var n = Vu[e],
+              r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
+              o = /^(?:pop|shift)$/.test(e);
+            t.prototype[e] = function() {
+              var e = arguments;
+              return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
+                return n.apply(t, e);
+              });
+            };
+          }), Wn(o.prototype, function(e, n) {
+            var r = t[n];
+            if (r) {
+              var o = r.name + "",
+                i = Pl[o] || (Pl[o] = []);
+              i.push({
+                name: n,
+                func: r
+              });
             }
-            return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
-          });
-        }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
-          var n = Vu[e],
-            r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
-            o = /^(?:pop|shift)$/.test(e);
-          t.prototype[e] = function() {
-            var e = arguments;
-            return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
-              return n.apply(t, e);
-            });
-          };
-        }), Wn(o.prototype, function(e, n) {
-          var r = t[n];
-          if (r) {
-            var o = r.name + "",
-              i = Pl[o] || (Pl[o] = []);
-            i.push({
-              name: n,
-              func: r
-            });
-          }
-        }), Pl[Jr(J, ae).name] = [{
-          name: "wrapper",
-          func: J
-        }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
+          }), Pl[Jr(J, ae).name] = [{
+            name: "wrapper",
+            func: J
+          }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
       }
       var J, ee = "4.6.1",
         te = 200,
@@ -68391,7 +68532,8 @@ $.fn.togglify = function(settings) {
     f = n(9),
     p = n.n(f),
     d = n(3),
-    h = (n.n(d), n(12)),
+    h = (n.n(d),
+      n(12)),
     v = n.n(h),
     m = n(22),
     g = n.n(m),
@@ -69895,7 +70037,8 @@ $.fn.togglify = function(settings) {
           (h || v || u !== e.style) && (this._containerOuterStyle = o()({
             height: r,
             width: d
-          }, u)), (h || v || g) && (this._containerTopStyle = {
+          }, u)),
+          (h || v || g) && (this._containerTopStyle = {
             height: this._getTopGridHeight(t),
             position: "relative",
             width: d
@@ -74965,8 +75108,7 @@ $.fn.togglify = function(settings) {
         if (null != o) {
           var i = "" + o;
           i !== r.value && (r.value = i);
-        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue),
-          null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
+        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue), null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
       },
       postMountWrapper: function(e) {
         var t = e._currentElement.props,

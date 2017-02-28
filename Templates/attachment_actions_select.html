@@ -1,24 +1,3 @@
-{{#*inline "option"}}
-  <option
-    value="{{value}}"
-    {{#if is_group_item}}
-      class="group_item"
-    {{/if}}
-    {{#if selected}}
-      selected
-      aria-selected="true"
-    {{/if}}
-    {{#if icon}}
-      data-lfs-item-icon="{{icon}}"
-    {{/if}}
-    {{#if description}}
-      data-lfs-item-desc="{{description}}"
-    {{/if}}
-  >
-    {{text}}
-  </option>
-{{/inline}}
-
 <select
   class="select small"
   name="{{name}}"
@@ -36,13 +15,13 @@
     {{#each option_groups}}
       <optgroup label="{{text}}">
         {{#each options}}
-          {{> option is_group_item=true}}
+          {{renderAttachmentActionSelectOption this is_group_item=true}}
         {{/each}}
       </optgroup>
     {{/each}}
   {{else}}
     {{#each options}}
-      {{> option}}
+      {{renderAttachmentActionSelectOption this}}
     {{/each}}
   {{/if}}
 </select>
