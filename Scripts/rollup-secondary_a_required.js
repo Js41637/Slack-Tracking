@@ -17471,15 +17471,7 @@ TS.registerModule("constants", {
       }
       if (!member.is_self) return;
       TS.stars.userStarStatusHasChanged(false, imsg.item, imsg.type);
-      if (TS.boot_data.feature_fix_unstarrables) {
-        TS.stars.maybeRemoveStarredListItem(imsg.item);
-      } else {
-        if (TS.model.ui_state.flex_name == "stars") {
-          TS.stars.maybeRemoveStarredListItem(imsg.item);
-        } else {
-          TS.stars.maybeUpdateUserStarredList();
-        }
-      }
+      TS.stars.maybeRemoveStarredListItem(imsg.item);
     },
     reaction_added: function(imsg) {
       if (!imsg.item) {
@@ -27411,6 +27403,13 @@ TS.registerModule("constants", {
     msgHasReplies: function(msg) {
       if (!msg) return false;
       return msg.ts === msg.thread_ts && !!msg.reply_count;
+    },
+    userRepliedToMsg: function(msg) {
+      if (!msg || !msg.replies) return false;
+      var has_replied_to_msg = _.find(msg.replies, function(reply) {
+        return reply.user === TS.model.user.id;
+      });
+      return !!has_replied_to_msg;
     },
     startUpdatingRelativeTimestamps: function(root_selector) {
       _relative_timestamp_updater.start(root_selector);
@@ -37349,19 +37348,17 @@ var _on_esc;
     },
     maybeRemoveStarredListItem: function(item) {
       if (!TS.client) return;
-      if (TS.boot_data.feature_fix_unstarrables) {
-        var star_index = _.findIndex(TS.model.user.stars, function(star) {
-          if (star.type !== item.type) return false;
-          switch (star.type) {
-            case "message":
-              return star.message.ts === item.message.ts;
-            case "file":
-              return star.file.id === item.file_id;
-          }
-          return false;
-        });
-        if (star_index !== -1) TS.model.user.stars.splice(star_index, 1);
-      }
+      var star_index = _.findIndex(TS.model.user.stars, function(star) {
+        if (star.type !== item.type) return false;
+        switch (star.type) {
+          case "message":
+            return star.message.ts === item.message.ts;
+          case "file":
+            return star.file.id === item.file_id;
+        }
+        return false;
+      });
+      if (star_index !== -1) TS.model.user.stars.splice(star_index, 1);
       if (TS.model.ui_state.flex_name !== "stars") return;
       var $star;
       var selector;
@@ -42866,21 +42863,23 @@ var _on_esc;
     getErrorMessage: function(error_key, data) {
       switch (error_key) {
         case "invalid_name_required":
-          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.required();
+          return _CHANNEL_CREATION_ERROR_MESSAGES.required();
         case "invalid_name_single_punctuation":
-          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.single_punctuation();
+          return _CHANNEL_CREATION_ERROR_MESSAGES.single_punctuation();
         case "invalid_name_maxlength":
-          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.maxlength({
+          return _CHANNEL_CREATION_ERROR_MESSAGES.maxlength({
             maxlength: data.maxlength
           });
         case "invalid_name_specials":
-          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.specials();
-        case "invalid_name_taken":
-          return _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.name_taken({
+          return _CHANNEL_CREATION_ERROR_MESSAGES.specials();
+        case "name_taken":
+          return _CHANNEL_CREATION_ERROR_MESSAGES.name_taken({
             name: data.name
           });
+        case "restricted_action":
+          return _MPIM_CONVERSION_ERROR_MESSAGES.restricted_action();
         default:
-          return TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "ui_validation");
+          return TS.i18n.t("For some weird reason, that didn’t work. Please try again to continue.", "ui_validation")();
       }
     },
     showError: function($el, message, options, hide_after_ms) {
@@ -42900,13 +42899,13 @@ var _on_esc;
   });
   var OPTIONAL_PROTOCOL_URL_REGEXP = new RegExp("^" + "(?:(?:https?|ftp)://)?" + "(?:\\S+(?::\\S*)?@)?" + "(?:" + "(?!(?:10|127)(?:\\.\\d{1,3}){3})" + "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" + "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" + "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" + "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" + "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" + "|" + "(?:localhost)" + "|" + "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" + "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" + "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" + "\\.?" + ")" + "(?::\\d{2,5})?" + "(?:[/?#]\\S*)?" + "$", "i");
   var ALL_SCHEMES_LINK_REGEXP = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/gi;
-  var _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES = {
+  var _CHANNEL_CREATION_ERROR_MESSAGES = {
     name_taken: TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation"),
     lowercase: TS.i18n.t("Channel names must be all lowercase. Try again?", "ui_validation"),
-    maxlength: TS.i18n.t("Blerg, that‘s a bit too long! Channel names must be fewer than {maxlength} characters.", "ui_validation"),
-    required: TS.i18n.t("Please fill in a channel name.", "ui_validation"),
-    specials: TS.i18n.t("Channel names can‘t contain special characters, spaces, or periods. Try again?", "ui_validation"),
-    single_punctuation: TS.i18n.t("Names can‘t be a single hyphen or underscore. Please elaborate!", "ui_validation")
+    maxlength: TS.i18n.t("Blerg, that’s a bit too long! Channel names must be fewer than {maxlength} characters.", "ui_validation"),
+    required: TS.i18n.t("Don’t forget to name your channel.", "ui_validation"),
+    specials: TS.i18n.t("Channel names can’t contain spaces, periods, or most punctuation. Try again?", "ui_validation"),
+    single_punctuation: TS.i18n.t("Names can’t be a single punctuation mark. Please elaborate!", "ui_validation")
   };
   var _USERNAME_VALIDATION_ERROR_MESSAGES = {
     firstalphanumeric: TS.i18n.t("Usernames must start with a letter or number. Sorry about that!", "ui_validation"),
@@ -42914,6 +42913,9 @@ var _on_esc;
     maxlength: TS.i18n.t("Sorry, that’s a bit too long! Usernames must be fewer than {maxlength} characters.", "ui_validation"),
     required: TS.i18n.t("Please fill in a username.", "ui_validation"),
     specials: TS.i18n.t("Usernames can’t contain special characters. Sorry about that!", "ui_validation")
+  };
+  var _MPIM_CONVERSION_ERROR_MESSAGES = {
+    restricted_action: TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "ui_validation")
   };
   var _validator_map = {
     dateandformat: _validateDateAndFormat,
@@ -43198,29 +43200,29 @@ var _on_esc;
       quiet: true
     });
     if (!_validateRequired($el, quiet_options)) {
-      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.required(), options);
+      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.required(), options);
       return true;
     }
     if (!TS.boot_data.feature_intl_channel_names && !_validateMaxLength($el, quiet_options, max_length, true)) {
-      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.maxlength({
+      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.maxlength({
         maxlength: max_length + 1
       }), options);
       return true;
     }
     if (!TS.boot_data.feature_intl_channel_names && !_validateLowercase($el, quiet_options)) {
-      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.lowercase(), options);
+      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.lowercase(), options);
       return true;
     }
     if (!_validateNospace($el, quiet_options)) {
-      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.specials(), options);
+      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.specials(), options);
       return true;
     }
     if (!TS.boot_data.feature_intl_channel_names && !_validatePattern($el, quiet_options, /^[a-zA-Z0-9-_]+$/)) {
-      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.specials(), options);
+      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.specials(), options);
       return true;
     }
     if (_validatePattern($el, quiet_options, /^[-|_]$/)) {
-      TS.ui.validation.showWarning($el, _CHANNEL_NAME_VALIDATION_ERROR_MESSAGES.single_punctuation(), options);
+      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.single_punctuation(), options);
       return true;
     }
   }
@@ -59709,6 +59711,10 @@ $.fn.togglify = function(settings) {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
             var should_broadcast_reply = $reply_container.find(".reply_broadcast_toggle").prop("checked");
             _clearInput($reply_container, model_ob, thread_ts);
+            if (experiment_group === "copy" && !thread._has_responded_to_thread) {
+              thread._has_responded_to_thread = true;
+              $reply_container.removeClass("show_mention_teammates_info");
+            }
             var context = TS.ui.thread.getContextForEl($thread);
             var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event);
@@ -59731,6 +59737,10 @@ $.fn.togglify = function(settings) {
           return null;
         }
       });
+      var experiment_group = TS.experiment.getGroup("exp_thread_at_mention");
+      if (experiment_group === "copy") {
+        thread._has_responded_to_thread = TS.utility.msgs.userRepliedToMsg(thread.root_msg);
+      }
       $input = $reply_container.find(".message_input");
       $input.on("focusin", function() {
         $reply_container.addClass("has_focus");
@@ -59743,11 +59753,16 @@ $.fn.togglify = function(settings) {
         var is_input_empty = !input_value.trim();
         var val = is_input_empty ? "" : input_value;
         TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
+        if (experiment_group === "copy" && !thread._has_responded_to_thread) {
+          $reply_container.toggleClass("show_mention_teammates_info", is_input_empty);
+        }
       });
       var prev_val = TS.storage.fetchReplyInput(model_ob.id, thread_ts);
       if (prev_val) {
         TS.utility.populateInput($input, prev_val);
         $reply_container.addClass("has_focus");
+      } else if (experiment_group === "copy") {
+        $reply_container.toggleClass("show_mention_teammates_info", !thread._has_responded_to_thread);
       }
       _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
     },
@@ -60006,10 +60021,12 @@ $.fn.togglify = function(settings) {
   };
   var _renderBroadcastButtons = function(model_ob, thread_ts, $reply_container) {
     if (!model_ob || !thread_ts || !$reply_container || $reply_container.length === 0) return;
+    var require_at_for_mention = _.get(TS.model, ".team.prefs.require_at_for_mention");
     $reply_container.append(TS.templates.reply_broadcast_buttons({
       model_ob: model_ob,
       thread_ts: thread_ts,
-      view: "threads"
+      view: "threads",
+      require_at_for_mention: require_at_for_mention
     }));
     var $reply_broadcast_buttons = $reply_container.find(".reply_broadcast_label_container, .reply_send");
     var $input = $reply_container.find(".message_input");
@@ -61501,7 +61518,8 @@ $.fn.togglify = function(settings) {
     preventDefault: function() {
       this.defaultPrevented = !0;
       var e = this.nativeEvent;
-      e && (e.preventDefault ? e.preventDefault() : "unknown" != typeof e.returnValue && (e.returnValue = !1), this.isDefaultPrevented = a.thatReturnsTrue);
+      e && (e.preventDefault ? e.preventDefault() : "unknown" != typeof e.returnValue && (e.returnValue = !1),
+        this.isDefaultPrevented = a.thatReturnsTrue);
     },
     stopPropagation: function() {
       var e = this.nativeEvent;
@@ -61521,8 +61539,7 @@ $.fn.togglify = function(settings) {
       r = function() {};
     r.prototype = n.prototype;
     var a = new r;
-    o(a, e.prototype), e.prototype = a, e.prototype.constructor = e,
-      e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
+    o(a, e.prototype), e.prototype = a, e.prototype.constructor = e, e.Interface = o({}, n.Interface, t), e.augmentClass = n.augmentClass, i.addPoolingTo(e, i.fourArgumentPooler);
   }, i.addPoolingTo(r, i.fourArgumentPooler), e.exports = r;
 }, function(e, t, n) {
   "use strict";
@@ -65297,8 +65314,8 @@ $.fn.togglify = function(settings) {
           uf = ao("ceil"),
           lf = ao("floor"),
           cf = ao("round");
-        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu,
-          t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
+        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu,
+          t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
             var e = {};
             return Wn(t, function(n, r) {
               Yu.call(t.prototype, r) || (e[r] = n);
@@ -66838,7 +66855,8 @@ $.fn.togglify = function(settings) {
         return o ? (o._pendingCallbacks ? o._pendingCallbacks.push(t) : o._pendingCallbacks = [t], void r(o)) : null;
       },
       enqueueCallbackInternal: function(e, t) {
-        e._pendingCallbacks ? e._pendingCallbacks.push(t) : e._pendingCallbacks = [t], r(e);
+        e._pendingCallbacks ? e._pendingCallbacks.push(t) : e._pendingCallbacks = [t],
+          r(e);
       },
       enqueueForceUpdate: function(e) {
         var t = i(e, "forceUpdate");
@@ -68532,8 +68550,7 @@ $.fn.togglify = function(settings) {
     f = n(9),
     p = n.n(f),
     d = n(3),
-    h = (n.n(d),
-      n(12)),
+    h = (n.n(d), n(12)),
     v = n.n(h),
     m = n(22),
     g = n.n(m),
@@ -70037,8 +70054,7 @@ $.fn.togglify = function(settings) {
           (h || v || u !== e.style) && (this._containerOuterStyle = o()({
             height: r,
             width: d
-          }, u)),
-          (h || v || g) && (this._containerTopStyle = {
+          }, u)), (h || v || g) && (this._containerTopStyle = {
             height: this._getTopGridHeight(t),
             position: "relative",
             width: d
@@ -72008,7 +72024,7 @@ $.fn.togglify = function(settings) {
         value: function(e, t) {
           var n = s.a.chain(e).reject(function(e) {
             return "mine" === e.name;
-          }).flatMap("items").value();
+          }).flatMap("items").compact().value();
           if (":" === t) return n;
           var r = s.a.compact(t.split(" "));
           return s.a.chain(r).flatMap(function(e) {
@@ -74818,7 +74834,8 @@ $.fn.togglify = function(settings) {
         else d = h.createElementNS(a, this._currentElement.type);
         E.precacheNode(this, d), this._flags |= j.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
         var _ = y(d);
-        this._createInitialChildren(e, i, r, _), p = _;
+        this._createInitialChildren(e, i, r, _),
+          p = _;
       } else {
         var w = this._createOpenTagMarkupAndPutListeners(e, i),
           S = this._createContentMarkup(e, i, r);

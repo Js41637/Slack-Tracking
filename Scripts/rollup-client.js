@@ -5986,7 +5986,7 @@
       }
       if (e.which == keymap.alt) {
         TS.model.alt_key_pressed = false;
-        if (!TS.utility.isFocusOnInput() && !TS.selection.isAnyTextSelected()) {
+        if (!TS.utility.isFocusOnInput() && !TS.selection.isAnyTextSelected() && !TS.ui.fs_modal.is_showing) {
           TS.view.focusMessageInput();
         }
       }
@@ -7354,8 +7354,9 @@
           }
         });
       } else {
-        return work();
+        work();
       }
+      return true;
     },
     getNextOpenChannelOrIMElements: function(with_unreads) {
       var with_unreads_or_starred = false;
@@ -32006,30 +32007,47 @@
       });
     },
     go: function() {
-      var validated = TS.ui.validation.validate(_$modal_container.find(".title_input"), {});
-      if (!validated) return;
-      var validated = TS.channels.ui.channelCreateDialogValidateInput(_$modal_container);
-      if (!validated) return;
-      if (_ladda) _ladda.start();
       var title = _$modal_container.find(".title_input").val();
-      TS.mpims.convertToGroup(_mpim, title).then(function() {
-        TS.ui.fs_modal.close();
-      }, function(response) {
-        if (_ladda) _ladda.stop();
-        var data = response.data;
-        var error = data && data.error;
-        if (error === "name_taken") {
-          TS.channels.ui.channelCreateDialogShowNameTakenAlert(_$modal_container);
-        } else if (error === "invalid_name") {
-          TS.channels.ui.channelCreateDialogShowDisallowedCharsAlert(_$modal_container);
-        } else if (error === "restricted_action") {
-          TS.channels.ui.channelCreateDialogShowOtherErrorAlert(_$modal_container, TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "mpim_conversion_modal")());
-        } else {
-          if (error) TS.error("mpim.convertToGroup for " + _mpim.id + " returned " + error);
-          TS.channels.ui.channelCreateDialogShowOtherErrorAlert(_$modal_container, TS.i18n.t("Sorry! Something went wrong.", "mpim_conversion_modal")());
-        }
-      });
-      return false;
+      if (TS.boot_data.feature_intl_channel_names) {
+        if (_ladda) _ladda.start();
+        TS.mpims.convertToGroup(_mpim, title).then(function() {
+          TS.ui.fs_modal.close();
+        }).catch(function(res) {
+          if (_ladda) _ladda.stop();
+          var error = res.data.error;
+          var msg = TS.ui.validation.getErrorMessage(error, {
+            maxlength: 22,
+            name: title
+          });
+          return TS.ui.validation.showWarning(_$modal_container.find(".title_input"), msg, {
+            custom_for: "channel_create_title"
+          });
+        });
+      } else {
+        var validated = TS.ui.validation.validate(_$modal_container.find(".title_input"), {});
+        if (!validated) return;
+        validated = TS.channels.ui.channelCreateDialogValidateInput(_$modal_container);
+        if (!validated) return;
+        if (_ladda) _ladda.start();
+        TS.mpims.convertToGroup(_mpim, title).then(function() {
+          TS.ui.fs_modal.close();
+        }, function(response) {
+          if (_ladda) _ladda.stop();
+          var data = response.data;
+          var error = data && data.error;
+          if (error === "name_taken") {
+            TS.channels.ui.channelCreateDialogShowNameTakenAlert(_$modal_container);
+          } else if (error === "invalid_name") {
+            TS.channels.ui.channelCreateDialogShowDisallowedCharsAlert(_$modal_container);
+          } else if (error === "restricted_action") {
+            TS.channels.ui.channelCreateDialogShowOtherErrorAlert(_$modal_container, TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "mpim_conversion_modal")());
+          } else {
+            if (error) TS.error("mpim.convertToGroup for " + _mpim.id + " returned " + error);
+            TS.channels.ui.channelCreateDialogShowOtherErrorAlert(_$modal_container, TS.i18n.t("Sorry! Something went wrong.", "mpim_conversion_modal")());
+          }
+        });
+        return false;
+      }
     }
   });
   var _$modal_container;
@@ -32051,7 +32069,7 @@
     });
   };
   var _advanceToConversionStep = function() {
-    if (!$("#conversion_step").hasClass("hidden")) return TS.ui.mpim_conversion_modal.go();
+    if (!$("#conversion_step").hasClass("hidden") && _$modal_container.find(".title_input").val().length > 1) return TS.ui.mpim_conversion_modal.go();
     $("#confirmation_step").addClass("hidden");
     $("#conversion_step").removeClass("hidden");
     _ladda = Ladda.create(_$modal_container.find(".convert_mpim_go")[0]);
@@ -38791,6 +38809,7 @@ function timezones_guess() {
       var lazy = false;
       var omit_link = true;
       $reply_container.append(TS.templates.builders.makeMemberPreviewLinkImage(TS.model.user.id, size, lazy, omit_link));
+      var experiment_group = TS.experiment.getGroup("exp_thread_at_mention");
       TS.ui.inline_msg_input.make($reply_container, {
         placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
@@ -38835,6 +38854,10 @@ function timezones_guess() {
             TS.utility.msgs.removeAllEphemeralMsgsByType("threads_temp_slash_cmd_feedback", model_ob.id, thread_ts);
             var should_broadcast_reply = $("#reply_container .reply_broadcast_toggle").prop("checked");
             TS.ui.replies.clearReplyInput(model_ob, thread_ts);
+            if (experiment_group === "copy" && !_has_responded_to_thread) {
+              _has_responded_to_thread = true;
+              $reply_container.removeClass("show_mention_teammates_info");
+            }
             var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
             TS.ui.thread.trackEvent(model_ob.id, root_msg.ts, "convo", clog_event);
             TS.client.ui.sendMessage(model_ob, text, root_msg, should_broadcast_reply);
@@ -38861,6 +38884,9 @@ function timezones_guess() {
         var is_input_empty = !input_value.trim();
         var val = is_input_empty ? "" : input_value;
         TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
+        if (experiment_group === "copy" && !_has_responded_to_thread) {
+          $reply_container.toggleClass("show_mention_teammates_info", is_input_empty);
+        }
         var scroller = TS.ui.replies.$scroller[0];
         var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
         var is_close_to_bottom = from_bottom < 50;
@@ -38871,13 +38897,19 @@ function timezones_guess() {
       var prev_val = TS.storage.fetchReplyInput(model_ob.id, thread_ts);
       if (prev_val) {
         TS.ui.replies.populateReplyInput(prev_val);
-      } else if (!root_msg.reply_count) {
-        var user = root_msg.user && TS.members.getMemberById(root_msg.user);
-        if (user && !user.is_self && !user.is_bot && !user.is_slackbot) {
-          if (TS.model.team.prefs.require_at_for_mention) {
-            TS.ui.replies.populateReplyInput("@" + user.name + " ");
-          } else {
-            TS.ui.replies.populateReplyInput(user.name + ": ");
+      } else {
+        if (experiment_group === "copy") {
+          $reply_container.toggleClass("show_mention_teammates_info", !_has_responded_to_thread);
+        } else if (experiment_group === "autofill" || !experiment_group) {
+          if (!root_msg.reply_count) {
+            var user = root_msg.user && TS.members.getMemberById(root_msg.user);
+            if (user && !user.is_self && !user.is_bot && !user.is_slackbot) {
+              if (TS.model.team.prefs.require_at_for_mention) {
+                TS.ui.replies.populateReplyInput("@" + user.name + " ");
+              } else {
+                TS.ui.replies.populateReplyInput(user.name + ": ");
+              }
+            }
           }
         }
       }
@@ -39029,6 +39061,7 @@ function timezones_guess() {
   var _active_convo_can_reply;
   var _active_convo_messages;
   var _active_convo_origin;
+  var _has_responded_to_thread;
   var _SUPPORTED_ORIGINS = ["mentions", "search_results", "starred_items", "channel_page", "group_page", "im_page"];
   var _ready_to_focus;
   var _focus_ready_sig = new signals.Signal;
@@ -39213,6 +39246,7 @@ function timezones_guess() {
       _active_convo_can_reply = undefined;
       _active_convo_messages = undefined;
       _active_convo_origin = undefined;
+      _has_responded_to_thread = false;
       TS.utility.msgs.stopUpdatingRelativeTimestamps("#convo_container");
     }
     if (flex_name != "convo") {
@@ -39309,6 +39343,9 @@ function timezones_guess() {
   var _renderReplyContainer = function(model_ob, root_msg) {
     var ignore_membership = true;
     if (!TS.replies.canReplyToMsg(model_ob, root_msg, ignore_membership)) return;
+    if (TS.experiment.getGroup("exp_thread_at_mention") === "copy") {
+      _has_responded_to_thread = TS.utility.msgs.userRepliedToMsg(root_msg);
+    }
     if (_active_convo_can_reply) {
       TS.ui.replies.updateMessageActions(model_ob, root_msg);
     } else {
@@ -39321,10 +39358,12 @@ function timezones_guess() {
   };
   var _renderBroadcastButtons = function(model_ob, thread_ts, $reply_container) {
     if (!model_ob || !$reply_container || $reply_container.length === 0) return;
+    var require_at_for_mention = _.get(TS.model, ".team.prefs.require_at_for_mention");
     $reply_container.append(TS.templates.reply_broadcast_buttons({
       model_ob: model_ob,
       thread_ts: thread_ts,
-      view: "convo"
+      view: "convo",
+      require_at_for_mention: require_at_for_mention
     }));
     var $reply_broadcast_buttons = $reply_container.find(".reply_broadcast_label_container, .reply_send");
     $reply_broadcast_buttons.mousedown(function(e) {
@@ -39595,12 +39634,14 @@ function timezones_guess() {
       }
       TS.client.ui.threads.showThreadsView();
       if (_threads_data) {
+        TS.info("Starting threads view with local data");
         _current_ts = _getInitialMaxTs();
         _resetThreadsData();
         TS.client.ui.threads.startWithData(_threads_data, _has_more);
         _setTotalUnreadRepliesCount(_total_unread_replies);
         _markAllThreadsAfterLoading(_current_ts);
       } else {
+        TS.info("Starting threads view from the api");
         _q.addToQ(_loadData);
       }
       return true;
@@ -39868,6 +39909,7 @@ function timezones_guess() {
     return _data_loading_p.then(_handleData).catch(_handleError);
   };
   var _handleData = function(resp) {
+    TS.info("Processing subscriptions.thread.getView response");
     clearTimeout(_slow_loading_timeout);
     var data = resp.data;
     var threads = data.threads;
@@ -39949,12 +39991,13 @@ function timezones_guess() {
     };
   };
   var _handleError = function(err) {
+    TS.error("Threads view error during loading:");
+    TS.error(err);
     var err_msg = _.get(err, "data.error");
-    if (err_msg) {
-      TS.error(err_msg);
-    } else {
-      TS.error(err);
-    }
+    if (!err_msg) err_msg = _.get(err, "message");
+    if (!err_msg) err_msg = err;
+    if (!_.isString) err_msg = JSON.stringify(err_msg);
+    TS.error(err_msg);
     clearTimeout(_slow_loading_timeout);
     _clearData();
     TS.client.ui.threads.displayFatalError();

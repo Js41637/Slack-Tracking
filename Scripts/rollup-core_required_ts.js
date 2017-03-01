@@ -3475,6 +3475,7 @@
       return false;
     },
     emojiMatchesTerm: function(emoji, term, keywords) {
+      if (!emoji || !term) return false;
       var emoji_base_name = TS.emoji.nameToBaseName(emoji.name);
       if (TS.emoji.substringMatchesName(emoji_base_name, term)) return true;
       var aliases = emoji.names.split(" ");
