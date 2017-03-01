@@ -21978,10 +21978,6 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   width: calc(100% - 32px)
 }
 
-.attachment_group .attachment_actions_buttons .select_attachment.disabled {
-  background: 0 0
-}
-
 .attachment_group .attachment_actions_buttons ts-inline-saver {
   color: #A0A0A2;
   width: 24px;

@@ -1,4 +1,5 @@
 <div class="lfs_input_container empty" data-qa="{{instance.data_qa}}-value">
+  <ts-icon class="ts_icon_search ts_icon search_icon subtle_silver"></ts-icon>
   {{#if instance.single}}<div class="lfs_value"></div>{{/if}}
   <input
     type="text"
@@ -11,16 +12,7 @@
   >
 </div>
 <div class="lfs_list_container" data-qa="{{instance.data_qa}}">
-  {{#if_equal instance.style compare=STYLES.filter_in_list}}
-    <input
-      type="text"
-      class="lfs_filter_input"
-      size="1"
-      data-qa="{{instance.data_qa}}-filter-input-value"
-      placeholder="{{instance.filter_placeholder_text}}"
-    >
-  {{/if_equal}}
   <div class="lfs_list"></div>
-  <div class="lfs_empty"></div>
-  <div class="lfs_error"></div>
 </div>
+<div class="lfs_empty hidden"></div>
+<div class="lfs_error hidden"></div>

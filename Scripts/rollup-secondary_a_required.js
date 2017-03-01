@@ -46829,14 +46829,9 @@ $.fn.togglify = function(settings) {
       if ($select.prop("disabled")) instance.disabled = true;
       if (instance.disabled) $container.addClass("disabled");
       instance.style = _.get(TS.ui.lazy_filter_select.STYLES, instance.style, TS.ui.lazy_filter_select.STYLES.default);
-      if (_isFilterInListStyle(instance) && !instance.single) {
-        TS.console.warn("Multi-select lazyFilterSelect instances can't use the 'filter_in_list' style. Using 'default' style instead.");
-        instance.style = TS.ui.lazy_filter_select.default;
-      }
       var html = TS.templates.lazy_filter_select_container({
         instance: instance,
-        aria_labelledby: $select.attr("aria-labelledby"),
-        STYLES: TS.ui.lazy_filter_select.STYLES
+        aria_labelledby: $select.attr("aria-labelledby")
       });
       $container.html(html);
       if (instance.append) {
@@ -46857,11 +46852,6 @@ $.fn.togglify = function(settings) {
       instance.$list = $container.find(".lfs_list");
       instance.$empty = $container.find(".lfs_empty");
       instance.$error = $container.find(".lfs_error");
-      if (_isFilterInListStyle(instance)) {
-        instance.$filter_input = $container.find(".lfs_filter_input");
-      } else {
-        instance.$filter_input = instance.$input;
-      }
       instance._page_number = 1;
       instance._slug_id_counter = 1;
       instance.run = _run;
@@ -46931,8 +46921,7 @@ $.fn.togglify = function(settings) {
     onMaxItemsSelected: function() {},
     onListShown: _.noop,
     onListHidden: _.noop,
-    placeholder_text: TS.i18n.t("Choose an option…", "lazy_filter_select")(),
-    filter_placeholder_text: TS.i18n.t("Search", "lazy_filter_select")(),
+    placeholder_text: TS.i18n.t("Search", "lazy_filter_select")(),
     renderDividerFunc: null,
     render_item_func: null,
     restrict_input_container_height: false,
@@ -46986,7 +46975,7 @@ $.fn.togglify = function(settings) {
       delete this.instance;
     },
     blur: function() {
-      this.instance.$filter_input.blur();
+      this.instance.$input.blur();
     },
     clearValue: function() {
       if (this.instance.single) {
@@ -47011,7 +47000,7 @@ $.fn.togglify = function(settings) {
       _enable(this.instance);
     },
     focus: function() {
-      this.instance.$filter_input.focus();
+      this.instance.$input.focus();
     },
     getInstance: function() {
       return this.instance;
@@ -47049,11 +47038,6 @@ $.fn.togglify = function(settings) {
       this.instance.placeholder_text = text;
       this.instance.$input.prop("placeholder", text);
     },
-    updateFilterPlaceholder: function(text) {
-      if (!_isFilterInListStyle(this.instance)) return;
-      this.instance.filter_placeholder_text = text;
-      this.instance.$filter_input.prop("placeholder", text);
-    },
     value: function() {
       return this.instance._selected;
     }
@@ -47081,7 +47065,7 @@ $.fn.togglify = function(settings) {
     }
     _populate(instance, instance.data);
     _showList(instance);
-    instance.$filter_input.val("");
+    instance.$input.val("");
     instance._previous_val = "";
     _adjustInput(instance);
     instance.onItemAdded(item);
@@ -47089,13 +47073,13 @@ $.fn.togglify = function(settings) {
   };
   var _adjustInput = function(instance) {
     if (!instance.single) {
-      instance.$input.prop("size", instance.$filter_input.val().length + 1);
-      if (instance.$filter_input.val().length + instance._selected.length === 0) {
+      instance.$input.prop("size", instance.$input.val().length + 1);
+      if (instance.$input.val().length + instance._selected.length === 0) {
         _showEmptyState(instance);
       } else {
         instance.$input_container.removeClass("empty");
         instance.$input_container.removeClass("error");
-        _clearPlaceholderText(instance);
+        instance.$input.prop("placeholder", "");
       }
     }
   };
@@ -47121,16 +47105,12 @@ $.fn.togglify = function(settings) {
     instance.$container.on("click", _onContainerClick.bind(null, instance));
     instance.$container.parents("label").on("click", _onContainerParentsLabelClick.bind(null, instance));
     instance.$input_container.on("focus", _onInputContainerFocus.bind(null, instance));
+    var on_input_input = _.isUndefined(instance.input_debounce_wait_time) ? _onInputInput : _.debounce(_onInputInput, instance.input_debounce_wait_time);
+    instance.$input.on("input", on_input_input.bind(null, instance));
+    instance.$input.on("keydown", _onInputKeydown.bind(null, instance));
+    instance.$input.on("blur", _onInputBlur.bind(null, instance));
     instance.$input.on("focus", _onInputFocus.bind(null, instance));
-    var on_filter_input_input;
-    if (_.isUndefined(instance.input_debounce_wait_time)) {
-      on_filter_input_input = _onFilterInputInput;
-    } else {
-      on_filter_input_input = _.debounce(_onFilterInputInput, instance.input_debounce_wait_time);
-    }
-    instance.$filter_input.on("input", on_filter_input_input.bind(null, instance));
-    instance.$filter_input.on("keydown", _onFilterInputKeydown.bind(null, instance));
-    instance.$filter_input.on("blur", _onFilterInputBlur.bind(null, instance));
+    instance.$input.on("blur", _onInputBlur.bind(null, instance));
     instance.$lfs_value.on("click", _onValueClick.bind(null, instance));
     instance.$lfs_value.on("mousedown", _onValueMousedown.bind(null, instance));
     instance.$input_container.on("click", ".lfs_token", _onTokenClick.bind(null, instance));
@@ -47248,7 +47228,6 @@ $.fn.togglify = function(settings) {
     instance.disabled = true;
     instance.$container.addClass("disabled");
     instance.$input.prop("disabled", true);
-    instance.$filter_input.prop("disabled", true);
   };
   var _doAllTheThingsRequiredWithNewData = function(instance, data) {
     var should_rebuild_list = false;
@@ -47265,7 +47244,6 @@ $.fn.togglify = function(settings) {
     instance.disabled = false;
     instance.$container.removeClass("disabled");
     instance.$input.prop("disabled", false);
-    instance.$filter_input.prop("disabled", false);
   };
   var _filterGroup = function(instance, query) {
     var data = instance.data;
@@ -47337,17 +47315,17 @@ $.fn.togglify = function(settings) {
     instance._$active = null;
     instance.onListHidden();
   };
-  var _hideNoResults = function(instance, options) {
-    if (!_.get(options, "keep_input_active")) {
-      instance.$input_container.removeClass("active");
-    }
-    instance.$list_container.removeClass("empty");
+  var _hideNoResults = function(instance) {
+    instance.$empty.addClass("hidden");
+    instance.$input_container.removeClass("active");
+    instance.$container.removeClass("showing_no_results");
   };
-  var _hideError = function(instance, options) {
-    if (!_.get(options, "keep_input_active")) {
+  var _hideError = function(instance) {
+    if (instance.$error) {
+      instance.$error.addClass("hidden");
       instance.$input_container.removeClass("active");
+      instance.$container.removeClass("showing_error");
     }
-    instance.$list_container.removeClass("error");
   };
   var _instanceCanSluggify = function(instance) {
     if (!instance.sluggify.enabled) {
@@ -47440,12 +47418,9 @@ $.fn.togglify = function(settings) {
       _showNoResults(instance);
       return;
     }
-    _hideNoResults(instance, {
-      keep_input_active: true
-    });
-    _hideError(instance, {
-      keep_input_active: true
-    });
+    instance.$empty.addClass("hidden");
+    instance.$list_container.removeClass("empty");
+    instance.$list_container.removeClass("error");
     if (!instance._list_built) {
       if (!instance.data || instance.data.length === 0) {
         instance.data = data;
@@ -47520,7 +47495,7 @@ $.fn.togglify = function(settings) {
         $(html).insertBefore(instance.$input);
         instance.$input_container.removeClass("empty");
         instance.$input_container.removeClass("error");
-        _clearPlaceholderText(instance);
+        instance.$input.prop("placeholder", "");
       }
     }
   };
@@ -47548,7 +47523,7 @@ $.fn.togglify = function(settings) {
     $list_item.removeClass("selected");
     $item.remove();
     _updateVal(instance);
-    if (instance.$filter_input.val().length + instance._selected.length === 0) {
+    if (instance.$input.val().length + instance._selected.length === 0) {
       _showEmptyState(instance);
     }
     if (instance._selected.length === 0) instance.$container.removeClass("value");
@@ -47562,7 +47537,7 @@ $.fn.togglify = function(settings) {
     });
     $slug.remove();
     _updateVal(instance);
-    if (instance.$filter_input.val().length + instance._selected.length === 0) {
+    if (instance.$input.val().length + instance._selected.length === 0) {
       _showEmptyState(instance);
     }
     instance.onItemRemoved(data_item);
@@ -47654,12 +47629,12 @@ $.fn.togglify = function(settings) {
     if (!instance.single) {
       instance.$input_container.removeClass("empty");
       instance.$input_container.removeClass("error");
-      _clearPlaceholderText(instance);
+      instance.$input.prop("placeholder", "");
     }
     instance.$container.addClass("value");
     instance.onItemAdded(data_item);
     if (!_canAddNewItem(instance)) instance.onMaxItemsSelected();
-    instance.$filter_input.focus();
+    instance.$input.focus();
   };
   var _selectDown = function(instance) {
     return _select(instance, "nextAll");
@@ -47681,12 +47656,12 @@ $.fn.togglify = function(settings) {
   };
   var _showEmptyState = function(instance) {
     instance.$input_container.addClass("empty");
-    _resetPlaceholderText(instance);
+    instance.$input.prop("placeholder", instance.placeholder_text);
   };
   var _showList = function(instance, keep_value) {
     if (instance.disabled) return;
     TS.utility.rAF(function() {
-      instance.$filter_input.focus();
+      instance.$input.focus();
     });
     if (instance._list_visible) return;
     if (instance._initial_call_failed) {
@@ -47712,16 +47687,14 @@ $.fn.togglify = function(settings) {
     if (instance._list_built) {
       instance._list_visible = true;
       instance.$list_container.addClass("visible");
-      instance.$container.addClass("list_visible");
-      if (!_isFilterInListStyle(instance)) {
-        instance.$input_container.addClass("active");
-      }
+      instance.$container.addClass("list_visible").removeClass("showing_no_results");
+      instance.$input_container.addClass("active");
       instance.$list.longListView("setHidden", false);
     }
     if (instance.single && !keep_value) {
-      instance.$filter_input.val("");
+      instance.$input.val("");
       instance._previous_val = "";
-      instance.$filter_input.focus();
+      instance.$input.focus();
       _populate(instance);
     }
     if (instance.set_height) {
@@ -47734,23 +47707,24 @@ $.fn.togglify = function(settings) {
   };
   var _showNoResults = function(instance) {
     if (instance._list_built) {
-      if (!_isFilterInListStyle(instance)) {
-        instance.$input_container.addClass("active");
-      }
-      instance.$empty.html(instance.noResultsTemplate(instance.$filter_input.val()));
+      instance.$container.addClass("showing_no_results");
+      _hideList(instance, true);
+      instance.$input_container.addClass("active");
       instance.$list_container.addClass("empty");
+      instance.$empty.html(instance.noResultsTemplate(instance.$input.val()));
+      instance.$empty.removeClass("hidden");
       instance._$active = null;
     }
   };
   var _showError = function(instance, error_message) {
     TS.error(error_message || "Something failed while trying to return the promise for lazyFilterSelect.");
     instance.$container.addClass("showing_error");
+    _hideList(instance, true);
     _hideNoResults(instance);
-    if (!_isFilterInListStyle(instance)) {
-      instance.$input_container.addClass("active");
-    }
-    instance.$error.html(instance.errorTemplate());
+    instance.$input_container.addClass("active");
     instance.$list_container.addClass("error");
+    instance.$error.html(instance.errorTemplate());
+    instance.$error.removeClass("hidden");
     instance._$active = null;
   };
   var _startListView = function(instance) {
@@ -47827,7 +47801,7 @@ $.fn.togglify = function(settings) {
     });
     instance.$input_container.find('.lfs_item[data-lfs-id="' + data_item.lfs_id + '"]').remove();
     _updateVal(instance);
-    if (instance.$filter_input.val().length + instance._selected.length === 0) {
+    if (instance.$input.val().length + instance._selected.length === 0) {
       _showEmptyState(instance);
     }
     if (instance._selected.length === 0) instance.$container.removeClass("value");
@@ -47837,17 +47811,17 @@ $.fn.togglify = function(settings) {
     if (!_instanceCanSluggify(instance) || !_itemIsUserCreatedSlug($slug)) return;
     var slug_text = $slug.text().trim();
     if ($slug.length) _removeUserCreatedSlug(instance, $slug);
-    instance.$filter_input.val(slug_text);
+    instance.$input.val(slug_text);
     _adjustInput(instance);
-    instance.$filter_input.select();
+    instance.$input.select();
   };
   var _update = function(instance, data) {
     instance.data = data || _parseHTMLOptionData(instance.$select);
     if (instance.data) {
       instance._selected = [];
       _prepItems(instance);
-      if (instance.$filter_input.val().length) {
-        var query = instance.$filter_input.val();
+      if (instance.$input.val().length) {
+        var query = instance.$input.val();
         instance._previous_val = "";
         _runQuery(instance, query);
       }
@@ -47884,21 +47858,6 @@ $.fn.togglify = function(settings) {
     }
     return text;
   };
-  var _clearPlaceholderText = function(instance) {
-    instance.$input.attr("placeholder", "");
-    if (_isFilterInListStyle(instance)) {
-      instance.$filter_input.attr("placeholder", "");
-    }
-  };
-  var _resetPlaceholderText = function(instance) {
-    instance.$input.attr("placeholder", instance.placeholder_text);
-    if (_isFilterInListStyle(instance)) {
-      instance.$filter_input.attr("placeholder", instance.filter_placeholder_text);
-    }
-  };
-  var _isFilterInListStyle = function(instance) {
-    return instance.style === TS.ui.lazy_filter_select.STYLES.filter_in_list;
-  };
   var _onContainerMouseleave = function(instance) {
     instance._prevent_blur = false;
   };
@@ -47915,17 +47874,8 @@ $.fn.togglify = function(settings) {
     instance.$input_container.click();
     instance.$input.focus();
   };
-  var _onInputFocus = function(instance) {
-    if (!instance._input_is_focused) {
-      instance._input_is_focused = true;
-      instance.onInputFocus();
-    }
-    if (!instance.single) {
-      instance.$input_container.addClass("active");
-    }
-  };
-  var _onFilterInputInput = function(instance) {
-    var query = instance.$filter_input.val();
+  var _onInputInput = function(instance) {
+    var query = instance.$input.val();
     if (_instanceCanSluggify(instance) && query.match(instance.sluggify.delimiter)) {
       var slugs = query.split(instance.sluggify.delimiter);
       slugs.forEach(function(slug) {
@@ -47935,7 +47885,7 @@ $.fn.togglify = function(settings) {
       _runQuery(instance, query, true);
     }
   };
-  var _onFilterInputKeydown = function(instance, e) {
+  var _onInputKeydown = function(instance, e) {
     if (instance.disabled) return;
     switch (e.keyCode) {
       case TS.utility.keymap.down:
@@ -47947,33 +47897,21 @@ $.fn.togglify = function(settings) {
         _selectUp(instance);
         break;
       case TS.utility.keymap.enter:
-        _onFilterInputKeydownEnter(instance, e);
+        _onInputKeydownEnter(instance, e);
         break;
       case TS.utility.keymap.del:
-        _onFilterInputKeydownDel(instance, e);
+        _onInputKeydownDel(instance, e);
         break;
       case TS.utility.keymap.tab:
-        _onFilterInputKeydownTab(instance, e);
+        _onInputKeydownTab(instance, e);
         break;
       case TS.utility.keymap.esc:
-        _onFilterInputKeydownEsc(instance, e);
+        _onInputKeydownEsc(instance, e);
         break;
     }
     instance.onKeyDown(e, e.isDefaultPrevented());
   };
-  var _onFilterInputBlur = function(instance) {
-    if (!instance._prevent_blur) {
-      _hideList(instance);
-      _hideNoResults(instance);
-      _hideError(instance);
-    }
-    if (instance.$filter_input.val().trim() && _instanceCanSluggify(instance)) {
-      _addUserCreatedSlugFromString(instance, instance.$filter_input.val());
-    }
-    instance._input_is_focused = false;
-    instance.onInputBlur();
-  };
-  var _onFilterInputKeydownEnter = function(instance, e) {
+  var _onInputKeydownEnter = function(instance, e) {
     if (instance._$active && instance._$active.length && instance._list_visible) {
       _stopThePresses(e);
       var $current_active = instance._$active;
@@ -47996,8 +47934,8 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onFilterInputKeydownDel = function(instance, e) {
-    if (instance.$filter_input.val() === "") {
+  var _onInputKeydownDel = function(instance, e) {
+    if (instance.$input.val() === "") {
       _stopThePresses(e);
       var $last_item = instance.$input_container.find(".lfs_token").last();
       if (_instanceCanSluggify(instance) && _itemIsUserCreatedSlug($last_item)) {
@@ -48007,10 +47945,10 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onFilterInputKeydownTab = function(instance, e) {
-    if (instance.$filter_input.val().trim() && _instanceCanSluggify(instance)) {
+  var _onInputKeydownTab = function(instance, e) {
+    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
       _stopThePresses(e);
-      _addUserCreatedSlugFromString(instance, instance.$filter_input.val());
+      _addUserCreatedSlugFromString(instance, instance.$input.val());
     } else if (instance.tab_to_nav) {
       _stopThePresses(e);
       if (e.shiftKey) {
@@ -48020,12 +47958,32 @@ $.fn.togglify = function(settings) {
       }
     }
   };
-  var _onFilterInputKeydownEsc = function(instance, e) {
+  var _onInputKeydownEsc = function(instance, e) {
     _stopThePresses(e);
     _hideList(instance);
     _hideNoResults(instance);
     _hideError(instance);
-    instance.$filter_input.blur();
+    instance.$input.blur();
+  };
+  var _onInputFocus = function(instance) {
+    if (!instance._input_is_focused) {
+      instance._input_is_focused = true;
+      instance.$input_container.click();
+      instance.onInputFocus();
+    }
+    if (!instance.single) instance.$input_container.addClass("active");
+  };
+  var _onInputBlur = function(instance) {
+    if (!instance._prevent_blur) {
+      _hideList(instance);
+      _hideNoResults(instance);
+      _hideError(instance);
+    }
+    if (instance.$input.val().trim() && _instanceCanSluggify(instance)) {
+      _addUserCreatedSlugFromString(instance, instance.$input.val());
+    }
+    instance._input_is_focused = false;
+    instance.onInputBlur();
   };
   var _onValueClick = function(instance, e) {
     if (instance.disabled) return;
@@ -48081,8 +48039,8 @@ $.fn.togglify = function(settings) {
         return;
       }
       _selectListItem(instance);
-      if (instance.$filter_input.val() !== "") {
-        instance.$filter_input.val("");
+      if (instance.$input.val() !== "") {
+        instance.$input.val("");
         instance._previous_val = "";
         _populate(instance);
       }
@@ -58139,9 +58097,9 @@ $.fn.togglify = function(settings) {
             input_debounce_wait_time: _getInputDebounceWaitTime($el),
             no_default_selection: !has_selected_options,
             onItemAdded: _onItemAdded,
+            onListHidden: _onListHidden,
             onListShown: _getOnListShownCallback($el),
-            placeholder_text: _getPlaceholderText($el),
-            filter_placeholder_text: _getFilterPlaceholderText($el),
+            placeholder_text: $el.attr("placeholder") || _PLACEHOLDER_TEXT.default,
             should_graphic_replace_emoji: true,
             style: TS.ui.lazy_filter_select.STYLES.filter_in_list,
             template: _getItemTemplate($el)
@@ -58162,18 +58120,8 @@ $.fn.togglify = function(settings) {
     }
   });
   var _PLACEHOLDER_TEXT = {
-    channels: TS.i18n.t("Choose a channel…", "attachment_actions")(),
-    conversations: TS.i18n.t("Choose a conversation…", "attachment_actions")(),
     "default": TS.i18n.t("Choose an option…", "attachment_actions")(),
-    external: TS.i18n.t("Choose an option…", "attachment_actions")(),
-    users: TS.i18n.t("Choose a person…", "attachment_actions")()
-  };
-  var _FILTER_PLACEHOLDER_TEXT = {
-    channels: TS.i18n.t("Search channels", "attachment_actions")(),
-    conversations: TS.i18n.t("Search conversations", "attachment_actions")(),
-    "default": TS.i18n.t("Search options", "attachment_actions")(),
-    external: TS.i18n.t("Search options", "attachment_actions")(),
-    users: TS.i18n.t("Search people", "attachment_actions")()
+    list_shown: TS.i18n.t("Search for options", "attachment_actions")()
   };
   var _DATA_SOURCES = {
     channels: "channels",
@@ -58208,10 +58156,17 @@ $.fn.togglify = function(settings) {
     return _.isEmpty(query) || TS.fuzzy.score(item.text.toLowerCase(), query.toLowerCase()) < Infinity;
   }
 
+  function _onListHidden() {
+    var $select = this.$select;
+    var placeholder_text = $select.attr("placeholder") || _PLACEHOLDER_TEXT.default;
+    $select.lazyFilterSelect("updatePlaceholder", placeholder_text);
+  }
+
   function _getOnListShownCallback($select) {
     var data_source = $select.data("data-source");
     var service_id = $select.closest("ts-message").data("bot-id");
     return function onListShown() {
+      this.$select.lazyFilterSelect("updatePlaceholder", _PLACEHOLDER_TEXT.list_shown);
       _logMenuOpen(data_source, service_id);
     };
   }
@@ -58328,14 +58283,6 @@ $.fn.togglify = function(settings) {
     if ($select.data("data-source") === _DATA_SOURCES.conversations) {
       return _itemTemplateForConversations;
     }
-  }
-
-  function _getPlaceholderText($select) {
-    return $select.attr("placeholder") || _.get(_PLACEHOLDER_TEXT, $select.data("data-source"), _PLACEHOLDER_TEXT.default);
-  }
-
-  function _getFilterPlaceholderText($select) {
-    return _.get(_FILTER_PLACEHOLDER_TEXT, $select.data("data-source"), _FILTER_PLACEHOLDER_TEXT.default);
   }
 
   function _itemTemplateForConversations(item) {
@@ -65317,126 +65264,125 @@ $.fn.togglify = function(settings) {
           uf = ao("ceil"),
           lf = ao("floor"),
           cf = ao("round");
-        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts,
-          t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
-            var e = {};
-            return Wn(t, function(n, r) {
-              Yu.call(t.prototype, r) || (e[r] = n);
-            }), e;
-          }(), {
-            chain: !1
-          }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
-            t[e].placeholder = t;
-          }), c(["drop", "take"], function(e, t) {
-            o.prototype[e] = function(n) {
-              var r = this.__filtered__;
-              if (r && !t) return new o(this);
-              n = n === J ? 1 : _l(ls(n), 0);
-              var i = this.clone();
-              return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
-                size: yl(n, Re),
-                type: e + (i.__dir__ < 0 ? "Right" : "")
-              }), i;
-            }, o.prototype[e + "Right"] = function(t) {
-              return this.reverse()[e](t).reverse();
-            };
-          }), c(["filter", "map", "takeWhile"], function(e, t) {
-            var n = t + 1,
-              r = n == we || n == Se;
-            o.prototype[e] = function(e) {
-              var t = this.clone();
-              return t.__iteratees__.push({
-                iteratee: po(e, 3),
-                type: n
-              }), t.__filtered__ = t.__filtered__ || r, t;
-            };
-          }), c(["head", "last"], function(e, t) {
-            var n = "take" + (t ? "Right" : "");
-            o.prototype[e] = function() {
-              return this[n](1).value()[0];
-            };
-          }), c(["initial", "tail"], function(e, t) {
-            var n = "drop" + (t ? "" : "Right");
-            o.prototype[e] = function() {
-              return this.__filtered__ ? new o(this) : this[n](1);
-            };
-          }), o.prototype.compact = function() {
-            return this.filter(_u);
-          }, o.prototype.find = function(e) {
-            return this.filter(e).head();
-          }, o.prototype.findLast = function(e) {
-            return this.reverse().find(e);
-          }, o.prototype.invokeMap = pa(function(e, t) {
-            return "function" == typeof e ? new o(this) : this.map(function(n) {
-              return $n(n, e, t);
-            });
-          }), o.prototype.reject = function(e) {
-            return e = po(e, 3), this.filter(function(t) {
-              return !e(t);
-            });
-          }, o.prototype.slice = function(e, t) {
-            e = ls(e);
-            var n = this;
-            return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
-          }, o.prototype.takeRightWhile = function(e) {
-            return this.reverse().takeWhile(e).reverse();
-          }, o.prototype.toArray = function() {
-            return this.take(Re);
-          }, Wn(o.prototype, function(e, n) {
-            var i = /^(?:filter|find|map|reject)|While$/.test(n),
-              a = /^(?:head|last)$/.test(n),
-              s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
-              u = a || /^find/.test(n);
-            s && (t.prototype[n] = function() {
-              var n = this.__wrapped__,
-                l = a ? [1] : arguments,
-                c = n instanceof o,
-                f = l[0],
-                p = c || Tc(n),
-                d = function(e) {
-                  var n = s.apply(t, g([e], l));
-                  return a && h ? n[0] : n;
-                };
-              p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
-              var h = this.__chain__,
-                v = !!this.__actions__.length,
-                m = u && !h,
-                _ = c && !v;
-              if (!u && p) {
-                n = _ ? n : new o(this);
-                var y = e.apply(n, l);
-                return y.__actions__.push({
-                  func: Pi,
-                  args: [d],
-                  thisArg: J
-                }), new r(y, h);
-              }
-              return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
-            });
-          }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
-            var n = Vu[e],
-              r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
-              o = /^(?:pop|shift)$/.test(e);
-            t.prototype[e] = function() {
-              var e = arguments;
-              return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
-                return n.apply(t, e);
-              });
-            };
-          }), Wn(o.prototype, function(e, n) {
-            var r = t[n];
-            if (r) {
-              var o = r.name + "",
-                i = Pl[o] || (Pl[o] = []);
-              i.push({
-                name: n,
-                func: r
-              });
+        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
+          var e = {};
+          return Wn(t, function(n, r) {
+            Yu.call(t.prototype, r) || (e[r] = n);
+          }), e;
+        }(), {
+          chain: !1
+        }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
+          t[e].placeholder = t;
+        }), c(["drop", "take"], function(e, t) {
+          o.prototype[e] = function(n) {
+            var r = this.__filtered__;
+            if (r && !t) return new o(this);
+            n = n === J ? 1 : _l(ls(n), 0);
+            var i = this.clone();
+            return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
+              size: yl(n, Re),
+              type: e + (i.__dir__ < 0 ? "Right" : "")
+            }), i;
+          }, o.prototype[e + "Right"] = function(t) {
+            return this.reverse()[e](t).reverse();
+          };
+        }), c(["filter", "map", "takeWhile"], function(e, t) {
+          var n = t + 1,
+            r = n == we || n == Se;
+          o.prototype[e] = function(e) {
+            var t = this.clone();
+            return t.__iteratees__.push({
+              iteratee: po(e, 3),
+              type: n
+            }), t.__filtered__ = t.__filtered__ || r, t;
+          };
+        }), c(["head", "last"], function(e, t) {
+          var n = "take" + (t ? "Right" : "");
+          o.prototype[e] = function() {
+            return this[n](1).value()[0];
+          };
+        }), c(["initial", "tail"], function(e, t) {
+          var n = "drop" + (t ? "" : "Right");
+          o.prototype[e] = function() {
+            return this.__filtered__ ? new o(this) : this[n](1);
+          };
+        }), o.prototype.compact = function() {
+          return this.filter(_u);
+        }, o.prototype.find = function(e) {
+          return this.filter(e).head();
+        }, o.prototype.findLast = function(e) {
+          return this.reverse().find(e);
+        }, o.prototype.invokeMap = pa(function(e, t) {
+          return "function" == typeof e ? new o(this) : this.map(function(n) {
+            return $n(n, e, t);
+          });
+        }), o.prototype.reject = function(e) {
+          return e = po(e, 3), this.filter(function(t) {
+            return !e(t);
+          });
+        }, o.prototype.slice = function(e, t) {
+          e = ls(e);
+          var n = this;
+          return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
+        }, o.prototype.takeRightWhile = function(e) {
+          return this.reverse().takeWhile(e).reverse();
+        }, o.prototype.toArray = function() {
+          return this.take(Re);
+        }, Wn(o.prototype, function(e, n) {
+          var i = /^(?:filter|find|map|reject)|While$/.test(n),
+            a = /^(?:head|last)$/.test(n),
+            s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
+            u = a || /^find/.test(n);
+          s && (t.prototype[n] = function() {
+            var n = this.__wrapped__,
+              l = a ? [1] : arguments,
+              c = n instanceof o,
+              f = l[0],
+              p = c || Tc(n),
+              d = function(e) {
+                var n = s.apply(t, g([e], l));
+                return a && h ? n[0] : n;
+              };
+            p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
+            var h = this.__chain__,
+              v = !!this.__actions__.length,
+              m = u && !h,
+              _ = c && !v;
+            if (!u && p) {
+              n = _ ? n : new o(this);
+              var y = e.apply(n, l);
+              return y.__actions__.push({
+                func: Pi,
+                args: [d],
+                thisArg: J
+              }), new r(y, h);
             }
-          }), Pl[Jr(J, ae).name] = [{
-            name: "wrapper",
-            func: J
-          }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
+            return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
+          });
+        }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
+          var n = Vu[e],
+            r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
+            o = /^(?:pop|shift)$/.test(e);
+          t.prototype[e] = function() {
+            var e = arguments;
+            return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
+              return n.apply(t, e);
+            });
+          };
+        }), Wn(o.prototype, function(e, n) {
+          var r = t[n];
+          if (r) {
+            var o = r.name + "",
+              i = Pl[o] || (Pl[o] = []);
+            i.push({
+              name: n,
+              func: r
+            });
+          }
+        }), Pl[Jr(J, ae).name] = [{
+          name: "wrapper",
+          func: J
+        }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
       }
       var J, ee = "4.6.1",
         te = 200,
@@ -66944,7 +66890,8 @@ $.fn.togglify = function(settings) {
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
   var o, i = n(11);
-  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0), e.exports = r;
+  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0),
+    e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
