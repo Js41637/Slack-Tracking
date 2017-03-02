@@ -794,7 +794,7 @@
       return Promise.join(TS.emoji.setUpEmoji().catch(function() {
         if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji failed, trying to move forward anyway...");
         return;
-      }), _maybeFetchInitialSharedChannelInfo(), _maybeFetchAccessibleUserIds());
+      }), _maybeFetchAccessibleUserIds());
     }).then(function() {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Nearly there! Finalizing...");
       if (!TS.model.ms_logged_in_once) _finalizeFirstBoot(resp.data);
@@ -850,38 +850,6 @@
       TS.error(error_msg);
       throw new Error(error_msg);
     }
-  };
-  var _maybeFetchInitialSharedChannelInfo = function() {
-    if (TS.boot_data.feature_shared_channels_client || TS.boot_data.feature_shared_channels_boot) {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra shared channels data, moving on");
-      return;
-    }
-    if (!TS.client || !TS.boot_data.page_needs_enterprise || !TS.model.initial_cid) {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: page does not need any extra enterprise data; completing login");
-      return;
-    }
-    if (TS.model.ms_logged_in_once) {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: we have previously connected to the MS, no need to set up shared channels");
-      return;
-    }
-    var model_ob = TS.shared.getModelObById(TS.model.initial_cid);
-    if (!model_ob) {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: error setting up shared channels");
-      throw new Error("TS.model.initial_cid (" + TS.model.initial_cid + ") referred to a channel that does not exist, which should be impossible");
-    }
-    if (model_ob.is_shared && model_ob.is_channel) {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring channels.info for " + TS.model.initial_cid);
-      return TS.channels.promiseToEnsureChannelsInfo(TS.model.initial_cid, true).then(function() {
-        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got channels.info, completing login");
-      });
-    }
-    if (model_ob.is_shared && model_ob.is_group && !model_ob.is_mpim) {
-      if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: ensuring groups.info for " + TS.model.initial_cid);
-      return TS.groups.promiseToEnsureGroupsInfo(TS.model.initial_cid, true).then(function() {
-        if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: got groups.info, completing login");
-      });
-    }
-    if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: no work needed to set up shared channels, moving on");
   };
   var _finalizeFirstBoot = function(rtm_start_data) {
     if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: _finalizeFirstBoot");
@@ -3393,11 +3361,35 @@
       return _promise_user_assignments;
     },
     getGroup: function(name) {
+      var caches = [_loaded_lead_assignments, _loaded_visitor_assignments, _loaded_user_assignments];
+      var expired_caches = _.filter(caches, _isCacheExpired);
+      if (TS.boot_data.version_ts === "dev" && expired_caches.length === 3 && TS.error) TS.error('TS.experiment.getGroup("' + name + '") called with a fully expired cache, assignments should be loaded first');
       if (_assignments[name]) {
         if (_assignments[name].log_exposures) _logExposure(name, _assignments[name]);
         return _assignments[name].group;
       }
+      if (TS.boot_data.version_ts === "dev" && expired_caches.length > 0 && TS.warn) TS.warn('TS.experiment.getGroup("' + name + '") failed to find an assignment and had a partially expired cache, make sure assignments are loaded');
       return null;
+    },
+    test: function() {
+      var test_ob = {};
+      Object.defineProperty(test_ob, "_isCacheExpired", {
+        get: function() {
+          return _isCacheExpired;
+        },
+        set: function(v) {
+          _isCacheExpired = v;
+        }
+      });
+      Object.defineProperty(test_ob, "_recordAssignments", {
+        get: function() {
+          return _recordAssignments;
+        },
+        set: function(v) {
+          _recordAssignments = v;
+        }
+      });
+      return test_ob;
     }
   });
   var _CACHE_TIMEOUT = 864e5;

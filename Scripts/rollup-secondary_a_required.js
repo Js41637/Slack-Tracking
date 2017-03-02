@@ -8358,6 +8358,13 @@ TS.registerModule("constants", {
       if (TS.boot_data.feature_name_tagging_client) return _getDisplayTitle(mpim, for_header);
       var members = TS.mpims.getMembersInDisplayOrder(mpim);
       var display_real_names = TS.members.shouldDisplayRealNames();
+      var valid_members = _.compact(members);
+      var missing_count = members.length - valid_members.length;
+      if (missing_count) {
+        var valid_ids = _(valid_members).map("id").value().join(",");
+        TS.warn("TS.mpims.getDisplayName(): Missing " + missing_count + " members. Valid IDs = " + valid_ids);
+        members = valid_members;
+      }
       var first_name_map = {};
       if (display_real_names) {
         members.forEach(function(member) {
@@ -10332,7 +10339,7 @@ TS.registerModule("constants", {
     if (curr_model_ob && curr_model_ob.id) {
       _logChannelSwitchedEvent(curr_model_ob, is_boot);
       var curr_channel_type = curr_model_ob.id.charAt(0);
-      if (TS.boot_data.feature_platform_metrics && curr_channel_type == "D") {
+      if (curr_channel_type == "D") {
         _logDmOpenEvent(curr_model_ob);
       }
     }
@@ -22352,7 +22359,7 @@ TS.registerModule("constants", {
           msg = _.cloneDeep(msg);
           msg.text += " <slack-action://BSLACKBOT/help/files/D026MK7NF|testing>";
         }
-        if (TS.boot_data.feature_platform_metrics && is_bot) {
+        if (is_bot) {
           var bot_info = TS.bots.getBotInfoByMsg(msg);
           if (bot_info) {
             app_id = bot_info.app_id;
@@ -23023,6 +23030,14 @@ TS.registerModule("constants", {
         } else {
           return options.inverse(this);
         }
+      });
+      Handlebars.registerHelper("experiment", function(options) {
+        var name = options.hash.name;
+        var group = options.hash.group || "treatment";
+        if (TS.experiment.getGroup(name) === group) {
+          return options.fn(this);
+        }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("sharedChannelsEnabled", function(options) {
         if (TS.model.shared_channels_enabled) {
@@ -25975,6 +25990,7 @@ TS.registerModule("constants", {
       return true;
     },
     isAutomatedMsg: function(msg) {
+      if (!msg) return false;
       return TS.utility.msgs.automated_subtypes.indexOf(msg.subtype) >= 0;
     },
     isFileMsg: function(msg) {
@@ -27663,7 +27679,6 @@ TS.registerModule("constants", {
     },
     shouldHideChannelJoinOrLeaveMsg: function(imsg, channel_or_channel_id) {
       if (!TS.boot_data.feature_hide_join_leave) return false;
-      if (TS.membership.lazyLoadChannelMembership()) return false;
       var user = TS.members.getMemberById(imsg.user);
       var is_bot_user = _.get(user, "is_bot", false);
       if (imsg.subtype === "channel_join") {
@@ -27671,7 +27686,19 @@ TS.registerModule("constants", {
         if (!channel) return false;
         var is_default_channel = _.includes(TS.model.team.prefs.default_channels, channel.id);
         var was_invited = !!imsg.inviter;
-        var has_enough_members = _.get(channel, "members.length") > 20;
+        var num_members;
+        if (TS.membership.lazyLoadChannelMembership()) {
+          num_members = channel.num_members;
+          if (_.isUndefined(channel.num_members)) {
+            var membership_counts = TS.membership && TS.membership.getMembershipCounts(channel);
+            if (membership_counts.counts) {
+              num_members = _.get(membership_counts, "counts.member_count");
+            }
+          }
+        } else {
+          num_members = _.get(channel, "members.length");
+        }
+        var has_enough_members = _.isUndefined(num_members) ? false : num_members > 20;
         if (!is_bot_user && !is_default_channel && !was_invited && has_enough_members) {
           return true;
         }
@@ -32462,18 +32489,16 @@ TS.registerModule("constants", {
         }
       } else if (id === "copy_link") {
         TS.clipboard.writeText($(this).data("permalink"));
-        if (TS.boot_data.feature_platform_metrics) {
-          var $message = TS.menu.$secondary_target_element;
-          var payload = {
-            message_timestamp: msg_ts,
-            channel_id: model_ob_id,
-            channel_type: model_ob_id[0] || "",
-            member_id: $message.data("member-id"),
-            app_id: $message.data("app-id"),
-            bot_id: $message.data("bot-id")
-          };
-          TS.clog.track("MSG_LINK_COPY", payload);
-        }
+        var $message = TS.menu.$secondary_target_element;
+        var payload = {
+          message_timestamp: msg_ts,
+          channel_id: model_ob_id,
+          channel_type: model_ob_id[0] || "",
+          member_id: $message.data("member-id"),
+          app_id: $message.data("app-id"),
+          bot_id: $message.data("bot-id")
+        };
+        TS.clog.track("MSG_LINK_COPY", payload);
       } else if (id === "open_original_link") {} else if ($(e.target).data("msg-action") === "remind") {
         TS.api.call("reminders.addFromMessage", {
           time: $(e.target).data("remind-length"),
@@ -33782,12 +33807,10 @@ var _on_esc;
           TS.menu.$menu_header.on("click", function(e) {
             TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
             TS.menu.$menu_header.off();
-            if (TS.boot_data.feature_platform_metrics) {
-              TS.clog.track("USER_CARD_CLICK", {
-                app_id: TS.menu.app.active_app ? TS.menu.app.active_app.id : "",
-                bot_id: TS.menu.app.active_app_bot_id
-              });
-            }
+            TS.clog.track("USER_CARD_CLICK", {
+              app_id: TS.menu.app.active_app ? TS.menu.app.active_app.id : "",
+              bot_id: TS.menu.app.active_app_bot_id
+            });
             TS.menu.app.end();
           });
         } else {
@@ -33821,12 +33844,10 @@ var _on_esc;
         e.preventDefault();
         TS.ui.invite.showInviteMemberToChannelDialog(TS.menu.app.active_app.bot_user.id);
       }
-      if (TS.boot_data.feature_platform_metrics) {
-        TS.clog.track("USER_CARD_CLICK", {
-          app_id: TS.menu.app.active_app.id,
-          bot_id: TS.menu.app.active_app_bot_id
-        });
-      }
+      TS.clog.track("USER_CARD_CLICK", {
+        app_id: TS.menu.app.active_app.id,
+        bot_id: TS.menu.app.active_app_bot_id
+      });
       TS.menu.app.end();
     },
     end: function() {
@@ -34846,17 +34867,15 @@ var _on_esc;
       } else if (id === "copy_file_link") {
         e.preventDefault();
         TS.clipboard.writeText(file.permalink);
-        if (TS.boot_data.feature_platform_metrics) {
-          var user = TS.members.getMemberById(file.user);
-          var payload = {};
-          if (user && user.is_bot) {
-            var bot_id = user.profile.bot_id;
-            var bot = TS.bots.getBotById(bot_id);
-            payload.app_id = bot ? bot.app_id : "";
-            payload.bot_id = bot_id;
-          }
-          TS.clog.track("MSG_LINK_COPY", payload);
+        var user = TS.members.getMemberById(file.user);
+        var payload = {};
+        if (user && user.is_bot) {
+          var bot_id = user.profile.bot_id;
+          var bot = TS.bots.getBotById(bot_id);
+          payload.app_id = bot ? bot.app_id : "";
+          payload.bot_id = bot_id;
         }
+        TS.clog.track("MSG_LINK_COPY", payload);
       } else if (id === "star_file") {
         e.preventDefault();
         TS.stars.checkForStarClick(e);
@@ -35411,9 +35430,7 @@ var _on_esc;
     onMemberHeaderClick: function(e) {
       e.preventDefault();
       TS.client.ui.previewMember(TS.menu.member.member.id, "menu_member_header");
-      if (TS.boot_data.feature_platform_metrics) {
-        TS.clog.track("USER_CARD_CLICK");
-      }
+      TS.clog.track("USER_CARD_CLICK");
       TS.menu.member.end();
     },
     onMemberItemClick: function(e) {
@@ -35500,12 +35517,10 @@ var _on_esc;
         TS.warn("not sure what to do with clicked element id:" + id);
         return;
       }
-      if (TS.boot_data.feature_platform_metrics) {
-        if (e.data && e.data.is_member_preview) {
-          TS.clog.track("USER_PROFILE_CLICK");
-        } else {
-          TS.clog.track("USER_CARD_CLICK");
-        }
+      if (e.data && e.data.is_member_preview) {
+        TS.clog.track("USER_PROFILE_CLICK");
+      } else {
+        TS.clog.track("USER_CARD_CLICK");
       }
       TS.menu.member.end();
       TS.menu.member.member_item_click_sig.dispatch(id);
@@ -42048,9 +42063,7 @@ var _on_esc;
       $("body").on("click", '[data-action="edit_member_profile_modal"]', function(e) {
         e.preventDefault();
         TS.ui.edit_member_profile.start();
-        if (TS.boot_data.feature_platform_metrics) {
-          TS.clog.track("USER_PROFILE_CLICK");
-        }
+        TS.clog.track("USER_PROFILE_CLICK");
       });
     },
     start: function() {
@@ -43982,36 +43995,34 @@ var _on_esc;
         return result;
       });
     };
-    if (TS.boot_data.feature_discoverable_teams_client_polish) {
-      $search_input.on("input", function(e) {
-        var filter_by = $(this).val();
-        var sort_by;
-        if (list === "teams_on") {
-          sort_by = $sort_by_your.val();
+    $search_input.on("input", function(e) {
+      var filter_by = $(this).val();
+      var sort_by;
+      if (list === "teams_on") {
+        sort_by = $sort_by_your.val();
+      } else {
+        sort_by = $sort_by_find.val();
+      }
+      var teams = TS.enterprise.workspaces.getList(list, sort_by, filter_by);
+      var html = "";
+      if (teams.length) {
+        teams.forEach(function(team) {
+          html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
+        });
+      } else {
+        html += TS.templates.no_workspace_results();
+      }
+      if (TS.boot_data.feature_workspace_request) {
+        var $ws_create = $("#ws_request_create_link");
+        if (filter_by.length) {
+          $ws_create.removeClass("hidden");
         } else {
-          sort_by = $sort_by_find.val();
+          $ws_create.addClass("hidden");
         }
-        var teams = TS.enterprise.workspaces.getList(list, sort_by, filter_by);
-        var html = "";
-        if (teams.length) {
-          teams.forEach(function(team) {
-            html += TS.enterprise.workspaces.getTeamCardHTML(team, base_url, true);
-          });
-        } else {
-          html += TS.templates.no_workspace_results();
-        }
-        if (TS.boot_data.feature_workspace_request) {
-          var $ws_create = $("#ws_request_create_link");
-          if (filter_by.length) {
-            $ws_create.removeClass("hidden");
-          } else {
-            $ws_create.addClass("hidden");
-          }
-        }
-        $container.html(html).attr("data-list", list);
-        _bindEvents($container, list, base_url);
-      });
-    }
+      }
+      $container.html(html).attr("data-list", list);
+      _bindEvents($container, list, base_url);
+    });
     $more_teams_available_message.on("click", '[data-qa="find-more-teams"]', function(e) {
       e.preventDefault();
       $('.enterprise_memberdash_header .menu_item_teams[data-qa="find-teams"]').click();
@@ -45522,30 +45533,28 @@ $.fn.togglify = function(settings) {
       }
       var $container = $el.closest(".inline_file_preview_container, .file_container");
       if ($container.length === 0) return;
-      if (TS.boot_data.feature_platform_metrics) {
-        var $el = $(e.target);
-        var $message = $el.closest("ts-message");
-        var message_ts = $message.data("ts") + "";
-        var message_c_id = $message.data("model-ob-id");
-        var payload = {
-          message_timestamp: message_ts,
-          channel_id: message_c_id,
-          channel_type: message_c_id ? message_c_id.charAt(0) : "",
-          member_id: $message.data("member-id"),
-          app_id: $message.data("app-id"),
-          bot_id: $message.data("bot-id")
-        };
-      }
+      var $el = $(e.target);
+      var $message = $el.closest("ts-message");
+      var message_ts = $message.data("ts") + "";
+      var message_c_id = $message.data("model-ob-id");
+      var payload = {
+        message_timestamp: message_ts,
+        channel_id: message_c_id,
+        channel_type: message_c_id ? message_c_id.charAt(0) : "",
+        member_id: $message.data("member-id"),
+        app_id: $message.data("app-id"),
+        bot_id: $message.data("bot-id")
+      };
       if ($el.closest(".preview_show.preview_show_more").length > 0) {
         e.preventDefault();
         _expandContent(e, $msg, $container);
-        if (TS.boot_data.feature_platform_metrics) TS.clog.track("PREVIEW_EXPAND", payload);
+        TS.clog.track("PREVIEW_EXPAND", payload);
         return true;
       }
       if ($el.closest(".preview_show.preview_show_less .preview_show_btn, .preview_show_less_header").length > 0) {
         e.preventDefault();
         _collapseContent(e, $msg, $container);
-        if (TS.boot_data.feature_platform_metrics) TS.clog.track("PREVIEW_COLLAPSE", payload);
+        TS.clog.track("PREVIEW_COLLAPSE", payload);
         return true;
       }
       if ($el.closest("a").length) return false;
@@ -46009,19 +46018,17 @@ $.fn.togglify = function(settings) {
       });
       var $el = $('[data-rxn-key="' + rxn_key + '"]');
       var payload = {};
-      if (TS.boot_data.feature_platform_metrics) {
-        var $message = $el.closest("ts-message");
-        var message_ts = $message.data("ts") + "";
-        var message_c_id = $message.data("model-ob-id");
-        payload = {
-          message_timestamp: message_ts,
-          channel_id: message_c_id,
-          channel_type: message_c_id ? message_c_id.charAt(0) : "",
-          member_id: $message.data("member-id"),
-          app_id: $message.data("app-id"),
-          bot_id: $message.data("bot-id")
-        };
-      }
+      var $message = $el.closest("ts-message");
+      var message_ts = $message.data("ts") + "";
+      var message_c_id = $message.data("model-ob-id");
+      payload = {
+        message_timestamp: message_ts,
+        channel_id: message_c_id,
+        channel_type: message_c_id ? message_c_id.charAt(0) : "",
+        member_id: $message.data("member-id"),
+        app_id: $message.data("app-id"),
+        bot_id: $message.data("bot-id")
+      };
       var clog_key = adding ? "REACTION_ADDED" : "REACTION_REMOVED";
       if (TS.model.unread_view_is_showing && api_args.timestamp) {
         _.merge(payload, TS.client.ui.unread.getTrackingData(api_args.timestamp));
@@ -49636,27 +49643,25 @@ $.fn.togglify = function(settings) {
       TS.clog.track("MSG_LINK_CLICKED", payload);
     });
     TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_play_button", function(e, $el) {
-      if (TS.boot_data.feature_platform_metrics) {
-        var $message = $el.closest("ts-message");
-        var message_ts = $message.data("ts") + "";
-        var message_c_id = $message.data("model-ob-id");
-        var member_id = $message.data("member-id");
-        var app_id = $message.data("app-id");
-        var bot_id = $message.data("bot-id");
-        var open_new_window_link = $message.find(".msg_inline_video_new_window_button");
-        var original_href = open_new_window_link.data("referer-original-href");
-        var url = original_href ? original_href : open_new_window_link.attr("href");
-        var payload = {
-          message_timestamp: message_ts,
-          channel_id: message_c_id,
-          channel_type: message_c_id ? message_c_id.charAt(0) : "",
-          member_id: member_id,
-          app_id: app_id,
-          bot_id: bot_id,
-          url: url ? url : ""
-        };
-        TS.clog.track("MSG_VIDEO_PLAY", payload);
-      }
+      var $message = $el.closest("ts-message");
+      var message_ts = $message.data("ts") + "";
+      var message_c_id = $message.data("model-ob-id");
+      var member_id = $message.data("member-id");
+      var app_id = $message.data("app-id");
+      var bot_id = $message.data("bot-id");
+      var open_new_window_link = $message.find(".msg_inline_video_new_window_button");
+      var original_href = open_new_window_link.data("referer-original-href");
+      var url = original_href ? original_href : open_new_window_link.attr("href");
+      var payload = {
+        message_timestamp: message_ts,
+        channel_id: message_c_id,
+        channel_type: message_c_id ? message_c_id.charAt(0) : "",
+        member_id: member_id,
+        app_id: app_id,
+        bot_id: bot_id,
+        url: url ? url : ""
+      };
+      TS.clog.track("MSG_VIDEO_PLAY", payload);
     });
     TS.click.addClientHandler(".member_preview_link, .member_preview_image", function(e, $el, preview_origin) {
       e.preventDefault();
@@ -49684,41 +49689,37 @@ $.fn.togglify = function(settings) {
             TS.client.ui.previewMember(member_id, preview_origin || "team_list");
           }
         }
-        if (TS.boot_data.feature_platform_metrics) {
-          var $message = $el.closest("ts-message");
-          var message_ts = $message.data("ts") + "";
-          var message_c_id = $message.data("model-ob-id");
-          var member_id = $message.data("member-id");
-          var app_id = $message.data("app-id");
-          var bot_id = $message.data("bot-id");
-          var payload = {
-            message_timestamp: message_ts,
-            channel_id: message_c_id,
-            channel_type: message_c_id ? message_c_id.charAt(0) : "",
-            member_id: member_id,
-            app_id: app_id,
-            bot_id: bot_id
-          };
-          TS.clog.track("USERNAME_CLICK", payload);
-        }
+        var $message = $el.closest("ts-message");
+        var message_ts = $message.data("ts") + "";
+        var message_c_id = $message.data("model-ob-id");
+        var member_id = $message.data("member-id");
+        var app_id = $message.data("app-id");
+        var bot_id = $message.data("bot-id");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: member_id,
+          app_id: app_id,
+          bot_id: bot_id
+        };
+        TS.clog.track("USERNAME_CLICK", payload);
       } else {
         TS.warn("hmmm, no data-member-id?");
       }
     });
-    if (TS.boot_data.feature_platform_metrics) {
-      TS.click.addClientHandler(".app_profile a, .app_profile_slash_command", function(e, $el) {
-        var $app_profile = $el.closest(".app_profile");
-        TS.clog.track("USER_PROFILE_CLICK", {
-          app_id: $app_profile.data("app_id"),
-          bot_id: $app_profile.data("bot_id")
-        });
+    TS.click.addClientHandler(".app_profile a, .app_profile_slash_command", function(e, $el) {
+      var $app_profile = $el.closest(".app_profile");
+      TS.clog.track("USER_PROFILE_CLICK", {
+        app_id: $app_profile.data("app_id"),
+        bot_id: $app_profile.data("bot_id")
       });
-      TS.click.addClientHandler(".member_details a", function(e, $el) {
-        if (!$el.hasClass("member_preview_menu_target")) {
-          TS.clog.track("USER_PROFILE_CLICK");
-        }
-      });
-    }
+    });
+    TS.click.addClientHandler(".member_details a", function(e, $el) {
+      if (!$el.hasClass("member_preview_menu_target")) {
+        TS.clog.track("USER_PROFILE_CLICK");
+      }
+    });
     TS.click.addClientHandler(".member", function(e, $el) {
       e.preventDefault();
       var member_id = $el.data("member-id");
@@ -49874,22 +49875,20 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".file_ssb_download_link", function(e, $el) {
       var open_flexpane = !(TS.ui.fs_modal_file_viewer && TS.ui.fs_modal_file_viewer.is_showing);
       var file = TS.files.getFileById($el.data("file-id"));
-      if (TS.boot_data.feature_platform_metrics) {
-        var payload = {
-          is_successful: false
-        };
-        if (file) {
-          payload.is_successful = true;
-          var user = TS.members.getMemberById(file.user);
-          if (user && user.is_bot) {
-            var bot_id = user.profile.bot_id;
-            var bot = TS.bots.getBotById(bot_id);
-            payload.app_id = bot ? bot.app_id : "";
-            payload.bot_id = bot_id;
-          }
+      var payload = {
+        is_successful: false
+      };
+      if (file) {
+        payload.is_successful = true;
+        var user = TS.members.getMemberById(file.user);
+        if (user && user.is_bot) {
+          var bot_id = user.profile.bot_id;
+          var bot = TS.bots.getBotById(bot_id);
+          payload.app_id = bot ? bot.app_id : "";
+          payload.bot_id = bot_id;
         }
-        TS.clog.track("FILE_DOWNLOAD", payload);
       }
+      TS.clog.track("FILE_DOWNLOAD", payload);
       if (file && TS.client.downloads.startDownload(file, open_flexpane)) {
         e.preventDefault();
         return;
@@ -50204,21 +50203,19 @@ $.fn.togglify = function(settings) {
       }
       e.preventDefault();
       var bot_id = $closest_ts_message.data("bot-id");
-      if (TS.boot_data.feature_platform_metrics) {
-        var message_ts = $closest_ts_message.data("ts") + "";
-        var message_c_id = $closest_ts_message.data("model-ob-id");
-        var member_id = $closest_ts_message.data("member-id");
-        var app_id = $closest_ts_message.data("app-id");
-        var payload = {
-          message_timestamp: message_ts,
-          channel_id: message_c_id,
-          channel_type: message_c_id ? message_c_id.charAt(0) : "",
-          member_id: member_id,
-          app_id: app_id,
-          bot_id: bot_id
-        };
-        TS.clog.track("USERNAME_CLICK", payload);
-      }
+      var message_ts = $closest_ts_message.data("ts") + "";
+      var message_c_id = $closest_ts_message.data("model-ob-id");
+      var member_id = $closest_ts_message.data("member-id");
+      var app_id = $closest_ts_message.data("app-id");
+      var payload = {
+        message_timestamp: message_ts,
+        channel_id: message_c_id,
+        channel_type: message_c_id ? message_c_id.charAt(0) : "",
+        member_id: member_id,
+        app_id: app_id,
+        bot_id: bot_id
+      };
+      TS.clog.track("USERNAME_CLICK", payload);
       if (bot_id) {
         TS.menu.app.startWithApp(e, bot_id);
       } else {
@@ -56982,6 +56979,9 @@ $.fn.togglify = function(settings) {
       return location || "end";
     },
     formatMessageAttachmentPart: function(text, msg, do_highlighting, do_specials, enable_slack_action_links) {
+      if (do_highlighting && TS.utility.msgs.isAutomatedMsg(msg)) {
+        do_highlighting = false;
+      }
       var formatted_msg = TS.format.formatWithOptions(text, msg, {
         no_highlights: do_highlighting !== true,
         no_specials: do_specials !== true,
