@@ -39342,6 +39342,21 @@ function timezones_guess() {
     } else {
       $divider.addClass("hidden");
     }
+    var last_msg_is_visible = true;
+    if (_msg_container_config.has_more_end) {
+      last_msg_is_visible = false;
+    } else {
+      var last_ts_known = _(_replies_section.msgs).map("ts").max();
+      if (last_ts_known) {
+        var msg_range = TS.ui.message_container.getRange(_msg_container_config);
+        var last_ts_visible = _.get(msg_range, "end.msg_ts");
+        if (last_ts_known > last_ts_visible) {
+          last_msg_is_visible = false;
+        }
+      }
+    }
+    var $reply_container = $("#reply_container");
+    $reply_container.toggleClass("hidden", !last_msg_is_visible);
   };
   var _renderRootMsgIntoConversation = function(model_ob, root_msg, $convo) {
     var $root_msg_el = $(_buildRootMsgHTML(model_ob, root_msg));

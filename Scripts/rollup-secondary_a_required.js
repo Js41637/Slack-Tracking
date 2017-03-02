@@ -2005,12 +2005,14 @@
     if (_ensure_model_methodsA.indexOf(method) == -1) return proceed();
     var ensureBots = function() {
       if (!TS.lazyLoadMembersAndBots()) return Promise.resolve();
+      if (method.indexOf("bots.") === 0) return Promise.resolve();
       TS.log(528, 'running api data from "' + method + '" through TS.bots.ensureBotsInDataArePresent()');
       return TS.bots.ensureBotsInDataArePresent(data, method, args.channel || undefined).catch(function(err) {
         TS.error(err);
       });
     };
     var ensureMembers = function() {
+      if (method.indexOf("users.") === 0) return Promise.resolve();
       TS.log(528, 'running api data from "' + method + '" through TS.members.ensureMembersInDataArePresent()');
       return TS.members.ensureMembersInDataArePresent(data, method, args.channel || undefined).catch(function(err) {
         TS.error(err);
@@ -2026,6 +2028,7 @@
     };
     var ensureTeams = function() {
       if (!TS.boot_data.feature_shared_channels_client) return Promise.resolve();
+      if (method.indexOf("teams.") === 0) return Promise.resolve();
       TS.console.log(528, 'running api data from "' + method + '" through TS.teams.ensureTeamsInDataArePresent()');
       return TS.teams.ensureTeamsInDataArePresent(data).catch(function(err) {
         TS.console.error(err);
@@ -11520,6 +11523,7 @@ TS.registerModule("constants", {
   var _fetchAndUpsertMembersWithIds = function(m_ids, always_use_api) {
     if (_.isEmpty(m_ids)) return Promise.resolve();
     if (!Array.isArray(m_ids)) return Promise.reject(new Error("m_ids is not an array"));
+    m_ids = _.uniq(m_ids);
     var fetched_members_p;
     var fetch_via_flannel = TS.useSocket() && TS.boot_data.should_use_flannel && !always_use_api;
     if (fetch_via_flannel) {
@@ -16681,7 +16685,7 @@ TS.registerModule("constants", {
       }
       TS.info("archived channel " + imsg.channel);
       channel.is_archived = true;
-      if (imsg.is_moved) {
+      if (imsg.is_moved == 1) {
         channel.is_moved = true;
       }
       if (!TS.model.user.is_restricted) {
@@ -16705,7 +16709,7 @@ TS.registerModule("constants", {
         var in_background = true;
         TS.channels.join(channel.name, null, in_background);
       }
-      if (imsg.is_moved) {
+      if (imsg.is_moved == 1) {
         channel.is_moved = true;
       }
       channel.is_archived = false;
@@ -16944,7 +16948,7 @@ TS.registerModule("constants", {
       }
       TS.info("archived group " + imsg.channel);
       group.is_archived = true;
-      if (imsg.is_moved) {
+      if (imsg.is_moved == 1) {
         group.is_moved = true;
       }
       if (group.is_open) {
@@ -16958,7 +16962,7 @@ TS.registerModule("constants", {
         TS.error('unknown group: "' + imsg.channel);
         return;
       }
-      if (imsg.is_moved) {
+      if (imsg.is_moved == 1) {
         group.is_moved = true;
       }
       if (!group.is_archived) {
@@ -29311,6 +29315,7 @@ TS.registerModule("constants", {
         }
       };
       worker(ob, "_DATA");
+      m_ids = _(m_ids).uniq().value();
       if (TS.shouldLog("794")) {
         _doubleCheckIdExtraction(ob, source, m_ids, _double_check_ids_member_rx);
       }
@@ -39361,13 +39366,9 @@ var _on_esc;
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
-              appendMenu: function(menu) {
-                document.querySelector("#message_edit_form").appendChild(menu);
-              },
               positionMenu: function(menu) {
-                menu.style.bottom = "100%";
-                menu.style.left = "4.5rem";
-                menu.style.width = "80%";
+                menu.style.width = input.outerWidth() + "px";
+                TS.tabcomplete.positionUIRelativeToInput(menu, input);
               }
             }
           },
@@ -39599,9 +39600,7 @@ var _on_esc;
       TS.msg_edit.commitEditInternal(edited_text);
       TS.msg_edit.resetEditUI();
       if (TS.client) {
-        if (in_replies) {
-          TS.ui.replies.focusReplyInput();
-        } else {
+        if (!in_replies) {
           TS.view.focusMessageInput();
         }
       }
@@ -39614,9 +39613,7 @@ var _on_esc;
       var in_replies = TS.msg_edit.editing_in_convo_pane;
       TS.msg_edit.resetEditUI();
       if (TS.client) {
-        if (in_replies) {
-          TS.ui.replies.focusReplyInput();
-        } else {
+        if (!in_replies) {
           TS.view.focusMessageInput();
         }
       }
@@ -56544,7 +56541,10 @@ $.fn.togglify = function(settings) {
           tabcomplete: {
             completeMemberSpecials: true,
             menuTemplate: TS.templates.tabcomplete_menu,
-            completers: [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members]
+            completers: [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members],
+            appendMenu: function(menu) {
+              $("body").append(menu);
+            }
           },
           textsubstitutions: {
             getTextPreferences: TS.utility.contenteditable.getTextPreferences,
@@ -56764,10 +56764,7 @@ $.fn.togglify = function(settings) {
           TS.selection.selectCharacters(input, pos.start, pos.end);
         } else if (_isTextyElement(input)) {
           var texty = _getTextyInstance(input);
-          texty.setSelection({
-            index: pos.start,
-            length: pos.length
-          });
+          texty.setSelection(pos.start, pos.length);
         }
       } else {
         if (!TS.utility.contenteditable.isActiveElement(input)) {
@@ -57370,17 +57367,12 @@ $.fn.togglify = function(settings) {
             }
           },
           tabcomplete: {
-            appendMenu: function(menu) {
-              $("body").append(menu);
-            },
             positionMenu: function(menu) {
               var offset = $input.offset();
               var to_the_edge_width = $(window).width() - offset.left - 2;
-              menu.style.width = Math.min($input.width(), to_the_edge_width) + "px";
+              menu.style.width = Math.min($input.outerWidth(), to_the_edge_width) + "px";
               menu.style.minWidth = 0;
-              menu.style.maxHeight = offset.top - 2 + "px";
-              menu.style.left = offset.left + "px";
-              menu.style.bottom = $(window).height() - offset.top + "px";
+              TS.tabcomplete.positionUIRelativeToInput(menu, $input);
             },
             completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members]
           }
@@ -63124,7 +63116,8 @@ $.fn.togglify = function(settings) {
           if (l) return void sn(e, n, l);
           var c = i ? i(s, u, n + "", e, t, a) : J,
             f = c === J;
-          f && (c = u, Tc(u) || ns(u) ? Tc(s) ? c = s : Ra(s) ? c = Ur(s) : (f = !1, c = kn(u, !i)) : Xa(u) || ka(u) ? ka(s) ? c = ps(s) : !Wa(s) || r && Da(s) ? (f = !1, c = kn(u, !i)) : c = s : f = !1), a.set(u, c), f && o(c, u, r, i, a), a.delete(u), sn(e, n, c);
+          f && (c = u, Tc(u) || ns(u) ? Tc(s) ? c = s : Ra(s) ? c = Ur(s) : (f = !1,
+            c = kn(u, !i)) : Xa(u) || ka(u) ? ka(s) ? c = ps(s) : !Wa(s) || r && Da(s) ? (f = !1, c = kn(u, !i)) : c = s : f = !1), a.set(u, c), f && o(c, u, r, i, a), a.delete(u), sn(e, n, c);
         }
 
         function sr(e, t, n) {
@@ -69841,8 +69834,7 @@ $.fn.togglify = function(settings) {
     h = n(9),
     v = n.n(h),
     m = n(3),
-    g = (n.n(m),
-      n(12)),
+    g = (n.n(m), n(12)),
     _ = n.n(g),
     y = n(94),
     b = function(e) {
@@ -74753,8 +74745,7 @@ $.fn.togglify = function(settings) {
         t !== n && (u = !0), u && i.componentWillReceiveProps && i.componentWillReceiveProps(c, a);
         var f = this._processPendingState(c, a),
           p = !0;
-        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))),
-          this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
+        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))), this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
       },
       _processPendingState: function(e, t) {
         var n = this._instance,

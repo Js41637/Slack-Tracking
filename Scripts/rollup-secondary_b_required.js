@@ -872,19 +872,13 @@
             tabcomplete: {
               completeMemberSpecials: false,
               completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members],
-              appendMenu: function(menu) {
-                $("body").append(menu);
-              },
               positionMenu: function(menu) {
-                var offset = input.offset();
+                TS.tabcomplete.positionUIRelativeToInput(menu, input);
                 if (TS.web && TS.web.space) {
-                  menu.style.width = Math.min(input.width(), 474) + "px";
+                  menu.style.width = Math.min(input.outerWidth(), 474) + "px";
                 } else {
-                  menu.style.width = Math.min(input.width(), 360) + "px";
+                  menu.style.width = Math.min(input.outerWidth(), 360) + "px";
                 }
-                menu.style.maxHeight = offset.top - 2 + "px";
-                menu.style.left = offset.left + "px";
-                menu.style.bottom = $(window).height() - offset.top + "px";
               }
             }
           },
@@ -928,7 +922,10 @@
             var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
             if (!TS.client || $form.outerHeight() < msgs_scroller_dimensions.height) {
               $form.find("button[type=submit]").scrollintoview({
-                px_offset: -50
+                px_offset: -50,
+                complete: function() {
+                  TS.tabcomplete.positionUIRelativeToInput($(".tab_complete_ui"), input);
+                }
               });
             }
           }
