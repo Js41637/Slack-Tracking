@@ -10630,6 +10630,7 @@ TS.registerModule("constants", {
       if (TS.client) TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam);
       TS.channels.member_joined_sig.add(_maybeUpdateMembersUserCanSee);
       TS.channels.member_left_sig.add(_maybeUpdateMembersUserCanSee);
+      TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent);
       if (TS.client) {
         TS.client.login_sig.addOnce(function() {
           if (TS.membership.lazyLoadChannelMembership()) {
@@ -59250,26 +59251,22 @@ $.fn.togglify = function(settings) {
       });
       return _threads_being_loaded[key];
     },
-    getThreadLazy: function(c_id, thread_ts, always_make_api_call) {
+    getThreadLazy: function(c_id, thread_ts, from_end, always_make_api_call) {
       if (!always_make_api_call) {
         var messages_from_model_ob = _getThreadFromModelOb(c_id, thread_ts);
         if (messages_from_model_ob) {
-          if (_shouldSanityCheck(c_id, thread_ts)) _sanityCheck(c_id, thread_ts, messages_from_model_ob);
+          if (_shouldSanityCheck(c_id, thread_ts)) _sanityCheck(c_id, thread_ts, messages_from_model_ob, from_end);
           var root_msg = _.find(messages_from_model_ob, {
             ts: thread_ts
           });
           return Promise.resolve({
             root_msg: root_msg,
             messages: messages_from_model_ob,
-            has_more: false
+            has_more_beginning: false,
+            has_more_end: false
           });
         }
       }
-      var params = {
-        channel: c_id,
-        thread_ts: thread_ts,
-        count: TS.replies.DEFAULT_HISTORY_API_LIMIT
-      };
       var model_ob = TS.shared.getModelObById(c_id);
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
       if (always_make_api_call) {
@@ -59278,25 +59275,38 @@ $.fn.togglify = function(settings) {
         TS.log(2004, "Calling " + api_endpoint + " for " + thread_ts + " because local history is incomplete");
       }
       var key = _keyForThread(c_id, thread_ts);
-      if (_threads_being_loaded[key]) return _threads_being_loaded[key];
-      _threads_being_loaded[key] = TS.api.call(api_endpoint, params).then(function(resp) {
-        var ret = _processRepliesHistoryResponse(model_ob, thread_ts, resp);
-        if (!ret.has_more) {
-          ret.messages.unshift(ret.root_msg);
-        }
-        return ret;
-      }).finally(function() {
-        delete _threads_being_loaded[key];
-      });
-      return _threads_being_loaded[key];
+      if (from_end) {
+        if (_threads_being_loaded_from_end[key]) return _threads_being_loaded_from_end[key];
+        _threads_being_loaded_from_end[key] = TS.replies.getThreadBefore(c_id, thread_ts).then(function(thread) {
+          thread.has_more_beginning = thread.has_more;
+          thread.has_more_end = false;
+          return thread;
+        }).finally(function() {
+          delete _threads_being_loaded_from_end[key];
+        });
+        return _threads_being_loaded_from_end[key];
+      } else {
+        if (_threads_being_loaded[key]) return _threads_being_loaded[key];
+        _threads_being_loaded[key] = TS.replies.getThreadAfter(c_id, thread_ts).then(function(thread) {
+          thread.has_more_beginning = false;
+          thread.has_more_end = thread.has_more;
+          return thread;
+        }).finally(function() {
+          delete _threads_being_loaded[key];
+        });
+        return _threads_being_loaded[key];
+      }
     },
-    getThreadBefore: function(c_id, thread_ts, oldest_ts) {
+    getThreadBefore: function(c_id, thread_ts, oldest_ts, inclusive) {
       var params = {
         channel: c_id,
         thread_ts: thread_ts,
-        latest: oldest_ts,
         count: TS.replies.DEFAULT_HISTORY_API_LIMIT
       };
+      if (oldest_ts) {
+        params.latest = oldest_ts;
+        if (inclusive) params.inclusive = inclusive;
+      }
       var model_ob = TS.shared.getModelObById(c_id);
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
       return TS.api.call(api_endpoint, params).then(function(resp) {
@@ -59311,17 +59321,42 @@ $.fn.togglify = function(settings) {
       var params = {
         channel: c_id,
         thread_ts: thread_ts,
-        oldest: newest_ts,
         count: TS.replies.DEFAULT_HISTORY_API_LIMIT
       };
-      if (inclusive) params.inclusive = inclusive;
+      var starting_at_the_beginning = false;
+      if (newest_ts) {
+        params.oldest = newest_ts;
+        if (inclusive) params.inclusive = inclusive;
+      } else {
+        starting_at_the_beginning = true;
+        params.oldest = thread_ts;
+        params.inclusive = true;
+      }
       var model_ob = TS.shared.getModelObById(c_id);
       var api_endpoint = _repliesHistoryEndpoint(model_ob);
       return TS.api.call(api_endpoint, params).then(function(resp) {
-        return _processRepliesHistoryResponse(model_ob, thread_ts, resp);
+        var ret = _processRepliesHistoryResponse(model_ob, thread_ts, resp);
+        if (starting_at_the_beginning) {
+          ret.messages.unshift(ret.root_msg);
+        }
+        return ret;
       });
     },
     getThreadAround: function(c_id, thread_ts, highlight_ts) {
+      var messages_from_model_ob = _getThreadFromModelOb(c_id, thread_ts);
+      if (messages_from_model_ob) {
+        var from_end = false;
+        if (_shouldSanityCheck(c_id, thread_ts)) _sanityCheck(c_id, thread_ts, messages_from_model_ob, from_end);
+        var root_msg = _.find(messages_from_model_ob, {
+          ts: thread_ts
+        });
+        return Promise.resolve({
+          root_msg: root_msg,
+          messages: messages_from_model_ob,
+          has_more_beginning: false,
+          has_more_end: false
+        });
+      }
       var before_p = TS.replies.getThreadBefore(c_id, thread_ts, highlight_ts);
       var after_p = TS.replies.getThreadAfter(c_id, thread_ts, highlight_ts, true);
       return Promise.join(before_p, after_p, function(before_data, after_data) {
@@ -59349,8 +59384,9 @@ $.fn.togglify = function(settings) {
       var subscription = _subscriptions[key];
       if (subscription) return Promise.resolve(subscription);
       var key = _keyForThread(model_ob_id, thread_ts);
-      if (_threads_being_loaded[key]) {
-        return _threads_being_loaded[key].then(function() {
+      var pending_p = _threads_being_loaded[key] || _threads_being_loaded_from_end[key];
+      if (pending_p) {
+        return pending_p.then(function() {
           return TS.replies.getSubscriptionState(model_ob_id, thread_ts);
         });
       }
@@ -59444,6 +59480,7 @@ $.fn.togglify = function(settings) {
     }
   });
   var _threads_being_loaded = {};
+  var _threads_being_loaded_from_end = {};
   var _subscriptions_being_loaded = {};
   var _subscriptions = {};
   var _repliesHistoryEndpoint = function(model_ob) {
@@ -59549,26 +59586,29 @@ $.fn.togglify = function(settings) {
     }
     return true;
   };
-  var _sanityCheck = function(c_id, thread_ts, messages_from_model_ob) {
+  var _sanityCheck = function(c_id, thread_ts, messages_from_model_ob, from_end) {
     messages_from_model_ob = messages_from_model_ob.filter(function(msg) {
       return !msg.is_ephemeral && !TS.utility.msgs.isTempMsg(msg);
     });
     var always_make_api_call = true;
     var thread_p;
     if (TS.boot_data.feature_threads_paging_flexpane) {
-      thread_p = TS.replies.getThreadLazy(c_id, thread_ts, always_make_api_call);
+      thread_p = TS.replies.getThreadLazy(c_id, thread_ts, from_end, always_make_api_call);
     } else {
       thread_p = TS.replies.getThread(c_id, thread_ts, always_make_api_call).then(function(messages_from_api) {
         return {
           messages: messages_from_api,
-          has_more: false
+          has_more_beginning: false,
+          has_more_end: false
         };
       });
     }
     thread_p.then(function(thread) {
       var messages_from_api = thread.messages;
-      if (thread.has_more) {
+      if (thread.has_more_beginning) {
         messages_from_model_ob = _.takeRight(messages_from_model_ob, messages_from_api.length);
+      } else if (thread.has_more_end) {
+        messages_from_model_ob = _.take(messages_from_model_ob, messages_from_api.length);
       }
       var model_timestamps = _.map(messages_from_model_ob, "ts");
       var api_timestamps = _.map(messages_from_api, "ts");
@@ -59619,7 +59659,7 @@ $.fn.togglify = function(settings) {
       if (!model_ob) return;
       var root_msg = TS.replies.getMessage(model_ob, thread_ts);
       if (!root_msg) return;
-      TS.replies.sanity_check_failed_sig.dispatch(model_ob, root_msg, messages_from_api, thread.has_more);
+      TS.replies.sanity_check_failed_sig.dispatch(model_ob, root_msg, messages_from_api, thread.has_more_beginning, thread.has_more_end);
       return null;
     });
     return null;
@@ -68334,8 +68374,7 @@ $.fn.togglify = function(settings) {
           v = " (client) " + f.substring(p - 20, p + 20) + "\n (server) " + l.substring(p - 20, p + 20);
         t.nodeType === N ? d("42", v) : void 0;
       }
-      if (t.nodeType === N ? d("43") : void 0,
-        a.useCreateElement) {
+      if (t.nodeType === N ? d("43") : void 0, a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         h.insertTreeBefore(t, e, null);
       } else P(t, e), _.precacheNode(n, t.firstChild);
@@ -69802,7 +69841,8 @@ $.fn.togglify = function(settings) {
     h = n(9),
     v = n.n(h),
     m = n(3),
-    g = (n.n(m), n(12)),
+    g = (n.n(m),
+      n(12)),
     _ = n.n(g),
     y = n(94),
     b = function(e) {
@@ -71635,8 +71675,7 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
-            Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -74714,7 +74753,8 @@ $.fn.togglify = function(settings) {
         t !== n && (u = !0), u && i.componentWillReceiveProps && i.componentWillReceiveProps(c, a);
         var f = this._processPendingState(c, a),
           p = !0;
-        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))), this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
+        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))),
+          this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
       },
       _processPendingState: function(e, t) {
         var n = this._instance,

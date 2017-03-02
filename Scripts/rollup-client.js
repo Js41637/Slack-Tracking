@@ -33917,7 +33917,7 @@ function timezones_guess() {
       TS.metrics.measureAndClear("jumper_open", "start_jumper_open");
       if (TS.boot_data.feature_searcher_jumper) {
         TS.searcher.search("", {
-          members: true,
+          members: _getMemberOptions(),
           channels: true,
           groups: true,
           mpims: true
@@ -34239,21 +34239,8 @@ function timezones_guess() {
     return TS.sorter.search(query, _data, search_options);
   };
   var _searchAndRender = function(query) {
-    var org_team_ids = [];
-    if (TS.model.enterprise) {
-      org_team_ids = _(TS.model.enterprise_teams).map("id").filter(function(id) {
-        return id !== TS.model.team.id;
-      }).value();
-    }
-    var member_options = {
-      include_org: true,
-      include_slackbot: true,
-      include_self: true,
-      full_profile_filter: false,
-      org_team_ids: org_team_ids
-    };
     _search_p = TS.searcher.search(query, {
-      members: member_options,
+      members: _getMemberOptions(),
       channels: {
         include_archived: true
       },
@@ -34340,6 +34327,21 @@ function timezones_guess() {
   var _isActive = function(model_ob) {
     var active_id = TS.shared.getActiveModelOb().id;
     return active_id && active_id == model_ob.id;
+  };
+  var _getMemberOptions = function() {
+    var org_team_ids = [];
+    if (TS.model.enterprise) {
+      org_team_ids = _(TS.model.enterprise_teams).map("id").filter(function(id) {
+        return id !== TS.model.team.id;
+      }).value();
+    }
+    return {
+      include_org: true,
+      include_slackbot: true,
+      include_self: true,
+      full_profile_filter: false,
+      org_team_ids: org_team_ids
+    };
   };
   var _getUnreadList = function(data) {
     var highlights = [];
@@ -38544,13 +38546,15 @@ function timezones_guess() {
         if (highlight_ts) {
           thread_p = TS.replies.getThreadAround(model_ob.id, thread_ts, highlight_ts);
         } else {
-          thread_p = TS.replies.getThreadLazy(model_ob.id, thread_ts);
+          var from_end = false;
+          thread_p = TS.replies.getThreadLazy(model_ob.id, thread_ts, from_end);
         }
       } else {
         thread_p = TS.replies.getThread(model_ob.id, thread_ts).then(function(messages_from_api) {
           return {
             messages: messages_from_api,
-            has_more: false
+            has_more_beginning: false,
+            has_more_end: false
           };
         });
       }
@@ -38582,7 +38586,7 @@ function timezones_guess() {
     },
     finishRenderingReplies: function(model_ob, thread_ts, root_msg, thread, highlight_ts) {
       var messages = thread.messages;
-      var has_more = !!thread.has_more || !!thread.has_more_beginning;
+      var has_more = !!thread.has_more_beginning || !!thread.has_more_end;
       if (_active_convo_model_id != model_ob.id) return;
       if (_active_convo_thread_ts != thread_ts) return;
       TS.info("Rendering thread " + thread_ts + ", " + messages.length + " messages" + "(has_more: " + has_more + ")");
@@ -38599,11 +38603,13 @@ function timezones_guess() {
         }
       }
       if (TS.boot_data.feature_threads_paging_flexpane) {
-        _replaceMessagesAndUpdateMessageContainer(messages, has_more, thread.has_more_end);
+        _replaceMessagesAndUpdateMessageContainer(messages, thread.has_more_beginning, thread.has_more_end);
         if (highlight_ts) {
           TS.ui.message_container.jumpToTS(_msg_container_config, highlight_ts, _MESSAGE_CONTAINER_PAGE_SIZE);
         } else {
-          TS.ui.message_container.jumpToEnd(_msg_container_config);
+          if (thread.has_more_beginning) {
+            TS.ui.message_container.jumpToEnd(_msg_container_config);
+          }
         }
       } else {
         var $convo = $("#convo_tab ts-conversation");
@@ -38621,7 +38627,10 @@ function timezones_guess() {
         if (TS.boot_data.feature_threads_paging_flexpane) {
           TS.ui.message_container.scrollintoview(_msg_container_config, highlight_id, {
             offset: "bottom",
-            px_offset: -50
+            px_offset: -50,
+            complete: function() {
+              _focusInputWhenReady();
+            }
           });
           $("#" + highlight_id).highlight(2500, "msg_highlighter");
         } else {
@@ -39400,10 +39409,16 @@ function timezones_guess() {
     var $reply_input = $("#reply_container .message_input");
     if (TS.utility.isFocusOnInput() && document.activeElement !== $reply_input[0]) return;
     if (_ready_to_focus) {
-      TS.ui.replies.focusReplyInput();
+      if (_isReplyInputVisible() || !TS.boot_data.feature_threads_paging_flexpane) TS.ui.replies.focusReplyInput();
     } else {
-      _focus_ready_sig.addOnce(TS.ui.replies.focusReplyInput);
+      _focus_ready_sig.addOnce(function() {
+        if (_isReplyInputVisible() || !TS.boot_data.feature_threads_paging_flexpane) TS.ui.replies.focusReplyInput();
+      });
     }
+  };
+  var _isReplyInputVisible = function() {
+    var $reply_input = $("#reply_container .message_input");
+    return TS.client.ui.isElInView($reply_input, 0, TS.ui.replies.$scroller.dimensions_rect());
   };
   var _setIsLoading = function(loading) {
     $("#convo_loading_indicator").toggleClass("hidden", !loading);
@@ -39425,15 +39440,16 @@ function timezones_guess() {
       has_replies: !!root_msg.reply_count
     }));
   };
-  var _sanityCheckFailed = function(model_ob, root_msg, msgs, has_more) {
+  var _sanityCheckFailed = function(model_ob, root_msg, msgs, has_more_beginning, has_more_end) {
     if (_active_convo_model_id != model_ob.id) return;
     if (_active_convo_thread_ts != root_msg.ts) return;
     if (TS.boot_data.feature_threads_paging_flexpane) {
-      _replaceMessagesAndUpdateMessageContainer(msgs, has_more, false);
+      _replaceMessagesAndUpdateMessageContainer(msgs, has_more_beginning, has_more_end);
     } else {
       TS.ui.replies.finishRenderingReplies(model_ob, root_msg.thread_ts, root_msg, {
         messages: msgs,
-        has_more: false
+        has_more_beginning: false,
+        has_more_end: false
       });
     }
   };
@@ -39772,7 +39788,8 @@ function timezones_guess() {
         if (oldest_ts && reply_count > TS.replies.DEFAULT_HISTORY_API_LIMIT) {
           messages_p = TS.replies.getThreadBefore(model_ob_id, thread_ts, oldest_ts);
         } else {
-          messages_p = TS.replies.getThreadLazy(model_ob_id, thread_ts);
+          var from_end = true;
+          messages_p = TS.replies.getThreadLazy(model_ob_id, thread_ts, from_end);
         }
       } else {
         messages_p = TS.replies.getThread(model_ob_id, thread_ts).then(function(messages) {
@@ -39780,7 +39797,8 @@ function timezones_guess() {
             ts: thread_ts
           });
           return {
-            has_more: false,
+            has_more_beginning: false,
+            has_more_end: false,
             messages: messages,
             root_msg: root_msg
           };
@@ -40218,7 +40236,8 @@ function timezones_guess() {
     if (thread) return;
     var messages_p;
     if (TS.boot_data.feature_threads_paging_flexpane) {
-      messages_p = TS.replies.getThreadLazy(model_ob.id, thread_ts);
+      var from_end = true;
+      messages_p = TS.replies.getThreadLazy(model_ob.id, thread_ts, from_end);
     } else {
       messages_p = TS.replies.getThread(model_ob.id, thread_ts).then(function(messages) {
         return {
@@ -40226,7 +40245,8 @@ function timezones_guess() {
             ts: thread_ts
           }),
           messages: messages,
-          has_more: false
+          has_more_beginning: false,
+          has_more_end: false
         };
       });
     }
@@ -40287,7 +40307,8 @@ function timezones_guess() {
     if (!sub) return true;
     return !sub.last_read || thread.ts > sub.last_read;
   };
-  var _sanityCheckFailed = function(model_ob, root_msg, messages_from_api) {
+  var _sanityCheckFailed = function(model_ob, root_msg, messages_from_api, has_more_beginning, has_more_end) {
+    if (has_more_end) return;
     _q.addToQ(function() {
       var thread = TS.client.threads.getThread(model_ob, root_msg.ts);
       if (!thread) return;
