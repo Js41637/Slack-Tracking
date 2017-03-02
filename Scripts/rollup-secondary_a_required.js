@@ -13872,10 +13872,10 @@ TS.registerModule("constants", {
       } else if (imsg.name == "allow_calls") {
         TS.model.team.prefs.allow_calls = imsg.value;
         TS.prefs.team_allow_calls_changed_sig.dispatch();
-      } else if (TS.boot_data.feature_platform_calls && imsg.name == "calling_app_id") {
+      } else if (imsg.name == "calling_app_id") {
         TS.model.team.prefs.calling_app_id = imsg.value;
         TS.prefs.team_calling_app_id_changed_sig.dispatch();
-      } else if (TS.boot_data.feature_platform_calls && imsg.name == "calling_app_name") {
+      } else if (imsg.name == "calling_app_name") {
         TS.model.team.prefs.calling_app_name = imsg.value;
         TS.prefs.team_calling_app_name_changed_sig.dispatch();
       } else if (imsg.name == "team_handy_rxns") {
@@ -37261,7 +37261,7 @@ var _on_esc;
           return;
         }
         if (TS.utility.calls.isCurrentContextMultiParty() && !TS.utility.calls.isMultiPartyEnabled()) {
-          if (TS.boot_data.feature_platform_calls && TS.model.team.prefs.calling_app_name != "Slack") {
+          if (TS.model.team.prefs.calling_app_name != "Slack") {
             TS.utility.calls.startCallInModelOb(model_ob, true);
             return;
           } else {
@@ -55026,7 +55026,7 @@ $.fn.togglify = function(settings) {
     share_url_prefix: document.location.origin + "/call/",
     calls_window_changed_sig: new signals.Signal,
     room_id_sig: new signals.Signal,
-    started_platform_call_sig: TS.boot_data.feature_platform_calls ? new signals.Signal : null,
+    started_platform_call_sig: new signals.Signal,
     window_types: {
       call_window: "call_window",
       mini_panel: "mini_panel",
@@ -55130,7 +55130,7 @@ $.fn.togglify = function(settings) {
     },
     startCallInModelOb: function(model_ob, force_native_call, is_video_call) {
       var call_info;
-      var is_platform_call = TS.boot_data.feature_platform_calls && !force_native_call && TS.model.team.prefs.calling_app_name != "Slack";
+      var is_platform_call = !force_native_call && TS.model.team.prefs.calling_app_name != "Slack";
       if (TS.utility.strLooksLikeAMemberId(model_ob.id)) {
         var member_id = model_ob.id;
         model_ob = TS.ims.getImByMemberId(member_id);
@@ -65292,7 +65292,8 @@ $.fn.togglify = function(settings) {
             };
           }(),
           ql = pa(function(e, t) {
-            return Tc(e) || (e = null == e ? [] : [Object(e)]), t = Ln(t, 1), l(e, t);
+            return Tc(e) || (e = null == e ? [] : [Object(e)]),
+              t = Ln(t, 1), l(e, t);
           }),
           Kl = pa(function(e, t) {
             return Ra(e) ? On(e, Ln(t, 1, !0)) : [];
@@ -66678,7 +66679,8 @@ $.fn.togglify = function(settings) {
   function a(e, t) {
     if (Array.isArray(t)) {
       var n = t[1];
-      t = t[0], u(e, t, n), e.removeChild(n);
+      t = t[0], u(e, t, n),
+        e.removeChild(n);
     }
     e.removeChild(t);
   }
@@ -74722,8 +74724,7 @@ $.fn.togglify = function(settings) {
         t !== n && (u = !0), u && i.componentWillReceiveProps && i.componentWillReceiveProps(c, a);
         var f = this._processPendingState(c, a),
           p = !0;
-        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))),
-          this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
+        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))), this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
       },
       _processPendingState: function(e, t) {
         var n = this._instance,
@@ -77859,10 +77860,11 @@ $.fn.togglify = function(settings) {
         index: l
       });
       if (null == c.height || isNaN(c.height) || null == c.width || isNaN(c.width) || null == c.x || isNaN(c.x) || null == c.y || isNaN(c.y)) throw Error("Invalid metadata returned for cell " + l + ":\n        x:" + c.x + ", y:" + c.y + ", width:" + c.width + ", height:" + c.height);
-      s = Math.max(s, c.y + c.height), u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
-        cellMetadatum: c,
-        index: l
-      });
+      s = Math.max(s, c.y + c.height),
+        u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
+          cellMetadatum: c,
+          index: l
+        });
     }
     return {
       cellMetadata: i,

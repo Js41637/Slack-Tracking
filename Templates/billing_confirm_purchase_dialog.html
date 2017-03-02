@@ -64,8 +64,6 @@
     {{/if}}
   </p>
 </span>
-{{#feature flag="feature_sales_tax"}}
   {{#if sales_tax_value}}<p class="left_margin small_left_padding"><span class="subtle_silver">
     {{#t sales_tax=(cash value=sales_tax_value currency_code=currency)}}(Including {sales_tax} sales tax).{{/t}}
   </span></p>{{/if}}
-{{/feature}}

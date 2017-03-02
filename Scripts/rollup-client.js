@@ -12220,10 +12220,8 @@
       TS.team.team_name_changed_sig.add(_updateGeneralChannelMetaInviteAction, TS.client.msg_pane);
       TS.prefs.team_auth_mode_changed_sig.add(_updateGeneralChannelMetaInviteAction, TS.client.msg_pane);
       TS.prefs.team_allow_calls_changed_sig.add(_updateCallButtonAccordingToPrefs, TS.client.msg_pane);
-      if (TS.boot_data.feature_platform_calls) {
-        TS.prefs.team_calling_app_name_changed_sig.add(_updateCallButtonAccordingToPrefs, TS.client.msg_pane);
-        TS.utility.calls.started_platform_call_sig.add(_platformCallsSignalHandler, TS.client.msg_pane);
-      }
+      TS.prefs.team_calling_app_name_changed_sig.add(_updateCallButtonAccordingToPrefs, TS.client.msg_pane);
+      TS.utility.calls.started_platform_call_sig.add(_platformCallsSignalHandler, TS.client.msg_pane);
       TS.members.changed_admin_perms_sig.add(_updateGeneralChannelMetaInviteAction, TS.client.msg_pane);
       TS.prefs.dtop_notif_changed_sig.add(_notifPrefChanged);
       TS.prefs.team_perms_pref_changed_sig.add(_notifPrefChanged);
@@ -13290,7 +13288,7 @@
     },
     setCallButtonState: function(go_online) {
       var is_multiparty_enabled = TS.boot_data.feature_calls ? TS.utility.calls.isMultiPartyEnabled() : TS.client.msg_pane.areCallsEnabled();
-      if (TS.utility.calls.isEnabled() && TS.boot_data.feature_platform_calls && TS.model.team.prefs.calling_app_name != "Slack") {
+      if (TS.utility.calls.isEnabled() && TS.model.team.prefs.calling_app_name != "Slack") {
         is_multiparty_enabled = true;
       }
       var is_call_allowed = true;
@@ -13485,7 +13483,7 @@
     if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && !model_ob.is_org_shared) return;
     var is_call_window_ready = TS.boot_data.feature_calls && (TS.utility.calls.isCallWindowReady() || !TS.utility.calls.platformHasCallsCode());
     var is_multiparty_enabled = TS.boot_data.feature_calls && TS.utility.calls.isMultiPartyEnabled();
-    if (TS.utility.calls.isEnabled() && TS.boot_data.feature_platform_calls && TS.model.team.prefs.calling_app_name != "Slack") {
+    if (TS.utility.calls.isEnabled() && TS.model.team.prefs.calling_app_name != "Slack") {
       is_multiparty_enabled = true;
     }
     var is_channel_preview = model_ob.is_channel && !model_ob.is_member;
@@ -13494,7 +13492,7 @@
       is_call_allowed = false;
     }
     var calls_is_enabled = is_call_window_ready && is_call_allowed && !is_channel_preview;
-    var is_third_party = TS.boot_data.feature_platform_calls && TS.model.team.prefs.calling_app_name !== "Slack";
+    var is_third_party = TS.model.team.prefs.calling_app_name !== "Slack";
     var icon_classes = ["call_icon"];
     if (!calls_is_enabled) {
       icon_classes.push("call_window_offline");
@@ -13564,7 +13562,7 @@
       if (call_info.id && is_call_allowed) {
         $(".channel_calls_button.voice_call").on("click.video_call", function(e) {
           if (is_channel_preview) return;
-          var is_platform_call = TS.boot_data.feature_platform_calls && TS.model.team.prefs.calling_app_name != "Slack";
+          var is_platform_call = TS.model.team.prefs.calling_app_name != "Slack";
           TS.clog.track("CALLS_START_VOICE_BUTTON_CLICKED", {
             is_platform_call: is_platform_call,
             calling_app_id: TS.model.team.prefs.calling_app_id

@@ -71,8 +71,6 @@
             <input type="text" class="billing_settings_postal_code_input"  name="address_zipcode" value="{{content.zip}}" data-qa="zipcode_input" maxlength=15 />
           </label>
 
-
-          {{#feature flag="feature_sales_tax"}}
           <label>
             <div class="billing_settings_label_container" data-vat-id-container >
               <p class="billing_settings_label_name">{{#t}}VAT ID{{/t}}</p>
@@ -80,8 +78,7 @@
             </div>
             <input type="text" class="billing_settings_vat_id_input"  name="address_vat_id" value="{{content.vat_id}}" data-qa="vat_id_input" maxlength=15 />
           </label>
-          {{/feature}}
-
+          
           </br>
           <span class="input_note small_bottom_margin">{{#t}}* indicates a required field{{/t}}</span>
         </fieldset>
