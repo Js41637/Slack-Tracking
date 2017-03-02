@@ -1,0 +1,13 @@
+{{i18n_ns 'apps'}}
+
+<div>
+  {{#t}}
+    <p>Are you sure you want to deactivate public distribution? Only your team will be able to install this app.</p>
+    <p>This will remove your app from teams that have installed it. If you activate distribution again, teams will have to re-install.</p>
+  {{/t}}
+</div>
+<hr />
+<div>
+  <label for="app_name">{{#t note="Label for input where developer needs to input app name to confirm deactivation of distribution"}}Enter your app\u2019s name to deactivate public distribution{{/t}}</label>
+  <input type="text" class="small" name="app_name" placeholder="{{app_name}}" data-validation="matches_placeholder">
+</div>

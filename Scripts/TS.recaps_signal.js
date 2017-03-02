@@ -48,7 +48,8 @@
         _channel_unread_data = {
           count: model_ob.unread_cnt,
           last_read_ts: model_ob.last_read,
-          oldest_unread_ts: model_ob.oldest_unread_ts
+          oldest_unread_ts: model_ob.oldest_unread_ts,
+          channel_open_ts: TS.utility.date.makeTsStamp(new Date, "0")
         };
         var min_num_unreads = 10;
         if (model_ob.unread_cnt < min_num_unreads) _channel_is_dirty = false;
@@ -690,7 +691,9 @@
   var _callHighlightsList = function(channel_id, msgs) {
     return TS.api.call("highlights.list", {
       channel: channel_id,
-      messages: JSON.stringify(msgs)
+      messages: JSON.stringify(msgs),
+      channel_open_ts: _channel_unread_data.channel_open_ts,
+      channel_open_last_read_ts: _channel_unread_data.last_read_ts
     }).then(function(r) {
       _last_request_id = r.request_id;
       return r;

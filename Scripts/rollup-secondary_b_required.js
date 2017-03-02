@@ -848,7 +848,7 @@
     bound: false,
     onStart: function() {
       TS.ui.comments.$edit_form = $("#file_edit_comment_form");
-      if (TS.boot_data.feature_texty_takes_over) {
+      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
         TS.ui.comments.bindInput($("#file_comment"));
       } else {
         var $file_comment = $("#file_comment");
@@ -866,7 +866,7 @@
       });
     },
     bindInput: function(input, callback) {
-      if (TS.boot_data.feature_texty_takes_over) {
+      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
@@ -979,7 +979,7 @@
     },
     unbindInput: function($input) {
       if (!$input) return;
-      if (!TS.boot_data.feature_texty_takes_over) {
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
         $input.unbind("keydown.cmd_submit");
         $input.removeData();
       }
@@ -1051,7 +1051,7 @@
       TS.utility.contenteditable.value($("#file_edit_comment"), TS.format.unFormatMsg(comment.comment));
       TS.utility.contenteditable.focus($("#file_edit_comment"));
       TS.utility.contenteditable.cursorPosition($("#file_edit_comment"), 1e6);
-      if (!TS.boot_data.feature_texty_takes_over) {
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
         $("#file_edit_comment").trigger("keyup");
       }
       $("#file_comment_form").css("visibility", "hidden");
@@ -1508,7 +1508,7 @@
       if (!copy_err) {
         e.preventDefault();
         if (e.type === "cut" && TS.utility.isFocusOnInput()) {
-          if (TS.boot_data.feature_texty) {
+          if (TS.utility.contenteditable.supportsTexty()) {
             TS.utility.contenteditable.deleteSelection(document.activeElement);
           } else {
             window.getSelection().deleteFromDocument();

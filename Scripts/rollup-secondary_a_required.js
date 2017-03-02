@@ -4092,6 +4092,7 @@
       return p;
     }
   });
+  var _tcm_did_warn_about_stack = {};
   var _users_channels = [];
   var _unarchived_channels = [];
   var _id_map = {};
@@ -4144,8 +4145,13 @@
       if (TS.membership.lazyLoadChannelMembership()) {
         Object.defineProperty(channel, "members", {
           get: function() {
-            TS.warn("Thin channel membership is enabled, but someone tried to access .members on a channel object; returning empty array");
-            TS.console.logStackTrace();
+            var stack = TS.console.getStackTrace();
+            var immediate_caller = stack.split("\n")[1];
+            if (!_tcm_did_warn_about_stack[immediate_caller]) {
+              _tcm_did_warn_about_stack[immediate_caller] = true;
+              TS.warn("Thin channel membership is enabled, but someone tried to access .members on a channel object; returning empty array");
+              TS.info(stack);
+            }
             return [];
           },
           set: function() {
@@ -4310,6 +4316,12 @@
         return false;
       }
       return !!(TS.boot_data.feature_thin_channel_membership && _.get(TS, "model.prefs.thin_channel_membership_fe"));
+    },
+    lazyLoadGroupMembership: function() {
+      return false;
+    },
+    lazyLoadMpimMembership: function() {
+      return false;
     },
     getUserChannelMembershipStatus: function(user_id, channel) {
       if (!_.isString(user_id)) throw new Error("Expected user_id to be a string");
@@ -4907,7 +4919,7 @@
     }).change();
   };
   var _retentionDialogLoadingHtml = function() {
-    var url = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
+    var url = vvv("/img/loading_hash_animation_@2x.gif");
     var loading_text = TS.i18n.t("Loading...", "channels")();
     return '<div class="loading_hash_animation" style="margin: 2rem;"><img src="' + url + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
   };
@@ -4966,7 +4978,7 @@ TS.registerModule("constants", {
   },
   restricted_overlay: {
     standard: cdn_url + "/0180/img/avatar_overlays.png",
-    retina: cdn_url + "/0180/img/avatar_overlays_@2x.png"
+    retina: vvv("/img/avatar_overlays_@2x.png")
   }
 });
 (function() {
@@ -5568,29 +5580,6 @@ TS.registerModule("constants", {
     },
     getActiveMembersForInviting: function(act_like_an_admin) {
       return _getActiveMembersForInvitingWorker(act_like_an_admin);
-    },
-    getGroupsWithTheseActiveMembers: function(members_idsA) {
-      var A = [];
-      var groups = TS.model.groups;
-      var group;
-      var members_ids_str = members_idsA.sort().join(",");
-      var groups_active_members;
-      var member;
-      for (var i = 0; i < groups.length; i++) {
-        group = groups[i];
-        group.members.sort();
-        groups_active_members = [];
-        for (var m = 0; m < group.members.length; m++) {
-          member = TS.members.getMemberById(group.members[m]);
-          if (!member) continue;
-          if (member.deleted) continue;
-          groups_active_members.push(member.id);
-        }
-        if (members_ids_str == groups_active_members.join(",")) {
-          A.push(group);
-        }
-      }
-      return A;
     },
     calcActiveMembersForGroup: function(group) {
       group.active_members.length = 0;
@@ -8950,11 +8939,9 @@ TS.registerModule("constants", {
         var api_args = {
           channel: model_ob.id,
           count: initial_count,
-          inclusive: typeof model_ob.latest == "string"
+          inclusive: typeof model_ob.latest == "string",
+          ignore_replies: true
         };
-        if (TS.boot_data.feature_message_replies_ignore_on_history) {
-          api_args.ignore_replies = true;
-        }
         if (latest_ts) {
           api_args.latest = latest_ts;
         }
@@ -9049,22 +9036,18 @@ TS.registerModule("constants", {
       var api_args = {
         channel: model_ob.id,
         latest: model_ob.msgs[model_ob.msgs.length - 1].ts,
-        count: count || TS.model.subsequent_msgs_cnt
+        count: count || TS.model.subsequent_msgs_cnt,
+        ignore_replies: true
       };
-      if (TS.boot_data.feature_message_replies_ignore_on_history) {
-        api_args.ignore_replies = true;
-      }
       controller.fetchHistory(model_ob, api_args);
     },
     checkForMoreMsgs: function(model_ob) {
       var api_args = {
         channel: model_ob.id,
         latest: model_ob.msgs[model_ob.msgs.length - 1].ts,
-        count: 1
+        count: 1,
+        ignore_replies: true
       };
-      if (TS.boot_data.feature_message_replies_ignore_on_history) {
-        api_args.ignore_replies = true;
-      }
       return TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), api_args).then(function(res) {
         if (res.data.messages && res.data.messages.length > 0) {
           return Promise.resolve(res);
@@ -10546,7 +10529,9 @@ TS.registerModule("constants", {
       if (!_.isArray(t_ids)) return Promise.reject(Error("t_ids is not an array"));
       var missing_team_ids = _.reject(t_ids, TS.teams.getTeamById);
       if (!missing_team_ids.length) return Promise.resolve();
-      return _getTeamsByIdFromModelOrApi(missing_team_ids);
+      return _getTeamsByIdFromModelOrApi(missing_team_ids).then(function() {
+        return null;
+      });
     },
     ensureTeamsInDataArePresent: function(data) {
       if (!TS.boot_data.feature_shared_channels_client) {
@@ -11079,15 +11064,13 @@ TS.registerModule("constants", {
         text: member.profile.status_text || ""
       };
     },
-    getMemberCurrentStatusForDisplay: function(member_or_id) {
+    getMemberCurrentStatusForDisplay: function(member_or_id, options) {
       var current_status = TS.members.getMemberCurrentStatus(member_or_id);
       var current_status_text = "";
       if (current_status.text) {
-        current_status_text += '<span class="prevent_copy_paste" aria-label=" "></span>' + TS.format.formatCurrentStatus(current_status.text);
+        current_status_text += '<span class="prevent_copy_paste" aria-label=" "></span>' + TS.format.formatCurrentStatus(current_status.text, undefined, options);
       }
-      return TS.format.formatCurrentStatus(current_status.emoji, undefined, {
-        stop_animations: true
-      }) + current_status_text;
+      return TS.format.formatCurrentStatus(current_status.emoji, undefined, options) + current_status_text;
     },
     invalidateMembersUserCanSeeArrayCaches: function(no_signal) {
       if (!TS.model.user || !TS.model.user.is_restricted) return;
@@ -11206,11 +11189,6 @@ TS.registerModule("constants", {
       var ret = TS.utility.extractAllMemberIds(data, source, channel_id);
       return TS.members.ensureMembersArePresent(ret.m_ids, ret.c_ids, ret.t_ids);
     },
-    ensureMemberIsPresent: function(m_id, c_id, t_id) {
-      if (!m_id) return Promise.resolve();
-      if (typeof m_id !== "string") return Promise.resolve();
-      return _getMemberByIdFromModelOrApi(m_id, c_id, t_id);
-    },
     getMemberIdsNotPresent: function(m_ids, c_ids, t_ids) {
       var new_m_ids = [];
       var new_c_ids = [];
@@ -11228,11 +11206,6 @@ TS.registerModule("constants", {
         t_ids: new_t_ids
       };
     },
-    ensureMembersArePresentBatch: function(m_ids) {
-      if (!m_ids) return Promise.resolve();
-      if (!Array.isArray(m_ids)) return Promise.reject(Error("m_ids is not an array"));
-      return _getMembersByIdFromModelOrApi(m_ids);
-    },
     ensureMembersArePresent: function(m_ids, c_ids, t_ids) {
       if (!m_ids || !m_ids.length) {
         return Promise.resolve();
@@ -11241,21 +11214,22 @@ TS.registerModule("constants", {
       t_ids = t_ids || new Array(m_ids.length);
       var known_unique_m_ids = _(m_ids).uniq().filter(TS.members.getMemberById).value();
       var unknown_unique_m_ids = _.difference(m_ids, known_unique_m_ids);
-      var batch_size = TS.lazyLoadMembersAndBots() ? _flannel_max_users : _users_info_api_max_users;
+      var batch_size = TS.useSocket() && TS.boot_data.should_use_flannel ? _flannel_max_users : _users_info_api_max_users;
       var promises = _(unknown_unique_m_ids).chunk(batch_size).map(function(batch) {
-        return TS.members.ensureMembersArePresentBatch(batch).reflect();
+        return _fetchAndUpsertMembersWithIds(batch).reflect();
       }).value();
       return Promise.all(promises).then(function(results) {
-        var rejection_reasons = [];
-        results.forEach(function(result) {
-          if (result.isFulfilled()) return;
-          rejection_reasons.push(result.reason());
+        var rejection_reasons = results.filter(function(p) {
+          return p.isRejected();
+        }).map(function(p) {
+          return p.reason();
         });
         if (rejection_reasons.length) {
-          return Promise.reject(new Error("some ensureMembersArePresent m_ids failed:\n" + rejection_reasons.join("\n")));
-        } else {
-          return Promise.resolve();
+          var e = new Error("Some member fetches failed");
+          e.rejection_reasons = rejection_reasons;
+          return Promise.reject(e);
         }
+        return Promise.resolve();
       });
     },
     ensureMembersArePresentInSharedModelObs: function(model_obs) {
@@ -11553,94 +11527,45 @@ TS.registerModule("constants", {
     }
     return A;
   };
-  var _getMembersByIdFromFlannel = function(m_ids) {
+  var _fetchAndUpsertMembersWithIds = function(m_ids, always_use_api) {
+    if (_.isEmpty(m_ids)) return Promise.resolve();
     if (!Array.isArray(m_ids)) return Promise.reject(new Error("m_ids is not an array"));
-    TS.log(1989, "Flannel: fetching members", m_ids);
-    return TS.flannel.fetchAndUpsertObjectsByIds(m_ids).then(function(members) {
-      if (members.length !== _.uniq(m_ids).length) {
-        var e = new Error("Did not receive all of the members we asked for");
-        e.requested_ids = m_ids;
-        e.missing_ids = _.difference(m_ids, _.map(members, "id"));
-        TS.log(1989, "Flannel: falling back to the API because we asked for " + m_ids.length + " members but only got " + members.length + " back; missing " + e.missing_ids);
-        throw e;
-      }
-      var id_name_map = {};
-      m_ids.forEach(function(id) {
-        id_name_map[id] = _.get(_.find(members, {
-          id: id
-        }), "name");
-      });
-      TS.log(1989, "Flannel: fetched", m_ids.length, "members on-the-fly :sunglasses:", id_name_map);
-      return members;
-    }).catch(function(err) {
-      var always_use_api = true;
-      return _getMembersByIdFromModelOrApi(m_ids, always_use_api);
-    });
-  };
-  var _getMembersByIdFromModelOrApi = function(m_ids, always_use_api) {
-    if (TS.lazyLoadMembersAndBots() && !always_use_api) {
-      return _getMembersByIdFromFlannel(m_ids);
-    }
-    if (!Array.isArray(m_ids)) return Promise.reject(Error("m_ids is not an array"));
-    var calling_args = {
-      users: m_ids
-    };
-    if (TS.lazyLoadMembersAndBots()) {
-      calling_args.custom_fields_mode = "user";
-    }
-    return new Promise(function(resolve, reject) {
-      TS.api.callImmediately("users.info", calling_args).then(function(response) {
-        var members = [];
-        response.data.users.forEach(function(user) {
-          members.push(TS.members.upsertAndSignal(user).member);
-        });
-        if (TS.boot_data.feature_shared_channels_client) {
-          TS.teams.ensureTeamsInDataArePresent(members);
-        }
-        resolve(members);
-      }, function(ret) {
-        reject(Error(ret.data && ret.data.error || "unknown error"));
-      });
-    });
-  };
-  var _getMemberByIdFromModelOrApi = function(m_id, c_id, t_id) {
-    if (typeof m_id !== "string") {
-      return Promise.reject(Error('m_id: "' + m_id + '" is not a String'));
-    }
-    c_id = c_id || "";
-    t_id = t_id || "";
-    if (TS.pri) TS.log(529, '_getMemberByIdFromModelOrApi m_id: "' + m_id + '" c_id: "' + c_id + '" t_id: "' + t_id + '"');
-    var member = TS.members.getMemberById(m_id);
-    if (member) {
-      return Promise.resolve(member);
-    }
-    var unknown_id = m_id + "_" + c_id + "_" + t_id;
-    var tries = TS.model.incrementUnknownIdHandled(unknown_id);
-    var user_p;
-    if (TS.lazyLoadMembersAndBots()) {
-      user_p = _getMembersByIdFromFlannel([m_id]).then(function(members) {
-        return members[0];
-      });
+    var fetched_members_p;
+    var fetch_via_flannel = TS.useSocket() && TS.boot_data.should_use_flannel && !always_use_api;
+    if (fetch_via_flannel) {
+      fetched_members_p = TS.flannel.fetchAndUpsertObjectsByIds(m_ids);
     } else {
       var calling_args = {
-        user: m_id
+        users: m_ids
       };
-      if (c_id) calling_args.shared_channel = c_id;
-      if (!c_id && t_id) calling_args.team = t_id;
-      user_p = TS.api.callImmediately("users.info", calling_args).then(function(resp) {
-        if (TS.boot_data.feature_shared_channels_client) {
-          TS.teams.ensureTeamsInDataArePresent(resp.data.user);
-        }
-        return TS.members.upsertAndSignal(resp.data.user).member;
+      if (TS.lazyLoadMembersAndBots()) {
+        calling_args.custom_fields_mode = "user";
+      }
+      fetched_members_p = TS.api.call("users.info", calling_args).then(function(resp) {
+        return resp.data.users.map(function(raw_user) {
+          return TS.members.upsertAndSignal(raw_user).member;
+        });
       });
     }
-    return user_p.tap(function() {
-      TS.model.reportResultOfUnknownIdHandled(unknown_id, true);
-    }).catch(function(resp) {
-      TS.model.reportResultOfUnknownIdHandled(unknown_id, false);
-      var call_type = TS.lazyLoadMembersAndBots() ? "Flannel" : "API";
-      var error_message = _.get(resp, "data.error", "unknown error") + " try #" + tries + " calling " + call_type + " with user:" + m_id + " channel:" + c_id;
-      return new Error(error_message);
+    return fetched_members_p.then(function(fetched_members) {
+      if (fetched_members.length !== m_ids.length) {
+        if (fetch_via_flannel && TS.boot_data.feature_shared_channels_client) {
+          var missing_member_ids_readable = _.difference(m_ids, _.map(fetched_members, "id")).join(",");
+          return _fetchAndUpsertMembersWithIds(m_ids, true).tap(function(fetched_members_second_attempt) {
+            if (fetched_members_second_attempt.length == m_ids.length) {
+              TS.warn("_fetchAndUpsertMembersWithIds tried to fetch members from Flannel but had to fall back to the API (everything worked out, though). Members: " + missing_member_ids_readable);
+            } else {
+              TS.warn("_fetchAndUpsertMembersWithIds tried to fetch members from Flannel and from the API and still could not find them. Missing members: " + missing_member_ids_readable);
+            }
+          });
+        }
+      }
+      return fetched_members;
+    }).tap(function(fetched_members) {
+      if (fetched_members.length !== m_ids.length) {
+        TS.warn("_fetchAndUpsertMembersWithIds requested " + m_ids.length + " members but received " + fetched_members.length + ". Missing members: " + _.difference(m_ids, _.map(fetched_members, "id")).join(","));
+      }
+      return fetched_members;
     });
   };
   var _getMemberNameHelper = function(member_or_id, type) {
@@ -12193,37 +12118,11 @@ TS.registerModule("constants", {
         return !!field;
       });
     },
-    ensureEntireTeamLoaded: function() {
-      if (_entire_team_loaded) return Promise.resolve();
-      if (_fetch_all_members_p) return _fetch_all_members_p;
-      _fetch_all_members_p = TS.flannel.fetchAndUpsertAllMembersOnTeam().then(function() {
-        TS.log(1989, "Flannel: setting _entire_team_loaded to true");
-        _entire_team_loaded = true;
-      }).finally(function() {
-        TS.log(1989, "Flannel: unsetting _fetch_all_members_p");
-        _fetch_all_members_p = undefined;
-      });
-      return _fetch_all_members_p;
-    },
     isEntireTeamLoaded: function() {
       return _entire_team_loaded;
-    },
-    getBestEffortTotalTeamSize: function() {
-      if (TS.lazyLoadMembersAndBots() && !TS.membership.lazyLoadChannelMembership()) {
-        var general = TS.channels.getGeneralChannel();
-        if (general) {
-          return general.members.length;
-        } else {
-          return _(TS.channels.getChannelsForUser()).map(function(channel) {
-            return channel.members.length;
-          }).max();
-        }
-      }
-      return TS.model.members.length;
     }
   });
   var _entire_team_loaded = false;
-  var _fetch_all_members_p;
   var _promise_to_get_team_profile;
   var _getTeamProfileOnNextRequest = function() {
     _promise_to_get_team_profile = null;
@@ -12383,11 +12282,7 @@ TS.registerModule("constants", {
       });
     },
     sortNames: function(names) {
-      return names.slice().sort(TS.apps.compareNames);
-    },
-    compareNames: function(a, b) {
-      if (!a || !b) return !a ? -1 : 1;
-      return a.localeCompare(b);
+      return names.slice().sort(TS.i18n.sorter);
     },
     constructTemplateArgsForCardAndProfile: function(app, bot_id) {
       if (!app) return TS.warn("Trying to build app card but it failed.");
@@ -12689,10 +12584,24 @@ TS.registerModule("constants", {
       return TS.bots.ensureBotsArePresent(bot_ids);
     },
     ensureBotsArePresent: function(bot_ids) {
-      var missing_bot_ids = _.reject(bot_ids, TS.bots.getBotById);
-      if (!missing_bot_ids.length) return Promise.resolve();
-      return TS.flannel.fetchAndUpsertObjectsByIds(missing_bot_ids).then(function(response) {
-        return response.objects;
+      var required_bot_ids = _.reject(bot_ids, TS.bots.getBotById);
+      if (!required_bot_ids.length) return Promise.resolve();
+      var fetched_bots_p;
+      if (TS.useSocket() && TS.boot_data.should_use_flannel) {
+        fetched_bots_p = TS.flannel.fetchAndUpsertObjectsByIds(required_bot_ids);
+      } else {
+        fetched_bots_p = TS.api.call("bots.info", {
+          bots: required_bot_ids.join(",")
+        }).then(function(resp) {
+          return resp.data.bots.map(function(raw_bot) {
+            return TS.bots.upsertAndSignal(raw_bot).bot;
+          });
+        });
+      }
+      return fetched_bots_p.tap(function(fetched_bots) {
+        if (fetched_bots.length !== required_bot_ids.length) {
+          TS.warn("TS.bots.ensureBotsArePresent requested " + required_bot_ids.length + " bots but received " + fetched_bots.length + ". Missing bots: " + _.difference(required_bot_ids, _.map(fetched_bots, "id")).join(","));
+        }
       });
     }
   });
@@ -13433,7 +13342,7 @@ TS.registerModule("constants", {
     var $active_parent;
     var is_admin_subset_case = _is_web_admin_page && TS.web.admin.isSubsetCase();
     keys.sort(function(keyA, keyB) {
-      return _label_map[keyA].localeCompare(_label_map[keyB]);
+      return TS.i18n.sorter(_label_map[keyA], _label_map[keyB]);
     }).forEach(function(key) {
       var disabled_fragment = document.createDocumentFragment();
       var restricted_fragment = document.createDocumentFragment();
@@ -15415,6 +15324,12 @@ TS.registerModule("constants", {
         _maybePrintImsgLog = _.noop;
       }
     },
+    test: function() {
+      return {
+        _createNewSocket: _createNewSocket,
+        _isValidSlackWebSocketUrl: _isValidSlackWebSocketUrl
+      };
+    },
     send: function(msg, handler, temp_ts) {
       msg.id = ++_msg_id;
       TS.ms.sent_map[msg.id.toString()] = {
@@ -16151,6 +16066,7 @@ TS.registerModule("constants", {
   var _isReconnectUrlValid = function() {
     if (!TS.ms.fast_reconnects_enabled) return false;
     if (!_reconnect_url) return false;
+    if (!_isValidSlackWebSocketUrl(_reconnect_url)) return false;
     var now = Date.now();
     var reconnect_url_age = now - _reconnect_url_received_at;
     if (reconnect_url_age < _reconnect_url_limit_ms) return true;
@@ -16229,6 +16145,11 @@ TS.registerModule("constants", {
     _onMsgProvisional = undefined;
   };
   var _createNewSocket = function(url) {
+    if (!_isValidSlackWebSocketUrl(url)) {
+      TS.error("Tried to connect to a WebSocket URL that doesn't look right; aborting");
+      TS.ms.onFailure("Invalid WebSocket URL");
+      return false;
+    }
     if (TS.lazyLoadMembersAndBots()) {
       url = TS.utility.url.setUrlQueryStringValue(url, "flannel", 1);
       url = TS.utility.url.setUrlQueryStringValue(url, "token", TS.boot_data.api_token);
@@ -16437,6 +16358,10 @@ TS.registerModule("constants", {
       clearTimeout(_provisional_connection_timeout);
       _provisional_connection_timeout = undefined;
     }
+  };
+  var _isValidSlackWebSocketUrl = function(url) {
+    var hostname = TS.utility.url.getHostName(url);
+    return /\.slack-msgs.com$/.test(hostname);
   };
 })();
 (function() {
@@ -16765,7 +16690,9 @@ TS.registerModule("constants", {
         return;
       }
       TS.info("archived channel " + imsg.channel);
-      channel.members.length = 0;
+      if (!(TS.membership && TS.membership.lazyLoadChannelMembership())) {
+        channel.members.length = 0;
+      }
       TS.channels.calcActiveMembersForChannel(channel);
       channel.is_archived = true;
       if (imsg.is_moved) {
@@ -18009,6 +17936,335 @@ TS.registerModule("constants", {
       callback(pending_event.cache_ts);
     }, delay);
   };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("flannel", {
+    onStart: function() {
+      if (TS.lazyLoadMembersAndBots()) {
+        TS.ms.connected_sig.addOnce(_prefetchFrequentlyUsedMembers);
+        TS.ms.connected_sig.add(_updatePresenceOnSlowReconnect);
+      }
+    },
+    test: function() {
+      var test_ob = {
+        _deleted_user_ids: _deleted_user_ids,
+        _batchUpsertObjects: _batchUpsertObjects,
+        _updatePresenceOnSlowReconnect: _updatePresenceOnSlowReconnect
+      };
+      Object.defineProperty(test_ob, "_deleted_user_ids", {
+        get: function() {
+          return _deleted_user_ids;
+        },
+        set: function(ids) {
+          _deleted_user_ids = ids;
+        }
+      });
+      Object.defineProperty(test_ob, "_batchUpsertObjects", {
+        get: function() {
+          return _batchUpsertObjects;
+        },
+        set: function(v) {
+          _batchUpsertObjects = v;
+        }
+      });
+      return test_ob;
+    },
+    fetchAndUpsertObjectsByIds: function(ids) {
+      return _fetchAndProcessObjectsByIds(ids, _batchUpsertObjects);
+    },
+    fetchAndUpsertObjectsWithQuery: function(query, limit) {
+      return _fetchAndProcessObjectsWithQuery(query, _batchUpsertObjects, limit);
+    },
+    fetchAndUpsertAllMembersForModelOb: function(model_ob) {
+      if (_.isUndefined(model_ob.members)) {
+        throw new Error("This function can only be used with model objects that have members");
+      }
+      if (_model_ob_member_fetch_promises[model_ob.id]) return _model_ob_member_fetch_promises[model_ob.id];
+      var c_ids = [model_ob.id];
+      var t_ids = TS.model.team.id;
+      var m_ids = model_ob.members;
+      _model_ob_member_fetch_promises[model_ob.id] = TS.members.ensureMembersArePresent(m_ids, c_ids, t_ids).then(function() {
+        if (!TS.members.haveAllMembersForModelOb(model_ob)) {
+          TS.log(1989, "Flannel: error fetching missing members for channel " + model_ob.id);
+          throw new Error("Tried to fetch members for channel but failed to get some");
+        }
+      }).catch(function() {
+        delete _model_ob_member_fetch_promises[model_ob.id];
+      });
+      return _model_ob_member_fetch_promises[model_ob.id];
+    },
+    fetchMemberCounts: function() {
+      return TS.ms.flannel.call("counts_request").then(function(response) {
+        return response.counts;
+      });
+    },
+    connectAndFetchRtmStart: function(rtm_start_args) {
+      TS.log(1996, "Opening a tokenless MS connection and fetching rtm.start over it");
+      var flannel_url = _getFlannelConnectionUrl(rtm_start_args);
+      var rtm_start_p = TS.ms.connectProvisionallyAndFetchRtmStart(flannel_url);
+      if (!rtm_start_p) {
+        throw new Error("TS.ms.connect did not return an rtm.start promise");
+      }
+      return rtm_start_p.then(function(start_data) {
+        var data = start_data.rtm_start;
+        delete data.users;
+        delete data.updated_users;
+        delete data.updated_bots;
+        data.bots = [];
+        _deleted_user_ids = start_data.deleted_users;
+        var required_member_ids = _([data.mpims, data.ims]).flatten().map(function(ob) {
+          return ob.members || [ob.user];
+        }).flatten().concat(_.get(data, "self.id")).uniq().compact().value();
+        if (TS.model.ms_logged_in_once && !TS.isPartiallyBooted()) {
+          var known_member_ids = _.map(TS.model.members, "id");
+          required_member_ids = _.difference(required_member_ids, known_member_ids);
+        }
+        if (!required_member_ids.length) {
+          TS.info("Got rtm.start data and don't need to fetch any members");
+          data.users = [];
+          return data;
+        }
+        TS.info("Got rtm.start data but need to fetch " + required_member_ids.length + " members");
+        if (TS.shouldLog(1989) || TS.boot_data.feature_tinyspeck) {
+          TS.info(required_member_ids.join(", "));
+        }
+        return _fetchRawObjectsByIds(required_member_ids).then(function(members) {
+          TS.info("Got " + members.length + " members for rtm.start :tada:");
+          data.users = members;
+          if (required_member_ids.length !== members.length) {
+            TS.error("TS.flannel.connectAndFetchRtmStart problem: Requested " + required_member_ids.length + " members but received " + members.length + ". Missing members: " + _.difference(required_member_ids, _.map(members, "id")).join(","));
+          }
+          return data;
+        }).catch(function(err) {
+          TS.error("Got error while trying to fetch " + required_member_ids.length + "members for rtm.start :(", err);
+          throw err;
+        });
+      });
+    },
+    setMemberDeletedStatus: function(user_id, is_deleted) {
+      if (!_.isString(user_id)) {
+        throw new Error("Expected user_id to be a string");
+      }
+      var was_deleted = TS.flannel.isMemberDeleted(user_id);
+      if (is_deleted && !was_deleted) {
+        _deleted_user_ids.push(user_id);
+      } else if (was_deleted && !is_deleted) {
+        _.pull(_deleted_user_ids, user_id);
+      }
+      return is_deleted != was_deleted;
+    },
+    isMemberDeleted: function(user_id) {
+      if (!_.isString(user_id)) {
+        throw new Error("Expected user_id to be a string");
+      }
+      return _.includes(_deleted_user_ids, user_id);
+    },
+    batchUpsertObjects: function(objects) {
+      return _batchUpsertObjects(objects);
+    },
+    fetchAccessibleUserIdsForGuests: function() {
+      if (!TS.model.user.is_restricted) throw new Error("This method is only intended for guests");
+      return TS.api.call("channels.guestVisibleMembers").then(function(resp) {
+        return resp.data.members;
+      });
+    },
+    fetchChannelMembershipForUsers: function(channel_id, user_ids) {
+      var api_endpoint = channel_id[0] == "G" ? "groups.info" : "channels.info";
+      return TS.api.call(api_endpoint, {
+        channel: channel_id
+      }).then(function(resp) {
+        var model_ob = resp.data.group || resp.data.channel;
+        var membership_info = {};
+        var channel_members = model_ob.members;
+        user_ids.forEach(function(user_id) {
+          membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
+        });
+        return membership_info;
+      });
+    },
+    fetchMembershipCountsForChannel: function(channel_id) {
+      if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
+      return TS.ms.flannel.call("counts_request", {
+        channel: channel_id
+      }).then(function(response) {
+        return response.counts;
+      });
+    }
+  });
+  var _deleted_user_ids = [];
+  var _MAX_IDS_PER_QUERY = 500;
+  var _model_ob_member_fetch_promises = {};
+  var _fetchAndProcessObjects = function(query, objects, process_fn, limit) {
+    return TS.ms.flannel.call("query_request", query).then(function(resp) {
+      if (_.get(resp, "results.length")) {
+        objects = objects.concat(process_fn(resp.results));
+        if (limit && (objects.length >= limit || !resp.next_marker)) {
+          return {
+            objects: objects.slice(0, limit),
+            next_marker: objects.length > limit ? objects[limit].id : resp.next_marker
+          };
+        }
+      }
+      if (!resp.next_marker || objects.length >= query.count && !limit) {
+        TS.log(1989, "Flannel: finished fetching results for query", query);
+        return {
+          objects: objects.slice(0, query.count),
+          next_marker: objects.length > query.count ? objects[query.count].id : resp.next_marker
+        };
+      }
+      query.marker = resp.next_marker;
+      TS.log(1989, "Flannel: fetching next page for query", query);
+      return _fetchAndProcessObjects(query, objects, process_fn, limit);
+    });
+  };
+  var _batchUpsertObjects = function(objects) {
+    TS.log(1989, "Flannel: upserting batch of " + objects.length + " objects");
+    var is_upserting_bots = _.some(objects, _isBot);
+    if (is_upserting_bots) TS.bots.startBatchUpsert();
+    var is_upserting_members = _.some(objects, TS.utility.members.isMember);
+    if (is_upserting_members) TS.members.startBatchUpsert();
+    var upserted_objects;
+    try {
+      upserted_objects = _(objects).map(_upsertObject).compact().value();
+    } finally {
+      if (is_upserting_bots) TS.bots.finishBatchUpsert();
+      if (is_upserting_members) TS.members.finishBatchUpsert();
+    }
+    return upserted_objects;
+  };
+  var _upsertObject = function(ob) {
+    if (_isBot(ob)) {
+      TS.log(1989, "Flannel: upserting bot " + ob.id + " from query results");
+      return TS.bots.upsertAndSignal(ob).bot;
+    } else if (TS.utility.members.isMember(ob)) {
+      TS.log(1989, "Flannel: upserting user " + ob.id + " from query results");
+      return TS.members.upsertAndSignal(ob).member;
+    }
+  };
+  var _isBot = function(ob) {
+    var ob_type = _.get(ob, "id[0]");
+    return ob_type == "B";
+  };
+  var _prefetchFrequentlyUsedMembers = function() {
+    var MAX_FRECENCY_PREFETCH_MEMBERS = 100;
+    var member_id_prefix = TS.boot_data.page_needs_enterprise ? "W" : "U";
+    var known_ids = _.map(TS.model.members, "id");
+    var ids = _(TS.ui.frecency.getMostCommonWithPrefix(member_id_prefix, MAX_FRECENCY_PREFETCH_MEMBERS)).map("id").difference(known_ids).value();
+    if (!ids.length) return;
+    TS.log(1989, "Flannel: pre-fetching " + ids.length + " most frequently accessed members...");
+    TS.flannel.fetchAndUpsertObjectsByIds(ids).then(function(members) {
+      TS.log(1989, "Flannel: pre-fetched " + members.length + " most frequently accessed members 👍");
+    }).catch(_.noop);
+  };
+  var _fetchAndProcessObjectsByIds = function(ids, process_fn) {
+    var object_chunks_p = _.chunk(ids, _MAX_IDS_PER_QUERY).map(function(chunk_ids) {
+      return _fetchAndProcessObjectsWithQuery({
+        ids: chunk_ids
+      }, process_fn).reflect();
+    });
+    return Promise.all(object_chunks_p).then(function(results) {
+      var rejection_reasons = results.filter(function(p) {
+        return p.isRejected();
+      }).map(function(p) {
+        return p.reason();
+      });
+      if (rejection_reasons.length) {
+        var e = new Error("Some Flannel fetches failed");
+        e.rejection_reasons = rejection_reasons;
+        return Promise.reject(e);
+      }
+      var members = _(results).map(function(p) {
+        return p.value().objects;
+      }).flatten().value();
+      return Promise.resolve(members);
+    });
+  };
+  var _fetchAndProcessObjectsWithQuery = function(query, process_fn, limit) {
+    if (_.isString(query)) {
+      query = {
+        query: query
+      };
+    }
+    var objects = [];
+    return _fetchAndProcessObjects(query, objects, process_fn, limit);
+  };
+  var _getFlannelConnectionUrl = function(rtm_start_args) {
+    return TS.utility.url.setUrlQueryStringValue(TS.boot_data.ms_connect_url, "start_args", TS.utility.url.queryStringEncode(rtm_start_args));
+  };
+  var _updatePresenceOnSlowReconnect = function(last_connect_was_fast) {
+    if (!TS.lazyLoadMembersAndBots()) return;
+    if (!!TS.ms.num_times_connected && !last_connect_was_fast) {
+      var member_ids_needing_update = _.map(TS.model.members, "id");
+      var bot_ids_needing_update = _.map(TS.model.bots, "id");
+      TS.flannel.fetchAndUpsertObjectsByIds(member_ids_needing_update.concat(bot_ids_needing_update)).catch(function(err) {
+        TS.err("Updating presence after slow reconnect failed for some users", err);
+        throw err;
+      });
+    }
+  };
+  var _fetchRawObjectsByIds = function(ids) {
+    return _fetchAndProcessObjectsByIds(ids, _.identity);
+  };
+})();
+(function() {
+  "use strict";
+  TS.registerModule("ms.flannel", {
+    onStart: function() {
+      var handler_priority = Infinity;
+      TS.ms.on_msg_sig.add(TS.ms.flannel.preprocessMessage, this, handler_priority);
+    },
+    isFlannelMessage: function(imsg) {
+      return imsg.type == "flannel";
+    },
+    call: function(command_type, args) {
+      var imsg = {
+        type: "flannel",
+        subtype: command_type
+      };
+      if (_.isObject(args)) {
+        if (args.hasOwnProperty("type") || args.hasOwnProperty("subtype")) {
+          throw new Error("Arguments must not include `type` or `subtype` fields");
+        }
+        _.merge(imsg, args);
+      }
+      if (!TS.useSocket()) {
+        return Promise.reject(new Error("Flannel queries are not available on this page"));
+      }
+      if (!TS.ms.hasOpenWebSocket()) {
+        TS.log(1989, "Flannel: received a " + command_type + " call while we are not connected; deferring");
+        var this_context = this;
+        var args = arguments;
+        var requirements = Promise.join(TS.ms.promiseToHaveOpenWebSocket(), TS.api.connection.waitForAPIConnection());
+        return requirements.then(function() {
+          TS.log(1989, "Flannel: connected! Continuing deferred " + command_type + " call");
+          return TS.ms.flannel.call.apply(this_context, args);
+        });
+      }
+      return new Promise(function(resolve, reject) {
+        var lostConnectionReject = function() {
+          reject(new Error("Lost Flannel connection"));
+        };
+        TS.ms.disconnected_sig.addOnce(lostConnectionReject);
+        TS.ms.send(imsg, function(ok, imsg) {
+          TS.ms.disconnected_sig.remove(lostConnectionReject);
+          if (ok) {
+            resolve(imsg);
+          } else {
+            var e = new Error("Flannel call failed");
+            e.imsg = imsg;
+            reject(e);
+          }
+        });
+      });
+    },
+    preprocessMessage: function(imsg) {
+      if (!TS.lazyLoadMembersAndBots()) return;
+      if (!imsg.annotations) return;
+      var objects = _.values(imsg.annotations);
+      TS.flannel.batchUpsertObjects(objects);
+    }
+  });
 })();
 (function() {
   "use strict";
@@ -20827,7 +21083,7 @@ TS.registerModule("constants", {
         var image_uri = [];
         if (entity.is_restricted || entity.is_ultra_restricted) {
           if (TS.environment.is_retina) {
-            image_uri.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
+            image_uri.push("url('" + vvv("/img/avatar_overlays_@2x.png") + "')");
           } else {
             image_uri.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
           }
@@ -20987,7 +21243,7 @@ TS.registerModule("constants", {
       } else {
         if (member.is_restricted && !omit_restricted_overlay) {
           if (TS.environment.is_retina) {
-            bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
+            bg_img_urls.push("url('" + vvv("/img/avatar_overlays_@2x.png") + "')");
           } else {
             bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
           }
@@ -21069,7 +21325,7 @@ TS.registerModule("constants", {
       var img_size;
       if (user.invite_prefs && user.invite_prefs.type === "restricted") {
         if (TS.environment.is_retina) {
-          bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
+          bg_img_urls.push("url('" + vvv("/img/avatar_overlays_@2x.png") + "')");
         } else {
           bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
         }
@@ -21867,7 +22123,7 @@ TS.registerModule("constants", {
       return html;
     },
     loadingHTML: function() {
-      var url_2x = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
+      var url_2x = vvv("/img/loading_hash_animation_@2x.gif");
       var url_1x = cdn_url + "/9c217/img/loading_hash_animation.gif";
       var loading_str = TS.i18n.t("loading&hellip;", "templates_builders")();
       return '<div class="loading_hash_animation"><img src="' + url_2x + '" alt="' + loading_str + '" srcset="' + url_1x + " 1x, " + url_2x + ' 2x" /><br />' + loading_str + "</div>";
@@ -23175,7 +23431,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("formatCurrentStatus", function(text) {
         return new Handlebars.SafeString(TS.format.formatCurrentStatus(text));
       });
-      Handlebars.registerHelper("formatCurrentStatusEmoji", function(text) {
+      Handlebars.registerHelper("formatCurrentStatusWithoutAnimations", function(text) {
         return new Handlebars.SafeString(TS.format.formatCurrentStatus(text, undefined, {
           stop_animations: true
         }));
@@ -23772,13 +24028,18 @@ TS.registerModule("constants", {
         return new Handlebars.SafeString(full_name_and_preferred_name_html);
       });
       Handlebars.registerHelper("getMemberCurrentStatusEmoji", function(member) {
-        return Handlebars.helpers.formatCurrentStatusEmoji(TS.members.getMemberCurrentStatus(member).emoji);
+        return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).emoji);
       });
       Handlebars.registerHelper("getMemberCurrentStatusText", function(member) {
-        return Handlebars.helpers.formatCurrentStatus(TS.members.getMemberCurrentStatus(member).text);
+        return Handlebars.helpers.formatCurrentStatusWithoutAnimations(TS.members.getMemberCurrentStatus(member).text);
       });
       Handlebars.registerHelper("getMemberCurrentStatusForDisplay", function(member) {
         return new Handlebars.SafeString(TS.members.getMemberCurrentStatusForDisplay(member));
+      });
+      Handlebars.registerHelper("getMemberCurrentStatusForDisplayWithoutAnimations", function(member) {
+        return new Handlebars.SafeString(TS.members.getMemberCurrentStatusForDisplay(member, {
+          stop_animations: true
+        }));
       });
       Handlebars.registerHelper("seesCurrentStatusInProfileView", function(member, options) {
         options = _optionsFnInverseBooleanHelper(options);
@@ -24226,16 +24487,16 @@ TS.registerModule("constants", {
         return cdn_url + "/9c217/img/loading.gif";
       });
       Handlebars.registerHelper("versioned_loading_hash_animation", function() {
-        return cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
+        return vvv("/img/loading_hash_animation_@2x.gif");
       });
       Handlebars.registerHelper("versioned_mac_dock_badge", function() {
-        return cdn_url + "/9135/img/prefs_mac_dock_badge@2x.png";
+        return vvv("/img/prefs_mac_dock_badge@2x.png");
       });
       Handlebars.registerHelper("versioned_prefs_messages_clean", function() {
-        return cdn_url + "/e5d8/img/prefs_messages_clean@2x.png";
+        return vvv("/img/prefs_messages_clean@2x.png");
       });
       Handlebars.registerHelper("versioned_prefs_messages_compact", function() {
-        return cdn_url + "/e5d8/img/prefs_messages_compact@2x.png";
+        return vvv("/img/prefs_messages_compact@2x.png");
       });
       Handlebars.registerHelper("versioned_services_box_32", function() {
         return cdn_url + "/2fac/plugins/box/assets/service_32.png";
@@ -24253,28 +24514,28 @@ TS.registerModule("constants", {
         return cdn_url + "/0180/img/slackbot_72.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_brinjal", function() {
-        return cdn_url + "/d7a0/img/themes/brinjal@2x.png";
+        return vvv("/img/themes/brinjal@2x.png");
       });
       Handlebars.registerHelper("versioned_theme_thumb_chocolate", function() {
-        return cdn_url + "/d7a0/img/themes/chocolate@2x.png";
+        return vvv("/img/themes/chocolate@2x.png");
       });
       Handlebars.registerHelper("versioned_theme_thumb_default", function() {
-        return cdn_url + "/d7a0/img/themes/aubergine@2x.png";
+        return vvv("/img/themes/aubergine@2x.png");
       });
       Handlebars.registerHelper("versioned_theme_thumb_hoth", function() {
-        return cdn_url + "/d7a0/img/themes/hoth@2x.png";
+        return vvv("/img/themes/hoth@2x.png");
       });
       Handlebars.registerHelper("versioned_theme_thumb_monument", function() {
-        return cdn_url + "/d7a0/img/themes/monument@2x.png";
+        return vvv("/img/themes/monument@2x.png");
       });
       Handlebars.registerHelper("versioned_theme_thumb_ocean", function() {
-        return cdn_url + "/d7a0/img/themes/ochin@2x.png";
+        return vvv("/img/themes/ochin@2x.png");
       });
       Handlebars.registerHelper("versioned_theme_thumb_solanum", function() {
-        return cdn_url + "/d7a0/img/themes/solanum@2x.png";
+        return vvv("/img/themes/solanum@2x.png");
       });
       Handlebars.registerHelper("versioned_theme_thumb_workhard", function() {
-        return cdn_url + "/d7a0/img/themes/workhard@2x.png";
+        return vvv("/img/themes/workhard@2x.png");
       });
       Handlebars.registerHelper("versioned_twitter_64", function() {
         return cdn_url + "/66f9/img/services/twitter_64.png";
@@ -24283,7 +24544,7 @@ TS.registerModule("constants", {
         if (res === "1x") {
           return cdn_url + "/a079/img/upload_file_icon.png";
         } else if (res === "2x") {
-          return cdn_url + "/a079/img/upload_file_icon@2x.png";
+          return vvv("/img/upload_file_icon@2x.png");
         }
       });
       Handlebars.registerHelper("versioned_default_application_icon", function() {
@@ -24293,28 +24554,28 @@ TS.registerModule("constants", {
         if (res === "1x") {
           return cdn_url + "/742c/img/join-channel/join_shared_channel.png";
         } else if (res === "2x") {
-          return cdn_url + "/742c/img/join-channel/join_shared_channel@2x.png";
+          return vvv("/img/join-channel/join_shared_channel@2x.png");
         }
       });
       Handlebars.registerHelper("versioned_join_team_channel", function(res) {
         if (res === "1x") {
           return cdn_url + "/742c/img/join-channel/join_team_channel.png";
         } else if (res === "2x") {
-          return cdn_url + "/742c/img/join-channel/join_team_channel@2x.png";
+          return vvv("/img/join-channel/join_team_channel@2x.png");
         }
       });
       Handlebars.registerHelper("versioned_signin_no_teams", function(res) {
         if (res === "1x") {
           return cdn_url + "/7c9e4/img/enterprise/signin-no-teams.png";
         } else if (res === "2x") {
-          return cdn_url + "/7c9e4/img/enterprise/signin-no-teams@2x.png";
+          return vvv("/img/enterprise/signin-no-teams@2x.png");
         }
       });
       Handlebars.registerHelper("versioned_slack_logo_240", function() {
         return cdn_url + "/66f9/img/slack_logo_240.png";
       });
       Handlebars.registerHelper("versioned_file_drop_blue", function() {
-        return cdn_url + "/c3881/img/file-drop-blue@2x.png";
+        return vvv("/img/file-drop-blue@2x.png");
       });
       Handlebars.registerHelper("versioned_focus_rocks", function() {
         return cdn_url + "/883cf/img/focus-rocks-0.png";
@@ -24470,6 +24731,13 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("buildThreadParticipantListHTML", function(root_msg) {
         return new Handlebars.SafeString(TS.templates.builders.buildThreadParticipantListHTML(root_msg));
+      });
+      Handlebars.registerHelper("supportsTextyTakesOver", function(options) {
+        if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
+          return options.fn(this);
+        } else {
+          return options.inverse(this);
+        }
       });
     },
     test: function() {
@@ -27263,11 +27531,9 @@ TS.registerModule("constants", {
         channel: model_ob.id,
         oldest: oldest_ts_we_have,
         count: 1e3,
-        inclusive: true
+        inclusive: true,
+        ignore_replies: true
       };
-      if (TS.boot_data.feature_message_replies_ignore_on_history) {
-        options.ignore_replies = true;
-      }
       if (newest_ts_we_have) options.latest = newest_ts_we_have;
       TS.log(773, log_prefix + ", range = " + options.oldest + " -> " + (options.latest || "now"));
       TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), options).then(function(res) {
@@ -28017,7 +28283,7 @@ TS.registerModule("constants", {
       return TS.utility.linkify(string, "", recognize_www, true);
     },
     getCursorPosition: function(selector) {
-      if (TS.boot_data.feature_texty) {
+      if (TS.utility.contenteditable.supportsTexty()) {
         if (_.isString(selector)) selector = $(selector);
         return TS.utility.contenteditable.cursorPosition(selector);
       }
@@ -28047,7 +28313,7 @@ TS.registerModule("constants", {
       return pos;
     },
     setCursorPosition: function(selector, pos, length) {
-      if (TS.boot_data.feature_texty) {
+      if (TS.utility.contenteditable.supportsTexty()) {
         if (_.isString(selector)) selector = $(selector);
         return TS.utility.contenteditable.cursorPosition(selector, pos, length);
       }
@@ -28124,7 +28390,7 @@ TS.registerModule("constants", {
     populateInput: function(input, txt, cursor_pos) {
       if (!txt) txt = "";
       var $input = $(input);
-      var should_use_html = TS.boot_data.feature_name_tagging_client && TS.boot_data.feature_texty && $input.is(TS.client.ui.$msg_input);
+      var should_use_html = TS.boot_data.feature_name_tagging_client && TS.utility.contenteditable.supportsTexty() && $input.is(TS.client.ui.$msg_input);
       if (should_use_html) {
         var new_html = txt;
         if (TS.boot_data.feature_name_tagging_client_extras) {
@@ -28310,15 +28576,15 @@ TS.registerModule("constants", {
                 }
               } else {
                 if (subsort_order != order) {
-                  return b.localeCompare(a);
+                  return TS.i18n.sorter(b, a);
                 } else {
-                  return a.localeCompare(b);
+                  return TS.i18n.sorter(a, b);
                 }
               }
             }
             return a - b;
           } else {
-            return a.localeCompare(b);
+            return TS.i18n.sorter(a, b);
           }
         };
       }
@@ -29423,6 +29689,11 @@ TS.registerModule("constants", {
 (function() {
   "use strict";
   TS.registerModule("utility.url", {
+    getHostName: function(url) {
+      var a = document.createElement("a");
+      a.href = url;
+      return a.hostname;
+    },
     setUrlQueryStringValue: function(url, key, value) {
       var a = document.createElement("a");
       a.href = url;
@@ -30501,7 +30772,7 @@ TS.registerModule("constants", {
   function _cleanMsgText(txt, options) {
     if (!txt) return "";
     if (!options) options = {};
-    if (TS.boot_data.feature_texty) {
+    if (TS.utility.contenteditable.supportsTexty()) {
       txt = TS.format.replaceUnicodeDoppelgangers(txt);
     }
     if (options.do_specials) {
@@ -31009,7 +31280,7 @@ TS.registerModule("constants", {
         left: e.clientX + 190
       };
     } else if (_$trigger && TS.client && (_$trigger.is(TS.client.ui.$msg_input) || $.contains(TS.client.ui.$msg_input.parent("form")[0], _$trigger[0]))) {
-      var prev_height = TS.boot_data.feature_texty ? TS.view.last_input_height : TS.view.last_input_container_height + 25;
+      var prev_height = TS.utility.contenteditable.supportsTexty() ? TS.view.last_input_height : TS.view.last_input_container_height + 25;
       offset = {
         top: window.innerHeight - prev_height,
         left: 284
@@ -31568,7 +31839,7 @@ TS.registerModule("constants", {
       return;
     }
     var $input_to_fill = $(_input_to_fill);
-    if (TS.boot_data.feature_texty && TS.utility.contenteditable.isContenteditable($input_to_fill)) {
+    if (TS.utility.contenteditable.supportsTexty() && TS.utility.contenteditable.isContenteditable($input_to_fill)) {
       setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, $input_to_fill, emo, !e || !e.shiftKey);
       if (!e || !e.shiftKey) _end();
     } else {
@@ -32191,9 +32462,9 @@ TS.registerModule("constants", {
         TS.replies.setSubscriptionState(model_ob_id, msg_ts, !is_subscribed, last_read);
         var clog_key = is_subscribed ? "THREADS_UNFOLLOW_CLICKED" : "THREADS_FOLLOW_CLICKED";
         var context = $target.data("context");
-        var reply_count = root_msg && root_msg.reply_count ? root_msg.reply_count : 0;
+        var num_msg_in_thread = _.get(root_msg, ".reply_count", 0) + 1;
         TS.ui.thread.trackEvent(model_ob_id, msg_ts, context, clog_key, {
-          number_of_replies: reply_count
+          num_msg_in_thread: num_msg_in_thread
         });
       } else if (id === "pin_link") {
         TS.pins.startPinMessage(msg_ts, model_ob);
@@ -34209,7 +34480,7 @@ var _on_esc;
       var on_esc;
       if (TS.client && is_primary_file_button) {
         on_esc = function() {
-          if (TS.boot_data.feature_texty) {
+          if (TS.utility.contenteditable.supportsTexty()) {
             TS.utility.contenteditable.focus(TS.client.msg_input.$input);
           } else {
             TS.client.ui.$msg_input.focus();
@@ -35394,9 +35665,6 @@ var _on_esc;
       TS.menu.clean();
       var mpim = TS.menu.mpim.mpim = TS.mpims.getMpimById(mpim_id);
       var show_email_item = TS.model.team.prefs.allow_email_ingestion;
-      if (mpim.members.length > 4) {
-        $("#active_channel_name").find(".name").tooltip("disable");
-      }
       TS.menu.$menu_header.addClass("hidden").empty();
       var template_args = {
         mpim: mpim,
@@ -35420,16 +35688,6 @@ var _on_esc;
       var y_plus = _use_channel_name_toggle ? toggle_button_height + 6 : toggle_button_height;
       var x_plus = _use_channel_name_toggle ? 18 : 6;
       TS.menu.positionAt($toggle_button, x_plus, y_plus);
-      if (template_args.disable_invite) {
-        var title = TS.i18n.t("Everyone on your team is already in this conversation", "menu_mpim")();
-        $("#mpim_invite_item a").tooltip({
-          title: title,
-          delay: {
-            show: 500,
-            hide: 0
-          }
-        });
-      }
     },
     onMpimHeaderClick: function(e) {
       e.preventDefault();
@@ -35497,6 +35755,9 @@ var _on_esc;
       var always_wait = true;
       _resetUpCmdsThrottled = TS.utility.throttleFunc(_resetUpCmdsThrottled, 3e3, always_wait);
       TS.prefs.team_allow_calls_changed_sig.add(_maybeUpdateCallsCommand);
+      if (!_.get(window, "desktop.app.toggleDevTools")) {
+        delete TS.cmd_handlers["/slackdevtools"];
+      }
     },
     test: function() {
       return {
@@ -35607,9 +35868,7 @@ var _on_esc;
       _resetUpCmdsThrottled();
     },
     sortNames: function(names) {
-      var sorted_names = names.sort(function(a, b) {
-        return a.localeCompare(b);
-      });
+      var sorted_names = names.sort(TS.i18n.sorter);
 
       function filterByTypes(names, types) {
         return names.filter(function(name) {
@@ -35628,7 +35887,7 @@ var _on_esc;
         var b_cmd = TS.cmd_handlers[b];
         var a_name = a_cmd.service_name || TS.model.apps[a_cmd.app].name;
         var b_name = b_cmd.service_name || TS.model.apps[b_cmd.app].name;
-        return TS.apps.compareNames(a_name, b_name);
+        return TS.i18n.sorter(a_name, b_name);
       });
       var app_commands_without_name = app_commands.filter(function(name) {
         var cmd = TS.cmd_handlers[name];
@@ -35785,6 +36044,17 @@ var _on_esc;
       var input_text = cmd + " " + rest;
       var slackbot_feels = "sad_surprise";
       TS.cmd_handlers.addTempEphemeralFeedback(error_text, input_text, slackbot_feels, model_ob.id, in_reply_to_msg.ts);
+    },
+    "/slackdevtools": {
+      type: "client",
+      autocomplete: false,
+      alias_of: null,
+      aliases: null,
+      func: function(cmd, rest) {
+        if (!_.get(window, "desktop.app.toggleDevTools")) return;
+        var also_open_electron_dev_tools = false;
+        desktop.app.toggleDevTools(also_open_electron_dev_tools);
+      }
     },
     "/away": {
       type: "client",
@@ -39081,7 +39351,7 @@ var _on_esc;
       var form = $("#message_edit_form");
       var $form = form;
       var input = form.find("#msg_text");
-      if (TS.boot_data.feature_texty_takes_over) {
+      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
@@ -39139,12 +39409,12 @@ var _on_esc;
         TS.msg_edit.editing_in_msg_pane = false;
         TS.msg_edit.editing_in_convo_pane = false;
         TS.msg_edit.edit_ended_sig.dispatch();
-        if (!TS.boot_data.feature_texty_takes_over) TSSSB.call("inputFieldRemoved", input.get(0));
+        if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) TSSSB.call("inputFieldRemoved", input.get(0));
         form = null;
         input = null;
         TS.msg_edit.resetEditUI();
       });
-      if (!TS.boot_data.feature_texty_takes_over) {
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
         input.TS_tabComplete({
           complete_cmds: false,
           complete_channels: true,
@@ -39171,7 +39441,7 @@ var _on_esc;
         tab_complete_ui_props.narrow = !!TS.client;
       }
       input.tab_complete_ui(tab_complete_ui_props);
-      if (!TS.boot_data.feature_texty_takes_over) TSSSB.call("inputFieldCreated", input.get(0));
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) TSSSB.call("inputFieldCreated", input.get(0));
       form.bind("submit", function(e) {
         e.preventDefault();
         var edited_text = TS.utility.contenteditable.value(input);
@@ -39198,7 +39468,7 @@ var _on_esc;
         if (!$.trim(edited_text)) return;
         TS.msg_edit.onConfirmEdit(edited_text);
       });
-      if (!TS.boot_data.feature_texty_takes_over) {
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
         input.bind("textchange", function(e, prev_txt) {
           TS.msg_edit.checkLengthAndUpdateMessage(input);
         }).bind("keyup", function(e) {
@@ -39282,7 +39552,7 @@ var _on_esc;
           px_offset: -50
         });
       }
-      if (TS.boot_data.feature_texty_takes_over) {
+      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
         $("#message_edit_form [contenteditable=true]").attr("spellcheck", !!TS.model.prefs.webapp_spellcheck);
       } else {
         $("#msg_text").attr("spellcheck", !!TS.model.prefs.webapp_spellcheck);
@@ -39353,7 +39623,7 @@ var _on_esc;
       }
       TS.msg_edit.getDivBeingEdited().removeClass("hidden");
       $("#message_edit_container").remove();
-      if (!TS.boot_data.feature_texty_takes_over) {
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
         $("body").unbind("keydown.close_message_edit_form");
       }
     },
@@ -44516,7 +44786,7 @@ var _on_esc;
       div.html(html);
       var $file_comment_textarea = $("#file_comment_textarea");
       TS.ui.comments.bindInput($file_comment_textarea, TS.ui.share_dialog.go);
-      if (!TS.boot_data.feature_texty_takes_over) {
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
         $file_comment_textarea.autogrow();
       }
       if (comment) TS.utility.contenteditable.value($file_comment_textarea, comment);
@@ -49981,14 +50251,14 @@ $.fn.togglify = function(settings) {
       if (!value) {
         TS.utility.contenteditable.clear($input);
         TS.utility.contenteditable.insertTextAtCursor($input, command);
-        if (!TS.boot_data.feature_texty) {
+        if (!TS.utility.contenteditable.supportsTexty()) {
           $input.TS_tabComplete("promiseToChoose", undefined, true);
         }
       }
       TS.utility.contenteditable.value($input, command + " " + value);
       TS.utility.contenteditable.cursorPosition($input, command.length + 1, value.length);
       TS.utility.contenteditable.focus($input);
-      if (!TS.boot_data.feature_texty) $input.trigger("textchange");
+      if (!TS.utility.contenteditable.supportsTexty()) $input.trigger("textchange");
     });
     if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
       TS.click.addClientHandler(".highlights_feedback_positive", function(e) {
@@ -50848,10 +51118,10 @@ $.fn.togglify = function(settings) {
     }
     var primary_matches, secondary_matches, tertiary_matches, sort_locale_aware;
     primary_matches = member_matches.concat(channel_matches, group_matches, mpim_matches, emoji_matches, usergroup_matches, broadcast_keyword_matches, view_matches);
-    sort_locale_aware = primary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
+    sort_locale_aware = TS.boot_data.feature_intl_channel_names || primary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
     primary_matches.sort(_.partial(_sortFuzzy, sort_locale_aware));
     secondary_matches = channel_matches_not_member.concat(team_matches);
-    sort_locale_aware = secondary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
+    sort_locale_aware = TS.boot_data.feature_intl_channel_names || secondary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
     secondary_matches.sort(_.partial(_sortFuzzy, sort_locale_aware));
     tertiary_matches = group_matches_archived.concat(channel_matches_archived);
     sort_locale_aware = tertiary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
@@ -50973,7 +51243,7 @@ $.fn.togglify = function(settings) {
     var a_name = _getNameForComparison(a);
     var b_name = _getNameForComparison(b);
     if (locale_aware) {
-      return a_name.localeCompare(b_name);
+      return TS.i18n.sorter(a_name, b_name);
     } else {
       if (a_name > b_name) return 1;
       if (b_name > a_name) return -1;
@@ -52487,9 +52757,7 @@ $.fn.togglify = function(settings) {
     },
     sortUserGroups: function() {
       if (!_login_sig_fired) return;
-      TS.model.user_groups.sort(function(a, b) {
-        return a._name_lc.localeCompare(b._name_lc);
-      });
+      TS.model.user_groups.sort(TS.i18n.mappedSorter("_name_lc"));
     },
     upsertUserGroupAndSignal: function(user_group) {
       TS.user_groups.upsertUserGroup(user_group);
@@ -52792,9 +53060,7 @@ $.fn.togglify = function(settings) {
         for (var i = 0, j = _user_groups.length; i < j; i++) {
           _user_groups[i]._name_lc = _user_groups[i].name.toLowerCase();
         }
-        _user_groups.sort(function(a, b) {
-          return a._name_lc.localeCompare(b._name_lc);
-        });
+        _user_groups.sort(TS.i18n.mappedSorter("_name_lc"));
         TS.ui.admin_user_groups.user_groups_fetched.dispatch(_user_groups);
         _refreshList();
         _bindListUI();
@@ -56203,7 +56469,7 @@ $.fn.togglify = function(settings) {
           });
           break;
         case TS.utility.calls.messages_from_call_window_types.get_member_data:
-          TS.members.ensureMemberIsPresent(evt.data.user_id).then(function() {
+          TS.members.ensureMembersArePresent([evt.data.user_id]).then(function() {
             _sendMessageToCallWindow({
               reply_to: evt.data.message_id,
               message_type: evt.data.message_type,
@@ -56485,7 +56751,7 @@ $.fn.togglify = function(settings) {
         } else if (value instanceof HTMLElement) {
           value_as_html = value;
         } else if (_.isString(value)) {
-          if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over) value += " (with texty!)";
+          if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) value += " (with texty!)";
           value_as_html = $("<span>" + value + "<span>").get(0);
         }
         texty.setPlaceholder(value_as_html);
@@ -56617,6 +56883,9 @@ $.fn.togglify = function(settings) {
       if (!texty) return;
       texty.clearHistory();
     },
+    supportsTexty: function() {
+      return TS.boot_data.feature_texty && !TS.model.is_old_ie;
+    },
     test: function() {
       var test = {
         _normalizeInput: _normalizeInput,
@@ -56630,24 +56899,24 @@ $.fn.togglify = function(settings) {
     if (!input) return false;
     if (input instanceof jQuery && input[0]) input = input[0];
     if (input.nodeType !== Node.ELEMENT_NODE) return false;
-    if (!TS.boot_data.feature_texty) return input;
+    if (!TS.utility.contenteditable.supportsTexty()) return input;
     if (input.tagName.toLowerCase() === "textarea") return input;
     if (input.tagName.toLowerCase() === "input") return input;
     if ($(input).hasClass("ql-editor")) return input.parentNode;
     if (input.hasAttribute("contenteditable")) return input;
-    if (TS.boot_data.feature_texty && input.tagName === "DIV") return input;
+    if (TS.utility.contenteditable.supportsTexty() && input.tagName === "DIV") return input;
     return false;
   };
   var _isFormElement = function(input) {
     if (!input) return false;
-    if (!TS.boot_data.feature_texty) return true;
+    if (!TS.utility.contenteditable.supportsTexty()) return true;
     if (input.tagName.toLowerCase() === "textarea") return true;
     if (input.tagName.toLowerCase() === "input") return true;
     return false;
   };
   var _isTextyElement = function(input) {
     if (!input) return false;
-    if (!TS.boot_data.feature_texty) return false;
+    if (!TS.utility.contenteditable.supportsTexty()) return false;
     var texty = _getTextyInstance(input);
     if (texty) return true;
     return false;
@@ -56787,12 +57056,12 @@ $.fn.togglify = function(settings) {
     attachment._source.author_link = null;
     attachment._unfurl_type_message = true;
     if (!attachment.footer) {
-      var footer_text = _getSlackMessageFooterText(attachment.from_url);
+      var footer_text = _getSlackMessageFooterText(attachment.from_url, msg);
       if (footer_text) attachment.footer = footer_text;
     }
     return attachment;
   };
-  var _getSlackMessageFooterText = function(url) {
+  var _getSlackMessageFooterText = function(url, msg) {
     url = url || "";
     var footer_text = "";
     var channel_name = TS.utility.getChannelNameFromUrl(url);
@@ -56800,9 +57069,21 @@ $.fn.togglify = function(settings) {
     if (model_ob && (model_ob.is_im || model_ob.is_mpim)) {
       footer_text = TS.i18n.t("Direct message", "attachments")();
     } else if (channel_name) {
-      footer_text = TS.i18n.t("Posted in #{channel_name}", "attachments")({
-        channel_name: channel_name
-      });
+      if (msg && msg.thread_ts) {
+        if (TS.utility.msgs.isMsgReply(msg)) {
+          footer_text = TS.i18n.t("From a thread in #{channel_name}", "attachments")({
+            channel_name: channel_name
+          });
+        } else {
+          footer_text = TS.i18n.t("Thread in #{channel_name}", "attachments")({
+            channel_name: channel_name
+          });
+        }
+      } else {
+        footer_text = TS.i18n.t("Posted in #{channel_name}", "attachments")({
+          channel_name: channel_name
+        });
+      }
     }
     return footer_text;
   };
@@ -57025,7 +57306,7 @@ $.fn.togglify = function(settings) {
       var html = TS.templates.inline_message_input({
         input_id: _.uniqueId("inline_message_input_"),
         include_emo: include_emo,
-        is_texty: TS.boot_data.feature_texty_takes_over,
+        is_texty: TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty(),
         should_spellcheck: should_spellcheck
       });
       var $form = $(html);
@@ -57049,7 +57330,7 @@ $.fn.togglify = function(settings) {
   });
   var _uniq_id = 0;
   var _initTabComplete = function($input, opts) {
-    if (TS.boot_data.feature_texty_takes_over) return;
+    if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) return;
     var complete_member_specials = true;
     if (false === opts.complete_member_specials) complete_member_specials = false;
     var complete_cmds = false;
@@ -57086,7 +57367,7 @@ $.fn.togglify = function(settings) {
   var _initUI = function($form, $input, opts) {
     var submit_fn = opts.onSubmit || _.noop;
     var cancel_fn = opts.onCancel || _.noop;
-    if (TS.boot_data.feature_texty_takes_over) {
+    if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
       TS.utility.contenteditable.create($input, {
         modules: {
           msginput: {
@@ -57121,15 +57402,12 @@ $.fn.togglify = function(settings) {
             if (args.shiftKey) return true;
           }
           if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input, $form, submit_fn);
-          if (_isShareDialog($input)) TS.generic_dialog.go();
+          if (opts.onEnter) opts.onEnter();
           return false;
         },
         onTextChange: function() {
           TS.msg_edit.checkLengthAndUpdateMessage($input);
-          if (_isShareDialog($input)) {
-            TS.ui.file_share.updateAtChannelWarningNote();
-            TS.ui.file_share.updateAtChannelBlockedNote();
-          }
+          if (opts.onTextChange) opts.onTextChange();
         }
       });
       TS.utility.contenteditable.enable($input);
@@ -57142,7 +57420,7 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       _tryToSubmit($input, $form, submit_fn);
     });
-    if (TS.boot_data.feature_texty_takes_over) return;
+    if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) return;
     $input.bind("textchange", function(e, prev_txt) {
       TS.msg_edit.checkLengthAndUpdateMessage($input);
     }).bind("keyup", function(e) {
@@ -57246,10 +57524,6 @@ $.fn.togglify = function(settings) {
       var edit_state = in_convo ? "convo" : null;
       TS.msg_edit.startEdit(ts, model_ob, edit_state);
     }
-  };
-  var _isShareDialog = function($input) {
-    if ($input.parents("#share_dialog_input_container").length) return true;
-    return false;
   };
 })();
 (function() {
@@ -57673,7 +57947,9 @@ $.fn.togglify = function(settings) {
     TS.ui.inline_msg_input.make($container, {
       aria_label: TS.i18n.t("Add optional comment before sharing.", "basic_share_dialog")(),
       no_emo: false,
-      placeholder: TS.i18n.t("Add a message, if you’d like.", "basic_share_dialog")()
+      placeholder: TS.i18n.t("Add a message, if you’d like.", "basic_share_dialog")(),
+      onEnter: TS.generic_dialog.go,
+      onTextChange: _onTextChange
     });
     var $input = $container.find(".message_input");
     $input.attr("id", "file_comment_textarea");
@@ -57720,9 +57996,12 @@ $.fn.togglify = function(settings) {
         $channel_picker.find(".lfs_input_container").click();
       }
     }).on("textchange", function() {
-      TS.ui.file_share.updateAtChannelWarningNote();
-      TS.ui.file_share.updateAtChannelBlockedNote();
+      _onTextChange();
     });
+  };
+  var _onTextChange = function() {
+    TS.ui.file_share.updateAtChannelWarningNote();
+    TS.ui.file_share.updateAtChannelBlockedNote();
   };
   var _onEnd = function() {
     if (_options.onEnd) _options.onEnd();
@@ -58974,9 +59253,7 @@ $.fn.togglify = function(settings) {
           });
           if (temp_msgs.length) messages = _.sortBy(messages.concat(temp_msgs), "ts");
         }
-        if (TS.boot_data.feature_message_replies_ignore_on_history) {
-          _maybeAddFetchedMsgsToModel(model_ob, messages);
-        }
+        _maybeAddFetchedMsgsToModel(model_ob, messages);
         return messages;
       }).finally(function() {
         delete _threads_being_loaded[key];
@@ -59200,9 +59477,7 @@ $.fn.togglify = function(settings) {
       });
       if (temp_msgs.length) messages = _.sortBy(messages.concat(temp_msgs), "ts");
     }
-    if (TS.boot_data.feature_message_replies_ignore_on_history) {
-      _maybeAddFetchedMsgsToModel(model_ob, messages);
-    }
+    _maybeAddFetchedMsgsToModel(model_ob, messages);
     var root_msg = _.find(messages, {
       ts: thread_ts
     });
@@ -59668,7 +59943,10 @@ $.fn.togglify = function(settings) {
             }
             var context = TS.ui.thread.getContextForEl($thread);
             var clog_event = should_broadcast_reply ? "THREADS_REPLY_BROADCAST_CLICKED" : "THREADS_REPLY";
-            TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event);
+            var num_msg_in_thread = _.get(thread, ".root_msg.reply_count", 0) + 1;
+            TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event, {
+              num_msg_in_thread: num_msg_in_thread
+            });
             TS.client.ui.sendMessage(model_ob, text, thread.root_msg, should_broadcast_reply);
           }
           return null;
@@ -60382,7 +60660,7 @@ $.fn.togglify = function(settings) {
   var _fillInput = function(e, emoji) {
     var $input_to_fill = $(_input_to_fill);
     var should_focus = !(e && e.shiftKey);
-    if (TS.boot_data.feature_texty && TS.utility.contenteditable.isContenteditable($input_to_fill)) {
+    if (TS.utility.contenteditable.supportsTexty() && TS.utility.contenteditable.isContenteditable($input_to_fill)) {
       setTimeout(TS.utility.contenteditable.insertTextAtCursor, 0, $input_to_fill, emoji.name, should_focus);
     } else {
       var current_pos = TS.utility.getCursorPosition($input_to_fill).start;
@@ -60915,6 +61193,7 @@ $.fn.togglify = function(settings) {
     if (options.teams) data.teams = _getLocalTeams(options.teams);
     if (options.usergroups) data.usergroups = _getLocalUserGroups(options.usergroups);
     if (options.views) data.views = _getLocalViews(options.views);
+    if (options.filter) data = options.filter(data);
     if (options.sort) {
       var sort_options = _mergeDefaults(options.sort, _limit_option, _DEFAULT_SORT_OPTIONS);
       return TS.sorter.search(query, data, sort_options);
@@ -60982,6 +61261,7 @@ $.fn.togglify = function(settings) {
     return views;
   };
   var _searchRemote = function(query, options) {
+    if (!TS.lazyLoadMembersAndBots()) return Promise.resolve(_searchLocal(query, options));
     var promises = [];
     if (options.members) promises.push(_promiseRemoteMembers(query, options.members));
     return Promise.all(promises).then(function() {
@@ -66890,8 +67170,7 @@ $.fn.togglify = function(settings) {
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
   var o, i = n(11);
-  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0),
-    e.exports = r;
+  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0), e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -74443,7 +74722,8 @@ $.fn.togglify = function(settings) {
         t !== n && (u = !0), u && i.componentWillReceiveProps && i.componentWillReceiveProps(c, a);
         var f = this._processPendingState(c, a),
           p = !0;
-        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))), this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
+        this._pendingForceUpdate || (i.shouldComponentUpdate ? p = i.shouldComponentUpdate(c, f, a) : this._compositeType === y.PureClass && (p = !g(l, c) || !g(i.state, f))),
+          this._updateBatchNumber = null, p ? (this._pendingForceUpdate = !1, this._performComponentUpdate(n, c, f, a, e, o)) : (this._currentElement = n, this._context = o, i.props = c, i.state = f, i.context = a);
       },
       _processPendingState: function(e, t) {
         var n = this._instance,

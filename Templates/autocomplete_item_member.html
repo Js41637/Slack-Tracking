@@ -23,6 +23,7 @@
       {{getMemberRealName member}}
     {{/feature}}
   </span>
+  {{#if team_name}}<span class="team_name">({{team_name}})</span>{{/if}}
 
   {{#if show_channel_membership}}
     {{#if membership_status_is_known}}

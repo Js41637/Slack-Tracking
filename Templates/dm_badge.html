@@ -36,7 +36,7 @@
         {{#or member.profile.status_emoji member.profile.status_text}}
           <br />
           <span class="current_status">
-            {{getMemberCurrentStatusForDisplay member}}
+            {{getMemberCurrentStatusForDisplayWithoutAnimations member}}
           </span>
         {{/or}}
       {{/feature}}

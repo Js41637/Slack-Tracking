@@ -277,7 +277,10 @@
       $(document).ready(_onDOMReady);
     },
     lazyLoadMembersAndBots: function() {
-      return !!TS.boot_data.should_use_flannel;
+      return !!(TS.boot_data.should_use_flannel || TS.boot_data.feature_lazy_load_members_and_bots_everywhere);
+    },
+    useSocket: function() {
+      return _shouldConnectToMS();
     },
     useSearchableMemberList: function() {
       return TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list;
@@ -686,7 +689,7 @@
     TS.model.rtm_start_throttler++;
     TS.info("Setting calling_rtm_start to true");
     TS.model.calling_rtm_start = true;
-    if (TS.lazyLoadMembersAndBots()) {
+    if (TS.useSocket() && TS.lazyLoadMembersAndBots() && TS.boot_data.should_use_flannel) {
       if (!_ms_rtm_start_p) {
         if (TS.model.ms_connected) {
           TS.log(1989, "Bad news: we're trying to do an rtm.start from Flannel while we're already connected, and that won't work.");
@@ -1603,7 +1606,8 @@
       var channels_view_args = {
         canonical_avatars: true,
         include_full_users: true,
-        count: TS.model.initial_msgs_cnt - 1
+        count: TS.model.initial_msgs_cnt - 1,
+        ignore_replies: true
       };
       if (TS.boot_data.feature_name_tagging_client) {
         channels_view_args.name_tagging = true;
@@ -1617,9 +1621,6 @@
         if (last_active_model_ob) {
           channels_view_args.channel = last_active_model_ob;
         }
-      }
-      if (TS.boot_data.feature_message_replies_ignore_on_history) {
-        channels_view_args.ignore_replies = true;
       }
       _setIncrementalBootUIState(true);
       TS.model.change_channels_when_offline = false;
@@ -2299,14 +2300,22 @@
     mappedSorter: function(map) {
       return function(a, b) {
         if (!a || !b) return !a ? -1 : 1;
-        a = _.map([a], map)[0];
-        b = _.map([b], map)[0];
+        var parts = (map + "").split(".");
+        if (parts.length > 1) {
+          parts.forEach(function(part) {
+            a = a[part];
+            b = b[part];
+          });
+        } else {
+          a = a[map];
+          b = b[map];
+        }
         return TS.i18n.sorter(a, b);
       };
     },
     possessive: function(str) {
       _maybeSetup();
-      if (_.endsWith(str, "s")) {
+      if (str.substr && str.substr(str.length - 1) === "s") {
         return "’";
       }
       return "’s";
@@ -2995,6 +3004,7 @@
     var is_FF = /(Firefox)/g.test(ua);
     var is_safari = /(Safari)/g.test(ua);
     var is_electron = /(AtomShell)/g.test(ua);
+    var is_old_ie = /(MSIE)/g.test(ua);
     return {
       is_iOS: is_iOS,
       is_IE: is_IE,
@@ -3008,7 +3018,8 @@
       is_win_7_plus: _isWin7Plus(ua),
       is_lin: is_lin,
       is_our_app: is_our_app,
-      is_electron: is_electron
+      is_electron: is_electron,
+      is_old_ie: is_old_ie
     };
   }
 })();
