@@ -4899,6 +4899,8 @@
               });
             }
           }
+          var member_ids = _(data).map("model_ob").filter(TS.utility.members.isMember).map("id").compact().value();
+          TS.presence_manager.queryMemberPresence(member_ids);
           return data;
         });
       }

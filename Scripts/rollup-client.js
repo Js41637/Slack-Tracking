@@ -5521,7 +5521,7 @@
       TS.rooms.changed_participants_sig.add(_roomParticipantsChanged);
       TS.rooms.changed_date_end_sig.add(_roomEndedChanged);
       TS.rooms.changed_channels_sig.add(_roomChannelsChanged);
-      if (TS.boot_data.feature_hide_email_pref) TS.prefs.team_display_email_addresses_changed_sig.add(_onDisplayEmailAddressesPrefChanged);
+      TS.prefs.team_display_email_addresses_changed_sig.add(_onDisplayEmailAddressesPrefChanged);
       if (boot_data.feature_calls) {
         TS.prefs.team_allow_calls_changed_sig.add(_maybeUpdateCallAction);
       }
@@ -27414,16 +27414,6 @@
       template_args.enterprise_org_name = TS.model.enterprise.name;
       template_args.enterprise_org_icon = TS.model.enterprise.icon;
     }
-    var user = TS.model.user;
-    if (!user.is_ultra_restricted && !model_ob.is_archived && (model_ob.is_member || model_ob.is_group)) {
-      if (model_ob.is_channel) {
-        template_args.show_leave = !model_ob.is_general && !user.is_restricted;
-      } else if (model_ob.is_group && !model_ob.is_mpim) {
-        if (model_ob.active_members.length > 1) {
-          if (TS.groups.canLeaveGroup(model_ob.id)) template_args.show_leave = true;
-        } else {}
-      }
-    }
     var creator = TS.members.getMemberById(model_ob.creator);
     if (creator && creator.is_self) {
       template_args.creator_name = TS.i18n.t("you", "channel_pages")();
@@ -28561,7 +28551,7 @@
     }
   };
   var _numMembers = function(channel) {
-    return "num_members" in channel ? channel.num_members : channel.active_members.length;
+    return "num_members" in channel ? channel.num_members : _.get(channel, "active_members.length");
   };
   var _addFooterLinks = function() {
     _$footer = $(TS.templates.channel_browser_footer()).appendTo("#fs_modal");
@@ -30424,11 +30414,6 @@
       _.each(_expanded_rollups, function(rollup) {
         _expandRollup(rollup);
       });
-    }
-    if (TS.boot_data.feature_frecency_migration) {
-      if (section === "labs") {
-        TS.ui.prefs_frecency_migration.start();
-      }
     }
   };
   var _buildSectionHTML = function(section) {

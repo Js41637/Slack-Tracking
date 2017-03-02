@@ -3989,24 +3989,6 @@
       }
       return A;
     },
-    calcActiveMembersForChannel: function(channel) {
-      channel.active_members.length = 0;
-      if (TS.membership.lazyLoadChannelMembership()) return;
-      if (!channel.members) return;
-      var member;
-      for (var m = 0; m < channel.members.length; m++) {
-        member = TS.members.getMemberById(channel.members[m]);
-        if (!member) continue;
-        if (member.deleted) continue;
-        channel.active_members.push(member.id);
-      }
-    },
-    calcActiveMembersForAllChannels: function() {
-      var channels = TS.model.channels;
-      for (var i = 0; i < channels.length; i++) {
-        TS.channels.calcActiveMembersForChannel(channels[i]);
-      }
-    },
     fetchList: function() {
       TS.api.call("channels.list", {
         exclude_members: 1
@@ -4080,7 +4062,8 @@
       if (p && !force) return p;
       p = TS.api.callImmediately("channels.info", {
         channel: channel_id,
-        include_shared: include_shared
+        include_shared: include_shared,
+        no_members: false
       }).then(function(response) {
         if (!response.data.ok) return TS.generic_dialog.alert(TS.i18n.t("Something went wrong when fetching information about the channel.", "channels")(), TS.i18n.t("Oops! Something went wrong.", "channels")());
         TS.channels.upsertChannel(response.data.channel);
@@ -4177,7 +4160,6 @@
         if (!existing_channel) TS.channels.calcUnreadCnts(channel, and_mark);
       }
     }
-    TS.channels.calcActiveMembersForChannel(channel);
     return channel;
   };
   var _maybeSetSharedTeams = function(channel) {
@@ -4204,7 +4186,6 @@
     if (!channel.members) channel.members = [];
     if (!channel.topic) channel.topic = {};
     if (!channel.purpose) channel.purpose = {};
-    channel.active_members = [];
     channel.is_member = !!channel.is_member;
     channel.scroll_top = -1;
     channel.history_is_being_fetched = false;
@@ -4388,7 +4369,6 @@
       });
     },
     notifyChannelMembershipChanged: function(user_id, channel, is_member, should_display_join_message) {
-      TS.channels.calcActiveMembersForChannel(channel);
       var member = TS.members.getMemberById(user_id);
       if (!member) {
         var membership_description = is_member ? "joined" : "left";
@@ -9917,82 +9897,85 @@ TS.registerModule("constants", {
       var include_at_sign = true;
       var member_display_name = TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(member) : TS.members.getMemberDisplayName(member, escaped, include_at_sign);
       var model_ob_display_name = TS.shared.getDisplayNameForModelOb(model_ob);
-      if (model_ob.members.indexOf(member.id) == -1) {
-        TS.generic_dialog.alert(TS.i18n.t("<strong>{user_name}</strong> is not a member of {channel_name}.", "shared")({
-          user_name: member_display_name,
-          channel_name: model_ob_display_name
-        }));
-        return;
-      }
-      var confirm_msg;
-      if (model_ob.is_group) {
-        confirm_msg = "<p>" + TS.i18n.t("If you remove <strong>{user_name}</strong> from {channel_name}, they will no longer be able to see any of its messages. To rejoin the private channel, they will have to be re-invited.</p><p>Are you sure you wish to do this?", "shared")({
-          user_name: member_display_name,
-          channel_name: model_ob_display_name
-        }) + "</p>";
-      } else {
-        confirm_msg = "<p>" + TS.i18n.t("Are you sure you wish to remove <strong>{user_name}</strong> from {channel_name}?", "shared")({
-          user_name: member_display_name,
-          channel_name: model_ob_display_name
-        }) + "</p>";
-      }
-      var api_endpoint = model_ob.is_group ? "groups.kick" : "channels.kick";
-      TS.generic_dialog.start({
-        title: TS.i18n.t("Remove {user_name}", "shared")({
-          user_name: member_display_name
-        }),
-        body: confirm_msg,
-        go_button_text: TS.i18n.t("Yes, remove them", "shared")(),
-        onGo: function() {
-          TS.api.call(api_endpoint, {
-            channel: model_ob.id,
-            user: member_id
-          }).catch(function(resp) {
-            TS.info("Removing user failed; api=" + api_endpoint + "; error=" + resp.data.error);
-            setTimeout(function() {
-              var account_type = member.is_ultra_restricted ? TS.i18n.t("Single-channel guests", "shared")() : TS.i18n.t("Multi-channel guests", "shared")();
-              if (resp.data.error == "cant_kick_from_last_channel" && TS.model.user.is_admin) {
-                TS.generic_dialog.start({
-                  title: TS.i18n.t("Removing {member_display_name} failed", "shared")({
-                    member_display_name: member_display_name
-                  }),
-                  body: TS.i18n.t("<p>{account_type} (like <strong>{member_display_name}</strong>) can’t be removed from channels.</p><p>If <strong>{member_display_name}</strong> should no longer have access to your Slack team, we suggest deactivating their account.</p>", "shared")({
-                    account_type: account_type,
-                    member_display_name: member_display_name
-                  }),
-                  go_button_text: TS.i18n.t("Manage Team Members", "shared")(),
-                  show_cancel_button: true,
-                  onGo: function() {
-                    TS.utility.openInNewTab("/admin#restricted", TS.templates.builders.newWindowName());
-                  }
-                });
-                return;
-              }
-              var err_str;
-              switch (resp.data.error) {
-                case "cant_kick_from_last_channel":
-                  err_str = TS.i18n.t("<p>{account_type} (like <strong>{member_display_name}</strong>) can’t be removed from channels.</p><p>Please contact a Team Admin if <strong>{member_display_name}</strong> should no longer have access to your Slack team.</p>", "shared")({
-                    account_type: account_type,
-                    member_display_name: member_display_name
-                  });
-                  break;
-                case "restricted_action":
-                  err_str = TS.i18n.t("<p>Hmm, looks like you don’t have permission to kick from channels.</p><p>Please contact a Team Admin if <strong>{member_display_name}</strong> should no longer have access to your Slack team.</p>", "shared")({
-                    member_display_name: member_display_name
-                  });
-                  break;
-                default:
-                  err_str = TS.i18n.t("<p>Something’s gone wrong, and we couldn’t remove <strong>{member_display_name}</strong> from {channel}. We suspect this is only temporary. Try again in a bit?</p>", "shared")({
-                    member_display_name: member_display_name,
-                    channel: model_ob_display_name
-                  });
-              }
-              TS.generic_dialog.alert(err_str, TS.i18n.t("Removing {member_display_name} failed", "shared")({
-                member_display_name: member_display_name
-              }));
-            }, 500);
-          });
+      TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [member_id]).then(function() {
+        if (!TS.membership.getUserChannelMembershipStatus(member_id, model_ob).is_member) {
+          TS.generic_dialog.alert(TS.i18n.t("<strong>{user_name}</strong> is not a member of {channel_name}.", "shared")({
+            user_name: member_display_name,
+            channel_name: model_ob_display_name
+          }));
+          return null;
         }
+        var confirm_msg;
+        if (model_ob.is_group) {
+          confirm_msg = "<p>" + TS.i18n.t("If you remove <strong>{user_name}</strong> from {channel_name}, they will no longer be able to see any of its messages. To rejoin the private channel, they will have to be re-invited.</p><p>Are you sure you wish to do this?", "shared")({
+            user_name: member_display_name,
+            channel_name: model_ob_display_name
+          }) + "</p>";
+        } else {
+          confirm_msg = "<p>" + TS.i18n.t("Are you sure you wish to remove <strong>{user_name}</strong> from {channel_name}?", "shared")({
+            user_name: member_display_name,
+            channel_name: model_ob_display_name
+          }) + "</p>";
+        }
+        var api_endpoint = model_ob.is_group ? "groups.kick" : "channels.kick";
+        TS.generic_dialog.start({
+          title: TS.i18n.t("Remove {user_name}", "shared")({
+            user_name: member_display_name
+          }),
+          body: confirm_msg,
+          go_button_text: TS.i18n.t("Yes, remove them", "shared")(),
+          onGo: function() {
+            TS.api.call(api_endpoint, {
+              channel: model_ob.id,
+              user: member_id
+            }).catch(function(resp) {
+              TS.info("Removing user failed; api=" + api_endpoint + "; error=" + resp.data.error);
+              setTimeout(function() {
+                var account_type = member.is_ultra_restricted ? TS.i18n.t("Single-channel guests", "shared")() : TS.i18n.t("Multi-channel guests", "shared")();
+                if (resp.data.error == "cant_kick_from_last_channel" && TS.model.user.is_admin) {
+                  TS.generic_dialog.start({
+                    title: TS.i18n.t("Removing {member_display_name} failed", "shared")({
+                      member_display_name: member_display_name
+                    }),
+                    body: TS.i18n.t("<p>{account_type} (like <strong>{member_display_name}</strong>) can’t be removed from channels.</p><p>If <strong>{member_display_name}</strong> should no longer have access to your Slack team, we suggest deactivating their account.</p>", "shared")({
+                      account_type: account_type,
+                      member_display_name: member_display_name
+                    }),
+                    go_button_text: TS.i18n.t("Manage Team Members", "shared")(),
+                    show_cancel_button: true,
+                    onGo: function() {
+                      TS.utility.openInNewTab("/admin#restricted", TS.templates.builders.newWindowName());
+                    }
+                  });
+                  return;
+                }
+                var err_str;
+                switch (resp.data.error) {
+                  case "cant_kick_from_last_channel":
+                    err_str = TS.i18n.t("<p>{account_type} (like <strong>{member_display_name}</strong>) can’t be removed from channels.</p><p>Please contact a Team Admin if <strong>{member_display_name}</strong> should no longer have access to your Slack team.</p>", "shared")({
+                      account_type: account_type,
+                      member_display_name: member_display_name
+                    });
+                    break;
+                  case "restricted_action":
+                    err_str = TS.i18n.t("<p>Hmm, looks like you don’t have permission to kick from channels.</p><p>Please contact a Team Admin if <strong>{member_display_name}</strong> should no longer have access to your Slack team.</p>", "shared")({
+                      member_display_name: member_display_name
+                    });
+                    break;
+                  default:
+                    err_str = TS.i18n.t("<p>Something’s gone wrong, and we couldn’t remove <strong>{member_display_name}</strong> from {channel}. We suspect this is only temporary. Try again in a bit?</p>", "shared")({
+                      member_display_name: member_display_name,
+                      channel: model_ob_display_name
+                    });
+                }
+                TS.generic_dialog.alert(err_str, TS.i18n.t("Removing {member_display_name} failed", "shared")({
+                  member_display_name: member_display_name
+                }));
+              }, 500);
+            });
+          }
+        });
+        return null;
       });
     },
     maybeResetHistoryFetchedOnAll: function() {
@@ -10128,7 +10111,7 @@ TS.registerModule("constants", {
       return is_relevant;
     },
     checkDisplayEmailAddressPref: function() {
-      if (!TS.boot_data.feature_hide_email_pref || !TS.client || !TS.model.team || !TS.model.team.prefs) return;
+      if (!TS.client || !TS.model.team || !TS.model.team.prefs) return;
       var email_count = 0;
       var bots_count = 0;
       var potential_emails = 0;
@@ -10160,7 +10143,7 @@ TS.registerModule("constants", {
       }
     },
     onDisplayEmailAddressesPrefChanged: function() {
-      if (!TS.boot_data.feature_hide_email_pref || !TS.model || !TS.model.team || !TS.model.team.prefs) return;
+      if (!TS.model || !TS.model.team || !TS.model.team.prefs) return;
       TS.info('Team pref "display_email_addresses" -> ' + TS.model.team.prefs.display_email_addresses);
       var email_count = 0;
       if (TS.model.members) {
@@ -10763,7 +10746,6 @@ TS.registerModule("constants", {
           TS.members.changed_deleted_sig.dispatch(upsert.member);
           var im = TS.ims.getImByMemberId(upsert.member.id);
           if (im) TS.ims.calcUnreadCnts(im, true);
-          TS.channels.calcActiveMembersForAllChannels();
           TS.groups.calcActiveMembersForAllGroups();
         }
         if (upsert.what_changed.indexOf("presence") != -1) {
@@ -16690,10 +16672,6 @@ TS.registerModule("constants", {
         return;
       }
       TS.info("archived channel " + imsg.channel);
-      if (!(TS.membership && TS.membership.lazyLoadChannelMembership())) {
-        channel.members.length = 0;
-      }
-      TS.channels.calcActiveMembersForChannel(channel);
       channel.is_archived = true;
       if (imsg.is_moved) {
         channel.is_moved = true;
@@ -17360,7 +17338,7 @@ TS.registerModule("constants", {
         return;
       }
       if (imsg.user && imsg.user.id === TS.model.user.id) {
-        if (TS.boot_data.feature_hide_email_pref && TS.model.team && TS.model.team.prefs && !TS.model.team.prefs.display_email_addresses && imsg.user.profile && !imsg.user.profile.email) {
+        if (TS.model.team && TS.model.team.prefs && !TS.model.team.prefs.display_email_addresses && imsg.user.profile && !imsg.user.profile.email) {
           var local_email = member.profile && member.profile.email;
           if (local_email) {
             TS.info("user_change: email hidden via team pref. appending email from model for local user, so it is not lost in upsert.");
@@ -33760,7 +33738,19 @@ var _on_esc;
       if (TS.client.ui.checkForEditing(e)) return;
       TS.menu.buildIfNeeded();
       TS.menu.clean();
-      TS.apps.promiseToGetFullAppProfile(bot_id).then(showAllAppInformation);
+      TS.apps.promiseToGetFullAppProfile(bot_id).then(ensureChannelMembershipInfoKnownForBot).then(showAllAppInformation);
+
+      function ensureChannelMembershipInfoKnownForBot(app) {
+        var bot_user_id = _.get(app, "bot_user.id");
+        var model_ob = TS.shared.getActiveModelOb();
+        if (bot_user_id && (TS.model.active_channel_id || TS.model.active_group_id)) {
+          return TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, bot_user_id).then(function() {
+            return app;
+          });
+        } else {
+          return app;
+        }
+      }
 
       function showAllAppInformation(app) {
         TS.menu.app.active_app = app;
@@ -65292,8 +65282,7 @@ $.fn.togglify = function(settings) {
             };
           }(),
           ql = pa(function(e, t) {
-            return Tc(e) || (e = null == e ? [] : [Object(e)]),
-              t = Ln(t, 1), l(e, t);
+            return Tc(e) || (e = null == e ? [] : [Object(e)]), t = Ln(t, 1), l(e, t);
           }),
           Kl = pa(function(e, t) {
             return Ra(e) ? On(e, Ln(t, 1, !0)) : [];
@@ -66679,8 +66668,7 @@ $.fn.togglify = function(settings) {
   function a(e, t) {
     if (Array.isArray(t)) {
       var n = t[1];
-      t = t[0], u(e, t, n),
-        e.removeChild(n);
+      t = t[0], u(e, t, n), e.removeChild(n);
     }
     e.removeChild(t);
   }
@@ -68346,7 +68334,8 @@ $.fn.togglify = function(settings) {
           v = " (client) " + f.substring(p - 20, p + 20) + "\n (server) " + l.substring(p - 20, p + 20);
         t.nodeType === N ? d("42", v) : void 0;
       }
-      if (t.nodeType === N ? d("43") : void 0, a.useCreateElement) {
+      if (t.nodeType === N ? d("43") : void 0,
+        a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         h.insertTreeBefore(t, e, null);
       } else P(t, e), _.precacheNode(n, t.firstChild);
@@ -71646,7 +71635,8 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
+            Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
@@ -77860,11 +77850,10 @@ $.fn.togglify = function(settings) {
         index: l
       });
       if (null == c.height || isNaN(c.height) || null == c.width || isNaN(c.width) || null == c.x || isNaN(c.x) || null == c.y || isNaN(c.y)) throw Error("Invalid metadata returned for cell " + l + ":\n        x:" + c.x + ", y:" + c.y + ", width:" + c.width + ", height:" + c.height);
-      s = Math.max(s, c.y + c.height),
-        u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
-          cellMetadatum: c,
-          index: l
-        });
+      s = Math.max(s, c.y + c.height), u = Math.max(u, c.x + c.width), i[l] = c, a.registerCell({
+        cellMetadatum: c,
+        index: l
+      });
     }
     return {
       cellMetadata: i,
