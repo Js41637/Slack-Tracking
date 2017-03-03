@@ -282,7 +282,7 @@
       }
       TS.model.active_cid = TS.model.active_channel_id || TS.model.active_im_id || TS.model.active_group_id || TS.model.active_mpim_id;
       if (TS.boot_data.feature_sli_recaps) {
-        TS.recaps_signal.maybeMarkChannelAsDirty();
+        TS.recaps_signal.setCurrentChannel();
       }
       TSSSB.call("displayChannel", TS.model.active_cid);
       TS.view.updateTitleWithContext();
@@ -12958,9 +12958,6 @@
           end_display_padder.css("height", allowed_h - h);
         }
         end_div.height(allowed_h);
-      }
-      if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
-        TS.recaps_signal.redrawMarkersOnly();
       }
     },
     padOutMsgsScroller: function() {
@@ -26218,9 +26215,6 @@
     _onMsgsScrollThrottled();
     TS.client.archives.msgs_are_auto_scrolling = false;
     TS.ui.utility.updateClosestMonkeyScroller(TS.client.archives.$scroller);
-    if (TS.boot_data.feature_sli_recaps && TS.boot_data.feature_sli_recaps_interface) {
-      TS.recaps_signal.handleUpdateScrollbar();
-    }
     _updateDateDisplayed();
   };
   var _loadMoreTop = function(callback, no_scroll) {
@@ -35898,7 +35892,6 @@ function timezones_guess() {
       $("#client-ui").addClass("unread_view_is_showing");
       $("#msgs_scroller_div").addClass("hidden");
       $("#archives_return").addClass("hidden");
-      if (TS.boot_data.feature_sli_recaps) TS.recaps_signal.remove();
       if (TS.model.ui_state.flex_name === "details") TS.client.ui.flex.hideFlex(true);
       var skip_mark_msgs_read_immediate_check = true;
       TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);
@@ -40419,7 +40412,6 @@ function timezones_guess() {
       if (TS.model.ui_state.flex_name === "details") TS.client.ui.flex.hideFlex(true);
       var skip_mark_msgs_read_immediate_check = true;
       TS.client.msg_pane.hideNewMsgsBar(skip_mark_msgs_read_immediate_check);
-      if (TS.boot_data.feature_sli_recaps) TS.recaps_signal.remove();
       $("#msgs_scroller_div").addClass("hidden");
       $("#archives_return").addClass("hidden");
       TS.client.ui.threads.$container = $('<div id="threads_msgs"></div>');

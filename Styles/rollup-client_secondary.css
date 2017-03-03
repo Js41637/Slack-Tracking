@@ -7479,6 +7479,32 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   line-height: 1.375rem
 }
 
+.member_restriction_banner {
+  margin: 8px 4px 0;
+  width: 100%;
+  border-radius: .2rem .2rem 0 0;
+  background-color: #2C2D30;
+  color: #fff;
+  padding: 4px 8px 8px;
+  display: flex;
+  align-items: baseline
+}
+
+.member_restriction_banner .overflow_ellipsis {
+  font-size: .8125rem;
+  flex: 1 1 auto
+}
+
+.member_restriction_banner .ts_icon {
+  top: 3px;
+  flex: 0 0 auto
+}
+
+#member_preview_scroller .member_details .member_restriction_banner~.member_image.thumb_512 {
+  border-radius: 0 0 .2rem .2rem;
+  margin-top: 0
+}
+
 .menu_member_header {
   cursor: pointer
 }
@@ -21597,6 +21623,11 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 
 .column_thumb .msg_inline_attachment_row {
   padding-right: 0
+}
+
+.msg_inline_attachment_row.automated {
+  color: #9e9ea6;
+  font-style: italic
 }
 
 .msg_inline_attachment_row.attachment_flush_text {

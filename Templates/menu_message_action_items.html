@@ -58,14 +58,6 @@
   <li id="rxn_link" data-rxn-key="{{msg.comment._rxn_key}}" role="menuitem"><a class="add_rxn_menu_item">{{#t}}Add reaction &hellip;{{/t}}</a></li>
 {{/if}}
 
-{{#feature flag="feature_sli_recaps"}}
-  {{#if sli_recap_preview}}
-    {{#if recappable_message}}
-    <li id="suggest_recap_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a class="suggest_recap_menu_item">{{#t}}Suggest as a highlight{{/t}}</a></li>
-    {{/if}}
-  {{/if}}
-{{/feature}}
-
 {{#unless is_in_thread}}
   {{#if actions.pin_msg}}
     <li id="pin_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#t channel_name=(pinToLabel model_ob)}}Pin to {channel_name} &hellip;{{/t}}</a></li>

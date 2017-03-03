@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/a4355/fonts/slack-icons-Regular.eot);
-  src: url(/a4355/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/a4355/fonts/slack-icons-Regular.woff) format('woff'), url(/a4355/fonts/slack-icons-Regular.ttf) format('truetype'), url(/c101/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/49b3c/fonts/slack-icons-Regular.eot);
+  src: url(/49b3c/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/49b3c/fonts/slack-icons-Regular.woff) format('woff'), url(/49b3c/fonts/slack-icons-Regular.ttf) format('truetype'), url(/49b3c/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -13591,6 +13591,32 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   max-width: 100%;
   font-size: 1.125rem;
   line-height: 1.375rem
+}
+
+.member_restriction_banner {
+  margin: 8px 4px 0;
+  width: 100%;
+  border-radius: .2rem .2rem 0 0;
+  background-color: #2C2D30;
+  color: #fff;
+  padding: 4px 8px 8px;
+  display: flex;
+  align-items: baseline
+}
+
+.member_restriction_banner .overflow_ellipsis {
+  font-size: .8125rem;
+  flex: 1 1 auto
+}
+
+.member_restriction_banner .ts_icon {
+  top: 3px;
+  flex: 0 0 auto
+}
+
+#member_preview_scroller .member_details .member_restriction_banner~.member_image.thumb_512 {
+  border-radius: 0 0 .2rem .2rem;
+  margin-top: 0
 }
 
 .menu_member_header {

@@ -97,7 +97,7 @@
     {{/if}}
 
     {{#if has_text_content}}
-      <div class="msg_inline_attachment_row attachment_flush_text">
+      <div class="msg_inline_attachment_row attachment_flush_text{{#if attachment._is_automated_unfurl}} automated{{/if}}">
         {{! Title }}
         {{#if attachment.title}}
           <div class="attachment_title">

@@ -2,6 +2,33 @@
 
 <div class="member_details clearfix display_flex flex_direction_column align_items_center{{#isClient}} cropped_preview{{/isClient}}">
 
+  {{#experiment name="guest_profiles_and_expiration"}}
+    {{#if member.is_restricted}}
+      <div class="member_restriction_banner">
+        <span class="overflow_ellipsis lato_black">
+          {{#if member.is_ultra_restricted}}
+            <i aria-hidden="true" class="ts_icon ts_icon_presence_ura presence_icon"></i>
+          {{else}}
+            <i aria-hidden="true" class="ts_icon ts_icon_presence_ra presence_icon"></i>
+          {{/if}}
+          {{#if member.deleted}}
+            {{#t note="Refers to deactivated account"}}Deactivated{{/t}}
+          {{/if}}
+          {{#if member.is_ultra_restricted}}
+            {{#t}}Single-Channel Guest{{/t}}
+          {{else}}
+            {{#t}}Multi-Channel Guest{{/t}}
+          {{/if}}
+        </span>
+        <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_bottom ts_tip_multiline ts_tip_float">
+          <span class="ts_tip_tip">
+            <span class="ts_tip_multiline_inner">{{#if member.is_ultra_restricted}}{{#t}}Single-Channel Guests see a partial directory and can only access messages and files from selected channels.{{/t}}{{else}}{{#t}}Multi-Channel Guests see a partial directory and can only access messages and files from selected channels.{{/t}}{{/if}}</span>
+          </span>
+        </i>
+      </div>
+    {{/if}}
+  {{/experiment}}
+
   {{makeMemberPreviewLinkImage member.id 512 false true true true}}
 
   <div class="member_name_and_presence lato">
@@ -46,6 +73,8 @@
 
   {{#pageNeedsEnterprise}}
     {{#if member.is_restricted}}
+      {{#experiment name="guest_profiles_and_expiration"}}
+      {{else}}
       <div class="member_type_and_description old_petunia_grey lato">
         <span class="overflow_ellipsis">
           {{#if member.deleted}}
@@ -58,6 +87,7 @@
           {{/if}}
         </span>
       </div>
+      {{/experiment}}
     {{else if member.is_bot}}
       <div class="member_type_and_description old_petunia_grey lato">
         <span class="overflow_ellipsis">{{#t note="Description for bot"}}Non-sentient Bot{{/t}}</span>
@@ -71,6 +101,8 @@
     {{/if}}
   {{else}}
     {{#if member.is_restricted}}
+      {{#experiment name="guest_profiles_and_expiration"}}
+      {{else}}
       <div class="member_restriction lato overflow_ellipsis">
         {{#if member.deleted}}
           {{#t}}Deactivated{{/t}}
@@ -86,6 +118,7 @@
           </span>
         </i>
       </div>
+      {{/experiment}}
     {{else}}
       {{#if member.deleted}}
         <div class="member_restriction lato overflow_ellipsis">

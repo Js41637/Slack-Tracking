@@ -911,11 +911,7 @@
           }
         });
         TS.utility.contenteditable.enable(input);
-        input.on("focusin", function() {
-          input.addClass("focus");
-        }).on("focusout", function() {
-          input.removeClass("focus");
-        }).on("keyup", function() {
+        input.on("keyup", function() {
           var cursor_position = TS.utility.contenteditable.cursorPosition(input);
           if (!cursor_position.length) {
             var $form = input.closest("form");

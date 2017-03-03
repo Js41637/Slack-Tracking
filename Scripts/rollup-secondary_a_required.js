@@ -3536,7 +3536,7 @@
         }
         return null;
       };
-      if (TS.model.shared_channels_enabled && channel.is_shared) {
+      if (TS.model.shared_channels_enabled && channel.is_shared && !TS.boot_data.feature_shared_channels_switch) {
         return TS.channels.promiseToEnsureChannelsInfo(channel_id, channel.is_shared).then(signal);
       } else {
         return Promise.resolve(signal());
@@ -5129,7 +5129,7 @@ TS.registerModule("constants", {
           channel: group.id
         }, TS.groups.onOpened);
       };
-      if (TS.boot_data.page_needs_enterprise && group.is_shared) {
+      if (TS.model.shared_channels_enabled && group.is_shared && !TS.boot_data.feature_shared_channels_switch) {
         return TS.groups.promiseToEnsureGroupsInfo(group_id, group.is_shared).then(signal);
       } else {
         return Promise.resolve(signal());
@@ -19549,7 +19549,8 @@ TS.registerModule("constants", {
         is_msg_unfurl: true,
         id: 1,
         ts: msg.ts,
-        from_url: TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts)
+        from_url: TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts),
+        msg_subtype: msg.subtype
       });
       if (msg.text) {
         fake_attachment.text = msg.text;
@@ -22575,13 +22576,12 @@ TS.registerModule("constants", {
         } else {
           template_args.pin_html = "";
         }
-        if (TS.boot_data.feature_sli_recaps) {
+        if (TS.boot_data.feature_sli_recaps && TS.recaps_signal) {
           template_args.is_recap = msg.recap && TS.recaps_signal && TS.recaps_signal.isMessageHighlight(msg);
           if (TS.boot_data.feature_sli_recaps_interface) {
             template_args.highlights_html = TS.templates.builders.buildHighlightsInfoHtml(msg);
           }
-          var recap_debug_group = TS.experiment.getGroup("sli_recaps_debug");
-          var is_in_debug_group = recap_debug_group === "sli_debug_info";
+          var is_in_debug_group = TS.recaps_signal.sli_recaps_debug_group === "sli_debug_info";
           template_args.show_recap_debug = msg.recap && is_in_debug_group;
         }
         if (!msg.subtype && (args.for_search_display || args.for_top_results_search_display) && msg.file) {
@@ -32373,8 +32373,8 @@ TS.registerModule("constants", {
       actions.mark_unread = !!allow_mark_unread;
       var recap_highlight = false;
       var recappable_message = false;
-      if (TS.boot_data.feature_sli_recaps) {
-        var recap_group = TS.experiment.getGroup("sli_recaps_debug");
+      if (TS.boot_data.feature_sli_recaps && TS.recaps_signal) {
+        var recap_group = TS.recaps_signal.sli_recaps_debug_group;
         if (recap_group === "sli_debug_info") {
           recap_highlight = true;
           if (!model_ob.is_mpim && !model_ob.is_im && msg.recap) {
@@ -32526,8 +32526,6 @@ TS.registerModule("constants", {
         }, function(ok, data, args) {});
       } else if (id === "share_message_link") {
         TS.ui.share_message_dialog.start(msg_ts, model_ob);
-      } else if (id === "suggest_recap_link") {
-        TS.recaps_signal.sendSuggestion(model_ob_id, msg_ts);
       }
       TS.menu.end();
     },
@@ -33900,13 +33898,6 @@ var _on_esc;
         if (channel.purpose.last_set === 0 && !TS.model.user.is_ultra_restricted && channel.is_member) template_args.show_purpose_item = true;
       }
       if (TS.notifs.isCorGMuted(channel.id)) template_args.channel_is_muted = true;
-      if (TS.boot_data.feature_sli_recaps) {
-        var recap_group = TS.experiment.getGroup("sli_recaps_debug");
-        if (recap_group === "sli_debug_info") {
-          template_args.highlights_on = TS.recaps_signal.isHighlightsOn();
-          template_args.highlights_toggle = true;
-        }
-      }
       if (channel.is_member && (!channel.is_general || TS.members.canUserPostInGeneral())) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise) {
         var can_manage_shared_channels = TS.permissions.members.canManageSharedChannels();
@@ -34023,15 +34014,7 @@ var _on_esc;
       } else if (id == "channel_prefs") {
         e.preventDefault();
         TS.ui.channel_prefs_dialog.start(TS.menu.channel.channel.id);
-      } else if (id == "channel_add_service_item") {} else if (id == "channel_highlight_toggle") {
-        e.preventDefault();
-        if (TS.boot_data.feature_sli_recaps) {
-          var recap_group = TS.experiment.getGroup("sli_recaps_debug");
-          if (recap_group === "sli_debug_info") {
-            TS.recaps_signal.toggleChannelOverflowPref();
-          }
-        }
-      } else {
+      } else if (id == "channel_add_service_item") {} else {
         TS.warn("not sure what to do with clicked element id:" + id);
         return;
       }
@@ -39402,11 +39385,7 @@ var _on_esc;
           }
         });
         TS.utility.contenteditable.enable(input);
-        input.on("focusin", function() {
-          input.addClass("focus");
-        }).on("focusout", function() {
-          input.removeClass("focus");
-        }).on("keyup", function() {
+        input.on("keyup", function() {
           var cursor_position = TS.utility.contenteditable.cursorPosition(input);
           if (!cursor_position.length) {
             var msgs_scroller_dimensions = TS.client && TS.client.ui.getCachedDimensionsRect("cached_msgs_scroller_rect", TS.client.ui.$msgs_scroller_div);
@@ -50281,21 +50260,6 @@ $.fn.togglify = function(settings) {
           TS.recaps_signal.markFeedbackForMessage(msg_ts, false);
         }
       });
-      TS.click.addClientHandler(".recap_highlight_marker", function(e) {
-        if ($(e.target).hasClass("recap_highlight_marker")) {
-          e.preventDefault();
-          TS.recaps_signal.logMarkerClick($(e.target));
-          TS.recaps_signal.scrollRecapMessageIntoView(e.target);
-        }
-      });
-      TS.click.addClientHandler("#recap_nav .next", function(e) {
-        e.preventDefault();
-        TS.recaps_signal.navigateRecap("next");
-      });
-      TS.click.addClientHandler("#recap_nav .prev", function(e) {
-        e.preventDefault();
-        TS.recaps_signal.navigateRecap("prev");
-      });
     }
   };
   var _setupBinding = function() {
@@ -57015,9 +56979,18 @@ $.fn.togglify = function(settings) {
       });
       return location || "end";
     },
+    isAutomatedSlackUnfurl: function(attachment) {
+      return !!attachment && _isSlackMessageUnfurl(attachment) && TS.utility.msgs.automated_subtypes.indexOf(attachment.msg_subtype) !== -1;
+    },
     formatMessageAttachmentPart: function(text, msg, do_highlighting, do_specials, enable_slack_action_links) {
-      if (do_highlighting && TS.utility.msgs.isAutomatedMsg(msg)) {
-        do_highlighting = false;
+      if (msg) {
+        if (do_highlighting && TS.utility.msgs.isAutomatedMsg(msg)) {
+          do_highlighting = false;
+        }
+        if (do_highlighting && !_.isEmpty(msg.attachments)) {
+          var has_automated_attachments = msg.attachments.some(TS.utility.attachments.isAutomatedSlackUnfurl);
+          if (has_automated_attachments) do_highlighting = false;
+        }
       }
       var formatted_msg = TS.format.formatWithOptions(text, msg, {
         no_highlights: do_highlighting !== true,
@@ -57070,6 +57043,7 @@ $.fn.togglify = function(settings) {
     if (msg && msg.subtype == "pinned_item") {
       attachment.from_url = TS.utility.msgs.constructAbsoluteMsgPermalink(TS.shared.getActiveModelOb(), attachment.ts);
     }
+    attachment._is_automated_unfurl = TS.utility.attachments.isAutomatedSlackUnfurl(attachment);
     attachment.color = null;
     _.set(attachment, "mrkdwn_in_hash.text", true);
     var probably_real_name = attachment.author_name;
@@ -74747,7 +74721,8 @@ $.fn.togglify = function(settings) {
               var n = this.getName() + ".componentWillUnmount()";
               p.invokeGuardedCallback(n, t.componentWillUnmount.bind(t));
             } else t.componentWillUnmount();
-          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
+          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null),
+            this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
         }
       },
       _maskContext: function(e) {

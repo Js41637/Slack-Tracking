@@ -98,7 +98,7 @@ Used in billing_history_list_item_col.hbs
   {{#t}}Charged for high balance{{/t}}
 {{else if_equal type compare="annual_team_balance_paid"}}
   {{#t}}Monthly accrued balance for annual teams{{/t}}
-{{!-- Types with no billing statment associated, will not link --}}
+{{!-- Types with no billing statement associated, will not link --}}
 {{else if_equal type compare="staff_gift"}}
   {{#if_equal this.details.gift_type compare="surprise"}}
     {{#if_gt this.delta compare=0}}
@@ -129,6 +129,8 @@ Used in billing_history_list_item_col.hbs
   {{#t}}Refunded Payment{{/t}}
 {{else if_equal type compare="sales_tax_refund"}}
   {{#t}}Sales Tax Refund{{/t}}
+{{else if_equal type compare="currency_switch"}}
+  {{#t}}Currency switched to {currency}{{/t}}
 {{else if_equal type compare="enterprise_transfer"}}
   {{#if enterprise_transfer.enterprise_id}}
     {{#t}}Transferred to <a href="{enterprise_transfer.enterprise_url}">{enterprise_transfer.enterprise_name}</a>{{/t}}
