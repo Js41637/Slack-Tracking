@@ -18030,10 +18030,12 @@ TS.registerModule("constants", {
           TS.info("Got " + members.length + " members for rtm.start :tada:");
           data.users = members;
           if (required_member_ids.length !== members.length) {
+            TS.metrics.count("flannel_boot_soft_fail");
             TS.error("TS.flannel.connectAndFetchRtmStart problem: Requested " + required_member_ids.length + " members but received " + members.length + ". Missing members: " + _.difference(required_member_ids, _.map(members, "id")).join(","));
           }
           return data;
         }).catch(function(err) {
+          TS.metrics.count("flannel_boot_hard_fail");
           TS.error("Got error while trying to fetch " + required_member_ids.length + "members for rtm.start :(", err);
           throw err;
         });
@@ -28192,7 +28194,7 @@ TS.registerModule("constants", {
       var fields = "";
       if (TS.utility.urlNeedsRefererHiding(url)) {
         fields = '<input type="hidden" name="url" value="' + TS.utility.htmlEntities(url) + '">';
-        action = (TS.boot_data.feature_referer_policy ? "https://" : "http://") + TS.boot_data.redir_domain + "/link";
+        action = "https://" + TS.boot_data.redir_domain + "/link";
       } else {
         var queryIndex = action.indexOf("?");
         if (queryIndex !== -1) {
@@ -28487,7 +28489,7 @@ TS.registerModule("constants", {
       if (!TS.utility.urlNeedsRefererHiding(url)) return html;
       if (TS.utility.externalURLsNeedRedirecting()) {
         var encoded_url = encodeURIComponent(html_url);
-        var proxy_url = (TS.boot_data.feature_referer_policy ? "https://" : "http://") + TS.boot_data.redir_domain + "/link?url=" + encoded_url + (TS.boot_data.feature_referer_policy && referer_policy && referer_policy.redirect_type ? "&v=" + referer_policy.redirect_type : "");
+        var proxy_url = "https://" + TS.boot_data.redir_domain + "/link?url=" + encoded_url + (referer_policy && referer_policy.redirect_type ? "&v=" + referer_policy.redirect_type : "");
         var map_key = TS.utility.htmlEntities(encoded_url);
         TS.utility.referer_safe_url_map[map_key] = html_url;
         html += ' data-referer-safe="1" ' + on_method + '="this.href=&quot;' + proxy_url + '&quot;" onmouseover="this.href=TS.utility.referer_safe_url_map[&quot;' + map_key + '&quot;]" data-referer-original-href="' + html_url + '" rel="noreferrer"';
@@ -29534,10 +29536,6 @@ TS.registerModule("constants", {
       _referer_policy = null;
       return _referer_policy;
     }
-    if (!data.feature_referer_policy && TS.qs_args["test_iframe_referers"] != "1") {
-      _referer_policy = null;
-      return _referer_policy;
-    }
     var def = {
       iframe_redirect_type: 4,
       redirect_type: 3,
@@ -29581,6 +29579,7 @@ TS.registerModule("constants", {
       };
       return _referer_policy;
     }
+    if (navigator.userAgent && navigator.userAgent.match(/phantomjs/i)) can_warn = false;
     if (can_warn) console.warn("browser not recognized, defaulting to restrictive referrer policy");
     _referer_policy = def;
     return def;
@@ -29708,6 +29707,7 @@ TS.registerModule("constants", {
   "use strict";
   TS.registerModule("utility.url", {
     getHostName: function(url) {
+      if (!url) return "";
       var a = document.createElement("a");
       a.href = url;
       return a.hostname;
@@ -39605,6 +39605,7 @@ var _on_esc;
       }
       var in_replies = TS.msg_edit.editing_in_convo_pane;
       TS.msg_edit.commitEditInternal(edited_text);
+      TS.utility.contenteditable.unload($("#message_edit_form #msg_text"));
       TS.msg_edit.resetEditUI();
       if (TS.client) {
         if (!in_replies) {
@@ -39618,6 +39619,7 @@ var _on_esc;
         return null;
       }
       var in_replies = TS.msg_edit.editing_in_convo_pane;
+      TS.utility.contenteditable.unload($("#message_edit_form #msg_text"));
       TS.msg_edit.resetEditUI();
       if (TS.client) {
         if (!in_replies) {
@@ -55495,12 +55497,7 @@ $.fn.togglify = function(settings) {
       return true;
     },
     verifyOriginUrl: function(originHref) {
-      if (!originHref) {
-        return false;
-      }
-      var a = document.createElement("a");
-      a.href = originHref;
-      return a.hostname == window.location.hostname;
+      return TS.utility.url.getHostName(originHref) == window.location.hostname;
     },
     getUrlForRoom: function(room) {
       return TS.utility.calls.getUrlForRoomId(room.id);
@@ -56598,6 +56595,13 @@ $.fn.togglify = function(settings) {
       var texty = new Texty(input, options);
       _setTextyInstance(input, texty);
     },
+    unload: function(input) {
+      input = _normalizeInput(input);
+      if (!input) return;
+      if (!_isTextyElement(input)) return;
+      var texty = _getTextyInstance(input);
+      if (texty) texty.unload();
+    },
     isActiveElement: function(input) {
       input = _normalizeInput(input);
       if (!input) return false;
@@ -57417,6 +57421,10 @@ $.fn.togglify = function(settings) {
           if (opts.onEnter) opts.onEnter();
           return false;
         },
+        onTab: function() {
+          if (opts.onTab) opts.onTab();
+          return false;
+        },
         onTextChange: function() {
           TS.msg_edit.checkLengthAndUpdateMessage($input);
           if (opts.onTextChange) opts.onTextChange();
@@ -57961,7 +57969,8 @@ $.fn.togglify = function(settings) {
       no_emo: false,
       placeholder: TS.i18n.t("Add a message, if you’d like.", "basic_share_dialog")(),
       onEnter: TS.generic_dialog.go,
-      onTextChange: _onTextChange
+      onTextChange: _onTextChange,
+      onTab: _onTab
     });
     var $input = $container.find(".message_input");
     $input.attr("id", "file_comment_textarea");
@@ -58005,7 +58014,7 @@ $.fn.togglify = function(settings) {
         }
       } else if (e.which === TS.utility.keymap.tab && $channel_picker.find(".lfs_input_container:visible").length && !e.shiftKey && !$input.tab_complete_ui("isShowing") && !$input.tab_complete_ui("hasMatches")) {
         e.preventDefault();
-        $channel_picker.find(".lfs_input_container").click();
+        _onTab();
       }
     }).on("textchange", function() {
       _onTextChange();
@@ -58014,6 +58023,9 @@ $.fn.togglify = function(settings) {
   var _onTextChange = function() {
     TS.ui.file_share.updateAtChannelWarningNote();
     TS.ui.file_share.updateAtChannelBlockedNote();
+  };
+  var _onTab = function() {
+    $("#file_sharing_div").find(".lfs_input_container").click();
   };
   var _onEnd = function() {
     if (_options.onEnd) _options.onEnd();
@@ -66586,13 +66598,14 @@ $.fn.togglify = function(settings) {
     });
   if (o.canUseDOM) {
     var c = document.createElement("div");
-    c.innerHTML = " ", "" === c.innerHTML && (l = function(e, t) {
-      if (e.parentNode && e.parentNode.replaceChild(e, e), a.test(t) || "<" === t[0] && s.test(t)) {
-        e.innerHTML = String.fromCharCode(65279) + t;
-        var n = e.firstChild;
-        1 === n.data.length ? e.removeChild(n) : n.deleteData(0, 1);
-      } else e.innerHTML = t;
-    }), c = null;
+    c.innerHTML = " ",
+      "" === c.innerHTML && (l = function(e, t) {
+        if (e.parentNode && e.parentNode.replaceChild(e, e), a.test(t) || "<" === t[0] && s.test(t)) {
+          e.innerHTML = String.fromCharCode(65279) + t;
+          var n = e.firstChild;
+          1 === n.data.length ? e.removeChild(n) : n.deleteData(0, 1);
+        } else e.innerHTML = t;
+      }), c = null;
   }
   e.exports = l;
 }, function(e, t, n) {
@@ -68259,8 +68272,7 @@ $.fn.togglify = function(settings) {
       i = "React mount: " + ("string" == typeof s ? s : s.displayName || s.name), console.time(i);
     }
     var u = x.mountComponent(e, n, null, y(e, t), o, 0);
-    i && console.timeEnd(i), e._renderedComponent._topLevelWrapper = e,
-      U._mountImageIntoNode(u, t, e, r, n);
+    i && console.timeEnd(i), e._renderedComponent._topLevelWrapper = e, U._mountImageIntoNode(u, t, e, r, n);
   }
 
   function s(e, t, n, r) {

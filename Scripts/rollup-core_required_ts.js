@@ -3356,12 +3356,12 @@
     getGroup: function(name) {
       var caches = [_loaded_lead_assignments, _loaded_visitor_assignments, _loaded_user_assignments];
       var expired_caches = _.filter(caches, _isCacheExpired);
-      if (TS.boot_data.version_ts === "dev" && expired_caches.length === 3 && TS.error) TS.error('TS.experiment.getGroup("' + name + '") called with a fully expired cache, assignments should be loaded first');
+      if (TS.boot_data.version_ts === "dev" && expired_caches.length === 3 && TS.error) TS.error('TS.experiment.getGroup("' + name + '") called with a fully expired cache, ensure TS.experiments.load<Type>Assignments is called first');
       if (_assignments[name]) {
         if (_assignments[name].log_exposures) _logExposure(name, _assignments[name]);
         return _assignments[name].group;
       }
-      if (TS.boot_data.version_ts === "dev" && expired_caches.length > 0 && TS.warn) TS.warn('TS.experiment.getGroup("' + name + '") failed to find an assignment and had a partially expired cache, make sure assignments are loaded');
+      if (TS.boot_data.version_ts === "dev" && expired_caches.length > 0 && TS.warn) TS.warn('TS.experiment.getGroup("' + name + '") failed to find an assignment and had a partially expired cache, ensure TS.experiments.load<Type>Assignments is called first');
       return null;
     },
     test: function() {

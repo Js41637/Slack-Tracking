@@ -924,7 +924,7 @@
               $form.find("button[type=submit]").scrollintoview({
                 px_offset: -50,
                 complete: function() {
-                  TS.tabcomplete.positionUIRelativeToInput($(".tab_complete_ui"), input);
+                  TS.tabcomplete.positionUIRelativeToInput($(".tab_complete_ui")[0], input);
                 }
               });
             }
