@@ -6887,7 +6887,7 @@ TS.registerModule("constants", {
           TS.warn("ignoring filename because it makes no sense for text files");
         }
       } else {
-        display_name = args.title || args.filename || args.file.name || "blob";
+        display_name = args.title || args.filename || args.file && args.file.name || "blob";
         TS.files.file_uploading_sig.dispatch(display_name, args.retry_num > 0, cancelable);
         if (typeof args.file == "string") {
           form_data.append("content64", args.file);
@@ -10401,6 +10401,11 @@ TS.registerModule("constants", {
     changed_sig: new signals.Signal,
     unlinked_sig: new signals.Signal,
     changed_icon_sig: new signals.Signal,
+    onStart: function() {
+      if (TS.boot_data.feature_shared_channels_client) {
+        TS.ms.on_msg_sig.add(TS.teams.ensureTeamsInDataArePresent);
+      }
+    },
     getTeamById: function(id) {
       if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
@@ -10533,7 +10538,6 @@ TS.registerModule("constants", {
     },
     ensureTeamsInDataArePresent: function(data) {
       if (!TS.boot_data.feature_shared_channels_client) {
-        TS.console.warn("external shared channels must be on to use this");
         return Promise.resolve();
       }
       var team_ids = TS.utility.extractAllTeamIds(data);
@@ -10638,7 +10642,9 @@ TS.registerModule("constants", {
       if (TS.client) TS.client.user_removed_from_team_sig.add(TS.members.userRemovedFromTeam);
       TS.channels.member_joined_sig.add(_maybeUpdateMembersUserCanSee);
       TS.channels.member_left_sig.add(_maybeUpdateMembersUserCanSee);
-      TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent);
+      if (TS.boot_data.feature_shared_channels_client) {
+        TS.members.lazily_added_sig.add(TS.teams.ensureTeamsInDataArePresent);
+      }
       if (TS.client) {
         TS.client.login_sig.addOnce(function() {
           if (TS.membership.lazyLoadChannelMembership()) {
@@ -66598,14 +66604,13 @@ $.fn.togglify = function(settings) {
     });
   if (o.canUseDOM) {
     var c = document.createElement("div");
-    c.innerHTML = " ",
-      "" === c.innerHTML && (l = function(e, t) {
-        if (e.parentNode && e.parentNode.replaceChild(e, e), a.test(t) || "<" === t[0] && s.test(t)) {
-          e.innerHTML = String.fromCharCode(65279) + t;
-          var n = e.firstChild;
-          1 === n.data.length ? e.removeChild(n) : n.deleteData(0, 1);
-        } else e.innerHTML = t;
-      }), c = null;
+    c.innerHTML = " ", "" === c.innerHTML && (l = function(e, t) {
+      if (e.parentNode && e.parentNode.replaceChild(e, e), a.test(t) || "<" === t[0] && s.test(t)) {
+        e.innerHTML = String.fromCharCode(65279) + t;
+        var n = e.firstChild;
+        1 === n.data.length ? e.removeChild(n) : n.deleteData(0, 1);
+      } else e.innerHTML = t;
+    }), c = null;
   }
   e.exports = l;
 }, function(e, t, n) {
