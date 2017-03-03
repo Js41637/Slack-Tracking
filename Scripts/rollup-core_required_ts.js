@@ -1647,10 +1647,6 @@
       TS._did_full_boot = true;
       TS.model.change_channels_when_offline = true;
       _setIncrementalBootUIState(false);
-      var model_ob = TS.shared.getActiveModelOb();
-      if (model_ob) {
-        delete model_ob._incremental_boot_counts;
-      }
     },
     shouldIncrementalBoot: function() {
       if (TS._did_incremental_boot) return false;
@@ -1686,9 +1682,6 @@
     TS.model.initial_cid = focal_model_ob.id;
     delete data.channel;
     delete data.group;
-    if (channels_view_data.counts) {
-      focal_model_ob._incremental_boot_counts = channels_view_data.counts;
-    }
     if (data.history && data.history.messages) {
       focal_model_ob.msgs = data.history.messages;
     } else {

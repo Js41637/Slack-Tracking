@@ -6989,10 +6989,8 @@
         var model_ob = TS.shared.getActiveModelOb();
         if (!TS.lazyLoadMembersAndBots()) {
           var has_count = true;
-          var count;
-          if (TS.isPartiallyBooted()) {
-            count = _.get(model_ob, "_incremental_boot_counts.member_count_display", 0);
-          } else {
+          var count = 0;
+          if (!TS.isPartiallyBooted()) {
             count = _(model_ob.members).map(TS.members.getMemberById).compact().reject(function(member) {
               if (TS.boot_data.page_needs_enterprise) {
                 if (model_ob.is_shared) {

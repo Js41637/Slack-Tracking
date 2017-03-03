@@ -4354,22 +4354,21 @@
       return true;
     },
     ensureChannelMembershipIsKnownForUsers: function(channel_id, user_ids) {
-      if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
-      if (user_ids.length > 0 && !_.isString(user_ids[0])) throw new Error("Expected user_ids to be strings");
-      if (!TS.membership.lazyLoadChannelMembership()) return Promise.resolve(false);
-      if (channel_id[0] == "D") {
+      var user_ids_without_known_membership = _getUsersWithChannelMembershipUnknown(channel_id, user_ids);
+      if (user_ids_without_known_membership.length === 0) {
         return Promise.resolve(false);
-      }
-      var user_ids_without_known_membership = user_ids.filter(function(user_id) {
-        return !_isChannelMembershipKnownForUser(channel_id, user_id);
-      });
-      if (!user_ids_without_known_membership.length) return Promise.resolve(false);
-      return TS.flannel.fetchChannelMembershipForUsers(channel_id, user_ids_without_known_membership).then(function(membership_info) {
-        _.forEach(membership_info, function(is_member, user_id) {
-          _setChannelKnownMembership(channel_id, user_id, is_member);
+      } else {
+        return TS.flannel.fetchChannelMembershipForUsers(channel_id, user_ids_without_known_membership).then(function(membership_info) {
+          _.forEach(membership_info, function(is_member, user_id) {
+            _setChannelKnownMembership(channel_id, user_id, is_member);
+          });
+          return true;
         });
-        return true;
-      });
+      }
+    },
+    isChannelMembershipKnownForUsers: function(channel_id, user_ids) {
+      var user_ids_without_known_membership = _getUsersWithChannelMembershipUnknown(channel_id, user_ids);
+      return user_ids_without_known_membership.length === 0;
     },
     notifyChannelMembershipChanged: function(user_id, channel, is_member, should_display_join_message) {
       var member = TS.members.getMemberById(user_id);
@@ -4408,12 +4407,6 @@
           channel_member_counts.last_fetched_ts = Date.now();
           return null;
         });
-      }
-      if (TS.isPartiallyBooted() && !channel_member_counts.counts && model_ob._incremental_boot_counts) {
-        channel_member_counts.counts = {
-          member_count: _.get(model_ob, "_incremental_boot_counts.member_count_display"),
-          restricted_member_count: 0
-        };
       }
       return channel_member_counts;
     }
@@ -4457,6 +4450,18 @@
       _.pull(_channel_known_member_statuses[model_ob_id].known_members, user_id);
     }
     return true;
+  };
+  var _getUsersWithChannelMembershipUnknown = function(channel_id, user_ids) {
+    if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
+    if (user_ids.length > 0 && !_.isString(user_ids[0])) throw new Error("Expected user_ids to be strings");
+    if (!TS.membership.lazyLoadChannelMembership()) return [];
+    if (channel_id[0] == "D") {
+      return [];
+    }
+    var user_ids_without_known_membership = user_ids.filter(function(user_id) {
+      return !_isChannelMembershipKnownForUser(channel_id, user_id);
+    });
+    return user_ids_without_known_membership;
   };
   var _promiseToGetChannelMemberCountsFromAPI = function(model_ob, last_fetched_ts) {
     if (!model_ob) {
@@ -14967,10 +14972,12 @@ TS.registerModule("constants", {
           if (!match) continue;
           TS.search.expandChannelsAndCheckForMsgsInMatch(match);
         }
-        for (var i = 0; i < results.messages.modules.score.top_results.length; i++) {
-          match = results.messages.modules.score.top_results[i];
-          if (!match) continue;
-          TS.search.expandChannelsAndCheckForMsgsInMatch(match);
+        if (results.messages.modules.score.top_results) {
+          for (var i = 0; i < results.messages.modules.score.top_results.length; i++) {
+            match = results.messages.modules.score.top_results[i];
+            if (!match) continue;
+            TS.search.expandChannelsAndCheckForMsgsInMatch(match);
+          }
         }
       }
     },
@@ -27692,7 +27699,7 @@ TS.registerModule("constants", {
         var is_default_channel = _.includes(TS.model.team.prefs.default_channels, channel.id);
         var was_invited = !!imsg.inviter;
         var num_members;
-        if (TS.membership.lazyLoadChannelMembership()) {
+        if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
           num_members = channel.num_members;
           if (_.isUndefined(channel.num_members)) {
             var membership_counts = TS.membership && TS.membership.getMembershipCounts(channel);
@@ -52665,7 +52672,8 @@ $.fn.togglify = function(settings) {
       var filter_members = function() {
         var group = TS.user_groups.getUserGroupsById(user_group_id);
         var members = group.users.filter(function(member_id) {
-          return channel.members.indexOf(member_id) !== -1;
+          var user_membership = TS.membership.getUserChannelMembershipStatus(member_id, channel);
+          return user_membership.is_known && user_membership.is_member;
         });
         return members;
       };
@@ -52681,16 +52689,34 @@ $.fn.togglify = function(settings) {
           _pending_group_requests[user_group_id] = true;
           TS.user_groups.getUserGroupMembers(user_group_id, function(updated_group) {
             if (updated_group && updated_group.users) {
-              _pending_group_requests[user_group_id] = false;
-              ug = updated_group;
-              return do_work();
+              var known_membership_promise;
+              if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+                known_membership_promise = TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, updated_group.users);
+              } else {
+                known_membership_promise = Promise.resolve();
+              }
+              known_membership_promise.then(function() {
+                _pending_group_requests[user_group_id] = false;
+                ug = updated_group;
+                return do_work();
+              });
             }
           });
         } else {
           return callback(result, true);
         }
       } else {
-        return do_work();
+        if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+          if (TS.membership.isChannelMembershipKnownForUsers(channel.id, ug.users)) {
+            return do_work();
+          } else {
+            TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, ug.users).then(function() {
+              return do_work();
+            });
+          }
+        } else {
+          return do_work();
+        }
       }
     },
     upsertUserGroup: function(user_group) {
@@ -55469,6 +55495,9 @@ $.fn.togglify = function(settings) {
       return true;
     },
     verifyOriginUrl: function(originHref) {
+      if (!originHref) {
+        return false;
+      }
       var a = document.createElement("a");
       a.href = originHref;
       return a.hostname == window.location.hostname;
@@ -63116,8 +63145,7 @@ $.fn.togglify = function(settings) {
           if (l) return void sn(e, n, l);
           var c = i ? i(s, u, n + "", e, t, a) : J,
             f = c === J;
-          f && (c = u, Tc(u) || ns(u) ? Tc(s) ? c = s : Ra(s) ? c = Ur(s) : (f = !1,
-            c = kn(u, !i)) : Xa(u) || ka(u) ? ka(s) ? c = ps(s) : !Wa(s) || r && Da(s) ? (f = !1, c = kn(u, !i)) : c = s : f = !1), a.set(u, c), f && o(c, u, r, i, a), a.delete(u), sn(e, n, c);
+          f && (c = u, Tc(u) || ns(u) ? Tc(s) ? c = s : Ra(s) ? c = Ur(s) : (f = !1, c = kn(u, !i)) : Xa(u) || ka(u) ? ka(s) ? c = ps(s) : !Wa(s) || r && Da(s) ? (f = !1, c = kn(u, !i)) : c = s : f = !1), a.set(u, c), f && o(c, u, r, i, a), a.delete(u), sn(e, n, c);
         }
 
         function sr(e, t, n) {
@@ -68231,7 +68259,8 @@ $.fn.togglify = function(settings) {
       i = "React mount: " + ("string" == typeof s ? s : s.displayName || s.name), console.time(i);
     }
     var u = x.mountComponent(e, n, null, y(e, t), o, 0);
-    i && console.timeEnd(i), e._renderedComponent._topLevelWrapper = e, U._mountImageIntoNode(u, t, e, r, n);
+    i && console.timeEnd(i), e._renderedComponent._topLevelWrapper = e,
+      U._mountImageIntoNode(u, t, e, r, n);
   }
 
   function s(e, t, n, r) {
