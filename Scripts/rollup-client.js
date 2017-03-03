@@ -409,6 +409,7 @@
           jumbomoji: true
         }).replace("emoji-sizer", "");
         title = new Handlebars.SafeString(title);
+        TS.metrics.count("deprecate_10_8_modal");
         TS.ui.fs_modal.start({
           title: title,
           body: TS.i18n.t("<p>We've been working to make Slack faster and easier to use. Unfortunately, your computer's operating system (OS X 10.8 Mountain Lion) isn't compatible with these improvements.</p><p>To continue using Slack on your Mac computer, please upgrade your operating system soon! Feel free to <a href='mailto:feedback@slack.com'>contact us</a> with any questions.</p>", "client")(),
@@ -419,6 +420,7 @@
           go_button_text: TS.i18n.t("Skip for now", "client")(),
           modal_class: "deprecate_10_8",
           onSecondaryGo: function() {
+            TS.metrics.count("deprecate_10_8_button");
             TS.utility.openInNewTab("https://support.apple.com/en-us/HT201475", "_blank");
           }
         });
