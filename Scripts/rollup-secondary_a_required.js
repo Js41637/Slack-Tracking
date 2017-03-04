@@ -57940,7 +57940,10 @@ $.fn.togglify = function(settings) {
     var $dialog = $("#generic_dialog.basic_share_dialog");
     $dialog.css("display", "");
     var $container = $dialog.find("#share_dialog_input_container");
-    var completers = [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members];
+    var completers = [];
+    if (TS.boot_data.feature_texty_takes_over) {
+      completers = [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members];
+    }
     TS.ui.inline_msg_input.make($container, {
       aria_label: TS.i18n.t("Add optional comment before sharing.", "basic_share_dialog")(),
       no_emo: false,
