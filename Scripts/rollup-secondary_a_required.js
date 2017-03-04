@@ -16698,8 +16698,8 @@ TS.registerModule("constants", {
       }
       TS.info("archived channel " + imsg.channel);
       channel.is_archived = true;
-      if (imsg.is_moved == 1) {
-        channel.is_moved = true;
+      if (imsg.is_moved) {
+        channel.is_moved = imsg.is_moved;
       }
       if (!TS.model.user.is_restricted) {
         if (channel.is_member) {
@@ -16722,8 +16722,8 @@ TS.registerModule("constants", {
         var in_background = true;
         TS.channels.join(channel.name, null, in_background);
       }
-      if (imsg.is_moved == 1) {
-        channel.is_moved = true;
+      if (imsg.is_moved) {
+        channel.is_moved = imsg.is_moved;
       }
       channel.is_archived = false;
       channel.was_archived_this_session = false;
@@ -16961,8 +16961,8 @@ TS.registerModule("constants", {
       }
       TS.info("archived group " + imsg.channel);
       group.is_archived = true;
-      if (imsg.is_moved == 1) {
-        group.is_moved = true;
+      if (imsg.is_moved) {
+        group.is_moved = imsg.is_moved;
       }
       if (group.is_open) {
         group.was_archived_this_session = true;
@@ -16975,8 +16975,8 @@ TS.registerModule("constants", {
         TS.error('unknown group: "' + imsg.channel);
         return;
       }
-      if (imsg.is_moved == 1) {
-        group.is_moved = true;
+      if (imsg.is_moved) {
+        group.is_moved = imsg.is_moved;
       }
       if (!group.is_archived) {
         return;
@@ -19968,47 +19968,48 @@ TS.registerModule("constants", {
           var mover = TS.members.getMemberById(msg.user);
           mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
         }
+        var name_for_url = TS.boot_data.feature_intl_channel_names ? group.id : group.name;
         if (TS.client && group && group.is_archived) {
           if (TS.model.archive_view_is_showing) {
-            if (group.is_moved) {
+            if (group.is_moved == 1) {
               html = TS.i18n.t('moved {group_name} to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
                 group_name: group_name,
                 enterprise_name: enterprise_name,
                 mover_name: mover_name,
-                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
+                name_for_url: name_for_url
               });
             } else {
               html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
                 group_name: group_name,
-                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
+                name_for_url: name_for_url
               });
             }
           } else {
             var method = "TS.shared.closeArchivedChannel";
             var group_id_quoted = "'" + group.id + "'";
-            if (group.is_moved) {
+            if (group.is_moved == 1) {
               html = TS.i18n.t('moved {group_name} to another {enterprise_name} team. The contents up until this point are still available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							If you need access to this channel going forward, please contact {mover_name}.', "templates_builders")({
                 group_name: group_name,
                 enterprise_name: enterprise_name,
                 mover_name: mover_name,
-                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name
+                name_for_url: name_for_url
               });
             } else {
               html = TS.i18n.t('archived {group_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>. 							It can also be un-archived at any time. To close it now, <a onclick="{method}({group_id})">click here</a>.', "templates_builders")({
                 group_name: group_name,
-                name_for_url: TS.boot_data.feature_intl_channel_names ? group.id : group.name,
+                name_for_url: name_for_url,
                 method: method,
                 group_id: group_id_quoted
               });
             }
           }
         } else {
-          if (_.get(group, "is_moved")) {
+          if (group.is_moved == 1) {
             html = TS.i18n.t("moved {group_name} to another {enterprise_name} team", "templates_builders")({
               group_name: group_name,
               enterprise_name: enterprise_name
             });
-          } else {
+          } else if (group.is_moved == 0) {
             html = TS.i18n.t("archived {group_name}", "templates_builders")({
               group_name: group_name
             });
@@ -20032,7 +20033,7 @@ TS.registerModule("constants", {
         }
         var name_for_url = TS.boot_data.feature_intl_channel_names ? model_ob.id : model_ob.name;
         var enterprise_name = _.get(TS.model.enterprise, "name", "");
-        if (TS.client && model_ob && model_ob.is_moved) {
+        if (TS.client && model_ob.is_moved == 1) {
           var mover;
           var mover_name;
           if (msg.user) {
@@ -20055,7 +20056,7 @@ TS.registerModule("constants", {
               channel_id: channel_id_quoted
             });
           }
-        } else if (TS.client && model_ob && model_ob.is_archived) {
+        } else if (TS.client && model_ob) {
           if (TS.model.archive_view_is_showing) {
             html = TS.i18n.t('archived {channel_name}. The contents will still be available in search and browsable in the <a target="_blank" href="/archives/{name_for_url}?force-browser=1">archives</a>.', "templates_builders")({
               channel_name: channel_name,
@@ -20068,17 +20069,11 @@ TS.registerModule("constants", {
               channel_id: channel_id_quoted
             });
           }
-        } else {
-          if (_.get(model_ob, "is_moved")) {
-            html = TS.i18n.t("moved {channel_name} to another {enterprise_name} team", "templates_builders")({
-              channel_name: channel_name,
-              enterprise_name: enterprise_name
-            });
-          } else {
-            html = TS.i18n.t("archived {channel_name}", "templates_builders")({
-              channel_name: channel_name
-            });
-          }
+        } else if (model_ob && model_ob.is_moved == 1) {
+          html = TS.i18n.t("moved {channel_name} to another {enterprise_name} team", "templates_builders")({
+            channel_name: channel_name,
+            enterprise_name: enterprise_name
+          });
         }
       } else if (msg.subtype == "channel_unarchive") {
         var channel_name;
@@ -22726,6 +22721,7 @@ TS.registerModule("constants", {
         }
         var msg_classes = _assignMsgClasses(msg, template_args);
         template_args.msg_classes = msg_classes.join(" ");
+        if (TS.boot_data.feature_enterprise_move_channels && (msg.subtype === "channel_unarchive" || msg.subtype === "channel_archive" || msg.subtype === "group_unarchive" || msg.subtype === "group_archive") && model_ob.is_moved === 2) return "";
         html += TS.templates.message(template_args);
         html = TS.format.replaceHighlightMarkers(html);
         return html;
@@ -32399,7 +32395,6 @@ TS.registerModule("constants", {
           template_args.abs_permalink = msg.file.permalink;
         }
       }
-      var $el = $(e.target);
       if (TS.replies.canReplyToMsg(model_ob, msg)) {
         template_args.can_subscribe = true;
         template_args.subscription = TS.replies.getSubscriptionState(model_ob.id, msg.ts);
@@ -32409,6 +32404,7 @@ TS.registerModule("constants", {
             _maybeUpdateSubscriptionMenuItem(model_ob.id, msg.ts, subscription);
           });
         }
+        template_args.prefs_threads_everything = _.get(TS, "model.prefs.threads_everything");
       }
       template_args.is_in_conversation = $el.closest("ts-conversation").length > 0;
       var is_in_threads_view = $el.closest("#threads_msgs").length > 0;
@@ -57380,14 +57376,14 @@ $.fn.togglify = function(settings) {
             }
           },
           tabcomplete: {
+            completers: opts.completers,
             positionMenu: function(menu) {
               var offset = $input.offset();
               var to_the_edge_width = $(window).width() - offset.left - 2;
               menu.style.width = Math.min($input.outerWidth(), to_the_edge_width) + "px";
               menu.style.minWidth = 0;
               TS.tabcomplete.positionUIRelativeToInput(menu, $input);
-            },
-            completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members]
+            }
           }
         },
         placeholder: opts.placeholder,
@@ -57944,13 +57940,15 @@ $.fn.togglify = function(settings) {
     var $dialog = $("#generic_dialog.basic_share_dialog");
     $dialog.css("display", "");
     var $container = $dialog.find("#share_dialog_input_container");
+    var completers = [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members];
     TS.ui.inline_msg_input.make($container, {
       aria_label: TS.i18n.t("Add optional comment before sharing.", "basic_share_dialog")(),
       no_emo: false,
       placeholder: TS.i18n.t("Add a message, if you’d like.", "basic_share_dialog")(),
       onEnter: TS.generic_dialog.go,
       onTextChange: _onTextChange,
-      onTab: _onTab
+      onTab: _onTab,
+      completers: completers
     });
     var $input = $container.find(".message_input");
     $input.attr("id", "file_comment_textarea");
@@ -60188,8 +60186,12 @@ $.fn.togglify = function(settings) {
         return "threads_view";
       } else if ($el.closest("#convo_tab").length > 0) {
         return "convo";
+      } else if ($el.closest("#msgs_scroller_div").length > 0) {
+        return "message_pane";
+      } else if ($el.closest("#unread_msgs_scroller_div").length > 0) {
+        return "unreads_view";
       }
-      return null;
+      return "other";
     }
   });
   var _setExpanded = function(model_ob_id, thread_ts, expanded) {
@@ -74717,12 +74719,12 @@ $.fn.togglify = function(settings) {
         if (this._renderedComponent) {
           var t = this._instance;
           if (t.componentWillUnmount && !t._calledComponentWillUnmount)
-            if (t._calledComponentWillUnmount = !0, e) {
+            if (t._calledComponentWillUnmount = !0,
+              e) {
               var n = this.getName() + ".componentWillUnmount()";
               p.invokeGuardedCallback(n, t.componentWillUnmount.bind(t));
             } else t.componentWillUnmount();
-          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null),
-            this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
+          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
         }
       },
       _maskContext: function(e) {

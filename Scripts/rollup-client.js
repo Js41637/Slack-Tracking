@@ -33856,6 +33856,7 @@ function timezones_guess() {
     },
     onMessage: function(event) {
       var origin = event.origin || event.originalEvent.origin;
+      if (!origin) return;
       var data = event.data || event.originalEvent.data;
       if (_.includes(["pdf_iframe_ready", "corrupt_pdf", "close_file_viewer"], data)) {
         if (origin !== this.iframe_origin) {

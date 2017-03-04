@@ -11489,6 +11489,25 @@ body.winssb #emoji_menu {
   width: 24px
 }
 
+#toggle-subscription-status {
+  max-width: 240px
+}
+
+#toggle-subscription-status .subscription_title {
+  font-weight: 700
+}
+
+#toggle-subscription-status .subscription_desc {
+  font-size: .85rem;
+  line-height: 20px;
+  color: #717274;
+  white-space: normal
+}
+
+#toggle-subscription-status:hover .subscription_desc {
+  color: inherit
+}
+
 #toggle-subscription-status .follow_message,
 #toggle-subscription-status .follow_thread,
 #toggle-subscription-status .unfollow_message,
