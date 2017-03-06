@@ -2414,16 +2414,10 @@
       var teams = _.get(member_model_ob, "enterprise_user.teams");
       if (channel_model_ob.is_shared && !member_model_ob._is_local && _.isArray(teams)) {
         var allowed_teams;
-        if (TS.boot_data.feature_thin_shares) {
-          if (channel_model_ob.is_global_shared) {
-            allowed_teams = _.map(TS.model.enterprise_teams, "id");
-          } else {
-            allowed_teams = channel_model_ob.shared_team_ids;
-          }
+        if (channel_model_ob.is_global_shared) {
+          allowed_teams = _.map(TS.model.enterprise_teams, "id");
         } else {
-          allowed_teams = channel_model_ob.shares.map(function(team) {
-            return team.id;
-          });
+          allowed_teams = channel_model_ob.shared_team_ids;
         }
         var matches = _.intersection(teams, allowed_teams);
         if (!matches.length) return false;
@@ -4935,7 +4929,7 @@
     }).change();
   };
   var _retentionDialogLoadingHtml = function() {
-    var url = vvv("/img/loading_hash_animation_@2x.gif");
+    var url = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
     var loading_text = TS.i18n.t("Loading...", "channels")();
     return '<div class="loading_hash_animation" style="margin: 2rem;"><img src="' + url + '" alt="' + loading_text + '" /><br />' + loading_text + "</div>";
   };
@@ -4994,7 +4988,7 @@ TS.registerModule("constants", {
   },
   restricted_overlay: {
     standard: cdn_url + "/0180/img/avatar_overlays.png",
-    retina: vvv("/img/avatar_overlays_@2x.png")
+    retina: cdn_url + "/0180/img/avatar_overlays_@2x.png"
   }
 });
 (function() {
@@ -7361,7 +7355,7 @@ TS.registerModule("constants", {
         $('.file_refresh_status[data-file-id="' + id + '"]').text(TS.i18n.t("Refreshing file...", "files")()).addClass("hidden");
       }, ms);
     },
-    shareOrReshareFile: function(file_id, hide_file_preview, space_has_title, source_model_ob_id) {
+    shareOrReshareFile: function(file_id, hide_file_preview, space_has_title, source_model_ob_id, allow_create) {
       var file = TS.files && TS.files.getFileById ? TS.files.getFileById(file_id) : null;
       var can_reshare = false;
       var is_owned_by_other = file.user != TS.model.user.id;
@@ -7374,10 +7368,10 @@ TS.registerModule("constants", {
         return;
       } else if (can_reshare) {
         TS.files.reShareConfirmation([file], function() {
-          TS.ui.share_dialog.start(file_id, hide_file_preview, space_has_title, source_model_ob_id);
+          TS.ui.share_dialog.start(file_id, hide_file_preview, space_has_title, source_model_ob_id, null, allow_create);
         });
       } else {
-        TS.ui.share_dialog.start(file_id, hide_file_preview, space_has_title, source_model_ob_id);
+        TS.ui.share_dialog.start(file_id, hide_file_preview, space_has_title, source_model_ob_id, null, allow_create);
       }
     },
     reShareConfirmation: function(files, callback) {
@@ -8453,6 +8447,14 @@ TS.registerModule("constants", {
         });
       }
       var names = members.map(function(member) {
+        var current_status = "";
+        if (TS.boot_data.feature_user_custom_status && (TS.members.getMemberCurrentStatus(member).emoji || TS.members.getMemberCurrentStatus(member).text)) {
+          current_status = " " + TS.templates.current_status({
+            tip_direction: "bottom",
+            member: member,
+            classes: "ts_tip_float"
+          });
+        }
         if (member.profile.first_name && display_real_names) {
           var first_name = $.trim(member.profile.first_name);
           var last_name = $.trim(member.profile.last_name);
@@ -8462,14 +8464,14 @@ TS.registerModule("constants", {
           }
           if (for_header) {
             name = TS.utility.htmlEntities($.trim(name));
-            name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + "</span>";
+            name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + current_status + "</span>";
           }
           return name;
         } else {
           var user_name = $.trim(member.name);
           if (for_header) {
             user_name = TS.utility.htmlEntities(user_name);
-            user_name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + user_name + "</span>";
+            user_name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + user_name + current_status + "</span>";
           }
           return user_name;
         }
@@ -8734,8 +8736,16 @@ TS.registerModule("constants", {
     var names = members.map(function(member) {
       var name = TS.members.getMemberDisplayName(member);
       if (for_header) {
+        var current_status = "";
+        if (TS.boot_data.feature_user_custom_status && (TS.members.getMemberCurrentStatus(member).emoji || TS.members.getMemberCurrentStatus(member).text)) {
+          current_status = " " + TS.templates.current_status({
+            tip_direction: "bottom",
+            member: member,
+            classes: "ts_tip_float"
+          });
+        }
         name = TS.utility.htmlEntities($.trim(name));
-        name = '<li class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + "</li>";
+        name = '<li class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + current_status + "</li>";
       }
       return name;
     });
@@ -10149,22 +10159,10 @@ TS.registerModule("constants", {
       var enterprise_team_ids;
       var ncc = 1701;
       if (TS.pri) TS.log(ncc, "isRelevantTeamForSharedModelOb(): " + model_ob.id);
-      if (TS.boot_data.feature_thin_shares) {
-        if (model_ob.is_im || model_ob.is_global_shared) {
-          enterprise_team_ids = _.map(TS.model.enterprise_teams, "id");
-        } else {
-          enterprise_team_ids = model_ob.shared_team_ids;
-        }
+      if (model_ob.is_im || model_ob.is_global_shared) {
+        enterprise_team_ids = _.map(TS.model.enterprise_teams, "id");
       } else {
-        if (model_ob.shares) {
-          enterprise_team_ids = _.map(model_ob.shares, "id");
-          if (enterprise_team_ids.indexOf(TS.model.team.id) === -1) {
-            TS.console.warn('error, TS.model.team.id of "' + TS.model.team.id + '" is not in enterprise_team_ids from model_ob.shares on ' + model_ob.id + "?", model_ob.shares);
-          }
-        } else {
-          if (TS.pri) TS.log(ncc, "no model_ob.shares on " + model_ob.id + ", model ob is " + (!model_ob.is_org_shared ? "NOT " : "") + "org_shared");
-          enterprise_team_ids = _.map(TS.model.enterprise_teams, "id");
-        }
+        enterprise_team_ids = model_ob.shared_team_ids;
       }
       if (!enterprise_team_ids) {
         if (TS.pri) TS.log(ncc, "Could not find shared team IDs for " + model_ob.id + "? Exiting.");
@@ -21036,18 +21034,12 @@ TS.registerModule("constants", {
     makeTeamsThatHaveComplianceExportsBlurb: function(model_ob) {
       if (!model_ob || !model_ob.is_shared) return "";
       var exports_teams;
-      if (TS.boot_data.feature_thin_shares) {
-        if (model_ob.is_global_shared) {
-          exports_teams = _.filter(TS.model.enterprise_teams, "has_compliance_export");
-        } else {
-          exports_teams = _(model_ob.shared_team_ids).map(function(id) {
-            return TS.enterprise.getTeamById(id);
-          }).filter("has_compliance_export").value();
-        }
+      if (model_ob.is_global_shared) {
+        exports_teams = _.filter(TS.model.enterprise_teams, "has_compliance_export");
       } else {
-        exports_teams = model_ob.shares.filter(function(team) {
-          return team.team.has_compliance_export;
-        });
+        exports_teams = _(model_ob.shared_team_ids).map(function(id) {
+          return TS.enterprise.getTeamById(id);
+        }).filter("has_compliance_export").value();
       }
       var teams = TS.i18n.listify(_.map(exports_teams, "name")).join("");
       var blurb = TS.i18n.t('{team_or_teams} {teams_count, plural, =1 {has} other {have}} <a href="https://get.slack.help/hc/en-us/articles/204897248-Understanding-Slack-data-exports" target="_blank">Compliance Exports</a> enabled which allows their Team Owners to export communication history.', "templates_builders")({
@@ -21176,7 +21168,7 @@ TS.registerModule("constants", {
         var image_uri = [];
         if (entity.is_restricted || entity.is_ultra_restricted) {
           if (TS.environment.is_retina) {
-            image_uri.push("url('" + vvv("/img/avatar_overlays_@2x.png") + "')");
+            image_uri.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
           } else {
             image_uri.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
           }
@@ -21336,7 +21328,7 @@ TS.registerModule("constants", {
       } else {
         if (member.is_restricted && !omit_restricted_overlay) {
           if (TS.environment.is_retina) {
-            bg_img_urls.push("url('" + vvv("/img/avatar_overlays_@2x.png") + "')");
+            bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
           } else {
             bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
           }
@@ -21418,7 +21410,7 @@ TS.registerModule("constants", {
       var img_size;
       if (user.invite_prefs && user.invite_prefs.type === "restricted") {
         if (TS.environment.is_retina) {
-          bg_img_urls.push("url('" + vvv("/img/avatar_overlays_@2x.png") + "')");
+          bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
         } else {
           bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
         }
@@ -22216,7 +22208,7 @@ TS.registerModule("constants", {
       return html;
     },
     loadingHTML: function() {
-      var url_2x = vvv("/img/loading_hash_animation_@2x.gif");
+      var url_2x = cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
       var url_1x = cdn_url + "/9c217/img/loading_hash_animation.gif";
       var loading_str = TS.i18n.t("loading&hellip;", "templates_builders")();
       return '<div class="loading_hash_animation"><img src="' + url_2x + '" alt="' + loading_str + '" srcset="' + url_1x + " 1x, " + url_2x + ' 2x" /><br />' + loading_str + "</div>";
@@ -23804,28 +23796,17 @@ TS.registerModule("constants", {
         if (!TS.boot_data.page_needs_enterprise) return options.inverse(this);
         var does_a_team = false;
         if (channel.is_shared) {
-          if (TS.boot_data.feature_thin_shares) {
-            var teams;
-            if (channel.is_global_shared) {
-              teams = TS.model.enterprise_teams;
-            } else {
-              teams = _.map(channel.shared_team_ids, function(id) {
-                return TS.enterprise.getTeamById(id);
-              });
-            }
-            does_a_team = teams.some(function(team) {
-              return team.has_compliance_export;
-            });
+          var teams;
+          if (channel.is_global_shared) {
+            teams = TS.model.enterprise_teams;
           } else {
-            does_a_team = channel.shares.some(function(team) {
-              if (TS.boot_data.feature_thin_shares) {
-                var team_ob = TS.enterprise.getTeamById(team);
-                return team_ob.has_compliance_export;
-              } else {
-                return team.team.has_compliance_export;
-              }
+            teams = _.map(channel.shared_team_ids, function(id) {
+              return TS.enterprise.getTeamById(id);
             });
           }
+          does_a_team = teams.some(function(team) {
+            return team.has_compliance_export;
+          });
         }
         return does_a_team ? options.fn(this) : options.inverse(this);
       });
@@ -24589,16 +24570,16 @@ TS.registerModule("constants", {
         return cdn_url + "/9c217/img/loading.gif";
       });
       Handlebars.registerHelper("versioned_loading_hash_animation", function() {
-        return vvv("/img/loading_hash_animation_@2x.gif");
+        return cdn_url + "/9c217/img/loading_hash_animation_@2x.gif";
       });
       Handlebars.registerHelper("versioned_mac_dock_badge", function() {
-        return vvv("/img/prefs_mac_dock_badge@2x.png");
+        return cdn_url + "/9135/img/prefs_mac_dock_badge@2x.png";
       });
       Handlebars.registerHelper("versioned_prefs_messages_clean", function() {
-        return vvv("/img/prefs_messages_clean@2x.png");
+        return cdn_url + "/e5d8/img/prefs_messages_clean@2x.png";
       });
       Handlebars.registerHelper("versioned_prefs_messages_compact", function() {
-        return vvv("/img/prefs_messages_compact@2x.png");
+        return cdn_url + "/e5d8/img/prefs_messages_compact@2x.png";
       });
       Handlebars.registerHelper("versioned_services_box_32", function() {
         return cdn_url + "/2fac/plugins/box/assets/service_32.png";
@@ -24616,28 +24597,28 @@ TS.registerModule("constants", {
         return cdn_url + "/0180/img/slackbot_72.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_brinjal", function() {
-        return vvv("/img/themes/brinjal@2x.png");
+        return cdn_url + "/d7a0/img/themes/brinjal@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_chocolate", function() {
-        return vvv("/img/themes/chocolate@2x.png");
+        return cdn_url + "/d7a0/img/themes/chocolate@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_default", function() {
-        return vvv("/img/themes/aubergine@2x.png");
+        return cdn_url + "/d7a0/img/themes/aubergine@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_hoth", function() {
-        return vvv("/img/themes/hoth@2x.png");
+        return cdn_url + "/d7a0/img/themes/hoth@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_monument", function() {
-        return vvv("/img/themes/monument@2x.png");
+        return cdn_url + "/d7a0/img/themes/monument@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_ocean", function() {
-        return vvv("/img/themes/ochin@2x.png");
+        return cdn_url + "/d7a0/img/themes/ochin@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_solanum", function() {
-        return vvv("/img/themes/solanum@2x.png");
+        return cdn_url + "/d7a0/img/themes/solanum@2x.png";
       });
       Handlebars.registerHelper("versioned_theme_thumb_workhard", function() {
-        return vvv("/img/themes/workhard@2x.png");
+        return cdn_url + "/d7a0/img/themes/workhard@2x.png";
       });
       Handlebars.registerHelper("versioned_twitter_64", function() {
         return cdn_url + "/66f9/img/services/twitter_64.png";
@@ -24646,7 +24627,7 @@ TS.registerModule("constants", {
         if (res === "1x") {
           return cdn_url + "/a079/img/upload_file_icon.png";
         } else if (res === "2x") {
-          return vvv("/img/upload_file_icon@2x.png");
+          return cdn_url + "/a079/img/upload_file_icon@2x.png";
         }
       });
       Handlebars.registerHelper("versioned_default_application_icon", function() {
@@ -24656,28 +24637,28 @@ TS.registerModule("constants", {
         if (res === "1x") {
           return cdn_url + "/742c/img/join-channel/join_shared_channel.png";
         } else if (res === "2x") {
-          return vvv("/img/join-channel/join_shared_channel@2x.png");
+          return cdn_url + "/742c/img/join-channel/join_shared_channel@2x.png";
         }
       });
       Handlebars.registerHelper("versioned_join_team_channel", function(res) {
         if (res === "1x") {
           return cdn_url + "/742c/img/join-channel/join_team_channel.png";
         } else if (res === "2x") {
-          return vvv("/img/join-channel/join_team_channel@2x.png");
+          return cdn_url + "/742c/img/join-channel/join_team_channel@2x.png";
         }
       });
       Handlebars.registerHelper("versioned_signin_no_teams", function(res) {
         if (res === "1x") {
           return cdn_url + "/7c9e4/img/enterprise/signin-no-teams.png";
         } else if (res === "2x") {
-          return vvv("/img/enterprise/signin-no-teams@2x.png");
+          return cdn_url + "/7c9e4/img/enterprise/signin-no-teams@2x.png";
         }
       });
       Handlebars.registerHelper("versioned_slack_logo_240", function() {
         return cdn_url + "/66f9/img/slack_logo_240.png";
       });
       Handlebars.registerHelper("versioned_file_drop_blue", function() {
-        return vvv("/img/file-drop-blue@2x.png");
+        return cdn_url + "/c3881/img/file-drop-blue@2x.png";
       });
       Handlebars.registerHelper("versioned_focus_rocks", function() {
         return cdn_url + "/883cf/img/focus-rocks-0.png";
@@ -34487,7 +34468,12 @@ var _on_esc;
       TS.members.upsertMember(updated_member);
     }
     var team = TS.enterprise.getTeamById(team_id);
-    $('[data-id="' + team_id + '"]').html(TS.enterprise.workspaces.getTeamCardHTML(team));
+    var existing_card = $('[data-id="' + team_id + '"]');
+    if (!team.is_unlisted) {
+      existing_card.html(TS.enterprise.workspaces.getTeamCardHTML(team));
+    } else {
+      existing_card.remove();
+    }
     var $workspace_info = $('.workspace_info[data-team-id="' + team_id + '"]');
     if ($workspace_info.length) {
       var list = $(".workspaces").attr("data-list");
@@ -40504,1075 +40490,6 @@ var _on_esc;
 })();
 (function() {
   "use strict";
-  TS.registerModule("ui.admin_invites", {
-    invites_sent_sig: new signals.Signal,
-    emails_parsed_sig: new signals.Signal,
-    onStart: function() {
-      TS.ui.admin_invites.invites_sent_sig.add(_invitesSent, TS.ui.admin_invites);
-      TS.ui.admin_invites.emails_parsed_sig.add(_emailsParsed, TS.ui.admin_invites);
-      TS.team.team_email_domain_changed_sig.add(_setPlaceholderEmailAddress, TS.ui.admin_invites);
-      TS.prefs.team_auth_mode_changed_sig.add(_applySSORestrictions, TS.ui.admin_invites);
-      TS.prefs.team_sso_auth_restrictions_changed_sig.add(_applySSORestrictions, TS.ui.admin_invites);
-      TS.prefs.team_invites_only_admins_changed_sig.add(TS.ui.admin_invites.maybeShowInviteLink, TS.ui.admin_invites);
-      if (TS.web) TS.web.login_sig.add(TS.ui.admin_invites.onLogin, TS.ui.admin_invites);
-      if (TS.client) TS.client.login_sig.add(TS.ui.admin_invites.onLogin, TS.ui.admin_invites);
-      _unprocessed_invites = TS.storage.fetchInvitesState();
-      $("body").on("click", '[data-action="admin_invites_modal"]', function() {
-        if (TS.isPartiallyBooted()) return;
-        var options = {};
-        if ($(this).data("account-type")) options.account_type = $(this).data("account-type");
-        _start(options);
-      });
-      TS.experiment.loadUserAssignments().then(function() {
-        _assignments_loaded = true;
-      });
-    },
-    onLogin: function() {
-      _setPlaceholderEmailAddress();
-    },
-    start: function(options) {
-      if (TS.isPartiallyBooted()) return;
-      if (_canInvite()) _start(options);
-    },
-    switchToPicker: function() {
-      if (_canInvite()) _switchToPicker();
-    },
-    maybeShowInviteLink: function() {
-      if (!TS.client) return;
-      var show_invite_link = false;
-      var dim_invite_link = false;
-      if (_canInvite() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length < 26) {
-        show_invite_link = true;
-      }
-      if (_canInvite() && TS.members.getActiveMembersWithSelfAndNotSlackbot().length >= 2) {
-        dim_invite_link = true;
-      }
-      $("#channel_list_invites_link").toggleClass("hidden", !show_invite_link).toggleClass("dim", dim_invite_link);
-    },
-    populateInvites: function(invites) {
-      if (!_canInvite()) return;
-      if (!invites) return;
-      var invites_map = _unprocessed_invites.reduce(function(accumulator, invite) {
-        accumulator[invite.email] = true;
-        return accumulator;
-      }, {});
-      invites.forEach(function(invite) {
-        if (!invites_map[invite.email]) {
-          invites_map[invite.email] = true;
-          _unprocessed_invites.push(invite);
-        }
-      });
-      TS.storage.storeInvitesState(_unprocessed_invites);
-      if (_unprocessed_invites.length && TS.ui.fs_modal.is_showing) {
-        _$div.find(".admin_invite_row").remove();
-        _unprocessed_invites.forEach(function(invite) {
-          _addRow(invite);
-        });
-      }
-    },
-    canInvite: function() {
-      return _canInvite();
-    },
-    test: function() {
-      var test_ob = {
-        _error_map: _error_map,
-        _getError: _getError
-      };
-      Object.defineProperty(test_ob, "_getError", {
-        get: function() {
-          return _getError;
-        },
-        set: function(v) {
-          _getError = v;
-        }
-      });
-      Object.defineProperty(test_ob, "_error_map", {
-        get: function() {
-          return _error_map;
-        },
-        set: function(v) {
-          _error_map = v;
-        }
-      });
-      return test_ob;
-    }
-  });
-  var _$div;
-  var _row_index = 0;
-  var _queue_size = 0;
-  var _success_invites = [];
-  var _error_invites = [];
-  var _unprocessed_invites = [];
-  var _placeholder_email_address_default = TS.i18n.t("name@example.com", "invite")();
-  var _placeholder_email_address = _placeholder_email_address_default;
-  var _new_email_domains = "";
-  var _custom_message = "";
-  var _initial_channel_id;
-  var _google_contacts_data;
-  var _btn_connect_contacts;
-  var _google_auth_instance_id;
-  var _cancel_google_auth_polling;
-  var _event_family_name = "INVITEMODAL";
-  var _clog_name = _event_family_name + "_ACTION";
-  var _assignments_loaded = false;
-  var _NUM_INVITES = 3;
-  var _in_modal_3_fields_group = false;
-  var _error_map = {
-    url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
-    invalid_email: TS.i18n.t("That doesn’t look like a valid email address!", "invite")(),
-    already_in_team: TS.i18n.t("This person is already on your team.", "invite")(),
-    user_disabled: function() {
-      var deactivated_user = TS.i18n.t('This person is already on your team, but their account is deactivated. You can <a href="{url}#disabled">manage</a> their account.', "invite")({
-        url: TS.model.team_url
-      });
-      return deactivated_user;
-    },
-    already_invited: TS.i18n.t("This person has already been invited to your team.", "invite")(),
-    sent_recently: TS.i18n.t("This person was recently invited. No need to invite them again just yet.", "invite")(),
-    invite_failed: TS.i18n.t("Something went wrong with this invite :(", "invite")(),
-    ura_limit_reached: TS.i18n.t("You’ve reached your team limit for Single-channel Guests. You must invite more paid team members first.", "invite")(),
-    user_limit_reached: TS.i18n.t("You’ve reached the maximum number of users for this team.", "invite")(),
-    not_allowed: TS.i18n.t("You can’t invite this type of account based on your current SSO settings.", "invite")(),
-    custom_message_not_allowed: TS.i18n.t("Sorry, you can’t add a custom message to this invite. Please remove it and try again!", "invite")(),
-    domain_mismatch: TS.i18n.t("Your SSO settings prevent you from inviting people from this email domain.", "invite")(),
-    invite_limit_reached: TS.i18n.t("You’ve exceeded the limit on invitations. Once more people have accepted the ones you’ve sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/articles/201330256#invitation_limits'>more details on invitation limits</a>.", "invite")(),
-    too_long: TS.i18n.t("This person’s name exceeds the 35-character limit.", "invite")(),
-    org_user_is_disabled: TS.i18n.t("This person has a deactivated account for your organization.", "invite")(),
-    org_user_is_disabled_but_present: TS.i18n.t("This person is already on your team, but they have been deactivated by your organization. Contact an organization administrator to re-enable their account", "invite")(),
-    mismatch_with_pending_team_invite: function(data) {
-      var account_type;
-      switch (data.user_type) {
-        case "ultra_restricted":
-          account_type = TS.i18n.t("Single-Channel Guest", "invite")();
-          break;
-        case "restricted":
-          account_type = TS.i18n.t("Multi-Channel Guest", "invite")();
-          break;
-        default:
-          account_type = TS.i18n.t("full Team Member", "invite")();
-          break;
-      }
-      return TS.i18n.t("This person can’t be invited, because they have already been invited as a {account_type} to your organization", "invite")({
-        account_type: account_type
-      });
-    },
-    user_type_mismatch: function(data) {
-      var account_type;
-      var message;
-      switch (data.issue) {
-        case "org_user_is_restricted":
-          account_type = TS.i18n.t("Multi-Channel Guest", "invite")();
-          break;
-        case "org_user_is_ultra_restricted":
-          account_type = TS.i18n.t("Single-Channel Guest", "invite")();
-          break;
-        case "org_user_not_restricted":
-        case "org_user_not_ultra_restricted":
-          account_type = TS.i18n.t("full Team Member", "invite")();
-          break;
-      }
-      if (_.isUndefined(account_type)) {
-        message = TS.i18n.t("This person already has an account for your organization", "invite")();
-      } else {
-        message = TS.i18n.t("This person already has a {account_type} account for your organization, so you can only invite them in that role.", "invite")({
-          account_type: account_type
-        });
-      }
-      return message;
-    }
-  };
-  var _start = function(options) {
-    if (!_assignments_loaded) return;
-    var account_type;
-    if (TS.experiment.getGroup("modal_3_fields") === "modal_3_fields" || TS.experiment.getGroup("modal_3_fields_existing_teams") === "modal_3_fields") {
-      _in_modal_3_fields_group = true;
-    }
-    if (_shouldSeeAccountTypeOptions()) {
-      if (options && options.account_type) {
-        account_type = options.account_type;
-      }
-    } else {
-      account_type = "full";
-    }
-    if (options && options.initial_channel_id) {
-      _initial_channel_id = options.initial_channel_id;
-    }
-    var body_template_html = TS.templates.admin_invite_modal({
-      can_add_ura: TS.model.can_add_ura,
-      team_name: TS.model.team.name,
-      team_in_org: TS.model.team.enterprise_id,
-      hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
-      team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
-      invites_limit: TS.model.team.plan === "" && TS.model.team.prefs.invites_limit,
-      show_custom_message: TS.model.team.plan,
-      is_paid_team: TS.model.team.plan
-    });
-    var settings = {
-      body_template_html: body_template_html,
-      onShow: _onShow,
-      onCancel: _onCancel,
-      clog_name: "INVITEMODAL"
-    };
-    if (TS.client) TS.ui.a11y.saveCurrentFocus();
-    TS.ui.fs_modal.start(settings);
-    if (account_type) {
-      setTimeout(function() {
-        _switchAccountType(account_type);
-      }, 0);
-    }
-  };
-  var _onShow = function() {
-    var $custom_message_container;
-    _$div = $("#admin_invites_container");
-    _$div.find("#admin_invites_switcher").on("click", '[data-action="switch_type"]', function(e) {
-      var $el = $(e.target);
-      if ($el.is("a")) return;
-      if ($el.closest(".admin_invites_account_type_option").hasClass("disabled")) return;
-      _switchAccountType($(this).data("account-type"));
-    });
-    _$div.find('[data-action="admin_invites_add_row"]').on("click", _addRow);
-    _$div.find('a[data-action="admin_invites_switch_view"]').on("click", function() {
-      _switchInviteView($(this).data("view"));
-    });
-    _$div.find('button[data-action="api_send_invites"]').on("click", function(e) {
-      e.preventDefault();
-      _send();
-    });
-    _$div.find('button[data-action="api_parse_emails"]').on("click", function(e) {
-      e.preventDefault();
-      _parseEmails();
-      $(this).find(".ladda-label").text(TS.i18n.t("Processing email addresses ...", "invite")());
-    });
-    $custom_message_container = _$div.find(".admin_invites_custom_message_container");
-    _setupGoogleContactsButton();
-    _setupInviteSingleChannelGuestsButton();
-    _$div.find('a[data-action="admin_invites_show_custom_message"]').on("click", function() {
-      _showCustomMessage();
-    });
-    _$div.find('[data-action="admin_invites_hide_custom_message"]').on("click", function() {
-      _hideCustomMessage();
-    }).hover(function() {
-      $custom_message_container.addClass("delete_highlight");
-    }, function() {
-      $custom_message_container.removeClass("delete_highlight");
-    });
-    _$div.find("#admin_invite_custom_message").on("input", _updateSubmitButtonBasedOnCustomMessage);
-    _$div.find("#bulk_emails").css("overflow", "hidden").autogrow();
-    _unprocessed_invites = TS.storage.fetchInvitesState();
-    if (_unprocessed_invites.length) {
-      TS.ui.admin_invites.populateInvites(_unprocessed_invites);
-    } else {
-      _addRow();
-    }
-    if (_in_modal_3_fields_group) {
-      var current_num_of_invite_rows = _$div.find(".admin_invite_row").length;
-      if (current_num_of_invite_rows < _NUM_INVITES) {
-        var num_of_rows_to_add = _NUM_INVITES - current_num_of_invite_rows;
-        _.times(num_of_rows_to_add, _addRow);
-      }
-    }
-  };
-  var _onCancel = function() {
-    _row_index = 0;
-    _queue_size = 0;
-    _unprocessed_invites = _error_invites.length ? [] : _prepareInvites();
-    _success_invites = [];
-    _error_invites = [];
-    _clearInitialChannelId();
-    if (_cancel_google_auth_polling) _cancel_google_auth_polling();
-    TS.storage.storeInvitesState(_unprocessed_invites);
-    if (TS.client) TS.ui.a11y.restorePreviousFocus();
-  };
-  var _setPlaceholderEmailAddress = function() {
-    _placeholder_email_address = _placeholder_email_address_default;
-  };
-  var _setupInviteSingleChannelGuestsButton = function() {
-    TS.api.callImmediately("users.admin.canAddUltraRestricted").then(function(resp) {
-      _updateInviteSingleChannelGuestsButton(resp.data.ok);
-    }, function(error) {
-      _updateInviteSingleChannelGuestsButton(false);
-    });
-  };
-  var _updateInviteSingleChannelGuestsButton = function(can_add_ura) {
-    TS.model.can_add_ura = can_add_ura;
-    var btn_ultra_restricted = $('.admin_invites_account_type_option[data-account-type="ultra_restricted"]');
-    btn_ultra_restricted.toggleClass("disabled", !TS.model.can_add_ura);
-    if (!TS.model.can_add_ura) {
-      var ultra_restricted_hover = $(".account_type_disabled_hover", btn_ultra_restricted);
-      ultra_restricted_hover.removeClass("hidden");
-    }
-  };
-  var _setupGoogleContactsButton = function() {
-    _btn_connect_contacts = document.getElementById("btn_connect_contacts");
-    if (!_btn_connect_contacts) return;
-    _btn_connect_contacts.addEventListener("click", _onConnectContactsClicked);
-    _google_auth_instance_id = TS.model.user.id + Date.now();
-    TS.google_auth.getAuthLink(_google_auth_instance_id).then(function() {
-      TS.utility.disableElement(_btn_connect_contacts, false);
-    });
-  };
-  var _onConnectContactsClicked = function() {
-    TS.google_auth.getAuthLink(_google_auth_instance_id).then(function(url) {
-      var window_features = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes,width=600,height=500";
-      var window_ref = window.open(url, "auth_window", window_features);
-      _startPollingGoogleAuth(window_ref);
-    });
-  };
-  var _startPollingGoogleAuth = function(window_ref) {
-    _cancel_google_auth_polling = TS.google_auth.pollForAuthStatus(_google_auth_instance_id, _googleAuthedCallback, window_ref).cancel;
-  };
-  var _googleAuthedCallback = function(did_auth) {
-    _cancel_google_auth_polling = null;
-    if (did_auth) {
-      var connection_text = TS.i18n.t("Google contacts connected", "invite")();
-      _$div.find(".btn_connect_contacts_text").text(connection_text);
-      _btn_connect_contacts.removeEventListener("click", _onConnectContactsClicked);
-      TS.clog.track(_clog_name, {
-        action: "google_auth_success",
-        trigger: "user_allowed_access"
-      });
-      _setupFilterSelectForConnectedContacts();
-    }
-  };
-  var _setupFilterSelectForConnectedContacts = function() {
-    var opts = {
-      page: 1,
-      count: 1e3
-    };
-    TS.google_auth.getContactList(_google_auth_instance_id, opts).then(function(data) {
-      var empty_rows = $("input.email_field").filter(function() {
-        return !this.value;
-      });
-      if (empty_rows.length === 0) _addRow();
-      _startFilterSelectForEmailAddresses(data);
-    });
-  };
-  var _startFilterSelectForEmailAddresses = function(contact_data) {
-    if (!contact_data) return;
-    _google_contacts_data = _google_contacts_data || contact_data.items;
-    $("input.email_field").lazyFilterSelect({
-      approx_item_height: 50,
-      data: _google_contacts_data,
-      single: true,
-      placeholder_text: TS.i18n.t("name@example.com", "invite")(),
-      onReady: function() {
-        _upsertEmailContactsData(this);
-      },
-      filter: function(item, query) {
-        query = query.toLowerCase();
-        if (item.full_name) var item_full_name = item.full_name.toLowerCase();
-        if (item.email) var item_email = item.email.toLowerCase();
-        return item_full_name && item_full_name.indexOf(query) !== -1 || item_email && item_email.indexOf(query) !== -1;
-      },
-      noResultsTemplate: function(query) {
-        var no_results = TS.i18n.t("None of your Google contacts match <strong>{query}</strong>", "invite")({
-          query: TS.utility.htmlEntities(query)
-        });
-        return no_results;
-      },
-      onItemAdded: function(item) {
-        _upsertEmailContactsData(this, item);
-        TS.clog.track(_clog_name, {
-          action: "add_google_email",
-          trigger: "select_google_contact_from_dropdown"
-        });
-      },
-      onInputFocus: function() {
-        $(".ts_tip_tip").remove();
-        $(".lazy_filter_select").removeClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000");
-      },
-      onInputBlur: function() {
-        _upsertEmailContactsData(this);
-      },
-      template: function(item) {
-        var html = TS.templates.admin_invite_filter_select_contact({
-          contact: item
-        });
-        return new Handlebars.SafeString(html);
-      }
-    }).addClass("hidden");
-    if (contact_data.items !== undefined) {
-      var tooltip_text = TS.i18n.t("Type here to search your Google contacts", "invite")();
-      var tooltip = '<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">' + tooltip_text + "</span></span>";
-      if (_in_modal_3_fields_group) {
-        var $first_empty_row = $("input.email_field").filter(function() {
-          return !this.value;
-        }).first();
-        $first_empty_row.lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
-      } else {
-        $("input.email_field:last").lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
-      }
-    }
-  };
-  var _upsertEmailContactsData = function(elem, item) {
-    var current_invite_email = elem.$container[0];
-    var current_invite_row = $(current_invite_email).parents(".admin_invite_row");
-    if (item) {
-      $(current_invite_row).find("input[name*=first_name]").val(item.given_name);
-      $(current_invite_row).find("input[name*=last_name]").val(item.family_name);
-      $(current_invite_row).find("input[name*=email_address]").val(item.email);
-    } else {
-      var custom_input_email = $(current_invite_row).find("input.lfs_input").val();
-      var existing_email = $(current_invite_row).find("input[name*=email_address]").val();
-      if (custom_input_email) {
-        $(current_invite_row).find("input.email_field").lazyFilterSelect("clearValue");
-        $(current_invite_row).find("input[name*=email_address]").val(custom_input_email);
-      } else if (existing_email) {
-        $(current_invite_row).find("input.lfs_input").val(existing_email);
-      }
-    }
-  };
-  var _addRow = function(email) {
-    var show_delete_btn = true;
-    if (_$div.find(".admin_invite_row").length === 0) {
-      show_delete_btn = false;
-    } else {
-      _$div.find(".admin_invite_row").first().find(".delete_row").removeClass("hidden");
-    }
-    _$div.find("#invite_rows").append(TS.templates.admin_invite_row({
-      index: _row_index,
-      show_delete_btn: show_delete_btn,
-      placeholder_email_address: _placeholder_email_address
-    }));
-    var $row = _$div.find("#invite_" + _row_index);
-    $row.find('[data-action="admin_invites_delete_row"]').on("click", function() {
-      _removeRow($row);
-    }).hover(function() {
-      $row.addClass("delete_highlight");
-    }, function() {
-      $row.removeClass("delete_highlight");
-    });
-    $row.find('[name="email_address"]').focus();
-    if (email) {
-      $row.find('[name="email_address"]').val(email.email);
-      $row.find(".lfs_input_container input.lfs_input").val(email.email);
-      if (TS.boot_data.feature_name_tagging_client) {
-        $row.find('[name="full_name"]').val(email.full_name);
-      } else {
-        $row.find('[name="first_name"]').val(email.first_name);
-        $row.find('[name="last_name"]').val(email.last_name);
-      }
-    }
-    if (!_in_modal_3_fields_group) {
-      _updateSendButtonLabel();
-    }
-    if (TS.google_auth.isAuthed(_google_auth_instance_id) && _google_contacts_data) {
-      _startFilterSelectForEmailAddresses(_google_contacts_data);
-    }
-    _row_index++;
-  };
-  var _showInfoMessage = function(message_class, html) {
-    _$div.find("#invite_notice").toggleClass("alert_warning", message_class === "alert_warning").toggleClass("alert_info", message_class === "alert_info").toggleClass("alert_error", message_class === "alert_error").html(html).slideDown(100);
-  };
-  var _showCustomMessage = function() {
-    _$div.find(".admin_invites_hide_custom_message").addClass("hidden");
-    _$div.find(".admin_invites_show_custom_message").removeClass("hidden");
-    _updateSubmitButtonBasedOnCustomMessage();
-  };
-  var _hideCustomMessage = function() {
-    _$div.find(".admin_invites_hide_custom_message").removeClass("hidden");
-    _$div.find(".admin_invites_show_custom_message").addClass("hidden");
-    _updateSubmitButtonBasedOnCustomMessage();
-  };
-  var _updateSubmitButtonBasedOnCustomMessage = function() {
-    var custom_message = _$div.find("#admin_invite_custom_message").val().trim();
-    var $show_custom_message = _$div.find(".admin_invites_show_custom_message");
-    var disable_submit_btn = !!TS.utility.findUrls(custom_message).length && !$show_custom_message.hasClass("hidden");
-    _shouldDisableSubmitButton(disable_submit_btn);
-  };
-  var _shouldDisableSubmitButton = function(should_disable) {
-    _$div.find("#admin_invites_submit_btn").toggleClass("disabled", should_disable);
-  };
-  var _removeRow = function($row) {
-    if (!$row || !$row.length) return;
-    $row.slideToggle(100, function() {
-      $row.remove();
-      var row_count = $(".admin_invite_row").length;
-      if (row_count === 0) {
-        _addRow();
-      } else if (row_count === 1) {
-        _$div.find(".admin_invite_row").first().find(".delete_row").addClass("hidden");
-      }
-      if (!_in_modal_3_fields_group) {
-        _updateSendButtonLabel();
-      }
-    });
-  };
-  var _updateSendButtonLabel = function() {
-    var invite_count = $(".admin_invite_row").length;
-    var account_type = $("#account_type").val();
-    var label;
-    if (account_type == "full") {
-      if (_in_modal_3_fields_group) {
-        label = TS.i18n.t("Send Invitations", "invite")();
-      } else {
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Person}other{Invite {invite_count} People}}", "invite")({
-          invite_count: invite_count
-        });
-      }
-    } else if (account_type == "restricted") {
-      if (_in_modal_3_fields_group) {
-        label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
-      } else {
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Multi-Channel Guest}other{Invite {invite_count} Multi-Channel Guests}}", "invite")({
-          invite_count: invite_count
-        });
-      }
-    } else if (account_type == "ultra_restricted") {
-      if (_in_modal_3_fields_group) {
-        label = TS.i18n.t("Invite Single-Channel Guests", "invite")();
-      } else {
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest}other{Invite {invite_count} Single-Channel Guests}}", "invite")({
-          invite_count: invite_count
-        });
-        if ($("#ultra_restricted_channel_picker").val()) {
-          var ultra_restricted_channel = $("#ultra_restricted_channel_picker")[0].options[$("#ultra_restricted_channel_picker")[0].selectedIndex].text;
-          label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest to {ultra_restricted_channel}}other{Invite {invite_count} Single-Channel Guests to {ultra_restricted_channel}}}", "invite")({
-            invite_count: invite_count,
-            ultra_restricted_channel: ultra_restricted_channel
-          });
-        }
-      }
-    }
-    _$div.find('button[data-action="api_send_invites"]').find(".ladda-label").text(label);
-  };
-  var _clearInitialChannelId = function() {
-    _initial_channel_id = undefined;
-  };
-  var _applySSORestrictions = function() {
-    var invite_type = _$div.find("#account_type").val();
-    var show_google_auth_email_domain_notice = false;
-    var has_sso_auth_mode = TS.model.team.prefs.auth_mode === "google" || TS.model.team.prefs.auth_mode === "saml";
-    var show_sso_signup_notice = false;
-    var team_in_enterprise_org = TS.boot_data.page_needs_enterprise;
-    var sso_signup_notice_msg = "";
-    if (team_in_enterprise_org && invite_type === "full" || has_sso_auth_mode && TS.model.team.prefs.sso_auth_restrictions === 0) {
-      show_sso_signup_notice = true;
-      var account_type = TS.utility.enterprise.getProviderLabel(TS.model.enterprise, _.get(TS.model, "enterprise.sso_provider.label", "single sign-on"));
-      sso_signup_notice_msg = TS.i18n.t("Only people with {account_type} accounts will be able to accept invitations.", "invite")({
-        account_type: account_type
-      });
-    }
-    if (TS.model.team.prefs.auth_mode == "google") {
-      if (invite_type == "full" && (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1)) {
-        show_google_auth_email_domain_notice = true;
-      } else if ((invite_type == "restricted" || invite_type == "ultra_restricted") && TS.model.team.prefs.sso_auth_restrictions === 0) {
-        show_google_auth_email_domain_notice = true;
-      }
-    } else if (TS.model.team.prefs.auth_mode == "saml") {
-      if (TS.model.team.prefs.sso_auth_restrictions === 0 || TS.model.team.prefs.sso_auth_restrictions === 1) {
-        if (invite_type == "full") {
-          if (!team_in_enterprise_org) {
-            var admin_invites_switcher_html = TS.templates.admin_invite_switcher({
-              can_add_ura: TS.model.can_add_ura,
-              hide_full_member_option: TS.utility.invites.hideFullMemberInviteOption(),
-              team_signup_url: "https://" + TS.model.team.domain + ".slack.com/signup",
-              team_in_org: TS.model.team.enterprise_id
-            });
-            $("#admin_invites_switcher").html(admin_invites_switcher_html);
-            _switchToPicker();
-          }
-        }
-      }
-    }
-    $("#google_auth_email_domain_notice").toggleClass("hidden", !show_google_auth_email_domain_notice);
-    $("#sso_signup_notice").html(sso_signup_notice_msg).toggleClass("hidden", !show_sso_signup_notice);
-  };
-  var _selectRow = function(email) {
-    var $row;
-    _$div.find('input[name="email_address"]').each(function() {
-      if ($(this).val() == email) {
-        $row = $(this).closest(".admin_invite_row");
-      }
-    });
-    return $row;
-  };
-  var _rowError = function($row, error) {
-    var error_msg = _getError(error);
-    if ($row) {
-      $row.find("label.email").addClass("error").end().find(".error_msg").removeClass("hidden").html(error_msg);
-      if (error == "too_long") $row.find("label").addClass("error");
-    }
-  };
-  var _rowValid = function($row) {
-    if ($row) {
-      $row.find("label.email").removeClass("error").end().find(".error_msg").addClass("hidden");
-    }
-  };
-  var _resetIndividualForm = function() {
-    setTimeout(function() {
-      Ladda.stopAll();
-      _$div.find(".admin_invite_row").remove();
-      _success_invites = [];
-      _error_invites = [];
-      _updateSendButtonLabel();
-      if (_in_modal_3_fields_group) {
-        _.times(_NUM_INVITES, _addRow);
-      } else {
-        _addRow();
-      }
-    }, 0);
-  };
-  var _resetBulkForm = function() {
-    setTimeout(function() {
-      Ladda.stopAll();
-      _$div.find('button[data-action="api_parse_emails"]').find(".ladda-label").text(TS.i18n.t("Add Invitees", "invite")());
-      _$div.find("#bulk_emails").prop("disabled", false);
-    }, 0);
-  };
-  var _switchToPicker = function() {
-    _$div.find("#admin_invites_header").find(".admin_invites_header_type").removeClass("normal").text("people").end().find(".admin_invites_header_team_name").removeClass("hidden");
-    _$div.find("#admin_invites_switcher").removeClass("hidden");
-    _$div.find("#admin_invites_workflow").addClass("hidden");
-    TS.ui.fs_modal.hideBackButton();
-  };
-  var _switchInviteView = function(view) {
-    if (view == "individual") {
-      _$div.find("#individual_invites").removeClass("hidden");
-      _$div.find("#bulk_invites, #bulk_notice").addClass("hidden");
-      _$div.find("#bulk_emails").val("");
-      _$div.find(".email_field").first().focus();
-      _$div.find(".invite_modal_options_container").removeClass("hidden");
-      _resetBulkForm();
-    } else if (view == "bulk") {
-      _$div.find("#bulk_invites").removeClass("hidden");
-      _$div.find("#individual_invites").addClass("hidden");
-      _$div.find(".invite_modal_options_container").addClass("hidden");
-      var $bulk_submit_btn = _$div.find('button[data-action="api_parse_emails"]');
-      if (!$bulk_submit_btn.hasClass("ladda")) {
-        Ladda.bind('button[data-action="api_parse_emails"]');
-        $bulk_submit_btn.addClass("ladda");
-      }
-      $bulk_submit_btn.find(".ladda-label").text(TS.i18n.t("Add Invitees", "invite")());
-      var invites = _prepareInvites();
-      if (invites) {
-        var invites_bulk = "";
-        $.each(invites, function(index, invite) {
-          if (invite.first_name) invites_bulk += invite.first_name + " ";
-          if (invite.last_name) invites_bulk += invite.last_name + " ";
-          invites_bulk += "<" + invite.email + ">, ";
-        });
-        _$div.find("#bulk_emails").val(invites_bulk).autogrow();
-      }
-      _$div.find("#bulk_emails").focus();
-    }
-  };
-  var _switchAccountType = function(invite_type) {
-    var default_channels = [];
-    var channels = TS.channels.getUnarchivedChannelsForUser();
-    if (_.isArray(TS.model.team.prefs.default_channels)) {
-      channels.forEach(function(channel) {
-        if (TS.model.team.prefs.default_channels.indexOf(channel.id) !== -1) {
-          channel.is_default = true;
-          default_channels.push(channel);
-        }
-      });
-    }
-    var general_channel = TS.channels.getGeneralChannel();
-    var general_channel_name = "";
-    if (general_channel) {
-      general_channel_name = general_channel.name;
-      if (!default_channels.length) default_channels.push(general_channel);
-    }
-    var template_args = {
-      invite_type: invite_type,
-      channels: channels,
-      default_channels: default_channels,
-      general_name: general_channel_name,
-      groups: TS.groups.getUnarchivedGroups(),
-      email_domains: TS.model.team.email_domain.split(","),
-      is_admin: TS.model.user.is_admin,
-      initial_channel_id: _initial_channel_id
-    };
-    var channel_picker_html = TS.templates.admin_invite_channel_picker(template_args);
-    var invite_type_label = TS.i18n.t("Full Members", "invite")();
-    if (invite_type == "restricted") {
-      invite_type_label = TS.i18n.t("Multi-Channel Guests", "invite")();
-    } else if (invite_type == "ultra_restricted") {
-      invite_type_label = TS.i18n.t("Single-Channel Guests", "invite")();
-    }
-    _$div.find("#admin_invites_header").find(".admin_invites_header_type").addClass("normal").text(invite_type_label).end().find(".admin_invites_header_team_name").addClass("hidden");
-    _$div.find("#admin_invites_channel_picker_container").html(channel_picker_html);
-    _$div.find("#account_type").val(invite_type);
-    _$div.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden");
-    _$div.find("#admin_invites_billing_notice").toggleClass("hidden", !(TS.model.team.plan !== "" && invite_type != "ultra_restricted"));
-    _$div.find("#ura_warning").toggleClass("hidden", invite_type != "restricted" && invite_type != "ultra_restricted");
-    _$div.find("#invite_notice").hide();
-    _$div.find("#ultra_restricted_channel_picker").on("change", function() {
-      _updateSendButtonLabel();
-      _clearInitialChannelId();
-    });
-    _$div.find(".email_field").first().focus();
-    var $submit_btn = _$div.find('button[data-action="api_send_invites"]');
-    if (!$submit_btn.hasClass("ladda")) {
-      Ladda.bind('button[data-action="api_send_invites"]');
-      $submit_btn.addClass("ladda");
-    }
-    _updateSendButtonLabel();
-    _applySSORestrictions();
-    _$div.find("#defaultchannelsmulti, #ultra_restricted_channel_picker").lazyFilterSelect({
-      onItemRemoved: function(item) {
-        if (item.value == _initial_channel_id) {
-          _clearInitialChannelId();
-        }
-      }
-    }).addClass("hidden");
-    if (_shouldSeeAccountTypeOptions()) {
-      TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
-      TS.ui.fs_modal.showBackButton();
-    }
-  };
-  var _prepareInvites = function() {
-    var invites = [];
-    var email;
-    _$div.find(".admin_invite_row").each(function() {
-      email = $.trim($(this).find('[name="email_address"]').val());
-      if (TS.boot_data.feature_name_tagging_client) {
-        var full_name = $.trim($(this).find('[name="full_name"]').val());
-      } else {
-        var first_name = $.trim($(this).find('[name="first_name"]').val());
-        var last_name = $.trim($(this).find('[name="last_name"]').val());
-      }
-      if (email) {
-        var invite = {};
-        invite.email = email;
-        if (TS.boot_data.feature_name_tagging_client && full_name) invite.full_name = full_name;
-        if (first_name) invite.first_name = first_name;
-        if (last_name) invite.last_name = last_name;
-        invites.push(invite);
-      } else {
-        if ($(".admin_invite_row").length > 1) {
-          _removeRow($(this));
-        }
-      }
-    });
-    _unprocessed_invites = invites;
-    TS.storage.storeInvitesState(_unprocessed_invites);
-    return invites;
-  };
-  var _send = function() {
-    var validation_error = false;
-    _$div.find(".admin_invite_row").each(function() {
-      var email = $.trim($(this).find('[name="email_address"]').val());
-      if (email) {
-        if (!TS.utility.email_regex.test(email)) {
-          _rowError($(this), "invalid_email");
-          validation_error = true;
-        } else {
-          _rowValid($(this));
-        }
-      } else {
-        if ($(".admin_invite_row").length > 1) {
-          _removeRow($(this));
-        }
-      }
-    });
-    if (validation_error) {
-      setTimeout(Ladda.stopAll, 0);
-      return;
-    }
-    var invites = _prepareInvites();
-    if (!invites.length) {
-      var message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + TS.i18n.t("Add at least one email address before sending invitations.", "invite")();
-      _showInfoMessage("alert_info", message_html);
-      setTimeout(Ladda.stopAll, 0);
-    } else if (invites) {
-      var account_type = _$div.find("#account_type").val();
-      var $show_custom_message = _$div.find(".admin_invites_show_custom_message");
-      var $custom_message = _$div.find("#admin_invite_custom_message");
-      var channels;
-      var invite_mode = TS.google_auth.isAuthed(_google_auth_instance_id) ? "contact" : "manual";
-      if (account_type == "full" || account_type == "restricted") {
-        var default_channels = _$div.find("#defaultchannelsmulti").val();
-        if (default_channels) channels = default_channels.join(",");
-      } else if (account_type == "ultra_restricted") {
-        channels = _$div.find("#ultra_restricted_channel_picker").val();
-      }
-      if (!$show_custom_message.hasClass("hidden")) {
-        _custom_message = $custom_message.val();
-      } else {
-        _custom_message = "";
-      }
-      _queue_size = invites.length;
-      $.each(invites, function(index, invite) {
-        var args = {
-          email: invite.email,
-          source: "invite_modal",
-          mode: invite_mode
-        };
-        if (channels) args.channels = channels;
-        if (_custom_message) args.extra_message = _custom_message;
-        if (invite.full_name) args.full_name = invite.full_name;
-        if (invite.first_name) args.first_name = invite.first_name;
-        if (invite.last_name) args.last_name = invite.last_name;
-        if (account_type == "restricted") {
-          args.restricted = 1;
-        } else if (account_type == "ultra_restricted") {
-          args.ultra_restricted = 1;
-        }
-        TS.api.call("users.admin.invite", args, _onInviteSent);
-      });
-    }
-  };
-  var _onInviteSent = function(ok, data, args) {
-    if (ok) {
-      _success_invites.push({
-        email: args.email,
-        full_name: args.full_name,
-        first_name: args.first_name,
-        last_name: args.last_name
-      });
-      var $row = _selectRow(args.email);
-      _removeRow($row);
-    } else {
-      if (data.error == "requires_channel") {
-        setTimeout(Ladda.stopAll, 0);
-        _$div.find("#ra_channel_picker_header").highlightText();
-        var pick_at_least_one_channel = TS.i18n.t("Pick at least one channel before inviting Multi-Channel Guests.", "invite")();
-        var message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_at_least_one_channel;
-        _showInfoMessage("alert_warning", message_html);
-        return;
-      } else if (data.error == "requires_one_channel") {
-        setTimeout(Ladda.stopAll, 0);
-        _$div.find("#ura_channel_picker_header").highlightText();
-        var pick_a_channel = TS.i18n.t("Pick a channel before inviting Single-Channel Guests.", "invite")();
-        var message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_a_channel;
-        _showInfoMessage("alert_warning", message_html);
-        return;
-      } else {
-        var invitation_error = data.error;
-        if (TS.boot_data.page_needs_enterprise) {
-          var member_belongs_to_team = TS.members.getMemberByEmail(args.email) !== null;
-          if (member_belongs_to_team && invitation_error === "org_user_is_disabled") {
-            invitation_error = "org_user_is_disabled_but_present";
-          }
-        }
-        _error_invites.push({
-          email: args.email,
-          error: invitation_error,
-          error_msg: _getError(_.extend({}, data, {
-            error: invitation_error
-          }))
-        });
-      }
-    }
-    _decrementInviteQueue();
-  };
-  var _decrementInviteQueue = function() {
-    _queue_size--;
-    if (_queue_size === 0) {
-      _unprocessed_invites = [];
-      TS.storage.storeInvitesState(_unprocessed_invites);
-      var done = function() {
-        setTimeout(Ladda.stopAll, 0);
-        TS.ui.admin_invites.invites_sent_sig.dispatch();
-      };
-      _new_email_domains = _collectNewDomains(_success_invites);
-      if (_new_email_domains) {
-        TS.api.call("team.checkEmailDomains", {
-          email_domains: _new_email_domains
-        }).then(function(response) {
-          if (response.data.ok) {
-            _new_email_domains = response.data.email_domains;
-          } else {
-            _new_email_domains = "";
-          }
-        }, function(response) {
-          _new_email_domains = "";
-        }).finally(done);
-      } else {
-        done();
-      }
-    }
-  };
-  var _invitesSent = function() {
-    var account_type = $("#account_type").val();
-    var success_invites_html;
-    if (account_type == "full") {
-      var full_member = TS.i18n.t("{invites_length,plural,=1{{invites_length} Full Member}other{{invites_length} Full Members}}", "invite")({
-        invites_length: _success_invites.length
-      });
-      success_invites_html = "<strong>" + full_member + "</strong>";
-    } else if (account_type == "restricted") {
-      var multi_channel_guest = TS.i18n.t("{invites_length,plural,=1{{invites_length} Multi-Channel Guest}other{{invites_length} Multi-Channel Guests}}", "invite")({
-        invites_length: _success_invites.length
-      });
-      success_invites_html = "<strong>" + multi_channel_guest + "</strong>";
-    } else if (account_type == "ultra_restricted") {
-      var single_channel_guest = TS.i18n.t("{invites_length,plural,=1{{invites_length} Single-Channel Guest}other{{invites_length} Single-Channel Guests}}", "invite")({
-        invites_length: _success_invites.length
-      });
-      success_invites_html = "<strong>" + single_channel_guest + "</strong>";
-    }
-    var api_args = {
-      success_invites_html: success_invites_html,
-      success_invites: _success_invites,
-      error_invites: _error_invites,
-      team_name: TS.model.team.name,
-      domains: _new_email_domains,
-      paid_team: "" !== TS.model.team.plan,
-      is_admin: TS.model.user.is_admin
-    };
-    if (TS.model.team.plan) {
-      api_args["custom_message"] = _custom_message;
-    }
-    var html = TS.templates.admin_invite_summary(api_args);
-    _$div.find("#invite_notice").slideUp(100);
-    _$div.find("#admin_invites_workflow, #admin_invites_header").addClass("hidden");
-    _$div.find("#admin_invites_success").html(html).removeClass("hidden");
-
-    function resetAndSwitchToIndividualForm() {
-      _resetIndividualForm();
-      $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden");
-      $("#admin_invites_header").removeClass("hidden");
-      TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
-    }
-    _$div.find('button[data-action="admin_invites_reset"]').on("click", resetAndSwitchToIndividualForm);
-    TS.ui.fs_modal.bindBackButton(resetAndSwitchToIndividualForm);
-    _$div.find('button[data-action="admin_invites_try_again"]').on("click", function() {
-      $.each(_error_invites, function(index, invite) {
-        var $row = _selectRow(invite.email);
-        _rowError($row, invite.error);
-      });
-      $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden");
-      $("#admin_invites_header").removeClass("hidden");
-      TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
-      _success_invites = [];
-      _error_invites = [];
-    });
-    if (_canSaveDomains()) {
-      var $btn = _$div.find('button[data-action="add_signup_domains"]').on("click", _saveDomains);
-      _$div.on("keyup", "#invite_signup_domains", TS.ui.resetButtonSpinner.bind(Object.create(null), $btn.get(0)));
-    }
-  };
-  var _parseEmails = function() {
-    var emails = $.trim($("#bulk_emails").val().replace(/[\u200B-\u200D\uFEFF]/g, ""));
-    _$div.find("#bulk_emails").prop("disabled", true);
-    TS.api.call("users.admin.parseEmails", {
-      emails: emails
-    }, _onEmailsParsed);
-  };
-  var _onEmailsParsed = function(ok, data, args) {
-    if (!ok) {
-      TS.error("failed onEmailsParsed");
-      var error_text = TS.i18n.t("Oops! There was an error processing those emails. Please try again.", "invite")();
-      _$div.find("#bulk_notice").html('<i class="ts_icon ts_icon_warning"></i> ' + error_text).removeClass("hidden");
-      _resetBulkForm();
-      return;
-    }
-    if (data.emails.length === 0) {
-      var no_emails_in_text = TS.i18n.t("We couldn’t find any email addresses in that text. Please try again.", "invite")();
-      _$div.find("#bulk_notice").html('<i class="ts_icon ts_icon_warning"></i> ' + no_emails_in_text).removeClass("hidden");
-      _resetBulkForm();
-      return;
-    }
-    TS.ui.admin_invites.emails_parsed_sig.dispatch(data.emails);
-  };
-  var _emailsParsed = function(emails) {
-    _$div.find(".admin_invite_row").remove();
-    _switchInviteView("individual");
-    var message_html;
-    if (emails.length == 1) {
-      var found_one_email = TS.i18n.t("We found 1 email address to invite. We’ve done our best to guess a name. See if it looks right, then press Invite.", "invite")();
-      message_html = '<i class="ts_icon ts_icon_check_circle_o_large"></i> ' + found_one_email;
-    } else {
-      var found_many_emails = TS.i18n.t("We found {emails_length} email addresses to invite. We’ve done our best to guess a name for each one. See if everything looks right, then press Invite.", "invite")({
-        emails_length: emails.length
-      });
-      message_html = '<i class="ts_icon ts_icon_check_circle_o_large"></i> ' + found_many_emails;
-    }
-    _showInfoMessage("alert_info", message_html);
-    _$div.find(".admin_invite_row").each(function() {
-      var email = $.trim($(this).find('[name="email_address"]').val());
-      if (!email) _removeRow($(this));
-    });
-    $.each(emails, function(index, email) {
-      _addRow(email);
-    });
-    _unprocessed_invites = emails;
-    TS.storage.storeInvitesState(_unprocessed_invites);
-  };
-  var _canSaveDomains = function() {
-    var account_type = $("#account_type").val();
-    return account_type == "full" && TS.model.user.is_owner && TS.model.team.prefs.auth_mode == "normal";
-  };
-  var _collectNewDomains = function(invites) {
-    if (!_canSaveDomains()) return "";
-    var domains = invites.map(function(invite) {
-      return invite.email.split("@")[1];
-    });
-    if (TS.model.team.email_domain) {
-      var map = TS.model.team.email_domain.split(",").reduce(function(accumulator, domain) {
-        accumulator[domain] = true;
-        return accumulator;
-      }, {});
-      domains = _.uniq(domains.filter(function(domain) {
-        return !map[domain];
-      }));
-    }
-    return domains.join(", ");
-  };
-  var _deduplicateDomains = function(domains) {
-    if (!domains) return domains;
-    var map = domains.split(",").reduce(function(accumulator, domain) {
-      accumulator[domain] = true;
-      return accumulator;
-    }, {});
-    return Object.keys(map).join(",");
-  };
-  var _saveDomains = function(e) {
-    TS.ui.startButtonSpinner(_$div.find('button[data-action="add_signup_domains"]').get(0));
-    var domains = _$div.find("#invite_signup_domains").val();
-    if (TS.model.team.email_domain) domains = [TS.model.team.email_domain, domains].join(",");
-    domains = _deduplicateDomains(domains);
-    var args = {
-      prefs: JSON.stringify({
-        signup_mode: "email",
-        signup_domains: domains
-      })
-    };
-    TS.api.call("team.prefs.set", args).then(function(response) {
-      TS.ui.stopButtonSpinner(_$div.find('button[data-action="add_signup_domains"]').get(0), true);
-      TS.model.team.email_domain = response.data.prefs.signup_domains;
-    }, function(response) {
-      TS.ui.stopButtonSpinner(_$div.find('button[data-action="add_signup_domains"]').get(0), false);
-      var msg = TS.i18n.t("Sorry! Something went wrong. Please try again.", "invite")();
-      if (response.data.error === "signup_domains_missing") {
-        msg = TS.i18n.t("Please enter a domain", "invite")();
-      } else if (response.data.error === "bad_domain") {
-        msg = TS.i18n.t("Sorry! You can’t use {response_data_domain}.", "invite")({
-          response_data_domain: response.data.domain
-        });
-      } else if (response.data.error === "invalid_domain") {
-        msg = TS.i18n.t("Hmm, this doesn’t look like a domain! Check for typos?", "invite")();
-      } else if (response.data.error === "too_many_domains") {
-        msg = TS.i18n.t("Sorry! You’ve entered too many domains.", "invite")();
-      }
-      $("#invite_signup_domains").focus().tooltip({
-        title: msg,
-        trigger: "manual"
-      }).tooltip("show").on("blur", function() {
-        $(this).tooltip("destroy");
-      });
-    });
-  };
-  var _canNonAdminInvite = function() {
-    return !TS.model.team.prefs.invites_only_admins && !TS.model.user.is_restricted;
-  };
-  var _canInvite = function() {
-    return TS.model.user.is_admin || _canNonAdminInvite();
-  };
-  var _shouldSeeAccountTypeOptions = function() {
-    return TS.model.user.is_admin && TS.model.team.plan !== "";
-  };
-  var _getError = function(data) {
-    if (!data || !data.error || !_error_map[data.error]) return "";
-    var error_msg = _error_map[data.error];
-    return _.isFunction(error_msg) ? error_msg(data) : error_msg;
-  };
-})();
-(function() {
-  "use strict";
   TS.registerModule("ui.admin_edit_team_profile", {
     onStart: function() {
       $("body").on("click", '[data-action="edit_team_profile_modal"]', TS.ui.admin_edit_team_profile.start);
@@ -44828,7 +43745,7 @@ var _on_esc;
         }
       }
     },
-    start: function(item_id, hide_file_preview, has_title, source_model_ob_id, comment) {
+    start: function(item_id, hide_file_preview, has_title, source_model_ob_id, comment, allow_create) {
       if (TS.client && TS.client.ui.checkForEditing()) return;
       _submitting = false;
       _item_id = item_id;
@@ -44872,7 +43789,7 @@ var _on_esc;
       div.find(".dialog_go").click(TS.ui.share_dialog.go);
       TS.ui.file_share.bindFileShareDropdowns(false, {
         id: source_model_ob_id
-      }, undefined, true);
+      }, undefined, allow_create);
       TS.ui.file_share.bindFileShareShareToggle();
       TS.ui.file_share.bindFileShareCommentField();
     },
@@ -48189,7 +47106,7 @@ $.fn.togglify = function(settings) {
   };
   var _isInMessage = function(instance) {
     if (_.isUndefined(instance._is_in_message)) {
-      instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container);
+      instance._is_in_message = _.get(TS, "boot_data.app") === "client" && TS.client.ui.$msgs_div.has(instance.$container).length > 0;
     }
     return instance._is_in_message;
   };
@@ -52347,32 +51264,22 @@ $.fn.togglify = function(settings) {
           var team_icons_html = "";
           var additional_teams = 0;
           var shared_teams = [];
-          if (TS.boot_data.feature_thin_shares) {
-            if (item.is_global_shared) {
-              TS.model.enterprise_teams.forEach(function(team, index) {
-                if (index > 9) {
-                  additional_teams++;
-                  return;
-                }
-                shared_teams.push(team);
-              });
-            } else {
-              item.shared_team_ids.forEach(function(id, index) {
-                if (index > 9) {
-                  additional_teams++;
-                  return;
-                }
-                var team_ob = TS.enterprise.getTeamById(id);
-                shared_teams.push(team_ob);
-              });
-            }
-          } else {
-            item.shares.forEach(function(team, index) {
+          if (item.is_global_shared) {
+            TS.model.enterprise_teams.forEach(function(team, index) {
               if (index > 9) {
                 additional_teams++;
                 return;
               }
               shared_teams.push(team);
+            });
+          } else {
+            item.shared_team_ids.forEach(function(id, index) {
+              if (index > 9) {
+                additional_teams++;
+                return;
+              }
+              var team_ob = TS.enterprise.getTeamById(id);
+              shared_teams.push(team_ob);
             });
           }
           team_icons_html += TS.templates.shared_channel_list_team_icon({
@@ -53270,14 +52177,16 @@ $.fn.togglify = function(settings) {
     var channels = TS.channels.getUnarchivedChannelsForUser().map(function(option) {
       return {
         id: option.id,
-        name: option.name
+        name: option.name,
+        is_shared: option.is_shared
       };
     });
     var groups = TS.groups.getUnarchivedGroups().map(function(option) {
       return {
         id: option.id,
         name: option.name,
-        is_group: true
+        is_group: true,
+        is_shared: option.is_shared
       };
     });
     var options = channels.concat(groups);
@@ -53295,10 +52204,16 @@ $.fn.togglify = function(settings) {
     var opts = {
       data: options,
       template: function(item) {
+        var shared_string = ' <ts-icon class="ts_icon_shared_channel ts_icon_inherit"></ts-icon>';
+        var template;
         if (item.is_group) {
-          return new Handlebars.SafeString(TS.utility.htmlEntities(item.name));
+          template = '<ts-icon class="ts_icon_lock ts_icon_inherit"></ts-icon>';
+        } else {
+          template = "#";
         }
-        return new Handlebars.SafeString("#" + TS.utility.htmlEntities(item.name));
+        template += TS.utility.htmlEntities(item.name);
+        if (item.is_shared) template += shared_string;
+        return new Handlebars.SafeString(template);
       },
       placeholder_text: "",
       filter: function(item, query) {
@@ -53812,41 +52727,15 @@ $.fn.togglify = function(settings) {
     addTeamsToSharedForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (!channel.is_shared) return;
-      if (TS.boot_data.feature_thin_shares) {
-        if (channel.is_global_shared) return;
-        var shared_team_ids = channel.shared_team_ids;
-        shared_team_ids = _(shared_team_ids).concat(teams_ids).uniq().value();
-        channel.shared_team_ids = shared_team_ids;
-      } else {
-        var shares = channel.shares;
-        teams_ids.forEach(function(team_id) {
-          var team = TS.enterprise.getTeamById(team_id);
-          if (!team) return;
-          shares.push({
-            id: team_id,
-            team: team
-          });
-        });
-        channel.shares = shares;
-      }
+      if (channel.is_global_shared) return;
+      var shared_team_ids = channel.shared_team_ids;
+      shared_team_ids = _(shared_team_ids).concat(teams_ids).uniq().value();
+      channel.shared_team_ids = shared_team_ids;
     },
     updateSharesForChannel: function(channel, teams_ids) {
       if (!TS.boot_data.page_needs_enterprise) return;
       if (!channel.is_shared) return;
-      if (TS.boot_data.feature_thin_shares) {
-        channel.shared_team_ids = _.uniq(teams_ids);
-      } else {
-        var shares = [];
-        teams_ids.forEach(function(team_id) {
-          var team = TS.enterprise.getTeamById(team_id);
-          if (!team) return;
-          shares.push({
-            id: team_id,
-            team: team
-          });
-        });
-        channel.shares = shares;
-      }
+      channel.shared_team_ids = _.uniq(teams_ids);
     },
     isUserOnTeam: function(user, team) {
       return user.enterprise_user.teams.indexOf(team.id) > -1;
@@ -56637,6 +55526,9 @@ $.fn.togglify = function(settings) {
         placeholder: "",
         onEnter: function(args) {
           return true;
+        },
+        onTab: function() {
+          return false;
         },
         onTextChange: _.noop,
         attributes: {
@@ -63660,7 +62552,8 @@ $.fn.togglify = function(settings) {
             }
             var S = p ? n : this,
               x = d ? S[e] : e;
-            return g = y.length, s ? y = Ao(y, s) : v && g > 1 && y.reverse(), f && u < g && (y.length = u), this && this !== zn && this instanceof c && (x = m || Xr(x)), x.apply(S, y);
+            return g = y.length, s ? y = Ao(y, s) : v && g > 1 && y.reverse(),
+              f && u < g && (y.length = u), this && this !== zn && this instanceof c && (x = m || Xr(x)), x.apply(S, y);
           }
           var f = t & pe,
             p = t & ie,
@@ -65683,125 +64576,126 @@ $.fn.togglify = function(settings) {
           uf = ao("ceil"),
           lf = ao("floor"),
           cf = ao("round");
-        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
-          var e = {};
-          return Wn(t, function(n, r) {
-            Yu.call(t.prototype, r) || (e[r] = n);
-          }), e;
-        }(), {
-          chain: !1
-        }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
-          t[e].placeholder = t;
-        }), c(["drop", "take"], function(e, t) {
-          o.prototype[e] = function(n) {
-            var r = this.__filtered__;
-            if (r && !t) return new o(this);
-            n = n === J ? 1 : _l(ls(n), 0);
-            var i = this.clone();
-            return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
-              size: yl(n, Re),
-              type: e + (i.__dir__ < 0 ? "Right" : "")
-            }), i;
-          }, o.prototype[e + "Right"] = function(t) {
-            return this.reverse()[e](t).reverse();
-          };
-        }), c(["filter", "map", "takeWhile"], function(e, t) {
-          var n = t + 1,
-            r = n == we || n == Se;
-          o.prototype[e] = function(e) {
-            var t = this.clone();
-            return t.__iteratees__.push({
-              iteratee: po(e, 3),
-              type: n
-            }), t.__filtered__ = t.__filtered__ || r, t;
-          };
-        }), c(["head", "last"], function(e, t) {
-          var n = "take" + (t ? "Right" : "");
-          o.prototype[e] = function() {
-            return this[n](1).value()[0];
-          };
-        }), c(["initial", "tail"], function(e, t) {
-          var n = "drop" + (t ? "" : "Right");
-          o.prototype[e] = function() {
-            return this.__filtered__ ? new o(this) : this[n](1);
-          };
-        }), o.prototype.compact = function() {
-          return this.filter(_u);
-        }, o.prototype.find = function(e) {
-          return this.filter(e).head();
-        }, o.prototype.findLast = function(e) {
-          return this.reverse().find(e);
-        }, o.prototype.invokeMap = pa(function(e, t) {
-          return "function" == typeof e ? new o(this) : this.map(function(n) {
-            return $n(n, e, t);
-          });
-        }), o.prototype.reject = function(e) {
-          return e = po(e, 3), this.filter(function(t) {
-            return !e(t);
-          });
-        }, o.prototype.slice = function(e, t) {
-          e = ls(e);
-          var n = this;
-          return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
-        }, o.prototype.takeRightWhile = function(e) {
-          return this.reverse().takeWhile(e).reverse();
-        }, o.prototype.toArray = function() {
-          return this.take(Re);
-        }, Wn(o.prototype, function(e, n) {
-          var i = /^(?:filter|find|map|reject)|While$/.test(n),
-            a = /^(?:head|last)$/.test(n),
-            s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
-            u = a || /^find/.test(n);
-          s && (t.prototype[n] = function() {
-            var n = this.__wrapped__,
-              l = a ? [1] : arguments,
-              c = n instanceof o,
-              f = l[0],
-              p = c || Tc(n),
-              d = function(e) {
-                var n = s.apply(t, g([e], l));
-                return a && h ? n[0] : n;
-              };
-            p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
-            var h = this.__chain__,
-              v = !!this.__actions__.length,
-              m = u && !h,
-              _ = c && !v;
-            if (!u && p) {
-              n = _ ? n : new o(this);
-              var y = e.apply(n, l);
-              return y.__actions__.push({
-                func: Pi,
-                args: [d],
-                thisArg: J
-              }), new r(y, h);
+        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo,
+          t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
+            var e = {};
+            return Wn(t, function(n, r) {
+              Yu.call(t.prototype, r) || (e[r] = n);
+            }), e;
+          }(), {
+            chain: !1
+          }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
+            t[e].placeholder = t;
+          }), c(["drop", "take"], function(e, t) {
+            o.prototype[e] = function(n) {
+              var r = this.__filtered__;
+              if (r && !t) return new o(this);
+              n = n === J ? 1 : _l(ls(n), 0);
+              var i = this.clone();
+              return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
+                size: yl(n, Re),
+                type: e + (i.__dir__ < 0 ? "Right" : "")
+              }), i;
+            }, o.prototype[e + "Right"] = function(t) {
+              return this.reverse()[e](t).reverse();
+            };
+          }), c(["filter", "map", "takeWhile"], function(e, t) {
+            var n = t + 1,
+              r = n == we || n == Se;
+            o.prototype[e] = function(e) {
+              var t = this.clone();
+              return t.__iteratees__.push({
+                iteratee: po(e, 3),
+                type: n
+              }), t.__filtered__ = t.__filtered__ || r, t;
+            };
+          }), c(["head", "last"], function(e, t) {
+            var n = "take" + (t ? "Right" : "");
+            o.prototype[e] = function() {
+              return this[n](1).value()[0];
+            };
+          }), c(["initial", "tail"], function(e, t) {
+            var n = "drop" + (t ? "" : "Right");
+            o.prototype[e] = function() {
+              return this.__filtered__ ? new o(this) : this[n](1);
+            };
+          }), o.prototype.compact = function() {
+            return this.filter(_u);
+          }, o.prototype.find = function(e) {
+            return this.filter(e).head();
+          }, o.prototype.findLast = function(e) {
+            return this.reverse().find(e);
+          }, o.prototype.invokeMap = pa(function(e, t) {
+            return "function" == typeof e ? new o(this) : this.map(function(n) {
+              return $n(n, e, t);
+            });
+          }), o.prototype.reject = function(e) {
+            return e = po(e, 3), this.filter(function(t) {
+              return !e(t);
+            });
+          }, o.prototype.slice = function(e, t) {
+            e = ls(e);
+            var n = this;
+            return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
+          }, o.prototype.takeRightWhile = function(e) {
+            return this.reverse().takeWhile(e).reverse();
+          }, o.prototype.toArray = function() {
+            return this.take(Re);
+          }, Wn(o.prototype, function(e, n) {
+            var i = /^(?:filter|find|map|reject)|While$/.test(n),
+              a = /^(?:head|last)$/.test(n),
+              s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
+              u = a || /^find/.test(n);
+            s && (t.prototype[n] = function() {
+              var n = this.__wrapped__,
+                l = a ? [1] : arguments,
+                c = n instanceof o,
+                f = l[0],
+                p = c || Tc(n),
+                d = function(e) {
+                  var n = s.apply(t, g([e], l));
+                  return a && h ? n[0] : n;
+                };
+              p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
+              var h = this.__chain__,
+                v = !!this.__actions__.length,
+                m = u && !h,
+                _ = c && !v;
+              if (!u && p) {
+                n = _ ? n : new o(this);
+                var y = e.apply(n, l);
+                return y.__actions__.push({
+                  func: Pi,
+                  args: [d],
+                  thisArg: J
+                }), new r(y, h);
+              }
+              return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
+            });
+          }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
+            var n = Vu[e],
+              r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
+              o = /^(?:pop|shift)$/.test(e);
+            t.prototype[e] = function() {
+              var e = arguments;
+              return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
+                return n.apply(t, e);
+              });
+            };
+          }), Wn(o.prototype, function(e, n) {
+            var r = t[n];
+            if (r) {
+              var o = r.name + "",
+                i = Pl[o] || (Pl[o] = []);
+              i.push({
+                name: n,
+                func: r
+              });
             }
-            return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
-          });
-        }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
-          var n = Vu[e],
-            r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
-            o = /^(?:pop|shift)$/.test(e);
-          t.prototype[e] = function() {
-            var e = arguments;
-            return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
-              return n.apply(t, e);
-            });
-          };
-        }), Wn(o.prototype, function(e, n) {
-          var r = t[n];
-          if (r) {
-            var o = r.name + "",
-              i = Pl[o] || (Pl[o] = []);
-            i.push({
-              name: n,
-              func: r
-            });
-          }
-        }), Pl[Jr(J, ae).name] = [{
-          name: "wrapper",
-          func: J
-        }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
+          }), Pl[Jr(J, ae).name] = [{
+            name: "wrapper",
+            func: J
+          }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
       }
       var J, ee = "4.6.1",
         te = 200,
@@ -73557,31 +72451,32 @@ $.fn.togglify = function(settings) {
     }), this.opts = e, this.el = e.el || document.body, "object" != typeof this.el && (this.el = document.querySelector(this.el)), void 0) : new r(e);
   }
   e.exports = function(e) {
-    return new r(e);
-  }, r.prototype.add = function(e) {
-    var t = this.el;
-    if (t) {
-      if ("" === t.className) return t.className = e;
-      var r = t.className.split(" ");
-      return n(r, e) > -1 ? r : (r.push(e), t.className = r.join(" "), r);
-    }
-  }, r.prototype.remove = function(e) {
-    var t = this.el;
-    if (t && "" !== t.className) {
-      var r = t.className.split(" "),
-        o = n(r, e);
-      return o > -1 && r.splice(o, 1), t.className = r.join(" "), r;
-    }
-  }, r.prototype.has = function(e) {
-    var t = this.el;
-    if (t) {
-      var r = t.className.split(" ");
-      return n(r, e) > -1;
-    }
-  }, r.prototype.toggle = function(e) {
-    var t = this.el;
-    t && (this.has(e) ? this.remove(e) : this.add(e));
-  };
+      return new r(e);
+    }, r.prototype.add = function(e) {
+      var t = this.el;
+      if (t) {
+        if ("" === t.className) return t.className = e;
+        var r = t.className.split(" ");
+        return n(r, e) > -1 ? r : (r.push(e), t.className = r.join(" "), r);
+      }
+    }, r.prototype.remove = function(e) {
+      var t = this.el;
+      if (t && "" !== t.className) {
+        var r = t.className.split(" "),
+          o = n(r, e);
+        return o > -1 && r.splice(o, 1), t.className = r.join(" "), r;
+      }
+    }, r.prototype.has = function(e) {
+      var t = this.el;
+      if (t) {
+        var r = t.className.split(" ");
+        return n(r, e) > -1;
+      }
+    },
+    r.prototype.toggle = function(e) {
+      var t = this.el;
+      t && (this.has(e) ? this.remove(e) : this.add(e));
+    };
 }, function(e, t, n) {
   var r;
   ! function() {
@@ -75083,7 +73978,8 @@ $.fn.togglify = function(settings) {
     P = n(255),
     M = n(120),
     O = n(258),
-    I = (n(15), n(267)),
+    I = (n(15),
+      n(267)),
     A = n(272),
     N = (n(14), n(58)),
     j = (n(0), n(89), n(54), n(91), n(1), T),

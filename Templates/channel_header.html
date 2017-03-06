@@ -24,6 +24,13 @@
       {{else}}
         {{#if member}}
           <button type="button" id="im_title" class="btn_unstyle">{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName member}}{{else}}{{getMemberDisplayName member}}{{/feature}} {{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
+          {{#feature flag="feature_user_custom_status"}}
+            {{#or member.profile.status_emoji member.profile.status_text}}
+              <div class="channel_header_member_current_status overflow_ellipsis normal subtle_silver">
+                {{getMemberCurrentStatusForDisplayWithoutAnimations member}}
+              </div>
+            {{/or}}
+          {{/feature}}
         {{else}}
           <button type="button" span id="channel_title" class="btn_unstyle">{{name}}{{#if member.is_self}}<span class="normal subtle_silver"> {{#t}}(you){{/t}}</span>{{/if}}</button>
         {{/if}}
@@ -45,15 +52,6 @@
           {{{makeMemberPresenceIcon member}}}
           <span id="header_status_message"></span>
         </div>
-
-
-        {{#feature flag="feature_user_custom_status"}}
-          {{#or member.profile.status_emoji member.profile.status_text}}
-            <div class="channel_header_info_item">
-              {{> current_status tip_direction="bottom" classes="channel_header_member_current_status ts_tip_float"}}
-            </div>
-          {{/or}}
-        {{/feature}}
 
         <div class="channel_header_info_item channel_header_member_alt_name">
           {{#feature flag="feature_name_tagging_client"}}

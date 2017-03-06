@@ -33,18 +33,10 @@
     }
 
     /* Active Item */
-    #channels_scroller.show_which_channel_is_active ul li.active > a,
-    #channels_scroller.show_which_channel_is_active ul li.active .channel_name,
-    #channels_scroller.show_which_channel_is_active ul li.active .group_name,
-    #channels_scroller.show_which_channel_is_active ul li.active .im_name,
-    #channels_scroller.show_which_channel_is_active ul li.active .im_name.feature_user_custom_status > *:not(.unread_highlights),
-    #channels_scroller.show_which_channel_is_active ul li.active .mpim_name,
-    #channels_nav ul li.unread_link.active > a,
-    #channels_nav ul li.unread_link.active .im_name,
-    #channels_nav ul li.unread_link.active .im_name.feature_user_custom_status > *:not(.unread_highlights),
-    #channels_nav ul li.unread_link.active .mpim_name,
-    #channels_nav ul li.unread_link.active .group_name,
-    #channels_nav ul li.unread_link.active .channel_name {
+    #channels_scroller.show_which_channel_is_active ul li.active .primary_action,
+    #channels_scroller.show_which_channel_is_active ul li.active .primary_action.feature_user_custom_status > *:not(.unread_highlights),
+    #channels_nav ul li.unread_link.active .primary_action,
+    #channels_nav ul li.unread_link.active .primary_action.feature_user_custom_status > *:not(.unread_highlights) {
       background: {{theme.active_item}};
       opacity: 1;
       color: {{theme.active_item_text}} !important;
@@ -61,11 +53,8 @@
     }
 
     /* Hovered Item */
-    body:not(.sorting_mode) .channels_list_holder ul li .im_name:not(.feature_user_custom_status):hover,
-    body:not(.sorting_mode) .channels_list_holder ul li .im_name.feature_user_custom_status:hover > .im_name_background,
-    body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover,
-    body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover,
-    body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover,
+    body:not(.sorting_mode) .channels_list_holder ul li .primary_action:not(.feature_user_custom_status):hover,
+    body:not(.sorting_mode) .channels_list_holder ul li .primary_action.feature_user_custom_status:hover > .im_name_background,
     #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
       background: {{theme.hover_item}};
     }
@@ -88,18 +77,14 @@
     }
 
     /* Text Color */
-    .channels_list_holder ul li .im_name:not(.feature_user_custom_status),
-    .channels_list_holder ul li .im_name.feature_user_custom_status > *:not(.unread_highlights),
-    .channels_list_holder ul li .mpim_name,
-    .channels_list_holder ul li .group_name,
-    .channels_list_holder ul li .channel_name,
+    .channels_list_holder ul li .primary_action:not(.feature_user_custom_status),
+    .channels_list_holder ul li .primary_action.feature_user_custom_status > *:not(.unread_highlights),
     .channels_list_holder h2,
     .list_more,
     #team_menu:before,
     #team_menu .notifications_menu_btn,
     #team_menu .team_name_caret,
-    #channels_scroller.show_which_channel_is_active ul li.active .channel_name .prefix,
-    #channels_scroller.show_which_channel_is_active ul li.active .group_name .prefix,
+    #channels_scroller.show_which_channel_is_active ul li.active .primary_action .prefix,
     #team_menu_user_name,
     #team_menu_user_details,
     #channels_nav ul li button,
@@ -107,11 +92,8 @@
     .channels_list_holder .im_close,
     .channels_list_holder .mpim_close,
     .channels_list_holder .group_close,
-    #channels_nav ul li .im_name:not(.feature_user_custom_status),
-    #channels_nav ul li .im_name.feature_user_custom_status > *:not(.unread_highlights),
-    #channels_nav ul li .mpim_name,
-    #channels_nav ul li .group_name,
-    #channels_nav ul li .channel_name,
+    #channels_nav ul li .primary_action:not(.feature_user_custom_status),
+    #channels_nav ul li .primary_action.feature_user_custom_status > *:not(.unread_highlights),
     #quick_switcher_btn > i {
       color: {{theme.text_color}} !important;
       opacity: 0.6;
@@ -146,8 +128,7 @@
     .invite_widget_link:hover {
       opacity: 1;
     }
-    #channels_scroller.show_which_channel_is_active ul li.active .channel_name .prefix,
-    #channels_scroller.show_which_channel_is_active ul li.active .group_name .prefix {
+    #channels_scroller.show_which_channel_is_active ul li.active .primary_action .prefix {
       color: {{theme.active_item_text}} !important;
     }
     .list_more:hover {
@@ -155,11 +136,8 @@
       border-bottom-color: {{theme.text_color}};
     }
 
-    .channels_list_holder ul li.unread .im_name,
-    .channels_list_holder ul li.unread .im_name.feature_user_custom_status > *,
-    .channels_list_holder ul li.unread .mpim_name,
-    .channels_list_holder ul li.unread .group_name,
-    .channels_list_holder ul li.unread .channel_name,
+    .channels_list_holder ul li.unread .primary_action,
+    .channels_list_holder ul li.unread .primary_action.feature_user_custom_status > *,
     .channels_list_holder ul li .channels_list_new_btn:hover {
       opacity: 1 !important;
     }

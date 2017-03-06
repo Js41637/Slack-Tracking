@@ -14,27 +14,15 @@
       </p>
     {{else}}
       <div class="channel_shared_teams">
-        {{#feature flag="feature_thin_shares"}}
-          {{#each teams_shared_with}}
-            <div class="shared_team bottom_margin">
-              <img class="member_image float_left" src="{{this.icon.image_68}}" srcset="{{this.icon.image_34}} 1x, {{this.icon.image_68}} 2x"/>
-              <div class="shared_team_name_and_owner">
-                <div class="shared_team_name overflow_ellipsis" title="{{this.name}}">{{this.name}}</div>
-                <div class="shared_team_user old_petunia_grey mini">{{getMemberDisplayNameById user}}</div>
-              </div>
+        {{#each teams_shared_with}}
+          <div class="shared_team bottom_margin">
+            <img class="member_image float_left" src="{{this.icon.image_68}}" srcset="{{this.icon.image_34}} 1x, {{this.icon.image_68}} 2x"/>
+            <div class="shared_team_name_and_owner">
+              <div class="shared_team_name overflow_ellipsis" title="{{this.name}}">{{this.name}}</div>
+              <div class="shared_team_user old_petunia_grey mini">{{getMemberDisplayNameById user}}</div>
             </div>
-          {{/each}}
-        {{else}}
-          {{#each model_ob.shares}}
-            <div class="shared_team bottom_margin">
-              <img class="member_image float_left" src="{{team.icon.image_68}}" srcset="{{team.icon.image_34}} 1x, {{team.icon.image_68}} 2x"/>
-              <div class="shared_team_name_and_owner">
-                <div class="shared_team_name overflow_ellipsis" title="{{team.name}}">{{team.name}}</div>
-                <div class="shared_team_user old_petunia_grey mini">{{getMemberDisplayNameById user}}</div>
-              </div>
-            </div>
-          {{/each}}
-        {{/feature}}
+          </div>
+        {{/each}}
       </div>
     </div>
     {{/if}}
