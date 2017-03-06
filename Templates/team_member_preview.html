@@ -235,7 +235,7 @@
       {{/seesCurrentStatusInProfileView}}
     {{/feature}}
 
-    <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
+    <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}{{#experiment name="guest_profiles_and_expiration"}}{{#if member.is_restricted}} no_margin_bottom{{/if}}{{/experiment}}">
       {{#feature flag="feature_name_tagging_client"}}
         {{#if member.profile.preferred_name}}
           <tr>
@@ -306,6 +306,33 @@
       {{getVisibleTeamProfileFieldsForMember member}}
     </table>
   {{/if}}
+
+  {{#experiment name="guest_profiles_and_expiration"}}
+    {{#if member.is_restricted}}
+      <hr class="member_details_divider">
+
+      <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
+        <tr>
+          <td><span class="small_right_padding old_petunia_grey" title="{{#t note="owner or admin that invited the guest to the team"}}Invited By{{/t}}">{{#t note="owner or admin that invited the guest to the team"}}Invited By{{/t}}</span></td>
+          <td>
+
+          </td>
+        </tr>
+        <tr>
+          <td><span class="small_right_padding old_petunia_grey" title="{{#t note="date the guest account will be deactivated"}}Member Until{{/t}}">{{#t note="date the guest account will be deactivated"}}Member Until{{/t}}</span></td>
+          <td>
+
+          </td>
+        </tr>
+        <tr>
+          <td><span class="small_right_padding old_petunia_grey" title="{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}">{{#t note="list of channels the user is invited to" }}{member.is_ultra_restricted, select, true{Channel}other{Channels}}{{/t}}</span></td>
+          <td>
+
+          </td>
+        </tr>
+      </table>
+    {{/if}}
+  {{/experiment}}
 
   {{#pageNeedsEnterprise}}
     {{#if teams}}

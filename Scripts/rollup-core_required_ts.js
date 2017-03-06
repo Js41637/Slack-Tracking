@@ -3089,16 +3089,23 @@
     return !!test.style.length;
   }
 
+  function _stickySetup() {
+    TS.environment.supports_sticky_position = _cssValueSupported("position", "sticky");
+    if (window.bowser.name === "Chrome" && parseInt(window.bowser.version) < 57 && _isRetina()) {
+      TS.environment.supports_sticky_position = false;
+    }
+  }
+
   function _initialSetup() {
     TS.environment.is_apple_webkit = !!(TS.model.mac_ssb_version || TS.model.is_safari_desktop);
     TS.environment.is_macgap = !!window.macgap;
     TS.environment.is_retina = _isRetina();
-    TS.environment.supports_sticky_position = _cssValueSupported("position", "sticky");
     TS.environment.supports_custom_scrollbar = _cssPropertySupported("scrollbar");
     TS.environment.slim_scrollbar = TS.environment.supports_custom_scrollbar && TS.boot_data.feature_slim_scrollbar;
     TS.environment.supports_flexbox = _cssPropertySupported("flex-wrap");
     TS.environment.supports_line_clamp = _cssPropertySupported("line-clamp");
     TS.environment.supports_intersection_observer = typeof IntersectionObserver === "function";
+    _stickySetup();
   }
 
   function _bindEvents() {
@@ -3110,6 +3117,8 @@
         if (TS.environment.is_retina === old_value) return;
         TS.info("TS.environment.is_retina changed from " + old_value + " to " + TS.environment.is_retina);
         TS.environment.retina_changed_sig.dispatch(TS.environment.is_retina);
+        _stickySetup();
+        _decoratePageWithSupport();
       });
     }
   }
@@ -4876,7 +4885,14 @@
           });
           if (!query && !preselected && current_model_ob) {
             var current_channel = TS.shared.getModelObById(current_model_ob);
-            if (current_channel) {
+            if (_.get(current_channel, "is_im")) {
+              var member = TS.members.getMemberById(current_channel.user);
+              data.push({
+                preselected: true,
+                lfs_id: member.id,
+                model_ob: member
+              });
+            } else if (current_channel) {
               data.push({
                 preselected: true,
                 lfs_id: current_channel.id,

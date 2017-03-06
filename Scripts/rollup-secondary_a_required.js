@@ -33882,7 +33882,7 @@ var _on_esc;
       if (channel.is_member && (!channel.is_general || TS.members.canUserPostInGeneral())) template_args.show_advanced_item = true;
       if (TS.boot_data.page_needs_enterprise) {
         var can_manage_shared_channels = TS.permissions.members.canManageSharedChannels();
-        if (!channel.is_shared && can_manage_shared_channels) template_args.show_convert_item = true;
+        if (!channel.is_shared && can_manage_shared_channels && !channel.is_general) template_args.show_convert_item = true;
         if (channel.is_shared) {
           if (template_args.show_advanced_item) {
             if (can_manage_shared_channels) {
