@@ -1526,6 +1526,7 @@
     if (!TS.boot_data.ms_connect_url) return;
     if (TS.lazyLoadMembersAndBots()) {
       _ms_rtm_start_p = TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs()).catch(function() {
+        TS.ms.disconnect();
         return TS.api.connection.waitForAPIConnection().then(function() {
           return TS.flannel.connectAndFetchRtmStart(_getMSLoginArgs());
         });
@@ -3152,12 +3153,18 @@
         TS.clog.setUser(TS.model.user.id);
         TS.clog.setTeam(TS.model.team.id);
       }
+      if (TS.model && TS.model.enterprise && TS.model.enterprise.id) {
+        TS.clog.setEnterprise(TS.model.enterprise.id);
+      }
     },
     setUser: function(id) {
       _user_id = id;
     },
     setTeam: function(id) {
       _team_id = id;
+    },
+    setEnterprise: function(id) {
+      _enterprise_id = id;
     },
     track: function(event, args) {
       _recordLog(event, args);
@@ -3211,6 +3218,7 @@
   var _LOG_PRI = 1e3;
   var _logs = [];
   var _team_id;
+  var _enterprise_id;
   var _user_id;
   var _detectClogEndpoint = function(host) {
     var is_dev = host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack.com/);
@@ -3234,9 +3242,11 @@
       args: args
     };
     if (_team_id) payload["team_id"] = _team_id;
+    if (_enterprise_id) payload["enterprise_id"] = _enterprise_id;
     if (_user_id) payload["user_id"] = _user_id;
     if (TS.model) {
       if (TS.model.team && TS.model.team.id) payload["team_id"] = TS.model.team.id;
+      if (TS.model.enterprise && TS.model.enterprise.id) payload["enterprise_id"] = TS.model.enterprise.id;
       if (TS.model.user && TS.model.user.id) payload["user_id"] = TS.model.user.id;
     }
     _logs.push(payload);

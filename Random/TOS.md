@@ -12,7 +12,7 @@ These Customer Terms (or, if applicable, your written agreement with us) and any
 
 #### Your Agreement On Behalf of “Customer”
 
-If you purchase subscription(s), create a team (i.e., a unique domain where a group of users may access the Services, as further described in our Help Center pages), invite users to that team, or use or allow use of that team after being notified of a change to these Customer Terms, you acknowledge your understanding of the then-current Contract and agree to the Contract on behalf of Customer. Please make sure you have the necessary authority to enter into the Contract on behalf of Customer before proceeding.
+If you purchase subscription(s), create a team (i.e., a unique URL where a group of users may access the Services, as further described in our Help Center pages), invite users to that team, or use or allow use of that team after being notified of a change to these Customer Terms, you acknowledge your understanding of the then-current Contract and agree to the Contract on behalf of Customer. Please make sure you have the necessary authority to enter into the Contract on behalf of Customer before proceeding.
 
 ## Customer Choices and Instructions
 

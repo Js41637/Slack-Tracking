@@ -3452,7 +3452,10 @@
               show_go_button: true,
               go_button_text: TS.i18n.t("Yes, send it", "channels")(),
               onGo: function() {
-                TS.channels.displayChannel(general.id, text);
+                TS.channels.displayChannel({
+                  id: general.id,
+                  and_send_txt: text
+                });
               },
               onCancel: function() {
                 TS.utility.contenteditable.value(TS.client.ui.$msg_input, text);
@@ -3485,15 +3488,26 @@
       }
       TS.shared.onSendMsg(success, imsg, channel, TS.channels);
     },
-    displayChannel: function(channel_id, and_send_txt, from_history, replace_history_state) {
+    displayChannel: function(options) {
+      var current_options = _.defaults({}, options, {
+        from_history: false,
+        replace_history_state: false
+      });
+      var channel_id = current_options.id;
+      if (!channel_id) {
+        TS.error("no channel id supplied");
+        return;
+      }
+      var channel_path = current_options.path;
+      var and_send_txt = current_options.and_send_txt;
+      var from_history = current_options.from_history;
+      var replace_history_state = current_options.replace_history_state;
       if (TS.isPartiallyBooted() && channel_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
         TS.sounds.play("beep");
         return;
       }
       TS.metrics.mark("start_channel_change_" + channel_id);
-      from_history = !!from_history;
-      replace_history_state = !!replace_history_state;
       var channel = TS.channels.getChannelById(channel_id);
       if (!channel) {
         TS.error('channel "' + channel_id + '" unknown');
@@ -3525,7 +3539,12 @@
         }
       }
       var no_history_add = replace_history_state ? false : from_history;
-      var switched = TS.client.channelDisplaySwitched(channel_id, replace_history_state, no_history_add);
+      var switched = TS.client.channelDisplaySwitched({
+        id: channel_id,
+        path: channel_path,
+        replace_history_state: replace_history_state,
+        no_history_add: no_history_add
+      });
       var signal = function() {
         if (switched) {
           TS.channels.pre_switched_sig.dispatch();
@@ -3640,7 +3659,9 @@
     onJoin: function(ok, data, args) {
       if (!ok) {
         if (data.error == "name_taken") {} else if (data.error == "is_archived") {
-          TS.channels.displayChannel(TS.channels.getChannelByName(args.name).id);
+          TS.channels.displayChannel({
+            id: TS.channels.getChannelByName(args.name).id
+          });
         } else if (data.error == "restricted_action") {
           TS.generic_dialog.alert(TS.i18n.t("<p>You don’t have permission to create new channels.</p><p>Talk to your Team Owner.</p>", "channels")());
         } else {
@@ -3674,7 +3695,10 @@
       if (!channel.needs_created_message && !channel.never_needs_joined_msg) {
         channel.needs_joined_message = true;
       }
-      if (TS.client) TS.channels.displayChannel(channel_id, and_send_txt);
+      if (TS.client) TS.channels.displayChannel({
+        id: channel_id,
+        and_send_txt: and_send_txt
+      });
     },
     leave: function(id) {
       var channel = TS.channels.getChannelById(id);
@@ -5085,15 +5109,26 @@ TS.registerModule("constants", {
         return;
       }
     },
-    displayGroup: function(group_id, and_send_txt, from_history, replace_history_state) {
+    displayGroup: function(options) {
+      var current_options = _.defaults({}, options, {
+        from_history: false,
+        replace_history_state: false
+      });
+      var group_id = current_options.id;
+      if (!group_id) {
+        TS.error("no group id supplied");
+        return;
+      }
+      var group_path = current_options.path;
+      var and_send_txt = current_options.and_send_txt;
+      var from_history = current_options.from_history;
+      var replace_history_state = current_options.replace_history_state;
       if (TS.isPartiallyBooted() && group_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
         TS.sounds.play("beep");
         return;
       }
       TS.metrics.mark("start_channel_change_" + group_id);
-      from_history = !!from_history;
-      replace_history_state = !!replace_history_state;
       var group = TS.groups.getGroupById(group_id);
       if (!group) {
         TS.error('group "' + group_id + '" unknown');
@@ -5114,7 +5149,13 @@ TS.registerModule("constants", {
         return;
       }
       var no_history_add = replace_history_state ? false : from_history;
-      var switched = TS.client.channelDisplaySwitched(group_id, replace_history_state, no_history_add);
+      var path = group_path || "/messages/" + group;
+      var switched = TS.client.channelDisplaySwitched({
+        id: group_id,
+        path: path,
+        replace_history_state: replace_history_state,
+        no_history_add: no_history_add
+      });
       var signal = function() {
         if (switched) {
           TS.groups.pre_switched_sig.dispatch();
@@ -5268,7 +5309,9 @@ TS.registerModule("constants", {
           });
         }
       }
-      if (TS.client) TS.groups.displayGroup(group_id);
+      if (TS.client) TS.groups.displayGroup({
+        id: group_id
+      });
     },
     getLeaveAction: function(group_id) {
       if (TS.model.user.is_ultra_restricted) return "";
@@ -7741,8 +7784,11 @@ TS.registerModule("constants", {
         }
         return;
       }
-      var no_history_add = from_history;
-      if (TS.client.channelDisplaySwitched(im_id, false, no_history_add)) {
+      var switched = TS.client.channelDisplaySwitched({
+        id: im_id,
+        no_history_add: from_history
+      });
+      if (switched) {
         TS.ims.pre_switched_sig.dispatch();
         TS.ims.switched_sig.dispatch();
       }
@@ -8183,7 +8229,9 @@ TS.registerModule("constants", {
         if (data.group) {
           var mpim = TS.mpims.upsertMpim(data.group);
           if (mpim) {
-            TS.mpims.displayMpim(mpim.id);
+            TS.mpims.displayMpim({
+              id: mpim.id
+            });
           } else {
             TS.error("no mpim?!?");
           }
@@ -8196,15 +8244,26 @@ TS.registerModule("constants", {
         return;
       }
     },
-    displayMpim: function(mpim_id, and_send_txt, from_history, replace_history_state) {
+    displayMpim: function(options) {
+      var current_options = _.defaults({}, options, {
+        from_history: false,
+        replace_history_state: false
+      });
+      var mpim_id = current_options.id;
+      if (!mpim_id) {
+        TS.error("no mpim id supplied");
+        return;
+      }
+      var mpim_path = current_options.path;
+      var and_send_txt = current_options.and_send_txt;
+      var from_history = current_options.from_history;
+      var replace_history_state = current_options.replace_history_state;
       if (TS.isPartiallyBooted() && mpim_id !== TS.model.initial_cid) {
         TS.warn("Can't switch model objects during incremental boot; this is a programming error");
         TS.sounds.play("beep");
         return;
       }
       TS.metrics.mark("start_channel_change_" + mpim_id);
-      from_history = !!from_history;
-      replace_history_state = !!replace_history_state;
       var mpim = TS.mpims.getMpimById(mpim_id);
       if (!mpim) {
         TS.error('mpim "' + mpim_id + '" unknown');
@@ -8224,7 +8283,14 @@ TS.registerModule("constants", {
         return;
       }
       var no_history_add = replace_history_state ? false : from_history;
-      if (TS.client.channelDisplaySwitched(mpim_id, replace_history_state, no_history_add)) {
+      var path = mpim_path || "/messages/" + mpim;
+      var switched = TS.client.channelDisplaySwitched({
+        id: mpim_id,
+        path: path,
+        replace_history_state: replace_history_state,
+        no_history_add: no_history_add
+      });
+      if (switched) {
         TS.mpims.pre_switched_sig.dispatch();
         TS.mpims.switched_sig.dispatch();
       }
@@ -9309,7 +9375,10 @@ TS.registerModule("constants", {
             show_go_button: true,
             go_button_text: TS.i18n.t("Yes, send it", "shared")(),
             onGo: function() {
-              TS.channels.displayChannel(general.id, text);
+              TS.channels.displayChannel({
+                id: general.id,
+                and_send_txt: text
+              });
             },
             onCancel: function() {
               TS.utility.contenteditable.value(TS.client.ui.$msg_input, text);
@@ -16045,7 +16114,7 @@ TS.registerModule("constants", {
           start: last_event_ts,
           count: _eventlog_per_page,
           no_payload_if_has_more: true,
-          batch_deleted_files: !!TS.boot_data.feature_batch_file_deleted_event
+          batch_deleted_files: true
         }).then(_onEventLogOK).catch(_onEventLogError).finally(_.noop);
       } else {
         if (TS.client) TS.shared.maybeFetchHistoryAndThenCheckConsistency(TS.shared.getActiveModelOb());
@@ -16825,7 +16894,10 @@ TS.registerModule("constants", {
       }
       mpim.is_open = true;
       if (TS.model.requested_mpim_opens[imsg.channel]) {
-        TS.mpims.displayMpim(mpim.id, false, TS.model.requested_mpim_opens[imsg.channel].and_send_txt);
+        TS.mpims.displayMpim({
+          id: mpim.id,
+          and_send_txt: TS.model.requested_mpim_opens[imsg.channel].and_send_txt
+        });
         delete TS.model.requested_mpim_opens[imsg.channel];
       }
       mpim.opened_this_session = true;
@@ -16846,7 +16918,9 @@ TS.registerModule("constants", {
       }
       if (TS.model.active_mpim_id == imsg.channel) {
         if (TS.client && converted_to && TS.groups.getGroupById(converted_to)) {
-          TS.groups.displayGroup(converted_to);
+          TS.groups.displayGroup({
+            id: converted_to
+          });
         } else if (TS.client) {
           TS.client.activeChannelDisplayGoneAway();
         }
@@ -17024,7 +17098,10 @@ TS.registerModule("constants", {
       }
       group.is_open = true;
       if (TS.model.requested_group_opens[imsg.channel]) {
-        TS.groups.displayGroup(group.id, false, TS.model.requested_group_opens[imsg.channel].and_send_txt);
+        TS.groups.displayGroup({
+          id: group.id,
+          and_send_txt: TS.model.requested_group_opens[imsg.channel].and_send_txt
+        });
         delete TS.model.requested_group_opens[imsg.channel];
       }
       group.opened_this_session = true;
@@ -18019,15 +18096,25 @@ TS.registerModule("constants", {
         }
         return _fetchRawObjectsByIds(required_member_ids).then(function(members) {
           TS.info("Got " + members.length + " members for rtm.start :tada:");
-          data.users = members;
           if (required_member_ids.length !== members.length) {
-            TS.metrics.count("flannel_boot_soft_fail");
-            TS.error("TS.flannel.connectAndFetchRtmStart problem: Requested " + required_member_ids.length + " members but received " + members.length + ". Missing members: " + _.difference(required_member_ids, _.map(members, "id")).join(","));
+            var missing_member_ids = _.difference(required_member_ids, _.map(members, "id"));
+            return _fetchMembersFromAPI(missing_member_ids).then(function(members_from_api) {
+              if (members_from_api.length == missing_member_ids.length) {
+                TS.warn("TS.flannel.connectAndFetchRtmStart tried to fetch users from Flannel but had to fall back to the API for some users (everything worked out, though). Users: " + missing_member_ids.join(","));
+                TS.metrics.count("rtm_start_from_flannel_fallback_to_api_success");
+              } else {
+                var still_missing_member_ids = _.difference(missing_member_ids, _.map(members_from_api, "id"));
+                TS.error("TS.flannel.connectAndFetchRtmStart tried to fetch users from Flannel and from the API and still could not find them. Missing users: " + still_missing_member_ids.join(","));
+                TS.metrics.count("rtm_start_from_flannel_fallback_to_api_failure");
+              }
+              data.users = members.concat(members_from_api);
+              return data;
+            });
           }
+          data.users = members;
           return data;
         }).catch(function(err) {
-          TS.metrics.count("flannel_boot_hard_fail");
-          TS.error("Got error while trying to fetch " + required_member_ids.length + "members for rtm.start :(", err);
+          TS.error("Got error while trying to fetch " + required_member_ids.length + " members for rtm.start :(", err);
           throw err;
         });
       });
@@ -18195,6 +18282,23 @@ TS.registerModule("constants", {
   };
   var _fetchRawObjectsByIds = function(ids) {
     return _fetchAndProcessObjectsByIds(ids, _.identity);
+  };
+  var _fetchMembersFromAPI = function(ids) {
+    var USERS_INFO_MAX_USER_COUNT = 250;
+    var all_fetches_p = _.chunk(ids, USERS_INFO_MAX_USER_COUNT).map(function(user_ids) {
+      return TS.api.call("users.info", {
+        users: user_ids.join(",")
+      }).then(function(resp) {
+        return resp.data.users;
+      }).reflect();
+    });
+    return Promise.all(all_fetches_p).then(function(results) {
+      return _(results).filter(function(p) {
+        return p.isFulfilled();
+      }).map(function(p) {
+        return p.value();
+      }).flatten().value();
+    });
   };
 })();
 (function() {
@@ -20879,7 +20983,7 @@ TS.registerModule("constants", {
           tooltip_position: tooltip_position
         });
       }
-      var name_for_url = TS.boot_data.feature_intl_channel_names ? channel.id : channel.name;
+      var name_for_url = TS.utility.getChannelName(channel);
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
       var prefix = TS.templates.builders.makeChannelPrefix(channel);
       return '<a href="/archives/' + name_for_url + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
@@ -20888,6 +20992,9 @@ TS.registerModule("constants", {
       var href = result.permalink;
       var target = 'target="' + TS.templates.builders.newWindowName() + '"';
       return '<a href="' + href + '"' + target + ' data-channel-id="' + result.channel.id + '">#' + result.channel.name + "</a>";
+    },
+    makeChannelPath: function(channel) {
+      return "/messages/" + TS.utility.getChannelName(channel);
     },
     makeChannelLinkAriaLabelSafe: function(channel) {
       if (!channel) TS.warn("No valid channel to make channel link aria label");
@@ -23645,6 +23752,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("makeChannelLink", function(channel) {
         return new Handlebars.SafeString(TS.templates.builders.makeChannelLink(channel));
       });
+      Handlebars.registerHelper("makeChannelPath", TS.templates.builders.makeChannelPath);
       Handlebars.registerHelper("makeChannelLinkEnterpriseSearchResult", function(result) {
         return new Handlebars.SafeString(TS.templates.builders.makeChannelLinkEnterpriseSearchResult(result));
       });
@@ -27978,31 +28086,66 @@ TS.registerModule("constants", {
         number_str: number.toString()
       });
     },
-    getChannelNameFromUrl: function(url) {
-      if (/.com\/+unreads/.test(url)) return "";
-      if (/.com\/+threads/.test(url)) return "";
-      var pathA = TS.utility._getPathAFromUrl(url);
-      if (pathA && pathA.length > 0) {
-        return decodeURIComponent(pathA[0]);
+    getChannelName: function(model_ob) {
+      var id = model_ob.id;
+      var name = model_ob.name;
+      var is_im = model_ob.is_im;
+      if (TS.boot_data.feature_name_tagging_client && (is_im || model_ob.is_mpim)) {
+        return id;
       }
-      return "";
+      if (TS.boot_data.feature_intl_channel_names && (model_ob.is_channel || model_ob.is_group)) {
+        return id;
+      }
+      if (is_im) {
+        return "@" + name;
+      }
+      return name;
+    },
+    getChannelNameFromUrl: function(url) {
+      var path = TS.utility.getPathFromSlackUrl(url);
+      if (!path) {
+        return "";
+      }
+      var is_message = {
+        messages: true,
+        archives: true
+      }[path[0]];
+      if (!is_message) {
+        return "";
+      }
+      return decodeURIComponent(path[1]);
     },
     getFlexNameFromUrl: function(url) {
-      var pathA = TS.utility._getPathAFromUrl(url);
-      if (pathA && pathA.length > 1) {
-        return decodeURIComponent(pathA[1]);
+      var path = TS.utility.getPathFromSlackUrl(url);
+      if (!path) {
+        return "";
       }
-      return "";
+      var is_message = {
+        messages: true,
+        archives: true
+      }[path[0]];
+      var index = is_message ? 2 : 1;
+      var flex = path[index];
+      if (!flex) {
+        return "";
+      }
+      return decodeURIComponent(flex);
     },
     getFlexExtraFromUrl: function(url) {
-      var pathA = TS.utility._getPathAFromUrl(url);
-      if (pathA && pathA.length > 2) {
-        var flex_extra = pathA[2];
-        flex_extra = decodeURIComponent(flex_extra);
-        flex_extra = flex_extra.replace(/%2F/g, "/");
-        return flex_extra;
+      var path = TS.utility.getPathFromSlackUrl(url);
+      if (!path) {
+        return "";
       }
-      return "";
+      var is_message = {
+        messages: true,
+        archives: true
+      }[path[0]];
+      var index = is_message ? 3 : 2;
+      var flex_extra = path[index];
+      if (!flex_extra) {
+        return "";
+      }
+      return decodeURIComponent(flex_extra).replace(/%2F/g, "/");
     },
     isUnreadViewPath: function(path) {
       return path.indexOf("/unreads") === 0;
@@ -28010,75 +28153,25 @@ TS.registerModule("constants", {
     isThreadsViewPath: function(path) {
       return path.indexOf("/threads") === 0;
     },
-    _getPathAFromUrl: function(url) {
-      var splitter;
-      if (url.indexOf("/messages/") != -1) {
-        splitter = "/messages/";
-      } else if (url.indexOf("/archives/") != -1) {
-        splitter = "/archives/";
-      } else if (url.indexOf("/unreads/") != -1) {
-        splitter = "/unreads/";
-      } else if (url.indexOf("/threads/") != -1) {
-        splitter = "/threads/";
-      }
+    getPathFromSlackUrl: function(url) {
+      var matches = url.match(_slack_url_re);
+      var splitter = matches && matches[1];
       if (!splitter) {
-        return null;
+        return;
       }
-      var urlA = url.split(splitter);
-      var restA = urlA[1].split("?");
-      var pathA = restA[0].split("/");
-      return pathA;
+      var parts = url.split(splitter);
+      var path = parts[1].split("?")[0];
+      return (splitter + path).split("/");
     },
-    refashionUrl: function(url, c_name, flex_name, flex_extra) {
-      return TS.utility._refashionUrlWorker({
-        url: url,
-        c_name: c_name,
-        flex_name: flex_name,
-        flex_extra: flex_extra
-      });
-    },
-    refashionUrlForUnreadView: function(url, flex_name, flex_extra) {
-      return TS.utility._refashionUrlWorker({
-        unread_view: true,
-        url: url,
-        flex_name: flex_name,
-        flex_extra: flex_extra
-      });
-    },
-    refashionUrlForThreadsView: function(url, flex_name, flex_extra) {
-      return TS.utility._refashionUrlWorker({
-        threads_view: true,
-        url: url,
-        flex_name: flex_name,
-        flex_extra: flex_extra
-      });
-    },
-    _refashionUrlWorker: function(args) {
-      var urlA = args.url.split(/\.com\/+(messages|unreads|threads)/);
-      var base = urlA[0] + ".com";
-      var restA = urlA[2].split("?");
-      var pathA = restA[0].split("/");
-      var qs = restA[1] ? "?" + restA[1] : "";
-      pathA.length = 2;
-      pathA[0] = args.c_name;
-      pathA[1] = args.flex_name;
-      if (args.flex_extra) {
-        pathA.length = 3;
-        pathA[2] = args.flex_extra;
-      }
-      if (!pathA[1]) {
-        pathA.length = 1;
-      }
-      if (args.unread_view || args.threads_view) {
-        var view_url = args.unread_view ? "/unreads/" : "/threads/";
-        pathA.shift();
-        if (pathA.length) {
-          return base + view_url + pathA.join("/") + "/" + qs;
-        } else {
-          return base + view_url + qs;
-        }
-      }
-      return base + "/messages/" + pathA.join("/") + "/" + qs;
+    refashionUrl: function(url, view_path, flex_name, flex_extra) {
+      var url_parts = url.split(/\.com\/+(messages|unreads|threads)/);
+      var base = url_parts[0] + ".com";
+      var params = url_parts[2].split("?");
+      var qs = params[1] ? "?" + params[1] : "";
+      var path = [view_path, flex_name, flex_extra].filter(function(val) {
+        return val;
+      }).join("/") + "/";
+      return base + path + qs;
     },
     dataURItoBlob: function(dataURI) {
       return TS.utility.base64StrtoBlob(TS.utility.base64StrFromDataURI(dataURI));
@@ -29676,6 +29769,7 @@ TS.registerModule("constants", {
       }
     };
   }();
+  var _slack_url_re = /\.slack\.com\/((?:messages|archives|unreads|threads)\/)/;
 
   function _excludeNonLocalModelObs(ob, c_ids) {
     var current_team_id = TS.model.team.id;
@@ -30824,8 +30918,6 @@ TS.registerModule("constants", {
         var member_identifier;
         if (options.human_readable) {
           member_identifier = "@" + valid.model_ob.name;
-        } else if (TS.boot_data.feature_shared_channels_client && _.get(TS.shared.getActiveModelOb(), "is_shared")) {
-          member_identifier = "<@" + valid.model_ob.id + "|" + valid.model_ob.name + ">";
         } else {
           member_identifier = "<@" + valid.model_ob.id + ">";
         }
@@ -33924,7 +34016,9 @@ var _on_esc;
         if (TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == TS.menu.channel.channel.id) {
           TS.channels.join(TS.client.archives.current_model_ob.name);
         } else {
-          TS.channels.displayChannel(TS.menu.channel.channel.id);
+          TS.channels.displayChannel({
+            id: TS.menu.channel.channel.id
+          });
         }
       } else if (id == "channel_details_item") {
         e.preventDefault();
@@ -33937,7 +34031,9 @@ var _on_esc;
         TS.ui.handy_rxns.startChannelDialog(TS.menu.channel.channel.id);
       } else if (id == "channel_display_item") {
         e.preventDefault();
-        TS.channels.displayChannel(TS.menu.channel.channel.id);
+        TS.channels.displayChannel({
+          id: TS.menu.channel.channel.id
+        });
       } else if (id == "channel_close_archived_item") {
         e.preventDefault();
         TS.channels.closeArchivedChannel(TS.menu.channel.channel.id);
@@ -35194,7 +35290,9 @@ var _on_esc;
       }
       if (id == "group_display_item") {
         e.preventDefault();
-        TS.groups.displayGroup(TS.menu.group.group.id);
+        TS.groups.displayGroup({
+          id: TS.menu.group.group.id
+        });
       } else if (id == "group_details_item") {
         e.preventDefault();
         if (TS.model.ui_state.flex_visible && TS.model.ui_state.flex_name === "details") {
@@ -36109,13 +36207,17 @@ var _on_esc;
           var group = TS.groups.getGroupByName(channel_name);
           if (channel) {
             if (channel.is_member) {
-              TS.channels.displayChannel(channel.id);
+              TS.channels.displayChannel({
+                id: channel.id
+              });
             } else if (!TS.model.user.is_restricted) {
               TS.channels.join(channel.name);
             }
           } else if (group) {
             if (!group.is_archived || group.was_archived_this_session) {
-              TS.groups.displayGroup(group.id);
+              TS.groups.displayGroup({
+                id: group.id
+              });
             }
           } else {
             if (TS.permissions.members.canCreateChannels()) {
@@ -36213,9 +36315,15 @@ var _on_esc;
             return;
           }
           if (c_or_g.is_channel) {
-            TS.channels.displayChannel(c_or_g.id, text_to_send);
+            TS.channels.displayChannel({
+              id: c_or_g.id,
+              and_send_txt: text_to_send
+            });
           } else {
-            TS.groups.displayGroup(c_or_g.id, text_to_send);
+            TS.groups.displayGroup({
+              id: c_or_g.id,
+              and_send_txt: text_to_send
+            });
           }
         }
       }
@@ -51630,9 +51738,13 @@ $.fn.togglify = function(settings) {
           _setSharedChannelsIntoModel(response.data.channels, is_private);
           var new_channel_ob = TS.shared.getModelObById(new_channel_id);
           if (new_channel_ob.is_group) {
-            TS.groups.displayGroup(new_channel_id);
+            TS.groups.displayGroup({
+              id: new_channel_id
+            });
           } else {
-            TS.channels.displayChannel(new_channel_id);
+            TS.channels.displayChannel({
+              id: new_channel_id
+            });
           }
           TS.ui.fs_modal.close();
           return null;
@@ -54676,7 +54788,7 @@ $.fn.togglify = function(settings) {
           if (TS.boot_data.page_needs_enterprise && !args.all_of_org) {
             var deleted_org_members = _.remove(members, function(member) {
               var teams_for_member = _.get(member, "enterprise_user.teams", []);
-              var member_is_on_this_team = teams_for_member.includes(TS.model.team.id);
+              var member_is_on_this_team = _.includes(teams_for_member, TS.model.team.id);
               return !member_is_on_this_team;
             });
             if (deleted_org_members.length) TS.log(1989, "Flannel: removed these org members from results:", deleted_org_members);

@@ -2966,8 +2966,7 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul li .channel_name,
 .channels_list_holder ul li .group_name,
 .channels_list_holder ul li .im_name,
-.channels_list_holder ul li .mpim_name,
-.channels_list_holder ul li>a {
+.channels_list_holder ul li .mpim_name {
   color: #AB9BA9;
   display: block;
   height: 1.5rem;
@@ -2985,8 +2984,7 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul#channel-list li .channel_name .overflow-ellipsis,
 .channels_list_holder ul#channel-list li .group_name .overflow-ellipsis,
 .channels_list_holder ul#channel-list li .im_name .overflow-ellipsis,
-.channels_list_holder ul#channel-list li .mpim_name .overflow-ellipsis,
-.channels_list_holder ul#channel-list li>a .overflow-ellipsis {
+.channels_list_holder ul#channel-list li .mpim_name .overflow-ellipsis {
   max-width: 175px;
   padding-right: .75rem
 }
@@ -2996,8 +2994,7 @@ body.incremental_boot #col_channels .header_count {
 .channels_list_holder ul#group-list li .mpim_name .overflow-ellipsis,
 .channels_list_holder ul#im-list li .group_name .overflow-ellipsis,
 .channels_list_holder ul#im-list li .im_name .overflow-ellipsis,
-.channels_list_holder ul#im-list li .mpim_name .overflow-ellipsis,
-.channels_list_holder ul#im-list li>a .overflow-ellipsis {
+.channels_list_holder ul#im-list li .mpim_name .overflow-ellipsis {
   max-width: 160px
 }
 
@@ -3005,16 +3002,14 @@ body:not(.sorting_mode) .channels_list_holder ul li .channel_name:hover,
 body:not(.sorting_mode) .channels_list_holder ul li .group_name:hover,
 body:not(.sorting_mode) .channels_list_holder ul li .im_name.feature_user_custom_status:hover .im_name_background,
 body:not(.sorting_mode) .channels_list_holder ul li .im_name:not(.feature_user_custom_status):hover,
-body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover,
-body:not(.sorting_mode) .channels_list_holder ul li>a:hover {
+body:not(.sorting_mode) .channels_list_holder ul li .mpim_name:hover {
   background: #3e313c
 }
 
 .channels_list_holder ul li .channel_name .prefix,
 .channels_list_holder ul li .group_name .prefix,
 .channels_list_holder ul li .im_name .prefix,
-.channels_list_holder ul li .mpim_name .prefix,
-.channels_list_holder ul li>a .prefix {
+.channels_list_holder ul li .mpim_name .prefix {
   font-weight: 300;
   opacity: .5;
   -moz-opacity: .5;
@@ -3026,8 +3021,7 @@ body:not(.sorting_mode) .channels_list_holder ul li>a:hover {
 .channels_list_holder ul li .channel_name .prefix.ts_icon_pencil,
 .channels_list_holder ul li .group_name .prefix.ts_icon_pencil,
 .channels_list_holder ul li .im_name .prefix.ts_icon_pencil,
-.channels_list_holder ul li .mpim_name .prefix.ts_icon_pencil,
-.channels_list_holder ul li>a .prefix.ts_icon_pencil {
+.channels_list_holder ul li .mpim_name .prefix.ts_icon_pencil {
   opacity: .8;
   -moz-opacity: .8;
   -khtml-opacity: .8
@@ -3252,12 +3246,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   color: #fff
 }
 
-.channels_list_holder ul li.mention a,
 .channels_list_holder ul li.unread:not(.muted_channel) .channel_name,
 .channels_list_holder ul li.unread:not(.muted_channel) .group_name,
 .channels_list_holder ul li.unread:not(.muted_channel) .im_name,
-.channels_list_holder ul li.unread:not(.muted_channel) .mpim_name,
-.channels_list_holder ul li.unread:not(.muted_channel)>a {
+.channels_list_holder ul li.unread:not(.muted_channel) .mpim_name {
   font-weight: 900;
   color: #fff
 }
@@ -3275,12 +3267,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 #channels_scroller ul li.muted_channel:not(.active) .group_name,
 #channels_scroller ul li.muted_channel:not(.active) .im_name,
 #channels_scroller ul li.muted_channel:not(.active) .mpim_name,
-#channels_scroller ul li.muted_channel:not(.active)>a,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a {
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name {
   font-weight: 400!important
 }
 
@@ -3288,12 +3278,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 #channels_scroller ul li.muted_channel:not(.active) .group_name>:not(.im_name_background),
 #channels_scroller ul li.muted_channel:not(.active) .im_name>:not(.im_name_background),
 #channels_scroller ul li.muted_channel:not(.active) .mpim_name>:not(.im_name_background),
-#channels_scroller ul li.muted_channel:not(.active)>a>:not(.im_name_background),
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name>:not(.im_name_background),
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name>:not(.im_name_background),
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name>:not(.im_name_background),
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>:not(.im_name_background),
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a>:not(.im_name_background) {
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>:not(.im_name_background) {
   opacity: .35;
   -moz-opacity: .35;
   -khtml-opacity: .35
@@ -3307,8 +3295,6 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 #channels_scroller ul li.muted_channel:not(.active) .im_name .unread_highlights,
 #channels_scroller ul li.muted_channel:not(.active) .mpim_name .prefix,
 #channels_scroller ul li.muted_channel:not(.active) .mpim_name .unread_highlights,
-#channels_scroller ul li.muted_channel:not(.active)>a .prefix,
-#channels_scroller ul li.muted_channel:not(.active)>a .unread_highlights,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name .prefix,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name .unread_highlights,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name .prefix,
@@ -3316,9 +3302,7 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name .prefix,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name .unread_highlights,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name .prefix,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name .unread_highlights,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a .prefix,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a .unread_highlights {
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name .unread_highlights {
   opacity: .75;
   -moz-opacity: .75;
   -khtml-opacity: .75
@@ -3328,12 +3312,10 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
 #channels_scroller ul li.muted_channel:not(.active) .group_name>.prefix,
 #channels_scroller ul li.muted_channel:not(.active) .im_name>.prefix,
 #channels_scroller ul li.muted_channel:not(.active) .mpim_name>.prefix,
-#channels_scroller ul li.muted_channel:not(.active)>a>.prefix,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .channel_name>.prefix,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .group_name>.prefix,
 #channels_scroller:not(.show_which_channel_is_active) li.muted_channel .im_name>.prefix,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>.prefix,
-#channels_scroller:not(.show_which_channel_is_active) li.muted_channel>a>.prefix {
+#channels_scroller:not(.show_which_channel_is_active) li.muted_channel .mpim_name>.prefix {
   opacity: .2625;
   -moz-opacity: .2625;
   -khtml-opacity: .2625
@@ -3403,16 +3385,14 @@ body:not(.sorting_mode) .channels_list_holder ul li>a:hover .unread_msgs {
 .channels_list_holder li.away .channel_name,
 .channels_list_holder li.away .group_name,
 .channels_list_holder li.away .im_name,
-.channels_list_holder li.away .mpim_name,
-.channels_list_holder li.away>a {
+.channels_list_holder li.away .mpim_name {
   font-style: italic
 }
 
 .channels_list_holder li.away .channel_name .overflow-ellipsis,
 .channels_list_holder li.away .group_name .overflow-ellipsis,
 .channels_list_holder li.away .im_name .overflow-ellipsis,
-.channels_list_holder li.away .mpim_name .overflow-ellipsis,
-.channels_list_holder li.away>a .overflow-ellipsis {
+.channels_list_holder li.away .mpim_name .overflow-ellipsis {
   padding-right: 2px
 }
 

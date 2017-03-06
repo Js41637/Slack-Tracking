@@ -65,9 +65,13 @@
         } else if (TS.ims.getImByMemberId(share_settings.channel)) {
           TS.ims.startImByMemberId(share_settings.channel);
         } else if (TS.mpims.getMpimById(share_settings.channel)) {
-          TS.mpims.displayMpim(share_settings.channel);
+          TS.mpims.displayMpim({
+            id: share_settings.channel
+          });
         } else if (TS.groups.getGroupById(share_settings.channel)) {
-          TS.groups.displayGroup(share_settings.channel);
+          TS.groups.displayGroup({
+            id: share_settings.channel
+          });
         } else {
           TS.error("no valid shared channel/im/mpim/group to display");
         }

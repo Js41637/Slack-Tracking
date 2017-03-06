@@ -159,22 +159,32 @@
           TS.log(4, "switching to im " + model_ob.id);
           if (TS.client.activeChannelIsHidden()) return updateActiveModelObIdsWithoutSwitchingChannels(model_ob);
           TS.ims.displayIm(model_ob.id);
-          TS.client.channelDisplaySwitched(model_ob.id);
+          TS.client.channelDisplaySwitched({
+            id: model_ob.id
+          });
         } else if (model_ob.is_mpim && model_ob.is_open) {
           got_one = true;
           TS.log(4, "switching to mpim " + model_ob.id);
           if (TS.client.activeChannelIsHidden()) return updateActiveModelObIdsWithoutSwitchingChannels(model_ob);
-          TS.mpims.displayMpim(model_ob.id, null, false, true);
+          TS.mpims.displayMpim({
+            id: model_ob.id,
+            replace_history_state: true
+          });
         } else if (model_ob.is_group && !model_ob.is_archived) {
           got_one = true;
           TS.log(4, "switching to group " + model_ob.id);
           if (TS.client.activeChannelIsHidden()) return updateActiveModelObIdsWithoutSwitchingChannels(model_ob);
-          TS.groups.displayGroup(model_ob.id);
+          TS.groups.displayGroup({
+            id: model_ob.id
+          });
         } else if (model_ob.is_channel) {
           got_one = true;
           TS.log(4, "switching to channel " + model_ob.id);
           if (TS.client.activeChannelIsHidden()) return updateActiveModelObIdsWithoutSwitchingChannels(model_ob);
-          TS.channels.displayChannel(model_ob.id, null, false, true);
+          TS.channels.displayChannel({
+            id: model_ob.id,
+            replace_history_state: true
+          });
         }
       }
       if (!TS.model.active_history.length) {
@@ -185,11 +195,16 @@
             is_member: true
           }) || unarchived_channels_for_user[0];
           if (TS.client.activeChannelIsHidden()) return updateActiveModelObIdsWithoutSwitchingChannels(destination_channel);
-          TS.channels.displayChannel(destination_channel.id, null, false, true);
+          TS.channels.displayChannel({
+            id: destination_channel.id,
+            replace_history_state: true
+          });
           return;
         } else if (unarchived_groups_for_user.length > 0) {
           if (TS.client.activeChannelIsHidden()) return updateActiveModelObIdsWithoutSwitchingChannels(unarchived_groups_for_user[0]);
-          TS.groups.displayGroup(unarchived_groups_for_user[0].id);
+          TS.groups.displayGroup({
+            id: unarchived_groups_for_user[0].id
+          });
           return;
         } else {
           TS.error("WTF no channel or group to display?");
@@ -200,14 +215,12 @@
       flex_extra = _cleanFlexExtra(flex_extra);
       replace_history_state = true;
       if (!no_history_add && (TS.model.c_name_in_url || TS.client.activeChannelIsHidden())) {
-        var new_url;
-        if (TS.model.unread_view_is_showing) {
-          new_url = TS.utility.refashionUrlForUnreadView(window.location.href, flex_name, flex_extra);
-        } else if (TS.model.threads_view_is_showing) {
-          new_url = TS.utility.refashionUrlForThreadsView(window.location.href, flex_name, flex_extra);
-        } else {
-          new_url = TS.utility.refashionUrl(window.location.href, TS.model.c_name_in_url, flex_name, flex_extra);
-        }
+        var view_path = function() {
+          if (TS.model.unread_view_is_showing) return "/unreads";
+          if (TS.model.threads_view_is_showing) return "/threads";
+          return "/messages/" + TS.model.c_name_in_url;
+        }();
+        var new_url = TS.utility.refashionUrl(window.location.href, view_path, flex_name, flex_extra);
         _putURLInHistory(new_url, replace_history_state);
       }
       var prev_flex_name = TS.model.ui_state.flex_name;
@@ -219,29 +232,32 @@
       TS.storage.storeUIState(TS.model.ui_state);
       TS.client.flexpane_display_switched_sig.dispatch(prev_flex_name, prev_flex_extra);
     },
-    channelDisplaySwitched: function(model_ob_id, replace_history_state, no_history_add) {
+    channelDisplaySwitched: function(options) {
+      var current_options = _.defaults({}, options, {
+        from_history: false,
+        replace_history_state: false
+      });
+      var model_ob_id = current_options.id;
+      if (!model_ob_id) {
+        TS.error("no model id supplied");
+        return;
+      }
+      var replace_history_state = current_options.replace_history_state;
+      var no_history_add = current_options.no_history_add;
       if (!model_ob_id) {
         TS.error("no model_ob_id?");
         return false;
       }
-      var c_name;
       var model_ob = TS.shared.getModelObById(model_ob_id);
       if (!model_ob) {
         TS.error("unknown model_ob id: " + model_ob_id);
         return false;
       }
-      if (TS.boot_data.feature_name_tagging_client && (model_ob.is_im || model_ob.is_mpim)) {
-        c_name = model_ob.id;
-      } else if (TS.boot_data.feature_intl_channel_names && (model_ob.is_channel || model_ob.is_group)) {
-        c_name = model_ob.id;
-      } else if (model_ob.is_im) {
-        c_name = "@" + model_ob.name;
-      } else {
-        c_name = model_ob.name;
-      }
+      var c_name = TS.utility.getChannelName(model_ob);
+      var channel_path = current_options.channel_path || "/messages/" + c_name;
       if (!no_history_add) {
         var flex_extra = _cleanFlexExtra(TS.model.flex_extra_in_url);
-        var new_url = TS.utility.refashionUrl(window.location.href, c_name, TS.model.flex_name_in_url, flex_extra);
+        var new_url = TS.utility.refashionUrl(window.location.href, channel_path, TS.model.flex_name_in_url, flex_extra);
         _putURLInHistory(new_url, !TS.model.c_name_in_url || replace_history_state);
       }
       TS.model.c_name_in_url = c_name;
@@ -304,8 +320,7 @@
       var no_history_add = no_history_add;
       if (!no_history_add) {
         var flex_extra = _cleanFlexExtra(TS.model.flex_extra_in_url);
-        var new_url;
-        new_url = TS.utility.refashionUrlForUnreadView(window.location.href, TS.model.flex_name_in_url, flex_extra);
+        var new_url = TS.utility.refashionUrl(window.location.href, "/unreads", TS.model.flex_name_in_url, flex_extra);
         if (!replace_history_state) {
           if (!TS.model.unread_view_is_showing && !TS.model.c_name_in_url) replace_history_state = true;
         }
@@ -324,7 +339,7 @@
     threadsViewActivated: function(replace_history_state, no_history_add) {
       if (!no_history_add) {
         var flex_extra = _cleanFlexExtra(TS.model.flex_extra_in_url);
-        var new_url = TS.utility.refashionUrlForThreadsView(window.location.href, TS.model.flex_name_in_url, flex_extra);
+        var new_url = TS.utility.refashionUrl(window.location.href, "/unreads", TS.model.flex_name_in_url, flex_extra);
         if (!replace_history_state) {
           if (!TS.model.threads_view_is_showing && !TS.model.c_name_in_url) replace_history_state = true;
         }
@@ -581,11 +596,17 @@
       } else if (model_ob.is_im) {
         return TS.ims.startImById(model_ob.id);
       } else if (model_ob.is_mpim) {
-        return TS.mpims.displayMpim(model_ob.id);
+        return TS.mpims.displayMpim({
+          id: model_ob.id
+        });
       } else if (model_ob.is_group) {
-        return TS.groups.displayGroup(model_ob.id);
+        return TS.groups.displayGroup({
+          id: model_ob.id
+        });
       } else if (model_ob.is_channel) {
-        return TS.channels.displayChannel(model_ob.id);
+        return TS.channels.displayChannel({
+          id: model_ob.id
+        });
       }
     },
     activateMsgRateLimit: function(args) {
@@ -695,12 +716,18 @@
   var _groupRenamed = function(group) {
     if (group.id != TS.model.active_group_id) return;
     if (TS.client.activeChannelIsHidden()) return;
-    TS.client.channelDisplaySwitched(group.id, true);
+    TS.client.channelDisplaySwitched({
+      id: group.id,
+      replace_history_state: true
+    });
   };
   var _channelRenamed = function(channel) {
     if (channel.id != TS.model.active_channel_id) return;
     if (TS.client.activeChannelIsHidden()) return;
-    TS.client.channelDisplaySwitched(channel.id, true);
+    TS.client.channelDisplaySwitched({
+      id: channel.id,
+      replace_history_state: true
+    });
   };
   var _memberAccountTypeChanged = function(member) {
     if (!member || member.id != TS.model.user.id) return;
@@ -727,14 +754,20 @@
     if (TS.model.active_im_id) {
       var member_im = TS.ims.getImByMemberId(member.id);
       if (!member_im || member_im.id != TS.model.active_im_id) return;
-      TS.client.channelDisplaySwitched(member_im.id, true);
+      TS.client.channelDisplaySwitched({
+        id: member_im.id,
+        replace_history_state: true
+      });
     } else if (TS.model.active_mpim_id) {
       var mpim = TS.mpims.getMpimById(TS.model.active_mpim_id);
       if (!mpim) return;
       var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, mpim);
       var user_is_definitely_not_member_of_mpim = membership_status.is_known && !membership_status.is_member;
       if (user_is_definitely_not_member_of_mpim) return;
-      TS.client.channelDisplaySwitched(mpim.id, true);
+      TS.client.channelDisplaySwitched({
+        id: mpim.id,
+        replace_history_state: true
+      });
     }
   };
   var _socketConnected = function() {
@@ -951,11 +984,23 @@
     if (im) {
       TS.ims.startImByMemberId(im.user, true);
     } else if (channel) {
-      TS.channels.displayChannel(channel.id, null, true, !is_good);
+      TS.channels.displayChannel({
+        id: channel.id,
+        from_history: true,
+        replace_history_state: !is_good
+      });
     } else if (group) {
-      TS.groups.displayGroup(group.id, null, true, !is_good);
+      TS.groups.displayGroup({
+        id: group.id,
+        from_history: true,
+        replace_history_state: !is_good
+      });
     } else if (mpim) {
-      TS.mpims.displayMpim(mpim.id, null, true, !is_good);
+      TS.mpims.displayMpim({
+        id: mpim.id,
+        from_history: true,
+        replace_history_state: !is_good
+      });
     } else if (is_unread_view) {
       TS.client.unread.showUnreadView(true, true);
     } else if (is_threads_view) {
@@ -964,14 +1009,12 @@
       TS.error("WTF DONT KNOW WHAT TO DO");
     }
     TS.client.ui.flex.setFlexStateFromHistory(flex_name, flex_extra);
-    var new_url;
-    if (is_unread_view) {
-      new_url = TS.utility.refashionUrlForUnreadView(window.location.href, flex_name, flex_extra);
-    } else if (is_threads_view) {
-      new_url = TS.utility.refashionUrlForThreadsView(window.location.href, flex_name, flex_extra);
-    } else {
-      new_url = TS.utility.refashionUrl(window.location.href, c_name, flex_name, flex_extra);
-    }
+    var view_path = function() {
+      if (is_unread_view) return "/unreads";
+      if (is_threads_view) return "/threads";
+      return "/messages/" + c_name;
+    }();
+    var new_url = TS.utility.refashionUrl(window.location.href, view_path, flex_name, flex_extra);
     var replace_history_state = true;
     _putURLInHistory(new_url, replace_history_state);
   };
@@ -986,17 +1029,29 @@
     }
     var replace_history_state = true;
     if (model_ob.is_channel) {
-      TS.client.channelDisplaySwitched(model_ob.id, replace_history_state);
+      TS.client.channelDisplaySwitched({
+        id: model_ob.id,
+        replace_history_state: replace_history_state
+      });
     } else if (model_ob.is_im) {
       if (model_ob.is_open) {
-        TS.client.channelDisplaySwitched(model_ob.id, replace_history_state);
+        TS.client.channelDisplaySwitched({
+          id: model_ob.id,
+          replace_history_state: replace_history_state
+        });
       } else {
         TS.ims.startImByMemberId(model_ob.user, replace_history_state);
       }
     } else if (model_ob.is_mpim) {
-      TS.mpims.displayMpim(model_ob.id, null, false, replace_history_state);
+      TS.mpims.displayMpim({
+        id: model_ob.id,
+        replace_history_state: replace_history_state
+      });
     } else if (model_ob.is_group && !model_ob.is_mpim) {
-      TS.groups.displayGroup(model_ob.id, null, false, replace_history_state);
+      TS.groups.displayGroup({
+        id: model_ob.id,
+        replace_history_state: replace_history_state
+      });
     }
     if (TS.model.initial_unread_view && TS.model.prefs.enable_unread_view) {
       var direct_from_boot = true;
@@ -3100,22 +3155,23 @@
       if (!group) return;
       if (group.is_archived && !group.was_archived_this_session) {
         e.preventDefault();
-        TS.groups.displayGroup(group.id);
+        TS.groups.displayGroup({
+          id: group.id
+        });
       } else {
         e.preventDefault();
-        TS.groups.displayGroup(group.id);
+        TS.groups.displayGroup({
+          id: group.id
+        });
       }
     },
     onChannelReferenceClick: function(e, id) {
       var channel = TS.channels.getChannelById(id);
       if (!channel) return;
-      if (channel.is_archived && !channel.was_archived_this_session) {
-        e.preventDefault();
-        TS.channels.displayChannel(channel.id);
-      } else {
-        e.preventDefault();
-        TS.channels.displayChannel(channel.id);
-      }
+      e.preventDefault();
+      TS.channels.displayChannel({
+        id: channel.id
+      });
     },
     onMemberReferenceClick: function(e, member_id_or_name) {
       var member;
@@ -3240,11 +3296,17 @@
     displayMsgInModelOb: function(model_ob, ts) {
       var maybePromise;
       if (model_ob.is_channel) {
-        maybePromise = TS.channels.displayChannel(model_ob.id);
+        maybePromise = TS.channels.displayChannel({
+          id: model_ob.id
+        });
       } else if (model_ob.is_mpim) {
-        maybePromise = TS.mpims.displayMpim(model_ob.id);
+        maybePromise = TS.mpims.displayMpim({
+          id: model_ob.id
+        });
       } else if (model_ob.is_group) {
-        maybePromise = TS.groups.displayGroup(model_ob.id);
+        maybePromise = TS.groups.displayGroup({
+          id: model_ob.id
+        });
       } else {
         maybePromise = TS.ims.startImById(model_ob.id);
       }
@@ -10718,6 +10780,7 @@
       var channel_id = channel_el.data("channel-id");
       var $mpim_el = $el.closest(".mpim").find(".mpim_name");
       var mpim_id = $mpim_el.data("mpim-id");
+      var path = $el.attr("href");
       if (member_id) {
         if ($el.hasClass("im_close")) {
           var im = TS.ims.getImByMemberId(member_id);
@@ -10731,18 +10794,27 @@
           TS.client.ui.maybePromptForClosingGroup(group_id);
         } else {
           if (!canSwitchChannels()) return TS.sounds.play("beep");
-          TS.groups.displayGroup(group_id);
+          TS.groups.displayGroup({
+            id: group_id,
+            path: path
+          });
         }
       } else if (channel_id) {
         if (!canSwitchChannels()) return TS.sounds.play("beep");
-        TS.channels.displayChannel(channel_id);
+        TS.channels.displayChannel({
+          id: channel_id,
+          channel_path: path
+        });
       } else if (mpim_id) {
         if ($el.hasClass("mpim_close")) {
           TS.mpims.closeMpim(mpim_id);
-        } else {
-          if (!canSwitchChannels()) return TS.sounds.play("beep");
-          TS.mpims.displayMpim(mpim_id);
+          return;
         }
+        if (!canSwitchChannels()) return TS.sounds.play("beep");
+        TS.mpims.displayMpim({
+          id: mpim_id,
+          path: path
+        });
       }
     });
   };
@@ -19568,11 +19640,17 @@
           if (TS.ui.focus_mode.is_in_focus_mode) TS.ui.focus_mode.end();
         }
         if (model_ob.is_channel) {
-          TS.channels.displayChannel(model_ob.id);
+          TS.channels.displayChannel({
+            id: model_ob.id
+          });
         } else if (model_ob.is_mpim) {
-          TS.mpims.displayMpim(model_ob.id);
+          TS.mpims.displayMpim({
+            id: model_ob.id
+          });
         } else {
-          TS.groups.displayGroup(model_ob.id);
+          TS.groups.displayGroup({
+            id: model_ob.id
+          });
         }
       };
       var msg_txt = TS.ui.growls.extractTxtFromMsg(msg, true);
@@ -21457,13 +21535,19 @@
   };
   var _switchToSharedInChannel = function(share_channels) {
     if (TS.channels.getChannelById(share_channels)) {
-      TS.channels.displayChannel(share_channels);
+      TS.channels.displayChannel({
+        id: share_channels
+      });
     } else if (TS.ims.getImByMemberId(share_channels)) {
       TS.ims.startImByMemberId(share_channels);
     } else if (TS.mpims.getMpimById(share_channels)) {
-      TS.mpims.displayMpim(share_channels);
+      TS.mpims.displayMpim({
+        id: share_channels
+      });
     } else if (TS.groups.getGroupById(share_channels)) {
-      TS.groups.displayGroup(share_channels);
+      TS.groups.displayGroup({
+        id: share_channels
+      });
     } else {
       TS.error("no valid shared channel/im/mpim/group to display");
     }
@@ -26007,43 +26091,43 @@
       if (!$el.is("a")) return false;
       var href = $el.attr("href");
       if (!href) return false;
-      href = TS.utility.normalizeDevHost(href);
-      href = href.replace("https://", "").replace("http://", "");
-      var archives_url = TS.model.archives_url.replace("https://", "").replace("http://", "");
-      if (href.indexOf(archives_url) === 0) {
-        href = href.replace(archives_url, "archives");
+      var url = TS.utility.normalizeDevHost(href);
+      var path = TS.utility.getPathFromSlackUrl(url);
+      if (!path) {
+        return;
       }
-      while (href.indexOf("/") === 0) {
-        href = href.substr(1);
-      }
-      var query;
-      if (href.indexOf("?") !== -1) {
-        var B = href.split("?");
-        href = B[0];
-        query = TS.utility.url.queryStringParse(B[1]);
-      }
+      var query = url.indexOf("?") !== -1 && TS.utility.url.queryStringParse(url.split("?"));
       if (_.get(query, "force-browser") === "1") return false;
-      if (href.indexOf("archives/") === 0) {
-        var A = href.split("/");
-        if (A.length < 2) return false;
-        var identifier = A[1];
+      var is_message = {
+        messages: true,
+        archives: true
+      }[path[0]];
+      if (is_message) {
+        if (path.length < 2) return false;
+        var identifier = path[1];
         if (!identifier) return false;
-        var model_ob = TS.ims.getImById(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimById(identifier) || TS.mpims.getMpimByName(identifier);
+        var model_ob = TS.ims.getImById(identifier) || TS.ims.getImByUsername(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimById(identifier) || TS.mpims.getMpimByName(identifier);
         if (!model_ob) return false;
         if (model_ob.is_im && TS.ims.isImWithDeletedMember(model_ob)) return false;
-        if (A.length == 2 || !A[2]) {
+        if (path.length == 2 || !path[2]) {
           if (model_ob.is_channel) {
-            TS.channels.displayChannel(model_ob.id);
+            TS.channels.displayChannel({
+              id: model_ob.id
+            });
           } else if (model_ob.is_mpim) {
-            TS.mpims.displayMpim(model_ob.id);
+            TS.mpims.displayMpim({
+              id: model_ob.id
+            });
           } else if (model_ob.is_group) {
-            TS.groups.displayGroup(model_ob.id);
+            TS.groups.displayGroup({
+              id: model_ob.id
+            });
           } else {
             TS.ims.startImById(model_ob.id);
           }
           return model_ob.id == TS.model.active_cid;
         }
-        var url_ts = A[2];
+        var url_ts = path[2];
         if (!url_ts) return false;
         if (url_ts.indexOf("p") !== 0) return false;
         if (url_ts.length != 17) return false;
@@ -26489,11 +26573,17 @@
       var model_ob = TS.client.archives.previous_model_ob;
       delete TS.client.archives.previous_model_ob;
       if (model_ob.is_channel) {
-        TS.channels.displayChannel(model_ob.id);
+        TS.channels.displayChannel({
+          id: model_ob.id
+        });
       } else if (model_ob.is_mpim) {
-        TS.mpims.displayMpim(model_ob.id);
+        TS.mpims.displayMpim({
+          id: model_ob.id
+        });
       } else if (model_ob.is_group) {
-        TS.groups.displayGroup(model_ob.id);
+        TS.groups.displayGroup({
+          id: model_ob.id
+        });
       } else {
         TS.ims.startImById(model_ob.id);
       }
@@ -29003,10 +29093,10 @@
     _revealList();
   };
   var _startSpinner = function() {
-    document.getElementById("im_browser_spinner").classList.remove("hidden");
+    $("#im_browser_spinner").removeClass("hidden");
   };
   var _stopSpinner = function() {
-    document.getElementById("im_browser_spinner").classList.add("hidden");
+    $("#im_browser_spinner").addClass("hidden");
   };
   var _obscureList = function() {
     if (!_$scroll_wrapper) {
@@ -29407,7 +29497,9 @@
     if (TS.utility.strLooksLikeAMemberId(row_id)) {
       TS.ims.startImByMemberId(row_id);
     } else {
-      TS.mpims.displayMpim(row_id);
+      TS.mpims.displayMpim({
+        id: row_id
+      });
     }
     TS.ui.fs_modal.close();
   };
@@ -34134,13 +34226,19 @@ function timezones_guess() {
   var _promiseToSwitchTo = function(item) {
     if (TS.boot_data.feature_tinyspeck) TS.info("jumper: promising to switch to " + item.id);
     if (item.is_channel) {
-      TS.channels.displayChannel(item.id);
+      TS.channels.displayChannel({
+        id: item.id
+      });
       return Promise.resolve();
     } else if (item.is_mpim && item.is_group) {
-      TS.mpims.displayMpim(item.id);
+      TS.mpims.displayMpim({
+        id: item.id
+      });
       return Promise.resolve();
     } else if (item.is_group && !item.is_mpim) {
-      TS.groups.displayGroup(item.id);
+      TS.groups.displayGroup({
+        id: item.id
+      });
       return Promise.resolve();
     } else if (item.is_view) {
       TS.client.ui.showView(item.id);

@@ -28,9 +28,9 @@
   {{#if_gt amount compare=0}}
     <strong>
     {{#if amount_adjusted}}
-      {{#t note="label for invoice amount unpaid"}}Unpaid:{formatted_invoice.amount_adjusted}{{/t}}
+      {{#t note="label for invoice amount unpaid"}}Unpaid: {formatted_invoice.amount_adjusted}{{/t}}
     {{else}}
-      {{#t note="label for invoice amount unpaid"}}Unpaid:{formatted_invoice.amount_net}{{/t}}
+      {{#t note="label for invoice amount unpaid"}}Unpaid: {formatted_invoice.amount_net}{{/t}}
     {{/if}}
     </strong>
   {{/if_gt}}
