@@ -4671,6 +4671,12 @@ a.link_btn {
   font-size: 1rem
 }
 
+.invite_channels .warning_already_member {
+  color: #FFA940;
+  font-style: italic;
+  font-size: 1rem
+}
+
 #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .ts_icon:not(.presence_icon):before {
   font-size: 1.25rem;
   top: 0

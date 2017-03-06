@@ -4026,6 +4026,9 @@
       }
       return _users_channels;
     },
+    getChannelsUserIsIn: function() {
+      return _.filter(TS.model.channels, "is_member");
+    },
     getUnarchivedChannelsForUser: function() {
       _unarchived_channels.length = 0;
       var channels = TS.channels.getChannelsForUser();
@@ -4453,7 +4456,8 @@
   };
   var _getUsersWithChannelMembershipUnknown = function(channel_id, user_ids) {
     if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
-    if (user_ids.length > 0 && !_.isString(user_ids[0])) throw new Error("Expected user_ids to be strings");
+    if (!_.isArray(user_ids)) throw new Error("Expected user_ids to be an array");
+    if (user_ids.length > 0 && !_.isString(user_ids[0])) throw new Error("Expected user_ids to be an array of strings");
     if (!TS.membership.lazyLoadChannelMembership()) return [];
     if (channel_id[0] == "D") {
       return [];
@@ -10855,22 +10859,6 @@ TS.registerModule("constants", {
       _name_map["@" + member._name_lc] = member;
       _setImAndMpimNames(member);
     },
-    getMyChannelsThatThisMemberIsNotIn: function(id) {
-      var A = [];
-      var member = TS.members.getMemberById(id);
-      if (!member) return A;
-      var channel;
-      var channels = TS.model.channels;
-      channel_loop: for (var i = 0; i < channels.length; i++) {
-        channel = channels[i];
-        if (!channel.is_member) continue;
-        for (var m = 0; m < channel.members.length; m++) {
-          if (channel.members[m] == id) continue channel_loop;
-        }
-        A.push(channel);
-      }
-      return A;
-    },
     getActiveMembersWithSelfAndNotSlackbot: function() {
       var A = _active_members_with_self_and_not_slackbot;
       if (!A.length) {
@@ -12379,10 +12367,7 @@ TS.registerModule("constants", {
         }
         if (!template_args.disabled) {
           if (!TS.model.user.is_ultra_restricted) {
-            var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(app.bot_user.id);
-            if (invite_channels.length) {
-              template_args.show_channel_invite = true;
-            }
+            template_args.show_channel_invite = true;
           }
         }
         if (template_args.deleted === true) {
@@ -33782,7 +33767,7 @@ var _on_esc;
         var bot_user_id = _.get(app, "bot_user.id");
         var model_ob = TS.shared.getActiveModelOb();
         if (bot_user_id && (TS.model.active_channel_id || TS.model.active_group_id)) {
-          return TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, bot_user_id).then(function() {
+          return TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [bot_user_id]).then(function() {
             return app;
           });
         } else {
@@ -35315,10 +35300,7 @@ var _on_esc;
       }
       if (!member.deleted && !member.is_slackbot && member_id != TS.model.user.id) {
         if (!TS.model.user.is_ultra_restricted && !member.is_ultra_restricted) {
-          var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(member_id);
-          if (invite_channels.length) {
-            template_args.show_channel_invite = true;
-          }
+          template_args.show_channel_invite = true;
         }
       }
       var model_ob = TS.shared.getActiveModelOb();
@@ -35544,10 +35526,7 @@ var _on_esc;
       TS.menu.$menu_header.addClass("hidden").empty();
       if (!member.deleted && !member.is_slackbot && member_id != TS.model.user.id) {
         if (!TS.model.user.is_ultra_restricted && !member.is_ultra_restricted) {
-          var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(member_id);
-          if (invite_channels.length) {
-            template_args.show_channel_invite = true;
-          }
+          template_args.show_channel_invite = true;
         }
         if (TS.boot_data.page_needs_enterprise) {
           var team = TS.model.team;
@@ -74722,8 +74701,7 @@ $.fn.togglify = function(settings) {
         if (this._renderedComponent) {
           var t = this._instance;
           if (t.componentWillUnmount && !t._calledComponentWillUnmount)
-            if (t._calledComponentWillUnmount = !0,
-              e) {
+            if (t._calledComponentWillUnmount = !0, e) {
               var n = this.getName() + ".componentWillUnmount()";
               p.invokeGuardedCallback(n, t.componentWillUnmount.bind(t));
             } else t.componentWillUnmount();

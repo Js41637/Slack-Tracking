@@ -21975,11 +21975,13 @@
     },
     showInviteMemberToChannelDialog: function(member_id) {
       var member = TS.members.getMemberById(member_id);
-      var invite_channels = TS.members.getMyChannelsThatThisMemberIsNotIn(member.id);
+      var invite_channels = TS.channels.getChannelsUserIsIn();
+      var should_escape = true;
+      var include_at_sign = true;
       if (TS.model.user.is_ultra_restricted) {
         TS.generic_dialog.start({
           title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
+            name: TS.members.getMemberDisplayName(member, should_escape)
           }),
           body: TS.i18n.t("You are not allowed to invite other members to channels.", "channel_invite")(),
           show_cancel_button: false
@@ -21987,34 +21989,36 @@
       } else if (member.is_ultra_restricted) {
         TS.generic_dialog.start({
           title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
+            name: TS.members.getMemberDisplayName(member, should_escape)
           }),
           body: TS.i18n.t("{name} cannot be invited to any new channels.", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
+            name: TS.members.getMemberDisplayName(member, should_escape)
           }),
           show_cancel_button: false
         });
       } else if (member.is_restricted && !TS.model.user.is_admin) {
         TS.generic_dialog.start({
           title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
+            name: TS.members.getMemberDisplayName(member, should_escape)
           }),
           body: TS.i18n.t("Only a Team Admin can invite {name} into new channels.", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
+            name: TS.members.getMemberDisplayName(member, should_escape)
           }),
           show_cancel_button: false
         });
-      } else if (invite_channels.length) {
+      } else {
         TS.generic_dialog.start({
           title: TS.i18n.t("Invite {name} to a channel", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
+            name: TS.members.getMemberDisplayName(member, should_escape)
           }),
           body: TS.templates.channel_invite_list({
-            channels: invite_channels
+            channels: invite_channels,
+            name: TS.members.getMemberDisplayName(member, should_escape, include_at_sign)
           }),
           show_cancel_button: true,
           show_go_button: true,
           go_button_text: TS.i18n.t("Invite", "channel_invite")(),
+          ladda: true,
           onGo: function() {
             var channels = $("#select_invite_channels").lazyFilterSelect("value");
             if (!channels[0]) return false;
@@ -22042,6 +22046,21 @@
             }
             return false;
           },
+          onItemAdded: function(channel) {
+            TS.generic_dialog.div.find(".warning_already_member").addClass("hidden");
+            if (!_.get(channel, "id")) return;
+            TS.generic_dialog.startLadda();
+            TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, [member_id]).then(function() {
+              var is_member_of_channel = TS.membership.getUserChannelMembershipStatus(member_id, channel).is_member;
+              if (is_member_of_channel) {
+                TS.generic_dialog.div.find(".warning_already_member").removeClass("hidden");
+                TS.generic_dialog.stopLadda();
+                TS.generic_dialog.div.find(".dialog_go").addClass("disabled");
+              } else {
+                TS.generic_dialog.stopLadda();
+              }
+            });
+          },
           placeholder_text: TS.i18n.t("Select a channel", "channel_invite")(),
           css: filter_select_css,
           classes: "select_invite_channels",
@@ -22053,19 +22072,6 @@
           }
         });
         $("#generic_dialog").find(".modal-body").css("overflow", "visible");
-      } else {
-        TS.generic_dialog.start({
-          title: TS.i18n.t("{name} is already in all the channels you are in", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
-          }),
-          body: TS.i18n.t("Since {name} is already in all the channels you are in, there is nothing to invite them to!", "channel_invite")({
-            name: TS.members.getMemberDisplayName(member, true)
-          }),
-          show_cancel_button: false,
-          show_go_button: true,
-          go_button_text: TS.i18n.t("OK", "channel_invite")(),
-          esc_for_ok: true
-        });
       }
     }
   });
@@ -28064,9 +28070,6 @@
   };
 
   function _showMembersDialog(model_ob, members, member_count) {
-    if (TS.useSearchableMemberList()) {
-      members = model_ob.members;
-    }
     var body_html = TS.templates.channel_page_all_members_dialog({
       searchable_member_list: TS.useSearchableMemberList()
     });
