@@ -12,6 +12,13 @@
     {{#feature flag="feature_name_tagging_client"}}
       <div class="{{getMemberColorClassById member.id}} inline_block">
         <a href="/team/{{member.id}}" {{#isClient}}target="/team/{{member.id}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{getMemberFullName member}}</a>
+        {{#feature flag="feature_user_custom_status"}}
+          {{#if member.profile}}
+            {{#or member.profile.status_emoji member.profile.status_text}}
+              {{> current_status}}
+            {{/or}}
+          {{/if}}
+        {{/feature}}
       </div>
       <div class="inline_block">
         {{#isClient}}{{#unless member.deleted}}{{makeMemberPresenceIcon member}}{{/unless}}{{/isClient}}
@@ -40,6 +47,13 @@
       {{#if member.profile.real_name}}
         <div class="{{getMemberColorClassById member.id}}">
           <a href="/team/{{member.name}}" {{#isClient}}target="/team/{{member.name}}"{{/isClient}} class="bold member_preview_link member_name no_bottom_margin" data-member-id="{{member.id}}">{{member.profile.real_name}}</a>
+          {{#feature flag="feature_user_custom_status"}}
+            {{#if member.profile}}
+              {{#or member.profile.status_emoji member.profile.status_text}}
+                {{> current_status}}
+              {{/or}}
+            {{/if}}
+          {{/feature}}
         </div>
       {{/if}}
       <div {{#unless member.profile.real_name}}class="{{getMemberColorClassById member.id}}"{{/unless}}>

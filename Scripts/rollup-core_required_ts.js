@@ -2788,35 +2788,31 @@
         configurable: true
       });
       TS.model.supports_voice_calls = false;
-      if (TS.boot_data.feature_calls) {
-        if (window.winssb) {
-          TS.model.supports_voice_calls = !!(winssb.screenhero || winssb.calls);
-          if (TS.model.win_ssb_version && TS.model.win_ssb_version < 2) TS.model.supports_voice_calls = false;
-        } else if (window.macgap) {
-          TS.model.supports_voice_calls = !!(macgap.screenhero || macgap.calls);
-          if (TS.model.mac_ssb_version < 2) TS.model.supports_voice_calls = false;
-        } else if (TS.model.is_chrome_desktop) {
-          TS.model.supports_voice_calls = true;
-        }
+      if (window.winssb) {
+        TS.model.supports_voice_calls = !!(winssb.screenhero || winssb.calls);
+        if (TS.model.win_ssb_version && TS.model.win_ssb_version < 2) TS.model.supports_voice_calls = false;
+      } else if (window.macgap) {
+        TS.model.supports_voice_calls = !!(macgap.screenhero || macgap.calls);
+        if (TS.model.mac_ssb_version < 2) TS.model.supports_voice_calls = false;
+      } else if (TS.model.is_chrome_desktop) {
+        TS.model.supports_voice_calls = true;
       }
       TS.model.supports_video_calls = false;
       TS.model.supports_screen_sharing = false;
       TS.model.supports_screenhero = false;
       TS.model.supports_mmap_minipanel_calls = false;
-      if (TS.boot_data.feature_calls) {
-        if (window.winssb && !TS.model.is_lin) {
-          if (winssb.calls && winssb.calls.requestCapabilities) {
-            var capabilities = winssb.calls.requestCapabilities();
-            if (capabilities) {
-              if (capabilities.supports_video) TS.model.supports_video_calls = true;
-              if (capabilities.supports_screen_sharing && winssb.stats && winssb.stats.getDisplayInformation) TS.model.supports_screen_sharing = true;
-              if (capabilities.supports_screenhero && !capabilities.is_mas && !capabilities.is_ws) TS.model.supports_screenhero = true;
-              if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true;
-            }
+      if (window.winssb && !TS.model.is_lin) {
+        if (winssb.calls && winssb.calls.requestCapabilities) {
+          var capabilities = winssb.calls.requestCapabilities();
+          if (capabilities) {
+            if (capabilities.supports_video) TS.model.supports_video_calls = true;
+            if (capabilities.supports_screen_sharing && winssb.stats && winssb.stats.getDisplayInformation) TS.model.supports_screen_sharing = true;
+            if (capabilities.supports_screenhero && !capabilities.is_mas && !capabilities.is_ws) TS.model.supports_screenhero = true;
+            if (capabilities.supports_mmap_minipanel) TS.model.supports_mmap_minipanel_calls = true;
           }
-        } else if (TS.model.is_chrome_desktop) {
-          TS.model.supports_video_calls = true;
         }
+      } else if (TS.model.is_chrome_desktop) {
+        TS.model.supports_video_calls = true;
       }
       if (!TS.model.supports_user_bot_caching) {
         TS.storage.cleanOutCacheTsStorage();
@@ -3346,8 +3342,7 @@
         if (TS.warn) TS.warn("TS.experiment.loadLeadAssignments requires a lead_id");
         return Promise.resolve(false);
       }
-      if (!_promise_lead_assignments || _isCacheExpired(_loaded_lead_assignments)) {
-        _loaded_lead_assignments = Date.now();
+      if (!_promise_lead_assignments) {
         _promise_lead_assignments = _loadAssignments("experiments.getByLead", {
           lead_id: lead_id
         });
@@ -3355,8 +3350,7 @@
       return _promise_lead_assignments;
     },
     loadVisitorAssignments: function() {
-      if (!_promise_visitor_assignments || _isCacheExpired(_loaded_visitor_assignments)) {
-        _loaded_visitor_assignments = Date.now();
+      if (!_promise_visitor_assignments) {
         _promise_visitor_assignments = _loadAssignments("experiments.getByVisitor");
       }
       return _promise_visitor_assignments;
@@ -3366,33 +3360,20 @@
         if (TS.warn) TS.warn("TS.experiment.loadUserAssignments requires a user to be logged in");
         return Promise.resolve(false);
       }
-      if (!_promise_user_assignments || _isCacheExpired(_loaded_user_assignments)) {
-        _loaded_user_assignments = Date.now();
+      if (!_promise_user_assignments) {
         _promise_user_assignments = _loadAssignments("experiments.getByUser");
       }
       return _promise_user_assignments;
     },
     getGroup: function(name) {
-      var caches = [_loaded_lead_assignments, _loaded_visitor_assignments, _loaded_user_assignments];
-      var expired_caches = _.filter(caches, _isCacheExpired);
-      if (TS.boot_data.version_ts === "dev" && expired_caches.length === 3 && TS.error) TS.error('TS.experiment.getGroup("' + name + '") called with a fully expired cache, ensure TS.experiments.load<Type>Assignments is called first');
       if (_assignments[name]) {
         if (_assignments[name].log_exposures) _logExposure(name, _assignments[name]);
         return _assignments[name].group;
       }
-      if (TS.boot_data.version_ts === "dev" && expired_caches.length > 0 && TS.warn) TS.warn('TS.experiment.getGroup("' + name + '") failed to find an assignment and had a partially expired cache, ensure TS.experiments.load<Type>Assignments is called first');
       return null;
     },
     test: function() {
       var test_ob = {};
-      Object.defineProperty(test_ob, "_isCacheExpired", {
-        get: function() {
-          return _isCacheExpired;
-        },
-        set: function(v) {
-          _isCacheExpired = v;
-        }
-      });
       Object.defineProperty(test_ob, "_recordAssignments", {
         get: function() {
           return _recordAssignments;
@@ -3404,7 +3385,6 @@
       return test_ob;
     }
   });
-  var _CACHE_TIMEOUT = 864e5;
   var _is_authed;
   var _method;
   var _assignments = {};
@@ -3412,9 +3392,6 @@
   var _promise_lead_assignments;
   var _promise_user_assignments;
   var _promise_visitor_assignments;
-  var _loaded_lead_assignments;
-  var _loaded_user_assignments;
-  var _loaded_visitor_assignments;
   var _loadAssignments = function(api_url, api_args) {
     return new Promise(function(resolve, reject) {
       _method(api_url, _.extend(TS.utility.url.queryStringParse(location.search.substring(1)), api_args), function(ok, data, args) {
@@ -3433,10 +3410,6 @@
       }
       _assignments[assignment] = assignments[assignment];
     }
-  };
-  var _isCacheExpired = function(last_call) {
-    var time_since_last = Date.now() - last_call - _CACHE_TIMEOUT;
-    return !(time_since_last < 0);
   };
   var _logExposure = function(name, assignment) {
     if (TS.clog && !_.isEqual(_clogged[name], assignment)) {
@@ -4296,14 +4269,10 @@
   };
   var _execute_parent_win_Q = [];
   var _executeInAtomSSBParentWin = function(code, handler) {
-    if (TS.boot_data.feature_calls) {
-      return TSSSB.call("executeJavaScriptInParentWindow", {
-        code: code,
-        callback: handler
-      });
-    }
-    _execute_parent_win_Q.push(arguments);
-    if (_execute_parent_win_Q.length == 1) _executeInAtomSSBParentWinWorker(code, handler);
+    return TSSSB.call("executeJavaScriptInParentWindow", {
+      code: code,
+      callback: handler
+    });
   };
   var _executeInAtomSSBParentWinWorker = function(code, handler) {
     TS.log(438, 'CALLING _executeInAtomSSBParentWin\n\n"' + code + '"');
@@ -4348,16 +4317,11 @@
   };
   var _execute_win_Q = [];
   var _executeInAtomSSBWin = function(win, code, handler) {
-    if (TS.boot_data.feature_calls) {
-      return TSSSB.call("executeJavaScriptInWindow", {
-        window_token: win.token,
-        code: code,
-        callback: handler
-      });
-    }
-    _execute_win_Q.push(arguments);
-    TS.log(438, "_executeInAtomSSBWin _execute_win_Q: " + _execute_win_Q.length);
-    if (_execute_win_Q.length == 1) _executeInAtomSSBWinWorker(win, code, handler);
+    return TSSSB.call("executeJavaScriptInWindow", {
+      window_token: win.token,
+      code: code,
+      callback: handler
+    });
   };
   var _executeInAtomSSBWinWorker = function(win, code, handler) {
     TS.log(438, "CALLING _executeInAtomSSBWin token: " + win.token + '\n\n"' + code + '"');

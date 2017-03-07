@@ -4466,6 +4466,13 @@
         TS.ui.replies.rebuildMsgCurrentStatusIncludingMember(member);
         TS.client.ui.flex.rebuildMsgCurrentStatusIncludingMember(member);
         TS.client.ui.unread.rebuildMsgCurrentStatusIncludingMember(member);
+        $(".team_list_item.member_item .current_status.color_" + member.id).replaceWith(TS.templates.current_status({
+          member: member
+        }));
+        $(".member_info .current_status.color_" + member.id).replaceWith(TS.templates.current_status({
+          member: member,
+          classes: "ts_tip_float"
+        }));
       }
       if (member.id == TS.model.user.id) {
         TS.view.members.updateUserCurrentStatus();
@@ -5244,10 +5251,8 @@
         win = _wins[token];
         if (!win) continue;
         if (win.windowType != "screenhero" && win.windowType !== "calls") continue;
-        if (TS.boot_data.feature_calls) {
-          if (TS.utility.calls.isSupportedMessage(imsg.type)) {
-            TS.ssb.distributeMsgToWin(token, imsg);
-          }
+        if (TS.utility.calls.isSupportedMessage(imsg.type)) {
+          TS.ssb.distributeMsgToWin(token, imsg);
         }
       }
     },
@@ -5582,9 +5587,7 @@
       TS.rooms.changed_date_end_sig.add(_roomEndedChanged);
       TS.rooms.changed_channels_sig.add(_roomChannelsChanged);
       TS.prefs.team_display_email_addresses_changed_sig.add(_onDisplayEmailAddressesPrefChanged);
-      if (boot_data.feature_calls) {
-        TS.prefs.team_allow_calls_changed_sig.add(_maybeUpdateCallAction);
-      }
+      TS.prefs.team_allow_calls_changed_sig.add(_maybeUpdateCallAction);
       TS.client.ui.$msgs_scroller_div.bind("mousedown mouseup", function(e) {
         TS.client.msg_pane.checkUnreads();
       });
@@ -5974,17 +5977,15 @@
             e.preventDefault();
           }
         } else if (!TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isArrowKey(e.which) && !TS.utility.isPageKey(e.which) && !e.metaKey && !e.ctrlKey && !e.altKey && !TS.menu.emoji.is_showing) {
+          if (TS.model.archive_view_is_showing && e.which === keymap.enter) {
+            TS.client.archives.tryToJoin();
+            return;
+          }
           if (!TS.boot_data.feature_a11y_tab) {
-            TS.view.focusMessageInput();
-            if (e.which == keymap.tab && !TS.utility.cmdKey(e)) {
+            if (e.which == keymap.tab && !TS.utility.cmdKey(e) || e.which === keymap.enter) {
               e.preventDefault();
             }
-          }
-          if (e.which == keymap.enter) {
-            e.preventDefault();
-            if (TS.model.archive_view_is_showing) {
-              TS.client.archives.tryToJoin();
-            }
+            TS.view.focusMessageInput();
           }
         } else if ((window.macgap || window.winssb) && !TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && e.which == keymap.V && !e.altKey && TS.utility.cmdKey(e)) {
           var paste_txt;
@@ -8055,7 +8056,7 @@
       show_bot_configuration: show_bot_configuration,
       hide_more_menu: false,
       bot_configure_url: bot_configure_url,
-      show_call_action: TS.boot_data.feature_calls && TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT"
+      show_call_action: TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT"
     };
     _member_presence_list.clear();
     _member_presence_list.add(member.id);
@@ -13222,10 +13223,7 @@
       if (_maybe_click_handlers[key]) _maybe_click_handlers[key]();
     },
     areCallsEnabled: function() {
-      if (TS.boot_data.feature_calls) {
-        return TS.utility.calls.isEnabled();
-      }
-      return false;
+      return TS.utility.calls.isEnabled();
     },
     maybeSetupCalls: function(member, model_ob) {
       var call_info;
@@ -13342,7 +13340,7 @@
       return;
     },
     setCallButtonState: function(go_online) {
-      var is_multiparty_enabled = TS.boot_data.feature_calls ? TS.utility.calls.isMultiPartyEnabled() : TS.client.msg_pane.areCallsEnabled();
+      var is_multiparty_enabled = TS.utility.calls.isMultiPartyEnabled();
       if (TS.utility.calls.isEnabled() && TS.model.team.prefs.calling_app_name != "Slack") {
         is_multiparty_enabled = true;
       }
@@ -13536,8 +13534,8 @@
     var model_ob = TS.shared.getActiveModelOb();
     if (!model_ob) return;
     if (TS.boot_data.page_needs_enterprise && model_ob.is_shared && !model_ob.is_org_shared) return;
-    var is_call_window_ready = TS.boot_data.feature_calls && (TS.utility.calls.isCallWindowReady() || !TS.utility.calls.platformHasCallsCode());
-    var is_multiparty_enabled = TS.boot_data.feature_calls && TS.utility.calls.isMultiPartyEnabled();
+    var is_call_window_ready = TS.utility.calls.isCallWindowReady() || !TS.utility.calls.platformHasCallsCode();
+    var is_multiparty_enabled = TS.utility.calls.isMultiPartyEnabled();
     if (TS.utility.calls.isEnabled() && TS.model.team.prefs.calling_app_name != "Slack") {
       is_multiparty_enabled = true;
     }
@@ -23718,9 +23716,6 @@
         if ($(this).data("account-type")) options.account_type = $(this).data("account-type");
         _start(options);
       });
-      TS.experiment.loadUserAssignments().then(function() {
-        _assignments_loaded = true;
-      });
     },
     onLogin: function() {
       _setPlaceholderEmailAddress();
@@ -23812,7 +23807,6 @@
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
-  var _assignments_loaded = false;
   var _NUM_INVITES = 3;
   var _in_modal_3_fields_group = false;
   var _error_map = {
@@ -23880,7 +23874,6 @@
     }
   };
   var _start = function(options) {
-    if (!_assignments_loaded) return;
     var account_type;
     _selected_exp_date_unix_ts = null;
     if (TS.experiment.getGroup("modal_3_fields") === "modal_3_fields" || TS.experiment.getGroup("modal_3_fields_existing_teams") === "modal_3_fields") {
@@ -27714,7 +27707,7 @@
           TS.channels.closeArchivedChannel(model_ob.id);
         } else {
           TS.channels.join(model_ob.name, function() {
-            if (TS.boot_data.feature_calls) TS.client.msg_pane.maybeSetupCalls();
+            TS.client.msg_pane.maybeSetupCalls();
           });
         }
       } else {

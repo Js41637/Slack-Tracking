@@ -7710,6 +7710,10 @@ html.no_touch .plastic_row:hover .chevron {
   border-bottom: 1px solid #E8E8E8!important
 }
 
+.prevent_copy_paste:before {
+  content: attr(aria-label)
+}
+
 @media only screen and (min-width:1441px) {
   .widescreen:not(.nav_open) nav#site_nav {
     -webkit-transform: translate3d(0, 0, 0);
@@ -12285,6 +12289,10 @@ h3 .presence {
 
 .team_list_item .member_name_and_title {
   padding-top: .375rem
+}
+
+.team_list_item .member_name_and_title .current_status {
+  margin-left: .2rem
 }
 
 .team_list_item:last-of-type {

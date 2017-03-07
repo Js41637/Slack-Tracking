@@ -19,9 +19,6 @@
         if ($(this).data("account-type")) options.account_type = $(this).data("account-type");
         _start(options);
       });
-      TS.experiment.loadUserAssignments().then(function() {
-        _assignments_loaded = true;
-      });
     },
     onLogin: function() {
       _setPlaceholderEmailAddress();
@@ -113,7 +110,6 @@
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
-  var _assignments_loaded = false;
   var _NUM_INVITES = 3;
   var _in_modal_3_fields_group = false;
   var _error_map = {
@@ -181,7 +177,6 @@
     }
   };
   var _start = function(options) {
-    if (!_assignments_loaded) return;
     var account_type;
     _selected_exp_date_unix_ts = null;
     if (TS.experiment.getGroup("modal_3_fields") === "modal_3_fields" || TS.experiment.getGroup("modal_3_fields_existing_teams") === "modal_3_fields") {

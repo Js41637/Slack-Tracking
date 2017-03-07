@@ -7,8 +7,16 @@
   <div class="cursor_pointer flex_none" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">{{{makeMemberPreviewLinkImage member.id 72 false true}}}</div>
   <div class="display_flex flex_direction_column justify_content_center no_min_width">
     {{#feature flag="feature_name_tagging_client"}}
-      <div class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
-        {{#if member.is_slackbot}}{{#t}}Slackbot{{/t}}{{else}}{{getMemberFullName member}}{{/if}}
+      <div>
+        <span class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
+          {{#if member.is_slackbot}}{{#t}}Slackbot{{/t}}{{else}}{{getMemberFullName member}}{{/if}}</span>
+        {{#feature flag="feature_user_custom_status"}}
+          {{#if member.profile}}
+            {{#or member.profile.status_emoji member.profile.status_text}}
+              {{> current_status classes="ts_tip_float"}}
+            {{/or}}
+          {{/if}}
+        {{/feature}}
       </div>
       <div class="block overflow_ellipsis">
         <span class="member_preferred_name mini">{{getMemberPreferredName member}}</span>
@@ -17,8 +25,16 @@
       </div>
     {{else}}
       {{#if member.profile.real_name}}
-        <div class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
-          {{#if member.is_slackbot}}{{#t}}Slackbot{{/t}}{{else}}{{member.profile.real_name}}{{/if}}
+        <div>
+          <span class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
+            {{#if member.is_slackbot}}{{#t}}Slackbot{{/t}}{{else}}{{member.profile.real_name}}{{/if}}</span>
+          {{#feature flag="feature_user_custom_status"}}
+            {{#if member.profile}}
+              {{#or member.profile.status_emoji member.profile.status_text}}
+                {{> current_status classes="ts_tip_float"}}
+              {{/or}}
+            {{/if}}
+          {{/feature}}
         </div>
         <div class="block overflow_ellipsis">
           <span class="member_username mini">@{{member.name}}</span>
@@ -28,8 +44,14 @@
       {{else}}
         <div>
           <span class="member_name bold link cursor_pointer" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
-            {{member.name}}
-          </span>
+            {{member.name}}</span>
+          {{#feature flag="feature_user_custom_status"}}
+            {{#if member.profile}}
+              {{#or member.profile.status_emoji member.profile.status_text}}
+                {{> current_status classes="ts_tip_float"}}
+              {{/or}}
+            {{/if}}
+          {{/feature}}
           {{{makeMemberPresenceIcon member}}}
         </div>
         <div class="timezone_label mini greigh" data-member-id="{{member.id}}">{{{memberLocalTime member}}}</div>
