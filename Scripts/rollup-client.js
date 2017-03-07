@@ -30156,10 +30156,12 @@
     _revealList();
   };
   var _startSpinner = function() {
-    $("#im_browser_spinner").removeClass("hidden");
+    var el = document.getElementById("im_browser_spinner");
+    if (el && el.classList) el.classList.remove("hidden");
   };
   var _stopSpinner = function() {
-    $("#im_browser_spinner").addClass("hidden");
+    var el = document.getElementById("im_browser_spinner");
+    if (el && el.classList) el.classList.add("hidden");
   };
   var _obscureList = function() {
     if (!_$scroll_wrapper) {

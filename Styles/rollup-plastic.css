@@ -13215,7 +13215,8 @@ only screen and (min-resolution:2dppx) {
   background-position: 0 0, 0 -48px, 0 -48px
 }
 
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512:hover~.member_details_over_image {
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512:hover~.member_details_over_image,
+.menu_member_header .member_details.cropped_preview .member_image.thumb_512:hover~.member_restriction_over_image {
   opacity: 0
 }
 
@@ -13228,6 +13229,22 @@ only screen and (min-resolution:2dppx) {
   -webkit-transition: opacity 150ms ease;
   -moz-transition: opacity 150ms ease;
   transition: opacity 150ms ease
+}
+
+.menu_member_header .member_details .member_restriction_over_image {
+  opacity: 1;
+  -webkit-transition: opacity 150ms ease;
+  -moz-transition: opacity 150ms ease;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  border-radius: .2rem .2rem 0 0;
+  background-color: #2C2D30;
+  color: #fff;
+  padding: 4px 8px 8px;
+  font-size: 13px
 }
 
 .menu_member_header .member_details .member_name_and_presence {

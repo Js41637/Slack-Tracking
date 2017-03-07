@@ -4207,7 +4207,7 @@
     channel._name_lc = _.toLower(channel.name);
     channel._show_in_list_even_though_no_unreads = false;
     TS.shared.maybeResetHistoryFetched(channel);
-    if (!channel.members) channel.members = [];
+    if (!TS.membership.lazyLoadChannelMembership() && !channel.members) channel.members = [];
     if (!channel.topic) channel.topic = {};
     if (!channel.purpose) channel.purpose = {};
     channel.is_member = !!channel.is_member;
@@ -11414,6 +11414,9 @@ TS.registerModule("constants", {
     },
     haveAllMembersForModelOb: function(model_ob) {
       if (!TS.lazyLoadMembersAndBots()) return true;
+      if (TS.membership.lazyLoadChannelMembership() && model_ob.is_channel && !model_ob.is_group) {
+        return false;
+      }
       var model_ob_members = model_ob.members || [model_ob.user];
       var available_members = _.map(TS.model.members, "id");
       return !_.difference(model_ob_members, available_members).length;

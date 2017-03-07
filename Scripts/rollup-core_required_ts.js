@@ -4989,6 +4989,7 @@
       var text = TS.utility.contenteditable.value($("#file_comment_textarea"));
       var c_id;
       var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
+      var member_count;
       if (selected) {
         c_id = selected.model_ob.id || "";
       }
@@ -5007,27 +5008,41 @@
         var model_ob = TS.shared.getModelObById(c_id);
         if (!model_ob || model_ob.is_im) show = false;
         if (show && !TS.members.haveAllMembersForModelOb(model_ob) && !did_fetch_all_members) {
-          TS.log(1989, "Flannel: need to fetch all members in " + model_ob.id + " to see if we have to show at-channel dialog");
-          TS.flannel.fetchAndUpsertAllMembersForModelOb(model_ob).then(function() {
-            if (!TS.generic_dialog.is_showing) return;
-            if (!TS.generic_dialog.div.find("#select_share_channels").length) return;
-            var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
-            var current_c_id = _.get(selected, "model_ob.id");
-            if (current_c_id != c_id) return;
-            var fetched_all_members = true;
-            TS.ui.file_share.updateAtChannelWarningNote(fetched_all_members);
-          }).catch(_.noop);
-          show = false;
+          if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+            var counts = TS.membership.getMembershipCounts(model_ob);
+            if (counts.promise) {
+              member_count = 0;
+              counts.promise.then(TS.ui.file_share.updateAtChannelWarningNote);
+              show = false;
+            } else {
+              member_count = _.get(counts, "counts.member_count", 1);
+              member_count--;
+            }
+          } else {
+            TS.log(1989, "Flannel: need to fetch all members in " + model_ob.id + " to see if we have to show at-channel dialog");
+            TS.flannel.fetchAndUpsertAllMembersForModelOb(model_ob).then(function() {
+              if (!TS.generic_dialog.is_showing) return;
+              if (!TS.generic_dialog.div.find("#select_share_channels").length) return;
+              var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
+              var current_c_id = _.get(selected, "model_ob.id");
+              if (current_c_id != c_id) return;
+              var fetched_all_members = true;
+              TS.ui.file_share.updateAtChannelWarningNote(fetched_all_members);
+            }).catch(_.noop);
+            show = false;
+          }
         }
         var members = [];
-        if (show && model_ob && !model_ob.is_im) {
-          members = _(model_ob.members).map(TS.members.getMemberById).compact().filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf).sortBy(TS.members.memberSorterByName).value();
-          if (members.length < 1) show = false;
+        if (_.isUndefined(member_count)) {
+          if (show && model_ob && !model_ob.is_im) {
+            members = _(model_ob.members).map(TS.members.getMemberById).compact().filter(TS.utility.members.isMemberNonBotNonDeletedNonSelf).sortBy(TS.members.memberSorterByName).value();
+            if (members.length < 1) show = false;
+          }
         }
         if (show) {
           var html = TS.templates.at_channel_warning_note({
             keyword: keyword,
-            member_count: members.length
+            member_count: _.isUndefined(member_count) ? members.length : member_count
           });
           $note.html(html);
           $note.removeClass("hidden");
