@@ -23,7 +23,11 @@
       </div>
 
       <div class="shared_invite_link_skip_container">
+      {{#if coming_from_google_contacts}}
+        <span>{{#t}}You can also <a data-action="shared_invite_link_skip_to_google" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_to_invite_by_google,trigger=click_invite_by_email_link,step=shared_invite_link">send email invitations</a>.{{/t}}<span>
+      {{else}}
         <span>{{#t}}You can also <a data-action="shared_invite_link_skip" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_to_invite_by_email,trigger=click_invite_by_email_link,step=shared_invite_link">send email invitations</a>.{{/t}}<span>
+      {{/if}}
       </div>
     </div>
 

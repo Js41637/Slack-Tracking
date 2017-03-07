@@ -6908,7 +6908,7 @@ body.winssb #emoji_menu {
   padding-top: 5px
 }
 
-.tab_complete_ui ul.type_cmds li.tab_complete_ui_group .primary_action {
+.tab_complete_ui ul.type_cmds li.tab_complete_ui_group .group_name {
   font-weight: 700;
   padding-right: .5rem;
   color: #717274;

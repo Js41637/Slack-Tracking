@@ -27,11 +27,14 @@
       </div>
       {{/if}}
 
+      <div class="shared_invite_link_back_container">
+        <span>{{#t}}Or, you can <a data-action="shared_invite_link_back" data-clog-params="action=back_to_shared_invite_link,trigger=click_back_to_shared_invite_link,step=google_invites">get an invite link</a> to share with your teammates.{{/t}}<span>
+      </div>      
       <div class="send_invitations_button_container">
         <a id="secondary_btn" class="col span_1_of_2 btn btn_outline btn_large ladda-button" data-style="expand-right" data-qa="secondary_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=skip_google_invites,trigger=create_team,step=google_invites">
           <span class="ladda-label">{{#t}}Skip For Now{{/t}}</span>
         </a>
-        <button id="submit_btn" type="submit" class="col span_1_of_2 btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=send_google_invites,trigger=create_team,step=google_invites">
+        <button id="submit_btn" type="submit" class="col span_1_of_2 btn btn_large ladda-button" data-style="expand-right" data-qa="submit_button" data-clog-click="true" data-clog-event="GROWTH_CREATE_TEAM" data-clog-params="action=send_google_invites,trigger=create_team,step=google_invites" disabled>
           <span class="ladda-label" data-label="invites_btn_label">{{#t}}Send Invitations{{/t}}</span>
         </button>
       </div>

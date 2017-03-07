@@ -3324,8 +3324,10 @@ body:not(.sorting_mode) .channels_list_holder ul li .primary_action:hover .unrea
   padding-right: 2px
 }
 
-.feature_name_tagging_client .primary_action,
-.real_names .primary_action {
+.feature_name_tagging_client .im_name,
+.feature_name_tagging_client .mpim_name,
+.real_names .im_name,
+.real_names .mpim_name {
   font-size: .95rem
 }
 

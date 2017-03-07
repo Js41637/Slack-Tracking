@@ -27219,7 +27219,7 @@
         if (path.length < 2) return false;
         var identifier = path[1];
         if (!identifier) return false;
-        var model_ob = TS.ims.getImById(identifier) || TS.ims.getImByUsername(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimById(identifier) || TS.mpims.getMpimByName(identifier);
+        var model_ob = TS.shared.getModelObById(identifier) || TS.ims.getImByUsername(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimByName(identifier);
         if (!model_ob) return false;
         if (model_ob.is_im && TS.ims.isImWithDeletedMember(model_ob)) return false;
         if (path.length == 2 || !path[2]) {
@@ -38229,6 +38229,19 @@ function timezones_guess() {
         return previous_unread_group;
       }
     });
+    if (TS.boot_data.feature_sli_briefing) {
+      if (groups.length && TS.client.ui.CLIENT_HEADER_OVERHANG < groups[0].y && current_scroll_offset < groups[0].y) {
+        if ($_currently_sticky) {
+          $_currently_sticky.find(".unread_group_header").css({
+            top: "0",
+            right: "auto"
+          });
+          $_currently_sticky.removeClass("currently_sticky");
+          $_currently_sticky = null;
+        }
+        return;
+      }
+    }
     if (!group_in_view) return;
     var sticky_top = _banner_height;
     if (TS.model.prefs.a11y_font_size === "110") {
