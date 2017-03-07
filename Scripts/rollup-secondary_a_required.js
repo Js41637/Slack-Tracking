@@ -17689,7 +17689,6 @@ TS.registerModule("constants", {
     },
     subteam_updated: function(imsg) {
       TS.user_groups.upsertUserGroupAndSignal(imsg.subteam);
-      TS.user_groups.getUserGroupMembers(imsg.subteam.id);
     },
     subteam_created: function(imsg) {
       TS.user_groups.upsertUserGroupAndSignal(imsg.subteam);

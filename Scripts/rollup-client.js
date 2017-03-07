@@ -339,7 +339,7 @@
     threadsViewActivated: function(replace_history_state, no_history_add) {
       if (!no_history_add) {
         var flex_extra = _cleanFlexExtra(TS.model.flex_extra_in_url);
-        var new_url = TS.utility.refashionUrl(window.location.href, "/unreads", TS.model.flex_name_in_url, flex_extra);
+        var new_url = TS.utility.refashionUrl(window.location.href, "/threads", TS.model.flex_name_in_url, flex_extra);
         if (!replace_history_state) {
           if (!TS.model.threads_view_is_showing && !TS.model.c_name_in_url) replace_history_state = true;
         }
@@ -27208,14 +27208,14 @@
       if (!TS.client) return false;
       if (!$el || !$el.length) return false;
       if (!$el.is("a")) return false;
-      var href = $el.attr("href");
+      var href = $el.prop("href");
       if (!href) return false;
       var url = TS.utility.normalizeDevHost(href);
       var path = TS.utility.getPathFromSlackUrl(url);
       if (!path) {
         return;
       }
-      var query = url.indexOf("?") !== -1 && TS.utility.url.queryStringParse(url.split("?"));
+      var query = url.indexOf("?") !== -1 && TS.utility.url.queryStringParse(url.split("?")[1]);
       if (_.get(query, "force-browser") === "1") return false;
       var is_message = {
         messages: true,
