@@ -33,6 +33,15 @@
 
       <div class="invite_modal_options_container">
 
+        <div class="admin_invites_guest_expiration_date_container hidden">
+          <label>{{#t note="label for expiration date of the invited guest"}}Time Limit{{/t}}</label>
+
+          <div class="small subtle_silver no_bottom_margin">
+            <span id="admin_invites_guest_expiration_copy">{{#t}}By default, guest accounts stay active indefinitely.{{/t}}</span>
+            <a id="admin_invites_show_date_picker" class="subtle_silver underline position_relative">{{#t note="button to change expiration date"}}Set a time limit{{/t}}</a>
+          </div>
+        </div>
+
         <div class="admin_invites_custom_message_container">
           <div class="admin_invites_show_custom_message hidden medium_bottom_margin">
             <label for="admin_invite_custom_message">{{#t note="label for a custom message"}}Custom Message{{/t}}</label>
