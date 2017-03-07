@@ -6579,18 +6579,15 @@ body.winssb #emoji_menu {
 }
 
 #toggle-subscription-status {
-  max-width: 240px
-}
-
-#toggle-subscription-status .subscription_title {
-  font-weight: 700
+  min-height: 44px;
+  min-width: 260px
 }
 
 #toggle-subscription-status .subscription_desc {
-  font-size: .85rem;
-  line-height: 20px;
+  font-size: 12px;
+  line-height: 15px;
   color: #717274;
-  white-space: normal
+  padding-bottom: 4px
 }
 
 #toggle-subscription-status:hover .subscription_desc {
@@ -6600,7 +6597,14 @@ body.winssb #emoji_menu {
 #toggle-subscription-status .follow_message,
 #toggle-subscription-status .follow_thread,
 #toggle-subscription-status .unfollow_message,
-#toggle-subscription-status .unfollow_thread,
+#toggle-subscription-status .unfollow_thread {
+  display: none
+}
+
+#toggle-subscription-status .loading_subscription_status {
+  line-height: 44px
+}
+
 #toggle-subscription-status[data-subscribed] .loading_subscription_status {
   display: none
 }

@@ -25632,28 +25632,22 @@
     _current_option_go_callback = function() {
       if (TS.boot_data.feature_intl_channel_names) {
         var new_title = _$current_option.find(".title_input").val();
-        TS.api.call("channels.validateName", {
-          token: TS.model.api_token,
-          name: new_title
+        var method = model_ob.is_channel ? "channels.rename" : "groups.rename";
+        if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
+        TS.api.call(method, {
+          name: new_title,
+          channel: model_ob.id,
+          validate: true
         }).then(function(res) {
-          if (res.data.ok) {
-            if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
-            new_title = res.data.channel_name;
-            var method = model_ob.is_channel ? "channels.rename" : "groups.rename";
-            TS.api.call(method, {
-              name: new_title,
-              channel: model_ob.id
-            }).then(function(res) {
-              if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
-              TS.ui.fs_modal.close();
-            });
-          }
+          if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
+          TS.ui.fs_modal.close();
         }).catch(function(res) {
           var error = res.data.error;
           var msg = TS.ui.validation.getErrorMessage(error, {
             maxlength: 22,
             name: title
           });
+          if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
           return TS.ui.validation.showWarning(TS.ui.channel_options_dialog.div.find(".title_input"), msg, {
             custom_for: "channel_create_title"
           });
@@ -28956,9 +28950,9 @@
           size: "medium"
         }));
       }
-      var fetch_all_members = !TS.membership.lazyLoadChannelMembership() && model_ob.members.length <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD;
+      var num_members_to_fetch = Math.max(MAX_SIDEBAR_MEMBERS_COUNT, SEE_ALL_MEMBERS_DIALOG_THRESHOLD);
       var query = {
-        count: fetch_all_members ? SEE_ALL_MEMBERS_DIALOG_THRESHOLD : MAX_SIDEBAR_MEMBERS_COUNT,
+        count: num_members_to_fetch,
         channels: [model_ob.id],
         present_first: true,
         index: TS.members.shouldDisplayRealNames() ? "users_by_realname" : "users_by_name",
@@ -28974,8 +28968,11 @@
         if (TS.shared.getActiveModelOb().id !== model_ob.id) {
           return;
         }
-        var member_ids = _.map(flannel_response.objects, "id");
-        var display_all_members_in_list = fetch_all_members;
+        var channel_member_counts = TS.membership.getMembershipCounts(model_ob);
+        var num_members_in_channel = _.get(channel_member_counts, "counts.member_count");
+        var display_all_members_in_list = num_members_in_channel <= SEE_ALL_MEMBERS_DIALOG_THRESHOLD;
+        var display_count = display_all_members_in_list ? SEE_ALL_MEMBERS_DIALOG_THRESHOLD : MAX_SIDEBAR_MEMBERS_COUNT;
+        var member_ids = _.map(flannel_response.objects, "id").slice(0, display_count);
         _renderMemberList(model_ob, member_ids, silent_refresh, display_all_members_in_list);
         return null;
       }).catch(function(errors) {
@@ -37081,6 +37078,7 @@ function timezones_guess() {
     $container: null,
     unread_groups: [],
     msgs_rendered_sig: new signals.Signal,
+    started_sig: new signals.Signal,
     showUnreadView: function() {
       TS.channels.renamed_sig.add(_onRename);
       TS.groups.renamed_sig.add(_onRename);
@@ -37099,6 +37097,9 @@ function timezones_guess() {
       TS.inline_attachments.collapse_sig.add(_updateUnreadGroupPositions);
       TS.prefs.a11y_font_size_changed_sig.add(_updateStickyHeader);
       TS.prefs.a11y_font_size_changed_sig.add(_updateUnreadGroupPositions);
+      if (TS.boot_data.feature_sli_briefing) {
+        TS.highlights_briefing.updated_sig.add(_updateUnreadGroupPositions);
+      }
       _initialized_time = Date.now();
       _keyboard_in_use = false;
       $("#client-ui").addClass("unread_view_is_showing");
@@ -37269,6 +37270,7 @@ function timezones_guess() {
         });
       });
       TS.clog.track("UNREADS_OPEN", {});
+      TS.client.ui.unread.started_sig.dispatch();
     },
     promiseToShowNextPage: function() {
       if (_currently_loading_more_promise && _currently_loading_more_promise.isPending()) return _currently_loading_more_promise;

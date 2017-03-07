@@ -873,12 +873,12 @@
               completeMemberSpecials: false,
               completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members],
               positionMenu: function(menu) {
-                TS.tabcomplete.positionUIRelativeToInput(menu, input);
                 if (TS.web && TS.web.space) {
                   menu.style.width = Math.min(input.outerWidth(), 474) + "px";
                 } else {
                   menu.style.width = Math.min(input.outerWidth(), 360) + "px";
                 }
+                TS.tabcomplete.positionUIRelativeToInput(menu, input);
               }
             }
           },

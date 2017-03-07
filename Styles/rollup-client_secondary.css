@@ -27755,3 +27755,38 @@ ts-thread .thread_participants {
   color: #717274;
   margin-top: .1875rem
 }
+
+.sli_briefing {
+  padding: 1rem;
+  padding-bottom: 2rem
+}
+
+.sli_briefing__grid {
+  padding: 0 1rem
+}
+
+.sli_briefing__message_group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 1rem
+}
+
+.sli_briefing__channel_link {
+  margin-bottom: .5rem
+}
+
+.sli_briefing__channel_link a {
+  color: #2C2D30
+}
+
+.sli_briefing__message {
+  width: 50%;
+  padding: 8px
+}
+
+.sli_briefing__message ts-message {
+  border: 1px solid #E8E8E8;
+  border-radius: 4px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, .1)
+}
