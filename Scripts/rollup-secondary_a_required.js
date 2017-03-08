@@ -3512,7 +3512,7 @@
       TS.utility.msgs.maybeClearPrevLastRead();
       TS.utility.msgs.maybeClearPrevLastRead(channel);
       TS.shared.maybeClearHasAutoScrolled();
-      if (channel_id == TS.model.active_channel_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
+      if (channel_id === TS.model.active_channel_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
         TS.warn('channel "' + channel_id + '" already displayed');
         if (and_send_txt) {
           TS.channels.sendMsg(channel_id, $.trim(and_send_txt));
@@ -3558,7 +3558,7 @@
       }
     },
     setLastRead: function(channel, ts, reason) {
-      if (channel.last_read == ts) {
+      if (channel.last_read === ts) {
         return false;
       }
       if (ts.indexOf(TS.utility.date.fake_ts_unique_padder) > -1) {
@@ -3610,7 +3610,7 @@
         TS.error('channel "' + channel_id + '" unknown');
         return;
       }
-      if (channel.last_read == ts) {
+      if (channel.last_read === ts) {
         return;
       }
       if (TS.channels.setLastRead(channel, ts, reason)) {
@@ -3626,11 +3626,12 @@
         TS.error('error: no channel "' + args.channel + '"');
         return;
       }
-      if (ok || data && (data.error == "not_in_channel" || data.error == "is_archived")) {} else {
+      if (ok || data && (data.error === "not_in_channel" || data.error === "is_archived")) {} else {
         channel.needs_api_marking = true;
       }
     },
-    join: function(name, callback, in_background) {
+    join: function(name, callback, options) {
+      options = options || {};
       if (TS.model.user.is_restricted) return Promise.reject(new Error("Account is restricted"));
       if (!name) return Promise.reject(new Error("No channel name given"));
       if (!TS.channels.getChannelByName(name)) {
@@ -3639,26 +3640,37 @@
         }
         TS.model.created_channels[name] = true;
       }
-      return TS.api.call("channels.join", {
-        name: name,
-        _in_background: !!in_background
-      }, function(ok, data, args) {
-        TS.channels.onJoin(ok, data, args);
-        if (callback) {
-          callback(ok, data, args);
-        }
-        if (!ok) {
+      return new Promise(function(resolve, reject) {
+        return TS.api.call("channels.join", {
+          name: name,
+          _in_background: !!options.in_background,
+          validate: !!options.validate
+        }).then(function(res) {
+          TS.channels.onJoin(res.data.ok, res.data, res.args);
+          if (callback) {
+            callback(res.data.ok, res.data, res.args);
+          } else {
+            resolve(res);
+          }
+          return null;
+        }).catch(function(res) {
           delete TS.model.created_channels[name];
-        }
+          if (callback) {
+            callback(res.data.ok, res.data, res.args);
+          } else {
+            reject(res);
+          }
+          return null;
+        });
       });
     },
     onJoin: function(ok, data, args) {
       if (!ok) {
-        if (data.error == "name_taken") {} else if (data.error == "is_archived") {
+        if (data.error === "name_taken") {} else if (data.error === "is_archived") {
           TS.channels.displayChannel({
             id: TS.channels.getChannelByName(args.name).id
           });
-        } else if (data.error == "restricted_action") {
+        } else if (data.error === "restricted_action") {
           TS.generic_dialog.alert(TS.i18n.t("<p>You don’t have permission to create new channels.</p><p>Talk to your Team Owner.</p>", "channels")());
         } else {
           TS.error("failed to join channel");
@@ -3774,9 +3786,9 @@
     },
     alertSetPurposeError: function(error) {
       var alert_text;
-      if (error == "too_long") {
+      if (error === "too_long") {
         alert_text = TS.i18n.t("Oooops! That purpose is too long. Please try again with fewer than 250 characters.", "channels")();
-      } else if (error == "restricted_action" || error == "user_is_restricted") {
+      } else if (error === "restricted_action" || error === "user_is_restricted") {
         alert_text = TS.i18n.t("Uh oh! You don’t have permission to change the purpose. Talk to your team admin.", "channels")();
       } else {
         alert_text = TS.i18n.t("Uh oh! Something went wrong with setting the purpose. Please try again.", "channels")();
@@ -3795,7 +3807,7 @@
       if (!channels) return null;
       for (var i = 0; i < channels.length; i++) {
         channel = channels[i];
-        if (channel.id == id) {
+        if (channel.id === id) {
           TS.warn(id + " not in _id_map?");
           _id_map[id] = channel;
           return channel;
@@ -3844,7 +3856,7 @@
       if (!channels) return null;
       for (var i = 0; i < channels.length; i++) {
         channel = channels[i];
-        if (channel._name_lc == name || "#" + channel._name_lc == name) {
+        if (channel._name_lc === name || "#" + channel._name_lc === name) {
           TS.warn(name + " not in _name_map?");
           _name_map["#" + name] = channel;
           _name_map[name] = channel;
@@ -3878,7 +3890,7 @@
       var c;
       for (var i = 0; i < channels.length; i++) {
         c = channels[i];
-        if (c.id == channel.id) {
+        if (c.id === channel.id) {
           channels.splice(i, 1);
           break;
         }
@@ -3887,7 +3899,7 @@
       delete _name_map[channel._name_lc];
       delete _name_map["#" + channel._name_lc];
       if (TS.client) {
-        if (TS.model.active_channel_id == channel.id) {
+        if (TS.model.active_channel_id === channel.id) {
           TS.client.activeChannelDisplayGoneAway();
         }
       }
@@ -3909,7 +3921,7 @@
     markScrollTop: function(id, scroll_top) {
       var channel = TS.channels.getChannelById(id);
       if (!channel) return false;
-      if (channel.scroll_top == scroll_top) {
+      if (channel.scroll_top === scroll_top) {
         return false;
       }
       channel.scroll_top = scroll_top;
@@ -4116,7 +4128,7 @@
     if (existing_channel) {
       if (TS.pri) TS.log(5, 'updating existing channel "' + channel.id + '"');
       for (var k in channel) {
-        if (k == "members") {
+        if (k === "members") {
           if (TS.membership.lazyLoadChannelMembership()) continue;
           members = channel["members"];
           if (channel["is_shared"]) {
@@ -4183,7 +4195,7 @@
     }
     if (TS.client) {
       var and_mark = TS.utility.msgs.shouldMarkUnreadsOnMessageFetch(channel);
-      if (TS.model.active_cid == channel.id) {
+      if (TS.model.active_cid === channel.id) {
         TS.channels.calcUnreadCnts(channel, and_mark);
       } else {
         if (!existing_channel) TS.channels.calcUnreadCnts(channel, and_mark);
@@ -5096,7 +5108,7 @@ TS.registerModule("constants", {
         if (group) {
           group.is_open = false;
           if (group.is_archived) group.was_archived_this_session = false;
-          if (TS.model.active_group_id == group.id) {
+          if (TS.model.active_group_id === group.id) {
             if (TS.client) TS.client.activeChannelDisplayGoneAway();
           }
           TS.groups.closed_sig.dispatch(group);
@@ -5140,7 +5152,7 @@ TS.registerModule("constants", {
         TS.shared.checkInitialMsgHistory(group, TS.groups);
       }
       TS.log(999, "displayGroup " + group.id + " from_history:" + from_history + " replace_history_state:" + replace_history_state);
-      if (group_id == TS.model.active_group_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
+      if (group_id === TS.model.active_group_id && !replace_history_state && !TS.client.activeChannelIsHidden()) {
         TS.warn('group "' + group_id + '" already displayed');
         if (and_send_txt) {
           TS.groups.sendMsg(group_id, $.trim(and_send_txt));
@@ -5180,7 +5192,7 @@ TS.registerModule("constants", {
       }
     },
     setLastRead: function(group, ts, reason) {
-      if (group.last_read == ts) {
+      if (group.last_read === ts) {
         return false;
       }
       if (ts.indexOf(TS.utility.date.fake_ts_unique_padder) > -1) {
@@ -5231,7 +5243,7 @@ TS.registerModule("constants", {
         TS.error('group "' + group_id + '" unknown');
         return;
       }
-      if (group.last_read == ts) {
+      if (group.last_read === ts) {
         return;
       }
       if (TS.groups.setLastRead(group, ts, reason)) {
@@ -5245,22 +5257,28 @@ TS.registerModule("constants", {
         TS.error('error no group "' + args.channel + '"');
         return;
       }
-      if (ok || data && data.error == "is_archived") {} else {
+      if (ok || data && data.error === "is_archived") {} else {
         group.needs_api_marking = true;
       }
     },
-    create: function(name, and_invite_members_idsA, callback) {
+    create: function(name, options) {
+      options = options || {};
       if (!name) return;
       TS.model.created_groups[name] = true;
-      var and_invite_members_ids_str = and_invite_members_idsA ? and_invite_members_idsA.join(",") : "";
-      TS.api.call("groups.create", {
-        name: name,
-        _and_invite_members_ids: and_invite_members_ids_str
-      }, function(ok, data, args) {
-        TS.groups.onCreate(ok, data, args);
-        if (callback) {
-          callback(ok, data, args);
-        }
+      var and_invite_members_ids_str = options.and_invite_members_idsA ? options.and_invite_members_idsA.join(",") : "";
+      return new Promise(function(resolve, reject) {
+        TS.api.call("groups.create", {
+          name: name,
+          _and_invite_members_ids: and_invite_members_ids_str,
+          validate: options.validate
+        }).then(function(res) {
+          resolve(res);
+          TS.groups.onCreate(res.data.ok, res.data, res.args);
+          return null;
+        }).catch(function(res) {
+          reject(res);
+          return null;
+        });
       });
     },
     createChild: function(group_id, and_invite_members_idsA, callback) {
@@ -5280,7 +5298,7 @@ TS.registerModule("constants", {
     },
     onCreate: function(ok, data, args) {
       if (!ok) {
-        if (data.error == "name_taken") {} else if (data.error == "restricted_action") {} else {
+        if (data.error === "name_taken") {} else if (data.error === "restricted_action") {} else {
           TS.error("failed to create group");
         }
         return;
@@ -5370,7 +5388,7 @@ TS.registerModule("constants", {
     },
     onLeave: function(ok, data, args) {
       if (!ok) {
-        if (data && data.error == "last_member") {
+        if (data && data.error === "last_member") {
           TS.shared.closeArchivedChannel(args.channel);
           return;
         }
@@ -5422,7 +5440,7 @@ TS.registerModule("constants", {
       if (!groups) return null;
       for (var i = 0; i < groups.length; i++) {
         group = groups[i];
-        if (group.id == id) {
+        if (group.id === id) {
           TS.warn(id + " not in _id_map?");
           _id_map[id] = group;
           return group;
@@ -5452,7 +5470,7 @@ TS.registerModule("constants", {
       if (!groups) return null;
       for (var i = 0; i < groups.length; i++) {
         group = groups[i];
-        if (group._name_lc == name || TS.model.group_prefix + group._name_lc == name) {
+        if (group._name_lc === name || TS.model.group_prefix + group._name_lc === name) {
           TS.warn(name + " not in _name_map?");
           _name_map[name] = group;
           _name_map[TS.model.group_prefix + name] = group;
@@ -5486,7 +5504,7 @@ TS.registerModule("constants", {
       var c;
       for (var i = 0; i < groups.length; i++) {
         c = groups[i];
-        if (c.id == group.id) {
+        if (c.id === group.id) {
           groups.splice(i, 1);
           break;
         }
@@ -5495,7 +5513,7 @@ TS.registerModule("constants", {
       delete _name_map[group._name_lc];
       delete _name_map[TS.model.group_prefix + group._name_lc];
       if (TS.client) {
-        if (TS.model.active_group_id == group.id) {
+        if (TS.model.active_group_id === group.id) {
           TS.client.activeChannelDisplayGoneAway();
         }
       }
@@ -5516,7 +5534,7 @@ TS.registerModule("constants", {
     markScrollTop: function(id, scroll_top) {
       var group = TS.groups.getGroupById(id);
       if (!group) return false;
-      if (group.scroll_top == scroll_top) {
+      if (group.scroll_top === scroll_top) {
         return false;
       }
       group.scroll_top = scroll_top;
@@ -5656,7 +5674,7 @@ TS.registerModule("constants", {
       }
       if (name.length > max_l) {
         name = name.substr(0, max_l);
-        if (name.charAt(name.length - 1) == "-") {
+        if (name.charAt(name.length - 1) === "-") {
           name = name.substr(0, max_l - 1);
         }
       }
@@ -5688,7 +5706,7 @@ TS.registerModule("constants", {
       for (var i = 0; i < groups.length; i++) {
         group = groups[i];
         if (group.is_archived) continue;
-        if (group.id == group_id) continue;
+        if (group.id === group_id) continue;
         return true;
       }
       return false;
@@ -5698,7 +5716,7 @@ TS.registerModule("constants", {
         channel: group_id,
         retention_type: $("select[name=retention_type]").val()
       };
-      if (args.retention_type == 1) {
+      if (args.retention_type === 1) {
         args.retention_duration = $("#retention_duration").val();
       }
       TS.api.call("groups.setRetention", args, function(ok, data, args) {
@@ -5773,7 +5791,7 @@ TS.registerModule("constants", {
     if (existing_group) {
       TS.log(4, 'updating existing group "' + group.id + '"');
       for (var k in group) {
-        if (k == "members") {
+        if (k === "members") {
           members = group["members"];
           existing_group.members.length = 0;
           for (var i = 0; i < members.length; i++) {
@@ -5810,7 +5828,7 @@ TS.registerModule("constants", {
     }
     if (TS.client) {
       var and_mark = TS.utility.msgs.shouldMarkUnreadsOnMessageFetch(group);
-      if (TS.model.active_cid == group.id) {
+      if (TS.model.active_cid === group.id) {
         TS.groups.calcUnreadCnts(group, and_mark);
       } else {
         if (!existing_group) TS.groups.calcUnreadCnts(group, and_mark);
@@ -8819,6 +8837,18 @@ TS.registerModule("constants", {
         if (TS.client && TS.client.threads) TS.client.threads.switched_sig.add(_logChannelSwitch);
       }
     },
+    test: function() {
+      var test_ob = {};
+      Object.defineProperty(test_ob, "_queried_usernames", {
+        get: function() {
+          return _queried_usernames;
+        },
+        set: function(v) {
+          _queried_usernames = v;
+        }
+      });
+      return test_ob;
+    },
     calcUnreadCnts: function(model_ob, controller, and_mark) {
       if (TS._incremental_boot) {
         return;
@@ -9287,13 +9317,25 @@ TS.registerModule("constants", {
         });
       }
     },
-    sendMsg: function(c_id, text, controller, in_reply_to_msg, should_broadcast_reply) {
-      if (!text) return false;
+    sendMsg: function(c_id, raw_text, controller, in_reply_to_msg, should_broadcast_reply) {
+      if (!raw_text) return false;
       var model_ob = TS.shared.getModelObById(c_id);
       var d = model_ob && model_ob.msgs && model_ob.msgs[0] && TS.utility.date.toDateObject(model_ob.msgs[0].ts + 1) || Date.now();
       var temp_ts = TS.utility.date.makeTsStamp(d);
-      text = TS.format.cleanMsg(text);
-      if (text.indexOf("DELEEEEETETEEESTTTT") === 0) TS.ms.disconnect();
+      var text = TS.format.cleanMsg(raw_text);
+      if (!TS.boot_data.feature_name_tagging_client) {
+        var possible_at_mentions = _(TS.utility.members.getUsernamesMentionedInString(raw_text)).reject(TS.members.getMemberByName).reject(TS.user_groups.getUserGroupsByHandle).reject(function(username) {
+          return _queried_usernames[username];
+        }).value();
+        if (possible_at_mentions.length > 0) {
+          var this_context = this;
+          var args = arguments;
+          _tryFetchingMembersWithUsernames(possible_at_mentions).then(function() {
+            TS.shared.sendMsg.apply(this_context, args);
+          });
+          return true;
+        }
+      }
       var params = {
         type: "message",
         channel: c_id,
@@ -10463,6 +10505,15 @@ TS.registerModule("constants", {
   var _logBootChannelSwitch = function() {
     var is_boot = true;
     _logChannelSwitch(is_boot);
+  };
+  var _queried_usernames = {};
+  var _tryFetchingMembersWithUsernames = function(usernames) {
+    TS.log(1989, "Flannel: seeing if usernames might reference users we have not loaded yet: ", usernames.join(", "));
+    var promises = usernames.map(function(username) {
+      _queried_usernames[username] = true;
+      return TS.flannel.fetchAndUpsertObjectsWithQuery(username).catch(_.noop);
+    });
+    return Promise.all(promises);
   };
 })();
 (function() {
@@ -15410,7 +15461,7 @@ TS.registerModule("constants", {
         TS.dir(2, msg);
       }
       if (!_websocket) {
-        var err = new Error("TS.ms.sendMsg called when we have no _websocket! This is a programming error.");
+        var err = new Error("TS.ms.send called when we have no _websocket! This is a programming error.");
         TS.error(err);
         TS.info("Some context for debugging:");
         TS.info("TS.model.calling_rtm_start=" + TS.model.calling_rtm_start);
@@ -16774,7 +16825,9 @@ TS.registerModule("constants", {
       TS.info("unarchived channel " + imsg.channel);
       if (channel.was_archived_this_session) {
         var in_background = true;
-        TS.channels.join(channel.name, null, in_background);
+        TS.channels.join(channel.name, null, {
+          in_background: in_background
+        });
       }
       if (imsg.is_moved) {
         channel.is_moved = imsg.is_moved;
@@ -23737,7 +23790,12 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getCorGNameWithPrefixById", function(id, hide_unknown_groups) {
         var channel = TS.shared.getModelObById(id);
         if (!channel) {
-          TS.warn("getCorGNameWithPrefixById: Could not find model ob for ID " + id);
+          var msg = "getCorGNameWithPrefixById: Could not find model ob for ID " + id;
+          if (id.charAt(0) === "G") {
+            TS.console.maybeWarn(528, msg);
+          } else {
+            TS.warn(msg);
+          }
           if (hide_unknown_groups) return;
           return id;
         }
@@ -27940,6 +27998,13 @@ TS.registerModule("constants", {
         member = message.comment ? TS.members.getMemberById(message.comment.user) : TS.members.getMemberById(message.user);
       }
       return member;
+    },
+    getUsernamesMentionedInString: function(str) {
+      var matches = _.toLower(str).match(/\B@\w+/g);
+      if (!matches) return [];
+      return _(matches).map(function(mention) {
+        return mention.replace(/^@/, "");
+      }).uniq().compact().value();
     },
     getEntityFromFile: function(file) {
       if (!file) return false;
@@ -42142,8 +42207,8 @@ var _on_esc;
       switch (error_key) {
         case "invalid_name_required":
           return _CHANNEL_CREATION_ERROR_MESSAGES.required();
-        case "invalid_name_single_punctuation":
-          return _CHANNEL_CREATION_ERROR_MESSAGES.single_punctuation();
+        case "invalid_name_punctuation":
+          return _CHANNEL_CREATION_ERROR_MESSAGES.punctuation();
         case "invalid_name_maxlength":
           return _CHANNEL_CREATION_ERROR_MESSAGES.maxlength({
             maxlength: data.maxlength
@@ -42178,12 +42243,12 @@ var _on_esc;
   var OPTIONAL_PROTOCOL_URL_REGEXP = new RegExp("^" + "(?:(?:https?|ftp)://)?" + "(?:\\S+(?::\\S*)?@)?" + "(?:" + "(?!(?:10|127)(?:\\.\\d{1,3}){3})" + "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})" + "(?!172\\.(?:1[6-9]|2\\d|3[0-1])(?:\\.\\d{1,3}){2})" + "(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])" + "(?:\\.(?:1?\\d{1,2}|2[0-4]\\d|25[0-5])){2}" + "(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))" + "|" + "(?:localhost)" + "|" + "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" + "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" + "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))" + "\\.?" + ")" + "(?::\\d{2,5})?" + "(?:[/?#]\\S*)?" + "$", "i");
   var ALL_SCHEMES_LINK_REGEXP = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-]*)?\??(?:[\-\+=&;%@\.\w]*)#?(?:[\.\!\/\\\w]*))?)/gi;
   var _CHANNEL_CREATION_ERROR_MESSAGES = {
-    name_taken: TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation"),
+    name_taken: TS.i18n.t("{name} is already taken by a channel, username, or user group.", "ui_validation"),
     lowercase: TS.i18n.t("Channel names must be all lowercase. Try again?", "ui_validation"),
     maxlength: TS.i18n.t("Blerg, that’s a bit too long! Channel names must be fewer than {maxlength} characters.", "ui_validation"),
     required: TS.i18n.t("Don’t forget to name your channel.", "ui_validation"),
     specials: TS.i18n.t("Channel names can’t contain spaces, periods, or most punctuation. Try again?", "ui_validation"),
-    single_punctuation: TS.i18n.t("Names can’t be a single punctuation mark. Please elaborate!", "ui_validation")
+    punctuation: TS.i18n.t("Names can’t consist solely of punctuation. Please elaborate!", "ui_validation")
   };
   var _USERNAME_VALIDATION_ERROR_MESSAGES = {
     firstalphanumeric: TS.i18n.t("Usernames must start with a letter or number. Sorry about that!", "ui_validation"),
@@ -42500,7 +42565,7 @@ var _on_esc;
       return true;
     }
     if (_validatePattern($el, quiet_options, /^[-|_]$/)) {
-      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.single_punctuation(), options);
+      TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.punctuation(), options);
       return true;
     }
   }
@@ -45539,69 +45604,31 @@ $.fn.togglify = function(settings) {
       });
     },
     go: function() {
-      var title = _$modal_container.find(".title_input").val();
-      if (TS.boot_data.feature_intl_channel_names) {
-        TS.api.call("channels.validateName", {
-          token: TS.model.api_token,
-          name: title
-        }).then(function(res) {
-          if (res.data.ok) {
-            title = res.data.channel_name;
-            var invited_members = $("#invite_members_container").lazyFilterSelect("value");
-            var invited_member_ids = [];
-            var pending_users = [];
-            if (invited_members) {
-              invited_members.forEach(function(item) {
-                if (item.member) {
-                  invited_member_ids.push(item.member.id);
-                } else {
-                  pending_users.push(item);
-                }
-              });
-            }
-            var purpose = $.trim(_$modal_container.find("#channel_purpose_input").val());
-            if (_ladda) _ladda.start();
-            if (_is_public) {
-              _createPublicChannel(title, purpose, invited_member_ids, pending_users);
-            } else {
-              _createPrivateChannel(title, purpose, invited_member_ids, pending_users);
-            }
-          }
-        }).catch(function(res) {
-          var error = res.data.error;
-          var msg = TS.ui.validation.getErrorMessage(error, {
-            maxlength: 22,
-            name: title
-          });
-          return TS.ui.validation.showWarning(_$modal_container.find(".title_input"), msg, {
-            custom_for: "channel_create_title"
-          });
-        });
-      } else {
+      if (!TS.boot_data.feature_intl_channel_names) {
         var validated = TS.ui.validation.validate(_$modal_container.find(".title_input"), {});
         if (!validated) return;
         validated = TS.channels.ui.channelCreateDialogCleanName(_$modal_container);
         if (!validated) return;
-        var title = _$modal_container.find(".title_input").val();
-        var invited_members = $("#invite_members_container").lazyFilterSelect("value");
-        var invited_member_ids = [];
-        var pending_users = [];
-        if (invited_members) {
-          invited_members.forEach(function(item) {
-            if (item.member) {
-              invited_member_ids.push(item.member.id);
-            } else {
-              pending_users.push(item);
-            }
-          });
-        }
-        var purpose = $.trim(_$modal_container.find("#channel_purpose_input").val());
-        if (_ladda) _ladda.start();
-        if (_is_public) {
-          _createPublicChannel(title, purpose, invited_member_ids, pending_users);
-        } else {
-          _createPrivateChannel(title, purpose, invited_member_ids, pending_users);
-        }
+      }
+      var title = _$modal_container.find(".title_input").val();
+      var invited_members = $("#invite_members_container").lazyFilterSelect("value");
+      var invited_member_ids = [];
+      var pending_users = [];
+      if (invited_members) {
+        invited_members.forEach(function(item) {
+          if (item.member) {
+            invited_member_ids.push(item.member.id);
+          } else {
+            pending_users.push(item);
+          }
+        });
+      }
+      var purpose = $.trim(_$modal_container.find("#channel_purpose_input").val());
+      if (_ladda) _ladda.start();
+      if (_is_public) {
+        _createPublicChannel(title, purpose, invited_member_ids, pending_users);
+      } else {
+        _createPrivateChannel(title, purpose, invited_member_ids, pending_users);
       }
     },
     end: function() {
@@ -45869,19 +45896,10 @@ $.fn.togglify = function(settings) {
     }
   };
   var _createPublicChannel = function(title, purpose, invited_members, pending_users) {
-    TS.channels.join(title, function(ok, data, args) {
-      if (_ladda) _ladda.stop();
-      if (!ok) {
-        if (data.error == "name_taken") {
-          _showNameTakenAlert();
-        } else if (data.error == "restricted_action") {
-          _showError(TS.i18n.t("Sorry! An admin on your team has restricted who can create public channels.", "new_channel")());
-        } else {
-          TS.error("Failed to create public channel: " + data.error);
-          _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
-        }
-        return;
-      }
+    TS.channels.join(title, false, {
+      validate: !!TS.boot_data.feature_intl_channel_names
+    }).then(function(res) {
+      var data = res.data;
       if (purpose) TS.channels.setPurpose(data.channel.id, purpose);
       if (invited_members) {
         for (var i = 0; i < invited_members.length; i++) {
@@ -45894,32 +45912,64 @@ $.fn.togglify = function(settings) {
       if (pending_users && pending_users.length) {
         TS.pending_users.invitePendingUsersToChannel(pending_users, data.channel.id);
       }
-      var resolve = _deferred && _deferred.resolve;
       TS.ui.fs_modal.close();
-      if (resolve) resolve(data.channel);
+    }).catch(function(res) {
+      if (_ladda) _ladda.stop();
+      var error = res.data.error;
+      if (TS.boot_data.feature_intl_channel_names) {
+        var msg = TS.ui.validation.getErrorMessage(error, {
+          maxlength: 22,
+          name: title
+        });
+        TS.ui.validation.showWarning(_$modal_container.find(".title_input"), msg, {
+          custom_for: "channel_create_title"
+        });
+      } else {
+        if (error === "name_taken") {
+          _showNameTakenAlert();
+        } else if (error === "restricted_action") {
+          _showError(TS.i18n.t("Sorry! An admin on your team has restricted who can create public channels.", "new_channel")());
+        } else {
+          TS.error("Failed to create public channel: " + error);
+          _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
+        }
+      }
+      return;
     });
   };
   var _createPrivateChannel = function(title, purpose, invited_members, pending_users) {
-    TS.groups.create(title, invited_members, function(ok, data, args) {
-      if (_ladda) _ladda.stop();
-      if (!ok) {
-        if (data.error == "name_taken") {
-          _showNameTakenAlert();
-        } else if (data.error == "restricted_action") {
-          _showError(TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "new_channel")());
-        } else {
-          TS.error("Failed to create private channel: " + data.error);
-          _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
-        }
-        return;
-      }
+    TS.groups.create(title, {
+      and_invite_members_idsA: invited_members,
+      validate: !!TS.boot_data.feature_intl_channel_names
+    }).then(function(res) {
+      var data = res.data;
       if (purpose) TS.groups.setPurpose(data.group.id, purpose);
       if (pending_users && pending_users.length) {
         TS.pending_users.invitePendingUsersToChannel(pending_users, data.group.id);
       }
-      var resolve = _deferred && _deferred.resolve;
       TS.ui.fs_modal.close();
-      if (resolve) resolve(data.group);
+    }).catch(function(res) {
+      if (_ladda) _ladda.stop();
+      var error = res.data.error;
+      if (TS.boot_data.feature_intl_channel_names) {
+        var msg = TS.ui.validation.getErrorMessage(error, {
+          maxlength: 22,
+          name: title
+        });
+        TS.ui.validation.showWarning(_$modal_container.find(".title_input"), msg, {
+          custom_for: "channel_create_title"
+        });
+      } else {
+        if (error === "name_taken") {
+          _showNameTakenAlert();
+        } else if (error === "restricted_action") {
+          _showError(TS.i18n.t("Sorry! An admin on your team has restricted who can create private channels.", "new_channel")());
+        } else {
+          TS.error("Failed to create private channel: " + error);
+          _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
+        }
+      }
+      return;
     });
   };
   var _updateFilterSelect = function(members) {
@@ -55745,16 +55795,8 @@ $.fn.togglify = function(settings) {
         next_value = input.getAttribute("placeholder");
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        var value_as_html;
-        if (value instanceof jQuery) {
-          value_as_html = value.get(0);
-        } else if (value instanceof HTMLElement) {
-          value_as_html = value;
-        } else if (_.isString(value)) {
-          if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) value += " (with texty!)";
-          value_as_html = $("<span>" + value + "<span>").get(0);
-        }
-        texty.setPlaceholder(value_as_html);
+        if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) value += " (with texty!)";
+        texty.setPlaceholder($("<span>" + value + "</span>").get(0));
         next_value = texty.getPlaceholder();
       }
       return next_value || "";
@@ -59055,7 +59097,9 @@ $.fn.togglify = function(settings) {
       var model_ob_id = $thread.data("model-ob-id");
       var model_ob = TS.shared.getModelObById(model_ob_id);
       if (!model_ob) return;
-      TS.channels.join(model_ob.name, null, true);
+      TS.channels.join(model_ob.name, null, {
+        in_background: true
+      });
       $thread.find(".join_channel_from_thread").addClass("disabled");
     },
     submitReply: function(e, $el) {
@@ -60655,9 +60699,10 @@ $.fn.togglify = function(settings) {
       return e.join(" ");
     }
     var i = {}.hasOwnProperty;
-    "undefined" != typeof e && e.exports ? e.exports = n : (r = [], o = function() {
-      return n;
-    }.apply(t, r), !(void 0 !== o && (e.exports = o)));
+    "undefined" != typeof e && e.exports ? e.exports = n : (r = [],
+      o = function() {
+        return n;
+      }.apply(t, r), !(void 0 !== o && (e.exports = o)));
   }();
 }, function(e, t, n) {
   "use strict";
@@ -64602,125 +64647,126 @@ $.fn.togglify = function(settings) {
           uf = ao("ceil"),
           lf = ao("floor"),
           cf = ao("round");
-        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
-          var e = {};
-          return Wn(t, function(n, r) {
-            Yu.call(t.prototype, r) || (e[r] = n);
-          }), e;
-        }(), {
-          chain: !1
-        }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
-          t[e].placeholder = t;
-        }), c(["drop", "take"], function(e, t) {
-          o.prototype[e] = function(n) {
-            var r = this.__filtered__;
-            if (r && !t) return new o(this);
-            n = n === J ? 1 : _l(ls(n), 0);
-            var i = this.clone();
-            return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
-              size: yl(n, Re),
-              type: e + (i.__dir__ < 0 ? "Right" : "")
-            }), i;
-          }, o.prototype[e + "Right"] = function(t) {
-            return this.reverse()[e](t).reverse();
-          };
-        }), c(["filter", "map", "takeWhile"], function(e, t) {
-          var n = t + 1,
-            r = n == we || n == Se;
-          o.prototype[e] = function(e) {
-            var t = this.clone();
-            return t.__iteratees__.push({
-              iteratee: po(e, 3),
-              type: n
-            }), t.__filtered__ = t.__filtered__ || r, t;
-          };
-        }), c(["head", "last"], function(e, t) {
-          var n = "take" + (t ? "Right" : "");
-          o.prototype[e] = function() {
-            return this[n](1).value()[0];
-          };
-        }), c(["initial", "tail"], function(e, t) {
-          var n = "drop" + (t ? "" : "Right");
-          o.prototype[e] = function() {
-            return this.__filtered__ ? new o(this) : this[n](1);
-          };
-        }), o.prototype.compact = function() {
-          return this.filter(_u);
-        }, o.prototype.find = function(e) {
-          return this.filter(e).head();
-        }, o.prototype.findLast = function(e) {
-          return this.reverse().find(e);
-        }, o.prototype.invokeMap = pa(function(e, t) {
-          return "function" == typeof e ? new o(this) : this.map(function(n) {
-            return $n(n, e, t);
-          });
-        }), o.prototype.reject = function(e) {
-          return e = po(e, 3), this.filter(function(t) {
-            return !e(t);
-          });
-        }, o.prototype.slice = function(e, t) {
-          e = ls(e);
-          var n = this;
-          return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
-        }, o.prototype.takeRightWhile = function(e) {
-          return this.reverse().takeWhile(e).reverse();
-        }, o.prototype.toArray = function() {
-          return this.take(Re);
-        }, Wn(o.prototype, function(e, n) {
-          var i = /^(?:filter|find|map|reject)|While$/.test(n),
-            a = /^(?:head|last)$/.test(n),
-            s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
-            u = a || /^find/.test(n);
-          s && (t.prototype[n] = function() {
-            var n = this.__wrapped__,
-              l = a ? [1] : arguments,
-              c = n instanceof o,
-              f = l[0],
-              p = c || Tc(n),
-              d = function(e) {
-                var n = s.apply(t, g([e], l));
-                return a && h ? n[0] : n;
-              };
-            p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
-            var h = this.__chain__,
-              v = !!this.__actions__.length,
-              m = u && !h,
-              _ = c && !v;
-            if (!u && p) {
-              n = _ ? n : new o(this);
-              var y = e.apply(n, l);
-              return y.__actions__.push({
-                func: Pi,
-                args: [d],
-                thisArg: J
-              }), new r(y, h);
+        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r,
+          o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
+            var e = {};
+            return Wn(t, function(n, r) {
+              Yu.call(t.prototype, r) || (e[r] = n);
+            }), e;
+          }(), {
+            chain: !1
+          }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
+            t[e].placeholder = t;
+          }), c(["drop", "take"], function(e, t) {
+            o.prototype[e] = function(n) {
+              var r = this.__filtered__;
+              if (r && !t) return new o(this);
+              n = n === J ? 1 : _l(ls(n), 0);
+              var i = this.clone();
+              return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
+                size: yl(n, Re),
+                type: e + (i.__dir__ < 0 ? "Right" : "")
+              }), i;
+            }, o.prototype[e + "Right"] = function(t) {
+              return this.reverse()[e](t).reverse();
+            };
+          }), c(["filter", "map", "takeWhile"], function(e, t) {
+            var n = t + 1,
+              r = n == we || n == Se;
+            o.prototype[e] = function(e) {
+              var t = this.clone();
+              return t.__iteratees__.push({
+                iteratee: po(e, 3),
+                type: n
+              }), t.__filtered__ = t.__filtered__ || r, t;
+            };
+          }), c(["head", "last"], function(e, t) {
+            var n = "take" + (t ? "Right" : "");
+            o.prototype[e] = function() {
+              return this[n](1).value()[0];
+            };
+          }), c(["initial", "tail"], function(e, t) {
+            var n = "drop" + (t ? "" : "Right");
+            o.prototype[e] = function() {
+              return this.__filtered__ ? new o(this) : this[n](1);
+            };
+          }), o.prototype.compact = function() {
+            return this.filter(_u);
+          }, o.prototype.find = function(e) {
+            return this.filter(e).head();
+          }, o.prototype.findLast = function(e) {
+            return this.reverse().find(e);
+          }, o.prototype.invokeMap = pa(function(e, t) {
+            return "function" == typeof e ? new o(this) : this.map(function(n) {
+              return $n(n, e, t);
+            });
+          }), o.prototype.reject = function(e) {
+            return e = po(e, 3), this.filter(function(t) {
+              return !e(t);
+            });
+          }, o.prototype.slice = function(e, t) {
+            e = ls(e);
+            var n = this;
+            return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
+          }, o.prototype.takeRightWhile = function(e) {
+            return this.reverse().takeWhile(e).reverse();
+          }, o.prototype.toArray = function() {
+            return this.take(Re);
+          }, Wn(o.prototype, function(e, n) {
+            var i = /^(?:filter|find|map|reject)|While$/.test(n),
+              a = /^(?:head|last)$/.test(n),
+              s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
+              u = a || /^find/.test(n);
+            s && (t.prototype[n] = function() {
+              var n = this.__wrapped__,
+                l = a ? [1] : arguments,
+                c = n instanceof o,
+                f = l[0],
+                p = c || Tc(n),
+                d = function(e) {
+                  var n = s.apply(t, g([e], l));
+                  return a && h ? n[0] : n;
+                };
+              p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
+              var h = this.__chain__,
+                v = !!this.__actions__.length,
+                m = u && !h,
+                _ = c && !v;
+              if (!u && p) {
+                n = _ ? n : new o(this);
+                var y = e.apply(n, l);
+                return y.__actions__.push({
+                  func: Pi,
+                  args: [d],
+                  thisArg: J
+                }), new r(y, h);
+              }
+              return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
+            });
+          }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
+            var n = Vu[e],
+              r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
+              o = /^(?:pop|shift)$/.test(e);
+            t.prototype[e] = function() {
+              var e = arguments;
+              return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
+                return n.apply(t, e);
+              });
+            };
+          }), Wn(o.prototype, function(e, n) {
+            var r = t[n];
+            if (r) {
+              var o = r.name + "",
+                i = Pl[o] || (Pl[o] = []);
+              i.push({
+                name: n,
+                func: r
+              });
             }
-            return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
-          });
-        }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
-          var n = Vu[e],
-            r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
-            o = /^(?:pop|shift)$/.test(e);
-          t.prototype[e] = function() {
-            var e = arguments;
-            return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
-              return n.apply(t, e);
-            });
-          };
-        }), Wn(o.prototype, function(e, n) {
-          var r = t[n];
-          if (r) {
-            var o = r.name + "",
-              i = Pl[o] || (Pl[o] = []);
-            i.push({
-              name: n,
-              func: r
-            });
-          }
-        }), Pl[Jr(J, ae).name] = [{
-          name: "wrapper",
-          func: J
-        }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
+          }), Pl[Jr(J, ae).name] = [{
+            name: "wrapper",
+            func: J
+          }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
       }
       var J, ee = "4.6.1",
         te = 200,
@@ -69125,15 +69171,15 @@ $.fn.togglify = function(settings) {
         c()(this, t);
         var r = h()(this, (t.__proto__ || u()(t)).call(this, e, n));
         return r.state = {
-            scrollLeft: 0,
-            scrollTop: 0
-          }, r._bottomLeftGridRef = r._bottomLeftGridRef.bind(r), r._bottomRightGridRef = r._bottomRightGridRef.bind(r), r._cellRendererBottomLeftGrid = r._cellRendererBottomLeftGrid.bind(r), r._cellRendererBottomRightGrid = r._cellRendererBottomRightGrid.bind(r), r._cellRendererTopRightGrid = r._cellRendererTopRightGrid.bind(r), r._columnWidthRightGrid = r._columnWidthRightGrid.bind(r), r._onScroll = r._onScroll.bind(r), r._rowHeightBottomGrid = r._rowHeightBottomGrid.bind(r), r._topLeftGridRef = r._topLeftGridRef.bind(r),
-          r._topRightGridRef = r._topRightGridRef.bind(r), r;
+          scrollLeft: 0,
+          scrollTop: 0
+        }, r._bottomLeftGridRef = r._bottomLeftGridRef.bind(r), r._bottomRightGridRef = r._bottomRightGridRef.bind(r), r._cellRendererBottomLeftGrid = r._cellRendererBottomLeftGrid.bind(r), r._cellRendererBottomRightGrid = r._cellRendererBottomRightGrid.bind(r), r._cellRendererTopRightGrid = r._cellRendererTopRightGrid.bind(r), r._columnWidthRightGrid = r._columnWidthRightGrid.bind(r), r._onScroll = r._onScroll.bind(r), r._rowHeightBottomGrid = r._rowHeightBottomGrid.bind(r), r._topLeftGridRef = r._topLeftGridRef.bind(r), r._topRightGridRef = r._topRightGridRef.bind(r), r;
       }
       return m()(t, e), p()(t, [{
         key: "measureAllCells",
         value: function() {
-          this._bottomLeftGrid && this._bottomLeftGrid.measureAllCells(), this._bottomRightGrid && this._bottomRightGrid.measureAllCells(), this._topLeftGrid && this._topLeftGrid.measureAllCells(), this._topRightGrid && this._topRightGrid.measureAllCells();
+          this._bottomLeftGrid && this._bottomLeftGrid.measureAllCells(), this._bottomRightGrid && this._bottomRightGrid.measureAllCells(), this._topLeftGrid && this._topLeftGrid.measureAllCells(),
+            this._topRightGrid && this._topRightGrid.measureAllCells();
         }
       }, {
         key: "measureAllRows",

@@ -6827,10 +6827,6 @@ only screen and (min-resolution:2dppx) {
   margin-right: 3px
 }
 
-#snippet_prompt .ts_tip {
-  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif!important
-}
-
 #snippet_prompt .ts_tip .ts_tip_tip {
   font-family: Slack-Lato, appleLogo, sans-serif!important
 }

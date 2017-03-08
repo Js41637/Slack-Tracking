@@ -9971,6 +9971,7 @@
     onStart: function() {
       _$snippet_prompt = $("#snippet_prompt");
       _$snippet_prompt_warning = _$snippet_prompt.find(".warning");
+      _$snippet_prompt_character_count = _$snippet_prompt.find("#snippet_prompt_character_count");
       _$notification_bar = $("#notification_bar");
       _$chat_input_tab_ui = $("#chat_input_tab_ui");
       TS.channels.renamed_sig.add(TS.client.msg_input.setPlaceholder);
@@ -10252,6 +10253,7 @@
   });
   var _$snippet_prompt;
   var _$snippet_prompt_warning;
+  var _$snippet_prompt_character_count;
   var _$notification_bar;
   var _$chat_input_tab_ui;
   var _snippet_prompt_text_showing;
@@ -10316,7 +10318,16 @@
     });
   };
   var _maybePromptForSnippet = function(message) {
-    var is_message_too_long = message.length > TS.model.input_maxlength;
+    var snippet_prompt_diff_count;
+    if (TS.utility.contenteditable.supportsTexty()) {
+      snippet_prompt_diff_count = TS.format.cleanMsg(message).length - TS.model.input_maxlength;
+    } else {
+      snippet_prompt_diff_count = message.length - TS.model.input_maxlength;
+    }
+    var is_message_too_long = snippet_prompt_diff_count > 0;
+    _$snippet_prompt_character_count.text(TS.i18n.t("Your message is {diff_count, plural, =1{# character}other{# characters}} too long.", "msg_input")({
+      diff_count: snippet_prompt_diff_count
+    }));
     if (is_message_too_long && !_snippet_prompt_text_showing) {
       _$snippet_prompt_warning.removeClass("hidden");
       _$snippet_prompt.removeClass("hidden");
@@ -10509,6 +10520,9 @@
         } else {
           msg = TS.members.getMemberDisplayNameById(model_ob.user, false, true);
         }
+        if (TS.boot_data.feature_texty) {
+          msg = TS.utility.htmlEntities(msg);
+        }
         if (TS.boot_data.feature_user_custom_status && TS.boot_data.feature_texty) {
           var current_status = TS.members.getMemberCurrentStatusForDisplay(model_ob.user, {
             stop_animations: true
@@ -10521,6 +10535,9 @@
         msg = model_ob.name;
       } else if (model_ob.is_channel) {
         msg = "#" + model_ob.name;
+      }
+      if (!model_ob.is_im && TS.boot_data.feature_texty) {
+        msg = TS.utility.htmlEntities(msg);
       }
       placeholder = TS.i18n.t("Message {msg}", "msg_input")({
         msg: msg
@@ -40158,7 +40175,9 @@ function timezones_guess() {
       if (!root_msg) return;
       TS.channels.join(model_ob.name, function() {
         _renderReplyContainer(model_ob, root_msg);
-      }, true);
+      }, {
+        in_background: true
+      });
       $("#reply_container .join_channel_from_thread").addClass("disabled");
     },
     checkUnreads: function() {
@@ -41988,7 +42007,8 @@ function timezones_guess() {
     _config.has_more_end = !!has_more;
   };
   var _onResize = function() {
-    TS.client.ui.threads.$scroller.height(TS.view.cached_wh - $("#client_header").outerHeight() - TS.client.ui.CLIENT_HEADER_OVERHANG);
+    var banner_height = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"));
+    TS.client.ui.threads.$scroller.height(TS.view.cached_wh - $("#client_header").outerHeight() - banner_height - TS.client.ui.CLIENT_HEADER_OVERHANG);
     if (!TS.environment.supports_custom_scrollbar) TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.threads.$scroller);
   };
   var _renderThread = function(thread) {

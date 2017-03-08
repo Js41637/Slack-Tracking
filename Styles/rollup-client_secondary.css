@@ -19263,8 +19263,7 @@ ts-message .action_hover_container.narrow_buttons .btn_msg_action {
 
 ts-message.selected {
   padding-top: .625rem!important;
-  padding-bottom: .625rem!important;
-  z-index: 1
+  padding-bottom: .625rem!important
 }
 
 ts-message.selected:not(.delete_mode) {
@@ -19425,12 +19424,17 @@ ts-message .is_highlights_holder ts-icon {
 }
 
 ts-message .is_highlights_holder .highlights_feedback_link {
-  color: #217D4B
+  color: #217D4B;
+  cursor: default
 }
 
 ts-message .is_highlights_holder .highlights_feedback a:not(.highlights_feedback_link) {
   color: #9e9ea6;
   text-decoration: underline
+}
+
+ts-message .is_highlights_holder .highlights_feedback .ts_tip {
+  z-index: 5
 }
 
 ts-message .recap_highlight {
@@ -19673,6 +19677,10 @@ ts-message .emoji-sizer .mention {
 .feature_name_tagging_client .mention {
   padding: 0 0 2px;
   border-radius: 3px
+}
+
+ts-message.selected {
+  z-index: 1
 }
 
 #convo_tab .message_input,
@@ -27675,6 +27683,10 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 
 #threads_msgs_scroller_div .threads_section.partial_start .threads_caught_up_divider {
   display: none
+}
+
+#threads_msgs_scroller_div .threads_section:last-child .day_container:last-child ts-thread:last-child {
+  padding-bottom: 40px
 }
 
 #threads_view_banner.messages_banner {
