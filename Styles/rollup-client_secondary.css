@@ -16338,6 +16338,11 @@ a.sidebar_menu_list_item:hover {
   margin: .2rem 0 0
 }
 
+.admin_invite_row .error_msg,
+.admin_invites_custom_message_container .error_msg {
+  margin-top: .3rem
+}
+
 .admin_invite_row .delete_row,
 .admin_invite_row .hide_custom_message,
 .admin_invites_custom_message_container .delete_row,
@@ -19425,7 +19430,8 @@ ts-message .is_highlights_holder ts-icon {
 
 ts-message .is_highlights_holder .highlights_feedback_link {
   color: #217D4B;
-  cursor: default
+  cursor: default;
+  text-decoration: none
 }
 
 ts-message .is_highlights_holder .highlights_feedback a:not(.highlights_feedback_link) {

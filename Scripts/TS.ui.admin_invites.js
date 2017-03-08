@@ -283,6 +283,7 @@
     _placeholder_email_address = _placeholder_email_address_default;
   };
   var _setupInviteSingleChannelGuestsButton = function() {
+    if (!TS.model.team.plan) return _updateInviteSingleChannelGuestsButton(false);
     TS.api.callImmediately("users.admin.canAddUltraRestricted").then(function(resp) {
       _updateInviteSingleChannelGuestsButton(resp.data.ok);
     }, function(error) {
@@ -583,16 +584,17 @@
     });
     return $row;
   };
-  var _rowError = function($row, error) {
-    var error_msg = _getError(error);
+  var _rowError = function($row, error_obj) {
+    if (!_.isObject(error_obj)) TS.error("_rowError did not receive an error object: ", error_obj);
+    var error_msg = _getError(error_obj);
     if ($row) {
       $row.find("label.email").addClass("error").end().find(".error_msg").removeClass("hidden").html(error_msg);
-      if (error == "too_long") $row.find("label").addClass("error");
+      if (error_obj.error === "too_long") $row.find("label").addClass("error");
     }
   };
   var _rowValid = function($row) {
     if ($row) {
-      $row.find("label.email").removeClass("error").end().find(".error_msg").addClass("hidden");
+      $row.find("label").removeClass("error").end().find(".error_msg").addClass("hidden");
     }
   };
   var _resetIndividualForm = function() {
@@ -801,7 +803,9 @@
       var email = $.trim($(this).find('[name="email_address"]').val());
       if (email) {
         if (!TS.utility.email_regex.test(email)) {
-          _rowError($(this), "invalid_email");
+          _rowError($(this), {
+            error: "invalid_email"
+          });
           validation_error = true;
         } else {
           _rowValid($(this));
@@ -975,9 +979,9 @@
     _$div.find('button[data-action="admin_invites_reset"]').on("click", resetAndSwitchToIndividualForm);
     TS.ui.fs_modal.bindBackButton(resetAndSwitchToIndividualForm);
     _$div.find('button[data-action="admin_invites_try_again"]').on("click", function() {
-      $.each(_error_invites, function(index, invite) {
-        var $row = _selectRow(invite.email);
-        _rowError($row, invite.error);
+      $.each(_error_invites, function(index, invite_error) {
+        var $row = _selectRow(invite_error.email);
+        _rowError($row, invite_error);
       });
       $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden");
       $("#admin_invites_header").removeClass("hidden");
