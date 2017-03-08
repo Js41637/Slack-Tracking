@@ -12856,7 +12856,7 @@ TS.registerModule("constants", {
     TS.error("Missing arguments for a bound filter");
   };
   var _updateTabCounts = function() {
-    if (TS.useSearchableMemberList()) return;
+    if (TS.lazyLoadMembersAndBots()) return;
     var members_count = _filters.members.filter_num_found - _filters.filtered_items.bots.length;
     var restricted_count = _filters.restricted.filter_num_found || 0;
     var deleted_count = _filters.deleted.filter_num_found || 0;
@@ -17276,6 +17276,9 @@ TS.registerModule("constants", {
       }
       user.manual_presence = imsg.presence;
       TS.members.presence_changed_sig.dispatch(user);
+      if (TS.boot_data.feature_tinyspeck && TS.boot_data.user_id === "W3P5P6BM5") {
+        TS.info("AlbertPresenceDebugging: Received a manual presence change message that Albert now has a status: ", imsg.presence);
+      }
     },
     presence_change: function(imsg) {
       imsg.team = imsg.team || TS.model.team.id;
@@ -17285,6 +17288,17 @@ TS.registerModule("constants", {
         });
       } else {
         _setMemberPresence(imsg.user, imsg.presence);
+      }
+      if (TS.boot_data.feature_tinyspeck && TS.boot_data.user_id === "W3P5P6BM5") {
+        var update_contains_albert;
+        if (imsg.hasOwnProperty("users") && _.isArray(imsg.users)) {
+          update_contains_albert = _.includes(imsg.users, "W3P5P6BM5");
+        } else {
+          update_contains_albert = imsg.user === "W3P5P6BM5";
+        }
+        if (update_contains_albert) {
+          TS.info("AlbertPresenceDebugging: Received a message that Albert now has a status: ", imsg.presence);
+        }
       }
     },
     status_change: function(imsg) {
@@ -18037,7 +18051,7 @@ TS.registerModule("constants", {
     fetchAndUpsertObjectsWithQuery: function(query, limit) {
       return _fetchAndProcessObjectsWithQuery(query, _batchUpsertObjects, limit);
     },
-    fetchAndUpsertAllMembersForModelOb: function(model_ob) {
+    fetchAndUpsertAllMembersForModelObDeprecated: function(model_ob) {
       if (_.isUndefined(model_ob.members)) {
         throw new Error("This function can only be used with model objects that have members");
       }
@@ -22659,6 +22673,9 @@ TS.registerModule("constants", {
           }
           var is_in_debug_group = TS.recaps_signal.sli_recaps_debug_group === "sli_debug_info";
           template_args.show_recap_debug = msg.recap && is_in_debug_group;
+        }
+        if (TS.boot_data.feature_sli_briefing && TS.highlights_briefing && args.briefing) {
+          template_args.show_recap_debug = TS.highlights_briefing.sli_recaps_debug_group === "sli_debug_info";
         }
         if (!msg.subtype && (args.for_search_display || args.for_top_results_search_display) && msg.file) {
           if (msg.comment) {
@@ -33130,7 +33147,7 @@ TS.registerModule("constants", {
         special_flex_panes: TS.boot_data.special_flex_panes,
         show_downloads: TS.model.supports_downloads,
         is_enterprise: TS.boot_data.page_needs_enterprise,
-        show_user_groups: TS.useSearchableMemberList() && TS.model.team.plan !== "" && !TS.model.user.is_restricted
+        show_user_groups: TS.lazyLoadMembersAndBots() && TS.model.team.plan !== "" && !TS.model.user.is_restricted
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onFlexMenuItemClick);
       TS.menu.start(e);
@@ -33162,7 +33179,7 @@ TS.registerModule("constants", {
             TS.client.ui.files.filterFileList("all");
           } else if (flex_name == "team") {
             TS.client.ui.showTeamList();
-          } else if (flex_name == "groups" && TS.useSearchableMemberList()) {
+          } else if (flex_name == "groups" && TS.lazyLoadMembersAndBots()) {
             TS.client.ui.showGroupsList();
           } else {
             if (flex_name == "whats_new") {
@@ -49254,6 +49271,22 @@ $.fn.togglify = function(settings) {
           TS.recaps_signal.markFeedbackForMessage(msg_ts, false);
         }
       });
+      TS.click.addClientHandler("#msgs_scroller_div .recap_highlight_debug", function(e) {
+        if (TS.boot_data.feature_tinyspeck && TS.recaps_signal.sli_recaps_debug_group === "sli_debug_info") {
+          var debug_info = TS.recaps_signal.getDebugInfoFor($(e.target).parents("ts-message").data("ts"));
+          TS.client.ui.debugger_flexpane.printJSON(debug_info);
+        }
+      });
+    }
+    if (TS.boot_data.feature_sli_briefing && TS.highlights_briefing) {
+      TS.click.addClientHandler("#sli_briefing .recap_highlight_debug", function(e) {
+        if (TS.boot_data.feature_tinyspeck && TS.highlights_briefing.sli_recaps_debug_group === "sli_debug_info") {
+          var ts = $(e.target).parents("ts-message").data("ts");
+          var model_ob_id = $(e.target).parents("ts-message").data("model-ob-id");
+          var debug_info = TS.highlights_briefing.getDebugInfoFor(ts, model_ob_id);
+          TS.client.ui.debugger_flexpane.printJSON(debug_info);
+        }
+      });
     }
   };
   var _setupBinding = function() {
@@ -50076,13 +50109,13 @@ $.fn.togglify = function(settings) {
     }
     var primary_matches, secondary_matches, tertiary_matches, sort_locale_aware;
     primary_matches = member_matches.concat(channel_matches, group_matches, mpim_matches, emoji_matches, usergroup_matches, broadcast_keyword_matches, view_matches);
-    sort_locale_aware = primary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
+    sort_locale_aware = TS.boot_data.feature_intl_channel_names || primary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
     primary_matches.sort(_.partial(_sortFuzzy, sort_locale_aware));
     secondary_matches = channel_matches_not_member.concat(team_matches);
-    sort_locale_aware = secondary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
+    sort_locale_aware = TS.boot_data.feature_intl_channel_names || secondary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
     secondary_matches.sort(_.partial(_sortFuzzy, sort_locale_aware));
     tertiary_matches = group_matches_archived.concat(channel_matches_archived);
-    sort_locale_aware = tertiary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
+    sort_locale_aware = TS.boot_data.feature_intl_channel_names || tertiary_matches.length < _SORT_LOCAL_AWARE_LIMIT;
     tertiary_matches.sort(_.partial(_sortFuzzy, sort_locale_aware));
     var all_matches = primary_matches.concat(secondary_matches, tertiary_matches);
     var filtered_matches = all_matches;
@@ -52288,7 +52321,7 @@ $.fn.togglify = function(settings) {
   var _switchMembersFormView = function(user_group, is_new) {
     var is_locked = !!user_group.is_external || !!user_group.auto_type;
     var data;
-    if (!TS.useSearchableMemberList()) {
+    if (!TS.lazyLoadMembersAndBots()) {
       data = TS.members.getMembersForUser().filter(_isFullLocalMember).map(function(member) {
         return {
           member: member
@@ -52340,7 +52373,7 @@ $.fn.togglify = function(settings) {
         },
         disabled: !!user_group.is_external || !!user_group.auto_type
       };
-      if (TS.useSearchableMemberList()) {
+      if (TS.lazyLoadMembersAndBots()) {
         opts.data_promise = _buildMembersSelectDataPromise(user_group);
       } else {
         opts.data = data;
@@ -52358,7 +52391,7 @@ $.fn.togglify = function(settings) {
     } else {
       var selected_members;
       var work = function() {
-        if (!TS.useSearchableMemberList()) {
+        if (!TS.lazyLoadMembersAndBots()) {
           selected_members = user_group.users;
           selected_members.forEach(function(item) {
             for (var i = 0; i < data.length; i++) {
@@ -60647,8 +60680,7 @@ $.fn.togglify = function(settings) {
 
   function s(e) {
     var t = e.dirtyComponentsLength;
-    t !== g.length ? c("124", t, g.length) : void 0,
-      g.sort(a), _++;
+    t !== g.length ? c("124", t, g.length) : void 0, g.sort(a), _++;
     for (var n = 0; n < t; n++) {
       var r = g[n],
         o = r._pendingCallbacks;
@@ -64570,126 +64602,125 @@ $.fn.togglify = function(settings) {
           uf = ao("ceil"),
           lf = ao("floor"),
           cf = ao("round");
-        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu,
-          t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
-            var e = {};
-            return Wn(t, function(n, r) {
-              Yu.call(t.prototype, r) || (e[r] = n);
-            }), e;
-          }(), {
-            chain: !1
-          }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
-            t[e].placeholder = t;
-          }), c(["drop", "take"], function(e, t) {
-            o.prototype[e] = function(n) {
-              var r = this.__filtered__;
-              if (r && !t) return new o(this);
-              n = n === J ? 1 : _l(ls(n), 0);
-              var i = this.clone();
-              return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
-                size: yl(n, Re),
-                type: e + (i.__dir__ < 0 ? "Right" : "")
-              }), i;
-            }, o.prototype[e + "Right"] = function(t) {
-              return this.reverse()[e](t).reverse();
-            };
-          }), c(["filter", "map", "takeWhile"], function(e, t) {
-            var n = t + 1,
-              r = n == we || n == Se;
-            o.prototype[e] = function(e) {
-              var t = this.clone();
-              return t.__iteratees__.push({
-                iteratee: po(e, 3),
-                type: n
-              }), t.__filtered__ = t.__filtered__ || r, t;
-            };
-          }), c(["head", "last"], function(e, t) {
-            var n = "take" + (t ? "Right" : "");
-            o.prototype[e] = function() {
-              return this[n](1).value()[0];
-            };
-          }), c(["initial", "tail"], function(e, t) {
-            var n = "drop" + (t ? "" : "Right");
-            o.prototype[e] = function() {
-              return this.__filtered__ ? new o(this) : this[n](1);
-            };
-          }), o.prototype.compact = function() {
-            return this.filter(_u);
-          }, o.prototype.find = function(e) {
-            return this.filter(e).head();
-          }, o.prototype.findLast = function(e) {
-            return this.reverse().find(e);
-          }, o.prototype.invokeMap = pa(function(e, t) {
-            return "function" == typeof e ? new o(this) : this.map(function(n) {
-              return $n(n, e, t);
-            });
-          }), o.prototype.reject = function(e) {
-            return e = po(e, 3), this.filter(function(t) {
-              return !e(t);
-            });
-          }, o.prototype.slice = function(e, t) {
-            e = ls(e);
-            var n = this;
-            return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
-          }, o.prototype.takeRightWhile = function(e) {
-            return this.reverse().takeWhile(e).reverse();
-          }, o.prototype.toArray = function() {
-            return this.take(Re);
-          }, Wn(o.prototype, function(e, n) {
-            var i = /^(?:filter|find|map|reject)|While$/.test(n),
-              a = /^(?:head|last)$/.test(n),
-              s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
-              u = a || /^find/.test(n);
-            s && (t.prototype[n] = function() {
-              var n = this.__wrapped__,
-                l = a ? [1] : arguments,
-                c = n instanceof o,
-                f = l[0],
-                p = c || Tc(n),
-                d = function(e) {
-                  var n = s.apply(t, g([e], l));
-                  return a && h ? n[0] : n;
-                };
-              p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
-              var h = this.__chain__,
-                v = !!this.__actions__.length,
-                m = u && !h,
-                _ = c && !v;
-              if (!u && p) {
-                n = _ ? n : new o(this);
-                var y = e.apply(n, l);
-                return y.__actions__.push({
-                  func: Pi,
-                  args: [d],
-                  thisArg: J
-                }), new r(y, h);
-              }
-              return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
-            });
-          }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
-            var n = Vu[e],
-              r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
-              o = /^(?:pop|shift)$/.test(e);
-            t.prototype[e] = function() {
-              var e = arguments;
-              return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
-                return n.apply(t, e);
-              });
-            };
-          }), Wn(o.prototype, function(e, n) {
-            var r = t[n];
-            if (r) {
-              var o = r.name + "",
-                i = Pl[o] || (Pl[o] = []);
-              i.push({
-                name: n,
-                func: r
-              });
+        return t.prototype = n.prototype, t.prototype.constructor = t, r.prototype = En(n.prototype), r.prototype.constructor = r, o.prototype = En(n.prototype), o.prototype.constructor = o, Nt.prototype = Tl ? Tl(null) : qu, Ut.prototype.clear = Wt, Ut.prototype.delete = Ft, Ut.prototype.get = Ht, Ut.prototype.has = Bt, Ut.prototype.set = Gt, Vt.prototype.push = Kt, Yt.prototype.clear = $t, Yt.prototype.delete = Xt, Yt.prototype.get = Qt, Yt.prototype.has = Zt, Yt.prototype.set = Jt, la.Cache = Ut, t.after = na, t.ary = ra, t.assign = Rc, t.assignIn = Pc, t.assignInWith = Mc, t.assignWith = Oc, t.at = Ic, t.before = oa, t.bind = _c, t.bindAll = Qc, t.bindKey = yc, t.castArray = ga, t.chain = Ei, t.chunk = Lo, t.compact = Do, t.concat = ql, t.cond = vu, t.conforms = mu, t.constant = gu, t.countBy = fc, t.create = vs, t.curry = ia, t.curryRight = aa, t.debounce = sa, t.defaults = Ac, t.defaultsDeep = Nc, t.defer = bc, t.delay = wc, t.difference = Kl, t.differenceBy = Yl, t.differenceWith = $l, t.drop = zo, t.dropRight = Uo, t.dropRightWhile = Wo, t.dropWhile = Fo, t.fill = Ho, t.filter = Ui, t.flatMap = Hi, t.flatten = Vo, t.flattenDeep = qo, t.flattenDepth = Ko, t.flip = ua, t.flow = Zc, t.flowRight = Jc, t.fromPairs = Yo, t.functions = Cs, t.functionsIn = Ss, t.groupBy = pc, t.initial = Qo, t.intersection = Xl, t.intersectionBy = Ql, t.intersectionWith = Zl, t.invert = jc, t.invertBy = Lc, t.invokeMap = dc, t.iteratee = yu, t.keyBy = hc, t.keys = Es, t.keysIn = Rs, t.map = qi, t.mapKeys = Ps, t.mapValues = Ms, t.matches = bu, t.matchesProperty = wu, t.memoize = la, t.merge = zc, t.mergeWith = Uc, t.method = ef, t.methodOf = tf, t.mixin = Cu, t.negate = ca, t.nthArg = ku, t.omit = Wc, t.omitBy = Os, t.once = fa, t.orderBy = Ki, t.over = nf, t.overArgs = Cc, t.overEvery = rf, t.overSome = of , t.partial = Sc, t.partialRight = xc, t.partition = vc, t.pick = Fc, t.pickBy = Is, t.property = Tu, t.propertyOf = Eu, t.pull = Jl, t.pullAll = ti, t.pullAllBy = ni, t.pullAllWith = ri, t.pullAt = ec, t.range = af, t.rangeRight = sf, t.rearg = kc, t.reject = Xi, t.remove = oi, t.rest = pa, t.reverse = ii, t.sampleSize = Zi, t.set = Ns, t.setWith = js, t.shuffle = Ji, t.slice = ai, t.sortBy = mc, t.sortedUniq = di, t.sortedUniqBy = hi, t.split = ou, t.spread = da, t.tail = vi, t.take = mi, t.takeRight = gi, t.takeRightWhile = _i, t.takeWhile = yi, t.tap = Ri, t.throttle = ha, t.thru = Pi, t.toArray = us, t.toPairs = Ls, t.toPairsIn = Ds, t.toPath = Pu, t.toPlainObject = ps, t.transform = zs, t.unary = va, t.union = tc, t.unionBy = nc, t.unionWith = rc, t.uniq = bi, t.uniqBy = wi, t.uniqWith = Ci, t.unset = Us, t.unzip = Si, t.unzipWith = xi, t.update = Ws, t.updateWith = Fs, t.values = Hs, t.valuesIn = Bs, t.without = oc, t.words = hu, t.wrap = ma, t.xor = ic, t.xorBy = ac, t.xorWith = sc, t.zip = uc, t.zipObject = ki, t.zipObjectDeep = Ti, t.zipWith = lc, t.extend = Pc, t.extendWith = Mc, Cu(t, t), t.add = Ou, t.attempt = Xc, t.camelCase = Hc, t.capitalize = Ks, t.ceil = uf, t.clamp = Gs, t.clone = _a, t.cloneDeep = ba, t.cloneDeepWith = wa, t.cloneWith = ya, t.deburr = Ys, t.endsWith = $s, t.eq = Ca, t.escape = Xs, t.escapeRegExp = Qs, t.every = zi, t.find = Wi, t.findIndex = Bo, t.findKey = ms, t.findLast = Fi, t.findLastIndex = Go, t.findLastKey = gs, t.floor = lf, t.forEach = Bi, t.forEachRight = Gi, t.forIn = _s, t.forInRight = ys, t.forOwn = bs, t.forOwnRight = ws, t.get = xs, t.gt = Sa, t.gte = xa, t.has = ks, t.hasIn = Ts, t.head = $o, t.identity = _u, t.includes = Vi, t.indexOf = Xo, t.inRange = Vs, t.invoke = Dc, t.isArguments = ka, t.isArray = Tc, t.isArrayBuffer = Ta, t.isArrayLike = Ea, t.isArrayLikeObject = Ra, t.isBoolean = Pa, t.isBuffer = Ec, t.isDate = Ma, t.isElement = Oa, t.isEmpty = Ia, t.isEqual = Aa, t.isEqualWith = Na, t.isError = ja, t.isFinite = La, t.isFunction = Da, t.isInteger = za, t.isLength = Ua, t.isMap = Ha, t.isMatch = Ba, t.isMatchWith = Ga, t.isNaN = Va, t.isNative = qa, t.isNil = Ya, t.isNull = Ka, t.isNumber = $a, t.isObject = Wa, t.isObjectLike = Fa, t.isPlainObject = Xa, t.isRegExp = Qa, t.isSafeInteger = Za, t.isSet = Ja, t.isString = es, t.isSymbol = ts, t.isTypedArray = ns, t.isUndefined = rs, t.isWeakMap = os, t.isWeakSet = is, t.join = Zo, t.kebabCase = Bc, t.last = Jo, t.lastIndexOf = ei, t.lowerCase = Gc, t.lowerFirst = Vc, t.lt = as, t.lte = ss, t.max = Iu, t.maxBy = Au, t.mean = Nu, t.min = ju, t.minBy = Lu, t.noConflict = Su, t.noop = xu, t.now = gc, t.pad = Zs, t.padEnd = Js, t.padStart = eu, t.parseInt = tu, t.random = qs, t.reduce = Yi, t.reduceRight = $i, t.repeat = nu, t.replace = ru, t.result = As, t.round = cf, t.runInContext = Z, t.sample = Qi, t.size = ea, t.snakeCase = Kc, t.some = ta, t.sortedIndex = si, t.sortedIndexBy = ui, t.sortedIndexOf = li, t.sortedLastIndex = ci, t.sortedLastIndexBy = fi, t.sortedLastIndexOf = pi, t.startCase = Yc, t.startsWith = iu, t.subtract = Du, t.sum = zu, t.sumBy = Uu, t.template = au, t.times = Ru, t.toInteger = ls, t.toLength = cs, t.toLower = su, t.toNumber = fs, t.toSafeInteger = ds, t.toString = hs, t.toUpper = uu, t.trim = lu, t.trimEnd = cu, t.trimStart = fu, t.truncate = pu, t.unescape = du, t.uniqueId = Mu, t.upperCase = $c, t.upperFirst = qc, t.each = Bi, t.eachRight = Gi, t.first = $o, Cu(t, function() {
+          var e = {};
+          return Wn(t, function(n, r) {
+            Yu.call(t.prototype, r) || (e[r] = n);
+          }), e;
+        }(), {
+          chain: !1
+        }), t.VERSION = ee, c(["bind", "bindKey", "curry", "curryRight", "partial", "partialRight"], function(e) {
+          t[e].placeholder = t;
+        }), c(["drop", "take"], function(e, t) {
+          o.prototype[e] = function(n) {
+            var r = this.__filtered__;
+            if (r && !t) return new o(this);
+            n = n === J ? 1 : _l(ls(n), 0);
+            var i = this.clone();
+            return r ? i.__takeCount__ = yl(n, i.__takeCount__) : i.__views__.push({
+              size: yl(n, Re),
+              type: e + (i.__dir__ < 0 ? "Right" : "")
+            }), i;
+          }, o.prototype[e + "Right"] = function(t) {
+            return this.reverse()[e](t).reverse();
+          };
+        }), c(["filter", "map", "takeWhile"], function(e, t) {
+          var n = t + 1,
+            r = n == we || n == Se;
+          o.prototype[e] = function(e) {
+            var t = this.clone();
+            return t.__iteratees__.push({
+              iteratee: po(e, 3),
+              type: n
+            }), t.__filtered__ = t.__filtered__ || r, t;
+          };
+        }), c(["head", "last"], function(e, t) {
+          var n = "take" + (t ? "Right" : "");
+          o.prototype[e] = function() {
+            return this[n](1).value()[0];
+          };
+        }), c(["initial", "tail"], function(e, t) {
+          var n = "drop" + (t ? "" : "Right");
+          o.prototype[e] = function() {
+            return this.__filtered__ ? new o(this) : this[n](1);
+          };
+        }), o.prototype.compact = function() {
+          return this.filter(_u);
+        }, o.prototype.find = function(e) {
+          return this.filter(e).head();
+        }, o.prototype.findLast = function(e) {
+          return this.reverse().find(e);
+        }, o.prototype.invokeMap = pa(function(e, t) {
+          return "function" == typeof e ? new o(this) : this.map(function(n) {
+            return $n(n, e, t);
+          });
+        }), o.prototype.reject = function(e) {
+          return e = po(e, 3), this.filter(function(t) {
+            return !e(t);
+          });
+        }, o.prototype.slice = function(e, t) {
+          e = ls(e);
+          var n = this;
+          return n.__filtered__ && (e > 0 || t < 0) ? new o(n) : (e < 0 ? n = n.takeRight(-e) : e && (n = n.drop(e)), t !== J && (t = ls(t), n = t < 0 ? n.dropRight(-t) : n.take(t - e)), n);
+        }, o.prototype.takeRightWhile = function(e) {
+          return this.reverse().takeWhile(e).reverse();
+        }, o.prototype.toArray = function() {
+          return this.take(Re);
+        }, Wn(o.prototype, function(e, n) {
+          var i = /^(?:filter|find|map|reject)|While$/.test(n),
+            a = /^(?:head|last)$/.test(n),
+            s = t[a ? "take" + ("last" == n ? "Right" : "") : n],
+            u = a || /^find/.test(n);
+          s && (t.prototype[n] = function() {
+            var n = this.__wrapped__,
+              l = a ? [1] : arguments,
+              c = n instanceof o,
+              f = l[0],
+              p = c || Tc(n),
+              d = function(e) {
+                var n = s.apply(t, g([e], l));
+                return a && h ? n[0] : n;
+              };
+            p && i && "function" == typeof f && 1 != f.length && (c = p = !1);
+            var h = this.__chain__,
+              v = !!this.__actions__.length,
+              m = u && !h,
+              _ = c && !v;
+            if (!u && p) {
+              n = _ ? n : new o(this);
+              var y = e.apply(n, l);
+              return y.__actions__.push({
+                func: Pi,
+                args: [d],
+                thisArg: J
+              }), new r(y, h);
             }
-          }), Pl[Jr(J, ae).name] = [{
-            name: "wrapper",
-            func: J
-          }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
+            return m && _ ? e.apply(this, l) : (y = this.thru(d), m ? a ? y.value()[0] : y.value() : y);
+          });
+        }), c(["pop", "push", "shift", "sort", "splice", "unshift"], function(e) {
+          var n = Vu[e],
+            r = /^(?:push|sort|unshift)$/.test(e) ? "tap" : "thru",
+            o = /^(?:pop|shift)$/.test(e);
+          t.prototype[e] = function() {
+            var e = arguments;
+            return o && !this.__chain__ ? n.apply(this.value(), e) : this[r](function(t) {
+              return n.apply(t, e);
+            });
+          };
+        }), Wn(o.prototype, function(e, n) {
+          var r = t[n];
+          if (r) {
+            var o = r.name + "",
+              i = Pl[o] || (Pl[o] = []);
+            i.push({
+              name: n,
+              func: r
+            });
+          }
+        }), Pl[Jr(J, ae).name] = [{
+          name: "wrapper",
+          func: J
+        }], o.prototype.clone = j, o.prototype.reverse = Pt, o.prototype.value = At, t.prototype.at = cc, t.prototype.chain = Mi, t.prototype.commit = Oi, t.prototype.flatMap = Ii, t.prototype.next = Ai, t.prototype.plant = ji, t.prototype.reverse = Li, t.prototype.toJSON = t.prototype.valueOf = t.prototype.value = Di, ul && (t.prototype[ul] = Ni), t;
       }
       var J, ee = "4.6.1",
         te = 200,
@@ -69094,9 +69125,10 @@ $.fn.togglify = function(settings) {
         c()(this, t);
         var r = h()(this, (t.__proto__ || u()(t)).call(this, e, n));
         return r.state = {
-          scrollLeft: 0,
-          scrollTop: 0
-        }, r._bottomLeftGridRef = r._bottomLeftGridRef.bind(r), r._bottomRightGridRef = r._bottomRightGridRef.bind(r), r._cellRendererBottomLeftGrid = r._cellRendererBottomLeftGrid.bind(r), r._cellRendererBottomRightGrid = r._cellRendererBottomRightGrid.bind(r), r._cellRendererTopRightGrid = r._cellRendererTopRightGrid.bind(r), r._columnWidthRightGrid = r._columnWidthRightGrid.bind(r), r._onScroll = r._onScroll.bind(r), r._rowHeightBottomGrid = r._rowHeightBottomGrid.bind(r), r._topLeftGridRef = r._topLeftGridRef.bind(r), r._topRightGridRef = r._topRightGridRef.bind(r), r;
+            scrollLeft: 0,
+            scrollTop: 0
+          }, r._bottomLeftGridRef = r._bottomLeftGridRef.bind(r), r._bottomRightGridRef = r._bottomRightGridRef.bind(r), r._cellRendererBottomLeftGrid = r._cellRendererBottomLeftGrid.bind(r), r._cellRendererBottomRightGrid = r._cellRendererBottomRightGrid.bind(r), r._cellRendererTopRightGrid = r._cellRendererTopRightGrid.bind(r), r._columnWidthRightGrid = r._columnWidthRightGrid.bind(r), r._onScroll = r._onScroll.bind(r), r._rowHeightBottomGrid = r._rowHeightBottomGrid.bind(r), r._topLeftGridRef = r._topLeftGridRef.bind(r),
+          r._topRightGridRef = r._topRightGridRef.bind(r), r;
       }
       return m()(t, e), p()(t, [{
         key: "measureAllCells",
@@ -73952,8 +73984,7 @@ $.fn.togglify = function(settings) {
 
   function h(e) {
     var t = e.type;
-    p(t), this._currentElement = e, this._tag = t.toLowerCase(), this._namespaceURI = null, this._renderedChildren = null, this._previousStyle = null, this._previousStyleCopy = null, this._hostNode = null, this._hostParent = null, this._rootNodeID = 0, this._domID = 0, this._hostContainerInfo = null, this._wrapperState = null,
-      this._topLevelWrapper = null, this._flags = 0;
+    p(t), this._currentElement = e, this._tag = t.toLowerCase(), this._namespaceURI = null, this._renderedChildren = null, this._previousStyle = null, this._previousStyleCopy = null, this._hostNode = null, this._hostParent = null, this._rootNodeID = 0, this._domID = 0, this._hostContainerInfo = null, this._wrapperState = null, this._topLevelWrapper = null, this._flags = 0;
   }
   var v = n(2),
     m = n(4),

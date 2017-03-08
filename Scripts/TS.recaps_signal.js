@@ -96,6 +96,12 @@
       msg._sli_received_feedback = true;
       msg._sli_feedback_value = positive;
       TS.recaps_signal.sendFeedback(model_ob, msg, positive);
+    },
+    getDebugInfoFor: function(ts) {
+      if (!ts) return;
+      var model_ob = TS.shared.getActiveModelOb();
+      var msg = _getMsgObjFromModelOb(model_ob, ts);
+      return _.get(msg, "recap.data.debug");
     }
   });
   var _is_checking_membership_count_for_model_ob = {};

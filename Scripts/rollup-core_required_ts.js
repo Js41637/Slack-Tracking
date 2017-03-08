@@ -282,9 +282,6 @@
     useSocket: function() {
       return _shouldConnectToMS();
     },
-    useSearchableMemberList: function() {
-      return TS.lazyLoadMembersAndBots() && TS.boot_data.feature_searchable_member_list;
-    },
     registerModule: function(name, ob, delayed) {
       _extractAndDeleteTestProps(ob);
       if (_dom_is_ready) return TS.error('module "' + name + '" must be registered on before dom ready');
@@ -4990,7 +4987,7 @@
             }
           } else {
             TS.log(1989, "Flannel: need to fetch all members in " + model_ob.id + " to see if we have to show at-channel dialog");
-            TS.flannel.fetchAndUpsertAllMembersForModelOb(model_ob).then(function() {
+            TS.flannel.fetchAndUpsertAllMembersForModelObDeprecated(model_ob).then(function() {
               if (!TS.generic_dialog.is_showing) return;
               if (!TS.generic_dialog.div.find("#select_share_channels").length) return;
               var selected = $("#select_share_channels").lazyFilterSelect("value")[0];
