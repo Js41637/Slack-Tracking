@@ -16806,7 +16806,7 @@ TS.registerModule("constants", {
       TS.info("archived channel " + imsg.channel);
       channel.is_archived = true;
       if (imsg.is_moved) {
-        channel.is_moved = imsg.is_moved;
+        channel.is_moved = imsg.is_moved === 1;
       }
       if (!TS.model.user.is_restricted) {
         if (channel.is_member) {
@@ -16832,7 +16832,7 @@ TS.registerModule("constants", {
         });
       }
       if (imsg.is_moved) {
-        channel.is_moved = imsg.is_moved;
+        channel.is_moved = imsg.is_moved === 1;
       }
       channel.is_archived = false;
       channel.was_archived_this_session = false;
@@ -17076,7 +17076,7 @@ TS.registerModule("constants", {
       TS.info("archived group " + imsg.channel);
       group.is_archived = true;
       if (imsg.is_moved) {
-        group.is_moved = imsg.is_moved;
+        group.is_moved = imsg.is_moved === 1;
       }
       if (group.is_open) {
         group.was_archived_this_session = true;
@@ -17090,7 +17090,7 @@ TS.registerModule("constants", {
         return;
       }
       if (imsg.is_moved) {
-        group.is_moved = imsg.is_moved;
+        group.is_moved = imsg.is_moved === 1;
       }
       if (!group.is_archived) {
         return;
@@ -22874,7 +22874,6 @@ TS.registerModule("constants", {
         }
         var msg_classes = _assignMsgClasses(msg, template_args);
         template_args.msg_classes = msg_classes.join(" ");
-        if (TS.boot_data.feature_enterprise_move_channels && (msg.subtype === "channel_unarchive" || msg.subtype === "channel_archive" || msg.subtype === "group_unarchive" || msg.subtype === "group_archive") && model_ob.is_moved === 2) return "";
         html += TS.templates.message(template_args);
         html = TS.format.replaceHighlightMarkers(html);
         return html;
@@ -31000,7 +30999,7 @@ TS.registerModule("constants", {
     var channel_name_regex = TS.boot_data.feature_intl_channel_names ? /(^|\s|\(|&gt;|\*|_|\/)(#([^~`!@#$%^&*()+=[\]{}\\|;:'",.<>\/? ]+))/g : /(^|\s|\(|&gt;|\*|_|\/)(#([a-zA-Z0-9\-_]+))/g;
     txt = txt.replace(channel_name_regex, function(match, boundry, hash_channel_id, channel_id, offset) {
       if (boundry === "/" && _isPartOfUrl(txt, match, offset)) return match;
-      var valid = _validateModelObByIdOrName(null, null, TS.channels.getChannelByName, hash_channel_id);
+      var valid = _validateModelObByIdOrName(TS.channels.getChannelById, hash_channel_id.substr(1), TS.channels.getChannelByName, hash_channel_id);
       if (valid.model_ob) {
         var channel_identifier;
         if (options.human_readable) {
@@ -31039,7 +31038,7 @@ TS.registerModule("constants", {
     var stripped;
     var extra = "";
     var model_ob;
-    if (TS.boot_data.feature_name_tagging_client_extras && _.isFunction(lookupById) && _.isString(id)) {
+    if ((TS.boot_data.feature_intl_channel_names || TS.boot_data.feature_name_tagging_client_extras) && _.isFunction(lookupById) && _.isString(id)) {
       stripped = id.substring(0, TS.model.model_ob_id_length);
       model_ob = lookupById(stripped);
       if (model_ob) extra = id.substring(TS.model.model_ob_id_length);
@@ -33689,6 +33688,9 @@ TS.registerModule("constants", {
       $("#mentions_filter_menu_label").removeClass("active");
       $("#flex_menu_toggle").removeClass("menu_open");
       $("#channel_actions_toggle").removeClass("active");
+      if (TS.boot_data.feature_texty_takes_over && $("#menu_member_dm_input").length) {
+        TS.utility.contenteditable.unload($("#menu_member_dm_input"));
+      }
       $menu.removeClass("narrow_menu");
       setTimeout(function() {
         TS.menu.file.file_list_menu_up = false;
@@ -33707,6 +33709,7 @@ TS.registerModule("constants", {
       var key = e.which;
       var modifier_pressed = e.metaKey || e.ctrlKey || e.altKey;
       if (key == keymap.esc) {
+        if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.hasFocus($("#menu_member_dm_input"))) return;
         e.stopPropagation();
         e.preventDefault();
         TS.menu.end();
@@ -33714,13 +33717,7 @@ TS.registerModule("constants", {
         return;
       } else if (!modifier_pressed && !TS.utility.isArrowKey(key) && key != keymap.tab && key != keymap.enter) {
         TS.kb_nav.clearHighlightedItem();
-        if (key == keymap.enter) {
-          setTimeout(function() {
-            $("#menu_member_dm_input").focus();
-          }, 0);
-        } else {
-          $("#menu_member_dm_input").focus();
-        }
+        TS.utility.contenteditable.focus($("#menu_member_dm_input"));
       }
     },
     onLeftKeyDownIfSubmenuExists: function(e) {
@@ -35535,20 +35532,54 @@ var _on_esc;
         }
       }
       TS.menu.start(e, position_by_click);
-      var keymap = TS.utility.keymap;
       var starting_im = false;
-      $("#menu_member_dm_input").bind("keydown", function(e) {
-        var input = $(this);
-        if (e.which == keymap.enter && !e.shiftKey && !starting_im) {
-          if ($.trim(input.val()) !== "") {
-            e.preventDefault();
-            TS.ims.startImByMemberId(member.id, false, input.val());
-            TS.menu.member.end();
-            starting_im = true;
-            TS.clog.track("USER_CARD_DM", {});
+      var input = $("#menu_member_dm_input");
+      if (TS.boot_data.feature_texty_takes_over) {
+        TS.utility.contenteditable.create(input, {
+          modules: {
+            tabcomplete: {
+              completeMemberSpecials: false,
+              completers: [TS.tabcomplete.channels, TS.tabcomplete.emoji, TS.tabcomplete.members],
+              positionMenu: function(menu) {
+                menu.style.width = input.outerWidth() + "px";
+                menu.style.minWidth = "0";
+                TS.tabcomplete.positionUIRelativeToInput(menu, input);
+              }
+            }
+          },
+          singleLineInput: true,
+          onEnter: function(args) {
+            var value = _.trim(TS.utility.contenteditable.value(input));
+            if (!_.keys(args).length && !starting_im && value.length) {
+              TS.ims.startImByMemberId(member.id, false, value);
+              TS.menu.member.end();
+              starting_im = true;
+              TS.clog.track("USER_CARD_DM", {});
+            }
+            return false;
+          },
+          onEscape: function() {
+            TS.menu.end();
+          },
+          placeholder: TS.i18n.t("Message {name}", "menu")({
+            name: TS.boot_data.feature_name_tagging_client ? TS.members.getMemberFullName(member) : TS.members.getMemberDisplayName(member)
+          })
+        });
+        TS.utility.contenteditable.enable(input);
+      } else {
+        var keymap = TS.utility.keymap;
+        $("#menu_member_dm_input").bind("keydown", function(e) {
+          if (e.which == keymap.enter && !e.shiftKey && !starting_im) {
+            if ($.trim(input.val()) !== "") {
+              e.preventDefault();
+              TS.ims.startImByMemberId(member.id, false, input.val());
+              TS.menu.member.end();
+              starting_im = true;
+              TS.clog.track("USER_CARD_DM", {});
+            }
           }
-        }
-      });
+        });
+      }
       if (member.is_self) {
         TS.menu.$menu_header.find(".member_timezone_value a").on("click.timezone", function(e) {
           e.preventDefault();
@@ -39049,7 +39080,8 @@ var _on_esc;
         can_delete: false,
         maybe_show_file_viewer: false,
         has_content: TS.utility.attachments.hasContent(attachment),
-        from_post: true
+        from_post: true,
+        model_ob: TS.shared.getModelObById(attachment.channel_id)
       });
       var container_id = TS.templates.makeMsgDomId(msg_id);
       return '<div class="message standalone-attachment" id="' + container_id + '" data-ts="' + msg_id + '">' + attachment_html + "</div>";
@@ -55656,15 +55688,20 @@ $.fn.togglify = function(settings) {
           textsubstitutions: {
             getTextPreferences: TS.utility.contenteditable.getTextPreferences,
             replaceSmartQuotes: TS.format.texty.replaceSmartQuotes
-          }
+          },
+          clipboard: {}
         },
         placeholder: "",
         onEnter: function(args) {
           return true;
         },
+        onEscape: function() {
+          return true;
+        },
         onTab: function() {
           return false;
         },
+        singleLineInput: false,
         onTextChange: _.noop,
         attributes: {
           role: "textarea",

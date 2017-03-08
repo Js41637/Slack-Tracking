@@ -866,7 +866,7 @@
       });
     },
     bindInput: function(input, callback) {
-      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
+      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty() && TS.tabcomplete) {
         TS.utility.contenteditable.create(input, {
           modules: {
             tabcomplete: {
@@ -1864,6 +1864,7 @@
     },
     onKeyDown: function(e) {
       if (TS.menu.emoji.is_showing) return;
+      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.hasFocus($("#menu_member_dm_input"))) return;
       var keymap = TS.utility.keymap;
       var key = e.which;
       var modifier_pressed = e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;

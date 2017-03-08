@@ -13352,7 +13352,7 @@ only screen and (min-resolution:2dppx) {
   margin-bottom: 0
 }
 
-.menu_member_footer p {
+.menu_member_footer .menu_member_footer_notice {
   color: #BABBBF;
   margin: 0;
   padding-left: .75rem;

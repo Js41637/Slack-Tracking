@@ -30216,6 +30216,7 @@
     }
   };
   var _promiseToSearch = function(query) {
+    TS.metrics.mark("im_browser_search_start");
     _filter_last_query = query;
     _startLoadingFeedback();
     if (_filter_p) _filter_p.cancel();
@@ -30276,6 +30277,7 @@
         if (query) TS.kb_nav.highlightFirstItem();
       }
       _stopLoadingFeedback();
+      TS.metrics.measureAndClear("im_browser_search_searcher", "im_browser_search_start");
     });
   };
   var _promiseToFilterListWorker = function(query, all_of_org) {

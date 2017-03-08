@@ -2,12 +2,16 @@
 
 <div class="menu_member_footer">
   {{#if member.deleted}}
-    <p class="no_bottom_margin">{{#t note="For members popup card"}}This account was deactivated.{{/t}}</p>
+    <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}This account was deactivated.{{/t}}</p>
   {{else}}
-    {{#feature flag="feature_name_tagging_client"}}
-      <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberFullName member)}}Message {name}{{/t}}">
+    {{#feature flag="feature_texty_takes_over"}}
+      <div id="menu_member_dm_input" class="texty_single_line_input"></div>
     {{else}}
-      <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberDisplayName member false true)}}Message {name}{{/t}}">
+      {{#feature flag="feature_name_tagging_client"}}
+        <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberFullName member)}}Message {name}{{/t}}">
+      {{else}}
+        <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberDisplayName member false true)}}Message {name}{{/t}}">
+      {{/feature}}
     {{/feature}}
   {{/if}}
 </div>
