@@ -923,7 +923,7 @@
     var group;
     var mpim;
     var is_good = false;
-    if (TS.boot_data.feature_name_tagging_client) {
+    if (TS.boot_data.feature_name_tagging_client || TS.boot_data.feature_intl_channel_names) {
       model_ob = TS.shared.getModelObById(c_name);
       if (model_ob) {
         c_id = model_ob.id;
@@ -4469,10 +4469,12 @@
         $(".team_list_item.member_item .current_status.color_" + member.id).replaceWith(TS.templates.current_status({
           member: member
         }));
-        $(".member_info .current_status.color_" + member.id).replaceWith(TS.templates.current_status({
+        var new_current_status_with_float = TS.templates.current_status({
           member: member,
           classes: "ts_tip_float"
-        }));
+        });
+        $(".member_info .current_status.color_" + member.id).replaceWith(new_current_status_with_float);
+        $("#channel_page_member_" + member.id + " .current_status").replaceWith(new_current_status_with_float);
       }
       if (member.id == TS.model.user.id) {
         TS.view.members.updateUserCurrentStatus();
@@ -4511,7 +4513,7 @@
       }
     },
     updateUserCurrentStatus: function() {
-      if (!TS.boot_data.feature_user_custom_status) return;
+      if (!TS.boot_data.feature_user_custom_status || !TS.model.prefs.seen_custom_status_badge) return;
       $(".current_user_current_status").replaceWith(TS.templates.current_status({
         member: TS.model.user,
         tip_direction: "bottom",
@@ -21358,7 +21360,8 @@
         }));
       }
       if (first) {
-        $div.find("#share_cb").prop("checked", true);
+        var should_start_checked = !TS.client.activeChannelIsHidden();
+        $div.find("#share_cb").prop("checked", should_start_checked);
       } else {
         $div.find("#share_cb").prop("checked", TS.ui.upload_dialog.last_share_cb_checked === true);
       }
@@ -40242,8 +40245,9 @@ function timezones_guess() {
       if (paths.length !== 3) return false;
       var identifier = paths[1];
       if (!identifier) return false;
-      var model_ob = TS.ims.getImById(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimById(identifier) || TS.mpims.getMpimByName(identifier);
+      var model_ob = TS.shared.getModelObById(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimByName(identifier);
       if (!model_ob) return false;
+      if (!(model_ob.is_channel || model_ob.is_group || model_ob.is_im)) return false;
       if (model_ob.is_im && TS.ims.isImWithDeletedMember(model_ob)) return false;
       var url_ts = paths[2];
       if (!url_ts) return false;

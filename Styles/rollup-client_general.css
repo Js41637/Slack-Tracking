@@ -2873,6 +2873,13 @@ span.emoji {
   height: 1rem
 }
 
+.current_status .ts_icon,
+.current_user_current_status .ts_icon,
+.message_current_status .ts_icon {
+  position: relative;
+  top: -4px
+}
+
 span.emoji-outer {
   background-size: 4100%!important;
   display: inline-block;

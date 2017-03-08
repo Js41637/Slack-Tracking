@@ -2254,8 +2254,8 @@
     sorter: function(a, b) {
       _maybeSetup();
       if (!a || !b) return !a ? -1 : 1;
-      if (Intl.Collator) {
-        return Intl.Collator(_locale).compare(a, b);
+      if (_collator) {
+        return _collator.compare(a, b);
       }
       return a.localeCompare(b);
     },
@@ -2323,6 +2323,7 @@
   var _is_dev;
   var _is_pseudo;
   var _locale;
+  var _collator;
   var _translations = {};
   var _dev_warned_translations = [];
   var _maybeSetup = function() {
@@ -2340,6 +2341,11 @@
     if (_locale === "pseudo") {
       _is_pseudo = true;
       _locale = "fr-FR";
+    }
+    if (Intl.Collator) {
+      _collator = Intl.Collator(_locale);
+    } else {
+      _collator = null;
     }
     _is_setup = true;
   };
@@ -5166,6 +5172,7 @@
       $("#select_share_groups_note").removeClass("hidden");
       $("#share_context_label").text(TS.i18n.t("Share in", "files")());
     }
+    $("#share_cb").prop("checked", true);
     TS.ui.file_share.updateAtChannelWarningNote();
     TS.ui.file_share.updateAtChannelBlockedNote();
   };
@@ -5408,11 +5415,12 @@
     }];
   };
   var _getActiveChannelId = function() {
-    if (TS.client && TS.client.activeChannelIsHidden() && _src_model_ob) {
-      return _src_model_ob.id;
+    if (TS.client && TS.client.activeChannelIsHidden()) {
+      if (_src_model_ob) return _src_model_ob.id;
+    } else {
+      var active = TS.shared.getActiveModelOb();
+      if (active) return active.id;
     }
-    var active = TS.shared.getActiveModelOb();
-    if (active) return active.id;
     if (TS.web && TS.web.space) return TS.web.space.getOriginChannel();
     return null;
   };
