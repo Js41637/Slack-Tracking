@@ -41245,8 +41245,10 @@ function timezones_guess() {
     var err_msg = _.get(err, "data.error");
     if (!err_msg) err_msg = _.get(err, "message");
     if (!err_msg) err_msg = err;
-    if (!_.isString) err_msg = JSON.stringify(err_msg);
+    if (!_.isString(err_msg)) err_msg = JSON.stringify(err_msg);
     TS.error(err_msg);
+    var stack_trace = _.get(err, "stack");
+    if (stack_trace) TS.error(JSON.stringify(stack_trace));
     clearTimeout(_slow_loading_timeout);
     _clearData();
     TS.client.ui.threads.displayFatalError();

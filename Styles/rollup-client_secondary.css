@@ -3710,6 +3710,10 @@ body:not(.sorting_mode) #col_channels .starred_icon {
   display: none
 }
 
+body:not(.sorting_mode) #col_channels ul>li {
+  overflow: hidden
+}
+
 #col_channels ul li .muted_icon,
 #col_channels ul li .starred_icon {
   position: absolute;
