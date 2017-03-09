@@ -19636,6 +19636,7 @@ ts-message .broadcast_meta {
 }
 
 ts-message .broadcast_repliers {
+  color: #9e9ea6;
   font-size: .8125rem;
   max-width: 100%;
   display: block;

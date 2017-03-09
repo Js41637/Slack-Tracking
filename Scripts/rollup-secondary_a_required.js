@@ -22677,7 +22677,7 @@ TS.registerModule("constants", {
             if (msg.subtype && msg.subtype === "file_comment" && msg.comment) {
               current_speaker = msg.comment.user;
             }
-            if (TS.utility.msgs.automated_subtypes.indexOf(msg.subtype) != -1) {
+            if (TS.utility.msgs.automated_subtypes.indexOf(msg.subtype) != -1 || msg.subtype === "thread_broadcast") {
               show_user = true;
             } else if (prev_speaker == current_speaker && TS.utility.msgs.automated_subtypes.indexOf(prev_msg.subtype) === -1) {
               if (!msg.subtype && prev_msg.subtype && prev_msg.subtype === "file_comment") {
@@ -22833,16 +22833,18 @@ TS.registerModule("constants", {
         }
         template_args.is_tombstone = msg.subtype === "tombstone";
         template_args.is_new_reply = !!args.is_new_reply;
-        template_args.is_broadcast = TS.boot_data.feature_new_broadcast && TS.utility.msgs.isMsgReply(msg) && msg.subtype === "thread_broadcast" && !is_in_conversation && !standalone;
-        if (template_args.is_broadcast) {
+        if (TS.boot_data.feature_new_broadcast && TS.utility.msgs.isMsgReply(msg) && msg.subtype === "thread_broadcast" && !is_in_conversation && !standalone && !args.is_threads_view) {
+          template_args.is_broadcast = true;
           template_args.conversation_permalink = TS.utility.msgs.constructConversationPermalink(model_ob, msg.thread_ts);
+        }
+        if (template_args.is_broadcast && msg.root) {
+          template_args.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(msg.root));
           var root_msg_text = _.get(msg, "root.text");
           if (root_msg_text) {
             var formatted_root = TS.format.formatWithOptions(root_msg_text, msg.root, {
               for_growl: true
             });
             template_args.root_excerpt = new Handlebars.SafeString(TS.utility.htmlEntities(formatted_root));
-            template_args.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(msg.root));
           }
         }
         var item;
@@ -27034,6 +27036,9 @@ TS.registerModule("constants", {
       if (imsg.subtype === "reply_broadcast") {
         if (imsg.broadcast_thread_ts) new_msg.broadcast_thread_ts = imsg.broadcast_thread_ts;
         if (imsg.channel) new_msg.channel_id = imsg.channel;
+        if (TS.boot_data.feature_new_broadcast) {
+          if (imsg.new_broadcast) new_msg.no_display = true;
+        }
       }
       if (imsg.replies) new_msg.replies = imsg.replies;
       if (imsg.hasOwnProperty("subscribed")) new_msg._subscribed = imsg.subscribed;
@@ -59083,51 +59088,57 @@ $.fn.togglify = function(settings) {
   TS.registerModule("ui.thread", {
     expanded_threads: {},
     buildThreadHTML: function(thread, options) {
-      var model_ob = thread.model_ob;
-      var root_msg = thread.root_msg;
-      var replies = thread.replies;
-      var new_replies = [];
-      if (thread.max_visible_ts) {
-        var initial_replies = _.takeWhile(replies, function(msg) {
-          return msg.ts <= thread.max_visible_ts;
-        });
-        new_replies = _.drop(replies, initial_replies.length);
-        replies = initial_replies;
-      }
-      var id = "thread_" + model_ob.id + "_" + thread.ts.replace(".", "_");
-      var im_user;
-      if (model_ob.is_im) {
-        im_user = TS.members.getMemberById(model_ob.user);
-      }
-      var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.thread_ts);
-      var is_subscribed = subscription && subscription.subscribed;
-      var view_previous_count = _calcPreviousReplyCount(thread);
-      var visible_reply_count, total_reply_count;
-      if (TS.boot_data.feature_threads_paging_flexpane) {
-        if (view_previous_count >= TS.replies.DEFAULT_HISTORY_API_LIMIT) {
-          visible_reply_count = _calcVisibleReplyCount(thread);
-          total_reply_count = _calcTotalReplyCount(thread);
+      try {
+        var model_ob = thread.model_ob;
+        var root_msg = thread.root_msg;
+        var replies = thread.replies;
+        var new_replies = [];
+        if (thread.max_visible_ts) {
+          var initial_replies = _.takeWhile(replies, function(msg) {
+            return msg.ts <= thread.max_visible_ts;
+          });
+          new_replies = _.drop(replies, initial_replies.length);
+          replies = initial_replies;
         }
+        var id = "thread_" + model_ob.id + "_" + thread.ts.replace(".", "_");
+        var im_user;
+        if (model_ob.is_im) {
+          im_user = TS.members.getMemberById(model_ob.user);
+        }
+        var subscription = TS.replies.getSubscriptionState(model_ob.id, root_msg.thread_ts);
+        var is_subscribed = subscription && subscription.subscribed;
+        var view_previous_count = _calcPreviousReplyCount(thread);
+        var visible_reply_count, total_reply_count;
+        if (TS.boot_data.feature_threads_paging_flexpane) {
+          if (view_previous_count >= TS.replies.DEFAULT_HISTORY_API_LIMIT) {
+            visible_reply_count = _calcVisibleReplyCount(thread);
+            total_reply_count = _calcTotalReplyCount(thread);
+          }
+        }
+        var thread_html = TS.templates.thread({
+          id: id,
+          ts: thread.ts,
+          model_ob: model_ob,
+          thread: thread,
+          root_msg: root_msg,
+          conversation_permalink: TS.utility.msgs.constructConversationPermalink(model_ob, root_msg.ts),
+          channel_msg_permalink: TS.utility.msgs.constructMsgPermalink(model_ob, root_msg.ts),
+          replies: replies,
+          new_replies: new_replies,
+          new_replies_count: _newRepliesText(new_replies.length),
+          im_user: im_user,
+          is_subscribed: is_subscribed,
+          options: options || {},
+          view_previous_count: view_previous_count,
+          visible_reply_count: visible_reply_count,
+          total_reply_count: total_reply_count
+        });
+        return thread_html;
+      } catch (err) {
+        TS.error("Threads view: error rendering thread");
+        TS.console.logError(err, "threads_view_error");
+        return "";
       }
-      var thread_html = TS.templates.thread({
-        id: id,
-        ts: thread.ts,
-        model_ob: model_ob,
-        thread: thread,
-        root_msg: root_msg,
-        conversation_permalink: TS.utility.msgs.constructConversationPermalink(model_ob, root_msg.ts),
-        channel_msg_permalink: TS.utility.msgs.constructMsgPermalink(model_ob, root_msg.ts),
-        replies: replies,
-        new_replies: new_replies,
-        new_replies_count: _newRepliesText(new_replies.length),
-        im_user: im_user,
-        is_subscribed: is_subscribed,
-        options: options || {},
-        view_previous_count: view_previous_count,
-        visible_reply_count: visible_reply_count,
-        total_reply_count: total_reply_count
-      });
-      return thread_html;
     },
     updateThreadWithMessage: function($thread, thread, msg, show_immediately) {
       var $existing_msg = $thread.find('ts-message[data-ts="' + msg.ts + '"]');
@@ -64176,9 +64187,10 @@ $.fn.togglify = function(settings) {
 
         function Ps(e, t) {
           var n = {};
-          return t = po(t, 3), Wn(e, function(e, r, o) {
-            n[t(e, r, o)] = e;
-          }), n;
+          return t = po(t, 3),
+            Wn(e, function(e, r, o) {
+              n[t(e, r, o)] = e;
+            }), n;
         }
 
         function Ms(e, t) {
@@ -76841,11 +76853,12 @@ $.fn.togglify = function(settings) {
         u()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-          calculateSizeAndPositionDataOnNextUpdate: !1,
-          isScrolling: !1,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, o._onSectionRenderedMemoizer = n.i(y.a)(), o._onScrollMemoizer = n.i(y.a)(!1), o._invokeOnSectionRenderedHelper = o._invokeOnSectionRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollPositionForScrollToCell = o._updateScrollPositionForScrollToCell.bind(o), o;
+            calculateSizeAndPositionDataOnNextUpdate: !1,
+            isScrolling: !1,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, o._onSectionRenderedMemoizer = n.i(y.a)(), o._onScrollMemoizer = n.i(y.a)(!1), o._invokeOnSectionRenderedHelper = o._invokeOnSectionRenderedHelper.bind(o),
+          o._onScroll = o._onScroll.bind(o), o._updateScrollPositionForScrollToCell = o._updateScrollPositionForScrollToCell.bind(o), o;
       }
       return h()(t, e), c()(t, [{
         key: "recomputeCellSizesAndPositions",
@@ -76862,8 +76875,7 @@ $.fn.togglify = function(settings) {
             n = e.scrollLeft,
             r = e.scrollToCell,
             o = e.scrollTop;
-          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(),
-            this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
+          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(), this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
             scrollLeft: n,
             scrollTop: o
           }), this._invokeOnSectionRenderedHelper();
