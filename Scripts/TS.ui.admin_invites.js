@@ -683,7 +683,7 @@
       initial_channel_id: _initial_channel_id
     };
     var channel_picker_html = TS.templates.admin_invite_channel_picker(template_args);
-    var invite_type_label = TS.i18n.t("Full Members", "invite")();
+    var invite_type_label = TS.i18n.t("Team Members", "invite")();
     if (invite_type == "restricted") {
       invite_type_label = TS.i18n.t("Multi-Channel Guests", "invite")();
     } else if (invite_type == "ultra_restricted") {
@@ -938,7 +938,7 @@
     var account_type = $("#account_type").val();
     var success_invites_html;
     if (account_type == "full") {
-      var full_member = TS.i18n.t("{invites_length,plural,=1{{invites_length} Full Member}other{{invites_length} Full Members}}", "invite")({
+      var full_member = TS.i18n.t("{invites_length,plural,=1{{invites_length} Team Member}other{{invites_length} Team Members}}", "invite")({
         invites_length: _success_invites.length
       });
       success_invites_html = "<strong>" + full_member + "</strong>";

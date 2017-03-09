@@ -1,16 +1,16 @@
 {{i18n_ns 'invite'}}
 <hr id="admin_invites_header_divider" class="hide_on_mobile" />
 <div class="admin_invites_account_type_option {{#if hide_full_member_option}}disabled{{/if}} {{#if team_in_org}}no_hover{{/if}}" data-action="switch_type" data-account-type="full">
-  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">{{#t note="type of invitee who can access any public channel"}}Full Members{{/t}}</{{#isClient}}h2{{else}}h3{{/isClient}}>
+  <{{#isClient}}h2{{else}}h3{{/isClient}} class="normal small_bottom_margin">{{#t note="type of invitee who can access any public channel"}}Team Members{{/t}}</{{#isClient}}h2{{else}}h3{{/isClient}}>
   <p>
-    {{#t}}Full Members can access messages and files in any public channel and access the full directory.{{/t}}
+    {{#t}}Team Members can access messages and files in any public channel and access the full directory.{{/t}}
   </p>
   {{#unless hide_full_member_option}}
     <i class="option_arrow ts_icon ts_icon_arrow_right ts_icon_inherit"></i>
   {{else}}
     {{#unless team_in_org}}
     <div class="account_type_disabled_hover">
-      <p class="bottom_margin">{{#t}}Full members can sign up at <strong>{team_signup_url}</strong>{{/t}}</p>
+      <p class="bottom_margin">{{#t}}Team members can sign up at <strong>{team_signup_url}</strong>{{/t}}</p>
       <a href="/admin/auth/saml" {{#isClient}}target="auth"{{/isClient}} class="btn btn_outline">{{#t}}Change SSO Settings{{/t}}</a>
     </div>
     {{/unless}}

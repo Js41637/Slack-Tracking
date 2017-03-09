@@ -2774,7 +2774,7 @@
       if (TS.model.is_mac) html_classes.push("is_mac");
       if (TS.model.is_win) html_classes.push("is_win");
       $("html").addClass(html_classes.join(" "));
-      var OSX_version = _getOSXVersion(ua).toString();
+      var OSX_version = _getOSXVersion(ua);
       var legacy_mac_supports_subtitle = !TS.model.is_electron && TS.model.mac_ssb_version && TS.utility.compareSemanticVersions(TS.model.mac_ssb_version.toString(), "0.61") >= 0;
       var electron_mac_supports_subtitle = TS.model.is_electron && TS.model.mac_ssb_version && TS.utility.compareSemanticVersions(TS.model.mac_ssb_version.toString(), "2.2") >= 0;
       TS.model.supports_growl_subtitle = (legacy_mac_supports_subtitle || electron_mac_supports_subtitle) && TS.utility.compareSemanticVersions(OSX_version, "10.7") > 0;
@@ -2947,8 +2947,7 @@
     var matches = ua.match(/(?:Mac OS X )([0-9][0-9]_[0-9]+)(_[0-9])?/);
     if (!matches) matches = ua.match(/(?:Mac OS X )([0-9][0-9]\.[0-9]+)(\.[0-9])?/);
     if (!matches || !matches[1]) return 0;
-    var v = parseFloat(matches[1].replace("_", ".")) || 0;
-    return v;
+    return matches[1].replace("_", ".");
   }
 
   function _sniffUserAgent(ua) {
@@ -3148,6 +3147,7 @@
       setInterval(_sendDataAndEmptyQueue, interval_duration_ms + noise_ms);
       $(window).on("beforeunload", _sendDataAndEmptyQueue);
       $("body").on("click", '[data-clog-click="true"]', _onClick);
+      $("body").on("click", '[data-clog-ui-action="click"]', _onClick);
       if (TS.model && TS.model.user && TS.model.team && TS.model.user.id && TS.model.team.id) {
         TS.clog.setUser(TS.model.user.id);
         TS.clog.setTeam(TS.model.team.id);

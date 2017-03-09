@@ -4173,6 +4173,7 @@
               if (immediate_caller.indexOf("at Function.$.widget.extend") === 0) {
                 return [];
               }
+              _logMembersAccess(channel, immediate_caller);
               TS.warn("Thin channel membership is enabled, but someone tried to access .members on a channel object; returning empty array");
               TS.info(stack);
             }
@@ -4258,6 +4259,26 @@
       delete TS.model.created_channels[channel.name];
     }
     _maybeSetSharedTeams(channel);
+  };
+  var _logMembersAccess = function(channel, immediate_caller) {
+    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 1;
+    TS.metrics.count("tcm_members_access_v" + THIN_CHANNEL_MEMBERSHIP_FIX_VERSION);
+    var info = {
+      message: ".members accessed on " + channel.id,
+      stack: immediate_caller
+    };
+    var filename_and_line_number = immediate_caller.match(/\((.+):(\d+:\d+)\)/);
+    if (filename_and_line_number && filename_and_line_number.length == 3) {
+      info.fileName = filename_and_line_number[1];
+      info.lineNumber = filename_and_line_number[2];
+    }
+    $.post(TS.boot_data.beacon_error_url, {
+      description: "tcm_members_access_caller_v" + THIN_CHANNEL_MEMBERSHIP_FIX_VERSION,
+      error_json: JSON.stringify(info),
+      team: _.get(TS, "model.team.id", "none"),
+      user: TS.boot_data.user_id,
+      version: TS.boot_data.version_ts
+    });
   };
 })();
 (function() {
@@ -18212,15 +18233,25 @@ TS.registerModule("constants", {
       });
     },
     fetchChannelMembershipForUsers: function(channel_id, user_ids) {
-      var api_endpoint = channel_id[0] == "G" ? "groups.info" : "channels.info";
-      return TS.api.call(api_endpoint, {
-        channel: channel_id
-      }).then(function(resp) {
-        var model_ob = resp.data.group || resp.data.channel;
+      if (!_.isString(channel_id)) throw new Error("Expected channel_id to be a string");
+      if (!_.isArray(user_ids) || !_.every(user_ids, _.isString)) throw new Error("Expected user_ids to be an array of strings");
+      if (_.isEmpty(user_ids)) return Promise.resolve({});
+      user_ids = _.uniq(user_ids);
+      var query = {
+        channel: channel_id,
+        users: user_ids
+      };
+      return TS.ms.flannel.call("membership_query", query).then(function(resp) {
+        var member_user_ids = resp.members || [];
+        var non_member_user_ids = resp.non_members || [];
+        var all_user_ids_from_response = member_user_ids.concat(non_member_user_ids);
+        var missing_user_ids = _.difference(user_ids, all_user_ids_from_response);
+        if (missing_user_ids.length > 0) {
+          throw new Error("Flannel did not return membership status of " + channel_id + " for some users: " + missing_user_ids.join(", "));
+        }
         var membership_info = {};
-        var channel_members = model_ob.members;
         user_ids.forEach(function(user_id) {
-          membership_info[user_id] = channel_members.indexOf(user_id) >= 0;
+          membership_info[user_id] = member_user_ids.indexOf(user_id) >= 0;
         });
         return membership_info;
       });
@@ -21447,7 +21478,7 @@ TS.registerModule("constants", {
         img_src = member.profile.image_512 || member.profile.image_192;
       }
       var pre_bg_img_src = TS.environment.is_retina ? member.profile.image_72 : member.profile.image_48;
-      var gradient_prefix = TS.model.mac_version == 10.7 || TS.model.mac_version == 10.8 ? "-webkit-" : "";
+      var gradient_prefix = TS.model.mac_version && (TS.utility.compareSemanticVersions(TS.model.mac_version, "10.7") === 0 || TS.utility.compareSemanticVersions(TS.model.mac_version, "10.8") === 0) ? "-webkit-" : "";
       var bg_img_components = [gradient_prefix + "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0) 34%, rgba(0,0,0,0.2) 66%, rgba(0,0,0,0.2) 83%, rgba(0,0,0,0.6))", "url('" + img_src + "')", "url('" + pre_bg_img_src + "')"];
       return bg_img_components.join(", ");
     },
@@ -31332,7 +31363,7 @@ TS.registerModule("constants", {
       TS.prefs.channel_handy_rxns_changed_sig.add(_buildDefaultRxns);
     },
     start: function(args) {
-      if (TS.boot_data.feature_react_emoji_picker && (TS.client || TS.boot_data.feature_react_emoji_picker_on_webpages)) {
+      if (TS.boot_data.feature_react_emoji_picker) {
         TS.ui.react_emoji_menu.start(args);
       } else {
         _start(args);
@@ -59911,7 +59942,7 @@ $.fn.togglify = function(settings) {
       TS.prefs.channel_handy_rxns_changed_sig.add(_updateHandyRxnsAndReRender);
     },
     start: function(args) {
-      if (TS.boot_data.feature_react_emoji_picker && (TS.client || TS.boot_data.feature_react_emoji_picker_on_webpages)) {
+      if (TS.boot_data.feature_react_emoji_picker) {
         _start(args);
       }
     }
@@ -59985,7 +60016,7 @@ $.fn.togglify = function(settings) {
     _render();
   };
   var _render = function(picker_args, popover_args) {
-    if (!TS.boot_data.feature_react_emoji_picker || !TS.client && !TS.boot_data.feature_react_emoji_picker_on_webpages) {
+    if (!TS.boot_data.feature_react_emoji_picker) {
       return;
     }
     var picker_props = _buildEmojiPickerProps(picker_args);
@@ -64172,7 +64203,8 @@ $.fn.togglify = function(settings) {
         }
 
         function js(e, t, n, r) {
-          return r = "function" == typeof r ? r : J, null == e ? e : mr(e, t, n, r);
+          return r = "function" == typeof r ? r : J,
+            null == e ? e : mr(e, t, n, r);
         }
 
         function Ls(e) {
@@ -67701,8 +67733,7 @@ $.fn.togglify = function(settings) {
           v = " (client) " + f.substring(p - 20, p + 20) + "\n (server) " + l.substring(p - 20, p + 20);
         t.nodeType === N ? d("42", v) : void 0;
       }
-      if (t.nodeType === N ? d("43") : void 0,
-        a.useCreateElement) {
+      if (t.nodeType === N ? d("43") : void 0, a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         h.insertTreeBefore(t, e, null);
       } else P(t, e), _.precacheNode(n, t.firstChild);
@@ -71002,8 +71033,7 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
-            Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {

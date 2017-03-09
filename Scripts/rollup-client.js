@@ -419,7 +419,7 @@
           _maybeOpenModals();
         });
       });
-      if (TS.boot_data.feature_deprecate_10_8_modal && TS.model.mac_version == 10.8) {
+      if (TS.boot_data.feature_deprecate_10_8_modal && TS.model.mac_version && TS.utility.compareSemanticVersions(TS.model.mac_version, "10.8") <= 0) {
         var title = TS.i18n.t("Please upgrade your operating system", "client")() + " " + TS.emoji.graphicReplace(":wave::skin-tone-5:", {
           jumbomoji: true
         }).replace("emoji-sizer", "");
@@ -427,7 +427,7 @@
         TS.metrics.count("deprecate_10_8_modal");
         TS.ui.fs_modal.start({
           title: title,
-          body: TS.i18n.t("<p>We've been working to make Slack faster and easier to use. Unfortunately, your computer's operating system (OS X 10.8 Mountain Lion) isn't compatible with these improvements.</p><p>To continue using Slack on your Mac computer, please upgrade your operating system soon! Feel free to <a href='mailto:feedback@slack.com'>contact us</a> with any questions.</p>", "client")(),
+          body: TS.i18n.t("<p>Your computer is currently on OS X 10.8 or older. We mention this because we’re making improvements to Slack that require an updated operating system &mdash; which, handily, should also make your overall experience on your computer better and more secure.</p><p>To continue using Slack on this computer, you’ll soon need to upgrade to <strong>at least OS X 10.9</strong>. We know it’s a hassle to upgrade, but we promise to make it worth your while with an ever-improving experience of Slack. As always, please feel free to <a href='mailto:feedback@slack.com'>contact us</a> with any questions.</p>", "client")(),
           show_secondary_go_button: true,
           secondary_go_button_text: TS.i18n.t("Learn How to Upgrade", "client")(),
           show_cancel_button: false,
@@ -11283,6 +11283,8 @@
     var dms_html = "";
     var unread_mentions_is_primary = _hasUnreadMentionsIsPrimarySort() || _unreadMentionsCountIsPrimarySort();
     var unread_messages_is_primary = _hasUnreadMessagesIsPrimarySort() || _unreadMessagesCountIsPrimarySort();
+    _dm_members.clear();
+    _dm_members.add(_(all).filter("is_im").map("user").compact().uniq().value());
     all.forEach(function(c) {
       var html = _buildLI(c);
       var has_unread_highlights = c._sorting_unread_highlight_cnt || (c.is_im || c.is_mpim) && c._sorting_unread_cnt;
@@ -22262,11 +22264,11 @@
         TS.ui.banner.show("notifications");
         return;
       }
-      var deprecated_osx_versions = [10.6, 10.7, 10.8];
-      var show_macssb_osx_deprecated_banner = TS.model.is_our_app && TS.model.is_mac && deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0;
+      var is_deprecated_osx = TS.model.mac_version && TS.utility.compareSemanticVersions(TS.model.mac_version, "10.8") <= 0;
+      var show_macssb_osx_deprecated_banner = TS.model.is_our_app && TS.model.is_mac && is_deprecated_osx;
       var is_app_store = _isLegacyAppStoreBuild();
       var show_macelectron2_banner = TS.model.is_mac && "macgap" in window && !is_app_store && !TS.model.prefs.no_macelectron_banner;
-      var show_macssb1_banner = TS.model.is_mac && !(deprecated_osx_versions.indexOf(TS.model.mac_version) >= 0) && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
+      var show_macssb1_banner = TS.model.is_mac && !is_deprecated_osx && !TS.model.mac_ssb_version && !TS.model.prefs.no_macssb1_banner;
       var show_winssb1_banner = TS.model.is_win_7_plus && !TS.model.win_ssb_version && !TS.model.prefs.no_winssb1_banner;
       if (show_macssb_osx_deprecated_banner) {
         TS.ui.banner.show("macssb_osx_deprecated");
@@ -24400,7 +24402,7 @@
       initial_channel_id: _initial_channel_id
     };
     var channel_picker_html = TS.templates.admin_invite_channel_picker(template_args);
-    var invite_type_label = TS.i18n.t("Full Members", "invite")();
+    var invite_type_label = TS.i18n.t("Team Members", "invite")();
     if (invite_type == "restricted") {
       invite_type_label = TS.i18n.t("Multi-Channel Guests", "invite")();
     } else if (invite_type == "ultra_restricted") {
@@ -24655,7 +24657,7 @@
     var account_type = $("#account_type").val();
     var success_invites_html;
     if (account_type == "full") {
-      var full_member = TS.i18n.t("{invites_length,plural,=1{{invites_length} Full Member}other{{invites_length} Full Members}}", "invite")({
+      var full_member = TS.i18n.t("{invites_length,plural,=1{{invites_length} Team Member}other{{invites_length} Team Members}}", "invite")({
         invites_length: _success_invites.length
       });
       success_invites_html = "<strong>" + full_member + "</strong>";
