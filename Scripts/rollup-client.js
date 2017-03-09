@@ -26281,7 +26281,7 @@
       calling_args.all_teams = true;
     }
     if (something_changed) {
-      TS.api.callImmediately("enterprise.channels.addToShared", calling_args).then(function(ok, data, args) {
+      TS.api.callImmediately("enterprise.channels.addToShared", calling_args).then(function(response) {
         TS.ui.fs_modal.close();
       });
     } else {
@@ -28617,7 +28617,7 @@
       show_set_purpose: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral()),
       show_edit_purpose_or_topic: (model_ob.is_member || model_ob.is_group) && !TS.model.user.is_ultra_restricted && !TS.model.user.is_restricted && (!model_ob.is_general || TS.members.canUserPostInGeneral())
     };
-    if (TS.boot_data.page_needs_enterprise && model_ob.is_channel && model_ob.is_org_shared && model_ob.is_global_shared) {
+    if (TS.boot_data.page_needs_enterprise && (model_ob.is_channel || model_ob.is_group) && model_ob.is_org_shared && model_ob.is_global_shared) {
       template_args.is_globally_shared = true;
       template_args.enterprise_org_name = TS.model.enterprise.name;
       template_args.enterprise_org_icon = TS.model.enterprise.icon;

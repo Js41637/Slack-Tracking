@@ -1,14 +1,11 @@
   {{i18n_ns "shortcuts"}}
 
-  {{!-- hbslint-disable unwrapped --}}
-  {{!-- Todo: enable unwrapped linter --}}
-
   <div class="modal-body">
 
     <h1>
       <span class="shortcut_dialog_header_text">{{#t}}Keyboard Shortcuts{{/t}}</span>
       <span class="shortcut_dialog_shortcut" aria-hidden="true">
-        <span class="keyboard">{{#isMac}}Cmd{{else}}Ctrl{{/isMac}}</span><span class="keyboard">/</span>
+        <span class="keyboard">{{#isMac}}{{#t}}Cmd{{/t}}{{else}}{{#t}}Ctrl{{/t}}{{/isMac}}</span><span class="keyboard">/</span>
       </span>
     </h1>
 
@@ -16,17 +13,17 @@
       <div class="shortcut_category">
         <h3>{{#t}}Channels &amp; DMs{{/t}}</h3>
         <ul class="no_bullets">
-          <li>{{#t}}Previous in list:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_up_medium ts_icon_inherit" aria-label="Up arrow"></i></span></li>
-          <li>{{#t}}Next in list:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_down_medium ts_icon_inherit" aria-label="Down arrow"></i></span></li>
-          <li>{{#t}}Previous unread:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard">Shift</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_up_medium ts_icon_inherit" aria-label="Up arrow"></i></span></li>
-          <li>{{#t}}Next unread:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard">Shift</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_down_medium ts_icon_inherit" aria-label="Down arrow"></i></span></li>
-          <li>{{#t}}Back in history:{{/t}} {{#isMac}}<span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">[</span>{{else}}<span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_left" aria-label="Left arrow"></i></span>{{/isMac}}</li>
-          <li>{{#t}}Forward in history:{{/t}} {{#isMac}}<span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">]</span>{{else}}<span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_right" aria-label="Right arrow"></i></span>{{/isMac}}</li>
-          <li>{{#t}}Mark as read:{{/t}} <span class="keyboard" aria-label="Escape">Esc</span></li>
-          <li>{{#t}}Mark all as read:{{/t}} <span class="keyboard">Shift</span><span class="keyboard" aria-label="Escape">Esc</span></li>
-          <li>{{#t}}Quick switcher:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">k</span>{{#isOurApp}} {{#t}}or{{/t}} <span class="keyboard">t</span>{{/isOurApp}}</li>
-          {{#if show_browse_dms_shortcut}}<li>{{#t}}Browse DMs:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">k</span></li>{{/if}}
-          {{#feature flag="feature_star_shortcut"}}<li>{{#t}}Toggle star:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{meta_key}}</span><span class="keyboard">s</span></li>{{/feature}}
+          <li>{{#t}}Previous in list:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_up_medium ts_icon_inherit" aria-label="{{#t}}Up arrow{{/t}}"></i></span></li>
+          <li>{{#t}}Next in list:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_down_medium ts_icon_inherit" aria-label="{{#t}}Down arrow{{/t}}"></i></span></li>
+          <li>{{#t}}Previous unread:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_up_medium ts_icon_inherit" aria-label="{{#t}}Up arrow{{/t}}"></i></span></li>
+          <li>{{#t}}Next unread:{{/t}} <span class="keyboard">{{meta_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_down_medium ts_icon_inherit" aria-label="{{#t}}Down arrow{{/t}}"></i></span></li>
+          <li>{{#t}}Back in history:{{/t}} {{#isMac}}<span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">[</span>{{else}}<span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_left" aria-label="{{#t}}Left arrow{{/t}}"></i></span>{{/isMac}}</li>
+          <li>{{#t}}Forward in history:{{/t}} {{#isMac}}<span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">]</span>{{else}}<span class="keyboard">{{meta_key}}</span><span class="keyboard"><i class="ts_icon ts_icon_arrow_right" aria-label="{{#t}}Right arrow{{/t}}"></i></span>{{/isMac}}</li>
+          <li>{{#t}}Mark as read:{{/t}} <span class="keyboard" aria-label="{{#t}}Escape{{/t}}">{{#t}}Esc{{/t}}</span></li>
+          <li>{{#t}}Mark all as read:{{/t}} <span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard" aria-label="{{#t}}Escape{{/t}}">{{#t}}Esc{{/t}}</span></li>
+          <li>{{#t}}Quick switcher:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}k{{/t}}</span>{{#isOurApp}} {{#t}}or{{/t}} <span class="keyboard">{{#t note="keyboard shortcut letter"}}t{{/t}}</span>{{/isOurApp}}</li>
+          {{#if show_browse_dms_shortcut}}<li>{{#t}}Browse DMs:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}k{{/t}}</span></li>{{/if}}
+          {{#feature flag="feature_star_shortcut"}}<li>{{#t}}Toggle star:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{meta_key}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}s{{/t}}</span></li>{{/feature}}
         </ul>
       </div>
 
@@ -43,37 +40,37 @@
           <li>
             {{#t}}Autocomplete{{/t}}
             <ul>
-              <li>{{#t}}Names:{{/t}} <span class="subtle_silver">[a-z]</span><span class="keyboard">Tab</span> <span class="subtle_silver">{{#t}}or{{/t}}</span> <span class="keyboard">@</span><span class="keyboard">Tab</span></li>
-              <li>{{#t}}Channels:{{/t}} <span class="keyboard" aria-label="Number symbol">#</span><span class="keyboard">Tab</span></li>
-              <li>{{#t}}Emoji:{{/t}} <span class="keyboard" aria-label="Colon">:</span><span class="keyboard">Tab</span></li>
+              <li>{{#t}}Names:{{/t}} <span class="subtle_silver">[a-z]</span><span class="keyboard">Tab</span> <span class="subtle_silver">{{#t}}or{{/t}}</span> <span class="keyboard">@</span><span class="keyboard">{{#t}}Tab{{/t}}</span></li>
+              <li>{{#t}}Channels:{{/t}} <span class="keyboard" aria-label="{{#t}}Number symbol{{/t}}">#</span><span class="keyboard">{{#t}}Tab{{/t}}</span></li>
+              <li>{{#t}}Emoji:{{/t}} <span class="keyboard" aria-label="{{#t}}Colon{{/t}}">:</span><span class="keyboard">{{#t}}Tab{{/t}}</span></li>
             </ul>
           </li>
-          <li>{{#t}}New line:{{/t}} <span class="keyboard">Shift</span><span class="keyboard">Enter</span></li>
-          <li>{{#t}}Edit last message: <span class="keyboard"><i class="ts_icon ts_icon_arrow_up_medium ts_icon_inherit" aria-label="Up arrow"></i></span> <span class="subtle_silver">in input</span>{{/t}}</li>
-          <li>{{#t}}React to last message:{{/t}} <span class="keyboard" aria-label="{{#isMac}}command{{else}}control{{/isMac}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">\\</span></li>
+          <li>{{#t}}New line:{{/t}} <span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t}}Enter{{/t}}</span></li>
+          <li>{{#t note="followed by \u201cin input\u201d"}}Edit last message:{{/t}} <span class="keyboard"><i class="ts_icon ts_icon_arrow_up_medium ts_icon_inherit" aria-label="{{#t}}Up arrow{{/t}}"></i></span> <span class="subtle_silver">{{#t note="preceded by \u201cEdit last message:\u201d"}}in input{{/t}}</span></li>
+          <li>{{#t}}React to last message:{{/t}} <span class="keyboard" aria-label="{{#isMac}}{{#t}}command{{/t}}{{else}}{{#t}}control{{/t}}{{/isMac}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">\\</span></li>
         </ul>
       </div>
 
       <div class="shortcut_category">
         <h3>{{#t}}Extras{{/t}}</h3>
         <ul class="no_bullets">
-          {{#isOurApp}}<li>{{#t}}Open Preferences:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard" aria-label="Comma">,</span></li>{{/isOurApp}}
+          {{#isOurApp}}<li>{{#t}}Open Preferences:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard" aria-label="{{#t}}Comma{{/t}}">,</span></li>{{/isOurApp}}
           {{#if can_show_unread_view}}
-            <li>{{#t}}Open All Unreads:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">a</span></li>
+            <li>{{#t}}Open All Unreads:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}a{{/t}}</span></li>
           {{/if}}
           {{#isOurApp}}
-            <li>{{#t}}Open All Threads:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">t</span></li>
+            <li>{{#t}}Open All Threads:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}t{{/t}}</span></li>
           {{/isOurApp}}
           <li>{{#t}}Toggle Right Sidebar:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">.</span></li>
             <ul>
-              {{#isOurApp}}<li>{{#t}}Channel Info:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">i</span></li>{{/isOurApp}}
-              {{#isChrome}}{{else}}<li>Activity: <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">m</span></li>{{/isChrome}}
-              {{#isFF}}{{else}}<li>{{#t}}Team:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">e</span></li>{{/isFF}}
-              <li>{{#t}}Stars:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">Shift</span><span class="keyboard">s</span></li>
-              {{#isOurApp}}<li>{{#t}}Search:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">f</span></li>{{/isOurApp}}
+              {{#isOurApp}}<li>{{#t}}Channel Info:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}i{{/t}}</span></li>{{/isOurApp}}
+              {{#isChrome}}{{else}}<li>{{#t}}Activity:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}m{{/t}}</span></li>{{/isChrome}}
+              {{#isFF}}{{else}}<li>{{#t}}Team:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}e{{/t}}</span></li>{{/isFF}}
+              <li>{{#t}}Stars:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t}}Shift{{/t}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}s{{/t}}</span></li>
+              {{#isOurApp}}<li>{{#t}}Search:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}f{{/t}}</span></li>{{/isOurApp}}
             </ul>
-          <li>{{#t}}Upload a File:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">u</span></li>
-          <li>{{#t}}Dismiss Dialogs:{{/t}} <span class="keyboard" aria-label="Escape">Esc</span></li>
+          <li>{{#t}}Upload a File:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">{{#t note="keyboard shortcut letter"}}u{{/t}}</span></li>
+          <li>{{#t}}Dismiss Dialogs:{{/t}} <span class="keyboard" aria-label="{{#t}}Escape{{/t}}">{{#t}}Esc{{/t}}</span></li>
 
           {{#feature flag="feature_a11y_ui_zoom"}}
             <li>{{#t}}Zoom In:{{/t}} <span class="keyboard" aria-label="{{cmd_key_label}}">{{cmd_key}}</span><span class="keyboard">+</span></li>

@@ -16766,7 +16766,16 @@ TS.registerModule("constants", {
         TS.error("shared channel event sent for non-shared channel:" + imsg.channel);
         return;
       }
-      TS.enterprise.addTeamsToSharedForChannel(channel, imsg.teams);
+      if (imsg.is_global_shared) {
+        channel.is_global_shared = imsg.is_global_shared;
+        if (channel.is_group) {
+          TS.groups.upsertGroup(channel);
+        } else {
+          TS.channels.upsertChannel(channel);
+        }
+      } else {
+        TS.enterprise.addTeamsToSharedForChannel(channel, imsg.teams);
+      }
       var current_ob = TS.shared.getActiveModelOb();
       if (!current_ob.id === channel.id) return;
       if (channel.is_group) {
@@ -33018,6 +33027,7 @@ TS.registerModule("constants", {
                   var team = all_teams_in_enterprise.filter(function(t) {
                     return t.id === team_id;
                   })[0];
+                  if (!team) return;
                   user_teams.push({
                     team_id: team_id,
                     team_url: item[0].team_url.replace(/\/[a-z0-9]+\./i, "/" + team.domain + "."),
@@ -64203,8 +64213,7 @@ $.fn.togglify = function(settings) {
         }
 
         function js(e, t, n, r) {
-          return r = "function" == typeof r ? r : J,
-            null == e ? e : mr(e, t, n, r);
+          return r = "function" == typeof r ? r : J, null == e ? e : mr(e, t, n, r);
         }
 
         function Ls(e) {
@@ -76853,7 +76862,8 @@ $.fn.togglify = function(settings) {
             n = e.scrollLeft,
             r = e.scrollToCell,
             o = e.scrollTop;
-          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(), this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
+          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(),
+            this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
             scrollLeft: n,
             scrollTop: o
           }), this._invokeOnSectionRenderedHelper();

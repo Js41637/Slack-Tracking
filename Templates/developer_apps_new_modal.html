@@ -17,50 +17,12 @@
 
   {{!-- Team Selector --}}
   <label for="team_id" class="top_margin">{{#t note="Label for a dropdown where a third party developer chooses Slack Team their proposed app will belong to"}}Development Slack Team{{/t}}</label>
-  {{#feature flag="feature_single_team_apps"}}
-    <div id="team_id_picker"></div>
-    {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
-    <input name="team_id" class="hidden" value="" data-validation="required" />
-  {{else}}
-    <span class="team_picker menu_launcher_large overflow_ellipsis full_width block">
-      <img class="small_border_radius" src="{{teams.[0].icon_src}}">
-      <span class="selected_team_name">{{teams.[0].name}}</span>
-      {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
-      <input name="team_id" class="hidden" value="{{teams.[0].encoded_id}}" />
-    </span>
-  {{/feature}}
+  <div id="team_id_picker"></div>
+  {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
+  <input name="team_id" class="hidden" value="" data-validation="required" />
   <aside>
     {{#t note="helper text letting the third party developer know what happens to the app they're creating if they leave their team"}}Your app belongs to this team\u2014leaving this team will remove your ability to manage this app. Unfortunately, this can\u2019t be changed later.{{/t}}
   </aside>
-
-  {{#feature flag="feature_single_team_apps"}}
-  {{else}}
-    <ul id="teams_list" class="hidden">
-      {{#each teams}}
-        <li role="menuitem" data-team-id="{{this.encoded_id}}" data-team-name="{{this.name}}"><a>
-          <img src="{{this.icon_src}}">
-          {{this.name}}
-        </a></li>
-      {{/each}}
-      <li role="menuitem" class="avatar_menu_signin_item">
-        <a href="https://slack.com/signin">
-          <ts-icon class="ts_icon_plus"></ts-icon>
-          {{#t note="a button allowing the third party developer sign into another team"}}Sign in to another team{{/t}}
-        </a>
-      </li>
-    </ul>
-  {{/feature}}
-
-  {{#if should_show_app_submission}}
-  {{!-- Enable Submission Checkbox --}}
-  <label class="checkbox top_margin no_bottom_margin">
-    <input type="checkbox" name="create_submission">{{#t note="Checkbox a user clicks if they plan on submitting the app they're developing into the Slack App Directory"}}I plan to submit this app to the Slack App Directory.{{/t}}
-  </label>
-  <aside>
-    {{#t note="Helper copy underneath the checkbox where a user decides if they intend to submit their app to the app directory"}}We'll help you get your app ready for submission. If you're not sure, you can decide
-    to submit later.{{/t}}
-  </aside>
-  {{/if}}
 
   {{!-- ToS Agreement --}}
   <div class="small top_margin">{{#t note="Legal copy targetted towards a third party developer creating an app using our api"}}By creating a Web API Application, you agree to the <a target="_blank" href="/terms-of-service/api">Slack API Terms of Service</a>.{{/t}}</div>
