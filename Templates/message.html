@@ -98,6 +98,7 @@
           {{/if}}
         {{/if}}
       </div>
+      {{#if is_broadcast}}{{> message_broadcast_meta}}{{/if}}
       {{#if starred_items_actions}}
         <div class="actions">
           {{jump_link}}

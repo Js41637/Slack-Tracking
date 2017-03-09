@@ -22365,6 +22365,98 @@ TS.registerModule("constants", {
         });
       }
     },
+    buildBroadcastRepliersSummaryHTML: function(broadcast_root) {
+      var reply_count = broadcast_root.reply_count;
+      var reply_users_count = broadcast_root.reply_users_count;
+      var replier_ids = broadcast_root.reply_users;
+      var entities = _.map(replier_ids, function(id) {
+        if (id === "U00") return null;
+        var first_letter = id.charAt(0);
+        var entity;
+        if (first_letter === "B") {
+          entity = TS.bots.getBotById(id);
+        } else {
+          entity = TS.members.getMemberById(id);
+        }
+        return entity;
+      });
+      entities = _.compact(entities);
+      if (!reply_count || !entities.length) return "";
+      var includes_self = !!_.find(entities, {
+        is_self: true
+      });
+      if (includes_self) {
+        entities = _.reject(entities, {
+          is_self: true
+        });
+        entities.push(TS.model.user);
+      }
+      var names = _.map(entities, function(entity) {
+        if (entity.is_bot) {
+          return entity.name;
+        } else if (entity.is_self) {
+          return TS.i18n.t("you", "threads")();
+        } else {
+          return TS.members.getMemberDisplayName(entity);
+        }
+      });
+      if (entities.length === 1) {
+        if (includes_self) {
+          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from you", "threads")({
+            reply_count: reply_count
+          });
+        } else {
+          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name}", "threads")({
+            reply_count: reply_count,
+            user_name: TS.utility.htmlEntities(names[0])
+          });
+        }
+      } else if (entities.length === 2) {
+        if (includes_self) {
+          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name} and you", "threads")({
+            reply_count: reply_count,
+            user_name: TS.utility.htmlEntities(names[0])
+          });
+        } else {
+          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1} and {user_name2}", "threads")({
+            reply_count: reply_count,
+            user_name1: TS.utility.htmlEntities(names[0]),
+            user_name2: TS.utility.htmlEntities(names[1])
+          });
+        }
+      } else if (entities.length === 3) {
+        if (includes_self) {
+          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1}, {user_name2}, and you", "threads")({
+            reply_count: reply_count,
+            user_name1: TS.utility.htmlEntities(names[0]),
+            user_name2: TS.utility.htmlEntities(names[1])
+          });
+        } else {
+          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1}, {user_name2}, and {user_name3}", "threads")({
+            reply_count: reply_count,
+            user_name1: TS.utility.htmlEntities(names[0]),
+            user_name2: TS.utility.htmlEntities(names[1]),
+            user_name3: TS.utility.htmlEntities(names[2])
+          });
+        }
+      } else if (entities.length > 3) {
+        var leftover_names = _.drop(names, 2);
+        if (leftover_names.length < reply_users_count - 2) {
+          leftover_names.push(TS.i18n.t("others", "threads")());
+        }
+        var other_names = TS.i18n.listify(leftover_names, {
+          no_escape: true
+        }).join("");
+        return TS.templates.thread_broadcast_repliers_with_overflow({
+          reply_count: reply_count,
+          num_others: reply_users_count - 2,
+          user_name1: names[0],
+          user_name2: names[1],
+          other_names: other_names
+        });
+      }
+      return "";
+    },
     test: function() {
       var test_ob = {};
       Object.defineProperty(test_ob, "_buildStarComponents", {
@@ -22701,6 +22793,18 @@ TS.registerModule("constants", {
         }
         template_args.is_tombstone = msg.subtype === "tombstone";
         template_args.is_new_reply = !!args.is_new_reply;
+        template_args.is_broadcast = TS.boot_data.feature_new_broadcast && TS.utility.msgs.isMsgReply(msg) && msg.subtype === "thread_broadcast" && !is_in_conversation && !standalone;
+        if (template_args.is_broadcast) {
+          template_args.conversation_permalink = TS.utility.msgs.constructConversationPermalink(model_ob, msg.thread_ts);
+          var root_msg_text = _.get(msg, "root.text");
+          if (root_msg_text) {
+            var formatted_root = TS.format.formatWithOptions(root_msg_text, msg.root, {
+              for_growl: true
+            });
+            template_args.root_excerpt = new Handlebars.SafeString(TS.utility.htmlEntities(formatted_root));
+            template_args.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(msg.root));
+          }
+        }
         var item;
         if (msg.subtype === "file_share" || msg.subtype === "file_mention") {
           item = msg.file;
@@ -22984,6 +23088,9 @@ TS.registerModule("constants", {
         if (TS.boot_data.feature_sli_recaps_interface) msg_classes.push("show_recap_highlight");
       }
       if (template_args.show_recap_debug) msg_classes.push("show_recap_debug");
+    }
+    if (TS.boot_data.feature_new_broadcast) {
+      if (template_args.is_broadcast) msg_classes.push("thread_broadcast");
     }
     return msg_classes;
   }
@@ -26873,8 +26980,15 @@ TS.registerModule("constants", {
         if (imsg.hasOwnProperty("reply_count")) {
           new_msg.reply_count = parseInt(imsg.reply_count, 10);
         }
-        if (imsg.thread_ts !== imsg.ts) {
-          new_msg._hidden_reply = true;
+        if (TS.boot_data.feature_new_broadcast) {
+          if (imsg.thread_ts !== imsg.ts && imsg.subtype !== "thread_broadcast") {
+            new_msg._hidden_reply = true;
+          }
+          if (imsg.subtype === "thread_broadcast" && imsg.root) new_msg.root = imsg.root;
+        } else {
+          if (imsg.thread_ts !== imsg.ts) {
+            new_msg._hidden_reply = true;
+          }
         }
       }
       if (imsg.subtype === "reply_broadcast") {
@@ -58180,6 +58294,52 @@ $.fn.togglify = function(settings) {
         }));
       }
       return channels;
+    },
+    pollUntilCondition: function(options) {
+      return new Promise(function(resolve, reject) {
+        var default_options = {
+          api_method: null,
+          api_params: {},
+          condition_method: null,
+          interval: 5e3,
+          interval_backoff: 1e3,
+          attempts_max: 10,
+          call_immediately: true
+        };
+        options = _.merge(default_options, options || {});
+        var state = {
+          attempts: 0,
+          last_api_response: null,
+          interval: parseInt(options.interval, 10) || 1e3,
+          interval_backoff: parseInt(options.interval_backoff, 10) || 0
+        };
+
+        function makeAttempt() {
+          if (state.attempts++ >= options.attempts_max) {
+            return reject(new Error("Giving up on " + options.api_method + ", reached max attempts of " + options.attempts_max));
+          }
+          state.interval += state.interval_backoff;
+          TS.api.call(options.api_method, options.api_params).then(function(resp) {
+            state.last_api_response = resp;
+            if (options.condition_method(resp)) return resolve(resp);
+            return waitAndAttempt();
+          }).catch(function(err) {
+            state.last_api_response = err;
+            return waitAndAttempt();
+          });
+        }
+
+        function waitAndAttempt() {
+          window.setTimeout(makeAttempt, state.interval);
+        }
+        if (!options.api_method) return reject(new Error("missing required api_method in params"));
+        if (!options.condition_method) return reject(new Error("missing required condition_method in params"));
+        if (options.call_immediately) {
+          makeAttempt();
+        } else {
+          waitAndAttempt();
+        }
+      });
     }
   });
 })();
@@ -67541,7 +67701,8 @@ $.fn.togglify = function(settings) {
           v = " (client) " + f.substring(p - 20, p + 20) + "\n (server) " + l.substring(p - 20, p + 20);
         t.nodeType === N ? d("42", v) : void 0;
       }
-      if (t.nodeType === N ? d("43") : void 0, a.useCreateElement) {
+      if (t.nodeType === N ? d("43") : void 0,
+        a.useCreateElement) {
         for (; t.lastChild;) t.removeChild(t.lastChild);
         h.insertTreeBefore(t, e, null);
       } else P(t, e), _.precacheNode(n, t.firstChild);
@@ -70841,7 +71002,8 @@ $.fn.togglify = function(settings) {
       function e(e, t) {
         for (var n = 0; n < t.length; n++) {
           var r = t[n];
-          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(e, r.key, r);
+          r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0),
+            Object.defineProperty(e, r.key, r);
         }
       }
       return function(t, n, r) {
