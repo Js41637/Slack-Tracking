@@ -101,7 +101,7 @@
       if (!ts) return;
       var model_ob = TS.shared.getActiveModelOb();
       var msg = _getMsgObjFromModelOb(model_ob, ts);
-      return _.get(msg, "recap.data.debug");
+      return _.get(msg, "recap.data");
     }
   });
   var _is_checking_membership_count_for_model_ob = {};

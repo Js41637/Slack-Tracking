@@ -43151,7 +43151,6 @@ var _on_esc;
       });
     },
     recordPageView: function(list, has_teams_to_show, from_where) {
-      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
       if (!from_where) from_where = "";
       var enterprise_payload = {
         tracking_code: from_where,
@@ -43184,7 +43183,6 @@ var _on_esc;
       }));
     },
     recordTeamView: function(team_id, anchor_page, from_where) {
-      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
       if (!from_where) from_where = "";
       var enterprise_payload = {
         entity_key: "workspace_detail",
@@ -43202,7 +43200,6 @@ var _on_esc;
       }));
     },
     recordTeamJoin: function(team_id, anchor_page, from_where) {
-      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
       if (!from_where) from_where = "";
       var enterprise_payload = {
         anchor_page: anchor_page,
@@ -43221,7 +43218,6 @@ var _on_esc;
       }));
     },
     recordTeamLeave: function(team_id, anchor_page, from_where) {
-      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
       if (!from_where) from_where = "";
       var enterprise_payload = {
         anchor_page: anchor_page,
@@ -43240,7 +43236,6 @@ var _on_esc;
       }));
     },
     recordTeamLeaveConfirm: function(team_id, anchor_page, from_where) {
-      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
       if (!from_where) from_where = "";
       var enterprise_payload = {
         anchor_page: anchor_page,
@@ -43259,7 +43254,6 @@ var _on_esc;
       }));
     },
     recordTeamRequestToJoin: function(team_id, anchor_page, from_where) {
-      if (!TS.boot_data.feature_discoverable_teams_client_metrics) return;
       if (!from_where) from_where = "";
       var enterprise_payload = {
         anchor_page: anchor_page,
@@ -64187,10 +64181,9 @@ $.fn.togglify = function(settings) {
 
         function Ps(e, t) {
           var n = {};
-          return t = po(t, 3),
-            Wn(e, function(e, r, o) {
-              n[t(e, r, o)] = e;
-            }), n;
+          return t = po(t, 3), Wn(e, function(e, r, o) {
+            n[t(e, r, o)] = e;
+          }), n;
         }
 
         function Ms(e, t) {
@@ -76853,12 +76846,11 @@ $.fn.togglify = function(settings) {
         u()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-            calculateSizeAndPositionDataOnNextUpdate: !1,
-            isScrolling: !1,
-            scrollLeft: 0,
-            scrollTop: 0
-          }, o._onSectionRenderedMemoizer = n.i(y.a)(), o._onScrollMemoizer = n.i(y.a)(!1), o._invokeOnSectionRenderedHelper = o._invokeOnSectionRenderedHelper.bind(o),
-          o._onScroll = o._onScroll.bind(o), o._updateScrollPositionForScrollToCell = o._updateScrollPositionForScrollToCell.bind(o), o;
+          calculateSizeAndPositionDataOnNextUpdate: !1,
+          isScrolling: !1,
+          scrollLeft: 0,
+          scrollTop: 0
+        }, o._onSectionRenderedMemoizer = n.i(y.a)(), o._onScrollMemoizer = n.i(y.a)(!1), o._invokeOnSectionRenderedHelper = o._invokeOnSectionRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollPositionForScrollToCell = o._updateScrollPositionForScrollToCell.bind(o), o;
       }
       return h()(t, e), c()(t, [{
         key: "recomputeCellSizesAndPositions",
@@ -76875,7 +76867,8 @@ $.fn.togglify = function(settings) {
             n = e.scrollLeft,
             r = e.scrollToCell,
             o = e.scrollTop;
-          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(), this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
+          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(),
+            this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
             scrollLeft: n,
             scrollTop: o
           }), this._invokeOnSectionRenderedHelper();
