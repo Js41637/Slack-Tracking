@@ -959,7 +959,7 @@
       error_invites: _error_invites,
       team_name: TS.model.team.name,
       domains: _new_email_domains,
-      paid_team: "" !== TS.model.team.plan,
+      paid_team: TS.model.team.plan !== "",
       is_admin: TS.model.user.is_admin
     };
     if (TS.model.team.plan) {

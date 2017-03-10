@@ -5735,7 +5735,7 @@ TS.registerModule("constants", {
     setDataRetention: function(group_id, retention_type, retention_duration, handler) {
       var args = {
         channel: group_id,
-        retention_type: $("select[name=retention_type]").val()
+        retention_type: parseInt($("select[name=retention_type]").val(), 10)
       };
       if (args.retention_type === 1) {
         args.retention_duration = $("#retention_duration").val();
@@ -12935,13 +12935,13 @@ TS.registerModule("constants", {
     var restricted_count = _filters.restricted.filter_num_found || 0;
     var deleted_count = _filters.deleted.filter_num_found || 0;
     var $restricted_members_tab = $("#restricted_members_tab");
-    if (0 === restricted_count) {
+    if (restricted_count === 0) {
       $restricted_members_tab.addClass("hidden");
     } else {
       $restricted_members_tab.removeClass("hidden");
     }
     var $disabled_members_tab = $("#disabled_members_tab");
-    if (0 === deleted_count) {
+    if (deleted_count === 0) {
       $disabled_members_tab.addClass("hidden");
     } else {
       $disabled_members_tab.removeClass("hidden");
@@ -13065,12 +13065,12 @@ TS.registerModule("constants", {
       team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
     }
     var need_to_reset_current_subtab = false;
-    if ("disabled_members" === TS.model.ui_state.tab_name && 0 === (_filters.deleted.filter_num_found || 0)) need_to_reset_current_subtab = true;
-    if ("restricted_members" === TS.model.ui_state.tab_name && 0 === (_filters.restricted.filter_num_found || 0)) need_to_reset_current_subtab = true;
+    if (TS.model.ui_state.tab_name === "disabled_members" && (_filters.deleted.filter_num_found || 0) === 0) need_to_reset_current_subtab = true;
+    if (TS.model.ui_state.tab_name === "restricted_members" && (_filters.restricted.filter_num_found || 0) === 0) need_to_reset_current_subtab = true;
     var user_groups = TS.model.user_groups.filter(function(ug) {
       return !ug.date_delete;
     });
-    if ("user_groups" === TS.model.ui_state.tab_name && 0 === user_groups.length) need_to_reset_current_subtab = true;
+    if (TS.model.ui_state.tab_name === "user_groups" && user_groups.length === 0) need_to_reset_current_subtab = true;
     if (need_to_reset_current_subtab) {
       TS.model.ui_state.tab_name = "active_members";
       TS.storage.storeUIState(TS.model.ui_state);
@@ -28053,7 +28053,7 @@ TS.registerModule("constants", {
     function start(selector) {
       if (_.includes(root_selectors, selector)) return;
       root_selectors.push(selector);
-      if (null === interval) {
+      if (interval === null) {
         interval = setInterval(update, 6e4);
       }
     }
@@ -35427,7 +35427,7 @@ var _on_esc;
     }
     if (TS.lazyLoadMembersAndBots() && !search_query) {} else {
       var $none_found = TS.menu.$menu.find(".no_results");
-      if (0 === response.items.length) {
+      if (response.items.length === 0) {
         $none_found.removeClass("hidden");
         $none_found.find(".query").text(response.query);
       } else {
@@ -42612,12 +42612,12 @@ var _on_esc;
       var value = $el.val();
       length = +length;
       if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
-      if ("minlength" === key) {
+      if (key === "minlength") {
         if (value.length >= length) return true;
         return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t be less than {minlength, plural, =1{# character}other{# characters}}", "ui_validation")({
           minlength: length
         }), options);
-      } else if ("maxlength" === key) {
+      } else if (key === "maxlength") {
         if (!hide_countdown) _countdown($el, value.length, length, options);
         if (value.length <= length) return true;
         return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t be more than {maxlength, plural, =1{# character}other{# characters}}", "ui_validation")({
@@ -42643,12 +42643,12 @@ var _on_esc;
       var value = $el.val().trim();
       length = +length;
       if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
-      if ("mincsv" === key) {
+      if (key === "mincsv") {
         if (value.split(/\s*\,\s*/).length >= length) return true;
         return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t have less than {minlength, plural, =1{# value}other{# values}}", "ui_validation")({
           minlength: length
         }), options);
-      } else if ("maxcsv" === key) {
+      } else if (key === "maxcsv") {
         if (value.split(/\s*\,\s*/).length <= length) return true;
         return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t have more than {maxlength, plural, =1{# value}other{# values}}", "ui_validation")({
           maxlength: length
@@ -47862,7 +47862,7 @@ $.fn.togglify = function(settings) {
         $scroller = $el.closest(":scrollable(vertical)");
       }
       if ($scroller.is("html")) $scroller = $("body");
-      if (0 !== dist_moved) {
+      if (dist_moved !== 0) {
         var scroll_top = $scroller.scrollTop() + dist_moved;
         $scroller.scrollTop(Math.round(scroll_top));
       }
@@ -47960,7 +47960,7 @@ $.fn.togglify = function(settings) {
       if (member.is_self && TS.model.dnd.snooze_enabled && end) {
         if (end > now) return true;
       }
-      if (null == start || null == end) return false;
+      if (start == null || end == null) return false;
       is_in_dnd = end > now && (start <= now || start > end);
       return is_in_dnd;
     },
@@ -50602,7 +50602,7 @@ $.fn.togglify = function(settings) {
     },
     makeFuzzyMatcher: function(query, options) {
       var query_node = _queryToLinkedList(query);
-      if (null == options.fuzzy_limit) options.fuzzy_limit = Infinity;
+      if (options.fuzzy_limit == null) options.fuzzy_limit = Infinity;
       return {
         score: function(str) {
           var should_continue = _containsAllLetters(str, query_node);
@@ -56636,7 +56636,7 @@ $.fn.togglify = function(settings) {
   var _initTabComplete = function($input, opts) {
     if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) return;
     var complete_member_specials = true;
-    if (false === opts.complete_member_specials) complete_member_specials = false;
+    if (opts.complete_member_specials === false) complete_member_specials = false;
     var complete_cmds = false;
     if (TS.boot_data.feature_threads_slash_cmds) complete_cmds = !!opts.complete_cmds;
     var in_thread = false;

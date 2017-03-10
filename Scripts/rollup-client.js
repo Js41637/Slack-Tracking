@@ -2155,7 +2155,7 @@
         return !ug.date_delete;
       });
       var $user_groups_tab = $("#user_groups_list_tab");
-      if (0 === user_groups.length) {
+      if (user_groups.length === 0) {
         $user_groups_tab.addClass("hidden");
       } else {
         $user_groups_tab.removeClass("hidden");
@@ -11435,7 +11435,7 @@
     var display_total = all_channels.length;
     _updateCreateChannelButton();
     if (TS.model.user.is_restricted) {
-      if (!TS.permissions.members.canCreateChannels() && !TS.permissions.members.canCreateGroups() && 0 === display_total) {
+      if (!TS.permissions.members.canCreateChannels() && !TS.permissions.members.canCreateGroups() && display_total === 0) {
         $("#channels").addClass("hidden");
         return;
       }
@@ -21605,7 +21605,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/aa6d/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/0375/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
@@ -24678,7 +24678,7 @@
       error_invites: _error_invites,
       team_name: TS.model.team.name,
       domains: _new_email_domains,
-      paid_team: "" !== TS.model.team.plan,
+      paid_team: TS.model.team.plan !== "",
       is_admin: TS.model.user.is_admin
     };
     if (TS.model.team.plan) {
@@ -29121,7 +29121,7 @@
     pinned_item.comment = comment;
   };
   var _arePinsLoadedForChannel = function(model_ob) {
-    if (false === model_ob.has_pins) return true;
+    if (model_ob.has_pins === false) return true;
     return TS.pins.havePinsBeenFetched(model_ob);
   };
   var _loadPinsForChannel = function(model_ob) {
@@ -30717,7 +30717,7 @@
   };
   var _sortByRecency = function(a, b) {
     var cmp = TS.shared.sorterByLastMsg(a.model_ob, b.model_ob);
-    if (0 !== cmp) return cmp;
+    if (cmp !== 0) return cmp;
     return _sortByName(a, b);
   };
   var _sortByName = function(a, b) {
@@ -37293,7 +37293,7 @@ function timezones_guess() {
         var inx = _.findIndex(_msgs_config.sections, {
           id: group.id
         });
-        if (-1 === inx) {
+        if (inx === -1) {
           _msgs_config.sections.push(group);
         }
       });
@@ -39932,7 +39932,7 @@ function timezones_guess() {
       var convo_msg_index = _active_convo_messages && _.findIndex(_active_convo_messages, {
         ts: msg.ts
       });
-      if (-1 !== convo_msg_index) {
+      if (convo_msg_index !== -1) {
         _active_convo_messages[convo_msg_index] = msg;
       } else {
         _active_convo_messages.push(msg);
@@ -39943,7 +39943,7 @@ function timezones_guess() {
           var reply_index = _.findIndex(_replies_section.msgs, {
             ts: msg.ts
           });
-          if (-1 !== reply_index) {
+          if (reply_index !== -1) {
             _replies_section.msgs[reply_index] = msg;
           } else {
             is_new_msg = true;

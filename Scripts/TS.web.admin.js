@@ -1072,13 +1072,24 @@
       $row.find(".admin_member_restrict_link_unpaid").unbind("click").bind("click", function() {
         TS.generic_dialog.start({
           title: TS.i18n.t("Guests are available for paid teams", "web_admin")(),
-          body: TS.i18n.t('<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>Multi-Channel Guests</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-Channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing">Learn more about our pricing</a> or upgrade today.</p>', "web_admin")(),
+          body: TS.i18n.t('<p>Your team is currently on our <strong>Free plan</strong>. Upgrading to our <strong>Standard plan</strong> will give you access to additional user management features:</p>					   <ul><li><strong>Multi-Channel Guests</strong> are paid users that can only access channels that they are invited to join.</li>					   <li><strong>Single-Channel Guests</strong> are free accounts that can only participate in a single channel.</li></ul>					   <p><a href="/pricing" data-clog-event="GROWTH_PRICING" data-clog-ui-element="pricing_link" data-clog-ui-action="click" data-clog-ui-step="admin_home">Learn more about our pricing</a> or upgrade today.</p>', "web_admin")(),
           go_button_text: TS.i18n.t("Upgrade your team", "web_admin")(),
           go_button_class: "btn_success",
           cancel_button_text: TS.i18n.t("Not now", "web_admin")(),
           onGo: function() {
             window.location = "/admin/billing";
           }
+        });
+        $('[data-qa="generic_dialog_go"]').click(function() {
+          TS.clog.track("GROWTH_PRICING", {
+            contexts: {
+              ui_context: {
+                step: "admin_home",
+                action: "click",
+                ui_element: "billing_button"
+              }
+            }
+          });
         });
       });
       $row.find(".api_cant_deactivate").unbind("click").bind("click", function() {
