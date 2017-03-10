@@ -7,7 +7,7 @@
 .alert {
   padding: .75rem 1rem .75rem 3rem;
   border: 1px solid #E8E8E8;
-  background: #fff;
+  background: #FFF;
   color: #555459;
   border-left-width: 5px;
   margin: 0 auto 1rem;
@@ -72,7 +72,7 @@
   width: 100%;
   padding: .3rem 1rem .4rem;
   background: #2ab27b;
-  color: #fff;
+  color: #FFF;
   font-weight: 700;
   text-align: center;
   font-size: 1rem;
@@ -89,13 +89,13 @@
 .alert_page a,
 .alert_page a:link,
 .alert_page a:visited {
-  color: #fff;
+  color: #FFF;
   font-weight: 900
 }
 
 html.no_touch .alert_page a:active,
 html.no_touch .alert_page a:hover {
-  color: #fff;
+  color: #FFF;
   text-decoration: underline
 }
 
@@ -384,7 +384,7 @@ html.no_touch .alert_page a:hover {
 }
 
 .ts_toggle .ts_toggle_button .ts_toggle_handle {
-  background: #fff;
+  background: #FFF;
   display: inline-block;
   width: 1.4375rem;
   height: 1.4375rem;
@@ -422,7 +422,7 @@ html.no_touch .alert_page a:hover {
 
 .ts_toggle.checked .ts_toggle_button {
   background: #2ab27b;
-  color: #fff;
+  color: #FFF;
   padding: .1rem 2rem .1rem 1rem
 }
 
@@ -453,7 +453,7 @@ html.no_touch .alert_page a:hover {
 
 .ts_toggle.ts_toggle_orange .ts_toggle_button {
   background: #FF8B00;
-  color: #fff
+  color: #FFF
 }
 
 .ts_toggle.disabled {
@@ -534,7 +534,7 @@ html.no_touch .alert_page a:hover {
   transform: translateX(-50%);
   text-align: left;
   opacity: 0;
-  color: #fff;
+  color: #FFF;
   font-size: .8125rem;
   font-weight: 700;
   font-style: normal;
@@ -1125,7 +1125,7 @@ html.no_touch .alert_page a:hover {
 .supports_custom_scrollbar:not(.slim_scrollbar) .slack_scrollbar::-webkit-scrollbar-track {
   background-clip: padding-box!important;
   border-radius: 3px;
-  color: #fff
+  color: #FFF
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .slack_scrollbar::-webkit-scrollbar-track {
@@ -1140,7 +1140,7 @@ html.no_touch .alert_page a:hover {
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .slack_scrollbar::-webkit-scrollbar-corner {
-  background: #fff
+  background: #FFF
 }
 
 .supports_custom_scrollbar.slim_scrollbar .slack_scrollbar {
@@ -1820,11 +1820,11 @@ html.no_touch .alert_page a:hover {
 }
 
 .neutral_white {
-  color: #fff!important
+  color: #FFF!important
 }
 
 .neutral_white_bg {
-  background-color: #fff!important
+  background-color: #FFF!important
 }
 
 .off_white {
@@ -2389,7 +2389,7 @@ a.mini:hover {
 }
 
 .square_icon {
-  color: #fff;
+  color: #FFF;
   width: 48px;
   height: 48px;
   text-align: center;
@@ -2448,7 +2448,7 @@ table tr:last-child {
   line-height: 2.25rem;
   text-align: center;
   font-weight: 900;
-  color: #fff;
+  color: #FFF;
   font-size: 1rem;
   letter-spacing: -1px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
@@ -2465,6 +2465,36 @@ table tr:last-child {
   width: 2.25rem;
   padding: .2rem .5rem;
   line-height: 1.9rem
+}
+
+.external_team_badge {
+  display: inline-block;
+  vertical-align: bottom;
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(44, 45, 48, .08);
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #FFF;
+  background-size: 100%;
+  background-color: #FFF;
+  background-repeat: no-repeat
+}
+
+.external_team_badge.default {
+  display: inline-block;
+  background-color: #717274;
+  line-height: 1.5;
+  font-weight: 800;
+  color: #FFF;
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  float: left
 }
 
 .action_cog {
@@ -2653,7 +2683,7 @@ html.no_touch .pager .previous>a:hover {
   float: left;
   padding: .25rem .75rem;
   line-height: 1.25rem;
-  background-color: #fff;
+  background-color: #FFF;
   border: 1px solid #E8E8E8;
   border-left-width: 0;
   text-decoration: none!important
@@ -2663,18 +2693,18 @@ html.no_touch .pager .previous>a:hover {
 .pagination ul>.active>span,
 .pagination ul>li>a:focus {
   background-color: #3aa3e3;
-  color: #fff;
+  color: #FFF;
   cursor: default
 }
 
 html.no_touch .pagination ul>li>a:hover {
   background-color: #3aa3e3;
-  color: #fff
+  color: #FFF
 }
 
 html.no_touch .pagination ul>.disabled>a:hover {
   color: #9e9ea6;
-  background: #fff
+  background: #FFF
 }
 
 .pagination ul>.disabled>a,
@@ -2682,7 +2712,7 @@ html.no_touch .pagination ul>.disabled>a:hover {
 .pagination ul>.disabled>span {
   color: #9e9ea6;
   cursor: default;
-  background: #fff
+  background: #FFF
 }
 
 .pagination ul>li:first-child>a,
@@ -2916,7 +2946,7 @@ img.emoji {
 .icon_comment {
   width: 16px;
   height: 16px;
-  color: #fff;
+  color: #FFF;
   text-shadow: 0 0 2px #000;
   display: inline-block
 }
@@ -3058,7 +3088,7 @@ body.plaid {
   line-height: .9rem;
   border-radius: 3px;
   background: #2D9EE0;
-  color: #fff;
+  color: #FFF;
   font-size: .64rem;
   text-shadow: none
 }

@@ -16,7 +16,7 @@
           {{~#if model_ob.is_channel~}}
             <ts-icon class="ts_icon_channel_pane_hash"></ts-icon>{{model_ob.name}}
           {{~else if model_ob.is_im~}}
-            {{makeMemberPresenceIcon im_user}}{{model_ob.name}}
+            {{#if im_user}}{{makeMemberPresenceIcon im_user}}{{/if}}{{model_ob.name}}
           {{~else if model_ob.is_mpim~}}
             <ts-icon class="mpim_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}}"></ts-icon>{{mpimDisplayName model_ob}}
           {{~else if model_ob.is_group~}}

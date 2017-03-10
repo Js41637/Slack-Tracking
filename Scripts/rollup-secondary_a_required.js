@@ -21404,7 +21404,10 @@ TS.registerModule("constants", {
           avatar_class = "thumb_48";
           break;
       }
-      if (TS.boot_data.page_needs_enterprise) {
+      if (TS.boot_data.feature_shared_channels_badges && member.is_external && size >= 32) {
+        var team = TS.teams.getTeamById(member.team_id);
+        badge_html = TS.templates.member_type_external_badge(team);
+      } else if (TS.boot_data.page_needs_enterprise) {
         if (!omit_badge) {
           var badge_size;
           switch (size) {
@@ -28875,7 +28878,7 @@ TS.registerModule("constants", {
       }
       TS.utility.makeSureAllExternalLinksAreRefererSafe($el);
     },
-    sortTable: function(table, td_index, order, subsort_index, subsort_order) {
+    sortTable: function($table, td_index, order, subsort_index, subsort_order) {
       order = order == "desc" ? "desc" : "asc";
       subsort_order = subsort_order == "desc" ? "desc" : "asc";
 
@@ -28911,10 +28914,10 @@ TS.registerModule("constants", {
       function getCellValue(tr, index) {
         return $(tr).children("td").eq(index).attr("data-sort-val");
       }
-      var rows = table.find("tr:gt(0)").toArray().sort(sortFunc(td_index));
+      var rows = $table.find("tr:gt(0)").toArray().sort(sortFunc(td_index));
       if (order == "desc") rows = rows.reverse();
       for (var i = 0; i < rows.length; i++) {
-        table.append(rows[i]);
+        $table.append(rows[i]);
       }
     },
     getPercSmartly: function(x, y) {
@@ -30607,6 +30610,7 @@ TS.registerModule("constants", {
     var stop_animations = !!opts.stop_animations || undefined;
     var no_emoji_text = !!opts.no_emoji_text || undefined;
     var prevent_copy_paste = !!opts.prevent_copy_paste || undefined;
+    var no_linking = TS.boot_data.feature_new_broadcast && !!opts.no_linking || undefined;
     if (no_jumbomoji !== true) {
       no_jumbomoji = !TS.model.prefs.jumbomoji;
     }
@@ -30642,7 +30646,8 @@ TS.registerModule("constants", {
       custom_linebreak: custom_linebreak,
       stop_animations: stop_animations,
       no_emoji_text: no_emoji_text,
-      prevent_copy_paste: prevent_copy_paste
+      prevent_copy_paste: prevent_copy_paste,
+      no_linking: no_linking
     };
   };
   var _format = function(txt, msg, opts) {
@@ -30659,6 +30664,7 @@ TS.registerModule("constants", {
     var stop_animations = opts.stop_animations;
     var no_emoji_text = opts.no_emoji_text;
     var prevent_copy_paste = opts.prevent_copy_paste;
+    var no_linking = opts.no_linking;
     var map = _TSF_token_map;
     if (custom_linebreak) {
       map = _.extend({}, map, {
@@ -30683,6 +30689,9 @@ TS.registerModule("constants", {
       jumbomoji: !no_jumbomoji
     });
     if (no_preformatted) A = A.map(_swapPreForCode);
+    if (no_linking) {
+      A = _.reject(A, _isLinkStartOrEnd);
+    }
     var str = "";
     var c;
     var guts;
@@ -30755,13 +30764,13 @@ TS.registerModule("constants", {
               attach_html = "";
             }
           } else if (item.indexOf("<!") === 0) {
-            str += _parseCommandToken(tsf_mode, item, no_highlights);
+            str += _parseCommandToken(tsf_mode, item, no_highlights, no_linking);
           } else if (item.indexOf("<@") === 0) {
-            var username = _parseMemberToken(tsf_mode, item, no_highlights);
+            var username = _parseMemberToken(tsf_mode, item, no_highlights, no_linking);
             if (username === "`...`") username = '<span class="temp_ellipsis">. . .</span>';
             str += username;
           } else if (item.indexOf("<#") === 0) {
-            str += _parseChannelToken(tsf_mode, item);
+            str += _parseChannelToken(tsf_mode, item, no_linking);
           } else if (item.indexOf(TSF.LINK_START.split(" ")[0]) === 0) {
             var url = function(item) {
               var temp = $.trim(item.replace(TSF.LINK_START.split(" ")[0], ""));
@@ -30876,14 +30885,14 @@ TS.registerModule("constants", {
     str = TS.format.deTokenizeStr(html_token_map, str);
     return str;
   };
-  var _parseChannelToken = function(tsf_mode, item) {
+  var _parseChannelToken = function(tsf_mode, item, no_linking) {
     var guts = item.replace(/<|>|#/g, "");
     var partsA = guts.split("|");
     var id = partsA[0];
     var channel = TS.channels.getChannelById(id);
     if (channel) {
       var name_for_url = TS.boot_data.feature_intl_channel_names ? channel.id : channel.name;
-      if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
+      if (tsf_mode == "GROWL" || tsf_mode == "EDIT" || no_linking) {
         return "#" + channel.name;
       } else {
         var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
@@ -30915,7 +30924,7 @@ TS.registerModule("constants", {
     }
     return replaced;
   };
-  var _parseMemberToken = function(tsf_mode, item, no_highlights) {
+  var _parseMemberToken = function(tsf_mode, item, no_highlights, no_linking) {
     var guts = item.replace(/<|>/g, "");
     var m = TS.utility.msgs.getMemberFromMemberMarkup(guts);
     if (!m) {
@@ -30959,13 +30968,17 @@ TS.registerModule("constants", {
       }
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.id + '" ' : "";
       if (m.id == TS.model.user.id) classes.push("mention");
-      return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">@' + display_name + "</a>";
+      if (no_linking) {
+        return "@" + display_name;
+      } else {
+        return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">@' + display_name + "</a>";
+      }
     } else {
       if (tsf_mode == "EDIT" || tsf_mode == "GROWL") {
         return "@" + m.name;
       }
       var display_name = "@" + m.name;
-      if (TS.permissions.members.canUserSeeMember(m)) {
+      if (TS.permissions.members.canUserSeeMember(m) && !no_linking) {
         var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.name + '" ' : "";
         if (!no_highlights) display_name = _doHighlighting(display_name);
         return '<a href="/team/' + m.name + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">' + display_name + "</a>";
@@ -30974,12 +30987,12 @@ TS.registerModule("constants", {
       }
     }
   };
-  var _parseCommandToken = function(tsf_mode, item, no_highlights) {
+  var _parseCommandToken = function(tsf_mode, item, no_highlights, no_linking) {
     var guts = item.replace(/<|>/g, "");
     var cmd_A = guts.split("|");
     var cmd = cmd_A[0].substr(1);
     if (_.includes(_at_commands, cmd)) {
-      if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
+      if (tsf_mode == "GROWL" || tsf_mode == "EDIT" || no_linking) {
         return "@" + cmd;
       } else {
         return '<b class="mention">@' + cmd + "</b>";
@@ -30994,7 +31007,7 @@ TS.registerModule("constants", {
         var cmd_template = cmd_args[1];
         var formatted_date = TS.utility.date.formatDate(cmd_template, unix_time, cmd_label);
         var cmd_url = cmd_args.length > 2 ? cmd_args[2] : "";
-        if (tsf_mode == "GROWL" || tsf_mode == "EDIT" || !cmd_url) {
+        if (tsf_mode == "GROWL" || tsf_mode == "EDIT" || !cmd_url || no_linking) {
           return formatted_date;
         } else {
           return "<a " + TS.utility.makeRefererSafeLink(cmd_url) + ' target="_blank">' + formatted_date + "</a>";
@@ -31008,7 +31021,11 @@ TS.registerModule("constants", {
             var target = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + ug.id + '" ' : " ";
             var handle = TS.utility.htmlEntities(ug.handle);
             var display_name = no_highlights ? "@" + handle : _doHighlighting("@" + handle);
-            return '<a href="/usergroups/' + ug.id + '" ' + target + 'data-user-group-id="' + ug.id + '" class="internal_user_group_link">' + display_name + "</a>";
+            if (no_linking) {
+              return display_name;
+            } else {
+              return '<a href="/usergroups/' + ug.id + '" ' + target + 'data-user-group-id="' + ug.id + '" class="internal_user_group_link">' + display_name + "</a>";
+            }
           }
         } else {
           if (tsf_mode != "GROWL" && tsf_mode != "EDIT") {
@@ -31231,6 +31248,15 @@ TS.registerModule("constants", {
       return node.hasAttribute(attr);
     });
   };
+  var _isLinkStartOrEnd = function(token) {
+    if (!_link_start_prefix) {
+      _link_start_prefix = TSF.LINK_START.split(" ")[0];
+    }
+    if (_.startsWith(token, _link_start_prefix)) return true;
+    if (token === TSF.LINK_END) return true;
+    return false;
+  };
+  var _link_start_prefix;
 })();
 (function() {
   "use strict";
@@ -75121,14 +75147,15 @@ $.fn.togglify = function(settings) {
 
   function r() {
     S || (S = !0, _.EventEmitter.injectReactEventListener(g), _.EventPluginHub.injectEventPluginOrder(s), _.EventPluginUtils.injectComponentTree(p), _.EventPluginUtils.injectTreeTraversal(h), _.EventPluginHub.injectEventPluginsByName({
-      SimpleEventPlugin: C,
-      EnterLeaveEventPlugin: u,
-      ChangeEventPlugin: a,
-      SelectEventPlugin: w,
-      BeforeInputEventPlugin: i
-    }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
-      return new d(e);
-    }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
+        SimpleEventPlugin: C,
+        EnterLeaveEventPlugin: u,
+        ChangeEventPlugin: a,
+        SelectEventPlugin: w,
+        BeforeInputEventPlugin: i
+      }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
+        return new d(e);
+      }), _.Updates.injectReconcileTransaction(y),
+      _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
   }
   var o = n(235),
     i = n(237),
@@ -76867,8 +76894,7 @@ $.fn.togglify = function(settings) {
             n = e.scrollLeft,
             r = e.scrollToCell,
             o = e.scrollTop;
-          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(),
-            this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
+          this._scrollbarSizeMeasured || (this._scrollbarSize = w()(), this._scrollbarSizeMeasured = !0, this.setState({})), r >= 0 ? this._updateScrollPositionForScrollToCell() : (n >= 0 || o >= 0) && this._setScrollPosition({
             scrollLeft: n,
             scrollTop: o
           }), this._invokeOnSectionRenderedHelper();

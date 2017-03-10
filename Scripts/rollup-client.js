@@ -13761,7 +13761,8 @@
         dl_start_ts: Date.now() / 1e3,
         end_ts: 0,
         base64_png: ""
-      }, _downloads.push(_downloads_map[token]);
+      };
+      _downloads.push(_downloads_map[token]);
       _sortDownloads();
       _addDlDiv(_downloads_map[token]);
       _showProperPaneContent();
@@ -15085,6 +15086,19 @@
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
         }
+        var show_experts = results.messages.modules && results.messages.modules.experts && results.messages.modules.experts.matches;
+        if (show_experts) {
+          var terms = TS.search.query.split(" ");
+          html += '<div class="search_module_header"><p><span>Experts <a href="http://slack.com/god/search_experts_terms.php?terms=' + terms + '">debug</a></span></p></div>';
+          html += '<div class="search_results_items">';
+          var experts = results.messages.modules.experts.matches;
+          for (var i = 0; i < 5; i++) {
+            var user = TS.members.getMemberById(experts[i]["expert"]["encoded_user"]);
+            var channel = TS.channels.getChannelById(experts[i]["expert"]["encoded_channel"]);
+            html += '<div class="search_message_result">' + "<p>@" + user["name"] + " in #" + channel["name"] + "</p></div>";
+          }
+          html += "</div>";
+        }
         show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
         if (show_top_results) {
           var debug = results.messages.modules.score.debug || {};
@@ -15675,13 +15689,13 @@
         }
       });
     });
-    _.forEach(results.messages.modules, function(module) {
-      module.top_results.forEach(function(match) {
+    if (results.messages.modules && results.messages.modules.top_results) {
+      _.forEach(results.messages.modules.top_results, function(match) {
         match._dom_id = TS.templates.makeMsgDomIdInSearchTopResults(match.ts, match, "sort_top_results");
         match._dom_container_id = "search_module_results";
         messages.push(match);
       });
-    });
+    }
     if (!TS.model.prefs.full_text_extracts) {
       var all_unknowns = {};
       messages.forEach(function(msg) {
