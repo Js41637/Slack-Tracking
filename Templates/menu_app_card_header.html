@@ -19,7 +19,39 @@
   {{#if emoji_img_tag}}
     <div class="app_card_emoji" data-qa="app_header_icon">{{emoji_img_tag}}</div>
   {{else}}
-    <img class="app_card_header_icon rounded" data-qa="app_header_icon"
+    {{#if is_edit_mode}}
+      <label for="app_icon" class="app_icon_upload_label display_flex justify_content_center align_items_center
+        {{#unless app_icons}}
+          suppress_replace_text
+        {{/unless}}">
+        <input id="app_icon" type="file" name="icon" accept="image/*;capture=camera" data-drop-zone-input>
+        <div class="app_icon_upload_text
+        {{#if app_icons}}
+          display_none
+        {{else}}
+          display_flex
+        {{/if}}">{{#t}}+ Add App Icon{{/t}}</div>
+        <img class="app_card_header_icon rounded
+        {{#if app_icons}}
+          display_flex
+        {{else}}
+          display_none
+        {{/if}}" data-qa="app_header_icon"
+        {{#if is_slack_integration}}
+          {{!-- Slack owned apps have icons with transparent backgrounds (and position) below 192px. --}}
+          src="{{app_icons.image_192}}"
+        {{else if large}}
+          src="{{app_icons.image_96}}" srcset="{{app_icons.image_96}} 1x, {{app_icons.image_192}} 2x"
+        {{else}}
+          src="{{app_icons.image_64}}" srcset="{{app_icons.image_64}} 1x, {{app_icons.image_128}} 2x"
+        {{/if}}
+        >
+        <div class="app_icon_replace_text display_none position_absolute">{{#t}}Replace App Icon{{/t}}</div>
+        <div class="app_icon_upload_progress display_none justify_content_center align_items_center"></div>
+      </label>
+    {{else}}
+      <img class="app_card_header_icon rounded" data-qa="app_header_icon"
+
       {{#if bot_icons}}
         {{#if bot_icons.image_72}}
           src="{{bot_icons.image_72}}"
@@ -39,7 +71,8 @@
       {{else}}
         src="{{versioned_default_application_icon}}"
       {{/if}}
-    >
+      >
+    {{/if}}
   {{/if}}
   <div class="app_card_header_text">
     <div class="app_card_name_row lato_black flexpane_grey display_flex align_items_center">

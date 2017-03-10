@@ -19635,6 +19635,30 @@ ts-message .broadcast_meta {
   height: 22px
 }
 
+ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child {
+  display: inline
+}
+
+ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child .quote_bar {
+  display: none
+}
+
+ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child .content {
+  padding-left: 0
+}
+
+ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child:before {
+  content: ' '
+}
+
+ts-message .broadcast_meta .root_starts_with_multiline pre.special_formatting:first-child {
+  display: inline
+}
+
+ts-message .broadcast_meta .root_starts_with_multiline pre.special_formatting:first-child:before {
+  content: ' '
+}
+
 ts-message .broadcast_repliers {
   color: #9e9ea6;
   font-size: .8125rem;

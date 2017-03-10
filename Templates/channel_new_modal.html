@@ -14,14 +14,6 @@
         <input id="channel_public_private_toggle" type="checkbox" name="public" value="public" {{#is_public}}checked="checked"{{/is_public}} data-style="toggle" data-on-text="{{#t}}Public{{/t}}" data-off-text="{{#t}}Private{{/t}}" data-label="{{#t}}Anyone on your team can view and join this channel.{{/t}}" data-off-label="{{#t}}This channel can only be joined or viewed by invite.{{/t}}" data-off-class="ts_toggle_orange">
       </label>
     {{/if}}
-    {{#feature flag="feature_tos_oct2016"}}
-    {{else}}
-      <p class="private_channel_item input_note bottom_margin {{#is_public}}hidden{{/is_public}}">
-        {{~#if compliance_exports_enabled_for_team~}}
-          {{#t new_win_name=(newWindowName)}}Although this channel will be private, its contents may be accessible to your team owners via <a href="https://slack.zendesk.com/hc/en-us/articles/203950296-FAQs-about-Slack-s-policy-update#complianceexport" target="{new_win_name}">compliance exports{{/t}}</a>.
-        {{/if~}}
-      </p>
-    {{/feature}}
   </div>
   <div>
     <div class="bottom_margin">

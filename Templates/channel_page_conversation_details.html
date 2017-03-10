@@ -59,11 +59,7 @@
     {{/feature}}
     <div class="member_title mini">
       {{#if member.is_slackbot}}
-        {{#slackbotHelpEnabled}}
-          {{#t new_win_name=(newWindowName)}}Friendly bot, part-time programmer, and <a href="https://get.slack.help/hc/en-us" target="{new_win_name}">Help Center</a> assistant-in-training.{{/t}}
-        {{else}}
-          {{#t}}Friendly bot, part-time programmer, full-time assistant.{{/t}}
-        {{/slackbotHelpEnabled}}
+        {{#t new_win_name=(newWindowName)}}Friendly bot, part-time programmer, and <a href="https://get.slack.help/hc/en-us" target="{new_win_name}">Help Center</a> assistant-in-training.{{/t}}
       {{else}}{{member.profile.title}}
       {{/if}}
     </div>

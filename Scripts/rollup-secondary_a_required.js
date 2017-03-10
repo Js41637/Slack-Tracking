@@ -7364,7 +7364,7 @@ TS.registerModule("constants", {
         TS.files.doneRefreshingFile(id, '<span class="moscow_red">' + TS.i18n.t("Refresh failed.", "files")() + "</span>", 5e3);
         TS.menu.$menu.find("#refresh_file").find(".item_label").text(TS.i18n.t("Refresh failed", "files")()).end();
       }
-      if (ok & !data.will_refresh) {
+      if (ok && !data.will_refresh) {
         TS.files.doneRefreshingFile(id, '<span class="moscow_red">' + TS.i18n.t("File refreshed < 1 minute ago.", "files")() + "</span>", 5e3);
       }
       if (TS.web && ok) {
@@ -10330,7 +10330,7 @@ TS.registerModule("constants", {
         TS.storage.disableMemberBotCache();
       }
       var make_sure_active_channel_is_in_view = false;
-      if (TS.client && TS.client.ui & !TS.model.ms_logged_in_once) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
+      if (TS.client && TS.client.ui && !TS.model.ms_logged_in_once) TS.client.ui.rebuildAll(make_sure_active_channel_is_in_view);
     }
   });
   var _ensure_im_ids_p;
@@ -22842,12 +22842,22 @@ TS.registerModule("constants", {
         }
         if (template_args.is_broadcast && msg.root) {
           template_args.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(msg.root));
-          var root_msg_text = _.get(msg, "root.text");
+          var root_msg_text = msg.root.text;
           if (root_msg_text) {
             var formatted_root = TS.format.formatWithOptions(root_msg_text, msg.root, {
-              for_growl: true
+              no_highlights: true,
+              no_hex_colors: true,
+              do_inline_imgs: false,
+              enable_slack_action_links: false,
+              do_theme_install_buttons: false,
+              no_jumbomoji: true,
+              no_linking: true,
+              custom_linebreak: "&hellip;<br>"
             });
-            template_args.root_excerpt = new Handlebars.SafeString(TS.utility.htmlEntities(formatted_root));
+            if (_.startsWith(formatted_root, "<div") || _.startsWith(formatted_root, "<pre")) {
+              template_args.root_starts_with_multiline = true;
+            }
+            template_args.root_excerpt = new Handlebars.SafeString(formatted_root);
           }
         }
         var item;
@@ -24549,13 +24559,6 @@ TS.registerModule("constants", {
           return options.inverse(this);
         }
       });
-      Handlebars.registerHelper("slackbotHelpEnabled", function(options) {
-        if (TS.boot_data.slackbot_help_enabled) {
-          return options.fn(this);
-        } else {
-          return options.inverse(this);
-        }
-      });
       Handlebars.registerHelper("makeUnshareLinkById", function(id) {
         var file = TS.files.getFileById(TS.web.file.file_id);
         var ob = TS.shared.getModelObById(id);
@@ -24707,7 +24710,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("maybeGetIconForTeamProfileField", function(label) {
         var icons = ["slack", "apple", "android", "twitter", "github", "google", "windows", "youtube", "skype", "facebook", "asana", "linkedin", "tumblr", "instagram", "soundcloud", "flickr", "pinterest", "tripit", "hangouts", "viber", "line"];
         label = label.toLowerCase();
-        if (~icons.indexOf(label)) return '<i class="ts_icon ts_icon_' + label + '"></i>';
+        if (icons.indexOf(label) > -1) return '<i class="ts_icon ts_icon_' + label + '"></i>';
       });
       Handlebars.registerHelper("getVisibleTeamProfileFieldsForMember", function(member) {
         var fields = TS.team.getVisibleTeamProfileFieldsForMember(member);
@@ -26164,7 +26167,7 @@ TS.registerModule("constants", {
       var msg;
       for (var i = 0; i < msgs.length; i++) {
         msg = msgs[i];
-        if (msg.subtype && msg.subtype != "me_message") continue;
+        if (msg.subtype && msg.subtype !== "me_message" && msg.subtype !== "thread_broadcast") continue;
         if (msg[name] == value) return msg;
       }
       return null;

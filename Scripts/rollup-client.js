@@ -3509,7 +3509,11 @@
     channelMessageChanged: function(channel, msg, changed_keys) {
       if (channel.id != TS.model.active_channel_id) return;
       setTimeout(function() {
-        TS.view.rebuildMsg(msg, changed_keys);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+          TS.view.channel.channelMessageReceived(channel, msg);
+        } else {
+          TS.view.rebuildMsg(msg, changed_keys);
+        }
       }, 0);
     },
     channelMarked: function(channel) {
@@ -4099,7 +4103,11 @@
     groupMessageChanged: function(group, msg, changed_keys) {
       if (group.id != TS.model.active_group_id) return;
       setTimeout(function() {
-        TS.view.rebuildMsg(msg, changed_keys);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+          TS.view.group.groupMessageReceived(group, msg);
+        } else {
+          TS.view.rebuildMsg(msg, changed_keys);
+        }
       }, 0);
     },
     groupMarked: function(group) {
@@ -4278,7 +4286,11 @@
     imMessageChanged: function(im, msg, changed_keys) {
       if (im.id !== TS.model.active_im_id) return;
       setTimeout(function() {
-        TS.view.rebuildMsg(msg, changed_keys);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+          TS.view.im.imMessageReceived(im, msg);
+        } else {
+          TS.view.rebuildMsg(msg, changed_keys);
+        }
       }, 0);
     },
     imMarked: function(im) {
@@ -4660,7 +4672,11 @@
     mpimMessageChanged: function(mpim, msg, changed_keys) {
       if (mpim.id !== TS.model.active_mpim_id) return;
       setTimeout(function() {
-        TS.view.rebuildMsg(msg, changed_keys);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+          TS.view.mpim.mpimMessageReceived(mpim, msg);
+        } else {
+          TS.view.rebuildMsg(msg, changed_keys);
+        }
       }, 0);
     },
     mpimJoined: function() {
