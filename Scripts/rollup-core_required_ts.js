@@ -3146,15 +3146,8 @@
       var noise_ms = Math.floor(Math.random() * interval_duration_noise_ms);
       setInterval(_sendDataAndEmptyQueue, interval_duration_ms + noise_ms);
       $(window).on("beforeunload", _sendDataAndEmptyQueue);
-      $("body").on("click", '[data-clog-click="true"]', _onClick);
-      $("body").on("click", '[data-clog-ui-action="click"]', _onClick);
-      if (TS.model && TS.model.user && TS.model.team && TS.model.user.id && TS.model.team.id) {
-        TS.clog.setUser(TS.model.user.id);
-        TS.clog.setTeam(TS.model.team.id);
-      }
-      if (TS.model && TS.model.enterprise && TS.model.enterprise.id) {
-        TS.clog.setEnterprise(TS.model.enterprise.id);
-      }
+      $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', _onClick);
+      _fetchModelValues();
     },
     setUser: function(id) {
       _user_id = id;
@@ -3164,6 +3157,10 @@
     },
     setEnterprise: function(id) {
       _enterprise_id = id;
+    },
+    toggleDebugMode: function() {
+      _is_debug_mode = !_is_debug_mode;
+      return _is_debug_mode;
     },
     track: function(event, args) {
       _recordLog(event, args);
@@ -3219,6 +3216,7 @@
   var _team_id;
   var _enterprise_id;
   var _user_id;
+  var _is_debug_mode = false;
   var _detectClogEndpoint = function(host) {
     var is_dev = host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack.com/);
     var is_qa = host.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack.com/);
@@ -3240,15 +3238,16 @@
       event: event,
       args: args
     };
+    _fetchModelValues();
     if (_team_id) payload["team_id"] = _team_id;
     if (_enterprise_id) payload["enterprise_id"] = _enterprise_id;
     if (_user_id) payload["user_id"] = _user_id;
-    if (TS.model) {
-      if (TS.model.team && TS.model.team.id) payload["team_id"] = TS.model.team.id;
-      if (TS.model.enterprise && TS.model.enterprise.id) payload["enterprise_id"] = TS.model.enterprise.id;
-      if (TS.model.user && TS.model.user.id) payload["user_id"] = TS.model.user.id;
-    }
     _logs.push(payload);
+    if (_is_debug_mode) {
+      try {
+        console.log(payload);
+      } catch (err) {}
+    }
     if (TS.log) TS.log(_LOG_PRI, "Event called:", event, args);
   };
   var _sendDataAndEmptyQueue = function() {
@@ -3295,6 +3294,7 @@
       return;
     }
     var args = {};
+    var params = TS.clog.parseParams(this.getAttribute("data-clog-params"));
     var ui_context_action = this.getAttribute("data-clog-ui-action");
     if (ui_context_action) {
       args = {
@@ -3302,15 +3302,18 @@
         action: this.getAttribute("data-clog-ui-action"),
         step: this.getAttribute("data-clog-ui-step")
       };
-    }
-    var params = this.getAttribute("data-clog-params");
-    params = TS.clog.parseParams(params);
-    if (ui_context_action) {
       args = {
         contexts: {
           ui_context: args
         }
       };
+    }
+    switch (event.toUpperCase()) {
+      case "WEBSITE_CLICK":
+        params["page_url"] = location.href;
+        break;
+      default:
+        break;
     }
     args = _mergeParams(params, args);
     TS.clog.track(event, args);
@@ -3324,6 +3327,13 @@
       obj3[property] = obj2[property];
     }
     return obj3;
+  };
+  var _fetchModelValues = function() {
+    if (TS.model) {
+      if (TS.model.enterprise && TS.model.enterprise.id) TS.clog.setEnterprise(TS.model.enterprise.id);
+      if (TS.model.team && TS.model.team.id) TS.clog.setTeam(TS.model.team.id);
+      if (TS.model.user && TS.model.user.id) TS.clog.setUser(TS.model.user.id);
+    }
   };
 })();
 (function() {

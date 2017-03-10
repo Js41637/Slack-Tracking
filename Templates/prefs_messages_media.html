@@ -58,11 +58,14 @@
       </label>
     {{/isOurApp}}
   {{else}}
-    <label class="checkbox">
-      <input id="load_lato_2_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
-      {{#t new_win_name=(newWindowName)}}Use font with <a href="http://www.latofonts.com/2014/02/27/lato-2-0-released/" target="{new_win_name}">extended latin character set</a><br>
-      <span class="normal">If you use a language with accented characters, this will improve font appearance. Requires reload to take effect.</span>{{/t}}
-    </label>
+    {{#feature flag="feature_intl_channel_names"}}
+    {{else}}
+      <label class="checkbox">
+        <input id="load_lato_2_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_display_options">
+        {{#t new_win_name=(newWindowName)}}Use font with <a href="http://www.latofonts.com/2014/02/27/lato-2-0-released/" target="{new_win_name}">extended latin character set</a><br>
+        <span class="normal">If you use a language with accented characters, this will improve font appearance. Requires reload to take effect.</span>{{/t}}
+      </label>
+    {{/feature}}
   {{/if}}
 </p>
 

@@ -1263,13 +1263,6 @@ $(window).load(function() {
       event: "optout_nav_create_team"
     });
   });
-  $("body").on("click", "[data-clog-event=WEBSITE_CLICK]", function(e) {
-    var params = this.getAttribute("data-clog-params");
-    if (!params) return;
-    var args = TS.clog.parseParams(params);
-    args["page_url"] = location.href;
-    TS.clog.track("WEBSITE_CLICK", args);
-  });
   $("#submit_team_domain").on("click", function(e) {
     gtmDataLayer.push({
       event: "submit_team_domain"
