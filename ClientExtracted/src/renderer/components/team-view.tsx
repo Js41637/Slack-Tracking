@@ -75,7 +75,7 @@ export interface NotificationReplyArgs extends NotificationClickArgs {
 }
 
 export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
-  private readonly issueReload = new Subject<void>();
+  private issueReload = new Subject<void>();
   private webAppHasLoaded = new AsyncSubject<boolean>();
   private downloadManager: DownloadManager;
 
@@ -449,6 +449,8 @@ export class TeamView extends Component<TeamViewProps, Partial<TeamViewState>> {
   private onWebappLoaded(): void {
     this.webAppHasLoaded.next(true);
     this.webAppHasLoaded.complete();
+
+    this.issueReload = new Subject<void>();
 
     if (this.downloadManager) this.downloadManager.dispose();
     this.downloadManager = new DownloadManager({teamView: this});

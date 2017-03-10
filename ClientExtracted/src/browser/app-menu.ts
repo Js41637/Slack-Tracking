@@ -40,6 +40,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
     'application:about': eventActions.showAbout,
     'application:release-notes': eventActions.showReleaseNotes,
     'application:reset-app-data': eventActions.confirmAndResetApp,
+    'application:clear-cache-restart': eventActions.clearCacheRestartApp,
     'application:report-issue': eventActions.reportIssue,
     'application:check-for-update': appActions.checkForUpdate,
     'application:show-settings': () => {

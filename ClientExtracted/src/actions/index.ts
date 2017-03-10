@@ -62,10 +62,10 @@ export type eventsType = 'EDITING_COMMAND' | 'APP_COMMAND' |
                          'TOGGLE_FULL_SCREEN' | 'SHOW_ABOUT' |
                          'SHOW_RELEASE_NOTES' | 'SHOW_WEBAPP_DIALOG' |
                          'SIGN_OUT_TEAM' | 'REFRESH_TEAM' |
-                         'CONFIRM_AND_RESET_APP' | 'REPORT_ISSUE' |
-                         'PREPARE_AND_REVEAL_LOGS' | 'CLOSE_ALL_UPDATE_BANNERS' |
-                         'POPUP_APP_MENU' | 'TOGGLE_DEV_TOOLS' |
-                         'SYSTEM_TEXT_SETTINGS_CHANGED';
+                         'CONFIRM_AND_RESET_APP' | 'CLEAR_CACHE_RESTART_APP' |
+                         'REPORT_ISSUE' | 'PREPARE_AND_REVEAL_LOGS' |
+                         'CLOSE_ALL_UPDATE_BANNERS' | 'POPUP_APP_MENU' |
+                         'TOGGLE_DEV_TOOLS' | 'SYSTEM_TEXT_SETTINGS_CHANGED';
 
 export const EVENTS = {
   EDITING_COMMAND: 'EDITING_COMMAND' as eventsType,
@@ -84,6 +84,7 @@ export const EVENTS = {
   SIGN_OUT_TEAM: 'SIGN_OUT_TEAM' as eventsType,
   REFRESH_TEAM: 'REFRESH_TEAM' as eventsType,
   CONFIRM_AND_RESET_APP: 'CONFIRM_AND_RESET_APP' as eventsType,
+  CLEAR_CACHE_RESTART_APP: 'CLEAR_CACHE_RESTART_APP' as eventsType,
   REPORT_ISSUE: 'REPORT_ISSUE' as eventsType,
   PREPARE_AND_REVEAL_LOGS: 'PREPARE_AND_REVEAL_LOGS' as eventsType,
   CLOSE_ALL_UPDATE_BANNERS: 'CLOSE_ALL_UPDATE_BANNERS' as eventsType,

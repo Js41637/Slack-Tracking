@@ -58,8 +58,8 @@ export abstract class WindowHelpers {
         }
       }, 2000);
 
-      logger.warn('Renderer process died, attempting to restart');
-      browserWindow.webContents.reload();
+      logger.warn('WindowHelpers: Renderer process died, attempting to restart');
+      browserWindow.webContents.reloadIgnoringCache();
     });
   }
 

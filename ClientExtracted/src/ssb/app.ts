@@ -295,15 +295,14 @@ export class AppIntegration {
 
   /**
    * Returns our app log files zipped and as a DOM file element (or un-zipped if zipping fails
-   * for some reason). The logs will be sorted by modification time, so we'll only grab the most
-   * recent `n` files.
+   * for some reason). The logs will be sorted by modification time,
+   * and will pick up latest logs modified in a week. (7 days)
    *
-   * @param  {Number} maxFiles      The maximum number of log files to retrieve
    * @return {Promise<Array<File>>} A Promise that resolves with an array of Files
    */
-  public async getAppLogFiles(maxFiles: number = 8): Promise<Array<File>> {
+  public async getAppLogFiles(): Promise<Array<File>> {
     try {
-      const logFiles = await logger.getMostRecentLogFiles(maxFiles);
+      const logFiles = await logger.getMostRecentLogFiles();
 
       if (isWin32) {
         logFiles.push(`${process.execPath}/../SquirrelSetup.log`);
@@ -311,14 +310,18 @@ export class AppIntegration {
 
       //convert in-memory zip archive buffer into dom file directly
       const archiver = await createZipArchiver(logFiles).toPromise();
-      const archiveBuffer = await archiver.generateAsync({type: 'nodebuffer'});
+      const archiveBuffer = await archiver.generateAsync({
+        compression: 'DEFLATE',
+        compressionOptions: { level: 7 },
+        type: 'nodebuffer'
+      } as any);
       const file = new File([archiveBuffer], 'logs.zip', {type: 'text/plain'});
 
       return [file];
     } catch (error) {
       logger.warn(`Couldn't zip log files: ${error}`);
 
-      return logger.getMostRecentLogFiles(maxFiles, (observable: Observable<any>) => {
+      return logger.getMostRecentLogFiles(7, (observable: Observable<any>) => {
         return observable.flatMap((logFile) => domFileFromPath(logFile)
           .catch((err: Error) => {
           logger.warn(`Unable to get file: ${err.message}`);
@@ -398,12 +401,12 @@ export class AppIntegration {
 
   /**
    * Set the new zoom level. Will be automatically clamped between
-   * -2 and 3.
+   * -3 and 3.
    *
    * @param {number} zoomLevel
    */
   public setZoom(zoomLevel: number): void {
-    settingActions.updateSettings({zoomLevel: Math.max(-2, Math.min(zoomLevel, 3))});
+    settingActions.updateSettings({zoomLevel: Math.max(-3, Math.min(zoomLevel, 3))});
   }
 
   /**

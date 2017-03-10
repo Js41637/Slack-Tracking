@@ -40,24 +40,39 @@ export function copySmallFileSync(from: string, to: string): void {
  * Creates a jsZip archiver instance by reading given files
  *
  * @param  {String[]} files         The files to add to the Zip archive, should be plain text
+ * @param  {number} quota           Maximum size of raw files to be included in archive, in MB.
+ *                                  There isn't good prediction of how large archive size will be, so this parmater
+ *                                  specficis original files maximum size in total instead. Default is 50MB.
  */
-export function createZipArchiver(files: Array<string>): Observable<jszip> {
+export function createZipArchiver(files: Array<string>, quota: number = 50): Observable<JSZip> {
   //bindNodeCallback has type issue with reafile (supplying 'utf-8' for secondary option), cast to any
   const readFileAsObservable = Observable.bindNodeCallback(fs.readFile) as any;
   const archiver = new jszip();
 
   return Observable.from(files)
-    .filter((file) => !!fs.statSyncNoException(file))
+    .map((file) => ({
+      name: file,
+      stat: fs.statSyncNoException(file)
+    }))
+    .filter((file) => !!file.stat && !!file.stat.size)
     .mergeMap((file) => {
-      return (readFileAsObservable(file, 'utf-8') as Observable<string>).catch((err: Error) => {
-        const message = `could not read log file ${file}, ${err}`;
+      return (readFileAsObservable(file.name, 'utf-8') as Observable<string>).catch((err: Error) => {
+        const message = `could not read log file ${file.name}, ${err}`;
         logger.error(message);
         return Observable.of(message);
-      }).map((content: string) => ({ file, content }));
-    }).reduce((acc: jszip, value: { file: string, content: string }) => {
-      acc.file(path.basename(value.file), value.content);
+      }).map((content: string) => ({ file: file.name, content, size: file.stat.size / 1000000.0 }));
+    }).reduce((acc: { archiver: JSZip, rawFileSize: number }, value: { file: string, content: string, size: number }) => {
+      if (acc.rawFileSize + value.size <= quota) {
+        acc.archiver.file(path.basename(value.file), value.content);
+        acc.rawFileSize += value.size;
+      } else {
+        logger.warn(`raw file size in total is exceeded given quota ${quota}, skipping file ${value.file} to archive`);
+      }
       return acc;
-    }, archiver);
+    }, {
+      archiver,
+      rawFileSize: 0
+    }).map((x) => x.archiver);
 }
 
 /**

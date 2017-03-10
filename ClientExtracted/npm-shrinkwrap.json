@@ -106,9 +106,9 @@
           "version": "6.6.0"
         }
       },
-      "from": "@paulcbetts/calls-core@1.1.27",
-      "resolved": "https://registry.npmjs.org/@paulcbetts/calls-core/-/calls-core-1.1.27.tgz",
-      "version": "1.1.27"
+      "from": "@paulcbetts/calls-core@2.0.6",
+      "resolved": "https://registry.npmjs.org/@paulcbetts/calls-core/-/calls-core-2.0.6.tgz",
+      "version": "2.0.6"
     },
     "@paulcbetts/cld": {
       "dependencies": {
@@ -206,9 +206,9 @@
           "version": "1.2.1"
         }
       },
-      "from": "@paulcbetts/slack-calls@1.1.27",
-      "resolved": "https://registry.npmjs.org/@paulcbetts/slack-calls/-/slack-calls-1.1.27.tgz",
-      "version": "1.1.27"
+      "from": "@paulcbetts/slack-calls@2.0.6",
+      "resolved": "https://registry.npmjs.org/@paulcbetts/slack-calls/-/slack-calls-2.0.6.tgz",
+      "version": "2.0.6"
     },
     "@paulcbetts/spellchecker": {
       "from": "@paulcbetts/spellchecker@>=4.0.5 <5.0.0",
@@ -6004,8 +6004,8 @@
     },
     "keyboard-layout": {
       "from": "keyboard-layout@>=2.0.7 <3.0.0",
-      "resolved": "https://registry.npmjs.org/keyboard-layout/-/keyboard-layout-2.0.10.tgz",
-      "version": "2.0.10"
+      "resolved": "https://registry.npmjs.org/keyboard-layout/-/keyboard-layout-2.0.11.tgz",
+      "version": "2.0.11"
     },
     "kind-of": {
       "dev": true,
@@ -6068,7 +6068,7 @@
       "resolved": "https://registry.npmjs.org/lcov-summary/-/lcov-summary-1.0.1.tgz",
       "version": "1.0.1"
     },
-    "legal-eagle": {
+    "@paulcbetts/legal-eagle": {
       "dependencies": {
         "underscore": {
           "dev": true,
@@ -6078,9 +6078,9 @@
         }
       },
       "dev": true,
-      "from": "legal-eagle@>=0.13.0 <0.14.0",
-      "resolved": "https://registry.npmjs.org/legal-eagle/-/legal-eagle-0.13.0.tgz",
-      "version": "0.13.0"
+      "from": "@paulcbetts/legal-eagle@0.13.0-pr.11v5",
+      "resolved": "https://registry.npmjs.org/@paulcbetts/legal-eagle/-/legal-eagle-0.13.0-pr.11v5.tgz",
+      "version": "0.13.0-pr.11v5"
     },
     "less": {
       "dev": true,

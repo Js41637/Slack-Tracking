@@ -121,10 +121,16 @@ export class BrowserWindowManager<S extends BrowserWindowManagerState> extends R
    * @param  {Bool} {everything}  True to reload the main window, false to reload
    *                              just the focused window or a single team
    */
-  public reloadEvent({everything}: {everything: boolean}): void {
+  public async reloadEvent({everything}: {everything: boolean}) {
     const mainWindow = this.getMainWindow();
+
     if (everything) {
-      mainWindow.reload();
+      if (mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.reloadIgnoringCache();
+      } else {
+        mainWindow.reload();
+      }
+
       return;
     }
 
@@ -135,7 +141,11 @@ export class BrowserWindowManager<S extends BrowserWindowManagerState> extends R
 
     // NB: Calls windows do not support being reloaded
     if (windowParams && !windowStore.isCallsWindow(windowParams.subType)) {
-      focusedWindow.reload();
+      if (focusedWindow && focusedWindow.webContents) {
+        focusedWindow.webContents.reloadIgnoringCache();
+      } else {
+        focusedWindow.reload();
+      }
     }
   }
 
@@ -253,10 +263,14 @@ export class BrowserWindowManager<S extends BrowserWindowManagerState> extends R
 
     if (!this.state.selectedTeam) {
       mainWindow = this.getMainWindow();
+
+      if (!mainWindow) return;
       mainWindow.setTitle($intl.t(`Slack`, LOCALE_NAMESPACE.GENERAL)());
     } else if (!prevSelectedTeam && this.state.selectedTeam ||
       prevSelectedTeam!.team_name !== this.state.selectedTeam.team_name) {
       mainWindow = this.getMainWindow();
+
+      if (!mainWindow) return;
       mainWindow.setTitle($intl.t(`Slack - {teamName}`, LOCALE_NAMESPACE.GENERAL)({teamName: this.state.selectedTeam.team_name}));
     }
   }

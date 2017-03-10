@@ -67,3 +67,8 @@ export interface UpdateInformation {
 
 export const IS_STORE_BUILD = process.mas || process.windowsStore;
 export const IS_BOOTED_EVAL = `!!(typeof TSSSB !== 'undefined' && TS && TS.boot_data)`;
+
+export const DEFAULT_CLEAR_STORAGE_OPTIONS = {
+  storages: [ 'appcache', 'cookies', 'filesystem', 'indexdb', 'localstorage', 'shadercache', 'websql', 'serviceworkers' ],
+  quotas: [ 'temporary', 'persistent', 'syncable' ]
+};

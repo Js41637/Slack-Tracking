@@ -43,6 +43,12 @@ const ERROR_CODES_TO_IGNORE: Array<number> = [
   */
 const CHROMIUM_BLANK_PAGE_URL = 'data:text/html,chromewebdata';
 
+/**
+ * Only do the empty page check on some URLs, to avoid us detecting teams' auth
+ * pages as empty during signin.
+ */
+const LOAD_CHECK_WHITELIST = [/^https:\/\/(\w*\.?)slack\.com\/messages/];
+
 // View a complete list of webview options at
 // https://github.com/atom/electron/blob/master/docs/api/web-view-tag.md
 export interface WebViewContextProps {
@@ -235,7 +241,7 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
   }
 
   public reload(): void {
-    this.webViewElement.reload();
+    this.webViewElement.reloadIgnoringCache();
   }
 
   /**
@@ -342,38 +348,24 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
   }
 
   /**
-   * Listen for the `did-stop-loading` event and ensure that we loaded correctly.
-   *
-   * We stopped loading - ensure that we actually received anything.
-   * This protects against a loss of internet right when we think
-   * that the WebView loaded successfully. ERR_NETWORK_CHANGED does
-   * not always bubble up appropriately.
-   *
-   * Likewise, ensure that we loaded CSS stylesheets. The number of
-   * stylesheets loaded should _always_ be greater or equal to the
-   * number of stylesheets references in <head>.
+   * Listen for the `did-stop-loading` event and ensure that we are on a real
+   * page. ERR_NETWORK_CHANGED seems to result in a white screen in many cases,
+   * so guard against that here.
    *
    * @param {any} webView
    * @returns {Subscription}
    */
   private setupLoadChecks(webView: Electron.WebViewElement): Subscription {
     const checkBlankPage = `document.location.href !== '${CHROMIUM_BLANK_PAGE_URL}'`;
-    const checkForChildren = `document.body && document.body.childElementCount && document.body.childElementCount > 0`;
-    const checkForLoadedCSS = `document.styleSheets.length >= [...document.head.children].filter(c => c.type === 'text/css').length`;
-    const fullyLoadedCheck = `${checkBlankPage} && ${checkForChildren} && ${checkForLoadedCSS}`;
-
     const didStopLoading = Observable.fromEvent(webView, 'did-stop-loading');
 
     return Observable.merge(didStopLoading, this.authDialogClosed)
       .debounceTime(1000)
-      .filter(() => !this.shouldSkipLoadCheck())
-      .flatMap(() => this.executeJavaScript(fullyLoadedCheck))
-      .catch((err) => {
-        if (err.name !== 'TimeoutError') logger.warn(`Could not check document within webview: ${err.message}`);
-        return Observable.of(null);
-      })
+      .filter(() => !this.shouldSkipLoadCheck(webView))
+      .flatMap(() => this.executeJavaScript(checkBlankPage))
+      .catch(() => Observable.of(null))
       .filter((isFullyLoaded) => isFullyLoaded === false)
-      .do(() => logger.error(`${webView.getURL()} failed the load check`))
+      .do(() => logger.error(`${webView.getURL()} was stuck at ${CHROMIUM_BLANK_PAGE_URL}`))
       .subscribe(() => this.props.onPageEmptyAfterLoad!(webView.getURL()));
   }
 
@@ -383,12 +375,17 @@ export class WebViewContext extends Component<WebViewContextProps, Partial<WebVi
    *
    * @return {Boolean}  True to bypass the empty page check, false otherwise
    */
-  private shouldSkipLoadCheck(): boolean {
-    if (this.state.authInfo || process.env.SLACK_SKIP_EMPTY_PAGE_CHECK) {
-      const reason = this.state.authInfo ? 'basic auth' : 'environment variable';
-      logger.warn(`Skipping empty page check because of ${reason}`);
+  private shouldSkipLoadCheck(webView: Electron.WebViewElement): boolean {
+    if (!webView || !LOAD_CHECK_WHITELIST.some((regExp) => regExp.test(webView.getURL()))) {
+      logger.warn('Skipping empty page check for ', webView ? webView.getURL() : 'empty webview');
       return true;
     }
+
+    if (this.state.authInfo) {
+      logger.warn('Skipping empty page check during basic auth');
+      return true;
+    }
+
     return false;
   }
 

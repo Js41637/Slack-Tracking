@@ -133,8 +133,8 @@ function updateSettings(settings: SettingType, update: SettingType) {
 }
 
 function changeWindowZoom(settings: SettingType, change: number) {
-  // clamp the zoom to be between [-2, 3]
-  const zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -2), 3);
+  // clamp the zoom to be between [-3, 3]
+  const zoomLevel = Math.min(Math.max(settings.zoomLevel + change, -3), 3);
   return {
     ...settings,
     zoomLevel

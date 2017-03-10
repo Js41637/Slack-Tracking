@@ -34,7 +34,7 @@ export function zoomLevelToFactor(level: number = 0): number {
   }
 
   const positive = [1, 1.1, 1.25, 1.5];
-  const negative = [1, .9, .8];
+  const negative = [1, .9, .8, .7];
 
   return level > 0 ? positive[level] : negative[level * -1];
 }

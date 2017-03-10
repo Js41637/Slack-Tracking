@@ -1,8 +1,8 @@
 {
   "name": "slack",
   "productName": "Slack",
-  "version": "2.5.1",
-  "buildVersion": 4030,
+  "version": "2.5.2",
+  "buildVersion": 4042,
   "versionName": "Walking on a Dream",
   "description": "Slack Desktop",
   "copyright": "©2017 Slack Technologies Inc.",
@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@paulcbetts/gc": "^1.0.1",
-    "@paulcbetts/slack-calls": "1.1.27",
+    "@paulcbetts/slack-calls": "2.0.6",
     "@paulcbetts/system-idle-time": "^1.0.4",
     "@paulcbetts/v8-profiler": "^5.6.6",
     "@types/classnames": "0.0.32",
@@ -238,6 +238,6 @@
     "typescript": "^2.1.5",
     "yargs": "^3"
   },
-  "commit": "3c0af3857fa3a25877555b8da5f22ee26c70b2f4",
+  "commit": "441e5a348d925ee6da73d29f4d1617ca0b1b6b29",
   "channel": "beta"
 }

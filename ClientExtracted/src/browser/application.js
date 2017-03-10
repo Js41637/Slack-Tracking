@@ -40,6 +40,7 @@ import {teamStore} from '../stores/team-store';
 import TrayHandler from './tray-handler';
 import {WebContentsMediator} from './web-contents-mediator';
 import {windowCreator} from './window-creator';
+import {DEFAULT_CLEAR_STORAGE_OPTIONS} from '../utils/shared-constants';
 
 import {intl as $intl, LOCALE_NAMESPACE} from '../i18n/intl';
 
@@ -133,6 +134,7 @@ export default class Application extends ReduxComponent {
       showAboutEvent: eventStore.getEvent('showAbout'),
       showReleaseNotesEvent: eventStore.getEvent('showReleaseNotes'),
       confirmAndResetAppEvent: eventStore.getEvent('confirmAndResetApp'),
+      clearCacheRestartAppEvent: eventStore.getEvent('clearCacheRestartApp'),
       prepareAndRevealLogsEvent: eventStore.getEvent('prepareAndRevealLogs')
     };
   }
@@ -294,9 +296,14 @@ export default class Application extends ReduxComponent {
       }
 
       const zipPath = p`${'temp'}/logs.zip`;
-      createZipArchiver(filesToArchive, zipPath).mergeMap((archiver) =>
+      createZipArchiver(filesToArchive).mergeMap((archiver) =>
         Observable.fromEvent(archiver
-          .generateNodeStream({type: 'nodebuffer', streamFiles: true})
+          .generateNodeStream({
+            compression: 'DEFLATE',
+            compressionOptions: { level: 7 },
+            type: 'nodebuffer',
+            streamFiles: true
+          })
           .pipe(fs.createWriteStream(zipPath)), 'finish').mapTo(true).catch((err) => {
             logger.error(`could not write zip archive into destination ${err}`);
             return Observable.of(false);
@@ -384,17 +391,40 @@ export default class Application extends ReduxComponent {
     if (await confirmation) {
       logger.warn('User chose to clear all app data, say goodbye!');
 
-      const mainSession = this.mainWindow.webContents.session;
-      await new Promise((resolve) => mainSession.clearCache(resolve));
-      await new Promise((resolve) => mainSession.clearStorageData(resolve));
-
       const hasMigratedData = this.state.hasMigratedData;
 
+      await this.clearCacheAndStorage();
       await Store.resetStore();
 
       // NB: Don't migrate folks more than once.
       settingActions.updateSettings({hasMigratedData});
       restartApp();
+    }
+  }
+
+  /**
+   * Handles the 'clear cache and restart app' event, which can be triggered from the window menu.
+   * This will clear the cache and storage data (excluding cookies), followed by an app restart.
+   */
+  async clearCacheRestartAppEvent() {
+    const storageOptions = {...DEFAULT_CLEAR_STORAGE_OPTIONS};
+    storageOptions.storages = storageOptions.storages.filter((v) => v !== 'cookies');
+
+    await this.clearCacheAndStorage({ storageOptions });
+
+    restartApp({ destroyWindows: true });
+  }
+
+  /**
+   * Removes all storage data and cache.
+   */
+  async clearCacheAndStorage(options) {
+    const storageOptions = options && options.storageOptions ? options.storageOptions : DEFAULT_CLEAR_STORAGE_OPTIONS;
+
+    if (this.mainWindow && this.mainWindow.webContents && this.mainWindow.webContents.session) {
+      const mainSession = this.mainWindow.webContents.session;
+      await new Promise((resolve) => mainSession.clearCache(resolve));
+      await new Promise((resolve) => mainSession.clearStorageData(storageOptions, resolve));
     }
   }
 

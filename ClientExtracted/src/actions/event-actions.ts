@@ -103,6 +103,10 @@ export class EventActions {
     Store.dispatch({type: EVENTS.CONFIRM_AND_RESET_APP} as any);
   }
 
+  public clearCacheRestartApp(): void {
+    Store.dispatch({type: EVENTS.CLEAR_CACHE_RESTART_APP} as any);
+  }
+
   public reportIssue(): void {
     Store.dispatch({type: EVENTS.REPORT_ISSUE} as any);
   }

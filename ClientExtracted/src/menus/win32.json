@@ -96,6 +96,9 @@
           "id": "menuitem-reload-current"
         },
         {
+          "type": "separator"
+        },
+        {
           "label": "Toggle &Full Screen",
           "command": "window:toggle-full-screen",
           "accelerator": "Control+Shift+F",
@@ -237,6 +240,11 @@
           "label": "Show &Logs in Explorer",
           "command": "application:prepare-and-reveal-logs",
           "id": "menuitem-reveal-logs"
+        },
+        {
+          "label": "&Clear Cache and Restart",
+          "command": "application:clear-cache-restart",
+          "id": "menuitem-clear-cache"
         },
         {
           "label": "Reset App Data…",

@@ -151,15 +151,25 @@ export class Logger {
   public getMostRecentLogFiles(days: number = 7, transform: Function | null = null): Promise<Array<string>> {
     const transformFunction = transform || (<T>(observable: Observable<T>) => observable);
 
-    const recentLogs = this.getLogFiles().filter((file: string) => {
-      const stat = fs.statSyncNoException(file);
-      if (stat && stat.mtime) {
+    type fileObject = { fileName: string, date: number }; //tslint:disable-line:interface-over-type-literal
+    const recentLogs = this.getLogFiles()
+      .map((file: string) => {
+        const stat = fs.statSyncNoException(file);
+        const ret = {
+          fileName: file,
+          date: Number.NaN
+        };
+
         //we do not need accurate date calculation, take rough way to estimate it
-        const date = Math.floor((Date.now() - stat.mtime.getTime()) / 86400000);
-        return date < days;
-      }
-      return false;
-    });
+        ret.date = (stat && stat.mtime) ? Math.floor((Date.now() - stat.mtime.getTime()) / 86400000) : Number.NEGATIVE_INFINITY;
+        return ret;
+      }).filter((file: fileObject) => file.date >= 0 && file.date < days)
+      .sort((a: fileObject, b: fileObject) => {
+        if (a.date === b.date) {
+          return 0;
+        }
+        return a.date < b.date ? -1 : 1;
+      }).map((x: fileObject) => x.fileName);
 
     return transformFunction(Observable.from(recentLogs))
       .catch(() => Observable.of(null))

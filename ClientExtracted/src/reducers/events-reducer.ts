@@ -11,6 +11,7 @@ eventSignatures[EVENTS.TOGGLE_FULL_SCREEN] = {name: 'toggleFullScreen'};
 eventSignatures[EVENTS.SHOW_ABOUT] = {name: 'showAbout'};
 eventSignatures[EVENTS.SHOW_RELEASE_NOTES] = {name: 'showReleaseNotes'};
 eventSignatures[EVENTS.CONFIRM_AND_RESET_APP] = {name: 'confirmAndResetApp'};
+eventSignatures[EVENTS.CLEAR_CACHE_RESTART_APP] = {name: 'clearCacheRestartApp'};
 eventSignatures[EVENTS.REPORT_ISSUE] = {name: 'reportIssue'};
 eventSignatures[EVENTS.PREPARE_AND_REVEAL_LOGS] = {name: 'prepareAndRevealLogs'};
 eventSignatures[EVENTS.CLOSE_ALL_UPDATE_BANNERS] = {name: 'closeAllUpdateBanners'};
