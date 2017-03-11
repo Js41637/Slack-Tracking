@@ -7,6 +7,13 @@
     <fieldset class="large_bottom_margin">
       <legend id="prefs_a11y_font_size">{{#t}}Zoom{{/t}}</legend>
 
+            {{#if zoom_pref_70_supported}}
+                <label class="radio normal">
+                    <input name="a11y_font_size_select" type="radio" value="70">
+                    {{#t note="setting for text size"}}<strong>70%</strong>{{/t}}
+                </label>
+            {{/if}}
+
       <label class="radio normal">
         <input name="a11y_font_size_select" type="radio" value="80">
         {{#t note="setting for text size"}}<strong>80%</strong>{{/t}}

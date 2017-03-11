@@ -31681,9 +31681,11 @@
         html = function() {
           var pref_text_size_enabled = TS.boot_data.feature_a11y_pref_text_size;
           var zoom_enabled = TS.boot_data.feature_a11y_ui_zoom;
+          var zoom_pref_70_supported = TS.model.is_electron && (TSSSB.env.mac_ssb_version > 2.5 || TSSSB.env.mac_ssb_version === 2.5 && TSSSB.env.mac_ssb_version_minor === 2 || TSSSB.env.lin_ssb_version > 2.5 || TSSSB.env.lin_ssb_version === 2.5 && TSSSB.env.lin_ssb_version_minor === 2 || TSSSB.env.win_ssb_version > 2.5 || TSSSB.env.win_ssb_version === 2.5 && TSSSB.env.win_ssb_version_minor === 2);
           template_args = {
             font_size_pref_enabled: pref_text_size_enabled && !zoom_enabled,
-            zoom_pref_enabled: !pref_text_size_enabled && zoom_enabled && TSSSB.supports_zoom_api
+            zoom_pref_enabled: !pref_text_size_enabled && zoom_enabled && TSSSB.supports_zoom_api,
+            zoom_pref_70_supported: zoom_pref_70_supported
           };
           return TS.templates.prefs_a11y(template_args);
         }();

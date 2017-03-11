@@ -10573,7 +10573,6 @@ TS.registerModule("constants", {
           return team;
         }
       }
-      if (_hack_mapping[id]) return _hack_mapping[id];
       TS.console.warn("team " + id + " not in local model");
       return null;
     },
@@ -10584,15 +10583,11 @@ TS.registerModule("constants", {
       }
       if (!_.isString(domain)) return null;
       if (TS.model.team.domain === domain) return TS.model.team;
-      var team = _.find(_hack_mapping, {
-        domain: domain
-      });
-      if (team) return team;
       if (!TS.model.teams) {
         TS.console.warn("TS.teams.getTeamByDomain() → TS.model.teams is missing.");
         return null;
       }
-      team = _.find(TS.model.teams, {
+      var team = _.find(TS.model.teams, {
         domain: domain
       });
       if (team) return team;
@@ -10691,18 +10686,6 @@ TS.registerModule("constants", {
     }
   });
   var _id_map = {};
-  var _hack_mapping = {
-    T024BE9UG: {
-      id: "T024BE9UG",
-      domain: "rsquared",
-      name: "Rsquared Communication"
-    },
-    T024BE7LD: {
-      id: "T024BE7LD",
-      domain: "tinyspeck",
-      name: "Slack Corp"
-    }
-  };
   var _processNewTeamForUpserting = function(team) {
     if (!TS.boot_data.feature_shared_channels_client) {
       TS.console.warn("external shared channels must be on to use this");
@@ -60452,6 +60435,7 @@ $.fn.togglify = function(settings) {
     }
   });
   var _zoom_percent_to_level = {
+    70: "-3",
     80: "-2",
     90: "-1",
     normal: "0",
@@ -70602,7 +70586,8 @@ $.fn.togglify = function(settings) {
   }
 
   function a(e) {
-    e.currentTarget === window && null == c && (c = document.body.style.pointerEvents, document.body.style.pointerEvents = "none"), i(), l.forEach(function(t) {
+    e.currentTarget === window && null == c && (c = document.body.style.pointerEvents,
+      document.body.style.pointerEvents = "none"), i(), l.forEach(function(t) {
       t.scrollElement === e.currentTarget && t.__handleWindowScrollEvent(e);
     });
   }
@@ -75150,15 +75135,14 @@ $.fn.togglify = function(settings) {
 
   function r() {
     S || (S = !0, _.EventEmitter.injectReactEventListener(g), _.EventPluginHub.injectEventPluginOrder(s), _.EventPluginUtils.injectComponentTree(p), _.EventPluginUtils.injectTreeTraversal(h), _.EventPluginHub.injectEventPluginsByName({
-        SimpleEventPlugin: C,
-        EnterLeaveEventPlugin: u,
-        ChangeEventPlugin: a,
-        SelectEventPlugin: w,
-        BeforeInputEventPlugin: i
-      }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
-        return new d(e);
-      }), _.Updates.injectReconcileTransaction(y),
-      _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
+      SimpleEventPlugin: C,
+      EnterLeaveEventPlugin: u,
+      ChangeEventPlugin: a,
+      SelectEventPlugin: w,
+      BeforeInputEventPlugin: i
+    }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
+      return new d(e);
+    }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
   }
   var o = n(235),
     i = n(237),
