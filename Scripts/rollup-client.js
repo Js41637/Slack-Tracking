@@ -18838,7 +18838,7 @@
           if (query && query.length >= min_query_length_before_upserting_deferreds) {
             if (prev_channels_query && prev_channels_query.indexOf(query) >= 0) {} else {
               prev_channels_query = query;
-              TS.model.deferred_archived_channels.filter(function(channel) {
+              TS.model.deferred_archived_channels.forEach(function(channel) {
                 if (channel.name.indexOf(query) >= 0) {
                   TS.channels.getChannelById(channel.id);
                 }
@@ -18868,7 +18868,7 @@
           if (query && query.length >= min_query_length_before_upserting_deferreds) {
             if (prev_groups_query && prev_groups_query.indexOf(query) >= 0) {} else {
               prev_groups_query = query;
-              TS.model.deferred_archived_groups.filter(function(group) {
+              TS.model.deferred_archived_groups.forEach(function(group) {
                 if (group.name.indexOf(query) >= 0) {
                   TS.groups.getGroupById(group.id);
                 }
@@ -31173,19 +31173,20 @@
     if (TS.model.user.is_ultra_restricted && !is_admin) return Promise.resolve([]);
     return TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, member_ids).then(function() {
       var invitable_members = _(members_subset).map(function(member) {
-        if (member.is_ultra_restricted) return;
-        if (member.is_slackbot) return;
-        if (member.is_self) return;
+        if (member.is_ultra_restricted) return undefined;
+        if (member.is_slackbot) return undefined;
+        if (member.is_self) return undefined;
         if (TS.lazyLoadMembersAndBots()) {
-          if (TS.flannel.isMemberDeleted(member.id)) return;
+          if (TS.flannel.isMemberDeleted(member.id)) return undefined;
         } else {
-          if (member.deleted) return;
+          if (member.deleted) return undefined;
         }
-        if (!is_admin && member.is_restricted && !channel.is_group) return;
+        if (!is_admin && member.is_restricted && !channel.is_group) return undefined;
         var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, channel);
         if (!membership_status.is_member) {
           if (TS.permissions.channels.canMemberJoinChannel(channel, member)) return member;
         }
+        return undefined;
       }).compact().uniq().value();
       return invitable_members;
     });

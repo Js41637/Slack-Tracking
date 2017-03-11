@@ -1851,7 +1851,7 @@
     var form_data = new FormData;
     var include_token = _no_token.indexOf(method) < 0;
     var any_data = false;
-    Object.keys(args).map(function(k) {
+    Object.keys(args).forEach(function(k) {
       if (k === "token" && !include_token) return;
       if (k[0] === "_") return;
       form_data.append(k, args[k]);
@@ -12228,15 +12228,13 @@ TS.registerModule("constants", {
     getVisibleTeamProfileFieldsForMember: function(member, include_empty_member_fields) {
       if (!(member && member.profile)) return [];
       if (!TS.model.team.profile.fields.length) TS.warn("Ensure profile fields exist before calling getVisibleTeamProfileFieldsForMember");
-      return TS.model.team.profile.fields.map(function(field) {
-        if ((include_empty_member_fields || _.get(member.profile, ["fields", field.id, "value"])) && !field.is_hidden) {
-          return $.extend(true, {
-            value: _.get(member.profile, ["fields", field.id, "value"]),
-            alt: _.get(member.profile, ["fields", field.id, "alt"])
-          }, field);
-        }
-      }).filter(function(field) {
-        return !!field;
+      return TS.model.team.profile.fields.filter(function(field) {
+        return (include_empty_member_fields || _.get(member.profile, ["fields", field.id, "value"])) && !field.is_hidden;
+      }).map(function(field) {
+        return $.extend(true, {
+          value: _.get(member.profile, ["fields", field.id, "value"]),
+          alt: _.get(member.profile, ["fields", field.id, "alt"])
+        }, field);
       });
     },
     isEntireTeamLoaded: function() {
@@ -13612,8 +13610,7 @@ TS.registerModule("constants", {
               var value = "";
               field.value.split(/\s*\,\s*/).some(function(id) {
                 value = TS.members.getMemberDisplayNameById(id, false);
-                match = value.match(start_regex) || value.match(suffix_regex);
-                if (match) return true;
+                return value.match(start_regex) || value.match(suffix_regex);
               });
               if (match) {
                 if (!matches[team_field.id]) matches[team_field.id] = [];
@@ -19274,6 +19271,7 @@ TS.registerModule("constants", {
             }
             break;
         }
+        return undefined;
       });
       var actions_html = rendered_actions.join("");
       return actions_html;
@@ -21747,6 +21745,7 @@ TS.registerModule("constants", {
             return TS.members.getMemberDisplayName(member);
           }
         }
+        return undefined;
       })).join(", ");
     },
     makeSHRoomSharedList: function(room) {
@@ -39540,7 +39539,7 @@ var _on_esc;
         var geocodeHandler = function(results, status) {
           var has_exact_match = false;
           if (status == google.maps.GeocoderStatus.OK) {
-            results.slice(0, max_results).map(function(result) {
+            results.slice(0, max_results).forEach(function(result) {
               mapperFunction(result);
               has_exact_match = has_exact_match || !result.partial_match;
             });
@@ -44605,8 +44604,8 @@ var _on_esc;
       }
       if (matches) {
         pinned_items_index = index;
-        return true;
       }
+      return matches;
     });
     if (!pinned && pinned_items_index !== -1) {
       model_ob.pinned_items.splice(pinned_items_index, 1);
@@ -46019,15 +46018,14 @@ $.fn.togglify = function(settings) {
       } else {
         items = response.objects;
       }
-      items = _(items).map(function(item) {
-        if (item.is_ultra_restricted) return;
-        if (TS.flannel.isMemberDeleted(item.id)) return;
+      return items.filter(function(item) {
+        return !(item.is_ultra_restricted || TS.flannel.isMemberDeleted(item.id));
+      }).map(function(item) {
         return {
           member: item,
           lfs_id: String(item.id)
         };
-      }).compact().value();
-      return items;
+      });
     });
   };
   var _bindFilterSelect = function(preselected_ids) {
@@ -46921,7 +46919,7 @@ $.fn.togglify = function(settings) {
   var _isAlreadySelected = function(instance, item) {
     if (!instance._selected.length) return false;
     var matches = instance._selected.filter(function(selected_item) {
-      if (selected_item.lfs_id === item.lfs_id) return true;
+      return selected_item.lfs_id === item.lfs_id;
     });
     return !!matches.length;
   };
@@ -47094,7 +47092,7 @@ $.fn.togglify = function(settings) {
     var data_item = _getData(instance, $item, true);
     if (data_item.disabled || instance.restrict_preselected_item_removal && data_item.preselected) return;
     instance._selected = instance._selected.filter(function(item) {
-      if (item !== data_item) return true;
+      return item !== data_item;
     });
     var $list_item = instance.$list.find('[data-lfs-id="' + data_item.lfs_id + '"]');
     $list_item.removeClass("selected");
@@ -47110,7 +47108,7 @@ $.fn.togglify = function(settings) {
     if (!_instanceCanSluggify(instance)) return;
     var data_item = _getUserCreatedSlugData(instance, $slug);
     instance._selected = instance._selected.filter(function(item) {
-      if (item !== data_item) return true;
+      return item !== data_item;
     });
     $slug.remove();
     _updateVal(instance);
@@ -47375,7 +47373,7 @@ $.fn.togglify = function(settings) {
     var data_item = _getData(instance, $item, true);
     $item.removeClass("selected");
     instance._selected = instance._selected.filter(function(item) {
-      if (item !== data_item) return true;
+      return item !== data_item;
     });
     instance.$input_container.find('.lfs_item[data-lfs-id="' + data_item.lfs_id + '"]').remove();
     _updateVal(instance);
@@ -47418,8 +47416,10 @@ $.fn.togglify = function(settings) {
   };
   var _updateVal = function(instance) {
     if (instance.append) return;
-    var values = instance._selected.map(function(item) {
-      if (item instanceof HTMLOptionElement) return $(item).val();
+    var values = instance._selected.filter(function(item) {
+      return item instanceof HTMLOptionElement;
+    }).map(function(item) {
+      return $(item).val();
     });
     instance.$select.val(values).trigger("change");
   };
@@ -47983,7 +47983,7 @@ $.fn.togglify = function(settings) {
       }
       var members_with_stale_times = [];
       var members_with_updates = all_members.filter(function(member) {
-        if (member.deleted) return;
+        if (member.deleted) return false;
         var was_in_dnd = member._is_in_dnd || false;
         var is_in_dnd = TS.dnd.isMemberInDnd(member, now);
         var changed = false;
@@ -52771,13 +52771,14 @@ $.fn.togglify = function(settings) {
         } else {
           items = response.items;
         }
-        response.items = _(items).map(function(item) {
-          if (item.is_restricted) return;
+        response.items = items.filter(function(item) {
+          return !item.is_restricted;
+        }).map(function(item) {
           return {
             member: item,
             lfs_id: String(item.id)
           };
-        }).compact().value();
+        });
         return response;
       });
     });

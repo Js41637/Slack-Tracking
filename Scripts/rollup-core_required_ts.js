@@ -4838,9 +4838,11 @@
         }
       });
       $select_share_channels.lazyFilterSelect("getInstance").current_items_in_view_signal.add(function(data) {
-        var members = _.compact(data.map(function(d) {
-          if (d.model_ob && "presence" in d.model_ob) return d.model_ob.id;
-        }));
+        var members = data.filter(function(d) {
+          return d.model_ob && Object.prototype.hasOwnProperty.call(d.model_ob, "presence");
+        }).map(function(d) {
+          return d.model_ob.id;
+        });
         TS.presence_manager.queryMemberPresence(members);
       });
     },
