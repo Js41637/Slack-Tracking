@@ -24278,8 +24278,11 @@ ts-jumper ol li .member_real_name+.member_username,
 ts-jumper ol li .member_username+.member_real_name,
 ts-jumper ol li .team_username {
   font-weight: 400;
-  margin-left: .5rem;
-  color: #717274
+  margin-left: .5rem
+}
+
+ts-jumper ol li .member_team_name {
+  font-weight: 400
 }
 
 ts-jumper ol li .member_type {
@@ -24290,6 +24293,17 @@ ts-jumper ol li .member_type {
 ts-jumper ol li .channel_shared {
   margin-left: .4375rem;
   margin-right: -1rem
+}
+
+ts-jumper ol li .channel_archived,
+ts-jumper ol li .channel_not_member,
+ts-jumper ol li .current_status,
+ts-jumper ol li .member_full_name+.member_preferred_name,
+ts-jumper ol li .member_real_name+.member_username,
+ts-jumper ol li .member_team_name,
+ts-jumper ol li .member_username+.member_real_name,
+ts-jumper ol li .team_username {
+  color: #717274
 }
 
 ts-jumper ol li .unread_count {
@@ -24336,6 +24350,7 @@ ts-jumper ol li.highlighted:not(.no_hover) .member_full_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_full_name+.member_preferred_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_real_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_real_name+.member_username,
+ts-jumper ol li.highlighted:not(.no_hover) .member_team_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_username,
 ts-jumper ol li.highlighted:not(.no_hover) .member_username+.member_real_name,
 ts-jumper ol li.highlighted:not(.no_hover) .team_username,
@@ -24351,6 +24366,7 @@ ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_full_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_full_name+.member_preferred_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_real_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_real_name+.member_username,
+ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_team_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_username,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_username+.member_real_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .team_username,

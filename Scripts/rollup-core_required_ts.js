@@ -249,6 +249,15 @@
     pri: 0,
     console: _console_module,
     features: _features_module,
+    exportToLegacy: function(name, ob) {
+      if (_.has(TS, name)) throw new Error("exportToLegacy: there is already something at " + name + "; we cannot overwrite it");
+      if (ob.onStart) throw new Error("exportToLegacy: may not export objects with onStart methods");
+      if (_dom_is_ready) {
+        _.set(TS, name, ob);
+      } else {
+        TS.registerModule(name, ob);
+      }
+    },
     boot: function(boot_data) {
       TS.boot_data = boot_data;
       if (TS.boot_data.is_in_flannel_experiment) {

@@ -617,7 +617,7 @@
     _updateTicketStatus();
     _bindUI();
     TS.api.call("helpdesk.get", {
-      locale: "en-us"
+      locale: TS.i18n.locale().toLowerCase()
     }, _articlesFetched);
   };
   var _onEnd = function() {

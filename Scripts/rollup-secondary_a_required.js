@@ -9600,17 +9600,17 @@ TS.registerModule("constants", {
           var existing_time = TS.utility.date.toDateObject(existing_msg.ts);
           var temp_time = TS.utility.date.toDateObject(temp_ts);
           if (existing_time < temp_time) {
-            TS.info("existing_msg time is older than temp_msg time, so it cant be the message we were looking for");
+            TS.info("existing_msg time is older than temp_msg time, so it can’t be the message we were looking for");
             existing_msg = null;
           }
         }
         if (!existing_msg) {
-          TS.warn("not removing, we dont appear to have this non-temp message:" + sent_data.msg.text);
+          TS.warn("not removing, we don’t appear to have this non-temp message: " + sent_data.msg.ts);
           TS.model.unsent_msgs[temp_msg.ts] = true;
           controller.msg_not_sent_sig.dispatch(model_ob, temp_msg);
           continue;
         }
-        TS.info("removing temp_msg:" + temp_msg.ts + " " + temp_msg.text + " existing_msg:" + existing_msg.ts + " " + existing_msg.text);
+        TS.info("removing temp_msg: " + temp_msg.ts + " existing_msg:" + existing_msg.ts);
         delete TS.ms.sent_map[k];
         if (!controller) controller = TS.shared.getControllerForModelOb(model_ob);
         if (_.isFunction(controller.removeMsg)) controller.removeMsg(model_ob.id, temp_msg);
@@ -10603,6 +10603,13 @@ TS.registerModule("constants", {
       if (!team_id) return null;
       var team = TS.teams.getTeamById(team_id);
       if (team) return team;
+      return null;
+    },
+    getTeamNameByMember: function(member) {
+      if (!TS.boot_data.feature_shared_channels_client) return;
+      if (!_.isObject(member)) return null;
+      var team = TS.teams.getTeamById(member.team_id);
+      if (team && team.name) return team.name;
       return null;
     },
     upsertAndSignal: function(team) {
@@ -24299,6 +24306,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getMemberDisplayName", function(member, should_escape, include_at_sign) {
         return TS.members.getMemberDisplayName(member, should_escape === true, include_at_sign === true);
       });
+      Handlebars.registerHelper("getTeamNameByMember", function(member) {
+        return TS.teams.getTeamNameByMember(member);
+      });
       if (TS.boot_data.feature_name_tagging_client) {
         Handlebars.registerHelper("getMemberPreferredName", function(member_or_id) {
           return TS.members.getMemberPreferredName(member_or_id);
@@ -31163,7 +31173,7 @@ TS.registerModule("constants", {
       }
       return boundry + at_member_id;
     });
-    var channel_name_regex = TS.boot_data.feature_intl_channel_names ? /(^|\s|\(|&gt;|\*|_|\/)(#([^~`!@#$%^&*()+=[\]{}\\|;:'",.<>\/? ]+))/g : /(^|\s|\(|&gt;|\*|_|\/)(#([a-zA-Z0-9\-_]+))/g;
+    var channel_name_regex = TS.boot_data.feature_intl_channel_names ? /(^|\s|\(|&gt;|\*|_|\/)(#([^~`!@#$%^&*()+=[\]{}\\|;:'",.<>\/?\s]+))/g : /(^|\s|\(|&gt;|\*|_|\/)(#([a-zA-Z0-9\-_]+))/g;
     txt = txt.replace(channel_name_regex, function(match, boundry, hash_channel_id, channel_id, offset) {
       if (boundry === "/" && _isPartOfUrl(txt, match, offset)) return match;
       var valid = _validateModelObByIdOrName(TS.channels.getChannelById, hash_channel_id.substr(1), TS.channels.getChannelByName, hash_channel_id);
@@ -67247,21 +67257,22 @@ $.fn.togglify = function(settings) {
     v = !1,
     m = -1;
   p.nextTick = function(e) {
-    var t = new Array(arguments.length - 1);
-    if (arguments.length > 1)
-      for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-    h.push(new u(e, t)), 1 !== h.length || v || o(s);
-  }, u.prototype.run = function() {
-    this.fun.apply(null, this.array);
-  }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l, p.emit = l, p.binding = function(e) {
-    throw new Error("process.binding is not supported");
-  }, p.cwd = function() {
-    return "/";
-  }, p.chdir = function(e) {
-    throw new Error("process.chdir is not supported");
-  }, p.umask = function() {
-    return 0;
-  };
+      var t = new Array(arguments.length - 1);
+      if (arguments.length > 1)
+        for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
+      h.push(new u(e, t)), 1 !== h.length || v || o(s);
+    }, u.prototype.run = function() {
+      this.fun.apply(null, this.array);
+    }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l,
+    p.emit = l, p.binding = function(e) {
+      throw new Error("process.binding is not supported");
+    }, p.cwd = function() {
+      return "/";
+    }, p.chdir = function(e) {
+      throw new Error("process.chdir is not supported");
+    }, p.umask = function() {
+      return 0;
+    };
 }, function(e, t, n) {
   "use strict";
 
