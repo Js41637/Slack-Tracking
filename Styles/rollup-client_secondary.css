@@ -24265,6 +24265,14 @@ ts-jumper ol li .ts_icon_spinner {
   left: -2px
 }
 
+ts-jumper ol li .jumper_score {
+  font-weight: 400;
+  position: absolute;
+  right: 2.5rem;
+  color: #717274;
+  font-size: .7rem
+}
+
 ts-jumper ol li.highlighted:not(.no_hover),
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) {
   background: #2D9EE0;
@@ -24276,6 +24284,7 @@ ts-jumper ol li.highlighted:not(.no_hover) .channel_archived,
 ts-jumper ol li.highlighted:not(.no_hover) .channel_name,
 ts-jumper ol li.highlighted:not(.no_hover) .channel_not_member,
 ts-jumper ol li.highlighted:not(.no_hover) .current_status,
+ts-jumper ol li.highlighted:not(.no_hover) .jumper_score,
 ts-jumper ol li.highlighted:not(.no_hover) .member_full_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_full_name+.member_preferred_name,
 ts-jumper ol li.highlighted:not(.no_hover) .member_real_name,
@@ -24290,6 +24299,7 @@ ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .channel_archived,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .channel_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .channel_not_member,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .current_status,
+ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .jumper_score,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_full_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_full_name+.member_preferred_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .member_real_name,
@@ -24301,6 +24311,10 @@ ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) .view_name,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) i.presence_icon,
 ts-jumper ol:not(.keyboard_active) li:hover:not(.no_hover) ts-icon {
   color: #fff
+}
+
+ts-jumper ol.show_scores li .item_details {
+  max-width: calc(100% - 5rem)
 }
 
 ts-jumper ts-jumper-switch-loading {

@@ -23543,6 +23543,9 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("convertFilesize", function(size) {
         return TS.utility.convertFilesize(size);
       });
+      Handlebars.registerHelper("roundToThree", function(num) {
+        return TS.utility.roundToThree(num);
+      });
       Handlebars.registerHelper("toDate", function(ts) {
         return TS.utility.date.toDate(ts);
       });
@@ -51921,24 +51924,36 @@ $.fn.togglify = function(settings) {
       });
       return user_groups;
     },
+    promiseToGetUserGroupMembers: function(id) {
+      return TS.api.call("subteams.users.list", {
+        subteam: id,
+        include_disabled: 1
+      }).then(function(resp) {
+        var data = resp.data;
+        var user_group = TS.user_groups.mergeAndUpsertUserGroupFromUsersListCall(id, data);
+        return user_group;
+      });
+    },
     getUserGroupMembers: function(id, handler) {
       TS.api.call("subteams.users.list", {
         subteam: id,
         include_disabled: 1
       }, function(ok, data) {
         if (ok && data) {
-          var user_group = TS.user_groups.getUserGroupsById(id);
-          if (user_group) {
-            user_group.users = data.users;
-            user_group.user_count = data.users.length;
-            TS.user_groups.upsertUserGroupAndSignal(user_group);
-            user_group = TS.user_groups.getUserGroupsById(id);
-            if (handler) {
-              handler(user_group);
-            }
+          var user_group = TS.user_groups.mergeAndUpsertUserGroupFromUsersListCall(id, data);
+          if (user_group && handler) {
+            handler(user_group);
           }
         }
       });
+    },
+    mergeAndUpsertUserGroupFromUsersListCall: function(id, data) {
+      var user_group = TS.user_groups.getUserGroupsById(id);
+      if (!user_group) return;
+      user_group.users = data.users;
+      user_group.user_count = data.users.length;
+      TS.user_groups.updated_sig.dispatch(user_group.id);
+      return user_group;
     },
     updateMembersOfUserGroup: function(data, handler) {
       TS.api.call("subteams.users.update", data, handler);
@@ -51965,29 +51980,15 @@ $.fn.togglify = function(settings) {
         include_disabled: 1
       }, handler);
     },
-    getMembersInCorG: function(user_group_id, id, callback) {
-      var ug = TS.user_groups.getUserGroupsById(user_group_id);
-      var channel = TS.channels.getChannelById(id) || TS.groups.getGroupById(id);
-      var result = [];
-      var filter_members = function() {
-        var group = TS.user_groups.getUserGroupsById(user_group_id);
-        var members = group.users.filter(function(member_id) {
-          var user_membership = TS.membership.getUserChannelMembershipStatus(member_id, channel);
-          return user_membership.is_known && user_membership.is_member;
-        });
-        return members;
-      };
-      var do_work = function() {
-        result = filter_members();
-        return callback(result);
-      };
-      if (!ug || !channel) {
-        return callback(result, true);
+    ensureUserGroupMembersInModelObNumIsKnown: function(user_group_id, model_ob_id) {
+      var user_group = TS.user_groups.getUserGroupsById(user_group_id);
+      var channel = TS.channels.getChannelById(model_ob_id) || TS.groups.getGroupById(model_ob_id);
+      if (!user_group || !channel) {
+        return Promise.resolve();
       }
-      if (ug.users === undefined) {
-        if (!_pending_group_requests[user_group_id]) {
-          _pending_group_requests[user_group_id] = true;
-          TS.user_groups.getUserGroupMembers(user_group_id, function(updated_group) {
+      if (_.isUndefined(user_group.users)) {
+        if (!_pending_group_request_promises[user_group_id]) {
+          _pending_group_request_promises[user_group_id] = TS.user_groups.promiseToGetUserGroupMembers(user_group_id).then(function(updated_group) {
             if (updated_group && updated_group.users) {
               var known_membership_promise;
               if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
@@ -51995,29 +51996,41 @@ $.fn.togglify = function(settings) {
               } else {
                 known_membership_promise = Promise.resolve();
               }
-              known_membership_promise.then(function() {
-                _pending_group_requests[user_group_id] = false;
-                ug = updated_group;
-                return do_work();
-              });
+              return known_membership_promise;
             }
+          }).finally(function() {
+            delete _pending_group_request_promises[user_group_id];
           });
+          return _pending_group_request_promises[user_group_id];
         } else {
-          return callback(result, true);
+          return _pending_group_request_promises[user_group_id];
         }
       } else {
         if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
-          if (TS.membership.isChannelMembershipKnownForUsers(channel.id, ug.users)) {
-            return do_work();
-          } else {
-            TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, ug.users).then(function() {
-              return do_work();
-            });
-          }
+          return TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, user_group.users);
         } else {
-          return do_work();
+          return Promise.resolve();
         }
       }
+    },
+    getUserGroupMembersNotInModelObCount: function(user_group_id, model_ob_id) {
+      var user_group = TS.user_groups.getUserGroupsById(user_group_id);
+      var user_group_count = _.get(user_group, "users.length");
+      var channel = TS.channels.getChannelById(model_ob_id) || TS.groups.getGroupById(model_ob_id);
+      if (!user_group || !channel) {
+        return 0;
+      }
+      if (_.isUndefined(user_group.users)) {
+        return 0;
+      }
+      if (TS.membership && TS.membership.lazyLoadChannelMembership() && !TS.membership.isChannelMembershipKnownForUsers(channel.id, user_group.users)) {
+        return 0;
+      }
+      var members = user_group.users.filter(function(member_id) {
+        var user_membership = TS.membership.getUserChannelMembershipStatus(member_id, channel);
+        return user_membership.is_known && user_membership.is_member;
+      });
+      return user_group_count - members.length;
     },
     upsertUserGroup: function(user_group) {
       if (TS.model.user && TS.model.user.is_restricted) return false;
@@ -52180,7 +52193,7 @@ $.fn.togglify = function(settings) {
     }
     delete _id_map[user_group.id];
   };
-  var _pending_group_requests = {};
+  var _pending_group_request_promises = {};
   var _login_sig_fired;
 })();
 (function() {
@@ -58236,7 +58249,7 @@ $.fn.togglify = function(settings) {
     getSelf: function() {
       return _.get(TS.enterprise.model.get(), "org.user");
     },
-    splitQueryIntoTerms: function(query, terms) {
+    splitQueryIntoTerms: function(query, terms, type) {
       var results = terms;
       var query_terms;
       query = query.trim();
@@ -58246,7 +58259,7 @@ $.fn.togglify = function(settings) {
         _.each(query_terms, function(term) {
           if (term.length >= 2) {
             results.push({
-              type: "fuzzy_with_email",
+              type: type || "fuzzy_with_email",
               value: term
             });
           }
@@ -61976,7 +61989,8 @@ $.fn.togglify = function(settings) {
         function n() {}
 
         function r(e, t) {
-          this.__wrapped__ = e, this.__actions__ = [], this.__chain__ = !!t, this.__index__ = 0, this.__values__ = J;
+          this.__wrapped__ = e, this.__actions__ = [],
+            this.__chain__ = !!t, this.__index__ = 0, this.__values__ = J;
         }
 
         function o(e) {
@@ -70513,7 +70527,8 @@ $.fn.togglify = function(settings) {
       }, {
         key: "componentWillUnmount",
         value: function() {
-          n.i(_.b)(this, this.props.scrollElement || window), window.removeEventListener("resize", this._onResize, !1);
+          n.i(_.b)(this, this.props.scrollElement || window),
+            window.removeEventListener("resize", this._onResize, !1);
         }
       }, {
         key: "render",
@@ -75136,15 +75151,14 @@ $.fn.togglify = function(settings) {
 
   function r() {
     S || (S = !0, _.EventEmitter.injectReactEventListener(g), _.EventPluginHub.injectEventPluginOrder(s), _.EventPluginUtils.injectComponentTree(p), _.EventPluginUtils.injectTreeTraversal(h), _.EventPluginHub.injectEventPluginsByName({
-        SimpleEventPlugin: C,
-        EnterLeaveEventPlugin: u,
-        ChangeEventPlugin: a,
-        SelectEventPlugin: w,
-        BeforeInputEventPlugin: i
-      }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
-        return new d(e);
-      }), _.Updates.injectReconcileTransaction(y),
-      _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
+      SimpleEventPlugin: C,
+      EnterLeaveEventPlugin: u,
+      ChangeEventPlugin: a,
+      SelectEventPlugin: w,
+      BeforeInputEventPlugin: i
+    }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
+      return new d(e);
+    }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
   }
   var o = n(235),
     i = n(237),

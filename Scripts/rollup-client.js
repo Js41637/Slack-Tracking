@@ -32438,6 +32438,16 @@
         }, 2400);
       });
     });
+    if (TS.boot_data.feature_show_jumper_scores) {
+      $("#show_jumper_scores").prop("checked", TS.model.prefs.show_jumper_scores === true);
+      $("#show_jumper_scores").on("change", function() {
+        var val = !!$(this).prop("checked");
+        TS.prefs.setPrefByAPI({
+          name: "show_jumper_scores",
+          value: val
+        });
+      });
+    }
   };
   var _bindThemePrefs = function() {
     var $custom_sort_selects = _$div.find(".custom_sort_select");
@@ -35245,7 +35255,8 @@ function timezones_guess() {
       clean_name: clean_name,
       show_extended_search: show_extended_search,
       threads_has_unreads: TS.model.threads_has_unreads,
-      threads_mention_count: TS.model.threads_mention_count
+      threads_mention_count: TS.model.threads_mention_count,
+      show_scores: TS.boot_data.feature_show_jumper_scores && TS.model.prefs.show_jumper_scores
     };
     var html = TS.templates.jumper_results(template_args);
     _$jumper_results.html(html);

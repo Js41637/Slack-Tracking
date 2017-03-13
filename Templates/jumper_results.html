@@ -1,5 +1,5 @@
 {{i18n_ns "jumper"}}{{!-- don't add whitespace here, or the ts-jumper-results:empty selector won't be applied --}}{{#if matches}}{{!-- hbslint-disable unwrapped --}}{{!-- Todo: enable unwrapped linter --}}
-  <ol class="no_pointer_events">{{!-- no_pointer_events to workaround webkit bug: see TS.ui.jumper._captureFakeMousemoveEvent() --}}
+  <ol class="no_pointer_events {{#if show_scores}}show_scores{{/if}}">{{!-- no_pointer_events to workaround webkit bug: see TS.ui.jumper._captureFakeMousemoveEvent() --}}
     {{#each matches}}
 
       {{#feature flag="feature_name_tagging_client"}}
@@ -70,6 +70,9 @@
             {{#if this.model_ob._jumper_previous_name_match}}
               <span class="channel_not_member">{{#t note='Indicates renamed channels, #new-name (formerly #old-name)' previous_name=this.model_ob._jumper_previous_name_match}}(formerly #{previous_name}){{/t}}</span>
             {{/if}}
+          {{/if}}
+          {{#if ../show_scores}}
+            <span class="jumper_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
           {{/if}}
           {{#if this.model_ob.is_mpim}}
             {{#if this.model_ob.unread_cnt}}

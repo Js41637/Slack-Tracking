@@ -98,9 +98,9 @@
     <label class="checkbox">
       <input id="k_key_omnibox_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
       {{#isMac}}
-        {{#t}}Cmd + K starts the quick switcher<br>{{/t}}
+        {{#t}}Cmd + K starts the Quick Switcher<br>{{/t}}
       {{else}}
-        {{#t}}Ctrl + K starts the quick switcher<br>{{/t}}
+        {{#t}}Ctrl + K starts the Quick Switcher<br>{{/t}}
       {{/isMac}}
       <span class="normal greigh">{{#t}}Overrides normal behavior in some browsers{{/t}}</span>
     </label>
@@ -108,7 +108,7 @@
 
   <label class="checkbox">
     <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_other_options">
-    {{#t}}Hide the quick switcher in the channel list{{/t}}
+    {{#t}}Hide the Quick Switcher in the channel list{{/t}}
   </label>
   {{#feature flag='feature_prev_next_button'}}
     <label class="checkbox">
@@ -150,6 +150,14 @@
     <span class="normal tiny_top_margin block greigh">{{#t}}Enabling console logs can help Slack engineers and customer experience agents track down issues you are experiencing.{{/t}}</span>
   </p>
 {{/if}}
+{{#feature flag="feature_show_jumper_scores"}}
+  <p class="medium_bottom_margin">
+    <label class="checkbox">
+      <input id="show_jumper_scores" checked="checked" type="checkbox" data-inline-saver="#prefs_debug">
+      {{#t}}Show scores in the Quick Switcher{{/t}}
+    </label>
+  </p>
+{{/feature}}
 <p class="bold">{{#t}}Changing the following preferences will reload Slack.{{/t}}</p>
 <p>
   <label class="checkbox bottom_margin">
