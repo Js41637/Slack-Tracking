@@ -50978,27 +50978,28 @@ $.fn.togglify = function(settings) {
       _promiseToCallCreateShared(args, is_private).then(function(created_channel) {
         var new_channel_id;
         if (created_channel.data.group) {
-          TS.groups.upsertGroup(created_channel.data.group);
           new_channel_id = created_channel.data.group.id;
-        } else {
-          TS.channels.upsertChannel(created_channel.data.channel);
-          new_channel_id = created_channel.data.channel.id;
-        }
-        return _promiseToCallListShared(is_private).then(function(response) {
-          _setSharedChannelsIntoModel(response.data.channels, is_private);
-          var new_channel_ob = TS.shared.getModelObById(new_channel_id);
-          if (new_channel_ob.is_group) {
-            TS.groups.displayGroup({
-              id: new_channel_id
-            });
-          } else {
-            TS.channels.displayChannel({
-              id: new_channel_id
-            });
+          if (!created_channel.data.group.is_member) {
+            TS.console.warn("A new shared private channel was just created (" + new_channel_id + ") but the creator was not listed as a member in the API response");
+            created_channel.data.group.is_member = true;
           }
-          TS.ui.fs_modal.close();
-          return null;
-        });
+          TS.groups.upsertGroup(created_channel.data.group);
+          TS.groups.displayGroup({
+            id: new_channel_id
+          });
+        } else {
+          new_channel_id = created_channel.data.channel.id;
+          if (!created_channel.data.channel.is_member) {
+            TS.console.warn("A new shared channel was just created (" + new_channel_id + ") but the creator was not listed as a member in the API response");
+            created_channel.data.channel.is_member = true;
+          }
+          TS.channels.upsertChannel(created_channel.data.channel);
+          TS.channels.displayChannel({
+            id: new_channel_id
+          });
+        }
+        TS.ui.fs_modal.close();
+        return null;
       }).catch(_handleError).finally(Ladda.stopAll);
     }
   };
@@ -70587,8 +70588,7 @@ $.fn.togglify = function(settings) {
   }
 
   function a(e) {
-    e.currentTarget === window && null == c && (c = document.body.style.pointerEvents,
-      document.body.style.pointerEvents = "none"), i(), l.forEach(function(t) {
+    e.currentTarget === window && null == c && (c = document.body.style.pointerEvents, document.body.style.pointerEvents = "none"), i(), l.forEach(function(t) {
       t.scrollElement === e.currentTarget && t.__handleWindowScrollEvent(e);
     });
   }
@@ -75136,14 +75136,15 @@ $.fn.togglify = function(settings) {
 
   function r() {
     S || (S = !0, _.EventEmitter.injectReactEventListener(g), _.EventPluginHub.injectEventPluginOrder(s), _.EventPluginUtils.injectComponentTree(p), _.EventPluginUtils.injectTreeTraversal(h), _.EventPluginHub.injectEventPluginsByName({
-      SimpleEventPlugin: C,
-      EnterLeaveEventPlugin: u,
-      ChangeEventPlugin: a,
-      SelectEventPlugin: w,
-      BeforeInputEventPlugin: i
-    }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
-      return new d(e);
-    }), _.Updates.injectReconcileTransaction(y), _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
+        SimpleEventPlugin: C,
+        EnterLeaveEventPlugin: u,
+        ChangeEventPlugin: a,
+        SelectEventPlugin: w,
+        BeforeInputEventPlugin: i
+      }), _.HostComponent.injectGenericComponentClass(f), _.HostComponent.injectTextComponentClass(v), _.DOMProperty.injectDOMPropertyConfig(o), _.DOMProperty.injectDOMPropertyConfig(l), _.DOMProperty.injectDOMPropertyConfig(b), _.EmptyComponent.injectEmptyComponentFactory(function(e) {
+        return new d(e);
+      }), _.Updates.injectReconcileTransaction(y),
+      _.Updates.injectBatchingStrategy(m), _.Component.injectEnvironment(c));
   }
   var o = n(235),
     i = n(237),
