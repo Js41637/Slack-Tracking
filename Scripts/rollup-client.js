@@ -41811,7 +41811,8 @@ function timezones_guess() {
         has_more_end: !!has_more,
         buildSection: function(section) {
           return TS.templates.thread_view_section({
-            is_old_section: section.id === "old_threads"
+            is_old_section: section.id === "old_threads",
+            show_threads_notification_banner: _shouldShowNotificationBanner(section, threads_data)
           });
         },
         buildMsgHTML: function(msg, prev_msg, section) {
@@ -42168,6 +42169,10 @@ function timezones_guess() {
         _renderReplyInputForModelOb(general_channel);
       });
     }
+  };
+  var _shouldShowNotificationBanner = function(section, threads_data) {
+    var group = TS.experiment.getGroup("exp_threads_everything_pref");
+    return group === "show_banner" && !TS.model.prefs.seen_threads_notification_banner && !TS.model.prefs.threads_everything && section.id === "new_threads" && threads_data.length > 3;
   };
   var _initializeTrackingData = function() {
     _initialized_time = Date.now();

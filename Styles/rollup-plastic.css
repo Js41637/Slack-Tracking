@@ -12767,14 +12767,14 @@ only screen and (min-resolution:2dppx) {
   padding-left: 3.125rem
 }
 
-.current_status_input_wrap .current_status_input:empty {
-  padding-right: 0
-}
-
 .current_status_input_wrap .status_clear_icon_wrap {
   position: absolute;
   right: 8px;
   top: 9.5px
+}
+
+.current_status_input_wrap .status_clear_icon_wrap.hidden~.current_status_input {
+  padding-right: 0
 }
 
 #member_preview_scroller .current_status_input_wrap .status_clear_icon_wrap {

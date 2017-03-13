@@ -26509,6 +26509,9 @@ TS.registerModule("constants", {
       } else if (model_ob.is_group && !model_ob.is_mpim) {
         TS.groups.message_changed_sig.dispatch(model_ob, original_msg, changed_keys);
       }
+      if (TS.boot_data.feature_new_broadcast && TS.utility.msgs.msgHasReplies(original_msg)) {
+        TS.replies.updateThreadBroadcastRoots(model_ob, original_msg);
+      }
     },
     removeEphemeralMsg: function(c_id, ephemeral_msg_ts) {
       var model_ob = TS.groups.getGroupById(c_id) || TS.channels.getChannelById(c_id);
@@ -27017,7 +27020,7 @@ TS.registerModule("constants", {
           if (imsg.thread_ts !== imsg.ts && imsg.subtype !== "thread_broadcast") {
             new_msg._hidden_reply = true;
           }
-          if (imsg.subtype === "thread_broadcast" && imsg.root) new_msg.root = imsg.root;
+          if (imsg.subtype === "thread_broadcast" && imsg.root) new_msg.root = TS.utility.msgs.processImsg(imsg.root, c_id);
         } else {
           if (imsg.thread_ts !== imsg.ts) {
             new_msg._hidden_reply = true;
@@ -49377,6 +49380,23 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       TS.client.threads.maybeReloadThreadsView();
     });
+    TS.click.addClientHandler("#thread_notification_banner .btn", function(e, $el) {
+      e.preventDefault();
+      var should_turn_on_pref = $el.data("turn-on-pref");
+      $("#thread_notification_banner").addClass("show_confirmation");
+      TS.prefs.setPrefByAPI({
+        name: "seen_threads_notification_banner",
+        value: true
+      });
+      TS.prefs.setPrefByAPI({
+        name: "threads_everything",
+        value: should_turn_on_pref
+      });
+    });
+    TS.click.addClientHandler("#thread_notification_banner_pref_link", function(e, $el) {
+      e.preventDefault();
+      TS.ui.prefs_dialog.start("notifications", "#prefs_threads_everything", "prefs_notifications");
+    });
     TS.click.addClientHandler("a.see_all_pins", function(e, $el) {
       if (TS.client && TS.client.channel_page) {
         e.preventDefault();
@@ -58865,6 +58885,29 @@ $.fn.togglify = function(settings) {
     },
     maybeSlurpSubscriptionState: function(model_ob_id, msgs) {
       return _maybeSlurpSubscriptionState(model_ob_id, msgs);
+    },
+    updateThreadBroadcastRoots: function(model_ob, updated_root_msg) {
+      var msgs = model_ob.msgs;
+      if (!msgs || !msgs.length) return;
+      _.forEach(msgs, function(msg) {
+        if (msg.ts === updated_root_msg.ts) return;
+        if (msg.thread_ts !== updated_root_msg.ts) return;
+        if (msg.subtype !== "thread_broadcast" || !msg.root) return;
+        var root_msg = msg.root;
+        root_msg.text = updated_root_msg.text;
+        root_msg.reply_count = updated_root_msg.reply_count;
+        root_msg.reply_users = _(updated_root_msg.replies).map("user").compact().uniq().value();
+        root_msg.reply_users_count = root_msg.reply_users.length;
+        if (model_ob.is_channel) {
+          TS.channels.message_changed_sig.dispatch(model_ob, msg);
+        } else if (model_ob.is_im) {
+          TS.ims.message_changed_sig.dispatch(model_ob, msg);
+        } else if (model_ob.is_group && model_ob.is_mpim) {
+          TS.mpims.message_changed_sig.dispatch(model_ob, msg);
+        } else if (model_ob.is_group && !model_ob.is_mpim) {
+          TS.groups.message_changed_sig.dispatch(model_ob, msg);
+        }
+      });
     }
   });
   var _threads_being_loaded = {};
@@ -61989,8 +62032,7 @@ $.fn.togglify = function(settings) {
         function n() {}
 
         function r(e, t) {
-          this.__wrapped__ = e, this.__actions__ = [],
-            this.__chain__ = !!t, this.__index__ = 0, this.__values__ = J;
+          this.__wrapped__ = e, this.__actions__ = [], this.__chain__ = !!t, this.__index__ = 0, this.__values__ = J;
         }
 
         function o(e) {
@@ -67205,21 +67247,22 @@ $.fn.togglify = function(settings) {
     v = !1,
     m = -1;
   p.nextTick = function(e) {
-    var t = new Array(arguments.length - 1);
-    if (arguments.length > 1)
-      for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-    h.push(new u(e, t)), 1 !== h.length || v || o(s);
-  }, u.prototype.run = function() {
-    this.fun.apply(null, this.array);
-  }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l, p.emit = l, p.binding = function(e) {
-    throw new Error("process.binding is not supported");
-  }, p.cwd = function() {
-    return "/";
-  }, p.chdir = function(e) {
-    throw new Error("process.chdir is not supported");
-  }, p.umask = function() {
-    return 0;
-  };
+      var t = new Array(arguments.length - 1);
+      if (arguments.length > 1)
+        for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
+      h.push(new u(e, t)), 1 !== h.length || v || o(s);
+    }, u.prototype.run = function() {
+      this.fun.apply(null, this.array);
+    }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l,
+    p.emit = l, p.binding = function(e) {
+      throw new Error("process.binding is not supported");
+    }, p.cwd = function() {
+      return "/";
+    }, p.chdir = function(e) {
+      throw new Error("process.chdir is not supported");
+    }, p.umask = function() {
+      return 0;
+    };
 }, function(e, t, n) {
   "use strict";
 
@@ -70527,8 +70570,7 @@ $.fn.togglify = function(settings) {
       }, {
         key: "componentWillUnmount",
         value: function() {
-          n.i(_.b)(this, this.props.scrollElement || window),
-            window.removeEventListener("resize", this._onResize, !1);
+          n.i(_.b)(this, this.props.scrollElement || window), window.removeEventListener("resize", this._onResize, !1);
         }
       }, {
         key: "render",

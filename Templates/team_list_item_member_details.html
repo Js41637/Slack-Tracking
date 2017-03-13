@@ -15,7 +15,7 @@
         {{#feature flag="feature_user_custom_status"}}
           {{#if member.profile}}
             {{#or member.profile.status_emoji member.profile.status_text}}
-              {{> current_status}}
+              {{> current_status classes="ts_tip_float"}}
             {{/or}}
           {{/if}}
         {{/feature}}
@@ -50,7 +50,7 @@
           {{#feature flag="feature_user_custom_status"}}
             {{#if member.profile}}
               {{#or member.profile.status_emoji member.profile.status_text}}
-                {{> current_status}}
+                {{> current_status classes="ts_tip_float"}}
               {{/or}}
             {{/if}}
           {{/feature}}
