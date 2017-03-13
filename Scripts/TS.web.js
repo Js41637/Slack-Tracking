@@ -31,6 +31,39 @@
         TS.metrics.measure(TS.boot_data.page_timing_label + "_load", "start_nav");
       }
       if (TS.boot_data && !TS.boot_data.api_active_migration_error_response_type) TS.boot_data.api_active_migration_error_response_type = "show_dialog";
+      $('[data-qa="upgrade_std_btn"]').click(function() {
+        TS.clog.track("GROWTH_PRICING", {
+          contexts: {
+            ui_context: {
+              step: "admin_billing",
+              action: "click",
+              ui_element: "checkout_standard_button"
+            }
+          }
+        });
+      });
+      $('[data-qa="upgrade_btn"]').click(function() {
+        TS.clog.track("GROWTH_PRICING", {
+          contexts: {
+            ui_context: {
+              step: "admin_billing",
+              action: "click",
+              ui_element: "checkout_plus_button"
+            }
+          }
+        });
+      });
+      $('[data-qa="learn_more_btn"]').click(function() {
+        TS.clog.track("GROWTH_PRICING", {
+          contexts: {
+            ui_context: {
+              step: "admin_billing",
+              action: "click",
+              ui_element: "pricing_plus_button"
+            }
+          }
+        });
+      });
     },
     gogogo: function() {
       $("html").bind("mousedown", function() {

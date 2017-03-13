@@ -27020,7 +27020,7 @@ TS.registerModule("constants", {
           if (imsg.thread_ts !== imsg.ts && imsg.subtype !== "thread_broadcast") {
             new_msg._hidden_reply = true;
           }
-          if (imsg.subtype === "thread_broadcast" && imsg.root) new_msg.root = TS.utility.msgs.processImsg(imsg.root, c_id);
+          if (imsg.subtype === "thread_broadcast" && imsg.root) new_msg.root = imsg.root;
         } else {
           if (imsg.thread_ts !== imsg.ts) {
             new_msg._hidden_reply = true;
@@ -67247,22 +67247,21 @@ $.fn.togglify = function(settings) {
     v = !1,
     m = -1;
   p.nextTick = function(e) {
-      var t = new Array(arguments.length - 1);
-      if (arguments.length > 1)
-        for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-      h.push(new u(e, t)), 1 !== h.length || v || o(s);
-    }, u.prototype.run = function() {
-      this.fun.apply(null, this.array);
-    }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l,
-    p.emit = l, p.binding = function(e) {
-      throw new Error("process.binding is not supported");
-    }, p.cwd = function() {
-      return "/";
-    }, p.chdir = function(e) {
-      throw new Error("process.chdir is not supported");
-    }, p.umask = function() {
-      return 0;
-    };
+    var t = new Array(arguments.length - 1);
+    if (arguments.length > 1)
+      for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
+    h.push(new u(e, t)), 1 !== h.length || v || o(s);
+  }, u.prototype.run = function() {
+    this.fun.apply(null, this.array);
+  }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l, p.emit = l, p.binding = function(e) {
+    throw new Error("process.binding is not supported");
+  }, p.cwd = function() {
+    return "/";
+  }, p.chdir = function(e) {
+    throw new Error("process.chdir is not supported");
+  }, p.umask = function() {
+    return 0;
+  };
 }, function(e, t, n) {
   "use strict";
 

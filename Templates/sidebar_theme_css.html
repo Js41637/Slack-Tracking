@@ -116,6 +116,26 @@
     .channel_list_add_link:hover {
       border-color: {{theme.text_color}};
     }
+    /* styles for experiment #feat-link-in-sidebar: 'Invite People' button at bottom of channel list */
+    .channel_list_add_link_feat_link_in_sidebar {
+      color: {{theme.text_color}} !important;
+      border-color: {{theme.hover_item}} !important;
+    }
+    .channel_list_add_link_feat_link_in_sidebar.dim {
+      opacity: 0.6;
+    }
+    .channel_list_add_link_feat_link_in_sidebar:hover, .channel_list_add_link_feat_link_in_sidebar:focus {
+      color: {{theme.text_color}} !important;
+      border-color: {{theme.hover_item}} !important;
+      background-color: {{theme.hover_item}} !important;
+      opacity: 1;
+    }
+    .channel_list_add_link_feat_link_in_sidebar:active {
+      color: {{theme.active_item_text}} !important;
+      border-color: {{theme.active_item}} !important;
+      background-color: {{theme.active_item}} !important;
+      opacity: 1;
+    }
     .overlay_mock_text{
       background: {{theme.text_color}} !important;
     }

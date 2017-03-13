@@ -5591,6 +5591,8 @@
     file_pasted_sig: new signals.Signal,
     onStart: function() {
       TS.channels.data_updated_sig.add(_channelDataUpdated);
+      TS.channels.member_left_sig.add(TS.client.ui.rebuildMemberListToggle);
+      TS.channels.member_joined_sig.add(TS.client.ui.rebuildMemberListToggle);
       TS.ui.window_focus_changed_sig.add(TS.client.ui.windowFocusChanged);
       TS.channels.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
       TS.ims.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
@@ -15105,13 +15107,26 @@
         var show_experts = results.messages.modules && results.messages.modules.experts && results.messages.modules.experts.matches;
         if (show_experts) {
           var terms = TS.search.query.split(" ");
+          var experts = results.messages.modules.experts.matches;
           html += '<div class="search_module_header"><p><span>Experts <a href="http://slack.com/god/search_experts_terms.php?terms=' + terms + '">debug</a></span></p></div>';
           html += '<div class="search_results_items">';
-          var experts = results.messages.modules.experts.matches;
-          for (var i = 0; i < 5; i++) {
-            var user = TS.members.getMemberById(experts[i]["expert"]["encoded_user"]);
-            var channel = TS.channels.getChannelById(experts[i]["expert"]["encoded_channel"]);
-            html += '<div class="search_message_result">' + "<p>@" + user["name"] + " in #" + channel["name"] + "</p></div>";
+          var num_experts = 0;
+          for (var expert in experts) {
+            if (num_experts >= 5) break;
+            if (expert) {
+              num_experts += 1;
+              var encoded_user = expert;
+              var user = TS.members.getMemberById(encoded_user) || {};
+              var channels = experts[expert];
+              var channel_names = [];
+              for (var i = 0; i < channels.length; i++) {
+                var encoded_channel = channels[i]["encoded_channel"];
+                var channel = TS.channels.getChannelById(encoded_channel) || {};
+                var channel_name = channel["name"] || encoded_channel;
+                channel_names.push("#" + channel_name);
+              }
+              html += '<div class="search_message_result">' + "<p>@" + (user["name"] || encoded_user) + " in " + channel_names.join(", ") + "</p></div>";
+            }
           }
           html += "</div>";
         }

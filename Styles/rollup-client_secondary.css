@@ -3783,6 +3783,53 @@ body:not(.sorting_mode) #col_channels ul>li {
   -khtml-opacity: .6
 }
 
+.channel_list_add_link_feat_link_in_sidebar {
+  display: block;
+  width: 188px;
+  margin: 2.5rem 0 0 1rem;
+  border: 1px solid rgba(171, 155, 169, .5);
+  background: 0 0;
+  font-weight: 900;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: none;
+  font-size: .95rem
+}
+
+.channel_list_add_link_feat_link_in_sidebar.dim {
+  border-color: rgba(171, 155, 169, .25);
+  color: #AB9BA9
+}
+
+.channel_list_add_link_feat_link_in_sidebar:focus,
+.channel_list_add_link_feat_link_in_sidebar:hover {
+  border-color: rgba(171, 155, 169, .25);
+  background-color: rgba(171, 155, 169, .25);
+  background-clip: padding-box;
+  text-decoration: none;
+  color: #fff;
+  outline: 0;
+  box-shadow: none
+}
+
+.channel_list_add_link_feat_link_in_sidebar:focus::after,
+.channel_list_add_link_feat_link_in_sidebar:hover::after {
+  box-shadow: none
+}
+
+.channel_list_add_link_feat_link_in_sidebar:active {
+  border-color: rgba(171, 155, 169, .5);
+  background-color: rgba(171, 155, 169, .5);
+  background-clip: padding-box;
+  text-decoration: none;
+  color: #fff;
+  box-shadow: none
+}
+
+.channel_list_add_link_feat_link_in_sidebar:active::after {
+  box-shadow: none
+}
+
 html {
   height: 100%
 }

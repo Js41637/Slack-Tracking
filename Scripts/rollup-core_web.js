@@ -1101,6 +1101,17 @@ if (typeof define !== "undefined" && define.amd) {
       $("#overlay").on("click touchend", function() {
         $body.toggleClass("nav_open");
       });
+      $('[data-qa="billing"]').click(function() {
+        TS.clog.track("GROWTH_PRICING", {
+          contexts: {
+            ui_context: {
+              step: "home",
+              action: "click",
+              ui_element: "billing_link"
+            }
+          }
+        });
+      });
       $("#team_switcher").on("click", function() {
         $("#header_team_nav").toggleClass("open");
       });
