@@ -2230,6 +2230,21 @@
       _maybeSetup();
       return _locale;
     },
+    zdLocale: function() {
+      _maybeSetup();
+      switch (_locale) {
+        case "de-DE":
+          return "de";
+        case "ja-JP":
+          return "ja";
+        case "es-ES":
+          return "es";
+        case "fr-FR":
+          return _locale.toLowerCase();
+        default:
+          return "en-US".toLowerCase();
+      }
+    },
     t: function(str, ns, locale) {
       _maybeSetup();
       if (!ns && _is_dev) {
@@ -3154,7 +3169,7 @@
       var interval_duration_noise_ms = 5 * 1e3;
       var noise_ms = Math.floor(Math.random() * interval_duration_noise_ms);
       setInterval(_sendDataAndEmptyQueue, interval_duration_ms + noise_ms);
-      $(window).on("beforeunload", _sendDataAndEmptyQueue);
+      $(window).on("beforeunload pagehide", _sendDataAndEmptyQueue);
       $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', _onClick);
       _fetchModelValues();
     },

@@ -3541,20 +3541,12 @@
         replace_history_state: replace_history_state,
         no_history_add: no_history_add
       });
-      var signal = function() {
-        if (switched) {
-          TS.channels.pre_switched_sig.dispatch();
-          TS.channels.switched_sig.dispatch();
-        }
-        if (and_send_txt) {
-          TS.channels.sendMsg(channel_id, $.trim(and_send_txt));
-        }
-        return null;
-      };
-      if (TS.model.shared_channels_enabled && channel.is_shared && !TS.boot_data.feature_shared_channels_switch) {
-        return TS.channels.promiseToEnsureChannelsInfo(channel_id, channel.is_shared).then(signal);
-      } else {
-        return Promise.resolve(signal());
+      if (switched) {
+        TS.channels.pre_switched_sig.dispatch();
+        TS.channels.switched_sig.dispatch();
+      }
+      if (and_send_txt) {
+        TS.channels.sendMsg(channel_id, $.trim(and_send_txt));
       }
     },
     setLastRead: function(channel, ts, reason) {
@@ -5188,29 +5180,22 @@ TS.registerModule("constants", {
         replace_history_state: replace_history_state,
         no_history_add: no_history_add
       });
-      var signal = function() {
-        if (switched) {
-          TS.groups.pre_switched_sig.dispatch();
-          TS.groups.switched_sig.dispatch();
-        }
-        if (group.is_open) {
-          if (and_send_txt) {
-            TS.groups.sendMsg(group_id, $.trim(and_send_txt));
-          }
-          return null;
-        }
-        TS.model.requested_group_opens[group_id] = {
-          and_send_txt: and_send_txt
-        };
-        TS.api.call("groups.open", {
-          channel: group.id
-        }, TS.groups.onOpened);
-      };
-      if (TS.model.shared_channels_enabled && group.is_shared && !TS.boot_data.feature_shared_channels_switch) {
-        return TS.groups.promiseToEnsureGroupsInfo(group_id, group.is_shared).then(signal);
-      } else {
-        return Promise.resolve(signal());
+      if (switched) {
+        TS.groups.pre_switched_sig.dispatch();
+        TS.groups.switched_sig.dispatch();
       }
+      if (group.is_open) {
+        if (and_send_txt) {
+          TS.groups.sendMsg(group_id, $.trim(and_send_txt));
+        }
+        return;
+      }
+      TS.model.requested_group_opens[group_id] = {
+        and_send_txt: and_send_txt
+      };
+      TS.api.call("groups.open", {
+        channel: group.id
+      }, TS.groups.onOpened);
     },
     setLastRead: function(group, ts, reason) {
       if (group.last_read === ts) {
@@ -15268,7 +15253,8 @@ TS.registerModule("constants", {
       max_extract_len: 150,
       highlight_attachments: 1,
       active_cid: TS.model.active_cid,
-      top_results: 1
+      top_results: 1,
+      locale: TS.i18n.locale()
     };
     if (method === "search.all") args.no_posts = 1;
     if (method !== "search.files") args.more_matches = true;
@@ -16801,6 +16787,10 @@ TS.registerModule("constants", {
       $slack_menu.find(".slack_menu_header .current_team_name").text(TS.model.enterprise.name);
       $slack_menu.find(".menu_list .enterprise_logout_url a strong").text(TS.model.enterprise.name);
       $(".enterprise-name").text(TS.model.enterprise.name);
+    },
+    enterprise_team_added: function(imsg) {
+      if (!imsg.team || !TS.boot_data.page_needs_enterprise) return;
+      TS.enterprise.upsertEnterpriseTeam(imsg.team);
     },
     channel_deleted: function(imsg) {
       var channel = TS.channels.getChannelById(imsg.channel);
@@ -22789,7 +22779,8 @@ TS.registerModule("constants", {
           file_title_only: msg.subtype === "file_reaction",
           is_slackbot_response: msg.subtype === "slackbot_response",
           show_channel_highlight: show_channel_highlight,
-          is_highlighted_unfurl: is_highlighted_unfurl
+          is_highlighted_unfurl: is_highlighted_unfurl,
+          show_briefing_feedback: args.briefing
         };
         if (actions.add_rxn || actions.add_file_rxn || actions.add_file_comment_rxn) {
           template_args.show_rxn_action = true;
@@ -23248,6 +23239,9 @@ TS.registerModule("constants", {
           data[item] = modified_items[item];
         }
         return str;
+      });
+      Handlebars.registerHelper("zdLocale", function() {
+        return TS.i18n.zdLocale();
       });
       Handlebars.registerHelper("convertTimestampToMilliseconds", function(ts) {
         return ts * 1e3;

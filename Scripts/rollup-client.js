@@ -3294,32 +3294,28 @@
       if (TS.model.previewed_member_id) TS.client.ui.previewMember(TS.model.previewed_member_id);
     },
     displayMsgInModelOb: function(model_ob, ts) {
-      var maybePromise;
       if (model_ob.is_channel) {
-        maybePromise = TS.channels.displayChannel({
+        TS.channels.displayChannel({
           id: model_ob.id
         });
       } else if (model_ob.is_mpim) {
-        maybePromise = TS.mpims.displayMpim({
+        TS.mpims.displayMpim({
           id: model_ob.id
         });
       } else if (model_ob.is_group) {
-        maybePromise = TS.groups.displayGroup({
+        TS.groups.displayGroup({
           id: model_ob.id
         });
       } else {
-        maybePromise = TS.ims.startImById(model_ob.id);
+        TS.ims.startImById(model_ob.id);
       }
-      Promise.resolve(maybePromise).then(function() {
-        if (model_ob.id != TS.model.active_cid) return;
-        var existing_msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
-        if (existing_msg && !TS.model.archive_view_is_showing) {
-          TS.client.ui.scrollMsgsSoMsgIsInView(ts, false, true);
-        } else {
-          TS.client.archives.start(ts);
-        }
-        return null;
-      });
+      if (model_ob.id != TS.model.active_cid) return;
+      var existing_msg = TS.utility.msgs.getMsg(ts, model_ob.msgs);
+      if (existing_msg && !TS.model.archive_view_is_showing) {
+        TS.client.ui.scrollMsgsSoMsgIsInView(ts, false, true);
+      } else {
+        TS.client.archives.start(ts);
+      }
     },
     flexpaneDisplaySwitched: function(prev_flex_name) {
       var flex_name = TS.model.ui_state.flex_name;
@@ -5591,8 +5587,6 @@
     file_pasted_sig: new signals.Signal,
     onStart: function() {
       TS.channels.data_updated_sig.add(_channelDataUpdated);
-      TS.channels.member_left_sig.add(TS.client.ui.rebuildMemberListToggle);
-      TS.channels.member_joined_sig.add(TS.client.ui.rebuildMemberListToggle);
       TS.ui.window_focus_changed_sig.add(TS.client.ui.windowFocusChanged);
       TS.channels.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
       TS.ims.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
@@ -25076,6 +25070,7 @@
       if (e.which === TS.utility.keymap.esc) TS.ui.channel_options_dialog.cancel();
     },
     start: function(c_id, section) {
+      TS.ui.channel_options_dialog.ladda = null;
       TS.ui.channel_options_dialog.c_id = c_id;
       TS.ui.channel_options_dialog.preselected_section = section;
       _start();

@@ -83,6 +83,18 @@
             {{/if}}
           {{/feature}}
           {{#if show_star}}<span class="message_star_holder">{{>star_with_tip star_components}}</span>{{/if}}
+          {{#feature flag="feature_sli_briefing"}}
+            {{#if show_briefing_feedback}}
+              <div class="sli_briefing_feedback">
+                <button class="ts_tip ts_tip_top ts_icon ts_icon_minus_circle sli_briefing_feedback__not-helpful" data-sli-briefing-feedback="not-helpful">
+                  <span class="ts_tip_tip">{{#t}}This message was not helpful.{{/t}}</span>
+                </button>
+                <button class="ts_tip ts_tip_top ts_icon ts_icon_plus_circle sli_briefing_feedback__helpful" data-sli-briefing-feedback="helpful">
+                  <span class="ts_tip_tip">{{#t}}This message was helpful.{{/t}}</span>
+                </button>
+              </div>
+            {{/if}}
+          {{/feature}}
           {{#if format_for_thread_root}}{{> thread_channel_link}}{{/if}}
           {{#if for_top_results_search_display}}
             {{#if archive_link}}

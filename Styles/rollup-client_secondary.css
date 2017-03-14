@@ -28028,17 +28028,17 @@ ts-thread .thread_participants {
 
 .sli_briefing {
   padding: 1rem;
-  padding-bottom: 2rem
+  padding-bottom: 2rem;
+  background-color: #F9F9F9
 }
 
-.sli_briefing__grid {
-  padding: 0 1rem
+.sli_briefing__title {
+  color: #2C2D30;
+  font-size: 1.4rem;
+  margin-bottom: 1em
 }
 
 .sli_briefing__message_group {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
   margin-bottom: 1rem
 }
 
@@ -28051,12 +28051,63 @@ ts-thread .thread_participants {
 }
 
 .sli_briefing__message {
-  width: 50%;
-  padding: 8px
+  margin-bottom: .5rem
 }
 
 .sli_briefing__message ts-message {
-  border: 1px solid #E8E8E8;
+  border: 1px solid #CDCDCE;
   border-radius: 4px;
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, .1)
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, .1);
+  background-color: #fff
+}
+
+.sli_briefing__message ts-message .message_body {
+  position: relative;
+  max-height: 1.4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.sli_briefing__message ts-message .recap_highlight_debug {
+  vertical-align: top
+}
+
+.sli_briefing__message:hover .sli_briefing_feedback {
+  display: inline-block
+}
+
+.sli_briefing_feedback {
+  display: none;
+  margin-left: 3px
+}
+
+.sli_briefing_feedback button {
+  outline: 0;
+  border: none;
+  padding: 0;
+  background-color: transparent;
+  color: #717274;
+  line-height: 1
+}
+
+.sli_briefing_feedback button:before {
+  font-size: 17px
+}
+
+.sli_briefing_feedback.helpful,
+.sli_briefing_feedback.not-helpful {
+  pointer-events: none
+}
+
+.sli_briefing_feedback.not-helpful button:not(.sli_briefing_feedback__not-helpful) {
+  opacity: .2
+}
+
+.sli_briefing_feedback.helpful button:not(.sli_briefing_feedback__helpful) {
+  opacity: .2
+}
+
+#sli_briefing_text_feedback {
+  width: 100%
 }

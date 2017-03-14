@@ -124,21 +124,33 @@
       </tr>
     {{/or}}
 
-    {{#or interactive_messages_url deleted.interactive_messages_url}}
+    {{#if has_interactive_messages}}
       <tr class="no_border">
         <td colspan="2">
           <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Interactive Messages{{/t}}</h4>
         </td>
       </tr>
-      <tr class="{{#if deleted.interactive_messages_url}}no_border{{/if}}">
-        {{#if interactive_messages_url}}
+      {{#or interactive_messages.actions_url deleted.interactive_messages.actions_url}}
+        <tr class="{{#if deleted.interactive_messages.actions_url}}no_border{{/if}}">
           <td class="submission_modal_row_title">{{#t}}Request URL{{/t}}</td>
-          <td class="submission_modal_cell">{{interactive_messages_url}}</td>
-        {{else}}
-          <td class="submission_modal_cell subtle_silver">{{#t}}Removed{{/t}}</td>
-        {{/if}}
-      </tr>
-    {{/or}}
+          {{#if interactive_messages.actions_url}}
+            <td class="submission_modal_cell">{{interactive_messages.actions_url}}</td>
+          {{else}}
+            <td class="submission_modal_cell subtle_silver">{{#t}}Removed{{/t}}</td>
+          {{/if}}
+        </tr>
+      {{/or}}
+      {{#or interactive_messages.suggestions_url deleted.interactive_messages.suggestions_url}}
+        <tr class="{{#if deleted.interactive_messages.suggestions_url}}no_border{{/if}}">
+          <td class="submission_modal_row_title">{{#t}}Options Load URL{{/t}}</td>
+          {{#if interactive_messages.suggestions_url}}
+            <td class="submission_modal_cell">{{interactive_messages.suggestions_url}}</td>
+          {{else}}
+            <td class="submission_modal_cell subtle_silver">{{#t}}Removed{{/t}}</td>
+          {{/if}}
+        </tr>
+      {{/or}}
+    {{/if}}
 
     {{#if has_domains}}
       <tr class="no_border">

@@ -14342,6 +14342,10 @@ screen and (max-width:640px) {
   overflow-x: hidden
 }
 
+.feature_texty .tab_complete_ui .tab_complete_ui_scroller {
+  height: calc(100% - 32px)
+}
+
 .supports_custom_scrollbar:not(.slim_scrollbar) .tab_complete_ui .tab_complete_ui_scroller {
   border-right: .25rem solid transparent;
   border-right: none
