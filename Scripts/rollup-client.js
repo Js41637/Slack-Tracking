@@ -23866,7 +23866,6 @@
   var _custom_message = "";
   var _initial_channel_id;
   var _selected_exp_date_unix_ts;
-  var _DEFAULT_GUEST_DURATION_DAYS = 7;
   var _DATE_PICKER_TARGET_SELECTOR = "#admin_invites_show_date_picker";
   var _google_contacts_data;
   var _btn_connect_contacts;
@@ -24489,38 +24488,19 @@
     }
   };
   var _showDatePicker = function() {
-    var today = new Date;
-    var default_exp_date = new Date;
-    default_exp_date.setHours(0, 0, 0, 0);
-    default_exp_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
-    var today_ts = today.getTime();
-    var default_exp_date_ts = _selected_exp_date_unix_ts ? _selected_exp_date_unix_ts * 1e3 : default_exp_date.getTime();
-    TS.ui.date_picker.start($(_DATE_PICKER_TARGET_SELECTOR), {
-      first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
-      select_year: false,
-      min: today_ts,
-      date: default_exp_date_ts,
-      format: "s",
-      position: "top",
+    var date_picker_args = {
       class_name: "admin_invites_datepicker",
-      flat: true,
-      hide_on_select: true,
-      locale: {
-        days: TS.utility.date.day_names,
-        daysShort: TS.utility.date.short_day_names,
-        daysMin: TS.utility.date.really_short_day_names,
-        months: TS.utility.date.month_names,
-        monthsShort: TS.utility.date.short_month_names
-      },
-      change: onExpirationDateChanged,
-      hide: function() {
+      onChange: _onExpirationDateChanged,
+      onHide: function() {
         _.defer(_destroyDatePicker);
       }
-    });
+    };
+    if (_selected_exp_date_unix_ts) date_picker_args.selected_date_ts = _selected_exp_date_unix_ts;
+    TS.ui.date_picker.startGuestExpirationDatePicker($(_DATE_PICKER_TARGET_SELECTOR), date_picker_args);
   };
-  var onExpirationDateChanged = function(date) {
-    _selected_exp_date_unix_ts = date;
-    var formatted_date = TS.utility.date.formatDate("{date_long}", date);
+  var _onExpirationDateChanged = function(date_ts) {
+    _selected_exp_date_unix_ts = date_ts;
+    var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
     var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
     var html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
       date_html: date_html
@@ -39533,6 +39513,41 @@ function timezones_guess() {
         }
       });
     },
+    startGuestExpirationDatePicker: function($element, options) {
+      options = options || {};
+      var today = new Date;
+      var today_ts = today.getTime();
+      var selected_exp_date_ts;
+      if (options.selected_date_ts) {
+        selected_exp_date_ts = options.selected_date_ts * 1e3;
+      } else {
+        var default_exp_date = new Date;
+        default_exp_date.setHours(0, 0, 0, 0);
+        default_exp_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
+        selected_exp_date_ts = default_exp_date.getTime();
+      }
+      var date_picker_args = {
+        first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
+        select_year: false,
+        min: today_ts,
+        date: selected_exp_date_ts,
+        format: "s",
+        position: "top",
+        flat: true,
+        hide_on_select: true,
+        locale: {
+          days: TS.utility.date.day_names,
+          daysShort: TS.utility.date.short_day_names,
+          daysMin: TS.utility.date.really_short_day_names,
+          months: TS.utility.date.month_names,
+          monthsShort: TS.utility.date.short_month_names
+        }
+      };
+      if (options.class_name) date_picker_args.class_name = options.class_name;
+      if (options.onChange) date_picker_args.change = options.onChange;
+      if (options.onHide) date_picker_args.hide = options.onHide;
+      TS.ui.date_picker.start($element, date_picker_args);
+    },
     getOldestMsgTs: function() {
       var oldest_msg_ts = $("#channel_actions_toggle").attr("data-oldest-ts");
       if (oldest_msg_ts) return;
@@ -39686,6 +39701,7 @@ function timezones_guess() {
     });
     $element.pickmeup("show");
   };
+  var _DEFAULT_GUEST_DURATION_DAYS = 7;
 })();
 (function() {
   "use strict";
@@ -40222,7 +40238,8 @@ function timezones_guess() {
       TS.storage.storeReplyInput(model_ob.id, thread_ts, "");
       $("#reply_container .reply_broadcast_toggle").attr("checked", false);
     },
-    focusReplyInput: function() {
+    focusReplyInput: function(only_if_visible) {
+      if (only_if_visible && !_isReplyInputVisible()) return;
       TS.utility.contenteditable.focus($("#reply_container .message_input"));
     },
     getActiveMessage: function(model_ob, ts) {
@@ -40699,11 +40716,12 @@ function timezones_guess() {
   var _focusInputWhenReady = function() {
     var $reply_input = $("#reply_container .message_input");
     if (TS.utility.isFocusOnInput() && document.activeElement !== $reply_input[0]) return;
+    var only_if_visible = !!TS.boot_data.feature_threads_paging_flexpane;
     if (_ready_to_focus) {
-      if (_isReplyInputVisible() || !TS.boot_data.feature_threads_paging_flexpane) TS.ui.replies.focusReplyInput();
+      TS.ui.replies.focusReplyInput(only_if_visible);
     } else {
       _focus_ready_sig.addOnce(function() {
-        if (_isReplyInputVisible() || !TS.boot_data.feature_threads_paging_flexpane) TS.ui.replies.focusReplyInput();
+        TS.ui.replies.focusReplyInput(only_if_visible);
       });
     }
   };

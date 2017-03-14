@@ -98,6 +98,15 @@
                 <span class="bullet">\u2022</span>
                 <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}}"{{/if}}>{{member.profile.email}}</span>
             {{/unless}}
+
+            {{#experiment name="guest_profiles_and_expiration"}}
+                {{#or member.is_restricted member.is_ultra_restricted}}
+                    {{#if expiration_date}}
+                        <span class="bullet">\u2022</span>
+                        <span class="no_wrap" title="{{#t}}Expiration date{{/t}}">{{#t}}Will deactivate on <span data-label="expiration_date">{expiration_date}</span>{{/t}}</span>
+                    {{/if}}
+                {{/or}}
+            {{/experiment}}
         {{/feature}}
 
     </span>

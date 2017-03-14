@@ -549,6 +549,8 @@
       }
       var is_enterprise = TS.boot_data.page_needs_enterprise;
       var can_convert_between_member_and_guest = !is_enterprise || is_enterprise && member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length <= 1;
+      var expiration_date = null;
+      if (member.expiration_date) expiration_date = TS.utility.formatDate("{date_long}", member.expiration_date);
       var template_args = {
         member: member,
         member_type: TS.web.admin.getType(member),
@@ -563,7 +565,8 @@
         show_add_channel_btn: show_add_channel_btn,
         paid_team: TS.boot_data.pay_prod_cur,
         is_enterprise: is_enterprise,
-        can_convert_between_member_and_guest: can_convert_between_member_and_guest
+        can_convert_between_member_and_guest: can_convert_between_member_and_guest,
+        expiration_date: expiration_date
       };
       if (member.is_restricted) {
         template_args.channels_count = 0;
@@ -1161,6 +1164,27 @@
         });
         e.stopPropagation();
       });
+      if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
+        $row.find(".admin_member_update_expiration_date").unbind("click").bind("click", function(e) {
+          var $target = $(e.target);
+          var member_id = $row.data("member-id");
+          var member = TS.members.getMemberById(member_id);
+          var date_picker_args = {
+            class_name: "admin_member_expiration_datepicker",
+            onChange: function(date_ts) {
+              TS.web.admin.onExpirationDateChanged(date_ts, $row);
+            },
+            onHide: function() {
+              _.defer(function() {
+                if ($target.pickmeup) $target.pickmeup("destroy");
+              });
+            }
+          };
+          if (member.expiration_date) date_picker_args.selected_date_ts = member.expiration_date;
+          TS.ui.date_picker.startGuestExpirationDatePicker($target, date_picker_args);
+          e.stopPropagation();
+        });
+      }
       $row.find(".pill").unbind("mouseenter.suppress_hover").bind("mouseenter.suppress_hover", function(e) {
         $row.tooltip("hide");
       });
@@ -2043,6 +2067,11 @@
       } else {
         TS.web.admin.rowError(member);
       }
+    },
+    onExpirationDateChanged: function(date_ts, $row) {
+      if (TS.experiment.getGroup("guest_profiles_and_expiration") !== "treatment") return;
+      var $date_label = $row.find('[data-label="expiration_date"]');
+      if ($date_label) $date_label.text(TS.utility.date.formatDate("{date_long}", date_ts));
     },
     ultraRestrictedMemberEnabled: function(member) {
       TS.web.admin.rebuildMember(member);

@@ -117,6 +117,12 @@
         label: TS.i18n.t("Disable 2FA", "member_actions")(),
         cls: "admin_member_disable_2fa_link",
         title: TS.i18n.t("Disable two-factor verification for this account", "member_actions")()
+      },
+      update_expiration_date: {
+        primary: true,
+        label: TS.i18n.t("Adjust Time Limit", "member_actions")(),
+        cls: "admin_member_update_expiration_date",
+        title: TS.i18n.t("Update expiration date for this guest", "member_actions")()
       }
     },
     getActionsForMember: function(member) {
@@ -215,6 +221,7 @@
     var team = data.team;
     var actor = data.actor;
     var member = data.member;
+    _in_guest_exp_experiment_group = _in_guest_exp_experiment_group || TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment";
     switch (action.name) {
       case "activate":
         return member.is_human && member.is_deleted && actor.is_admin && (!team.is_paid || team.is_paid && !member.is_guest) && (!team.is_enterprise || team.is_enterprise && !member.is_guest);
@@ -250,9 +257,12 @@
         return member.is_human && member.is_2fa && !member.is_deleted && !member.is_primary_owner && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
       case "send_sso":
         return team.is_sso_enabled && !team.is_enterprise && member.is_human && !member.is_deleted && !member.is_primary_owner && (actor.is_primary_owner || actor.is_owner && !member.is_owner || actor.is_admin && !member.is_admin);
+      case "update_expiration_date":
+        return _in_guest_exp_experiment_group && member.is_guest && member.is_human && !member.is_deleted;
       default:
         TS.warn("Unrecognized member action type: " + action);
         return false;
     }
   };
+  var _in_guest_exp_experiment_group;
 })();

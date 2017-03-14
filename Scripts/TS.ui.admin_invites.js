@@ -102,7 +102,6 @@
   var _custom_message = "";
   var _initial_channel_id;
   var _selected_exp_date_unix_ts;
-  var _DEFAULT_GUEST_DURATION_DAYS = 7;
   var _DATE_PICKER_TARGET_SELECTOR = "#admin_invites_show_date_picker";
   var _google_contacts_data;
   var _btn_connect_contacts;
@@ -725,38 +724,19 @@
     }
   };
   var _showDatePicker = function() {
-    var today = new Date;
-    var default_exp_date = new Date;
-    default_exp_date.setHours(0, 0, 0, 0);
-    default_exp_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
-    var today_ts = today.getTime();
-    var default_exp_date_ts = _selected_exp_date_unix_ts ? _selected_exp_date_unix_ts * 1e3 : default_exp_date.getTime();
-    TS.ui.date_picker.start($(_DATE_PICKER_TARGET_SELECTOR), {
-      first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
-      select_year: false,
-      min: today_ts,
-      date: default_exp_date_ts,
-      format: "s",
-      position: "top",
+    var date_picker_args = {
       class_name: "admin_invites_datepicker",
-      flat: true,
-      hide_on_select: true,
-      locale: {
-        days: TS.utility.date.day_names,
-        daysShort: TS.utility.date.short_day_names,
-        daysMin: TS.utility.date.really_short_day_names,
-        months: TS.utility.date.month_names,
-        monthsShort: TS.utility.date.short_month_names
-      },
-      change: onExpirationDateChanged,
-      hide: function() {
+      onChange: _onExpirationDateChanged,
+      onHide: function() {
         _.defer(_destroyDatePicker);
       }
-    });
+    };
+    if (_selected_exp_date_unix_ts) date_picker_args.selected_date_ts = _selected_exp_date_unix_ts;
+    TS.ui.date_picker.startGuestExpirationDatePicker($(_DATE_PICKER_TARGET_SELECTOR), date_picker_args);
   };
-  var onExpirationDateChanged = function(date) {
-    _selected_exp_date_unix_ts = date;
-    var formatted_date = TS.utility.date.formatDate("{date_long}", date);
+  var _onExpirationDateChanged = function(date_ts) {
+    _selected_exp_date_unix_ts = date_ts;
+    var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
     var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
     var html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
       date_html: date_html

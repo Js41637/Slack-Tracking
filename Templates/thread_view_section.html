@@ -2,10 +2,16 @@
 <section class="threads_section">
   {{#if show_threads_notification_banner}}
     <div id="thread_notification_banner">
-      <div class="banner_title">{{#t}}Get notified about every reply{{/t}}</div>
+      <ts-icon type="button" class="close ts_icon_times_small ts_icon_inherit"></ts-icon>
 
-      <div class="banner_description">{{#t}}If you\u2019d like, Slack can notify you whenever someone replies to a thread you\u2019re following.{{/t}}</div>
-      <div class="banner_confirmation">{{#t}}Sounds good! You can always adjust this in <a id="thread_notification_banner_pref_link" href="#">Your Preferences</a>.{{/t}}</div>
+      <div id="banner_prompt">
+        <div class="banner_title">{{#t}}Get notified about every reply{{/t}}</div>
+        <div class="banner_description">{{#t}}If you\u2019d like, Slack can notify you whenever someone replies to a thread you\u2019re following.{{/t}}</div>
+      </div>
+      <div id="banner_confirmation">
+        <div class="banner_title">{{#t}}Sounds good!{{/t}}</div>
+        <div class="banner_description">{{#t}}You can always adjust this in <a id="thread_notification_banner_pref_link" href="#">Your Preferences</a>.{{/t}}</div>
+      </div>
 
       <div class="banner_buttons">
         <div class="btn btn_info" data-turn-on-pref='true'>{{#t}}Turn On Notifications{{/t}}</div>

@@ -27817,14 +27817,12 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 }
 
 #threads_msgs_scroller_div #thread_notification_banner {
-  height: 154px;
   overflow: hidden;
-  -webkit-transition: height .15s ease 0s;
-  -moz-transition: height .15s ease 0s;
-  transition: height .15s ease 0s;
+  -webkit-transition: height .3s ease 0s;
+  -moz-transition: height .3s ease 0s;
+  transition: height .3s ease 0s;
   border-bottom: 1px solid #E8E8E8;
   background-color: #fff;
-  padding: 25px 0;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -27839,44 +27837,57 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
   -webkit-box-align: center;
   -moz-align-items: center;
   align-items: center;
-  text-align: center
+  text-align: center;
+  position: relative
+}
+
+#threads_msgs_scroller_div #thread_notification_banner .close {
+  position: absolute;
+  right: 25px;
+  top: 20px;
+  font-size: 25px;
+  outline: 0
 }
 
 #threads_msgs_scroller_div #thread_notification_banner .banner_title {
   font-size: 16px;
   font-weight: 900;
+  padding-top: 25px;
   padding-bottom: 10px
 }
 
-#threads_msgs_scroller_div #thread_notification_banner .banner_confirmation,
 #threads_msgs_scroller_div #thread_notification_banner .banner_description {
   text-align: center;
   color: #717274;
-  margin: 0 40px
+  margin: 0 40px;
+  padding-bottom: 25px
 }
 
-#threads_msgs_scroller_div #thread_notification_banner .banner_confirmation {
+#threads_msgs_scroller_div #thread_notification_banner #banner_confirmation {
   display: none
 }
 
 #threads_msgs_scroller_div #thread_notification_banner .banner_buttons {
-  padding-top: 25px
+  -webkit-transition: opacity .1s ease 0s;
+  -moz-transition: opacity .1s ease 0s;
+  transition: opacity .1s ease 0s;
+  padding-bottom: 25px
 }
 
 #threads_msgs_scroller_div #thread_notification_banner .banner_buttons .btn {
   margin: 0 3px
 }
 
-#threads_msgs_scroller_div #thread_notification_banner.show_confirmation {
-  height: 92px
-}
-
-#threads_msgs_scroller_div #thread_notification_banner.show_confirmation .banner_description {
+#threads_msgs_scroller_div #thread_notification_banner.show_confirmation #banner_prompt {
   display: none
 }
 
-#threads_msgs_scroller_div #thread_notification_banner.show_confirmation .banner_confirmation {
+#threads_msgs_scroller_div #thread_notification_banner.show_confirmation #banner_confirmation {
   display: block
+}
+
+#threads_msgs_scroller_div #thread_notification_banner.show_confirmation .banner_buttons {
+  opacity: 0
 }
 
 #threads_msgs_scroller_div .threads_caught_up_divider {

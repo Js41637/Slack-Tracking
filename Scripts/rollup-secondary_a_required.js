@@ -22832,7 +22832,7 @@ TS.registerModule("constants", {
         if (template_args.is_broadcast && msg.root) {
           template_args.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(msg.root));
           var root_msg_text = msg.root.text;
-          if (root_msg_text) {
+          if (root_msg_text && msg.root.subtype !== "tombstone") {
             var formatted_root = TS.format.formatWithOptions(root_msg_text, msg.root, {
               no_highlights: true,
               no_hex_colors: true,
@@ -39961,7 +39961,10 @@ var _on_esc;
       TS.utility.contenteditable.unload($("#message_edit_form #msg_text"));
       TS.msg_edit.resetEditUI();
       if (TS.client) {
-        if (!in_replies) {
+        if (in_replies) {
+          var only_if_visible = true;
+          TS.ui.replies.focusReplyInput(only_if_visible);
+        } else {
           TS.view.focusMessageInput();
         }
       }
@@ -39975,7 +39978,10 @@ var _on_esc;
       TS.utility.contenteditable.unload($("#message_edit_form #msg_text"));
       TS.msg_edit.resetEditUI();
       if (TS.client) {
-        if (!in_replies) {
+        if (in_replies) {
+          var only_if_visible = true;
+          TS.ui.replies.focusReplyInput(only_if_visible);
+        } else {
           TS.view.focusMessageInput();
         }
       }
@@ -47902,6 +47908,30 @@ $.fn.togglify = function(settings) {
           $scroller.data("monkeyScrollBeingCalled", false);
         });
       }
+    },
+    mkFocusStyleListener: function(container_class, item_class, focus_state_name) {
+      var container_selector = "." + container_class;
+      var item_selector = "." + item_class;
+      var focus_class = item_class + "--" + (focus_state_name || "focus");
+      var focus_selector = "." + focus_class;
+      return function(e) {
+        var $container = $(container_selector);
+        if ($container.hasClass("hidden")) {
+          return;
+        }
+        var target = e.target;
+        var $focused_item = $container.find(focus_selector);
+        var focused_item = $focused_item.get(0);
+        if (focused_item && !$container.get(0).contains(target)) {
+          $focused_item.removeClass(focus_class);
+          return;
+        }
+        if (focused_item && focused_item.contains(target) || $(target).hasClass(focus_class)) {
+          return;
+        }
+        $focused_item.removeClass(focus_class);
+        $(target).closest(item_selector).addClass(focus_class);
+      };
     }
   });
   var _preventing_element_from_scrolling = false;
@@ -49390,10 +49420,14 @@ $.fn.togglify = function(settings) {
       e.preventDefault();
       TS.client.threads.maybeReloadThreadsView();
     });
-    TS.click.addClientHandler("#thread_notification_banner .btn", function(e, $el) {
+    TS.click.addClientHandler("#thread_notification_banner .banner_buttons .btn", function(e, $el) {
       e.preventDefault();
       var should_turn_on_pref = $el.data("turn-on-pref");
-      $("#thread_notification_banner").addClass("show_confirmation");
+      var $banner = $("#thread_notification_banner");
+      var curr_height = $banner.height();
+      $banner.height(curr_height);
+      $banner.addClass("show_confirmation");
+      $banner.height(92);
       TS.prefs.setPrefByAPI({
         name: "seen_threads_notification_banner",
         value: true
@@ -49401,6 +49435,17 @@ $.fn.togglify = function(settings) {
       TS.prefs.setPrefByAPI({
         name: "threads_everything",
         value: should_turn_on_pref
+      });
+    });
+    TS.click.addClientHandler("#thread_notification_banner .close", function(e, $el) {
+      e.preventDefault();
+      var $banner = $("#thread_notification_banner");
+      var curr_height = $banner.height();
+      $banner.height(curr_height);
+      $banner.height(0);
+      if (!TS.model.prefs.seen_threads_notification_banner) TS.prefs.setPrefByAPI({
+        name: "seen_threads_notification_banner",
+        value: true
       });
     });
     TS.click.addClientHandler("#thread_notification_banner_pref_link", function(e, $el) {
@@ -63933,11 +63978,12 @@ $.fn.togglify = function(settings) {
           var r = !0,
             o = !0;
           if ("function" != typeof e) throw new Gu(ne);
-          return Wa(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o), sa(e, t, {
-            leading: r,
-            maxWait: t,
-            trailing: o
-          });
+          return Wa(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o),
+            sa(e, t, {
+              leading: r,
+              maxWait: t,
+              trailing: o
+            });
         }
 
         function va(e) {
@@ -67257,22 +67303,21 @@ $.fn.togglify = function(settings) {
     v = !1,
     m = -1;
   p.nextTick = function(e) {
-      var t = new Array(arguments.length - 1);
-      if (arguments.length > 1)
-        for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
-      h.push(new u(e, t)), 1 !== h.length || v || o(s);
-    }, u.prototype.run = function() {
-      this.fun.apply(null, this.array);
-    }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l,
-    p.emit = l, p.binding = function(e) {
-      throw new Error("process.binding is not supported");
-    }, p.cwd = function() {
-      return "/";
-    }, p.chdir = function(e) {
-      throw new Error("process.chdir is not supported");
-    }, p.umask = function() {
-      return 0;
-    };
+    var t = new Array(arguments.length - 1);
+    if (arguments.length > 1)
+      for (var n = 1; n < arguments.length; n++) t[n - 1] = arguments[n];
+    h.push(new u(e, t)), 1 !== h.length || v || o(s);
+  }, u.prototype.run = function() {
+    this.fun.apply(null, this.array);
+  }, p.title = "browser", p.browser = !0, p.env = {}, p.argv = [], p.version = "", p.versions = {}, p.on = l, p.addListener = l, p.once = l, p.off = l, p.removeListener = l, p.removeAllListeners = l, p.emit = l, p.binding = function(e) {
+    throw new Error("process.binding is not supported");
+  }, p.cwd = function() {
+    return "/";
+  }, p.chdir = function(e) {
+    throw new Error("process.chdir is not supported");
+  }, p.umask = function() {
+    return 0;
+  };
 }, function(e, t, n) {
   "use strict";
 
