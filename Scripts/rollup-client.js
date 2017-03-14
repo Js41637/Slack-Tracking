@@ -25699,7 +25699,7 @@
           var error = res.data.error;
           var msg = TS.ui.validation.getErrorMessage(error, {
             maxlength: 22,
-            name: title
+            name: new_title
           });
           if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
           return TS.ui.validation.showWarning(TS.ui.channel_options_dialog.div.find(".title_input"), msg, {

@@ -19708,30 +19708,6 @@ ts-message .broadcast_meta {
   height: 22px
 }
 
-ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child {
-  display: inline
-}
-
-ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child .quote_bar {
-  display: none
-}
-
-ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child .content {
-  padding-left: 0
-}
-
-ts-message .broadcast_meta .root_starts_with_multiline .special_formatting_quote:first-child:before {
-  content: ' '
-}
-
-ts-message .broadcast_meta .root_starts_with_multiline pre.special_formatting:first-child {
-  display: inline
-}
-
-ts-message .broadcast_meta .root_starts_with_multiline pre.special_formatting:first-child:before {
-  content: ' '
-}
-
 ts-message .broadcast_repliers {
   color: #9e9ea6;
   font-size: .8125rem;
@@ -22113,6 +22089,10 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   margin-right: 8px;
   vertical-align: middle;
   width: calc(100% - 32px)
+}
+
+.attachment_group .attachment_actions_buttons .select_attachment.disabled {
+  background: 0 0
 }
 
 .attachment_group .attachment_actions_buttons ts-inline-saver {

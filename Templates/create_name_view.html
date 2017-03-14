@@ -13,11 +13,11 @@
       <div class="names no_top_padding bottom_padding" id="name_fields">
         <label>{{#t}}Your name{{/t}}</label>
         <div class="col span_1_of_2 no_padding name_field" id="first_name_wrapper">
-          <input type="text" placeholder="first name" id="signup_first_name" maxlength="35" autocomplete="off" data-qa="first_name_field" value="{{first_name}}" aria-label="First name"/>
+          <input type="text" placeholder="{{#t}}First name{{/t}}" id="signup_first_name" maxlength="35" autocomplete="off" data-qa="first_name_field" value="{{first_name}}" aria-label="First name"/>
           <p class="error_message"></p>
         </div>
         <div class="col span_1_of_2 no_padding name_field" id="last_name_wrapper">
-          <input type="text" placeholder="last name" id="signup_last_name" maxlength="35" autocomplete="off" data-qa="last_name_field" value="{{last_name}}" aria-label="Last name"/>
+          <input type="text" placeholder="{{#t}}Last name{{/t}}" id="signup_last_name" maxlength="35" autocomplete="off" data-qa="last_name_field" value="{{last_name}}" aria-label="Last name"/>
           <p class="error_message"></p>
         </div>
       </div>
@@ -25,10 +25,10 @@
         <label id="username_label">{{#t}}Username{{/t}}</label>
         <div class="input_wrapper username">
           <p id="username_overlay" class="input_overlay"></p>
-          <input type="text" id="signup_username" maxlength="21" autocomplete="off" data-qa="username_field" value="{{username}}" aria-labelledby="username_label username_rule_label"/>
+          <input type="text" id="signup_username" maxlength="21" autocomplete="off" placeholder="username" data-qa="username_field" value="{{username}}" aria-labelledby="username_label username_rule_label"/>
         </div>
         <p class="error_message"></p>
-        <p id="username_rule_label" class="subtle_silver">{{#t}}Usernames must be all lowercase, with no spaces. They can only contain letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
+        <p id="username_rule_label" class="subtle_silver">{{#t}}Please choose a username that is all lowercase, containing only letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
       </div>
 
       {{#if inc_misc_and_legalese}}
