@@ -5588,6 +5588,7 @@
     onStart: function() {
       TS.channels.data_updated_sig.add(_channelDataUpdated);
       TS.ui.window_focus_changed_sig.add(TS.client.ui.windowFocusChanged);
+      TS.channels.joined_sig.add(TS.client.ui.rebuildMemberListToggle);
       TS.channels.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
       TS.ims.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
       TS.groups.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
@@ -10067,7 +10068,7 @@
           },
           placeholder: $input.data("placeholder"),
           onEnter: function(args) {
-            if (TS.model.is_mac && !args.shiftKey && args.shortKey) {
+            if (TS.model.is_mac && !args.shiftKey && args.metaKey) {
               TS.client.msg_input.startSnippet();
               return false;
             }
@@ -15168,8 +15169,9 @@
             error: results.error
           });
         }
-        if (TS.boot_data.team_limit_ts > 0 && TS.experiment.getGroup("msg_lim_viz") === "msg_limit_top_teams") {
+        if (TS.boot_data.team_limit_ts > 0 && TS.experiment.getGroup("msg_lim_viz_2") === "msg_limit_top_original_copy") {
           $("#search_results_message_limit_top").removeClass("hidden");
+          $("#search_results_team").addClass("no_margin");
         } else if (TS.boot_data.team_limit_ts > 0) {
           $("#search_results_message_limit_bottom").removeClass("hidden");
         }
@@ -21642,7 +21644,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/03cf7/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/14b5/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
@@ -33129,7 +33131,7 @@
     TS.view.prefs.sidebarThemePrefChanged(remove_last_theme_selected);
   };
   var _updateBounceShortCB = function() {
-    if (!!TS.model.prefs.mac_ssb_bounce) {
+    if (TS.model.prefs.mac_ssb_bounce) {
       $("#mac_ssb_bounce_short_cb").prop("disabled", false);
     } else {
       $("#mac_ssb_bounce_short_cb").prop("disabled", true);
@@ -35883,8 +35885,8 @@ function timezones_guess() {
   };
   var _stop = function() {
     if (!_editing) return;
-    if (!!_$input) _$input.removeAttr("contenteditable");
-    if (!!_$wrapper) _$wrapper.removeClass(BASE_CLASS_NAME + "_editing");
+    if (_$input) _$input.removeAttr("contenteditable");
+    if (_$wrapper) _$wrapper.removeClass(BASE_CLASS_NAME + "_editing");
     _editing = false;
   };
   var _save = function() {
@@ -35908,14 +35910,14 @@ function timezones_guess() {
   };
   var _cancel = function(e) {
     if (!_editing) return;
-    if (!!_$input) _$input.html(_format(_unformatted_value));
+    if (_$input) _$input.html(_format(_unformatted_value));
     _stop();
     TS.ui.inline_edit.is_showing = false;
   };
   var _end = function() {
     $(document).off(".ui_" + BASE_CLASS_NAME);
-    if (!!_$wrapper) _$wrapper.off(".ui_" + BASE_CLASS_NAME);
-    if (!!_$input) _$input.off(".ui_" + BASE_CLASS_NAME);
+    if (_$wrapper) _$wrapper.off(".ui_" + BASE_CLASS_NAME);
+    if (_$input) _$input.off(".ui_" + BASE_CLASS_NAME);
     TS.ui.inline_edit.is_showing = false;
     _editing = false;
     _should_cancel_on_blur = true;

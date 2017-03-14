@@ -5,7 +5,7 @@
     <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}This account was deactivated.{{/t}}</p>
   {{else}}
     {{#feature flag="feature_texty_takes_over"}}
-      <div id="menu_member_dm_input" class="texty_single_line_input"></div>
+      <div id="menu_member_dm_input"></div>
     {{else}}
       {{#feature flag="feature_name_tagging_client"}}
         <input type="text" id="menu_member_dm_input" class="small" placeholder="{{#t name=(getMemberFullName member)}}Message {name}{{/t}}">

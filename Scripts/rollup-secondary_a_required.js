@@ -10566,8 +10566,13 @@ TS.registerModule("constants", {
         return;
       }
       if (!_.isString(id)) return null;
-      if (TS.model.team.id === id) return TS.model.team;
       if (_id_map[id]) return _id_map[id];
+      if (TS.model.team.id === id) return TS.model.team;
+      if (_.find(TS.model.enterprise_teams, {
+          id: id
+        })) return _.find(TS.model.enterprise_teams, {
+        id: id
+      });
       var teams = TS.model.teams;
       if (!teams) {
         TS.console.warn("Trying to look up team by id (" + id + ") but TS.model.teams is not present.");
@@ -14662,6 +14667,19 @@ TS.registerModule("constants", {
       if (TS.qs_args["delay"]) TS.search.delay = TS.qs_args["delay"];
       TS.search.input = $("#search_terms");
       TSSSB.call("inputFieldCreated", TS.search.input.get(0));
+      if (TS.boot_data.feature_texty_search) {
+        TS.utility.contenteditable.create(TS.search.input, {
+          modules: {},
+          singleLineInput: true,
+          placeholder: TS.i18n.t("Search", "page_client")(),
+          onFocus: function() {
+            $("#client-ui").addClass("search_focused");
+          },
+          onBlur: function() {
+            $("#client-ui").removeClass("search_focused");
+          }
+        });
+      }
     },
     loggedIn: function() {
       TS.search.sort = "timestamp";
@@ -17598,8 +17616,8 @@ TS.registerModule("constants", {
       var body_plus = "";
       var go_button_text = imsg.button || (imsg.reload ? "Reload" : "OK");
       var do_reload = false;
-      if (!!imsg.reload) {
-        if (!!imsg.force_reload) {
+      if (imsg.reload) {
+        if (imsg.force_reload) {
           TS.info("reloading because imsg.force_reload");
           do_reload = true;
         } else if (!TS.boot_data.version_ts) {
@@ -22412,8 +22430,11 @@ TS.registerModule("constants", {
     },
     buildBroadcastRepliersSummaryHTML: function(broadcast_root) {
       var reply_count = broadcast_root.reply_count;
-      var reply_users_count = broadcast_root.reply_users_count;
-      var replier_ids = broadcast_root.reply_users;
+      var replies = broadcast_root.replies;
+      if (!replies || !replies.length) return "";
+      var replier_ids = _.map(replies, "user");
+      replier_ids = _.uniq(replier_ids);
+      var reply_users_count = replier_ids.length;
       var entities = _.map(replier_ids, function(id) {
         if (id === "U00") return null;
         var first_letter = id.charAt(0);
@@ -28469,7 +28490,7 @@ TS.registerModule("constants", {
     },
     getAppliedClasses: function(class_map) {
       return _.reduce(class_map, function(result, value, key) {
-        if (!!value) result.push(key);
+        if (value) result.push(key);
         return result;
       }, []).join(" ");
     },
@@ -47486,7 +47507,7 @@ $.fn.togglify = function(settings) {
   };
   var _onContainerClick = function(instance) {
     if (instance.disabled) return;
-    _showList(instance, true);
+    _showList(instance);
   };
   var _onContainerParentsLabelClick = function(instance, e) {
     if (instance.disabled) return;
@@ -47800,7 +47821,7 @@ $.fn.togglify = function(settings) {
     var preselected_ids = {};
     if (options.preselected_ids && options.preselected_ids.length) {
       _.forEach(options.preselected_ids, function(id) {
-        if (!!id) preselected_ids[id] = true;
+        if (id) preselected_ids[id] = true;
       });
     }
     var promiseToFilter = function(query, pageNumber) {
@@ -56062,7 +56083,7 @@ $.fn.togglify = function(settings) {
     },
     isContenteditable: function(input) {
       input = _normalizeInput(input);
-      if (input && TS.ui && TS.ui.paste.catcher_div === input) return false;
+      if (input && TS.ui && TS.ui.paste && TS.ui.paste.catcher_div && TS.ui.paste.catcher_div === input) return false;
       if (input.isContentEditable) return true;
       if (_isTextyElement(input)) return true;
       return false;
@@ -58982,11 +59003,7 @@ $.fn.togglify = function(settings) {
         if (msg.ts === updated_root_msg.ts) return;
         if (msg.thread_ts !== updated_root_msg.ts) return;
         if (msg.subtype !== "thread_broadcast" || !msg.root) return;
-        var root_msg = msg.root;
-        root_msg.text = updated_root_msg.text;
-        root_msg.reply_count = updated_root_msg.reply_count;
-        root_msg.reply_users = _(updated_root_msg.replies).map("user").compact().uniq().value();
-        root_msg.reply_users_count = root_msg.reply_users.length;
+        msg.root = updated_root_msg;
         if (model_ob.is_channel) {
           TS.channels.message_changed_sig.dispatch(model_ob, msg);
         } else if (model_ob.is_im) {
@@ -59885,7 +59902,7 @@ $.fn.togglify = function(settings) {
         TS.error("cannot format money: no currency_code specified");
         return "";
       }
-      amount = !!amount ? parseInt(amount) : 0;
+      amount = amount ? parseInt(amount) : 0;
       var dollar_value;
       if (_has_Intl) {
         if (currency_code === "JPY") {
@@ -59931,7 +59948,7 @@ $.fn.togglify = function(settings) {
         TS.error("cannot format money: no currency_code specified");
         return "";
       }
-      amount = !!amount ? parseInt(amount) : 0;
+      amount = amount ? parseInt(amount) : 0;
       var default_locale_options = _locales_number_formatting["default"];
       var decimal_symbol = _locales_number_formatting[_locale] ? _locales_number_formatting[_locale]["decimal_symbol"] : default_locale_options.decimal_symbol;
       var thousands_separator = _locales_number_formatting[currency_code] ? _locales_number_formatting[_locale]["thousands_separator"] : default_locale_options.thousands_separator;
@@ -65717,22 +65734,28 @@ $.fn.togglify = function(settings) {
         html: a.PropTypes.string
       })
     },
-    c = function(e) {
+    c = {
+      emoji: {
+        html: null
+      }
+    },
+    f = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
       return i(t, e), u(t, [{
         key: "render",
         value: function() {
+          var e = this.props.emoji;
           return s.a.createElement("span", {
             dangerouslySetInnerHTML: {
-              __html: this.props.emoji.html
+              __html: e.html
             }
           });
         }
       }]), t;
     }(a.PureComponent);
-  t.a = c, c.propTypes = l;
+  t.a = f, f.propTypes = l, f.defaultProps = c;
 }, function(e, t, n) {
   "use strict";
 
@@ -67161,7 +67184,8 @@ $.fn.togglify = function(settings) {
         for (var r = arguments, o = -1, i = A(r.length - t, 0), a = Array(i); ++o < i;) a[o] = r[t + o];
         o = -1;
         for (var s = Array(t + 1); ++o < t;) s[o] = r[o];
-        return s[t] = a, n(e, this, s);
+        return s[t] = a,
+          n(e, this, s);
       };
   }
 
@@ -68802,8 +68826,7 @@ $.fn.togglify = function(settings) {
             n = void 0 === t ? 0 : t,
             r = e.rowIndex,
             o = void 0 === r ? 0 : r;
-          this._columnSizeAndPositionManager.resetCell(n),
-            this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
+          this._columnSizeAndPositionManager.resetCell(n), this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
         }
       }, {
         key: "scrollToCell",
@@ -71033,7 +71056,11 @@ $.fn.togglify = function(settings) {
       activeGroup: a.PropTypes.object,
       onGroupTabClick: a.PropTypes.func
     },
-    p = function(e) {
+    p = {
+      activeGroup: {},
+      onGroupTabClick: function() {}
+    },
+    d = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
@@ -71070,7 +71097,7 @@ $.fn.togglify = function(settings) {
         }
       }]), t;
     }(a.PureComponent);
-  t.a = p, p.propTypes = f;
+  t.a = d, d.propTypes = f, d.defaultProps = p;
 }, function(e, t, n) {
   "use strict";
 
@@ -71112,12 +71139,18 @@ $.fn.togglify = function(settings) {
     f = u.a.ns("emoji_picker"),
     p = {
       handyRxns: a.PropTypes.array,
-      numBackgroundColors: a.PropTypes.number,
+      numBackgroundColors: a.PropTypes.number.isRequired,
       onSelected: a.PropTypes.func,
       onMouseEnter: a.PropTypes.func,
       onMouseLeave: a.PropTypes.func
     },
-    d = function(e) {
+    d = {
+      handyRxns: [],
+      onSelected: function() {},
+      onMouseEnter: function() {},
+      onMouseLeave: function() {}
+    },
+    h = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
@@ -71165,7 +71198,7 @@ $.fn.togglify = function(settings) {
         }
       }]), t;
     }(a.PureComponent);
-  t.a = d, d.propTypes = p;
+  t.a = h, h.propTypes = p, h.defaultProps = d;
 }, function(e, t, n) {
   "use strict";
 
@@ -71191,13 +71224,13 @@ $.fn.togglify = function(settings) {
   }
   var a = n(42),
     s = n.n(a),
-    u = n(3),
+    u = n(16),
     l = n.n(u),
-    c = n(327),
-    f = n(47),
-    p = n(48),
-    d = n(16),
-    h = n.n(d),
+    c = n(3),
+    f = n.n(c),
+    p = n(327),
+    d = n(47),
+    h = n(48),
     v = Object.assign || function(e) {
       for (var t = 1; t < arguments.length; t++) {
         var n = arguments[t];
@@ -71216,45 +71249,60 @@ $.fn.togglify = function(settings) {
         return n && e(t.prototype, n), r && e(t, r), t;
       };
     }(),
-    g = p.a.ns("emoji_picker"),
+    g = h.a.ns("emoji_picker"),
     _ = 33,
     y = 54,
     b = 28,
     w = {
-      onSelected: u.PropTypes.func,
-      onMouseEnter: u.PropTypes.func,
-      onMouseLeave: u.PropTypes.func,
-      onScroll: u.PropTypes.func,
-      scrollToIndex: u.PropTypes.number,
-      numBackgroundColors: u.PropTypes.number,
-      screenRows: u.PropTypes.array,
-      numEmojiPerRow: u.PropTypes.number,
-      currentSelection: u.PropTypes.object,
-      cursorPosition: u.PropTypes.array,
-      canAddEmoji: u.PropTypes.bool
+      onSelected: c.PropTypes.func,
+      onMouseEnter: c.PropTypes.func,
+      onMouseLeave: c.PropTypes.func,
+      onScroll: c.PropTypes.func,
+      scrollToIndex: c.PropTypes.number,
+      numBackgroundColors: c.PropTypes.number.isRequired,
+      screenRows: c.PropTypes.array,
+      numEmojiPerRow: c.PropTypes.number.isRequired,
+      currentSelection: c.PropTypes.object,
+      cursorPosition: c.PropTypes.array,
+      canAddEmoji: c.PropTypes.bool
     },
-    C = function(e) {
+    C = {
+      onSelected: function() {},
+      onMouseEnter: function() {},
+      onMouseLeave: function() {},
+      onScroll: function() {},
+      scrollToIndex: null,
+      screenRows: [],
+      currentSelection: {},
+      cursorPosition: [],
+      canAddEmoji: !1
+    },
+    S = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         return n.getRowHeight = n.getRowHeight.bind(n), n.renderRow = n.renderRow.bind(n), n;
       }
-      return i(t, e), m(t, [{
+      return i(t, e), m(t, null, [{
+        key: "renderGroupItem",
+        value: function(e) {
+          return f.a.createElement("h3", {
+            id: "emoji_h3_" + e.name
+          }, e.display_name);
+        }
+      }, {
+        key: "renderEmptyState",
+        value: function() {
+          return f.a.createElement("div", null, f.a.createElement("h3", {
+            id: "emoji_h3_search_results"
+          }, g("Search Results")), f.a.createElement("div", {
+            id: "emoji_zero_results"
+          }, g("No emoji found")));
+        }
+      }]), m(t, [{
         key: "onEmojiClick",
         value: function(e, t) {
           e.preventDefault(), this.props.onSelected(e, t);
-        }
-      }, {
-        key: "usingKeyboard",
-        value: function() {
-          return this.props.cursorPosition[1] !== -1;
-        }
-      }, {
-        key: "isEmojiSelected",
-        value: function(e, t) {
-          var n = e.name === s.a.get(this.props.currentSelection, "name"),
-            r = t === this.props.cursorPosition[1] * this.props.numEmojiPerRow + this.props.cursorPosition[0];
-          return n && r;
         }
       }, {
         key: "getRowHeight",
@@ -71266,29 +71314,39 @@ $.fn.togglify = function(settings) {
               return y;
             case "group":
               return b;
+            default:
+              return _;
           }
-          return _;
         }
       }, {
-        key: "renderGroupItem",
-        value: function(e) {
-          return l.a.createElement("h3", {
-            id: "emoji_h3_" + e.name
-          }, e.display_name);
+        key: "isEmojiSelected",
+        value: function(e, t) {
+          var n = this.props,
+            r = n.cursorPosition,
+            o = n.numEmojiPerRow,
+            i = e.name === s.a.get(this.props.currentSelection, "name"),
+            a = r[1] * o + r[0],
+            u = t === a;
+          return i && u;
+        }
+      }, {
+        key: "usingKeyboard",
+        value: function() {
+          return this.props.cursorPosition[1] !== -1;
         }
       }, {
         key: "renderTipItem",
         value: function() {
-          var e = l.a.createElement("div", null, l.a.createElement("i", {
+          var e = f.a.createElement("div", null, f.a.createElement("i", {
             className: "ts_icon ts_icon_plus ts_icon_inherit tiny_right_margin"
-          }), l.a.createElement("span", {
+          }), f.a.createElement("span", {
             dangerouslySetInnerHTML: {
               __html: g('You can <a href="/admin/emoji" target="_blank">add custom emoji here</a>')
             }
           }));
-          return l.a.createElement("div", {
+          return f.a.createElement("div", {
             id: "emoji_tip"
-          }, l.a.createElement("span", {
+          }, f.a.createElement("span", {
             dangerouslySetInnerHTML: {
               __html: g('Type <b>":"</b> and hit TAB key for autocomplete')
             }
@@ -71298,7 +71356,7 @@ $.fn.togglify = function(settings) {
         key: "renderEmojiItem",
         value: function(e, t) {
           var n = this;
-          return l.a.createElement("a", {
+          return f.a.createElement("a", {
             key: e.name,
             onClick: function(t) {
               return n.onEmojiClick(t, e);
@@ -71309,80 +71367,71 @@ $.fn.togglify = function(settings) {
             onMouseLeave: function() {
               return n.props.onMouseLeave(e);
             },
-            className: h()("emoji_li", {
+            className: l()("emoji_li", {
               key_selection: this.usingKeyboard() && this.isEmojiSelected(e, t)
             }),
             "data-color-index": t % this.props.numBackgroundColors,
             "data-name": e.name,
             "data-names": e.names
-          }, l.a.createElement(f.a, {
+          }, f.a.createElement(d.a, {
             emoji: e
           }));
         }
       }, {
         key: "renderRow",
         value: function(e) {
-          var t = this,
-            n = e.index,
-            r = e.key,
-            o = e.style,
-            i = this.props.screenRows[n],
-            a = n;
-          if (0 !== a) {
-            var s = void 0;
-            switch (i.type) {
-              case "group":
-                s = this.renderGroupItem(i.group);
-                break;
-              case "tip":
-                s = this.renderTipItem();
-                break;
-              case "emoji":
-                s = i.items.map(function(e, n) {
-                  var r = a * t.props.numEmojiPerRow + n;
-                  return t.renderEmojiItem(e, r);
-                });
-            }
-            return l.a.createElement("div", {
-              key: r,
-              style: o
-            }, s);
+          var n = this,
+            r = e.index,
+            o = e.key,
+            i = e.style,
+            a = this.props.screenRows[r],
+            s = r;
+          if (0 === s) return null;
+          var u = void 0;
+          switch (a.type) {
+            case "group":
+              u = t.renderGroupItem(a.group);
+              break;
+            case "tip":
+              u = this.renderTipItem();
+              break;
+            case "emoji":
+              u = a.items.map(function(e, t) {
+                var r = s * n.props.numEmojiPerRow + t;
+                return n.renderEmojiItem(e, r);
+              });
           }
-        }
-      }, {
-        key: "renderEmptyState",
-        value: function() {
-          return l.a.createElement("div", null, l.a.createElement("h3", {
-            id: "emoji_h3_search_results"
-          }, g("Search Results")), l.a.createElement("div", {
-            id: "emoji_zero_results"
-          }, g("No emoji found")));
+          return f.a.createElement("div", {
+            key: o,
+            style: i
+          }, u);
         }
       }, {
         key: "render",
         value: function() {
           var e = this,
-            t = s.a.isNumber(this.props.scrollToIndex) ? this.props.scrollToIndex : void 0,
-            n = this.props,
-            r = n.screenRows,
-            o = n.numBackgroundColors,
-            i = n.emojiPerRow,
-            a = {
-              screenRows: r,
-              numBackgroundColors: o,
-              emojiPerRow: i
+            t = s.a.isNumber(this.props.scrollToIndex),
+            n = t ? this.props.scrollToIndex : void 0,
+            r = this.props,
+            o = r.screenRows,
+            i = r.numBackgroundColors,
+            a = r.numEmojiPerRow,
+            u = {
+              screenRows: o,
+              numBackgroundColors: i,
+              numEmojiPerRow: a
             };
-          return l.a.createElement(c.a, null, function(n) {
-            var r = n.height,
-              o = n.width;
-            return l.a.createElement(c.b, v({}, a, {
+          return f.a.createElement(p.a, null, function(t) {
+            var r = t.height,
+              o = t.width;
+            return f.a.createElement(p.b, v({}, u, {
               className: "emoji_menu_items_scroller",
               height: r,
               rowCount: e.props.screenRows.length,
               rowHeight: e.getRowHeight,
               rowRenderer: e.renderRow,
               scrollToAlignment: e.usingKeyboard() ? "auto" : "start",
-              scrollToIndex: t,
+              scrollToIndex: n,
               width: o,
               onRowsRendered: e.props.onScroll,
               noRowsRenderer: e.renderEmptyState,
@@ -71391,8 +71440,8 @@ $.fn.togglify = function(settings) {
           });
         }
       }]), t;
-    }(u.PureComponent);
-  t.a = C, C.propTypes = w;
+    }(c.PureComponent);
+  t.a = S, S.propTypes = w, S.defaultProps = C;
 }, function(e, t, n) {
   "use strict";
 
@@ -71484,19 +71533,27 @@ $.fn.togglify = function(settings) {
     },
     E = {
       numBackgroundColors: 6,
-      canAddEmoji: !0
+      canAddEmoji: !0,
+      onSkinToneChanged: function() {},
+      handyRxnNames: [],
+      skinToneChoiceNames: [],
+      initialSearchQuery: "",
+      activeSkinToneId: "",
+      groups: [],
+      onSelected: function() {},
+      onClosed: function() {}
     },
     R = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
         n.onEmojiMouseEnter = n.onEmojiMouseEnter.bind(n), n.onMouseWhileUsingKeyboard = n.onMouseWhileUsingKeyboard.bind(n), n.onListScroll = n.onListScroll.bind(n), n.onSearch = n.onSearch.bind(n), n.onEmojiPickerClick = n.onEmojiPickerClick.bind(n), n.onGroupTabClick = n.onGroupTabClick.bind(n), n.onSkinToneChanged = n.onSkinToneChanged.bind(n), n.onSkinTonePickerOpened = n.onSkinTonePickerOpened.bind(n), n.triggerSelect = n.triggerSelect.bind(n), n.triggerClose = n.triggerClose.bind(n), n.resetSelection = n.resetSelection.bind(n), n.getRowsForGroup = n.getRowsForGroup.bind(n);
-        var i = n.getAllEmoji(n.props.groups);
+        var i = t.getAllEmoji(n.props.groups);
         return n.state = {
           currentSelection: {},
           isPreviewing: !1,
           isSkinTonePickerOpen: !1,
-          searchQuery: e.initialSearchQuery || "",
+          searchQuery: e.initialSearchQuery,
           scrollToIndex: null,
           activeGroup: n.getFirstTab(),
           isScrolledToBottom: !1,
@@ -71530,21 +71587,39 @@ $.fn.togglify = function(settings) {
           handler: n.onArrowKey.bind(n, "right")
         }], n;
       }
-      return i(t, e), w(t, [{
-        key: "filterEmojiByName",
-        value: function(e, t) {
-          return s.a.chain(e).filter(function(e) {
-            return s.a.includes(t, e.name);
-          }).sortBy(function(e) {
-            return t.indexOf(e.name);
-          }).value();
-        }
-      }, {
+      return i(t, e), w(t, null, [{
         key: "getAllEmoji",
         value: function(e) {
           return s.a.chain(e).flatMap("items").compact().uniqBy("name").value();
         }
       }, {
+        key: "getSearchResults",
+        value: function(e, t) {
+          var n = s.a.chain(e).reject(function(e) {
+            return "mine" === e.name;
+          }).flatMap("items").compact().value();
+          if (":" === t) return n;
+          var r = s.a.compact(t.split(" "));
+          return s.a.chain(r).flatMap(function(e) {
+            if (":" === e.charAt(0) && ":" === e.slice(-1)) {
+              var t = e.slice(1, -1);
+              return n.filter(function(e) {
+                return y.a.emoji.nameToBaseName(e.name) === t;
+              });
+            }
+            var r = [];
+            return ":" !== e.substr(0, 1) && ":" !== e.slice(-1) && (r = y.a.emoji.findByKeyword(e)), n.filter(function(t) {
+              return y.a.emoji.emojiMatchesTerm(t, e, r);
+            });
+          }).uniqBy("name").value();
+        }
+      }, {
+        key: "emojiMatchesSkinTone",
+        value: function(e) {
+          var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : "1";
+          return !e.is_skin || e.skin_tone_id === t;
+        }
+      }]), w(t, [{
         key: "componentWillMount",
         value: function() {
           y.a.metrics.mark("react_emoji_menu_mount_mark");
@@ -71555,102 +71630,43 @@ $.fn.togglify = function(settings) {
           this.keyCommands = new _.a(this.element), this.keyCommands.bindAll(this.commands), this.searchInput.focus(), y.a.metrics.measureAndClear("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
         }
       }, {
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          var n = s.a.isEqual(this.props.groups, e.groups),
+            r = this.props.activeSkinToneId !== e.activeSkinToneId,
+            o = this.state.searchQuery;
+          if (n || r) {
+            var i = t.getAllEmoji(e.groups);
+            this.setState({
+              handyRxns: this.filterEmojiByName(i, e.handyRxnNames),
+              skinToneChoices: this.filterEmojiByName(i, e.skinToneChoiceNames),
+              screenRows: this.getAllRows(e.groups, e.activeSkinToneId, o)
+            });
+          }
+        }
+      }, {
         key: "componentWillUnmount",
         value: function() {
           this.keyCommands.reset();
         }
       }, {
-        key: "componentWillReceiveProps",
-        value: function(e) {
-          var t = s.a.isEqual(this.props.groups, e.groups),
-            n = this.props.activeSkinToneId !== e.activeSkinToneId;
-          if (t || n) {
-            var r = this.getAllEmoji(e.groups);
-            this.setState({
-              handyRxns: this.filterEmojiByName(r, e.handyRxnNames),
-              skinToneChoices: this.filterEmojiByName(r, e.skinToneChoiceNames),
-              screenRows: this.getAllRows(e.groups, e.activeSkinToneId, this.state.searchQuery)
-            });
-          }
-        }
-      }, {
         key: "onArrowKey",
         value: function(e, t) {
+          var n = e;
           if (t.target === this.searchInput)
-            if ("right" === e && this.searchInput.selectionEnd === this.searchInput.value.length) e = "down";
+            if ("right" === e && this.searchInput.selectionEnd === this.searchInput.value.length) n = "down";
             else if ("left" === e || "right" === e) return;
           t.preventDefault(), this.element.focus();
-          var n = this.moveCursor(e),
-            r = void 0;
-          r = n[1] < this.state.cursorPosition[1] || 1 === n[1] ? n[1] - 1 : n[1], this.setState({
-            cursorPosition: n,
-            currentSelection: this.getCell(n),
-            scrollToIndex: r,
+          var r = this.moveCursor(n),
+            o = void 0;
+          o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1], this.setState({
+            cursorPosition: r,
+            currentSelection: this.getCell(r),
+            scrollToIndex: o,
             isPreviewing: !0,
             usingKeyboard: !0,
             mousePosition: null
           });
-        }
-      }, {
-        key: "moveCursor",
-        value: function(e, t) {
-          if (!(this.state.screenRows.length < 2)) {
-            t || (t = this.state.cursorPosition);
-            var n = t,
-              r = b(n, 2),
-              o = r[0],
-              i = r[1],
-              a = o,
-              u = i,
-              l = void 0;
-            switch (e) {
-              case "down":
-                if (i === -1) return [0, 1];
-                if (2 === this.state.screenRows.length) return this.moveCursor("right", [o, i]);
-                u = i + 1, u >= this.state.screenRows.length && (u = 1);
-                break;
-              case "up":
-                if (i === -1) return [0, 1];
-                if (2 === this.state.screenRows.length) return this.moveCursor("left", [o, i]);
-                u = i - 1, u < 0 && (u = this.state.screenRows.length - 1);
-                break;
-              case "left":
-                if (a = o - 1, a < 0) {
-                  if (2 === this.state.screenRows.length) {
-                    a = this.getRow(i).items.length;
-                    break;
-                  }
-                  u = i - 1, "emoji" !== this.getRow(u).type && (u -= 1), u < 0 && (u = s.a.findLastIndex(this.state.screenRows, {
-                    type: "emoji"
-                  })), a = this.getRow(u).items.length - 1;
-                }
-                break;
-              case "right":
-                if (a = o + 1, a >= this.getRow(i).items.length) {
-                  if (2 === this.state.screenRows.length) {
-                    a = 0;
-                    break;
-                  }
-                  u = i + 1, u > s.a.findLastIndex(this.state.screenRows, {
-                    type: "emoji"
-                  }) && (u = 0), "emoji" !== this.getRow(u).type && (u += 1), a = 0;
-                }
-            }
-            return "emoji" !== this.getRow(u).type ? this.moveCursor(e, [a, u]) : (l = this.getCell([a, u]), l || (a = this.getRow(u).items.length - 1), [a, u]);
-          }
-        }
-      }, {
-        key: "getCell",
-        value: function(e) {
-          var t = b(e, 2),
-            n = t[0],
-            r = t[1];
-          return s.a.get(this.state.screenRows, "[" + r + "].items[" + n + "]");
-        }
-      }, {
-        key: "getRow",
-        value: function(e) {
-          return s.a.get(this.state.screenRows, "[" + e + "]");
         }
       }, {
         key: "onEmojiMouseEnter",
@@ -71672,16 +71688,6 @@ $.fn.togglify = function(settings) {
             cursorPosition: k
           })) : void this.setState({
             mousePosition: t
-          });
-        }
-      }, {
-        key: "resetSelection",
-        value: function() {
-          this.setState({
-            currentSelection: {},
-            isPreviewing: !1,
-            scrollToIndex: null,
-            cursorPosition: k
           });
         }
       }, {
@@ -71752,14 +71758,17 @@ $.fn.togglify = function(settings) {
           });
         }
       }, {
-        key: "triggerClose",
+        key: "getRow",
         value: function(e) {
-          this.resetSelection(), this.props.onClosed(), e.stopPropagation();
+          return s.a.get(this.state.screenRows, "[" + e + "]");
         }
       }, {
-        key: "triggerSelect",
-        value: function(e, t) {
-          this.props.onSelected(e, t), e.shiftKey || this.triggerClose(e);
+        key: "getCell",
+        value: function(e) {
+          var t = b(e, 2),
+            n = t[0],
+            r = t[1];
+          return s.a.get(this.state.screenRows, "[" + r + "].items[" + n + "]");
         }
       }, {
         key: "getFirstTab",
@@ -71768,17 +71777,16 @@ $.fn.togglify = function(settings) {
         }
       }, {
         key: "getRowsForGroup",
-        value: function(e, t) {
-          var n = this,
-            r = s.a.chain(e.items).compact().filter(function(e) {
-              return n.emojiMatchesSkinTone(e, t);
-            }).chunk(S).map(function(t) {
-              return {
-                type: "emoji",
-                group: e,
-                items: t
-              };
-            }).value();
+        value: function(e, n) {
+          var r = s.a.chain(e.items).compact().filter(function(e) {
+            return t.emojiMatchesSkinTone(e, n);
+          }).chunk(S).map(function(t) {
+            return {
+              type: "emoji",
+              group: e,
+              items: t
+            };
+          }).value();
           return r.unshift({
             type: "group",
             group: e
@@ -71797,85 +71805,137 @@ $.fn.togglify = function(settings) {
           }), i;
         }
       }, {
-        key: "emojiMatchesSkinTone",
-        value: function(e, t) {
-          return t || (t = "1"), !e.is_skin || e.skin_tone_id == t;
-        }
-      }, {
         key: "getActiveGroups",
-        value: function(e, t) {
-          if (!t) return e;
-          var n = this.getSearchResults(e, t);
-          return n.length > 0 ? [{
+        value: function(e, n) {
+          if (!n) return e;
+          var r = t.getSearchResults(e, n);
+          return r.length > 0 ? [{
             display_name: "Search Results",
-            items: n,
+            items: r,
             name: "search_results"
           }] : [];
-        }
-      }, {
-        key: "getSearchResults",
-        value: function(e, t) {
-          var n = s.a.chain(e).reject(function(e) {
-            return "mine" === e.name;
-          }).flatMap("items").compact().value();
-          if (":" === t) return n;
-          var r = s.a.compact(t.split(" "));
-          return s.a.chain(r).flatMap(function(e) {
-            if (":" === e.charAt(0) && ":" === e.slice(-1)) {
-              var t = e.slice(1, -1);
-              return n.filter(function(e) {
-                return y.a.emoji.nameToBaseName(e.name) === t;
-              });
-            }
-            var r = [];
-            return ":" != e.substr(0, 1) && ":" != e.slice(-1) && (r = y.a.emoji.findByKeyword(e)), n.filter(function(t) {
-              return y.a.emoji.emojiMatchesTerm(t, e, r);
-            });
-          }).uniqBy("name").value();
         }
       }, {
         key: "getEmojiPreviewData",
         value: function(e) {
           var t = y.a.emoji.nameToBaseName(e.name),
-            n = (e.names || "").replace(/(\:\:skin-tone-[2-6]\:)/g, ":");
+            n = (e.names || "").replace(/(::skin-tone-[2-6]:)/g, ":");
           return {
             name: t,
             aliases: n
           };
         }
       }, {
+        key: "triggerSelect",
+        value: function(e, t) {
+          this.props.onSelected(e, t), e.shiftKey || this.triggerClose(e);
+        }
+      }, {
+        key: "triggerClose",
+        value: function(e) {
+          this.resetSelection(), this.props.onClosed(), e.stopPropagation();
+        }
+      }, {
+        key: "moveCursor",
+        value: function(e, t) {
+          var n = t;
+          if (this.state.screenRows.length < 2) return null;
+          n || (n = this.state.cursorPosition);
+          var r = n,
+            o = b(r, 2),
+            i = o[0],
+            a = o[1],
+            u = i,
+            l = a;
+          switch (e) {
+            case "down":
+              if (a === -1) return [0, 1];
+              if (2 === this.state.screenRows.length) return this.moveCursor("right", [i, a]);
+              l = a + 1, l >= this.state.screenRows.length && (l = 1);
+              break;
+            case "up":
+              if (a === -1) return [0, 1];
+              if (2 === this.state.screenRows.length) return this.moveCursor("left", [i, a]);
+              l = a - 1, l < 0 && (l = this.state.screenRows.length - 1);
+              break;
+            case "left":
+              if (u = i - 1, u < 0) {
+                if (2 === this.state.screenRows.length) {
+                  u = this.getRow(a).items.length;
+                  break;
+                }
+                l = a - 1, "emoji" !== this.getRow(l).type && (l -= 1), l < 0 && (l = s.a.findLastIndex(this.state.screenRows, {
+                  type: "emoji"
+                })), u = this.getRow(l).items.length - 1;
+              }
+              break;
+            case "right":
+              if (u = i + 1, u >= this.getRow(a).items.length) {
+                if (2 === this.state.screenRows.length) {
+                  u = 0;
+                  break;
+                }
+                l = a + 1, l > s.a.findLastIndex(this.state.screenRows, {
+                  type: "emoji"
+                }) && (l = 0), "emoji" !== this.getRow(l).type && (l += 1), u = 0;
+              }
+          }
+          if ("emoji" !== this.getRow(l).type) return this.moveCursor(e, [u, l]);
+          var c = this.getCell([u, l]);
+          return c || (u = this.getRow(l).items.length - 1), [u, l];
+        }
+      }, {
+        key: "resetSelection",
+        value: function() {
+          this.setState({
+            currentSelection: {},
+            isPreviewing: !1,
+            scrollToIndex: null,
+            cursorPosition: k
+          });
+        }
+      }, {
+        key: "filterEmojiByName",
+        value: function(e, t) {
+          return s.a.chain(e).filter(function(e) {
+            return s.a.includes(t, e.name);
+          }).sortBy(function(e) {
+            return t.indexOf(e.name);
+          }).value();
+        }
+      }, {
         key: "maybeRenderHandyRxns",
         value: function() {
-          if (this.state.handyRxns.length) return l.a.createElement(m.a, {
+          return this.state.handyRxns.length ? l.a.createElement(m.a, {
             handyRxns: this.state.handyRxns,
             numBackgroundColors: this.props.numBackgroundColors,
             onSelected: this.triggerSelect,
             onMouseEnter: this.state.usingKeyboard ? s.a.noop : this.onEmojiMouseEnter,
             onMouseLeave: this.state.usingKeyboard ? s.a.noop : this.resetSelection
-          });
+          }) : null;
         }
       }, {
         key: "maybeRenderSkinTonePicker",
         value: function() {
-          if (this.props.skinToneChoiceNames.length) return l.a.createElement(v.a, {
+          return this.props.skinToneChoiceNames.length ? l.a.createElement(v.a, {
             activeSkinToneId: this.props.activeSkinToneId,
             choices: this.state.skinToneChoices,
             isOpen: this.state.isSkinTonePickerOpen,
             onOpen: this.onSkinTonePickerOpened,
             onSkinToneChanged: this.onSkinToneChanged
-          });
+          }) : null;
         }
       }, {
         key: "renderEmojiPreview",
         value: function() {
           var e = 0 === this.state.screenRows.length,
-            t = this.state.currentSelection,
-            n = this.getEmojiPreviewData(t);
+            n = this.state.currentSelection,
+            r = this.getEmojiPreviewData(n);
           if (e) {
-            var r = this.getAllEmoji(this.props.groups);
-            t = this.filterEmojiByName(r, x)[0], n = this.getEmojiPreviewData(t);
+            var o = t.getAllEmoji(this.props.groups);
+            n = this.filterEmojiByName(o, x)[0], r = this.getEmojiPreviewData(n);
           }
-          var o = f()("overflow_ellipsis", "float_left", {
+          var i = f()("overflow_ellipsis", "float_left", {
             is_shortened: !this.props.activeSkinToneId
           });
           return l.a.createElement("div", {
@@ -71883,15 +71943,15 @@ $.fn.togglify = function(settings) {
           }, l.a.createElement("span", {
             id: "emoji_preview_img"
           }, l.a.createElement(p.a, {
-            emoji: t
+            emoji: n
           })), l.a.createElement("div", {
             id: "emoji_preview_text",
-            className: o
+            className: i
           }, l.a.createElement("span", {
             id: "emoji_name"
-          }, e ? C("Oh no!") : n.name), l.a.createElement("br", null), l.a.createElement("span", {
+          }, e ? C("Oh no!") : r.name), l.a.createElement("br", null), l.a.createElement("span", {
             id: "emoji_aliases"
-          }, e ? C("We couldn't find that emoji") : n.aliases)));
+          }, e ? C("We couldn't find that emoji") : r.aliases)));
         }
       }, {
         key: "renderStickyHeader",
@@ -71905,8 +71965,12 @@ $.fn.togglify = function(settings) {
         key: "render",
         value: function() {
           var e = this,
-            t = 0 === this.state.screenRows.length,
-            n = this.state.isScrolledToBottom ? s.a.last(this.props.groups) : this.state.activeGroup;
+            t = this.state,
+            n = t.screenRows,
+            r = t.isScrolledToBottom,
+            o = t.activeGroup,
+            i = 0 === n.length,
+            a = r ? s.a.last(this.props.groups) : o;
           return l.a.createElement("div", {
             id: "emoji_menu",
             className: "menu emoji_menu_ng",
@@ -71921,7 +71985,7 @@ $.fn.togglify = function(settings) {
             id: "emoji_menu_content"
           }, l.a.createElement(h.a, {
             groups: this.props.groups,
-            activeGroup: n,
+            activeGroup: a,
             onGroupTabClick: this.onGroupTabClick
           }), l.a.createElement("div", {
             id: "emoji_input_container"
@@ -71956,7 +72020,7 @@ $.fn.togglify = function(settings) {
             canAddEmoji: this.props.canAddEmoji
           }))), l.a.createElement("div", {
             id: "emoji_menu_footer",
-            className: this.state.isPreviewing || t ? "previewing" : ""
+            className: this.state.isPreviewing || i ? "previewing" : ""
           }, this.maybeRenderHandyRxns(), this.renderEmojiPreview(), l.a.createElement("div", {
             id: "emoji_preview_deluxe"
           }, l.a.createElement("span", {
@@ -72012,11 +72076,18 @@ $.fn.togglify = function(settings) {
     m = {
       activeSkinToneId: u.PropTypes.string,
       choices: u.PropTypes.array,
-      menuIsOpen: u.PropTypes.bool,
+      isOpen: u.PropTypes.bool,
       onSkinToneChanged: u.PropTypes.func,
       onOpen: u.PropTypes.func
     },
-    g = function(e) {
+    g = {
+      activeSkinToneId: "",
+      choices: [],
+      isOpen: !1,
+      onSkinToneChanged: function() {},
+      onOpen: function() {}
+    },
+    _ = function(e) {
       function t() {
         return r(this, t), o(this, (t.__proto__ || Object.getPrototypeOf(t)).apply(this, arguments));
       }
@@ -72038,23 +72109,24 @@ $.fn.togglify = function(settings) {
       }, {
         key: "render",
         value: function() {
-          var e = s.a.find(this.props.choices, {
-              skin_tone_id: this.props.activeSkinToneId || "1"
+          var e = this.props.activeSkinToneId || "1",
+            t = s.a.find(this.props.choices, {
+              skin_tone_id: e
             }),
-            t = this.props.choices;
-          this.props.activeSkinToneId && (t = s.a.reject(t, {
-            skin_tone_id: e.skin_tone_id
-          }), t.push(e));
-          var n = f()({
+            n = this.props.choices;
+          this.props.activeSkinToneId && (n = s.a.reject(n, {
+            skin_tone_id: t.skin_tone_id
+          }), n.push(t));
+          var r = f()({
               hidden: this.props.isOpen
             }),
-            r = f()({
+            o = f()({
               hidden: this.props.activeSkinToneId
             }),
-            o = f()({
+            i = f()({
               shown: this.props.isOpen
             }),
-            i = f()({
+            a = f()({
               shown: this.props.isOpen
             });
           return l.a.createElement("div", {
@@ -72065,25 +72137,25 @@ $.fn.togglify = function(settings) {
           }, l.a.createElement("div", {
             id: "emoji_skin_button_container",
             onClick: this.props.onOpen,
-            className: n
+            className: r
           }, l.a.createElement("div", {
             id: "emoji_skin_button"
           }, l.a.createElement(p.a, {
-            emoji: e
+            emoji: t
           })), l.a.createElement("span", {
             id: "emoji_skin_picker_label",
-            className: r
+            className: o
           }, v("Skin Tone"))), l.a.createElement("div", {
             id: "emoji_skin_tip",
-            className: o
+            className: i
           }, v("Choose your default skin tone")), l.a.createElement("div", {
             id: "emoji_skin_picker",
-            className: i
-          }, this.renderToneChoices(t)));
+            className: a
+          }, this.renderToneChoices(n)));
         }
       }]), t;
     }(u.PureComponent);
-  t.a = g, g.propTypes = m;
+  t.a = _, _.propTypes = m, _.defaultProps = g;
 }, function(e, t, n) {
   "use strict";
 
@@ -72139,17 +72211,17 @@ $.fn.togglify = function(settings) {
         }, n.closePopover = n.closePopover.bind(n), n.onTrigger = n.onTrigger.bind(n), n;
       }
       return i(t, e), c(t, [{
-        key: "closePopover",
-        value: function() {
-          this.setState({
-            isOpen: !1
-          });
-        }
-      }, {
         key: "onTrigger",
         value: function() {
           this.setState({
             isOpen: !this.state.isOpen
+          });
+        }
+      }, {
+        key: "closePopover",
+        value: function() {
+          this.setState({
+            isOpen: !1
           });
         }
       }, {
@@ -72237,6 +72309,7 @@ $.fn.togglify = function(settings) {
       isOpen: !1,
       onOpen: function() {},
       onClose: function() {},
+      position: null,
       targetBounds: {
         top: 0,
         left: 0,
@@ -72261,6 +72334,23 @@ $.fn.togglify = function(settings) {
         key: "componentWillUnmount",
         value: function() {
           window.removeEventListener("resize", this.onResize);
+        }
+      }, {
+        key: "onResize",
+        value: function() {
+          this.props.isOpen && this.measureContents();
+        }
+      }, {
+        key: "onOpen",
+        value: function() {
+          this.props.onOpen(), this.measureContents();
+        }
+      }, {
+        key: "onClose",
+        value: function() {
+          this.props.onClose(), this.setState({
+            contentBounds: {}
+          });
         }
       }, {
         key: "getInitialPosition",
@@ -72312,22 +72402,6 @@ $.fn.togglify = function(settings) {
           }
         }
       }, {
-        key: "onResize",
-        value: function() {
-          this.props.isOpen && this.measureContents();
-        }
-      }, {
-        key: "measureContents",
-        value: function() {
-          if (this.popoverContent) {
-            var e = n.i(u.findDOMNode)(this.popoverContent).getBoundingClientRect(),
-              t = this.keepInBounds(e);
-            this.setState({
-              contentBounds: t
-            });
-          }
-        }
-      }, {
         key: "getBoundaries",
         value: function() {
           var e = window,
@@ -72339,6 +72413,20 @@ $.fn.togglify = function(settings) {
             right: n - this.props.allowanceX,
             bottom: t + r - this.props.allowanceY,
             left: this.props.allowanceX
+          };
+        }
+      }, {
+        key: "getContentStyle",
+        value: function() {
+          var e = this.state.contentBounds || {},
+            t = this.getBoundaries();
+          return {
+            content: {
+              position: "absolute",
+              left: e.left || t.left,
+              top: e.top || t.top,
+              outline: "none"
+            }
           };
         }
       }, {
@@ -72359,30 +72447,15 @@ $.fn.togglify = function(settings) {
           };
         }
       }, {
-        key: "onOpen",
+        key: "measureContents",
         value: function() {
-          this.props.onOpen(), this.measureContents();
-        }
-      }, {
-        key: "onClose",
-        value: function() {
-          this.props.onClose(), this.setState({
-            contentBounds: {}
-          });
-        }
-      }, {
-        key: "getContentStyle",
-        value: function() {
-          var e = this.state.contentBounds || {},
-            t = this.getBoundaries();
-          return {
-            content: {
-              position: "absolute",
-              left: e.left || t.left,
-              top: e.top || t.top,
-              outline: "none"
-            }
-          };
+          if (this.popoverContent) {
+            var e = n.i(u.findDOMNode)(this.popoverContent).getBoundingClientRect(),
+              t = this.keepInBounds(e);
+            this.setState({
+              contentBounds: t
+            });
+          }
         }
       }, {
         key: "render",
@@ -72399,8 +72472,8 @@ $.fn.togglify = function(settings) {
             className: "popover",
             overlayClassName: "popover_mask react_popover_mask",
             style: this.getContentStyle(),
-            onAfterOpen: this.onOpen.bind(this),
-            onRequestClose: this.onClose.bind(this)
+            onAfterOpen: this.onOpen,
+            onRequestClose: this.onClose
           }, t);
         }
       }]), t;
@@ -72429,7 +72502,7 @@ $.fn.togglify = function(settings) {
     }(),
     l = function() {
       function e(t) {
-        r(this, e), i.a.prototype.stopCallback = this.stopCallback, this.mousetrap = new i.a(t);
+        r(this, e), i.a.prototype.stopCallback = e.stopCallback, this.mousetrap = new i.a(t);
       }
       return u(e, [{
         key: "bindAll",
@@ -72449,9 +72522,9 @@ $.fn.togglify = function(settings) {
         value: function(e) {
           this.mousetrap.unbind(s.a.flatMap(e, "keys"));
         }
-      }, {
+      }], [{
         key: "stopCallback",
-        value: function(e, t, n) {
+        value: function(e, t) {
           return t.hasAttribute("data-no-key-commands");
         }
       }]), e;
@@ -73616,7 +73689,8 @@ $.fn.togglify = function(settings) {
     var o;
     if (o = C ? c(e, n) : f(e, n), !o) return null;
     var i = g.getPooled(T.beforeInput, t, n, r);
-    return i.data = o, d.accumulateTwoPhaseDispatches(i), i;
+    return i.data = o, d.accumulateTwoPhaseDispatches(i),
+      i;
   }
   var d = n(44),
     h = n(11),
@@ -78301,8 +78375,7 @@ $.fn.togglify = function(settings) {
         var o = this.getInitialState ? this.getInitialState() : null;
         "object" != typeof o || Array.isArray(o) ? p("82", t.displayName || "ReactCompositeComponent") : void 0, this.state = o;
       });
-      t.prototype = new S, t.prototype.constructor = t,
-        t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
+      t.prototype = new S, t.prototype.constructor = t, t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
       for (var n in b) t.prototype[n] || (t.prototype[n] = null);
       return t;
     },
@@ -78795,11 +78868,11 @@ $.fn.togglify = function(settings) {
   Object.defineProperty(t, "__esModule", {
     value: !0
   });
-  var r = n(162),
-    o = n(163),
-    i = n(3),
+  var r = n(3),
+    o = n.n(r),
+    i = n(22),
     a = n.n(i),
-    s = n(22),
-    u = n.n(s);
-  window.ReactComponents = {}, ReactComponents.EmojiPicker = r.a, ReactComponents.Popover = o.a, ReactComponents.PopoverTrigger = o.b, window.React = a.a, window.ReactDOM = u.a;
+    s = n(162),
+    u = n(163);
+  window.ReactComponents = {}, window.ReactComponents.EmojiPicker = s.a, window.ReactComponents.Popover = u.a, window.ReactComponents.PopoverTrigger = u.b, window.React = o.a, window.ReactDOM = a.a;
 }]);

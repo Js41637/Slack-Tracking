@@ -3132,7 +3132,7 @@
   }
 
   function _bindEvents() {
-    if (!!window.matchMedia) {
+    if (window.matchMedia) {
       var qry = "screen and (-webkit-min-device-pixel-ratio: 1.5), screen and (min--moz-device-pixel-ratio: 1.5), screen and (min-device-pixel-ratio: 1.5)";
       window.matchMedia(qry).addListener(function() {
         var old_value = TS.environment.is_retina;

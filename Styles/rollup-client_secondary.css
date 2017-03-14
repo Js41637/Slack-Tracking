@@ -25572,7 +25572,9 @@ li:hover .current_status_badge {
   display: block
 }
 
-#search_container .search_input:focus {
+#search_container .search_input.focus,
+#search_container .search_input:focus,
+#search_container .search_input:hover {
   box-shadow: none
 }
 
