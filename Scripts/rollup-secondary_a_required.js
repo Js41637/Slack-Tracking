@@ -1991,7 +1991,7 @@
           TS.info('API returned "active_migration" (enterprise org migration) for ' + method + ". Showing migration dialog.");
           TS.ui.fs_modal.start({
             title: "This team is joining an Enterprise Organization!",
-            body: "Apologies for the interruption. This team is currently being migrated into " + (data.enterprise_name ? "the <b>" + TS.utility.htmlEntities(data.enterprise_name) + "</b> Organization" : "an Organization") + ", which can take some time to complete. In the meantime, you won't be able to use it, but we'll email you once it's done.",
+            body: "Apologies for the interruption. This team is currently being migrated into " + (data.enterprise_name ? "the <b>" + TS.utility.htmlEntities(data.enterprise_name) + "</b> Organization" : "an Organization") + ", which can take some time to complete. In the meantime, you won’t be able to use it, but we’ll email you once it’s done.",
             show_cancel_button: false,
             show_go_button: false,
             disable_default_controls: true,
@@ -3622,6 +3622,29 @@
         channel.needs_api_marking = true;
       }
     },
+    create: function(name, options) {
+      options = options || {};
+      if (TS.model.user.is_restricted) return Promise.reject(new Error("restricted_action"));
+      if (!name) return Promise.reject(new Error("required"));
+      if (TS.model.created_channels[name]) {
+        return Promise.reject(new Error("name_taken"));
+      }
+      TS.model.created_channels[name] = true;
+      return new Promise(function(resolve, reject) {
+        return TS.api.call("channels.create", {
+          name: name,
+          validate: options.validate_name
+        }).then(function(res) {
+          TS.channels.onJoin(res.data.ok, res.data, res.args);
+          resolve(res);
+          return null;
+        }).catch(function(res) {
+          delete TS.model.created_channels[name];
+          reject(res);
+          return null;
+        });
+      });
+    },
     join: function(name, callback, options) {
       options = options || {};
       if (TS.model.user.is_restricted) return Promise.reject(new Error("Account is restricted"));
@@ -4425,7 +4448,7 @@
       var member = TS.members.getMemberById(user_id);
       if (!member) {
         var membership_description = is_member ? "joined" : "left";
-        TS.warn("User " + user_id + " " + membership_description + " channel " + channel.id + " but we don't have that user in our model");
+        TS.warn("User " + user_id + " " + membership_description + " channel " + channel.id + " but we don’t have that user in our model");
         return;
       }
       if (is_member) {
@@ -4446,7 +4469,7 @@
     getMembershipCounts: function(model_ob) {
       _channel_member_counts_info[model_ob.id] = _channel_member_counts_info[model_ob.id] || {};
       var channel_member_counts = _channel_member_counts_info[model_ob.id];
-      var should_fetch = !channel_member_counts.counts || !channel_member_counts.promise && channel_member_counts.should_refetch;
+      var should_fetch = !channel_member_counts.promise && (!channel_member_counts.counts || channel_member_counts.should_refetch);
       if (should_fetch) {
         channel_member_counts.should_refetch = false;
         channel_member_counts.promise = _promiseToGetChannelMemberCountsFromAPI(model_ob, channel_member_counts.last_fetched_ts || 0).then(function(counts) {
@@ -4528,7 +4551,7 @@
     }
     if (time_since_last_fetch < MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS) {
       rate_limit_p = new Promise(function(resolve) {
-        TS.log(1989, "Channel member counts (" + model_ob.id + "): it's only been " + time_since_last_fetch + "ms since last fetch; waiting " + (MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch) + " ms before fetching");
+        TS.log(1989, "Channel member counts (" + model_ob.id + "): it’s only been " + time_since_last_fetch + "ms since last fetch; waiting " + (MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch) + " ms before fetching");
         setTimeout(resolve, MIN_CHANNEL_MEMBER_COUNT_FETCH_INTERVAL_MS - time_since_last_fetch);
       });
     } else {
@@ -16256,7 +16279,7 @@ TS.registerModule("constants", {
   };
   var _createNewSocket = function(url) {
     if (!_isValidSlackWebSocketUrl(url)) {
-      TS.error("Tried to connect to a WebSocket URL that doesn't look right; aborting");
+      TS.error("Tried to connect to a WebSocket URL that doesn’t look right; aborting");
       TS.ms.onFailure("Invalid WebSocket URL");
       return false;
     }
@@ -16329,7 +16352,7 @@ TS.registerModule("constants", {
       _startProvisionalConnectionTimeout();
       var rtm_start_timeout = setTimeout(function() {
         TS.warn("Provisional WebSocket timed out");
-        _abortRtmStartAttempt(new Error("Waited " + _rtm_start_timeout_tim_ms + " ms for rtm.start response but didn't get one"));
+        _abortRtmStartAttempt(new Error("Waited " + _rtm_start_timeout_tim_ms + " ms for rtm.start response but didn’t get one"));
       }, _rtm_start_timeout_tim_ms);
       _onConnectProvisional = _makeBufferHandler(_maybeResolveOpenWebSocketPromise);
       _onDisconnectProvisional = _makeBufferHandler(function() {
@@ -22867,6 +22890,11 @@ TS.registerModule("constants", {
           }
           var is_in_debug_group = TS.recaps_signal.sli_recaps_debug_group === "sli_debug_info";
           template_args.show_recap_debug = msg.recap && is_in_debug_group;
+        }
+        if (TS.boot_data.feature_sli_highlight_unreads && _.get(TS, "client.ui.sli_highlight_all_unreads")) {
+          if (args.from_all_unreads && TS.highlights_briefing.sli_recaps_debug_group === "sli_debug_info") {
+            template_args.show_recap_debug = true;
+          }
         }
         if (TS.boot_data.feature_sli_briefing && TS.highlights_briefing && args.briefing) {
           template_args.show_recap_debug = TS.highlights_briefing.sli_recaps_debug_group === "sli_debug_info";
@@ -46161,8 +46189,8 @@ $.fn.togglify = function(settings) {
     }
   };
   var _createPublicChannel = function(title, purpose, invited_members, pending_users) {
-    TS.channels.join(title, false, {
-      validate: !!TS.boot_data.feature_intl_channel_names
+    TS.channels.create(title, {
+      validate_name: !!TS.boot_data.feature_intl_channel_names
     }).then(function(res) {
       var data = res.data;
       if (purpose) TS.channels.setPurpose(data.channel.id, purpose);
@@ -46179,8 +46207,9 @@ $.fn.togglify = function(settings) {
       }
       TS.ui.fs_modal.close();
     }).catch(function(res) {
+      res = res || {};
+      var error = res.data ? res.data.error : res.message;
       if (_ladda) _ladda.stop();
-      var error = res.data.error;
       if (TS.boot_data.feature_intl_channel_names) {
         var msg = TS.ui.validation.getErrorMessage(error, {
           maxlength: 22,
@@ -49662,6 +49691,16 @@ $.fn.togglify = function(settings) {
           var ts = $(e.target).parents("ts-message").data("ts");
           var model_ob_id = $(e.target).parents("ts-message").data("model-ob-id");
           var debug_info = TS.highlights_briefing.getDebugInfoFor(ts, model_ob_id);
+          TS.client.ui.debugger_flexpane.printJSON(debug_info);
+        }
+      });
+    }
+    if (TS.boot_data.feature_sli_highlight_unreads && _.get(TS, "client.ui.sli_highlight_all_unreads")) {
+      TS.click.addClientHandler("#unread_msgs_div .recap_highlight_debug", function(e) {
+        if (TS.boot_data.feature_tinyspeck && TS.recaps_signal.sli_recaps_debug_group === "sli_debug_info") {
+          var ts = $(e.target).parents("ts-message").data("ts");
+          var model_ob_id = $(e.target).parents("ts-message").data("model-ob-id");
+          var debug_info = TS.client.ui.sli_highlight_all_unreads.getDebugInfoFor(ts, model_ob_id);
           TS.client.ui.debugger_flexpane.printJSON(debug_info);
         }
       });
@@ -56023,6 +56062,7 @@ $.fn.togglify = function(settings) {
     },
     isContenteditable: function(input) {
       input = _normalizeInput(input);
+      if (input && TS.ui && TS.ui.paste.catcher_div === input) return false;
       if (input.isContentEditable) return true;
       if (_isTextyElement(input)) return true;
       return false;
@@ -63887,7 +63927,8 @@ $.fn.togglify = function(settings) {
           }
 
           function a() {
-            return (h && v || c && y) && (f = e.apply(d, l)), r(), f;
+            return (h && v || c && y) && (f = e.apply(d, l)), r(),
+              f;
           }
 
           function s() {
@@ -63972,12 +64013,11 @@ $.fn.togglify = function(settings) {
           var r = !0,
             o = !0;
           if ("function" != typeof e) throw new Gu(ne);
-          return Wa(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o),
-            sa(e, t, {
-              leading: r,
-              maxWait: t,
-              trailing: o
-            });
+          return Wa(n) && (r = "leading" in n ? !!n.leading : r, o = "trailing" in n ? !!n.trailing : o), sa(e, t, {
+            leading: r,
+            maxWait: t,
+            trailing: o
+          });
         }
 
         function va(e) {
@@ -68762,7 +68802,8 @@ $.fn.togglify = function(settings) {
             n = void 0 === t ? 0 : t,
             r = e.rowIndex,
             o = void 0 === r ? 0 : r;
-          this._columnSizeAndPositionManager.resetCell(n), this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
+          this._columnSizeAndPositionManager.resetCell(n),
+            this._rowSizeAndPositionManager.resetCell(o), this._cellCache = {}, this._styleCache = {}, this.forceUpdate();
         }
       }, {
         key: "scrollToCell",
@@ -78260,7 +78301,8 @@ $.fn.togglify = function(settings) {
         var o = this.getInitialState ? this.getInitialState() : null;
         "object" != typeof o || Array.isArray(o) ? p("82", t.displayName || "ReactCompositeComponent") : void 0, this.state = o;
       });
-      t.prototype = new S, t.prototype.constructor = t, t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
+      t.prototype = new S, t.prototype.constructor = t,
+        t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
       for (var n in b) t.prototype[n] || (t.prototype[n] = null);
       return t;
     },

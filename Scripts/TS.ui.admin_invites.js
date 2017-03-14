@@ -506,6 +506,14 @@
           invite_count: invite_count
         });
       }
+    } else if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
+      if (_in_modal_3_fields_group) {
+        label = TS.i18n.t("Invite Guests", "invite")();
+      } else {
+        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Guest}other{Invite {invite_count} Guests}}", "invite")({
+          invite_count: invite_count
+        });
+      }
     } else if (account_type == "restricted") {
       if (_in_modal_3_fields_group) {
         label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
@@ -683,21 +691,28 @@
     };
     var channel_picker_html = TS.templates.admin_invite_channel_picker(template_args);
     var invite_type_label = TS.i18n.t("Team Members", "invite")();
-    if (invite_type == "restricted") {
+    if (invite_type === "restricted") {
       invite_type_label = TS.i18n.t("Multi-Channel Guests", "invite")();
-    } else if (invite_type == "ultra_restricted") {
+    } else if (invite_type === "ultra_restricted") {
       invite_type_label = TS.i18n.t("Single-Channel Guests", "invite")();
     }
     _$div.find("#admin_invites_header").find(".admin_invites_header_type").addClass("normal").text(invite_type_label).end().find(".admin_invites_header_team_name").addClass("hidden");
     _$div.find("#admin_invites_channel_picker_container").html(channel_picker_html);
     _$div.find("#account_type").val(invite_type);
     _$div.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden");
-    _$div.find("#admin_invites_billing_notice").toggleClass("hidden", !(TS.model.team.plan !== "" && invite_type != "ultra_restricted"));
+    _$div.find("#admin_invites_billing_notice", "#admin_guide_to_billing_at_slack").toggleClass("hidden", !(TS.model.team.plan !== "" && invite_type != "ultra_restricted"));
     _$div.find("#ura_warning").toggleClass("hidden", invite_type != "restricted" && invite_type != "ultra_restricted");
     _$div.find("#invite_notice").hide();
     if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
+      var admin_invite_subheader_text = "";
       _$div.find(".admin_invites_guest_expiration_date_container").toggleClass("hidden", invite_type === "full");
       _$div.find(_DATE_PICKER_TARGET_SELECTOR).on("click", _showDatePicker);
+      if (invite_type === "restricted") {
+        admin_invite_subheader_text = TS.i18n.t("These guests will only have access to messages and files in specified channels.", "invite")();
+      } else if (invite_type === "ultra_restricted") {
+        admin_invite_subheader_text = TS.i18n.t("These guests will only have access to messages and files in a single channel.", "invite")();
+      }
+      _$div.find("#admin_invites_subheader").text(admin_invite_subheader_text).toggleClass("hidden", invite_type === "full");
     }
     _$div.find("#ultra_restricted_channel_picker").on("change", function() {
       _updateSendButtonLabel();

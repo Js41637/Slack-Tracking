@@ -10023,9 +10023,14 @@
           modules: {
             clipboard: {
               onPaste: function(e) {
-                TS.ui.paste.handler(e);
-                var will_upload = e.defaultPrevented;
-                if (will_upload) TS.utility.contenteditable.blur($input);
+                var will_upload = false;
+                if (!(TS.model.is_FF && bowser.version < 50) && e.clipboardData) {
+                  will_upload = TS.ui.paste.detectImageFromEvent(e);
+                  if (will_upload) TS.utility.contenteditable.blur($input);
+                } else {
+                  will_upload = true;
+                }
+                if (!will_upload) e.stopPropagation();
                 return will_upload;
               }
             },
@@ -15112,13 +15117,12 @@
               var encoded_user = expert;
               var user = TS.members.getMemberById(encoded_user) || {};
               var channels = experts[expert];
-              var channel_names = [];
-              for (var i = 0; i < channels.length; i++) {
-                var encoded_channel = channels[i]["encoded_channel"];
+              var channel_names = _.map(channels, function(channel) {
+                var encoded_channel = channel["encoded_channel"];
                 var channel = TS.channels.getChannelById(encoded_channel) || {};
                 var channel_name = channel["name"] || encoded_channel;
-                channel_names.push("#" + channel_name);
-              }
+                return "#" + channel_name;
+              });
               html += '<div class="search_message_result">' + "<p>@" + (user["name"] || encoded_user) + " in " + channel_names.join(", ") + "</p></div>";
             }
           }
@@ -20089,7 +20093,7 @@
           }
         }
       });
-      if (!TS.boot_data.feature_texty) $(window).bind("paste", TS.ui.paste.handler);
+      $(window).bind("paste", TS.ui.paste.handler);
     },
     okToGo: function() {
       if (!TS.client.ui.$msg_input) return false;
@@ -20113,64 +20117,17 @@
         var modifiers = window.desktop.app.getModifierKeys();
         immediate_upload = immediate_upload || modifiers && modifiers.shift;
       }
-      var dont_make_snippet = true;
       if (!(TS.model.is_FF && bowser.version < 50) && e.clipboardData) {
-        TS.info("clipboardData!");
-        TS.info(e.clipboardData.types);
-        var i;
-        var blob;
-        var img_found = false;
-        var items = e.clipboardData.items;
-        var found_types = {};
-        if (items) {
-          for (i = 0; i < items.length; i++) {
-            if (items[i]) {
-              found_types[items[i].type] = true;
-            }
+        var detected_image = TS.ui.paste.detectImageFromEvent(e);
+        if (detected_image) {
+          e.preventDefault();
+          if (e.clipboardData.items) {
+            TS.client.ui.file_pasted_sig.dispatch(detected_image, immediate_upload);
+          } else {
+            TS.ui.paste.startUploadFromMacSSBReadImage(detected_image, immediate_upload);
           }
-          for (i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf("image") !== -1) {
-              if (TS.model.is_mac && found_types["text/plain"] && found_types["text/html"] && found_types["text/rtf"]) {
-                TS.info("Ignoring pasted image data, likely from Office/Word for Mac.");
-              } else if (TS.model.is_win && found_types["text/plain"] && found_types["text/html"] && found_types["image/png"]) {
-                TS.info("Ignoring pasted image data from Windows, which should render as text");
-              } else {
-                blob = items[i].getAsFile();
-                e.preventDefault();
-                if (blob !== null) {
-                  TS.client.ui.file_pasted_sig.dispatch(blob, immediate_upload);
-                }
-                img_found = true;
-              }
-            }
-          }
-          if (!img_found && TS.client) {
-            if (immediate_upload && !TS.model.insert_key_pressed && !dont_make_snippet) {
-              setTimeout(TS.client.msg_input.startSnippet, 100);
-            } else if (!TS.utility.isFocusOnInput()) {
-              TS.view.focusMessageInput();
-            }
-          }
-        } else {
-          TS.warn("no clipboardData.items");
-          var clipboard_types = e.clipboardData.types || [];
-          for (i = 0; i < clipboard_types.length; i++) {
-            if (clipboard_types[i]) {
-              found_types[clipboard_types[i]] = true;
-            }
-          }
-          var ssb_api = window.macgap || window.winssb;
-          if (ssb_api && ssb_api.clipboard && ssb_api.clipboard.readImage) {
-            if (!found_types["text/rtf"] && ssb_api.clipboard.readImage()) {
-              var paste_img = ssb_api.clipboard.readImage();
-              TS.ui.paste.startUploadFromMacSSBReadImage(paste_img, immediate_upload);
-              img_found = true;
-              e.preventDefault();
-            }
-          }
-          if (!img_found && immediate_upload && TS.client && !TS.model.v_key_pressed && !dont_make_snippet) {
-            setTimeout(TS.client.msg_input.startSnippet, 100);
-          }
+        } else if (!TS.model.is_FF && e.clipboardData.items && TS.client && !TS.utility.isFocusOnInput()) {
+          TS.view.focusMessageInput();
         }
       } else {
         var types = e.clipboardData && e.clipboardData.types;
@@ -20180,6 +20137,50 @@
         }
         setTimeout(TS.ui.paste.checkCatcher, 0, immediate_upload, pasted_text);
       }
+    },
+    detectImageFromEvent: function(e) {
+      TS.info("clipboardData!");
+      TS.info(e.clipboardData.types);
+      var i;
+      var blob;
+      var items = e.clipboardData.items;
+      var found_types = {};
+      if (items) {
+        for (i = 0; i < items.length; i++) {
+          if (items[i]) {
+            found_types[items[i].type] = true;
+          }
+        }
+        for (i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            if (TS.model.is_mac && found_types["text/plain"] && found_types["text/html"] && found_types["text/rtf"]) {
+              TS.info("Ignoring pasted image data, likely from Office/Word for Mac.");
+            } else if (TS.model.is_win && found_types["text/plain"] && found_types["text/html"] && found_types["image/png"]) {
+              TS.info("Ignoring pasted image data from Windows, which should render as text");
+            } else {
+              blob = items[i].getAsFile();
+              if (blob !== null) {
+                return blob;
+              }
+            }
+          }
+        }
+      } else {
+        TS.warn("no clipboardData.items");
+        var clipboard_types = e.clipboardData.types || [];
+        for (i = 0; i < clipboard_types.length; i++) {
+          if (clipboard_types[i]) {
+            found_types[clipboard_types[i]] = true;
+          }
+        }
+        var ssb_api = window.macgap || window.winssb;
+        if (ssb_api && ssb_api.clipboard && ssb_api.clipboard.readImage) {
+          if (!found_types["text/rtf"] && ssb_api.clipboard.readImage()) {
+            return ssb_api.clipboard.readImage();
+          }
+        }
+      }
+      return false;
     },
     startUploadFromMacSSBReadImage: function(str, immediate_upload) {
       var canvas = document.getElementById("converter_canvas");
@@ -20211,10 +20212,8 @@
       }
       var str;
       var range;
-      var img_found = false;
       if (child) {
         if (child.tagName === "IMG") {
-          img_found = true;
           TS.client.ui.file_pasted_sig.dispatch(TS.utility.base64StrFromDataURI(child.src), immediate_upload);
         } else {
           if (current_str) {
@@ -20234,7 +20233,6 @@
       if (range) {
         TS.client.ui.$msg_input.setCursorPosition(range.s + range.l + paste_str.length);
       }
-      if (!img_found && immediate_upload && TS.client) {}
     }
   });
 })();
@@ -22472,7 +22470,7 @@
       } else {
         var $generic_banner = $banner.find("#" + which + "_banner");
         if (!$generic_banner.length) {
-          TS.error("Tried to show a banner called " + which + ", but can't find an element with that as its ID");
+          TS.error("Tried to show a banner called " + which + ", but can’t find an element with that as its ID");
           return;
         }
         $generic_banner.removeClass("hidden");
@@ -24264,6 +24262,14 @@
           invite_count: invite_count
         });
       }
+    } else if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
+      if (_in_modal_3_fields_group) {
+        label = TS.i18n.t("Invite Guests", "invite")();
+      } else {
+        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Guest}other{Invite {invite_count} Guests}}", "invite")({
+          invite_count: invite_count
+        });
+      }
     } else if (account_type == "restricted") {
       if (_in_modal_3_fields_group) {
         label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
@@ -24441,21 +24447,28 @@
     };
     var channel_picker_html = TS.templates.admin_invite_channel_picker(template_args);
     var invite_type_label = TS.i18n.t("Team Members", "invite")();
-    if (invite_type == "restricted") {
+    if (invite_type === "restricted") {
       invite_type_label = TS.i18n.t("Multi-Channel Guests", "invite")();
-    } else if (invite_type == "ultra_restricted") {
+    } else if (invite_type === "ultra_restricted") {
       invite_type_label = TS.i18n.t("Single-Channel Guests", "invite")();
     }
     _$div.find("#admin_invites_header").find(".admin_invites_header_type").addClass("normal").text(invite_type_label).end().find(".admin_invites_header_team_name").addClass("hidden");
     _$div.find("#admin_invites_channel_picker_container").html(channel_picker_html);
     _$div.find("#account_type").val(invite_type);
     _$div.find("#admin_invites_switcher, #admin_invites_workflow").toggleClass("hidden");
-    _$div.find("#admin_invites_billing_notice").toggleClass("hidden", !(TS.model.team.plan !== "" && invite_type != "ultra_restricted"));
+    _$div.find("#admin_invites_billing_notice", "#admin_guide_to_billing_at_slack").toggleClass("hidden", !(TS.model.team.plan !== "" && invite_type != "ultra_restricted"));
     _$div.find("#ura_warning").toggleClass("hidden", invite_type != "restricted" && invite_type != "ultra_restricted");
     _$div.find("#invite_notice").hide();
     if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
+      var admin_invite_subheader_text = "";
       _$div.find(".admin_invites_guest_expiration_date_container").toggleClass("hidden", invite_type === "full");
       _$div.find(_DATE_PICKER_TARGET_SELECTOR).on("click", _showDatePicker);
+      if (invite_type === "restricted") {
+        admin_invite_subheader_text = TS.i18n.t("These guests will only have access to messages and files in specified channels.", "invite")();
+      } else if (invite_type === "ultra_restricted") {
+        admin_invite_subheader_text = TS.i18n.t("These guests will only have access to messages and files in a single channel.", "invite")();
+      }
+      _$div.find("#admin_invites_subheader").text(admin_invite_subheader_text).toggleClass("hidden", invite_type === "full");
     }
     _$div.find("#ultra_restricted_channel_picker").on("change", function() {
       _updateSendButtonLabel();
@@ -37217,7 +37230,8 @@ function timezones_guess() {
             prev_msg: prev_msg,
             container_id: "unread_msgs_div",
             enable_slack_action_links: true,
-            hide_actions: false
+            hide_actions: false,
+            from_all_unreads: true
           }));
           if (_fade_in_messages) $msg.css("opacity", 0);
           return $msg;

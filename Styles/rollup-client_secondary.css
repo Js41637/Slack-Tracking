@@ -16242,6 +16242,11 @@ a.sidebar_menu_list_item:hover {
   letter-spacing: -.5px
 }
 
+#admin_invites_subheader {
+  font-size: 1rem;
+  text-align: center
+}
+
 #admin_invites_header_divider {
   margin: 3rem auto 0
 }
@@ -16343,6 +16348,10 @@ a.sidebar_menu_list_item:hover {
   padding-bottom: 2rem
 }
 
+.experiment_guest_profiles_and_expiration #admin_invites_channel_picker_container {
+  border-bottom: none
+}
+
 #admin_invites_channel_picker_container #restricted_channel_picker_container {
   max-width: 536px;
   margin: 0 auto
@@ -16354,12 +16363,19 @@ a.sidebar_menu_list_item:hover {
 }
 
 #admin_invites_add_row {
+  font-size: 1rem
+}
+
+.admin_invites_container:not(.experiment_guest_profiles_and_expiration) #admin_invites_add_row {
   border: 1px solid #EEE;
   background: #F9F9F9;
   padding: .6rem 1rem;
   border-radius: 6px;
-  font-size: 1rem;
   margin: 1.3rem auto 2.5rem
+}
+
+.admin_invites_container.experiment_guest_profiles_and_expiration #admin_invites_add_row {
+  margin: 6px 0 32px
 }
 
 .admin_invite_row,
@@ -16465,6 +16481,14 @@ a.sidebar_menu_list_item:hover {
   font-weight: 700;
   margin-bottom: .5rem;
   float: right
+}
+
+#admin_invites_workflow {
+  font-size: 1rem
+}
+
+.experiment_guest_profiles_and_expiration #admin_invites_workflow {
+  margin-top: 48px
 }
 
 #admin_invites_workflow .lazy_filter_select {
@@ -19527,7 +19551,9 @@ ts-message.show_recap_debug .recap_highlight_debug {
   color: #717274;
   position: relative;
   top: .125rem;
-  padding-right: .125rem
+  padding-right: .125rem;
+  line-height: 1;
+  vertical-align: baseline
 }
 
 ts-message.show_recap_debug .recap_highlight_debug:before {
@@ -28070,7 +28096,7 @@ ts-thread .thread_participants {
 }
 
 .sli_briefing__message ts-message .recap_highlight_debug {
-  vertical-align: top
+  vertical-align: text-bottom
 }
 
 .sli_briefing__message:hover .sli_briefing_feedback {
