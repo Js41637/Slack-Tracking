@@ -1864,7 +1864,6 @@
     },
     onKeyDown: function(e) {
       if (TS.menu.emoji.is_showing) return;
-      if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.hasFocus($("#menu_member_dm_input"))) return;
       var keymap = TS.utility.keymap;
       var key = e.which;
       var modifier_pressed = e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
@@ -2040,7 +2039,7 @@
     }
   };
   var _isElementTextInput = function(el) {
-    return $(el).is("input, textarea");
+    return $(el).is("input, textarea") || TS.utility.contenteditable.isContenteditable(el);
   };
   var _getFirst = function() {
     if (_use_data_ordering) {
