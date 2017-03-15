@@ -3505,7 +3505,7 @@
     channelMessageChanged: function(channel, msg, changed_keys) {
       if (channel.id != TS.model.active_channel_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
           TS.view.channel.channelMessageReceived(channel, msg);
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
@@ -4099,7 +4099,7 @@
     groupMessageChanged: function(group, msg, changed_keys) {
       if (group.id != TS.model.active_group_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
           TS.view.group.groupMessageReceived(group, msg);
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
@@ -4282,7 +4282,7 @@
     imMessageChanged: function(im, msg, changed_keys) {
       if (im.id !== TS.model.active_im_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
           TS.view.im.imMessageReceived(im, msg);
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
@@ -4668,7 +4668,7 @@
     mpimMessageChanged: function(mpim, msg, changed_keys) {
       if (mpim.id !== TS.model.active_mpim_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
+        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
           TS.view.mpim.mpimMessageReceived(mpim, msg);
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
@@ -5744,7 +5744,7 @@
         TS.client.ui.flex.showFlex();
       }
       $("#main_emo_menu").removeClass("hidden").off("click.incremental_boot").bind("click.open_dialog", function(e) {
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           input_to_fill: TS.client.ui.$msg_input
         });
@@ -5991,7 +5991,7 @@
             });
             e.preventDefault();
           }
-        } else if (!TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isArrowKey(e.which) && !TS.utility.isPageKey(e.which) && !e.metaKey && !e.ctrlKey && !e.altKey && !TS.menu.emoji.is_showing) {
+        } else if (!TS.utility.isFocusOnInput() && TS.client.ui.isUserAttentionOnChat() && !TS.client.activeChannelIsHidden() && !TS.utility.isArrowKey(e.which) && !TS.utility.isPageKey(e.which) && !e.metaKey && !e.ctrlKey && !e.altKey && !TS.ui.react_emoji_menu.is_showing) {
           if (TS.model.archive_view_is_showing && e.which === keymap.enter) {
             TS.client.archives.tryToJoin();
             return;
@@ -6072,7 +6072,7 @@
       if (TS.msg_edit.editing) {
         return;
       }
-      if (TS.menu.emoji.is_showing) {
+      if (TS.ui.react_emoji_menu.is_showing) {
         return;
       }
       var all_channels = e.shiftKey;
@@ -6336,12 +6336,12 @@
     sendSlashCommand: function(model_ob, txt, in_reply_to_msg) {
       TS.chat_history.add(txt);
       var args = TS.cmd_handlers.parseArgs(txt);
-      var edit_last_shortcut;
+      var edit_last_shortcut = TS.utility.msgs.getEditLastShortcutCmd(txt);
       if (TS.cmd_handlers[args.cmd] && TS.cmd_handlers[args.cmd].type == "client") {
         setTimeout(function() {
           TS.cmd_handlers.runCommand(args.cmd, args.rest, args.words, in_reply_to_msg, model_ob);
         }, 10);
-      } else if (edit_last_shortcut = TS.utility.msgs.getEditLastShortcutCmd(txt)) {
+      } else if (edit_last_shortcut) {
         TS.utility.msgs.removeAllEphemeralMsgsByType("temp_slash_cmd_feedback", model_ob.id);
         TS.utility.msgs.tryToEditLastMsgFromShortcut(edit_last_shortcut);
       } else {
@@ -14678,7 +14678,7 @@
           var $input = $(e.target).find("textarea").addBack();
           $input.focus();
         };
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           rxn_key: rxn_key,
           callback: callback
@@ -23889,7 +23889,7 @@
     not_allowed: TS.i18n.t("You can’t invite this type of account based on your current SSO settings.", "invite")(),
     custom_message_not_allowed: TS.i18n.t("Sorry, you can’t add a custom message to this invite. Please remove it and try again!", "invite")(),
     domain_mismatch: TS.i18n.t("Your SSO settings prevent you from inviting people from this email domain.", "invite")(),
-    invite_limit_reached: TS.i18n.t("You’ve exceeded the limit on invitations. Once more people have accepted the ones you’ve sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/articles/201330256#invitation_limits'>more details on invitation limits</a>.", "invite")(),
+    invite_limit_reached: TS.i18n.t("Your team has exceeded the limit on invitations. After more people have accepted the ones your team has sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/articles/201330256#invitation_limits'>more details on invitation limits</a>.", "invite")(),
     too_long: TS.i18n.t("This person’s name exceeds the 35-character limit.", "invite")(),
     org_user_is_disabled: TS.i18n.t("This person has a deactivated account for your organization.", "invite")(),
     org_user_is_disabled_but_present: TS.i18n.t("This person is already on your team, but they have been deactivated by your organization. Contact an organization administrator to re-enable their account", "invite")(),
@@ -34441,7 +34441,7 @@ function timezones_guess() {
     }
   };
   var _canClose = function() {
-    if (TS.menu.emoji.is_showing) return false;
+    if (TS.ui.react_emoji_menu.is_showing) return false;
     if (TS.model.menu_is_showing) return false;
     if (TS.model.dialog_is_showing) return false;
     if (TS.utility.isTabCompleteShowing()) return false;
@@ -38148,7 +38148,7 @@ function timezones_guess() {
   };
   var _onKeyDown = function(e) {
     var target_group;
-    if (TS.menu.emoji.is_showing) return;
+    if (TS.ui.react_emoji_menu.is_showing) return;
     if ([TS.utility.keymap.left, TS.utility.keymap.right, 82].indexOf(e.which) === -1) return;
     if (e.metaKey || e.ctrlKey || e.shiftKey) return;
     if (_currently_loading_more_promise && _currently_loading_more_promise.isPending()) return;

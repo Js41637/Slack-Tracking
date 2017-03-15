@@ -129,7 +129,7 @@
     not_allowed: TS.i18n.t("You can’t invite this type of account based on your current SSO settings.", "invite")(),
     custom_message_not_allowed: TS.i18n.t("Sorry, you can’t add a custom message to this invite. Please remove it and try again!", "invite")(),
     domain_mismatch: TS.i18n.t("Your SSO settings prevent you from inviting people from this email domain.", "invite")(),
-    invite_limit_reached: TS.i18n.t("You’ve exceeded the limit on invitations. Once more people have accepted the ones you’ve sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/articles/201330256#invitation_limits'>more details on invitation limits</a>.", "invite")(),
+    invite_limit_reached: TS.i18n.t("Your team has exceeded the limit on invitations. After more people have accepted the ones your team has sent, you can send more. Revoking invitations will not lift the limit. Our Help Center has <a href='https://get.slack.help/hc/articles/201330256#invitation_limits'>more details on invitation limits</a>.", "invite")(),
     too_long: TS.i18n.t("This person’s name exceeds the 35-character limit.", "invite")(),
     org_user_is_disabled: TS.i18n.t("This person has a deactivated account for your organization.", "invite")(),
     org_user_is_disabled_but_present: TS.i18n.t("This person is already on your team, but they have been deactivated by your organization. Contact an organization administrator to re-enable their account", "invite")(),

@@ -205,8 +205,8 @@
   var _type = function(global) {
     var cache = {};
     return function(obj) {
-      var key;
-      var result = obj === null ? "null" : obj === global ? "global" : (key = typeof obj) !== "object" ? key : obj.nodeType ? "DOM node" : cache[key = {}.toString.call(obj)] || (cache[key] = key.slice(8, -1).toLowerCase());
+      var key = typeof obj;
+      var result = obj === null ? "null" : obj === global ? "global" : key !== "object" ? key : obj.nodeType ? "DOM node" : cache[key = {}.toString.call(obj)] || (cache[key] = key.slice(8, -1).toLowerCase());
       return result;
     };
   }(this);
@@ -2225,6 +2225,7 @@
     DEFAULT_LOCALE: "en-US",
     onStart: function() {
       _maybeSetup();
+      _fetchBootData();
     },
     locale: function() {
       _maybeSetup();
@@ -2232,18 +2233,11 @@
     },
     zdLocale: function() {
       _maybeSetup();
-      switch (_locale) {
-        case "de-DE":
-          return "de";
-        case "ja-JP":
-          return "ja";
-        case "es-ES":
-          return "es";
-        case "fr-FR":
-          return _locale.toLowerCase();
-        default:
-          return "en-US".toLowerCase();
+      var zd_locale = TS.i18n.DEFAULT_LOCALE.toLowerCase();
+      if (_zd_locale_map && _zd_locale_map[_locale.toLowerCase()]) {
+        zd_locale = _zd_locale_map[_locale.toLowerCase()];
       }
+      return zd_locale;
     },
     t: function(str, ns, locale) {
       _maybeSetup();
@@ -2346,6 +2340,7 @@
   var _locale;
   var _collator;
   var _translations = {};
+  var _zd_locale_map;
   var _dev_warned_translations = [];
   var _maybeSetup = function() {
     if (_is_setup) return;
@@ -2353,11 +2348,7 @@
     var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
     if (locale) _locale = locale[1];
     if (!_locale) {
-      if (TS.boot_data && TS.boot_data.locale) {
-        _locale = TS.boot_data.locale;
-      } else {
-        _locale = document.documentElement.getAttribute("data-locale") || TS.i18n.DEFAULT_LOCALE;
-      }
+      _locale = document.documentElement.getAttribute("data-locale") || TS.i18n.DEFAULT_LOCALE;
     }
     if (_locale === "pseudo") {
       _is_pseudo = true;
@@ -2369,6 +2360,11 @@
       _collator = null;
     }
     _is_setup = true;
+  };
+  var _fetchBootData = function() {
+    if (TS.boot_data && TS.boot_data.slack_to_zd_locale) {
+      _zd_locale_map = TS.boot_data.slack_to_zd_locale;
+    }
   };
   var _devWarningForImproperUse = function(str, ns) {
     return function() {

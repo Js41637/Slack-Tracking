@@ -4373,7 +4373,9 @@
       if (!TS.lazyLoadMembersAndBots()) {
         return false;
       }
-      return !!(TS.boot_data.feature_thin_channel_membership && _.get(TS, "model.prefs.thin_channel_membership_fe"));
+      if (!TS.boot_data.feature_thin_channel_membership) return false;
+      if (TS.boot_data.feature_tinyspeck) return !!_.get(TS, "model.prefs.thin_channel_membership_fe");
+      return true;
     },
     lazyLoadGroupMembership: function() {
       return false;
@@ -20325,9 +20327,12 @@ TS.registerModule("constants", {
         });
       } else if (msg.subtype == "sh_room_shared" || msg.subtype == "sh_room_created") {
         if (msg.subtype == "sh_room_shared") {} else {}
+        if (!starred_items_list && msg._room_id) {
+          room = TS.rooms.getRoomById(msg._room_id);
+        }
         if (starred_items_list) {
           html += "<span>" + TS.i18n.t("Shared a call", "templates_builders")() + "</span>";
-        } else if (msg._room_id && (room = TS.rooms.getRoomById(msg._room_id))) {
+        } else if (room) {
           html += TS.templates.builders.buildSHRoomAttachment(room);
         } else {}
       } else if (msg.subtype === "bot_add" || msg.subtype === "bot_enable" || msg.subtype === "bot_updated" || msg.subtype === "bot_disable" || msg.subtype === "bot_remove") {
@@ -28606,8 +28611,11 @@ TS.registerModule("constants", {
         return nodes;
       }
       var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
-      var node;
-      while (node = walker.nextNode()) nodes.push(node);
+      var node = walker.nextNode();
+      while (node) {
+        nodes.push(node);
+        node = walker.nextNode();
+      }
       return nodes;
     },
     getAttributesFromHTMLString: function(html) {
@@ -29858,9 +29866,10 @@ TS.registerModule("constants", {
   var _doubleCheckIdExtraction = function(ob, source, ids, rx) {
     var trueMatches = function(str, rx) {
       var A = [];
-      var match;
-      while (match = rx.exec(str)) {
+      var match = rx.exec(str);
+      while (match) {
         A.push(match[1]);
+        match = rx.exec(str);
       }
       return A;
     };
@@ -30337,8 +30346,8 @@ TS.registerModule("constants", {
           "<PRE:END>": multiline_block_close,
           "<QUOTE:START>": multiline_block_open,
           "<QUOTE:END>": multiline_block_close,
-          "<CODE:START>": "",
-          "<CODE:END>": ""
+          "<CODE:START>": "<span>",
+          "<CODE:END>": "</span>"
         }
       });
       if (_.startsWith(formatted_root, custom_linebreak)) {
@@ -30848,10 +30857,13 @@ TS.registerModule("constants", {
               var temp = $.trim(item.replace(TSF.LINK_START.split(" ")[0], ""));
               return temp.substr(0, temp.length - 1);
             }(item);
-            var bot_id;
+            var bot_id = TS.utility.getBotIDFromURL(url);
             var app_id = "";
             var bot;
-            if ((bot_id = TS.utility.getBotIDFromURL(url)) && (bot = TS.bots.getBotById(bot_id))) {
+            if (bot_id) {
+              bot = TS.bots.getBotById(bot_id);
+            }
+            if (bot_id && bot) {
               last_item_was_bot_url = true;
               target = TS.utility.shouldLinksHaveTargets() ? 'target="' + url + '" ' : "";
               display_name = no_highlights ? bot.name : _doHighlighting(bot.name);
@@ -31475,11 +31487,7 @@ TS.registerModule("constants", {
       TS.prefs.channel_handy_rxns_changed_sig.add(_buildDefaultRxns);
     },
     start: function(args) {
-      if (TS.boot_data.feature_react_emoji_picker) {
-        TS.ui.react_emoji_menu.start(args);
-      } else {
-        _start(args);
-      }
+      _start(args);
     },
     setDirtyAndMaybeRender: function() {
       TS.menu.emoji.is_dirty = true;
@@ -32886,7 +32894,7 @@ TS.registerModule("constants", {
       } else if (id === "unpin_link") {
         TS.pins.unPinMessage(msg_ts, model_ob);
       } else if (id === "rxn_link") {
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           rxn_key: rxn_key
         });
@@ -32971,7 +32979,7 @@ TS.registerModule("constants", {
       } else if (id == "delete_file_comment") {
         TS.ui.comments.startDelete($target.data("file-id"), $target.data("comment-id"));
       } else if (id == "rxn_file_comment") {
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           rxn_key: rxn_key
         });
@@ -33217,7 +33225,7 @@ TS.registerModule("constants", {
       if (TS.boot_data.page_needs_enterprise && typeof e === "string") _no_reposition = true;
       TS.menu.start(e, undefined, {
         needs_to_remain_open: function() {
-          return TS.menu.emoji.is_showing;
+          return TS.ui.react_emoji_menu.is_showing;
         }
       });
       TS.menu.positionAt($("#team_menu"), 10, menu_offset_y);
@@ -35252,7 +35260,7 @@ var _on_esc;
         });
       } else if (id === "rxn_file") {
         e.preventDefault();
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           rxn_key: rxn_key
         });
@@ -35364,7 +35372,7 @@ var _on_esc;
         });
       } else if (id === "rxn_file") {
         e.preventDefault();
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           rxn_key: rxn_key
         });
@@ -37283,7 +37291,7 @@ var _on_esc;
         var e = {
           target: TS.client.ui.$msg_input
         };
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e
         });
       }
@@ -39966,7 +39974,7 @@ var _on_esc;
       var $emo_menu = form.find(".emo_menu");
       $emo_menu.removeClass("hidden");
       $emo_menu.bind("click.open_dialog", function(e) {
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           input_to_fill: "#msg_text"
         });
@@ -40857,7 +40865,7 @@ var _on_esc;
   };
   var _canClose = function(force_close) {
     if (force_close) return true;
-    if (TS.menu.emoji.is_showing) return false;
+    if (TS.ui.react_emoji_menu.is_showing) return false;
     if (TS.model.menu_is_showing) return false;
     if (TS.model.dialog_is_showing) return false;
     if (TS.utility.isTabCompleteShowing()) return false;
@@ -45518,7 +45526,7 @@ $.fn.togglify = function(settings) {
       var is_handy = $rxn.hasClass("is_handy");
       var adding;
       if ($rxn.hasClass("menu_rxn")) {
-        TS.menu.emoji.start({
+        TS.ui.react_emoji_menu.start({
           e: e,
           rxn_key: rxn_key
         });
@@ -48757,7 +48765,7 @@ $.fn.togglify = function(settings) {
           if (TS.model.unread_view_is_showing && TS.client.unread.shouldRecordMetrics()) {
             TS.metrics.count("unread_view_emoji_reaction");
           }
-          TS.menu.emoji.start({
+          TS.ui.react_emoji_menu.start({
             e: e,
             rxn_key: rxn_key
           });
@@ -57021,7 +57029,7 @@ $.fn.togglify = function(settings) {
     var $emo_menu = $form.find(".emo_menu");
     $emo_menu.removeClass("hidden");
     $emo_menu.bind("click.open_dialog", function(e) {
-      TS.menu.emoji.start({
+      TS.ui.react_emoji_menu.start({
         e: e,
         input_to_fill: $input
       });
@@ -57312,7 +57320,7 @@ $.fn.togglify = function(settings) {
       var disabled_names = $row.hasClass("empty") ? _readFromDom().list.map(function(item) {
         return item.name;
       }) : [was_name];
-      TS.menu.emoji.start({
+      TS.ui.react_emoji_menu.start({
         e: e,
         disabled_names: disabled_names,
         callback: function(name) {
@@ -60233,6 +60241,7 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("ui.react_emoji_menu", {
+    is_showing: false,
     onStart: function() {
       TS.prefs.emoji_mode_changed_sig.add(_reRender);
       TS.prefs.preferred_skin_tone_changed_sig.add(_updateHandyRxnsAndReRender);
@@ -60240,9 +60249,7 @@ $.fn.togglify = function(settings) {
       TS.prefs.channel_handy_rxns_changed_sig.add(_updateHandyRxnsAndReRender);
     },
     start: function(args) {
-      if (TS.boot_data.feature_react_emoji_picker) {
-        _start(args);
-      }
+      _start(args);
     }
   });
   var _MIN_VIEWPORT_SPACING_PX = 15;
@@ -60290,7 +60297,7 @@ $.fn.togglify = function(settings) {
     var scroll_offset = window.pageYOffset;
     _target_bounds.top += scroll_offset;
     _target_bounds.bottom += scroll_offset;
-    TS.menu.emoji.is_showing = true;
+    TS.ui.react_emoji_menu.is_showing = true;
     var picker_args = {};
     var popover_args = {
       position: position,
@@ -60310,13 +60317,10 @@ $.fn.togglify = function(settings) {
     _callback = null;
     _handy_rxns = null;
     TS.tips.unhideAll();
-    TS.menu.emoji.is_showing = false;
+    TS.ui.react_emoji_menu.is_showing = false;
     _render();
   };
   var _render = function(picker_args, popover_args) {
-    if (!TS.boot_data.feature_react_emoji_picker) {
-      return;
-    }
     var picker_props = _buildEmojiPickerProps(picker_args);
     var popover_props = _buildPopoverProps(popover_args);
     _renderEmojiPickerPopover(picker_props, popover_props);
@@ -60381,7 +60385,7 @@ $.fn.togglify = function(settings) {
       position: args.position || _DEFAULT_POSITION,
       offsetX: !_.isUndefined(args.offset_x) ? args.offset_x : _DEFAULT_OFFSET_X,
       offsetY: !_.isUndefined(args.offset_y) ? args.offset_y : _DEFAULT_OFFSET_Y,
-      isOpen: TS.menu.emoji.is_showing,
+      isOpen: TS.ui.react_emoji_menu.is_showing,
       onClose: _onClose
     };
   };
@@ -60406,7 +60410,7 @@ $.fn.togglify = function(settings) {
       value: new_skin_tone_id
     });
     if (_rxn_key) _updateHandyRxns(_rxn_key);
-    if (TS.menu.emoji.is_showing) {
+    if (TS.ui.react_emoji_menu.is_showing) {
       var optimistic_picker_props = {
         skin_tone_id: new_skin_tone_id
       };
@@ -60414,7 +60418,7 @@ $.fn.togglify = function(settings) {
     }
   };
   var _reRender = function() {
-    if (TS.menu.emoji.is_showing) _.defer(_render);
+    if (TS.ui.react_emoji_menu.is_showing) _.defer(_render);
   };
   var _updateHandyRxnsAndReRender = function() {
     if (_rxn_key) _updateHandyRxns(_rxn_key);

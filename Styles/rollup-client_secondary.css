@@ -28093,7 +28093,8 @@ ts-thread .thread_participants {
 }
 
 .sli_briefing__message {
-  margin-bottom: .5rem
+  margin-bottom: .5rem;
+  cursor: pointer
 }
 
 .sli_briefing__message ts-message {
@@ -28108,7 +28109,8 @@ ts-thread .thread_participants {
   max-height: 1.4rem;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap
+  white-space: nowrap;
+  cursor: pointer
 }
 
 .sli_briefing__message ts-message .recap_highlight_debug {
