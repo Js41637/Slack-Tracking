@@ -14669,7 +14669,9 @@ TS.registerModule("constants", {
       TSSSB.call("inputFieldCreated", TS.search.input.get(0));
       if (TS.boot_data.feature_texty_search) {
         TS.utility.contenteditable.create(TS.search.input, {
-          modules: {},
+          modules: {
+            slacksearch: true
+          },
           singleLineInput: true,
           placeholder: TS.i18n.t("Search", "page_client")(),
           onFocus: function() {

@@ -15778,6 +15778,40 @@ only screen and (min-resolution:2dppx) {
   padding-right: 2px
 }
 
+ts-searchtoken-modifier {
+  position: relative;
+  z-index: 0
+}
+
+ts-searchtoken-modifier::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  border: 1px solid #FFDCB2;
+  border-right: none;
+  border-radius: 3px 0 0 3px;
+  background: #FFEBAA;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #FFEBAA), color-stop(1, #FFF9DC));
+  background: -moz-linear-gradient(center bottom, #FFEBAA 0, #FFF9DC 100%);
+  background: -ms-linear-gradient(bottom, #FFEBAA, #FFF9DC);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFF9DC', endColorstr='#FFEBAA', GradientType=0);
+  z-index: -1
+}
+
+ts-searchtoken-value {
+  position: relative
+}
+
+ts-searchtoken-value::after {
+  color: #929292;
+  content: attr(data-ghost);
+  position: absolute;
+  left: 100%
+}
+
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
