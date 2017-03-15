@@ -21644,7 +21644,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/a9f9/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/8909/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
