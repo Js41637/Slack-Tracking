@@ -1,8 +1,11 @@
 {{i18n_ns 'member_badges'}}
+{{#feature flag="feature_shared_channels_badges"}}
+  {{#if_gt size compare=32}}
 
-
-  {{#if icon.image_default}}
-    <ts-icon class="external_team_badge default" aria-hidden="true">{{initialsSafe name}}</ts-icon>
-  {{else}}
-    <ts-icon class="external_team_badge" style="background-image: url('{{icon.image_34}}');" aria-hidden="true"></ts-icon>
-  {{/if}}
+    {{#if team.icon.image_default}}
+      <ts-icon class="external_team_badge default" aria-hidden="true">{{initialsSafe team.name}}</ts-icon>
+    {{else}}
+      <ts-icon class="external_team_badge" style="background-image: url('{{team.icon.image_34}}');" aria-hidden="true"></ts-icon>
+    {{/if}}
+  {{/if_gt}}
+{{/feature}}

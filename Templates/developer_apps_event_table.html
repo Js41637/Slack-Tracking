@@ -3,19 +3,17 @@
   <table id="{{type}}_events_table" class="events_table full_width no_bottom_border no_bottom_margin {{#unless events}} hidden{{/unless}}">
     <thead>
       <tr>
-        {{#t note="heading descriptions for Events API events"}}
         <th class="no_bottom_margin no_border">
-          Event Name
+          {{#t note="heading descriptions for Events API events"}}Event Name{{/t}}
         </th>
         <th class="no_bottom_margin no_border">
-          Description
+          {{#t note="heading descriptions for Events API events"}}Description{{/t}}
         </th>
         {{#unless is_bot}}
           <th class="no_bottom_margin no_border">
-            Required Scope
+            {{#t note="heading descriptions for Events API events"}}Required Scope{{/t}}
           </th>
         {{/unless}}
-        {{/t}}
       </tr>
     </thead>
       {{#each events as |event|}}

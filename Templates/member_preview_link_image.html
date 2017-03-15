@@ -1,5 +1,15 @@
 {{#if omit_link}}
-  <span class="{{#if lazy}}lazy{{/if}} member_preview_link member_image {{avatar_class}}" data-member-id="{{member.id}}" data-thumb-size="{{size}}" {{#if lazy}}data-original="{{bg_img_style}}" style="background-color: #f6f6f6;"{{else}}style="{{bg_img_style}}"{{/if}} aria-hidden="true">{{badge_html}}</span>
+  <span class="{{#if lazy}}lazy{{/if}} member_preview_link member_image {{avatar_class}}" data-member-id="{{member.id}}" data-thumb-size="{{size}}" {{#if lazy}}data-original="{{bg_img_style}}" style="background-color: #f6f6f6;"{{else}}style="{{bg_img_style}}"{{/if}} aria-hidden="true">
+  {{#if member.is_external}}
+    {{> member_type_external_badge team=(getTeamById member.team_id) size=size}}
+  {{else}}
+    {{badge_html}}
+  {{/if}}</span>
 {{else}}
-  <a href="/team/{{member.name}}" {{target}} class="{{#if lazy}}lazy{{/if}} member_preview_link member_image {{avatar_class}}" data-member-id="{{member.id}}" data-thumb-size="{{size}}" {{#if lazy}}data-original="{{bg_img_style}}" style="background-color: #f6f6f6;"{{else}}style="{{bg_img_style}}"{{/if}} aria-hidden="true" tabindex="-1">{{badge_html}}</a>
+  <a href="/team/{{member.name}}" {{target}} class="{{#if lazy}}lazy{{/if}} member_preview_link member_image {{avatar_class}}" data-member-id="{{member.id}}" data-thumb-size="{{size}}" {{#if lazy}}data-original="{{bg_img_style}}" style="background-color: #f6f6f6;"{{else}}style="{{bg_img_style}}"{{/if}} aria-hidden="true" tabindex="-1">
+  {{#if member.is_external}}
+    {{> member_type_external_badge team=(getTeamById member.team_id) size=size}}
+  {{else}}
+    {{badge_html}}
+  {{/if}}</a>
 {{/if}}
