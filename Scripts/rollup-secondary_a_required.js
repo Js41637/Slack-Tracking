@@ -11060,14 +11060,8 @@ TS.registerModule("constants", {
       return A;
     },
     getMembersForUser: function() {
-      if (!TS.model.user.is_restricted && !TS.boot_data.feature_shared_channels_client) return TS.model.members;
+      if (!TS.model.user.is_restricted) return TS.model.members;
       if (_members_for_user.length) return _members_for_user;
-      if (!TS.model.user.is_restricted) {
-        _members_for_user = _.filter(TS.model.members, function(member) {
-          return member.is_stranger !== true;
-        });
-        return _members_for_user;
-      }
       var user_id_map = {};
       if (TS.membership.lazyLoadChannelMembership()) {
         (TS.model.guest_accessible_user_ids || []).forEach(function(user_id) {
@@ -11583,14 +11577,6 @@ TS.registerModule("constants", {
           _setImAndMpimNames = v;
         }
       });
-      Object.defineProperty(test, "_getActiveMembersWorker", {
-        get: function() {
-          return _getActiveMembersWorker;
-        },
-        set: function(v) {
-          _getActiveMembersWorker = v;
-        }
-      });
       Object.defineProperty(test, "_setLowerCaseNamesForMember", {
         get: function() {
           return _setLowerCaseNamesForMember;
@@ -11670,9 +11656,9 @@ TS.registerModule("constants", {
   };
   var _getActiveMembersWorker = function(A, members, include_self, include_slackbot, exclude_bots) {
     A.length = 0;
-    for (var i = 0; i < members.length; i += 1) {
-      var member = members[i];
-      if (member.is_stranger) continue;
+    var member;
+    for (var m = 0; m < members.length; m++) {
+      member = members[m];
       if (member.deleted) continue;
       if (!include_slackbot && member.is_slackbot) continue;
       if (!include_self && member.is_self) continue;
@@ -11883,8 +11869,8 @@ TS.registerModule("constants", {
     var status = "NOOP";
     var what_changed = [];
     _setPresenceForMemberAlwaysActive(existing_member, member);
-    for (var k in member) {
-      if (k == "profile") {
+    Object.keys(member).forEach(function(k) {
+      if (k === "profile") {
         var old_profile = _omitImagesFromProfile(existing_member.profile);
         var new_profile = _omitImagesFromProfile(member.profile);
         if (_.isObject(new_profile)) {
@@ -11960,7 +11946,7 @@ TS.registerModule("constants", {
           }
         }
       }
-    }
+    });
     _maybeSetDeletedStatus(existing_member);
     _maybeSetTeamId(existing_member);
     _maybeSetLocality(existing_member);
@@ -29627,19 +29613,18 @@ TS.registerModule("constants", {
         if (name == "created_by") return true;
         return false;
       };
-      var worker = function(ob, parent_name) {
-        if (typeof ob !== "object") return;
-        seens.push(ob);
-        var k;
+      var worker = function(obj, parent_name) {
+        if (!_.isObject(obj)) return;
+        seens.push(obj);
         var val;
-        for (k in ob) {
-          val = ob[k];
+        Object.keys(obj).forEach(function(k) {
+          val = obj[k];
           if (typeof val === "string") {
             if (isPropertyAMemberIdThatNeedsChecking(k, parent_name)) {
               if (TS.utility.strLooksLikeAMemberId(val)) {
                 if (TS.utility.ensureInArray(m_ids, val)) {
-                  c_ids.push(typeof ob.channel == "string" && ob.channel || typeof ob.channel == "object" && ob.channel && ob.channel.id || channel_id || undefined);
-                  t_ids.push(typeof ob.team == "string" && ob.team || typeof ob.team == "object" && ob.team && ob.team.id || undefined);
+                  c_ids.push(typeof obj.channel == "string" && obj.channel || typeof obj.channel == "object" && obj.channel && obj.channel.id || channel_id || undefined);
+                  t_ids.push(typeof obj.team == "string" && obj.team || typeof obj.team == "object" && obj.team && obj.team.id || undefined);
                 }
               }
             } else {
@@ -29651,17 +29636,17 @@ TS.registerModule("constants", {
               });
             }
           }
-        }
-        for (k in ob) {
-          val = ob[k];
+        });
+        Object.keys(obj).forEach(function(k) {
+          val = obj[k];
           if (typeof val === "object") {
-            if (seens.indexOf(val) != -1) continue;
+            if (seens.indexOf(val) != -1) return;
             if (Array.isArray(val) && (k === "members" || k === "users")) {
               val.forEach(function(m_id) {
                 if (TS.utility.strLooksLikeAMemberId(m_id)) {
                   if (TS.utility.ensureInArray(m_ids, m_id)) {
-                    c_ids.push(typeof ob.id == "string" && ob.channel || channel_id || undefined);
-                    t_ids.push(typeof ob.team == "string" && ob.team || typeof ob.team == "object" && ob.team && ob.team.id || undefined);
+                    c_ids.push(typeof obj.id == "string" && obj.channel || channel_id || undefined);
+                    t_ids.push(typeof obj.team == "string" && obj.team || typeof obj.team == "object" && obj.team && obj.team.id || undefined);
                   }
                 }
               });
@@ -29669,7 +29654,7 @@ TS.registerModule("constants", {
               worker(val, k);
             }
           }
-        }
+        });
       };
       worker(ob, "_DATA");
       m_ids = _(m_ids).uniq().value();
@@ -30135,7 +30120,7 @@ TS.registerModule("constants", {
         var t0 = performance.now();
         var max_processing_time_ms = 10;
         var i;
-        for (i = start_index; i != end_index; i += step) {
+        for (i = start_index; i !== end_index; i += step) {
           var item = arr[i];
           fn(item);
           var more_work_to_do = i + step != end_index;
@@ -30614,7 +30599,6 @@ TS.registerModule("constants", {
     return boundary + TS.format.tokenizeStr(_emoticon_conversion_token_map, match);
   };
   var _doHighlighting = function(new_txt) {
-    var word;
     var rx;
     var A = TS.model.highlight_words.concat();
     A.sort(function compare(a, b) {
@@ -30625,13 +30609,10 @@ TS.registerModule("constants", {
       has_ats = true;
       new_txt = TS.format.swapOutAts(new_txt);
     }
-    for (var i = 0; i < A.length; i++) {
-      word = A[i];
-      if (has_ats) {
-        word = TS.format.swapOutAts(A[i]);
-      }
+    A.forEach(function(word) {
+      if (has_ats) word = TS.format.swapOutAts(word);
       word = TS.utility.regexpEscape(word);
-      if (word == "don") word += "(?!['’]t)";
+      if (word === "don") word += "(?!['’]t)";
       word = TS.utility.htmlEntities(word);
       if (has_ats) {
         rx = new RegExp("(\\b(?!.)|_|\\s|^)(" + word + ")\\b((?!.)|_|\\s|$)", "ig");
@@ -30653,7 +30634,7 @@ TS.registerModule("constants", {
         last_good_pos = offset + m.length;
         return $0 + '<span class="mention">' + $1 + "</span>" + $2;
       });
-    }
+    });
     if (has_ats) {
       return TS.format.swapInAts(new_txt);
     } else {
@@ -40309,11 +40290,11 @@ var _on_esc;
       } else {
         if (msg._jl_rollup_hash && msg._jl_rollup_hash.msg_ids) {
           var msg_ids = msg._jl_rollup_hash.msg_ids;
-          for (var i = 0; i < msg_ids.length; i++) {
-            if (msg_ids[i] == msg.ts) continue;
+          msg_ids.forEach(function(msg_id) {
+            if (msg_id == msg.ts) return;
             TS.api.call("chat.delete", {
               channel: c_id,
-              ts: msg_ids[i],
+              ts: msg_id,
               _attempts: attempts,
               _delay_ms: delay_ms
             }, function(ok, data, args) {
@@ -40340,7 +40321,7 @@ var _on_esc;
                 }
               }
             });
-          }
+          });
         }
         TS.api.call("chat.delete", {
           channel: c_id,
@@ -46860,6 +46841,10 @@ $.fn.togglify = function(settings) {
     instance.$empty.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     var available_height = Math.floor(window_height - instance.$list.offset().top);
+    if (_isFilterInListStyle(instance)) {
+      var filter_margin_bottom = parseInt(instance.$filter_input.css("margin-bottom"), 10) || 0;
+      max_height -= instance.$filter_input.outerHeight() + filter_margin_bottom;
+    }
     if (_isInMessage(instance)) {
       available_height -= $("#footer").height() || 0;
     }
@@ -58008,12 +57993,11 @@ $.fn.togglify = function(settings) {
         break;
     }
     if (model.selected_options && options) {
+      var selected_values = model.selected_options.map(function(selected_option) {
+        return selected_option.value;
+      });
       for (var i = 0; i < options.length; i++) {
-        if (model.selected_options.some(function(selected_option) {
-            return selected_option.value == options[i].value;
-          })) {
-          options[i].selected = true;
-        }
+        if (_.includes(selected_values, options[i].value)) options[i].selected = true;
       }
     }
     return options;
@@ -63820,8 +63804,7 @@ $.fn.togglify = function(settings) {
             return function(n, r) {
               var o;
               if (n === oe && r === oe) return t;
-              if (n !== oe && (o = n),
-                r !== oe) {
+              if (n !== oe && (o = n), r !== oe) {
                 if (o === oe) return r;
                 "string" == typeof n || "string" == typeof r ? (n = go(n), r = go(r)) : (n = mo(n), r = mo(r)), o = e(n, r);
               }
@@ -65847,14 +65830,13 @@ $.fn.togglify = function(settings) {
                 i = function(t) {
                   return zn(t, e);
                 };
-              return !(t > 1 || this.__actions__.length) && r instanceof b && zi(n) ? (r = r.slice(n, +n + (t ? 1 : 0)),
-                r.__actions__.push({
-                  func: nu,
-                  args: [i],
-                  thisArg: oe
-                }), new o(r, this.__chain__).thru(function(e) {
-                  return t && !e.length && e.push(oe), e;
-                })) : this.thru(i);
+              return !(t > 1 || this.__actions__.length) && r instanceof b && zi(n) ? (r = r.slice(n, +n + (t ? 1 : 0)), r.__actions__.push({
+                func: nu,
+                args: [i],
+                thisArg: oe
+              }), new o(r, this.__chain__).thru(function(e) {
+                return t && !e.length && e.push(oe), e;
+              })) : this.thru(i);
             }),
             tp = Vo(function(e, t, n) {
               bc.call(e, n) ? ++e[n] : jn(e, n, 1);
@@ -72321,9 +72303,8 @@ $.fn.togglify = function(settings) {
         }
       }, {
         key: "emojiMatchesSkinTone",
-        value: function(e) {
-          var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : "1";
-          return !e.is_skin || e.skin_tone_id === t;
+        value: function(e, t) {
+          return t || (t = "1"), !e.is_skin || e.skin_tone_id === t;
         }
       }]), w(t, [{
         key: "componentWillMount",
@@ -73775,8 +73756,7 @@ $.fn.togglify = function(settings) {
     if (t && "" !== t.className) {
       var r = t.className.split(" "),
         o = n(r, e);
-      return o > -1 && r.splice(o, 1),
-        t.className = r.join(" "), r;
+      return o > -1 && r.splice(o, 1), t.className = r.join(" "), r;
     }
   }, r.prototype.has = function(e) {
     var t = this.el;
@@ -75270,8 +75250,7 @@ $.fn.togglify = function(settings) {
 
   function h(e) {
     var t = e.type;
-    p(t), this._currentElement = e, this._tag = t.toLowerCase(), this._namespaceURI = null, this._renderedChildren = null, this._previousStyle = null, this._previousStyleCopy = null, this._hostNode = null, this._hostParent = null, this._rootNodeID = 0, this._domID = 0, this._hostContainerInfo = null, this._wrapperState = null, this._topLevelWrapper = null,
-      this._flags = 0;
+    p(t), this._currentElement = e, this._tag = t.toLowerCase(), this._namespaceURI = null, this._renderedChildren = null, this._previousStyle = null, this._previousStyleCopy = null, this._hostNode = null, this._hostParent = null, this._rootNodeID = 0, this._domID = 0, this._hostContainerInfo = null, this._wrapperState = null, this._topLevelWrapper = null, this._flags = 0;
   }
   var v = n(2),
     m = n(4),
@@ -75290,7 +75269,8 @@ $.fn.togglify = function(settings) {
     P = n(255),
     M = n(120),
     O = n(258),
-    I = (n(15), n(267)),
+    I = (n(15),
+      n(267)),
     A = n(272),
     N = (n(14), n(58)),
     L = (n(0), n(89), n(54), n(91), n(1), T),

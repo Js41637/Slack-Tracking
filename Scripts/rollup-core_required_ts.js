@@ -3678,17 +3678,15 @@
         emoji_names: _frequents
       });
       var i, m;
-      var name;
       var defaults = [];
       for (i = 0; i < groupings.length; i++) {
         defaults = defaults.concat(groupings[i].emoji_names);
       }
       var cat_map = {};
-      for (var idx in _emoji.data) {
-        var names = _emoji.data[idx][3];
+      Object.keys(_emoji.data).forEach(function(idx) {
+        var all_names = _emoji.data[idx][3];
         var is_skin_tone_modifiable = TS.emoji.isIdxSkinToneModifiable(idx);
-        for (i = 0; i < names.length; i++) {
-          name = names[i];
+        all_names.forEach(function(name, i, names) {
           TS.model.emoji_names.push(name);
           cat_map[name] = {
             html: TS.emoji.graphicReplace(":" + name + ":"),
@@ -3724,11 +3722,11 @@
               };
             });
           }
-        }
-      }
+        });
+      });
       TS.model.emoji_map = _.uniqBy(TS.model.emoji_map, "id");
       for (i = 0; i < defaults.length; i++) {
-        name = defaults[i];
+        var name = defaults[i];
         if (!cat_map[name]) {
           TS.info(name + " not in cat_map?");
         }
@@ -3966,7 +3964,7 @@
           return colons;
         }
       };
-      for (var idx in _emoji.data) {
+      Object.keys(_emoji.data).forEach(function(idx) {
         var datum = _emoji.data[idx];
         var names = datum[3];
         var px = datum[4];
@@ -3981,12 +3979,12 @@
           }) : url;
         } else {
           TS.error('WTF, _emoji "' + idx + '" is missing coords or and a url, or something!');
-          continue;
+          return;
         }
         names.forEach(function(it) {
           ob.emoji[it] = value;
         });
-      }
+      });
       return ob;
     },
     getCurrentSheetUrl: function() {
@@ -4061,15 +4059,14 @@
   var _makeCanonicalNamesMap = function() {
     var map = {};
     var item;
-    var name;
-    for (name in _emoji.data) {
+    Object.keys(_emoji.data).forEach(function(name) {
       item = _emoji.data[name];
       map[item[3][0]] = null;
       item[3].forEach(function(n) {
         if (map.hasOwnProperty(n)) return;
         map[n] = item[3][0];
       });
-    }
+    });
     return map;
   };
   var _emoji = emoji;

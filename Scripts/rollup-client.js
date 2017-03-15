@@ -12229,7 +12229,7 @@
       var total_needing_toast = 0;
       var oldest_who_when;
       var emoji_name;
-      for (var name in rxn_record.emoji) {
+      Object.keys(rxn_record.emoji).forEach(function(name) {
         rxn_record.emoji[name].forEach(function(who_when) {
           if (who_when.was_toasted) return;
           if (who_when.when < since) return;
@@ -12240,7 +12240,7 @@
             emoji_name = name;
           }
         });
-      }
+      });
       if (!emoji_name) {
         TS.error("WTF no emoji_name");
         TS.dir(0, rxn_record, "rxn_record");
@@ -21644,7 +21644,7 @@
           _loading_scripts = true;
           TS.utility.getCachedScript(cdn_url + "/cb0fd/js/libs/codemirror.js").done(function() {
             TS.utility.getCachedScript(cdn_url + "/7adb/js/libs/codemirror/addon/simple.js").done(function() {
-              TS.utility.getCachedScript(cdn_url + "/14b5/js/codemirror_load.js").done(function() {
+              TS.utility.getCachedScript(cdn_url + "/a9f9/js/codemirror_load.js").done(function() {
                 TS.ui.snippet_dialog.start(text, title, filetype);
               });
             });
