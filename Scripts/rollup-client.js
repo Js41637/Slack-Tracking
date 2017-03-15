@@ -15107,26 +15107,28 @@
         var show_experts = results.messages.modules && results.messages.modules.experts && results.messages.modules.experts.matches;
         if (show_experts) {
           var terms = TS.search.query.split(" ");
-          var experts = results.messages.modules.experts.matches;
+          var experts = results.messages.modules.experts.matches.slice(0, 5);
           html += '<div class="search_module_header"><p><span>Experts <a href="http://slack.com/god/search_experts_terms.php?terms=' + terms + '">debug</a></span></p></div>';
           html += '<div class="search_results_items">';
-          var num_experts = 0;
-          for (var expert in experts) {
-            if (num_experts >= 5) break;
-            if (expert) {
-              num_experts += 1;
-              var encoded_user = expert;
-              var user = TS.members.getMemberById(encoded_user) || {};
-              var channels = experts[expert];
-              var channel_names = _.map(channels, function(channel) {
-                var encoded_channel = channel["encoded_channel"];
-                var channel = TS.channels.getChannelById(encoded_channel) || {};
-                var channel_name = channel["name"] || encoded_channel;
-                return "#" + channel_name;
-              });
-              html += '<div class="search_message_result">' + "<p>@" + (user["name"] || encoded_user) + " in " + channel_names.join(", ") + "</p></div>";
-            }
-          }
+          _.forEach(experts, function(expert_group) {
+            var channels = _.map(expert_group["channels"], function(encoded_channel) {
+              return TS.channels.getChannelById(encoded_channel) || {
+                name: encoded_channel
+              };
+            });
+            var users = _.map(expert_group["users"], function(encoded_user) {
+              return TS.members.getMemberById(encoded_user) || {
+                name: encoded_user
+              };
+            });
+            var user_names = _.map(users, function(user) {
+              return "@" + user["name"];
+            });
+            var channel_names = _.map(channels, function(channel) {
+              return "#" + channel["name"];
+            });
+            html += '<div class="search_message_result">' + "<p>" + user_names.join(", ") + " in " + channel_names.join(", ") + "</p></div>";
+          });
           html += "</div>";
         }
         show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;

@@ -11577,6 +11577,14 @@ TS.registerModule("constants", {
           _setImAndMpimNames = v;
         }
       });
+      Object.defineProperty(test, "_getActiveMembersWorker", {
+        get: function() {
+          return _getActiveMembersWorker;
+        },
+        set: function(v) {
+          _getActiveMembersWorker = v;
+        }
+      });
       Object.defineProperty(test, "_setLowerCaseNamesForMember", {
         get: function() {
           return _setLowerCaseNamesForMember;
