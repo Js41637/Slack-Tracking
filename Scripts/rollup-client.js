@@ -15722,8 +15722,8 @@
         }
       });
     });
-    if (results.messages.modules && results.messages.modules.top_results) {
-      _.forEach(results.messages.modules.top_results, function(match) {
+    if (_.has(results.messages, "modules.score.top_results")) {
+      _.forEach(results.messages.modules.score.top_results, function(match) {
         match._dom_id = TS.templates.makeMsgDomIdInSearchTopResults(match.ts, match, "sort_top_results");
         match._dom_container_id = "search_module_results";
         messages.push(match);
