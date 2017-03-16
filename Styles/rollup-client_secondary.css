@@ -26763,7 +26763,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
   width: 85%
 }
 
-.basic_share_dialog #select_share_channels .lfs_item {
+.basic_share_dialog #select_share_channels .lfs_item.selected {
   max-width: 20rem
 }
 

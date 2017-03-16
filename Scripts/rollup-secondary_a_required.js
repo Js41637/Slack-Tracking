@@ -6419,6 +6419,16 @@ TS.registerModule("constants", {
       var gdrive_native = file.external_type === "gdrive" && file.mimetype.indexOf("image/") < 0;
       return has_thumb && !gdrive_native;
     },
+    fileHasRichPreview: function(file) {
+      try {
+        file = _ensureFileObject(file);
+      } catch (err) {
+        return false;
+      }
+      var has_thumb = file.thumb_480;
+      var gdrive_native = file.external_type === "gdrive" && file.mimetype.indexOf("image/") < 0;
+      return has_thumb && gdrive_native;
+    },
     fileIsSupportedAudio: function(file) {
       return TS.files.supported_audio_type_re.test(_ensureFileObject(file).filetype);
     },
@@ -22936,7 +22946,7 @@ TS.registerModule("constants", {
           template_args.show_recap_debug = msg.recap && is_in_debug_group;
         }
         if (TS.boot_data.feature_sli_highlight_unreads && _.get(TS, "client.ui.sli_highlight_all_unreads")) {
-          if (args.from_all_unreads && TS.highlights_briefing.sli_recaps_debug_group === "sli_debug_info") {
+          if (args.from_all_unreads && _.get(TS.recaps_signal, "sli_recaps_debug_group") === "sli_debug_info") {
             template_args.show_recap_debug = true;
           }
         }
@@ -29759,6 +29769,18 @@ TS.registerModule("constants", {
       return TS.utility.htmlEntities(str.substring(0, len - 1)) + "&hellip;";
     },
     truncateHTML: function() {
+      var parser;
+      try {
+        if (window.DOMParser) {
+          parser = new DOMParser;
+          if (!parser.parseFromString("", "text/html")) {
+            parser = null;
+          }
+        }
+      } catch (e) {
+        parser = null;
+      }
+
       function truncateTextNodes(sum, node, limit) {
         var contents = _.toArray(node.childNodes);
         _.forEach(contents, function(child_node) {
@@ -29782,10 +29804,20 @@ TS.registerModule("constants", {
       }
       return function(html, limit) {
         try {
-          var $html = $("<div>" + html + "</div>");
-          var length = truncateTextNodes(0, $html[0], limit);
-          if (length >= limit) $html.append("&hellip;");
-          return $html.html();
+          var node;
+          if (parser) {
+            var doc = parser.parseFromString(html, "text/html");
+            node = doc.body;
+          } else {
+            var nodes = jQuery.parseHTML("<div>" + html + "</div>");
+            node = nodes[0];
+          }
+          var length = truncateTextNodes(0, node, limit);
+          if (length >= limit) {
+            var ellipsis = document.createTextNode("…");
+            node.appendChild(ellipsis);
+          }
+          return node.innerHTML;
         } catch (e) {
           TS.error(e);
           return html;
@@ -45736,7 +45768,8 @@ $.fn.togglify = function(settings) {
     instance.$list_container.on("mousedown", _onListContainerMousedown.bind(null, instance));
     instance.$list_container.on("mousemove", ".lfs_item", _onItemMousemove.bind(null, instance));
     instance.$list_container.on("mouseleave", ".lfs_item.active", _onActiveItemMouseleave.bind(null, instance));
-    instance.$list_container.on("mousedown", ".lfs_item", _onItemMousedown.bind(null, instance));
+    var item_click_event = _.get(TSSSB, "env.desktop_app_version") === null ? "click" : "mousedown";
+    instance.$list_container.on(item_click_event, ".lfs_item", _onItemClick.bind(null, instance));
     instance.onReady();
   };
   var _buildItem = function(instance, item, token) {
@@ -46669,7 +46702,7 @@ $.fn.togglify = function(settings) {
     $(e.currentTarget).removeClass("active");
     instance._$active = null;
   };
-  var _onItemMousedown = function(instance, e) {
+  var _onItemClick = function(instance, e) {
     if (instance.disabled) return;
     e.preventDefault();
     var $el = $(e.currentTarget);
@@ -48041,6 +48074,16 @@ $.fn.togglify = function(settings) {
       var file_id = $el.attr("data-file-id");
       if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
       var file = file_id ? TS.files.getFileById(file_id) : null;
+      if (_.get(file, "external_type") === "gdrive") {
+        if (!payload.contexts) {
+          payload.contexts = {};
+        }
+        if (!payload.contexts.platform) {
+          payload.contexts.platform = {};
+        }
+        payload.contexts.platform.service_type = "GSUITE";
+        payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
+      }
       if (is_image || file && TS.files.fileIsImage(file)) {
         TS.clog.track("MSG_PHOTO_EXPAND", payload);
       }
@@ -49284,7 +49327,7 @@ $.fn.togglify = function(settings) {
           g._jumper_score = 0;
           return true;
         }
-        var score = fuzzy.score(g.name);
+        var score = fuzzy.score(g.name_normalized || g.name);
         g._jumper_score = score;
         return score <= fuzzy_limit;
       },
@@ -49310,7 +49353,7 @@ $.fn.togglify = function(settings) {
             return _scoreMember(m, query_matcher);
           });
           return _.min(scores);
-        }.bind(this));
+        });
         var total = _.sum(scores);
         mpim._jumper_score = total;
         return total <= fuzzy_limit;
@@ -55839,7 +55882,9 @@ $.fn.togglify = function(settings) {
       var $form = $(html);
       $form.appendTo($container);
       var $input = $form.find(".message_input");
-      TSSSB.call("inputFieldCreated", $input.get(0));
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
+        TSSSB.call("inputFieldCreated", $input.get(0));
+      }
       if (opts.placeholder) {
         TS.utility.contenteditable.placeholder($input, opts.placeholder);
       }
@@ -55935,7 +55980,9 @@ $.fn.togglify = function(settings) {
     }
     $form.bind("destroyed", function() {
       cancel_fn($form);
-      TSSSB.call("inputFieldRemoved", $input.get(0));
+      if (!TS.boot_data.feature_texty_takes_over || !TS.utility.contenteditable.supportsTexty()) {
+        TSSSB.call("inputFieldRemoved", $input.get(0));
+      }
     });
     $form.bind("submit", function(e) {
       e.preventDefault();
@@ -57732,7 +57779,7 @@ $.fn.togglify = function(settings) {
           if (!ret || !ret.then) ret = Promise.resolve();
           ret.then(resolve, reject);
           return ret;
-        }.bind(this));
+        });
         if (this.queue.length === 1 && !this.current_job) {
           return this._nextFromQ();
         }
@@ -62525,7 +62572,8 @@ $.fn.togglify = function(settings) {
             }
             var p = s ? oe : Rf(e),
               d = [e, t, n, r, o, c, f, i, a, u];
-            if (p && Yi(d, p), e = d[0], t = d[1], n = d[2], r = d[3], o = d[4], u = d[9] = d[9] === oe ? s ? 0 : e.length : $c(d[9] - l, 0), !u && t & (be | we) && (t &= ~(be | we)), t && t != ge) h = t == be || t == we ? Jo(e, t, u) : t != Ce && t != (ge | Ce) || o.length ? ni.apply(oe, d) : ui(e, t, n, r);
+            if (p && Yi(d, p), e = d[0],
+              t = d[1], n = d[2], r = d[3], o = d[4], u = d[9] = d[9] === oe ? s ? 0 : e.length : $c(d[9] - l, 0), !u && t & (be | we) && (t &= ~(be | we)), t && t != ge) h = t == be || t == we ? Jo(e, t, u) : t != Ce && t != (ge | Ce) || o.length ? ni.apply(oe, d) : ui(e, t, n, r);
             else var h = $o(e, t, n);
             var v = p ? Sf : Af;
             return ea(v(h, d), e, t);
@@ -69103,7 +69151,8 @@ $.fn.togglify = function(settings) {
     h = n(9),
     v = n.n(h),
     m = n(2),
-    g = (n.n(m), n(12)),
+    g = (n.n(m),
+      n(12)),
     _ = n.n(g),
     y = n(96),
     b = function(e) {
@@ -74106,7 +74155,8 @@ $.fn.togglify = function(settings) {
               var n = this.getName() + ".componentWillUnmount()";
               p.invokeGuardedCallback(n, t.componentWillUnmount.bind(t));
             } else t.componentWillUnmount();
-          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
+          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null,
+            this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
         }
       },
       _maskContext: function(e) {

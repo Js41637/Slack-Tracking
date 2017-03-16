@@ -9980,6 +9980,7 @@
   "use strict";
   TS.registerModule("client.msg_input", {
     $input: $(),
+    tabcomplete_completions: {},
     onStart: function() {
       _$snippet_prompt = $("#snippet_prompt");
       _$snippet_prompt_warning = _$snippet_prompt.find(".warning");
@@ -10097,6 +10098,13 @@
           complete_emoji: true,
           complete_member_specials: true,
           no_tab_out: true,
+          onMemberComplete: function(match) {
+            if (["@everyone", "@channel", "@here"].indexOf(match) === -1) {
+              var model_ob = TS.shared.getActiveModelOb();
+              if (!TS.client.msg_input.tabcomplete_completions[model_ob.id]) TS.client.msg_input.tabcomplete_completions[model_ob.id] = [];
+              if (TS.client.msg_input.tabcomplete_completions[model_ob.id].indexOf(match) === -1) TS.client.msg_input.tabcomplete_completions[model_ob.id].push(match);
+            }
+          },
           onComplete: function(txt, new_cp) {
             TS.utility.populateInput($input, txt, new_cp);
             TS.client.msg_input.storeLastMsgForActiveModelOb(TS.utility.contenteditable.value($input));
@@ -10222,6 +10230,7 @@
       var should_populate = !TS.boot_data.feature_name_tagging_client_extras || TS.model.ms_logged_in_once || TS.format.hasOnlyValidMemberIds(model_ob.last_msg_input);
       if (!should_populate) return;
       TS.chat_history.resetPosition("populateChatInputWithLast");
+      _tabcomplete_completions_restored_inputs[model_ob.id] = model_ob.last_msg_input;
       if (TS.utility.contenteditable.supportsTexty()) {
         var $input = TS.client.msg_input.$input;
         TS.utility.contenteditable.deserialize($input, model_ob.last_msg_input);
@@ -10272,6 +10281,7 @@
   var _snippet_prompt_text_showing;
   var _click_snippet_prompt = false;
   var _keymap = TS.utility.keymap;
+  var _tabcomplete_completions_restored_inputs = {};
   var _onTextChange = function(e, prev_txt) {
     var start = Date.now();
     var val = TS.utility.contenteditable.value(TS.client.msg_input.$input);
@@ -10566,9 +10576,25 @@
       return;
     }
     var submitter = function() {
+      var dirty_val = TS.utility.contenteditable.value($input);
       if (TS.view.submit()) {
         if (!TS.ui.at_channel_warning_dialog.showing) TS.client.msg_input.reset();
         TS.chat_history.resetPosition("enter key");
+        var mentions_in_txt = TS.utility.members.getUsernamesMentionedInString(dirty_val);
+        var model_ob = TS.shared.getActiveModelOb();
+        var tabcomplete_completions = TS.client.msg_input.tabcomplete_completions && TS.client.msg_input.tabcomplete_completions[model_ob.id] ? TS.client.msg_input.tabcomplete_completions[model_ob.id] : [];
+        if (!mentions_in_txt.length) return;
+        if (_tabcomplete_completions_restored_inputs[model_ob.id]) {
+          mentions_in_txt = _.difference(mentions_in_txt, TS.utility.members.getUsernamesMentionedInString(_tabcomplete_completions_restored_inputs[model_ob.id]));
+        }
+        var typed_out_mentions = mentions_in_txt.filter(function(name) {
+          return tabcomplete_completions.indexOf(name) === -1 && (TS.members.getMemberByName(name) || TS.user_groups.getUserGroupsByHandle(name));
+        });
+        TS.clog.track("MSG_SUBMITTED_MENTIONS", {
+          num_mentions: typed_out_mentions.length
+        });
+        if (TS.client.msg_input.tabcomplete_completions[model_ob.id]) delete TS.client.msg_input.tabcomplete_completions[model_ob.id];
+        if (_tabcomplete_completions_restored_inputs[model_ob.id]) delete _tabcomplete_completions_restored_inputs[model_ob.id];
       } else if (!TS.model.is_msg_rate_limited) {
         TS.client.ui.addOrFlashEphemeralBotMsg({
           channel: TS.model.active_cid,

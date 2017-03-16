@@ -869,7 +869,7 @@
         _finalizeIncrementalBoot(_pending_rtm_start_p);
         _pending_rtm_start_p = undefined;
       } else {
-        $("#col_channels, #team_menu").removeClass("placeholder");
+        TS.incremental_boot.afterFullBoot();
       }
     }
     if (TS.web) {
@@ -1599,36 +1599,19 @@
       }
       _setIncrementalBootUIState(true);
       TS.model.change_channels_when_offline = false;
-      var channels_view_p = TS.api.call("channels.view", channels_view_args);
-      var call_users_counts = TS.qs_args["incremental_boot"] == "users";
-      var users_counts_p = call_users_counts ? TS.api.call("users.counts", {
-        simple_unreads: true,
-        mpim_aware: true,
-        only_relevant_ims: true
-      }) : Promise.resolve({
-        data: {}
-      });
-      return Promise.join(channels_view_p, users_counts_p, function(channels_view_resp, users_counts_resp) {
+      return TS.api.call("channels.view", channels_view_args).then(function(resp) {
         TS._incremental_boot = true;
-        var has_mpims = _.get(users_counts_resp, "data.mpims.length", 0) > 0 && !TS.qs_args["ignore_mpims"];
-        if (!call_users_counts || has_mpims) {
-          $("#col_channels").addClass("placeholder");
-        }
-        var data = _assembleBootData(incremental_boot_data, channels_view_resp.data, has_mpims ? {} : users_counts_resp.data);
-        if (call_users_counts) {
-          data._incremental_boot_users_counts_resp = users_counts_resp;
-        }
+        var data = _assembleBootData(incremental_boot_data, resp.data);
         if (TS.boot_data.feature_tinyspeck && _.get(data, "mpims.length") > 0) {
           TS.info("Somehow we have mpims during increment boot, this should not happen!");
           TS.info("channels.view arguments: " + JSON.stringify(channels_view_args));
-          TS.info("channels.view response: " + JSON.stringify(channels_view_resp));
-          TS.info("users.counts response: " + JSON.stringify(users_counts_resp));
+          TS.info("channels.view response: " + JSON.stringify(resp));
           TS.info("data.mpims " + JSON.stringify(data.mpims));
         }
         return {
           ok: true,
           data: data,
-          args: channels_view_resp.args
+          args: resp.args
         };
       }).catch(function(err) {
         TS.warn("Incremental boot failed with error: " + err);
@@ -1651,8 +1634,10 @@
       TS.ms.connected_sig.addOnce(_removeRecentIncrementalBootState);
     },
     afterFullBoot: function() {
-      TS._did_full_boot = true;
-      TS.model.change_channels_when_offline = true;
+      if (TS._did_incremental_boot) {
+        TS._did_full_boot = true;
+        TS.model.change_channels_when_offline = true;
+      }
       _setIncrementalBootUIState(false);
     },
     shouldIncrementalBoot: function() {
@@ -1679,7 +1664,7 @@
       _removeRecentIncrementalBootState();
     }
   });
-  var _assembleBootData = function(incremental_boot_data, channels_view_data, users_counts_data) {
+  var _assembleBootData = function(incremental_boot_data, channels_view_data) {
     var data = channels_view_data;
     data.channels = data.channels || [];
     data.groups = data.groups || [];
@@ -1704,48 +1689,11 @@
         id: data.self.id
       })) {
       data.users.push(data.self);
-    }(users_counts_data.channels || []).forEach(function(ob) {
-      ob.is_channel = true;
-      ob.is_member = true;
-      ob.members = ob.members || [];
-      _upsertModelOb(ob, data.channels);
-    });
-    (users_counts_data.ims || []).forEach(function(ob) {
-      ob.is_im = true;
-      if (ob.user_id && !ob.user) {
-        ob.user = ob.user_id;
-        delete ob.user_id;
-      }
-      if (!_.find(data.users, {
-          id: ob.user
-        })) {
-        var user_ob = {
-          id: ob.user,
-          name: ob.name,
-          profile: {}
-        };
-        data.users.push(user_ob);
-      }
-      _upsertModelOb(ob, data.ims);
-    });
+    }
     data.users.forEach(function(user) {
       if (user.id == "USLACKBOT" || user.id == TS.boot_data.user_id) {
         user.presence = "active";
       }
-    });
-    (users_counts_data.groups || []).forEach(function(ob) {
-      ob.is_group = true;
-      ob.members = ob.members || [];
-      _upsertModelOb(ob, data.groups);
-    });
-    data.mpims = [];
-    users_counts_data.mpims = [];
-    (users_counts_data.mpims || []).forEach(function(ob) {
-      ob.is_mpim = true;
-      ob.is_group = true;
-      ob.members = ob.members || [];
-      _upsertModelOb(ob, data.mpims);
-      return ob;
     });
     if (focal_model_ob.is_channel) {
       _upsertModelOb(focal_model_ob, data.channels);
@@ -1777,9 +1725,7 @@
     }
   };
   var _setIncrementalBootUIState = function(is_incremental_boot_in_progress) {
-    if (!is_incremental_boot_in_progress) {
-      $("#col_channels, #team_menu").removeClass("placeholder");
-    }
+    $("#col_channels, #team_menu").toggleClass("placeholder", is_incremental_boot_in_progress);
     $(document.body).toggleClass("incremental_boot", is_incremental_boot_in_progress);
   };
   var _upsertModelOb = function(model_ob, all_model_obs) {
