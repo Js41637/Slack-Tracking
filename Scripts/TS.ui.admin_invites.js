@@ -962,13 +962,13 @@
     }
     var html = TS.templates.admin_invite_summary(api_args);
     _$div.find("#invite_notice").slideUp(100);
-    _$div.find("#admin_invites_workflow, #admin_invites_header").addClass("hidden");
+    _$div.find("#admin_invites_workflow, #admin_invites_header, #admin_invites_subheader").addClass("hidden");
     _$div.find("#admin_invites_success").html(html).removeClass("hidden");
 
     function resetAndSwitchToIndividualForm() {
       _resetIndividualForm();
       $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden");
-      $("#admin_invites_header").removeClass("hidden");
+      $("#admin_invites_header, #admin_invites_subheader").removeClass("hidden");
       TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
     }
     _$div.find('button[data-action="admin_invites_reset"]').on("click", resetAndSwitchToIndividualForm);
@@ -979,7 +979,7 @@
         _rowError($row, invite_error);
       });
       $("#admin_invites_workflow, #admin_invites_success").toggleClass("hidden");
-      $("#admin_invites_header").removeClass("hidden");
+      $("#admin_invites_header, #admin_invites_subheader").removeClass("hidden");
       TS.ui.fs_modal.bindBackButton(TS.ui.admin_invites.switchToPicker);
       _success_invites = [];
       _error_invites = [];

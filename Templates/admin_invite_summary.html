@@ -100,13 +100,25 @@
 {{/if}}
 
 <p class="large_top_padding">
-  {{#if is_admin}}
-    <a class="btn btn_outline col span_1_of_3" href="/admin/invites" {{#isClient}}target="admin_invites"{{/isClient}}>{{#t}}View Pending Invites{{/t}}</a>
-  {{/if}}
-  {{#if error_invites}}
-    <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_try_again">{{#t}}Try Again{{/t}}</button>
+  {{#experiment name="guest_profiles_and_expiration"}}
+    {{#if is_admin}}
+      <a class="btn btn_large btn_outline" href="/admin/invites" {{#isClient}}target="admin_invites"{{/isClient}}>{{#t}}View Pending Invites{{/t}}</a>
+    {{/if}}
+    {{#if error_invites}}
+      <button class="btn btn_large btn_outline" data-action="admin_invites_try_again">{{#t}}Try Again{{/t}}</button>
+    {{else}}
+      <button class="btn btn_large btn_outline" data-action="admin_invites_reset">{{#t}}Invite More People{{/t}}</button>
+    {{/if}}
+    <button class="btn btn_large float_right dialog_cancel">{{#t}}Done{{/t}}</button>
   {{else}}
-    <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_reset">{{#t}}Invite More People{{/t}}</button>
-  {{/if}}
-  <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}} dialog_cancel">{{#t}}Done{{/t}}</button>
+    {{#if is_admin}}
+      <a class="btn btn_outline col span_1_of_3" href="/admin/invites" {{#isClient}}target="admin_invites"{{/isClient}}>{{#t}}View Pending Invites{{/t}}</a>
+    {{/if}}
+    {{#if error_invites}}
+      <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_try_again">{{#t}}Try Again{{/t}}</button>
+    {{else}}
+      <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}}" data-action="admin_invites_reset">{{#t}}Invite More People{{/t}}</button>
+    {{/if}}
+    <button class="btn btn_outline col {{#if is_admin}}span_1_of_3{{else}}span_1_of_2{{/if}} dialog_cancel">{{#t}}Done{{/t}}</button>
+  {{/experiment}}
 </p>

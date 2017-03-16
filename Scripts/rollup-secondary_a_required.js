@@ -17508,8 +17508,20 @@ TS.registerModule("constants", {
     hello: function(imsg) {},
     goodbye: function(imsg) {
       if (!TS.lazyLoadMembersAndBots()) return;
-      TS.info("Got a goodbye message, so disconnecting from the MS");
-      TS.ms.disconnect();
+      TS.info("goodbye handler: disconnecting from the MS next time it is convenient");
+
+      function deferredGoodbyeHandler() {
+        TS.ms.disconnected_sig.remove(deferredGoodbyeHandler);
+        TS.ui.window_focus_changed_sig.remove(deferredGoodbyeHandler);
+        if (TS.model.ms_connected) {
+          TS.info("goodbye handler: disconnecting now");
+          TS.ms.disconnect();
+        } else {
+          TS.info("goodbye handler: got disconnected some other way before we handled the goodbye message");
+        }
+      }
+      TS.ms.disconnected_sig.addOnce(deferredGoodbyeHandler);
+      TS.ui.window_focus_changed_sig.addOnce(deferredGoodbyeHandler);
     },
     team_join: function(imsg) {
       var member = imsg.user;
@@ -18438,7 +18450,9 @@ TS.registerModule("constants", {
     isFlannelMessage: function(imsg) {
       return imsg.type == "flannel";
     },
-    call: function(command_type, args) {
+    call: function(command_type, args, attempt_number) {
+      if (_.isUndefined(attempt_number)) attempt_number = 1;
+      if (!_.isNumber(attempt_number) || attempt_number < 1) throw new Error("Invalid value for attempt_number");
       var imsg = {
         type: "flannel",
         subtype: command_type
@@ -18464,6 +18478,11 @@ TS.registerModule("constants", {
       }
       return new Promise(function(resolve, reject) {
         var lostConnectionReject = function() {
+          if (attempt_number < MAX_RETRY_COUNT) {
+            TS.log(1989, "Flannel: retrying " + command_type + " call; attempt #" + attempt_number + " of " + MAX_RETRY_COUNT);
+            return TS.ms.flannel.call(command_type, args, attempt_number + 1).then(resolve).catch(reject);
+          }
+          TS.log(1989, "Flannel: giving up on " + command_type + " call");
           reject(new Error("Lost Flannel connection"));
         };
         TS.ms.disconnected_sig.addOnce(lostConnectionReject);
@@ -18486,6 +18505,7 @@ TS.registerModule("constants", {
       TS.flannel.batchUpsertObjects(objects);
     }
   });
+  var MAX_RETRY_COUNT = 3;
 })();
 (function() {
   "use strict";
@@ -21758,6 +21778,22 @@ TS.registerModule("constants", {
         return "";
       }
     },
+    makeLinksFromChannelOrGroupIds: function(channel_or_group_ids) {
+      channel_or_group_ids = _.isArray(channel_or_group_ids) ? channel_or_group_ids : [channel_or_group_ids];
+      var channel_or_group_nodes = channel_or_group_ids.map(function(channel_or_group_id) {
+        return TS.channels.getChannelById(channel_or_group_id) || TS.groups.getGroupById(channel_or_group_id);
+      }).filter(function(channel_or_group) {
+        return !!channel_or_group;
+      }).map(function(channel_or_group) {
+        var html = '<span class="no_wrap">';
+        html += channel_or_group.is_channel ? TS.templates.builders.makeChannelLink(channel_or_group) : TS.templates.builders.makeGroupLink(channel_or_group);
+        html += "</span>";
+        return html;
+      });
+      return TS.i18n.listify(channel_or_group_nodes, {
+        no_escape: true
+      }).join("");
+    },
     makeMessageShareLabelSafe: function(model_ob) {
       var html = '<span class="message_share_label">';
       var channel_or_group = "";
@@ -22867,6 +22903,7 @@ TS.registerModule("constants", {
         if (TS.boot_data.feature_new_broadcast && TS.utility.msgs.isMsgReply(msg) && msg.subtype === "thread_broadcast" && !is_in_conversation && !standalone && !args.is_threads_view) {
           template_args.is_broadcast = true;
           template_args.conversation_permalink = TS.utility.msgs.constructConversationPermalink(model_ob, msg.thread_ts);
+          template_args.show_reply_action = true;
         }
         if (template_args.is_broadcast && msg.root) {
           template_args.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(msg.root));
@@ -23953,6 +23990,9 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("makeChannelDomId", function(channel) {
         return TS.templates.makeChannelDomId(channel);
+      });
+      Handlebars.registerHelper("makeLinksFromChannelOrGroupIds", function(channel_or_group_ids) {
+        return new Handlebars.SafeString(TS.templates.builders.makeLinksFromChannelOrGroupIds(channel_or_group_ids));
       });
       Handlebars.registerHelper("makeChannelDragData", function(channel) {
         return TS.templates.makeChannelDragData(channel);
@@ -36261,7 +36301,7 @@ var _on_esc;
       if (!_.isString(txt)) return args;
       var txt_trimmed = txt.trim();
       if (!txt_trimmed) return args;
-      args.words = txt_trimmed.split(/\s/);
+      args.words = txt_trimmed.split(/\s+/);
       args.cmd = args.words[0].toLowerCase();
       args.disp = args.words[0];
       args.rest = txt_trimmed.substring(args.cmd.length).trim();
@@ -42235,17 +42275,17 @@ var _on_esc;
     }
     var profile = {};
     field_names.forEach(function(name) {
-      var $field = _$div.find('input[name="' + name + '"]');
+      var $field;
       var value;
       if (TS.boot_data.feature_texty && name === "status_text") {
+        $field = _$div.find("#current_status_for_edit_profile");
         value = TS.utility.contenteditable.value($field);
       } else {
+        $field = _$div.find('input[name="' + name + '"]');
         value = $field.val();
       }
       profile[name] = value && value.trim();
-      if (TS.boot_data.feature_texty && name === "status_text") {
-        TS.utility.contenteditable.value($field, value);
-      } else {
+      if (!TS.boot_data.feature_texty) {
         $field.val("").val(value);
       }
     });
@@ -42461,7 +42501,11 @@ var _on_esc;
     completed_sig: new signals.Signal,
     onStart: function() {
       $("body").on("input.validation paste.validation change.validation blur.validation", "[data-validation]", TS.utility.debounce(function(e) {
-        _validate($(e.target), {}, e);
+        if ($(e.target).is(".ql-editor")) {
+          _validate($(e.target).closest(".ql-container"), {}, e);
+        } else {
+          _validate($(e.target), {}, e);
+        }
       }, 250));
       $("body").on("submit.validation", "form[data-validation-form]", function(e) {
         var $form = $(e.target);
@@ -48773,8 +48817,7 @@ $.fn.togglify = function(settings) {
           TS.client.msg_pane.setUnreadPoint(msg_ts);
           break;
         case "reply":
-          var ignore_membership = true;
-          if ($msg_el.length && TS.replies && TS.replies.canReplyToMsg(model_ob, msg, ignore_membership)) {
+          if ($msg_el.length) {
             if (TS.model.unread_view_is_showing && TS.client.unread.shouldRecordMetrics()) {
               TS.metrics.count("unread_view_reply");
             }
@@ -65755,8 +65798,8 @@ $.fn.togglify = function(settings) {
             _d = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Qs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Xa, n.unzipWith = Qa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Xf, n.xorWith = Qf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap,
-            zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xu, n.isArrayLikeObject = Qu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Xp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Xs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Qp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Ql, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
+          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks,
+            n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Qs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Xa, n.unzipWith = Qa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Xf, n.xorWith = Qf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xu, n.isArrayLikeObject = Qu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Xp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Xs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Qp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Ql, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
               var e = {};
               return nr(n, function(t, r) {
                 bc.call(n.prototype, r) || (e[r] = t);
@@ -75246,7 +75289,8 @@ $.fn.togglify = function(settings) {
       _performComponentUpdate: function(e, t, n, r, o, i) {
         var a, u, s, l = this._instance,
           c = Boolean(l.componentDidUpdate);
-        c && (a = l.props, u = l.state, s = l.context), l.componentWillUpdate && l.componentWillUpdate(t, n, r), this._currentElement = e, this._context = i, l.props = t, l.state = n, l.context = r, this._updateRenderedComponent(o, i), c && o.getReactMountReady().enqueue(l.componentDidUpdate.bind(l, a, u, s), l);
+        c && (a = l.props, u = l.state, s = l.context), l.componentWillUpdate && l.componentWillUpdate(t, n, r), this._currentElement = e, this._context = i, l.props = t, l.state = n,
+          l.context = r, this._updateRenderedComponent(o, i), c && o.getReactMountReady().enqueue(l.componentDidUpdate.bind(l, a, u, s), l);
       },
       _updateRenderedComponent: function(e, t) {
         var n = this._renderedComponent,
@@ -75282,8 +75326,7 @@ $.fn.togglify = function(settings) {
             f.current = null;
           }
         } else e = this._renderValidatedComponentWithoutOwnerOrContext();
-        return null === e || e === !1 || l.isValidElement(e) ? void 0 : u("109", this.getName() || "ReactCompositeComponent"),
-          e;
+        return null === e || e === !1 || l.isValidElement(e) ? void 0 : u("109", this.getName() || "ReactCompositeComponent"), e;
       },
       attachRef: function(e, t) {
         var n = this.getPublicInstance();

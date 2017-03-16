@@ -34,6 +34,16 @@
 
     <h4 class="file_header_title generic_header_title overflow_ellipsis">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</h4>
 
+    {{#feature flag="feature_gsuite_rich_previews"}}
+
+      {{!-- Placeholder for the actual thumbnail until we get design/FE support --}}
+
+      {{#if file.thumb_480}}
+        <img src="{{file.thumb_480}}" width="480" />
+      {{/if}}
+
+    {{/feature}}
+
     <p class="file_header_meta generic_header_meta">
       {{#if filesize}}
         <span class="meta_size">{{convertFilesize file.size}}</span><span class="meta_hover_placement">

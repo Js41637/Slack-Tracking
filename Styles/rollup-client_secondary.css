@@ -19742,6 +19742,10 @@ ts-message .broadcast_meta {
   height: 22px
 }
 
+ts-message .broadcast_meta a {
+  font-weight: 700
+}
+
 ts-message .broadcast_repliers {
   color: #9e9ea6;
   font-size: .8125rem;
@@ -19756,7 +19760,7 @@ ts-message .broadcast_repliers {
   display: none
 }
 
-ts-message .broadcast_repliers .ts_icon_comment {
+ts-message .broadcast_repliers .repliers_icon {
   vertical-align: middle
 }
 
