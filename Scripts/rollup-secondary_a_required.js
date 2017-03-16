@@ -34292,7 +34292,7 @@ var _on_esc;
         if (channel.is_shared) {
           if (template_args.show_advanced_item) {
             if (can_manage_shared_channels) {
-              template_args.show_manage_teams = true;
+              template_args.show_manage_teams = !channel.is_global_shared;
             } else {
               template_args.show_advanced_item = false;
             }
@@ -35578,7 +35578,7 @@ var _on_esc;
           if (group.creator !== TS.model.user.id) template_args.show_advanced_item = false;
           if (can_manage_shared_channels) {
             template_args.show_advanced_item = true;
-            template_args.show_manage_teams = true;
+            template_args.show_manage_teams = !group.is_global_shared;
           }
           template_args.is_not_allowed_integrations = true;
         }
