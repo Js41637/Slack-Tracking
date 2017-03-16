@@ -6599,7 +6599,6 @@
       var $img;
       var $holder;
       var loaded_data = "loaded_bg";
-      if (log) $("#active_channel_name").find(".topic").html($hidden_inline_img.length);
       $hidden_inline_img.each(function(index) {
         $figure = $(this);
         $holder = $figure.closest(".msg_inline_holder, .image_container");
@@ -13531,12 +13530,23 @@
       var html;
       if (TS.model.team.prefs.auth_mode == "normal" && TS.model.team.email_domain) {
         var hostname = location.hostname.replace(/[^\.]*/, TS.utility.htmlEntities(TS.model.team.domain));
-        html = TS.i18n.t('<i class="ts_icon ts_icon_user ts_icon_inherit"></i> Send <a class="underline" href="https://{hostname}/signup">this link</a> to your team to invite them', "client")({
+        html = TS.i18n.t('<i class="ts_icon ts_icon_user ts_icon_inherit"></i> Send <a class="underline ts_tip ts_tip_top" href="https://{hostname}/signup">this link<span class="copied_ok ts_tip_tip hidden">Copied!</span></a> to your team to invite them', "client")({
           hostname: hostname
         });
-        $slack_invite_action.off("click").html(html).find("a").on("click", function(e) {
-          return false;
-        });
+        if (TS.clipboard.canWriteText()) {
+          $slack_invite_action.off("click").html(html).find("a").on("click", function(e) {
+            e.preventDefault();
+            var timer;
+            var $copied_ok = $(".copied_ok");
+            var share_text = "https://" + hostname + "/signup";
+            TS.clipboard.writeText(share_text);
+            $copied_ok.removeClass("hidden");
+            if (timer) window.clearTimeout(timer);
+            timer = window.setTimeout(function() {
+              $copied_ok.addClass("hidden");
+            }, 2e3);
+          });
+        }
       } else if (TS.model.user.is_admin) {
         html = TS.i18n.t('<a><i class="ts_icon ts_icon_user ts_icon_inherit"></i> Invite people to <strong>{teamname}</strong></a>', "client")({
           teamname: TS.utility.htmlEntities(TS.model.team.name)
@@ -14727,6 +14737,7 @@
           TS.client.ui.flex.hideFlex();
         } else {
           TS.client.ui.flex.openFlexTab("team");
+          TS.client.ui.showTeamList();
         }
       }
     },
@@ -15102,9 +15113,9 @@
         }
         var show_experts = results.messages.modules && results.messages.modules.experts && results.messages.modules.experts.matches;
         if (show_experts) {
-          var terms = TS.search.query.split(" ");
+          var terms = TS.search.query;
           var experts = results.messages.modules.experts.matches.slice(0, 5);
-          html += '<div class="search_module_header"><p><span>Experts <a href="http://slack.com/god/search_experts_terms.php?terms=' + terms + '">debug</a></span></p></div>';
+          html += '<div class="search_module_header"><p><span>Experts <a href="http://slack.com/god/search_experts_terms.php?terms=' + terms + '&grouped=1">debug</a></span></p></div>';
           html += '<div class="search_results_items">';
           _.forEach(experts, function(expert_group) {
             var channels = _.map(expert_group["channels"], function(encoded_channel) {
@@ -18619,7 +18630,6 @@
               TS.search.view.maybeRebuildResults();
             }
           }
-          $("#active_channel_name").tooltip("hide");
           $input.setCursorPosition($input.val().length);
         });
         $input.bind("click", function() {
@@ -27638,7 +27648,6 @@
     if (TS.client.archives.not_member) {
       var archive_html;
       var action_tip_html;
-      $("#active_channel_name").addClass("no_star");
       $("#footer_msgs").addClass("hidden");
       $("#footer").css("height", "auto");
       $("#footer_archives").removeClass("hidden");
@@ -27681,7 +27690,6 @@
   };
   var _unAdjustForArchivesDisplay = function() {
     $("#monkey_scroll_wrapper_for_msgs_scroller_div").removeClass("hidden");
-    $("#active_channel_name").removeClass("no_star");
     $("#footer_msgs").removeClass("hidden");
     $("#footer").css("height", "");
     $("#footer_archives").addClass("hidden");

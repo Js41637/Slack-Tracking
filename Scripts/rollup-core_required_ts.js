@@ -3652,7 +3652,6 @@
       }
     },
     makeMenuLists: function() {
-      var was_emoji_groups = TS.model.emoji_groups.concat();
       TS.model.emoji_groups.length = 0;
       TS.model.emoji_names.length = 0;
       var groupings = _.cloneDeep(_groupings);
@@ -3770,11 +3769,6 @@
         img.src = sheet_url;
       }
       TS.model.emoji_names.sort();
-      if (!TS.menu.emoji.is_dirty) {
-        if (!TS.utility.areSimpleObjectsEqual(was_emoji_groups, TS.model.emoji_groups, "menu.emoji.is_dirty")) {
-          TS.menu.emoji.setDirtyAndMaybeRender();
-        }
-      }
       TS.emoji.friendlyReorder();
       var ok_index = TS.model.emoji_names.indexOf("ok");
       var ok_hand_index = TS.model.emoji_names.indexOf("ok_hand");
