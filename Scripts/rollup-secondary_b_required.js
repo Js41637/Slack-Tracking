@@ -883,11 +883,6 @@
             }
           },
           onEnter: function(args) {
-            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock(input)) {
-              if (!args.shiftKey) return true;
-            } else {
-              if (args.shiftKey) return true;
-            }
             if (callback) {
               callback();
             } else {

@@ -44,6 +44,16 @@
           <td class="submission_modal_cell">{{youtube_url}}</td>
         </tr>
       {{/if}}
+      {{#if screenshots}}
+        <tr>
+          <td class="submission_modal_row_title">{{#t}}App Images{{/t}}</td>
+          <td class="submission_modal_cell submission_modal_cell_screenshots">
+            {{#each screenshots}}
+              <img src="{{this.image_440}}" class="submission_screenshot" />
+            {{/each}}
+          </td>
+        </tr>
+      {{/if}}
       {{/feature}}
       {{#if url}}
         <tr>

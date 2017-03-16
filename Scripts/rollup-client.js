@@ -8988,7 +8988,7 @@
     $(".file_comments_scroller").scrollTop(0);
   };
   var _displayFileCommentHelpText = function(file) {
-    $(".file_comment_tip").text(TS.templates.builders.makeFileCommentHelpText(file));
+    $(".file_comment_tip").html(TS.templates.builders.makeFileCommentHelpHTML(file));
   };
   var _rebuildFileDetailsView = function(file) {
     var template_args = $.extend(TS.files.getFileDetailsMetaTemplateArguments(file), TS.files.getFileTemplateArguments(file));
@@ -10068,14 +10068,10 @@
           },
           placeholder: $input.data("placeholder"),
           onEnter: function(args) {
-            if (TS.model.is_mac && !args.shiftKey && args.metaKey) {
+            var should_start_snippet = TS.model.is_mac && args.metaKey || TS.model.is_win && args.shiftKey && args.ctrlKey;
+            if (should_start_snippet) {
               TS.client.msg_input.startSnippet();
               return false;
-            }
-            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.contenteditable.isCursorInPreBlock($input)) {
-              if (!args.shiftKey) return true;
-            } else {
-              if (args.shiftKey) return true;
             }
             if (!TS.client.ui.cal_key_checker.prevent_enter) _tryToSubmit($input);
             return false;
@@ -23079,6 +23075,19 @@
         },
         content: function() {
           return TS.templates.gdrive_coachmark();
+        }
+      },
+      intl_channel_names: {
+        id: "intl_channel_names_coachmark",
+        coachmark_el_id: "intl_channel_names_coachmark_div",
+        place: function() {
+          TS.coachmark.placeBelowOf($(".title_input"), 70, 105, 20);
+        },
+        buttonText: function() {
+          return TS.i18n.t("Got it!", "coachmarks")();
+        },
+        content: function() {
+          return TS.templates.intl_channel_names_coachmark();
         }
       }
     },
