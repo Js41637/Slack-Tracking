@@ -4305,6 +4305,7 @@
 (function() {
   "use strict";
   TS.registerModule("membership", {
+    membership_counts_need_refetch_sig: new signals.Signal,
     onStart: function() {
       if (TS.lazyLoadMembersAndBots()) {
         TS.channels.member_left_sig.add(_modelObMemberRemoved);
@@ -4318,6 +4319,7 @@
         TS.channels.joined_sig.add(_modelObJoined);
         TS.channels.left_sig.add(_modelObLeft);
         TS.groups.left_sig.add(_modelObLeft);
+        TS.ms.connected_sig.add(_maybeInvalidateLocalCache);
         var handler_priority = Infinity;
         TS.members.changed_deleted_sig.add(_markMembershipCountsAsStale, this, handler_priority);
         TS.members.non_loaded_changed_deleted_sig.add(_markMembershipCountsAsStale, this, handler_priority);
@@ -4644,6 +4646,22 @@
     if (!TS.lazyLoadMembersAndBots()) return;
     TS.log(1989, "Channel member counts (" + model_ob.id + "): removing local counts because we left the channel");
     delete _channel_member_counts_info[model_ob.id];
+  };
+  var _maybeInvalidateLocalCache = function(last_connect_was_fast) {
+    if (last_connect_was_fast || TS.ms.num_times_connected === 0) return;
+    var model_ob = TS.shared.getActiveModelOb();
+    var current_channel_member_counts;
+    if (model_ob && model_ob.id) {
+      current_channel_member_counts = _channel_member_counts_info[model_ob.id] || {};
+      current_channel_member_counts.should_refetch = true;
+    }
+    _channel_member_counts_info = {};
+    _channel_known_member_statuses = {};
+    _membership_counts_api_promises = {};
+    if (model_ob && model_ob.id) {
+      _channel_member_counts_info[model_ob.id] = current_channel_member_counts;
+    }
+    TS.membership.membership_counts_need_refetch_sig.dispatch();
   };
   var _markMembershipCountsAsStale = function() {
     _.forEach(_channel_member_counts_info, function(counts_info) {
@@ -57013,7 +57031,8 @@ $.fn.togglify = function(settings) {
         var $new_els = $container.find(".attachment_actions_buttons select:not(.hidden)");
         $new_els.each(function() {
           var $el = $(this);
-          var has_selected_options = _.some($el.find("option"), "attributes.selected");
+          var context = TS.attachment_actions.getActionContext($el);
+          var selected_options = _.get(context, "action.selected_options");
           var lfs_options = {
             allow_list_position_above: true,
             classes: "select_attachment",
@@ -57021,7 +57040,7 @@ $.fn.togglify = function(settings) {
             disabled: $el.attr("disabled"),
             filter: _filter,
             input_debounce_wait_time: _getInputDebounceWaitTime($el),
-            no_default_selection: !has_selected_options,
+            no_default_selection: true,
             onItemAdded: _onItemAdded,
             onListShown: _getOnListShownCallback($el),
             placeholder_text: _getPlaceholderText($el),
@@ -57031,6 +57050,10 @@ $.fn.togglify = function(settings) {
             template: _getItemTemplate($el)
           };
           $el.lazyFilterSelect(lfs_options).addClass("hidden");
+          if (!_.isEmpty(selected_options)) {
+            var lfs_instance = $el.lazyFilterSelect("getInstance");
+            lfs_instance.$input.val(selected_options[0].text);
+          }
         });
       }
     },
@@ -57074,6 +57097,7 @@ $.fn.togglify = function(settings) {
     var value = _.get(item, "model_ob.id", item.value);
     var onGo = function() {
       context.action.selected_options = [{
+        text: item.text,
         value: value
       }];
       _.defer(TS.attachment_actions.action_triggered_sig.dispatch, context);
@@ -57101,30 +57125,17 @@ $.fn.togglify = function(settings) {
   }
 
   function _getOptionsForModel(model) {
-    var options;
     switch (model.data_source) {
       case _DATA_SOURCES.channels:
-        options = _getOptionsForChannels();
-        break;
+        return _getOptionsForChannels();
       case _DATA_SOURCES.users:
-        options = _getOptionsForUsers();
-        break;
+        return _getOptionsForUsers();
       case _DATA_SOURCES.external:
       case _DATA_SOURCES.conversations:
-        break;
+        return;
       default:
-        options = model.options;
-        break;
+        return model.options;
     }
-    if (model.selected_options && options) {
-      var selected_values = model.selected_options.map(function(selected_option) {
-        return selected_option.value;
-      });
-      for (var i = 0; i < options.length; i++) {
-        if (_.includes(selected_values, options[i].value)) options[i].selected = true;
-      }
-    }
-    return options;
   }
 
   function _getOptionsForChannels() {
@@ -67605,7 +67616,8 @@ $.fn.togglify = function(settings) {
         var t = u(),
           n = e.focusedElem,
           o = e.selectionRange;
-        t !== n && r(n) && (s.hasSelectionCapabilities(n) && s.setSelection(n, o), a(n));
+        t !== n && r(n) && (s.hasSelectionCapabilities(n) && s.setSelection(n, o),
+          a(n));
       },
       getSelection: function(e) {
         var t;
@@ -74213,8 +74225,7 @@ $.fn.togglify = function(settings) {
   var b = 1,
     w = {
       construct: function(e) {
-        this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null,
-          this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
+        this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null, this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
       },
       mountComponent: function(e, t, n, s) {
         this._context = s, this._mountOrder = b++, this._hostParent = t, this._hostContainerInfo = n;
@@ -75539,7 +75550,8 @@ $.fn.togglify = function(settings) {
   }
   var c = n(3),
     f = n(84),
-    p = (n(45), n(16), n(19), n(36)),
+    p = (n(45), n(16), n(19),
+      n(36)),
     d = n(252),
     h = (n(15), n(298)),
     v = (n(0), {
@@ -78802,17 +78814,18 @@ $.fn.togglify = function(settings) {
   e.exports = n;
 }, function(e, t) {
   e.exports = function(e) {
-    return e.webpackPolyfill || (e.deprecate = function() {}, e.paths = [], e.children || (e.children = []), Object.defineProperty(e, "loaded", {
-      enumerable: !0,
-      get: function() {
-        return e.l;
-      }
-    }), Object.defineProperty(e, "id", {
-      enumerable: !0,
-      get: function() {
-        return e.i;
-      }
-    }), e.webpackPolyfill = 1), e;
+    return e.webpackPolyfill || (e.deprecate = function() {},
+      e.paths = [], e.children || (e.children = []), Object.defineProperty(e, "loaded", {
+        enumerable: !0,
+        get: function() {
+          return e.l;
+        }
+      }), Object.defineProperty(e, "id", {
+        enumerable: !0,
+        get: function() {
+          return e.i;
+        }
+      }), e.webpackPolyfill = 1), e;
   };
 }, function(e, t, n) {
   "use strict";

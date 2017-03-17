@@ -13338,6 +13338,24 @@ only screen and (min-resolution:2dppx) {
   cursor: default
 }
 
+#member_preview_web_container .member_action_bar {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex
+}
+
+#member_preview_web_container .account_settings_link .ts_icon_cog_o {
+  margin-right: 0;
+  font-size: 20px;
+  line-height: .6
+}
+
+#member_preview_web_container .account_settings_link .ts_icon_cog_o:before {
+  line-height: 1
+}
+
 .menu_member_header .member_details {
   width: 320px;
   cursor: pointer;

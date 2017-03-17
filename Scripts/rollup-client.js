@@ -5591,6 +5591,7 @@
     onStart: function() {
       TS.channels.data_updated_sig.add(_channelDataUpdated);
       TS.ui.window_focus_changed_sig.add(TS.client.ui.windowFocusChanged);
+      TS.membership.membership_counts_need_refetch_sig.add(TS.client.ui.rebuildMemberListToggle);
       TS.channels.joined_sig.add(TS.client.ui.rebuildMemberListToggle);
       TS.channels.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
       TS.ims.switched_sig.add(TS.client.ui.channelOrImOrGroupDisplaySwitched);
@@ -11281,9 +11282,7 @@
       a_srt = (a.is_channel ? "a" : "z") + a_srt;
       b_srt = (b.is_channel ? "a" : "z") + b_srt;
     }
-    if (a_srt < b_srt) return -1;
-    if (a_srt > b_srt) return 1;
-    return 0;
+    return TS.i18n.sorter(a_srt, b_srt);
   };
   var _makeSureActiveChannelIsInView = function() {
     TS.utility.queueRAF(_actuallyMakeSureActiveChannelIsInView);
@@ -15138,7 +15137,7 @@
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
         }
-        if (_.get(results, "messages.modules.experts.matches") && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
+        if (_.get(results, "messages.modules.experts.matches.length") && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
           html += TS.sli_expert_search.render(TS.search.query, results.messages.modules.experts.matches);
         }
         show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
@@ -27962,6 +27961,7 @@
       TS.members.changed_current_status_sig.add(_memberChanged);
       TS.members.changed_account_type_sig.add(_memberChanged);
       TS.members.changed_deleted_sig.add(_memberChangedDeleted);
+      TS.membership.membership_counts_need_refetch_sig.add(_membershipCountsInvalidated);
       TS.prefs.display_real_names_override_changed_sig.add(_displayNamePrefChanged);
       TS.prefs.team_display_real_names_changed_sig.add(_displayNamePrefChanged);
       if (TS.boot_data.feature_name_tagging_client) {
@@ -28591,6 +28591,11 @@
     var model_ob = TS.shared.getActiveModelOb();
     if (!model_ob || !changed_model_ob || model_ob.id !== changed_model_ob.id) return false;
     return true;
+  };
+  var _membershipCountsInvalidated = function() {
+    var model_ob = TS.shared.getActiveModelOb();
+    _rebuildMembersTabs(model_ob);
+    if (_expanded_sections.members) _rebuildMemberLists(model_ob);
   };
   var _rebuildChannelPage = function() {
     _cleanChannelPage();
