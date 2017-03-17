@@ -45,7 +45,9 @@
       _consistency_check_interval = setInterval(_sanityCheckSubscriptionList, interval_ms);
     },
     stopCheckingPresenceConsistency: function() {
-      _consistency_check_interval && clearInterval(_consistency_check_interval);
+      if (_consistency_check_interval) {
+        clearInterval(_consistency_check_interval);
+      }
       _consistency_check_interval = null;
     },
     test: {
@@ -3955,7 +3957,11 @@
       }
       if (!ok || !data || !data.messages) {
         TS.error("failed to get history");
-        channel.history_fetch_retries ? channel.history_fetch_retries++ : channel.history_fetch_retries = 1;
+        if (channel.history_fetch_retries) {
+          channel.history_fetch_retries++;
+        } else {
+          channel.history_fetch_retries = 1;
+        }
         TS.channels.history_fetched_sig.dispatch(channel);
         return;
       }
@@ -5584,7 +5590,11 @@ TS.registerModule("constants", {
       }
       if (!ok || !data || !data.messages) {
         TS.error("failed to get history");
-        group.history_fetch_retries ? group.history_fetch_retries++ : group.history_fetch_retries = 1;
+        if (group.history_fetch_retries) {
+          group.history_fetch_retries++;
+        } else {
+          group.history_fetch_retries = 1;
+        }
         TS.groups.history_fetched_sig.dispatch(group);
         return;
       }
@@ -8054,7 +8064,11 @@ TS.registerModule("constants", {
       }
       if (!ok || !data || !data.messages) {
         TS.error("failed to get history");
-        im.history_fetch_retries ? im.history_fetch_retries++ : im.history_fetch_retries = 1;
+        if (im.history_fetch_retries) {
+          im.history_fetch_retries++;
+        } else {
+          im.history_fetch_retries = 1;
+        }
         TS.ims.history_fetched_sig.dispatch(im);
         return;
       }
@@ -8641,7 +8655,11 @@ TS.registerModule("constants", {
       }
       if (!ok || !data || !data.messages) {
         TS.error("failed to get history");
-        mpim.history_fetch_retries ? mpim.history_fetch_retries++ : mpim.history_fetch_retries = 1;
+        if (mpim.history_fetch_retries) {
+          mpim.history_fetch_retries++;
+        } else {
+          mpim.history_fetch_retries = 1;
+        }
         TS.mpims.history_fetched_sig.dispatch(mpim);
         return;
       }
@@ -15653,7 +15671,10 @@ TS.registerModule("constants", {
       _have_sent_ping = false;
       TS.info("Deprecating current socket in onFailure with reason: " + reason_str);
       _deprecateCurrentSocket();
-      if (TS.model.ms_connected) {
+      if (_last_disconnect_was_requested_by_server) {
+        TS.ms.logConnectionFlow("on_goodbye_failure");
+        TS.model.ms_reconnect_ms = 0;
+      } else if (TS.model.ms_connected) {
         TS.info("Disconnected from MS, TS.model.rtm_start_throttler:" + TS.model.rtm_start_throttler);
         TS.ms.logConnectionFlow("on_connected_failure");
         TS.model.ms_reconnect_ms = 100;
@@ -15695,16 +15716,21 @@ TS.registerModule("constants", {
     },
     startReconnection: function() {
       TS.model.ms_reconnect_time = Date.now() + TS.model.ms_reconnect_ms;
-      TS.console.logStackTrace("Attempting to reconnect in " + TS.model.ms_reconnect_ms + "ms");
+      if (TS.model.ms_reconnect_ms) {
+        TS.console.logStackTrace("Attempting to reconnect in " + TS.model.ms_reconnect_ms + "ms");
+        clearTimeout(_auto_reconnect_tim);
+        _auto_reconnect_tim = setTimeout(function() {
+          if (!TS.model.window_unloading) {
+            TS.ms.startReconnectionImmediately();
+          }
+        }, TS.model.ms_reconnect_ms);
+      } else {
+        TS.console.logStackTrace("Attempting to reconnect immediately");
+        TS.ms.startReconnectionImmediately();
+      }
       clearInterval(_reconnect_interv);
       _reconnect_interv = setInterval(_onReconnectInterval, _reconnect_interv_ms);
       _onReconnectInterval();
-      clearTimeout(_auto_reconnect_tim);
-      _auto_reconnect_tim = setTimeout(function() {
-        if (!TS.model.window_unloading) {
-          TS.ms.startReconnectionImmediately();
-        }
-      }, TS.model.ms_reconnect_ms);
     },
     startReconnectionImmediately: function() {
       TS.info("MS wants to reconnect because of a start call");
@@ -15728,8 +15754,9 @@ TS.registerModule("constants", {
         TS.ms.reconnecting_sig.dispatch(0);
       }
     },
-    disconnect: function() {
+    disconnect: function(was_requested_by_server) {
       if (_websocket && _websocket.readyState != WebSocket.CLOSED) {
+        _last_disconnect_was_requested_by_server = !!was_requested_by_server;
         TS.ms.logConnectionFlow("disconnect");
         if (TS.model.ms_connected) {
           TS.info("TS.ms.disconnect called; closing the socket");
@@ -15835,6 +15862,8 @@ TS.registerModule("constants", {
         _onDisconnect(null, "Forcing disconnect because we are trying to wake up");
         _deprecateCurrentSocket();
       }
+      _disconnected_timestamp = undefined;
+      _last_disconnect_was_requested_by_server = undefined;
       TS.model.ms_asleep = false;
       TS.info("MS: starting reconnection after waking");
       TS.ms.startReconnection();
@@ -15849,6 +15878,8 @@ TS.registerModule("constants", {
       });
     }
   });
+  var _disconnected_timestamp;
+  var _last_disconnect_was_requested_by_server;
   var _did_deprecate_socket_sig = new signals.Signal;
   var _open_websocket_p;
   var _open_websocket_p_resolve;
@@ -15913,6 +15944,7 @@ TS.registerModule("constants", {
   var _onConnect = function(e) {
     clearTimeout(_connect_timeout_tim);
     _connect_timeout_count = 0;
+    _maybeSendDisconnectedMetric();
     if (TS.model.attempting_fast_reconnect) {
       _clearReconnectUrl();
       TS.metrics.measureAndClear("ms_fast_reconnect", "ms_websocket_create");
@@ -16075,6 +16107,12 @@ TS.registerModule("constants", {
     _have_sent_ping = true;
   };
   var _onDisconnect = function(e, reason_str) {
+    if (!TS.model.ms_asleep) {
+      _disconnected_timestamp = _disconnected_timestamp || performance.now();
+    }
+    if (!reason_str && _last_disconnect_was_requested_by_server) {
+      reason_str = "disconnected after a goodbye message";
+    }
     reason_str = reason_str || "_onDisconnect called with event:" + e;
     TS.info("MS WS disconnected");
     TS.ms.logConnectionFlow("on_disconnect");
@@ -16541,6 +16579,16 @@ TS.registerModule("constants", {
   var _isValidSlackWebSocketUrl = function(url) {
     var hostname = TS.utility.url.getHostName(url);
     return /\.slack-msgs.com$/.test(hostname);
+  };
+  var _maybeSendDisconnectedMetric = function() {
+    if (_disconnected_timestamp) {
+      var connected_timestamp = performance.now();
+      var disconnected_duration = connected_timestamp - _disconnected_timestamp;
+      var label = _last_disconnect_was_requested_by_server ? "ms_reconnect_after_goodbye_duration" : "ms_reconnect_other_duration";
+      TS.metrics.store(label, disconnected_duration);
+    }
+    _disconnected_timestamp = undefined;
+    _last_disconnect_was_requested_by_server = undefined;
   };
 })();
 (function() {
@@ -17525,7 +17573,8 @@ TS.registerModule("constants", {
         TS.ui.window_focus_changed_sig.remove(deferredGoodbyeHandler);
         if (TS.model.ms_connected) {
           TS.info("goodbye handler: disconnecting now");
-          TS.ms.disconnect();
+          var was_requested_by_server = true;
+          TS.ms.disconnect(was_requested_by_server);
         } else {
           TS.info("goodbye handler: got disconnected some other way before we handled the goodbye message");
         }
@@ -37268,7 +37317,9 @@ var _on_esc;
       TS.model.user.stars = TS.model.user.stars.concat(data.items);
       TS.model.user.stars = _.uniqWith(TS.model.user.stars, _.isEqual);
     }
-    _$member_stars_more_btn.data("ladda") && _$member_stars_more_btn.data("ladda").stop();
+    if (_$member_stars_more_btn.data("ladda")) {
+      _$member_stars_more_btn.data("ladda").stop();
+    }
     TS.stars.has_more = data.paging.pages > data.paging.page;
     if (!args._update) _page++;
     TS.stars.member_stars_fetched_sig.dispatch(null, TS.model.user);
@@ -37367,8 +37418,14 @@ var _on_esc;
     if (TS.client) {
       TS.client.channel_pane.rebuild("channels", "starred");
       var model_ob = TS.shared.getModelObById(channel_id);
-      if (!model_ob) return;
-      starred ? TS.stars.channel_starred_sig.dispatch(model_ob) : TS.stars.channel_unstarred_sig.dispatch(model_ob);
+      if (!model_ob) {
+        return;
+      }
+      if (starred) {
+        TS.stars.channel_starred_sig.dispatch(model_ob);
+      } else {
+        TS.stars.channel_unstarred_sig.dispatch(model_ob);
+      }
     }
   };
   var _updateGroupStar = function(group_id, starred) {
@@ -37937,7 +37994,9 @@ var _on_esc;
     expand_sig: new signals.Signal,
     collapse_sig: new signals.Signal,
     onStart: function() {
-      TS.client && TS.prefs.attachments_with_borders_changed_sig.add(TS.client.msg_pane.rebuildMsgs);
+      if (TS.client) {
+        TS.prefs.attachments_with_borders_changed_sig.add(TS.client.msg_pane.rebuildMsgs);
+      }
     },
     shouldExpand: function(container_id, inline_attachment) {
       if (TS.model.expandable_state["attach_" + container_id + inline_attachment.from_url]) return true;
@@ -40362,7 +40421,11 @@ var _on_esc;
     },
     handleDrag: function(show) {
       if (TS.boot_data.feature_take_profile_photo) {
-        show ? _showImageUpload() : _hideImageUpload();
+        if (show) {
+          _showImageUpload();
+        } else {
+          _hideImageUpload();
+        }
       }
     },
     handleDrop: function(files) {
@@ -44472,7 +44535,9 @@ $.fn.togglify = function(settings) {
         incrementPendingCnt: _incrementPendingCnt,
         decrementPendingCnt: _decrementPendingCnt,
         fetchAndUpdateRxns: _fetchAndUpdateRxns,
-        displayTooManyError: _displayTooManyError
+        displayTooManyError: _displayTooManyError,
+        TOO_MANY_REACTIONS: TOO_MANY_REACTIONS,
+        TOO_MANY_EMOJI: TOO_MANY_EMOJI
       };
     },
     clearHandyRxnsDisplayDataCache: function() {
@@ -48257,7 +48322,9 @@ $.fn.togglify = function(settings) {
       } else {
         $link = $el.find(".attachment_from_url_link");
       }
-      $link[0] && $link[0].click();
+      if ($link[0]) {
+        $link[0].click();
+      }
     }, true);
     TS.click.addClientHandler(".internal_file_list_filter", function(e, $el) {
       e.preventDefault();
@@ -48783,6 +48850,9 @@ $.fn.togglify = function(settings) {
         }
       });
     }
+    TS.click.addClientHandler("[data-js=expert_search_face_pile]", function(e) {
+      if (TS.sli_expert_search) TS.sli_expert_search.handleShowResults(e);
+    });
   };
   var _setupBinding = function() {
     var mousedown_position = {};
@@ -57661,6 +57731,43 @@ $.fn.togglify = function(settings) {
           waitAndAttempt();
         }
       });
+    },
+    getUserRoleLabel: function(user, for_org) {
+      var label_map;
+      var user_role_label;
+      if (for_org) {
+        label_map = {
+          primary_owner: TS.i18n.t("Primary Org Owner", "enterprise_dashboard")(),
+          owner: TS.i18n.t("Org Owner", "enterprise_dashboard")(),
+          admin: TS.i18n.t("Org Admin", "enterprise_dashboard")(),
+          single_channel_guest: TS.i18n.t("Single-Channel Guest", "enterprise_dashboard")(),
+          multi_channel_guest: TS.i18n.t("Multi-Channel Guest", "enterprise_dashboard")(),
+          member: TS.i18n.t("Member", "enterprise_dashboard")()
+        };
+      } else {
+        label_map = {
+          primary_owner: TS.i18n.t("Primary Owner", "enterprise_dashboard")(),
+          owner: TS.i18n.t("Owner", "enterprise_dashboard")(),
+          admin: TS.i18n.t("Admin", "enterprise_dashboard")(),
+          single_channel_guest: TS.i18n.t("Single-Channel Guest", "enterprise_dashboard")(),
+          multi_channel_guest: TS.i18n.t("Multi-Channel Guest", "enterprise_dashboard")(),
+          member: TS.i18n.t("Member", "enterprise_dashboard")()
+        };
+      }
+      if (user.is_ultra_restricted) {
+        user_role_label = label_map.single_channel_guest;
+      } else if (user.is_restricted) {
+        user_role_label = label_map.multi_channel_guest;
+      } else if (user.is_primary_owner) {
+        user_role_label = label_map.primary_owner;
+      } else if (user.is_owner) {
+        user_role_label = label_map.owner;
+      } else if (user.is_admin) {
+        user_role_label = label_map.admin;
+      } else {
+        user_role_label = label_map.member;
+      }
+      return user_role_label;
     }
   });
 })();
@@ -58644,6 +58751,9 @@ $.fn.togglify = function(settings) {
             TS.ui.thread.trackEvent(model_ob.id, thread.root_msg.ts, context, clog_event, {
               num_msg_in_thread: num_msg_in_thread
             });
+            if (should_broadcast_reply) {
+              TS.log(2004, "Submitting broadcast from threads view for " + model_ob.id + "-" + thread.root_msg.ts);
+            }
             TS.client.ui.sendMessage(model_ob, text, thread.root_msg, should_broadcast_reply);
           }
           return null;
@@ -58863,7 +58973,11 @@ $.fn.togglify = function(settings) {
   var _toggleNewReplyIndicatorVisibility = function($thread, is_visible) {
     var $replies = $thread.find(".thread_messages");
     var visibility_class = "show_new_reply_indicator";
-    is_visible ? $replies.addClass(visibility_class) : $replies.removeClass(visibility_class);
+    if (is_visible) {
+      $replies.addClass(visibility_class);
+    } else {
+      $replies.removeClass(visibility_class);
+    }
   };
   var _updateRevealNewRepliesCount = function(thread, $thread) {
     if (!thread || !$thread || !$thread.length) return;
@@ -62572,8 +62686,7 @@ $.fn.togglify = function(settings) {
             }
             var p = s ? oe : Rf(e),
               d = [e, t, n, r, o, c, f, i, a, u];
-            if (p && Yi(d, p), e = d[0],
-              t = d[1], n = d[2], r = d[3], o = d[4], u = d[9] = d[9] === oe ? s ? 0 : e.length : $c(d[9] - l, 0), !u && t & (be | we) && (t &= ~(be | we)), t && t != ge) h = t == be || t == we ? Jo(e, t, u) : t != Ce && t != (ge | Ce) || o.length ? ni.apply(oe, d) : ui(e, t, n, r);
+            if (p && Yi(d, p), e = d[0], t = d[1], n = d[2], r = d[3], o = d[4], u = d[9] = d[9] === oe ? s ? 0 : e.length : $c(d[9] - l, 0), !u && t & (be | we) && (t &= ~(be | we)), t && t != ge) h = t == be || t == we ? Jo(e, t, u) : t != Ce && t != (ge | Ce) || o.length ? ni.apply(oe, d) : ui(e, t, n, r);
             else var h = $o(e, t, n);
             var v = p ? Sf : Af;
             return ea(v(h, d), e, t);
@@ -69151,8 +69264,7 @@ $.fn.togglify = function(settings) {
     h = n(9),
     v = n.n(h),
     m = n(2),
-    g = (n.n(m),
-      n(12)),
+    g = (n.n(m), n(12)),
     _ = n.n(g),
     y = n(96),
     b = function(e) {
@@ -74101,7 +74213,8 @@ $.fn.togglify = function(settings) {
   var b = 1,
     w = {
       construct: function(e) {
-        this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null, this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
+        this._currentElement = e, this._rootNodeID = 0, this._compositeType = null, this._instance = null, this._hostParent = null, this._hostContainerInfo = null, this._updateBatchNumber = null, this._pendingElement = null,
+          this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._renderedNodeType = null, this._renderedComponent = null, this._context = null, this._mountOrder = 0, this._topLevelWrapper = null, this._pendingCallbacks = null, this._calledComponentWillUnmount = !1;
       },
       mountComponent: function(e, t, n, s) {
         this._context = s, this._mountOrder = b++, this._hostParent = t, this._hostContainerInfo = n;
@@ -74155,8 +74268,7 @@ $.fn.togglify = function(settings) {
               var n = this.getName() + ".componentWillUnmount()";
               p.invokeGuardedCallback(n, t.componentWillUnmount.bind(t));
             } else t.componentWillUnmount();
-          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null,
-            this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
+          this._renderedComponent && (v.unmountComponent(this._renderedComponent, e), this._renderedNodeType = null, this._renderedComponent = null, this._instance = null), this._pendingStateQueue = null, this._pendingReplaceState = !1, this._pendingForceUpdate = !1, this._pendingCallbacks = null, this._pendingElement = null, this._context = null, this._rootNodeID = 0, this._topLevelWrapper = null, d.remove(t);
         }
       },
       _maskContext: function(e) {
@@ -78715,3 +78827,51 @@ $.fn.togglify = function(settings) {
     s = n(164);
   window.ReactComponents = {}, window.ReactComponents.EmojiPicker = u.a, window.ReactComponents.Popover = s.a, window.ReactComponents.PopoverTrigger = s.b, window.React = o.a, window.ReactDOM = a.a;
 }]);
+(function() {
+  "use strict";
+  TS.registerModule("sli_expert_search", {
+    sli_expert_search_group: null,
+    onStart: function() {
+      TS.experiment.loadUserAssignments().then(function() {
+        TS.sli_expert_search.sli_expert_search_group = TS.experiment.getGroup("sli_expert_search");
+      });
+    },
+    isEnabled: function() {
+      return TS.sli_expert_search.sli_expert_search_group === "show_experts";
+    },
+    render: function(query, matches) {
+      var html = "";
+      var experts = matches.slice(0, 5);
+      var users_for_cta = _(experts).map(function(expert_group) {
+        return _.map(expert_group.users, function(id) {
+          return TS.members.getMemberById(id);
+        });
+      }).flatten().take(5).value();
+      html += TS.templates.sli_expert_search({
+        users: users_for_cta
+      });
+      var results = _.map(experts, function(expert_group) {
+        var channel_links = _.map(expert_group["channels"], function(channel_id) {
+          var channel_ob = TS.channels.getChannelById(channel_id);
+          return TS.templates.builders.makeChannelLink(channel_ob);
+        });
+        var username_links = _.map(expert_group["users"], function(user_id) {
+          return TS.format.formatDefault("<@" + user_id + ">");
+        });
+        return {
+          users: new Handlebars.SafeString(username_links.join(", ")),
+          channels: new Handlebars.SafeString(channel_links.join(", "))
+        };
+      });
+      html += TS.templates.sli_expert_search_results({
+        terms: query,
+        results: results
+      });
+      return html;
+    },
+    handleShowResults: function(e) {
+      $("[data-js=sli_expert_search_cta]").addClass("hidden");
+      $("[data-js=sli_expert_search]").removeClass("hidden");
+    }
+  });
+})();

@@ -1,0 +1,15 @@
+{{i18n_ns "search"}}
+
+<div class="sli_expert_search hidden" data-js="sli_expert_search">
+  <div class="search_module_header">
+    <p>{{#t}}Experts{{/t}} <a class="sli_expert_search__debug normal tiny" href="http://slack.com/god/search_experts_terms.php?terms={{terms}}&grouped=1">{{#t}}debug{{/t}}</a></p>
+  </div>
+  <div class="sli_expert_search__results">
+    {{#each results}}
+    <div class="sli_expert_search__result">
+      <div class="small">{{#t note="TS-only prototype" users=this.users channels=this.channels}}{users} in {channels}{{/t}}</div>
+    </div>
+    {{/each}}
+  </div>
+  <div class="sli_expert_search_cta__title tiny align_center">{{#t note="This is a TS-only prototype."}}Do you see a problem with these results? <a href="http://slack.com/god/search_experts_terms.php?terms={terms}&grouped=1">Copy this link</a> and post it in <a href="https://tinyspeck.slack.com/messages/C14LGSMHB/">#feedback-sli</a> with a description of what was wrong.{{/t}}</div>
+</div>

@@ -2561,7 +2561,9 @@
     },
     mentionsFetched: function() {
       TS.view.rebuildMentions();
-      $("#member_mentions_more_btn").data("ladda") && $("#member_mentions_more_btn").data("ladda").stop();
+      if ($("#member_mentions_more_btn").data("ladda")) {
+        $("#member_mentions_more_btn").data("ladda").stop();
+      }
     },
     rebuildMentions: function(force) {
       if (!force && TS.model.ui_state.flex_name !== "mentions") return;
@@ -3253,6 +3255,7 @@
         return;
       }
       if (TS.utility.contenteditable.isDisabled(TS.client.ui.$msg_input)) return;
+      if (!TS.client.ui.isUserAttentionOnChat()) return;
       if (TS.model.is_iOS) {
         return;
       }
@@ -14882,8 +14885,6 @@
     },
     188: {
       isDisabled: function(e) {
-        if (!TS.model) true;
-        if (!TS.model.prefs) true;
         if (!TS.model.is_mac) return true;
         if (!TS.model.active_im_id) {
           return false;
@@ -15137,32 +15138,8 @@
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
         }
-        var show_experts = results.messages.modules && results.messages.modules.experts && results.messages.modules.experts.matches;
-        if (show_experts) {
-          var terms = TS.search.query;
-          var experts = results.messages.modules.experts.matches.slice(0, 5);
-          html += '<div class="search_module_header"><p><span>Experts <a href="http://slack.com/god/search_experts_terms.php?terms=' + terms + '&grouped=1">debug</a></span></p></div>';
-          html += '<div class="search_results_items">';
-          _.forEach(experts, function(expert_group) {
-            var channels = _.map(expert_group["channels"], function(encoded_channel) {
-              return TS.channels.getChannelById(encoded_channel) || {
-                name: encoded_channel
-              };
-            });
-            var users = _.map(expert_group["users"], function(encoded_user) {
-              return TS.members.getMemberById(encoded_user) || {
-                name: encoded_user
-              };
-            });
-            var user_names = _.map(users, function(user) {
-              return "@" + user["name"];
-            });
-            var channel_names = _.map(channels, function(channel) {
-              return "#" + channel["name"];
-            });
-            html += '<div class="search_message_result">' + "<p>" + user_names.join(", ") + " in " + channel_names.join(", ") + "</p></div>";
-          });
-          html += "</div>";
+        if (_.get(results, "messages.modules.experts.matches") && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
+          html += TS.sli_expert_search.render(TS.search.query, results.messages.modules.experts.matches);
         }
         show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
         if (show_top_results) {
@@ -26950,7 +26927,11 @@
         timezone_count: timezone_count
       });
       $div.html(html);
-      fullsize ? $div.addClass("fullsize") : $div.removeClass("fullsize");
+      if (fullsize) {
+        $div.addClass("fullsize");
+      } else {
+        $div.removeClass("fullsize");
+      }
       $div.modal("show");
       TS.ui.a11y.saveCurrentFocusAndFocusOnElement($div);
       $div.find(".dialog_cancel").click(TS.ui.at_channel_warning_dialog.cancel);
@@ -30399,7 +30380,7 @@
             var mpims_matches = _filtered_mpims;
             if (query) {
               exact_name_matches = _.remove(matches, function(match) {
-                match.member && match.member.name === query;
+                return match.member && match.member.name === query;
               });
               mpims_matches = _filtered_mpims.filter(function(item) {
                 return item.members && TS.mpims.checkMpimMatch(item.model_ob, prefix_regexes, suffix_regexes);
@@ -35777,19 +35758,29 @@ function timezones_guess() {
       }
     },
     closePopup: function() {
-      window.BoxSelect && _getBoxSelect().closePopup();
+      if (window.BoxSelect) {
+        _getBoxSelect().closePopup();
+      }
     },
     success: function(callback) {
-      window.BoxSelect && _getBoxSelect().success(callback);
+      if (window.BoxSelect) {
+        _getBoxSelect().success(callback);
+      }
     },
     cancel: function(callback) {
-      window.BoxSelect && _getBoxSelect().cancel(callback);
+      if (window.BoxSelect) {
+        _getBoxSelect().cancel(callback);
+      }
     },
     unregister: function() {
-      window.BoxSelect && _getBoxSelect().unregister.apply(_getBoxSelect(), arguments);
+      if (window.BoxSelect) {
+        _getBoxSelect().unregister.apply(_getBoxSelect(), arguments);
+      }
     },
     isBrowserSupported: function() {
-      return window.BoxSelect && _getBoxSelect().isBrowserSupported();
+      if (window.BoxSelect) {
+        return _getBoxSelect().isBrowserSupported();
+      }
     },
     test: function() {
       return {
@@ -40215,6 +40206,9 @@ function timezones_guess() {
             TS.ui.thread.trackEvent(model_ob.id, root_msg.ts, "convo", clog_event, {
               num_msg_in_thread: num_msg_in_thread
             });
+            if (should_broadcast_reply) {
+              TS.log(2004, "Submitting broadcast from flexpane for " + model_ob.id + "-" + root_msg.ts);
+            }
             TS.client.ui.sendMessage(model_ob, text, root_msg, should_broadcast_reply);
           }
         },
@@ -40746,6 +40740,22 @@ function timezones_guess() {
     }).click(function(e) {
       TS.ui.replies.focusReplyInput();
     });
+    if (TS.console.shouldLog(2004)) {
+      var $toggle = $reply_container.find(".reply_broadcast_toggle");
+      $toggle.change(function() {
+        var checked = $(this).prop("checked");
+        if (checked) {
+          TS.log(2004, "Broadcast toggle checked");
+        } else {
+          TS.log(2004, "Broadcast toggle un-checked");
+        }
+      });
+      $toggle.closest("label").mousedown(function() {
+        TS.log(2004, "mousedown on broadcast toggle");
+      }).keydown(function() {
+        TS.log(2004, "keydown on broadcast toggle");
+      });
+    }
   };
   var _updateHeaderData = function(root_msg) {
     if (!root_msg) return;

@@ -739,11 +739,11 @@
   };
   var _maybeDeferArchivedObjects = function(resp) {
     TS.model.deferred_archived_channels = _.filter(resp.data.channels, function(c) {
-      c.is_archived && !TS.channels.lookupById(c.id);
+      return c.is_archived && !TS.channels.lookupById(c.id);
     });
     resp.data.channels = _.difference(resp.data.channels, TS.model.deferred_archived_channels);
     TS.model.deferred_archived_groups = _.filter(resp.data.groups, function(g) {
-      g.is_archived && !TS.groups.lookupById(g.id);
+      return g.is_archived && !TS.groups.lookupById(g.id);
     });
     resp.data.groups = _.difference(resp.data.groups, TS.model.deferred_archived_groups);
   };

@@ -14870,6 +14870,78 @@ body.winssb .search_result_with_extract {
   display: block
 }
 
+.sli_expert_search {
+  margin-bottom: 1.75rem
+}
+
+.sli_expert_search__debug {
+  position: absolute;
+  right: 1.5rem
+}
+
+.sli_expert_search__results {
+  padding: 0 .5rem;
+  margin-bottom: .5rem;
+  font-family: Slack-Lato, appleLogo, sans-serif
+}
+
+.sli_expert_search__result {
+  display: flex;
+  padding: .5rem;
+  border: 1px solid #f2f2f5;
+  border-top: none
+}
+
+.sli_expert_search__result:first-child {
+  border-top: 1px solid #f2f2f5;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px
+}
+
+.sli_expert_search__result:last-child {
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px
+}
+
+.sli_expert_search_cta {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  margin-bottom: 1.75rem
+}
+
+.sli_expert_search_cta__title {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  margin: 0 .5rem
+}
+
+.sli_expert_search_cta__feedback {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  margin: 0 1.5rem
+}
+
+.sli_expert_search_cta__face_pile {
+  padding: .5rem;
+  margin: 0 .5rem;
+  border: 1px solid #f2f2f5;
+  border-radius: 4px;
+  cursor: pointer
+}
+
+.sli_expert_search_cta__face_pile:hover {
+  border-color: rgba(160, 160, 162, .6)
+}
+
+.sli_expert_search_cta__face_pile:hover a {
+  text-decoration: underline
+}
+
+.sli_expert_search_cta__show_results {
+  display: inline-block;
+  margin-left: .5rem;
+  vertical-align: top;
+  height: 1.5rem;
+  line-height: 1.5rem
+}
+
 .pickmeup {
   background: #fff;
   border-radius: .25rem;
@@ -19751,7 +19823,7 @@ ts-message .broadcast_repliers .repliers_icon {
   vertical-align: middle
 }
 
-ts-message.thread_broadcast .message_content_header {
+.dense_theme ts-message.thread_broadcast .message_content_header {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -19764,18 +19836,12 @@ ts-message.thread_broadcast .message_content_header {
   justify-content: flex-start
 }
 
-ts-message.thread_broadcast .message_content_header .message_content_header_left {
-  -ms-flex: 0;
-  -webkit-flex: 0;
-  flex: 0;
+.dense_theme ts-message.thread_broadcast .message_content_header .message_content_header_left {
   white-space: nowrap
 }
 
 .light_theme ts-message.thread_broadcast .message_content_header {
-  -ms-flex-direction: column;
-  -moz-flex-direction: column;
-  -webkit-flex-direction: column;
-  flex-direction: column
+  display: block
 }
 
 ts-message .theme_installer_btn {
