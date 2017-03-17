@@ -117,7 +117,21 @@
       }
     },
     getStackTrace: function() {
+      var is_dev = _.get(TS, "boot_data.version_ts") === "dev" || _.get(TS, "qs_args.js_path");
       var stack = (new Error).stack;
+      if (is_dev) {
+        var temp_error = new Error;
+        var temp_promise = Promise.resolve();
+        if (_.isFunction(temp_promise._attachExtraTrace)) {
+          temp_promise._attachExtraTrace(temp_error);
+          stack = temp_error.stack || "";
+          var split_stack = stack.split("\n");
+          if (split_stack.length && split_stack.indexOf("From previous event:") >= 0) {
+            var slice_index = split_stack.indexOf("From previous event:") + 1;
+            stack = [split_stack[0]].concat(split_stack.slice(slice_index)).join("\n");
+          }
+        }
+      }
       var bits;
       if (!stack) {
         bits = ["no stacktrace available"];
@@ -240,9 +254,7 @@
   var _features_module = window.TS && TS.features;
   var _guid = 0;
   var _fully_booted_p_resolve;
-  var _fully_booted_p = new Promise(function(resolve) {
-    _fully_booted_p_resolve = resolve;
-  });
+  var _fully_booted_p;
   window.TS = {
     boot_data: {},
     qs_args: {},
@@ -259,6 +271,10 @@
       }
     },
     boot: function(boot_data) {
+      _configureBluebirdBeforeFirstUse(boot_data);
+      _fully_booted_p = new Promise(function(resolve) {
+        _fully_booted_p_resolve = resolve;
+      });
       TS.boot_data = boot_data;
       if (TS.boot_data.is_in_flannel_experiment) {
         var byte_counting_duration = 10 * 60 * 1e3;
@@ -273,7 +289,6 @@
       }
       TS.console.onStart();
       if (TS.client) TS.client.setClientLoadWatchdogTimer();
-      _configureBluebirdBeforeFirstUse(boot_data);
       TS.model.api_url = TS.boot_data.api_url;
       TS.model.async_api_url = TS.boot_data.async_api_url;
       TS.model.api_token = TS.boot_data.api_token;

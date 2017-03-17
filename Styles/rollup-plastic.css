@@ -6636,7 +6636,11 @@ code.special_formatting a {
   code:after,
   code:before {
     letter-spacing: -.25rem;
-    content: "\00a0"
+    content: "\00a0";
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text
   }
   pre code:after,
   pre code:before {
