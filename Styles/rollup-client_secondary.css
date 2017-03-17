@@ -14894,7 +14894,7 @@ body.winssb .search_result_with_extract {
 
 .sli_expert_search__debug {
   position: absolute;
-  right: 1.5rem
+  right: .5rem
 }
 
 .sli_expert_search__results {
@@ -19841,6 +19841,10 @@ ts-message .broadcast_repliers .repliers_icon {
   vertical-align: middle
 }
 
+ts-message .broadcast_repliers .repliers_icon:before {
+  font-size: .875rem
+}
+
 .dense_theme ts-message.thread_broadcast .message_content_header {
   display: -webkit-box;
   display: -webkit-flex;
@@ -22196,8 +22200,7 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   display: inline-block;
   margin-bottom: 8px;
   margin-right: 8px;
-  vertical-align: middle;
-  width: calc(100% - 32px)
+  vertical-align: middle
 }
 
 .attachment_group .attachment_actions_buttons .select_attachment.disabled {
@@ -24621,7 +24624,8 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .current_status_input_for_team_menu .current_status_presets .current_status_presets_section_header .header_label {
-  text-transform: none
+  text-transform: none;
+  color: #717274
 }
 
 .current_status_input_for_team_menu .current_status_presets .current_status_preset_option {
@@ -28176,7 +28180,7 @@ ts-thread .thread_participants {
   border: 1px solid #CDCDCE;
   border-radius: 4px;
   box-shadow: 1px 1px 4px rgba(0, 0, 0, .1);
-  background-color: #fff
+  background-color: #FFF
 }
 
 .sli_briefing__message ts-message .message_body {

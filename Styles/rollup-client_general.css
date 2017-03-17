@@ -4860,6 +4860,10 @@ a.link_btn {
   font-weight: 400
 }
 
+.basic_share_dialog #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .current_status {
+  margin-left: .3rem
+}
+
 .basic_share_dialog #file_sharing_div .lazy_filter_select .lfs_list_container .share_prefix {
   display: none
 }
@@ -7762,7 +7766,8 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  max-width: 15.625rem
+  max-width: 15.625rem;
+  min-width: 9.375rem
 }
 
 .lazy_filter_select.single.filter_in_list_style ._input_style {
@@ -7774,8 +7779,7 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container {
-  padding: 0;
-  width: 9.375rem
+  padding: 0
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_input,
@@ -7801,6 +7805,11 @@ ts-inline-saver.failed .failed {
   line-height: 1;
   right: .3125rem;
   top: .3125rem
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container {
+  max-width: 21.875rem;
+  min-width: 15.625rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_filter_input {

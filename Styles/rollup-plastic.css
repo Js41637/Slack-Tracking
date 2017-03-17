@@ -16772,7 +16772,8 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  max-width: 15.625rem
+  max-width: 15.625rem;
+  min-width: 9.375rem
 }
 
 .lazy_filter_select.single.filter_in_list_style ._input_style {
@@ -16784,8 +16785,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container {
-  padding: 0;
-  width: 9.375rem
+  padding: 0
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_input,
@@ -16811,6 +16811,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   line-height: 1;
   right: .3125rem;
   top: .3125rem
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container {
+  max-width: 21.875rem;
+  min-width: 15.625rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_filter_input {

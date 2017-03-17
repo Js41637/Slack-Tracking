@@ -8,6 +8,7 @@
       data-ts="{{item.message.ts}}"
       {{#if is_message}}
         data-thread-ts="{{item.message.thread_ts}}"
+        {{#if is_broadcast}}data-is-broadcast="{{is_broadcast}}"{{/if}}
       {{/if}}
       data-file-id="{{item.file.id}}"
       data-comment-id="{{item.comment.id}}"

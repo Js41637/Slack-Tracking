@@ -174,10 +174,9 @@
           }}</span>
         {{/if}}{{!
         }}{{#if attachment._attribution}}{{!
-          }}{{#t}}Added by{{/t}}
-          <a {{makeRefererSafeLink url=attachment._attribution_url}} class="attachment_attribution" data-attribution-bot-id="{{attachment.bot_id}}">{{!
-            }}{{attachment._attribution}}{{!
-          }}</a>{{!
+          }}<span class="attachment_attribution">{{!
+            }}{{#t}}Added by{{/t}} <a {{makeRefererSafeLink url=attachment._attribution_url}} data-attribution-bot-id="{{attachment.bot_id}}">{{attachment._attribution}}</a>{{!
+          }}</span>{{!
         }}{{/if}}
         {{#if_equal caret_location compare='footer'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}
         {{#if_equal caret_location compare='ts'}}{{attachmentMediaCaret attachment msg_dom_id}}{{/if_equal}}

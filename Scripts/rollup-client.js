@@ -15137,8 +15137,8 @@
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
         }
-        if (_.get(results, "messages.modules.experts.matches.length") && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
-          html += TS.sli_expert_search.render(TS.search.query, results.messages.modules.experts.matches);
+        if ((_.get(results, "experts.length") || _.get(results, "channels.length")) && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
+          html += TS.sli_expert_search.render(TS.search.query, results.experts, results.channels);
         }
         show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
         if (show_top_results) {
@@ -28081,6 +28081,7 @@
           template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, pinned_item.message.ts, pinned_item.message.thread_ts);
           template_args.is_bot = is_bot;
           template_args.is_reply = msg.thread_ts && msg.thread_ts != msg.ts;
+          template_args.is_broadcast = TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast";
           template_args.app_id = app_id;
           template_args.bot_id = bot_id;
         } else if (pinned_item.type === "file") {
@@ -28263,6 +28264,7 @@
       var ts = $(this).data("ts");
       var file_id = $(this).data("file-id");
       var thread_ts = $(this).attr("data-thread-ts");
+      var is_broadcast = $(this).data("is-broadcast");
       var origin = "channel_page";
       if (model_ob.is_im || model_ob.is_mpim) {
         origin = "im_page";
@@ -28270,10 +28272,14 @@
         origin = "group_page";
       }
       if (type === "message") {
-        if (thread_ts && thread_ts != ts) {
+        if (thread_ts && thread_ts != ts && !is_broadcast) {
           TS.ui.replies.openConversation(model_ob, thread_ts, ts, origin);
         } else {
-          TS.client.ui.tryToJump(model_ob.id, ts.toString());
+          if (TS.boot_data.feature_new_broadcast) {
+            TS.view.displayMsgInModelOb(model_ob, ts);
+          } else {
+            TS.client.ui.tryToJump(model_ob.id, ts.toString());
+          }
         }
       } else if (type === "file" || type === "file_comment") {
         TS.client.ui.files.previewFile(file_id, origin);
