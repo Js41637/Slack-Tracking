@@ -4570,7 +4570,7 @@
     var api_endpoint = model_ob.is_group ? "groups.info" : "channels.info";
     _membership_counts_api_promises[model_ob.id] = rate_limit_p.then(function() {
       TS.log(1989, "Channel member counts (" + model_ob.id + "): fetching counts from API");
-      if (TS.lazyLoadMembersAndBots() && TS.boot_data.feature_flannel_channel_counts) {
+      if (TS.lazyLoadMembersAndBots()) {
         return TS.flannel.fetchMembershipCountsForChannel(model_ob.id).then(function(counts) {
           TS.log(1989, "Channel member counts from flannel (" + model_ob.id + "): " + JSON.stringify(counts));
           return {
@@ -21213,15 +21213,15 @@ TS.registerModule("constants", {
       if (!channel) return "ERROR: MISSING CHANNEL";
       var shared_icon = "";
       if (TS.model.shared_channels_enabled && channel.is_shared) {
-        shared_icon = TS.templates.shared_channel_icon({
+        shared_icon = _.trim(TS.templates.shared_channel_icon({
           tooltip: show_tooltip,
           tooltip_position: tooltip_position
-        });
+        }));
       }
       var name_for_url = TS.utility.getChannelName(channel);
       var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
       var prefix = TS.templates.builders.makeChannelPrefix(channel);
-      return '<a href="/archives/' + name_for_url + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + shared_icon + "</a>";
+      return '<a href="/archives/' + name_for_url + '" ' + target + ' class="channel_link" data-channel-id="' + channel.id + '">' + (omit_prefix ? "" : prefix) + channel.name + " " + shared_icon + "</a>";
     },
     makeChannelLinkEnterpriseSearchResult: function(result) {
       var href = result.permalink;
@@ -79065,7 +79065,7 @@ $.fn.togglify = function(settings) {
         return _.map(expert_group.users, function(id) {
           return TS.members.getMemberById(id);
         });
-      }).flatten().take(5).value();
+      }).flatten().uniqBy("id").take(5).value();
       html += TS.templates.sli_expert_search({
         query: query,
         users: users_for_cta
