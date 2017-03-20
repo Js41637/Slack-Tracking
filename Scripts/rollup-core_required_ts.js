@@ -41,6 +41,7 @@
   TS.console = {
     onStart: function() {
       TS.console.setAppropriatePri(true);
+      TS.console.watchForErrors();
     },
     setAppropriatePri: function(use_boot) {
       var pri = "";
@@ -57,6 +58,11 @@
       pri += "0";
       TS.pri = _.uniq(pri.split(",")).join(",");
       _determineKeysToCheck();
+    },
+    watchForErrors: function() {
+      if (!TS.boot_data || !TS.boot_data.feature_tinyspeck) return;
+      var capture = true;
+      window.addEventListener("error", _windowErrorHandler, capture);
     },
     log: function(pri) {
       _console("log", pri, arguments);
@@ -76,7 +82,7 @@
     maybeError: function(pri) {
       _console("error", pri, arguments);
     },
-    logError: function(e, desc, subtype) {
+    logError: function(e, desc, subtype, silent) {
       var error = e instanceof Error ? e : new Error;
       var error_json = {
         subtype: subtype ? subtype : "none",
@@ -86,7 +92,7 @@
         stack: error.stack || error.backtrace || error.stacktrace
       };
       _beaconError(error_json, desc);
-      if (window.console && console.error) console.error(TS.makeLogDate() + "logging e:" + e + " e.stack:" + e.stack + " desc:" + desc + " e.message:" + e.message);
+      if (!silent && window.console && console.error) console.error(TS.makeLogDate() + "logging " + (e ? "e: " + e : "") + (e && e.stack ? " e.stack: " + e.stack : "") + (desc ? " desc: " + desc : "") + (e && e.message ? " e.message: " + e.message : ""));
     },
     dir: function(pri, ob, txt) {
       if (!window.console || !console.dir) return;
@@ -165,7 +171,8 @@
     },
     test: function() {
       return {
-        _maybeRedactFields: _maybeRedactFields
+        _maybeRedactFields: _maybeRedactFields,
+        _windowErrorHandler: _windowErrorHandler
       };
     }
   };
@@ -224,6 +231,31 @@
       return result;
     };
   }(this);
+  var _windowErrorHandler = function() {
+    var err = arguments && arguments[0];
+    var node;
+    var details = "";
+    var msg;
+    if (!err) return;
+    details = "";
+    node = err.srcElement || err.target;
+    if (node && node.nodeName && node.nodeName.match(/script/i)) {
+      details = (err.type || "error") + " from script at " + node.src + " (failed to load?)";
+    }
+    if (err.error && err.error.stack) {
+      details += err.error.stack;
+    } else if (err.filename) {
+      details = " from " + err.filename + (err.lineno ? " @ line " + err.lineno + ", col " + err.colno : "");
+    }
+    msg = (!err.error || !err.error.stack ? err.message || "" : "") + " " + details;
+    msg = "🐞 " + msg.replace(/\s+/g, " ").trim();
+    (TS.console && TS.console.error || window.console.error || function() {})(msg);
+    var subtype = null;
+    var silent = false;
+    TS.console.logError(err.error || err, msg, subtype, silent);
+    node = null;
+    msg = null;
+  };
 })();
 (function() {
   "use strict";
@@ -405,7 +437,7 @@
       TS.console.error.apply(this, [].slice.call(arguments, 0));
       return;
     },
-    logError: function(e, desc, subtype) {
+    logError: function(e, desc, subtype, silent) {
       TS.console.logError.apply(this, [].slice.call(arguments, 0));
       return;
     },
