@@ -4194,6 +4194,9 @@
               if (immediate_caller.indexOf("at Function.$.widget.extend") === 0) {
                 return [];
               }
+              if (immediate_caller.indexOf("at Object.extend") === 0) {
+                return [];
+              }
               _logMembersAccess(channel, immediate_caller);
               TS.warn("Thin channel membership is enabled, but someone tried to access .members on a channel object; returning empty array");
               TS.info(stack);
@@ -4282,7 +4285,7 @@
     _maybeSetSharedTeams(channel);
   };
   var _logMembersAccess = function(channel, immediate_caller) {
-    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 1;
+    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 2;
     TS.metrics.count("tcm_members_access_v" + THIN_CHANNEL_MEMBERSHIP_FIX_VERSION);
     var info = {
       message: ".members accessed on " + channel.id,
@@ -4381,9 +4384,7 @@
       if (!TS.lazyLoadMembersAndBots()) {
         return false;
       }
-      if (!TS.boot_data.feature_thin_channel_membership) return false;
-      if (TS.boot_data.feature_tinyspeck) return !!_.get(TS, "model.prefs.thin_channel_membership_fe");
-      return true;
+      return !!TS.boot_data.feature_thin_channel_membership;
     },
     lazyLoadGroupMembership: function() {
       return false;
@@ -22694,6 +22695,7 @@ TS.registerModule("constants", {
     var html_attrs = {};
     var attributes = [];
     var class_names = [];
+    class_names = ["star", "ts_icon", "ts_icon_star_o", "ts_icon_inherit"];
     var position_class_name = "ts_tip_top";
     var id = ob.id || ob.ts;
     var parent_id = parent_ob ? parent_ob.id : null;
@@ -22728,7 +22730,7 @@ TS.registerModule("constants", {
       TS.error("buildStar needs to handle star item type:" + type);
       return {};
     }
-    class_names = ["star", "ts_icon", "ts_icon_star_o", "ts_icon_inherit", position_class_name];
+    class_names = _.concat(class_names, position_class_name);
     if (ob.is_starred) {
       class_names.push("starred", "ts_icon_star");
       class_names.splice(class_names.indexOf("ts_icon_star_o"), 1);
@@ -33439,9 +33441,6 @@ var _on_esc;
         TS.view.resizeManually("TS.key_triggers");
         var txt = "in:" + TS.shared.getActiveModelOb().name + " ";
         TS.search.setInputVal(txt);
-      } else if (id == "channel_rename_item") {
-        e.preventDefault();
-        TS.ui.channel_create_dialog.start(TS.menu.channel.channel.name, TS.menu.channel.channel);
       } else if (id == "channel_purpose_item") {
         e.preventDefault();
         TS.ui.purpose_dialog.start(TS.menu.channel.channel.name, TS.menu.channel.channel);
@@ -36074,7 +36073,10 @@ var _on_esc;
             return;
           }
         }
-        TS.ui.channel_create_dialog.start(TS.utility.htmlEntities(rest) || model_ob.name, model_ob);
+        var next_name = TS.utility.htmlEntities(rest) || model_ob.name;
+        TS.ui.channel_options_dialog.start(model_ob.id, "rename", {
+          name: next_name
+        });
       }
     },
     "/beep": {
@@ -37108,6 +37110,8 @@ var _on_esc;
             return star.message.ts === item.message.ts;
           case "file":
             return star.file.id === item.file_id;
+          case "file_comment":
+            return star.comment.id === item.comment.id;
         }
         return false;
       });
@@ -37121,6 +37125,9 @@ var _on_esc;
       } else if (item.type == "message") {
         selector = '.star_item .message[data-ts="' + item.message.ts + '"]';
         $star = $(selector).parent(".star_item");
+      } else if (item.type === "file_comment") {
+        selector = '.star_item .star_comment[data-comment-id="' + item.comment.id + '"]';
+        $star = $(selector).parents(".star_item");
       } else {
         return;
       }
@@ -39712,7 +39719,6 @@ var _on_esc;
   TS.registerModule("ui.fs_modal", {
     is_showing: false,
     transition_duration: 250,
-    onStart: function() {},
     start: function(settings) {
       if (TS.ui.fs_modal.is_showing) return void _swap(settings);
       _current_settings = _.defaults({}, settings, _default_settings);
@@ -43073,6 +43079,14 @@ var _on_esc;
         ladda.stop();
       });
     });
+    $container.on("click", '[data-qa="ws-request-new-team"]', function(e) {
+      e.stopPropagation();
+      var enabled;
+      if (TS.boot_data.feature_workspace_request) {
+        enabled = _.get(TS.boot_data, "enterprise_prefs.org_prefs.enterprise_team_creation_request.is_enabled") && !TS.model.user.is_restricted;
+      }
+      if (enabled) TS.enterprise.workspaces.showRequestDialog();
+    });
   };
 })();
 (function() {
@@ -45121,7 +45135,6 @@ $.fn.togglify = function(settings) {
 (function() {
   "use strict";
   TS.registerModule("ui.new_channel_modal", {
-    onStart: function() {},
     start: function(title, is_public, preselected_ids) {
       if (!TS.permissions.members.canCreateChannels() && !TS.permissions.members.canCreateGroups()) return;
       TS.ui.fs_modal.start({
@@ -64276,9 +64289,10 @@ $.fn.togglify = function(settings) {
 
           function qs(e, t) {
             var n = {};
-            return t = ki(t, 3), nr(e, function(e, r, o) {
-              jn(n, t(e, r, o), e);
-            }), n;
+            return t = ki(t, 3),
+              nr(e, function(e, r, o) {
+                jn(n, t(e, r, o), e);
+              }), n;
           }
 
           function Ks(e, t) {
@@ -69016,7 +69030,8 @@ $.fn.togglify = function(settings) {
             n = e.scrollToColumn,
             r = e.scrollTop,
             o = e.scrollToRow;
-          this._scrollbarSizeMeasured || (this._scrollbarSize = x()(), this._scrollbarSizeMeasured = !0, this.setState({})), (t >= 0 || r >= 0) && this._setScrollPosition({
+          this._scrollbarSizeMeasured || (this._scrollbarSize = x()(),
+            this._scrollbarSizeMeasured = !0, this.setState({})), (t >= 0 || r >= 0) && this._setScrollPosition({
             scrollLeft: t,
             scrollTop: r
           }), (n >= 0 || o >= 0) && (this._updateScrollLeftForScrollToColumn(), this._updateScrollTopForScrollToRow()), this._invokeOnGridRenderedHelper(), this._invokeOnScrollMemoizer({

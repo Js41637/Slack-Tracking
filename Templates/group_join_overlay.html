@@ -32,11 +32,6 @@
         <li>{{#t inviter=(makeMemberPreviewLinkById group.inviter)}}You were invited to this channel by {inviter}.{{/t}}</li>
       {{/if}}
     {{/if}}
-    {{#if_equal group.active_members.length compare=1}}
-      <li>{{#t}}You are currently the only member of this channel.{{/t}}</li>
-    {{else}}
-      <li>{{#t group_names=(listify (getDisplayNames group.active_members) no_escape=true)}}The members are {group_names}.{{/t}}</li>
-    {{/if_equal}}
     <li>{{#t}}Only members can open the channel and they are the only ones to have access to the archives.{{/t}}</li>
     <li>{{#t}}You can invite more members from the channel menu.{{/t}}</li>
   </ul>

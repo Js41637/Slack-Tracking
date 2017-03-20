@@ -20,11 +20,6 @@
     </p>
   </div>
   <ul>
-    {{#if_gt group.active_members.length compare=1}}
-      <li>{{#t}}{group.active_members.length} people have this private channel open.{{/t}}</li>
-    {{else}}
-      <li>{{#t}}You are currently the only person in this private channel.{{/t}}</li>
-    {{/if_gt}}
     <li>{{#t}}You can invite other people from the channel menu, which you'll find at the top of this column.{{/t}}</li>
     <li>{{#t new_win_name=(newWindowName)}}You can review messages from this channel in the <a href="/archives/{name_for_url}" class="bold" target={new_win_name}>Channel Archive</a>.{{/t}}</li>
   </ul>

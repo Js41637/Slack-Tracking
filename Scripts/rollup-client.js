@@ -15153,7 +15153,7 @@
             TS.search.view.waiting_on_page = TS.search.view.current_messages_page;
           }
         }
-        if ((_.get(results, "experts.length") || _.get(results, "channels.length")) && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
+        if (_.get(results, "experts.length") && TS.sli_expert_search && TS.sli_expert_search.isEnabled()) {
           html += TS.sli_expert_search.render(TS.search.query, results.experts, results.channels);
         }
         show_top_results = TS.search.sort == "timestamp" && results.messages.modules && results.messages.modules.score && results.messages.modules.score.top_results && TS.search.view.current_messages_page == 1;
@@ -19183,129 +19183,6 @@
       append_to: "#header_search_form",
       data: data
     });
-  });
-})();
-(function() {
-  "use strict";
-  TS.registerModule("ui.channel_create_dialog", {
-    div: null,
-    showing: false,
-    is_edit: false,
-    model_ob: null,
-    ladda: null,
-    onStart: function() {},
-    onKeydown: function(e) {
-      if (e.which == TS.utility.keymap.enter) {
-        TS.ui.channel_create_dialog.go();
-        e.preventDefault();
-      } else if (e.which == TS.utility.keymap.esc) {
-        TS.ui.channel_create_dialog.cancel();
-      }
-    },
-    start: function(title, model_ob) {
-      if (TS.client.ui.checkForEditing()) return;
-      if (model_ob) {
-        if (TS.model.user.is_restricted) return;
-        TS.ui.channel_create_dialog.is_edit = true;
-        TS.ui.channel_create_dialog.model_ob = model_ob;
-      } else {
-        if (!TS.permissions.members.canCreateChannels()) return;
-        TS.ui.channel_create_dialog.is_edit = false;
-        TS.ui.channel_create_dialog.model_ob = null;
-      }
-      title = TS.utility.cleanChannelName(title || "").substr(0, TS.model.channel_name_max_length);
-      if (!TS.ui.channel_create_dialog.div) TS.ui.channel_create_dialog.build();
-      var div = TS.ui.channel_create_dialog.div;
-      var html = TS.templates.channel_create_dialog({
-        title: title,
-        is_edit: TS.ui.channel_create_dialog.is_edit,
-        is_group: TS.ui.channel_create_dialog.model_ob && TS.ui.channel_create_dialog.model_ob.is_group,
-        hide_private_group_option: !TS.permissions.members.canCreateGroups()
-      });
-      div.empty();
-      div.html(html);
-      div.find(".dialog_cancel").click(TS.ui.channel_create_dialog.cancel);
-      div.find(".dialog_go").click(TS.ui.channel_create_dialog.go);
-      div.modal("show");
-    },
-    showNameTakenAlert: function() {
-      var div = TS.ui.channel_create_dialog.div;
-      TS.channels.ui.channelCreateDialogShowNameTakenAlert(div);
-    },
-    go: function() {
-      if (!TS.ui.channel_create_dialog.showing) {
-        TS.error("not showing?");
-        return;
-      }
-      var div = TS.ui.channel_create_dialog.div;
-      var validated = TS.channels.ui.channelCreateDialogValidateInput(div);
-      if (!validated) return;
-      var title = div.find(".title_input").val();
-      var purpose = $.trim(div.find("#channel_purpose_input").val());
-      if (TS.ui.channel_create_dialog.ladda) TS.ui.channel_create_dialog.ladda.start();
-      if (TS.ui.channel_create_dialog.is_edit) {
-        var method = TS.ui.channel_create_dialog.model_ob.is_channel ? "channels.rename" : "groups.rename";
-        TS.api.callImmediately(method, {
-          name: title,
-          channel: TS.ui.channel_create_dialog.model_ob.id
-        }, function(ok, data, args) {
-          if (TS.ui.channel_create_dialog.ladda) TS.ui.channel_create_dialog.ladda.stop();
-          if (!ok) {
-            if (data.error == "name_taken") {
-              TS.ui.channel_create_dialog.showNameTakenAlert();
-            } else {
-              alert("failed! " + data.error);
-            }
-            return;
-          }
-          div.modal("hide");
-        });
-      } else {
-        TS.channels.join(title, function(ok, data, args) {
-          if (TS.ui.channel_create_dialog.ladda) TS.ui.channel_create_dialog.ladda.stop();
-          if (!ok) {
-            if (data.error == "name_taken") {
-              TS.ui.channel_create_dialog.showNameTakenAlert();
-            } else if (data.error == "restricted_action") {} else {
-              TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong.", "channels")());
-              TS.error(data.error);
-            }
-            return;
-          }
-          if (purpose) TS.channels.setPurpose(data.channel.id, purpose);
-          div.modal("hide");
-        });
-      }
-    },
-    cancel: function() {
-      TS.ui.channel_create_dialog.div.modal("hide");
-    },
-    end: function() {
-      TS.ui.channel_create_dialog.showing = TS.model.dialog_is_showing = false;
-      $(window.document).unbind("keydown", TS.ui.channel_create_dialog.onKeydown);
-    },
-    build: function() {
-      $("body").append('<div id="channel_create_dialog" class="modal hide fade"></div>');
-      var div = TS.ui.channel_create_dialog.div = $("#channel_create_dialog");
-      div.on("hide", function(e) {
-        if (e.target != this) return;
-        TS.ui.channel_create_dialog.end();
-        div.removeAttr("data-qa");
-      });
-      div.on("show", function(e) {
-        if (e.target != this) return;
-        TS.ui.channel_create_dialog.showing = TS.model.dialog_is_showing = true;
-      });
-      div.on("shown", function(e) {
-        if (e.target != this) return;
-        setTimeout(function() {
-          div.find(".title_input").select();
-          $(window.document).bind("keydown", TS.ui.channel_create_dialog.onKeydown);
-          div.attr("data-qa", "channel_create_dialog_ready");
-        }, 100);
-        TS.ui.channel_create_dialog.ladda = Ladda.create(div.find(".dialog_go")[0]);
-      });
-    }
   });
 })();
 (function() {
@@ -25137,14 +25014,16 @@
     c_id: null,
     ladda: null,
     preselected_section: null,
+    params: null,
     onKeydown: function(e) {
       if (!TS.ui.channel_options_dialog.showing) return;
       if (e.which === TS.utility.keymap.esc) TS.ui.channel_options_dialog.cancel();
     },
-    start: function(c_id, section) {
+    start: function(c_id, section, params) {
       TS.ui.channel_options_dialog.ladda = null;
       TS.ui.channel_options_dialog.c_id = c_id;
       TS.ui.channel_options_dialog.preselected_section = section;
+      TS.ui.channel_options_dialog.params = params;
       _start();
     },
     go: function() {
@@ -25161,6 +25040,7 @@
     end: function() {
       TS.ui.channel_options_dialog.c_id = null;
       TS.ui.channel_options_dialog.showing = TS.model.dialog_is_showing = false;
+      TS.ui.channel_options_dialog.params = null;
       $(window.document).unbind("keydown", TS.ui.channel_options_dialog.onKeydown);
     },
     build: function() {
@@ -25729,10 +25609,17 @@
   var _showRenameChannel = function(model_ob) {
     if (TS.model.user.is_restricted) return;
     _setHeaderHtml(TS.i18n.t("Rename this channel", "channel_options")());
+    var next_name;
+    if (_.isObject(TS.ui.channel_options_dialog.params)) {
+      next_name = TS.ui.channel_options_dialog.params.name;
+    }
+    if (!next_name) {
+      next_name = model_ob.name || "";
+    }
     if (TS.boot_data.feature_intl_channel_names) {
-      var title = TS.utility.cleanChannelName(model_ob.name || "");
+      var title = TS.utility.cleanChannelName(next_name);
     } else {
-      var title = TS.utility.cleanChannelName(model_ob.name || "").substr(0, TS.model.channel_name_max_length);
+      var title = TS.utility.cleanChannelName(next_name).substr(0, TS.model.channel_name_max_length);
     }
     _setOptionContentHtml(TS.templates.channel_option_rename_channel({
       title: title
@@ -32459,16 +32346,6 @@
       }, function() {
         TS.log(1989, "Flannel: canary pref changed from " + prev_val + " to " + val);
         TS.ms.disconnect();
-      });
-    });
-    $("#thin_channel_membership").prop("checked", TS.model.prefs.thin_channel_membership_fe === true);
-    $("#thin_channel_membership").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "thin_channel_membership_fe",
-        value: val
-      }, function() {
-        TS.reload();
       });
     });
     $("#enable_unread_view").prop("checked", TS.model.prefs.enable_unread_view === true);

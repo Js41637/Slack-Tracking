@@ -4,18 +4,6 @@
   unicode-range: U+F8FF
 }
 
-.tiny {
-  font-size: .7rem
-}
-
-.small {
-  font-size: .9rem
-}
-
-.no_pointer_events {
-  pointer-events: none
-}
-
 .container .admin_tabs {
   font-weight: 700;
   margin-bottom: 0

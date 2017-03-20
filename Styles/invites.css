@@ -4,18 +4,6 @@
   unicode-range: U+F8FF
 }
 
-.tiny {
-  font-size: .7rem
-}
-
-.small {
-  font-size: .9rem
-}
-
-.no_pointer_events {
-  pointer-events: none
-}
-
 #admin_invites_header {
   font-size: 2rem;
   line-height: 2.5rem;

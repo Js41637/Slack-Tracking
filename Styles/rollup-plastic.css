@@ -4312,6 +4312,14 @@ html.no_touch .alert_page a:hover {
   text-decoration: none!important
 }
 
+.tiny {
+  font-size: .7rem
+}
+
+.small {
+  font-size: .9rem
+}
+
 .lowercase {
   text-transform: lowercase
 }
@@ -16869,14 +16877,6 @@ select[data-lazy-filter-select] {
   font-family: appleLogo;
   src: local("Lucida Grande");
   unicode-range: U+F8FF
-}
-
-.tiny {
-  font-size: .7rem
-}
-
-.small {
-  font-size: .9rem
 }
 
 .rxn_panel {

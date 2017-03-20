@@ -36,11 +36,6 @@
     {{#if invited}}{{#if channel.inviter}}
       <li>{{#t user_name=(makeMemberPreviewLinkById channel.inviter)}}You were invited to this channel by {user_name}.{{/t}}</li>
     {{/if}}{{/if}}
-    {{#if_equal channel.active_members.length compare=1}}
-      <li>{{#t}}You are currently the only person in this channel.{{/t}}</li>
-    {{else}}
-      <li>{{#t members_that_have_channel_open=channel.active_members.length}}{members_that_have_channel_open, number} people have this channel open.{{/t}}</li>
-    {{/if_equal}}
   </ul>
   {{#if channel.purpose.value}}
     <p class="channel_overlay_purpose">{{#t channel_purpose=(formatTopicOrPurpose channel.purpose.value)}}The purpose of this channel is:<br /><em>{channel_purpose}</em>{{/t}}</p>
