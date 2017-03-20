@@ -5563,11 +5563,34 @@ hr {
 
 .client_channels_list_container {
   position: relative;
-  width: 13.75rem;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-flex-basis: 220px;
+  -moz-flex-basis: 220px;
+  -ms-flex-preferred-size: 220px;
+  flex-basis: 220px;
+  -webkit-flex-shrink: 0;
+  -moz-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  min-width: 1px;
   max-width: 260px;
-  -ms-flex: 0 0 13.75rem;
-  -webkit-flex: 0 0 13.75rem;
-  flex: 0 0 13.75rem
+  background: #4D394B
+}
+
+.sorting_mode .client_channels_list_container {
+  -webkit-flex-basis: 320px;
+  -moz-flex-basis: 320px;
+  -ms-flex-preferred-size: 320px;
+  flex-basis: 320px;
+  max-width: 320px
 }
 
 .client_main_container {
@@ -5586,7 +5609,7 @@ hr {
   -moz-flex-grow: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
-  min-width: 0
+  min-width: 1px
 }
 
 .prevent_copy_paste:before {
@@ -5600,10 +5623,7 @@ hr {
   padding: 0 1rem;
   color: #fff;
   height: 61px;
-  width: 220px;
-  background: #4D394B;
   border-bottom: 1px solid #4D394B;
-  float: left;
   position: relative;
   z-index: 50
 }
@@ -5630,7 +5650,18 @@ hr {
   transition: opacity .2s ease 0s
 }
 
-.client_container #team_menu,
+.client_container #team_menu {
+  -webkit-flex-basis: 61px;
+  -moz-flex-basis: 61px;
+  -ms-flex-preferred-size: 61px;
+  flex-basis: 61px;
+  -webkit-flex-shrink: 0;
+  -moz-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  width: 100%
+}
+
 .client_container #team_menu:after {
   width: 100%
 }
@@ -6647,8 +6678,8 @@ only screen and (min-resolution:2dppx) {
   text-align: center;
   font-size: .9rem;
   font-weight: 900;
-  line-height: 1.2;
-  padding: .2rem .4rem;
+  line-height: normal;
+  padding: .25rem .4rem;
   border-radius: .375rem;
   margin-left: 1rem;
   margin-right: .5rem;
@@ -7100,14 +7131,28 @@ only screen and (min-resolution:2dppx) {
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 220px;
-  background: #4D394B
+  width: 220px
 }
 
 .client_container #col_channels_footer {
   position: absolute;
   width: 100%;
   bottom: auto
+}
+
+#col_channels_footer.col_channels_footer_feat_link_in_sidebar {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: justify;
+  -webkit-box-pack: justify;
+  -webkit-justify-content: space-between;
+  -moz-justify-content: space-between;
+  justify-content: space-between;
+  height: 86px;
+  padding: 22px 20px
 }
 
 #history_nav_btn {
@@ -7285,6 +7330,61 @@ only screen and (min-resolution:2dppx) {
   -webkit-transition: all .25s cubic-bezier(.16, .85, .5, 1) .35s;
   -moz-transition: all .25s cubic-bezier(.16, .85, .5, 1) .35s;
   transition: all .25s cubic-bezier(.16, .85, .5, 1) .35s
+}
+
+.dim+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar>i {
+  color: #AB9BA9
+}
+
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar {
+  height: 100%;
+  padding: 0;
+  border: 1px solid #AB9BA9;
+  border-radius: 4px;
+  transition: initial
+}
+
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar>i {
+  position: initial;
+  display: inline;
+  color: #fff;
+  transition: initial
+}
+
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:only-child {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -moz-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1
+}
+
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:focus,
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:hover {
+  border-color: #fff;
+  background: 0 0;
+  background-clip: padding-box;
+  text-decoration: none;
+  outline: 0;
+  box-shadow: none
+}
+
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:focus>i.ts_icon,
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:hover>i.ts_icon {
+  color: #fff
+}
+
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:active {
+  border-color: #fff;
+  background-color: #3e313c
+}
+
+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:active>i.ts_icon {
+  color: #fff
+}
+
+.channel_list_add_link_feat_link_in_sidebar+#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar {
+  width: 42px
 }
 
 #quick_switcher_shortcut {

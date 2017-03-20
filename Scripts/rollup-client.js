@@ -9165,6 +9165,7 @@
         }
       }
       var done = function() {
+        $("#" + TS.model.ui_state.flex_name + "_tab").removeClass("active");
         TS.model.ui.last_flex_extra = TS.model.flex_extra_in_url;
         TS.client.ui.maintainMessagePanePosition(function() {
           $("#client-ui").removeClass("flex_pane_showing");

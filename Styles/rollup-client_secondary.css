@@ -234,12 +234,10 @@
 }
 
 #col_flex {
-  background: #fff;
-  width: 0
+  background: #fff
 }
 
 .flexbox_client #col_flex {
-  max-width: 500px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -253,6 +251,15 @@
 }
 
 .flexbox_client.flexpane_redesign.flex_pane_showing #col_flex {
+  -webkit-flex-basis: 500px;
+  -moz-flex-basis: 500px;
+  -ms-flex-preferred-size: 500px;
+  flex-basis: 500px;
+  -webkit-flex-shrink: 0;
+  -moz-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  min-width: 1px;
   border-left: 1px solid #E8E8E8
 }
 
@@ -297,55 +304,91 @@ html.is_electron_mac {
 }
 
 #client-ui.flexbox_client.flex_pane_showing #col_flex {
-  width: 492px
+  -webkit-flex-basis: 492px;
+  -moz-flex-basis: 492px;
+  -ms-flex-preferred-size: 492px;
+  flex-basis: 492px
 }
 
 #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
-  width: 415px
+  -webkit-flex-basis: 415px;
+  -moz-flex-basis: 415px;
+  -ms-flex-preferred-size: 415px;
+  flex-basis: 415px
 }
 
 @media screen and (max-width:1440px) {
   #client-ui.flexbox_client.flex_pane_showing #col_flex {
-    width: 442px
+    -webkit-flex-basis: 442px;
+    -moz-flex-basis: 442px;
+    -ms-flex-preferred-size: 442px;
+    flex-basis: 442px
   }
   #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
-    width: 365px
+    -webkit-flex-basis: 365px;
+    -moz-flex-basis: 365px;
+    -ms-flex-preferred-size: 365px;
+    flex-basis: 365px
   }
 }
 
 @media screen and (max-width:1366px) {
   #client-ui.flexbox_client.flex_pane_showing #col_flex {
-    width: 392px
+    -webkit-flex-basis: 392px;
+    -moz-flex-basis: 392px;
+    -ms-flex-preferred-size: 392px;
+    flex-basis: 392px
   }
   #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
-    width: 315px
+    -webkit-flex-basis: 315px;
+    -moz-flex-basis: 315px;
+    -ms-flex-preferred-size: 315px;
+    flex-basis: 315px
   }
 }
 
 @media screen and (max-width:1279px) {
   #client-ui.flexbox_client.flex_pane_showing #col_flex {
-    width: 367px
+    -webkit-flex-basis: 367px;
+    -moz-flex-basis: 367px;
+    -ms-flex-preferred-size: 367px;
+    flex-basis: 367px
   }
   #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
-    width: 300px
+    -webkit-flex-basis: 300px;
+    -moz-flex-basis: 300px;
+    -ms-flex-preferred-size: 300px;
+    flex-basis: 300px
   }
 }
 
 @media screen and (max-width:1070px) {
   #client-ui.flexbox_client.flex_pane_showing #col_flex {
-    width: 337px
+    -webkit-flex-basis: 337px;
+    -moz-flex-basis: 337px;
+    -ms-flex-preferred-size: 337px;
+    flex-basis: 337px
   }
   #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
-    width: 280px
+    -webkit-flex-basis: 280px;
+    -moz-flex-basis: 280px;
+    -ms-flex-preferred-size: 280px;
+    flex-basis: 280px
   }
 }
 
 @media screen and (max-width:860px) {
   #client-ui.flexbox_client.flex_pane_showing #col_flex {
-    width: 312px
+    -webkit-flex-basis: 312px;
+    -moz-flex-basis: 312px;
+    -ms-flex-preferred-size: 312px;
+    flex-basis: 312px
   }
   #client-ui.flexbox_client.flex_pane_showing.details_showing #col_flex {
-    width: 250px
+    -webkit-flex-basis: 250px;
+    -moz-flex-basis: 250px;
+    -ms-flex-preferred-size: 250px;
+    flex-basis: 250px
   }
 }
 
@@ -2527,22 +2570,6 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   overflow-x: hidden
 }
 
-#col_channels_bg {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  bottom: -3rem;
-  left: 0
-}
-
-body.loading #col_channels_bg {
-  z-index: 0
-}
-
-body:not(.loading) #col_channels_bg {
-  height: auto
-}
-
 #team_menu>* {
   opacity: 1;
   -webkit-transition: opacity .2s ease 0s;
@@ -2563,7 +2590,6 @@ body:not(.loading) #col_channels_bg {
 }
 
 #col_channels {
-  background: #4D394B;
   color: #AB9BA9;
   width: 220px;
   float: left;
@@ -2608,7 +2634,11 @@ body:not(.loading) #col_channels_bg {
 }
 
 .client_container #col_channels {
-  width: 100%;
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -moz-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1;
   top: 0
 }
 
@@ -3785,9 +3815,9 @@ body:not(.sorting_mode) #col_channels ul>li {
 
 .channel_list_add_link_feat_link_in_sidebar {
   display: block;
-  width: 188px;
-  margin: 2.5rem 0 0 1rem;
-  border: 1px solid rgba(171, 155, 169, .5);
+  width: 128px;
+  margin: 0;
+  border: 1px solid #AB9BA9;
   background: 0 0;
   font-weight: 900;
   color: #fff;
@@ -3796,15 +3826,23 @@ body:not(.sorting_mode) #col_channels ul>li {
   font-size: .95rem
 }
 
+.channel_list_add_link_feat_link_in_sidebar:only-child {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -moz-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1
+}
+
 .channel_list_add_link_feat_link_in_sidebar.dim {
-  border-color: rgba(171, 155, 169, .25);
+  border-color: #AB9BA9;
   color: #AB9BA9
 }
 
 .channel_list_add_link_feat_link_in_sidebar:focus,
 .channel_list_add_link_feat_link_in_sidebar:hover {
-  border-color: rgba(171, 155, 169, .25);
-  background-color: rgba(171, 155, 169, .25);
+  border-color: #fff;
+  background: 0 0;
   background-clip: padding-box;
   text-decoration: none;
   color: #fff;
@@ -3818,16 +3856,9 @@ body:not(.sorting_mode) #col_channels ul>li {
 }
 
 .channel_list_add_link_feat_link_in_sidebar:active {
-  border-color: rgba(171, 155, 169, .5);
-  background-color: rgba(171, 155, 169, .5);
-  background-clip: padding-box;
-  text-decoration: none;
-  color: #fff;
-  box-shadow: none
-}
-
-.channel_list_add_link_feat_link_in_sidebar:active::after {
-  box-shadow: none
+  border-color: #fff;
+  background-color: #3e313c;
+  color: #fff
 }
 
 html {
@@ -4072,72 +4103,19 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .flexbox_client #col_messages {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
   -ms-flex-direction: column;
   -moz-flex-direction: column;
   -webkit-flex-direction: column;
   flex-direction: column;
-  max-width: 100%
-}
-
-#client-ui.flexbox_client.flex_pane_showing #col_messages {
-  max-width: calc(100vw - 220px - 492px)
-}
-
-#client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-  max-width: calc(100vw - 220px - 415px)
-}
-
-@media screen and (max-width:1440px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 442px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 365px)
-  }
-}
-
-@media screen and (max-width:1366px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 392px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 315px)
-  }
-}
-
-@media screen and (max-width:1279px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 367px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 300px)
-  }
-}
-
-@media screen and (max-width:1070px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 337px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 280px)
-  }
-}
-
-@media screen and (max-width:860px) {
-  #client-ui.flexbox_client.flex_pane_showing #col_messages {
-    max-width: calc(100vw - 220px - 312px)
-  }
-  #client-ui.flexbox_client.flex_pane_showing.details_showing #col_messages {
-    max-width: calc(100vw - 220px - 250px)
-  }
+  min-width: 1px
 }
 
 #messages_container {
@@ -4145,10 +4123,7 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .client_container #messages_container {
-  margin-left: 0;
-  overflow: hidden;
-  position: absolute;
-  width: 100%
+  margin-left: 0
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #messages_container:after {
@@ -13684,7 +13659,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .progress_bar {
   background-color: #f2f2f5;
-  border-radius: .25rem;
+  border-radius: .375rem;
   width: 100%;
   max-width: 100%;
   position: relative;
@@ -13702,7 +13677,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .progress_bar_progress,
 .progress_bar_progress_thin {
-  border-radius: .25rem;
+  border-radius: .375rem;
   height: 100%;
   -webkit-transition: width .15s ease-out 0s;
   -moz-transition: width .15s ease-out 0s;
@@ -13738,7 +13713,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   background-repeat: repeat-x;
   background-size: 36px 36px;
   background-image: url(/bfaba/img/progress_bar_pattern.png);
-  border-radius: .25rem;
+  border-radius: .375rem;
   height: 100%;
   -webkit-animation: progress_bar 1s linear infinite;
   -moz-animation: progress_bar 1s linear infinite;
@@ -25937,7 +25912,7 @@ li:hover .current_status_badge {
   unicode-range: U+F8FF
 }
 
-#messages_container {
+#client_body:not(.onboarding) #messages_container {
   overflow-y: hidden
 }
 

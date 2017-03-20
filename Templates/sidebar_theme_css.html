@@ -1,9 +1,7 @@
   <style type="text/css" id="sidebar_theme_css">
 
     /* Column Background */
-    #col_channels_bg,
-    #col_channels,
-    #col_channels_footer {
+    .client_channels_list_container {
       background: {{theme.column_bg}};
     }
     #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_handle_inner {
@@ -12,7 +10,6 @@
 
     /* Menu Background */
     #team_menu {
-      background: {{theme.menu_bg}};
       color: {{theme.text_color}};
       text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
     }
@@ -20,7 +17,6 @@
     #quick_switcher_btn,
     #team_menu_overlay,
     #col_channels_overlay {
-      background: {{theme.column_bg}};
       border-color: {{theme.column_bg}};
     }
     body:not(.loading) #team_menu:hover,
@@ -110,6 +106,25 @@
     #quick_switcher_btn:focus #quick_switcher_shortcut {
       color: {{theme.text_color}} !important;
     }
+    /* styles for experiment #feat-link-in-sidebar: Quick Switcher button at bottom of channel list */
+    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar {
+      border-color: {{theme.text_color}} !important;
+      opacity: 0.9;
+    }
+    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar > i {
+      color: {{theme.text_color}} !important;
+      opacity: 1;
+    }
+    .dim + #quick_switcher_btn {
+      opacity: 0.6;
+    }
+    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:hover, #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:focus {
+      opacity: 1;
+    }
+    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:active {
+      background-color: {{theme.menu_bg}} !important;
+      opacity: 1;
+    }
     .channel_list_add_link {
       color: {{theme.text_color}} !important;
     }
@@ -119,22 +134,17 @@
     /* styles for experiment #feat-link-in-sidebar: 'Invite People' button at bottom of channel list */
     .channel_list_add_link_feat_link_in_sidebar {
       color: {{theme.text_color}} !important;
-      border-color: {{theme.hover_item}} !important;
+      border-color: {{theme.text_color}} !important;
+      opacity: 0.9;
     }
     .channel_list_add_link_feat_link_in_sidebar.dim {
       opacity: 0.6;
     }
     .channel_list_add_link_feat_link_in_sidebar:hover, .channel_list_add_link_feat_link_in_sidebar:focus {
-      color: {{theme.text_color}} !important;
-      border-color: {{theme.hover_item}} !important;
-      background-color: {{theme.hover_item}} !important;
       opacity: 1;
     }
     .channel_list_add_link_feat_link_in_sidebar:active {
-      color: {{theme.active_item_text}} !important;
-      border-color: {{theme.active_item}} !important;
-      background-color: {{theme.active_item}} !important;
-      opacity: 1;
+      background-color: {{theme.menu_bg}} !important;
     }
     .overlay_mock_text{
       background: {{theme.text_color}} !important;
