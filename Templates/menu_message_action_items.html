@@ -126,4 +126,7 @@
   <li id="delete_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" class="danger" role="menuitem"><a>{{#t}}Delete message{{/t}}</a></li>
 
 {{/if}}
+{{#if actions.remove_broadcast}}
+  <li id="remove_broadcast_link" data-msg-ts="{{msg.ts}}" data-model-ob-id="{{model_ob.id}}" role="menuitem"><a>{{#if is_channel_or_group}}{{#t}}Remove from channel{{/t}}{{else}}{{#t}}Remove from conversation{{/t}}{{/if}}</a></li>
+{{/if}}
 {{! End admin actions}}

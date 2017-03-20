@@ -3508,8 +3508,12 @@
     channelMessageChanged: function(channel, msg, changed_keys) {
       if (channel.id != TS.model.active_channel_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
-          TS.view.channel.channelMessageReceived(channel, msg);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply")) {
+          if (msg._hidden_reply && _.includes(changed_keys, "subtype")) {
+            TS.view.channel.channelMessageRemoved(channel, msg);
+          } else if (!msg._hidden_reply && msg.subtype === "thread_broadcast") {
+            TS.view.channel.channelMessageReceived(channel, msg);
+          }
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
         }
@@ -4102,8 +4106,12 @@
     groupMessageChanged: function(group, msg, changed_keys) {
       if (group.id != TS.model.active_group_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
-          TS.view.group.groupMessageReceived(group, msg);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply")) {
+          if (msg._hidden_reply && _.includes(changed_keys, "subtype")) {
+            TS.view.group.groupMessageRemoved(group, msg);
+          } else if (!msg._hidden_reply && msg.subtype === "thread_broadcast") {
+            TS.view.group.groupMessageReceived(group, msg);
+          }
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
         }
@@ -4285,8 +4293,12 @@
     imMessageChanged: function(im, msg, changed_keys) {
       if (im.id !== TS.model.active_im_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
-          TS.view.im.imMessageReceived(im, msg);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply")) {
+          if (msg._hidden_reply && _.includes(changed_keys, "subtype")) {
+            TS.view.im.imMessageRemoved(im, msg);
+          } else if (!msg._hidden_reply && msg.subtype === "thread_broadcast") {
+            TS.view.im.imMessageReceived(im, msg);
+          }
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
         }
@@ -4671,8 +4683,12 @@
     mpimMessageChanged: function(mpim, msg, changed_keys) {
       if (mpim.id !== TS.model.active_mpim_id) return;
       setTimeout(function() {
-        if (TS.boot_data.feature_new_broadcast && msg.subtype === "thread_broadcast" && _.includes(changed_keys, "_hidden_reply") && !msg._hidden_reply) {
-          TS.view.mpim.mpimMessageReceived(mpim, msg);
+        if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply")) {
+          if (msg._hidden_reply && _.includes(changed_keys, "subtype")) {
+            TS.view.mpim.mpimMessageRemoved(mpim, msg);
+          } else if (!msg._hidden_reply && msg.subtype === "thread_broadcast") {
+            TS.view.mpim.mpimMessageReceived(mpim, msg);
+          }
         } else {
           TS.view.rebuildMsg(msg, changed_keys);
         }
@@ -15183,8 +15199,26 @@
         if (TS.boot_data.team_limit_ts > 0 && TS.experiment.getGroup("msg_lim_viz_2") === "msg_limit_top_original_copy") {
           $("#search_results_message_limit_top").removeClass("hidden");
           $("#search_results_team").addClass("no_margin");
+          TS.clog.track("GROWTH_PRICING", {
+            contexts: {
+              ui_context: {
+                step: "search_pane",
+                action: "impression",
+                ui_element: "message_search_link_top"
+              }
+            }
+          });
         } else if (TS.boot_data.team_limit_ts > 0) {
           $("#search_results_message_limit_bottom").removeClass("hidden");
+          TS.clog.track("GROWTH_PRICING", {
+            contexts: {
+              ui_context: {
+                step: "search_pane",
+                action: "impression",
+                ui_element: "message_search_link_bottom"
+              }
+            }
+          });
         }
         $("#search_results_file_limit").addClass("hidden");
       } else if (TS.search.filter == "files") {
@@ -29716,7 +29750,7 @@
     TS.metrics.measureAndClear(measure_label, start_mark_label);
   };
   var _filterWorker = function(channels, query) {
-    query = _.deburr(TS.utility.regexpEscape(query)).toLocaleLowerCase();
+    query = TS.i18n.deburr(TS.utility.regexpEscape(query)).toLocaleLowerCase();
     var match_regex = new RegExp(query, "i");
     var exact_match_index = -1;
     var channel_name;
