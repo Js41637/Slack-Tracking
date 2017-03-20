@@ -42432,6 +42432,84 @@ var _on_esc;
           ui_context: ui_context_payload
         }
       }));
+    },
+    showRequestDialog: function() {
+      var dialog_selector = "#generic_dialog";
+      var go_btn_selector = ".dialog_go";
+      var api_method = "enterprise.teams.creationrequests.create";
+      var team_name_selector = "#input_ws_team_name";
+      var team_message_selector = "#textarea_ws_team_message";
+      var form_selector = "#ws_request_form";
+
+      function checkTeamName() {
+        var $parent = $(dialog_selector);
+        var $go = $parent.find(go_btn_selector);
+        var ok = TS.ui.validation.validate($(form_selector));
+        if (ok) {
+          $go.removeAttr("disabled");
+          return true;
+        }
+        $go.attr("disabled", true);
+        return false;
+      }
+      TS.generic_dialog.start({
+        title: TS.i18n.t("Request a New Team", "enterprise_workspaces")(),
+        body: TS.templates.ws_request_dialog(),
+        show_cancel_button: true,
+        show_go_button: true,
+        go_button_text: TS.i18n.t("Send Request", "enterprise_workspaces")(),
+        onGo: function() {
+          var $parent = $(dialog_selector);
+          var $input_ws_team_name = $(team_name_selector);
+          var name_value = $input_ws_team_name.val();
+          var $textarea_ws_team_message = $(team_message_selector);
+          var ws_team_message = $textarea_ws_team_message.val();
+          var $go_button = $parent.find(go_btn_selector);
+          $go_button.addClass("ladda-button");
+          $go_button.attr("data-style", "expand-right");
+          var ladda_button = Ladda.create($go_button[0]);
+          ladda_button.start();
+          TS.api.callImmediately(api_method, {
+            name: name_value,
+            reason: ws_team_message
+          }).then(function(resp) {
+            TS.ui.toast.show({
+              type: "success",
+              message: TS.i18n.t("Request to create <b>{team_name}</b> sent! You‘ll be notified once it‘s reviewed.", "enterprise_workspaces")({
+                team_name: name_value
+              })
+            });
+            TS.generic_dialog.end();
+            TS.generic_dialog.cancel();
+          }).catch(function(resp) {
+            if (!resp || !resp.data) {
+              TS.error("WTF: error, but no response or data on " + api_method + "?", resp);
+              return;
+            }
+            var data = resp.data;
+            var errors = {
+              name_taken: TS.i18n.t("Request failed: The team name <b>{team_name}</b> is already taken.", "enterprise_workspaces")({
+                team_name: name_value
+              }),
+              name_is_empty: TS.i18n.t("Request failed: A team name is required.", "enterprise_workspaces")(),
+              name_too_long: TS.i18n.t("Request failed: The team name you provided is too long.", "enterprise_workspaces")(),
+              reason_too_long: TS.i18n.t("Team request failed: The reason you provided is too long.", "enterprise_workspaces")(),
+              unknown: TS.i18n.t("Team request failed: The response error was <b>{error_message}</b>.", "enterprise_workspaces")({
+                error_message: data.error || "unknown"
+              })
+            };
+            TS.ui.toast.show({
+              type: "error",
+              message: errors[data.error] || errors.unknown
+            });
+            TS.error(api_method + " failed with error: " + (data.error || "undefined"));
+            ladda_button.stop();
+          });
+          return false;
+        }
+      });
+      $(team_name_selector).on("keyup change", checkTeamName).focus();
+      $(dialog_selector).find(go_btn_selector).attr("disabled", true);
     }
   });
   var _CLOG_NAMESPACE = "ENTERPRISE_DISCOVER_WORKSPACES";
@@ -42717,6 +42795,9 @@ var _on_esc;
           teams: teams,
           user: TS.model.user
         };
+        if (TS.boot_data.feature_workspace_request) {
+          template_args.org_prefs_ws_request_admin_enabled = _.get(TS.boot_data, "enterprise_prefs.org_prefs.enterprise_team_creation_request.is_enabled") && !TS.model.user.is_restricted;
+        }
         var settings = {
           title: TS.i18n.t("Join {enterprise_name} Teams", "enterprise_workspaces")({
             enterprise_name: TS.model.enterprise.name
@@ -62175,7 +62256,8 @@ $.fn.togglify = function(settings) {
               var p = wp(s),
                 d = !p && Sp(s),
                 h = !p && !d && Rp(s);
-              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
+              c = s,
+                p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
             }
             f && (a.set(s, c), o(c, s, r, i, a), a.delete(s)), On(e, n, c);
           }
@@ -68942,41 +69024,42 @@ $.fn.togglify = function(settings) {
             var o = {};
             null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
           }
-          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
-            cellCount: e.columnCount,
-            estimatedCellSize: this._getEstimatedColumnSize(e)
-          }), this._rowSizeAndPositionManager.configure({
-            cellCount: e.rowCount,
-            estimatedCellSize: this._getEstimatedRowSize(e)
-          }), n.i(y.a)({
-            cellCount: this.props.columnCount,
-            cellSize: this.props.columnWidth,
-            computeMetadataCallback: function() {
-              return r._columnSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.columnCount,
-            nextCellSize: e.columnWidth,
-            nextScrollToIndex: e.scrollToColumn,
-            scrollToIndex: this.props.scrollToColumn,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollLeftForScrollToColumn(e, t);
-            }
-          }), n.i(y.a)({
-            cellCount: this.props.rowCount,
-            cellSize: this.props.rowHeight,
-            computeMetadataCallback: function() {
-              return r._rowSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.rowCount,
-            nextCellSize: e.rowHeight,
-            nextScrollToIndex: e.scrollToRow,
-            scrollToIndex: this.props.scrollToRow,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollTopForScrollToRow(e, t);
-            }
-          }), this._calculateChildrenToRender(e, t);
+          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight),
+            this._columnSizeAndPositionManager.configure({
+              cellCount: e.columnCount,
+              estimatedCellSize: this._getEstimatedColumnSize(e)
+            }), this._rowSizeAndPositionManager.configure({
+              cellCount: e.rowCount,
+              estimatedCellSize: this._getEstimatedRowSize(e)
+            }), n.i(y.a)({
+              cellCount: this.props.columnCount,
+              cellSize: this.props.columnWidth,
+              computeMetadataCallback: function() {
+                return r._columnSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.columnCount,
+              nextCellSize: e.columnWidth,
+              nextScrollToIndex: e.scrollToColumn,
+              scrollToIndex: this.props.scrollToColumn,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollLeftForScrollToColumn(e, t);
+              }
+            }), n.i(y.a)({
+              cellCount: this.props.rowCount,
+              cellSize: this.props.rowHeight,
+              computeMetadataCallback: function() {
+                return r._rowSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.rowCount,
+              nextCellSize: e.rowHeight,
+              nextScrollToIndex: e.scrollToRow,
+              scrollToIndex: this.props.scrollToRow,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollTopForScrollToRow(e, t);
+              }
+            }), this._calculateChildrenToRender(e, t);
         }
       }, {
         key: "render",
@@ -73912,7 +73995,8 @@ $.fn.togglify = function(settings) {
   }
 
   function c(e, t) {
-    R = e, P = t, M = e.value, O = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"), Object.defineProperty(R, "value", N), R.attachEvent ? R.attachEvent("onpropertychange", p) : R.addEventListener("propertychange", p, !1);
+    R = e, P = t, M = e.value, O = Object.getOwnPropertyDescriptor(e.constructor.prototype, "value"), Object.defineProperty(R, "value", N),
+      R.attachEvent ? R.attachEvent("onpropertychange", p) : R.addEventListener("propertychange", p, !1);
   }
 
   function f() {
@@ -77103,8 +77187,7 @@ $.fn.togglify = function(settings) {
   }, t.setupScopedFocus = function(e) {
     a = e, window.addEventListener ? (window.addEventListener("blur", r, !1), document.addEventListener("focus", o, !0)) : (window.attachEvent("onBlur", r), document.attachEvent("onFocus", o));
   }, t.teardownScopedFocus = function() {
-    a = null, window.addEventListener ? (window.removeEventListener("blur", r),
-      document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
+    a = null, window.addEventListener ? (window.removeEventListener("blur", r), document.removeEventListener("focus", o)) : (window.detachEvent("onBlur", r), document.detachEvent("onFocus", o));
   };
 }, function(e, t, n) {
   var r = n(137);
