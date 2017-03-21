@@ -5525,7 +5525,7 @@ body:not(.loading) #client-ui:before {
   display: none
 }
 
-#client-ui.flexbox_client {
+#client-ui {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -6145,32 +6145,6 @@ only screen and (min-resolution:2dppx) {
 
 #footer_archives_text .ts_icon_shared_channel {
   margin-left: 3px
-}
-
-.flex_pane_showing:not(.flexbox_client) #footer {
-  right: 392px
-}
-
-.flex_pane_showing.details_showing:not(.flexbox_client) #footer {
-  right: 315px
-}
-
-@media screen and (min-width:1367px) {
-  .flex_pane_showing:not(.flexbox_client) #footer {
-    right: 442px
-  }
-  .flex_pane_showing.details_showing:not(.flexbox_client) #footer {
-    right: 365px
-  }
-}
-
-@media screen and (min-width:1441px) {
-  .flex_pane_showing:not(.flexbox_client) #footer {
-    right: 492px
-  }
-  .flex_pane_showing.details_showing:not(.flexbox_client) #footer {
-    right: 415px
-  }
 }
 
 #msg_preview {
@@ -7831,7 +7805,10 @@ html.is_electron_mac .client_container #client_body {
 
 html.is_electron_mac #team_menu,
 html.is_electron_mac #team_menu:after {
-  height: 69px
+  -webkit-flex-basis: 69px;
+  -moz-flex-basis: 69px;
+  -ms-flex-preferred-size: 69px;
+  flex-basis: 69px
 }
 
 html.is_electron_mac #team_menu .notifications_menu_btn {

@@ -12864,6 +12864,10 @@ only screen and (min-resolution:2dppx) {
   border-color: #C5C5C5
 }
 
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover:hover .current_status_clear_icon_cover {
+  opacity: 1
+}
+
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_input_container {
   opacity: 0;
   display: none;
@@ -12886,6 +12890,25 @@ only screen and (min-resolution:2dppx) {
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active) .current_status_cover.with_status_set {
   display: none
+}
+
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover {
+  padding: .35rem .75rem .25rem .55rem
+}
+
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover .current_status_emoji_picker_cover {
+  position: relative;
+  display: inline-block;
+  width: auto;
+  height: auto;
+  left: 2px;
+  top: 1px;
+  margin-right: 5px
+}
+
+#member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover .current_status_cover_content {
+  padding-left: 0;
+  line-height: 1.4
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container:not(.active).with_status_set .current_status_cover.without_status_set {
@@ -13641,12 +13664,12 @@ only screen and (min-resolution:2dppx) {
   }
 }
 
-.flexbox_client #team_tab #member_preview_container .heading {
+#team_tab #member_preview_container .heading {
   width: auto;
   padding-right: 1rem
 }
 
-.flexbox_client:not(.flexpane_redesign) #team_tab #member_preview_container .heading {
+#client-ui:not(.flexpane_redesign) #team_tab #member_preview_container .heading {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -13654,7 +13677,7 @@ only screen and (min-resolution:2dppx) {
   display: flex
 }
 
-.flexbox_client #team_tab #back_from_member_preview {
+#team_tab #back_from_member_preview {
   -webkit-box-flex: 1;
   -webkit-flex-grow: 1;
   -moz-flex-grow: 1;
@@ -13662,26 +13685,26 @@ only screen and (min-resolution:2dppx) {
   flex-grow: 1
 }
 
-.flexbox_client #team_tab #member_preview_scroller {
+#team_tab #member_preview_scroller {
   width: 100%
 }
 
-.flexbox_client #team_tab #member_preview_scroller .member_details {
+#team_tab #member_preview_scroller .member_details {
   padding: 0 .25rem
 }
 
-.flexbox_client.flexpane_redesign #team_tab #member_preview_scroller .member_details {
+.flexpane_redesign #team_tab #member_preview_scroller .member_details {
   padding-left: .5rem
 }
 
-.flexbox_client #team_tab #member_preview_scroller .member_details .member_image.thumb_512 {
+#team_tab #member_preview_scroller .member_details .member_image.thumb_512 {
   display: block;
   width: 100%;
   background-size: cover;
   background-position-x: 50%
 }
 
-.flexbox_client #team_tab #member_preview_container .member_action_bar {
+#team_tab #member_preview_container .member_action_bar {
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -13689,18 +13712,18 @@ only screen and (min-resolution:2dppx) {
   display: flex
 }
 
-.flexbox_client #team_tab #member_preview_container .member_action_bar .btn {
+#team_tab #member_preview_container .member_action_bar .btn {
   line-height: 1.2
 }
 
-.flexbox_client #team_tab #member_preview_container .account_settings_link .ts_icon_cog_o,
-.flexbox_client #team_tab #member_preview_container .member_preview_menu_target .ts_icon_chevron_large_down {
+#team_tab #member_preview_container .account_settings_link .ts_icon_cog_o,
+#team_tab #member_preview_container .member_preview_menu_target .ts_icon_chevron_large_down {
   margin-right: 0;
   font-size: 20px;
   line-height: .6
 }
 
-.flexbox_client #team_tab #member_preview_container .account_settings_link .ts_icon_cog_o:before {
+#team_tab #member_preview_container .account_settings_link .ts_icon_cog_o:before {
   line-height: 1
 }
 

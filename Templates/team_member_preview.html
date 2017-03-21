@@ -186,12 +186,12 @@
               <td class="current_status_cell">
                 <div class="current_status_container{{#or member.profile.status_emoji member.profile.status_text}} with_status_set{{/or}}">
                   <span class="current_status_cover with_status_set {{#unless member.is_self}} not_self{{/unless}}">
-                    <span class="current_status_emoji_picker_cover">
-                      <div class="current_status_emoji_cover">
-                        {{getMemberCurrentStatusEmoji member}}
-                      </div>
-                    </span>
                     <div class="current_status_cover_content">
+                      <span class="current_status_emoji_picker_cover">
+                        <div class="current_status_emoji_cover">
+                          {{getMemberCurrentStatusEmoji member}}
+                        </div>
+                      </span>
                       <span class="current_status">
                         {{getMemberCurrentStatusText member}}
                       </span>

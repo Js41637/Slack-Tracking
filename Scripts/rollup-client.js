@@ -1654,7 +1654,6 @@
     last_input_container_height: 0,
     msgs_scroller_y: -1,
     footer_outer_h: -1,
-    default_col_flex_top: -1,
     triggering_resize: false,
     resizeManually: function(why, no_scroll_to_bottom) {
       if (!TS.model.ms_logged_in_once) return;
@@ -1669,7 +1668,6 @@
       TS.ui.utility.updateClosestMonkeyScroller($("#menu_items_scroller"));
     },
     resetUI: function() {
-      TS.view.resetForFlexpane();
       TS.view.should_reset_input = true;
     },
     resetForInput: function() {
@@ -1680,10 +1678,6 @@
       TS.view.last_input_container_height = 0;
       TS.view.msgs_scroller_y = -1;
       TS.view.footer_outer_h = -1;
-    },
-    resetForFlexpane: function() {
-      TS.view.default_col_flex_top = -1;
-      $("#col_flex").css("top", "");
     },
     resizeForBanner: function(why) {
       TS.view.msgs_scroller_y = -1;
@@ -1713,20 +1707,7 @@
       if (TS.view.footer_outer_h == -1) {
         TS.view.footer_outer_h = $("#footer").outerHeight();
       }
-      if (TS.view.default_col_flex_top == -1) {
-        TS.view.default_col_flex_top = parseInt($("#col_flex").css("top"));
-        if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
-          TS.view.default_col_flex_top += 10;
-        }
-      }
       var banner_h = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"));
-      if (!TS.boot_data.feature_flexbox_client) {
-        if (banner_h) {
-          $("#col_flex").css("top", TS.view.default_col_flex_top + banner_h);
-        } else {
-          $("#col_flex").css("top", TS.view.default_col_flex_top);
-        }
-      }
       if (TS.model.menu_is_showing) TS.view.setFlexMenuSize();
       if (wh_changed || !!TS.view.last_input_height) {
         if (TS.model.prefs && TS.model.prefs.msg_preview) {
@@ -37438,6 +37419,9 @@ function timezones_guess() {
       TS.client.ui.unread.hideLoadingMessage();
       $("#footer").removeClass("hidden");
       TS.view.resize_sig.remove(_onResize);
+      if (TS.model.prefs.msg_preview) {
+        TS.view.resizeManually();
+      }
       TS.channels.renamed_sig.remove(_onRename);
       TS.groups.renamed_sig.remove(_onRename);
       TS.client.ui.unread.unread_groups = null;
@@ -38208,7 +38192,7 @@ function timezones_guess() {
     } else if (TS.model.prefs.a11y_font_size === "150") {
       sticky_top += 30;
     }
-    if (TS.environment.isSSBAndAtLeastVersion("2.2.8") && TS.boot_data.feature_flexbox_client) {
+    if (TS.environment.isSSBAndAtLeastVersion("2.2.8")) {
       sticky_top -= 2;
     }
     if (!$_currently_sticky) {
@@ -41708,6 +41692,9 @@ function timezones_guess() {
       $("#msgs_scroller_div").removeClass("hidden");
       TS.client.ui.threads.$container = null;
       TS.view.resize_sig.remove(_onResize);
+      if (TS.model.prefs.msg_preview) {
+        TS.view.resizeManually();
+      }
       TS.utility.msgs.stopUpdatingRelativeTimestamps("#threads_msgs");
       if (!_has_tracked_threads_closed) TS.client.ui.threads.trackThreadsViewClosed("OTHER");
     },

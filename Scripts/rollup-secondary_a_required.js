@@ -4194,7 +4194,7 @@
               if (immediate_caller.indexOf("at Function.$.widget.extend") === 0 || immediate_caller.indexOf("$.widget.extend") === 0) {
                 return [];
               }
-              if (immediate_caller.indexOf("at Object.extend") === 0 || immediate_caller.indexOf("extends") === 0) {
+              if (immediate_caller.indexOf("at Object.extend") === 0 || immediate_caller.indexOf("extend") === 0) {
                 return [];
               }
               _logMembersAccess(channel, immediate_caller, stack);
@@ -4285,12 +4285,11 @@
     _maybeSetSharedTeams(channel);
   };
   var _logMembersAccess = function(channel, immediate_caller, stack) {
-    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 3;
+    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 4;
     TS.metrics.count("tcm_members_access_v" + THIN_CHANNEL_MEMBERSHIP_FIX_VERSION);
     var info = {
-      message: ".members accessed on " + channel.id,
-      stack: immediate_caller,
-      full_stack: stack
+      message: ".members accessed on " + channel.id + ". Immediate caller: " + immediate_caller,
+      stack: stack
     };
     var filename_and_line_number = immediate_caller.match(/\((.+):(\d+:\d+)\)/);
     if (filename_and_line_number && filename_and_line_number.length == 3) {
@@ -21471,7 +21470,7 @@ TS.registerModule("constants", {
       if (id_or_member_ob === "USLACKBOT" && slackbot_feels) {
         member = TS.utility.slackbot.getWithFeels(slackbot_feels);
       }
-      var img_src, avatar_class, badge_html;
+      var img_src, badge_html;
       var bg_img_style, bg_img_urls;
       badge_html = "";
       bg_img_style = "background-image: ";
@@ -21483,7 +21482,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_24;
           }
-          avatar_class = "thumb_20";
           break;
         case 24:
           if (TS.environment.is_retina) {
@@ -21491,7 +21489,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_24;
           }
-          avatar_class = "thumb_24";
           break;
         case 32:
           if (TS.environment.is_retina) {
@@ -21499,7 +21496,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_32;
           }
-          avatar_class = "thumb_32";
           break;
         case 36:
           if (TS.environment.is_retina) {
@@ -21507,7 +21503,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_48;
           }
-          avatar_class = "thumb_36";
           break;
         case 48:
           if (TS.environment.is_retina) {
@@ -21515,7 +21510,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_48;
           }
-          avatar_class = "thumb_48";
           break;
         case 72:
           if (TS.environment.is_retina) {
@@ -21523,7 +21517,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_72;
           }
-          avatar_class = "thumb_72";
           break;
         case 192:
           if (TS.environment.is_retina) {
@@ -21531,7 +21524,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_192;
           }
-          avatar_class = "thumb_192";
           break;
         case 512:
           if (TS.environment.is_retina) {
@@ -21539,7 +21531,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_512 || member.profile.image_192;
           }
-          avatar_class = "thumb_512";
           break;
         default:
           if (TS.environment.is_retina) {
@@ -21547,7 +21538,6 @@ TS.registerModule("constants", {
           } else {
             img_src = member.profile.image_48;
           }
-          avatar_class = "thumb_48";
           break;
       }
       if (TS.boot_data.page_needs_enterprise) {
@@ -21585,15 +21575,7 @@ TS.registerModule("constants", {
             bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
           }
         }
-        if (member.is_ultra_restricted && !omit_restricted_overlay) {
-          avatar_class += " ura";
-        } else if (member.is_restricted && !omit_restricted_overlay) {
-          avatar_class += " ra";
-        } else if (member.is_bot) {
-          avatar_class += " bot";
-        }
       }
-      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + member.name + '"' : "";
       bg_img_urls.push("url('" + img_src + "')");
       if (size === 512) {
         var pre_bg_img_src = TS.environment.is_retina ? member.profile.image_72 : member.profile.image_48;
@@ -21607,12 +21589,11 @@ TS.registerModule("constants", {
       var template_data = {
         omit_link: omit_link,
         lazy: lazy,
-        avatar_class: avatar_class,
         member: member,
         size: size,
+        include_restricted_overlay: !omit_restricted_overlay || true,
         bg_img_style: bg_img_style,
-        badge_html: new Handlebars.SafeString(badge_html),
-        target: new Handlebars.SafeString(target)
+        badge_html: new Handlebars.SafeString(badge_html)
       };
       return TS.templates.member_preview_link_image(template_data);
     },
@@ -24486,6 +24467,21 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getTeamById", function(id) {
         return TS.teams.getTeamById(id);
+      });
+      Handlebars.registerHelper("getGuestMemberAvatarClass", function(member) {
+        if (TS.boot_data.page_needs_enterprise || member.is_external) return "";
+        if (member.is_ultra_restricted) {
+          return " ura";
+        } else if (member.is_restricted) {
+          return " ra";
+        } else if (member.is_bot) {
+          return " bot";
+        }
+        return "";
+      });
+      Handlebars.registerHelper("getMemberPreviewLinkTarget", function(member) {
+        if (TS.utility.shouldLinksHaveTargets()) return new Handlebars.SafeString('target="/team/' + member.name + '"');
+        return "";
       });
       if (TS.boot_data.feature_name_tagging_client) {
         Handlebars.registerHelper("getMemberPreferredName", function(member_or_id) {
@@ -30379,7 +30375,6 @@ TS.registerModule("constants", {
     hex_rx: /(\W|^)(#[A-Fa-f0-9]{6})(\b)/g,
     replaceUnicodeDoppelgangers: function(txt) {
       if (!txt) return "";
-      txt = txt.replace(_diacritics_rx, "");
       txt = txt.replace(/\u00A0/g, " ");
       txt = txt.replace(/\u000D/g, "\n");
       txt = txt.replace(/\u000A/g, "\n");
@@ -30619,55 +30614,29 @@ TS.registerModule("constants", {
         TS.info("TS.format.formatSelection: found " + selection.rangeCount + " ranges");
         return;
       }
-      if (TS.boot_data.feature_better_msg_copying) {
-        var range = selection.getRangeAt(0);
-        var selection_text;
-        if (_.isElement(range.commonAncestorContainer)) {
-          var container_clone = range.commonAncestorContainer.cloneNode();
-          container_clone.appendChild(range.cloneContents());
-          container_clone.classList.add("offscreen", "user_select_text");
-          range.commonAncestorContainer.parentElement.appendChild(container_clone);
-          if (container_clone.lastChild && !container_clone.lastChild.textContent) {
-            container_clone.removeChild(container_clone.lastChild);
-          }
-          TS.format.applyStringifyTransformsToChildren(container_clone, options);
-          var restore = TS.selection.snapshot();
-          var selection = TS.selection.selectNodeContents(container_clone);
-          selection_text = selection.toString();
-          container_clone.parentElement.removeChild(container_clone);
-          restore();
-        } else {
-          selection_text = selection.toString();
-        }
-        selection_text = TS.format.replaceUnicodeDoppelgangers(selection_text);
-        selection_text = selection_text.replace(/^\n+/, "");
-        selection_text = selection_text.replace(/\n+$/, "");
-        return selection_text;
-      }
-      var text = selection.toString();
       var range = selection.getRangeAt(0);
-      var $start_node = $(range.startContainer);
-      var $end_node = $(range.endContainer);
-      _.each(_diacritic_map, function(def) {
-        var start_rx = new RegExp(def.start_mark, "g");
-        text = text.replace(start_rx, def.start_symbol);
-      });
-      text = TS.format.replaceUnicodeDoppelgangers(text);
-      var start_format_symbol = $start_node.data("format-symbol") || $start_node.parent().data("format-symbol");
-      if (start_format_symbol && !_.startsWith(text, start_format_symbol)) {
-        text = start_format_symbol + text;
+      var selection_text;
+      if (_.isElement(range.commonAncestorContainer)) {
+        var container_clone = range.commonAncestorContainer.cloneNode();
+        container_clone.appendChild(range.cloneContents());
+        container_clone.classList.add("offscreen", "user_select_text");
+        range.commonAncestorContainer.parentElement.appendChild(container_clone);
+        if (container_clone.lastChild && !container_clone.lastChild.textContent) {
+          container_clone.removeChild(container_clone.lastChild);
+        }
+        TS.format.applyStringifyTransformsToChildren(container_clone, options);
+        var restore = TS.selection.snapshot();
+        var selection = TS.selection.selectNodeContents(container_clone);
+        selection_text = selection.toString();
+        container_clone.parentElement.removeChild(container_clone);
+        restore();
+      } else {
+        selection_text = selection.toString();
       }
-      var end_format_symbol = $end_node.data("format-symbol") || $end_node.parent().data("format-symbol");
-      if (end_format_symbol && !_.endsWith(text, end_format_symbol)) {
-        text += end_format_symbol;
-      }
-      var is_single_formatted_block = _.some(_diacritic_map, function(def) {
-        var rx = new RegExp("\\" + def.start_symbol, "g");
-        var matches = text.match(rx);
-        return matches && matches.length === 2 && _.startsWith(text, matches[0]) && _.endsWith(text, matches[1]);
-      });
-      if (is_single_formatted_block) return text.slice(1, -1);
-      return text;
+      selection_text = TS.format.replaceUnicodeDoppelgangers(selection_text);
+      selection_text = selection_text.replace(/^\n+/, "");
+      selection_text = selection_text.replace(/\n+$/, "");
+      return selection_text;
     },
     formatSelectionAsHTML: function(selection) {
       if (!selection || !selection.rangeCount) return "";
@@ -30725,35 +30694,6 @@ TS.registerModule("constants", {
   var _special_pre_rx = /(^|\s|[_*\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])```([\s\S]*?)?```(?=$|\s|[_*\?\.,\-!\^;:})\]%$#+=\u2000-\u206F\u2E00-\u2E7F…"])/g;
   var _special_code_rx = /(^|\s|[\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])\`([^`]*?\S *)?\`/g;
   var _special_quote_rx = /(^|\n)&gt;(?![\W_](?:&lt;|&gt;|[\|\/\\\[\]{}\(\)Dpb](?=\s|$)))(([^\n]*)(\n&gt;[^\n]*)*)/g;
-  var _diacritic_inside = "⁠";
-  var _diacritic_outside = "\ufeff";
-  var _diacritics_rx = new RegExp("(" + _diacritic_outside + "|" + _diacritic_inside + ")", "g");
-  var _diacritic_map = {
-    code: {
-      start_mark: _diacritic_outside + _diacritic_inside + _diacritic_inside + _diacritic_inside + _diacritic_inside,
-      start_symbol: "`",
-      end_mark: _diacritic_inside + _diacritic_inside + _diacritic_inside + _diacritic_inside + _diacritic_outside,
-      end_symbol: "`"
-    },
-    bold: {
-      start_mark: _diacritic_outside + _diacritic_inside + _diacritic_inside + _diacritic_inside,
-      start_symbol: "*",
-      end_mark: _diacritic_inside + _diacritic_inside + _diacritic_inside + _diacritic_outside,
-      end_symbol: "*"
-    },
-    italic: {
-      start_mark: _diacritic_outside + _diacritic_inside + _diacritic_inside,
-      start_symbol: "_",
-      end_mark: _diacritic_inside + _diacritic_inside + _diacritic_outside,
-      end_symbol: "_"
-    },
-    strike: {
-      start_mark: _diacritic_outside + _diacritic_inside,
-      start_symbol: "~",
-      end_mark: _diacritic_inside + _diacritic_outside,
-      end_symbol: "~"
-    }
-  };
   var _stringify_transform_attrs = {
     "data-stringify-text": function(node, str) {
       return node.getAttribute("data-stringify-text");
@@ -30767,16 +30707,6 @@ TS.registerModule("constants", {
   };
   var _getTokenMap = function() {
     var map = {
-      "<B:START>": '<b data-format-symbol="*">' + _diacritic_map.bold.start_mark,
-      "<B:END>": "</b>" + _diacritic_map.bold.start_mark,
-      "<STRIKE:START>": '<strike data-format-symbol="~">' + _diacritic_map.strike.start_mark,
-      "<STRIKE:END>": "</strike>" + _diacritic_map.strike.start_mark,
-      "<PRE:START>": '<pre class="special_formatting"><span class="copyonly">&#96;&#96;&#96;</span>',
-      "<PRE:END>": '<span class="copyonly">&#96;&#96;&#96;</span></pre>',
-      "<CODE:START>": '<code class="special_formatting" data-format-symbol="`">' + _diacritic_map.code.start_mark,
-      "<CODE:END>": "</code>" + _diacritic_map.code.start_mark,
-      "<I:START>": '<i data-format-symbol="_">' + _diacritic_map.italic.start_mark,
-      "<I:END>": "</i>" + _diacritic_map.italic.start_mark,
       "<QUOTE:START>": '<div class="special_formatting_quote"><div class="quote_bar"><div class="shim"></div></div><div class="content dynamic_content_max_width">',
       "<QUOTE:PREFIX>": '<span class="copyonly">&gt;</span>',
       "<LONGQUOTE:PREFIX>": '<span class="copyonly">&gt;&gt;&gt;</span>',
@@ -30786,18 +30716,16 @@ TS.registerModule("constants", {
       "<PARA:BREAK>": '<span class="para_break"><i class="copy_only"><br></i></span>',
       "<SPACE:HARD>": "&nbsp;"
     };
-    if (TS.boot_data.feature_better_msg_copying) {
-      map["<B:START>"] = '<b data-stringify-prefix="*" data-stringify-suffix="*" data-stringify-requires-siblings>';
-      map["<B:END>"] = "</b>";
-      map["<STRIKE:START>"] = '<strike data-stringify-prefix="~" data-stringify-suffix="~" data-stringify-requires-siblings>';
-      map["<STRIKE:END>"] = "</strike>";
-      map["<CODE:START>"] = '<code class="special_formatting" data-stringify-prefix="`" data-stringify-suffix="`" data-stringify-requires-siblings>';
-      map["<CODE:END>"] = "</code>";
-      map["<I:START>"] = '<i data-stringify-prefix="_" data-stringify-suffix="_" data-stringify-requires-siblings>';
-      map["<I:END>"] = "</i>";
-      map["<PRE:START>"] = '<pre class="special_formatting" data-stringify-prefix="```" data-stringify-suffix="```" data-stringify-requires-siblings>';
-      map["<PRE:END>"] = "</pre>";
-    }
+    map["<B:START>"] = '<b data-stringify-prefix="*" data-stringify-suffix="*" data-stringify-requires-siblings>';
+    map["<B:END>"] = "</b>";
+    map["<STRIKE:START>"] = '<strike data-stringify-prefix="~" data-stringify-suffix="~" data-stringify-requires-siblings>';
+    map["<STRIKE:END>"] = "</strike>";
+    map["<CODE:START>"] = '<code class="special_formatting" data-stringify-prefix="`" data-stringify-suffix="`" data-stringify-requires-siblings>';
+    map["<CODE:END>"] = "</code>";
+    map["<I:START>"] = '<i data-stringify-prefix="_" data-stringify-suffix="_" data-stringify-requires-siblings>';
+    map["<I:END>"] = "</i>";
+    map["<PRE:START>"] = '<pre class="special_formatting" data-stringify-prefix="```" data-stringify-suffix="```" data-stringify-requires-siblings>';
+    map["<PRE:END>"] = "</pre>";
     return map;
   };
   var _TSF_token_map = _getTokenMap();
@@ -49081,14 +49009,6 @@ $.fn.togglify = function(settings) {
         TS.attachment_actions.action_triggered_sig.dispatch(context);
       }
     });
-    if (!TS.boot_data.feature_better_msg_copying) {
-      TS.click.addClientHandler("#msgs_div ts-message", function(e, $el) {
-        if (!$el.data("triple-clicks-constrained")) {
-          $el.append('<span class="constrain_triple_clicks"></span>');
-          $el.data("triple-clicks-constrained", true);
-        }
-      });
-    }
     TS.click.addClientHandler("#threads_view_banner .clear_unread_messages", function(e, $el) {
       e.preventDefault();
       TS.client.threads.markAllNewThreads();
@@ -67532,7 +67452,8 @@ $.fn.togglify = function(settings) {
 
   function i(e) {
     if (f === clearTimeout) return clearTimeout(e);
-    if ((f === r || !f) && clearTimeout) return f = clearTimeout, clearTimeout(e);
+    if ((f === r || !f) && clearTimeout) return f = clearTimeout,
+      clearTimeout(e);
     try {
       return f(e);
     } catch (t) {
@@ -69012,25 +68933,24 @@ $.fn.togglify = function(settings) {
         s()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-            isScrolling: !1,
-            scrollDirectionHorizontal: C.a,
-            scrollDirectionVertical: C.a,
-            scrollLeft: 0,
-            scrollTop: 0
-          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o),
-          o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
-            cellCount: e.columnCount,
-            cellSizeGetter: function(e) {
-              return o._columnWidthGetter(e);
-            },
-            estimatedCellSize: o._getEstimatedColumnSize(e)
-          }), o._rowSizeAndPositionManager = new b.a({
-            cellCount: e.rowCount,
-            cellSizeGetter: function(e) {
-              return o._rowHeightGetter(e);
-            },
-            estimatedCellSize: o._getEstimatedRowSize(e)
-          }), o._cellCache = {}, o._styleCache = {}, o;
+          isScrolling: !1,
+          scrollDirectionHorizontal: C.a,
+          scrollDirectionVertical: C.a,
+          scrollLeft: 0,
+          scrollTop: 0
+        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+          cellCount: e.columnCount,
+          cellSizeGetter: function(e) {
+            return o._columnWidthGetter(e);
+          },
+          estimatedCellSize: o._getEstimatedColumnSize(e)
+        }), o._rowSizeAndPositionManager = new b.a({
+          cellCount: e.rowCount,
+          cellSizeGetter: function(e) {
+            return o._rowHeightGetter(e);
+          },
+          estimatedCellSize: o._getEstimatedRowSize(e)
+        }), o._cellCache = {}, o._styleCache = {}, o;
       }
       return h()(t, e), c()(t, [{
         key: "measureAllCells",
@@ -77017,8 +76937,7 @@ $.fn.togglify = function(settings) {
     },
     u = {},
     s = {};
-  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation,
-    delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
+  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
 }, function(e, t, n) {
   "use strict";
 
@@ -78549,8 +78468,7 @@ $.fn.togglify = function(settings) {
 
   function i(e, t) {
     if (t) {
-      "function" == typeof t ? p("75") : void 0,
-        v.isValidElement(t) ? p("76") : void 0;
+      "function" == typeof t ? p("75") : void 0, v.isValidElement(t) ? p("76") : void 0;
       var n = e.prototype,
         r = n.__reactAutoBindPairs;
       t.hasOwnProperty(_) && w.mixins(e, t.mixins);
@@ -78690,7 +78608,8 @@ $.fn.togglify = function(settings) {
         var o = this.getInitialState ? this.getInitialState() : null;
         "object" != typeof o || Array.isArray(o) ? p("82", t.displayName || "ReactCompositeComponent") : void 0, this.state = o;
       });
-      t.prototype = new S, t.prototype.constructor = t, t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
+      t.prototype = new S, t.prototype.constructor = t,
+        t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
       for (var n in b) t.prototype[n] || (t.prototype[n] = null);
       return t;
     },
