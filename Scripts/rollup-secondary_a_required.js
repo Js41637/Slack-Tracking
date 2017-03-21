@@ -53944,7 +53944,6 @@ $.fn.togglify = function(settings) {
       caller_id: "caller_id",
       mini_panel_action: "mini_panel_action",
       did_close_window: "did_close_window",
-      ping: "ping",
       ms_msg: "ms_msg",
       reachability: "reachability",
       calls_status: "calls_status",
@@ -53961,9 +53960,8 @@ $.fn.togglify = function(settings) {
       set_call_window_busy: "set_call_window_busy",
       show_growl_notification: "show_growl_notification",
       set_is_publisher_screensharing: "set_is_publisher_screensharing",
-      pong: "pong",
       close: "close",
-      hideCallWindow: "hideCallWindow",
+      hide_call_window: "hideCallWindow",
       get_calls_status: "get_calls_status",
       force_janus_disconnect: "force_janus_disconnect",
       get_regions: "get_regions",
@@ -54494,9 +54492,7 @@ $.fn.togglify = function(settings) {
       send_msg_no_mini_panel: "SendMsgNoMiniPanel",
       call_window_loaded: "CallWindowLoaded",
       call_window_busy: "CallWindowBusy",
-      call_window_orphaned: "CallWindowOrphaned",
       invalid_msg_from_child_window: "InvalidMsgFromChildWindow",
-      call_window_pong: "CallWindowPong",
       unknown_msg_from_call_window: "UnknownMsgFromCallWindow",
       incoming_call_click: "IncomingCallClick",
       unknown_msg_from_incoming_call_window: "UnknownMsgFromIncomingCallWindow",
@@ -54606,13 +54602,6 @@ $.fn.togglify = function(settings) {
   };
   var _sigReachabilityChanged = function() {
     var is_call_window_ready_prev = TS.utility.calls.isCallWindowReady();
-    TS.utility.calls_log.logEvent({
-      event: _utility_calls_config.log_events.reachability_changed,
-      value: {
-        from: _utility_call_state.is_reachability_online,
-        to: window.navigator.onLine
-      }
-    });
     _utility_call_state.is_reachability_online = window.navigator.onLine;
     _updateCallIcon(is_call_window_ready_prev);
     _notifyReachability();
@@ -54743,22 +54732,6 @@ $.fn.togglify = function(settings) {
       no_spinner: true,
       hides_on_close: false
     };
-    clearInterval(_utility_call_state.ping_pong_timer);
-    _utility_call_state.ping_pong_timer = setInterval(function() {
-      var was_called = false;
-      _utility_call_state.pongCallback = function() {
-        was_called = true;
-      };
-      setTimeout(function() {
-        if (!was_called) {
-          _handleOrphanedWindow();
-          clearInterval(_utility_call_state.ping_pong_timer);
-        }
-      }, 2 * 1e3);
-      _sendMessageToCallWindow({
-        message_type: TS.utility.calls.messages_to_call_window_types.ping
-      });
-    }, 50 * 1e3);
     if (TS.model.is_our_app) {
       if (TS.model.is_mac) args["titleBarStyle"] = "hidden";
     }
@@ -54778,12 +54751,6 @@ $.fn.togglify = function(settings) {
     var call_window_token = _utility_call_state.call_window_token;
     delete _utility_call_state.call_window_token;
     TSSSB.call("closeWindow", call_window_token);
-  };
-  var _handleOrphanedWindow = function() {
-    _forceCloseWindow();
-    TS.utility.calls_log.logEvent({
-      event: _utility_calls_config.log_events.call_window_orphaned
-    });
   };
   var _openMiniPanel = function() {
     if (!window.winssb || _utility_call_state.mini_panel_token) return;
@@ -54878,7 +54845,6 @@ $.fn.togglify = function(settings) {
   var _callWindowGoingAway = function() {
     _setCallWindowLoaded(false);
     _setCallWindowBusy(false);
-    clearInterval(_utility_call_state.ping_pong_timer);
   };
   var _handleIncomingCall = function(call_window_busy, incoming_call_window_busy, imsg) {
     if (!TS.utility.calls.isEnabled()) return;
@@ -55345,29 +55311,25 @@ $.fn.togglify = function(settings) {
           _setCallWindowBusy(evt.data.is_busy);
           break;
         case TS.utility.calls.messages_from_call_window_types.show_growl_notification:
-          TS.ui.growls.show(evt.data.title, evt.data.txt, null, {
-            subtitle: evt.data.subtitle,
-            sound_name: "none",
-            channelId: evt.data.channel,
-            is_call_notification: true
-          });
+          if (TS.notifs.getGlobalNotificationSetting() != "nothing") {
+            TS.ui.growls.show(evt.data.title, evt.data.txt, null, {
+              subtitle: evt.data.subtitle,
+              sound_name: "none",
+              channelId: evt.data.channel,
+              is_call_notification: true
+            });
+          }
           break;
         case TS.utility.calls.messages_from_call_window_types.set_is_publisher_screensharing:
           _utility_call_state.is_publisher_screensharing = evt.data.is_enabled;
           _utility_call_state.is_publisher_screenhero = evt.data.is_screenhero;
-          break;
-        case TS.utility.calls.messages_from_call_window_types.pong:
-          TS.utility.calls_log.logEvent({
-            event: _utility_calls_config.log_events.call_window_pong
-          });
-          if (_utility_call_state.pongCallback) _utility_call_state.pongCallback();
           break;
         case TS.utility.calls.messages_from_call_window_types.close:
           _closeCallWindow();
           _closeMiniPanel();
           _closeCursorsWindow();
           break;
-        case TS.utility.calls.messages_from_call_window_types.hideCallWindow:
+        case TS.utility.calls.messages_from_call_window_types.hide_call_window:
           TSSSB.call("hideWindow", _utility_call_state.call_window_token);
           break;
         case TS.utility.calls.messages_from_call_window_types.get_calls_status:
@@ -69072,7 +69034,8 @@ $.fn.togglify = function(settings) {
             m = h.scrollPositionChangeReason,
             g = h.scrollTop,
             _ = u > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
-          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)), n.i(E.a)({
+          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)),
+            n.i(E.a)({
               cellSizeAndPositionManager: this._columnSizeAndPositionManager,
               previousCellsCount: e.columnCount,
               previousCellSize: e.columnWidth,
@@ -71789,448 +71752,447 @@ $.fn.togglify = function(settings) {
         }], n;
       }
       return i(t, e), S(t, null, [{
-          key: "getAllEmoji",
-          value: function(e) {
-            return u.a.chain(e).flatMap("items").compact().uniqBy("name").value();
-          }
-        }, {
-          key: "getSearchResults",
-          value: function(e, t) {
-            var n = u.a.chain(e).reject(function(e) {
-              return "mine" === e.name;
-            }).flatMap("items").compact().value();
-            if (":" === t) return n;
-            var r = u.a.compact(t.split(" "));
-            return u.a.chain(r).flatMap(function(e) {
-              if (":" === e.charAt(0) && ":" === e.slice(-1)) {
-                var t = e.slice(1, -1);
-                return n.filter(function(e) {
-                  return b.a(e.name) === t;
-                });
-              }
-              var r = [];
-              return ":" !== e.substr(0, 1) && ":" !== e.slice(-1) && (r = b.b(e)), n.filter(function(t) {
-                return b.c(t, e, r);
-              });
-            }).uniqBy("name").value();
-          }
-        }, {
-          key: "emojiMatchesSkinTone",
-          value: function(e, t) {
-            var n = "1";
-            return !e.is_skin || e.skin_tone_id === (t || n);
-          }
-        }]), S(t, [{
-          key: "componentWillMount",
-          value: function() {
-            w.a("react_emoji_menu_mount_mark");
-          }
-        }, {
-          key: "componentDidMount",
-          value: function() {
-            this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands), this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
-          }
-        }, {
-          key: "componentWillReceiveProps",
-          value: function(e) {
-            var n = u.a.isEqual(this.props.groups, e.groups),
-              r = this.props.activeSkinToneId !== e.activeSkinToneId,
-              o = this.state.searchQuery;
-            if (n || r) {
-              var i = t.getAllEmoji(e.groups);
-              this.setState({
-                handyRxns: this.filterEmojiByName(i, e.handyRxnNames),
-                skinToneChoices: this.filterEmojiByName(i, e.skinToneChoiceNames),
-                screenRows: this.getAllRows(e.groups, e.activeSkinToneId, o)
+        key: "getAllEmoji",
+        value: function(e) {
+          return u.a.chain(e).flatMap("items").compact().uniqBy("name").value();
+        }
+      }, {
+        key: "getSearchResults",
+        value: function(e, t) {
+          var n = u.a.chain(e).reject(function(e) {
+            return "mine" === e.name;
+          }).flatMap("items").compact().value();
+          if (":" === t) return n;
+          var r = u.a.compact(t.split(" "));
+          return u.a.chain(r).flatMap(function(e) {
+            if (":" === e.charAt(0) && ":" === e.slice(-1)) {
+              var t = e.slice(1, -1);
+              return n.filter(function(e) {
+                return b.a(e.name) === t;
               });
             }
-          }
-        }, {
-          key: "componentWillUnmount",
-          value: function() {
-            this.keyCommands.reset();
-          }
-        }, {
-          key: "onArrowKey",
-          value: function(e, t) {
-            var n = e;
-            if (t.target === this.searchInput)
-              if ("right" === e && this.searchInput.selectionEnd === this.searchInput.value.length) n = "down";
-              else if ("left" === e || "right" === e) return;
-            t.preventDefault(), this.element.focus();
-            var r = this.moveCursor(n),
-              o = void 0;
-            o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1], this.setState({
-              cursorPosition: r,
-              currentSelection: this.getCell(r),
-              scrollToIndex: o,
-              isPreviewing: !0,
-              usingKeyboard: !0,
-              mousePosition: null
+            var r = [];
+            return ":" !== e.substr(0, 1) && ":" !== e.slice(-1) && (r = b.b(e)), n.filter(function(t) {
+              return b.c(t, e, r);
             });
-          }
-        }, {
-          key: "onEmojiMouseEnter",
-          value: function(e) {
+          }).uniqBy("name").value();
+        }
+      }, {
+        key: "emojiMatchesSkinTone",
+        value: function(e, t) {
+          var n = "1";
+          return !e.is_skin || e.skin_tone_id === (t || n);
+        }
+      }]), S(t, [{
+        key: "componentWillMount",
+        value: function() {
+          w.a("react_emoji_menu_mount_mark");
+        }
+      }, {
+        key: "componentDidMount",
+        value: function() {
+          this.keyCommands = new y.a(this.element), this.keyCommands.bindAll(this.commands), this.searchInput.focus(), w.b("react_emoji_menu_mount", "react_emoji_menu_mount_mark");
+        }
+      }, {
+        key: "componentWillReceiveProps",
+        value: function(e) {
+          var n = u.a.isEqual(this.props.groups, e.groups),
+            r = this.props.activeSkinToneId !== e.activeSkinToneId,
+            o = this.state.searchQuery;
+          if (n || r) {
+            var i = t.getAllEmoji(e.groups);
             this.setState({
-              currentSelection: e,
-              isPreviewing: !0,
-              isSkinTonePickerOpen: !1
+              handyRxns: this.filterEmojiByName(i, e.handyRxnNames),
+              skinToneChoices: this.filterEmojiByName(i, e.skinToneChoiceNames),
+              screenRows: this.getAllRows(e.groups, e.activeSkinToneId, o)
             });
           }
-        }, {
-          key: "onMouseWhileUsingKeyboard",
-          value: function(e) {
-            var t = [e.clientX, e.clientY];
-            return this.state.mousePosition ? void(u.a.isEqual(t, this.state.mousePosition) || this.setState({
-              mousePosition: null,
-              usingKeyboard: !1,
-              scrollToIndex: null,
-              cursorPosition: E
-            })) : void this.setState({
-              mousePosition: t
-            });
-          }
-        }, {
-          key: "onEmojiPickerClick",
-          value: function() {
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function() {
+          this.keyCommands.reset();
+        }
+      }, {
+        key: "onArrowKey",
+        value: function(e, t) {
+          var n = e;
+          if (t.target === this.searchInput)
+            if ("right" === e && this.searchInput.selectionEnd === this.searchInput.value.length) n = "down";
+            else if ("left" === e || "right" === e) return;
+          t.preventDefault(), this.element.focus();
+          var r = this.moveCursor(n),
+            o = void 0;
+          o = r[1] < this.state.cursorPosition[1] || 1 === r[1] ? r[1] - 1 : r[1], this.setState({
+            cursorPosition: r,
+            currentSelection: this.getCell(r),
+            scrollToIndex: o,
+            isPreviewing: !0,
+            usingKeyboard: !0,
+            mousePosition: null
+          });
+        }
+      }, {
+        key: "onEmojiMouseEnter",
+        value: function(e) {
+          this.setState({
+            currentSelection: e,
+            isPreviewing: !0,
+            isSkinTonePickerOpen: !1
+          });
+        }
+      }, {
+        key: "onMouseWhileUsingKeyboard",
+        value: function(e) {
+          var t = [e.clientX, e.clientY];
+          return this.state.mousePosition ? void(u.a.isEqual(t, this.state.mousePosition) || this.setState({
+            mousePosition: null,
+            usingKeyboard: !1,
+            scrollToIndex: null,
+            cursorPosition: E
+          })) : void this.setState({
+            mousePosition: t
+          });
+        }
+      }, {
+        key: "onEmojiPickerClick",
+        value: function() {
+          this.setState({
+            isSkinTonePickerOpen: !1
+          });
+        }
+      }, {
+        key: "onSkinToneChanged",
+        value: function(e) {
+          this.props.onSkinToneChanged(e.skin_tone_id), this.setState({
+            isSkinTonePickerOpen: !1
+          });
+        }
+      }, {
+        key: "onSkinTonePickerOpened",
+        value: function() {
+          this.setState({
+            isSkinTonePickerOpen: !0
+          });
+        }
+      }, {
+        key: "onSearch",
+        value: function(e) {
+          w.a("react_emoji_menu_search_mark");
+          var t = this.getAllRows(this.props.groups, this.props.activeSkinToneId, e),
+            n = 2 === t.length && 1 === u.a.get(t, "[1].items.length");
+          this.setState({
+            activeGroup: this.getFirstTab(),
+            cursorPosition: E,
+            searchQuery: e,
+            screenRows: t,
+            currentSelection: n && u.a.get(t, "[1].items[0]") || {},
+            isPreviewing: n
+          }, function() {
+            return w.b("react_emoji_menu_search", "react_emoji_menu_search_mark");
+          });
+        }
+      }, {
+        key: "onListScroll",
+        value: function(e) {
+          var t = e.startIndex,
+            n = e.stopIndex;
+          if (!this.state.searchQuery) {
+            var r = this.state.screenRows[t];
             this.setState({
-              isSkinTonePickerOpen: !1
+              activeGroup: r.group,
+              isScrolledToBottom: n === this.state.screenRows.length - 1,
+              scrollToIndex: null
             });
           }
-        }, {
-          key: "onSkinToneChanged",
-          value: function(e) {
-            this.props.onSkinToneChanged(e.skin_tone_id), this.setState({
-              isSkinTonePickerOpen: !1
+        }
+      }, {
+        key: "onGroupTabClick",
+        value: function(e) {
+          var t = this.state.searchQuery ? this.getAllRows(this.props.groups, this.props.activeSkinToneId, "") : this.state.screenRows,
+            n = u.a.findIndex(t, function(t) {
+              return "group" === t.type && t.group === e;
             });
-          }
-        }, {
-          key: "onSkinTonePickerOpened",
-          value: function() {
-            this.setState({
-              isSkinTonePickerOpen: !0
-            });
-          }
-        }, {
-          key: "onSearch",
-          value: function(e) {
-            w.a("react_emoji_menu_search_mark");
-            var t = this.getAllRows(this.props.groups, this.props.activeSkinToneId, e),
-              n = 2 === t.length && 1 === u.a.get(t, "[1].items.length");
-            this.setState({
-              activeGroup: this.getFirstTab(),
-              cursorPosition: E,
-              searchQuery: e,
-              screenRows: t,
-              currentSelection: n && u.a.get(t, "[1].items[0]") || {},
-              isPreviewing: n
-            }, function() {
-              return w.b("react_emoji_menu_search", "react_emoji_menu_search_mark");
-            });
-          }
-        }, {
-          key: "onListScroll",
-          value: function(e) {
-            var t = e.startIndex,
-              n = e.stopIndex;
-            if (!this.state.searchQuery) {
-              var r = this.state.screenRows[t];
-              this.setState({
-                activeGroup: r.group,
-                isScrolledToBottom: n === this.state.screenRows.length - 1,
-                scrollToIndex: null
-              });
-            }
-          }
-        }, {
-          key: "onGroupTabClick",
-          value: function(e) {
-            var t = this.state.searchQuery ? this.getAllRows(this.props.groups, this.props.activeSkinToneId, "") : this.state.screenRows,
-              n = u.a.findIndex(t, function(t) {
-                return "group" === t.type && t.group === e;
-              });
-            this.setState({
-              activeGroup: e,
-              scrollToIndex: n || 0,
-              cursorPosition: E,
-              searchQuery: "",
-              screenRows: t
-            });
-          }
-        }, {
-          key: "getRow",
-          value: function(e) {
-            return u.a.get(this.state.screenRows, "[" + e + "]");
-          }
-        }, {
-          key: "getCell",
-          value: function(e) {
-            var t = C(e, 2),
-              n = t[0],
-              r = t[1];
-            return u.a.get(this.state.screenRows, "[" + r + "].items[" + n + "]");
-          }
-        }, {
-          key: "getFirstTab",
-          value: function() {
-            return u.a.get(this.props, "groups[0]");
-          }
-        }, {
-          key: "getRowsForGroup",
-          value: function(e, n) {
-            var r = u.a.chain(e.items).compact().filter(function(e) {
-              return t.emojiMatchesSkinTone(e, n);
-            }).chunk(k).map(function(t) {
-              return {
-                type: "emoji",
-                group: e,
-                items: t
-              };
-            }).value();
-            return r.unshift({
-              type: "group",
-              group: e
-            }), r;
-          }
-        }, {
-          key: "getAllRows",
-          value: function(e, t, n) {
-            var r = this,
-              o = this.getActiveGroups(e, n),
-              i = u.a.flatMap(o, function(e) {
-                return r.getRowsForGroup(e, t);
-              });
-            return n || i.push({
-              type: "tip"
-            }), i;
-          }
-        }, {
-          key: "getActiveGroups",
-          value: function(e, n) {
-            if (!n) return e;
-            var r = t.getSearchResults(e, n);
-            return r.length > 0 ? [{
-              display_name: "Search Results",
-              items: r,
-              name: "search_results"
-            }] : [];
-          }
-        }, {
-          key: "getEmojiPreviewData",
-          value: function(e) {
-            var t = b.a(e.name),
-              n = (e.names || "").replace(/(::skin-tone-[2-6]:)/g, ":");
+          this.setState({
+            activeGroup: e,
+            scrollToIndex: n || 0,
+            cursorPosition: E,
+            searchQuery: "",
+            screenRows: t
+          });
+        }
+      }, {
+        key: "getRow",
+        value: function(e) {
+          return u.a.get(this.state.screenRows, "[" + e + "]");
+        }
+      }, {
+        key: "getCell",
+        value: function(e) {
+          var t = C(e, 2),
+            n = t[0],
+            r = t[1];
+          return u.a.get(this.state.screenRows, "[" + r + "].items[" + n + "]");
+        }
+      }, {
+        key: "getFirstTab",
+        value: function() {
+          return u.a.get(this.props, "groups[0]");
+        }
+      }, {
+        key: "getRowsForGroup",
+        value: function(e, n) {
+          var r = u.a.chain(e.items).compact().filter(function(e) {
+            return t.emojiMatchesSkinTone(e, n);
+          }).chunk(k).map(function(t) {
             return {
-              name: t,
-              aliases: n
+              type: "emoji",
+              group: e,
+              items: t
             };
-          }
-        }, {
-          key: "triggerSelect",
-          value: function(e, t) {
-            this.props.onSelected(e, t), e.shiftKey || this.triggerClose(e);
-          }
-        }, {
-          key: "triggerClose",
-          value: function(e) {
-            this.resetSelection(), this.props.onClosed(), e.stopPropagation();
-          }
-        }, {
-          key: "moveCursor",
-          value: function(e, t) {
-            var n = t;
-            if (this.state.screenRows.length < 2) return null;
-            n || (n = this.state.cursorPosition);
-            var r = n,
-              o = C(r, 2),
-              i = o[0],
-              a = o[1],
-              s = i,
-              l = a;
-            switch (e) {
-              case "down":
-                if (a === -1) return [0, 1];
-                if (2 === this.state.screenRows.length) return this.moveCursor("right", [i, a]);
-                l = a + 1, l >= this.state.screenRows.length && (l = 1);
-                break;
-              case "up":
-                if (a === -1) return [0, 1];
-                if (2 === this.state.screenRows.length) return this.moveCursor("left", [i, a]);
-                l = a - 1, l < 0 && (l = this.state.screenRows.length - 1);
-                break;
-              case "left":
-                if (s = i - 1, s < 0) {
-                  if (2 === this.state.screenRows.length) {
-                    s = this.getRow(a).items.length;
-                    break;
-                  }
-                  l = a - 1, "emoji" !== this.getRow(l).type && (l -= 1), l < 0 && (l = u.a.findLastIndex(this.state.screenRows, {
-                    type: "emoji"
-                  })), s = this.getRow(l).items.length - 1;
-                }
-                break;
-              case "right":
-                if (s = i + 1, s >= this.getRow(a).items.length) {
-                  if (2 === this.state.screenRows.length) {
-                    s = 0;
-                    break;
-                  }
-                  l = a + 1, l > u.a.findLastIndex(this.state.screenRows, {
-                    type: "emoji"
-                  }) && (l = 0), "emoji" !== this.getRow(l).type && (l += 1), s = 0;
-                }
-            }
-            if ("emoji" !== this.getRow(l).type) return this.moveCursor(e, [s, l]);
-            var c = this.getCell([s, l]);
-            return c || (s = this.getRow(l).items.length - 1), [s, l];
-          }
-        }, {
-          key: "resetSelection",
-          value: function() {
-            this.setState({
-              currentSelection: {},
-              isPreviewing: !1,
-              scrollToIndex: null,
-              cursorPosition: E
+          }).value();
+          return r.unshift({
+            type: "group",
+            group: e
+          }), r;
+        }
+      }, {
+        key: "getAllRows",
+        value: function(e, t, n) {
+          var r = this,
+            o = this.getActiveGroups(e, n),
+            i = u.a.flatMap(o, function(e) {
+              return r.getRowsForGroup(e, t);
             });
-          }
-        }, {
-          key: "filterEmojiByName",
-          value: function(e, t) {
-            return u.a.chain(e).filter(function(e) {
-              return u.a.includes(t, e.name);
-            }).sortBy(function(e) {
-              return t.indexOf(e.name);
-            }).value();
-          }
-        }, {
-          key: "maybeRenderHandyRxns",
-          value: function() {
-            return this.state.handyRxns.length ? l.a.createElement(m.a, {
-              handyRxns: this.state.handyRxns,
-              numBackgroundColors: this.props.numBackgroundColors,
-              onSelected: this.triggerSelect,
-              onMouseEnter: this.state.usingKeyboard ? u.a.noop : this.onEmojiMouseEnter,
-              onMouseLeave: this.state.usingKeyboard ? u.a.noop : this.resetSelection
-            }) : null;
-          }
-        }, {
-          key: "maybeRenderSkinTonePicker",
-          value: function() {
-            return this.props.skinToneChoiceNames.length ? l.a.createElement(v.a, {
-              activeSkinToneId: this.props.activeSkinToneId,
-              choices: this.state.skinToneChoices,
-              isOpen: this.state.isSkinTonePickerOpen,
-              onOpen: this.onSkinTonePickerOpened,
-              onSkinToneChanged: this.onSkinToneChanged
-            }) : null;
-          }
-        }, {
-          key: "renderEmojiPreview",
-          value: function() {
-            var e = 0 === this.state.screenRows.length,
-              n = this.state.currentSelection,
-              r = this.getEmojiPreviewData(n);
-            if (e) {
-              var o = t.getAllEmoji(this.props.groups);
-              n = this.filterEmojiByName(o, T)[0], r = this.getEmojiPreviewData(n);
-            }
-            var i = f()("overflow_ellipsis", "float_left", {
-              is_shortened: !this.props.activeSkinToneId
-            });
-            return l.a.createElement("div", {
-              id: "emoji_preview"
-            }, l.a.createElement("span", {
-              id: "emoji_preview_img"
-            }, l.a.createElement(p.a, {
-              emoji: n
-            })), l.a.createElement("div", {
-              id: "emoji_preview_text",
-              className: i
-            }, l.a.createElement("span", {
-              id: "emoji_name"
-            }, e ? x("Oh no!") : r.name), l.a.createElement("br", null), l.a.createElement("span", {
-              id: "emoji_aliases"
-            }, e ? x("We couldn't find that emoji") : r.aliases)));
-          }
-        }, {
-          key: "renderStickyHeader",
-          value: function() {
-            var e = this.state.searchQuery ? "Search Results" : this.state.activeGroup.display_name;
-            return l.a.createElement("div", {
-              className: "emoji_sticky_header"
-            }, l.a.createElement("h3", null, e));
-          }
-        }, {
-          key: "render",
-          value: function() {
-            var e = this,
-              t = this.state,
-              n = t.screenRows,
-              r = t.isScrolledToBottom,
-              o = t.activeGroup,
-              i = 0 === n.length,
-              a = r ? u.a.last(this.props.groups) : o;
-            return l.a.createElement("div", {
-              id: "emoji_menu",
-              className: "menu emoji_menu_ng",
-              "data-using-keyboard": this.state.usingKeyboard,
-              tabIndex: "1",
-              onClick: this.onEmojiPickerClick,
-              onMouseMove: this.state.usingKeyboard ? this.onMouseWhileUsingKeyboard : u.a.noop,
-              ref: function(t) {
-                e.element = t;
+          return n || i.push({
+            type: "tip"
+          }), i;
+        }
+      }, {
+        key: "getActiveGroups",
+        value: function(e, n) {
+          if (!n) return e;
+          var r = t.getSearchResults(e, n);
+          return r.length > 0 ? [{
+            display_name: "Search Results",
+            items: r,
+            name: "search_results"
+          }] : [];
+        }
+      }, {
+        key: "getEmojiPreviewData",
+        value: function(e) {
+          var t = b.a(e.name),
+            n = (e.names || "").replace(/(::skin-tone-[2-6]:)/g, ":");
+          return {
+            name: t,
+            aliases: n
+          };
+        }
+      }, {
+        key: "triggerSelect",
+        value: function(e, t) {
+          this.props.onSelected(e, t), e.shiftKey || this.triggerClose(e);
+        }
+      }, {
+        key: "triggerClose",
+        value: function(e) {
+          this.resetSelection(), this.props.onClosed(), e.stopPropagation();
+        }
+      }, {
+        key: "moveCursor",
+        value: function(e, t) {
+          var n = t;
+          if (this.state.screenRows.length < 2) return null;
+          n || (n = this.state.cursorPosition);
+          var r = n,
+            o = C(r, 2),
+            i = o[0],
+            a = o[1],
+            s = i,
+            l = a;
+          switch (e) {
+            case "down":
+              if (a === -1) return [0, 1];
+              if (2 === this.state.screenRows.length) return this.moveCursor("right", [i, a]);
+              l = a + 1, l >= this.state.screenRows.length && (l = 1);
+              break;
+            case "up":
+              if (a === -1) return [0, 1];
+              if (2 === this.state.screenRows.length) return this.moveCursor("left", [i, a]);
+              l = a - 1, l < 0 && (l = this.state.screenRows.length - 1);
+              break;
+            case "left":
+              if (s = i - 1, s < 0) {
+                if (2 === this.state.screenRows.length) {
+                  s = this.getRow(a).items.length;
+                  break;
+                }
+                l = a - 1, "emoji" !== this.getRow(l).type && (l -= 1), l < 0 && (l = u.a.findLastIndex(this.state.screenRows, {
+                  type: "emoji"
+                })), s = this.getRow(l).items.length - 1;
               }
-            }, l.a.createElement("div", {
-              id: "emoji_menu_content"
-            }, l.a.createElement(h.a, {
-              groups: this.props.groups,
-              activeGroup: a,
-              onGroupTabClick: this.onGroupTabClick
-            }), l.a.createElement("div", {
-              id: "emoji_input_container"
-            }, l.a.createElement("input", {
-              ref: function(t) {
-                e.searchInput = t;
-              },
-              id: "emoji_input",
-              type: "text",
-              placeholder: x("Search"),
-              onChange: function(t) {
-                return e.onSearch(t.target.value);
-              },
-              value: this.state.searchQuery
-            }), l.a.createElement(g.a, {
-              type: "search",
-              className: "icon_search subtle_silver"
-            })), l.a.createElement("div", {
-              id: "emoji_menu_items_scroller"
-            }, this.renderStickyHeader(), l.a.createElement("div", {
-              id: "emoji_menu_items_div"
-            }, l.a.createElement(d.a, {
-              screenRows: this.state.screenRows,
-              numBackgroundColors: this.props.numBackgroundColors,
-              onSelected: this.triggerSelect,
-              onMouseEnter: this.state.usingKeyboard ? u.a.noop : this.onEmojiMouseEnter,
-              onMouseLeave: this.state.usingKeyboard ? u.a.noop : this.resetSelection,
-              scrollToIndex: this.state.scrollToIndex,
-              onScroll: this.onListScroll,
-              numEmojiPerRow: k,
-              currentSelection: this.state.currentSelection,
-              cursorPosition: this.state.cursorPosition,
-              canAddEmoji: this.props.canAddEmoji
-            }))), l.a.createElement("div", {
-              id: "emoji_menu_footer",
-              className: this.state.isPreviewing || i ? "previewing" : ""
-            }, this.maybeRenderHandyRxns(), this.renderEmojiPreview(), l.a.createElement("div", {
-              id: "emoji_preview_deluxe"
-            }, l.a.createElement("span", {
-              className: "bold"
-            }, x("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
+              break;
+            case "right":
+              if (s = i + 1, s >= this.getRow(a).items.length) {
+                if (2 === this.state.screenRows.length) {
+                  s = 0;
+                  break;
+                }
+                l = a + 1, l > u.a.findLastIndex(this.state.screenRows, {
+                  type: "emoji"
+                }) && (l = 0), "emoji" !== this.getRow(l).type && (l += 1), s = 0;
+              }
           }
-        }]),
-        t;
+          if ("emoji" !== this.getRow(l).type) return this.moveCursor(e, [s, l]);
+          var c = this.getCell([s, l]);
+          return c || (s = this.getRow(l).items.length - 1), [s, l];
+        }
+      }, {
+        key: "resetSelection",
+        value: function() {
+          this.setState({
+            currentSelection: {},
+            isPreviewing: !1,
+            scrollToIndex: null,
+            cursorPosition: E
+          });
+        }
+      }, {
+        key: "filterEmojiByName",
+        value: function(e, t) {
+          return u.a.chain(e).filter(function(e) {
+            return u.a.includes(t, e.name);
+          }).sortBy(function(e) {
+            return t.indexOf(e.name);
+          }).value();
+        }
+      }, {
+        key: "maybeRenderHandyRxns",
+        value: function() {
+          return this.state.handyRxns.length ? l.a.createElement(m.a, {
+            handyRxns: this.state.handyRxns,
+            numBackgroundColors: this.props.numBackgroundColors,
+            onSelected: this.triggerSelect,
+            onMouseEnter: this.state.usingKeyboard ? u.a.noop : this.onEmojiMouseEnter,
+            onMouseLeave: this.state.usingKeyboard ? u.a.noop : this.resetSelection
+          }) : null;
+        }
+      }, {
+        key: "maybeRenderSkinTonePicker",
+        value: function() {
+          return this.props.skinToneChoiceNames.length ? l.a.createElement(v.a, {
+            activeSkinToneId: this.props.activeSkinToneId,
+            choices: this.state.skinToneChoices,
+            isOpen: this.state.isSkinTonePickerOpen,
+            onOpen: this.onSkinTonePickerOpened,
+            onSkinToneChanged: this.onSkinToneChanged
+          }) : null;
+        }
+      }, {
+        key: "renderEmojiPreview",
+        value: function() {
+          var e = 0 === this.state.screenRows.length,
+            n = this.state.currentSelection,
+            r = this.getEmojiPreviewData(n);
+          if (e) {
+            var o = t.getAllEmoji(this.props.groups);
+            n = this.filterEmojiByName(o, T)[0], r = this.getEmojiPreviewData(n);
+          }
+          var i = f()("overflow_ellipsis", "float_left", {
+            is_shortened: !this.props.activeSkinToneId
+          });
+          return l.a.createElement("div", {
+            id: "emoji_preview"
+          }, l.a.createElement("span", {
+            id: "emoji_preview_img"
+          }, l.a.createElement(p.a, {
+            emoji: n
+          })), l.a.createElement("div", {
+            id: "emoji_preview_text",
+            className: i
+          }, l.a.createElement("span", {
+            id: "emoji_name"
+          }, e ? x("Oh no!") : r.name), l.a.createElement("br", null), l.a.createElement("span", {
+            id: "emoji_aliases"
+          }, e ? x("We couldn't find that emoji") : r.aliases)));
+        }
+      }, {
+        key: "renderStickyHeader",
+        value: function() {
+          var e = this.state.searchQuery ? "Search Results" : this.state.activeGroup.display_name;
+          return l.a.createElement("div", {
+            className: "emoji_sticky_header"
+          }, l.a.createElement("h3", null, e));
+        }
+      }, {
+        key: "render",
+        value: function() {
+          var e = this,
+            t = this.state,
+            n = t.screenRows,
+            r = t.isScrolledToBottom,
+            o = t.activeGroup,
+            i = 0 === n.length,
+            a = r ? u.a.last(this.props.groups) : o;
+          return l.a.createElement("div", {
+            id: "emoji_menu",
+            className: "menu emoji_menu_ng",
+            "data-using-keyboard": this.state.usingKeyboard,
+            tabIndex: "1",
+            onClick: this.onEmojiPickerClick,
+            onMouseMove: this.state.usingKeyboard ? this.onMouseWhileUsingKeyboard : u.a.noop,
+            ref: function(t) {
+              e.element = t;
+            }
+          }, l.a.createElement("div", {
+            id: "emoji_menu_content"
+          }, l.a.createElement(h.a, {
+            groups: this.props.groups,
+            activeGroup: a,
+            onGroupTabClick: this.onGroupTabClick
+          }), l.a.createElement("div", {
+            id: "emoji_input_container"
+          }, l.a.createElement("input", {
+            ref: function(t) {
+              e.searchInput = t;
+            },
+            id: "emoji_input",
+            type: "text",
+            placeholder: x("Search"),
+            onChange: function(t) {
+              return e.onSearch(t.target.value);
+            },
+            value: this.state.searchQuery
+          }), l.a.createElement(g.a, {
+            type: "search",
+            className: "icon_search subtle_silver"
+          })), l.a.createElement("div", {
+            id: "emoji_menu_items_scroller"
+          }, this.renderStickyHeader(), l.a.createElement("div", {
+            id: "emoji_menu_items_div"
+          }, l.a.createElement(d.a, {
+            screenRows: this.state.screenRows,
+            numBackgroundColors: this.props.numBackgroundColors,
+            onSelected: this.triggerSelect,
+            onMouseEnter: this.state.usingKeyboard ? u.a.noop : this.onEmojiMouseEnter,
+            onMouseLeave: this.state.usingKeyboard ? u.a.noop : this.resetSelection,
+            scrollToIndex: this.state.scrollToIndex,
+            onScroll: this.onListScroll,
+            numEmojiPerRow: k,
+            currentSelection: this.state.currentSelection,
+            cursorPosition: this.state.cursorPosition,
+            canAddEmoji: this.props.canAddEmoji
+          }))), l.a.createElement("div", {
+            id: "emoji_menu_footer",
+            className: this.state.isPreviewing || i ? "previewing" : ""
+          }, this.maybeRenderHandyRxns(), this.renderEmojiPreview(), l.a.createElement("div", {
+            id: "emoji_preview_deluxe"
+          }, l.a.createElement("span", {
+            className: "bold"
+          }, x("Emoji Deluxe")), "™"), this.maybeRenderSkinTonePicker())));
+        }
+      }]), t;
     }(s.Component);
   t.a = M, M.propTypes = R, M.defaultProps = P;
 }, function(e, t, n) {
