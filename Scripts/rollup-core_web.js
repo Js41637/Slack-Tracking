@@ -1280,16 +1280,3 @@ $(window).load(function() {
     });
   });
 });
-
-function gaTrackEvent(ga_action, ga_label, vwo_goal) {
-  "use strict";
-  if (window.ga) {
-    window.ga("send", "event", "signup", ga_action, ga_label);
-  }
-  if (vwo_goal) {
-    window._vis_opt_queue = window._vis_opt_queue || [];
-    window._vis_opt_queue.push(function() {
-      _vis_opt_goal_conversion(vwo_goal);
-    });
-  }
-}

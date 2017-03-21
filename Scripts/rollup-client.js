@@ -23803,7 +23803,6 @@
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
   var _NUM_INVITES = 3;
-  var _in_modal_3_fields_group = false;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
     invalid_email: TS.i18n.t("That doesn’t look like a valid email address!", "invite")(),
@@ -23871,9 +23870,6 @@
   var _start = function(options) {
     var account_type;
     _selected_exp_date_unix_ts = null;
-    if (TS.experiment.getGroup("modal_3_fields") === "modal_3_fields" || TS.experiment.getGroup("modal_3_fields_existing_teams") === "modal_3_fields") {
-      _in_modal_3_fields_group = true;
-    }
     if (_shouldSeeAccountTypeOptions()) {
       if (options && options.account_type) {
         account_type = options.account_type;
@@ -23951,12 +23947,10 @@
     } else {
       _addRow();
     }
-    if (_in_modal_3_fields_group) {
-      var current_num_of_invite_rows = _$div.find(".admin_invite_row").length;
-      if (current_num_of_invite_rows < _NUM_INVITES) {
-        var num_of_rows_to_add = _NUM_INVITES - current_num_of_invite_rows;
-        _.times(num_of_rows_to_add, _addRow);
-      }
+    var current_num_of_invite_rows = _$div.find(".admin_invite_row").length;
+    if (current_num_of_invite_rows < _NUM_INVITES) {
+      var num_of_rows_to_add = _NUM_INVITES - current_num_of_invite_rows;
+      _.times(num_of_rows_to_add, _addRow);
     }
   };
   var _onCancel = function() {
@@ -24083,14 +24077,10 @@
     if (contact_data.items !== undefined) {
       var tooltip_text = TS.i18n.t("Type here to search your Google contacts", "invite")();
       var tooltip = '<span class="ts_tip_tip"><span class="ts_tip_multiline_inner">' + tooltip_text + "</span></span>";
-      if (_in_modal_3_fields_group) {
-        var $first_empty_row = $("input.email_field").filter(function() {
-          return !this.value;
-        }).first();
-        $first_empty_row.lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
-      } else {
-        $("input.email_field:last").lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
-      }
+      var $first_empty_row = $("input.email_field").filter(function() {
+        return !this.value;
+      }).first();
+      $first_empty_row.lazyFilterSelect("container").addClass("ts_tip ts_tip_top ts_tip_float ts_tip_multiline ts_tip_delay_1000").append(tooltip);
     }
   };
   var _upsertEmailContactsData = function(elem, item) {
@@ -24142,9 +24132,6 @@
         $row.find('[name="last_name"]').val(email.last_name);
       }
     }
-    if (!_in_modal_3_fields_group) {
-      _updateSendButtonLabel();
-    }
     if (TS.google_auth.isAuthed(_google_auth_instance_id) && _google_contacts_data) {
       _startFilterSelectForEmailAddresses(_google_contacts_data);
     }
@@ -24182,54 +24169,19 @@
       } else if (row_count === 1) {
         _$div.find(".admin_invite_row").first().find(".delete_row").addClass("hidden");
       }
-      if (!_in_modal_3_fields_group) {
-        _updateSendButtonLabel();
-      }
     });
   };
   var _updateSendButtonLabel = function() {
-    var invite_count = $(".admin_invite_row").length;
     var account_type = $("#account_type").val();
     var label;
     if (account_type == "full") {
-      if (_in_modal_3_fields_group) {
-        label = TS.i18n.t("Send Invitations", "invite")();
-      } else {
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Person}other{Invite {invite_count} People}}", "invite")({
-          invite_count: invite_count
-        });
-      }
+      label = TS.i18n.t("Send Invitations", "invite")();
     } else if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
-      if (_in_modal_3_fields_group) {
-        label = TS.i18n.t("Invite Guests", "invite")();
-      } else {
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Guest}other{Invite {invite_count} Guests}}", "invite")({
-          invite_count: invite_count
-        });
-      }
+      label = TS.i18n.t("Invite Guests", "invite")();
     } else if (account_type == "restricted") {
-      if (_in_modal_3_fields_group) {
-        label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
-      } else {
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Multi-Channel Guest}other{Invite {invite_count} Multi-Channel Guests}}", "invite")({
-          invite_count: invite_count
-        });
-      }
+      label = TS.i18n.t("Invite Multi-Channel Guests", "invite")();
     } else if (account_type == "ultra_restricted") {
-      if (_in_modal_3_fields_group) {
-        label = TS.i18n.t("Invite Single-Channel Guests", "invite")();
-      } else {
-        label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest}other{Invite {invite_count} Single-Channel Guests}}", "invite")({
-          invite_count: invite_count
-        });
-        if ($("#ultra_restricted_channel_picker").val()) {
-          var ultra_restricted_channel = $("#ultra_restricted_channel_picker")[0].options[$("#ultra_restricted_channel_picker")[0].selectedIndex].text;
-          label = TS.i18n.t("{invite_count,plural,=1{Invite 1 Single-Channel Guest to {ultra_restricted_channel}}other{Invite {invite_count} Single-Channel Guests to {ultra_restricted_channel}}}", "invite")({
-            invite_count: invite_count,
-            ultra_restricted_channel: ultra_restricted_channel
-          });
-        }
-      }
+      label = TS.i18n.t("Invite Single-Channel Guests", "invite")();
     }
     _$div.find('button[data-action="api_send_invites"]').find(".ladda-label").text(label);
   };
@@ -24304,11 +24256,7 @@
       _success_invites = [];
       _error_invites = [];
       _updateSendButtonLabel();
-      if (_in_modal_3_fields_group) {
-        _.times(_NUM_INVITES, _addRow);
-      } else {
-        _addRow();
-      }
+      _.times(_NUM_INVITES, _addRow);
     }, 0);
   };
   var _resetBulkForm = function() {
@@ -25891,6 +25839,7 @@
         _manage_posting_selected.subteam.push(item.user_group.id);
         _manage_posting_selected.subteam = _.uniq(_manage_posting_selected.subteam);
       }
+      _toggleOptionGoButton(!_manage_posting_selected.user.length && !_manage_posting_selected.subteam.length);
     },
     onItemRemoved: function(item) {
       if (item.member) {
@@ -25902,6 +25851,7 @@
           return id !== item.user_group.id;
         });
       }
+      _toggleOptionGoButton(!_manage_posting_selected.user.length && !_manage_posting_selected.subteam.length);
     }
   };
   var _maybeStartPostingPrivilegeLFS = function() {
@@ -25997,7 +25947,12 @@
     _$current_option.find(".post_opt_radios").on("change", function() {
       var val = $(this).val();
       _$current_option.find(".lfs_channel_posting_selector").toggleClass("hidden", val !== "multi");
-      if (val === "multi") _maybeStartPostingPrivilegeLFS();
+      if (val === "multi") {
+        _toggleOptionGoButton(true);
+        _maybeStartPostingPrivilegeLFS();
+      } else {
+        _toggleOptionGoButton(false);
+      }
     });
   };
   var _showDataRetention = function(model_ob) {

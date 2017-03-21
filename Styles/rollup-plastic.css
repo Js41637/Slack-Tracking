@@ -748,8 +748,8 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/49b3c/fonts/slack-icons-Regular.eot);
-  src: url(/49b3c/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/49b3c/fonts/slack-icons-Regular.woff) format('woff'), url(/49b3c/fonts/slack-icons-Regular.ttf) format('truetype'), url(/49b3c/fonts/slack-icons-Regular.svg#Slack) format('svg');
+  src: url(/4d9e/fonts/slack-icons-Regular.eot);
+  src: url(/4d9e/fonts/slack-icons-Regular.eot?#iefix) format('embedded-opentype'), url(/4d9e/fonts/slack-icons-Regular.woff) format('woff'), url(/4d9e/fonts/slack-icons-Regular.ttf) format('truetype'), url(/4d9e/fonts/slack-icons-Regular.svg#Slack) format('svg');
   font-style: normal;
   font-weight: 400
 }
@@ -1980,6 +1980,10 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_screenshare_on:before {
   content: '\E558'
+}
+
+.ts_icon_shared_channels:before {
+  content: '\E559'
 }
 
 .ts_icon_arrow_right:before {
