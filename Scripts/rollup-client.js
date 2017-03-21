@@ -11897,9 +11897,9 @@
     var $im_title = $("#im_title");
     $im_title.removeClass("away");
     if (member.presence === "active") {
-      status = "active";
+      status = TS.i18n.t("active", "client")();
     } else if (member.presence === "away") {
-      status = "away";
+      status = TS.i18n.t("away", "client")();
       $im_title.addClass("away");
       if (is_shared) $shared_icon.addClass("away");
     } else {
