@@ -31450,6 +31450,7 @@
   var _need_to_hide_sidebar = false;
   var _expanded_rollups = [];
   var _sorting_tim;
+  var _validation_error_css = "validation_error";
   var _onLogin = function() {
     _show_mac_ssb_prefs = TS.model.mac_ssb_version && TS.model.mac_ssb_version >= .32 || TS.model.win_ssb_version && TS.model.is_mac;
     _show_win_ssb_prefs = TS.model.win_ssb_version && TS.model.is_win;
@@ -31726,8 +31727,10 @@
       });
     });
     _$div_contents.on("input", 'input[type="text"][data-inline-saver], textarea[data-inline-saver]', TS.utility.debounce(function() {
+      var $el = $(this);
+      if ($el.hasClass(_validation_error_css)) return;
       TS.ui.inline_saver.show({
-        target: $(this).data("inline-saver")
+        target: $el.data("inline-saver")
       });
     }, 250));
   };
@@ -32924,7 +32927,14 @@
   var _highlight_words_p = null;
   var _saveHighlightWords = function() {
     if (_highlight_words_p) _highlight_words_p.cancel();
-    _highlight_words_p = TS.prefs.saveHighlightWords(_$div.find("#highlight_words_input").val());
+    var $highlight_input = $("#highlight_words_input");
+    var $highlight_label = $highlight_input.parents("label");
+    var valid = TS.ui.validation.validate($highlight_input);
+    $highlight_label.toggleClass(_validation_error_css, !valid);
+    $highlight_input.toggleClass(_validation_error_css, !valid);
+    if (!valid) return;
+    var highlight_words = $("#highlight_words_input").val();
+    _highlight_words_p = TS.prefs.saveHighlightWords(highlight_words);
     _highlight_words_p.finally(function() {
       _highlight_words_p = null;
     });
@@ -40097,6 +40107,22 @@ function timezones_guess() {
           var last_msg_from_current_user = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, msgs);
           if (!last_msg_from_current_user) return null;
           return $('#convo_container ts-message[data-ts="' + last_msg_from_current_user.ts + '"]');
+        },
+        onTextChange: function($input) {
+          var input_value = TS.utility.contenteditable.value($input);
+          var is_input_empty = !input_value.trim();
+          var val = is_input_empty ? "" : input_value;
+          TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
+          if (experiment_group === "copy" && !_has_responded_to_thread) {
+            $reply_container.toggleClass("show_mention_teammates_info", is_input_empty);
+          }
+          var scroller = TS.ui.replies.$scroller[0];
+          var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
+          var is_close_to_bottom = from_bottom < 50;
+          if (is_close_to_bottom) {
+            scroller.scrollTop = scroller.scrollHeight - scroller.offsetHeight;
+          }
+          _checkInputLengthAndUpdate($reply_container);
         }
       });
       var $input = $reply_container.find(".message_input");
@@ -40106,21 +40132,8 @@ function timezones_guess() {
         var is_input_empty = !TS.utility.contenteditable.value($input).trim();
         var is_still_focused_actually = document.activeElement === this;
         if (is_input_empty && !is_still_focused_actually) $reply_container.removeClass("has_focus");
-      }).on("input", function(e, prev_txt) {
-        var input_value = TS.utility.contenteditable.value($input);
-        var is_input_empty = !input_value.trim();
-        var val = is_input_empty ? "" : input_value;
-        TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
-        if (experiment_group === "copy" && !_has_responded_to_thread) {
-          $reply_container.toggleClass("show_mention_teammates_info", is_input_empty);
-        }
-        var scroller = TS.ui.replies.$scroller[0];
-        var from_bottom = Math.abs(scroller.scrollHeight - scroller.offsetHeight - scroller.scrollTop);
-        var is_close_to_bottom = from_bottom < 50;
-        if (is_close_to_bottom) {
-          scroller.scrollTop = scroller.scrollHeight - scroller.offsetHeight;
-        }
       });
+      _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
       var prev_val = TS.storage.fetchReplyInput(model_ob.id, thread_ts);
       if (prev_val) {
         TS.ui.replies.populateReplyInput(prev_val);
@@ -40140,7 +40153,6 @@ function timezones_guess() {
           }
         }
       }
-      _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
     },
     submitReply: function(e, $el) {
       if (!$el || $el.length === 0) return;
@@ -40634,6 +40646,11 @@ function timezones_guess() {
         TS.log(2004, "keydown on broadcast toggle");
       });
     }
+  };
+  var _checkInputLengthAndUpdate = function($reply_container) {
+    var $input = $reply_container.find(".message_input");
+    var too_long = TS.msg_edit.isMessageTooLong($input);
+    $reply_container.find(".reply_container_info").toggleClass("no_opacity", too_long);
   };
   var _updateHeaderData = function(root_msg) {
     if (!root_msg) return;

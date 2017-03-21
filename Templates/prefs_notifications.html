@@ -139,9 +139,9 @@
     <p class="large_top_margin"><button id="growls_test" class="btn btn_outline"><i class="ts_icon ts_icon_bell_o"></i> {{#t}}Send test notification{{/t}}</button></p>
 
     <h4 id="prefs_highlight_words" class="large_top_margin inline_block">{{#t}}Highlight Words{{/t}}</h4>
-    <label class="normal">
+    <label class="normal block" for="highlight_words">
       {{#t}}To be notified when someone mentions a word or phrase, add it here. You can separate words or phrases with commas. Highlight words are not case sensitive.{{/t}}
-      <input id="highlight_words_input" type="text" data-inline-saver="#prefs_highlight_words" class="small full_width small_top_margin" {{#feature flag="feature_name_tagging_client"}}{{else}}placeholder='{{#if team_prefs.require_at_for_mention}}{{#t}}Include "{member.name}" to be notified when you are mentioned without the @{{/t}}{{else}}{{#t}}Your screen name "{member.name}" is automatically a Highlight Word{{/t}}{{/if}}'{{/feature}} value="{{highlight_words}}">
+      <input id="highlight_words_input" name="highlight_words" type="text" data-inline-saver="#prefs_highlight_words" data-validation="maxcsv=100" class="small full_width small_top_margin" {{#feature flag="feature_name_tagging_client"}}{{else}}placeholder='{{#if team_prefs.require_at_for_mention}}{{#t}}Include "{member.name}" to be notified when you are mentioned without the @{{/t}}{{else}}{{#t}}Your screen name "{member.name}" is automatically a Highlight Word{{/t}}{{/if}}'{{/feature}} value="{{highlight_words}}">
     </label>
 
   </div>

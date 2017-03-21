@@ -46131,11 +46131,12 @@ $.fn.togglify = function(settings) {
     var container_height = instance.$list_container.height();
     var padding = instance.$list_container.outerHeight() - container_height;
     var max_height = parseInt(instance.$list_container.css("max-height"), 10);
-    var window_height = $(window).height();
     instance.$error.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     instance.$empty.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
-    var available_height = Math.floor(window_height - instance.$list.offset().top);
+    var window_height = $(window).height();
+    var list_top = instance.$list[0].getBoundingClientRect().top;
+    var available_height = Math.floor(window_height - list_top);
     if (_isFilterInListStyle(instance)) {
       var filter_margin_bottom = parseInt(instance.$filter_input.css("margin-bottom"), 10) || 0;
       max_height -= instance.$filter_input.outerHeight() + filter_margin_bottom;
@@ -56398,7 +56399,7 @@ $.fn.togglify = function(settings) {
         },
         onTextChange: function() {
           TS.msg_edit.checkLengthAndUpdateMessage($input);
-          if (opts.onTextChange) opts.onTextChange();
+          if (opts.onTextChange) opts.onTextChange($input);
         }
       });
       TS.utility.contenteditable.enable($input);
@@ -56416,6 +56417,7 @@ $.fn.togglify = function(settings) {
     if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) return;
     $input.bind("textchange", function(e, prev_txt) {
       TS.msg_edit.checkLengthAndUpdateMessage($input);
+      if (opts.onTextChange) opts.onTextChange($input);
     }).bind("keyup", function(e) {
       var selection;
       if (window.getSelection) {
@@ -59029,6 +59031,7 @@ $.fn.togglify = function(settings) {
     renderReplyInput: function($thread, thread) {
       var model_ob = thread.model_ob;
       var thread_ts = thread.root_msg.ts;
+      var experiment_group = TS.experiment.getGroup("exp_thread_at_mention");
       var $reply_container = $thread.find(".reply_input_container");
       $reply_container.empty();
       if (!TS.permissions.members.canPostInModelOb(TS.model.user, model_ob) || model_ob.is_archived) {
@@ -59043,7 +59046,6 @@ $.fn.togglify = function(settings) {
         }
         return;
       }
-      var $input;
       TS.ui.inline_msg_input.make($reply_container, {
         placeholder: TS.i18n.t("Reply...", "threads")(),
         complete_member_specials: false,
@@ -59119,28 +59121,30 @@ $.fn.togglify = function(settings) {
             return $div;
           }
           return null;
+        },
+        onTextChange: function($input) {
+          var input_value = TS.utility.contenteditable.value($input);
+          var is_input_empty = !input_value.trim();
+          var val = is_input_empty ? "" : input_value;
+          TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
+          if (experiment_group === "copy" && !thread._has_responded_to_thread) {
+            $reply_container.toggleClass("show_mention_teammates_info", is_input_empty);
+          }
+          _checkInputLengthAndUpdate($reply_container);
         }
       });
-      var experiment_group = TS.experiment.getGroup("exp_thread_at_mention");
       if (experiment_group === "copy") {
         thread._has_responded_to_thread = TS.utility.msgs.userRepliedToMsg(thread.root_msg);
       }
-      $input = $reply_container.find(".message_input");
+      var $input = $reply_container.find(".message_input");
       $input.on("focusin", function() {
         $reply_container.addClass("has_focus");
       }).on("focusout", function(e) {
         var is_input_empty = !TS.utility.contenteditable.value($input).trim();
         var is_still_focused_actually = document.activeElement === this;
         if (is_input_empty && !is_still_focused_actually) $reply_container.removeClass("has_focus");
-      }).on("input", function(e, prev_txt) {
-        var input_value = TS.utility.contenteditable.value($input);
-        var is_input_empty = !input_value.trim();
-        var val = is_input_empty ? "" : input_value;
-        TS.storage.storeReplyInput(model_ob.id, thread_ts, val);
-        if (experiment_group === "copy" && !thread._has_responded_to_thread) {
-          $reply_container.toggleClass("show_mention_teammates_info", is_input_empty);
-        }
       });
+      _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
       var prev_val = TS.storage.fetchReplyInput(model_ob.id, thread_ts);
       if (prev_val) {
         TS.utility.populateInput($input, prev_val);
@@ -59148,7 +59152,6 @@ $.fn.togglify = function(settings) {
       } else if (experiment_group === "copy") {
         $reply_container.toggleClass("show_mention_teammates_info", !thread._has_responded_to_thread);
       }
-      _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
     },
     joinChannelFromThread: function(e, $el) {
       var $thread = $el.closest("ts-thread");
@@ -59442,6 +59445,11 @@ $.fn.togglify = function(settings) {
       model_ob_name: model_ob.name,
       is_threads_view: true
     }));
+  };
+  var _checkInputLengthAndUpdate = function($reply_container) {
+    var $input = $reply_container.find(".message_input");
+    var too_long = !!TS.msg_edit.isMessageTooLong($input);
+    $reply_container.find(".reply_container_info").toggleClass("hidden", too_long);
   };
   var _showThreadLoadingError = function($thread) {
     if (!TS.model.threads_view_is_showing) return;
@@ -69004,24 +69012,25 @@ $.fn.togglify = function(settings) {
         s()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-          isScrolling: !1,
-          scrollDirectionHorizontal: C.a,
-          scrollDirectionVertical: C.a,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
-          cellCount: e.columnCount,
-          cellSizeGetter: function(e) {
-            return o._columnWidthGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedColumnSize(e)
-        }), o._rowSizeAndPositionManager = new b.a({
-          cellCount: e.rowCount,
-          cellSizeGetter: function(e) {
-            return o._rowHeightGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedRowSize(e)
-        }), o._cellCache = {}, o._styleCache = {}, o;
+            isScrolling: !1,
+            scrollDirectionHorizontal: C.a,
+            scrollDirectionVertical: C.a,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o),
+          o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+            cellCount: e.columnCount,
+            cellSizeGetter: function(e) {
+              return o._columnWidthGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedColumnSize(e)
+          }), o._rowSizeAndPositionManager = new b.a({
+            cellCount: e.rowCount,
+            cellSizeGetter: function(e) {
+              return o._rowHeightGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedRowSize(e)
+          }), o._cellCache = {}, o._styleCache = {}, o;
       }
       return h()(t, e), c()(t, [{
         key: "measureAllCells",
@@ -77008,7 +77017,8 @@ $.fn.togglify = function(settings) {
     },
     u = {},
     s = {};
-  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
+  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation,
+    delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
 }, function(e, t, n) {
   "use strict";
 
@@ -78539,7 +78549,8 @@ $.fn.togglify = function(settings) {
 
   function i(e, t) {
     if (t) {
-      "function" == typeof t ? p("75") : void 0, v.isValidElement(t) ? p("76") : void 0;
+      "function" == typeof t ? p("75") : void 0,
+        v.isValidElement(t) ? p("76") : void 0;
       var n = e.prototype,
         r = n.__reactAutoBindPairs;
       t.hasOwnProperty(_) && w.mixins(e, t.mixins);
