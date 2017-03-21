@@ -25912,7 +25912,7 @@ li:hover .current_status_badge {
   unicode-range: U+F8FF
 }
 
-#client_body:not(.onboarding) #messages_container {
+#messages_container {
   overflow-y: hidden
 }
 

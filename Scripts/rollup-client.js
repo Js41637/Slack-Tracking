@@ -3206,7 +3206,7 @@
       $("#monkey_scroll_wrapper_for_msgs_scroller_div").find(".monkey_scroll_bar").css("visibility", "hidden");
       TS.client.ui.$msgs_scroller_div.scrollTop(0);
       TS.client.ui.$msgs_div.css("visibility", "hidden");
-      $("#footer").css("visibility", "hidden");
+      $("#footer").addClass("hidden");
     },
     unAdjustForWelcomeSlideShow: function(keep_at_top) {
       if (!TS.model.showing_welcome_2) {
@@ -3236,7 +3236,7 @@
       $("#monkey_scroll_wrapper_for_msgs_scroller_div").find(".monkey_scroll_bar").css("visibility", "");
       TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.$msgs_scroller_div);
       TS.client.ui.$msgs_div.css("visibility", "visible");
-      $("#footer").css("visibility", "visible");
+      $("#footer").removeClass("hidden");
       return true;
     },
     submit: function() {
@@ -37109,7 +37109,7 @@ function timezones_guess() {
         TS.client.ui.unread.$scroller.monkeyScroll();
         TS.client.ui.unread.$container = $("#monkey_scroll_wrapper_for_unread_msgs_scroller_div");
       }
-      $("#footer").addClass("invisible");
+      $("#footer").addClass("hidden");
       _onResize();
       TS.view.resize_sig.add(_onResize);
       TS.client.ui.unread.$unread_msgs_div.on("click.unread", ".bottom_mark_all_read_btn", function() {
@@ -37471,7 +37471,7 @@ function timezones_guess() {
       TS.client.ui.unread.$unread_msgs_div.empty();
       _loading = false;
       TS.client.ui.unread.hideLoadingMessage();
-      $("#footer").removeClass("invisible");
+      $("#footer").removeClass("hidden");
       TS.view.resize_sig.remove(_onResize);
       TS.channels.renamed_sig.remove(_onRename);
       TS.groups.renamed_sig.remove(_onRename);
@@ -41698,7 +41698,7 @@ function timezones_guess() {
       $("#client-ui").addClass("threads_view_is_showing");
       TS.client.ui.threads.$scroller.addClass("loading");
       TS.client.ui.threads.$scroller.addClass("emojimode_" + TS.model.prefs.emoji_mode);
-      $("#footer").addClass("invisible");
+      $("#footer").addClass("hidden");
       TS.client.archives.cancel(true);
       var make_sure_active_channel_is_in_view = true;
       TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
@@ -41732,7 +41732,7 @@ function timezones_guess() {
       TS.client.ui.threads.$scroller.empty();
       $("#client-ui").removeClass("threads_view_is_showing");
       _removeEmojiModeClass();
-      $("#footer").removeClass("invisible");
+      $("#footer").removeClass("hidden");
       $("#msgs_scroller_div").removeClass("hidden");
       TS.client.ui.threads.$container = null;
       TS.view.resize_sig.remove(_onResize);
