@@ -23385,6 +23385,10 @@ TS.registerModule("constants", {
               if (value !== undefined) {
                 modified_items[item] = data[item];
                 data[item] = Handlebars.Utils.escapeExpression(value);
+              } else {
+                if (location.host.match(/(dev[0-9]*)\.slack.com/)) {
+                  throw new Error('The ICU token "{' + item + '}" doesn‘t have any data. Please fix!’');
+                }
               }
             }
           }
