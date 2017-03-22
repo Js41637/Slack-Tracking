@@ -1933,6 +1933,9 @@
       TS.view.checkIfInputShouldBeDisabledAndPopulate();
       TS.utility.contenteditable.clearHistory(TS.client.ui.$msg_input);
       TS.view.showInterstitialAfterChannelOrImShown();
+      if (!TS.client.activeChannelIsHidden() && !TS.environment.supports_custom_scrollbar) {
+        TS.ui.utility.updateClosestMonkeyScroller(TS.client.ui.$msgs_scroller_div);
+      }
       var start_mark = "start_channel_change_" + TS.model.active_cid;
       var label = "channel_change";
       if (model_ob.is_channel && TS.model.shared_channels_enabled && model_ob.is_shared) {
@@ -9602,6 +9605,7 @@
       };
       if (this._current_query_for_match) {
         query_params.query = this._current_query_for_match;
+        query_params.search_profile_fields = true;
       } else {
         query_params.marker = this._next_marker;
       }
@@ -10075,11 +10079,6 @@
             eventuallyOnTextChange(source);
           }
         };
-        if (TS.boot_data.feature_texty_rewrite_on_paste) {
-          texty_config.onPaste = function(delta) {
-            return TS.format.texty.getFormattedDelta(delta);
-          };
-        }
         TS.utility.contenteditable.create($input, texty_config);
       }
       TS.utility.contenteditable.enable($input);
@@ -13162,7 +13161,13 @@
       var unreads = model_ob.unreads;
       var check_that_all_have_been_viewed = false;
       var is_muted = TS.notifs.isCorGMuted(model_ob.id);
-      if (TS.model.prefs.mark_msgs_read_immediately) {
+      var mark_msgs_read_immediately = TS.model.prefs.mark_msgs_read_immediately;
+      if (TS.boot_data.feature_scrollback_half_measures && mark_msgs_read_immediately && TS.model.prefs.start_scroll_at_oldest && !!parseInt(model_ob.last_read) && model_ob.msgs.length && !model_ob.is_limited) {
+        mark_msgs_read_immediately = _.some(model_ob.msgs, function(msg) {
+          return msg.ts <= model_ob.last_read;
+        });
+      }
+      if (mark_msgs_read_immediately) {
         all_unreads_are_seen = true;
       } else if (is_muted) {
         all_unreads_are_seen = true;
@@ -13199,8 +13204,8 @@
         }
       }
       if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": all_unreads_are_seen = " + all_unreads_are_seen + ", last_read_msg_div = " + (_$last_read_msg_div && _$last_read_msg_div.length) + ", last_read = " + model_ob.last_read);
-      if (all_unreads_are_seen && (_$last_read_msg_div && _$last_read_msg_div.length || !parseInt(model_ob.last_read) || TS.model.prefs.mark_msgs_read_immediately || is_muted)) {
-        if (!TS.model.prefs.mark_msgs_read_immediately) {
+      if (all_unreads_are_seen && (_$last_read_msg_div && _$last_read_msg_div.length || !parseInt(model_ob.last_read) || mark_msgs_read_immediately || is_muted)) {
+        if (!mark_msgs_read_immediately) {
           if (TS.pri) TS.log(142, "checkUnreads " + model_ob.id + ": All unreads are seen. Marking as viewed.");
           TS.client.ui.markMostRecentReadMsgInActive(TS.model.marked_reasons.viewed);
         } else {
@@ -13209,7 +13214,7 @@
             if (TS.pri) TS.log(142, "NOT MARKING most recent as read because history being fetched");
           } else if (TS.client.msg_pane.new_msgs_bar_showing) {
             if (TS.pri) TS.log(142, "NOT MARKING most recent as read because new msgs bar is showing.");
-            if (TS.model.prefs.mark_msgs_read_immediately) {
+            if (mark_msgs_read_immediately) {
               if (!model_ob._mark_most_recent_read_timer) {
                 if (TS.pri) TS.log(142, "Setting a timer to mark " + model_ob.id + " as read.");
                 model_ob._mark_most_recent_read_timer = window.setTimeout(function() {
@@ -27148,7 +27153,7 @@
       }[path[0]];
       if (is_message) {
         if (path.length < 2) return false;
-        var identifier = path[1];
+        var identifier = decodeURIComponent(path[1]);
         if (!identifier) return false;
         var model_ob = TS.shared.getModelObById(identifier) || TS.ims.getImByUsername(identifier) || TS.channels.getChannelByName(identifier) || TS.groups.getGroupByName(identifier) || TS.mpims.getMpimByName(identifier);
         if (!model_ob) return false;

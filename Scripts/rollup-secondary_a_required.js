@@ -9574,9 +9574,27 @@ TS.registerModule("constants", {
               inclusive: true
             };
             if (TS.pri) TS.log(58, 'first history fetch. has_more is TRUE for "' + model_ob.id + '" - dumping history and fetching most recent ' + TS.model.initial_msgs_cnt + " msgs. prior history call data follows.", args);
-            return controller.fetchHistory(model_ob, api_args);
+            controller.fetchHistory(model_ob, api_args);
+            return true;
           }
         } else {
+          if (TS.boot_data.feature_scrollback_half_measures && TS.model.prefs.start_scroll_at_oldest) {
+            var last_read = parseInt(model_ob.last_read) ? model_ob.last_read : null;
+            if (data.messages && last_read && !args._second_attempt_for_last_read) {
+              var oldest_msg = _.minBy(data.messages, "ts");
+              if (oldest_msg.ts > last_read) {
+                var api_args = {
+                  channel: model_ob.id,
+                  count: 3 * TS.model.initial_msgs_cnt,
+                  inclusive: true,
+                  _second_attempt_for_last_read: true
+                };
+                if (TS.pri) TS.log(58, "last_read for " + model_ob.id + " is older than the first history response, trying again with a larger count");
+                controller.fetchHistory(model_ob, api_args);
+                return true;
+              }
+            }
+          }
           if (TS.pri) TS.log(58, 'first history fetch. no "oldest" param for "' + model_ob.id + '", marking _history_fetched_since_last_connect = true.', args);
           model_ob._history_fetched_since_last_connect = true;
           if (model_ob.history_is_being_fetched) {
@@ -64310,7 +64328,8 @@ $.fn.togglify = function(settings) {
           }
 
           function ul(e, t, n) {
-            if (n && "boolean" != typeof n && Ui(e, t, n) && (t = n = oe), n === oe && ("boolean" == typeof t ? (n = t, t = oe) : "boolean" == typeof e && (n = e, e = oe)), e === oe && t === oe ? (e = 0, t = 1) : (e = ks(e), t === oe ? (t = e, e = 0) : t = ks(t)), e > t) {
+            if (n && "boolean" != typeof n && Ui(e, t, n) && (t = n = oe), n === oe && ("boolean" == typeof t ? (n = t, t = oe) : "boolean" == typeof e && (n = e,
+                e = oe)), e === oe && t === oe ? (e = 0, t = 1) : (e = ks(e), t === oe ? (t = e, e = 0) : t = ks(t)), e > t) {
               var r = e;
               e = t, t = r;
             }
@@ -75330,7 +75349,8 @@ $.fn.togglify = function(settings) {
 
   function a(e, t) {
     var n, r, o = document.selection.createRange().duplicate();
-    void 0 === t.end ? (n = t.start, r = n) : t.start > t.end ? (n = t.end, r = t.start) : (n = t.start, r = t.end), o.moveToElementText(e), o.moveStart("character", n), o.setEndPoint("EndToStart", o), o.moveEnd("character", r - n), o.select();
+    void 0 === t.end ? (n = t.start, r = n) : t.start > t.end ? (n = t.end, r = t.start) : (n = t.start, r = t.end), o.moveToElementText(e), o.moveStart("character", n),
+      o.setEndPoint("EndToStart", o), o.moveEnd("character", r - n), o.select();
   }
 
   function u(e, t) {
