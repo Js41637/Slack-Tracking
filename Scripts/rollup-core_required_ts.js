@@ -2376,6 +2376,11 @@
     };
   };
   var _getPseudoTranslation = function(str) {
+    var end_colon = false;
+    if (str.endsWith(":")) {
+      end_colon = true;
+      str = str.substr(0, str.length - 1);
+    }
     var regex = /(<[^>]+>)|(&\w+;)/gi;
     var tags = str.match(regex) || [];
     str = str.replace(regex, "<>");
@@ -2396,9 +2401,13 @@
       }
       return t[1];
     }).join("");
-    return str.split("<>").map(function(w, i) {
+    str = str.split("<>").map(function(w, i) {
       return w + (tags[i] || "");
     }).join("");
+    if (end_colon) {
+      str += ":";
+    }
+    return str;
   };
   var _PSEUDO_MAP = {
     a: [/a/g, "á"],

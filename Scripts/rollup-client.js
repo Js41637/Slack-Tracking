@@ -7185,6 +7185,7 @@
       if (TS.model.overlay_is_showing) return false;
       if (TS.ui.msg_tab_complete.isShowing()) return false;
       if (TS.ui.fs_modal.is_showing) return false;
+      if (document.visibilityState === "hidden") return false;
       return true;
     },
     unfurlPlaceholders: function($preview) {
