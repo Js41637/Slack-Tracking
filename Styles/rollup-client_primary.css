@@ -1476,9 +1476,11 @@ html.is_mac .CodeMirror .CodeMirror-sizer {
 }
 
 .feature_better_app_info.colpick {
+  background: #fff;
   width: 348px;
   height: auto;
   padding: 7px;
+  margin-top: 7px;
   box-shadow: 0 0 16px rgba(0, 0, 0, .2);
   flex-wrap: wrap
 }

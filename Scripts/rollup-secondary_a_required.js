@@ -41564,6 +41564,12 @@ var _on_esc;
         return els.every(function(el) {
           return _validate($(el), options);
         });
+      } else if (options && options.verbose) {
+        var validation = {};
+        els.forEach(function(el) {
+          validation[el.name] = _validate($(el), options);
+        });
+        return validation;
       } else {
         return els.reduce(function(accumulator, el) {
           return _validate($(el), options) && accumulator;
@@ -41699,7 +41705,7 @@ var _on_esc;
       return void TS.ui.validation.showWarning($el, TS.i18n.t("Please select an option", "ui_validation")(), options);
     } else if (_isElementTextInput($el)) {
       if (_getTextInputValue($el).trim()) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can‘t be empty", "ui_validation")(), options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can’t be empty", "ui_validation")(), options);
     } else {
       return void TS.error("Error: cannot validate");
     }
@@ -41724,7 +41730,7 @@ var _on_esc;
   }
 
   function _validateIsUrl($el, options, protocols) {
-    var error_message = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")();
+    var error_message = TS.i18n.t("This doesn’t seem like a proper link. Sorry!", "ui_validation")();
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if (_isElementTextInput($el)) {
       var value = _getTextInputValue($el);
@@ -41752,7 +41758,7 @@ var _on_esc;
   }
 
   function _validateIsLink($el, options) {
-    var error_message = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")();
+    var error_message = TS.i18n.t("This doesn’t seem like a proper link. Sorry!", "ui_validation")();
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
     if (_isElementTextInput($el)) {
       var value = _getTextInputValue($el);
@@ -41773,7 +41779,7 @@ var _on_esc;
       if (!TS.utility.findUrls(value).length) {
         return true;
       }
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("Unfortunately, custom messages can‘t contain URLs.", "ui_validation")(), options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("Unfortunately, custom messages can’t contain URLs.", "ui_validation")(), options);
     } else {
       return void TS.error("Error: cannot validate");
     }
@@ -41795,13 +41801,13 @@ var _on_esc;
       if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
       if (key === "minlength") {
         if (value.length >= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t be less than {minlength, plural, =1{# character}other{# characters}}", "ui_validation")({
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t be less than {minlength, plural, =1{# character}other{# characters}}", "ui_validation")({
           minlength: length
         }), options);
       } else if (key === "maxlength") {
         if (!hide_countdown) _countdown($el, value.length, length, options);
         if (value.length <= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t be more than {maxlength, plural, =1{# character}other{# characters}}", "ui_validation")({
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t be more than {maxlength, plural, =1{# character}other{# characters}}", "ui_validation")({
           maxlength: length
         }), options);
       }
@@ -41826,12 +41832,12 @@ var _on_esc;
       if (value === undefined || isNaN(length)) return void TS.error("Error: no length to validate");
       if (key === "mincsv") {
         if (value.split(/\s*\,\s*/).length >= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t have less than {minlength, plural, =1{# value}other{# values}}", "ui_validation")({
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t have less than {minlength, plural, =1{# value}other{# values}}", "ui_validation")({
           minlength: length
         }), options);
       } else if (key === "maxcsv") {
         if (value.split(/\s*\,\s*/).length <= length) return true;
-        return void TS.ui.validation.showError($el, TS.i18n.t("This field can‘t have more than {maxlength, plural, =1{# value}other{# values}}", "ui_validation")({
+        return void TS.ui.validation.showError($el, TS.i18n.t("This field can’t have more than {maxlength, plural, =1{# value}other{# values}}", "ui_validation")({
           maxlength: length
         }), options);
       }
@@ -41866,7 +41872,7 @@ var _on_esc;
       if (!match) return void TS.ui.validation.showWarning($el, TS.i18n.t("This needs to be in the format {pattern}. Sorry!", "ui_validation")({
         pattern: ui_pattern
       }), options);
-      if (!valid) return void TS.ui.validation.showWarning($el, TS.i18n.t("{value} doesn‘t appear to be a valid date. Sorry!", "ui_validation")({
+      if (!valid) return void TS.ui.validation.showWarning($el, TS.i18n.t("{value} doesn’t appear to be a valid date. Sorry!", "ui_validation")({
         value: TS.utility.htmlEntities(value)
       }), options);
     } else {
@@ -41885,7 +41891,7 @@ var _on_esc;
     var value = _isElementTextInput($el) ? _getTextInputValue($el) : $el.val();
     var has_spaces = /\s/.test(value);
     if (!has_spaces) return true;
-    return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can‘t contain spaces", "ui_validation")(), options);
+    return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can’t contain spaces", "ui_validation")(), options);
   }
 
   function _validateFirstAlphanumeric($el, options) {
@@ -42000,7 +42006,7 @@ var _on_esc;
       if (!value) return true;
       var found = value.match(TS.utility.email_regex);
       if (found && found.length === 1 && found[0] === value) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t("This doesn‘t seem like an email address. Sorry!", "ui_validation")(), options);
+      return void TS.ui.validation.showWarning($el, TS.i18n.t("This doesn’t seem like an email address. Sorry!", "ui_validation")(), options);
     } else {
       return void TS.error("Error: cannot validate");
     }

@@ -24,10 +24,10 @@
       <li data-replacement="{{modifier}}{{matching_keyword}}"{{#if matching_keyword}} data-matching-keyword="{{matching_keyword}}"{{/if}}>
         <button class="result_item_btn btn_unstyle" type="button">
           {{#if matching_keyword}}
-            <span class="modifier muted_text">{{modifier}}</span>
+            <span class="modifier muted_text">{{name}}</span>
             <strong class="keyword">{{matching_keyword}}</strong>
           {{else}}
-            <strong class="modifier">{{modifier}}</strong>
+            <strong class="modifier">{{name}}</strong>
             {{#if keyword_placeholder}}
               <span class="muted_text">{{keyword_placeholder}}</span>
             {{/if}}

@@ -7,6 +7,9 @@
   </div>
   <h2 data-js="url-table-editor-header" class="c-url_table_editor__title">{{ options.title }}</h2>
   <div data-js="url-table-editor-body" class="small_bottom_margin">
+    {{#if options.show_empty_message}}
+      <div data-js="url-table-editor-empty-message-container"></div>
+    {{/if}}
     {{#if model}}
       {{#each model}}
         {{> developer_apps_url_table_editor_row index=@key is_read_mode=true cancel_button_text=../options.cancel_button_text save_button_text=../options.save_button_text edit_button_text=../options.edit_button_text validation=../options.validation }}

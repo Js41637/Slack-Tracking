@@ -1482,16 +1482,7 @@
   };
   var _client_load_watchdog_tim = null;
   var _client_load_watchdog_ms = 1e4;
-  var _logDataToServer = function(key, value) {
-    var team = "";
-    if (TS && TS.model && TS.model.team) {
-      team = TS.model.team.id;
-    }
-    var xhr = new XMLHttpRequest;
-    var url = "/log204?k=" + key + "&v=" + value + "&t=" + team;
-    xhr.open("GET", url, true);
-    xhr.send();
-  };
+  var _logDataToServer = function(key, value) {};
   var _reportLoadTiming = function(key) {
     window.clearTimeout(_client_load_watchdog_tim);
     if (!window.performance) return;
@@ -1709,7 +1700,7 @@
       var banner_h = TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height"));
       if (TS.model.menu_is_showing) TS.view.setFlexMenuSize();
       if (wh_changed || !!TS.view.last_input_height) {
-        if (TS.model.prefs && TS.model.prefs.msg_preview) {
+        if (TS.model.prefs && TS.model.prefs.msg_preview && !TS.client.activeChannelIsHidden()) {
           TS.view.measureMsgPreview();
         }
         if (!TS.view.last_input_height || TS.view.last_preview_height_changed) {
@@ -9151,9 +9142,7 @@
           $("#client-ui").removeClass("flex_pane_showing");
         });
         TS.model.ui_state.flex_visible = false;
-        if (!TS.client.activeChannelIsHidden()) {
-          TS.view.resizeManually("TS.client.ui.flex.hideFlex");
-        }
+        TS.view.resizeManually("TS.client.ui.flex.hideFlex");
         if (TS.model.ui.scrolled_to_msg_ts) {
           TS.client.ui.scrollMsgsSoMsgIsInView(TS.model.ui.scrolled_to_msg_ts, false, true, 200);
           TS.model.ui.scrolled_to_msg_ts = null;
@@ -18129,7 +18118,7 @@
     _getModifiersForQuery: function(query, exclude_keywords) {
       var results = [];
       this.options.data.modifiers.forEach(function(modifier) {
-        if (this._startsWith(modifier.modifier, query)) {
+        if (this._startsWith(modifier.modifier, query) || this._startsWith(modifier.name, query)) {
           results.push($.extend({}, modifier));
         }
       }, this);
@@ -18791,37 +18780,45 @@
   };
   var _modifiers = [{
     modifier: "after:",
+    name: TS.i18n.t("after:", "search")(),
     keywords: _date_keywords.concat(_date_range_keywords),
     dynamic_keywords: [_dynamicYearKeyword],
     keyword_placeholder: TS.i18n.t("a date", "search")()
   }, {
     modifier: "before:",
+    name: TS.i18n.t("before:", "search")(),
     keywords: _date_and_date_range_keywords,
     dynamic_keywords: [_beforeDynamicYearKeyword],
     keyword_placeholder: TS.i18n.t("a date", "search")()
   }, {
     modifier: "during:",
+    name: TS.i18n.t("during:", "search")(),
     keywords: _date_and_date_range_keywords,
     dynamic_keywords: [_dynamicYearKeyword],
     keyword_placeholder: TS.i18n.t("a month or year", "search")()
   }, {
     modifier: "from:",
+    name: TS.i18n.t("from:", "search")(),
     keywords: ["me"],
     keyword_placeholder: TS.i18n.t("team member", "search")()
   }, {
     modifier: "to:",
+    name: TS.i18n.t("to:", "search")(),
     keywords: ["me"],
     keyword_placeholder: TS.i18n.t("a channel, group or direct message", "search")()
   }, {
     modifier: "has:",
+    name: TS.i18n.t("has:", "search")(),
     keywords: ["star", "link", "reaction"],
     keyword_placeholder: TS.i18n.t("star, link, or reaction", "search")()
   }, {
     modifier: "in:",
+    name: TS.i18n.t("in:", "search")(),
     keywords: ["me"],
     keyword_placeholder: TS.i18n.t("a channel, group or direct message", "search")()
   }, {
     modifier: "on:",
+    name: TS.i18n.t("on:", "search")(),
     keywords: _date_and_date_range_keywords,
     dynamic_keywords: [_dynamicYearKeyword],
     keyword_placeholder: TS.i18n.t("a date", "search")()
@@ -37154,6 +37151,16 @@ function timezones_guess() {
           TS.client.ui.unread.msgs_rendered_sig.dispatch(changes);
         }
       };
+      if (TS.boot_data.feature_sli_briefing) {
+        _.assign(_msgs_config, {
+          afterPageDown: function() {
+            if (TS.highlights_briefing.isEnabled()) TS.highlights_briefing.hideBriefing();
+          },
+          afterPageUp: function(first) {
+            if (TS.highlights_briefing.isEnabled() && first) TS.highlights_briefing.showBriefing();
+          }
+        });
+      }
       TS.ui.message_container.register(_msgs_config);
       _preloadEmptyState();
       TS.client.ui.unread.$scroller.attr("tabindex", "-1");
@@ -38507,11 +38514,18 @@ function timezones_guess() {
       if (!config._range || !config.page_size) return;
       _moveVisibleRangeBack(config);
       TS.ui.message_container.updateWithFocus(config, $element);
+      if (config.afterPageUp) {
+        var all = _flattenAllMsgs(config);
+        var first_msg = _.first(all);
+        var on_first_page = _.isEqual(first_msg, config._range.start);
+        _.invoke(config, "afterPageUp", on_first_page);
+      }
     },
     pageDown: function(config, $element) {
       if (!config._range || !config.page_size) return;
       _moveVisibleRangeForward(config);
       TS.ui.message_container.updateWithFocus(config, $element);
+      _.invoke(config, "afterPageDown");
     },
     test: function() {
       return {
