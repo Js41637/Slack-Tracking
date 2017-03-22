@@ -5298,10 +5298,6 @@ only screen and (min-resolution:2dppx) {
   border: 1px solid rgba(0, 0, 0, .15)
 }
 
-#client-ui:not(.feature_shrinkwrap_menus) .menu {
-  max-width: 20rem
-}
-
 .menu .menu_content {
   position: relative;
   z-index: 1043;
@@ -5338,11 +5334,7 @@ only screen and (min-resolution:2dppx) {
   color: #BABBBF
 }
 
-#client-ui:not(.feature_shrinkwrap_menus) .menu ul li i {
-  float: left
-}
-
-#client-ui.feature_shrinkwrap_menus .menu ul li i {
+#client-ui .menu ul li i {
   display: inline-block
 }
 
@@ -5371,13 +5363,6 @@ only screen and (min-resolution:2dppx) {
   line-height: 1.5625rem;
   background: 0 0;
   color: #2C2D30
-}
-
-#client-ui:not(.feature_shrinkwrap_menus) .menu ul li a {
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
 }
 
 .menu ul li a.delete_link {
@@ -5658,13 +5643,6 @@ only screen and (min-resolution:2dppx) {
   line-height: 1.5625rem;
   background: 0 0;
   color: #2C2D30
-}
-
-#client-ui:not(.feature_shrinkwrap_menus) .menu #menu_list_container #menu_list .menu_list_item a {
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap
 }
 
 .menu #menu_list_container #menu_list .menu_list_item a .member_image {

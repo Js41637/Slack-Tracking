@@ -7,12 +7,12 @@
     <fieldset class="large_bottom_margin">
       <legend id="prefs_a11y_font_size">{{#t}}Zoom{{/t}}</legend>
 
-            {{#if zoom_pref_70_supported}}
-                <label class="radio normal">
-                    <input name="a11y_font_size_select" type="radio" value="70">
-                    {{#t note="setting for text size"}}<strong>70%</strong>{{/t}}
-                </label>
-            {{/if}}
+      {{#if zoom_pref_70_supported}}
+        <label class="radio normal">
+          <input name="a11y_font_size_select" type="radio" value="70">
+          {{#t note="setting for text size"}}<strong>70%</strong>{{/t}}
+        </label>
+      {{/if}}
 
       <label class="radio normal">
         <input name="a11y_font_size_select" type="radio" value="80">
@@ -75,32 +75,6 @@
       </ts-message>
     </div>
   </div>
-{{/if}}
-
-{{#if font_size_pref_enabled}}
-  <fieldset class="large_bottom_margin">
-    <legend id="prefs_a11y_font_size">{{#t}}Font Size{{/t}}</legend>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="normal" data-inline-saver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Default</strong> size at 100%{{/t}}
-    </label>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="110" data-inline-saver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Medium</strong> size at 110%{{/t}}
-    </label>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="125" data-inline-saver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Larger</strong> size at 125%{{/t}}
-    </label>
-
-    <label class="radio normal">
-      <input name="a11y_font_size_select" type="radio" value="150" data-inline-saver="#prefs_a11y_font_size">
-      {{#t note="setting for text size"}}<strong>Largest</strong> size at 150%{{/t}}
-    </label>
-  </fieldset>
 {{/if}}
 
 <fieldset>

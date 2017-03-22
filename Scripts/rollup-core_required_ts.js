@@ -4843,7 +4843,7 @@ var _fullToHalf = function(char) {
           append: true,
           single: true,
           data_promise: data_promise,
-          approx_item_height: 30 * TS.utility.getA11yFontSizeMultiplier(),
+          approx_item_height: 30,
           tab_to_nav: true,
           template: function(item) {
             return new Handlebars.SafeString(TS.templates.file_sharing_channel_row({

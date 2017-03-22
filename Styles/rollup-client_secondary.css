@@ -441,10 +441,6 @@ html.is_electron_mac {
   margin-top: 4px
 }
 
-.font_size_adjusted .flex_menu .badge {
-  margin-top: .5rem
-}
-
 .toolbar_container {
   width: 100%;
   padding: 0 .75rem .75rem;
@@ -505,10 +501,6 @@ input.search_input {
 
 #flex_contents .heading:focus {
   outline: 0
-}
-
-.font_size_adjusted #flex_contents .heading {
-  padding-right: .5rem
 }
 
 #flex_contents .subheading {
@@ -770,10 +762,6 @@ input.search_input {
   background-color: rgba(113, 114, 116, .8)
 }
 
-.font_size_adjusted .flex_content_scroller {
-  width: 100%
-}
-
 #flex_contents textarea {
   width: 70%
 }
@@ -946,53 +934,6 @@ input.search_input {
   color: #555459
 }
 
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-align: center;
-  -webkit-align-items: center;
-  -webkit-box-align: center;
-  -moz-align-items: center;
-  align-items: center;
-  -ms-flex-wrap: wrap;
-  -webkit-flex-wrap: wrap;
-  -moz-flex-wrap: wrap;
-  flex-wrap: wrap
-}
-
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2),
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2)~li,
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3),
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3)~li {
-  width: auto
-}
-
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2) a,
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(2)~li a,
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3) a,
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3)~li a {
-  max-width: none
-}
-
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3),
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar:first-child:nth-last-child(3)~li {
-  max-width: 50%
-}
-
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar li {
-  flex: 1 1 50%;
-  min-width: 50%;
-  float: none
-}
-
-.font_size_adjusted #flex_contents #team_tabs .flexpane_tab_bar li a {
-  display: inline;
-  max-width: none
-}
-
 #flex_contents .flexpane_tab_toolbar #search #team_filter .member_filter,
 #flex_contents .flexpane_tab_toolbar #search #user_group_filter .member_filter {
   border: none;
@@ -1123,17 +1064,6 @@ input.search_input {
   position: absolute;
   top: .5rem;
   right: .5rem
-}
-
-@media screen and (max-width:1440px) {
-  .font_size_adjusted .secondary_file_button {
-    position: static;
-    display: inline-block;
-    padding-top: .9375rem;
-    padding-bottom: .9375rem;
-    padding-left: .75rem;
-    padding-right: .75rem
-  }
 }
 
 #team_filter_container {
@@ -1785,20 +1715,11 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
   line-height: 1.125
 }
 
-html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_header {
+html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_header {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   display: inline-block
-}
-
-.font_size_adjusted #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_header .channel_name {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  display: inline-block;
-  max-width: 100%;
-  vertical-align: bottom
 }
 
 #details_tab .heading #details_tab_header .ts_icon_channel,
@@ -2041,10 +1962,6 @@ html:not(.font_size_adjusted) #client-ui:not(.flexpane_redesign) #details_tab .h
 #details_tab .empty_shared_files,
 #details_tab .section_content.channel_purpose {
   line-height: 1.25rem
-}
-
-.font_size_adjusted #details_tab .edit_notif_prefs_btn {
-  white-space: normal
 }
 
 #details_tab .restricted_members_count {
@@ -4111,7 +4028,7 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .loading .client_container #msgs_scroller_div {
-  display: none
+  visibility: hidden
 }
 
 #archive_msgs_scroller_div,
@@ -14376,12 +14293,6 @@ ts-icon.sli_feedback::before {
   margin-top: -2px
 }
 
-.font_size_adjusted .search_sort_container {
-  float: none;
-  display: inline-block;
-  margin-top: .625rem
-}
-
 .search_sort_prefix {
   font-size: .7rem;
   color: #9e9ea6
@@ -15479,10 +15390,6 @@ only screen and (min-resolution:2dppx) {
 #autocomplete_menu.search_menu header .header_label:before {
   left: calc(100% + 13px);
   width: 174px
-}
-
-.font_size_adjusted #autocomplete_menu.search_menu header .header_label:before {
-  width: 90px
 }
 
 #autocomplete_menu.search_menu .query_header {
@@ -20237,10 +20144,6 @@ ts-message.selected {
 
 .day_container.unread_day_container .day_msgs {
   border-color: #FF876D
-}
-
-.font_size_adjusted .day_container .day_divider .day_divider_label {
-  top: 0
 }
 
 .day_container:last-child .day_msgs {
@@ -26248,11 +26151,11 @@ html:not(.supports_sticky_position).is_electron_mac .currently_sticky .unread_gr
   margin-top: 69px
 }
 
-html:not(.supports_sticky_position):not(.font_size_adjusted) .unread_group:first-child .unread_group_header {
+html:not(.supports_sticky_position).unread_group:first-child .unread_group_header {
   top: -1px
 }
 
-html:not(.supports_sticky_position).font_size_adjusted .currently_sticky .unread_group_header {
+html:not(.supports_sticky_position).currently_sticky .unread_group_header {
   left: 260px
 }
 

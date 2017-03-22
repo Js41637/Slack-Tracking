@@ -13813,7 +13813,6 @@ TS.registerModule("constants", {
     team_disable_file_deleting_changed_sig: new signals.Signal,
     team_display_email_addresses_changed_sig: new signals.Signal,
     all_unreads_sort_order_changed_sig: new signals.Signal,
-    a11y_font_size_changed_sig: new signals.Signal,
     a11y_animations_changed_sig: new signals.Signal,
     setPrefs: function(prefs) {
       TS.model.prefs = prefs;
@@ -14476,12 +14475,6 @@ TS.registerModule("constants", {
           if (TS.model.prefs.hide_hex_swatch != imsg.value) {
             TS.model.prefs.hide_hex_swatch = imsg.value;
             TS.prefs.hide_hex_swatch_changed_sig.dispatch();
-          }
-          break;
-        case "a11y_font_size":
-          if (TS.model.prefs.a11y_font_size !== imsg.value) {
-            TS.model.prefs.a11y_font_size = imsg.value;
-            TS.prefs.a11y_font_size_changed_sig.dispatch();
           }
           break;
         case "a11y_animations":
@@ -18598,7 +18591,7 @@ TS.registerModule("constants", {
     },
     preprocessMessage: function(imsg) {
       if (!TS.lazyLoadMembersAndBots()) return;
-      if (!TS.boot_data.feature_flannel_no_annotations) return;
+      if (TS.boot_data.feature_flannel_no_annotations) return;
       if (!imsg.annotations) return;
       var objects = _.values(imsg.annotations);
       TS.flannel.batchUpsertObjects(objects);
@@ -29982,18 +29975,6 @@ TS.registerModule("constants", {
         return false;
       }
       return _.random(0, 100) < percentage;
-    },
-    getA11yFontSizeMultiplier: function() {
-      if (TS.model && TS.model.prefs) {
-        if (TS.model.prefs.a11y_font_size === "110") {
-          return 1.1;
-        } else if (TS.model.prefs.a11y_font_size === "125") {
-          return 1.25;
-        } else if (TS.model.prefs.a11y_font_size === "150") {
-          return 1.5;
-        }
-      }
-      return 1;
     },
     roundToThree: function(num) {
       return +(Math.round(num + "e+3") + "e-3");
@@ -45324,7 +45305,7 @@ $.fn.togglify = function(settings) {
     var lazy_filter_select_opts = {
       append: true,
       per_page: 50,
-      approx_item_height: 50 * TS.utility.getA11yFontSizeMultiplier(),
+      approx_item_height: 50,
       placeholder_text: TS.i18n.t("Search by name", "new_channel")(),
       template: function(item) {
         var html;
@@ -45694,10 +45675,10 @@ $.fn.togglify = function(settings) {
       }
       var instance = $.extend({}, _DEFAULT_SETTINGS, settings);
       if (settings.approx_divider_height === undefined) {
-        instance.approx_divider_height *= TS.utility.getA11yFontSizeMultiplier();
+        instance.approx_divider_height *= 1;
       }
       if (settings.approx_item_height === undefined) {
-        instance.approx_item_height *= TS.utility.getA11yFontSizeMultiplier();
+        instance.approx_item_height *= 1;
       }
       var $container = $('<div class="lazy_filter_select">');
       if (instance.classes) $container.addClass(instance.classes);
@@ -59857,7 +59838,6 @@ $.fn.togglify = function(settings) {
       TS.ims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.groups.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
       TS.mpims.switched_sig.add(TS.ui.a11y.annouceCurrentChannelOrImOrGroup);
-      TS.prefs.a11y_font_size_changed_sig.add(TS.ui.a11y.adjustFontSize);
       TS.prefs.a11y_animations_changed_sig.add(TS.ui.a11y.replaceAnimatedImages);
     },
     focusOnNextMessage: function() {
@@ -59992,21 +59972,6 @@ $.fn.togglify = function(settings) {
       TS.client.ui.$msg_input.attr("aria-label", TS.i18n.t("Message input for {model_name}", "a11y")({
         model_name: name
       }));
-    },
-    adjustFontSize: function() {
-      TS.ui.a11y.setFontSize();
-      TS.ui.a11y.resetMessageInput();
-    },
-    setFontSize: function() {
-      var sizes = {
-        normal: "16",
-        110: "17.6",
-        125: "20",
-        150: "24"
-      };
-      var size = TS.model.prefs.a11y_font_size;
-      var value = (sizes[size] || sizes["normal"]) + "px";
-      document.documentElement.style.fontSize = value;
     },
     resetMessageInput: function() {
       TS.client.msg_input.reset();
@@ -60178,7 +60143,7 @@ $.fn.togglify = function(settings) {
   };
   var _current_zoom_level;
   var _bindResizeListener = function() {
-    if (!(TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api)) {
+    if (!TSSSB.supports_zoom_api) {
       return;
     }
     _current_zoom_level = TSSSB.call("getZoom");
@@ -60194,7 +60159,7 @@ $.fn.togglify = function(settings) {
     }
   };
   var _createZoomLevelIndicatorUI = function() {
-    if (!(TS.boot_data.feature_a11y_ui_zoom && TSSSB.supports_zoom_api)) {
+    if (!TSSSB.supports_zoom_api) {
       return;
     }
     $("body").append('<div class="zoom_level_indicator hidden"></div>');
@@ -67456,8 +67421,7 @@ $.fn.togglify = function(settings) {
 
   function i(e) {
     if (f === clearTimeout) return clearTimeout(e);
-    if ((f === r || !f) && clearTimeout) return f = clearTimeout,
-      clearTimeout(e);
+    if ((f === r || !f) && clearTimeout) return f = clearTimeout, clearTimeout(e);
     try {
       return f(e);
     } catch (t) {
@@ -78612,8 +78576,7 @@ $.fn.togglify = function(settings) {
         var o = this.getInitialState ? this.getInitialState() : null;
         "object" != typeof o || Array.isArray(o) ? p("82", t.displayName || "ReactCompositeComponent") : void 0, this.state = o;
       });
-      t.prototype = new S, t.prototype.constructor = t,
-        t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
+      t.prototype = new S, t.prototype.constructor = t, t.prototype.__reactAutoBindPairs = [], y.forEach(i.bind(null, t)), i(t, e), t.getDefaultProps && (t.defaultProps = t.getDefaultProps()), t.prototype.render ? void 0 : p("83");
       for (var n in b) t.prototype[n] || (t.prototype[n] = null);
       return t;
     },
@@ -79119,9 +79082,11 @@ $.fn.togglify = function(settings) {
   TS.registerModule("sli_expert_search", {
     sli_expert_search_group: null,
     onStart: function() {
-      TS.experiment.loadUserAssignments().then(function() {
-        TS.sli_expert_search.sli_expert_search_group = TS.experiment.getGroup("sli_expert_search");
-      });
+      if (TS.client) {
+        TS.experiment.loadUserAssignments().then(function() {
+          TS.sli_expert_search.sli_expert_search_group = TS.experiment.getGroup("sli_expert_search");
+        });
+      }
     },
     isEnabled: function() {
       return TS.sli_expert_search.sli_expert_search_group === "show_experts";
