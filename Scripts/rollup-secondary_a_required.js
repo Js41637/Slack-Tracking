@@ -5452,10 +5452,7 @@ TS.registerModule("constants", {
         return;
       }
       var group = TS.groups.getGroupById(args.channel);
-      if (!group) {
-        TS.error('error no group "' + args.channel + '"');
-        return;
-      }
+      if (!group) return;
       group.msgs.length = 0;
       if (group.is_limited) group.is_limited = false;
     },
@@ -16459,6 +16456,7 @@ TS.registerModule("constants", {
           if (imsg.flannel && imsg.start) {
             var rtm_start_data = imsg.start;
             resolve(rtm_start_data);
+            _did_deprecate_socket_sig.remove(_socketWasDeprecated);
           } else {
             _abortRtmStartAttempt(new Error("`hello` imsg did not include rtm.start data"));
           }
@@ -16775,8 +16773,13 @@ TS.registerModule("constants", {
       if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
     },
     member_left_channel: function(imsg) {
-      var channel = TS.channels.getChannelById(imsg.channel);
-      if (channel && channel.is_shared) TS.ms.msg_handlers.subtype__channel_leave(imsg);
+      if (imsg.channel_type == "C") {
+        var channel = TS.channels.getChannelById(imsg.channel);
+        if (channel) TS.ms.msg_handlers.subtype__channel_leave(imsg);
+      } else if (imsg.channel_type == "G") {
+        var channel = TS.groups.getGroupById(imsg.channel);
+        if (channel) TS.ms.msg_handlers.subtype__group_leave(imsg);
+      }
     },
     channel_joined: function(imsg) {
       TS.info("You joined channel " + imsg.channel.id);
@@ -16975,8 +16978,13 @@ TS.registerModule("constants", {
       if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
     },
     member_joined_channel: function(imsg) {
-      var channel = TS.channels.getChannelById(imsg.channel);
-      if (channel && channel.is_shared) TS.ms.msg_handlers.subtype__channel_join(imsg);
+      if (imsg.channel_type == "C") {
+        var channel = TS.channels.getChannelById(imsg.channel);
+        if (channel) TS.ms.msg_handlers.subtype__channel_join(imsg);
+      } else if (imsg.channel_type == "G") {
+        var channel = TS.groups.getGroupById(imsg.channel);
+        if (channel) TS.ms.msg_handlers.subtype__group_join(imsg);
+      }
     },
     channel_marked: function(imsg) {
       if (!TS.client) return;
@@ -17151,9 +17159,6 @@ TS.registerModule("constants", {
       TS.members.invalidateMembersUserCanSeeArrayCaches();
       if (group) TS.groups.member_left_sig.dispatch(group, member);
     },
-    member_left_group: function(imsg) {
-      TS.ms.msg_handlers.subtype__group_leave(imsg);
-    },
     group_joined: function(imsg) {
       TS.info("You joined group " + imsg.channel.id);
       if (imsg.channel.is_mpim) return;
@@ -17250,9 +17255,6 @@ TS.registerModule("constants", {
       }
       TS.members.invalidateMembersUserCanSeeArrayCaches();
       if (group) TS.groups.member_joined_sig.dispatch(group, member);
-    },
-    member_joined_group: function(imsg) {
-      TS.ms.msg_handlers.subtype__group_join(imsg);
     },
     group_open: function(imsg) {
       if (TS.mpims.getMpimById(imsg.channel)) {
@@ -39663,6 +39665,7 @@ var _on_esc;
       _$div.on("click", ".dialog_go", _go);
       _$div.on("click", ".dialog_secondary_go", _secondaryGo);
       _$div.on("click", ".dialog_cancel", _cancel);
+      $(window.document).off(".fs_modal");
       $(window.document).on("keydown.fs_modal", _onKeyDown);
       _$div_close_btn.on("click", function() {
         if (_current_settings.esc_for_ok) {
@@ -39773,6 +39776,13 @@ var _on_esc;
     sidebar_html: null
   };
   var _build = function() {
+    _$bg = null;
+    _$div = null;
+    _$div_header = null;
+    _$div_footer = null;
+    _$div_close_btn = null;
+    _$div_contents = null;
+    _$div_sidebar = null;
     var template_data = {
       settings: _current_settings,
       fs_modal_header: _.includes(_current_settings.modal_class, "fs_modal_header"),
@@ -39847,32 +39857,24 @@ var _on_esc;
     }
   };
   var _clean = function() {
-    if (_$div) _$div.remove();
-    if (_$bg) _$bg.remove();
-    _$bg = null;
-    _$div = null;
-    _$div_header = null;
-    _$div_footer = null;
-    _$div_close_btn = null;
-    _$div_contents = null;
-    _$div_sidebar = null;
+    _$div.remove();
+    _$bg.remove();
+    TS.ui.fs_modal.is_showing = false;
   };
   var _end = function() {
-    TS.ui.fs_modal.is_showing = false;
     setTimeout(function() {
       _clean();
     }, TS.ui.fs_modal.transition_duration);
-    $(window.document).off("keydown.fs_modal").off("resize.fs_modal");
+    $(window.document).off("keydown.fs_modal");
     if (_current_settings.onEnd) _current_settings.onEnd();
   };
   var _swap = function(settings) {
     _$div.removeClass("active");
     if (_current_settings.onCancel) _current_settings.onCancel();
-    TS.ui.fs_modal.is_showing = false;
-    $(window.document).off("keydown.fs_modal").off("resize.fs_modal");
     var $bg = _$bg.attr("id", null).addClass("fs_modal_bg");
     setTimeout(function() {
       _$div.remove();
+      TS.ui.fs_modal.is_showing = false;
       TS.ui.fs_modal.start(settings);
       setTimeout($bg.remove.bind($bg), TS.ui.fs_modal.transition_duration);
     }, TS.ui.fs_modal.transition_duration);
@@ -53873,7 +53875,7 @@ $.fn.togglify = function(settings) {
       set_is_publisher_screensharing: "set_is_publisher_screensharing",
       pong: "pong",
       close: "close",
-      hideCallWindow: "hideCallWindow",
+      hide_call_window: "hideCallWindow",
       get_calls_status: "get_calls_status",
       force_janus_disconnect: "force_janus_disconnect",
       get_regions: "get_regions",
@@ -54404,7 +54406,6 @@ $.fn.togglify = function(settings) {
       send_msg_no_mini_panel: "SendMsgNoMiniPanel",
       call_window_loaded: "CallWindowLoaded",
       call_window_busy: "CallWindowBusy",
-      call_window_orphaned: "CallWindowOrphaned",
       invalid_msg_from_child_window: "InvalidMsgFromChildWindow",
       call_window_pong: "CallWindowPong",
       unknown_msg_from_call_window: "UnknownMsgFromCallWindow",
@@ -54516,13 +54517,6 @@ $.fn.togglify = function(settings) {
   };
   var _sigReachabilityChanged = function() {
     var is_call_window_ready_prev = TS.utility.calls.isCallWindowReady();
-    TS.utility.calls_log.logEvent({
-      event: _utility_calls_config.log_events.reachability_changed,
-      value: {
-        from: _utility_call_state.is_reachability_online,
-        to: window.navigator.onLine
-      }
-    });
     _utility_call_state.is_reachability_online = window.navigator.onLine;
     _updateCallIcon(is_call_window_ready_prev);
     _notifyReachability();
@@ -54653,22 +54647,6 @@ $.fn.togglify = function(settings) {
       no_spinner: true,
       hides_on_close: false
     };
-    clearInterval(_utility_call_state.ping_pong_timer);
-    _utility_call_state.ping_pong_timer = setInterval(function() {
-      var was_called = false;
-      _utility_call_state.pongCallback = function() {
-        was_called = true;
-      };
-      setTimeout(function() {
-        if (!was_called) {
-          _handleOrphanedWindow();
-          clearInterval(_utility_call_state.ping_pong_timer);
-        }
-      }, 2 * 1e3);
-      _sendMessageToCallWindow({
-        message_type: TS.utility.calls.messages_to_call_window_types.ping
-      });
-    }, 50 * 1e3);
     if (TS.model.is_our_app) {
       if (TS.model.is_mac) args["titleBarStyle"] = "hidden";
     }
@@ -54688,12 +54666,6 @@ $.fn.togglify = function(settings) {
     var call_window_token = _utility_call_state.call_window_token;
     delete _utility_call_state.call_window_token;
     TSSSB.call("closeWindow", call_window_token);
-  };
-  var _handleOrphanedWindow = function() {
-    _forceCloseWindow();
-    TS.utility.calls_log.logEvent({
-      event: _utility_calls_config.log_events.call_window_orphaned
-    });
   };
   var _openMiniPanel = function() {
     if (!window.winssb || _utility_call_state.mini_panel_token) return;
@@ -54788,7 +54760,6 @@ $.fn.togglify = function(settings) {
   var _callWindowGoingAway = function() {
     _setCallWindowLoaded(false);
     _setCallWindowBusy(false);
-    clearInterval(_utility_call_state.ping_pong_timer);
   };
   var _handleIncomingCall = function(call_window_busy, incoming_call_window_busy, imsg) {
     if (!TS.utility.calls.isEnabled()) return;
@@ -55255,29 +55226,25 @@ $.fn.togglify = function(settings) {
           _setCallWindowBusy(evt.data.is_busy);
           break;
         case TS.utility.calls.messages_from_call_window_types.show_growl_notification:
-          TS.ui.growls.show(evt.data.title, evt.data.txt, null, {
-            subtitle: evt.data.subtitle,
-            sound_name: "none",
-            channelId: evt.data.channel,
-            is_call_notification: true
-          });
+          if (TS.notifs.getGlobalNotificationSetting() != "nothing") {
+            TS.ui.growls.show(evt.data.title, evt.data.txt, null, {
+              subtitle: evt.data.subtitle,
+              sound_name: "none",
+              channelId: evt.data.channel,
+              is_call_notification: true
+            });
+          }
           break;
         case TS.utility.calls.messages_from_call_window_types.set_is_publisher_screensharing:
           _utility_call_state.is_publisher_screensharing = evt.data.is_enabled;
           _utility_call_state.is_publisher_screenhero = evt.data.is_screenhero;
-          break;
-        case TS.utility.calls.messages_from_call_window_types.pong:
-          TS.utility.calls_log.logEvent({
-            event: _utility_calls_config.log_events.call_window_pong
-          });
-          if (_utility_call_state.pongCallback) _utility_call_state.pongCallback();
           break;
         case TS.utility.calls.messages_from_call_window_types.close:
           _closeCallWindow();
           _closeMiniPanel();
           _closeCursorsWindow();
           break;
-        case TS.utility.calls.messages_from_call_window_types.hideCallWindow:
+        case TS.utility.calls.messages_from_call_window_types.hide_call_window:
           TSSSB.call("hideWindow", _utility_call_state.call_window_token);
           break;
         case TS.utility.calls.messages_from_call_window_types.get_calls_status:
@@ -60361,24 +60328,23 @@ $.fn.togglify = function(settings) {
   }
   var n = {};
   return t.m = e, t.c = n, t.i = function(e) {
+    return e;
+  }, t.d = function(e, n, r) {
+    t.o(e, n) || Object.defineProperty(e, n, {
+      configurable: !1,
+      enumerable: !0,
+      get: r
+    });
+  }, t.n = function(e) {
+    var n = e && e.__esModule ? function() {
+      return e.default;
+    } : function() {
       return e;
-    }, t.d = function(e, n, r) {
-      t.o(e, n) || Object.defineProperty(e, n, {
-        configurable: !1,
-        enumerable: !0,
-        get: r
-      });
-    }, t.n = function(e) {
-      var n = e && e.__esModule ? function() {
-        return e.default;
-      } : function() {
-        return e;
-      };
-      return t.d(n, "a", n), n;
-    }, t.o = function(e, t) {
-      return Object.prototype.hasOwnProperty.call(e, t);
-    }, t.p = "/",
-    t(t.s = 351);
+    };
+    return t.d(n, "a", n), n;
+  }, t.o = function(e, t) {
+    return Object.prototype.hasOwnProperty.call(e, t);
+  }, t.p = "/", t(t.s = 351);
 }([function(e, t, n) {
   "use strict";
 
@@ -69059,42 +69025,41 @@ $.fn.togglify = function(settings) {
             var o = {};
             null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
           }
-          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight),
-            this._columnSizeAndPositionManager.configure({
-              cellCount: e.columnCount,
-              estimatedCellSize: this._getEstimatedColumnSize(e)
-            }), this._rowSizeAndPositionManager.configure({
-              cellCount: e.rowCount,
-              estimatedCellSize: this._getEstimatedRowSize(e)
-            }), n.i(y.a)({
-              cellCount: this.props.columnCount,
-              cellSize: this.props.columnWidth,
-              computeMetadataCallback: function() {
-                return r._columnSizeAndPositionManager.resetCell(0);
-              },
-              computeMetadataCallbackProps: e,
-              nextCellsCount: e.columnCount,
-              nextCellSize: e.columnWidth,
-              nextScrollToIndex: e.scrollToColumn,
-              scrollToIndex: this.props.scrollToColumn,
-              updateScrollOffsetForScrollToIndex: function() {
-                return r._updateScrollLeftForScrollToColumn(e, t);
-              }
-            }), n.i(y.a)({
-              cellCount: this.props.rowCount,
-              cellSize: this.props.rowHeight,
-              computeMetadataCallback: function() {
-                return r._rowSizeAndPositionManager.resetCell(0);
-              },
-              computeMetadataCallbackProps: e,
-              nextCellsCount: e.rowCount,
-              nextCellSize: e.rowHeight,
-              nextScrollToIndex: e.scrollToRow,
-              scrollToIndex: this.props.scrollToRow,
-              updateScrollOffsetForScrollToIndex: function() {
-                return r._updateScrollTopForScrollToRow(e, t);
-              }
-            }), this._calculateChildrenToRender(e, t);
+          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
+            cellCount: e.columnCount,
+            estimatedCellSize: this._getEstimatedColumnSize(e)
+          }), this._rowSizeAndPositionManager.configure({
+            cellCount: e.rowCount,
+            estimatedCellSize: this._getEstimatedRowSize(e)
+          }), n.i(y.a)({
+            cellCount: this.props.columnCount,
+            cellSize: this.props.columnWidth,
+            computeMetadataCallback: function() {
+              return r._columnSizeAndPositionManager.resetCell(0);
+            },
+            computeMetadataCallbackProps: e,
+            nextCellsCount: e.columnCount,
+            nextCellSize: e.columnWidth,
+            nextScrollToIndex: e.scrollToColumn,
+            scrollToIndex: this.props.scrollToColumn,
+            updateScrollOffsetForScrollToIndex: function() {
+              return r._updateScrollLeftForScrollToColumn(e, t);
+            }
+          }), n.i(y.a)({
+            cellCount: this.props.rowCount,
+            cellSize: this.props.rowHeight,
+            computeMetadataCallback: function() {
+              return r._rowSizeAndPositionManager.resetCell(0);
+            },
+            computeMetadataCallbackProps: e,
+            nextCellsCount: e.rowCount,
+            nextCellSize: e.rowHeight,
+            nextScrollToIndex: e.scrollToRow,
+            scrollToIndex: this.props.scrollToRow,
+            updateScrollOffsetForScrollToIndex: function() {
+              return r._updateScrollTopForScrollToRow(e, t);
+            }
+          }), this._calculateChildrenToRender(e, t);
         }
       }, {
         key: "render",
