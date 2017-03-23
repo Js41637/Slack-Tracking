@@ -4528,6 +4528,7 @@ var _fullToHalf = function(char) {
     onStart: function() {
       $(window).bind("focus", TS.ui.onWindowFocus);
       $(window).bind("blur", TS.ui.onWindowBlur);
+      _maybeListenToPageVisibility();
       $("html").bind("mousedown", function(e) {
         TS.ui.onWindowFocus({
           target: window
@@ -4597,7 +4598,7 @@ var _fullToHalf = function(char) {
       }
     },
     onWindowFocus: function(e) {
-      if (e.target !== window) return;
+      if (e.target !== window && e.target !== document) return;
       if (TS.model.ui.is_window_focused) return;
       TS.model.shift_key_pressed = false;
       TS.model.insert_key_pressed = false;
@@ -4606,12 +4607,19 @@ var _fullToHalf = function(char) {
       TS.ui.window_focus_changed_sig.dispatch(true);
     },
     onWindowBlur: function(e) {
-      if (e.target !== window) return;
+      if (e.target !== window && e.target !== document) return;
       if (!TS.model.ui.is_window_focused) return;
       TS.model.shift_key_pressed = false;
       TS.model.insert_key_pressed = false;
       TS.model.ui.is_window_focused = false;
       TS.ui.window_focus_changed_sig.dispatch(false);
+    },
+    onWindowVisibilityChange: function(e) {
+      if (document.visibilityState === "hidden") {
+        TS.ui.onWindowBlur(e);
+      } else if (document.visibilityState === "visible") {
+        TS.ui.onWindowFocus(e);
+      }
     },
     needToShowAtChannelWarning: function(c_id, text) {
       var model_ob;
@@ -4758,6 +4766,21 @@ var _fullToHalf = function(char) {
       }
     }
   });
+  var _visibility_change;
+  var _document_hidden;
+  var _maybeListenToPageVisibility = function() {
+    if (typeof document.hidden !== "undefined") {
+      _document_hidden = "hidden";
+      _visibility_change = "visibilitychange";
+    } else if (typeof document.msHidden !== "undefined") {
+      _document_hidden = "msHidden";
+      _visibility_change = "msvisibilitychange";
+    } else if (typeof document.webkitHidden !== "undefined") {
+      _document_hidden = "webkitHidden";
+      _visibility_change = "webkitvisibilitychange";
+    }
+    if (typeof document[_document_hidden] !== "undefined") $(window).bind(_visibility_change, TS.ui.onWindowVisibilityChange);
+  };
   var _getLadda = function(btn) {
     var l = $(btn).data("ladda");
     if (!l) {
