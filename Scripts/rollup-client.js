@@ -19986,6 +19986,12 @@
         var value = TS.utility.contenteditable.value(input);
         TS.utility.setCursorPosition(input, value.length);
       }
+    },
+    getCommands: function() {
+      if (!_.isArray(TS.model.input_history)) return;
+      return TS.model.input_history.filter(function(text) {
+        return text && text.indexOf("/") === 0;
+      });
     }
   });
 })();

@@ -1,6 +1,6 @@
 {{i18n_ns "menu_notifications_items"}}
 {{#if in_dnd}}
-  <li><a data-dnd-menu-action="turn_off">{{#t}}Turn OFF{{/t}}</a></li>
+  <li><a class="overflow_ellipsis" data-dnd-menu-action="turn_off">{{#t}}Turn OFF{{/t}}</a></li>
 {{else}}
   <div class="section_header"><hr><span class="header_label menu_mini">{{#t note="Heading for a list of durations (e.g., 2 hours)"}}Snooze notifications:{{/t}}</span></div>
   {{> snooze_items}}
@@ -8,12 +8,12 @@
 {{/if}}
 
 {{#if is_snoozing}}
-  <li id="adjust_snooze_time" class="has_submenu" role="menuitem"><a>{{#t}}Adjust time <ts-icon class="ts_icon_caret_right submenu_caret"></ts-icon>{{/t}}</a></li>
+  <li id="adjust_snooze_time" class="has_submenu" role="menuitem"><a class="overflow_ellipsis">{{#t}}Adjust time <ts-icon class="ts_icon_caret_right submenu_caret"></ts-icon>{{/t}}</a></li>
 {{else}}
   {{#if in_dnd}}
-    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule" aria-haspopup="true">{{#t}}Adjust schedule &hellip;{{/t}}</a></li>
+    <li id="adjust_dnd_schedule" role="menuitem"><a class="overflow_ellipsis" data-dnd-menu-action="dnd_schedule" aria-haspopup="true">{{#t}}Adjust schedule &hellip;{{/t}}</a></li>
   {{else}}
-    <li id="adjust_dnd_schedule" role="menuitem"><a data-dnd-menu-action="dnd_schedule">{{#t}}Do Not Disturb schedule &hellip;{{/t}}</a></li>
+    <li id="adjust_dnd_schedule" role="menuitem"><a class="overflow_ellipsis" data-dnd-menu-action="dnd_schedule">{{#t}}Do Not Disturb schedule &hellip;{{/t}}</a></li>
   {{/if}}
 {{/if}}
 
@@ -21,7 +21,7 @@
 
 {{#feature flag="feature_focus_mode"}}
   <li>
-    <a data-dnd-menu-action="enter_focus_mode">
+    <a class="overflow_ellipsis" data-dnd-menu-action="enter_focus_mode">
       {{#t}}Turn on Focus Mode{{/t}}
       <span class="float_right tiny">{{cmd_key}}+{{meta_key}}+f</span>
     </a>
@@ -31,8 +31,8 @@
 
 {{#unless model_ob.is_im}}
   <li id="channel_notification_settings" class="overflow_ellipsis" role="menuitem">
-    <a data-dnd-menu-action="channel_settings">{{#t name=model_ob_name note="{name} is the title of a channel, group, or mpim"}}Settings for <strong>{name}</strong> &hellip;{{/t}}</a>
+    <a class="overflow_ellipsis" data-dnd-menu-action="channel_settings">{{#t name=model_ob_name note="{name} is the title of a channel, group, or mpim"}}Settings for <strong>{name}</strong> &hellip;{{/t}}</a>
   </li>
 {{/unless}}
 
-<li id="notification_settings" class="overflow_ellipsis" role="menuitem"><a data-dnd-menu-action="notif_prefs">{{#t}}Your notification preferences &hellip;{{/t}}</a></li>
+<li id="notification_settings" class="overflow_ellipsis" role="menuitem"><a class="overflow_ellipsis" data-dnd-menu-action="notif_prefs">{{#t}}Your notification preferences &hellip;{{/t}}</a></li>

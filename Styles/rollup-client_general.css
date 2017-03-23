@@ -1046,12 +1046,48 @@ html.no_touch .alert_page a:hover {
   text-transform: lowercase
 }
 
+.lowercase[placeholder]::-webkit-input-placeholder {
+  text-transform: none
+}
+
+.lowercase[placeholder]::-moz-placeholder {
+  text-transform: none
+}
+
+.lowercase[placeholder]:-ms-input-placeholder {
+  text-transform: none
+}
+
 .uppercase {
   text-transform: uppercase
 }
 
+.uppercase[placeholder]::-webkit-input-placeholder {
+  text-transform: none
+}
+
+.uppercase[placeholder]::-moz-placeholder {
+  text-transform: none
+}
+
+.uppercase[placeholder]:-ms-input-placeholder {
+  text-transform: none
+}
+
 .capitalize {
   text-transform: capitalize
+}
+
+.capitalize[placeholder]::-webkit-input-placeholder {
+  text-transform: none
+}
+
+.capitalize[placeholder]::-moz-placeholder {
+  text-transform: none
+}
+
+.capitalize[placeholder]:-ms-input-placeholder {
+  text-transform: none
 }
 
 .overflow_ellipsis {

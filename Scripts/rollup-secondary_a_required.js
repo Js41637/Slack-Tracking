@@ -9343,60 +9343,6 @@ TS.registerModule("constants", {
           })(user_group_id);
         }
       }
-      if (TS.boot_data.feature_mention_non_members) return;
-      var mention_matches = imsg.text.match(/<@(.*?)>/g);
-      if (mention_matches) {
-        var mentioned_member_ids = _(mention_matches).map(function(mention_match) {
-          return TS.utility.msgs.getMemberIdFromMemberMarkup(mention_match.replace(">", "").replace("<", ""));
-        }).uniq().compact().value();
-        TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, mentioned_member_ids).then(function() {
-          var mentioned_member_ids_not_in_channel = [];
-          mentioned_member_ids.forEach(function(member_id) {
-            if (member_id != "USLACKBOT" && !TS.membership.getUserChannelMembershipStatus(member_id, model_ob).is_member) {
-              mentioned_member_ids_not_in_channel.push(member_id);
-            }
-          });
-          if (!mentioned_member_ids_not_in_channel.length) return null;
-          var names_text = "";
-          var names_text_arr = [];
-          mentioned_member_ids_not_in_channel.forEach(function(member_id) {
-            names_text_arr.push("<@" + member_id + ">");
-          });
-          names_text = TS.i18n.listify(names_text_arr).join("");
-          names_text = names_text.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-          var ts = TS.utility.date.makeTsStamp();
-          var prompt = "TS.client.ui.promptForGroupOrChannelInvite('" + model_ob.id + "', '" + mentioned_member_ids_not_in_channel.join(",") + "', '" + ts + "')";
-          var message = "TS.client.ui.sendChannelMsgThroughSlackBot('" + model_ob.id + "', '" + imsg.ts + "', '" + mentioned_member_ids_not_in_channel.join(",") + "', '" + ts + "')";
-          var nothing = "TS.utility.msgs.removeEphemeralMsg('" + model_ob.id + "', '" + ts + "')";
-          TS.client.msg_pane.addMaybeClick(prompt, TS.client.ui.promptForGroupOrChannelInvite.bind(Object.create(null), model_ob.id, mentioned_member_ids_not_in_channel.join(","), ts));
-          TS.client.msg_pane.addMaybeClick(message, TS.client.ui.sendChannelMsgThroughSlackBot.bind(Object.create(null), model_ob.id, imsg.ts, mentioned_member_ids_not_in_channel.join(","), ts));
-          TS.client.msg_pane.addMaybeClick(nothing, TS.utility.msgs.removeEphemeralMsg.bind(Object.create(null), model_ob.id, ts));
-          var bot_text = "";
-          if (model_ob.is_group) {
-            bot_text = TS.i18n.t("You mentioned {names}, but they’re not in this {channel}. Would you like to <javascript:{prompt}|invite them to join>? Or, <javascript:{nothing}|do nothing>.", "shared")({
-              names: names_text,
-              channel: channel_type,
-              prompt: prompt,
-              nothing: nothing
-            });
-          } else {
-            bot_text = TS.i18n.t("You mentioned {names}, but they’re not in this {channel}. Would you like to <javascript:{prompt}|invite them to join> or have slackbot <javascript:{message}|send them a link to your message>? Or, <javascript:{nothing}|do nothing>.", "shared")({
-              names: names_text,
-              channel: channel_type,
-              prompt: prompt,
-              message: message,
-              nothing: nothing
-            });
-          }
-          TS.client.ui.addEphemeralBotMsg({
-            channel: model_ob.id,
-            ts: ts,
-            text: bot_text,
-            thread_ts: new_msg.thread_ts
-          });
-          return null;
-        });
-      }
     },
     sendMsg: function(c_id, raw_text, controller, in_reply_to_msg, should_broadcast_reply) {
       if (!raw_text) return false;
@@ -9582,7 +9528,7 @@ TS.registerModule("constants", {
             var last_read = parseInt(model_ob.last_read) ? model_ob.last_read : null;
             if (data.messages && last_read && !args._second_attempt_for_last_read) {
               var oldest_msg = _.minBy(data.messages, "ts");
-              if (oldest_msg.ts > last_read) {
+              if (oldest_msg && oldest_msg.ts > last_read) {
                 var api_args = {
                   channel: model_ob.id,
                   count: 3 * TS.model.initial_msgs_cnt,
@@ -23396,10 +23342,6 @@ TS.registerModule("constants", {
               if (value !== undefined) {
                 modified_items[item] = data[item];
                 data[item] = Handlebars.Utils.escapeExpression(value);
-              } else {
-                if (location.host.match(/(dev[0-9]*)\.slack.com/)) {
-                  throw new Error('The ICU token "{' + item + '}" doesn‘t have any data. Please fix!’');
-                }
               }
             }
           }
@@ -26523,6 +26465,8 @@ TS.registerModule("constants", {
         }
       } else {
         if (msg.subtype === "tombstone") {
+          actions.delete_msg = false;
+        } else if (msg.subtype == "retention") {
           actions.delete_msg = false;
         } else if (msg_from_other_team) {
           if (TS.boot_data.page_needs_enterprise && msg_belongs_to_user) {
@@ -41678,7 +41622,6 @@ var _on_esc;
     isurl: _validateIsUrl,
     islink: _validateIsLink,
     lowercase: _validateLowercase,
-    transform_lowercase: _transformLowercase,
     maxcsv: _validateMaxCSV,
     maxlength: _validateMaxLength,
     mincsv: _validateMinCSV,
@@ -41975,58 +41918,50 @@ var _on_esc;
       TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.specials(), options);
       return true;
     }
-    if (_validatePattern($el, quiet_options, /^[-|_]$/)) {
+    if (_validatePattern($el, quiet_options, /^[-|_]+$/)) {
       TS.ui.validation.showWarning($el, _CHANNEL_CREATION_ERROR_MESSAGES.punctuation(), options);
       return true;
     }
   }
 
-  function _transformLowercase($el) {
-    if (!_isElementTextInput($el)) return true;
+  function _validateChannelName($el, options, raw_params) {
+    if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
+    if (!_isElementTextInput($el)) {
+      return void TS.error("Error: cannot validate");
+    }
     var value = _getTextInputValue($el);
-    if (!/[A-Z]/.test(value)) return true;
-    $el.val(value.toLowerCase());
-    return true;
-  }
-
-  function _validateChannelName($el, options) {
+    var params = _parseParams(raw_params);
+    var should_fix = _.includes(params, "fix");
+    if (should_fix) value = _fixChannelName($el);
     var name_validation = _channelNameValidation($el, options);
     if (name_validation) return false;
-    if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
-    if (_isElementTextInput($el)) {
-      var value = _getTextInputValue($el);
-      var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
-      if (!other_channel) return true;
-      return void TS.ui.validation.showWarning($el, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
-        name: TS.utility.htmlEntities(value)
-      }), options);
-    } else {
-      return void TS.error("Error: cannot validate");
-    }
+    var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
+    if (!other_channel) return true;
+    return void TS.ui.validation.showWarning($el, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
+      name: TS.utility.htmlEntities(value)
+    }), options);
   }
 
-  function _validateSharedChannelName($el, options) {
-    var name_validation = _channelNameValidation($el, options);
-    if (name_validation) return false;
+  function _validateSharedChannelName($el, options, raw_params) {
     if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
-    if (_isElementTextInput($el)) {
-      var value = _getTextInputValue($el);
-      var need_to_check_api = false;
-      var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
-      var current_model_ob = TS.shared.getActiveModelOb();
-      if (!other_channel) need_to_check_api = true;
-      if (other_channel && other_channel.id === current_model_ob.id) need_to_check_api = true;
-      if (other_channel && other_channel.id !== current_model_ob.id) return void TS.ui.validation.showWarning($el, TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation")({
-        name: TS.utility.htmlEntities(value)
-      }), options);
-      if (need_to_check_api) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
+    if (!_isElementTextInput($el)) {
       return void TS.error("Error: cannot validate");
     }
+    var value = _getTextInputValue($el);
+    var params = _parseParams(raw_params);
+    var should_fix = _.includes(params, "fix");
+    if (should_fix) value = _fixChannelName($el);
+    var name_validation = _channelNameValidation($el, options);
+    if (name_validation) return false;
+    var need_to_check_api = false;
+    var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
+    var current_model_ob = TS.shared.getActiveModelOb();
+    if (!other_channel) need_to_check_api = true;
+    if (other_channel && other_channel.id === current_model_ob.id) need_to_check_api = true;
+    if (other_channel && other_channel.id !== current_model_ob.id) return void TS.ui.validation.showWarning($el, TS.i18n.t("{name} has already been taken. Try something else!", "ui_validation")({
+      name: TS.utility.htmlEntities(value)
+    }), options);
+    return need_to_check_api;
   }
 
   function _validateIsEmail($el, options, protocols) {
@@ -42132,6 +42067,23 @@ var _on_esc;
       return TS.utility.contenteditable.value($el);
     }
     return $el.val();
+  };
+  var _parseParams = function(param_text) {
+    if (!_.isString(param_text)) return [];
+    return _(param_text).split(",").map(_.trim).compact().value();
+  };
+  var _fixChannelName = function($el) {
+    var value = _getTextInputValue($el);
+    var clean_value = value.toLowerCase().replace(/^#+/, "");
+    if (clean_value && value !== clean_value) {
+      var cursor_start = TS.utility.contenteditable.cursorPosition($el).start;
+      if (clean_value.length < value.length) {
+        cursor_start -= value.length - clean_value.length;
+      }
+      $el.val(clean_value);
+      TS.utility.contenteditable.cursorPosition($el, cursor_start);
+    }
+    return clean_value;
   };
 })();
 (function() {
@@ -48451,6 +48403,7 @@ $.fn.togglify = function(settings) {
           payload.contexts.platform = {};
         }
         payload.contexts.platform.service_type = "GSUITE";
+        payload.contexts.platform.app_id = 9;
         payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
       }
       if (is_image || file && TS.files.fileIsImage(file)) {
@@ -55489,8 +55442,19 @@ $.fn.togglify = function(settings) {
         logError: TS.error
       };
       _.defaultsDeep(options, default_options);
-      if (options.modules && options.modules.tabcomplete && !options.modules.tabcomplete.completers) {
-        options.modules.tabcomplete.completers = [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members];
+      if (options.modules && options.modules.tabcomplete) {
+        if (!options.modules.tabcomplete.completers) {
+          options.modules.tabcomplete.completers = [TS.tabcomplete.channels, TS.tabcomplete.commands, TS.tabcomplete.emoji, TS.tabcomplete.members];
+        }
+        if (_.includes(options.modules.tabcomplete.completers, TS.tabcomplete.commands)) {
+          var on_tab_callback = options.onTab || _.noop;
+          options.onTab = function() {
+            if (!TS.utility.contenteditable.value(input) && _insertLastCommandFromHistory(input)) {
+              return;
+            }
+            return on_tab_callback();
+          };
+        }
       }
       var on_enter_callback = options.onEnter;
       options.onEnter = function(modifiers) {
@@ -55852,6 +55816,14 @@ $.fn.togglify = function(settings) {
     if (modifiers.shiftKey && !(modifiers.ctrlKey || modifiers.altKey)) return true;
     if (!modifiers.shiftKey && (modifiers.ctrlKey || modifiers.altKey)) return true;
     return false;
+  };
+  var _insertLastCommandFromHistory = function(input) {
+    var recent_commands = TS.chat_history.getCommands();
+    if (!recent_commands.length) return false;
+    var prev_command = recent_commands[0];
+    TS.utility.contenteditable.value(input, prev_command);
+    TS.utility.contenteditable.cursorPosition(input, prev_command.length, 0);
+    return true;
   };
 })();
 (function() {
@@ -62194,8 +62166,7 @@ $.fn.togglify = function(settings) {
               if (!Sp(t)) return !1;
               a = !0, c = !1;
             }
-            if (p && !c) return i || (i = new wn),
-              a || Rp(e) ? gi(e, t, n, r, o, i) : _i(e, t, s, n, r, o, i);
+            if (p && !c) return i || (i = new wn), a || Rp(e) ? gi(e, t, n, r, o, i) : _i(e, t, s, n, r, o, i);
             if (!(n & ve)) {
               var d = c && bc.call(e, "__wrapped__"),
                 h = f && bc.call(t, "__wrapped__");
@@ -62321,7 +62292,8 @@ $.fn.togglify = function(settings) {
               var p = wp(s),
                 d = !p && Sp(s),
                 h = !p && !d && Rp(s);
-              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
+              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u,
+                bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
             }
             f && (a.set(s, c), o(c, s, r, i, a), a.delete(s)), On(e, n, c);
           }
@@ -69023,8 +68995,7 @@ $.fn.togglify = function(settings) {
             m = h.scrollPositionChangeReason,
             g = h.scrollTop,
             _ = u > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
-          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)),
-            n.i(E.a)({
+          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)), n.i(E.a)({
               cellSizeAndPositionManager: this._columnSizeAndPositionManager,
               previousCellsCount: e.columnCount,
               previousCellSize: e.columnWidth,
@@ -69089,41 +69060,42 @@ $.fn.togglify = function(settings) {
             var o = {};
             null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
           }
-          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
-            cellCount: e.columnCount,
-            estimatedCellSize: this._getEstimatedColumnSize(e)
-          }), this._rowSizeAndPositionManager.configure({
-            cellCount: e.rowCount,
-            estimatedCellSize: this._getEstimatedRowSize(e)
-          }), n.i(y.a)({
-            cellCount: this.props.columnCount,
-            cellSize: this.props.columnWidth,
-            computeMetadataCallback: function() {
-              return r._columnSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.columnCount,
-            nextCellSize: e.columnWidth,
-            nextScrollToIndex: e.scrollToColumn,
-            scrollToIndex: this.props.scrollToColumn,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollLeftForScrollToColumn(e, t);
-            }
-          }), n.i(y.a)({
-            cellCount: this.props.rowCount,
-            cellSize: this.props.rowHeight,
-            computeMetadataCallback: function() {
-              return r._rowSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.rowCount,
-            nextCellSize: e.rowHeight,
-            nextScrollToIndex: e.scrollToRow,
-            scrollToIndex: this.props.scrollToRow,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollTopForScrollToRow(e, t);
-            }
-          }), this._calculateChildrenToRender(e, t);
+          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight),
+            this._columnSizeAndPositionManager.configure({
+              cellCount: e.columnCount,
+              estimatedCellSize: this._getEstimatedColumnSize(e)
+            }), this._rowSizeAndPositionManager.configure({
+              cellCount: e.rowCount,
+              estimatedCellSize: this._getEstimatedRowSize(e)
+            }), n.i(y.a)({
+              cellCount: this.props.columnCount,
+              cellSize: this.props.columnWidth,
+              computeMetadataCallback: function() {
+                return r._columnSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.columnCount,
+              nextCellSize: e.columnWidth,
+              nextScrollToIndex: e.scrollToColumn,
+              scrollToIndex: this.props.scrollToColumn,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollLeftForScrollToColumn(e, t);
+              }
+            }), n.i(y.a)({
+              cellCount: this.props.rowCount,
+              cellSize: this.props.rowHeight,
+              computeMetadataCallback: function() {
+                return r._rowSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.rowCount,
+              nextCellSize: e.rowHeight,
+              nextScrollToIndex: e.scrollToRow,
+              scrollToIndex: this.props.scrollToRow,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollTopForScrollToRow(e, t);
+              }
+            }), this._calculateChildrenToRender(e, t);
         }
       }, {
         key: "render",

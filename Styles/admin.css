@@ -620,6 +620,18 @@ label[for=enable_calls_checkbox] input[type=checkbox] {
   text-transform: capitalize
 }
 
+.admin_pref .accordion_expand[placeholder]::-webkit-input-placeholder {
+  text-transform: none
+}
+
+.admin_pref .accordion_expand[placeholder]::-moz-placeholder {
+  text-transform: none
+}
+
+.admin_pref .accordion_expand[placeholder]:-ms-input-placeholder {
+  text-transform: none
+}
+
 .admin_pref h4 {
   margin-right: 5rem
 }
