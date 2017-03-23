@@ -35009,7 +35009,7 @@ function timezones_guess() {
       }
     },
     sendBuffer: function() {
-      if (bowser.msie) {
+      if (!TS.model.is_our_app) {
         this.$iframe[0].contentWindow.postMessage(this.buffer, this.iframe_origin);
       } else {
         this.$iframe[0].contentWindow.postMessage(this.buffer, this.iframe_origin, [this.buffer.buffer]);
