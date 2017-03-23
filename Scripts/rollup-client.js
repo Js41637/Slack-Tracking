@@ -6261,6 +6261,19 @@
       var no_history_add = true;
       TS.client.flexDisplaySwitched("convo", flex_extra, replace_history_state, no_history_add);
     },
+    showAppsFromHistory: function(bot_id) {
+      if (!bot_id) {
+        return TS.client.ui.flex.hideFlex();
+      }
+      var replace_history_state = false;
+      var no_history_add = true;
+      TS.apps.promiseToGetFullAppProfile(bot_id).then(function(app) {
+        TS.client.ui.app_profile.openWithApp(app, bot_id);
+        TS.client.flexDisplaySwitched("apps", bot_id, replace_history_state, no_history_add);
+      }).catch(function(err) {
+        return TS.client.ui.flex.hideFlex();
+      });
+    },
     showSearchFromHistory: function(qry) {
       if (!qry) {
         TS.client.ui.flex.openFlexTab("mentions");
@@ -9330,6 +9343,8 @@
         TS.client.ui.showSearchFromHistory(flex_extra);
       } else if (flex_name == "convo" && flex_extra) {
         TS.client.ui.showRepliesFromHistory(flex_extra);
+      } else if (flex_name == "apps") {
+        TS.client.ui.showAppsFromHistory(flex_extra);
       } else {
         TS.client.flexDisplaySwitched(flex_name, null, false, true);
       }
@@ -9341,9 +9356,10 @@
       TS.client.ui.flex._displayFlexTab("convo");
       TS.client.flexDisplaySwitched("convo", flex_extra);
     },
-    openAppProfileFlex: function() {
-      TS.client.ui.flex._displayFlexTab("app_profile");
-      TS.client.flexDisplaySwitched("");
+    openAppProfileFlex: function(bot_id) {
+      var flex_extra = bot_id;
+      TS.client.ui.flex._displayFlexTab("apps");
+      TS.client.flexDisplaySwitched("apps", flex_extra);
     },
     rebuildMsgCurrentStatusIncludingMember: function(member) {
       var flex_name = TS.model.ui_state.flex_name;
@@ -39273,7 +39289,7 @@ function timezones_guess() {
       if (!app) return;
       TS.client.ui.app_profile.active_app = app;
       _profile_template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
-      TS.client.ui.flex.openAppProfileFlex();
+      TS.client.ui.flex.openAppProfileFlex(bot_id);
       $('[data-js="app_profile_header"]').html(TS.templates.app_profile_title(_profile_template_args));
       var $app_profile = $('[data-js="app_profile_scroller"]');
       $app_profile.html(TS.templates.app_profile(_profile_template_args));

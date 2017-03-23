@@ -26713,6 +26713,18 @@ TS.registerModule("constants", {
       } else if (model_ob.is_group && !model_ob.is_mpim) {
         TS.groups.message_changed_sig.dispatch(model_ob, original_msg, changed_keys);
       }
+      if (TS.boot_data.feature_new_broadcast && _.includes(changed_keys, "_hidden_reply")) {
+        var and_mark = !TS.utility.msgs.isTempMsg(original_msg);
+        if (model_ob.is_channel) {
+          TS.channels.calcUnreadCnts(model_ob, and_mark);
+        } else if (model_ob.is_im) {
+          TS.ims.calcUnreadCnts(model_ob, and_mark);
+        } else if (model_ob.is_group && model_ob.is_mpim) {
+          TS.mpims.calcUnreadCnts(model_ob, and_mark);
+        } else if (model_ob.is_group && !model_ob.is_mpim) {
+          TS.groups.calcUnreadCnts(model_ob, and_mark);
+        }
+      }
       if (TS.boot_data.feature_new_broadcast && TS.utility.msgs.msgHasReplies(original_msg)) {
         TS.replies.updateThreadBroadcastRoots(model_ob, original_msg);
       }
@@ -62182,7 +62194,8 @@ $.fn.togglify = function(settings) {
               if (!Sp(t)) return !1;
               a = !0, c = !1;
             }
-            if (p && !c) return i || (i = new wn), a || Rp(e) ? gi(e, t, n, r, o, i) : _i(e, t, s, n, r, o, i);
+            if (p && !c) return i || (i = new wn),
+              a || Rp(e) ? gi(e, t, n, r, o, i) : _i(e, t, s, n, r, o, i);
             if (!(n & ve)) {
               var d = c && bc.call(e, "__wrapped__"),
                 h = f && bc.call(t, "__wrapped__");
@@ -64328,8 +64341,7 @@ $.fn.togglify = function(settings) {
           }
 
           function ul(e, t, n) {
-            if (n && "boolean" != typeof n && Ui(e, t, n) && (t = n = oe), n === oe && ("boolean" == typeof t ? (n = t, t = oe) : "boolean" == typeof e && (n = e,
-                e = oe)), e === oe && t === oe ? (e = 0, t = 1) : (e = ks(e), t === oe ? (t = e, e = 0) : t = ks(t)), e > t) {
+            if (n && "boolean" != typeof n && Ui(e, t, n) && (t = n = oe), n === oe && ("boolean" == typeof t ? (n = t, t = oe) : "boolean" == typeof e && (n = e, e = oe)), e === oe && t === oe ? (e = 0, t = 1) : (e = ks(e), t === oe ? (t = e, e = 0) : t = ks(t)), e > t) {
               var r = e;
               e = t, t = r;
             }
@@ -69011,7 +69023,8 @@ $.fn.togglify = function(settings) {
             m = h.scrollPositionChangeReason,
             g = h.scrollTop,
             _ = u > 0 && 0 === e.columnCount || l > 0 && 0 === e.rowCount;
-          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)), n.i(E.a)({
+          if (m === M.REQUESTED && (v >= 0 && (v !== t.scrollLeft && v !== this._scrollingContainer.scrollLeft || _) && (this._scrollingContainer.scrollLeft = v), !a && g >= 0 && (g !== t.scrollTop && g !== this._scrollingContainer.scrollTop || _) && (this._scrollingContainer.scrollTop = g)),
+            n.i(E.a)({
               cellSizeAndPositionManager: this._columnSizeAndPositionManager,
               previousCellsCount: e.columnCount,
               previousCellSize: e.columnWidth,
@@ -75349,8 +75362,7 @@ $.fn.togglify = function(settings) {
 
   function a(e, t) {
     var n, r, o = document.selection.createRange().duplicate();
-    void 0 === t.end ? (n = t.start, r = n) : t.start > t.end ? (n = t.end, r = t.start) : (n = t.start, r = t.end), o.moveToElementText(e), o.moveStart("character", n),
-      o.setEndPoint("EndToStart", o), o.moveEnd("character", r - n), o.select();
+    void 0 === t.end ? (n = t.start, r = n) : t.start > t.end ? (n = t.end, r = t.start) : (n = t.start, r = t.end), o.moveToElementText(e), o.moveStart("character", n), o.setEndPoint("EndToStart", o), o.moveEnd("character", r - n), o.select();
   }
 
   function u(e, t) {

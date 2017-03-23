@@ -2753,7 +2753,7 @@ var _fullToHalf = function(char) {
     c_name_in_url: "",
     flex_name_in_url: "",
     flex_extra_in_url: "",
-    flex_names: ["files", "team", "search", "stars", "mentions", "details", "whats_new", "convo"],
+    flex_names: ["files", "team", "search", "stars", "mentions", "details", "whats_new", "convo", "apps"],
     default_flex_name: "files",
     prefs: null,
     ui_state: null,
