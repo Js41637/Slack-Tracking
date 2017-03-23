@@ -49758,9 +49758,8 @@ $.fn.togglify = function(settings) {
       var name_score = Infinity;
       var rn_score = Infinity;
       var rn_norm_score = Infinity;
-      var ignore_real_name = TS.boot_data.feature_tinyspeck && only_members;
       name_score = matcher.score(member.name);
-      if (member._real_name_lc && !ignore_real_name) {
+      if (member._real_name_lc && !only_members) {
         rn_score = matcher.score(member._real_name_lc);
         if (member._real_name_lc !== member._real_name_normalized_lc) {
           rn_norm_score = matcher.score(member._real_name_normalized_lc);
@@ -60362,23 +60361,24 @@ $.fn.togglify = function(settings) {
   }
   var n = {};
   return t.m = e, t.c = n, t.i = function(e) {
-    return e;
-  }, t.d = function(e, n, r) {
-    t.o(e, n) || Object.defineProperty(e, n, {
-      configurable: !1,
-      enumerable: !0,
-      get: r
-    });
-  }, t.n = function(e) {
-    var n = e && e.__esModule ? function() {
-      return e.default;
-    } : function() {
       return e;
-    };
-    return t.d(n, "a", n), n;
-  }, t.o = function(e, t) {
-    return Object.prototype.hasOwnProperty.call(e, t);
-  }, t.p = "/", t(t.s = 351);
+    }, t.d = function(e, n, r) {
+      t.o(e, n) || Object.defineProperty(e, n, {
+        configurable: !1,
+        enumerable: !0,
+        get: r
+      });
+    }, t.n = function(e) {
+      var n = e && e.__esModule ? function() {
+        return e.default;
+      } : function() {
+        return e;
+      };
+      return t.d(n, "a", n), n;
+    }, t.o = function(e, t) {
+      return Object.prototype.hasOwnProperty.call(e, t);
+    }, t.p = "/",
+    t(t.s = 351);
 }([function(e, t, n) {
   "use strict";
 
@@ -62292,8 +62292,7 @@ $.fn.togglify = function(settings) {
               var p = wp(s),
                 d = !p && Sp(s),
                 h = !p && !d && Rp(s);
-              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u,
-                bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
+              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
             }
             f && (a.set(s, c), o(c, s, r, i, a), a.delete(s)), On(e, n, c);
           }
