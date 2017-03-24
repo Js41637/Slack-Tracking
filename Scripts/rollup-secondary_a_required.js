@@ -39665,7 +39665,6 @@ var _on_esc;
       _$div.on("click", ".dialog_go", _go);
       _$div.on("click", ".dialog_secondary_go", _secondaryGo);
       _$div.on("click", ".dialog_cancel", _cancel);
-      $(window.document).off(".fs_modal");
       $(window.document).on("keydown.fs_modal", _onKeyDown);
       _$div_close_btn.on("click", function() {
         if (_current_settings.esc_for_ok) {
@@ -39776,13 +39775,6 @@ var _on_esc;
     sidebar_html: null
   };
   var _build = function() {
-    _$bg = null;
-    _$div = null;
-    _$div_header = null;
-    _$div_footer = null;
-    _$div_close_btn = null;
-    _$div_contents = null;
-    _$div_sidebar = null;
     var template_data = {
       settings: _current_settings,
       fs_modal_header: _.includes(_current_settings.modal_class, "fs_modal_header"),
@@ -39857,24 +39849,32 @@ var _on_esc;
     }
   };
   var _clean = function() {
-    _$div.remove();
-    _$bg.remove();
-    TS.ui.fs_modal.is_showing = false;
+    if (_$div) _$div.remove();
+    if (_$bg) _$bg.remove();
+    _$bg = null;
+    _$div = null;
+    _$div_header = null;
+    _$div_footer = null;
+    _$div_close_btn = null;
+    _$div_contents = null;
+    _$div_sidebar = null;
   };
   var _end = function() {
+    TS.ui.fs_modal.is_showing = false;
     setTimeout(function() {
       _clean();
     }, TS.ui.fs_modal.transition_duration);
-    $(window.document).off("keydown.fs_modal");
+    $(window.document).off("keydown.fs_modal").off("resize.fs_modal");
     if (_current_settings.onEnd) _current_settings.onEnd();
   };
   var _swap = function(settings) {
     _$div.removeClass("active");
     if (_current_settings.onCancel) _current_settings.onCancel();
+    TS.ui.fs_modal.is_showing = false;
+    $(window.document).off("keydown.fs_modal").off("resize.fs_modal");
     var $bg = _$bg.attr("id", null).addClass("fs_modal_bg");
     setTimeout(function() {
       _$div.remove();
-      TS.ui.fs_modal.is_showing = false;
       TS.ui.fs_modal.start(settings);
       setTimeout($bg.remove.bind($bg), TS.ui.fs_modal.transition_duration);
     }, TS.ui.fs_modal.transition_duration);
