@@ -40972,6 +40972,7 @@ var _on_esc;
       var $el = $("#edit_member_profile_photo");
       var el = $el.get(0);
       var loaded = function(event) {
+        _image.src = data.url;
         $("#edit_member_profile_photo_preview").css("background", "url(" + data.url + ")");
         $el.css("opacity", 0);
         _switchToPhotoCrop();
@@ -41937,6 +41938,10 @@ var _on_esc;
     if (should_fix) value = _fixChannelName($el);
     var name_validation = _channelNameValidation($el, options);
     if (name_validation) return false;
+    var model_ob = TS.shared.getActiveModelOb() || {};
+    if ($(".channel_options_modal").is(":visible") && value === model_ob.name) {
+      return false;
+    }
     var other_channel = TS.channels.getChannelByName(value) || TS.groups.getGroupByName(value) || TS.members.getMemberByName(value);
     if (!other_channel) return true;
     return void TS.ui.validation.showWarning($el, TS.i18n.t('"{name}" is already taken by a channel, username, or user group.', "ui_validation")({
@@ -64370,7 +64375,8 @@ $.fn.togglify = function(settings) {
               return r || (r = o), p += e.slice(c, s).replace(en, F), n && (i = !0, p += "' +\n__e(" + n + ") +\n'"), u && (a = !0, p += "';\n" + u + ";\n__p += '"), r && (p += "' +\n((__t = (" + r + ")) == null ? '' : __t) +\n'"), c = s + t.length, t;
             }), p += "';\n";
             var v = t.variable;
-            v || (p = "with (obj) {\n" + p + "\n}\n"), p = (a ? p.replace(wt, "") : p).replace(Ct, "$1").replace(St, "$1;"), p = "function(" + (v || "obj") + ") {\n" + (v ? "" : "obj || (obj = {});\n") + "var __t, __p = ''" + (i ? ", __e = _.escape" : "") + (a ? ", __j = Array.prototype.join;\nfunction print() { __p += __j.call(arguments, '') }\n" : ";\n") + p + "return __p\n}";
+            v || (p = "with (obj) {\n" + p + "\n}\n"), p = (a ? p.replace(wt, "") : p).replace(Ct, "$1").replace(St, "$1;"),
+              p = "function(" + (v || "obj") + ") {\n" + (v ? "" : "obj || (obj = {});\n") + "var __t, __p = ''" + (i ? ", __e = _.escape" : "") + (a ? ", __j = Array.prototype.join;\nfunction print() { __p += __j.call(arguments, '') }\n" : ";\n") + p + "return __p\n}";
             var m = td(function() {
               return lc(s, h + "return " + p).apply(oe, l);
             });
@@ -70743,7 +70749,8 @@ $.fn.togglify = function(settings) {
         value: function(e) {
           var t = this.props.onResize,
             r = this.state.height;
-          e = e || this.props.scrollElement || window, this._positionFromTop = n.i(y.b)(v.a.findDOMNode(this), e);
+          e = e || this.props.scrollElement || window,
+            this._positionFromTop = n.i(y.b)(v.a.findDOMNode(this), e);
           var o = n.i(y.a)(e);
           r !== o && (this.setState({
             height: o
@@ -74005,7 +74012,8 @@ $.fn.togglify = function(settings) {
   }
 
   function f() {
-    R && (delete R.value, R.detachEvent ? R.detachEvent("onpropertychange", p) : R.removeEventListener("propertychange", p, !1), R = null, P = null, M = null, O = null);
+    R && (delete R.value, R.detachEvent ? R.detachEvent("onpropertychange", p) : R.removeEventListener("propertychange", p, !1),
+      R = null, P = null, M = null, O = null);
   }
 
   function p(e) {
@@ -77084,7 +77092,8 @@ $.fn.togglify = function(settings) {
       null === this.shouldClose && (this.shouldClose = !0);
     },
     handleOverlayMouseUp: function(e) {
-      this.shouldClose && this.props.shouldCloseOnOverlayClick && (this.ownerHandlesClose() ? this.requestClose(e) : this.focusContent()), this.shouldClose = null;
+      this.shouldClose && this.props.shouldCloseOnOverlayClick && (this.ownerHandlesClose() ? this.requestClose(e) : this.focusContent()),
+        this.shouldClose = null;
     },
     handleContentMouseDown: function(e) {
       this.shouldClose = !1;

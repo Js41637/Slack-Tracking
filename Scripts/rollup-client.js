@@ -25581,6 +25581,11 @@
         var new_title = _$current_option.find(".title_input").val();
         var method = model_ob.is_channel ? "channels.rename" : "groups.rename";
         if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.start();
+        if (new_title === model_ob.name) {
+          if (TS.ui.channel_options_dialog.ladda) TS.ui.channel_options_dialog.ladda.stop();
+          TS.ui.fs_modal.close();
+          return;
+        }
         TS.api.call(method, {
           name: new_title,
           channel: model_ob.id,
