@@ -20492,6 +20492,12 @@ TS.registerModule("constants", {
         } else {
           result_type = TS.search.view.determineMessageResultType(messages, inx);
         }
+        if (!msg.permalink && main_msg.permalink && result_type != "extract") {
+          msg.permalink = main_msg.permalink;
+        }
+        if (!msg.team && main_msg.team && result_type != "extract") {
+          msg.team = main_msg.team;
+        }
         html += TS.templates.builders.msgHtmlForSearch(msg, model_ob, result_type, main_msg, prev_msg);
         prev_msg = msg;
       });
@@ -22997,7 +23003,11 @@ TS.registerModule("constants", {
           }
         }
         if (!TS.utility.msgs.isTempMsg(msg) && !msg.is_ephemeral) {
-          template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
+          if (TS.boot_data.page_needs_enterprise && msg.team != TS.model.team.id && msg.permalink && !msg.channel.is_shared) {
+            template_args.permalink = msg.permalink;
+          } else {
+            template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
+          }
           template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
         }
         if (args.for_top_results_search_display && TS.boot_data.page_needs_enterprise) {
@@ -62263,7 +62273,8 @@ $.fn.togglify = function(settings) {
               var p = wp(s),
                 d = !p && Sp(s),
                 h = !p && !d && Rp(s);
-              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
+              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u,
+                bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
             }
             f && (a.set(s, c), o(c, s, r, i, a), a.delete(s)), On(e, n, c);
           }
@@ -64375,8 +64386,7 @@ $.fn.togglify = function(settings) {
               return r || (r = o), p += e.slice(c, s).replace(en, F), n && (i = !0, p += "' +\n__e(" + n + ") +\n'"), u && (a = !0, p += "';\n" + u + ";\n__p += '"), r && (p += "' +\n((__t = (" + r + ")) == null ? '' : __t) +\n'"), c = s + t.length, t;
             }), p += "';\n";
             var v = t.variable;
-            v || (p = "with (obj) {\n" + p + "\n}\n"), p = (a ? p.replace(wt, "") : p).replace(Ct, "$1").replace(St, "$1;"),
-              p = "function(" + (v || "obj") + ") {\n" + (v ? "" : "obj || (obj = {});\n") + "var __t, __p = ''" + (i ? ", __e = _.escape" : "") + (a ? ", __j = Array.prototype.join;\nfunction print() { __p += __j.call(arguments, '') }\n" : ";\n") + p + "return __p\n}";
+            v || (p = "with (obj) {\n" + p + "\n}\n"), p = (a ? p.replace(wt, "") : p).replace(Ct, "$1").replace(St, "$1;"), p = "function(" + (v || "obj") + ") {\n" + (v ? "" : "obj || (obj = {});\n") + "var __t, __p = ''" + (i ? ", __e = _.escape" : "") + (a ? ", __j = Array.prototype.join;\nfunction print() { __p += __j.call(arguments, '') }\n" : ";\n") + p + "return __p\n}";
             var m = td(function() {
               return lc(s, h + "return " + p).apply(oe, l);
             });
@@ -69031,41 +69041,42 @@ $.fn.togglify = function(settings) {
             var o = {};
             null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
           }
-          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
-            cellCount: e.columnCount,
-            estimatedCellSize: this._getEstimatedColumnSize(e)
-          }), this._rowSizeAndPositionManager.configure({
-            cellCount: e.rowCount,
-            estimatedCellSize: this._getEstimatedRowSize(e)
-          }), n.i(y.a)({
-            cellCount: this.props.columnCount,
-            cellSize: this.props.columnWidth,
-            computeMetadataCallback: function() {
-              return r._columnSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.columnCount,
-            nextCellSize: e.columnWidth,
-            nextScrollToIndex: e.scrollToColumn,
-            scrollToIndex: this.props.scrollToColumn,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollLeftForScrollToColumn(e, t);
-            }
-          }), n.i(y.a)({
-            cellCount: this.props.rowCount,
-            cellSize: this.props.rowHeight,
-            computeMetadataCallback: function() {
-              return r._rowSizeAndPositionManager.resetCell(0);
-            },
-            computeMetadataCallbackProps: e,
-            nextCellsCount: e.rowCount,
-            nextCellSize: e.rowHeight,
-            nextScrollToIndex: e.scrollToRow,
-            scrollToIndex: this.props.scrollToRow,
-            updateScrollOffsetForScrollToIndex: function() {
-              return r._updateScrollTopForScrollToRow(e, t);
-            }
-          }), this._calculateChildrenToRender(e, t);
+          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight),
+            this._columnSizeAndPositionManager.configure({
+              cellCount: e.columnCount,
+              estimatedCellSize: this._getEstimatedColumnSize(e)
+            }), this._rowSizeAndPositionManager.configure({
+              cellCount: e.rowCount,
+              estimatedCellSize: this._getEstimatedRowSize(e)
+            }), n.i(y.a)({
+              cellCount: this.props.columnCount,
+              cellSize: this.props.columnWidth,
+              computeMetadataCallback: function() {
+                return r._columnSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.columnCount,
+              nextCellSize: e.columnWidth,
+              nextScrollToIndex: e.scrollToColumn,
+              scrollToIndex: this.props.scrollToColumn,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollLeftForScrollToColumn(e, t);
+              }
+            }), n.i(y.a)({
+              cellCount: this.props.rowCount,
+              cellSize: this.props.rowHeight,
+              computeMetadataCallback: function() {
+                return r._rowSizeAndPositionManager.resetCell(0);
+              },
+              computeMetadataCallbackProps: e,
+              nextCellsCount: e.rowCount,
+              nextCellSize: e.rowHeight,
+              nextScrollToIndex: e.scrollToRow,
+              scrollToIndex: this.props.scrollToRow,
+              updateScrollOffsetForScrollToIndex: function() {
+                return r._updateScrollTopForScrollToRow(e, t);
+              }
+            }), this._calculateChildrenToRender(e, t);
         }
       }, {
         key: "render",
@@ -70749,8 +70760,7 @@ $.fn.togglify = function(settings) {
         value: function(e) {
           var t = this.props.onResize,
             r = this.state.height;
-          e = e || this.props.scrollElement || window,
-            this._positionFromTop = n.i(y.b)(v.a.findDOMNode(this), e);
+          e = e || this.props.scrollElement || window, this._positionFromTop = n.i(y.b)(v.a.findDOMNode(this), e);
           var o = n.i(y.a)(e);
           r !== o && (this.setState({
             height: o
@@ -74012,8 +74022,7 @@ $.fn.togglify = function(settings) {
   }
 
   function f() {
-    R && (delete R.value, R.detachEvent ? R.detachEvent("onpropertychange", p) : R.removeEventListener("propertychange", p, !1),
-      R = null, P = null, M = null, O = null);
+    R && (delete R.value, R.detachEvent ? R.detachEvent("onpropertychange", p) : R.removeEventListener("propertychange", p, !1), R = null, P = null, M = null, O = null);
   }
 
   function p(e) {
@@ -77092,8 +77101,7 @@ $.fn.togglify = function(settings) {
       null === this.shouldClose && (this.shouldClose = !0);
     },
     handleOverlayMouseUp: function(e) {
-      this.shouldClose && this.props.shouldCloseOnOverlayClick && (this.ownerHandlesClose() ? this.requestClose(e) : this.focusContent()),
-        this.shouldClose = null;
+      this.shouldClose && this.props.shouldCloseOnOverlayClick && (this.ownerHandlesClose() ? this.requestClose(e) : this.focusContent()), this.shouldClose = null;
     },
     handleContentMouseDown: function(e) {
       this.shouldClose = !1;
