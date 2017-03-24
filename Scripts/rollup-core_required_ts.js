@@ -2197,9 +2197,8 @@
   };
   var _detectEndpoint = function() {
     if (_ENDPOINT_URL) return _ENDPOINT_URL;
-    var is_dev = location.host.match(/(dev[0-9]+)\.slack.com/);
-    if (is_dev) {
-      _ENDPOINT_URL = "https://" + is_dev[0] + "/beacon/statsd";
+    if (TS.environment.is_dev) {
+      _ENDPOINT_URL = "https://" + location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/)[2] + "/beacon/statsd";
     } else if (location.host.match(/staging.slack.com/)) {
       _ENDPOINT_URL = "https://staging.slack.com/beacon/statsd";
     } else {
@@ -2342,7 +2341,7 @@
   var _dev_warned_translations = [];
   var _maybeSetup = function() {
     if (_is_setup) return;
-    _is_dev = location.host.match(/(dev[0-9]*)\.slack.com/);
+    _is_dev = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
     var locale = location.search.match(new RegExp("locale=(.*?)($|&)", "i"));
     if (locale) _locale = locale[1];
     if (!_locale) {
@@ -3126,6 +3125,7 @@ var _fullToHalf = function(char) {
   "use strict";
   TS.registerModule("environment", {
     is_apple_webkit: false,
+    is_dev: false,
     is_macgap: false,
     is_retina: false,
     retina_changed_sig: new signals.Signal,
@@ -3236,6 +3236,7 @@ var _fullToHalf = function(char) {
 
   function _initialSetup() {
     TS.environment.is_apple_webkit = !!(TS.model.mac_ssb_version || TS.model.is_safari_desktop);
+    TS.environment.is_dev = TS.boot_data.version_ts === "dev";
     TS.environment.is_macgap = !!window.macgap;
     TS.environment.is_retina = _isRetina();
     TS.environment.supports_custom_scrollbar = _cssPropertySupported("scrollbar");
@@ -3357,13 +3358,14 @@ var _fullToHalf = function(char) {
   var _user_id;
   var _is_debug_mode = false;
   var _detectClogEndpoint = function(host) {
-    var is_dev = host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack.com/);
-    var is_qa = host.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack.com/);
+    var is_dev = host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
+    var is_qa = host.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack\.com/);
+    var is_staging = host.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
     if (is_dev) {
       _CLOG_ENDPOINT_URL = "https://" + is_dev[2] + ".slack.com/clog/track/";
     } else if (is_qa) {
       _CLOG_ENDPOINT_URL = "https://" + is_qa[2] + ".slack.com/clog/track/";
-    } else if (host.match(/^([^.]+\.)?staging.slack.com/)) {
+    } else if (is_staging) {
       _CLOG_ENDPOINT_URL = "https://staging.slack.com/clog/track/";
     } else {
       _CLOG_ENDPOINT_URL = "https://slack.com/clog/track/";

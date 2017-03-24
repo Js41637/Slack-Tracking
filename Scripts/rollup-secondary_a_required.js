@@ -289,7 +289,7 @@
     }
     var LZString_url = cdn_url + "/85b8/js/libs/lz-string-1.4.4.js";
     var using_local_js = TS.qs_args["local_assets"] || TS.qs_args["js_path"];
-    var is_dev = TS.boot_data.version_ts === "dev";
+    var is_dev = TS.environment.is_dev;
     if (using_local_js || is_dev) {
       LZString_url = location.protocol + "//" + location.host + LZString_url;
     }
@@ -20492,12 +20492,6 @@ TS.registerModule("constants", {
         } else {
           result_type = TS.search.view.determineMessageResultType(messages, inx);
         }
-        if (!msg.permalink && main_msg.permalink && result_type != "extract") {
-          msg.permalink = main_msg.permalink;
-        }
-        if (!msg.team && main_msg.team && result_type != "extract") {
-          msg.team = main_msg.team;
-        }
         html += TS.templates.builders.msgHtmlForSearch(msg, model_ob, result_type, main_msg, prev_msg);
         prev_msg = msg;
       });
@@ -23003,11 +22997,7 @@ TS.registerModule("constants", {
           }
         }
         if (!TS.utility.msgs.isTempMsg(msg) && !msg.is_ephemeral) {
-          if (TS.boot_data.page_needs_enterprise && msg.team != TS.model.team.id && msg.permalink && !msg.channel.is_shared) {
-            template_args.permalink = msg.permalink;
-          } else {
-            template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
-          }
+          template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
           template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
         }
         if (args.for_top_results_search_display && TS.boot_data.page_needs_enterprise) {
@@ -27657,7 +27647,7 @@ TS.registerModule("constants", {
           continue;
         }
         if (!file.is_tombstoned) {
-          if (file.mode === "hosted" || file.mode === "external") {
+          if (file.mode === "hosted" || file.mode === "external" || file.mode === "snippet") {
             if (file.comments.length || file.is_tombstoned == false) {
               if (model_ob.id == TS.model.active_im_id) {
                 TS.ims.message_changed_sig.dispatch(model_ob, m);
@@ -30291,6 +30281,22 @@ TS.registerModule("constants", {
         return encodeURIComponent(key) + "=" + encodeURIComponent(args[key]);
       });
       return "?" + key_value_pairs.join("&");
+    },
+    simpleIsUrl: function(proposed_url) {
+      var passed = false;
+      var anchor;
+      var tiny_re;
+      if (proposed_url.indexOf(" ") !== -1) return passed;
+      anchor = document.createElement("a");
+      anchor.href = proposed_url;
+      if (anchor.protocol && anchor.hostname && anchor.pathname && window.location.href.substr(0, window.location.href.lastIndexOf("/")) + "/" + proposed_url != anchor.href) {
+        tiny_re = /[a-z0-9]+\.[a-z0-9]+/i;
+        passed = tiny_re.test(anchor.hostname);
+        if (anchor.hostname.indexOf(".") == -1 && anchor.hostname === "localhost") {
+          passed = true;
+        }
+      }
+      return passed;
     }
   });
 })();
@@ -32064,7 +32070,7 @@ TS.registerModule("constants", {
       TS.menu.clean();
       TS.menu.submenu_template_args = {};
       var is_tinyspeck = TS.model && TS.model.team && TS.boot_data.feature_tinyspeck;
-      var is_dev = TS.boot_data.version_ts == "dev";
+      var is_dev = TS.environment.is_dev;
       var show_version_info = is_tinyspeck || is_dev;
       var template_args = {
         user: TS.model.user,
@@ -41633,6 +41639,7 @@ var _on_esc;
     firstalphanumeric: _validateFirstAlphanumeric,
     hasnourl: _validateHasNoUrl,
     isurl: _validateIsUrl,
+    isurlbasic: _validateIsUrlBasic,
     islink: _validateIsLink,
     lowercase: _validateLowercase,
     maxcsv: _validateMaxCSV,
@@ -41740,6 +41747,44 @@ var _on_esc;
       return void TS.ui.validation.showWarning($el, error_message, options);
     } else {
       return void TS.error("Error: cannot validate");
+    }
+  }
+
+  function _validateIsUrlBasic($el, options, protocols) {
+    var value = _getTextInputValue($el);
+    var error_message = error_message = TS.i18n.t("This doesn‘t seem like a proper link. Sorry!", "ui_validation")();
+    var allowed_protocols;
+    var passes_protocols_requirement = false;
+    var passes_well_formed_url_requirement = false;
+    if (!value) return true;
+    if ($el.is('input[type="radio"]') || $el.is('input[type="checkbox"]') || $el.is("select")) return true;
+    if (!_isElementTextInput($el)) {
+      return void TS.error("Error: cannot validate");
+    }
+    if (protocols) {
+      allowed_protocols = protocols.split(",");
+      if (allowed_protocols.indexOf("https") != -1) {
+        error_message = TS.i18n.t("Please use https (for security).", "ui_validation")();
+      }
+      if (allowed_protocols.indexOf("http") != -1 && allowed_protocols.indexOf("https") == -1) {
+        allowed_protocols.push("https");
+      }
+      for (var i = 0; i < allowed_protocols.length; i++) {
+        if (value.indexOf(allowed_protocols[i] + "://") === 0) {
+          passes_protocols_requirement = true;
+        }
+      }
+    } else {
+      passes_protocols_requirement = true;
+      if (value.indexOf("://") == -1) {
+        value = "http://" + value;
+      }
+    }
+    passes_well_formed_url_requirement = TS.utility.url.simpleIsUrl(value);
+    if (passes_well_formed_url_requirement && passes_protocols_requirement) {
+      return true;
+    } else {
+      return void TS.ui.validation.showWarning($el, error_message, options);
     }
   }
 
@@ -62273,8 +62318,7 @@ $.fn.togglify = function(settings) {
               var p = wp(s),
                 d = !p && Sp(s),
                 h = !p && !d && Rp(s);
-              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u,
-                bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
+              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
             }
             f && (a.set(s, c), o(c, s, r, i, a), a.delete(s)), On(e, n, c);
           }
@@ -69041,42 +69085,41 @@ $.fn.togglify = function(settings) {
             var o = {};
             null != e.scrollLeft && (o.scrollLeft = e.scrollLeft), null != e.scrollTop && (o.scrollTop = e.scrollTop), this._setScrollPosition(o);
           }
-          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight),
-            this._columnSizeAndPositionManager.configure({
-              cellCount: e.columnCount,
-              estimatedCellSize: this._getEstimatedColumnSize(e)
-            }), this._rowSizeAndPositionManager.configure({
-              cellCount: e.rowCount,
-              estimatedCellSize: this._getEstimatedRowSize(e)
-            }), n.i(y.a)({
-              cellCount: this.props.columnCount,
-              cellSize: this.props.columnWidth,
-              computeMetadataCallback: function() {
-                return r._columnSizeAndPositionManager.resetCell(0);
-              },
-              computeMetadataCallbackProps: e,
-              nextCellsCount: e.columnCount,
-              nextCellSize: e.columnWidth,
-              nextScrollToIndex: e.scrollToColumn,
-              scrollToIndex: this.props.scrollToColumn,
-              updateScrollOffsetForScrollToIndex: function() {
-                return r._updateScrollLeftForScrollToColumn(e, t);
-              }
-            }), n.i(y.a)({
-              cellCount: this.props.rowCount,
-              cellSize: this.props.rowHeight,
-              computeMetadataCallback: function() {
-                return r._rowSizeAndPositionManager.resetCell(0);
-              },
-              computeMetadataCallbackProps: e,
-              nextCellsCount: e.rowCount,
-              nextCellSize: e.rowHeight,
-              nextScrollToIndex: e.scrollToRow,
-              scrollToIndex: this.props.scrollToRow,
-              updateScrollOffsetForScrollToIndex: function() {
-                return r._updateScrollTopForScrollToRow(e, t);
-              }
-            }), this._calculateChildrenToRender(e, t);
+          e.columnWidth === this.props.columnWidth && e.rowHeight === this.props.rowHeight || (this._styleCache = {}), this._columnWidthGetter = this._wrapSizeGetter(e.columnWidth), this._rowHeightGetter = this._wrapSizeGetter(e.rowHeight), this._columnSizeAndPositionManager.configure({
+            cellCount: e.columnCount,
+            estimatedCellSize: this._getEstimatedColumnSize(e)
+          }), this._rowSizeAndPositionManager.configure({
+            cellCount: e.rowCount,
+            estimatedCellSize: this._getEstimatedRowSize(e)
+          }), n.i(y.a)({
+            cellCount: this.props.columnCount,
+            cellSize: this.props.columnWidth,
+            computeMetadataCallback: function() {
+              return r._columnSizeAndPositionManager.resetCell(0);
+            },
+            computeMetadataCallbackProps: e,
+            nextCellsCount: e.columnCount,
+            nextCellSize: e.columnWidth,
+            nextScrollToIndex: e.scrollToColumn,
+            scrollToIndex: this.props.scrollToColumn,
+            updateScrollOffsetForScrollToIndex: function() {
+              return r._updateScrollLeftForScrollToColumn(e, t);
+            }
+          }), n.i(y.a)({
+            cellCount: this.props.rowCount,
+            cellSize: this.props.rowHeight,
+            computeMetadataCallback: function() {
+              return r._rowSizeAndPositionManager.resetCell(0);
+            },
+            computeMetadataCallbackProps: e,
+            nextCellsCount: e.rowCount,
+            nextCellSize: e.rowHeight,
+            nextScrollToIndex: e.scrollToRow,
+            scrollToIndex: this.props.scrollToRow,
+            updateScrollOffsetForScrollToIndex: function() {
+              return r._updateScrollTopForScrollToRow(e, t);
+            }
+          }), this._calculateChildrenToRender(e, t);
         }
       }, {
         key: "render",
@@ -70661,7 +70704,8 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = (e.columnData, e.dataKey),
-      n = (e.disableSort, e.label),
+      n = (e.disableSort,
+        e.label),
       r = e.sortBy,
       o = e.sortDirection,
       u = r === t,
