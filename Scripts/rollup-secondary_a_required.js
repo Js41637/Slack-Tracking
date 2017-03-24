@@ -14779,10 +14779,10 @@ TS.registerModule("constants", {
       });
     },
     hasCachedRelevantResults: function() {
-      return _.has(TS.search.results[TS.search.query].messages, "modules.score");
+      return TS.search.filter == "messages" && _.has(TS.search.results[TS.search.query].messages, "modules.score");
     },
     hasCachedRecentResults: function() {
-      return _.has(TS.search.results[TS.search.query].messages, "timestamp_messages");
+      return TS.search.filter == "messages" && _.has(TS.search.results[TS.search.query].messages, "timestamp_messages");
     },
     switchToRelevant: function(fromTopResults) {
       var timestamp_messages = TS.search.results[TS.search.query].messages;

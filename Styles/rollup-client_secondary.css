@@ -2866,7 +2866,7 @@ body.incremental_boot #col_channels .header_count {
 }
 
 #app_directory_nav .ts_icon_bolt:before {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   padding-left: 1px;
   margin-top: 1px
 }
@@ -25731,12 +25731,8 @@ li:hover .current_status_badge {
 }
 
 #unread_msgs_scroller_div {
-  margin-top: 8px;
+  margin-top: 7px;
   overflow-y: scroll
-}
-
-html:not(.supports_sticky_position) #unread_msgs_scroller_div {
-  margin-top: 8px
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) #unread_msgs_scroller_div {
@@ -27115,6 +27111,8 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 #incoming_call #incoming_call_window .button_holder a::before {
+  position: relative;
+  top: 3px;
   font-size: 25px
 }
 
@@ -27139,7 +27137,6 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 #incoming_call #incoming_call_window .button_holder a.reject::before {
-  position: relative;
   top: 2px
 }
 

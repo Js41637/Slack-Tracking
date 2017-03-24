@@ -9159,6 +9159,7 @@
           $("#client-ui").removeClass("flex_pane_showing");
         });
         TS.model.ui_state.flex_visible = false;
+        TS.model.ui.active_tab_id = null;
         TS.view.resizeManually("TS.client.ui.flex.hideFlex");
         if (TS.model.ui.scrolled_to_msg_ts) {
           TS.client.ui.scrollMsgsSoMsgIsInView(TS.model.ui.scrolled_to_msg_ts, false, true, 200);
@@ -38203,15 +38204,12 @@ function timezones_guess() {
       }
     }
     if (!group_in_view) return;
-    var sticky_top = _banner_height;
-    if (TS.environment.isSSBAndAtLeastVersion("2.2.8")) {
-      sticky_top -= 2;
-    }
+    var sticky_top = _banner_height - 1;
     if (!$_currently_sticky) {
       $_currently_sticky = group_in_view.$node;
       $_currently_sticky.find(".unread_group_header").css({
         top: sticky_top,
-        right: $("#col_flex").width()
+        right: $("#col_flex").outerWidth()
       });
       $_currently_sticky.addClass("currently_sticky");
     }
@@ -38224,7 +38222,7 @@ function timezones_guess() {
       $_currently_sticky = group_in_view.$node;
       $_currently_sticky.find(".unread_group_header").css({
         top: sticky_top,
-        right: $("#col_flex").width()
+        right: $("#col_flex").outerWidth()
       });
       $_currently_sticky.addClass("currently_sticky");
     }

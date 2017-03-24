@@ -608,6 +608,10 @@ html.is_mac .CodeMirror .CodeMirror-sizer {
   border-color: #ebebeb
 }
 
+.CodeMirror .CodeMirror-code {
+  font-size: .8rem
+}
+
 .CodeMirror .CodeMirror-linenumber {
   color: #9e9ea6
 }
