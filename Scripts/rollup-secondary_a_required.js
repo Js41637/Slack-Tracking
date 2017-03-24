@@ -17926,7 +17926,7 @@ TS.registerModule("constants", {
         if (msg && msg.replies && msg.replies.length) {
           var prev_last_reply = _.maxBy(msg.replies, "ts").ts;
           if (last_reply_ts < prev_last_reply) {
-            TS.warn("Not processing older message_replied event, " + last_reply_ts + " < " + prev_last_reply + ", in " + imsg.channel);
+            TS.log(2004, "Not processing older message_replied event, " + last_reply_ts + " < " + prev_last_reply + ", in " + imsg.channel);
             return;
           }
         }
@@ -24417,6 +24417,149 @@ TS.registerModule("constants", {
           }
         }
         return new Handlebars.SafeString(html);
+      });
+      Handlebars.registerHelper("getMemberPreviewLinkImageArgs", function(id_or_member_ob, size, lazy, omit_link, omit_badge, omit_restricted_overlay, slackbot_feels) {
+        var member;
+        if (typeof id_or_member_ob === "object") {
+          member = id_or_member_ob;
+        } else {
+          member = TS.members.getMemberById(id_or_member_ob);
+        }
+        if (!member || !member.profile) return "";
+        lazy = lazy === true;
+        omit_link = omit_link === true;
+        omit_badge = omit_badge === true;
+        omit_restricted_overlay = omit_restricted_overlay === true;
+        slackbot_feels = typeof slackbot_feels === "string" ? slackbot_feels : false;
+        if (id_or_member_ob === "USLACKBOT" && slackbot_feels) {
+          member = TS.utility.slackbot.getWithFeels(slackbot_feels);
+        }
+        var img_src, badge_html;
+        var bg_img_style, bg_img_urls;
+        badge_html = "";
+        bg_img_style = "background-image: ";
+        bg_img_urls = [];
+        switch (size) {
+          case 20:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_48;
+            } else {
+              img_src = member.profile.image_24;
+            }
+            break;
+          case 24:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_48;
+            } else {
+              img_src = member.profile.image_24;
+            }
+            break;
+          case 32:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_72;
+            } else {
+              img_src = member.profile.image_32;
+            }
+            break;
+          case 36:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_72;
+            } else {
+              img_src = member.profile.image_48;
+            }
+            break;
+          case 48:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_72;
+            } else {
+              img_src = member.profile.image_48;
+            }
+            break;
+          case 72:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_192;
+            } else {
+              img_src = member.profile.image_72;
+            }
+            break;
+          case 192:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_512 || member.profile.image_192;
+            } else {
+              img_src = member.profile.image_192;
+            }
+            break;
+          case 512:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_1024 || member.profile.image_512 || member.profile.image_192;
+            } else {
+              img_src = member.profile.image_512 || member.profile.image_192;
+            }
+            break;
+          default:
+            if (TS.environment.is_retina) {
+              img_src = member.profile.image_72;
+            } else {
+              img_src = member.profile.image_48;
+            }
+            break;
+        }
+        if (TS.boot_data.page_needs_enterprise) {
+          if (!omit_badge) {
+            var badge_size;
+            switch (size) {
+              case 20:
+              case 24:
+                badge_size = 10;
+                break;
+              case 32:
+              case 36:
+              case 48:
+                badge_size = 16;
+                break;
+              case 72:
+                badge_size = 24;
+                break;
+              case 192:
+                badge_size = 48;
+                break;
+              case 512:
+                badge_size = 96;
+                break;
+              default:
+                badge_size = 16;
+            }
+            badge_html = TS.templates.builders.makeMemberTypeBadge(member, badge_size, false, false);
+          }
+        } else {
+          if (member.is_restricted && !omit_restricted_overlay) {
+            if (TS.environment.is_retina) {
+              bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
+            } else {
+              bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
+            }
+          }
+        }
+        bg_img_urls.push("url('" + img_src + "')");
+        if (size === 512) {
+          var pre_bg_img_src = TS.environment.is_retina ? member.profile.image_72 : member.profile.image_48;
+          bg_img_urls.push("url('" + pre_bg_img_src + "')");
+        }
+        if (lazy) {
+          bg_img_style = bg_img_urls.length ? bg_img_urls.join(", ") : "";
+        } else {
+          bg_img_style = bg_img_urls.length ? bg_img_style + bg_img_urls.join(", ") : "";
+        }
+        var template_data = {
+          omit_link: omit_link,
+          lazy: lazy,
+          member: member,
+          size: size,
+          include_restricted_overlay: !omit_restricted_overlay || true,
+          bg_img_style: bg_img_style,
+          badge_html: new Handlebars.SafeString(badge_html)
+        };
+        return template_data;
       });
       Handlebars.registerHelper("getMemberNameById", function(id) {
         var member = TS.members.getMemberById(id);
@@ -33898,7 +34041,7 @@ var _on_esc;
       var $anchor = $(e.target);
       var type = $anchor.data("doc-type");
       if (!type) return;
-      var $loading_icon = TS.templates.mentions_loading_indicator();
+      var $loading_icon = TS.templates.loading_indicator();
       _$plus_icon_cached.remove();
       _$primary_file_button.append($loading_icon);
       TS.files.gdrive.createAndShare(type);
@@ -45768,8 +45911,7 @@ $.fn.togglify = function(settings) {
       instance.$input = $container.find(".lfs_input");
       instance.$list_container = $container.find(".lfs_list_container");
       instance.$list = $container.find(".lfs_list");
-      instance.$empty = $container.find(".lfs_empty");
-      instance.$error = $container.find(".lfs_error");
+      instance.$status = $container.find(".lfs_status");
       if (_isFilterInListStyle(instance)) {
         instance.$filter_input = $container.find(".lfs_filter_input");
       } else {
@@ -45790,8 +45932,10 @@ $.fn.togglify = function(settings) {
           instance.run();
           _bindUI(instance);
         }, function(error) {
-          instance._initial_call_failed = true;
           _bindUI(instance);
+          _showStatus(instance, instance.errorTemplate(error), {
+            internal_error_message: "Something failed while trying to return the initial data for lazyFilterSelect."
+          });
         });
       } else {
         if (instance.data) instance.data = instance.data.slice();
@@ -45827,13 +45971,18 @@ $.fn.togglify = function(settings) {
     monkey_scroll: true,
     no_default_selection: false,
     noResultsTemplate: function(query) {
-      return TS.i18n.t("No items matched {query}", "lazy_filter_select")({
-        query: "<strong>" + TS.utility.htmlEntities(query) + "</strong>"
-      });
+      if (query.length < this.min_query_length) {
+        return TS.i18n.t("{query_length, plural, =0 {Start typing to see results…} other {Keep typing to see results…}}", "lazy_filter_select")({
+          query_length: query.length
+        });
+      } else {
+        return TS.i18n.t("No items matched {query}", "lazy_filter_select")({
+          query: "<strong>" + TS.utility.htmlEntities(query) + "</strong>"
+        });
+      }
     },
     errorTemplate: function(error) {
-      error = error || TS.i18n.t("Couldn't load results.", "lazy_filter_select")();
-      return error;
+      return error || TS.i18n.t("Couldn't load results.", "lazy_filter_select")();
     },
     onInputBlur: _.noop,
     onInputFocus: _.noop,
@@ -45880,7 +46029,6 @@ $.fn.togglify = function(settings) {
     use_data_attributes: false,
     _$active: null,
     _all_done_fetching: false,
-    _initial_call_failed: false,
     _list_built: false,
     _list_visible: false,
     _mouse: {},
@@ -45889,7 +46037,7 @@ $.fn.togglify = function(settings) {
     _previous_val: "",
     _running_promise: null,
     _scroll_callback_was_called: false,
-    _showing_no_results: false
+    _showing_status: false
   };
   $.widget("TS.lazyFilterSelect", {
     _create: function() {
@@ -45934,10 +46082,9 @@ $.fn.togglify = function(settings) {
       _hideList(this.instance, {
         force: true
       });
-      _hideNoResults(this.instance, {
+      _hideStatus(this.instance, {
         force: true
       });
-      _hideError(this.instance);
     },
     recomputeHeight: function() {
       _updateMonkeyScroll(this.instance);
@@ -46093,6 +46240,7 @@ $.fn.togglify = function(settings) {
     }).replace(/(\r\n|\n|\r)/gm, "");
   };
   var _LIST_POSITION_ABOVE_CLASSNAME = "position_above";
+  var _SHOW_STATUS_CLASSNAME = "show_status";
   var _sizeAndPositionItemsList = function(instance) {
     if (!instance._list_built) return;
     var list_height = instance.$list.css({
@@ -46101,8 +46249,6 @@ $.fn.togglify = function(settings) {
     var container_height = instance.$list_container.height();
     var padding = instance.$list_container.outerHeight() - container_height;
     var max_height = parseInt(instance.$list_container.css("max-height"), 10);
-    instance.$error.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
-    instance.$empty.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     instance.$list_container.removeClass(_LIST_POSITION_ABOVE_CLASSNAME);
     var window_height = $(window).height();
     var list_top = instance.$list[0].getBoundingClientRect().top;
@@ -46121,8 +46267,6 @@ $.fn.togglify = function(settings) {
       if (!can_fit_below && can_fit_above) {
         available_height = available_height_above;
         instance.$list_container.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
-        instance.$error.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
-        instance.$empty.addClass(_LIST_POSITION_ABOVE_CLASSNAME);
       }
     }
     if (isNaN(max_height)) max_height = container_height;
@@ -46161,7 +46305,9 @@ $.fn.togglify = function(settings) {
         instance._all_done_fetching = true;
       }
     }, function(error) {
-      _showError(instance, "Something failed while trying to return the next batch of data promise for lazyFilterSelect.");
+      _showStatus(instance, instance.errorTemplate(error), {
+        internal_error_message: "Something failed while trying to return the next batch of data for lazyFilterSelect."
+      });
     });
   };
   var _canAddNewItem = function(instance) {
@@ -46175,12 +46321,9 @@ $.fn.togglify = function(settings) {
     instance.$filter_input.prop("disabled", true);
   };
   var _doAllTheThingsRequiredWithNewData = function(instance, data) {
-    var should_rebuild_list = false;
-    if (instance._list_built && !instance.data || instance.data.length === 0 || instance.always_visible) {
-      should_rebuild_list = true;
-    }
     _prepItems(instance, data);
     _populate(instance, data);
+    var should_rebuild_list = instance._list_built && !instance.data || instance.data.length === 0 || instance.always_visible;
     if (should_rebuild_list) _showList(instance, true);
     _adjustInput(instance);
   };
@@ -46261,21 +46404,6 @@ $.fn.togglify = function(settings) {
     }
     instance._$active = null;
     instance.onListHidden();
-  };
-  var _hideNoResults = function(instance, options) {
-    var needs_force = instance.always_visible || instance.disabled;
-    if (needs_force && !_.get(options, "force")) return;
-    instance._showing_no_results = false;
-    if (!_.get(options, "keep_input_active")) {
-      instance.$input_container.removeClass("active");
-    }
-    instance.$list_container.removeClass("empty");
-  };
-  var _hideError = function(instance, options) {
-    if (!_.get(options, "keep_input_active")) {
-      instance.$input_container.removeClass("active");
-    }
-    instance.$list_container.removeClass("error");
   };
   var _instanceCanSluggify = function(instance) {
     if (!instance.sluggify.enabled) {
@@ -46361,18 +46489,15 @@ $.fn.togglify = function(settings) {
   var _populate = function(instance, data) {
     if (!data) data = instance.data;
     if (!data) {
-      _showError(instance);
+      _showStatus(instance, instance.errorTemplate());
       return;
     }
     if (data.length === 0) {
-      instance._showing_no_results = true;
-      _showNoResults(instance);
+      var message = instance.noResultsTemplate(instance.$filter_input.val());
+      _showStatus(instance, message);
       return;
     }
-    _hideNoResults(instance, {
-      keep_input_active: true
-    });
-    _hideError(instance, {
+    _hideStatus(instance, {
       keep_input_active: true
     });
     if (!instance._list_built) {
@@ -46404,6 +46529,7 @@ $.fn.togglify = function(settings) {
   };
   var _prepItems = function(instance, data) {
     if (!data) data = instance.data;
+    if (!data) return;
     var html = "";
     var token = !instance.single;
     var i = 0;
@@ -46527,7 +46653,9 @@ $.fn.togglify = function(settings) {
         _showList(instance, keep_value);
         _doAllTheThingsRequiredWithNewData(instance, data);
       }, function(error) {
-        _showError(instance, "Something failed while trying to return the filtered promise for lazyFilterSelect.");
+        _showStatus(instance, instance.errorTemplate(error), {
+          internal_error_message: "Something failed while trying to return the filtered data for lazyFilterSelect."
+        });
       });
     } else {
       _showList(instance, keep_value);
@@ -46618,33 +46746,14 @@ $.fn.togglify = function(settings) {
       instance.$filter_input.focus();
     });
     if (instance._list_visible) return;
-    if (instance._showing_no_results && instance.always_visible) return;
-    if (instance._initial_call_failed) {
-      if (instance._running_promise) instance._running_promise.cancel("Uhhh...");
-      instance._running_promise = instance.data_promise("").then(function(response) {
-        instance._running_promise = null;
-        var data = response;
-        if (data.items) data = data.items;
-        if (typeof response.all_items_fetched !== "undefined") instance._all_done_fetching = !!response.all_items_fetched;
-        if (typeof response.num_remaining !== "undefined" && response.num_remaining === 0) instance._all_done_fetching = true;
-        instance.data = data.slice();
-        instance._initial_call_failed = false;
-        _hideError(instance);
-        instance.run();
-        _showList(instance, keep_value);
-      }, function(error) {
-        instance._initial_call_failed = true;
-        _showError(instance);
-      });
-      return;
-    }
+    if (instance._showing_status && instance.always_visible) return;
     if (!instance._list_built) _startListView(instance);
-    if (instance._list_built) {
+    if (instance._list_built || instance._showing_status) {
       instance._list_visible = true;
       instance.$list_container.addClass("visible");
       instance.$container.addClass("list_visible");
       if (!_isFilterInListStyle(instance)) instance.$input_container.addClass("active");
-      instance.$list.longListView("setHidden", false);
+      if (instance._list_built) instance.$list.longListView("setHidden", false);
     }
     if (instance.single && !keep_value) {
       instance.$filter_input.val("");
@@ -46659,28 +46768,6 @@ $.fn.togglify = function(settings) {
       }
     }
     instance.onListShown();
-  };
-  var _showNoResults = function(instance) {
-    if (instance._list_built) {
-      if (!_isFilterInListStyle(instance)) instance.$input_container.addClass("active");
-      instance.$empty.html(instance.noResultsTemplate(instance.$filter_input.val()));
-      instance.$list_container.addClass("empty");
-      instance._$active = null;
-    }
-  };
-  var _showError = function(instance, error_message) {
-    TS.error(error_message || "Something failed while trying to return the promise for lazyFilterSelect.");
-    instance.$container.addClass("showing_error");
-    _hideList(instance, {
-      force: true
-    });
-    _hideNoResults(instance, {
-      force: true
-    });
-    if (!_isFilterInListStyle(instance)) instance.$input_container.addClass("active");
-    instance.$error.html(instance.errorTemplate());
-    instance.$list_container.addClass("error");
-    instance._$active = null;
   };
   var _startListView = function(instance) {
     if (!instance.data || instance.data.length === 0) return;
@@ -46826,6 +46913,26 @@ $.fn.togglify = function(settings) {
   var _isFilterInListStyle = function(instance) {
     return instance.style === TS.ui.lazy_filter_select.STYLES.filter_in_list;
   };
+  var _showStatus = function(instance, message, options) {
+    if (!_isFilterInListStyle(instance)) instance.$input_container.addClass("active");
+    instance._$active = null;
+    instance._showing_status = true;
+    var internal_error_message = _.get(options, "internal_error_message");
+    if (internal_error_message) {
+      TS.error(internal_error_message);
+    }
+    instance.$status.html(message);
+    instance.$list_container.addClass(_SHOW_STATUS_CLASSNAME);
+  };
+  var _hideStatus = function(instance, options) {
+    var needs_force = instance.always_visible || instance.disabled;
+    if (needs_force && !_.get(options, "force")) return;
+    instance._showing_status = false;
+    if (!_.get(options, "keep_input_active")) {
+      instance.$input_container.removeClass("active");
+    }
+    instance.$list_container.removeClass(_SHOW_STATUS_CLASSNAME);
+  };
   var _onContainerMouseleave = function(instance) {
     instance._prevent_blur = false;
   };
@@ -46892,8 +46999,7 @@ $.fn.togglify = function(settings) {
   var _onFilterInputBlur = function(instance) {
     if (!instance._prevent_blur) {
       _hideList(instance);
-      _hideNoResults(instance);
-      _hideError(instance);
+      _hideStatus(instance);
     }
     if (instance.$filter_input.val().trim() && _instanceCanSluggify(instance)) {
       _addUserCreatedSlugFromString(instance, instance.$filter_input.val());
@@ -46919,7 +47025,7 @@ $.fn.togglify = function(settings) {
         }
         if (instance.single) {
           _hideList(instance);
-          _hideError(instance);
+          _hideStatus(instance);
         }
       }
     }
@@ -46951,8 +47057,7 @@ $.fn.togglify = function(settings) {
   var _onFilterInputKeydownEsc = function(instance, e) {
     _stopThePresses(e);
     _hideList(instance);
-    _hideNoResults(instance);
-    _hideError(instance);
+    _hideStatus(instance);
     instance.$filter_input.blur();
   };
   var _onValueClick = function(instance, e) {
@@ -57339,6 +57444,7 @@ $.fn.togglify = function(settings) {
             classes: "select_attachment",
             data_promise: _getDataPromise($el),
             disabled: $el.attr("disabled"),
+            errorTemplate: _errorTemplate,
             filter: _filter,
             input_debounce_wait_time: _getInputDebounceWaitTime($el),
             no_default_selection: true,
@@ -57391,6 +57497,10 @@ $.fn.togglify = function(settings) {
     users: "users"
   };
   var _EXTERNAL_INPUT_DEBOUNCE_WAIT_TIME = 250;
+
+  function _errorTemplate() {
+    return TS.i18n.t("Couldn’t load results.", "lazy_filter_select")();
+  }
 
   function _onItemAdded(item) {
     var $select = this.$select;
@@ -68958,24 +69068,25 @@ $.fn.togglify = function(settings) {
         s()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-          isScrolling: !1,
-          scrollDirectionHorizontal: C.a,
-          scrollDirectionVertical: C.a,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
-          cellCount: e.columnCount,
-          cellSizeGetter: function(e) {
-            return o._columnWidthGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedColumnSize(e)
-        }), o._rowSizeAndPositionManager = new b.a({
-          cellCount: e.rowCount,
-          cellSizeGetter: function(e) {
-            return o._rowHeightGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedRowSize(e)
-        }), o._cellCache = {}, o._styleCache = {}, o;
+            isScrolling: !1,
+            scrollDirectionHorizontal: C.a,
+            scrollDirectionVertical: C.a,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight),
+          o._columnSizeAndPositionManager = new b.a({
+            cellCount: e.columnCount,
+            cellSizeGetter: function(e) {
+              return o._columnWidthGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedColumnSize(e)
+          }), o._rowSizeAndPositionManager = new b.a({
+            cellCount: e.rowCount,
+            cellSizeGetter: function(e) {
+              return o._rowHeightGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedRowSize(e)
+          }), o._cellCache = {}, o._styleCache = {}, o;
       }
       return h()(t, e), c()(t, [{
         key: "measureAllCells",
@@ -76962,7 +77073,8 @@ $.fn.togglify = function(settings) {
     },
     u = {},
     s = {};
-  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
+  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition),
+    e.exports = o;
 }, function(e, t, n) {
   "use strict";
 

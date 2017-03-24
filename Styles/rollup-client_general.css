@@ -7477,8 +7477,7 @@ ts-inline-saver.failed .failed {
   border-radius: 8px 4px 4px 8px/4px
 }
 
-.lazy_filter_select .lfs_list_container .lfs_empty,
-.lazy_filter_select .lfs_list_container .lfs_error {
+.lazy_filter_select .lfs_list_container .lfs_status {
   display: none;
   font-size: .85rem;
   overflow: hidden;
@@ -7491,13 +7490,11 @@ ts-inline-saver.failed .failed {
   width: 100%
 }
 
-.lazy_filter_select .lfs_list_container.empty .lfs_list,
-.lazy_filter_select .lfs_list_container.error .lfs_list {
+.lazy_filter_select .lfs_list_container.show_status .lfs_list {
   display: none
 }
 
-.lazy_filter_select .lfs_list_container.empty .lfs_empty,
-.lazy_filter_select .lfs_list_container.error .lfs_error {
+.lazy_filter_select .lfs_list_container.show_status .lfs_status {
   display: block
 }
 

@@ -2587,7 +2587,7 @@
     },
     mentionsBeingFetched: function(user_requested) {
       if (!user_requested) return;
-      $("#mentions_spinner").html(TS.templates.mentions_loading_indicator());
+      $("#mentions_spinner").html(TS.templates.loading_indicator());
     },
     loggedIn: function() {
       _loggedInFired = true;
@@ -9860,6 +9860,7 @@
         this._current_query_for_display = new_query;
         this._current_query_for_match = new_query.trim().toLocaleLowerCase();
         this._fetchProcessAndDisplayPage();
+        this.$_long_list_view.scrollTop(0);
         this.$_clear_icon.toggleClass("hidden", !new_query.trim());
       }
     },
@@ -9879,6 +9880,7 @@
         this_searchable_member_list._next_marker = "";
         this_searchable_member_list._current_filter = $action.data("filter");
         this_searchable_member_list._fetchProcessAndDisplayPage();
+        this_searchable_member_list.$_long_list_view.scrollTop(0);
         this_searchable_member_list.$_filter_input.replaceWith(TS.templates.team_search_bar_filter(this_searchable_member_list._generateFilterSearchBarTemplateArgs()));
         this_searchable_member_list.$_filter_input = this_searchable_member_list.$_container.find(".searchable_member_list_filter");
       });

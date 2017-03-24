@@ -3,9 +3,9 @@
 {{!-- Avatar, Real Name, username, presence dot --}}
 <div class="member_details member_item_inset {{#isWeb}}col span_5_of_12 no_bottom_margin{{/isWeb}}">
   {{#if is_long_list_view}}
-    {{makeMemberPreviewLinkImage member.id 72}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 72)}}
   {{else}}
-    {{makeMemberPreviewLinkImage member.id 72 true}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 72 true)}}
   {{/if}}
 
   <div class="member_name_and_title">

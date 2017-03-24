@@ -2147,7 +2147,7 @@
       should_mute = should_mute && !options.ignore_mute;
       return should_mute;
     },
-    filenameForSoundName: function(which) {
+    filenameForSoundName: function(which, options) {
       if (which == "new_message") {
         which = TS.model.prefs.new_msg_snd;
       }
@@ -2161,13 +2161,13 @@
         TS.warn("unknown sound: " + which);
         return;
       }
-      if (TS.sounds.shouldMuteSounds()) {
+      if (TS.sounds.shouldMuteSounds(options)) {
         return;
       }
       return which;
     },
     soundForName: function(which, options) {
-      which = TS.sounds.filenameForSoundName(which);
+      which = TS.sounds.filenameForSoundName(which, options);
       if (!which) {
         return;
       }
