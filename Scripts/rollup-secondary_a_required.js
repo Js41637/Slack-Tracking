@@ -19989,11 +19989,15 @@ TS.registerModule("constants", {
         }
         str += " " + channel_name;
         if (user_ob.is_in && inviter) {
-          str += " by invitation from <@" + inviter.id + "|" + inviter.name + ">";
+          str = TS.i18n.t("{join_or_leave} {channel_name} by invitation from {inviter}", "templates_builders")({
+            join_or_leave: TS.templates.builders.buildJoinLeaveRollUpStr(user_ob),
+            channel_name: channel_name,
+            inviter: "<@" + inviter.id + "|" + inviter.name + ">"
+          });
         }
         var alsoA = [];
         var otherA = [];
-        var also_str = "along with";
+        var also_str = TS.i18n.t("along with", "templates_builders")();
         var inviter_name;
         if (user_ob.is_in && inviter) {
           inviter_name = "<@" + inviter.id + "|" + inviter.name + ">";
@@ -20012,7 +20016,7 @@ TS.registerModule("constants", {
           if (ob.is_in === user_ob.is_in) {
             if (ob.is_in) {
               if (ob.inviter == msg.user) {
-                also_str = "and invited";
+                also_str = TS.i18n.t("and invited", "templates_builders")();
                 did_invite = true;
               }
               if (ob.inviter && (ob.inviter == user_ob.inviter || ob.inviter == msg.user)) {
@@ -20092,11 +20096,13 @@ TS.registerModule("constants", {
           }
           str += ", " + also_str + " " + alsoA.join(", ");
           html = TS.format.formatNoHighlightsNoSpecials(str);
-          if (_jl_rollup_limit_reached) html += ' and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.';
+          if (_jl_rollup_limit_reached) html += TS.i18n.t(' and <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>.', "templates_builders")();
           if (otherA.length) {
-            var other_str = ". Also, " + otherA.join(", ");
+            var other_str = TS.i18n.t(". Also, {others}", "templates_builders")({
+              others: otherA.join(", ")
+            });
             html += TS.format.formatNoHighlightsNoSpecials(other_str);
-            if (_jl_rollup_limit_reached) html += ' along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>';
+            if (_jl_rollup_limit_reached) html += TS.i18n.t(' along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>', "templates_builders")();
             html += ".";
           }
         } else if (otherA.length) {
@@ -20113,9 +20119,11 @@ TS.registerModule("constants", {
               str_builder = TS.i18n.t("{joined_or_left} {channel_name}. Also, {others}.", "templates_builders");
             }
           }
-          str += ". Also, " + otherA.join(", ");
+          str += TS.i18n.t(". Also, {others}", "templates_builders")({
+            others: otherA.join(", ")
+          });
           html = TS.format.formatNoHighlightsNoSpecials(str);
-          if (_jl_rollup_limit_reached) html += ' along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>';
+          if (_jl_rollup_limit_reached) html += TS.i18n.t(' along with <a onclick="TS.client.channel_page.showMemberSectionAndHighlight();">some others</a>', "templates_builders")();
           html += ".";
         } else {
           html = TS.format.formatNoHighlightsNoSpecials(str);
@@ -20226,7 +20234,6 @@ TS.registerModule("constants", {
           group_name: group_name
         });
       } else if (msg.subtype == "group_name") {
-        html = 'renamed the private channel from "' + msg.old_name + '" to "' + msg.name + '"';
         html = TS.i18n.t('renamed the private channel from "{old_name}" to "{new_name}"', "templates_builders")({
           old_name: msg.old_name,
           new_name: msg.name
@@ -28159,7 +28166,7 @@ TS.registerModule("constants", {
       if (!TS.boot_data.feature_hide_join_leave) return false;
       var user = TS.members.getMemberById(imsg.user);
       var is_bot_user = _.get(user, "is_bot", false);
-      if (imsg.subtype === "channel_join") {
+      if (imsg.subtype === "channel_join" || imsg.type === "member_joined_channel") {
         var channel = _.isObject(channel_or_channel_id) ? channel_or_channel_id : TS.channels.getChannelById(channel_or_channel_id);
         if (!channel) return false;
         var is_default_channel = _.includes(TS.model.team.prefs.default_channels, channel.id);
@@ -28180,7 +28187,7 @@ TS.registerModule("constants", {
         if (!is_bot_user && !is_default_channel && !was_invited && has_enough_members) {
           return true;
         }
-      } else if (imsg.subtype === "channel_leave") {
+      } else if (imsg.subtype === "channel_leave" || imsg.type === "member_left_channel") {
         if (!is_bot_user) {
           return true;
         }
@@ -56309,10 +56316,10 @@ $.fn.togglify = function(settings) {
         modules: {
           msginput: {
             onUpArrow: function() {
-              if (!TS.model.prefs.arrow_history) _editLastMessage($input, opts);
+              if (!TS.model.prefs.arrow_history) return _maybeEditLastMessage($input, false, opts);
             },
             onUpArrowCmd: function() {
-              _editLastMessage($input, opts);
+              _maybeEditLastMessage($input, true, opts);
             }
           },
           tabcomplete: {
@@ -56445,6 +56452,22 @@ $.fn.togglify = function(settings) {
     if (_shouldSubmit($input, text)) {
       submit_fn($form, text);
     }
+  };
+  var _maybeEditLastMessage = function($input, is_meta, opts) {
+    var e = jQuery.Event("keydown", {
+      altKey: false,
+      shiftKey: false,
+      which: TS.utility.keymap.up
+    });
+    if (is_meta) {
+      if (TS.model.is_mac) {
+        e.metaKey = true;
+      } else {
+        e.ctrlKey = true;
+      }
+    }
+    if (!TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) return true;
+    _editLastMessage($input, opts);
   };
   var _editLastMessage = function($input, opts) {
     var get_edit_msg_div_fn = opts.getMsgDivForEditing || _getMsgToEdit;
@@ -70704,8 +70727,7 @@ $.fn.togglify = function(settings) {
 
   function r(e) {
     var t = (e.columnData, e.dataKey),
-      n = (e.disableSort,
-        e.label),
+      n = (e.disableSort, e.label),
       r = e.sortBy,
       o = e.sortDirection,
       u = r === t,

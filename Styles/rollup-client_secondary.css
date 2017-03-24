@@ -2802,7 +2802,8 @@ body.incremental_boot #col_channels .header_count {
 }
 
 .channels_list_holder ul li.all_threads,
-.channels_list_holder ul li.all_unreads {
+.channels_list_holder ul li.all_unreads,
+.channels_list_holder ul li.app_directory {
   margin-bottom: 9px;
   margin-top: 5px;
   text-transform: capitalize;
@@ -2812,7 +2813,8 @@ body.incremental_boot #col_channels .header_count {
 }
 
 .channels_list_holder ul li.all_threads ts-icon,
-.channels_list_holder ul li.all_unreads ts-icon {
+.channels_list_holder ul li.all_unreads ts-icon,
+.channels_list_holder ul li.app_directory ts-icon {
   float: left;
   opacity: .6;
   margin-left: -3px;
@@ -2820,7 +2822,8 @@ body.incremental_boot #col_channels .header_count {
 }
 
 .channels_list_holder ul li.all_threads.active ts-icon,
-.channels_list_holder ul li.all_unreads.active ts-icon {
+.channels_list_holder ul li.all_unreads.active ts-icon,
+.channels_list_holder ul li.app_directory.active ts-icon {
   opacity: 1
 }
 
@@ -2852,6 +2855,20 @@ body.incremental_boot #col_channels .header_count {
 #all_threads_nav .all_threads.unread .all_threads_label,
 #all_threads_nav .all_threads:not(.unread) .new_threads_label {
   display: none
+}
+
+#app_directory_nav {
+  margin-top: .3125rem
+}
+
+#app_directory_nav .app_directory {
+  margin-top: -.3125rem
+}
+
+#app_directory_nav .ts_icon_bolt:before {
+  font-size: 1.15rem;
+  padding-left: 1px;
+  margin-top: 1px
 }
 
 .im_name_background {
@@ -13785,7 +13802,8 @@ only screen and (min-resolution:2dppx) {
 .search_message_result .search_message_result_meta {
   font-size: 1rem;
   color: #AAA;
-  margin: .1rem .25rem 0
+  margin: .1rem .25rem 0;
+  overflow: hidden
 }
 
 .search_message_result .search_message_result_meta a {
