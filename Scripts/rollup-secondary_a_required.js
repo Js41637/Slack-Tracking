@@ -11025,57 +11025,90 @@ TS.registerModule("constants", {
     getActiveMembersWithSelfAndNotSlackbot: function() {
       var A = _active_members_with_self_and_not_slackbot;
       if (!A.length) {
-        var include_self = true;
-        var include_slackbot = false;
-        A = _active_members_with_self_and_not_slackbot = _getActiveMembersWorker(A, TS.members.getMembersForUser(), include_self, include_slackbot);
+        A = _active_members_with_self_and_not_slackbot = TS.members.fillMembersWithOptions(A, {
+          include_self: true,
+          include_slackbot: false,
+          include_bots: true
+        });
       }
       return A;
     },
     getActiveMembersWithSelfAndNotBots: function() {
       if (!_active_members_with_self_and_not_bots.length) {
-        var include_self = true;
-        var include_slackbot = false;
-        var exclude_bots = true;
-        _active_members_with_self_and_not_bots = _getActiveMembersWorker(_active_members_with_self_and_not_bots, TS.members.getMembersForUser(), include_self, include_slackbot, exclude_bots);
+        _active_members_with_self_and_not_bots = TS.members.fillMembersWithOptions(_active_members_with_self_and_not_bots, {
+          include_self: true,
+          include_slackbot: false,
+          include_bots: false
+        });
       }
       return _active_members_with_self_and_not_bots;
     },
     getActiveMembersExceptSelfAndSlackbot: function() {
       var A = _active_members_except_self_and_slackbot;
       if (!A.length) {
-        var include_self = false;
-        var include_slackbot = false;
-        A = _active_members_except_self_and_slackbot = _getActiveMembersWorker(A, TS.members.getMembersForUser(), include_self, include_slackbot);
+        A = _active_members_except_self_and_slackbot = TS.members.fillMembersWithOptions(A, {
+          include_self: false,
+          include_slackbot: false,
+          include_bots: true
+        });
       }
       return A;
     },
     getActiveMembersExceptSelfAndBots: function() {
       var A = _active_members_except_self_and_bots;
       if (!A.length) {
-        var include_self = false;
-        var include_slackbot = false;
-        var exclude_bots = true;
-        A = _active_members_except_self_and_bots = _getActiveMembersWorker(A, TS.members.getMembersForUser(), include_self, include_slackbot, exclude_bots);
+        A = _active_members_except_self_and_bots = TS.members.fillMembersWithOptions(A, {
+          include_self: false,
+          include_slackbot: false,
+          include_bots: false
+        });
       }
       return A;
     },
     getActiveMembersWithSelfAndSlackbot: function() {
       var A = _active_members_with_self_and_slackbot;
       if (!A.length) {
-        var include_self = true;
-        var include_slackbot = true;
-        A = _active_members_with_self_and_slackbot = _getActiveMembersWorker(A, TS.members.getMembersForUser(), include_self, include_slackbot);
+        A = _active_members_with_self_and_slackbot = TS.members.fillMembersWithOptions(A, {
+          include_self: true,
+          include_slackbot: true,
+          include_bots: true
+        });
       }
       return A;
     },
     getActiveMembersWithSlackbotAndNotSelf: function() {
       var A = _active_members_with_slackbot_and_not_self;
       if (!A.length) {
-        var include_self = false;
-        var include_slackbot = true;
-        A = _active_members_with_slackbot_and_not_self = _getActiveMembersWorker(A, TS.members.getMembersForUser(), include_self, include_slackbot);
+        A = _active_members_with_slackbot_and_not_self = TS.members.fillMembersWithOptions(A, {
+          include_self: false,
+          include_slackbot: true,
+          include_bots: true
+        });
       }
       return A;
+    },
+    getMembersWithOptions: function(options) {
+      var all_members = TS.members.getMembersForUser();
+      var results = _.filter(all_members, function(member) {
+        if (member.is_stranger) return false;
+        if (!options.include_deleted && member.deleted) return false;
+        if (!options.include_slackbot && member.is_slackbot) return false;
+        if (!options.include_self && member.is_self) return false;
+        if (!options.include_bots && member.is_bot) return false;
+        return true;
+      });
+      return results;
+    },
+    fillMembersWithOptions: function(members, options) {
+      if (!_.isArray(members)) {
+        throw new TypeError("members passed to fillMembersWithOptions is not an array!");
+      }
+      members.length = 0;
+      var filtered_members = TS.members.getMembersWithOptions(options);
+      _.each(filtered_members, function(member) {
+        members.push(member);
+      });
+      return members;
     },
     getMembersForUser: function() {
       if (!TS.model.user.is_restricted && !TS.boot_data.feature_shared_channels_client) return TS.model.members;
@@ -11601,14 +11634,6 @@ TS.registerModule("constants", {
           _setImAndMpimNames = v;
         }
       });
-      Object.defineProperty(test, "_getActiveMembersWorker", {
-        get: function() {
-          return _getActiveMembersWorker;
-        },
-        set: function(v) {
-          _getActiveMembersWorker = v;
-        }
-      });
       Object.defineProperty(test, "_setLowerCaseNamesForMember", {
         get: function() {
           return _setLowerCaseNamesForMember;
@@ -11685,19 +11710,6 @@ TS.registerModule("constants", {
   var _setImAndMpimNames = function(member) {
     TS.ims.setNameFromMember(member);
     TS.mpims.setNamesFromMember(member);
-  };
-  var _getActiveMembersWorker = function(A, members, include_self, include_slackbot, exclude_bots) {
-    A.length = 0;
-    for (var i = 0; i < members.length; i += 1) {
-      var member = members[i];
-      if (member.is_stranger) continue;
-      if (member.deleted) continue;
-      if (!include_slackbot && member.is_slackbot) continue;
-      if (!include_self && member.is_self) continue;
-      if (exclude_bots && member.is_bot) continue;
-      A.push(member);
-    }
-    return A;
   };
   var _fetchAndUpsertMembersWithIds = function(m_ids, always_use_api) {
     if (_.isEmpty(m_ids)) return Promise.resolve();
@@ -15637,10 +15649,18 @@ TS.registerModule("constants", {
     },
     storeLastEventTS: function(ts, whence) {
       if (!ts) return;
-      var last_event_ts = TS.storage.fetchLastEventTS();
+      var last_event_ts;
+      if (TS.boot_data.feature_local_last_event_ts) {
+        last_event_ts = _last_event_ts || TS.storage.fetchLastEventTS();
+      } else {
+        last_event_ts = TS.storage.fetchLastEventTS();
+      }
       if (last_event_ts && ts <= last_event_ts) return;
       if (!whence) whence = "???";
       _whence_last_event_ts = whence + " at " + Date.now() / 1e3;
+      if (TS.boot_data.feature_local_last_event_ts) {
+        _last_event_ts = ts;
+      }
       TS.storage.storeLastEventTS(ts);
     },
     onFailure: function(reason_str) {
@@ -15899,6 +15919,7 @@ TS.registerModule("constants", {
   var _last_connect_was_fast = false;
   var _reconnect_url_limit_ms = 3e5;
   var _whence_last_event_ts;
+  var _last_event_ts;
   var _setPongTimeoutMs = function(has_focus) {
     if (has_focus) {
       _pong_timeout_ms = 1e4;
@@ -16241,7 +16262,12 @@ TS.registerModule("constants", {
     _send_ping_interv = setInterval(_sendPing, _send_ping_interv_ms);
     TS.model.ms_connecting = false;
     TS.model.ms_connected = true;
-    var last_event_ts = TS.storage.fetchLastEventTS();
+    var last_event_ts;
+    if (TS.boot_data.feature_local_last_event_ts) {
+      last_event_ts = _last_event_ts || TS.storage.fetchLastEventTS();
+    } else {
+      last_event_ts = TS.storage.fetchLastEventTS();
+    }
     var should_consistency_check = !!TS.ms.num_times_connected;
     if (should_consistency_check) {
       if (last_event_ts && !_last_connect_was_fast) {
@@ -54515,7 +54541,7 @@ $.fn.togglify = function(settings) {
       return true;
     },
     verifyOriginUrl: function(originHref) {
-      return TS.utility.url.getHostName(originHref) == window.location.hostname;
+      return TS.utility.url.getHostName(originHref) == window.location.hostname && _.startsWith(originHref, "https:");
     },
     getUrlForRoom: function(room) {
       return TS.utility.calls.getUrlForRoomId(room.id);
@@ -55381,7 +55407,7 @@ $.fn.togglify = function(settings) {
       });
       return;
     }
-    if (!TS.utility.calls.verifyOriginUrl(evt.origin)) {
+    if (!TS.model.is_our_app && !TS.utility.calls.verifyOriginUrl(evt.origin)) {
       return;
     }
     if (evt.data.origin_window_type === TS.utility.calls.window_types.call_window) {
@@ -60429,21 +60455,7 @@ $.fn.togglify = function(settings) {
   };
   var _getLocalMembers = function(options) {
     options = _mergeDefaults(options, _DEFAULT_MEMBER_OPTIONS);
-    var members;
-    if (options.include_self && !options.include_bots) {
-      members = TS.members.getActiveMembersWithSelfAndNotBots();
-    } else if (options.include_self && !options.include_slackbot) {
-      members = TS.members.getActiveMembersWithSelfAndNotSlackbot();
-    } else if (options.include_self && options.include_slackbot) {
-      members = TS.members.getActiveMembersWithSelfAndSlackbot();
-    } else if (!options.include_self && !options.include_bots) {
-      members = TS.members.getActiveMembersExceptSelfAndBots();
-    } else if (!options.include_self && !options.include_slackbot) {
-      members = TS.members.getActiveMembersExceptSelfAndSlackbot();
-    } else if (!options.include_self && options.include_slackbot) {
-      members = TS.members.getActiveMembersWithSlackbotAndNotSelf();
-    }
-    return members.slice();
+    return TS.members.getMembersWithOptions(options);
   };
   var _getLocalChannels = function(options) {
     options = _mergeDefaults(options, _DEFAULT_CHANNEL_OPTIONS);
@@ -69068,25 +69080,24 @@ $.fn.togglify = function(settings) {
         s()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-            isScrolling: !1,
-            scrollDirectionHorizontal: C.a,
-            scrollDirectionVertical: C.a,
-            scrollLeft: 0,
-            scrollTop: 0
-          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight),
-          o._columnSizeAndPositionManager = new b.a({
-            cellCount: e.columnCount,
-            cellSizeGetter: function(e) {
-              return o._columnWidthGetter(e);
-            },
-            estimatedCellSize: o._getEstimatedColumnSize(e)
-          }), o._rowSizeAndPositionManager = new b.a({
-            cellCount: e.rowCount,
-            cellSizeGetter: function(e) {
-              return o._rowHeightGetter(e);
-            },
-            estimatedCellSize: o._getEstimatedRowSize(e)
-          }), o._cellCache = {}, o._styleCache = {}, o;
+          isScrolling: !1,
+          scrollDirectionHorizontal: C.a,
+          scrollDirectionVertical: C.a,
+          scrollLeft: 0,
+          scrollTop: 0
+        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+          cellCount: e.columnCount,
+          cellSizeGetter: function(e) {
+            return o._columnWidthGetter(e);
+          },
+          estimatedCellSize: o._getEstimatedColumnSize(e)
+        }), o._rowSizeAndPositionManager = new b.a({
+          cellCount: e.rowCount,
+          cellSizeGetter: function(e) {
+            return o._rowHeightGetter(e);
+          },
+          estimatedCellSize: o._getEstimatedRowSize(e)
+        }), o._cellCache = {}, o._styleCache = {}, o;
       }
       return h()(t, e), c()(t, [{
         key: "measureAllCells",
@@ -77073,8 +77084,7 @@ $.fn.togglify = function(settings) {
     },
     u = {},
     s = {};
-  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition),
-    e.exports = o;
+  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
 }, function(e, t, n) {
   "use strict";
 

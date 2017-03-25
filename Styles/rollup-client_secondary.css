@@ -27059,7 +27059,34 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 #incoming_call #incoming_call_window .avatar_holder .member_image.ura {
   width: 192px;
   height: 192px;
-  transform: scale(1.25, 1.25)
+  transform: scale(1.25, 1.25);
+  background-size: auto, 95%
+}
+
+#incoming_call #incoming_call_window .avatar_holder .member_image.ra.thumb_20,
+#incoming_call #incoming_call_window .avatar_holder .member_image.ura.thumb_20 {
+  background-size: auto, 90%
+}
+
+#incoming_call #incoming_call_window .avatar_holder .member_image.ura {
+  background-position: -14.8125rem -.25rem, center
+}
+
+#incoming_call #incoming_call_window .avatar_holder .member_image.ra {
+  background-position: -14.8125rem -12.5rem, center
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio:2),
+only screen and (min-resolution:2dppx),
+only screen and (min-resolution:192dpi) {
+  #incoming_call #incoming_call_window .avatar_holder .member_image.ra,
+  #incoming_call #incoming_call_window .avatar_holder .member_image.ura {
+    background-size: 104.6875rem, 95%
+  }
+  #incoming_call #incoming_call_window .avatar_holder .member_image.ra.thumb_20,
+  #incoming_call #incoming_call_window .avatar_holder .member_image.ura.thumb_20 {
+    background-size: 104.6875rem, 90%
+  }
 }
 
 #incoming_call #incoming_call_window .name_label_holder {

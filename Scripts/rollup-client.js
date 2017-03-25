@@ -11222,9 +11222,7 @@
     var b_srt = b.is_mpim ? TS.mpims.getDisplayNameLowerCase(b) : TS.ims.getDisplayNameOfUserForImLowerCase(b);
     a_srt = _maybeAugmentSortStrForPriority(a_srt, a);
     b_srt = _maybeAugmentSortStrForPriority(b_srt, b);
-    if (a_srt < b_srt) return -1;
-    if (a_srt > b_srt) return 1;
-    return 0;
+    return TS.i18n.sorter(a_srt, b_srt);
   };
   var _starredSorter = function(a, b) {
     var a_srt = _getSortStrForName(a);
@@ -11276,9 +11274,7 @@
     }
     a_srt = _maybeAugmentSortStrForPriority(a_srt, a);
     b_srt = _maybeAugmentSortStrForPriority(b_srt, b);
-    if (a_srt < b_srt) return -1;
-    if (a_srt > b_srt) return 1;
-    return 0;
+    return TS.i18n.sorter(a_srt, b_srt);
   };
   var _channelSorter = function compare(a, b) {
     var a_srt = a._name_lc;
