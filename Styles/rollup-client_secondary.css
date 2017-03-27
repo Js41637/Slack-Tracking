@@ -27918,6 +27918,12 @@ ts-thread .thread_participants {
   margin-top: .1875rem
 }
 
+@font-face {
+  font-family: appleLogo;
+  src: local("Lucida Grande");
+  unicode-range: U+F8FF
+}
+
 .sli_briefing {
   padding: 1rem;
   padding-bottom: 2rem;
@@ -27944,14 +27950,23 @@ ts-thread .thread_participants {
 
 .sli_briefing__message {
   margin-bottom: .5rem;
-  cursor: pointer
+  cursor: pointer;
+  position: relative;
+  border: 1px solid #CDCDCE;
+  border-radius: 4px;
+  background-color: #FFF
 }
 
 .sli_briefing__message ts-message {
-  border: 1px solid #CDCDCE;
-  border-radius: 4px;
-  box-shadow: 1px 1px 4px rgba(0, 0, 0, .1);
-  background-color: #FFF
+  border: none!important
+}
+
+.sli_briefing__message ts-message .message_gutter {
+  width: 3.6rem
+}
+
+.sli_briefing__message ts-message .message_content {
+  margin-left: 3.7rem
 }
 
 .sli_briefing__message ts-message .message_body {
@@ -28004,4 +28019,30 @@ ts-thread .thread_participants {
 
 #sli_briefing_text_feedback {
   width: 100%
+}
+
+.sli_briefing .sli_briefing__paragraph_separator {
+  color: #E8E8E8;
+  padding: 0 4px
+}
+
+.sli_briefing__justification {
+  padding-top: .625rem;
+  padding-left: .625rem;
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .825rem
+}
+
+.sli_briefing__justification:not(.has_justification) {
+  opacity: .3
+}
+
+.sli_briefing__image_preview {
+  position: absolute;
+  top: .625rem;
+  right: .625rem;
+  bottom: .625rem;
+  width: 64px;
+  background-size: contain;
+  background-color: #f2f2f5
 }

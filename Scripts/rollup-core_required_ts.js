@@ -4018,6 +4018,9 @@ var _fullToHalf = function(char) {
     replaceEmoticons: function(str) {
       return _emoji.replace_emoticons_with_colons(str);
     },
+    eachEmoticon: function(str, callback) {
+      str.replace(_emoji.rx_emoticons, callback);
+    },
     getChosenSkinTone: function() {
       var pref = parseInt(_.get(TS, "model.prefs.preferred_skin_tone"));
       if (!pref || pref == "1" || !_.includes([2, 3, 4, 5, 6], pref)) return "";
