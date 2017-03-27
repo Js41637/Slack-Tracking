@@ -9,7 +9,7 @@
     {{/if}}
   >
 
-    {{makeProfileImage member size="36"}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 36)}}
 
     <span class="{{getMemberColorClassById member.id}}">{{{makeMemberPreviewLink member}}}</span>
 

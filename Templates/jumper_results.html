@@ -18,7 +18,13 @@
                 <ts-icon class="ts_icon_lock"></ts-icon>
               {{/if}}
             {{/if}}
-            {{#if this.model_ob.is_channel}}<ts-icon aria-hidden="true" class="ts_icon_channel_pane_hash"></ts-icon>{{/if}}
+            {{#if this.model_ob.is_channel}}
+              {{#if this.model_ob.is_archived}}
+                <ts-icon aria-hidden="true" class="ts_icon_archived_channel"></ts-icon>
+              {{else}}
+                <ts-icon aria-hidden="true" class="ts_icon_channel_pane_hash"></ts-icon>
+              {{/if}}
+            {{/if}}
             {{#if this.model_ob.presence}}{{makeMemberPresenceIcon this.model_ob}}{{/if}}
             {{#if this.model_ob.team_url}}{{#if this.model_ob.team_icon}}<img class="jumper_team_icon" aria-hidden="true" src="{{this.model_ob.team_icon.image_44}}">{{else}}<ts-icon class="ts_icon_random"></ts-icon>{{/if}}{{/if}}
           {{/showDraftIcon}}

@@ -1767,6 +1767,13 @@ html.no_touch .alert_page a:hover {
   align-self: flex-end
 }
 
+.align_self_stretch {
+  -webkit-align-self: stretch;
+  -moz-align-self: stretch;
+  -ms-flex-item-align: stretch;
+  align-self: stretch
+}
+
 .justify_content_center {
   -ms-flex-pack: center;
   -webkit-box-pack: center;

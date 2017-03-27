@@ -10377,8 +10377,23 @@ TS.registerModule("constants", {
         if (model_ob.history_is_being_fetched) {
           if (TS.pri) TS.log(58, log_prefix + "no history in model, but history is already pending - queueing " + msgs.length + " message(s) for merging with history call");
         } else if (!model_ob._history_fetched_since_last_connect) {
-          if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call");
-          TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
+          if (TS.boot_data.feature_delay_channel_history_fetch) {
+            if (model_ob.is_im || model_ob.is_mpim) {
+              if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call");
+              TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
+            } else {
+              var min_delay = 2500;
+              var max_delay = 1e4;
+              var delay = _.random(min_delay, max_delay);
+              if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - delaying " + delay + " ms before fetch and queue of " + msgs.length + " message(s) for merging with history call");
+              window.setTimeout(function() {
+                TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
+              }, delay);
+            }
+          } else {
+            if (TS.pri) TS.log(58, log_prefix + "no history in model, no history call yet - fetching, and queueing " + msgs.length + " message(s) for merging with history call");
+            TS.shared.maybeFetchHistoryAndThenCheckConsistency(model_ob);
+          }
         } else {
           if (TS.pri) TS.log(58, log_prefix + "Edge case - " + msgs.length + " new message(s) to add, but no history and we have called history, too?");
         }
@@ -21467,9 +21482,8 @@ TS.registerModule("constants", {
       if (id_or_member_ob === "USLACKBOT" && slackbot_feels) {
         member = TS.utility.slackbot.getWithFeels(slackbot_feels);
       }
-      var img_src, badge_html;
+      var img_src;
       var bg_img_style, bg_img_urls;
-      badge_html = "";
       bg_img_style = "background-image: ";
       bg_img_urls = [];
       switch (size) {
@@ -21537,34 +21551,7 @@ TS.registerModule("constants", {
           }
           break;
       }
-      if (TS.boot_data.page_needs_enterprise) {
-        if (!omit_badge) {
-          var badge_size;
-          switch (size) {
-            case 20:
-            case 24:
-              badge_size = 10;
-              break;
-            case 32:
-            case 36:
-            case 48:
-              badge_size = 16;
-              break;
-            case 72:
-              badge_size = 24;
-              break;
-            case 192:
-              badge_size = 48;
-              break;
-            case 512:
-              badge_size = 96;
-              break;
-            default:
-              badge_size = 16;
-          }
-          badge_html = TS.templates.builders.makeMemberTypeBadge(member, badge_size, false, false);
-        }
-      } else {
+      if (!TS.boot_data.page_needs_enterprise) {
         if (member.is_restricted && !omit_restricted_overlay) {
           if (TS.environment.is_retina) {
             bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
@@ -21585,12 +21572,12 @@ TS.registerModule("constants", {
       }
       var template_data = {
         omit_link: omit_link,
+        omit_badge: omit_badge,
         lazy: lazy,
         member: member,
         size: size,
         include_restricted_overlay: !omit_restricted_overlay || true,
-        bg_img_style: bg_img_style,
-        badge_html: new Handlebars.SafeString(badge_html)
+        bg_img_style: bg_img_style
       };
       return TS.templates.member_preview_link_image(template_data);
     },
@@ -24465,9 +24452,8 @@ TS.registerModule("constants", {
         if (id_or_member_ob === "USLACKBOT" && slackbot_feels) {
           member = TS.utility.slackbot.getWithFeels(slackbot_feels);
         }
-        var img_src, badge_html;
+        var img_src;
         var bg_img_style, bg_img_urls;
-        badge_html = "";
         bg_img_style = "background-image: ";
         bg_img_urls = [];
         switch (size) {
@@ -24535,34 +24521,7 @@ TS.registerModule("constants", {
             }
             break;
         }
-        if (TS.boot_data.page_needs_enterprise) {
-          if (!omit_badge) {
-            var badge_size;
-            switch (size) {
-              case 20:
-              case 24:
-                badge_size = 10;
-                break;
-              case 32:
-              case 36:
-              case 48:
-                badge_size = 16;
-                break;
-              case 72:
-                badge_size = 24;
-                break;
-              case 192:
-                badge_size = 48;
-                break;
-              case 512:
-                badge_size = 96;
-                break;
-              default:
-                badge_size = 16;
-            }
-            badge_html = TS.templates.builders.makeMemberTypeBadge(member, badge_size, false, false);
-          }
-        } else {
+        if (!TS.boot_data.page_needs_enterprise) {
           if (member.is_restricted && !omit_restricted_overlay) {
             if (TS.environment.is_retina) {
               bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
@@ -24583,14 +24542,40 @@ TS.registerModule("constants", {
         }
         var template_data = {
           omit_link: omit_link,
+          omit_badge: omit_badge,
           lazy: lazy,
           member: member,
           size: size,
           include_restricted_overlay: !omit_restricted_overlay || true,
-          bg_img_style: bg_img_style,
-          badge_html: new Handlebars.SafeString(badge_html)
+          bg_img_style: bg_img_style
         };
         return template_data;
+      });
+      Handlebars.registerHelper("getGuestBadgeSize", function(size) {
+        var badge_size;
+        switch (size) {
+          case 20:
+          case 24:
+            badge_size = 10;
+            break;
+          case 32:
+          case 36:
+          case 48:
+            badge_size = 16;
+            break;
+          case 72:
+            badge_size = 24;
+            break;
+          case 192:
+            badge_size = 48;
+            break;
+          case 512:
+            badge_size = 96;
+            break;
+          default:
+            badge_size = 16;
+        }
+        return "member_type_badge_" + badge_size;
       });
       Handlebars.registerHelper("getMemberNameById", function(id) {
         var member = TS.members.getMemberById(id);
@@ -24609,7 +24594,7 @@ TS.registerModule("constants", {
         return TS.teams.getTeamById(id);
       });
       Handlebars.registerHelper("getGuestMemberAvatarClass", function(member) {
-        if (TS.boot_data.page_needs_enterprise || member.is_external) return "";
+        if (TS.boot_data.page_needs_enterprise || member.is_external === true) return "";
         if (member.is_ultra_restricted) {
           return " ura";
         } else if (member.is_restricted) {
@@ -34264,38 +34249,23 @@ var _on_esc;
       if (TS.model.menu_is_showing) return;
       TS.menu.buildIfNeeded();
       TS.menu.file.clean();
-      if (TS.boot_data.feature_smb_file_member_filter) {
-        TS.menu.$menu.append(TS.templates.menu_file_member_filter());
-        TS.menu.$menu.addClass("member_file_filter_menu");
-        TS.menu.start(e);
-        TS.menu.positionAt($("#file_list_toggle_user"), 0, 35);
-        var searchable_member_list = new TS.SearchableMemberList({
-          $container: $(".member_file_filter_menu .searchable_member_list"),
-          id: "member_file_filter_menu",
-          show_filter_bar: false,
-          compact_results: true,
-          prevent_member_click_handler: true,
-          suppress_presence: true
-        });
-        searchable_member_list.showInitial();
-        searchable_member_list.member_clicked_sig.add(function(e, member) {
-          TS.client.ui.files.toggleFileList(member.id);
-          TS.menu.file.end();
-        });
-      } else {
-        TS.menu.$menu_header.html(TS.templates.menu_file_member_header());
-        TS.menu.start(e);
-        if (TS.boot_data.page_needs_enterprise) $("#menu_promise_spinner").removeClass("hidden");
-        if (search_filter) {
-          TS.menu.positionAt($("#search_results_container"), 102, 100);
-        } else {
-          var $btn = $("#file_list_toggle_user");
-          TS.menu.positionAt($("#file_list_toggle_user"), 0, $btn.outerHeight());
-        }
-        _promiseToFilterMembers("", e, search_filter).then(_maybeStartLongListView).then(function(response) {
-          _displayFilterMembersResults(response, "");
-        });
-      }
+      TS.menu.$menu.append(TS.templates.menu_file_member_filter());
+      TS.menu.$menu.addClass("member_file_filter_menu");
+      TS.menu.start(e);
+      TS.menu.positionAt($("#file_list_toggle_user"), 0, 35);
+      var searchable_member_list = new TS.SearchableMemberList({
+        $container: $(".member_file_filter_menu .searchable_member_list"),
+        id: "member_file_filter_menu",
+        show_filter_bar: false,
+        compact_results: true,
+        prevent_member_click_handler: true,
+        suppress_presence: true
+      });
+      searchable_member_list.showInitial();
+      searchable_member_list.member_clicked_sig.add(function(e, member) {
+        TS.client.ui.files.toggleFileList(member.id);
+        TS.menu.file.end();
+      });
     },
     startWithFileMemberFilter: function(e, search_filter) {
       if (TS.menu.isRedundantClick(e)) return;
@@ -34627,39 +34597,14 @@ var _on_esc;
       TS.menu.file.end();
     },
     clean: function() {
-      if (TS.boot_data.page_needs_enterprise) {
-        if (_$long_list_container) _$long_list_container = null;
-        _member_searcher = {};
-      }
       TS.menu.clean();
     },
     end: function() {
       TS.menu.end();
     }
   });
-  var _member_searcher = {};
-  var _$long_list_container;
-  var _APPROXIMATE_LONG_LIST_ITEM_HEIGHT = 25;
-  var _$long_list_current_active_item;
   var _$primary_file_button = $('[data-js="primary_file_button"]');
   var _$plus_icon_cached = _$primary_file_button.find(".ts_icon_plus_thick");
-  var _promiseToFilterMembers = function(query, e, search_filter) {
-    if (query.charAt(0) === "@") query = query.substring(1);
-    if (e) _member_searcher._e = e;
-    if (search_filter) _member_searcher._search_filter = search_filter;
-    if (_member_searcher.query !== query) {
-      if (_$long_list_current_active_item) _$long_list_current_active_item.removeClass("active");
-      _$long_list_current_active_item = null;
-      _member_searcher.query = query;
-      _member_searcher.include_org = TS.boot_data.page_needs_enterprise;
-      _member_searcher.include_slackbot = true;
-      _member_searcher.include_self = true;
-      _member_searcher.full_profile_filter = false;
-      _member_searcher.scroll_mark = 0;
-      if (_$long_list_container) _$long_list_container.off("scroll.filter");
-    }
-    return TS.members.promiseToSearchMembers(_member_searcher);
-  };
   var _humansGreaterThanBots = function(items) {
     var humans = [];
     var bots = [];
@@ -34672,127 +34617,6 @@ var _on_esc;
       }
     }
     return humans.concat(bots);
-  };
-  var _selectLongListItem = function(direction) {
-    var $to_select;
-    if (!_$long_list_current_active_item) {
-      $to_select = TS.menu.$menu_list.find(".menu_list_item:not(.selected, .hidden)").first();
-    } else {
-      $to_select = _$long_list_current_active_item[direction](".menu_list_item:not(.selected, .hidden)").first();
-    }
-    if ($to_select.length) {
-      $to_select.scrollintoview({
-        duration: 0
-      });
-      if (_$long_list_current_active_item) _$long_list_current_active_item.removeClass("active");
-      $to_select.addClass("active");
-      _$long_list_current_active_item = $to_select;
-    }
-  };
-  var _maybeStartLongListView = function(response) {
-    if (_$long_list_container) return Promise.resolve(response);
-    if (response.items.length > 0) {
-      TS.menu.$menu_list_container.addClass("populated");
-    }
-    _$long_list_container = TS.menu.$menu_list;
-    $("#file_member_filter").find(".member_filter").focus();
-    _$long_list_container.longListView({
-      items: _humansGreaterThanBots(response.items),
-      approx_item_height: _APPROXIMATE_LONG_LIST_ITEM_HEIGHT,
-      preserve_dom_order: true,
-      makeElement: function(data) {
-        return $('<div class="menu_list_item member_item" role="menuitem"></div>');
-      },
-      renderItem: function($el, item, data) {
-        $el.data("member-id", item.id);
-        $el.html(TS.templates.menu_long_list_member_item({
-          member: item
-        }));
-      }
-    });
-    if (TS.boot_data.page_needs_enterprise) $("#menu_promise_spinner").addClass("hidden");
-    _$long_list_container.monkeyScroll();
-    _$long_list_container.on("click", ".menu_list_item", function(e) {
-      if (response._search_filter) {
-        TS.menu.file.onSearchFileMemberFilterItemClick(e);
-      } else {
-        TS.menu.file.onFileMemberFilterItemClick(e);
-      }
-    });
-    response._mouse = {
-      lastX: null,
-      lastY: null
-    };
-    TS.menu.$menu_list.on("mousemove", ".menu_list_item", function(e) {
-      if (e.clientX == response._mouse.lastX && e.clientY == response._mouse.lastY) return;
-      if (_$long_list_current_active_item) _$long_list_current_active_item.removeClass("active");
-      if (!$(this).hasClass("active")) {
-        $(this).addClass("active");
-        _$long_list_current_active_item = $(this);
-      }
-      response._mouse.lastX = e.clientX;
-      response._mouse.lastY = e.clientY;
-    });
-    TS.menu.$menu_list.on("mouseleave", ".menu_list_item.active", function(e) {
-      $(this).removeClass("active");
-      _$long_list_current_active_item = null;
-    });
-    TS.menu.$menu.on("keydown", "#file_member_filter .member_filter", function(e) {
-      if (e.keyCode === TS.utility.keymap.enter) {
-        if (_$long_list_current_active_item) _$long_list_current_active_item.click();
-      }
-      if (e.keyCode === TS.utility.keymap.down) {
-        _selectLongListItem("nextAll");
-      }
-      if (e.keyCode === TS.utility.keymap.up) {
-        _selectLongListItem("prevAll");
-      }
-      if (e.keyCode === TS.utility.keymap.esc) {
-        TS.menu.file.end();
-        return;
-      }
-    }).on("input", function(e) {
-      var val = $(e.target).val().trim();
-      if (response._items_already_set) response._items_already_set = false;
-      _promiseToFilterMembers(val).then(function(response) {
-        _displayFilterMembersResults(response, val);
-      });
-    });
-    response._items_already_set = true;
-    return Promise.resolve(response);
-  };
-  var _displayFilterMembersResults = function(response, search_query) {
-    if (!response._items_already_set) {
-      _$long_list_container.longListView("setItems", _humansGreaterThanBots(response.items), true);
-    }
-    if (TS.lazyLoadMembersAndBots() && !search_query) {} else {
-      var $none_found = TS.menu.$menu.find(".no_results");
-      if (response.items.length === 0) {
-        $none_found.removeClass("hidden");
-        $none_found.find(".query").text(response.query);
-      } else {
-        $none_found.addClass("hidden");
-      }
-    }
-    TS.utility.rAF(function() {
-      TS.ui.utility.updateClosestMonkeyScroller(_$long_list_container);
-      _$long_list_container.longListView("resizeImmediately");
-    });
-    if (response._is_new) _$long_list_container.longListView("scrollToTop", true);
-    if (response._is_new) {
-      _$long_list_container.on("scroll.filter", function(e) {
-        var maybe_scroll_mark = $(this).scrollTop() + $(this).height() + _APPROXIMATE_LONG_LIST_ITEM_HEIGHT;
-        if (maybe_scroll_mark <= response.scroll_mark) return;
-        var list_items_height = $(this).find(".list_items").height();
-        if (maybe_scroll_mark > list_items_height && _member_searcher._searcher_p && _member_searcher._searcher_p.isResolved()) {
-          if (response._items_already_set) response._items_already_set = false;
-          _promiseToFilterMembers(response.query).then(function(response) {
-            _displayFilterMembersResults(response, search_query);
-          });
-          response.scroll_mark = maybe_scroll_mark;
-        }
-      });
-    }
   };
 })();
 (function() {
@@ -55749,7 +55573,6 @@ $.fn.togglify = function(settings) {
         modules: {
           tabcomplete: {
             completeMemberSpecials: true,
-            menuTemplate: TS.templates.tabcomplete_menu,
             appendMenu: function(menu) {
               $("body").append(menu);
             }
@@ -68960,8 +68783,7 @@ $.fn.togglify = function(settings) {
     }, {
       key: "_unmountContainer",
       value: function() {
-        this._div && (this._containerNode.removeChild(this._div), this._div = null),
-          this._containerNode = null;
+        this._div && (this._containerNode.removeChild(this._div), this._div = null), this._containerNode = null;
       }
     }, {
       key: "_updateDivDimensions",
@@ -69257,24 +69079,25 @@ $.fn.togglify = function(settings) {
         s()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-          isScrolling: !1,
-          scrollDirectionHorizontal: C.a,
-          scrollDirectionVertical: C.a,
-          scrollLeft: 0,
-          scrollTop: 0
-        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
-          cellCount: e.columnCount,
-          cellSizeGetter: function(e) {
-            return o._columnWidthGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedColumnSize(e)
-        }), o._rowSizeAndPositionManager = new b.a({
-          cellCount: e.rowCount,
-          cellSizeGetter: function(e) {
-            return o._rowHeightGetter(e);
-          },
-          estimatedCellSize: o._getEstimatedRowSize(e)
-        }), o._cellCache = {}, o._styleCache = {}, o;
+            isScrolling: !1,
+            scrollDirectionHorizontal: C.a,
+            scrollDirectionVertical: C.a,
+            scrollLeft: 0,
+            scrollTop: 0
+          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+            cellCount: e.columnCount,
+            cellSizeGetter: function(e) {
+              return o._columnWidthGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedColumnSize(e)
+          }), o._rowSizeAndPositionManager = new b.a({
+            cellCount: e.rowCount,
+            cellSizeGetter: function(e) {
+              return o._rowHeightGetter(e);
+            },
+            estimatedCellSize: o._getEstimatedRowSize(e)
+          }),
+          o._cellCache = {}, o._styleCache = {}, o;
       }
       return h()(t, e), c()(t, [{
         key: "measureAllCells",
@@ -70843,7 +70666,8 @@ $.fn.togglify = function(settings) {
               r = function(e) {
                 "Enter" !== e.key && " " !== e.key || n();
               };
-            S["aria-label"] = t.props["aria-label"] || v || p, S.role = "rowheader", S.tabIndex = 0, S.onClick = n, S.onKeyDown = r;
+            S["aria-label"] = t.props["aria-label"] || v || p,
+              S.role = "rowheader", S.tabIndex = 0, S.onClick = n, S.onKeyDown = r;
           }(), _.a.createElement("div", o()({}, S, {
             key: "Header-Col" + n,
             className: b,
@@ -76936,8 +76760,7 @@ $.fn.togglify = function(settings) {
         return "clipboardData" in e ? e.clipboardData : window.clipboardData;
       }
     };
-  o.augmentClass(r, i),
-    e.exports = r;
+  o.augmentClass(r, i), e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
