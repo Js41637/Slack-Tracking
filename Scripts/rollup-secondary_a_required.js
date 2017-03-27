@@ -4191,7 +4191,7 @@
             var immediate_caller = _.get(stack.split("\n"), "[2]");
             if (!_tcm_did_warn_about_stack[immediate_caller]) {
               _tcm_did_warn_about_stack[immediate_caller] = true;
-              if (immediate_caller.indexOf("at Function.$.widget.extend") === 0 || immediate_caller.indexOf("$.widget.extend") === 0) {
+              if (immediate_caller.indexOf("at Function.$.widget.extend") === 0 || immediate_caller.indexOf("at Function.jQuery.extend.jQuery.fn.extend") === 0 || immediate_caller.indexOf("$.widget.extend") === 0) {
                 return [];
               }
               if (immediate_caller.indexOf("at Object.extend") === 0 || immediate_caller.indexOf("extend") === 0) {
@@ -4285,7 +4285,7 @@
     _maybeSetSharedTeams(channel);
   };
   var _logMembersAccess = function(channel, immediate_caller, stack) {
-    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 4;
+    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 5;
     TS.metrics.count("tcm_members_access_v" + THIN_CHANNEL_MEMBERSHIP_FIX_VERSION);
     var info = {
       message: ".members accessed on " + channel.id + ". Immediate caller: " + immediate_caller,
@@ -17900,6 +17900,11 @@ TS.registerModule("constants", {
     subteam_updated: function(imsg) {
       TS.user_groups.upsertUserGroupAndSignal(imsg.subteam);
     },
+    subteam_members_changed: function(imsg) {
+      if (!TS.boot_data.feature_subteam_members_diff) return;
+      TS.info("TS.ms.msg_handlers.subteam_members_changed", imsg);
+      TS.user_groups.userGroupMembersChanged(imsg);
+    },
     subteam_created: function(imsg) {
       TS.user_groups.upsertUserGroupAndSignal(imsg.subteam);
     },
@@ -26340,7 +26345,7 @@ TS.registerModule("constants", {
   });
   var _fake_ts_unique_incrementer = 1;
   var _cache_date = {};
-  var _has_Intl = TS.boot_data.feature_tinyspeck && window.Intl && typeof window.Intl === "object" && Intl.DateTimeFormat().resolvedOptions().timeZone !== undefined && Intl.DateTimeFormat().resolvedOptions().timeZone.length > 0;
+  var _has_Intl = Intl && typeof Intl === "object" && typeof Intl.DateTimeFormat === "function" && typeof Intl.DateTimeFormat() === "object" && typeof Intl.DateTimeFormat().resolvedOptions === "function" && typeof Intl.DateTimeFormat().resolvedOptions() === "object" && typeof Intl.DateTimeFormat().resolvedOptions().timeZone !== "undefined" && Intl.DateTimeFormat().resolvedOptions().timeZone.length > 0;
   var _dst_offsets = TS.boot_data.dst_offsets || null;
   var _memberTzOffset = function(member) {
     var tz_offset = -28800;
@@ -28372,6 +28377,87 @@ TS.registerModule("constants", {
         if (msg.ts === imsg.deleted_ts) TS.warn("imsg with deleted_ts = " + imsg.deleted_ts + " matched message in merge_on_history queue for " + model_ob.id + " - removing from queue.");
         return msg.ts !== imsg.deleted_ts;
       });
+    },
+    extractLinkType: function($link, $target, url) {
+      if ($target.data("member-id") || $link.data("member-id")) {
+        return "user";
+      }
+      if ($target.data("channel-id") || $link.data("channel-id")) {
+        return "channel";
+      }
+      if ($target.data("file-id") || $link.data("file-id")) {
+        return "file";
+      }
+      if (url && url.match(/\.slack\.com\/archives\//)) {
+        return "message";
+      }
+      var is_external_url = url && !TS.utility.url.getHostName(url).match(/\.slack\.com/);
+      if (is_external_url) {
+        return "external";
+      }
+      return "internal";
+    },
+    extractLinkItemId: function($link, $target, type) {
+      if (type === "user") {
+        return $target.data("member-id") || $link.data("member-id");
+      }
+      if (type === "channel") {
+        return $target.data("channel-id") || $link.data("channel-id");
+      }
+      if (type === "file") {
+        return $target.data("file-id") || $link.data("file-id");
+      }
+      return null;
+    },
+    extractLinkAction: function($link, $target) {
+      if ($target.hasClass("file_preview_action")) {
+        if ($target.hasClass("file_ssb_download_link")) {
+          return "file_ssb_download_link";
+        } else if ($target.hasClass("file_new_window_link")) {
+          return "file_new_window_link";
+        } else if ($target.hasClass("file_comment_link")) {
+          return "file_comment_link";
+        }
+        return "file_preview_action";
+      }
+      if ($link.hasClass("file_viewer_external_link")) {
+        return "file_viewer_external_link";
+      }
+      if ($link.hasClass("file_viewer_link")) {
+        return "file_viewer_link";
+      }
+      if ($target.hasClass("file_preview_link")) {
+        return "file_preview_link";
+      }
+      if ($target.hasClass("file_header")) {
+        return "file_header";
+      }
+      if ($target.parent() && $target.parent().hasClass("rest_text_expander")) {
+        return "rest_text_expander";
+      }
+      return null;
+    },
+    extractLinkAttachmentField: function($link) {
+      var $parent = $link.parent();
+      if ($parent.hasClass("attachment_source_icon")) {
+        return "attachment_source_icon";
+      }
+      if ($parent.hasClass("attachment_source_name")) {
+        return "attachment_source_name";
+      }
+      if ($parent.hasClass("attachment_author_name")) {
+        return "attachment_author_name";
+      }
+      if ($parent.hasClass("attachment_title")) {
+        return "attachment_title";
+      }
+      return null;
+    },
+    isRawLink: function($target, url) {
+      if (!$target || !url) return false;
+      if (!$target.is("a")) return false;
+      var url_no_protocol = url.replace(/(^\w+:|^)\/\//, "");
+      return $target.text() === url || $target.text() === url_no_protocol;
     }
   });
   var _is_in_bulk_unread_calc_mode = false;
@@ -30761,7 +30847,7 @@ TS.registerModule("constants", {
       return transformed_children.length > 0;
     },
     formatSelection: function(selection, options) {
-      if (!selection || !selection.rangeCount) return "";
+      if (!selection || !selection.rangeCount) return;
       if (!_.isObject(options)) options = {};
       if (selection.rangeCount !== 1) {
         TS.info("TS.format.formatSelection: found " + selection.rangeCount + " ranges");
@@ -30770,6 +30856,10 @@ TS.registerModule("constants", {
       var range = selection.getRangeAt(0);
       var selection_text;
       if (_.isElement(range.commonAncestorContainer)) {
+        if (TS.model.is_safari_desktop) {
+          var messages = range.commonAncestorContainer.querySelectorAll("ts-message");
+          if (messages.length > 1) return;
+        }
         var container_clone = range.commonAncestorContainer.cloneNode();
         container_clone.appendChild(range.cloneContents());
         container_clone.classList.add("offscreen", "user_select_text");
@@ -30923,6 +31013,7 @@ TS.registerModule("constants", {
       }
       var last_good_pos = 0;
       new_txt = new_txt.replace(rx, function(m, $0, $1, $2, offset, str) {
+        if (str.substr(offset - 1, 1) === "&" && str.substr(offset + m.length, 1) === ";") return m;
         if (str.substr(0, offset).match(/</)) {
           for (var i = offset; i >= last_good_pos; i--) {
             if (str.charAt(i) == "<") {
@@ -39857,6 +39948,7 @@ var _on_esc;
       _$div.on("click", ".dialog_go", _go);
       _$div.on("click", ".dialog_secondary_go", _secondaryGo);
       _$div.on("click", ".dialog_cancel", _cancel);
+      $(window.document).off(".fs_modal");
       $(window.document).on("keydown.fs_modal", _onKeyDown);
       _$div_close_btn.on("click", function() {
         if (_current_settings.esc_for_ok) {
@@ -39967,6 +40059,13 @@ var _on_esc;
     sidebar_html: null
   };
   var _build = function() {
+    _$bg = null;
+    _$div = null;
+    _$div_header = null;
+    _$div_footer = null;
+    _$div_close_btn = null;
+    _$div_contents = null;
+    _$div_sidebar = null;
     var template_data = {
       settings: _current_settings,
       fs_modal_header: _.includes(_current_settings.modal_class, "fs_modal_header"),
@@ -40041,32 +40140,24 @@ var _on_esc;
     }
   };
   var _clean = function() {
-    if (_$div) _$div.remove();
-    if (_$bg) _$bg.remove();
-    _$bg = null;
-    _$div = null;
-    _$div_header = null;
-    _$div_footer = null;
-    _$div_close_btn = null;
-    _$div_contents = null;
-    _$div_sidebar = null;
+    _$div.remove();
+    _$bg.remove();
+    TS.ui.fs_modal.is_showing = false;
   };
   var _end = function() {
-    TS.ui.fs_modal.is_showing = false;
     setTimeout(function() {
       _clean();
     }, TS.ui.fs_modal.transition_duration);
-    $(window.document).off("keydown.fs_modal").off("resize.fs_modal");
+    $(window.document).off("keydown.fs_modal");
     if (_current_settings.onEnd) _current_settings.onEnd();
   };
   var _swap = function(settings) {
     _$div.removeClass("active");
     if (_current_settings.onCancel) _current_settings.onCancel();
-    TS.ui.fs_modal.is_showing = false;
-    $(window.document).off("keydown.fs_modal").off("resize.fs_modal");
     var $bg = _$bg.attr("id", null).addClass("fs_modal_bg");
     setTimeout(function() {
       _$div.remove();
+      TS.ui.fs_modal.is_showing = false;
       TS.ui.fs_modal.start(settings);
       setTimeout($bg.remove.bind($bg), TS.ui.fs_modal.transition_duration);
     }, TS.ui.fs_modal.transition_duration);
@@ -47281,6 +47372,12 @@ $.fn.togglify = function(settings) {
         if (id) preselected_ids[id] = true;
       });
     }
+    var omitted_ids = {};
+    if (options.omitted_ids && options.omitted_ids.length) {
+      _.forEach(options.omitted_ids, function(id) {
+        if (id) omitted_ids[id] = true;
+      });
+    }
     var promiseToFilter = function(query, pageNumber) {
       if (query.charAt(0) === "@") query = query.substring(1);
       if (query === "" && options.empty_query_result) {
@@ -47300,7 +47397,7 @@ $.fn.togglify = function(settings) {
         if (_.isUndefined(pageNumber)) {
           return options.initial_load_promise;
         }
-        options.initial_load_promise = _getSearchPromise(options.initial_load_promise, preselected_ids);
+        options.initial_load_promise = _getSearchPromise(options.initial_load_promise, preselected_ids, omitted_ids);
         return options.initial_load_promise;
       }
       if (member_searcher.query !== query) {
@@ -47312,7 +47409,7 @@ $.fn.togglify = function(settings) {
         member_searcher.include_bots = !!options.include_bots;
       }
       var load_promise = TS.members.ensureMembersArePresent(preselected_ids).then(function() {
-        return _getSearchPromise(member_searcher, preselected_ids);
+        return _getSearchPromise(member_searcher, preselected_ids, omitted_ids);
       });
       if (query === "" && !options.initial_load_promise) {
         options.initial_load_promise = load_promise;
@@ -47321,7 +47418,7 @@ $.fn.togglify = function(settings) {
     };
     return promiseToFilter;
   };
-  var _getSearchPromise = function(searcherOrPromise, preselectedIds) {
+  var _getSearchPromise = function(searcherOrPromise, preselectedIds, omitted_ids) {
     return Promise.resolve().then(function() {
       var unknown_user_ids = [];
       var ids = _.keys(preselectedIds);
@@ -47342,7 +47439,9 @@ $.fn.togglify = function(settings) {
         } else {
           items = response.items;
         }
-        response.items = items.map(function(item) {
+        response.items = items.filter(function(item) {
+          return !omitted_ids[item.id];
+        }).map(function(item) {
           if (item.member && typeof item.preselected !== "undefined") return item;
           return {
             member: item,
@@ -48561,55 +48660,119 @@ $.fn.togglify = function(settings) {
       TS.api.call("search.feedback", payload);
     });
     TS.click.addClientHandler("ts-message .message_body a, ts-message .file_container a", function(e, $el) {
-      var $message = $el.closest("ts-message");
-      var message_ts = $message.data("ts") + "";
-      var message_c_id = $message.data("model-ob-id");
-      var member_id = $message.data("member-id");
-      var app_id = $message.data("app-id");
-      var bot_id = $message.data("bot-id");
-      var original_href = $el.data("referer-original-href");
-      var url = original_href ? original_href : $el.attr("href");
-      var payload = {
-        message_timestamp: message_ts,
-        channel_id: message_c_id,
-        channel_type: message_c_id ? message_c_id.charAt(0) : "",
-        member_id: member_id,
-        app_id: app_id,
-        bot_id: bot_id,
-        url: url ? url : ""
-      };
-      if ($el.is(".channel_link, .internal_channel_link")) {
-        var channel_id = $el.data("channel-id");
-        payload["item_id"] = channel_id;
-        payload["item_type"] = "C";
-      } else if ($el.is("[data-file-id]")) {
-        var file_id = $el.data("file-id");
-        payload["item_id"] = file_id;
-        payload["item_type"] = "F";
-      }
-      if (TS.model.unread_view_is_showing) {
-        _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
-        TS.client.ui.unread.incrementTrackingSeqId();
-      }
-      var is_image = $el.closest(".msg_inline_img_holder").length > 0;
-      var file_id = $el.attr("data-file-id");
-      if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
-      var file = file_id ? TS.files.getFileById(file_id) : null;
-      if (_.get(file, "external_type") === "gdrive") {
-        if (!payload.contexts) {
-          payload.contexts = {};
+      if (!TS.boot_data.feature_new_message_click_logging) {
+        var $message = $el.closest("ts-message");
+        var message_ts = $message.data("ts") + "";
+        var message_c_id = $message.data("model-ob-id");
+        var member_id = $message.data("member-id");
+        var app_id = $message.data("app-id");
+        var bot_id = $message.data("bot-id");
+        var original_href = $el.data("referer-original-href");
+        var url = original_href ? original_href : $el.attr("href");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: member_id,
+          app_id: app_id,
+          bot_id: bot_id,
+          url: url ? url : ""
+        };
+        if ($el.is(".channel_link, .internal_channel_link")) {
+          var channel_id = $el.data("channel-id");
+          payload["item_id"] = channel_id;
+          payload["item_type"] = "C";
+        } else if ($el.is("[data-file-id]")) {
+          var file_id = $el.data("file-id");
+          payload["item_id"] = file_id;
+          payload["item_type"] = "F";
         }
-        if (!payload.contexts.platform) {
-          payload.contexts.platform = {};
+        if (TS.model.unread_view_is_showing) {
+          _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
+          TS.client.ui.unread.incrementTrackingSeqId();
         }
-        payload.contexts.platform.service_type = "GSUITE";
-        payload.contexts.platform.app_id = 9;
-        payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
+        var is_image = $el.closest(".msg_inline_img_holder").length > 0;
+        var file_id = $el.attr("data-file-id");
+        if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
+        var file = file_id ? TS.files.getFileById(file_id) : null;
+        if (_.get(file, "external_type") === "gdrive") {
+          if (!payload.contexts) {
+            payload.contexts = {};
+          }
+          if (!payload.contexts.platform) {
+            payload.contexts.platform = {};
+          }
+          payload.contexts.platform.service_type = "GSUITE";
+          payload.contexts.platform.app_id = 9;
+          payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
+        }
+        if (is_image || file && TS.files.fileIsImage(file)) {
+          TS.clog.track("MSG_PHOTO_EXPAND", payload);
+        }
+        TS.clog.track("MSG_LINK_CLICKED", payload);
+      } else {
+        var $target = $(e.target);
+        var $message = $el.closest("ts-message");
+        var message_ts = $message.data("ts") + "";
+        var message_c_id = $message.data("model-ob-id");
+        var message_ob = message_ts && message_c_id ? TS.utility.msgs.findMsg(message_ts, message_c_id) : null;
+        var member_id = $message.data("member-id");
+        var app_id = $message.data("app-id");
+        var bot_id = $message.data("bot-id");
+        var url = $el.data("referer-original-href") || $el.attr("href");
+        var payload = {
+          message_timestamp: message_ts,
+          channel_id: message_c_id,
+          channel_type: message_c_id ? message_c_id.charAt(0) : "",
+          member_id: member_id,
+          app_id: app_id,
+          bot_id: bot_id,
+          url: url || ""
+        };
+        var is_raw = TS.utility.msgs.isRawLink($target, url);
+        if (is_raw) payload.link_is_raw = true;
+        var type = TS.utility.msgs.extractLinkType($el, $target, url);
+        payload.link_type = type;
+        var action = TS.utility.msgs.extractLinkAction($el, $target);
+        if (action) payload.link_action = action;
+        var item_id = TS.utility.msgs.extractLinkItemId($el, $target, type);
+        if (item_id) {
+          payload.item_id = item_id;
+          payload.item_type = item_id.charAt(0);
+        }
+        var has_attachments = message_ob && message_ob.attachments;
+        if (has_attachments) {
+          var is_attachment_link = $el.closest(".attachment_group").length > 0;
+          if (is_attachment_link) {
+            payload.link_is_attachment = true;
+            var field = TS.utility.msgs.extractLinkAttachmentField($el);
+            if (field) payload.link_attachment_field = field;
+          }
+        }
+        if (TS.model.unread_view_is_showing) {
+          _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
+          TS.client.ui.unread.incrementTrackingSeqId();
+        }
+        var is_image = $el.closest(".msg_inline_img_holder").length > 0;
+        var file_id = $el.attr("data-file-id");
+        if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
+        var file = file_id ? TS.files.getFileById(file_id) : null;
+        if (_.get(file, "external_type") === "gdrive") {
+          if (!payload.contexts) {
+            payload.contexts = {};
+          }
+          if (!payload.contexts.platform) {
+            payload.contexts.platform = {};
+          }
+          payload.contexts.platform.service_type = "GSUITE";
+          payload.contexts.platform.app_id = 9;
+          payload.contexts.platform.has_rich_preview = TS.files.fileHasRichPreview(file);
+        }
+        if (is_image || file && TS.files.fileIsImage(file)) {
+          TS.clog.track("MSG_PHOTO_EXPAND", payload);
+        }
+        TS.clog.track("MSG_LINK_CLICKED", payload);
       }
-      if (is_image || file && TS.files.fileIsImage(file)) {
-        TS.clog.track("MSG_PHOTO_EXPAND", payload);
-      }
-      TS.clog.track("MSG_LINK_CLICKED", payload);
     });
     TS.click.addClientHandler("ts-message .msg_inline_video_buttons_div .msg_inline_video_play_button", function(e, $el) {
       var $message = $el.closest("ts-message");
@@ -51792,6 +51955,19 @@ $.fn.togglify = function(settings) {
     upsertUserGroupAndSignal: function(user_group) {
       TS.user_groups.upsertUserGroup(user_group);
       TS.user_groups.updated_sig.dispatch(user_group.id);
+    },
+    userGroupMembersChanged: function(data) {
+      TS.info("TS.user_groups.userGroupMembersChanged");
+      var user_group = TS.user_groups.getUserGroupsById(data.subteam_id);
+      if (!user_group) return;
+      if (user_group.users) {
+        if (data.added_users) user_group.users = _.union(user_group.users, data.added_users);
+        if (data.removed_users) user_group.users = _.difference(user_group.removed_users, data.removed_users);
+      }
+      user_group.user_count = parseInt(user_group.user_count, 10) || 0;
+      user_group.user_count += parseInt(data.added_users_count, 10) || 0;
+      user_group.user_count = Math.max(0, user_group.user_count - (data.removed_users_count || 0));
+      user_group.date_previous_update = _.assign(user_group, _.pick(data, ["date_update", "date_previous_update"]));
     },
     removeUserGroup: function(user_group) {
       var existing_user_group = TS.user_groups.getUserGroupsById(user_group.id);
@@ -68784,7 +68960,8 @@ $.fn.togglify = function(settings) {
     }, {
       key: "_unmountContainer",
       value: function() {
-        this._div && (this._containerNode.removeChild(this._div), this._div = null), this._containerNode = null;
+        this._div && (this._containerNode.removeChild(this._div), this._div = null),
+          this._containerNode = null;
       }
     }, {
       key: "_updateDivDimensions",
@@ -76759,7 +76936,8 @@ $.fn.togglify = function(settings) {
         return "clipboardData" in e ? e.clipboardData : window.clipboardData;
       }
     };
-  o.augmentClass(r, i), e.exports = r;
+  o.augmentClass(r, i),
+    e.exports = r;
 }, function(e, t, n) {
   "use strict";
 

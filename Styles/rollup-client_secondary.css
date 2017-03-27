@@ -16011,23 +16011,29 @@ html.fs_modal_active {
   margin-right: .25rem
 }
 
-.deprecate_10_8#fs_modal .actions .dialog_go.btn_link {
+.deprecate_10_8#fs_modal .actions .btn_link,
+.deprecate_modal#fs_modal .actions .btn_link {
   line-height: 1.2rem;
   text-shadow: none
 }
 
-.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:after {
+.deprecate_10_8#fs_modal .actions .btn_link:after,
+.deprecate_modal#fs_modal .actions .btn_link:after {
   display: none
 }
 
-.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:active,
-.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:focus,
-.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:hover {
+.deprecate_10_8#fs_modal .actions .btn_link:active,
+.deprecate_10_8#fs_modal .actions .btn_link:focus,
+.deprecate_10_8#fs_modal .actions .btn_link:hover,
+.deprecate_modal#fs_modal .actions .btn_link:active,
+.deprecate_modal#fs_modal .actions .btn_link:focus,
+.deprecate_modal#fs_modal .actions .btn_link:hover {
   background: 0 0;
   box-shadow: none
 }
 
-.deprecate_10_8#fs_modal .actions .dialog_go.btn_link:hover {
+.deprecate_10_8#fs_modal .actions .btn_link:hover,
+.deprecate_modal#fs_modal .actions .btn_link:hover {
   text-decoration: underline
 }
 
@@ -16037,6 +16043,23 @@ html.fs_modal_active {
 
 #fs_modal.convert_to_shared_dialog .contents_container {
   padding-top: 0vh
+}
+
+#fs_modal.deprecate_modal {
+  line-height: 1.65
+}
+
+#fs_modal.deprecate_modal .emoji-only {
+  vertical-align: top
+}
+
+#fs_modal.deprecate_modal .btn {
+  font-size: 1.125rem;
+  padding: 12px 16px 11px
+}
+
+#fs_modal.deprecate_modal .btn.dialog_go {
+  float: left
 }
 
 @media only screen and (max-width:1023px) {

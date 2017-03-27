@@ -42167,3 +42167,158 @@ function timezones_guess() {
     _has_tracked_threads_closed = false;
   };
 })();
+(function() {
+  "use strict";
+  TS.registerModule("client.deprecation", {
+    supported: {
+      chrome: 51,
+      firefox: 47,
+      safari: 9,
+      msie: 11,
+      msedge: 14,
+      electron: "0.0.0"
+    },
+    onStart: function() {
+      TS.client.login_sig.addOnce(function() {
+        if (TS.qs_args.deprecate_modal) {
+          _showDeprecationModal();
+        } else if (TS.qs_args.deprecate_modal_install) {
+          _showDeprecationModalWithInstall();
+        } else if (TS.qs_args.deprecate_modal_ssb) {
+          _showSSBDeprecationModal();
+        }
+        if (TS.boot_data.feature_deprecate_10_8_modal) {
+          if (TS.model.mac_version && TS.utility.compareSemanticVersions(TS.model.mac_version, "10.8") <= 0) {
+            return;
+          }
+        }
+        if (TS.client.deprecation.isDeprecatedSSB()) {
+          _showSSBDeprecationModal();
+        } else if (!TS.client.deprecation.isBrowserSupported()) {
+          if (TS.client.deprecation.canInstallSSB()) {
+            _showDeprecationModalWithInstall();
+          } else {
+            _showDeprecationModal();
+          }
+        }
+      });
+    },
+    isBrowserSupported: function() {
+      if (TS.model.is_electron && TS.model.desktop_app_version) {
+        var desktop_version = TS.model.desktop_app_version;
+        var version_string = desktop_version.major + "." + desktop_version.minor + "." + desktop_version.patch;
+        if (TS.utility.compareSemanticVersions(version_string, TS.client.deprecation.supported.electron) >= 0) {
+          return true;
+        } else {
+          TS.console.info(desktop_version, " electron app is deprecated!");
+          return false;
+        }
+      }
+      if (!window.bowser) {
+        TS.console.warn("no bowser???");
+        return true;
+      }
+      if (bowser.mobile) {
+        return false;
+      }
+      if (_.some(TS.client.deprecation.supported, function(min_version, browser) {
+          return bowser[browser] && bowser.version >= min_version;
+        })) {
+        return true;
+      }
+      if (bowser["firefox"] && Math.floor(bowser.version) === 45) return true;
+      TS.console.warn(bowser, navigator.userAgent, "is deprecated!");
+      return false;
+    },
+    isDeprecatedSSB: function() {
+      return !TS.client.deprecation.isBrowserSupported() && TS.model.is_our_app;
+    },
+    canInstallSSB: function() {
+      if (TS.model.is_win_7_plus) return true;
+      if (TS.model.is_mac && TS.utility.compareSemanticVersions(TS.model.mac_version, "10.8") === 1) return true;
+      if (TS.model.is_lin) return true;
+      return false;
+    }
+  });
+})();
+var _showDeprecationModal = function() {
+  TS.metrics.count("deprecation_modal");
+  var title = TS.i18n.t("This browser is out of date", "deprecation")() + " " + TS.emoji.graphicReplace(":spiral_calendar_pad:", {
+    jumbomoji: true
+  }).replace("emoji-sizer", "");
+  title = new Handlebars.SafeString(title);
+  TS.ui.fs_modal.start({
+    title: title,
+    body: TS.i18n.t("<p>We know it's a hassle to upgrade, but we want your experience of Slack to be fast, secure, and the best it can possibly be.</p><p><strong>To continue using Slack, please upgrade to one of our <a href='https://get.slack.help/hc/en-us/articles/201746897'>supported browsers</a> soon.</strong> Feel free to <a href='mailto:feedback@slack.com'>contact us</a> if you have questions.</p>", "deprecation")(),
+    show_secondary_go_button: true,
+    go_button_text: TS.i18n.t("Learn More", "deprecation")(),
+    show_cancel_button: false,
+    secondary_go_button_class: "btn_link",
+    secondary_go_button_text: TS.i18n.t("Skip for now", "deprecation")(),
+    modal_class: "deprecate_modal",
+    onGo: function() {
+      TS.metrics.count("deprecation_button");
+      TS.utility.openInNewTab("https://get.slack.help/hc/en-us/articles/201746897", "_blank");
+    },
+    onShowComplete: function() {
+      document.activeElement.blur();
+    }
+  });
+  $(".deprecate_modal a").on("click", function() {
+    TS.ui.fs_modal.close();
+  });
+};
+var _showDeprecationModalWithInstall = function() {
+  TS.metrics.count("deprecation_modal_install");
+  var title = TS.i18n.t("This browser is out of date", "deprecation")() + " " + TS.emoji.graphicReplace(":spiral_calendar_pad:", {
+    jumbomoji: true
+  }).replace("emoji-sizer", "");
+  title = new Handlebars.SafeString(title);
+  TS.ui.fs_modal.start({
+    title: title,
+    body: TS.i18n.t("<p>We know it's a hassle to upgrade, but we want your experience of Slack to be fast, secure, and the best it can possibly be.</p><p><strong>To continue using Slack, please upgrade to one of our <a href='https://get.slack.help/hc/en-us/articles/201746897'>supported browsers</a> soon.</strong> Feel free to <a href='mailto:feedback@slack.com'>contact us</a> if you have questions.</p><p>For the finest Slack experience, we recommend downloading our desktop app: you'll get greater control over your notifications, easy switching between teams, and — handily — automatic updates!</p>", "deprecation")(),
+    show_secondary_go_button: true,
+    go_button_text: TS.i18n.t("Learn More", "deprecation")(),
+    show_cancel_button: false,
+    secondary_go_button_class: "btn_link",
+    secondary_go_button_text: TS.i18n.t("Skip for now", "deprecation")(),
+    modal_class: "deprecate_modal",
+    onGo: function() {
+      TS.metrics.count("deprecation_button_install");
+      TS.utility.openInNewTab("https://slack.com/downloads", "_blank");
+    },
+    onShowComplete: function() {
+      document.activeElement.blur();
+    }
+  });
+  $(".deprecate_modal a").on("click", function() {
+    TS.ui.fs_modal.close();
+  });
+};
+var _showSSBDeprecationModal = function() {
+  TS.metrics.count("deprecation_modal_ssb");
+  var title = TS.i18n.t("This is an out-of-date version of Slack", "deprecation")() + " " + TS.emoji.graphicReplace(":spiral_calendar_pad:", {
+    jumbomoji: true
+  }).replace("emoji-sizer", "");
+  title = new Handlebars.SafeString(title);
+  TS.ui.fs_modal.start({
+    title: title,
+    body: TS.i18n.t("<p>We've made some great improvements to Slack's desktop app — it now runs faster, uses far less memory, and updates automatically.</p><p><strong>To continue using Slack, please <a href='https://slack.com/downloads'>download our new desktop app</a> soon.</strong> We want your experience of Slack to be fast, secure, and the best it can possibly be. Feel free to <a href='mailto:feedback@slack.com'>contact us</a> if you have questions.</p>", "deprecation")(),
+    show_secondary_go_button: true,
+    go_button_text: TS.i18n.t("Learn More", "deprecation")(),
+    show_cancel_button: false,
+    secondary_go_button_class: "btn_link",
+    secondary_go_button_text: TS.i18n.t("Skip for now", "deprecation")(),
+    modal_class: "deprecate_modal",
+    onGo: function() {
+      TS.metrics.count("deprecation_button_ssb");
+      TS.utility.openInNewTab("https://slack.com/downloads", "_blank");
+    },
+    onShowComplete: function() {
+      document.activeElement.blur();
+    }
+  });
+  $(".deprecate_modal a").on("click", function() {
+    TS.ui.fs_modal.close();
+  });
+};
