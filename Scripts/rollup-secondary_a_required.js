@@ -19949,9 +19949,9 @@ TS.registerModule("constants", {
             });
           }
         } else if (!room.is_dm_call && room.name) {
-          description = new Handlebars.SafeString('<span class="room_name">' + TS.utility.htmlEntities(room.name) + "</span> call has ended");
+          var safe_name_with_emoji = TS.emoji.graphicReplace(TS.utility.htmlEntities(room.name));
           description = new Handlebars.SafeString(TS.i18n.t('<span class="room_name">{room_name}</span> call has ended', "calls")({
-            room_name: TS.utility.htmlEntities(room.name)
+            room_name: safe_name_with_emoji
           }));
         } else {
           description = TS.i18n.t("This call has ended", "calls")();
@@ -27814,7 +27814,7 @@ TS.registerModule("constants", {
         }
         if (!file.is_tombstoned) {
           if (file.mode === "hosted" || file.mode === "external" || file.mode === "snippet") {
-            if (file.comments.length || file.is_tombstoned == false) {
+            if (file.comments.length || !file.is_tombstoned) {
               if (model_ob.id == TS.model.active_im_id) {
                 TS.ims.message_changed_sig.dispatch(model_ob, m);
               } else if (model_ob.id == TS.model.active_channel_id) {
@@ -32465,7 +32465,9 @@ TS.registerModule("constants", {
         if (!TS.boot_data.page_needs_enterprise) {
           $menu_content.on("highlighted", "li:not(.divider)", TS.menu.onTeamAndUserItemMouseenter);
         }
-        if (!TS.model.prefs.seen_custom_status_badge) $(".current_status_badge").removeClass("hidden");
+        if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge) {
+          $(".current_status_badge").removeClass("hidden");
+        }
       }
       TS.view.setFlexMenuSize();
     },
@@ -33316,7 +33318,7 @@ TS.registerModule("constants", {
         TS.menu._current_status_input.destroy();
         TS.menu._current_status_input = null;
       }
-      if (!TS.model.prefs.seen_custom_status_badge) $("#team_menu_current_status .ts_icon").remove();
+      if (TS.experiment.getGroup("custom_status_callout") === "treatment" && !TS.model.prefs.seen_custom_status_badge) $("#team_menu_current_status .ts_icon").remove();
       TS.menu.$menu_body.find("#member_current_status_item").off(".current_status_item");
     }
   });
@@ -69084,7 +69086,8 @@ $.fn.togglify = function(settings) {
             scrollDirectionVertical: C.a,
             scrollLeft: 0,
             scrollTop: 0
-          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o),
+          o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
             cellCount: e.columnCount,
             cellSizeGetter: function(e) {
               return o._columnWidthGetter(e);
@@ -69096,8 +69099,7 @@ $.fn.togglify = function(settings) {
               return o._rowHeightGetter(e);
             },
             estimatedCellSize: o._getEstimatedRowSize(e)
-          }),
-          o._cellCache = {}, o._styleCache = {}, o;
+          }), o._cellCache = {}, o._styleCache = {}, o;
       }
       return h()(t, e), c()(t, [{
         key: "measureAllCells",
@@ -70666,8 +70668,7 @@ $.fn.togglify = function(settings) {
               r = function(e) {
                 "Enter" !== e.key && " " !== e.key || n();
               };
-            S["aria-label"] = t.props["aria-label"] || v || p,
-              S.role = "rowheader", S.tabIndex = 0, S.onClick = n, S.onKeyDown = r;
+            S["aria-label"] = t.props["aria-label"] || v || p, S.role = "rowheader", S.tabIndex = 0, S.onClick = n, S.onKeyDown = r;
           }(), _.a.createElement("div", o()({}, S, {
             key: "Header-Col" + n,
             className: b,
@@ -77085,7 +77086,8 @@ $.fn.togglify = function(settings) {
     },
     u = {},
     s = {};
-  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
+  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation,
+    delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
 }, function(e, t, n) {
   "use strict";
 
@@ -78616,7 +78618,8 @@ $.fn.togglify = function(settings) {
 
   function i(e, t) {
     if (t) {
-      "function" == typeof t ? p("75") : void 0, v.isValidElement(t) ? p("76") : void 0;
+      "function" == typeof t ? p("75") : void 0,
+        v.isValidElement(t) ? p("76") : void 0;
       var n = e.prototype,
         r = n.__reactAutoBindPairs;
       t.hasOwnProperty(_) && w.mixins(e, t.mixins);

@@ -27992,7 +27992,8 @@ ts-thread .thread_participants {
   margin-left: 3.7rem
 }
 
-.sli_briefing__message ts-message .message_body {
+.sli_briefing__message ts-message .message_body,
+.sli_briefing__message ts-message .message_content .comment {
   position: relative;
   max-height: 1.4rem;
   overflow: hidden;
