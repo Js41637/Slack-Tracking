@@ -5,7 +5,7 @@
   <span class="error_message">{{#t note="Generic error message when something goes wrong when a third party developer fills in a form to create an app"}}Oops, something went wrong! Try again?{{/t}}</span>
 </p>
 
-<form action="/apps/create_new" enctype="multipart/form-data" method="post" id="developer_apps_new_form" class="application_config">
+<form action="/apps/create_new" enctype="multipart/form-data" method="post" id="developer_apps_new_form" class="p-new_app_creation__form">
   <input type="hidden" name="done" value="1">
   <input type="hidden" name="crumb" value="{{crumb}}">
 
@@ -13,14 +13,14 @@
   <label for="name">{{#t note="Title of the form which shows up in a modal when a third party developer wishes to create an app"}}App Name{{/t}}</label>
   <input type="text" name="name" placeholder="{{#t note="Placeholder text for a name of an app"}}e.g. Super Service{{/t}}" class="no_bottom_margin overflow_ellipsis" value="" autocomplete="off"
     data-validation="required keywords maxlength=35">
-  <aside>{{#t note="Helper text reassuring a third party developer that the name they chose for their app can be changed at a later date"}}Don\u2019t worry; you'll be able to change this later.{{/t}}</aside>
+  <aside class="p-new_app_creation__aside">{{#t note="Helper text reassuring a third party developer that the name they chose for their app can be changed at a later date"}}Don\u2019t worry; you'll be able to change this later.{{/t}}</aside>
 
   {{!-- Team Selector --}}
   <label for="team_id" class="top_margin">{{#t note="Label for a dropdown where a third party developer chooses Slack Team their proposed app will belong to"}}Development Slack Team{{/t}}</label>
   <div id="team_id_picker"></div>
   {{!-- Hidden input for id of team selected, since the team selector is actually a menu --}}
   <input name="team_id" class="hidden" value="" data-validation="required" />
-  <aside>
+  <aside class="p-new_app_creation__aside">
     {{#t note="helper text letting the third party developer know what happens to the app they're creating if they leave their team"}}Your app belongs to this team\u2014leaving this team will remove your ability to manage this app. Unfortunately, this can\u2019t be changed later.{{/t}}
   </aside>
 

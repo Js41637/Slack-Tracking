@@ -35035,52 +35035,33 @@ function timezones_guess() {
       if (TS.ui.jumper.is_showing) return;
       TS.metrics.mark("start_jumper_open");
       $(window.document).on("keydown.jumper", _onKeyDown);
-      if (!TS.boot_data.feature_searcher_jumper) {
-        _setupData();
-      }
       _$jumper[0].classList.add("active");
       _$jumper_input.removeAttr("disabled");
       _$jumper_input.focus();
       TS.ui.jumper.is_showing = TS.model.dialog_is_showing = true;
       TS.metrics.measureAndClear("jumper_open", "start_jumper_open");
-      if (TS.boot_data.feature_searcher_jumper) {
-        TS.searcher.search("", {
-          members: _getMemberOptions(),
-          channels: true,
-          groups: true,
-          mpims: true
-        }).then(function(results) {
-          if (!TS.ui.jumper.is_showing) return;
-          _unreads = _getUnreadList(results);
-          _render(_unreads, "");
-          return null;
-        });
-      } else {
-        setTimeout(function() {
-          if (!TS.ui.jumper.is_showing) return;
-          _unreads = _getUnreadList(_data);
-          _render(_unreads, "");
-        }, 0);
-      }
+      TS.searcher.search("", {
+        members: _getMemberOptions(),
+        channels: true,
+        groups: true,
+        mpims: true
+      }).then(function(results) {
+        if (!TS.ui.jumper.is_showing) return;
+        _unreads = _getUnreadList(results);
+        _render(_unreads, "");
+        return null;
+      });
     },
     end: function() {
       _reset();
       _$jumper[0].classList.remove("active");
       $(window.document).off("keydown.jumper", _onKeyDown);
       TS.kb_nav.end();
-      _cleanupData();
       _$jumper_results.off("mousemove");
       _$jumper_input.blur();
       if (_search_p) _search_p.cancel();
       _search_p = null;
       TS.ui.jumper.is_showing = TS.model.dialog_is_showing = false;
-    },
-    test: function() {
-      return {
-        setupData: _setupData,
-        cleanup: _cleanupData,
-        search: _search
-      };
     },
     debugQuery: function(query) {
       TS.sorter.printTest(query, {
@@ -35090,7 +35071,6 @@ function timezones_guess() {
     }
   });
   var _RESULT_LIMIT = 24;
-  var _data;
   var _unreads = [];
   var _$jumper;
   var _$jumper_input;
@@ -35124,19 +35104,11 @@ function timezones_guess() {
   var _bindUI = function() {
     _$jumper_input.on("input.search", function() {
       var query = _.trim(_$jumper_input.val());
-      var matches;
       if (_search_p) _search_p.cancel();
       if (query) {
         TS.metrics.mark("start_jumper_search");
-        if (TS.boot_data.feature_searcher_jumper) {
-          TS.metrics.mark("start_jumper_remote_search");
-          _searchAndRender(query);
-        } else {
-          matches = _search(query);
-          _maybeStartExtendedSearch(matches, query);
-          _render(matches, query);
-          TS.metrics.measureAndClear("jumper_results", "start_jumper_search");
-        }
+        TS.metrics.mark("start_jumper_remote_search");
+        _searchAndRender(query);
       } else {
         _reset();
       }
@@ -35341,54 +35313,6 @@ function timezones_guess() {
     TS.ui.jumper.end();
     TS.ui.new_channel_modal.start(query);
   };
-  var _updateMembersData = function() {
-    _data.members = TS.members.getActiveMembersWithSelfAndSlackbot().slice();
-  };
-  var _setupData = function() {
-    var all_members = TS.members.getActiveMembersWithSelfAndSlackbot().slice();
-    if (!TS.model.user.is_restricted) {
-      var all_channels = TS.channels.getChannelsForUser().slice().concat(TS.model.deferred_archived_channels);
-      var all_groups = TS.model.groups.slice().concat(TS.model.deferred_archived_groups);
-      all_channels = _.uniqBy(all_channels, "id");
-      all_groups = _.uniqBy(all_groups, "id");
-    } else {
-      var all_channels = TS.channels.getUnarchivedChannelsForUser().slice();
-      var all_groups = TS.groups.getUnarchivedGroups().slice();
-    }
-    var all_mpims = TS.mpims.getVisibleMpims().slice();
-    var all_teams = _.values(TS.boot_data.other_accounts);
-    _data = {
-      members: all_members,
-      channels: all_channels,
-      groups: all_groups,
-      mpims: all_mpims,
-      teams: all_teams
-    };
-    var views = [];
-    if (TS.client.unread.isEnabled()) {
-      views.push(_.find(TS.model.NAMED_VIEWS, {
-        id: "Vall_unreads"
-      }));
-    }
-    views.push(_.find(TS.model.NAMED_VIEWS, {
-      id: "Vall_threads"
-    }));
-    if (views.length) _data.views = views;
-  };
-  var _cleanupData = function() {
-    _data = null;
-  };
-  var _search = function(query) {
-    if (!_data) return [];
-    var search_options = {
-      prefer_exact_match: true,
-      frecency: true,
-      limit: _RESULT_LIMIT,
-      prefer_channels_user_belongs_to: true,
-      search_previous_channel_names: true
-    };
-    return TS.sorter.search(query, _data, search_options);
-  };
   var _searchAndRender = function(query) {
     _search_p = TS.searcher.search(query, {
       members: _getMemberOptions(),
@@ -35420,59 +35344,6 @@ function timezones_guess() {
           TS.kb_nav.highlightItemWithKey($formerly_highlighted_elem, true);
         }
       }
-    });
-  };
-  var _mayDoExtendedSearch = function() {
-    return !!(TS.boot_data.page_needs_enterprise || TS.lazyLoadMembersAndBots());
-  };
-  var _maybeStartExtendedSearch = function(matches, query) {
-    if (_mayDoExtendedSearch() && !!query && matches.length < _RESULT_LIMIT) {
-      var render = function(matches, query) {
-        var $maybe = TS.kb_nav.getHighlightedItem();
-        _render(matches, query);
-        if ($maybe) {
-          var highlighted_item_id = $maybe.data("item-id");
-          var $formerly_highlighted_elem = TS.kb_nav.getItemByItemId(highlighted_item_id);
-          if ($formerly_highlighted_elem) {
-            TS.kb_nav.highlightItemWithKey($formerly_highlighted_elem, true);
-          }
-        }
-      };
-      _search_p = _promiseToSearchMembers(query, _RESULT_LIMIT - matches.length);
-      _search_p.then(function(members) {
-        if (!TS.ui.jumper.is_showing) return;
-        if (!members || !members.length) return void render(matches, query);
-        _updateMembersData();
-        render(_search(query), query);
-      }).catch(function(error) {
-        if (!TS.ui.jumper.is_showing) return;
-        render(matches, query);
-      });
-    }
-  };
-  var _promiseToSearchMembers = function(query, limit) {
-    if (!_mayDoExtendedSearch() || !limit) return Promise.resolve();
-    if (query.charAt(0) === "#") return Promise.resolve([]);
-    if (query.charAt(0) === "@") query = query.substring(1);
-    var org_team_ids;
-    if (TS.model.enterprise) {
-      org_team_ids = _(TS.model.enterprise_teams).map("id").filter(function(id) {
-        return id !== TS.model.team.id;
-      }).value();
-    } else {
-      org_team_ids = [];
-    }
-    var searcher = {
-      query: query,
-      max_api_results: limit,
-      include_org: true,
-      include_slackbot: false,
-      include_self: true,
-      full_profile_filter: false,
-      org_team_ids: org_team_ids
-    };
-    return TS.members.promiseToSearchMembers(searcher).then(function(response) {
-      return Promise.resolve(response.items);
     });
   };
   var _isActive = function(model_ob) {
@@ -35578,31 +35449,6 @@ function timezones_guess() {
     }
     list = highlights.concat(unreads, drafts);
     if (!list.length) {
-      if (TS.boot_data.feature_searcher_jumper) {
-        TS.searcher.search("", {
-          channels: true,
-          groups: true
-        }).then(function(results) {
-          if (results.channels.length + results.groups.length < 10) {
-            var list = [];
-            _.each(results.channels, function(channel) {
-              list.push({
-                model_ob: channel,
-                score: 0
-              });
-            });
-            _.each(results.groups, function(group) {
-              list.push({
-                model_ob: group,
-                score: 0
-              });
-            });
-            _render(list, "");
-            _unreads = list;
-          }
-        });
-        return [];
-      }
       if (data.channels.length + data.groups.length < 10) {
         data.channels.forEach(function(channel) {
           list.push({

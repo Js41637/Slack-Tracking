@@ -15852,6 +15852,7 @@ TS.registerModule("constants", {
         TS.ms.onFailure("rtm.checkFastReconnect returned not-OK. error: " + error);
       }).finally(function() {
         TS.model.calling_test_fast_reconnect = false;
+        _clearReconnectUrl();
       });
     },
     setReconnectUrl: function(url) {
@@ -60023,9 +60024,11 @@ $.fn.togglify = function(settings) {
         delete TS.ui.a11y.unread_message_strings[model_ob.name];
       }
       TS.ui.a11y.ariaLiveAnnounce(announce_message, true);
-      TS.client.ui.$msg_input.attr("aria-label", TS.i18n.t("Message input for {model_name}", "a11y")({
-        model_name: name
-      }));
+      if (!TS.boot_data.feature_texty) {
+        TS.client.ui.$msg_input.attr("aria-label", TS.i18n.t("Message input for {model_name}", "a11y")({
+          model_name: name
+        }));
+      }
     },
     resetMessageInput: function() {
       TS.client.msg_input.reset();
@@ -61967,7 +61970,8 @@ $.fn.togglify = function(settings) {
           }
 
           function Un(e, t, n) {
-            return e === e && (n !== oe && (e = e <= n ? e : n), t !== oe && (e = e >= t ? e : t)), e;
+            return e === e && (n !== oe && (e = e <= n ? e : n),
+              t !== oe && (e = e >= t ? e : t)), e;
           }
 
           function Wn(e, t, n, r, o, i) {
@@ -64087,8 +64091,7 @@ $.fn.togglify = function(settings) {
           }
 
           function fs(e, t, n) {
-            return n = "function" == typeof n ? n : oe,
-              Lr(e, t, Ei(t), n);
+            return n = "function" == typeof n ? n : oe, Lr(e, t, Ei(t), n);
           }
 
           function ps(e) {
@@ -65606,7 +65609,8 @@ $.fn.togglify = function(settings) {
     for (var t = arguments.length - 1, n = "Minified React error #" + e + "; visit http://facebook.github.io/react/docs/error-decoder.html?invariant=" + e, r = 0; r < t; r++) n += "&args[]=" + encodeURIComponent(arguments[r + 1]);
     n += " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
     var o = new Error(n);
-    throw o.name = "Invariant Violation", o.framesToPop = 1, o;
+    throw o.name = "Invariant Violation", o.framesToPop = 1,
+      o;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -67226,7 +67230,8 @@ $.fn.togglify = function(settings) {
   }), t.default = function(e) {
     if ((!a || e) && i.default) {
       var t = document.createElement("div");
-      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll", document.body.appendChild(t), a = t.offsetWidth - t.clientWidth, document.body.removeChild(t);
+      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll", document.body.appendChild(t), a = t.offsetWidth - t.clientWidth,
+        document.body.removeChild(t);
     }
     return a;
   };
