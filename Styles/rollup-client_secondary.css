@@ -7634,6 +7634,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   margin-bottom: 0!important
 }
 
+.dm_badge a.app_preview_link,
 .dm_badge a.member_preview_link {
   font-weight: 600;
   font-size: 1rem;
@@ -13355,6 +13356,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   color: #9e9ea6
 }
 
+.mention_rxn .mention_rxn_summary .app_preview_link,
 .mention_rxn .mention_rxn_summary .member_preview_link,
 .mention_rxn .mention_rxn_summary .mention_rxn_summary_members {
   font-weight: 900!important;

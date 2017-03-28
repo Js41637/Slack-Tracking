@@ -6270,6 +6270,7 @@
       TS.apps.promiseToGetFullAppProfile(bot_id).then(function(app) {
         TS.client.ui.app_profile.openWithApp(app, bot_id);
         TS.client.flexDisplaySwitched("apps", bot_id, replace_history_state, no_history_add);
+        return null;
       }).catch(function(err) {
         return TS.client.ui.flex.hideFlex();
       });
@@ -12781,6 +12782,7 @@
       }
       if (!skip_red_line && (model_ob.unread_cnt && last_read < TS.client.msg_pane.last_in_stream_msg.ts || last_read < TS.client.msg_pane.last_in_stream_msg.ts)) {
         var divider_html = TS.templates.messages_unread_divider();
+        var invisible_divider = false;
         if (_$last_read_msg_div && _$last_read_msg_div.length) {
           _$last_read_msg_div.after(divider_html);
         } else {
@@ -12798,16 +12800,20 @@
             }
           } else {
             TS.client.ui.$msgs_div.find(".message").first().before(divider_html);
+            if (TS.boot_data.feature_scrollback_half_measures) invisible_divider = true;
           }
         }
         TS.client.ui.$msgs_unread_divider = $("#msgs_unread_divider");
         TS.client.ui.$msgs_unread_divider.data("last_read_ts", last_read);
+        if (invisible_divider) {
+          TS.client.ui.$msgs_unread_divider.addClass("invisible");
+        }
         if (model_ob.unread_cnt) {
           $(".unread_divider").removeClass("no_unreads");
         } else {
           $(".unread_divider").addClass("no_unreads");
         }
-        if (TS.client.ui.$msgs_unread_divider.next(".day_divider").length || TS.client.ui.$msgs_unread_divider.is(":last-child")) {
+        if ((TS.client.ui.$msgs_unread_divider.next(".day_divider").length || TS.client.ui.$msgs_unread_divider.is(":last-child")) && !invisible_divider) {
           TS.client.ui.$msgs_unread_divider.addClass("adjacent_to_date");
           TS.client.ui.$msgs_unread_divider.closest(".day_container").next(".day_container").addClass("unread_day_container");
         }

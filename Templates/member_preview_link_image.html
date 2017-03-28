@@ -4,26 +4,57 @@
   {{~#if member.is_external~}}
     {{> member_type_external_badge team=(getTeamById member.team_id) size=size}}
   {{else}}
-    {{~#pageNeedsEnterprise~}}
+    {{~#pageNeedsEnterprise~}}{{#if_gt size compare=20}}
       {{#if member.is_ultra_restricted}}
         {{> member_type_guest_badge size=(getGuestBadgeSize size) standalone=false with_tooltip=false}}
       {{else if member.is_restricted}}
         {{> member_type_restricted_badge size=(getGuestBadgeSize size) standalone=false with_tooltip=false}}
       {{/if}}
-    {{/pageNeedsEnterprise}}
+    {{/if_gt}}{{/pageNeedsEnterprise}}
   {{/if}}{{/unless}}</span>
 {{else}}
-  <a href="/team/{{member.name}}" {{getMemberPreviewLinkTarget member}} class="{{#if lazy}}lazy{{/if}} member_preview_link member_image {{#if size}}thumb_{{size}}{{else}}thumb_48{{/if}}{{#if include_restricted_overlay}}{{getGuestMemberAvatarClass member}}{{/if}}" data-member-id="{{member.id}}" data-thumb-size="{{size}}" {{#if lazy}}data-original="{{bg_img_style}}" style="background-color: #f6f6f6;"{{else}}style="{{bg_img_style}}"{{/if}} aria-hidden="true" tabindex="-1">
+  <a
+    href="/team/{{member.name}}"
+    {{getMemberPreviewLinkTarget member}}
+    class="
+      {{#if lazy}}lazy{{/if}}
+      {{#if member.profile.bot_id}}
+        app_preview_link
+      {{else}}
+        member_preview_link
+      {{/if}}
+      member_image
+      {{#if size}}
+        thumb_{{size}}
+      {{else}}
+        thumb_48
+      {{/if}}
+      {{#if include_restricted_overlay}}
+        {{getGuestMemberAvatarClass member}}
+      {{/if}}"
+    {{#if member.profile.bot_id}}
+      data-bot-id="{{member.profile.bot_id}}"
+    {{/if}}
+    data-member-id="{{member.id}}"
+    data-thumb-size="{{size}}"
+    {{#if lazy}}
+      data-original="{{bg_img_style}}"
+      style="background-color: #f6f6f6;"
+    {{else}}
+      style="{{bg_img_style}}"
+    {{/if}}
+      aria-hidden="true"
+      tabindex="-1">
   {{~#unless omit_badge~}}
-  {{~#if member.is_external~}}
+  {{#if member.is_external}}
     {{> member_type_external_badge team=(getTeamById member.team_id) size=size}}
   {{else}}
-    {{~#pageNeedsEnterprise~}}
+    {{~#pageNeedsEnterprise~}}{{#if_gt size compare=20}}
       {{#if member.is_ultra_restricted}}
         {{> member_type_guest_badge size=(getGuestBadgeSize size) standalone=false with_tooltip=false}}
       {{else if member.is_restricted}}
         {{> member_type_restricted_badge size=(getGuestBadgeSize size) standalone=false with_tooltip=false}}
       {{/if}}
-    {{/pageNeedsEnterprise}}
+    {{/if_gt}}{{/pageNeedsEnterprise}}
   {{/if}}{{/unless}}</a>
 {{/if}}

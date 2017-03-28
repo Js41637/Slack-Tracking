@@ -5,7 +5,7 @@
 
 <div class="file_header_detailed{{#unless member}} no_member{{/unless}}">
   {{#if member}}
-    {{makeMemberPreviewLinkImage member 48 false true}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 48 false true)}}
   {{/if}}
 
   <h2 class="title no_jumbomoji">

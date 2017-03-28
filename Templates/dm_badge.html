@@ -23,7 +23,14 @@
       {{#feature flag="feature_name_tagging_client"}}
       {{else}}
         <span class="{{getMemberColorClassById member.id}}">
-          <a href="/team/{{member.name}}" class="member_preview_link member_name" data-member-id="{{member.id}}">@{{member.name}}</a>
+          <a href="/team/{{member.name}}" target="/team/{{member.name}}"
+          {{#if member.profile.bot_id}}
+               class="app_preview_link member_name"
+            data-bot-id="{{member.profile.bot_id}}"
+          {{else}}
+               class="member_preview_link member_name"
+          {{/if}}
+          data-member-id="{{member.id}}">@{{member.name}}</a>
         </span>
       {{/feature}}
 

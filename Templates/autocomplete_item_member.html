@@ -3,7 +3,7 @@
 <li class="tab_complete_ui_item" data-index="{{index}}">
 
   {{#if member.presence}}
-    {{makeProfileImage member size="20"}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 20 false true)}}
   {{/if}}
 
   <span class="{{primary_name_classes}}">

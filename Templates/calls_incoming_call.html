@@ -3,7 +3,7 @@
 {{!-- Todo: enable syntax linter and refactor with safeString --}}
 <div id="incoming_call_window">
   <div class="avatar_holder">
-    {{{makeMemberPreviewLinkImage caller.id 192 false true}}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs caller.id 192 false true)}}
   </div>
   <div class="name_label_holder"><span class="name">{{name}}</span></div>
   <div class="type_label_holder">

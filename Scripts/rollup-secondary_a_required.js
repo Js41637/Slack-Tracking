@@ -18417,7 +18417,7 @@ TS.registerModule("constants", {
     }
   });
   var _deleted_user_ids = [];
-  var _MAX_IDS_PER_QUERY = 500;
+  var _MAX_IDS_PER_QUERY = 100;
   var _model_ob_member_fetch_promises = {};
   var _fetchAndProcessObjects = function(query, objects, process_fn, limit) {
     return TS.ms.flannel.call("query_request", query).then(function(resp) {
@@ -24561,7 +24561,6 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("getGuestBadgeSize", function(size) {
         var badge_size;
         switch (size) {
-          case 20:
           case 24:
             badge_size = 10;
             break;
@@ -29722,6 +29721,13 @@ TS.registerModule("constants", {
         pathname = pathname.substr(1);
       }
       var valid_hostnames = [files_url_hostname, "files.dev.slack.com", "files.staging.slack.com", "files.slack.com"];
+      if (TS.model.enterprise && TS.model.enterprise.domain) {
+        if (!TS.boot_data || TS.boot_data.version_ts !== "dev") {
+          valid_hostnames.push(TS.model.enterprise.domain + ".enterprise.slack.com");
+        } else {
+          valid_hostnames.push(TS.model.enterprise.domain + ".enterprise.dev.slack.com");
+        }
+      }
       if (valid_hostnames.indexOf(input_url_parser.host) === -1) {
         return null;
       }
@@ -33407,11 +33413,14 @@ var _on_esc;
     active_app: null,
     active_app_bot_id: null,
     app_item_click_sig: new signals.Signal,
-    startWithApp: function(e, bot_id, position_by_click) {
+    startWithApp: function(e, bot_id, position_by_click, skip_menu) {
       if (TS.menu.isRedundantClick(e)) return;
       if (TS.client.ui.checkForEditing(e)) return;
-      TS.menu.buildIfNeeded();
-      TS.menu.clean();
+      if (!skip_menu) {
+        TS.menu.buildIfNeeded();
+        TS.menu.clean();
+      }
+      TS.menu.app.active_app_bot_id = bot_id;
       TS.apps.promiseToGetFullAppProfile(bot_id).then(ensureChannelMembershipInfoKnownForBot).then(showAllAppInformation);
 
       function ensureChannelMembershipInfoKnownForBot(app) {
@@ -33428,49 +33437,11 @@ var _on_esc;
 
       function showAllAppInformation(app) {
         TS.menu.app.active_app = app;
-        TS.menu.app.active_app_bot_id = bot_id;
-        var template_args = TS.apps.constructTemplateArgsForCardAndProfile(app, bot_id);
-        var is_bot = _.get(app, "bot_user.id");
-        TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
-        TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
-        TS.menu.$menu_footer.html(TS.templates.menu_app_card_footer(template_args));
-        TS.menu.start(e, position_by_click, {
-          menu_class: "app_card"
-        });
-        if (is_bot) {
-          var keymap = TS.utility.keymap;
-          var starting_im = false;
-          $("[data-js=app_card_dm]").bind("keydown", function(e) {
-            var input = $(this);
-            if (e.which == keymap.enter && !e.shiftKey && !starting_im) {
-              if ($.trim(input.val()) !== "") {
-                e.preventDefault();
-                TS.ims.startImByMemberId(app.bot_user.id, false, input.val());
-                TS.menu.app.end();
-                starting_im = true;
-              }
-            }
-          });
-        }
-        if (!template_args.hide_link_to_app_profile) {
-          TS.menu.$menu_header.on("click", function(e) {
-            TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
-            TS.menu.$menu_header.off();
-            TS.clog.track("USER_CARD_CLICK", {
-              app_id: TS.menu.app.active_app ? TS.menu.app.active_app.id : "",
-              bot_id: TS.menu.app.active_app_bot_id
-            });
-            TS.menu.app.end();
-          });
+        if (skip_menu) {
+          TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
         } else {
-          TS.menu.$menu_header.off();
+          _buildAppMenu(e, position_by_click);
         }
-        TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
-        TS.menu.$menu_items.on("click.menu", "[data-member-profile-link]", function(e) {
-          e.preventDefault();
-          TS.client.ui.previewMember($(this).data("member-profile-link"));
-        });
-        TS.menu.keepInBounds();
       }
     },
     onAppItemClick: function(e) {
@@ -33504,6 +33475,50 @@ var _on_esc;
       TS.menu.end();
     }
   });
+  var _buildAppMenu = function(e, position_by_click) {
+    var template_args = TS.apps.constructTemplateArgsForCardAndProfile(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
+    var is_bot = _.get(TS.menu.app.active_app, "bot_user.id");
+    TS.menu.$menu_header.html(TS.templates.menu_app_card_header(template_args));
+    TS.menu.$menu_items.html(TS.templates.menu_app_card_items(template_args));
+    TS.menu.$menu_footer.html(TS.templates.menu_app_card_footer(template_args));
+    TS.menu.start(e, position_by_click, {
+      menu_class: "app_card"
+    });
+    if (is_bot) {
+      var keymap = TS.utility.keymap;
+      var starting_im = false;
+      $("[data-js=app_card_dm]").bind("keydown", function(e) {
+        var input = $(this);
+        if (e.which == keymap.enter && !e.shiftKey && !starting_im) {
+          if ($.trim(input.val()) !== "") {
+            e.preventDefault();
+            TS.ims.startImByMemberId(TS.menu.app.active_app.bot_user.id, false, input.val());
+            TS.menu.app.end();
+            starting_im = true;
+          }
+        }
+      });
+    }
+    if (!template_args.hide_link_to_app_profile) {
+      TS.menu.$menu_header.on("click", function(e) {
+        TS.client.ui.app_profile.openWithApp(TS.menu.app.active_app, TS.menu.app.active_app_bot_id);
+        TS.menu.$menu_header.off();
+        TS.clog.track("USER_CARD_CLICK", {
+          app_id: TS.menu.app.active_app ? TS.menu.app.active_app.id : "",
+          bot_id: TS.menu.app.active_app_bot_id
+        });
+        TS.menu.app.end();
+      });
+    } else {
+      TS.menu.$menu_header.off();
+    }
+    TS.menu.$menu_items.on("click.menu", "li", TS.menu.app.onAppItemClick);
+    TS.menu.$menu_items.on("click.menu", "[data-member-profile-link]", function(e) {
+      e.preventDefault();
+      TS.client.ui.previewMember($(this).data("member-profile-link"));
+    });
+    TS.menu.keepInBounds();
+  };
 })();
 (function() {
   "use strict";
@@ -49203,6 +49218,7 @@ $.fn.togglify = function(settings) {
         }
       }
       e.preventDefault();
+      var is_viewing_im = TS.model.active_im_id && !TS.client.activeChannelIsHidden();
       var bot_id = $closest_ts_message.data("bot-id");
       var message_ts = $closest_ts_message.data("ts") + "";
       var message_c_id = $closest_ts_message.data("model-ob-id");
@@ -49218,7 +49234,11 @@ $.fn.togglify = function(settings) {
       };
       TS.clog.track("USERNAME_CLICK", payload);
       if (bot_id) {
-        TS.menu.app.startWithApp(e, bot_id);
+        if (is_viewing_im) {
+          TS.menu.app.startWithApp(e, bot_id, null, true);
+        } else {
+          TS.menu.app.startWithApp(e, bot_id);
+        }
       } else {
         TS.warn("hmm, no data-bot-id?");
       }
@@ -67374,7 +67394,8 @@ $.fn.togglify = function(settings) {
   }), t.default = function(e) {
     if ((!a || e) && i.default) {
       var t = document.createElement("div");
-      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll", document.body.appendChild(t), a = t.offsetWidth - t.clientWidth, document.body.removeChild(t);
+      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll",
+        document.body.appendChild(t), a = t.offsetWidth - t.clientWidth, document.body.removeChild(t);
     }
     return a;
   };
@@ -69088,25 +69109,24 @@ $.fn.togglify = function(settings) {
         s()(this, t);
         var o = p()(this, (t.__proto__ || a()(t)).call(this, e, r));
         return o.state = {
-            isScrolling: !1,
-            scrollDirectionHorizontal: C.a,
-            scrollDirectionVertical: C.a,
-            scrollLeft: 0,
-            scrollTop: 0
-          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o),
-          o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
-            cellCount: e.columnCount,
-            cellSizeGetter: function(e) {
-              return o._columnWidthGetter(e);
-            },
-            estimatedCellSize: o._getEstimatedColumnSize(e)
-          }), o._rowSizeAndPositionManager = new b.a({
-            cellCount: e.rowCount,
-            cellSizeGetter: function(e) {
-              return o._rowHeightGetter(e);
-            },
-            estimatedCellSize: o._getEstimatedRowSize(e)
-          }), o._cellCache = {}, o._styleCache = {}, o;
+          isScrolling: !1,
+          scrollDirectionHorizontal: C.a,
+          scrollDirectionVertical: C.a,
+          scrollLeft: 0,
+          scrollTop: 0
+        }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+          cellCount: e.columnCount,
+          cellSizeGetter: function(e) {
+            return o._columnWidthGetter(e);
+          },
+          estimatedCellSize: o._getEstimatedColumnSize(e)
+        }), o._rowSizeAndPositionManager = new b.a({
+          cellCount: e.rowCount,
+          cellSizeGetter: function(e) {
+            return o._rowHeightGetter(e);
+          },
+          estimatedCellSize: o._getEstimatedRowSize(e)
+        }), o._cellCache = {}, o._styleCache = {}, o;
       }
       return h()(t, e), c()(t, [{
         key: "measureAllCells",
@@ -75344,67 +75364,68 @@ $.fn.togglify = function(settings) {
     s = n(83),
     l = n(5),
     c = n(17),
-    f = (n(0), n(1), {
-      getHostProps: function(e, t) {
-        var n = s.getValue(t),
-          r = s.getChecked(t),
-          o = a({
-            type: void 0,
-            step: void 0,
-            min: void 0,
-            max: void 0
-          }, t, {
-            defaultChecked: void 0,
-            defaultValue: void 0,
-            value: null != n ? n : e._wrapperState.initialValue,
-            checked: null != r ? r : e._wrapperState.initialChecked,
-            onChange: e._wrapperState.onChange
-          });
-        return o;
-      },
-      mountWrapper: function(e, t) {
-        var n = t.defaultValue;
-        e._wrapperState = {
-          initialChecked: null != t.checked ? t.checked : t.defaultChecked,
-          initialValue: null != t.value ? t.value : n,
-          listeners: null,
-          onChange: o.bind(e)
-        };
-      },
-      updateWrapper: function(e) {
-        var t = e._currentElement.props,
-          n = t.checked;
-        null != n && u.setValueForProperty(l.getNodeFromInstance(e), "checked", n || !1);
-        var r = l.getNodeFromInstance(e),
-          o = s.getValue(t);
-        if (null != o) {
-          var i = "" + o;
-          i !== r.value && (r.value = i);
-        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue), null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
-      },
-      postMountWrapper: function(e) {
-        var t = e._currentElement.props,
-          n = l.getNodeFromInstance(e);
-        switch (t.type) {
-          case "submit":
-          case "reset":
-            break;
-          case "color":
-          case "date":
-          case "datetime":
-          case "datetime-local":
-          case "month":
-          case "time":
-          case "week":
-            n.value = "", n.value = n.defaultValue;
-            break;
-          default:
-            n.value = n.value;
+    f = (n(0),
+      n(1), {
+        getHostProps: function(e, t) {
+          var n = s.getValue(t),
+            r = s.getChecked(t),
+            o = a({
+              type: void 0,
+              step: void 0,
+              min: void 0,
+              max: void 0
+            }, t, {
+              defaultChecked: void 0,
+              defaultValue: void 0,
+              value: null != n ? n : e._wrapperState.initialValue,
+              checked: null != r ? r : e._wrapperState.initialChecked,
+              onChange: e._wrapperState.onChange
+            });
+          return o;
+        },
+        mountWrapper: function(e, t) {
+          var n = t.defaultValue;
+          e._wrapperState = {
+            initialChecked: null != t.checked ? t.checked : t.defaultChecked,
+            initialValue: null != t.value ? t.value : n,
+            listeners: null,
+            onChange: o.bind(e)
+          };
+        },
+        updateWrapper: function(e) {
+          var t = e._currentElement.props,
+            n = t.checked;
+          null != n && u.setValueForProperty(l.getNodeFromInstance(e), "checked", n || !1);
+          var r = l.getNodeFromInstance(e),
+            o = s.getValue(t);
+          if (null != o) {
+            var i = "" + o;
+            i !== r.value && (r.value = i);
+          } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue), null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
+        },
+        postMountWrapper: function(e) {
+          var t = e._currentElement.props,
+            n = l.getNodeFromInstance(e);
+          switch (t.type) {
+            case "submit":
+            case "reset":
+              break;
+            case "color":
+            case "date":
+            case "datetime":
+            case "datetime-local":
+            case "month":
+            case "time":
+            case "week":
+              n.value = "", n.value = n.defaultValue;
+              break;
+            default:
+              n.value = n.value;
+          }
+          var r = n.name;
+          "" !== r && (n.name = ""), n.defaultChecked = !n.defaultChecked, n.defaultChecked = !n.defaultChecked, "" !== r && (n.name = r);
         }
-        var r = n.name;
-        "" !== r && (n.name = ""), n.defaultChecked = !n.defaultChecked, n.defaultChecked = !n.defaultChecked, "" !== r && (n.name = r);
-      }
-    });
+      });
   e.exports = f;
 }, function(e, t, n) {
   "use strict";
@@ -77093,8 +77114,7 @@ $.fn.togglify = function(settings) {
     },
     u = {},
     s = {};
-  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation,
-    delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
+  i.canUseDOM && (s = document.createElement("div").style, "AnimationEvent" in window || (delete a.animationend.animation, delete a.animationiteration.animation, delete a.animationstart.animation), "TransitionEvent" in window || delete a.transitionend.transition), e.exports = o;
 }, function(e, t, n) {
   "use strict";
 
@@ -78625,8 +78645,7 @@ $.fn.togglify = function(settings) {
 
   function i(e, t) {
     if (t) {
-      "function" == typeof t ? p("75") : void 0,
-        v.isValidElement(t) ? p("76") : void 0;
+      "function" == typeof t ? p("75") : void 0, v.isValidElement(t) ? p("76") : void 0;
       var n = e.prototype,
         r = n.__reactAutoBindPairs;
       t.hasOwnProperty(_) && w.mixins(e, t.mixins);
