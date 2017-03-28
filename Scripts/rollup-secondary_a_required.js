@@ -4194,7 +4194,7 @@
               if (immediate_caller.indexOf("at Function.$.widget.extend") === 0 || immediate_caller.indexOf("at Function.jQuery.extend.jQuery.fn.extend") === 0 || immediate_caller.indexOf("at $.widget.extend") === 0 || immediate_caller.indexOf("$.widget.extend") === 0) {
                 return [];
               }
-              if (immediate_caller.indexOf("at Object.extend") === 0 || immediate_caller.indexOf("extend") === 0) {
+              if (immediate_caller.indexOf("at Object.extend") === 0 || immediate_caller.indexOf("at extend") === 0 || immediate_caller.indexOf("extend") === 0) {
                 return [];
               }
               if (stack && stack.length && stack.indexOf("_maybeRedactFields") >= 0) {
@@ -4288,7 +4288,7 @@
     _maybeSetSharedTeams(channel);
   };
   var _logMembersAccess = function(channel, immediate_caller, stack) {
-    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 6;
+    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 7;
     TS.metrics.count("tcm_members_access_v" + THIN_CHANNEL_MEMBERSHIP_FIX_VERSION);
     var info = {
       message: ".members accessed on " + channel.id + ". Immediate caller: " + immediate_caller,
@@ -11994,6 +11994,10 @@ TS.registerModule("constants", {
         status = "CHANGED";
         what_changed.push(k);
       } else if (existing_member[k] != member[k]) {
+        if (k === "is_admin") {
+          TS.console.maybeWarn(1975, k + "is changing from `" + existing_member[k] + "` to `" + member[k] + "`");
+          TS.console.maybeTrace(1975);
+        }
         if (member[k] && !TS.utility.isScalar(member[k])) {
           existing_member[k] = member[k];
           TS.warn(k + " is not scalar! it needs to be handled by upsertMember specifically to test if it has changed! " + typeof member[k]);
@@ -22440,7 +22444,7 @@ TS.registerModule("constants", {
       } else {
         return "ERROR: UNABLE TO GET TEAMS INFO";
       }
-      html = '<span class="org_team_tag_name">' + matching_team_data.name + "</span>";
+      html = '<span class="org_team_tag_name">' + TS.utility.htmlEntities(matching_team_data.name) + "</span>";
       return html;
     },
     loadingHTML: function() {
@@ -69089,8 +69093,8 @@ $.fn.togglify = function(settings) {
             scrollDirectionVertical: C.a,
             scrollLeft: 0,
             scrollTop: 0
-          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o), o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o),
-          o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
+          }, o._onGridRenderedMemoizer = n.i(w.a)(), o._onScrollMemoizer = n.i(w.a)(!1), o._debounceScrollEndedCallback = o._debounceScrollEndedCallback.bind(o), o._invokeOnGridRenderedHelper = o._invokeOnGridRenderedHelper.bind(o),
+          o._onScroll = o._onScroll.bind(o), o._updateScrollLeftForScrollToColumn = o._updateScrollLeftForScrollToColumn.bind(o), o._updateScrollTopForScrollToRow = o._updateScrollTopForScrollToRow.bind(o), o._columnWidthGetter = o._wrapSizeGetter(e.columnWidth), o._rowHeightGetter = o._wrapSizeGetter(e.rowHeight), o._columnSizeAndPositionManager = new b.a({
             cellCount: e.columnCount,
             cellSizeGetter: function(e) {
               return o._columnWidthGetter(e);

@@ -169,6 +169,12 @@
       if (A.indexOf(String(pri)) !== -1) return true;
       return _keys_to_check.indexOf(pri) > -1;
     },
+    trace: function() {
+      _console("trace", null, arguments);
+    },
+    maybeTrace: function(pri) {
+      _console("trace", pri, arguments);
+    },
     test: function() {
       return {
         _maybeRedactFields: _maybeRedactFields,
