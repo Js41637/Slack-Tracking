@@ -23793,7 +23793,7 @@
   var _new_email_domains = "";
   var _custom_message = "";
   var _initial_channel_id;
-  var _selected_exp_date_unix_ts;
+  var _expiration_ts;
   var _DATE_PICKER_TARGET_SELECTOR = "#admin_invites_show_date_picker";
   var _google_contacts_data;
   var _btn_connect_contacts;
@@ -23868,7 +23868,7 @@
   };
   var _start = function(options) {
     var account_type;
-    _selected_exp_date_unix_ts = null;
+    _expiration_ts = null;
     if (_shouldSeeAccountTypeOptions()) {
       if (options && options.account_type) {
         account_type = options.account_type;
@@ -24386,11 +24386,12 @@
         _.defer(_destroyDatePicker);
       }
     };
-    if (_selected_exp_date_unix_ts) date_picker_args.selected_date_ts = _selected_exp_date_unix_ts;
+    if (_expiration_ts) date_picker_args.selected_expiration_ts = _expiration_ts;
     TS.ui.date_picker.startGuestExpirationDatePicker($(_DATE_PICKER_TARGET_SELECTOR), date_picker_args);
   };
   var _onExpirationDateChanged = function(date_ts) {
-    _selected_exp_date_unix_ts = date_ts;
+    if (!parseInt(date_ts, 10)) return;
+    _expiration_ts = date_ts;
     var formatted_date = TS.utility.date.formatDate("{date_long}", date_ts);
     var date_html = '<span id="admin_invites_guest_expiration_date_set_date" class="bold">' + TS.utility.htmlEntities(formatted_date) + "</span>";
     var html = TS.i18n.t("These guests will remain active until {date_html}.", "invite")({
@@ -24489,6 +24490,9 @@
         if (invite.full_name) args.full_name = invite.full_name;
         if (invite.first_name) args.first_name = invite.first_name;
         if (invite.last_name) args.last_name = invite.last_name;
+        if ((account_type === "restricted" || account_type === "ultra_restricted") && _expiration_ts) {
+          args.expiration_ts = _expiration_ts;
+        }
         if (account_type == "restricted") {
           args.restricted = 1;
         } else if (account_type == "ultra_restricted") {
@@ -39451,20 +39455,20 @@ function timezones_guess() {
       options = options || {};
       var today = new Date;
       var today_ts = today.getTime();
-      var selected_exp_date_ts;
-      if (options.selected_date_ts) {
-        selected_exp_date_ts = options.selected_date_ts * 1e3;
+      var selected_expiration_ts;
+      if (options.selected_expiration_ts) {
+        selected_expiration_ts = options.selected_expiration_ts * 1e3;
       } else {
-        var default_exp_date = new Date;
-        default_exp_date.setHours(0, 0, 0, 0);
-        default_exp_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
-        selected_exp_date_ts = default_exp_date.getTime();
+        var default_expiration_date = new Date;
+        default_expiration_date.setHours(0, 0, 0, 0);
+        default_expiration_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
+        selected_expiration_ts = default_expiration_date.getTime();
       }
       var date_picker_args = {
         first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
         select_year: false,
         min: today_ts,
-        date: selected_exp_date_ts,
+        date: selected_expiration_ts,
         format: "s",
         position: "top",
         flat: true,

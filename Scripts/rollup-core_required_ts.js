@@ -791,7 +791,7 @@
       TS.reload(null, "calling TS.reload() because resp.data.error: " + error);
       return;
     }
-    if (error == "clear_cache") {
+    if (error == "clear_cache" || error == "org_login_required" || error == "team_added_to_org") {
       TS.info("calling TS.storage.flush() and TS.reload() because resp.data.error: " + error);
       var also_clear_cache = true;
       TS.storage.flush(also_clear_cache);

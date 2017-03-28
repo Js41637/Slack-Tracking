@@ -4191,10 +4191,13 @@
             var immediate_caller = _.get(stack.split("\n"), "[2]");
             if (!_tcm_did_warn_about_stack[immediate_caller]) {
               _tcm_did_warn_about_stack[immediate_caller] = true;
-              if (immediate_caller.indexOf("at Function.$.widget.extend") === 0 || immediate_caller.indexOf("at Function.jQuery.extend.jQuery.fn.extend") === 0 || immediate_caller.indexOf("$.widget.extend") === 0) {
+              if (immediate_caller.indexOf("at Function.$.widget.extend") === 0 || immediate_caller.indexOf("at Function.jQuery.extend.jQuery.fn.extend") === 0 || immediate_caller.indexOf("at $.widget.extend") === 0 || immediate_caller.indexOf("$.widget.extend") === 0) {
                 return [];
               }
               if (immediate_caller.indexOf("at Object.extend") === 0 || immediate_caller.indexOf("extend") === 0) {
+                return [];
+              }
+              if (stack && stack.length && stack.indexOf("_maybeRedactFields") >= 0) {
                 return [];
               }
               _logMembersAccess(channel, immediate_caller, stack);
@@ -4285,7 +4288,7 @@
     _maybeSetSharedTeams(channel);
   };
   var _logMembersAccess = function(channel, immediate_caller, stack) {
-    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 5;
+    var THIN_CHANNEL_MEMBERSHIP_FIX_VERSION = 6;
     TS.metrics.count("tcm_members_access_v" + THIN_CHANNEL_MEMBERSHIP_FIX_VERSION);
     var info = {
       message: ".members accessed on " + channel.id + ". Immediate caller: " + immediate_caller,

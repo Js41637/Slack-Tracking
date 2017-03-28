@@ -67,20 +67,20 @@
       options = options || {};
       var today = new Date;
       var today_ts = today.getTime();
-      var selected_exp_date_ts;
-      if (options.selected_date_ts) {
-        selected_exp_date_ts = options.selected_date_ts * 1e3;
+      var selected_expiration_ts;
+      if (options.selected_expiration_ts) {
+        selected_expiration_ts = options.selected_expiration_ts * 1e3;
       } else {
-        var default_exp_date = new Date;
-        default_exp_date.setHours(0, 0, 0, 0);
-        default_exp_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
-        selected_exp_date_ts = default_exp_date.getTime();
+        var default_expiration_date = new Date;
+        default_expiration_date.setHours(0, 0, 0, 0);
+        default_expiration_date.setDate(today.getDate() + _DEFAULT_GUEST_DURATION_DAYS);
+        selected_expiration_ts = default_expiration_date.getTime();
       }
       var date_picker_args = {
         first_day: TS.i18n.start_of_the_week[TS.i18n.locale()] || 0,
         select_year: false,
         min: today_ts,
-        date: selected_exp_date_ts,
+        date: selected_expiration_ts,
         format: "s",
         position: "top",
         flat: true,

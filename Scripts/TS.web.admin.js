@@ -549,8 +549,8 @@
       }
       var is_enterprise = TS.boot_data.page_needs_enterprise;
       var can_convert_between_member_and_guest = !is_enterprise || is_enterprise && member.enterprise_user && member.enterprise_user.teams && member.enterprise_user.teams.length <= 1;
-      var expiration_date = null;
-      if (member.expiration_date) expiration_date = TS.utility.formatDate("{date_long}", member.expiration_date);
+      var expiration_ts = null;
+      if (member.expiration_ts) expiration_ts = TS.utility.formatDate("{date_long}", member.expiration_ts);
       var template_args = {
         member: member,
         member_type: TS.web.admin.getType(member),
@@ -566,7 +566,7 @@
         paid_team: TS.boot_data.pay_prod_cur,
         is_enterprise: is_enterprise,
         can_convert_between_member_and_guest: can_convert_between_member_and_guest,
-        expiration_date: expiration_date
+        expiration_ts: expiration_ts
       };
       if (member.is_restricted) {
         template_args.channels_count = 0;
@@ -1165,14 +1165,20 @@
         e.stopPropagation();
       });
       if (TS.experiment.getGroup("guest_profiles_and_expiration") === "treatment") {
-        $row.find(".admin_member_update_expiration_date").unbind("click").bind("click", function(e) {
+        $row.find(".admin_member_update_expiration_ts").unbind("click").bind("click", function(e) {
           var $target = $(e.target);
           var member_id = $row.data("member-id");
           var member = TS.members.getMemberById(member_id);
           var date_picker_args = {
             class_name: "admin_member_expiration_datepicker",
             onChange: function(date_ts) {
-              TS.web.admin.onExpirationDateChanged(date_ts, $row);
+              if (!parseInt(date_ts, 10) || date_ts === member.expiration_ts) return;
+              var api_args = {
+                user: member_id,
+                expiration_ts: date_ts
+              };
+              TS.web.admin.rowProcessing(row);
+              TS.api.call("users.admin.setExpiration", api_args, TS.web.admin.onExpirationDateChanged);
             },
             onHide: function() {
               _.defer(function() {
@@ -1180,7 +1186,7 @@
               });
             }
           };
-          if (member.expiration_date) date_picker_args.selected_date_ts = member.expiration_date;
+          if (member.expiration_ts) date_picker_args.selected_expiration_ts = member.expiration_ts;
           TS.ui.date_picker.startGuestExpirationDatePicker($target, date_picker_args);
           e.stopPropagation();
         });
@@ -2068,10 +2074,18 @@
         TS.web.admin.rowError(member);
       }
     },
-    onExpirationDateChanged: function(date_ts, $row) {
-      if (TS.experiment.getGroup("guest_profiles_and_expiration") !== "treatment") return;
-      var $date_label = $row.find('[data-label="expiration_date"]');
-      if ($date_label) $date_label.text(TS.utility.date.formatDate("{date_long}", date_ts));
+    onExpirationDateChanged: function(ok, data, args) {
+      var member = TS.members.getMemberById(args.user);
+      if (!member) {
+        TS.error("No member found for user id: " + args.user);
+        return;
+      }
+      if (ok) {
+        member.expiration_ts = data.expiration_ts;
+        TS.web.admin.rerenderMember(member);
+      } else {
+        TS.web.admin.rowError(member);
+      }
     },
     ultraRestrictedMemberEnabled: function(member) {
       TS.web.admin.rebuildMember(member);
@@ -2420,6 +2434,9 @@
       },
       renderDivider: function($el, divider, data) {
         $el.html(divider.html);
+        $el.css({
+          "z-index": 0
+        });
       },
       renderItem: function($el, member, data) {
         var exclude_lazy_load = true;
