@@ -5498,7 +5498,7 @@ body {
   -moz-flex-direction: column;
   -webkit-flex-direction: column;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   min-width: 768px;
   font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

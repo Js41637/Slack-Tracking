@@ -835,22 +835,21 @@
         var message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_a_channel;
         _showInfoMessage("alert_warning", message_html);
         return;
-      } else {
-        var invitation_error = data.error;
-        if (TS.boot_data.page_needs_enterprise) {
-          var member_belongs_to_team = TS.members.getMemberByEmail(args.email) !== null;
-          if (member_belongs_to_team && invitation_error === "org_user_is_disabled") {
-            invitation_error = "org_user_is_disabled_but_present";
-          }
-        }
-        _error_invites.push({
-          email: args.email,
-          error: invitation_error,
-          error_msg: _getError(_.extend({}, data, {
-            error: invitation_error
-          }))
-        });
       }
+      var invitation_error = data.error;
+      if (TS.boot_data.page_needs_enterprise) {
+        var member_belongs_to_team = TS.members.getMemberByEmail(args.email) !== null;
+        if (member_belongs_to_team && invitation_error === "org_user_is_disabled") {
+          invitation_error = "org_user_is_disabled_but_present";
+        }
+      }
+      _error_invites.push({
+        email: args.email,
+        error: invitation_error,
+        error_msg: _getError(_.extend({}, data, {
+          error: invitation_error
+        }))
+      });
     }
     _decrementInviteQueue();
   };

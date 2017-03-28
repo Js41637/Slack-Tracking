@@ -161,9 +161,8 @@
   var _retrieveAllMsgs = function() {
     if (TS.model.archive_view_is_showing) {
       return $("#archive_msgs_scroller_div ts-message");
-    } else {
-      return $("#msgs_scroller_div ts-message");
     }
+    return $("#msgs_scroller_div ts-message");
   };
   var _retrieveAllHighlightMsgs = function() {
     var $msgs;
@@ -220,8 +219,7 @@
           TS.recaps_signal.renderHighlightedMessages();
         }
       }).catch(function(e) {});
-    } else {
-      TS.recaps_signal.renderHighlightedMessages();
     }
+    TS.recaps_signal.renderHighlightedMessages();
   };
 })();

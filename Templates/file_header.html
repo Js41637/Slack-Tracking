@@ -8,8 +8,11 @@
       data-app-id="{{member.app_id}}" data-bot-id="{{member.id}}"
     {{/if}}
   >
-
-    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 36)}}
+    {{#if member.is_bot}}
+      {{makeProfileImage member size="36"}}
+    {{else}}
+      {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 36)}}
+    {{/if}}
 
     <span class="{{getMemberColorClassById member.id}}">{{{makeMemberPreviewLink member}}}</span>
 

@@ -16,7 +16,26 @@
               {{> billing_address_select country_select_data}}
             </select>
           </label>
+          {{#feature flag="feature_i18n_checkout_updates"}}
+            {{#if content.is_checkout}}
+              <p data-single-currency-message class="hidden billing_settings_country_currency small normal italic subtle_silver"></p>
+            {{/if}}
+          {{/feature}}
         </fieldset>
+
+        {{#feature flag="feature_i18n_checkout_updates"}}
+          {{#if content.is_checkout}}
+            <fieldset data-currency-menu-container class="hidden settings_fieldset currency_fieldset">
+              <label>
+                <div class="billing_settings_label_container">
+                  <p class="billing_settings_label_name">{{#t}}Currency*{{/t}}</p>
+                  <div class="currency_country_error settings_error settings_input_error_display" data-status-for="currency_select"></div>
+                </div>
+              <div data-currency-menu></div>
+              </label>
+            </fieldset>
+          {{/if}}
+        {{/feature}}
 
         <fieldset class="settings_fieldset company_name_fieldset">
           <label>
@@ -78,7 +97,7 @@
             </div>
             <input type="text" class="billing_settings_vat_id_input"  name="address_vat_id" value="{{content.vat_id}}" data-qa="vat_id_input" maxlength=15 />
           </label>
-          
+
           </br>
           <span class="input_note small_bottom_margin">{{#t}}* indicates a required field{{/t}}</span>
         </fieldset>

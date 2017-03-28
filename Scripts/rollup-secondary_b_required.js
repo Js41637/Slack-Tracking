@@ -466,13 +466,11 @@
       })[0];
       if (default_tab) {
         return default_tab;
-      } else {
-        TS.warn("Default tab was not found, falling back to first tab.");
-        return tabs[0];
       }
-    } else {
+      TS.warn("Default tab was not found, falling back to first tab.");
       return tabs[0];
     }
+    return tabs[0];
   }
   Tabs.prototype.destroy = function() {
     this.element.off();
@@ -750,9 +748,8 @@
       if (item.title.toLowerCase() === query.toLowerCase()) {
         exact_match_index = i;
         return false;
-      } else {
-        return item.title.match(match_regex);
       }
+      return item.title.match(match_regex);
     });
     if (exact_match_index !== -1) {
       filtered.unshift(articles[exact_match_index]);
@@ -813,9 +810,8 @@
         return 1;
       } else if (b.order == undefined) {
         return -1;
-      } else {
-        return a.order - b.order;
       }
+      return a.order - b.order;
     });
     return suggested_articles;
   };
@@ -2042,9 +2038,8 @@
       var ordered = _getElementsOrdered();
       if (ordered.length === 0) return null;
       return $(ordered[0]);
-    } else {
-      return _$context.children(_item_selector).filter(":not(.disabled):visible:first");
     }
+    return _$context.children(_item_selector).filter(":not(.disabled):visible:first");
   };
   var _getLast = function() {
     if (_use_data_ordering) {
@@ -2052,9 +2047,8 @@
       var ordered = _getElementsOrdered();
       if (ordered.length === 0) return null;
       return $(ordered[ordered.length - 1]);
-    } else {
-      return _$context.children(_item_selector).filter(":not(.disabled):visible:last");
     }
+    return _$context.children(_item_selector).filter(":not(.disabled):visible:last");
   };
   var _getNext = function($current) {
     if (_use_data_ordering) {
@@ -2067,11 +2061,10 @@
         }
       }
       return null;
-    } else {
-      var $context_list = _$context.children(_item_selector).filter(":not(.disabled):visible");
-      var current_index = $context_list.index($current);
-      return $context_list.eq(current_index + 1);
     }
+    var $context_list = _$context.children(_item_selector).filter(":not(.disabled):visible");
+    var current_index = $context_list.index($current);
+    return $context_list.eq(current_index + 1);
   };
   var _getPrev = function($current) {
     if (_use_data_ordering) {
@@ -2084,11 +2077,10 @@
         }
       }
       return null;
-    } else {
-      var $context_list = _$context.children(_item_selector).filter(":not(.disabled):visible");
-      var current_index = $context_list.index($current);
-      return $context_list.eq(current_index - 1);
     }
+    var $context_list = _$context.children(_item_selector).filter(":not(.disabled):visible");
+    var current_index = $context_list.index($current);
+    return $context_list.eq(current_index - 1);
   };
   var _getElementsOrdered = function() {
     var $items = _$context.children(_item_selector).filter(":not(.disabled):visible");

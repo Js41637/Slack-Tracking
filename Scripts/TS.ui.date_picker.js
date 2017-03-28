@@ -173,9 +173,8 @@
     if (fetch_count > 100) {
       if (model_ob._archive_msgs && model_ob._archive_msgs.length > 0) {
         return model_ob._archive_msgs[0];
-      } else {
-        throw new Error("no_visible_message_found");
       }
+      throw new Error("no_visible_message_found");
     }
     var api_method = TS.shared.getHistoryApiMethodForModelOb(model_ob);
     return new Promise(function(resolve, reject) {
@@ -209,9 +208,8 @@
     }, function(err) {
       if (err.message === "no_visible_message_found") {
         return _getVisibleMsgInArchives(model_ob, timestamp, fetch_count * 10);
-      } else {
-        throw err;
       }
+      throw err;
     });
   };
   var _initPickmeUpForJumpToDate = function($element, min_date) {

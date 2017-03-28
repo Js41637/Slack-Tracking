@@ -1412,11 +1412,10 @@
           _onBadUserCache("!doAllMembersFromChannelsInRawDataExist()", log_data.join("\n"));
           reject(Error("called _onBadUserCache"));
           return;
-        } else {
-          TS.logError({
-            message: log_data.join("\n")
-          }, "doAllMembersFromChannelsInRawDataExist() failed");
         }
+        TS.logError({
+          message: log_data.join("\n")
+        }, "doAllMembersFromChannelsInRawDataExist() failed");
       }
       TS.members.upsertMember(data.self);
       TS.members.finishBatchUpsert();
@@ -1542,22 +1541,20 @@
               _onBadUserCache("!doAllMembersFromChannelsInRawDataExist(with_shared=true)", log_data.join("\n"));
               reject(Error("called _onBadUserCache"));
               return;
-            } else {
-              TS.logError({
-                message: log_data.join("\n")
-              }, "doAllMembersFromChannelsInRawDataExist(with_shared=true) failed");
             }
+            TS.logError({
+              message: log_data.join("\n")
+            }, "doAllMembersFromChannelsInRawDataExist(with_shared=true) failed");
           }
           completeModelObSetup();
           resolve();
         }, function(err) {
           reject(Error("could not fetch all external members: " + (err && err.message)));
         });
-      } else {
-        completeModelObSetup();
-        resolve();
-        return;
       }
+      completeModelObSetup();
+      resolve();
+      return;
     });
   };
   var _onBadUserCache = function(problem, details) {
@@ -2561,9 +2558,8 @@ var _fullToHalf = function(char) {
     return zen_to_han[char];
   } else if (char_num >= 65280 && char_num <= 65374) {
     return String.fromCharCode(char_num - 65248);
-  } else {
-    return char;
   }
+  return char;
 };
 (function() {
   "use strict";
@@ -4325,9 +4321,8 @@ var _fullToHalf = function(char) {
         if (document.ssb_main) {
           if (document.ssb_main.TS) {
             return document.ssb_main.TS.client.windows.openFileWindow(file.id, url);
-          } else {
-            return true;
           }
+          return true;
         } else if (window.winssb && window.opener && window.opener.executeJavaScript) {
           TS.log(438, "calling _executeInAtomSSBParentWin for TS.client.windows.openFileWindow");
           _executeInAtomSSBParentWin("TS.client.windows.openFileWindow(" + _prepStringForEval(file.id) + ", " + _prepStringForEval(url) + ");");
@@ -4974,9 +4969,8 @@ var _fullToHalf = function(char) {
             } else if (!only_dms && (model_ob.is_group || model_ob.is_channel)) {
               if (only_channels) {
                 return model_ob.is_channel && model_ob.name.match(prefix_regex);
-              } else {
-                return model_ob.name.match(prefix_regex);
               }
+              return model_ob.name.match(prefix_regex);
             } else if (!only_channels && model_ob.presence) {
               return TS.utility.members.checkMemberMatch(model_ob, prefix_regex, match_names_only) || TS.utility.members.checkMemberMatch(model_ob, suffix_regex, match_names_only);
             }
@@ -5326,17 +5320,15 @@ var _fullToHalf = function(char) {
       $(".modal .dialog_go").text(TS.i18n.t("Next", "files")());
       TS.metrics.count("share_picker_create_clicked");
       return;
-    } else {
-      $("#select_share_channels .lfs_value .lfs_item").removeClass("new_channel_item");
-      $(".modal .dialog_go").text(TS.i18n.t("Share", "files")());
     }
+    $("#select_share_channels .lfs_value .lfs_item").removeClass("new_channel_item");
+    $(".modal .dialog_go").text(TS.i18n.t("Share", "files")());
     var selected_val, type_prefix;
     selected_val = item.model_ob.id;
     if (!selected_val) {
       return;
-    } else {
-      $("#share_model_ob_id").val(selected_val);
     }
+    $("#share_model_ob_id").val(selected_val);
     $("#select_share_groups_note, #select_share_channels_note, #select_share_ims_note, #select_share_mpims_note, #select_share_channels_join_note").addClass("hidden");
     type_prefix = selected_val.substring(0, 1);
     if (type_prefix === "C") {

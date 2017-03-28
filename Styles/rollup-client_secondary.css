@@ -19666,8 +19666,11 @@ ts-message .reply_broadcast_preamble a {
 }
 
 ts-message .broadcast_meta {
-  display: block;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
   overflow: hidden;
   white-space: nowrap;
   max-width: 100%;
@@ -19675,12 +19678,16 @@ ts-message .broadcast_meta {
 }
 
 ts-message .broadcast_meta a {
-  font-weight: 700
+  font-weight: 700;
+  display: block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-left: .25rem
 }
 
 ts-message .broadcast_repliers {
   color: #9e9ea6;
-  font-size: .8125rem;
   max-width: 100%;
   display: block;
   text-overflow: ellipsis;
@@ -19698,6 +19705,10 @@ ts-message .broadcast_repliers .repliers_icon {
 
 ts-message .broadcast_repliers .repliers_icon:before {
   font-size: .875rem
+}
+
+ts-message .broadcast_repliers a {
+  color: #9e9ea6
 }
 
 .dense_theme ts-message.thread_broadcast .message_content_header {

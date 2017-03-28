@@ -299,9 +299,8 @@
         return -1;
       } else if (b._preferred_name_normalized_lc) {
         return 1;
-      } else {
-        return 0;
       }
+      return 0;
     },
     sortByRealName: function(a, b) {
       if (a._real_name_lc && b._real_name_lc) {
@@ -310,9 +309,8 @@
         return -1;
       } else if (b.real_name) {
         return 1;
-      } else {
-        return 0;
       }
+      return 0;
     },
     sortByInviteDate: function(a, b) {
       if (a.date_resent != "0" && b.date_resent != "0") {
@@ -321,9 +319,8 @@
         return a.date_resent < b.date_create ? 1 : b.date_create < a.date_resent ? -1 : 0;
       } else if (b.date_resent != "0") {
         return a.date_create < b.date_resent ? 1 : b.date_resent < a.date_create ? -1 : 0;
-      } else {
-        return a.date_create < b.date_create ? 1 : b.date_create < a.date_create ? -1 : 0;
       }
+      return a.date_create < b.date_create ? 1 : b.date_create < a.date_create ? -1 : 0;
     },
     sortByCreatedDate: function(a, b) {
       if (a.created && b.created) {
@@ -332,9 +329,8 @@
         return -1;
       } else if (b.created) {
         return 1;
-      } else {
-        return 0;
       }
+      return 0;
     },
     sortBy2FA: function(a, b) {
       return a.two_factor_auth_enabled && !b.two_factor_auth_enabled ? -1 : b.two_factor_auth_enabled && !a.two_factor_auth_enabled ? 1 : 0;
@@ -348,9 +344,8 @@
     sortByType: function(a, b) {
       if (a.is_primary_owner && !b.is_primary_owner || a.is_owner && !b.is_owner || a.is_admin && !b.is_admin || !a.is_restricted && b.is_restricted || !a.is_ultra_restricted && b.is_ultra_restricted || !a.is_deleted && b.is_deleted) {
         return -1;
-      } else {
-        return 1;
       }
+      return 1;
     },
     buildArrays: function() {
       var member;
@@ -2408,11 +2403,10 @@
     var paid_team = !!TS.boot_data.pay_prod_cur;
     if (TS.boot_data.sso_required) {
       return TS.templates.admin_restricted_info_sso(TS.model.team);
-    } else {
-      return TS.templates.admin_restricted_info({
-        paid_team: paid_team
-      });
     }
+    return TS.templates.admin_restricted_info({
+      paid_team: paid_team
+    });
   };
   var _makeMemberLongListView = function($list, list_items) {
     $list.addClass("long_list").longListView({

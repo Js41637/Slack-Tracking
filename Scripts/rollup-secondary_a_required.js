@@ -1012,10 +1012,9 @@
     } else if (bots_data && bots_data.cache_ts && members_data && members_data.cache_ts) {
       if (TS.pri) TS.log(488, "_calcLastCacheTS: bots_data && members_data && both have cache_ts, returning the lesser of " + bots_data.cache_ts + " and " + members_data.cache_ts);
       return bots_data.cache_ts < members_data.cache_ts ? bots_data.cache_ts : members_data.cache_ts;
-    } else {
-      if (TS.pri) TS.log(488, "_calcLastCacheTS: WTF maybe no members or bots data at all? Returning 0", members_data, bots_data);
-      return 0;
     }
+    if (TS.pri) TS.log(488, "_calcLastCacheTS: WTF maybe no members or bots data at all? Returning 0", members_data, bots_data);
+    return 0;
   };
   var _storeLastCacheTS = function() {
     if (!TS.storage.isUsingMemberBotCache()) {
@@ -1062,11 +1061,10 @@
       if (i > 1 && (!_buffer[ob.k] || _buffer[ob.k].val != ob.str)) {
         TS.error("buffer changed for " + ob.k + " so we don't care anymore, a new value is being set for it, try #" + i);
         return;
-      } else {
-        TS.error("WTF not saved, try #" + i + " " + ob.k + " " + (ob.str || "").length + " typeof ob.str:" + typeof ob.str + " from_ls:" + typeof from_ls);
-        _ls.setItem(ob.k, ob.str);
-        setTimeout(testAndFinishOrTryAgain, 1e3, i + 1);
       }
+      TS.error("WTF not saved, try #" + i + " " + ob.k + " " + (ob.str || "").length + " typeof ob.str:" + typeof ob.str + " from_ls:" + typeof from_ls);
+      _ls.setItem(ob.k, ob.str);
+      setTimeout(testAndFinishOrTryAgain, 1e3, i + 1);
     };
     testAndFinishOrTryAgain(1);
   };
@@ -2696,9 +2694,8 @@
     var getRect = function() {
       if (is_mulitline) {
         return _$floater.find(".ts_tip_multiline_inner").dimensions_rect();
-      } else {
-        return _$floater.find(".ts_tip_tip").dimensions_rect();
       }
+      return _$floater.find(".ts_tip_tip").dimensions_rect();
     };
     var setHorizontalPositionClass = function(c) {
       _$floater.removeClass("			ts_tip_right 			ts_tip_rightish 			ts_tip_left 			ts_tip_leftish 			ts_tip_multiline_top_leftish 			ts_tip_multiline_top_left 			ts_tip_multiline_top_right 			ts_tip_multiline_top_rightish 		").addClass(c);
@@ -3532,9 +3529,8 @@
           };
           TS.channels.join(channel.name);
           return;
-        } else {
-          TS.client.archives.previous_model_ob = TS.shared.getActiveModelOb();
         }
+        TS.client.archives.previous_model_ob = TS.shared.getActiveModelOb();
       }
       var no_history_add = replace_history_state ? false : from_history;
       var switched = TS.client.channelDisplaySwitched({
@@ -4445,14 +4441,13 @@
       var user_ids_without_known_membership = _getUsersWithChannelMembershipUnknown(channel_id, user_ids);
       if (user_ids_without_known_membership.length === 0) {
         return Promise.resolve(false);
-      } else {
-        return TS.flannel.fetchChannelMembershipForUsers(channel_id, user_ids_without_known_membership).then(function(membership_info) {
-          _.forEach(membership_info, function(is_member, user_id) {
-            _setChannelKnownMembership(channel_id, user_id, is_member);
-          });
-          return true;
-        });
       }
+      return TS.flannel.fetchChannelMembershipForUsers(channel_id, user_ids_without_known_membership).then(function(membership_info) {
+        _.forEach(membership_info, function(is_member, user_id) {
+          _setChannelKnownMembership(channel_id, user_id, is_member);
+        });
+        return true;
+      });
     },
     isChannelMembershipKnownForUsers: function(channel_id, user_ids) {
       var user_ids_without_known_membership = _getUsersWithChannelMembershipUnknown(channel_id, user_ids);
@@ -4511,9 +4506,8 @@
       return true;
     } else if (_channel_known_member_statuses[model_ob_id] && _.includes(_channel_known_member_statuses[model_ob_id].known_non_members, user_id)) {
       return false;
-    } else {
-      throw new Error("Channel membership not known for the given user; this is a programming error");
     }
+    throw new Error("Channel membership not known for the given user; this is a programming error");
   };
   var _setChannelKnownMembership = function(model_ob_id, user_id, is_member) {
     if (!TS.membership.lazyLoadChannelMembership()) return;
@@ -4584,26 +4578,25 @@
         }).finally(function() {
           _membership_counts_api_promises[model_ob.id] = null;
         });
-      } else {
-        return TS.api.call(api_endpoint, {
-          channel: model_ob.id,
-          display_counts: true
-        }).then(function(resp) {
-          var counts;
-          if (model_ob.is_group) {
-            counts = resp.data.group.display_counts;
-          } else {
-            counts = resp.data.channel.display_counts;
-          }
-          TS.log(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
-          return {
-            member_count: counts.display_counts,
-            restricted_member_count: counts.guest_counts
-          };
-        }).finally(function() {
-          _membership_counts_api_promises[model_ob.id] = null;
-        });
       }
+      return TS.api.call(api_endpoint, {
+        channel: model_ob.id,
+        display_counts: true
+      }).then(function(resp) {
+        var counts;
+        if (model_ob.is_group) {
+          counts = resp.data.group.display_counts;
+        } else {
+          counts = resp.data.channel.display_counts;
+        }
+        TS.log(1989, "Channel member counts (" + model_ob.id + "): " + JSON.stringify(counts));
+        return {
+          member_count: counts.display_counts,
+          restricted_member_count: counts.guest_counts
+        };
+      }).finally(function() {
+        _membership_counts_api_promises[model_ob.id] = null;
+      });
     });
     return _membership_counts_api_promises[model_ob.id];
   };
@@ -5402,9 +5395,8 @@ TS.registerModule("constants", {
       });
       if (active_humans.length === 1) {
         return "leave_and_archive";
-      } else {
-        return "leave";
       }
+      return "leave";
     },
     leave: function(id) {
       var group = TS.groups.getGroupById(id);
@@ -6132,13 +6124,12 @@ TS.registerModule("constants", {
     onFileUnShare: function(ok, data, args) {
       if (!ok) {
         return;
-      } else {
-        TS.files.fetchFileInfo(args.file, function(id, file) {
-          if (TS.web) {
-            TS.files.upsertAndSignal(file);
-          }
-        });
       }
+      TS.files.fetchFileInfo(args.file, function(id, file) {
+        if (TS.web) {
+          TS.files.upsertAndSignal(file);
+        }
+      });
     },
     fetchTeamFiles: function(types_str, callback) {
       TS.api.call("files.list", {
@@ -6420,12 +6411,11 @@ TS.registerModule("constants", {
       if (TS.model.prefs.a11y_animations === false && file.filetype === "gif") {
         if (file.deanimate_gif) {
           return file.deanimate_gif;
-        } else {
-          if (options.max_size > 360 && file.thumb_480) {
-            return file.thumb_480;
-          } else if (file.thumb_160) {
-            return file.thumb_160;
-          }
+        }
+        if (options.max_size > 360 && file.thumb_480) {
+          return file.thumb_480;
+        } else if (file.thumb_160) {
+          return file.thumb_160;
         }
       }
       if (file.thumb_480_gif || file.thumb_360_gif) {
@@ -7971,9 +7961,8 @@ TS.registerModule("constants", {
     getDisplayNameOfUserForIm: function(im) {
       if (TS.boot_data.feature_name_tagging_client) {
         return TS.members.getMemberFullName(im.user);
-      } else {
-        return TS.members.getMemberDisplayName(TS.members.getMemberById(im.user));
       }
+      return TS.members.getMemberDisplayName(TS.members.getMemberById(im.user));
     },
     getDisplayNameOfUserForImLowerCase: function(im) {
       return TS.members.getMemberDisplayNameLowerCase(TS.members.getMemberById(im.user));
@@ -8564,14 +8553,13 @@ TS.registerModule("constants", {
             name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + name + current_status + "</span>";
           }
           return name;
-        } else {
-          var user_name = $.trim(member.name);
-          if (for_header) {
-            user_name = TS.utility.htmlEntities(user_name);
-            user_name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + user_name + current_status + "</span>";
-          }
-          return user_name;
         }
+        var user_name = $.trim(member.name);
+        if (for_header) {
+          user_name = TS.utility.htmlEntities(user_name);
+          user_name = '<span class="mpdm_member ' + TS.templates.makeMemberDomId(member) + " " + TS.templates.makeMemberPresenceStateClass(member) + '" data-member-id="' + member.id + '">' + user_name + current_status + "</span>";
+        }
+        return user_name;
       });
       var display_name;
       if (should_truncate && for_header) {
@@ -9242,9 +9230,8 @@ TS.registerModule("constants", {
       return TS.api.call(TS.shared.getHistoryApiMethodForModelOb(model_ob), api_args).then(function(res) {
         if (res.data.messages && res.data.messages.length > 0) {
           return Promise.resolve(res);
-        } else {
-          return Promise.reject(new Error("No more messages"));
         }
+        return Promise.reject(new Error("No more messages"));
       });
     },
     onSendMsg: function(success, imsg, model_ob, controller) {
@@ -9646,9 +9633,8 @@ TS.registerModule("constants", {
         return TS.mpims;
       } else if (model_ob.is_group) {
         return TS.groups;
-      } else {
-        return TS.channels;
       }
+      return TS.channels;
     },
     getActiveModelOb: function() {
       var model_ob;
@@ -9691,10 +9677,9 @@ TS.registerModule("constants", {
         return model_ob.name;
       } else if (model_ob.is_channel) {
         return "#" + model_ob.name;
-      } else {
-        TS.warn("getDisplayNameForModelOb: unknown model_ob type: " + model_ob.id);
-        return model_ob.id;
       }
+      TS.warn("getDisplayNameForModelOb: unknown model_ob type: " + model_ob.id);
+      return model_ob.id;
     },
     getDisplayNameForModelObNoSigns: function(model_ob) {
       if (model_ob.is_mpim) {
@@ -9705,10 +9690,9 @@ TS.registerModule("constants", {
         return TS.members.getMemberDisplayNameById(model_ob.user, escaped, include_at_sign);
       } else if (model_ob.is_group || model_ob.is_channel) {
         return model_ob.name;
-      } else {
-        TS.warn("getDisplayNameForModelOb: unknown model_ob type: " + model_ob.id);
-        return model_ob.id;
       }
+      TS.warn("getDisplayNameForModelOb: unknown model_ob type: " + model_ob.id);
+      return model_ob.id;
     },
     getModelObById: function(id) {
       if (!id) return null;
@@ -9725,9 +9709,8 @@ TS.registerModule("constants", {
         return TS.bots.getBotById(id);
       } else if (ob_type === "U" || ob_type == "W") {
         return TS.members.getMemberById(id);
-      } else {
-        return TS.ims.getImById(id);
       }
+      return TS.ims.getImById(id);
     },
     getAllModelObsForUser: function() {
       return TS.channels.getChannelsForUser().concat(TS.model.groups, TS.model.ims, TS.model.mpims);
@@ -10039,9 +10022,8 @@ TS.registerModule("constants", {
         });
         if (rejection_reasons.length) {
           return Promise.reject(new Error("some ensureModelObsArePresent c_ids failed:\n" + rejection_reasons.join("\n")));
-        } else {
-          return Promise.resolve();
         }
+        return Promise.resolve();
       });
     },
     ensureModelObsInDataArePresent: function(data, source) {
@@ -10439,32 +10421,27 @@ TS.registerModule("constants", {
         if (TS.model.all_group_ids.indexOf(c_id) == -1) {
           TS.maybeWarn(528, "c_id:" + c_id + " is not in TS.model.all_group_ids, not calling the API");
           return Promise.resolve();
-        } else {
-          return _getModelObByIdFromApi(c_id);
         }
+        return _getModelObByIdFromApi(c_id);
       }).catch(function(err) {
         if (err && err.method == "groups.list") {
           return _getModelObByIdFromApi(c_id);
-        } else {
-          return Promise.reject(err);
         }
-      });
-    } else {
-      return TS.shared.promiseToHaveAllRelevantImIds().then(function() {
-        if (TS.model.all_im_ids.indexOf(c_id) == -1) {
-          TS.maybeWarn(528, "c_id:" + c_id + " is not in TS.model.all_im_ids, not calling the API");
-          return Promise.resolve();
-        } else {
-          return _getModelObByIdFromApi(c_id);
-        }
-      }).catch(function(err) {
-        if (err && err.method == "im.list") {
-          return _getModelObByIdFromApi(c_id);
-        } else {
-          return Promise.reject(err);
-        }
+        return Promise.reject(err);
       });
     }
+    return TS.shared.promiseToHaveAllRelevantImIds().then(function() {
+      if (TS.model.all_im_ids.indexOf(c_id) == -1) {
+        TS.maybeWarn(528, "c_id:" + c_id + " is not in TS.model.all_im_ids, not calling the API");
+        return Promise.resolve();
+      }
+      return _getModelObByIdFromApi(c_id);
+    }).catch(function(err) {
+      if (err && err.method == "im.list") {
+        return _getModelObByIdFromApi(c_id);
+      }
+      return Promise.reject(err);
+    });
   };
   var _getModelObByIdFromApi = function(c_id) {
     TS.log(529, '_getModelObByIdFromApi c_id: "' + c_id + '"');
@@ -10535,7 +10512,9 @@ TS.registerModule("constants", {
     var payload = {
       channel_id: id,
       channel_type: channel_type,
-      is_boot: !!is_boot
+      is_boot: !!is_boot,
+      unread_channel_ids: _getUnreadChannelIds(),
+      mentioned_channel_ids: _getMentionedChannelIds()
     };
     if (!is_boot) {
       payload["num_unreads"] = model_ob.unread_cnt;
@@ -10550,6 +10529,33 @@ TS.registerModule("constants", {
       channel_type: channel_type
     };
     TS.clog.track("CHANNEL_SWITCHED_OUT", payload);
+  };
+  var _getUnreadChannelIds = function() {
+    return _getFilteredChannelIds(function(c) {
+      return c.unread_cnt > 0;
+    });
+  };
+  var _getMentionedChannelIds = function() {
+    return _getFilteredChannelIds(function(c) {
+      return c.unread_highlight_cnt > 0;
+    });
+  };
+  var _getFilteredChannelIds = function(filterFn) {
+    if (!TS.model) return [];
+    var ids = [];
+    var idMapFn = function(c) {
+      return c.id;
+    };
+    if (TS.model.channels) {
+      ids = ids.concat(_.map(_.filter(TS.model.channels, filterFn), idMapFn));
+    }
+    if (TS.model.groups) {
+      ids = ids.concat(_.map(_.filter(TS.model.groups, filterFn), idMapFn));
+    }
+    if (TS.model.ims) {
+      ids = ids.concat(_.map(_.filter(TS.model.ims, filterFn), idMapFn));
+    }
+    return ids;
   };
   var _logDmOpenEvent = function(model_ob) {
     var id = model_ob.id;
@@ -11198,18 +11204,16 @@ TS.registerModule("constants", {
             display_name = TS.members.getMemberPreferredName(member) || display_name;
           }
           return display_name;
-        } else {
-          if (!TS.model.team) return member.name;
-          var username_prefix = include_at_sign ? "@" : "";
-          if (TS.members.shouldDisplayRealNames()) {
-            if (member.profile && member.profile.real_name && member.profile.real_name.length) {
-              return member.profile.real_name;
-            } else {
-              return username_prefix + member.name;
-            }
+        }
+        if (!TS.model.team) return member.name;
+        var username_prefix = include_at_sign ? "@" : "";
+        if (TS.members.shouldDisplayRealNames()) {
+          if (member.profile && member.profile.real_name && member.profile.real_name.length) {
+            return member.profile.real_name;
           }
           return username_prefix + member.name;
         }
+        return username_prefix + member.name;
       }();
       return should_escape ? TS.utility.htmlEntities(unescaped_display_name) : unescaped_display_name;
     },
@@ -11357,9 +11361,8 @@ TS.registerModule("constants", {
     getMemberNameForSort: function(member) {
       if (TS.boot_data.feature_name_tagging_client) {
         return TS.members.getMemberFullNameLowerCase(member);
-      } else {
-        return TS.members.getMemberDisplayNameLowerCase(member);
       }
+      return TS.members.getMemberDisplayNameLowerCase(member);
     },
     prepareMembersForLS: function() {
       var new_members = [];
@@ -11777,9 +11780,8 @@ TS.registerModule("constants", {
     if (!member.profile) {
       if (member.is_bot && member.name) {
         return member.name;
-      } else {
-        return "NO MEMBER??";
       }
+      return "NO MEMBER??";
     }
     if (member.profile[type]) return member.profile[type];
     if (member[type]) return member[type];
@@ -11844,12 +11846,10 @@ TS.registerModule("constants", {
         if (query.length === 1 || !searcher.full_profile_filter) {
           if (TS.boot_data.feature_name_tagging_client) {
             return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("full_name", query), TS.utility.search.makeClause("preferred_name", query)]);
-          } else {
-            return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("name", query), TS.utility.search.makeClause("real_name", query)]);
           }
-        } else {
-          return TS.utility.search.makeClause("fuzzy", query);
+          return TS.utility.search.makeConjunction("OR", [TS.utility.search.makeClause("name", query), TS.utility.search.makeClause("real_name", query)]);
         }
+        return TS.utility.search.makeClause("fuzzy", query);
       });
       matchers = matchers.concat(query_matchers);
     }
@@ -12155,9 +12155,8 @@ TS.registerModule("constants", {
     getUserNameForSort: function(invitee) {
       if (invitee.invite_prefs && invitee.invite_prefs.full_name) {
         return invitee.invite_prefs.full_name.toLowerCase();
-      } else {
-        return invitee.email;
       }
+      return invitee.email;
     },
     filterOutURAs: function(invitees) {
       return invitees.filter(function(invitee) {
@@ -12457,9 +12456,8 @@ TS.registerModule("constants", {
       });
       if (app) {
         return app;
-      } else {
-        TS.warn("Trying to look up app by id (" + app_id + ") but it is not present.");
       }
+      TS.warn("Trying to look up app by id (" + app_id + ") but it is not present.");
       return null;
     },
     promiseToGetFullAppProfile: function(bot_id, show_auth_summary) {
@@ -12551,9 +12549,8 @@ TS.registerModule("constants", {
         var installation_summary = app.installation_summary.replace(/<@([A-Z0-9]+)>/g, function(match, user_id) {
           if (TS.members.getMemberById(user_id)) {
             return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">" + TS.members.getMemberDisplayNameById(user_id, true, true) + "</span>";
-          } else {
-            return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">A user</span>";
           }
+          return '<span class="app_card_member_link" data-member-profile-link=' + user_id + ">A user</span>";
         });
         template_args.installation_summary = new Handlebars.SafeString(installation_summary);
       }
@@ -12892,15 +12889,13 @@ TS.registerModule("constants", {
         return TS.team.ensureTeamProfileFields().then(function() {
           if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
             return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
-          } else {
-            _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
-            return Promise.resolve();
           }
+          _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
+          return Promise.resolve();
         });
-      } else {
-        _filterTeam(new_query, filter_container_id, scroller_id);
-        return Promise.resolve();
       }
+      _filterTeam(new_query, filter_container_id, scroller_id);
+      return Promise.resolve();
     },
     getTeamFilter: function() {
       return _query_for_match;
@@ -13262,15 +13257,13 @@ TS.registerModule("constants", {
             var is_preferred_name_match = TS.utility.search.makeClause("preferred_name", query);
             var is_full_name_or_preferred_name_match = TS.utility.search.makeConjunction("OR", [is_full_name_match, is_preferred_name_match]);
             return is_full_name_or_preferred_name_match;
-          } else {
-            var is_name_match = TS.utility.search.makeClause("name", query);
-            var is_real_name_match = TS.utility.search.makeClause("real_name", query);
-            var is_name_or_real_name_match = TS.utility.search.makeConjunction("OR", [is_name_match, is_real_name_match]);
-            return is_name_or_real_name_match;
           }
-        } else {
-          return TS.utility.search.makeClause("fuzzy", query);
+          var is_name_match = TS.utility.search.makeClause("name", query);
+          var is_real_name_match = TS.utility.search.makeClause("real_name", query);
+          var is_name_or_real_name_match = TS.utility.search.makeConjunction("OR", [is_name_match, is_real_name_match]);
+          return is_name_or_real_name_match;
         }
+        return TS.utility.search.makeClause("fuzzy", query);
       });
     }
     matchers.push(TS.utility.search.makeClause("is", "user"));
@@ -13407,21 +13400,20 @@ TS.registerModule("constants", {
         if (tab.matches.length > 0) {
           $no_results.addClass("hidden").empty();
           return;
-        } else {
-          var template_args = {
-            query: query_for_display,
-            tab: tab,
-            pending_matches: pending_matches,
-            show_pending_matches: tab.name != "pending" && pending_matches.length > 0,
-            accepted_matches: accepted_matches,
-            show_accepted_matches: tab.name != "accepted" && accepted_matches.length > 0
-          };
-          var html = TS.templates.team_list_no_results(template_args);
-          $no_results.removeClass("hidden").html(html);
-          $no_results.find(".clear_members_filter").on("click", function() {
-            TS.members.view.clearFilter(filter_container_id, scroller_id);
-          });
         }
+        var template_args = {
+          query: query_for_display,
+          tab: tab,
+          pending_matches: pending_matches,
+          show_pending_matches: tab.name != "pending" && pending_matches.length > 0,
+          accepted_matches: accepted_matches,
+          show_accepted_matches: tab.name != "accepted" && accepted_matches.length > 0
+        };
+        var html = TS.templates.team_list_no_results(template_args);
+        $no_results.removeClass("hidden").html(html);
+        $no_results.find(".clear_members_filter").on("click", function() {
+          TS.members.view.clearFilter(filter_container_id, scroller_id);
+        });
       });
       matches = all_matches;
     } else {
@@ -13495,9 +13487,8 @@ TS.registerModule("constants", {
           if (tab.matches.length > 0) {
             $no_results.addClass("hidden").empty();
             return;
-          } else {
-            noMatchesCase();
           }
+          noMatchesCase();
         });
       }
       matches = active_matches.concat(restricted_matches, disabled_matches);
@@ -14620,9 +14611,8 @@ TS.registerModule("constants", {
           name: "highlight_words",
           value: highlight_words_new
         }, callback);
-      } else {
-        return Promise.resolve();
       }
+      return Promise.resolve();
     },
     getReadStateTrackingPref: function() {
       var val = "default";
@@ -15236,9 +15226,8 @@ TS.registerModule("constants", {
               match: match,
               index: i
             };
-          } else {
-            return match;
           }
+          return match;
         }
       }
       return null;
@@ -15277,9 +15266,8 @@ TS.registerModule("constants", {
               match: match,
               index: i
             };
-          } else {
-            return match;
           }
+          return match;
         }
       }
       return null;
@@ -18093,14 +18081,13 @@ TS.registerModule("constants", {
           TS.error(full_type + " could not be handled because imsg.channel could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.channel:" + imsg.channel);
           return _afterMsgHandled();
-        } else {
-          TS.maybeWarn(794, full_type + " held some references to model_obs we could not fetch, but we have imsg.channel (or there was no imsg.channel) so we can still proceed");
-          TS.log(794, "imsg.ts:" + imsg.ts + ", missing c ids:" + JSON.stringify(missing_c_ids));
-          if (missing_m_ids.m_ids.length) {
-            return ensureMembers();
-          }
-          return proceedWithImsg();
         }
+        TS.maybeWarn(794, full_type + " held some references to model_obs we could not fetch, but we have imsg.channel (or there was no imsg.channel) so we can still proceed");
+        TS.log(794, "imsg.ts:" + imsg.ts + ", missing c ids:" + JSON.stringify(missing_c_ids));
+        if (missing_m_ids.m_ids.length) {
+          return ensureMembers();
+        }
+        return proceedWithImsg();
       });
     };
     var ensureMembers = function() {
@@ -18111,11 +18098,10 @@ TS.registerModule("constants", {
           TS.error(full_type + " could not be handled because imsg.user or imsg.channel.user could not be fetched. full err: " + err.message);
           TS.log(0, "imsg.ts:" + imsg.ts + ", imsg.user:" + imsg.user + ", imsg.channel.user:" + imsg.channel && imsg.channel.user);
           return _afterMsgHandled();
-        } else {
-          TS.maybeWarn(794, full_type + " held some references to members we could not fetch, but we have imsg.user and imsg.channel.user (or they did not exist) so we can still proceed");
-          TS.log(794, "imsg.ts:" + imsg.ts + ", missing_m_ids:" + JSON.stringify(missing_m_ids));
-          return proceedWithImsg();
         }
+        TS.maybeWarn(794, full_type + " held some references to members we could not fetch, but we have imsg.user and imsg.channel.user (or they did not exist) so we can still proceed");
+        TS.log(794, "imsg.ts:" + imsg.ts + ", missing_m_ids:" + JSON.stringify(missing_m_ids));
+        return proceedWithImsg();
       });
     };
     var proceedWithImsg = function() {
@@ -19576,68 +19562,67 @@ TS.registerModule("constants", {
           is_pinned: is_pinned
         });
         return TS.templates.message_attachment(attachment_args);
-      } else {
-        var expand_it = true;
-        var caret_html = "";
-        if (args.show_initial_caret || args.show_media_caret) {
-          var media_type = TS.utility.attachments.getMediaType(attachment);
-          switch (media_type) {
-            case "video":
-              var inline_video = TS.model.inline_videos[attachment.from_url || attachment.thumb_url];
-              if (inline_video) {
-                var no_title_in_toggler = true;
-                caret_html = TS.templates.builders.buildInlineVideoToggler(attachment.from_url || attachment.thumb_url, msg_dom_id, no_title_in_toggler);
-                expand_it = TS.inline_videos.shouldExpand(msg_dom_id, inline_video);
-              }
-              break;
-            case "audio":
-              var inline_audio = TS.model.inline_audios[attachment.audio_html || attachment.audio_url];
-              if (inline_audio) {
-                caret_html = TS.templates.builders.buildInlineAudioToggler(attachment.audio_html || attachment.audio_url, msg_dom_id);
-                expand_it = TS.inline_audios.shouldExpand(msg_dom_id, inline_audio);
-              }
-              break;
-            case "other":
-              var inline_other = TS.model.inline_others[attachment.other_html];
-              if (inline_other) {
-                caret_html = TS.templates.builders.buildInlineOtherToggler(attachment.other_html, msg_dom_id);
-                expand_it = TS.inline_others.shouldExpand(msg_dom_id, inline_other);
-              }
-              break;
-            case "image":
-              var inline_img = TS.model.inline_imgs[attachment.from_url || attachment.image_url];
-              if (inline_img) {
-                var no_bytes_in_toggler = !args.show_media_caret;
-                caret_html = TS.templates.builders.buildInlineImgToggler(attachment.from_url || attachment.image_url, msg_dom_id, no_bytes_in_toggler);
-                expand_it = TS.inline_imgs.shouldExpand(msg_dom_id, inline_img);
-              }
-              break;
-            default:
-              var inline_attachment = TS.model.inline_attachments[attachment.from_url];
-              if (inline_attachment) {
-                caret_html = TS.templates.builders.buildInlineAttachmentToggler(attachment.from_url, msg_dom_id);
-                expand_it = TS.inline_attachments.shouldExpand(msg_dom_id, inline_attachment);
-              } else {
-                TS.warn("no inline_attachment for " + attachment.from_url);
-              }
-              break;
-          }
-        }
-        _.assign(attachment_args, {
-          initial_caret_html: args.show_initial_caret ? new Handlebars.SafeString(caret_html) : "",
-          media_caret_html: args.show_media_caret ? new Handlebars.SafeString(caret_html) : "",
-          expand_media: args.show_media_caret ? expand_it : true,
-          expand_it: args.show_initial_caret ? expand_it : true,
-          bg_color: attachment.color || "e3e4e6",
-          thumb_at_top: !window.attach_thumb_align_title,
-          ts_link: ts_link,
-          small_thumb: small_thumb,
-          max_width_class: small_thumb ? "right_thumb_max_w" : "",
-          show_action_links: args.enable_slack_action_links === true,
-          has_content: args.has_content
-        });
-        return TS.templates.spaces_attachment(attachment_args);
       }
+      var expand_it = true;
+      var caret_html = "";
+      if (args.show_initial_caret || args.show_media_caret) {
+        var media_type = TS.utility.attachments.getMediaType(attachment);
+        switch (media_type) {
+          case "video":
+            var inline_video = TS.model.inline_videos[attachment.from_url || attachment.thumb_url];
+            if (inline_video) {
+              var no_title_in_toggler = true;
+              caret_html = TS.templates.builders.buildInlineVideoToggler(attachment.from_url || attachment.thumb_url, msg_dom_id, no_title_in_toggler);
+              expand_it = TS.inline_videos.shouldExpand(msg_dom_id, inline_video);
+            }
+            break;
+          case "audio":
+            var inline_audio = TS.model.inline_audios[attachment.audio_html || attachment.audio_url];
+            if (inline_audio) {
+              caret_html = TS.templates.builders.buildInlineAudioToggler(attachment.audio_html || attachment.audio_url, msg_dom_id);
+              expand_it = TS.inline_audios.shouldExpand(msg_dom_id, inline_audio);
+            }
+            break;
+          case "other":
+            var inline_other = TS.model.inline_others[attachment.other_html];
+            if (inline_other) {
+              caret_html = TS.templates.builders.buildInlineOtherToggler(attachment.other_html, msg_dom_id);
+              expand_it = TS.inline_others.shouldExpand(msg_dom_id, inline_other);
+            }
+            break;
+          case "image":
+            var inline_img = TS.model.inline_imgs[attachment.from_url || attachment.image_url];
+            if (inline_img) {
+              var no_bytes_in_toggler = !args.show_media_caret;
+              caret_html = TS.templates.builders.buildInlineImgToggler(attachment.from_url || attachment.image_url, msg_dom_id, no_bytes_in_toggler);
+              expand_it = TS.inline_imgs.shouldExpand(msg_dom_id, inline_img);
+            }
+            break;
+          default:
+            var inline_attachment = TS.model.inline_attachments[attachment.from_url];
+            if (inline_attachment) {
+              caret_html = TS.templates.builders.buildInlineAttachmentToggler(attachment.from_url, msg_dom_id);
+              expand_it = TS.inline_attachments.shouldExpand(msg_dom_id, inline_attachment);
+            } else {
+              TS.warn("no inline_attachment for " + attachment.from_url);
+            }
+            break;
+        }
+      }
+      _.assign(attachment_args, {
+        initial_caret_html: args.show_initial_caret ? new Handlebars.SafeString(caret_html) : "",
+        media_caret_html: args.show_media_caret ? new Handlebars.SafeString(caret_html) : "",
+        expand_media: args.show_media_caret ? expand_it : true,
+        expand_it: args.show_initial_caret ? expand_it : true,
+        bg_color: attachment.color || "e3e4e6",
+        thumb_at_top: !window.attach_thumb_align_title,
+        ts_link: ts_link,
+        small_thumb: small_thumb,
+        max_width_class: small_thumb ? "right_thumb_max_w" : "",
+        show_action_links: args.enable_slack_action_links === true,
+        has_content: args.has_content
+      });
+      return TS.templates.spaces_attachment(attachment_args);
     },
     buildAttachmentActionButtonHTML: function(action, disable_buttons) {
       disable_buttons = disable_buttons === true;
@@ -19826,9 +19811,8 @@ TS.registerModule("constants", {
           use_shrink_wrap: use_shrink_wrap,
           attachments_html: html && new Handlebars.SafeString(html)
         });
-      } else {
-        return html;
       }
+      return html;
     },
     getShowMoreAttachmentHTML: function(msg) {
       var difference = msg.attachments.length - msg._shown_attachments;
@@ -20025,9 +20009,8 @@ TS.registerModule("constants", {
       var group, inviter, room;
       if ((msg._jl_rollup_hash || msg._jl_rolled_up_in) && _jl_rollup_limit_reached && (!msg._jl_rolled_up_in || msg._jl_rolled_up_in !== msg.ts)) {
         return html;
-      } else {
-        _jl_rollup_limit_reached = false;
       }
+      _jl_rollup_limit_reached = false;
       if (msg._jl_rollup_hash && msg.user in msg._jl_rollup_hash.users) {
         inviter = TS.members.getMemberById(msg.inviter);
         var user_ob = msg._jl_rollup_hash.users[msg.user];
@@ -21393,9 +21376,8 @@ TS.registerModule("constants", {
       }
       if (_.trim(last_msg_input)) {
         return true;
-      } else {
-        return false;
       }
+      return false;
     },
     makeProfileImage: function(entity, options) {
       if (_.isString(entity)) {
@@ -21420,9 +21402,8 @@ TS.registerModule("constants", {
       var size = Object.keys(TS.constants.avatar_size_map).reduce(function(carry_size, current_size) {
         if (current_size === desired_size && _getImage(image_set, current_size)) {
           return current_size;
-        } else {
-          return carry_size;
         }
+        return carry_size;
       }, default_size);
       var template_data = {
         entity: entity,
@@ -21452,12 +21433,10 @@ TS.registerModule("constants", {
         if (imageset.hasOwnProperty(key)) {
           if (TS.environment.is_retina) {
             return imageset[TS.constants.avatar_size_map[size].retina] || imageset[TS.constants.avatar_size_map[size].standard];
-          } else {
-            return imageset[TS.constants.avatar_size_map[size].standard];
           }
-        } else {
-          return false;
+          return imageset[TS.constants.avatar_size_map[size].standard];
         }
+        return false;
       }
 
       function _getClasses(entity, size) {
@@ -21840,9 +21819,8 @@ TS.registerModule("constants", {
         return TS.i18n.t("Commenting in {channel_names}", "templates_builders")({
           channel_names: TS.templates.builders.makeLinksFromChannelOrGroupIds(file.channels)
         });
-      } else {
-        return "";
       }
+      return "";
     },
     makeLinksFromChannelOrGroupIds: function(channel_or_group_ids) {
       channel_or_group_ids = _.isArray(channel_or_group_ids) ? channel_or_group_ids : [channel_or_group_ids];
@@ -21885,9 +21863,8 @@ TS.registerModule("constants", {
         if (member) {
           if (TS.boot_data.feature_name_tagging_client) {
             return TS.members.getMemberFullName(member);
-          } else {
-            return TS.members.getMemberDisplayName(member);
           }
+          return TS.members.getMemberDisplayName(member);
         }
         return undefined;
       })).join(", ");
@@ -22046,9 +22023,8 @@ TS.registerModule("constants", {
           return TS.i18n.t("You (click to remove)", "rxn")() + subtitle;
         } else if (TS.boot_data.feature_name_tagging_client) {
           return TS.utility.htmlEntities(TS.members.getMemberFullName(args.member_ids[0])) + subtitle;
-        } else {
-          return TS.utility.htmlEntities(TS.members.getMemberDisplayNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
         }
+        return TS.utility.htmlEntities(TS.members.getMemberDisplayNameById(args.member_ids[0], should_escape, include_at_sign)) + subtitle;
       }
       var was_already_truncated = args.member_ids.length != args.count;
       var names = args.member_ids.map(function(id, index) {
@@ -22421,9 +22397,8 @@ TS.registerModule("constants", {
           directory_name: directory_name
         });
         return TS.templates.member_type_icon(args);
-      } else {
-        return "";
       }
+      return "";
     },
     getMemberTypeClass: function(member) {
       var type_class = "";
@@ -22493,33 +22468,30 @@ TS.registerModule("constants", {
       if (user_ids.length === 1) {
         if (user_ids[0] === TS.model.user.id) {
           return TS.i18n.t("Just you", "threads")();
-        } else {
-          return TS.utility.htmlEntities(participant_names[0]);
         }
+        return TS.utility.htmlEntities(participant_names[0]);
       } else if (user_ids.length === 2) {
         if (user_ids[1] === TS.model.user.id) {
           return TS.i18n.t("{user_name} and you", "threads")({
             user_name: TS.utility.htmlEntities(participant_names[0])
           });
-        } else {
-          return TS.i18n.t("{user_name1} and {user_name2}", "threads")({
-            user_name1: TS.utility.htmlEntities(participant_names[0]),
-            user_name2: TS.utility.htmlEntities(participant_names[1])
-          });
         }
+        return TS.i18n.t("{user_name1} and {user_name2}", "threads")({
+          user_name1: TS.utility.htmlEntities(participant_names[0]),
+          user_name2: TS.utility.htmlEntities(participant_names[1])
+        });
       } else if (user_ids.length === 3) {
         if (user_ids[2] === TS.model.user.id) {
           return TS.i18n.t("{user_name1}, {user_name2}, and you", "threads")({
             user_name1: TS.utility.htmlEntities(participant_names[0]),
             user_name2: TS.utility.htmlEntities(participant_names[1])
           });
-        } else {
-          return TS.i18n.t("{user_name1}, {user_name2}, and {user_name3}", "threads")({
-            user_name1: TS.utility.htmlEntities(participant_names[0]),
-            user_name2: TS.utility.htmlEntities(participant_names[1]),
-            user_name3: TS.utility.htmlEntities(participant_names[2])
-          });
         }
+        return TS.i18n.t("{user_name1}, {user_name2}, and {user_name3}", "threads")({
+          user_name1: TS.utility.htmlEntities(participant_names[0]),
+          user_name2: TS.utility.htmlEntities(participant_names[1]),
+          user_name3: TS.utility.htmlEntities(participant_names[2])
+        });
       } else if (user_ids.length > 3) {
         var num_others = user_ids.length - 2;
         var leftover_names = _.drop(participant_names, 2);
@@ -22559,6 +22531,9 @@ TS.registerModule("constants", {
       });
       entities = _.compact(entities);
       if (!reply_count || !entities.length) return "";
+      if (reply_count === 1) {
+        return TS.i18n.t("1 reply", "threads")();
+      }
       var includes_self = !!_.find(entities, {
         is_self: true
       });
@@ -22573,34 +22548,31 @@ TS.registerModule("constants", {
           return entity.name;
         } else if (entity.is_self) {
           return TS.i18n.t("you", "threads")();
-        } else {
-          return TS.members.getMemberDisplayName(entity);
         }
+        return TS.members.getMemberDisplayName(entity);
       });
       if (entities.length === 1) {
         if (includes_self) {
           return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from you", "threads")({
             reply_count: reply_count
           });
-        } else {
-          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name}", "threads")({
-            reply_count: reply_count,
-            user_name: TS.utility.htmlEntities(names[0])
-          });
         }
+        return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name}", "threads")({
+          reply_count: reply_count,
+          user_name: TS.utility.htmlEntities(names[0])
+        });
       } else if (entities.length === 2) {
         if (includes_self) {
           return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name} and you", "threads")({
             reply_count: reply_count,
             user_name: TS.utility.htmlEntities(names[0])
           });
-        } else {
-          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1} and {user_name2}", "threads")({
-            reply_count: reply_count,
-            user_name1: TS.utility.htmlEntities(names[0]),
-            user_name2: TS.utility.htmlEntities(names[1])
-          });
         }
+        return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1} and {user_name2}", "threads")({
+          reply_count: reply_count,
+          user_name1: TS.utility.htmlEntities(names[0]),
+          user_name2: TS.utility.htmlEntities(names[1])
+        });
       } else if (entities.length === 3) {
         if (includes_self) {
           return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1}, {user_name2}, and you", "threads")({
@@ -22608,14 +22580,13 @@ TS.registerModule("constants", {
             user_name1: TS.utility.htmlEntities(names[0]),
             user_name2: TS.utility.htmlEntities(names[1])
           });
-        } else {
-          return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1}, {user_name2}, and {user_name3}", "threads")({
-            reply_count: reply_count,
-            user_name1: TS.utility.htmlEntities(names[0]),
-            user_name2: TS.utility.htmlEntities(names[1]),
-            user_name3: TS.utility.htmlEntities(names[2])
-          });
         }
+        return TS.i18n.t("{reply_count, plural, =1{1 reply} other{# replies}} from {user_name1}, {user_name2}, and {user_name3}", "threads")({
+          reply_count: reply_count,
+          user_name1: TS.utility.htmlEntities(names[0]),
+          user_name2: TS.utility.htmlEntities(names[1]),
+          user_name3: TS.utility.htmlEntities(names[2])
+        });
       } else if (entities.length > 3) {
         var leftover_names = _.drop(names, 2);
         if (leftover_names.length < reply_users_count - 2) {
@@ -22978,11 +22949,20 @@ TS.registerModule("constants", {
         }
         if (template_args.is_broadcast && msg.root) {
           template_args.root_repliers_summary = new Handlebars.SafeString(TS.templates.builders.buildBroadcastRepliersSummaryHTML(msg.root));
-          var root_msg_text = msg.root.text;
-          if (root_msg_text && msg.root.subtype !== "tombstone") {
-            var root_excerpt = TS.format.formatBroadcastExcerpt(root_msg_text, msg.root);
-            if (root_excerpt.length > 150) root_excerpt = TS.utility.truncateHTML(root_excerpt, 150);
-            template_args.root_excerpt = new Handlebars.SafeString(root_excerpt);
+          if (msg.root.subtype !== "tombstone") {
+            var root_msg_text = msg.root.text;
+            var attachment = _.first(msg.root.attachments);
+            if (_.get(attachment, "is_msg_unfurl")) {
+              var is_simple_msg_unfurl = attachment.from_url && msg.root.text === "<" + attachment.from_url + ">";
+              if (!root_msg_text || is_simple_msg_unfurl) {
+                root_msg_text = attachment.text;
+              }
+            }
+            if (root_msg_text) {
+              var root_excerpt = TS.format.formatBroadcastExcerpt(root_msg_text, msg.root);
+              if (root_excerpt.length > 150) root_excerpt = TS.utility.truncateHTML(root_excerpt, 150);
+              template_args.root_excerpt = new Handlebars.SafeString(root_excerpt);
+            }
           }
         }
         var item;
@@ -23187,9 +23167,8 @@ TS.registerModule("constants", {
             msg_ts: msg ? msg.ts : "",
             model_ob_id: model_ob ? model_ob.id : ""
           });
-        } else {
-          return "";
         }
+        return "";
       }
     }
   });
@@ -23427,51 +23406,44 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("isClient", function(options) {
         if (TS.boot_data.app == "client") {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("isChrome", function(options) {
         if (TS.model.is_chrome_desktop || TS.model.is_chrome_mobile) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("isFF", function(options) {
         if (TS.model.is_FF) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("isSafariDesktop", function(options) {
         if (TS.model.is_safari_desktop) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("isWeb", function(options) {
         if (TS.boot_data.app == "web" || TS.boot_data.app == "space" || TS.boot_data.app == "calls") {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("isMac", function(options) {
         if (TS.model.is_mac) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("isOurApp", function(options) {
         if (TS.model.is_our_app) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("unlessOurApp", function(options) {
         return Handlebars.helpers["isOurApp"].call(this, {
@@ -23490,9 +23462,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("pageNeedsEnterprise", function(options) {
         if (TS.boot_data.page_needs_enterprise) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("experiment", function(options) {
         var name = options.hash.name;
@@ -23505,16 +23476,14 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("sharedChannelsEnabled", function(options) {
         if (TS.model.shared_channels_enabled) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("enterprisePOEmail", function(options) {
         if (TS.boot_data.page_needs_enterprise) {
           return TS.model.enterprise.primary_owner.email;
-        } else {
-          return "";
         }
+        return "";
       });
       Handlebars.registerHelper("versioned_x_icon", function() {
         return cdn_url + "/52b9/img/enterprise/icon_times_in_circle.svg";
@@ -23522,9 +23491,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("pageNeedsEnterpriseOrIsLazyLoadMembersAndBots", function(options) {
         if (TS.boot_data.page_needs_enterprise || TS.lazyLoadMembersAndBots()) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("comments", function(file) {
         return new Handlebars.SafeString(TS.templates.builders.buildComments(file));
@@ -23550,17 +23518,15 @@ TS.registerModule("constants", {
         }
         if (should_expand) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("shouldTruncateInlineFilePreview", function(file, options) {
         if (typeof file === "string") file = TS.files.getFileById(file);
         if (file && TS.inline_file_previews.shouldTruncate(file)) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("shouldNotTruncateInlineFilePreview", function(file, options) {
         return Handlebars.helpers["shouldTruncateInlineFilePreview"].call(this, file, {
@@ -23573,9 +23539,8 @@ TS.registerModule("constants", {
         if (typeof file === "string") file = TS.files.getFileById(file);
         if (file && TS.inline_file_previews.isTruncated(container_id, file)) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("isInlineFilePreviewNotTruncated", function(container_id, file, options) {
         return Handlebars.helpers["isInlineFilePreviewTruncated"].call(this, container_id, file, {
@@ -23610,23 +23575,22 @@ TS.registerModule("constants", {
             all_digits: include_all_digits
           });
           return out;
-        } else {
-          var all_digits = options.hash.all_digits || false;
-          var neg = false;
-          var val = parseInt(options.hash.value);
-          if (val < 0) {
-            neg = true;
-            val = 0 - val;
-          }
-          var dollars = (val / 100).toString();
-          var out = (neg ? "-" : "") + "$" + dollars;
-          if (!all_digits && out.substring(-3) === ".00") {
-            out = out.substring(0, -3);
-          } else if (_REGEX_CASH_DECIMAL_FORMATTING.test(dollars)) {
-            out = out + "0";
-          }
-          return out;
         }
+        var all_digits = options.hash.all_digits || false;
+        var neg = false;
+        var val = parseInt(options.hash.value);
+        if (val < 0) {
+          neg = true;
+          val = 0 - val;
+        }
+        var dollars = (val / 100).toString();
+        var out = (neg ? "-" : "") + "$" + dollars;
+        if (!all_digits && out.substring(-3) === ".00") {
+          out = out.substring(0, -3);
+        } else if (_REGEX_CASH_DECIMAL_FORMATTING.test(dollars)) {
+          out = out + "0";
+        }
+        return out;
       });
       Handlebars.registerHelper("possessive", function(str) {
         return TS.i18n.possessive(str);
@@ -23655,16 +23619,14 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("json", function(obj) {
         if (typeof obj === "object" && obj !== null && obj.name === "json") {
           return JSON.stringify(this);
-        } else {
-          return JSON.stringify(obj);
         }
+        return JSON.stringify(obj);
       });
       Handlebars.registerHelper("prettyJson", function(obj) {
         if (typeof obj === "object" && obj !== null && obj.name === "json") {
           return JSON.stringify(this, null, 2);
-        } else {
-          return JSON.stringify(obj, null, 2);
         }
+        return JSON.stringify(obj, null, 2);
       });
       Handlebars.registerHelper("currentTeamName", function() {
         return TS.model.team.name || "";
@@ -23687,9 +23649,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("numberWithMax", function(number, max) {
         if (number >= max) {
           return max - 1 + "+";
-        } else {
-          return number;
         }
+        return number;
       });
       Handlebars.registerHelper("convertFilesize", function(size) {
         return TS.utility.convertFilesize(size);
@@ -23812,17 +23773,15 @@ TS.registerModule("constants", {
         options = _optionsFnInverseBooleanHelper(options);
         if (a || b) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("and", function(a, b, options) {
         options = _optionsFnInverseBooleanHelper(options);
         if (a && b) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("foreach", function(arr, options) {
         if (options.inverse && !arr.length) return options.inverse(this);
@@ -23899,9 +23858,8 @@ TS.registerModule("constants", {
         var panel_html = TS.templates.builders.rxnPanel(rxn_key);
         if (!panel_html) {
           return "";
-        } else {
-          return new Handlebars.SafeString(panel_html);
         }
+        return new Handlebars.SafeString(panel_html);
       });
       Handlebars.registerHelper("makeRefererSafeLink", function(options) {
         if (typeof options.hash.url !== "string") return "";
@@ -24108,9 +24066,8 @@ TS.registerModule("constants", {
         }
         if (hide_unknown_groups) {
           return;
-        } else {
-          return id;
         }
+        return id;
       });
       Handlebars.registerHelper("makeChannelPrefix", function(channel) {
         return new Handlebars.SafeString(TS.templates.builders.makeChannelPrefix(channel));
@@ -24193,9 +24150,8 @@ TS.registerModule("constants", {
         if (!TS.boot_data.page_needs_enterprise) return options.inverse(this);
         if (team_id == TS.model.team.id) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("currentEnterpriseName", function() {
         if (!TS.boot_data.page_needs_enterprise) return "";
@@ -24243,9 +24199,8 @@ TS.registerModule("constants", {
         var name = TS.mpims.getDisplayName(mpim, for_header, show_last_initial === true, truncate_at, for_dm_badge);
         if (for_header || for_dm_badge) {
           return new Handlebars.SafeString(name);
-        } else {
-          return name;
         }
+        return name;
       });
       Handlebars.registerHelper("makeMpimDomClass", function(mpim) {
         var dom_class = "";
@@ -24270,9 +24225,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("isCorGMuted", function(id, options) {
         if (TS.notifs.isCorGMuted(id)) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("currentUserId", function() {
         return TS.model.user.id;
@@ -24322,9 +24276,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("showDraftIcon", function(model_ob, options) {
         if (TS.templates.builders.showDraftIcon(model_ob)) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("makeMemberListDomClass", function(member) {
         var dom_class = "member ";
@@ -24663,9 +24616,8 @@ TS.registerModule("constants", {
         options = _optionsFnInverseBooleanHelper(options);
         if (member.profile.status_text || member.profile.status_emoji || TS.boot_data.app == "client" && member.is_self) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("getTeamCustomStatusPresets", function() {
         return TS.team.getTeamCustomStatusPresets();
@@ -24686,9 +24638,8 @@ TS.registerModule("constants", {
         }
         if (has_im) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("memberHasImUnreadCount", function(options) {
         var member = options.hash.member;
@@ -24699,17 +24650,15 @@ TS.registerModule("constants", {
         }
         if (has_unreads) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("getUnreadCountForIMByMemberId", function(id) {
         var im = TS.ims.getImByMemberId(id);
         if (im) {
           return im.unread_cnt;
-        } else {
-          return "";
         }
+        return "";
       });
       Handlebars.registerHelper("makeMemberLinksWithDisplayNames", function(member_ids_string) {
         if (!member_ids_string) return "";
@@ -24802,62 +24751,54 @@ TS.registerModule("constants", {
         if (!member) return options.inverse(this);
         if (member.is_self) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("memberIsSelf", function(options) {
         var member = TS.members.getMemberById(options.hash.id);
         if (!member) return options.inverse(this);
         if (member.is_self) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("memberIsAdmin", function(options) {
         var member = TS.members.getMemberById(options.hash.id);
         if (!member) return options.inverse(this);
         if (member.is_admin) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("currentUserIsAdmin", function(options) {
         if (TS.model.user.is_admin) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("currentUserIsOwner", function(options) {
         if (TS.model.user.is_owner) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("currentUserIsRA", function(options) {
         if (TS.model.user.is_restricted) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("currentUserIsURA", function(options) {
         if (TS.model.user.is_ultra_restricted) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("tinyspeck", function(options) {
         if (TS.boot_data.feature_tinyspeck) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("makeUnshareLinkById", function(id) {
         var file = TS.files.getFileById(TS.web.file.file_id);
@@ -24936,16 +24877,14 @@ TS.registerModule("constants", {
         if (!file) return options.inverse(this);
         if (file.mimetype && file.mimetype.indexOf("image/") === 0) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("mimeTypeIsImage", function(options) {
         if (options.hash.type && options.hash.type.indexOf("image/") === 0) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("fileDefaultIsNewWindow", function(options) {
         options = _optionsFnInverseBooleanHelper(options);
@@ -24955,9 +24894,8 @@ TS.registerModule("constants", {
         var new_window_for_filetype = file.filetype === "pdf";
         if (new_window_for_mimetype || new_window_for_filetype) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("fileIconTypeDownload", function() {
         var args = Array.prototype.slice.call(arguments);
@@ -24970,9 +24908,8 @@ TS.registerModule("constants", {
         var new_window_for_filetype = file.filetype === "pdf";
         if (new_window_for_mode || new_window_for_mimetype || new_window_for_filetype) {
           return options.inverse(this);
-        } else {
-          return options.fn(this);
         }
+        return options.fn(this);
       });
       Handlebars.registerHelper("nonImageCanUseFSFV", function(file, options) {
         if (!file) return options.inverse(this);
@@ -25021,9 +24958,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("isSkypeTeamProfileField", function(field, options) {
         if (field.type === "text" && field.label.toLocaleLowerCase() === "skype") {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("getSafeSkypeURLComponent", function(name) {
         var match = name.match(/^[a-zA-Z][a-zA-Z0-9\.,\-_]{5,31}/);
@@ -25332,9 +25268,8 @@ TS.registerModule("constants", {
         var is_reply = TS.utility.msgs.isMsgReply(msg);
         if (is_reply) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
       Handlebars.registerHelper("buildMsgHTMLForThreadsView", function(msg, model_ob, thread, options) {
         var html = TS.templates.builders.buildThreadMsgHTML(msg, model_ob, thread, options);
@@ -25346,9 +25281,8 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("supportsTextyTakesOver", function(options) {
         if (TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) {
           return options.fn(this);
-        } else {
-          return options.inverse(this);
         }
+        return options.inverse(this);
       });
     },
     test: function() {
@@ -25722,9 +25656,8 @@ TS.registerModule("constants", {
       exclude_year = exclude_year || TS.utility.date.shouldExcludeYear(ts);
       if (relative_day) {
         return relative_day;
-      } else {
-        return TS.utility.date.toCalendarDate(ts, shorten_month, exclude_year, false, false);
       }
+      return TS.utility.date.toCalendarDate(ts, shorten_month, exclude_year, false, false);
     },
     toCalendarDateIfYesterdayOrToday: function(ts, shorten_month) {
       var date = TS.utility.date.toDateObject(ts);
@@ -25780,90 +25713,78 @@ TS.registerModule("constants", {
       if (seconds < 45) {
         if (is_future) {
           return TS.i18n.t("in less than a minute", "date_utilities")();
-        } else {
-          return TS.i18n.t("less than a minute ago", "date_utilities")();
         }
+        return TS.i18n.t("less than a minute ago", "date_utilities")();
       } else if (seconds < 90) {
         if (is_future) {
           return TS.i18n.t("in about a minute", "date_utilities")();
-        } else {
-          return TS.i18n.t("about a minute ago", "date_utilities")();
         }
+        return TS.i18n.t("about a minute ago", "date_utilities")();
       } else if (minutes < 45) {
         if (is_future) {
           return TS.i18n.t("in {number_of_minutes, number} minutes", "date_utilities")({
             number_of_minutes: Math.round(minutes)
           });
-        } else {
-          return TS.i18n.t("{number_of_minutes, number} minutes ago", "date_utilities")({
-            number_of_minutes: Math.round(minutes)
-          });
         }
+        return TS.i18n.t("{number_of_minutes, number} minutes ago", "date_utilities")({
+          number_of_minutes: Math.round(minutes)
+        });
       } else if (minutes < 90) {
         if (is_future) {
           return TS.i18n.t("in about an hour", "date_utilities")();
-        } else {
-          return TS.i18n.t("about an hour ago", "date_utilities")();
         }
+        return TS.i18n.t("about an hour ago", "date_utilities")();
       } else if (hours < 24) {
         if (is_future) {
           return TS.i18n.t("in about {number_of_hours, number} hours", "date_utilities")({
             number_of_hours: Math.round(hours)
           });
-        } else {
-          return TS.i18n.t("about {number_of_hours, number} hours ago", "date_utilities")({
-            number_of_hours: Math.round(hours)
-          });
         }
+        return TS.i18n.t("about {number_of_hours, number} hours ago", "date_utilities")({
+          number_of_hours: Math.round(hours)
+        });
       } else if (hours < 42) {
         if (is_future) {
           return TS.i18n.t("in a day", "date_utilities")();
-        } else {
-          return TS.i18n.t("a day ago", "date_utilities")();
         }
+        return TS.i18n.t("a day ago", "date_utilities")();
       } else if (days < 30) {
         if (is_future) {
           return TS.i18n.t("in {number_of_days, number} days", "date_utilities")({
             number_of_days: Math.round(days)
           });
-        } else {
-          return TS.i18n.t("{number_of_days, number} days ago", "date_utilities")({
-            number_of_days: Math.round(days)
-          });
         }
+        return TS.i18n.t("{number_of_days, number} days ago", "date_utilities")({
+          number_of_days: Math.round(days)
+        });
       } else if (days < 45) {
         if (is_future) {
           return TS.i18n.t("in about a month", "date_utilities")();
-        } else {
-          return TS.i18n.t("about a month ago", "date_utilities")();
         }
+        return TS.i18n.t("about a month ago", "date_utilities")();
       } else if (days < 365) {
         if (is_future) {
           return TS.i18n.t("in {number_of_months, number} months", "date_utilities")({
             number_of_months: Math.round(months)
           });
-        } else {
-          return TS.i18n.t("{number_of_months, number} months ago", "date_utilities")({
-            number_of_months: Math.round(months)
-          });
         }
+        return TS.i18n.t("{number_of_months, number} months ago", "date_utilities")({
+          number_of_months: Math.round(months)
+        });
       } else if (years < 1.5) {
         if (is_future) {
           return TS.i18n.t("in about a year", "date_utilities")();
-        } else {
-          return TS.i18n.t("about a year ago", "date_utilities")();
         }
-      } else {
-        if (is_future) {
-          return TS.i18n.t("in {number_of_years, number} years", "date_utilities")({
-            number_of_years: Math.round(years)
-          });
-        } else {
-          return TS.i18n.t("{number_of_years, number} years ago", "date_utilities")({
-            number_of_years: Math.round(years)
-          });
-        }
+        return TS.i18n.t("about a year ago", "date_utilities")();
       }
+      if (is_future) {
+        return TS.i18n.t("in {number_of_years, number} years", "date_utilities")({
+          number_of_years: Math.round(years)
+        });
+      }
+      return TS.i18n.t("{number_of_years, number} years ago", "date_utilities")({
+        number_of_years: Math.round(years)
+      });
     },
     toTimeAgoShort: function(ts, really_short) {
       var date = TS.utility.date.toDateObject(ts);
@@ -25897,11 +25818,10 @@ TS.registerModule("constants", {
           return TS.utility.date.toCalendarDate(ts, true, true, true, false);
         } else if (years < 1.5) {
           return TS.i18n.t("1y", "date_utilities")();
-        } else {
-          return TS.i18n.t("{number_of_years, number}y", "date_utilities")({
-            number_of_years: Math.round(years)
-          });
         }
+        return TS.i18n.t("{number_of_years, number}y", "date_utilities")({
+          number_of_years: Math.round(years)
+        });
       }
       if (seconds < 45) {
         return TS.i18n.t("< 1 minute ago", "date_utilities")();
@@ -25925,11 +25845,10 @@ TS.registerModule("constants", {
         return TS.utility.date.toCalendarDate(ts, true, true, true, false);
       } else if (years < 1.5) {
         return TS.i18n.t("1 year ago", "date_utilities")();
-      } else {
-        return TS.i18n.t("{number_of_years, number} years ago", "date_utilities")({
-          number_of_years: Math.round(years)
-        });
       }
+      return TS.i18n.t("{number_of_years, number} years ago", "date_utilities")({
+        number_of_years: Math.round(years)
+      });
     },
     memberLocalTime: function(member, as_text, use_cache) {
       var date = new Date;
@@ -26149,15 +26068,14 @@ TS.registerModule("constants", {
             year_words: TS.utility.date.numberToWords((year - year % 1e3) / 1e3),
             modulus_year_word: TS.utility.date.numberToWords(year % 1e3)
           });
-        } else {
-          return TS.i18n.t("{month_words} {day_words}, {year_words} {use_year_prefix, select, true{oh-{modulus_year_word}}other{{modulus_year_word}}}", "date_utilities")({
-            day_words: day_words,
-            month_words: month_words,
-            year_words: TS.utility.date.numberToWords((year - year % 100) / 100),
-            modulus_year_word: TS.utility.date.numberToWords(year % 100),
-            use_year_prefix: year % 100 < 10
-          });
         }
+        return TS.i18n.t("{month_words} {day_words}, {year_words} {use_year_prefix, select, true{oh-{modulus_year_word}}other{{modulus_year_word}}}", "date_utilities")({
+          day_words: day_words,
+          month_words: month_words,
+          year_words: TS.utility.date.numberToWords((year - year % 100) / 100),
+          modulus_year_word: TS.utility.date.numberToWords(year % 100),
+          use_year_prefix: year % 100 < 10
+        });
       }
       return TS.i18n.t("{month_words} {day_words}", "date_utilities")({
         month_words: month_words,
@@ -26183,24 +26101,22 @@ TS.registerModule("constants", {
       if (ordinal) {
         if (num < TS.utility.date.ones_digit_ordinal_names.length) {
           return TS.utility.date.ones_digit_ordinal_names[num];
-        } else {
-          if (tens <= 9) {
-            if (ones > 0) {
-              return TS.utility.date.tens_digit_names[tens_number] + "-" + TS.utility.date.ones_digit_ordinal_names[ones];
-            }
-            return TS.utility.date.tens_digit_ordinal_names[tens_number];
+        }
+        if (tens <= 9) {
+          if (ones > 0) {
+            return TS.utility.date.tens_digit_names[tens_number] + "-" + TS.utility.date.ones_digit_ordinal_names[ones];
           }
+          return TS.utility.date.tens_digit_ordinal_names[tens_number];
         }
       }
       if (num < TS.utility.date.ones_digit_names.length) {
         return TS.utility.date.ones_digit_names[num];
-      } else {
-        if (tens <= 9) {
-          if (ones > 0) {
-            return TS.utility.date.tens_digit_names[tens_number] + "-" + TS.utility.date.ones_digit_names[ones];
-          }
-          return TS.utility.date.tens_digit_names[tens_number];
+      }
+      if (tens <= 9) {
+        if (ones > 0) {
+          return TS.utility.date.tens_digit_names[tens_number] + "-" + TS.utility.date.ones_digit_names[ones];
         }
+        return TS.utility.date.tens_digit_names[tens_number];
       }
     },
     formatDate: function(token_string, unix_time, fallback_string) {
@@ -26299,9 +26215,8 @@ TS.registerModule("constants", {
       }
       if (hours !== 0) {
         return hours + separator + minutes + separator + seconds;
-      } else {
-        return minutes + separator + seconds;
       }
+      return minutes + separator + seconds;
     },
     daysToYearsPretty: function(d) {
       var days = parseInt(d);
@@ -28129,28 +28044,27 @@ TS.registerModule("constants", {
       jl_rolled_up_msgs.push(msg);
       if (i !== 0 && TS.utility.msgs.msgMightBeRolledUp(msgs[i - 1])) {
         return "continue";
-      } else {
-        var hash = jl_rolled_up_msgs[0]._jl_rollup_hash = {
-          msg_ids: [],
-          users: {}
-        };
-        var jl_msg;
-        for (var m = 0; m < jl_rolled_up_msgs.length; m++) {
-          jl_msg = jl_rolled_up_msgs[m];
-          var ob = hash.users[jl_msg.user] = hash.users[jl_msg.user] || {};
-          hash.msg_ids.push(jl_msg.ts);
-          jl_msg._jl_rolled_up_in = jl_rolled_up_msgs[0].ts;
-          if (jl_msg.subtype == "channel_join" || jl_msg.subtype == "group_join") {
-            ob.inviter = jl_msg.inviter;
-            ob.joined = true;
-            ob.is_in = true;
-          } else if (jl_msg.subtype == "channel_leave" || jl_msg.subtype == "group_leave") {
-            ob.left = true;
-            ob.is_in = false;
-          }
-        }
-        return "swap";
       }
+      var hash = jl_rolled_up_msgs[0]._jl_rollup_hash = {
+        msg_ids: [],
+        users: {}
+      };
+      var jl_msg;
+      for (var m = 0; m < jl_rolled_up_msgs.length; m++) {
+        jl_msg = jl_rolled_up_msgs[m];
+        var ob = hash.users[jl_msg.user] = hash.users[jl_msg.user] || {};
+        hash.msg_ids.push(jl_msg.ts);
+        jl_msg._jl_rolled_up_in = jl_rolled_up_msgs[0].ts;
+        if (jl_msg.subtype == "channel_join" || jl_msg.subtype == "group_join") {
+          ob.inviter = jl_msg.inviter;
+          ob.joined = true;
+          ob.is_in = true;
+        } else if (jl_msg.subtype == "channel_leave" || jl_msg.subtype == "group_leave") {
+          ob.left = true;
+          ob.is_in = false;
+        }
+      }
+      return "swap";
     },
     shouldHaveBotLabel: function(msg, member) {
       var is_bot_msg = msg.subtype && msg.subtype == "bot_message" && msg.user !== "USLACKBOT";
@@ -28499,9 +28413,8 @@ TS.registerModule("constants", {
     checkMemberMatch: function(member, regex, names_only) {
       if (TS.boot_data.feature_name_tagging_client) {
         return !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.full_name_normalized && member.profile.full_name_normalized.match(regex) || member.profile && member.profile.full_name && member.profile.full_name.match(regex) || member.profile && member.profile.preferred_name_normalized && member.profile.preferred_name_normalized.match(regex) || member.profile && member.profile.preferred_name && member.profile.preferred_name.match(regex);
-      } else {
-        return member.name && member.name.match(regex) || !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.real_name_normalized && member.profile.real_name_normalized.match(regex) || member.profile && member.profile.real_name && member.profile.real_name.match(regex);
       }
+      return member.name && member.name.match(regex) || !names_only && member.profile && member.profile.email && member.profile.email.match(regex) || member.profile && member.profile.real_name_normalized && member.profile.real_name_normalized.match(regex) || member.profile && member.profile.real_name && member.profile.real_name.match(regex);
     },
     filterMembersByQuery: function(members, query) {
       query = _.toString(query).trim().toLowerCase().replace(/^@/, "");
@@ -28705,9 +28618,8 @@ TS.registerModule("constants", {
       } catch (err) {
         if (typeof fallback == "function") {
           return fallback(err);
-        } else {
-          return fallback;
         }
+        return fallback;
       }
     },
     ordinalNumber: function(number) {
@@ -28879,9 +28791,8 @@ TS.registerModule("constants", {
       if (x > 999) {
         x = Math.round(x / 1e3 * 10) / 10;
         return TS.utility.numberWithCommas(x) + "K";
-      } else {
-        return TS.utility.numberWithCommas(x);
       }
+      return TS.utility.numberWithCommas(x);
     },
     cleanChannelName: function(name) {
       var replace_regx = XRegExp("[^\\pL\\pM\\pN_-]+", "g");
@@ -28895,9 +28806,8 @@ TS.registerModule("constants", {
       name = name.replace(/\_+/g, "_");
       if (leftovers_regx.test(name) || zalgo_regx.test(name)) {
         return null;
-      } else {
-        return name;
       }
+      return name;
     },
     openInNewTab: function(url, target) {
       url = TS.utility.htmlEntities(url);
@@ -29011,9 +28921,8 @@ TS.registerModule("constants", {
         }
         if (internal) {
           return "<" + uri + "|" + match + ">";
-        } else {
-          return "<a " + TS.utility.makeRefererSafeLink(uri) + ' target="' + (target || "") + '">' + match + "</a>";
         }
+        return "<a " + TS.utility.makeRefererSafeLink(uri) + ' target="' + (target || "") + '">' + match + "</a>";
       });
       return string;
     },
@@ -29309,21 +29218,17 @@ TS.registerModule("constants", {
               if ($.isNumeric(a) && $.isNumeric(b)) {
                 if (subsort_order != order) {
                   return b - a;
-                } else {
-                  return a - b;
                 }
-              } else {
-                if (subsort_order != order) {
-                  return TS.i18n.sorter(b, a);
-                } else {
-                  return TS.i18n.sorter(a, b);
-                }
+                return a - b;
               }
+              if (subsort_order != order) {
+                return TS.i18n.sorter(b, a);
+              }
+              return TS.i18n.sorter(a, b);
             }
             return a - b;
-          } else {
-            return TS.i18n.sorter(a, b);
           }
+          return TS.i18n.sorter(a, b);
         };
       }
 
@@ -29405,6 +29310,21 @@ TS.registerModule("constants", {
         }, delay);
       };
     },
+    debounceWithPromise: function(fn, delay) {
+      var promise;
+      return function() {
+        var self = this;
+        var args = arguments;
+        if (promise) promise.cancel();
+        promise = new Promise(function(resolve, reject) {
+          setTimeout(resolve, delay);
+        });
+        promise.then(function() {
+          fn.apply(self, args);
+        });
+        return promise;
+      };
+    },
     throttleFunc: function(func, ms, always_wait) {
       var data = {};
       var funcReplacement = function funcReplacement() {
@@ -29445,9 +29365,8 @@ TS.registerModule("constants", {
       if (!e) return false;
       if (TS.model.is_mac) {
         return !!e.metaKey;
-      } else {
-        return !!e.ctrlKey;
       }
+      return !!e.ctrlKey;
     },
     looksLikeKeyboardShortcut: function(e) {
       var has_modifier = e.ctrlKey || e.altKey || e.metaKey;
@@ -29810,9 +29729,8 @@ TS.registerModule("constants", {
       if (TS.model.win_ssb_version && window.winssb) {
         if (window.winssb.app.canShowHtmlNotifications) {
           return window.winssb.app.canShowHtmlNotifications();
-        } else {
-          return window.winssb.app.willUseHwAcceleration !== false;
         }
+        return window.winssb.app.willUseHwAcceleration !== false;
       }
       return false;
     },
@@ -31028,9 +30946,8 @@ TS.registerModule("constants", {
     });
     if (has_ats) {
       return TS.format.swapInAts(new_txt);
-    } else {
-      return new_txt;
     }
+    return new_txt;
   };
   var _encodeSpecialFormattingChars = function(txt) {
     if (!txt) return "";
@@ -31344,18 +31261,16 @@ TS.registerModule("constants", {
       var name_for_url = TS.boot_data.feature_intl_channel_names ? channel.id : channel.name;
       if (tsf_mode == "GROWL" || tsf_mode == "EDIT" || no_linking) {
         return "#" + channel.name;
-      } else {
-        var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
-        return '<a href="/archives/' + name_for_url + '" ' + target + ' data-channel-name="' + channel.name + '" data-channel-id="' + channel.id + '" class="internal_channel_link">#' + channel.name + "</a>";
       }
+      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/archives/' + name_for_url + '"' : "";
+      return '<a href="/archives/' + name_for_url + '" ' + target + ' data-channel-name="' + channel.name + '" data-channel-id="' + channel.id + '" class="internal_channel_link">#' + channel.name + "</a>";
     }
     if (partsA.length > 1 && partsA[1]) {
       return "#" + partsA[1];
     } else if (TS.model.user.is_restricted) {
       return "#unknown-channel";
-    } else {
-      return "#deleted-channel";
     }
+    return "#deleted-channel";
   };
   var _parseEmojiToken = function(tsf_mode, item, no_emoji, do_jumbomoji, stop_animations, no_emoji_text) {
     var colons = item.split(" ")[1].replace(">", "");
@@ -31382,9 +31297,8 @@ TS.registerModule("constants", {
       var username_parts = guts.split("|");
       if (username_parts.length > 1 && username_parts[1]) {
         return "@" + username_parts[1];
-      } else {
-        return "`...`";
       }
+      return "`...`";
     }
     var classes = ["internal_member_link"];
     var data_tags_object = {
@@ -31420,22 +31334,19 @@ TS.registerModule("constants", {
       if (m.id == TS.model.user.id) classes.push("mention");
       if (no_linking) {
         return "@" + display_name;
-      } else {
-        return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">@' + display_name + "</a>";
       }
-    } else {
-      if (tsf_mode == "EDIT" || tsf_mode == "GROWL") {
-        return "@" + m.name;
-      }
-      var display_name = "@" + m.name;
-      if (TS.permissions.members.canUserSeeMember(m) && !no_linking) {
-        var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.name + '" ' : "";
-        if (!no_highlights) display_name = _doHighlighting(display_name);
-        return '<a href="/team/' + m.name + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">' + display_name + "</a>";
-      } else {
-        return display_name;
-      }
+      return '<a href="/team/' + m.id + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">@' + display_name + "</a>";
     }
+    if (tsf_mode == "EDIT" || tsf_mode == "GROWL") {
+      return "@" + m.name;
+    }
+    var display_name = "@" + m.name;
+    if (TS.permissions.members.canUserSeeMember(m) && !no_linking) {
+      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.name + '" ' : "";
+      if (!no_highlights) display_name = _doHighlighting(display_name);
+      return '<a href="/team/' + m.name + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">' + display_name + "</a>";
+    }
+    return display_name;
   };
   var _parseCommandToken = function(tsf_mode, item, no_highlights, no_linking) {
     var guts = item.replace(/<|>/g, "");
@@ -31444,9 +31355,8 @@ TS.registerModule("constants", {
     if (_.includes(_at_commands, cmd)) {
       if (tsf_mode == "GROWL" || tsf_mode == "EDIT" || no_linking) {
         return "@" + cmd;
-      } else {
-        return '<b class="mention">@' + cmd + "</b>";
       }
+      return '<b class="mention">@' + cmd + "</b>";
     }
     var cmd_label = cmd_A[1] ? cmd_A[1] : cmd;
     if (cmd.indexOf("^") !== -1) {
@@ -31459,42 +31369,36 @@ TS.registerModule("constants", {
         var cmd_url = cmd_args.length > 2 ? cmd_args[2] : "";
         if (tsf_mode == "GROWL" || tsf_mode == "EDIT" || !cmd_url || no_linking) {
           return formatted_date;
-        } else {
-          return "<a " + TS.utility.makeRefererSafeLink(cmd_url) + ' target="_blank">' + formatted_date + "</a>";
         }
+        return "<a " + TS.utility.makeRefererSafeLink(cmd_url) + ' target="_blank">' + formatted_date + "</a>";
       } else if (cmd === "subteam" && cmd_args.length === 1) {
         var ug = TS.user_groups.getUserGroupsById(cmd_args[0]);
         if (ug && ug.handle) {
           if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
             return "@" + ug.handle;
-          } else {
-            var target = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + ug.id + '" ' : " ";
-            var handle = TS.utility.htmlEntities(ug.handle);
-            var display_name = no_highlights ? "@" + handle : _doHighlighting("@" + handle);
-            if (no_linking) {
-              return display_name;
-            } else {
-              return '<a href="/usergroups/' + ug.id + '" ' + target + 'data-user-group-id="' + ug.id + '" class="internal_user_group_link">' + display_name + "</a>";
-            }
           }
-        } else {
-          if (tsf_mode != "GROWL" && tsf_mode != "EDIT") {
-            return cmd_label;
+          var target = TS.utility.shouldLinksHaveTargets() ? 'target="/usergroups/' + ug.id + '" ' : " ";
+          var handle = TS.utility.htmlEntities(ug.handle);
+          var display_name = no_highlights ? "@" + handle : _doHighlighting("@" + handle);
+          if (no_linking) {
+            return display_name;
           }
+          return '<a href="/usergroups/' + ug.id + '" ' + target + 'data-user-group-id="' + ug.id + '" class="internal_user_group_link">' + display_name + "</a>";
+        }
+        if (tsf_mode != "GROWL" && tsf_mode != "EDIT") {
+          return cmd_label;
         }
       } else {
         if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
           return "<" + cmd_label + ">";
-        } else {
-          return "&lt;" + cmd_label + "&gt;";
         }
+        return "&lt;" + cmd_label + "&gt;";
       }
     } else {
       if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
         return "<" + cmd_label + ">";
-      } else {
-        return "&lt;" + cmd_label + "&gt;";
       }
+      return "&lt;" + cmd_label + "&gt;";
     }
     return "";
   };
@@ -31962,10 +31866,9 @@ TS.registerModule("constants", {
         }
         TS.menu.$menu.removeClass("date_picker");
         return;
-      } else {
-        TS.warn("not sure what to do with clicked element id:" + id);
-        return;
       }
+      TS.warn("not sure what to do with clicked element id:" + id);
+      return;
     },
     startWithMessageActions: function(e, msg_ts, msgs, model_ob) {
       if (TS.client && !TS.model.ms_connected) {
@@ -33430,9 +33333,8 @@ var _on_esc;
           return TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [bot_user_id]).then(function() {
             return app;
           });
-        } else {
-          return app;
         }
+        return app;
       }
 
       function showAllAppInformation(app) {
@@ -35172,11 +35074,10 @@ var _on_esc;
       return;
     } else if (id == "view_account") {
       return;
-    } else {
-      e.preventDefault();
-      TS.warn("not sure what to do with clicked element id:" + id);
-      return;
     }
+    e.preventDefault();
+    TS.warn("not sure what to do with clicked element id:" + id);
+    return;
   };
 })();
 (function() {
@@ -36800,10 +36701,9 @@ var _on_esc;
           if (TS.model.team.prefs.calling_app_name != "Slack") {
             TS.utility.calls.startCallInModelOb(model_ob, true);
             return;
-          } else {
-            TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Group calls aren’t available on the free plan. Try using `/call` in a Direct Message conversation!", "cmd_handlers")());
-            return;
           }
+          TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("Group calls aren’t available on the free plan. Try using `/call` in a Direct Message conversation!", "cmd_handlers")());
+          return;
         } else if (model_ob.is_slackbot_im) {
           var slackbot_responses = [TS.i18n.t("I’m on the other line. Sorry!", "cmd_handlers")(), TS.i18n.t("Thanks for calling me! I’m afraid I only accept calls from my mother, Sundays at 2pm.", "cmd_handlers")(), TS.i18n.t("I’m washing my hair right now…can’t come to the phone!", "cmd_handlers")(), TS.i18n.t("It’s awfully nice of you to try calling me. But — shh! — I’m quite afraid of the phone!", "cmd_handlers")() + " :grimacing:", TS.i18n.t("Thank you so much for calling, but I can’t talk right now, I’m watching my stories.", "cmd_handlers")()];
           var random_slackbot_response = _.shuffle(slackbot_responses)[0];
@@ -36939,9 +36839,8 @@ var _on_esc;
           return $elem.find("[data-member-id]").attr("data-member-id");
         } else if ($elem.hasClass("mpim")) {
           return $elem.find("[data-mpim-id]").attr("data-mpim-id");
-        } else {
-          return null;
         }
+        return null;
       }).toArray();
       resolve(ids_in_channels_list);
     });
@@ -37123,9 +37022,8 @@ var _on_esc;
     if (!_.isObject(user)) throw new Error("Expected user to be an object");
     if (TS.boot_data.feature_name_tagging_client_extras) {
       return "@" + user.id;
-    } else {
-      return "@" + user.name;
     }
+    return "@" + user.name;
   };
 })();
 (function() {
@@ -38812,18 +38710,15 @@ var _on_esc;
           return '<p class="no_bottom_margin">' + TS.i18n.t('On this team, you can’t edit a message after more than <strong>{msg_edit_duration_text}</strong>. Admins can adjust this in <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.', "msg_edit")({
             msg_edit_duration_text: msg_edit_duration_text
           }) + "</p>";
-        } else {
-          return '<p class="no_bottom_margin">' + TS.i18n.t("On this team, you can’t edit a message after more than <strong>{msg_edit_duration_text}</strong>. Admins can adjust this in Team&nbsp;Settings.", "msg_edit")({
-            msg_edit_duration_text: msg_edit_duration_text
-          }) + "</p>";
         }
-      } else {
-        if (TS.model.user.is_admin) {
-          return '<p class="no_bottom_margin">' + TS.i18n.t('On this team, you can’t edit messages after the fact. Admins can adjust this in <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.', "msg_edit")() + "</p>";
-        } else {
-          return '<p class="no_bottom_margin">' + TS.i18n.t("On this team, you can’t edit messages after the fact. Admins can adjust this in Team&nbsp;Settings.", "msg_edit")() + "</p>";
-        }
+        return '<p class="no_bottom_margin">' + TS.i18n.t("On this team, you can’t edit a message after more than <strong>{msg_edit_duration_text}</strong>. Admins can adjust this in Team&nbsp;Settings.", "msg_edit")({
+          msg_edit_duration_text: msg_edit_duration_text
+        }) + "</p>";
       }
+      if (TS.model.user.is_admin) {
+        return '<p class="no_bottom_margin">' + TS.i18n.t('On this team, you can’t edit messages after the fact. Admins can adjust this in <a href="/admin/settings#message_editing" target="_new">Team&nbsp;Settings</a>.', "msg_edit")() + "</p>";
+      }
+      return '<p class="no_bottom_margin">' + TS.i18n.t("On this team, you can’t edit messages after the fact. Admins can adjust this in Team&nbsp;Settings.", "msg_edit")() + "</p>";
     },
     startEdit: function(msg_ts, model_ob, edit_state) {
       if ($("#message_edit_form").length && !TS.msg_edit.cancelEditingINothingHasChanged()) {
@@ -39185,9 +39080,8 @@ var _on_esc;
         return $("#" + TS.templates.makeMsgDomIdInUnreadView(ts));
       } else if (is_threads_view) {
         return $("#" + TS.templates.makeMsgDomIdInThreadsView(ts));
-      } else {
-        return $("#" + TS.templates.makeMsgDomId(ts));
       }
+      return $("#" + TS.templates.makeMsgDomId(ts));
     },
     getDivForMsgInConvoPane: function(ts) {
       return $("#" + TS.templates.makeMsgDomIdInConversation(ts));
@@ -40946,9 +40840,8 @@ var _on_esc;
           _maybeUpdateMemberPhoto();
           _switchToList();
         }, _switchToList);
-      } else {
-        _switchToList();
       }
+      _switchToList();
     }).catch(function(error) {
       TS.warn("Unable to delete profile photo");
       TS.error(error);
@@ -41474,9 +41367,8 @@ var _on_esc;
       $(".edit_member_profile_confirm_edit_btn").addClass("disabled");
       if (error.data.error === "ratelimited") {
         return TS.generic_dialog.alert(TS.i18n.t("You‘re changing your profile too often! You might have better luck if you try again in a few minutes.", "edit_profile")());
-      } else {
-        return TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong. Please try again.", "edit_profile")());
       }
+      return TS.generic_dialog.alert(TS.i18n.t("Sorry! Something went wrong. Please try again.", "edit_profile")());
     }).finally(Ladda.stopAll);
   };
   var _flexContentsAndCenter = function() {
@@ -41678,11 +41570,10 @@ var _on_esc;
           validation[el.name] = _validate($(el), options);
         });
         return validation;
-      } else {
-        return els.reduce(function(accumulator, el) {
-          return _validate($(el), options) && accumulator;
-        }, true);
       }
+      return els.reduce(function(accumulator, el) {
+        return _validate($(el), options) && accumulator;
+      }, true);
     },
     register: function(key, value) {
       if (_validator_map[key]) return void TS.warn(key + " cannot be registered because that key is already in use.");
@@ -41781,10 +41672,9 @@ var _on_esc;
     var every = _getValidators($el).every(function(validator) {
       if (validator.indexOf("=") === -1) {
         return _validator_map[validator.trim()]($el, options);
-      } else {
-        var validator_parts = validator.split("=");
-        return _validator_map[validator_parts[0]]($el, options, validator_parts[1]);
       }
+      var validator_parts = validator.split("=");
+      return _validator_map[validator_parts[0]]($el, options, validator_parts[1]);
     });
     TS.ui.validation.completed_sig.dispatch($el, {
       event: e,
@@ -41796,9 +41686,8 @@ var _on_esc;
   var _getValidators = function($el) {
     if ($el.is("[data-validation]")) {
       return $el.attr("data-validation").replace(/\s*(,|=)\s*/g, "$1").split(/\s+/);
-    } else {
-      return [];
     }
+    return [];
   };
 
   function _validateRequired($el, options) {
@@ -41814,9 +41703,8 @@ var _on_esc;
     } else if (_isElementTextInput($el)) {
       if (_getTextInputValue($el).trim()) return true;
       return void TS.ui.validation.showWarning($el, TS.i18n.t("This field can’t be empty", "ui_validation")(), options);
-    } else {
-      return void TS.error("Error: cannot validate");
     }
+    return void TS.error("Error: cannot validate");
   }
 
   function _validateReservedWords($el, options, reserved) {
@@ -41828,9 +41716,8 @@ var _on_esc;
       return void TS.ui.validation.showWarning($el, TS.i18n.t('"{word}" is a reserved word. Try something else!', "ui_validation")({
         word: TS.utility.htmlEntities(value)
       }), options);
-    } else {
-      return void TS.error("WTF: cannot validate");
     }
+    return void TS.error("WTF: cannot validate");
   }
 
   function _validateKeywords($el, options) {
@@ -41860,9 +41747,8 @@ var _on_esc;
         }
       }
       return void TS.ui.validation.showWarning($el, error_message, options);
-    } else {
-      return void TS.error("Error: cannot validate");
     }
+    return void TS.error("Error: cannot validate");
   }
 
   function _validateIsUrlBasic($el, options, protocols) {
@@ -41898,9 +41784,8 @@ var _on_esc;
     passes_well_formed_url_requirement = TS.utility.url.simpleIsUrl(value);
     if (passes_well_formed_url_requirement && passes_protocols_requirement) {
       return true;
-    } else {
-      return void TS.ui.validation.showWarning($el, error_message, options);
     }
+    return void TS.ui.validation.showWarning($el, error_message, options);
   }
 
   function _validateIsLink($el, options) {
@@ -41912,9 +41797,8 @@ var _on_esc;
       var found = value.match(ALL_SCHEMES_LINK_REGEXP);
       if (found && found.length === 1 && found[0] === value) return true;
       return void TS.ui.validation.showWarning($el, error_message, options);
-    } else {
-      return void TS.error("Error: cannot validate");
     }
+    return void TS.error("Error: cannot validate");
   }
 
   function _validateHasNoUrl($el, options) {
@@ -41926,9 +41810,8 @@ var _on_esc;
         return true;
       }
       return void TS.ui.validation.showWarning($el, TS.i18n.t("Unfortunately, custom messages can’t contain URLs.", "ui_validation")(), options);
-    } else {
-      return void TS.error("Error: cannot validate");
     }
+    return void TS.error("Error: cannot validate");
   }
 
   function _validateMinLength($el, options, length, hide_countdown) {
@@ -42149,9 +42032,8 @@ var _on_esc;
       var found = value.match(TS.utility.email_regex);
       if (found && found.length === 1 && found[0] === value) return true;
       return void TS.ui.validation.showWarning($el, TS.i18n.t("This doesn’t seem like an email address. Sorry!", "ui_validation")(), options);
-    } else {
-      return void TS.error("Error: cannot validate");
     }
+    return void TS.error("Error: cannot validate");
   }
 
   function _validatePattern($el, options, pattern) {
@@ -42424,9 +42306,8 @@ var _on_esc;
           return b.joined_date - a.joined_date;
         } else if (sort_by === "members") {
           return parseInt(b.user_counts.active_members, 10) - parseInt(a.user_counts.active_members, 10);
-        } else {
-          return 0;
         }
+        return 0;
       });
     },
     joinTeam: function(team_id) {
@@ -42452,20 +42333,18 @@ var _on_esc;
           TS.enterprise.upsertEnterpriseTeam(team);
           _showToastMessage("success", message);
           return true;
-        } else {
-          if (data.error === "user_already_team_member") {
-            _showToastMessage("success", message);
-            return true;
-          } else if (data.error === "team_is_not_open") {
-            _showToastMessage("error", TS.i18n.t("This team is not open to join.", "enterprise_dashboard")());
-            return false;
-          } else {
-            _showToastMessage("error", TS.i18n.t('Joining team failed with error "{error}"', "enterprise_dashboard")({
-              error: data.error
-            }));
-            return false;
-          }
         }
+        if (data.error === "user_already_team_member") {
+          _showToastMessage("success", message);
+          return true;
+        } else if (data.error === "team_is_not_open") {
+          _showToastMessage("error", TS.i18n.t("This team is not open to join.", "enterprise_dashboard")());
+          return false;
+        }
+        _showToastMessage("error", TS.i18n.t('Joining team failed with error "{error}"', "enterprise_dashboard")({
+          error: data.error
+        }));
+        return false;
       });
     },
     requestToJoinTeam: function(team_id) {
@@ -43816,9 +43695,8 @@ var _on_esc;
         return !!_getPinnedComment(msg.comment.id, msg.file.id, model_ob);
       } else if (msg.file) {
         return !!_getPinnedFile(msg.file.id, model_ob);
-      } else {
-        return !!_getPinnedMsg(msg.ts, model_ob);
       }
+      return !!_getPinnedMsg(msg.ts, model_ob);
     },
     pinStatusHasChanged: function(pinned, item, type, model_ob) {
       var msg, file, comment;
@@ -45420,9 +45298,8 @@ $.fn.togglify = function(settings) {
         return Promise.resolve({
           items: []
         });
-      } else {
-        load_promise = _getSearchPromise(query);
       }
+      load_promise = _getSearchPromise(query);
       return Promise.all([load_promise, invited_members_p]).then(function(responses) {
         var members = responses[0];
         var invited_members = responses[1];
@@ -45501,9 +45378,8 @@ $.fn.togglify = function(settings) {
       tokenClass: function(item) {
         if (item.member) {
           return TS.templates.builders.getMemberTypeClass(item.member);
-        } else {
-          return "lfs_token_pending_user";
         }
+        return "lfs_token_pending_user";
       },
       filter: function(item, query) {
         var member = item.member;
@@ -45515,18 +45391,16 @@ $.fn.togglify = function(settings) {
         var match_names_only = true;
         if (member) {
           return TS.utility.members.checkMemberMatch(member, start_regex, match_names_only) || TS.utility.members.checkMemberMatch(member, suffix_regex, match_names_only);
-        } else {
-          return TS.pending_users.checkUserMatch(item, start_regex) || TS.pending_users.checkUserMatch(item, suffix_regex);
         }
+        return TS.pending_users.checkUserMatch(item, start_regex) || TS.pending_users.checkUserMatch(item, suffix_regex);
       },
       noResultsTemplate: function(query) {
         if (!query) {
           return TS.i18n.t("No one found", "new_channel")();
-        } else {
-          return TS.i18n.t("No one found matching <strong>{query}</strong>", "new_channel")({
-            query: TS.utility.truncateAndEscape(query, 50)
-          });
         }
+        return TS.i18n.t("No one found matching <strong>{query}</strong>", "new_channel")({
+          query: TS.utility.truncateAndEscape(query, 50)
+        });
       }
     };
     if (TS.lazyLoadMembersAndBots()) {
@@ -45940,11 +45814,10 @@ $.fn.togglify = function(settings) {
         return TS.i18n.t("{query_length, plural, =0 {Start typing to see results…} other {Keep typing to see results…}}", "lazy_filter_select")({
           query_length: query.length
         });
-      } else {
-        return TS.i18n.t("No items matched {query}", "lazy_filter_select")({
-          query: "<strong>" + TS.utility.htmlEntities(query) + "</strong>"
-        });
       }
+      return TS.i18n.t("No items matched {query}", "lazy_filter_select")({
+        query: "<strong>" + TS.utility.htmlEntities(query) + "</strong>"
+      });
     },
     errorTemplate: function(error) {
       return error || TS.i18n.t("Couldn't load results.", "lazy_filter_select")();
@@ -46344,9 +46217,8 @@ $.fn.togglify = function(settings) {
     });
     if (vals.length) {
       return vals[0];
-    } else {
-      return null;
     }
+    return null;
   };
   var _getUserCreatedSlugData = function(instance, $slug) {
     var lfs_slug_id = parseInt($slug.attr("data-lfs-slug-id"), 10);
@@ -46382,9 +46254,8 @@ $.fn.togglify = function(settings) {
     } else if (instance.single) {
       TS.error("Sluggify only works in multi-select versions of lazyFilterSelect.");
       return false;
-    } else {
-      return true;
     }
+    return true;
   };
   var _isAlreadySelected = function(instance, item) {
     if (!instance._selected.length) return false;
@@ -46396,9 +46267,8 @@ $.fn.togglify = function(settings) {
   var _itemIsUserCreatedSlug = function(item) {
     if (item instanceof jQuery) {
       return !!item.attr("data-lfs-slug-id");
-    } else {
-      return item.lfs_slug_id !== undefined;
     }
+    return item.lfs_slug_id !== undefined;
   };
   var _loadSlugAndRemoveFromData = function(instance, item, data) {
     if (!_instanceCanSluggify(instance)) return;
@@ -47137,11 +47007,10 @@ $.fn.togglify = function(settings) {
           noResultsTemplate: function(query) {
             if (!query) {
               return TS.i18n.t("No one found", "people_picker")();
-            } else {
-              return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
-                query: TS.utility.htmlEntities(query)
-              });
             }
+            return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
+              query: TS.utility.htmlEntities(query)
+            });
           },
           onItemAdded: options.onItemAdded,
           onItemRemoved: options.onItemRemoved
@@ -47190,11 +47059,10 @@ $.fn.togglify = function(settings) {
           noResultsTemplate: function(query) {
             if (!query) {
               return TS.i18n.t("No one found", "people_picker")();
-            } else {
-              return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
-                query: TS.utility.htmlEntities(query)
-              });
             }
+            return TS.i18n.t("No one found matching <strong>{query}</strong>", "people_picker")({
+              query: TS.utility.htmlEntities(query)
+            });
           },
           onItemAdded: options.onItemAdded,
           onItemRemoved: options.onItemRemoved
@@ -47231,15 +47099,14 @@ $.fn.togglify = function(settings) {
       if (query === "" && options.empty_query_result) {
         if (pageNumber > 0) {
           return Promise.resolve([]);
-        } else {
-          return Promise.resolve(options.empty_query_result.map(function(member) {
-            return {
-              member: member,
-              lfs_id: String(member.id),
-              preselected: !!preselected_ids[member.id]
-            };
-          }));
         }
+        return Promise.resolve(options.empty_query_result.map(function(member) {
+          return {
+            member: member,
+            lfs_id: String(member.id),
+            preselected: !!preselected_ids[member.id]
+          };
+        }));
       }
       if (query === "" && options.initial_load_promise) {
         if (_.isUndefined(pageNumber)) {
@@ -47276,9 +47143,8 @@ $.fn.togglify = function(settings) {
       });
       if (unknown_user_ids.length) {
         return TS.members.ensureMembersArePresent(unknown_user_ids);
-      } else {
-        return Promise.resolve();
       }
+      return Promise.resolve();
     }).then(function() {
       return TS.members.promiseToSearchMembers(searcherOrPromise).then(function(response) {
         var items = [];
@@ -47930,9 +47796,8 @@ $.fn.togglify = function(settings) {
     var delta = now - end;
     if (_timeWasProbablyASnooze(end)) {
       return true;
-    } else {
-      return delta >= _team_info_delay;
     }
+    return delta >= _team_info_delay;
   };
   var _timeWasProbablyASnooze = function(end_ts) {
     var d = new Date(end_ts * 1e3);
@@ -49213,9 +49078,8 @@ $.fn.togglify = function(settings) {
         if (member_name) {
           e.preventDefault();
           return TS.view.onMemberReferenceClick(e, member_name);
-        } else {
-          return;
         }
+        return;
       }
       e.preventDefault();
       var is_viewing_im = TS.model.active_im_id && !TS.client.activeChannelIsHidden();
@@ -49654,10 +49518,9 @@ $.fn.togglify = function(settings) {
     function _shouldPruneCacheItem(item) {
       if (!item || _.isEmpty(item.visits)) {
         return true;
-      } else {
-        if (Date.now() - item.visits[item.visits.length - 1] > _PRUNE_AFTER && item.count < _PRUNE_BELOW_COUNT) {
-          return true;
-        }
+      }
+      if (Date.now() - item.visits[item.visits.length - 1] > _PRUNE_AFTER && item.count < _PRUNE_BELOW_COUNT) {
+        return true;
       }
     }
 
@@ -50033,17 +49896,15 @@ $.fn.togglify = function(settings) {
             m._jumper_exact_match = true;
             exact_matches.push(m);
             return false;
-          } else {
-            m._jumper_exact_match = false;
           }
+          m._jumper_exact_match = false;
         }
         if (options.prefer_exact_match && m.name === searcher.query) {
           m._jumper_exact_match = true;
           exact_matches.push(m);
           return false;
-        } else {
-          m._jumper_exact_match = false;
         }
+        m._jumper_exact_match = false;
         return searcher.matchesMember(m);
       });
       usergroup_matches = data.usergroups.filter(function(ug) {
@@ -50067,9 +49928,8 @@ $.fn.togglify = function(settings) {
           c._jumper_exact_match = true;
           exact_matches.push(c);
           return false;
-        } else {
-          c._jumper_exact_match = false;
         }
+        c._jumper_exact_match = false;
         var matched = searcher.matchesChannel(c);
         if (!matched) return;
         if (c.is_member) {
@@ -50089,9 +49949,8 @@ $.fn.togglify = function(settings) {
           g._jumper_exact_match = true;
           exact_matches.push(g);
           return false;
-        } else {
-          g._jumper_exact_match = false;
         }
+        g._jumper_exact_match = false;
         var matched = searcher.matchesGroup(g);
         if (!matched) return;
         if (g.is_archived) {
@@ -50108,9 +49967,8 @@ $.fn.togglify = function(settings) {
           team._jumper_exact_match = true;
           exact_matches.push(team);
           return false;
-        } else {
-          team._jumper_exact_match = false;
         }
+        team._jumper_exact_match = false;
         var match = searcher.matchesTeam(team);
         return match;
       });
@@ -50121,9 +49979,8 @@ $.fn.togglify = function(settings) {
           e._jumper_exact_match = true;
           exact_matches.push(e);
           return false;
-        } else {
-          e._jumper_exact_match = false;
         }
+        e._jumper_exact_match = false;
         return searcher.matchesEmoji(e);
       });
     }
@@ -50266,11 +50123,10 @@ $.fn.togglify = function(settings) {
     var b_name = _getNameForComparison(b);
     if (locale_aware) {
       return TS.i18n.sorter(a_name, b_name);
-    } else {
-      if (a_name > b_name) return 1;
-      if (b_name > a_name) return -1;
-      return 0;
     }
+    if (a_name > b_name) return 1;
+    if (b_name > a_name) return -1;
+    return 0;
   };
   var _frecencyBonusPointsNormalized = function(item, options) {
     if (item.is_mpim) return 0;
@@ -51042,13 +50898,12 @@ $.fn.togglify = function(settings) {
       });
       if (rejection_reasons.length) {
         return Promise.reject(new Error("Some shared channels start APIs failed:\n" + rejection_reasons.join("\n")));
-      } else {
-        _setSharedChannelsIntoModel(responses[0].value().data.channels);
-        _setSharedChannelsIntoModel(responses[1].value().data.channels, true);
-        if (TS.boot_data.feature_shared_channels_invite) {
-          _setSharedInvitesIntoModel(responses[2].value().data.invites);
-          _setSharedInvitesIntoModel(responses[3].value().data.invites, true);
-        }
+      }
+      _setSharedChannelsIntoModel(responses[0].value().data.channels);
+      _setSharedChannelsIntoModel(responses[1].value().data.channels, true);
+      if (TS.boot_data.feature_shared_channels_invite) {
+        _setSharedInvitesIntoModel(responses[2].value().data.invites);
+        _setSharedInvitesIntoModel(responses[3].value().data.invites, true);
       }
     });
   };
@@ -51209,9 +51064,8 @@ $.fn.togglify = function(settings) {
           return -1;
         } else if (!a_creator && b_creator) {
           return 1;
-        } else {
-          return 0;
         }
+        return 0;
       });
     } else if (sort === "created") {
       channels.sort(function(a, b) {
@@ -51397,9 +51251,8 @@ $.fn.togglify = function(settings) {
       _hideList();
       _bindUI();
       return null;
-    } else {
-      _hideAllSectionsBut("#sci_channels_container");
     }
+    _hideAllSectionsBut("#sci_channels_container");
     $("#fs_modal.convert_to_shared_dialog").toggleClass("fs_modal_internal_scroll", true);
     if (TS.model.ui_state && TS.model.ui_state.sort_shared_channel_browser_by) {
       _sortChannels(TS.model.ui_state.sort_shared_channel_browser_by);
@@ -51563,11 +51416,10 @@ $.fn.togglify = function(settings) {
         noResultsTemplate: function(query) {
           if (!query) {
             return TS.i18n.t("No teams found", "team_picker")();
-          } else {
-            return TS.i18n.t("No teams found matching <strong>{query}</strong>", "team_picker")({
-              query: TS.utility.htmlEntities(query)
-            });
           }
+          return TS.i18n.t("No teams found matching <strong>{query}</strong>", "team_picker")({
+            query: TS.utility.htmlEntities(query)
+          });
         }
       };
       $el.lazyFilterSelect(filter_select_options);
@@ -51724,16 +51576,13 @@ $.fn.togglify = function(settings) {
             delete _pending_group_request_promises[user_group_id];
           });
           return _pending_group_request_promises[user_group_id];
-        } else {
-          return _pending_group_request_promises[user_group_id];
         }
-      } else {
-        if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
-          return TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, user_group.users);
-        } else {
-          return Promise.resolve();
-        }
+        return _pending_group_request_promises[user_group_id];
       }
+      if (TS.membership && TS.membership.lazyLoadChannelMembership()) {
+        return TS.membership.ensureChannelMembershipIsKnownForUsers(channel.id, user_group.users);
+      }
+      return Promise.resolve();
     },
     getUserGroupMembersNotInModelObCount: function(user_group_id, model_ob_id) {
       var user_group = TS.user_groups.getUserGroupsById(user_group_id);
@@ -52768,10 +52617,9 @@ $.fn.togglify = function(settings) {
         });
         if (rejection_reasons.length) {
           return Promise.reject(new Error("Some enterprise APIs failed:\n" + rejection_reasons.join("\n")));
-        } else {
-          var enterprise = responses[0].value().data.enterprise;
-          TS.enterprise.upsertEnterprise(enterprise);
         }
+        var enterprise = responses[0].value().data.enterprise;
+        TS.enterprise.upsertEnterprise(enterprise);
       });
     },
     promiseToGetTeams: function(exclude_discoverable) {
@@ -53027,34 +52875,33 @@ $.fn.togglify = function(settings) {
             return resolve({
               is_valid: true
             });
-          } else {
-            var error_key = data.error;
-            var error_message;
-            if (data.error === TS.signup.ERROR_USERNAME_NOT_ALLOWED) {
-              error_message = _ERROR_MESSAGES[error_key]({
-                username: TS.utility.htmlEntities(username)
-              });
-            } else if (data.error === "taken") {
-              error_key = TS.signup.ERROR_USERNAME_TAKEN;
-            }
-            var return_data = {
-              is_valid: false,
-              error_key: error_key,
-              error_message: error_message || TS.signup.getErrorMessage(error_key)
-            };
-            if (!options.get_suggestions) return resolve(return_data);
-            if (!options.email) {
-              TS.warn("TS.signup.checkUsernameAvailability can only try to get username suggestions when options.email is set");
-              return resolve(return_data);
-            }
-            TS.signup.suggestUsernameFromEmail(options.email).then(function(obj) {
-              if (obj.has_suggestion) {
-                return_data.has_suggestion = true;
-                return_data.suggestion = obj.username;
-              }
-              return resolve(return_data);
-            });
           }
+          var error_key = data.error;
+          var error_message;
+          if (data.error === TS.signup.ERROR_USERNAME_NOT_ALLOWED) {
+            error_message = _ERROR_MESSAGES[error_key]({
+              username: TS.utility.htmlEntities(username)
+            });
+          } else if (data.error === "taken") {
+            error_key = TS.signup.ERROR_USERNAME_TAKEN;
+          }
+          var return_data = {
+            is_valid: false,
+            error_key: error_key,
+            error_message: error_message || TS.signup.getErrorMessage(error_key)
+          };
+          if (!options.get_suggestions) return resolve(return_data);
+          if (!options.email) {
+            TS.warn("TS.signup.checkUsernameAvailability can only try to get username suggestions when options.email is set");
+            return resolve(return_data);
+          }
+          TS.signup.suggestUsernameFromEmail(options.email).then(function(obj) {
+            if (obj.has_suggestion) {
+              return_data.has_suggestion = true;
+              return_data.suggestion = obj.username;
+            }
+            return resolve(return_data);
+          });
         });
       });
     },
@@ -53286,23 +53133,22 @@ $.fn.togglify = function(settings) {
             is_ok: true,
             api_response: data
           });
-        } else {
-          var error_message;
-          if (data.error === TS.signup.ERROR_BAD_EMAIL_DOMAIN) {
-            error_message = _ERROR_MESSAGES[data.error]({
-              email_domain: email_domain
-            });
-          } else if (data.error === TS.signup.ERROR_DOMAIN_NOT_FOUND) {
-            _domain_found_mx_records[email_domain] = false;
-          } else if (check_mx_records) {
-            _domain_found_mx_records[email_domain] = true;
-          }
-          return resolve({
-            is_ok: false,
-            error_key: data.error,
-            error_message: error_message || TS.signup.getErrorMessage(data.error)
-          });
         }
+        var error_message;
+        if (data.error === TS.signup.ERROR_BAD_EMAIL_DOMAIN) {
+          error_message = _ERROR_MESSAGES[data.error]({
+            email_domain: email_domain
+          });
+        } else if (data.error === TS.signup.ERROR_DOMAIN_NOT_FOUND) {
+          _domain_found_mx_records[email_domain] = false;
+        } else if (check_mx_records) {
+          _domain_found_mx_records[email_domain] = true;
+        }
+        return resolve({
+          is_ok: false,
+          error_key: data.error,
+          error_message: error_message || TS.signup.getErrorMessage(data.error)
+        });
       });
     });
   };
@@ -54532,16 +54378,14 @@ $.fn.togglify = function(settings) {
           return TS.i18n.t("Unfortunately, the calls feature is not available on Linux.", "utility")();
         } else if (window.winssb) {
           return TS.i18n.t("To use the calls feature, please upgrade to the latest version of Slack for Windows.", "utility")();
-        } else {
-          return TS.i18n.t("To use the calls feature, please upgrade to the latest version of the Mac app for Slack.", "utility")();
         }
+        return TS.i18n.t("To use the calls feature, please upgrade to the latest version of the Mac app for Slack.", "utility")();
       } else if (bowser.mobile && bowser.ios) {
         return TS.i18n.t("Please update your Slack iOS app to the newest version.", "utility")();
       } else if (bowser.mobile) {
         return TS.i18n.t("Unfortunately, the calls feature is not available on mobile browsers.", "utility")();
-      } else {
-        return TS.i18n.t("Unfortunately, the calls feature is not available in this browser. Please switch to Chrome.", "utility")();
       }
+      return TS.i18n.t("Unfortunately, the calls feature is not available in this browser. Please switch to Chrome.", "utility")();
     },
     getPlatformErrorTitle: function() {
       if (TS.model.is_our_app) {
@@ -54549,14 +54393,12 @@ $.fn.togglify = function(settings) {
           return TS.i18n.t("Calls feature is not available on Linux", "utility")();
         } else if (window.winssb) {
           return TS.i18n.t("Please update your Slack for Windows", "utility")();
-        } else {
-          return TS.i18n.t("Please update your Slack for Mac", "utility")();
         }
+        return TS.i18n.t("Please update your Slack for Mac", "utility")();
       } else if (bowser.mobile) {
         return TS.i18n.t("Calls feature is not available on mobile browsers", "utility")();
-      } else {
-        return TS.i18n.t("Calls feature is not available in this browser", "utility")();
       }
+      return TS.i18n.t("Calls feature is not available in this browser", "utility")();
     },
     platformHasCallsCode: function() {
       if (TS.model.is_our_app) {
@@ -55130,9 +54972,8 @@ $.fn.togglify = function(settings) {
   var _isInIncomingCall = function() {
     if (!TS.model.is_our_app || !TSSSB.call("supportsIncomingCallWindowStatus")) {
       return Promise.resolve(!!_utility_call_state.in_incoming_call);
-    } else {
-      return TSSSB.call("isIncomingCallWindowBusy");
     }
+    return TSSSB.call("isIncomingCallWindowBusy");
   };
   var _sendMessageToCallWindow = function(args) {
     if (TS.model.is_our_app) {
@@ -55228,9 +55069,8 @@ $.fn.togglify = function(settings) {
   var _isCallWindowBusy = function() {
     if (!TS.model.is_our_app || !TSSSB.call("supportsCallWindowStatus")) {
       return Promise.resolve(!!_utility_call_state.is_call_window_busy);
-    } else {
-      return TSSSB.call("isCallWindowBusy");
     }
+    return TSSSB.call("isCallWindowBusy");
   };
   var _startCall = function(url, name, options) {
     options = options || {};
@@ -55673,9 +55513,8 @@ $.fn.togglify = function(settings) {
         var texty = _getTextyInstance(input);
         if (texty.hasFocus()) {
           return true;
-        } else {
-          return document.activeElement && document.activeElement.className.indexOf("ql-clipboard") != -1 && document.activeElement.parentNode === input;
         }
+        return document.activeElement && document.activeElement.className.indexOf("ql-clipboard") != -1 && document.activeElement.parentNode === input;
       }
       return false;
     },
@@ -55922,9 +55761,8 @@ $.fn.togglify = function(settings) {
       if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
         return texty.deleteSelection();
-      } else {
-        window.getSelection().deleteFromDocument();
       }
+      window.getSelection().deleteFromDocument();
     },
     getTextPreferences: function() {
       return _text_preferences;
@@ -57725,9 +57563,8 @@ $.fn.togglify = function(settings) {
           children: children_els
         };
       });
-    } else {
-      return _.get(response, "data.options", []).map(_createOptionEl);
     }
+    return _.get(response, "data.options", []).map(_createOptionEl);
   }
 
   function _createOptionEl(option_obj, options) {
@@ -58510,17 +58347,16 @@ $.fn.togglify = function(settings) {
           delete _threads_being_loaded_from_end[key];
         });
         return _threads_being_loaded_from_end[key];
-      } else {
-        if (_threads_being_loaded[key]) return _threads_being_loaded[key];
-        _threads_being_loaded[key] = TS.replies.getThreadAfter(c_id, thread_ts).then(function(thread) {
-          thread.has_more_beginning = false;
-          thread.has_more_end = thread.has_more;
-          return thread;
-        }).finally(function() {
-          delete _threads_being_loaded[key];
-        });
-        return _threads_being_loaded[key];
       }
+      if (_threads_being_loaded[key]) return _threads_being_loaded[key];
+      _threads_being_loaded[key] = TS.replies.getThreadAfter(c_id, thread_ts).then(function(thread) {
+        thread.has_more_beginning = false;
+        thread.has_more_end = thread.has_more;
+        return thread;
+      }).finally(function() {
+        delete _threads_being_loaded[key];
+      });
+      return _threads_being_loaded[key];
     },
     getThreadBefore: function(c_id, thread_ts, oldest_ts, inclusive) {
       var params = {
@@ -58691,14 +58527,13 @@ $.fn.togglify = function(settings) {
       }
       if (subscribed) {
         return TS.api.call("subscriptions.thread.add", params);
-      } else {
-        var msg = TS.replies.getMessage(model_ob, thread_ts);
-        if (msg && !msg.thread_ts) {
-          params.preemptive_remove = true;
-          TS.replies.thread_subscription_changed_sig.dispatch(model_ob_id, thread_ts, subscription);
-        }
-        return TS.api.call("subscriptions.thread.remove", params);
       }
+      var msg = TS.replies.getMessage(model_ob, thread_ts);
+      if (msg && !msg.thread_ts) {
+        params.preemptive_remove = true;
+        TS.replies.thread_subscription_changed_sig.dispatch(model_ob_id, thread_ts, subscription);
+      }
+      return TS.api.call("subscriptions.thread.remove", params);
     },
     maybeSlurpSubscriptionState: function(model_ob_id, msgs) {
       return _maybeSlurpSubscriptionState(model_ob_id, msgs);
@@ -58732,9 +58567,8 @@ $.fn.togglify = function(settings) {
       return "channels.replies";
     } else if (model_ob.is_im) {
       return "im.replies";
-    } else {
-      return "groups.replies";
     }
+    return "groups.replies";
   };
   var _processRepliesHistoryResponse = function(model_ob, thread_ts, resp) {
     var messages = resp.data.messages.map(function(imsg) {
@@ -59652,9 +59486,8 @@ $.fn.togglify = function(settings) {
           _number_format_cache[number_format_key] = number_format_obj;
         }
         return number_format_obj.format(dollar_value);
-      } else {
-        return TS.utility.money.formatMoneyWithoutIntl(amount, currency_code, formatting_options);
       }
+      return TS.utility.money.formatMoneyWithoutIntl(amount, currency_code, formatting_options);
     },
     formatMoneyWithoutIntl: function(amount, currency_code, formatting_options) {
       var NUMBER_FORMAT_ONLY = /^[-]*[0-9]+\.?[0-9]*$/;
@@ -60433,9 +60266,8 @@ $.fn.togglify = function(settings) {
         var local_results = _searchLocal(query, options);
         local_results.promise = remote_promise;
         return Promise.resolve(local_results);
-      } else {
-        return remote_promise;
       }
+      return remote_promise;
     },
     test: function() {
       return {
@@ -60477,9 +60309,8 @@ $.fn.togglify = function(settings) {
     if (options.sort) {
       var sort_options = _mergeDefaults(options.sort, _limit_option, _DEFAULT_SORT_OPTIONS);
       return TS.sorter.search(query, data, sort_options);
-    } else {
-      return data;
     }
+    return data;
   };
   var _getLocalMembers = function(options) {
     options = _mergeDefaults(options, _DEFAULT_MEMBER_OPTIONS);
@@ -64256,7 +64087,8 @@ $.fn.togglify = function(settings) {
           }
 
           function fs(e, t, n) {
-            return n = "function" == typeof n ? n : oe, Lr(e, t, Ei(t), n);
+            return n = "function" == typeof n ? n : oe,
+              Lr(e, t, Ei(t), n);
           }
 
           function ps(e) {
@@ -67394,8 +67226,7 @@ $.fn.togglify = function(settings) {
   }), t.default = function(e) {
     if ((!a || e) && i.default) {
       var t = document.createElement("div");
-      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll",
-        document.body.appendChild(t), a = t.offsetWidth - t.clientWidth, document.body.removeChild(t);
+      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll", document.body.appendChild(t), a = t.offsetWidth - t.clientWidth, document.body.removeChild(t);
     }
     return a;
   };

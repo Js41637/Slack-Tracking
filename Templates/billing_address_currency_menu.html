@@ -1,0 +1,12 @@
+{{i18n_ns "pages_admin"}}
+{{#each select_content}}
+  <label for="currency_{{@key}}"" class="radio"><input type="radio" value="{{@key}}" name="currency_menu" {{#if_equal @key compare=../selected_option}}checked{{/if_equal}}>
+    <span class="billing_settings_currency">{{@key}}</span>
+    <span class="billing_settings_currency_description block">
+      {{#t price_per_seat=(cash value=this currency_code=@key)}}
+        You will pay <strong>{price_per_seat}</strong> per seat.
+      {{/t}}
+    </span>
+  </label>
+
+{{/each}}
