@@ -30854,12 +30854,12 @@ TS.registerModule("constants", {
   });
   var _at_commands = ["everyone", "channel", "group", "here"];
   var _theme_rx = /((?:#[A-Fa-f0-9]{6} {0,}, {0,}){7})(#[A-Fa-f0-9]{6})(\b)/g;
-  var _at_mention_rx = /(^|\s|\(|&gt;|\*|_|\/)(@([\w|.|-]+))/g;
+  var _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|\*|_|\/)(@([\w|.|-]+))/g;
   if (TS.boot_data.feature_wrapped_mention_parsing) {
-    _at_mention_rx = /(^|\s|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w|.|-]+))/g;
+    _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w|.|-]+))/g;
   }
   if (TS.boot_data.feature_shared_channels_client) {
-    _at_mention_rx = /(^|\s|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w.\-+]+))/g;
+    _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w.\-+]+))/g;
   }
   var _special_pre_rx = /(^|\s|[_*\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])```([\s\S]*?)?```(?=$|\s|[_*\?\.,\-!\^;:})\]%$#+=\u2000-\u206F\u2E00-\u2E7F…"])/g;
   var _special_code_rx = /(^|\s|[\?\.,\-!\^;:{(\[%$#+=\u2000-\u206F\u2E00-\u2E7F"])\`([^`]*?\S *)?\`/g;
