@@ -19711,6 +19711,10 @@ ts-message .broadcast_repliers a {
   color: #9e9ea6
 }
 
+ts-message .broadcast_repliers a .other_participants {
+  display: inline
+}
+
 .dense_theme ts-message.thread_broadcast .message_content_header {
   display: -webkit-box;
   display: -webkit-flex;

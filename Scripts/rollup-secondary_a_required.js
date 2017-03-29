@@ -18076,7 +18076,7 @@ TS.registerModule("constants", {
     TS.log(2, imsg.type + " is now being handled");
     var ensureModelObs = function() {
       return TS.shared.ensureModelObsArePresent(missing_c_ids).then(function() {
-        return ensureMembers();
+        return ensureBotsAndMembers();
       }, function(err) {
         if (imsg.channel && typeof imsg.channel == "string" && !TS.shared.getModelObById(imsg.channel)) {
           TS.error(full_type + " could not be handled because imsg.channel could not be fetched. full err: " + err.message);
@@ -18085,11 +18085,18 @@ TS.registerModule("constants", {
         }
         TS.maybeWarn(794, full_type + " held some references to model_obs we could not fetch, but we have imsg.channel (or there was no imsg.channel) so we can still proceed");
         TS.log(794, "imsg.ts:" + imsg.ts + ", missing c ids:" + JSON.stringify(missing_c_ids));
-        if (missing_m_ids.m_ids.length) {
-          return ensureMembers();
+        if (missing_m_ids.m_ids.length || missing_b_ids.length) {
+          return ensureBotsAndMembers();
         }
         return proceedWithImsg();
       });
+    };
+    var ensureBotsAndMembers = function() {
+      if (missing_b_ids.length) {
+        return TS.bots.ensureBotsArePresent(missing_b_ids).then(ensureMembers);
+      } else {
+        return ensureMembers();
+      }
     };
     var ensureMembers = function() {
       return TS.members.ensureMembersArePresent(missing_m_ids.m_ids, missing_m_ids.c_ids, missing_m_ids.t_ids).then(function() {
@@ -18117,12 +18124,14 @@ TS.registerModule("constants", {
     var full_type = "type:" + imsg.type + (imsg.subtype ? " subtype:" + imsg.subtype : "");
     var c_ids = TS.utility.extractAllModelObIds(imsg, full_type);
     var m_ids = TS.utility.extractAllMemberIds(imsg, full_type);
+    var b_ids = TS.utility.extractAllBotIds(imsg);
     var missing_c_ids = TS.shared.getModelObIdsNotPresent(c_ids);
     var missing_m_ids = TS.members.getMemberIdsNotPresent(m_ids.m_ids, m_ids.c_ids, m_ids.t_ids);
+    var missing_b_ids = _.reject(b_ids, TS.bots.getBotById);
     if (missing_c_ids.length) {
       ensureModelObs();
-    } else if (missing_m_ids.m_ids.length) {
-      ensureMembers();
+    } else if (missing_m_ids.m_ids.length || missing_b_ids.length) {
+      ensureBotsAndMembers();
     } else {
       Promise.resolve().then(function() {
         return proceedWithImsg();
@@ -36698,6 +36707,12 @@ var _on_esc;
           TS.cmd_handlers.addTempEphemeralFeedback(help_message);
           return;
         }
+        if (rest.trim().match(/--server=/)) {
+          var server = rest.trim().replace(/--server=/g, "");
+          var persistent_call_state = TS.storage.fetchCallsState();
+          persistent_call_state.call_server_override = server;
+          TS.storage.storeCallsState(persistent_call_state);
+        }
         if (TS.utility.calls.isCurrentContextMultiParty() && !TS.utility.calls.isMultiPartyEnabled()) {
           if (TS.model.team.prefs.calling_app_name != "Slack") {
             TS.utility.calls.startCallInModelOb(model_ob, true);
@@ -54359,6 +54374,10 @@ $.fn.togglify = function(settings) {
       } else {
         method = "screenhero.rooms.create";
         args.channel = id;
+        var persistent_call_state = TS.storage.fetchCallsState();
+        if (persistent_call_state.call_server_override) {
+          args.call_server = persistent_call_state.call_server_override;
+        }
       }
       _server_p[id] = TS.api.callImmediately(method, args);
       return _server_p[id];
@@ -61970,8 +61989,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Un(e, t, n) {
-            return e === e && (n !== oe && (e = e <= n ? e : n),
-              t !== oe && (e = e >= t ? e : t)), e;
+            return e === e && (n !== oe && (e = e <= n ? e : n), t !== oe && (e = e >= t ? e : t)), e;
           }
 
           function Wn(e, t, n, r, o, i) {
@@ -65609,8 +65627,7 @@ $.fn.togglify = function(settings) {
     for (var t = arguments.length - 1, n = "Minified React error #" + e + "; visit http://facebook.github.io/react/docs/error-decoder.html?invariant=" + e, r = 0; r < t; r++) n += "&args[]=" + encodeURIComponent(arguments[r + 1]);
     n += " for the full message or use the non-minified dev environment for full errors and additional helpful warnings.";
     var o = new Error(n);
-    throw o.name = "Invariant Violation", o.framesToPop = 1,
-      o;
+    throw o.name = "Invariant Violation", o.framesToPop = 1, o;
   }
   e.exports = r;
 }, function(e, t, n) {
@@ -67230,8 +67247,7 @@ $.fn.togglify = function(settings) {
   }), t.default = function(e) {
     if ((!a || e) && i.default) {
       var t = document.createElement("div");
-      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll", document.body.appendChild(t), a = t.offsetWidth - t.clientWidth,
-        document.body.removeChild(t);
+      t.style.position = "absolute", t.style.top = "-9999px", t.style.width = "50px", t.style.height = "50px", t.style.overflow = "scroll", document.body.appendChild(t), a = t.offsetWidth - t.clientWidth, document.body.removeChild(t);
     }
     return a;
   };
@@ -73744,7 +73760,8 @@ $.fn.togglify = function(settings) {
         return n.bind.call(n, e, function() {}, t);
       }, y.prototype.trigger = function(e, t) {
         var n = this;
-        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e), n;
+        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e),
+          n;
       }, y.prototype.reset = function() {
         var e = this;
         return e._callbacks = {}, e._directMap = {}, e;
@@ -75200,68 +75217,67 @@ $.fn.togglify = function(settings) {
     s = n(83),
     l = n(5),
     c = n(17),
-    f = (n(0),
-      n(1), {
-        getHostProps: function(e, t) {
-          var n = s.getValue(t),
-            r = s.getChecked(t),
-            o = a({
-              type: void 0,
-              step: void 0,
-              min: void 0,
-              max: void 0
-            }, t, {
-              defaultChecked: void 0,
-              defaultValue: void 0,
-              value: null != n ? n : e._wrapperState.initialValue,
-              checked: null != r ? r : e._wrapperState.initialChecked,
-              onChange: e._wrapperState.onChange
-            });
-          return o;
-        },
-        mountWrapper: function(e, t) {
-          var n = t.defaultValue;
-          e._wrapperState = {
-            initialChecked: null != t.checked ? t.checked : t.defaultChecked,
-            initialValue: null != t.value ? t.value : n,
-            listeners: null,
-            onChange: o.bind(e)
-          };
-        },
-        updateWrapper: function(e) {
-          var t = e._currentElement.props,
-            n = t.checked;
-          null != n && u.setValueForProperty(l.getNodeFromInstance(e), "checked", n || !1);
-          var r = l.getNodeFromInstance(e),
-            o = s.getValue(t);
-          if (null != o) {
-            var i = "" + o;
-            i !== r.value && (r.value = i);
-          } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue), null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
-        },
-        postMountWrapper: function(e) {
-          var t = e._currentElement.props,
-            n = l.getNodeFromInstance(e);
-          switch (t.type) {
-            case "submit":
-            case "reset":
-              break;
-            case "color":
-            case "date":
-            case "datetime":
-            case "datetime-local":
-            case "month":
-            case "time":
-            case "week":
-              n.value = "", n.value = n.defaultValue;
-              break;
-            default:
-              n.value = n.value;
-          }
-          var r = n.name;
-          "" !== r && (n.name = ""), n.defaultChecked = !n.defaultChecked, n.defaultChecked = !n.defaultChecked, "" !== r && (n.name = r);
+    f = (n(0), n(1), {
+      getHostProps: function(e, t) {
+        var n = s.getValue(t),
+          r = s.getChecked(t),
+          o = a({
+            type: void 0,
+            step: void 0,
+            min: void 0,
+            max: void 0
+          }, t, {
+            defaultChecked: void 0,
+            defaultValue: void 0,
+            value: null != n ? n : e._wrapperState.initialValue,
+            checked: null != r ? r : e._wrapperState.initialChecked,
+            onChange: e._wrapperState.onChange
+          });
+        return o;
+      },
+      mountWrapper: function(e, t) {
+        var n = t.defaultValue;
+        e._wrapperState = {
+          initialChecked: null != t.checked ? t.checked : t.defaultChecked,
+          initialValue: null != t.value ? t.value : n,
+          listeners: null,
+          onChange: o.bind(e)
+        };
+      },
+      updateWrapper: function(e) {
+        var t = e._currentElement.props,
+          n = t.checked;
+        null != n && u.setValueForProperty(l.getNodeFromInstance(e), "checked", n || !1);
+        var r = l.getNodeFromInstance(e),
+          o = s.getValue(t);
+        if (null != o) {
+          var i = "" + o;
+          i !== r.value && (r.value = i);
+        } else null == t.value && null != t.defaultValue && r.defaultValue !== "" + t.defaultValue && (r.defaultValue = "" + t.defaultValue), null == t.checked && null != t.defaultChecked && (r.defaultChecked = !!t.defaultChecked);
+      },
+      postMountWrapper: function(e) {
+        var t = e._currentElement.props,
+          n = l.getNodeFromInstance(e);
+        switch (t.type) {
+          case "submit":
+          case "reset":
+            break;
+          case "color":
+          case "date":
+          case "datetime":
+          case "datetime-local":
+          case "month":
+          case "time":
+          case "week":
+            n.value = "", n.value = n.defaultValue;
+            break;
+          default:
+            n.value = n.value;
         }
-      });
+        var r = n.name;
+        "" !== r && (n.name = ""), n.defaultChecked = !n.defaultChecked, n.defaultChecked = !n.defaultChecked, "" !== r && (n.name = r);
+      }
+    });
   e.exports = f;
 }, function(e, t, n) {
   "use strict";
