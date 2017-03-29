@@ -16486,7 +16486,6 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .lazy_filter_select .lfs_list_container .lfs_status {
   display: none;
   font-size: .85rem;
-  margin-bottom: .375rem;
   overflow: hidden;
   padding-top: .25rem;
   padding-bottom: .25rem;
@@ -16666,7 +16665,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 .lazy_filter_select.single .lfs_item {
-  line-height: 1rem;
+  line-height: normal;
   display: block;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -16862,6 +16861,10 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item.group_item {
   padding-left: .75rem
+}
+
+.lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_status_loading_indicator {
+  margin-bottom: .375rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .emoji-outer {

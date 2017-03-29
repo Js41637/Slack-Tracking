@@ -480,9 +480,9 @@
           TS.view.updateTitleBarColor();
         }
       }).catch(function(err) {
-        if (window.console && console.warn && console.error) {
-          console.warn("unable to do anything with refreshTeams rsp");
-          console.error(err);
+        if (TS.console && TS.console.warn && TS.console.error) {
+          TS.console.warn(8675309, "unable to do anything with refreshTeams rsp");
+          TS.console.error(8675309, err);
         }
       });
     },
@@ -3387,12 +3387,10 @@ var _fullToHalf = function(char) {
     if (_enterprise_id) payload["enterprise_id"] = _enterprise_id;
     if (_user_id) payload["user_id"] = _user_id;
     _logs.push(payload);
-    if (_is_debug_mode) {
-      try {
-        console.log(payload);
-      } catch (err) {}
+    if (TS.log) {
+      if (_is_debug_mode) TS.console.log(_LOG_PRI, payload);
+      TS.log(_LOG_PRI, "Event called:", event, args);
     }
-    if (TS.log) TS.log(_LOG_PRI, "Event called:", event, args);
   };
   var _sendDataAndEmptyQueue = function() {
     if (_logs.length === 0) return;

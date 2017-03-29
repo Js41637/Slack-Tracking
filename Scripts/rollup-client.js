@@ -1391,24 +1391,24 @@
       }
       var average_interval = _.sum(raf_interval_duration_history) / raf_interval_duration_history.length;
       if (interval > MAX_INTERVAL_VARIANCE_RATIO * average_interval) {
-        console.log("========");
-        console.log("Enhanced debugging: slowness detected");
-        console.log("Current time: " + now + "; previous frame was at " + prev_raf_handler_time);
-        console.log("Last frame took: " + Math.round(interval) + " ms");
-        console.log("Average frame takes: " + Math.round(average_interval) + " ms");
+        TS.console.log(4, "========");
+        TS.console.log(4, "Enhanced debugging: slowness detected");
+        TS.console.log(4, "Current time: " + now + "; previous frame was at " + prev_raf_handler_time);
+        TS.console.log(4, "Last frame took: " + Math.round(interval) + " ms");
+        TS.console.log(4, "Average frame takes: " + Math.round(average_interval) + " ms");
         if (log_buffer.length) {
-          console.log("Begin logs since last healthy tick:");
+          TS.console.log(4, "Begin logs since last healthy tick:");
           log_buffer.forEach(function(log) {
             var time = log.time - prev_raf_handler_time;
             var time_formatted = "[" + _.padStart(Math.floor(time), 5, " ") + "]";
             var pri = log.pri ? " (" + log.pri + ")" : "";
-            console.log(time_formatted + " " + log.type + pri + ": " + log.msg);
+            TS.console.log(4, time_formatted + " " + log.type + pri + ": " + log.msg);
           });
-          console.log("End logs since last healthy tick");
+          TS.console.log(4, "End logs since last healthy tick");
         } else {
-          console.log("(No logs captured, sorry)");
+          TS.console.log(4, "(No logs captured, sorry)");
         }
-        console.log("========");
+        TS.console.log(4, "========");
       }
       log_buffer.length = 0;
     };
@@ -1487,7 +1487,9 @@
     _logDataToServer(key, Date.now() - window.performance.timing.navigationStart);
   };
   var _setTeamIdleTimeout = function() {
-    var timeout_s = TS.boot_data.version_ts === "dev" ? 5 : 14400;
+    var dev_timeout_s = 5;
+    var prod_timeout_s = 60 * 60 * 12;
+    var timeout_s = TS.boot_data.version_ts === "dev" ? dev_timeout_s : prod_timeout_s;
     TSSSB.call("setTeamIdleTimeout", timeout_s);
   };
 })();
@@ -6806,7 +6808,13 @@
           TS.client.msg_pane.hideNewMsgsJumpLink();
           $("#messages_unread_status").click(function(e) {
             e.preventDefault();
-            TS.client.ui.forceMarkAllRead(TS.model.marked_reasons.clicked);
+            if (TS.boot_data.feature_scrollback_half_measures && TS.client.msg_pane.lastReadIsOlderThanCurrentHistory()) {
+              TS.client.ui.$msgs_scroller_div.animate({
+                scrollTop: 0
+              }, 75);
+            } else {
+              TS.client.ui.forceMarkAllRead(TS.model.marked_reasons.clicked);
+            }
           });
           $("#messages_unread_status .new_msgs_arrow").addClass("hidden");
         } else {
@@ -6816,7 +6824,13 @@
           $("#messages_unread_status .new_msgs_arrow").removeClass("hidden");
           $("#messages_unread_status").click(function(e) {
             e.preventDefault();
-            TS.client.ui.scrollMsgsSoFirstUnreadMsgIsInView();
+            if (TS.boot_data.feature_scrollback_half_measures && TS.client.msg_pane.lastReadIsOlderThanCurrentHistory()) {
+              TS.client.ui.$msgs_scroller_div.animate({
+                scrollTop: 0
+              }, 200);
+            } else {
+              TS.client.ui.scrollMsgsSoFirstUnreadMsgIsInView();
+            }
           });
           $("#messages_unread_status").hover(TS.client.msg_pane.showNewMsgsJumpLink, TS.client.msg_pane.hideNewMsgsJumpLink);
           TS.client.msg_pane.showNewMsgsBar();
@@ -7050,7 +7064,16 @@
       });
     },
     afterHistoryFetch: function(model_ob) {
-      TS.client.msg_pane.rebuildMsgsWithReason("afterHistoryFetch for " + (model_ob ? "#" + model_ob.name : "unspecified"));
+      if (TS.boot_data.feature_scrollback_half_measures && model_ob.scroll_top > 0 && TS.model.ui.last_top_msg) {
+        var $last_top_msg = TS.client.msg_pane.getCanonicalDivForMsg(TS.model.ui.last_top_msg.ts);
+        TS.ui.utility.preventElementFromScrolling($last_top_msg, function() {
+          TS.client.msg_pane.rebuildMsgsWithReason("afterHistoryFetch for " + (model_ob ? model_ob.id : "unspecified"));
+        }, function() {
+          return TS.client.msg_pane.getCanonicalDivForMsg(TS.model.ui.last_top_msg.ts);
+        });
+      } else {
+        TS.client.msg_pane.rebuildMsgsWithReason("afterHistoryFetch for " + (model_ob ? model_ob.id : "unspecified"));
+      }
       TS.view.resizeManually("TS.client.ui.afterHistoryFetch");
       if (TS.client.ui.record_content_visible_metric_after_fetching_model_ob == model_ob.id) {
         TS.metrics.mark("content_visible");
@@ -13154,6 +13177,14 @@
     hideNewMsgsJumpLink: function() {
       $("#messages_unread_status").find(".new_msgs_jump_link").fadeOut(100);
     },
+    lastReadIsOlderThanCurrentHistory: function(model_ob) {
+      model_ob = model_ob || TS.shared.getActiveModelOb();
+      if (!parseInt(model_ob.last_read)) return false;
+      if (!model_ob.msgs || !model_ob.msgs.length) return false;
+      return !_.some(model_ob.msgs, function(msg) {
+        return msg.ts <= model_ob.last_read;
+      });
+    },
     checkUnreads: function() {
       TS.utility.queueRAF(TS.client.ui.checkInlineImgsAndIframesMain);
       TS.client.ui.checkScrollBack();
@@ -13176,10 +13207,10 @@
       var check_that_all_have_been_viewed = false;
       var is_muted = TS.notifs.isCorGMuted(model_ob.id);
       var mark_msgs_read_immediately = TS.model.prefs.mark_msgs_read_immediately;
-      if (TS.boot_data.feature_scrollback_half_measures && mark_msgs_read_immediately && TS.model.prefs.start_scroll_at_oldest && !!parseInt(model_ob.last_read) && model_ob.msgs.length && !model_ob.is_limited) {
-        mark_msgs_read_immediately = _.some(model_ob.msgs, function(msg) {
-          return msg.ts <= model_ob.last_read;
-        });
+      if (TS.boot_data.feature_scrollback_half_measures && mark_msgs_read_immediately && TS.model.prefs.start_scroll_at_oldest && !model_ob.is_limited) {
+        if (TS.client.msg_pane.lastReadIsOlderThanCurrentHistory(model_ob)) {
+          mark_msgs_read_immediately = false;
+        }
       }
       if (mark_msgs_read_immediately) {
         all_unreads_are_seen = true;
@@ -21262,8 +21293,8 @@
       }
       if (TS.client.ui.resetFiles) {
         TS.client.ui.resetFiles();
-      } else if (console && console.warn) {
-        console.warn("TS.client.ui.resetFiles undefined");
+      } else if (TS.console && TS.console.warn) {
+        TS.console.warn(8675309, "TS.client.ui.resetFiles undefined");
       }
       return false;
     },

@@ -10045,6 +10045,11 @@ html.no_touch #snippet_expand_toggle:hover {
   overflow-y: visible
 }
 
+#upload_dialog .modal-body .current_status,
+.share_dialog .current_status {
+  margin-left: .3rem
+}
+
 #file_comment_textarea {
   height: 66px;
   max-height: 112px!important

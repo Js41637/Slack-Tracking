@@ -1378,44 +1378,44 @@
       }
     },
     debugShowStatus: function() {
-      console.group("TS.api status");
+      TS.console.group(2, "TS.api status");
       if (_is_paused) {
         if (_pause_secs) {
-          console.log("API calls are paused for " + _pause_secs + "more seconds");
+          TS.console.log(2, "API calls are paused for " + _pause_secs + "more seconds");
         } else {
-          console.log("API calls are paused.");
+          TS.console.log(2, "API calls are paused.");
         }
       } else {
-        console.log("API calls are NOT paused");
+        TS.console.log(2, "API calls are NOT paused");
       }
-      console.warn("Pending count is " + _pending + ", main queue length is " + _main_Q.length + ", and one-at-a-time queue length is " + _one_at_a_time_Q.length);
+      TS.console.warn(2, "Pending count is " + _pending + ", main queue length is " + _main_Q.length + ", and one-at-a-time queue length is " + _one_at_a_time_Q.length);
       if (_method_call_counts.total_asks == _method_call_counts.total_attempts) {
-        console.log("Total API calls made (there have been no retries): " + _method_call_counts.total_asks);
+        TS.console.log(2, "Total API calls made (there have been no retries): " + _method_call_counts.total_asks);
       } else {
-        console.log("Total API calls made (not including retries): " + _method_call_counts.total_asks);
-        console.log("Total API calls made (including retries): " + _method_call_counts.total_attempts);
+        TS.console.log(2, "Total API calls made (not including retries): " + _method_call_counts.total_asks);
+        TS.console.log(2, "Total API calls made (including retries): " + _method_call_counts.total_attempts);
       }
       if (_method_call_counts.total_non_200s) {
-        console.warn("Total non-200 API responses: " + _method_call_counts.total_non_200s);
+        TS.console.warn(2, "Total non-200 API responses: " + _method_call_counts.total_non_200s);
       } else {
-        console.log("No non-200 API responses");
+        TS.console.log(2, "No non-200 API responses");
       }
-      console.groupEnd("TS.api status");
+      TS.console.groupEnd(2, "TS.api status");
     },
     debugShowQueue: function() {
       _.forEach({
         main: _main_Q,
         "one-at-a-time": _one_at_a_time_Q
       }, function(queue, queue_name) {
-        console.group("TS.api " + queue_name + " queue");
+        TS.console.group(2, "TS.api " + queue_name + " queue");
         if (queue.length) {
           queue.forEach(function(pending_call) {
-            console.log(pending_call.method, pending_call.args);
+            TS.console.log(2, pending_call.method, pending_call.args);
           });
         } else {
-          console.log("Nothing pending in " + queue_name + " queue");
+          TS.console.log(2, "Nothing pending in " + queue_name + " queue");
         }
-        console.groupEnd("TS.api " + queue_name + " queue");
+        TS.console.groupEnd(2, "TS.api " + queue_name + " queue");
       });
     },
     debugSetPaused: function(paused) {
@@ -1427,10 +1427,10 @@
           },
           retry_after: debug_pause_secs * 1e3
         });
-        console.log("API calls are now paused for", debug_pause_secs, "seconds");
+        TS.console.log(2, "API calls are now paused for", debug_pause_secs, "seconds");
       } else {
         _unPause();
-        console.log("API calls are now unpaused");
+        TS.console.log(2, "API calls are now unpaused");
       }
     },
     runNextFromQueue: function() {
@@ -1460,7 +1460,7 @@
       canonical_avatars: true
     }
   };
-  var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list", "subteams.users.list", "subteams.list", "channels.replies", "groups.replies", "im.replies", "subscriptions.thread.getView"];
+  var _ensure_model_methodsA = ["activity.mentions", "stars.list", "files.list", "files.info", "search.messages", "search.files", "channels.history", "groups.history", "im.history", "mpim.history", "channels.listShared", "groups.listShared", "unread.history", "pins.list", "subteams.users.list", "subteams.list", "channels.replies", "groups.replies", "im.replies", "subscriptions.thread.getView", "chat.command"];
   var _timing_methodsA = ["rtm.start", "rtm.leanStart", "files.list"];
   var _progress_check_methodsA = ["rtm.start", "rtm.leanStart", "activity.mentions", "stars.list", "files.list", "files.info", "apps.list", "commands.list", "channels.list", "emoji.list", "help.issues.list", "subteams.list", "subteams.users.list", "rtm.checkFastReconnect"];
   var _one_at_a_time_methodsA = ["users.prefs.set", "rtm.start", "rtm.leanStart", "rtm.checkFastReconnect", "enterprise.setPhoto", "signup.createTeam"];
@@ -13015,12 +13015,12 @@ TS.registerModule("constants", {
   var _FILTER_API_COUNT = 100;
   var _APPROXIMATE_ITEM_HEIGHT = TS.client ? 92 : 116;
   var _includeOrg = function() {
-    if (_.get(TS, "web.admin.view") == "list" && TS.boot_data.feature_api_admin_page) return false;
+    if (_.get(TS, "web.admin.view") == "list" && TS.boot_data.feature_api_admin_page && TS.boot_data.page_needs_enterprise) return false;
     return TS.boot_data.page_needs_enterprise;
   };
   var _useSolrSearch = function(args) {
     if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) return true;
-    if (_.get(TS, "web.admin.view") == "list" && TS.boot_data.feature_api_admin_page) return true;
+    if (_.get(TS, "web.admin.view") == "list" && TS.boot_data.feature_api_admin_page && TS.boot_data.page_needs_enterprise) return true;
   };
   var _storeFilterArgumentsByScrollerId = function(scroller_id, options) {
     _arguments_map[scroller_id] = options;
@@ -16751,8 +16751,8 @@ TS.registerModule("constants", {
             return;
           }
           if (imsg.hidden) {
-            console.error("WE SHOULD NOT BE GETTING ANY HIDDEN MESSAGES ANYMORE");
-            console.dir(0, imsg);
+            TS.console.error(2, "WE SHOULD NOT BE GETTING ANY HIDDEN MESSAGES ANYMORE");
+            TS.console.dir(2, 0, imsg);
           }
         }
         TS.ms.msg_handlers[subtype_method_name](imsg);
@@ -20893,7 +20893,7 @@ TS.registerModule("constants", {
     buildInlineImgToggler: function(key, container_id, no_bytes, args) {
       var inline_img = TS.model.inline_imgs[key];
       if (!inline_img) {
-        console.warn("buildInlineImgToggler did not find anything in TS.model.inline_imgs for key:" + key);
+        TS.console.warn(8675309, "buildInlineImgToggler did not find anything in TS.model.inline_imgs for key:" + key);
         return "";
       }
       var expand_it = TS.inline_imgs.shouldExpand(container_id, inline_img, args);
@@ -30373,9 +30373,9 @@ TS.registerModule("constants", {
       redirect_type: 3,
       rewrite_on_right_click: true
     };
-    var can_warn = window.console !== undefined && console.warn;
+    var can_warn = TS.console && TS.console.warn;
     if (!window.bowser) {
-      if (can_warn) console.warn("window.bowser undefined, defaulting to restrictive referrer policy");
+      if (can_warn) TS.console.warn(8675309, "window.bowser undefined, defaulting to restrictive referrer policy");
       _referer_policy = def;
       return _referer_policy;
     }
@@ -30412,7 +30412,7 @@ TS.registerModule("constants", {
       return _referer_policy;
     }
     if (navigator.userAgent && navigator.userAgent.match(/phantomjs/i)) can_warn = false;
-    if (can_warn) console.warn("browser not recognized, defaulting to restrictive referrer policy");
+    if (can_warn) TS.console.warn(8675309, "browser not recognized, defaulting to restrictive referrer policy");
     _referer_policy = def;
     return def;
   };
@@ -45915,16 +45915,14 @@ $.fn.togglify = function(settings) {
       instance._slug_id_counter = 1;
       instance.run = _run;
       if (instance.data_promise) {
-        if (instance._running_promise) instance._running_promise.cancel("Uhhh...");
+        if (_isRunningPromisePending(instance)) instance._running_promise.cancel("Uhhh...");
         instance._running_promise = _runDataPromiseQuery(instance, "").then(function(data) {
           instance.data = data;
           instance.run();
           _bindUI(instance);
         }, function(error) {
           _bindUI(instance);
-          _showStatus(instance, instance.errorTemplate(error), {
-            internal_error_message: "Something failed while trying to return the initial data for lazyFilterSelect."
-          });
+          _showErrorStatus(instance, error, "Something failed while trying to return the initial data for lazyFilterSelect.");
         });
       } else {
         if (instance.data) instance.data = instance.data.slice();
@@ -46162,7 +46160,7 @@ $.fn.togglify = function(settings) {
           _callScrollCallback(instance, instance._previous_val, instance._page_number + 1);
           instance._scroll_callback_was_called = true;
         } else if (scroll_mark > instance.scroll_threshold && instance._scroll_callback_was_called) {
-          if (instance._running_promise) instance._running_promise.cancel("User scrolled back and we do not need to add more data");
+          if (_isRunningPromisePending(instance)) instance._running_promise.cancel("User scrolled back and we do not need to add more data");
           instance._scroll_callback_was_called = false;
         }
       });
@@ -46264,10 +46262,9 @@ $.fn.togglify = function(settings) {
     });
   };
   var _callScrollCallback = function(instance, query, page_number) {
-    if (instance._running_promise) instance._running_promise.cancel("Scrolling happened");
+    if (_isRunningPromisePending(instance)) instance._running_promise.cancel("Scrolling happened");
     if (instance._all_done_fetching) return;
     instance._running_promise = instance.data_promise(query, page_number).then(function(response) {
-      instance._running_promise = null;
       var new_data = response;
       if (new_data.items) new_data = new_data.items;
       if (new_data && new_data.length) {
@@ -46292,9 +46289,7 @@ $.fn.togglify = function(settings) {
         instance._all_done_fetching = true;
       }
     }, function(error) {
-      _showStatus(instance, instance.errorTemplate(error), {
-        internal_error_message: "Something failed while trying to return the next batch of data for lazyFilterSelect."
-      });
+      _showErrorStatus(instance, error, "Something failed while trying to return the next batch of data for lazyFilterSelect.");
     });
   };
   var _canAddNewItem = function(instance) {
@@ -46474,12 +46469,11 @@ $.fn.togglify = function(settings) {
   var _populate = function(instance, data) {
     if (!data) data = instance.data;
     if (!data) {
-      _showStatus(instance, instance.errorTemplate());
+      _showErrorStatus(instance);
       return;
     }
     if (data.length === 0) {
-      var status = instance.noResultsTemplate(instance.$filter_input.val());
-      _showStatus(instance, status);
+      _showNoResultsStatus(instance);
       return;
     }
     _hideStatus(instance, {
@@ -46627,14 +46621,12 @@ $.fn.togglify = function(settings) {
     instance._page_number = 1;
     if (instance._list_built) instance.$list.longListView("scrollToTop", true);
     if (instance.data_promise) {
-      if (instance._running_promise) instance._running_promise.cancel("User entered more text");
+      if (_isRunningPromisePending(instance)) instance._running_promise.cancel("User entered more text");
       instance._running_promise = _runDataPromiseQuery(instance, query).then(function(data) {
         _doAllTheThingsRequiredWithNewData(instance, data);
         _showList(instance, keep_value);
       }, function(error) {
-        _showStatus(instance, instance.errorTemplate(error), {
-          internal_error_message: "Something failed while trying to return the filtered data for lazyFilterSelect."
-        });
+        _showErrorStatus(instance, error, "Something failed while trying to return the filtered data for lazyFilterSelect.");
       });
     } else {
       _showList(instance, keep_value);
@@ -46649,8 +46641,10 @@ $.fn.togglify = function(settings) {
         instance._all_done_fetching = true;
         resolve([]);
       } else {
+        _.delay(function() {
+          if (_isRunningPromisePending(instance)) _showLoadingStatus(instance);
+        }, 650);
         instance.data_promise(query).then(function(response) {
-          instance._running_promise = null;
           response = response || {};
           if (!_.isUndefined(response.all_items_fetched)) {
             instance._all_done_fetching = !!response.all_items_fetched;
@@ -46660,11 +46654,18 @@ $.fn.togglify = function(settings) {
           }
           var data = (response.items || response).slice();
           resolve(data);
+          _hideStatus(instance, {
+            keep_input_active: true
+          });
         }, function(error) {
           reject(error);
+          _hideStatus(instance);
         });
       }
     });
+  };
+  var _isRunningPromisePending = function(instance) {
+    return instance._running_promise && instance._running_promise.isPending();
   };
   var _select = function(instance, direction) {
     if (instance.disabled) return;
@@ -46919,18 +46920,40 @@ $.fn.togglify = function(settings) {
   var _usingMinQueryLength = function(instance) {
     return _.isFunction(instance.data_promise) && instance.min_query_length;
   };
+  var _showErrorStatus = function(instance, error, internal_message) {
+    _showStatus(instance, instance.errorTemplate(error), {
+      internal_error_message: internal_message,
+      clear_active_items: true
+    });
+  };
+  var _showNoResultsStatus = function(instance) {
+    var message = instance.noResultsTemplate(instance.$filter_input.val());
+    _showStatus(instance, message, {
+      clear_active_items: true
+    });
+  };
+  var _showLoadingStatus = function(instance) {
+    var message = TS.i18n.t("Loading results…", "lazy_filter_select")();
+    _showStatus(instance, message, {
+      show_loading_indicator: true
+    });
+  };
   var _showStatus = function(instance, message, options) {
-    if (!_isFilterInListStyle(instance)) instance.$input_container.addClass("active");
     options = options || {};
-    instance._$active = null;
     instance._showing_status = true;
     if (options.internal_error_message) {
       TS.error(options.internal_error_message);
     }
-    instance.$status_content.html(message);
+    if (!_isFilterInListStyle(instance)) {
+      instance.$input_container.addClass("active");
+    }
     if (options.show_loading_indicator) {
       instance.$status_loading_indicator.removeClass("hidden");
     }
+    if (options.clear_active_items) {
+      instance._$active = null;
+    }
+    instance.$status_content.html(message);
     instance.$list_container.addClass(_SHOW_STATUS_CLASSNAME);
   };
   var _hideStatus = function(instance, options) {
@@ -68845,8 +68868,7 @@ $.fn.togglify = function(settings) {
     }, {
       key: "_unmountContainer",
       value: function() {
-        this._div && (this._containerNode.removeChild(this._div), this._div = null),
-          this._containerNode = null;
+        this._div && (this._containerNode.removeChild(this._div), this._div = null), this._containerNode = null;
       }
     }, {
       key: "_updateDivDimensions",
@@ -76821,8 +76843,7 @@ $.fn.togglify = function(settings) {
         return "clipboardData" in e ? e.clipboardData : window.clipboardData;
       }
     };
-  o.augmentClass(r, i),
-    e.exports = r;
+  o.augmentClass(r, i), e.exports = r;
 }, function(e, t, n) {
   "use strict";
 

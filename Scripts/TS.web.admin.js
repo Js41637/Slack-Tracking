@@ -89,8 +89,8 @@
           TS.web.admin.sort_order = $("#admin_sort").val() || "screen_name";
         }
         TS.web.admin.active_tab = $(".tab_pane.selected").data("tab");
-        if (TS.boot_data.feature_api_admin_page) _setSelectedTab();
-        if (!TS.boot_data.feature_api_admin_page) {
+        if (_isApiAdminPage()) _setSelectedTab();
+        if (!_isApiAdminPage()) {
           var member_map = {};
           TS.model.members.forEach(function(member) {
             member_map[member.id] = member;
@@ -137,7 +137,7 @@
           });
           member_map = undefined;
         }
-        if (TS.boot_data.feature_api_admin_page) {
+        if (_isApiAdminPage()) {
           _bindLongListApiFilterUI();
         } else {
           _bindLongListFilterUI();
@@ -178,7 +178,7 @@
       $("#admin_sort").bind("change", function() {
         if ($(this).val() != TS.web.admin.sort_order) {
           TS.web.admin.sort_order = $(this).val();
-          if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") {
+          if (_isApiAdminPage()) {
             _getLongListApiData();
           } else {
             TS.web.admin.sortList();
@@ -238,7 +238,7 @@
           _last_search_range = range;
         });
       }
-      if (!TS.boot_data.feature_api_admin_page) _removeLoadingAnimation();
+      if (!_isApiAdminPage()) _removeLoadingAnimation();
       if (!TS.web.admin.lazyload) {
         TS.web.admin.lazyload = $("#admin_list").find(".lazy").lazyload();
       }
@@ -269,6 +269,9 @@
       var bots = result.items.bots;
       var restricted_members = result.items.restricted_members;
       var ultra_restricted_members = result.items.ultra_restricted_members;
+      _.remove(bots, {
+        is_slackbot: true
+      });
       var active_members_list_items = members.slice(0);
       if (bots.length) {
         if (!result.no_dividers) active_members_list_items.push({
@@ -497,7 +500,7 @@
           TS.web.admin.accepted_invites = boot_data.accepted_invites;
         }
       }
-      if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") {
+      if (_isApiAdminPage()) {
         _getLongListApiData();
       } else {
         TS.web.admin.sortList();
@@ -511,7 +514,7 @@
         TS.web.admin.lazyload.detachEvents();
         TS.web.admin.lazyload = null;
       }
-      if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") {
+      if (_isApiAdminPage()) {
         _getLongListApiData();
       } else {
         TS.web.admin.buildArrays();
@@ -548,7 +551,7 @@
       }
       $(".admin_tabs").find("a").bind("click.switch_tabs", function() {
         TS.web.admin.active_tab = $(this).data("tab");
-        if (TS.boot_data.feature_api_admin_page) _setSelectedTab();
+        if (_isApiAdminPage()) _setSelectedTab();
         if (TS.web.admin.tabs_need_rebuild) {
           TS.web.admin.rebuildList();
           TS.web.admin.tabs_need_rebuild = false;
@@ -722,7 +725,7 @@
       TS.web.admin.rebuildList();
     },
     updateTabCounts: function() {
-      if (TS.boot_data.feature_api_admin_page) return;
+      if (_isApiAdminPage()) return;
       var $active_count = $("#active_members_tab").find(".count");
       var $restricted_tab = $("#restricted_members_tab");
       var $disabled_tab = $("#disabled_members_tab");
@@ -2225,7 +2228,7 @@
       return null;
     },
     isSubsetCase: function() {
-      return !(TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") && boot_data.member_list_subset;
+      return !_isApiAdminPage() && boot_data.member_list_subset;
     },
     getMembersForUser: function() {
       return _members;
@@ -2320,7 +2323,7 @@
     TS.model.ui_state.tab_name = TS.web.admin.active_tab + "_members";
   };
   var _getListItemsForFilter = function(filter) {
-    if (TS.boot_data.feature_api_admin_page) {
+    if (_isApiAdminPage()) {
       _current_filter = filter;
       return {
         active: _active_list_items,
@@ -2443,7 +2446,7 @@
         show_disabled_matches: tab.name != "disabled" && has_disabled_results,
         show_restricted_matches: tab.name != "restricted" && has_restricted_results
       };
-      if (TS.boot_data.feature_api_admin_page) {
+      if (_isApiAdminPage()) {
         template_args.active_matches = {
           length: _members_api_count
         };
@@ -2514,7 +2517,7 @@
     return _.toString($("input.member_filter").val()).trim();
   };
   var _buildGuestLongList = function($target) {
-    if (TS.boot_data.feature_api_admin_page) {
+    if (_isApiAdminPage()) {
       _makeMemberLongListView($target, []);
       return [];
     }
@@ -2555,7 +2558,7 @@
     return restricted_list_items;
   };
   var _buildMemberLongList = function($target, all_bots_and_members) {
-    if (TS.boot_data.feature_api_admin_page) {
+    if (_isApiAdminPage()) {
       _makeMemberLongListView($target, []);
       return [];
     }
@@ -2677,7 +2680,7 @@
     $("#active_members_tab").find(".count").text(_members_api_count);
   };
   var _moveMemberTo = function(member, destination) {
-    if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") return _getLongListApiData(true);
+    if (_isApiAdminPage()) return _getLongListApiData(true);
     var collections = [TS.web.admin.active_members, TS.web.admin.restricted_members, TS.web.admin.ultra_restricted_members, TS.web.admin.disabled_members];
     var counts = ["active_members_count", "restricted_members_count", "ultra_restricted_members_count", "disabled_members_count"];
     var found_in;
@@ -2726,5 +2729,8 @@
       need_upsert = true;
     }
     if (need_upsert) TS.members.upsertMember(member);
+  };
+  var _isApiAdminPage = function() {
+    return TS.boot_data.page_needs_enterprise && TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list";
   };
 })();
