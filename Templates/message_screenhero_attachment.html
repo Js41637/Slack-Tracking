@@ -4,7 +4,7 @@
 
 <div class="sh_call_container {{makeSHRoomClass room.id}} {{#unless show_room_link}}sh_call_ended{{/unless}} {{#unless expand_it}}sh_call_collapsed{{/unless}}" data-room-id="{{ room.id }}">
   <span class="meta">{{title}}<span class="furled_desc">:
-  {{#if show_room_link}}<a class="room_name" href="{{room_url}}" target="screenhero_{{room.id}}">{{emojiGraphicReplace room_name}}</a>{{else}}{{emojiGraphicReplace room_name}}{{/if}}</span>
+  {{#if show_room_link}}<a class="room_name" href="{{room_url}}" target="screenhero_{{room.id}}">{{emojiGraphicReplace meta_room_name}}</a>{{else}}{{emojiGraphicReplace meta_room_name}}{{/if}}</span>
   {{{inlineRoomPreviewToggler room.id}}}
   </span>
   <div class="screenhero_attachment clearfix">
@@ -22,7 +22,7 @@
           {{#if show_room_link}}</a>{{/if}}
         {{else}}
           {{#if room.name}}
-            <span class="room_name">{{emojiGraphicReplace room.name}}</span> <span class="pipe_separator">|</span>
+            <span class="room_name">{{emojiGraphicReplace room_name}}</span> <span class="pipe_separator">|</span>
           {{/if}}
           {{#if show_room_link}}
             <a class="screenhero_room_link" target="screenhero_{{room.id}}" href="{{room_url}}">{{description}}</a>

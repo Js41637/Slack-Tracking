@@ -15178,8 +15178,8 @@
             error: results.error
           });
         }
-        if (TS.boot_data.team_limit_ts > 0 && TS.experiment.getGroup("msg_lim_viz_2") === "msg_limit_top_original_copy") {
-          $("#search_results_message_limit_top").removeClass("hidden");
+        if (TS.boot_data.team_limit_ts > 0) {
+          $("#search_results_message_limit").removeClass("hidden");
           $("#search_results_team").addClass("no_margin");
           TS.clog.track("GROWTH_PRICING", {
             contexts: {
@@ -15187,17 +15187,6 @@
                 step: "search_pane",
                 action: "impression",
                 ui_element: "message_search_link_top"
-              }
-            }
-          });
-        } else if (TS.boot_data.team_limit_ts > 0) {
-          $("#search_results_message_limit_bottom").removeClass("hidden");
-          TS.clog.track("GROWTH_PRICING", {
-            contexts: {
-              ui_context: {
-                step: "search_pane",
-                action: "impression",
-                ui_element: "message_search_link_bottom"
               }
             }
           });
@@ -15242,8 +15231,7 @@
           });
         }
         $("#search_results_file_limit").removeClass("hidden");
-        $("#search_results_message_limit_top").addClass("hidden");
-        $("#search_results_message_limit_bottom").addClass("hidden");
+        $("#search_results_message_limit").addClass("hidden");
       }
       $("#search_results_items").find(".search_jump_maybe").tooltip("destroy");
       $("#search_results_items").html(html);
