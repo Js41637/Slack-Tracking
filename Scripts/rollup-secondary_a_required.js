@@ -42568,7 +42568,7 @@ var _on_esc;
             TS.ui.toast.show({
               type: "success",
               message: TS.i18n.t("Request to create <b>{team_name}</b> sent! You‘ll be notified once it‘s reviewed.", "enterprise_workspaces")({
-                team_name: name_value
+                team_name: TS.utility.htmlEntities(name_value)
               })
             });
             TS.generic_dialog.end();
@@ -42581,7 +42581,7 @@ var _on_esc;
             var data = resp.data;
             var errors = {
               name_taken: TS.i18n.t("Request failed: The team name <b>{team_name}</b> is already taken.", "enterprise_workspaces")({
-                team_name: name_value
+                team_name: TS.utility.htmlEntities(name_value)
               }),
               name_is_empty: TS.i18n.t("Request failed: A team name is required.", "enterprise_workspaces")(),
               name_too_long: TS.i18n.t("Request failed: The team name you provided is too long.", "enterprise_workspaces")(),
