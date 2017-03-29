@@ -3,7 +3,7 @@
 {{!-- hbslint-disable syntax --}}
 {{!-- Todo: enable syntax linter and enable safeString --}}
 
-<div class="file_container generic_container">
+<div class="file_container generic_container{{#feature flag="feature_gsuite_rich_previews"}}{{#if file.thumb_480}} file_has_thumb{{/if}}{{/feature}}">
 
   <a data-file-id="{{file.id}}"
     target="{{#isClient}}{{newWindowName}}{{else}}_blank{{/isClient}}"
@@ -34,16 +34,6 @@
 
     <h4 class="file_header_title generic_header_title overflow_ellipsis">{{#if file.title}}{{{formatFileTitle file}}}{{else}}{{file.name}}{{/if}}</h4>
 
-    {{#feature flag="feature_gsuite_rich_previews"}}
-
-      {{!-- Placeholder for the actual thumbnail until we get design/FE support --}}
-
-      {{#if file.thumb_480}}
-        <img src="{{file.thumb_480}}" width="480" />
-      {{/if}}
-
-    {{/feature}}
-
     <p class="file_header_meta generic_header_meta">
       {{#if filesize}}
         <span class="meta_size">{{convertFilesize file.size}}</span><span class="meta_hover_placement">
@@ -73,6 +63,11 @@
       </span></span>
     </p>
 
+    {{#feature flag="feature_gsuite_rich_previews"}}
+      {{#if file.thumb_480}}
+        <div class="file_thumb{{#if_gt file.thumb_480_w compare=file.thumb_480_h}} file_thumb_landscape{{/if_gt}}" style="background-image: url('{{file.thumb_480}}');"></div>
+      {{/if}}
+    {{/feature}}
   </a>
 
   {{#if is_message}}

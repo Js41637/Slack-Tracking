@@ -14478,86 +14478,6 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   margin-left: 45px
 }
 
-body.staff_member_directory #page_contents {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  -moz-flex-direction: column;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  position: relative;
-  max-height: calc(100vh + 505px + 96px)
-}
-
-body.staff_member_directory #page_contents #active_members_list,
-body.staff_member_directory #page_contents #deleted_members_list,
-body.staff_member_directory #page_contents #restricted_members_list {
-  overflow-y: scroll
-}
-
-body.member_directory #page_contents {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -moz-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-direction: column;
-  -moz-flex-direction: column;
-  -webkit-flex-direction: column;
-  flex-direction: column;
-  position: relative;
-  max-height: 100vh;
-  padding-bottom: 2rem
-}
-
-body.member_directory #page_contents #active_members_list,
-body.member_directory #page_contents #deleted_members_list,
-body.member_directory #page_contents #restricted_members_list {
-  overflow-y: scroll
-}
-
-body.member_directory .list_items,
-body.staff_member_directory .list_items {
-  -ms-flex: 1;
-  -webkit-flex: 1;
-  flex: 1
-}
-
-body.member_directory .card+#team_list,
-body.staff_member_directory .card+#team_list {
-  visibility: hidden
-}
-
-body.member_directory .members_long_list,
-body.member_directory .tab_pane,
-body.staff_member_directory .members_long_list,
-body.staff_member_directory .tab_pane {
-  padding-right: 1rem
-}
-
-@media only screen and (max-height:768px),
-screen and (max-width:640px) {
-  body.staff_member_directory #page_contents {
-    max-height: calc(100vh + 505px + 64px);
-    min-height: calc(850px + 505px + 64px)
-  }
-  body.member_directory #page_contents {
-    min-height: 850px
-  }
-}
-
-@media only screen and (max-width:640px) {
-  body.staff_member_directory #page_contents {
-    max-height: calc(100vh + 505px - 64px)
-  }
-  body.member_directory #page_contents {
-    padding-bottom: 1rem
-  }
-}
-
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -16566,6 +16486,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .lazy_filter_select .lfs_list_container .lfs_status {
   display: none;
   font-size: .85rem;
+  margin-bottom: .375rem;
   overflow: hidden;
   padding-top: .25rem;
   padding-bottom: .25rem;
@@ -16574,6 +16495,13 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   text-align: center;
   text-overflow: ellipsis;
   width: 100%
+}
+
+.lazy_filter_select .lfs_list_container .lfs_status .lfs_status_content,
+.lazy_filter_select .lfs_list_container .lfs_status .lfs_status_loading_indicator {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle
 }
 
 .lazy_filter_select .lfs_list_container.show_status .lfs_list {

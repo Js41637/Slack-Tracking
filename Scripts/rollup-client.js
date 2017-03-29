@@ -2610,9 +2610,13 @@
       if (TS.boot_data.feature_user_custom_status) TS.view.members.updateUserCurrentStatus();
       TS.view.showProperTeamPaneFiller();
       var is_long_list_view = TS.boot_data.page_needs_enterprise && !TS.lazyLoadMembersAndBots();
-      var include_bots = true;
-      var include_deleted = false;
-      TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", true, is_long_list_view, include_bots, include_deleted);
+      var options = {
+        full_profile_filter: true,
+        is_long_list_view: is_long_list_view,
+        include_bots: true,
+        include_deleted: false
+      };
+      TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", options);
       TS.client.channel_pane.$scroller.css("visibility", "visible");
       TS.view.showInterstitialAfterChannelOrImShown();
       TS.view.prefs.toggleSpellcheck();

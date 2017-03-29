@@ -10593,7 +10593,7 @@ TS.registerModule("constants", {
   "use strict";
   TS.registerModule("teams", {
     added_sig: new signals.Signal,
-    changed_name_sig: new signals.Signal,
+    rename_sig: new signals.Signal,
     changed_sig: new signals.Signal,
     unlinked_sig: new signals.Signal,
     changed_icon_sig: new signals.Signal,
@@ -10667,6 +10667,20 @@ TS.registerModule("constants", {
       if (team && team.name) return team.name;
       return null;
     },
+    updateTeamName: function(imsg) {
+      if (!imsg.name) return;
+      var team = TS.teams.getTeamById(imsg.source_team);
+      if (!team) return;
+      team.name = imsg.name;
+      TS.teams.upsertAndSignal(team);
+    },
+    updateTeamIcon: function(imsg) {
+      if (!imsg.icon) return;
+      var team = TS.teams.getTeamById(imsg.source_team);
+      if (!team) return;
+      team.icon = imsg.icon;
+      TS.teams.upsertAndSignal(team);
+    },
     upsertAndSignal: function(team) {
       if (!TS.boot_data.feature_shared_channels_client) {
         TS.console.warn("external shared channels must be on to use this");
@@ -10678,7 +10692,7 @@ TS.registerModule("constants", {
           TS.teams.changed_icon_sig.dispatch(upsert.team);
         }
         if (upsert.what_changed.indexOf("name") != -1) {
-          TS.teams.changed_name_sig.dispatch(upsert.team);
+          TS.teams.rename_sig.dispatch(upsert.team);
         }
         if (upsert.what_changed.indexOf("unlinked") != -1) {
           TS.teams.unlinked_sig.dispatch(upsert.team);
@@ -10775,6 +10789,19 @@ TS.registerModule("constants", {
 (function() {
   "use strict";
   TS.registerModule("utility.teams", {
+    onStart: function() {
+      TS.teams.changed_icon_sig.add(TS.utility.teams.updateTeamMembers);
+      TS.teams.rename_sig.add(TS.utility.teams.updateTeamMembers);
+    },
+    updateTeamMembers: function(team) {
+      if (!_.isObject(team)) return;
+      var team_members = TS.utility.teams.getMembersForTeam(team);
+      if (!team_members.length) return;
+      _.forEach(team_members, function(member) {
+        TS.members.changed_profile_sig.dispatch(member);
+      });
+      return;
+    },
     isMemberExternal: function(member) {
       if (!TS.model.shared_channels_enabled) return false;
       if (!_.isObject(member)) return false;
@@ -10802,6 +10829,14 @@ TS.registerModule("constants", {
         return true;
       }
       return false;
+    },
+    getMembersForTeam: function(team) {
+      if (!_.isObject(team)) return;
+      if (!team.id) return;
+      var team_members = _.filter(TS.model.members, {
+        team_id: team.id
+      });
+      return team_members;
     }
   });
 })();
@@ -12843,14 +12878,14 @@ TS.registerModule("constants", {
         }
       }
     },
-    bindTeamFilter: function(filter_container_id, scroller_id, full_profile_filter, is_long_list_view, include_bots, include_deleted) {
+    bindTeamFilter: function(filter_container_id, scroller_id, options) {
+      options = options || {};
       var $div = $(filter_container_id);
       var $input = $div.find("input.member_filter");
       var $icon_close = $div.find(".icon_close");
-      var include_org = TS.boot_data.page_needs_enterprise;
-      _storeFilterArgumentsByScrollerId(scroller_id, full_profile_filter, is_long_list_view, include_org, include_bots, include_deleted);
+      _storeFilterArgumentsByScrollerId(scroller_id, options);
       _query_for_match = null;
-      if (full_profile_filter && !is_long_list_view) {
+      if (options.full_profile_filter && !options.is_long_list_view) {
         $input.on("focus", function() {
           TS.team.ensureTeamProfileFields();
         });
@@ -12862,13 +12897,13 @@ TS.registerModule("constants", {
         }
         var search = function() {
           if (new_query.trim().toLocaleLowerCase() !== _query_for_match) {
-            TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter).then(function() {
+            TS.members.view.filterTeam(new_query, filter_container_id, scroller_id, options).then(function() {
               if (TS.view) TS.view.rebuildUserGroupList();
             });
           }
           $icon_close.toggleClass("hidden", !new_query.trim());
         };
-        if (is_long_list_view) {
+        if (options.is_long_list_view) {
           search();
         } else {
           TS.members.view.filter_timer = window.setTimeout(search, TS.members.getMembersForUser().length > 500 ? 250 : 50);
@@ -12883,14 +12918,14 @@ TS.registerModule("constants", {
         }, 0);
       });
     },
-    filterTeam: function(new_query, filter_container_id, scroller_id, full_profile_filter) {
+    filterTeam: function(new_query, filter_container_id, scroller_id, options) {
       var args = _getFilterArgumentsByScrollerId(scroller_id);
-      if (full_profile_filter || args && args.full_profile_filter) {
+      if (_.get(options, "full_profile_filter") || _.get(args, "full_profile_filter")) {
         return TS.team.ensureTeamProfileFields().then(function() {
-          if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
-            return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args.full_profile_filter, args.include_org, args.include_bots, args.include_deleted);
+          if (_useSolrSearch(args)) {
+            return _promiseToFilterTeam(new_query, filter_container_id, scroller_id, args);
           }
-          _filterTeam(new_query, filter_container_id, scroller_id, full_profile_filter);
+          _filterTeam(new_query, filter_container_id, scroller_id, options);
           return Promise.resolve();
         });
       }
@@ -12931,8 +12966,9 @@ TS.registerModule("constants", {
       }
       $input.val("");
       $icon_close.addClass("hidden");
-      if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) {
-        TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args.full_profile_filter);
+      if (_useSolrSearch(args)) {
+        _cleanUpPromiseToFilterTeam(scroller_id);
+        TS.members.view.filterTeam(_query_for_match, filter_container_id, scroller_id, args);
       } else {
         $(".restricted_header, .bot_header, .ra_invite_prompt, .restricted_info").removeClass("hidden");
         $list_items_container.find(".no_results").addClass("hidden");
@@ -12970,6 +13006,7 @@ TS.registerModule("constants", {
   var _lazy_clones = {};
   var _label_map = {};
   var _arguments_map = {};
+  var _team_list_items = {};
   var _filters = {
     members: {},
     restricted: {},
@@ -12977,19 +13014,23 @@ TS.registerModule("constants", {
   };
   var _FILTER_API_COUNT = 100;
   var _APPROXIMATE_ITEM_HEIGHT = TS.client ? 92 : 116;
-  var _storeFilterArgumentsByScrollerId = function(scroller_id, full_profile_filter, is_long_list_view, include_org, include_bots, include_deleted) {
-    _arguments_map[scroller_id] = {
-      full_profile_filter: !!full_profile_filter,
-      is_long_list_view: !!is_long_list_view,
-      include_org: !!include_org,
-      include_bots: !!include_bots,
-      include_deleted: !!include_deleted
-    };
+  var _includeOrg = function() {
+    if (_.get(TS, "web.admin.view") == "list" && TS.boot_data.feature_api_admin_page) return false;
+    return TS.boot_data.page_needs_enterprise;
+  };
+  var _useSolrSearch = function(args) {
+    if (TS.boot_data.page_needs_enterprise && args && args.is_long_list_view) return true;
+    if (_.get(TS, "web.admin.view") == "list" && TS.boot_data.feature_api_admin_page) return true;
+  };
+  var _storeFilterArgumentsByScrollerId = function(scroller_id, options) {
+    _arguments_map[scroller_id] = options;
   };
   var _getFilterArgumentsByScrollerId = function(scroller_id) {
     var args = _arguments_map[scroller_id];
-    if (args) return args;
-    TS.error("Missing arguments for a bound filter");
+    if (!args) return void TS.error("Missing arguments for a bound filter");
+    if (_.isFunction(args)) args = args() || {};
+    args.include_org = _includeOrg();
+    return args;
   };
   var _updateTabCounts = function() {
     if (TS.lazyLoadMembersAndBots()) return;
@@ -13043,28 +13084,28 @@ TS.registerModule("constants", {
     if (TS.client) {
       $(scroller_id).off("scroll.filter").scrollTop(0);
     } else if (TS.web) {
-      $("#active_members_list").off("scroll.filter").scrollTop(0);
-      $("#restricted_members_list").off("scroll.filter").scrollTop(0);
-      $("#deleted_members_list").off("scroll.filter").scrollTop(0);
+      $(window).off("scroll.filter").scrollTop(0);
     }
   };
-  var _promiseToFilterTeam = function(raw_query, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
+  var _promiseToFilterTeam = function(raw_query, filter_container_id, scroller_id, options) {
     var query_for_display = raw_query.trim();
     _query_for_match = query_for_display.toLocaleLowerCase();
     TS.storage.storeFilterState(_query_for_match);
-    var new_query = _filters.filter_last_query !== _query_for_match || _filters.filter_last_include_org !== include_org;
+    var new_query = _filters.filter_last_query !== _query_for_match || _filters.filter_last_include_org !== options.include_org || _filters.filter_last_sort !== options.sort || _filters.filter_last_sort_dir !== options.sort_dir;
     if (new_query) {
       _cleanUpPromiseToFilterTeam(scroller_id);
       _filters.filter_last_query = _query_for_match;
-      _filters.filter_last_include_org = include_org;
+      _filters.filter_last_include_org = options.include_org;
+      if (options.sort) _filters.filter_last_sort = options.sort;
+      if (options.sort_dir) _filters.filter_last_sort_dir = options.sort_dir;
     }
     _startSpinner(filter_container_id);
     var promiseToFilter = function() {
       return Promise.resolve().then(function() {
-        return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, full_profile_filter, include_org, include_bots, include_deleted);
+        return _promiseToSearchAndCombineResults(_filters, new_query, _query_for_match, options);
       }).then(function(response) {
         _stopSpinner(filter_container_id);
-        return _displayPromiseToSearchResults(response, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
+        return _displayPromiseToSearchResults(response, _filters, new_query, _query_for_match, query_for_display, filter_container_id, scroller_id, options);
       }).finally(function() {
         TS.utility.rAF(function() {
           if (TS.client) TS.ui.utility.updateClosestMonkeyScroller($(scroller_id));
@@ -13078,7 +13119,7 @@ TS.registerModule("constants", {
     }
     return _filters.filter_p;
   };
-  var _promiseToSearchAndCombineResults = function(filters, new_query, query_for_match, full_profile_filter, include_org, include_bots, include_deleted) {
+  var _promiseToSearchAndCombineResults = function(filters, new_query, query_for_match, options) {
     var need_more_m = new_query || TS.model.ui_state.tab_name == "active_members" && filters.members.filter_num_remaining;
     var need_more_r = new_query || TS.model.ui_state.tab_name == "restricted_members" && filters.restricted.filter_num_remaining;
     var need_more_d = new_query || TS.model.ui_state.tab_name == "disabled_members" && filters.members.filter_num_remaining;
@@ -13086,12 +13127,20 @@ TS.registerModule("constants", {
       _updateTabCounts();
       return Promise.resolve(filters.filtered_items);
     }
-    filters.members.filter_p = need_more_m ? _promiseToSearch(filters.members, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, false) : Promise.resolve([]);
-    filters.restricted.filter_p = need_more_r ? _promiseToSearch(filters.restricted, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, true) : Promise.resolve([]);
-    var include_only_deleted = 2;
-    filters.deleted.filter_p = need_more_d ? _promiseToSearch(filters.deleted, query_for_match, full_profile_filter, include_org, include_bots, include_only_deleted, false) : Promise.resolve([]);
+    var members_options = _.assign({}, options, {
+      restricted: false
+    });
+    filters.members.filter_p = need_more_m ? _promiseToSearch(filters.members, query_for_match, members_options) : Promise.resolve([]);
+    var restricted_options = _.assign({}, options, {
+      restricted: true
+    });
+    filters.restricted.filter_p = need_more_r ? _promiseToSearch(filters.restricted, query_for_match, restricted_options) : Promise.resolve([]);
+    var deleted_options = _.assign({}, options, {
+      include_deleted: 2
+    });
+    filters.deleted.filter_p = need_more_d ? _promiseToSearch(filters.deleted, query_for_match, deleted_options) : Promise.resolve([]);
     return Promise.join(filters.members.filter_p, filters.restricted.filter_p, filters.deleted.filter_p, function(members, restricted, deleted) {
-      var matches = TS.members.allocateTeamListMembers(members.concat(restricted, deleted));
+      var matches = (options.sort ? _allocateTeamListMembers : TS.members.allocateTeamListMembers)(members.concat(restricted, deleted));
       matches.members = _.uniqBy(matches.members, function(member) {
         return member.id;
       });
@@ -13117,14 +13166,28 @@ TS.registerModule("constants", {
       return Promise.resolve(filters.filtered_items);
     });
   };
-  var _displayPromiseToSearchResults = function(items, filters, new_query, query_for_match, query_for_display, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted) {
+  var _displayPromiseToSearchResults = function(items, filters, new_query, query_for_match, query_for_display, filter_container_id, scroller_id, options) {
     if (!items) return;
+    if (_.get(TS, "web.admin")) {
+      return TS.web.admin.setLongListAdminListItems({
+        items: items,
+        no_dividers: !!query_for_match,
+        query: query_for_match,
+        new_query: !!new_query,
+        num_found: {
+          members: _filters.members.filter_num_found || 0,
+          restricted: _filters.restricted.filter_num_found || 0,
+          disabled: _filters.deleted.filter_num_found || 0
+        }
+      }, function() {
+        _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, options);
+      });
+    }
     _updateTabCounts();
-    var team_list_items;
     if (TS.client) {
-      team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
-    } else {
-      team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
+      _team_list_items = TS.view.buildLongListTeamListItems(items, !!query_for_match);
+    } else if (TS.web.members) {
+      _team_list_items = TS.web.members.buildLongListTeamListItems(items, !!query_for_match);
     }
     var need_to_reset_current_subtab = false;
     if (TS.model.ui_state.tab_name === "disabled_members" && (_filters.deleted.filter_num_found || 0) === 0) need_to_reset_current_subtab = true;
@@ -13140,17 +13203,17 @@ TS.registerModule("constants", {
     }
     var $active_members_list = $("#active_members_list");
     if ($active_members_list.length) {
-      $active_members_list.longListView("setItems", team_list_items.active_members_list_items);
+      $active_members_list.longListView("setItems", _team_list_items.active_members_list_items);
       if (new_query) $active_members_list.longListView("scrollToTop");
     }
     var $restricted_members_list = $("#restricted_members_list");
     if ($restricted_members_list.length) {
-      $restricted_members_list.longListView("setItems", team_list_items.restricted_members_list_items);
+      $restricted_members_list.longListView("setItems", _team_list_items.restricted_members_list_items);
       if (new_query) $restricted_members_list.longListView("scrollToTop");
     }
     var $deleted_members_list = $("#deleted_members_list");
     if ($deleted_members_list.length) {
-      $deleted_members_list.longListView("setItems", team_list_items.deleted_members_list_items);
+      $deleted_members_list.longListView("setItems", _team_list_items.deleted_members_list_items);
       if (new_query) $deleted_members_list.longListView("scrollToTop");
     }
     var active_matches = items.members.concat(items.bots);
@@ -13207,7 +13270,7 @@ TS.registerModule("constants", {
               if (maybe_scroll_mark <= filters.members.filter_scroll_mark) return;
               list_items_height = $list.height();
               if (maybe_scroll_mark > list_items_height && filters.members.filter_p && filters.members.filter_p.isResolved()) {
-                _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
+                _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, options);
                 filters.members.filter_scroll_mark = maybe_scroll_mark;
               }
             }
@@ -13215,35 +13278,42 @@ TS.registerModule("constants", {
               if (maybe_scroll_mark <= filters.restricted.filter_scroll_mark) return;
               list_items_height = $list.height();
               if (maybe_scroll_mark > list_items_height && filters.restricted.filter_p && filters.restricted.filter_p.isResolved()) {
-                _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
+                _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, options);
                 filters.restricted.filter_scroll_mark = maybe_scroll_mark;
               }
             }
           });
         } else if (TS.web) {
-          var scroll = function($el, filter) {
-            if (!$el.length) return;
-            $el.on("scroll.filter", function(e) {
-              var maybe_scroll_mark = $el.scrollTop() + $el.height() + _APPROXIMATE_ITEM_HEIGHT;
-              var list_items_height;
-              if (maybe_scroll_mark <= filters.members.filter_scroll_mark) return;
-              list_items_height = $el.find(".list_items").height();
-              if (maybe_scroll_mark > list_items_height && filters.members.filter_p && filters.members.filter_p.isResolved()) {
-                _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, full_profile_filter, include_org, include_bots, include_deleted);
-                filters.members.filter_scroll_mark = maybe_scroll_mark;
-              }
-            });
-          };
-          scroll($("#active_members_list"), filters.members);
-          scroll($("#restricted_members_list"), filters.restricted);
-          scroll($("#deleted_members_list"), filters.deleted);
+          $(window).off("scroll.filter").on("scroll.filter", _.throttle(function() {
+            var count = 0;
+            var filter_p = null;
+            if (TS.model.ui_state.tab_name == "active_members") {
+              count = _team_list_items.active_members_list_items.length;
+              filter_p = filters.members.filter_p;
+            }
+            if (TS.model.ui_state.tab_name == "restricted_members") {
+              count = _team_list_items.restricted_members_list_items.length;
+              filter_p = filters.restricted.filter_p;
+            }
+            if (TS.model.ui_state.tab_name == "disabled_members") {
+              count = _team_list_items.deleted_members_list_items.length;
+              filter_p = _filters.deleted.filter_p;
+            }
+            var buffer = .9 * _FILTER_API_COUNT;
+            var list_items_height = Math.max(count - buffer, 0) * _APPROXIMATE_ITEM_HEIGHT;
+            if (list_items_height && $(this).scrollTop() > list_items_height && filter_p && filter_p.isResolved()) {
+              _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, options);
+            }
+          }, 50, {
+            leading: true
+          }));
         }
       }
       var count_for_query = (filters.members.filter_num_found || 0) + (filters.restricted.filter_num_found || 0) + (filters.deleted.filter_num_found || 0);
       TS.members.view.team_filter_changed_sig.dispatch(query_for_display, count_for_query);
     }
   };
-  var _buildPromiseToSearchArguments = function(filter, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, restricted) {
+  var _buildPromiseToSearchArguments = function(filter, query_for_match, options) {
     var matchers = [];
     if (query_for_match) {
       matchers = query_for_match.split(/\s*,\s*|\s+/).map(function(q) {
@@ -13251,7 +13321,7 @@ TS.registerModule("constants", {
       }).filter(function(q) {
         return !!q;
       }).map(function(query) {
-        if (query.length === 1 || !full_profile_filter) {
+        if (query.length === 1 || !options.full_profile_filter) {
           if (TS.boot_data.feature_name_tagging_client) {
             var is_full_name_match = TS.utility.search.makeClause("full_name", query);
             var is_preferred_name_match = TS.utility.search.makeClause("preferred_name", query);
@@ -13263,11 +13333,11 @@ TS.registerModule("constants", {
           var is_name_or_real_name_match = TS.utility.search.makeConjunction("OR", [is_name_match, is_real_name_match]);
           return is_name_or_real_name_match;
         }
-        return TS.utility.search.makeClause("fuzzy", query);
+        return TS.utility.search.makeClause("fuzzy_with_email", query);
       });
     }
     matchers.push(TS.utility.search.makeClause("is", "user"));
-    if (restricted) {
+    if (options.restricted) {
       var restricted_matcher = TS.utility.search.makeClause("level", "restricted");
       var ultra_restricted_matcher = TS.utility.search.makeClause("level", "ultra_restricted");
       matchers.push(TS.utility.search.makeConjunction("OR", [restricted_matcher, ultra_restricted_matcher]));
@@ -13276,15 +13346,18 @@ TS.registerModule("constants", {
     var calling_args = {
       query: query,
       count: _FILTER_API_COUNT,
-      include_bots: include_bots,
-      include_deleted: include_deleted
+      include_bots: options.include_bots,
+      include_deleted: options.include_deleted
     };
-    if (include_org) calling_args.all_of_org = include_org;
+    if (options.sort) calling_args.sort = options.sort;
+    if (options.sort_dir) calling_args.sort_dir = options.sort_dir;
+    if (options.include_org) calling_args.all_of_org = options.include_org;
     if (filter.filter_cursor_mark) calling_args.cursor_mark = filter.filter_cursor_mark;
+    if (options.endpoint) calling_args.endpoint = options.endpoint;
     return calling_args;
   };
-  var _promiseToSearch = function(filter, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, restricted) {
-    var calling_args = _buildPromiseToSearchArguments(filter, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, restricted);
+  var _promiseToSearch = function(filter, query_for_match, options) {
+    var calling_args = _buildPromiseToSearchArguments(filter, query_for_match, options);
     if (TS.lazyLoadMembersAndBots()) {
       calling_args.raw_query = query_for_match;
     }
@@ -13299,7 +13372,7 @@ TS.registerModule("constants", {
       var matches = response.data.items.map(function(member) {
         var full_member = TS.members.getMemberById(member.id);
         if (!full_member) {
-          if (include_org && member.team_id !== TS.model.team.id) {
+          if (options.include_org && member.team_id !== TS.model.team.id) {
             member.is_primary_owner = false;
             member.is_owner = false;
             member.is_admin = false;
@@ -13308,17 +13381,17 @@ TS.registerModule("constants", {
         }
         return full_member;
       });
-      if (!restricted) {
+      if (!options.restricted) {
         matches = matches.filter(function(member) {
           return !member.is_restricted;
         });
       }
       if (matches.length) return Promise.resolve(matches);
-      if (filter.filter_num_remaining) return _promiseToSearch(filter, query_for_match, full_profile_filter, include_org, include_bots, include_deleted, restricted);
+      if (filter.filter_num_remaining) return _promiseToSearch(filter, query_for_match, options);
       return Promise.resolve([]);
     });
   };
-  var _filterTeam = function(new_query, filter_container_id, scroller_id, full_profile_filter) {
+  var _filterTeam = function(new_query, filter_container_id, scroller_id, options) {
     var $div = $(filter_container_id);
     var query_for_display = new_query.trim();
     _query_for_match = query_for_display.toLocaleLowerCase();
@@ -13437,7 +13510,7 @@ TS.registerModule("constants", {
         id = item.data("member-id");
         node_hash[id] = item;
       });
-      var all_matches = _findMatchesInMemberList(all_members, _query_for_match, full_profile_filter);
+      var all_matches = _findMatchesInMemberList(all_members, _query_for_match, options.full_profile_filter);
       var keys = Object.keys(all_matches);
       if (keys.length > 0) {
         _displayMatches(all_matches, keys, node_hash, disabled_matches, restricted_matches, active_matches, lazy_load ? scroller_id : "");
@@ -13645,6 +13718,33 @@ TS.registerModule("constants", {
     $disabled_parent = null;
     $restricted_parent = null;
     $active_parent = null;
+  };
+  var _allocateTeamListMembers = function(members) {
+    return _.reduce(members, function(result, member) {
+      if (member.deleted) {
+        if (member.is_bot) {
+          result.deleted_bots.push(member);
+        } else {
+          result.disabled_members.push(member);
+        }
+      } else if (member.is_ultra_restricted) {
+        result.ultra_restricted_members.push(member);
+      } else if (member.is_restricted) {
+        result.restricted_members.push(member);
+      } else if (member.is_bot || member.is_slackbot) {
+        result.bots.push(member);
+      } else {
+        result.members.push(member);
+      }
+      return result;
+    }, {
+      members: [],
+      disabled_members: [],
+      deleted_bots: [],
+      bots: [],
+      restricted_members: [],
+      ultra_restricted_members: []
+    });
   };
   var _is_web_admin_page;
   var _findMatchesInMemberList = function(members, query, include_profile_fields) {
@@ -17764,19 +17864,27 @@ TS.registerModule("constants", {
       });
     },
     team_rename: function(imsg) {
-      $("#team_name").text(imsg.name);
-      document.title = document.title.replace(TS.model.last_team_name, imsg.name);
-      if (TS.ui.growls.original_document_title) {
-        TS.ui.growls.original_document_title = TS.ui.growls.original_document_title.replace(TS.model.last_team_name, imsg.name);
+      if (imsg.source_team && imsg.source_team !== TS.model.team.id) {
+        TS.teams.updateTeamName(imsg);
+      } else {
+        $("#team_name").text(imsg.name);
+        document.title = document.title.replace(TS.model.last_team_name, imsg.name);
+        if (TS.ui.growls.original_document_title) {
+          TS.ui.growls.original_document_title = TS.ui.growls.original_document_title.replace(TS.model.last_team_name, imsg.name);
+        }
+        TS.model.last_team_name = TS.model.team.name = imsg.name;
+        TS.team.team_name_changed_sig.dispatch(TS.model.team);
+        TSSSB.call("teamNameChanged", imsg.name);
       }
-      TS.model.last_team_name = TS.model.team.name = imsg.name;
-      TS.team.team_name_changed_sig.dispatch(TS.model.team);
-      TSSSB.call("teamNameChanged", imsg.name);
     },
     team_icon_change: function(imsg) {
       if (!imsg.icon) return;
-      TS.model.team.icon = imsg.icon;
-      if (TS.client) TS.client.updateTeamIcon();
+      if (imsg.source_team && imsg.source_team !== TS.model.team.id) {
+        TS.teams.updateTeamIcon(imsg);
+      } else {
+        TS.model.team.icon = imsg.icon;
+        if (TS.client) TS.client.updateTeamIcon();
+      }
     },
     bot_added: function(imsg) {
       var bot = imsg.bot;
@@ -18094,9 +18202,8 @@ TS.registerModule("constants", {
     var ensureBotsAndMembers = function() {
       if (missing_b_ids.length) {
         return TS.bots.ensureBotsArePresent(missing_b_ids).then(ensureMembers);
-      } else {
-        return ensureMembers();
       }
+      return ensureMembers();
     };
     var ensureMembers = function() {
       return TS.members.ensureMembersArePresent(missing_m_ids.m_ids, missing_m_ids.c_ids, missing_m_ids.t_ids).then(function() {
@@ -18313,7 +18420,7 @@ TS.registerModule("constants", {
         _deleted_user_ids = start_data.deleted_users;
         var required_member_ids = _([data.mpims, data.ims]).flatten().map(function(ob) {
           return ob.members || [ob.user];
-        }).flatten().concat(_.get(data, "self.id")).uniq().compact().value();
+        }).flatten().concat(_.get(data, "self.id")).concat(_.get(TS.boot_data, "file.user")).uniq().compact().value();
         if (TS.model.ms_logged_in_once && !TS.isPartiallyBooted()) {
           var known_member_ids = _.map(TS.model.members, "id");
           required_member_ids = _.difference(required_member_ids, known_member_ids);
@@ -21139,9 +21246,13 @@ TS.registerModule("constants", {
         show_user_groups_add: show_user_groups_add,
         is_enterprise: TS.boot_data.page_needs_enterprise
       }));
-      var include_bots = true;
-      var include_deleted = false;
-      TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", true, is_long_list_view, include_bots, include_deleted);
+      var options = {
+        full_profile_filter: true,
+        is_long_list_view: is_long_list_view,
+        include_bots: true,
+        include_deleted: false
+      };
+      TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", options);
       $("#team_filter input").bind("focus", function() {
         $("#team_filter .icon_search").addClass("indifferent_grey");
       }).bind("blur", function() {
@@ -24025,6 +24136,11 @@ TS.registerModule("constants", {
           $(this).attr("src", proxied_url);
         });
         return $html.html();
+      });
+      Handlebars.registerHelper("stripImageTags", function(html) {
+        var $html = $("<div>" + html + "</div>");
+        var new_html = $html.find("img").remove().end().html();
+        return new Handlebars.SafeString(new_html);
       });
       Handlebars.registerHelper("generalName", function() {
         var chan = TS.channels.getGeneralChannel();
@@ -34705,10 +34821,20 @@ var _on_esc;
       TS.menu.menu_closed_sig.addOnce(function() {
         _member_presence_list.clear();
       });
-      var template_args = _getTemplateArgumentsAndMaybeShowKickMenu(e, member, {
+      var template_args = _getTemplateArguments(member, {
         is_header_menu: is_header_menu,
         is_im_menu: is_im_menu
       });
+      if (template_args.channel_kick_name && template_args.channel_kick_hidden) {
+        var model_ob = TS.shared.getActiveModelOb();
+        TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [member.id]).then(function() {
+          if (!TS.model.menu_is_showing) return;
+          if (TS.menu.last_e !== e) return;
+          if (TS.membership.getUserChannelMembershipStatus(member.id, model_ob).is_member) {
+            TS.menu.$menu_items.find("#member_kick_channel_item").removeClass("hidden");
+          }
+        });
+      }
       if (is_im_menu) {
         TS.menu.$menu_header.addClass("hidden").empty();
       } else {
@@ -34901,12 +35027,12 @@ var _on_esc;
     },
     test: function() {
       var test = {};
-      Object.defineProperty(test, "_getTemplateArgumentsAndMaybeShowKickMenu", {
+      Object.defineProperty(test, "_getTemplateArguments", {
         get: function() {
-          return _getTemplateArgumentsAndMaybeShowKickMenu;
+          return _getTemplateArguments;
         },
         set: function(v) {
-          _getTemplateArgumentsAndMaybeShowKickMenu = v;
+          _getTemplateArguments = v;
         }
       });
       return test;
@@ -34914,7 +35040,7 @@ var _on_esc;
   });
   var _member_presence_list;
   var _use_channel_name_toggle;
-  var _getTemplateArgumentsAndMaybeShowKickMenu = function(e, member, options) {
+  var _getTemplateArguments = function(member, options) {
     options = options || {};
     var template_args = {
       member: member,
@@ -34925,19 +35051,19 @@ var _on_esc;
     if (options.is_im_menu) {
       template_args.im = TS.ims.getImByMemberId(member.id);
     }
-    if (options.is_header_menu && member.id == TS.model.user.id) {
+    if (options.is_header_menu && member.id === TS.model.user.id) {
       template_args.other_accounts = TS.boot_data.other_accounts;
       template_args.logout_url = TS.boot_data.logout_url;
       template_args.signin_url = TS.boot_data.signin_url;
     }
-    if (!member.deleted && !member.is_slackbot && member.id != TS.model.user.id) {
+    if (!member.deleted && !member.is_slackbot && member.id !== TS.model.user.id) {
       if (!TS.model.user.is_ultra_restricted && !member.is_ultra_restricted) {
         template_args.show_channel_invite = true;
       }
     }
     var model_ob = TS.shared.getActiveModelOb();
     if (TS.model.active_channel_id || TS.model.active_group_id) {
-      var member_could_be_removed_from_model_ob = (!model_ob.is_general || member.is_restricted) && member.id != TS.model.user.id;
+      var member_could_be_removed_from_model_ob = (!model_ob.is_general || member.is_restricted) && member.id !== TS.model.user.id;
       if (member_could_be_removed_from_model_ob) {
         var is_eligible_for_kicking;
         var membership_status = TS.membership.getUserChannelMembershipStatus(member.id, model_ob);
@@ -34945,14 +35071,7 @@ var _on_esc;
           is_eligible_for_kicking = membership_status.is_member;
         } else {
           is_eligible_for_kicking = true;
-          template_args.fetching_membership_status = true;
-          TS.membership.ensureChannelMembershipIsKnownForUsers(model_ob.id, [member.id]).then(function() {
-            if (!TS.model.menu_is_showing) return;
-            if (TS.menu.last_e !== e) return;
-            if (TS.membership.getUserChannelMembershipStatus(member.id, model_ob).is_member) {
-              TS.menu.$menu_items.find("#member_kick_channel_item").removeClass("hidden");
-            }
-          });
+          template_args.channel_kick_hidden = true;
         }
         if (is_eligible_for_kicking) {
           if (!member.is_ultra_restricted) {
@@ -34963,7 +35082,7 @@ var _on_esc;
         }
       }
     }
-    if (member.id == "USLACKBOT") {
+    if (member.id === "USLACKBOT") {
       var show_slackbot_responses_item = false;
       if (TS.model.user.is_admin) {
         show_slackbot_responses_item = true;
@@ -34972,7 +35091,7 @@ var _on_esc;
       }
       template_args.show_slackbot_responses_item = show_slackbot_responses_item;
     }
-    if (TS.utility.calls.isEnabled() && !member.is_bot && member.id != "USLACKBOT") {
+    if (TS.utility.calls.isEnabled() && !member.is_bot && member.id !== "USLACKBOT") {
       template_args.show_call_action = true;
       if (TS.boot_data.page_needs_enterprise) {
         var team = TS.model.team;
@@ -45768,6 +45887,8 @@ $.fn.togglify = function(settings) {
       instance.$list_container = $container.find(".lfs_list_container");
       instance.$list = $container.find(".lfs_list");
       instance.$status = $container.find(".lfs_status");
+      instance.$status_loading_indicator = instance.$status.find(".lfs_status_loading_indicator");
+      instance.$status_content = instance.$status.find(".lfs_status_content");
       if (_isFilterInListStyle(instance)) {
         instance.$filter_input = $container.find(".lfs_filter_input");
       } else {
@@ -45778,13 +45899,8 @@ $.fn.togglify = function(settings) {
       instance.run = _run;
       if (instance.data_promise) {
         if (instance._running_promise) instance._running_promise.cancel("Uhhh...");
-        instance._running_promise = instance.data_promise("").then(function(response) {
-          instance._running_promise = null;
-          var data = response;
-          if (data.items) data = data.items;
-          if (typeof response.all_items_fetched !== "undefined") instance._all_done_fetching = !!response.all_items_fetched;
-          if (typeof response.num_remaining !== "undefined" && response.num_remaining === 0) instance._all_done_fetching = true;
-          instance.data = data.slice();
+        instance._running_promise = _runDataPromiseQuery(instance, "").then(function(data) {
+          instance.data = data;
           instance.run();
           _bindUI(instance);
         }, function(error) {
@@ -45824,10 +45940,11 @@ $.fn.togglify = function(settings) {
     },
     input_debounce_wait_time: undefined,
     max_selected_items: Infinity,
+    min_query_length: 0,
     monkey_scroll: true,
     no_default_selection: false,
     noResultsTemplate: function(query) {
-      if (query.length < this.min_query_length) {
+      if (_usingMinQueryLength(this) && query.length < this.min_query_length) {
         return TS.i18n.t("{query_length, plural, =0 {Start typing to see results…} other {Keep typing to see results…}}", "lazy_filter_select")({
           query_length: query.length
         });
@@ -45937,9 +46054,7 @@ $.fn.togglify = function(settings) {
       _hideList(this.instance, {
         force: true
       });
-      _hideStatus(this.instance, {
-        force: true
-      });
+      _hideStatus(this.instance);
     },
     recomputeHeight: function() {
       _updateMonkeyScroll(this.instance);
@@ -46247,8 +46362,9 @@ $.fn.togglify = function(settings) {
     return null;
   };
   var _hideList = function(instance, options) {
+    options = options || {};
     var needs_force = !instance._list_visible || instance.always_visible || instance.disabled;
-    if (needs_force && !_.get(options, "force")) return;
+    if (needs_force && !options.force) return;
     instance._list_visible = false;
     instance.$list_container.removeClass("visible");
     instance.$container.removeClass("list_visible");
@@ -46345,8 +46461,8 @@ $.fn.togglify = function(settings) {
       return;
     }
     if (data.length === 0) {
-      var message = instance.noResultsTemplate(instance.$filter_input.val());
-      _showStatus(instance, message);
+      var status = instance.noResultsTemplate(instance.$filter_input.val());
+      _showStatus(instance, status);
       return;
     }
     _hideStatus(instance, {
@@ -46495,15 +46611,9 @@ $.fn.togglify = function(settings) {
     if (instance._list_built) instance.$list.longListView("scrollToTop", true);
     if (instance.data_promise) {
       if (instance._running_promise) instance._running_promise.cancel("User entered more text");
-      instance._running_promise = instance.data_promise(query).then(function(response) {
-        instance._running_promise = null;
-        var data = response;
-        if (data.items) data = data.items;
-        if (typeof response.all_items_fetched !== "undefined") instance._all_done_fetching = !!response.all_items_fetched;
-        if (typeof response.num_remaining !== "undefined" && response.num_remaining === 0) instance._all_done_fetching = true;
-        data = data.slice();
-        _showList(instance, keep_value);
+      instance._running_promise = _runDataPromiseQuery(instance, query).then(function(data) {
         _doAllTheThingsRequiredWithNewData(instance, data);
+        _showList(instance, keep_value);
       }, function(error) {
         _showStatus(instance, instance.errorTemplate(error), {
           internal_error_message: "Something failed while trying to return the filtered data for lazyFilterSelect."
@@ -46515,6 +46625,29 @@ $.fn.togglify = function(settings) {
       _populate(instance, filtered);
       _adjustInput(instance);
     }
+  };
+  var _runDataPromiseQuery = function(instance, query) {
+    return new Promise(function(resolve, reject) {
+      if (query.length < instance.min_query_length) {
+        instance._all_done_fetching = true;
+        resolve([]);
+      } else {
+        instance.data_promise(query).then(function(response) {
+          instance._running_promise = null;
+          response = response || {};
+          if (!_.isUndefined(response.all_items_fetched)) {
+            instance._all_done_fetching = !!response.all_items_fetched;
+          }
+          if (response.num_remaining === 0) {
+            instance._all_done_fetching = true;
+          }
+          var data = (response.items || response).slice();
+          resolve(data);
+        }, function(error) {
+          reject(error);
+        });
+      }
+    });
   };
   var _select = function(instance, direction) {
     if (instance.disabled) return;
@@ -46611,6 +46744,7 @@ $.fn.togglify = function(settings) {
       instance.$filter_input.val("");
       instance._previous_val = "";
       instance.$filter_input.focus();
+      if (_usingMinQueryLength(instance)) instance.data = [];
       _populate(instance);
     }
     if (instance.set_height) {
@@ -46765,24 +46899,30 @@ $.fn.togglify = function(settings) {
   var _isFilterInListStyle = function(instance) {
     return instance.style === TS.ui.lazy_filter_select.STYLES.filter_in_list;
   };
+  var _usingMinQueryLength = function(instance) {
+    return _.isFunction(instance.data_promise) && instance.min_query_length;
+  };
   var _showStatus = function(instance, message, options) {
     if (!_isFilterInListStyle(instance)) instance.$input_container.addClass("active");
+    options = options || {};
     instance._$active = null;
     instance._showing_status = true;
-    var internal_error_message = _.get(options, "internal_error_message");
-    if (internal_error_message) {
-      TS.error(internal_error_message);
+    if (options.internal_error_message) {
+      TS.error(options.internal_error_message);
     }
-    instance.$status.html(message);
+    instance.$status_content.html(message);
+    if (options.show_loading_indicator) {
+      instance.$status_loading_indicator.removeClass("hidden");
+    }
     instance.$list_container.addClass(_SHOW_STATUS_CLASSNAME);
   };
   var _hideStatus = function(instance, options) {
-    var needs_force = instance.always_visible || instance.disabled;
-    if (needs_force && !_.get(options, "force")) return;
+    options = options || {};
     instance._showing_status = false;
-    if (!_.get(options, "keep_input_active")) {
+    if (!options.keep_input_active) {
       instance.$input_container.removeClass("active");
     }
+    instance.$status_loading_indicator.addClass("hidden");
     instance.$list_container.removeClass(_SHOW_STATUS_CLASSNAME);
   };
   var _onContainerMouseleave = function(instance) {
@@ -53657,7 +53797,9 @@ $.fn.togglify = function(settings) {
       ["sort", "sort_direction", "count", "cursor_mark", "include_bots", "include_deleted"].forEach(function(key) {
         if (args[key]) calling_args[key] = args[key];
       });
-      return TS.api.call(args.all_of_org ? "search.enterprise" : "search.team", calling_args).catch(_handleError);
+      var endpoint = args.endpoint;
+      if (!endpoint) endpoint = args.all_of_org ? "search.enterprise" : "search.team";
+      return TS.api.call(endpoint, calling_args).catch(_handleError);
     }
   });
   var _validateClauseParameters = function(type, value, field_id) {
@@ -57360,6 +57502,7 @@ $.fn.togglify = function(settings) {
             errorTemplate: _errorTemplate,
             filter: _filter,
             input_debounce_wait_time: _getInputDebounceWaitTime($el),
+            min_query_length: _.get(context, "action.min_query_length"),
             no_default_selection: true,
             onItemAdded: _onItemAdded,
             onListShown: _getOnListShownCallback($el),
@@ -63879,7 +64022,8 @@ $.fn.togglify = function(settings) {
             function r(t) {
               var n = p,
                 r = d;
-              return p = d = oe, _ = t, v = e.apply(r, n);
+              return p = d = oe,
+                _ = t, v = e.apply(r, n);
             }
 
             function o(e) {
@@ -73761,8 +73905,7 @@ $.fn.togglify = function(settings) {
         return n.bind.call(n, e, function() {}, t);
       }, y.prototype.trigger = function(e, t) {
         var n = this;
-        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e),
-          n;
+        return n._directMap[e + ":" + t] && n._directMap[e + ":" + t]({}, e), n;
       }, y.prototype.reset = function() {
         var e = this;
         return e._callbacks = {}, e._directMap = {}, e;
@@ -78289,7 +78432,8 @@ $.fn.togglify = function(settings) {
           var e = (g ? g : "") + ".resize-triggers { " + (_ ? _ : "") + 'visibility: hidden; opacity: 0; } .resize-triggers, .resize-triggers > div, .contract-trigger:before { content: " "; display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; z-index: -1; } .resize-triggers > div { background: #eee; overflow: auto; } .contract-trigger:before { width: 200%; height: 200%; }',
             t = document.head || document.getElementsByTagName("head")[0],
             n = document.createElement("style");
-          n.id = "detectElementResize", n.type = "text/css", n.styleSheet ? n.styleSheet.cssText = e : n.appendChild(document.createTextNode(e)), t.appendChild(n);
+          n.id = "detectElementResize", n.type = "text/css", n.styleSheet ? n.styleSheet.cssText = e : n.appendChild(document.createTextNode(e)),
+            t.appendChild(n);
         }
       },
       b = function(n, r) {

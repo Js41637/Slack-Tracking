@@ -7487,6 +7487,7 @@ ts-inline-saver.failed .failed {
 .lazy_filter_select .lfs_list_container .lfs_status {
   display: none;
   font-size: .85rem;
+  margin-bottom: .375rem;
   overflow: hidden;
   padding-top: .25rem;
   padding-bottom: .25rem;
@@ -7495,6 +7496,13 @@ ts-inline-saver.failed .failed {
   text-align: center;
   text-overflow: ellipsis;
   width: 100%
+}
+
+.lazy_filter_select .lfs_list_container .lfs_status .lfs_status_content,
+.lazy_filter_select .lfs_list_container .lfs_status .lfs_status_loading_indicator {
+  display: inline-block;
+  line-height: 1;
+  vertical-align: middle
 }
 
 .lazy_filter_select .lfs_list_container.show_status .lfs_list {

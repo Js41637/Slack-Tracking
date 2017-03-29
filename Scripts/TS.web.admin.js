@@ -88,53 +88,60 @@
         } else {
           TS.web.admin.sort_order = $("#admin_sort").val() || "screen_name";
         }
-        TS.web.admin_active_tab = $(".tab_pane.selected").data("tab");
-        var member_map = {};
-        TS.model.members.forEach(function(member) {
-          member_map[member.id] = member;
-        });
-        var member;
-        Object.keys(boot_data.all_members).forEach(function(k) {
-          member = boot_data.all_members[k];
-          var match = member_map[k];
-          if (!match) {
-            TS.warn("We have a member that is not in the local model but is in all_members: " + k);
-            return;
-          }
-          match.email_pending = member.email_pending || "";
-          match.is_inactive = member.is_inactive || false;
-          match.username_is_editable = member.username_is_editable || false;
-          match.email_is_editable = member.email_is_editable || false;
-          match.omit_caret = member.omit_caret || false;
-          match.bot_can_be_enabled = member.bot_can_be_enabled || false;
-          match.bot_can_be_configured = member.bot_can_be_configured || false;
-          if (match.deleted) {
-            match.is_restricted = member.is_restricted || false;
-            match.is_ultra_restricted = member.is_ultra_restricted || false;
-          }
-          if (match.is_restricted || match.is_ultra_restricted) {
-            var membership_match = boot_data.channel_membership[match.id];
-            if (membership_match) {
-              match.channels = membership_match.channels;
-              match.groups = membership_match.groups;
-              match.more_groups = membership_match.more_groups;
+        TS.web.admin.active_tab = $(".tab_pane.selected").data("tab");
+        if (TS.boot_data.feature_api_admin_page) _setSelectedTab();
+        if (!TS.boot_data.feature_api_admin_page) {
+          var member_map = {};
+          TS.model.members.forEach(function(member) {
+            member_map[member.id] = member;
+          });
+          var member;
+          Object.keys(boot_data.all_members).forEach(function(k) {
+            member = boot_data.all_members[k];
+            var match = member_map[k];
+            if (!match) {
+              TS.warn("We have a member that is not in the local model but is in all_members: " + k);
+              return;
             }
-          }
-          if (member.two_factor_auth_enabled !== undefined) {
-            match.two_factor_auth_enabled = member.two_factor_auth_enabled;
-            if (member.two_factor_type !== undefined) {
-              match.two_factor_type = member.two_factor_type;
+            match.email_pending = member.email_pending || "";
+            match.is_inactive = member.is_inactive || false;
+            match.username_is_editable = member.username_is_editable || false;
+            match.email_is_editable = member.email_is_editable || false;
+            match.omit_caret = member.omit_caret || false;
+            match.bot_can_be_enabled = member.bot_can_be_enabled || false;
+            match.bot_can_be_configured = member.bot_can_be_configured || false;
+            if (match.deleted) {
+              match.is_restricted = member.is_restricted || false;
+              match.is_ultra_restricted = member.is_ultra_restricted || false;
             }
-          }
-          if (boot_data.auth_mode != "normal" && member.has_sso_token !== undefined) {
-            match.has_sso_token = member.has_sso_token;
-          }
-          match.created = member.created;
-          if (TS.boot_data.all_emails && TS.boot_data.all_emails[k]) match.profile.email = TS.boot_data.all_emails[k];
-          TS.members.upsertMember(match);
-        });
-        member_map = undefined;
-        _bindLongListFilterUI();
+            if (match.is_restricted || match.is_ultra_restricted) {
+              var membership_match = boot_data.channel_membership[match.id];
+              if (membership_match) {
+                match.channels = membership_match.channels;
+                match.groups = membership_match.groups;
+                match.more_groups = membership_match.more_groups;
+              }
+            }
+            if (member.two_factor_auth_enabled !== undefined) {
+              match.two_factor_auth_enabled = member.two_factor_auth_enabled;
+              if (member.two_factor_type !== undefined) {
+                match.two_factor_type = member.two_factor_type;
+              }
+            }
+            if (boot_data.auth_mode != "normal" && member.has_sso_token !== undefined) {
+              match.has_sso_token = member.has_sso_token;
+            }
+            match.created = member.created;
+            if (TS.boot_data.all_emails && TS.boot_data.all_emails[k]) match.profile.email = TS.boot_data.all_emails[k];
+            TS.members.upsertMember(match);
+          });
+          member_map = undefined;
+        }
+        if (TS.boot_data.feature_api_admin_page) {
+          _bindLongListApiFilterUI();
+        } else {
+          _bindLongListFilterUI();
+        }
       } else if (TS.web.admin.view == "invites") {
         TS.web.admin.sort_order = "invite_date";
         TS.web.admin.active_tab = "pending";
@@ -171,8 +178,12 @@
       $("#admin_sort").bind("change", function() {
         if ($(this).val() != TS.web.admin.sort_order) {
           TS.web.admin.sort_order = $(this).val();
-          TS.web.admin.sortList();
-          TS.web.admin.rebuildList();
+          if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") {
+            _getLongListApiData();
+          } else {
+            TS.web.admin.sortList();
+            TS.web.admin.rebuildList();
+          }
         }
       });
       TS.web.admin.rebuildList();
@@ -227,7 +238,7 @@
           _last_search_range = range;
         });
       }
-      $("#admin_list .tab_panels .loading_hash_animation").remove();
+      if (!TS.boot_data.feature_api_admin_page) _removeLoadingAnimation();
       if (!TS.web.admin.lazyload) {
         TS.web.admin.lazyload = $("#admin_list").find(".lazy").lazyload();
       }
@@ -249,6 +260,84 @@
           TS.log(1e3, invite.id + " (invited by " + _.get(invite, "inviter.id") + ")");
         });
       }
+    },
+    setLongListAdminListItems: function(result, next_page) {
+      _removeLoadingAnimation();
+      var members = result.items.members;
+      var disabled_members = result.items.disabled_members;
+      var deleted_bots = result.items.deleted_bots;
+      var bots = result.items.bots;
+      var restricted_members = result.items.restricted_members;
+      var ultra_restricted_members = result.items.ultra_restricted_members;
+      var active_members_list_items = members.slice(0);
+      if (bots.length) {
+        if (!result.no_dividers) active_members_list_items.push({
+          is_divider: true,
+          html: active_bots_header_html
+        });
+        active_members_list_items.push.apply(active_members_list_items, bots);
+      }
+      var restricted_members_list_items = [];
+      if (restricted_members.length || TS.boot_data.can_invite_ras) {
+        if (!result.no_dividers) restricted_members_list_items.push({
+          is_divider: true,
+          html: restricted_header_html
+        });
+      }
+      if (restricted_members.length) {
+        restricted_members_list_items.push.apply(restricted_members_list_items, restricted_members);
+      } else if (TS.boot_data.can_invite_ras) {
+        if (!result.no_dividers) restricted_members_list_items.push({
+          is_divider: true,
+          html: invite_restricted_html
+        });
+      }
+      if (ultra_restricted_members.length || TS.boot_data.can_invite_ras) {
+        if (!result.no_dividers) restricted_members_list_items.push({
+          is_divider: true,
+          html: ultra_restricted_header_html
+        });
+      }
+      if (ultra_restricted_members.length) {
+        restricted_members_list_items.push.apply(restricted_members_list_items, ultra_restricted_members);
+      } else if (TS.boot_data.can_invite_ras) {
+        if (!result.no_dividers) restricted_members_list_items.push({
+          is_divider: true,
+          html: invite_ultra_restricted_html
+        });
+      }
+      var deleted_members_list_items = disabled_members.slice(0);
+      if (deleted_bots.length) {
+        if (!result.no_dividers) deleted_members_list_items.push({
+          is_divider: true,
+          html: active_bots_header_html
+        });
+        deleted_members_list_items.push.apply(deleted_members_list_items, deleted_bots);
+      }
+      _active_list_items = active_members_list_items;
+      _restricted_list_items = restricted_members_list_items;
+      _disabled_list_items = deleted_members_list_items;
+      _([members, disabled_members, deleted_bots, bots, restricted_members, ultra_restricted_members]).each(function(ms) {
+        _(ms.slice(-_FILTER_API_COUNT)).each(_maybeUpsertLongListApiMember);
+      });
+      _updateTabCountsFromApi(result);
+      _displayFilterResult(result.query);
+      $("#admin_list").trigger("resize-immediate");
+      if (result.new_query) _maybeReRenderLongList();
+      $(window).off("scroll.filter").on("scroll.filter", _.throttle(function() {
+        var count = 0;
+        if (TS.web.admin.active_tab === "active") count = _active_list_items.length;
+        if (TS.web.admin.active_tab === "restricted") count = _restricted_list_items.length;
+        if (TS.web.admin.active_tab === "disabled") count = _disabled_list_items.length;
+        var buffer = .9 * _FILTER_API_COUNT;
+        var list_items_height = Math.max(count - buffer, 0) * _APPROXIMATE_ITEM_HEIGHT;
+        if (list_items_height && $(this).scrollTop() > list_items_height && _.isFunction(next_page)) {
+          next_page();
+          next_page = null;
+        }
+      }, 50, {
+        leading: true
+      }));
     },
     sortList: function() {
       if (!TS.web.admin.sort_order) return;
@@ -408,7 +497,11 @@
           TS.web.admin.accepted_invites = boot_data.accepted_invites;
         }
       }
-      TS.web.admin.sortList();
+      if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") {
+        _getLongListApiData();
+      } else {
+        TS.web.admin.sortList();
+      }
     },
     rebuildList: function() {
       var $active_members = $("#active_members");
@@ -418,7 +511,11 @@
         TS.web.admin.lazyload.detachEvents();
         TS.web.admin.lazyload = null;
       }
-      TS.web.admin.buildArrays();
+      if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") {
+        _getLongListApiData();
+      } else {
+        TS.web.admin.buildArrays();
+      }
       var scroller_id;
       $($active_members).find(".long_list").remove();
       $($disabled_members).find(".long_list").remove();
@@ -451,6 +548,7 @@
       }
       $(".admin_tabs").find("a").bind("click.switch_tabs", function() {
         TS.web.admin.active_tab = $(this).data("tab");
+        if (TS.boot_data.feature_api_admin_page) _setSelectedTab();
         if (TS.web.admin.tabs_need_rebuild) {
           TS.web.admin.rebuildList();
           TS.web.admin.tabs_need_rebuild = false;
@@ -624,6 +722,7 @@
       TS.web.admin.rebuildList();
     },
     updateTabCounts: function() {
+      if (TS.boot_data.feature_api_admin_page) return;
       var $active_count = $("#active_members_tab").find(".count");
       var $restricted_tab = $("#restricted_members_tab");
       var $disabled_tab = $("#disabled_members_tab");
@@ -2126,7 +2225,7 @@
       return null;
     },
     isSubsetCase: function() {
-      return boot_data.member_list_subset;
+      return !(TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") && boot_data.member_list_subset;
     },
     getMembersForUser: function() {
       return _members;
@@ -2183,6 +2282,9 @@
       return test_ob;
     }
   });
+  var _APPROXIMATE_ITEM_HEIGHT = 57;
+  var _APPROXIMATE_DIVIDER_HEIGHT = 60;
+  var _FILTER_API_COUNT = 100;
   var _logged_in = false;
   var _groups_loaded = false;
   var _actions_delegated = false;
@@ -2203,7 +2305,30 @@
   var _filtered_disabled_list_items = [];
   var _filtered_restricted_list_items = [];
   var _current_filter = "";
+  var _loading_removed = false;
+  var _members_api_count = 0;
+  var _restricted_api_count = 0;
+  var _disabled_api_count = 0;
+  var _removeLoadingAnimation = function() {
+    if (!_loading_removed) {
+      $("#admin_list .tab_panels .loading_hash_animation").remove();
+      _loading_removed = true;
+    }
+  };
+  var _setSelectedTab = function() {
+    if (!TS.model.ui_state) TS.model.ui_state = {};
+    TS.model.ui_state.tab_name = TS.web.admin.active_tab + "_members";
+  };
   var _getListItemsForFilter = function(filter) {
+    if (TS.boot_data.feature_api_admin_page) {
+      _current_filter = filter;
+      return {
+        active: _active_list_items,
+        disabled: _disabled_list_items,
+        restricted: _restricted_list_items
+      };
+    }
+
     function mergeMemberItemArrays(subset_items, model_items) {
       var subset_member_ids = _.map(subset_items, "id");
       return subset_items.concat(model_items.filter(function(model_item) {
@@ -2273,6 +2398,107 @@
       restricted: _getFilteredModelResultsWithMembers(filter, restricted_members, exclude_results.restricted)
     };
   };
+  var _displayFilterResult = function(filter) {
+    var results = _getListItemsForFilter(filter);
+    var active_results_members = _.reject(results.active, {
+      is_divider: true
+    });
+    var disabled_results_members = _.reject(results.disabled, {
+      is_divider: true
+    });
+    var restricted_results_members = _.reject(results.restricted, {
+      is_divider: true
+    });
+    var has_active_results = active_results_members.length > 0;
+    var has_disabled_results = disabled_results_members.length > 0;
+    var has_restricted_results = restricted_results_members.length > 0;
+    var tabs = [{
+      name: "active",
+      label: "full team members",
+      list_items: results.active
+    }, {
+      name: "restricted",
+      label: "multi-channel guests",
+      list_items: results.restricted
+    }, {
+      name: "disabled",
+      label: "deactivated accounts",
+      list_items: results.disabled
+    }];
+    tabs.forEach(function(tab) {
+      if (tab.list_items.length > 0) {
+        return;
+      }
+      var template_args = {
+        tab: tab,
+        query: filter,
+        pending_matches: [],
+        show_pending_matches: false,
+        accepted_matches: [],
+        show_accepted_matches: false,
+        active_matches: active_results_members,
+        disabled_matches: disabled_results_members,
+        restricted_matches: restricted_results_members,
+        show_active_matches: tab.name != "active" && has_active_results,
+        show_disabled_matches: tab.name != "disabled" && has_disabled_results,
+        show_restricted_matches: tab.name != "restricted" && has_restricted_results
+      };
+      if (TS.boot_data.feature_api_admin_page) {
+        template_args.active_matches = {
+          length: _members_api_count
+        };
+        template_args.disabled_matches = {
+          length: _disabled_api_count
+        };
+        template_args.restricted_matches = {
+          length: _restricted_api_count
+        };
+      }
+      var html = TS.templates.team_list_no_results(template_args);
+      tab.list_items.push({
+        is_divider: true,
+        html: html
+      });
+    });
+    $("#active_members .long_list").longListView("setItems", results.active);
+    $("#disabled_members .long_list").longListView("setItems", results.disabled);
+    $("#restricted_members .long_list").longListView("setItems", results.restricted);
+  };
+  var _getSortByForApi = function() {
+    switch (TS.web.admin.sort_order) {
+      case "screen_name":
+        return "name";
+      case "real_name":
+        return "real_name";
+      case "full_name":
+        return "full_name";
+      case "preferred_name":
+        return "preferred_name";
+      default:
+        return "";
+    }
+  };
+  var _getLongListApiData = function(force_refresh) {
+    if (force_refresh) TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
+    TS.members.view.filterTeam(_current_filter, "#team_filter", "#team_list_scroller");
+  };
+  var _bindLongListApiFilterUI = function() {
+    $(".tab_panels").on("click.filter", ".clear_members_filter", function(e) {
+      TS.members.view.clearFilter("#team_filter", "#team_list_scroller");
+    });
+    var options = function() {
+      return {
+        full_profile_filter: true,
+        is_long_list_view: true,
+        include_bots: true,
+        include_deleted: false,
+        sort_dir: "asc",
+        sort: _getSortByForApi(),
+        endpoint: "users.admin.fetchTeamUsers"
+      };
+    };
+    TS.members.view.bindTeamFilter("#team_filter", "#team_list_scroller", options);
+  };
   var _bindLongListFilterUI = function() {
     var $input = $("input.member_filter");
     $(".tab_panels").on("click", ".clear_members_filter", function(e) {
@@ -2281,65 +2507,17 @@
     $input.on("change keyup cut paste", function(e) {
       var filter = _getFilter();
       if (filter == _current_filter) return;
-      var results = _getListItemsForFilter(filter);
-      var active_results_members = _.reject(results.active, {
-        is_divider: true
-      });
-      var disabled_results_members = _.reject(results.disabled, {
-        is_divider: true
-      });
-      var restricted_results_members = _.reject(results.restricted, {
-        is_divider: true
-      });
-      var has_active_results = active_results_members.length > 0;
-      var has_disabled_results = disabled_results_members.length > 0;
-      var has_restricted_results = restricted_results_members.length > 0;
-      var tabs = [{
-        name: "active",
-        label: "full team members",
-        list_items: results.active
-      }, {
-        name: "restricted",
-        label: "multi-channel guests",
-        list_items: results.restricted
-      }, {
-        name: "disabled",
-        label: "deactivated accounts",
-        list_items: results.disabled
-      }];
-      tabs.forEach(function(tab) {
-        if (tab.list_items.length > 0) {
-          return;
-        }
-        var template_args = {
-          tab: tab,
-          query: filter,
-          pending_matches: [],
-          show_pending_matches: false,
-          accepted_matches: [],
-          show_accepted_matches: false,
-          active_matches: active_results_members,
-          disabled_matches: disabled_results_members,
-          restricted_matches: restricted_results_members,
-          show_active_matches: tab.name != "active" && has_active_results,
-          show_disabled_matches: tab.name != "disabled" && has_disabled_results,
-          show_restricted_matches: tab.name != "restricted" && has_restricted_results
-        };
-        var html = TS.templates.team_list_no_results(template_args);
-        tab.list_items.push({
-          is_divider: true,
-          html: html
-        });
-      });
-      $("#active_members .long_list").longListView("setItems", results.active);
-      $("#disabled_members .long_list").longListView("setItems", results.disabled);
-      $("#restricted_members .long_list").longListView("setItems", results.restricted);
+      _displayFilterResult(filter);
     });
   };
   var _getFilter = function() {
     return _.toString($("input.member_filter").val()).trim();
   };
   var _buildGuestLongList = function($target) {
+    if (TS.boot_data.feature_api_admin_page) {
+      _makeMemberLongListView($target, []);
+      return [];
+    }
     if (!TS.web.admin.restricted_members.length && !TS.web.admin.ultra_restricted_members.length) {
       $target.html(_getRestrictedAccountInviteMessageHtml());
       return [];
@@ -2377,6 +2555,10 @@
     return restricted_list_items;
   };
   var _buildMemberLongList = function($target, all_bots_and_members) {
+    if (TS.boot_data.feature_api_admin_page) {
+      _makeMemberLongListView($target, []);
+      return [];
+    }
     var bots_and_members = _.partition(all_bots_and_members, function(member) {
       return member.is_bot || member.is_slackbot;
     });
@@ -2411,9 +2593,10 @@
   var _makeMemberLongListView = function($list, list_items) {
     $list.addClass("long_list").longListView({
       items: list_items,
-      scrollable: window,
       preserve_dom_order: true,
-      approx_item_height: 57,
+      approx_item_height: _APPROXIMATE_ITEM_HEIGHT,
+      approx_divider_height: _APPROXIMATE_DIVIDER_HEIGHT,
+      scrollable: window,
       calcDividerHeight: function() {
         return this.calcItemHeight.apply(this, arguments);
       },
@@ -2472,7 +2655,29 @@
     var $long_list = $row.closest(".long_list");
     $long_list.longListView("itemUpdated", member);
   };
+  var _updateTabCountsFromApi = function(result) {
+    _restricted_api_count = result.num_found.restricted || 0;
+    _disabled_api_count = result.num_found.disabled || 0;
+    var members_api_count = result.num_found.members || 0;
+    _members_api_count = Math.max(0, members_api_count - result.items.bots.length - _restricted_api_count);
+    var $restricted_members_tab = $("#restricted_members_tab");
+    if (_restricted_api_count === 0) {
+      if (!result.query) $restricted_members_tab.addClass("hidden");
+    } else {
+      $restricted_members_tab.removeClass("hidden");
+    }
+    var $disabled_members_tab = $("#disabled_members_tab");
+    if (_disabled_api_count === 0) {
+      if (!result.query) $disabled_members_tab.addClass("hidden");
+    } else {
+      $disabled_members_tab.removeClass("hidden");
+    }
+    $disabled_members_tab.find(".count").text(_disabled_api_count);
+    $restricted_members_tab.find(".count").text(_restricted_api_count);
+    $("#active_members_tab").find(".count").text(_members_api_count);
+  };
   var _moveMemberTo = function(member, destination) {
+    if (TS.boot_data.feature_api_admin_page && TS.web.admin.view == "list") return _getLongListApiData(true);
     var collections = [TS.web.admin.active_members, TS.web.admin.restricted_members, TS.web.admin.ultra_restricted_members, TS.web.admin.disabled_members];
     var counts = ["active_members_count", "restricted_members_count", "ultra_restricted_members_count", "disabled_members_count"];
     var found_in;
@@ -2497,5 +2702,29 @@
       }
     });
     return collections[found_in];
+  };
+  var _maybeUpsertLongListApiMember = function(member) {
+    var need_upsert = false;
+    if (member.is_restricted || member.is_ultra_restricted) {
+      var memberships = _.get(TS.boot_data.channel_membership, member.id);
+      if (memberships) {
+        member.channels = memberships.channels;
+        member.groups = memberships.groups;
+        member.more_groups = memberships.more_groups;
+        delete TS.boot_data.channel_membership[member.id];
+        need_upsert = true;
+      }
+    }
+    if (TS.boot_data.auth_mode == "normal" && !_.isUndefined(member.has_sso_token)) {
+      delete member.has_sso_token;
+      need_upsert = true;
+    }
+    var emails = _.get(TS.boot_data.all_emails, member.id);
+    if (emails) {
+      member.profile.email = emails;
+      delete TS.boot_data.all_emails[member.id];
+      need_upsert = true;
+    }
+    if (need_upsert) TS.members.upsertMember(member);
   };
 })();

@@ -1,9 +1,9 @@
   {{i18n_ns "team"}}
 
-  <div id="team_list"{{#pageNeedsEnterprise}}{{#isWeb}} class="display_flex flex_one no_bottom_margin"{{/isWeb}}{{/pageNeedsEnterprise}}>
-    <div class="tab_panels {{#isClient}}no_bottom_margin{{else}}{{#pageNeedsEnterprise}}display_flex flex_one no_bottom_margin{{else}}large_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}}">
-      <div class="{{#isClient}}panel{{else}}tab_pane{{#pageNeedsEnterprise}} display_flex flex_one flex_direction_column no_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}} selected active" id="active_members" data-tab="active">
-        <div id="active_members_list"{{#if is_long_list_view}} class="members_long_list{{#pageNeedsEnterprise}}{{#isWeb}} display_flex flex_one{{/isWeb}}{{/pageNeedsEnterprise}}"{{/if}}>
+  <div id="team_list">
+    <div class="tab_panels {{#isClient}}no_bottom_margin{{else}}large_bottom_margin{{/isClient}}">
+      <div class="{{#isClient}}panel{{else}}tab_pane{{/isClient}} selected active" id="active_members" data-tab="active">
+        <div id="active_members_list"{{#if is_long_list_view}} class="members_long_list"{{/if}}>
           {{#unless is_long_list_view}}
             {{#each members}}
               {{> team_list_item member=this}}
@@ -30,8 +30,8 @@
         {{/isClient}}
       {{/if}}
       {{#if show_restricted_members}}
-        <div class="{{#isClient}}panel{{else}}tab_pane{{#pageNeedsEnterprise}} display_flex flex_one flex_direction_column no_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}}" id="restricted_members" data-tab="restricted">
-          <div id="restricted_members_list"{{#if is_long_list_view}} class="members_long_list{{#pageNeedsEnterprise}}{{#isWeb}} display_flex flex_one{{/isWeb}}{{/pageNeedsEnterprise}}"{{/if}}>
+        <div class="{{#isClient}}panel{{else}}tab_pane{{/isClient}}" id="restricted_members" data-tab="restricted">
+          <div id="restricted_members_list"{{#if is_long_list_view}} class="members_long_list"{{/if}}>
             {{#unless is_long_list_view}}
               {{#if restricted_members}}
                 {{> team_list_item_divider multi_channel_guest=true}}
@@ -61,8 +61,8 @@
       {{/if}}
 
       {{#if show_disabled_members}}
-        <div class="{{#isClient}}panel{{else}}tab_pane{{#pageNeedsEnterprise}} display_flex flex_one flex_direction_column no_bottom_margin{{/pageNeedsEnterprise}}{{/isClient}}" id="disabled_members" data-tab="disabled">
-          <div id="deleted_members_list"{{#if is_long_list_view}} class="members_long_list{{#pageNeedsEnterprise}}{{#isWeb}} display_flex flex_one{{/isWeb}}{{/pageNeedsEnterprise}}"{{/if}}>
+        <div class="{{#isClient}}panel{{else}}tab_pane{{/isClient}}" id="disabled_members" data-tab="disabled">
+          <div id="deleted_members_list"{{#if is_long_list_view}} class="members_long_list"{{/if}}>
             {{#unless is_long_list_view}}
               {{#each disabled_members}}
                 {{> team_list_item member=this}}

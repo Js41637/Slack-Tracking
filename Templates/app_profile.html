@@ -32,10 +32,10 @@
           <div class="app_profile_section_header">{{#t}}How to use this app{{/t}}</div>
           <div class="app_profile_section_text app_profile_desc app_desc_expand_showing" data-js="app_profile_desc">
             {{#if hide_expand_button}}
-              <div>{{long_description}}</div>
+              <div>{{stripImageTags long_description}}</div>
             {{else}}
               <div data-js="app_profile_desc_inner">
-                {{long_description}}
+                {{stripImageTags long_description}}
               </div>
               <div class="app_profile_desc_fade"></div>
               <button class="app_desc_btn app_desc_expand_btn" data-js="app_profile_btn" data-action="desc_expand">
