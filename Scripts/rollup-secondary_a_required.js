@@ -14831,6 +14831,9 @@ TS.registerModule("constants", {
           }
         });
       }
+      TS.experiment.loadUserAssignments().then(function() {
+        TS.search.files_auto_sort_group = TS.experiment.getGroup("files_auto_sort");
+      });
     },
     loggedIn: function() {
       TS.search.sort = "timestamp";
@@ -15413,6 +15416,9 @@ TS.registerModule("constants", {
     debugQuery: function(team_id, user_id) {
       var uri = "/mc/search_eval_query.php" + "?team_id=" + team_id + "&user_id=" + user_id + "&query=" + encodeURIComponent(TS.search.query_string);
       window.open(uri);
+    },
+    getSort: function() {
+      return TS.search.files_auto_sort_group == "treatment" && TS.search.filter == "files" ? "auto" : TS.search.sort;
     }
   });
   var _last_search_time;
@@ -15436,7 +15442,7 @@ TS.registerModule("constants", {
       highlight: true,
       count: count,
       types: [TS.search.filetype],
-      sort: TS.search.sort,
+      sort: TS.search.getSort(),
       page: page || 1,
       extracts: 1,
       extra_message_data: 1,
@@ -15505,7 +15511,7 @@ TS.registerModule("constants", {
       TS.search.message_search_results_fetched_sig.dispatch(existing, args);
     }
   };
-  var _onSearchFiles = function(ok, data, args) {
+  var _onSearchFiles = function(ok, data, args, request_id) {
     if (!ok || !data.files) {
       var err_str = data && data.error ? data.error : "unknown_error";
       if (!data) {
@@ -15535,6 +15541,7 @@ TS.registerModule("constants", {
       delete TS.search.results[TS.search.last_search_query];
     }
     TS.search.last_search_query = args.query;
+    TS.search.last_files_request_id = request_id;
     if (TS.client) TS.search.upsertFiles(data);
     var existing = TS.search.results[args.query];
     if (args.page == 1) {
@@ -20653,6 +20660,12 @@ TS.registerModule("constants", {
         } else {
           result_type = TS.search.view.determineMessageResultType(messages, inx);
         }
+        if (!msg.permalink && main_msg.permalink && result_type != "extract") {
+          msg.permalink = main_msg.permalink;
+        }
+        if (!msg.team && main_msg.team && result_type != "extract") {
+          msg.team = main_msg.team;
+        }
         html += TS.templates.builders.msgHtmlForSearch(msg, model_ob, result_type, main_msg, prev_msg);
         prev_msg = msg;
       });
@@ -23131,7 +23144,11 @@ TS.registerModule("constants", {
           }
         }
         if (!TS.utility.msgs.isTempMsg(msg) && !msg.is_ephemeral) {
-          template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
+          if (args.for_search_display && TS.boot_data.page_needs_enterprise && msg.team && TS.model.team_id != msg.team && msg.channel && !msg.channel.is_shared && msg.permalink) {
+            template_args.permalink = msg.permalink;
+          } else {
+            template_args.permalink = TS.utility.msgs.constructMsgPermalink(model_ob, msg.ts, msg.thread_ts);
+          }
           template_args.abs_permalink = TS.utility.msgs.constructAbsoluteMsgPermalink(model_ob, msg.ts, msg.thread_ts);
         }
         if (args.for_top_results_search_display && TS.boot_data.page_needs_enterprise) {
@@ -48982,10 +48999,21 @@ $.fn.togglify = function(settings) {
     TS.click.addClientHandler(".file_list_item", function(e, $el, preview_origin) {
       var can_click_through;
       var $target = $(e.target);
+      var file_id = $el.data("file-id");
+      var index = $el.parent().children().index($el);
+      var payload = {
+        click_target_type: "file",
+        click_position: index,
+        click_file_id: file_id,
+        click_module_name: "files",
+        click_module_position: 0,
+        click_sort: TS.search.getSort(),
+        request_id: TS.search.last_files_request_id
+      };
+      TS.clog.track("SEARCH_CLICK", payload);
       can_click_through = !TS.menu.file.file_list_menu_up && !$target.is(".star") && (!$target.closest("a").length && !$target.closest("button").length);
       if (can_click_through) {
         e.preventDefault();
-        var file_id = $el.data("file-id");
         if (TS.files.fileIsImage(file_id)) {
           TS.ui.fs_modal_file_viewer.start({
             modal_class: "fs_modal_file_viewer",
@@ -49090,10 +49118,18 @@ $.fn.togglify = function(settings) {
         name: "seen_threads_notification_banner",
         value: true
       });
-      TS.prefs.setPrefByAPI({
-        name: "threads_everything",
-        value: should_turn_on_pref
-      });
+      var is_pref_updated = TS.model.prefs.threads_everything !== should_turn_on_pref;
+      if (is_pref_updated) {
+        TS.prefs.setPrefByAPI({
+          name: "threads_everything",
+          value: should_turn_on_pref
+        });
+        TS.clog.track("PREF_USER_CLIENT_UPDATE", {
+          updated_user_client_prefs: {
+            threads_everything: should_turn_on_pref.toString()
+          }
+        });
+      }
     });
     TS.click.addClientHandler("#thread_notification_banner .close", function(e, $el) {
       e.preventDefault();
@@ -64022,8 +64058,7 @@ $.fn.togglify = function(settings) {
             function r(t) {
               var n = p,
                 r = d;
-              return p = d = oe,
-                _ = t, v = e.apply(r, n);
+              return p = d = oe, _ = t, v = e.apply(r, n);
             }
 
             function o(e) {
@@ -68810,7 +68845,8 @@ $.fn.togglify = function(settings) {
     }, {
       key: "_unmountContainer",
       value: function() {
-        this._div && (this._containerNode.removeChild(this._div), this._div = null), this._containerNode = null;
+        this._div && (this._containerNode.removeChild(this._div), this._div = null),
+          this._containerNode = null;
       }
     }, {
       key: "_updateDivDimensions",
@@ -76785,7 +76821,8 @@ $.fn.togglify = function(settings) {
         return "clipboardData" in e ? e.clipboardData : window.clipboardData;
       }
     };
-  o.augmentClass(r, i), e.exports = r;
+  o.augmentClass(r, i),
+    e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -78432,8 +78469,7 @@ $.fn.togglify = function(settings) {
           var e = (g ? g : "") + ".resize-triggers { " + (_ ? _ : "") + 'visibility: hidden; opacity: 0; } .resize-triggers, .resize-triggers > div, .contract-trigger:before { content: " "; display: block; position: absolute; top: 0; left: 0; height: 100%; width: 100%; overflow: hidden; z-index: -1; } .resize-triggers > div { background: #eee; overflow: auto; } .contract-trigger:before { width: 200%; height: 200%; }',
             t = document.head || document.getElementsByTagName("head")[0],
             n = document.createElement("style");
-          n.id = "detectElementResize", n.type = "text/css", n.styleSheet ? n.styleSheet.cssText = e : n.appendChild(document.createTextNode(e)),
-            t.appendChild(n);
+          n.id = "detectElementResize", n.type = "text/css", n.styleSheet ? n.styleSheet.cssText = e : n.appendChild(document.createTextNode(e)), t.appendChild(n);
         }
       },
       b = function(n, r) {

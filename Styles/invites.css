@@ -284,6 +284,10 @@
   background: #FFF6F6
 }
 
+.admin_invites_btn {
+  font-size: 1rem
+}
+
 #btn_connect_contacts .ts_icon_google:before {
   font-size: 1.6rem;
   width: 1.3rem

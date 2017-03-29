@@ -870,6 +870,7 @@
         if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Divine clementine, we are finalizing a full boot!");
         _fully_booted_p_resolve();
         _fully_booted_p_resolve = null;
+        TSSSB.call("didFinishLoading");
       }
       TS.model.ms_logged_in_once = true;
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Holy guacamole, we're all done!");

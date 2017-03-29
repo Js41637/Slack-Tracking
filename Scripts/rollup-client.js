@@ -367,7 +367,6 @@
     },
     onFirstLoginMS: function(data) {
       _reportLoadTiming("timing-www-perceived-load");
-      TSSSB.call("didFinishLoading");
       var did_init_enhanced_debugging = _maybeInitEnhancedDebugging();
       if (!did_init_enhanced_debugging) {
         _maybeDetectBeachballsBasic();
@@ -15286,14 +15285,22 @@
       var previous_file_id = TS.model.previewed_file_id;
       if (!TS.model.ui_state.flex_visible || TS.model.ui_state.flex_name !== "search") {
         TS.client.ui.flex.openFlexTab("search");
-        TS.clog.track("SEARCH_OPEN", {
-          open_method: "search_box"
-        });
       }
+      TS.clog.track("SEARCH_OPEN", {
+        open_method: "search_box",
+        click_module_name: TS.search.filter,
+        click_module_position: 0
+      });
       if (TS.search.filter == "messages") {
         $("#search_tabs").show();
+        if (TS.search.files_auto_sort_group == "treatment") {
+          $(".search_sort_container").show();
+        }
       } else if (TS.search.filter == "files") {
         $("#search_tabs").slideDown(500);
+        if (TS.search.files_auto_sort_group == "treatment") {
+          $(".search_sort_container").hide();
+        }
         if (previous_active_tab_id == "files" && !previous_file_id && TS.model.active_file_list_filter !== TS.search.filetype) {
           TS.search.setFiletypeFilter(TS.model.active_file_list_filter);
         }
@@ -31821,6 +31828,11 @@
       TS.prefs.setPrefByAPI({
         name: "threads_everything",
         value: val
+      });
+      TS.clog.track("PREF_USER_CLIENT_UPDATE", {
+        updated_user_client_prefs: {
+          threads_everything: val.toString()
+        }
       });
     });
     _$div.find("#highlight_words_input").on("input", TS.utility.debounce(_saveHighlightWords, 250));
