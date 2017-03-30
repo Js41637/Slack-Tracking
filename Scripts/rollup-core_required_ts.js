@@ -3716,7 +3716,7 @@ var _fullToHalf = function(char) {
           _emoji.map.colons[idx] = alias_key;
           continue;
         }
-        TS.warn('alias for "' + idx + '":"' + custom + '" not recognized');
+        if (TS.boot_data && TS.boot_data.feature_tinyspeck) TS.warn('alias for "' + idx + '":"' + custom + '" not recognized');
       }
       TS.model.all_custom_emoji = TS.model.all_custom_emoji.sort();
       if (_emoji && _emoji.inits) {

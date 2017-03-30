@@ -5502,7 +5502,7 @@ body {
   min-width: 768px;
   font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  font-size: 1rem;
+  font-size: 16px;
   line-height: 1rem;
   background: #fff;
   color: #555459;
@@ -5716,9 +5716,9 @@ html:not(.supports_flexbox) #team_menu .team_name_caret {
 
 #team_menu .notifications_menu_btn {
   position: absolute;
-  top: .6875rem;
-  right: 1rem;
-  line-height: 1.25rem;
+  top: 11px;
+  right: 16px;
+  line-height: 20px;
   color: #a09a9f;
   opacity: .6;
   outline: 0
@@ -5791,7 +5791,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
 #team_menu .presence .presence_icon {
   color: inherit!important;
   display: inline-block!important;
-  font-size: .625rem;
+  font-size: 10px;
   margin-top: -3px;
   margin-left: -6px;
   opacity: 1;
@@ -5822,7 +5822,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
 
 #presence_container {
   float: left;
-  margin-left: -.25rem;
+  margin-left: -4px;
   width: 20px;
   height: 1.3125rem;
   text-align: center
@@ -5830,7 +5830,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
 
 #team_menu_user {
   position: relative;
-  margin-top: .125rem;
+  margin-top: 2px;
   color: #AB9BA9;
   font-size: .875rem;
   font-weight: 400;
@@ -5906,7 +5906,7 @@ body:not(.loading) #team_menu:hover #team_menu_user_name {
 
 #presence.connecting:before {
   content: "\E532";
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 #presence.away+#team_menu_user_name {
@@ -6033,7 +6033,7 @@ only screen and (min-resolution:2dppx) {
 #flex_menu_toggle #help_icon_circle_count {
   position: absolute;
   top: 0;
-  left: -.1875rem;
+  left: -3px;
   -webkit-transform: translateX(16px) translateY(-5px);
   -moz-transform: translateX(16px) translateY(-5px);
   -ms-transform: translateX(16px) translateY(-5px);
@@ -6167,10 +6167,6 @@ only screen and (min-resolution:2dppx) {
 #msg_preview {
   position: relative;
   bottom: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 1.5625rem;
-  padding-right: .25rem;
   background: #fff;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, #f4f4f4));
   background: -moz-linear-gradient(center bottom, #fff 0, #f4f4f4 100%);
@@ -6179,7 +6175,8 @@ only screen and (min-resolution:2dppx) {
   border-top: 1px solid #D9D9DE;
   left: 0;
   right: -1rem;
-  height: auto
+  height: auto;
+  padding: 0 4px 0 25px
 }
 
 .flex_pane_showing #msg_preview {
@@ -6187,17 +6184,11 @@ only screen and (min-resolution:2dppx) {
 }
 
 #msg_preview_msg {
-  padding-top: 0!important;
-  padding-bottom: 0!important;
-  padding-left: 2.9375rem!important;
-  padding-right: 3.625rem!important;
-  line-height: 1.375rem;
-  font-size: .9375rem;
-  margin-top: .625rem;
-  margin-bottom: .625rem;
-  margin-left: 0;
-  margin-right: 0;
-  overflow: auto
+  line-height: 22px;
+  font-size: 15px;
+  overflow: auto;
+  padding: 0 58px 0 47px!important;
+  margin: 10px 0
 }
 
 #footer.disabled #msg_input {
@@ -6229,9 +6220,9 @@ only screen and (min-resolution:2dppx) {
   z-index: 1;
   right: 0;
   top: 0;
-  width: 2.5rem;
-  height: 2.625rem;
-  line-height: 2.625rem;
+  width: 40px;
+  height: 42px;
+  line-height: 42px;
   text-align: center;
   color: rgba(0, 0, 0, .35);
   opacity: 1;
@@ -6260,7 +6251,7 @@ only screen and (min-resolution:2dppx) {
 .inline_message_input_container .current_status_empty_emoji_cover .ts_icon,
 .inline_message_input_container .emo_menu .ts_icon {
   position: absolute;
-  top: -.0625rem;
+  top: -1px;
   width: 100%;
   display: block
 }
@@ -6339,8 +6330,8 @@ only screen and (min-resolution:2dppx) {
 .current_status_container .current_status_empty_emoji_cover .ts_icon,
 .current_status_input_container .current_status_empty_emoji_cover .ts_icon,
 .inline_message_input_container .current_status_empty_emoji_cover .ts_icon {
-  top: -.3125rem;
-  left: -.0625rem;
+  top: -5px;
+  left: -1px;
   height: 100%
 }
 
@@ -6392,8 +6383,8 @@ only screen and (min-resolution:2dppx) {
 .current_status_container .with-emoji-menu.has_scrollbar~.emo_menu,
 .current_status_input_container .with-emoji-menu.has_scrollbar~.emo_menu,
 .inline_message_input_container .with-emoji-menu.has_scrollbar~.emo_menu {
-  right: 1.125rem;
-  width: 1.875rem
+  right: 18px;
+  width: 30px
 }
 
 #message_edit_form .current_status_emoji_picker.active .current_status_empty_emoji,
@@ -6499,7 +6490,7 @@ only screen and (min-resolution:2dppx) {
 
 .message_reply .inline_message_input_container {
   position: relative;
-  margin-right: -2.875rem
+  margin-right: -46px
 }
 
 .message_reply .inline_message_input_container textarea {
@@ -6511,12 +6502,12 @@ only screen and (min-resolution:2dppx) {
   bottom: 0;
   top: 0;
   left: 0;
-  width: 2.75rem;
+  width: 44px;
   padding: 0;
   border: 2px solid #E0E0E0;
   background: #fff;
   color: rgba(0, 0, 0, .35);
-  line-height: 2.625rem;
+  line-height: 42px;
   text-shadow: none;
   text-align: center;
   -webkit-transition: background 50ms, color 50ms;
@@ -6527,12 +6518,12 @@ only screen and (min-resolution:2dppx) {
 
 #primary_file_button .ts_icon {
   position: absolute;
-  top: -.125rem;
-  left: .625rem
+  top: -2px;
+  left: 10px
 }
 
 #primary_file_button .ts_icon.ts_icon_spinner {
-  top: .625rem
+  top: 10px
 }
 
 #primary_file_button.active,
@@ -6653,14 +6644,14 @@ only screen and (min-resolution:2dppx) {
   font-weight: 900;
   line-height: normal;
   padding: .25rem .4rem;
-  border-radius: .375rem;
-  margin-left: 1rem;
-  margin-right: .5rem;
+  border-radius: 6px;
+  margin-left: 16px;
+  margin-right: 8px;
   -webkit-transition: background .1s ease-out 0s;
   -moz-transition: background .1s ease-out 0s;
   transition: background .1s ease-out 0s;
   position: absolute;
-  top: 1.5rem;
+  top: 24px;
   left: 0;
   right: 1rem;
   text-shadow: 0 1px rgba(0, 0, 0, .15);
@@ -6673,7 +6664,7 @@ only screen and (min-resolution:2dppx) {
 
 #file_progress.messages_banner,
 #messages_unread_status.messages_banner {
-  height: 1.5625rem;
+  height: 25px;
   line-height: normal
 }
 
@@ -6754,15 +6745,15 @@ only screen and (min-resolution:2dppx) {
   -webkit-flex: 0 0 auto;
   flex: 0 0 auto;
   text-align: right;
-  margin-right: 2rem;
-  margin-left: .3125rem
+  margin-right: 32px;
+  margin-left: 5px
 }
 
 #typing_text {
   -ms-flex: 1 1 auto;
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto;
-  margin-left: 4.5625rem;
+  margin-left: 73px;
   max-width: 75%;
   -webkit-filter: grayscale(100%);
   filter: grayscale(100%)
@@ -7030,7 +7021,7 @@ only screen and (min-resolution:2dppx) {
   background: rgba(0, 0, 0, .3);
   width: 100%;
   height: 100%;
-  padding-top: 5.0625rem;
+  padding-top: 81px;
   padding-left: 5%;
   padding-right: 5%;
   z-index: 1040;
@@ -7042,7 +7033,7 @@ only screen and (min-resolution:2dppx) {
   margin: 0 auto;
   background: rgba(0, 0, 0, .8);
   box-shadow: 0 1px 10px rgba(0, 0, 0, .6);
-  padding: 2rem;
+  padding: 32px;
   color: #fff;
   text-shadow: 0 1px 1px rgba(0, 0, 0, .7);
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -7053,24 +7044,24 @@ only screen and (min-resolution:2dppx) {
   background-image: url(/66f9/img/dragndrop.png);
   background-repeat: no-repeat;
   background-size: contain;
-  margin-top: -6rem;
+  margin-top: -96px;
   margin-left: auto;
   margin-right: auto;
-  width: 20.0625rem;
-  height: 9.1875rem
+  width: 321px;
+  height: 147px
 }
 
 .drop-target #drop-zone h1 {
   font-size: 3.9rem;
   line-height: 1.2;
   color: #fff;
-  margin-bottom: .625rem
+  margin-bottom: 10px
 }
 
 .drop-target #drop-zone .drop_tip {
   line-height: 1.5;
   font-size: 1.25rem;
-  margin-bottom: .3125rem
+  margin-bottom: 5px
 }
 
 .drop-target #drop-zone .drop_tip:last-child {
@@ -7902,17 +7893,17 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
 
 #recap_nav {
   position: absolute;
-  top: 0rem;
-  right: -1.5rem;
-  height: 2.625rem;
-  width: 1.5rem
+  top: 0;
+  right: -24px;
+  height: 42px;
+  width: 24px
 }
 
 #recap_nav button {
   position: absolute;
-  height: 1.3125rem;
-  width: 1.5rem;
-  margin-left: .3125rem;
+  height: 21px;
+  width: 24px;
+  margin-left: 5px;
   background: #f3f3f3;
   color: #717274
 }
@@ -7939,14 +7930,14 @@ html.supports_css_mask_image #team_menu .placeholder_shimmer_clipper {
 }
 
 #recap_nav button.next {
-  top: 1.3125rem;
+  top: 21px;
   border-top-right-radius: 0;
   border-top-left-radius: 0
 }
 
 #recap_nav button ts-icon {
-  margin-right: 0rem;
-  margin-top: .125rem
+  margin-right: 0;
+  margin-top: 2px
 }
 
 .zoom_level_indicator {

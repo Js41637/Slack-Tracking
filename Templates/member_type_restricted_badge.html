@@ -1,7 +1,7 @@
 {{i18n_ns 'member_badges'}}
 
 {{#if is_standalone}}
-  <ts-icon class="member_type_badge ts_icon_restricted_user {{size}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_multiline ts_tip_float{{/if}}">
+  <ts-icon class="member_type_badge ts_icon_restricted_user member_type_badge_{{size}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_multiline ts_tip_float{{/if}}">
     {{#if with_tooltip}}
       <span class="ts_tip_tip">
         <span class="ts_tip_multiline_inner">{{#t}}Multi-Channel Guests <span class="old_petunia_grey">see only a partial directory and can only access messages and files from selected channels.</span>{{/t}}</span>
@@ -9,7 +9,7 @@
     {{/if}}
   </ts-icon>
 {{else}}
-  <ts-icon class="member_type_badge {{size}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_multiline ts_tip_float{{/if}}">
+  <ts-icon class="member_type_badge member_type_badge_{{size}}{{#if with_tooltip}} ts_tip ts_tip_top ts_tip_multiline ts_tip_float{{/if}}">
     <!-- Background for icon -->
     <svg class="member_type_badge_background_ra" width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

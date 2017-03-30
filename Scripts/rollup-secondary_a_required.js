@@ -24647,7 +24647,7 @@ TS.registerModule("constants", {
             }
             break;
         }
-        if (!TS.boot_data.page_needs_enterprise) {
+        if (!TS.boot_data.page_needs_enterprise && !member.is_external) {
           if (member.is_restricted && !omit_restricted_overlay) {
             if (TS.environment.is_retina) {
               bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
@@ -24700,7 +24700,26 @@ TS.registerModule("constants", {
           default:
             badge_size = 16;
         }
-        return "member_type_badge_" + badge_size;
+        return badge_size;
+      });
+      Handlebars.registerHelper("getTeamBadgeSize", function(size) {
+        var badge_size;
+        switch (size) {
+          case 32:
+          case 36:
+          case 48:
+            badge_size = 16;
+            break;
+          case 72:
+            badge_size = 22;
+            break;
+          case 192:
+          case 512:
+            break;
+          default:
+            badge_size = 16;
+        }
+        return badge_size;
       });
       Handlebars.registerHelper("getMemberNameById", function(id) {
         var member = TS.members.getMemberById(id);
@@ -47492,6 +47511,27 @@ $.fn.togglify = function(settings) {
   "use strict";
   TS.registerModule("ui.messages_utils", {
     onStart: _.noop,
+    getFirstTabStopInView: function(messages_in_view) {
+      var reducer = _mkReducerFn("last");
+      return messages_in_view.reduce(reducer, null) || $();
+    },
+    getLastTabStopInView: function(messages_in_view) {
+      var reducer = _mkReducerFn("first");
+      return messages_in_view.reduceRight(reducer, null) || $();
+    },
+    identifyFirstAndLastTabStopInView: function() {
+      var messages_in_view = TS.ui.messages_utils.getMessagesInView();
+      if (!messages_in_view || messages_in_view && !messages_in_view.length) {
+        return;
+      }
+      var $parent = messages_in_view[0].closest(".message_container,.msgs_holder");
+      var $first_tab_stop = TS.ui.messages_utils.getFirstTabStopInView(messages_in_view);
+      var $last_tab_stop = TS.ui.messages_utils.getLastTabStopInView(messages_in_view);
+      $parent.find(".first_tab_stop_in_view").removeClass("first_tab_stop_in_view");
+      $parent.find(".last_tab_stop_in_view").removeClass("last_tab_stop_in_view");
+      $first_tab_stop.addClass("first_tab_stop_in_view");
+      $last_tab_stop.addClass("last_tab_stop_in_view");
+    },
     getMessageFromPoint: function(startX, startY, endX, endY) {
       var i = 5;
       var x_incr = i;
@@ -47575,6 +47615,65 @@ $.fn.togglify = function(settings) {
       return getPrevious([$last_in_view]);
     }
   });
+  var _focusable_nodes_selector = "input,select,textarea,button,a,div[tabindex],span[tabindex]";
+  var _form_element_names_re = /^(input|select|textarea|button)$/;
+  var _mkReducerFn = function(method_name) {
+    return function(acc, $message) {
+      if (acc) {
+        return acc;
+      }
+      var has_focus = $message.hasClass("message--focus");
+      if (!has_focus) {
+        $message.addClass("message--focus");
+      }
+      var filter_result = _getFocusableChildren($message)[method_name]();
+      if (!has_focus) {
+        $message.removeClass("message--focus");
+      }
+      if (filter_result[0]) {
+        return filter_result;
+      }
+    };
+  };
+  var _mkInViewFilterFn = function() {
+    var $messages_container = $("#messages_container");
+    var minY = $messages_container.offset().top;
+    var maxY = minY + $messages_container.height();
+    return function(node) {
+      var top = $(node).offset().top;
+      return top >= minY && top <= maxY;
+    };
+  };
+  var _getFocusableChildren = function($node) {
+    var inView = _mkInViewFilterFn();
+    var filerFn = function(i, node) {
+      return inView(node) && _inTabFlow(node) && _isVisible(node);
+    };
+    return $node.find(_focusable_nodes_selector).filter(filerFn);
+  };
+  var _inTabFlow = function(node) {
+    var node_name = node.nodeName.toLowerCase();
+    var tab_index = node.getAttribute("tabindex");
+    var has_implicit_tabindex = tab_index == null || node.tabIndex >= 0;
+    var has_explicit_tabindex = tab_index !== null && tab_index >= 0;
+    var in_tab_flow = has_implicit_tabindex || has_explicit_tabindex;
+    var is_form_element = _form_element_names_re.test(node_name);
+    var is_anchor = node_name == "a";
+    if (is_form_element && !node.disabled && node.type != "hidden" && in_tab_flow) {
+      return true;
+    }
+    if (is_anchor && (node.href && in_tab_flow || !node.href && has_explicit_tabindex)) {
+      return true;
+    }
+    if (!(is_form_element || is_anchor) && has_explicit_tabindex) {
+      return true;
+    }
+    return false;
+  };
+  var _isVisible = function(node) {
+    var $node = $(node);
+    return $node.css("visibility") == "visible" && $node.css("display") != "none" && $node.css("opacity") == 1;
+  };
   var _lastMsgFromPrevGroup = function($message, container_selector, last_message_selector) {
     var last_selector = last_message_selector || ".message:last-child";
     return $message.closest(container_selector).prev(container_selector).find(last_selector);
@@ -65615,8 +65714,7 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e, t) {
-    e.parentNode.replaceChild(t.node, e),
-      r(t);
+    e.parentNode.replaceChild(t.node, e), r(t);
   }
 
   function i(e, t) {
@@ -68794,7 +68892,8 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
+        r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",
@@ -75198,7 +75297,8 @@ $.fn.togglify = function(settings) {
       }
       o(this, i);
       var a, f;
-      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html), a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
+      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html),
+        a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
       var p;
       if (e.useCreateElement) {
         var d, h = n._ownerDocument;
@@ -78419,7 +78519,8 @@ $.fn.togglify = function(settings) {
   n(151), n(152), n(153), n(154), n(155), n(149), n(95), n(150);
 }, function(e, t, n) {
   "use strict";
-  n(156), n(157);
+  n(156),
+    n(157);
 }, function(e, t, n) {
   "use strict";
 

@@ -116,7 +116,7 @@
 .admin_list_item input[name=full_name],
 .admin_list_item input[name=email] {
   width: 7rem;
-  font-size: .875rem;
+  font-size: 14px;
   height: 1.5rem;
   padding: 0rem .5rem
 }
@@ -150,7 +150,7 @@
   position: absolute;
   right: .5rem;
   top: .4rem;
-  font-size: .9375rem;
+  font-size: 15px;
   text-align: right
 }
 
@@ -558,7 +558,7 @@
 }
 
 label[for=enable_calls_checkbox] input[type=checkbox] {
-  width: .9375rem
+  width: 15px
 }
 
 .admin_pref {

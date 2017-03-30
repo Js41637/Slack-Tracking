@@ -3,10 +3,10 @@
 <div class="dm_badge display_flex align_items_center">
   {{#if members}}
     {{#each members}}
-      {{makeMemberPreviewLinkImage this.id 72 false false true}}
+      {{> member_preview_link_image (getMemberPreviewLinkImageArgs this.id 72 false false)}}
     {{/each}}
   {{else}}
-    {{makeMemberPreviewLinkImage member.id 72 false false true}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 72 false false)}}
   {{/if}}
 
   {{#if member.profile}}

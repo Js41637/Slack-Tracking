@@ -757,7 +757,7 @@
 .ts_icon:before,
 ts-icon:before {
   font-family: Slack;
-  font-size: 1.25rem;
+  font-size: 20px;
   font-style: normal;
   font-weight: 400;
   display: inline-block
@@ -792,8 +792,8 @@ h3 ts-icon:not(.ts_icon_base_size):before {
 .ts_icon_spin.ts_icon_spinner,
 svg.ts_icon_spinner {
   display: inline-block;
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
   margin: 0 .125em;
   -webkit-animation: 1s linear 0s infinite normal none spin;
   -moz-animation: 1s linear 0s infinite normal none spin;
@@ -2412,26 +2412,26 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_file_generic:before {
   content: '\E400';
-  font-size: 3.125rem
+  font-size: 50px
 }
 
 .ts_icon_file_generic_small:before {
   content: '\E401';
-  font-size: 2.5rem
+  font-size: 40px
 }
 
 .filetype_icon.space.s30:before,
 .filetype_icon.space.s48:before,
 .ts_icon_file_spaces:before {
   content: '\E402';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #66C79E
 }
 
 .filetype_icon.space.s24:before,
 .ts_icon_file_spaces_small:before {
   content: '\E403';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #66C79E
 }
 
@@ -2457,7 +2457,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.tiff.s48:before,
 .ts_icon_file_image:before {
   content: '\E404';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2473,7 +2473,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.tiff.s24:before,
 .ts_icon_file_image_small:before {
   content: '\E405';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2481,14 +2481,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.pdf.s48:before,
 .ts_icon_file_pdf:before {
   content: '\E406';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #db4437
 }
 
 .filetype_icon.pdf.s24:before,
 .ts_icon_file_pdf_small:before {
   content: '\E407';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #db4437
 }
 
@@ -2504,7 +2504,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.wav.s48:before,
 .ts_icon_file_audio:before {
   content: '\E408';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2515,7 +2515,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.wav.s24:before,
 .ts_icon_file_audio_small:before {
   content: '\E409';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2531,7 +2531,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.video.s48:before,
 .ts_icon_file_video:before {
   content: '\E410';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2542,7 +2542,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.video.s24:before,
 .ts_icon_file_video_small:before {
   content: '\E411';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2554,7 +2554,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.presentation.s48:before,
 .ts_icon_file_presentation:before {
   content: '\E412';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2563,7 +2563,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.presentation.s24:before,
 .ts_icon_file_presentation_small:before {
   content: '\E413';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2571,14 +2571,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.email.s48:before,
 .ts_icon_file_email:before {
   content: '\E414';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.email.s24:before,
 .ts_icon_file_email_small:before {
   content: '\E415';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2586,14 +2586,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.vector.s48:before,
 .ts_icon_file_vector:before {
   content: '\E416';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.vector.s24:before,
 .ts_icon_file_vector_small:before {
   content: '\E417';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2607,7 +2607,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.tsv.s48:before,
 .ts_icon_file_spreadsheet:before {
   content: '\E418';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2617,7 +2617,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.tsv.s24:before,
 .ts_icon_file_spreadsheet_small:before {
   content: '\E419';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2625,14 +2625,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.iso.s48:before,
 .ts_icon_file_media_archive:before {
   content: '\E420';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.iso.s24:before,
 .ts_icon_file_media_archive_small:before {
   content: '\E421';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2640,14 +2640,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.zip.s48:before,
 .ts_icon_file_archive:before {
   content: '\E422';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.zip.s24:before,
 .ts_icon_file_archive_small:before {
   content: '\E423';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2655,14 +2655,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.exe.s48:before,
 .ts_icon_file_executable:before {
   content: '\E424';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.exe.s24:before,
 .ts_icon_file_executable_small:before {
   content: '\E425';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2670,14 +2670,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.dmg.s48:before,
 .ts_icon_file_disk_image:before {
   content: '\E426';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.dmg.s24:before,
 .ts_icon_file_disk_image_small:before {
   content: '\E427';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2685,14 +2685,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.cad.s48:before,
 .ts_icon_file_cad:before {
   content: '\E428';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.cad.s24:before,
 .ts_icon_file_cad_small:before {
   content: '\E429';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2700,14 +2700,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.gfx3d.s48:before,
 .ts_icon_file_3d_graphic:before {
   content: '\E430';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.gfx3d.s24:before,
 .ts_icon_file_3d_graphic_small:before {
   content: '\E431';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2717,7 +2717,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.sql.s48:before,
 .ts_icon_file_database:before {
   content: '\E432';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2725,7 +2725,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.sql.s24:before,
 .ts_icon_file_database_small:before {
   content: '\E433';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2733,14 +2733,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.binary.s48:before,
 .ts_icon_file_binary:before {
   content: '\E434';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.binary.s24:before,
 .ts_icon_file_binary_small:before {
   content: '\E435';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2750,7 +2750,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.md.s48:before,
 .ts_icon_file_markdown:before {
   content: '\E436';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2758,7 +2758,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.md.s24:before,
 .ts_icon_file_markdown_small:before {
   content: '\E437';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2772,7 +2772,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.txt.s48:before,
 .ts_icon_file_text_post:before {
   content: '\E438';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #66C79E
 }
 
@@ -2782,7 +2782,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.txt.s24:before,
 .ts_icon_file_text_post_small:before {
   content: '\E439';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #66C79E
 }
 
@@ -2790,14 +2790,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.html.s48:before,
 .ts_icon_file_html:before {
   content: '\E440';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.html.s24:before,
 .ts_icon_file_html_small:before {
   content: '\E441';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2833,7 +2833,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.xml.s48:before,
 .ts_icon_file_code:before {
   content: '\E442';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
@@ -2854,7 +2854,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.xml.s24:before,
 .ts_icon_file_code_small:before {
   content: '\E443';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2862,14 +2862,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.css.s48:before,
 .ts_icon_file_css:before {
   content: '\E444';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.css.s24:before,
 .ts_icon_file_css_small:before {
   content: '\E445';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2877,14 +2877,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.php.s48:before,
 .ts_icon_file_php:before {
   content: '\E446';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.php.s24:before,
 .ts_icon_file_php_small:before {
   content: '\E447';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -2892,14 +2892,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.snippet.s48:before,
 .ts_icon_file_snippet:before {
   content: '\E448';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #4D394B
 }
 
 .filetype_icon.snippet.s24:before,
 .ts_icon_file_snippet_small:before {
   content: '\E449';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #4D394B
 }
 
@@ -2909,7 +2909,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.docx.s48:before,
 .ts_icon_file_word:before {
   content: '\E450';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #2C4098
 }
 
@@ -2917,7 +2917,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.docx.s24:before,
 .ts_icon_file_word_small:before {
   content: '\E451';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #2C4098
 }
 
@@ -2931,7 +2931,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.xltx.s48:before,
 .ts_icon_file_excel:before {
   content: '\E452';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #377437
 }
 
@@ -2941,7 +2941,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.xltx.s24:before,
 .ts_icon_file_excel_small:before {
   content: '\E453';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #377437
 }
 
@@ -2951,7 +2951,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.pptx.s48:before,
 .ts_icon_file_powerpoint:before {
   content: '\E454';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #E05A30
 }
 
@@ -2959,7 +2959,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.pptx.s24:before,
 .ts_icon_file_powerpoint_small:before {
   content: '\E455';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #E05A30
 }
 
@@ -2967,14 +2967,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.ai.s48:before,
 .ts_icon_file_illustrator:before {
   content: '\E456';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #F4993C
 }
 
 .filetype_icon.ai.s24:before,
 .ts_icon_file_illustrator_small:before {
   content: '\E457';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #F4993C
 }
 
@@ -2982,14 +2982,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.psd.s48:before,
 .ts_icon_file_photoshop:before {
   content: '\E458';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #56B6DE
 }
 
 .filetype_icon.psd.s24:before,
 .ts_icon_file_photoshop_small:before {
   content: '\E459';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #56B6DE
 }
 
@@ -2997,14 +2997,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.indd.s48:before,
 .ts_icon_file_indesign:before {
   content: '\E460';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #EB81AB
 }
 
 .filetype_icon.indd.s24:before,
 .ts_icon_file_indesign_small:before {
   content: '\E461';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #EB81AB
 }
 
@@ -3012,14 +3012,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.fla.s48:before,
 .ts_icon_file_adobe_flash:before {
   content: '\E462';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #A72428
 }
 
 .filetype_icon.fla.s24:before,
 .ts_icon_file_adobe_flash_small:before {
   content: '\E463';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #A72428
 }
 
@@ -3027,14 +3027,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.swf.s48:before,
 .ts_icon_file_adobe_swf:before {
   content: '\E464';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #A72428
 }
 
 .filetype_icon.swf.s24:before,
 .ts_icon_file_adobe_swf_small:before {
   content: '\E465';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #A72428
 }
 
@@ -3042,14 +3042,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.ipa.s48:before,
 .ts_icon_file_iphone_app:before {
   content: '\E466';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #9EA0A7
 }
 
 .filetype_icon.ipa.s24:before,
 .ts_icon_file_iphone_app_small:before {
   content: '\E467';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #9EA0A7
 }
 
@@ -3057,14 +3057,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.apk.s48:before,
 .ts_icon_file_android_app:before {
   content: '\E468';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #A4CA3A
 }
 
 .filetype_icon.apk.s24:before,
 .ts_icon_file_android_app_small:before {
   content: '\E469';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #A4CA3A
 }
 
@@ -3072,14 +3072,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.dropbox.s48:before,
 .ts_icon_file_dropbox:before {
   content: '\E470';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #007ee5
 }
 
 .filetype_icon.dropbox.s24:before,
 .ts_icon_file_dropbox_small:before {
   content: '\E471';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #007ee5
 }
 
@@ -3087,14 +3087,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.gpres.s48:before,
 .ts_icon_file_google_presentation:before {
   content: '\E472';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #f4b400
 }
 
 .filetype_icon.gpres.s24:before,
 .ts_icon_file_google_presentation_small:before {
   content: '\E473';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #f4b400
 }
 
@@ -3102,14 +3102,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.gsheet.s48:before,
 .ts_icon_file_google_spreadsheet:before {
   content: '\E472';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #0f9d58
 }
 
 .filetype_icon.gsheet.s24:before,
 .ts_icon_file_google_spreadsheet_small:before {
   content: '\E473';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #0f9d58
 }
 
@@ -3117,14 +3117,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.gdoc.s48:before,
 .ts_icon_file_google_document:before {
   content: '\E472';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #4285f4
 }
 
 .filetype_icon.gdoc.s24:before,
 .ts_icon_file_google_document_small:before {
   content: '\E473';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #4285f4
 }
 
@@ -3134,7 +3134,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.gform.s48:before,
 .ts_icon_file_google_form:before {
   content: '\E472';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #db4437
 }
 
@@ -3142,7 +3142,7 @@ svg.ts_icon_spinner svg {
 .filetype_icon.gform.s24:before,
 .ts_icon_file_google_form_small:before {
   content: '\E473';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #db4437
 }
 
@@ -3150,14 +3150,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.qtz.s48:before,
 .ts_icon_file_qtz:before {
   content: '\E474';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #3aa3e3
 }
 
 .filetype_icon.qtz.s24:before,
 .ts_icon_file_qtz_small:before {
   content: '\E475';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #3aa3e3
 }
 
@@ -3165,14 +3165,14 @@ svg.ts_icon_spinner svg {
 .filetype_icon.sketch.s48:before,
 .ts_icon_file_sketch:before {
   content: '\E476';
-  font-size: 3.125rem;
+  font-size: 50px;
   color: #F4993C
 }
 
 .filetype_icon.sketch.s24:before,
 .ts_icon_file_sketch_small:before {
   content: '\E477';
-  font-size: 2.5rem;
+  font-size: 40px;
   color: #F4993C
 }
 
@@ -3236,7 +3236,7 @@ svg.ts_icon_spinner svg {
   font-family: Slack;
   font-style: normal;
   font-weight: 400;
-  line-height: 1.5rem;
+  line-height: 24px;
   display: inline-block
 }
 
@@ -3245,26 +3245,26 @@ svg.ts_icon_spinner svg {
 }
 
 .filetype_icon.s24 {
-  width: 1.5rem;
-  height: 2rem
+  width: 24px;
+  height: 32px
 }
 
 .filetype_icon.s24:before {
   content: '\E401';
-  font-size: 2.5rem;
+  font-size: 40px;
   margin: 2px 0 0 -8px
 }
 
 .filetype_icon.s30,
 .filetype_icon.s48 {
-  width: 1.875rem;
-  height: 2.375rem
+  width: 30px;
+  height: 38px
 }
 
 .filetype_icon.s30:before,
 .filetype_icon.s48:before {
   content: '\E400';
-  font-size: 3.125rem;
+  font-size: 50px;
   margin: 4px 0 0 -10px
 }
 
@@ -3641,7 +3641,7 @@ html.no_touch .alert_page a:hover {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  height: 1.6875rem
+  height: 27px
 }
 
 .ts_toggle .ts_toggle_button {
@@ -3660,27 +3660,24 @@ html.no_touch .alert_page a:hover {
   position: relative;
   text-align: center;
   overflow: hidden;
-  height: 1.6875rem;
-  line-height: 1.4375rem;
+  height: 27px;
+  line-height: 23px;
   float: left
 }
 
 .ts_toggle .ts_toggle_button .ts_toggle_handle {
   background: #FFF;
   display: inline-block;
-  width: 1.4375rem;
-  height: 1.4375rem;
+  width: 23px;
+  height: 23px;
   border-radius: 1rem;
   position: absolute;
   left: 0;
   top: 0;
-  margin-top: .125rem;
-  margin-bottom: .125rem;
-  margin-left: .125rem;
-  margin-right: .125rem;
   -webkit-transition: 70ms ease-out;
   -moz-transition: 70ms ease-out;
-  transition: 70ms ease-out
+  transition: 70ms ease-out;
+  margin: 2px
 }
 
 .ts_toggle .ts_toggle_button .ts_toggle_on_text {
@@ -3710,7 +3707,7 @@ html.no_touch .alert_page a:hover {
 
 .ts_toggle.checked .ts_toggle_button .ts_toggle_handle {
   left: 100%;
-  margin-left: -1.5625rem
+  margin-left: -25px
 }
 
 .ts_toggle.checked .ts_toggle_button .ts_toggle_on_text {
@@ -3809,7 +3806,7 @@ html.no_touch .alert_page a:hover {
   z-index: 1030;
   top: 50%;
   left: 50%;
-  max-width: 15.625rem;
+  max-width: 250px;
   -webkit-transform: translateX(-50%);
   -moz-transform: translateX(-50%);
   -ms-transform: translateX(-50%);
@@ -3817,7 +3814,7 @@ html.no_touch .alert_page a:hover {
   text-align: left;
   opacity: 0;
   color: #FFF;
-  font-size: .8125rem;
+  font-size: 13px;
   font-weight: 700;
   font-style: normal;
   line-height: 1.3;
@@ -4077,7 +4074,7 @@ html.no_touch .alert_page a:hover {
 .ts_tip.ts_tip_bottom.ts_tip_right .ts_tip_tip,
 .ts_tip.ts_tip_top.ts_tip_right .ts_tip_tip {
   left: auto;
-  right: -.5rem;
+  right: -8px;
   -webkit-transform: none;
   -moz-transform: none;
   -ms-transform: none;
@@ -4087,7 +4084,7 @@ html.no_touch .alert_page a:hover {
 .ts_tip.ts_tip_bottom.ts_tip_right .ts_tip_tip:after,
 .ts_tip.ts_tip_top.ts_tip_right .ts_tip_tip:after {
   left: auto;
-  right: 1.125rem
+  right: 18px
 }
 
 .ts_tip.btn.ts_tip_bottom.ts_tip_left .ts_tip_tip,
@@ -5726,13 +5723,13 @@ a.mini:hover {
   width: 48px;
   height: 48px;
   text-align: center;
-  line-height: 3rem;
+  line-height: 48px;
   border-radius: .25rem;
   margin-right: .5rem
 }
 
 .square_icon:before {
-  font-size: 1.875rem
+  font-size: 30px
 }
 
 table {
@@ -5798,36 +5795,6 @@ table tr:last-child {
   width: 2.25rem;
   padding: .2rem .5rem;
   line-height: 1.9rem
-}
-
-.external_team_badge {
-  display: inline-block;
-  vertical-align: bottom;
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
-  border: 2px solid #FFF;
-  border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, .08);
-  background-size: 100%;
-  background-color: #FFF;
-  background-repeat: no-repeat
-}
-
-.external_team_badge.default {
-  display: inline-block;
-  background-color: #717274;
-  line-height: 1.5;
-  font-weight: 800;
-  color: #FFF;
-  font-size: 10px;
-  font-style: normal;
-  letter-spacing: 0;
-  text-align: center;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
-  float: left
 }
 
 .action_cog {
@@ -5945,7 +5912,7 @@ html.no_touch .action_cog:hover i {
   background-image: url(/66f9/img/pager_sprite.png);
   width: 98px;
   height: 35px;
-  line-height: 2.1875rem;
+  line-height: 35px;
   font-size: 1rem;
   font-weight: 700
 }
@@ -6015,7 +5982,7 @@ html.no_touch .pager .previous>a:hover {
 .pagination ul>li>span {
   float: left;
   padding: .25rem .75rem;
-  line-height: 1.25rem;
+  line-height: 20px;
   background-color: #FFF;
   border: 1px solid #E8E8E8;
   border-left-width: 0;
@@ -6219,8 +6186,8 @@ span.emoji {
 .emoji-sizer,
 .no_jumbomoji .emoji-sizer.emoji-only,
 .no_jumbomoji.emoji-sizer.emoji-only {
-  line-height: 1.125rem;
-  font-size: 1.375rem;
+  line-height: 18px;
+  font-size: 22px;
   vertical-align: middle;
   margin-top: -4px
 }
@@ -6261,8 +6228,8 @@ span.emoji:not(:empty) {
 }
 
 .light_theme .emoji-only {
-  line-height: 2rem;
-  font-size: 2rem;
+  line-height: 32px;
+  font-size: 32px;
   margin-top: 2px
 }
 
@@ -6297,7 +6264,7 @@ img.emoji {
   right: 8px;
   top: 6px;
   color: #E8E8E8;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .icon_search_close:hover {
@@ -6307,8 +6274,8 @@ img.emoji {
 
 input.search_input {
   margin: 0;
-  padding-left: 1.875rem!important;
-  padding-right: 1.875rem!important
+  padding-left: 30px!important;
+  padding-right: 30px!important
 }
 
 .inactive {
@@ -6542,7 +6509,7 @@ h1.large {
 
 h1 i:first-of-type {
   margin-right: .75rem;
-  font-size: 1.875rem;
+  font-size: 30px;
   float: left
 }
 
@@ -6650,7 +6617,7 @@ ul.large_height {
 
 code,
 pre {
-  font-size: .875rem;
+  font-size: 14px;
   font-family: Consolas, monaco, "Ubuntu Mono", courier, monospace!important;
   border: 1px solid #E8E8E8;
   padding: .1rem .4rem;
@@ -7317,7 +7284,7 @@ header #header_team_name a {
 }
 
 header #header_team_name a i {
-  font-size: 1.75rem;
+  font-size: 28px;
   width: 36px;
   margin: -2px .5rem 0;
   display: block;
@@ -7391,7 +7358,7 @@ header .header_btns a {
 
 header .header_btns .btn_basic i,
 header .header_btns a i {
-  font-size: 1.75rem;
+  font-size: 28px;
   width: 28px
 }
 
@@ -7456,7 +7423,7 @@ header #header_team_nav li a .switcher_label {
 header #header_team_nav li a .team_icon.ts_icon_plus {
   background: #E8E8E8;
   color: #9e9ea6;
-  font-size: 1.125rem;
+  font-size: 18px;
   text-shadow: none
 }
 
@@ -7618,9 +7585,9 @@ only screen and (min-resolution:2dppx) {
   color: #fff;
   width: 48px;
   height: 48px;
-  font-size: 1.875rem;
+  font-size: 30px;
   text-align: center;
-  line-height: 3rem;
+  line-height: 48px;
   border-radius: .25rem;
   float: left;
   margin-left: -4rem;
@@ -7689,7 +7656,7 @@ html.no_touch .plastic_row:hover .chevron {
     width: 32px;
     height: 32px;
     font-size: 1.5rem;
-    line-height: 2rem;
+    line-height: 32px;
     margin-left: -2.75rem
   }
   .plastic_row .chevron {
@@ -7943,7 +7910,7 @@ screen and (max-width:640px) {
   }
   header .header_btns .btn_basic i,
   header .header_btns a i {
-    font-size: 1.5rem
+    font-size: 24px
   }
   header .header_btns .btn_basic img,
   header .header_btns a img {
@@ -8027,7 +7994,7 @@ screen and (max-width:640px) {
     top: 11px;
     right: 24px;
     z-index: 1000;
-    font-size: 1.75rem;
+    font-size: 28px;
     cursor: pointer
   }
   .tab_set .tab_caret.ts_icon_caret_down {
@@ -8120,7 +8087,7 @@ screen and (max-width:640px) {
     font-size: 1.2rem
   }
   header #header_team_name a i {
-    font-size: 1.625rem;
+    font-size: 26px;
     margin: 0
   }
   header #menu_toggle {
@@ -8630,24 +8597,21 @@ a.btn {
 
 .btn {
   padding: 8px 14px 9px;
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .btn_small {
-  padding-top: .3125rem;
-  padding-bottom: .3125rem;
-  padding-left: .625rem;
-  padding-right: .625rem;
-  font-size: .875rem
+  font-size: 14px;
+  padding: 5px 10px
 }
 
 .btn_small i:before {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .btn_large {
   padding: 14px 32px 16px;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .btn_extra_large {
@@ -8719,7 +8683,7 @@ a.btn {
 .btn_large i,
 .btn_large ts-icon {
   margin-right: .5rem;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .btn_extra_large .ts_icon,
@@ -8755,8 +8719,8 @@ a.btn {
 }
 
 .btn_icon {
-  width: 2rem;
-  height: 1.875rem;
+  width: 32px;
+  height: 30px;
   padding: 0
 }
 
@@ -8804,7 +8768,7 @@ a.btn {
   border: 1px solid rgba(160, 160, 162, .5);
   color: #565759;
   max-width: 150px;
-  font-size: .8125rem;
+  font-size: 13px;
   font-weight: 700;
   height: 30px;
   padding: 0 10px;
@@ -9068,8 +9032,8 @@ textarea::-ms-clear {
 }
 
 input[type=file] {
-  font-size: .75rem;
-  line-height: .75rem;
+  font-size: 12px;
+  line-height: 12px;
   width: auto;
   font-weight: 400;
   font-family: sans-serif
@@ -9305,18 +9269,18 @@ label.select:after {
   content: "\E271";
   font-family: Slack;
   position: absolute;
-  right: 1.375rem;
-  bottom: 1.375rem;
-  font-size: 1.25rem;
+  right: 22px;
+  bottom: 22px;
+  font-size: 20px;
   pointer-events: none
 }
 
 label.select.with_hint:after {
-  bottom: .875rem
+  bottom: 14px
 }
 
 label.select.with_hint.small:after {
-  bottom: .375rem
+  bottom: 6px
 }
 
 label.select.disabled:after {
@@ -9324,20 +9288,20 @@ label.select.disabled:after {
 }
 
 label.select.small:after {
-  right: .875rem;
-  bottom: 1rem;
-  font-size: 1.25rem
+  right: 14px;
+  bottom: 16px;
+  font-size: 20px
 }
 
 @-moz-document url-prefix() {
   label.select.small:after {
-    bottom: 1rem
+    bottom: 16px
   }
 }
 
 @media only screen and (max-width:410px) {
   label.select.small:after {
-    bottom: 1rem
+    bottom: 16px
   }
 }
 
@@ -9480,14 +9444,14 @@ label.validation_success .validation_message:before {
 .username_input_container::before {
   content: '@';
   left: .75rem;
-  line-height: 3rem;
+  line-height: 48px;
   position: absolute;
   color: #9e9ea6
 }
 
 .username_input_container.small::before {
   left: .9rem;
-  line-height: 2.1875rem
+  line-height: 35px
 }
 
 .username_input_container input[type=text].username_input {
@@ -9656,7 +9620,7 @@ only screen and (min-resolution:2dppx) {
 
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_input_container .lfs_item .ts_icon:not(.presence_icon):before,
 #share_dialog .lazy_filter_select .lfs_input_container .lfs_item .ts_icon:not(.presence_icon):before {
-  font-size: 1.25rem;
+  font-size: 20px;
   top: 0
 }
 
@@ -9687,7 +9651,7 @@ only screen and (min-resolution:2dppx) {
   position: absolute;
   top: 3px;
   left: 1px;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before,
@@ -9827,8 +9791,8 @@ only screen and (min-resolution:2dppx) {
   background: inherit;
   padding-top: 0;
   padding-bottom: 0;
-  margin-top: 1.875rem;
-  margin-bottom: .9375rem
+  margin-top: 30px;
+  margin-bottom: 15px
 }
 
 .c-modal_header--dark .modal-header-image {
@@ -9838,8 +9802,8 @@ only screen and (min-resolution:2dppx) {
 .c-modal_body--dark {
   padding-top: 0;
   padding-bottom: 0;
-  margin-top: .9375rem;
-  margin-bottom: .9375rem;
+  margin-top: 15px;
+  margin-bottom: 15px;
   overflow-x: hidden
 }
 
@@ -9849,8 +9813,8 @@ only screen and (min-resolution:2dppx) {
   align-items: center;
   padding-top: 0;
   padding-bottom: 0;
-  margin-top: 1.5625rem;
-  margin-bottom: 1.875rem
+  margin-top: 25px;
+  margin-bottom: 30px
 }
 
 .c-modal_body--default {
@@ -9903,7 +9867,7 @@ html.fs_modal_active {
   left: 0;
   z-index: 1041;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: 1.125rem;
+  font-size: 18px;
   height: 100%;
   line-height: 1.5rem;
   overflow-y: auto;
@@ -9941,7 +9905,7 @@ html.fs_modal_active {
 
 #fs_modal #fs_modal_sidebar {
   margin: 0 4rem 0 0;
-  min-width: 11.5625rem;
+  min-width: 185px;
   position: -webkit-sticky;
   top: 0
 }
@@ -10038,7 +10002,7 @@ html.fs_modal_active {
 }
 
 #fs_modal.fs_modal_header .fs_modal_btn {
-  top: .375rem;
+  top: 6px;
   width: 3rem;
   height: 3rem;
   line-height: 1.2rem
@@ -10102,7 +10066,7 @@ html.fs_modal_active {
 }
 
 #fs_modal .contents_container .contents {
-  width: 40rem;
+  width: 640px;
   max-width: 100%;
   padding-bottom: 2rem
 }
@@ -10133,7 +10097,7 @@ html.fs_modal_active {
 }
 
 #fs_modal #fs_modal_footer .btn {
-  width: 8.25rem
+  width: 132px
 }
 
 #fs_modal.fs_modal_footer .contents_container {
@@ -10285,7 +10249,7 @@ html.fs_modal_active {
   z-index: 1042;
   display: inline-block;
   vertical-align: top;
-  min-width: 13.75rem;
+  min-width: 220px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #2C2D30;
   background: #fff;
@@ -10335,16 +10299,16 @@ html.fs_modal_active {
 }
 
 .menu ul li i:before {
-  font-size: 1.0625rem
+  font-size: 17px
 }
 
 .menu ul li:not(.dm_list_item) .member_image {
   vertical-align: top;
-  margin-left: -.6875rem;
-  margin-right: .5rem;
-  width: 1.375rem;
-  height: 1.375rem;
-  margin-top: .0625rem
+  margin-left: -11px;
+  margin-right: 8px;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px
 }
 
 .menu ul li a {
@@ -10355,8 +10319,8 @@ html.fs_modal_active {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #2C2D30
 }
@@ -10602,7 +10566,7 @@ html.fs_modal_active {
 .menu #menu_promise_spinner {
   text-align: center;
   height: 26px;
-  line-height: 1.875rem;
+  line-height: 30px;
   margin-top: 10px
 }
 
@@ -10635,8 +10599,8 @@ html.fs_modal_active {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #2C2D30
 }
@@ -10707,7 +10671,7 @@ html.fs_modal_active {
   top: 8px;
   text-decoration: none;
   color: #CCC!important;
-  font-size: .875rem
+  font-size: 14px
 }
 
 .menu .menu_filter_container .filter_no_matches {
@@ -10752,8 +10716,8 @@ html.fs_modal_active {
 
 #emoji_menu {
   position: absolute;
-  min-width: 22.5625rem;
-  max-width: 22.5625rem;
+  min-width: 361px;
+  max-width: 361px;
   color: #555459;
   z-index: 1053;
   font-size: .95rem;
@@ -10891,8 +10855,8 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu #emoji_menu_items_scroller .icon_search {
-  top: 1.3125rem;
-  left: 1rem;
+  top: 21px;
+  left: 16px;
   text-shadow: none;
   display: block;
   position: absolute
@@ -10953,11 +10917,8 @@ body.winssb #emoji_menu {
 
 #emoji_menu #emoji_menu_items_div {
   position: relative;
-  padding-top: .5rem;
-  padding-bottom: .5rem;
-  padding-left: .5rem;
-  padding-right: 0;
-  min-height: 16.875rem
+  min-height: 270px;
+  padding: 8px 0 8px 8px
 }
 
 #emoji_menu #emoji_menu_footer {
@@ -10978,11 +10939,11 @@ body.winssb #emoji_menu {
 
 #emoji_menu .emoji_li {
   border-color: transparent!important;
-  font-size: 1.25rem;
+  font-size: 20px;
   text-align: center;
-  line-height: 1.3125rem;
-  width: 2.25rem;
-  height: 2rem;
+  line-height: 21px;
+  width: 36px;
+  height: 32px;
   margin-bottom: -1px;
   margin-right: 1px;
   float: none;
@@ -10990,7 +10951,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu .emoji_li span.emoji-sizer {
-  line-height: 1.25rem
+  line-height: 20px
 }
 
 #emoji_menu .emoji_li a {
@@ -11016,11 +10977,11 @@ body.winssb #emoji_menu {
 
 #emoji_menu #emoji_menu_items_scroller .emoji_li {
   border-color: transparent!important;
-  font-size: 1.25rem;
+  font-size: 20px;
   text-align: center;
-  line-height: 1.3125rem;
-  width: 2.25rem;
-  height: 2rem;
+  line-height: 21px;
+  width: 36px;
+  height: 32px;
   margin-bottom: -1px;
   margin-right: 1px;
   float: none;
@@ -11042,11 +11003,11 @@ body.winssb #emoji_menu {
 #emoji_menu #emoji_preview_img {
   float: left;
   font-size: 2rem;
-  height: 3.375rem;
+  height: 54px;
   line-height: 2rem;
   padding: .6rem .5rem 0 .1rem;
   vertical-align: middle;
-  width: 2.875rem
+  width: 46px
 }
 
 #emoji_menu #emoji_div_handy_rxns {
@@ -11067,7 +11028,7 @@ body.winssb #emoji_menu {
   color: #989ba0;
   padding: 3px;
   right: 16px;
-  bottom: -2.0625rem;
+  bottom: -33px;
   -webkit-transition: opacity .1s ease-in 0s;
   -moz-transition: opacity .1s ease-in 0s;
   transition: opacity .1s ease-in 0s
@@ -11087,7 +11048,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu #emoji_skin_button_container span.emoji-sizer {
-  font-size: 1.4375rem
+  font-size: 23px
 }
 
 #emoji_menu #emoji_skin_picker_label {
@@ -11122,7 +11083,7 @@ body.winssb #emoji_menu {
 #emoji_menu #emoji_skin_tip {
   opacity: 0;
   font-size: .68rem;
-  bottom: -3.125rem;
+  bottom: -50px;
   right: 14px;
   z-index: 2;
   pointer-events: none
@@ -11141,7 +11102,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu #emoji_skin_picker span.emoji-sizer {
-  font-size: 1.4375rem
+  font-size: 23px
 }
 
 #emoji_menu #emoji_skin_picker span.emoji,
@@ -11153,7 +11114,7 @@ body.winssb #emoji_menu {
   position: absolute;
   font-size: 1.2rem;
   color: #989ba0;
-  bottom: -1.625rem;
+  bottom: -26px;
   left: 14px;
   opacity: 1;
   -webkit-transition: opacity .1s ease-in 1.1s;
@@ -11187,21 +11148,18 @@ body.winssb #emoji_menu {
   font-size: 1rem;
   padding-top: 70px;
   padding-right: 0;
-  padding-bottom: .625rem;
+  padding-bottom: 10px;
   color: #bababa;
   text-align: center
 }
 
 #emoji_menu #emoji_input {
-  padding-top: .125rem;
-  padding-bottom: .125rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  font-size: .9375rem;
+  font-size: 15px;
   width: 95%;
-  height: 1.75rem;
+  height: 28px;
   margin: .5rem 0 .6rem;
-  border-radius: 1rem
+  border-radius: 1rem;
+  padding: 2px 32px
 }
 
 #emoji_menu #emoji_input:focus {
@@ -11460,7 +11418,7 @@ body.winssb #emoji_menu {
   padding: 45px .9375rem .9375rem;
   background: url(/29ab/img/notifications_menu/dnd_menu_header_bg@2x.png) #202C3A;
   background-size: cover;
-  line-height: 1.5625rem;
+  line-height: 25px;
   color: #fff;
   position: relative
 }
@@ -11524,7 +11482,7 @@ body.winssb #emoji_menu {
   content: '\E271';
   display: inline-block;
   font-family: Slack;
-  font-size: 1.25rem;
+  font-size: 20px;
   font-style: normal;
   font-weight: 400
 }
@@ -11540,21 +11498,18 @@ body.winssb #emoji_menu {
 
 .menu_launcher_large {
   border: 1px solid #C5C5C5;
-  padding-top: .625rem;
-  padding-bottom: .625rem;
-  padding-left: .75rem;
-  padding-right: 2rem
+  padding: 10px 32px 10px 12px
 }
 
 .menu_launcher_large img {
   height: 28px;
   width: 28px;
-  margin-right: .75rem
+  margin-right: 12px
 }
 
 .menu_launcher_large .selected_team_name {
-  font-size: 1.25rem;
-  line-height: 1.75rem
+  font-size: 20px;
+  line-height: 28px
 }
 
 .menu.avatar_menu {
@@ -11676,7 +11631,7 @@ body.winssb #emoji_menu {
 }
 
 #recap_menu_items .inline-emoji {
-  padding-right: .625rem
+  padding-right: 10px
 }
 
 #recap_menu_items .recap_description {
@@ -11687,8 +11642,8 @@ body.winssb #emoji_menu {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #2C2D30
 }
@@ -11701,8 +11656,8 @@ body.winssb #emoji_menu {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #007AB8
 }
@@ -11880,9 +11835,9 @@ body.ReactModal__Body--open {
 }
 
 .sidebar_menu_header {
-  font-size: 1.125rem;
+  font-size: 18px;
   font-weight: 900;
-  line-height: 1.375rem;
+  line-height: 22px;
   padding: 0 9px;
   margin-bottom: 12px
 }
@@ -11898,13 +11853,13 @@ body.ReactModal__Body--open {
 
 .sidebar_menu_list_item {
   cursor: pointer;
-  font-size: .9375rem!important;
+  font-size: 15px!important;
   display: block;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   color: #555459;
-  line-height: .9375rem;
+  line-height: 15px;
   padding: 4px 8px;
   border: 1px solid transparent;
   border-radius: 4px
@@ -12038,7 +11993,7 @@ a.plastic_typeahead_item:hover {
   padding: .75rem;
   font-size: .85rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  line-height: 1.25rem;
+  line-height: 20px;
   color: #9e9ea6;
   display: inline-block;
   text-align: center;
@@ -12220,73 +12175,73 @@ a.plastic_typeahead_item:hover {
 }
 
 .member_image.thumb_16 {
-  width: 1rem;
-  height: 1rem
+  width: 16px;
+  height: 16px
 }
 
 .member_image.thumb_20 {
-  width: 1.25rem;
-  height: 1.25rem
+  width: 20px;
+  height: 20px
 }
 
 .member_image.thumb_24 {
-  width: 1.5rem;
-  height: 1.5rem
+  width: 24px;
+  height: 24px
 }
 
 .member_image.thumb_32 {
-  width: 2rem;
-  height: 2rem
+  width: 32px;
+  height: 32px
 }
 
 .member_image.thumb_36 {
-  width: 2.25rem;
-  height: 2.25rem
+  width: 36px;
+  height: 36px
 }
 
 .member_image.thumb_48 {
-  width: 3rem;
-  height: 3rem
+  width: 48px;
+  height: 48px
 }
 
 .member_image.thumb_72 {
-  width: 4.5rem;
-  height: 4.5rem
+  width: 72px;
+  height: 72px
 }
 
 .member_image.thumb_192 {
-  width: 12rem;
-  height: 12rem
+  width: 192px;
+  height: 192px
 }
 
 .member_image.thumb_512 {
-  width: 32rem;
-  height: 32rem
+  width: 512px;
+  height: 512px
 }
 
 .member_image.thumb_24 .emoji-sizer {
-  font-size: 1.5rem
+  font-size: 24px
 }
 
 .member_image.thumb_32 .emoji-sizer {
-  font-size: 2rem
+  font-size: 32px
 }
 
 .member_image.thumb_36 .emoji-sizer {
-  font-size: 2.25rem
+  font-size: 36px
 }
 
 .member_image.thumb_48 .emoji-sizer {
-  font-size: 3rem
+  font-size: 48px
 }
 
 .member_image.thumb_72 .emoji-sizer {
-  font-size: 4rem;
+  font-size: 64px;
   margin: 4px
 }
 
 .member_image.thumb_192 .emoji-sizer {
-  font-size: 4rem;
+  font-size: 64px;
   margin: 64px
 }
 
@@ -12383,7 +12338,7 @@ only screen and (min-resolution:192dpi) {
 }
 
 .slackbot_icon:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .channels_list_holder ul li.active .slackbot_icon,
@@ -12395,12 +12350,12 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover .slackbot_icon {
 }
 
 .channels_list_holder ul li.active .slackbot_icon {
-  color: #fff
+  color: #FFF
 }
 
 .presence.large {
-  width: .6875rem;
-  height: .6875rem;
+  width: 11px;
+  height: 11px;
   border-radius: 4px;
   display: inline-block;
   margin: 0 .15rem;
@@ -12447,8 +12402,8 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover .slackbot_icon {
 }
 
 .presence {
-  width: .5625rem;
-  height: .5625rem;
+  width: 9px;
+  height: 9px;
   margin: 0 .15rem;
   display: inline-block;
   vertical-align: baseline;
@@ -12459,11 +12414,11 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover .slackbot_icon {
 
 .presence i.presence_icon {
   display: inline-block;
-  font-size: 1.25rem;
-  line-height: 1.25rem;
+  font-size: 20px;
+  line-height: 20px;
   position: absolute;
-  top: -.625rem;
-  left: -.3125rem
+  top: -10px;
+  left: -5px
 }
 
 .presence.away {
@@ -12493,7 +12448,7 @@ h3 .presence {
 }
 
 #channels_scroller.show_which_channel_is_active li.member.active .presence {
-  color: #fff
+  color: #FFF
 }
 
 #channels_scroller.show_which_channel_is_active li.member.active .presence.away {
@@ -12565,19 +12520,16 @@ h3 .presence {
 
 .team_list_item .member_details {
   padding: 0;
-  min-height: 4.5rem
+  min-height: 72px
 }
 
 .team_list_item .member_item_inset {
-  padding-left: 5.125rem
+  padding-left: 82px
 }
 
 .team_list_item .member_image {
   float: left;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: -5.125rem;
-  margin-right: 0
+  margin: 0 0 0 -82px
 }
 
 .team_list_item .member_name {
@@ -12600,7 +12552,7 @@ h3 .presence {
 }
 
 #disabled_members_tab a:hover {
-  background: #fff;
+  background: #FFF;
   color: #005E99
 }
 
@@ -12689,7 +12641,7 @@ h3 .presence {
 
 #member_preview_scroller a.member_action_button,
 #team_list a.member_action_button {
-  font-size: .875rem;
+  font-size: 14px;
   border-width: 1px;
   max-width: 300px;
   color: #9e9ea6!important
@@ -12712,15 +12664,15 @@ h3 .presence {
 #member_preview_scroller .team_directory_icon.message_icon,
 #team_list .team_directory_icon.message_icon {
   background-position: 0 0;
-  width: 1rem;
-  height: 1rem
+  width: 16px;
+  height: 16px
 }
 
 #member_preview_scroller .team_directory_icon.more_icon,
 #team_list .team_directory_icon.more_icon {
   background-position: 0 -40px;
-  width: 1rem;
-  height: .25rem
+  width: 16px;
+  height: 4px
 }
 
 #member_preview_scroller .member_action_button:hover .team_directory_icon.message_icon,
@@ -12852,11 +12804,11 @@ only screen and (min-resolution:2dppx) {
 }
 
 #client-ui.flexpane_redesign #team_list {
-  margin-left: .5rem
+  margin-left: 8px
 }
 
 .flexpane_redesign #team_list_scroller {
-  margin-top: .375rem
+  margin-top: 6px
 }
 
 #client-ui #team_list .expanded_member_details {
@@ -12906,8 +12858,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_cover_content {
-  padding-right: .9375rem;
-  padding-left: 1.6875rem;
+  padding-right: 15px;
+  padding-left: 27px;
   line-height: normal
 }
 
@@ -12997,8 +12949,8 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .current_status_input {
   font-size: 15px;
-  padding-right: 2.0625rem;
-  padding-left: 3.125rem
+  padding-right: 33px;
+  padding-left: 50px
 }
 
 .current_status_input_wrap .status_clear_icon_wrap {
@@ -13020,7 +12972,7 @@ only screen and (min-resolution:2dppx) {
   position: absolute;
   top: 0;
   left: 0;
-  width: 2.75rem;
+  width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13069,7 +13021,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container:not(.current_status_input_for_edit_profile) .current_status_action_buttons {
-  margin-top: .375rem;
+  margin-top: 6px;
   -webkit-transition: opacity .15s ease, max-height .15s ease;
   -moz-transition: opacity .15s ease, max-height .15s ease;
   transition: opacity .15s ease, max-height .15s ease;
@@ -13090,7 +13042,7 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_container:not(.current_status_input_for_edit_profile) ts-inline-saver {
   display: none;
-  margin-left: .25rem;
+  margin-left: 4px;
   font-size: .9rem
 }
 
@@ -13105,7 +13057,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container label.countdown:after {
-  margin-right: 1.125rem;
+  margin-right: 18px;
   z-index: 1
 }
 
@@ -13224,7 +13176,7 @@ only screen and (min-resolution:2dppx) {
 #member_preview_scroller,
 #member_preview_web_container,
 .menu_member_header {
-  background-color: #fff
+  background-color: #FFF
 }
 
 #member_preview_scroller .member_data_table td,
@@ -13547,13 +13499,13 @@ only screen and (min-resolution:2dppx) {
   width: 100%;
   border-radius: .2rem .2rem 0 0;
   background-color: #2C2D30;
-  color: #fff;
+  color: #FFF;
   padding: 4px 8px 8px;
   font-size: 13px
 }
 
 .menu_member_header .member_details .member_name_and_presence {
-  color: #fff;
+  color: #FFF;
   font-size: 1.125rem;
   line-height: 1.5625rem;
   font-weight: 900;
@@ -13562,16 +13514,16 @@ only screen and (min-resolution:2dppx) {
 }
 
 .menu_member_header .member_details .member_name_and_presence .member_name {
-  color: #fff;
+  color: #FFF;
   text-decoration: none
 }
 
 .menu_member_header .member_details .member_name_and_presence .presence.away {
-  color: #fff
+  color: #FFF
 }
 
 .menu_member_header .member_details .member_title {
-  color: #fff;
+  color: #FFF;
   font-size: .9375rem;
   line-height: 1.375rem;
   margin: 0
@@ -13752,7 +13704,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .flexpane_redesign #team_tab #member_preview_scroller .member_details {
-  padding-left: .5rem
+  padding-left: 8px
 }
 
 #team_tab #member_preview_scroller .member_details .member_image.thumb_512 {
@@ -13875,7 +13827,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_profile_card {
   padding: 1rem .5rem;
-  width: 12rem
+  width: 192px
 }
 
 .member_meta {
@@ -13939,14 +13891,14 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   width: 100%;
   border-radius: .2rem .2rem 0 0;
   background-color: #2C2D30;
-  color: #fff;
+  color: #FFF;
   padding: 4px 8px 8px;
   display: flex;
   align-items: baseline
 }
 
 .member_restriction_banner .overflow_ellipsis {
-  font-size: .8125rem;
+  font-size: 13px;
   flex: 1 1 auto
 }
 
@@ -13969,7 +13921,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #file_member_filter {
-  background: #fff
+  background: #FFF
 }
 
 #file_member_filter_no_matches {
@@ -14057,7 +14009,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item:hover .member {
-  color: #fff;
+  color: #FFF;
   text-decoration: none
 }
 
@@ -14086,7 +14038,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #client-ui #file_member_filter .member_filter {
   margin: .5rem .3rem .35rem .6rem!important;
   border-color: #DDD;
-  width: 12.5rem
+  width: 200px
 }
 
 #client-ui .team_tabs_container {
@@ -14162,15 +14114,15 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 .searchable_member_list_search_bar .ts_icon_spinner {
   position: absolute;
   font-size: 1rem;
-  top: .3125rem;
-  left: .5rem;
+  top: 5px;
+  left: 8px;
   color: #9e9ea6
 }
 
 #team_filter .ts_icon_spinner,
 #user_group_filter .ts_icon_spinner,
 .searchable_member_list_search_bar .ts_icon_spinner {
-  top: .625rem
+  top: 10px
 }
 
 #team_filter .icon_search.indifferent_grey+.ts_icon_spinner,
@@ -14183,10 +14135,10 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #user_group_filter a.icon_close,
 .searchable_member_list_search_bar a.icon_close {
   position: absolute;
-  right: .5rem;
-  top: .375rem;
+  right: 8px;
+  top: 6px;
   color: #BABBBF;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 #team_filter a.icon_close:hover,
@@ -14199,18 +14151,18 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #client-ui .icon_search {
   position: absolute;
   font-size: .9rem;
-  top: .1875rem;
-  left: .4375rem;
+  top: 3px;
+  left: 7px;
   color: #CCC
 }
 
 #client-ui #file_member_filter .icon_search {
-  top: .8125rem;
-  left: 1.0625rem
+  top: 13px;
+  left: 17px
 }
 
 #client-ui .ts_icon_spinner {
-  top: .25rem
+  top: 4px
 }
 
 #client-ui .icon_search.indifferent_grey+.ts_icon_spinner {
@@ -14218,10 +14170,10 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #client-ui a.icon_close {
-  top: .25rem;
+  top: 4px;
   position: absolute;
   color: #BABBBF;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #client-ui a.icon_close:hover {
@@ -14230,8 +14182,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #client-ui #file_member_filter .icon_close {
-  right: .5625rem;
-  top: .8125rem
+  right: 9px;
+  top: 13px
 }
 
 #slackbot_meta,
@@ -14326,7 +14278,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_type_badge.ts_icon_restricted_user:before,
 .member_type_badge.ts_icon_single_channel_guest:before {
-  font-size: 1.8125rem
+  font-size: 29px
 }
 
 .member_type_badge svg {
@@ -14368,7 +14320,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_type_and_description .member_type_badge.ts_icon_restricted_user:before,
 .member_type_and_description .member_type_badge.ts_icon_single_channel_guest:before {
-  font-size: 1.8125rem
+  font-size: 29px
 }
 
 .member_timezone_value .member_type_badge.ts_icon_restricted_user,
@@ -14379,7 +14331,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_timezone_value .member_type_badge.ts_icon_restricted_user:before,
 .member_timezone_value .member_type_badge.ts_icon_single_channel_guest:before {
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .member_image.thumb_20 .member_type_badge,
@@ -14459,6 +14411,50 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 .member_image.thumb_512 .member_type_badge svg.member_type_badge_icon {
   width: 5rem;
   height: 5rem
+}
+
+.external_team_badge {
+  display: inline-block;
+  vertical-align: bottom;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  border: 1px solid rgba(44, 45, 48, .08);
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #FFF;
+  background-size: 100%;
+  background-color: #FFF;
+  background-repeat: no-repeat
+}
+
+.external_team_badge.default {
+  background-color: #717274;
+  font-weight: 800;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #FFF;
+  font-style: normal;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  float: left
+}
+
+.external_team_badge.team_badge_16 {
+  width: 16px;
+  height: 16px
+}
+
+.external_team_badge.team_badge_22 {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px #FFF
+}
+
+.external_team_badge.team_badge_22.default {
+  font-size: 13px;
+  line-height: 1.6
 }
 
 #channel_list .ts_icon_shared_channel {
@@ -14589,10 +14585,10 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   background: #FaF8F6;
   color: #7F7F83;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .75rem;
+  font-size: 12px;
   border-bottom: 1px solid rgba(0, 0, 0, .15);
   background-clip: padding-box;
-  height: 2rem;
+  height: 32px;
   overflow: hidden;
   border-radius: 6px 6px 0 0
 }
@@ -14797,7 +14793,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 .tab_complete_ui li.tab_complete_ui_group .emoji-sizer,
 .tab_complete_ui li.tab_complete_ui_item .emoji-sizer {
   font-size: 1rem;
-  line-height: .875rem;
+  line-height: 14px;
   vertical-align: middle
 }
 
@@ -14937,8 +14933,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 .channel_modal_header {
-  font-size: 2.125rem;
-  line-height: 2.5625rem;
+  font-size: 34px;
+  line-height: 41px;
   font-weight: 900
 }
 
@@ -14954,14 +14950,14 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .channel_modal .channel_modal_filter_container .search_icon {
   position: absolute;
-  top: .375rem;
-  left: .8125rem
+  top: 6px;
+  left: 13px
 }
 
 .channel_modal .channel_modal_filter_container .clear_filter_icon {
   position: absolute;
-  top: .375rem;
-  right: .625rem;
+  top: 6px;
+  right: 10px;
   cursor: pointer;
   visibility: hidden
 }
@@ -14971,8 +14967,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 .channel_modal .btn_large {
-  padding-left: 1.125rem;
-  padding-right: 1.125rem
+  padding-left: 18px;
+  padding-right: 18px
 }
 
 .channel_modal_title_input_container {
@@ -14985,8 +14981,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .channel_modal_title_input_container .channel_icon {
   position: absolute;
-  top: .625rem;
-  left: .5625rem
+  top: 10px;
+  left: 9px
 }
 
 .channel_modal_with_list {
@@ -15038,11 +15034,11 @@ only screen and (max-width:767px) {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1;
-  padding-right: 1.0625rem
+  padding-right: 17px
 }
 
 html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
-  height: 25rem
+  height: 400px
 }
 
 .supports_custom_scrollbar .channel_modal_with_list .channel_modal_list {
@@ -15109,14 +15105,15 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 
 #channel_browser .channel_browser_row {
   width: 100%;
-  min-height: 3.75rem;
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  padding-left: .625rem;
+  min-height: 60px;
+  padding-top: 12px;
+  padding-right: 5rem;
+  padding-bottom: 12px;
+  padding-left: 10px;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
   cursor: pointer;
-  font-size: .875rem;
+  font-size: 14px;
   line-height: 1.4;
   color: #717274
 }
@@ -15126,14 +15123,14 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_joined {
-  font-size: .6875rem;
+  font-size: 11px;
   margin-left: .25rem
 }
 
 #channel_browser .channel_browser_row_header {
-  font-size: 1rem;
+  font-size: 16px;
   line-height: 1.2rem;
-  margin-bottom: .1875rem;
+  margin-bottom: 3px;
   color: #555459
 }
 
@@ -15142,24 +15139,24 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_type_icon {
-  margin-right: -.1875rem;
-  margin-left: -.3125rem
+  margin-right: -3px;
+  margin-left: -5px
 }
 
 #channel_browser .shared_channel_icon {
-  margin-left: .25rem
+  margin-left: 4px
 }
 
 #channel_browser .channel_browser_member_count_container {
   position: absolute;
-  right: .625rem;
-  top: .75rem
+  right: 10px;
+  top: 12px
 }
 
 #channel_browser .channel_browser_member_count_container .ts_icon_user:before {
-  font-size: 1rem;
+  font-size: 16px;
   position: relative;
-  top: .0625rem
+  top: 1px
 }
 
 #channel_browser .channel_browser_open,
@@ -15167,7 +15164,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   display: none;
   color: #439fe0;
   position: absolute;
-  right: .625rem;
+  right: 10px;
   top: 50%;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
@@ -15178,7 +15175,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_open {
-  right: 1.625rem
+  right: 26px
 }
 
 #channel_browser #channel_list_container:not(.keyboard_active).not_scrolling .channel_browser_row:hover,
@@ -15210,15 +15207,15 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser #channel_browser_empty {
-  height: 6.25rem;
+  height: 100px;
   width: 75%
 }
 
 #channel_browser .channel_browser_divider {
   color: #67686e;
-  font-size: .875rem;
-  height: 2.1875rem;
-  line-height: 2.1875rem;
+  font-size: 14px;
+  height: 35px;
+  line-height: 35px;
   width: 100%;
   padding-left: 1rem;
   font-weight: 700;
@@ -15232,10 +15229,10 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 #channel_browser .channel_browser_sort_container:after {
   content: attr(data-prefix-text);
   color: #717274;
-  font-size: 1rem;
+  font-size: 16px;
   position: absolute;
-  top: .625rem;
-  left: 1.1875rem;
+  top: 10px;
+  left: 19px;
   pointer-events: none
 }
 
@@ -15255,24 +15252,24 @@ html:not(.supports_flexbox) #channel_browser .channel_modal_header {
 }
 
 html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
-  margin-top: -.1875rem
+  margin-top: -3px
 }
 
 .channel_modal_footer {
   position: absolute;
   left: 3%;
   top: 2rem;
-  font-size: .9375rem
+  font-size: 15px
 }
 
 #channel_browser_footer a .ts_icon:before {
   position: relative;
-  top: .125rem
+  top: 2px
 }
 
 #new_channel_modal input[type=text],
 #new_channel_modal textarea {
-  font-size: 1.125rem;
+  font-size: 18px;
   margin-bottom: 0
 }
 
@@ -15286,20 +15283,20 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 
 .kb_nav_label {
   visibility: hidden;
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .kb_nav_label .ts_icon_arrow_up {
-  margin-right: -.375rem
+  margin-right: -6px
 }
 
 .kb_nav_label .ts_icon:before {
   position: relative;
-  top: .1875rem
+  top: 3px
 }
 
 .kb_nav_label .ts_icon.ts_icon_enter:before {
-  font-size: .875rem
+  font-size: 14px
 }
 
 #im_browser {
@@ -15308,38 +15305,38 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   left: 0;
   right: 0;
   margin: 0 auto;
-  padding-left: 1.875rem;
-  padding-right: 1.875rem;
-  width: 43.75rem
+  padding-left: 30px;
+  padding-right: 30px;
+  width: 700px
 }
 
 #im_browser .im_browser_row {
   width: 100%;
-  height: 4rem;
+  height: 64px;
   cursor: pointer;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
-  padding-left: 3.875rem;
-  padding-right: .75rem;
-  padding-top: .6875rem
+  padding-left: 62px;
+  padding-right: 12px;
+  padding-top: 11px
 }
 
 #im_browser .im_browser_row .member_image {
   position: absolute;
-  left: .75rem;
-  top: .8125rem
+  left: 12px;
+  top: 13px
 }
 
 #im_browser .im_browser_row.multiparty .member_image {
   position: absolute;
-  left: .625rem;
-  top: .6875rem
+  left: 10px;
+  top: 11px
 }
 
 #im_browser .im_browser_row.multiparty .member_image+.member_image {
   position: absolute;
-  left: 1.25rem;
-  top: 1.375rem
+  left: 20px;
+  top: 22px
 }
 
 #im_browser .im_browser_row.multiparty .member_image+.member_image:not(.ra):not(.ura) {
@@ -15348,56 +15345,53 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 }
 
 #im_browser .im_browser_row .im_display_name_container {
-  font-size: .9375rem;
-  line-height: 1.3125rem;
-  height: 1.3125rem
+  font-size: 15px;
+  line-height: 21px;
+  height: 21px
 }
 
 #im_browser .im_browser_row .im_last_msg,
 #im_browser .im_browser_row .im_member_title,
 #im_browser .im_browser_row .im_slackbot_greeting {
-  height: 1.3125rem;
-  line-height: 1.3125rem;
-  font-size: .9375rem
+  height: 21px;
+  line-height: 21px;
+  font-size: 15px
 }
 
 #im_browser .im_browser_row .im_last_msg .emoji-sizer {
-  font-size: 1rem;
-  line-height: .875rem
+  font-size: 16px;
+  line-height: 14px
 }
 
 #im_browser .im_browser_row .im_last_msg_time {
-  font-size: .75rem;
-  line-height: .75rem
+  font-size: 12px;
+  line-height: 12px
 }
 
 #im_browser .im_browser_row .im_last_msg_time .ts_icon {
-  font-size: 1rem;
+  font-size: 16px;
   position: relative;
-  top: .25rem;
-  left: -.125rem
+  top: 4px;
+  left: -2px
 }
 
 #im_browser .im_browser_row .im_unread_cnt {
   color: #fff;
   background: #FF876D;
-  padding-top: .125rem;
-  padding-bottom: .125rem;
-  padding-left: .5rem;
-  padding-right: .5rem;
   border-radius: 9px;
   font-size: .9rem;
-  line-height: .9rem
+  line-height: .9rem;
+  padding: 2px 8px
 }
 
 #im_browser .im_browser_row .enter_icon {
   display: none;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #im_browser .im_browser_row .mpim_member_count:before {
-  margin-left: -.25rem;
-  margin-top: -.125rem
+  margin-left: -4px;
+  margin-top: -2px
 }
 
 #im_browser .im_browser_row:not(.multiparty) .im_last_msg,
@@ -15425,7 +15419,7 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 
 #im_browser .remaining_participant_hint {
   display: none;
-  font-size: .8125rem;
+  font-size: 13px;
   position: absolute
 }
 
@@ -15504,14 +15498,14 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 }
 
 #im_browser #im_browser_empty {
-  height: 6.25rem;
+  height: 100px;
   width: 75%
 }
 
 #im_browser .im_browser_go {
   float: right;
-  padding-top: 1rem;
-  padding-bottom: 1.0625rem
+  padding-top: 16px;
+  padding-bottom: 17px
 }
 
 #im_browser .create_private_channel_container,
@@ -15585,9 +15579,9 @@ html:not(.supports_flexbox) #im_browser_tokens {
 #im_browser_tokens #im_browser_filter,
 #im_browser_tokens .member_token {
   margin-top: .25rem;
-  margin-right: .375rem;
-  height: 1.625rem;
-  line-height: 1.625rem
+  margin-right: 6px;
+  height: 26px;
+  line-height: 26px
 }
 
 #im_browser_tokens .member_token {
@@ -15596,9 +15590,9 @@ html:not(.supports_flexbox) #im_browser_tokens {
   color: #fff;
   border-radius: .2rem;
   font-weight: 700;
-  font-size: .9375rem;
-  padding-left: 2rem;
-  padding-right: 1.5rem;
+  font-size: 15px;
+  padding-left: 32px;
+  padding-right: 24px;
   cursor: pointer;
   -ms-flex: none;
   -webkit-flex: none;
@@ -15696,7 +15690,7 @@ html:not(.supports_flexbox) #channel_invite_tokens {
   margin-top: .25rem;
   margin-right: 6px;
   height: 26px;
-  line-height: 1.625rem
+  line-height: 26px
 }
 
 #channel_invite_tokens .member_token {
@@ -15705,7 +15699,7 @@ html:not(.supports_flexbox) #channel_invite_tokens {
   color: #fff;
   border-radius: .2rem;
   font-weight: 700;
-  font-size: .9375rem;
+  font-size: 15px;
   padding-left: 32px;
   padding-right: 24px;
   cursor: pointer;
@@ -15739,10 +15733,10 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .channel_invite_member,
 .channel_invite_member_small,
 .channel_invite_pending_user_small {
-  font-size: .875rem;
+  font-size: 14px;
   position: relative;
-  padding-left: 2.625rem;
-  height: 2.25rem
+  padding-left: 42px;
+  height: 36px
 }
 
 .channel_invite_member .add_icon,
@@ -15786,19 +15780,19 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .channel_invite_member .invite_user_group_avatar,
 .channel_invite_member_small .invite_user_group_avatar,
 .channel_invite_pending_user_small .invite_user_group_avatar {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 36px;
+  height: 36px;
   background-color: #2D9EE0;
-  padding-top: .75rem;
-  padding-left: .5rem;
+  padding-top: 12px;
+  padding-left: 8px;
   color: #fff;
-  border-radius: .1875rem
+  border-radius: 3px
 }
 
 .channel_invite_member .invite_user_group_avatar i:before,
 .channel_invite_member_small .invite_user_group_avatar i:before,
 .channel_invite_pending_user_small .invite_user_group_avatar i:before {
-  font-size: 1.5625rem
+  font-size: 25px
 }
 
 .channel_invite_member .name_container,
@@ -15818,26 +15812,26 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   -webkit-justify-content: space-around;
   -moz-justify-content: space-around;
   justify-content: space-around;
-  height: 2.25rem
+  height: 36px
 }
 
 .channel_invite_member .name_container .not_in_token,
 .channel_invite_member_small .name_container .not_in_token,
 .channel_invite_pending_user_small .name_container .not_in_token {
-  font-size: .75rem
+  font-size: 12px
 }
 
 .lfs_item.lfs_token .channel_invite_member,
 .lfs_item.lfs_token .channel_invite_member_small,
 .lfs_item.lfs_token .channel_invite_pending_user_small {
-  height: 1.75rem;
-  padding-left: 2.25rem
+  height: 28px;
+  padding-left: 36px
 }
 
 .lfs_item.lfs_token .channel_invite_member .name_container,
 .lfs_item.lfs_token .channel_invite_member_small .name_container,
 .lfs_item.lfs_token .channel_invite_pending_user_small .name_container {
-  height: 1.75rem
+  height: 28px
 }
 
 .lfs_item.lfs_token .channel_invite_member .not_in_token,
@@ -15856,42 +15850,42 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .lfs_item.lfs_token .channel_invite_member .invite_user_group_avatar,
 .lfs_item.lfs_token .channel_invite_member_small .invite_user_group_avatar,
 .lfs_item.lfs_token .channel_invite_pending_user_small .invite_user_group_avatar {
-  height: 1.75rem;
-  width: 1.75rem;
+  height: 28px;
+  width: 28px;
   margin-right: .3rem;
   border-radius: 0;
   padding-top: 0;
-  padding-left: .375rem;
-  margin-top: -.0625rem
+  padding-left: 6px;
+  margin-top: -1px
 }
 
 .lfs_item.lfs_token .channel_invite_member .invite_user_group_avatar i:before,
 .lfs_item.lfs_token .channel_invite_member_small .invite_user_group_avatar i:before,
 .lfs_item.lfs_token .channel_invite_pending_user_small .invite_user_group_avatar i:before {
-  font-size: 1.375rem
+  font-size: 22px
 }
 
 .channel_invite_member {
-  padding-left: 3.125rem;
-  height: 2.5rem
+  padding-left: 50px;
+  height: 40px
 }
 
 .channel_invite_member .invite_user_group_avatar {
-  width: 2.5rem;
-  height: 2.5rem
+  width: 40px;
+  height: 40px
 }
 
 .channel_invite_member .name_container {
-  height: 2.5rem
+  height: 40px
 }
 
 .channel_invite_member_token,
 .channel_invite_pending_user_token {
-  font-size: .875rem;
+  font-size: 14px;
   position: relative;
-  height: 1.5rem;
-  line-height: 1.5rem;
-  padding-left: 2rem
+  height: 24px;
+  line-height: 24px;
+  padding-left: 32px
 }
 
 .channel_invite_member_token .member_image,
@@ -15912,14 +15906,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 #channel_invite_container .lfs_item.lfs_token,
 #invite_members_container .lfs_item.lfs_token {
-  margin-top: .1875rem;
-  margin-bottom: .375rem;
-  margin-left: 0;
-  margin-right: .375rem;
   padding-left: 0;
   padding-top: 0;
   padding-bottom: 0;
-  top: 0
+  top: 0;
+  margin: 3px 6px 6px 0
 }
 
 #channel_invite_container .lfs_input_container,
@@ -15938,17 +15929,14 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   -webkit-flex-wrap: wrap;
   -moz-flex-wrap: wrap;
   flex-wrap: wrap;
-  min-height: 2.875rem;
-  max-height: 14.375rem;
+  min-height: 46px;
+  max-height: 230px;
   overflow-y: scroll;
-  padding-top: .3125rem!important;
-  padding-bottom: .3125rem!important;
-  padding-left: .375rem!important;
-  padding-right: 0!important
+  padding: 5px 0 5px 6px!important
 }
 
 #invite_members_container .lfs_input_container {
-  min-height: 2.875rem;
+  min-height: 46px;
   padding: 0 0 0 2.5rem!important
 }
 
@@ -15959,12 +15947,12 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 #invite_members_container .search_icon {
   display: inline;
   position: absolute;
-  top: .5rem;
-  left: .9375rem
+  top: 8px;
+  left: 15px
 }
 
 #channel_invite_container {
-  max-height: 62.5rem;
+  max-height: 1000px;
   min-height: 0;
   -ms-flex: 1;
   -webkit-flex: 1;
@@ -16023,17 +16011,14 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_container .lfs_list_container .lfs_item {
-  padding-top: .625rem;
-  padding-bottom: .625rem;
-  padding-left: .625rem;
-  padding-right: .625rem;
   border: 1px solid transparent;
-  border-top: 1px solid #E8E8E8
+  border-top: 1px solid #E8E8E8;
+  padding: 10px
 }
 
 #channel_invite_container .lfs_list_container .lfs_item.active {
   border: 1px solid #d3ecfa;
-  border-radius: .375rem
+  border-radius: 6px
 }
 
 #channel_invite_container .lfs_list_container .lfs_item.active+.lfs_item {
@@ -16045,7 +16030,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container>div.vertically_center_full_name {
-  line-height: 2.625rem
+  line-height: 42px
 }
 
 #channel_invite_container.page_needs_enterprise {
@@ -16062,7 +16047,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row {
   width: 100%;
-  height: 4rem;
+  height: 64px;
   cursor: pointer;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
@@ -16080,21 +16065,21 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member {
-  height: 2.625rem
+  height: 42px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member .member_image {
-  top: .1875rem
+  top: 3px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container {
-  height: 2.625rem;
+  height: 42px;
   display: block
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container>div {
-  height: 1.3125rem;
-  line-height: 1.3125rem
+  height: 21px;
+  line-height: 21px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .add_icon {
@@ -16102,7 +16087,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_modal .channel_invite_filter_container {
-  margin-bottom: 1.6875rem
+  margin-bottom: 27px
 }
 
 #channel_invite_modal .kb_nav_label {
@@ -16111,20 +16096,20 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 #channel_invite_modal .enter_to_go_label {
   position: absolute;
-  top: 3.375rem;
-  right: 1rem
+  top: 54px;
+  right: 16px
 }
 
 #channel_invite_modal .enter_to_go_label .ts_icon_enter:before {
   position: relative;
-  top: .125rem
+  top: 2px
 }
 
 #channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover,
 #channel_invite_modal .channel_invite_row.highlighted {
   background: #edf7fd;
   border: 1px solid #d3ecfa;
-  border-radius: .375rem
+  border-radius: 6px
 }
 
 #channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover .add_icon,
@@ -16188,8 +16173,8 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 #generic_dialog.modal.all_members_dialog #all_members_filter input {
   border: none;
   border-radius: 0;
-  height: 2.9375rem;
-  padding-left: 2.75rem
+  height: 47px;
+  padding-left: 44px
 }
 
 #generic_dialog.modal.all_members_dialog #all_members_filter input,
@@ -16206,11 +16191,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #generic_dialog.modal.all_members_dialog #all_members_no_matches {
-  top: 4.0625rem
+  top: 65px
 }
 
 #generic_dialog.modal.all_members_dialog #all_members_container {
-  padding-left: .9375rem;
+  padding-left: 15px;
   padding-top: 1rem;
   height: 400px;
   overflow: auto
@@ -16389,20 +16374,17 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   position: absolute;
   z-index: 200;
   width: 100%;
-  max-height: 15.625rem;
+  max-height: 250px;
   top: 100%;
   left: 0;
   overflow: auto;
-  margin-top: .1875rem;
-  margin-bottom: .1875rem;
+  margin-top: 3px;
+  margin-bottom: 3px;
   border: 1px solid #D8D8D8;
-  border-radius: .25rem;
+  border-radius: 4px;
   background: #fff;
   box-shadow: 0 0 3px rgba(0, 0, 0, .1);
-  padding-top: .25rem;
-  padding-bottom: .25rem;
-  padding-left: .25rem;
-  padding-right: .1875rem
+  padding: 4px 3px 4px 4px
 }
 
 .lazy_filter_select .lfs_list_container.visible {
@@ -16415,7 +16397,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 .lazy_filter_select .lfs_list_container .monkey_scroll_bar:not(.hidden)+.monkey_scroll_hider>.lfs_list {
-  padding-right: 1.0625rem
+  padding-right: 17px
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list {
@@ -16487,13 +16469,10 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   display: none;
   font-size: .85rem;
   overflow: hidden;
-  padding-top: .25rem;
-  padding-bottom: .25rem;
-  padding-left: .25rem;
-  padding-right: .25rem;
   text-align: center;
   text-overflow: ellipsis;
-  width: 100%
+  width: 100%;
+  padding: 4px
 }
 
 .lazy_filter_select .lfs_list_container .lfs_status .lfs_status_content,
@@ -16512,9 +16491,9 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 .lazy_filter_select .lfs_list {
-  max-height: 15.625rem;
+  max-height: 250px;
   overflow: auto;
-  margin-right: .0625rem;
+  margin-right: 1px;
   width: 100%
 }
 
@@ -16533,7 +16512,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .lazy_filter_select .lfs_list .lfs_item {
   cursor: pointer;
   border: 1px solid transparent;
-  border-radius: .125rem;
+  border-radius: 2px;
   width: 100%;
   display: block;
   text-overflow: ellipsis;
@@ -16650,7 +16629,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   position: absolute;
   right: .7rem;
   top: 4px;
-  font-size: 1.25rem;
+  font-size: 20px;
   pointer-events: none
 }
 
@@ -16790,16 +16769,13 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  max-width: 15.625rem;
-  min-width: 9.375rem
+  max-width: 250px;
+  min-width: 150px
 }
 
 .lazy_filter_select.single.filter_in_list_style ._input_style {
-  font-size: .8125rem;
-  padding-left: .625rem;
-  padding-top: .375rem;
-  padding-right: 1.6875rem;
-  padding-bottom: .375rem
+  font-size: 13px;
+  padding: 6px 27px 6px 10px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container {
@@ -16808,11 +16784,8 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_input,
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_value {
-  font-size: .8125rem;
-  padding-left: .625rem;
-  padding-top: .375rem;
-  padding-right: 1.6875rem;
-  padding-bottom: .375rem
+  font-size: 13px;
+  padding: 6px 27px 6px 10px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container:hover:not(.active) {
@@ -16825,46 +16798,43 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container::after {
   color: #555459;
-  font-size: 1.125rem;
+  font-size: 18px;
   line-height: 1;
-  right: .3125rem;
-  top: .3125rem
+  right: 5px;
+  top: 5px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container {
-  max-width: 21.875rem;
-  min-width: 15.625rem
+  max-width: 350px;
+  min-width: 250px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_filter_input {
-  font-size: .8125rem;
-  padding-left: .625rem;
-  padding-top: .375rem;
-  padding-right: 1.6875rem;
-  padding-bottom: .375rem
+  font-size: 13px;
+  padding: 6px 27px 6px 10px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_group {
   color: #9e9ea6;
-  font-size: .875rem
+  font-size: 14px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item {
   color: #2C2D30;
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon::before {
-  font-size: .8125rem;
+  font-size: 13px;
   margin-right: .25rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item.group_item {
-  padding-left: .75rem
+  padding-left: 12px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_status_loading_indicator {
-  margin-bottom: .375rem
+  margin-bottom: 6px
 }
 
 .lazy_filter_select.single.filter_in_list_style .emoji-outer {
@@ -16906,13 +16876,13 @@ select[data-lazy-filter-select] {
 
 .rxn_panel .rxn_hover_container {
   transition: opacity .2s linear;
-  margin-left: .25rem;
+  margin-left: 4px;
   visibility: hidden;
   opacity: 0
 }
 
 .rxn_panel .rxn_hover_container .rxn {
-  margin-right: .125rem!important
+  margin-right: 2px!important
 }
 
 .rxn_panel .rxn+.rxn_hover_container {
@@ -16920,7 +16890,7 @@ select[data-lazy-filter-select] {
 }
 
 .rxn_panel:not(:empty) {
-  padding-top: .0625rem
+  padding-top: 1px
 }
 
 .rxn_panel.active .rxn_hover_container,
@@ -16945,16 +16915,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .rxn {
   display: inline-block;
-  margin-top: .125rem;
-  margin-bottom: .125rem;
+  margin-top: 2px;
+  margin-bottom: 2px;
   background: #fff;
   border: 1px solid #E8E8E8;
-  margin-right: .375rem!important;
-  border-radius: .3125rem;
-  padding-top: .0625rem;
-  padding-bottom: .0625rem;
-  padding-left: .1875rem;
-  padding-right: .1875rem;
+  margin-right: 6px!important;
+  border-radius: 5px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -16962,8 +16928,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   user-select: none;
   cursor: pointer;
   height: 1.4rem;
-  line-height: 1.4375rem;
-  vertical-align: baseline
+  line-height: 23px;
+  vertical-align: baseline;
+  padding: 1px 3px
 }
 
 .rxn.active,
@@ -16978,12 +16945,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .rxn.user_reacted {
   border: 1px solid;
-  padding-top: .0625rem;
-  padding-bottom: .0625rem;
-  padding-left: .1875rem;
-  padding-right: .1875rem;
   border-color: rgba(79, 176, 252, .4)!important;
-  background-color: rgba(79, 176, 252, .08)
+  background-color: rgba(79, 176, 252, .08);
+  padding: 1px 3px
 }
 
 .rxn.user_reacted .emoji_rxn_count {
@@ -16992,8 +16956,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .rxn .emoji-sizer {
-  line-height: 1.25rem;
-  font-size: 1rem;
+  line-height: 20px;
+  font-size: 16px;
   text-indent: 0!important;
   vertical-align: baseline
 }
@@ -17003,7 +16967,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .rxn .emoji_rxn_count {
-  font-size: .6875rem;
+  font-size: 11px;
   font-family: helvetica, arial;
   position: relative;
   top: -4px;
@@ -17029,12 +16993,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   width: 100%;
   display: block;
   text-align: center;
-  line-height: 1.3125rem;
+  line-height: 21px;
   padding-left: 1px
 }
 
 .rxn.menu_rxn .ts_icon:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .rxn.menu_rxn .ts_icon_circle_fill {
@@ -17043,7 +17007,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .rxn.menu_rxn .emoji-sizer {
-  line-height: 1rem
+  line-height: 16px
 }
 
 .rxn.menu_rxn.active .ts_icon,
@@ -17068,13 +17032,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 #files_tab .rxn_panel .rxn {
-  line-height: 1.375rem
+  line-height: 22px
 }
 
 .mention_rxn {
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .9375rem;
-  line-height: 1.375rem;
+  font-size: 15px;
+  line-height: 22px;
   position: relative;
   padding-left: 3rem
 }
@@ -17093,14 +17057,14 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .mention_rxn .rxn_emoji_icon.rxn_1 span.emoji-sizer {
-  font-size: 2.25rem;
+  font-size: 36px;
   vertical-align: baseline
 }
 
 .mention_rxn .rxn_emoji_icon.rxn_2 span.emoji-sizer,
 .mention_rxn .rxn_emoji_icon.rxn_3 span.emoji-sizer,
 .mention_rxn .rxn_emoji_icon.rxn_4 span.emoji-sizer {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .mention_rxn .mention_rxn_summary {

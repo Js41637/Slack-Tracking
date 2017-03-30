@@ -359,7 +359,7 @@ html.no_touch .alert_page a:hover {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  height: 1.6875rem
+  height: 27px
 }
 
 .ts_toggle .ts_toggle_button {
@@ -378,27 +378,24 @@ html.no_touch .alert_page a:hover {
   position: relative;
   text-align: center;
   overflow: hidden;
-  height: 1.6875rem;
-  line-height: 1.4375rem;
+  height: 27px;
+  line-height: 23px;
   float: left
 }
 
 .ts_toggle .ts_toggle_button .ts_toggle_handle {
   background: #FFF;
   display: inline-block;
-  width: 1.4375rem;
-  height: 1.4375rem;
+  width: 23px;
+  height: 23px;
   border-radius: 1rem;
   position: absolute;
   left: 0;
   top: 0;
-  margin-top: .125rem;
-  margin-bottom: .125rem;
-  margin-left: .125rem;
-  margin-right: .125rem;
   -webkit-transition: 70ms ease-out;
   -moz-transition: 70ms ease-out;
-  transition: 70ms ease-out
+  transition: 70ms ease-out;
+  margin: 2px
 }
 
 .ts_toggle .ts_toggle_button .ts_toggle_on_text {
@@ -428,7 +425,7 @@ html.no_touch .alert_page a:hover {
 
 .ts_toggle.checked .ts_toggle_button .ts_toggle_handle {
   left: 100%;
-  margin-left: -1.5625rem
+  margin-left: -25px
 }
 
 .ts_toggle.checked .ts_toggle_button .ts_toggle_on_text {
@@ -527,7 +524,7 @@ html.no_touch .alert_page a:hover {
   z-index: 1030;
   top: 50%;
   left: 50%;
-  max-width: 15.625rem;
+  max-width: 250px;
   -webkit-transform: translateX(-50%);
   -moz-transform: translateX(-50%);
   -ms-transform: translateX(-50%);
@@ -535,7 +532,7 @@ html.no_touch .alert_page a:hover {
   text-align: left;
   opacity: 0;
   color: #FFF;
-  font-size: .8125rem;
+  font-size: 13px;
   font-weight: 700;
   font-style: normal;
   line-height: 1.3;
@@ -795,7 +792,7 @@ html.no_touch .alert_page a:hover {
 .ts_tip.ts_tip_bottom.ts_tip_right .ts_tip_tip,
 .ts_tip.ts_tip_top.ts_tip_right .ts_tip_tip {
   left: auto;
-  right: -.5rem;
+  right: -8px;
   -webkit-transform: none;
   -moz-transform: none;
   -ms-transform: none;
@@ -805,7 +802,7 @@ html.no_touch .alert_page a:hover {
 .ts_tip.ts_tip_bottom.ts_tip_right .ts_tip_tip:after,
 .ts_tip.ts_tip_top.ts_tip_right .ts_tip_tip:after {
   left: auto;
-  right: 1.125rem
+  right: 18px
 }
 
 .ts_tip.btn.ts_tip_bottom.ts_tip_left .ts_tip_tip,
@@ -2444,13 +2441,13 @@ a.mini:hover {
   width: 48px;
   height: 48px;
   text-align: center;
-  line-height: 3rem;
+  line-height: 48px;
   border-radius: .25rem;
   margin-right: .5rem
 }
 
 .square_icon:before {
-  font-size: 1.875rem
+  font-size: 30px
 }
 
 table {
@@ -2516,36 +2513,6 @@ table tr:last-child {
   width: 2.25rem;
   padding: .2rem .5rem;
   line-height: 1.9rem
-}
-
-.external_team_badge {
-  display: inline-block;
-  vertical-align: bottom;
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
-  border: 2px solid #FFF;
-  border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, .08);
-  background-size: 100%;
-  background-color: #FFF;
-  background-repeat: no-repeat
-}
-
-.external_team_badge.default {
-  display: inline-block;
-  background-color: #717274;
-  line-height: 1.5;
-  font-weight: 800;
-  color: #FFF;
-  font-size: 10px;
-  font-style: normal;
-  letter-spacing: 0;
-  text-align: center;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
-  float: left
 }
 
 .action_cog {
@@ -2663,7 +2630,7 @@ html.no_touch .action_cog:hover i {
   background-image: url(/66f9/img/pager_sprite.png);
   width: 98px;
   height: 35px;
-  line-height: 2.1875rem;
+  line-height: 35px;
   font-size: 1rem;
   font-weight: 700
 }
@@ -2733,7 +2700,7 @@ html.no_touch .pager .previous>a:hover {
 .pagination ul>li>span {
   float: left;
   padding: .25rem .75rem;
-  line-height: 1.25rem;
+  line-height: 20px;
   background-color: #FFF;
   border: 1px solid #E8E8E8;
   border-left-width: 0;
@@ -2937,8 +2904,8 @@ span.emoji {
 .emoji-sizer,
 .no_jumbomoji .emoji-sizer.emoji-only,
 .no_jumbomoji.emoji-sizer.emoji-only {
-  line-height: 1.125rem;
-  font-size: 1.375rem;
+  line-height: 18px;
+  font-size: 22px;
   vertical-align: middle;
   margin-top: -4px
 }
@@ -2979,8 +2946,8 @@ span.emoji:not(:empty) {
 }
 
 .light_theme .emoji-only {
-  line-height: 2rem;
-  font-size: 2rem;
+  line-height: 32px;
+  font-size: 32px;
   margin-top: 2px
 }
 
@@ -3015,7 +2982,7 @@ img.emoji {
   right: 8px;
   top: 6px;
   color: #E8E8E8;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .icon_search_close:hover {
@@ -3025,8 +2992,8 @@ img.emoji {
 
 input.search_input {
   margin: 0;
-  padding-left: 1.875rem!important;
-  padding-right: 1.875rem!important
+  padding-left: 30px!important;
+  padding-right: 30px!important
 }
 
 .inactive {
@@ -3394,8 +3361,8 @@ textarea::-ms-clear {
 }
 
 input[type=file] {
-  font-size: .75rem;
-  line-height: .75rem;
+  font-size: 12px;
+  line-height: 12px;
   width: auto;
   font-weight: 400;
   font-family: sans-serif
@@ -3628,18 +3595,18 @@ label.select:after {
   content: "\E271";
   font-family: Slack;
   position: absolute;
-  right: 1.375rem;
-  bottom: 1.375rem;
-  font-size: 1.25rem;
+  right: 22px;
+  bottom: 22px;
+  font-size: 20px;
   pointer-events: none
 }
 
 label.select.with_hint:after {
-  bottom: .875rem
+  bottom: 14px
 }
 
 label.select.with_hint.small:after {
-  bottom: .375rem
+  bottom: 6px
 }
 
 label.select.disabled:after {
@@ -3647,20 +3614,20 @@ label.select.disabled:after {
 }
 
 label.select.small:after {
-  right: .875rem;
-  bottom: 1rem;
-  font-size: 1.25rem
+  right: 14px;
+  bottom: 16px;
+  font-size: 20px
 }
 
 @-moz-document url-prefix() {
   label.select.small:after {
-    bottom: 1rem
+    bottom: 16px
   }
 }
 
 @media only screen and (max-width:410px) {
   label.select.small:after {
-    bottom: 1rem
+    bottom: 16px
   }
 }
 
@@ -3803,14 +3770,14 @@ label.validation_success .validation_message:before {
 .username_input_container::before {
   content: '@';
   left: .75rem;
-  line-height: 3rem;
+  line-height: 48px;
   position: absolute;
   color: #9e9ea6
 }
 
 .username_input_container.small::before {
   left: .9rem;
-  line-height: 2.1875rem
+  line-height: 35px
 }
 
 .username_input_container input[type=text].username_input {
@@ -4134,24 +4101,21 @@ a.btn {
 
 .btn {
   padding: 8px 14px 9px;
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .btn_small {
-  padding-top: .3125rem;
-  padding-bottom: .3125rem;
-  padding-left: .625rem;
-  padding-right: .625rem;
-  font-size: .875rem
+  font-size: 14px;
+  padding: 5px 10px
 }
 
 .btn_small i:before {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .btn_large {
   padding: 14px 32px 16px;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .btn_extra_large {
@@ -4223,7 +4187,7 @@ a.btn {
 .btn_large i,
 .btn_large ts-icon {
   margin-right: .5rem;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .btn_extra_large .ts_icon,
@@ -4259,8 +4223,8 @@ a.btn {
 }
 
 .btn_icon {
-  width: 2rem;
-  height: 1.875rem;
+  width: 32px;
+  height: 30px;
   padding: 0
 }
 
@@ -4308,7 +4272,7 @@ a.btn {
   border: 1px solid rgba(160, 160, 162, .5);
   color: #565759;
   max-width: 150px;
-  font-size: .8125rem;
+  font-size: 13px;
   font-weight: 700;
   height: 30px;
   padding: 0 10px;
@@ -4551,7 +4515,7 @@ a.link_btn {
   padding: .75rem;
   font-size: .85rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  line-height: 1.25rem;
+  line-height: 20px;
   color: #9e9ea6;
   display: inline-block;
   text-align: center;
@@ -4611,7 +4575,7 @@ a.link_btn {
   border-radius: .25rem;
   font-family: Slack-Lato, appleLogo, sans-serif;
   border: none;
-  width: 35rem;
+  width: 560px;
   -webkit-transform: translateX(-50%);
   -moz-transform: translateX(-50%);
   -ms-transform: translateX(-50%);
@@ -4672,14 +4636,11 @@ a.link_btn {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
-  padding-right: .9375rem;
-  padding-bottom: .0625rem;
-  padding-top: 0;
-  padding-left: 0;
   margin-top: 1rem;
   margin-right: 0;
   margin-bottom: 1rem;
-  margin-left: .9375rem
+  margin-left: 15px;
+  padding: 0 15px 1px 0
 }
 
 .c-modal_body--overflow_visible {
@@ -4769,12 +4730,12 @@ a.link_btn {
 }
 
 #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .ts_icon:not(.presence_icon):before {
-  font-size: 1.25rem;
+  font-size: 20px;
   top: 0
 }
 
 #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before {
-  top: .125rem
+  top: 2px
 }
 
 #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .ts_icon_org_shared_channel {
@@ -4782,7 +4743,7 @@ a.link_btn {
 }
 
 #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .ts_icon_org_shared_channel:before {
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 #file_sharing_div .lazy_filter_select .lfs_input_container .lfs_item .presence {
@@ -4801,13 +4762,13 @@ a.link_btn {
 
 #file_sharing_div .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before {
   position: absolute;
-  top: .25rem;
+  top: 4px;
   left: 1px;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #file_sharing_div .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before {
-  top: .375rem
+  top: 6px
 }
 
 #file_sharing_div .lazy_filter_select .lfs_item .ts_icon_org_shared_channel {
@@ -4836,7 +4797,7 @@ a.link_btn {
 
 #file_sharing_div .lazy_filter_select .lfs_item .presence {
   position: absolute;
-  top: .625rem;
+  top: 10px;
   left: 3px
 }
 
@@ -5030,8 +4991,8 @@ a.link_btn {
 
 .modal.small {
   width: auto;
-  max-width: 35rem;
-  min-width: 12.5rem
+  max-width: 560px;
+  min-width: 200px
 }
 
 .modal#generic_dialog {
@@ -5070,12 +5031,9 @@ a.link_btn {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 42.5rem;
-  height: 27.5rem;
-  margin-top: -13.75rem;
-  margin-right: 0;
-  margin-bottom: 0;
-  margin-left: -21.25rem
+  width: 680px;
+  height: 440px;
+  margin: -220px 0 0 -340px
 }
 
 #fs_modal.privacy_policy_seen_dialog .modal-footer {
@@ -5107,7 +5065,7 @@ a.link_btn {
 
 #fs_modal.privacy_policy_seen_dialog .modal-body h1 {
   font-size: 2.75rem;
-  padding-top: .1875rem
+  padding-top: 3px
 }
 
 #fs_modal.privacy_policy_seen_dialog .modal-body p {
@@ -5343,7 +5301,7 @@ only screen and (min-resolution:2dppx) {
   z-index: 1042;
   display: inline-block;
   vertical-align: top;
-  min-width: 13.75rem;
+  min-width: 220px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #2C2D30;
   background: #fff;
@@ -5393,16 +5351,16 @@ only screen and (min-resolution:2dppx) {
 }
 
 .menu ul li i:before {
-  font-size: 1.0625rem
+  font-size: 17px
 }
 
 .menu ul li:not(.dm_list_item) .member_image {
   vertical-align: top;
-  margin-left: -.6875rem;
-  margin-right: .5rem;
-  width: 1.375rem;
-  height: 1.375rem;
-  margin-top: .0625rem
+  margin-left: -11px;
+  margin-right: 8px;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px
 }
 
 .menu ul li a {
@@ -5413,8 +5371,8 @@ only screen and (min-resolution:2dppx) {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #2C2D30
 }
@@ -5660,7 +5618,7 @@ only screen and (min-resolution:2dppx) {
 .menu #menu_promise_spinner {
   text-align: center;
   height: 26px;
-  line-height: 1.875rem;
+  line-height: 30px;
   margin-top: 10px
 }
 
@@ -5693,8 +5651,8 @@ only screen and (min-resolution:2dppx) {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #2C2D30
 }
@@ -5765,7 +5723,7 @@ only screen and (min-resolution:2dppx) {
   top: 8px;
   text-decoration: none;
   color: #CCC!important;
-  font-size: .875rem
+  font-size: 14px
 }
 
 .menu .menu_filter_container .filter_no_matches {
@@ -5810,8 +5768,8 @@ only screen and (min-resolution:2dppx) {
 
 #emoji_menu {
   position: absolute;
-  min-width: 22.5625rem;
-  max-width: 22.5625rem;
+  min-width: 361px;
+  max-width: 361px;
   color: #555459;
   z-index: 1053;
   font-size: .95rem;
@@ -5949,8 +5907,8 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu #emoji_menu_items_scroller .icon_search {
-  top: 1.3125rem;
-  left: 1rem;
+  top: 21px;
+  left: 16px;
   text-shadow: none;
   display: block;
   position: absolute
@@ -6011,11 +5969,8 @@ body.winssb #emoji_menu {
 
 #emoji_menu #emoji_menu_items_div {
   position: relative;
-  padding-top: .5rem;
-  padding-bottom: .5rem;
-  padding-left: .5rem;
-  padding-right: 0;
-  min-height: 16.875rem
+  min-height: 270px;
+  padding: 8px 0 8px 8px
 }
 
 #emoji_menu #emoji_menu_footer {
@@ -6036,11 +5991,11 @@ body.winssb #emoji_menu {
 
 #emoji_menu .emoji_li {
   border-color: transparent!important;
-  font-size: 1.25rem;
+  font-size: 20px;
   text-align: center;
-  line-height: 1.3125rem;
-  width: 2.25rem;
-  height: 2rem;
+  line-height: 21px;
+  width: 36px;
+  height: 32px;
   margin-bottom: -1px;
   margin-right: 1px;
   float: none;
@@ -6048,7 +6003,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu .emoji_li span.emoji-sizer {
-  line-height: 1.25rem
+  line-height: 20px
 }
 
 #emoji_menu .emoji_li a {
@@ -6074,11 +6029,11 @@ body.winssb #emoji_menu {
 
 #emoji_menu #emoji_menu_items_scroller .emoji_li {
   border-color: transparent!important;
-  font-size: 1.25rem;
+  font-size: 20px;
   text-align: center;
-  line-height: 1.3125rem;
-  width: 2.25rem;
-  height: 2rem;
+  line-height: 21px;
+  width: 36px;
+  height: 32px;
   margin-bottom: -1px;
   margin-right: 1px;
   float: none;
@@ -6100,11 +6055,11 @@ body.winssb #emoji_menu {
 #emoji_menu #emoji_preview_img {
   float: left;
   font-size: 2rem;
-  height: 3.375rem;
+  height: 54px;
   line-height: 2rem;
   padding: .6rem .5rem 0 .1rem;
   vertical-align: middle;
-  width: 2.875rem
+  width: 46px
 }
 
 #emoji_menu #emoji_div_handy_rxns {
@@ -6125,7 +6080,7 @@ body.winssb #emoji_menu {
   color: #989ba0;
   padding: 3px;
   right: 16px;
-  bottom: -2.0625rem;
+  bottom: -33px;
   -webkit-transition: opacity .1s ease-in 0s;
   -moz-transition: opacity .1s ease-in 0s;
   transition: opacity .1s ease-in 0s
@@ -6145,7 +6100,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu #emoji_skin_button_container span.emoji-sizer {
-  font-size: 1.4375rem
+  font-size: 23px
 }
 
 #emoji_menu #emoji_skin_picker_label {
@@ -6180,7 +6135,7 @@ body.winssb #emoji_menu {
 #emoji_menu #emoji_skin_tip {
   opacity: 0;
   font-size: .68rem;
-  bottom: -3.125rem;
+  bottom: -50px;
   right: 14px;
   z-index: 2;
   pointer-events: none
@@ -6199,7 +6154,7 @@ body.winssb #emoji_menu {
 }
 
 #emoji_menu #emoji_skin_picker span.emoji-sizer {
-  font-size: 1.4375rem
+  font-size: 23px
 }
 
 #emoji_menu #emoji_skin_picker span.emoji,
@@ -6211,7 +6166,7 @@ body.winssb #emoji_menu {
   position: absolute;
   font-size: 1.2rem;
   color: #989ba0;
-  bottom: -1.625rem;
+  bottom: -26px;
   left: 14px;
   opacity: 1;
   -webkit-transition: opacity .1s ease-in 1.1s;
@@ -6245,21 +6200,18 @@ body.winssb #emoji_menu {
   font-size: 1rem;
   padding-top: 70px;
   padding-right: 0;
-  padding-bottom: .625rem;
+  padding-bottom: 10px;
   color: #bababa;
   text-align: center
 }
 
 #emoji_menu #emoji_input {
-  padding-top: .125rem;
-  padding-bottom: .125rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  font-size: .9375rem;
+  font-size: 15px;
   width: 95%;
-  height: 1.75rem;
+  height: 28px;
   margin: .5rem 0 .6rem;
-  border-radius: 1rem
+  border-radius: 1rem;
+  padding: 2px 32px
 }
 
 #emoji_menu #emoji_input:focus {
@@ -6518,7 +6470,7 @@ body.winssb #emoji_menu {
   padding: 45px .9375rem .9375rem;
   background: url(/29ab/img/notifications_menu/dnd_menu_header_bg@2x.png) #202C3A;
   background-size: cover;
-  line-height: 1.5625rem;
+  line-height: 25px;
   color: #fff;
   position: relative
 }
@@ -6582,7 +6534,7 @@ body.winssb #emoji_menu {
   content: '\E271';
   display: inline-block;
   font-family: Slack;
-  font-size: 1.25rem;
+  font-size: 20px;
   font-style: normal;
   font-weight: 400
 }
@@ -6598,21 +6550,18 @@ body.winssb #emoji_menu {
 
 .menu_launcher_large {
   border: 1px solid #C5C5C5;
-  padding-top: .625rem;
-  padding-bottom: .625rem;
-  padding-left: .75rem;
-  padding-right: 2rem
+  padding: 10px 32px 10px 12px
 }
 
 .menu_launcher_large img {
   height: 28px;
   width: 28px;
-  margin-right: .75rem
+  margin-right: 12px
 }
 
 .menu_launcher_large .selected_team_name {
-  font-size: 1.25rem;
-  line-height: 1.75rem
+  font-size: 20px;
+  line-height: 28px
 }
 
 .menu.avatar_menu {
@@ -6734,7 +6683,7 @@ body.winssb #emoji_menu {
 }
 
 #recap_menu_items .inline-emoji {
-  padding-right: .625rem
+  padding-right: 10px
 }
 
 #recap_menu_items .recap_description {
@@ -6745,8 +6694,8 @@ body.winssb #emoji_menu {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #2C2D30
 }
@@ -6759,8 +6708,8 @@ body.winssb #emoji_menu {
   border-radius: .25rem;
   white-space: nowrap;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #007AB8
 }
@@ -7038,10 +6987,10 @@ body.ReactModal__Body--open {
   background: #FaF8F6;
   color: #7F7F83;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .75rem;
+  font-size: 12px;
   border-bottom: 1px solid rgba(0, 0, 0, .15);
   background-clip: padding-box;
-  height: 2rem;
+  height: 32px;
   overflow: hidden;
   border-radius: 6px 6px 0 0
 }
@@ -7246,7 +7195,7 @@ body.ReactModal__Body--open {
 .tab_complete_ui li.tab_complete_ui_group .emoji-sizer,
 .tab_complete_ui li.tab_complete_ui_item .emoji-sizer {
   font-size: 1rem;
-  line-height: .875rem;
+  line-height: 14px;
   vertical-align: middle
 }
 
@@ -7401,20 +7350,17 @@ ts-inline-saver.failed .failed {
   position: absolute;
   z-index: 200;
   width: 100%;
-  max-height: 15.625rem;
+  max-height: 250px;
   top: 100%;
   left: 0;
   overflow: auto;
-  margin-top: .1875rem;
-  margin-bottom: .1875rem;
+  margin-top: 3px;
+  margin-bottom: 3px;
   border: 1px solid #D8D8D8;
-  border-radius: .25rem;
+  border-radius: 4px;
   background: #fff;
   box-shadow: 0 0 3px rgba(0, 0, 0, .1);
-  padding-top: .25rem;
-  padding-bottom: .25rem;
-  padding-left: .25rem;
-  padding-right: .1875rem
+  padding: 4px 3px 4px 4px
 }
 
 .lazy_filter_select .lfs_list_container.visible {
@@ -7427,7 +7373,7 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select .lfs_list_container .monkey_scroll_bar:not(.hidden)+.monkey_scroll_hider>.lfs_list {
-  padding-right: 1.0625rem
+  padding-right: 17px
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .lazy_filter_select .lfs_list_container .lfs_list {
@@ -7499,13 +7445,10 @@ ts-inline-saver.failed .failed {
   display: none;
   font-size: .85rem;
   overflow: hidden;
-  padding-top: .25rem;
-  padding-bottom: .25rem;
-  padding-left: .25rem;
-  padding-right: .25rem;
   text-align: center;
   text-overflow: ellipsis;
-  width: 100%
+  width: 100%;
+  padding: 4px
 }
 
 .lazy_filter_select .lfs_list_container .lfs_status .lfs_status_content,
@@ -7524,9 +7467,9 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select .lfs_list {
-  max-height: 15.625rem;
+  max-height: 250px;
   overflow: auto;
-  margin-right: .0625rem;
+  margin-right: 1px;
   width: 100%
 }
 
@@ -7545,7 +7488,7 @@ ts-inline-saver.failed .failed {
 .lazy_filter_select .lfs_list .lfs_item {
   cursor: pointer;
   border: 1px solid transparent;
-  border-radius: .125rem;
+  border-radius: 2px;
   width: 100%;
   display: block;
   text-overflow: ellipsis;
@@ -7662,7 +7605,7 @@ ts-inline-saver.failed .failed {
   position: absolute;
   right: .7rem;
   top: 4px;
-  font-size: 1.25rem;
+  font-size: 20px;
   pointer-events: none
 }
 
@@ -7802,16 +7745,13 @@ ts-inline-saver.failed .failed {
 }
 
 .lazy_filter_select.single.filter_in_list_style {
-  max-width: 15.625rem;
-  min-width: 9.375rem
+  max-width: 250px;
+  min-width: 150px
 }
 
 .lazy_filter_select.single.filter_in_list_style ._input_style {
-  font-size: .8125rem;
-  padding-left: .625rem;
-  padding-top: .375rem;
-  padding-right: 1.6875rem;
-  padding-bottom: .375rem
+  font-size: 13px;
+  padding: 6px 27px 6px 10px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container {
@@ -7820,11 +7760,8 @@ ts-inline-saver.failed .failed {
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_input,
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container .lfs_value {
-  font-size: .8125rem;
-  padding-left: .625rem;
-  padding-top: .375rem;
-  padding-right: 1.6875rem;
-  padding-bottom: .375rem
+  font-size: 13px;
+  padding: 6px 27px 6px 10px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container:hover:not(.active) {
@@ -7837,46 +7774,43 @@ ts-inline-saver.failed .failed {
 
 .lazy_filter_select.single.filter_in_list_style .lfs_input_container::after {
   color: #555459;
-  font-size: 1.125rem;
+  font-size: 18px;
   line-height: 1;
-  right: .3125rem;
-  top: .3125rem
+  right: 5px;
+  top: 5px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container {
-  max-width: 21.875rem;
-  min-width: 15.625rem
+  max-width: 350px;
+  min-width: 250px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_filter_input {
-  font-size: .8125rem;
-  padding-left: .625rem;
-  padding-top: .375rem;
-  padding-right: 1.6875rem;
-  padding-bottom: .375rem
+  font-size: 13px;
+  padding: 6px 27px 6px 10px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_group {
   color: #9e9ea6;
-  font-size: .875rem
+  font-size: 14px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item {
   color: #2C2D30;
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item .ts_icon::before {
-  font-size: .8125rem;
+  font-size: 13px;
   margin-right: .25rem
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_item.group_item {
-  padding-left: .75rem
+  padding-left: 12px
 }
 
 .lazy_filter_select.single.filter_in_list_style .lfs_list_container .lfs_status_loading_indicator {
-  margin-bottom: .375rem
+  margin-bottom: 6px
 }
 
 .lazy_filter_select.single.filter_in_list_style .emoji-outer {

@@ -12801,9 +12801,10 @@
           }
         }
       }
-      if (!skip_red_line && (model_ob.unread_cnt && last_read < TS.client.msg_pane.last_in_stream_msg.ts || last_read < TS.client.msg_pane.last_in_stream_msg.ts)) {
+      if ((!skip_red_line || TS.boot_data.feature_scrollback_half_measures) && (model_ob.unread_cnt && last_read < TS.client.msg_pane.last_in_stream_msg.ts || last_read < TS.client.msg_pane.last_in_stream_msg.ts)) {
         var divider_html = TS.templates.messages_unread_divider();
         var invisible_divider = false;
+        if (TS.boot_data.feature_scrollback_half_measures && skip_red_line) invisible_divider = true;
         if (_$last_read_msg_div && _$last_read_msg_div.length) {
           _$last_read_msg_div.after(divider_html);
         } else {

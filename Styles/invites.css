@@ -47,7 +47,7 @@
   transition: all .1s;
   font-size: 5rem;
   color: #3aa3e3;
-  line-height: 9.1875rem
+  line-height: 147px
 }
 
 .admin_invites_account_type_option:hover:not(.disabled) {
@@ -106,7 +106,7 @@
     padding: 1rem 6rem 1rem 1.5rem
   }
   .admin_invites_account_type_option .option_arrow {
-    line-height: 6.875rem
+    line-height: 110px
   }
 }
 
@@ -266,7 +266,7 @@
 #admin_invites_workflow .lazy_filter_select .ts_tip_tip {
   display: block;
   opacity: 1;
-  width: 10rem
+  width: 160px
 }
 
 #admin_invites_workflow .lazy_filter_select .lfs_input_container {

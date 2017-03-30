@@ -4,7 +4,9 @@
 {{!-- Todo: enable syntax linter and refactor with safeString --}}
 
 <div class="member_info display_flex">
-  <div class="cursor_pointer flex_none" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">{{{makeMemberPreviewLinkImage member.id 72 false true}}}</div>
+  <div class="cursor_pointer flex_none" onclick="TS.client.ui.previewMember('{{member.id}}', 'im_page');">
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 72 false true)}}
+  </div>
   <div class="display_flex flex_direction_column justify_content_center no_min_width">
     {{#feature flag="feature_name_tagging_client"}}
       <div>

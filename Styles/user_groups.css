@@ -64,7 +64,7 @@
   right: 8px;
   top: 6px;
   color: #BABBBF;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 #user_groups_header a.icon_close:hover {
@@ -78,7 +78,7 @@
 }
 
 .user_group_item a i {
-  line-height: 1.125rem;
+  line-height: 18px;
   vertical-align: middle
 }
 
@@ -103,7 +103,7 @@
 }
 
 .user_group_item .user_group_count i:before {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .user_group_item:hover {
@@ -229,7 +229,7 @@
 }
 
 .user_group_invite_member_small {
-  font-size: .875rem;
+  font-size: 14px;
   position: relative;
   padding-left: 42px;
   height: 36px
@@ -280,7 +280,7 @@
 }
 
 .user_group_invite_member_small .name_container .not_in_token {
-  font-size: .75rem
+  font-size: 12px
 }
 
 .lfs_item.lfs_token .user_group_invite_member_small {

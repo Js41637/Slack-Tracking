@@ -81,13 +81,9 @@
   overflow: auto;
   margin: 0;
   width: 100%;
-  min-height: 2.625rem;
+  min-height: 42px;
   height: 38px;
-  max-height: 11.25rem;
-  padding-top: .5625rem;
-  padding-right: 1.875rem;
-  padding-bottom: .625rem;
-  padding-left: 3.125rem;
+  max-height: 180px;
   border: 2px solid #E0E0E0;
   border-radius: .375rem;
   outline: 0;
@@ -101,7 +97,8 @@
   -webkit-user-select: auto;
   -moz-user-select: auto;
   -ms-user-select: auto;
-  user-select: auto
+  user-select: auto;
+  padding: 9px 30px 10px 50px
 }
 
 #msg_input::-webkit-input-placeholder {
@@ -240,11 +237,11 @@
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-top: .5625rem
+  margin-top: 9px
 }
 
 .flexpane_redesign #col_flex {
-  margin-top: .5rem
+  margin-top: 8px
 }
 
 .flexpane_redesign.flex_pane_showing #col_flex {
@@ -462,8 +459,7 @@ input.search_input {
 }
 
 #client-ui:not(.flexpane_redesign) #flex_contents {
-  margin: .25rem;
-  margin-top: .0625rem
+  margin: 1px 4px 4px
 }
 
 .supports_custom_scrollbar #client-ui #flex_contents {
@@ -485,18 +481,15 @@ input.search_input {
   line-height: 1.4rem;
   font-weight: 400;
   padding: 1rem .75rem;
-  margin-top: .1875rem;
-  border-top-left-radius: .375rem;
-  border-top-right-radius: .375rem;
+  margin-top: 3px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
   border-bottom: none
 }
 
 .flexpane_redesign #flex_contents .heading {
-  padding-top: 1.1875rem;
-  padding-bottom: 1.1875rem;
-  padding-left: .75rem;
-  padding-right: .75rem;
-  border-bottom: .0625rem solid #E8E8E8
+  border-bottom: .0625rem solid #E8E8E8;
+  padding: 19px 12px
 }
 
 #flex_contents .heading:focus {
@@ -664,7 +657,7 @@ input.search_input {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-left: .375rem
+  margin-left: 6px
 }
 
 .flexpane_redesign #details_tab_header .ts_icon_lock {
@@ -672,7 +665,7 @@ input.search_input {
   -moz-transform: translateY(-1px);
   -ms-transform: translateY(-1px);
   transform: translateY(-1px);
-  margin-left: -.1875rem
+  margin-left: -3px
 }
 
 .flexpane_redesign #details_tab_header .ts_icon_org_shared_channel {
@@ -777,7 +770,7 @@ input.search_input {
 }
 
 #client-ui:not(.flexpane_redesign) #flex_contents .heading a.close_flexpane {
-  margin-top: .0625rem
+  margin-top: 1px
 }
 
 #client-ui:not(.flexpane_redesign) #flex_contents .flex_highlight,
@@ -995,7 +988,7 @@ input.search_input {
 }
 
 #flex_contents .flexpane_tab_toolbar .tab_action_button i:before {
-  font-size: 1rem
+  font-size: 16px
 }
 
 #flex_contents .flexpane_load_error,
@@ -1015,7 +1008,7 @@ input.search_input {
 
 #flex_contents .flexpane_load_error_msg {
   color: #9e9ea6;
-  font-size: .875rem;
+  font-size: 14px;
   font-style: italic
 }
 
@@ -1328,7 +1321,7 @@ input.search_input {
   bottom: -2px;
   width: 18px;
   height: 18px;
-  line-height: .9375rem;
+  line-height: 15px;
   border-radius: 50%;
   background: #3aa3e3;
   box-shadow: 0 0 0 3px #fff;
@@ -1485,7 +1478,7 @@ input.search_input {
 #downloads_tab .download_size_row {
   color: #949497;
   font-weight: 700;
-  font-size: .8125rem;
+  font-size: 13px;
   position: relative;
   display: -webkit-box;
   display: -webkit-flex;
@@ -1641,7 +1634,7 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
   left: 0;
   right: 1rem;
   text-align: center;
-  line-height: 6.25rem;
+  line-height: 100px;
   color: #9e9ea6;
   font-size: .9rem;
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 25%, #fff);
@@ -1742,8 +1735,8 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 #client-ui:not(.flexpane_redesign) #details_tab .heading a.close_flexpane {
-  margin-right: .3125rem;
-  margin-top: .25rem;
+  margin-right: 5px;
+  margin-top: 4px;
   color: #BABBBF
 }
 
@@ -1761,9 +1754,9 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 .flexpane_redesign #details_tab .conversation_details {
-  margin-top: .75rem;
-  margin-left: .4375rem;
-  margin-right: .625rem
+  margin-top: 12px;
+  margin-left: 7px;
+  margin-right: 10px
 }
 
 #details_tab .conversation_details .member_image {
@@ -1782,7 +1775,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 
 .flexpane_redesign #details_tab .conversation_details .member_info,
 .flexpane_redesign #details_tab .conversation_details .slackbot_info {
-  margin-bottom: .75rem
+  margin-bottom: 12px
 }
 
 #details_tab .conversation_details .member_name:hover {
@@ -1806,8 +1799,8 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 .flexpane_redesign #details_tab .channel_page_section {
-  padding-left: .5rem;
-  padding-right: .5rem
+  padding-left: 8px;
+  padding-right: 8px
 }
 
 #details_tab .channel_page_section .section_content,
@@ -1979,7 +1972,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 #details_tab .restricted_members_count .icon_restricted_header:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #details_tab .channel_page_member_tabs .icon_member_header {
@@ -1999,7 +1992,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 
 #details_tab .empty_pinned_items .ts_icon_thumb_tack {
   position: relative;
-  top: .0625rem
+  top: 1px
 }
 
 #details_tab .empty_pinned_items .ts_icon_thumb_tack:before {
@@ -2007,7 +2000,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 #details_tab .channel_page_action {
-  font-size: .9375rem;
+  font-size: 15px;
   margin-bottom: .3rem
 }
 
@@ -2022,46 +2015,46 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 #details_tab .channel_page_action .ts_icon {
   vertical-align: middle;
   position: relative;
-  margin-right: .5625rem
+  margin-right: 9px
 }
 
 #details_tab .channel_page_action .ts_icon:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #details_tab .channel_page_action .ts_icon.ts_icon_add_user {
-  left: .0625rem
+  left: 1px
 }
 
 #details_tab .channel_page_action .ts_icon.ts_icon_search_files {
-  left: -.0625rem
+  left: -1px
 }
 
 #details_tab .channel_page_member_lists {
-  margin-top: .0625rem
+  margin-top: 1px
 }
 
 #details_tab .view_all_files_link {
-  font-size: .9375rem;
+  font-size: 15px;
   text-align: center;
   margin: 1.5rem 0 1.5rem -.3rem;
   line-height: 2.5rem
 }
 
 #details_tab .view_all_files_link .ts_icon_search_files {
-  margin-right: .5625rem;
-  left: -.0625rem;
+  margin-right: 9px;
+  left: -1px;
   vertical-align: middle
 }
 
 #details_tab .view_all_files_link .ts_icon_search_files:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .channel_page_member_row {
-  line-height: 1.25rem;
-  height: 1.875rem;
-  font-size: .9375rem;
+  line-height: 20px;
+  height: 30px;
+  font-size: 15px;
   color: #555459
 }
 
@@ -2091,8 +2084,8 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 .channel_page_member_row .member_image {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 20px;
+  height: 20px;
   opacity: .8;
   float: left;
   margin-right: .5625rem
@@ -2104,13 +2097,13 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 
 .channel_page_member_row .member_badge {
   height: 100%;
-  width: 1rem
+  width: 16px
 }
 
 .channel_page_member_row .presence {
   float: right;
-  margin-top: .375rem;
-  margin-left: .3125rem
+  margin-top: 6px;
+  margin-left: 5px
 }
 
 .pinned_item {
@@ -2120,15 +2113,12 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
   border-right: 1px solid rgba(0, 0, 0, .1);
   border-left: 1px solid rgba(0, 0, 0, .1);
   border-bottom: 1px solid rgba(0, 0, 0, .12);
-  border-radius: .375rem;
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  padding-left: .75rem;
-  padding-right: 1.5625rem;
-  font-size: .9375rem;
-  line-height: 1.125rem;
+  border-radius: 6px;
+  font-size: 15px;
+  line-height: 18px;
   margin-bottom: .625rem;
-  color: #3D3C40
+  color: #3D3C40;
+  padding: 12px 25px 12px 12px
 }
 
 .pinned_item.unread_pin {
@@ -2146,15 +2136,15 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 .pinned_item .pin_metadata {
-  font-size: .8125rem;
+  font-size: 13px;
   color: #9e9ea6
 }
 
 .pinned_item .remove_pin {
   cursor: pointer;
   position: absolute;
-  top: .25rem;
-  right: .125rem;
+  top: 4px;
+  right: 2px;
   color: #BABBBF;
   display: none
 }
@@ -2165,13 +2155,13 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 
 .pinned_item .icon_pin {
   position: absolute;
-  right: 1.125rem;
-  top: .5rem
+  right: 18px;
+  top: 8px
 }
 
 .pinned_item .pinned_message_text {
-  line-height: 1.125rem;
-  max-height: 5.625rem;
+  line-height: 18px;
+  max-height: 90px;
   overflow: auto;
   position: relative
 }
@@ -2186,7 +2176,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 1.125rem;
+  height: 18px;
   background: #fff;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, rgba(255, 255, 255, 0)));
   background: -moz-linear-gradient(center bottom, #fff 0, rgba(255, 255, 255, 0) 100%);
@@ -2201,7 +2191,7 @@ html #client-ui:not(.flexpane_redesign) #details_tab .heading #details_tab_heade
 }
 
 html.is_electron_mac #rxn_toast_div {
-  top: 1.4375rem
+  top: 23px
 }
 
 #rxn_toast_div span.emoji-outer:nth-child(2) {
@@ -2222,8 +2212,8 @@ html.is_electron_mac #rxn_toast_div {
 }
 
 #whats_new_tab p {
-  font-size: .9375rem;
-  line-height: 1.375rem;
+  font-size: 15px;
+  line-height: 22px;
   color: #2C2D30
 }
 
@@ -2242,8 +2232,8 @@ html.is_electron_mac #rxn_toast_div {
 }
 
 #whats_new_tab .whats_new_more .ts_icon_chevron_medium_right:before {
-  font-size: .875rem;
-  line-height: .875rem;
+  font-size: 14px;
+  line-height: 14px;
   margin-bottom: 3px;
   margin-left: 3px;
   vertical-align: bottom
@@ -2264,11 +2254,11 @@ html.is_electron_mac #rxn_toast_div {
 
 #convo_tab .heading .close_flexpane {
   float: none;
-  margin-left: .375rem
+  margin-left: 6px
 }
 
 .flexpane_redesign #convo_tab .heading .close_flexpane {
-  margin-left: .75rem
+  margin-left: 12px
 }
 
 #convo_tab #convo_tab_header {
@@ -2280,20 +2270,20 @@ html.is_electron_mac #rxn_toast_div {
 }
 
 #convo_tab #convo_tab_header .thread_participants {
-  line-height: .9375rem;
-  height: .9375rem;
+  line-height: 15px;
+  height: 15px;
   font-weight: 400
 }
 
 html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
-  max-width: 12.5rem
+  max-width: 200px
 }
 
 #convo_tab #convo_tab_back_container {
   display: inline-block;
-  padding-left: .3125rem;
-  padding-right: .9375rem;
-  margin-right: .9375rem;
+  padding-left: 5px;
+  padding-right: 15px;
+  margin-right: 15px;
   border-right: 1px solid #E0E0E0
 }
 
@@ -2307,7 +2297,7 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
 
 #convo_tab #convo_tab_back {
   position: relative;
-  top: -.0625rem;
+  top: -1px;
   color: #555459
 }
 
@@ -2320,8 +2310,8 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_header .thread_participants {
 html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   display: inline-block;
   position: absolute;
-  right: .75rem;
-  top: 1.25rem
+  right: 12px;
+  top: 20px
 }
 
 .flexpane_redesign #convo_tab #convo_tab_btns {
@@ -2341,8 +2331,8 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
 .mentions_reply {
   position: relative;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .9375rem;
-  padding-left: 2.8125rem
+  font-size: 15px;
+  padding-left: 45px
 }
 
 .mentions_reply .original_msg,
@@ -2354,7 +2344,7 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
 .mentions_reply .original_msg .member_image,
 .mentions_reply .reply_faces .member_image,
 .mentions_reply>p .member_image {
-  margin-right: .1875rem
+  margin-right: 3px
 }
 
 .mentions_reply .mentions_reply_avatar,
@@ -2366,9 +2356,9 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
 
 .mentions_reply .mentions_reply_icon {
   border-radius: .2rem;
-  height: 2.25rem;
-  width: 2.25rem;
-  line-height: 2.25rem;
+  height: 36px;
+  width: 36px;
+  line-height: 36px;
   text-align: center;
   background-color: #F0F7FB;
   color: #007AB8
@@ -2377,7 +2367,7 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
 .mentions_reply .replier_info {
   color: #9e9ea6;
   margin-bottom: 0;
-  line-height: 1.125rem;
+  line-height: 18px;
   font-style: italic
 }
 
@@ -2388,13 +2378,13 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
 }
 
 .mentions_reply .reply_msg {
-  line-height: 1.375rem
+  line-height: 22px
 }
 
 .mentions_reply .original_msg {
   color: #9e9ea6;
-  font-size: .8125rem;
-  line-height: 1.125rem
+  font-size: 13px;
+  line-height: 18px
 }
 
 .mentions_reply .replier_info+.original_msg {
@@ -2403,13 +2393,13 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
 
 .mentions_reply .open_conversation {
   display: block;
-  font-size: .8125rem;
+  font-size: 13px;
   font-weight: 700
 }
 
 .flexpane_redesign #member_mentions {
-  padding-left: .5rem;
-  padding-right: .5rem
+  padding-left: 8px;
+  padding-right: 8px
 }
 
 #member_mentions .day_divider,
@@ -2713,7 +2703,7 @@ body.incremental_boot #col_channels .header_count {
 }
 
 #starred_div .ts_icon_star {
-  font-size: .875rem
+  font-size: 14px
 }
 
 .channels_list_holder .li_h2,
@@ -2780,7 +2770,7 @@ body.incremental_boot #col_channels .header_count {
   text-align: left;
   color: #AB9BA9;
   margin: 0 1px 0 0;
-  width: 12.75rem;
+  width: 204px;
   max-width: calc(260px - 16px)
 }
 
@@ -2808,7 +2798,7 @@ body.incremental_boot #col_channels .header_count {
   margin-top: 5px;
   text-transform: capitalize;
   color: #AB9BA9;
-  font-size: 1rem;
+  font-size: 16px;
   font-weight: 500
 }
 
@@ -2818,7 +2808,7 @@ body.incremental_boot #col_channels .header_count {
   float: left;
   opacity: .6;
   margin-left: -3px;
-  width: 1.25rem
+  width: 20px
 }
 
 .channels_list_holder ul li.all_threads.active ts-icon,
@@ -2828,9 +2818,9 @@ body.incremental_boot #col_channels .header_count {
 }
 
 .channels_list_holder ul li.all_threads ts-icon:before {
-  font-size: 1.25rem;
+  font-size: 20px;
   position: relative;
-  margin-left: -.0625rem
+  margin-left: -1px
 }
 
 .channels_list_holder ul li.all_threads.unread ts-icon:before {
@@ -2845,11 +2835,11 @@ body.incremental_boot #col_channels .header_count {
 }
 
 #all_threads_nav {
-  margin-top: .3125rem
+  margin-top: 5px
 }
 
 #all_threads_nav .all_threads {
-  margin-top: -.3125rem
+  margin-top: -5px
 }
 
 #all_threads_nav .all_threads.unread .all_threads_label,
@@ -2858,11 +2848,11 @@ body.incremental_boot #col_channels .header_count {
 }
 
 #app_directory_nav {
-  margin-top: .3125rem
+  margin-top: 5px
 }
 
 #app_directory_nav .app_directory {
-  margin-top: -.3125rem
+  margin-top: -5px
 }
 
 #app_directory_nav .ts_icon_bolt:before {
@@ -2957,7 +2947,7 @@ body:not(.sorting_mode) .channels_list_holder ul li .primary_action:not(.feature
 }
 
 .channels_list_holder ul li .ts_icon_pencil.prefix:before {
-  font-size: .9375rem;
+  font-size: 15px;
   width: 1rem
 }
 
@@ -3099,7 +3089,7 @@ body.winssb .channels_list_new_btn {
 .channels_list_holder .group_close:before,
 .channels_list_holder .im_close:before,
 .channels_list_holder .mpim_close:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .channels_list_holder .section_holder .group_close,
@@ -3197,11 +3187,11 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   border-radius: 9px;
   padding: 2px 0;
   font-size: .8rem;
-  line-height: .875rem;
+  line-height: 14px;
   font-weight: 700;
   vertical-align: baseline;
   white-space: nowrap;
-  width: 1.5625rem;
+  width: 25px;
   text-align: center
 }
 
@@ -3288,7 +3278,7 @@ ul.member_list li {
 }
 
 ul.member_list li>* {
-  font-size: .875rem;
+  font-size: 14px;
   font-weight: 700
 }
 
@@ -3314,7 +3304,7 @@ ul.member_list li .nuc {
   color: #fff;
   text-shadow: 0 1px 1px rgba(0, 0, 0, .25);
   padding: .2rem 0;
-  height: 1.375rem;
+  height: 22px;
   font-size: .7rem;
   font-weight: 700;
   text-align: center;
@@ -3329,7 +3319,7 @@ ul.member_list li .nuc {
 #channel_scroll_down i,
 #channel_scroll_up i {
   position: absolute;
-  top: .0625rem;
+  top: 1px;
   margin-left: 8px
 }
 
@@ -4008,22 +3998,22 @@ html {
 #fs_modal.channel_options_modal .channel_option_item {
   position: relative;
   width: 100%;
-  min-height: 3.75rem;
-  padding-top: .75rem;
+  min-height: 60px;
+  padding-top: 12px;
   padding-right: 5rem;
-  padding-bottom: .75rem;
-  padding-left: .625rem;
+  padding-bottom: 12px;
+  padding-left: 10px;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
   cursor: pointer
 }
 
 #fs_modal.channel_options_modal .channel_option_item .title {
-  font-size: 1.375rem
+  font-size: 22px
 }
 
 #fs_modal.channel_options_modal .channel_option_item p {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 #fs_modal.channel_options_modal .channel_option_item .channel_option_open {
@@ -4238,7 +4228,7 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .dense_theme .msg_right_link {
-  margin-top: .125rem
+  margin-top: 2px
 }
 
 .light_theme .message_content_header {
@@ -4269,15 +4259,15 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 .light_theme .top_results_search_message_result .message_content_header_left {
-  margin-right: 0rem;
-  line-height: .75rem
+  margin-right: 0;
+  line-height: 12px
 }
 
 .msg_right_link {
   font-style: normal;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #BABBBF;
-  font-size: .75rem;
+  font-size: 12px;
   line-height: 1.2rem;
   float: right
 }
@@ -4304,7 +4294,7 @@ body.sorting_mode .channels_list_holder ul {
   color: #717274;
   font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 1.5rem;
-  max-width: 46.875rem
+  max-width: 750px
 }
 
 #msgs_scroller_div #end_display_div #end_display_meta #im_meta .mpim_notif_prefs .content,
@@ -4321,14 +4311,14 @@ body.sorting_mode .channels_list_holder ul {
 }
 
 #msgs_scroller_div #end_display_div #end_display_meta h1 {
-  font-size: 1.875rem;
-  line-height: 1.875rem;
+  font-size: 30px;
+  line-height: 30px;
   color: #4D394B
 }
 
 #msgs_scroller_div #end_display_div #end_display_meta h1 .ts_icon_shared_channel {
-  font-size: 2.0625rem;
-  line-height: 2.0625rem;
+  font-size: 33px;
+  line-height: 33px;
   color: #4D394B
 }
 
@@ -4400,7 +4390,7 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 
 #member_mentions h3 {
   line-height: 1.1rem;
-  font-size: .9375rem;
+  font-size: 15px;
   margin-top: .625rem;
   margin-bottom: 1rem
 }
@@ -4493,18 +4483,18 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
   font-weight: 700;
   font-size: .75rem;
   display: block;
-  height: 1.5625rem;
-  line-height: 1.5625rem;
+  height: 25px;
+  line-height: 25px;
   padding: 0 .5rem;
   text-transform: none
 }
 
 .new_msgs_arrow {
-  top: -.0625rem
+  top: -1px
 }
 
 .new_msgs_jump_link {
-  left: 1.25rem
+  left: 20px
 }
 
 .new_msgs_jump_link a {
@@ -4518,11 +4508,8 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 .clear_unread_messages {
-  border-top-left-radius: 0;
-  border-top-right-radius: .375rem;
-  border-bottom-right-radius: .375rem;
-  border-bottom-left-radius: 0;
-  border-left: 1px solid #3D9CD4
+  border-left: 1px solid #3D9CD4;
+  border-radius: 0 6px 6px 0
 }
 
 .quiet .clear_unread_messages {
@@ -4748,8 +4735,8 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 .meta.msg_inline_img_toggler ts-icon {
   display: inline-block;
   position: relative;
-  width: .875rem;
-  height: .875rem
+  width: 14px;
+  height: 14px
 }
 
 .dense_meta.msg_inline_file_preview_toggler .ts_icon:before,
@@ -4762,9 +4749,9 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 .meta.msg_inline_img_toggler ts-icon:before {
   position: absolute;
   bottom: 0;
-  width: .875rem;
-  height: 1.0625rem;
-  font-size: .9375rem
+  width: 14px;
+  height: 17px;
+  font-size: 15px
 }
 
 .dense_meta.msg_inline_file_preview_toggler .ts_icon.msg_inline_media_toggler:hover,
@@ -4786,8 +4773,8 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 .meta.msg_inline_file_preview_toggler ts-icon.msg_inline_media_toggler:before,
 .meta.msg_inline_img_toggler .ts_icon.msg_inline_media_toggler:before,
 .meta.msg_inline_img_toggler ts-icon.msg_inline_media_toggler:before {
-  left: -.125rem;
-  font-size: .875rem
+  left: -2px;
+  font-size: 14px
 }
 
 .dense_meta.msg_inline_file_preview_toggler .ts_icon.ts_icon_box_square:before,
@@ -4961,7 +4948,7 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
   -ms-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
   text-align: center;
-  font-size: 0rem;
+  font-size: 0;
   white-space: nowrap
 }
 
@@ -5104,8 +5091,8 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 
 .screenhero_attachment .ts_icon_calls:before,
 .screenhero_attachment .ts_icon_calls_ended:before {
-  font-size: 3.25rem;
-  line-height: 2.125rem;
+  font-size: 52px;
+  line-height: 34px;
   position: relative;
   left: -6px
 }
@@ -5124,7 +5111,7 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 .screenhero_attachment>div {
-  padding-left: 3.4375rem;
+  padding-left: 55px;
   white-space: nowrap
 }
 
@@ -5181,7 +5168,7 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 .screenhero_attachment .call_subinfo .participant_count .ts_icon_user::before {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .screenhero_attachment .call_subinfo .participant_list {
@@ -5340,14 +5327,14 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
 
 .attachment_group .attachment_source .attachment_meta,
 .inline_attachment .attachment_meta {
-  font-size: .75rem
+  font-size: 12px
 }
 
 .inline_attachment .attachment_footer,
 .inline_attachment .attachment_ts {
   color: #717274;
-  font-size: .75rem;
-  line-height: .875rem;
+  font-size: 12px;
+  line-height: 14px;
   padding-top: .25rem
 }
 
@@ -5366,7 +5353,7 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
 
 .inline_attachment .attachment_title {
   font-weight: 700;
-  font-size: 1rem
+  font-size: 16px
 }
 
 .inline_attachment .attachment_fields {
@@ -5669,73 +5656,73 @@ body.sorting_mode #messages_container {
 }
 
 .member_image.thumb_16 {
-  width: 1rem;
-  height: 1rem
+  width: 16px;
+  height: 16px
 }
 
 .member_image.thumb_20 {
-  width: 1.25rem;
-  height: 1.25rem
+  width: 20px;
+  height: 20px
 }
 
 .member_image.thumb_24 {
-  width: 1.5rem;
-  height: 1.5rem
+  width: 24px;
+  height: 24px
 }
 
 .member_image.thumb_32 {
-  width: 2rem;
-  height: 2rem
+  width: 32px;
+  height: 32px
 }
 
 .member_image.thumb_36 {
-  width: 2.25rem;
-  height: 2.25rem
+  width: 36px;
+  height: 36px
 }
 
 .member_image.thumb_48 {
-  width: 3rem;
-  height: 3rem
+  width: 48px;
+  height: 48px
 }
 
 .member_image.thumb_72 {
-  width: 4.5rem;
-  height: 4.5rem
+  width: 72px;
+  height: 72px
 }
 
 .member_image.thumb_192 {
-  width: 12rem;
-  height: 12rem
+  width: 192px;
+  height: 192px
 }
 
 .member_image.thumb_512 {
-  width: 32rem;
-  height: 32rem
+  width: 512px;
+  height: 512px
 }
 
 .member_image.thumb_24 .emoji-sizer {
-  font-size: 1.5rem
+  font-size: 24px
 }
 
 .member_image.thumb_32 .emoji-sizer {
-  font-size: 2rem
+  font-size: 32px
 }
 
 .member_image.thumb_36 .emoji-sizer {
-  font-size: 2.25rem
+  font-size: 36px
 }
 
 .member_image.thumb_48 .emoji-sizer {
-  font-size: 3rem
+  font-size: 48px
 }
 
 .member_image.thumb_72 .emoji-sizer {
-  font-size: 4rem;
+  font-size: 64px;
   margin: 4px
 }
 
 .member_image.thumb_192 .emoji-sizer {
-  font-size: 4rem;
+  font-size: 64px;
   margin: 64px
 }
 
@@ -5832,7 +5819,7 @@ only screen and (min-resolution:192dpi) {
 }
 
 .slackbot_icon:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .channels_list_holder ul li.active .slackbot_icon,
@@ -5844,12 +5831,12 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover .slackbot_icon {
 }
 
 .channels_list_holder ul li.active .slackbot_icon {
-  color: #fff
+  color: #FFF
 }
 
 .presence.large {
-  width: .6875rem;
-  height: .6875rem;
+  width: 11px;
+  height: 11px;
   border-radius: 4px;
   display: inline-block;
   margin: 0 .15rem;
@@ -5896,8 +5883,8 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover .slackbot_icon {
 }
 
 .presence {
-  width: .5625rem;
-  height: .5625rem;
+  width: 9px;
+  height: 9px;
   margin: 0 .15rem;
   display: inline-block;
   vertical-align: baseline;
@@ -5908,11 +5895,11 @@ body:not(.sorting_mode) .channels_list_holder ul li a:hover .slackbot_icon {
 
 .presence i.presence_icon {
   display: inline-block;
-  font-size: 1.25rem;
-  line-height: 1.25rem;
+  font-size: 20px;
+  line-height: 20px;
   position: absolute;
-  top: -.625rem;
-  left: -.3125rem
+  top: -10px;
+  left: -5px
 }
 
 .presence.away {
@@ -5942,7 +5929,7 @@ h3 .presence {
 }
 
 #channels_scroller.show_which_channel_is_active li.member.active .presence {
-  color: #fff
+  color: #FFF
 }
 
 #channels_scroller.show_which_channel_is_active li.member.active .presence.away {
@@ -6014,19 +6001,16 @@ h3 .presence {
 
 .team_list_item .member_details {
   padding: 0;
-  min-height: 4.5rem
+  min-height: 72px
 }
 
 .team_list_item .member_item_inset {
-  padding-left: 5.125rem
+  padding-left: 82px
 }
 
 .team_list_item .member_image {
   float: left;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: -5.125rem;
-  margin-right: 0
+  margin: 0 0 0 -82px
 }
 
 .team_list_item .member_name {
@@ -6049,7 +6033,7 @@ h3 .presence {
 }
 
 #disabled_members_tab a:hover {
-  background: #fff;
+  background: #FFF;
   color: #005E99
 }
 
@@ -6138,7 +6122,7 @@ h3 .presence {
 
 #member_preview_scroller a.member_action_button,
 #team_list a.member_action_button {
-  font-size: .875rem;
+  font-size: 14px;
   border-width: 1px;
   max-width: 300px;
   color: #9e9ea6!important
@@ -6161,15 +6145,15 @@ h3 .presence {
 #member_preview_scroller .team_directory_icon.message_icon,
 #team_list .team_directory_icon.message_icon {
   background-position: 0 0;
-  width: 1rem;
-  height: 1rem
+  width: 16px;
+  height: 16px
 }
 
 #member_preview_scroller .team_directory_icon.more_icon,
 #team_list .team_directory_icon.more_icon {
   background-position: 0 -40px;
-  width: 1rem;
-  height: .25rem
+  width: 16px;
+  height: 4px
 }
 
 #member_preview_scroller .member_action_button:hover .team_directory_icon.message_icon,
@@ -6301,11 +6285,11 @@ only screen and (min-resolution:2dppx) {
 }
 
 #client-ui.flexpane_redesign #team_list {
-  margin-left: .5rem
+  margin-left: 8px
 }
 
 .flexpane_redesign #team_list_scroller {
-  margin-top: .375rem
+  margin-top: 6px
 }
 
 #client-ui #team_list .expanded_member_details {
@@ -6355,8 +6339,8 @@ only screen and (min-resolution:2dppx) {
 }
 
 #member_preview_scroller .member_data_table .current_status_cell .current_status_container .current_status_cover .current_status_cover_content {
-  padding-right: .9375rem;
-  padding-left: 1.6875rem;
+  padding-right: 15px;
+  padding-left: 27px;
   line-height: normal
 }
 
@@ -6446,8 +6430,8 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_wrap .current_status_input {
   font-size: 15px;
-  padding-right: 2.0625rem;
-  padding-left: 3.125rem
+  padding-right: 33px;
+  padding-left: 50px
 }
 
 .current_status_input_wrap .status_clear_icon_wrap {
@@ -6469,7 +6453,7 @@ only screen and (min-resolution:2dppx) {
   position: absolute;
   top: 0;
   left: 0;
-  width: 2.75rem;
+  width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6518,7 +6502,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container:not(.current_status_input_for_edit_profile) .current_status_action_buttons {
-  margin-top: .375rem;
+  margin-top: 6px;
   -webkit-transition: opacity .15s ease, max-height .15s ease;
   -moz-transition: opacity .15s ease, max-height .15s ease;
   transition: opacity .15s ease, max-height .15s ease;
@@ -6539,7 +6523,7 @@ only screen and (min-resolution:2dppx) {
 
 .current_status_input_container:not(.current_status_input_for_edit_profile) ts-inline-saver {
   display: none;
-  margin-left: .25rem;
+  margin-left: 4px;
   font-size: .9rem
 }
 
@@ -6554,7 +6538,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .current_status_input_container label.countdown:after {
-  margin-right: 1.125rem;
+  margin-right: 18px;
   z-index: 1
 }
 
@@ -6673,7 +6657,7 @@ only screen and (min-resolution:2dppx) {
 #member_preview_scroller,
 #member_preview_web_container,
 .menu_member_header {
-  background-color: #fff
+  background-color: #FFF
 }
 
 #member_preview_scroller .member_data_table td,
@@ -6996,13 +6980,13 @@ only screen and (min-resolution:2dppx) {
   width: 100%;
   border-radius: .2rem .2rem 0 0;
   background-color: #2C2D30;
-  color: #fff;
+  color: #FFF;
   padding: 4px 8px 8px;
   font-size: 13px
 }
 
 .menu_member_header .member_details .member_name_and_presence {
-  color: #fff;
+  color: #FFF;
   font-size: 1.125rem;
   line-height: 1.5625rem;
   font-weight: 900;
@@ -7011,16 +6995,16 @@ only screen and (min-resolution:2dppx) {
 }
 
 .menu_member_header .member_details .member_name_and_presence .member_name {
-  color: #fff;
+  color: #FFF;
   text-decoration: none
 }
 
 .menu_member_header .member_details .member_name_and_presence .presence.away {
-  color: #fff
+  color: #FFF
 }
 
 .menu_member_header .member_details .member_title {
-  color: #fff;
+  color: #FFF;
   font-size: .9375rem;
   line-height: 1.375rem;
   margin: 0
@@ -7201,7 +7185,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .flexpane_redesign #team_tab #member_preview_scroller .member_details {
-  padding-left: .5rem
+  padding-left: 8px
 }
 
 #team_tab #member_preview_scroller .member_details .member_image.thumb_512 {
@@ -7324,7 +7308,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_profile_card {
   padding: 1rem .5rem;
-  width: 12rem
+  width: 192px
 }
 
 .member_meta {
@@ -7388,14 +7372,14 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   width: 100%;
   border-radius: .2rem .2rem 0 0;
   background-color: #2C2D30;
-  color: #fff;
+  color: #FFF;
   padding: 4px 8px 8px;
   display: flex;
   align-items: baseline
 }
 
 .member_restriction_banner .overflow_ellipsis {
-  font-size: .8125rem;
+  font-size: 13px;
   flex: 1 1 auto
 }
 
@@ -7418,7 +7402,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #file_member_filter {
-  background: #fff
+  background: #FFF
 }
 
 #file_member_filter_no_matches {
@@ -7506,7 +7490,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #client-ui .member_file_filter_menu .searchable_member_list_scroller .team_list_item:hover .member {
-  color: #fff;
+  color: #FFF;
   text-decoration: none
 }
 
@@ -7535,7 +7519,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #client-ui #file_member_filter .member_filter {
   margin: .5rem .3rem .35rem .6rem!important;
   border-color: #DDD;
-  width: 12.5rem
+  width: 200px
 }
 
 #client-ui .team_tabs_container {
@@ -7611,15 +7595,15 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 .searchable_member_list_search_bar .ts_icon_spinner {
   position: absolute;
   font-size: 1rem;
-  top: .3125rem;
-  left: .5rem;
+  top: 5px;
+  left: 8px;
   color: #9e9ea6
 }
 
 #team_filter .ts_icon_spinner,
 #user_group_filter .ts_icon_spinner,
 .searchable_member_list_search_bar .ts_icon_spinner {
-  top: .625rem
+  top: 10px
 }
 
 #team_filter .icon_search.indifferent_grey+.ts_icon_spinner,
@@ -7632,10 +7616,10 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #user_group_filter a.icon_close,
 .searchable_member_list_search_bar a.icon_close {
   position: absolute;
-  right: .5rem;
-  top: .375rem;
+  right: 8px;
+  top: 6px;
   color: #BABBBF;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 #team_filter a.icon_close:hover,
@@ -7648,18 +7632,18 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #client-ui .icon_search {
   position: absolute;
   font-size: .9rem;
-  top: .1875rem;
-  left: .4375rem;
+  top: 3px;
+  left: 7px;
   color: #CCC
 }
 
 #client-ui #file_member_filter .icon_search {
-  top: .8125rem;
-  left: 1.0625rem
+  top: 13px;
+  left: 17px
 }
 
 #client-ui .ts_icon_spinner {
-  top: .25rem
+  top: 4px
 }
 
 #client-ui .icon_search.indifferent_grey+.ts_icon_spinner {
@@ -7667,10 +7651,10 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #client-ui a.icon_close {
-  top: .25rem;
+  top: 4px;
   position: absolute;
   color: #BABBBF;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #client-ui a.icon_close:hover {
@@ -7679,8 +7663,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #client-ui #file_member_filter .icon_close {
-  right: .5625rem;
-  top: .8125rem
+  right: 9px;
+  top: 13px
 }
 
 #slackbot_meta,
@@ -7775,7 +7759,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_type_badge.ts_icon_restricted_user:before,
 .member_type_badge.ts_icon_single_channel_guest:before {
-  font-size: 1.8125rem
+  font-size: 29px
 }
 
 .member_type_badge svg {
@@ -7817,7 +7801,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_type_and_description .member_type_badge.ts_icon_restricted_user:before,
 .member_type_and_description .member_type_badge.ts_icon_single_channel_guest:before {
-  font-size: 1.8125rem
+  font-size: 29px
 }
 
 .member_timezone_value .member_type_badge.ts_icon_restricted_user,
@@ -7828,7 +7812,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 
 .member_timezone_value .member_type_badge.ts_icon_restricted_user:before,
 .member_timezone_value .member_type_badge.ts_icon_single_channel_guest:before {
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .member_image.thumb_20 .member_type_badge,
@@ -7908,6 +7892,50 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 .member_image.thumb_512 .member_type_badge svg.member_type_badge_icon {
   width: 5rem;
   height: 5rem
+}
+
+.external_team_badge {
+  display: inline-block;
+  vertical-align: bottom;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  border: 1px solid rgba(44, 45, 48, .08);
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px #FFF;
+  background-size: 100%;
+  background-color: #FFF;
+  background-repeat: no-repeat
+}
+
+.external_team_badge.default {
+  background-color: #717274;
+  font-weight: 800;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #FFF;
+  font-style: normal;
+  letter-spacing: 0;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+  float: left
+}
+
+.external_team_badge.team_badge_16 {
+  width: 16px;
+  height: 16px
+}
+
+.external_team_badge.team_badge_22 {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px #FFF
+}
+
+.external_team_badge.team_badge_22.default {
+  font-size: 13px;
+  line-height: 1.6
 }
 
 #channel_list .ts_icon_shared_channel {
@@ -8415,7 +8443,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   position: absolute;
   right: 22px;
   bottom: -52px;
-  font-size: 1.25rem;
+  font-size: 20px;
   pointer-events: none
 }
 
@@ -8573,8 +8601,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #edit_member_profile_container .member_image_wrapper {
   cursor: pointer;
   display: inline-block;
-  height: 12rem;
-  width: 12rem;
+  height: 192px;
+  width: 192px;
   position: relative
 }
 
@@ -8588,9 +8616,9 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   position: absolute;
   display: inline-block;
   z-index: 1;
-  font-size: 2.5rem;
-  top: 3.4375rem;
-  left: 4.75rem
+  font-size: 40px;
+  top: 55px;
+  left: 76px
 }
 
 #edit_member_profile_container .member_image_wrapper.active .upload_camera_icon:before .member_image,
@@ -8614,16 +8642,16 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   border-radius: .2rem;
   top: 0;
   left: 0;
-  width: 12rem;
-  height: 12rem;
+  width: 192px;
+  height: 192px;
   z-index: 1
 }
 
 #edit_member_profile_container .member_image_wrapped,
 #edit_member_profile_container .member_image_wrapped_no_photo {
   display: inline-block;
-  height: 12rem;
-  width: 12rem;
+  height: 192px;
+  width: 192px;
   position: relative
 }
 
@@ -8634,15 +8662,15 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 1rem;
   text-align: center;
-  padding-top: 4.375rem;
-  padding-right: 2.5rem;
-  padding-left: 2.5rem;
+  padding-top: 70px;
+  padding-right: 40px;
+  padding-left: 40px;
   background-color: rgba(255, 255, 255, .8);
   border-radius: .2rem;
   top: 0;
   left: 0;
-  height: 12rem;
-  width: 12rem;
+  height: 192px;
+  width: 192px;
   outline: gray dashed .125rem;
   outline-offset: -1rem
 }
@@ -8650,8 +8678,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #edit_member_profile_container .member_image_upload {
   display: inline-block;
   z-index: 11;
-  height: 12rem;
-  width: 12rem;
+  height: 192px;
+  width: 192px;
   position: relative
 }
 
@@ -8664,15 +8692,15 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   font-size: .9rem;
   font-weight: 700;
   text-align: center;
-  padding-top: 8.75rem;
-  padding-right: 1.875rem;
-  padding-left: 1.875rem;
+  padding-top: 140px;
+  padding-right: 30px;
+  padding-left: 30px;
   background-color: #D7E8F7;
   border-radius: .2rem;
   top: 0;
   left: 0;
-  height: 12rem;
-  width: 12rem;
+  height: 192px;
+  width: 192px;
   outline: #007AB8 dashed 2px;
   outline-offset: -1rem
 }
@@ -8681,8 +8709,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   position: absolute;
   display: inline-block;
   z-index: 100;
-  height: 8.75rem;
-  padding-left: 2.0625rem;
+  height: 140px;
+  padding-left: 33px;
   top: -20px;
   pointer-events: none
 }
@@ -8692,7 +8720,7 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 }
 
 #edit_member_profile_container .member_upload {
-  max-width: 12rem;
+  max-width: 192px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -8701,15 +8729,15 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   align-items: center;
   color: #007AB8;
   font-size: .95rem;
-  padding-top: .625rem
+  padding-top: 10px
 }
 
 #edit_member_profile_container .member_upload a {
-  padding-left: .625rem
+  padding-left: 10px
 }
 
 #edit_member_profile_container .show_delete {
-  max-width: 12rem;
+  max-width: 192px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -8718,17 +8746,17 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   align-items: center;
   color: #9e9ea6;
   font-size: .95rem;
-  padding-top: .625rem
+  padding-top: 10px
 }
 
 #edit_member_profile_container .show_delete a {
-  padding-left: .625rem;
+  padding-left: 10px;
   color: #9e9ea6
 }
 
 #edit_member_profile_container ts-icon.member_upload::before,
 #edit_member_profile_container ts-icon.show_delete::before {
-  margin-top: -.1875rem
+  margin-top: -3px
 }
 
 #edit_member_profile_container label {
@@ -8743,8 +8771,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 #edit_member_profile_container .photo_well {
   background-color: #E8E8E8;
   border-radius: 1rem;
-  width: 28.75rem;
-  height: 28.75rem;
+  width: 460px;
+  height: 460px;
   margin: 0 auto;
   display: -webkit-box;
   display: -webkit-flex;
@@ -8830,8 +8858,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 .edit_member_profile_photo__capture_preview {
   position: relative;
   overflow: hidden;
-  max-width: 28.75rem;
-  max-height: 28.75rem;
+  max-width: 460px;
+  max-height: 460px;
   width: 80vw;
   height: 80vw;
   margin: 0 auto;
@@ -8864,8 +8892,8 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   right: 0;
   width: 100%;
   height: 100%;
-  font-size: 1.25rem;
-  line-height: 1.875rem;
+  font-size: 20px;
+  line-height: 30px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -8892,12 +8920,12 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -2.5rem;
+  bottom: -40px;
   margin: 0 auto;
   text-align: center;
-  width: 5rem;
-  height: 5rem;
-  border-radius: 5rem;
+  width: 80px;
+  height: 80px;
+  border-radius: 80px;
   border: 1px solid rgba(0, 0, 0, .2);
   display: -webkit-box;
   display: -webkit-flex;
@@ -8924,12 +8952,12 @@ only screen and (min-resolution:192dpi) and (min-width:1441px) {
 .edit_member_profile_photo__capture_countdown {
   background-color: #fff;
   font-weight: 900;
-  font-size: 2.25rem
+  font-size: 36px
 }
 
 .edit_member_profile_photo__capture_icon:before {
   color: #fff;
-  font-size: 2.5rem
+  font-size: 40px
 }
 
 .edit_member_profile_photo__countdown_text {
@@ -9098,8 +9126,8 @@ li input[data-action=edit_member_profile_upload_photo]::-webkit-file-upload-butt
   background: #fbfaf8;
   color: #fff!important;
   font-weight: 700;
-  width: 5rem;
-  height: 5rem;
+  width: 80px;
+  height: 80px;
   border-radius: .25rem;
   float: left;
   text-align: center;
@@ -9137,7 +9165,7 @@ li input[data-action=edit_member_profile_upload_photo]::-webkit-file-upload-butt
 .file_reference .icon.landscape,
 .file_reference .icon.portrait,
 .file_reference .icon.square {
-  line-height: 5rem
+  line-height: 80px
 }
 
 .file_list_item .icon .filetype_icon,
@@ -9156,14 +9184,14 @@ li input[data-action=edit_member_profile_upload_photo]::-webkit-file-upload-butt
 
 .file_list_item .icon.thumb_40 img,
 .file_reference .icon.thumb_40 img {
-  width: 2.5rem;
-  height: 2.5rem
+  width: 40px;
+  height: 40px
 }
 
 .file_list_item .icon.thumb_80 img,
 .file_reference .icon.thumb_80 img {
-  width: 5rem;
-  height: 5rem
+  width: 80px;
+  height: 80px
 }
 
 .file_list_item .icon.landscape img,
@@ -9172,15 +9200,15 @@ li input[data-action=edit_member_profile_upload_photo]::-webkit-file-upload-butt
 .file_reference .icon.landscape img,
 .file_reference .icon.portrait img,
 .file_reference .icon.square img {
-  max-width: 4.875rem;
-  max-height: 4.875rem
+  max-width: 78px;
+  max-height: 78px
 }
 
 .file_list_item .icon_40,
 .file_reference .icon_40 {
-  width: 2.5rem;
-  height: 2.5rem;
-  line-height: 2.375rem
+  width: 40px;
+  height: 40px;
+  line-height: 38px
 }
 
 .file_list_item .icon_40.landscape img,
@@ -9189,8 +9217,8 @@ li input[data-action=edit_member_profile_upload_photo]::-webkit-file-upload-butt
 .file_reference .icon_40.landscape img,
 .file_reference .icon_40.portrait img,
 .file_reference .icon_40.square img {
-  max-width: 2.375rem;
-  max-height: 2.375rem
+  max-width: 38px;
+  max-height: 38px
 }
 
 .file_list_item .icon_40 .filetype_icon,
@@ -9201,7 +9229,7 @@ li input[data-action=edit_member_profile_upload_photo]::-webkit-file-upload-butt
 .filetype_button {
   background: #fff;
   width: 100%;
-  height: 6.125rem;
+  height: 98px;
   color: #9e9ea6!important;
   -webkit-transition: .1s;
   -moz-transition: .1s;
@@ -9292,14 +9320,14 @@ html.no_touch a.filetype_button_web:hover .file_title {
 
 .file_name {
   font-weight: 700;
-  font-size: .9375rem;
+  font-size: 15px;
   word-wrap: break-word;
   font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .file_inline_icon {
   margin-left: .25rem;
-  font-size: .9375rem;
+  font-size: 15px;
   text-decoration: none!important;
   color: #BABBBF;
   -webkit-transition: .1s;
@@ -9470,9 +9498,9 @@ a:hover .file_inline_icon {
 .flexpane_file_title {
   position: relative;
   z-index: 5;
-  padding-left: 2.875rem;
-  padding-right: 6rem;
-  min-height: 2.25rem;
+  padding-left: 46px;
+  padding-right: 96px;
+  min-height: 36px;
   margin-bottom: .5rem;
   font-size: .9375rem;
   line-height: 1.1rem
@@ -9550,12 +9578,12 @@ a:hover .file_inline_icon {
 .file_actions_cog {
   display: inline;
   color: #BABBBF!important;
-  font-size: .875rem;
+  font-size: 14px;
   padding: 0 .1rem
 }
 
 .file_actions_cog:before {
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .file_actions_cog:hover {
@@ -9581,7 +9609,7 @@ a:hover .file_inline_icon {
   padding: .5rem;
   min-height: 100px;
   position: relative;
-  font-size: .9375rem;
+  font-size: 15px;
   line-height: 1.25rem;
   color: #555459;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -9638,7 +9666,7 @@ a:hover .file_inline_icon {
 }
 
 .file_list_item .ts_icon_comment:before {
-  font-size: .9375rem;
+  font-size: 15px;
   vertical-align: middle
 }
 
@@ -9658,7 +9686,7 @@ a:hover .file_inline_icon {
 
 .file_list_item .title {
   font-size: 1rem;
-  line-height: 1.125rem;
+  line-height: 18px;
   margin-bottom: .1rem
 }
 
@@ -9693,7 +9721,7 @@ a:hover .file_inline_icon {
 }
 
 .file_list_item .contents {
-  padding-left: .625rem;
+  padding-left: 10px;
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1
@@ -9703,16 +9731,12 @@ a:hover .file_inline_icon {
   position: absolute;
   right: 0;
   top: 0;
-  padding-top: .375rem;
-  padding-bottom: .375rem;
-  padding-left: .375rem;
-  padding-right: .375rem;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 1rem;
   border-top-left-radius: 1rem;
   background-clip: padding-box;
-  width: 2.625rem;
+  width: 42px;
   opacity: 0;
   -moz-opacity: 0;
   -khtml-opacity: 0;
@@ -9720,7 +9744,8 @@ a:hover .file_inline_icon {
   -moz-transition: opacity 150ms ease-in-out .1s;
   transition: opacity 150ms ease-in-out .1s;
   text-align: center;
-  z-index: 10
+  z-index: 10;
+  padding: 6px
 }
 
 .file_list_item .actions a,
@@ -9728,13 +9753,13 @@ a:hover .file_inline_icon {
   border: 1px solid #E8E8E8;
   background-color: transparent;
   border-radius: 1rem;
-  font-size: .875rem;
+  font-size: 14px;
   color: #9e9ea6;
   display: inline-block;
-  width: 1.625rem;
-  height: 1.625rem;
+  width: 26px;
+  height: 26px;
   margin: 0 0 .2rem;
-  line-height: 1.5625rem;
+  line-height: 25px;
   text-align: center
 }
 
@@ -9744,8 +9769,8 @@ a:hover .file_inline_icon {
 }
 
 .file_list_item .actions a.ts_icon_ellipsis {
-  font-size: 1.125rem;
-  line-height: 1.75rem
+  font-size: 18px;
+  line-height: 28px
 }
 
 .file_list_item .actions a:hover {
@@ -9794,7 +9819,7 @@ a:hover .file_inline_icon {
 .file_list_item.space .preview {
   color: #555459;
   margin: .25rem 0;
-  font-size: .9375rem;
+  font-size: 15px;
   cursor: text
 }
 
@@ -9813,7 +9838,7 @@ a:hover .file_inline_icon {
 .file_list_item.snippet .snippet_preview pre {
   font-size: .8rem;
   min-height: .8rem;
-  line-height: 1.125rem;
+  line-height: 18px;
   margin-bottom: 0;
   padding: 0;
   border: none;
@@ -9916,11 +9941,8 @@ body.winssb .file_list_item {
 
 #client-ui #file_list,
 #client-ui #search_results_items {
-  margin-top: .25rem;
-  margin-bottom: 0;
-  margin-left: 0;
-  margin-right: .0625rem;
-  padding: 0
+  padding: 0;
+  margin: 4px 1px 0 0
 }
 
 #client-ui #search_results_container .flex_content_scroller {
@@ -9929,12 +9951,7 @@ body.winssb .file_list_item {
 
 #client-ui .file_list_item {
   padding: .25rem;
-  font-size: .875rem
-}
-
-#client-ui .file_list_item .actions {
-  padding-top: 0;
-  padding-bottom: 0
+  font-size: 14px
 }
 
 #client-ui .file_list_item .actions a,
@@ -9949,7 +9966,7 @@ body.winssb .file_list_item {
 .bot_label {
   color: #A0A0A0;
   font-weight: 500;
-  font-size: .75rem;
+  font-size: 12px;
   margin: 0 .15rem;
   padding: 0 .1rem;
   vertical-align: middle;
@@ -9983,13 +10000,13 @@ body.winssb .file_list_item {
 }
 
 .flexpane_redesign #file_preview_scroller {
-  padding-left: .625rem;
-  padding-right: .375rem
+  padding-left: 10px;
+  padding-right: 6px
 }
 
 .flexpane_redesign .monkey_scroll_wrapper #file_preview_scroller {
-  padding-left: 1.125rem;
-  padding-right: 1.125rem
+  padding-left: 18px;
+  padding-right: 18px
 }
 
 #file_preview_scroller h3 {
@@ -10002,11 +10019,11 @@ body.winssb .file_list_item {
 }
 
 .flexpane_redesign #file_preview_head_section {
-  margin-top: .625rem
+  margin-top: 10px
 }
 
 .flexpane_redesign .monkey_scroll_wrapper #file_preview_head_section {
-  margin-top: 1.125rem
+  margin-top: 18px
 }
 
 a.gsheet img,
@@ -10931,20 +10948,17 @@ img.orientation_8 {
 .unshare_link i {
   display: inline-block;
   position: relative;
-  width: .75rem;
-  height: .75rem
+  width: 12px;
+  height: 12px
 }
 
 .unshare_link i:before {
   position: absolute;
-  bottom: -.0625rem;
+  bottom: -1px;
   right: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: -.25rem;
-  margin-right: -.25rem;
   color: #b3b5b9;
-  overflow: hidden
+  overflow: hidden;
+  margin: 0 -4px
 }
 
 .unshare_link i.ts_icon_minus_circle_small:hover:before {
@@ -11059,7 +11073,7 @@ only screen and (min-resolution:2dppx) {
   position: relative;
   display: block;
   margin: -.8125rem -.95rem -.75rem;
-  min-height: 2.375rem;
+  min-height: 38px;
   padding: .8125rem .95rem .75rem 3.625rem;
   line-height: 1.4667;
   text-decoration: none
@@ -11071,8 +11085,8 @@ only screen and (min-resolution:2dppx) {
   top: .9375rem;
   left: .95rem;
   margin: -.125rem -.5625rem;
-  width: 1.9375rem;
-  line-height: 2.375rem
+  width: 31px;
+  line-height: 38px
 }
 
 .file_container .file_header .file_header_title {
@@ -11131,15 +11145,15 @@ only screen and (min-resolution:2dppx) {
 .file_container.snippet_container+[for=snippet_wrap] {
   position: absolute;
   right: 0;
-  margin-top: -.125rem
+  margin-top: -2px
 }
 
 .file_container.snippet_container .CodeMirror .CodeMirror-code {
-  border-radius: .5rem;
+  border-radius: 8px;
   border: none;
   margin-bottom: 0;
-  font-size: .8125rem;
-  line-height: 1rem
+  font-size: 13px;
+  line-height: 16px
 }
 
 .file_container.snippet_container .CodeMirror.CodeMirrorServer {
@@ -11158,7 +11172,7 @@ only screen and (min-resolution:2dppx) {
 .file_container .CodeMirror .CodeMirror-code,
 .file_container .sssh-code .CodeMirror-code {
   overflow: auto;
-  font-size: .8125rem!important;
+  font-size: 13px!important;
   line-height: 1;
   color: #555459;
   counter-reset: snippet
@@ -11166,7 +11180,7 @@ only screen and (min-resolution:2dppx) {
 
 html.is_mac .file_container .CodeMirror .CodeMirror-code,
 html.is_mac .file_container .sssh-code .CodeMirror-code {
-  font-size: .75rem!important
+  font-size: 12px!important
 }
 
 .file_container .CodeMirror .CodeMirror-code>div,
@@ -11175,8 +11189,8 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .file_container .sssh-code .sssh-line {
   counter-increment: snippet;
   position: relative;
-  margin-left: 2.5rem;
-  padding-right: .625rem
+  margin-left: 40px;
+  padding-right: 10px
 }
 
 .file_container .CodeMirror .CodeMirror-code>div pre,
@@ -11207,12 +11221,12 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -2.5rem;
+  left: -40px;
   border-right: 1px solid rgba(0, 0, 0, .1);
   background-color: #fbfbfb;
   text-align: right;
-  padding-right: .25rem;
-  width: 1.625rem;
+  padding-right: 4px;
+  width: 26px;
   color: #9e9ea6;
   font-size: .72rem;
   line-height: 1rem;
@@ -11389,7 +11403,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .file_container.generic_container .file_header_icon .ts_icon {
   position: absolute;
   color: #fff;
-  border-radius: .125rem;
+  border-radius: 2px;
   background: #3aa3e3;
   box-shadow: 0 0 0 3px #fff;
   opacity: 0;
@@ -11481,45 +11495,42 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .file_container.generic_container .file_header_icon .ts_icon.ts_icon_arrow_ne_medium,
 .file_container.generic_container .file_header_icon .ts_icon.ts_icon_search_small {
-  right: -.375rem;
-  bottom: -.125rem;
-  width: .9375rem;
-  height: .9375rem;
-  padding-top: .125rem;
-  padding-bottom: .125rem;
-  padding-left: .1875rem;
-  padding-right: .1875rem;
-  line-height: .9375rem
+  right: -6px;
+  bottom: -2px;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+  padding: 2px 3px
 }
 
 .file_container.generic_container .file_header_icon .ts_icon.ts_icon_arrow_ne_medium:before,
 .file_container.generic_container .file_header_icon .ts_icon.ts_icon_search_small:before {
-  margin-top: -.1875rem;
-  margin-left: -.3125rem;
+  margin-top: -3px;
+  margin-left: -5px;
   vertical-align: top
 }
 
 .file_container.generic_container .file_header_icon .ts_icon.ts_icon_search_small:before {
-  margin-left: -.375rem
+  margin-left: -6px
 }
 
 .file_container.generic_container .file_header_icon .ts_icon.ts_icon_arrow_down {
-  right: -.5rem;
-  bottom: -.0625rem;
-  width: 1.0625rem;
-  height: 1rem;
-  line-height: 1rem;
+  right: -8px;
+  bottom: -1px;
+  width: 17px;
+  height: 16px;
+  line-height: 16px;
   border-radius: 50%
 }
 
 .file_container.generic_container .file_header_icon .ts_icon.ts_icon_arrow_down:before {
-  margin-left: -.0625rem;
-  margin-top: -.6875rem
+  margin-left: -1px;
+  margin-top: -11px
 }
 
 .file_container.generic_container .generic_header {
-  padding-top: .6875rem;
-  min-height: 4.25rem
+  padding-top: 11px;
+  min-height: 68px
 }
 
 .file_container.generic_container .file_header_meta,
@@ -11586,8 +11597,8 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .file_container .preview_actions {
   opacity: 0;
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 16px;
+  right: 16px;
   z-index: 5;
   -webkit-transition: opacity .1s cubic-bezier(.2, .3, .25, .9);
   -moz-transition: opacity .1s cubic-bezier(.2, .3, .25, .9);
@@ -11595,16 +11606,16 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .file_container .preview_actions .btn {
-  margin-left: .375rem;
+  margin-left: 6px;
   background-color: #fff;
   float: left
 }
 
 .file_container .preview_actions .btn:after {
-  top: -.0625rem;
-  right: -.0625rem;
-  bottom: -.0625rem;
-  left: -.0625rem;
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  left: -1px;
   border-color: rgba(0, 0, 0, .1)
 }
 
@@ -11618,7 +11629,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .file_container .preview_actions .btn.file_comment_link span {
   position: relative;
-  top: .25rem;
+  top: 4px;
   padding: 0 .1875rem;
   font-size: .8125rem
 }
@@ -11644,35 +11655,35 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: -.625rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 1.25rem;
+  margin-left: -10px;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
   line-height: 0;
   font-weight: 400
 }
 
 .file_container .preview_actions .ts_icon_collapse_vertical:before {
-  margin-top: .0625rem;
-  margin-left: -.5625rem
+  margin-top: 1px;
+  margin-left: -9px
 }
 
 .file_container .preview_actions .ts_icon_cloud_download:before {
-  margin-top: -.0625rem
+  margin-top: -1px
 }
 
 .file_container .preview_actions .ts_icon_external_link:before {
-  margin-top: -.125rem
+  margin-top: -2px
 }
 
 .file_container .preview_actions .ts_icon_ellipsis:before {
-  margin-top: .125rem;
-  margin-left: -.6875rem;
-  font-size: 1.375rem
+  margin-top: 2px;
+  margin-left: -11px;
+  font-size: 22px
 }
 
 .file_container .preview_actions .ts_icon_pencil:before {
-  margin-top: -.0625rem
+  margin-top: -1px
 }
 
 .file_container.file_menu_open .preview_actions,
@@ -11682,8 +11693,8 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .file_container.snippet_container .preview_actions {
-  top: .625rem;
-  right: .625rem
+  top: 10px;
+  right: 10px
 }
 
 .file_container.generic_container .preview_actions {
@@ -11705,7 +11716,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .file_container.image_container .preview_actions.overflow_preview_actions {
-  padding: .5rem;
+  padding: 8px;
   white-space: nowrap;
   border: .0625rem solid rgba(0, 0, 0, .1);
   background: rgba(250, 250, 250, .9);
@@ -11717,7 +11728,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .file_container.image_container .preview_actions.overflow_preview_actions_width {
-  left: .625rem;
+  left: 10px;
   right: auto
 }
 
@@ -11743,10 +11754,6 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .file_container .preview_show .preview_show_btn {
   opacity: 0;
-  padding-top: .0625rem;
-  padding-bottom: .1875rem;
-  padding-left: .625rem;
-  padding-right: .625rem;
   background: linear-gradient(rgba(85, 84, 89, .8), rgba(85, 84, 89, .8)), linear-gradient(rgba(255, 255, 255, .3), rgba(255, 255, 255, .3));
   border-radius: 99px;
   border: none;
@@ -11758,12 +11765,13 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   line-height: 1.5;
   -webkit-transition: -webkit-transform .1s cubic-bezier(.2, .3, .25, .9), opacity .1s cubic-bezier(.2, .3, .25, .9);
   -moz-transition: -moz-transform .1s cubic-bezier(.2, .3, .25, .9), opacity .1s cubic-bezier(.2, .3, .25, .9);
-  transition: transform .1s cubic-bezier(.2, .3, .25, .9), opacity .1s cubic-bezier(.2, .3, .25, .9)
+  transition: transform .1s cubic-bezier(.2, .3, .25, .9), opacity .1s cubic-bezier(.2, .3, .25, .9);
+  padding: 1px 10px 3px
 }
 
 .file_container .preview_show .preview_show_btn .ts_icon {
   position: relative;
-  line-height: .9375rem
+  line-height: 15px
 }
 
 .file_container .preview_show .preview_show_btn .line_count:before {
@@ -11776,7 +11784,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .file_container .preview_show.preview_show_more .preview_show_center {
   top: 50%;
-  margin-top: .4375rem
+  margin-top: 7px
 }
 
 .file_container .preview_show.preview_show_more .preview_show_btn {
@@ -11787,18 +11795,18 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .file_container .preview_show.preview_show_more .preview_show_btn .ts_icon {
-  top: .25rem;
-  margin-right: -.125rem;
-  margin-left: -.375rem
+  top: 4px;
+  margin-right: -2px;
+  margin-left: -6px
 }
 
 .file_container .preview_show.preview_show_more .preview_show_btn .ts_icon:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .file_container .preview_show.preview_show_less {
   top: auto;
-  bottom: .625rem
+  bottom: 10px
 }
 
 .file_container .preview_show.preview_show_less .preview_show_btn {
@@ -11808,7 +11816,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   -webkit-transition: -webkit-transform .1s cubic-bezier(.2, .3, .25, .9), background .1s cubic-bezier(.2, .3, .25, .9), color .1s cubic-bezier(.2, .3, .25, .9);
   -moz-transition: -moz-transform .1s cubic-bezier(.2, .3, .25, .9), background .1s cubic-bezier(.2, .3, .25, .9), color .1s cubic-bezier(.2, .3, .25, .9);
   transition: transform .1s cubic-bezier(.2, .3, .25, .9), background .1s cubic-bezier(.2, .3, .25, .9), color .1s cubic-bezier(.2, .3, .25, .9);
-  padding-top: .125rem;
+  padding-top: 2px;
   -webkit-transform: translateY(10px);
   -moz-transform: translateY(10px);
   -ms-transform: translateY(10px);
@@ -11816,12 +11824,12 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .file_container .preview_show.preview_show_less .preview_show_btn .ts_icon {
-  top: .125rem;
-  margin-right: -.375rem
+  top: 2px;
+  margin-right: -6px
 }
 
 .file_container .preview_show.preview_show_less .preview_show_btn .ts_icon:before {
-  font-size: 1rem
+  font-size: 16px
 }
 
 .file_container.inline_collapsed .preview_show_more,
@@ -11856,8 +11864,8 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .file_container.loading .preview_show_more .preview_show_btn {
-  width: 1.875rem;
-  height: 1.875rem
+  width: 30px;
+  height: 30px
 }
 
 .file_container.inline_collapsed~.file_meta {
@@ -11907,27 +11915,24 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 #file_preview_container .file_meta .delete_link,
 #file_preview_container .file_meta .unshare_link {
-  line-height: .9375rem
+  line-height: 15px
 }
 
 #file_preview_container .file_meta .delete_link i,
 #file_preview_container .file_meta .unshare_link i {
   display: inline-block;
   position: relative;
-  width: .75rem;
-  height: .75rem
+  width: 12px;
+  height: 12px
 }
 
 #file_preview_container .file_meta .delete_link i:before,
 #file_preview_container .file_meta .unshare_link i:before {
   position: absolute;
-  bottom: .0625rem;
+  bottom: 1px;
   right: 0;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: -.25rem;
-  margin-right: -.25rem;
   overflow: visible;
+  margin: 0 -4px;
   color: #b3b5b9
 }
 
@@ -11946,10 +11951,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 #files_list .file_comment_item .actions,
 #files_list .file_list_item .actions,
 #files_list .message .actions {
-  padding-top: .375rem;
-  padding-bottom: .375rem;
-  padding-left: .375rem;
-  padding-right: .375rem
+  padding: 6px
 }
 
 #client-ui .file_list_item,
@@ -11982,14 +11984,14 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 #client-ui .file_list_item .title,
 #files_list .file_list_item .title {
-  font-size: 1rem;
+  font-size: 16px;
   line-height: 1.2375;
-  margin-bottom: .125rem
+  margin-bottom: 2px
 }
 
 #client-ui .file_list_item .filetype_icon,
 #files_list .file_list_item .filetype_icon {
-  margin-left: -.3125rem
+  margin-left: -5px
 }
 
 #client-ui .file_comment_item .monospace,
@@ -11998,7 +12000,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 #files_list .file_comment_item .monospace,
 #files_list .file_list_item .monospace,
 #files_list .star_item ts-message .monospace {
-  font-size: .75rem
+  font-size: 12px
 }
 
 #client-ui .star_item ts-message,
@@ -12008,25 +12010,22 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 #client-ui .star_item ts-message .actions,
 #files_list .star_item ts-message .actions {
-  top: -.5625rem
+  top: -9px
 }
 
 .light_theme #client-ui .star_item ts-message,
 .light_theme #files_list .star_item ts-message {
-  margin-top: .75rem;
-  margin-bottom: .75rem;
-  margin-left: 0;
-  margin-right: 0
+  margin: 12px 0
 }
 
 .light_theme #client-ui .star_item ts-message .message_gutter,
 .light_theme #files_list .star_item ts-message .message_gutter {
-  width: 4rem
+  width: 64px
 }
 
 .light_theme #client-ui .star_item ts-message .message_content,
 .light_theme #files_list .star_item ts-message .message_content {
-  margin-left: 4rem
+  margin-left: 64px
 }
 
 .dense_theme #client-ui .star_item ts-message .message_gutter,
@@ -12127,7 +12126,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .tab_container .star_item ts-message .actions .btn_icon,
 .tab_container .star_item ts-message .actions .star_jump {
   float: left;
-  margin-left: .3125rem;
+  margin-left: 5px;
   background-color: #fff
 }
 
@@ -12136,18 +12135,18 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .tab_container .star_item .message .actions .btn:after,
 .tab_container .star_item ts-message .actions .btn:after {
   border-color: rgba(0, 0, 0, .1);
-  top: -.0625rem;
-  bottom: -.0625rem;
-  left: -.0625rem;
-  right: -.0625rem
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  right: -1px
 }
 
 .tab_container .file_comment_item .actions .btn_icon,
 .tab_container .file_list_item .actions .btn_icon,
 .tab_container .star_item .message .actions .btn_icon,
 .tab_container .star_item ts-message .actions .btn_icon {
-  width: 1.875rem;
-  height: 1.75rem
+  width: 30px;
+  height: 28px
 }
 
 .tab_container .file_comment_item .actions .ts_icon:before,
@@ -12161,7 +12160,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   -moz-transform: translateX(-50%) translateY(-50%);
   -ms-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .tab_container .file_comment_item .actions .star,
@@ -12173,15 +12172,15 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   left: 0;
   z-index: 1;
   border: 0;
-  width: 1.875rem;
-  height: 1.75rem
+  width: 30px;
+  height: 28px
 }
 
 .tab_container .file_comment_item .actions .star:before,
 .tab_container .file_list_item .actions .star:before,
 .tab_container .star_item .message .actions .star:before,
 .tab_container .star_item ts-message .actions .star:before {
-  font-size: 1.1875rem
+  font-size: 19px
 }
 
 .tab_container .file_comment_item .actions .starred+.star_message,
@@ -12218,14 +12217,8 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .tab_container .star_item .message,
 .tab_container .star_item ts-message {
-  padding-top: .25rem!important;
-  padding-bottom: .25rem!important;
-  padding-left: 3.6875rem!important;
-  padding-right: .6875rem!important;
-  margin-top: .75rem;
-  margin-bottom: .75rem;
-  margin-left: .5rem;
-  margin-right: .5rem
+  padding: 4px 11px 4px 59px!important;
+  margin: 12px 8px
 }
 
 .tab_container .star_item .message .member_image,
@@ -12238,25 +12231,22 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   position: relative;
   top: 0;
   right: 0;
-  padding-top: .3125rem;
-  padding-bottom: .375rem;
-  padding-left: .625rem;
-  padding-right: .625rem;
-  font-size: .8125rem;
-  font-weight: 700
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 10px 6px
 }
 
 .tab_container .star_item .message .message_sender,
 .tab_container .star_item .message .timestamp,
 .tab_container .star_item ts-message .message_sender,
 .tab_container .star_item ts-message .timestamp {
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .tab_container .star_item .message .message_sender,
 .tab_container .star_item ts-message .message_sender {
   padding-right: 0;
-  font-size: .875rem
+  font-size: 14px
 }
 
 .tab_container .star_item .message .timestamp,
@@ -12334,14 +12324,14 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .tab_container .file_list_item .filetype_icon,
 .tab_container .file_list_item .filetype_image {
   position: absolute;
-  top: .625rem;
-  left: .5625rem;
-  margin-top: -.0625rem
+  top: 10px;
+  left: 9px;
+  margin-top: -1px
 }
 
 .tab_container .file_list_item .filetype_icon {
-  width: 2.5rem;
-  height: 2.5rem
+  width: 40px;
+  height: 40px
 }
 
 .tab_container .file_list_item .filetype_icon:before {
@@ -12355,18 +12345,18 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .tab_container .file_list_item .filetype_image {
-  width: 3.125rem;
-  height: 3.125rem;
+  width: 50px;
+  height: 50px;
   background-color: #F3F3F3;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: .25rem;
+  border-radius: 4px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .1)
 }
 
 .tab_container .file_list_item .contents {
-  margin-right: .6875rem;
+  margin-right: 11px;
   overflow: hidden
 }
 
@@ -12389,13 +12379,13 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .tab_container .file_list_item .contents .service_link,
 .tab_container .file_list_item .contents .share_info,
 .tab_container .file_list_item .contents .time {
-  font-size: .8125rem;
+  font-size: 13px;
   color: #717274
 }
 
 .tab_container .file_list_item .contents .title {
   margin-bottom: 0;
-  line-height: 1.3125rem
+  line-height: 21px
 }
 
 .tab_container .file_list_item.has_icon .filetype_icon {
@@ -12405,46 +12395,40 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .tab_container .file_list_item.has_icon .contents {
   padding-left: 0;
-  margin-left: 3.0625rem;
-  min-height: 2.9375rem
+  margin-left: 49px;
+  min-height: 47px
 }
 
 .tab_container .file_list_item.has_icon .file_comment_link,
 .tab_container .file_list_item.has_icon .share_info {
   position: relative;
-  top: -.125rem
+  top: -2px
 }
 
 .tab_container .file_list_item.has_image .contents {
-  margin-left: 4.3125rem;
-  min-height: 3.75rem;
+  margin-left: 69px;
+  min-height: 60px;
   padding-left: 0
 }
 
 .tab_container .file_list_item.snippet .snippet_preview {
   background: 0 0;
   overflow: hidden;
-  margin-top: 0;
-  margin-bottom: .125rem;
-  margin-left: 0;
-  margin-right: 0;
   padding: 0;
   cursor: pointer;
-  line-height: .9375rem
+  line-height: .9375rem;
+  margin: 0 0 2px
 }
 
 .tab_container .file_list_item.email .email_preview_text {
-  margin-top: 0;
-  margin-bottom: .1875rem;
-  margin-left: 0;
-  margin-right: 0;
-  line-height: 1.125rem
+  line-height: 1.125rem;
+  margin: 0 0 3px
 }
 
 .tab_container .file_list_item .email_preview_text,
 .tab_container .file_list_item .preview,
 .tab_container .file_list_item .snippet_preview {
-  max-height: 2.625rem
+  max-height: 42px
 }
 
 .tab_container .file_list_item .share_info .channel_link,
@@ -12463,12 +12447,12 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .tab_container .file_list_item .bot_label {
   display: inline-block;
-  font-size: .625rem;
+  font-size: 10px;
   margin-left: 0;
   margin-right: 0;
-  padding-left: .125rem;
-  padding-right: .125rem;
-  line-height: .75rem;
+  padding-left: 2px;
+  padding-right: 2px;
+  line-height: 12px;
   -webkit-transform: translateX(.125rem) translateY(-.0625rem);
   -moz-transform: translateX(.125rem) translateY(-.0625rem);
   -ms-transform: translateX(.125rem) translateY(-.0625rem);
@@ -12476,7 +12460,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 }
 
 .tab_container .file_list_item .author {
-  margin-right: .25rem
+  margin-right: 4px
 }
 
 .tab_container .file_list_item .time {
@@ -12486,17 +12470,14 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 .tab_container .file_list_item.post .preview,
 .tab_container .file_list_item.space .preview {
   cursor: pointer;
-  font-size: .875rem;
-  margin-top: 0;
-  margin-bottom: .125rem;
-  margin-left: 0;
-  margin-right: 0;
-  line-height: 1.315rem
+  font-size: 14px;
+  line-height: 1.315rem;
+  margin: 0 0 2px
 }
 
 .tab_container #member_stars_list {
-  padding-left: .3125rem;
-  padding-right: .3125rem
+  padding-left: 5px;
+  padding-right: 5px
 }
 
 .tab_container #stars_scroller .selectable_flex_pane_padder {
@@ -12528,12 +12509,9 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .tab_container .star_item .file_comment_item {
   position: relative;
-  padding-top: .25rem;
-  padding-bottom: .25rem;
-  padding-left: 3.6875rem;
-  padding-right: .25rem;
-  font-size: .9375rem;
-  color: #717274
+  font-size: 15px;
+  color: #717274;
+  padding: 4px 4px 4px 59px
 }
 
 .tab_container .star_item .file_comment_item .subtle_silver {
@@ -12542,16 +12520,16 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 .tab_container .star_item .file_comment_item .icon_quote {
   position: absolute;
-  top: .9375rem;
-  left: .5625rem;
+  top: 15px;
+  left: 9px;
   line-height: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 40px;
+  height: 40px;
   text-align: center
 }
 
 .is_safari_desktop .tab_container .star_item .file_comment_item .icon_quote {
-  top: .25rem
+  top: 4px
 }
 
 .tab_container .star_item .file_comment_item .icon_quote:before {
@@ -12566,7 +12544,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   padding: 0;
   margin-top: 0;
   margin-bottom: 0!important;
-  font-size: .9375rem;
+  font-size: 15px;
   color: #555459
 }
 
@@ -12597,8 +12575,7 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
 
 audio,
 video {
-  margin: 0;
-  margin-top: .625rem;
+  margin: 10px 0 0;
   border-radius: 4px;
   width: 100%;
   position: relative;
@@ -12774,8 +12751,8 @@ audio {
 }
 
 .email_body {
-  font-size: .9375rem;
-  line-height: 1.375rem;
+  font-size: 15px;
+  line-height: 22px;
   padding: 1rem 0
 }
 
@@ -12838,7 +12815,7 @@ audio {
 }
 
 .email_body .attachment .ts_icon_external_link {
-  font-size: .875rem;
+  font-size: 14px;
   color: #3aa3e3;
   margin-left: .15rem
 }
@@ -12879,7 +12856,7 @@ audio {
   max-width: 668px;
   margin: 0 auto;
   padding: 2rem 1rem 1rem;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 @media only screen and (max-width:640px) {
@@ -12906,7 +12883,7 @@ audio {
 
 .comment {
   margin: 0 0 1rem;
-  padding-left: 2.875rem;
+  padding-left: 46px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-user-select: text;
@@ -12923,17 +12900,14 @@ audio {
 .comment .member_image,
 .comment_form .member_image {
   float: left;
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: -2.875rem;
-  margin-right: 0
+  margin: 0 0 0 -46px
 }
 
 .comment .member {
   font-weight: 900;
   padding-right: .25rem;
   color: #3D3C40!important;
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .comment_meta {
@@ -12946,7 +12920,7 @@ audio {
 .comment_date_star_cog {
   display: inline-block;
   position: relative;
-  padding-right: .875rem;
+  padding-right: 14px;
   white-space: nowrap
 }
 
@@ -12977,8 +12951,8 @@ audio {
 .comment .special_formatting_quote .content,
 .comment_body {
   margin: 0;
-  font-size: .9375rem;
-  line-height: 1.25rem!important;
+  font-size: 15px;
+  line-height: 20px!important;
   word-wrap: break-word;
   max-width: 460px;
   color: #3D3C40
@@ -12992,11 +12966,11 @@ audio {
 
 .comment_actions {
   position: absolute;
-  top: .0625rem;
+  top: 1px;
   right: 0;
   display: none;
   color: #BABBBF;
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .comment:hover .comment_actions {
@@ -13017,12 +12991,12 @@ audio {
 .icon_quote {
   color: #EBEDED;
   font-size: 1.8rem;
-  line-height: 3.125rem
+  line-height: 50px
 }
 
 #flex_contents .comment_form {
   width: 100%;
-  padding-left: 2.875rem
+  padding-left: 46px
 }
 
 #flex_contents .edit_comment_form {
@@ -13034,18 +13008,18 @@ audio {
   width: 100%;
   height: 100px;
   color: #3D3C40;
-  font-size: .9375rem
+  font-size: 15px
 }
 
 #flex_contents .comment_form textarea.autogrow-short,
 #flex_contents .edit_comment_form textarea.autogrow-short {
-  height: 1.1875rem;
+  height: 19px;
   box-shadow: none
 }
 
 #file_page .comment_form,
 #post_page .comment_form {
-  padding-left: 2.875rem;
+  padding-left: 46px;
   margin-bottom: 4rem
 }
 
@@ -13063,7 +13037,7 @@ audio {
 #post_page .comment_form textarea {
   height: 102px;
   min-height: 102px;
-  font-size: .9375rem
+  font-size: 15px
 }
 
 @font-face {
@@ -13192,13 +13166,13 @@ button.star {
 
 .rxn_panel .rxn_hover_container {
   transition: opacity .2s linear;
-  margin-left: .25rem;
+  margin-left: 4px;
   visibility: hidden;
   opacity: 0
 }
 
 .rxn_panel .rxn_hover_container .rxn {
-  margin-right: .125rem!important
+  margin-right: 2px!important
 }
 
 .rxn_panel .rxn+.rxn_hover_container {
@@ -13206,7 +13180,7 @@ button.star {
 }
 
 .rxn_panel:not(:empty) {
-  padding-top: .0625rem
+  padding-top: 1px
 }
 
 .rxn_panel.active .rxn_hover_container,
@@ -13231,16 +13205,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .rxn {
   display: inline-block;
-  margin-top: .125rem;
-  margin-bottom: .125rem;
+  margin-top: 2px;
+  margin-bottom: 2px;
   background: #fff;
   border: 1px solid #E8E8E8;
-  margin-right: .375rem!important;
-  border-radius: .3125rem;
-  padding-top: .0625rem;
-  padding-bottom: .0625rem;
-  padding-left: .1875rem;
-  padding-right: .1875rem;
+  margin-right: 6px!important;
+  border-radius: 5px;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -13248,8 +13218,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   user-select: none;
   cursor: pointer;
   height: 1.4rem;
-  line-height: 1.4375rem;
-  vertical-align: baseline
+  line-height: 23px;
+  vertical-align: baseline;
+  padding: 1px 3px
 }
 
 .rxn.active,
@@ -13264,12 +13235,9 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .rxn.user_reacted {
   border: 1px solid;
-  padding-top: .0625rem;
-  padding-bottom: .0625rem;
-  padding-left: .1875rem;
-  padding-right: .1875rem;
   border-color: rgba(79, 176, 252, .4)!important;
-  background-color: rgba(79, 176, 252, .08)
+  background-color: rgba(79, 176, 252, .08);
+  padding: 1px 3px
 }
 
 .rxn.user_reacted .emoji_rxn_count {
@@ -13278,8 +13246,8 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .rxn .emoji-sizer {
-  line-height: 1.25rem;
-  font-size: 1rem;
+  line-height: 20px;
+  font-size: 16px;
   text-indent: 0!important;
   vertical-align: baseline
 }
@@ -13289,7 +13257,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .rxn .emoji_rxn_count {
-  font-size: .6875rem;
+  font-size: 11px;
   font-family: helvetica, arial;
   position: relative;
   top: -4px;
@@ -13315,12 +13283,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
   width: 100%;
   display: block;
   text-align: center;
-  line-height: 1.3125rem;
+  line-height: 21px;
   padding-left: 1px
 }
 
 .rxn.menu_rxn .ts_icon:before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .rxn.menu_rxn .ts_icon_circle_fill {
@@ -13329,7 +13297,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .rxn.menu_rxn .emoji-sizer {
-  line-height: 1rem
+  line-height: 16px
 }
 
 .rxn.menu_rxn.active .ts_icon,
@@ -13354,13 +13322,13 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 #files_tab .rxn_panel .rxn {
-  line-height: 1.375rem
+  line-height: 22px
 }
 
 .mention_rxn {
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .9375rem;
-  line-height: 1.375rem;
+  font-size: 15px;
+  line-height: 22px;
   position: relative;
   padding-left: 3rem
 }
@@ -13379,14 +13347,14 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .mention_rxn .rxn_emoji_icon.rxn_1 span.emoji-sizer {
-  font-size: 2.25rem;
+  font-size: 36px;
   vertical-align: baseline
 }
 
 .mention_rxn .rxn_emoji_icon.rxn_2 span.emoji-sizer,
 .mention_rxn .rxn_emoji_icon.rxn_3 span.emoji-sizer,
 .mention_rxn .rxn_emoji_icon.rxn_4 span.emoji-sizer {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 .mention_rxn .mention_rxn_summary {
@@ -13591,7 +13559,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 
 .progress_bar_progress::before,
 .progress_bar_progress_thin::before {
-  line-height: 2.25rem;
+  line-height: 36px;
   position: absolute;
   font-size: .9rem;
   font-weight: 900;
@@ -13635,7 +13603,7 @@ only screen and (min-resolution:2dppx) {
 
 .progress_bar_progress_animated::before,
 .progress_bar_progress_animated_thin::before {
-  line-height: 2.25rem;
+  line-height: 36px;
   position: absolute;
   font-size: .9rem;
   font-weight: 900;
@@ -13685,7 +13653,7 @@ only screen and (min-resolution:2dppx) {
 .progress_bar_progress_animated_thin::before,
 .progress_bar_progress_thin::after,
 .progress_bar_progress_thin::before {
-  line-height: 1.5625rem
+  line-height: 25px
 }
 
 .progress_bar_progress_striped {
@@ -13746,9 +13714,9 @@ only screen and (min-resolution:2dppx) {
   vertical-align: middle;
   padding-left: 2rem;
   padding-right: 2rem;
-  padding-top: .125rem;
-  padding-bottom: .125rem;
-  font-size: .9375rem;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  font-size: 15px;
   width: 100%;
   border-radius: .35rem;
   background: #fff;
@@ -13770,8 +13738,8 @@ only screen and (min-resolution:2dppx) {
 
 .search_message_result {
   background: #fff;
-  font-size: .9375rem;
-  line-height: 1.125rem;
+  font-size: 15px;
+  line-height: 18px;
   margin: 0 .5rem 8px 0;
   padding: 8px .25rem 0;
   font-family: Slack-Lato, appleLogo, sans-serif;
@@ -13788,7 +13756,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .flexpane_redesign .search_message_result {
-  padding-left: .5rem;
+  padding-left: 8px;
   margin-right: 0
 }
 
@@ -13820,23 +13788,23 @@ only screen and (min-resolution:2dppx) {
 }
 
 .light_theme .search_message_result ts-message .message_gutter {
-  width: 2.875rem
+  width: 46px
 }
 
 .light_theme .search_message_result ts-message .message_content {
-  margin-left: 2.875rem
+  margin-left: 46px
 }
 
 .light_theme .search_message_result ts-message .message_content_header_left {
-  margin-right: 3.375rem
+  margin-right: 54px
 }
 
 .dense_theme .search_message_result ts-message .message_gutter {
-  width: 3.75rem
+  width: 60px
 }
 
 .dense_theme .search_message_result ts-message .message_content {
-  margin-left: 3.75rem
+  margin-left: 60px
 }
 
 .search_message_result .search_message_result_meta {
@@ -13873,7 +13841,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .search_message_result .attachment_contents {
-  line-height: 1.25rem
+  line-height: 20px
 }
 
 .search_message_result_text .result_msg_format,
@@ -13919,8 +13887,8 @@ span.match {
 }
 
 .org_team_label_icon {
-  width: 1rem;
-  height: 1rem;
+  width: 16px;
+  height: 16px;
   margin-right: .25rem;
   border-radius: 3px;
   display: inline-block
@@ -13949,26 +13917,23 @@ span.match {
   border-bottom: 1px solid #F3F3F3;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
-  margin-bottom: 1.75rem;
-  margin-right: .5rem
+  margin-bottom: 28px;
+  margin-right: 8px
 }
 
 .search_module_footer p {
-  padding-right: .75rem;
-  padding-left: .75rem;
-  padding-bottom: .5625rem;
-  padding-top: .5625rem;
   margin: 0;
-  font-size: .8125rem;
+  font-size: 13px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #4A4A4A;
-  position: relative
+  position: relative;
+  padding: 9px 12px
 }
 
 .search_module_footer #see_more {
   float: right;
   color: #439fe0;
-  margin-right: .3125rem
+  margin-right: 5px
 }
 
 .search_module_footer #see_more a {
@@ -14001,10 +13966,7 @@ span.match {
   border-bottom: 1px solid #F3F3F3;
   margin-bottom: 0;
   border-top: 1px solid transparent;
-  padding-top: .25rem;
-  padding-bottom: .25rem;
-  padding-left: .5rem;
-  padding-right: .5rem
+  padding: 4px 8px
 }
 
 .top_results_search_message_result :hover {
@@ -14036,7 +13998,7 @@ span.match {
 }
 
 .top_results_search_message_result .jump {
-  font-size: .75rem;
+  font-size: 12px;
   color: #439fe0;
   position: absolute;
   top: 0;
@@ -14059,7 +14021,7 @@ span.match {
   border-top-right-radius: 4px;
   border-top-left-radius: 4px;
   border-top: 1px solid #F3F3F3;
-  padding-top: .25rem
+  padding-top: 4px
 }
 
 .show_top_results_not_triggered .top_results_search_message_result {
@@ -14131,7 +14093,7 @@ span.match {
 
 ts-icon.ts_icon_info.sli_query_info::before {
   font-size: .8rem;
-  margin-right: -.1875rem;
+  margin-right: -3px;
   opacity: .5
 }
 
@@ -14141,7 +14103,7 @@ ts-icon.ts_icon_info.sli_query_info::before {
 
 ts-icon.sli_feedback::before {
   font-size: .8rem;
-  margin-right: -.0625rem
+  margin-right: -1px
 }
 
 .sli_feedback_plus.selected {
@@ -14206,8 +14168,11 @@ ts-icon.sli_feedback::before {
   border: 1px solid #f3f3f3
 }
 
-.feature_new_team_list #search_results_team .team_result,
 .flexpane_redesign #search_results_team .team_result {
+  margin-left: 4px
+}
+
+.feature_new_team_list #search_results_team .team_result {
   margin-left: .25rem
 }
 
@@ -14248,7 +14213,7 @@ ts-icon.sli_feedback::before {
 
 #search_results_team .member_name {
   font-weight: 900;
-  font-size: .9375rem;
+  font-size: 15px;
   line-height: 1rem;
   margin-bottom: .2rem;
   color: #3D3C40!important
@@ -14420,12 +14385,12 @@ ts-icon.sli_feedback::before {
   box-shadow: 0 1px 10px #e3e3e3;
   z-index: 3;
   overflow: hidden;
-  margin-top: .3125rem;
-  margin-left: -.5rem;
-  padding-left: .5rem;
-  padding-right: .5rem;
-  padding-bottom: .25rem;
-  border-radius: .375rem;
+  margin-top: 5px;
+  margin-left: -8px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 4px;
+  border-radius: 6px;
   background: #fff;
   border: 1px solid #E3E3E3;
   -moz-transition: border-color .1s;
@@ -14438,7 +14403,7 @@ body.winssb .search_result_with_extract {
 }
 
 .search_result_with_extract:first-child {
-  margin-top: .5rem
+  margin-top: 8px
 }
 
 .search_result_with_extract:hover {
@@ -14446,7 +14411,7 @@ body.winssb .search_result_with_extract {
 }
 
 .search_result_with_extract .message {
-  margin-top: .25rem!important
+  margin-top: 4px!important
 }
 
 .extracts_expanded .search_result_with_extract {
@@ -14455,13 +14420,13 @@ body.winssb .search_result_with_extract {
 }
 
 .dense_theme .search_result_with_extract {
-  padding-left: .4375rem;
-  padding-right: .875rem
+  padding-left: 7px;
+  padding-right: 14px
 }
 
 .search_result_for_context {
   position: relative;
-  height: 2.9375rem;
+  height: 47px;
   z-index: 2;
   overflow: hidden
 }
@@ -14471,8 +14436,8 @@ body.winssb .search_result_with_extract {
   position: absolute;
   left: 0;
   right: 0;
-  top: 1.625rem;
-  height: 1.5625rem;
+  top: 26px;
+  height: 25px;
   z-index: 1;
   background: #fff;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #fff), color-stop(1, rgba(255, 255, 255, 0)));
@@ -14490,11 +14455,11 @@ body.winssb .search_result_with_extract {
 }
 
 .dense_theme .search_result_for_context {
-  height: 1.3125rem
+  height: 21px
 }
 
 .dense_theme .search_result_for_context::after {
-  top: .375rem
+  top: 6px
 }
 
 .search_result_for_extra_context {
@@ -14532,9 +14497,9 @@ body.winssb .search_result_with_extract {
 
 .extract_expand_text {
   position: absolute;
-  right: 1.25rem;
-  top: .3125rem;
-  font-size: .75rem;
+  right: 20px;
+  top: 5px;
+  font-size: 12px;
   color: #439fe0
 }
 
@@ -14548,10 +14513,10 @@ body.winssb .search_result_with_extract {
 
 .extract_expand_icons {
   position: absolute;
-  top: -.1875rem;
-  right: .5rem;
-  width: .8125rem;
-  height: .125rem;
+  top: -3px;
+  right: 8px;
+  width: 13px;
+  height: 2px;
   color: #439fe0
 }
 
@@ -14567,11 +14532,11 @@ body.winssb .search_result_with_extract {
 }
 
 .extract_expand_icons .up_arrow:before {
-  top: .1875rem
+  top: 3px
 }
 
 .extract_expand_icons .down_arrow:before {
-  top: .75rem
+  top: 12px
 }
 
 .search_result_with_extract:hover .extract_expand_icons {
@@ -14652,8 +14617,8 @@ body.winssb .search_result_with_extract {
 }
 
 .search_message_result:not(.extracts_expanded) .search_result_for_context+.search_result_with_extract {
-  margin-bottom: -.3125rem;
-  margin-top: -.375rem
+  margin-bottom: -5px;
+  margin-top: -6px
 }
 
 .search_message_result:not(.extracts_expanded) .search_result_for_context+.search_result_with_extract:last-child {
@@ -14661,20 +14626,20 @@ body.winssb .search_result_with_extract {
 }
 
 .search_message_result:not(.extracts_expanded) .search_result_for_context+.search_result_with_extract+.search_result_with_extract {
-  margin-top: .625rem
+  margin-top: 10px
 }
 
 .search_message_result:not(.extracts_expanded) .search_result_with_extract+.search_result_for_context {
-  margin-top: -.3125rem
+  margin-top: -5px
 }
 
 .search_message_result:not(.extracts_expanded) .search_result_with_extract+.search_result_for_context+.search_result_with_extract {
-  margin-top: -.375rem
+  margin-top: -6px
 }
 
 .search_message_result:not(.extracts_expanded) .search_message_result_text.extracts_forced .search_result_for_context+.search_result_with_extract {
-  margin-top: -2.125rem;
-  margin-bottom: -1.9375rem
+  margin-top: -34px;
+  margin-bottom: -31px
 }
 
 .search_message_result:not(.extracts_expanded) .search_message_result_text.extracts_forced .search_result_for_context+.search_result_with_extract:last-child {
@@ -14682,11 +14647,11 @@ body.winssb .search_result_with_extract {
 }
 
 .search_message_result:not(.extracts_expanded) .search_message_result_text.extracts_forced .search_result_with_extract+.search_result_for_context {
-  margin-top: -1.9375rem
+  margin-top: -31px
 }
 
 .dense_theme .search_message_result:not(.extracts_expanded) .search_result_for_context+.search_result_with_extract {
-  margin-bottom: -.25rem;
+  margin-bottom: -4px;
   margin-top: 0
 }
 
@@ -14695,11 +14660,11 @@ body.winssb .search_result_with_extract {
 }
 
 .dense_theme .search_message_result:not(.extracts_expanded) .search_result_for_context+.search_result_with_extract+.search_result_with_extract {
-  margin-top: .5rem
+  margin-top: 8px
 }
 
 .dense_theme .search_message_result:not(.extracts_expanded) .search_result_with_extract+.search_result_for_context {
-  margin-top: -.25rem
+  margin-top: -4px
 }
 
 .dense_theme .search_message_result:not(.extracts_expanded) .search_result_with_extract+.search_result_for_context+.search_result_with_extract {
@@ -14707,8 +14672,8 @@ body.winssb .search_result_with_extract {
 }
 
 .dense_theme .search_message_result:not(.extracts_expanded) .search_message_result_text.extracts_forced .search_result_for_context+.search_result_with_extract {
-  margin-top: -.4375rem;
-  margin-bottom: -.75rem
+  margin-top: -7px;
+  margin-bottom: -12px
 }
 
 .dense_theme .search_message_result:not(.extracts_expanded) .search_message_result_text.extracts_forced .search_result_for_context+.search_result_with_extract:last-child {
@@ -14716,11 +14681,11 @@ body.winssb .search_result_with_extract {
 }
 
 .dense_theme .search_message_result:not(.extracts_expanded) .search_message_result_text.extracts_forced .search_result_with_extract+.search_result_for_context {
-  margin-top: -.75rem
+  margin-top: -12px
 }
 
 .attachment_extract {
-  padding-left: .75rem;
+  padding-left: 12px;
   position: relative
 }
 
@@ -14729,20 +14694,20 @@ body.winssb .search_result_with_extract {
   top: 0;
   bottom: 0;
   left: 0;
-  width: .25rem;
-  border-radius: .5rem
+  width: 4px;
+  border-radius: 8px
 }
 
 .attachment_extract .author_icon {
-  height: 1rem;
-  width: 1rem;
+  height: 16px;
+  width: 16px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
   border-top-left-radius: .2rem;
   background-clip: padding-box;
   float: left;
-  margin-top: .125rem
+  margin-top: 2px
 }
 
 #col_flex .search_message_result div.dynamic_content_max_width {
@@ -15056,7 +15021,7 @@ only screen and (min-resolution:2dppx) {
 .highlighter_underlay {
   display: inline-block;
   vertical-align: middle;
-  font-size: .9375rem;
+  font-size: 15px;
   line-height: 2;
   position: relative;
   z-index: 1;
@@ -15232,16 +15197,16 @@ only screen and (min-resolution:2dppx) {
   position: relative;
   width: 374px;
   box-sizing: border-box;
-  font-size: 1rem;
+  font-size: 16px;
   color: #3A3A3A;
   max-height: 534px;
   overflow: hidden
 }
 
 #autocomplete_menu h2 {
-  font-size: .8125rem;
+  font-size: 13px;
   color: #73818A;
-  line-height: 1rem;
+  line-height: 16px;
   margin: 12px 0 0 12px
 }
 
@@ -15289,7 +15254,7 @@ only screen and (min-resolution:2dppx) {
   border: 1px solid #DEDEDE;
   border-radius: 3px;
   box-shadow: 0 1px 0 0 #D4D4D4;
-  line-height: .8125rem;
+  line-height: 13px;
   display: inline-block;
   background: #fff;
   padding: 2px
@@ -15364,7 +15329,7 @@ only screen and (min-resolution:2dppx) {
 
 #autocomplete_menu .profile_full_name,
 #autocomplete_menu .profile_username {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 #autocomplete_menu .profile_title {
@@ -15437,7 +15402,7 @@ only screen and (min-resolution:2dppx) {
 
 #autocomplete_menu.search_menu header {
   color: #A0A0A2;
-  font-size: .8125rem;
+  font-size: 13px;
   padding: 20px 14px 12px
 }
 
@@ -15456,7 +15421,7 @@ only screen and (min-resolution:2dppx) {
   padding-bottom: .8125rem;
   padding-left: .875rem;
   padding-right: 1.125rem;
-  font-size: .875rem
+  font-size: 14px
 }
 
 #autocomplete_menu.search_menu .query_header .search_query_preview {
@@ -15467,7 +15432,7 @@ only screen and (min-resolution:2dppx) {
   margin-left: auto;
   width: .9375rem;
   height: .9375rem;
-  font-size: .9375rem;
+  font-size: 15px;
   -webkit-transform: translateX(-1px) translateY(1px);
   -moz-transform: translateX(-1px) translateY(1px);
   -ms-transform: translateX(-1px) translateY(1px);
@@ -15573,8 +15538,8 @@ only screen and (min-resolution:2dppx) {
   margin: 0 .9375rem;
   border-radius: .25rem;
   outline: 0;
-  font-size: .9375rem;
-  line-height: 1.5625rem;
+  font-size: 15px;
+  line-height: 25px;
   background: 0 0;
   color: #2C2D30;
   display: block;
@@ -15801,7 +15766,7 @@ html.fs_modal_active {
   left: 0;
   z-index: 1041;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: 1.125rem;
+  font-size: 18px;
   height: 100%;
   line-height: 1.5rem;
   overflow-y: auto;
@@ -15839,7 +15804,7 @@ html.fs_modal_active {
 
 #fs_modal #fs_modal_sidebar {
   margin: 0 4rem 0 0;
-  min-width: 11.5625rem;
+  min-width: 185px;
   position: -webkit-sticky;
   top: 0
 }
@@ -15936,7 +15901,7 @@ html.fs_modal_active {
 }
 
 #fs_modal.fs_modal_header .fs_modal_btn {
-  top: .375rem;
+  top: 6px;
   width: 3rem;
   height: 3rem;
   line-height: 1.2rem
@@ -16000,7 +15965,7 @@ html.fs_modal_active {
 }
 
 #fs_modal .contents_container .contents {
-  width: 40rem;
+  width: 640px;
   max-width: 100%;
   padding-bottom: 2rem
 }
@@ -16031,7 +15996,7 @@ html.fs_modal_active {
 }
 
 #fs_modal #fs_modal_footer .btn {
-  width: 8.25rem
+  width: 132px
 }
 
 #fs_modal.fs_modal_footer .contents_container {
@@ -16183,9 +16148,9 @@ html.fs_modal_active {
 }
 
 .sidebar_menu_header {
-  font-size: 1.125rem;
+  font-size: 18px;
   font-weight: 900;
-  line-height: 1.375rem;
+  line-height: 22px;
   padding: 0 9px;
   margin-bottom: 12px
 }
@@ -16201,13 +16166,13 @@ html.fs_modal_active {
 
 .sidebar_menu_list_item {
   cursor: pointer;
-  font-size: .9375rem!important;
+  font-size: 15px!important;
   display: block;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   color: #555459;
-  line-height: .9375rem;
+  line-height: 15px;
   padding: 4px 8px;
   border: 1px solid transparent;
   border-radius: 4px
@@ -16283,7 +16248,7 @@ a.sidebar_menu_list_item:hover {
   transition: all .1s;
   font-size: 5rem;
   color: #3aa3e3;
-  line-height: 9.1875rem
+  line-height: 147px
 }
 
 .admin_invites_account_type_option:hover:not(.disabled) {
@@ -16342,7 +16307,7 @@ a.sidebar_menu_list_item:hover {
     padding: 1rem 6rem 1rem 1.5rem
   }
   .admin_invites_account_type_option .option_arrow {
-    line-height: 6.875rem
+    line-height: 110px
   }
 }
 
@@ -16502,7 +16467,7 @@ a.sidebar_menu_list_item:hover {
 #admin_invites_workflow .lazy_filter_select .ts_tip_tip {
   display: block;
   opacity: 1;
-  width: 10rem
+  width: 160px
 }
 
 #admin_invites_workflow .lazy_filter_select .lfs_input_container {
@@ -16965,8 +16930,8 @@ section {
 }
 
 .channel_modal_header {
-  font-size: 2.125rem;
-  line-height: 2.5625rem;
+  font-size: 34px;
+  line-height: 41px;
   font-weight: 900
 }
 
@@ -16982,14 +16947,14 @@ section {
 
 .channel_modal .channel_modal_filter_container .search_icon {
   position: absolute;
-  top: .375rem;
-  left: .8125rem
+  top: 6px;
+  left: 13px
 }
 
 .channel_modal .channel_modal_filter_container .clear_filter_icon {
   position: absolute;
-  top: .375rem;
-  right: .625rem;
+  top: 6px;
+  right: 10px;
   cursor: pointer;
   visibility: hidden
 }
@@ -16999,8 +16964,8 @@ section {
 }
 
 .channel_modal .btn_large {
-  padding-left: 1.125rem;
-  padding-right: 1.125rem
+  padding-left: 18px;
+  padding-right: 18px
 }
 
 .channel_modal_title_input_container {
@@ -17013,8 +16978,8 @@ section {
 
 .channel_modal_title_input_container .channel_icon {
   position: absolute;
-  top: .625rem;
-  left: .5625rem
+  top: 10px;
+  left: 9px
 }
 
 .channel_modal_with_list {
@@ -17066,11 +17031,11 @@ only screen and (max-width:767px) {
   -ms-flex: 1;
   -webkit-flex: 1;
   flex: 1;
-  padding-right: 1.0625rem
+  padding-right: 17px
 }
 
 html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
-  height: 25rem
+  height: 400px
 }
 
 .supports_custom_scrollbar .channel_modal_with_list .channel_modal_list {
@@ -17137,14 +17102,15 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 
 #channel_browser .channel_browser_row {
   width: 100%;
-  min-height: 3.75rem;
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  padding-left: .625rem;
+  min-height: 60px;
+  padding-top: 12px;
+  padding-right: 5rem;
+  padding-bottom: 12px;
+  padding-left: 10px;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
   cursor: pointer;
-  font-size: .875rem;
+  font-size: 14px;
   line-height: 1.4;
   color: #717274
 }
@@ -17154,14 +17120,14 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_joined {
-  font-size: .6875rem;
+  font-size: 11px;
   margin-left: .25rem
 }
 
 #channel_browser .channel_browser_row_header {
-  font-size: 1rem;
+  font-size: 16px;
   line-height: 1.2rem;
-  margin-bottom: .1875rem;
+  margin-bottom: 3px;
   color: #555459
 }
 
@@ -17170,24 +17136,24 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_type_icon {
-  margin-right: -.1875rem;
-  margin-left: -.3125rem
+  margin-right: -3px;
+  margin-left: -5px
 }
 
 #channel_browser .shared_channel_icon {
-  margin-left: .25rem
+  margin-left: 4px
 }
 
 #channel_browser .channel_browser_member_count_container {
   position: absolute;
-  right: .625rem;
-  top: .75rem
+  right: 10px;
+  top: 12px
 }
 
 #channel_browser .channel_browser_member_count_container .ts_icon_user:before {
-  font-size: 1rem;
+  font-size: 16px;
   position: relative;
-  top: .0625rem
+  top: 1px
 }
 
 #channel_browser .channel_browser_open,
@@ -17195,7 +17161,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   display: none;
   color: #439fe0;
   position: absolute;
-  right: .625rem;
+  right: 10px;
   top: 50%;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
@@ -17206,7 +17172,7 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser .channel_browser_open {
-  right: 1.625rem
+  right: 26px
 }
 
 #channel_browser #channel_list_container:not(.keyboard_active).not_scrolling .channel_browser_row:hover,
@@ -17238,15 +17204,15 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 }
 
 #channel_browser #channel_browser_empty {
-  height: 6.25rem;
+  height: 100px;
   width: 75%
 }
 
 #channel_browser .channel_browser_divider {
   color: #67686e;
-  font-size: .875rem;
-  height: 2.1875rem;
-  line-height: 2.1875rem;
+  font-size: 14px;
+  height: 35px;
+  line-height: 35px;
   width: 100%;
   padding-left: 1rem;
   font-weight: 700;
@@ -17260,10 +17226,10 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
 #channel_browser .channel_browser_sort_container:after {
   content: attr(data-prefix-text);
   color: #717274;
-  font-size: 1rem;
+  font-size: 16px;
   position: absolute;
-  top: .625rem;
-  left: 1.1875rem;
+  top: 10px;
+  left: 19px;
   pointer-events: none
 }
 
@@ -17283,24 +17249,24 @@ html:not(.supports_flexbox) #channel_browser .channel_modal_header {
 }
 
 html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
-  margin-top: -.1875rem
+  margin-top: -3px
 }
 
 .channel_modal_footer {
   position: absolute;
   left: 3%;
   top: 2rem;
-  font-size: .9375rem
+  font-size: 15px
 }
 
 #channel_browser_footer a .ts_icon:before {
   position: relative;
-  top: .125rem
+  top: 2px
 }
 
 #new_channel_modal input[type=text],
 #new_channel_modal textarea {
-  font-size: 1.125rem;
+  font-size: 18px;
   margin-bottom: 0
 }
 
@@ -17314,20 +17280,20 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 
 .kb_nav_label {
   visibility: hidden;
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .kb_nav_label .ts_icon_arrow_up {
-  margin-right: -.375rem
+  margin-right: -6px
 }
 
 .kb_nav_label .ts_icon:before {
   position: relative;
-  top: .1875rem
+  top: 3px
 }
 
 .kb_nav_label .ts_icon.ts_icon_enter:before {
-  font-size: .875rem
+  font-size: 14px
 }
 
 #im_browser {
@@ -17336,38 +17302,38 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   left: 0;
   right: 0;
   margin: 0 auto;
-  padding-left: 1.875rem;
-  padding-right: 1.875rem;
-  width: 43.75rem
+  padding-left: 30px;
+  padding-right: 30px;
+  width: 700px
 }
 
 #im_browser .im_browser_row {
   width: 100%;
-  height: 4rem;
+  height: 64px;
   cursor: pointer;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
-  padding-left: 3.875rem;
-  padding-right: .75rem;
-  padding-top: .6875rem
+  padding-left: 62px;
+  padding-right: 12px;
+  padding-top: 11px
 }
 
 #im_browser .im_browser_row .member_image {
   position: absolute;
-  left: .75rem;
-  top: .8125rem
+  left: 12px;
+  top: 13px
 }
 
 #im_browser .im_browser_row.multiparty .member_image {
   position: absolute;
-  left: .625rem;
-  top: .6875rem
+  left: 10px;
+  top: 11px
 }
 
 #im_browser .im_browser_row.multiparty .member_image+.member_image {
   position: absolute;
-  left: 1.25rem;
-  top: 1.375rem
+  left: 20px;
+  top: 22px
 }
 
 #im_browser .im_browser_row.multiparty .member_image+.member_image:not(.ra):not(.ura) {
@@ -17376,56 +17342,53 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 }
 
 #im_browser .im_browser_row .im_display_name_container {
-  font-size: .9375rem;
-  line-height: 1.3125rem;
-  height: 1.3125rem
+  font-size: 15px;
+  line-height: 21px;
+  height: 21px
 }
 
 #im_browser .im_browser_row .im_last_msg,
 #im_browser .im_browser_row .im_member_title,
 #im_browser .im_browser_row .im_slackbot_greeting {
-  height: 1.3125rem;
-  line-height: 1.3125rem;
-  font-size: .9375rem
+  height: 21px;
+  line-height: 21px;
+  font-size: 15px
 }
 
 #im_browser .im_browser_row .im_last_msg .emoji-sizer {
-  font-size: 1rem;
-  line-height: .875rem
+  font-size: 16px;
+  line-height: 14px
 }
 
 #im_browser .im_browser_row .im_last_msg_time {
-  font-size: .75rem;
-  line-height: .75rem
+  font-size: 12px;
+  line-height: 12px
 }
 
 #im_browser .im_browser_row .im_last_msg_time .ts_icon {
-  font-size: 1rem;
+  font-size: 16px;
   position: relative;
-  top: .25rem;
-  left: -.125rem
+  top: 4px;
+  left: -2px
 }
 
 #im_browser .im_browser_row .im_unread_cnt {
   color: #fff;
   background: #FF876D;
-  padding-top: .125rem;
-  padding-bottom: .125rem;
-  padding-left: .5rem;
-  padding-right: .5rem;
   border-radius: 9px;
   font-size: .9rem;
-  line-height: .9rem
+  line-height: .9rem;
+  padding: 2px 8px
 }
 
 #im_browser .im_browser_row .enter_icon {
   display: none;
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #im_browser .im_browser_row .mpim_member_count:before {
-  margin-left: -.25rem;
-  margin-top: -.125rem
+  margin-left: -4px;
+  margin-top: -2px
 }
 
 #im_browser .im_browser_row:not(.multiparty) .im_last_msg,
@@ -17453,7 +17416,7 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 
 #im_browser .remaining_participant_hint {
   display: none;
-  font-size: .8125rem;
+  font-size: 13px;
   position: absolute
 }
 
@@ -17532,14 +17495,14 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
 }
 
 #im_browser #im_browser_empty {
-  height: 6.25rem;
+  height: 100px;
   width: 75%
 }
 
 #im_browser .im_browser_go {
   float: right;
-  padding-top: 1rem;
-  padding-bottom: 1.0625rem
+  padding-top: 16px;
+  padding-bottom: 17px
 }
 
 #im_browser .create_private_channel_container,
@@ -17613,9 +17576,9 @@ html:not(.supports_flexbox) #im_browser_tokens {
 #im_browser_tokens #im_browser_filter,
 #im_browser_tokens .member_token {
   margin-top: .25rem;
-  margin-right: .375rem;
-  height: 1.625rem;
-  line-height: 1.625rem
+  margin-right: 6px;
+  height: 26px;
+  line-height: 26px
 }
 
 #im_browser_tokens .member_token {
@@ -17624,9 +17587,9 @@ html:not(.supports_flexbox) #im_browser_tokens {
   color: #fff;
   border-radius: .2rem;
   font-weight: 700;
-  font-size: .9375rem;
-  padding-left: 2rem;
-  padding-right: 1.5rem;
+  font-size: 15px;
+  padding-left: 32px;
+  padding-right: 24px;
   cursor: pointer;
   -ms-flex: none;
   -webkit-flex: none;
@@ -17724,7 +17687,7 @@ html:not(.supports_flexbox) #channel_invite_tokens {
   margin-top: .25rem;
   margin-right: 6px;
   height: 26px;
-  line-height: 1.625rem
+  line-height: 26px
 }
 
 #channel_invite_tokens .member_token {
@@ -17733,7 +17696,7 @@ html:not(.supports_flexbox) #channel_invite_tokens {
   color: #fff;
   border-radius: .2rem;
   font-weight: 700;
-  font-size: .9375rem;
+  font-size: 15px;
   padding-left: 32px;
   padding-right: 24px;
   cursor: pointer;
@@ -17767,10 +17730,10 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .channel_invite_member,
 .channel_invite_member_small,
 .channel_invite_pending_user_small {
-  font-size: .875rem;
+  font-size: 14px;
   position: relative;
-  padding-left: 2.625rem;
-  height: 2.25rem
+  padding-left: 42px;
+  height: 36px
 }
 
 .channel_invite_member .add_icon,
@@ -17814,19 +17777,19 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .channel_invite_member .invite_user_group_avatar,
 .channel_invite_member_small .invite_user_group_avatar,
 .channel_invite_pending_user_small .invite_user_group_avatar {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 36px;
+  height: 36px;
   background-color: #2D9EE0;
-  padding-top: .75rem;
-  padding-left: .5rem;
+  padding-top: 12px;
+  padding-left: 8px;
   color: #fff;
-  border-radius: .1875rem
+  border-radius: 3px
 }
 
 .channel_invite_member .invite_user_group_avatar i:before,
 .channel_invite_member_small .invite_user_group_avatar i:before,
 .channel_invite_pending_user_small .invite_user_group_avatar i:before {
-  font-size: 1.5625rem
+  font-size: 25px
 }
 
 .channel_invite_member .name_container,
@@ -17846,26 +17809,26 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   -webkit-justify-content: space-around;
   -moz-justify-content: space-around;
   justify-content: space-around;
-  height: 2.25rem
+  height: 36px
 }
 
 .channel_invite_member .name_container .not_in_token,
 .channel_invite_member_small .name_container .not_in_token,
 .channel_invite_pending_user_small .name_container .not_in_token {
-  font-size: .75rem
+  font-size: 12px
 }
 
 .lfs_item.lfs_token .channel_invite_member,
 .lfs_item.lfs_token .channel_invite_member_small,
 .lfs_item.lfs_token .channel_invite_pending_user_small {
-  height: 1.75rem;
-  padding-left: 2.25rem
+  height: 28px;
+  padding-left: 36px
 }
 
 .lfs_item.lfs_token .channel_invite_member .name_container,
 .lfs_item.lfs_token .channel_invite_member_small .name_container,
 .lfs_item.lfs_token .channel_invite_pending_user_small .name_container {
-  height: 1.75rem
+  height: 28px
 }
 
 .lfs_item.lfs_token .channel_invite_member .not_in_token,
@@ -17884,42 +17847,42 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 .lfs_item.lfs_token .channel_invite_member .invite_user_group_avatar,
 .lfs_item.lfs_token .channel_invite_member_small .invite_user_group_avatar,
 .lfs_item.lfs_token .channel_invite_pending_user_small .invite_user_group_avatar {
-  height: 1.75rem;
-  width: 1.75rem;
+  height: 28px;
+  width: 28px;
   margin-right: .3rem;
   border-radius: 0;
   padding-top: 0;
-  padding-left: .375rem;
-  margin-top: -.0625rem
+  padding-left: 6px;
+  margin-top: -1px
 }
 
 .lfs_item.lfs_token .channel_invite_member .invite_user_group_avatar i:before,
 .lfs_item.lfs_token .channel_invite_member_small .invite_user_group_avatar i:before,
 .lfs_item.lfs_token .channel_invite_pending_user_small .invite_user_group_avatar i:before {
-  font-size: 1.375rem
+  font-size: 22px
 }
 
 .channel_invite_member {
-  padding-left: 3.125rem;
-  height: 2.5rem
+  padding-left: 50px;
+  height: 40px
 }
 
 .channel_invite_member .invite_user_group_avatar {
-  width: 2.5rem;
-  height: 2.5rem
+  width: 40px;
+  height: 40px
 }
 
 .channel_invite_member .name_container {
-  height: 2.5rem
+  height: 40px
 }
 
 .channel_invite_member_token,
 .channel_invite_pending_user_token {
-  font-size: .875rem;
+  font-size: 14px;
   position: relative;
-  height: 1.5rem;
-  line-height: 1.5rem;
-  padding-left: 2rem
+  height: 24px;
+  line-height: 24px;
+  padding-left: 32px
 }
 
 .channel_invite_member_token .member_image,
@@ -17940,14 +17903,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 #channel_invite_container .lfs_item.lfs_token,
 #invite_members_container .lfs_item.lfs_token {
-  margin-top: .1875rem;
-  margin-bottom: .375rem;
-  margin-left: 0;
-  margin-right: .375rem;
   padding-left: 0;
   padding-top: 0;
   padding-bottom: 0;
-  top: 0
+  top: 0;
+  margin: 3px 6px 6px 0
 }
 
 #channel_invite_container .lfs_input_container,
@@ -17966,17 +17926,14 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
   -webkit-flex-wrap: wrap;
   -moz-flex-wrap: wrap;
   flex-wrap: wrap;
-  min-height: 2.875rem;
-  max-height: 14.375rem;
+  min-height: 46px;
+  max-height: 230px;
   overflow-y: scroll;
-  padding-top: .3125rem!important;
-  padding-bottom: .3125rem!important;
-  padding-left: .375rem!important;
-  padding-right: 0!important
+  padding: 5px 0 5px 6px!important
 }
 
 #invite_members_container .lfs_input_container {
-  min-height: 2.875rem;
+  min-height: 46px;
   padding: 0 0 0 2.5rem!important
 }
 
@@ -17987,12 +17944,12 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 #invite_members_container .search_icon {
   display: inline;
   position: absolute;
-  top: .5rem;
-  left: .9375rem
+  top: 8px;
+  left: 15px
 }
 
 #channel_invite_container {
-  max-height: 62.5rem;
+  max-height: 1000px;
   min-height: 0;
   -ms-flex: 1;
   -webkit-flex: 1;
@@ -18051,17 +18008,14 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_container .lfs_list_container .lfs_item {
-  padding-top: .625rem;
-  padding-bottom: .625rem;
-  padding-left: .625rem;
-  padding-right: .625rem;
   border: 1px solid transparent;
-  border-top: 1px solid #E8E8E8
+  border-top: 1px solid #E8E8E8;
+  padding: 10px
 }
 
 #channel_invite_container .lfs_list_container .lfs_item.active {
   border: 1px solid #d3ecfa;
-  border-radius: .375rem
+  border-radius: 6px
 }
 
 #channel_invite_container .lfs_list_container .lfs_item.active+.lfs_item {
@@ -18073,7 +18027,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container>div.vertically_center_full_name {
-  line-height: 2.625rem
+  line-height: 42px
 }
 
 #channel_invite_container.page_needs_enterprise {
@@ -18090,7 +18044,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row {
   width: 100%;
-  height: 4rem;
+  height: 64px;
   cursor: pointer;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
@@ -18108,21 +18062,21 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member {
-  height: 2.625rem
+  height: 42px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member .member_image {
-  top: .1875rem
+  top: 3px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container {
-  height: 2.625rem;
+  height: 42px;
   display: block
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container>div {
-  height: 1.3125rem;
-  line-height: 1.3125rem
+  height: 21px;
+  line-height: 21px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .add_icon {
@@ -18130,7 +18084,7 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #channel_invite_modal .channel_invite_filter_container {
-  margin-bottom: 1.6875rem
+  margin-bottom: 27px
 }
 
 #channel_invite_modal .kb_nav_label {
@@ -18139,20 +18093,20 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 
 #channel_invite_modal .enter_to_go_label {
   position: absolute;
-  top: 3.375rem;
-  right: 1rem
+  top: 54px;
+  right: 16px
 }
 
 #channel_invite_modal .enter_to_go_label .ts_icon_enter:before {
   position: relative;
-  top: .125rem
+  top: 2px
 }
 
 #channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover,
 #channel_invite_modal .channel_invite_row.highlighted {
   background: #edf7fd;
   border: 1px solid #d3ecfa;
-  border-radius: .375rem
+  border-radius: 6px
 }
 
 #channel_invite_modal #channel_invite_container:not(.keyboard_active).not_scrolling .channel_invite_row:hover .add_icon,
@@ -18216,8 +18170,8 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 #generic_dialog.modal.all_members_dialog #all_members_filter input {
   border: none;
   border-radius: 0;
-  height: 2.9375rem;
-  padding-left: 2.75rem
+  height: 47px;
+  padding-left: 44px
 }
 
 #generic_dialog.modal.all_members_dialog #all_members_filter input,
@@ -18234,11 +18188,11 @@ html:not(.supports_flexbox) #channel_invite_tokens .member_token {
 }
 
 #generic_dialog.modal.all_members_dialog #all_members_no_matches {
-  top: 4.0625rem
+  top: 65px
 }
 
 #generic_dialog.modal.all_members_dialog #all_members_container {
-  padding-left: .9375rem;
+  padding-left: 15px;
   padding-top: 1rem;
   height: 400px;
   overflow: auto
@@ -18548,17 +18502,14 @@ img.jcrop-preview {
 
 #fs_modal.prefs_modal label.sound_option {
   float: left;
-  min-width: 11.25rem;
-  margin-top: 0;
-  margin-left: 0;
-  margin-right: .5rem;
-  margin-bottom: .5rem
+  min-width: 180px;
+  margin: 0 8px 8px 0
 }
 
 #fs_modal.prefs_modal label.sound_option ts-icon {
   visibility: hidden;
   color: #3aa3e3;
-  margin-left: .5625rem
+  margin-left: 9px
 }
 
 #fs_modal.prefs_modal label.sound_option:hover:not(.disabled) ts-icon {
@@ -18599,8 +18550,8 @@ img.jcrop-preview {
 #fs_modal.prefs_modal #prefs_themes .theme_thumb {
   border-radius: 6px;
   margin: 0 0 .5rem;
-  height: 3.75rem;
-  width: 6.875rem;
+  height: 60px;
+  width: 110px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
   background-size: contain;
   background-repeat: no-repeat
@@ -18649,7 +18600,7 @@ img.jcrop-preview {
   border-radius: .25rem;
   padding: .25rem;
   display: inline-block;
-  height: 2.5rem
+  height: 40px
 }
 
 #fs_modal.prefs_modal #prefs_themes #prefs_themes_customize .custom_theme_label .color_swatch {
@@ -18663,7 +18614,7 @@ img.jcrop-preview {
 }
 
 #fs_modal.prefs_modal #prefs_themes #prefs_themes_customize .custom_theme_label input.color_hex {
-  width: 5.125rem;
+  width: 82px;
   text-transform: uppercase;
   padding: .3rem;
   margin: 0;
@@ -18962,7 +18913,7 @@ body.sorting_mode #sidebar_overlay {
   position: absolute;
   right: 0;
   top: 0;
-  font-size: 1.5rem
+  font-size: 24px
 }
 
 .section_rollup_summary {
@@ -18988,11 +18939,11 @@ body.sorting_mode #sidebar_overlay {
   position: absolute;
   right: 30px;
   box-sizing: border-box;
-  font-size: 1.125rem;
-  height: 1.5rem;
-  width: 1.5rem;
-  padding: .1875rem;
-  border-radius: .75rem;
+  font-size: 18px;
+  height: 24px;
+  width: 24px;
+  padding: 3px;
+  border-radius: 12px;
   color: #fff;
   background-color: #2ab27b;
   display: -webkit-box;
@@ -19023,23 +18974,20 @@ ts-message {
   width: 100%;
   margin: 0 auto -.0625rem;
   position: relative;
-  padding-top: .0625rem;
-  padding-bottom: .125rem;
-  padding-left: 0;
-  padding-right: 2.5rem;
   border-left: none;
   border-right: none;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #2C2D30;
-  font-size: .9375rem;
-  line-height: 1.375rem;
+  font-size: 15px;
+  line-height: 22px;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
-  word-wrap: break-word
+  word-wrap: break-word;
+  padding: 1px 40px 2px 0
 }
 
 ts-message .dense_only,
@@ -19098,12 +19046,12 @@ ts-message:hover .rxn_hover_container.feature_thanks {
 
 ts-message .action_hover_container .add_handy_rxn .emoji-sizer {
   font-size: 18px;
-  margin-top: -.25rem
+  margin-top: -4px
 }
 
 ts-message .show_replies {
-  font-size: .8125rem;
-  line-height: 1.125rem;
+  font-size: 13px;
+  line-height: 18px;
   font-weight: 700
 }
 
@@ -19115,8 +19063,8 @@ ts-message .message_gutter {
 }
 
 ts-message .message_gutter .star {
-  margin-top: .0625rem;
-  margin-left: .25rem
+  margin-top: 1px;
+  margin-left: 4px
 }
 
 ts-message .message_current_status {
@@ -19135,7 +19083,7 @@ ts-message .message_sender a {
 
 ts-message .timestamp {
   color: #9e9ea6;
-  font-size: .75rem;
+  font-size: 12px;
   white-space: nowrap
 }
 
@@ -19145,7 +19093,7 @@ ts-relatives ts-message .timestamp {
 }
 
 ts-message .star {
-  font-size: .75rem;
+  font-size: 12px;
   opacity: 0
 }
 
@@ -19190,7 +19138,7 @@ ts-message.ephemeral {
 ts-message .bot_label {
   color: #A3A3A3;
   font-weight: 500;
-  font-size: .75rem;
+  font-size: 12px;
   margin: 0 .15rem;
   padding: 0 .1rem;
   background: #F7F7F7;
@@ -19206,7 +19154,7 @@ ts-message.standalone:not(.for_mention_display):not(.for_search_display):not(.fo
 }
 
 ts-message.standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_icon {
-  margin-top: .75rem
+  margin-top: 12px
 }
 
 ts-message.unprocessed {
@@ -19252,8 +19200,8 @@ ts-message.automated .message_body .topic {
 ts-message .action_hover_container {
   display: none;
   position: absolute;
-  top: -1.25rem;
-  right: 1.125rem;
+  top: -20px;
+  right: 18px;
   border: .0625rem solid rgba(0, 0, 0, .15);
   border-radius: .375rem;
   overflow: hidden;
@@ -19269,9 +19217,9 @@ ts-message .action_hover_container:hover {
 }
 
 ts-message .action_hover_container .btn_msg_action {
-  width: 2.3125rem;
+  width: 37px;
   text-align: center;
-  line-height: .875rem;
+  line-height: 14px;
   padding: 6px 0 4px;
   color: #555459;
   background: #fff;
@@ -19284,7 +19232,7 @@ ts-message .action_hover_container .btn_msg_action {
 }
 
 ts-message .action_hover_container .btn_msg_action:not(.ts_icon_share_action):not(.ts_icon_small_reaction):not(.ts_icon_small_ellipsis):before {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 ts-message .action_hover_container .btn_msg_action.msg_action_btn_small {
@@ -19312,7 +19260,7 @@ ts-message .action_hover_container .btn_msg_action.ts_icon_small_reaction:before
 
 ts-message .action_hover_container .btn_msg_action.ts_icon_jump:before {
   position: relative;
-  top: -.0625rem
+  top: -1px
 }
 
 ts-message .action_hover_container .btn_msg_action.ts_icon_comment_alt:before,
@@ -19342,11 +19290,11 @@ ts-message .action_hover_container .btn_msg_action:focus {
 }
 
 ts-message .action_hover_container.narrow_buttons .btn_msg_action {
-  width: 2.125rem
+  width: 34px
 }
 
 .supports_custom_scrollbar ts-message .action_hover_container {
-  right: .25rem
+  right: 4px
 }
 
 ts-message.selected {
@@ -19436,18 +19384,18 @@ ts-thread ts-message.is_pinned {
 
 ts-message .is_pinned_holder {
   color: #717274;
-  font-size: .75rem;
-  line-height: .75rem;
-  margin-left: 4.5rem;
+  font-size: 12px;
+  line-height: 12px;
+  margin-left: 72px;
   position: relative;
   display: none;
-  padding-top: .4375rem;
-  min-height: 1.0625rem
+  padding-top: 7px;
+  min-height: 17px
 }
 
 ts-message .is_pinned_holder ts-icon {
   position: absolute;
-  left: -1.25rem;
+  left: -20px;
   color: #FF876D
 }
 
@@ -19457,11 +19405,11 @@ ts-message .pinned_item_message_header {
 
 ts-message .pinned_item_message_header .ts_icon_thumb_tack {
   vertical-align: middle;
-  margin-left: -.1875rem
+  margin-left: -3px
 }
 
 ts-message .pinned_item_message_header .ts_icon_thumb_tack:before {
-  font-size: 1.0625rem
+  font-size: 17px
 }
 
 ts-message.show_recap:not(.is_pinned) {
@@ -19496,18 +19444,18 @@ ts-message.show_recap.show_recap_flash {
 
 ts-message .is_highlights_holder {
   color: #217D4B;
-  font-size: .75rem;
-  line-height: .75rem;
-  margin-left: 4.5rem;
+  font-size: 12px;
+  line-height: 12px;
+  margin-left: 72px;
   position: relative;
   display: none;
-  padding-top: .4375rem;
-  min-height: 1.0625rem
+  padding-top: 7px;
+  min-height: 17px
 }
 
 ts-message .is_highlights_holder ts-icon {
   position: absolute;
-  left: -1.25rem;
+  left: -20px;
   color: #217D4B
 }
 
@@ -19528,12 +19476,12 @@ ts-message .is_highlights_holder .highlights_feedback .ts_tip {
 
 ts-message .recap_highlight {
   height: 16px;
-  font-size: .8125rem;
+  font-size: 13px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 16px;
   text-align: left;
   background: #C8FAD9;
-  border-radius: .1875rem;
+  border-radius: 3px;
   display: none;
   padding: 0 5px
 }
@@ -19558,8 +19506,8 @@ ts-message.show_recap_debug .recap_highlight_debug {
   display: inline;
   color: #717274;
   position: relative;
-  top: .125rem;
-  padding-right: .125rem;
+  top: 2px;
+  padding-right: 2px;
   line-height: 1;
   vertical-align: baseline
 }
@@ -19582,19 +19530,19 @@ ts-message .msg_inline_holder {
 }
 
 ts-message .rxn_panel:empty+.reply_bar {
-  margin-top: .3125rem
+  margin-top: 5px
 }
 
 ts-message .reply_bar {
-  height: 2rem;
-  padding: .1875rem;
-  margin-top: .1875rem;
-  margin-bottom: .1875rem;
+  height: 32px;
+  padding: 3px;
+  margin-top: 3px;
+  margin-bottom: 3px;
   line-height: 1;
   position: relative;
   left: -3px;
   cursor: pointer;
-  max-width: 37.5rem;
+  max-width: 600px;
   display: block;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -19604,15 +19552,15 @@ ts-message .reply_bar {
 
 ts-message .reply_bar .reply_faces {
   float: left;
-  height: 1.5rem;
+  height: 24px;
   margin-right: .5rem
 }
 
 ts-message .reply_bar .reply_summary {
   display: inline-block;
-  font-size: .75rem;
-  height: 1.5rem;
-  line-height: 1.5rem;
+  font-size: 12px;
+  height: 24px;
+  line-height: 24px;
   vertical-align: top
 }
 
@@ -19626,8 +19574,8 @@ ts-message .reply_bar .reply_bar_caret {
   visibility: hidden;
   color: #9e9ea6;
   position: absolute;
-  top: .3125rem;
-  right: .3125rem
+  top: 5px;
+  right: 5px
 }
 
 ts-message .reply_bar .meta_hover_placement {
@@ -19644,7 +19592,7 @@ ts-message .reply_bar .view_conv_hover {
 }
 
 ts-message .reply_bar .view_conv_hover a {
-  margin-left: .125rem
+  margin-left: 2px
 }
 
 ts-message .reply_bar .last_reply_at {
@@ -19660,7 +19608,7 @@ ts-message .reply_bar .view_conv_hover {
 ts-message .reply_bar:hover {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, .15);
-  border-radius: .375rem
+  border-radius: 6px
 }
 
 ts-message .reply_bar:hover .view_conv_hover {
@@ -19677,26 +19625,26 @@ ts-message .reply_bar:hover .reply_bar_caret {
 
 ts-message.deleted .message_deleted_icon {
   display: inline;
-  height: 2.25rem;
-  width: 2.25rem
+  height: 36px;
+  width: 36px
 }
 
 ts-message.deleted .message_deleted_icon i {
   color: #BABBBF;
   background-color: #E8E8E8;
-  line-height: 2.25rem;
+  line-height: 36px;
   text-align: center
 }
 
 ts-message.deleted .message_gutter .message_icon {
   position: absolute;
-  right: .625rem
+  right: 10px
 }
 
 ts-message.deleted .deleted_message {
   color: #9e9ea6;
   font-style: italic;
-  line-height: 2.625rem
+  line-height: 42px
 }
 
 ts-message:hover .view_conv_hover {
@@ -19725,7 +19673,7 @@ ts-message .broadcast_meta a {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  margin-left: .25rem
+  margin-left: 4px
 }
 
 ts-message .broadcast_repliers {
@@ -19746,7 +19694,7 @@ ts-message .broadcast_repliers .repliers_icon {
 }
 
 ts-message .broadcast_repliers .repliers_icon:before {
-  font-size: .875rem
+  font-size: 14px
 }
 
 ts-message .broadcast_repliers a {
@@ -19852,20 +19800,20 @@ ts-message.selected {
 }
 
 #reply_container {
-  min-height: 4.875rem;
-  margin-left: .625rem;
-  margin-top: .625rem;
-  margin-bottom: 1.5625rem
+  min-height: 78px;
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-bottom: 25px
 }
 
 .light_theme #reply_container .inline_message_input_container,
 .light_theme #reply_container .reply_container_info {
-  margin-left: 2.875rem
+  margin-left: 46px
 }
 
 .dense_theme #reply_container .inline_message_input_container,
 .dense_theme #reply_container .reply_container_info {
-  margin-left: -.25rem
+  margin-left: -4px
 }
 
 #reply_container .inline_message_input_container {
@@ -19874,17 +19822,17 @@ ts-message.selected {
 }
 
 .light_theme #reply_container .inline_message_input_container {
-  margin-top: -2.625rem
+  margin-top: -42px
 }
 
 #reply_container .inline_message_input_container .emo_menu {
-  line-height: 2.25rem;
-  height: 2.25rem;
+  line-height: 36px;
+  height: 36px;
   top: 0
 }
 
 #convo_loading_indicator {
-  height: 2.5rem;
+  height: 40px;
   background-image: url(/9c217/img/loading_hash_animation.gif);
   background-position: bottom center;
   background-repeat: no-repeat;
@@ -19905,7 +19853,7 @@ ts-message.selected {
 }
 
 #thread_load_error_wrapper .error_header {
-  font-size: 1.25rem;
+  font-size: 20px;
   font-weight: 700
 }
 
@@ -19929,10 +19877,10 @@ ts-message.selected {
   position: relative;
   color: #9e9ea6;
   border-top: 1px solid #E0E0E0;
-  font-size: .75rem;
-  margin-left: .625rem;
-  margin-top: 1.0625rem;
-  padding-bottom: .625rem
+  font-size: 12px;
+  margin-left: 10px;
+  margin-top: 17px;
+  padding-bottom: 10px
 }
 
 #convo_container .convo_flexpane_divider .reply_count {
@@ -19940,19 +19888,19 @@ ts-message.selected {
   position: absolute;
   top: -100%;
   left: 0;
-  padding-right: .625rem
+  padding-right: 10px
 }
 
 #convo_container ts-message {
-  padding-right: .625rem
+  padding-right: 10px
 }
 
 .light_theme #convo_container ts-message .message_gutter {
-  width: 3.5rem
+  width: 56px
 }
 
 .light_theme #convo_container ts-message .message_content {
-  margin-left: 3.5rem
+  margin-left: 56px
 }
 
 .dense_theme #convo_container ts-message .message_gutter {
@@ -19969,7 +19917,7 @@ ts-message.selected {
 }
 
 #convo_container ts-message.selected .member {
-  margin-right: .1875rem
+  margin-right: 3px
 }
 
 #convo_container #message_edit_container {
@@ -19978,11 +19926,11 @@ ts-message.selected {
 }
 
 .light_theme #convo_container #message_edit_container #message_edit_form {
-  margin-left: 3.5rem
+  margin-left: 56px
 }
 
 .dense_theme #convo_container #message_edit_container #message_edit_form {
-  margin-left: 1.125rem
+  margin-left: 18px
 }
 
 #convo_container ts-conversation {
@@ -19997,39 +19945,39 @@ ts-message.selected {
 
 .flexpane_redesign #convo_container ts-conversation ts-message.selected {
   border-top: 0;
-  padding-top: .4375rem!important;
-  padding-right: .625rem
+  padding-top: 7px!important;
+  padding-right: 10px
 }
 
 #convo_container ts-conversation ts-message.selected .message_content {
-  margin-left: .625rem;
-  line-height: 1rem
+  margin-left: 10px;
+  line-height: 16px
 }
 
 .dense_theme #convo_container ts-conversation ts-message.selected .message_content {
-  margin-left: .5rem
+  margin-left: 8px
 }
 
 #convo_container ts-conversation ts-message.selected .message_content .member_image {
   float: left;
-  margin-right: .625rem;
-  margin-top: .125rem
+  margin-right: 10px;
+  margin-top: 2px
 }
 
 #convo_container ts-conversation ts-message.selected .message_content .message_sender {
-  line-height: 1.375rem
+  line-height: 22px
 }
 
 #convo_container ts-conversation ts-message.selected .message_content .message_body {
   clear: left;
-  margin-top: .625rem;
-  line-height: 1.375rem
+  margin-top: 10px;
+  line-height: 22px
 }
 
 #convo_container ts-conversation ts-message.selected .message_content .thread_channel_link {
   color: #9e9ea6;
   display: block;
-  line-height: 1.125rem
+  line-height: 18px
 }
 
 #convo_container ts-conversation ts-message.selected .action_hover_container {
@@ -20042,7 +19990,7 @@ ts-message.selected {
 }
 
 #convo_container ts-conversation ts-relatives.empty {
-  margin-bottom: .625rem
+  margin-bottom: 10px
 }
 
 #convo_container ts-conversation ts-relatives.empty ts-message.should_animate {
@@ -20050,8 +19998,8 @@ ts-message.selected {
 }
 
 #convo_container ts-conversation ts-relatives:not(.empty) {
-  margin-top: .25rem;
-  margin-bottom: .375rem
+  margin-top: 4px;
+  margin-bottom: 6px
 }
 
 #convo_container ts-conversation ts-relatives ts-message:not(.selected):not(.highlight):not(.delete_mode).new {
@@ -20067,12 +20015,12 @@ ts-message.selected {
 }
 
 #message_edit_container .emo_menu {
-  right: 1.5rem;
-  top: .1875rem
+  right: 24px;
+  top: 3px
 }
 
 .inline_message_input_container .emo_menu {
-  right: .5rem
+  right: 8px
 }
 
 .inline_message_input_container .message_input {
@@ -20081,9 +20029,9 @@ ts-message.selected {
   outline: 0;
   resize: none!important;
   margin: 0 0 .5rem;
-  font-size: .9375rem;
+  font-size: 15px;
   line-height: 1.2rem;
-  height: 2.125rem;
+  height: 34px;
   color: #3D3C40
 }
 
@@ -20096,16 +20044,16 @@ ts-message.selected {
 #message_edit_container form textarea,
 .inline_message_input_container form textarea {
   margin: 0 0 .5rem;
-  font-size: .9375rem;
+  font-size: 15px;
   line-height: 1.2rem;
-  height: 2.125rem;
+  height: 34px;
   padding: .5625rem 40px .5625rem .5rem;
   color: #3D3C40
 }
 
 #message_edit_container form #message_editing_info,
 .inline_message_input_container form #message_editing_info {
-  line-height: 1.75rem
+  line-height: 28px
 }
 
 #message_edit_container form .btn,
@@ -20115,16 +20063,16 @@ ts-message.selected {
 
 #message_edit_container .message_input.has_scrollbar~.emo_menu,
 .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
-  right: 2rem;
-  width: 1.875rem
+  right: 32px;
+  width: 30px
 }
 
 .light_theme #message_edit_container form {
-  margin-left: 4.5rem
+  margin-left: 72px
 }
 
 .light_theme #message_edit_container .message_gutter {
-  width: 4.5rem
+  width: 72px
 }
 
 .dense_theme #message_edit_container {
@@ -20132,12 +20080,12 @@ ts-message.selected {
 }
 
 .dense_theme #message_edit_container form {
-  margin-left: 5.5rem
+  margin-left: 88px
 }
 
 #message_edit_container .message_input {
   overflow: auto;
-  min-height: 2.5rem;
+  min-height: 40px;
   height: auto;
   background: #fff;
   -webkit-user-select: auto;
@@ -20153,7 +20101,7 @@ ts-message.selected {
   outline: 0;
   resize: none!important;
   margin: 0 0 .5rem;
-  font-size: .9375rem;
+  font-size: 15px;
   line-height: 1.2rem;
   color: #3D3C40
 }
@@ -20166,7 +20114,7 @@ ts-message.selected {
 }
 
 .inline_message_input_container {
-  margin-top: .1875rem
+  margin-top: 3px
 }
 
 .inline_message_input_container form {
@@ -20179,7 +20127,7 @@ ts-message.selected {
 }
 
 .inline_message_input_container form .emo_menu {
-  top: -.125rem
+  top: -2px
 }
 
 .day_divider {
@@ -20285,7 +20233,7 @@ ts-message.selected {
 }
 
 #messages_container>.monkey_scroll_wrapper:not(#monkey_scroll_wrapper_for_unread_msgs_scroller_div)>.monkey_scroll_bar {
-  margin-top: 1rem
+  margin-top: 16px
 }
 
 .unread_divider+.day_divider {
@@ -20336,8 +20284,8 @@ ts-message.selected {
   color: #FF876D;
   font-weight: 700;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .8125rem;
-  line-height: .5rem;
+  font-size: 13px;
+  line-height: 8px;
   cursor: default;
   text-transform: lowercase;
   -webkit-transition: color 150ms ease-out 0;
@@ -20393,7 +20341,7 @@ ts-message.selected {
 #messages_unread_status {
   background: #29B2EE;
   cursor: pointer;
-  border-radius: .375rem
+  border-radius: 6px
 }
 
 .channel_archive_messages.card {
@@ -20436,7 +20384,7 @@ ts-message.selected {
 }
 
 .light_theme ts-message.is_reply:not(.first) .message_gutter {
-  padding-top: 1.5rem
+  padding-top: 24px
 }
 
 .light_theme ts-message:not(.first) .recap_highlight,
@@ -20445,8 +20393,8 @@ ts-message.selected {
 }
 
 .light_theme ts-message .message_gutter {
-  width: 4.5rem;
-  padding-right: .625rem
+  width: 72px;
+  padding-right: 10px
 }
 
 .light_theme ts-message .message_gutter .message_icon {
@@ -20454,7 +20402,7 @@ ts-message.selected {
 }
 
 .light_theme ts-message .message_content {
-  margin-left: 4.5rem
+  margin-left: 72px
 }
 
 .light_theme ts-message .message_content .star {
@@ -20477,7 +20425,7 @@ ts-message.selected {
 .light_theme ts-message .message_content .message_sender {
   font-weight: 900;
   color: #2C2D30!important;
-  line-height: 1.125rem
+  line-height: 18px
 }
 
 .light_theme ts-message .message_content .timestamp {
@@ -20485,7 +20433,7 @@ ts-message.selected {
 }
 
 .light_theme ts-message .message_content .meta {
-  margin-top: -.125rem
+  margin-top: -2px
 }
 
 .light_theme ts-message .message_content .meta .member {
@@ -20519,13 +20467,13 @@ ts-message.selected {
 }
 
 .light_theme ts-message .timestamp {
-  line-height: 1.125rem;
+  line-height: 18px;
   opacity: 0
 }
 
 .light_theme ts-message.first .message_icon,
 .light_theme ts-message.selected .message_icon {
-  margin-top: .25rem;
+  margin-top: 4px;
   display: block
 }
 
@@ -20538,7 +20486,7 @@ ts-message.selected {
 
 .light_theme ts-message.first .message_content,
 .light_theme ts-message.selected .message_content {
-  margin-top: .0625rem
+  margin-top: 1px
 }
 
 .light_theme ts-message.first .message_content .bot_label,
@@ -20563,7 +20511,7 @@ ts-message.selected {
 .light_theme ts-message.first .message_content .star,
 .light_theme ts-message.selected .message_content .star {
   display: inline;
-  line-height: .75rem
+  line-height: 12px
 }
 
 .light_theme ts-message.first .message_content .star:not(.starred),
@@ -20578,7 +20526,7 @@ ts-message.selected {
 
 .light_theme ts-message.first .message_body,
 .light_theme ts-message.selected .message_body {
-  margin-top: -.125rem
+  margin-top: -2px
 }
 
 .light_theme ts-message.first .message_body .only_visible_to_user,
@@ -20595,7 +20543,7 @@ ts-message.selected {
 
 .light_theme ts-message.first .action_hover_container,
 .light_theme ts-message.selected .action_hover_container {
-  top: -.5rem
+  top: -8px
 }
 
 .light_theme ts-message .message_commented,
@@ -20607,11 +20555,11 @@ ts-message.selected {
   font-family: Slack;
   content: '\E516';
   color: #E8E8E8;
-  margin-left: -1.625rem;
-  margin-top: -.0625rem;
-  font-size: 1.25rem;
-  line-height: 1.375rem;
-  margin-right: .125rem;
+  margin-left: -26px;
+  margin-top: -1px;
+  font-size: 20px;
+  line-height: 22px;
+  margin-right: 2px;
   float: left
 }
 
@@ -20632,7 +20580,7 @@ ts-message.selected {
 }
 
 .light_theme ts-message.for_mention_display .message_content {
-  margin-left: 3rem
+  margin-left: 48px
 }
 
 .light_theme ts-message.for_mention_rxn_display .message_gutter {
@@ -20657,7 +20605,7 @@ ts-message.selected {
 }
 
 .light_theme ts-message.deleted .deleted_message+.reply_bar {
-  margin-top: .625rem
+  margin-top: 10px
 }
 
 .light_theme ts-message.deleted .message_content .star,
@@ -20667,18 +20615,18 @@ ts-message.selected {
 
 .light_theme ts-thread ts-message,
 .light_theme ts-thread ts-message#message_edit_container {
-  padding-left: 2.25rem
+  padding-left: 36px
 }
 
 .light_theme ts-thread ts-message .message_gutter,
 .light_theme ts-thread ts-message#message_edit_container .message_gutter {
-  margin-left: .8125rem;
-  width: 2.875rem
+  margin-left: 13px;
+  width: 46px
 }
 
 .light_theme ts-thread ts-message .message_content,
 .light_theme ts-thread ts-message#message_edit_container .message_content {
-  margin-left: 1.5rem
+  margin-left: 24px
 }
 
 .light_theme ts-thread #message_edit_container {
@@ -20686,44 +20634,44 @@ ts-message.selected {
 }
 
 .light_theme ts-thread #message_edit_container #message_edit_form {
-  margin-left: 1.5rem
+  margin-left: 24px
 }
 
 .light_theme ts-thread ts-message.first .action_hover_container,
 .light_theme ts-thread ts-message.selected .action_hover_container {
-  right: .8125rem
+  right: 13px
 }
 
 .light_theme .collapse_inline_thread_container,
 .light_theme .view_all_replies_container {
-  margin-left: .8125rem;
-  margin-right: .8125rem
+  margin-left: 13px;
+  margin-right: 13px
 }
 
 .light_theme .new_reply_indicator {
-  margin-left: 1.6875rem
+  margin-left: 27px
 }
 
 .light_theme .reply_input_container .inline_message_input_container textarea {
-  padding-left: .8125rem;
-  padding-top: .6875rem;
-  padding-bottom: .6875rem
+  padding-left: 13px;
+  padding-top: 11px;
+  padding-bottom: 11px
 }
 
 .light_theme .reply_input_container .inline_message_input_container form .emo_menu {
-  right: .1875rem
+  right: 3px
 }
 
 .light_theme .reply_input_container .reply_container_info {
-  margin-left: .875rem
+  margin-left: 14px
 }
 
 .light_theme .reply_input_container .reply_container_info .reply_send {
-  margin-right: .875rem
+  margin-right: 14px
 }
 
 .light_theme .reply_input_container .collapsed_input_placeholder {
-  padding-left: .8125rem
+  padding-left: 13px
 }
 
 .dense_theme .dense_only {
@@ -20731,12 +20679,12 @@ ts-message.selected {
 }
 
 .dense_theme ts-message {
-  padding-left: .125rem
+  padding-left: 2px
 }
 
 .dense_theme ts-message .message_gutter {
-  width: 4.875rem;
-  padding-right: .25rem
+  width: 78px;
+  padding-right: 4px
 }
 
 .dense_theme ts-message .message_gutter .timestamp {
@@ -20749,11 +20697,11 @@ ts-message.selected {
 
 .dense_theme ts-message .message_gutter .message_star_holder {
   display: inline-block;
-  width: .75rem
+  width: 12px
 }
 
 .dense_theme ts-message .message_content {
-  margin-left: 4.875rem;
+  margin-left: 78px;
   padding-left: .5rem
 }
 
@@ -20769,7 +20717,7 @@ ts-message.selected {
 .dense_theme ts-message .message_content .message_current_status {
   margin-left: -.2rem;
   margin-right: .15rem;
-  min-width: 1.375rem;
+  min-width: 22px;
   border: 1px solid #E8E8E8;
   border-radius: 5px;
   text-align: center
@@ -20789,7 +20737,7 @@ ts-message.selected {
 }
 
 .dense_theme ts-message.ephemeral .message_gutter .timestamp {
-  margin-right: 1rem
+  margin-right: 16px
 }
 
 .dense_theme ts-message.standalone:not(.for_search_display):not(.for_top_results_search_display) .message_gutter {
@@ -20839,7 +20787,7 @@ ts-message.selected {
 }
 
 .dense_theme ts-message.selected .message_body {
-  margin-top: -.0625rem
+  margin-top: -1px
 }
 
 .dense_theme ts-message .message_commented {
@@ -20881,11 +20829,11 @@ ts-message.selected {
 }
 
 .dense_theme ts-message.is_pinned .is_pinned_holder {
-  margin-left: 4.875rem
+  margin-left: 78px
 }
 
 .dense_theme ts-message.is_pinned .is_pinned_holder ts-icon {
-  left: -1.1875rem
+  left: -19px
 }
 
 .dense_theme ts-message.is_pinned.standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_gutter {
@@ -20893,12 +20841,12 @@ ts-message.selected {
 }
 
 .dense_theme ts-message.show_recap .is_highlights_holder {
-  margin-left: 4.875rem;
-  margin-bottom: .125rem
+  margin-left: 78px;
+  margin-bottom: 2px
 }
 
 .dense_theme ts-message.show_recap .is_highlights_holder ts-icon {
-  left: -1.1875rem
+  left: -19px
 }
 
 .dense_theme ts-message.show_recap.standalone:not(.for_mention_display):not(.for_search_display):not(.for_top_results_search_display):not(.for_star_display) .message_gutter {
@@ -20924,25 +20872,25 @@ ts-message.selected {
 }
 
 .dense_theme ts-thread .message_gutter {
-  width: 3.9375rem
+  width: 63px
 }
 
 .dense_theme ts-thread .message_content {
-  margin-left: 3.9375rem
+  margin-left: 63px
 }
 
 .dense_theme ts-thread #message_edit_container .message_gutter {
-  width: 2.9375rem
+  width: 47px
 }
 
 .dense_theme ts-thread #message_edit_container #message_edit_form {
-  margin-left: 4.0625rem
+  margin-left: 65px
 }
 
 .dense_theme .collapse_inline_thread_container,
 .dense_theme .new_reply_indicator,
 .dense_theme .view_all_replies_container {
-  margin-left: 3.9375rem
+  margin-left: 63px
 }
 
 .dense_theme .collapse_inline_thread_container,
@@ -20959,24 +20907,24 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 }
 
 .dense_theme .reply_input_container .reply_container_info {
-  margin-left: .5625rem
+  margin-left: 9px
 }
 
 .dense_theme .reply_input_container .reply_container_info .reply_send {
-  margin-right: .5625rem
+  margin-right: 9px
 }
 
 .dense_theme .reply_input_container .collapsed_input_placeholder {
-  padding-left: 3.9375rem
+  padding-left: 63px
 }
 
 .last_replier_wrapper {
   position: relative;
   vertical-align: top;
   text-align: center;
-  line-height: 1.5rem;
-  height: 1.5rem;
-  width: 1.5rem
+  line-height: 24px;
+  height: 24px;
+  width: 24px
 }
 
 .last_replier_wrapper .member_image {
@@ -21004,7 +20952,7 @@ html:not(.supports_flexbox) .dense_theme .reply_input_container .inline_message_
 
 ts-thread {
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .9375rem;
+  font-size: 15px;
   display: block;
   position: relative;
   margin-top: 1rem;
@@ -21017,19 +20965,19 @@ ts-thread:last-child {
 
 ts-thread .collapse_inline_thread_container,
 ts-thread .view_all_replies_container {
-  height: 2rem;
-  line-height: 2rem
+  height: 32px;
+  line-height: 32px
 }
 
 ts-thread .collapse_inline_thread_container .infinite_spinner,
 ts-thread .view_all_replies_container .infinite_spinner {
   display: inline-block;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 18px;
+  height: 18px;
   margin-top: 0;
-  margin-left: .375rem;
+  margin-left: 6px;
   position: relative;
-  top: .1875rem
+  top: 3px
 }
 
 ts-thread .collapse_inline_thread_container .visible_reply_count,
@@ -21075,11 +21023,11 @@ ts-thread .reply_input_container .inline_message_input_container form textarea {
 }
 
 ts-thread .reply_input_container .inline_message_input_container form .emo_menu {
-  top: .0625rem
+  top: 1px
 }
 
 ts-thread .reply_input_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
-  right: 1rem
+  right: 16px
 }
 
 ts-thread .reply_input_container .reply_container_info {
@@ -21092,8 +21040,8 @@ ts-thread .reply_input_container .reply_limited {
   border: 1px solid #E0E0E0;
   padding: 0;
   width: 100%;
-  min-height: 2.75rem;
-  line-height: 2.75rem;
+  min-height: 44px;
+  line-height: 44px;
   border-radius: 0 0 10px 10px
 }
 
@@ -21106,8 +21054,8 @@ ts-thread .reply_input_container .reply_limited button {
 .dense_theme ts-thread .reply_input_container .collapsed_input_placeholder,
 .dense_theme ts-thread .reply_input_container .join_channel_from_thread_container,
 .dense_theme ts-thread .reply_input_container .reply_limited {
-  min-height: 2.25rem;
-  line-height: 2.25rem
+  min-height: 36px;
+  line-height: 36px
 }
 
 ts-thread .reply_input_container .join_channel_from_thread_container {
@@ -21127,7 +21075,7 @@ ts-thread .thread_messages>ts-message {
 }
 
 ts-thread .thread_messages>ts-message:first-child {
-  padding-top: .5rem;
+  padding-top: 8px;
   margin-bottom: 0
 }
 
@@ -21154,13 +21102,13 @@ ts-thread.no_reply_container .thread_messages {
 }
 
 ts-thread .thread_messages:not(.show_new_reply_indicator) .thread_replies_container>ts-message:last-child {
-  padding-bottom: .5625rem
+  padding-bottom: 9px
 }
 
 ts-thread .reply_input_container,
 ts-thread .thread_messages {
-  margin-left: .9375rem;
-  margin-right: .9375rem
+  margin-left: 15px;
+  margin-right: 15px
 }
 
 ts-thread ts-message.new_reply {
@@ -21172,9 +21120,9 @@ ts-thread ts-message.new_reply:hover {
 }
 
 ts-thread .thread_header {
-  margin-bottom: 1rem;
-  margin-left: 1.5rem;
-  margin-right: 1.6875rem;
+  margin-bottom: 16px;
+  margin-left: 24px;
+  margin-right: 27px;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -21188,7 +21136,7 @@ ts-thread .thread_header {
 }
 
 .dense_theme ts-thread .thread_header {
-  margin-left: 1.1875rem
+  margin-left: 19px
 }
 
 ts-thread .thread_header .thread_channel_name {
@@ -21203,25 +21151,25 @@ ts-thread .thread_header .thread_channel_name {
 }
 
 ts-thread .thread_header .thread_channel_name .ts_icon_channel_pane_hash {
-  margin-right: -.25rem
+  margin-right: -4px
 }
 
 ts-thread .thread_header .thread_channel_name .mpim_icon {
-  margin-right: -.1875rem;
-  top: .0625rem;
+  margin-right: -3px;
+  top: 1px;
   position: relative
 }
 
 ts-thread .thread_header .thread_channel_name .ts_icon_lock {
-  margin-right: -.25rem
+  margin-right: -4px
 }
 
 ts-thread .thread_header .thread_channel_name .presence {
-  margin-right: .3125rem
+  margin-right: 5px
 }
 
 ts-thread .thread_header .thread_channel_name .presence .presence_icon {
-  left: -.1875rem
+  left: -3px
 }
 
 ts-thread .thread_header .thread_channel_name a {
@@ -21231,18 +21179,18 @@ ts-thread .thread_header .thread_channel_name a {
 
 ts-thread .thread_header .inline_thread_title,
 ts-thread .thread_header .thread_participants {
-  margin-left: .25rem
+  margin-left: 4px
 }
 
 ts-thread .thread_header .thread_action_btns {
   position: relative;
-  top: .25rem
+  top: 4px
 }
 
 html:not(.supports_flexbox) ts-thread .thread_header .thread_action_btns {
   position: absolute;
-  right: 1.6875rem;
-  top: .875rem
+  right: 27px;
+  top: 14px
 }
 
 ts-thread .thread_header .thread_action_btns button {
@@ -21256,17 +21204,17 @@ ts-thread .new_replies_container {
 
 ts-thread .new_reply_indicator {
   position: relative;
-  margin-top: .3125rem;
-  padding-bottom: .5625rem;
+  margin-top: 5px;
+  padding-bottom: 9px;
   display: none
 }
 
 ts-thread .new_reply_indicator .blue_dot {
   color: #439fe0;
   position: absolute;
-  left: -1rem;
-  top: -.0625rem;
-  font-size: 1.25rem
+  left: -16px;
+  top: -1px;
+  font-size: 20px
 }
 
 ts-thread .show_new_reply_indicator .new_reply_indicator {
@@ -21275,12 +21223,12 @@ ts-thread .show_new_reply_indicator .new_reply_indicator {
 
 ts-thread ts-message.first .action_hover_container,
 ts-thread ts-message.selected .action_hover_container {
-  right: .8125rem
+  right: 13px
 }
 
 .dense_theme ts-thread ts-message.first .action_hover_container,
 .dense_theme ts-thread ts-message.selected .action_hover_container {
-  right: .5rem
+  right: 8px
 }
 
 #msgs_div ts-thread {
@@ -21304,7 +21252,7 @@ ts-thread ts-message.selected .action_hover_container {
 }
 
 #msgs_div ts-thread .reply_broadcast_buttons_container {
-  padding-bottom: .4375rem
+  padding-bottom: 7px
 }
 
 #reply_container.has_focus .member_image,
@@ -21324,27 +21272,27 @@ ts-thread ts-message.selected .action_hover_container {
 
 #reply_container .inline_message_input_container form,
 .reply_input_container .inline_message_input_container form {
-  margin-top: .25rem
+  margin-top: 4px
 }
 
-#reply_container .inline_message_input_container .message_input div,
+#reply_container .inline_message_input_container .message_input .ql-editor,
 #reply_container .inline_message_input_container textarea,
-.reply_input_container .inline_message_input_container .message_input div,
+.reply_input_container .inline_message_input_container .message_input .ql-editor,
 .reply_input_container .inline_message_input_container textarea {
   margin-bottom: 0;
   max-height: 10rem;
   border: 1px solid #E0E0E0;
-  padding-top: .4375rem;
-  padding-bottom: .4375rem;
+  padding-top: 7px;
+  padding-bottom: 7px;
   border-radius: .25rem
 }
 
-#reply_container .inline_message_input_container .message_input div:active,
-#reply_container .inline_message_input_container .message_input div:focus,
+#reply_container .inline_message_input_container .message_input .ql-editor:active,
+#reply_container .inline_message_input_container .message_input .ql-editor:focus,
 #reply_container .inline_message_input_container textarea:active,
 #reply_container .inline_message_input_container textarea:focus,
-.reply_input_container .inline_message_input_container .message_input div:active,
-.reply_input_container .inline_message_input_container .message_input div:focus,
+.reply_input_container .inline_message_input_container .message_input .ql-editor:active,
+.reply_input_container .inline_message_input_container .message_input .ql-editor:focus,
 .reply_input_container .inline_message_input_container textarea:active,
 .reply_input_container .inline_message_input_container textarea:focus {
   border-color: #bbbdbf
@@ -21352,7 +21300,7 @@ ts-thread ts-message.selected .action_hover_container {
 
 #reply_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu,
 .reply_input_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
-  right: 1.25rem
+  right: 20px
 }
 
 #reply_container .reply_container_info,
@@ -21435,24 +21383,24 @@ ts-thread ts-message.selected .action_hover_container {
 
 #reply_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container input[type=checkbox],
 .reply_input_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container input[type=checkbox] {
-  margin-top: -.3125rem
+  margin-top: -5px
 }
 
 #reply_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon,
 .reply_input_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 #reply_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_lock,
 .reply_input_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_lock {
   line-height: 0;
-  margin-right: -.0625rem
+  margin-right: -1px
 }
 
 #reply_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle,
 .reply_input_container .reply_container_info .reply_broadcast_buttons_container .reply_broadcast_label_container ts-icon.ts_icon_question_circle {
-  top: -.0625rem;
-  margin-left: .125rem;
+  top: -1px;
+  margin-left: 2px;
   color: #A0A0A2
 }
 
@@ -21493,25 +21441,25 @@ ts-thread ts-message.selected .action_hover_container {
 #reply_container .join_channel_from_thread_container,
 .reply_input_container .join_channel_from_thread_container {
   text-align: center;
-  font-size: .8125rem;
+  font-size: 13px;
   background-color: #fff
 }
 
 #reply_container .join_channel_from_thread_container span,
 .reply_input_container .join_channel_from_thread_container span {
-  margin-right: .625rem
+  margin-right: 10px
 }
 
 #reply_container .join_channel_from_thread_container button,
 .reply_input_container .join_channel_from_thread_container button {
-  margin-top: .75rem;
-  margin-bottom: .625rem;
+  margin-top: 12px;
+  margin-bottom: 10px;
   vertical-align: baseline
 }
 
 #reply_container .reply_limited,
 .reply_input_container .reply_limited {
-  font-size: .8125rem;
+  font-size: 13px;
   background: #F7F7F7;
   color: #717274;
   text-align: center;
@@ -21521,18 +21469,18 @@ ts-thread ts-message.selected .action_hover_container {
 
 #markers_container {
   position: absolute;
-  width: .625rem;
+  width: 10px;
   top: 0;
-  right: .1875rem;
+  right: 3px;
   pointer-events: none
 }
 
 .recap_highlight_marker {
   position: absolute;
   right: 0;
-  height: .1875rem;
-  width: .625rem;
-  border-radius: .1875rem;
+  height: 3px;
+  width: 10px;
+  border-radius: 3px;
   z-index: 99;
   background-color: #217D4B;
   cursor: pointer;
@@ -21541,7 +21489,7 @@ ts-thread ts-message.selected .action_hover_container {
 
 .recap_highlight_marker:hover {
   background-color: #459965;
-  width: .75rem
+  width: 12px
 }
 
 .recap_highlight_marker::after,
@@ -21549,17 +21497,17 @@ ts-thread ts-message.selected .action_hover_container {
   display: block;
   content: "";
   width: 100%;
-  height: .1875rem
+  height: 3px
 }
 
 .recap_highlight_marker::before {
   position: absolute;
-  top: -.1875rem
+  top: -3px
 }
 
 .recap_highlight_marker::after {
   position: absolute;
-  top: .1875rem
+  top: 3px
 }
 
 .recap_highlight_marker.no_after::after,
@@ -21569,19 +21517,19 @@ ts-thread ts-message.selected .action_hover_container {
 
 .recap_hover {
   position: absolute;
-  top: -1.8125rem;
-  left: -25rem;
-  padding-top: .3125rem;
-  padding-left: .625rem;
-  padding-right: .625rem;
+  top: -29px;
+  left: -400px;
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
   background: #fff;
-  border-radius: .375rem;
+  border-radius: 6px;
   border: 1px solid #E0E0E0;
   box-shadow: 0 0 1px 1px rgba(0, 0, 0, .01)
 }
 
 .recap_hover .recap_hover_message_preview {
-  height: 2.875rem;
+  height: 46px;
   overflow: hidden
 }
 
@@ -21590,7 +21538,7 @@ ts-thread ts-message.selected .action_hover_container {
 }
 
 .recap_hover .recap_hover_message_preview ts-message {
-  width: 50rem
+  width: 800px
 }
 
 .recap_hover .recap_hover_message_preview ts-message:hover {
@@ -21666,8 +21614,8 @@ ts-thread ts-message.selected .action_hover_container {
 .msg_inline_attachment_column {
   display: inline-block;
   vertical-align: top;
-  font-size: .9375rem;
-  line-height: 1.375rem
+  font-size: 15px;
+  line-height: 22px
 }
 
 .msg_inline_attachment_column.column_border {
@@ -21810,8 +21758,8 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 }
 
 .attachment_group_shrink_wrapper {
-  font-size: 0rem;
-  line-height: 0rem
+  font-size: 0;
+  line-height: 0
 }
 
 .attachment_group {
@@ -21847,7 +21795,7 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 
 .attachment_group .media_caret {
   color: #555459;
-  font-size: .875rem;
+  font-size: 14px;
   font-weight: 400
 }
 
@@ -21901,7 +21849,7 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 
 .attachment_group .inline_attachment .attachment_footer {
   vertical-align: middle;
-  line-height: .9375rem;
+  line-height: 15px;
   margin-bottom: 0
 }
 
@@ -21918,16 +21866,16 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   display: none;
   color: #9e9ea6;
   min-height: inherit;
-  margin-left: .75rem;
-  padding-top: 0rem;
-  padding-bottom: .125rem;
-  font-size: .75rem
+  margin-left: 12px;
+  padding-top: 0;
+  padding-bottom: 2px;
+  font-size: 12px
 }
 
 .attachment_group .inline_attachment .is_highlights_holder ts-icon,
 .attachment_group .inline_attachment .is_pinned_holder ts-icon {
   color: inherit;
-  left: -.125rem;
+  left: -2px;
   position: relative
 }
 
@@ -21983,9 +21931,9 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 
 .attachment_group .attachment_source span {
   color: #9e9ea6!important;
-  font-size: .9375rem;
+  font-size: 15px;
   font-weight: 400;
-  line-height: 1.375rem
+  line-height: 22px
 }
 
 .attachment_group .attachment_source span a {
@@ -22036,7 +21984,7 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   display: flex;
   margin: -3px .75rem 0;
   color: #9e9ea6;
-  font-size: .75rem;
+  font-size: 12px;
   line-height: 1.1667;
   cursor: pointer
 }
@@ -22082,7 +22030,7 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 }
 
 .attachment_group .inline_attachment .attachment_title {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .attachment_group .attachment_fields tr+tr .attachment_field_title {
@@ -22145,7 +22093,7 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
   color: #A0A0A2;
   width: 15px;
   height: 22px;
-  line-height: 1.375rem;
+  line-height: 22px;
   text-align: center;
   vertical-align: middle
 }
@@ -22333,7 +22281,7 @@ ts-thread ts-message.new_reply .msg_inline_attachment_column.column_border {
 #sci_container .channel_browser_sort_container:after {
   content: attr(data-prefix-text);
   color: #9e9ea6;
-  font-size: 1rem;
+  font-size: 16px;
   position: absolute;
   top: 10px;
   left: 19px;
@@ -22419,7 +22367,7 @@ html:not(.supports_flexbox) #sci_container .channel_browser_sort_container {
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
   cursor: pointer;
-  font-size: .875rem;
+  font-size: 14px;
   line-height: 1.4;
   color: #9e9ea6
 }
@@ -22439,12 +22387,12 @@ html:not(.supports_flexbox) #sci_container .channel_browser_sort_container {
 }
 
 #sci_container #sci_channels_container .channel_browser_joined {
-  font-size: .6875rem;
+  font-size: 11px;
   margin-left: .25rem
 }
 
 #sci_container #sci_channels_container .channel_browser_row_header {
-  font-size: 1rem;
+  font-size: 16px;
   line-height: 1.2rem;
   margin-bottom: 3px;
   color: #555459
@@ -22470,7 +22418,7 @@ html:not(.supports_flexbox) #sci_container .channel_browser_sort_container {
 }
 
 #sci_container #sci_channels_container .channel_browser_member_count_container .ts_icon_user:before {
-  font-size: 1rem;
+  font-size: 16px;
   position: relative;
   top: 1px
 }
@@ -22505,9 +22453,9 @@ html:not(.supports_flexbox) #sci_container .channel_browser_sort_container {
 
 #sci_container #sci_channels_container .channel_browser_divider {
   color: #67686e;
-  font-size: .875rem;
+  font-size: 14px;
   height: 35px;
-  line-height: 2.1875rem;
+  line-height: 35px;
   width: 100%;
   padding-left: 1rem;
   font-weight: 700;
@@ -22813,26 +22761,23 @@ only screen and (min-resolution:2dppx) {
 
 .file_header_detailed {
   position: relative;
-  padding-top: .125rem;
-  padding-bottom: 0;
-  padding-left: 2.9375rem;
-  padding-right: 0;
   color: #A0A0A2;
-  font-size: .8125rem;
-  line-height: .9375rem
+  font-size: 13px;
+  line-height: 15px;
+  padding: 2px 0 0 47px
 }
 
 .file_header_detailed.no_member {
-  padding-left: 1.375rem
+  padding-left: 22px
 }
 
 .file_header_detailed .member_image {
   position: absolute;
   top: 0;
   left: 0;
-  width: 2.3125rem;
-  height: 2.3125rem;
-  border-radius: .3125rem
+  width: 37px;
+  height: 37px;
+  border-radius: 5px
 }
 
 .file_header_detailed .member,
@@ -22845,9 +22790,9 @@ only screen and (min-resolution:2dppx) {
 }
 
 .file_header_detailed .title {
-  margin-bottom: .125rem;
-  font-size: .9375rem;
-  line-height: 1.0625rem;
+  margin-bottom: 2px;
+  font-size: 15px;
+  line-height: 17px;
   color: #2C2D30
 }
 
@@ -22859,15 +22804,12 @@ only screen and (min-resolution:2dppx) {
 }
 
 .file_header_detailed .bullet {
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-left: .0625rem;
-  margin-right: .0625rem;
-  color: #E1E1E1
+  color: #E1E1E1;
+  margin: 0 1px
 }
 
 .external_link {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 @font-face {
@@ -22886,45 +22828,45 @@ only screen and (min-resolution:2dppx) {
 }
 
 .file_details_meta .file_container {
-  margin-top: 1.125rem;
-  margin-bottom: 1.125rem
+  margin-top: 18px;
+  margin-bottom: 18px
 }
 
 .file_details_meta .file_meta_icon.filetype_icon {
   width: 60px;
   height: 60px;
-  margin-top: 2.25rem
+  margin-top: 36px
 }
 
 .file_details_meta .file_meta_icon.filetype_icon:before {
-  font-size: 4.875rem
+  font-size: 78px
 }
 
 .file_details_meta .file_title {
   display: block;
-  font-size: 1.125rem;
-  line-height: 1.5rem;
+  font-size: 18px;
+  line-height: 24px;
   font-weight: 900;
-  margin-top: .25rem
+  margin-top: 4px
 }
 
 .file_details_meta .meta {
-  font-size: .9375rem;
+  font-size: 15px;
   color: #9e9ea6;
-  margin-top: .625rem;
-  margin-bottom: 1.25rem
+  margin-top: 10px;
+  margin-bottom: 20px
 }
 
 .file_details_meta #share_file {
-  margin-left: .375rem;
-  margin-right: .375rem
+  margin-left: 6px;
+  margin-right: 6px
 }
 
 .file_details_share_to .share_to_header {
   position: relative;
-  font-size: .75rem;
+  font-size: 12px;
   margin-bottom: 0;
-  margin-left: .4375rem;
+  margin-left: 7px;
   font-weight: 400;
   color: #9e9ea6
 }
@@ -22947,26 +22889,26 @@ only screen and (min-resolution:2dppx) {
   position: relative;
   z-index: 1;
   background-color: #fff;
-  padding-right: .625rem
+  padding-right: 10px
 }
 
 .shared_to_conversations {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .shared_to_conversations .share_to_item {
   position: relative;
-  padding-top: 1.1875rem;
-  padding-bottom: 1.1875rem;
-  margin-left: .4375rem;
-  margin-right: .4375rem;
+  padding-top: 19px;
+  padding-bottom: 19px;
+  margin-left: 7px;
+  margin-right: 7px;
   border-bottom: 1px solid rgba(216, 216, 216, .5)
 }
 
 .shared_to_conversations .first_share {
   color: #9e9ea6;
-  font-size: .75rem;
-  padding-top: .125rem
+  font-size: 12px;
+  padding-top: 2px
 }
 
 .shared_to_conversations .first_share_user {
@@ -22990,28 +22932,28 @@ only screen and (min-resolution:2dppx) {
   -moz-transform: translateY(3px);
   -ms-transform: translateY(3px);
   transform: translateY(3px);
-  padding-right: .1875rem
+  padding-right: 3px
 }
 
 .file_comments_container .file_container {
-  margin-bottom: 1rem
+  margin-bottom: 16px
 }
 
 .file_comments_container .file_comments {
-  margin-left: .75rem;
-  margin-right: .75rem
+  margin-left: 12px;
+  margin-right: 12px
 }
 
 .file_comments_container .file_comments_header {
   color: #9e9ea6;
-  font-size: .875rem;
-  margin-top: .8125rem;
-  padding-bottom: .625rem;
+  font-size: 14px;
+  margin-top: 13px;
+  padding-bottom: 10px;
   border-bottom: 1px solid #E6E6E6
 }
 
 .file_comments_container #file_comment_form {
-  margin-left: .75rem
+  margin-left: 12px
 }
 
 #flex_contents .file_comments_container #file_comment {
@@ -23019,7 +22961,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .file_comments_container #file_comment_submit_btn {
-  margin-right: 1.5rem
+  margin-right: 24px
 }
 
 @font-face {
@@ -23044,31 +22986,25 @@ only screen and (min-resolution:2dppx) {
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  height: 3.5rem;
+  height: 56px;
   background-color: #fff;
   box-shadow: 0 1px 0 rgba(0, 0, 0, .10196078)
 }
 
 .fs_modal_file_viewer_header .ts_icon:before {
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 .fs_modal_file_viewer_header .btn {
-  margin-top: .8125rem;
-  margin-bottom: .8125rem;
-  margin-left: 0;
-  margin-right: 0;
   background: 0 0;
-  line-height: 1.875rem;
+  line-height: 30px;
   text-shadow: none;
-  color: #393A3F
+  color: #393A3F;
+  margin: 13px 0
 }
 
 .fs_modal_file_viewer_header .btn:not(.btn_icon) {
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: .375rem;
-  padding-right: .375rem
+  padding: 0 6px
 }
 
 .fs_modal_file_viewer_header .btn .ts_icon:before {
@@ -23085,15 +23021,15 @@ only screen and (min-resolution:2dppx) {
 }
 
 .fs_modal_file_viewer_header .ts_tip.ts_tip_bottom .ts_tip_tip {
-  margin-top: .625rem
+  margin-top: 10px
 }
 
 .ts_tip_left.fs_modal_file_viewer_header .ts_tip.ts_tip_bottom .ts_tip_tip:after {
-  left: 1rem
+  left: 16px
 }
 
 .ts_tip_right.fs_modal_file_viewer_header .ts_tip.ts_tip_bottom .ts_tip_tip:after {
-  right: 1rem
+  right: 16px
 }
 
 .fs_modal_file_viewer_header .match {
@@ -23102,13 +23038,13 @@ only screen and (min-resolution:2dppx) {
 
 .fs_modal_file_viewer_header .muted_tooltip_info {
   color: #9e9ea6;
-  font-size: .75rem
+  font-size: 12px
 }
 
 .fs_modal_file_viewer_header .star_btn {
-  min-width: 2rem;
-  margin-right: .375rem;
-  margin-left: .5rem;
+  min-width: 32px;
+  margin-right: 6px;
+  margin-left: 8px;
   color: #BABBBF
 }
 
@@ -23128,14 +23064,11 @@ only screen and (min-resolution:2dppx) {
 }
 
 .fs_modal_file_viewer_header .file_header_detailed {
-  margin-top: .625rem;
-  margin-bottom: -.625rem;
-  margin-left: 0;
-  margin-right: .625rem;
   -ms-flex: 1 1 50px;
   -webkit-flex: 1 1 50px;
   flex: 1 1 50px;
-  min-width: 0
+  min-width: 0;
+  margin: 10px 10px -10px 0
 }
 
 .fs_modal_file_viewer_header .file_header_detailed .member {
@@ -23156,7 +23089,7 @@ only screen and (min-resolution:2dppx) {
 .fs_modal_file_viewer_header .control_btn,
 .fs_modal_file_viewer_header a.control_btn {
   display: inline-block;
-  margin-right: -.125rem
+  margin-right: -2px
 }
 
 .fs_modal_file_viewer_header .control_btn,
@@ -23208,13 +23141,13 @@ only screen and (min-resolution:2dppx) {
 }
 
 .fs_modal_file_viewer_header .comment_btn .ts_icon {
-  margin-right: -.1875rem
+  margin-right: -3px
 }
 
 .fs_modal_file_viewer_header .close_btn {
   position: relative;
-  margin-left: 1.1875rem;
-  margin-right: .75rem
+  margin-left: 19px;
+  margin-right: 12px
 }
 
 .fs_modal_file_viewer_header .close_btn:after {
@@ -23223,8 +23156,8 @@ only screen and (min-resolution:2dppx) {
   top: 50%;
   right: auto;
   bottom: auto;
-  left: -.75rem;
-  height: 1.25rem;
+  left: -12px;
+  height: 20px;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
@@ -23235,14 +23168,11 @@ only screen and (min-resolution:2dppx) {
 
 .fs_modal_file_viewer_header .comment_count {
   position: relative;
-  top: -.0625rem;
+  top: -1px;
   display: inline-block;
-  margin-top: 0;
-  margin-bottom: -.0625rem;
-  margin-left: .1875rem;
-  margin-right: 0;
-  font-size: .875rem;
-  font-weight: 400
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0 0 -1px 3px
 }
 
 .fs_modal_file_viewer_header .comment_count:empty {
@@ -23251,7 +23181,7 @@ only screen and (min-resolution:2dppx) {
 
 .fs_modal_file_viewer_header .unshare_link .ts_icon:before {
   overflow: visible;
-  bottom: .0625rem
+  bottom: 1px
 }
 
 .fs_modal_file_viewer_header #file_public_link_revoker .ts_icon:before {
@@ -23303,7 +23233,7 @@ only screen and (min-resolution:2dppx) {
 
 .fs_modal_file_viewer_content .viewer {
   position: absolute;
-  top: 3.5rem;
+  top: 56px;
   right: 0;
   bottom: 0;
   left: 0;
@@ -23499,22 +23429,19 @@ only screen and (min-resolution:2dppx) {
   position: absolute;
   top: 0;
   bottom: 0;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
   border: 0;
   background-color: rgba(44, 45, 48, 0);
   -webkit-transition: opacity 250ms ease-out, background-color 250ms ease-out, color .1s ease-out;
   -moz-transition: opacity 250ms ease-out, background-color 250ms ease-out, color .1s ease-out;
-  transition: opacity 250ms ease-out, background-color 250ms ease-out, color .1s ease-out
+  transition: opacity 250ms ease-out, background-color 250ms ease-out, color .1s ease-out;
+  padding: 16px
 }
 
 .fs_modal_file_viewer_content .viewer .next_btn ts-icon,
 .fs_modal_file_viewer_content .viewer .previous_btn ts-icon {
   display: block;
-  width: 3.1875rem;
-  height: 3.1875rem;
+  width: 51px;
+  height: 51px;
   background-color: #fff;
   border-radius: 100%;
   box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .08)
@@ -23522,7 +23449,7 @@ only screen and (min-resolution:2dppx) {
 
 .fs_modal_file_viewer_content .viewer .next_btn ts-icon:before,
 .fs_modal_file_viewer_content .viewer .previous_btn ts-icon:before {
-  line-height: 3.3125rem
+  line-height: 53px
 }
 
 .fs_modal_file_viewer_content .viewer .next_btn[disabled],
@@ -23569,14 +23496,10 @@ only screen and (min-resolution:2dppx) {
   position: absolute;
   z-index: 2;
   overflow: auto;
-  top: 3.5rem;
+  top: 56px;
   right: 0;
   bottom: 0;
-  width: 23.4375rem;
-  padding-top: 0;
-  padding-bottom: 1.5625rem;
-  padding-left: 1.5625rem;
-  padding-right: 1.5625rem;
+  width: 375px;
   box-shadow: -1px 0 0 rgba(0, 0, 0, .10196078);
   background-color: #fefefe;
   -webkit-transition: -webkit-transform .25s ease-out;
@@ -23585,7 +23508,8 @@ only screen and (min-resolution:2dppx) {
   -webkit-transform: translateX(23.4375rem);
   -moz-transform: translateX(23.4375rem);
   -ms-transform: translateX(23.4375rem);
-  transform: translateX(23.4375rem)
+  transform: translateX(23.4375rem);
+  padding: 0 25px 25px
 }
 
 .supports_custom_scrollbar:not(.slim_scrollbar) .fs_modal_file_viewer_content .aside_panel {
@@ -23645,23 +23569,23 @@ only screen and (min-resolution:2dppx) {
 .fs_modal_file_viewer_content .comment_header {
   position: relative;
   z-index: 1;
-  margin-bottom: 1.25rem;
-  height: 3.125rem;
-  padding-top: .9375rem;
+  margin-bottom: 20px;
+  height: 50px;
+  padding-top: 15px;
   border-bottom: 1px solid #e5e5e5
 }
 
 .fs_modal_file_viewer_content .no_comment {
   position: relative;
   z-index: 2;
-  margin-top: -1.3125rem;
-  margin-bottom: 2.5rem;
-  padding-top: 8.3125rem;
+  margin-top: -21px;
+  margin-bottom: 40px;
+  padding-top: 133px;
   background: url(/0180/img/files/file_viewer_no_comment.png) 50% 1.3125rem no-repeat #fff;
-  background-size: 14.4375rem;
+  background-size: 231px;
   text-align: center;
-  font-size: .875rem;
-  line-height: 1.0625rem;
+  font-size: 14px;
+  line-height: 17px;
   color: #9B9BAB
 }
 
@@ -23688,7 +23612,7 @@ only screen and (min-resolution:2dppx) {
   border: 0;
   background: 0 0;
   font-size: .875rem;
-  line-height: 1.375rem;
+  line-height: 22px;
   color: #007AB8
 }
 
@@ -23703,11 +23627,11 @@ only screen and (min-resolution:2dppx) {
   text-align: center;
   margin-bottom: 0;
   font-size: .9375rem;
-  line-height: 1.25rem
+  line-height: 20px
 }
 
 .fs_modal_file_viewer_content #file_comment_form {
-  padding-left: 2.875rem
+  padding-left: 46px
 }
 
 .fs_modal_file_viewer_content #file_comment {
@@ -23718,9 +23642,9 @@ only screen and (min-resolution:2dppx) {
 .fs_modal_file_viewer_content .details_header {
   position: relative;
   z-index: 1;
-  margin-bottom: 1.25rem;
-  height: 3.125rem;
-  padding-top: .9375rem;
+  margin-bottom: 20px;
+  height: 50px;
+  padding-top: 15px;
   border-bottom: 1px solid #e5e5e5;
   text-align: center
 }
@@ -23807,7 +23731,7 @@ only screen and (min-resolution:2dppx) {
   right: 8px;
   top: 6px;
   color: #BABBBF;
-  font-size: 1.25rem
+  font-size: 20px
 }
 
 #user_groups_header a.icon_close:hover {
@@ -23821,7 +23745,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .user_group_item a i {
-  line-height: 1.125rem;
+  line-height: 18px;
   vertical-align: middle
 }
 
@@ -23846,7 +23770,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .user_group_item .user_group_count i:before {
-  font-size: .9375rem
+  font-size: 15px
 }
 
 .user_group_item:hover {
@@ -23972,7 +23896,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .user_group_invite_member_small {
-  font-size: .875rem;
+  font-size: 14px;
   position: relative;
   padding-left: 42px;
   height: 36px
@@ -24023,7 +23947,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .user_group_invite_member_small .name_container .not_in_token {
-  font-size: .75rem
+  font-size: 12px
 }
 
 .lfs_item.lfs_token .user_group_invite_member_small {
@@ -24226,8 +24150,8 @@ ts-jumper ol li {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  font-size: 1rem;
-  line-height: 1.875rem;
+  font-size: 16px;
+  line-height: 30px;
   border-radius: 6px;
   font-weight: 700;
   margin: 0;
@@ -24256,7 +24180,7 @@ ts-jumper ol li ts-icon {
 }
 
 ts-jumper ol li ts-icon.ts_icon_random:before {
-  font-size: .875rem;
+  font-size: 14px;
   margin-right: 2px
 }
 
@@ -24272,7 +24196,7 @@ ts-jumper ol li ts-icon.ts_icon_pencil {
 }
 
 ts-jumper ol li ts-icon.ts_icon_pencil:before {
-  font-size: 1rem;
+  font-size: 16px;
   margin-right: 3px;
   margin-left: 1px
 }
@@ -24343,7 +24267,7 @@ ts-jumper ol li .unread_count {
   text-shadow: 0 1px 0 rgba(0, 0, 0, .2);
   font-size: .8rem;
   font-weight: 900;
-  line-height: .875rem
+  line-height: 14px
 }
 
 ts-jumper ol li .ts_icon_spinner {
@@ -24410,7 +24334,7 @@ ts-jumper ts-jumper-switch-loading {
   display: block;
   text-align: center;
   margin: 1rem 0 1rem -1rem;
-  line-height: 2.5rem
+  line-height: 40px
 }
 
 ts-jumper ts-jumper-switch-loading img {
@@ -24438,8 +24362,8 @@ ts-jumper ts-jumper-results:empty {
 
 .slack_menu_section {
   position: relative;
-  padding-top: 1rem;
-  padding-bottom: .9375rem
+  padding-top: 16px;
+  padding-bottom: 15px
 }
 
 .slack_menu_section:before {
@@ -24456,17 +24380,14 @@ ts-jumper ts-jumper-results:empty {
 }
 
 .slack_menu_header {
-  margin-top: .375rem;
-  margin-right: 1.375rem;
-  margin-bottom: .375rem;
-  margin-left: 1.375rem;
-  height: 2.5rem
+  height: 40px;
+  margin: 6px 22px
 }
 
 .slack_menu_header .member_preview_link,
 .slack_menu_header .team_icon {
   float: left;
-  margin-right: .625rem
+  margin-right: 10px
 }
 
 .slack_menu_header_primary {
@@ -24539,7 +24460,7 @@ ts-jumper ts-jumper-results:empty {
 .current_status_input_for_team_menu .current_status_presets .current_status_preset_option {
   margin: 0 16px;
   padding: 0 11px;
-  line-height: 1.75rem
+  line-height: 28px
 }
 
 .current_status_input_for_team_menu .current_status_presets .current_status_preset_option .current_status {
@@ -24560,19 +24481,19 @@ ts-jumper ts-jumper-results:empty {
   position: relative;
   padding-left: 3.275rem;
   line-height: 2.525rem;
-  height: 2.6875rem
+  height: 43px
 }
 
 .slack_menu_download .download_link:before {
   position: absolute;
-  top: .375rem;
-  left: .375rem;
-  width: 2.1875rem;
-  height: 2.1875rem;
+  top: 6px;
+  left: 6px;
+  width: 35px;
+  height: 35px;
   content: "";
   background-image: url(/66f9/img/icons/ios-256.png);
   background-repeat: no-repeat;
-  background-size: 2.1875rem;
+  background-size: 35px;
   display: inline-block;
   -webkit-transform: translateY(-2px);
   -moz-transform: translateY(-2px);
@@ -24591,7 +24512,7 @@ ts-jumper ts-jumper-results:empty {
 
 .team_menu.slack_menu .menu_body,
 .team_menu.slack_menu .scrolling .menu_body {
-  width: 16.875rem
+  width: 270px
 }
 
 .team_menu.slack_menu .menu_list {
@@ -24635,7 +24556,7 @@ li:hover .current_status_badge {
 }
 
 #slack_menu_current_status_submenu {
-  width: 18.75rem
+  width: 300px
 }
 
 #slack_menu_current_status_submenu #slack_menu_current_status_input_container .current_status_input_label_content,
@@ -25218,7 +25139,7 @@ li:hover .current_status_badge {
 
 .channel_header_member_status .presence .presence_icon:before {
   line-height: 0;
-  height: .5625rem
+  height: 9px
 }
 
 .channel_header_member_current_status {
@@ -25343,8 +25264,8 @@ li:hover .current_status_badge {
 
 .channel_header_icon {
   display: inline-block;
-  width: 2rem;
-  height: 2rem;
+  width: 32px;
+  height: 32px;
   line-height: 1;
   margin-left: 1px;
   color: #717274;
@@ -25412,7 +25333,7 @@ li:hover .current_status_badge {
   -webkit-box-align: center;
   -moz-align-items: center;
   align-items: center;
-  height: 2.125rem;
+  height: 34px;
   margin: 2px 0 0;
   padding: 0 10px 0 2px;
   -webkit-transition: width .15s ease-out 0s;
@@ -25569,14 +25490,14 @@ li:hover .current_status_badge {
   top: 0;
   left: 0;
   z-index: 1;
-  margin-right: -1.5625rem;
-  margin-left: .5rem;
+  margin-right: -25px;
+  margin-left: 8px;
   text-shadow: none;
   opacity: 1;
   -moz-opacity: 1;
   -khtml-opacity: 1;
-  width: 1.0625rem;
-  height: 1.0625rem;
+  width: 17px;
+  height: 17px;
   position: static;
   color: #717274
 }
@@ -25639,7 +25560,7 @@ li:hover .current_status_badge {
   flex: none;
   left: auto;
   right: 0;
-  top: 2.4375rem;
+  top: 39px;
   margin-top: 0
 }
 
@@ -25671,7 +25592,7 @@ li:hover .current_status_badge {
   -ms-flex: none;
   -webkit-flex: none;
   flex: none;
-  width: 2.125rem;
+  width: 34px;
   z-index: 2
 }
 
@@ -25680,18 +25601,18 @@ li:hover .current_status_badge {
 }
 
 #recent_mentions_toggle.ts_tip_rightish .ts_tip_tip:after {
-  right: 2.9375rem
+  right: 47px
 }
 
 #recent_mentions_toggle.ts_tip_rightish .ts_tip_tip {
-  right: -1.875rem
+  right: -30px
 }
 
 #stars_toggle {
   -ms-flex: none;
   -webkit-flex: none;
   flex: none;
-  width: 2.125rem
+  width: 34px
 }
 
 #stars_toggle.active:focus,
@@ -25700,18 +25621,18 @@ li:hover .current_status_badge {
 }
 
 #stars_toggle .ts_tip_tip {
-  right: -.875rem
+  right: -14px
 }
 
 #stars_toggle .ts_tip_tip:after {
-  right: 1.9375rem
+  right: 31px
 }
 
 #flex_menu_toggle {
   -ms-flex: none;
   -webkit-flex: none;
   flex: none;
-  width: 1.375rem
+  width: 22px
 }
 
 #flex_menu_toggle.active,
@@ -25720,11 +25641,11 @@ li:hover .current_status_badge {
 }
 
 #flex_menu_toggle .ts_tip_tip {
-  right: -.3125rem
+  right: -5px
 }
 
 #flex_menu_toggle .ts_tip_tip:after {
-  right: 1.0625rem
+  right: 17px
 }
 
 #flex_menu_toggle .flex_menu_download_circle {
@@ -25756,11 +25677,11 @@ li:hover .current_status_badge {
 
 #rxn_toast_div {
   position: absolute;
-  top: .75rem;
-  right: 4.3125rem;
+  top: 12px;
+  right: 69px;
   z-index: 3;
-  width: 2.0625rem;
-  height: 2.0625rem;
+  width: 33px;
+  height: 33px;
   padding: .2rem .48rem;
   border: 1px solid rgba(79, 176, 252, .4);
   border-radius: .35rem;
@@ -25770,7 +25691,7 @@ li:hover .current_status_badge {
 }
 
 .whats_new_showing #rxn_toast_div {
-  right: 6.1875rem
+  right: 99px
 }
 
 #rxn_toast_div:before {
@@ -25795,7 +25716,7 @@ li:hover .current_status_badge {
 }
 
 #rxn_toast_div.ts_tip_rightish .ts_tip_tip:after {
-  right: 3.4375rem
+  right: 55px
 }
 
 @font-face {
@@ -25937,7 +25858,7 @@ li:hover .current_status_badge {
   color: #BABBBF;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 16px;
   font-style: italic
 }
 
@@ -25946,7 +25867,7 @@ li:hover .current_status_badge {
 }
 
 .scrolling #unread_msgs_div {
-  margin-right: 1.0625rem
+  margin-right: 17px
 }
 
 .supports_sticky_position #unread_msgs_div .day_divider {
@@ -26102,7 +26023,7 @@ html:not(.supports_sticky_position) .unread_group.currently_sticky {
 .unread_group_header .unread_group_message_count,
 .unread_group_header .unread_group_new,
 .unread_group_header .unread_group_undo {
-  font-size: .8125rem
+  font-size: 13px
 }
 
 .unread_group_header .unread_group_message_count {
@@ -26140,7 +26061,7 @@ html:not(.supports_sticky_position) .unread_group_header {
 }
 
 .unread_group_header .unread_group_collapse_toggle {
-  font-size: .8125rem;
+  font-size: 13px;
   -ms-flex: 1 0 auto;
   -webkit-flex: 1 0 auto;
   flex: 1 0 auto
@@ -26319,7 +26240,7 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 
 .unread_group:not(.partial_end).at_bottom .unread_group_footer {
   position: relative;
-  margin-top: -2.25rem
+  margin-top: -36px
 }
 
 .unread_group_header_name {
@@ -26327,8 +26248,8 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
   margin-top: -1px;
   padding-top: 21px;
   padding-bottom: 21px;
-  font-size: 1.125rem;
-  height: 1.25rem;
+  font-size: 18px;
+  height: 20px;
   -ms-box-sizing: content-box;
   -moz-box-sizing: content-box;
   -webkit-box-sizing: content-box;
@@ -26351,8 +26272,8 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 
 .unread_group_footer {
   font-size: .9rem;
-  height: 2.25rem;
-  line-height: 1.5625rem;
+  height: 36px;
+  line-height: 25px;
   position: absolute;
   bottom: -4px;
   padding-left: 1.6rem;
@@ -26365,14 +26286,14 @@ html:not(.supports_sticky_position) #client-ui.flex_pane_showing.details_showing
 
 .unread_group_footer .unread_group_new {
   line-height: 1;
-  height: 2.25rem
+  height: 36px
 }
 
 .unread_group_footer .unread_group_new .unread_group_new_text {
   color: #007AB8;
   display: inline-block;
-  height: 2.25rem;
-  line-height: 2.25rem;
+  height: 36px;
+  line-height: 36px;
   margin-top: -5px
 }
 
@@ -26502,8 +26423,8 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
   transition: all .4s ease 0s;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 900;
-  font-size: 1.5rem;
-  line-height: 2rem
+  font-size: 24px;
+  line-height: 32px
 }
 
 .unread_empty_state_emoji {
@@ -26534,7 +26455,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 .unread_empty_state_undo_inner {
   display: inline-block;
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .9375rem;
+  font-size: 15px;
   background: #565759;
   color: #fff;
   border-top-left-radius: 5px;
@@ -26560,13 +26481,13 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 .unread_empty_state_help {
-  font-size: .8125rem;
+  font-size: 13px;
   font-family: Slack-Lato, appleLogo, sans-serif
 }
 
 .unread_empty_state_help .ts_icon_enter::before {
   margin: 0 4px;
-  font-size: .8125rem;
+  font-size: 13px;
   vertical-align: bottom
 }
 
@@ -26702,7 +26623,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 #share_dialog_input_container .inline_message_input_container .message_input.has_scrollbar~.emo_menu {
-  right: 2rem
+  right: 32px
 }
 
 #share_dialog_input_container .message_input {
@@ -26716,8 +26637,8 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 .share_dialog_attachment_container {
   font-family: Slack-Lato, appleLogo, sans-serif;
   color: #2C2D30;
-  font-size: .9375rem;
-  line-height: 1.375rem;
+  font-size: 15px;
+  line-height: 22px;
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -26727,7 +26648,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 
 .share_dialog_attachment_container .attachment_group {
   display: block;
-  padding-left: .3125rem
+  padding-left: 5px
 }
 
 .share_dialog_attachment_container .inline_attachment_wrapper {
@@ -26755,7 +26676,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
   position: absolute;
   top: 1.1rem;
   left: 3%;
-  font-size: .94375rem
+  font-size: 15.1px
 }
 
 #fs_modal.help_modal .help_modal_header .ts_icon_laptop:before {
@@ -26773,9 +26694,9 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 #fs_modal.help_modal #fs_modal_footer .info_text {
-  font-size: 1.00625rem;
+  font-size: 16.1px;
   float: right;
-  line-height: 2.5rem
+  line-height: 40px
 }
 
 @media screen and (max-width:960px) {
@@ -26787,7 +26708,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 #fs_modal.help_modal #fs_modal_footer .help_modal_status {
   float: left;
   margin-top: 8px;
-  font-size: 1.00625rem
+  font-size: 16.1px
 }
 
 #fs_modal.help_modal #fs_modal_footer .help_modal_status #no_open_issues {
@@ -26802,7 +26723,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
   margin-right: 6px;
   text-shadow: none;
   padding: 3px 8px;
-  line-height: 1rem;
+  line-height: 16px;
   border-radius: 11px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 900
@@ -26853,7 +26774,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 #fs_modal.help_modal #help_modal_container a.see_all {
-  font-size: 1.00625rem;
+  font-size: 16.1px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 700
 }
@@ -26890,7 +26811,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 #fs_modal.help_modal .help_modal_divider {
-  font-size: .88125rem;
+  font-size: 14.1px;
   font-weight: 700;
   color: #67686e;
   height: 35px;
@@ -26907,7 +26828,7 @@ html:not(.slim_scrollbar) .unread_empty_state_wrapper::-webkit-scrollbar-corner 
 }
 
 #fs_modal.help_modal .help_modal_article_row .article_title {
-  font-size: 1.00625rem;
+  font-size: 16.1px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 700
 }
@@ -27286,7 +27207,7 @@ only screen and (min-resolution:192dpi) {
 }
 
 .menu.app_card {
-  width: 20rem;
+  width: 320px;
   overflow: hidden
 }
 
@@ -27306,16 +27227,16 @@ only screen and (min-resolution:192dpi) {
 
 .app_card_emoji .emoji,
 .app_card_header_icon {
-  min-width: 4rem;
-  max-width: 4rem;
-  height: 4rem
+  min-width: 64px;
+  max-width: 64px;
+  height: 64px
 }
 
 .app_header_large .app_card_emoji .emoji,
 .app_header_large .app_card_header_icon {
-  min-width: 4.5rem;
-  max-width: 4.5rem;
-  height: 4.5rem;
+  min-width: 72px;
+  max-width: 72px;
+  height: 72px;
   -webkit-align-self: center;
   -moz-align-self: center;
   -ms-flex-item-align: center;
@@ -27328,8 +27249,8 @@ only screen and (min-resolution:192dpi) {
 }
 
 .app_card_header_text {
-  margin-left: .875rem;
-  margin-bottom: .3125rem;
+  margin-left: 14px;
+  margin-bottom: 5px;
   width: 100%;
   overflow: hidden;
   display: flex;
@@ -27338,54 +27259,54 @@ only screen and (min-resolution:192dpi) {
 }
 
 .app_card_header_text .app_card_name_row {
-  line-height: 1.375rem
+  line-height: 22px
 }
 
 .app_card_header_text .app_card_name_row .app_name {
-  font-size: 1rem
+  font-size: 16px
 }
 
 .app_card_header_text .app_card_name_row .app_label {
-  font-size: .625rem;
+  font-size: 10px;
   border-radius: 2px;
-  margin-left: .5625rem;
+  margin-left: 9px;
   padding: 1px 3px;
   background-color: rgba(255, 255, 255, .3)
 }
 
 .app_card_header_text .app_card_desc {
-  font-size: .9375rem;
-  line-height: 1.125rem;
+  font-size: 15px;
+  line-height: 18px;
   text-shadow: 0 1px 4px rgba(0, 0, 0, .2)
 }
 
 .app_header_large .app_card_header_text {
-  margin-left: 1.3125rem
+  margin-left: 21px
 }
 
 .app_header_large .app_card_header_text .app_card_name_row {
-  line-height: 1.6875rem
+  line-height: 27px
 }
 
 .app_header_large .app_card_header_text .app_card_name_row .app_name {
-  font-size: 1.125rem
+  font-size: 18px
 }
 
 @media screen and (min-width:1367px) {
   .app_header_large .app_card_emoji .emoji,
   .app_header_large .app_card_header_icon {
-    min-width: 5.625rem;
-    max-width: 5.625rem;
-    height: 5.625rem
+    min-width: 90px;
+    max-width: 90px;
+    height: 90px
   }
   .app_header_large .app_card_header_text .app_card_name_row .app_name {
-    font-size: 1.375rem
+    font-size: 22px
   }
 }
 
 .app_header_large .app_card_header_text .app_card_desc {
-  font-size: 1rem;
-  line-height: 1.1875rem
+  font-size: 16px;
+  line-height: 19px
 }
 
 .app_slash_command {
@@ -27393,8 +27314,8 @@ only screen and (min-resolution:192dpi) {
 }
 
 .app_slash_command_title {
-  font-size: .9375rem;
-  line-height: 1.125rem
+  font-size: 15px;
+  line-height: 18px
 }
 
 .app_slash_command_title_name {
@@ -27420,7 +27341,7 @@ ul li.highlighted a .app_slash_command_desc {
   margin: 0 .9375rem;
   border-radius: .25rem;
   outline: 0;
-  font-size: .9375rem;
+  font-size: 15px;
   background: 0 0;
   color: #2C2D30;
   white-space: normal;
@@ -27447,14 +27368,14 @@ ul li.highlighted a .app_slash_command_desc {
 
 .app_profile .app_profile_section_header {
   font-weight: 700;
-  font-size: 1rem;
-  line-height: 1.1875rem;
+  font-size: 16px;
+  line-height: 19px;
   margin-bottom: 8px
 }
 
 .app_profile .app_profile_section_text {
-  font-size: .9375rem;
-  line-height: 1.3125rem
+  font-size: 15px;
+  line-height: 21px
 }
 
 .app_profile_buttons {
@@ -27481,8 +27402,8 @@ ul li.highlighted a .app_slash_command_desc {
 }
 
 .app_profile_btn {
-  font-size: .8125rem;
-  line-height: 1rem;
+  font-size: 13px;
+  line-height: 16px;
   margin-top: 5px;
   background: 0 0;
   color: rgba(255, 255, 255, .9);
@@ -27532,7 +27453,7 @@ ul li.highlighted a .app_slash_command_desc {
 }
 
 .app_desc_expand_showing.app_profile_desc {
-  max-height: 7.1875rem!important
+  max-height: 115px!important
 }
 
 .app_desc_expand_showing .app_profile_desc_fade {
@@ -27553,9 +27474,9 @@ ul li.highlighted a .app_slash_command_desc {
   position: absolute;
   bottom: 0;
   left: 50%;
-  font-size: .8125rem;
-  line-height: 1rem;
-  border-radius: 1.25rem;
+  font-size: 13px;
+  line-height: 16px;
+  border-radius: 20px;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -27675,7 +27596,7 @@ ul li.highlighted a .app_slash_command_desc {
 
 #threads_msgs_scroller_div {
   font-family: Slack-Lato, appleLogo, sans-serif;
-  font-size: .9375rem;
+  font-size: 15px;
   background: #F7F7F7;
   height: calc(100% - 16px);
   margin-top: 8px;
@@ -27683,7 +27604,7 @@ ul li.highlighted a .app_slash_command_desc {
 }
 
 #threads_msgs_scroller_div.monkey_scroller {
-  padding-right: .9375rem
+  padding-right: 15px
 }
 
 html:not(.supports_sticky_position) #threads_msgs_scroller_div {
@@ -27749,7 +27670,7 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
   position: absolute;
   top: 0;
   right: 0;
-  width: .125rem;
+  width: 2px;
   height: 100%;
   background: #F7F7F7
 }
@@ -27780,7 +27701,7 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
   margin-top: -220px;
   color: #aaacb1;
   text-align: center;
-  font-size: 1rem;
+  font-size: 16px;
   font-style: italic;
   font-family: Slack-Lato, appleLogo, sans-serif;
   font-weight: 700
@@ -27911,10 +27832,10 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 }
 
 #threads_view_banner.messages_banner {
-  height: 1.5625rem;
+  height: 25px;
   line-height: normal;
   background: #29B2EE;
-  border-radius: .375rem;
+  border-radius: 6px;
   font-size: .8rem;
   opacity: 1;
   cursor: pointer;
@@ -27983,21 +27904,21 @@ html:not(.supports_sticky_position) #threads_msgs_scroller_div {
 }
 
 .threads_alternative_view_wrapper .threads_alternative_view_emoji {
-  height: 4rem;
-  width: 4rem
+  height: 64px;
+  width: 64px
 }
 
 .threads_alternative_view_wrapper .threads_alternative_view_message {
   margin: 2rem auto;
-  max-width: 33.4375rem;
-  line-height: 1.40625rem
+  max-width: 535px;
+  line-height: 22.5px
 }
 
 #convo_tab .thread_participants,
 ts-thread .thread_participants {
-  font-size: .8125rem;
+  font-size: 13px;
   color: #717274;
-  margin-top: .1875rem
+  margin-top: 3px
 }
 
 @font-face {
