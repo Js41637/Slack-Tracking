@@ -1,0 +1,33 @@
+{{i18n_ns 'channels'}}
+
+<div class="shared_channels_join_modal">
+
+  <h2>
+    <ts-icon class="ts_icon_shared_channels"></ts-icon>
+    {{#t}}Shared Channel{{/t}}
+  </h2>
+
+  <div class="teams">
+    <div class="icons">
+      <img class="member_image source_team" src="{{source_team.icon.image_88}}" srcset="{{source_team.icon.image_44}} 1x, {{source_team.icon.image_88}} 2x"/>
+      <img class="member_image shared_team" src="{{channel.shares.0.team.icon.image_88}}" srcset="{{channel.shares.0.team.icon.image_44}} 1x, {{channel.shares.0.team.icon.image_88}} 2x"/>
+    </div>
+    <p>
+      {{#t}}This channel is shared between<br>
+      <strong>{source_team.name}</strong> and <strong>{channel.shares.0.team.name}</strong>.{{/t}}
+    </p>
+  </div>
+
+  <div class="details">
+    <h3>{{#t}}Invited by:{{/t}}</h3>
+    <p>{{inviter.real_name}}</p>
+    <h3>{{#t}}Channel purpose:{{/t}}</h3>
+    <p>{{channel.purpose.value}}</p>
+  </div>
+
+  <div class="footer">
+    <button class="btn" type="button">{{#t note="Acknowledging that you've been invited to a shared channel"}}Got it!{{/t}}</button>
+    <p><a href="#">{{#t}}Learn more about shared channels{{/t}}</a></p>
+  </div>
+
+</div>

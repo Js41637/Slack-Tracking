@@ -2436,6 +2436,8 @@
           doing_an_overlay = true;
           TS.view.overlay.startWithCreatedChannel(channel);
         }
+      } else if (channel && channel.is_shared && TS.boot_data.feature_shared_channels && TS.boot_data.feature_shared_channels_join_modal) {
+        TS.view.overlay.startWithJoinedSharedChannel(channel);
       } else if (channel && channel.needs_invited_message) {
         if (TS.model.prefs.no_joined_overlays) {
           channel.needs_invited_message = false;
@@ -21829,6 +21831,20 @@
           }
         }
       });
+    },
+    startWithJoinedSharedChannel: function(channel) {
+      $("#col_messages").append("<div class='shared_channels_join_modal_overlay'></div>");
+      $(".shared_channels_join_modal_overlay").html(TS.templates.channel_shared_join_overlay({
+        channel: channel,
+        source_team: TS.model.team,
+        inviter: TS.members.getMemberById(channel.inviter)
+      }));
+      _performCancel = function(e) {
+        channel.needs_joined_message = false;
+        _cancel(true);
+        _performCancel = null;
+      };
+      _setupScrollingAndEvents($("#channel_joined"));
     },
     startWithJoinedChannel: function(channel) {
       _start();

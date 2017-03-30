@@ -2526,9 +2526,9 @@ table tr:last-child {
   right: -4px;
   width: 16px;
   height: 16px;
-  border: 1px solid rgba(44, 45, 48, .08);
+  border: 2px solid #FFF;
   border-radius: 3px;
-  box-shadow: 0 0 0 2px #FFF;
+  box-shadow: inset 0 0 0 1px rgba(44, 45, 48, .08);
   background-size: 100%;
   background-color: #FFF;
   background-repeat: no-repeat
@@ -4821,6 +4821,17 @@ a.link_btn {
 
 #file_sharing_div .lazy_filter_select .lfs_item .ts_icon_shared_channel {
   line-height: 0
+}
+
+#file_sharing_div .lazy_filter_select .lfs_item .ts_icon_shared_channels {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  padding: 2px 0;
+  font-size: .8rem;
+  line-height: .875;
+  font-weight: 700;
+  vertical-align: baseline
 }
 
 #file_sharing_div .lazy_filter_select .lfs_item .presence {

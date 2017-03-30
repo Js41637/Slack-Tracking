@@ -6,12 +6,16 @@
   {{#if item.is_mpim}}
     {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon multipary_dm_icon ts_icon_multiparty_dm_{{mpimMemberCount item}}"></i>{{mpimDisplayName item}}
   {{else}}
-    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_lock"></i>{{item.name}} {{#if item.is_shared}}{{> shared_channel_icon}}{{/if}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_lock"></i>{{item.name}} {{#if item.is_org_shared}}{{> shared_channel_icon}}{{else if item.is_shared}}{{> shared_channels_icon}}{{/if}}
   {{/if}}
 {{else}}
   {{#if item.is_channel}}
-    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_channel"></i>{{item.name}} {{#if item.is_shared}}{{> shared_channel_icon}}{{/if}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_channel"></i>{{item.name}} {{#if item.is_org_shared}}{{> shared_channel_icon}}{{else if item.is_shared}}{{> shared_channels_icon}}{{/if}}
   {{else}}
-    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share with:{{/t}} </span>{{/if}}{{makeMemberPresenceIcon item}}{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName item}}{{#if item.is_self}} {{#t}}(you){{/t}} {{/if}}{{#if item.profile.preferred_name}}<span class="preferred_name">{{getMemberPreferredName item}}</span>{{/if}}{{else}}{{getMemberDisplayName item}}{{#if item.is_self}} {{#t}}(you){{/t}}{{/if}}{{/feature}}{{#feature flag="feature_user_custom_status"}}<span class="current_status greigh">{{getMemberCurrentStatusForDisplay item}}</span>{{/feature}}
+    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share with:{{/t}} </span>{{/if}}{{makeMemberPresenceIcon item}}{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName item}}{{#if item.is_self}} {{#t}}(you){{/t}}{{/if}}{{#feature flag="feature_shared_channels_client"}}{{#if item.is_external}} ({{getTeamNameByMember item}}){{/if}}{{/feature}}
+
+    {{#if item.profile.preferred_name}}<span class="preferred_name">{{getMemberPreferredName item}}</span>{{/if}}{{else}}{{getMemberDisplayName item}}{{#if item.is_self}} {{#t}}(you){{/t}}{{/if}}{{#feature flag="feature_shared_channels_client"}}{{#if item.is_external}} ({{getTeamNameByMember item}}){{/if}}{{/feature}}{{/feature}}
+
+    {{#feature flag="feature_user_custom_status"}}<span class="current_status greigh">{{getMemberCurrentStatusForDisplay item}}</span>{{/feature}}
   {{/if}}
 {{/if}}

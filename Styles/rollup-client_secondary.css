@@ -3447,6 +3447,90 @@ ul.member_list li .nuc {
   line-height: 1.4rem
 }
 
+.shared_channels_join_modal_overlay {
+  position: absolute;
+  background: rgba(0, 0, 0, .5);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  top: 8px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+
+.shared_channels_join_modal {
+  width: 340px;
+  background: #fff;
+  border-radius: 10px
+}
+
+.shared_channels_join_modal h2 {
+  background: rgba(0, 122, 184, .12);
+  color: #007AB8;
+  text-align: center;
+  font-size: .8rem;
+  padding: 10px 0;
+  text-transform: uppercase;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px
+}
+
+.shared_channels_join_modal h2 ts-icon {
+  font-size: 1.1rem;
+  position: relative;
+  top: 3px
+}
+
+.shared_channels_join_modal .teams {
+  padding: 0 0 20px;
+  margin: 0 20px;
+  border-bottom: 1px solid #E8E8E8;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.4
+}
+
+.shared_channels_join_modal .teams .icons {
+  margin: 0 0 10px
+}
+
+.shared_channels_join_modal .teams .icons img {
+  width: 44px;
+  height: 44px
+}
+
+.shared_channels_join_modal .details {
+  margin: 20px;
+  font-size: 12px
+}
+
+.shared_channels_join_modal .details h3 {
+  font-size: .9rem;
+  font-weight: 900;
+  margin: 0
+}
+
+.shared_channels_join_modal .details p {
+  font-size: .9rem
+}
+
+.shared_channels_join_modal .footer {
+  margin: 20px
+}
+
+.shared_channels_join_modal .footer button {
+  width: 100%;
+  margin: 0 0 1rem
+}
+
+.shared_channels_join_modal .footer p {
+  font-size: .9rem;
+  text-align: center;
+  text-decoration: underline
+}
+
 .channel_list_item {
   margin-bottom: 1.5rem
 }
@@ -28044,4 +28128,35 @@ ts-thread .thread_participants {
   width: 64px;
   background-size: contain;
   background-color: #f2f2f5
+}
+
+.briefing_messages_flexpane_content {
+  padding: .5rem 0
+}
+
+.sli_briefing_messages__title {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
+}
+
+.sli_briefing_messages__heading_text {
+  color: #2C2D30;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: inherit
+}
+
+.sli_briefing_messages__justification {
+  font-family: Slack-Lato, appleLogo, sans-serif;
+  font-size: .825rem;
+  margin-top: .25rem;
+  margin-bottom: 0
+}
+
+.sli_briefing_messages__jump {
+  font-size: 1.25rem;
+  padding: 6px 9px 9px;
+  align-self: baseline
 }

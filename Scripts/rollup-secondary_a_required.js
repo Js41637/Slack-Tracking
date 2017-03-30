@@ -59293,17 +59293,15 @@ $.fn.togglify = function(settings) {
         },
         getMsgDivForEditing: function() {
           var $ts_thread = $thread.closest("ts-thread");
-          var replies = $ts_thread.find("ts-message").get();
-          _.reverse(replies);
-          var last_reply_from_current_user = _.find(replies, function(reply) {
-            var reply_member_id = $(reply).data("member-id");
-            return reply_member_id === TS.model.user.id;
+          var replies = thread.replies;
+          var msgs = _.reject(replies, function(msg) {
+            return msg.subtype === "tombstone";
           });
-          if (last_reply_from_current_user) {
-            var $div = $(last_reply_from_current_user);
-            return $div;
-          }
-          return null;
+          if (thread.root_msg.subtype !== "tombstone") msgs.unshift(thread.root_msg);
+          _.reverse(msgs);
+          var last_msg_from_current_user = TS.utility.msgs.getEditableMsgByProp("user", TS.model.user.id, msgs);
+          if (!last_msg_from_current_user) return null;
+          return $ts_thread.find('ts-message[data-ts="' + last_msg_from_current_user.ts + '"]');
         },
         onTextChange: function($input) {
           var input_value = TS.utility.contenteditable.value($input);
@@ -67165,7 +67163,8 @@ $.fn.togglify = function(settings) {
           r = void 0 !== n && n,
           i = t.uniformColumnWidth,
           a = void 0 !== i && i;
-        o()(this, e), this._uniformRowHeight = r, this._uniformColumnWidth = a, this._cachedColumnWidth = void 0, this._cachedRowHeight = void 0, this._cachedColumnWidths = {}, this._cachedRowHeights = {};
+        o()(this, e), this._uniformRowHeight = r, this._uniformColumnWidth = a, this._cachedColumnWidth = void 0, this._cachedRowHeight = void 0,
+          this._cachedColumnWidths = {}, this._cachedRowHeights = {};
       }
       return a()(e, [{
         key: "clearAllColumnWidths",
