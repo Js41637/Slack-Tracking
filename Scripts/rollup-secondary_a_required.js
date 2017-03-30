@@ -1378,7 +1378,7 @@
       }
     },
     debugShowStatus: function() {
-      TS.console.group(2, "TS.api status");
+      console.group("TS.api status");
       if (_is_paused) {
         if (_pause_secs) {
           TS.console.log(2, "API calls are paused for " + _pause_secs + "more seconds");
@@ -1400,14 +1400,14 @@
       } else {
         TS.console.log(2, "No non-200 API responses");
       }
-      TS.console.groupEnd(2, "TS.api status");
+      console.groupEnd("TS.api status");
     },
     debugShowQueue: function() {
       _.forEach({
         main: _main_Q,
         "one-at-a-time": _one_at_a_time_Q
       }, function(queue, queue_name) {
-        TS.console.group(2, "TS.api " + queue_name + " queue");
+        console.group("TS.api " + queue_name + " queue");
         if (queue.length) {
           queue.forEach(function(pending_call) {
             TS.console.log(2, pending_call.method, pending_call.args);
@@ -1415,7 +1415,7 @@
         } else {
           TS.console.log(2, "Nothing pending in " + queue_name + " queue");
         }
-        TS.console.groupEnd(2, "TS.api " + queue_name + " queue");
+        console.groupEnd("TS.api " + queue_name + " queue");
       });
     },
     debugSetPaused: function(paused) {
@@ -46835,8 +46835,12 @@ $.fn.togglify = function(settings) {
           single: instance.single,
           group_item: $item.hasClass("group_item")
         });
-        $el.attr("data-lfs-id", item.lfs_id).removeClass(remove_classes).addClass(applied_classes).html(instance.template(item).string);
-        $el.attr("data-qa", instance.data_qa + "-item-" + item.lfs_id);
+        var attributes = {
+          "data-qa": instance.data_qa + "-item-" + item.lfs_id,
+          "data-lfs-id": item.lfs_id,
+          title: item.title
+        };
+        $el.attr(attributes).removeClass(remove_classes).addClass(applied_classes).html(instance.template(item).string);
         if ($item.data("lfs-item-icon")) {
           var background_css = "url(" + $item.data("lfs-item-icon") + ")";
           var $icon = $('<span class="lfs_item_icon">').css("background-image", background_css);

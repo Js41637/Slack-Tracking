@@ -13086,6 +13086,21 @@
       if (status && status.is_limited) {
         $(".is_limited_copy").removeClass("hidden");
         $(".not_limited_copy").addClass("hidden");
+        var ui_element;
+        if (TS.model.user.is_owner) {
+          ui_element = "billing_link";
+        } else {
+          ui_element = "pricing_link";
+        }
+        TS.clog.track("GROWTH_PRICING", {
+          contexts: {
+            ui_context: {
+              step: "history",
+              action: "impression",
+              ui_element: ui_element
+            }
+          }
+        });
       } else {
         $(".is_limited_copy").addClass("hidden");
         $(".not_limited_copy").removeClass("hidden");
