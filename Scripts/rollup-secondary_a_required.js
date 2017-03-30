@@ -15795,7 +15795,7 @@ TS.registerModule("constants", {
       clearInterval(_send_ping_interv);
       _have_sent_ping = false;
       TS.info("Deprecating current socket in onFailure with reason: " + reason_str);
-      _deprecateCurrentSocket();
+      _deprecateCurrentSocket(4003, "Disconnecting due to failure. Reason: " + reason_str);
       if (_last_disconnect_was_requested_by_server) {
         TS.ms.logConnectionFlow("on_goodbye_failure");
         TS.model.ms_reconnect_ms = 0;
@@ -15879,7 +15879,7 @@ TS.registerModule("constants", {
         TS.ms.reconnecting_sig.dispatch(0);
       }
     },
-    disconnect: function(was_requested_by_server) {
+    disconnect: function(was_requested_by_server, reason) {
       if (_websocket && _websocket.readyState != WebSocket.CLOSED) {
         _last_disconnect_was_requested_by_server = !!was_requested_by_server;
         TS.ms.logConnectionFlow("disconnect");
@@ -15888,7 +15888,11 @@ TS.registerModule("constants", {
         } else {
           TS.info("TS.ms.disconnect called while we have a WebSocket but are not connected; closing the socket");
         }
-        _websocket.close();
+        var disconnect_msg = "Disconnecting because TS.ms.disconnect was called. was_requested_by_server = " + !!was_requested_by_server;
+        if (_.isString(reason) && reason.length) {
+          disconnect_msg = reason + " was_requested_by_server = " + !!was_requested_by_server;
+        }
+        _websocket.close(4005, disconnect_msg);
         TS.model.ms_connected = false;
         TS.ms.disconnected_sig.dispatch();
       } else {
@@ -15980,13 +15984,14 @@ TS.registerModule("constants", {
       if (TS.model.ms_asleep) return;
       if (!TS.model.ms_connected) return;
       TS.model.ms_asleep = true;
-      TS.ms.disconnect();
+      var was_requested_by_server = false;
+      TS.ms.disconnect(was_requested_by_server, "Disconnecting because client is going to sleep");
     },
     wake: function() {
       if (!TS.model.ms_asleep) return;
       if (_websocket) {
         _onDisconnect(null, "Forcing disconnect because we are trying to wake up");
-        _deprecateCurrentSocket();
+        _deprecateCurrentSocket(4e3, "Forcing a disconnect of an old socket while waking up");
       }
       _disconnected_timestamp = undefined;
       _last_disconnect_was_requested_by_server = undefined;
@@ -16209,7 +16214,8 @@ TS.registerModule("constants", {
     _check_last_pong_time = false;
     _reportDisconnect("You are on team Tiny Speck, so here are some pong details:\n>>>" + "since_last_pong_ms too long! " + since_last_pong_ms + " > " + _pong_timeout_ms + " ... calling disconnect(), expect to get an onDisconnect() callback");
     try {
-      TS.ms.disconnect();
+      var was_requested_by_server = false;
+      TS.ms.disconnect(was_requested_by_server, "Disconnecting because of pong timeout");
       clearTimeout(_disconnect_timeout_tim);
       _disconnect_timeout_tim = setTimeout(function() {
         TS.info("called disconnect, no onDisconnect callback happened in " + _disconnect_timeout_tim_ms + "ms, so calling _onDisconnect() manually now");
@@ -16273,7 +16279,7 @@ TS.registerModule("constants", {
   var _reportDisconnect = function(reason_str) {
     return;
   };
-  var _deprecateCurrentSocket = function() {
+  var _deprecateCurrentSocket = function(error_code, reason) {
     TS.model.ms_connecting = false;
     if (_websocket) {
       _websocket.onclose = null;
@@ -16281,7 +16287,7 @@ TS.registerModule("constants", {
       _websocket.onmessage = null;
       _websocket.onopen = null;
       try {
-        _websocket.close();
+        _websocket.close(error_code, reason);
       } catch (err) {
         TS.info("Problem while deprecating current socket: " + err);
       }
@@ -16557,7 +16563,7 @@ TS.registerModule("constants", {
         TS.ms.disconnected_sig.dispatch();
         _did_deprecate_socket_sig.remove(_socketWasDeprecated);
         if (_websocket && _websocket == current_websocket) {
-          _deprecateCurrentSocket();
+          _deprecateCurrentSocket(4001, "Deprecating socket because we are aborting an rtm start attempt");
         }
       };
       var _socketWasDeprecated = function(recently_deprecated_websocket) {
@@ -16701,7 +16707,7 @@ TS.registerModule("constants", {
     _provisional_connection_timeout = setTimeout(function() {
       if (_did_make_provisional_connection) {
         TS.warn("Giving up on provisional connection because no one ever finalized it");
-        _deprecateCurrentSocket();
+        _deprecateCurrentSocket(4002, "Deprecating socket because the provisional connection was never finalized");
       } else {
         TS.warn("Provisional connection timed out, but it does not look like we have a provisional connection");
       }
@@ -33224,6 +33230,8 @@ TS.registerModule("constants", {
         TS.menu.$menu_header.empty();
         TS.menu.$menu_footer.empty();
         TS.menu.$menu_items.empty();
+        TS.menu.$menu_items.removeClass("hidden");
+        TS.menu.$menu_body.empty();
         TS.menu.clean();
       };
       if (!TS.menu.isLarge() && !_no_reposition) {
@@ -33234,8 +33242,6 @@ TS.registerModule("constants", {
         menu_end();
       }
       $menu.trigger("closed");
-      TS.menu.$menu_items.removeClass("hidden");
-      TS.menu.$menu_body.empty();
       if (TS.menu.$target_element) {
         TS.menu.$target_element.removeClass("active");
         TS.menu.$target_element = null;
@@ -65605,7 +65611,8 @@ $.fn.togglify = function(settings) {
   }
 
   function o(e, t) {
-    e.parentNode.replaceChild(t.node, e), r(t);
+    e.parentNode.replaceChild(t.node, e),
+      r(t);
   }
 
   function i(e, t) {
@@ -68898,8 +68905,7 @@ $.fn.togglify = function(settings) {
     }, {
       key: "_renderAndMount",
       value: function() {
-        this._div || (this._div = document.createElement("div"), this._div.style.display = "inline-block", this._div.style.position = "absolute", this._div.style.visibility = "hidden", this._div.style.zIndex = -1, this._updateDivDimensions(this.props), this._containerNode = this._getContainerNode(this.props),
-          this._containerNode.appendChild(this._div));
+        this._div || (this._div = document.createElement("div"), this._div.style.display = "inline-block", this._div.style.position = "absolute", this._div.style.visibility = "hidden", this._div.style.zIndex = -1, this._updateDivDimensions(this.props), this._containerNode = this._getContainerNode(this.props), this._containerNode.appendChild(this._div));
       }
     }, {
       key: "_unmountContainer",
@@ -73785,8 +73791,7 @@ $.fn.togglify = function(settings) {
 
     function c(e) {
       var t = [];
-      return e.shiftKey && t.push("shift"), e.altKey && t.push("alt"), e.ctrlKey && t.push("ctrl"),
-        e.metaKey && t.push("meta"), t;
+      return e.shiftKey && t.push("shift"), e.altKey && t.push("alt"), e.ctrlKey && t.push("ctrl"), e.metaKey && t.push("meta"), t;
     }
 
     function f(e) {
@@ -78498,10 +78503,9 @@ $.fn.togglify = function(settings) {
           if (!(e.target.className.indexOf("contract-trigger") < 0 && e.target.className.indexOf("expand-trigger") < 0)) {
             var t = this;
             o(this), this.__resizeRAF__ && r(this.__resizeRAF__), this.__resizeRAF__ = n(function() {
-              i(t) && (t.__resizeLast__.width = t.offsetWidth,
-                t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
-                  n.call(t, e);
-                }));
+              i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
+                n.call(t, e);
+              }));
             });
           }
         },
