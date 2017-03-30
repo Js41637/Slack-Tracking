@@ -31007,10 +31007,7 @@ TS.registerModule("constants", {
   });
   var _at_commands = ["everyone", "channel", "group", "here"];
   var _theme_rx = /((?:#[A-Fa-f0-9]{6} {0,}, {0,}){7})(#[A-Fa-f0-9]{6})(\b)/g;
-  var _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|\*|_|\/)(@([\w|.|-]+))/g;
-  if (TS.boot_data.feature_wrapped_mention_parsing) {
-    _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w|.|-]+))/g;
-  }
+  var _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w|.|-]+))/g;
   if (TS.boot_data.feature_shared_channels_client) {
     _at_mention_rx = /(^|\s|\{|\[|\(|&gt;|&lt;|\*|_|\/|"|“|‘|')(@([\w.\-+]+))/g;
   }
@@ -55718,7 +55715,6 @@ $.fn.togglify = function(settings) {
           },
           clipboard: {}
         },
-        placeholder: "",
         onEnter: function(args) {
           return true;
         },
@@ -55935,7 +55931,7 @@ $.fn.togglify = function(settings) {
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
         if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) value += " (with texty!)";
-        texty.setPlaceholder($("<span>" + value + "</span>").get(0));
+        texty.setPlaceholder(value);
         next_value = texty.getPlaceholder();
       }
       return next_value || "";
@@ -68902,7 +68898,8 @@ $.fn.togglify = function(settings) {
     }, {
       key: "_renderAndMount",
       value: function() {
-        this._div || (this._div = document.createElement("div"), this._div.style.display = "inline-block", this._div.style.position = "absolute", this._div.style.visibility = "hidden", this._div.style.zIndex = -1, this._updateDivDimensions(this.props), this._containerNode = this._getContainerNode(this.props), this._containerNode.appendChild(this._div));
+        this._div || (this._div = document.createElement("div"), this._div.style.display = "inline-block", this._div.style.position = "absolute", this._div.style.visibility = "hidden", this._div.style.zIndex = -1, this._updateDivDimensions(this.props), this._containerNode = this._getContainerNode(this.props),
+          this._containerNode.appendChild(this._div));
       }
     }, {
       key: "_unmountContainer",
@@ -73788,7 +73785,8 @@ $.fn.togglify = function(settings) {
 
     function c(e) {
       var t = [];
-      return e.shiftKey && t.push("shift"), e.altKey && t.push("alt"), e.ctrlKey && t.push("ctrl"), e.metaKey && t.push("meta"), t;
+      return e.shiftKey && t.push("shift"), e.altKey && t.push("alt"), e.ctrlKey && t.push("ctrl"),
+        e.metaKey && t.push("meta"), t;
     }
 
     function f(e) {
@@ -78500,9 +78498,10 @@ $.fn.togglify = function(settings) {
           if (!(e.target.className.indexOf("contract-trigger") < 0 && e.target.className.indexOf("expand-trigger") < 0)) {
             var t = this;
             o(this), this.__resizeRAF__ && r(this.__resizeRAF__), this.__resizeRAF__ = n(function() {
-              i(t) && (t.__resizeLast__.width = t.offsetWidth, t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
-                n.call(t, e);
-              }));
+              i(t) && (t.__resizeLast__.width = t.offsetWidth,
+                t.__resizeLast__.height = t.offsetHeight, t.__resizeListeners__.forEach(function(n) {
+                  n.call(t, e);
+                }));
             });
           }
         },
