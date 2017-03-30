@@ -853,6 +853,7 @@
     var storage_size;
     var debug_time;
     var val;
+    var message;
     for (k in _buffer) {
       if (_buffer[k].being_flushed) continue;
       val = _prepareValForStorage(_buffer[k].val);
@@ -886,7 +887,7 @@
             storage_size = TS.storage.storageSize();
           } catch (err) {}
           debug_time = new Date - debug_time;
-          var message = "Took " + elapsed + "ms for " + i + " item (!all case) (threshold is " + _slow_write_threshold + " ms). Key: " + k + ". Buffer length: " + (_buffer[k] && _buffer[k].val && _buffer[k].val.toString() ? _buffer[k].val.toString().length : "unknown (not a string)") + ". localStorage size: " + (storage_size || "unknown") + ". Time to read LS size: " + debug_time;
+          message = "Took " + elapsed + "ms for " + i + " item (!all case) (threshold is " + _slow_write_threshold + " ms). Key: " + k + ". Buffer length: " + (_buffer[k] && _buffer[k].val && _buffer[k].val.toString() ? _buffer[k].val.toString().length : "unknown (not a string)") + ". localStorage size: " + (storage_size || "unknown") + ". Time to read LS size: " + debug_time;
           TS.info("_flushBuffer exceeded slow write threshold: " + message);
         }
       }
@@ -906,7 +907,7 @@
         try {
           storage_size = TS.storage.storageSize();
         } catch (err) {}
-        var message = "Took " + elapsed + "ms for " + i + " items (threshold is " + _slow_write_threshold + " ms). localStorage size: " + storage_size + ". App open for " + ((Date.now() - TS.boot_data.start_ms) / 1e3 / 60).toFixed(2) + " min. why: " + why;
+        message = "Took " + elapsed + "ms for " + i + " items (threshold is " + _slow_write_threshold + " ms). localStorage size: " + storage_size + ". App open for " + ((Date.now() - TS.boot_data.start_ms) / 1e3 / 60).toFixed(2) + " min. why: " + why;
         TS.info("_flushBuffer exceeded slow write threshold (all case): " + message);
       }
     }
@@ -1003,7 +1004,6 @@
     var k = _prefix + "bots_data";
     var bots_data_raw = _ls.getItem(k);
     var bots_data = bots_data_raw && JSON.parse(_correctBadValsFromStorage(_decompress(k, bots_data_raw))) || null;
-    var k = _prefix + "members_data";
     var members_data_raw = _ls.getItem(k);
     var members_data = members_data_raw && JSON.parse(_correctBadValsFromStorage(_decompress(k, members_data_raw))) || null;
     if (!TS.model.bots.length && members_data && members_data.cache_ts) {
@@ -1871,7 +1871,7 @@
     if (_one_at_a_time_Q.length && !_one_at_a_time_call_pending) {
       o = _one_at_a_time_Q.shift();
     } else if (_main_Q.length >= QUEUE_FAIRNESS_THRESHOLD && _last_api_method_called) {
-      var o = _.find(_main_Q, function(queue_item) {
+      o = _.find(_main_Q, function(queue_item) {
         return _makeMethodNameGeneric(queue_item.method) !== _last_api_method_called;
       });
       if (o && _main_Q[0] !== o) {
@@ -6798,11 +6798,11 @@ TS.registerModule("constants", {
           delete file.initial_comment.reactions;
         }
         if (file.is_tombstoned !== existing_file.is_tombstoned) {
-          for (var k in existing_file) {
-            if (k == "is_tombstoned") {
-              existing_file[k] = !!file[k];
+          for (var key in existing_file) {
+            if (key == "is_tombstoned") {
+              existing_file[key] = !!file[key];
             } else {
-              delete existing_file[k];
+              delete existing_file[key];
             }
           }
         } else if (file.is_tombstoned == existing_file.is_tombstoned && !file.is_tombstoned) {
@@ -9097,6 +9097,7 @@ TS.registerModule("constants", {
         msg = null;
         latest_ts = null;
       }
+      var api_args;
       if (msg) {
         TS.log(58, 'we have all recent "' + model_ob.id + '" msgs unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
         TS.shared.maybeDealWithAllSentTempMsgs(model_ob, controller);
@@ -9115,7 +9116,7 @@ TS.registerModule("constants", {
         TS.log(58, 'WE DO NOT HAVE ALL RECENT MESSAGES for "' + model_ob.id + '" unread_count:' + model_ob.unread_count + " unread_cnt:" + model_ob.unread_cnt + " initial_count:" + initial_count);
         var no_oldest = false;
         if (!model_ob.msgs.length) {}
-        var api_args = {
+        api_args = {
           channel: model_ob.id,
           count: initial_count,
           inclusive: typeof model_ob.latest == "string",
@@ -9501,7 +9502,7 @@ TS.registerModule("constants", {
             }
           } else {
             model_ob.msgs = [];
-            var api_args = {
+            api_args = {
               channel: model_ob.id,
               count: TS.model.initial_msgs_cnt,
               inclusive: true
@@ -11353,12 +11354,14 @@ TS.registerModule("constants", {
         if (a.presence == "active") return -1;
         if (b.presence == "active") return 1;
       }
+      var a_srt;
+      var b_srt;
       if (TS.boot_data.feature_name_tagging_client) {
-        var a_srt = TS.members.getMemberFullNameLowerCase(a);
-        var b_srt = TS.members.getMemberFullNameLowerCase(b);
+        a_srt = TS.members.getMemberFullNameLowerCase(a);
+        b_srt = TS.members.getMemberFullNameLowerCase(b);
       } else {
-        var a_srt = TS.members.getMemberDisplayNameLowerCase(a);
-        var b_srt = TS.members.getMemberDisplayNameLowerCase(b);
+        a_srt = TS.members.getMemberDisplayNameLowerCase(a);
+        b_srt = TS.members.getMemberDisplayNameLowerCase(b);
       }
       if (a_srt < b_srt) return -1;
       if (a_srt > b_srt) return 1;
@@ -11371,16 +11374,18 @@ TS.registerModule("constants", {
       }
       var a_bot = a.is_bot || a.is_slackbot;
       var b_bot = b.is_bot || b.is_slackbot;
+      var a_srt;
+      var b_srt;
       if (a_bot !== b_bot) {
         if (!a_bot) return -1;
         if (!b_bot) return 1;
       }
       if (TS.boot_data.feature_name_tagging_client) {
-        var a_srt = TS.members.getMemberFullNameLowerCase(a);
-        var b_srt = TS.members.getMemberFullNameLowerCase(b);
+        a_srt = TS.members.getMemberFullNameLowerCase(a);
+        b_srt = TS.members.getMemberFullNameLowerCase(b);
       } else {
-        var a_srt = TS.members.getMemberDisplayNameLowerCase(a);
-        var b_srt = TS.members.getMemberDisplayNameLowerCase(b);
+        a_srt = TS.members.getMemberDisplayNameLowerCase(a);
+        b_srt = TS.members.getMemberDisplayNameLowerCase(b);
       }
       if (a_srt < b_srt) return -1;
       if (a_srt > b_srt) return 1;
@@ -13510,7 +13515,7 @@ TS.registerModule("constants", {
         id = item.data("member-id");
         node_hash[id] = item;
       });
-      var all_matches = _findMatchesInMemberList(all_members, _query_for_match, options.full_profile_filter);
+      all_matches = _findMatchesInMemberList(all_members, _query_for_match, options.full_profile_filter);
       var keys = Object.keys(all_matches);
       if (keys.length > 0) {
         _displayMatches(all_matches, keys, node_hash, disabled_matches, restricted_matches, active_matches, lazy_load ? scroller_id : "");
@@ -13757,10 +13762,11 @@ TS.registerModule("constants", {
       name: "Name"
     };
     members.forEach(function(member) {
+      var match;
       if (TS.boot_data.feature_name_tagging_client) {
-        var match = member._full_name_lc && (member._full_name_lc.match(start_regex) || member._full_name_lc.match(suffix_regex)) || member.email && (member.email.match(start_regex) || member.email.match(suffix_regex)) || member.profile && member.profile.email && (member.profile.email.match(start_regex) || member.profile.email.match(suffix_regex)) || member.profile && member.profile.full_name_normalized && (member.profile.full_name_normalized.match(start_regex) || member.profile.full_name_normalized.match(suffix_regex)) || member.profile && member.profile.full_name && (member.profile.full_name.match(start_regex) || member.profile.full_name.match(suffix_regex)) || member.profile && member.profile.preferred_name_normalized && (member.profile.preferred_name_normalized.match(start_regex) || member.profile.preferred_name_normalized.match(suffix_regex)) || member.profile && member.profile.preferred_name && (member.profile.preferred_name.match(start_regex) || member.profile.preferred_name.match(suffix_regex));
+        match = member._full_name_lc && (member._full_name_lc.match(start_regex) || member._full_name_lc.match(suffix_regex)) || member.email && (member.email.match(start_regex) || member.email.match(suffix_regex)) || member.profile && member.profile.email && (member.profile.email.match(start_regex) || member.profile.email.match(suffix_regex)) || member.profile && member.profile.full_name_normalized && (member.profile.full_name_normalized.match(start_regex) || member.profile.full_name_normalized.match(suffix_regex)) || member.profile && member.profile.full_name && (member.profile.full_name.match(start_regex) || member.profile.full_name.match(suffix_regex)) || member.profile && member.profile.preferred_name_normalized && (member.profile.preferred_name_normalized.match(start_regex) || member.profile.preferred_name_normalized.match(suffix_regex)) || member.profile && member.profile.preferred_name && (member.profile.preferred_name.match(start_regex) || member.profile.preferred_name.match(suffix_regex));
       } else {
-        var match = member.name && (member.name.match(start_regex) || member.name.match(suffix_regex)) || member.first_name && (member.first_name.match(start_regex) || member.first_name.match(suffix_regex)) || member.last_name && (member.last_name.match(start_regex) || member.last_name.match(suffix_regex)) || member._real_name_lc && (member._real_name_lc.match(start_regex) || member._real_name_lc.match(suffix_regex)) || member.email && (member.email.match(start_regex) || member.email.match(suffix_regex)) || member.profile && member.profile.email && (member.profile.email.match(start_regex) || member.profile.email.match(suffix_regex)) || member.profile && member.profile.real_name_normalized && (member.profile.real_name_normalized.match(start_regex) || member.profile.real_name_normalized.match(suffix_regex)) || member.profile && member.profile.real_name && (member.profile.real_name.match(start_regex) || member.profile.real_name.match(suffix_regex));
+        match = member.name && (member.name.match(start_regex) || member.name.match(suffix_regex)) || member.first_name && (member.first_name.match(start_regex) || member.first_name.match(suffix_regex)) || member.last_name && (member.last_name.match(start_regex) || member.last_name.match(suffix_regex)) || member._real_name_lc && (member._real_name_lc.match(start_regex) || member._real_name_lc.match(suffix_regex)) || member.email && (member.email.match(start_regex) || member.email.match(suffix_regex)) || member.profile && member.profile.email && (member.profile.email.match(start_regex) || member.profile.email.match(suffix_regex)) || member.profile && member.profile.real_name_normalized && (member.profile.real_name_normalized.match(start_regex) || member.profile.real_name_normalized.match(suffix_regex)) || member.profile && member.profile.real_name && (member.profile.real_name.match(start_regex) || member.profile.real_name.match(suffix_regex));
       }
       if (match) {
         if (!matches["name"]) matches["name"] = [];
@@ -15263,20 +15269,21 @@ TS.registerModule("constants", {
     },
     expandChannelsAndCheckForMsgsInModel: function(results) {
       var match;
+      var i;
       if (!results.messages || !results.messages.matches) return;
-      for (var i = 0; i < results.messages.matches.length; i++) {
+      for (i = 0; i < results.messages.matches.length; i++) {
         match = results.messages.matches[i];
         if (!match) continue;
         TS.search.expandChannelsAndCheckForMsgsInMatch(match);
       }
       if (results.messages.modules && results.messages.modules.score) {
-        for (var i = 0; i < results.messages.modules.score.matches.length; i++) {
+        for (i = 0; i < results.messages.modules.score.matches.length; i++) {
           match = results.messages.modules.score.matches[i];
           if (!match) continue;
           TS.search.expandChannelsAndCheckForMsgsInMatch(match);
         }
         if (results.messages.modules.score.top_results) {
-          for (var i = 0; i < results.messages.modules.score.top_results.length; i++) {
+          for (i = 0; i < results.messages.modules.score.top_results.length; i++) {
             match = results.messages.modules.score.top_results[i];
             if (!match) continue;
             TS.search.expandChannelsAndCheckForMsgsInMatch(match);
@@ -16917,11 +16924,12 @@ TS.registerModule("constants", {
       if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
     },
     member_left_channel: function(imsg) {
+      var channel;
       if (imsg.channel_type == "C") {
-        var channel = TS.channels.getChannelById(imsg.channel);
+        channel = TS.channels.getChannelById(imsg.channel);
         if (channel) TS.ms.msg_handlers.subtype__channel_leave(imsg);
       } else if (imsg.channel_type == "G") {
-        var channel = TS.groups.getGroupById(imsg.channel);
+        channel = TS.groups.getGroupById(imsg.channel);
         if (channel) TS.ms.msg_handlers.subtype__group_leave(imsg);
       }
     },
@@ -17122,11 +17130,12 @@ TS.registerModule("constants", {
       if (membership_did_change) TS.membership.notifyChannelMembershipChanged(user_id, channel, is_member, should_display_join_message);
     },
     member_joined_channel: function(imsg) {
+      var channel;
       if (imsg.channel_type == "C") {
-        var channel = TS.channels.getChannelById(imsg.channel);
+        channel = TS.channels.getChannelById(imsg.channel);
         if (channel) TS.ms.msg_handlers.subtype__channel_join(imsg);
       } else if (imsg.channel_type == "G") {
-        var channel = TS.groups.getGroupById(imsg.channel);
+        channel = TS.groups.getGroupById(imsg.channel);
         if (channel) TS.ms.msg_handlers.subtype__group_join(imsg);
       }
     },
@@ -18688,13 +18697,12 @@ TS.registerModule("constants", {
       }
       if (!TS.ms.hasOpenWebSocket()) {
         TS.log(1989, "Flannel: received a " + command_type + " call while we are not connected; deferring");
-        var this_context = this;
-        var args = arguments;
+        var flannel_args = arguments;
         var requirements = Promise.join(TS.ms.promiseToHaveOpenWebSocket(), TS.api.connection.waitForAPIConnection());
         return requirements.then(function() {
           TS.log(1989, "Flannel: connected! Continuing deferred " + command_type + " call");
-          return TS.ms.flannel.call.apply(this_context, args);
-        });
+          return TS.ms.flannel.call.apply(this, flannel_args);
+        }.bind(this));
       }
       return new Promise(function(resolve, reject) {
         var lostConnectionReject = function() {
@@ -19375,9 +19383,9 @@ TS.registerModule("constants", {
       var color = "#" + TS.utility.htmlEntities(member.member_color);
       var rule;
       if (TS.client) {
-        rule = "				." + cls + ":not(.nuc), 				#col_channels ul li:not(.active):not(.away) > ." + cls + ":not(.nuc) {					color:" + color + ";				}				";
+        rule = "				." + cls + ":not(.nuc), 				#col_channels ul li:not(.active):not(.away) > ." + cls + ":not(.nuc) {					color:" + color + ";				}			";
       } else {
-        rule = "			." + cls + ":not(.nuc) {				color:" + color + ";			}			";
+        rule = "				." + cls + ":not(.nuc) {					color:" + color + ";				}			";
       }
       var style_id = "color_rule_" + cls;
       var $style = $("#" + style_id);
@@ -19797,6 +19805,7 @@ TS.registerModule("constants", {
     formatAttachments: function(msg, model_ob, enable_slack_action_links, msg_dom_id) {
       if (!msg.attachments) return "";
       var html = "";
+      var i;
       var attachment_groups = [];
       var attachment;
       var attachments_to_be_shown = msg.attachments.length;
@@ -19807,14 +19816,14 @@ TS.registerModule("constants", {
         }
         attachments_to_be_shown = msg._shown_attachments;
       }
-      for (var i = 0; i < attachments_to_be_shown; i++) {
+      for (i = 0; i < attachments_to_be_shown; i++) {
         attachment = msg.attachments[i];
-        if (attachment.pretext || i == 0) {
+        if (attachment.pretext || i === 0) {
           attachment_groups.push([]);
         }
         _.last(attachment_groups).push(attachment);
       }
-      for (var i = 0; i < attachment_groups.length; i++) {
+      for (i = 0; i < attachment_groups.length; i++) {
         html += TS.templates.builders.formatAttachmentGroup(attachment_groups[i], msg, enable_slack_action_links, msg_dom_id, model_ob);
       }
       if (msg._shown_attachments < msg.attachments.length) {
@@ -19845,7 +19854,7 @@ TS.registerModule("constants", {
           if (query.cid) model_ob_id = query.cid;
           if (query.thread_ts) thread_ts = query.thread_ts;
         }
-        var model_ob = TS.shared.getModelObById(model_ob_id);
+        model_ob = TS.shared.getModelObById(model_ob_id);
         if (model_ob && thread_ts) {
           if (thread_ts.indexOf(".") < 0) thread_ts = thread_ts.substr(0, 10) + "." + thread_ts.substr(10);
           var preamble_args = {
@@ -20131,7 +20140,18 @@ TS.registerModule("constants", {
       }
       do_inline_imgs = do_inline_imgs === true;
       enable_slack_action_links = enable_slack_action_links === true;
-      var group, inviter, room;
+      var group;
+      var inviter;
+      var room;
+      var channel_name;
+      var inviter_name_formatted;
+      var group_name;
+      var formatted_topic;
+      var formatted_purpose;
+      var name_for_url;
+      var enterprise_name;
+      var mover;
+      var mover_name;
       if ((msg._jl_rollup_hash || msg._jl_rolled_up_in) && _jl_rollup_limit_reached && (!msg._jl_rolled_up_in || msg._jl_rolled_up_in !== msg.ts)) {
         return html;
       }
@@ -20140,7 +20160,6 @@ TS.registerModule("constants", {
         inviter = TS.members.getMemberById(msg.inviter);
         var user_ob = msg._jl_rollup_hash.users[msg.user];
         var str = TS.templates.builders.buildJoinLeaveRollUpStr(user_ob);
-        var channel_name;
         if (model_ob.is_group || model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
         } else if (model_ob) {
@@ -20313,7 +20332,6 @@ TS.registerModule("constants", {
         }
       } else if (msg.subtype == "channel_join") {
         inviter = TS.members.getMemberById(msg.inviter);
-        var channel_name;
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
         } else if (model_ob) {
@@ -20322,7 +20340,7 @@ TS.registerModule("constants", {
           channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
         if (inviter) {
-          var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
+          inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
           txt = TS.i18n.t("joined {channel_name} from an invitation by {inviter}", "templates_builders")({
             channel_name: channel_name,
             inviter: inviter_name_formatted
@@ -20334,7 +20352,6 @@ TS.registerModule("constants", {
           });
         }
       } else if (msg.subtype == "channel_leave") {
-        var channel_name;
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
         } else if (model_ob) {
@@ -20354,7 +20371,7 @@ TS.registerModule("constants", {
         if (!msg.topic) {
           html = TS.i18n.t("cleared the channel topic", "templates_builders")();
         } else {
-          var formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
+          formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
             no_highlights: true
           });
           html = TS.i18n.t('set the channel topic: <span class="topic no_jumbomoji">{topic}</span>', "templates_builders")({
@@ -20365,7 +20382,7 @@ TS.registerModule("constants", {
         if (!msg.purpose) {
           html = TS.i18n.t("cleared the channel purpose", "templates_builders")();
         } else {
-          var formatted_purpose = TS.format.formatWithOptions(msg.purpose, msg, {
+          formatted_purpose = TS.format.formatWithOptions(msg.purpose, msg, {
             no_highlights: true
           });
           html = TS.i18n.t('set the channel purpose: <span class="purpose no_jumbomoji">{purpose}</span>', "templates_builders")({
@@ -20374,10 +20391,10 @@ TS.registerModule("constants", {
         }
       } else if (msg.subtype == "group_join") {
         group = model_ob;
-        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
+        group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         inviter = TS.members.getMemberById(msg.inviter);
         if (inviter) {
-          var inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
+          inviter_name_formatted = "<@" + inviter.id + "|" + inviter.name + ">";
           txt = TS.i18n.t("joined {group_name} from an invitation by {inviter}", "templates_builders")({
             group_name: group_name,
             inviter: inviter_name_formatted
@@ -20390,7 +20407,7 @@ TS.registerModule("constants", {
         }
       } else if (msg.subtype == "group_leave") {
         group = model_ob;
-        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
+        group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         html = TS.i18n.t("left {group_name}", "templates_builders")({
           group_name: group_name
         });
@@ -20403,7 +20420,7 @@ TS.registerModule("constants", {
         if (!msg.topic) {
           html = TS.i18n.t("cleared the channel topic", "templates_builders")();
         } else {
-          var formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
+          formatted_topic = TS.format.formatWithOptions(msg.topic, msg, {
             no_highlights: true
           });
           html = TS.i18n.t('set the channel topic: <span class="no_jumbomoji">{topic}</span>', "templates_builders")({
@@ -20414,7 +20431,7 @@ TS.registerModule("constants", {
         if (!msg.purpose) {
           html = TS.i18n.t("cleared the channel purpose", "templates_builders")();
         } else {
-          var formatted_purpose = TS.format.formatWithOptions(msg.purpose, msg, {
+          formatted_purpose = TS.format.formatWithOptions(msg.purpose, msg, {
             no_highlights: true
           });
           html = TS.i18n.t('set the channel purpose: <span class="no_jumbomoji">{purpose}</span>', "templates_builders")({
@@ -20423,14 +20440,14 @@ TS.registerModule("constants", {
         }
       } else if (msg.subtype == "group_archive") {
         group = model_ob;
-        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
-        var enterprise_name = _.get(TS.model.enterprise, "name", "");
-        var mover_name = TS.i18n.t("your team admin", "templates_builders")();
+        group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
+        enterprise_name = _.get(TS.model.enterprise, "name", "");
+        mover_name = TS.i18n.t("your team admin", "templates_builders")();
         if (msg.user) {
-          var mover = TS.members.getMemberById(msg.user);
+          mover = TS.members.getMemberById(msg.user);
           mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
         }
-        var name_for_url = TS.boot_data.feature_intl_channel_names ? group.id : group.name;
+        name_for_url = TS.boot_data.feature_intl_channel_names ? group.id : group.name;
         if (TS.client && group && group.is_archived) {
           if (TS.model.archive_view_is_showing) {
             if (group.is_moved == 1) {
@@ -20479,12 +20496,11 @@ TS.registerModule("constants", {
         }
       } else if (msg.subtype == "group_unarchive") {
         group = model_ob;
-        var group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
+        group_name = group ? TS.model.group_prefix + group.name : TS.i18n.t("the private channel", "templates_builders")();
         html = TS.i18n.t("un-archived {group_name}", "templates_builders")({
           group_name: group_name
         });
       } else if (msg.subtype == "channel_archive") {
-        var channel_name;
         var channel_id_quoted = "'" + model_ob.id + "'";
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
@@ -20493,11 +20509,9 @@ TS.registerModule("constants", {
         } else {
           channel_name = TS.i18n.t("the channel", "templates_builders")();
         }
-        var name_for_url = TS.boot_data.feature_intl_channel_names ? model_ob.id : model_ob.name;
-        var enterprise_name = _.get(TS.model.enterprise, "name", "");
+        name_for_url = TS.boot_data.feature_intl_channel_names ? model_ob.id : model_ob.name;
+        enterprise_name = _.get(TS.model.enterprise, "name", "");
         if (TS.client && model_ob.is_moved == 1) {
-          var mover;
-          var mover_name;
           if (msg.user) {
             mover = TS.members.getMemberById(msg.user);
             mover_name = TS.format.formatNoHighlightsNoSpecials("<@" + mover.id + "|" + mover.name + ">");
@@ -20538,7 +20552,6 @@ TS.registerModule("constants", {
           });
         }
       } else if (msg.subtype == "channel_unarchive") {
-        var channel_name;
         if (model_ob.is_private) {
           channel_name = TS.model.group_prefix + model_ob.name;
         } else if (model_ob) {
@@ -22129,10 +22142,11 @@ TS.registerModule("constants", {
     },
     buildRxnTitle: function(args) {
       var handy_title = TS.rxns.getHandyRxnsTitleForEmojiByRxnKey(args.name, args.rxn_key);
+      var emoji_formatted;
       if (args.is_handy || args.is_poll && !args.count) {
         if (args.is_poll) return "Vote for “" + TS.utility.htmlEntities(handy_title || args.name) + "”";
         if (handy_title) return "Say “" + TS.utility.htmlEntities(handy_title) + "”";
-        var emoji_formatted = ":" + TS.utility.htmlEntities(args.name) + ":";
+        emoji_formatted = ":" + TS.utility.htmlEntities(args.name) + ":";
         return TS.i18n.t("Add reaction {emoji}", "rxn")({
           emoji: emoji_formatted
         });
@@ -22145,7 +22159,7 @@ TS.registerModule("constants", {
       } else if (handy_title) {
         subtitle = "said “" + TS.utility.htmlEntities(handy_title) + "”";
       } else {
-        var emoji_formatted = ":" + TS.utility.htmlEntities(args.name) + ":";
+        emoji_formatted = ":" + TS.utility.htmlEntities(args.name) + ":";
         subtitle = TS.i18n.t("reacted with {emoji}", "rxn")({
           emoji: emoji_formatted
         });
@@ -22446,11 +22460,12 @@ TS.registerModule("constants", {
     },
     buildQuickSwitcherBtnHtml: function() {
       var sidebar_group = TS.experiment.getGroup("feat_link_in_sidebar");
+      var html;
       if (sidebar_group === "new_button_old_modal") {
-        var html = '<i class="ts_icon ts_icon_filter"><span class="ts_tip_tip">Quick Switcher <span class="subtle_silver">⌘K</span></span></i>';
+        html = '<i class="ts_icon ts_icon_filter"><span class="ts_tip_tip">Quick Switcher <span class="subtle_silver">⌘K</span></span></i>';
       } else {
         var label = TS.i18n.t("Quick Switcher", "templates_builders")();
-        var html = !TS.model.is_mac && (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + label + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + label + "</span>";
+        html = !TS.model.is_mac && (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + label + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + label + "</span>";
         if (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) {
           return [html, '<span id="quick_switcher_shortcut">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span>"].join("");
         }
@@ -23502,7 +23517,7 @@ TS.registerModule("constants", {
           TS.info("debug handlerbars t helper");
           TS.info(this);
         }
-        var str = TS.i18n.t(str, ns)(data);
+        str = TS.i18n.t(str, ns)(data);
         for (item in modified_items) {
           data[item] = modified_items[item];
         }
@@ -23706,11 +23721,12 @@ TS.registerModule("constants", {
         return str.replace(/\s+/g, "");
       });
       Handlebars.registerHelper("cash", function(options) {
+        var out;
         if (TS.boot_data.feature_i18n_currencies) {
           var include_all_digits = options.hash.all_digits || false;
           var currency_code = options.hash.currency_code || "USD";
           var amount = parseInt(options.hash.value);
-          var out = TS.utility.money.formatMoney(amount, currency_code, {
+          out = TS.utility.money.formatMoney(amount, currency_code, {
             all_digits: include_all_digits
           });
           return out;
@@ -23723,7 +23739,7 @@ TS.registerModule("constants", {
           val = 0 - val;
         }
         var dollars = (val / 100).toString();
-        var out = (neg ? "-" : "") + "$" + dollars;
+        out = (neg ? "-" : "") + "$" + dollars;
         if (!all_digits && out.substring(-3) === ".00") {
           out = out.substring(0, -3);
         } else if (_REGEX_CASH_DECIMAL_FORMATTING.test(dollars)) {
@@ -25335,6 +25351,7 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("renderAttachmentMedia", function(attachment, msg_dom_id) {
         var html;
         var media_type = TS.utility.attachments.getMediaType(attachment);
+        var url;
         switch (media_type) {
           case "other":
             if (attachment.other_html) {
@@ -25343,13 +25360,13 @@ TS.registerModule("constants", {
             break;
           case "video":
             if (attachment.video_html && attachment.thumb_url) {
-              var url = attachment.from_url || attachment.thumb_url;
+              url = attachment.from_url || attachment.thumb_url;
               html = TS.templates.builders.buildInlineVideoDiv(url, msg_dom_id);
             }
             break;
           case "image":
             if (attachment.image_url) {
-              var url = attachment.from_url || attachment.image_url;
+              url = attachment.from_url || attachment.image_url;
               var args = {};
               args.flush_with_attachment = true;
               args.is_giphy_shuffle = attachment.fallback && attachment.fallback.indexOf("giphy") >= 0 && attachment.actions && attachment.actions[1] && attachment.actions[1].name == "shuffle";
@@ -25380,20 +25397,21 @@ TS.registerModule("constants", {
       Handlebars.registerHelper("attachmentMediaCaret", function(attachment, msg_dom_id) {
         var caret_html = "";
         var media_type = TS.utility.attachments.getMediaType(attachment);
+        var src;
         switch (media_type) {
           case "video":
-            var src = attachment.from_url || attachment.thumb_url;
+            src = attachment.from_url || attachment.thumb_url;
             caret_html = TS.templates.builders.buildInlineVideoToggler(src, msg_dom_id, true);
             break;
           case "audio":
-            var src = attachment.audio_html || attachment.audio_url;
+            src = attachment.audio_html || attachment.audio_url;
             caret_html = TS.templates.builders.buildInlineAudioToggler(src, msg_dom_id);
             break;
           case "other":
             caret_html = TS.templates.builders.buildInlineOtherToggler(attachment.other_html, msg_dom_id);
             break;
           case "image":
-            var src = attachment.from_url || attachment.image_url;
+            src = attachment.from_url || attachment.image_url;
             var args = {};
             args.is_giphy_shuffle = attachment.fallback && attachment.fallback.indexOf("giphy") >= 0 && attachment.actions && attachment.actions[1] && attachment.actions[1].name == "shuffle";
             caret_html = TS.templates.builders.buildInlineImgToggler(src, msg_dom_id, false, args);
@@ -26627,11 +26645,12 @@ TS.registerModule("constants", {
       return null;
     },
     getMarkMsgTSForUnreadPoint: function(id, msgs, model_ob) {
-      var mark_msg_ts, prev_msg;
+      var mark_msg_ts;
+      var prev_msg;
       if (model_ob.oldest_msg_ts && id == model_ob.oldest_msg_ts) {
         mark_msg_ts = "0000000000.000000";
       } else {
-        var prev_msg = TS.utility.msgs.getPrevDisplayedMsg(id, msgs) || TS.utility.msgs.getMsg(id, msgs);
+        prev_msg = TS.utility.msgs.getPrevDisplayedMsg(id, msgs) || TS.utility.msgs.getMsg(id, msgs);
         if (prev_msg) mark_msg_ts = prev_msg.ts;
       }
       if (!mark_msg_ts) return null;
@@ -30123,12 +30142,13 @@ TS.registerModule("constants", {
     },
     extractAllBotIds: function(ob) {
       var bot_ids = ob.bot_id ? [ob.bot_id] : [];
+      var new_bot_ids;
       _.values(ob).forEach(function(val) {
         if (_.isObject(val)) {
-          var new_bot_ids = TS.utility.extractAllBotIds(val);
+          new_bot_ids = TS.utility.extractAllBotIds(val);
           bot_ids.push(new_bot_ids);
         } else if (_.isString(val)) {
-          var new_bot_ids = _(TS.utility.findUrls(val)).map(TS.utility.getBotIDFromURL).compact().value();
+          new_bot_ids = _(TS.utility.findUrls(val)).map(TS.utility.getBotIDFromURL).compact().value();
           bot_ids.push(new_bot_ids);
         }
       });
@@ -30929,7 +30949,7 @@ TS.registerModule("constants", {
         }
         TS.format.applyStringifyTransformsToChildren(container_clone, options);
         var restore = TS.selection.snapshot();
-        var selection = TS.selection.selectNodeContents(container_clone);
+        selection = TS.selection.selectNodeContents(container_clone);
         selection_text = selection.toString();
         container_clone.parentElement.removeChild(container_clone);
         restore();
@@ -31219,6 +31239,7 @@ TS.registerModule("constants", {
     var anchor_start;
     var anchor_end;
     var ug;
+    var username;
     if (tsf_mode == "GROWL" || tsf_mode == "EDIT") {
       for (i = 0; i < A.length; i++) {
         item = A[i];
@@ -31228,7 +31249,7 @@ TS.registerModule("constants", {
           } else if (item.indexOf("<!") === 0) {
             str += _parseCommandToken(tsf_mode, item);
           } else if (item.indexOf("<@") === 0) {
-            var username = _parseMemberToken(tsf_mode, item);
+            username = _parseMemberToken(tsf_mode, item);
             if (username === "`...`") username = '<span class="temp_ellipsis">. . .</span>';
             str += username;
           } else if (item.indexOf("<#") === 0) {
@@ -31274,7 +31295,7 @@ TS.registerModule("constants", {
           } else if (item.indexOf("<!") === 0) {
             str += _parseCommandToken(tsf_mode, item, no_highlights, no_linking);
           } else if (item.indexOf("<@") === 0) {
-            var username = _parseMemberToken(tsf_mode, item, no_highlights, no_linking);
+            username = _parseMemberToken(tsf_mode, item, no_highlights, no_linking);
             if (username === "`...`") username = '<span class="temp_ellipsis">. . .</span>';
             str += username;
           } else if (item.indexOf("<#") === 0) {
@@ -31466,15 +31487,17 @@ TS.registerModule("constants", {
     _.forEach(data_tags_object, function(value, key) {
       data_tags += "data-" + key + '="' + value + '" ';
     });
+    var display_name;
+    var target;
     if (TS.boot_data.feature_name_tagging_client) {
       if (tsf_mode == "EDIT") {
         return "@" + m.name;
       }
-      var display_name = TS.members.getMemberDisplayName(m, true);
+      display_name = TS.members.getMemberDisplayName(m, true);
       if (tsf_mode == "GROWL" || !TS.permissions.members.canUserSeeMember(m)) {
         return display_name;
       }
-      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.id + '" ' : "";
+      target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.id + '" ' : "";
       if (m.id == TS.model.user.id) classes.push("mention");
       if (no_linking) {
         return "@" + display_name;
@@ -31484,9 +31507,9 @@ TS.registerModule("constants", {
     if (tsf_mode == "EDIT" || tsf_mode == "GROWL") {
       return "@" + m.name;
     }
-    var display_name = "@" + m.name;
+    display_name = "@" + m.name;
     if (TS.permissions.members.canUserSeeMember(m) && !no_linking) {
-      var target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.name + '" ' : "";
+      target = TS.utility.shouldLinksHaveTargets() ? 'target="/team/' + m.name + '" ' : "";
       if (!no_highlights) display_name = _doHighlighting(display_name);
       return '<a href="/team/' + m.name + '" ' + target + data_tags + 'class="' + classes.join(" ") + '">' + display_name + "</a>";
     }
@@ -32135,18 +32158,19 @@ TS.registerModule("constants", {
       var model_ob_id = $target.data("model-ob-id");
       var rxn_key = $target.data("rxn-key");
       var model_ob = model_ob_id ? TS.shared.getModelObById(model_ob_id) : TS.shared.getActiveModelOb();
+      var thread_ts;
       if (id == "edit_link") {
         var edit_state = $target.data("edit-state");
         TS.msg_edit.startEdit(msg_ts, model_ob, edit_state);
       } else if (id == "delete_link") {
         TS.msg_edit.startDelete(msg_ts, model_ob);
       } else if (id === "open_in_channel") {
-        var thread_ts = $target.attr("data-thread-ts");
+        thread_ts = $target.attr("data-thread-ts");
         TS.client.ui.tryToJump(model_ob.id, thread_ts);
       } else if (id === "open_thread_in_flexpane") {
         var msg = TS.utility.msgs.findMsg(msg_ts, model_ob.id);
         if (msg && TS.replies && TS.replies.canReplyToMsg(model_ob, msg)) {
-          var thread_ts = msg.thread_ts || msg.ts;
+          thread_ts = msg.thread_ts || msg.ts;
           TS.ui.replies.openConversation(model_ob, thread_ts);
         }
       } else if (id === "toggle-subscription-status") {
@@ -34142,16 +34166,18 @@ var _on_esc;
       TS.menu.$menu.addClass("file_menu");
       TS.menu.$menu_header.addClass("hidden").empty();
       var should_show_upload_file = window.File && TS.model.team.prefs.disable_file_uploads !== "disable_all";
+      var file_type;
+      var upload_file_text;
       if (should_show_upload_file) {
-        var file_type = TS.model.team.prefs.disable_file_uploads === "disable_all_except_images" ? TS.i18n.t("an image", "menu_file")() : TS.i18n.t("a file", "menu_file")();
-        var upload_file_text = "Upload " + file_type;
+        file_type = TS.model.team.prefs.disable_file_uploads === "disable_all_except_images" ? TS.i18n.t("an image", "menu_file")() : TS.i18n.t("a file", "menu_file")();
+        upload_file_text = "Upload " + file_type;
       } else {
         if (!TS.menu.file.reported_no_file_reader) {
           TS.menu.file.reported_no_file_reader = true;
           TS.info("TS.menu: No File support?  navigator.userAgent: " + navigator.userAgent);
         }
-        var file_type = "";
-        var upload_file_text = "";
+        file_type = "";
+        upload_file_text = "";
       }
       var should_show_email = TS.boot_data.feature_email_ingestion && TS.model.team.prefs.allow_email_ingestion;
       var should_show_thanks = TS.boot_data.feature_thanks;
@@ -34239,6 +34265,7 @@ var _on_esc;
       var $clicked = $(this).closest("[data-which]");
       if (!$clicked.length) $clicked = $(e.target).closest("[data-which]");
       var which = $clicked.data("which");
+      var open_in_browser;
       if (which == "choose") {
         e.preventDefault();
         TS.client.ui.files.$upload.trigger("click");
@@ -34263,11 +34290,11 @@ var _on_esc;
         e.preventDefault();
       } else if (which == "space") {
         e.preventDefault();
-        var open_in_browser = TS.utility.cmdKey(e);
+        open_in_browser = TS.utility.cmdKey(e);
         TS.files.createAndOpenNewSpace(null, open_in_browser);
       } else if (which == "arugula") {
         e.preventDefault();
-        var open_in_browser = TS.utility.cmdKey(e);
+        open_in_browser = TS.utility.cmdKey(e);
         TS.files.createAndOpenNewArugula(null, open_in_browser);
       } else {
         e.preventDefault();
@@ -34482,10 +34509,11 @@ var _on_esc;
       } else if (id == "create_public_link") {
         e.preventDefault();
         if (TS.model.team.prefs.disallow_public_file_urls) {
+          var message;
           if (TS.boot_data.feature_external_files) {
-            var message = TS.i18n.t("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.", "menu_file")();
+            message = TS.i18n.t("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.", "menu_file")();
           } else {
-            var message = TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.", "menu_file")();
+            message = TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.", "menu_file")();
           }
           TS.generic_dialog.alert(message);
           return;
@@ -34606,10 +34634,11 @@ var _on_esc;
               if ($share_link.length === 0) TS.ui.file_share.fileShowPublicUrlDialog(file);
             } else if (data.error && data.error === "not_allowed") {
               TS.model.team.prefs.disallow_public_file_urls = true;
+              var message;
               if (TS.boot_data.feature_external_files) {
-                var message = TS.i18n.t("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.", "menu_file")();
+                message = TS.i18n.t("An administator has disabled external file URL creation. You will not be able to create an external URL for this file.", "menu_file")();
               } else {
-                var message = TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.", "menu_file")();
+                message = TS.i18n.t("An administator has disabled public file URL creation. You will not be able to create a public URL for this file.", "menu_file")();
               }
               TS.generic_dialog.alert(message);
             }
@@ -37728,10 +37757,11 @@ var _on_esc;
         TS.error("failed fetchMentions");
         return;
       }
+      var mention;
       var mentions = [];
       var existing_rxns;
       for (var i = 0; i < data.mentions.length; i++) {
-        var mention = data.mentions[i];
+        mention = data.mentions[i];
         if (mention.type == "reaction") {
           if (mention.item.type == "message") {
             mention.rxn_ts = mention.ts;
@@ -37805,7 +37835,7 @@ var _on_esc;
       TS.mentions.sortMentions();
       TS.mentions.has_more = data.has_more;
       if (TS.model.user.mentions.length) {
-        var mention = TS.model.user.mentions[TS.model.user.mentions.length - 1];
+        mention = TS.model.user.mentions[TS.model.user.mentions.length - 1];
         TS.mentions.after_ts = mention.type === "reaction" ? mention.rxn_ts : mention.message.ts;
       }
       TS.mentions.mentions_fetched_sig.dispatch();
@@ -41046,7 +41076,7 @@ var _on_esc;
         if (TS.model.is_iOS) TS.menu.end();
         return;
       }
-      var files = $el.get(0).files;
+      files = $el.get(0).files;
     }
     if (files) {
       if (TS.model.is_iOS) TS.menu.end();
@@ -42481,7 +42511,7 @@ var _on_esc;
           team_name: TS.utility.htmlEntities(team.name)
         }));
         if (ok) {
-          var team = _.merge({}, TS.enterprise.getTeamById(args.team));
+          team = _.merge({}, TS.enterprise.getTeamById(args.team));
           team.joined_date = data.joined_date;
           TS.enterprise.upsertEnterpriseTeam(team);
           _showToastMessage("success", message);
@@ -44313,7 +44343,6 @@ $.fn.togglify = function(settings) {
       }
       var $container = $el.closest(".inline_file_preview_container, .file_container");
       if ($container.length === 0) return;
-      var $el = $(e.target);
       var $message = $el.closest("ts-message");
       var message_ts = $message.data("ts") + "";
       var message_c_id = $message.data("model-ob-id");
@@ -45464,7 +45493,7 @@ $.fn.togglify = function(settings) {
         invited_members = invited_members.filter(function(item) {
           return TS.pending_users.checkUserMatch(item, start_regex) || TS.pending_users.checkUserMatch(item, suffix_regex);
         });
-        var members = members.concat(invited_members).sort(function(a, b) {
+        members = members.concat(invited_members).sort(function(a, b) {
           return TS.pending_users.usersSorterByName(a, b);
         });
         return members;
@@ -46617,6 +46646,7 @@ $.fn.togglify = function(settings) {
     if (query === instance._previous_val) return;
     instance._all_done_fetching = false;
     instance._previous_val = query;
+    instance._$active = null;
     _adjustInput(instance);
     instance._page_number = 1;
     if (instance._list_built) instance.$list.longListView("scrollToTop", true);
@@ -47468,9 +47498,9 @@ $.fn.togglify = function(settings) {
         if (x <= endX) {
           return;
         }
-        var next_y = x - x_incr;
+        var next_x = x - x_incr;
         var next_y = y - y_incr;
-        return findMessageAt(next_y, next_y);
+        return findMessageAt(next_x, next_y);
       };
       return findMessageAt(startX, startY);
     },
@@ -48210,6 +48240,7 @@ $.fn.togglify = function(settings) {
         return;
       }
       var rxn_key = TS.rxns.getRxnKeyByMsgType(msg);
+      var thread_ts;
       switch (action) {
         case "actions_menu":
           if (in_archives) {
@@ -48248,7 +48279,7 @@ $.fn.togglify = function(settings) {
             if (TS.model.unread_view_is_showing && TS.client.unread.shouldRecordMetrics()) {
               TS.metrics.count("unread_view_reply");
             }
-            var thread_ts = msg.thread_ts || msg.ts;
+            thread_ts = msg.thread_ts || msg.ts;
             if (TS.boot_data.feature_message_replies_inline) {
               TS.ui.thread.startInlineThread(model_ob, msg, $msg_el);
             } else {
@@ -48264,7 +48295,7 @@ $.fn.togglify = function(settings) {
             window.location = permalink;
           } else if (TS.client) {
             if (TS.model.threads_view_is_showing) TS.client.ui.threads.trackThreadsViewClosed("OPEN_IN_CHANNEL");
-            var thread_ts = msg.thread_ts || msg.ts;
+            thread_ts = msg.thread_ts || msg.ts;
             TS.client.ui.tryToJump(model_ob.id, thread_ts);
           }
           break;
@@ -48465,6 +48496,7 @@ $.fn.togglify = function(settings) {
       var result_iid = $search_result.data("iid") || "";
       var $ts_message = $target.closest("ts-message");
       var message_iid = $ts_message.data("iid") || result_iid;
+      var $message;
       if ($target.hasClass("jump")) {
         target_type = "top_results_jump";
       } else if ($target.hasClass("search_jump")) {
@@ -48475,17 +48507,17 @@ $.fn.togglify = function(settings) {
         target_type = "channel";
       } else if ($target.hasClass("message_sender")) {
         target_type = "sender";
-        var $message = $target.closest("ts-message");
+        $message = $target.closest("ts-message");
         target_user_id = $message.data("memberId");
         target_ts = $message.data("ts") + "";
       } else if ($target.hasClass("timestamp")) {
         target_type = "timestamp";
-        var $message = $target.closest("ts-message");
+        $message = $target.closest("ts-message");
         target_user_id = $message.data("memberId");
         target_ts = $message.data("ts") + "";
       } else if ($target.hasClass("star")) {
         target_type = "star";
-        var $message = $target.closest("ts-message");
+        $message = $target.closest("ts-message");
         target_user_id = $message.data("memberId");
         target_ts = $message.data("ts") + "";
       } else if ($target.attr("href") || $target.attr("onclick")) {
@@ -48570,16 +48602,27 @@ $.fn.togglify = function(settings) {
       TS.api.call("search.feedback", payload);
     });
     TS.click.addClientHandler("ts-message .message_body a, ts-message .file_container a", function(e, $el) {
+      var $message;
+      var message_ts;
+      var message_c_id;
+      var member_id;
+      var app_id;
+      var bot_id;
+      var url;
+      var payload;
+      var is_image;
+      var file_id;
+      var file;
       if (!TS.boot_data.feature_new_message_click_logging) {
-        var $message = $el.closest("ts-message");
-        var message_ts = $message.data("ts") + "";
-        var message_c_id = $message.data("model-ob-id");
-        var member_id = $message.data("member-id");
-        var app_id = $message.data("app-id");
-        var bot_id = $message.data("bot-id");
+        $message = $el.closest("ts-message");
+        message_ts = $message.data("ts") + "";
+        message_c_id = $message.data("model-ob-id");
+        member_id = $message.data("member-id");
+        app_id = $message.data("app-id");
+        bot_id = $message.data("bot-id");
         var original_href = $el.data("referer-original-href");
-        var url = original_href ? original_href : $el.attr("href");
-        var payload = {
+        url = original_href ? original_href : $el.attr("href");
+        payload = {
           message_timestamp: message_ts,
           channel_id: message_c_id,
           channel_type: message_c_id ? message_c_id.charAt(0) : "",
@@ -48593,7 +48636,7 @@ $.fn.togglify = function(settings) {
           payload["item_id"] = channel_id;
           payload["item_type"] = "C";
         } else if ($el.is("[data-file-id]")) {
-          var file_id = $el.data("file-id");
+          file_id = $el.data("file-id");
           payload["item_id"] = file_id;
           payload["item_type"] = "F";
         }
@@ -48601,10 +48644,10 @@ $.fn.togglify = function(settings) {
           _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
           TS.client.ui.unread.incrementTrackingSeqId();
         }
-        var is_image = $el.closest(".msg_inline_img_holder").length > 0;
-        var file_id = $el.attr("data-file-id");
+        is_image = $el.closest(".msg_inline_img_holder").length > 0;
+        file_id = $el.attr("data-file-id");
         if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
-        var file = file_id ? TS.files.getFileById(file_id) : null;
+        file = file_id ? TS.files.getFileById(file_id) : null;
         if (_.get(file, "external_type") === "gdrive") {
           if (!payload.contexts) {
             payload.contexts = {};
@@ -48622,15 +48665,15 @@ $.fn.togglify = function(settings) {
         TS.clog.track("MSG_LINK_CLICKED", payload);
       } else {
         var $target = $(e.target);
-        var $message = $el.closest("ts-message");
-        var message_ts = $message.data("ts") + "";
-        var message_c_id = $message.data("model-ob-id");
+        $message = $el.closest("ts-message");
+        message_ts = $message.data("ts") + "";
+        message_c_id = $message.data("model-ob-id");
         var message_ob = message_ts && message_c_id ? TS.utility.msgs.findMsg(message_ts, message_c_id) : null;
-        var member_id = $message.data("member-id");
-        var app_id = $message.data("app-id");
-        var bot_id = $message.data("bot-id");
-        var url = $el.data("referer-original-href") || $el.attr("href");
-        var payload = {
+        member_id = $message.data("member-id");
+        app_id = $message.data("app-id");
+        bot_id = $message.data("bot-id");
+        url = $el.data("referer-original-href") || $el.attr("href");
+        payload = {
           message_timestamp: message_ts,
           channel_id: message_c_id,
           channel_type: message_c_id ? message_c_id.charAt(0) : "",
@@ -48663,10 +48706,10 @@ $.fn.togglify = function(settings) {
           _.merge(payload, TS.client.ui.unread.getTrackingData(message_ts));
           TS.client.ui.unread.incrementTrackingSeqId();
         }
-        var is_image = $el.closest(".msg_inline_img_holder").length > 0;
-        var file_id = $el.attr("data-file-id");
+        is_image = $el.closest(".msg_inline_img_holder").length > 0;
+        file_id = $el.attr("data-file-id");
         if (!file_id) file_id = $el.closest("[data-file-id]").attr("data-file-id");
-        var file = file_id ? TS.files.getFileById(file_id) : null;
+        file = file_id ? TS.files.getFileById(file_id) : null;
         if (_.get(file, "external_type") === "gdrive") {
           if (!payload.contexts) {
             payload.contexts = {};
@@ -48734,7 +48777,7 @@ $.fn.togglify = function(settings) {
         var $message = $el.closest("ts-message");
         var message_ts = $message.data("ts") + "";
         var message_c_id = $message.data("model-ob-id");
-        var member_id = $message.data("member-id");
+        member_id = $message.data("member-id");
         var app_id = $message.data("app-id");
         var bot_id = $message.data("bot-id");
         var payload = {
@@ -50032,6 +50075,7 @@ $.fn.togglify = function(settings) {
     });
   };
   var _scoreMember = function(member, matcher, query, only_members) {
+    var score;
     if (TS.utility.queryIsMaybeSelf(query) && member.is_self) return 0;
     if (TS.boot_data.feature_name_tagging_client) {
       var full_name_score = Infinity;
@@ -50048,7 +50092,7 @@ $.fn.togglify = function(settings) {
           preferred_name_normalized_score = matcher.score(member._preferred_name_normalized_lc);
         }
       }
-      var score = Math.min(full_name_score, full_name_normalized_score, preferred_name_score, preferred_name_normalized_score);
+      score = Math.min(full_name_score, full_name_normalized_score, preferred_name_score, preferred_name_normalized_score);
     } else {
       var name_score = Infinity;
       var rn_score = Infinity;
@@ -50060,7 +50104,7 @@ $.fn.togglify = function(settings) {
           rn_norm_score = matcher.score(member._real_name_normalized_lc);
         }
       }
-      var score = Math.min(name_score, rn_score, rn_norm_score);
+      score = Math.min(name_score, rn_score, rn_norm_score);
     }
     return score;
   };
@@ -53005,7 +53049,7 @@ $.fn.togglify = function(settings) {
             clearInterval(timeout_id);
           }
         });
-        var timeout_id = setTimeout(function() {
+        timeout_id = setTimeout(function() {
           if (!has_resolved) {
             _checkEmail(email, email_domain).then(function(data) {
               if (!has_resolved) {
@@ -55897,6 +55941,7 @@ $.fn.togglify = function(settings) {
       return next_value || "";
     },
     cursorPosition: function(input, start, length) {
+      var texty;
       var pos = {
         start: 0,
         end: 0,
@@ -55912,7 +55957,7 @@ $.fn.togglify = function(settings) {
         if (_isFormElement(input)) {
           TS.selection.selectCharacters(input, pos.start, pos.end);
         } else if (_isTextyElement(input)) {
-          var texty = _getTextyInstance(input);
+          texty = _getTextyInstance(input);
           texty.setSelection(pos.start, pos.length);
         }
       } else {
@@ -55926,7 +55971,7 @@ $.fn.togglify = function(settings) {
           pos.end = input.selectionEnd;
           pos.length = Math.abs(input.selectionEnd - input.selectionStart);
         } else if (_isTextyElement(input)) {
-          var texty = _getTextyInstance(input);
+          texty = _getTextyInstance(input);
           var range = texty.getSelection();
           if (range) {
             pos.start = range.index;
@@ -56695,7 +56740,7 @@ $.fn.togglify = function(settings) {
     if ($msg && $msg.length) {
       var ts = $msg.data("ts");
       var model_ob_id = $msg.data("model-ob-id");
-      var model_ob = TS.shared.getModelObById(model_ob_id);
+      model_ob = TS.shared.getModelObById(model_ob_id);
       var in_convo = $msg.closest("#convo_container").length > 0;
       var edit_state = in_convo ? "convo" : null;
       TS.msg_edit.startEdit(ts, model_ob, edit_state);
@@ -56926,14 +56971,13 @@ $.fn.togglify = function(settings) {
     });
     _$container.find("a.handy_rxns_remover").on("click", function(e) {
       var $row = $(e.currentTarget).parent();
-      _updateRow($row, "", "");
+      _updateRow($row, "");
       $row.insertAfter(_$rows.last());
       _updateIsDirty();
     });
     _$container.find("a.handy_rxns_picker").on("click", function(e) {
       var $row = $(e.currentTarget).parent();
       var was_name = $row.find("a.btn").data("rxn");
-      var was_title = $row.find("input.title").val();
       var disabled_names = $row.hasClass("empty") ? _readFromDom().list.map(function(item) {
         return item.name;
       }) : [was_name];
@@ -56943,12 +56987,11 @@ $.fn.togglify = function(settings) {
         callback: function(name) {
           name = _cleanName(name);
           var $existing_row = _getExistingRow(name);
-          var existing_title = $existing_row.find("input.title").val();
           if ($existing_row.length) {
-            _updateRow($existing_row, was_name, was_title);
-            _updateRow($row, name, existing_title);
+            _updateRow($existing_row, was_name);
+            _updateRow($row, name);
           } else {
-            _updateRow($row, name, was_title);
+            _updateRow($row, name);
           }
           $row.insertBefore(_getEmptyRows().first());
           _updateIsDirty();
@@ -56994,7 +57037,7 @@ $.fn.togglify = function(settings) {
       return $(this).hasClass("empty");
     });
   };
-  var _updateRow = function($row, name, title) {
+  var _updateRow = function($row, name) {
     var suffix = TS.emoji.isNameSkinToneModifiable(name) ? TS.emoji.getChosenSkinToneModifier() : "";
     var html = name && TS.emoji.graphicReplace(":" + name + ":" + suffix) || '<i class="ts_icon ts_icon_add_reaction subtle_silver"></i>';
     var title = name ? TS.i18n.t("say what {name} means", "rxns")({
@@ -57012,9 +57055,9 @@ $.fn.togglify = function(settings) {
       var $row = $(row);
       var datum = handy_rxns.list[i];
       if (datum) {
-        _updateRow($row, datum.name, datum.title);
+        _updateRow($row, datum.name);
       } else {
-        _updateRow($row, "", "");
+        _updateRow($row, "");
       }
     });
     _$restrict_cb.prop("checked", !!handy_rxns.restrict);
@@ -57030,7 +57073,7 @@ $.fn.togglify = function(settings) {
       var $row = $(row);
       var name = $row.find("a.btn").data("rxn");
       if (TS.emoji.isNameSkinToneModifiable(name)) {
-        _updateRow($row, name, $row.find("input.title").val());
+        _updateRow($row, name);
       }
     });
   };
@@ -57973,7 +58016,6 @@ $.fn.togglify = function(settings) {
   };
   var _onItemMouseOver = function(evt) {
     if (this._focused_item === evt.target) return;
-    var label;
     var label = evt.target.getAttribute("disabled") ? evt.target.getAttribute("data-desc-disabled") : evt.target.getAttribute("data-desc");
     this._dropdown_desc.innerHTML = label;
     if (this._focused_item) this._focused_item.blur();
@@ -58138,7 +58180,6 @@ $.fn.togglify = function(settings) {
     },
     getProviderLabel: function(org_data, placeholder) {
       var fallback = placeholder || "IDP";
-      var placeholder;
       if (!org_data) return fallback;
       placeholder = _.get(org_data, "saml_provider") || fallback;
       if (placeholder.toLowerCase() === "saml") placeholder = fallback;
@@ -58394,7 +58435,7 @@ $.fn.togglify = function(settings) {
     _.forEach($msgs, function(msg) {
       var msg_ts = $(msg).data("ts");
       if (!msg_ts) return;
-      var msg = TS.utility.msgs.getMsg(msg_ts, model_ob.msgs);
+      msg = TS.utility.msgs.getMsg(msg_ts, model_ob.msgs);
       if (!msg) return;
       _updatePinnedMessageUI(model_ob, msg, is_pinned);
     });
@@ -58667,7 +58708,6 @@ $.fn.togglify = function(settings) {
       var key = _keyForThread(model_ob_id, thread_ts);
       var subscription = _subscriptions[key];
       if (subscription) return Promise.resolve(subscription);
-      var key = _keyForThread(model_ob_id, thread_ts);
       var pending_p = _threads_being_loaded[key] || _threads_being_loaded_from_end[key];
       if (pending_p) {
         return pending_p.then(function() {
@@ -60269,8 +60309,9 @@ $.fn.togglify = function(settings) {
         return;
       }
       var msgs = TS.utility.msgs.getDisplayedMsgs(TS.shared.getActiveModelOb().msgs);
+      var i;
       if (animations === false) {
-        for (var i = 0; i < msgs.length; i++) {
+        for (i = 0; i < msgs.length; i++) {
           if (msgs[i].file) {
             file = msgs[i].file;
             if (file.filetype === "gif") {
@@ -60290,7 +60331,7 @@ $.fn.togglify = function(settings) {
           }
         }
       } else {
-        for (var i = 0; i < msgs.length; i++) {
+        for (i = 0; i < msgs.length; i++) {
           if (msgs[i].file) {
             file = msgs[i].file;
             if (file.filetype === "gif") {
@@ -67163,8 +67204,7 @@ $.fn.togglify = function(settings) {
           r = void 0 !== n && n,
           i = t.uniformColumnWidth,
           a = void 0 !== i && i;
-        o()(this, e), this._uniformRowHeight = r, this._uniformColumnWidth = a, this._cachedColumnWidth = void 0, this._cachedRowHeight = void 0,
-          this._cachedColumnWidths = {}, this._cachedRowHeights = {};
+        o()(this, e), this._uniformRowHeight = r, this._uniformColumnWidth = a, this._cachedColumnWidth = void 0, this._cachedRowHeight = void 0, this._cachedColumnWidths = {}, this._cachedRowHeights = {};
       }
       return a()(e, [{
         key: "clearAllColumnWidths",

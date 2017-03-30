@@ -443,9 +443,10 @@
       var member;
       var members;
       var is_subset = TS.web.admin.isSubsetCase();
+      var i;
       if (is_subset) {
         members = [];
-        for (var i = 0, j = boot_data.member_list_subset.length; i < j; i++) {
+        for (i = 0; i < boot_data.member_list_subset.length; i++) {
           members.push(TS.members.getMemberById(boot_data.member_list_subset[i]));
         }
       } else {
@@ -454,7 +455,7 @@
       _members = members;
       if (TS.web.admin.view == "list") {
         if (TS.web.admin.active_members.length === 0) {
-          for (var i = 0; i < members.length; i++) {
+          for (i = 0; i < members.length; i++) {
             member = members[i];
             if (member.deleted) {
               TS.web.admin.disabled_members.push(member);
@@ -1337,6 +1338,7 @@
       $row.find(".inline_username").removeClass("hidden").end().find(".inline_username_edit_form").addClass("hidden");
     },
     submitUsernameForm: function(member_id) {
+      var confirmation_msg;
       var member = TS.members.getMemberById(member_id);
       var $row = TS.web.admin.selectRow(member);
       var confirm_body = [];
@@ -1362,12 +1364,12 @@
         return;
       }
       if (TS.model.user.id === member.id) {
-        var confirmation_msg = "<p>" + TS.i18n.t("You are about to rename yourself from <strong>{member_name}</strong> to <strong>{new_member_name}</strong>.", "web_admin")({
+        confirmation_msg = "<p>" + TS.i18n.t("You are about to rename yourself from <strong>{member_name}</strong> to <strong>{new_member_name}</strong>.", "web_admin")({
           member_name: member.name,
           new_member_name: username
         }) + "</p>";
       } else {
-        var confirmation_msg = "<p>" + TS.i18n.t("You are about to rename <strong>{member_name}</strong> to <strong>{new_member_name}</strong>.", "web_admin")({
+        confirmation_msg = "<p>" + TS.i18n.t("You are about to rename <strong>{member_name}</strong> to <strong>{new_member_name}</strong>.", "web_admin")({
           member_name: member.name,
           new_member_name: username
         }) + "</p>";
@@ -1415,6 +1417,7 @@
       var member = TS.members.getMemberById(member_id);
       var $row = TS.web.admin.selectRow(member);
       var email = $.trim($row.find('input[name="email"]').val());
+      var email_change_confirmation;
       var confirm_body = [];
       var args = {
         user: member.id,
@@ -1432,13 +1435,13 @@
         return;
       }
       if (TS.model.user.id === member.id) {
-        var email_change_confirmation = "<p>" + TS.i18n.t("You are about to change your email address from <strong>{member_email}</strong> to <strong>{new_email}</strong>.", "web_admin")({
+        email_change_confirmation = "<p>" + TS.i18n.t("You are about to change your email address from <strong>{member_email}</strong> to <strong>{new_email}</strong>.", "web_admin")({
           member_email: member.profile.email,
           new_email: email
         }) + "</p>";
         confirm_body.push(email_change_confirmation);
       } else {
-        var email_change_confirmation = "<p>" + TS.i18n.t("You are about to change the email address for <strong>{member_name}</strong> from <strong>{member_email}</strong> to <strong>{new_email}</strong>.", "web_admin")({
+        email_change_confirmation = "<p>" + TS.i18n.t("You are about to change the email address for <strong>{member_name}</strong> from <strong>{member_email}</strong> to <strong>{new_email}</strong>.", "web_admin")({
           member_name: member.name,
           member_email: member.profile.email,
           new_email: email

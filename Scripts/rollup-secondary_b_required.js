@@ -1704,7 +1704,6 @@
     checkForInlineImgClick: function(e, match) {
       if (!e.target) return;
       var $el = $(e.target);
-      var container_id;
       var $message = $el.closest(".message");
       var container_id = $message.attr("id");
       if (match) {

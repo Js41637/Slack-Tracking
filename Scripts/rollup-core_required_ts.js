@@ -1830,6 +1830,7 @@
         if (window.performance && performance.mark) performance.mark(end_mark_label);
       }
       var pt = performance.timing;
+      var duration;
       if (pt && TS.metrics.special_start_mark_labels.indexOf(start_mark_label) > -1) {
         var start_ms = pt[start_mark_label];
         if (!start_ms) return;
@@ -1837,7 +1838,7 @@
         if (end_mark_measures.length === 0) return;
         var t0 = pt["navigationStart"];
         var end_ms = t0 + end_mark_measures[end_mark_measures.length - 1].startTime;
-        var duration = end_ms - start_ms;
+        duration = end_ms - start_ms;
         if (clear_end_mark && window.performance && performance.clearMarks) performance.clearMarks(end_mark_label);
         return TS.metrics.store(measure_label, duration, options);
       }
@@ -1849,7 +1850,7 @@
       }
       var measures = performance.getEntriesByName(measure_label);
       if (measures.length === 0) return;
-      var duration = measures[measures.length - 1].duration;
+      duration = measures[measures.length - 1].duration;
       duration = TS.metrics.store(measure_label, duration, options);
       performance.clearMeasures(measure_label);
       if (clear_end_mark) performance.clearMarks(end_mark_label);

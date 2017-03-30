@@ -821,18 +821,19 @@
       var $row = _selectRow(args.email);
       _removeRow($row);
     } else {
+      var message_html;
       if (data.error == "requires_channel") {
         setTimeout(Ladda.stopAll, 0);
         _$div.find("#ra_channel_picker_header").highlightText();
         var pick_at_least_one_channel = TS.i18n.t("Pick at least one channel before inviting Multi-Channel Guests.", "invite")();
-        var message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_at_least_one_channel;
+        message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_at_least_one_channel;
         _showInfoMessage("alert_warning", message_html);
         return;
       } else if (data.error == "requires_one_channel") {
         setTimeout(Ladda.stopAll, 0);
         _$div.find("#ura_channel_picker_header").highlightText();
         var pick_a_channel = TS.i18n.t("Pick a channel before inviting Single-Channel Guests.", "invite")();
-        var message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_a_channel;
+        message_html = '<i class="ts_icon ts_icon_info_circle"></i> ' + pick_a_channel;
         _showInfoMessage("alert_warning", message_html);
         return;
       }
