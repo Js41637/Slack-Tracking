@@ -14819,9 +14819,11 @@ TS.registerModule("constants", {
           }
         });
       }
-      TS.experiment.loadUserAssignments().then(function() {
-        TS.search.files_auto_sort_group = TS.experiment.getGroup("files_auto_sort");
-      });
+      if (TS.client) {
+        TS.experiment.loadUserAssignments().then(function() {
+          TS.search.files_auto_sort_group = TS.experiment.getGroup("files_auto_sort");
+        });
+      }
     },
     loggedIn: function() {
       TS.search.sort = "timestamp";
