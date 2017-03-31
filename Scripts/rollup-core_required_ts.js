@@ -655,6 +655,10 @@
       } else {
         login_args.no_state = true;
       }
+      if (TS.boot_data.page_needs_just_me) {
+        login_args.just_me = true;
+        login_args.no_members = true;
+      }
     }
     if (TS.calls) {
       login_args.no_bots = true;
@@ -1300,8 +1304,8 @@
       }
       TS.members.startBatchUpsert();
       TS.bots.startBatchUpsert();
-      var data_user_list = data.updated_users || data.users;
-      var data_bot_list = data.updated_bots || data.bots;
+      var data_user_list = data.updated_users || data.users || [];
+      var data_bot_list = data.updated_bots || data.bots || [];
       var users_cache = TS.storage.fetchMembers();
       var data_user_list_by_id = {};
       if (TS._did_incremental_boot && !TS._incremental_boot && !TS._did_full_boot) {} else {
@@ -2687,42 +2691,7 @@ var _fullToHalf = function(char) {
     you_regex: null,
     your_user_group_regex: {},
     channel_id_prefixes: ["C", "G", "D"],
-    channel_sort: {},
-    channel_sort_options: [{
-      name: "-",
-      value: ""
-    }, {
-      name: TS.i18n.t("Starred", "model")(),
-      value: "starred"
-    }, {
-      name: TS.i18n.t("Type", "model")(),
-      value: "type"
-    }, {
-      name: TS.i18n.t("Muted", "model")(),
-      value: "muted"
-    }, {
-      name: TS.i18n.t("SLI priority score", "model")(),
-      value: "sli"
-    }, {
-      name: TS.i18n.t("Has unread messages", "model")(),
-      value: "has_unread_msgs"
-    }, {
-      name: TS.i18n.t("Unread message count", "model")(),
-      value: "unread_msgs_count"
-    }, {
-      name: TS.i18n.t("Has unread mentions", "model")(),
-      value: "has_unread_mentions"
-    }, {
-      name: TS.i18n.t("Unread mention count", "model")(),
-      value: "unread_mentions_count"
-    }],
-    channel_sort_simple_options: [{
-      name: TS.i18n.t("None", "model")(),
-      value: ""
-    }, {
-      name: TS.i18n.t("SLI priority score", "model")(),
-      value: "sli"
-    }],
+    channel_sort: "alphabetical",
     inline_attachments: {},
     inline_imgs: {},
     inline_videos: {},
@@ -2781,7 +2750,6 @@ var _fullToHalf = function(char) {
     menu_is_showing: false,
     overlay_is_showing: false,
     unread_view_is_showing: false,
-    sorting_mode_is_showing: false,
     threads_view_is_showing: false,
     app_index_view_is_showing: false,
     seen_onboarding_this_session: false,

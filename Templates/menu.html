@@ -13,12 +13,11 @@
         {{!-- all lists (e.g. `ul`) should have class `menu_list` for a11y --}}
       </div>
 
-      <ul id="menu_items" role="menu" no-bootstrap="1">
-        {{!
-          Markup for menu items is inserted here by TS.menu:
-          <li id="menu_action_key" role="menuitem"><a>Item Label</a></li>
-        }}
-      </ul>
+      <ul id="menu_items" role="menu" no-bootstrap="1">{{!
+        Markup for menu items is inserted here by TS.menu:
+        <li id="menu_action_key" role="menuitem"><a>Item Label</a></li>
+        This comment ensures there is no whitespace for :empty to apply
+      }}</ul>
     </div>
     <div id="menu_footer"></div>
   </div>

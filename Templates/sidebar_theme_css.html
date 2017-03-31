@@ -30,15 +30,12 @@
 
     /* Active Item */
     #channels_scroller.show_which_channel_is_active ul li.active .primary_action,
-    #channels_scroller.show_which_channel_is_active ul li.active .primary_action.feature_user_custom_status > *:not(.unread_highlights),
-    #channels_nav ul li.unread_link.active .primary_action,
-    #channels_nav ul li.unread_link.active .primary_action.feature_user_custom_status > *:not(.unread_highlights) {
+    #channels_scroller.show_which_channel_is_active ul li.active .primary_action.feature_user_custom_status > *:not(.unread_highlights) {
       background: {{theme.active_item}};
       opacity: 1;
       color: {{theme.active_item_text}} !important;
     }
-    #channels_scroller.show_which_channel_is_active ul li.active .unread_highlights,
-    #channels_nav li.active {
+    #channels_scroller.show_which_channel_is_active ul li.active .unread_highlights {
       color: {{theme.active_item}};
     }
     #channel_scroll_up {
@@ -49,8 +46,8 @@
     }
 
     /* Hovered Item */
-    body:not(.sorting_mode) .channels_list_holder ul li .primary_action:not(.feature_user_custom_status):hover,
-    body:not(.sorting_mode) .channels_list_holder ul li .primary_action.feature_user_custom_status:hover > .im_name_background,
+    .channels_list_holder ul li .primary_action:not(.feature_user_custom_status):hover,
+    .channels_list_holder ul li .primary_action.feature_user_custom_status:hover > .im_name_background,
     #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
       background: {{theme.hover_item}};
     }
@@ -83,13 +80,10 @@
     #channels_scroller.show_which_channel_is_active ul li.active .primary_action .prefix,
     #team_menu_user_name,
     #team_menu_user_details,
-    #channels_nav ul li button,
     .channels_list_holder ul li.unread .prefix,
     .channels_list_holder .im_close,
     .channels_list_holder .mpim_close,
     .channels_list_holder .group_close,
-    #channels_nav ul li .primary_action:not(.feature_user_custom_status),
-    #channels_nav ul li .primary_action.feature_user_custom_status > *:not(.unread_highlights),
     #quick_switcher_btn > i {
       color: {{theme.text_color}} !important;
       opacity: 0.6;

@@ -808,10 +808,8 @@
     if (!modal_to_open) return;
     if (modal_to_open == "create_channel") {
       if (TS.model.ms_connected || TS.model.change_channels_when_offline) {
-        if (!TS.model.sorting_mode_is_showing) {
-          if (TS.permissions.members.canCreateChannels() || TS.permissions.members.canCreateGroups()) {
-            TS.ui.new_channel_modal.start();
-          }
+        if (TS.permissions.members.canCreateChannels() || TS.permissions.members.canCreateGroups()) {
+          TS.ui.new_channel_modal.start();
         }
       }
     } else if (modal_to_open == "invite_members") {
@@ -1567,9 +1565,6 @@
       TS.mentions.mention_changed_sig.add(TS.view.mentionChanged, TS.view);
       TS.mentions.mention_removed_sig.add(TS.view.mentionRemoved, TS.view);
       TS.mentions.mentions_being_fetched_sig.add(TS.view.mentionsBeingFetched, TS.view);
-      if (TS.boot_data.feature_sli_channel_priority) {
-        TS.prefs.channel_sort_changed_sig.add(TS.view.resize);
-      }
       TS.prefs.enable_unread_view_changed_sig.add(TS.view.resize);
       TS.prefs.team_disable_file_editing_changed_sig.add(TS.view.rebuildMsgFile);
       TS.view.resizeManually("TS.view.onStart");
@@ -3387,12 +3382,10 @@
     banner_h = banner_h || (TS.client.ui.$banner.hasClass("hidden") ? 0 : parseInt(TS.client.ui.$banner.css("height")));
     var footer_h = $("#col_channels_footer") ? parseInt($("#col_channels_footer").css("height")) : 0;
     var top_offset = TS.view.team_menu_h;
-    var nav_h = TS.client.channel_pane.$nav.outerHeight();
-    $("#channel_scroll_up").css("top", nav_h);
     if (TS.model.is_electron && TS.model.is_mac && TSSSB.call("isMainWindowFrameless")) {
       top_offset += _electron_window_gripper_offset;
     }
-    var height = window_h - (top_offset + footer_h + banner_h + nav_h);
+    var height = window_h - (top_offset + footer_h + banner_h);
     TS.client.channel_pane.$scroller.css("height", height);
   };
   var _updateUserPresenceIcon = function() {
@@ -3543,7 +3536,6 @@
     },
     channelUnreadCountChanged: function(channel, msg) {
       if (!channel) return;
-      if (TS.client.channel_pane.maybeRebuildBecauseUnreadCntChanged(channel)) return;
       var selector = "." + TS.templates.makeChannelDomId(channel);
       var $channel = $(selector);
       if (channel.unread_cnt === 0) {
@@ -3578,7 +3570,6 @@
     },
     channelUnreadHighlightCountChanged: function(channel, msg) {
       if (!channel) return;
-      if (TS.client.channel_pane.maybeRebuildBecauseUnreadCntChanged(channel)) return;
       var selector = "." + TS.templates.makeUnreadHighlightDomId(channel);
       if (channel.unread_highlight_cnt === 0) {
         $(selector).html(channel.unread_highlight_cnt).addClass("hidden");
@@ -4141,7 +4132,6 @@
     },
     groupUnreadCountChanged: function(group, msg) {
       if (!group) return;
-      if (TS.client.channel_pane.maybeRebuildBecauseUnreadCntChanged(group)) return;
       var selector = "." + TS.templates.makeGroupDomId(group);
       var $group = $(selector);
       if (group.unread_cnt === 0) {
@@ -4176,7 +4166,6 @@
     },
     groupUnreadHighlightCountChanged: function(group, msg) {
       if (!group) return;
-      if (TS.client.channel_pane.maybeRebuildBecauseUnreadCntChanged(group)) return;
       var selector = "." + TS.templates.makeUnreadHighlightDomId(group);
       if (group.unread_highlight_cnt === 0) {
         $(selector).html(group.unread_highlight_cnt).addClass("hidden");
@@ -4329,7 +4318,6 @@
     },
     imUnreadCountChanged: function(im, msg) {
       if (!im) return;
-      if (TS.client.channel_pane.maybeRebuildBecauseUnreadCntChanged(im)) return;
       var member = TS.members.getMemberById(im.user);
       var selector = "." + TS.templates.makeMemberDomId(member);
       var $im = $(selector);
@@ -4727,7 +4715,6 @@
     },
     mpimUnreadCountChanged: function(mpim, msg) {
       if (!mpim) return;
-      if (TS.client.channel_pane.maybeRebuildBecauseUnreadCntChanged(mpim)) return;
       var $mpim = $("#im-list, #starred-list").find("." + TS.templates.makeMpimDomId(mpim));
       $mpim.replaceWith(TS.templates.mpim({
         model_ob: mpim
@@ -6846,9 +6833,8 @@
       TS.client.ui.markScrollTop();
       if (TS.client.ui.$msgs_unread_divider && TS.shared.getActiveModelOb().unread_cnt) {
         if (TS.client.ui.isUnreadDividerInView()) {
-          $("#messages_unread_status").addClass("quiet");
+          $("#messages_unread_status").addClass("quiet no_jump");
           $("#messages_unread_status").off("click mouseenter mouseleave");
-          TS.client.msg_pane.hideNewMsgsJumpLink();
           $("#messages_unread_status").click(function(e) {
             e.preventDefault();
             if (TS.boot_data.feature_scrollback_half_measures && TS.client.msg_pane.lastReadIsOlderThanCurrentHistory()) {
@@ -6859,12 +6845,9 @@
               TS.client.ui.forceMarkAllRead(TS.model.marked_reasons.clicked);
             }
           });
-          $("#messages_unread_status .new_msgs_arrow").addClass("hidden");
         } else {
-          $("#messages_unread_status").removeClass("quiet");
+          $("#messages_unread_status").removeClass("quiet no_jump");
           $("#messages_unread_status").off("click mouseenter mouseleave");
-          TS.client.msg_pane.hideNewMsgsJumpLink();
-          $("#messages_unread_status .new_msgs_arrow").removeClass("hidden");
           $("#messages_unread_status").click(function(e) {
             e.preventDefault();
             if (TS.boot_data.feature_scrollback_half_measures && TS.client.msg_pane.lastReadIsOlderThanCurrentHistory()) {
@@ -6875,7 +6858,6 @@
               TS.client.ui.scrollMsgsSoFirstUnreadMsgIsInView();
             }
           });
-          $("#messages_unread_status").hover(TS.client.msg_pane.showNewMsgsJumpLink, TS.client.msg_pane.hideNewMsgsJumpLink);
           TS.client.msg_pane.showNewMsgsBar();
           TS.client.msg_pane.startNewMsgsTimer();
         }
@@ -10720,28 +10702,20 @@
   "use strict";
   TS.registerModule("client.channel_pane", {
     $scroller: $("#channels_scroller"),
-    $nav: $("#channels_nav"),
     $unread_nav: $(".channels_nav_unread"),
     $threads_nav: $("#col_channels .all_threads"),
     $app_index_nav: $("#col_channels .app_index"),
     onStart: function() {
       _dm_members = new TS.PresenceList;
       _starred_members = new TS.PresenceList;
-      _rebuildCustomListThrottled = TS.utility.throttleFunc(_rebuildCustomListThrottled, 10);
       TS.client.login_sig.add(_onLogin);
-      TS.prefs.channel_sort_changed_sig.add(_toggleCustomSort);
       TS.client.channel_pane.$scroller.delegate("li a", "dragstart", _onChannelListItemDragStart);
       if (TS.boot_data.feature_user_custom_status) {
         TS.client.channel_pane.$scroller.delegate("li span", "dragstart", _onChannelListItemDragStart);
       }
     },
     rebuild: function() {
-      $("#col_channels").toggleClass("no_unread_msgs_badges", !TS.model.channel_sort.is_custom_sorted || !_sortingByUnreadMessagesCount());
       TS.client.channel_pane.rebuildFooter();
-      if (TS.model.channel_sort.is_custom_sorted) {
-        _rebuildCustomListThrottled();
-        return;
-      }
       var section;
       for (var i = 0; i < arguments.length; i++) {
         section = arguments[i];
@@ -10789,13 +10763,6 @@
       }
       _enableNavigationBtn($quickswitcher_btn);
     },
-    maybeRebuildBecauseUnreadCntChanged: function(model_ob) {
-      if (!TS.model.channel_sort.is_custom_sorted) return false;
-      if (!_sortingByUnread()) return false;
-      if (model_ob.id == TS.model.active_cid) return false;
-      TS.client.channel_pane.rebuild();
-      return true;
-    },
     updateQuickSwitcherBtnVisibility: function() {
       var $quick_switcher_btn = $("#quick_switcher_btn");
       if (TS.model.prefs.no_omnibox_in_channels) {
@@ -10806,40 +10773,20 @@
       $quick_switcher_btn.toggleClass("hidden", !!TS.model.prefs.no_omnibox_in_channels);
       _updateChannelPaneFooterVisibility();
     },
-    getPriorityForModelOb: function(model_ob) {
-      var priority = 0;
-      if (TS.model.channel_sort.priority_type == "sli") {
-        priority = model_ob.priority;
-      }
-      return _.clamp(priority, 0, 1);
-    },
     getSortedList: function() {
-      if (TS.model.channel_sort.is_custom_sorted) return _getSortedCustomList();
       return _getSortedNormalList();
     },
     makeSureActiveChannelIsInView: function() {
       if (TS.model.unread_view_is_showing) return;
       _makeSureActiveChannelIsInView();
     },
-    startSortingMode: function() {
-      TS.model.sorting_mode_is_showing = true;
-      $("body").addClass("sorting_mode");
-      $("#channels_header, #direct_messages_header").css("pointer-events", "none");
-      $("#channels_scroller").removeClass("show_which_channel_is_active");
-    },
-    stopSortingMode: function() {
-      TS.model.sorting_mode_is_showing = false;
-      $("body").removeClass("sorting_mode");
-      $("#channels_header, #direct_messages_header").css("pointer-events", "");
-      $("#channels_scroller").addClass("show_which_channel_is_active");
-    },
     checkScrolledAtAll: TS.utility.immediateDebounce(function() {
       TS.utility.queueRAF(function() {
         if (TS.client.channel_pane.$scroller.scrollTop() <= 0) {
-          TS.client.channel_pane.$nav.removeClass("has_scrolled");
+          TS.client.channel_pane.$scroller.removeClass("has_scrolled");
           _has_scrolled = false;
         } else if (!_has_scrolled) {
-          TS.client.channel_pane.$nav.addClass("has_scrolled");
+          TS.client.channel_pane.$scroller.addClass("has_scrolled");
           _has_scrolled = true;
         }
       });
@@ -10849,7 +10796,6 @@
   var _starred_members;
   var _has_scrolled = false;
   var _onLogin = function() {
-    _toggleCustomSort();
     TS.log(82, "UI bind on login_sig");
     TS.utility.queueRAF(_bindUI);
   };
@@ -10874,7 +10820,6 @@
     };
     var canSwitchChannels = function() {
       if (!canDoAnything()) return false;
-      if (TS.model.sorting_mode_is_showing) return false;
       return true;
     };
     $(".new_channel_btn").on("click", function(e) {
@@ -10892,24 +10837,12 @@
       if (!canSwitchChannels()) return TS.sounds.play("beep");
       _openChannelBrowser();
     });
-    TS.client.channel_pane.$nav.find('li[data-action="browse_channels"]').on("click", function(e) {
-      e.preventDefault();
-      if (!canSwitchChannels()) return TS.sounds.play("beep");
-      _openChannelBrowser(e);
-    });
-    TS.client.channel_pane.$nav.find('li[data-action="browse_dms"]').on("click", function(e) {
-      e.stopPropagation();
-      if (!canSwitchChannels()) return TS.sounds.play("beep");
-      _openDMBrowser(e);
-    });
     TS.client.channel_pane.$unread_nav.on("click", function(e) {
       e.preventDefault();
-      if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
       TS.client.unread.showUnreadView();
     });
     TS.client.channel_pane.$threads_nav.on("click", function(e) {
       e.preventDefault();
-      if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
       TS.client.threads.showThreadsView();
     });
     TS.client.channel_pane.$app_index_nav.on("click", function(e) {
@@ -10922,11 +10855,6 @@
       e.preventDefault();
       e.stopPropagation();
       if (!canDoAnything()) return TS.sounds.play("beep");
-      if (TS.model.sorting_mode_is_showing) {
-        if (!TS.stars.checkForStarClick(e) && !_checkForMutedClick(e)) {
-          return TS.sounds.play("beep");
-        }
-      }
       if (TS.client.ui.checkForEditing(e)) return TS.sounds.play("beep");
       var $el = $(e.target);
       var member_el = $el.closest(".member").find(".im_name");
@@ -10974,15 +10902,6 @@
         });
       }
     });
-  };
-  var _checkForMutedClick = function(e) {
-    var $el = $(e.target);
-    var $muted_icon = $el.closest(".muted_icon");
-    if (!$muted_icon.length) return false;
-    var model_ob = TS.shared.getModelObById($muted_icon.data("c-id"));
-    if (!model_ob) return false;
-    TS.notifs.muteOrUnmuteCorG(model_ob.id);
-    return true;
   };
   var _rebuildChannelHeaderCount = function() {
     var channel_count = TS.channels.getUnarchivedChannelsForUser().length;
@@ -11079,149 +10998,15 @@
     TS.ui.new_channel_modal.start();
     $(".channels_list_new_btn").tooltip("hide");
   };
-  var _toggleCustomSort = function() {
-    TS.client.channel_pane.$scroller.find(".section_holder ul").empty();
-    if (TS.model.channel_sort.is_custom_sorted) {
-      $("#col_channels").removeClass("default_sort").addClass("custom_sort");
-      var $nav_browse_lis = TS.client.channel_pane.$nav.find('li[data-action="browse_channels"], li[data-action="browse_dms"]');
-      if (_starredThenTypeArePrimarySort() || _typeIsPrimarySort()) {
-        $nav_browse_lis.addClass("hidden");
-      } else {
-        $nav_browse_lis.removeClass("hidden");
-      }
-    } else {
-      $("#col_channels").removeClass("custom_sort").addClass("default_sort");
-      $("#everything, #unread").addClass("hidden");
-    }
-    TS.view.resizeManually("TS.client.channel_pane _toggleCustomSort");
-    TS.client.channel_pane.rebuild("ims", "channels", "starred");
-  };
   var _getSortStrForName = function(c) {
     if (c.is_im) return TS.ims.getDisplayNameOfUserForImLowerCase(c);
     if (c.is_mpim) return TS.mpims.getDisplayNameLowerCase(c);
     return c._name_lc;
   };
-  var _getSortStrForMuted = function(c) {
-    return c.is_im || !TS.notifs.isCorGMuted(c.id) ? "1:muted -- " : "9:muted -- ";
-  };
-  var _getSortStrForHasUnreadMsgs = function(c) {
-    return c._sorting_unread_cnt ? "1:msgs -- " : "9:msgs -- ";
-  };
-  var _getSortStrForHasUnreadMentions = function(c) {
-    if (c.is_im || c.is_mpim) return c._sorting_unread_cnt ? "1:mntns -- " : "9:mntns -- ";
-    return c._sorting_unread_highlight_cnt ? "1:mntns -- " : "9:mntns -- ";
-  };
-  var _getSortStrForUnreadMsgsCount = function(c) {
-    return _.padStart(1e9 - (c._sorting_unread_cnt || 0), 10, 0) + ":msgs";
-  };
-  var _getSortStrForUnreadMentionsCount = function(c) {
-    if (c.is_im || c.is_mpim) return _.padStart(1e9 - (c._sorting_unread_cnt || 0), 10, 0) + ":mntns";
-    return _.padStart(1e9 - (c._sorting_unread_highlight_cnt || 0), 10, 0) + ":mntns";
-  };
-  var _getSortStrForStarred = function(c) {
-    return c.is_starred ? "1:starred -- " : "9:starred -- ";
-  };
-  var _getSortStrForType = function(c) {
-    if (c.is_channel) return "1:type -- ";
-    if (c.is_group && !c.is_mpim) return TS.model.prefs.separate_private_channels ? "2:type -- " : "1:type -- ";
-    if (c.is_slackbot_im) return "3:type -- ";
-    if (c.is_self_im) return "4:type -- ";
-    if (c.is_mpim) return "5:type -- ";
-    if (c.is_im) return "6:type -- ";
-  };
-  var _getSortStrForTypeAndMuted = function(c) {
-    var is_muted = !c.is_im && TS.notifs.isCorGMuted(c.id);
-    if (is_muted) {
-      if (c.is_channel) return "2-9:typemuted -- ";
-      if (c.is_group && !c.is_mpim) return "2-9:typemuted -- ";
-      if (c.is_slackbot_im) return "3-9:typemuted -- ";
-      if (c.is_self_im) return "4-9:typemuted -- ";
-      if (c.is_mpim) return "7-9:typemuted -- ";
-      if (c.is_im) return "8-9:typemuted -- ";
-    } else {
-      if (c.is_channel) return "1-1:typemuted -- ";
-      if (c.is_group && !c.is_mpim) return TS.model.prefs.separate_private_channels ? "2-1:typemuted -- " : "1-1:typemuted -- ";
-      if (c.is_slackbot_im) return "3-1:typemuted -- ";
-      if (c.is_self_im) return "4-1:typemuted -- ";
-      if (c.is_mpim) return "5-1:typemuted -- ";
-      if (c.is_im) return "6-1:typemuted -- ";
-    }
-  };
-  var _getSortStrForTypeAndMutedAfterStarred = function(c) {
-    var is_muted = !c.is_im && TS.notifs.isCorGMuted(c.id);
-    if (c.is_starred) {
-      if (is_muted) {
-        if (c.is_channel) return "9-1:typemuted -- ";
-        if (c.is_group && !c.is_mpim) return "9-1:typemuted -- ";
-        if (c.is_slackbot_im) return "9-2:typemuted -- ";
-        if (c.is_self_im) return "9-3:typemuted -- ";
-        if (c.is_mpim) return "9-4:typemuted -- ";
-        if (c.is_im) return "9-5:typemuted -- ";
-      } else {
-        if (c.is_channel) return "1-1:typemuted -- ";
-        if (c.is_group && !c.is_mpim) return "1-1:typemuted -- ";
-        if (c.is_slackbot_im) return "1-2:typemuted -- ";
-        if (c.is_self_im) return "1-3:typemuted -- ";
-        if (c.is_mpim) return "1-4:typemuted -- ";
-        if (c.is_im) return "1-5:typemuted -- ";
-      }
-    } else {
-      return _getSortStrForTypeAndMuted(c);
-    }
-  };
-  var _getSortStrForPriority = function(c) {
-    if (!TS.model.channel_sort.priority_type) return "";
-    var priority = TS.client.channel_pane.getPriorityForModelOb(c);
-    return _.padStart(Math.ceil((1 - priority) * 1e3), 4, 0) + ":priority -- ";
-  };
-  var _maybeAugmentSortStrForPriority = function(srt, c) {
-    return _getSortStrForPriority(c) + srt;
-  };
-  var _sortingByMuted = function() {
-    return TS.model.channel_sort.sorts.indexOf("muted") > -1;
-  };
-  var _typeIsPrimarySort = function() {
-    return TS.model.channel_sort.sorts.indexOf("type") == 0;
-  };
-  var _hasUnreadMentionsIsPrimarySort = function() {
-    return TS.model.channel_sort.sorts.indexOf("has_unread_mentions") == 0;
-  };
-  var _hasUnreadMessagesIsPrimarySort = function() {
-    return TS.model.channel_sort.sorts.indexOf("has_unread_msgs") == 0;
-  };
-  var _unreadMentionsCountIsPrimarySort = function() {
-    return TS.model.channel_sort.sorts.indexOf("unread_mentions_count") == 0;
-  };
-  var _unreadMessagesCountIsPrimarySort = function() {
-    return TS.model.channel_sort.sorts.indexOf("unread_msgs_count") == 0;
-  };
-  var _sortingByUnread = function() {
-    return _sortingByHasUnreadMentions() || _sortingByHasUnreadMessages() || _sortingByUnreadMentionsCount || _sortingByUnreadMessagesCount()();
-  };
-  var _sortingByHasUnreadMentions = function() {
-    return TS.model.channel_sort.sorts.indexOf("has_unread_mentions") > -1;
-  };
-  var _sortingByHasUnreadMessages = function() {
-    return TS.model.channel_sort.sorts.indexOf("has_unread_msgs") > -1;
-  };
-  var _sortingByUnreadMentionsCount = function() {
-    return TS.model.channel_sort.sorts.indexOf("unread_mentions_count") > -1;
-  };
-  var _sortingByUnreadMessagesCount = function() {
-    return TS.model.channel_sort.sorts.indexOf("unread_msgs_count") > -1;
-  };
-  var _starredIsPrimarySort = function() {
-    return TS.model.channel_sort.sorts.indexOf("starred") == 0;
-  };
-  var _starredThenTypeArePrimarySort = function() {
-    return TS.model.channel_sort.sorts.indexOf("starred") == 0 && TS.model.channel_sort.sorts.indexOf("type") == 1;
-  };
   var _buildLI = function(c) {
     var html = "";
     var template_args = {
-      model_ob: c,
-      show_muted: !!TS.boot_data.feature_sli_channel_priority,
-      show_starred: !!TS.boot_data.feature_sli_channel_priority
+      model_ob: c
     };
     if (c.is_im) {
       template_args.member = TS.members.getMemberById(c.user);
@@ -11241,58 +11026,6 @@
     var can_create_channels = TS.permissions.members.canCreateChannels() || TS.permissions.members.canCreateGroups();
     $(".new_channel_btn").toggleClass("hidden", !can_create_channels);
   };
-  var _getCustomSorterStr = function(c) {
-    var handled = [];
-    var c_srt = "";
-    if (_starredThenTypeArePrimarySort()) {
-      handled.push("starred");
-      handled.push("type");
-      c_srt += _getSortStrForStarred(c);
-      if (_sortingByMuted()) {
-        handled.push("muted");
-        c_srt += _getSortStrForTypeAndMutedAfterStarred(c);
-      } else {
-        c_srt += _getSortStrForType(c);
-      }
-    } else if (_typeIsPrimarySort()) {
-      handled.push("type");
-      if (_sortingByMuted()) {
-        handled.push("muted");
-        c_srt += _getSortStrForTypeAndMuted(c);
-      } else {
-        c_srt += _getSortStrForType(c);
-      }
-    }
-    TS.model.channel_sort.sorts.forEach(function(sort) {
-      if (handled.indexOf(sort) > -1) return;
-      if (sort == "starred") {
-        c_srt += _getSortStrForStarred(c);
-      } else if (sort == "type") {
-        c_srt += _getSortStrForType(c);
-      } else if (sort == "muted") {
-        c_srt += _getSortStrForMuted(c);
-      } else if (sort == "sli" || sort == "frecency") {
-        c_srt += _getSortStrForPriority(c);
-      } else if (sort == "has_unread_msgs") {
-        c_srt += _getSortStrForHasUnreadMsgs(c);
-      } else if (sort == "unread_msgs_count") {
-        c_srt += _getSortStrForUnreadMsgsCount(c);
-      } else if (sort == "has_unread_mentions") {
-        c_srt += _getSortStrForHasUnreadMentions(c);
-      } else if (sort == "unread_mentions_count") {
-        c_srt += _getSortStrForUnreadMentionsCount(c);
-      }
-    });
-    c_srt += _getSortStrForName(c);
-    return c_srt;
-  };
-  var _customSorter = function(a, b) {
-    var a_srt = _getCustomSorterStr(a);
-    var b_srt = _getCustomSorterStr(b);
-    if (a_srt < b_srt) return -1;
-    if (a_srt > b_srt) return 1;
-    return 0;
-  };
   var _imsSorter = function(a, b) {
     if (a.is_slackbot_im) return -1;
     if (b.is_slackbot_im) return 1;
@@ -11300,8 +11033,6 @@
     if (b.is_self_im) return 1;
     var a_srt = a.is_mpim ? TS.mpims.getDisplayNameLowerCase(a) : TS.ims.getDisplayNameOfUserForImLowerCase(a);
     var b_srt = b.is_mpim ? TS.mpims.getDisplayNameLowerCase(b) : TS.ims.getDisplayNameOfUserForImLowerCase(b);
-    a_srt = _maybeAugmentSortStrForPriority(a_srt, a);
-    b_srt = _maybeAugmentSortStrForPriority(b_srt, b);
     return TS.i18n.sorter(a_srt, b_srt);
   };
   var _starredSorter = function(a, b) {
@@ -11352,15 +11083,11 @@
         b_srt = b_muted_srt + "D" + b_srt;
       }
     }
-    a_srt = _maybeAugmentSortStrForPriority(a_srt, a);
-    b_srt = _maybeAugmentSortStrForPriority(b_srt, b);
     return TS.i18n.sorter(a_srt, b_srt);
   };
   var _channelSorter = function compare(a, b) {
     var a_srt = a._name_lc;
     var b_srt = b._name_lc;
-    a_srt = _maybeAugmentSortStrForPriority(a_srt, a);
-    b_srt = _maybeAugmentSortStrForPriority(b_srt, b);
     if (TS.model.prefs.separate_private_channels) {
       a_srt = (a.is_channel ? "a" : "z") + a_srt;
       b_srt = (b.is_channel ? "a" : "z") + b_srt;
@@ -11385,78 +11112,6 @@
       px_offset: 50,
       scroller: TS.client.channel_pane.$scroller
     });
-  };
-  var _updateModelObSortCountValues = function(c) {
-    if (TS.model.sorting_mode_is_showing || c.id != TS.model.active_cid) {
-      c._sorting_unread_highlight_cnt = c.unread_highlight_cnt;
-      c._sorting_unread_cnt = c.unread_cnt;
-    }
-  };
-  var _rebuildCustomListThrottled = function() {
-    _rebuildCustomList();
-  };
-  var _rebuildCustomList = function() {
-    var start = Date.now();
-    var all = _getSortedCustomList();
-    if (!all.length) {
-      TS.error("no channels at all?");
-      return;
-    }
-    var unread_html = "";
-    var starred_html = "";
-    var everything_html = "";
-    var channels_html = "";
-    var dms_html = "";
-    var unread_mentions_is_primary = _hasUnreadMentionsIsPrimarySort() || _unreadMentionsCountIsPrimarySort();
-    var unread_messages_is_primary = _hasUnreadMessagesIsPrimarySort() || _unreadMessagesCountIsPrimarySort();
-    _dm_members.clear();
-    _dm_members.add(_(all).filter("is_im").map("user").compact().uniq().value());
-    all.forEach(function(c) {
-      var html = _buildLI(c);
-      var has_unread_highlights = c._sorting_unread_highlight_cnt || (c.is_im || c.is_mpim) && c._sorting_unread_cnt;
-      if (unread_mentions_is_primary && has_unread_highlights) {
-        unread_html += html;
-      } else if (unread_messages_is_primary && c._sorting_unread_cnt) {
-        unread_html += html;
-      } else if (_starredIsPrimarySort() && c.is_starred) {
-        starred_html += html;
-      } else if (_starredThenTypeArePrimarySort() || _typeIsPrimarySort()) {
-        if (c.is_im || c.is_mpim) {
-          dms_html += html;
-        } else {
-          channels_html += html;
-        }
-      } else {
-        everything_html += html;
-      }
-    });
-    $("#starred-list").html(starred_html);
-    $("#everything-list").html(everything_html);
-    $("#unread-list").html(unread_html);
-    $("#channel-list").html(channels_html);
-    $("#im-list").html(dms_html);
-    $("#starred_div").toggleClass("hidden", !starred_html);
-    $("#everything").toggleClass("hidden", !everything_html);
-    $("#unread").toggleClass("hidden", !unread_html);
-    $("#channels").toggleClass("hidden", !channels_html);
-    $("#direct_messages").toggleClass("hidden", !dms_html);
-    if (everything_html) {
-      $("#everything_else").toggleClass("hidden", !starred_html && !unread_html);
-      $("#everything_at_top").toggleClass("hidden", !!starred_html || !!unread_html);
-    }
-    if (unread_html) {
-      $("#unread_msgs").toggleClass("hidden", unread_mentions_is_primary);
-      $("#unread_mntns").toggleClass("hidden", unread_messages_is_primary);
-    }
-    TS.log(91, "after htmling " + (Date.now() - start));
-    _updateCreateChannelButton();
-    _rebuildChannelHeaderCount();
-    if (!TS.environment.supports_custom_scrollbar) {
-      TS.ui.utility.updateClosestMonkeyScroller($("#everything-list"));
-    }
-    TS.ui.admin_invites.maybeShowInviteLink();
-    TS.client.ui.checkUnseenChannelsImsGroupsWithUnreads();
-    TS.log(91, "after everything " + (Date.now() - start));
   };
   var _getSortedStarredList = function() {
     var channels = TS.channels.getChannelsForUser();
@@ -11638,39 +11293,6 @@
     }
     TS.ui.admin_invites.maybeShowInviteLink();
     TS.client.ui.checkUnseenChannelsImsGroupsWithUnreads();
-  };
-  var _getSortedCustomList = function() {
-    var all = [];
-    TS.channels.getChannelsForUser().forEach(function(model_ob) {
-      _updateModelObSortCountValues(model_ob);
-      var display_because_archives = TS.model.archive_view_is_showing && TS.client.archives.current_model_ob.id == model_ob.id;
-      if (model_ob.is_member || model_ob.was_archived_this_session || display_because_archives) {
-        all.push(model_ob);
-      }
-    });
-    TS.model.groups.forEach(function(model_ob) {
-      _updateModelObSortCountValues(model_ob);
-      if (model_ob.is_archived && !model_ob.was_archived_this_session) return;
-      all.push(model_ob);
-    });
-    TS.members.getMembersForUser().forEach(function(member) {
-      if (member.deleted) return;
-      var im = TS.ims.getImByMemberId(member.id);
-      if (im) _updateModelObSortCountValues(im);
-      if (!im || !im.is_open && !im._sorting_unread_cnt) {
-        return;
-      }
-      all.push(im);
-    });
-    TS.model.mpims.forEach(function(model_ob) {
-      _updateModelObSortCountValues(model_ob);
-      if (!model_ob.is_open && !model_ob._sorting_unread_cnt) {
-        return;
-      }
-      all.push(model_ob);
-    });
-    all.sort(_customSorter);
-    return all;
   };
   var _getSortedNormalList = function() {
     return _getSortedStarredList().concat(_getSortedChannelList(), _getSortedDmList());
@@ -12909,24 +12531,19 @@
         _updateNewMsgsDisplay();
         var $messages_unread_status = $("#messages_unread_status");
         if (TS.client.ui.isUnreadDividerInView()) {
-          $messages_unread_status.addClass("quiet");
+          $messages_unread_status.addClass("quiet no_jump");
           $messages_unread_status.off("click mouseenter mouseleave");
-          TS.client.msg_pane.hideNewMsgsJumpLink();
           $messages_unread_status.click(function(e) {
             e.preventDefault();
             TS.client.ui.forceMarkAllRead(TS.model.marked_reasons.clicked);
           });
-          $messages_unread_status.find(".new_msgs_arrow").addClass("hidden");
         } else {
-          $messages_unread_status.removeClass("quiet");
+          $messages_unread_status.removeClass("quiet no_jump");
           $messages_unread_status.off("click mouseenter mouseleave");
-          TS.client.msg_pane.hideNewMsgsJumpLink();
-          $messages_unread_status.find(".new_msgs_arrow").removeClass("hidden");
           $messages_unread_status.click(function(e) {
             e.preventDefault();
             TS.client.ui.scrollMsgsSoFirstUnreadMsgIsInView();
           });
-          $messages_unread_status.hover(TS.client.msg_pane.showNewMsgsJumpLink, TS.client.msg_pane.hideNewMsgsJumpLink);
         }
         TS.client.msg_pane.showNewMsgsBar();
         TS.client.msg_pane.startNewMsgsTimer();
@@ -13261,12 +12878,6 @@
       $("#messages_unread_status").addClass(_msgs_bar_hidden_class_names);
       TS.client.msg_pane.new_msgs_bar_showing = false;
       TS.client.msg_pane.topMessagesBannerHidden();
-    },
-    showNewMsgsJumpLink: function() {
-      $("#messages_unread_status").find(".new_msgs_jump_link").fadeIn(100);
-    },
-    hideNewMsgsJumpLink: function() {
-      $("#messages_unread_status").find(".new_msgs_jump_link").fadeOut(100);
     },
     lastReadIsOlderThanCurrentHistory: function(model_ob) {
       model_ob = model_ob || TS.shared.getActiveModelOb();
@@ -31554,7 +31165,6 @@
       }
       TS.prefs.tz_changed_sig.add(_tzPrefChanged);
       TS.members.changed_tz_sig.add(_memberTzChanged);
-      TS.prefs.channel_sort_changed_sig.add(_updateChannelSortControls);
       _last_section = TS.qs_args.prefs_last_section || _last_section;
     },
     start: function(section, highlight_selector, expand_rollup) {
@@ -31574,7 +31184,6 @@
   var _show_lin_ssb_prefs = false;
   var _need_to_hide_sidebar = false;
   var _expanded_rollups = [];
-  var _sorting_tim;
   var _validation_error_css = "validation_error";
   var _onLogin = function() {
     _show_mac_ssb_prefs = TS.model.mac_ssb_version && TS.model.mac_ssb_version >= .32 || TS.model.win_ssb_version && TS.model.is_mac;
@@ -31623,12 +31232,6 @@
     }
     _bindInlineSavers();
     $("#col_channels").addClass("prefs_open");
-    if (TS.boot_data.feature_sli_channel_priority) {
-      clearTimeout(_sorting_tim);
-      _sorting_tim = setTimeout(function() {
-        TS.client.channel_pane.startSortingMode();
-      }, TS.ui.fs_modal.transition_duration);
-    }
   };
   var _onShow = function() {};
   var _onCancel = function() {
@@ -31639,10 +31242,6 @@
     _$div_contents = null;
     _$sidebar.find("a").off("click");
     _$sidebar = null;
-    if (TS.boot_data.feature_sli_channel_priority) {
-      clearTimeout(_sorting_tim);
-      TS.client.channel_pane.stopSortingMode();
-    }
   };
   var _openSection = function(section) {
     if (_need_to_hide_sidebar) _hideSidebar();
@@ -31710,9 +31309,6 @@
           template_args.show_customization_ui = _show_customization_ui;
           template_args.show_customization_ui = _show_customization_ui;
         }
-        template_args.channel_sort_options = TS.model.channel_sort_options;
-        template_args.channel_sort_options_cnt = TS.model.channel_sort_options.length - 5;
-        template_args.channel_sort_simple_options = TS.model.channel_sort_simple_options;
         html = TS.templates.prefs_themes(template_args);
         break;
       case "search":
@@ -31815,9 +31411,7 @@
         break;
       case "themes":
         _bindThemePrefs();
-        _bindSidebarBehaviorPrefs();
         _updateThemeControls();
-        _updateChannelSortControls();
         _showSidebar();
         break;
       case "search":
@@ -32481,93 +32075,6 @@
     }
   };
   var _bindThemePrefs = function() {
-    var $custom_sort_selects = _$div.find(".custom_sort_select");
-    var $custom_sort_simple_select = _$div.find("#custom_sort_simple_select");
-    var sort_saver = _.debounce(function(str_val) {
-      TS.prefs.setPrefByAPI({
-        name: "channel_sort",
-        value: str_val
-      });
-    }, 3e3);
-    var updateChannelSort = function(changes) {
-      var ob = TS.model.channel_sort;
-      if (changes) {
-        if (changes.hasOwnProperty("sorts")) ob.sorts = changes.sorts || [];
-        if (changes.hasOwnProperty("priority_type")) ob.priority_type = changes.priority_type || "";
-        if (changes.hasOwnProperty("priority_display")) ob.priority_display = !!changes.priority_display;
-        if (changes.hasOwnProperty("is_custom_sorted")) ob.is_custom_sorted = !!changes.is_custom_sorted;
-      }
-      var str_val = JSON.stringify(ob);
-      TS.prefs.onPrefChanged({
-        name: "channel_sort",
-        value: str_val
-      });
-      sort_saver(str_val);
-    };
-    var buildSortsAndPriorityType = function(priority_type_override) {
-      var sorts = [];
-      var priority_type = "";
-      $custom_sort_selects.each(function() {
-        var val = $(this).val();
-        if (val) sorts.push(val);
-      });
-      if (priority_type_override) {
-        priority_type = priority_type_override;
-        sorts = sorts.map(function(sort) {
-          if (sort == "sli" || sort == "frecency") return priority_type_override;
-          return sort;
-        });
-        if (!sorts.length) {
-          sorts.push(priority_type_override);
-        } else if (sorts.indexOf("frecency") > -1) {
-          sorts[sorts.indexOf("sli")] = priority_type_override;
-          sorts[sorts.indexOf("frecency")] = priority_type_override;
-        }
-      }
-      if (sorts.indexOf("sli") > -1) {
-        priority_type = "sli";
-      } else if (sorts.indexOf("frecency") > -1) {
-        priority_type = "frecency";
-      }
-      return {
-        sorts: sorts,
-        priority_type: priority_type
-      };
-    };
-    $custom_sort_selects.on("change", function() {
-      var ob = buildSortsAndPriorityType();
-      updateChannelSort({
-        priority_type: ob.priority_type,
-        sorts: ob.sorts
-      });
-    });
-    _$div.find(".channel_sort_remover").on("click", function() {
-      $(this).prev().val("").trigger("change");
-    });
-    _$div.find("#custom_sort_btn").on("click", function() {
-      var ob = buildSortsAndPriorityType(TS.model.channel_sort.priority_type);
-      updateChannelSort({
-        is_custom_sorted: true,
-        priority_type: ob.priority_type,
-        sorts: ob.sorts
-      });
-    });
-    $custom_sort_simple_select.on("change", function() {
-      updateChannelSort({
-        priority_type: $custom_sort_simple_select.val()
-      });
-    });
-    _$div.find("#default_sort_btn").on("click", function() {
-      updateChannelSort({
-        is_custom_sorted: false,
-        sorts: []
-      });
-    });
-    $("#priority_display_cb").on("change", function() {
-      updateChannelSort({
-        priority_display: !!$(this).prop("checked")
-      });
-    });
     _$div.find('input:radio[name="sidebar_theme_rd"]').on("change", function() {
       var name = $(this).val();
       var custom_values = TS.sidebar_themes.default_themes[name];
@@ -33102,7 +32609,7 @@
   };
   var _showSidebar = function() {
     $("#fs_modal, #fs_modal_bg").addClass("show_sidebar");
-    if (!TS.boot_data.feature_sli_channel_priority) $("#fs_modal_bg").append('<div id="sidebar_overlay"></div>');
+    $("#fs_modal_bg").append('<div id="sidebar_overlay"></div>');
   };
   var _hideSidebar = function() {
     $("#fs_modal, #fs_modal_bg").removeClass("show_sidebar");
@@ -33177,53 +32684,6 @@
   var _tzPrefChanged = function() {
     if (!_is_open) return;
     if (TS.model.prefs.tz) $("#prefs_dnd").removeClass("tz_not_set");
-  };
-  var _updateChannelSortControls = function() {
-    var channel_sort = TS.model.channel_sort;
-    _$div.find(".has_custom_sort").toggleClass("hidden", !channel_sort.is_custom_sorted);
-    _$div.find(".no_custom_sort").toggleClass("hidden", !!channel_sort.is_custom_sorted);
-    $("#priority_display_cb").prop("checked", channel_sort.priority_display === true);
-    $("#priority_display_cb").prop("disabled", !channel_sort.priority_type);
-    $("#priority_display_cb").parent().toggleClass("disabled", !channel_sort.priority_type);
-    if (channel_sort.is_custom_sorted) {
-      _$div.find(".custom_sort_select").each(function(i) {
-        var val = channel_sort.sorts[i] || "";
-        $(this).val(val);
-        $(this).data("prev_value", val);
-        $(this).next(".channel_sort_remover").toggleClass("hidden", !val);
-      });
-    } else {
-      _$div.find("#custom_sort_simple_select").val(channel_sort.priority_type);
-    }
-    _$div.find(".custom_sort_select option").each(function(i) {
-      var $select = $(this).parent();
-      var $option = $(this);
-      var val = $option.val();
-      var sorts_already_contain_this_option = val && channel_sort.sorts.indexOf(val) > -1;
-      var should_hide_option = false;
-      var select_val_is_for_unreads = ($select.val() || "").indexOf("unread_") > -1;
-      var select_val_is_for_ranking = $select.val() == "frecency" || $select.val() == "sli";
-      if (val == "sli" || val == "frecency") {
-        sorts_already_contain_this_option = channel_sort.sorts.indexOf("sli") > -1 || channel_sort.sorts.indexOf("frecency") > -1;
-        if (sorts_already_contain_this_option && !$option.is(":selected") && !select_val_is_for_ranking) {
-          should_hide_option = true;
-        }
-      } else if ((val || "").indexOf("unread_") > -1) {
-        sorts_already_contain_this_option = channel_sort.sorts.indexOf("has_unread_mentions") > -1 || channel_sort.sorts.indexOf("has_unread_msgs") > -1 || channel_sort.sorts.indexOf("unread_msgs_count") > -1 || channel_sort.sorts.indexOf("unread_mentions_count") > -1;
-        if (sorts_already_contain_this_option && !$option.is(":selected") && !select_val_is_for_unreads) {
-          should_hide_option = true;
-        }
-      } else {
-        if (sorts_already_contain_this_option && !$option.is(":selected")) {
-          should_hide_option = true;
-        }
-      }
-      if (should_hide_option) {
-        $option.addClass("hidden");
-      } else {
-        $option.removeClass("hidden");
-      }
-    });
   };
   var _bindSidebarBehaviorPrefs = function() {
     $('input:radio[name="pr_sidebar"]').filter('[value="' + TS.model.prefs.sidebar_behavior + '"]').prop("checked", true);
@@ -36029,7 +35489,6 @@ function timezones_guess() {
       TS.info("[ALL_UNREADS] " + text, data);
     },
     showUnreadView: function(from_history, replace_history_state, direct_from_boot) {
-      if (TS.model.sorting_mode_is_showing) return false;
       if (!TS.client.unread.isEnabled()) return false;
       from_history = !!from_history;
       replace_history_state = !!replace_history_state;
@@ -40871,7 +40330,6 @@ function timezones_guess() {
       _q = new TS.PromiseQueue;
     },
     showThreadsView: function(from_history, replace_history_state) {
-      if (TS.model.sorting_mode_is_showing) return false;
       from_history = !!from_history;
       replace_history_state = !!replace_history_state;
       var no_history_add = replace_history_state ? false : from_history;

@@ -14,49 +14,51 @@
       {{/or}}
     {{/feature}}
 
-    <p class="member_timezone_value">
-      {{#experiment name="guest_profiles_and_expiration"}}
-        {{#if member.is_bot}}
-          <span class="float_right left_margin">
+    {{#unless member.is_stranger}}
+      <p class="member_timezone_value">
+        {{#experiment name="guest_profiles_and_expiration"}}
+          {{#if member.is_bot}}
+            <span class="float_right left_margin">
+          {{/if}}
+        {{else}}
+          {{#or member.is_restricted member.is_bot}}
+            <span class="float_right left_margin">
+          {{/or}}
+        {{/experiment}}
+        <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
+        {{#if member.is_self}}
+          (<a href='/account/settings' target="{{newWindowName}}" data-action="edit_member_profile_modal">{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
         {{/if}}
-      {{else}}
-        {{#or member.is_restricted member.is_bot}}
-          <span class="float_right left_margin">
-        {{/or}}
-      {{/experiment}}
-      <span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>
-      {{#if member.is_self}}
-        (<a href='/account/settings' target="{{newWindowName}}" data-action="edit_member_profile_modal">{{#t note="A link to change your own timezone"}}change{{/t}}</a>)
-      {{/if}}
-      {{#experiment name="guest_profiles_and_expiration"}}
-        {{#if member.is_bot}}
-          </span>
-        {{/if}}
-      {{else}}
-        {{#or member.is_restricted member.is_bot}}
-          </span>
-        {{/or}}
-      {{/experiment}}
-      {{#experiment name="guest_profiles_and_expiration"}}
-      {{else}}
-        {{#if member.is_restricted}}
-          <span class="lato">
-            <span class="overflow_ellipsis">
-              {{#if member.is_ultra_restricted}}
-                {{#t}}Single-Channel Guest{{/t}}
-              {{else}}
-                {{#t}}Multi-Channel Guest{{/t}}
-              {{/if}}
+        {{#experiment name="guest_profiles_and_expiration"}}
+          {{#if member.is_bot}}
             </span>
+          {{/if}}
+        {{else}}
+          {{#or member.is_restricted member.is_bot}}
+            </span>
+          {{/or}}
+        {{/experiment}}
+        {{#experiment name="guest_profiles_and_expiration"}}
+        {{else}}
+          {{#if member.is_restricted}}
+            <span class="lato">
+              <span class="overflow_ellipsis">
+                {{#if member.is_ultra_restricted}}
+                  {{#t}}Single-Channel Guest{{/t}}
+                {{else}}
+                  {{#t}}Multi-Channel Guest{{/t}}
+                {{/if}}
+              </span>
+            </span>
+          {{/if}}
+        {{/experiment}}
+        {{#if member.is_bot}}
+          <span class="lato">
+            <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>
           </span>
         {{/if}}
-      {{/experiment}}
-      {{#if member.is_bot}}
-        <span class="lato">
-          <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>
-        </span>
-      {{/if}}
-    </p>
+      </p>
+    {{/unless}}
 
     <div class="member_details_over_image">
       <div class="member_name_and_presence lato">
@@ -113,6 +115,7 @@
         </div>
       {{/if}}
     {{/experiment}}
+
   </div>
 
   <hr class="member_details_divider">

@@ -1,7 +1,9 @@
 {{i18n_ns "menu"}}
 
 <div class="menu_member_footer">
-  {{#if member.deleted}}
+  {{#if member.is_stranger}}
+    <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}To interact with a person from another team, you need to be in at least one channel together.{{/t}}</p>
+  {{else if member.deleted}}
     <p class="menu_member_footer_notice no_bottom_margin">{{#t note="For members popup card"}}This account was deactivated.{{/t}}</p>
   {{else}}
     {{#feature flag="feature_texty_takes_over"}}

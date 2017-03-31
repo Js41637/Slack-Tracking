@@ -5326,6 +5326,10 @@ only screen and (min-resolution:2dppx) {
   padding: 0
 }
 
+.menu ul:empty {
+  margin: 0
+}
+
 .menu ul li.divider {
   border-bottom: 1px solid rgba(0, 0, 0, .15);
   margin: .9375rem 0

@@ -5592,14 +5592,6 @@ hr {
   z-index: 201
 }
 
-.sorting_mode .client_channels_list_container {
-  -webkit-flex-basis: 320px;
-  -moz-flex-basis: 320px;
-  -ms-flex-preferred-size: 320px;
-  flex-basis: 320px;
-  max-width: 320px
-}
-
 .client_main_container {
   position: relative;
   display: -webkit-box;
@@ -7726,26 +7718,6 @@ only screen and (min-resolution:2dppx) {
 #client-ui:not(.threads_view_is_showing) #monkey_scroll_wrapper_for_threads_msgs_scroller_div,
 #client-ui:not(.threads_view_is_showing) #threads_msgs_scroller_div {
   display: none
-}
-
-body.sorting_mode #client_body:not(.onboarding):before {
-  left: 320px
-}
-
-body.sorting_mode #team_menu {
-  width: 320px
-}
-
-body.sorting_mode #footer {
-  left: 320px
-}
-
-body.sorting_mode #col_channels_footer {
-  width: 320px
-}
-
-body.sorting_mode #col_channels_footer>i {
-  left: 148px
 }
 
 ts-memory-instrument {

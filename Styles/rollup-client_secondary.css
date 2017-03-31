@@ -2439,6 +2439,19 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   overflow-x: hidden
 }
 
+#channels_scroller.has_scrolled:after {
+  content: "";
+  width: 100%;
+  position: absolute;
+  top: -1px;
+  border-top: 1px solid rgba(0, 0, 0, .15);
+  z-index: 201
+}
+
+.client_container #channels_scroller.has_scrolled:after {
+  z-index: 50
+}
+
 #team_menu>* {
   opacity: 1;
   -webkit-transition: opacity .2s ease 0s;
@@ -2519,12 +2532,10 @@ html:not(.supports_flexbox) #convo_tab #convo_tab_btns {
   opacity: 1
 }
 
-#col_channels.placeholder #channels_nav,
 #col_channels.placeholder #channels_scroller {
   opacity: 0
 }
 
-#col_channels.placeholder #channels_nav>*,
 #col_channels.placeholder #channels_scroller>* {
   display: none
 }
@@ -2651,43 +2662,6 @@ html:not(.slim_scrollbar) #col_channels #channels_scroller::-webkit-scrollbar-co
   background-color: rgba(171, 155, 169, .8)
 }
 
-#channels_nav .section_holder {
-  color: #AB9BA9;
-  padding-bottom: .5rem;
-  margin-top: 8px
-}
-
-#channels_nav li {
-  font-size: .9rem;
-  line-height: 1.5rem;
-  height: 1.5rem
-}
-
-#channels_nav li a {
-  height: 1.5rem
-}
-
-#channels_nav li.channels_nav_sli_priority {
-  display: none
-}
-
-#col_channels.custom_sort #channels_nav li.channels_nav_sli_priority {
-  display: block
-}
-
-#channels_nav.has_scrolled:after {
-  content: "";
-  width: 100%;
-  position: absolute;
-  top: -1px;
-  border-top: 1px solid rgba(0, 0, 0, .15);
-  z-index: 201
-}
-
-.client_container #channels_nav.has_scrolled:after {
-  z-index: 50
-}
-
 body.incremental_boot #col_channels .header_count {
   display: none
 }
@@ -2772,10 +2746,6 @@ body.incremental_boot #col_channels .header_count {
   margin: 0 1px 0 0;
   width: 204px;
   max-width: calc(260px - 16px)
-}
-
-.channels_list_holder #channels_nav ul {
-  width: 216px
 }
 
 .channels_list_holder ul li {
@@ -2904,8 +2874,8 @@ body.incremental_boot #col_channels .header_count {
   max-width: 160px
 }
 
-body:not(.sorting_mode) .channels_list_holder ul li .primary_action.feature_user_custom_status:hover .im_name_background,
-body:not(.sorting_mode) .channels_list_holder ul li .primary_action:not(.feature_user_custom_status):hover {
+.channels_list_holder ul li .primary_action.feature_user_custom_status:hover .im_name_background,
+.channels_list_holder ul li .primary_action:not(.feature_user_custom_status):hover {
   background: #3e313c
 }
 
@@ -2966,9 +2936,6 @@ body:not(.sorting_mode) .channels_list_holder ul li .primary_action:not(.feature
 }
 
 @-moz-document url-prefix() {
-  #channels_nav ul li button {
-    top: 2px
-  }
   .channels_list_holder ul li .group_close,
   .channels_list_holder ul li .im_close,
   .channels_list_holder ul li .mpim_close {
@@ -3069,9 +3036,6 @@ body.winssb .channels_list_new_btn {
   -khtml-opacity: 1
 }
 
-#channels_nav ul li button .group_close,
-#channels_nav ul li button .im_close,
-#channels_nav ul li button .mpim_close,
 .channels_list_holder .group_close,
 .channels_list_holder .im_close,
 .channels_list_holder .mpim_close {
@@ -3083,9 +3047,6 @@ body.winssb .channels_list_new_btn {
   z-index: 1
 }
 
-#channels_nav ul li button .group_close:before,
-#channels_nav ul li button .im_close:before,
-#channels_nav ul li button .mpim_close:before,
 .channels_list_holder .group_close:before,
 .channels_list_holder .im_close:before,
 .channels_list_holder .mpim_close:before {
@@ -3096,14 +3057,6 @@ body.winssb .channels_list_new_btn {
 .channels_list_holder .section_holder .im_close,
 .channels_list_holder .section_holder .mpim_close {
   opacity: 0
-}
-
-#channels_nav ul li button {
-  top: -3px
-}
-
-body:not(.sorting_mode) #channels_nav ul li:hover button {
-  visibility: visible
 }
 
 .channels_list_holder .section_holder li:hover .current_status {
@@ -3222,8 +3175,8 @@ body:not(.sorting_mode) #channels_nav ul li:hover button {
   text-shadow: none
 }
 
-body:not(.sorting_mode) .channels_list_holder ul li .primary_action:hover .unread_highlights,
-body:not(.sorting_mode) .channels_list_holder ul li .primary_action:hover .unread_msgs {
+.channels_list_holder ul li .primary_action:hover .unread_highlights,
+.channels_list_holder ul li .primary_action:hover .unread_msgs {
   text-decoration: none
 }
 
@@ -3752,15 +3705,6 @@ only screen and (min-resolution:2dppx) {
   transition: opacity .3s ease 1s
 }
 
-body:not(.sorting_mode) #col_channels .muted_icon,
-body:not(.sorting_mode) #col_channels .starred_icon {
-  display: none
-}
-
-body:not(.sorting_mode) #col_channels ul>li {
-  overflow: hidden
-}
-
 #col_channels ul li .muted_icon,
 #col_channels ul li .starred_icon {
   position: absolute;
@@ -4093,19 +4037,6 @@ html {
 
 #fs_modal.channel_options_modal .channel_option_item:hover+.channel_option_item {
   border-color: transparent
-}
-
-body.sorting_mode #col_channels {
-  width: 320px
-}
-
-body.sorting_mode #col_channels .new_channel_btn,
-body.sorting_mode #col_channels .new_dm_btn {
-  display: none
-}
-
-body.sorting_mode .channels_list_holder ul {
-  width: 254px
 }
 
 @font-face {
@@ -4541,6 +4472,8 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 }
 
 .new_msgs_jump_link {
+  opacity: 0;
+  transition: opacity .1s ease-in-out;
   left: 20px
 }
 
@@ -4578,6 +4511,15 @@ ul.end_display_actions .end_action_integration .ts_icon_plus {
 #messages_unread_status:hover .clear_unread_messages,
 #messages_unread_status:hover .new_msgs_jump_link {
   text-decoration: none
+}
+
+#messages_unread_status:hover .new_msgs_jump_link {
+  opacity: 1
+}
+
+#messages_unread_status.no_jump .new_msgs_arrow,
+#messages_unread_status.no_jump .new_msgs_jump_link {
+  display: none
 }
 
 #messages_unread_status:hover {
@@ -5609,10 +5551,6 @@ ts-thread ts-message.new_reply .special_formatting_quote .quote_bar {
   color: #00c
 }
 
-body.sorting_mode #messages_container {
-  margin-left: 320px
-}
-
 .menu_container {
   display: flex;
   display: -webkit-flex;
@@ -5869,9 +5807,9 @@ only screen and (min-resolution:192dpi) {
   font-size: 18px
 }
 
+.channels_list_holder ul li a:hover .slackbot_icon,
 .channels_list_holder ul li.active .slackbot_icon,
-.channels_list_holder ul li.unread .slackbot_icon,
-body:not(.sorting_mode) .channels_list_holder ul li a:hover .slackbot_icon {
+.channels_list_holder ul li.unread .slackbot_icon {
   opacity: 1;
   -moz-opacity: 1;
   -khtml-opacity: 1
@@ -7011,6 +6949,7 @@ only screen and (min-resolution:2dppx) {
   position: absolute;
   left: 1rem;
   right: 1rem;
+  bottom: .75rem;
   -webkit-transition: opacity 150ms ease;
   -moz-transition: opacity 150ms ease;
   transition: opacity 150ms ease
@@ -7104,6 +7043,7 @@ only screen and (min-resolution:2dppx) {
 }
 
 .menu_member_footer {
+  max-width: 320px;
   padding: .75rem;
   border-top: 1px solid #f2f2f5;
   border-radius: 0 0 6px 6px;
@@ -18898,16 +18838,6 @@ img.jcrop-preview {
   cursor: not-allowed
 }
 
-body.sorting_mode #fs_modal.show_sidebar,
-body.sorting_mode #fs_modal_bg.show_sidebar {
-  left: 320px
-}
-
-body.sorting_mode #sidebar_overlay {
-  left: -320px;
-  width: 320px
-}
-
 @font-face {
   font-family: appleLogo;
   src: local("Lucida Grande");
@@ -24929,10 +24859,6 @@ li:hover .current_status_badge {
 
 .is_electron_mac .channel_header {
   padding: 21px 0 0
-}
-
-.sorting_mode .channel_header {
-  margin-left: 320px
 }
 
 .channel_header.onboarding {

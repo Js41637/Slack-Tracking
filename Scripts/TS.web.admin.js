@@ -187,7 +187,7 @@
         }
       });
       TS.web.admin.rebuildList();
-      if (boot_data.member_list_subset && boot_data.member_list_subset.length) {
+      if (TS.web.admin.isSubsetCase() && boot_data.member_list_subset.length) {
         var winloc = window.location.toString();
         var query_offset = winloc.indexOf("?");
         var query = query_offset !== -1 ? winloc.substr(query_offset + 1).split("&")[0] : null;
@@ -309,6 +309,12 @@
           html: invite_ultra_restricted_html
         });
       }
+      if (!restricted_members_list_items.length && !result.num_found.restricted && !result.query) {
+        restricted_members_list_items.push({
+          is_divider: true,
+          html: _getRestrictedAccountInviteMessageHtml()
+        });
+      }
       var deleted_members_list_items = disabled_members.slice(0);
       if (deleted_bots.length) {
         if (!result.no_dividers) deleted_members_list_items.push({
@@ -320,8 +326,8 @@
       _active_list_items = active_members_list_items;
       _restricted_list_items = restricted_members_list_items;
       _disabled_list_items = deleted_members_list_items;
-      _([members, disabled_members, deleted_bots, bots, restricted_members, ultra_restricted_members]).each(function(ms) {
-        _(ms.slice(-_FILTER_API_COUNT)).each(_maybeUpsertLongListApiMember);
+      _.each([members, disabled_members, deleted_bots, bots, restricted_members, ultra_restricted_members], function(ms) {
+        _.each(ms.slice(-_FILTER_API_COUNT), _maybeUpsertLongListApiMember);
       });
       _updateTabCountsFromApi(result);
       _displayFilterResult(result.query);
@@ -501,11 +507,7 @@
           TS.web.admin.accepted_invites = boot_data.accepted_invites;
         }
       }
-      if (_isApiAdminPage()) {
-        _getLongListApiData();
-      } else {
-        TS.web.admin.sortList();
-      }
+      TS.web.admin.sortList();
     },
     rebuildList: function() {
       var $active_members = $("#active_members");
@@ -516,22 +518,26 @@
         TS.web.admin.lazyload = null;
       }
       if (_isApiAdminPage()) {
-        _getLongListApiData();
+        _getLongListApiData(true);
       } else {
         TS.web.admin.buildArrays();
       }
       var scroller_id;
-      $($active_members).find(".long_list").remove();
-      $($disabled_members).find(".long_list").remove();
-      $($restricted_members).find(".long_list").remove();
-      $($restricted_members).find(".restricted_info").remove();
-      $($restricted_members).find(".restricted_info_sso").remove();
+      if (!_isApiAdminPage()) {
+        $($active_members).find(".long_list").remove();
+        $($disabled_members).find(".long_list").remove();
+        $($restricted_members).find(".long_list").remove();
+        $($restricted_members).find(".restricted_info").remove();
+        $($restricted_members).find(".restricted_info_sso").remove();
+      }
       if (TS.web.admin.view == "list") {
-        $($restricted_members).find(".ra_invite_prompt").parent().remove();
-        var $active_members_content = $("<div>").appendTo($active_members);
-        var $restricted_members_content = $("<div>").appendTo($restricted_members);
-        var $disabled_members_content = $("<div>").appendTo($disabled_members);
-        _buildLongLists($active_members_content, $restricted_members_content, $disabled_members_content);
+        if (!_isApiAdminPage()) $($restricted_members).find(".ra_invite_prompt").parent().remove();
+        if (!$($active_members).find(".long_list").length) {
+          var $active_members_content = $("<div>").appendTo($active_members);
+          var $restricted_members_content = $("<div>").appendTo($restricted_members);
+          var $disabled_members_content = $("<div>").appendTo($disabled_members);
+          _buildLongLists($active_members_content, $restricted_members_content, $disabled_members_content);
+        }
       } else if (TS.web.admin.view == "invites") {
         scroller_id = "#invite_list";
         var pending_invites_html = "";
@@ -2683,7 +2689,7 @@
     $("#active_members_tab").find(".count").text(_members_api_count);
   };
   var _moveMemberTo = function(member, destination) {
-    if (_isApiAdminPage()) return _getLongListApiData(true);
+    if (_isApiAdminPage()) return;
     var collections = [TS.web.admin.active_members, TS.web.admin.restricted_members, TS.web.admin.ultra_restricted_members, TS.web.admin.disabled_members];
     var counts = ["active_members_count", "restricted_members_count", "ultra_restricted_members_count", "disabled_members_count"];
     var found_in;
