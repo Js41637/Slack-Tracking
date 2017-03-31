@@ -3787,14 +3787,6 @@ only screen and (min-resolution:2dppx) {
   font-size: .95rem
 }
 
-.channel_list_add_link_feat_link_in_sidebar:only-child {
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-  -moz-flex-grow: 1;
-  -ms-flex-positive: 1;
-  flex-grow: 1
-}
-
 .channel_list_add_link_feat_link_in_sidebar.dim {
   border-color: #AB9BA9;
   color: #AB9BA9
@@ -11863,6 +11855,21 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   width: calc(2rem + 402px)
 }
 
+.flex_content_scroller .file_container.file_has_thumb {
+  width: 100%
+}
+
+.file_container.file_has_thumb .preview_actions {
+  padding-top: 1rem;
+  margin-top: -1rem;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
+  background-image: -webkit-linear-gradient(left, rgba(255, 255, 255, 0) 0, #fff 7.5%);
+  background-image: -moz-linear-gradient(left, rgba(255, 255, 255, 0) 0, #fff 7.5%);
+  background-image: -o-linear-gradient(left, rgba(255, 255, 255, 0) 0, #fff 7.5%);
+  background-image: linear-gradient(left, rgba(255, 255, 255, 0) 0, #fff 7.5%)
+}
+
 .file_container.file_has_thumb .file_header {
   padding-left: 0;
   padding-right: 0;
@@ -11879,13 +11886,18 @@ html.is_mac .file_container .sssh-code .CodeMirror-code {
   height: 200px;
   border: 1px solid #E8E8E8;
   margin: 1rem;
+  margin-top: calc(1rem - 4px);
   background-repeat: no-repeat;
-  background-position: top center
+  background-position: top center;
+  background-size: cover
 }
 
 .file_container .file_thumb.file_thumb_landscape {
-  background-position: center center;
-  background-size: cover
+  background-position: center center
+}
+
+.flex_content_scroller .file_container .file_thumb {
+  width: calc(100% - 2rem - 2px)
 }
 
 #file_preview_container .file_meta {

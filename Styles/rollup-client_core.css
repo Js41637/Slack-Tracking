@@ -7109,6 +7109,14 @@ only screen and (min-resolution:2dppx) {
   padding: 22px 20px
 }
 
+#col_channels_footer.col_channels_footer_feat_link_in_sidebar .single_footer_btn {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+  -moz-flex-grow: 1;
+  -ms-flex-positive: 1;
+  flex-grow: 1
+}
+
 #history_nav_btn {
   cursor: pointer;
   -webkit-font-smoothing: antialiased;
@@ -7299,18 +7307,10 @@ only screen and (min-resolution:2dppx) {
 }
 
 #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar>i {
-  position: initial;
+  position: static;
   display: inline;
   color: #fff;
   transition: initial
-}
-
-#quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:only-child {
-  -webkit-box-flex: 1;
-  -webkit-flex-grow: 1;
-  -moz-flex-grow: 1;
-  -ms-flex-positive: 1;
-  flex-grow: 1
 }
 
 #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:focus,
@@ -7320,7 +7320,8 @@ only screen and (min-resolution:2dppx) {
   background-clip: padding-box;
   text-decoration: none;
   outline: 0;
-  box-shadow: none
+  box-shadow: none;
+  overflow: visible
 }
 
 #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:focus>i.ts_icon,

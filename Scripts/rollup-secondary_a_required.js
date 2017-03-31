@@ -22442,7 +22442,7 @@ TS.registerModule("constants", {
       var sidebar_group = TS.experiment.getGroup("feat_link_in_sidebar");
       var html;
       if (sidebar_group === "new_button_old_modal") {
-        html = '<i class="ts_icon ts_icon_filter"><span class="ts_tip_tip">Quick Switcher <span class="subtle_silver">⌘K</span></span></i>';
+        html = ['<i class="ts_icon ts_icon_filter"><span class="ts_tip_tip">Quick Switcher <span class="subtle_silver">', TS.model.is_mac ? "&#8984K" : "Ctrl+K", "</span></span></i>"].join("");
       } else {
         var label = TS.i18n.t("Quick Switcher", "templates_builders")();
         html = !TS.model.is_mac && (TS.model.is_our_app || TS.model.prefs.k_key_omnibox) ? '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label" class="quick_switcher_label_windows_alignment">' + label + "</span>" : '<i class="ts_icon ts_icon_filter"></i><span id="quick_switcher_label">' + label + "</span>";
@@ -32449,7 +32449,6 @@ TS.registerModule("constants", {
                 }
                 template_args.enterprise_logout_url = TS.boot_data.enterprise_logout_url;
                 template_args.enterprise_domain = TS.boot_data.enterprise_url + "/manage";
-                if (item[0].team_id !== TS.model.team.id) {}
               } else {
                 ob.needs_other_enterprise_logout = true;
                 ob.logout_url = TS.enterprise.workspaces.createLogoutURL(ob.enterprise_id, TS.boot_data.logout_url);
@@ -39080,14 +39079,16 @@ var _on_esc;
               input.setCursorPosition(p + 1);
             }
           } else if (e.which == TS.utility.keymap.enter) {
-            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey) {} else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && e.shiftKey) {
-              e.preventDefault();
-              TS.msg_edit.checkAndSubmit(input, form);
-            } else if (input.tab_complete_ui("isShowing")) {
-              e.preventDefault();
-            } else if (!e.shiftKey && !e.altKey) {
-              e.preventDefault();
-              TS.msg_edit.checkAndSubmit(input, form);
+            if (!(TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey)) {
+              if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && e.shiftKey) {
+                e.preventDefault();
+                TS.msg_edit.checkAndSubmit(input, form);
+              } else if (input.tab_complete_ui("isShowing")) {
+                e.preventDefault();
+              } else if (!e.shiftKey && !e.altKey) {
+                e.preventDefault();
+                TS.msg_edit.checkAndSubmit(input, form);
+              }
             }
           }
         }).autosize({
@@ -43361,7 +43362,7 @@ var _on_esc;
         args["tags"] = user_args["tags"];
       }
       TS.api.call("help.issues.create", args, function(ok, data, args) {
-        if (ok) {} else if (TS.help.fake_api_rsps) {
+        if (!ok && TS.help.fake_api_rsps) {
           var issue = {
             id: Date.now(),
             title: title,
@@ -43421,7 +43422,7 @@ var _on_esc;
       TS.api.call("help.issues.markRead", {
         id: id
       }, function(ok, data, args) {
-        if (ok) {} else if (TS.help.fake_api_rsps) {
+        if (!ok && TS.help.fake_api_rsps) {
           var clone = _.cloneDeep(issue);
           clone.state = "read";
           setTimeout(function() {
@@ -56683,14 +56684,16 @@ $.fn.togglify = function(settings) {
           TS.utility.contenteditable.cursorPosition($input, p + 1);
         }
       } else if (e.which == TS.utility.keymap.enter) {
-        if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey) {} else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && e.shiftKey) {
-          e.preventDefault();
-          _tryToSubmit($input, $form, submit_fn);
-        } else if ($input.tab_complete_ui("isShowing")) {
-          e.preventDefault();
-        } else if (!e.shiftKey && !e.altKey) {
-          e.preventDefault();
-          _tryToSubmit($input, $form, submit_fn);
+        if (!(TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey)) {
+          if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && e.shiftKey) {
+            e.preventDefault();
+            _tryToSubmit($input, $form, submit_fn);
+          } else if ($input.tab_complete_ui("isShowing")) {
+            e.preventDefault();
+          } else if (!e.shiftKey && !e.altKey) {
+            e.preventDefault();
+            _tryToSubmit($input, $form, submit_fn);
+          }
         }
       } else if (TS.client && TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) {
         _editLastMessage($input, opts);

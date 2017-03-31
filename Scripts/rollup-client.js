@@ -1111,12 +1111,10 @@
       TS.warn("This browser does not support pushState.");
       return;
     }
-    if (replace_history_state) {
-      if (window.location.href.replace(/\%20/g, " ") == new_url.replace(/\%20/g, " ")) {} else {
+    if (window.location.href.replace(/\%20/g, " ") !== new_url.replace(/\%20/g, " ")) {
+      if (replace_history_state) {
         window.history.replaceState(null, null, new_url);
-      }
-    } else {
-      if (window.location.href.replace(/\%20/g, " ") == new_url.replace(/\%20/g, " ")) {} else {
+      } else {
         window.history.pushState(null, null, new_url);
       }
     }
@@ -10771,7 +10769,16 @@
         if (!$quick_switcher_btn.hasClass("hidden")) return;
       }
       $quick_switcher_btn.toggleClass("hidden", !!TS.model.prefs.no_omnibox_in_channels);
-      _updateChannelPaneFooterVisibility();
+      TS.client.channel_pane.updateFooterButtons();
+    },
+    updateFooterButtons: function() {
+      TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
+        if (TS.ui.admin_invites.isInSidebarExperiment) {
+          var $visible_footer_buttons = $(".col_channels_footer_feat_link_in_sidebar").find("button").not(".hidden");
+          var is_single_footer_btn = $visible_footer_buttons.length == 1;
+          $visible_footer_buttons.toggleClass("single_footer_btn", is_single_footer_btn);
+        }
+      }).then(_updateChannelPaneFooterVisibility);
     },
     getSortedList: function() {
       return _getSortedNormalList();
@@ -11298,15 +11305,19 @@
     return _getSortedStarredList().concat(_getSortedChannelList(), _getSortedDmList());
   };
   var _updateChannelPaneFooterVisibility = function() {
-    var is_footer_hidden = TS.model.prefs.no_omnibox_in_channels;
-    if (TS.boot_data.feature_prev_next_button) {
-      is_footer_hidden = is_footer_hidden && TS.model.prefs.prev_next_btn;
-    }
-    var $channel_scroll_down = $("#channel_scroll_down");
-    $("#col_channels_footer").toggleClass("hidden", is_footer_hidden);
-    $channel_scroll_down.toggleClass("no_sidebar_footer", !is_footer_hidden);
-    TS.utility.queueRAF(function() {
-      TS.view.resizeManually("TS.client.channel_pane _updateChannelPaneFooterVisibility");
+    TS.ui.admin_invites.getInvitesExperimentGroups().then(function() {
+      var is_footer_hidden = TS.model.prefs.no_omnibox_in_channels;
+      if (TS.boot_data.feature_prev_next_button) {
+        is_footer_hidden = is_footer_hidden && TS.model.prefs.prev_next_btn;
+      } else if (TS.ui.admin_invites.isInSidebarExperiment) {
+        is_footer_hidden = is_footer_hidden && !TS.ui.admin_invites.canInvite();
+      }
+      var $channel_scroll_down = $("#channel_scroll_down");
+      $("#col_channels_footer").toggleClass("hidden", is_footer_hidden);
+      $channel_scroll_down.toggleClass("no_sidebar_footer", !is_footer_hidden);
+      TS.utility.queueRAF(function() {
+        TS.view.resizeManually("TS.client.channel_pane _updateChannelPaneFooterVisibility");
+      });
     });
   };
   var _rebuildQuickSwitcherBtn = function() {
@@ -23476,6 +23487,7 @@
         dim_invite_link = true;
       }
       $("#channel_list_invites_link").toggleClass("hidden", !show_invite_link).toggleClass("dim", dim_invite_link);
+      TS.client.channel_pane.updateFooterButtons();
     },
     populateInvites: function(invites) {
       if (!_canInvite()) return;
@@ -23500,6 +23512,18 @@
     },
     canInvite: function() {
       return _canInvite();
+    },
+    getInvitesExperimentGroups: function() {
+      if (_invite_experiment_groups) return Promise.resolve();
+      _invite_experiment_groups = {};
+      return TS.experiment.loadUserAssignments().then(function() {
+        var link_in_sidebar_group = TS.experiment.getGroup("feat_link_in_sidebar");
+        if (link_in_sidebar_group) _invite_experiment_groups["feat_link_in_sidebar"] = link_in_sidebar_group;
+      });
+    },
+    isInSidebarExperiment: function() {
+      if (!_invite_experiment_groups) return TS.error("haven't loaded invite experiment groups yet");
+      return !!_invite_experiment_groups["feat_link_in_sidebar"];
     },
     test: function() {
       var test_ob = {
@@ -23544,6 +23568,7 @@
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
+  var _invite_experiment_groups;
   var _NUM_INVITES = 3;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),

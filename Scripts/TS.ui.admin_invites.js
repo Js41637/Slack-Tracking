@@ -41,6 +41,7 @@
         dim_invite_link = true;
       }
       $("#channel_list_invites_link").toggleClass("hidden", !show_invite_link).toggleClass("dim", dim_invite_link);
+      TS.client.channel_pane.updateFooterButtons();
     },
     populateInvites: function(invites) {
       if (!_canInvite()) return;
@@ -65,6 +66,18 @@
     },
     canInvite: function() {
       return _canInvite();
+    },
+    getInvitesExperimentGroups: function() {
+      if (_invite_experiment_groups) return Promise.resolve();
+      _invite_experiment_groups = {};
+      return TS.experiment.loadUserAssignments().then(function() {
+        var link_in_sidebar_group = TS.experiment.getGroup("feat_link_in_sidebar");
+        if (link_in_sidebar_group) _invite_experiment_groups["feat_link_in_sidebar"] = link_in_sidebar_group;
+      });
+    },
+    isInSidebarExperiment: function() {
+      if (!_invite_experiment_groups) return TS.error("haven't loaded invite experiment groups yet");
+      return !!_invite_experiment_groups["feat_link_in_sidebar"];
     },
     test: function() {
       var test_ob = {
@@ -109,6 +122,7 @@
   var _cancel_google_auth_polling;
   var _event_family_name = "INVITEMODAL";
   var _clog_name = _event_family_name + "_ACTION";
+  var _invite_experiment_groups;
   var _NUM_INVITES = 3;
   var _error_map = {
     url_in_message: TS.i18n.t("Sorry, but URLs are not allowed in the custom message. Please remove it and try again!", "invite")(),
