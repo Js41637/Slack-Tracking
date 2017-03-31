@@ -5055,10 +5055,6 @@ TS.registerModule("constants", {
       standard: "image_192",
       retina: "image_192"
     }
-  },
-  restricted_overlay: {
-    standard: cdn_url + "/0180/img/avatar_overlays.png",
-    retina: cdn_url + "/0180/img/avatar_overlays_@2x.png"
   }
 });
 (function() {
@@ -13165,6 +13161,11 @@ TS.registerModule("constants", {
           members: _filters.members.filter_num_found || 0,
           restricted: _filters.restricted.filter_num_found || 0,
           disabled: _filters.deleted.filter_num_found || 0
+        },
+        remaining: {
+          members: _filters.members.filter_num_remaining || 0,
+          restricted: _filters.restricted.filter_num_remaining || 0,
+          disabled: _filters.deleted.filter_num_remaining || 0
         }
       }, function() {
         _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, options);
@@ -13272,23 +13273,38 @@ TS.registerModule("constants", {
           });
         } else if (TS.web) {
           $(window).off("scroll.filter").on("scroll.filter", _.throttle(function() {
+            var list_items_height = 0;
             var count = 0;
+            var remaining = 0;
             var filter_p = null;
             if (TS.model.ui_state.tab_name == "active_members") {
-              count = _team_list_items.active_members_list_items.length;
+              list_items_height = _.parseInt($("#active_members_list > .list_items").css("height"));
+              count = _.reject(_team_list_items.active_members_list_items, {
+                is_divider: true
+              }).length;
+              remaining = filters.members.filter_num_remaining;
               filter_p = filters.members.filter_p;
             }
             if (TS.model.ui_state.tab_name == "restricted_members") {
-              count = _team_list_items.restricted_members_list_items.length;
+              list_items_height = _.parseInt($("#restricted_members_list > .list_items").css("height"));
+              count = _.reject(_team_list_items.restricted_members_list_items, {
+                is_divider: true
+              }).length;
+              remaining = filters.restricted.filter_num_remaining;
               filter_p = filters.restricted.filter_p;
             }
             if (TS.model.ui_state.tab_name == "disabled_members") {
-              count = _team_list_items.deleted_members_list_items.length;
+              list_items_height = _.parseInt($("#disabled_members_list > .list_items").css("height"));
+              count = _.reject(_team_list_items.deleted_members_list_items, {
+                is_divider: true
+              }).length;
+              remaining = filters.deleted.filter_num_remaining;
               filter_p = _filters.deleted.filter_p;
             }
-            var buffer = .9 * _FILTER_API_COUNT;
-            var list_items_height = Math.max(count - buffer, 0) * _APPROXIMATE_ITEM_HEIGHT;
-            if (list_items_height && $(this).scrollTop() > list_items_height && filter_p && filter_p.isResolved()) {
+            var buffer = .9 * Math.min(count, _FILTER_API_COUNT);
+            list_items_height = _.isNaN(list_items_height) ? 0 : list_items_height;
+            list_items_height = list_items_height - buffer * _APPROXIMATE_ITEM_HEIGHT;
+            if (list_items_height && remaining && $(this).scrollTop() > list_items_height && filter_p && filter_p.isResolved()) {
               _promiseToFilterTeam(query_for_match, filter_container_id, scroller_id, options);
             }
           }, 50, {
@@ -16006,7 +16022,7 @@ TS.registerModule("constants", {
   var _connect_ws_timeout_tim_ms = 1e4;
   var _connect_flash_timeout_tim_ms = 2e4;
   var _hello_timeout_tim = 0;
-  var _hello_timeout_tim_ms = 1e4;
+  var _hello_timeout_tim_ms = 3e4;
   var _rtm_start_timeout_tim_ms = 9e4;
   var _disconnect_timeout_tim = 0;
   var _disconnect_timeout_tim_ms = 5e3;
@@ -16483,14 +16499,12 @@ TS.registerModule("constants", {
     if (TS.lazyLoadMembersAndBots()) {
       url = TS.utility.url.setUrlQueryStringValue(url, "flannel", 1);
       url = TS.utility.url.setUrlQueryStringValue(url, "token", TS.boot_data.api_token);
+      url = TS.utility.url.setUrlQueryStringValue(url, "no_annotations", 1);
       if (TS.boot_data.version_ts === "dev" && TS.boot_data.should_use_flannel) {
         url = TS.utility.url.setUrlQueryStringValue(url, "api_url", TS.boot_data.flannel_api_url);
       }
       if (_shouldUseFlannelCanary()) {
         url = TS.utility.url.setUrlQueryStringValue(url, "canary", 1);
-      }
-      if (TS.boot_data.feature_flannel_no_annotations) {
-        url = TS.utility.url.setUrlQueryStringValue(url, "no_annotations", 1);
       }
       TS.log(1989, "Connecting to Flannel..." + url);
     }
@@ -17731,10 +17745,6 @@ TS.registerModule("constants", {
           }
         }
         if (!member) {
-          if (!TS.boot_data.feature_flannel_no_annotations) {
-            TS.log(1989, "Flannel: user_change for member not in model; ignoring");
-            return;
-          }
           TS.log(1989, "Flannel: user_change for member not in model; will upsert");
         }
       } else if (!member) {
@@ -17897,10 +17907,6 @@ TS.registerModule("constants", {
       var bot = TS.bots.getBotById(imsg.bot.id);
       if (!bot) {
         if (TS.lazyLoadMembersAndBots()) {
-          if (!TS.boot_data.feature_flannel_no_annotations) {
-            TS.log(1989, "Flannel: bot_changed for member not in model; ignoring");
-            return;
-          }
           TS.log(1989, "Flannel: bot_changed for member not in model; upserting");
         } else {
           TS.error("error no bot " + imsg.bot.id + "?");
@@ -18220,6 +18226,7 @@ TS.registerModule("constants", {
         _handleMsg(imsg);
       } catch (err) {
         TS.error(full_type + " errored out when being handled, with err: " + err.message, err);
+        TS.console.logStackTrace();
       }
       return _afterMsgHandled();
     };
@@ -18650,12 +18657,6 @@ TS.registerModule("constants", {
 (function() {
   "use strict";
   TS.registerModule("ms.flannel", {
-    onStart: function() {
-      if (!TS.boot_data.feature_flannel_no_annotations) {
-        var handler_priority = Infinity;
-        TS.ms.on_msg_sig.add(TS.ms.flannel.preprocessMessage, this, handler_priority);
-      }
-    },
     isFlannelMessage: function(imsg) {
       return imsg.type == "flannel";
     },
@@ -18705,13 +18706,6 @@ TS.registerModule("constants", {
           }
         });
       });
-    },
-    preprocessMessage: function(imsg) {
-      if (!TS.lazyLoadMembersAndBots()) return;
-      if (TS.boot_data.feature_flannel_no_annotations) return;
-      if (!imsg.annotations) return;
-      var objects = _.values(imsg.annotations);
-      TS.flannel.batchUpsertObjects(objects);
     }
   });
   var MAX_RETRY_COUNT = 3;
@@ -18966,7 +18960,7 @@ TS.registerModule("constants", {
   var _connect_ws_timeout_tim_ms = 1e4;
   var _connect_flash_timeout_tim_ms = 2e4;
   var _hello_timeout_tim = 0;
-  var _hello_timeout_tim_ms = 1e4;
+  var _hello_timeout_tim_ms = 3e4;
   var _disconnect_timeout_tim = 0;
   var _disconnect_timeout_tim_ms = 5e3;
   var _reconnect_interv = 0;
@@ -21545,13 +21539,6 @@ TS.registerModule("constants", {
 
       function _formatImageURI(entity, image) {
         var image_uri = [];
-        if (entity.is_restricted || entity.is_ultra_restricted) {
-          if (TS.environment.is_retina) {
-            image_uri.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
-          } else {
-            image_uri.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
-          }
-        }
         image_uri.push("url('" + image + "')");
         return image_uri.join(",");
       }
@@ -21665,15 +21652,6 @@ TS.registerModule("constants", {
           }
           break;
       }
-      if (!TS.boot_data.page_needs_enterprise) {
-        if (member.is_restricted && !omit_restricted_overlay) {
-          if (TS.environment.is_retina) {
-            bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
-          } else {
-            bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
-          }
-        }
-      }
       bg_img_urls.push("url('" + img_src + "')");
       if (size === 512) {
         var pre_bg_img_src = TS.environment.is_retina ? member.profile.image_72 : member.profile.image_48;
@@ -21739,14 +21717,6 @@ TS.registerModule("constants", {
       var img_classes = [];
       var bg_img_urls = [];
       var img_size;
-      if (user.invite_prefs && user.invite_prefs.type === "restricted") {
-        if (TS.environment.is_retina) {
-          bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
-        } else {
-          bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
-        }
-        img_classes.push("ra");
-      }
       switch (size) {
         case 24:
           img_size = 48;
@@ -21761,6 +21731,7 @@ TS.registerModule("constants", {
       bg_img_urls.push("url('" + vvv(img_src) + "')");
       var bg_img_url_str = bg_img_urls.join(",");
       var template_data = {
+        restricted: user.invite_prefs && user.invite_prefs.type === "restricted",
         img_classes: img_classes.join(" "),
         bg_img_urls: bg_img_url_str,
         size: size
@@ -24621,15 +24592,6 @@ TS.registerModule("constants", {
             }
             break;
         }
-        if (!TS.boot_data.page_needs_enterprise && !member.is_external) {
-          if (member.is_restricted && !omit_restricted_overlay) {
-            if (TS.environment.is_retina) {
-              bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + "')");
-            } else {
-              bg_img_urls.push("url('" + cdn_url + "/0180/img/avatar_overlays.png" + "')");
-            }
-          }
-        }
         bg_img_urls.push("url('" + img_src + "')");
         if (size === 512) {
           var pre_bg_img_src = TS.environment.is_retina ? member.profile.image_72 : member.profile.image_48;
@@ -24710,17 +24672,6 @@ TS.registerModule("constants", {
       });
       Handlebars.registerHelper("getTeamById", function(id) {
         return TS.teams.getTeamById(id);
-      });
-      Handlebars.registerHelper("getGuestMemberAvatarClass", function(member) {
-        if (TS.boot_data.page_needs_enterprise || member.is_external === true) return "";
-        if (member.is_ultra_restricted) {
-          return " ura";
-        } else if (member.is_restricted) {
-          return " ra";
-        } else if (member.is_bot) {
-          return " bot";
-        }
-        return "";
       });
       Handlebars.registerHelper("getMemberPreviewLinkTarget", function(member) {
         if (TS.utility.shouldLinksHaveTargets()) return new Handlebars.SafeString('target="/team/' + member.name + '"');
@@ -55969,7 +55920,6 @@ $.fn.togglify = function(settings) {
         next_value = input.getAttribute("placeholder");
       } else if (_isTextyElement(input)) {
         var texty = _getTextyInstance(input);
-        if (TS.boot_data.feature_tinyspeck && TS.boot_data.feature_texty_takes_over && TS.utility.contenteditable.supportsTexty()) value += " (with texty!)";
         texty.setPlaceholder(value);
         next_value = texty.getPlaceholder();
       }
@@ -60551,9 +60501,13 @@ $.fn.togglify = function(settings) {
   TS.registerModule("searcher", {
     search: function(query, options) {
       if (options.limit) {
-        _limit_option.limit = options.limit;
+        options.limit_option = {
+          limit: options.limit
+        };
       } else {
-        _limit_option.limit = _DEFAULT_LIMIT;
+        options.limit_option = {
+          limit: _DEFAULT_LIMIT
+        };
       }
       var remote_promise = _searchRemote(query, options);
       if (options.tiered) {
@@ -60570,9 +60524,6 @@ $.fn.togglify = function(settings) {
     }
   });
   var _DEFAULT_LIMIT = 24;
-  var _limit_option = {
-    limit: _DEFAULT_LIMIT
-  };
   var _DEFAULT_SORT_OPTIONS = {
     prefer_exact_match: true,
     frecency: true,
@@ -60601,7 +60552,7 @@ $.fn.togglify = function(settings) {
     if (options.views) data.views = _getLocalViews(options.views);
     if (options.filter) data = options.filter(data);
     if (options.sort) {
-      var sort_options = _mergeDefaults(options.sort, _limit_option, _DEFAULT_SORT_OPTIONS);
+      var sort_options = _mergeDefaults(options.sort, options.limit_option, _DEFAULT_SORT_OPTIONS);
       return TS.sorter.search(query, data, sort_options);
     }
     return data;
@@ -60665,7 +60616,7 @@ $.fn.togglify = function(settings) {
     });
   };
   var _promiseRemoteMembers = function(query, options) {
-    options = _mergeDefaults(options, _limit_option, _DEFAULT_MEMBER_OPTIONS);
+    options = _mergeDefaults(options, options.limit_option, _DEFAULT_MEMBER_OPTIONS);
     options.max_api_results = options.limit;
     if (query.charAt(0) === "@") query = query.slice(1);
     options.query = query;
@@ -68822,8 +68773,7 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
-        r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",
@@ -72076,8 +72026,7 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          this.props.searchQuery && this.onSearch(this.props.searchQuery),
-            w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery), w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
@@ -78455,8 +78404,7 @@ $.fn.togglify = function(settings) {
   n(151), n(152), n(153), n(154), n(155), n(149), n(95), n(150);
 }, function(e, t, n) {
   "use strict";
-  n(156),
-    n(157);
+  n(156), n(157);
 }, function(e, t, n) {
   "use strict";
 
@@ -78482,8 +78430,9 @@ $.fn.togglify = function(settings) {
   });
   var o = (n(315), n(319), n(321), n(331), n(60), n(327), n(328));
   n.d(t, "b", function() {
-    return o.a;
-  }), n(329), n(330), n(332);
+      return o.a;
+    }), n(329),
+    n(330), n(332);
 }, function(e, t, n) {
   "use strict";
 

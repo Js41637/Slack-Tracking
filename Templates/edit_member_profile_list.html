@@ -14,14 +14,14 @@
   <div id="edit_member_profile_photo_container" class="col">
     <label>{{#t note="Label for the profile fiend"}}Profile photo{{/t}}</label>
     {{#feature flag="feature_take_profile_photo"}}
-      <div class="member_image_wrapped">{{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 192 false true)}}</div>
-      <div class="member_image_wrapped_no_photo" data-instructions-text="{{#t}}Drag & drop your photo here{{/t}}">{{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 192 false true)}}</div>
+      <div class="member_image_wrapped">{{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 192 false true true)}}</div>
+      <div class="member_image_wrapped_no_photo" data-instructions-text="{{#t}}Drag & drop your photo here{{/t}}">{{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 192 false true true)}}</div>
       <div class="member_image_upload hidden" data-instructions-text="{{#t}}Drop to upload{{/t}}"><img src="{{versioned_file_drop_blue}}" class="file_drop_icon animate_file_drop" /></div>
       <ts-icon class="show_take hidden member_upload ts_icon_camera" data-action="edit_member_profile_take_photo"><a>{{#t note="For your profile avatar"}}Take a photo{{/t}}</a></ts-icon>
       <ts-icon class="member_upload ts_icon_cloud_upload" data-action="edit_member_profile_upload_image"><a>{{#t note="For your profile avatar"}}Upload a photo{{/t}}</a></ts-icon>
       <ts-icon class="show_delete ts_icon_trash" data-action="edit_member_profile_to_delete"><a>{{#t note="Remove your profile avatar photo"}}Remove photo{{/t}}</a></ts-icon>
     {{else}}
-      <div class="member_image_wrapper" data-instructions-text="{{#t}}Change your profile photo{{/t}}" data-action="edit_member_profile_photo_menu"><ts-icon class="upload_camera_icon ts_icon_camera" aria-label="{{#t}}upload a photo{{/t}}">{{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 192 false true)}}</ts-icon></div>
+      <div class="member_image_wrapper" data-instructions-text="{{#t}}Change your profile photo{{/t}}" data-action="edit_member_profile_photo_menu"><ts-icon class="upload_camera_icon ts_icon_camera" aria-label="{{#t}}upload a photo{{/t}}">{{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 192 false true true)}}</ts-icon></div>
     {{/feature}}
   </div>
 </div>

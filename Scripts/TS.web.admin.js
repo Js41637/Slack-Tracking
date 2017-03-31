@@ -335,12 +335,28 @@
       if (result.new_query) _maybeReRenderLongList();
       $(window).off("scroll.filter").on("scroll.filter", _.throttle(function() {
         var count = 0;
-        if (TS.web.admin.active_tab === "active") count = _active_list_items.length;
-        if (TS.web.admin.active_tab === "restricted") count = _restricted_list_items.length;
-        if (TS.web.admin.active_tab === "disabled") count = _disabled_list_items.length;
-        var buffer = .9 * _FILTER_API_COUNT;
+        var remaining = 0;
+        if (TS.web.admin.active_tab === "active") {
+          count = _.reject(_active_list_items, {
+            is_divider: true
+          }).length;
+          remaining = result.remaining.members || 0;
+        }
+        if (TS.web.admin.active_tab === "restricted") {
+          count = _.reject(_restricted_list_items, {
+            is_divider: true
+          }).length;
+          remaining = result.remaining.restricted || 0;
+        }
+        if (TS.web.admin.active_tab === "disabled") {
+          count = _.reject(_disabled_list_items, {
+            is_divider: true
+          }).length;
+          remaining = result.remaining.disabled || 0;
+        }
+        var buffer = .9 * Math.min(count, _FILTER_API_COUNT);
         var list_items_height = Math.max(count - buffer, 0) * _APPROXIMATE_ITEM_HEIGHT;
-        if (list_items_height && $(this).scrollTop() > list_items_height && _.isFunction(next_page)) {
+        if (list_items_height && remaining && $(this).scrollTop() > list_items_height && _.isFunction(next_page)) {
           next_page();
           next_page = null;
         }

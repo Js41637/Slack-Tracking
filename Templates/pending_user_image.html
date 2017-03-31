@@ -1,1 +1,5 @@
-<span class="member_image {{img_classes}} thumb_{{size}}" style="background-image: {{bg_img_urls}}" data-thumb-size="{{size}}" ></span>
+<span class="member_image {{img_classes}} thumb_{{size}}" style="background-image: {{bg_img_urls}}" data-thumb-size="{{size}}" >
+  {{#if restricted}}
+    {{> member_type_restricted_badge size=(getGuestBadgeSize size) standalone=false with_tooltip=false}}
+  {{/if}}
+</span>

@@ -1341,6 +1341,8 @@
   };
   var _updateUnreadsWithUsersCountsResponse = function(resp) {
     if (TS.client.history_prefetch) TS.client.history_prefetch.resetHistoryFetchQueue();
+    var ims_with_unreads = 0;
+    var total_dm_count = 0;
     _updateUnreadCounts(resp.data.channels, function(count_info) {
       return TS.channels.getChannelById(count_info.id) || TS.groups.getGroupById(count_info.id);
     });
@@ -1351,6 +1353,8 @@
       return TS.groups.getGroupById(count_info.id);
     });
     _updateUnreadCounts(resp.data.ims, function(count_info) {
+      if (count_info.has_unreads) ims_with_unreads++;
+      if (count_info.dm_count) total_dm_count += count_info.dm_count;
       return TS.ims.getImById(count_info.id);
     });
     _updateUnreadCounts(resp.data.mpims, function(count_info) {
@@ -1364,6 +1368,8 @@
       TS.client.threads.logThreadState("users.counts: " + !!threads.has_unreads + " " + threads.mention_count);
     }
     if (TS.client.history_prefetch) TS.client.history_prefetch.processHistoryFetchQueue();
+    TS.info("Finished processing users.counts");
+    TS.info(ims_with_unreads + " IMs with unreads, " + total_dm_count + " total dm_count");
     return null;
   };
   var _enhanced_debugging_enabled;
@@ -4462,13 +4468,6 @@
       }
       if (member.id == _.get(TS.model.user, "id")) {
         TS.view.members.updateUserDisplayName();
-        if (member.is_restricted) {
-          if (TS.environment.is_retina) {
-            bg_img_urls.push("url(" + cdn_url + "/0180/img/avatar_overlays_@2x.png" + ")");
-          } else {
-            bg_img_urls.push("url(" + cdn_url + "/0180/img/avatar_overlays.png" + ")");
-          }
-        }
         bg_img_urls.push("url(" + member.profile.image_72 + ")");
         $('a[data-member-id="' + TS.model.user.id + '"] .member_image, a[data-member-id="' + TS.model.user.id + '"].member_image').attr("style", "background-image: " + bg_img_urls.join(","));
         $('#menu a[data-member-id="' + TS.model.user.id + '"].member_image').attr("style", "background-image: " + TS.templates.builders.makeMemberPreviewCardLinkImageBackground(TS.model.user.id));
@@ -17039,6 +17038,8 @@
     _caret_position: null,
     _current_history_query: null,
     _current_history_items: [],
+    _search_promises: [],
+    _search_pending: false,
     _create: function() {
       if (!this.element.is('input[type="text"]')) {
         throw this.widgetName + ": Element is not a text input.";
@@ -17200,8 +17201,17 @@
       if ($.isArray(this._render_data.groups_archived)) {
         all_archived = all_archived.concat(this._render_data.groups_archived);
       }
-      all_channels.sort(TS.i18n.mappedSorter("_name_lc"));
-      all_archived.sort(TS.i18n.mappedSorter("_name_lc"));
+      if (TS.boot_data.feature_searcher_completions) {
+        all_channels.sort(function(a, b) {
+          return b._score - a._score;
+        });
+        all_archived.sort(function(a, b) {
+          return b._score - a._score;
+        });
+      } else {
+        all_channels.sort(TS.i18n.mappedSorter("_name_lc"));
+        all_archived.sort(TS.i18n.mappedSorter("_name_lc"));
+      }
       this._render_data.channels = all_channels;
       this._render_data.channels_archived = all_archived;
       if (all_archived.length > 0 && all_channels.length === 0) this._render_data.channels = true;
@@ -17474,6 +17484,27 @@
             this._showModifierAutocompleteMenu(modifier);
           }
         } else {
+          if (TS.boot_data.feature_searcher_completions) {
+            this._getResultsForQueryObj({
+              current_word_up_to_caret: current_word_up_to_caret,
+              current_word: current_word,
+              query: query
+            }).then(function(results) {
+              this._render_data = results;
+              this._$popover.addClass("showing_query_header");
+              this._render_data.header = {
+                query: query
+              };
+              this._render_data.show_modifier = true;
+              if (this._resultSetIsEmpty(this._render_data)) {
+                this._hide();
+              } else {
+                this._syncUI();
+                this._show();
+              }
+            }.bind(this));
+            return;
+          }
           var results = this._getResultsForQueryObj({
             current_word_up_to_caret: current_word_up_to_caret,
             current_word: current_word,
@@ -17486,11 +17517,13 @@
           };
           this._render_data.show_modifier = true;
         }
-        if (this._resultSetIsEmpty(this._render_data)) {
-          this._hide();
-        } else {
-          this._syncUI();
-          this._show();
+        if (!this._search_pending) {
+          if (this._resultSetIsEmpty(this._render_data)) {
+            this._hide();
+          } else {
+            this._syncUI();
+            this._show();
+          }
         }
       } else if (from_focus) {
         this._$popover.removeClass("showing_query_header");
@@ -17576,6 +17609,54 @@
           groups: this.options.data.groupsOpen()
         };
       } else {
+        if (TS.boot_data.feature_searcher_completions) {
+          var promises = [];
+          var _render_data = {
+            menu_type: MENU_TYPES.conversation,
+            conversation_modifier: modifier
+          };
+          promises.push(this._getUsersForQuery(query, null, exclude_self).then(function(results) {
+            _render_data.dms = results;
+          }));
+          promises.push(this._getUsersForQuery(query, null, exclude_self, true).then(function(results) {
+            _render_data.dms_deleted = results;
+          }));
+          promises.push(this._getChannelsForQuery(query, null).then(function(results) {
+            _render_data.channels = results;
+          }));
+          promises.push(this._getChannelsForQuery(query, null, true).then(function(results) {
+            _render_data.channels_archived = results;
+          }));
+          promises.push(this._getGroupsForQuery(query, null).then(function(results) {
+            _render_data.groups = results;
+          }));
+          promises.push(this._getGroupsForQuery(query, null, true).then(function(results) {
+            _render_data.groups_archived = results;
+          }));
+          var search_p = Promise.all(promises);
+          search_p.then(function() {
+            if (_render_data.dms.length === 0 && _render_data.dms_deleted.length > 0) {
+              _render_data.dms = true;
+            }
+            if (_render_data.channels.length === 0 && _render_data.channels_archived.length > 0) {
+              _render_data.channels = true;
+            }
+            if (_render_data.groups.length === 0 && _render_data.groups_archived.length > 0) {
+              _render_data.groups = true;
+            }
+            this._render_data = _render_data;
+            this._search_pending = false;
+            if (this._resultSetIsEmpty(this._render_data)) {
+              this._hide();
+            } else {
+              this._syncUI();
+              this._show();
+            }
+          }.bind(this));
+          this._search_promises.push(search_p);
+          this._search_pending = true;
+          return;
+        }
         var exclude_self = false;
         this._render_data = {
           menu_type: MENU_TYPES.conversation,
@@ -17657,6 +17738,35 @@
           });
         });
       } else {
+        if (TS.boot_data.feature_searcher_completions) {
+          var promises = [];
+          var _render_data = {
+            menu_type: MENU_TYPES.user
+          };
+          promises.push(this._getUsersForQuery(query, null).then(function(results) {
+            _render_data.users = results;
+          }));
+          promises.push(this._getUsersForQuery(query, null, false, true).then(function(results) {
+            _render_data.users_deleted = results;
+          }));
+          var search_p = Promise.all(promises);
+          search_p.then(function() {
+            if (_render_data.users.length === 0 && _render_data.users_deleted.length > 0) {
+              _render_data.users = true;
+            }
+            this._render_data = _render_data;
+            this._search_pending = false;
+            if (this._resultSetIsEmpty(this._render_data)) {
+              this._hide();
+            } else {
+              this._syncUI();
+              this._show();
+            }
+          }.bind(this));
+          this._search_promises.push(search_p);
+          this._search_pending = true;
+          return;
+        }
         this._render_data.users = this._getUsersForQuery(query, null);
         this._render_data.users_deleted = this._getUsersForQuery(query, null, false, true);
         if (this._render_data.users.length === 0 && this._render_data.users_deleted.length > 0) {
@@ -17826,6 +17936,29 @@
       return deduped_modifiers;
     },
     _getUsersForQuery: function(query, limit, exclude_self, just_deleted) {
+      if (TS.boot_data.feature_searcher_completions) {
+        return TS.searcher.search(query, {
+          members: {
+            include_slackbot: true,
+            include_self: !exclude_self,
+            include_deleted: true
+          },
+          limit: limit,
+          sort: {
+            allow_empty_query: true
+          }
+        }).then(function(results) {
+          var models = _.map(results, "model_ob");
+          if (just_deleted) {
+            models = _.filter(models, "deleted");
+          } else {
+            models = _.filter(models, function(m) {
+              return !m.deleted;
+            });
+          }
+          return models;
+        });
+      }
       if (TS.boot_data.feature_name_tagging_client) {
         var full_name_matches = [];
         var preferred_name_matches = [];
@@ -17900,6 +18033,31 @@
       return results;
     },
     _getChannelsForQuery: function(query, limit, just_archived) {
+      if (TS.boot_data.feature_searcher_completions) {
+        return TS.searcher.search(query, {
+          channels: {
+            include_archived: true
+          },
+          limit: limit,
+          sort: {
+            allow_empty_query: true
+          }
+        }).then(function(results) {
+          var models = _.map(results, function(result) {
+            var model_ob = result.model_ob;
+            model_ob._score = result.score;
+            return model_ob;
+          });
+          if (just_archived) {
+            models = _.filter(models, "is_archived");
+          } else {
+            models = _.filter(models, function(m) {
+              return !m.is_archived;
+            });
+          }
+          return models;
+        });
+      }
       var prefix_matches = [];
       var suffix_matches = [];
       if (query.charAt(0) === "#") query = query.substring(1);
@@ -17926,6 +18084,29 @@
       return results;
     },
     _getGroupsForQuery: function(query, limit, just_archived) {
+      if (TS.boot_data.feature_searcher_completions) {
+        return TS.searcher.search(query, {
+          groups: true,
+          limit: limit,
+          sort: {
+            allow_empty_query: true
+          }
+        }).then(function(results) {
+          var models = _.map(results, function(result) {
+            var model_ob = result.model_ob;
+            model_ob._score = result.score;
+            return model_ob;
+          });
+          if (just_archived) {
+            models = _.filter(models, "is_archived");
+          } else {
+            models = _.filter(models, function(m) {
+              return !m.is_archived;
+            });
+          }
+          return models;
+        });
+      }
       var prefix_matches = [];
       var suffix_matches = [];
       var suffix_regex = new RegExp("(_|-)" + _regexpEscape(query), "i");
@@ -17957,12 +18138,46 @@
     },
     _getResultsForQueryObj: function(query_obj) {
       var results = {
-        conversation_modifier: DEFAULT_CONVERSATION_MODIFIER
+        conversation_modifier: DEFAULT_CONVERSATION_MODIFIER,
+        query: query
       };
       var is_at = false;
       var is_hash = false;
       if (!query_obj) {
         return results;
+      }
+      if (TS.boot_data.feature_searcher_completions) {
+        var promises = [];
+        if (query_obj.current_word_up_to_caret) {
+          var query = query_obj.current_word_up_to_caret.toLowerCase();
+          is_hash = query === "#";
+          is_at = query === "@";
+          results.modifiers = this._getModifiersForQuery(query);
+          promises.push(this._getUsersForQuery(query, is_at ? null : USER_RESULT_LIMIT).then(function(r) {
+            results.users = r;
+          }));
+          promises.push(this._getChannelsForQuery(query, is_hash ? null : CHANNEL_RESULT_LIMIT).then(function(r) {
+            results.channels = r;
+          }));
+          promises.push(this._getGroupsForQuery(query, GROUP_RESULT_LIMIT).then(function(r) {
+            results.groups = r;
+          }));
+        }
+        if (!is_at) {
+          promises.push(this._getUsersForQuery(query_obj.query, PROFILE_RESULT_LIMIT).then(function(r) {
+            results.profiles = r;
+            TS.presence_manager.queryMemberPresence(_.map(r, "id"));
+            return null;
+          }));
+        }
+        if (!is_at && !is_hash) results.history = this._getHistoryForQuery(query_obj.query);
+        var models_p = Promise.all(promises).then(function() {
+          this._search_pending = false;
+          return results;
+        }.bind(this));
+        this._search_promises.push(models_p);
+        this._search_pending = true;
+        return models_p;
       }
       if (query_obj.current_word_up_to_caret) {
         var current_word_up_to_caret = query_obj.current_word_up_to_caret.toLowerCase();
@@ -18248,6 +18463,11 @@
       return false;
     },
     _cancelDelayedSearch: function() {
+      _.each(this._search_promises, function(promise) {
+        promise.cancel();
+      });
+      this._search_promises = [];
+      this._search_pending = false;
       this.options.data.cancelSearch();
     },
     _updateGhostText: function() {
@@ -21546,9 +21766,11 @@
       }));
       TS.utility.rAF(function() {
         $overlay.removeClass("transparent");
+        TS.client.ui.$msgs_div.addClass("hide_day_divider_labels");
       });
       var dismiss = function() {
         $overlay.addClass("transparent");
+        TS.client.ui.$msgs_div.removeClass("hide_day_divider_labels");
         $overlay.on("transitionend", function() {
           $overlay.remove();
         });
@@ -21733,6 +21955,7 @@
     _$msgs_overlay.stop();
     _$msgs_overlay.empty();
     _$msgs_overlay.removeClass("hidden");
+    TS.client.ui.$msgs_div.addClass("hide_day_divider_labels");
     if (fade_in) {
       _$msgs_overlay.css("opacity", 0);
       _$msgs_overlay.transition({
@@ -21760,6 +21983,7 @@
         value: true
       });
     }
+    TS.client.ui.$msgs_div.removeClass("hide_day_divider_labels");
     _$msgs_overlay.transition({
       opacity: 0
     }, 250, function() {
@@ -39581,7 +39805,7 @@ function timezones_guess() {
         $reply_container.addClass("has_focus");
       }).on("focusout", function() {
         var is_input_empty = !TS.utility.contenteditable.value($input).trim();
-        var is_still_focused_actually = document.activeElement === this;
+        var is_still_focused_actually = document.activeElement === this || TS.utility.contenteditable.isActiveElement(this);
         if (is_input_empty && !is_still_focused_actually) $reply_container.removeClass("has_focus");
       });
       _renderBroadcastButtons(model_ob, thread_ts, $reply_container);
@@ -40127,7 +40351,7 @@ function timezones_guess() {
   };
   var _focusInputWhenReady = function() {
     var $reply_input = $("#reply_container .message_input");
-    if (TS.utility.isFocusOnInput() && document.activeElement !== $reply_input[0]) return;
+    if (TS.utility.isFocusOnInput() && !TS.utility.contenteditable.isActiveElement($reply_input[0])) return;
     var only_if_visible = !!TS.boot_data.feature_threads_paging_flexpane;
     if (_ready_to_focus) {
       TS.ui.replies.focusReplyInput(only_if_visible);

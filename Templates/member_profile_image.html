@@ -13,7 +13,7 @@
   {{#if size}} data-thumb-size="{{size}}" {{/if}}
   {{#if image}} style="background-image: {{image}}" {{/if}}
   {{#if title}} title="{{#feature flag="feature_name_tagging_client"}}{{getMemberFullName entity}}{{else}}{{getMemberDisplayName entity}}{{/feature}}" {{/if}}
-  class="member_image {{css_classes}} {{#if entity.is_restricted}}ra{{/if}} {{#if entity.is_ultra_restricted}}ura{{/if}}"
+  class="member_image {{css_classes}}"
 >
   {{~#feature flag="feature_shared_channels_badges"}}{{#if entity.is_external~}}
     {{> member_type_external_badge team=(getTeamById entity.team_id) size=size}}
