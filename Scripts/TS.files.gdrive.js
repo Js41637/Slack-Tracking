@@ -45,7 +45,6 @@
           slackbot_feels: "sad_surprise"
         });
         _promise_picker_has_been_promised = false;
-        return;
       }).finally(function() {
         window.removeEventListener("message", message_listener);
       });

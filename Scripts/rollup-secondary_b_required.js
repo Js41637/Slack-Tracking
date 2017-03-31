@@ -1914,7 +1914,6 @@
         e.stopPropagation();
         e.preventDefault();
         _submitHighlightedItem();
-        return;
       }
     }
   });

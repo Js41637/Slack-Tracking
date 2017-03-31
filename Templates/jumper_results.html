@@ -49,6 +49,9 @@
             {{#if_equal this.model_ob.id compare="Vall_threads"}}
               <ts-icon class="ts_icon_small_reply"></ts-icon>
             {{/if_equal}}
+            {{#if_equal this.model_ob.id compare="Vapp_index"}}
+              <ts-icon class="ts_icon_bolt"></ts-icon>
+            {{/if_equal}}
             {{#if_equal this.model_ob.id compare="Vall_threads"}}
               {{#if ../threads_has_unreads}}
                 <span class="view_name">New Threads</span>

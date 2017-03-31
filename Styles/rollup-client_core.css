@@ -6711,7 +6711,6 @@ only screen and (min-resolution:2dppx) {
 
 #notification_bar {
   height: 1.375rem;
-  width: 100%;
   display: -webkit-box;
   display: -webkit-flex;
   display: -moz-flex;
@@ -6754,7 +6753,6 @@ only screen and (min-resolution:2dppx) {
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto;
   margin-left: 73px;
-  max-width: 75%;
   -webkit-filter: grayscale(100%);
   filter: grayscale(100%)
 }

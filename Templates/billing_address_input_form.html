@@ -18,21 +18,22 @@
           </label>
           {{#feature flag="feature_i18n_checkout_updates"}}
             {{#if content.is_checkout}}
-              <p data-single-currency-message class="hidden billing_settings_country_currency small normal italic subtle_silver"></p>
+              <p data-single-currency-message class="hidden billing_settings_currency_msg small normal"></p>
             {{/if}}
           {{/feature}}
         </fieldset>
 
         {{#feature flag="feature_i18n_checkout_updates"}}
           {{#if content.is_checkout}}
-            <fieldset data-currency-menu-container class="hidden settings_fieldset currency_fieldset">
+            <fieldset data-currency-fieldset-container class="hidden settings_fieldset currency_fieldset bottom_margin">
               <label>
                 <div class="billing_settings_label_container">
                   <p class="billing_settings_label_name">{{#t}}Currency*{{/t}}</p>
                   <div class="currency_country_error settings_error settings_input_error_display" data-status-for="currency_select"></div>
                 </div>
-              <div data-currency-menu></div>
               </label>
+              <div id="currency_menu" class="billing_settings_currency_menu_container" data-currency-menu></div>
+
             </fieldset>
           {{/if}}
         {{/feature}}

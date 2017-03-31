@@ -217,6 +217,7 @@
         var view_path = function() {
           if (TS.model.unread_view_is_showing) return "/unreads";
           if (TS.model.threads_view_is_showing) return "/threads";
+          if (TS.model.app_index_view_is_showing) return "/app-index";
           return "/messages/" + TS.model.c_name_in_url;
         }();
         var new_url = TS.utility.refashionUrl(window.location.href, view_path, flex_name, flex_extra);
@@ -286,6 +287,7 @@
       TS.model.active_mpim_id = null;
       TS.model.unread_view_is_showing = false;
       TS.model.threads_view_is_showing = false;
+      TS.model.app_index_view_is_showing = false;
       if (model_ob.is_channel) {
         TS.model.active_channel_id = model_ob_id;
       } else if (model_ob.is_im) {
@@ -329,6 +331,8 @@
       }
       TS.client.threads.destroyThreadsView();
       TS.model.threads_view_is_showing = false;
+      TS.client.app_index.destroyAppIndexView();
+      TS.model.app_index_view_is_showing = false;
       TS.model.unread_view_is_showing = true;
       TS.view.updateTitleWithContext();
       return true;
@@ -351,6 +355,31 @@
         TS.model.unread_view_is_showing = false;
       }
       TS.model.threads_view_is_showing = true;
+      TS.client.app_index.destroyAppIndexView();
+      TS.model.app_index_view_is_showing = false;
+      TS.view.updateTitleWithContext();
+      return true;
+    },
+    appIndexViewActivated: function(replace_history_state, no_history_add) {
+      if (!no_history_add) {
+        var flex_extra = _cleanFlexExtra(TS.model.flex_extra_in_url);
+        var new_url = TS.utility.refashionUrl(window.location.href, "/app-index", TS.model.flex_name_in_url, flex_extra);
+        if (!replace_history_state) {
+          if (!TS.model.app_index_view_is_showing && !TS.model.c_name_in_url) replace_history_state = true;
+        }
+        _putURLInHistory(new_url, replace_history_state);
+      }
+      if (TS.model.app_index_view_is_showing) {
+        TS.warn("not switching, app index view is already active");
+        return false;
+      }
+      if (TS.client.unread.isEnabled()) {
+        TS.client.unread.destroyUnreadView();
+        TS.model.unread_view_is_showing = false;
+      }
+      TS.client.threads.destroyThreadsView();
+      TS.model.threads_view_is_showing = false;
+      TS.model.app_index_view_is_showing = true;
       TS.view.updateTitleWithContext();
       return true;
     },
@@ -697,7 +726,7 @@
       });
     },
     activeChannelIsHidden: function() {
-      return TS.model.unread_view_is_showing || TS.model.threads_view_is_showing;
+      return TS.model.unread_view_is_showing || TS.model.threads_view_is_showing || TS.model.app_index_view_is_showing;
     },
     setClientLoadWatchdogTimer: function() {
       if (_client_load_watchdog_tim !== null) {
@@ -894,16 +923,17 @@
     TS.qs_args = TS.utility.url.queryStringParse(loc.search.substring(1));
     var is_unread_view = TS.utility.isUnreadViewPath(loc.pathname);
     var is_threads_view = TS.utility.isThreadsViewPath(loc.pathname);
+    var is_app_index_view = TS.utility.isAppIndexViewPath(loc.pathname);
     var flex_name = TS.utility.getFlexNameFromUrl(loc.href);
     var flex_extra = TS.utility.getFlexExtraFromUrl(loc.href);
-    if (!is_unread_view && !is_threads_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
+    if (!is_unread_view && !is_threads_view && !is_app_index_view && !TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
       flex_name = "details";
       flex_extra = "";
     } else {
       flex_name = TS.model.ui_state.flex_name;
       flex_extra = TS.model.ui_state.flex_extra;
     }
-    if ((is_unread_view || is_threads_view) && flex_name === "details") {
+    if ((is_unread_view || is_threads_view || is_app_index_view) && flex_name === "details") {
       flex_name = "";
       flex_extra = "";
     }
@@ -959,7 +989,7 @@
     if (c_id) {
       is_good = true;
       TS.info("c_name from new url is good:" + c_name + " " + c_id);
-    } else if (!is_unread_view && !is_threads_view) {
+    } else if (!is_unread_view && !is_threads_view && !is_app_index_view) {
       if (TS.model.channels.length) {
         channel = TS.channels.getFirstChannelYouAreIn();
         if (channel) {
@@ -1002,6 +1032,8 @@
       TS.client.unread.showUnreadView(true, true);
     } else if (is_threads_view) {
       TS.client.threads.showThreadsView(true, true);
+    } else if (is_app_index_view) {
+      TS.client.app_index.showAppIndexView(true, true);
     } else {
       TS.error("WTF DONT KNOW WHAT TO DO");
     }
@@ -1009,6 +1041,7 @@
     var view_path = function() {
       if (is_unread_view) return "/unreads";
       if (is_threads_view) return "/threads";
+      if (is_app_index_view) return "/app-index";
       return "/messages/" + c_name;
     }();
     var new_url = TS.utility.refashionUrl(window.location.href, view_path, flex_name, flex_extra);
@@ -1056,6 +1089,9 @@
     }
     if (TS.model.initial_threads_view) {
       TS.client.threads.showThreadsView(false, replace_history_state);
+    }
+    if (TS.model.initial_app_index_view) {
+      TS.client.app_index.showAppIndexView(false, replace_history_state);
     }
     if (TS.boot_data.feature_prev_next_button) {
       TS.client.nav_history.initialSetup();
@@ -1113,7 +1149,7 @@
         }).then(TS.reload);
       }
     };
-    if (!window.location.pathname.match(/^\/(message|unreads|threads)/) && window.history) {
+    if (!window.location.pathname.match(/^\/(message|unreads|threads|app-index)/) && window.history) {
       window.history.replaceState(null, null, window.location.origin + "/messages");
     }
     maybeSetWelcomeChannelToSlackbot();
@@ -1135,8 +1171,10 @@
     var c_name = TS.model.c_name_in_url = TS.utility.getChannelNameFromUrl(location.href);
     var unread_view = TS.utility.isUnreadViewPath(location.pathname);
     var threads_view = TS.utility.isThreadsViewPath(location.pathname);
+    var app_index_view = TS.utility.isAppIndexViewPath(location.pathname);
     if (unread_view) TS.model.initial_unread_view = true;
     if (threads_view) TS.model.initial_threads_view = true;
+    if (app_index_view) TS.model.initial_app_index_view = true;
     var getInitialChannelId = function() {
       if (c_name) {
         channel = TS.channels.getChannelByName(c_name);
@@ -1908,6 +1946,7 @@
         TS.client.unread.destroyUnreadView();
       }
       TS.client.threads.destroyThreadsView();
+      TS.client.app_index.destroyAppIndexView();
       if (!TS.model.ui_state.flex_name && TS.model.ui_state.details_tab_active) {
         TS.client.ui.flex.openFlexTab("details", true);
       }
@@ -2022,6 +2061,8 @@
         context_name = TS.i18n.t("Unread Messages", "view")();
       } else if (TS.model.threads_view_is_showing) {
         context_name = TS.i18n.t("Threads", "view")();
+      } else if (TS.model.app_index_view_is_showing) {
+        context_name = TS.i18n.t("Apps", "view")();
       } else if (model_ob) {
         context_name = model_ob.name || "";
       }
@@ -2435,7 +2476,7 @@
           doing_an_overlay = true;
           TS.view.overlay.startWithCreatedChannel(channel);
         }
-      } else if (channel && channel.is_shared && TS.boot_data.feature_shared_channels && TS.boot_data.feature_shared_channels_join_modal) {
+      } else if (channel && channel.needs_invited_message && channel.is_shared && !channel.is_org_shared && TS.model.shared_channels_enabled && TS.boot_data.feature_shared_channels_join_modal) {
         TS.view.overlay.startWithJoinedSharedChannel(channel);
       } else if (channel && channel.needs_invited_message) {
         if (TS.model.prefs.no_joined_overlays) {
@@ -3168,9 +3209,7 @@
       if (!ug) return;
       TS.client.ui.previewUserGroup(ug.id);
     },
-    cacheMsgsHtml: function() {
-      return;
-    },
+    cacheMsgsHtml: function() {},
     adjustForWelcomeSlideShow: function() {
       if (TS.model.cancelled_welcome_2_this_session) return;
       TS.model.showing_welcome_2 = true;
@@ -5560,7 +5599,6 @@
     }
     if (!Object.keys(LS_wins).length) {
       TS.storage.storeClientWindows("");
-      return;
     }
   };
 })();
@@ -5763,6 +5801,7 @@
         TS.client.ui.unread.updateSidebarLink();
       }
       TS.client.ui.threads.updateChannelPaneActiveState();
+      TS.client.ui.app_index.updateChannelPaneActiveState();
     },
     rebuildAll: function(make_sure_active_channel_is_in_view) {
       TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
@@ -6317,6 +6356,9 @@
           break;
         case "Vall_threads":
           TS.client.threads.showThreadsView();
+          break;
+        case "Vapp_index":
+          TS.client.app_index.showAppIndexView();
           break;
         default:
           TS.warn('Unknown view "' + view_id + '" passed to TS.client.ui.showView()');
@@ -7465,7 +7507,7 @@
         lis_selector = "LI.unread:not(.hidden), LI.active, LI.show_in_list_even_though_no_unreads:not(.hidden)";
       }
       var $lis = TS.client.channel_pane.$scroller.find(lis_selector);
-      $lis = $lis.filter(":not(.all_unreads):not(.all_threads)");
+      $lis = $lis.filter(":not(.all_unreads):not(.all_threads):not(.app_index)");
       if (!$lis.length) {
         TS.error('no $lis found for "' + lis_selector + '"');
       }
@@ -7566,6 +7608,10 @@
           data_attribute = "data-action";
           inner_class_name = "channel_name";
           type = "threads_view";
+        } else if ($li.hasClass("app_index")) {
+          data_attribute = "data-action";
+          inner_class_name = "channel_name";
+          type = "app_index_view";
         }
         var $inner_node = $li.find("." + inner_class_name);
         if (!$inner_node || !$inner_node.length) return result;
@@ -7584,6 +7630,10 @@
       }
       if (data.type === "threads_view") {
         TS.client.threads.showThreadsView();
+        return;
+      }
+      if (data.type === "app_index_view") {
+        TS.client.app_index.showAppIndexView();
         return;
       }
       if (!data.id || !data.type || !data.displayMethod) {
@@ -7885,6 +7935,8 @@
         $scroller = TS.client.ui.unread.$scroller;
       } else if (TS.model.threads_view_is_showing) {
         $scroller = TS.client.ui.threads.$scroller;
+      } else if (TS.model.app_index_view_is_showing) {
+        $scroller = TS.client.ui.app_index.$scroller;
       } else {
         $scroller = TS.client.ui.$msgs_scroller_div;
       }
@@ -10671,6 +10723,7 @@
     $nav: $("#channels_nav"),
     $unread_nav: $(".channels_nav_unread"),
     $threads_nav: $("#col_channels .all_threads"),
+    $app_index_nav: $("#col_channels .app_index"),
     onStart: function() {
       _dm_members = new TS.PresenceList;
       _starred_members = new TS.PresenceList;
@@ -10859,6 +10912,11 @@
       if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
       TS.client.threads.showThreadsView();
     });
+    TS.client.channel_pane.$app_index_nav.on("click", function(e) {
+      e.preventDefault();
+      if (TS.model.sorting_mode_is_showing) return TS.sounds.play("beep");
+      TS.client.app_index.showAppIndexView();
+    });
     TS.client.channel_pane.$scroller.find(".section_holder ul").on("click", function(e) {
       if (TS.view.maybeFollowLink(e)) return;
       e.preventDefault();
@@ -10968,7 +11026,7 @@
   var _getNavigationHistoryNameById = function(id) {
     if (id === null) {
       return "";
-    } else if (id === "All Unreads" || id === "Threads") {
+    } else if (id === "All Unreads" || id === "Threads" || id === "Apps") {
       return id;
     }
     return TS.shared.getDisplayNameForModelOb(TS.shared.getModelObById(id));
@@ -11316,6 +11374,8 @@
     var $active;
     if (TS.model.threads_view_is_showing) {
       $active = TS.client.channel_pane.$scroller.find(".all_threads");
+    } else if (TS.model.app_index_view_is_showing) {
+      $active = TS.client.channel_pane.$scroller.find(".app_index");
     } else {
       $active = TS.client.channel_pane.$scroller.find(".section_holder ul li.active");
     }
@@ -11741,6 +11801,9 @@
         },
         threads: {
           is_showing: TS.model.threads_view_is_showing
+        },
+        app_index: {
+          is_showing: TS.model.app_index_view_is_showing
         }
       };
       _$header.html(TS.templates.channel_header(template_args));
@@ -13458,9 +13521,7 @@
         TS.client.msg_pane.showNewMsgsBar();
       }
     },
-    maybeResetAndAutoScroll: function(model_ob) {
-      return;
-    },
+    maybeResetAndAutoScroll: function(model_ob) {},
     setCallButtonState: function(go_online) {
       var is_multiparty_enabled = TS.utility.calls.isMultiPartyEnabled();
       if (TS.utility.calls.isEnabled() && TS.model.team.prefs.calling_app_name != "Slack") {
@@ -13498,9 +13559,7 @@
     TS.client.msg_pane.updateEndMarker();
     TS.client.msg_pane.padOutMsgsScroller();
   };
-  var _maybeStoreTempReadState = function(model_ob) {
-    if (!model_ob) return;
-  };
+  var _maybeStoreTempReadState = function(model_ob) {};
   var _clearTempReadState = function(model_ob) {
     if (!model_ob) return;
     if (!model_ob._temp_unread_cnt && !model_ob._temp_last_read) return;
@@ -14035,7 +14094,6 @@
     var ret = TSSSB.call("revealDownloadWithToken", token);
     if (ret === false) {
       TS.error("_showDownload with token: " + token + " failed");
-      return;
     }
   };
   var _openDownload = function(token) {
@@ -15018,7 +15076,6 @@
   var _launchWithFallbackEdge = function(e) {
     window.navigator.msLaunchUri(_app_uri, function(onsuccess) {}, function(onerror) {
       window.location.href = _browser_uri;
-      return;
     });
   };
   var _launchWithFallbackChrome = function(e) {
@@ -18717,7 +18774,6 @@
       $input.bind("keyup", function(e) {
         if (e.which == TS.utility.keymap.esc) {
           $input.blur();
-          return;
         }
       });
       $client_ui.on("transitionend", function() {
@@ -21859,18 +21915,27 @@
       });
     },
     startWithJoinedSharedChannel: function(channel) {
-      $("#col_messages").append("<div class='shared_channels_join_modal_overlay'></div>");
-      $(".shared_channels_join_modal_overlay").html(TS.templates.channel_shared_join_overlay({
+      $("#col_messages").append("<div class='shared_channels_join_modal_overlay transparent'></div>");
+      var $overlay = $(".shared_channels_join_modal_overlay");
+      $overlay.html(TS.templates.channel_shared_join_overlay({
         channel: channel,
         source_team: TS.model.team,
         inviter: TS.members.getMemberById(channel.inviter)
       }));
-      _performCancel = function(e) {
-        channel.needs_joined_message = false;
-        _cancel(true);
-        _performCancel = null;
+      TS.utility.rAF(function() {
+        $overlay.removeClass("transparent");
+      });
+      var dismiss = function() {
+        $overlay.addClass("transparent");
+        $overlay.on("transitionend", function() {
+          $overlay.remove();
+        });
       };
-      _setupScrollingAndEvents($("#channel_joined"));
+      $overlay.find("button").on("click", function() {
+        channel.needs_invited_message = false;
+        dismiss();
+      });
+      TS.channels.switched_sig.add(dismiss);
     },
     startWithJoinedChannel: function(channel) {
       _start();
@@ -22312,7 +22377,6 @@
       }
       if (show_winssb1_banner) {
         TS.ui.banner.show("winssb1");
-        return;
       }
     },
     showSSBUpdateBanner: function(version_number, can_update, learn_more_url) {
@@ -26081,7 +26145,6 @@
         }
         TS.ui.channel_options_dialog.addTempEphemeralFeedback(ephemeral_message);
         TS.ui.fs_modal.close();
-        return;
       }
       if (model_ob.is_channel) {
         TS.channels.setDataRetention(model_ob.id, type, duration, retentionAPIHandler);
@@ -27059,19 +27122,14 @@
       TS.shared.msg_sent_sig.add(_msgSent);
       TS.channels.joined_sig.add(_channelJoined);
       TS.groups.unarchived_sig.add(_groupUnArchived);
-      TS.groups.archived_sig.add(_groupArchived);
       TS.channels.unarchived_sig.add(_channelUnArchived);
       TS.channels.archived_sig.add(_channelArchived);
-      TS.channels.message_received_sig.add(_messageReceived);
       TS.channels.message_removed_sig.add(_messageRemoved);
       TS.channels.message_changed_sig.add(_messageChanged);
-      TS.groups.message_received_sig.add(_messageReceived);
       TS.groups.message_removed_sig.add(_messageRemoved);
       TS.groups.message_changed_sig.add(_messageChanged);
-      TS.ims.message_received_sig.add(_messageReceived);
       TS.ims.message_removed_sig.add(_messageRemoved);
       TS.ims.message_changed_sig.add(_messageChanged);
-      TS.mpims.message_received_sig.add(_messageReceived);
       TS.mpims.message_removed_sig.add(_messageRemoved);
       TS.mpims.message_changed_sig.add(_messageChanged);
       if (!TS.environment.supports_custom_scrollbar) {
@@ -27838,10 +27896,6 @@
     TS.client.archives.cancel();
     TS.client.ui.instaScrollMsgsToBottom(false);
   };
-  var _groupArchived = function(group) {
-    if (!TS.model.archive_view_is_showing) return;
-    if (group.id != TS.client.archives.current_model_ob.id) return;
-  };
   var _channelUnArchived = function(channel) {
     if (!TS.model.archive_view_is_showing) return;
     if (channel.id != TS.client.archives.current_model_ob.id) return;
@@ -27857,11 +27911,6 @@
     if (TS.client.archives.not_member) return;
     if (model_ob.id != TS.client.archives.current_model_ob.id) return;
     TS.client.archives.cancel();
-  };
-  var _messageReceived = function(model_ob, msg) {
-    if (!TS.model.archive_view_is_showing) return;
-    if (!msg) return;
-    if (model_ob.id != TS.client.archives.current_model_ob.id) return;
   };
   var _messageRemoved = function(model_ob, msg) {
     if (!TS.model.archive_view_is_showing) return;
@@ -28208,7 +28257,6 @@
     _$container.on("click", ".pinned_item .pin_metadata", function(e) {
       if (TS.client.archives.maybeHandleArchiveLink($(this))) {
         e.preventDefault();
-        return;
       }
     });
     _$container.on("click", ".pinned_item", function(e) {
@@ -29908,7 +29956,6 @@
       }
       if (_selected_members.length >= _MAX) {
         e.preventDefault();
-        return;
       }
     });
     _$im_browser.on("focus", "#im_browser_filter", function() {
@@ -31088,7 +31135,6 @@
       }
       if (e.which === TS.utility.keymap.esc) {
         TS.ui.fs_modal.close();
-        return;
       }
     }).on("input", function(e) {
       _toggleEnterToGoLabel();
@@ -31793,7 +31839,6 @@
         break;
       default:
         TS.error("This isn't the Prefs UI binding you're looking for: " + section);
-        return;
     }
   };
   var _bindInlineSavers = function() {
@@ -32569,7 +32614,6 @@
           if (!hex.match(TS.prefs.hex_regex)) {
             valid_values = false;
           }
-          if (!valid_values) return;
         });
         if (!valid_values) {
           clearTimeout(_theme_throttle_tim);
@@ -35285,7 +35329,6 @@ function timezones_guess() {
       var $new_channel_link = _$jumper_results.find('[data-action="new_channel"]');
       if ($new_channel_link.length) {
         _endJumperAndOpenNewChannelModal();
-        return;
       }
     } else if (!e.altKey && TS.utility.cmdKey(e) && (e.which == 75 || TS.model.is_our_app && e.which == 84)) {
       if (!_.trim(_$jumper_input.val())) {
@@ -40003,7 +40046,6 @@ function timezones_guess() {
                   channel: model_ob.id,
                   thread_ts: thread_ts
                 });
-                return;
               }
             }
           } else {
@@ -42319,3 +42361,154 @@ var _showSSBDeprecationModal = function() {
     TS.ui.fs_modal.close();
   });
 };
+(function() {
+  "use strict";
+  TS.registerModule("client.app_index", {
+    switched_sig: new signals.Signal,
+    switched_away_sig: new signals.Signal,
+    fetched_apps_sig: new signals.Signal,
+    apps_loaded: false,
+    onStart: function() {},
+    shouldRecordMetrics: function() {
+      return !!_should_record_metrics;
+    },
+    debug: function(text, data) {
+      _debug_data.push({
+        msg: text,
+        data: data
+      });
+      if (!TS.boot_data.feature_tinyspeck) return;
+      TS.info("[APP INDEX] " + text, data);
+    },
+    showAppIndexView: function(from_history, replace_history_state, direct_from_boot) {
+      if (!TS.boot_data.feature_app_index) return false;
+      if (TS.model.sorting_mode_is_showing) return false;
+      from_history = !!from_history;
+      replace_history_state = !!replace_history_state;
+      var no_history_add = replace_history_state ? false : from_history;
+      var switched = TS.client.appIndexViewActivated(replace_history_state, no_history_add);
+      if (switched) {
+        TS.client.app_index.switched_sig.dispatch();
+      } else {
+        return false;
+      }
+      _direct_from_boot = direct_from_boot;
+      _should_record_metrics = TS.utility.enableFeatureForUser(10);
+      if (_should_record_metrics) TS.metrics.mark("app_index_view_time_to_display");
+      TS.client.ui.app_index.showAppIndexView();
+      if (_should_record_metrics) TS.metrics.count("app_index_view_displayed");
+      if (_should_record_metrics) TS.metrics.mark("app_index_view_time_spent");
+      return true;
+    },
+    destroyAppIndexView: function() {
+      if (!TS.client.ui.app_index.isAppIndexViewDOMShowing()) return;
+      if (_should_record_metrics) TS.metrics.measureAndClear("app_index_view_time_spent", "app_index_view_time_spent");
+      TS.client.ui.app_index.destroyAppIndexView();
+      TS.client.app_index.switched_away_sig.dispatch();
+    }
+  });
+  var _should_record_metrics;
+  var _direct_from_boot;
+  var _debug_data = [];
+})();
+(function() {
+  "use strict";
+  TS.registerModule("client.ui.app_index", {
+    $channel_pane_item: $("#channels_scroller .app_index"),
+    $scroller: $("#app_index_scroller_div"),
+    $loading_msg_container: null,
+    $container: null,
+    onStart: function() {},
+    showAppIndexView: function() {
+      $("#client-ui").addClass("app_index_view_is_showing");
+      TS.client.ui.app_index.$scroller.addClass("loading");
+      $("#footer").addClass("hidden");
+      TS.client.archives.cancel(true);
+      var make_sure_active_channel_is_in_view = true;
+      TS.client.ui.rebuildAllButMsgs(make_sure_active_channel_is_in_view);
+      if (TS.model.ui_state.flex_name === "details") TS.client.ui.flex.hideFlex(true);
+      TS.client.msg_pane.hideNewMsgsBar(true);
+      $("#msgs_scroller_div").addClass("hidden");
+      $("#archives_return").addClass("hidden");
+      TS.client.ui.app_index.$container = $(TS.templates.app_index());
+      TS.client.ui.app_index.$container.appendTo(TS.client.ui.app_index.$scroller);
+      if (!TS.environment.supports_custom_scrollbar) {
+        TS.client.ui.app_index.$scroller.monkeyScroll();
+      }
+      _initializeTrackingData();
+      TS.clog.track("APP_INDEX_VIEW_OPEN", {
+        view_session_index: _app_index_event_seq_id
+      });
+      TS.client.ui.app_index.incrementTrackingSeqId();
+    },
+    isAppIndexViewDOMShowing: function() {
+      return $("#client-ui").hasClass("app_index_view_is_showing");
+    },
+    destroyAppIndexView: function() {
+      TS.client.ui.app_index.resetUI();
+      TS.client.ui.app_index.$scroller.off("scroll.app_index_view_scroll");
+      TS.client.ui.app_index.$scroller.empty();
+      $("#client-ui").removeClass("app_index_view_is_showing");
+      $("#footer").removeClass("hidden");
+      $("#msgs_scroller_div").removeClass("hidden");
+      TS.client.ui.app_index.$container = null;
+      if (!_has_tracked_app_index_closed) TS.client.ui.app_index.trackAppIndexViewClosed("OTHER");
+    },
+    resetUI: function() {
+      TS.client.ui.app_index.$container.empty();
+      $(".app_index_alternative_view_wrapper").remove();
+      TS.client.ui.app_index.$scroller.addClass("loading");
+    },
+    displayEmptyState: function() {
+      if (!TS.model.app_index_view_is_showing) return;
+      var template_args = {
+        is_empty: true
+      };
+      TS.client.ui.app_index.displayAlternativeAppIndexView(template_args);
+    },
+    displayFatalError: function() {
+      if (!TS.model.app_index_view_is_showing) return;
+      var template_args = {
+        is_error: true
+      };
+      TS.client.ui.threads.displayAlternativeAppIndexView(template_args);
+    },
+    displayAlternativeAppIndexView: function(template_args) {
+      TS.client.ui.app_index.$scroller.find(".app_index_alternative_view_wrapper").remove();
+      TS.client.ui.app_index.$scroller.removeClass("loading");
+      TS.client.ui.app_index.$scroller.removeClass("slow_loading");
+      TS.client.ui.app_index.$scroller.find("#app_index").empty();
+      TS.client.ui.app_index.$scroller.append(TS.templates.app_index_alternative_view(template_args));
+    },
+    isAlternativeAppIndexViewShowing: function() {
+      return TS.client.ui.app_index.$scroller.find(".app_index_alternative_view_wrapper").length > 0;
+    },
+    updateChannelPaneActiveState: function() {
+      TS.client.ui.app_index.$channel_pane_item.toggleClass("active", !!TS.model.app_index_view_is_showing);
+    },
+    incrementTrackingSeqId: function() {
+      _app_index_event_seq_id++;
+    },
+    trackAppIndexViewClosed: function(event_trigger) {
+      var payload = _.merge(TS.client.ui.app_index.getTrackingData(), {
+        view_exit_event: event_trigger
+      });
+      TS.clog.track("APP_INDEX_VIEW_CLOSE", payload);
+      _has_tracked_app_index_closed = true;
+    },
+    getTrackingData: function() {
+      return {
+        view_session_elapsed_time: Date.now() - _initialized_time,
+        view_session_index: _app_index_event_seq_id
+      };
+    }
+  });
+  var _initialized_time;
+  var _app_index_event_seq_id;
+  var _has_tracked_app_index_closed;
+  var _initializeTrackingData = function() {
+    _initialized_time = Date.now();
+    _app_index_event_seq_id = 0;
+    _has_tracked_app_index_closed = false;
+  };
+})();

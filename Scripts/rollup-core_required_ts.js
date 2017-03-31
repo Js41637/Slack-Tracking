@@ -417,35 +417,27 @@
     },
     log: function(pri) {
       TS.console.log.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     info: function() {
       TS.console.info.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     maybeWarn: function(pri) {
       TS.console.maybeWarn.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     warn: function() {
       TS.console.warn.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     dir: function(pri, ob, txt) {
       TS.console.dir.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     maybeError: function(pri) {
       TS.console.maybeError.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     error: function() {
       TS.console.error.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     logError: function(e, desc, subtype, silent) {
       TS.console.logError.apply(this, [].slice.call(arguments, 0));
-      return;
     },
     getQsArgsForUrl: function(no_cache) {
       if (!no_cache && _qs_url_args_cache) return _qs_url_args_cache;
@@ -852,7 +844,6 @@
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji and shared channels");
       return Promise.join(TS.emoji.setUpEmoji().catch(function() {
         if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Setting up emoji failed, trying to move forward anyway...");
-        return;
       }), _maybeFetchAccessibleUserIds());
     }).then(function() {
       if (TS.boot_data.feature_tinyspeck) TS.info("BOOT: Nearly there! Finalizing...");
@@ -1555,7 +1546,6 @@
       }
       completeModelObSetup();
       resolve();
-      return;
     });
   };
   var _onBadUserCache = function(problem, details) {
@@ -1705,6 +1695,10 @@
         return false;
       }
       if (TS.utility.isThreadsViewPath(loc.pathname)) {
+        delete TS.boot_data.incremental_boot_data;
+        return false;
+      }
+      if (TS.utility.isAppIndexViewPath(loc.pathname)) {
         delete TS.boot_data.incremental_boot_data;
         return false;
       }
@@ -2604,6 +2598,7 @@ var _fullToHalf = function(char) {
     enterprise: null,
     initial_unread_view: false,
     initial_threads_view: false,
+    initial_app_index_view: false,
     RESERVED_USERNAMES: ["all", "archive", "archived", "archives", "channel", "channels", "create", "delete", "deleted-channel", "edit", "everyone", "general", "group", "groups", "here", "me", "ms", "slack", "slackbot", "today", "you"],
     RESERVED_KEYWORDS: ["channel", "everyone", "here", "slackbot"],
     BROADCAST_KEYWORDS: [{
@@ -2632,6 +2627,10 @@ var _fullToHalf = function(char) {
       id: "Vall_threads",
       name: TS.i18n.t("Threads", "threads")(),
       alt_names: [TS.i18n.t("All Threads", "threads")(), TS.i18n.t("New Threads", "threads")()],
+      is_view: true
+    }, {
+      id: "Vapp_index",
+      name: TS.i18n.t("Apps", "model")(),
       is_view: true
     }],
     unsent_msgs: {},
@@ -2784,6 +2783,7 @@ var _fullToHalf = function(char) {
     unread_view_is_showing: false,
     sorting_mode_is_showing: false,
     threads_view_is_showing: false,
+    app_index_view_is_showing: false,
     seen_onboarding_this_session: false,
     seen_welcome_2: true,
     showing_welcome_2: false,
@@ -4577,7 +4577,6 @@ var _fullToHalf = function(char) {
       if (TS.client) TS.client.markLastReadsWithAPI();
       TS.model.window_unloading = true;
       TS.ui.window_unloaded_sig.dispatch();
-      return;
     },
     maybeTickleMS: function() {
       if (!TS.client) return;

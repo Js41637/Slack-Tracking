@@ -16,6 +16,11 @@
       <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}All Threads{{/t}}</h2>
     </div>
     <div id="channel_header_info" class="channel_header_info threads_channel_header_info"></div>
+  {{else if app_index.is_showing}}
+    <div id="channel_name_container" class="channel_name_container">
+      <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}Apps{{/t}}</h2>
+    </div>
+    <div id="channel_header_info" class="channel_header_info threads_channel_header_info"></div>
   {{else}}
     <div id="channel_name_container" class="channel_name_container">
       <span id="channel_name" class="channel_name" data-qa="channel_name">

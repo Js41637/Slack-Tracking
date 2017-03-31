@@ -129,7 +129,6 @@
       });
       return null;
     });
-    return;
   };
   var _sendQueryList = function() {
     if (!_has_started || _query_list.length === 0 || _is_query_waiting) return null;
@@ -146,7 +145,6 @@
       _query_list = [];
       return null;
     });
-    return;
   };
   var _handleConnect = function() {
     _sendSubList();
@@ -479,7 +477,6 @@
     },
     storeOldestTs: function(id, ts) {
       _set(_makeOldestTsId(id), ts);
-      return;
     },
     fetchActiveHistory: function() {
       return _get("active_history", []) || [];
@@ -996,7 +993,6 @@
         } else {
           TS.log(488, "_set GOOD immediately: " + immediate + " " + name + ": " + elapsed + "ms", value);
         }
-        return;
       }
     }
   };
@@ -3781,7 +3777,6 @@
     onSetTopic: function(ok, data, args) {
       if (!ok) {
         TS.error("failed to set channel topic");
-        return;
       }
     },
     setPurpose: function(id, purpose) {
@@ -3794,7 +3789,6 @@
       if (!ok) {
         TS.error("failed to set channel purpose");
         TS.channels.alertSetPurposeError(data.error);
-        return;
       }
     },
     alertSetPurposeError: function(error) {
@@ -5175,9 +5169,7 @@ TS.registerModule("constants", {
       }
     },
     onOpened: function(ok, data) {
-      if (!ok) {
-        return;
-      }
+      if (!ok) {}
     },
     displayGroup: function(options) {
       var current_options = _.defaults({}, options, {
@@ -5460,7 +5452,6 @@ TS.registerModule("constants", {
     onSetTopic: function(ok, data, args) {
       if (!ok) {
         TS.error("failed to set group topic");
-        return;
       }
     },
     setPurpose: function(id, purpose) {
@@ -5473,7 +5464,6 @@ TS.registerModule("constants", {
       if (!ok) {
         TS.error("failed to set group purpose");
         TS.channels.alertSetPurposeError(data.error);
-        return;
       }
     },
     lookupById: function(id) {
@@ -7270,9 +7260,7 @@ TS.registerModule("constants", {
       }, TS.files.onFileDelete);
     },
     onFileDelete: function(ok, data, args) {
-      if (!ok) {
-        return;
-      }
+      if (!ok) {}
     },
     endEditFileTitle: function() {
       $("#file_edit_title_container").addClass("hidden");
@@ -7417,7 +7405,6 @@ TS.registerModule("constants", {
             TS.files.removeFile(existing_file.id);
           }
         }
-        return;
       }
     },
     fileWasMaybeRefreshed: function(file) {
@@ -7448,7 +7435,6 @@ TS.registerModule("constants", {
       }
       if (!file) {
         TS.error("File for reshare doesn't exist: " + file_id);
-        return;
       } else if (can_reshare) {
         TS.files.reShareConfirmation([file], function() {
           TS.ui.share_dialog.start(file_id, hide_file_preview, space_has_title, source_model_ob_id, null, allow_create);
@@ -8320,9 +8306,7 @@ TS.registerModule("constants", {
       });
     },
     onOpened: function(ok, data) {
-      if (!ok) {
-        return;
-      }
+      if (!ok) {}
     },
     displayMpim: function(options) {
       var current_options = _.defaults({}, options, {
@@ -10766,7 +10750,6 @@ TS.registerModule("constants", {
   var _processNewTeamForUpserting = function(team) {
     if (!TS.boot_data.feature_shared_channels_client) {
       TS.console.warn("external shared channels must be on to use this");
-      return;
     }
   };
   var _getTeamsByIdFromModelOrApi = function(t_ids) {
@@ -10801,7 +10784,6 @@ TS.registerModule("constants", {
       _.forEach(team_members, function(member) {
         TS.members.changed_profile_sig.dispatch(member);
       });
-      return;
     },
     isMemberExternal: function(member) {
       if (!TS.model.shared_channels_enabled) return false;
@@ -16276,9 +16258,7 @@ TS.registerModule("constants", {
     }
     TS.ms.onFailure(reason_str);
   };
-  var _reportDisconnect = function(reason_str) {
-    return;
-  };
+  var _reportDisconnect = function(reason_str) {};
   var _deprecateCurrentSocket = function(error_code, reason) {
     TS.model.ms_connecting = false;
     if (_websocket) {
@@ -17218,7 +17198,6 @@ TS.registerModule("constants", {
         return;
       }
       TS.info(member.id + " joined mpim " + imsg.channel);
-      return;
     },
     mpim_open: function(imsg) {
       var mpim = TS.mpims.getMpimById(imsg.channel);
@@ -28882,6 +28861,9 @@ TS.registerModule("constants", {
     isThreadsViewPath: function(path) {
       return path.indexOf("/threads") === 0;
     },
+    isAppIndexViewPath: function(path) {
+      return path.indexOf("/app-index") === 0;
+    },
     getPathFromSlackUrl: function(url) {
       var matches = url.match(_slack_url_re);
       var splitter = matches && matches[1];
@@ -28893,7 +28875,7 @@ TS.registerModule("constants", {
       return (splitter + path).split("/");
     },
     refashionUrl: function(url, view_path, flex_name, flex_extra) {
-      var url_parts = url.split(/\.com\/+(messages|unreads|threads)/);
+      var url_parts = url.split(/\.com\/+(messages|unreads|threads|app-index)/);
       var base = url_parts[0] + ".com";
       var params = url_parts[2].split("?");
       var qs = params[1] ? "?" + params[1] : "";
@@ -32057,7 +32039,6 @@ TS.registerModule("constants", {
         return;
       }
       TS.warn("not sure what to do with clicked element id:" + id);
-      return;
     },
     startWithMessageActions: function(e, msg_ts, msgs, model_ob) {
       if (TS.client && !TS.model.ms_connected) {
@@ -32598,14 +32579,14 @@ TS.registerModule("constants", {
               items_html: TS.templates.administration_items(template_args),
               onclick: TS.menu.onTeamAndUserItemSubmenuClick
             });
-            return;
+            break;
           case "switch_teams":
             TS.menu.$submenu_parent = $menu_content.find("#switch_teams");
             TS.menu.$submenu_parent.submenu({
               items_html: TS.templates.switch_teams_items(template_args),
               onclick: TS.menu.onTeamAndUserItemSubmenuClick
             });
-            return;
+            break;
           case "member_current_status_item":
             TS.menu.$submenu_parent = $menu_content.find("#member_current_status_item");
             TS.menu.$submenu_parent.submenu({
@@ -32614,9 +32595,8 @@ TS.registerModule("constants", {
               ondestroy: TS.menu._unregisterCurrentStatusInput
             });
             TS.menu._registerCurrentStatusInput();
-            return;
-          default:
             break;
+          default:
         }
       }
     },
@@ -33310,7 +33290,6 @@ TS.registerModule("constants", {
         e.preventDefault();
         TS.menu.end();
         if (_on_esc) _on_esc();
-        return;
       } else if (!modifier_pressed && !TS.utility.isArrowKey(key) && key != keymap.tab && key != keymap.enter) {
         TS.kb_nav.clearHighlightedItem();
         TS.utility.contenteditable.focus($("#menu_member_dm_input"));
@@ -33367,7 +33346,7 @@ TS.registerModule("constants", {
     },
     keepInBounds: function() {
       if (window.requestAnimationFrame) {
-        window.requestAnimationFrame(TS.menu.keepInBoundsThrottled);
+        TS.utility.rAF(TS.menu.keepInBoundsThrottled);
       } else {
         TS.menu.keepInBoundsThrottled();
       }
@@ -34084,7 +34063,6 @@ var _on_esc;
       var option = $(this).data("qa");
       if (option === "cancel_leave_team") {
         TS.ui.fs_modal.close();
-        return;
       } else if (option === "confirm_leave_team") {
         var ladda = Ladda.create(this);
         ladda.start();
@@ -34124,7 +34102,6 @@ var _on_esc;
               _showToastMessage("error", error_message);
             }
           }
-          return;
         });
         var anchor_page;
         var from_where;
@@ -34281,7 +34258,6 @@ var _on_esc;
       }
       _$primary_file_button.find(".ts_icon").remove();
       _$primary_file_button.toggleClass("active", false).append(_$plus_icon_cached);
-      return;
     },
     onNewFileOptionsItemClick: function(e) {
       var $clicked = $(this).closest("[data-which]");
@@ -35275,7 +35251,6 @@ var _on_esc;
     }
     e.preventDefault();
     TS.warn("not sure what to do with clicked element id:" + id);
-    return;
   };
 })();
 (function() {
@@ -35942,7 +35917,6 @@ var _on_esc;
             }
           } else {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
-            return;
           }
         } else {
           if (TS.model.active_channel_id) {
@@ -35972,7 +35946,6 @@ var _on_esc;
             }
           } else {
             TS.cmd_handlers.addTempEphemeralFeedback(TS.i18n.t("A valid channel name is required.", "cmd_handlers")(), cmd + " " + rest, "sad_surprise");
-            return;
           }
         }
       }
@@ -37459,7 +37432,6 @@ var _on_esc;
       TS.api.call(api_method, api_args, function(ok, data, args) {
         if (ok) {
           if (callback) callback(model_ob);
-          return;
         } else if (data.error) {
           TS.error(data.error);
         }
@@ -37475,7 +37447,6 @@ var _on_esc;
         TS.api.call("stars.add", api_args, function(ok, data, args) {
           if (ok) {
             if (callback) callback(model_ob);
-            return;
           } else if (data.error) {
             TS.error(data.error);
           }
@@ -37484,7 +37455,6 @@ var _on_esc;
         TS.api.call("stars.remove", api_args, function(ok, data, args) {
           if (ok) {
             if (callback) callback(model_ob);
-            return;
           } else if (data.error) {
             TS.error(data.error);
           }
@@ -38146,7 +38116,6 @@ var _on_esc;
           });
           $msg_inline_video_iframe_div.html(error_html);
         }
-        return;
       }
     },
     makeInternalInlineVideo: function(key, video) {
@@ -38773,7 +38742,6 @@ var _on_esc;
         } else {
           TS.inline_others.expand(container_id, src);
         }
-        return;
       }
     },
     makeInternalInlineOther: function(attachment) {
@@ -39136,19 +39104,14 @@ var _on_esc;
               input.setCursorPosition(p + 1);
             }
           } else if (e.which == TS.utility.keymap.enter) {
-            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey) {
-              return;
-            } else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && e.shiftKey) {
+            if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && !e.shiftKey) {} else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs(input) && e.shiftKey) {
               e.preventDefault();
               TS.msg_edit.checkAndSubmit(input, form);
-              return;
             } else if (input.tab_complete_ui("isShowing")) {
               e.preventDefault();
-              return;
             } else if (!e.shiftKey && !e.altKey) {
               e.preventDefault();
               TS.msg_edit.checkAndSubmit(input, form);
-              return;
             }
           }
         }).autosize({
@@ -39503,8 +39466,6 @@ var _on_esc;
           TS.mpims.removeMsg(model_ob.id, msg);
         } else if (model_ob.is_group) {
           TS.groups.removeMsg(model_ob.id, msg);
-        } else {
-          return;
         }
       } else {
         if (msg._jl_rollup_hash && msg._jl_rollup_hash.msg_ids) {
@@ -45299,9 +45260,7 @@ $.fn.togglify = function(settings) {
       TS.generic_dialog.alert(too_many_reactions, reaction_limit_reached_title);
     } else if (error == TOO_MANY_EMOJI) {
       TS.generic_dialog.alert(too_many_emoji, reaction_limit_reached_title);
-    } else {
-      return;
-    }
+    } else {}
   };
   var _updateAllRxnsUI = function() {
     $(".msgs_holder").find("ts-message").each(function() {
@@ -45697,7 +45656,6 @@ $.fn.togglify = function(settings) {
           _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
         }
       }
-      return;
     });
   };
   var _createPrivateChannel = function(title, purpose, invited_members, pending_users) {
@@ -45732,7 +45690,6 @@ $.fn.togglify = function(settings) {
           _showError(TS.i18n.t("Sorry! Something went wrong.", "new_channel")());
         }
       }
-      return;
     });
   };
   var _updateFilterSelect = function(members) {
@@ -49095,7 +49052,6 @@ $.fn.togglify = function(settings) {
       TS.clog.track("FILE_DOWNLOAD", payload);
       if (file && TS.client.downloads.startDownload(file, open_flexpane)) {
         e.preventDefault();
-        return;
       }
     });
     TS.click.addClientHandler(".msg_jump, .star_jump", function(e, $el, origin) {
@@ -49197,7 +49153,6 @@ $.fn.togglify = function(settings) {
         }
         if (TS.ui.share_dialog.showing) TS.ui.share_dialog.div.modal("hide");
         TS.client.ui.files.previewFile($el.data("file-id"), preview_origin || "file_list", false);
-        return;
       }
     });
     TS.click.addClientHandler("a.file_share, button.file_share", function(e, $el) {
@@ -49229,7 +49184,6 @@ $.fn.togglify = function(settings) {
       TS.ui.utility.preventElementFromScrolling($msg_el, function() {
         TS.ui.replies.openConversation(model_ob, thread_ts, null, origin);
       });
-      return;
     });
     TS.click.addWebHandler(".reply_bar", function(e, $el, origin) {
       var target = $(e.target);
@@ -49382,7 +49336,6 @@ $.fn.togglify = function(settings) {
       }
       if (TS.ui.replies.maybeOpenConversationLink($el, origin)) {
         e.preventDefault();
-        return;
       }
     });
     TS.click.addClientHandler(".search_message_result", function(e, $el) {
@@ -51209,7 +51162,6 @@ $.fn.togglify = function(settings) {
     if ($el.is('input[name="domain"], input[name="channel_name"]')) {
       TS.ui.startButtonSpinner($('#sci_channels_create [data-action="sci_channels_create"]').get(0));
       _createInvite(e);
-      return;
     }
   };
   var _onShow = function() {
@@ -52837,7 +52789,6 @@ $.fn.togglify = function(settings) {
         }
       }
     }
-    return;
   };
   var _last_query;
   var _$monkey_scroll;
@@ -54509,7 +54460,6 @@ $.fn.togglify = function(settings) {
                 response: TS.utility.calls.invite_response_types.accept,
                 did_choose_video: false
               });
-              return;
             }
           });
         }
@@ -54632,7 +54582,6 @@ $.fn.togglify = function(settings) {
       } else {
         if (window.winssb && !(window.parentInfo || window.parentBrowserWindowId)) {
           TS.utility.calls_log.log("WinSSB: Trying to get parent window before browser window ID is initialized");
-          return;
         } else if (window.opener) {
           return window.opener;
         }
@@ -56573,7 +56522,6 @@ $.fn.togglify = function(settings) {
       }
       if ($el.closest(".screenhero_attachment").length && !$el.hasClass("screenhero_room_link")) {
         $msg.find(".screenhero_room_link").click();
-        return;
       }
     },
     shouldExpand: function(room_id) {
@@ -56755,19 +56703,14 @@ $.fn.togglify = function(settings) {
           TS.utility.contenteditable.cursorPosition($input, p + 1);
         }
       } else if (e.which == TS.utility.keymap.enter) {
-        if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey) {
-          return;
-        } else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && e.shiftKey) {
+        if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && !e.shiftKey) {} else if (TS.model.prefs.enter_is_special_in_tbt && TS.utility.isCursorWithinTBTs($input) && e.shiftKey) {
           e.preventDefault();
           _tryToSubmit($input, $form, submit_fn);
-          return;
         } else if ($input.tab_complete_ui("isShowing")) {
           e.preventDefault();
-          return;
         } else if (!e.shiftKey && !e.altKey) {
           e.preventDefault();
           _tryToSubmit($input, $form, submit_fn);
-          return;
         }
       } else if (TS.client && TS.client.ui.shouldEventTriggerMaybeEditLast(e, $input)) {
         _editLastMessage($input, opts);
@@ -57853,7 +57796,6 @@ $.fn.togglify = function(settings) {
       case _DATA_SOURCES.external:
         return _getDataPromiseForExternal($select);
       default:
-        return;
     }
   }
 
@@ -60724,6 +60666,11 @@ $.fn.togglify = function(settings) {
     views.push(_.find(TS.model.NAMED_VIEWS, {
       id: "Vall_threads"
     }));
+    if (TS.boot_data.feature_app_index) {
+      views.push(_.find(TS.model.NAMED_VIEWS, {
+        id: "Vapp_index"
+      }));
+    }
     return views;
   };
   var _searchRemote = function(query, options) {
@@ -61455,7 +61402,7 @@ $.fn.togglify = function(settings) {
       }
 
       function x(e, t, n) {
-        return t === t ? Q(e, t, n) : S(e, T, n);
+        return t === t ? X(e, t, n) : S(e, T, n);
       }
 
       function k(e, t, n, r) {
@@ -61598,7 +61545,7 @@ $.fn.togglify = function(settings) {
         }), n;
       }
 
-      function X(e) {
+      function Q(e) {
         var t = -1,
           n = Array(e.size);
         return e.forEach(function(e) {
@@ -61606,7 +61553,7 @@ $.fn.togglify = function(settings) {
         }), n;
       }
 
-      function Q(e, t, n) {
+      function X(e, t, n) {
         for (var r = n - 1, o = e.length; ++r < o;)
           if (e[r] === t) return r;
         return -1;
@@ -61693,8 +61640,8 @@ $.fn.togglify = function(settings) {
         Ke = "[object DOMException]",
         Ye = "[object Error]",
         $e = "[object Function]",
-        Xe = "[object GeneratorFunction]",
-        Qe = "[object Map]",
+        Qe = "[object GeneratorFunction]",
+        Xe = "[object Map]",
         Ze = "[object Number]",
         Je = "[object Null]",
         et = "[object Object]",
@@ -61747,8 +61694,8 @@ $.fn.togglify = function(settings) {
         Kt = /^[-+]0x[0-9a-f]+$/i,
         Yt = /^0b[01]+$/i,
         $t = /^\[object .+?Constructor\]$/,
-        Xt = /^0o[0-7]+$/i,
-        Qt = /^(?:0|[1-9]\d*)$/,
+        Qt = /^0o[0-7]+$/i,
+        Xt = /^(?:0|[1-9]\d*)$/,
         Zt = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g,
         Jt = /($^)/,
         en = /['\n\r\u2028\u2029\\]/g,
@@ -61800,11 +61747,11 @@ $.fn.togglify = function(settings) {
         Kn = RegExp("[" + Mn + tn + an + hn + "]"),
         Yn = /[a-z][A-Z]|[A-Z]{2,}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/,
         $n = ["Array", "Buffer", "DataView", "Date", "Error", "Float32Array", "Float64Array", "Function", "Int8Array", "Int16Array", "Int32Array", "Map", "Math", "Object", "Promise", "RegExp", "Set", "String", "Symbol", "TypeError", "Uint8Array", "Uint8ClampedArray", "Uint16Array", "Uint32Array", "WeakMap", "_", "clearTimeout", "isFinite", "parseInt", "setTimeout"],
-        Xn = -1,
-        Qn = {};
-      Qn[pt] = Qn[dt] = Qn[ht] = Qn[vt] = Qn[mt] = Qn[gt] = Qn[_t] = Qn[yt] = Qn[bt] = !0, Qn[He] = Qn[Be] = Qn[ct] = Qn[Ve] = Qn[ft] = Qn[qe] = Qn[Ye] = Qn[$e] = Qn[Qe] = Qn[Ze] = Qn[et] = Qn[rt] = Qn[ot] = Qn[it] = Qn[st] = !1;
+        Qn = -1,
+        Xn = {};
+      Xn[pt] = Xn[dt] = Xn[ht] = Xn[vt] = Xn[mt] = Xn[gt] = Xn[_t] = Xn[yt] = Xn[bt] = !0, Xn[He] = Xn[Be] = Xn[ct] = Xn[Ve] = Xn[ft] = Xn[qe] = Xn[Ye] = Xn[$e] = Xn[Xe] = Xn[Ze] = Xn[et] = Xn[rt] = Xn[ot] = Xn[it] = Xn[st] = !1;
       var Zn = {};
-      Zn[He] = Zn[Be] = Zn[ct] = Zn[ft] = Zn[Ve] = Zn[qe] = Zn[pt] = Zn[dt] = Zn[ht] = Zn[vt] = Zn[mt] = Zn[Qe] = Zn[Ze] = Zn[et] = Zn[rt] = Zn[ot] = Zn[it] = Zn[at] = Zn[gt] = Zn[_t] = Zn[yt] = Zn[bt] = !0, Zn[Ye] = Zn[$e] = Zn[st] = !1;
+      Zn[He] = Zn[Be] = Zn[ct] = Zn[ft] = Zn[Ve] = Zn[qe] = Zn[pt] = Zn[dt] = Zn[ht] = Zn[vt] = Zn[mt] = Zn[Xe] = Zn[Ze] = Zn[et] = Zn[rt] = Zn[ot] = Zn[it] = Zn[at] = Zn[gt] = Zn[_t] = Zn[yt] = Zn[bt] = !0, Zn[Ye] = Zn[$e] = Zn[st] = !1;
       var Jn = {
           "À": "A",
           "Á": "A",
@@ -62067,7 +62014,7 @@ $.fn.togglify = function(settings) {
             return e.__actions__ = Fo(this.__actions__), e.__dir__ = this.__dir__, e.__filtered__ = this.__filtered__, e.__iteratees__ = Fo(this.__iteratees__), e.__takeCount__ = this.__takeCount__, e.__views__ = Fo(this.__views__), e;
           }
 
-          function Q() {
+          function X() {
             if (this.__filtered__) {
               var e = new b(this);
               e.__dir__ = -1, e.__filtered__ = !0;
@@ -62089,7 +62036,7 @@ $.fn.togglify = function(settings) {
               c = this.__iteratees__,
               f = c.length,
               p = 0,
-              d = Xc(s, this.__takeCount__);
+              d = Qc(s, this.__takeCount__);
             if (!n || !r && o == s && d == s) return Co(e, this.__actions__);
             var h = [];
             e: for (; s-- && p < d;) {
@@ -62350,7 +62297,7 @@ $.fn.togglify = function(settings) {
               if (a = Ai(e), !u) return Fo(e, a);
             } else {
               var p = Of(e),
-                d = p == $e || p == Xe;
+                d = p == $e || p == Qe;
               if (Sp(e)) return Po(e, u);
               if (p == et || p == He || d && !o) {
                 if (a = s || d ? {} : Ni(e), !u) return s ? Go(e, Dn(a, e)) : Bo(e, Ln(a, e));
@@ -62483,7 +62430,7 @@ $.fn.togglify = function(settings) {
           }
 
           function fr(e) {
-            return null == e ? e === oe ? ut : Je : jc && jc in fc(e) ? Pi(e) : Xi(e);
+            return null == e ? e === oe ? ut : Je : jc && jc in fc(e) ? Pi(e) : Qi(e);
           }
 
           function pr(e, t) {
@@ -62499,13 +62446,13 @@ $.fn.togglify = function(settings) {
           }
 
           function kr(e, t, n) {
-            return e >= Xc(t, n) && e < $c(t, n);
+            return e >= Qc(t, n) && e < $c(t, n);
           }
 
           function Tr(e, t, n) {
             for (var r = n ? h : d, o = e[0].length, i = e.length, a = i, u = ac(i), s = 1 / 0, l = []; a--;) {
               var c = e[a];
-              a && t && (c = v(c, L(t))), s = Xc(c.length, s), u[a] = !n && (t || o >= 120 && c.length >= 120) ? new _n(a && c) : oe;
+              a && t && (c = v(c, L(t))), s = Qc(c.length, s), u[a] = !n && (t || o >= 120 && c.length >= 120) ? new _n(a && c) : oe;
             }
             c = e[0];
             var f = -1,
@@ -62579,7 +62526,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Nr(e) {
-            return ls(e) && Of(e) == Qe;
+            return ls(e) && Of(e) == Xe;
           }
 
           function Lr(e, t, n, r) {
@@ -62622,7 +62569,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Ur(e) {
-            return ls(e) && us(e.length) && !!Qn[fr(e)];
+            return ls(e) && us(e.length) && !!Xn[fr(e)];
           }
 
           function Wr(e) {
@@ -62650,7 +62597,7 @@ $.fn.togglify = function(settings) {
 
           function Gr(e, t) {
             var n = -1,
-              r = Xu(e) ? ac(e.length) : [];
+              r = Qu(e) ? ac(e.length) : [];
             return yf(e, function(e, o, i) {
               r[++n] = t(e, o, i);
             }), r;
@@ -62691,7 +62638,7 @@ $.fn.togglify = function(settings) {
               var p = wp(s),
                 d = !p && Sp(s),
                 h = !p && !d && Rp(s);
-              c = s, p || d || h ? wp(u) ? c = u : Qu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
+              c = s, p || d || h ? wp(u) ? c = u : Xu(u) ? c = Fo(u) : d ? (f = !1, c = Po(s, !0)) : h ? (f = !1, c = Do(s, !0)) : c = [] : gs(s) || bp(s) ? (c = u, bp(u) ? c = Ps(u) : (!ss(u) || r && is(u)) && (c = Ni(s))) : f = !1;
             }
             f && (a.set(s, c), o(c, s, r, i, a), a.delete(s)), On(e, n, c);
           }
@@ -62701,7 +62648,7 @@ $.fn.togglify = function(settings) {
             if (n) return t += t < 0 ? n : 0, zi(t, n) ? e[t] : oe;
           }
 
-          function Xr(e, t, n) {
+          function Qr(e, t, n) {
             var r = -1;
             t = v(t.length ? t : [Nl], L(ki()));
             var o = Gr(e, function(e, n, o) {
@@ -62719,7 +62666,7 @@ $.fn.togglify = function(settings) {
             });
           }
 
-          function Qr(e, t) {
+          function Xr(e, t) {
             return Zr(e, t, function(t, n) {
               return Bs(e, n);
             });
@@ -62779,7 +62726,7 @@ $.fn.togglify = function(settings) {
           }
 
           function io(e, t) {
-            return Lf(Qi(e, t, Nl), e + "");
+            return Lf(Xi(e, t, Nl), e + "");
           }
 
           function ao(e) {
@@ -62852,7 +62799,7 @@ $.fn.togglify = function(settings) {
               else m = l ? h && (r || p) : u ? h && p && (r || !d) : s ? h && p && !d && (r || !v) : !d && !v && (r ? f <= t : f < t);
               m ? o = c + 1 : i = c;
             }
-            return Xc(i, Ue);
+            return Qc(i, Ue);
           }
 
           function vo(e, t) {
@@ -62942,7 +62889,7 @@ $.fn.togglify = function(settings) {
           }
 
           function ko(e) {
-            return Qu(e) ? e : [];
+            return Xu(e) ? e : [];
           }
 
           function To(e) {
@@ -63092,7 +63039,7 @@ $.fn.togglify = function(settings) {
           function Ko(e, t) {
             return function(n, r) {
               if (null == n) return n;
-              if (!Xu(n)) return e(n, r);
+              if (!Qu(n)) return e(n, r);
               for (var o = n.length, i = t ? o : -1, a = fc(n);
                 (t ? i-- : ++i < o) && r(a[i], i, a) !== !1;);
               return n;
@@ -63119,7 +63066,7 @@ $.fn.togglify = function(settings) {
             return r;
           }
 
-          function Xo(e) {
+          function Qo(e) {
             return function(t) {
               t = Os(t);
               var n = B(t) ? ee(t) : oe,
@@ -63129,7 +63076,7 @@ $.fn.togglify = function(settings) {
             };
           }
 
-          function Qo(e) {
+          function Xo(e) {
             return function(t) {
               return g(Pl(ll(t).replace(Bn, "")), e, "");
             };
@@ -63177,7 +63124,7 @@ $.fn.togglify = function(settings) {
           function ei(e) {
             return function(t, n, r) {
               var o = fc(t);
-              if (!Xu(t)) {
+              if (!Qu(t)) {
                 var i = ki(n, 3);
                 t = Gs(t), n = function(e) {
                   return i(o[e], e, o);
@@ -63311,7 +63258,7 @@ $.fn.togglify = function(settings) {
           function fi(e) {
             var t = cc[e];
             return function(e, n) {
-              if (e = Rs(e), n = null == n ? 0 : Xc(Ts(n), 292)) {
+              if (e = Rs(e), n = null == n ? 0 : Qc(Ts(n), 292)) {
                 var r = (Os(e) + "e").split("e"),
                   o = t(r[0] + "e" + (+r[1] + n));
                 return r = (Os(o) + "e").split("e"), +(r[0] + "e" + (+r[1] - n));
@@ -63323,7 +63270,7 @@ $.fn.togglify = function(settings) {
           function pi(e) {
             return function(t) {
               var n = Of(t);
-              return n == Qe ? q(t) : n == ot ? X(t) : N(t, e(t));
+              return n == Xe ? q(t) : n == ot ? Q(t) : N(t, e(t));
             };
           }
 
@@ -63406,7 +63353,7 @@ $.fn.togglify = function(settings) {
               case rt:
               case it:
                 return e == t + "";
-              case Qe:
+              case Xe:
                 var u = q;
               case ot:
                 var s = r & ve;
@@ -63457,7 +63404,7 @@ $.fn.togglify = function(settings) {
           }
 
           function bi(e) {
-            return Lf(Qi(e, oe, ga), e + "");
+            return Lf(Xi(e, oe, ga), e + "");
           }
 
           function wi(e) {
@@ -63529,7 +63476,7 @@ $.fn.togglify = function(settings) {
                   t -= a;
                   break;
                 case "take":
-                  t = Xc(t, e + a);
+                  t = Qc(t, e + a);
                   break;
                 case "takeRight":
                   e = $c(e, t - a);
@@ -63586,7 +63533,7 @@ $.fn.togglify = function(settings) {
               case yt:
               case bt:
                 return Do(e, r);
-              case Qe:
+              case Xe:
                 return Io(e, r, n);
               case Ze:
               case it:
@@ -63612,13 +63559,13 @@ $.fn.togglify = function(settings) {
           }
 
           function zi(e, t) {
-            return t = null == t ? Le : t, !!t && ("number" == typeof e || Qt.test(e)) && e > -1 && e % 1 == 0 && e < t;
+            return t = null == t ? Le : t, !!t && ("number" == typeof e || Xt.test(e)) && e > -1 && e % 1 == 0 && e < t;
           }
 
           function Ui(e, t, n) {
             if (!ss(n)) return !1;
             var r = typeof t;
-            return !!("number" == r ? Xu(n) && zi(t, n.length) : "string" == r && t in n) && $u(n[t], e);
+            return !!("number" == r ? Qu(n) && zi(t, n.length) : "string" == r && t in n) && $u(n[t], e);
           }
 
           function Wi(e, t) {
@@ -63682,7 +63629,7 @@ $.fn.togglify = function(settings) {
               var s = e[3];
               e[3] = s ? Uo(s, u, t[4]) : u, e[4] = s ? Y(e[3], fe) : t[4];
             }
-            return u = t[5], u && (s = e[5], e[5] = s ? Wo(s, u, t[6]) : u, e[6] = s ? Y(e[5], fe) : t[6]), u = t[7], u && (e[7] = u), r & xe && (e[8] = null == e[8] ? t[8] : Xc(e[8], t[8])), null == e[9] && (e[9] = t[9]), e[0] = t[0], e[1] = o, e;
+            return u = t[5], u && (s = e[5], e[5] = s ? Wo(s, u, t[6]) : u, e[6] = s ? Y(e[5], fe) : t[6]), u = t[7], u && (e[7] = u), r & xe && (e[8] = null == e[8] ? t[8] : Qc(e[8], t[8])), null == e[9] && (e[9] = t[9]), e[0] = t[0], e[1] = o, e;
           }
 
           function $i(e) {
@@ -63692,11 +63639,11 @@ $.fn.togglify = function(settings) {
             return t;
           }
 
-          function Xi(e) {
+          function Qi(e) {
             return Sc.call(e);
           }
 
-          function Qi(e, t, n) {
+          function Xi(e, t, n) {
             return t = $c(t === oe ? e.length - 1 : t, 0),
               function() {
                 for (var r = arguments, o = -1, i = $c(r.length - t, 0), a = ac(i); ++o < i;) a[o] = r[t + o];
@@ -63711,7 +63658,7 @@ $.fn.togglify = function(settings) {
           }
 
           function Ji(e, t) {
-            for (var n = e.length, r = Xc(t.length, n), o = Fo(e); r--;) {
+            for (var n = e.length, r = Qc(t.length, n), o = Fo(e); r--;) {
               var i = t[r];
               e[r] = zi(i, n) ? o[i] : oe;
             }
@@ -63727,7 +63674,7 @@ $.fn.togglify = function(settings) {
             var t = 0,
               n = 0;
             return function() {
-              var r = Qc(),
+              var r = Xc(),
                 o = Me - (r - n);
               if (n = r, o > 0) {
                 if (++t >= Pe) return arguments[0];
@@ -63836,7 +63783,7 @@ $.fn.togglify = function(settings) {
             var r = null == e ? 0 : e.length;
             if (!r) return -1;
             var o = r - 1;
-            return n !== oe && (o = Ts(n), o = n < 0 ? $c(r + o, 0) : Xc(o, r - 1)), S(e, ki(t, 3), o, !0);
+            return n !== oe && (o = Ts(n), o = n < 0 ? $c(r + o, 0) : Qc(o, r - 1)), S(e, ki(t, 3), o, !0);
           }
 
           function ga(e) {
@@ -63891,7 +63838,7 @@ $.fn.togglify = function(settings) {
             var r = null == e ? 0 : e.length;
             if (!r) return -1;
             var o = r;
-            return n !== oe && (o = Ts(n), o = o < 0 ? $c(r + o, 0) : Xc(o, r - 1)), t === t ? Z(e, t, o) : S(e, T, o, !0);
+            return n !== oe && (o = Ts(n), o = o < 0 ? $c(r + o, 0) : Qc(o, r - 1)), t === t ? Z(e, t, o) : S(e, T, o, !0);
           }
 
           function Ea(e, t) {
@@ -64008,19 +63955,19 @@ $.fn.togglify = function(settings) {
             return t = "function" == typeof t ? t : oe, e && e.length ? _o(e, oe, t) : [];
           }
 
-          function Xa(e) {
+          function Qa(e) {
             if (!e || !e.length) return [];
             var t = 0;
             return e = p(e, function(e) {
-              if (Qu(e)) return t = $c(e.length, t), !0;
+              if (Xu(e)) return t = $c(e.length, t), !0;
             }), A(t, function(t) {
               return v(e, R(t));
             });
           }
 
-          function Qa(e, t) {
+          function Xa(e, t) {
             if (!e || !e.length) return [];
-            var n = Xa(e);
+            var n = Qa(e);
             return null == t ? n : v(n, function(e) {
               return u(t, oe, e);
             });
@@ -64129,7 +64076,7 @@ $.fn.togglify = function(settings) {
           }
 
           function gu(e, t, n, r) {
-            e = Xu(e) ? e : rl(e), n = n && !r ? Ts(n) : 0;
+            e = Qu(e) ? e : rl(e), n = n && !r ? Ts(n) : 0;
             var o = e.length;
             return n < 0 && (n = $c(o + n, 0)), ys(e) ? n <= o && e.indexOf(t, n) > -1 : !!o && x(e, t, n) > -1;
           }
@@ -64140,7 +64087,7 @@ $.fn.togglify = function(settings) {
           }
 
           function yu(e, t, n, r) {
-            return null == e ? [] : (wp(t) || (t = null == t ? [] : [t]), n = r ? oe : n, wp(n) || (n = null == n ? [] : [n]), Xr(e, t, n));
+            return null == e ? [] : (wp(t) || (t = null == t ? [] : [t]), n = r ? oe : n, wp(n) || (n = null == n ? [] : [n]), Qr(e, t, n));
           }
 
           function bu(e, t, n) {
@@ -64178,9 +64125,9 @@ $.fn.togglify = function(settings) {
 
           function Tu(e) {
             if (null == e) return 0;
-            if (Xu(e)) return ys(e) ? J(e) : e.length;
+            if (Qu(e)) return ys(e) ? J(e) : e.length;
             var t = Of(e);
-            return t == Qe || t == ot ? e.size : Fr(e).length;
+            return t == Xe || t == ot ? e.size : Fr(e).length;
           }
 
           function Eu(e, t, n) {
@@ -64236,7 +64183,7 @@ $.fn.togglify = function(settings) {
               var n = e - g,
                 r = e - _,
                 o = t - n;
-              return b ? Xc(o, h - r) : o;
+              return b ? Qc(o, h - r) : o;
             }
 
             function a(e) {
@@ -64381,12 +64328,12 @@ $.fn.togglify = function(settings) {
             return e === t || e !== e && t !== t;
           }
 
-          function Xu(e) {
+          function Qu(e) {
             return null != e && us(e.length) && !is(e);
           }
 
-          function Qu(e) {
-            return ls(e) && Xu(e);
+          function Xu(e) {
+            return ls(e) && Qu(e);
           }
 
           function Zu(e) {
@@ -64399,9 +64346,9 @@ $.fn.togglify = function(settings) {
 
           function es(e) {
             if (null == e) return !0;
-            if (Xu(e) && (wp(e) || "string" == typeof e || "function" == typeof e.splice || Sp(e) || Rp(e) || bp(e))) return !e.length;
+            if (Qu(e) && (wp(e) || "string" == typeof e || "function" == typeof e.splice || Sp(e) || Rp(e) || bp(e))) return !e.length;
             var t = Of(e);
-            if (t == Qe || t == ot) return !e.size;
+            if (t == Xe || t == ot) return !e.size;
             if (Gi(e)) return !Fr(e).length;
             for (var n in e)
               if (bc.call(e, n)) return !1;
@@ -64431,7 +64378,7 @@ $.fn.togglify = function(settings) {
           function is(e) {
             if (!ss(e)) return !1;
             var t = fr(e);
-            return t == $e || t == Xe || t == Ge || t == nt;
+            return t == $e || t == Qe || t == Ge || t == nt;
           }
 
           function as(e) {
@@ -64514,10 +64461,10 @@ $.fn.togglify = function(settings) {
 
           function xs(e) {
             if (!e) return [];
-            if (Xu(e)) return ys(e) ? ee(e) : Fo(e);
+            if (Qu(e)) return ys(e) ? ee(e) : Fo(e);
             if (Dc && e[Dc]) return V(e[Dc]());
             var t = Of(e),
-              n = t == Qe ? q : t == ot ? $ : rl;
+              n = t == Xe ? q : t == ot ? $ : rl;
             return n(e);
           }
 
@@ -64550,7 +64497,7 @@ $.fn.togglify = function(settings) {
             if ("string" != typeof e) return 0 === e ? e : +e;
             e = e.replace(jt, "");
             var n = Yt.test(e);
-            return n || Xt.test(e) ? or(e.slice(2), n ? 2 : 8) : Kt.test(e) ? je : +e;
+            return n || Qt.test(e) ? or(e.slice(2), n ? 2 : 8) : Kt.test(e) ? je : +e;
           }
 
           function Ps(e) {
@@ -64616,11 +64563,11 @@ $.fn.togglify = function(settings) {
           }
 
           function Gs(e) {
-            return Xu(e) ? En(e) : Fr(e);
+            return Qu(e) ? En(e) : Fr(e);
           }
 
           function Vs(e) {
-            return Xu(e) ? En(e, !0) : Hr(e);
+            return Qu(e) ? En(e, !0) : Hr(e);
           }
 
           function qs(e, t) {
@@ -64651,7 +64598,7 @@ $.fn.togglify = function(settings) {
             });
           }
 
-          function Xs(e, t, n) {
+          function Qs(e, t, n) {
             t = Eo(t, e);
             var r = -1,
               o = t.length;
@@ -64662,7 +64609,7 @@ $.fn.togglify = function(settings) {
             return e;
           }
 
-          function Qs(e, t, n) {
+          function Xs(e, t, n) {
             return null == e ? e : so(e, t, n);
           }
 
@@ -64717,7 +64664,7 @@ $.fn.togglify = function(settings) {
             }
             if (n || e % 1 || t % 1) {
               var o = Jc();
-              return Xc(e + o * (t - e + rr("1e-" + ((o + "").length - 1))), t);
+              return Qc(e + o * (t - e + rr("1e-" + ((o + "").length - 1))), t);
             }
             return no(e, t);
           }
@@ -64798,7 +64745,7 @@ $.fn.togglify = function(settings) {
               f = t.interpolate || Jt,
               p = "__p += '",
               d = pc((t.escape || Jt).source + "|" + f.source + "|" + (f === Mt ? Vt : Jt).source + "|" + (t.evaluate || Jt).source + "|$", "g"),
-              h = "//# sourceURL=" + ("sourceURL" in t ? t.sourceURL : "lodash.templateSources[" + ++Xn + "]") + "\n";
+              h = "//# sourceURL=" + ("sourceURL" in t ? t.sourceURL : "lodash.templateSources[" + ++Qn + "]") + "\n";
             e.replace(d, function(t, n, r, o, u, s) {
               return r || (r = o), p += e.slice(c, s).replace(en, F), n && (i = !0, p += "' +\n__e(" + n + ") +\n'"), u && (a = !0, p += "';\n" + u + ";\n__p += '"), r && (p += "' +\n((__t = (" + r + ")) == null ? '' : __t) +\n'"), c = s + t.length, t;
             }), p += "';\n";
@@ -64997,17 +64944,17 @@ $.fn.togglify = function(settings) {
           function $l(e, t) {
             if (e = Ts(e), e < 1 || e > Le) return [];
             var n = ze,
-              r = Xc(e, ze);
+              r = Qc(e, ze);
             t = ki(t), e -= ze;
             for (var o = A(r, t); ++n < e;) t(n);
             return o;
           }
 
-          function Xl(e) {
+          function Ql(e) {
             return wp(e) ? v(e, ra) : bs(e) ? [e] : Fo(Df(Os(e)));
           }
 
-          function Ql(e) {
+          function Xl(e) {
             var t = ++wc;
             return Os(e) + t;
           }
@@ -65096,8 +65043,8 @@ $.fn.togglify = function(settings) {
             Kc = vc.join,
             Yc = K(fc.keys, fc),
             $c = cc.max,
-            Xc = cc.min,
-            Qc = uc.now,
+            Qc = cc.min,
+            Xc = uc.now,
             Zc = t.parseInt,
             Jc = cc.random,
             ef = vc.reverse,
@@ -65171,7 +65118,7 @@ $.fn.togglify = function(settings) {
               return t;
             } : Gl,
             Of = fr;
-          (tf && Of(new tf(new ArrayBuffer(1))) != ft || nf && Of(new nf) != Qe || rf && Of(rf.resolve()) != tt || of && Of(new of ) != ot || af && Of(new af) != st) && (Of = function(e) {
+          (tf && Of(new tf(new ArrayBuffer(1))) != ft || nf && Of(new nf) != Xe || rf && Of(rf.resolve()) != tt || of && Of(new of ) != ot || af && Of(new af) != st) && (Of = function(e) {
             var t = fr(e),
               n = t == et ? e.constructor : oe,
               r = n ? oa(n) : "";
@@ -65179,7 +65126,7 @@ $.fn.togglify = function(settings) {
               case cf:
                 return ft;
               case ff:
-                return Qe;
+                return Xe;
               case pf:
                 return tt;
               case df:
@@ -65202,15 +65149,15 @@ $.fn.togglify = function(settings) {
               }), t;
             }),
             jf = io(function(e, t) {
-              return Qu(e) ? qn(e, tr(t, 1, Qu, !0)) : [];
+              return Xu(e) ? qn(e, tr(t, 1, Xu, !0)) : [];
             }),
             zf = io(function(e, t) {
               var n = ka(t);
-              return Qu(n) && (n = oe), Qu(e) ? qn(e, tr(t, 1, Qu, !0), ki(n, 2)) : [];
+              return Xu(n) && (n = oe), Xu(e) ? qn(e, tr(t, 1, Xu, !0), ki(n, 2)) : [];
             }),
             Uf = io(function(e, t) {
               var n = ka(t);
-              return Qu(n) && (n = oe), Qu(e) ? qn(e, tr(t, 1, Qu, !0), oe, n) : [];
+              return Xu(n) && (n = oe), Xu(e) ? qn(e, tr(t, 1, Xu, !0), oe, n) : [];
             }),
             Wf = io(function(e) {
               var t = v(e, ko);
@@ -65235,35 +65182,35 @@ $.fn.togglify = function(settings) {
               }).sort(jo)), r;
             }),
             Vf = io(function(e) {
-              return _o(tr(e, 1, Qu, !0));
+              return _o(tr(e, 1, Xu, !0));
             }),
             qf = io(function(e) {
               var t = ka(e);
-              return Qu(t) && (t = oe), _o(tr(e, 1, Qu, !0), ki(t, 2));
+              return Xu(t) && (t = oe), _o(tr(e, 1, Xu, !0), ki(t, 2));
             }),
             Kf = io(function(e) {
               var t = ka(e);
-              return t = "function" == typeof t ? t : oe, _o(tr(e, 1, Qu, !0), oe, t);
+              return t = "function" == typeof t ? t : oe, _o(tr(e, 1, Xu, !0), oe, t);
             }),
             Yf = io(function(e, t) {
-              return Qu(e) ? qn(e, t) : [];
+              return Xu(e) ? qn(e, t) : [];
             }),
             $f = io(function(e) {
-              return So(p(e, Qu));
-            }),
-            Xf = io(function(e) {
-              var t = ka(e);
-              return Qu(t) && (t = oe), So(p(e, Qu), ki(t, 2));
+              return So(p(e, Xu));
             }),
             Qf = io(function(e) {
               var t = ka(e);
-              return t = "function" == typeof t ? t : oe, So(p(e, Qu), oe, t);
+              return Xu(t) && (t = oe), So(p(e, Xu), ki(t, 2));
             }),
-            Zf = io(Xa),
+            Xf = io(function(e) {
+              var t = ka(e);
+              return t = "function" == typeof t ? t : oe, So(p(e, Xu), oe, t);
+            }),
+            Zf = io(Qa),
             Jf = io(function(e) {
               var t = e.length,
                 n = t > 1 ? e[t - 1] : oe;
-              return n = "function" == typeof n ? (e.pop(), n) : oe, Qa(e, n);
+              return n = "function" == typeof n ? (e.pop(), n) : oe, Xa(e, n);
             }),
             ep = bi(function(e) {
               var t = e.length,
@@ -65291,7 +65238,7 @@ $.fn.togglify = function(settings) {
             ip = io(function(e, t, n) {
               var r = -1,
                 o = "function" == typeof t,
-                i = Xu(e) ? ac(e.length) : [];
+                i = Qu(e) ? ac(e.length) : [];
               return yf(e, function(e) {
                 i[++r] = o ? u(t, e, n) : Rr(e, t, n);
               }), i;
@@ -65310,7 +65257,7 @@ $.fn.togglify = function(settings) {
             sp = io(function(e, t) {
               if (null == e) return [];
               var n = t.length;
-              return n > 1 && Ui(e, t[0], t[1]) ? t = [] : n > 2 && Ui(t[0], t[1], t[2]) && (t = [t[0]]), Xr(e, tr(t, 1), []);
+              return n > 1 && Ui(e, t[0], t[1]) ? t = [] : n > 2 && Ui(t[0], t[1], t[2]) && (t = [t[0]]), Qr(e, tr(t, 1), []);
             }),
             lp = Wc || function() {
               return ur.Date.now();
@@ -65342,7 +65289,7 @@ $.fn.togglify = function(settings) {
               t = 1 == t.length && wp(t[0]) ? v(t[0], L(ki())) : v(tr(t, 1), L(ki()));
               var n = t.length;
               return io(function(r) {
-                for (var o = -1, i = Xc(r.length, n); ++o < i;) r[o] = t[o].call(this, r[o]);
+                for (var o = -1, i = Qc(r.length, n); ++o < i;) r[o] = t[o].call(this, r[o]);
                 return u(e, this, r);
               });
             }),
@@ -65379,7 +65326,7 @@ $.fn.togglify = function(settings) {
               return e <= t;
             }),
             Op = qo(function(e, t) {
-              if (Gi(t) || Xu(t)) return void Ho(t, Gs(t), e);
+              if (Gi(t) || Qu(t)) return void Ho(t, Gs(t), e);
               for (var n in t) bc.call(t, n) && In(e, n, t[n]);
             }),
             Ip = qo(function(e, t) {
@@ -65422,30 +65369,30 @@ $.fn.togglify = function(settings) {
               return n;
             }),
             Gp = bi(function(e, t) {
-              return null == e ? {} : Qr(e, t);
+              return null == e ? {} : Xr(e, t);
             }),
             Vp = pi(Gs),
             qp = pi(Vs),
-            Kp = Qo(function(e, t, n) {
+            Kp = Xo(function(e, t, n) {
               return t = t.toLowerCase(), e + (n ? sl(t) : t);
             }),
-            Yp = Qo(function(e, t, n) {
+            Yp = Xo(function(e, t, n) {
               return e + (n ? "-" : "") + t.toLowerCase();
             }),
-            $p = Qo(function(e, t, n) {
+            $p = Xo(function(e, t, n) {
               return e + (n ? " " : "") + t.toLowerCase();
             }),
-            Xp = Xo("toLowerCase"),
-            Qp = Qo(function(e, t, n) {
+            Qp = Qo("toLowerCase"),
+            Xp = Xo(function(e, t, n) {
               return e + (n ? "_" : "") + t.toLowerCase();
             }),
-            Zp = Qo(function(e, t, n) {
+            Zp = Xo(function(e, t, n) {
               return e + (n ? " " : "") + ed(t);
             }),
-            Jp = Qo(function(e, t, n) {
+            Jp = Xo(function(e, t, n) {
               return e + (n ? " " : "") + t.toUpperCase();
             }),
-            ed = Xo("toUpperCase"),
+            ed = Qo("toUpperCase"),
             td = io(function(e, t) {
               try {
                 return u(e, oe, t);
@@ -65490,7 +65437,7 @@ $.fn.togglify = function(settings) {
             _d = oi(function(e, t) {
               return e - t;
             }, 0);
-          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Qs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Xl, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Xa, n.unzipWith = Qa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Xf, n.xorWith = Qf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Xu, n.isArrayLikeObject = Qu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Xp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Xs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Qp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Ql, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
+          return n.after = Ru, n.ary = Pu, n.assign = Op, n.assignIn = Ip, n.assignInWith = Ap, n.assignWith = Np, n.at = Lp, n.before = Mu, n.bind = cp, n.bindAll = nd, n.bindKey = fp, n.castArray = Bu, n.chain = eu, n.chunk = ua, n.compact = sa, n.concat = la, n.cond = Ml, n.conforms = Ol, n.constant = Il, n.countBy = tp, n.create = Is, n.curry = Ou, n.curryRight = Iu, n.debounce = Au, n.defaults = Dp, n.defaultsDeep = jp, n.defer = pp, n.delay = dp, n.difference = jf, n.differenceBy = zf, n.differenceWith = Uf, n.drop = ca, n.dropRight = fa, n.dropRightWhile = pa, n.dropWhile = da, n.fill = ha, n.filter = fu, n.flatMap = pu, n.flatMapDeep = du, n.flatMapDepth = hu, n.flatten = ga, n.flattenDeep = _a, n.flattenDepth = ya, n.flip = Nu, n.flow = rd, n.flowRight = od, n.fromPairs = ba, n.functions = Us, n.functionsIn = Ws, n.groupBy = op, n.initial = Sa, n.intersection = Wf, n.intersectionBy = Ff, n.intersectionWith = Hf, n.invert = zp, n.invertBy = Up, n.invokeMap = ip, n.iteratee = Ll, n.keyBy = ap, n.keys = Gs, n.keysIn = Vs, n.map = _u, n.mapKeys = qs, n.mapValues = Ks, n.matches = Dl, n.matchesProperty = jl, n.memoize = Lu, n.merge = Fp, n.mergeWith = Hp, n.method = id, n.methodOf = ad, n.mixin = zl, n.negate = Du, n.nthArg = Fl, n.omit = Bp, n.omitBy = Ys, n.once = ju, n.orderBy = yu, n.over = ud, n.overArgs = hp, n.overEvery = sd, n.overSome = ld, n.partial = vp, n.partialRight = mp, n.partition = up, n.pick = Gp, n.pickBy = $s, n.property = Hl, n.propertyOf = Bl, n.pull = Bf, n.pullAll = Ra, n.pullAllBy = Pa, n.pullAllWith = Ma, n.pullAt = Gf, n.range = cd, n.rangeRight = fd, n.rearg = gp, n.reject = Cu, n.remove = Oa, n.rest = zu, n.reverse = Ia, n.sampleSize = xu, n.set = Xs, n.setWith = Zs, n.shuffle = ku, n.slice = Aa, n.sortBy = sp, n.sortedUniq = Wa, n.sortedUniqBy = Fa, n.split = yl, n.spread = Uu, n.tail = Ha, n.take = Ba, n.takeRight = Ga, n.takeRightWhile = Va, n.takeWhile = qa, n.tap = tu, n.throttle = Wu, n.thru = nu, n.toArray = xs, n.toPairs = Vp, n.toPairsIn = qp, n.toPath = Ql, n.toPlainObject = Ps, n.transform = Js, n.unary = Fu, n.union = Vf, n.unionBy = qf, n.unionWith = Kf, n.uniq = Ka, n.uniqBy = Ya, n.uniqWith = $a, n.unset = el, n.unzip = Qa, n.unzipWith = Xa, n.update = tl, n.updateWith = nl, n.values = rl, n.valuesIn = ol, n.without = Yf, n.words = Pl, n.wrap = Hu, n.xor = $f, n.xorBy = Qf, n.xorWith = Xf, n.zip = Zf, n.zipObject = Za, n.zipObjectDeep = Ja, n.zipWith = Jf, n.entries = Vp, n.entriesIn = qp, n.extend = Ip, n.extendWith = Ap, zl(n, n), n.add = pd, n.attempt = td, n.camelCase = Kp, n.capitalize = sl, n.ceil = dd, n.clamp = il, n.clone = Gu, n.cloneDeep = qu, n.cloneDeepWith = Ku, n.cloneWith = Vu, n.conformsTo = Yu, n.deburr = ll, n.defaultTo = Al, n.divide = hd, n.endsWith = cl, n.eq = $u, n.escape = fl, n.escapeRegExp = pl, n.every = cu, n.find = np, n.findIndex = va, n.findKey = As, n.findLast = rp, n.findLastIndex = ma, n.findLastKey = Ns, n.floor = vd, n.forEach = vu, n.forEachRight = mu, n.forIn = Ls, n.forInRight = Ds, n.forOwn = js, n.forOwnRight = zs, n.get = Fs, n.gt = _p, n.gte = yp, n.has = Hs, n.hasIn = Bs, n.head = wa, n.identity = Nl, n.includes = gu, n.indexOf = Ca, n.inRange = al, n.invoke = Wp, n.isArguments = bp, n.isArray = wp, n.isArrayBuffer = Cp, n.isArrayLike = Qu, n.isArrayLikeObject = Xu, n.isBoolean = Zu, n.isBuffer = Sp, n.isDate = xp, n.isElement = Ju, n.isEmpty = es, n.isEqual = ts, n.isEqualWith = ns, n.isError = rs, n.isFinite = os, n.isFunction = is, n.isInteger = as, n.isLength = us, n.isMap = kp, n.isMatch = cs, n.isMatchWith = fs, n.isNaN = ps, n.isNative = ds, n.isNil = vs, n.isNull = hs, n.isNumber = ms, n.isObject = ss, n.isObjectLike = ls, n.isPlainObject = gs, n.isRegExp = Tp, n.isSafeInteger = _s, n.isSet = Ep, n.isString = ys, n.isSymbol = bs, n.isTypedArray = Rp, n.isUndefined = ws, n.isWeakMap = Cs, n.isWeakSet = Ss, n.join = xa, n.kebabCase = Yp, n.last = ka, n.lastIndexOf = Ta, n.lowerCase = $p, n.lowerFirst = Qp, n.lt = Pp, n.lte = Mp, n.max = Zl, n.maxBy = Jl, n.mean = ec, n.meanBy = tc, n.min = nc, n.minBy = rc, n.stubArray = Gl, n.stubFalse = Vl, n.stubObject = ql, n.stubString = Kl, n.stubTrue = Yl, n.multiply = md, n.nth = Ea, n.noConflict = Ul, n.noop = Wl, n.now = lp, n.pad = dl, n.padEnd = hl, n.padStart = vl, n.parseInt = ml, n.random = ul, n.reduce = bu, n.reduceRight = wu, n.repeat = gl, n.replace = _l, n.result = Qs, n.round = gd, n.runInContext = e, n.sample = Su, n.size = Tu, n.snakeCase = Xp, n.some = Eu, n.sortedIndex = Na, n.sortedIndexBy = La, n.sortedIndexOf = Da, n.sortedLastIndex = ja, n.sortedLastIndexBy = za, n.sortedLastIndexOf = Ua, n.startCase = Zp, n.startsWith = bl, n.subtract = _d, n.sum = oc, n.sumBy = ic, n.template = wl, n.times = $l, n.toFinite = ks, n.toInteger = Ts, n.toLength = Es, n.toLower = Cl, n.toNumber = Rs, n.toSafeInteger = Ms, n.toString = Os, n.toUpper = Sl, n.trim = xl, n.trimEnd = kl, n.trimStart = Tl, n.truncate = El, n.unescape = Rl, n.uniqueId = Xl, n.upperCase = Jp, n.upperFirst = ed, n.each = vu, n.eachRight = mu, n.first = wa, zl(n, function() {
             var e = {};
             return nr(n, function(t, r) {
               bc.call(n.prototype, r) || (e[r] = t);
@@ -65503,8 +65450,8 @@ $.fn.togglify = function(settings) {
             b.prototype[e] = function(n) {
               n = n === oe ? 1 : $c(Ts(n), 0);
               var r = this.__filtered__ && !t ? new b(this) : this.clone();
-              return r.__filtered__ ? r.__takeCount__ = Xc(n, r.__takeCount__) : r.__views__.push({
-                size: Xc(n, ze),
+              return r.__filtered__ ? r.__takeCount__ = Qc(n, r.__takeCount__) : r.__views__.push({
+                size: Qc(n, ze),
                 type: e + (r.__dir__ < 0 ? "Right" : "")
               }), r;
             }, b.prototype[e + "Right"] = function(t) {
@@ -65608,7 +65555,7 @@ $.fn.togglify = function(settings) {
           }), lf[ni(oe, _e).name] = [{
             name: "wrapper",
             func: oe
-          }], b.prototype.clone = P, b.prototype.reverse = Q, b.prototype.value = te, n.prototype.at = ep, n.prototype.chain = ru, n.prototype.commit = ou, n.prototype.next = iu, n.prototype.plant = uu, n.prototype.reverse = su, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = lu, n.prototype.first = n.prototype.head, Dc && (n.prototype[Dc] = au), n;
+          }], b.prototype.clone = P, b.prototype.reverse = X, b.prototype.value = te, n.prototype.at = ep, n.prototype.chain = ru, n.prototype.commit = ou, n.prototype.next = iu, n.prototype.plant = uu, n.prototype.reverse = su, n.prototype.toJSON = n.prototype.valueOf = n.prototype.value = lu, n.prototype.first = n.prototype.head, Dc && (n.prototype[Dc] = au), n;
         },
         xr = Sr();
       ur._ = xr, o = function() {
@@ -72042,10 +71989,11 @@ $.fn.togglify = function(settings) {
     k = 9,
     T = ":cry:",
     E = [0, -1],
-    R = {
+    R = [0, 1],
+    P = {
       handyRxnNames: s.PropTypes.array,
       skinToneChoiceNames: s.PropTypes.array,
-      initialSearchQuery: s.PropTypes.string,
+      searchQuery: s.PropTypes.string,
       activeSkinToneId: s.PropTypes.string,
       groups: s.PropTypes.array,
       numBackgroundColors: s.PropTypes.number,
@@ -72054,19 +72002,19 @@ $.fn.togglify = function(settings) {
       onSkinToneChanged: s.PropTypes.func,
       canAddEmoji: s.PropTypes.bool
     },
-    P = {
+    M = {
       numBackgroundColors: 6,
       canAddEmoji: !0,
       onSkinToneChanged: function() {},
       handyRxnNames: [],
       skinToneChoiceNames: [],
-      initialSearchQuery: "",
+      searchQuery: "",
       activeSkinToneId: "",
       groups: [],
       onSelected: function() {},
       onClosed: function() {}
     },
-    M = function(e) {
+    O = function(e) {
       function t(e) {
         r(this, t);
         var n = o(this, (t.__proto__ || Object.getPrototypeOf(t)).call(this, e));
@@ -72076,11 +72024,11 @@ $.fn.togglify = function(settings) {
           currentSelection: {},
           isPreviewing: !1,
           isSkinTonePickerOpen: !1,
-          searchQuery: e.initialSearchQuery,
+          searchQuery: e.searchQuery,
           scrollToIndex: null,
           activeGroup: n.getFirstTab(),
           isScrolledToBottom: !1,
-          screenRows: n.getAllRows(e.groups, e.activeSkinToneId, e.initialSearchQuery),
+          screenRows: n.getAllRows(e.groups, e.activeSkinToneId, e.searchQuery),
           handyRxns: n.filterEmojiByName(i, e.handyRxnNames),
           skinToneChoices: n.filterEmojiByName(i, e.skinToneChoiceNames),
           cursorPosition: E,
@@ -72145,7 +72093,8 @@ $.fn.togglify = function(settings) {
       }]), S(t, [{
         key: "componentWillMount",
         value: function() {
-          w.a("react_emoji_menu_mount_mark");
+          this.props.searchQuery && this.onSearch(this.props.searchQuery),
+            w.a("react_emoji_menu_mount_mark");
         }
       }, {
         key: "componentDidMount",
@@ -72155,15 +72104,16 @@ $.fn.togglify = function(settings) {
       }, {
         key: "componentWillReceiveProps",
         value: function(e) {
-          var n = u.a.isEqual(this.props.groups, e.groups),
+          var n = !u.a.isEqual(this.props.groups, e.groups),
             r = this.props.activeSkinToneId !== e.activeSkinToneId,
-            o = this.state.searchQuery;
-          if (n || r) {
-            var i = t.getAllEmoji(e.groups);
+            o = this.state.searchQuery !== e.searchQuery,
+            i = o ? e.searchQuery : this.state.searchQuery;
+          if (o && this.onSearch(i), n || r) {
+            var a = t.getAllEmoji(e.groups);
             this.setState({
-              handyRxns: this.filterEmojiByName(i, e.handyRxnNames),
-              skinToneChoices: this.filterEmojiByName(i, e.skinToneChoiceNames),
-              screenRows: this.getAllRows(e.groups, e.activeSkinToneId, o)
+              handyRxns: this.filterEmojiByName(a, e.handyRxnNames),
+              skinToneChoices: this.filterEmojiByName(a, e.skinToneChoiceNames),
+              screenRows: this.getAllRows(e.groups, e.activeSkinToneId, i)
             });
           }
         }
@@ -72177,7 +72127,7 @@ $.fn.togglify = function(settings) {
         value: function(e, t) {
           var n = e;
           if (t.target === this.searchInput)
-            if ("right" === e && this.searchInput.selectionEnd === this.searchInput.value.length) n = "down";
+            if ("right" === e && this.searchInput.selectionEnd === this.searchInput.value.length);
             else if ("left" === e || "right" === e) return;
           t.preventDefault(), this.element.focus();
           var r = this.moveCursor(n),
@@ -72196,6 +72146,7 @@ $.fn.togglify = function(settings) {
         value: function(e) {
           this.setState({
             currentSelection: e,
+            cursorPosition: E,
             isPreviewing: !0,
             isSkinTonePickerOpen: !1
           });
@@ -72239,14 +72190,17 @@ $.fn.togglify = function(settings) {
         value: function(e) {
           w.a("react_emoji_menu_search_mark");
           var t = this.getAllRows(this.props.groups, this.props.activeSkinToneId, e),
-            n = 2 === t.length && 1 === u.a.get(t, "[1].items.length");
+            n = t.length >= 2 && u.a.get(t, "[1].items.length") >= 1,
+            r = e && n ? R : E,
+            o = e && n && u.a.get(t, "[1].items[0]") || {},
+            i = !(!e || !n);
           this.setState({
             activeGroup: this.getFirstTab(),
-            cursorPosition: E,
+            cursorPosition: r,
             searchQuery: e,
             screenRows: t,
-            currentSelection: n && u.a.get(t, "[1].items[0]") || {},
-            isPreviewing: n
+            currentSelection: o,
+            isPreviewing: i
           }, function() {
             return w.b("react_emoji_menu_search", "react_emoji_menu_search_mark");
           });
@@ -72553,7 +72507,7 @@ $.fn.togglify = function(settings) {
         }
       }]), t;
     }(s.Component);
-  t.a = M, M.propTypes = R, M.defaultProps = P;
+  t.a = O, O.propTypes = P, O.defaultProps = M;
 }, function(e, t, n) {
   "use strict";
 
@@ -73559,10 +73513,10 @@ $.fn.togglify = function(settings) {
       for (var n, r = g(t = b(t)), o = 0, i = r.length; i > o;) Y(e, n = r[o++], t[n]);
       return e;
     },
-    X = function(e, t) {
+    Q = function(e, t) {
       return void 0 === t ? S(e) : $(S(e), t);
     },
-    Q = function(e) {
+    X = function(e) {
       var t = j.call(this, e = w(e, !0));
       return !(this === F && o(U, e) && !o(W, e)) && (!(t || !o(this, e) || !o(U, e) || o(this, L) && this[L][e]) || t);
     },
@@ -73592,7 +73546,7 @@ $.fn.togglify = function(settings) {
     }), q(e);
   }, u(O[N], "toString", function() {
     return this._k;
-  }), k.f = Z, T.f = Y, n(107).f = x.f = J, n(50).f = Q, n(69).f = ee, i && !n(66) && u(F, "propertyIsEnumerable", Q, !0), h.f = function(e) {
+  }), k.f = Z, T.f = Y, n(107).f = x.f = J, n(50).f = X, n(69).f = ee, i && !n(66) && u(F, "propertyIsEnumerable", X, !0), h.f = function(e) {
     return q(d(e));
   }), a(a.G + a.W + a.F * !H, {
     Symbol: O
@@ -73614,7 +73568,7 @@ $.fn.togglify = function(settings) {
       G = !1;
     }
   }), a(a.S + a.F * !H, "Object", {
-    create: X,
+    create: Q,
     defineProperty: Y,
     defineProperties: $,
     getOwnPropertyDescriptor: Z,
@@ -75164,7 +75118,7 @@ $.fn.togglify = function(settings) {
   }
 
   function p(e) {
-    Q.call(X, e) || ($.test(e) ? void 0 : v("65", e), X[e] = !0);
+    X.call(Q, e) || ($.test(e) ? void 0 : v("65", e), Q[e] = !0);
   }
 
   function d(e, t) {
@@ -75263,8 +75217,8 @@ $.fn.togglify = function(settings) {
       menuitem: !0
     }, q),
     $ = /^[a-zA-Z][a-zA-Z:_\.\-\d]*$/,
-    X = {},
-    Q = {}.hasOwnProperty,
+    Q = {},
+    X = {}.hasOwnProperty,
     Z = 1;
   h.displayName = "ReactDOMComponent", h.Mixin = {
     mountComponent: function(e, t, n, r) {
@@ -75297,8 +75251,7 @@ $.fn.togglify = function(settings) {
       }
       o(this, i);
       var a, f;
-      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html),
-        a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
+      null != t ? (a = t._namespaceURI, f = t._tag) : n._tag && (a = n._namespaceURI, f = n._tag), (null == a || a === b.svg && "foreignobject" === f) && (a = b.html), a === b.html && ("svg" === this._tag ? a = b.svg : "math" === this._tag && (a = b.mathml)), this._namespaceURI = a;
       var p;
       if (e.useCreateElement) {
         var d, h = n._ownerDocument;
