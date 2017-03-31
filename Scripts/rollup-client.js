@@ -4474,7 +4474,7 @@
         TS.ui.replies.rebuildMsgsIncludingMember(member);
         if (TS.client.unread.isEnabled()) TS.client.ui.unread.rebuildMsgsIncludingMember(member);
       }
-      if (member.id == TS.model.user.id) {
+      if (member.id == _.get(TS.model.user, "id")) {
         TS.view.members.updateUserDisplayName();
         if (member.is_restricted) {
           if (TS.environment.is_retina) {

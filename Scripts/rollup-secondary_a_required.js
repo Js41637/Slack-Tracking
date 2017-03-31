@@ -54027,7 +54027,11 @@ $.fn.togglify = function(settings) {
       return _.isEmpty(_utility_call_analytics_state);
     },
     record: function(series, stats) {
-      _record_buffer.push(_createAnalyticsData(series, stats));
+      if (!_.find(_record_buffer, function(d) {
+          return d["measurement"] === series;
+        })) {
+        _record_buffer.push(_createAnalyticsData(series, stats));
+      }
       if (!_record_timer) {
         _record_timer = setTimeout(TS.utility.calls_analytics.flush, _record_timer_duration);
       }
@@ -54082,7 +54086,7 @@ $.fn.togglify = function(settings) {
   });
   var _calls_analytics_config = {};
   var _record_timer;
-  var _record_timer_duration = 1e4;
+  var _record_timer_duration = 5e3;
   var _record_buffer = [];
   var _utility_call_analytics_state = {};
   var _getDatabaseName = function() {
