@@ -65,8 +65,13 @@
     <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
     <span>{{#t}}List private channels separately{{/t}}</span>
   </label>
+  {{#if show_separate_shared_channels_pref}}
+    <label for="separate_shared_channels_cb" class="checkbox no_margin">
+      <input id="separate_shared_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+      <span>{{#t}}List shared channels separately{{/t}}<span class="normal greigh small_left_margin">{{#t}}This doesn't do anything yet.{{/t}}</span></span>
+    </label>
+  {{/if}}
 </p>
-
 <p>
   <label class="checkbox nor_margin">
     <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">

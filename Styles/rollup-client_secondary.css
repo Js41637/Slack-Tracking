@@ -4088,6 +4088,12 @@ html {
   content: none
 }
 
+.client_resize_optimizations #messages_container {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1
+}
+
 .loading .client_container #msgs_scroller_div {
   visibility: hidden
 }
@@ -4165,6 +4171,28 @@ html {
 .supports_custom_scrollbar.slim_scrollbar #archive_msgs_scroller_div::-webkit-scrollbar-thumb:hover,
 .supports_custom_scrollbar.slim_scrollbar #msgs_scroller_div::-webkit-scrollbar-thumb:hover {
   background-color: rgba(113, 114, 116, .8)
+}
+
+.client_resize_optimizations #archive_msgs_scroller_div,
+.client_resize_optimizations #msgs_scroller_div {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -moz-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  min-width: 1px
+}
+
+.client_resize_optimizations .onboarding #msgs_div {
+  display: none
+}
+
+.client_resize_optimizations .onboarding #end_div {
+  height: 100%
 }
 
 #archives_info {
@@ -4246,6 +4274,11 @@ html {
   margin-right: -1rem
 }
 
+.client_resize_optimizations #archive_msgs_scroller_div #archives_top_div,
+.client_resize_optimizations #msgs_scroller_div #end_div {
+  margin-top: auto
+}
+
 #msgs_scroller_div #end_display_div {
   padding: 1rem;
   margin: 1rem 0
@@ -4274,6 +4307,10 @@ html {
 
 #msgs_scroller_div #end_display_div #end_display_meta #im_meta .mpim_notif_prefs input[type=radio] {
   vertical-align: baseline
+}
+
+.client_resize_optimizations #msgs_scroller_div #end_display_div #end_display_meta {
+  padding-top: 16px
 }
 
 #msgs_scroller_div #end_display_div #end_display_meta i.callout.ts_icon_lightbulb_o::before {

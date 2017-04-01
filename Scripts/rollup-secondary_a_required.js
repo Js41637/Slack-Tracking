@@ -13879,6 +13879,7 @@ TS.registerModule("constants", {
     team_posts_migrating_changed_sig: new signals.Signal,
     preferred_skin_tone_changed_sig: new signals.Signal,
     separate_private_channels_changed_sig: new signals.Signal,
+    separate_shared_channels_changed_sig: new signals.Signal,
     whats_new_read_changed_sig: new signals.Signal,
     team_dnd_enabled_changed_sig: new signals.Signal,
     team_dnd_start_hour_changed_sig: new signals.Signal,
@@ -14522,6 +14523,12 @@ TS.registerModule("constants", {
           if (TS.model.prefs.separate_private_channels != imsg.value) {
             TS.model.prefs.separate_private_channels = imsg.value;
             TS.prefs.separate_private_channels_changed_sig.dispatch();
+          }
+          break;
+        case "separate_shared_channels":
+          if (TS.model.prefs.separate_shared_channels != imsg.value) {
+            TS.model.prefs.separate_shared_channels = imsg.value;
+            TS.prefs.separate_shared_channels_changed_sig.dispatch();
           }
           break;
         case "whats_new_read":
@@ -67159,7 +67166,8 @@ $.fn.togglify = function(settings) {
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
   var o, i = n(11);
-  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0), e.exports = r;
+  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0),
+    e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -75194,7 +75202,8 @@ $.fn.togglify = function(settings) {
             v.innerHTML = "<" + m + "></" + m + ">", d = v.removeChild(v.firstChild);
           } else d = i.is ? h.createElement(this._currentElement.type, i.is) : h.createElement(this._currentElement.type);
         else d = h.createElementNS(a, this._currentElement.type);
-        E.precacheNode(this, d), this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
+        E.precacheNode(this, d),
+          this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
         var _ = y(d);
         this._createInitialChildren(e, i, r, _), p = _;
       } else {
@@ -78430,9 +78439,8 @@ $.fn.togglify = function(settings) {
   });
   var o = (n(315), n(319), n(321), n(331), n(60), n(327), n(328));
   n.d(t, "b", function() {
-      return o.a;
-    }), n(329),
-    n(330), n(332);
+    return o.a;
+  }), n(329), n(330), n(332);
 }, function(e, t, n) {
   "use strict";
 

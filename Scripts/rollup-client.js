@@ -2475,7 +2475,7 @@
           doing_an_overlay = true;
           TS.view.overlay.startWithCreatedChannel(channel);
         }
-      } else if (channel && channel.needs_invited_message && channel.is_shared && !channel.is_org_shared && TS.model.shared_channels_enabled && TS.boot_data.feature_shared_channels_join_modal) {
+      } else if (channel && channel.needs_invited_message && channel.is_shared && !channel.is_org_shared && TS.model.shared_channels_enabled) {
         TS.view.overlay.startWithJoinedSharedChannel(channel);
       } else if (channel && channel.needs_invited_message) {
         if (TS.model.prefs.no_joined_overlays) {
@@ -12824,6 +12824,7 @@
       }
     },
     padOutMsgsScroller: function() {
+      if (TS.boot_data.feature_client_resize_optimizations) return;
       $("#end_div").css("height", "");
       $("#end_display_padder").css("height", "");
       TS.utility.queueRAF(TS.client.msg_pane.padOutMsgsScrollerRAF);
@@ -27259,6 +27260,7 @@
       if (!_all_loaded_top) _loadMoreTop();
     },
     padOutMsgsScroller: function() {
+      if (TS.boot_data.feature_client_resize_optimizations) return;
       var end_div = $("#archives_top_div");
       end_div.css("margin-top", "");
       var h = end_div.outerHeight();
@@ -31615,6 +31617,7 @@
           return obj;
         }).value();
         template_args.client_logs_pri_all_selected = preselected.indexOf("all") > -1;
+        template_args.show_separate_shared_channels_pref = TS.boot_data.feature_shared_channels_client && TS.environment.is_dev;
         html = TS.templates.prefs_advanced(template_args);
         break;
       case "labs":
@@ -31675,7 +31678,6 @@
         break;
       case "advanced":
         _bindAdvancedPrefs();
-        _bindSidebarBehaviorPrefs();
         break;
       case "labs":
         _bindLabsPrefs();
@@ -32139,6 +32141,34 @@
       var val = !!$(this).prop("checked");
       TS.prefs.setPrefByAPI({
         name: "arrow_history",
+        value: val
+      });
+    });
+    $('input:radio[name="pr_sidebar"]').filter('[value="' + TS.model.prefs.sidebar_behavior + '"]').prop("checked", true);
+    $('input:radio[name="pr_sidebar"]').on("change", function() {
+      var val = $(this).val();
+      TS.prefs.setPrefByAPI({
+        name: "sidebar_behavior",
+        value: val
+      });
+      TS.prefs.onPrefChanged({
+        name: "sidebar_behavior",
+        value: val
+      });
+    });
+    $("#separate_private_channels_cb").prop("checked", TS.model.prefs.separate_private_channels === true);
+    $("#separate_private_channels_cb").on("change", function() {
+      var val = !!$(this).prop("checked");
+      TS.prefs.setPrefByAPI({
+        name: "separate_private_channels",
+        value: val
+      });
+    });
+    $("#separate_shared_channels_cb").prop("checked", TS.model.prefs.separate_shared_channels === true);
+    $("#separate_shared_channels_cb").on("change", function() {
+      var val = !!$(this).prop("checked");
+      TS.prefs.setPrefByAPI({
+        name: "separate_shared_channels",
         value: val
       });
     });
@@ -32933,28 +32963,6 @@
   var _tzPrefChanged = function() {
     if (!_is_open) return;
     if (TS.model.prefs.tz) $("#prefs_dnd").removeClass("tz_not_set");
-  };
-  var _bindSidebarBehaviorPrefs = function() {
-    $('input:radio[name="pr_sidebar"]').filter('[value="' + TS.model.prefs.sidebar_behavior + '"]').prop("checked", true);
-    $('input:radio[name="pr_sidebar"]').on("change", function() {
-      var val = $(this).val();
-      TS.prefs.setPrefByAPI({
-        name: "sidebar_behavior",
-        value: val
-      });
-      TS.prefs.onPrefChanged({
-        name: "sidebar_behavior",
-        value: val
-      });
-    });
-    $("#separate_private_channels_cb").prop("checked", TS.model.prefs.separate_private_channels === true);
-    $("#separate_private_channels_cb").on("change", function() {
-      var val = !!$(this).prop("checked");
-      TS.prefs.setPrefByAPI({
-        name: "separate_private_channels",
-        value: val
-      });
-    });
   };
 })();
 (function() {
