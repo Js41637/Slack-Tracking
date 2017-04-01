@@ -139,40 +139,42 @@
     {{/if}}
   {{/pageNeedsEnterprise}}
 
-  <div class="member_action_bar">
-    {{#if member.deleted}}
-      <a id="member_deleted_view_archives_btn" href="/archives/{{member.name}}" target="{{newWindowName}}" class="btn btn_outline {{#memberHasIm member=member}}{{else}}hidden{{/memberHasIm}}">{{#t}}View Archives{{/t}}</a>
-    {{else}}
-      {{#if member.is_self}}
-        <button type="button" data-action="edit_member_profile_modal" class="btn btn_outline">{{#t}}Edit Profile{{/t}}</button>
-        <a href="/account/settings" target="{{newWindowName}}" class="btn btn_outline account_settings_link ts_tip ts_tip_bottom ts_tip_float" aria-label="{{#t}}Account Settings{{/t}}" title="{{#t}}Account Settings{{/t}}"><ts-icon class="ts_icon_cog_o"></ts-icon></a>
+  {{#unless member.is_stranger}}
+    <div class="member_action_bar">
+      {{#if member.deleted}}
+        <a id="member_deleted_view_archives_btn" href="/archives/{{member.name}}" target="{{newWindowName}}" class="btn btn_outline {{#memberHasIm member=member}}{{else}}hidden{{/memberHasIm}}">{{#t}}View Archives{{/t}}</a>
       {{else}}
-        {{!-- Show "configure" link to the creator of the bot (Web ONLY) and team admins (everywhere) --}}
-        {{#if show_bot_configuration}}
-          {{#if bot_configure_url}}
-            <a href="{{bot_configure_url}}" target="{{newWindowName}}" class="btn btn_outline">{{#t}}Configure{{/t}}</a>
-          {{/if}}
-        {{/if}}
-        {{#isClient}}
-          {{#if show_call_action}}<a class="btn btn_outline internal_im_call_link" data-member-name="{{member.name}}">{{#t}}Call{{/t}}</a>{{/if}}
-          <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
+        {{#if member.is_self}}
+          <button type="button" data-action="edit_member_profile_modal" class="btn btn_outline">{{#t}}Edit Profile{{/t}}</button>
+          <a href="/account/settings" target="{{newWindowName}}" class="btn btn_outline account_settings_link ts_tip ts_tip_bottom ts_tip_float" aria-label="{{#t}}Account Settings{{/t}}" title="{{#t}}Account Settings{{/t}}"><ts-icon class="ts_icon_cog_o"></ts-icon></a>
         {{else}}
-          <a href="/messages/@{{member.name}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
-          {{#memberHasIm member=member}}
-            <a href="/archives/{{member.name}}" class="btn btn_outline">{{#t}}View Archives{{/t}}</a>
-          {{/memberHasIm}}
-          {{#and member.files member.files.length}}
-            <a href="/files/{{member.name}}" class="btn btn_outline">{{#t}}Files{{/t}}</a>
-          {{/and}}
-        {{/isClient}}
+          {{!-- Show "configure" link to the creator of the bot (Web ONLY) and team admins (everywhere) --}}
+          {{#if show_bot_configuration}}
+            {{#if bot_configure_url}}
+              <a href="{{bot_configure_url}}" target="{{newWindowName}}" class="btn btn_outline">{{#t}}Configure{{/t}}</a>
+            {{/if}}
+          {{/if}}
+          {{#isClient}}
+            {{#if show_call_action}}<a class="btn btn_outline internal_im_call_link" data-member-name="{{member.name}}">{{#t}}Call{{/t}}</a>{{/if}}
+            <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-name="{{member.name}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
+          {{else}}
+            <a href="/messages/@{{member.name}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
+            {{#memberHasIm member=member}}
+              <a href="/archives/{{member.name}}" class="btn btn_outline">{{#t}}View Archives{{/t}}</a>
+            {{/memberHasIm}}
+            {{#and member.files member.files.length}}
+              <a href="/files/{{member.name}}" class="btn btn_outline">{{#t}}Files{{/t}}</a>
+            {{/and}}
+          {{/isClient}}
+        {{/if}}
       {{/if}}
-    {{/if}}
 
-    {{#unless hide_more_menu}}
-      <button type="button" class="member_preview_menu_target btn btn_outline ts_tip ts_tip_bottom ts_tip_float" title="{{#t}}More actions{{/t}}"><ts-icon class="ts_icon_chevron_large_down"></ts-icon></button>
-    {{/unless}}
+      {{#unless hide_more_menu}}
+        <button type="button" class="member_preview_menu_target btn btn_outline ts_tip ts_tip_bottom ts_tip_float" title="{{#t}}More actions{{/t}}"><ts-icon class="ts_icon_chevron_large_down"></ts-icon></button>
+      {{/unless}}
 
-  </div>
+    </div>
+  {{/unless}}
 
   {{#if member.profile}}
     <hr class="member_details_divider{{#feature flag="feature_user_custom_status"}}{{#seesCurrentStatusInProfileView member}} feature_user_custom_status small_bottom_margin{{/seesCurrentStatusInProfileView}}{{/feature}}">
@@ -235,7 +237,7 @@
       {{/seesCurrentStatusInProfileView}}
     {{/feature}}
 
-    <table class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}{{#experiment name="guest_profiles_and_expiration"}}{{#if member.is_restricted}} no_bottom_margin{{/if}}{{/experiment}}">
+    <table class="member_data_table lato">
       {{#feature flag="feature_name_tagging_client"}}
         {{#if member.profile.preferred_name}}
           <tr>
@@ -283,12 +285,14 @@
           </tr>
         {{/if}}
       {{/feature}}
-      {{#unless member.is_slackbot}}
-        {{#unless member.is_bot}}
-          <tr>
-            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Timezone{{/t}}">{{#t}}Timezone{{/t}}</span></td>
-            <td class="member_preview_timezone"><span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>{{#if member.is_self}} {{#t new_win_name=(newWindowName)}}(<a href='/account/settings' target="{new_win_name}" data-action="edit_member_profile_modal">change</a>){{/t}}{{/if}}</td>
-          </tr>
+      {{#unless member.is_stranger}}
+        {{#unless member.is_slackbot}}
+          {{#unless member.is_bot}}
+            <tr>
+              <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Timezone{{/t}}">{{#t}}Timezone{{/t}}</span></td>
+              <td class="member_preview_timezone"><span class="timezone_label" data-member-id="{{member.id}}">{{memberLocalTime member}}</span>{{#if member.is_self}} {{#t new_win_name=(newWindowName)}}(<a href='/account/settings' target="{new_win_name}" data-action="edit_member_profile_modal">change</a>){{/t}}{{/if}}</td>
+            </tr>
+          {{/unless}}
         {{/unless}}
       {{/unless}}
       {{#if member.profile.phone}}
@@ -361,7 +365,13 @@
     {{/if}}
   {{/pageNeedsEnterprise}}
 
-  <div class="clear_both"></div>
+  {{#if member.is_stranger}}
+    <hr class="member_details_divider">
+
+    <p class="lato">{{#t}}To interact with a person from another team, you need to be in at least one channel together.{{/t}}</p>
+  {{/if}}
+
+  <div class="clear_both larger_bottom_margin"></div>
 
 </div>
 

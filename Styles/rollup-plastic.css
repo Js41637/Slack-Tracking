@@ -13089,8 +13089,7 @@ only screen and (min-resolution:2dppx) {
 #team_list .member_data_table,
 .menu_member_header .member_data_table {
   table-layout: fixed;
-  width: 100%;
-  margin-bottom: 3.125rem
+  width: 100%
 }
 
 #member_preview_scroller .member_data_table tr,
