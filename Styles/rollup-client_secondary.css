@@ -1669,6 +1669,26 @@ html:not(.supports_flexbox) #downloads_tab .download_estimate {
   display: block
 }
 
+#downloads_tab .downloads_load_more {
+  height: 100px;
+  margin-bottom: 60px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  justify-content: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -moz-align-items: center;
+  align-items: center
+}
+
 .dm_info_pane .heading {
   padding-bottom: 1rem
 }

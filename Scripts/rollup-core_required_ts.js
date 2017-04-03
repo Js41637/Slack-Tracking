@@ -242,11 +242,17 @@
     var node;
     var details = "";
     var msg;
+    var do_beacon = true;
     if (!err) return;
     details = "";
     node = err.srcElement || err.target;
-    if (node && node.nodeName && node.nodeName.match(/script/i)) {
-      details = (err.type || "error") + " from script at " + node.src + " (failed to load?)";
+    if (node && node.nodeName) {
+      if (node.nodeName === "SCRIPT") {
+        details = (err.type || "error") + " from script at " + node.src + " (failed to load?)";
+      } else if (node.nodeName === "IMG") {
+        if (TS.pri && TS.console && TS.console.warn) TS.console.warn("<img> fired error with url = " + (node.src || node.currentSrc || "unkonwn"));
+        return;
+      }
     }
     if (err.error && err.error.stack) {
       details += err.error.stack;
@@ -254,11 +260,22 @@
       details = " from " + err.filename + (err.lineno ? " @ line " + err.lineno + ", col " + err.colno : "");
     }
     msg = (!err.error || !err.error.stack ? err.message || "" : "") + " " + details;
-    msg = "🐞 " + msg.replace(/\s+/g, " ").trim();
+    if (msg && msg.replace) msg = msg.replace(/\s+/g, " ").trim();
+    if (!msg || !msg.length) {
+      if (node) {
+        msg = "error event from node of " + (node.nodeName || "unknown") + ", no message provided?";
+      } else {
+        msg = "error event fired, no relevant message or node found";
+      }
+      do_beacon = false;
+    }
+    msg = "🐞 " + msg;
     (TS.console && TS.console.error || window.console.error || function() {})(msg);
-    var subtype = null;
-    var silent = false;
-    TS.console.logError(err.error || err, msg, subtype, silent);
+    if (do_beacon) {
+      var subtype = null;
+      var silent = false;
+      TS.console.logError(err.error || err, msg, subtype, silent);
+    }
     node = null;
     msg = null;
   };

@@ -5932,6 +5932,7 @@ TS.registerModule("constants", {
   TS.registerModule("files", {
     team_file_added_sig: new signals.Signal,
     team_file_deleted_sig: new signals.Signal,
+    team_file_deleted_success_sig: new signals.Signal,
     team_file_changed_sig: new signals.Signal,
     team_file_shared_sig: new signals.Signal,
     team_file_comment_added_sig: new signals.Signal,
@@ -7473,6 +7474,7 @@ TS.registerModule("constants", {
   });
   var _current_xhr = null;
   var _files_page_size = 20;
+  var _pending_file_requests = {};
   var _addFileToInlineImgs = function(file) {
     if (!TS.files.fileIsImage(file)) return;
     var inline_img = {
@@ -7510,12 +7512,21 @@ TS.registerModule("constants", {
       }
       return file || id;
     };
-    return TS.api.call("files.info", {
-      file: id,
-      page: 1,
-      count: 500,
-      truncate: 1
-    }).then(function(response) {
+    var comment_limit = 500;
+    var file_p = _pending_file_requests[id];
+    if (!file_p) {
+      file_p = TS.api.call("files.info", {
+        file: id,
+        page: 1,
+        count: comment_limit,
+        truncate: 1
+      });
+      _pending_file_requests[id] = file_p;
+      file_p.finally(function() {
+        delete _pending_file_requests[id];
+      });
+    }
+    return file_p.then(function(response) {
       return handleRsp(response);
     }).catch(function(err) {
       return handleRsp(err);
@@ -25380,6 +25391,24 @@ TS.registerModule("constants", {
           return options.fn(this);
         }
         return options.inverse(this);
+      });
+      Handlebars.registerHelper("getTeamIconOfSize", function(team, size) {
+        if (team && team.icon) {
+          return team.icon["image_" + size];
+        }
+        return null;
+      });
+      Handlebars.registerHelper("getIconSizeToFit", function(size) {
+        var possible_sizes = [230, 132, 102, 88, 68, 44, 34];
+        if (size >= _.first(possible_sizes)) return _.first(possible_sizes);
+        if (size <= _.last(possible_sizes)) return _.last(possible_sizes);
+        var selected_size = _.first(possible_sizes);
+        for (var i = 0; i < possible_sizes.length; i++) {
+          if (possible_sizes[i] >= size) {
+            selected_size = possible_sizes[i];
+          }
+        }
+        return selected_size;
       });
     },
     test: function() {
@@ -61715,8 +61744,7 @@ $.fn.togglify = function(settings) {
         $n = ["Array", "Buffer", "DataView", "Date", "Error", "Float32Array", "Float64Array", "Function", "Int8Array", "Int16Array", "Int32Array", "Map", "Math", "Object", "Promise", "RegExp", "Set", "String", "Symbol", "TypeError", "Uint8Array", "Uint8ClampedArray", "Uint16Array", "Uint32Array", "WeakMap", "_", "clearTimeout", "isFinite", "parseInt", "setTimeout"],
         Qn = -1,
         Xn = {};
-      Xn[pt] = Xn[dt] = Xn[ht] = Xn[vt] = Xn[mt] = Xn[gt] = Xn[_t] = Xn[yt] = Xn[bt] = !0,
-        Xn[He] = Xn[Be] = Xn[ct] = Xn[Ve] = Xn[ft] = Xn[qe] = Xn[Ye] = Xn[$e] = Xn[Xe] = Xn[Ze] = Xn[et] = Xn[rt] = Xn[ot] = Xn[it] = Xn[st] = !1;
+      Xn[pt] = Xn[dt] = Xn[ht] = Xn[vt] = Xn[mt] = Xn[gt] = Xn[_t] = Xn[yt] = Xn[bt] = !0, Xn[He] = Xn[Be] = Xn[ct] = Xn[Ve] = Xn[ft] = Xn[qe] = Xn[Ye] = Xn[$e] = Xn[Xe] = Xn[Ze] = Xn[et] = Xn[rt] = Xn[ot] = Xn[it] = Xn[st] = !1;
       var Zn = {};
       Zn[He] = Zn[Be] = Zn[ct] = Zn[ft] = Zn[Ve] = Zn[qe] = Zn[pt] = Zn[dt] = Zn[ht] = Zn[vt] = Zn[mt] = Zn[Xe] = Zn[Ze] = Zn[et] = Zn[rt] = Zn[ot] = Zn[it] = Zn[at] = Zn[gt] = Zn[_t] = Zn[yt] = Zn[bt] = !0, Zn[Ye] = Zn[$e] = Zn[st] = !1;
       var Jn = {
@@ -68806,7 +68834,8 @@ $.fn.togglify = function(settings) {
     function t(e, n) {
       a()(this, t);
       var r = c()(this, (t.__proto__ || o()(t)).call(this, e, n));
-      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r), r;
+      return r._cellSizeCache = e.cellSizeCache || new _.a, r.getColumnWidth = r.getColumnWidth.bind(r), r.getRowHeight = r.getRowHeight.bind(r), r.resetMeasurements = r.resetMeasurements.bind(r), r.resetMeasurementForColumn = r.resetMeasurementForColumn.bind(r), r.resetMeasurementForRow = r.resetMeasurementForRow.bind(r),
+        r;
     }
     return p()(t, e), s()(t, [{
       key: "getColumnWidth",

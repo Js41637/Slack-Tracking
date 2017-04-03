@@ -13658,6 +13658,7 @@
   var _$individual_download = $();
   var _individual_file_id;
   var _ssb_supports_shift_open = TSSSB.call("supportsOpenFileAtPath");
+  var _PAGE_SIZE = 20;
   var _loggedIn = function() {
     _$flex_menu_download_circle = $(".flex_menu_download_circle");
     if (!TS.model.supports_downloads) return;
@@ -13688,6 +13689,10 @@
     });
     _$scroller.on("click.dl", "i.download_remove_link", function(e) {
       _removeDownload(getTokenForEl(e.target));
+    });
+    _$scroller.on("click", '[data-action="load_more"]', function(e) {
+      e.preventDefault();
+      _loadMore();
     });
     if (_ssb_supports_shift_open) {
       $(document).on("keydown", function(e) {
@@ -13837,29 +13842,43 @@
     }
   };
   var _renderListHtml = function() {
-    var html = "";
-    for (var i in _downloads) {
-      html += _buildItemHtml(_downloads[i]);
+    var first_page = _.take(_downloads, _PAGE_SIZE);
+    var html = _buildPageHtml(first_page);
+    if (first_page.length < _downloads.length) {
+      html += TS.templates.downloads_load_more();
     }
     _$scroller.html(html);
     TS.ui.utility.updateClosestMonkeyScroller($("#downloads_scroller"));
   };
+  var _buildPageHtml = function(download_items) {
+    var html = "";
+    _.forEach(download_items, function(i) {
+      html += _buildItemHtml(i);
+    });
+    return html;
+  };
   var _updateListHtml = function() {
-    var dl;
     var $dl;
     if (!_downloads.length) {
       _updateOverallProgress();
       return;
     }
-    for (var i in _downloads) {
-      dl = _downloads[i];
+    var visible_downloads = _downloads;
+    var last_dl_token = _$scroller.find(".download_item:last").attr("data-token");
+    if (last_dl_token) {
+      var last_dl_index = _.findIndex(_downloads, {
+        token: last_dl_token
+      });
+      if (last_dl_index >= 0) visible_downloads = _.take(_downloads, last_dl_index + 1);
+    }
+    _.forEach(visible_downloads, function(dl) {
       $dl = _getDlDiv(dl.token);
       if ($dl.length) {
         _updateDownload(dl);
       } else {
         _addDlDiv(dl);
       }
-    }
+    });
     var hidden_c = 0;
     _$scroller.find(".download_item").each(function(i, dl) {
       hidden_c++;
@@ -14109,6 +14128,25 @@
       if (_downloads[i][name] == value) return _downloads[i];
     }
     return null;
+  };
+  var _loadMore = function() {
+    var $last_item = _$scroller.find(".download_item:last");
+    var last_dl_token = $last_item.attr("data-token");
+    if (!$last_item.length || !last_dl_token) {
+      _doneLoading();
+      return;
+    }
+    var last_dl_index = _.findIndex(_downloads, {
+      token: last_dl_token
+    });
+    var next_page = _(_downloads).drop(last_dl_index + 1).take(_PAGE_SIZE).value();
+    var html = _buildPageHtml(next_page);
+    $last_item.after(html);
+    var all_are_loaded = _.includes(next_page, _.last(_downloads));
+    if (all_are_loaded) _doneLoading();
+  };
+  var _doneLoading = function() {
+    _$scroller.find(".downloads_load_more").remove();
   };
 })();
 (function() {
