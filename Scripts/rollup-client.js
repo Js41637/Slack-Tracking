@@ -720,7 +720,7 @@
             TS.info("calling TSSSB.signOutAndRemoveTeam because user_removed_from_team with team_id = " + team_id);
             TSSSB.signOutAndRemoveTeam(team_id);
           } else {
-            TS.reload(null, "calling TS.reload() because of user_removed_from_team with team_id = " + team_id);
+            TS.reload(null, "user_removed_from_team with team_id = " + team_id);
           }
         }
       });
@@ -15027,7 +15027,8 @@
       TS.clog.track("SEARCH_OPEN", {
         open_method: "search_box",
         click_module_name: TS.search.filter,
-        click_module_position: 0
+        click_module_position: 0,
+        request_id: TS.search.filter == "messages" ? TS.search.last_request_id : TS.search.last_files_request_id
       });
       if (TS.search.filter == "messages") {
         $("#search_tabs").show();
@@ -31986,7 +31987,7 @@
         name: "load_lato_2",
         value: val
       }, function() {
-        TS.reload();
+        TS.reload(null, "prefs dialog change: load_lato_2 -> " + val);
       });
     });
     $('input:radio[name="emoji_mode_select"]').filter('[value="' + TS.model.prefs.emoji_mode + '"]').prop("checked", true);
@@ -32258,7 +32259,7 @@
         name: "ls_disabled",
         value: val
       }, function() {
-        TS.reload();
+        TS.reload(null, "prefs dialog change: ls_disabled -> " + val);
       });
     });
     $("#ss_emojis_cb").prop("checked", TS.model.prefs.ss_emojis !== true);
@@ -32269,7 +32270,7 @@
         name: "ss_emojis",
         value: val
       }, function() {
-        TS.reload();
+        TS.reload(null, "prefs dialog change: ss_emojis -> " + val);
       });
     });
     $("#enhanced_debugging_cb").prop("checked", TS.model.prefs.enhanced_debugging === true);
@@ -32280,7 +32281,7 @@
         name: "enhanced_debugging",
         value: val
       }, function() {
-        TS.reload();
+        TS.reload(null, "prefs dialog change: enhanced_debugging -> " + val);
       });
     });
     $("#flannel_server_pool").val(TS.model.prefs.flannel_server_pool);

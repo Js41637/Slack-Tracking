@@ -18,7 +18,7 @@
           </label>
           {{#feature flag="feature_i18n_checkout_updates"}}
             {{#if content.is_checkout}}
-              <p data-single-currency-message class="hidden billing_settings_currency_msg small normal"></p>
+              <p data-single-currency-message class="hidden billing_settings_currency_msg small normal" data-qa="currency_message"></p>
             {{/if}}
           {{/feature}}
         </fieldset>
@@ -34,7 +34,7 @@
                   <div class="currency_country_error settings_error settings_input_error_display" data-status-for="currency_select"></div>
                 </div>
               </label>
-              <div id="currency_menu" class="billing_settings_currency_menu_container" data-currency-menu></div>
+              <div id="currency_menu" class="billing_settings_currency_menu_container" data-currency-menu data-qa="billing_settings_currency_menu"></div>
             </fieldset>
           {{/if}}
         {{/feature}}

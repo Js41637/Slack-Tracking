@@ -483,9 +483,9 @@
       $("html").trigger("touchstart");
       $(".modal-backdrop").trigger("click");
     },
-    reload: function(msg, ts_only_msg) {
+    reload: function(msg, reason) {
       if (msg) {
-        TS.info("TS.reload called msg:" + msg);
+        TS.info("TS.reload called: " + msg);
         TS.generic_dialog.start({
           title: TS.i18n.t("Reloading!", "ts")(),
           body: msg,
@@ -497,7 +497,7 @@
         });
         return;
       }
-      TS.info("TS.reload happening!");
+      TS.info("TS.reload() called: " + (reason || "no reason specified"));
       if (TS.client && TSSSB.call("reload")) {
         if (TS.model.mac_ssb_version) {
           setInterval(function() {
@@ -515,20 +515,19 @@
     reloadIfVersionsChanged: function(data) {
       if (TS.model.ms_logged_in_once && data.min_version_ts && TS.boot_data.version_ts !== "dev") {
         if (parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)) {
-          TS.info("calling TS.reload() because parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
-          TS.reload(null, "calling TS.reload() because parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
+          TS.reload(null, "parseInt(TS.boot_data.version_ts) < parseInt(data.min_version_ts)");
           return true;
         }
       }
       if (TS.model.ms_logged_in_once && data.cache_version) {
         if (data.cache_version != TS.storage.msgs_version) {
-          TS.reload(null, "TS.reload() because data.cache_version " + data.cache_version + " != TS.storage.msgs_version " + TS.storage.msgs_version);
+          TS.reload(null, "data.cache_version " + data.cache_version + " != TS.storage.msgs_version " + TS.storage.msgs_version);
           return true;
         }
       }
       if (TS.model.ms_logged_in_once && data.cache_ts_version) {
         if (data.cache_ts_version != TS.storage.cache_ts_version) {
-          TS.reload(null, "TS.reload() because data.cache_ts_version " + data.cache_ts_version + " != TS.storage.cache_ts_version " + TS.storage.cache_ts_version);
+          TS.reload(null, "data.cache_ts_version " + data.cache_ts_version + " != TS.storage.cache_ts_version " + TS.storage.cache_ts_version);
           return true;
         }
       }
@@ -789,15 +788,13 @@
     }
     if (error == "account_inactive" || error == "team_disabled" || error == "invalid_auth") {
       TSSSB.call("invalidateAuth");
-      TS.info("calling TS.reload() because resp.data.error: " + error);
-      TS.reload(null, "calling TS.reload() because resp.data.error: " + error);
+      TS.reload(null, "resp.data.error: " + error);
       return;
     }
     if (error == "clear_cache" || error == "org_login_required" || error == "team_added_to_org") {
-      TS.info("calling TS.storage.flush() and TS.reload() because resp.data.error: " + error);
       var also_clear_cache = true;
       TS.storage.flush(also_clear_cache);
-      TS.reload(null, "calling TS.reload() because resp.data.error: " + error);
+      TS.reload(null, "TS.storage.flush() and TS.reload() because resp.data.error: " + error);
       return;
     }
     TS.ms.logConnectionFlow("on_login_failure");

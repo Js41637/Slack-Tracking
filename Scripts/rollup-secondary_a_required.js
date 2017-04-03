@@ -2147,7 +2147,7 @@
       cancel_button_text: "Ignore",
       onGo: function() {
         TS.metrics.count("ts_api_connectivity_warning_reload");
-        TS.reload(null, "API queue was too deep and user chose to reload");
+        TS.reload(null, "API queue was too deep (" + _main_Q.length + " / " + _api_queue_depth_warning_threshold + ") and user chose to reload");
       },
       onCancel: function() {
         TS.metrics.count("ts_api_connectivity_warning_ignore");
@@ -11014,8 +11014,7 @@ TS.registerModule("constants", {
         TS.error("bad error, no member.id");
       }
       if (member.is_self && member.deleted) {
-        TS.info("calling TS.reload() because member.is_self && member.deleted");
-        TS.reload(null, "TS.reload() because member.is_self && member.deleted");
+        TS.reload(null, "member.is_self && member.deleted");
         return;
       }
       if (!TS.members.is_in_bulk_upsert_mode) {
@@ -16117,7 +16116,7 @@ TS.registerModule("constants", {
       try {
         msg += " args: <pre>" + JSON.stringify(args, null, "	") + "</pre>";
       } catch (err) {}
-      msg += "<p><b>Tell #dhtml about this, please!</b></p>";
+      if (TS.boot_data && TS.boot_data.feature_tinyspeck) msg += "<p><b>Tell #dhtml about this, please!</b></p>";
       setTimeout(function() {
         TS.reload(null, msg);
       }, 1);
@@ -16134,9 +16133,8 @@ TS.registerModule("constants", {
       return null;
     }
     if (TS.client && data.has_more) {
-      TS.info("going to call TS.reload() because data.has_more:" + data.has_more + ")");
       setTimeout(function() {
-        TS.reload(null, "TS.reload() because data.has_more:" + data.has_more + ")");
+        TS.reload(null, "event log data.has_more: " + data.has_more + ")");
       }, 1);
       return null;
     }
@@ -32720,11 +32718,18 @@ TS.registerModule("constants", {
       TS.menu.buildIfNeeded();
       TS.menu.clean();
       TS.menu.$menu_header.addClass("hidden").empty();
+      var directory_title;
+      if (TS.boot_data.page_needs_enterprise) {
+        directory_title = TS.i18n.t("Organization Directory", "menu")();
+      } else {
+        directory_title = TS.i18n.t("Team Directory", "menu")();
+      }
       TS.menu.$menu_items.html(TS.templates.menu_flexpane_items({
         special_flex_panes: TS.boot_data.special_flex_panes,
         show_downloads: TS.model.supports_downloads,
         is_enterprise: TS.boot_data.page_needs_enterprise,
-        show_user_groups: TS.lazyLoadMembersAndBots() && TS.model.team.plan !== "" && !TS.model.user.is_restricted
+        show_user_groups: TS.lazyLoadMembersAndBots() && TS.model.team.plan !== "" && !TS.model.user.is_restricted,
+        directory_title: directory_title
       }));
       TS.menu.$menu_items.on("click.menu", "li", TS.menu.onFlexMenuItemClick);
       TS.menu.start(e);
@@ -67166,8 +67171,7 @@ $.fn.togglify = function(settings) {
     return !r && o && "wheel" === e && (r = document.implementation.hasFeature("Events.wheel", "3.0")), r;
   }
   var o, i = n(11);
-  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0),
-    e.exports = r;
+  i.canUseDOM && (o = document.implementation && document.implementation.hasFeature && document.implementation.hasFeature("", "") !== !0), e.exports = r;
 }, function(e, t, n) {
   "use strict";
 
@@ -75202,8 +75206,7 @@ $.fn.togglify = function(settings) {
             v.innerHTML = "<" + m + "></" + m + ">", d = v.removeChild(v.firstChild);
           } else d = i.is ? h.createElement(this._currentElement.type, i.is) : h.createElement(this._currentElement.type);
         else d = h.createElementNS(a, this._currentElement.type);
-        E.precacheNode(this, d),
-          this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
+        E.precacheNode(this, d), this._flags |= L.hasCachedChildNodes, this._hostParent || C.setAttributeForRoot(d), this._updateDOMProperties(null, i, e);
         var _ = y(d);
         this._createInitialChildren(e, i, r, _), p = _;
       } else {
